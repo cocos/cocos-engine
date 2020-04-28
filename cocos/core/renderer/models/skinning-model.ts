@@ -38,7 +38,7 @@ import { Mat4, Vec3 } from '../../math';
 import { UBOSkinning } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
 import { Pass, IMacroPatch } from '../core/pass';
-import { Model, ModelType } from '../scene/model';
+import { ModelType } from '../scene/model';
 import { uploadJointData } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 
@@ -223,7 +223,7 @@ export class SkinningModel extends MorphModel {
     }
 
     public updateUBOs (stamp: number) {
-        if (!super.updateUBOs(stamp)) { return false; }
+        super.updateUBOs(stamp);
         for (let i = 0; i < this._joints.length; i++) {
             const { indices, buffers, transform, bindpose } = this._joints[i];
             Mat4.multiply(m4_1, transform.world, bindpose);

@@ -46,11 +46,6 @@ export class BuiltInWorld implements IPhysicsWorld {
         this.shapeArr = tmp;
         this.shapeArr.length = 0;
 
-        // sync scene to physics
-        for (let i = 0; i < this.bodies.length; i++) {
-            this.bodies[i].syncSceneToPhysics();
-        }
-
         // collision detection
         for (let i = 0; i < this.bodies.length; i++) {
             const bodyA = this.bodies[i];
@@ -65,14 +60,16 @@ export class BuiltInWorld implements IPhysicsWorld {
                 bodyA.intersects(bodyB);
             }
         }
+    }
 
-        // emit trigger event
-        this.emitTriggerEvent();
-
-        // sync scene to physics again
+    syncSceneToPhysics (): void {
         for (let i = 0; i < this.bodies.length; i++) {
             this.bodies[i].syncSceneToPhysics();
         }
+    }
+
+    emitEvents (): void {
+        this.emitTriggerEvent();
     }
 
     raycastClosest (worldRay: ray, options: IRaycastOptions, out: PhysicsRayResult): boolean {

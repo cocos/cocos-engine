@@ -81,6 +81,7 @@ export abstract class GFXSampler extends GFXObject {
     constructor (device: GFXDevice) {
         super(GFXObjectType.SAMPLER);
         this._device = device;
+        this._state = new GFXSamplerState();
     }
 
     public abstract initialize (info: IGFXSamplerInfo): boolean;

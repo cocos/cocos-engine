@@ -115,7 +115,7 @@ export class Material extends Asset {
     @property
     protected _states: PassOverrides[] = [];
     @property
-    protected _props: Array<Record<string, MaterialPropertyFull | MaterialPropertyFull[]>> = [];
+    protected _props: Record<string, MaterialPropertyFull | MaterialPropertyFull[]>[] = [];
 
     protected _passes: Pass[] = [];
     protected _hash = 0;

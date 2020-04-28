@@ -27,7 +27,7 @@ export class CrossFade extends Playable {
     }
 
     public update (deltaTime: number) {
-        if (!this.isPlaying || this.isPaused) {
+        if (this.isMotionless) {
             return;
         }
 
@@ -71,6 +71,13 @@ export class CrossFade extends Playable {
             }
             this._fadings.splice(deadFadingBegin);
         }
+
+        for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
+            const state = this._managedStates[iManagedState].state;
+            if (state && state.isMotionless) {
+                state.sample();
+            }
+        }
     }
 
     /**
@@ -79,6 +86,13 @@ export class CrossFade extends Playable {
      * @param duration 切换时间。
      */
     public crossFade (state: AnimationState | null, duration: number) {
+        if (this._managedStates.length === 0) {
+            // If we are cross fade from a "initial" pose,
+            // we do not use the duration.
+            // It's meaning-less and may get a bad visual effect.
+            duration = 0;
+        }
+
         if (duration === 0) {
             this.clear();
         }
@@ -89,6 +103,8 @@ export class CrossFade extends Playable {
                 state.play();
             }
             this._managedStates.push(target);
+        } else if (target.state?.isMotionless) {
+            target.state.play();
         }
         ++target.reference;
         this._fadings.unshift({

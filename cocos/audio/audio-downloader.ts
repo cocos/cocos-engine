@@ -28,7 +28,7 @@
  */
 
 import { getError, log } from '../core/platform/debug';
-import sys from '../core/platform/sys';
+import { sys } from '../core/platform/sys';
 import { AudioClip, AudioType } from './assets/clip';
 
 const __audioSupport = sys.__audioSupport;

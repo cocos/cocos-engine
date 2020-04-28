@@ -23,6 +23,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @hidden
+ */
+
 import {
     ALIPAY,
     BAIDU,
@@ -43,10 +47,6 @@ import {
     WECHAT,
     XIAOMI,
 } from 'internal:constants';
-
-/**
- * @hidden
- */
 
 /**
  * !#zh
@@ -165,7 +165,7 @@ if (DEV) {
  * Please DO NOT remove this String, it is an important flag for bug tracking.<br/>
  * If you post a bug to forum, please attach this flag.
  */
-const engineVersion = '1.0.4';
+const engineVersion = '1.1.0';
 _global.CocosEngine = cc.ENGINE_VERSION = engineVersion;
 
 export default cc;

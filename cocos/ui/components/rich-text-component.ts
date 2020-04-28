@@ -29,9 +29,9 @@
  */
 
 import { Font, SpriteAtlas, TTFFont } from '../../core/assets';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { EventTouch } from '../../core/platform';
-import { fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace } from '../../core/utils';
+import { fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace, BASELINE_RATIO } from '../../core/utils';
 import Pool from '../../core/utils/pool';
 import { Color, Vec2 } from '../../core/math';
 import { PrivateNode, Node } from '../../core/scene-graph';
@@ -168,6 +168,7 @@ interface ILabelSegment {
  * 富文本组件。
  */
 @ccclass('cc.RichTextComponent')
+@help('i18n:cc.RichTextComponent')
 @executionOrder(110)
 @menu('UI/Render/RichText')
 @executeInEditMode
@@ -884,7 +885,7 @@ export class RichTextComponent extends UIComponent {
         if (this.maxWidth > 0) {
             this._labelWidth = this.maxWidth;
         }
-        this._labelHeight = this._lineCount * this.lineHeight;
+        this._labelHeight = (this._lineCount + BASELINE_RATIO) * this.lineHeight;
 
         // trigger "size-changed" event
         this.node.setContentSize(this._labelWidth, this._labelHeight);

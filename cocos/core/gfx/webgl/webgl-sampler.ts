@@ -1,6 +1,5 @@
 import { GFXFilter, GFXStatus } from '../define';
-import { GFXDevice } from '../device';
-import { GFXSampler, GFXSamplerState, IGFXSamplerInfo } from '../sampler';
+import { GFXSampler, IGFXSamplerInfo } from '../sampler';
 import { WebGLGPUSampler } from './webgl-gpu-objects';
 
 const WebGLWraps: GLenum[] = [
@@ -17,12 +16,6 @@ export class WebGLGFXSampler extends GFXSampler {
     }
 
     private _gpuSampler: WebGLGPUSampler | null = null;
-
-    constructor (device: GFXDevice) {
-        super(device);
-
-        this._state = new GFXSamplerState();
-    }
 
     public initialize (info: IGFXSamplerInfo): boolean {
 

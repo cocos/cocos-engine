@@ -17,7 +17,7 @@ import { Model } from '../../core/renderer';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
-import Particle from '../particle';
+import { Particle } from '../particle';
 
 // tslint:disable: max-line-length
 const PRE_TRIANGLE_INDEX = 1;
@@ -157,17 +157,22 @@ export default class TrailModule {
     }
 
     public set enable (val) {
+        if (val === this._enable && this._trailModel) {
+            return;
+        }
         if (val && !this._trailModel) {
             this._createModel();
         }
         if (val && !this._enable) {
             this._enable = val;
-            this._particleSystem.renderer._updateTrailMaterial();
+            this._particleSystem.processor.updateTrailMaterial();
         }
         this._enable = val;
         if (this._trailModel) {
             this._trailModel.enabled = val;
         }
+
+        val ? this.onEnable() : this.onDisable();
     }
 
     @property
@@ -224,7 +229,7 @@ export default class TrailModule {
     public set space (val) {
         this._space = val;
         if (this._particleSystem) {
-            this._particleSystem.renderer._updateTrailMaterial();
+            this._particleSystem.processor.updateTrailMaterial();
         }
     }
 
@@ -234,6 +239,7 @@ export default class TrailModule {
     @property({
         displayOrder: 7,
         tooltip: '拖尾是否跟随粒子一起消失',
+        visible: false,
     })
     public existWithParticles = true;
 
@@ -361,6 +367,7 @@ export default class TrailModule {
     }
 
     public onDisable () {
+        this._particleTrail.clear();
         this._detachFromScene();
     }
 
@@ -380,6 +387,7 @@ export default class TrailModule {
     }
 
     public destroy () {
+        this.destroySubMeshData();
         if (this._trailModel) {
             cc.director.root.destroyModel(this._trailModel);
             this._trailModel = null;
@@ -409,7 +417,7 @@ export default class TrailModule {
             if (mat) {
                 this._trailModel.setSubModelMaterial(0, mat);
             } else {
-                this._trailModel.setSubModelMaterial(0, this._particleSystem.renderer._defaultTrailMat);
+                this._trailModel.setSubModelMaterial(0, this._particleSystem.processor._defaultTrailMat);
             }
         }
     }
@@ -685,6 +693,13 @@ export default class TrailModule {
             currElement.direction = 1 - prevElement.direction;
         } else {
             currElement.direction = prevElement.direction;
+        }
+    }
+
+    private destroySubMeshData () {
+        if (this._subMeshData) {
+            this._subMeshData.destroy();
+            this._subMeshData = null;
         }
     }
 

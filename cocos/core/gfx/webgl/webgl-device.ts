@@ -1,6 +1,6 @@
 import { ALIPAY, RUNTIME_BASED } from 'internal:constants';
 import { macro } from '../../platform';
-import sys from '../../platform/sys';
+import { sys } from '../../platform/sys';
 import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
@@ -8,6 +8,7 @@ import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import {
     getTypedArrayConstructor,
     GFXBufferTextureCopy,
+    GFXCommandBufferType,
     GFXFilter,
     GFXFormat,
     GFXFormatInfos,
@@ -39,6 +40,7 @@ import { WebGLGFXFramebuffer } from './webgl-framebuffer';
 import { WebGLGFXInputAssembler } from './webgl-input-assembler';
 import { WebGLGFXPipelineLayout } from './webgl-pipeline-layout';
 import { WebGLGFXPipelineState } from './webgl-pipeline-state';
+import { WebGLGFXPrimaryCommandBuffer } from './webgl-primary-command-buffer';
 import { WebGLGFXQueue } from './webgl-queue';
 import { WebGLGFXRenderPass } from './webgl-render-pass';
 import { WebGLGFXSampler } from './webgl-sampler';
@@ -323,6 +325,10 @@ export class WebGLGFXDevice extends GFXDevice {
 
         if (ALIPAY) {
             this._WEBGL_depth_texture = { UNSIGNED_INT_24_8_WEBGL: 0x84FA };
+        }
+
+        if (sys.browserType === sys.BROWSER_TYPE_UC) {
+            this._ANGLE_instanced_arrays = null; // UC browser implementation doesn't work
         }
 
         this._features.fill(false);
@@ -616,7 +622,9 @@ export class WebGLGFXDevice extends GFXDevice {
     }
 
     public createCommandBuffer (info: IGFXCommandBufferInfo): GFXCommandBuffer {
-        const cmdBuff = new WebGLGFXCommandBuffer(this);
+        // const ctor = WebGLGFXCommandBuffer; // opt to instant invocation
+        const ctor = info.type === GFXCommandBufferType.PRIMARY ? WebGLGFXPrimaryCommandBuffer : WebGLGFXCommandBuffer;
+        const cmdBuff = new ctor(this);
         cmdBuff.initialize(info);
         return cmdBuff;
     }

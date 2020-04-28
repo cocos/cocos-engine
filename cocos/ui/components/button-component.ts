@@ -31,7 +31,7 @@
 
 import { SpriteFrame } from '../../core/assets';
 import { Component, EventHandler as ComponentEventHandler, UITransformComponent } from '../../core/components';
-import { ccclass, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
 import { EventMouse, EventTouch, SystemEventType } from '../../core/platform';
 import { Color, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
@@ -40,6 +40,8 @@ import { Node } from '../../core/scene-graph/node';
 import { SpriteComponent } from './sprite-component';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { EDITOR } from 'internal:constants';
+
+const _tempColor = new Color();
 
 /**
  * @en Enum for transition type.
@@ -142,6 +144,7 @@ export enum EventType {
  * ```
  */
 @ccclass('cc.ButtonComponent')
+@help('i18n:cc.ButtonComponent')
 @executionOrder(110)
 @menu('UI/Button')
 @requireComponent(UITransformComponent)
@@ -616,7 +619,8 @@ export class ButtonComponent extends Component {
         }
 
         if (this._transition === Transition.COLOR) {
-            Color.lerp(renderComp.color, this._fromColor, this._toColor, ratio);
+            Color.lerp(_tempColor, this._fromColor, this._toColor, ratio);
+            renderComp.color = _tempColor;
         } else if (this.transition === Transition.SCALE) {
             target.getScale(this._targetScale);
             this._targetScale.x = lerp(this._fromScale.x, this._toScale.x, ratio);

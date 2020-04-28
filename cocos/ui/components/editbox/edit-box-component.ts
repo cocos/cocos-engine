@@ -32,7 +32,7 @@ import { math } from '../../../core';
 import { SpriteFrame } from '../../../core/assets/sprite-frame';
 import { Component } from '../../../core/components/component';
 import { EventHandler as ComponentEventHandler } from '../../../core/components/component-event-handler';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { Color, Size, Vec3 } from '../../../core/math';
 import { EventTouch } from '../../../core/platform';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
@@ -42,7 +42,7 @@ import { SpriteComponent } from '../sprite-component';
 import { EditBoxImpl } from './edit-box-impl';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import sys from '../../../core/platform/sys';
+import { sys } from '../../../core/platform/sys';
 import { EDITOR } from 'internal:constants';
 
 const LEFT_PADDING = 2;
@@ -72,6 +72,7 @@ enum EventType {
  */
 
 @ccclass('cc.EditBoxComponent')
+@help('i18n:cc.EditBoxComponent')
 @executionOrder(100)
 @menu('UI/EditBox')
 @executeInEditMode

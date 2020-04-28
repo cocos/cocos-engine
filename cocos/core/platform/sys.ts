@@ -23,6 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
 /**
  * @category core
  */
@@ -31,535 +32,687 @@ import { EDITOR, TEST, WECHAT, ALIPAY, XIAOMI, BAIDU, COCOSPLAY, JSB, MINIGAME }
 
 // tslint:disable
 
-/**
- * System variables
- * @class sys
- * @main
- * @static
- */
-const sys: { [x: string]: any; } = {};
-
 // @ts-ignore
 const _global = typeof window === 'undefined' ? global : window;
 
-/**
- * English language code
- * @property {String} LANGUAGE_ENGLISH
- * @readOnly
- */
-sys.LANGUAGE_ENGLISH = 'en';
+enum NetworkType {
+    /**
+     * @en Network is unreachable.
+     * @zh 网络不通
+     */
+    NONE,
+    /**
+     * @en Network is reachable via WiFi or cable.
+     * @zh 通过无线或者有线本地网络连接因特网
+     */
+    LAN,
+    /**
+     * @en Network is reachable via Wireless Wide Area Network
+     * @zh 通过蜂窝移动网络连接因特网
+     */
+    WWAN
+};
 
 /**
- * Chinese language code
- * @property {String} LANGUAGE_CHINESE
- * @readOnly
+ * @en A set of system related variables
+ * @zh 一系列系统相关环境变量
+ * @main
  */
-sys.LANGUAGE_CHINESE = 'zh';
+export const sys: { [x: string]: any; } = {
+    /**
+     * @en
+     * Network type enumeration
+     * @zh
+     * 网络类型枚举
+     */
+    NetworkType,
 
-/**
- * French language code
- * @property {String} LANGUAGE_FRENCH
- * @readOnly
- */
-sys.LANGUAGE_FRENCH = 'fr';
+    /**
+     * @en English language code
+     * @zh 语言代码 - 英语
+     */
+    LANGUAGE_ENGLISH: 'en',
+    
+    /**
+     * @en Chinese language code
+     * @zh 语言代码 - 中文
+     */
+    LANGUAGE_CHINESE: 'zh',
+    
+    /**
+     * @en French language code
+     * @zh 语言代码 - 法语
+     */
+    LANGUAGE_FRENCH: 'fr',
+    
+    /**
+     * @en Italian language code
+     * @zh 语言代码 - 意大利语
+     */
+    LANGUAGE_ITALIAN: 'it',
+    
+    /**
+     * @en German language code
+     * @zh 语言代码 - 德语
+     */
+    LANGUAGE_GERMAN: 'de',
+    
+    /**
+     * @en Spanish language code
+     * @zh 语言代码 - 西班牙语
+     */
+    LANGUAGE_SPANISH: 'es',
+    
+    /**
+     * @en Spanish language code
+     * @zh 语言代码 - 荷兰语
+     */
+    LANGUAGE_DUTCH: 'du',
+    
+    /**
+     * @en Russian language code
+     * @zh 语言代码 - 俄罗斯语
+     */
+    LANGUAGE_RUSSIAN: 'ru',
+    
+    /**
+     * @en Korean language code
+     * @zh 语言代码 - 韩语
+     */
+    LANGUAGE_KOREAN: 'ko',
+    
+    /**
+     * @en Japanese language code
+     * @zh 语言代码 - 日语
+     */
+    LANGUAGE_JAPANESE: 'ja',
+    
+    /**
+     * @en Hungarian language code
+     * @zh 语言代码 - 匈牙利语
+     */
+    LANGUAGE_HUNGARIAN: 'hu',
+    
+    /**
+     * @en Portuguese language code
+     * @zh 语言代码 - 葡萄牙语
+     */
+    LANGUAGE_PORTUGUESE: 'pt',
+    
+    /**
+     * @en Arabic language code
+     * @zh 语言代码 - 阿拉伯语
+     */
+    LANGUAGE_ARABIC: 'ar',
+    
+    /**
+     * @en Norwegian language code
+     * @zh 语言代码 - 挪威语
+     */
+    LANGUAGE_NORWEGIAN: 'no',
+    
+    /**
+     * @en Polish language code
+     * @zh 语言代码 - 波兰语
+     */
+    LANGUAGE_POLISH: 'pl',
+    
+    /**
+     * @en Turkish language code
+     * @zh 语言代码 - 土耳其语
+     */
+    LANGUAGE_TURKISH: 'tr',
+    
+    /**
+     * @en Ukrainian language code
+     * @zh 语言代码 - 乌克兰语
+     */
+    LANGUAGE_UKRAINIAN: 'uk',
+    
+    /**
+     * @en Romanian language code
+     * @zh 语言代码 - 罗马尼亚语
+     */
+    LANGUAGE_ROMANIAN: 'ro',
+    
+    /**
+     * @en Bulgarian language code
+     * @zh 语言代码 - 保加利亚语
+     */
+    LANGUAGE_BULGARIAN: 'bg',
+    
+    /**
+     * @en Unknown language code
+     * @zh 语言代码 - 未知
+     */
+    LANGUAGE_UNKNOWN: 'unknown',
+    
+    /**
+     * @en Operating System - iOS
+     * @zh 操作系统 - iOS
+     */
+    OS_IOS: 'iOS',
+    /**
+     * @en Operating System - Android
+     * @zh 操作系统 - 安卓
+     */
+    OS_ANDROID: 'Android',
+    /**
+     * @en Operating System - Windows
+     * @zh 操作系统 - Windows
+     */
+    OS_WINDOWS: 'Windows',
+    /**
+     * @en Operating System - Linux
+     * @zh 操作系统 - Linux
+     */
+    OS_LINUX: 'Linux',
+    /**
+     * @en Operating System - Mac OS X
+     * @zh 操作系统 - Mac OS X
+     */
+    OS_OSX: 'OS X',
+    /**
+     * @en Operating System - Unknown
+     * @zh 操作系统 - 未知
+     */
+    OS_UNKNOWN: 'Unknown',
+    
+    /**
+     * @en Platform - Unknown
+     * @zh 平台 - 未知
+     * @default -1
+     */
+    UNKNOWN: -1,
+    /**
+     * @en Platform - 32 bit Windows application
+     * @zh 平台 - 32位 Windows 可执行程序
+     * @default 0
+     */
+    WIN32: 0,
+    /**
+     * @en Platform - Linux
+     * @zh 平台 - Linux
+     * @default 1
+     */
+    LINUX: 1,
+    /**
+     * @en Platform - Mac OS X app
+     * @zh 平台 - Mac OS X 原生平台
+     * @default 2
+     */
+    MACOS: 2,
+    /**
+     * @en Platform - Android native app
+     * @zh 平台 - 安卓原生平台
+     * @default 3
+     */
+    ANDROID: 3,
+    /**
+     * @en Platform - iPhone native app
+     * @zh 平台 - iPhone 原生平台
+     * @default 4
+     */
+    IPHONE: 4,
+    /**
+     * @en Platform - iPad native app
+     * @zh 平台 - iPad 原生平台
+     * @default 5
+     */
+    IPAD: 5,
+    /**
+     * @en Platform - Blackberry devices
+     * @zh 平台 - 黑莓设备
+     * @default 6
+     */
+    BLACKBERRY: 6,
+    /**
+     * @en Platform - NACL
+     * @zh 平台 - NACL
+     * @default 7
+     */
+    NACL: 7,
+    /**
+     * @en Platform - Emscripten compiled runtime
+     * @zh 平台 - 编译为 Emscripten 的运行时环境
+     * @default 8
+     */
+    EMSCRIPTEN: 8,
+    /**
+     * @en Platform - Tizen
+     * @zh 平台 - Tizen
+     * @default 9
+     */
+    TIZEN: 9,
+    /**
+     * @en Platform - Windows RT
+     * @zh 平台 - Windows RT
+     * @default 10
+     */
+    WINRT: 10,
+    /**
+     * @en Platform - Windows Phone 8 app
+     * @zh 平台 - Windows Phone 8 原生应用
+     * @default 11
+     */
+    WP8: 11,
+    /**
+     * @en Platform - Mobile browsers
+     * @zh 平台 - 移动浏览器
+     * @default 100
+     */
+    MOBILE_BROWSER: 100,
+    /**
+     * @en Platform - Desktop browsers
+     * @zh 平台 - 桌面端浏览器
+     * @default 101
+     */
+    DESKTOP_BROWSER: 101,
+    /**
+     * @en Platform - Editor's window process
+     * @zh 平台 - 编辑器窗口进程
+     * @default 102
+     */
+    EDITOR_PAGE: 102,
+    /**
+     * @en Platform - Editor's main process
+     * @zh 平台 - 编辑器主进程
+     * @default 103
+     */
+    EDITOR_CORE: 103,
+    /**
+     * @en Platform - WeChat Mini Game
+     * @zh 平台 - 微信小游戏
+     * @default 104
+     */
+    WECHAT_GAME: 104,
+    /**
+     * @en Platform - QQ Play Game
+     * @zh 平台 - QQ Play
+     * @default 105
+     */
+    QQ_PLAY: 105,
 
-/**
- * Italian language code
- * @property {String} LANGUAGE_ITALIAN
- * @readOnly
- */
-sys.LANGUAGE_ITALIAN = 'it';
+    /**
+     * @en Browser Type - WeChat inner browser
+     * @zh 浏览器类型 - 微信内置浏览器
+     * @default "wechat"
+     */
+    BROWSER_TYPE_WECHAT: 'wechat',
+    /**
+     * @en Browser Type - WeChat Mini Game
+     * @zh 浏览器类型 - 微信小游戏
+     * @default "wechatgame"
+     */
+    BROWSER_TYPE_WECHAT_GAME: 'wechatgame',
+    /**
+     * @en Browser Type - Alipay Mini Game
+     * @zh 浏览器类型 - 支付宝小游戏
+     * @default "alipaygame"
+     */
+    BROWSER_TYPE_ALIPAY_GAME: 'alipaygame',
+    /**
+     * @en Browser Type - MI Quick Game
+     * @zh 浏览器类型 - 小米快游戏
+     * @default "xiaomiquickgame"
+     */
+    BROWSER_TYPE_XIAOMI_GAME: 'xiaomiquickgame',
+    /**
+     * @en Browser Type - Baidu Mini Game
+     * @zh 浏览器类型 - 百度小游戏
+     * @default "baidugame"
+     */
+    BROWSER_TYPE_BAIDU_GAME: 'baidugame',
+    /**
+     * @en Browser Type - Cocos Play Game
+     * @zh 浏览器类型 - Cocos Play 游戏
+     * @default "cocosplay"
+     */
+    BROWSER_TYPE_COCOSPLAY: 'cocosplay',
+    /**
+     * @en Browser Type - Android Browser
+     * @zh 浏览器类型 - 安卓浏览器
+     * @default "androidbrowser"
+     */
+    BROWSER_TYPE_ANDROID: 'androidbrowser',
+    /**
+     * @en Browser Type - Internet Explorer
+     * @zh 浏览器类型 - 微软 IE
+     * @default "ie"
+     */
+    BROWSER_TYPE_IE: 'ie',
+    /**
+     * @en Browser Type - QQ Browser
+     * @zh 浏览器类型 - QQ 浏览器
+     * @default "qqbrowser"
+     */
+    BROWSER_TYPE_QQ: 'qqbrowser',
+    /**
+     * @en Browser Type - Mobile QQ Browser
+     * @zh 浏览器类型 - 手机 QQ 浏览器
+     * @default "mqqbrowser"
+     */
+    BROWSER_TYPE_MOBILE_QQ: 'mqqbrowser',
+    /**
+     * @en Browser Type - UC Browser
+     * @zh 浏览器类型 - UC 浏览器
+     * @default "ucbrowser"
+     */
+    BROWSER_TYPE_UC: 'ucbrowser',
+    /**
+     * @en Browser Type - Third party integrated UC browser
+     * @zh 浏览器类型 - 第三方应用中集成的 UC 浏览器
+     * @default "ucbs"
+     */
+    BROWSER_TYPE_UCBS: 'ucbs',
+    /**
+     * @en Browser Type - 360 Browser
+     * @zh 浏览器类型 - 360 浏览器
+     * @default "360browser"
+     */
+    BROWSER_TYPE_360: '360browser',
+    /**
+     * @en Browser Type - Baidu Box App
+     * @zh 浏览器类型 - Baidu Box App
+     * @default "baiduboxapp"
+     */
+    BROWSER_TYPE_BAIDU_APP: 'baiduboxapp',
+    /**
+     * @en Browser Type - Baidu Browser
+     * @zh 浏览器类型 - 百度浏览器
+     * @default "baidubrowser"
+     */
+    BROWSER_TYPE_BAIDU: 'baidubrowser',
+    /**
+     * @en Browser Type - Maxthon Browser
+     * @zh 浏览器类型 - 傲游浏览器
+     * @default "maxthon"
+     */
+    BROWSER_TYPE_MAXTHON: 'maxthon',
+    /**
+     * @en Browser Type - Opera Browser
+     * @zh 浏览器类型 - Opera 浏览器
+     * @default "opera"
+     */
+    BROWSER_TYPE_OPERA: 'opera',
+    /**
+     * @en Browser Type - Oupeng Browser
+     * @zh 浏览器类型 - 欧朋浏览器
+     * @default "oupeng"
+     */
+    BROWSER_TYPE_OUPENG: 'oupeng',
+    /**
+     * @en Browser Type - MI UI Browser
+     * @zh 浏览器类型 - MIUI 内置浏览器
+     * @default "miuibrowser"
+     */
+    BROWSER_TYPE_MIUI: 'miuibrowser',
+    /**
+     * @en Browser Type - Firefox Browser
+     * @zh 浏览器类型 - Firefox 浏览器
+     * @default "firefox"
+     */
+    BROWSER_TYPE_FIREFOX: 'firefox',
+    /**
+     * @en Browser Type - Safari Browser
+     * @zh 浏览器类型 - Safari 浏览器
+     * @default "safari"
+     */
+    BROWSER_TYPE_SAFARI: 'safari',
+    /**
+     * @en Browser Type - Chrome Browser
+     * @zh 浏览器类型 - Chrome 浏览器
+     * @default "chrome"
+     */
+    BROWSER_TYPE_CHROME: 'chrome',
+    /**
+     * @en Browser Type - Cheetah Browser
+     * @zh 浏览器类型 - 猎豹浏览器
+     * @default "liebao"
+     */
+    BROWSER_TYPE_LIEBAO: 'liebao',
+    /**
+     * @en Browser Type - QZone Inner Browser
+     * @zh 浏览器类型 - QZone 内置浏览器
+     * @default "qzone"
+     */
+    BROWSER_TYPE_QZONE: 'qzone',
+    /**
+     * @en Browser Type - Sogou Browser
+     * @zh 浏览器类型 - 搜狗浏览器
+     * @default "sogou"
+     */
+    BROWSER_TYPE_SOUGOU: 'sogou',
+    /**
+     * @en Browser Type - Unknown
+     * @zh 浏览器类型 - 未知
+     * @default "unknown"
+     */
+    BROWSER_TYPE_UNKNOWN: 'unknown',
+    
+    /**
+     * @en Whether the running platform is native app
+     * @zh 指示运行平台是否是原生平台
+     */
+    isNative: JSB,
+    
+    /**
+     * @en Whether the running platform is browser
+     * @zh 指示运行平台是否是浏览器
+     */
+    isBrowser: typeof window === 'object' && typeof document === 'object' && !MINIGAME && !JSB,
 
-/**
- * German language code
- * @property {String} LANGUAGE_GERMAN
- * @readOnly
- */
-sys.LANGUAGE_GERMAN = 'de';
+    /**
+     * @en Indicate whether the current running context is a mobile system
+     * @zh 指示当前运行平台是否是移动端平台
+     * @default false
+     */
+    isMobile: false,
 
-/**
- * Spanish language code
- * @property {String} LANGUAGE_SPANISH
- * @readOnly
- */
-sys.LANGUAGE_SPANISH = 'es';
+    /**
+     * @en Whether the endianness of current platform is little endian
+     * @zh 当前平台字节顺序是否是小端序
+     */
+    isLittleEndian: (() => {
+        const buffer = new ArrayBuffer(2);
+        new DataView(buffer).setInt16(0, 256, true);
+        // Int16Array uses the platform's endianness.
+        return new Int16Array(buffer)[0] === 256;
+    })(),
 
-/**
- * Spanish language code
- * @property {String} LANGUAGE_DUTCH
- * @readOnly
- */
-sys.LANGUAGE_DUTCH = 'du';
+    /**
+     * @en The running platform
+     * @zh 当前运行平台或环境
+     * @default {{sys.UNKNOWN}}
+     */
+    platform: -1,
 
-/**
- * Russian language code
- * @property {String} LANGUAGE_RUSSIAN
- * @readOnly
- */
-sys.LANGUAGE_RUSSIAN = 'ru';
+    /**
+     * @en Indicate the current language of the running system
+     * @zh 指示当前运行环境的语言
+     * @default {{sys.LANGUAGE_UNKNOWN}}
+     */
+    language: 'unknown',
 
-/**
- * Korean language code
- * @property {String} LANGUAGE_KOREAN
- * @readOnly
- */
-sys.LANGUAGE_KOREAN = 'ko';
+    /**
+     * @en Indicate the running os name
+     * @zh 指示当前运行系统
+     */
+    os: 'Unknown',
 
-/**
- * Japanese language code
- * @property {String} LANGUAGE_JAPANESE
- * @readOnly
- */
-sys.LANGUAGE_JAPANESE = 'ja';
+    /**
+     * @en Indicate the running os version string
+     * @zh 指示当前运行系统版本字符串
+     */
+    osVersion: '',
 
-/**
- * Hungarian language code
- * @property {String} LANGUAGE_HUNGARIAN
- * @readonly
- */
-sys.LANGUAGE_HUNGARIAN = 'hu';
+    /**
+     * @en Indicate the running os main version
+     * @zh 指示当前系统主版本
+     */
+    osMainVersion: 0,
 
-/**
- * Portuguese language code
- * @property {String} LANGUAGE_PORTUGUESE
- * @readOnly
- */
-sys.LANGUAGE_PORTUGUESE = 'pt';
+    /**
+     * @en Indicate the running browser type
+     * @zh 指示当前运行的浏览器类型
+     */
+    browserType: 'unknown',
 
-/**
- * Arabic language code
- * @property {String} LANGUAGE_ARABIC
- * @readOnly
- */
-sys.LANGUAGE_ARABIC = 'ar';
+    /**
+     * @en Indicate the running browser version
+     * @zh 指示当前运行的浏览器版本
+     */
+    browserVersion: '',
 
-/**
- * Norwegian language code
- * @property {String} LANGUAGE_NORWEGIAN
- * @readOnly
- */
-sys.LANGUAGE_NORWEGIAN = 'no';
+    /**
+     * @en Indicate the real pixel resolution of the whole game window
+     * @zh 指示游戏窗口的像素分辨率
+     */
+    windowPixelResolution: null,
 
-/**
- * Polish language code
- * @property {String} LANGUAGE_POLISH
- * @readOnly
- */
-sys.LANGUAGE_POLISH = 'pl';
+    /**
+     * @en The capabilities of the current platform
+     * @zh 当前平台的功能可用性
+     */
+    capabilities: null,
 
-/**
- * Turkish language code
- * @property {String} LANGUAGE_TURKISH
- * @readOnly
- */
-sys.LANGUAGE_TURKISH = 'tr';
+    /**
+     * @en It is a local storage component based on HTML5 localStorage API, on web platform, it's equal to window.localStorage
+     * @zh HTML5 标准中的 localStorage 的本地存储功能，在 Web 端等价于 window.localStorage
+     */
+    localStorage: null,
 
-/**
- * Ukrainian language code
- * @property {String} LANGUAGE_UKRAINIAN
- * @readOnly
- */
-sys.LANGUAGE_UKRAINIAN = 'uk';
+    /**
+     * Audio support in the browser
+     *
+     * MULTI_CHANNEL        : Multiple audio while playing - If it doesn't, you can only play background music
+     * WEB_AUDIO            : Support for WebAudio - Support W3C WebAudio standards, all of the audio can be played
+     * AUTOPLAY             : Supports auto-play audio - if Don‘t support it, On a touch detecting background music canvas, and then replay
+     * REPLAY_AFTER_TOUCH   : The first music will fail, must be replay after touchstart
+     * USE_EMPTIED_EVENT    : Whether to use the emptied event to replace load callback
+     * DELAY_CREATE_CTX     : delay created the context object - only webAudio
+     * NEED_MANUAL_LOOP     : loop attribute failure, need to perform loop manually
+     *
+     * May be modifications for a few browser version
+     * @private
+     */
+    __audioSupport: null,
 
-/**
- * Romanian language code
- * @property {String} LANGUAGE_ROMANIAN
- * @readOnly
- */
-sys.LANGUAGE_ROMANIAN = 'ro';
+    /**
+     * @en Get the network type of current device, return cc.sys.NetworkType.LAN if failure.
+     * @zh 获取当前设备的网络类型, 如果网络类型无法获取，默认将返回 cc.sys.NetworkType.LAN
+     */
+    getNetworkType (): NetworkType {
+        // TODO: need to implement this for mobile phones.
+        return NetworkType.LAN;
+    },
 
-/**
- * Bulgarian language code
- * @property {String} LANGUAGE_BULGARIAN
- * @readOnly
- */
-sys.LANGUAGE_BULGARIAN = 'bg';
+    /**
+     * @en Get the battery level of current device, return 1.0 if failure.
+     * @zh 获取当前设备的电池电量，如果电量无法获取，默认将返回 1
+     * @return - 0.0 ~ 1.0
+     */
+    getBatteryLevel (): number {
+        // TODO: need to implement this for mobile phones.
+        return 1.0;
+    },
 
-/**
- * Unknown language code
- * @property {String} LANGUAGE_UNKNOWN
- * @readOnly
- */
-sys.LANGUAGE_UNKNOWN = 'unknown';
+    /**
+     * @en Forces the garbage collection, only available in native platforms
+     * @zh 强制进行 JS 内存垃圾回收，尽在原生平台有效
+     */
+    garbageCollect () {
+        // N/A in web
+    },
 
-/**
- * @property {String} OS_IOS
- * @readOnly
- */
-sys.OS_IOS = 'iOS';
-/**
- * @property {String} OS_ANDROID
- * @readOnly
- */
-sys.OS_ANDROID = 'Android';
-/**
- * @property {String} OS_WINDOWS
- * @readOnly
- */
-sys.OS_WINDOWS = 'Windows';
-/**
- * @property {String} OS_MARMALADE
- * @readOnly
- */
-sys.OS_MARMALADE = 'Marmalade';
-/**
- * @property {String} OS_LINUX
- * @readOnly
- */
-sys.OS_LINUX = 'Linux';
-/**
- * @property {String} OS_BADA
- * @readOnly
- */
-sys.OS_BADA = 'Bada';
-/**
- * @property {String} OS_BLACKBERRY
- * @readOnly
- */
-sys.OS_BLACKBERRY = 'Blackberry';
-/**
- * @property {String} OS_OSX
- * @readOnly
- */
-sys.OS_OSX = 'OS X';
-/**
- * @property {String} OS_WP8
- * @readOnly
- */
-sys.OS_WP8 = 'WP8';
-/**
- * @property {String} OS_WINRT
- * @readOnly
- */
-sys.OS_WINRT = 'WINRT';
-/**
- * @property {String} OS_UNKNOWN
- * @readOnly
- */
-sys.OS_UNKNOWN = 'Unknown';
+    /**
+     * @en Check whether an object is valid,
+     * In web engine, it will return true if the object exist
+     * In native engine, it will return true if the JS object and the correspond native object are both valid
+     * @zh 检查一个对象是否非空或在原生平台有效，
+     * 在 Web 平台，只要对象非空或非 Undefined 就会返回 true，在原生平台，我们会检查当前 JS 对象和其绑定的原生对象是否都有效
+     * @param obj The object to be checked
+     */
+    isObjectValid (obj: any): boolean {
+        if (obj === null || obj === undefined) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    },
 
-/**
- * @property {Number} UNKNOWN
- * @readOnly
- * @default -1
- */
-sys.UNKNOWN = -1;
-/**
- * @property {Number} WIN32
- * @readOnly
- * @default 0
- */
-sys.WIN32 = 0;
-/**
- * @property {Number} LINUX
- * @readOnly
- * @default 1
- */
-sys.LINUX = 1;
-/**
- * @property {Number} MACOS
- * @readOnly
- * @default 2
- */
-sys.MACOS = 2;
-/**
- * @property {Number} ANDROID
- * @readOnly
- * @default 3
- */
-sys.ANDROID = 3;
-/**
- * @property {Number} IPHONE
- * @readOnly
- * @default 4
- */
-sys.IPHONE = 4;
-/**
- * @property {Number} IPAD
- * @readOnly
- * @default 5
- */
-sys.IPAD = 5;
-/**
- * @property {Number} BLACKBERRY
- * @readOnly
- * @default 6
- */
-sys.BLACKBERRY = 6;
-/**
- * @property {Number} NACL
- * @readOnly
- * @default 7
- */
-sys.NACL = 7;
-/**
- * @property {Number} EMSCRIPTEN
- * @readOnly
- * @default 8
- */
-sys.EMSCRIPTEN = 8;
-/**
- * @property {Number} TIZEN
- * @readOnly
- * @default 9
- */
-sys.TIZEN = 9;
-/**
- * @property {Number} WINRT
- * @readOnly
- * @default 10
- */
-sys.WINRT = 10;
-/**
- * @property {Number} WP8
- * @readOnly
- * @default 11
- */
-sys.WP8 = 11;
-/**
- * @property {Number} MOBILE_BROWSER
- * @readOnly
- * @default 100
- */
-sys.MOBILE_BROWSER = 100;
-/**
- * @property {Number} DESKTOP_BROWSER
- * @readOnly
- * @default 101
- */
-sys.DESKTOP_BROWSER = 101;
+    /**
+     * @en Dump system informations
+     * @zh 在控制台打印当前的主要系统信息
+     */
+    dump () {
+        let str = '';
+        str += 'isMobile : ' + this.isMobile + '\r\n';
+        str += 'language : ' + this.language + '\r\n';
+        str += 'browserType : ' + this.browserType + '\r\n';
+        str += 'browserVersion : ' + this.browserVersion + '\r\n';
+        str += 'capabilities : ' + JSON.stringify(this.capabilities) + '\r\n';
+        str += 'os : ' + this.os + '\r\n';
+        str += 'osVersion : ' + this.osVersion + '\r\n';
+        str += 'platform : ' + this.platform + '\r\n';
+        str += 'Using ' + (cc.game.renderType === cc.game.RENDER_TYPE_WEBGL ? 'WEBGL' : 'CANVAS') + ' renderer.' + '\r\n';
+        cc.log(str);
+    },
 
-/**
- * Indicates whether executes in editor's window process (Electron's renderer context)
- * @property {Number} EDITOR_PAGE
- * @readOnly
- * @default 102
- */
-sys.EDITOR_PAGE = 102;
-/**
- * Indicates whether executes in editor's main process (Electron's browser context)
- * @property {Number} EDITOR_CORE
- * @readOnly
- * @default 103
- */
-sys.EDITOR_CORE = 103;
-/**
- * @property {Number} WECHAT_GAME
- * @readOnly
- * @default 104
- */
-sys.WECHAT_GAME = 104;
-/**
- * @property {Number} QQ_PLAY
- * @readOnly
- * @default 105
- */
-sys.QQ_PLAY = 105;
-/**
- * BROWSER_TYPE_WECHAT
- * @property {String} BROWSER_TYPE_WECHAT
- * @readOnly
- * @default "wechat"
- */
-sys.BROWSER_TYPE_WECHAT = 'wechat';
-/**
- * BROWSER_TYPE_WECHAT_GAME
- * @property {String} BROWSER_TYPE_WECHAT_GAME
- * @readOnly
- * @default "wechatgame"
- */
-sys.BROWSER_TYPE_WECHAT_GAME = 'wechatgame';
-/**
- * BROWSER_TYPE_ALIPAY_GAME
- * @property {String} BROWSER_TYPE_ALIPAY_GAME
- * @readOnly
- * @default "alipaygame"
- */
-sys.BROWSER_TYPE_ALIPAY_GAME = 'alipaygame';
-/**
- * BROWSER_TYPE_XIAOMI_GAME
- * @property {String} BROWSER_TYPE_XIAOMI_GAME
- * @readOnly
- * @default "xiaomiquickgame"
- */
-sys.BROWSER_TYPE_XIAOMI_GAME = 'xiaomiquickgame';
-/**
- * BROWSER_TYPE_BAIDU_GAME
- * @property {String} BROWSER_TYPE_BAIDU_GAME
- * @readOnly
- * @default "baidugame"
- */
-sys.BROWSER_TYPE_BAIDU_GAME = 'baidugame';
-/**
- * BROWSER_TYPE_COCOSPLAY
- * @property {String} BROWSER_TYPE_COCOSPLAY
- * @readOnly
- * @default "cocosplay"
- */
-sys.BROWSER_TYPE_COCOSPLAY = 'cocosplay';
-/**
- *
- * @property {String} BROWSER_TYPE_ANDROID
- * @readOnly
- * @default "androidbrowser"
- */
-sys.BROWSER_TYPE_ANDROID = 'androidbrowser';
-/**
- *
- * @property {String} BROWSER_TYPE_IE
- * @readOnly
- * @default "ie"
- */
-sys.BROWSER_TYPE_IE = 'ie';
-/**
- *
- * @property {String} BROWSER_TYPE_QQ
- * @readOnly
- * @default "qqbrowser"
- */
-sys.BROWSER_TYPE_QQ = 'qqbrowser';
-/**
- *
- * @property {String} BROWSER_TYPE_MOBILE_QQ
- * @readOnly
- * @default "mqqbrowser"
- */
-sys.BROWSER_TYPE_MOBILE_QQ = 'mqqbrowser';
-/**
- *
- * @property {String} BROWSER_TYPE_UC
- * @readOnly
- * @default "ucbrowser"
- */
-sys.BROWSER_TYPE_UC = 'ucbrowser';
-/**
- * uc third party integration.
- * @property {String} BROWSER_TYPE_UCBS
- * @readOnly
- * @default "ucbs"
- */
-sys.BROWSER_TYPE_UCBS = 'ucbs';
-/**
- *
- * @property {String} BROWSER_TYPE_360
- * @readOnly
- * @default "360browser"
- */
-sys.BROWSER_TYPE_360 = '360browser';
-/**
- *
- * @property {String} BROWSER_TYPE_BAIDU_APP
- * @readOnly
- * @default "baiduboxapp"
- */
-sys.BROWSER_TYPE_BAIDU_APP = 'baiduboxapp';
-/**
- *
- * @property {String} BROWSER_TYPE_BAIDU
- * @readOnly
- * @default "baidubrowser"
- */
-sys.BROWSER_TYPE_BAIDU = 'baidubrowser';
-/**
- *
- * @property {String} BROWSER_TYPE_MAXTHON
- * @readOnly
- * @default "maxthon"
- */
-sys.BROWSER_TYPE_MAXTHON = 'maxthon';
-/**
- *
- * @property {String} BROWSER_TYPE_OPERA
- * @readOnly
- * @default "opera"
- */
-sys.BROWSER_TYPE_OPERA = 'opera';
-/**
- *
- * @property {String} BROWSER_TYPE_OUPENG
- * @readOnly
- * @default "oupeng"
- */
-sys.BROWSER_TYPE_OUPENG = 'oupeng';
-/**
- *
- * @property {String} BROWSER_TYPE_MIUI
- * @readOnly
- * @default "miuibrowser"
- */
-sys.BROWSER_TYPE_MIUI = 'miuibrowser';
-/**
- *
- * @property {String} BROWSER_TYPE_FIREFOX
- * @readOnly
- * @default "firefox"
- */
-sys.BROWSER_TYPE_FIREFOX = 'firefox';
-/**
- *
- * @property {String} BROWSER_TYPE_SAFARI
- * @readOnly
- * @default "safari"
- */
-sys.BROWSER_TYPE_SAFARI = 'safari';
-/**
- *
- * @property {String} BROWSER_TYPE_CHROME
- * @readOnly
- * @default "chrome"
- */
-sys.BROWSER_TYPE_CHROME = 'chrome';
-/**
- *
- * @property {String} BROWSER_TYPE_LIEBAO
- * @readOnly
- * @default "liebao"
- */
-sys.BROWSER_TYPE_LIEBAO = 'liebao';
-/**
- *
- * @property {String} BROWSER_TYPE_QZONE
- * @readOnly
- * @default "qzone"
- */
-sys.BROWSER_TYPE_QZONE = 'qzone';
-/**
- *
- * @property {String} BROWSER_TYPE_SOUGOU
- * @readOnly
- * @default "sogou"
- */
-sys.BROWSER_TYPE_SOUGOU = 'sogou';
-/**
- *
- * @property {String} BROWSER_TYPE_UNKNOWN
- * @readOnly
- * @default "unknown"
- */
-sys.BROWSER_TYPE_UNKNOWN = 'unknown';
+    /**
+     * @en Try to open a url in browser, may not work in some platforms
+     * @zh 尝试打开一个 web 页面，并非在所有平台都有效
+     */
+    openURL (url) {
+        if (JSB) {
+            // @ts-ignore
+            jsb.openURL(url);
+        }
+        else {
+            window.open(url);
+        }
+    },
 
-/**
- * Is native ? This is set to be true in jsb auto.
- * @property {Boolean} isNative
- */
-sys.isNative = JSB;
+    /**
+     * @en Get the current time in milliseconds
+     * @zh 获取当前时间（毫秒为单位）
+     */
+    now () {
+        if (Date.now) {
+            return Date.now();
+        }
+        else {
+            return +(new Date);
+        }
+    },
 
-/**
- * Is web browser ?
- * @property {Boolean} isBrowser
- */
-sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !MINIGAME && !JSB;
+    /**
+     * Dumps rooted objects, only available in native platforms
+     * @private
+     */
+    dumpRoot () {
+        // N/A in web
+    },
 
-/**
- * Endianess of current platform
- * @property {boolean} isLittleEndian
- */
-sys.isLittleEndian = (() => {
-    const buffer = new ArrayBuffer(2);
-    new DataView(buffer).setInt16(0, 256, true);
-    // Int16Array uses the platform's endianness.
-    return new Int16Array(buffer)[0] === 256;
-})();
+    /**
+     * Restart the JS VM, only available in native platforms
+     * @private
+     */
+    restartVM () {
+        // N/A in web
+    },
+
+    /**
+     * Clean a script in the JS VM, only available in native platforms
+     * @private
+     */
+    cleanScript (jsfile) {
+        // N/A in web
+    },
+};
+
+// ============= Platform Adaptation ==============
 
 if (_global.__globalAdapter && _global.__globalAdapter.adaptSys) {
     // init sys info in adapter
@@ -576,8 +729,8 @@ if (_global.__globalAdapter && _global.__globalAdapter.adaptSys) {
 //         linux: sys.OS_LINUX,
 //     // @ts-ignore
 //     })[process.platform] || sys.OS_UNKNOWN;
-//     sys.browserType = null;
-//     sys.browserVersion = null;
+//     sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
+//     sys.browserVersion = '';
 //     sys.windowPixelResolution = {
 //         width: 0,
 //         height: 0,
@@ -601,8 +754,8 @@ else if (JSB) {
     // @ts-ignore
     sys.osVersion = __getOSVersion();
     sys.osMainVersion = parseInt(sys.osVersion);
-    sys.browserType = null;
-    sys.browserVersion = null;
+    sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
+    sys.browserVersion = '';
 
     const w = window.innerWidth;
     const h = window.innerHeight;
@@ -648,16 +801,7 @@ else {
         sys.platform = sys.EDITOR_PAGE;
     }
     else {
-        /**
-         * Indicate whether system is mobile system
-         * @property {Boolean} isMobile
-         */
         sys.isMobile = /mobile|android|iphone|ipad/.test(ua);
-
-        /**
-         * Indicate the running platform
-         * @property {Number} platform
-         */
         sys.platform = sys.isMobile ? sys.MOBILE_BROWSER : sys.DESKTOP_BROWSER;
     }
 
@@ -665,26 +809,21 @@ else {
     // @ts-ignore
     currLanguage = currLanguage ? currLanguage : nav.browserLanguage;
     currLanguage = currLanguage ? currLanguage.split('-')[0] : sys.LANGUAGE_ENGLISH;
-
-    /**
-     * Indicate the current language of the running system
-     * @property {String} language
-     */
     sys.language = currLanguage;
 
     // Get the os of system
-    let isAndroid = false, iOS = false, osVersion = '', osMainVersion = 0;
-    let uaResult = /android (\d+(?:\.\d+)+)/i.exec(ua) || /android (\d+(?:\.\d+)+)/i.exec(nav.platform);
+    let isAndroid = false, iOS = false, osVersion = '', osMajorVersion = 0;
+    let uaResult = /android\s*(\d+(?:\.\d+)*)/i.exec(ua) || /android\s*(\d+(?:\.\d+)*)/i.exec(nav.platform);
     if (uaResult) {
         isAndroid = true;
         osVersion = uaResult[1] || '';
-        osMainVersion = parseInt(osVersion) || 0;
+        osMajorVersion = parseInt(osVersion) || 0;
     }
     uaResult = /(iPad|iPhone|iPod).*OS ((\d+_?){2,3})/i.exec(ua);
     if (uaResult) {
         iOS = true;
         osVersion = uaResult[2] || '';
-        osMainVersion = parseInt(osVersion) || 0;
+        osMajorVersion = parseInt(osVersion) || 0;
     }
     // refer to https://github.com/cocos-creator/engine/pull/5542 , thanks for contribition from @krapnikkk
     // ipad OS 13 safari identifies itself as "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15) AppleWebKit/605.1.15 (KHTML, like Gecko)"
@@ -695,7 +834,7 @@ else {
     else if (/(iPhone|iPad|iPod)/.exec(nav.platform) || (nav.platform === 'MacIntel' && nav.maxTouchPoints && nav.maxTouchPoints > 1)) {
         iOS = true;
         osVersion = '';
-        osMainVersion = 0;
+        osMajorVersion = 0;
     }
 
     let osName = sys.OS_UNKNOWN;
@@ -706,26 +845,10 @@ else {
     else if (isAndroid) { osName = sys.OS_ANDROID; }
     else if (nav.appVersion.indexOf('Linux') !== -1 || ua.indexOf('ubuntu') !== -1) { osName = sys.OS_LINUX; }
 
-    /**
-     * Indicate the running os name
-     * @property {String} os
-     */
     sys.os = osName;
-    /**
-     * Indicate the running os version
-     * @property {String} osVersion
-     */
     sys.osVersion = osVersion;
-    /**
-     * Indicate the running os main version
-     * @property {Number} osMainVersion
-     */
-    sys.osMainVersion = osMainVersion;
+    sys.osMainVersion = osMajorVersion;
 
-    /**
-     * Indicate the running browser type
-     * @property {String} browserType
-     */
     sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
     /* Determine the browser type */
     (function () {
@@ -754,33 +877,29 @@ else {
         }
         else if (browserType === 'micromessenger') {
             browserType = sys.BROWSER_TYPE_WECHAT;
- }
+        }
         else if (browserType === 'safari' && isAndroid) {
             browserType = sys.BROWSER_TYPE_ANDROID;
- }
+        }
         else if (browserType === 'qq' && ua.match(/android.*applewebkit/i)) {
             browserType = sys.BROWSER_TYPE_ANDROID;
- }
+        }
         else if (browserType === 'trident') {
             browserType = sys.BROWSER_TYPE_IE;
- }
+        }
         else if (browserType === '360 aphone') {
             browserType = sys.BROWSER_TYPE_360;
- }
+        }
         else if (browserType === 'mxbrowser') {
             browserType = sys.BROWSER_TYPE_MAXTHON;
- }
+        }
         else if (browserType === 'opr/') {
             browserType = sys.BROWSER_TYPE_OPERA;
- }
+        }
 
         sys.browserType = browserType;
     })();
 
-    /**
-     * Indicate the running browser version
-     * @property {String} browserVersion
-     */
     sys.browserVersion = '';
     /* Determine the browser version number */
     (function () {
@@ -795,19 +914,9 @@ else {
     const h = window.innerHeight || document.documentElement.clientHeight;
     const ratio = window.devicePixelRatio || 1;
 
-    /**
-     * Indicate the real pixel resolution of the whole game window
-     * @property {Size} windowPixelResolution
-     */
     sys.windowPixelResolution = {
         width: ratio * w,
         height: ratio * h,
-    };
-
-    sys._checkWebGLRenderMode = function () {
-        if (cc.game.renderType !== cc.game.RENDER_TYPE_WEBGL) {
-            throw new Error('This feature supports WebGL render mode only.');
-        }
     };
 
     const _tmpCanvas1 = document.createElement('canvas');
@@ -829,10 +938,6 @@ else {
         }
     };
 
-    /**
-     * cc.sys.localStorage is a local storage component.
-     * @property {Object} localStorage
-     */
     try {
         let localStorage: Storage | null = sys.localStorage = win.localStorage;
         localStorage.setItem('storage', '');
@@ -906,10 +1011,6 @@ else {
         }
     }
 
-    /**
-     * The capabilities of the current platform
-     * @property {Object} capabilities
-     */
     const capabilities = sys.capabilities = {
         canvas: _supportCanvas,
         opengl: _supportWebGL,
@@ -930,24 +1031,8 @@ else {
     }
 
     let __audioSupport;
-
-    /**
-     * Audio support in the browser
-     *
-     * MULTI_CHANNEL        : Multiple audio while playing - If it doesn't, you can only play background music
-     * WEB_AUDIO            : Support for WebAudio - Support W3C WebAudio standards, all of the audio can be played
-     * AUTOPLAY             : Supports auto-play audio - if Don‘t support it, On a touch detecting background music canvas, and then replay
-     * REPLAY_AFTER_TOUCH   : The first music will fail, must be replay after touchstart
-     * USE_EMPTIED_EVENT    : Whether to use the emptied event to replace load callback
-     * DELAY_CREATE_CTX     : delay created the context object - only webAudio
-     * NEED_MANUAL_LOOP     : loop attribute failure, need to perform loop manually
-     *
-     * May be modifications for a few browser version
-     */
     (function () {
-
         const DEBUG = false;
-
         const version = sys.browserVersion;
 
         // check if browser supports Web Audio
@@ -1004,7 +1089,6 @@ else {
     }
 
     const formatSupport: string[] = [];
-
     (function () {
         const audio = document.createElement('audio');
         if (audio.canPlayType) {
@@ -1025,172 +1109,4 @@ else {
     sys.__audioSupport = __audioSupport;
 }
 
-/**
- * @en
- * Network type enumeration
- * @zh
- * 网络类型枚举
- *
- * @enum NetworkType
- */
-sys.NetworkType = {
-    /**
-     * @en
-     * Network is unreachable.
-     * @zh
-     * 网络不通
-     *
-     * @property {Number} NONE
-     */
-    NONE: 0,
-    /**
-     * @en
-     * Network is reachable via WiFi or cable.
-     * @zh
-     * 通过无线或者有线本地网络连接因特网
-     *
-     * @property {Number} LAN
-     */
-    LAN: 1,
-    /**
-     * @en
-     * Network is reachable via Wireless Wide Area Network
-     * @zh
-     * 通过蜂窝移动网络连接因特网
-     *
-     * @property {Number} WWAN
-     */
-    WWAN: 2,
-};
-
-/**
- * @class sys
- */
-
-/**
- * @en
- * Get the network type of current device, return cc.sys.NetworkType.LAN if failure.
- * @zh
- * 获取当前设备的网络类型, 如果网络类型无法获取，默认将返回 cc.sys.NetworkType.LAN
- *
- * @method getNetworkType
- * @return {NetworkType}
- */
-sys.getNetworkType = function () {
-    // TODO: need to implement this for mobile phones.
-    return sys.NetworkType.LAN;
-};
-
-/**
- * @en
- * Get the battery level of current device, return 1.0 if failure.
- * @zh
- * 获取当前设备的电池电量，如果电量无法获取，默认将返回 1
- *
- * @method getBatteryLevel
- * @return {Number} - 0.0 ~ 1.0
- */
-sys.getBatteryLevel = function () {
-    // TODO: need to implement this for mobile phones.
-    return 1.0;
-};
-
-/**
- * Forces the garbage collection, only available in JSB
- * @method garbageCollect
- */
-sys.garbageCollect = function () {
-    // N/A in web
-};
-
-/**
- * Dumps rooted objects, only available in JSB
- * @method dumpRoot
- */
-sys.dumpRoot = function () {
-    // N/A in web
-};
-
-/**
- * Restart the JS VM, only available in JSB
- * @method restartVM
- */
-sys.restartVM = function () {
-    // N/A in web
-};
-
-/**
- * Clean a script in the JS VM, only available in JSB
- * @method cleanScript
- * @param {String} jsfile
- */
-sys.cleanScript = function (jsfile) {
-    // N/A in web
-};
-
-/**
- * Check whether an object is valid,
- * In web engine, it will return true if the object exist
- * In native engine, it will return true if the JS object and the correspond native object are both valid
- * @method isObjectValid
- * @param {Object} obj
- * @return {Boolean} Validity of the object
- */
-sys.isObjectValid = function (obj) {
-    if (obj) {
-        return true;
-    }
-    return false;
-};
-
-/**
- * Dump system informations
- * @method dump
- */
-sys.dump = function () {
-    const self = this;
-    let str = '';
-    str += 'isMobile : ' + self.isMobile + '\r\n';
-    str += 'language : ' + self.language + '\r\n';
-    str += 'browserType : ' + self.browserType + '\r\n';
-    str += 'browserVersion : ' + self.browserVersion + '\r\n';
-    str += 'capabilities : ' + JSON.stringify(self.capabilities) + '\r\n';
-    str += 'os : ' + self.os + '\r\n';
-    str += 'osVersion : ' + self.osVersion + '\r\n';
-    str += 'platform : ' + self.platform + '\r\n';
-    str += 'Using ' + (cc.game.renderType === cc.game.RENDER_TYPE_WEBGL ? 'WEBGL' : 'CANVAS') + ' renderer.' + '\r\n';
-    cc.log(str);
-};
-
-/**
- * Open a url in browser
- * @method openURL
- * @param {String} url
- */
-sys.openURL = function (url) {
-    if (JSB) {
-        // @ts-ignore
-        jsb.openURL(url);
-    }
-    else {
-        window.open(url);
-    }
-};
-
-/**
- * Get the number of milliseconds elapsed since 1 January 1970 00:00:00 UTC.
- * @method now
- * @return {Number}
- */
-sys.now = function () {
-    if (Date.now) {
-        return Date.now();
-    }
-    else {
-        return +(new Date);
-    }
-};
-
 cc.sys = sys;
-
-export default sys;

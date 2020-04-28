@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { ccclass, property } from '../../data/class-decorator';
 import { ModelComponent } from '../../3d/framework/model-component';
 import { IValueProxyFactory } from '../value-proxy';

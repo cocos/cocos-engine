@@ -31,7 +31,7 @@ import { EDITOR } from 'internal:constants';
 import { RenderTexture } from '../../assets/render-texture';
 import { UITransformComponent } from '../../components';
 import { Component } from '../../components/component';
-import { ccclass, executeInEditMode, menu, property } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, property } from '../../data/class-decorator';
 import { ray } from '../../geometry';
 import { GFXClearFlag } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
@@ -39,10 +39,11 @@ import { Color, Rect, toRadian, Vec3 } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { view } from '../../platform/view';
 import { Camera } from '../../renderer';
-import { SKYBOX_FLAG } from '../../renderer/scene/camera';
+import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter } from '../../renderer/scene/camera';
 import { Root } from '../../root';
 import { Layers, Node, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
+import { TransformBit } from '../../scene-graph/node-enum';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -50,20 +51,13 @@ const _temp_vec3_1 = new Vec3();
  * @en The projection type.
  * @zh 投影类型。
  */
-const ProjectionType = Enum({
-    /**
-     * @en Orthographic camera.
-     * @zh 正交相机。
-     */
-    ORTHO: 0,
-    /**
-     * @en Projective camera.
-     * @zh 透视相机。
-     */
-    PERSPECTIVE: 1,
-});
+const ProjectionType = Enum(CameraProjection);
+const FOVAxis = Enum(CameraFOVAxis);
+const Aperture = Enum(CameraAperture);
+const Shutter = Enum(CameraShutter);
+const ISO = Enum(CameraISO);
 
-const CameraClearFlag = Enum({
+const ClearFlag = Enum({
     SKYBOX: SKYBOX_FLAG | GFXClearFlag.DEPTH_STENCIL,
     SOLID_COLOR: GFXClearFlag.ALL,
     DEPTH_ONLY: GFXClearFlag.DEPTH_STENCIL,
@@ -75,11 +69,16 @@ const CameraClearFlag = Enum({
  * @zh 相机组件。
  */
 @ccclass('cc.CameraComponent')
+@help('i18n:cc.CameraComponent')
 @menu('Components/Camera')
 @executeInEditMode
 export class CameraComponent extends Component {
     public static ProjectionType = ProjectionType;
-    public static CameraClearFlag = CameraClearFlag;
+    public static FOVAxis = FOVAxis;
+    public static ClearFlag = ClearFlag;
+    public static Aperture = Aperture;
+    public static Shutter = Shutter;
+    public static ISO = ISO;
 
     @property
     protected _projection = ProjectionType.PERSPECTIVE;
@@ -87,6 +86,8 @@ export class CameraComponent extends Component {
     protected _priority = 0;
     @property
     protected _fov = 45;
+    @property
+    protected _fovAxis = FOVAxis.VERTICAL;
     @property
     protected _orthoHeight = 10;
     @property
@@ -100,9 +101,15 @@ export class CameraComponent extends Component {
     @property
     protected _stencil = 0;
     @property
-    protected _clearFlags = CameraClearFlag.SOLID_COLOR;
+    protected _clearFlags = ClearFlag.SOLID_COLOR;
     @property
     protected _rect = new Rect(0, 0, 1, 1);
+    @property
+    protected _aperture = Aperture.F16_0;
+    @property
+    protected _shutter = Shutter.D125;
+    @property
+    protected _iso = ISO.ISO100;
     @property
     protected _screenScale = 1;
     @property
@@ -119,30 +126,12 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en Projection type of the camera.
-     * @zh 相机的投影类型。
-     */
-    @property({
-        type: ProjectionType,
-        tooltip: 'i18n:camera.projection',
-    })
-    get projection () {
-        return this._projection;
-    }
-
-    set projection (val) {
-        this._projection = val;
-        if (this._camera) { this._camera.projectionType = val; }
-    }
-
-    /**
-     * @en
-     * Render priority of the camera, should be statically set in editor.<br>
-     * You cannot dynamically change this property at runtime.
-     * @zh 相机的优先级顺序，只能在编辑器中设置，动态设置无效。
+     * @en Render priority of the camera, in ascending-order.
+     * @zh 相机的渲染优先级，值越小越优先渲染。
      */
     @property({
         tooltip: 'i18n:camera.priority',
+        displayOrder: 0,
     })
     get priority () {
         return this._priority;
@@ -156,67 +145,41 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en Field of view of the camera.
-     * @zh 相机的视角大小。
+     * @en Visibility mask, declaring a set of node layers that will be visible to this camera.
+     * @zh 可见性掩码，声明在当前相机中可见的节点层级集合。
      */
     @property({
-        tooltip: 'i18n:camera.fov',
+        type: Layers.BitMask,
+        tooltip: 'i18n:camera.visibility',
+        displayOrder: 1,
     })
-    get fov () {
-        return this._fov;
+    get visibility () {
+        return this._visibility;
     }
 
-    set fov (val) {
-        this._fov = val;
-        if (this._camera) { this._camera.fov = toRadian(val); }
+    set visibility (val) {
+        this._visibility = val;
+        if (this._camera) {
+            this._camera.visibility = val;
+        }
     }
 
     /**
-     * @en Viewport height in orthographic mode.
-     * @zh 正交模式下的相机视角大小。
+     * @en Clearing flags of the camera, specifies which part of the framebuffer will be actually cleared every frame.
+     * @zh 相机的缓冲清除标志位，指定帧缓冲的哪部分要每帧清除。
      */
     @property({
-        tooltip: 'i18n:camera.ortho_height',
+        type: ClearFlag,
+        tooltip: 'i18n:camera.clear_flags',
+        displayOrder: 2,
     })
-    get orthoHeight () {
-        return this._orthoHeight;
+    get clearFlags () {
+        return this._clearFlags;
     }
 
-    set orthoHeight (val) {
-        this._orthoHeight = val;
-        if (this._camera) { this._camera.orthoHeight = val; }
-    }
-
-    /**
-     * @en Near clipping distance of the camera.
-     * @zh 相机的近平面。
-     */
-    @property({
-        tooltip: 'i18n:camera.near',
-    })
-    get near () {
-        return this._near;
-    }
-
-    set near (val) {
-        this._near = val;
-        if (this._camera) { this._camera.nearClip = val; }
-    }
-
-    /**
-     * @en Far clipping distance of the camera.
-     * @zh 相机的远平面。
-     */
-    @property({
-        tooltip: 'i18n:camera.far',
-    })
-    get far () {
-        return this._far;
-    }
-
-    set far (val) {
-        this._far = val;
-        if (this._camera) { this._camera.farClip = val; }
+    set clearFlags (val) {
+        this._clearFlags = val;
+        if (this._camera) { this._camera.clearFlag = val; }
     }
 
     /**
@@ -225,13 +188,14 @@ export class CameraComponent extends Component {
      */
     @property({
         tooltip: 'i18n:camera.color',
+        displayOrder: 3,
     })
     // @constget
-    get color (): Readonly<Color> {
+    get clearColor (): Readonly<Color> {
         return this._color;
     }
 
-    set color (val) {
+    set clearColor (val) {
         this._color.set(val);
         if (this._camera) {
             this._camera.clearColor.r = this._color.x;
@@ -247,12 +211,13 @@ export class CameraComponent extends Component {
      */
     @property({
         tooltip: 'i18n:camera.depth',
+        displayOrder: 4,
     })
-    get depth () {
+    get clearDepth () {
         return this._depth;
     }
 
-    set depth (val) {
+    set clearDepth (val) {
         this._depth = val;
         if (this._camera) { this._camera.clearDepth = val; }
     }
@@ -263,39 +228,187 @@ export class CameraComponent extends Component {
      */
     @property({
         tooltip: 'i18n:camera.stencil',
+        displayOrder: 5,
     })
-    get stencil () {
+    get clearStencil () {
         return this._stencil;
     }
 
-    set stencil (val) {
+    set clearStencil (val) {
         this._stencil = val;
         if (this._camera) { this._camera.clearStencil = val; }
     }
 
     /**
-     * @en Clearing flags of the camera, specifies which part of the framebuffer will be actually cleared every frame.
-     * @zh 相机的缓冲清除标志位，指定帧缓冲的哪部分要每帧清除。
+     * @en Projection type of the camera.
+     * @zh 相机的投影类型。
      */
     @property({
-        type: CameraClearFlag,
-        tooltip: 'i18n:camera.clear_flags',
+        type: ProjectionType,
+        tooltip: 'i18n:camera.projection',
+        displayOrder: 6,
     })
-    get clearFlags () {
-        return this._clearFlags;
+    get projection () {
+        return this._projection;
     }
 
-    set clearFlags (val) {
-        this._clearFlags = val;
-        if (this._camera) { this._camera.clearFlag = val; }
+    set projection (val) {
+        this._projection = val;
+        if (this._camera) { this._camera.projectionType = val; }
+    }
+
+    /**
+     * @en The axis on which the FOV would be fixed regardless of screen aspect changes.
+     * @zh 指定视角的固定轴向，在此轴上不会跟随屏幕长宽比例变化。
+     */
+    @property({
+        type: FOVAxis,
+        tooltip: 'i18n:camera.fov_axis',
+        displayOrder: 7,
+    })
+    get fovAxis () {
+        return this._fovAxis;
+    }
+
+    set fovAxis (val) {
+        if (val === this._fovAxis) { return; }
+        this._fovAxis = val;
+        if (this._camera) {
+            this._camera.fovAxis = val;
+            if (val === CameraFOVAxis.VERTICAL) { this.fov = this._fov * this._camera.aspect; }
+            else { this.fov = this._fov / this._camera.aspect; }
+        }
+    }
+
+    /**
+     * @en Field of view of the camera.
+     * @zh 相机的视角大小。
+     */
+    @property({
+        tooltip: 'i18n:camera.fov',
+        displayOrder: 8,
+    })
+    get fov () {
+        return this._fov;
+    }
+
+    set fov (val) {
+        this._fov = val;
+        if (this._camera) { this._camera.fov = toRadian(val); }
+    }
+
+    /**
+     * @en Viewport height in orthographic mode.
+     * @zh 正交模式下的相机视角高度。
+     */
+    @property({
+        tooltip: 'i18n:camera.ortho_height',
+        displayOrder: 9,
+    })
+    get orthoHeight () {
+        return this._orthoHeight;
+    }
+
+    set orthoHeight (val) {
+        this._orthoHeight = val;
+        if (this._camera) { this._camera.orthoHeight = val; }
+    }
+
+    /**
+     * @en Near clipping distance of the camera, should be as large as possible within acceptable range.
+     * @zh 相机的近裁剪距离，应在可接受范围内尽量取最大。
+     */
+    @property({
+        tooltip: 'i18n:camera.near',
+        displayOrder: 10,
+    })
+    get near () {
+        return this._near;
+    }
+
+    set near (val) {
+        this._near = val;
+        if (this._camera) { this._camera.nearClip = val; }
+    }
+
+    /**
+     * @en Far clipping distance of the camera, should be as small as possible within acceptable range.
+     * @zh 相机的远裁剪距离，应在可接受范围内尽量取最小。
+     */
+    @property({
+        tooltip: 'i18n:camera.far',
+        displayOrder: 11,
+    })
+    get far () {
+        return this._far;
+    }
+
+    set far (val) {
+        this._far = val;
+        if (this._camera) { this._camera.farClip = val; }
+    }
+
+    /**
+     * @en Camera aperture, controls the exposure parameter.
+     * @zh 相机光圈，影响相机的曝光参数。
+     */
+    @property({
+        type: Aperture,
+        tooltip: 'i18n:camera.aperture',
+        displayOrder: 12,
+    })
+    get aperture () {
+        return this._aperture;
+    }
+
+    set aperture (val) {
+        this._aperture = val;
+        if (this._camera) { this._camera.aperture = val; }
+    }
+
+    /**
+     * @en Camera shutter, controls the exposure parameter.
+     * @zh 相机快门，影响相机的曝光参数。
+     */
+    @property({
+        type: Shutter,
+        tooltip: 'i18n:camera.shutter',
+        displayOrder: 13,
+    })
+    get shutter () {
+        return this._shutter;
+    }
+
+    set shutter (val) {
+        this._shutter = val;
+        if (this._camera) { this._camera.shutter = val; }
+    }
+
+    /**
+     * @en Camera ISO, controls the exposure parameter.
+     * @zh 相机感光度，影响相机的曝光参数。
+     */
+    @property({
+        type: ISO,
+        tooltip: 'i18n:camera.ISO',
+        displayOrder: 14,
+    })
+    get iso () {
+        return this._iso;
+    }
+
+    set iso (val) {
+        this._iso = val;
+        if (this._camera) { this._camera.iso = val; }
     }
 
     /**
      * @en Screen viewport of the camera wrt. the sceen size.
-     * @zh 相机相对屏幕的 viewport。
+     * @zh 此相机最终渲染到屏幕上的视口位置和大小。
      */
     @property({
         tooltip: 'i18n:camera.rect',
+        displayOrder: 15,
     })
     get rect () {
         return this._rect;
@@ -307,47 +420,13 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en Scale of the internal buffer size,
-     * set to 1 to keep the same with the canvas size.
-     * @zh 相机内部缓冲尺寸的缩放值, 1 为与 canvas 尺寸相同。
-     */
-    @property({ visible: false })
-    get screenScale () {
-        return this._screenScale;
-    }
-
-    set screenScale (val) {
-        this._screenScale = val;
-        if (this._camera) { this._camera.screenScale = val; }
-    }
-
-    /**
-     * @en Visibility mask of the camera, based on what layer the target node is in,
-     * to filter out the models that don't need to render for this camera.
-     * @zh 相机可见性掩码，对应模型所在节点的 layer 信息，用于过滤相机不需要渲染的物体。
-     */
-    @property({
-        type: Layers.BitMask,
-        tooltip: 'i18n:camera.visibility',
-    })
-    get visibility () {
-        return this._visibility;
-    }
-
-    set visibility (val) {
-        this._visibility = val;
-        if (this._camera) {
-            this._camera.visibility = val;
-        }
-    }
-
-    /**
-     * @en Output render texture of the camera. Output directly to screen if not specified.
-     * @zh 相机的输出 RenderTexture，如未指定会直接输出到主屏幕。
+     * @en Output render texture of the camera. Default to null, which outputs directly to screen.
+     * @zh 指定此相机的渲染输出目标贴图，默认为空，直接渲染到屏幕。
      */
     @property({
         type: RenderTexture,
         tooltip: 'i18n:camera.target_texture',
+        displayOrder: 16,
     })
     get targetTexture () {
         return this._targetTexture;
@@ -367,6 +446,20 @@ export class CameraComponent extends Component {
             this._camera.changeTargetWindow(EDITOR ? cc.director.root.tempWindow : null);
             this._camera.isWindowSize = true;
         }
+    }
+
+    /**
+     * @en Scale of the internal buffer size,
+     * set to 1 to keep the same with the canvas size.
+     * @zh 相机内部缓冲尺寸的缩放值, 1 为与 canvas 尺寸相同。
+     */
+    get screenScale () {
+        return this._screenScale;
+    }
+
+    set screenScale (val) {
+        this._screenScale = val;
+        if (this._camera) { this._camera.screenScale = val; }
     }
 
     get inEditorMode () {
@@ -393,6 +486,7 @@ export class CameraComponent extends Component {
     }
 
     public onEnable () {
+        this.node.hasChangedFlags = TransformBit.POSITION; // trigger camera matrix update
         if (this._camera) {
             this._attachToScene();
             return;
@@ -481,6 +575,7 @@ export class CameraComponent extends Component {
 
         if (this._camera) {
             this._camera.viewport = this._rect;
+            this._camera.fovAxis = this._fovAxis;
             this._camera.fov = toRadian(this._fov);
             this._camera.orthoHeight = this._orthoHeight;
             this._camera.nearClip = this._near;
@@ -494,6 +589,9 @@ export class CameraComponent extends Component {
             this._camera.clearStencil = this._stencil;
             this._camera.clearFlag = this._clearFlags;
             this._camera.visibility = this._visibility;
+            this._camera.aperture = this._aperture;
+            this._camera.shutter = this._shutter;
+            this._camera.iso = this._iso;
         }
 
         this._updateTargetTexture();

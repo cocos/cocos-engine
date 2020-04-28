@@ -1,5 +1,4 @@
 import { GFXStatus } from '../define';
-import { GFXDevice } from '../device';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { WebGL2CmdFuncCreateFramebuffer, WebGL2CmdFuncDestroyFramebuffer } from './webgl2-commands';
 import { WebGL2GFXDevice } from './webgl2-device';
@@ -9,15 +8,11 @@ import { WebGL2GFXTextureView } from './webgl2-texture-view';
 
 export class WebGL2GFXFramebuffer extends GFXFramebuffer {
 
-    public get gpuFramebuffer (): WebGL2GPUFramebuffer {
+    get gpuFramebuffer (): WebGL2GPUFramebuffer {
         return  this._gpuFramebuffer!;
     }
 
     private _gpuFramebuffer: WebGL2GPUFramebuffer | null = null;
-
-    constructor (device: GFXDevice) {
-        super(device);
-    }
 
     public initialize (info: IGFXFramebufferInfo): boolean {
 

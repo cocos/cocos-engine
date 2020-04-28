@@ -46,13 +46,12 @@ import {
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { IGFXAttribute } from '../gfx/input-assembler';
 import { warnID } from '../platform/debug';
-import sys from '../platform/sys';
+import { sys } from '../platform/sys';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { Skeleton } from './skeleton';
 import { postLoadMesh } from './utils/mesh-utils';
 import { Morph, createMorphRendering, MorphRendering } from './morph';
-import { js } from '../utils/js';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -283,14 +282,18 @@ export class RenderingSubMesh {
         this.vertexBuffers.length = 0;
         if (this.indexBuffer) {
             this.indexBuffer.destroy();
+            this.indexBuffer = undefined;
         }
-        this.indexBuffer = undefined;
         if (this._jointMappedBuffers && this._jointMappedBufferIndices) {
             for (let i = 0; i < this._jointMappedBufferIndices.length; i++) {
                 this._jointMappedBuffers[this._jointMappedBufferIndices[i]].destroy();
             }
             this._jointMappedBuffers = undefined;
             this._jointMappedBufferIndices = undefined;
+        }
+        if (this.indirectBuffer) {
+            this.indirectBuffer.destroy();
+            this.indirectBuffer = undefined;
         }
     }
 

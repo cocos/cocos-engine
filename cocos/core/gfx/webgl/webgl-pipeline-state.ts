@@ -1,10 +1,9 @@
-import { GFXStatus } from '../define';
-import { GFXDevice } from '../device';
 import { GFXPipelineState, IGFXPipelineStateInfo } from '../pipeline-state';
 import { WebGLGPUPipelineState } from './webgl-gpu-objects';
 import { WebGLGFXPipelineLayout } from './webgl-pipeline-layout';
 import { WebGLGFXRenderPass } from './webgl-render-pass';
 import { WebGLGFXShader } from './webgl-shader';
+import { GFXStatus } from '../define';
 
 const WebGLPrimitives: GLenum[] = [
     0x0000, // WebGLRenderingContext.POINTS,
@@ -25,15 +24,11 @@ const WebGLPrimitives: GLenum[] = [
 
 export class WebGLGFXPipelineState extends GFXPipelineState {
 
-    public get gpuPipelineState (): WebGLGPUPipelineState {
+    get gpuPipelineState (): WebGLGPUPipelineState {
         return  this._gpuPipelineState!;
     }
 
     private _gpuPipelineState: WebGLGPUPipelineState | null = null;
-
-    constructor (device: GFXDevice) {
-        super(device);
-    }
 
     public initialize (info: IGFXPipelineStateInfo): boolean {
 

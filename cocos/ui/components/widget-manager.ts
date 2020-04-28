@@ -29,10 +29,9 @@
  */
 
 import { CanvasComponent } from '../../core/components/ui-base/canvas-component';
-import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { Director, director } from '../../core/director';
 import { Vec2, Vec3 } from '../../core/math';
-import sys from '../../core/platform/sys';
+import { sys } from '../../core/platform/sys';
 import { View } from '../../core/platform/view';
 import visibleRect from '../../core/platform/visible-rect';
 import { Scene } from '../../core/scene-graph';

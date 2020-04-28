@@ -19,3 +19,5 @@ if (PHYSICS_BUILTIN) {
         }
     );
 }
+
+import './deprecated';

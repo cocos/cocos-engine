@@ -30,13 +30,13 @@
 
 import { CameraComponent } from '../../3d/framework/camera-component';
 import { RenderTexture } from '../../assets/render-texture';
-import { ccclass, disallowMultiple, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../data/class-decorator';
+import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../data/class-decorator';
 import { director, Director } from '../../director';
 import { game } from '../../game';
 import { GFXClearFlag } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
 import { Color, Vec3, Rect } from '../../math';
-import { ResolutionPolicy, view } from '../../platform/view';
+import { view } from '../../platform/view';
 import visibleRect from '../../platform/visible-rect';
 import { Camera } from '../../renderer';
 import { Node } from '../../scene-graph/node';
@@ -70,6 +70,7 @@ const RenderMode = Enum({
  * UI 的视距范围是 -999 ～ 1000.
  */
 @ccclass('cc.CanvasComponent')
+@help('i18n:cc.CanvasComponent')
 @executionOrder(100)
 @requireComponent(UITransformComponent)
 @menu('UI/Canvas')
@@ -342,7 +343,7 @@ export class CanvasComponent extends Component {
             designSize = view.getDesignResolutionSize();
             const policy = view.getResolutionPolicy();
             // const clipTopRight = !this.fitHeight && !this.fitWidth;
-            const clipTopRight = policy === ResolutionPolicy.NO_BORDER;
+            const clipTopRight = policy === cc.view._rpNoBorder;
             let offsetX = 0;
             let offsetY = 0;
             if (clipTopRight) {

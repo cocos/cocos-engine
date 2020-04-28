@@ -25,18 +25,6 @@ export default class Burst {
         this._curTime = val;
     }
 
-    /**
-     * @zh 发射粒子的最小数量。
-     */
-    @property
-    public minCount: number = 30;
-
-    /**
-     * @zh 发射粒子的最大数量。
-     */
-    @property
-    public maxCount: number = 30;
-
     @property
     private _repeatCount: number = 1;
 

@@ -28,7 +28,7 @@
  */
 
 import { ccclass } from '../../../core/data/class-decorator';
-import sys from '../../../core/platform/sys';
+import { sys } from '../../../core/platform/sys';
 import { misc } from '../../../core/utils';
 import { Mat4 } from '../../../core/math';
 import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-component';

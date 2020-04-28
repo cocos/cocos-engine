@@ -41,9 +41,9 @@ export class CannonShape implements IBaseShape {
                 CannonShape.idToMaterial[mat._uuid] = new CANNON.Material(mat._uuid);
             }
 
-            this._shape!.material = CannonShape.idToMaterial[mat._uuid];
-            this._shape!.material.friction = mat.friction;
-            this._shape!.material.restitution = mat.restitution;
+            this._shape.material = CannonShape.idToMaterial[mat._uuid];
+            this._shape.material.friction = mat.friction;
+            this._shape.material.restitution = mat.restitution;
         }
     }
 
@@ -55,9 +55,7 @@ export class CannonShape implements IBaseShape {
     }
 
     setCenter (v: IVec3Like) {
-        const lpos = this._offset as IVec3Like;
-        Vec3.copy(lpos, v);
-        Vec3.multiply(lpos, lpos, this._collider.node.worldScale);
+        this._setCenter(v);
         if (this._index >= 0) {
             commitShapeUpdates(this._body);
         }
@@ -81,15 +79,16 @@ export class CannonShape implements IBaseShape {
         this._isBinding = true;
         this.onComponentSet();
         setWrap(this._shape, this);
-        this._shape.addEventListener('triggered', this.onTriggerListener);
+        this._shape.addEventListener('cc-trigger', this.onTriggerListener);
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._collider.node as Node);
         this._sharedBody.reference = true;
     }
 
     // virtual
-    onComponentSet () { }
+    protected onComponentSet () { }
 
     onLoad () {
+        this.setMaterial(this._collider.sharedMaterial);
         this.setCenter(this._collider.center);
         this.setAsTrigger(this._collider.isTrigger);
     }
@@ -157,7 +156,7 @@ export class CannonShape implements IBaseShape {
      * @param scale 
      */
     setScale (scale: IVec3Like) {
-        this.setCenter(this._collider.center);
+        this._setCenter(this._collider.center);
     }
 
     setIndex (index: number) {
@@ -167,6 +166,12 @@ export class CannonShape implements IBaseShape {
     setOffsetAndOrient (offset: CANNON.Vec3, Orient: CANNON.Quaternion) {
         this._offset = offset;
         this._orient = Orient;
+    }
+
+    protected _setCenter (v: IVec3Like) {
+        const lpos = this._offset as IVec3Like;
+        Vec3.copy(lpos, v);
+        Vec3.multiply(lpos, lpos, this._collider.node.worldScale);
     }
 
     private onTrigger (event: CANNON.ITriggeredEvent) {

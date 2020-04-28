@@ -19,3 +19,5 @@ if (PHYSICS_AMMO) {
         cylinder: AmmoCylinderShape
     });
 }
+
+import './deprecated';

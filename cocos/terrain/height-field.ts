@@ -35,8 +35,8 @@ export class HeightField {
     }
 
     public getAt (x: number, y: number) {
-        const fx = x / this.w;
-        const fy = y / this.h;
+        const fx = x;
+        const fy = y;
 
         let ix0 = Math.floor(fx);
         let iz0 = Math.floor(fy);
