@@ -881,7 +881,7 @@ export class Game extends EventTarget {
             const ctors: Array<Constructor<GFXDevice>> = [];
         
             if (JSB) {
-                if (gfx.CCMTLDevice) {ctors.push(gfx.CCMTLDevice); }
+                if (gfx.CCMTLDevice) { ctors.push(gfx.CCMTLDevice); }
                 if (gfx.GLES3Device) { ctors.push(gfx.GLES3Device); }
                 if (gfx.GLES2Device) { ctors.push(gfx.GLES2Device); }
             } else {
@@ -892,10 +892,12 @@ export class Game extends EventTarget {
                 ) {
                     useWebGL2 = false;
                 }
-            if (useWebGL2 && cc.WebGL2GFXDevice) {
-                this._gfxDevice = new cc.WebGL2GFXDevice();
-            } else if (cc.WebGLGFXDevice) {
-                this._gfxDevice = new cc.WebGLGFXDevice();
+                if (useWebGL2 && cc.WebGL2GFXDevice) {
+                    ctors.push(cc.WebGL2GFXDevice);
+                }
+                if (cc.WebGLGFXDevice) {
+                    ctors.push(cc.WebGLGFXDevice);
+                }
             }
         
             const opts = {
