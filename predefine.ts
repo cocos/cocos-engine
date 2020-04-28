@@ -23,6 +23,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @hidden
+ */
+
 import {
     ALIPAY,
     BAIDU,
@@ -43,10 +47,6 @@ import {
     WECHAT,
     XIAOMI,
 } from 'internal:constants';
-
-/**
- * @hidden
- */
 
 /**
  * !#zh

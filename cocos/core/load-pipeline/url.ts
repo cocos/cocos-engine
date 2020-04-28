@@ -24,13 +24,12 @@
  THE SOFTWARE.
  */
 
-import { EDITOR } from 'internal:constants';
-
 /**
  * 加载相关模块
  * @category loader
  */
 
+import { EDITOR } from 'internal:constants';
 
 /**
  * @class url

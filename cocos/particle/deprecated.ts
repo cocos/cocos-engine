@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { removeProperty } from '../core/utils/deprecated';
 import Burst from './burst';
 
