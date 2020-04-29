@@ -838,6 +838,7 @@ var Texture2D = cc.Class({
         if (this._flipY !== flipY) {
             var opts = _getSharedOptions();
             opts.flipY = flipY;
+            opts.premultiplyAlpha = this._premultiplyAlpha;
             this.update(opts);
         }
     },
@@ -852,6 +853,7 @@ var Texture2D = cc.Class({
     setPremultiplyAlpha (premultiply) {
         if (this._premultiplyAlpha !== premultiply) {
             var opts = _getSharedOptions();
+            opts.flipY = this._flipY;
             opts.premultiplyAlpha = premultiply;
             this.update(opts);
         }
