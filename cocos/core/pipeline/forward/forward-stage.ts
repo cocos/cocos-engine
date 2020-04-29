@@ -13,20 +13,23 @@ import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
-import { opaqueCompareFn, RenderQueue } from '../render-queue';
+import { opaqueCompareFn } from '../render-queue';
 import { IRenderPass } from '../define';
 import { getPhaseID } from '../pass-phase'
 import { Light } from '../../renderer';
-import { UBOForwardLight } from '../../pipeline/define';
 import { GFXBuffer } from '../../gfx';
-import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { RenderLightBatchedQueue } from '../render-light-batched-queue'
+import { LightType } from '../../renderer/scene/light';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
 
-const myForward_light_Patches = [
+const myForward_Light_Sphere_Patches = [
     { name: 'CC_FOWARD_ADD', value: true },
+];
+const myForward_Light_Sport_Patches = [
+    { name: 'CC_FOWARD_ADD', value: true },
+    { name: 'CC_SPOTLIGHT', value: true },
 ];
 
 /**
@@ -166,7 +169,16 @@ export class ForwardStage extends RenderStage {
                                                
                         // Organize light-batched-queues
                         for (l = lightIndexOffset[i]; l < nextLightIndex; l++) {
-                            this._lightBatchQueues[lightIndices[l]].add(pass, ro, m, myForward_light_Patches);
+                            const light = validLights[lightIndices[l]];
+                            switch (light.type) {
+                                case LightType.SPHERE:
+                                    this._lightBatchQueues[lightIndices[l]].add(pass, ro, m, myForward_Light_Sphere_Patches);
+                                    break;
+
+                                case LightType.SPOT:
+                                    this._lightBatchQueues[lightIndices[l]].add(pass, ro, m, myForward_Light_Sport_Patches);
+                                    break;
+                            }                            
                         }
                     }
                 }
