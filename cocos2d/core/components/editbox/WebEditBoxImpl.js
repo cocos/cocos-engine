@@ -668,6 +668,10 @@ Object.assign(WebEditBoxImpl.prototype, {
         };
 
         cbs.onBlur = function () {
+            // on mobile, sometimes input element doesn't fire compositionend event
+            if (cc.sys.isMobile && inputLock) {
+                cbs.compositionEnd();
+            }
             impl._editing = false;
             _currentEditBoxImpl = null;
             impl._hideDom();
