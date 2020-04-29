@@ -44,11 +44,6 @@ export class RenderLightBatchedQueue {
      * 清空渲染队列。
      */
     public clear () {
-        for(let i = 0; i < this._subModels.length; ++i)
-        {
-            this._subModels[i].destroy;
-            this._psos[i].destroy;
-        }
         this._subModels.length = 0;
         this._psos.length = 0;
         this._lightBuffer = null;

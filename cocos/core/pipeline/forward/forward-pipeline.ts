@@ -250,7 +250,7 @@ export class ForwardPipeline extends RenderPipeline {
     public sceneCulling (view: RenderView) {
         super.sceneCulling(view);
         this._validLights.length = 0;
-        this._lightBuffers.length = 0;
+        //this._lightBuffers.length = 0;
         const sphereLights = view.camera.scene!.sphereLights;
         for (let i = 0; i < sphereLights.length; i++) {
             const light = sphereLights[i];
