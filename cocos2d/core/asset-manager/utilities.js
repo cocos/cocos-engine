@@ -240,7 +240,7 @@ var utils = {
             task.output.push(item.content);
         }
 
-        if (task.output.length === 1) {
+        if (!task.options.__outputAsArray__ && task.output.length === 1) {
             task.output = task.output[0];
         }
     },

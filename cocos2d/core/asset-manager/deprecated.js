@@ -222,6 +222,11 @@ const loader = {
      */
     loadRes (url, type, progressCallback, completeCallback) {
         var { type, onProgress, onComplete } = this._parseLoadResArgs(type, progressCallback, completeCallback);
+        var extname = cc.path.extname(url);
+        if (extname) {
+            // strip extname
+            url = url.slice(0, - extname.length);
+        }
         cc.resources.load(url, type, onProgress, onComplete);
     },
 
@@ -253,6 +258,13 @@ const loader = {
      */
     loadResArray (urls, type, progressCallback, completeCallback) {
         var { type, onProgress, onComplete } = this._parseLoadResArgs(type, progressCallback, completeCallback);
+        urls.forEach((url, i) => {
+            var extname = cc.path.extname(url);
+            if (extname) {
+                // strip extname
+                urls[i] = url.slice(0, - extname.length);
+            }
+        })
         cc.resources.load(urls, type, onProgress, onComplete);
     },
 

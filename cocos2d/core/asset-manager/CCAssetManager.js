@@ -583,8 +583,8 @@ AssetManager.prototype = {
      * cc.assetManager.loadRemote('http://www.cloud.com/test2.mp3', (err, audioClip) => console.log(err));
      * 
      * @typescript
-     * loadRemote(url: string, options?: Record<string, any>, onComplete?: (err: Error, asset: cc.Asset) => void): void
-     * loadRemote(url: string, onComplete?: (err: Error, asset: cc.Asset) => void): void
+     * loadRemote<T extends cc.Asset>(url: string, options?: Record<string, any>, onComplete?: (err: Error, asset: T) => void): void
+     * loadRemote<T extends cc.Asset>(url: string, onComplete?: (err: Error, asset: T) => void): void
      */
     loadRemote (url, options, onComplete) {
         var { options, onComplete } = parseParameters(options, undefined, onComplete);

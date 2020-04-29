@@ -48,6 +48,7 @@ function preprocess (task, done) {
                 break;
             // other settings, left to next pipe
             case '__exclude__':
+            case '__outputAsArray__':
                 leftOptions[op] = options[op];
                 break;
             default: 
