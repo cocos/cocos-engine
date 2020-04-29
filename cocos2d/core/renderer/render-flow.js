@@ -52,9 +52,9 @@ _proto._worldTransform = function (node) {
 _proto._opacity = function (node) {
     _batcher.parentOpacityDirty++;
 
-    node._renderFlag &= ~OPACITY;
     this._next._func(node);
 
+    node._renderFlag &= ~OPACITY;
     _batcher.parentOpacityDirty--;
 };
 

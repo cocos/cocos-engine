@@ -651,7 +651,9 @@ let Label = cc.Class({
 
     _updateColor () {
         if (!(this.font instanceof cc.BitmapFont)) {
-            this.setVertsDirty();
+            if (!(this._srcBlendFactor === cc.macro.BlendFactor.SRC_ALPHA && this.node._renderFlag & cc.RenderFlow.FLAG_OPACITY)) {
+                this.setVertsDirty();
+            }
         }
         RenderComponent.prototype._updateColor.call(this);
     },
