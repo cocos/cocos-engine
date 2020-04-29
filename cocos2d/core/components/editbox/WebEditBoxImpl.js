@@ -673,21 +673,12 @@ Object.assign(WebEditBoxImpl.prototype, {
             impl._delegate.editBoxEditingDidEnded();
         };
 
-        cbs.onResize = function () {
-            impl._updateMatrix();
-        };
-
-
         elem.addEventListener('compositionstart', cbs.compositionStart);
         elem.addEventListener('compositionend', cbs.compositionEnd);
         elem.addEventListener('input', cbs.onInput);
         elem.addEventListener('keydown', cbs.onKeydown);
         elem.addEventListener('blur', cbs.onBlur);
         elem.addEventListener('touchstart', cbs.onClick);
-
-        // editBox is editing, need to update matrix when window resized or orientation changed
-        window.addEventListener('resize', cbs.onResize);
-        window.addEventListener('orientationchange', cbs.onResize);
     },
 
     _removeEventListeners () {
@@ -700,9 +691,6 @@ Object.assign(WebEditBoxImpl.prototype, {
         elem.removeEventListener('keydown', cbs.onKeydown);
         elem.removeEventListener('blur', cbs.onBlur);
         elem.removeEventListener('touchstart', cbs.onClick);
-
-        window.removeEventListener('resize', cbs.onResize);
-        window.removeEventListener('orientationchange', cbs.onResize);
         
         cbs.compositionStart = null;
         cbs.compositionEnd = null;
@@ -710,7 +698,6 @@ Object.assign(WebEditBoxImpl.prototype, {
         cbs.onKeydown = null;
         cbs.onBlur = null;
         cbs.onClick = null;
-        cbs.onResize = null;
     },
 });
 
