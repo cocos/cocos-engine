@@ -96,13 +96,17 @@ function parse (task) {
                         out.ext = item.ext || '.json';
                         if (!info) {
                             out.recycle();
-                            throw new Error(`this bundle ${item.bundle} does not contain ${item.path}`);
+                            throw new Error(`Bundle ${item.bundle} doesn't contain ${item.path}`);
                         }
                         break;
                     case RequestType.SCENE:
                         if (bundles.has(item.bundle)) {
                             var config = bundles.get(item.bundle)._config;
                             var info = config.getSceneInfo(item.scene);
+                            if (!info) {
+                                throw new Error(`Bundle ${config.name} doesn't contain scene ${item.scene}`);
+                            }
+
                             if (info && info.redirect) {
                                 if (!bundles.has(info.redirect)) throw new Error(`you need to load bundle ${info.redirect} first`);
                                 config = bundles.get(info.redirect)._config;
