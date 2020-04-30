@@ -548,6 +548,7 @@ Bundle.prototype = {
      * 释放此包中的所有没有用到的资源。详细信息请参考 {{#crossLink "AssetManager/releaseAll:method"}}{{/crossLink}}
      *
      * @method releaseUnusedAssets
+     * @private
      * 
      * @example
      * // release all unused asset within bundle1

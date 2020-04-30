@@ -510,15 +510,15 @@ var downloader = {
 // dafault handler map
 var downloaders = {
     // Images
-    '.png' : downloadImage,
-    '.jpg' : downloadImage,
-    '.bmp' : downloadImage,
-    '.jpeg' : downloadImage,
-    '.gif' : downloadImage,
-    '.ico' : downloadImage,
-    '.tiff' : downloadImage,
-    '.webp' : downloadImage,
-    '.image' : downloadImage,
+    '.png' : downloadDomImage,
+    '.jpg' : downloadDomImage,
+    '.bmp' : downloadDomImage,
+    '.jpeg' : downloadDomImage,
+    '.gif' : downloadDomImage,
+    '.ico' : downloadDomImage,
+    '.tiff' : downloadDomImage,
+    '.webp' : downloadDomImage,
+    '.image' : downloadDomImage,
     '.pvr': downloadArrayBuffer,
     '.pkm': downloadArrayBuffer,
 

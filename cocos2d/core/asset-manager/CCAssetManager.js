@@ -249,7 +249,7 @@ function AssetManager () {
      * @type {Record<string, Record<string, any>>}
      */
     this.presets = {
-        'normal': {
+        'default': {
             priority: 0,
         },
 
@@ -467,7 +467,7 @@ AssetManager.prototype = {
     loadAny (requests, options, onProgress, onComplete) {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
         
-        options.preset = options.preset || 'normal';
+        options.preset = options.preset || 'default';
         let task = new Task({input: requests, onProgress, onComplete: asyncify(onComplete), options});
         pipeline.async(task);
     },
@@ -704,6 +704,7 @@ AssetManager.prototype = {
      * 释放所有没有用到的资源。详细信息请参考 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}}
      *
      * @method releaseUnusedAssets
+     * @private
      * 
      * @typescript
      * releaseUnusedAssets(): void
