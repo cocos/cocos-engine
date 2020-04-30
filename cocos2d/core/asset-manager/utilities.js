@@ -103,7 +103,7 @@ var utils = {
         for (var i = 0, l = task.input.length; i < l; i++) {
             var item = task.input[i];
             if (clearRef) {
-                !item.isNative && item.content && item.content.removeRef && item.content.removeRef();
+                !item.isNative && item.content && item.content.decRef && item.content.decRef(false);
             }
             item.recycle();
         }
@@ -111,7 +111,7 @@ var utils = {
     },
 
     urlAppendTimestamp (url) {
-        if (cc.assetManager.appendTimeStamp && typeof url === 'string') {
+        if (cc.assetManager.downloader.appendTimeStamp && typeof url === 'string') {
             if (/\?/.test(url))
                 return url + '&_t=' + (new Date() - 0);
             else
@@ -208,8 +208,7 @@ var utils = {
                     missingAsset = true;
                 }
                 else {
-                    depend.owner[depend.prop] = dependAsset;
-                    dependAsset.addRef();
+                    depend.owner[depend.prop] = dependAsset.addRef();
                 }
             }
 
@@ -241,7 +240,7 @@ var utils = {
             task.output.push(item.content);
         }
 
-        if (task.output.length === 1) {
+        if (!task.options.__outputAsArray__ && task.output.length === 1) {
             task.output = task.output[0];
         }
     },

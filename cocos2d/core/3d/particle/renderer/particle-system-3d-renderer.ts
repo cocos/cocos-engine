@@ -301,7 +301,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
 
     _ensureLoadMesh () {
         if (this._particleSystem.mesh && !this._particleSystem.mesh.loaded) {
-            postLoadMesh(this._particleSystem.mesh);
+            cc.assetManager.postLoadNative(this._particleSystem.mesh);
         }
     }
 

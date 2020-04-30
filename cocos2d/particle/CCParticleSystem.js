@@ -865,7 +865,7 @@ var ParticleSystem = cc.Class({
                 let Url = require('fire-url');
                 let name = Url.basenameNoExt(metaInfo.assetPath);
                 let uuid = meta.subMetas[name].uuid;
-                cc.assetManager.load(uuid, function (err, sp) {
+                cc.assetManager.loadAny(uuid, function (err, sp) {
                     if (err) return Editor.error(err);
                     _this.spriteFrame = sp;
                 });
@@ -999,8 +999,8 @@ var ParticleSystem = cc.Class({
         let file = this._file;
         if (file) {
             var self = this;
-            cc.assetManager.loadNativeFile(file, function (err, content) {
-                if (err || !content) {
+            cc.assetManager.postLoadNative(file, function (err) {
+                if (err || !file._nativeAsset) {
                     cc.errorID(6029);
                     return;
                 }
@@ -1010,7 +1010,7 @@ var ParticleSystem = cc.Class({
 
                 self._plistFile = file.nativeUrl;
                 if (!self._custom) {
-                    self._initWithDictionary(content);
+                    self._initWithDictionary(file._nativeAsset);
                 }
 
                 if (!self._spriteFrame) {
@@ -1018,7 +1018,7 @@ var ParticleSystem = cc.Class({
                         self.spriteFrame = file.spriteFrame;
                     }
                     else if (self._custom) {
-                        self._initTextureWithDictionary(content);
+                        self._initTextureWithDictionary(file._nativeAsset);
                     }
                 }
                 else if (!self._renderSpriteFrame && self._spriteFrame) {

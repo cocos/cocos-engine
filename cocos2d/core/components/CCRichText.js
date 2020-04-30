@@ -407,7 +407,7 @@ let RichText = cc.Class({
             }
             else {
                 let self = this;
-                cc.assetManager.loadNativeFile(this.font, function (err, fontFamily) {
+                cc.assetManager.postLoadNative(this.font, function (err) {
                     self._layoutDirty = true;
                     self._updateRichText();
                 });

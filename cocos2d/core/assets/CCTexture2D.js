@@ -366,7 +366,7 @@ var Texture2D = cc.Class({
         
         _nativeDep: {
             get () {
-                return {isNative: true, uuid: this._uuid, ext: this._native};
+                return {__isNative__: true, uuid: this._uuid, ext: this._native};
             },
             override: true
         }
@@ -391,7 +391,7 @@ var Texture2D = cc.Class({
                 ext = result.bestExt || result.defaultExt;
             }
 
-            return { isNative: true, ext };
+            return { __isNative__: true, ext };
         },
 
         _parseExt (extIdStr, defaultFormat) {

@@ -310,29 +310,16 @@ var parser = {
      * parseImport (file: any, options: Record<string, any>, onComplete?: (err: Error, asset: cc.Asset) => void): void
      */
     parseImport (file, options, onComplete) {
-        var result;
+        var result, err = null;
         try {
             result = deserialize(file, options);
         }
         catch (e) {
-            onComplete && onComplete(e, null);
-            return;
+            err = e;
         }
-        onComplete && onComplete(null, result);
+        onComplete && onComplete(err, result);
     },
 
-    /**
-     * !#en 
-     * Initialize parser
-     * 
-     * !#zh
-     * 初始化解析器
-     * 
-     * @method init
-     * 
-     * @typescript
-     * init(): void
-     */
     init () {
         _parsing.clear();
     },

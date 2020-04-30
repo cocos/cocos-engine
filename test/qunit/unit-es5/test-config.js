@@ -1,6 +1,6 @@
 module('Config');
 
-var config = new cc.AssetManager.Config();
+var config = new cc._Test.Config();
 config.init({
     paths: {
         'AAA': ['images/test', 'cc.Texture2D'],

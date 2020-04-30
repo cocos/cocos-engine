@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 const textUtils = require('../utils/text-utils');
-const callInNextTick = require('../platform/utils').callInNextTick;
 
 let _canvasContext = null;
 // letter symbol number CJK

@@ -79,7 +79,7 @@ var AudioClip = cc.Class({
 
         _nativeDep: {
             get () {
-                return { uuid: this._uuid, loadMode: this.loadMode, ext: cc.path.extname(this._native), isNative: true };
+                return { uuid: this._uuid, audioLoadMode: this.loadMode, ext: cc.path.extname(this._native), __isNative__: true };
             },
             override: true
         }
@@ -90,7 +90,7 @@ var AudioClip = cc.Class({
         _loadByUrl: function (url, callback) {
             var audioClip = cc.assetManager.assets.get(url);
             if (!audioClip) {
-                cc.assetManager.loadRemoteAudio(url, function (error, data) {
+                cc.assetManager.loadRemote(url, function (error, data) {
                     if (error) {
                         return callback(error);
                     }
@@ -107,7 +107,7 @@ var AudioClip = cc.Class({
         },
 
         _parseNativeDepFromJson (json) {
-            return { loadMode: json.loadMode,  ext: cc.path.extname(json._native), isNative: true };
+            return { audioLoadMode: json.loadMode,  ext: cc.path.extname(json._native), __isNative__: true };
         }
     },
 
