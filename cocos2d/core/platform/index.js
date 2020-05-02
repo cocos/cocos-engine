@@ -31,7 +31,12 @@ require('./CCEnum');
 require('./CCObject');
 require('./callbacks-invoker');
 require('./url');
-require('./deserialize');
+if (CC_EDITOR || CC_TEST) {
+    // TODO: exclude in build
+    require('./deserialize');
+}
+// TODO: exclude in editor/preview
+import './deserialize-compiled';
 require('./instantiate');
 require('./instantiate-jit');
 require('./requiring-frame');

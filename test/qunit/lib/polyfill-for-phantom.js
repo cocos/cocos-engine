@@ -1,7 +1,16 @@
+
+// These implements are very slow and not intended for use in a production environment.
+
 if (typeof CustomEvent === 'undefined') {
     CustomEvent = function () {
 
     }
+}
+
+if (typeof Symbol === 'undefined') {
+    Symbol = function () {
+        return Object.create(null);
+    };
 }
 
 if (typeof Set === 'undefined') {
@@ -14,6 +23,36 @@ if (typeof Set === 'undefined') {
     };
     Set.prototype.add = function (value) {
         this.values.push(value);
+    };
+}
+
+if (typeof Map === 'undefined') {
+    // very simple polyfill
+    Map = function () {
+        this._keys = [];
+        this._values = [];
+    };
+    Map.prototype.get = function (key) {
+        var index = this._keys.indexOf(key);
+        if (index !== -1) {
+            return this._values[index];
+        }
+        else {
+            return undefined;
+        }
+    };
+    Map.prototype.set = function (key, value) {
+        var index = this._keys.indexOf(key);
+        if (index === -1) {
+            this._keys.push(key);
+            this._values.push(value);
+        }
+        else {
+            this._values[index] = value;
+        }
+    };
+    Map.prototype.values = function () {
+        return this._values;
     };
 }
 

@@ -61,9 +61,10 @@ exports.getUglifyOptions = function (platform, flags) {
                 typeofs: false,
                 inline: 1,              // workaround mishoo/UglifyJS2#2842
                 reduce_funcs: false,
+                passes: 2,              // const enum x { y } --(bable)-> const x = { y } --(1st pass)-> var y = 0 --(2nd pass)-> 0
             },
             output: {
-                beautify: true,         // really preserve_lines
+                beautify: true,         // enable preserve_lines for line number
                 indent_level: 0,        // reduce jsc file size
             }
         };
@@ -80,6 +81,7 @@ exports.getUglifyOptions = function (platform, flags) {
                 negate_iife: false,
                 inline: 1,              // workaround mishoo/UglifyJS2#2842
                 reduce_funcs: false,    // keep single-use functions being cached
+                passes: 2,              // const enum x { y } --(bable)-> const x = { y } --(1st pass)-> var y = 0 --(2nd pass)-> 0
             },
             output: {
                 ascii_only: true,
@@ -141,8 +143,21 @@ exports.getUglifyOptions = function (platform, flags) {
 };
 
 exports.uglify = function (platform, isJSB, isDebugBuild) {
-    const Composer = require('gulp-uglify/composer');
-    const Uglify = require('uglify-es');
-    const minify = Composer(Uglify);
-    return minify(exports.getUglifyOptions(platform, isJSB, isDebugBuild));
+    const Terser = require("terser");
+    const ES = require('event-stream');
+    const options = exports.getUglifyOptions(platform, isJSB, isDebugBuild);
+    return ES.through(function (file) {
+        if (file.path.endsWith('.js')) {
+            var content = file.contents.toString();
+
+            var result = Terser.minify(content, options);
+            if (result.error) {
+                return this.emit('error', result.error);
+            }
+            content = result.code;
+
+            file.contents = new Buffer(content);
+        }
+        this.emit('data', file);
+    });
 };

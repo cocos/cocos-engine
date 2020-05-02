@@ -67,6 +67,8 @@ try {
     !Uint8Array.name && (Uint8Array.name = 'Uint8Array');
     !Uint16Array.name && (Uint16Array.name = 'Uint16Array');
     !Uint32Array.name && (Uint32Array.name = 'Uint32Array');
+
+    !Uint8ClampedArray.name && (Uint8ClampedArray.name = 'Uint8ClampedArray');
 }
 catch (e) {}
 
@@ -82,8 +84,10 @@ function getTypedArrayName (constructor) {
     else if (constructor === Uint8Array) { return 'Uint8Array'; }
     else if (constructor === Uint16Array) { return 'Uint16Array'; }
     else if (constructor === Uint32Array) { return 'Uint32Array'; }
+
+    else if (constructor === Uint8ClampedArray) { return 'Uint8ClampedArray'; }
     else {
-        throw new Error(`Unknown TypedArray could not be instantiated: ${constructor}`);
+        throw new Error(`Unknown TypedArray to instantiate: ${constructor}`);
     }
 }
 

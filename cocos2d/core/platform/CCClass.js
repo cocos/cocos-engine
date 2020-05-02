@@ -1256,7 +1256,7 @@ module.exports = {
     getNewValueTypeCode: CC_SUPPORT_JIT && getNewValueTypeCodeJit,
     IDENTIFIER_RE,
     escapeForJS,
-    getDefault: getDefault
+    getDefault,
 };
 
 if (CC_TEST) {

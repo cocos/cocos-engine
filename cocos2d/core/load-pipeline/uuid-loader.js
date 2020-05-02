@@ -246,7 +246,7 @@ function loadUuid (item, callback) {
                 if (res) {
                     return res;
                 }
-                return cc._MissingScript.getMissingWrapper(type, data);
+                return cc._MissingScript;
             };
             classFinder.onDereferenced = missingClass.classFinder.onDereferenced;
         }
