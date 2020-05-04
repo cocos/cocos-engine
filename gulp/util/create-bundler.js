@@ -6,6 +6,7 @@ const Fs = require('fs');
 const Del = require('del');
 
 const dropPureExport = require('./drop-pure-export');
+const polyfillPromisify = require('./polyfill-node-promisify');
 
 const preludePath = Path.resolve(__dirname, '../browserify_prelude.js');
 const prelude = Fs.readFileSync(preludePath, 'utf8');
@@ -140,8 +141,13 @@ module.exports = function createBundler(entryFiles, options) {
         b = new Browserify(browserifyOpt);
     }
 
+    b = b.exclude(Path.join(__dirname, '../../package.json'));
+
+    if (browserifyOpt.bundleExternal) {
+        b = b.transform(polyfillPromisify);
+    }
+
     return b
-        .exclude(Path.join(__dirname, '../../package.json'))
         .transform(dropPureExport)
         .transform(Babelify, (options && options.babelifyOpt) || {
             extensions: ['.js', '.ts'],
