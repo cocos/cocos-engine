@@ -3,7 +3,7 @@ largeModule('Deserialize Compiled');
 
 test('dereference', function () {
 
-    let dereference = cc._Test.deserialize.dereference;
+    let dereference = cc._Test.deserializeCompiled.dereference;
 
     // smoke test
     dereference([0], [], []);
@@ -38,7 +38,7 @@ test('dereference', function () {
 });
 
 {
-    let { deserializeCCObject, File, DataTypeID, dereference, BuiltinValueTypes } = cc._Test.deserialize;
+    let { deserializeCCObject, File, DataTypeID, dereference, BuiltinValueTypes } = cc._Test.deserializeCompiled;
 
     let Ctor = function () {
     };
@@ -370,7 +370,7 @@ test('dereference', function () {
 }
 
 test('deserializeCustomCCObject', function () {
-    let { File, DataTypeID, parseInstances } = cc._Test.deserialize;
+    let { File, DataTypeID, parseInstances } = cc._Test.deserializeCompiled;
 
     var Asset = cc.Class({
         name: 'a a b b',

@@ -235,7 +235,7 @@ var _Deserializer = (function () {
             if (!klass) {
                 var notReported = this._classFinder === js._getClassById;
                 if (notReported) {
-                    cc.deserialize.reportMissingClass(type);
+                    deserialize.reportMissingClass(type);
                 }
                 return null;
             }
@@ -781,7 +781,7 @@ var _Deserializer = (function () {
  * @param {Object} [options]
  * @return {object} the main data(asset)
  */
-cc.deserialize = function (data, details, options) {
+let deserialize = module.exports = function (data, details, options) {
     options = options || {};
     var classFinder = options.classFinder || js._getClassById;
     // 启用 createAssetRefs 后，如果有 url 属性则会被统一强制设置为 { uuid: 'xxx' }，必须后面再特殊处理
@@ -824,13 +824,4 @@ cc.deserialize = function (data, details, options) {
     return res;
 };
 
-cc.deserialize.Details = Details;
-cc.deserialize.reportMissingClass = function (id) {
-    if (CC_EDITOR && Editor.Utils.UuidUtils.isUuid(id)) {
-        id = Editor.Utils.UuidUtils.decompressUuid(id);
-        cc.warnID(5301, id);
-    }
-    else {
-        cc.warnID(5302, id);
-    }
-};
+deserialize.Details = Details;

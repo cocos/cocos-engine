@@ -24,7 +24,7 @@ const promisify = (function (handle) {
     };
 }).toString();
 
-const REPLACE = /require\('util'\)|require\("util"\)/g;
+const REPLACE = /require\(['"]util['"]\)/g;
 const AS = `{promisify:${promisify}}`;
 
 module.exports = function (filename) {

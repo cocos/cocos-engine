@@ -24,21 +24,21 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./js');
-require('./CCClass');
-require('./CCClassDecorator');
-require('./CCEnum');
-require('./CCObject');
-require('./callbacks-invoker');
-require('./url');
-require('./deserialize');
-require('./instantiate');
-require('./instantiate-jit');
-require('./requiring-frame');
-require('./CCSys');
-require('./CCMacro');
+import deserialize from './deserialize-compiled';
 
-if (!(CC_EDITOR && Editor.isMainProcess)) {
-    require('./CCAssetLibrary');
-    require('./CCVisibleRect');
+if (CC_BUILD) {
+    cc.deserialize = deserialize;
 }
+else {
+    cc.deserialize = require('./deserialize-editor');
+}
+
+cc.deserialize.reportMissingClass = function (id) {
+    if (CC_EDITOR && Editor.Utils.UuidUtils.isUuid(id)) {
+        id = Editor.Utils.UuidUtils.decompressUuid(id);
+        cc.warnID(5301, id);
+    }
+    else {
+        cc.warnID(5302, id);
+    }
+};

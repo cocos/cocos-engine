@@ -823,7 +823,7 @@ function parseResult (data: IFileData) {
     }
 }
 
-cc.deserializeCompiled = function (data: IFileData, details: Details, options: IOptions): object {
+export default function deserialize (data: IFileData, details: Details, options: IOptions): object {
     let borrowDetails = !details;
     details = details || Details.pool.get();
     details.init(data);
@@ -855,27 +855,23 @@ cc.deserializeCompiled = function (data: IFileData, details: Details, options: I
     return instances[rootIndex];
 };
 
-cc.deserialize.reportMissingClass = function (id: any) {
-    if (CC_EDITOR && Editor.Utils.UuidUtils.isUuid(id)) {
-        id = Editor.Utils.UuidUtils.decompressUuid(id);
-        cc.warnID(5301, id);
-    }
-    else {
-        cc.warnID(5302, id);
-    }
-};
-
-
-
 if (CC_EDITOR || CC_TEST) {
-    cc.deserialize.macros = {
+    cc._deserializeCompiled = deserialize;
+    deserialize.macros = {
+        CUSTOM_OBJ_DATA_CLASS,
+        CUSTOM_OBJ_DATA_CONTENT,
+        CLASS_PROP_TYPE_OFFSET,
+        MASK_CLASS,
+        OBJ_DATA_MASK,
+        DICT_JSON_LAYOUT,
     };
-    cc.deserialize._BuiltinValueTypes = BuiltinValueTypes;
-    cc.deserialize._serializeBuiltinValueTypes = serializeBuiltinValueTypes;
+    deserialize._BuiltinValueTypes = BuiltinValueTypes;
+    deserialize._serializeBuiltinValueTypes = serializeBuiltinValueTypes;
 }
 
 if (CC_TEST) {
-    cc._Test.deserialize = {
+    cc._Test.deserializeCompiled = {
+        deserialize,
         dereference,
         deserializeCCObject,
         deserializeCustomCCObject,
