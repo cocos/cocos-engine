@@ -42,8 +42,7 @@ const SUPPORT_LOWEST_FORMAT_VERSION = 1;
 
 // Used for Data.ValueType.
 // If a value type is not registered in this list, it will be serialized to Data.Class.
-/*@__DROP_PURE_EXPORT__*/
-export const BuiltinValueTypes: Array<typeof ValueType> = [
+const BuiltinValueTypes: Array<typeof ValueType> = [
     Vec2,   // 0
     Vec3,   // 1
     Vec4,   // 2
@@ -149,6 +148,7 @@ function serializeBuiltinValueTypes(obj: ValueType): IValueTypeData | null {
  ****************************************************************************/
 
 export type SharedString = string;
+export type Empty = number;
 export type StringIndex = number;
 export type InstanceIndex = number;
 export type RootInstanceIndex = InstanceIndex;
@@ -267,7 +267,6 @@ export type AdvancedData = DataTypes[Exclude<keyof DataTypes, DataTypeID.SimpleT
 export type AdvancedObjectData = ICustomObjectDataContent | DataTypes[PrimitiveObjectTypeID];
 
 // class Index of DataTypeID.CustomizedClass or PrimitiveObjectTypeID
-/*@__DROP_PURE_EXPORT__*/
 export type AdvancedObjectTypeID = Xor<number, PrimitiveObjectTypeID>;
 
 export interface Ctor<T> extends Function {
@@ -283,12 +282,9 @@ export type AnyCCClass = CCClass<Object>;
 /**
  * 如果值的类型不同将会生成不同的 Class
  */
-/*@__DROP_PURE_EXPORT__*/
-export const CLASS_TYPE = 0;
-/*@__DROP_PURE_EXPORT__*/
-export const CLASS_KEYS = 1;
-/*@__DROP_PURE_EXPORT__*/
-export const CLASS_PROP_TYPE_OFFSET = 2;
+const CLASS_TYPE = 0;
+const CLASS_KEYS = 1;
+const CLASS_PROP_TYPE_OFFSET = 2;
 export type IClass = [
     string|AnyCtor,
     string[],
@@ -304,8 +300,7 @@ export type IClass = [
  * Mask is used to define the properties and types that need to be deserialized.
  * Instances of the same class may have different Masks due to different default properties removed.
  */
-/*@__DROP_PURE_EXPORT__*/
-export const MASK_CLASS = 0;
+const MASK_CLASS = 0;
 export type IMask = [
     // The index of its Class
     number,
@@ -315,8 +310,7 @@ export type IMask = [
     ...number[]
 ];
 
-/*@__DROP_PURE_EXPORT__*/
-export const OBJ_DATA_MASK = 0;
+const OBJ_DATA_MASK = 0;
 export type IClassObjectData = [
     // The index of its Mask
     number,
@@ -326,10 +320,8 @@ export type IClassObjectData = [
 
 export type ICustomObjectDataContent = any;
 
-/*@__DROP_PURE_EXPORT__*/
-export const CUSTOM_OBJ_DATA_CLASS = 0;
-/*@__DROP_PURE_EXPORT__*/
-export const CUSTOM_OBJ_DATA_CONTENT = 1;
+const CUSTOM_OBJ_DATA_CLASS = 0;
+const CUSTOM_OBJ_DATA_CONTENT = 1;
 export interface ICustomObjectData extends Array<any> {
     // The index of its Class
     [CUSTOM_OBJ_DATA_CLASS]: number;
@@ -337,8 +329,7 @@ export interface ICustomObjectData extends Array<any> {
     [CUSTOM_OBJ_DATA_CONTENT]: ICustomObjectDataContent;
 }
 
-/*@__DROP_PURE_EXPORT__*/
-export const VALUETYPE_SETTER = 0;
+const VALUETYPE_SETTER = 0;
 export type IValueTypeData = [
     // Predefined parsing function index
     number,
@@ -349,8 +340,7 @@ export type IValueTypeData = [
 export type ITRSData = [number, number, number, number, number,
                         number, number, number, number, number];
 
-/*@__DROP_PURE_EXPORT__*/
-export const DICT_JSON_LAYOUT = 0;
+const DICT_JSON_LAYOUT = 0;
 export interface IDictData extends Array<any> {
     // The raw json object
     [DICT_JSON_LAYOUT]: any,
@@ -366,18 +356,15 @@ export interface IDictData extends Array<any> {
     [index: number]: any,
 }
 
-/*@__DROP_PURE_EXPORT__*/
-export const ARRAY_ITEM_VALUES = 0;
+const ARRAY_ITEM_VALUES = 0;
 export type IArrayData = [
     AnyData[],
     // types
     ...DataTypeID[]
 ];
 
-/*@__DROP_PURE_EXPORT__*/
-export const TYPEDARRAY_TYPE = 0;
-/*@__DROP_PURE_EXPORT__*/
-export const TYPEDARRAY_ELEMENTS = 1;
+const TYPEDARRAY_TYPE = 0;
+const TYPEDARRAY_ELEMENTS = 1;
 export interface ITypedArrayData extends Array<number|number[]> {
     [TYPEDARRAY_TYPE]: number,
     [TYPEDARRAY_ELEMENTS]: number[],
@@ -421,14 +408,15 @@ export const enum File {
     ARRAY_LENGTH,
 }
 
+// Main file structure
 export interface IFileData extends Array<any> {
     // version
     [File.Version]: number | any;
 
     // Shared data area, the higher the number of references, the higher the position
 
-    [File.SharedUuids]: SharedString[];           // Shared uuid strings for dependent assets
-    [File.SharedStrings]: SharedString[];
+    [File.SharedUuids]: SharedString[] | Empty;           // Shared uuid strings for dependent assets
+    [File.SharedStrings]: SharedString[] | Empty;
     [File.SharedClasses]: (IClass|string|AnyCCClass)[];
     [File.SharedMasks]: IMask[];            // Shared Object layouts for IClassObjectData
 
@@ -437,9 +425,9 @@ export interface IFileData extends Array<any> {
     // A one-dimensional array to represent object datas, layout is [...IClassObjectData[], ...AdvancedObjectData[], RootInstanceIndex]
     // If the last element is not RootInstanceIndex, the first element will be the root object to return
     [File.Instances]: (IClassObjectData|AdvancedObjectData|RootInstanceIndex)[];
-    [File.InstanceTypes]: AdvancedObjectTypeID[];
+    [File.InstanceTypes]: AdvancedObjectTypeID[] | Empty;
     // Object references infomation
-    [File.Refs]: IRefs | null;
+    [File.Refs]: IRefs | Empty;
 
     // Result area
 
@@ -455,8 +443,8 @@ interface ICustomHandler {
     result: Details,
     customEnv: any,
 }
-interface IOptions extends ICustomHandler {
-    classFinder: {
+interface IOptions extends Partial<ICustomHandler> {
+    classFinder?: {
         (type: string): AnyCtor;
         // // for editor
         // onDereferenced: (curOwner: object, curPropName: string, newOwner: object, newPropName: string) => void;
@@ -625,7 +613,6 @@ function deserializeCustomCCObject (data: IFileData, ctor: Ctor<ICustomClass>, v
 type ParseFunction = (data: IFileData, owner: any, key: string, value: AnyData) => void;
 
 function assignInstanceRef (data: IFileData, owner: any, key: string, value: InstanceXorReverseIndex) {
-    // TODO: if value bigger than current object index, use refs
     if (value >= 0) {
         owner[key] = data[File.Instances][value];
     }
@@ -731,8 +718,9 @@ ASSIGNMENTS[DataTypeID.Array] = parseArray;
 function parseInstances (data: IFileData): RootInstanceIndex {
     let instances = data[File.Instances];
     let instanceTypes = data[File.InstanceTypes];
+    let instanceTypesLen = instanceTypes ? (instanceTypes as AdvancedObjectTypeID[]).length : 0;
     let rootIndex = 0;
-    let normalObjectCount = instances.length - instanceTypes.length;
+    let normalObjectCount = instances.length - instanceTypesLen;
     if (instances.length > 1) {
         rootIndex = instances[instances.length - 1];
         --normalObjectCount;
@@ -744,7 +732,7 @@ function parseInstances (data: IFileData): RootInstanceIndex {
     }
 
     let classes = data[File.SharedClasses];
-    for (let typeIndex = 0; typeIndex < instanceTypes.length; ++typeIndex, ++insIndex) {
+    for (let typeIndex = 0; typeIndex < instanceTypesLen; ++typeIndex, ++insIndex) {
         let type = instanceTypes[typeIndex] as AdvancedObjectTypeID;
         let eachData = instances[insIndex];
         if (type >= 0) {
@@ -815,7 +803,7 @@ function parseResult (data: IFileData) {
         }
         let uuid = dependUuids[i];
         if (typeof uuid === 'number') {
-            dependUuids[i] = dependSharedUuids[uuid as StringIndex];
+            dependUuids[i] = (dependSharedUuids as SharedString[])[uuid as StringIndex];
         }
         else {
             // added by Details object directly in _deserialize
@@ -823,7 +811,17 @@ function parseResult (data: IFileData) {
     }
 }
 
-export default function deserialize (data: IFileData, details: Details, options: IOptions): object {
+export default function deserialize (data: IFileData, details: Details, options?: IOptions): object {
+    // @ts-ignore
+    if (CC_EDITOR && Buffer.isBuffer(data)) {
+        // @ts-ignore
+        data = data.toString();
+    }
+    if (typeof data === 'string') {
+        data = JSON.parse(data);
+    }
+
+    // TODO - formerlySerializedAs
     let borrowDetails = !details;
     details = details || Details.pool.get();
     details.init(data);
@@ -832,6 +830,7 @@ export default function deserialize (data: IFileData, details: Details, options:
         throw new Error(cc.debug.getError(5304, version));
     }
 
+    options = options || {};
     options._version = version;
     options.result = details;
 
@@ -884,7 +883,7 @@ if (CC_TEST) {
             SharedClasses: File.SharedClasses,
             SharedMasks: File.SharedMasks,
             Instances: File.Instances,
-            Instances_CustomClasses: File.InstanceTypes,
+            InstanceTypes: File.InstanceTypes,
             Refs: File.Refs,
             DependObjs: File.DependObjs,
             DependKeys: File.DependKeys,

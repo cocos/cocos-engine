@@ -371,7 +371,7 @@ if (TestEditorExtends) {
             this.z = z || 0;
         }
         cc.js.extend(Vec3, cc.ValueType);
-        cc.Class.fastDefine('Vector3', Vec3, { x: 1, y: 0, z: 0 });
+        cc.Class._fastDefine('Vector3', Vec3, { x: 1, y: 0, z: 0 });
         Vec3.prototype.clone = function () {
             return new Vec3(this.x, this.y, this.z);
         };

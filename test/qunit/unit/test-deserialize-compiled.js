@@ -287,7 +287,7 @@ test('dereference', function () {
                     return other && this.z === other.z && this.w === other.w;
                 }
                 clone () {
-                    let res = new Vec2();
+                    let res = new Vec5();
                     res.z = this.z;
                     res.w = this.w;
                     return res;
@@ -403,7 +403,7 @@ test('deserializeCustomCCObject', function () {
         [File.Instances]: [
             [0, [1, ['inner prop1', 'inner-uuid-123']]], [23333, 'outer-uuid-123'], 0
         ],
-        [File.Instances_CustomClasses]: [
+        [File.InstanceTypes]: [
             1,
         ]
     };
@@ -421,3 +421,210 @@ test('deserializeCustomCCObject', function () {
 
     cc.js.unregisterClass(Asset);
 });
+
+if (TestEditorExtends) {
+
+    let { deserialize } = cc._Test.deserializeCompiled;
+
+    test('basic deserialize test', function () {
+        var MyAsset = (function () {
+            function MyAsset () {
+                this.emptyArray = [];
+                this.array = [1, '2', {a:3}, [4, [5]], true];
+                this.string = 'unknown';
+                this.emptyString = '';
+                this.number = 1;
+                this.boolean = true;
+                this.emptyObj = {};
+                this.valueType = new cc.Vec2(1, 2.1);
+            }
+            cc.Class._fastDefine('MyAsset', MyAsset,
+                ['emptyArray', 'array', 'string', 'emptyString', 'number', 'boolean', 'emptyObj', 'valueType']);
+            return MyAsset;
+        })();
+
+        var asset = new MyAsset();
+        var serializedAsset = Editor.serializeCompiled(asset, { exporting: true });
+        var deserializedAsset = deserialize(serializedAsset);
+
+        deepEqual(deserializedAsset, asset, 'test deserialize');
+
+        cc.js.unregisterClass(MyAsset);
+    });
+    //
+    // test('nil', function () {
+    //     var obj = {
+    //         'null': null,
+    //     };
+    //     var str = '{ "null": null }';
+    //     deepEqual(cc.deserialize(str), obj, 'can deserialize null');
+    //
+    //     var MyAsset = cc.Class({
+    //         name: 'MyAsset',
+    //         ctor: function () {
+    //             this.foo = 'bar';
+    //         },
+    //         properties: {
+    //             nil: 1234
+    //         }
+    //     });
+    //
+    //     str = '{ "__type__": "MyAsset" }';
+    //     obj = new MyAsset();
+    //     deepEqual(cc.deserialize(str), obj, 'use default value');
+    //
+    //     str = '{ "__type__": "MyAsset", "nil": null }';
+    //     obj = new MyAsset();
+    //     obj.nil = null;
+    //     deepEqual(cc.deserialize(str), obj, 'can override as null');
+    //
+    //     cc.js.unregisterClass(MyAsset);
+    // });
+    //
+    // test('fast defined property', function () {
+    //     function Vec3 (x, y, z) {
+    //         this.data = [x, y, z];
+    //     }
+    //     cc.Class._fastDefine('Vec3', Vec3, { x: 0, y: 0, z: 0, });
+    //
+    //     Object.defineProperties(Vec3.prototype, {
+    //         x: {
+    //             get: function () {
+    //                 return this.data[0];
+    //             },
+    //             set: function (value) {
+    //                 this.data[0] = value;
+    //             },
+    //         },
+    //         y: {
+    //             get: function () {
+    //                 return this.data[1];
+    //             },
+    //             set: function (value) {
+    //                 this.data[1] = value;
+    //             },
+    //         },
+    //         z: {
+    //             get: function () {
+    //                 return this.data[2];
+    //             },
+    //             set: function (value) {
+    //                 this.data[2] = value;
+    //             },
+    //         }
+    //     });
+    //
+    //     var vec3 = cc.deserialize({ __type__: "Vec3", x: 1, y: 2, z: 3 });
+    //     ok(vec3 instanceof Vec3, 'test type');
+    //     strictEqual(vec3.x, 1, 'test x');
+    //     strictEqual(vec3.y, 2, 'test y');
+    //     strictEqual(vec3.z, 3, 'test z');
+    //
+    //     cc.js.unregisterClass(Vec3);
+    // });
+    //
+    // test('reference to main asset', function () {
+    //     var asset = {};
+    //     asset.refSelf = asset;
+    //     /*  {
+    //             "refSelf": {
+    //                 "__id__": 0
+    //             }
+    //         }
+    //      */
+    //
+    //     var serializedAsset = Editor.serialize(asset);
+    //     var deserializedAsset = cc.deserialize(serializedAsset);
+    //
+    //     ok(deserializedAsset.refSelf === deserializedAsset, 'should ref to self');
+    //     //deepEqual(Editor.serialize(deserializedAsset), serializedAsset, 'test deserialize');
+    // });
+    //
+    // test('reference to main asset with formerlySerializedAs', function () {
+    //     var MyAsset = cc.Class({
+    //         name: 'MyAsset',
+    //         properties: {
+    //             newRefSelf: {
+    //                 default: null,
+    //                 formerlySerializedAs: 'oldRefSelf'
+    //             },
+    //         }
+    //     });
+    //     var asset = new MyAsset();
+    //     asset.newRefSelf = asset;
+    //
+    //     var serializedAsset = Editor.serialize(asset);
+    //     serializedAsset = serializedAsset.replace(/newRefSelf/g, 'oldRefSelf');
+    //     var deserializedAsset = cc.deserialize(serializedAsset);
+    //
+    //     ok(deserializedAsset.newRefSelf === deserializedAsset, 'should ref to self');
+    //     //deepEqual(Editor.serialize(deserializedAsset), serializedAsset, 'test deserialize');
+    //
+    //     cc.js.unregisterClass(MyAsset);
+    // });
+    //
+    // test('custom deserialization', function () {
+    //     var Asset = cc.Class({
+    //         name: 'a a b b',
+    //         extend: cc.Object,
+    //         properties: {
+    //             prop1: 1,
+    //             prop2: 2
+    //         },
+    //         _serialize: function () {
+    //             return [this.prop1, this.prop2];
+    //         },
+    //         _deserialize: function (data) {
+    //             this.prop1 = data[0];
+    //             this.prop2 = data[1];
+    //         }
+    //     });
+    //     var a = new Asset();
+    //     var sa = Editor.serialize(a, { stringify: false });
+    //     deepEqual(sa.content, [1, 2], 'should pack value to array');
+    //
+    //     var da = cc.deserialize(sa);
+    //     strictEqual(da.prop1, 1, 'can extract packed value 1');
+    //     strictEqual(da.prop2, 2, 'can extract packed value 2');
+    //
+    //     cc.js.unregisterClass(Asset);
+    // });
+    //
+    // test('eliminated default property for unknown value type', function () {
+    //     function Vec3 (x, y, z) {
+    //         this.x = x || 1;
+    //         this.y = y || 0;
+    //         this.z = z || 0;
+    //     }
+    //     cc.js.extend(Vec3, cc.ValueType);
+    //     cc.Class.fastDefine('Vector3', Vec3, { x: 1, y: 0, z: 0 });
+    //     Vec3.prototype.clone = function () {
+    //         return new Vec3(this.x, this.y, this.z);
+    //     };
+    //     window.Vector3 = Vec3;
+    //
+    //     var MyAsset = cc.Class({
+    //         name: 'MyAsset',
+    //         properties: {
+    //             scale1: new Vec3(1, 0, 0),
+    //             scale10: new Vec3(1, 99, 0),
+    //         }
+    //     });
+    //     var asset = new MyAsset();
+    //     asset.scale10.y = 0;
+    //
+    //     var json = {
+    //         __type__: 'MyAsset',
+    //         scale10: {
+    //             __type__: 'Vector3',
+    //         },
+    //     };
+    //
+    //     var result = cc.deserialize(json);
+    //     deepEqual(result.scale1, asset.scale1, 'should load eliminated entire property');
+    //     deepEqual(result.scale10, asset.scale10, 'should load eliminated sub property');
+    //
+    //     cc.js.unregisterClass(Vec3, MyAsset);
+    //     delete window.Vector3;
+    // });
+}
