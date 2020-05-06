@@ -183,9 +183,6 @@ var releaseManager = {
                 if (asset instanceof cc.Texture2D) {
                     glTexture = asset._texture;
                 }
-                else if (asset instanceof cc.SpriteFrame && asset._texture) {
-                    glTexture = asset._texture._texture;
-                }
         
                 if (glTexture && glTexture._glID != -1) {
                     var textureUnits = cc.renderer.device._current.textureUnits;
