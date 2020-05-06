@@ -304,14 +304,14 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
             }
         }
 
+        if (!isValid || !this._skinningRoot) {
+            return;
+        }
+
         if (this._mesh) {
             this._mesh.destroyRenderingMesh();
         } else {
             this._mesh = new Mesh();
-        }
-
-        if (!isValid || !this._skinningRoot) {
-            return;
         }
 
         let posOffset = 0;
