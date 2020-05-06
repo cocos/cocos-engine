@@ -167,6 +167,7 @@ let SetAction = cc.Class({
  *   .call(() => { console.log('This is a callback'); })
  *   .by(1, {scale: 3, position: cc.v3(200, 200, 200)}, {easing: 'sineOutIn'})
  *   .start(cc.find('Canvas/cocos'));
+ * @typescript Tween<T = any>
  */
 function Tween (target) {
     this._actions = [];
@@ -675,7 +676,7 @@ for (let i = 0; i < keys.length; i++) {
  * @param {Object} [target] - the target to animate
  * @return {Tween}
  * @typescript
- * tween<T> (target?: Object) : Tween<T>
+ * tween<T> (target?: T) : Tween<T>
  */
 cc.tween = function (target) {
     return new Tween(target);

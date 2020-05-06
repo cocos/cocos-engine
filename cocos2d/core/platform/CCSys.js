@@ -763,6 +763,8 @@ function initSys () {
             capabilities["touches"] = false;
         }
 
+        capabilities['createImageBitmap'] = typeof createImageBitmap !== 'undefined';
+
         sys.__audioSupport = {
             ONLY_ONE: false,
             WEB_AUDIO: false,
@@ -819,7 +821,7 @@ function initSys () {
 
         // Get the os of system
         var isAndroid = false, iOS = false, osVersion = '', osMainVersion = 0;
-        var uaResult = /android (\d+(?:\.\d+)*)/i.exec(ua) || /android (\d+(?:\.\d+)*)/i.exec(nav.platform);
+        var uaResult = /android\s*(\d+(?:\.\d+)*)/i.exec(ua) || /android\s*(\d+(?:\.\d+)*)/i.exec(nav.platform);
         if (uaResult) {
             isAndroid = true;
             osVersion = uaResult[1] || '';
@@ -987,6 +989,7 @@ function initSys () {
             "canvas": _supportCanvas,
             "opengl": _supportWebGL,
             "webp": _supportWebp,
+            'createImageBitmap': typeof createImageBitmap !== 'undefined',
         };
         if (docEle['ontouchstart'] !== undefined || doc['ontouchstart'] !== undefined || nav.msPointerEnabled)
             capabilities["touches"] = true;

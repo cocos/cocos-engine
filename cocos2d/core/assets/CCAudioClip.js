@@ -75,31 +75,39 @@ var AudioClip = cc.Class({
                 }
             },
             override: true
+        },
+
+        _nativeDep: {
+            get () {
+                return { uuid: this._uuid, audioLoadMode: this.loadMode, ext: cc.path.extname(this._native), __isNative__: true };
+            },
+            override: true
         }
     },
 
     statics: {
         LoadMode: LoadMode,
         _loadByUrl: function (url, callback) {
-            var item = cc.loader.getItem(url) || cc.loader.getItem(url + '?useDom=1');
-            if (!item || !item.complete) {
-                cc.loader.load(url, function (error, downloadUrl) {
+            var audioClip = cc.assetManager.assets.get(url);
+            if (!audioClip) {
+                cc.assetManager.loadRemote(url, function (error, data) {
                     if (error) {
                         return callback(error);
                     }
-                    item = cc.loader.getItem(url) || cc.loader.getItem(url + '?useDom=1');
-                    callback(null, item.content);
+                    callback(null, data);
                 });
             }
             else {
-                if (item._owner instanceof AudioClip) {
-                    // preloaded and retained by audio clip
-                    callback(null, item._owner);
-                }
-                else {
-                    callback(null, item.content);
-                }
+                callback(null, audioClip);
             }
+        },
+
+        _parseDepsFromJson () {
+            return [];
+        },
+
+        _parseNativeDepFromJson (json) {
+            return { audioLoadMode: json.loadMode,  ext: cc.path.extname(json._native), __isNative__: true };
         }
     },
 

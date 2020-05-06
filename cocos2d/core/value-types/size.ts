@@ -72,8 +72,8 @@ export default class Size extends ValueType {
     constructor (width: Size | number = 0, height: number = 0) {
         super();
         if (width && typeof width === 'object') {
-            this.height = width.height;
             this.width = width.width;
+            this.height = width.height;
         }
         else {
             this.width = width as number || 0;

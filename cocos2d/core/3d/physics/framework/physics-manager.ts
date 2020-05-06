@@ -42,9 +42,9 @@ export class Physics3DManager {
 
     /**
      * !#en
-     * Gets or sets whether to enable physical systems, which are not enabled by default.
+     * Whether to enable the physics system, default is false.
      * !#zh
-     * 获取或设置是否启用物理系统，默认不启用。
+     * 是否启用物理系统，默认不启用。
      * @property {boolean} enabled
      */
     get enabled (): boolean {
@@ -56,9 +56,9 @@ export class Physics3DManager {
 
     /**
      * !#en
-     * Gets or sets whether the physical system allows automatic sleep, which defaults to true.
+     * Whether to allow the physics system to automatically hibernate, default is true.
      * !#zh
-     * 获取或设置物理系统是否允许自动休眠，默认为 true
+     * 物理系统是否允许自动休眠，默认为 true。
      * @property {boolean} allowSleep
      */
     get allowSleep (): boolean {
@@ -73,9 +73,9 @@ export class Physics3DManager {
 
     /**
      * !#en
-     * Gets or sets the maximum number of child steps per frame simulated.
+     * The maximum number of sub-steps a full step is permitted to be broken into, default is 2.
      * !#zh
-     * 获取或设置每帧模拟的最大子步数。
+     * 物理每帧模拟的最大子步数，默认为 2。
      * @property {number} maxSubStep
      */
     get maxSubStep (): number {
@@ -87,9 +87,9 @@ export class Physics3DManager {
 
     /**
      * !#en
-     * Gets or sets the fixed time consumed by each simulation step.
+     * Time spent in each simulation of physics, default is 1/60s.
      * !#zh
-     * 获取或设置每步模拟消耗的固定时间。
+     * 物理每步模拟消耗的固定时间，默认为 1/60 秒。
      * @property {number} deltaTime
      */
     get deltaTime (): number {
@@ -101,9 +101,9 @@ export class Physics3DManager {
 
     /**
      * !#en
-     * Gets or sets whether to use a fixed time step.
+     * Whether to use a fixed time step.
      * !#zh
-     * 获取或设置是否使用固定的时间步长。
+     * 是否使用固定的时间步长。
      * @property {boolean} useFixedTime
      */
     get useFixedTime (): boolean {
@@ -115,9 +115,9 @@ export class Physics3DManager {
 
     /**
      * !#en
-     * Gets or sets the gravity value of the physical world, by default (0, -10, 0)
+     * Gravity value of the physics simulation, default is (0, -10, 0).
      * !#zh
-     * 获取或设置物理世界的重力数值，默认为 (0, -10, 0)
+     * 物理世界的重力数值，默认为 (0, -10, 0)。
      * @property {Vec3} gravity
      */
     get gravity (): cc.Vec3 {
@@ -132,9 +132,9 @@ export class Physics3DManager {
 
     /**
      * !#en
-     * Gets the global default physical material. Note that builtin is null
+     * Gets the global default physical material. Note that builtin is null.
      * !#zh
-     * 获取全局的默认物理材质，注意：builtin 时为 null
+     * 获取全局的默认物理材质，注意：builtin 时为 null。
      * @property {PhysicsMaterial | null} defaultMaterial
      * @readonly
      */

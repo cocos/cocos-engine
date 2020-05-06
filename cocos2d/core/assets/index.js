@@ -24,7 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./CCRawAsset');
 require('./CCAsset');
 require('./CCFont');
 require('./CCPrefab');

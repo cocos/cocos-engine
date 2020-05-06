@@ -38,9 +38,9 @@ const Vec3 = cc.Vec3;
 
 /**
  * !#en
- * Rigid body.
+ * RigidBody is the basic object that make up the physical world, and it can make a node physically affected and react.
  * !#zh
- * 刚体组件。
+ * 刚体是组成物理世界的基本对象，可以让一个节点受到物理影响并产生反应。该组件在使用 Builtin 物理引擎时无效。
  * @class RigidBody3D
  * @extends Component
  */
@@ -55,9 +55,9 @@ export class RigidBody3D extends cc.Component {
 
     /**
      * !#en
-     * Gets or sets whether sleep is allowed
+     * Whether sleep is allowed.
      * !#zh
-     * 获取或设置是否允许休眠
+     * 是否允许休眠。
      * @property {boolean} allowSleep
      */
     public get allowSleep (): boolean {
@@ -73,9 +73,9 @@ export class RigidBody3D extends cc.Component {
 
     /**
      * !#en
-     * Gets or sets the mass of the rigid body.
+     * The mass of the rigidbody.
      * !#zh
-     * 获取或设置刚体的质量。
+     * 刚体的质量。
      * @property {number} mass
      */
     @property({
@@ -94,9 +94,9 @@ export class RigidBody3D extends cc.Component {
 
     /**
      * !#en
-     * Gets or sets linear damping.
+     * Used to reduce the linear rate of rigidbody. The larger the value, the slower the rigidbody moves.
      * !#zh
-     * 获取或设置线性阻尼。
+     * 线性阻尼，用于减小刚体的线性速率，值越大物体移动越慢。
      * @property {number} linearDamping
      */
     @property({
@@ -115,9 +115,9 @@ export class RigidBody3D extends cc.Component {
 
     /**
      * !#en
-     * Gets or sets rotational damping.
+     * Used to reduce the rotation rate of rigidbody. The larger the value, the slower the rigidbody rotates.
      * !#zh
-     * 获取或设置旋转阻尼。
+     * 角阻尼，用于减小刚体的旋转速率，值越大刚体旋转越慢。
      * @property {number} angularDamping
      */
     @property({
@@ -136,9 +136,9 @@ export class RigidBody3D extends cc.Component {
 
     /**
      * !#en
-     * Gets or sets whether the rigid body is controlled by a physical system.
+     * If enabled, the developer controls the displacement and rotation of the rigidbody, not the physics engine.
      * !#zh
-     * 获取或设置刚体是否由物理系统控制运动。
+     * 是否由开发者来控制刚体的位移和旋转，而不是受物理引擎的影响。
      * @property {boolean} isKinematic
      */
     @property({
@@ -157,9 +157,9 @@ export class RigidBody3D extends cc.Component {
 
     /**
      * !#en
-     * Gets or sets whether the rigid body uses gravity.
+     * If enabled, the rigidbody is affected by gravity.
      * !#zh
-     * 获取或设置刚体是否使用重力。
+     * 如果开启，刚体会受到重力影响。
      * @property {boolean} useGravity
      */
     @property({
@@ -178,9 +178,9 @@ export class RigidBody3D extends cc.Component {
 
     /**
      * !#en
-     * Gets or sets whether the rigid body is fixed for rotation.
+     * If enabled, the rigidbody will be fixed without rotation during a collision.
      * !#zh
-     * 获取或设置刚体是否固定旋转。
+     * 如果开启，发生碰撞时会固定刚体不产生旋转。
      * @property {boolean} fixedRotation
      */
     @property({
@@ -199,9 +199,9 @@ export class RigidBody3D extends cc.Component {
 
     /**
      * !#en
-     * Gets or sets a factor of linear velocity that can be used to control the scaling of velocity in each axis direction.
+     * It can affect the linear velocity change of the rigidbody in each axis. The larger the value, the faster the rigidbody moves.
      * !#zh
-     * 获取或设置线性速度的因子，可以用来控制每个轴方向上的速度的缩放。
+     * 线性因子，可影响刚体在每个轴向的线性速度变化，值越大刚体移动越快。
      * @property {Vec3} linearFactor
      */
     @property({
@@ -220,9 +220,9 @@ export class RigidBody3D extends cc.Component {
 
     /**
      * !#en
-     * Gets or sets the rotation speed factor that can be used to control the rotation speed scaling in each axis direction.
+     * It can affect the rotation speed change of the rigidbody in each axis. The larger the value, the faster the rigidbody rotates.
      * !#zh
-     * 获取或设置旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放。
+     * 旋转因子，可影响刚体在每个轴向的旋转速度变化，值越大刚体旋转越快。
      * @property {Vec3} angularFactor
      */
     @property({
@@ -241,9 +241,9 @@ export class RigidBody3D extends cc.Component {
 
     /**
      * !#en
-     * Gets whether the state is awakened.
+     * The rigidbody is awake.
      * !#zh
-     * 获取是否是唤醒的状态。
+     * 刚体是否为唤醒的状态。
      * @property {boolean} isAwake
      * @readonly
      */
@@ -256,9 +256,9 @@ export class RigidBody3D extends cc.Component {
 
     /**
      * !#en
-     * Gets whether or not a dormant state can be entered.
+     * The rigidbody can enter hibernation.
      * !#zh
-     * 获取是否是可进入休眠的状态。
+     * 刚体是否为可进入休眠的状态。
      * @property {boolean} isSleepy
      * @readonly
      */
@@ -271,9 +271,9 @@ export class RigidBody3D extends cc.Component {
 
     /**
      * !#en
-     * Gets whether the state is dormant.
+     * The rigidbody is sleeping.
      * !#zh
-     * 获取是否是正在休眠的状态。
+     * 刚体是否为正在休眠的状态。
      * @property {boolean} isSleeping
      * @readonly
      */
@@ -286,9 +286,9 @@ export class RigidBody3D extends cc.Component {
 
     /**
      * !#en
-     * Gets physics engine rigid body object.
+     * Get the rigidbody object inside the physics engine.
      * !#zh
-     * 获得物理引擎内部刚体对象
+     * 获得物理引擎内部刚体对象。
      * @property {IRigidBody} rigidBody
      * @readonly
      */
@@ -375,7 +375,7 @@ export class RigidBody3D extends cc.Component {
      * 在世界空间中的某点上对刚体施加一个作用力。
      * @method applyForce
      * @param {Vec3} force
-     * @param {Vec3} relativePoint The point of action, relative to the center of the rigid body
+     * @param {Vec3} relativePoint The point of action, relative to the center of the rigid body.
      */
     public applyForce (force: cc.Vec3, relativePoint?: cc.Vec3) {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
@@ -405,7 +405,7 @@ export class RigidBody3D extends cc.Component {
      * 在世界空间的某点上对刚体施加一个冲量。
      * @method applyImpulse
      * @param {Vec3} impulse
-     * @param {Vec3} relativePoint The point of action, relative to the center of the rigid body
+     * @param {Vec3} relativePoint The point of action, relative to the center of the rigid body.
      */
     public applyImpulse (impulse: cc.Vec3, relativePoint?: cc.Vec3) {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {

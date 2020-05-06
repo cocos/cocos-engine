@@ -895,6 +895,39 @@ test('start should always invoke before update', function () {
     node.active = false;
 });
 
+test('different start executionOrder', function () {
+    var invoked = false;
+    var TestComp = cc.Class({
+        extends: cc.Component,
+        start: function () {
+            invoked = true;
+        },
+        update: function () {
+            strictEqual(invoked, true, 'should always be invoked before update');
+        },
+    });
+
+    var AfterTestComp = cc.Class({
+        extends: cc.Component,
+        editor: {
+            executionOrder: 1,
+        },
+        start: function () {
+            // execute inside start phase dynamically
+            this.node.addComponent(TestComp);
+        },
+    });
+
+    var node = new cc.Node();
+    node.addComponent(AfterTestComp);
+
+    cc.director.getScene().addChild(node);
+    cc.game.step();
+    cc.game.step();
+
+    strictEqual(invoked, true, 'start should be invoked on new component with lower executionOrder');
+});
+
 test('start should only called once', function () {
     var TestComp1 = cc.Class({
         extends: cc.Component,
@@ -1003,7 +1036,7 @@ test('should re-call start (to init) before rendering when it is enabled after s
             lateUpdateChildComp.expect(CallbackTester.start, "should execute start in this frame when activated in start",true);
             nodes.lateUpdateChild.active = true;
         }
-    }
+    };
 
     nodes.attachToScene();
 

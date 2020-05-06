@@ -420,47 +420,6 @@
         deepEqual(data, expected, 'nicify success');
     });
 
-    test('url array', function () {
-        var Data = cc.Class({
-            name: 'data',
-            properties: {
-                textures: {
-                    default: [],
-                    url: [cc.Texture2D]
-                }
-            }
-        });
-        var restore = Editor.Utils.UuidCache.urlToUuid;
-        Editor.Utils.UuidCache.urlToUuid = function (url) {
-            return {
-                foo: '01',
-                bar: '02'
-            }[url];
-        };
-
-        var data = new Data();
-        data.textures = ['foo', 'bar'];
-
-        var actual = JSON.parse(Editor.serialize(data));
-        strictEqual(actual.image, undefined, 'should not serialize variable which not defined by property');
-
-        var expected = {
-            __type__: 'data',
-            textures: [
-                {
-                    __uuid__: '01'
-                },
-                {
-                    __uuid__: '02'
-                }
-            ]
-        };
-        deepEqual(actual, expected, 'could be serialized');
-
-        Editor.Utils.UuidCache.urlToUuid = restore;
-        cc.js.unregisterClass(Data);
-    });
-
     test('node array', function () {
         var Data = cc.Class({
             name: 'data',

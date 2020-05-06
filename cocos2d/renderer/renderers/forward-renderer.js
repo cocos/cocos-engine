@@ -54,7 +54,11 @@ export default class ForwardRenderer extends BaseRenderer {
     this.reset();
 
     if (!CC_EDITOR) {
-      this._time[0] += dt;
+      if (dt) {
+        this._time[0] += dt;
+        this._time[1] = dt;
+        this._time[2] ++;
+      }
       this._device.setUniform('cc_time', this._time);
     }
 

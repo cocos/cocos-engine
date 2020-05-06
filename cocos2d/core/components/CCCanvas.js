@@ -28,7 +28,7 @@ var Camera = require('../camera/CCCamera');
 var Component = require('./CCComponent');
 
 // Screen adaptation strategy for Canvas + Widget
-function addWidgetComponent (canvas) {
+function resetWidgetComponent (canvas) {
     let widget = canvas.node.getComponent(cc.Widget);
     if (!widget) {
         widget = canvas.node.addComponent(cc.Widget);
@@ -37,6 +37,10 @@ function addWidgetComponent (canvas) {
     widget.isAlignBottom = true;
     widget.isAlignLeft = true;
     widget.isAlignRight = true;
+    widget.top = 0;
+    widget.bottom = 0;
+    widget.left = 0;
+    widget.right = 0;
 }
 
 /**
@@ -59,7 +63,7 @@ var Canvas = cc.Class({
 
     resetInEditor: CC_EDITOR && function () {
         _Scene._applyCanvasPreferences(this);
-        addWidgetComponent(this);
+        resetWidgetComponent(this);
     },
 
     statics: {
@@ -172,23 +176,20 @@ var Canvas = cc.Class({
             cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution, this);
             cc.engine.on('design-resolution-changed', this._fitDesignResolution, this);
         }
+    },
 
-        // Camera could be removed in canvas render mode
-        let cameraNode = cc.find('Main Camera', this.node);
-        if (!cameraNode) {
-            cameraNode = new cc.Node('Main Camera');
+    start () {
+        if (!Camera.main && cc.game.renderType !== cc.game.RENDER_TYPE_CANVAS) {
+            // Create default Main Camera
+            let cameraNode = new cc.Node('Main Camera');
             cameraNode.parent = this.node;
             cameraNode.setSiblingIndex(0);
-        }
-        let camera = cameraNode.getComponent(Camera);
-        if (!camera) {
-            camera = cameraNode.addComponent(Camera);
 
+            let camera = cameraNode.addComponent(Camera);
             let ClearFlags = Camera.ClearFlags;
             camera.clearFlags = ClearFlags.COLOR | ClearFlags.DEPTH | ClearFlags.STENCIL;
             camera.depth = -1;
         }
-        Camera.main = camera;
     },
 
     onDestroy: function () {

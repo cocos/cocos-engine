@@ -18,7 +18,6 @@ var Ticker = cc._Ticker;
 var Time = cc.Time;
 //var Camera = cc.Camera;
 //var Component = cc.Component;
-var LoadManager = cc._LoadManager;
 var AssetLibrary = cc.AssetLibrary;
 //var SpriteRenderer = cc.SpriteRenderer;
 //var Screen = cc.Screen;
@@ -112,8 +111,8 @@ var TestDependency = cc.Class({
     extends: cc.Asset,
     properties: {
         dependency: {
-            default: '',
-            url: TestDependency,
+            default: null,
+            type: TestDependency,
         }
     }
 });

@@ -33,7 +33,7 @@ require('./platform/CCInputExtension');
 require('./event');
 require('./platform/CCSys');
 require('./platform/CCMacro');
-require('./load-pipeline');
+require('./asset-manager');
 require('./CCDirector');
 require('./renderer');
 

@@ -1,222 +1,215 @@
-largeModule('Pipeline');
+module('Pipeline');
 
 (function () {
 
-var download = function (item, callback) {
+var download = function (task, callback) {
+    task.output = task.input;
     callback(null, null);
 };
 
-var load = function () {};
+var load = function (task, callback) {
+    task.output = task.input;
+    callback(null, null);
+};
 
-var pipeline = new cc.Pipeline([
-    {
-        id: 'Downloader',
-        handle: download,
-        async: true
-    },
-    {
-        id: 'Loader',
-        handle: load,
-        async: false
-    }
-]);
+var pipeline = new cc.AssetManager.Pipeline('test', [download, load]);
 
 test('construction', function () {
-    var pipes = pipeline._pipes;
-
-    strictEqual(pipes[0].id, 'Downloader', 'should have first pipe id equal to Downloader');
-    strictEqual(pipes[1].id, 'Loader', 'should have second pipe id equal to Loader');
-    strictEqual(pipes[0].handle, download, 'should have first pipe use download function as handle');
-    strictEqual(pipes[1].handle, load, 'should have second pipe use load function as handle');
-    strictEqual(pipes[0].async, true, 'should set first pipe asynchronous');
-    strictEqual(pipes[1].async, false, 'should set second pipe synchronous');
-    strictEqual(pipes[0].pipeline, pipeline, 'should set first pipe\'s pipeline property');
-    strictEqual(pipes[1].pipeline, pipeline, 'should set second pipe\'s pipeline property');
-    strictEqual(pipes[0].next, pipes[1], 'should set first pipe\'s next as second pipe');
-    strictEqual(pipes[1].next, null, 'should set last pipe\' next as null');
+    var pipes = pipeline.pipes;
+    strictEqual(pipes[0], download, 'should have first pipe id equal to Downloader');
+    strictEqual(pipes[1], load, 'should have second pipe id equal to Loader');
+    strictEqual(pipeline.name, 'test', 'should have name equal to test');
 });
 
-test('items', function () {
-    var items = cc.LoadingItems.create(pipeline, [
+test('operate pipe', function () {
+    pipeline.insert(function () {}, 1);
+    var pipes = pipeline.pipes;
+    strictEqual(pipes[0], download, 'should have first pipe equal to Downloader');
+    strictEqual(pipes[2], load, 'should have third pipe equal to Loader');
+    ok(pipes[1] !== load, 'should have second pipe equal to new pipe');
+    strictEqual(pipes.length, 3, 'should have three pipes');
+    pipeline.remove(1);
+    strictEqual(pipes.length, 2, 'should have two pipes');
+    strictEqual(pipes[1], load, 'should have second pipe equal to Loader');
+    pipeline.append(function () {});
+    strictEqual(pipes[1], load, 'should have second pipe equal to Loader');
+    strictEqual(pipes.length, 3, 'should have three pipes');
+    pipeline.remove(2);
+});
+
+test('task', function () {
+    var task = cc.AssetManager.Task.create({input: [
         'res/Background.png',
         {
             url: 'res/scene.json',
             type: 'scene',
             name: 'scene'
         }
-    ]);
+    ]});
 
-    var map = items.map;
-    var background = map['res/Background.png'];
-    var scene = map['res/scene.json'];
+    var source = task.source;
 
-    ok(background, 'should have background image');
-    ok(scene, 'should have scene');
-    strictEqual(background.type, 'png', 'should extract extension as type');
-    strictEqual(scene.type, 'scene', 'should use custom type if specified');
+    ok(source, 'should have source');
+    strictEqual(source[0], 'res/Background.png', 'should have background');
+    strictEqual(source[1].url, 'res/scene.json', 'should have scene');
+    strictEqual(source.length, 2, 'should have 2 input');
+    strictEqual(task.input, source, 'should have input equal to source');
+    strictEqual(task.isFinish, true, 'should have isFinish equal to true');
 
-    items.append([
-        'res/scene.json',
-        'res/role.plist',
-        'res/role.png'
-    ]);
-
-    var scene2 = map['res/scene.json'];
-    var role = map['res/role.plist'];
-
-    ok(role, 'can append items');
-    strictEqual(scene2, scene, 'shouldn\'t add new item for existing url');
-    strictEqual(scene2.name, 'scene', 'should be able to set custom property of item');
-    strictEqual(items.totalCount, 4, 'should now hold 4 items in total');
-
-    pipeline.clear();
-    strictEqual(Object.keys(pipeline._cache).length, 0, 'should hold 0 item after clear');
+    task.recycle();
+    strictEqual(task.input, null, 'should hold 0 item after recycle');
 });
 
 test('pipeline flow', function () {
-    var download = new Callback(function (item, callback) {
-        if (!item.type) {
-            callback('Error');
+    var download = new Callback(function (task, callback) {
+        var input = task.input;
+        for (var i = 0; i < input.length; i++) {
+            var item = input[i];
+            if (!item.type) {
+                return callback(new Error(item));
+            }
+            else {
+                task.dispatch('progress', i, input.length, item);
+            }
         }
-        else {
-            callback(null, null);
-        }
+        callback(null, null);
+        
     });
-    var load = new Callback(function () {
-        return null;
+    var load = new Callback(function (task, callback) {
+        task.output = task.input;
+        callback(null, null);
     });
-    var pipeline = new cc.Pipeline([
-        {
-            id: 'Downloader',
-            handle: download,
-            async: true
-        },
-        {
-            id: 'Loader',
-            handle: load,
-            async: false
-        }
-    ]);
+    var pipeline = new cc.AssetManager.Pipeline('pipeline flow', [download, load]);
 
     var onComplete = new Callback(function (error, items) {
-        strictEqual('res/role' in error, true, 'should contains correct errored url in error object');
-        ok(items.getError('res/role') !== null, 'should set error property in errored item.');
+        strictEqual(error.message, 'res/Background.png', 'should contains correct errored url in error object');
     }).enable();
     var onProgress = new Callback().enable();
 
     download.enable();
     load.enable();
 
-    var items = cc.LoadingItems.create(pipeline, [
-        'res/Background.png',
+    var task = cc.AssetManager.Task.create({ input: [
         {
             url: 'res/scene.json',
             type: 'scene',
             name: 'scene'
         },
+        'res/Background.png',
         'res/role.plist',
         'res/role'
-    ], onProgress, onComplete);
+    ], onProgress: onProgress, onComplete: onComplete});
 
-    strictEqual(items.totalCount, 4, 'should hold 4 items in total');
-    strictEqual(items.completedCount, 4, 'should complete all 4 items');
-    strictEqual(items.isCompleted(), true, 'should be completed');
-    strictEqual(Object.keys(pipeline._cache).length, 3, 'should hold all 3 succeed items in pipeline cache');
-    download.expect(4, 'should call download for each item');
-    load.expect(3, 'should call load for each item successfully passed from download');
+    pipeline.async(task);
+
+    strictEqual(task.source.length, 4, 'should hold 4 items in total');
+    strictEqual(task.input, task.source, 'should have input equal to source');
+    strictEqual(task.isFinish, true, 'should be completed');
+
+    download.expect(1, 'should call download');
+    load.expect(0, 'should not call load');
     onComplete.expect(1, 'should call onComplete callback');
-    onProgress.expect(4, 'should call onProgress callback 4 times');
+    onProgress.expect(1, 'should call onProgress callback 1 times');
 });
 
 test('flow empty array', function () {
     var onComplete = new Callback(function (error, items) {
         onProgress.expect(0, 'shouldn\'t call onProgress after flowIn empty array');
         strictEqual(error, null, 'shouldn\'t return error after flowIn empty array');
-        strictEqual(items.totalCount, 0, 'should contains zero item in items');
-        strictEqual(items.completedCount, 0, 'should contains zero completed item');
+        strictEqual(task.source.length, 0, 'should contains zero item in items');
+        strictEqual(items.length, 0, 'should contains zero completed item');
     }).enable();
     var onProgress = new Callback().enable();
 
-    var items = cc.LoadingItems.create(pipeline, [], onProgress, onComplete);
+    var task = cc.AssetManager.Task.create({input: [], onProgress: onProgress, onComplete: onComplete});
+    pipeline.async(task);
+});
+
+test('sync', function () {
+    var map = {
+        'AAA': 'resources/import/2a/100101',
+        'BBB': 'resources/native/1a/100101'
+    };
+    var md5Map = {
+        'resources/import/2a/100101': '123sawe',
+        'resources/native/1a/100101': 'sqwe123'
+    };
+    var parse = function (task) {
+        var output = [];
+        for (var i = 0, l = task.input.length; i < l; i++) {
+            var str = task.input[i];
+            output.push(map[str]);
+        }
+        task.output = output;
+    };
+    var combine = function (task) {
+        var output = [];
+        for (var i = 0, l = task.input.length; i < l; i++) {
+            var str = task.input[i];
+            output.push(str + '.' + md5Map[str]);
+        }
+        task.output = output;
+    }
+    var pipeline = new cc.AssetManager.Pipeline('sync', [parse, combine]);
+
+    var task = cc.AssetManager.Task.create({input: ['AAA', 'BBB']});
+    var result = pipeline.sync(task);
+    strictEqual(result[0], 'resources/import/2a/100101.123sawe', 'should equal to resources/import/2a/100101.123sawe');
+    strictEqual(result[1], 'resources/native/1a/100101.sqwe123', 'should equal to resources/native/1a/100101.sqwe123');
 });
 
 asyncTest('content manipulation', function () {
-    var init = function (item) {
-        if (!item.type) {
-            return new Error('No type found');
+    var init = function (task, callback) {
+        var input = task.input;
+        var output = task.output = [];
+        for (var i = 0; i < input.length; i++) {
+            var item = input[i];
+            if (!item.type) {
+                continue;
+            }
+            else {
+                item.content = item.url;
+                task.onProgress(i, input.length, item);
+                output.push(item);
+            }
         }
-        else {
-            return item.id;
-        }
+        callback(null);
     };
-    var download = function (item, callback) {
+    var download = function (task, callback) {
         setTimeout(function () {
-            callback(null, item.content + '_Downloaded');
+            var input = task.input;
+            task.output = input;
+            for (var i = 0; i < input.length; i++) {
+                var item = input[i];
+                item.content += '_Downloaded';
+            }
+            callback(null);
         }, 1);
     };
-    var load = function (item) {
-        return item.content + '_Loaded';
-    };
-    var pipeline = new cc.Pipeline([
-        {
-            id: 'DataIniter',
-            handle: init,
-            async: false
-        },
-        {
-            id: 'Downloader',
-            handle: download,
-            async: true
-        },
-        {
-            id: 'Loader',
-            handle: load,
-            async: false
+    var load = function (task, callback) {
+        var input = task.input;
+        task.output = input;
+        for (var i = 0; i < input.length; i++) {
+            var item = input[i];
+            item.content += '_Loaded';
         }
-    ]);
+        callback(null);
+    };
+    var pipeline = new cc.AssetManager.Pipeline('content manipulation', [init, download, load]);
 
     var onComplete = function (error, items) {
         ok(true, 'should call onComplete at the end');
-        strictEqual(items.completedCount, 4, 'should complete all 4 items');
-        strictEqual(items.isCompleted(), true, 'should be completed');
-
-        for (var url in items.map) {
-            var item = items.map[url];
-            if (url === 'res/role') {
-                strictEqual(item.content, null, 'should have no content in failed item');
-            }
-            else {
-                strictEqual(item.content, url + '_Downloaded' + '_Loaded', 'should have correct result after pipeline process');
-            }
-        }
+        strictEqual(items.length, 1, 'should complete 1 items');
+        strictEqual(items[0].content, items[0].url + '_Downloaded' + '_Loaded', 'should have correct result after pipeline process');
         clearTimeout(timeoutId);
         start();
     };
-    var urls = {
-        'res/Background.png': 0,
-        'res/scene.json': 0,
-        'res/role.plist': 0,
-        'res/role': 0
-    };
-    var count = 0;
+
     var onProgress = function (completed, total, item) {
-        var url = item.id;
-        urls[url]++;
-        if (url === 'res/role') {
-            ok(item.error instanceof Error, 'should fail on item without type');
-            strictEqual(item.states['DataIniter'], cc.Pipeline.ItemState.ERROR, 'should set DataIniter state to ERROR while failed');
-        }
-        else {
-            strictEqual(item.states['DataIniter'], cc.Pipeline.ItemState.COMPLETE, 'should set DataIniter state to COMPLETE while completed');
-            strictEqual(item.states['Downloader'], cc.Pipeline.ItemState.COMPLETE, 'should set Downloader state to COMPLETE while completed');
-            strictEqual(item.states['Loader'], cc.Pipeline.ItemState.COMPLETE, 'should set Loader state to COMPLETE while completed');
-        }
-        strictEqual(urls[url], 1, 'should only complete once for each item');
-        count++;
-        strictEqual(completed, count, 'should increase completed count by one');
+        strictEqual(completed, 1, 'should dispatch onProgress');
     };
 
-    var items = cc.LoadingItems.create(pipeline, [
+    var task = cc.AssetManager.Task.create({input: [
         'res/Background.png',
         {
             url: 'res/scene.json',
@@ -224,7 +217,9 @@ asyncTest('content manipulation', function () {
         },
         'res/role.plist',
         'res/role'
-    ], onProgress, onComplete);
+    ], onProgress: onProgress, onComplete: onComplete});
+
+    pipeline.async(task);
 
     var timeoutId = setTimeout(function () {
         ok(false, 'time out!');

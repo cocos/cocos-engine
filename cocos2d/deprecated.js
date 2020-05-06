@@ -299,7 +299,7 @@ if (CC_DEBUG) {
         getWinSizeInPixels: 'cc.winSize',
         getVisibleSize: 'cc.view.getVisibleSize',
         getVisibleOrigin: 'cc.view.getVisibleOrigin',
-        purgeCachedData: 'cc.loader.releaseAll',
+        purgeCachedData: 'cc.assetManager.releaseAll',
         setDepthTest: 'cc.Camera.main.depth',
         setClearColor: 'cc.Camera.main.backgroundColor',
         getRunningScene: 'cc.director.getScene',
@@ -347,12 +347,6 @@ if (CC_DEBUG) {
         'setViewName',
         'getViewName'
     ], 'cc.view');
-
-    // Loader
-    markAsRemoved(cc.Pipeline, [
-        'flowInDeps',
-        'getItems'
-    ], 'cc.loader');
 
     // cc.PhysicsManager
     markAsRemoved(cc.PhysicsManager, [
@@ -445,7 +439,7 @@ if (CC_DEBUG) {
     markFunctionWarning(cc.Material, {
         getInstantiatedBuiltinMaterial: 'cc.MaterialVariant.createWithBuiltin',
         getInstantiatedMaterial: 'cc.MaterialVariant.create'
-    })
+    });
 
     // cc.RenderComponent
     cc.js.getset(cc.RenderComponent.prototype, 'sharedMaterials', function () {

@@ -88,8 +88,10 @@ var PhysicsChainCollider = cc.Class({
         return shape;
     },
 
-    resetInEditor: CC_EDITOR && function () {
-        this.resetPointsByContour();
+    resetInEditor: CC_EDITOR && function (didResetToDefault) {
+        if (didResetToDefault) {
+            this.resetPointsByContour();
+        }
     },
 
     resetPointsByContour: CC_EDITOR && function () {

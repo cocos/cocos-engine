@@ -70,9 +70,9 @@ export class ConstantForce extends cc.Component {
 
     /**
      * !#en
-     * To get and set the force that the world is facing, use this.force = otherVec3
+     * Set the force used in the world coordinate system, use `this.force = otherVec3`.
      * !#zh
-     * 获取和设置世界朝向的力, 设置时请用 this.force = otherVec3 的方式
+     * 设置世界坐标系中使用的力，设置时请用 `this.force = otherVec3` 的方式。
      * @property {Vec3} force
      */
     @property({
@@ -89,9 +89,9 @@ export class ConstantForce extends cc.Component {
 
     /**
      * !#en
-     * Get and set the force of the local orientation, using this.localforce = otherVec3
+     * Set the force used in the local coordinate system, using `this.localforce = otherVec3`.
      * !#zh
-     * 获取和设置本地朝向的力, 设置时请用 this.localForce = otherVec3 的方式
+     * 获取和设置本地坐标系中使用的力，设置时请用 `this.localForce = otherVec3` 的方式。
      * @property {Vec3} localForce
      */
     @property({
@@ -107,8 +107,10 @@ export class ConstantForce extends cc.Component {
     }
 
     /**
+     * !#en
+     * Torque applied to the world orientation
      * !#zh
-     * 获取和设置世界朝向的扭转力
+     * 对世界朝向施加的扭矩
      * @note
      * 设置时请用 this.torque = otherVec3 的方式
      * @property {Vec3} torque
@@ -127,9 +129,9 @@ export class ConstantForce extends cc.Component {
 
     /**
      * !#en
-     * Get and set the torque of the local orientation using this.localtorque = otherVec3
+     * Torque applied to local orientation, using `this.localtorque = otherVec3`.
      * !#zh
-     * 获取和设置本地朝向的扭转力, 设置时请用 this.localTorque = otherVec3 的方式
+     * 对本地朝向施加的扭矩，设置时请用 `this.localTorque = otherVec3` 的方式。
      * @property {Vec3} localTorque
      */
     @property({

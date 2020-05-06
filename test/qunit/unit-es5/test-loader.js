@@ -1,5 +1,7 @@
 largeModule('Loader');
 
+var libPath = assetDir + '/library';
+cc.assetManager.init({importBase: libPath, nativeBase: libPath});
 var loader = cc.loader;
 
 asyncTest('Load', function () {
@@ -13,13 +15,13 @@ asyncTest('Load', function () {
     ];
 
     loader.load(resources, function (completedCount, totalCount, item) {
-        if (item.id === image1) {
-            ok(item.content instanceof cc.Texture2D, 'image url\'s result should be Texture2D');
+        if (item.uuid === image1) {
+            ok(item.content instanceof Image, 'image url\'s result should be Image');
         }
-        else if (item.id === json1) {
+        else if (item.uuid === json1) {
             strictEqual(item.content.width, 89, 'should give correct js object as result of JSON');
         }
-        else if (item.id === json2) {
+        else if (item.uuid === json2) {
             strictEqual(item.content._native, 'YouKnowEverything', 'should give correct js object as result of JSON');
         }
         else {
@@ -39,8 +41,8 @@ asyncTest('Load single file', function () {
     var image1 = assetDir + '/button.png';
 
     loader.load(image1, function (completedCount, totalCount, item) {
-        if (item.id === image1) {
-            ok(item.content instanceof cc.Texture2D, 'image url\'s result should be Texture2D');
+        if (item.uuid === image1) {
+            ok(item.content instanceof Image, 'image url\'s result should be Image');
         }
         else {
             ok(false, 'should not load an unknown url');
@@ -72,7 +74,7 @@ asyncTest('Load with dependencies', function () {
             dep2,
             dep3
         ];
-        this.pipeline.flowInDeps(item, resources, function (deps) {
+        loader.load(resources, progressCallback, function (err, deps) {
             callback(null, result);
         });
     }
@@ -97,7 +99,7 @@ asyncTest('Load with dependencies', function () {
 
     var depsProgression = new Callback().enable();
     var progressCallback = new Callback(function (completedCount, totalCount, item) {
-        if (item.id === json1.url) {
+        if (item.uuid === json1.url) {
             var dep = loader.getRes(dep1);
             ok(dep instanceof cc.Texture2D, 'should correctly load dependent image1');
             dep = loader.getRes(dep2);
@@ -107,14 +109,14 @@ asyncTest('Load with dependencies', function () {
 
             strictEqual(item.content.__type__, 'TestTexture', 'should give correct js object as result of deps type');
         }
-        else if (item.id === json2) {
+        else if (item.uuid === json2) {
             strictEqual(item.content._native, 'YouKnowEverything', 'should give correct js object as result of JSON');
         }
-        else if (item.id === audio) {
+        else if (item.uuid === audio) {
             // Test environment doesn't support audio
             ok((item.content instanceof cc.AudioClip) || true, 'audio url\'s result should be AudioClip');
         }
-        else if (item.id === dep1 || item.id === dep2 || item.id === dep3) {
+        else if (item.uuid === dep1 || item.uuid === dep2 || item.uuid === dep3) {
             depsProgression();
         }
         else {
@@ -149,10 +151,10 @@ asyncTest('Loading font', function () {
     var total = resources.length;
 
     var progressCallback = new Callback(function (completedCount, totalCount, item) {
-        if (item.id === image) {
-            ok(item.content instanceof cc.Texture2D, 'image url\'s result should be Texture2D');
+        if (item.uuid === image) {
+            ok(item.content instanceof Image, 'image url\'s result should be Image');
         }
-        else if (item.id === font.url) {
+        else if (item.uuid === font.url) {
             strictEqual(item.content, 'Thonburi_LABEL', 'should set family name as content for Font type');
         }
         else {

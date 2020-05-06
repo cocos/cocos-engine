@@ -26,16 +26,11 @@
 
 const Texture2D = require('../assets/CCTexture2D');
 
-/**
- * cc.textureUtil is a singleton object, it can load cc.Texture2D asynchronously
- * @class textureUtil
- * @static
- */
 let textureUtil = {
     loadImage (url, cb, target) {
         cc.assertID(url, 3103);
 
-        var tex = cc.loader.getRes(url);
+        var tex = cc.assetManager.assets.get(url);
         if (tex) {
             if (tex.loaded) {
                 cb && cb.call(target, null, tex);
@@ -50,16 +45,9 @@ let textureUtil = {
             }
         }
         else {
-            tex = new Texture2D();
-            tex.url = url;
-            cc.loader.load({url: url, texture: tex}, function (err, texture) {
-                if (err) {
-                    return cb && cb.call(target, err || new Error('Unknown error'));
-                }
-                texture.handleLoadedTexture();
-                cb && cb.call(target, null, texture);
+            cc.assetManager.loadRemote(url, function (err, texture) {
+                cb && cb.call(target, err, texture);
             });
-            return tex;
         }
     },
 
@@ -67,14 +55,7 @@ let textureUtil = {
         if (url && image) {
             var tex = new Texture2D();
             tex.initWithElement(image);
-            var item = {
-                id: url,
-                url: url, // real download url, maybe changed
-                error: null,
-                content: tex,
-                complete: false
-            }
-            cc.loader.flowOut(item);
+            cc.assetManager.assets.add(url, tex);
             return tex;
         }
     },
@@ -84,28 +65,16 @@ let textureUtil = {
             callback && callback();
             return;
         }
-        if (!texture.url) {
+        if (!texture.nativeUrl) {
             callback && callback();
             return;
         }
         // load image
-        cc.loader.load({
-            url: texture.url,
-            // For uncompressed image, we should skip loader otherwise it will load a new texture.
-            // compressed texture need loader to parse data
-            skips: texture._isCompressed() ? undefined : ['Loader'],
-        }, function (err, image) {
-            if (image) {
-                if (CC_DEBUG && image instanceof cc.Texture2D) {
-                    return cc.error('internal error: loader handle pipe must be skipped');
-                }
-                if (!texture.loaded) {
-                    texture._nativeAsset = image;
-                }
-            }
+        cc.assetManager.loadNativeFile(texture, function (err, image) {
+            if (!err) texture._nativeAsset = image;
             callback && callback(err);
         });
     }
 };
 
-cc.textureUtil = module.exports = textureUtil;
+module.exports = textureUtil;
