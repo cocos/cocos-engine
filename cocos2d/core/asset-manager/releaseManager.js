@@ -178,6 +178,17 @@ var releaseManager = {
         _toDelete.remove(asset._uuid);
 
         if (!force) {
+
+            if (asset.refCount > 0) {
+                // check circular reference
+                var refs = Object.create(null);
+                refs[asset._uuid] = asset.refCount;
+
+                checkCircularReference(asset, refs);
+
+                if (refs[asset._uuid] > 0) return; 
+            }
+
             if (!CC_NATIVERENDERER) {
                 var glTexture = null;
                 if (asset instanceof cc.Texture2D) {
@@ -193,16 +204,6 @@ var releaseManager = {
                         }
                     }
                 }
-            }
-
-            if (asset.refCount > 0) {
-                // check circular reference
-                var refs = Object.create(null);
-                refs[asset._uuid] = asset.refCount;
-
-                checkCircularReference(asset, refs);
-
-                if (refs[asset._uuid] > 0) return; 
             }
         }
     
