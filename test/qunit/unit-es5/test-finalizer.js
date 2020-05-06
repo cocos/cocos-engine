@@ -48,6 +48,7 @@ test('release circle reference', function () {
     var texB = new cc.Texture2D();
     texB._uuid = 'BBB';
     texB.addRef();
+    texB.addRef();
     cc.assetManager.assets.add('BBB', texB);
     var texC = new cc.Texture2D();
     texC._uuid = 'CCC';
