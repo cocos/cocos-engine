@@ -771,6 +771,7 @@ let Camera = cc.Class({
         // force update node world matrix
         this.node.getWorldMatrix(_mat4_temp_1);
         this.beforeDraw();
+        
         RenderFlow.renderCamera(this._camera, rootNode);
     },
 
