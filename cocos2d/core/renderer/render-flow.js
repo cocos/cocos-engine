@@ -269,7 +269,6 @@ RenderFlow.init = function (batcher, forwardRenderer) {
     }
 };
 
-
 RenderFlow.getBachther = function () {
     return _batcher;
 };
