@@ -307,16 +307,20 @@ var utils = {
         return { type, onProgress, onComplete };
     },
 
-    checkCircleReference (owner, uuid, map) {
-        if (!map[uuid]) {
+    checkCircleReference (owner, uuid, map, checked) {
+        if (!checked) { 
+            checked = Object.create(null);
+        }
+        if (!map[uuid] || checked[uuid]) {
             return false;
         }
+        checked[uuid] = true;
         var result = false;
         var deps = map[uuid].content && map[uuid].content.__depends__;
         if (deps) {
             for (var i = 0, l = deps.length; i < l; i++) {
                 var dep = deps[i];
-                if (dep.uuid === owner || utils.checkCircleReference(owner, dep.uuid, map)) {
+                if (dep.uuid === owner || utils.checkCircleReference(owner, dep.uuid, map, checked)) {
                     result = true;
                     break;
                 }
