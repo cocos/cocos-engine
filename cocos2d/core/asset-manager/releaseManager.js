@@ -66,6 +66,8 @@ function visitComponent (comp, deps) {
     }
 }
 
+let _temp1 = [], _temp2 = [];
+
 function visitNode (node, deps) {
     for (let i = 0; i < node._components.length; i++) {
         visitComponent(node._components[i], deps);
@@ -75,20 +77,39 @@ function visitNode (node, deps) {
     }
 }
 
-function checkCircularReference (asset, refs) {
+function recover (asset, refs, exclude) {
+    exclude.push(asset._uuid);
+    var depends = dependUtil.getDeps(asset._uuid);
+    for (let i = 0, l = depends.length; i < l; i++) {
+        var dependAsset = assets.get(depends[i]);
+        if (dependAsset) {
+            refs[dependAsset._uuid]++;
+            if (exclude.includes(dependAsset._uuid)) continue; 
+            if (refs[dependAsset._uuid] === 1) {
+                recover(dependAsset, refs, exclude);
+            }
+        }
+    }
+}
+
+function checkCircularReference (asset, refs, exclude) {
+    exclude.push(asset._uuid);
     var depends = dependUtil.getDeps(asset._uuid);
     for (let i = 0, l = depends.length; i < l; i++) {
         var dependAsset = assets.get(depends[i]);
         if (dependAsset) {
             if (!(dependAsset._uuid in refs)) { 
                 refs[dependAsset._uuid] = dependAsset.refCount - 1;
-                if (refs[dependAsset._uuid] === 0) {
-                    checkCircularReference(dependAsset, refs);
+                if (exclude.includes(dependAsset._uuid)) continue; 
+                checkCircularReference(dependAsset, refs, exclude);
+                if (refs[dependAsset._uuid] !== 0) {
+                    recover(dependAsset, refs, _temp2);
+                    _temp2.length = 0;
                 }
             }
             else {
                 refs[dependAsset._uuid]--;
-            } 
+            }
         }
     }
 }
@@ -179,16 +200,6 @@ var releaseManager = {
 
         if (!force) {
 
-            if (asset.refCount > 0) {
-                // check circular reference
-                var refs = Object.create(null);
-                refs[asset._uuid] = asset.refCount;
-
-                checkCircularReference(asset, refs);
-
-                if (refs[asset._uuid] > 0) return; 
-            }
-
             if (!CC_NATIVERENDERER) {
                 var glTexture = null;
                 if (asset instanceof cc.Texture2D) {
@@ -204,6 +215,17 @@ var releaseManager = {
                         }
                     }
                 }
+            }
+            
+            if (asset.refCount > 0) {
+                // check circular reference
+                var refs = Object.create(null);
+                refs[asset._uuid] = asset.refCount;
+
+                checkCircularReference(asset, refs, _temp1);
+                _temp1.length = 0;
+
+                if (refs[asset._uuid] > 0) return; 
             }
         }
     
