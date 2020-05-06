@@ -4,13 +4,15 @@
 
 NS_CC_BEGIN
 
+#define INITIAL_CAPACITY 1
+
 template <typename T, typename = std::enable_if<std::is_base_of<GFXCmd, T>::value>>
 class GFXCommandPool {
  public:
-  GFXCommandPool(): _freeCmds(1) {
-    _frees = new T*[1];
-    _count = 1;
-    _freeIdx = 0;
+  GFXCommandPool(): _freeCmds(INITIAL_CAPACITY) {
+    _frees = new T*[INITIAL_CAPACITY];
+    _count = INITIAL_CAPACITY;
+    _freeIdx = INITIAL_CAPACITY - 1;
     for (uint i = 0; i < _count; ++i) {
       _frees[i] = CC_NEW(T);
     }

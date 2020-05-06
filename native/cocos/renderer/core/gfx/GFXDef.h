@@ -545,7 +545,7 @@ enum class GFXVsyncMode : uint8_t {
   RELAXED,
   // The presentation engine will always use the latest fully rendered image. Compared to OFF, no tearing will be observed. Compared to ON, battery power will be worse, especially for faster applications. If unsupported,  "OFF" will be attempted next.
   MAILBOX,
-  // The application is capped to using half the vertical sync time. FPS artificially capped to Half the display speed (usually 30fps) to maintain battery. Best possible battery savings. Worst possibly performance. Recommended for specific applications where battery saving is critical.
+  // The application is capped to using half the vertical sync time. FPS artificially capped to Half the display speed (usually 30fps) to maintain battery. Best possible battery savings. Worst possible performance. Recommended for specific applications where battery saving is critical.
   HALF,
 };
 
@@ -621,7 +621,7 @@ struct GFXViewport {
   uint width = 0;
   uint height = 0;
   float minDepth = 0.0f;
-  float maxDepth = 0.0f;
+  float maxDepth = 1.0f;
     
     bool operator ==(const GFXViewport& rs)
     {
@@ -679,7 +679,7 @@ struct GFXWindowInfo {
 struct GFXContextInfo {
   uintptr_t windowHandle = 0;
   GFXContext* sharedCtx = nullptr;
-  GFXVsyncMode vsyncMode = GFXVsyncMode::OFF;
+  GFXVsyncMode vsyncMode = GFXVsyncMode::RELAXED;
 };
 
 struct GFXBufferInfo {

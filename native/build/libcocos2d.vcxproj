@@ -53,24 +53,31 @@
     <ClCompile Include="..\cocos\renderer\gfx-gles3\GLES3TextureView.cc" />
     <ClCompile Include="..\cocos\renderer\gfx-gles3\gles3w.c" />
     <ClCompile Include="..\cocos\renderer\gfx-gles3\GLES3Window.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKBindingLayout.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKBuffer.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKCommandAllocator.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKCommandBuffer.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKCommands.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKContext.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKDevice.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKFramebuffer.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKInputAssembler.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKPipelineLayout.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKPipelineState.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKQueue.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKRenderPass.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKSampler.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKShader.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKStd.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKTexture.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKTextureView.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKWindow.cc" />
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\volk.c" />
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gles2_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gles3_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_gfx_manual.cpp" />
     <ClCompile Include="..\external\sources\tommyds\tommy.c" />
-    <ClCompile Include="..\external\sources\tommyds\tommyalloc.c" />
-    <ClCompile Include="..\external\sources\tommyds\tommyarray.c" />
-    <ClCompile Include="..\external\sources\tommyds\tommyarrayblk.c" />
-    <ClCompile Include="..\external\sources\tommyds\tommyarrayblkof.c" />
-    <ClCompile Include="..\external\sources\tommyds\tommyarrayof.c" />
-    <ClCompile Include="..\external\sources\tommyds\tommyhash.c" />
-    <ClCompile Include="..\external\sources\tommyds\tommyhashdyn.c" />
-    <ClCompile Include="..\external\sources\tommyds\tommyhashlin.c" />
-    <ClCompile Include="..\external\sources\tommyds\tommyhashtbl.c" />
-    <ClCompile Include="..\external\sources\tommyds\tommylist.c" />
-    <ClCompile Include="..\external\sources\tommyds\tommytree.c" />
-    <ClCompile Include="..\external\sources\tommyds\tommytrie.c" />
-    <ClCompile Include="..\external\sources\tommyds\tommytrieinp.c" />
     <ClCompile Include="..\cocos\audio\AudioEngine.cpp" />
     <ClCompile Include="..\cocos\audio\win32\AudioCache.cpp" />
     <ClCompile Include="..\cocos\audio\win32\AudioDecoder.cpp" />
@@ -248,26 +255,36 @@
     <ClInclude Include="..\cocos\renderer\gfx-gles3\GLES3TextureView.h" />
     <ClInclude Include="..\cocos\renderer\gfx-gles3\gles3w.h" />
     <ClInclude Include="..\cocos\renderer\gfx-gles3\GLES3Window.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\GFXVulkan.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKBindingLayout.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKBuffer.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKCommandAllocator.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKCommandBuffer.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKCommands.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKContext.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKDevice.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKFramebuffer.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKGPUObjects.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKInputAssembler.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKPipelineLayout.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKPipelineState.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKQueue.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKRenderPass.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKSampler.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKShader.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKSPIRV.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKStateCache.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKStd.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKTexture.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKTextureView.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKUtils.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKWindow.h" />
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\volk.h" />
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gles2_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gles3_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_gfx_manual.hpp" />
     <ClInclude Include="..\external\sources\tommyds\tommy.h" />
-    <ClInclude Include="..\external\sources\tommyds\tommyalloc.h" />
-    <ClInclude Include="..\external\sources\tommyds\tommyarray.h" />
-    <ClInclude Include="..\external\sources\tommyds\tommyarrayblk.h" />
-    <ClInclude Include="..\external\sources\tommyds\tommyarrayblkof.h" />
-    <ClInclude Include="..\external\sources\tommyds\tommyarrayof.h" />
-    <ClInclude Include="..\external\sources\tommyds\tommychain.h" />
-    <ClInclude Include="..\external\sources\tommyds\tommyhash.h" />
-    <ClInclude Include="..\external\sources\tommyds\tommyhashdyn.h" />
-    <ClInclude Include="..\external\sources\tommyds\tommyhashlin.h" />
-    <ClInclude Include="..\external\sources\tommyds\tommyhashtbl.h" />
-    <ClInclude Include="..\external\sources\tommyds\tommylist.h" />
-    <ClInclude Include="..\external\sources\tommyds\tommytree.h" />
-    <ClInclude Include="..\external\sources\tommyds\tommytrie.h" />
-    <ClInclude Include="..\external\sources\tommyds\tommytrieinp.h" />
-    <ClInclude Include="..\external\sources\tommyds\tommytypes.h" />
     <ClInclude Include="..\cocos\audio\include\AudioEngine.h" />
     <ClInclude Include="..\cocos\audio\include\Export.h" />
     <ClInclude Include="..\cocos\audio\win32\AudioCache.h" />
@@ -509,12 +526,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>$(EngineRoot)external\win32\libs;$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)</TargetName>
-    <IncludePath>$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\renderer\core;$(ProjectDir)..\external\sources\tommyds;$(ProjectDir)..\external\sources\khronos;$(ProjectDir)..\external\sources\jemalloc\include-win;$(ProjectDir)..\external\sources\jemalloc\include-win\msvc_compat;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\renderer\core;$(ProjectDir)..\external\sources\tommyds;$(ProjectDir)..\external\sources\khronos;$(ProjectDir)..\external\sources\jemalloc\include-win;$(ProjectDir)..\external\sources\jemalloc\include-win\msvc_compat;$(ProjectDir)..\external\sources\glslang;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LibraryPath>$(EngineRoot)external\win32\libs;$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)</TargetName>
-    <IncludePath>$(ProjectDir)..\cocos\renderer\core;$(ProjectDir)..\external\sources\tommyds;$(ProjectDir)..\external\sources\khronos;$(ProjectDir)..\external\sources\jemalloc\include-win;$(ProjectDir)..\external\sources\jemalloc\include-win\msvc_compat;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\renderer\core;$(ProjectDir)..\external\sources\tommyds;$(ProjectDir)..\external\sources\khronos;$(ProjectDir)..\external\sources\jemalloc\include-win;$(ProjectDir)..\external\sources\jemalloc\include-win\msvc_compat;$(ProjectDir)..\external\sources\glslang;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PreBuildEvent>
@@ -524,7 +541,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(ProjectDir)..\cocos;$(ProjectDir)..\external\sources;$(ProjectDir)..\cocos\renderer\gfx;$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\platform;$(ProjectDir)..\external\win32\include\zlib;$(ProjectDir)..\external\win32\include\v8;$(ProjectDir)..\external\sources\firefox;$(projectDir)..;$(ProjectDir)..\external\win32\include;$(ProjectDir)..\external\win32\include\uv;$(ProjectDir)..\cocos\editor-support</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;CC_STATIC;_USRDLL;_LIB;COCOS2D_DEBUG=1;JS_HAVE____INTN;JS_INTPTR_TYPE=int;XP_WIN;_CRT_SECURE_NO_WARNINGS;_WINDOWS;_WIN32;__MWERKS__;CC_CORE_EXPORTS;GLEW_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;CC_STATIC;_USRDLL;_LIB;COCOS2D_DEBUG=1;JS_HAVE____INTN;JS_INTPTR_TYPE=int;XP_WIN;_CRT_SECURE_NO_WARNINGS;_WINDOWS;_WIN32;__MWERKS__;CC_CORE_EXPORTS;GLEW_BUILD;VK_USE_PLATFORM_WIN32_KHR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -565,7 +582,7 @@ xcopy /Y /Q "$(ProjectDir)..\external\win32\libs\Debug\*.*" "$(OutDir)"</Command
       </Command>
     </PreBuildEvent>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\cocos;$(ProjectDir)..\external\sources;$(ProjectDir)..\cocos\renderer\gfx;$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\platform;$(ProjectDir)..\external\win32\include\zlib;$(ProjectDir)..\external\win32\include\v8;$(ProjectDir)..\external\sources\firefox;$(projectDir)..;$(ProjectDir)..\external\win32\include;$(ProjectDir)..\external\win32\include\uv;$(ProjectDir)..\cocos\editor-support</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\cocos;$(ProjectDir)..\external\sources;$(ProjectDir)..\cocos\renderer\gfx;$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\platform;$(ProjectDir)..\external\win32\include\zlib;$(ProjectDir)..\external\win32\include\v8;$(ProjectDir)..\external\sources\firefox;$(projectDir)..;$(ProjectDir)..\external\win32\include;$(ProjectDir)..\external\win32\include\uv;$(ProjectDir)..\cocos\editor-support;$(ProjectDir)..\external\sources\glslang</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;CC_STATIC;_USRDLL;USING_V8_SHARED;_LIB;JS_HAVE____INTN;JS_INTPTR_TYPE=int;XP_WIN;_CRT_SECURE_NO_WARNINGS;GLFW_EXPOSE_NATIVE_WIN32;GLFW_EXPOSE_NATIVE_WGL;_WIN32;__MWERKS__;CC_CORE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>

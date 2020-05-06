@@ -1,7 +1,9 @@
 add_subdirectory(core)
 
 if(COCOS_PLATFORM_WIN32)
+	add_subdirectory(gfx-gles2)
 	add_subdirectory(gfx-gles3)
+	add_subdirectory(gfx-vulkan)
 elseif(COCOS_PLATFORM_IOS)
 	add_subdirectory(gfx-gles3)
 	add_subdirectory(gfx-metal)

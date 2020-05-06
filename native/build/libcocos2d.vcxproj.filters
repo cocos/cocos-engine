@@ -380,45 +380,6 @@
     <ClCompile Include="..\external\sources\tommyds\tommy.c">
       <Filter>external\tommy</Filter>
     </ClCompile>
-    <ClCompile Include="..\external\sources\tommyds\tommyalloc.c">
-      <Filter>external\tommy</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\sources\tommyds\tommyarray.c">
-      <Filter>external\tommy</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\sources\tommyds\tommyarrayblk.c">
-      <Filter>external\tommy</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\sources\tommyds\tommyarrayblkof.c">
-      <Filter>external\tommy</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\sources\tommyds\tommyarrayof.c">
-      <Filter>external\tommy</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\sources\tommyds\tommyhash.c">
-      <Filter>external\tommy</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\sources\tommyds\tommyhashdyn.c">
-      <Filter>external\tommy</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\sources\tommyds\tommyhashlin.c">
-      <Filter>external\tommy</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\sources\tommyds\tommyhashtbl.c">
-      <Filter>external\tommy</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\sources\tommyds\tommylist.c">
-      <Filter>external\tommy</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\sources\tommyds\tommytree.c">
-      <Filter>external\tommy</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\sources\tommyds\tommytrie.c">
-      <Filter>external\tommy</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\sources\tommyds\tommytrieinp.c">
-      <Filter>external\tommy</Filter>
-    </ClCompile>
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.cpp">
       <Filter>js-bindings\auto</Filter>
     </ClCompile>
@@ -559,6 +520,66 @@
     </ClCompile>
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gles2_auto.cpp">
       <Filter>js-bindings\auto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKBindingLayout.cc">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKBuffer.cc">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKCommandAllocator.cc">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKCommandBuffer.cc">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKCommands.cc">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKContext.cc">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKDevice.cc">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKFramebuffer.cc">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKInputAssembler.cc">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKPipelineLayout.cc">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKPipelineState.cc">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKQueue.cc">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKRenderPass.cc">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKSampler.cc">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKShader.cc">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKStd.cc">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKTexture.cc">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKTextureView.cc">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\VKWindow.cc">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-vulkan\volk.c">
+      <Filter>renderer\gfx-vulkan</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1070,51 +1091,6 @@
     <ClInclude Include="..\external\sources\tommyds\tommy.h">
       <Filter>external\tommy</Filter>
     </ClInclude>
-    <ClInclude Include="..\external\sources\tommyds\tommyalloc.h">
-      <Filter>external\tommy</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\tommyds\tommyarray.h">
-      <Filter>external\tommy</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\tommyds\tommyarrayblk.h">
-      <Filter>external\tommy</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\tommyds\tommyarrayblkof.h">
-      <Filter>external\tommy</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\tommyds\tommyarrayof.h">
-      <Filter>external\tommy</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\tommyds\tommychain.h">
-      <Filter>external\tommy</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\tommyds\tommyhash.h">
-      <Filter>external\tommy</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\tommyds\tommyhashdyn.h">
-      <Filter>external\tommy</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\tommyds\tommyhashlin.h">
-      <Filter>external\tommy</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\tommyds\tommyhashtbl.h">
-      <Filter>external\tommy</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\tommyds\tommylist.h">
-      <Filter>external\tommy</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\tommyds\tommytree.h">
-      <Filter>external\tommy</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\tommyds\tommytrie.h">
-      <Filter>external\tommy</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\tommyds\tommytrieinp.h">
-      <Filter>external\tommy</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\tommyds\tommytypes.h">
-      <Filter>external\tommy</Filter>
-    </ClInclude>
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.hpp">
       <Filter>js-bindings\auto</Filter>
     </ClInclude>
@@ -1271,6 +1247,81 @@
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gles2_auto.hpp">
       <Filter>js-bindings\auto</Filter>
     </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\GFXVulkan.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKBindingLayout.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKBuffer.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKCommandAllocator.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKCommandBuffer.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKCommands.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKContext.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKDevice.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKFramebuffer.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKGPUObjects.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKInputAssembler.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKPipelineLayout.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKPipelineState.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKQueue.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKRenderPass.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKSampler.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKShader.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKSPIRV.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKStateCache.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKStd.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKTexture.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKTextureView.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKUtils.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKWindow.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-vulkan\volk.h">
+      <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="base">
@@ -1383,6 +1434,9 @@
     </Filter>
     <Filter Include="renderer\gfx-gles2">
       <UniqueIdentifier>{6cd7b083-875a-4f76-8de5-e7c3f7baba1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\gfx-vulkan">
+      <UniqueIdentifier>{58b6724a-9662-42af-afa5-e49c7b9ade5b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -14,6 +14,7 @@ class CC_CORE_API GFXDevice : public Object {
   virtual bool initialize(const GFXDeviceInfo& info) = 0;
   virtual void destroy() = 0;
   virtual void resize(uint width, uint height) = 0;
+  virtual void begin() = 0;
   virtual void present() = 0;
   virtual GFXWindow* createWindow(const GFXWindowInfo& info) = 0;
   virtual GFXQueue* createQueue(const GFXQueueInfo& info) = 0;

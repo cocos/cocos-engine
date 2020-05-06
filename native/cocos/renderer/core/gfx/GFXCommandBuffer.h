@@ -44,9 +44,9 @@ protected:
   GFXDevice* _device = nullptr;
   GFXCommandAllocator* _allocator = nullptr;
   GFXCommandBufferType _type = GFXCommandBufferType::PRIMARY;
-  uint _numDrawCalls = 0;
-  uint _numInstances = 0;
-  uint _numTriangles = 0;
+  uint32_t _numDrawCalls = 0;
+  uint32_t _numInstances = 0;
+  uint32_t _numTriangles = 0;
 };
 
 NS_CC_END
