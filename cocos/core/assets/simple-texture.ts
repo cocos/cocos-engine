@@ -212,11 +212,15 @@ export class SimpleTexture extends TextureBase {
     }
 
     protected _createTexture (device: GFXDevice) {
+        if(this._width === 0 || this._height === 0) {
+            return;
+        }
         let flags = GFXTextureFlagBit.NONE;
         if (this._mipFilter !== Filter.NONE && canGenerateMipmap(device, this._width, this._height)) {
             this._mipmapLevel = getMipLevel(this._width, this._height);
             flags = GFXTextureFlagBit.GEN_MIPMAP;
         }
+
         const textureCreateInfo = this._getGfxTextureCreateInfo({
             usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
             format: this._getGFXFormat(),
