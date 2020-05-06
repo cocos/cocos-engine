@@ -291,6 +291,7 @@ SE_DECLARE_FUNC(js_gfx_GFXDevice_getColorFormat);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createFramebuffer);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createRenderPass);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createPipelineLayout);
+SE_DECLARE_FUNC(js_gfx_GFXDevice_begin);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createWindow);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createShader);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createInputAssembler);

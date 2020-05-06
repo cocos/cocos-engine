@@ -13484,6 +13484,21 @@ static bool js_gfx_GFXDevice_createPipelineLayout(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXDevice_createPipelineLayout)
 
+static bool js_gfx_GFXDevice_begin(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_begin : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->begin();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GFXDevice_begin)
+
 static bool js_gfx_GFXDevice_createWindow(se::State& s)
 {
     cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
@@ -13981,6 +13996,7 @@ bool js_register_gfx_GFXDevice(se::Object* obj)
     cls->defineFunction("createFramebuffer", _SE(js_gfx_GFXDevice_createFramebuffer));
     cls->defineFunction("createRenderPass", _SE(js_gfx_GFXDevice_createRenderPass));
     cls->defineFunction("createPipelineLayout", _SE(js_gfx_GFXDevice_createPipelineLayout));
+    cls->defineFunction("begin", _SE(js_gfx_GFXDevice_begin));
     cls->defineFunction("createWindow", _SE(js_gfx_GFXDevice_createWindow));
     cls->defineFunction("createShader", _SE(js_gfx_GFXDevice_createShader));
     cls->defineFunction("createInputAssembler", _SE(js_gfx_GFXDevice_createInputAssembler));
