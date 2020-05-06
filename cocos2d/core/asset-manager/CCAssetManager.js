@@ -254,19 +254,19 @@ function AssetManager () {
         },
 
         'preload': {
-            maxConcurrent: 2, 
+            maxConcurrency: 2, 
             maxRequestsPerFrame: 2,
             priority: -1,
         },
 
         'scene': {
-            maxConcurrent: 8, 
+            maxConcurrency: 8, 
             maxRequestsPerFrame: 8,
             priority: 1,
         },
 
         'bundle': {
-            maxConcurrent: 8, 
+            maxConcurrency: 8, 
             maxRequestsPerFrame: 8,
             priority: 2,
         },
@@ -417,7 +417,7 @@ AssetManager.prototype = {
      * Every custom parameter in `requests` will be tranfered to handler of `downloader` and `parser` as `options`. 
      * You can register you own handler downloader or parser to collect these custom parameters for some effect.
      * 
-     * Reserved Keyword: [`uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`, `bundle`, `onFileProgress`, `maxConcurrent`, `maxRequestsPerFrame`
+     * Reserved Keyword: [`uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`, `bundle`, `onFileProgress`, `maxConcurrency`, `maxRequestsPerFrame`
      * `maxRetryCount`, `version`, `isCrossOrigin`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload`, `cacheAsset`, `cacheEnabled`],
      * Please DO NOT use these words as custom options!
      * 
@@ -427,7 +427,7 @@ AssetManager.prototype = {
      * 依赖资源，则 `options` 中的参数会继续向依赖项中分发。request中的自定义参数都会以 `options` 形式传入加载流程中的 `downloader`, `parser` 的方法中, 你可以
      * 扩展 `downloader`, `parser` 收集参数完成想实现的效果。
      * 
-     * 保留关键字: [`uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`, `bundle`, `onFileProgress`, `maxConcurrent`, `maxRequestsPerFrame`
+     * 保留关键字: [`uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`, `bundle`, `onFileProgress`, `maxConcurrency`, `maxRequestsPerFrame`
      * `maxRetryCount`, `version`, `isCrossOrigin`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload`, `cacheAsset`, `cacheEnabled`],
      * 请不要使用这些字段为自定义参数!
      * 

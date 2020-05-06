@@ -154,10 +154,10 @@ var updateTime = function () {
 };
 
 // handle the rest request in next period
-var handleQueue = function (maxConcurrent, maxRequestsPerFrame) {
+var handleQueue = function (maxConcurrency, maxRequestsPerFrame) {
     _checkNextPeriod = false;
     updateTime();
-    while (_queue.length > 0 && _totalNum < maxConcurrent && _totalNumThisPeriod < maxRequestsPerFrame) {
+    while (_queue.length > 0 && _totalNum < maxConcurrency && _totalNumThisPeriod < maxRequestsPerFrame) {
         if (_queueDirty) {
             _queue.sort(function (a, b) {
                 return a.priority - b.priority;
@@ -173,8 +173,8 @@ var handleQueue = function (maxConcurrent, maxRequestsPerFrame) {
         nextOne.invoke();
     }
 
-    if (_queue.length > 0 && _totalNum < maxConcurrent) {
-        callInNextTick(handleQueue, maxConcurrent, maxRequestsPerFrame);
+    if (_queue.length > 0 && _totalNum < maxConcurrency) {
+        callInNextTick(handleQueue, maxConcurrency, maxRequestsPerFrame);
         _checkNextPeriod = true;
     }
 }
@@ -209,11 +209,11 @@ var downloader = {
      * !#zh
      * 下载时的最大并发数
      * 
-     * @property maxConcurrent
+     * @property maxConcurrency
      * @type {number}
      * @default 6
      */
-    maxConcurrent: 6,
+    maxConcurrency: 6,
 
     /**
      * !#en 
@@ -414,7 +414,7 @@ var downloader = {
      * @param {Object} options - some optional paramters will be transferred to the corresponding handler.
      * @param {Function} [options.onFileProgress] - progressive callback will be transferred to handler.
      * @param {Number} [options.maxRetryCount] - How many times should retry when download failed
-     * @param {Number} [options.maxConcurrent] - The maximum number of concurrent when downloading
+     * @param {Number} [options.maxConcurrency] - The maximum number of concurrent when downloading
      * @param {Number} [options.maxRequestsPerFrame] - The maximum number of request can be launched per frame when downloading
      * @param {Number} [options.priority] - The priority of this url, default is 0, the greater number is higher priority.
      * @param {Function} onComplete - callback when finishing downloading
@@ -451,7 +451,7 @@ var downloader = {
         else {
             // if download fail, should retry
             var maxRetryCount = options.maxRetryCount || this.maxRetryCount;
-            var maxConcurrent = options.maxConcurrent || this.maxConcurrent;
+            var maxConcurrency = options.maxConcurrency || this.maxConcurrency;
             var maxRequestsPerFrame = options.maxRequestsPerFrame || this.maxRequestsPerFrame;
 
             function process (index, callback) {
@@ -469,14 +469,14 @@ var downloader = {
                         // when finish downloading, update _totalNum
                         _totalNum--;
                         if (!_checkNextPeriod && _queue.length > 0) {
-                            callInNextTick(handleQueue, maxConcurrent, maxRequestsPerFrame);
+                            callInNextTick(handleQueue, maxConcurrency, maxRequestsPerFrame);
                             _checkNextPeriod = true;
                         }
                         callback.apply(this, arguments);
                     });
                 }
 
-                if (_totalNum < maxConcurrent && _totalNumThisPeriod < maxRequestsPerFrame) {
+                if (_totalNum < maxConcurrency && _totalNumThisPeriod < maxRequestsPerFrame) {
                     invoke();
                     _totalNum++;
                     _totalNumThisPeriod++;
@@ -486,8 +486,8 @@ var downloader = {
                     _queue.push({ id, priority: options.priority || 0, invoke });
                     _queueDirty = true;
     
-                    if (!_checkNextPeriod && _totalNum < maxConcurrent) {
-                        callInNextTick(handleQueue, maxConcurrent, maxRequestsPerFrame);
+                    if (!_checkNextPeriod && _totalNum < maxConcurrency) {
+                        callInNextTick(handleQueue, maxConcurrency, maxRequestsPerFrame);
                         _checkNextPeriod = true;
                     }
                 }
