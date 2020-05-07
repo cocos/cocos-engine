@@ -3,7 +3,7 @@
  */
 
 import { GFXBuffer } from './buffer';
-import { GFXBindingType, GFXObject, GFXObjectType } from './define';
+import { GFXBindingType, GFXObject, GFXObjectType, GFXShaderType } from './define';
 import { GFXDevice } from './device';
 import { GFXSampler } from './sampler';
 import { GFXTextureView } from './texture-view';
@@ -11,6 +11,8 @@ import { GFXTextureView } from './texture-view';
 export interface IGFXBinding {
     binding: number;
     bindingType: GFXBindingType;
+    shaderStages: GFXShaderType;
+    count: number;
     name: string;
 }
 

@@ -104,6 +104,7 @@ function insertBuiltinBindings (tmpl: IProgramInfo, source: Map<string, IInterna
             size: getSize(info.blockInfo!),
             bindingType: GFXBindingType.UNIFORM_BUFFER,
             defaultValue: info.defaultValue as ArrayBuffer,
+            count: 1,
         }, info.blockInfo!);
         blocks.push(builtin);
     }
@@ -218,7 +219,7 @@ class ProgramLib {
         }
         if (offset > 31) { tmpl.uber = true; }
         tmpl.blocks.forEach((b) => {
-            b.bindingType = GFXBindingType.UNIFORM_BUFFER; b.size = getSize(b);
+            b.bindingType = GFXBindingType.UNIFORM_BUFFER; b.size = getSize(b); b.count = 1;
         });
         tmpl.samplers.forEach((s) => s.bindingType = GFXBindingType.SAMPLER);
         tmpl.handleMap = genHandles(tmpl);
@@ -328,8 +329,9 @@ class ProgramLib {
             case GFXAPI.WEBGL: src = tmpl.glsl1; break;
             case GFXAPI.GLES3:
             case GFXAPI.WEBGL2: src = tmpl.glsl3; break;
+            case GFXAPI.VULKAN:
             case GFXAPI.METAL: src = tmpl.glsl4; break;
-            default:  console.error("Invalid GFX API!"); break;
+            default:  console.error('Invalid GFX API!'); break;
         }
 
         const blocks: IBlockInfoRT[] = [];
