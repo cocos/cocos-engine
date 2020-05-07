@@ -104,7 +104,7 @@ export class ForwardPipeline extends RenderPipeline {
                 size: UBOForwardLight.SIZE,
                 stride: UBOForwardLight.SIZE,
             });
-            this._lightBuffers?.push(lightBuffer);
+            this._lightBuffers.push(lightBuffer);
         }            
     }
 
@@ -142,6 +142,11 @@ export class ForwardPipeline extends RenderPipeline {
      */
     public destroy () {
         this._destroy();
+
+        if(this._lightBuffers){
+            this._lightBuffers.forEach(this.lightBufferDestory);
+            this._lightBuffers.length = 0;
+        }        
     }
 
     /**
@@ -250,7 +255,6 @@ export class ForwardPipeline extends RenderPipeline {
     public sceneCulling (view: RenderView) {
         super.sceneCulling(view);
         this._validLights.length = 0;
-        //this._lightBuffers.length = 0;
         const sphereLights = view.camera.scene!.sphereLights;
         for (let i = 0; i < sphereLights.length; i++) {
             const light = sphereLights[i];
@@ -314,6 +318,10 @@ export class ForwardPipeline extends RenderPipeline {
 
     private sortLight (a: number, b: number) {
         return _tempLightDist[a] - _tempLightDist[b];
+    }
+
+    protected lightBufferDestory (lb: GFXBuffer){
+        lb.destroy();
     }
 
     /**

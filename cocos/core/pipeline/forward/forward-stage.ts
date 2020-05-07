@@ -82,7 +82,13 @@ export class ForwardStage extends RenderStage {
     public destroy () {
         if (this._cmdBuff) {
             this._cmdBuff.destroy();
-            this._cmdBuff = null;
+            this._cmdBuff = null;            
+        }
+        
+        if(this._lightBatchQueues)
+        {
+            this._lightBatchQueues.forEach(this.lightBatchQueueClearFunc);
+            this._lightBatchQueues.length = 0;
         }
     }
 

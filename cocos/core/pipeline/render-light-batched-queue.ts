@@ -25,7 +25,7 @@ export class RenderLightBatchedQueue {
 
     /**
      * constructor
-     * @param desc 渲染队列描述。
+     * @param desc Render queue description
      */
     constructor (desc: IRenderQueueDesc) {
         this._passDesc = desc;
@@ -33,7 +33,7 @@ export class RenderLightBatchedQueue {
 
     /**
      * update lightBuffer for light-batch-queue
-     * @param lightBuffer 
+     * @param lightBuffer GFXBuffer for light
      */
     public updateLightBuffer (lightBuffer: GFXBuffer) {
         this._lightBuffer = lightBuffer;
@@ -41,7 +41,7 @@ export class RenderLightBatchedQueue {
 
     /**
      * @zh
-     * 清空渲染队列。
+     * clear ligth-Batched-Queue
      */
     public clear () {
         this._subModels.length = 0;
@@ -61,11 +61,10 @@ export class RenderLightBatchedQueue {
         {
             const nowStep = this._subModels.length;
             this._subModels.push(renderObj.model.subModels[modelIdx]);
-            if(!this._psos[nowStep])
-            {
-                //@ts-ignore
-                this._psos.push(renderObj.model.createPipelineState(pass, modelIdx, patches));
-            }
+            // keep _psos.length  =  _subModels.length
+            this._psos.length = this._subModels.length;
+            //@ts-ignore
+            this._psos[nowStep] = renderObj.model.createPipelineState(pass, modelIdx, patches);
             const bindingLayout = this._psos[nowStep]!.pipelineLayout.layouts[0];
             if(this._lightBuffer){bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, this._lightBuffer);}
         }
@@ -73,7 +72,7 @@ export class RenderLightBatchedQueue {
 
     /**
      * @zh
-     * 记录命令缓冲。
+     * record CommandBuffer
      */
     public recordCommandBuffer (cmdBuff: GFXCommandBuffer) {
         for(let i = 0; i < this._subModels.length; ++i)
