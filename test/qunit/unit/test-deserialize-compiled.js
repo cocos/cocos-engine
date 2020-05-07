@@ -319,7 +319,7 @@ test('dereference', function () {
         }
     });
 
-    test('deserializeCCObject - Dict/Array', function () {
+    test('deserializeCCObject + Dict/Array', function () {
         let obj = {};
 
         let dictDataInArray = [
@@ -370,7 +370,7 @@ test('dereference', function () {
 }
 
 test('deserializeCustomCCObject', function () {
-    let { File, DataTypeID, parseInstances } = cc._Test.deserializeCompiled;
+    let { File, DataTypeID, parseInstances, deserialize: deserializeCompiled } = cc._Test.deserializeCompiled;
 
     var Asset = cc.Class({
         name: 'a a b b',
@@ -422,147 +422,138 @@ test('deserializeCustomCCObject', function () {
     cc.js.unregisterClass(Asset);
 });
 
-if (TestEditorExtends) {
+if (TestEditorExtends) { (function () {
 
-    let { deserialize } = cc._Test.deserializeCompiled;
+    let { deserialize: deserializeCompiled } = cc._Test.deserializeCompiled;
+    let match = function (obj, info) {
+        // 有些属性无法被保存到 JSON 中，所以 JSON.stringify 一次比较准确
+        deepEqual(obj, deserializeCompiled(Editor.serializeCompiled(obj, {stringify: true})), info);
+    };
 
     test('basic deserialize test', function () {
         var MyAsset = (function () {
             function MyAsset () {
                 this.emptyArray = [];
                 this.array = [1, '2', {a:3}, [4, [5]], true];
-                this.string = 'unknown';
+                this.string = 'jier';
                 this.emptyString = '';
-                this.number = 1;
-                this.boolean = true;
+                this.number = 250;
+                this.boolean = false;
                 this.emptyObj = {};
                 this.valueType = new cc.Vec2(1, 2.1);
             }
             cc.Class._fastDefine('MyAsset', MyAsset,
-                ['emptyArray', 'array', 'string', 'emptyString', 'number', 'boolean', 'emptyObj', 'valueType']);
+                {'emptyArray': [], 'array': [], 'string': 'unknown', 'emptyString': 'unknown', 'number': 1, 'boolean': true, 'emptyObj': null, 'valueType': new cc.Vec2()});
             return MyAsset;
         })();
 
         var asset = new MyAsset();
-        var serializedAsset = Editor.serializeCompiled(asset, { exporting: true });
-        var deserializedAsset = deserialize(serializedAsset);
+        var serializedAsset = Editor.serializeCompiled(asset);
+        var deserializedAsset = deserializeCompiled(serializedAsset);
 
         deepEqual(deserializedAsset, asset, 'test deserialize');
 
         cc.js.unregisterClass(MyAsset);
     });
-    //
-    // test('nil', function () {
-    //     var obj = {
-    //         'null': null,
-    //     };
-    //     var str = '{ "null": null }';
-    //     deepEqual(cc.deserialize(str), obj, 'can deserialize null');
-    //
-    //     var MyAsset = cc.Class({
-    //         name: 'MyAsset',
-    //         ctor: function () {
-    //             this.foo = 'bar';
-    //         },
-    //         properties: {
-    //             nil: 1234
-    //         }
-    //     });
-    //
-    //     str = '{ "__type__": "MyAsset" }';
-    //     obj = new MyAsset();
-    //     deepEqual(cc.deserialize(str), obj, 'use default value');
-    //
-    //     str = '{ "__type__": "MyAsset", "nil": null }';
-    //     obj = new MyAsset();
-    //     obj.nil = null;
-    //     deepEqual(cc.deserialize(str), obj, 'can override as null');
-    //
-    //     cc.js.unregisterClass(MyAsset);
-    // });
-    //
-    // test('fast defined property', function () {
-    //     function Vec3 (x, y, z) {
-    //         this.data = [x, y, z];
-    //     }
-    //     cc.Class._fastDefine('Vec3', Vec3, { x: 0, y: 0, z: 0, });
-    //
-    //     Object.defineProperties(Vec3.prototype, {
-    //         x: {
-    //             get: function () {
-    //                 return this.data[0];
-    //             },
-    //             set: function (value) {
-    //                 this.data[0] = value;
-    //             },
-    //         },
-    //         y: {
-    //             get: function () {
-    //                 return this.data[1];
-    //             },
-    //             set: function (value) {
-    //                 this.data[1] = value;
-    //             },
-    //         },
-    //         z: {
-    //             get: function () {
-    //                 return this.data[2];
-    //             },
-    //             set: function (value) {
-    //                 this.data[2] = value;
-    //             },
-    //         }
-    //     });
-    //
-    //     var vec3 = cc.deserialize({ __type__: "Vec3", x: 1, y: 2, z: 3 });
-    //     ok(vec3 instanceof Vec3, 'test type');
-    //     strictEqual(vec3.x, 1, 'test x');
-    //     strictEqual(vec3.y, 2, 'test y');
-    //     strictEqual(vec3.z, 3, 'test z');
-    //
-    //     cc.js.unregisterClass(Vec3);
-    // });
-    //
-    // test('reference to main asset', function () {
-    //     var asset = {};
-    //     asset.refSelf = asset;
-    //     /*  {
-    //             "refSelf": {
-    //                 "__id__": 0
-    //             }
-    //         }
-    //      */
-    //
-    //     var serializedAsset = Editor.serialize(asset);
-    //     var deserializedAsset = cc.deserialize(serializedAsset);
-    //
-    //     ok(deserializedAsset.refSelf === deserializedAsset, 'should ref to self');
-    //     //deepEqual(Editor.serialize(deserializedAsset), serializedAsset, 'test deserialize');
-    // });
-    //
-    // test('reference to main asset with formerlySerializedAs', function () {
-    //     var MyAsset = cc.Class({
-    //         name: 'MyAsset',
-    //         properties: {
-    //             newRefSelf: {
-    //                 default: null,
-    //                 formerlySerializedAs: 'oldRefSelf'
-    //             },
-    //         }
-    //     });
-    //     var asset = new MyAsset();
-    //     asset.newRefSelf = asset;
-    //
-    //     var serializedAsset = Editor.serialize(asset);
-    //     serializedAsset = serializedAsset.replace(/newRefSelf/g, 'oldRefSelf');
-    //     var deserializedAsset = cc.deserialize(serializedAsset);
-    //
-    //     ok(deserializedAsset.newRefSelf === deserializedAsset, 'should ref to self');
-    //     //deepEqual(Editor.serialize(deserializedAsset), serializedAsset, 'test deserialize');
-    //
-    //     cc.js.unregisterClass(MyAsset);
-    // });
-    //
+
+    test('deserialize simple objects', function () {
+        match([], 'can deserialize empty array');
+        match({}, 'can deserialize empty dict');
+        match({ 'null': null }, 'can deserialize null');
+    });
+
+    test('deserialize basic objects', function () {
+        var MyAsset = cc.Class({
+            name: 'MyAsset',
+            ctor: function () {
+                this.foo = 'bar';
+            },
+            properties: {
+                nil: 1234
+            }
+        });
+
+        let obj = new MyAsset();
+        match(obj, 'use default value');
+
+        obj = new MyAsset();
+        obj.nil = null;
+        match(obj, 'can override as null');
+
+        cc.js.unregisterClass(MyAsset);
+    });
+
+    test('fast defined property', function () {
+        function Vec3 (x, y, z) {
+            this.data = [x, y, z];
+        }
+        cc.Class._fastDefine('Vec3', Vec3, { x: 0, y: 0, z: 0, });
+
+        Object.defineProperties(Vec3.prototype, {
+            x: {
+                get: function () {
+                    return this.data[0];
+                },
+                set: function (value) {
+                    this.data[0] = value;
+                },
+            },
+            y: {
+                get: function () {
+                    return this.data[1];
+                },
+                set: function (value) {
+                    this.data[1] = value;
+                },
+            },
+            z: {
+                get: function () {
+                    return this.data[2];
+                },
+                set: function (value) {
+                    this.data[2] = value;
+                },
+            }
+        });
+
+        let obj = new Vec3(1, 2, 3);
+        match(obj, 'pass');
+
+        cc.js.unregisterClass(Vec3);
+    });
+
+    test('reference to main asset', function () {
+        var asset = {};
+        asset.refSelf = asset;
+
+        var serializedAsset = Editor.serializeCompiled(asset);
+        var deserializedAsset = deserializeCompiled(serializedAsset);
+
+        ok(deserializedAsset.refSelf === deserializedAsset, 'should ref to self');
+    });
+
+    test('reference to main asset with formerlySerializedAs', function () {
+        var MyAsset = cc.Class({
+            name: 'MyAsset',
+            properties: {
+                newRefSelf: {
+                    default: null,
+                    formerlySerializedAs: 'oldRefSelf'
+                },
+            }
+        });
+        var asset = new MyAsset();
+        asset.newRefSelf = asset;
+
+        var serializedAsset = Editor.serializeCompiled(asset);
+        serializedAsset = serializedAsset.replace(/newRefSelf/g, 'oldRefSelf');
+        var deserializedAsset = deserializeCompiled(serializedAsset);
+
+        ok(deserializedAsset.newRefSelf === deserializedAsset, 'should ref to self');
+
+        cc.js.unregisterClass(MyAsset);
+    });
+
     // test('custom deserialization', function () {
     //     var Asset = cc.Class({
     //         name: 'a a b b',
@@ -580,10 +571,10 @@ if (TestEditorExtends) {
     //         }
     //     });
     //     var a = new Asset();
-    //     var sa = Editor.serialize(a, { stringify: false });
+    //     var sa = Editor.serializeCompiled(a, { stringify: false });
     //     deepEqual(sa.content, [1, 2], 'should pack value to array');
     //
-    //     var da = cc.deserialize(sa);
+    //     var da = deserializeCompiled(sa);
     //     strictEqual(da.prop1, 1, 'can extract packed value 1');
     //     strictEqual(da.prop2, 2, 'can extract packed value 2');
     //
@@ -620,11 +611,12 @@ if (TestEditorExtends) {
     //         },
     //     };
     //
-    //     var result = cc.deserialize(json);
+    //     var result = deserializeCompiled(json);
     //     deepEqual(result.scale1, asset.scale1, 'should load eliminated entire property');
     //     deepEqual(result.scale10, asset.scale10, 'should load eliminated sub property');
     //
     //     cc.js.unregisterClass(Vec3, MyAsset);
     //     delete window.Vector3;
     // });
+})();
 }

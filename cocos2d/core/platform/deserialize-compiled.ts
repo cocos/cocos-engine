@@ -249,6 +249,7 @@ export type DataTypes = {
 };
 
 export type PrimitiveObjectTypeID = (
+    DataTypeID.SimpleType | // SimpleType also includes any pure JSON object
     DataTypeID.Array |
     DataTypeID.Array_Class |
     DataTypeID.Array_AssetRefByInnerObj |
@@ -263,11 +264,12 @@ export type AdvancedTypeID = Exclude<DataTypeID, DataTypeID.SimpleType>
 export type AnyData = DataTypes[keyof DataTypes];
 
 export type AdvancedData = DataTypes[Exclude<keyof DataTypes, DataTypeID.SimpleType>];
+
 // Instances will be [...IClassObjectData[], ...AdvancedObjectData[], RootInstanceIndex]
-export type AdvancedObjectData = ICustomObjectDataContent | DataTypes[PrimitiveObjectTypeID];
+export type OtherObjectData = ICustomObjectDataContent | Exclude<DataTypes[PrimitiveObjectTypeID], (number|string|boolean|null)>;
 
 // class Index of DataTypeID.CustomizedClass or PrimitiveObjectTypeID
-export type AdvancedObjectTypeID = Xor<number, PrimitiveObjectTypeID>;
+export type OtherObjectTypeID = Xor<number, PrimitiveObjectTypeID>;
 
 export interface Ctor<T> extends Function {
     new(): T;
@@ -424,8 +426,8 @@ export interface IFileData extends Array<any> {
 
     // A one-dimensional array to represent object datas, layout is [...IClassObjectData[], ...AdvancedObjectData[], RootInstanceIndex]
     // If the last element is not RootInstanceIndex, the first element will be the root object to return
-    [File.Instances]: (IClassObjectData|AdvancedObjectData|RootInstanceIndex)[];
-    [File.InstanceTypes]: AdvancedObjectTypeID[] | Empty;
+    [File.Instances]: (IClassObjectData|OtherObjectData|RootInstanceIndex)[];
+    [File.InstanceTypes]: OtherObjectTypeID[] | Empty;
     // Object references infomation
     [File.Refs]: IRefs | Empty;
 
@@ -612,6 +614,10 @@ function deserializeCustomCCObject (data: IFileData, ctor: Ctor<ICustomClass>, v
 
 type ParseFunction = (data: IFileData, owner: any, key: string, value: AnyData) => void;
 
+function assignSimple (data: IFileData, owner: any, key: string, value: DataTypes[DataTypeID.SimpleType]) {
+    owner[key] = value;
+}
+
 function assignInstanceRef (data: IFileData, owner: any, key: string, value: InstanceXorReverseIndex) {
     if (value >= 0) {
         owner[key] = data[File.Instances][value];
@@ -698,7 +704,7 @@ function parseArray (data: IFileData, owner: any, key: string, value: IArrayData
 // }
 
 const ASSIGNMENTS = new Array<ParseFunction | null>(DataTypeID.Array + 1);
-ASSIGNMENTS[DataTypeID.SimpleType] = null;    // unused
+ASSIGNMENTS[DataTypeID.SimpleType] = assignSimple;    // Only be used in the instances array
 ASSIGNMENTS[DataTypeID.InstanceRef] = assignInstanceRef;
 ASSIGNMENTS[DataTypeID.Array_InstanceRef] = genArrayParser(assignInstanceRef);
 ASSIGNMENTS[DataTypeID.Array_AssetRefByInnerObj] = genArrayParser(parseAssetRefByInnerObj);
@@ -718,7 +724,7 @@ ASSIGNMENTS[DataTypeID.Array] = parseArray;
 function parseInstances (data: IFileData): RootInstanceIndex {
     let instances = data[File.Instances];
     let instanceTypes = data[File.InstanceTypes];
-    let instanceTypesLen = instanceTypes ? (instanceTypes as AdvancedObjectTypeID[]).length : 0;
+    let instanceTypesLen = instanceTypes ? (instanceTypes as OtherObjectTypeID[]).length : 0;
     let rootIndex = 0;
     let normalObjectCount = instances.length - instanceTypesLen;
     if (instances.length > 1) {
@@ -733,7 +739,7 @@ function parseInstances (data: IFileData): RootInstanceIndex {
 
     let classes = data[File.SharedClasses];
     for (let typeIndex = 0; typeIndex < instanceTypesLen; ++typeIndex, ++insIndex) {
-        let type = instanceTypes[typeIndex] as AdvancedObjectTypeID;
+        let type = instanceTypes[typeIndex] as OtherObjectTypeID;
         let eachData = instances[insIndex];
         if (type >= 0) {
             // class index for DataTypeID.CustomizedClass

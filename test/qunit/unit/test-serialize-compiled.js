@@ -1,8 +1,8 @@
-if (TestEditorExtends) {
+if (TestEditorExtends) { (function () {
     largeModule('Serialize Compiled');
 
     const serialize = function (obj) {
-        return Editor.serializeCompiled(obj, { exporting: true, dontStripDefault: false, stringify: false });
+        return Editor.serializeCompiled(obj, { stringify: false });
     };
 
     const {
@@ -85,7 +85,6 @@ if (TestEditorExtends) {
     let match = function (obj, expect, info) {
         // 有些属性无法被保存到 JSON 中，所以 JSON.parse 一次比较准确
         deepEqual(JSON.parse(JSON.stringify(serialize(obj))), expect, info);
-        //deepEqual(Editor.serialize(obj, {stringify: false}), expect, info);
     };
 
     test('Smoke test', function() {
@@ -173,28 +172,28 @@ if (TestEditorExtends) {
         @ccclass
         class BaseAsset {
             @property
-            inheritProp = 321
+            inheritProp = 0;
         }
 
         var MyAsset = (function () {
             @ccclass('MyAsset')
             class MyAsset extends BaseAsset {
                 @property
-                emptyArray = [];
+                emptyArray = null;
                 @property
                 array = [];
                 @property
-                string = 'unknown';
+                string = '';
                 @property
-                emptyString = '';
+                emptyString = 'unknown';
                 @property
                 number = 1;
                 @property
                 boolean = true;
                 @property
-                emptyObj = {};
+                emptyObj = null;
                 @property
-                valueType = new cc.Vec2(1, 2.1);
+                valueType = new cc.Vec2();
             }
 
             // should not serialize ----------------------------
@@ -212,7 +211,16 @@ if (TestEditorExtends) {
         })();
 
         var asset = new MyAsset();
+        asset.inheritProp = 321;
+        asset.emptyArray = [];
         asset.array = [1, '2', {a:3}, [4, [5]], true];
+        asset.string = 'jier';
+        asset.emptyString = '';
+        asset.number = 250;
+        asset.boolean = false;
+        asset.emptyObj = {};
+        asset.valueType = new cc.Vec2(1, 2.1);
+
         asset.dynamicProp = false;
 
         var expect = [
@@ -243,10 +251,10 @@ if (TestEditorExtends) {
             [[
                 0,
                 321,
-                "unknown",
+                "jier",
                 "",
-                1,
-                true,
+                250,
+                false,
                 {},
                 [1, '2', {a:3}, [4, [5]], true],
                 [],
@@ -323,29 +331,18 @@ if (TestEditorExtends) {
             [[
                 "MyAsset",
                 [
-                    "_name",
-                    "_objFlags",
-                    "_native",
-                    "string",
-                    "number",
-                    "boolean",
-                    "emptyObj",
                     "array",
-                    "emptyArray",
                 ],
-                3 - 9,
+                3 - 1,
             ]],
             [[
                 0,
-                0, 1, 2, 3, 4, 5, 6, 7, 8,
-                10,
+                0,
+                2
             ]],
             [[
                 0,
-                "", 0, "",
-                "jier", 1, true, {},
                 [1, '2', {a:3}, [4, [5]], true],
-                [],
             ]],
             0,
             0,
@@ -355,53 +352,6 @@ if (TestEditorExtends) {
         match(asset, expect, 'test');
 
         cc.js.unregisterClass(MyAsset);
-    });
-
-    test('test CCClass', function () {
-        var Sprite = cc.Class({
-            name: 'Sprite',
-            ctor: function () {
-                this.image = 'sprite.png';
-            },
-            properties: {
-                size: new cc.Vec2(128, 128)
-            }
-        });
-
-        var sprite = new Sprite();
-        var actual = JSON.parse(Editor.serialize(sprite));
-
-        strictEqual(actual.image, undefined, 'should not serialize variable which not defined by property');
-
-        var expected = {
-            __type__: 'Sprite',
-            size: {
-                __type__: "cc.Vec2",
-                x: 128,
-                y: 128
-            }
-        };
-
-        deepEqual(actual, expected, 'can serialize');
-
-        cc.js.unregisterClass(Sprite);
-    });
-
-    test('CCClass which inherited from CCObject', function () {
-        var type = cc.Class({
-            name: 'cc.MyType',
-            extends: CCObject
-        });
-
-        var obj = new type();
-        obj.name = '阿加西';
-
-        var json = JSON.parse(Editor.serialize(obj));
-        var expected = { "__type__": "cc.MyType", "_name": "阿加西", "_objFlags": 0 };
-
-        deepEqual(json, expected, 'can serialize CCObject.name');
-
-        cc.js.unregisterClass(type);
     });
 
     test('test circular reference + fast define', function () {
@@ -425,55 +375,33 @@ if (TestEditorExtends) {
             ["dict2", "dict1", "array2", "array1", "other"],
             [[
                 "MyAsset",
-                [
-                    "array1",
-                    "array2",
-                    "dict1",
-                    "dict2"
-                ],
+                [],
                 3 - 0,
-                DataTypeID.InstanceRef, DataTypeID.InstanceRef, DataTypeID.InstanceRef, DataTypeID.InstanceRef,
             ]],
             [[
                 0,
-                0, 1, 2, 3,
                 1,
             ]],
             [
-                [
-                    0,
-                    1, 2, 3, 4
-                ],
-                [
-                    [1, 2],
-                    0,
-                    1
-                ],
-                [
-                    [1, 2],
-                    1,
-                    0
-                ],
-                [
-                    { "num": 1 },
-                    "other",
-                    1,
-                    4
-                ],
-                [
-                    { "num": 2 },
-                    "other",
-                    1,
-                    3
-                ]
+                [0],
+                [1, null],
+                [[1, 2], 1, 0],
+                {"num": 1},
+                [{ "num": 2 }, "other", 1, 3]
             ],
             [
+                ~DataTypeID.SimpleType,
                 ~DataTypeID.Array,
-                ~DataTypeID.Array,
-                ~DataTypeID.Dict,
+                ~DataTypeID.SimpleType,
                 ~DataTypeID.Dict,
             ],
-            [ 0, 0, 4, 0, 1, 3, 0, 2, 2, 0, 3, 1, 1, -2, 2, 3, 4, 4, 0 ],
+            [ 0, 0, 4,
+              0, 1, 3,
+              0, 2, 2,
+              0, 3, 1,
+              1, -2, 2,
+              3, 4, 4,
+              0 ],
             [], [], []
         ];
         match(asset, expect, 'arrays and dicts can circular reference each other');
@@ -541,20 +469,11 @@ if (TestEditorExtends) {
             ["texture"],
             [[
                 "TestSprite",
-                ["_name", "_objFlags", "_native", "x", "y", "width", "height", "rotated", "trimLeft", "trimTop", "rawWidth", "rawHeight", "insetTop", "insetBottom", "insetLeft", "insetRight",
-                 "pivot"],
-                3 - 16,
-                DataTypeID.ValueTypeCreated
+                [],
+                3 - 0
             ]],
-            [[
-                0,
-                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-                17
-            ]],
-            [[
-                0,
-                "", 0, "", 0, 0, 0, 0, false, 0, 0, 0, 0, 0, 0, 0, 0, [0, 0.5, 0.5]
-            ]],
+            [[0, 1]],
+            [[0]],
             0,
             0,
             [0], [0], [0]
@@ -697,22 +616,24 @@ if (TestEditorExtends) {
         var asset = new MyAsset();
         asset.newRefSelf = asset;
 
-        var expect = {
-            __type__: 'MyAsset',
-            newRefSelf: {
-                __id__: 0
-            },
-            oldRefSelf: {
-                __id__: 0
-            },
-        };
+        var expect = [
+            1,
+            0,
+            ["newRefSelf"],
+            [["MyAsset", [], 3]],
+            [[0, 1]],
+            [[0]],
+            0,
+            [0, 0, 0, 0],
+            [], [], []
+        ];
 
-        match(asset, expect, 'test');
+        match(asset, expect, 'should not export formerlySerializedAs');
 
         cc.js.unregisterClass(MyAsset);
     });
 
-    test('eliminate default property', function () {
+    test('eliminate default value type', function () {
         var MyAsset = cc.Class({
             name: 'MyAsset',
             properties: {
@@ -728,35 +649,39 @@ if (TestEditorExtends) {
         asset.scale01.y = 1;
         asset.scale10.y = 0;
 
-        var expectedDefaultScaleResult = {
-            __type__: 'MyAsset',
-            scale00: {
-                __type__: "cc.Vec3",
-            },
-            scale01: {
-                __type__: 'cc.Vec3',
-                y: 1,
-            },
-            scale10: {
-                __type__: 'cc.Vec3',
-                x: 1,
-                z: 1,
-            },
-        };
+        var expectedDefaultScaleResult = [
+            1,
+            0,
+            0,
+            [[
+                "MyAsset",
+                [
+                    // should eliminate scale0 scale1 entire property if equals to the default value defined in CCClass
+                    "scale00", // should export a default ValueType since not equals to default value defined in CCClass
+                    "scale01",
+                    "scale10"
+                ],
+                3 - 0,
+                DataTypeID.ValueTypeCreated, DataTypeID.ValueTypeCreated, DataTypeID.ValueTypeCreated
+            ]],
+            [[0, 0, 1, 2, 1]],
+            [[
+                0,
+                [1,
+                 0, 0, 0],
+                [1,
+                 0, 1, 0],
+                [1,
+                 1, 0, 1]
+            ]],
+            0,
+            0,
+            [], [], []
+        ];
 
-        var actualDefaultScaled = JSON.parse(Editor.serialize(asset, { exporting: true, dontStripDefault: false }));
-
-        // to read default value from ValueType instead of constructor of user class
-        deepEqual(actualDefaultScaled.scale00, expectedDefaultScaleResult.scale00, 'should leave a empty type declaration if equal to default value defined in ValueType');
-
-        // to make the deserialization for ValueTypes more unique and simplify
-        ok(actualDefaultScaled.scale10.x === 1 && actualDefaultScaled.scale10.z === 1, 'should serialize non-zero sub properties even if they equal to default values defined in user class');
-
-        ok(actualDefaultScaled.scale0 === undefined && actualDefaultScaled.scale1 === undefined, 'should eliminate entire property if equals to the default value defined in user class');
-
-        deepEqual(actualDefaultScaled, expectedDefaultScaleResult, 'test all serialized result');
+        match(asset, expectedDefaultScaleResult, 'pass');
 
         cc.js.unregisterClass(MyAsset);
     });
-
+})();
 }
