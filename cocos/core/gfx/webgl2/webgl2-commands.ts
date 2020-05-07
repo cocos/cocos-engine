@@ -807,8 +807,26 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
 }
 
 export function WebGL2CmdFuncDestroyBuffer (device: WebGL2GFXDevice, gpuBuffer: WebGL2GPUBuffer) {
+    const gl = device.gl;
     if (gpuBuffer.glBuffer) {
-        device.gl.deleteBuffer(gpuBuffer.glBuffer);
+        // Firefox 75+ implicitly unbind whatever buffer there was on the slot sometimes
+        // can be reproduced in the static batching scene at https://github.com/cocos-creator/test-cases-3d
+        switch (gpuBuffer.glTarget) {
+            case gl.ARRAY_BUFFER:
+                gl.bindBuffer(gl.ARRAY_BUFFER, null);
+                device.stateCache.glArrayBuffer = null;
+                break;
+            case gl.ELEMENT_ARRAY_BUFFER:
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+                device.stateCache.glElementArrayBuffer = null;
+                break;
+            case gl.UNIFORM_BUFFER:
+                gl.bindBuffer(gl.UNIFORM_BUFFER, null);
+                device.stateCache.glUniformBuffer = null;
+                break;
+        }
+
+        gl.deleteBuffer(gpuBuffer.glBuffer);
         gpuBuffer.glBuffer = null;
     }
 }
