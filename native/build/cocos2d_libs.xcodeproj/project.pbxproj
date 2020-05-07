@@ -345,13 +345,6 @@
 		4649F6BC242A022500BEDA2A /* jsb_gles3_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC182424755F0096CC35 /* jsb_gles3_auto.hpp */; };
 		4649F6BD242A022800BEDA2A /* jsb_gles3_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC192424755F0096CC35 /* jsb_gles3_auto.cpp */; };
 		4649F6BF242A050100BEDA2A /* GLES3Context.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4649F6422429FDDD00BEDA2A /* GLES3Context.cc */; };
-		4649F6CF2434337200BEDA2A /* libspirv-cross-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4649F6C82434337100BEDA2A /* libspirv-cross-core.a */; };
-		4649F6D02434337200BEDA2A /* libspirv-cross-hlsl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4649F6C92434337100BEDA2A /* libspirv-cross-hlsl.a */; };
-		4649F6D12434337200BEDA2A /* libshaderc_combined.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4649F6CA2434337100BEDA2A /* libshaderc_combined.a */; };
-		4649F6D22434337200BEDA2A /* libshaderc_spvc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4649F6CB2434337100BEDA2A /* libshaderc_spvc.a */; };
-		4649F6D32434337200BEDA2A /* libspirv-cross-glsl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4649F6CC2434337100BEDA2A /* libspirv-cross-glsl.a */; };
-		4649F6D42434337200BEDA2A /* libspirv-cross-cpp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4649F6CD2434337200BEDA2A /* libspirv-cross-cpp.a */; };
-		4649F6D52434337200BEDA2A /* libspirv-cross-msl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4649F6CE2434337200BEDA2A /* libspirv-cross-msl.a */; };
 		4649F6D82434670B00BEDA2A /* jsb_mtl_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4649F6D62434670B00BEDA2A /* jsb_mtl_auto.hpp */; };
 		4649F6D92434670B00BEDA2A /* jsb_mtl_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4649F6D72434670B00BEDA2A /* jsb_mtl_auto.cpp */; };
 		468A967F22F43F4C005034BE /* Class.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A52DB19205BCD9200350EE3 /* Class.cpp */; };
@@ -926,6 +919,13 @@
 		ED3057D11BEC7DA80083C3ED /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED3057CB1BEC7DA80083C3ED /* libpng.a */; };
 		ED3057D31BEC7DA80083C3ED /* libwebsockets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED3057CD1BEC7DA80083C3ED /* libwebsockets.a */; };
 		ED997669216C459E00A46923 /* libuv_a.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED997661216C459D00A46923 /* libuv_a.a */; };
+		EDA7B6BF2459161D00C3FC1C /* libOSDependent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EDA7B6B12459161C00C3FC1C /* libOSDependent.a */; };
+		EDA7B6C02459161D00C3FC1C /* libspirv-cross-glsl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EDA7B6B22459161C00C3FC1C /* libspirv-cross-glsl.a */; };
+		EDA7B6C32459161D00C3FC1C /* libOGLCompiler.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EDA7B6B52459161C00C3FC1C /* libOGLCompiler.a */; };
+		EDA7B6C42459161D00C3FC1C /* libspirv-cross-msl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EDA7B6B62459161C00C3FC1C /* libspirv-cross-msl.a */; };
+		EDA7B6C72459161D00C3FC1C /* libglslang.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EDA7B6B92459161D00C3FC1C /* libglslang.a */; };
+		EDA7B6C82459161D00C3FC1C /* libspirv-cross-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EDA7B6BA2459161D00C3FC1C /* libspirv-cross-core.a */; };
+		EDA7B6C92459161D00C3FC1C /* libSPIRV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EDA7B6BB2459161D00C3FC1C /* libSPIRV.a */; };
 		EDAD7A3F23FFDDEC0014B660 /* jsb_gfx_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = EDAD7A3D23FFDDEB0014B660 /* jsb_gfx_auto.hpp */; };
 		EDAD7A4023FFDDEC0014B660 /* jsb_gfx_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = EDAD7A3D23FFDDEB0014B660 /* jsb_gfx_auto.hpp */; };
 		EDAD7A4123FFDDEC0014B660 /* jsb_gfx_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EDAD7A3E23FFDDEC0014B660 /* jsb_gfx_auto.cpp */; };
@@ -1141,13 +1141,6 @@
 		4649F65B2429FDDD00BEDA2A /* GLES3PipelineState.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3PipelineState.cc; sourceTree = "<group>"; };
 		4649F65C2429FDDD00BEDA2A /* GLES3Buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Buffer.h; sourceTree = "<group>"; };
 		4649F65D2429FDDD00BEDA2A /* GLES3Buffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Buffer.cc; sourceTree = "<group>"; };
-		4649F6C82434337100BEDA2A /* libspirv-cross-core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libspirv-cross-core.a"; path = "../external/mac/shaderc/libspirv-cross-core.a"; sourceTree = "<group>"; };
-		4649F6C92434337100BEDA2A /* libspirv-cross-hlsl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libspirv-cross-hlsl.a"; path = "../external/mac/shaderc/libspirv-cross-hlsl.a"; sourceTree = "<group>"; };
-		4649F6CA2434337100BEDA2A /* libshaderc_combined.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libshaderc_combined.a; path = ../external/mac/shaderc/libshaderc_combined.a; sourceTree = "<group>"; };
-		4649F6CB2434337100BEDA2A /* libshaderc_spvc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libshaderc_spvc.a; path = ../external/mac/shaderc/libshaderc_spvc.a; sourceTree = "<group>"; };
-		4649F6CC2434337100BEDA2A /* libspirv-cross-glsl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libspirv-cross-glsl.a"; path = "../external/mac/shaderc/libspirv-cross-glsl.a"; sourceTree = "<group>"; };
-		4649F6CD2434337200BEDA2A /* libspirv-cross-cpp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libspirv-cross-cpp.a"; path = "../external/mac/shaderc/libspirv-cross-cpp.a"; sourceTree = "<group>"; };
-		4649F6CE2434337200BEDA2A /* libspirv-cross-msl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libspirv-cross-msl.a"; path = "../external/mac/shaderc/libspirv-cross-msl.a"; sourceTree = "<group>"; };
 		4649F6D62434670B00BEDA2A /* jsb_mtl_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_mtl_auto.hpp; sourceTree = "<group>"; };
 		4649F6D72434670B00BEDA2A /* jsb_mtl_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_mtl_auto.cpp; sourceTree = "<group>"; };
 		468A968422F43F8F005034BE /* libv8_monolith.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_monolith.a; path = ../external/ios/libs/libv8_monolith.a; sourceTree = "<group>"; };
@@ -1504,6 +1497,13 @@
 		ED3057CD1BEC7DA80083C3ED /* libwebsockets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libwebsockets.a; path = ../external/mac/libs/libwebsockets.a; sourceTree = "<group>"; };
 		ED997661216C459D00A46923 /* libuv_a.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libuv_a.a; path = ../external/mac/libs/libuv_a.a; sourceTree = "<group>"; };
 		ED997664216C459D00A46923 /* libinspector.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libinspector.a; path = ../external/mac/libs/libinspector.a; sourceTree = "<group>"; };
+		EDA7B6B12459161C00C3FC1C /* libOSDependent.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libOSDependent.a; path = ../external/mac/libs/libOSDependent.a; sourceTree = "<group>"; };
+		EDA7B6B22459161C00C3FC1C /* libspirv-cross-glsl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libspirv-cross-glsl.a"; path = "../external/mac/libs/libspirv-cross-glsl.a"; sourceTree = "<group>"; };
+		EDA7B6B52459161C00C3FC1C /* libOGLCompiler.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libOGLCompiler.a; path = ../external/mac/libs/libOGLCompiler.a; sourceTree = "<group>"; };
+		EDA7B6B62459161C00C3FC1C /* libspirv-cross-msl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libspirv-cross-msl.a"; path = "../external/mac/libs/libspirv-cross-msl.a"; sourceTree = "<group>"; };
+		EDA7B6B92459161D00C3FC1C /* libglslang.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglslang.a; path = ../external/mac/libs/libglslang.a; sourceTree = "<group>"; };
+		EDA7B6BA2459161D00C3FC1C /* libspirv-cross-core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libspirv-cross-core.a"; path = "../external/mac/libs/libspirv-cross-core.a"; sourceTree = "<group>"; };
+		EDA7B6BB2459161D00C3FC1C /* libSPIRV.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSPIRV.a; path = ../external/mac/libs/libSPIRV.a; sourceTree = "<group>"; };
 		EDAD7A3D23FFDDEB0014B660 /* jsb_gfx_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_gfx_auto.hpp; sourceTree = "<group>"; };
 		EDAD7A3E23FFDDEC0014B660 /* jsb_gfx_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_gfx_auto.cpp; sourceTree = "<group>"; };
 		EDAD7A4323FFDE040014B660 /* jsb_gfx_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_gfx_manual.cpp; sourceTree = "<group>"; };
@@ -1516,13 +1516,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4649F6CF2434337200BEDA2A /* libspirv-cross-core.a in Frameworks */,
-				4649F6D02434337200BEDA2A /* libspirv-cross-hlsl.a in Frameworks */,
-				4649F6D12434337200BEDA2A /* libshaderc_combined.a in Frameworks */,
-				4649F6D22434337200BEDA2A /* libshaderc_spvc.a in Frameworks */,
-				4649F6D32434337200BEDA2A /* libspirv-cross-glsl.a in Frameworks */,
-				4649F6D42434337200BEDA2A /* libspirv-cross-cpp.a in Frameworks */,
-				4649F6D52434337200BEDA2A /* libspirv-cross-msl.a in Frameworks */,
+				EDA7B6BF2459161D00C3FC1C /* libOSDependent.a in Frameworks */,
+				EDA7B6C02459161D00C3FC1C /* libspirv-cross-glsl.a in Frameworks */,
+				EDA7B6C32459161D00C3FC1C /* libOGLCompiler.a in Frameworks */,
+				EDA7B6C42459161D00C3FC1C /* libspirv-cross-msl.a in Frameworks */,
+				EDA7B6C72459161D00C3FC1C /* libglslang.a in Frameworks */,
+				EDA7B6C82459161D00C3FC1C /* libspirv-cross-core.a in Frameworks */,
+				EDA7B6C92459161D00C3FC1C /* libSPIRV.a in Frameworks */,
 				469FFB05240E5A4000581BFC /* libGLESv2.dylib in Frameworks */,
 				469FFB06240E5A4000581BFC /* libEGL.dylib in Frameworks */,
 				BAD9FAB323AC9C1900F1B1F1 /* libv8_monolith.a in Frameworks */,
@@ -1602,13 +1602,13 @@
 		1551A341158F2AB200E66CFE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				4649F6CA2434337100BEDA2A /* libshaderc_combined.a */,
-				4649F6CB2434337100BEDA2A /* libshaderc_spvc.a */,
-				4649F6C82434337100BEDA2A /* libspirv-cross-core.a */,
-				4649F6CD2434337200BEDA2A /* libspirv-cross-cpp.a */,
-				4649F6CC2434337100BEDA2A /* libspirv-cross-glsl.a */,
-				4649F6C92434337100BEDA2A /* libspirv-cross-hlsl.a */,
-				4649F6CE2434337200BEDA2A /* libspirv-cross-msl.a */,
+				EDA7B6B92459161D00C3FC1C /* libglslang.a */,
+				EDA7B6B52459161C00C3FC1C /* libOGLCompiler.a */,
+				EDA7B6B12459161C00C3FC1C /* libOSDependent.a */,
+				EDA7B6BA2459161D00C3FC1C /* libspirv-cross-core.a */,
+				EDA7B6B22459161C00C3FC1C /* libspirv-cross-glsl.a */,
+				EDA7B6B62459161C00C3FC1C /* libspirv-cross-msl.a */,
+				EDA7B6BB2459161D00C3FC1C /* libSPIRV.a */,
 				469FFB04240E5A4000581BFC /* libEGL.dylib */,
 				469FFB03240E5A4000581BFC /* libGLESv2.dylib */,
 				BA4E2C83237E770300287DD6 /* JavaScriptCore.framework */,

@@ -1,11 +1,219 @@
 #include "MTLStd.h"
 #include "MTLUtils.h"
-#include "shaderc/shaderc.hpp"
-#include "shaderc/spvc.hpp"
+#include "SPIRV/GlslangToSpv.h"
+#include "spirv_cross/spirv_msl.hpp"
 #include <vector>
 
 NS_CC_BEGIN
 namespace {
+    const TBuiltInResource DefaultTBuiltInResource = {
+        /* .MaxLights = */ 32,
+        /* .MaxClipPlanes = */ 6,
+        /* .MaxTextureUnits = */ 32,
+        /* .MaxTextureCoords = */ 32,
+        /* .MaxVertexAttribs = */ 64,
+        /* .MaxVertexUniformComponents = */ 4096,
+        /* .MaxVaryingFloats = */ 64,
+        /* .MaxVertexTextureImageUnits = */ 32,
+        /* .MaxCombinedTextureImageUnits = */ 80,
+        /* .MaxTextureImageUnits = */ 32,
+        /* .MaxFragmentUniformComponents = */ 4096,
+        /* .MaxDrawBuffers = */ 32,
+        /* .MaxVertexUniformVectors = */ 128,
+        /* .MaxVaryingVectors = */ 8,
+        /* .MaxFragmentUniformVectors = */ 16,
+        /* .MaxVertexOutputVectors = */ 16,
+        /* .MaxFragmentInputVectors = */ 15,
+        /* .MinProgramTexelOffset = */ -8,
+        /* .MaxProgramTexelOffset = */ 7,
+        /* .MaxClipDistances = */ 8,
+        /* .MaxComputeWorkGroupCountX = */ 65535,
+        /* .MaxComputeWorkGroupCountY = */ 65535,
+        /* .MaxComputeWorkGroupCountZ = */ 65535,
+        /* .MaxComputeWorkGroupSizeX = */ 1024,
+        /* .MaxComputeWorkGroupSizeY = */ 1024,
+        /* .MaxComputeWorkGroupSizeZ = */ 64,
+        /* .MaxComputeUniformComponents = */ 1024,
+        /* .MaxComputeTextureImageUnits = */ 16,
+        /* .MaxComputeImageUniforms = */ 8,
+        /* .MaxComputeAtomicCounters = */ 8,
+        /* .MaxComputeAtomicCounterBuffers = */ 1,
+        /* .MaxVaryingComponents = */ 60,
+        /* .MaxVertexOutputComponents = */ 64,
+        /* .MaxGeometryInputComponents = */ 64,
+        /* .MaxGeometryOutputComponents = */ 128,
+        /* .MaxFragmentInputComponents = */ 128,
+        /* .MaxImageUnits = */ 8,
+        /* .MaxCombinedImageUnitsAndFragmentOutputs = */ 8,
+        /* .MaxCombinedShaderOutputResources = */ 8,
+        /* .MaxImageSamples = */ 0,
+        /* .MaxVertexImageUniforms = */ 0,
+        /* .MaxTessControlImageUniforms = */ 0,
+        /* .MaxTessEvaluationImageUniforms = */ 0,
+        /* .MaxGeometryImageUniforms = */ 0,
+        /* .MaxFragmentImageUniforms = */ 8,
+        /* .MaxCombinedImageUniforms = */ 8,
+        /* .MaxGeometryTextureImageUnits = */ 16,
+        /* .MaxGeometryOutputVertices = */ 256,
+        /* .MaxGeometryTotalOutputComponents = */ 1024,
+        /* .MaxGeometryUniformComponents = */ 1024,
+        /* .MaxGeometryVaryingComponents = */ 64,
+        /* .MaxTessControlInputComponents = */ 128,
+        /* .MaxTessControlOutputComponents = */ 128,
+        /* .MaxTessControlTextureImageUnits = */ 16,
+        /* .MaxTessControlUniformComponents = */ 1024,
+        /* .MaxTessControlTotalOutputComponents = */ 4096,
+        /* .MaxTessEvaluationInputComponents = */ 128,
+        /* .MaxTessEvaluationOutputComponents = */ 128,
+        /* .MaxTessEvaluationTextureImageUnits = */ 16,
+        /* .MaxTessEvaluationUniformComponents = */ 1024,
+        /* .MaxTessPatchComponents = */ 120,
+        /* .MaxPatchVertices = */ 32,
+        /* .MaxTessGenLevel = */ 64,
+        /* .MaxViewports = */ 16,
+        /* .MaxVertexAtomicCounters = */ 0,
+        /* .MaxTessControlAtomicCounters = */ 0,
+        /* .MaxTessEvaluationAtomicCounters = */ 0,
+        /* .MaxGeometryAtomicCounters = */ 0,
+        /* .MaxFragmentAtomicCounters = */ 8,
+        /* .MaxCombinedAtomicCounters = */ 8,
+        /* .MaxAtomicCounterBindings = */ 1,
+        /* .MaxVertexAtomicCounterBuffers = */ 0,
+        /* .MaxTessControlAtomicCounterBuffers = */ 0,
+        /* .MaxTessEvaluationAtomicCounterBuffers = */ 0,
+        /* .MaxGeometryAtomicCounterBuffers = */ 0,
+        /* .MaxFragmentAtomicCounterBuffers = */ 1,
+        /* .MaxCombinedAtomicCounterBuffers = */ 1,
+        /* .MaxAtomicCounterBufferSize = */ 16384,
+        /* .MaxTransformFeedbackBuffers = */ 4,
+        /* .MaxTransformFeedbackInterleavedComponents = */ 64,
+        /* .MaxCullDistances = */ 8,
+        /* .MaxCombinedClipAndCullDistances = */ 8,
+        /* .MaxSamples = */ 4,
+        /*  max_mesh_output_vertices_nv;   */ 0,
+        /*  max_mesh_output_primitives_nv; */ 0,
+        /*  max_mesh_work_group_size_x_nv; */ 0,
+        /*  max_mesh_work_group_size_y_nv; */ 0,
+        /*  max_mesh_work_group_size_z_nv; */ 0,
+        /*  max_task_work_group_size_x_nv; */ 0,
+        /*  max_task_work_group_size_y_nv; */ 0,
+        /*  max_task_work_group_size_z_nv; */ 0,
+        /*  max_mesh_view_count_nv; */ 8,
+        /* .limits = */ {
+            /* .nonInductiveForLoops = */ 1,
+            /* .whileLoops = */ 1,
+            /* .doWhileLoops = */ 1,
+            /* .generalUniformIndexing = */ 1,
+            /* .generalAttributeMatrixVectorIndexing = */ 1,
+            /* .generalVaryingIndexing = */ 1,
+            /* .generalSamplerIndexing = */ 1,
+            /* .generalVariableIndexing = */ 1,
+            /* .generalConstantMatrixVectorIndexing = */ 1,
+        }
+    };
+
+    EShLanguage getShaderStage(GFXShaderType type)
+    {
+        switch (type)
+        {
+        case GFXShaderType::VERTEX: return EShLangVertex;
+        case GFXShaderType::CONTROL: return EShLangTessControl;
+        case GFXShaderType::EVALUATION: return EShLangTessEvaluation;
+        case GFXShaderType::GEOMETRY: return EShLangGeometry;
+        case GFXShaderType::FRAGMENT: return EShLangFragment;
+        case GFXShaderType::COMPUTE: return EShLangCompute;
+        default:
+        {
+            CCASSERT(false, "Unsupported GFXShaderType, convert to EShLanguage failed.");
+            return EShLangVertex;
+        }
+        }
+    }
+
+    glslang::EShTargetClientVersion getClientVersion(int vulkanMinorVersion)
+    {
+        switch (vulkanMinorVersion)
+        {
+        case 0: return glslang::EShTargetVulkan_1_0;
+        case 1: return glslang::EShTargetVulkan_1_1;
+        case 2: return glslang::EShTargetVulkan_1_2;
+        default:
+        {
+            CCASSERT(false, "Unsupported vulkan version, convert to EShTargetClientVersion failed.");
+            return glslang::EShTargetVulkan_1_0;
+        }
+        }
+    }
+
+    glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion)
+    {
+        switch (vulkanMinorVersion)
+        {
+        case 0: return glslang::EShTargetSpv_1_0;
+        case 1: return glslang::EShTargetSpv_1_3;
+        case 2: return glslang::EShTargetSpv_1_5;
+        default:
+        {
+            CCASSERT(false, "Unsupported vulkan version, convert to EShTargetLanguageVersion failed.");
+            return glslang::EShTargetSpv_1_0;
+        }
+        }
+    }
+
+    const std::vector<unsigned int> GLSL2SPIRV(GFXShaderType type, const String& source, int vulkanMinorVersion = 2)
+    {
+        static bool glslangInitialized = false;
+        if (!glslangInitialized)
+        {
+            glslang::InitializeProcess();
+            glslangInitialized = true;
+        }
+        std::vector<unsigned int> spirv;
+        auto stage = getShaderStage(type);
+        auto string = source.c_str();
+        glslang::TShader shader(stage);
+        shader.setStrings(&string, 1);
+
+        //Set up Vulkan/SpirV Environment
+        int clientInputSemanticsVersion = 100 + vulkanMinorVersion * 10; // maps to, say, #define VULKAN 120
+        glslang::EShTargetClientVersion clientVersion = getClientVersion(vulkanMinorVersion); // map to, say, Vulkan 1.2
+        glslang::EShTargetLanguageVersion targetVersion = getTargetVersion(vulkanMinorVersion); // maps to, say, SPIR-V 1.5
+
+        shader.setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientVulkan, clientInputSemanticsVersion);
+        shader.setEnvClient(glslang::EShClientVulkan, clientVersion);
+        shader.setEnvTarget(glslang::EShTargetSpv, targetVersion);
+
+        EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
+
+        if (!shader.parse(&DefaultTBuiltInResource, clientInputSemanticsVersion, false, messages))
+        {
+            CC_LOG_ERROR("GLSL Parsing Failed:\n%s\n%s", shader.getInfoLog(), shader.getInfoDebugLog());
+            CC_LOG_ERROR("%s", string);
+            return spirv;
+        }
+
+        glslang::TProgram program;
+        program.addShader(&shader);
+
+        if (!program.link(messages))
+        {
+            CC_LOG_ERROR("GLSL Linking Failed:\n%s\n%s", program.getInfoLog(), program.getInfoDebugLog());
+            CC_LOG_ERROR("%s", string);
+            return spirv;
+        }
+
+        spv::SpvBuildLogger logger;
+        glslang::SpvOptions spvOptions;
+        glslang::GlslangToSpv(*program.getIntermediate(stage), spirv, &logger, &spvOptions);
+        if(!spirv.size())
+        {
+            CC_LOG_ERROR("GlslangToSpv Failed:\n%s\n%s", program.getInfoLog(), program.getInfoDebugLog());
+            CC_LOG_ERROR("%s", string);
+            return spirv;
+        }
+        return spirv;
+    }
+
     //See more details at https://developer.apple.com/documentation/metal/mtlfeatureset
     enum class GPUFamily : uint
     {
@@ -473,40 +681,31 @@ namespace mu
     std::string compileGLSLShader2Mtl(const std::string& src, bool isVertexShader)
     {
 #if USE_METAL
-        std::string shader("#version 310 es\n");
-        shader.append(src);
-        shaderc::Compiler glslCompiler;
-        shaderc_shader_kind shaderKind = isVertexShader ? shaderc_shader_kind::shaderc_vertex_shader
-        : shaderc_shader_kind::shaderc_fragment_shader;
-        shaderc::SpvCompilationResult module = glslCompiler.CompileGlslToSpv(shader, shaderKind, "");
-        if (module.GetCompilationStatus() != shaderc_compilation_status_success)
-        {
-            CC_LOG_ERROR("Failed to compile GLSL shader to spv. %s", module.GetErrorMessage().c_str() );
-            CC_LOG_ERROR("%s", src.c_str());
+        std::string shaderSource("#version 310 es\n");
+        shaderSource.append(src);
+        auto type = isVertexShader ? GFXShaderType::VERTEX : GFXShaderType::FRAGMENT;
+        const auto& spv = GLSL2SPIRV(type, shaderSource);
+        if(spv.size() == 0)
             return "";
-        }
         
-        std::vector<uint32_t> spivSource = {module.cbegin(), module.cend()};
-        shaderc_spvc::Context context;
-        shaderc_spvc::CompileOptions options;
-        options.SetMSLPlatform(shaderc_spvc_msl_platform_macos);
-        auto status = context.InitializeForMsl(spivSource.data(), spivSource.size(), options);
-        if (status != shaderc_spvc_status_success)
+        spirv_cross::CompilerMSL msl(std::move(spv));
+    
+        // Set some options.
+        spirv_cross::CompilerMSL::Options options;
+#if(CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+        options.platform = spirv_cross::CompilerMSL::Options::Platform::iOS;
+#else
+        options.platform = spirv_cross::CompilerMSL::Options::Platform::macOS;
+#endif
+        msl.set_msl_options(options);
+
+        // Compile to MSL, ready to give to metal driver.
+        std::string output = msl.compile();
+        if(!output.size())
         {
-            CC_LOG_ERROR("Failed to initialize shaderc_spvc::Context.");
-            return "";
+            CC_LOG_ERROR("Compile to MSL failed.");
+            CC_LOG_ERROR("%s", shaderSource.c_str());
         }
-        
-        shaderc_spvc::CompilationResult result;
-        status = context.CompileShader(&result);
-        if (status != shaderc_spvc_status_success)
-        {
-            CC_LOG_ERROR("Failed to compile spv to mtl");
-            return "";
-        }
-        
-        std::string output;
-        result.GetStringOutput(&output);
         return output;
 #else
         return src;

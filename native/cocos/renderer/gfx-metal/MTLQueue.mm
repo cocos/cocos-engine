@@ -318,7 +318,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
             {
                 CCMTLCmdCopyBufferToTexture* cmd = commandPackage->copyBufferToTextureCmds[cmdIdx];
                 auto buffer = cmd->gpuBuffer->getBufferView();
-                cmd->gpuTexture->update(&buffer, cmd->regions[0]);
+                cmd->gpuTexture->update(&buffer, cmd->regions);
             }
             default:
                 break;
