@@ -32,6 +32,9 @@ if (typeof Map === 'undefined') {
         this._keys = [];
         this._values = [];
     };
+    Map.prototype.has = function (key) {
+        return this._keys.includes(key);
+    };
     Map.prototype.get = function (key) {
         var index = this._keys.indexOf(key);
         if (index !== -1) {

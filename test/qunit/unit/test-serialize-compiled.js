@@ -125,6 +125,8 @@ if (TestEditorExtends) { (function () {
             0,
             [], [], []
         ], 'empty non-primitive object');
+
+        cc.js.unregisterClass(MyClass);
     });
 
     test('Missing script', function() {

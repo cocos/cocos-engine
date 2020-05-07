@@ -532,91 +532,83 @@ if (TestEditorExtends) { (function () {
         ok(deserializedAsset.refSelf === deserializedAsset, 'should ref to self');
     });
 
-    test('reference to main asset with formerlySerializedAs', function () {
-        var MyAsset = cc.Class({
-            name: 'MyAsset',
-            properties: {
-                newRefSelf: {
-                    default: null,
-                    formerlySerializedAs: 'oldRefSelf'
-                },
-            }
-        });
-        var asset = new MyAsset();
-        asset.newRefSelf = asset;
-
-        var serializedAsset = Editor.serializeCompiled(asset);
-        serializedAsset = serializedAsset.replace(/newRefSelf/g, 'oldRefSelf');
-        var deserializedAsset = deserializeCompiled(serializedAsset);
-
-        ok(deserializedAsset.newRefSelf === deserializedAsset, 'should ref to self');
-
-        cc.js.unregisterClass(MyAsset);
-    });
-
-    // test('custom deserialization', function () {
-    //     var Asset = cc.Class({
-    //         name: 'a a b b',
-    //         extend: cc.Object,
-    //         properties: {
-    //             prop1: 1,
-    //             prop2: 2
-    //         },
-    //         _serialize: function () {
-    //             return [this.prop1, this.prop2];
-    //         },
-    //         _deserialize: function (data) {
-    //             this.prop1 = data[0];
-    //             this.prop2 = data[1];
-    //         }
-    //     });
-    //     var a = new Asset();
-    //     var sa = Editor.serializeCompiled(a, { stringify: false });
-    //     deepEqual(sa.content, [1, 2], 'should pack value to array');
-    //
-    //     var da = deserializeCompiled(sa);
-    //     strictEqual(da.prop1, 1, 'can extract packed value 1');
-    //     strictEqual(da.prop2, 2, 'can extract packed value 2');
-    //
-    //     cc.js.unregisterClass(Asset);
-    // });
-    //
-    // test('eliminated default property for unknown value type', function () {
-    //     function Vec3 (x, y, z) {
-    //         this.x = x || 1;
-    //         this.y = y || 0;
-    //         this.z = z || 0;
-    //     }
-    //     cc.js.extend(Vec3, cc.ValueType);
-    //     cc.Class.fastDefine('Vector3', Vec3, { x: 1, y: 0, z: 0 });
-    //     Vec3.prototype.clone = function () {
-    //         return new Vec3(this.x, this.y, this.z);
-    //     };
-    //     window.Vector3 = Vec3;
-    //
+    // test('reference to main asset with formerlySerializedAs', function () {
     //     var MyAsset = cc.Class({
     //         name: 'MyAsset',
     //         properties: {
-    //             scale1: new Vec3(1, 0, 0),
-    //             scale10: new Vec3(1, 99, 0),
+    //             newRefSelf: {
+    //                 default: null,
+    //                 formerlySerializedAs: 'oldRefSelf'
+    //             },
     //         }
     //     });
     //     var asset = new MyAsset();
-    //     asset.scale10.y = 0;
+    //     asset.newRefSelf = asset;
     //
-    //     var json = {
-    //         __type__: 'MyAsset',
-    //         scale10: {
-    //             __type__: 'Vector3',
-    //         },
-    //     };
+    //     var serializedAsset = Editor.serializeCompiled(asset);
+    //     serializedAsset = serializedAsset.replace(/newRefSelf/g, 'oldRefSelf');
+    //     var deserializedAsset = deserializeCompiled(serializedAsset);
     //
-    //     var result = deserializeCompiled(json);
-    //     deepEqual(result.scale1, asset.scale1, 'should load eliminated entire property');
-    //     deepEqual(result.scale10, asset.scale10, 'should load eliminated sub property');
+    //     ok(deserializedAsset.newRefSelf === deserializedAsset, 'should ref to self');
     //
-    //     cc.js.unregisterClass(Vec3, MyAsset);
-    //     delete window.Vector3;
+    //     cc.js.unregisterClass(MyAsset);
     // });
+
+    test('custom deserialization', function () {
+        var Asset = cc.Class({
+            name: 'a a b b',
+            extend: cc.Object,
+            properties: {
+                prop1: 1,
+                prop2: 2
+            },
+            _serialize: function () {
+                return [this.prop1, this.prop2];
+            },
+            _deserialize: function (data) {
+                this.prop1 = data[0];
+                this.prop2 = data[1];
+            }
+        });
+        var a = new Asset();
+        a.prop1 = 2333;
+        a.prop2 = 666;
+        match(a, 'pass');
+
+        cc.js.unregisterClass(Asset);
+    });
+
+    test('eliminated default property for unknown value type', function () {
+        function Vec3 (x, y, z) {
+            this.x = x || 1;
+            this.y = y || 0;
+            this.z = z || 0;
+        }
+        cc.js.extend(Vec3, cc.ValueType);
+        cc.Class.fastDefine('Vector3', Vec3, { x: 1, y: 0, z: 0 });
+        window.Vector3 = Vec3;
+
+        Vec3.prototype.clone = function () {
+            return new Vec3(this.x, this.y, this.z);
+        };
+        Vec3.prototype.equals = function (other) {
+            return this.x === other.x && this.y === other.y && this.z === other.z;
+        };
+
+        var MyAsset = cc.Class({
+            name: 'MyAsset',
+            properties: {
+                scale1: new Vec3(1, 0, 0),      //  'should load eliminated entire property'
+                scale10: new Vec3(1, 99, 0),
+            }
+        });
+        var asset = new MyAsset();
+        asset.scale10.y = 0;                    // 'should load eliminated sub property'
+
+        match(asset, 'pass');
+
+        cc.js.unregisterClass(Vec3, MyAsset);
+        delete window.Vector3;
+    });
 })();
 }

@@ -41,7 +41,7 @@ exports.getMacros = function (platform, flags) {
     return res;
 };
 
-// see https://github.com/mishoo/UglifyJS2/tree/harmony#compress-options
+// see https://github.com/terser/terser#compress-options
 exports.getUglifyOptions = function (platform, flags) {
     var global_defs = exports.getMacros(platform, flags);
     var releaseMode = !global_defs['CC_DEBUG'];

@@ -33,6 +33,7 @@ import Size from '../value-types/size';
 import Rect from '../value-types/rect';
 import Quat from '../value-types/quat';
 import Mat4 from '../value-types/mat4';
+// import Attr from './attribute';
 
 /****************************************************************************
  * BUILT-IN TYPES / CONSTAINTS
@@ -725,10 +726,12 @@ function parseInstances (data: IFileData): RootInstanceIndex {
     let instances = data[File.Instances];
     let instanceTypes = data[File.InstanceTypes];
     let instanceTypesLen = instanceTypes ? (instanceTypes as OtherObjectTypeID[]).length : 0;
-    let rootIndex = 0;
+    let rootIndex = instances[instances.length - 1];
     let normalObjectCount = instances.length - instanceTypesLen;
-    if (instances.length > 1) {
-        rootIndex = instances[instances.length - 1];
+    if (typeof rootIndex !== 'number') {
+        rootIndex = 0;
+    }
+    else {
         --normalObjectCount;
     }
 
@@ -757,22 +760,55 @@ function parseInstances (data: IFileData): RootInstanceIndex {
     return rootIndex;
 }
 
+// const DESERIALIZE_AS = Attr.DELIMETER + 'deserializeAs';
+// function deserializeAs(klass: AnyCCClass, klassLayout: IClass) {
+//     var attrs = Attr.getClassAttrs(klass);
+//     let keys = klassLayout[CLASS_KEYS];
+//     for (let i = 0; i < keys.length; ++i) {
+//         let newKey = attrs[keys[i] + DESERIALIZE_AS];
+//         if (newKey) {
+//             // @ts-ignore
+//             if (keys.includes(newKey)) {
+//                 // %s cannot be deserialized by property %s because %s was also present in the serialized data.
+//                 cc.warnID(, newKey, keys[i], newKey);
+//             }
+//             else {
+//                 keys[i] = newKey;
+//             }
+//         }
+//     }
+// }
+
 function lookupClasses (data: IFileData, options: IOptions) {
     let customFinder = options.classFinder;
     let classFinder = customFinder || js._getClassById;
     let classes = data[File.SharedClasses];
     for (let i = 0; i < classes.length; ++i) {
         let klassLayout = classes[i];
-        let className = klassLayout[CLASS_TYPE] as string;
-        let klass = classFinder(className);
-        if (klass) {
+        if (typeof klassLayout !== 'string') {
+            let klass = classFinder(klassLayout[CLASS_TYPE]);
+            if (!klass) {
+                // if (klass.__FSA__) {
+                //     deserializeAs(klass, klassLayout as IClass);
+                // }
+                if (!customFinder) {
+                    // @ts-ignore
+                    deserialize.reportMissingClass(klassLayout[CLASS_TYPE]);
+                }
+                klass = Object;
+            }
             klassLayout[CLASS_TYPE] = klass;
         }
         else {
-            if (!customFinder) {
-                cc.deserialize.reportMissingClass(className);
+            let klass = classFinder(klassLayout);
+            if (!klass) {
+                if (!customFinder) {
+                    // @ts-ignore
+                    deserialize.reportMissingClass(klassLayout);
+                }
+                klass = Object;
             }
-            klassLayout[CLASS_TYPE] = Object;
+            classes[i] = klass;
         }
     }
 }
@@ -844,8 +880,10 @@ export default function deserialize (data: IFileData, details: Details, options?
 
     lookupClasses(data, options);
 
+    cc.game._isCloning = true;
     let instances = data[File.Instances];
     let rootIndex = parseInstances(data);
+    cc.game._isCloning = false;
 
     if (data[File.Refs]) {
         dereference(data[File.Refs] as IRefs, instances, data[File.SharedStrings]);
@@ -859,6 +897,8 @@ export default function deserialize (data: IFileData, details: Details, options?
 
     return instances[rootIndex];
 };
+
+deserialize.Details = Details;
 
 if (CC_EDITOR || CC_TEST) {
     cc._deserializeCompiled = deserialize;

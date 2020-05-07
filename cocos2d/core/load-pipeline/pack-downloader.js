@@ -233,5 +233,6 @@ if (CC_TEST) {
         uuidToPack = {};
         packIndices = {};
         globalUnpackers = {};
+        toBeChecked.length = 0;
     };
 }

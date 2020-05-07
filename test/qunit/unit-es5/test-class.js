@@ -798,6 +798,52 @@ test('simplified properties define using cc.xxxType', function () {
     deepEqual(arrayObj.int, [], 'checking array of int');
 });
 
+// test('formerlySerializedAs', function () {
+//     var MyClass0 = cc.Class({});
+//     ok(!MyClass0.__FSA__, 'should not tagged as fsa on normal class');
+//
+//     var MyClass3 = cc.Class({
+//         properties: {
+//             prop: {
+//                 default: '',
+//                 formerlySerializedAs: 'oldProp'
+//             }
+//         }
+//     });
+//     ok(MyClass3.__FSA__, 'should tagged as fsa on MyClass3');
+//
+//     var Base = cc.Class({
+//         properties: {
+//             prop: {
+//                 default: '',
+//                 formerlySerializedAs: 'oldProp'
+//             }
+//         }
+//     });
+//     var Mix = cc.Class({});
+//     var MyClass = cc.Class({
+//         extends: Base,
+//         mixins: [Mix]
+//     });
+//     ok(MyClass.__FSA__, 'should tagged as fsa on MyClass');
+//
+//     var Base2 = cc.Class({});
+//     var Mix2 = cc.Class({
+//         properties: {
+//             prop: {
+//                 default: '',
+//                 formerlySerializedAs: 'oldProp'
+//             }
+//         }
+//     });
+//     var MyClass2 = cc.Class({
+//         extends: Base2,
+//         mixins: [Mix2]
+//     });
+//     ok(MyClass2.__FSA__, 'should tagged as fsa on MyClass2');
+//
+//     cc.js.unregisterClass(Base, Mix, MyClass, Base2, Mix2, MyClass2, MyClass0, MyClass3);
+// });
 
 // test('call CCClass', function () {
 //     var Husky = cc.Class({
