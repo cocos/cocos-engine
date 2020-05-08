@@ -44,11 +44,11 @@ export class Size extends ValueType {
     /**
      * @en Calculate the interpolation result between this size and another one with given ratio
      * @zh 根据指定的插值比率，从当前尺寸到目标尺寸之间做插值。
-     * @param out 本方法将插值结果赋值给此参数
-     * @param from 起始尺寸。
-     * @param to 目标尺寸。
-     * @param ratio 插值比率，范围为 [0,1]。
-     * @returns 当前尺寸的宽和高到目标尺寸的宽和高分别按指定插值比率进行线性插值构成的向量。
+     * @param out Output Size.
+     * @param from Original Size.
+     * @param to Target Size.
+     * @param ratio The interpolation coefficient.The range is [0,1].
+     * @returns A vector consisting of linear interpolation of the width and height of the current size to the width and height of the target size at a specified interpolation ratio, respectively.
      */
     public static lerp <Out extends ISizeLike> (out: Out, from: Out, to: Out, ratio: number) {
         out.width = from.width + (to.width - from.width) * ratio;
@@ -69,15 +69,15 @@ export class Size extends ValueType {
     /**
      * @en Constructor a size from another one.
      * @zh 构造与指定尺寸相等的尺寸。
-     * @param other 相比较的尺寸。
+     * @param other Specified Size.
      */
     constructor (other: Size);
 
     /**
      * @en Constructor a size with specified values.
      * @zh 构造具有指定宽度和高度的尺寸。
-     * @param [width=0] 指定的宽度。
-     * @param [height=0] 指定的高度。
+     * @param width width of the Size, default value is 0.
+     * @param height height of the Size, default value is 0.
      */
     constructor (width?: number, height?: number);
 
@@ -103,7 +103,7 @@ export class Size extends ValueType {
     /**
      * @en Set values with another `Size`.
      * @zh 设置当前尺寸使其与指定的尺寸相等。
-     * @param other 相比较的尺寸。
+     * @param other Specified Size.
      * @returns `this`
      */
     public set (other: Size);
@@ -111,8 +111,8 @@ export class Size extends ValueType {
     /**
      * @en Set the value of each component of the current `Size`.
      * @zh 设置当前尺寸的具体参数。
-     * @param width 要设置的 width 值
-     * @param height 要设置的 height 值
+     * @param width Specified width
+     * @param height Specified height
      * @returns `this`
      */
     public set (width?: number, height?: number);
@@ -131,8 +131,8 @@ export class Size extends ValueType {
     /**
      * @en Check whether the current `Size` equals another one.
      * @zh 判断当前尺寸是否与指定尺寸的相等。
-     * @param other 相比较的尺寸。
-     * @returns 两尺寸的宽和高都分别相等时返回 `true`；否则返回 `false`。
+     * @param other Specified Size
+     * @returns Returns `true' when both dimensions are equal in width and height; otherwise returns `false'.
      */
     public equals (other: Size) {
         return this.width === other.width &&
@@ -142,8 +142,8 @@ export class Size extends ValueType {
     /**
      * @en Calculate the interpolation result between this size and another one with given ratio
      * @zh 根据指定的插值比率，从当前尺寸到目标尺寸之间做插值。
-     * @param to 目标尺寸。
-     * @param ratio 插值比率，范围为 [0,1]。
+     * @param to Target Size.
+     * @param ratio The interpolation coefficient.The range is [0,1].
      */
     public lerp (to: Size, ratio: number) {
         this.width = this.width + (to.width - this.width) * ratio;
@@ -152,9 +152,9 @@ export class Size extends ValueType {
     }
 
     /**
-     * @en Output size informations to string
+     * @en Return the information of the current size in string
      * @zh 返回当前尺寸的字符串表示。
-     * @returns 当前尺寸的字符串表示。
+     * @returns The information of the current size in string
      */
     public toString () {
         return `(${this.width.toFixed(2)}, ${this.height.toFixed(2)})`;
@@ -166,7 +166,7 @@ CCClass.fastDefine('cc.Size', Size, { width: 0, height: 0 });
 /**
  * @en Constructs a `Size` object.
  * @zh 等价于 `new Size(other)`。
- * @param other 相比较的尺寸。
+ * @param other Specified Size.
  * @returns `new Size(other)`
  */
 export function size (other: Size): Size;
@@ -174,9 +174,9 @@ export function size (other: Size): Size;
 /**
  * @en Constructs a `Size` object.
  * @zh 等价于 `new Size(x, y)`。
- * @param [x=0] 指定的宽度。
- * @param [y=0] 指定的高度。
- * @returns `new Size(x, y)`
+ * @param width Specified width
+ * @param height Specified height
+ * @returns `new Size(w, h)`
  */
 export function size (width?: number, height?: number): Size;
 
