@@ -28,7 +28,7 @@
  * @category ui
  */
 
-import { Component} from '../../core/components';
+import { Component } from '../../core/components';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
 import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
 import { Size, Vec3 } from '../../core/math';
@@ -223,7 +223,7 @@ export class WidgetComponent extends Component {
     }
 
     set target (value) {
-        if (this._target === value){
+        if (this._target === value) {
             return;
         }
 
@@ -405,6 +405,7 @@ export class WidgetComponent extends Component {
         return this._top;
     }
     set top (value) {
+        if (this.isLockedTop) { return; }
         this._top = value;
         this._recursiveDirty();
     }
@@ -417,6 +418,7 @@ export class WidgetComponent extends Component {
         return this._isAbsTop ? this._top : (this._top * 100);
     }
     set editorTop (value) {
+        if (this.isLockedTop) { return; }
         this._top = this._isAbsTop ? value : (value / 100);
         this._recursiveDirty();
     }
@@ -433,6 +435,7 @@ export class WidgetComponent extends Component {
         return this._bottom;
     }
     set bottom (value) {
+        if (this.isLockedBottom) { return; }
         this._bottom = value;
         this._recursiveDirty();
     }
@@ -445,6 +448,7 @@ export class WidgetComponent extends Component {
         return this._isAbsBottom ? this._bottom : (this._bottom * 100);
     }
     set editorBottom (value) {
+        if (this.isLockedBottom) { return; }
         this._bottom = this._isAbsBottom ? value : (value / 100);
         this._recursiveDirty();
     }
@@ -461,6 +465,7 @@ export class WidgetComponent extends Component {
         return this._left;
     }
     set left (value) {
+        if (this.isLockedLeft) { return; }
         this._left = value;
         this._recursiveDirty();
     }
@@ -473,6 +478,7 @@ export class WidgetComponent extends Component {
         return this._isAbsLeft ? this._left : (this._left * 100);
     }
     set editorLeft (value) {
+        if (this.isLockedLeft) { return; }
         this._left = this._isAbsLeft ? value : (value / 100);
         this._recursiveDirty();
     }
@@ -489,6 +495,7 @@ export class WidgetComponent extends Component {
         return this._right;
     }
     set right (value) {
+        if (this.isLockedRight) { return; }
         this._right = value;
         this._recursiveDirty();
     }
@@ -501,6 +508,7 @@ export class WidgetComponent extends Component {
         return this._isAbsRight ? this._right : (this._right * 100);
     }
     set editorRight (value) {
+        if (this.isLockedRight) { return; }
         this._right = this._isAbsRight ? value : (value / 100);
         this._recursiveDirty();
     }
@@ -517,6 +525,7 @@ export class WidgetComponent extends Component {
         return this._horizontalCenter;
     }
     set horizontalCenter (value) {
+        if (this.isLockedHorizontalCenter) { return; }
         this._horizontalCenter = value;
         this._recursiveDirty();
     }
@@ -529,6 +538,7 @@ export class WidgetComponent extends Component {
         return this._isAbsHorizontalCenter ? this._horizontalCenter : (this._horizontalCenter * 100);
     }
     set editorHorizontalCenter (value) {
+        if (this.isLockedHorizontalCenter) { return; }
         this._horizontalCenter = this._isAbsHorizontalCenter ? value : (value / 100);
         this._recursiveDirty();
     }
@@ -545,6 +555,7 @@ export class WidgetComponent extends Component {
         return this._verticalCenter;
     }
     set verticalCenter (value) {
+        if (this.isLockedVerticalCenter) { return; }
         this._verticalCenter = value;
         this._recursiveDirty();
     }
@@ -557,6 +568,7 @@ export class WidgetComponent extends Component {
         return this._isAbsVerticalCenter ? this._verticalCenter : (this._verticalCenter * 100);
     }
     set editorVerticalCenter (value) {
+        if (this.isLockedVerticalCenter) { return; }
         this._verticalCenter = this._isAbsVerticalCenter ? value : (value / 100);
         this._recursiveDirty();
     }
@@ -573,7 +585,7 @@ export class WidgetComponent extends Component {
         return this._isAbsTop;
     }
     set isAbsoluteTop (value) {
-        if (this._isAbsTop === value){
+        if (this._isAbsTop === value) {
             return;
         }
 
@@ -593,7 +605,7 @@ export class WidgetComponent extends Component {
         return this._isAbsBottom;
     }
     set isAbsoluteBottom (value) {
-        if (this._isAbsBottom === value){
+        if (this._isAbsBottom === value) {
             return;
         }
 
@@ -633,37 +645,12 @@ export class WidgetComponent extends Component {
         return this._isAbsRight;
     }
     set isAbsoluteRight (value) {
-        if (this._isAbsRight === value){
+        if (this._isAbsRight === value) {
             return;
         }
 
         this._isAbsRight = value;
         this._autoChangedValue(AlignFlags.RIGHT, this._isAbsRight);
-    }
-
-    /**
-     * @en
-     * Specifies the alignment mode of the Widget, which determines when the widget should refresh.
-     *
-     * @zh
-     * 指定 Widget 的对齐模式，用于决定 Widget 应该何时刷新。
-     *
-     * @example
-     * ```
-     * widget.alignMode = cc.Widget.AlignMode.ON_WINDOW_RESIZE;
-     * ```
-     */
-    @property({
-        type: AlignMode,
-        tooltip:'指定 widget 的对齐方式，用于决定运行时 widget 应何时更新',
-    })
-    get alignMode () {
-        return this._alignMode;
-    }
-
-    set alignMode (value) {
-        this._alignMode = value;
-        this._recursiveDirty();
     }
 
     /**
@@ -677,7 +664,6 @@ export class WidgetComponent extends Component {
     get isAbsoluteHorizontalCenter () {
         return this._isAbsHorizontalCenter;
     }
-
     set isAbsoluteHorizontalCenter (value) {
         if (this._isAbsHorizontalCenter === value) {
             return;
@@ -699,12 +685,150 @@ export class WidgetComponent extends Component {
         return this._isAbsVerticalCenter;
     }
     set isAbsoluteVerticalCenter (value) {
-        if (this._isAbsVerticalCenter === value){
+        if (this._isAbsVerticalCenter === value) {
             return;
         }
 
         this._isAbsVerticalCenter = value;
         this._autoChangedValue(AlignFlags.MID, this._isAbsVerticalCenter);
+    }
+
+    /**
+     * @en
+     * If true, the left value of the widget will be locked.
+     * @zh
+     * 如果为 true，widget 的 left 值将被锁定。
+     */
+    @property
+    get isLockedLeft () {
+        return this._isLockLeft;
+    }
+    set isLockedLeft (value) {
+        if (this._isLockLeft === value) {
+            return;
+        }
+
+        this._isLockLeft = value;
+        this._recursiveDirty();
+    }
+
+    /**
+     * @en
+     * If true, the right value of the widget will be locked.
+     * @zh
+     * 如果为 true，widget 的 right 值将被锁定。
+     */
+    @property
+    get isLockedRight () {
+        return this._isLockRight;
+    }
+    set isLockedRight (value) {
+        if (this._isLockRight === value) {
+            return;
+        }
+
+        this._isLockRight = value;
+        this._recursiveDirty();
+    }
+
+    /**
+     * @en
+     * If true, the top value of the widget will be locked.
+     * @zh
+     * 如果为 true，widget 的 top 值将被锁定。
+     */
+    @property
+    get isLockedTop () {
+        return this._isLockTop;
+    }
+    set isLockedTop (value) {
+        if (this._isLockTop === value) {
+            return;
+        }
+
+        this._isLockTop = value;
+        this._recursiveDirty();
+    }
+
+    /**
+     * @en
+     * If true, the bottom value of the widget will be locked.
+     * @zh
+     * 如果为 true，widget 的 bottom 值将被锁定。
+     */
+    @property
+    get isLockedBottom () {
+        return this._isLockBottom;
+    }
+    set isLockedBottom (value) {
+        if (this._isLockBottom === value) {
+            return;
+        }
+
+        this._isLockBottom = value;
+        this._recursiveDirty();
+    }
+
+    /**
+     * @en
+     * If true, the horizontalCenter value of the widget will be locked.
+     * @zh
+     * 如果为 true，widget 的 horizontalCenter 值将被锁定。
+     */
+    @property
+    get isLockedHorizontalCenter () {
+        return this._isLockHorizontalCenter;
+    }
+    set isLockedHorizontalCenter (value) {
+        if (this._isLockHorizontalCenter === value) {
+            return;
+        }
+
+        this._isLockHorizontalCenter = value;
+        this._recursiveDirty();
+    }
+
+    /**
+     * @en
+     * If true, the verticalCenter value of the widget will be locked.
+     * @zh
+     * 如果为 true，widget 的 verticalCenter 值将被锁定。
+     */
+    @property
+    get isLockedVerticalCenter () {
+        return this._isLockVerticalCenter;
+    }
+    set isLockedVerticalCenter (value) {
+        if (this._isLockVerticalCenter === value) {
+            return;
+        }
+
+        this._isLockVerticalCenter = value;
+        this._recursiveDirty();
+    }
+
+    /**
+     * @en
+     * Specifies the alignment mode of the Widget, which determines when the widget should refresh.
+     *
+     * @zh
+     * 指定 Widget 的对齐模式，用于决定 Widget 应该何时刷新。
+     *
+     * @example
+     * ```
+     * widget.alignMode = cc.Widget.AlignMode.ON_WINDOW_RESIZE;
+     * ```
+     */
+    @property({
+        type: AlignMode,
+        tooltip:'指定 widget 的对齐方式，用于决定运行时 widget 应何时更新',
+    })
+    get alignMode () {
+        return this._alignMode;
+    }
+    set alignMode (value) {
+        this._alignMode = value;
+        this._recursiveDirty();
     }
 
     /**
@@ -715,7 +839,6 @@ export class WidgetComponent extends Component {
     get alignFlags () {
         return this._alignFlags;
     }
-
     set alignFlags (value) {
         if (this._alignFlags === value) {
             return;
@@ -759,6 +882,18 @@ export class WidgetComponent extends Component {
     private _isAbsHorizontalCenter = true;
     @property
     private _isAbsVerticalCenter = true;
+    @property
+    private _isLockLeft = false;
+    @property
+    private _isLockRight = false;
+    @property
+    private _isLockTop = false;
+    @property
+    private _isLockBottom = false;
+    @property
+    private _isLockHorizontalCenter = false;
+    @property
+    private _isLockVerticalCenter = false;
     // original size before align
     @property
     private _originalWidth = 0;
@@ -804,7 +939,7 @@ export class WidgetComponent extends Component {
 
     }
 
-    public setDirty (){
+    public setDirty () {
         this._recursiveDirty();
     }
 
@@ -858,22 +993,22 @@ export class WidgetComponent extends Component {
             Vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
         }
 
-        if (self.isAlignTop) {
+        if (self.isAlignTop && !self.isLockedTop) {
             self._top -= (self._isAbsTop ? delta.y : deltaInPercent.y) * inverseScale.y;
         }
-        if (self.isAlignBottom) {
+        if (self.isAlignBottom && !self.isLockedBottom) {
             self._bottom += (self._isAbsBottom ? delta.y : deltaInPercent.y) * inverseScale.y;
         }
-        if (self.isAlignLeft) {
+        if (self.isAlignLeft && !self.isLockedLeft) {
             self._left += (self._isAbsLeft ? delta.x : deltaInPercent.x) * inverseScale.x;
         }
-        if (self.isAlignRight) {
+        if (self.isAlignRight && !self.isLockedRight) {
             self._right -= (self._isAbsRight ? delta.x : deltaInPercent.x) * inverseScale.x;
         }
-        if (self.isAlignHorizontalCenter) {
+        if (self.isAlignHorizontalCenter && !self.isLockedHorizontalCenter) {
             self._horizontalCenter += (self._isAbsHorizontalCenter ? delta.x : deltaInPercent.x) * inverseScale.x;
         }
-        if (self.isAlignVerticalCenter) {
+        if (self.isAlignVerticalCenter && !self.isLockedVerticalCenter) {
             self._verticalCenter += (self._isAbsVerticalCenter ? delta.y : deltaInPercent.y) * inverseScale.y;
         }
         this._recursiveDirty();
@@ -908,21 +1043,21 @@ export class WidgetComponent extends Component {
         const targetSize = getReadonlyNodeSize(target);
         const deltaInPercent = new Vec3();
         if (targetSize.width !== 0 && targetSize.height !== 0) {
-            Vec3.set(deltaInPercent, delta.x / targetSize.width , delta.y / targetSize.height, deltaInPercent.z);
+            Vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
         }
 
         const anchor = self.node.getAnchorPoint();
 
-        if (self.isAlignTop) {
+        if (self.isAlignTop && !self.isAlignTop) {
             self._top -= (self._isAbsTop ? delta.y : deltaInPercent.y) * (1 - anchor.y) * inverseScale.y;
         }
-        if (self.isAlignBottom) {
+        if (self.isAlignBottom && !self.isLockedBottom) {
             self._bottom -= (self._isAbsBottom ? delta.y : deltaInPercent.y) * anchor.y * inverseScale.y;
         }
-        if (self.isAlignLeft) {
+        if (self.isAlignLeft && !self.isLockedLeft) {
             self._left -= (self._isAbsLeft ? delta.x : deltaInPercent.x) * anchor.x * inverseScale.x;
         }
-        if (self.isAlignRight) {
+        if (self.isAlignRight && !self.isLockedRight) {
             self._right -= (self._isAbsRight ? delta.x : deltaInPercent.x) * (1 - anchor.x) * inverseScale.x;
         }
         this._recursiveDirty();
@@ -958,9 +1093,9 @@ export class WidgetComponent extends Component {
         this.node.off(SystemEventType.PARENT_CHANGED, this._adjustTargetToParentChanged, this);
     }
 
-    protected _autoChangedValue (flag: AlignFlags, isAbs: boolean){
+    protected _autoChangedValue (flag: AlignFlags, isAbs: boolean) {
         const current = (this._alignFlags & flag) > 0;
-        if (!current || !this.node.parent || !this.node.parent._uiProps.uiTransformComp){
+        if (!current || !this.node.parent || !this.node.parent._uiProps.uiTransformComp) {
             return;
         }
 
@@ -1002,7 +1137,7 @@ export class WidgetComponent extends Component {
         }
     }
 
-    protected _unregisterOldParentEvents ( oldParent: Node ) {
+    protected _unregisterOldParentEvents (oldParent: Node) {
         const target = this._target || oldParent;
         if (target) {
             target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
@@ -1010,7 +1145,7 @@ export class WidgetComponent extends Component {
         }
     }
 
-    protected _targetChangedOperation (){
+    protected _targetChangedOperation () {
         this._recursiveDirty();
     }
 
@@ -1069,7 +1204,7 @@ export class WidgetComponent extends Component {
     }
 
     private _recursiveDirty () {
-        if (this._dirty){
+        if (this._dirty) {
             return;
         }
 
