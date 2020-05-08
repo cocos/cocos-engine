@@ -49,7 +49,7 @@ export default [
         "attributes": [
           { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 0 },
           { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "shaderStages": 1, "format": 21, "location": 1 },
-          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 43, "location": 2 }
+          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 2 }
         ]
       }
     ]
@@ -138,16 +138,16 @@ export default [
           { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "shaderStages": 16, "binding": 36 }
         ],
         "attributes": [
-          { "name": "a_position_starttime", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 43, "location": 0 },
-          { "name": "a_size_uv", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 43, "location": 1 },
-          { "name": "a_rotation_uv", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 43, "location": 2 },
-          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 43, "location": 3 },
-          { "name": "a_dir_life", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 43, "location": 4 },
+          { "name": "a_position_starttime", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 0 },
+          { "name": "a_size_uv", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 1 },
+          { "name": "a_rotation_uv", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 2 },
+          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 3 },
+          { "name": "a_dir_life", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 4 },
           { "name": "a_rndSeed", "type": 13, "count": 1, "defines": [], "shaderStages": 1, "format": 11, "location": 5 },
           { "name": "a_texCoord", "type": 15, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 1, "format": 32, "location": 6 },
           { "name": "a_texCoord3", "type": 15, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 1, "format": 32, "location": 7 },
           { "name": "a_normal", "type": 15, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 1, "format": 32, "location": 8 },
-          { "name": "a_color1", "type": 16, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 1, "format": 43, "location": 9 }
+          { "name": "a_color1", "type": 16, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 1, "format": 44, "location": 9 }
         ]
       }
     ]
@@ -199,10 +199,10 @@ export default [
         ],
         "attributes": [
           { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 0 },
-          { "name": "a_texCoord", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 43, "location": 1 },
+          { "name": "a_texCoord", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 1 },
           { "name": "a_texCoord1", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 2 },
           { "name": "a_texCoord2", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 3 },
-          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 43, "location": 4 }
+          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 4 }
         ]
       }
     ]
@@ -256,7 +256,7 @@ export default [
           { "name": "a_texCoord", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 1 },
           { "name": "a_texCoord1", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 2 },
           { "name": "a_texCoord2", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 3 },
-          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 43, "location": 4 },
+          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 4 },
           { "name": "a_color1", "type": 15, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 1, "format": 32, "location": 5 },
           { "name": "a_texCoord3", "type": 15, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 1, "format": 32, "location": 6 },
           { "name": "a_normal", "type": 15, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 1, "format": 32, "location": 7 }
@@ -302,7 +302,7 @@ export default [
         "attributes": [
           { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 0 },
           { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "shaderStages": 1, "format": 21, "location": 1 },
-          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 43, "location": 2 }
+          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 2 }
         ]
       }
     ]
@@ -386,17 +386,17 @@ export default [
           { "name": "emissiveMap", "type": 28, "count": 1, "defines": ["USE_EMISSIVE_MAP"], "shaderStages": 16, "binding": 35 }
         ],
         "attributes": [
-          { "name": "a_matWorld0", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 43, "isInstanced": true, "location": 4 },
-          { "name": "a_matWorld1", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 43, "isInstanced": true, "location": 5 },
-          { "name": "a_matWorld2", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 43, "isInstanced": true, "location": 6 },
+          { "name": "a_matWorld0", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 4 },
+          { "name": "a_matWorld1", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 5 },
+          { "name": "a_matWorld2", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 6 },
           { "name": "a_dyn_batch_id", "type": 13, "count": 1, "defines": ["!USE_INSTANCING", "USE_BATCHING"], "shaderStages": 1, "format": 11, "location": 3 },
           { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 0 },
           { "name": "a_normal", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 1 },
-          { "name": "a_tangent", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 43, "location": 2 },
+          { "name": "a_tangent", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 2 },
           { "name": "a_vertexId", "type": 13, "count": 1, "defines": ["CC_USE_MORPH"], "shaderStages": 1, "format": 11, "location": 7 },
-          { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 1, "format": 43, "location": 8 },
-          { "name": "a_joints", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 1, "format": 43, "location": 9 },
-          { "name": "a_jointAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "shaderStages": 1, "format": 43, "isInstanced": true, "location": 10 },
+          { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 1, "format": 44, "location": 8 },
+          { "name": "a_joints", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 1, "format": 44, "location": 9 },
+          { "name": "a_jointAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 10 },
           { "name": "a_color", "type": 15, "count": 1, "defines": ["USE_VERTEX_COLOR"], "shaderStages": 1, "format": 32, "location": 11 },
           { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "shaderStages": 1, "format": 21, "location": 12 },
           { "name": "a_texCoord1", "type": 14, "count": 1, "defines": [], "shaderStages": 1, "format": 21, "location": 13 }
@@ -515,16 +515,16 @@ export default [
           { "name": "mainTexture", "type": 28, "count": 1, "defines": ["USE_TEXTURE"], "shaderStages": 16, "binding": 30 }
         ],
         "attributes": [
-          { "name": "a_matWorld0", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 43, "isInstanced": true, "location": 4 },
-          { "name": "a_matWorld1", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 43, "isInstanced": true, "location": 1 },
-          { "name": "a_matWorld2", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 43, "isInstanced": true, "location": 2 },
+          { "name": "a_matWorld0", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 4 },
+          { "name": "a_matWorld1", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 1 },
+          { "name": "a_matWorld2", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 2 },
           { "name": "a_dyn_batch_id", "type": 13, "count": 1, "defines": ["!USE_INSTANCING", "USE_BATCHING"], "shaderStages": 1, "format": 11, "location": 3 },
           { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 0 },
           { "name": "a_vertexId", "type": 13, "count": 1, "defines": ["CC_USE_MORPH"], "shaderStages": 1, "format": 11, "location": 5 },
-          { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 1, "format": 43, "location": 6 },
-          { "name": "a_joints", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 1, "format": 43, "location": 7 },
-          { "name": "a_jointAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "shaderStages": 1, "format": 43, "isInstanced": true, "location": 8 },
-          { "name": "a_color", "type": 16, "count": 1, "defines": ["USE_VERTEX_COLOR"], "shaderStages": 1, "format": 43, "location": 9 },
+          { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 1, "format": 44, "location": 6 },
+          { "name": "a_joints", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 1, "format": 44, "location": 7 },
+          { "name": "a_jointAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 8 },
+          { "name": "a_color", "type": 16, "count": 1, "defines": ["USE_VERTEX_COLOR"], "shaderStages": 1, "format": 44, "location": 9 },
           { "name": "a_texCoord", "type": 14, "count": 1, "defines": ["USE_TEXTURE"], "shaderStages": 1, "format": 21, "location": 10 }
         ]
       }
@@ -573,15 +573,15 @@ export default [
         "blocks": [],
         "samplers": [],
         "attributes": [
-          { "name": "a_matWorld0", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 43, "isInstanced": true, "location": 4 },
-          { "name": "a_matWorld1", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 43, "isInstanced": true, "location": 1 },
-          { "name": "a_matWorld2", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 43, "isInstanced": true, "location": 2 },
+          { "name": "a_matWorld0", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 4 },
+          { "name": "a_matWorld1", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 1 },
+          { "name": "a_matWorld2", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 2 },
           { "name": "a_dyn_batch_id", "type": 13, "count": 1, "defines": ["!USE_INSTANCING", "USE_BATCHING"], "shaderStages": 1, "format": 11, "location": 3 },
           { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 0 },
           { "name": "a_vertexId", "type": 13, "count": 1, "defines": ["CC_USE_MORPH"], "shaderStages": 1, "format": 11, "location": 5 },
-          { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 1, "format": 43, "location": 6 },
-          { "name": "a_joints", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 1, "format": 43, "location": 7 },
-          { "name": "a_jointAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "shaderStages": 1, "format": 43, "isInstanced": true, "location": 8 }
+          { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 1, "format": 44, "location": 6 },
+          { "name": "a_joints", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 1, "format": 44, "location": 7 },
+          { "name": "a_jointAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 8 }
         ]
       }
     ]
@@ -667,7 +667,7 @@ export default [
         ],
         "attributes": [
           { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 0 },
-          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 43, "location": 1 }
+          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 1 }
         ]
       }
     ]
