@@ -31,6 +31,7 @@ export class GFXUniform {
  * @zh GFX uniform 块。
  */
 export class GFXUniformBlock {
+    public shaderStages: GFXShaderType = GFXShaderType.NONE;
     public binding: number = -1;
     public name: string = '';
     // instance : string;
@@ -42,6 +43,7 @@ export class GFXUniformBlock {
  * @zh GFX Uniform 采样器。
  */
 export class GFXUniformSampler {
+    public shaderStages: GFXShaderType = GFXShaderType.NONE;
     public binding: number = -1;
     public name: string = '';
     public type: GFXType = GFXType.UNKNOWN;
