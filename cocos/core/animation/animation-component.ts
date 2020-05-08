@@ -410,7 +410,7 @@ export class AnimationComponent extends Component implements IEventTarget {
      * animation.on('play', this.onPlay, this);
      * ```
      */
-    public on (type: string, callback: (state: AnimationState) => void, target?: Object) {
+    public on (type: string, callback: (type: string, state: AnimationState) => void, target?: Object) {
         const ret = EventTarget.prototype.on.call(this, type, callback, target);
         if (type === 'lastframe') {
             for (const stateName of Object.keys(this._nameToState)) {

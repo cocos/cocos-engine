@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { removeProperty } from "../../core";
 import { BuiltinCapsuleShape } from "./shapes/builtin-capsule-shape";
 

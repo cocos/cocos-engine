@@ -1,3 +1,7 @@
+/**
+ * @category geometry
+ */
+
 export enum ERaycastMode {    
     ALL,
     CLOSEST,
