@@ -268,7 +268,7 @@ export default class ForwardRenderer extends BaseRenderer {
     // update uniforms
     this._device.setUniform('cc_matView', Mat4.toArray(_a16_view, view._matView));
     this._device.setUniform('cc_matViewInv', Mat4.toArray(_a16_view_inv, view._matViewInv));
-    this._device.setUniform('cc_matpProj', Mat4.toArray(_a16_proj, view._matProj));
+    this._device.setUniform('cc_matProj', Mat4.toArray(_a16_proj, view._matProj));
     this._device.setUniform('cc_matViewProj', Mat4.toArray(_a16_viewProj, view._matViewProj));
     this._device.setUniform('cc_cameraPos', Vec4.toArray(_a4_camPos, _camPos));
 
@@ -286,7 +286,7 @@ export default class ForwardRenderer extends BaseRenderer {
     // update uniforms
     this._device.setUniform('cc_matView', Mat4.toArray(_a16_view, view._matView));
     this._device.setUniform('cc_matViewInv', Mat4.toArray(_a16_view_inv, view._matViewInv));
-    this._device.setUniform('cc_matpProj', Mat4.toArray(_a16_proj, view._matProj));
+    this._device.setUniform('cc_matProj', Mat4.toArray(_a16_proj, view._matProj));
     this._device.setUniform('cc_matViewProj', Mat4.toArray(_a16_viewProj, view._matViewProj));
     this._device.setUniform('cc_cameraPos', Vec4.toArray(_a4_camPos, _camPos));
 
