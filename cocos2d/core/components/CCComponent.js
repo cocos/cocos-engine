@@ -57,7 +57,7 @@ var Component = cc.Class({
         }
         this._id = Editor.Utils.UuidUtils.uuid();
 
-        /*** 
+        /**
          * !#en
          * Register all related EventTargets,
          * all event callbacks will be removed in `_onPreDestroy`.
