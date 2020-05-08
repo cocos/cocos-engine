@@ -28,16 +28,11 @@ const { parseParameters } = require('./utilities');
 
 function downloadDomImage (url, options, onComplete) {
     var { options, onComplete } = parseParameters(options, undefined, onComplete);
-    
-    var isCrossOrigin = options.isCrossOrigin;
 
     var img = new Image();
 
-    if (isCrossOrigin && window.location.protocol !== 'file:') {
+    if (window.location.protocol !== 'file:') {
         img.crossOrigin = 'anonymous';
-    }
-    else {
-        img.crossOrigin = null;
     }
 
     function loadCallback () {

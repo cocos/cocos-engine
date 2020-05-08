@@ -70,8 +70,13 @@ var parser = {
      * parseImage(file: Blob, options: Record<string, any>, onComplete?: (err: Error, img: ImageBitmap|HTMLImageElement) => void): void
      */
     parseImage (file, options, onComplete) {
-        if (capabilities.createImageBitmap && file instanceof Blob) {
-            createImageBitmap(file).then(function (result) {
+        if (capabilities.imageBitmap && file instanceof Blob) {
+            let imageOptions = {};
+            imageOptions.imageOrientation = options.__flipY__ ? 'flipY' : 'none';
+            imageOptions.premultiplyAlpha = options.__premultiplyAlpha__ ? 'premultiply' : 'none';
+            createImageBitmap(file, imageOptions).then(function (result) {
+                result.flipY = !!options.__flipY__;
+                result.premultiplyAlpha = !!options.__premultiplyAlpha__;
                 onComplete && onComplete(null, result);
             }, function (err) {
                 onComplete && onComplete(err, null);

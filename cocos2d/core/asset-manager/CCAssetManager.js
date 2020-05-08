@@ -272,8 +272,7 @@ function AssetManager () {
         },
 
         'remote': {
-            maxRetryCount: 4,
-            isCrossOrigin: true,
+            maxRetryCount: 4
         },
 
         'script': {
@@ -418,7 +417,7 @@ AssetManager.prototype = {
      * You can register you own handler downloader or parser to collect these custom parameters for some effect.
      * 
      * Reserved Keyword: [`uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`, `bundle`, `onFileProgress`, `maxConcurrency`, `maxRequestsPerFrame`
-     * `maxRetryCount`, `version`, `isCrossOrigin`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload`, `cacheAsset`, `cacheEnabled`],
+     * `maxRetryCount`, `version`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload`, `cacheAsset`, `cacheEnabled`],
      * Please DO NOT use these words as custom options!
      * 
      * !#zh
@@ -428,7 +427,7 @@ AssetManager.prototype = {
      * 扩展 `downloader`, `parser` 收集参数完成想实现的效果。
      * 
      * 保留关键字: [`uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`, `bundle`, `onFileProgress`, `maxConcurrency`, `maxRequestsPerFrame`
-     * `maxRetryCount`, `version`, `isCrossOrigin`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload`, `cacheAsset`, `cacheEnabled`],
+     * `maxRetryCount`, `version`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload`, `cacheAsset`, `cacheEnabled`],
      * 请不要使用这些字段为自定义参数!
      * 
      * @method loadAny
@@ -443,7 +442,7 @@ AssetManager.prototype = {
      * @param {Object} onComplete.data - The loaded content
      * 
      * @example
-     * cc.assetManager.loadAny({url: 'http://example.com/a.png', isCrossOrigin: true}, (err, img) => cc.log(img));
+     * cc.assetManager.loadAny({url: 'http://example.com/a.png'}, (err, img) => cc.log(img));
      * cc.assetManager.loadAny(['60sVXiTH1D/6Aft4MRt9VC'], (err, assets) => cc.log(assets));
      * cc.assetManager.loadAny([{ uuid: '0cbZa5Y71CTZAccaIFluuZ'}, {url: 'http://example.com/a.png'}], (err, assets) => cc.log(assets));
      * cc.assetManager.downloader.register('.asset', (url, options, onComplete) => {
@@ -572,7 +571,6 @@ AssetManager.prototype = {
      * @method loadRemote
      * @param {string} url - The url of asset
      * @param {Object} [options] - Some optional parameters
-     * @param {boolean} [options.isCrossOrigin] - Indicate whether or not image is CORS
      * @param {cc.AudioClip.LoadMode} [options.audioLoadMode] - Indicate which mode audio you want to load
      * @param {Function} [onComplete] - Callback invoked when finish loading
      * @param {Error} onComplete.err - The error occured in loading process.

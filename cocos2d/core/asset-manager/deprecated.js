@@ -104,7 +104,7 @@ const loader = {
         for (var i = 0; i < resources.length; i++) {
             var item = resources[i];
             if (typeof item === 'string') {
-                resources[i] = { url: item, __isNative__: true, isCrossOrigin: true };
+                resources[i] = { url: item, __isNative__: true};
             }
             else {
                 if (item.type) {
@@ -114,7 +114,6 @@ const loader = {
 
                 if (item.url) {
                     item.__isNative__ = true;
-                    item.isCrossOrigin = true;
                 }
             }
         }
