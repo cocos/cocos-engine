@@ -66,7 +66,7 @@ function visitComponent (comp, deps) {
     }
 }
 
-let _temp1 = [], _temp2 = [];
+let _temp = [];
 
 function visitNode (node, deps) {
     for (let i = 0; i < node._components.length; i++) {
@@ -77,41 +77,41 @@ function visitNode (node, deps) {
     }
 }
 
-function recover (asset, refs, exclude) {
+function descendOpRef (asset, refs, exclude, op) {
     exclude.push(asset._uuid);
     var depends = dependUtil.getDeps(asset._uuid);
     for (let i = 0, l = depends.length; i < l; i++) {
         var dependAsset = assets.get(depends[i]);
         if (dependAsset) {
-            refs[dependAsset._uuid]++;
-            if (exclude.includes(dependAsset._uuid)) continue; 
-            if (refs[dependAsset._uuid] === 1) {
-                recover(dependAsset, refs, exclude);
+            let uuid = dependAsset._uuid;
+            if (!(uuid in refs)) { 
+                refs[uuid] = dependAsset.refCount + op;
             }
+            else {
+                refs[uuid] += op;
+            }
+            if (exclude.includes(uuid)) continue; 
+            descendOpRef(dependAsset, refs, exclude, op);
         }
     }
 }
 
-function checkCircularReference (asset, refs, exclude) {
-    exclude.push(asset._uuid);
-    var depends = dependUtil.getDeps(asset._uuid);
-    for (let i = 0, l = depends.length; i < l; i++) {
-        var dependAsset = assets.get(depends[i]);
-        if (dependAsset) {
-            if (!(dependAsset._uuid in refs)) { 
-                refs[dependAsset._uuid] = dependAsset.refCount - 1;
-                if (exclude.includes(dependAsset._uuid)) continue; 
-                checkCircularReference(dependAsset, refs, exclude);
-                if (refs[dependAsset._uuid] !== 0) {
-                    recover(dependAsset, refs, _temp2);
-                    _temp2.length = 0;
-                }
-            }
-            else {
-                refs[dependAsset._uuid]--;
-            }
+function checkCircularReference (asset) {
+    // check circular reference
+    var refs = Object.create(null);
+    refs[asset._uuid] = asset.refCount;
+    descendOpRef(asset, refs, _temp, -1);
+    _temp.length = 0;
+    if (refs[asset._uuid] !== 0) return refs[asset._uuid];
+
+    for (let uuid in refs) {
+        if (refs[uuid] !== 0) {
+            descendOpRef(assets.get(uuid), refs, _temp, 1);
         }
     }
+    _temp.length = 0;
+
+    return refs[asset._uuid];
 }
 
 var _persistNodeDeps = new Cache();
@@ -216,16 +216,9 @@ var releaseManager = {
                     }
                 }
             }
-            
+
             if (asset.refCount > 0) {
-                // check circular reference
-                var refs = Object.create(null);
-                refs[asset._uuid] = asset.refCount;
-
-                checkCircularReference(asset, refs, _temp1);
-                _temp1.length = 0;
-
-                if (refs[asset._uuid] > 0) return; 
+                if (checkCircularReference(asset) > 0) return; 
             }
         }
     
