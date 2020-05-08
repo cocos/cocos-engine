@@ -462,6 +462,8 @@ let Button = cc.Class({
         if (!CC_EDITOR) {
             this._registerNodeEvent();
         }
+
+        this._updateState();
     },
 
     onDisable () {
