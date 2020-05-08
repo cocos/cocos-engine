@@ -31,11 +31,11 @@
         };
         PackDownloader.initPacks(PACKS);
         var result = PackDownloader.load({ uuid: "f10d21ed" }, function (err, data) {
-            ok(data === "f10d21ed", 'simple test');
+            ok(data === JSON.stringify("f10d21ed"), 'simple test');
             start();
         });
         if (!!result) {
-            ok(result === "f10d21ed", 'simple test');
+            ok(result === JSON.stringify("f10d21ed"), 'simple test');
             start();
         }
     });
@@ -64,7 +64,7 @@
             //
             PackDownloader.load({ uuid: "" + firstToLoad }, function (err, data) {
                 var result = PackDownloader.load({ uuid: "A" });
-                strictEqual(result, "A", 'loaded asset should be returned synchronously');
+                strictEqual(result, JSON.stringify("A"), 'loaded asset should be returned synchronously');
                 strictEqual(lastLoadedPackUuid, 'PACK ' + firstToLoad, 'asset should load from previous loaded pack');
                 start();
             });

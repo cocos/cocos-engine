@@ -3,6 +3,7 @@ declare let CC_JSB: boolean
 declare let CC_NATIVERENDERER: boolean
 declare let CC_EDITOR: boolean
 declare let CC_TEST: boolean
+declare let CC_DEBUG: boolean
 
 declare let cc: {
     // polyfills: {

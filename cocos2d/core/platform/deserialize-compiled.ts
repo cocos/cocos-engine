@@ -786,6 +786,11 @@ function lookupClasses (data: IFileData, options: IOptions) {
     for (let i = 0; i < classes.length; ++i) {
         let klassLayout = classes[i];
         if (typeof klassLayout !== 'string') {
+            if (CC_DEBUG) {
+                if (typeof klassLayout[CLASS_TYPE] === 'function') {
+                    throw new Error('Can not deserialize the same JSON data again.');
+                }
+            }
             let klass = classFinder(klassLayout[CLASS_TYPE]);
             if (!klass) {
                 // if (klass.__FSA__) {
@@ -899,6 +904,17 @@ export default function deserialize (data: IFileData, details: Details, options?
 };
 
 deserialize.Details = Details;
+
+export function packCustomObjData (type: string, data: IClassObjectData|OtherObjectData): IFileData {
+    return [
+        SUPPORT_LOWEST_FORMAT_VERSION, 0, 0,
+        [type],
+        [],
+        [data],
+        [0],
+        0, [], [], []
+    ];
+}
 
 if (CC_EDITOR || CC_TEST) {
     cc._deserializeCompiled = deserialize;

@@ -26,6 +26,7 @@
 
 var Texture2D = require('../assets/CCTexture2D');
 var js = require('../platform/js');
+import { packCustomObjData } from '../platform/deserialize-compiled';
 
 function JsonUnpacker () {
     this.jsons = {};
@@ -42,7 +43,7 @@ JsonUnpacker.prototype.load = function (indices, packedJson) {
     for (var i = 0; i < indices.length; i++) {
         var key = indices[i];
         var json = packedJson[i];
-        this.jsons[key] = json;
+        this.jsons[key] = JSON.stringify(json);
     }
 };
 
@@ -73,10 +74,7 @@ TextureUnpacker.prototype.load = function (indices, packedJson) {
 TextureUnpacker.prototype.retrieve = function (key) {
     var content = this.contents[key];
     if (content) {
-        return {
-            __type__: TextureUnpacker.ID,
-            content: content
-        };
+        return packCustomObjData(TextureUnpacker.ID, content);
     }
     else {
         return null;
