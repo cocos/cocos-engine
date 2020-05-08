@@ -211,12 +211,12 @@ export default class Vec3 extends ValueType {
     /**
      * !#en return a Vec3 object with x = 0, y = 0, z = 1.
      * !#zh 返回 x = 0，y = 0，z = 1 的 Vec3 对象。
-     * @property FRONT
+     * @property FORWARD
      * @type Vec3
      * @static
      */
-    static get FRONT () { return new Vec3(0, 0, 1); }
-    static readonly FRONT_R = Vec3.FRONT;
+    static get FORWARD () { return new Vec3(0, 0, 1); }
+    static readonly FRONT_R = Vec3.FORWARD;
 
 
     /**
@@ -1041,9 +1041,9 @@ export default class Vec3 extends ValueType {
     constructor (x: Vec3 | number = 0, y: number = 0, z: number = 0) {
         super();
         if (x && typeof x === 'object') {
-            this.z = x.z;
-            this.y = x.y;
             this.x = x.x;
+            this.y = x.y;
+            this.z = x.z;
         }
         else {
             this.x = x as number;

@@ -40,50 +40,50 @@ var utils = {
         var realEntries = options.paths = Object.create(null);
 
         if (options.debug === false) {
-            for (var i = 0, l = uuids.length; i < l; i++) {
+            for (let i = 0, l = uuids.length; i < l; i++) {
                 uuids[i] = decodeUuid(uuids[i]);
             }
 
-            for (var id in paths) {
-                var entry = paths[id];
-                var type = entry[1];
+            for (let id in paths) {
+                let entry = paths[id];
+                let type = entry[1];
                 entry[1] = types[type];
             }
         }
         else {
             var out = Object.create(null);
-            for (var i = 0, l = uuids.length; i < l; i++) {
-                var uuid = uuids[i];
+            for (let i = 0, l = uuids.length; i < l; i++) {
+                let uuid = uuids[i];
                 uuids[i] = out[uuid] = decodeUuid(uuid);
             }
             uuids = out;
         }
 
-        for (var id in paths) {
-            var entry = paths[id];
+        for (let id in paths) {
+            let entry = paths[id];
             realEntries[uuids[id]] = entry;
         }
 
         var scenes = options.scenes;
-        for (var name in scenes) {
-            var uuid = scenes[name];
+        for (let name in scenes) {
+            let uuid = scenes[name];
             scenes[name] = uuids[uuid];
         }
 
         var packs = options.packs;
-        for (var packId in packs) {
-            var packedIds = packs[packId];
-            for (var j = 0; j < packedIds.length; ++j) {
+        for (let packId in packs) {
+            let packedIds = packs[packId];
+            for (let j = 0; j < packedIds.length; ++j) {
                 packedIds[j] = uuids[packedIds[j]];
             }
         }
 
         var versions = options.versions;
         if (versions) {
-            for (var folder in versions) {
+            for (let folder in versions) {
                 var entries = versions[folder];
-                for (var i = 0; i < entries.length; i += 2) {
-                    var uuid = entries[i];
+                for (let i = 0; i < entries.length; i += 2) {
+                    let uuid = entries[i];
                     entries[i] = uuids[uuid] || uuid;
                 }
             }
@@ -91,7 +91,7 @@ var utils = {
 
         var redirect = options.redirect;
         if (redirect) {
-            for (var i = 0; i < redirect.length; i += 2) {
+            for (let i = 0; i < redirect.length; i += 2) {
                 redirect[i] = uuids[redirect[i]];
                 redirect[i + 1] = bundles[redirect[i + 1]];
             }
@@ -103,7 +103,7 @@ var utils = {
         for (var i = 0, l = task.input.length; i < l; i++) {
             var item = task.input[i];
             if (clearRef) {
-                !item.isNative && item.content && item.content.removeRef && item.content.removeRef();
+                !item.isNative && item.content && item.content.decRef && item.content.decRef(false);
             }
             item.recycle();
         }
@@ -111,8 +111,7 @@ var utils = {
     },
 
     urlAppendTimestamp (url) {
-        
-        if (cc.assetManager.appendTimeStamp && typeof url === 'string') {
+        if (cc.assetManager.downloader.appendTimeStamp && typeof url === 'string') {
             if (/\?/.test(url))
                 return url + '&_t=' + (new Date() - 0);
             else
@@ -144,8 +143,8 @@ var utils = {
             if (data instanceof cc.Asset && (!data.__nativeDepend__ || data._nativeAsset)) includeNative = false; 
             if (!preload) {
                 asyncLoadAssets = !CC_EDITOR && (data.asyncLoadAssets || (asyncLoadAssets && !info.preventDeferredLoadDependents));
-                for (var i = 0, l = info.deps.length; i < l; i++) {
-                    var dep = info.deps[i];
+                for (let i = 0, l = info.deps.length; i < l; i++) {
+                    let dep = info.deps[i];
                     if (!(dep in exclude)) {
                         exclude[dep] = true;
                         depends.push({uuid: dep, asyncLoadAssets, bundle: config && config.name});
@@ -158,8 +157,8 @@ var utils = {
                 }
                 
             } else {
-                for (var i = 0, l = info.deps.length; i < l; i++) {
-                    var dep = info.deps[i];
+                for (let i = 0, l = info.deps.length; i < l; i++) {
+                    let dep = info.deps[i];
                     if (!(dep in exclude)) {
                         exclude[dep] = true;
                         depends.push({uuid: dep, bundle: config && config.name});
@@ -209,8 +208,7 @@ var utils = {
                     missingAsset = true;
                 }
                 else {
-                    depend.owner[depend.prop] = dependAsset;
-                    dependAsset.addRef();
+                    depend.owner[depend.prop] = dependAsset.addRef();
                 }
             }
 
@@ -242,7 +240,7 @@ var utils = {
             task.output.push(item.content);
         }
 
-        if (task.output.length === 1) {
+        if (!task.options.__outputAsArray__ && task.output.length === 1) {
             task.output = task.output[0];
         }
     },
@@ -284,12 +282,12 @@ var utils = {
             }
         }
         options = options || Object.create(null);
-        return {options, onProgress, onComplete};
+        return { options, onProgress, onComplete };
     },
 
     parseLoadResArgs (type, onProgress, onComplete) {
         if (onComplete === undefined) {
-            var isValidType = cc.js.isChildClassOf(type, cc.RawAsset);
+            var isValidType = cc.js.isChildClassOf(type, cc.Asset);
             if (onProgress) {
                 onComplete = onProgress;
                 if (isValidType) {
@@ -309,16 +307,20 @@ var utils = {
         return { type, onProgress, onComplete };
     },
 
-    checkCircleReference (owner, uuid, map) {
-        if (!map[uuid]) {
+    checkCircleReference (owner, uuid, map, checked) {
+        if (!checked) { 
+            checked = Object.create(null);
+        }
+        if (!map[uuid] || checked[uuid]) {
             return false;
         }
+        checked[uuid] = true;
         var result = false;
         var deps = map[uuid].content && map[uuid].content.__depends__;
         if (deps) {
             for (var i = 0, l = deps.length; i < l; i++) {
                 var dep = deps[i];
-                if (dep.uuid === owner || utils.checkCircleReference(owner, dep.uuid, map)) {
+                if (dep.uuid === owner || utils.checkCircleReference(owner, dep.uuid, map, checked)) {
                     result = true;
                     break;
                 }

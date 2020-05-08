@@ -240,6 +240,44 @@ cc.removeSelf = function(isNeedCleanUp){
 };
 
 /*
+ * Create an action to destroy self.
+ * @class DestroySelf
+ * @extends ActionInstant
+ *
+ * @example
+ * var destroySelfAction = new cc.DestroySelf();
+ */
+cc.DestroySelf = cc.Class({
+    name: 'cc.DestroySelf',
+    extends: cc.ActionInstant,
+
+    update () {
+        this.target.destroy();
+    },
+
+    reverse () {
+        return new cc.DestroySelf();
+    },
+
+    clone () {
+        return new cc.DestroySelf();
+    }
+});
+
+/**
+ * !#en Destroy self
+ * !#zh 创建一个销毁自身的动作。
+ * @method destroySelf
+ * @return {ActionInstant}
+ *
+ * @example
+ * var destroySelfAction = cc.destroySelf();
+ */
+cc.destroySelf = function () {
+    return new cc.DestroySelf();
+};
+
+/*
  * Flips the sprite horizontally.
  * @class FlipX
  * @extends ActionInstant

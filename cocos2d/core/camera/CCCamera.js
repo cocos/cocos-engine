@@ -340,8 +340,10 @@ let Camera = cc.Class({
                 return this._backgroundColor;
             },
             set (value) {
-                this._backgroundColor = value;
-                this._updateBackgroundColor();
+                if (!this._backgroundColor.equals(value)) {
+                    this._backgroundColor.set(value);
+                    this._updateBackgroundColor();
+                }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.camera.backgroundColor',
         },
@@ -760,19 +762,17 @@ let Camera = cc.Class({
      * !#zh
      * 手动渲染摄像机。
      * @method render
-     * @param {Node} root 
+     * @param {Node} [rootNode] 
      */
-    render (root) {
-        root = root || cc.director.getScene();
-        if (!root) return null;
+    render (rootNode) {
+        rootNode = rootNode || cc.director.getScene();
+        if (!rootNode) return null;
 
         // force update node world matrix
         this.node.getWorldMatrix(_mat4_temp_1);
         this.beforeDraw();
-        RenderFlow.render(root);
-        if (!CC_JSB) {
-            renderer._forward.renderCamera(this._camera, renderer.scene);
-        }
+
+        RenderFlow.renderCamera(this._camera, rootNode);
     },
 
     _onAlignWithScreen () {

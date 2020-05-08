@@ -385,10 +385,6 @@ let Label = cc.Class({
                 if (value && this._isSystemFontUsed)
                     this._isSystemFontUsed = false;
 
-                if ( typeof value === 'string' ) {
-                    cc.warnID(4000);
-                }
-
                 if (!this.enabledInHierarchy) return;
 
                 this._forceUpdateRenderData();
@@ -450,8 +446,8 @@ let Label = cc.Class({
         _spacingX: 0,
 
         /**
-         * !#en The spacing of the x axis between characters.
-         * !#zh 文字之间 x 轴的间距。
+         * !#en The spacing of the x axis between characters, only take Effect when using bitmap fonts.
+         * !#zh 文字之间 x 轴的间距，仅在使用位图字体时生效。
          * @property {Number} spacingX
          */
         spacingX: {

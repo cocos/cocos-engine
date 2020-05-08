@@ -54,7 +54,7 @@ var IsAnchorLocked = 1 << 19;
 var IsSizeLocked = 1 << 20;
 var IsPositionLocked = 1 << 21;
 
-//var Hide = HideInGame | HideInHierarchy;
+// var Hide = HideInGame | HideInHierarchy;
 // should not clone or serialize these flags
 var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactivating |
                        IsPreloadStarted | IsOnLoadStarted | IsOnLoadCalled | IsStartCalled |
@@ -147,10 +147,10 @@ js.value(CCObject, 'Flags', {
     ///**
     // * !#en
     // * Hide in game and hierarchy.
-    // * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
+    // * This flag is readonly, it can only be used as an argument of `scene.addEntity()` or `Entity.createWithFlags()`.
     // * !#zh
     // * 在游戏和层级中隐藏该对象。<br/>
-    // * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
+    // * 该标记只读，它只能被用作 `scene.addEntity()` 或者 `Entity.createWithFlags()` 的一个参数。
     // * @property {Number} HideInGame
     // */
     //HideInGame: HideInGame,
@@ -167,10 +167,10 @@ js.value(CCObject, 'Flags', {
     ///**
     // * !#en
     // * Hide in game view, hierarchy, and scene view... etc.
-    // * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
+    // * This flag is readonly, it can only be used as an argument of `scene.addEntity()` or `Entity.createWithFlags()`.
     // * !#zh
     // * 在游戏视图，层级，场景视图等等...中隐藏该对象。
-    // * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
+    // * 该标记只读，它只能被用作 `scene.addEntity()` 或者 `Entity.createWithFlags()` 的一个参数。
     // * @property {Number} Hide
     // */
     //Hide: Hide,
@@ -291,12 +291,12 @@ var deferredDestroyTimer = null;
  * !#en
  * Destroy this Object, and release all its own references to other objects.<br/>
  * Actual object destruction will delayed until before rendering.
- * From the next frame, this object is not usable any more.
- * You can use cc.isValid(obj) to check whether the object is destroyed before accessing it.
+ * From the next frame, this object is not usable anymore.
+ * You can use `cc.isValid(obj)` to check whether the object is destroyed before accessing it.
  * !#zh
  * 销毁该对象，并释放所有它对其它对象的引用。<br/>
  * 实际销毁操作会延迟到当前帧渲染前执行。从下一帧开始，该对象将不再可用。
- * 您可以在访问对象之前使用 cc.isValid(obj) 来检查对象是否已被销毁。
+ * 您可以在访问对象之前使用 `cc.isValid(obj)` 来检查对象是否已被销毁。
  * @method destroy
  * @return {Boolean} whether it is the first time the destroy being called
  * @example
@@ -327,7 +327,7 @@ if (CC_EDITOR || CC_TEST) {
      * The destruct operation will be executed by Undo system later.
      * !#zh
      * 事实上，对象的 “destroy” 不会在编辑器中触发析构操作，
-     * 析构操作将在 Undo 系统中**延后**执行。
+     * 析构操作将在 Undo 系统中 **延后** 执行。
      * @method realDestroyInEditor
      * @private
      */
@@ -422,25 +422,49 @@ function compileDestruct (obj, ctor) {
 }
 
 /**
+ * !#en
  * Clear all references in the instance.
  *
- * NOTE: this method will not clear the getter or setter functions which defined in the instance of CCObject.
- *       You can override the _destruct method if you need, for example:
- *       _destruct: function () {
- *           for (var key in this) {
- *               if (this.hasOwnProperty(key)) {
- *                   switch (typeof this[key]) {
- *                       case 'string':
- *                           this[key] = '';
- *                           break;
- *                       case 'object':
- *                       case 'function':
- *                           this[key] = null;
- *                           break;
- *               }
- *           }
- *       }
- *
+ * NOTE: this method will not clear the `getter` or `setter` functions which defined in the instance of `CCObject`.
+ * You can override the `_destruct` method if you need, for example:
+ * 
+ * ```js
+ * _destruct: function () {
+ *     for (var key in this) {
+ *         if (this.hasOwnProperty(key)) {
+ *             switch (typeof this[key]) {
+ *                 case 'string':
+ *                     this[key] = '';
+ *                     break;
+ *                 case 'object':
+ *                 case 'function':
+ *                     this[key] = null;
+ *                     break;
+ *         }
+ *     }
+ * }
+ * ```
+ * !#zh
+ * 清除实例中的所有引用。
+ * 
+ * 注意：此方法不会清除在 `CCObject` 实例中定义的 `getter` 或 `setter`。如果需要，你可以重写 `_destruct` 方法。例如：
+ * 
+ * ```js
+ * _destruct: function () {
+ *     for (var key in this) {
+ *         if (this.hasOwnProperty(key)) {
+ *             switch (typeof this[key]) {
+ *                 case 'string':
+ *                     this[key] = '';
+ *                     break;
+ *                 case 'object':
+ *                 case 'function':
+ *                     this[key] = null;
+ *                     break;
+ *         }
+ *     }
+ * }
+ * ```
  * @method _destruct
  * @private
  */
@@ -455,7 +479,10 @@ prototype._destruct = function () {
 };
 
 /**
+ * !#en
  * Called before the object being destroyed.
+ * !#zh
+ * 在对象被销毁之前调用。
  * @method _onPreDestroy
  * @private
  */
@@ -480,7 +507,10 @@ prototype._destroyImmediate = function () {
 
 if (CC_EDITOR) {
     /**
+     * !#en
      * The customized serialization for this object. (Editor Only)
+     * !#zh
+     * 为此对象定制序列化。
      * @method _serialize
      * @param {Boolean} exporting
      * @return {object} the serialized json data object
@@ -490,7 +520,10 @@ if (CC_EDITOR) {
 }
 
 /**
+ * !#en
  * Init this object from the custom serialized data.
+ * !#zh
+ * 从自定义序列化数据初始化此对象。
  * @method _deserialize
  * @param {Object} data - the serialized json data
  * @param {_Deserializer} ctx

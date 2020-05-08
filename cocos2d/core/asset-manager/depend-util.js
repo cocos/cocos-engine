@@ -40,18 +40,6 @@ const js = require('../platform/js');
 var dependUtil = {
     _depends: new Cache(),
 
-    /**
-     * !#en
-     * Initialize
-     * 
-     * !#zh
-     * 初始化
-     * 
-     * @method init
-     * 
-     * @typescript
-     * init(): void
-     */
     init () {
         this._depends.clear();
     },
@@ -139,22 +127,6 @@ var dependUtil = {
         }
     },
 
-    /**
-     * !#en
-     * Remove dependency list from cache
-     * 
-     * !#zh
-     * 移除缓存中的依赖列表
-     * 
-     * @method remove
-     * @param {string} uuid - The asset's uuid
-     * 
-     * @example
-     * dependUtil.remove('fcmR3XADNLgJ1ByKhqcC5Z');
-     * 
-     * @typescript
-     * remove(uuid: string): void;
-     */
     remove (uuid) {
         this._depends.remove(uuid);
     },

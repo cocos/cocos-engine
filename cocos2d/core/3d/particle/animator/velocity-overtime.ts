@@ -9,6 +9,11 @@ const VELOCITY_OVERTIME_RAND_OFFSET = 197866;
 
 const _temp_v3 = cc.v3();
 
+/**
+ * !#en The velocity module of 3d particle.
+ * !#zh 3D 粒子的速度模块
+ * @class VelocityOvertimeModule
+ */
 @ccclass('cc.VelocityOvertimeModule')
 export default class VelocityOvertimeModule {
 

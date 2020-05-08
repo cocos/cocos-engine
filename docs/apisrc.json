@@ -46,7 +46,6 @@
 
     "./cocos2d/core/asset-manager/**/*",
     "!./cocos2d/core/asset-manager/fetch.js",
-    "!./cocos2d/core/asset-manager/initializing.js",
     "!./cocos2d/core/asset-manager/load.js",
     "!./cocos2d/core/asset-manager/preprocess.js",
     "!./cocos2d/core/asset-manager/urlTransformer.js",

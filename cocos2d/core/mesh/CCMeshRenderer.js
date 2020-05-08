@@ -26,7 +26,6 @@
 import gfx from '../../renderer/gfx';
 import InputAssembler from '../../renderer/core/input-assembler';
 import Aabb from '../geom-utils/aabb';
-import { postLoadMesh } from '../utils/mesh-util';
 import Vec3 from '../value-types/vec3';
 import Mat4 from '../value-types/mat4';
 import MaterialVariant from '../assets/material/material-variant';
@@ -220,7 +219,7 @@ let MeshRenderer = cc.Class({
                 this._setMesh(this._mesh);
                 this.markForRender(true);
             });
-            postLoadMesh(this._mesh);
+            cc.assetManager.postLoadNative(this._mesh);
         }
         else {
             this._setMesh(this._mesh);
@@ -271,12 +270,15 @@ let MeshRenderer = cc.Class({
         // TODO: used to upgrade from 2.1, should be removed
         let textures = this.textures;
         if (textures && textures.length > 0) {
+            let defaultMaterial = this._getDefaultMaterial();
             for (let i = 0; i < textures.length; i++) {
                 let material = this._materials[i];
-                if (material) continue;
-                material = MaterialVariant.create(this._getDefaultMaterial(), this);
+                if (material && material._uuid !== defaultMaterial._uuid) continue;
+                if (!material) {
+                    material = MaterialVariant.create(defaultMaterial, this);
+                    this.setMaterial(i, material);
+                }
                 material.setProperty('diffuseTexture', textures[i]);
-                this.setMaterial(i, material);
             }
         }
 

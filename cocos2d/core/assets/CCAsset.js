@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var RawAsset = require('./CCRawAsset');
+var CCObject = require('../platform/CCObject');
 
 /**
  * !#en
@@ -45,17 +45,26 @@ var RawAsset = require('./CCRawAsset');
  * - cc.Object._deserialize<br/>
  *
  * @class Asset
- * @extends RawAsset
+ * @extends Object
  */
 cc.Asset = cc.Class({
-    name: 'cc.Asset', extends: RawAsset,
+    name: 'cc.Asset', extends: CCObject,
 
     ctor () {
         /**
+         * @property {String} _uuid
+         * @private
+         */
+        // enumerable is false by default, to avoid uuid being assigned to empty string during destroy
+        Object.defineProperty(this, '_uuid', {
+            value: '',
+            writable: true,
+        });
+        /**
          * !#en
-         * Whether the asset is loaded or not
+         * Whether the asset is loaded or not.
          * !#zh
-         * 该资源是否已经成功加载
+         * 该资源是否已经成功加载。
          *
          * @property loaded
          * @type {Boolean}
@@ -91,7 +100,7 @@ cc.Asset = cc.Class({
                         }
                         else {
                             // imported in an independent dir
-                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {_native: name, ext: cc.path.extname(name), isNative: true});
+                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {__nativeName__: name, ext: cc.path.extname(name), isNative: true});
                         }
                     }
                 }
@@ -101,7 +110,26 @@ cc.Asset = cc.Class({
         },
 
         /**
+         * !#en
+         * The number of reference
+         * 
+         * !#zh
+         * 引用的数量
+         * 
+         * @property refCount
+         * @type {Number}
+         */
+        refCount: {
+            get () {
+                return this._ref;
+            }
+        },
+
+        /**
+         * !#en
          * Serializable url for native asset.
+         * !#zh
+         * 保存原生资源的 URL。
          * @property {String} _native
          * @default undefined
          * @private
@@ -109,9 +137,14 @@ cc.Asset = cc.Class({
         _native: "",
 
         /**
+         * !#en
          * The underlying native asset of this asset if one is available.
          * This property can be used to access additional details or functionality releated to the asset.
          * This property will be initialized by the loader if `_native` is available.
+         * !#zh
+         * 此资源依赖的底层原生资源（如果有的话）。
+         * 此属性可用于访问与资源相关的其他详细信息或功能。
+         * 如果 `_native` 可用，则此属性将由加载器初始化。
          * @property {Object} _nativeAsset
          * @default null
          * @private
@@ -128,7 +161,7 @@ cc.Asset = cc.Class({
         _nativeDep: {
             get () {
                 if (this._native) {
-                    return {isNative: true, uuid: this._uuid, ext: this._native};
+                    return {__isNative__: true, uuid: this._uuid, ext: this._native};
                 }
             }
         }
@@ -136,7 +169,10 @@ cc.Asset = cc.Class({
 
     statics: {
         /**
-         * 应 AssetDB 要求提供这个方法
+         * !#en
+         * Provide this method at the request of AssetDB.
+         * !#zh
+         * 应 AssetDB 要求提供这个方法。
          *
          * @method deserialize
          * @param {String} data
@@ -150,7 +186,7 @@ cc.Asset = cc.Class({
 
         /**
          * !#en Indicates whether its dependent raw assets can support deferred load if the owner scene (or prefab) is marked as `asyncLoadAssets`.
-         * !#zh 当场景或 Prefab 被标记为 `asyncLoadAssets`，禁止延迟加载该资源所依赖的其它 RawAsset。
+         * !#zh 当场景或 Prefab 被标记为 `asyncLoadAssets`，禁止延迟加载该资源所依赖的其它原始资源。
          *
          * @property {Boolean} preventDeferredLoadDependents
          * @default false
@@ -175,19 +211,25 @@ cc.Asset = cc.Class({
         },
 
         _parseNativeDepFromJson (json) {
-            if (json._native) return {isNative: true, ext: json._native};
+            if (json._native) return { __isNative__: true, ext: json._native};
             return null;
         }
 
     },
 
     /**
+     * !#en
      * Returns the asset's url.
-     *
+
      * The `Asset` object overrides the `toString()` method of the `Object` object.
-     * For `Asset` objects, the toString() method returns a string representation of the object.
-     * JavaScript calls the toString() method automatically when an asset is to be represented as a text value or when a texture is referred to in a string concatenation.
-     *
+     * For `Asset` objects, the `toString()` method returns a string representation of the object.
+     * JavaScript calls the `toString()` method automatically when an asset is to be represented as a text value or when a texture is referred to in a string concatenation.
+     * !#zh
+     * 返回资源的 URL。
+     * 
+     * Asset 对象将会重写 Object 对象的 `toString()` 方法。
+     * 对于 Asset 对象，`toString()` 方法返回该对象的字符串表示形式。
+     * 当资源要表示为文本值时或在字符串连接时引用时，JavaScript 会自动调用 `toString()` 方法。
      * @method toString
      * @return {String}
      */
@@ -196,7 +238,10 @@ cc.Asset = cc.Class({
     },
 
     /**
-     * 应 AssetDB 要求提供这个方法
+     * !#en
+     * Provide this method at the request of AssetDB.
+     * !#zh
+     * 应 AssetDB 要求提供这个方法。
      *
      * @method serialize
      * @return {String}
@@ -222,7 +267,11 @@ cc.Asset = cc.Class({
     createNode: null,
 
     /**
+     * !#en
      * Set native file name for this asset.
+     * !#zh
+     * 为此资源设置原生文件名。
+     * 
      * @seealso nativeUrl
      *
      * @method _setRawAsset
@@ -240,35 +289,40 @@ cc.Asset = cc.Class({
     },
 
     /**
-     * !#zh
-     * 增加资源的引用
-     * 
      * !#en
      * Add references of asset
      * 
+     * !#zh
+     * 增加资源的引用
+     * 
      * @method addRef
+     * @return {Asset} itself
      * 
      * @typescript
-     * addRef(): void
+     * addRef(): cc.Asset
      */
     addRef () {
         this._ref++;
+        return this;
     },
 
     /**
-     * !#zh
-     * 减少资源的引用
-     * 
      * !#en
-     * Reduce references of asset
+     * Reduce references of asset and it will be auto released when refCount equals 0.
      * 
-     * @method removeRef
+     * !#zh
+     * 减少资源的引用并尝试进行自动释放。
+     * 
+     * @method decRef
+     * @return {Asset} itself
      * 
      * @typescript
-     * removeRef(): void
+     * decRef(): cc.Asset
      */
-    removeRef () {
+    decRef (autoRelease) {
         this._ref--;
+        autoRelease !== false && cc.assetManager._releaseManager.tryRelease(this);
+        return this;
     }
 });
 

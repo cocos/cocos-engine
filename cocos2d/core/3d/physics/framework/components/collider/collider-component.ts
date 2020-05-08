@@ -33,9 +33,9 @@ const Vec3 = cc.Vec3;
 
 /**
  * !#en
- * The base class of the collider
+ * The base class of the collider.
  * !#zh
- * 碰撞器的基类
+ * 碰撞器的基类。
  * @class Collider3D
  * @extends Component
  * @uses EventTarget
@@ -97,7 +97,7 @@ export class Collider3D extends cc.Component {
      * !#en
      * get or set the collider is trigger, this will be always trigger if using builtin.
      * !#zh
-     * 获取或设置碰撞器是否为触发器
+     * 获取或设置碰撞器是否为触发器。
      * @property {Boolean} isTrigger
      */
     @property({
@@ -138,9 +138,9 @@ export class Collider3D extends cc.Component {
 
     /**
      * !#en
-     * get the collider attached rigidbody, this may be null
+     * get the collider attached rigidbody, this may be null.
      * !#zh
-     * 获取碰撞器所绑定的刚体组件，可能为 null
+     * 获取碰撞器所绑定的刚体组件，可能为 null。
      * @property {RigidBody3D|null} attachedRigidbody
      * @readonly
      */
@@ -150,9 +150,9 @@ export class Collider3D extends cc.Component {
 
     /**
      * !#en
-     * get collider shape
+     * get collider shape.
      * !#zh
-     * 获取碰撞器形状
+     * 获取碰撞器形状。
      * @property {IBaseShape} shape
      * @readonly
      */
@@ -196,11 +196,11 @@ export class Collider3D extends cc.Component {
      * 注册事件目标的特定事件类型回调。这种类型的事件应该被 `emit` 触发。
      *
      * @method on
-     * @param {String} type - The type of collider event can be 'trigger-enter', 'trigger-stay', 'trigger-exit' or 'collision-enter', 'collision-stay', 'collision-exit'.
+     * @param {String} type - The type of collider event can be `trigger-enter`, `trigger-stay`, `trigger-exit` or `collision-enter`, `collision-stay`, `collision-exit`.
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.
-     *                              The callback is ignored if it is a duplicate (the callbacks are unique).
-     * @param {ITriggerEvent|ICollisionEvent} callback.event callback function argument
-     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
+     * The callback is ignored if it is a duplicate (the callbacks are unique).
+     * @param {ITriggerEvent|ICollisionEvent} callback.event Callback function argument
+     * @param {Object} [target] - The target (this object) to invoke the callback, can be null.
      * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
      * @typescript
      * on<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
@@ -220,9 +220,9 @@ export class Collider3D extends cc.Component {
      * 删除之前用同类型，回调，目标或 useCapture 注册的事件监听器，如果只传递 type，将会删除 type 类型的所有事件监听器。
      *
      * @method off
-     * @param {String} type - The type of collider event can be 'trigger-enter', 'trigger-stay', 'trigger-exit' or 'collision-enter', 'collision-stay', 'collision-exit'.
+     * @param {String} type - The type of collider event can be `trigger-enter`, `trigger-stay`, `trigger-exit` or `collision-enter`, `collision-stay`, `collision-exit`.
      * @param {Function} [callback] - The callback to remove.
-     * @param {Object} [target] - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
+     * @param {Object} [target] - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed.
      * @example
      * // register fire eventListener
      * var callback = eventTarget.on('fire', function () {
@@ -244,11 +244,11 @@ export class Collider3D extends cc.Component {
      * 注册事件目标的特定事件类型回调，回调会在第一时间被触发后删除自身。
      *
      * @method once
-     * @param {String} type - The type of collider event can be 'trigger-enter', 'trigger-stay', 'trigger-exit' or 'collision-enter', 'collision-stay', 'collision-exit'.
+     * @param {String} type - The type of collider event can be `trigger-enter`, `trigger-stay`, `trigger-exit` or `collision-enter`, `collision-stay`, `collision-exit`.
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.
-     *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+     * The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param {ITriggerEvent|ICollisionEvent} callback.event callback function argument.
-     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
+     * @param {Object} [target] - The target (this object) to invoke the callback, can be null.
      * @example
      * eventTarget.once('fire', function (event) {
      *     // event is ITriggerEvent or ICollisionEvent

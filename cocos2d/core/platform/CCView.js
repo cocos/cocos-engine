@@ -57,20 +57,6 @@ if (cc.sys.os === cc.sys.OS_IOS) // All browsers are WebView
 
 switch (__BrowserGetter.adaptationType) {
     case cc.sys.BROWSER_TYPE_SAFARI:
-        __BrowserGetter.meta["minimal-ui"] = "true";
-        __BrowserGetter.availWidth = cc.sys.isMobile ? function (frame){
-            // bug fix for navigation bar on Safari
-            return window.innerWidth;
-        } : function (frame) {
-            return frame.clientWidth;
-        }
-        __BrowserGetter.availHeight = cc.sys.isMobile ? function (frame){
-            // bug fix for navigation bar on Safari
-            return window.innerHeight;
-        } : function (frame) {
-            return frame.clientHeight;
-        }
-        break;
     case cc.sys.BROWSER_TYPE_SOUGOU:
     case cc.sys.BROWSER_TYPE_UC:
         __BrowserGetter.meta["minimal-ui"] = "true";
@@ -179,6 +165,15 @@ cc.js.mixin(View.prototype, {
             view = this;
         } else {
             view = cc.view;
+        }
+        // HACK: some browsers can't update window size immediately
+        // need to handle resize event callback on the next tick
+        let sys = cc.sys;
+        if (sys.browserType === sys.BROWSER_TYPE_UC && sys.os === sys.OS_IOS) {
+            setTimeout(function () {
+                view._resizeEvent(forceOrEvent);
+            }, 0)
+            return;
         }
 
         // Check frame size changed or not
@@ -453,7 +448,7 @@ cc.js.mixin(View.prototype, {
      * !#zh 控制抗锯齿是否开启
      * @method enableAntiAlias
      * @param {Boolean} enabled - Enable or not anti-alias
-     * @deprecated cc.view.enableAntiAlias is deprecated now, please use cc.Texture2D.setFilters instead
+     * @deprecated cc.view.enableAntiAlias is deprecated, please use cc.Texture2D.setFilters instead
      * @since v2.3.0
      */
     enableAntiAlias: function (enabled) {

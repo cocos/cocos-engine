@@ -42,7 +42,7 @@ _v[7] = new Vec3(1, -1, -1);
  * !#zh 平截头体
  * @class geomUtils.Frustum
  */
-export class frustum {
+export default class frustum {
 
     /**
      * Set whether to use accurate intersection testing function on this frustum

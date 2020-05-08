@@ -464,14 +464,9 @@ var widgetManager = cc._widgetManager = module.exports = {
             cc.engine.on('design-resolution-changed', this.onResized.bind(this));
         }
         else {
-            if (cc.sys.isBrowser && cc.sys.isMobile) {
-                let thisOnResized = this.onResized.bind(this);
-                window.addEventListener('resize', thisOnResized);
-                window.addEventListener('orientationchange', thisOnResized);
-            }
-            else {
-                cc.view.on('canvas-resize', this.onResized, this);
-            }
+            let thisOnResized = this.onResized.bind(this);
+            window.addEventListener('resize', thisOnResized);
+            window.addEventListener('orientationchange', thisOnResized);
         }
     },
     add: function (widget) {

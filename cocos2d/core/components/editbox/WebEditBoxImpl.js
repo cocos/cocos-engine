@@ -85,6 +85,8 @@ function WebEditBoxImpl () {
     this._m13 = 0;
     this._w = 0;
     this._h = 0;
+    // viewport cache
+    this._cacheViewportRect = cc.rect(0, 0, 0, 0);
 
     // inputType cache
     this._inputMode = null;
@@ -149,7 +151,7 @@ Object.assign(WebEditBoxImpl.prototype, {
     },
 
     update () {
-        // do nothing...
+        this._updateMatrix();
     },
 
     setTabIndex (index) {
@@ -212,7 +214,6 @@ Object.assign(WebEditBoxImpl.prototype, {
     },
 
     _showDom () {
-        this._updateMatrix();
         this._updateMaxLength();
         this._updateInputType();
         this._updateStyleSheet();
@@ -297,57 +298,63 @@ Object.assign(WebEditBoxImpl.prototype, {
         }, DELAY_TIME);
     },
 
-    _updateMatrix () {    
+    _updateCameraMatrix () {
         let node = this._delegate.node;    
         node.getWorldMatrix(this._worldMat);
         let worldMat = this._worldMat;
-        let worldMatm = worldMat.m;
+        let nodeContentSize = node._contentSize,
+            nodeAnchorPoint = node._anchorPoint;
 
-        // check whether need to update
-        if (this._m00 === worldMatm[0] && this._m01 === worldMatm[1] &&
-            this._m04 === worldMatm[4] && this._m05 === worldMatm[5] &&
-            this._m12 === worldMatm[12] && this._m13 === worldMatm[13] &&
-            this._w === node._contentSize.width && this._h === node._contentSize.height) {
-            return;
-        }
-
-        // update matrix cache
-        this._m00 = worldMatm[0];
-        this._m01 = worldMatm[1];
-        this._m04 = worldMatm[4];
-        this._m05 = worldMatm[5];
-        this._m12 = worldMatm[12];
-        this._m13 = worldMatm[13];
-        this._w = node._contentSize.width;
-        this._h = node._contentSize.height;
-
-        let scaleX = cc.view._scaleX, scaleY = cc.view._scaleY,
-            viewport = cc.view._viewportRect,
-            dpr = cc.view._devicePixelRatio;
-
-        _vec3.x = -node._anchorPoint.x * this._w;
-        _vec3.y = -node._anchorPoint.y * this._h;
+        _vec3.x = -nodeAnchorPoint.x * nodeContentSize.width;
+        _vec3.y = -nodeAnchorPoint.y * nodeContentSize.height;
     
         Mat4.transform(worldMat, worldMat, _vec3);
 
-        // can't find camera in editor
-        let cameraMat;
+        // can't find node camera in editor
         if (CC_EDITOR) {
-            cameraMat = this._cameraMat = worldMat;
+            this._cameraMat = worldMat;
         }
         else {
             let camera = cc.Camera.findCamera(node);
             camera.getWorldToScreenMatrix2D(this._cameraMat);
-            cameraMat = this._cameraMat;
-            Mat4.mul(cameraMat, cameraMat, worldMat);
+            Mat4.mul(this._cameraMat, this._cameraMat, worldMat);
         }
+    },
+
+    _updateMatrix () {    
+        this._updateCameraMatrix();
+        let cameraMatm = this._cameraMat.m;
+        let node = this._delegate.node;
+        let localView = cc.view;
+        // check whether need to update
+        if (this._m00 === cameraMatm[0] && this._m01 === cameraMatm[1] &&
+            this._m04 === cameraMatm[4] && this._m05 === cameraMatm[5] &&
+            this._m12 === cameraMatm[12] && this._m13 === cameraMatm[13] &&
+            this._w === node._contentSize.width && this._h === node._contentSize.height &&
+            this._cacheViewportRect.equals(localView._viewportRect)) {
+            return;
+        }
+
+        // update matrix cache
+        this._m00 = cameraMatm[0];
+        this._m01 = cameraMatm[1];
+        this._m04 = cameraMatm[4];
+        this._m05 = cameraMatm[5];
+        this._m12 = cameraMatm[12];
+        this._m13 = cameraMatm[13];
+        this._w = node._contentSize.width;
+        this._h = node._contentSize.height;
+        // update viewport cache
+        this._cacheViewportRect.set(localView._viewportRect);
+
+        let scaleX = localView._scaleX, scaleY = localView._scaleY,
+            viewport = localView._viewportRect,
+            dpr = localView._devicePixelRatio;
         
-    
         scaleX /= dpr;
         scaleY /= dpr;
     
         let container = cc.game.container;
-        let cameraMatm = cameraMat.m;
         let a = cameraMatm[0] * scaleX, b = cameraMatm[1], c = cameraMatm[4], d = cameraMatm[5] * scaleY;
     
         let offsetX = container && container.style.paddingLeft && parseInt(container.style.paddingLeft);
@@ -663,12 +670,15 @@ Object.assign(WebEditBoxImpl.prototype, {
         };
 
         cbs.onBlur = function () {
+            // on mobile, sometimes input element doesn't fire compositionend event
+            if (cc.sys.isMobile && inputLock) {
+                cbs.compositionEnd();
+            }
             impl._editing = false;
             _currentEditBoxImpl = null;
             impl._hideDom();
             impl._delegate.editBoxEditingDidEnded();
         };
-
 
         elem.addEventListener('compositionstart', cbs.compositionStart);
         elem.addEventListener('compositionend', cbs.compositionEnd);

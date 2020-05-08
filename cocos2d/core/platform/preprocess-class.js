@@ -30,9 +30,6 @@ const Attrs = require('./attribute');
 // 增加预处理属性这个步骤的目的是降低 CCClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。
 
 var SerializableAttrs = {
-    url: {
-        canUsedInGet: true
-    },
     default: {},
     serializable: {},
     editorOnly: {},
@@ -90,74 +87,6 @@ function parseNotify (val, propName, notify, properties) {
     }
 }
 
-function checkUrl (val, className, propName, url) {
-    if (Array.isArray(url)) {
-        if (url.length > 0) {
-            url = url[0];
-        }
-        else if (CC_EDITOR) {
-            return cc.errorID(5502, className, propName);
-        }
-    }
-    if (CC_EDITOR) {
-        if (url == null) {
-            return cc.warnID(5503, className, propName);
-        }
-        if (typeof url !== 'function' || !js.isChildClassOf(url, cc.RawAsset)) {
-            return cc.errorID(5504, className, propName);
-        }
-        if (url === cc.RawAsset) {
-            cc.error('Please change the definition of the property \'%s\' in class \'%s\'. Since v1.10,\n' +
-                    'declaring a property in CCClass as a URL is obsolete.\n' +
-                    'For example, if you have a property of cc.RawAsset, the old definition is:\n' +
-                    '    %s: cc.RawAsset,\n' +
-                    '    // or:\n' +
-                    '    %s: {\n' +
-                    '      url: cc.RawAsset,\n' +
-                    '      default: ""\n' +
-                    '    },\n' +
-                    '    // and you can simply get the url by:\n' +
-                    '    `this.%s`\n' +
-                    'Now you should use:\n' +
-                    '    %s: {\n' +
-                    '      type: cc.Asset,     // use \'type:\' to declare an object reference\n' +
-                    '      default: null,      // object\'s default value is null\n' +
-                    '    },\n' +
-                    '    // then you should get the url by:\n' +
-                    '    `this.%s.nativeUrl`',
-                    propName, className, propName, propName, propName, propName, propName);
-        }
-        else if (js.isChildClassOf(url, cc.Asset)) {
-            if (cc.RawAsset.wasRawAssetType(url)) {
-                if (!val._short) {
-                    cc.error('Please change the definition of the property \'%s\' in class \'%s\'. Since v1.10,\n' +
-                            'declaring a property in CCClass as a URL is obsolete.\n' +
-                            'For example, if you have a property of Texture2D, the old definition is:\n' +
-                            '    %s: cc.Texture2D,\n' +
-                            '    // or:\n' +
-                            '    %s: {\n' +
-                            '      url: cc.Texture2D,\n' +
-                            '      default: ""\n' +
-                            '    },\n' +
-                            'Now you should use:\n' +
-                            '    %s: {\n' +
-                            '      type: cc.Texture2D, // use \'type:\' to declare a Texture2D object\n' +
-                            '      default: null,      // object\'s default value is null\n' +
-                            '    },',
-                            propName, className, propName, propName, propName);
-                }
-            }
-            else {
-                return cc.errorID(5505, className, propName, cc.js.getClassName(url));
-            }
-        }
-        if (val.type) {
-            return cc.errorID(5506, className, propName);
-        }
-    }
-    val.type = url;
-}
-
 function parseType (val, type, className, propName) {
     const STATIC_CHECK = (CC_EDITOR && CC_DEV) || CC_TEST;
 
@@ -169,14 +98,7 @@ function parseType (val, type, className, propName) {
             }
         }
         if (type.length > 0) {
-            if (cc.RawAsset.isRawAssetType(type[0])) {
-                val.url = type[0];
-                delete val.type;
-                return;
-            }
-            else {
-                val.type = type = type[0];
-            }
+            val.type = type = type[0];
         }
         else {
             return cc.errorID(5508, className, propName);
@@ -201,9 +123,6 @@ function parseType (val, type, className, propName) {
                 cc.warnID(3610, `"${className}.${propName}"`);
             }
         }
-        else if (STATIC_CHECK && cc.RawAsset.isRawAssetType(type)) {
-            cc.warnID(5509, className, propName, js.getClassName(type));
-        }
     }
     else if (STATIC_CHECK) {
         switch (type) {
@@ -227,9 +146,7 @@ function parseType (val, type, className, propName) {
             break;
         }
     }
-}
 
-function postCheckType (val, type, className, propName) {
     if (CC_EDITOR && typeof type === 'function') {
         if (cc.Class._isCCClass(type) && val.serializable !== false && !js._getClassId(type, false)) {
             cc.warnID(5512, className, propName, className, propName);
@@ -250,77 +167,24 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
     }
 }
 
-function _wrapOptions (isES6Getset, _default, type, isUrlType) {
+function _wrapOptions (isES6Getset, _default, type) {
     let res = isES6Getset ? { _short: true } : { _short: true, default: _default };
     if (type) {
-        if (isUrlType) {
-            res.url = type;
-        }
-        else {
-            res.type = type;
-        }
+        res.type = type;
     }
     return res;
 }
 
-exports.getFullFormOfProperty = function (options, isES6Getset, propname_dev, classname_dev) {
+exports.getFullFormOfProperty = function (options, isES6Getset) {
     var isLiteral = options && options.constructor === Object;
     if (isLiteral) {
         return null;
     }
     if (Array.isArray(options) && options.length > 0) {
-        let type = options[0];
-        if (CC_DEV && cc.RawAsset.wasRawAssetType(type)) {
-            // deprecate `myProp: [cc.Texture2D]` since 1.10
-            cc.error('Please change the definition of the property \'%s\' in class \'%s\'. Since v1.10,\n' +
-                    'properties in CCClass can not be abbreviated if they are RawAsset.\n' +
-                    'Please declare in the complete form.\n' +
-                    'For example, if you have an array of Texture2D urls, the old definition is:\n' +
-                    '    %s: [cc.Texture2D],\n' +
-                    'If you are using JS, you should use:\n' +
-                    '    %s: {\n' +
-                    '      type: cc.Texture2D, // use \'type:\' to declare an array of Texture2D objects\n' +
-                    '      default: []\n' +
-                    '    },\n' +
-                    'If you are using TS, you should use:\n' +
-                    '    @property({\n' +
-                    '      type: cc.Texture2D, // use \'type:\' to declare an array of Texture2D objects\n' +
-                    '    })\n' +
-                    '    %s: cc.Texture2D[] = [];',
-                    propname_dev, classname_dev, propname_dev, propname_dev);
-            return _wrapOptions(isES6Getset, [], options, true);
-        }
         return _wrapOptions(isES6Getset, [], options);
     }
     else if (typeof options === 'function') {
-        let type = options;
-        if (!cc.RawAsset.isRawAssetType(type)) {
-            if (cc.RawAsset.wasRawAssetType(type)) {
-                // deprecate `myProp: cc.Texture2D` since 1.10
-                if (CC_DEV) {
-                    cc.error('Please change the definition of property \'%s\' in class \'%s\'. Since v1.10,\n' +
-                            'properties in CCClass can not be abbreviated if they are RawAsset.\n' +
-                            'Please declare in the complete form.\n' +
-                            'For example, if you have a property of Texture2D, the old definition is:\n' +
-                            '    %s: cc.Texture2D,\n' +
-                            'If you are using JS, you should use:\n' +
-                            '    %s: {\n' +
-                            '      type: cc.Texture2D,// use \'type:\' to declare Texture2D object directly\n' +
-                            '      default: null,     // object\'s default value is null\n' +
-                            '    },\n' +
-                            'If you are using TS, you should use:\n' +
-                            '    @property({\n' +
-                            '      type: cc.Texture2D,// use \'type:\' to declare Texture2D object directly\n' +
-                            '    })\n' +
-                            '    %s: cc.Texture2D = null;',
-                            propname_dev, classname_dev, propname_dev, propname_dev);
-                }
-            }
-            else {
-                return _wrapOptions(isES6Getset, js.isChildClassOf(type, cc.ValueType) ? new type() : null, type);
-            }
-        }
-        return _wrapOptions(isES6Getset, '', type, true);
+        return _wrapOptions(isES6Getset, js.isChildClassOf(options, cc.ValueType) ? new options() : null, options);
     }
     else if (options instanceof Attrs.PrimitiveType) {
         return _wrapOptions(isES6Getset, options.default);
@@ -333,7 +197,7 @@ exports.getFullFormOfProperty = function (options, isES6Getset, propname_dev, cl
 exports.preprocessAttrs = function (properties, className, cls, es6) {
     for (var propName in properties) {
         var val = properties[propName];
-        var fullForm = exports.getFullFormOfProperty(val, false, propName, className);
+        var fullForm = exports.getFullFormOfProperty(val, false);
         if (fullForm) {
             val = properties[propName] = fullForm;
         }
@@ -375,14 +239,6 @@ exports.preprocessAttrs = function (properties, className, cls, es6) {
 
             if ('type' in val) {
                 parseType(val, val.type, className, propName);
-            }
-
-            if ('url' in val) {
-                checkUrl(val, className, propName, val.url);
-            }
-
-            if ('type' in val) {
-                postCheckType(val, val.type, className, propName);
             }
         }
     }

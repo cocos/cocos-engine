@@ -34,7 +34,7 @@ const downloadDomAudio = require('./download-dom-audio');
 const downloadFile = require('./download-file');
 const downloadScript = require('./download-script.js');
 const Cache = require('./cache');
-const { files, LoadStrategy } = require('./shared');
+const { files } = require('./shared');
 const { __audioSupport, capabilities } = require('../platform/CCSys');
 const { urlAppendTimestamp, retry } = require('./utilities');
 
@@ -47,7 +47,7 @@ var unsupported = function (url, options, onComplete) {
 
 var downloadAudio = function (url, options, onComplete) {
     // web audio need to download file as arrayBuffer
-    if (options.loadMode === cc.AudioClip.LoadMode.WEB_AUDIO) {
+    if (options.audioLoadMode !== cc.AudioClip.LoadMode.DOM_AUDIO) {
         downloadArrayBuffer(url, options, onComplete);
     }
     else {
@@ -65,12 +65,12 @@ var downloadImage = function (url, options, onComplete) {
 
 var downloadBlob = function (url, options, onComplete) {
     options.responseType = "blob";
-    downloadFile(url, options, options.onProgress, onComplete);
+    downloadFile(url, options, options.onFileProgress, onComplete);
 };
 
 var downloadJson = function (url, options, onComplete) {
     options.responseType = "json";
-    downloadFile(url, options, options.onProgress, function (err, data) {
+    downloadFile(url, options, options.onFileProgress, function (err, data) {
         if (!err && typeof data === 'string') {
             try {
                 data = JSON.parse(data);
@@ -85,12 +85,47 @@ var downloadJson = function (url, options, onComplete) {
 
 var downloadArrayBuffer = function (url, options, onComplete) {
     options.responseType = "arraybuffer";
-    downloadFile(url, options, options.onProgress, onComplete);
+    downloadFile(url, options, options.onFileProgress, onComplete);
 };
 
 var downloadText = function (url, options, onComplete) {
     options.responseType = "text";
-    downloadFile(url, options, options.onProgress, onComplete);
+    downloadFile(url, options, options.onFileProgress, onComplete);
+};
+
+var downloadVideo = function (url, options, onComplete) {
+    onComplete(null, url);
+};
+
+var downloadBundle = function (url, options, onComplete) {
+    let bundleName = cc.path.basename(url);
+    var version = options.version || downloader.bundleVers[bundleName];
+    var count = 0;
+    var config = version ?  `${url}/config.${version}.json` : `${url}/config.json`;
+    let out = null;
+    downloadJson(config, options, function (err, response) {
+        if (err) {
+            onComplete(err);
+            return;
+        }
+        out = response;
+        count++;
+        if (count === 2) {
+            onComplete(null, out);
+        }
+    });
+
+    var js = version ?  `${url}/index.${version}.js` : `${url}/index.js`;
+    downloadScript(js, options, function (err) {
+        if (err) {
+            onComplete(err);
+            return;
+        }
+        count++;
+        if (count === 2) {
+            onComplete(null, out);
+        }
+    });
 };
 
 var _downloading = new Cache();
@@ -119,10 +154,10 @@ var updateTime = function () {
 };
 
 // handle the rest request in next period
-var handleQueue = function (maxConcurrent, maxRequestsPerFrame) {
+var handleQueue = function (maxConcurrency, maxRequestsPerFrame) {
     _checkNextPeriod = false;
     updateTime();
-    while (_queue.length > 0 && _totalNum < maxConcurrent && _totalNumThisPeriod < maxRequestsPerFrame) {
+    while (_queue.length > 0 && _totalNum < maxConcurrency && _totalNumThisPeriod < maxRequestsPerFrame) {
         if (_queueDirty) {
             _queue.sort(function (a, b) {
                 return a.priority - b.priority;
@@ -138,8 +173,8 @@ var handleQueue = function (maxConcurrent, maxRequestsPerFrame) {
         nextOne.invoke();
     }
 
-    if (_queue.length > 0 && _totalNum < maxConcurrent) {
-        callInNextTick(handleQueue, maxConcurrent, maxRequestsPerFrame);
+    if (_queue.length > 0 && _totalNum < maxConcurrency) {
+        callInNextTick(handleQueue, maxConcurrency, maxRequestsPerFrame);
         _checkNextPeriod = true;
     }
 }
@@ -174,16 +209,11 @@ var downloader = {
      * !#zh
      * 下载时的最大并发数
      * 
-     * @property maxConcurrent
+     * @property maxConcurrency
      * @type {number}
+     * @default 6
      */
-    get maxConcurrent () {
-        return this.limitations[LoadStrategy.NORMAL].maxConcurrent;
-    },
-
-    set maxConcurrent (val) {
-        this.limitations[LoadStrategy.NORMAL].maxConcurrent = val;
-    },
+    maxConcurrency: 6,
 
     /**
      * !#en 
@@ -194,31 +224,9 @@ var downloader = {
      * 
      * @property maxRequestsPerFrame
      * @type {number}
+     * @default 6
      */
-    get maxRequestsPerFrame () {
-        return this.limitations[LoadStrategy.NORMAL].maxRequestsPerFrame;
-    },
-
-    set maxRequestsPerFrame (val) {
-        this.limitations[LoadStrategy.NORMAL].maxRequestsPerFrame = val;
-    },
-
-    /**
-     * !#en
-     * Every loading strategy has corresponding limitation, if use this loading strategy, network request will be under its own limitation. One limitation has two conditions, the first is maxConcurrent, it indicates max number of request can work
-     * at the same time, the second is maxRequestsPerFrame, it indicates max number of new request can be launched in one frame.
-     * 
-     * !#zh
-     * 每一种加载策略都有对应的限制，如果使用这种加载策略，网络请求将会受到对应的限制。每个限制存在两个条件，第一个条件是 maxConcurrent ，它表明最多多少个请求能同时进行工作；
-     * 第二个条件是 maxRequestsPerFrame ，它表明每帧最多发起多少个新请求
-     * 
-     * @property limitations
-     * @type {Array}
-     * 
-     * @example
-     * cc.assetManager.downloader.limitations[LoadStrategy.NORMAL].maxConcurrent = 10;
-     */
-    limitations: [ { maxConcurrent: 6, maxRequestsPerFrame: 6 }, { maxConcurrent: 4, maxRequestsPerFrame: 2 } ],
+    maxRequestsPerFrame: 6,
 
     /**
      * !#en
@@ -232,16 +240,8 @@ var downloader = {
      */
     maxRetryCount: 3,
 
-    /**
-     * !#en
-     * Whether or not the download concurrency should be limited
-     * 
-     * !#zh
-     * 下载并发数是否受限
-     * 
-     * @property limited
-     * @type {boolean}
-     */
+    appendTimeStamp: false,
+
     limited: true,
 
     /**
@@ -255,6 +255,8 @@ var downloader = {
      * @type {Number}
      */
     retryInterval: 2000,
+
+    bundleVers: null,
 
     /**
      * !#en
@@ -320,9 +322,9 @@ var downloader = {
      * @param {string} [options.mimeType] - Indicate which type of content should be returned. In some browsers, responseType does't work, you can use mimeType instead
      * @param {Number} [options.timeout] - Represent the number of ms a request can take before being terminated.
      * @param {Object} [options.header] - The header should be tranferred to server
-     * @param {Function} [onProgress] - Callback continuously during download is processing
-     * @param {Number} onProgress.loaded - Size of downloaded content.
-     * @param {Number} onProgress.total - Total size of content.
+     * @param {Function} [onFileProgress] - Callback continuously during download is processing
+     * @param {Number} onFileProgress.loaded - Size of downloaded content.
+     * @param {Number} onFileProgress.total - Total size of content.
      * @param {Function} [onComplete] - Callback when file loaded or failed
      * @param {Error} onComplete.err - The occurred error, null indicetes success
      * @param {*} onComplete.response - The loaded content, null if error occurred, type of content can be indicated by options.responseType
@@ -332,8 +334,8 @@ var downloader = {
      * downloadFile('http://example.com/test.bin', {responseType: 'arraybuffer'}, null, (err, arrayBuffer) => console.log(err));
      * 
      * @typescript
-     * downloadFile(url: string, options?: Record<string, any>, onProgress?: (loaded: Number, total: Number) => void, onComplete?: (err: Error, response: any) => void): XMLHttpRequest
-     * downloadFile(url: string, onProgress?: (loaded: Number, total: Number) => void, onComplete?: (err: Error, response: any) => void): XMLHttpRequest
+     * downloadFile(url: string, options?: Record<string, any>, onFileProgress?: (loaded: Number, total: Number) => void, onComplete?: (err: Error, response: any) => void): XMLHttpRequest
+     * downloadFile(url: string, onFileProgress?: (loaded: Number, total: Number) => void, onComplete?: (err: Error, response: any) => void): XMLHttpRequest
      * downloadFile(url: string, options?: Record<string, any>, onComplete?: (err: Error, response: any) => void): XMLHttpRequest
      * downloadFile(url: string, onComplete?: (err: Error, response: any) => void): XMLHttpRequest
      */
@@ -362,22 +364,10 @@ var downloader = {
      */
     downloadScript: downloadScript,
 
-    
-    /**
-     * !#en
-     * Initialize downloader
-     * 
-     * !#zh
-     * 初始化 downloader
-     * 
-     * @method init
-     * 
-     * @typescript
-     * init(): void
-     */
-    init () {
+    init (bundleVers) {
         _downloading.clear();
         _queue.length = 0;
+        this.bundleVers = bundleVers || Object.create(null);
     },
 
     /**
@@ -422,16 +412,17 @@ var downloader = {
      * @param {string} url - The url should be downloaded
      * @param {string} type - The type indicates that which handler should be used to download, such as '.jpg'
      * @param {Object} options - some optional paramters will be transferred to the corresponding handler.
-     * @param {Function} [options.onProgress] - progressive callback will be transferred to handler.
+     * @param {Function} [options.onFileProgress] - progressive callback will be transferred to handler.
      * @param {Number} [options.maxRetryCount] - How many times should retry when download failed
-     * @param {LoadStrategy} [options.loadStrategy] - Indicates which strategy should be used.
+     * @param {Number} [options.maxConcurrency] - The maximum number of concurrent when downloading
+     * @param {Number} [options.maxRequestsPerFrame] - The maximum number of request can be launched per frame when downloading
      * @param {Number} [options.priority] - The priority of this url, default is 0, the greater number is higher priority.
      * @param {Function} onComplete - callback when finishing downloading
      * @param {Error} onComplete.err - The occurred error, null indicetes success
      * @param {*} onComplete.contetnt - The downloaded file
      * 
      * @example
-     * download('http://example.com/test.tga', '.tga', {onProgress: (loaded, total) => console.lgo(loaded/total)}, onComplete: (err) => console.log(err));
+     * download('http://example.com/test.tga', '.tga', {onFileProgress: (loaded, total) => console.lgo(loaded/total)}, onComplete: (err) => console.log(err));
      * 
      * @typescript
      * download(id: string, url: string, type: string, options: Record<string, any>, onComplete: (err: Error, content: any) => void): void
@@ -460,8 +451,8 @@ var downloader = {
         else {
             // if download fail, should retry
             var maxRetryCount = options.maxRetryCount || this.maxRetryCount;
-            var maxConcurrent = this.limitations[options.loadStrategy || LoadStrategy.NORMAL].maxConcurrent;
-            var maxRequestsPerFrame = this.limitations[options.loadStrategy || LoadStrategy.NORMAL].maxRequestsPerFrame;
+            var maxConcurrency = options.maxConcurrency || this.maxConcurrency;
+            var maxRequestsPerFrame = options.maxRequestsPerFrame || this.maxRequestsPerFrame;
 
             function process (index, callback) {
                 if (index === 0) {
@@ -478,14 +469,14 @@ var downloader = {
                         // when finish downloading, update _totalNum
                         _totalNum--;
                         if (!_checkNextPeriod && _queue.length > 0) {
-                            callInNextTick(handleQueue, maxConcurrent, maxRequestsPerFrame);
+                            callInNextTick(handleQueue, maxConcurrency, maxRequestsPerFrame);
                             _checkNextPeriod = true;
                         }
                         callback.apply(this, arguments);
                     });
                 }
 
-                if (_totalNum < maxConcurrent && _totalNumThisPeriod < maxRequestsPerFrame) {
+                if (_totalNum < maxConcurrency && _totalNumThisPeriod < maxRequestsPerFrame) {
                     invoke();
                     _totalNum++;
                     _totalNumThisPeriod++;
@@ -495,8 +486,8 @@ var downloader = {
                     _queue.push({ id, priority: options.priority || 0, invoke });
                     _queueDirty = true;
     
-                    if (!_checkNextPeriod && _totalNum < maxConcurrent) {
-                        callInNextTick(handleQueue, maxConcurrent, maxRequestsPerFrame);
+                    if (!_checkNextPeriod && _totalNum < maxConcurrency) {
+                        callInNextTick(handleQueue, maxConcurrency, maxRequestsPerFrame);
                         _checkNextPeriod = true;
                     }
                 }
@@ -519,15 +510,15 @@ var downloader = {
 // dafault handler map
 var downloaders = {
     // Images
-    '.png' : downloadImage,
-    '.jpg' : downloadImage,
-    '.bmp' : downloadImage,
-    '.jpeg' : downloadImage,
-    '.gif' : downloadImage,
-    '.ico' : downloadImage,
-    '.tiff' : downloadImage,
-    '.webp' : downloadImage,
-    '.image' : downloadImage,
+    '.png' : downloadDomImage,
+    '.jpg' : downloadDomImage,
+    '.bmp' : downloadDomImage,
+    '.jpeg' : downloadDomImage,
+    '.gif' : downloadDomImage,
+    '.ico' : downloadDomImage,
+    '.tiff' : downloadDomImage,
+    '.webp' : downloadDomImage,
+    '.image' : downloadDomImage,
     '.pvr': downloadArrayBuffer,
     '.pkm': downloadArrayBuffer,
 
@@ -561,6 +552,15 @@ var downloaders = {
     '.svg' : loadFont,
     '.ttc' : loadFont,
 
+    // Video
+    '.mp4': downloadVideo,
+    '.avi': downloadVideo,
+    '.mov': downloadVideo,
+    '.mpg': downloadVideo,
+    '.mpeg': downloadVideo,
+    '.rm': downloadVideo,
+    '.rmvb': downloadVideo,
+
     // Binary
     '.binary' : downloadArrayBuffer,
     '.bin': downloadArrayBuffer,
@@ -568,6 +568,8 @@ var downloaders = {
     '.skel': downloadArrayBuffer,
 
     '.js': downloadScript,
+
+    'bundle': downloadBundle,
 
     'default': downloadText
 

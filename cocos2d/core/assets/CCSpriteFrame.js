@@ -53,7 +53,7 @@ let temp_uvs = [{u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}];
  * // load a cc.SpriteFrame with image path (Recommend)
  * var self = this;
  * var url = "test assets/PurpleMonster";
- * cc.assetManager.loadRes(url, cc.SpriteFrame, null, function (err, spriteFrame) {
+ * cc.resources.load(url, cc.SpriteFrame, null, function (err, spriteFrame) {
  *  var node = new cc.Node("New Sprite");
  *  var sprite = node.addComponent(cc.Sprite);
  *  sprite.spriteFrame = spriteFrame;
@@ -518,7 +518,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             if (!this._texture.loaded) {
                 // load exists texture
                 this._refreshTexture(this._texture);
-                textureUtil.postLoadTexture(this._texture);
+                cc.assetManager.postLoadNative(this._texture);
             }
         }
     },
@@ -753,6 +753,12 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         let texture = this._texture;
         if (texture) {
             uuid = texture._uuid;
+        }
+        if (!uuid) {
+            let url = this._textureFilename;
+            if (url) {
+                uuid = Editor.Utils.UuidCache.urlToUuid(url);
+            }
         }
         if (uuid && exporting) {
             uuid = Editor.Utils.UuidUtils.compressUuid(uuid, true);

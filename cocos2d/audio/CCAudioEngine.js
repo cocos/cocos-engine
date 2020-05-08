@@ -35,6 +35,10 @@ let _url2id = {};
 let _audioPool = [];
 
 let recycleAudio = function (audio) {
+    // In case repeatly recycle audio when users call audio.stop when audio finish playing
+    if (!audio._shouldRecycleOnEnded) {
+        return;
+    }
     audio._finishCallback = null;
     audio.off('ended');
     audio.off('stop');
@@ -48,6 +52,7 @@ let recycleAudio = function (audio) {
             audio.destroy();
         }
     }
+    audio._shouldRecycleOnEnded = false;
 };
 
 let getAudioFromPath = function (path) {
@@ -135,7 +140,7 @@ var audioEngine = {
      * @param {Number} volume - Volume size.
      * @return {Number} audioId
      * @example
-     * cc.assetManager.loadRes(url, cc.AudioClip, null, function (err, clip) {
+     * cc.resources.load(path, cc.AudioClip, null, function (err, clip) {
      *     var audioID = cc.audioEngine.play(clip, false, 0.5);
      * });
      */
@@ -163,6 +168,7 @@ var audioEngine = {
             audio.src = clip;
         }
 
+        audio._shouldRecycleOnEnded = true;
         audio.setLoop(loop || false);
         volume = handleVolume(volume);
         audio.setVolume(volume);
@@ -517,14 +523,14 @@ var audioEngine = {
      * @param {Function} [callback] - The callback of an audio.
      * @example
      * cc.audioEngine.preload(path);
-     * @deprecated `cc.audioEngine.preload` is deprecated, use `cc.assetManager.loadRes(url, cc.AudioClip)` instead please.
+     * @deprecated `cc.audioEngine.preload` is deprecated, use `cc.resources.load(path, cc.AudioClip)` instead please.
      */
     preload: function (filePath, callback) {
         if (CC_DEBUG) {
-            cc.warn('`cc.audioEngine.preload` is deprecated, use `cc.assetManager.loadRes(url, cc.AudioClip)` instead please.');
+            cc.warn('`cc.audioEngine.preload` is deprecated, use `cc.resources.load(path, cc.AudioClip)` instead please.');
         }
 
-        cc.assetManager.loadRes(filePath, cc.AudioClip, null, callback && function (error) {
+        cc.resources.load(filePath, cc.AudioClip, null, callback && function (error) {
             if (!error) {
                 callback();
             }
@@ -591,7 +597,7 @@ var audioEngine = {
      * @param {Boolean} loop - Whether the music loop or not.
      * @return {Number} audioId
      * @example
-     * cc.assetManager.loadRes(url, cc.AudioClip, null, function (err, clip) {
+     * cc.resources.load(path, cc.AudioClip, null, function (err, clip) {
      *     var audioID = cc.audioEngine.playMusic(clip, false);
      * });
      */
@@ -686,7 +692,7 @@ var audioEngine = {
      * @param {Boolean} loop - Whether the music loop or not.
      * @return {Number} audioId
      * @example
-     * cc.assetManager.loadRes(url, cc.AudioClip, null, function (err, clip) {
+     * cc.resources.load(path, cc.AudioClip, null, function (err, clip) {
      *     var audioID = cc.audioEngine.playEffect(clip, false);
      * });
      */

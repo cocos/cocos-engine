@@ -27,146 +27,29 @@ const Cache = require('./cache');
 const { normalize } = require('./helper');
 const { processOptions } = require('./utilities');
 
-/**
- * @module cc.AssetManager
- */
-/**
- * !#en
- * Control asset's information
- * 
- * !#zh
- * 管理资源的配置信息
- * 
- * @class Config
- */
 function Config () {
 
-    /**
-     * !#en
-     * The name of this bundle
-     * 
-     * !#zh
-     * 此 bundle 的名称
-     * 
-     * @property name
-     * @type {string}
-     */
     this.name = '';
 
-    /**
-     * !#en
-     * The root path of this bundle, such like 'http://example.com/bundle1'
-     * 
-     * !#zh
-     * 此 bundle 的根路径, 例如 'http://example.com/bundle1'
-     * 
-     * @property base
-     * @type {string}
-     */
     this.base = '';
 
-    /**
-     * !#en
-     * The root directory for import-assets in runtime, such like 'res/import'
-     * 
-     * !#zh
-     * 导入资源的根文件夹，例如 'res/import'
-     * 
-     * @property importBase
-     * @type {string}
-     */
     this.importBase = '';
 
-    /**
-     * !#en
-     * The base dir for native-assets in runtime, such like 'res/native'
-     * 
-     * !#zh
-     * 远程资源的根文件夹， 例如 'res/native'
-     * 
-     * @property nativeBase
-     * @type {string}
-     */
     this.nativeBase = '';
 
-    /**
-     * !#en
-     * The dependency of this bundle
-     * 
-     * !#zh
-     * 此 bundle 的依赖
-     * 
-     * @property deps
-     * @type {string[]}
-     */
     this.deps = null;
 
-    /**
-     * !#en
-     * Caches all information of asset. uuid is key, asset's information is value
-     * 
-     * !#zh
-     * 缓存所有资源信息，uuid 为 key， 资源信息为 value
-     * 
-     * @property assetInfos
-     * @type {Cache}
-     */
     this.assetInfos = new Cache();
 
-    /**
-     * !#en
-     * Caches all information of scene. scene's path is key, scene's information is value
-     * 
-     * !#zh
-     * 缓存所有场景信息，场景的路径是 key，场景信息是 value
-     * 
-     * @property scenes
-     * @type {Cache}
-     */
     this.scenes = new Cache();
 
-    /**
-     * !#en
-     * Caches all informations of asset within bundle folder, asset's relative path is key, asset's information is value
-     * 
-     * !#zh
-     * 缓存所有在 bundle 文件夹下的资源信息， 资源的相对路径为 key， 资源信息为 value
-     * 
-     * @property paths
-     * @type {Cache}
-     */
     this.paths = new Cache();
 }
 
 Config.prototype = {
 
-    /**
-     * !#en
-     * Create a configuration
-     * 
-     * !#zh
-     * 创建一个配置
-     * 
-     * @method constructor
-     * 
-     * @typescript 
-     * constructor()
-     */
     constructor: Config,
 
-    /**
-     * !#en
-     * Initialize
-     * 
-     * !#zh
-     * 初始化 
-     * 
-     * @method init
-     * @param {Object} options - configuration information
-     * 
-     * @typescript
-     * init(options?: Record<string, any>): void
-     */
     init: function (options) {
         processOptions(options);
 
@@ -291,24 +174,6 @@ Config.prototype = {
         }
     },
 
-    /**
-     * !#en
-     * Get asset's info using path, only valid when asset is in bundle folder.
-     *  
-     * !#zh
-     * 使用 path 获取资源的配置信息
-     * 
-     * @method getInfoWithPath
-     * @param {string} path - The relative path of asset, such as 'images/a'
-     * @param {Function} [type] - The constructor of asset, such as  `cc.Texture2D`
-     * @returns {Object} The asset info 
-     * 
-     * @example
-     * var info = config.getInfoWithPath('image/a', cc.Texture2D);
-     * 
-     * @typescript
-     * getInfoWithPath (path: string, type?: typeof cc.Asset): Record<string, any>
-     */
     getInfoWithPath: function (path, type) {
 
         if (!path) {
@@ -332,26 +197,6 @@ Config.prototype = {
         return null;
     },
 
-    /**
-     * !#en
-     * Get all asset's info within specific folder
-     * 
-     * !#zh
-     * 获取在某个指定文件夹下的所有资源信息
-     * 
-     * @method getDirWithPath
-     * @param {string} path - The relative path of folder, such as 'images'
-     * @param {Function} [type] - The constructor should be used to filter paths
-     * @param {Array} [out] - The output array
-     * @returns {Object[]} Infos
-     * 
-     * @example 
-     * var infos = [];
-     * config.getDirWithPath('images', cc.Texture2D, infos);
-     * 
-     * @typescript
-     * getDirWithPath (path: string, type?: typeof cc.Asset, out?: Record<string, any>[]): Record<string, any>[]
-     */
     getDirWithPath: function (path, type, out) {
         path = normalize(path);
         if (path[path.length - 1] === '/') {
@@ -380,44 +225,10 @@ Config.prototype = {
         return infos;
     },
 
-    /**
-     * !#en
-     * Get asset's info with uuid
-     * 
-     * !#zh
-     * 通过 uuid 获取资源信息
-     * 
-     * @method getAssetInfo
-     * @param {string} uuid - The asset's uuid
-     * @returns {Object} info 
-     * 
-     * @example
-     * var info = config.getAssetInfo('fcmR3XADNLgJ1ByKhqcC5Z');
-     * 
-     * @typescript
-     * getAssetInfo (uuid: string): Record<string, any>
-     */
     getAssetInfo: function (uuid) {
         return this.assetInfos.get(uuid);
     },
 
-    /**
-     * !#en
-     * Get scene'info with name
-     * 
-     * !#zh
-     * 通过场景名获取场景信息
-     * 
-     * @method getSceneInfo
-     * @param {string} name - The name of scene
-     * @return {Object} info
-     * 
-     * @example
-     * var info = config.getSceneInfo('first.fire');
-     * 
-     * @typescript
-     * getSceneInfo(name: string): Record<string, any>
-     */
     getSceneInfo: function (name) {
         if (!name.endsWith('.fire')) {
             name += '.fire';
@@ -432,22 +243,15 @@ Config.prototype = {
         return info;
     },
 
-    /**
-     * !#en
-     * destroy this configuration 
-     * 
-     * !#zh
-     * 销毁这个配置
-     * 
-     * @method destroy
-     * 
-     * @typescript
-     * destroy(): void
-     */
     destroy: function () {
         this.paths.destroy();
         this.scenes.destroy();
         this.assetInfos.destroy();
     }
 };
+
+if (CC_TEST) {
+    cc._Test.Config = Config;
+}
+
 module.exports = Config;

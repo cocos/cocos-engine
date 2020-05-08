@@ -1,4 +1,4 @@
-module('finalizer');
+module('releaseManager');
 
 var libPath = assetDir + '/library';
 cc.assetManager.init({importBase: libPath, nativeBase: libPath});
@@ -6,11 +6,11 @@ cc.assetManager.init({importBase: libPath, nativeBase: libPath});
 test('reference', function () {
     var tex = new cc.Texture2D();
     tex._uuid = 'AAA';
-    strictEqual(tex._ref, 0, 'should equal to 0');
+    strictEqual(tex.refCount, 0, 'should equal to 0');
     tex.addRef();
-    strictEqual(tex._ref, 1, 'should equal to 1');
-    tex.removeRef();
-    strictEqual(tex._ref, 0, 'should equal to 0');
+    strictEqual(tex.refCount, 1, 'should equal to 1');
+    tex.decRef(false);
+    strictEqual(tex.refCount, 0, 'should equal to 0');
 });
 
 test('release', function () {
@@ -19,10 +19,10 @@ test('release', function () {
     tex.addRef();
     cc.assetManager.assets.add('AAA', tex);
     ok(cc.isValid(tex, true), 'tex should be valid');
-    cc.assetManager.finalizer._free(tex, false);
+    cc.assetManager._releaseManager._free(tex, false);
     strictEqual(cc.assetManager.assets.count, 1, 'should equal to 1');
     ok(cc.isValid(tex, true), 'tex should be valid');
-    cc.assetManager.release(tex, true);
+    cc.assetManager.releaseAsset(tex, true);
     strictEqual(cc.assetManager.assets.count, 0, 'should equal to 0');
     ok(!cc.isValid(tex, true), 'tex should be released');
 });
@@ -36,7 +36,7 @@ test('release dependencies', function () {
     texB.addRef();
     cc.assetManager.assets.add('BBB', texB);
     cc.assetManager.dependUtil._depends.add('AAA', {deps: ['BBB']});
-    cc.assetManager.finalizer._free(texA);
+    cc.assetManager._releaseManager._free(texA);
     strictEqual(cc.assetManager.assets.count, 0, 'should equal to 0');
 });
 
@@ -61,25 +61,13 @@ test('release circle reference', function () {
     cc.assetManager.dependUtil._depends.add('BBB', {deps: ['CCC']});
     cc.assetManager.dependUtil._depends.add('CCC', {deps: ['AAA', 'DDD']});
     cc.assetManager.dependUtil._depends.add('DDD', {deps: ['BBB']});
-    cc.assetManager.finalizer._free(texA);
-    strictEqual(cc.assetManager.assets.count, 0, 'should equal to 0');
-});
-
-test('lock', function () {
-    var texA = new cc.Texture2D();
-    texA._uuid = 'AAA';
-    cc.assetManager.assets.add('AAA', texA);
-    cc.assetManager.finalizer.lock(texA);
-    cc.assetManager.finalizer.release(texA, true);
-    strictEqual(cc.assetManager.assets.count, 1, 'should equal to 1');
-    cc.assetManager.finalizer.unlock(texA);
-    cc.assetManager.finalizer.release(texA, true);
+    cc.assetManager._releaseManager._free(texA);
     strictEqual(cc.assetManager.assets.count, 0, 'should equal to 0');
 });
 
 test('AutoRelease', function () {
-    var originalRelease = cc.assetManager.finalizer.release;
-    cc.assetManager.finalizer.release = cc.assetManager.finalizer._free;
+    var originalRelease = cc.assetManager._releaseManager.tryRelease;
+    cc.assetManager._releaseManager.tryRelease = cc.assetManager._releaseManager._free;
     var scene1 = new cc.Scene();
     scene1._id = 'scene 1';
     var scene2 = new cc.Scene();
@@ -103,17 +91,17 @@ test('AutoRelease', function () {
 
     cc.assetManager.dependUtil._depends.add('scene 1', {deps: ['AAA', 'BBB', 'CCC', 'DDD']});
     cc.assetManager.dependUtil._depends.add('scene 2', {deps: ['BBB', 'CCC']});
-    cc.assetManager.finalizer._autoRelease(scene1, scene2, []);
+    cc.assetManager._releaseManager._autoRelease(scene1, scene2, []);
     strictEqual(cc.assetManager.assets.count, 2, 'should equal to 2');
-    strictEqual(texB._ref, 1, 'should equal to 1');
-    strictEqual(texC._ref, 1, 'should equal to 1');
-    cc.assetManager.finalizer.release = originalRelease;
-    cc.assetManager.releaseAll(true);
+    strictEqual(texB.refCount, 1, 'should equal to 1');
+    strictEqual(texC.refCount, 1, 'should equal to 1');
+    cc.assetManager._releaseManager.tryRelease = originalRelease;
+    cc.assetManager.releaseAll();
 });
 
 test('autoRelease_polyfill', function () {
-    var originalRelease = cc.assetManager.finalizer.release;
-    cc.assetManager.finalizer.release = cc.assetManager.finalizer._free;
+    var originalRelease = cc.assetManager._releaseManager.tryRelease;
+    cc.assetManager._releaseManager.tryRelease = cc.assetManager._releaseManager._free;
     var scene1 = new cc.Scene();
     scene1._id = 'scene 1';
     var scene2 = new cc.Scene();
@@ -123,14 +111,14 @@ test('autoRelease_polyfill', function () {
     cc.assetManager.assets.add('AAA', texA);
     cc.loader.setAutoRelease(texA, true);
     strictEqual(cc.assetManager.assets.count, 1, 'should equal to 1');
-    cc.assetManager.finalizer._autoRelease(scene1, scene2, []);
+    cc.assetManager._releaseManager._autoRelease(scene1, scene2, []);
     strictEqual(cc.assetManager.assets.count, 0, 'should equal to 0');
-    cc.assetManager.finalizer.release = originalRelease;
+    cc.assetManager._releaseManager.tryRelease = originalRelease;
 });
 
 test('persistNode', function () {
-    var originalRelease = cc.assetManager.finalizer.release;
-    cc.assetManager.finalizer.release = cc.assetManager.finalizer._free;
+    var originalRelease = cc.assetManager._releaseManager.tryRelease;
+    cc.assetManager._releaseManager.tryRelease = cc.assetManager._releaseManager._free;
     var scene1 = new cc.Scene();
     scene1._id = 'scene 1';
     var scene2 = new cc.Scene();
@@ -146,18 +134,18 @@ test('persistNode', function () {
     cc.assetManager.assets.add('AAA', sp);
     var persistNode = new cc.Node();
     persistNode.addComponent(cc.Sprite).spriteFrame = sp;
-    cc.assetManager.finalizer._addPersistNodeRef(persistNode);
+    cc.assetManager._releaseManager._addPersistNodeRef(persistNode);
 
     cc.assetManager.dependUtil._depends.add('scene 1', {deps: ['AAA']});
     cc.assetManager.dependUtil._depends.add('scene 2', {deps: []});
-    cc.assetManager.finalizer._autoRelease(scene1, scene2, [persistNode]);
+    cc.assetManager._releaseManager._autoRelease(scene1, scene2, [persistNode]);
     strictEqual(cc.assetManager.assets.count, 1, 'should equal to 1');
     strictEqual(cc.assetManager.assets.get('AAA'), sp, 'should equal to spriteFrame');
-    strictEqual(sp._ref, 2, 'should equal to 2');
-    cc.assetManager.finalizer._removePersistNodeRef(persistNode);
-    strictEqual(sp._ref, 1, 'should equal to 1');
-    cc.assetManager.finalizer._autoRelease(scene2, scene3, []);
+    strictEqual(sp.refCount, 2, 'should equal to 2');
+    cc.assetManager._releaseManager._removePersistNodeRef(persistNode);
+    strictEqual(sp.refCount, 1, 'should equal to 1');
+    cc.assetManager._releaseManager._autoRelease(scene2, scene3, []);
     strictEqual(cc.assetManager.assets.count, 0, 'should equal to 0');
-    cc.assetManager.finalizer.release = originalRelease;
+    cc.assetManager._releaseManager.tryRelease = originalRelease;
 });
 

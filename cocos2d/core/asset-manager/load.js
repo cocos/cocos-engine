@@ -37,7 +37,7 @@ function load (task, done) {
     
     var options = task.options, progress = task.progress;
 
-    options.exclude = options.exclude || Object.create(null);
+    options.__exclude__ = options.__exclude__ || Object.create(null);
 
     task.output = [];
     
@@ -60,7 +60,7 @@ function load (task, done) {
 
     }, function () {
 
-        options.exclude = null;
+        options.__exclude__ = null;
 
         if (task.isFinish) {
             clear(task, true);
@@ -86,8 +86,9 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
             if (err) {
                 if (cc.assetManager.force) {
                     err = null;
-                } else {
-                    item.recycle();
+                }
+                else {
+                    cc.error(err.message, err.stack);
                 }
                 data = null;
             }
@@ -98,14 +99,14 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
 
     function parse (task, done) {
 
-        var item = task.output = task.input, progress = task.progress, exclude = task.options.exclude;
+        var item = task.output = task.input, progress = task.progress, exclude = task.options.__exclude__;
         var { id, file, options } = item;
 
         if (item.isNative) {
             parser.parse(id, file, item.ext, options, function (err, asset) {
                 if (err) {
                     if (!cc.assetManager.force) {
-                        item.recycle();
+                        cc.error(err.message, err.stack);
                         return done(err);
                     }
                 }
@@ -135,9 +136,8 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
             else {
                 if (!options.reload && assets.has(uuid)) {
                     var asset = assets.get(uuid);
-                    if (options.asyncLoadAssets || !asset.__asyncLoadAssets__) {
-                        item.content = asset;
-                        asset.addRef();
+                    if (options.__asyncLoadAssets__ || !asset.__asyncLoadAssets__) {
+                        item.content = asset.addRef();
                         task.dispatch('progress', ++progress.finish, progress.total, item);
                         done();
                     }
@@ -148,10 +148,13 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                 else {
                     parser.parse(id, file, 'import', options, function (err, asset) {
                         if (err) {
-                            if (!cc.assetManager.force) {
-                                item.recycle();
-                                return done(err);
+                            if (cc.assetManager.force) {
+                                err = null;
                             }
+                            else {
+                                cc.error(err.message, err.stack);
+                            }
+                            return done(err);
                         }
                         
                         asset._uuid = uuid;
@@ -167,14 +170,14 @@ function loadDepends (task, asset, done, init) {
 
     var item = task.input, progress = task.progress;
     var { uuid, id, options, config } = item;
-    var { asyncLoadAssets, cacheAsset } = options;
+    var { __asyncLoadAssets__, cacheAsset } = options;
 
     var depends = [];
     asset.addRef && asset.addRef();
-    getDepends(uuid, asset, Object.create(null), depends, false, asyncLoadAssets, config);
+    getDepends(uuid, asset, Object.create(null), depends, false, __asyncLoadAssets__, config);
     task.dispatch('progress', ++progress.finish, progress.total += depends.length, item);
 
-    var repeatItem = task.options.exclude[uuid] = { content: asset, finish: false, callbacks: [{ done, item }] };
+    var repeatItem = task.options.__exclude__[uuid] = { content: asset, finish: false, callbacks: [{ done, item }] };
 
     let subTask = Task.create({ 
         input: depends, 
@@ -183,8 +186,8 @@ function loadDepends (task, asset, done, init) {
         onError: Task.prototype.recycle, 
         progress, 
         onComplete: function (err) {
-            asset.removeRef && asset.removeRef();
-            asset.__asyncLoadAssets__ = asyncLoadAssets;
+            asset.decRef && asset.decRef(false);
+            asset.__asyncLoadAssets__ = __asyncLoadAssets__;
             repeatItem.finish = true;
             repeatItem.err = err;
 
@@ -205,7 +208,7 @@ function loadDepends (task, asset, done, init) {
                                 asset.onLoad && asset.onLoad();
                             }
                             catch (e) {
-                                cc.warn(e);
+                                cc.error(e.message, e.stack);
                             }
                         }
                     }
@@ -217,7 +220,7 @@ function loadDepends (task, asset, done, init) {
                             asset.onLoad && asset.onLoad();
                         }
                         catch (e) {
-                            cc.warn(e);
+                            cc.error(e.message, e.stack);
                         }
                     }
                     files.remove(id);

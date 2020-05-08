@@ -282,7 +282,6 @@ function _getSharedOptions () {
     }
     _images.length = 0;
     _sharedOpts.images = _images;
-    _sharedOpts.flipY = false;
     return _sharedOpts;
 }
 
@@ -305,8 +304,8 @@ var Texture2D = cc.Class({
                 return this._image;
             },
             set (data) {
-                if (data.data) {
-                    this.initWithData(data.data, this._format, data.width, data.height);
+                if (data._data) {
+                    this.initWithData(data._data, this._format, data.width, data.height);
                 }
                 else {
                     this.initWithElement(data);
@@ -322,6 +321,8 @@ var Texture2D = cc.Class({
         _mipFilter: Filter.LINEAR,
         _wrapS: WrapMode.CLAMP_TO_EDGE,
         _wrapT: WrapMode.CLAMP_TO_EDGE,
+
+        _isAlphaAtlas: false,
 
         _genMipmaps: false,
         /**
@@ -365,7 +366,7 @@ var Texture2D = cc.Class({
         
         _nativeDep: {
             get () {
-                return {isNative: true, uuid: this._uuid, ext: this._native};
+                return {__isNative__: true, uuid: this._uuid, ext: this._native};
             },
             override: true
         }
@@ -390,7 +391,7 @@ var Texture2D = cc.Class({
                 ext = result.bestExt || result.defaultExt;
             }
 
-            return { isNative: true, ext };
+            return { __isNative__: true, ext };
         },
 
         _parseExt (extIdStr, defaultFormat) {
@@ -574,9 +575,7 @@ var Texture2D = cc.Class({
                 options.images.push(options.image);
             }
 
-            if (options.images && options.images.length > 0) {
-                this._texture.update(options);
-            }
+            this._texture && this._texture.update(options);
 
             this._hashDirty = true;
         }
@@ -646,6 +645,7 @@ var Texture2D = cc.Class({
         this.width = pixelsWidth;
         this.height = pixelsHeight;
 
+        this._updateFormat();
         this._checkPackable();
 
         this.loaded = true;
@@ -671,7 +671,7 @@ var Texture2D = cc.Class({
     /**
      * !#en
      * Destory this texture and immediately release its video memory. (Inherit from cc.Object.destroy)<br>
-     * After destroy, this object is not usable any more.
+     * After destroy, this object is not usable anymore.
      * You can use cc.isValid(obj) to check whether the object is destroyed before accessing it.
      * !#zh
      * 销毁该贴图，并立即释放它对应的显存。（继承自 cc.Object.destroy）<br/>
@@ -713,6 +713,10 @@ var Texture2D = cc.Class({
         return this._premultiplyAlpha || false;
     },
 
+    isAlphaAtlas () {
+        return this._isAlphaAtlas;
+    },
+
     /**
      * !#en
      * Handler of texture loaded event.
@@ -749,6 +753,7 @@ var Texture2D = cc.Class({
             this._texture.update(opts);
         }
 
+        this._updateFormat();
         this._checkPackable();
 
         //dispatch load event to listener.
@@ -833,6 +838,7 @@ var Texture2D = cc.Class({
         if (this._flipY !== flipY) {
             var opts = _getSharedOptions();
             opts.flipY = flipY;
+            opts.premultiplyAlpha = this._premultiplyAlpha;
             this.update(opts);
         }
     },
@@ -847,8 +853,16 @@ var Texture2D = cc.Class({
     setPremultiplyAlpha (premultiply) {
         if (this._premultiplyAlpha !== premultiply) {
             var opts = _getSharedOptions();
+            opts.flipY = this._flipY;
             opts.premultiplyAlpha = premultiply;
             this.update(opts);
+        }
+    },
+
+    _updateFormat () {
+        this._isAlphaAtlas = this._format === PixelFormat.RGBA_ETC1 || this._format === PixelFormat.RGB_A_PVRTC_4BPPV1 || this._format === PixelFormat.RGB_A_PVRTC_2BPPV1;
+        if (CC_JSB) {
+            this._texture.setAlphaAtlas(this._isAlphaAtlas);
         }
     },
 
@@ -947,7 +961,7 @@ var Texture2D = cc.Class({
         return asset;
     },
 
-    _deserialize: function (data) {
+    _deserialize: function (data, handle) {
         let fields = data.split(',');
         // decode extname
         let extIdStr = fields[0];

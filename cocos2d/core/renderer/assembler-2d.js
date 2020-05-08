@@ -1,6 +1,7 @@
 import Assembler from './assembler';
 import dynamicAtlasManager from './utils/dynamic-atlas/manager';
 import RenderData from './webgl/render-data';
+import { Color } from '../value-types';
 
 export default class Assembler2D extends Assembler {
     constructor () {
@@ -29,7 +30,7 @@ export default class Assembler2D extends Assembler {
     updateColor (comp, color) {
         let uintVerts = this._renderData.uintVDatas[0];
         if (!uintVerts) return;
-        color = color ||comp.node.color._val;
+        color = color != null ? color : comp.node.color._val;
         let floatsPerVert = this.floatsPerVert;
         let colorOffset = this.colorOffset;
         for (let i = colorOffset, l = uintVerts.length; i < l; i += floatsPerVert) {

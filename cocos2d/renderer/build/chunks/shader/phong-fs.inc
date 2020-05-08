@@ -18,11 +18,11 @@ uniform PhongFrag {
   uniform sampler2D diffuseTexture;
 #endif
 
-#if USE_SPECULAR_TEXTURE
+#if USE_SPECULAR && USE_SPECULAR_TEXTURE
   uniform sampler2D specularTexture;
 #endif
 
-#if USE_EMISSIVE_TEXTURE
+#if USE_EMISSIVE && USE_EMISSIVE_TEXTURE
   uniform sampler2D emissiveTexture;
 #endif
 
@@ -32,7 +32,7 @@ uniform PhongFrag {
   uniform sampler2D normalTexture;
 #endif
 
-#define CC_USE_TEXTURE CC_USE_ATTRIBUTE_UV0 && (USE_DIFFUSE_TEXTURE || USE_EMISSIVE_TEXTURE || USE_SPECULAR_TEXTURE || USE_NORMAL_TEXTURE)
+#define CC_USE_TEXTURE CC_USE_ATTRIBUTE_UV0 && (USE_DIFFUSE_TEXTURE || (USE_EMISSIVE && USE_EMISSIVE_TEXTURE) || (USE_SPECULAR && USE_SPECULAR_TEXTURE) || USE_NORMAL_TEXTURE)
 
 in vec3 v_worldNormal;
 in vec3 v_worldPos;
@@ -57,7 +57,7 @@ void surf (out PhongSurface s) {
 
   diffuse *= diffuseColor;
   #if USE_DIFFUSE_TEXTURE
-    CCTexture2D(diffuseTexture, v_uv0, diffuse);
+    CCTexture(diffuseTexture, v_uv0, diffuse);
   #endif
 
   ALPHA_TEST(diffuse);
@@ -65,23 +65,28 @@ void surf (out PhongSurface s) {
   s.diffuse = diffuse.rgb;
   s.opacity = diffuse.a;
 
-  s.emissive = emissiveColor.rgb;
-  #if USE_EMISSIVE_TEXTURE
-    CCTexture2DRGB(emissiveTexture, v_uv0, s.emissive);
+  #if USE_EMISSIVE
+    s.emissive = emissiveColor.rgb;
+    #if USE_EMISSIVE_TEXTURE
+      CCTextureRGB(emissiveTexture, v_uv0, s.emissive);
+    #endif
   #endif
 
-  s.specular = specularColor.rgb;
-  #if USE_SPECULAR_TEXTURE
-    CCTexture2DRGB(specularTexture, v_uv0, s.specular);
+  #if USE_SPECULAR
+    s.specular = specularColor.rgb;
+    #if USE_SPECULAR_TEXTURE
+      CCTextureRGB(specularTexture, v_uv0, s.specular);
+    #endif
   #endif
 
   s.normal = v_worldNormal;
   #if USE_NORMAL_TEXTURE
-    vec3 nmmp = texture2D(normalTexture, v_uv0).xyz - vec3(0.5);
+    vec3 nmmp = texture(normalTexture, v_uv0).xyz - vec3(0.5);
     s.normal =
       nmmp.x * normalize(v_tangent) +
       nmmp.y * normalize(v_bitangent) +
       nmmp.z * normalize(s.normal);
+    s.normal = normalize(s.normal);
   #endif
 
   s.position = v_worldPos;
