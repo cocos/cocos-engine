@@ -36,16 +36,20 @@ import { IRectLike, IVec2Like } from './type-define';
 import { Vec2 } from './vec2';
 
 /**
+ * @en
+ * A 2D rectangle defined by x, y position and width, height.
+ * @zh
  * 轴对齐矩形。
  * 矩形内的所有点都大于等于矩形的最小点 (xMin, yMin) 并且小于等于矩形的最大点 (xMax, yMax)。
  * 矩形的宽度定义为 xMax - xMin；高度定义为 yMax - yMin。
  */
 export class Rect extends ValueType {
     /**
-     * 由任意两个点创建一个矩形，目标矩形即是这两个点各向 x、y 轴作线所得到的矩形。
-     * @param v1 指定的点。
-     * @param v2 指定的点。
-     * @returns 目标矩形。
+     * @en Creates a rectangle from two coordinate values.
+     * @zh 由任意两个点创建一个矩形，目标矩形即是这两个点各向 x、y 轴作线所得到的矩形。
+     * @param v1 Specified point 1.
+     * @param v2 Specified point 2.
+     * @returns Target rectangle.
      */
     public static fromMinMax <Out extends IRectLike, VecLike extends IVec2Like> (out: Out, v1: VecLike, v2: VecLike) {
         const minX = Math.min(v1.x, v2.x);
@@ -61,11 +65,12 @@ export class Rect extends ValueType {
     }
 
     /**
-     * 根据指定的插值比率，从当前矩形到目标矩形之间做插值。
-     * @param out 本方法将插值结果赋值给此参数
-     * @param from 起始矩形。
-     * @param to 目标矩形。
-     * @param ratio 插值比率，范围为 [0,1]。
+     * @en Calculate the interpolation result between this rect and another one with given ratio
+     * @zh 根据指定的插值比率，从当前矩形到目标矩形之间做插值。
+     * @param out Output rect.
+     * @param from Original rect.
+     * @param to Target rect.
+     * @param ratio The interpolation coefficient.The range is [0,1].
      */
     public static lerp <Out extends IRectLike> (out: Out, from: Out, to: Out, ratio: number) {
         const x = from.x;
@@ -81,10 +86,11 @@ export class Rect extends ValueType {
     }
 
     /**
-     * 计算当前矩形与指定矩形重叠部分的矩形，将其赋值给出口矩形。
-     * @param out 出口矩形。
-     * @param one 指定的一个矩形。
-     * @param other 指定的另一个矩形。
+     * @en Returns the overlapping portion of 2 rectangles.
+     * @zh 计算当前矩形与指定矩形重叠部分的矩形，将其赋值给出口矩形。
+     * @param out Output Rect.
+     * @param one One of the specify Rect.
+     * @param other Another of the specify Rect.
      */
     public static intersection <Out extends IRectLike> (out: Out, one: Out, other: Out) {
         const axMin = one.x;
@@ -104,10 +110,11 @@ export class Rect extends ValueType {
     }
 
     /**
-     * 创建同时包含当前矩形和指定矩形的最小矩形，将其赋值给出口矩形。
-     * @param out 出口矩形。
-     * @param one 指定的一个矩形。
-     * @param other 指定的另一个矩形。
+     * @en Returns the smallest rectangle that contains the current rect and the given rect.
+     * @zh 创建同时包含当前矩形和指定矩形的最小矩形，将其赋值给出口矩形。
+     * @param out Output Rect.
+     * @param one One of the specify Rect.
+     * @param other Another of the specify Rect.
      */
     public static union <Out extends IRectLike> (out: Out, one: Out, other: Out) {
         const x = one.x;
@@ -127,7 +134,8 @@ export class Rect extends ValueType {
     }
 
     /**
-     * 获取或设置矩形在 x 轴上的最小值。
+     * @en The minimum x value.
+     * @zh 获取或设置矩形在 x 轴上的最小值。
      */
     get xMin () {
         return this.x;
@@ -139,7 +147,8 @@ export class Rect extends ValueType {
     }
 
     /**
-     * 获取或设置矩形在 y 轴上的最小值。
+     * @en The minimum y value.
+     * @zh 获取或设置矩形在 y 轴上的最小值。
      */
     get yMin () {
         return this.y;
@@ -151,7 +160,8 @@ export class Rect extends ValueType {
     }
 
     /**
-     * 获取或设置矩形在 x 轴上的最大值。
+     * @en The maximum x value.
+     * @zh 获取或设置矩形在 x 轴上的最大值。
      */
     get xMax () {
         return this.x + this.width;
@@ -162,7 +172,8 @@ export class Rect extends ValueType {
     }
 
     /**
-     * 获取或设置矩形在 y 轴上的最大值。
+     * @en The maximum y value.
+     * @zh 获取或设置矩形在 y 轴上的最大值。
      */
     get yMax () {
         return this.y + this.height;
@@ -173,7 +184,8 @@ export class Rect extends ValueType {
     }
 
     /**
-     * 获取或设置矩形中心点的坐标。
+     * @en The position of the center of the rectangle.
+     * @zh 获取或设置矩形中心点的坐标。
      */
     get center () {
         return new Vec2(this.x + this.width * 0.5,
@@ -186,10 +198,11 @@ export class Rect extends ValueType {
     }
 
     /**
-     * 获取或设置矩形最小点的坐标。
+     * @en Returns a new {{Vec2}} object representing the position of the rectangle
+     * @zh 获取或设置矩形的 x 和 y 坐标。
      */
     get origin () {
-        return new cc.Vec2(this.x, this.y);
+        return new Vec2(this.x, this.y);
     }
 
     set origin (value) {
@@ -198,7 +211,8 @@ export class Rect extends ValueType {
     }
 
     /**
-     * 获取或设置矩形的尺寸。
+     * @en Returns a new {{Size}} object represents the width and height of the rectangle
+     * @zh 获取或设置矩形的尺寸。
      */
     get size () {
         return new Size(this.width, this.height);
@@ -216,37 +230,43 @@ export class Rect extends ValueType {
     get w () { return this.height; }
 
     /**
-     * 获取或设置矩形最小点的 x 坐标。
+     * @en The minimum x value.
+     * @zh 矩形最小点的 x 坐标。
      */
     public declare x: number;
 
     /**
-     * 获取或设置矩形最小点的 y 坐标。
+     * @en The minimum y value.
+     * @zh 矩形最小点的 y 坐标。
      */
     public declare y: number;
 
     /**
-     * 获取或设置矩形的宽度。
+     * @en The width of the Rect.
+     * @zh 矩形的宽度。
      */
     public declare width: number;
 
     /**
-     * 获取或设置矩形的高度。
+     * @en The height of the Rect.
+     * @zh 矩形的高度。
      */
     public declare height: number;
 
     /**
-     * 构造与指定矩形相等的矩形。
-     * @param other 相比较的矩形。
+     * @en Constructs a Rect from another one.
+     * @zh 构造与指定矩形相等的矩形。
+     * @param other Specified Rect.
      */
     constructor (other: Rect);
 
     /**
-     * 构造具有指定的最小值和尺寸的矩形。
-     * @param x 矩形在 x 轴上的最小值。
-     * @param y 矩形在 y 轴上的最小值。
-     * @param width 矩形的宽度。
-     * @param height 矩形的高度。
+     * @en Constructs a Rect with specified values.
+     * @zh 构造具有指定的最小值和尺寸的矩形。
+     * @param x The minimum X coordinate of the rectangle.
+     * @param y The minimum Y coordinate of the rectangle.
+     * @param width The width of the rectangle, measured from the X position.
+     * @param height The height of the rectangle, measured from the Y position.
      */
     constructor (x?: number, y?: number, width?: number, height?: number);
 
@@ -266,25 +286,28 @@ export class Rect extends ValueType {
     }
 
     /**
-     * 克隆当前矩形。
+     * @en clone the current Rect.
+     * @zh 克隆当前矩形。
      */
     public clone () {
         return new Rect(this.x, this.y, this.width, this.height);
     }
 
     /**
-     * 设置当前矩形使其与指定矩形相等。
-     * @param other 相比较的矩形。
+     * @en Set values with another Rect.
+     * @zh 设置当前矩形使其与指定矩形相等。
+     * @param other Specified Rect.
      * @returns `this`
      */
     public set (other: Rect);
 
     /**
-     * 设置当前矩形使其与指定参数的矩形相等。
-     * @param x 指定矩形的 x 参数
-     * @param y 指定矩形的 y 参数
-     * @param width 指定矩形的 width 参数
-     * @param height 指定矩形的 height 参数
+     * @en Set the value of each component of the current Rect.
+     * @zh 设置当前矩形使其与指定参数的矩形相等。
+     * @param x The x parameter of the specified rectangle
+     * @param y The y parameter of the specified rectangle
+     * @param width The width parameter of the specified rectangle
+     * @param height The height parameter of the specified rectangle
      * @returns `this`
      */
     public set (x?: number, y?: number, width?: number, height?: number);
@@ -305,9 +328,10 @@ export class Rect extends ValueType {
     }
 
     /**
-     * 判断当前矩形是否与指定矩形相等。
-     * @param other 相比较的矩形。
-     * @returns 两矩阵的最小值和最大值都分别相等时返回 `true`；否则返回 `false`。
+     * @en Check whether the current Rect equals another one.
+     * @zh 判断当前矩形是否与指定矩形相等。
+     * @param other Specified rectangles.
+     * @returns Returns `true' when the minimum and maximum values of both rectangles are equal, respectively; otherwise, returns `false'.
      */
     public equals (other: Rect) {
         return this.x === other.x &&
@@ -317,9 +341,10 @@ export class Rect extends ValueType {
     }
 
     /**
-     * 根据指定的插值比率，从当前矩形到目标矩形之间做插值。
-     * @param to 目标矩形。
-     * @param ratio 插值比率，范围为 [0,1]。
+     * @en Calculate the interpolation result between this Rect and another one with given ratio.
+     * @zh 根据指定的插值比率，从当前矩形到目标矩形之间做插值。
+     * @param to Target Rect.
+     * @param ratio The interpolation coefficient.The range is [0,1].
      */
     public lerp (to: Rect, ratio: number) {
         const x = this.x;
@@ -335,17 +360,19 @@ export class Rect extends ValueType {
     }
 
     /**
-     * 返回当前矩形的字符串表示。
-     * @returns 当前矩形的字符串表示。
-     */
+     * @en Return the information of the current rect in string
+     * @zh 返回当前矩形的字符串表示。
+     * @returns The information of the current rect in string
+     */T
     public toString () {
         return `(${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.width.toFixed(2)}, ${this.height.toFixed(2)})`;
     }
 
     /**
-     * 判断当前矩形是否与指定矩形相交。
-     * @param other 相比较的矩形。
-     * @returns 相交则返回 `true`，否则返回 `false`。
+     * @en Check whether the current rectangle intersects with the given one.
+     * @zh 判断当前矩形是否与指定矩形相交。
+     * @param other Specified rectangles.
+     * @returns If intersected, return `true', otherwise return `false'.
      */
     public intersects (other: Rect) {
         const maxax = this.x + this.width;
@@ -356,9 +383,10 @@ export class Rect extends ValueType {
     }
 
     /**
-     * 判断当前矩形是否包含指定的点。
-     * @param point 指定的点。
-     * @returns 指定的点包含在矩形内则返回 `true`，否则返回 `false`。
+     * @en Check whether the current rect contains the given point.
+     * @zh 判断当前矩形是否包含指定的点。
+     * @param point Specified point.
+     * @returns The specified point is included in the rectangle and returns `true', otherwise it returns `false'.
      */
     public contains (point: Vec2) {
         return (this.x <= point.x &&
@@ -368,9 +396,10 @@ export class Rect extends ValueType {
     }
 
     /**
-     * 判断当前矩形是否包含指定矩形。
-     * @param other 指定的矩形。
-     * @returns 指定矩形所有的点都包含在当前矩形内则返回 `true`，否则返回 `false`。
+     * @en Returns true if the other rect entirely inside this rectangle.
+     * @zh 判断当前矩形是否包含指定矩形。
+     * @param other Specified rectangles.
+     * @returns Returns `true' if all the points of the specified rectangle are included in the current rectangle, `false' otherwise.
      */
     public containsRect (other: Rect) {
         return (this.x <= other.x &&
@@ -380,11 +409,13 @@ export class Rect extends ValueType {
     }
 
     /**
+     * @en Apply matrix4 to the rect.
+     * @zh
      * 应用矩阵变换到当前矩形：
      * 应用矩阵变换到当前矩形的最小点得到新的最小点，
      * 将当前矩形的尺寸视为二维向量应用矩阵变换得到新的尺寸；
      * 并将如此构成的新矩形。
-     * @param matrix 变换矩阵。
+     * @param matrix The matrix4
      */
     public transformMat4 (mat: Mat4) {
         const ol = this.x;
@@ -419,18 +450,20 @@ CCClass.fastDefine('cc.Rect', Rect, { x: 0, y: 0, width: 0, height: 0 });
 cc.Rect = Rect;
 
 /**
- * 构造与指定矩形相等的矩形。等价于 `new Rect(rect)`。
- * @param rect 相比较的矩形。
+ * @en The convenient method to create a new Rect.
+ * @zh 构造与指定矩形相等的矩形。等价于 `new Rect(rect)`。
+ * @param rect Specified Rect.
  * @returns `new Rect(rect)`
  */
 export function rect (rect: Rect): Rect;
 
 /**
- * 构造具有指定的最小值和尺寸的矩形，等价于`new Rect(x, y, width, height)`。
- * @param x 矩形在 x 轴上的最小值。
- * @param y 矩形在 y 轴上的最小值。
- * @param width 矩形的宽度。
- * @param height 矩形的高度。
+ * @en The convenient method to create a new Rect.
+ * @zh 构造具有指定的最小值和尺寸的矩形，等价于`new Rect(x, y, width, height)`。
+ * @param x The minimum X coordinate of the rectangle.
+ * @param y The minimum Y coordinate of the rectangle.
+ * @param width The width of the rectangle, measured from the X position.
+ * @param height The height of the rectangle, measured from the Y position.
  * @returns `new Rect(x, y, width, height)`
  */
 export function rect (x?: number, y?: number, width?: number, height?: number): Rect;
