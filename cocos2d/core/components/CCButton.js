@@ -503,8 +503,10 @@ let Button = cc.Class({
 
     _setTargetColor (color) {
         let target = this._getTarget();
-        target.color = color;
-        target.opacity = color.a;
+        let cloneColor = color.clone();
+        target.opacity = cloneColor.a;
+        cloneColor.a = 255;  // don't set node opacity via node.color.a
+        target.color = cloneColor;
     },
 
     _getStateColor (state) {
