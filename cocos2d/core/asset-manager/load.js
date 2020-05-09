@@ -84,9 +84,11 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
 
         packManager.load(item, task.options, function (err, data) {
             if (err) {
-                cc.error(err.message, err.stack);
                 if (cc.assetManager.force) {
                     err = null;
+                }
+                else {
+                    cc.error(err.message, err.stack);
                 }
                 data = null;
             }
@@ -103,8 +105,8 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
         if (item.isNative) {
             parser.parse(id, file, item.ext, options, function (err, asset) {
                 if (err) {
-                    cc.error(err.message, err.stack);
                     if (!cc.assetManager.force) {
+                        cc.error(err.message, err.stack);
                         return done(err);
                     }
                 }
@@ -146,10 +148,13 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                 else {
                     parser.parse(id, file, 'import', options, function (err, asset) {
                         if (err) {
-                            cc.error(err.message, err.stack);
-                            if (!cc.assetManager.force) {
-                                return done(err);
+                            if (cc.assetManager.force) {
+                                err = null;
                             }
+                            else {
+                                cc.error(err.message, err.stack);
+                            }
+                            return done(err);
                         }
                         
                         asset._uuid = uuid;

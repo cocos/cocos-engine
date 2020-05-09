@@ -718,19 +718,19 @@ js.obsolete(cc.Asset.prototype, 'cc.Asset.url', 'nativeUrl');
  */
 Object.defineProperties(cc.macro, {
     /**
-     * `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use {{#crossLink "Downloader/maxConcurrent:property"}}{{/crossLink}} instead
+     * `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use {{#crossLink "Downloader/maxConcurrency:property"}}{{/crossLink}} instead
      * 
      * @property DOWNLOAD_MAX_CONCURRENT
      * @type {Number}
-     * @deprecated `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use `cc.assetManager.downloader.maxConcurrent` instead
+     * @deprecated `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use `cc.assetManager.downloader.maxConcurrency` instead
      */
     DOWNLOAD_MAX_CONCURRENT: {
         get () {
-            return cc.assetManager.downloader.maxConcurrent;
+            return cc.assetManager.downloader.maxConcurrency;
         },
 
         set (val) {
-            cc.assetManager.downloader.maxConcurrent = val;
+            cc.assetManager.downloader.maxConcurrency = val;
         }
     }
 });
