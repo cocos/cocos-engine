@@ -361,10 +361,14 @@ cc.macro = {
     ENABLE_MULTI_TOUCH: true,
 
     /**
+     * Refer: https://developer.mozilla.org/zh-CN/docs/Web/API/ImageBitmap
+     * 
      * !#en
      * Whether to use image bitmap first.
+     * 
      * !#zh
      * 是否优先使用 image bitmap
+     * 
      * @property {Boolean} ALLOW_IMAGE_BITMAP
      * @default true
      */
