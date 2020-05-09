@@ -170,7 +170,7 @@ export default class BmfontAssembler extends Assembler2D {
         let horizontalKernings = _horizontalKernings;
         let kerningDict;
         _fntConfig && (kerningDict = _fntConfig.kerningDict);
-        if (kerningDict && Object.keys(kerningDict).length > 0) {
+        if (kerningDict && !cc.js.isEmptyObject(kerningDict)) {
             let prev = -1;
             for (let i = 0; i < stringLen; ++i) {
                 let key = string.charCodeAt(i);
