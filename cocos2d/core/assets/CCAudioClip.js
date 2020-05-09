@@ -45,6 +45,7 @@ var AudioClip = cc.Class({
     mixins: [EventTarget],
 
     ctor () {
+        this._loading = false;
         this.loaded = false;
 
         // the web audio buffer or <audio> element
@@ -52,6 +53,13 @@ var AudioClip = cc.Class({
     },
 
     properties: {
+        /**
+         * !#en Get the audio clip duration
+         * !#zh 获取音频剪辑的长度
+         * @property duration
+         * @type {Number}
+         */
+        duration: 0,
         loadMode: {
             default: LoadMode.WEB_AUDIO,
             type: LoadMode
@@ -108,6 +116,24 @@ var AudioClip = cc.Class({
 
         _parseNativeDepFromJson (json) {
             return { audioLoadMode: json.loadMode,  ext: cc.path.extname(json._native), __isNative__: true };
+        }
+    },
+
+    _ensureLoaded (onComplete) {
+        if (this.loaded) {
+            return onComplete && onComplete();
+        }
+        else {
+            if (onComplete) {
+                this.once('load', onComplete);
+            }
+            if (!this._loading) {
+                this._loading = true;
+                let self = this;
+                cc.assetManager.postLoadNative(this, function (err) {
+                    self._loading = false;
+                });
+            }
         }
     },
 

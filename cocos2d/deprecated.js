@@ -702,4 +702,10 @@ if (CC_DEBUG) {
         }
     };
     
+    // audio
+    markAsRemovedInObject(cc.audioEngine, [
+        'getProfile',
+        'preload',
+        'setMaxWebAudioSize',
+    ], 'cc.audioEngine');
 }
