@@ -429,7 +429,6 @@ var audioEngine = {
      * @return {Number} a - number of instances to be created from within an audio
      * @example
      * cc.audioEngine.getMaxAudioInstance();
-     * @deprecated since v2.4.0
      */
     getMaxAudioInstance: function () {
         return this._maxAudioInstance;
