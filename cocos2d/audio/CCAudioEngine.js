@@ -426,7 +426,7 @@ var audioEngine = {
      * !#en Getting audio can produce several examples.
      * !#zh 获取一个音频可以设置几个实例
      * @method getMaxAudioInstance
-     * @return {Number} a - number of instances to be created from within an audio
+     * @return {Number} max number of instances to be created from within an audio
      * @example
      * cc.audioEngine.getMaxAudioInstance();
      */
