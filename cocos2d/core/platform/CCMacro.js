@@ -361,7 +361,9 @@ cc.macro = {
     ENABLE_MULTI_TOUCH: true,
 
     /**
-     * Refer: https://developer.mozilla.org/zh-CN/docs/Web/API/ImageBitmap
+     * References: 
+     * https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmap
+     * https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/createImageBitmap
      * 
      * !#en
      * Whether to use image bitmap first.
