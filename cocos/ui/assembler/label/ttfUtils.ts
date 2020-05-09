@@ -62,7 +62,7 @@ let _isWrapText = false;
 
 // outline
 let _isOutlined = false;
-let _outlineColor = new Color();
+const _outlineColor = new Color();
 let _outlineWidth = 0;
 let _margin = 0;
 
@@ -86,7 +86,7 @@ export const ttfUtils =  {
     updateRenderData (comp: LabelComponent) {
         if (!comp.renderData || !comp.renderData.vertDirty) { return; }
 
-        this._updateFontFamly(comp);
+        this._updateFontFamily(comp);
         this._updateProperties(comp);
         this._calculateLabelFont();
         this._calculateSplitedStrings();
@@ -97,7 +97,7 @@ export const ttfUtils =  {
         comp.actualFontSize = _fontSize;
         comp.node.setContentSize(_canvasSize);
 
-        this.updateVerts(comp);
+        this.updateVertexData(comp);
 
         comp.markForUpdateRenderData(false);
 
@@ -106,10 +106,10 @@ export const ttfUtils =  {
         _texture = null;
     },
 
-    updateVerts (comp: LabelComponent) {
+    updateVertexData (comp: LabelComponent) {
     },
 
-    _updateFontFamly (comp: LabelComponent) {
+    _updateFontFamily (comp: LabelComponent) {
         if (!comp.useSystemFont) {
             if (comp.font) {
                 if (comp.font._nativeAsset) {
@@ -183,8 +183,8 @@ export const ttfUtils =  {
     _calculateFillTextStartPosition () {
         const lineHeight = this._getLineHeight();
         const lineCount = _splitedStrings.length;
-        let labelX;
-        let firstLinelabelY;
+        let labelX = 0;
+        let firstLineLabelY = 0;
 
         if (_hAlign === HorizontalTextAlignment.RIGHT) {
             labelX = _canvasSize.width - _margin;
@@ -197,19 +197,19 @@ export const ttfUtils =  {
         }
 
         if (_vAlign === VerticalTextAlignment.TOP) {
-            firstLinelabelY = _fontSize * (BASELINE_RATIO / 2);
+            firstLineLabelY = _fontSize * (BASELINE_RATIO / 2);
             if (RUNTIME_BASED || MINIGAME) {
-                firstLinelabelY = 0;
+                firstLineLabelY = 0;
             }
         }
         else if (_vAlign === VerticalTextAlignment.CENTER) {
-            firstLinelabelY = _canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2;
+            firstLineLabelY = _canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2;
         }
         else {
-            firstLinelabelY = _canvasSize.height - lineHeight * (lineCount - 1);
+            firstLineLabelY = _canvasSize.height - lineHeight * (lineCount - 1);
         }
 
-        return new Vec2(labelX, firstLinelabelY);
+        return new Vec2(labelX, firstLineLabelY);
     },
 
     _updateTexture () {
@@ -274,22 +274,20 @@ export const ttfUtils =  {
     _calculateUnderlineStartPosition () {
         const lineHeight = this._getLineHeight();
         const lineCount = _splitedStrings.length;
-        let labelX;
-        let firstLinelabelY;
-
-        labelX = 0 + _margin;
+        const labelX = 0 + _margin;
+        let firstLineLabelY = 0;
 
         if (_vAlign === VerticalTextAlignment.TOP) {
-            firstLinelabelY = _fontSize;
+            firstLineLabelY = _fontSize;
         }
         else if (_vAlign === VerticalTextAlignment.CENTER) {
-            firstLinelabelY = _canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2 + _fontSize / 2;
+            firstLineLabelY = _canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2 + _fontSize / 2;
         }
         else {
-            firstLinelabelY = _canvasSize.height - lineHeight * (lineCount - 1);
+            firstLineLabelY = _canvasSize.height - lineHeight * (lineCount - 1);
         }
 
-        return new Vec2(labelX, firstLinelabelY);
+        return new Vec2(labelX, firstLineLabelY);
     },
 
     _updateLabelDimensions () {

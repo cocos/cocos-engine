@@ -43,17 +43,17 @@ export interface IRenderData {
 export class BaseRenderData {
     public material: Material | null = null;
     public vertexCount: number = 0;
-    public indiceCount: number = 0;
+    public indicesCount: number = 0;
 }
 
 export class RenderData extends BaseRenderData {
 
     get dataLength () {
-        return this._datas.length;
+        return this._data.length;
     }
 
     set dataLength (length: number) {
-        const data: IRenderData[] = this._datas;
+        const data: IRenderData[] = this._data;
         if (data.length !== length) {
             // // Free extra data
             const value = data.length;
@@ -70,8 +70,8 @@ export class RenderData extends BaseRenderData {
         }
     }
 
-    get datas () {
-        return this._datas;
+    get data () {
+        return this._data;
     }
 
     public static add () {
@@ -91,7 +91,7 @@ export class RenderData extends BaseRenderData {
 
     public uvDirty: boolean = true;
     public vertDirty: boolean = true;
-    private _datas: IRenderData[] = [];
+    private _data: IRenderData[] = [];
     private _indices: number[] = [];
     private _pivotX: number = 0;
     private _pivotY: number = 0;
@@ -112,7 +112,7 @@ export class RenderData extends BaseRenderData {
     }
 
     public clear () {
-        this._datas.length = 0;
+        this._data.length = 0;
         this._indices.length = 0;
         this._pivotX = 0;
         this._pivotY = 0;
@@ -122,7 +122,7 @@ export class RenderData extends BaseRenderData {
         this.vertDirty = true;
         this.material = null;
         this.vertexCount = 0;
-        this.indiceCount = 0;
+        this.indicesCount = 0;
     }
 }
 
@@ -130,53 +130,53 @@ export class MeshRenderData extends BaseRenderData {
     public vData: Float32Array = new Float32Array(256 * 9 * Float32Array.BYTES_PER_ELEMENT);
     public iData: Uint16Array = new Uint16Array(256 * 6);
     public vertexStart = 0;
-    public indiceStart = 0;
+    public indicesStart = 0;
     public byteStart = 0;
     public byteCount = 0;
     private _formatByte = 9 * Float32Array.BYTES_PER_ELEMENT;
 
-    public request (vertexCount: number, indiceCount: number) {
+    public request (vertexCount: number, indicesCount: number) {
         const byteOffset = this.byteCount + vertexCount * this._formatByte;
-        const indiceOffset = this.indiceCount + indiceCount;
+        const indicesOffset = this.indicesCount + indicesCount;
 
         if (vertexCount + this.vertexCount > 65535) {
             return false;
         }
 
         let byteLength = this.vData!.byteLength;
-        let indiceLength = this.iData!.length;
+        let indicesLength = this.iData!.length;
         let vCount = this.vData.length;
         let iCount = this.iData.length;
-        if (byteOffset > byteLength || indiceOffset > indiceLength) {
-            while (byteLength < byteOffset || indiceLength < indiceOffset) {
+        if (byteOffset > byteLength || indicesOffset > indicesLength) {
+            while (byteLength < byteOffset || indicesLength < indicesOffset) {
                 vCount *= 2;
                 iCount *= 2;
 
                 byteLength = vCount * 4;
-                indiceLength = iCount;
+                indicesLength = iCount;
             }
             // copy old data
-            const oldvData = new Float32Array(this.vData.buffer);
+            const oldVData = new Float32Array(this.vData.buffer);
             this.vData = new Float32Array(vCount);
-            this.vData.set(oldvData, 0);
-            const oldiData = new Uint16Array(this.iData.buffer);
+            this.vData.set(oldVData, 0);
+            const oldIData = new Uint16Array(this.iData.buffer);
             this.iData = new Uint16Array(iCount);
-            this.iData.set(oldiData, 0);
+            this.iData.set(oldIData, 0);
 
         }
 
         this.vertexCount += vertexCount; // vertexOffset
-        this.indiceCount += indiceCount; // indiceOffset
+        this.indicesCount += indicesCount; // indicesOffset
         this.byteCount = byteOffset; // byteOffset
         return true;
     }
 
     public reset () {
         this.vertexCount = 0;
-        this.indiceCount = 0;
+        this.indicesCount = 0;
         this.byteCount = 0;
         this.vertexStart = 0;
-        this.indiceStart = 0;
+        this.indicesStart = 0;
         this.byteStart = 0;
     }
 }

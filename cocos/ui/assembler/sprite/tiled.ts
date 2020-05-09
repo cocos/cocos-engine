@@ -39,7 +39,7 @@ for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
 
-const _perVertextLength = 9;
+const _perVertexLength = 9;
 
 export const tilled: IAssembler = {
     useModel: false,
@@ -58,8 +58,8 @@ export const tilled: IAssembler = {
         const node = sprite.node;
         const contentWidth = Math.abs(node.width);
         const contentHeight = Math.abs(node.height);
-        const appx = node.anchorX * contentWidth;
-        const appy = node.anchorY * contentHeight;
+        const appX = node.anchorX * contentWidth;
+        const appY = node.anchorY * contentHeight;
 
         const rect = frame.getRect();
         const rectWidth = rect.width;
@@ -69,19 +69,19 @@ export const tilled: IAssembler = {
         const row = Math.ceil(vRepeat);
         const col = Math.ceil(hRepeat);
 
-        const datas = renderData.datas;
+        const dataList = renderData.data;
         renderData.dataLength = Math.max(8, row + 1, col + 1);
 
         for (let i = 0; i <= col; ++i) {
-            datas[i].x = Math.min(rectWidth * i, contentWidth) - appx;
+            dataList[i].x = Math.min(rectWidth * i, contentWidth) - appX;
         }
         for (let i = 0; i <= row; ++i) {
-            datas[i].y = Math.min(rectHeight * i, contentHeight) - appy;
+            dataList[i].y = Math.min(rectHeight * i, contentHeight) - appY;
         }
 
         // update data property
         renderData.vertexCount = row * col * 4;
-        renderData.indiceCount = row * col * 6;
+        renderData.indicesCount = row * col * 6;
         renderData.uvDirty = false;
         renderData.vertDirty = false;
     },
@@ -93,19 +93,19 @@ export const tilled: IAssembler = {
         // buffer
         let buffer = renderer.currBufferBatch!;
         // buffer data may be realloc, need get reference after request.
-        let indiceOffset = buffer.indiceOffset;
+        let indicesOffset = buffer.indicesOffset;
         let vertexOffset = buffer.byteOffset >> 2;
         let vertexId = buffer.vertexOffset;
         const vertexCount = renderData!.vertexCount;
-        const indiceCount = renderData.indiceCount;
-        const vbuf = buffer.vData!;
-        const ibuf = buffer.iData!;
+        const indicesCount = renderData.indicesCount;
+        const vBuf = buffer.vData!;
+        const iBuf = buffer.iData!;
 
-        const isRecreate = buffer.request(vertexCount, indiceCount);
+        const isRecreate = buffer.request(vertexCount, indicesCount);
         if (!isRecreate) {
             buffer = renderer.currBufferBatch!;
             vertexOffset = 0;
-            indiceOffset = 0;
+            indicesOffset = 0;
             vertexId = 0;
         }
 
@@ -122,76 +122,76 @@ export const tilled: IAssembler = {
 
         const matrix = node.worldMatrix;
 
-        this.fillVertices(vbuf, vertexOffset, matrix, row, col, renderData.datas);
+        this.fillVertices(vBuf, vertexOffset, matrix, row, col, renderData.data);
 
-        const offset = _perVertextLength;
+        const offset = _perVertexLength;
         const offset1 = offset; const offset2 = offset * 2; const offset3 = offset * 3; const offset4 = offset * 4;
-        let coefu = 0; let coefv = 0;
-        for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
-            coefv = Math.min(1, vRepeat - yindex);
-            for (let xindex = 0, xlength = col; xindex < xlength; ++xindex) {
-                coefu = Math.min(1, hRepeat - xindex);
+        let coefU = 0; let coefV = 0;
+        for (let yIndex = 0, yLength = row; yIndex < yLength; ++yIndex) {
+            coefV = Math.min(1, vRepeat - yIndex);
+            for (let xIndex = 0, xLength = col; xIndex < xLength; ++xIndex) {
+                coefU = Math.min(1, hRepeat - xIndex);
 
                 const vertexOffsetU = vertexOffset + 3;
                 const vertexOffsetV = vertexOffsetU + 1;
                 // UV
                 if (rotated) {
                     // lb
-                    vbuf[vertexOffsetU] = uv[0];
-                    vbuf[vertexOffsetV] = uv[1];
+                    vBuf[vertexOffsetU] = uv[0];
+                    vBuf[vertexOffsetV] = uv[1];
                     // rb
-                    vbuf[vertexOffsetU + offset1] = uv[0];
-                    vbuf[vertexOffsetV + offset1] = uv[1] + (uv[7] - uv[1]) * coefu;
+                    vBuf[vertexOffsetU + offset1] = uv[0];
+                    vBuf[vertexOffsetV + offset1] = uv[1] + (uv[7] - uv[1]) * coefU;
                     // lt
-                    vbuf[vertexOffsetU + offset2] = uv[0] + (uv[6] - uv[0]) * coefv;
-                    vbuf[vertexOffsetV + offset2] = uv[1];
+                    vBuf[vertexOffsetU + offset2] = uv[0] + (uv[6] - uv[0]) * coefV;
+                    vBuf[vertexOffsetV + offset2] = uv[1];
                     // rt
-                    vbuf[vertexOffsetU + offset3] = vbuf[vertexOffsetU + offset2];
-                    vbuf[vertexOffsetV + offset3] = vbuf[vertexOffsetV + offset1];
+                    vBuf[vertexOffsetU + offset3] = vBuf[vertexOffsetU + offset2];
+                    vBuf[vertexOffsetV + offset3] = vBuf[vertexOffsetV + offset1];
                 }
                 else {
                     // lb
-                    vbuf[vertexOffsetU] = uv[0];
-                    vbuf[vertexOffsetV] = uv[1];
+                    vBuf[vertexOffsetU] = uv[0];
+                    vBuf[vertexOffsetV] = uv[1];
                     // rb
-                    vbuf[vertexOffsetU + offset1] = uv[0] + (uv[6] - uv[0]) * coefu;
-                    vbuf[vertexOffsetV + offset1] = uv[1];
+                    vBuf[vertexOffsetU + offset1] = uv[0] + (uv[6] - uv[0]) * coefU;
+                    vBuf[vertexOffsetV + offset1] = uv[1];
                     // lt
-                    vbuf[vertexOffsetU + offset2] = uv[0];
-                    vbuf[vertexOffsetV + offset2] = uv[1] + (uv[7] - uv[1]) * coefv;
+                    vBuf[vertexOffsetU + offset2] = uv[0];
+                    vBuf[vertexOffsetV + offset2] = uv[1] + (uv[7] - uv[1]) * coefV;
                     // rt
-                    vbuf[vertexOffsetU + offset3] = vbuf[vertexOffsetU + offset1];
-                    vbuf[vertexOffsetV + offset3] = vbuf[vertexOffsetV + offset2];
+                    vBuf[vertexOffsetU + offset3] = vBuf[vertexOffsetU + offset1];
+                    vBuf[vertexOffsetV + offset3] = vBuf[vertexOffsetV + offset2];
                 }
                 // color
-                Color.toArray(vbuf!, sprite.color, vertexOffsetV + 1);
-                Color.toArray(vbuf!, sprite.color, vertexOffsetV + offset1 + 1);
-                Color.toArray(vbuf!, sprite.color, vertexOffsetV + offset2 + 1);
-                Color.toArray(vbuf!, sprite.color, vertexOffsetV + offset3 + 1);
+                Color.toArray(vBuf!, sprite.color, vertexOffsetV + 1);
+                Color.toArray(vBuf!, sprite.color, vertexOffsetV + offset1 + 1);
+                Color.toArray(vBuf!, sprite.color, vertexOffsetV + offset2 + 1);
+                Color.toArray(vBuf!, sprite.color, vertexOffsetV + offset3 + 1);
                 vertexOffset += offset4;
             }
         }
 
         // update indices
-        for (let i = 0; i < indiceCount; i += 6) {
-            ibuf[indiceOffset++] = vertexId;
-            ibuf[indiceOffset++] = vertexId + 1;
-            ibuf[indiceOffset++] = vertexId + 2;
-            ibuf[indiceOffset++] = vertexId + 1;
-            ibuf[indiceOffset++] = vertexId + 3;
-            ibuf[indiceOffset++] = vertexId + 2;
+        for (let i = 0; i < indicesCount; i += 6) {
+            iBuf[indicesOffset++] = vertexId;
+            iBuf[indicesOffset++] = vertexId + 1;
+            iBuf[indicesOffset++] = vertexId + 2;
+            iBuf[indicesOffset++] = vertexId + 1;
+            iBuf[indicesOffset++] = vertexId + 3;
+            iBuf[indicesOffset++] = vertexId + 2;
             vertexId += 4;
         }
     },
 
-    fillVertices (vbuf: Float32Array, vertexOffset: number, matrix: Mat4, row: number, col: number, datas: IRenderData[]) {
+    fillVertices (vBuf: Float32Array, vertexOffset: number, matrix: Mat4, row: number, col: number, dataList: IRenderData[]) {
         let x = 0; let x1 = 0; let y = 0; let y1 = 0;
-        for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
-            y = datas[yindex].y;
-            y1 = datas[yindex + 1].y;
-            for (let xindex = 0, xlength = col; xindex < xlength; ++xindex) {
-                x = datas[xindex].x;
-                x1 = datas[xindex + 1].x;
+        for (let yIndex = 0, yLength = row; yIndex < yLength; ++yIndex) {
+            y = dataList[yIndex].y;
+            y1 = dataList[yIndex + 1].y;
+            for (let xIndex = 0, xLength = col; xIndex < xLength; ++xIndex) {
+                x = dataList[xIndex].x;
+                x1 = dataList[xIndex + 1].x;
 
                 Vec3.set(vec3_temps[0], x, y, 0);
                 Vec3.set(vec3_temps[1], x1, y, 0);
@@ -201,10 +201,10 @@ export const tilled: IAssembler = {
                 for (let i = 0; i < 4; i++) {
                     const vec3_temp = vec3_temps[i];
                     Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-                    const offset = i * _perVertextLength;
-                    vbuf[vertexOffset + offset] = vec3_temp.x;
-                    vbuf[vertexOffset + offset + 1] = vec3_temp.y;
-                    vbuf[vertexOffset + offset + 2] = vec3_temp.z;
+                    const offset = i * _perVertexLength;
+                    vBuf[vertexOffset + offset] = vec3_temp.x;
+                    vBuf[vertexOffset + offset + 1] = vec3_temp.y;
+                    vBuf[vertexOffset + offset + 2] = vec3_temp.z;
                 }
 
                 vertexOffset += 36;

@@ -64,7 +64,6 @@ export const barFilled: IAssembler = {
             const vertDirty = renderData.vertDirty;
 
             if (!uvDirty && !vertDirty) {
-                // return sprite.__allocedDatas;
                 return;
             }
 
@@ -93,10 +92,10 @@ export const barFilled: IAssembler = {
                 this.updateUVs!(sprite, fillStart, fillEnd);
             }
             if (vertDirty) {
-                if (this.updateVerts) {
-                    this.updateVerts(sprite, fillStart, fillEnd);
+                if (this.updateVertexData) {
+                    this.updateVertexData(sprite, fillStart, fillEnd);
                 }
-                this.updateWorldVerts!(sprite);
+                this.updateWorldVertexData!(sprite);
             }
         }
     },
@@ -104,13 +103,13 @@ export const barFilled: IAssembler = {
     updateUVs (sprite: SpriteComponent, fillStart: number, fillEnd: number) {
         const spriteFrame = sprite.spriteFrame;
         const renderData = sprite.renderData;
-        const datas = renderData!.datas;
+        const dataList = renderData!.data;
 
         // build uvs
         const atlasWidth = spriteFrame!.width;
         const atlasHeight = spriteFrame!.height;
         const textureRect = spriteFrame!.getRect();
-        // uv computation should take spritesheet into account.
+        // uv computation should take spriteSheet into account.
         let ul = 0;
         let vb = 0;
         let ur = 0;
@@ -147,24 +146,24 @@ export const barFilled: IAssembler = {
 
         switch (sprite.fillType) {
             case FillType.HORIZONTAL:
-                datas[0].u = quadUV0 + (quadUV2 - quadUV0) * fillStart;
-                datas[0].v = quadUV1 + (quadUV3 - quadUV1) * fillStart;
-                datas[1].u = quadUV0 + (quadUV2 - quadUV0) * fillEnd;
-                datas[1].v = quadUV1 + (quadUV3 - quadUV1) * fillEnd;
-                datas[2].u = quadUV4 + (quadUV6 - quadUV4) * fillStart;
-                datas[2].v = quadUV5 + (quadUV7 - quadUV5) * fillStart;
-                datas[3].u = quadUV4 + (quadUV6 - quadUV4) * fillEnd;
-                datas[3].v = quadUV5 + (quadUV7 - quadUV5) * fillEnd;
+                dataList[0].u = quadUV0 + (quadUV2 - quadUV0) * fillStart;
+                dataList[0].v = quadUV1 + (quadUV3 - quadUV1) * fillStart;
+                dataList[1].u = quadUV0 + (quadUV2 - quadUV0) * fillEnd;
+                dataList[1].v = quadUV1 + (quadUV3 - quadUV1) * fillEnd;
+                dataList[2].u = quadUV4 + (quadUV6 - quadUV4) * fillStart;
+                dataList[2].v = quadUV5 + (quadUV7 - quadUV5) * fillStart;
+                dataList[3].u = quadUV4 + (quadUV6 - quadUV4) * fillEnd;
+                dataList[3].v = quadUV5 + (quadUV7 - quadUV5) * fillEnd;
                 break;
             case FillType.VERTICAL:
-                datas[0].u = quadUV0 + (quadUV4 - quadUV0) * fillStart;
-                datas[0].v = quadUV1 + (quadUV5 - quadUV1) * fillStart;
-                datas[1].u = quadUV2 + (quadUV6 - quadUV2) * fillStart;
-                datas[1].v = quadUV3 + (quadUV7 - quadUV3) * fillStart;
-                datas[2].u = quadUV0 + (quadUV4 - quadUV0) * fillEnd;
-                datas[2].v = quadUV1 + (quadUV5 - quadUV1) * fillEnd;
-                datas[3].u = quadUV2 + (quadUV6 - quadUV2) * fillEnd;
-                datas[3].v = quadUV3 + (quadUV7 - quadUV3) * fillEnd;
+                dataList[0].u = quadUV0 + (quadUV4 - quadUV0) * fillStart;
+                dataList[0].v = quadUV1 + (quadUV5 - quadUV1) * fillStart;
+                dataList[1].u = quadUV2 + (quadUV6 - quadUV2) * fillStart;
+                dataList[1].v = quadUV3 + (quadUV7 - quadUV3) * fillStart;
+                dataList[2].u = quadUV0 + (quadUV4 - quadUV0) * fillEnd;
+                dataList[2].v = quadUV1 + (quadUV5 - quadUV1) * fillEnd;
+                dataList[3].u = quadUV2 + (quadUV6 - quadUV2) * fillEnd;
+                dataList[3].v = quadUV3 + (quadUV7 - quadUV3) * fillEnd;
                 break;
             default:
                 errorID(2626);
@@ -174,19 +173,19 @@ export const barFilled: IAssembler = {
         renderData!.uvDirty = false;
     },
 
-    updateVerts (sprite: SpriteComponent, fillStart: number, fillEnd: number) {
+    updateVertexData (sprite: SpriteComponent, fillStart: number, fillEnd: number) {
         const renderData: RenderData|null = sprite.renderData;
-        const datas: IRenderData[] = renderData!.datas;
+        const dataList: IRenderData[] = renderData!.data;
         const node = sprite.node;
         const width = node.width;
         const height = node.height;
-        const appx = node.anchorX * width;
-        const appy = node.anchorY * height;
+        const appX = node.anchorX * width;
+        const appY = node.anchorY * height;
 
-        let l = -appx;
-        let b = -appy;
-        let r = width - appx;
-        let t = height - appy;
+        let l = -appX;
+        let b = -appY;
+        let r = width - appX;
+        let t = height - appY;
 
         let progressStart = 0;
         let progressEnd = 0;
@@ -210,49 +209,49 @@ export const barFilled: IAssembler = {
                 break;
         }
 
-        datas[4].x = l;
-        datas[4].y = b;
-        datas[5].x = r;
-        datas[5].y = b;
-        datas[6].x = l;
-        datas[6].y = t;
-        datas[7].x = r;
-        datas[7].y = t;
+        dataList[4].x = l;
+        dataList[4].y = b;
+        dataList[5].x = r;
+        dataList[5].y = b;
+        dataList[6].x = l;
+        dataList[6].y = t;
+        dataList[7].x = r;
+        dataList[7].y = t;
 
         renderData!.vertDirty = false;
     },
 
     createData (sprite: SpriteComponent) {
         const renderData: RenderData|null = sprite.requestRenderData();
-        // 0-4 for world verts
-        // 5-8 for local verts
+        // 0-4 for world vertex
+        // 5-8 for local vertex
         renderData!.dataLength = 8;
         renderData!.vertexCount = 4;
-        renderData!.indiceCount = 6;
+        renderData!.indicesCount = 6;
 
-        const datas = renderData!.datas;
-        for (const data of datas) {
+        const dataList = renderData!.data;
+        for (const data of dataList) {
             data.z = 0;
         }
 
         return renderData as RenderData;
     },
 
-    updateWorldVerts (sprite: SpriteComponent) {
+    updateWorldVertexData (sprite: SpriteComponent) {
         const node = sprite.node;
-        const datas = sprite.renderData!.datas;
+        const dataList = sprite.renderData!.data;
 
         node.getWorldMatrix(matrix);
         for (let i = 0; i < 4; i++) {
-            const local = datas[i + 4];
-            const world = datas[i];
+            const local = dataList[i + 4];
+            const world = dataList[i];
             Vec3.transformMat4(world, local, matrix);
         }
     },
 
     fillBuffers (sprite: SpriteComponent, renderer: UI) {
         if (sprite.node.hasChangedFlags) {
-            this.updateWorldVerts(sprite);
+            this.updateWorldVertexData(sprite);
         }
 
         const node = sprite.node;

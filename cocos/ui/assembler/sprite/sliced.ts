@@ -46,12 +46,12 @@ export const sliced: IAssembler = {
 
     createData (sprite: SpriteComponent) {
         const renderData: RenderData | null = sprite.requestRenderData();
-        // 0-4 for local verts
-        // 5-20 for world verts
+        // 0-4 for local vertex
+        // 5-20 for world vertex
         renderData!.dataLength = 20;
 
         renderData!.vertexCount = 16;
-        renderData!.indiceCount = 54;
+        renderData!.indicesCount = 54;
         return renderData as RenderData;
     },
 
@@ -73,20 +73,20 @@ export const sliced: IAssembler = {
         if (renderData && frame) {
             const vertDirty = renderData.vertDirty;
             if (vertDirty) {
-                this.updateVerts!(sprite);
-                this.updateWorldVerts!(sprite);
+                this.updateVertexData!(sprite);
+                this.updateWorldVertexData!(sprite);
             }
         }
     },
 
-    updateVerts (sprite: SpriteComponent) {
+    updateVertexData (sprite: SpriteComponent) {
         const renderData: RenderData | null = sprite.renderData;
-        const datas: IRenderData[] = renderData!.datas;
+        const dataList: IRenderData[] = renderData!.data;
         const node = sprite.node;
         const width = node.width!;
         const height = node.height!;
-        const appx = node.anchorX! * width;
-        const appy = node.anchorY! * height;
+        const appX = node.anchorX! * width;
+        const appY = node.anchorY! * height;
 
         const frame: SpriteFrame|null = sprite.spriteFrame;
         const leftWidth = frame!.insetLeft;
@@ -103,59 +103,59 @@ export const sliced: IAssembler = {
         sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
         sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
 
-        datas[0].x = -appx;
-        datas[0].y = -appy;
-        datas[1].x = leftWidth * xScale - appx;
-        datas[1].y = bottomHeight * yScale - appy;
-        datas[2].x = datas[1].x + sizableWidth;
-        datas[2].y = datas[1].y + sizableHeight;
-        datas[3].x = width - appx;
-        datas[3].y = height - appy;
+        dataList[0].x = -appX;
+        dataList[0].y = -appY;
+        dataList[1].x = leftWidth * xScale - appX;
+        dataList[1].y = bottomHeight * yScale - appY;
+        dataList[2].x = dataList[1].x + sizableWidth;
+        dataList[2].y = dataList[1].y + sizableHeight;
+        dataList[3].x = width - appX;
+        dataList[3].y = height - appY;
 
         renderData!.vertDirty = false;
     },
 
     fillBuffers (sprite: SpriteComponent, renderer: UI) {
         if (sprite.node.hasChangedFlags) {
-            this.updateWorldVerts(sprite);
+            this.updateWorldVertexData(sprite);
         }
 
         let buffer = renderer.currBufferBatch!;
         const renderData: RenderData|null = sprite.renderData;
         // const node: Node = sprite.node;
         // const color: Color = sprite.color;
-        const datas: IRenderData[] = renderData!.datas;
+        const dataList: IRenderData[] = renderData!.data;
 
         let vertexOffset = buffer.byteOffset >> 2;
         const vertexCount = renderData!.vertexCount;
-        let indiceOffset: number = buffer.indiceOffset;
+        let indicesOffset: number = buffer.indicesOffset;
         let vertexId: number = buffer.vertexOffset;
 
         const uvSliced: IUV[] = sprite!.spriteFrame!.uvSliced;
 
-        const isRecreate = buffer.request(vertexCount, renderData!.indiceCount);
+        const isRecreate = buffer.request(vertexCount, renderData!.indicesCount);
         if (!isRecreate) {
             buffer = renderer.currBufferBatch!;
             vertexOffset = 0;
-            indiceOffset = 0;
+            indicesOffset = 0;
             vertexId = 0;
         }
 
         // buffer data may be realloc, need get reference after request.
-        const vbuf: Float32Array|null = buffer.vData;
+        const vBuf: Float32Array|null = buffer.vData;
         // const  uintbuf = buffer._uintVData,
-        const ibuf: Uint16Array|null = buffer.iData;
+        const iBuf: Uint16Array|null = buffer.iData;
 
         for (let i = 4; i < 20; ++i) {
-            const vert = datas[i];
+            const vert = dataList[i];
             const uvs = uvSliced[i - 4];
 
-            vbuf![vertexOffset++] = vert.x;
-            vbuf![vertexOffset++] = vert.y;
-            vbuf![vertexOffset++] = vert.z;
-            vbuf![vertexOffset++] = uvs.u;
-            vbuf![vertexOffset++] = uvs.v;
-            Color.toArray(vbuf!, sprite.color, vertexOffset);
+            vBuf![vertexOffset++] = vert.x;
+            vBuf![vertexOffset++] = vert.y;
+            vBuf![vertexOffset++] = vert.z;
+            vBuf![vertexOffset++] = uvs.u;
+            vBuf![vertexOffset++] = uvs.v;
+            Color.toArray(vBuf!, sprite.color, vertexOffset);
             vertexOffset += 4;
             // uintbuf[vertexOffset++] = color;
         }
@@ -163,25 +163,25 @@ export const sliced: IAssembler = {
         for (let r = 0; r < 3; ++r) {
             for (let c = 0; c < 3; ++c) {
                 const start = vertexId + r * 4 + c;
-                ibuf![indiceOffset++] = start;
-                ibuf![indiceOffset++] = start + 1;
-                ibuf![indiceOffset++] = start + 4;
-                ibuf![indiceOffset++] = start + 1;
-                ibuf![indiceOffset++] = start + 5;
-                ibuf![indiceOffset++] = start + 4;
+                iBuf![indicesOffset++] = start;
+                iBuf![indicesOffset++] = start + 1;
+                iBuf![indicesOffset++] = start + 4;
+                iBuf![indicesOffset++] = start + 1;
+                iBuf![indicesOffset++] = start + 5;
+                iBuf![indicesOffset++] = start + 4;
             }
         }
     },
 
-    updateWorldVerts (sprite: SpriteComponent) {
+    updateWorldVertexData (sprite: SpriteComponent) {
         const node = sprite.node;
-        const datas: IRenderData[] = sprite!.renderData!.datas;
+        const dataList: IRenderData[] = sprite!.renderData!.data;
         node.getWorldMatrix(matrix);
         for (let row = 0; row < 4; ++row) {
-            const rowD = datas[row];
+            const rowD = dataList[row];
             for (let col = 0; col < 4; ++col) {
-                const colD = datas[col];
-                const world = datas[4 + row * 4 + col];
+                const colD = dataList[col];
+                const world = dataList[4 + row * 4 + col];
 
                 Vec3.set(vec3_temp, colD.x, rowD.y, 0);
                 Vec3.transformMat4(world, vec3_temp, matrix);
