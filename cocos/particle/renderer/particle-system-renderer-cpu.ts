@@ -14,13 +14,13 @@ const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
 
 const _anim_module = [
-    'colorOverLifetimeModule',
-    'sizeOvertimeModule',
-    'velocityOvertimeModule',
-    'forceOvertimeModule',
-    'limitVelocityOvertimeModule',
-    'rotationOvertimeModule',
-    'textureAnimationModule'
+    '_colorOverLifetimeModule',
+    '_sizeOvertimeModule',
+    '_velocityOvertimeModule',
+    '_forceOvertimeModule',
+    '_limitVelocityOvertimeModule',
+    '_rotationOvertimeModule',
+    '_textureAnimationModule'
 ];
 
 const _uvs = [
@@ -126,7 +126,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     public clear () {
         this._particles!.reset();
-        this._particleSystem!.trailModule.clear();
+        this._particleSystem!._trailModule && this._particleSystem!._trailModule.clear();
         this.updateRenderData();
     }
 
@@ -154,7 +154,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _initModuleList () {
         _anim_module.forEach(val => {
             const pm = this._particleSystem[val];
-            if (pm.enable) {
+            if (pm && pm.enable) {
                 if (pm.needUpdate) {
                     this._updateList[pm.name] = pm;
                 }
@@ -220,8 +220,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             value.update(ps._simulationSpace, _tempWorldTrans);
         });
 
-        if (ps.trailModule.enable) {
-            ps.trailModule.update();
+        const trailModule = ps._trailModule;
+        const trailEnable = trailModule && trailModule.enable;
+        if (trailEnable) {
+            trailModule.update();
         }
 
         for (let i = 0; i < this._particles!.length; ++i) {
@@ -230,8 +232,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             Vec3.set(p.animatedVelocity, 0, 0, 0);
 
             if (p.remainingLifetime < 0.0) {
-                if (ps.trailModule.enable) {
-                    ps.trailModule.removeParticle(p);
+                if (trailEnable) {
+                    trailModule.removeParticle(p);
                 }
                 this._particles!.removeAt(i);
                 --i;
@@ -248,8 +250,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             });
 
             Vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
-            if (ps.trailModule.enable) {
-                ps.trailModule.animate(p, dt);
+            if (trailEnable) {
+                trailModule.animate(p, dt);
             }
         }
         return this._particles!.length;
@@ -262,7 +264,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         for (let i = 0; i < this._particles!.length; ++i) {
             const p = this._particles!.data[i];
             let fi = 0;
-            if (this._particleSystem!.textureAnimationModule.enable) {
+            const textureModule = this._particleSystem!._textureAnimationModule;
+            if (textureModule && textureModule.enable) {
                 fi = p.frameIndex;
             }
             idx = i * 4;
@@ -289,8 +292,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         if (this._model && index === 0) {
             this._model.setSubModelMaterial(0, material);
         }
-        if (this._particleSystem!.trailModule._trailModel && index === 1) {
-            this._particleSystem!.trailModule._trailModel.setSubModelMaterial(0, material);
+        const trailModule = this._particleSystem!._trailModule;
+        if (trailModule && trailModule._trailModel && index === 1) {
+            trailModule._trailModel.setSubModelMaterial(0, material);
         }
     }
 
@@ -413,9 +417,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         } else {
             console.warn(`particle system renderMode ${renderMode} not support.`);
         }
-
-        if (ps.textureAnimationModule.enable) {
-            Vec2.set(vlenScale, ps.textureAnimationModule.numTilesX, ps.textureAnimationModule.numTilesY);
+        const textureModule = ps._textureAnimationModule;
+        if (textureModule && textureModule.enable) {
+            Vec2.set(vlenScale, textureModule.numTilesX, textureModule.numTilesY);
             pass.setUniform(this._uLenHandle, vlenScale);
         } else {
             pass.setUniform(this._uLenHandle, vlenScale);
@@ -431,8 +435,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             return;
         }
         const ps = this._particleSystem;
-        if (ps.trailModule.enable) {
-            if (ps.simulationSpace === Space.World || ps.trailModule.space === Space.World) {
+        const trailModule = ps._trailModule;
+        if (trailModule && trailModule.enable) {
+            if (ps.simulationSpace === Space.World || trailModule.space === Space.World) {
                 this._trailDefines[CC_USE_WORLD_SPACE] = true;
             } else {
                 this._trailDefines[CC_USE_WORLD_SPACE] = false;
@@ -446,7 +451,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             }
             mat = mat || this._defaultTrailMat;
             mat!.recompileShaders(this._trailDefines);
-            ps.trailModule._updateMaterial();
+            trailModule._updateMaterial();
         }
     }
 }
