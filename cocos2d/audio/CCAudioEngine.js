@@ -770,18 +770,4 @@ var audioEngine = {
     }
 };
 
-
-/**
- * !#en the max number of audio instances that can be played at the same time
- * !#zh 获取最多可以同时播放的音频实例数
- * @property {number} maxAudioInstance
- */
-Object.defineProperty(audioEngine, 'maxAudioInstance', {
-    get () {
-        return audioEngine._maxAudioInstance;
-    },
-    enumerable: true,
-    configurable: true,
-});
-
 module.exports = cc.audioEngine = audioEngine;

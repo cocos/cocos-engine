@@ -708,8 +708,4 @@ if (CC_DEBUG) {
         'preload',
         'setMaxWebAudioSize',
     ], 'cc.audioEngine');
-
-    markFunctionWarning(cc.audioEngine, {
-        getMaxAudioInstance: 'maxAudioInstance',
-    }, 'cc.audioEngine');
 }
