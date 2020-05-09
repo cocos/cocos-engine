@@ -26,6 +26,10 @@ let _float16_pool = new RecyclePool(() => {
   return new Float32Array(16);
 }, 8);
 
+function sortView (a, b) {
+  return (a._priority - b._priority);
+}
+
 export default class ForwardRenderer extends BaseRenderer {
   constructor(device, builtin) {
     super(device, builtin);
@@ -74,9 +78,7 @@ export default class ForwardRenderer extends BaseRenderer {
     }
 
     // render by cameras
-    this._viewPools.sort((a, b) => {
-      return (a._priority - b._priority);
-    });
+    this._viewPools.sort(sortView);
 
     for (let i = 0; i < this._viewPools.length; ++i) {
       let view = this._viewPools.data[i];
@@ -87,6 +89,8 @@ export default class ForwardRenderer extends BaseRenderer {
   // direct render a single camera
   renderCamera (camera, scene) {
     this.reset();
+
+    this._updateLights(scene);
     
     const canvas = this._device._gl.canvas;
     let width = canvas.width;
@@ -95,7 +99,13 @@ export default class ForwardRenderer extends BaseRenderer {
     let view = this._requestView();
     camera.extractView(view, width, height);
     
-    this._render(view, scene);
+    // render by cameras
+    this._viewPools.sort(sortView);
+
+    for (let i = 0; i < this._viewPools.length; ++i) {
+      let view = this._viewPools.data[i];
+      this._render(view, scene);
+    }
   }
 
   _updateLights (scene) {
