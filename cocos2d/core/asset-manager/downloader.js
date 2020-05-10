@@ -59,7 +59,7 @@ var downloadAudio = (!CC_EDITOR || !Editor.isMainProcess) ? (formatSupport.lengt
 
 var downloadImage = function (url, options, onComplete) {
     // if createImageBitmap is valid, we can transform blob to ImageBitmap. Otherwise, just use HTMLImageElement to load
-    var func = capabilities.createImageBitmap && (window.location.protocol === 'file:' || !options.isCrossOrigin) ? downloadBlob : downloadDomImage;
+    var func = capabilities.imageBitmap && cc.macro.ALLOW_IMAGE_BITMAP ? downloadBlob : downloadDomImage;
     func.apply(this, arguments);
 };
 
@@ -268,7 +268,6 @@ var downloader = {
      * @method downloadDomImage
      * @param {string} url - Url of the image
      * @param {Object} [options] - Some optional paramters
-     * @param {boolean} [options.isCrossOrigin] - Indicate whether or not image is CORS
      * @param {Function} [onComplete] - Callback when image loaded or failed
      * @param {Error} onComplete.err - The occurred error, null indicetes success
      * @param {HTMLImageElement} onComplete.img - The loaded Image element, null if error occurred
@@ -510,15 +509,15 @@ var downloader = {
 // dafault handler map
 var downloaders = {
     // Images
-    '.png' : downloadDomImage,
-    '.jpg' : downloadDomImage,
-    '.bmp' : downloadDomImage,
-    '.jpeg' : downloadDomImage,
-    '.gif' : downloadDomImage,
-    '.ico' : downloadDomImage,
-    '.tiff' : downloadDomImage,
-    '.webp' : downloadDomImage,
-    '.image' : downloadDomImage,
+    '.png' : downloadImage,
+    '.jpg' : downloadImage,
+    '.bmp' : downloadImage,
+    '.jpeg' : downloadImage,
+    '.gif' : downloadImage,
+    '.ico' : downloadImage,
+    '.tiff' : downloadImage,
+    '.webp' : downloadImage,
+    '.image' : downloadImage,
     '.pvr': downloadArrayBuffer,
     '.pkm': downloadArrayBuffer,
 

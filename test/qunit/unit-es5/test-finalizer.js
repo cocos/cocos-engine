@@ -48,6 +48,7 @@ test('release circle reference', function () {
     var texB = new cc.Texture2D();
     texB._uuid = 'BBB';
     texB.addRef();
+    texB.addRef();
     cc.assetManager.assets.add('BBB', texB);
     var texC = new cc.Texture2D();
     texC._uuid = 'CCC';
@@ -63,6 +64,111 @@ test('release circle reference', function () {
     cc.assetManager.dependUtil._depends.add('DDD', {deps: ['BBB']});
     cc.assetManager._releaseManager._free(texA);
     strictEqual(cc.assetManager.assets.count, 0, 'should equal to 0');
+});
+
+test('release circle reference2', function () {
+    var texA = new cc.Texture2D();
+    texA._uuid = 'AAA';
+    texA.addRef();
+    cc.assetManager.assets.add('AAA', texA);
+    var texB = new cc.Texture2D();
+    texB._uuid = 'BBB';
+    texB.addRef();
+    texB.addRef();
+    texB.addRef();
+    cc.assetManager.assets.add('BBB', texB);
+    var texC = new cc.Texture2D();
+    texC._uuid = 'CCC';
+    texC.addRef();
+    cc.assetManager.assets.add('CCC', texC);
+    var texD = new cc.Texture2D();
+    texD._uuid = 'DDD';
+    texD.addRef();
+    cc.assetManager.assets.add('DDD', texD);
+    cc.assetManager.dependUtil._depends.add('AAA', {deps: ['BBB']});
+    cc.assetManager.dependUtil._depends.add('BBB', {deps: ['CCC']});
+    cc.assetManager.dependUtil._depends.add('CCC', {deps: ['AAA', 'DDD']});
+    cc.assetManager.dependUtil._depends.add('DDD', {deps: ['BBB']});
+    cc.assetManager._releaseManager._free(texA);
+    strictEqual(cc.assetManager.assets.count, 4, 'should equal to 4');
+    cc.assetManager.releaseAll();
+});
+
+test('release circle reference3', function () {
+    var texA = new cc.Texture2D();
+    texA._uuid = 'AAA';
+    texA._ref = 2;
+    cc.assetManager.assets.add('AAA', texA);
+    var texB = new cc.Texture2D();
+    texB._uuid = 'BBB';
+    texB._ref = 2;
+    cc.assetManager.assets.add('BBB', texB);
+    var texC = new cc.Texture2D();
+    texC._uuid = 'CCC';
+    texC.addRef();
+    cc.assetManager.assets.add('CCC', texC);
+    var texD = new cc.Texture2D();
+    texD._uuid = 'DDD';
+    texD.addRef();
+    cc.assetManager.assets.add('DDD', texD);
+    cc.assetManager.dependUtil._depends.add('AAA', {deps: ['BBB']});
+    cc.assetManager.dependUtil._depends.add('BBB', {deps: ['CCC', 'DDD']});
+    cc.assetManager.dependUtil._depends.add('CCC', {deps: ['AAA', 'BBB']});
+    cc.assetManager.dependUtil._depends.add('DDD', {deps: ['AAA']});
+    cc.assetManager._releaseManager._free(texA);
+    strictEqual(cc.assetManager.assets.count, 0, 'should equal to 0');
+});
+
+test('release circle reference4', function () {
+    var texA = new cc.Texture2D();
+    texA._uuid = 'AAA';
+    texA._ref = 2;
+    cc.assetManager.assets.add('AAA', texA);
+    var texB = new cc.Texture2D();
+    texB._uuid = 'BBB';
+    texB._ref = 3;
+    cc.assetManager.assets.add('BBB', texB);
+    var texC = new cc.Texture2D();
+    texC._uuid = 'CCC';
+    texC._ref = 2;
+    cc.assetManager.assets.add('CCC', texC);
+    var texD = new cc.Texture2D();
+    texD._uuid = 'DDD';
+    texD.addRef();
+    cc.assetManager.assets.add('DDD', texD);
+    cc.assetManager.dependUtil._depends.add('AAA', {deps: ['BBB']});
+    cc.assetManager.dependUtil._depends.add('BBB', {deps: ['CCC', 'DDD']});
+    cc.assetManager.dependUtil._depends.add('CCC', {deps: ['AAA', 'BBB']});
+    cc.assetManager.dependUtil._depends.add('DDD', {deps: ['AAA']});
+    cc.assetManager._releaseManager._free(texA);
+    strictEqual(cc.assetManager.assets.count, 4, 'should equal to 4');
+    cc.assetManager.releaseAll();
+});
+
+test('release circle reference5', function () {
+    var texA = new cc.Texture2D();
+    texA._uuid = 'AAA';
+    texA._ref = 1;
+    cc.assetManager.assets.add('AAA', texA);
+    var texB = new cc.Texture2D();
+    texB._uuid = 'BBB';
+    texB._ref = 1;
+    cc.assetManager.assets.add('BBB', texB);
+    var texC = new cc.Texture2D();
+    texC._uuid = 'CCC';
+    texC._ref = 1;
+    cc.assetManager.assets.add('CCC', texC);
+    var texD = new cc.Texture2D();
+    texD._uuid = 'DDD';
+    texD._ref = 2;
+    cc.assetManager.assets.add('DDD', texD);
+    cc.assetManager.dependUtil._depends.add('AAA', {deps: ['DDD', 'BBB']});
+    cc.assetManager.dependUtil._depends.add('BBB', {deps: ['CCC']});
+    cc.assetManager.dependUtil._depends.add('CCC', {deps: ['DDD']});
+    cc.assetManager.dependUtil._depends.add('DDD', {deps: ['AAA']});
+    cc.assetManager._releaseManager._free(texA);
+    strictEqual(cc.assetManager.assets.count, 0, 'should equal to 4');
+    cc.assetManager.releaseAll();
 });
 
 test('AutoRelease', function () {

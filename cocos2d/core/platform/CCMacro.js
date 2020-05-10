@@ -358,7 +358,23 @@ cc.macro = {
      * @property {Boolean} ENABLE_MULTI_TOUCH
      * @default true
      */
-    ENABLE_MULTI_TOUCH: true
+    ENABLE_MULTI_TOUCH: true,
+
+    /**
+     * References: 
+     * https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmap
+     * https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/createImageBitmap
+     * 
+     * !#en
+     * Whether to use image bitmap first.
+     * 
+     * !#zh
+     * 是否优先使用 image bitmap
+     * 
+     * @property {Boolean} ALLOW_IMAGE_BITMAP
+     * @default true
+     */
+    ALLOW_IMAGE_BITMAP: true
 };
 
 Object.defineProperty(cc.macro, 'ROTATE_ACTION_CCW', {
