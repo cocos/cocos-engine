@@ -15,6 +15,7 @@ import { Skybox } from './skybox';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
 import { PREVIEW } from 'internal:constants';
+import { Fog } from './fog';
 import { TransformBit } from '../../scene-graph/node-enum';
 
 export interface IRenderSceneInfo {
@@ -48,6 +49,10 @@ export class RenderScene {
 
     get ambient (): Ambient {
         return this._ambient;
+    }
+
+    get fog (): Fog {
+        return this._fog;
     }
 
     get skybox (): Skybox {
@@ -122,12 +127,14 @@ export class RenderScene {
     private _spotLights: SpotLight[] = [];
     private _mainLight: DirectionalLight | null = null;
     private _modelId: number = 0;
+    private _fog: Fog;
 
     constructor (root: Root) {
         this._root = root;
         this._ambient = new Ambient(this);
         this._skybox = new Skybox(this);
         this._planarShadows = new PlanarShadows(this);
+        this._fog = new Fog(this);
     }
 
     public initialize (info: IRenderSceneInfo): boolean {
