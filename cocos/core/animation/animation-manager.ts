@@ -12,6 +12,13 @@ import { MutableForwardIterator, remove } from '../utils/array';
 import { BlendStateBuffer } from './skeletal-animation-blending';
 import { AnimationState } from './animation-state';
 import { CrossFade } from './cross-fade';
+import { IJointTransform, deleteTransform, getTransform, getWorldMatrix } from '../renderer/models/skinning-model';
+import { Socket } from './skeletal-animation-component';
+
+interface ISocketData {
+    target: Node;
+    transform: IJointTransform;
+}
 
 @ccclass
 export class AnimationManager extends System {
@@ -22,9 +29,10 @@ export class AnimationManager extends System {
 
     public static ID = 'animation';
     private _anims = new MutableForwardIterator<AnimationState>([]);
-    private _delayEvents: Array<{target: Node; func: string; args: any[]}> = [];
+    private _delayEvents: {target: Node; func: string; args: any[]}[] = [];
     private _blendStateBuffer: BlendStateBuffer = new BlendStateBuffer();
     private _crossFades: CrossFade[] = [];
+    private _sockets: ISocketData[] = [];
 
     public addCrossFade (crossFade: CrossFade) {
         this._crossFades.push(crossFade);
@@ -35,8 +43,10 @@ export class AnimationManager extends System {
     }
 
     public update (dt: number) {
-        for (const crossFade of this._crossFades) {
-            crossFade.update(dt);
+        const { _delayEvents, _crossFades, _sockets } = this;
+
+        for (let i = 0, l = _crossFades.length; i < l; i++) {
+            _crossFades[i].update(dt);
         }
         const iterator = this._anims;
         const array = iterator.array;
@@ -48,12 +58,17 @@ export class AnimationManager extends System {
         }
         this._blendStateBuffer.apply();
 
-        const events = this._delayEvents;
-        for (let i = 0, l = events.length; i < l; i++) {
-            const event = events[i];
+        const stamp = cc.director.getTotalFrames();
+        for (let i = 0, l = _sockets.length; i < l; i++) {
+            const { target, transform } = _sockets[i];
+            target.matrix = getWorldMatrix(transform, stamp);
+        }
+
+        for (let i = 0, l = _delayEvents.length; i < l; i++) {
+            const event = _delayEvents[i];
             event.target[event.func].apply(event.target, event.args);
         }
-        events.length = 0;
+        _delayEvents.length = 0;
     }
 
     public destruct () {
@@ -82,6 +97,33 @@ export class AnimationManager extends System {
             func,
             args,
         });
+    }
+
+    public addSockets (root: Node, sockets: Socket[]) {
+        for (let i = 0; i < sockets.length; ++i) {
+            const socket = sockets[i];
+            if (this._sockets.find((s) => s.target === socket.target)) { continue; }
+            const targetNode = root.getChildByPath(socket.path);
+            const transform = socket.target && targetNode && getTransform(targetNode, root);
+            if (transform) {
+                this._sockets.push({ target: socket.target!, transform });
+            }
+        }
+    }
+
+    public removeSockets (root: Node, sockets: Socket[]) {
+        for (let i = 0; i < sockets.length; ++i) {
+            const socketToRemove = sockets[i];
+            for (let j = 0; j < this._sockets.length; ++j) {
+                const socket = this._sockets[j];
+                if (socket.target ===  socketToRemove.target) {
+                    deleteTransform(socket.transform.node);
+                    this._sockets[j] = this._sockets[this._sockets.length - 1];
+                    this._sockets.length--;
+                    break;
+                }
+            }
+        }
     }
 }
 

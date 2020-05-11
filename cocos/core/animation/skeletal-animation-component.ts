@@ -37,6 +37,7 @@ import { AnimationComponent } from './animation-component';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { SkeletalAnimationState } from './skeletal-animation-state';
 import { getWorldTransformUntilRoot } from './transform-utils';
+import { AnimationManager } from './animation-manager';
 
 @ccclass('cc.SkeletalAnimationComponent.Socket')
 export class Socket {
@@ -110,6 +111,11 @@ export class SkeletalAnimationComponent extends AnimationComponent {
         return this._sockets;
     }
     set sockets (val) {
+        if (!this._useBakedAnimation) {
+            const animMgr = cc.director.getAnimationManager() as AnimationManager;
+            animMgr.removeSockets(this.node, this._sockets);
+            animMgr.addSockets(this.node, val);
+        }
         this._sockets = val;
         this.rebuildSocketAnimations();
     }
@@ -138,6 +144,8 @@ export class SkeletalAnimationComponent extends AnimationComponent {
                 comp.setUseBakedAnimation(this._useBakedAnimation);
             }
         }
+        if (this._useBakedAnimation) { (cc.director.getAnimationManager() as AnimationManager).removeSockets(this.node, this._sockets); }
+        else { (cc.director.getAnimationManager() as AnimationManager).addSockets(this.node, this._sockets); }
     }
 
     @property
@@ -149,6 +157,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     public onDestroy () {
         super.onDestroy();
         (cc.director.root.dataPoolManager as DataPoolManager).jointAnimationInfo.destroy(this.node.uuid);
+        (cc.director.getAnimationManager() as AnimationManager).removeSockets(this.node, this._sockets);
     }
 
     public start () {

@@ -30,7 +30,6 @@
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
 import { Mat4, Quat, Vec3 } from '../math';
 import { IAnimInfo, JointAnimationInfo } from '../renderer/models/skeletal-animation-utils';
-import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../renderer/models/skinning-model';
 import { Node } from '../scene-graph/node';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
 import { AnimationState } from './animation-state';
@@ -49,7 +48,6 @@ interface ITransform {
 
 interface ISocketData {
     target: Node;
-    transform: IJointTransform;
     frames: ITransform[];
 }
 
@@ -102,7 +100,7 @@ export class SkeletalAnimationState extends AnimationState {
                 this._comps[i].uploadAnimation(this.clip);
             }
         } else {
-            this._sampleCurves = this._sampleCurvesRealTime;
+            this._sampleCurves = super._sampleCurves;
             this.duration = this._clip.duration;
             if (!this._curvesInited) {
                 this._curveLoaded = false;
@@ -113,18 +111,13 @@ export class SkeletalAnimationState extends AnimationState {
     }
 
     public rebuildSocketCurves (sockets: Socket[]) {
-        for (let i = 0; i < this._sockets.length; ++i) {
-            const socket = this._sockets[i];
-            deleteTransform(socket.transform.node);
-        }
         this._sockets.length = 0;
         if (!this._targetNode) { return null; }
         const root = this._targetNode;
         for (let i = 0; i < sockets.length; ++i) {
             const socket = sockets[i];
             const targetNode = root.getChildByPath(socket.path);
-            const transform = targetNode && getTransform(targetNode, root);
-            if (!transform || !socket.target) { continue; }
+            if (!socket.target) { continue; }
             const sourceData = SkelAnimDataHub.getOrExtract(this.clip).data;
             // find lowest joint animation
             let animPath = socket.path;
@@ -139,7 +132,7 @@ export class SkeletalAnimationState extends AnimationState {
             }
             // create animation data
             const socketData: ISocketData = {
-                target: socket.target, transform,
+                target: socket.target,
                 frames: source.worldMatrix.values.map(() => ({ pos: new Vec3(), rot: new Quat(), scale: new Vec3() })),
             };
             const frames = source.worldMatrix.values as Mat4[];
@@ -164,15 +157,6 @@ export class SkeletalAnimationState extends AnimationState {
             const { target, frames } = this._sockets[i];
             const { pos, rot, scale } = frames[curFrame]; // ratio guaranteed to be in [0, 1]
             target.setRTS(rot, pos, scale);
-        }
-    }
-
-    private _sampleCurvesRealTime (ratio: number) {
-        super._sampleCurves(ratio);
-        const stamp = cc.director.getTotalFrames();
-        for (let i = 0; i < this._sockets.length; ++i) {
-            const { target, transform } = this._sockets[i];
-            target.matrix = getWorldMatrix(transform, stamp);
         }
     }
 }

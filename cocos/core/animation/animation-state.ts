@@ -304,10 +304,10 @@ export class AnimationState extends Playable {
     /**
      * May be `null` due to failed to initialize.
      */
-    protected _commonTargetStatuses: Array<null | {
+    protected _commonTargetStatuses: (null | {
         target: IBufferedTarget;
         changed: boolean;
-    }> = [];
+    })[] = [];
     protected _curveLoaded = false;
     protected _ignoreIndex = InvalidIndex;
     private _blendStateBuffer: BlendStateBuffer | null = null;
@@ -367,7 +367,7 @@ export class AnimationState extends Playable {
                 this._samplerSharedGroups.push(samplerSharedGroup);
             }
 
-            let rootTarget: any = undefined;
+            let rootTarget: any;
             if (typeof propertyCurve.commonTarget === 'undefined') {
                 rootTarget = root;
             } else {
