@@ -510,6 +510,7 @@ export abstract class RenderPipeline {
 
         const mainLight = scene.mainLight;
         const ambient = scene.ambient;
+        const fog = scene.fog;
         const fv = this._uboGlobal.view;
 
         // update UBOGlobal
@@ -576,6 +577,16 @@ export abstract class RenderPipeline {
         this._uboGlobal.view.set(skyColor, UBOGlobal.AMBIENT_SKY_OFFSET);
 
         this._uboGlobal.view.set(ambient.groundAlbedo, UBOGlobal.AMBIENT_GROUND_OFFSET);
+        
+        this._uboGlobal.view.set(fog.fogColor, UBOGlobal.GLOBAL_FOG_COLOR_OFFSET);
+
+        fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET] = fog.fogStart;
+        fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET + 1] = fog.fogEnd;
+        fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET + 2] = fog.fogDensity;
+
+        fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET] = fog.fogTop;
+        fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
+        fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
 
         // update ubos
         this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._uboGlobal.view);
