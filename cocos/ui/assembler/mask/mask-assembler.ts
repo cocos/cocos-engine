@@ -40,7 +40,7 @@ export const maskAssembler: IAssembler = {
         const renderData = mask.requestRenderData();
         renderData!.dataLength = 4;
         renderData!.vertexCount = 4;
-        renderData!.indiceCount = 6;
+        renderData!.indicesCount = 6;
         return renderData as RenderData;
     },
 
@@ -48,38 +48,38 @@ export const maskAssembler: IAssembler = {
         const renderData = mask.renderData;
         if (renderData) {
             if (renderData.vertDirty) {
-                if (this.updateVerts) {
-                    this.updateVerts(mask);
+                if (this.updateVertexData) {
+                    this.updateVertexData(mask);
                 }
             }
         }
     },
 
-    updateVerts (mask: MaskComponent) {
+    updateVertexData (mask: MaskComponent) {
         const renderData: RenderData | null = mask.renderData;
         if (!renderData) {
             return;
         }
 
         const node = mask.node;
-        const datas: IRenderData[] = renderData.datas;
+        const dataList: IRenderData[] = renderData.data;
         const cw = node.width;
         const ch = node.height;
-        const appx = node.anchorX * cw;
-        const appy = node.anchorY * ch;
+        const appX = node.anchorX * cw;
+        const appY = node.anchorY * ch;
         let l = 0;
         let b = 0;
         let r = 0;
         let t = 0;
         // if (sprite.trim) {
-        l = -appx;
-        b = -appy;
-        r = cw - appx;
-        t = ch - appy;
-        datas[0].x = l;
-        datas[0].y = b;
-        datas[3].x = r;
-        datas[3].y = t;
+        l = -appX;
+        b = -appY;
+        r = cw - appX;
+        t = ch - appY;
+        dataList[0].x = l;
+        dataList[0].y = b;
+        dataList[3].x = r;
+        dataList[3].y = t;
 
         renderData.vertDirty = false;
     },

@@ -465,8 +465,8 @@ export class UI {
     public autoMergeBatches () {
         const mat = this._currMaterial;
         const buffer = this._currMeshBuffer!;
-        const indicsStart = buffer.indiceStart;
-        const vCount = buffer.indiceOffset - indicsStart;
+        const indicsStart = buffer.indicesStart;
+        const vCount = buffer.indicesOffset - indicsStart;
         if (!vCount || !mat) {
             return;
         }
@@ -490,7 +490,7 @@ export class UI {
         this._batches.push(curDrawBatch);
 
         buffer.vertexStart = buffer.vertexOffset;
-        buffer.indiceStart = buffer.indiceOffset;
+        buffer.indicesStart = buffer.indicesOffset;
         buffer.byteStart = buffer.byteOffset;
     }
 

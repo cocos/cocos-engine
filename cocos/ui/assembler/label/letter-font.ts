@@ -412,7 +412,7 @@ const _tmpRect = new Rect();
 
 let _comp: LabelComponent | null = null;
 
-const _horizontalKernings: number[] = [];
+const _horizontalKerning: number[] = [];
 const _lettersInfo: LetterInfo[] = [];
 const _linesWidth: number[] = [];
 const _linesOffsetX: number[] = [];
@@ -531,7 +531,7 @@ export const letterFont = {
         }
 
         // outline
-        const outline:LabelOutlineComponent|null = /*OUTLINE_SUPPORTED && */_comp.getComponent(LabelOutlineComponent);
+        const outline: LabelOutlineComponent | null = /*OUTLINE_SUPPORTED && */_comp.getComponent(LabelOutlineComponent);
         if (outline && outline.enabled) {
             _labelInfo.isOutlined = true;
             _labelInfo.margin = outline.width;
@@ -618,16 +618,16 @@ export const letterFont = {
         // const stringLen = string.length;
 
         // const kerningDict = _fntConfig.kerningDict;
-        // const horizontalKernings = _horizontalKernings;
+        // const horizontalKerning = _horizontalKerning;
 
         // let prev = -1;
         // for (let i = 0; i < stringLen; ++i) {
         //     const key = string.charCodeAt(i);
         //     const kerningAmount = kerningDict[(prev << 16) | (key & 0xffff)] || 0;
         //     if (i < stringLen - 1) {
-        //         horizontalKernings[i] = kerningAmount;
+        //         horizontalKerning[i] = kerningAmount;
         //     } else {
-        //         horizontalKernings[i] = 0;
+        //         horizontalKerning[i] = 0;
         //     }
         //     prev = key;
         // }
@@ -704,8 +704,8 @@ export const letterFont = {
                 letterPosition.y = nextTokenY - letterDef.offsetY * _bmfontScale;
                 this._recordLetterInfo(letterPosition, character, letterIndex, lineIndex);
 
-                if (letterIndex + 1 < _horizontalKernings.length && letterIndex < textLen - 1) {
-                    nextLetterX += _horizontalKernings[letterIndex + 1];
+                if (letterIndex + 1 < _horizontalKerning.length && letterIndex < textLen - 1) {
+                    nextLetterX += _horizontalKerning[letterIndex + 1];
                 }
 
                 nextLetterX += letterDef.xAdvance * _bmfontScale + _spacingX;
@@ -949,12 +949,12 @@ export const letterFont = {
 
         const node = _comp.node;
         const renderData = _comp.renderData!;
-        renderData.dataLength = renderData.vertexCount = renderData.indiceCount = 0;
+        renderData.dataLength = renderData.vertexCount = renderData.indicesCount = 0;
 
         const contentSize = _contentSize;
         const ap = node.getAnchorPoint();
-        const appx = ap.x * contentSize.width;
-        const appy = ap.y * contentSize.height;
+        const appX = ap.x * contentSize.width;
+        const appY = ap.y * contentSize.height;
 
         let ret = true;
         for (let ctr = 0, l = _string.length; ctr < l; ++ctr) {
@@ -1005,7 +1005,7 @@ export const letterFont = {
 
             if (_tmpRect.height > 0 && _tmpRect.width > 0) {
                 const letterPositionX = letterInfo.x + _linesOffsetX[letterInfo.line];
-                this.appendQuad(_comp, texture, _tmpRect, false, letterPositionX - appx, py - appy, _bmfontScale);
+                this.appendQuad(_comp, texture, _tmpRect, false, letterPositionX - appX, py - appY, _bmfontScale);
             }
         }
 

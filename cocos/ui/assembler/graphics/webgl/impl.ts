@@ -29,7 +29,7 @@ export class Point extends Vec2 {
 
 export class Path {
     public closed = false;
-    public nbevel = 0;
+    public bevel = 0;
     public complex = true;
     public points: Point[] = [];
     constructor () {
@@ -38,7 +38,7 @@ export class Path {
 
     public reset () {
         this.closed = false;
-        this.nbevel = 0;
+        this.bevel = 0;
         this.complex = true;
 
         if (this.points) {
@@ -70,14 +70,14 @@ export class Impl {
 
     public pointsOffset = 0;
 
-    private _commandx = 0;
-    private _commandy = 0;
+    private _commandX = 0;
+    private _commandY = 0;
     private _points: Point[] = [];
 
-    private _renderDatasPool: RecyclePool<MeshRenderData> = new RecyclePool(() =>  {
+    private _renderDataPool: RecyclePool<MeshRenderData> = new RecyclePool(() =>  {
         return new MeshRenderData();
     }, 16);
-    private _renderDatas: MeshRenderData[] = [];
+    private _renderDataList: MeshRenderData[] = [];
 
     private _curPath: Path | null = null;
 
@@ -90,15 +90,15 @@ export class Impl {
         this._addPath();
         this.addPoint(x, y, PointFlags.PT_CORNER);
 
-        this._commandx = x;
-        this._commandy = y;
+        this._commandX = x;
+        this._commandY = y;
     }
 
     public lineTo (x: number, y: number) {
         this.addPoint(x, y, PointFlags.PT_CORNER);
 
-        this._commandx = x;
-        this._commandy = y;
+        this._commandX = x;
+        this._commandY = y;
     }
 
     public bezierCurveTo (c1x: number, c1y: number, c2x: number, c2y: number, x: number, y: number) {
@@ -115,13 +115,13 @@ export class Impl {
 
         tesselateBezier(this, last.x, last.y, c1x, c1y, c2x, c2y, x, y, 0, PointFlags.PT_CORNER);
 
-        this._commandx = x;
-        this._commandy = y;
+        this._commandX = x;
+        this._commandY = y;
     }
 
     public quadraticCurveTo (cx: number, cy: number, x: number, y: number) {
-        const x0 = this._commandx;
-        const y0 = this._commandy;
+        const x0 = this._commandX;
+        const y0 = this._commandY;
         this.bezierCurveTo(x0 + 2.0 / 3.0 * (cx - x0), y0 + 2.0 / 3.0 * (cy - y0), x + 2.0 / 3.0 * (cx - x), y + 2.0 / 3.0 * (cy - y), x, y);
     }
 
@@ -163,9 +163,9 @@ export class Impl {
         this.paths.length = 0;
         this._points.length = 0;
 
-        const datas = this._renderDatas;
-        for (let i = 0, l = datas.length; i < l; i++) {
-            const data = datas[i];
+        const dataList = this._renderDataList;
+        for (let i = 0, l = dataList.length; i < l; i++) {
+            const data = dataList[i];
             if (!data) {
                 continue;
             }
@@ -173,9 +173,9 @@ export class Impl {
             data.reset();
         }
 
-        this._renderDatas.length = 0;
+        this._renderDataList.length = 0;
         if (clean) {
-            this._renderDatasPool.reset();
+            this._renderDataPool.reset();
         }
     }
 
@@ -184,18 +184,18 @@ export class Impl {
     }
 
     public requestRenderData () {
-        const renderData = this._renderDatasPool.add();
-        this._renderDatas.push(renderData);
+        const renderData = this._renderDataPool.add();
+        this._renderDataList.push(renderData);
 
         return renderData;
     }
 
-    public getRenderDatas () {
-        if (this._renderDatas.length === 0) {
+    public getRenderData () {
+        if (this._renderDataList.length === 0) {
             this.requestRenderData();
         }
 
-        return this._renderDatas;
+        return this._renderDataList;
     }
 
     public addPoint (x: number, y: number, flags: PointFlags) {

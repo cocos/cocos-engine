@@ -48,7 +48,7 @@ export const ttf: IAssembler = {
 
         renderData!.dataLength = 4;
         renderData!.vertexCount = 4;
-        renderData!.indiceCount = 6;
+        renderData!.indicesCount = 6;
 
         const vData =  renderData.vData = new Float32Array(4 * 9);
 
@@ -64,26 +64,26 @@ export const ttf: IAssembler = {
 
     fillBuffers (comp: LabelComponent, renderer: UI) {
         const renderData = comp.renderData!;
-        const datas: IRenderData[] = renderData.datas;
+        const dataList: IRenderData[] = renderData.data;
         const node = comp.node;
 
         let buffer = renderer.currBufferBatch!;
-        let vertexOffset = buffer.byteOffset >> 2;
-        let indiceOffset = buffer.indiceOffset;
+        const vertexOffset = buffer.byteOffset >> 2;
+        let indicesOffset = buffer.indicesOffset;
         let vertexId = buffer.vertexOffset;
         const isRecreate = buffer.request();
         if (!isRecreate) {
             buffer = renderer.currBufferBatch!;
-            indiceOffset = 0;
+            indicesOffset = 0;
             vertexId = 0;
         }
 
         // buffer data may be reallocated, need get reference after request.
-        const vbuf = buffer.vData!;
-        const ibuf = buffer.iData!;
+        const vBuf = buffer.vData!;
+        const iBuf = buffer.iData!;
         const vData = renderData.vData!;
-        const data0 = datas[0];
-        const data3 = datas[3];
+        const data0 = dataList[0];
+        const data3 = dataList[3];
         /* */
         node.updateWorldTransform();
         // @ts-ignore
@@ -112,18 +112,18 @@ export const ttf: IAssembler = {
         vData[27] = cx1 * bx + cx2 * by + x;
         vData[28] = cy1 * by + cy2 * bx + y;
 
-        vbuf.set(vData, vertexOffset);
+        vBuf.set(vData, vertexOffset);
 
         // fill index data
-        ibuf[indiceOffset++] = vertexId;
-        ibuf[indiceOffset++] = vertexId + 1;
-        ibuf[indiceOffset++] = vertexId + 2;
-        ibuf[indiceOffset++] = vertexId + 2;
-        ibuf[indiceOffset++] = vertexId + 1;
-        ibuf[indiceOffset++] = vertexId + 3;
+        iBuf[indicesOffset++] = vertexId;
+        iBuf[indicesOffset++] = vertexId + 1;
+        iBuf[indicesOffset++] = vertexId + 2;
+        iBuf[indicesOffset++] = vertexId + 2;
+        iBuf[indicesOffset++] = vertexId + 1;
+        iBuf[indicesOffset++] = vertexId + 3;
     },
 
-    updateVerts (comp: LabelComponent) {
+    updateVertexData (comp: LabelComponent) {
         const renderData = comp.renderData;
         if (!renderData){
             return;
@@ -132,14 +132,14 @@ export const ttf: IAssembler = {
         const node = comp.node;
         const width = node.width!;
         const height = node.height!;
-        const appx = node.anchorX! * width;
-        const appy = node.anchorY! * height;
+        const appX = node.anchorX! * width;
+        const appY = node.anchorY! * height;
 
-        const datas = renderData!.datas;
-        datas[0].x = -appx;
-        datas[0].y = -appy;
-        datas[3].x = width - appx;
-        datas[3].y = height - appy;
+        const dataList = renderData!.data;
+        dataList[0].x = -appX;
+        dataList[0].y = -appY;
+        dataList[3].x = width - appX;
+        dataList[3].y = height - appY;
     },
 };
 

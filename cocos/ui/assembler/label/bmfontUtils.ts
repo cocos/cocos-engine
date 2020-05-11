@@ -632,7 +632,7 @@ export const bmfontUtils = {
 
         const node = _comp.node;
         const renderData = _comp.renderData!;
-        renderData.dataLength = renderData.vertexCount = renderData.indiceCount = 0;
+        renderData.dataLength = renderData.vertexCount = renderData.indicesCount = 0;
 
         const anchorPoint = node.getAnchorPoint();
         const contentSize = _contentSize;
