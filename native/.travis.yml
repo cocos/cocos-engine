@@ -6,18 +6,18 @@ matrix:
       env: 
         - BUILD_TARGET=windows_cmake
       language: cpp
-    # - os: osx
-    #   env:
-    #     - BUILD_TARGET=macosx_cmake
-    #   language: cpp
-    #   osx_image: xcode10.3
-    #   sudo: required
-    # - os: osx
-    #   env:
-    #     - BUILD_TARGET=ios_cmake
-    #   language: cpp
-    #   osx_image: xcode10.3
-    #   sudo: required
+    - os: osx
+      env:
+        - BUILD_TARGET=macosx_cmake
+      language: cpp
+      osx_image: xcode10.3
+      sudo: required
+    - os: osx
+      env:
+        - BUILD_TARGET=ios_cmake
+      language: cpp
+      osx_image: xcode10.3
+      sudo: required
     - os: linux
       dist: xenial
       sudo: required

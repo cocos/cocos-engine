@@ -17,7 +17,7 @@ android {
             if (project.hasProperty("PROP_USE_CMAKE")) {
                 cmake {
                     targets "cocos2djs"
-                    arguments "-DANDROID_STL=c++_static", "-DANDROID_TOOLCHAIN=clang", "-DANDROID_ARM_NEON=TRUE", "-DCOCOS_X_ROOT=${COCOS_X_ROOT}"
+                    arguments "-DANDROID_STL=c++_static", "-DANDROID_PLATFORM=android-$PROP_TARGET_SDK_VERSION", "-DANDROID_TOOLCHAIN=clang", "-DANDROID_ARM_NEON=TRUE", "-DCOCOS_X_ROOT=${COCOS_X_ROOT}"
                     cppFlags "-frtti -fexceptions -fsigned-char"
                     abiFilters.addAll(PROP_APP_ABI.split(':').collect{it as String})
                 }

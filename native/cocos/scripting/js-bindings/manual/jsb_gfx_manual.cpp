@@ -9,6 +9,10 @@
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #define USE_GLES2
+#elif (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#define USE_GLES3
+#else
+#define USE_METAL
 #endif
 
 #ifdef USE_GLES2
@@ -726,13 +730,11 @@ bool register_all_gfx_manual(se::Object* obj)
     register_all_gles2(obj);
     __jsb_cocos2d_GLES2Device_proto->defineFunction("copyBuffersToTexture", _SE(js_gfx_GLES2Device_copyBuffersToTexture));
     __jsb_cocos2d_GLES2Device_proto->defineFunction("copyTexImagesToTexture", _SE(js_gfx_GLES2Device_copyTexImagesToTexture));
-#endif // USE_GLES2
-    
+#elif defined USE_GLES3
     register_all_gles3(obj);
     __jsb_cocos2d_GLES3Device_proto->defineFunction("copyBuffersToTexture", _SE(js_gfx_GLES3Device_copyBuffersToTexture));
     __jsb_cocos2d_GLES3Device_proto->defineFunction("copyTexImagesToTexture", _SE(js_gfx_GLES3Device_copyTexImagesToTexture));
-    
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#elif defined USE_METAL
     register_all_mtl(obj);
     __jsb_cocos2d_CCMTLDevice_proto->defineFunction("copyBuffersToTexture", _SE(js_gfx_CCMTLDevice_copyBuffersToTexture));
     __jsb_cocos2d_CCMTLDevice_proto->defineFunction("copyTexImagesToTexture", _SE(js_gfx_CCMTLDevice_copyTexImagesToTexture));
