@@ -21,6 +21,7 @@ bool GLES2BindingLayout::initialize(const GFXBindingLayoutInfo &info) {
     for (size_t i = 0; i < _bindingUnits.size(); ++i) {
       GFXBindingUnit& bindingUnit = _bindingUnits[i];
       const GFXBinding& binding = info.bindings[i];
+      bindingUnit.shaderStages = binding.shaderStages;
       bindingUnit.binding = binding.binding;
       bindingUnit.type = binding.type;
       bindingUnit.name = binding.name;

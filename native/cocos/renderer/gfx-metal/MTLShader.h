@@ -16,6 +16,8 @@ public:
         
     CC_INLINE id<MTLFunction> getVertMTLFunction() const { return _vertexMTLFunction; }
     CC_INLINE id<MTLFunction> getFragmentMTLFunction() const { return _fragmentMTLFunction; }
+    CC_INLINE const std::unordered_map<uint, uint>& getVertexSamplerBindings() const { return _mtlVertexSamplerBindings; }
+    CC_INLINE const std::unordered_map<uint, uint>& getFragmentSamplerBindings() const { return _mtlFragmentSamplerBindings; }
     
 #ifdef DEBUG_SHADER
     CC_INLINE const std::string& getVertGlslShader() const { return _vertGlslShader; }
@@ -31,6 +33,8 @@ private:
 private:
     id<MTLFunction> _vertexMTLFunction = nil;
     id<MTLFunction> _fragmentMTLFunction = nil;
+    std::unordered_map<uint, uint> _mtlVertexSamplerBindings;
+    std::unordered_map<uint, uint> _mtlFragmentSamplerBindings;
     
     // For debug
 #ifdef DEBUG_SHADER

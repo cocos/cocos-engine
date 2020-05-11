@@ -414,14 +414,16 @@ enum class GFXColorMask : uint8_t {
 CC_ENUM_OPERATORS(GFXColorMask);
 
 enum class GFXShaderType : uint8_t {
-  VERTEX,
-  CONTROL,
-  EVALUATION,
-  GEOMETRY,
-  FRAGMENT,
-  COMPUTE,
-  COUNT,
+  NONE = 0x0,
+  VERTEX = 0x1,
+  CONTROL = 0x2,
+  EVALUATION = 0x4,
+  GEOMETRY = 0x8,
+  FRAGMENT = 0x10,
+  COMPUTE = 0x20,
+  ALL = 0x3f,
 };
+CC_ENUM_OPERATORS(GFXShaderType);
 
 enum class GFXLoadOp : uint8_t {
   LOAD,    // Load the contents from the fbo from previous
@@ -763,6 +765,7 @@ struct GFXUniform {
 typedef vector<GFXUniform>::type GFXUniformList;
 
 struct GFXUniformBlock {
+  GFXShaderType shaderStages = GFXShaderType::NONE;
   uint binding = 0;
   String name;
   GFXUniformList uniforms;
@@ -771,6 +774,7 @@ struct GFXUniformBlock {
 typedef vector<GFXUniformBlock>::type GFXUniformBlockList;
 
 struct GFXUniformSampler {
+  GFXShaderType shaderStages = GFXShaderType::NONE;
   uint binding = 0;
   String name;
   GFXType type = GFXType::UNKNOWN;
@@ -869,6 +873,7 @@ struct GFXFramebufferInfo {
 };
 
 struct GFXBinding {
+  GFXShaderType shaderStages = GFXShaderType::NONE;
   uint binding = 0;
   GFXBindingType type = GFXBindingType::UNKNOWN;
   String name;
@@ -881,6 +886,7 @@ struct GFXBindingLayoutInfo {
 };
 
 struct GFXBindingUnit {
+  GFXShaderType shaderStages = GFXShaderType::NONE;
   uint binding = 0;
   GFXBindingType type = GFXBindingType::UNKNOWN;
   String name;

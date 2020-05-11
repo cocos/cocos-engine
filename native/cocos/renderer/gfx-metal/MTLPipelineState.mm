@@ -57,69 +57,6 @@ void CCMTLPipelineState::destroy()
     _status = GFXStatus::UNREADY;
 }
 
-void CCMTLPipelineState::updateBindingBlocks(const GFXBindingLayout* bl)
-{
-    if (!bl)
-        return;
-    
-    for (const auto& bindingUnit : bl->getBindingUnits() )
-    {
-        for (auto& block : _vertexUniformBlocks)
-        {
-            if (block.originBinding == bindingUnit.binding && bindingUnit.buffer)
-            {
-                block.buffer = static_cast<CCMTLBuffer*>(bindingUnit.buffer)->getMTLBuffer();
-                break;
-            }
-        }
-        
-        for (auto& block : _fragmentUniformBlocks)
-        {
-            if (block.originBinding == bindingUnit.binding && bindingUnit.buffer)
-            {
-                block.buffer = static_cast<CCMTLBuffer*>(bindingUnit.buffer)->getMTLBuffer();
-                break;
-            }
-        }
-        
-        for (auto& block : _vertexTextures)
-        {
-            if (block.originBinding == bindingUnit.binding && bindingUnit.texView)
-            {
-                block.texture = static_cast<CCMTLTextureView*>(bindingUnit.texView)->getMTLTexture();
-                break;
-            }
-        }
-        
-        for (auto& block : _fragmentTextures)
-        {
-            if (block.originBinding == bindingUnit.binding && bindingUnit.texView)
-            {
-                block.texture = static_cast<CCMTLTextureView*>(bindingUnit.texView)->getMTLTexture();
-                break;
-            }
-        }
-        
-        for (auto& block : _vertexSamplerStates)
-        {
-            if (block.originBinding == bindingUnit.binding && bindingUnit.sampler)
-            {
-                block.samplerState = static_cast<CCMTLSampler*>(bindingUnit.sampler)->getMTLSamplerState();
-                break;
-            }
-        }
-        
-        for (auto& block : _fragmentSamplerStates)
-        {
-            if (block.originBinding == bindingUnit.binding && bindingUnit.sampler)
-            {
-                block.samplerState = static_cast<CCMTLSampler*>(bindingUnit.sampler)->getMTLSamplerState();
-                break;
-            }
-        }
-    }
-}
-
 bool CCMTLPipelineState::createGPUPipelineState()
 {
     _GPUPipelieState = CC_NEW(CCMTLGPUPipelineState);
@@ -143,12 +80,6 @@ bool CCMTLPipelineState::createGPUPipelineState()
     _GPUPipelieState->stencilRefFront = _depthStencilState.stencilRefFront;
     _GPUPipelieState->stencilRefBack = _depthStencilState.stencilRefBack;
     _GPUPipelieState->primitiveType = mu::toMTLPrimitiveType(_primitive);
-    _GPUPipelieState->vertexUniformBlocks = &_vertexUniformBlocks;
-    _GPUPipelieState->fragmentUniformBlocks = &_fragmentUniformBlocks;
-    _GPUPipelieState->vertexTextureList = &_vertexTextures;
-    _GPUPipelieState->fragmentTextureList = &_fragmentTextures;
-    _GPUPipelieState->vertexSampleStateList = &_vertexSamplerStates;
-    _GPUPipelieState->fragmentSampleStateList = &_fragmentSamplerStates;
         
     return true;
 }
@@ -339,172 +270,15 @@ void CCMTLPipelineState::setBlendStates(MTLRenderPipelineDescriptor* descriptor)
 bool CCMTLPipelineState::createMTLRenderPipeline(MTLRenderPipelineDescriptor* descriptor)
 {
     id<MTLDevice> mtlDevice = id<MTLDevice>( ((CCMTLDevice*)_device)->getMTLDevice() );
-    MTLRenderPipelineReflection* reflection;
     NSError* nsError;
-    _mtlRenderPipelineState = [mtlDevice newRenderPipelineStateWithDescriptor: descriptor
-                                                                      options:MTLPipelineOptionBufferTypeInfo
-                                                                   reflection:&reflection
-                                                                        error:&nsError];
+    _mtlRenderPipelineState = [mtlDevice newRenderPipelineStateWithDescriptor: descriptor error:&nsError];
     if (!_mtlRenderPipelineState)
     {
         CC_LOG_ERROR("Failed to create MTLRenderPipelineState: %s", [nsError.localizedDescription UTF8String]);
         return false;;
     }
-    
-    bindLayout(reflection);
-    
+
     return true;
-}
-
-void CCMTLPipelineState::bindLayout(MTLRenderPipelineReflection* reflection)
-{
-    // Use uniform names to match a uniform block.
-    for (MTLArgument* mtlArgument in reflection.vertexArguments)
-    {
-        if (!mtlArgument.isActive)
-            continue;
-        
-        if (mtlArgument.type == MTLArgumentTypeBuffer)
-            bindBuffer(mtlArgument, true);
-        if (mtlArgument.type == MTLArgumentTypeTexture ||
-            mtlArgument.type == MTLArgumentTypeSampler)
-        {
-            bindTextureAndSampler(mtlArgument, true);
-        }
-    }
-    
-    for (MTLArgument* mtlArgument in reflection.fragmentArguments)
-    {
-        if (!mtlArgument.isActive)
-            continue;
-        
-        if (mtlArgument.type == MTLArgumentTypeBuffer)
-            bindBuffer(mtlArgument, false);
-        
-        if (mtlArgument.type == MTLArgumentTypeTexture ||
-            mtlArgument.type == MTLArgumentTypeSampler)
-        {
-            bindTextureAndSampler(mtlArgument, false);
-        }
-    }
-}
-
-void CCMTLPipelineState::bindBuffer(MTLArgument* mtlArgument, bool isVertex)
-{
-    auto bindingInfo = getBufferBinding(mtlArgument);
-    if (std::get<0>(bindingInfo) != UINT_MAX)
-    {
-        if (isVertex)
-        {
-            _vertexUniformBlocks.push_back({std::get<0>(bindingInfo),
-                                            std::get<1>(bindingInfo),
-                                            nullptr});
-        }
-        else
-        {
-            _fragmentUniformBlocks.push_back({std::get<0>(bindingInfo),
-                                              std::get<1>(bindingInfo),
-                                              nullptr});
-        }
-    }
-}
-
-std::tuple<uint,uint> CCMTLPipelineState::getBufferBinding(MTLArgument* argument) const
-{
-    CCASSERT(MTLDataTypeStruct == argument.bufferDataType, "Must be a struct!");
-    for (MTLStructMember* member in argument.bufferStructType.members)
-    {
-        const char* memberName = [member.name UTF8String];
-        for (const auto& block : _shader->getBlocks() )
-        {
-            for (const auto& uniform : block.uniforms)
-            {
-                if (std::strcmp(memberName, uniform.name.c_str()) == 0)
-                    return std::make_tuple( (int)argument.index, block.binding);
-            }
-        }
-    }
-  
-    return std::make_tuple(UINT_MAX, UINT_MAX);
-}
-
-void CCMTLPipelineState::bindTextureAndSampler(MTLArgument* argument, bool isVertex)
-{
-    if (!_layout)
-        return;
-    
-    const char* argumentName = [argument.name UTF8String];
-    for (auto bindingLayout : _layout->getLayouts() )
-    {
-        for (const auto& bindingUnit : bindingLayout->getBindingUnits() )
-        {
-            if (bindingUnit.name.compare(argumentName) == 0)
-                bindTexture(argument, bindingUnit.binding, isVertex);
-            if (CCMTLPipelineState::matchSamplerName(argumentName, bindingUnit.name) )
-                bindSamplerState(argument, bindingUnit.binding, isVertex);
-        }
-    }
-}
-                    
-bool CCMTLPipelineState::matchSamplerName(const char* argumentName, const std::string& samplerName)
-{
-    std::string newName(samplerName);
-    newName.append("Smplr");
-    return (newName.compare(argumentName) == 0);
-}
-
-void CCMTLPipelineState::bindTexture(MTLArgument* argument, uint originBinding, bool isVertex)
-{
-    for (auto bindingLayout : _layout->getLayouts() )
-    {
-        for (const auto& bindingUnit : bindingLayout->getBindingUnits() )
-        {
-            if (bindingUnit.binding == originBinding)
-            {
-                if (isVertex)
-                {
-                    _vertexTextures.push_back({ (uint)argument.index,
-                                                originBinding,
-                                                bindingUnit.texView ? static_cast<CCMTLTextureView*>(bindingUnit.texView)->getMTLTexture()
-                                                                     : nullptr
-                    });
-                }
-                else
-                {
-                    _fragmentTextures.push_back({ (uint)argument.index,
-                                                  originBinding,
-                                                  bindingUnit.texView ? static_cast<CCMTLTextureView*>(bindingUnit.texView)->getMTLTexture()
-                                                                       : nullptr
-                    });
-                }
-            }
-        }
-    }
-}
-
-void CCMTLPipelineState::bindSamplerState(MTLArgument* argument, uint originBinding, bool isVertex)
-{
-    for (auto bindingLayout : _layout->getLayouts() )
-    {
-        for (const auto& bindingUnit : bindingLayout->getBindingUnits() )
-        {
-            if (bindingUnit.binding == originBinding)
-            {
-                if (isVertex)
-                {
-                    _vertexSamplerStates.push_back({(uint)argument.index,
-                                                    originBinding,
-                                                    bindingUnit.sampler ? static_cast<CCMTLSampler*>(bindingUnit.sampler)->getMTLSamplerState() : nullptr});
-                }
-                else
-                {
-                    _fragmentSamplerStates.push_back({(uint)argument.index,
-                                                      originBinding,
-                                                      bindingUnit.sampler ? static_cast<CCMTLSampler*>(bindingUnit.sampler)->getMTLSamplerState() : nullptr});
-                }
-            }
-        }
-    }
 }
 
 NS_CC_END

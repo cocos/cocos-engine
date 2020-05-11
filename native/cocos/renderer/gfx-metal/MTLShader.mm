@@ -21,6 +21,7 @@ bool CCMTLShader::initialize(const GFXShaderInfo& info)
         if (! createMTLFunction(stage) )
         {
             destroy();
+            _status = GFXStatus::FAILED;
             return false;
         }
     }
@@ -51,7 +52,10 @@ bool CCMTLShader::createMTLFunction(const GFXShaderStage& stage)
 {
     bool isVertexShader = stage.type == GFXShaderType::VERTEX;
     id<MTLDevice> mtlDevice = id<MTLDevice>(((CCMTLDevice*)_device)->getMTLDevice());
-    auto mtlShader = mu::compileGLSLShader2Mtl(stage.source, isVertexShader);
+    auto mtlShader = mu::compileGLSLShader2Msl(stage.source,
+                                               stage.type,
+                                               static_cast<CCMTLDevice*>(_device)->getMaximumSamplerUnits(),
+                                               isVertexShader ? _mtlVertexSamplerBindings : _mtlFragmentSamplerBindings);
     NSString* shader = [NSString stringWithUTF8String:mtlShader.c_str()];
     NSError* error;
     id<MTLLibrary> library = [mtlDevice newLibraryWithSource:shader

@@ -678,18 +678,66 @@ namespace mu
         }
     }
     
-    std::string compileGLSLShader2Mtl(const std::string& src, bool isVertexShader)
+    String compileGLSLShader2Msl(const String& src,
+                                      GFXShaderType shaderType,
+                                      int maxSamplerUnits,
+                                      std::unordered_map<uint, uint>& samplerBindings)
     {
 #if USE_METAL
-        std::string shaderSource("#version 310 es\n");
+        String shaderSource("#version 310 es\n");
         shaderSource.append(src);
-        auto type = isVertexShader ? GFXShaderType::VERTEX : GFXShaderType::FRAGMENT;
-        const auto& spv = GLSL2SPIRV(type, shaderSource);
+        const auto& spv = GLSL2SPIRV(shaderType, shaderSource);
         if(spv.size() == 0)
             return "";
         
         spirv_cross::CompilerMSL msl(std::move(spv));
-    
+        
+        // The SPIR-V is now parsed, and we can perform reflection on it.
+        auto executionModel = msl.get_execution_model();
+        spirv_cross::MSLResourceBinding newBinding;
+        newBinding.stage = executionModel;
+        auto active = msl.get_active_interface_variables();
+        spirv_cross::ShaderResources resources = msl.get_shader_resources(active);
+        msl.set_enabled_interface_variables(std::move(active));
+
+        // Get all uniform buffers in the shader.
+        for(auto &ubo : resources.uniform_buffers)
+        {
+            auto set = msl.get_decoration(ubo.id, spv::DecorationDescriptorSet);
+            auto binding = msl.get_decoration(ubo.id, spv::DecorationBinding);
+            
+            newBinding.desc_set = set;
+            newBinding.binding = binding;
+            newBinding.msl_buffer = binding;
+            newBinding.msl_texture = 0;
+            newBinding.msl_sampler = 0;
+            msl.add_msl_resource_binding( newBinding );
+        }
+        
+        //TODO: coulsonwang, need to set sampler binding explicitly
+        if(resources.sampled_images.size() > maxSamplerUnits)
+        {
+            CC_LOG_ERROR("Implemention limits: Should not use more than %d entries in the sampler state argument table", maxSamplerUnits);
+            return "";
+        }
+        
+        // Get all sampled images in the shader.
+        unsigned int samplerIndex = 0;
+        for (auto &sampler : resources.sampled_images)
+        {
+            unsigned set = msl.get_decoration(sampler.id, spv::DecorationDescriptorSet);
+            unsigned binding = msl.get_decoration(sampler.id, spv::DecorationBinding);
+            
+            samplerBindings[binding] = samplerIndex;
+            newBinding.desc_set = set;
+            newBinding.binding = binding;
+            newBinding.msl_buffer = 0;
+            newBinding.msl_texture = binding;
+            newBinding.msl_sampler = samplerIndex++;
+            msl.add_msl_resource_binding(newBinding);
+            
+        }
+        
         // Set some options.
         spirv_cross::CompilerMSL::Options options;
 #if(CC_PLATFORM == CC_PLATFORM_MAC_IOS)
@@ -700,7 +748,7 @@ namespace mu
         msl.set_msl_options(options);
 
         // Compile to MSL, ready to give to metal driver.
-        std::string output = msl.compile();
+        String output = msl.compile();
         if(!output.size())
         {
             CC_LOG_ERROR("Compile to MSL failed.");

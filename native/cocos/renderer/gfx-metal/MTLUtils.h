@@ -1,7 +1,6 @@
 #pragma once
 
-#include <tuple>
-#include <string>
+#include <unordered_map>
 #import <Metal/MTLRenderPass.h>
 #import <Metal/MTLVertexDescriptor.h>
 #import <Metal/MTLRenderPipeline.h>
@@ -40,7 +39,7 @@ namespace mu
     MTLSamplerBorderColor toMTLSamplerBorderColor(const GFXColor&);
     MTLSamplerMinMagFilter toMTLSamplerMinMagFilter(GFXFilter);
     MTLSamplerMipFilter toMTLSamplerMipFilter(GFXFilter);
-    std::string compileGLSLShader2Mtl(const std::string& src, bool isVertexShader);
+    String compileGLSLShader2Msl(const String& src, GFXShaderType shaderType, int maxSamplerUnits, std::unordered_map<uint, uint>& samplerBindings);
     uint8_t* convertRGB8ToRGBA8(uint8_t* source, uint length);
     uint8_t* convertRGB32FToRGBA32F(uint8_t* source, uint length);
     NSUInteger highestSupportedFeatureSet(id<MTLDevice> device);

@@ -60,6 +60,7 @@ bool CCMTLDevice::initialize(const GFXDeviceInfo& info)
     auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
     _maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
     _maxTextureUnits = mu::getMaxEntriesInTextureArgumentTable(gpuFamily);
+    _maxSamplerUnits = mu::getMaxEntriesInSamplerStateArgumentTable(gpuFamily);
     _maxTextureSize = mu::getMaxTexture2DWidthHeight(gpuFamily);
     _maxCubeMapTextureSize = mu::getMaxCubeMapTextureWidthHeight(gpuFamily);
     if([id<MTLDevice>(_mtlDevice) isDepth24Stencil8PixelFormatSupported])

@@ -13,6 +13,8 @@
 #include "MTLShader.h"
 #include "MTLTexture.h"
 #include "MTLPipelineState.h"
+#include "MTLTextureView.h"
+#include "MTLSampler.h"
 #include "platform/mac/CCView.h"
 
 #import <Metal/MTLDevice.h>
@@ -145,8 +147,6 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 
             case GFXCmdType::BIND_STATES: {
                 auto cmd = commandPackage->bindStatesCmds[cmdIdx++];
-                //TODO coulsonwang, update when bindingLayout is dirty
-                cmd->pipelineState->updateBindingBlocks(cmd->bindingLayout);
                 if (cmd->pipelineState->getGPUPipelineState())
                 {
                     gpuPipelineState = cmd->pipelineState->getGPUPipelineState();
@@ -163,26 +163,44 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                                             backReferenceValue:gpuPipelineState->stencilRefBack];
                         [encoder setDepthStencilState:gpuPipelineState->mtlDepthStencilState];
                     }
-                    
-                    for (const auto& block : *(gpuPipelineState->vertexUniformBlocks) )
-                        [encoder setVertexBuffer:block.buffer offset:0 atIndex:block.mtlBinding];
-                    
-                    for (const auto& block : *(gpuPipelineState->fragmentUniformBlocks) )
-                        [encoder setFragmentBuffer:block.buffer offset:0 atIndex:block.mtlBinding];
-                    
-                    for (const auto& texture : *(gpuPipelineState->vertexTextureList) )
-                        [encoder setVertexTexture:texture.texture atIndex:texture.mtlBinding];
-                    
-                    for (const auto& texture : *(gpuPipelineState->fragmentTextureList) )
-                         [encoder setFragmentTexture:texture.texture atIndex:texture.mtlBinding];
-                    
-                    for (const auto& sampler : *(gpuPipelineState->vertexSampleStateList) )
-                        [encoder setVertexSamplerState:sampler.samplerState atIndex:sampler.mtlBinding];
-                    
-                    for (const auto& sampler : *(gpuPipelineState->fragmentSampleStateList) )
-                        [encoder setFragmentSamplerState:sampler.samplerState atIndex:sampler.mtlBinding];
-                    
                     primitiveType = gpuPipelineState->primitiveType;
+                }
+                
+                const auto* shader = static_cast<CCMTLShader*>(cmd->pipelineState->getShader());
+                const auto& vertexSamplerBindings = shader->getVertexSamplerBindings();
+                const auto& fragmentSamplerBindings = shader->getFragmentSamplerBindings();
+                
+                for(const auto& binding : cmd->bindingLayout->getBindingUnits())
+                {
+                    if(binding.shaderStages & GFXShaderType::VERTEX)
+                    {
+                        if(binding.buffer)
+                            [encoder setVertexBuffer:static_cast<CCMTLBuffer*>(binding.buffer)->getMTLBuffer()
+                                              offset:0 atIndex:binding.binding];
+                        
+                        if(binding.texView)
+                            [encoder setVertexTexture:static_cast<CCMTLTextureView*>(binding.texView)->getMTLTexture()
+                                              atIndex:binding.binding];
+                        
+                        if(binding.sampler)
+                            [encoder setVertexSamplerState:static_cast<CCMTLSampler*>(binding.sampler)->getMTLSamplerState()
+                                                   atIndex:vertexSamplerBindings.at(binding.binding)];
+                    }
+                    
+                    if(binding.shaderStages & GFXShaderType::FRAGMENT)
+                    {
+                        if(binding.buffer)
+                            [encoder setFragmentBuffer:static_cast<CCMTLBuffer*>(binding.buffer)->getMTLBuffer()
+                                              offset:0 atIndex:binding.binding];
+                        
+                        if(binding.texView)
+                            [encoder setFragmentTexture:static_cast<CCMTLTextureView*>(binding.texView)->getMTLTexture()
+                                              atIndex:binding.binding];
+                        
+                        if(binding.sampler)
+                            [encoder setFragmentSamplerState:static_cast<CCMTLSampler*>(binding.sampler)->getMTLSamplerState()
+                                                     atIndex:fragmentSamplerBindings.at(binding.binding)];
+                    }
                 }
                 
                 if (cmd->viewportDirty) [encoder setViewport:cmd->viewport];

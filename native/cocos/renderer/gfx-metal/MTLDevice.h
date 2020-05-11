@@ -34,12 +34,14 @@ public:
     CC_INLINE void* getMTKView() const { return _mtkView; }
     CC_INLINE void* getMTLDevice() const { return _mtlDevice; }
     CC_INLINE CCMTLStateCache* getStateCache() const { return _stateCache; }
+    CC_INLINE int getMaximumSamplerUnits() const { return _maxSamplerUnits; }
     
 private:
     void* _mtkView= nullptr;
     void* _mtlDevice = nullptr;
     CCMTLStateCache* _stateCache = nullptr;
     unsigned long _mtlFeatureSet = 0;
+    int _maxSamplerUnits = -1;
 };
 
 NS_CC_END

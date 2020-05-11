@@ -53,12 +53,6 @@ struct CCMTLGPUPipelineState
     id<MTLDepthStencilState> mtlDepthStencilState = nil;
     uint stencilRefFront = 0;
     uint stencilRefBack = 0;
-    CCMTLGPUUniformBlockList* vertexUniformBlocks = nullptr;
-    CCMTLGPUUniformBlockList* fragmentUniformBlocks = nullptr;
-    CCMTLGPUTextureList* vertexTextureList = nullptr;
-    CCMTLGPUTextureList* fragmentTextureList = nullptr;
-    CCMTLGPUSamplerStateList* vertexSampleStateList = nullptr;
-    CCMTLGPUSamplerStateList* fragmentSampleStateList = nullptr;
     std::vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>> vertexBufferBindingInfo;
 };
 

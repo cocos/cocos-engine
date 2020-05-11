@@ -15,6 +15,7 @@ bool CCMTLBindingLayout::initialize(const GFXBindingLayoutInfo& info)
         {
             GFXBindingUnit& bindingUnit = _bindingUnits[i];
             const GFXBinding& binding = info.bindings[i];
+            bindingUnit.shaderStages = binding.shaderStages;
             bindingUnit.binding = binding.binding;
             bindingUnit.type = binding.type;
             bindingUnit.name = binding.name;
