@@ -187,7 +187,7 @@ export class AnimationComponent extends Component implements IEventTarget {
     protected _nameToState: { [name: string]: AnimationState; } = createMap(true);
 
     @property({ type: [AnimationClip] })
-    protected _clips: Array<(AnimationClip | null)> = [];
+    protected _clips: (AnimationClip | null)[] = [];
 
     @property
     protected _defaultClip: AnimationClip | null = null;

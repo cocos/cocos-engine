@@ -63,6 +63,7 @@ export function getWorldMatrix (transform: IJointTransform | null, stamp: number
     while (transform) {
         if (transform.stamp === stamp || transform.stamp + 1 === stamp && !transform.node.hasChangedFlags) {
             res = transform.world;
+            transform.stamp = stamp;
             break;
         }
         transform.stamp = stamp;
