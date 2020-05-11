@@ -109,7 +109,7 @@ export class AudioClip extends Asset {
     public play () { if (this._player) { this._player.play(); } }
     public pause () { if (this._player) { this._player.pause(); } }
     public stop () { if (this._player) { this._player.stop(); } }
-    public playOneShot (volume?: number) { if (this._player) { this._player.playOneShot(volume); } }
+    public playOneShot (volume: number) { if (this._player) { this._player.playOneShot(volume); } }
     public setCurrentTime (val: number) { if (this._player) { this._player.setCurrentTime(val); } }
     public getCurrentTime () { if (this._player) { return this._player.getCurrentTime(); } return 0; }
     public getDuration () { if (this._player) { return this._player.getDuration(); } return this._duration; }

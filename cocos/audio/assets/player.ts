@@ -70,7 +70,7 @@ export abstract class AudioPlayer {
     public abstract play (): void;
     public abstract pause (): void;
     public abstract stop (): void;
-    public abstract playOneShot (volume?: number): void;
+    public abstract playOneShot (volume: number): void;
     public abstract setCurrentTime (val: number): void;
     public abstract getCurrentTime (): number;
     public abstract setVolume (val: number, immediate: boolean): void;
