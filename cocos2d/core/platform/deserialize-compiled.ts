@@ -154,22 +154,22 @@ export type StringIndex = number;
 export type InstanceIndex = number;
 export type RootInstanceIndex = InstanceIndex;
 
-// T 和 U 的取值范围都是非负整数
-// 当值 >= 0 代表 T
-// 当值 < 0 则代表 ~U，使用 ~x 提取 U 的值。
-export type Xor<T extends number, U extends number> = T|U;
+// Includes Bitwise NOT value.
+// Both T and U have non-negative integer ranges.
+// When the value >= 0 represents T
+// When the value is < 0, it represents ~U. Use ~x to extract the value of U.
+export type Bnot<T extends number, U extends number> = T|U;
 
-
-// 当值 >= 0 代表字符串索引
-// 当值 < 0 则代表非负整数。使用 ~x 提取。
-export type StringIndexXorNumber = Xor<StringIndex, number>;
+// When the value >= 0 represents the string index
+// When the value is < 0, it just represents non-negative integer. Use ~x to extract the value.
+export type StringIndexBnotNumber = Bnot<StringIndex, number>;
 
 // A reverse index used to assign current parsing object to target command buffer so it could be assembled later.
 // Should >= REF.OBJ_OFFSET
 export type ReverseIndex = number;
 
-// 用于将当前对象存入索引
-export type InstanceXorReverseIndex = Xor<InstanceIndex, ReverseIndex>;
+// Used to index the current object
+export type InstanceBnotReverseIndex = Bnot<InstanceIndex, ReverseIndex>;
 
 /*@__DROP_PURE_EXPORT__*/
 export const enum DataTypeID {
@@ -182,12 +182,12 @@ export const enum DataTypeID {
     SimpleType = 0,
 
     //--------------------------------------------------------------------------
-    // 除了 Simple，其余都属于 Advanced Type
+    // Except Simple, the rest belong to Advanced Type.
 
     // Rarely will it be NULL, as NULL will be dropped as the default value.
     InstanceRef,
 
-    // 类型完全相等的数组。
+    // Arrays of exactly equal types.
     // Arrays will have default values that developers will rarely assign to null manually.
     Array_InstanceRef,
     Array_AssetRefByInnerObj,
@@ -200,8 +200,8 @@ export const enum DataTypeID {
     // Developers will rarely manually assign a null.
     ValueTypeCreated,
 
-    // 给内嵌对象（如数组）用的资源引用，值是 DEPEND_OBJS 的索引
-    //（INSTANCES 中的对象不需要动态解析资源引用关系，所以不需要有 AssetRef 类型）
+    // Resource reference for embedded objects (such as arrays), the value is the index of DEPEND_OBJS.
+    // (The objects in INSTANCES do not need to dynamically resolve resource reference relationships, so there is no need to have the AssetRef type.)
     AssetRefByInnerObj,
 
     // Common TypedArray for cc.Node only. Never be null.
@@ -213,13 +213,11 @@ export const enum DataTypeID {
     // // Developers will rarely manually assign a null.
     // TypedArray,
 
-    // 需要重新 new 对象的 ValueType（数组、字典里面的）
+    // ValueType without default value (in arrays, dictionaries).
     // Developers will rarely manually assign a null.
     ValueType,
 
     Array_Class,
-
-    // TODO: SharedString,
 
     // CustomizedClass embedded in Class
     CustomizedClass,
@@ -234,7 +232,7 @@ export const enum DataTypeID {
 
 export type DataTypes = {
     [DataTypeID.SimpleType]: number | string | boolean | null | object;
-    [DataTypeID.InstanceRef]: InstanceXorReverseIndex;
+    [DataTypeID.InstanceRef]: InstanceBnotReverseIndex;
     [DataTypeID.Array_InstanceRef]: Array<DataTypes[DataTypeID.InstanceRef]>;
     [DataTypeID.Array_AssetRefByInnerObj]: Array<DataTypes[DataTypeID.AssetRefByInnerObj]>;
     [DataTypeID.Class]: IClassObjectData;
@@ -261,7 +259,7 @@ export type PrimitiveObjectTypeID = (
 export type AdvancedTypeID = Exclude<DataTypeID, DataTypeID.SimpleType>
 
 
-// 所有数据的类型集合
+// Collection of all data types
 export type AnyData = DataTypes[keyof DataTypes];
 
 export type AdvancedData = DataTypes[Exclude<keyof DataTypes, DataTypeID.SimpleType>];
@@ -270,7 +268,7 @@ export type AdvancedData = DataTypes[Exclude<keyof DataTypes, DataTypeID.SimpleT
 export type OtherObjectData = ICustomObjectDataContent | Exclude<DataTypes[PrimitiveObjectTypeID], (number|string|boolean|null)>;
 
 // class Index of DataTypeID.CustomizedClass or PrimitiveObjectTypeID
-export type OtherObjectTypeID = Xor<number, PrimitiveObjectTypeID>;
+export type OtherObjectTypeID = Bnot<number, PrimitiveObjectTypeID>;
 
 export interface Ctor<T> extends Function {
     new(): T;
@@ -283,7 +281,7 @@ export type AnyCtor = Ctor<Object>;
 export type AnyCCClass = CCClass<Object>;
 
 /**
- * 如果值的类型不同将会生成不同的 Class
+ * If the value type is different, different Classes will be generated
  */
 const CLASS_TYPE = 0;
 const CLASS_KEYS = 1;
@@ -291,11 +289,12 @@ const CLASS_PROP_TYPE_OFFSET = 2;
 export type IClass = [
     string|AnyCtor,
     string[],
-    // offset - 用于指定 CLASS_KEYS 中的元素与其 AdvancedType 之间的对应关系，只对 AdvancedType 有效
-    // 解析时，IClass[CLASS_KEYS][x] 的类型为 IClass[x + IClass[CLASS_PROP_TYPE_OFFSET]]
-    // 序列化时，IClass[CLASS_PROP_TYPE_OFFSET] = CLASS_PROP_TYPE_OFFSET + 1 - （SimpleType 的数量）
+    // offset - It is used to specify the correspondence between the elements in CLASS_KEYS and their AdvancedType,
+    //          which is only valid for AdvancedType.
+    // When parsing, the type of IClass[CLASS_KEYS][x] is IClass[x + IClass[CLASS_PROP_TYPE_OFFSET]]
+    // When serializing, IClass[CLASS_PROP_TYPE_OFFSET] = CLASS_PROP_TYPE_OFFSET + 1 - (The number of SimpleType)
     number,
-    // 属性对应的 AdvancedType 类型
+    // The AdvancedType type corresponding to the property.
     ...DataTypeID[]
 ];
 
@@ -386,7 +385,7 @@ export interface IRefs extends Array<number> {
     // The owner of all the objects in the front is of type object, starting from OFFSET * 3 are of type InstanceIndex
     [0]: (object | InstanceIndex),
     // property name
-    [1]?: StringIndexXorNumber;
+    [1]?: StringIndexBnotNumber;
     // target object
     [2]?: InstanceIndex;
     // All the following objects are arranged in the order of the first three values,
@@ -411,6 +410,9 @@ export const enum File {
     ARRAY_LENGTH,
 }
 
+// TODO
+type ArrayOrSingle<T> = T[] | T;
+
 // Main file structure
 export interface IFileData extends Array<any> {
     // version
@@ -420,15 +422,15 @@ export interface IFileData extends Array<any> {
 
     [File.SharedUuids]: SharedString[] | Empty;           // Shared uuid strings for dependent assets
     [File.SharedStrings]: SharedString[] | Empty;
-    [File.SharedClasses]: (IClass|string|AnyCCClass)[];
-    [File.SharedMasks]: IMask[];            // Shared Object layouts for IClassObjectData
+    [File.SharedClasses]: ArrayOrSingle<IClass|string|AnyCCClass>;
+    [File.SharedMasks]: ArrayOrSingle<IMask> | Empty;            // Shared Object layouts for IClassObjectData // TODO
 
     // Data area
 
     // A one-dimensional array to represent object datas, layout is [...IClassObjectData[], ...AdvancedObjectData[], RootInstanceIndex]
     // If the last element is not RootInstanceIndex, the first element will be the root object to return
-    [File.Instances]: (IClassObjectData|OtherObjectData|RootInstanceIndex)[];
-    [File.InstanceTypes]: OtherObjectTypeID[] | Empty;
+    [File.Instances]: IClassObjectData|OtherObjectData|RootInstanceIndex;
+    [File.InstanceTypes]: ArrayOrSingle<OtherObjectTypeID> | Empty;
     // Object references infomation
     [File.Refs]: IRefs | Empty;
 
@@ -437,7 +439,7 @@ export interface IFileData extends Array<any> {
     // Asset-dependent objects that are deserialized and parsed into object arrays
     [File.DependObjs]: (object|InstanceIndex)[];
     // Asset-dependent key name or array index
-    [File.DependKeys]: (StringIndexXorNumber|string)[];
+    [File.DependKeys]: (StringIndexBnotNumber|string)[];
     // UUID of dependent assets
     [File.DependUuidIndices]: (StringIndex|string)[];
 }
@@ -543,7 +545,7 @@ function dereference(refs: IRefs, instances: IFileData[File.Instances], strings:
         const owner = refs[i] as any;
 
         const target = instances[refs[i + Refs.TARGET_OFFSET]];
-        const keyIndex = refs[i + Refs.KEY_OFFSET] as StringIndexXorNumber;
+        const keyIndex = refs[i + Refs.KEY_OFFSET] as StringIndexBnotNumber;
         if (keyIndex >= 0) {
             owner[strings[keyIndex]] = target;
         }
@@ -556,7 +558,7 @@ function dereference(refs: IRefs, instances: IFileData[File.Instances], strings:
         const owner = instances[refs[i]] as any;
 
         const target = instances[refs[i + Refs.TARGET_OFFSET]];
-        const keyIndex = refs[i + Refs.KEY_OFFSET] as StringIndexXorNumber;
+        const keyIndex = refs[i + Refs.KEY_OFFSET] as StringIndexBnotNumber;
         if (keyIndex >= 0) {
             owner[strings[keyIndex]] = target;
         }
@@ -619,7 +621,7 @@ function assignSimple (data: IFileData, owner: any, key: string, value: DataType
     owner[key] = value;
 }
 
-function assignInstanceRef (data: IFileData, owner: any, key: string, value: InstanceXorReverseIndex) {
+function assignInstanceRef (data: IFileData, owner: any, key: string, value: InstanceBnotReverseIndex) {
     if (value >= 0) {
         owner[key] = data[File.Instances][value];
     }
