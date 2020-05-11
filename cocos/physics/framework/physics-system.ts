@@ -223,7 +223,7 @@ export class PhysicsSystem extends System {
         } else {
             this.physicsWorld.step(this._deltaTime, this._timeSinceLastUpdate, this._maxSubStep);
         }
-        // TODO: 考虑将脏标记重置嵌套在场景同步和物理模拟之间，以减少一次场景同步
+        // TODO: nesting the dirty flag reset between the syncScenetoPhysics and the simulation to reduce calling syncScenetoPhysics.
         this.physicsWorld.syncSceneToPhysics();
         director.emit(Director.EVENT_AFTER_PHYSICS);
     }
