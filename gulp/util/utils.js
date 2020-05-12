@@ -59,9 +59,13 @@ exports.getUglifyOptions = function (platform, flags) {
                 sequences: false,
                 keep_infinity: true,    // reduce jsc file size
                 typeofs: false,
-                inline: 1,              // workaround mishoo/UglifyJS2#2842
-                reduce_funcs: false,
-                passes: 2,              // const enum x { y } --(bable)-> const x = { y } --(1st pass)-> var y = 0 --(2nd pass)-> 0
+                inline: true,
+                reduce_funcs: false,   // keep single-use function object being cached, but not supported since 4.2.1, see terser/terser#696
+                passes: 2,              // first: remove deadcode, second: drop variables
+                keep_fargs: false,
+                unsafe_Function: true,
+                unsafe_math: true,
+                unsafe_methods: true,
             },
             output: {
                 beautify: true,         // enable preserve_lines for line number
@@ -79,13 +83,18 @@ exports.getUglifyOptions = function (platform, flags) {
             compress: {
                 global_defs: global_defs,
                 negate_iife: false,
-                inline: 1,              // workaround mishoo/UglifyJS2#2842
-                reduce_funcs: false,    // keep single-use functions being cached
-                passes: 2,              // const enum x { y } --(bable)-> const x = { y } --(1st pass)-> var y = 0 --(2nd pass)-> 0
+                inline: true,
+                reduce_funcs: false,   // keep single-use function object being cached, but not supported since 4.2.1, see terser/terser#696
+                passes: 2,              // first: remove deadcode, second: reduce constant variables
+                keep_fargs: false,
+                unsafe_Function: true,
+                unsafe_math: true,
+                unsafe_methods: true,
             },
             output: {
+                // http://lisperator.net/uglifyjs/codegen
                 ascii_only: true,
-            }
+            },
         };
     }
     else {
@@ -143,21 +152,28 @@ exports.getUglifyOptions = function (platform, flags) {
 };
 
 exports.uglify = function (platform, isJSB, isDebugBuild) {
-    const Terser = require("terser");
-    const ES = require('event-stream');
     const options = exports.getUglifyOptions(platform, isJSB, isDebugBuild);
-    return ES.through(function (file) {
-        if (file.path.endsWith('.js')) {
-            var content = file.contents.toString();
+    if (false) {
+        const Composer = require('gulp-uglify/composer');
+        const Uglify = require('uglify-es');
+        return Composer(Uglify)(options);
+    }
+    else {
+        const Terser = require("terser");
+        const ES = require('event-stream');
+        return ES.through(function (file) {
+            if (file.path.endsWith('.js')) {
+                var content = file.contents.toString();
 
-            var result = Terser.minify(content, options);
-            if (result.error) {
-                return this.emit('error', result.error);
+                var result = Terser.minify(content, options);
+                if (result.error) {
+                    return this.emit('error', result.error);
+                }
+                content = result.code;
+
+                file.contents = new Buffer(content);
             }
-            content = result.code;
-
-            file.contents = new Buffer(content);
-        }
-        this.emit('data', file);
-    });
+            this.emit('data', file);
+        });
+    }
 };

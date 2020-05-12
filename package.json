@@ -54,7 +54,7 @@
     "require-dir": "0.3.0",
     "rollup": "^0.66.6",
     "rollup-plugin-node-resolve": "3.4.0",
-    "terser": "4.6.10",
+    "terser": "4.2.0",
     "vinyl": "1.1.0",
     "vinyl-buffer": "1.0.1",
     "vinyl-source-stream": "2.0.0",

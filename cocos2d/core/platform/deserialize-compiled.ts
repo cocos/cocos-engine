@@ -149,7 +149,7 @@ function serializeBuiltinValueTypes(obj: ValueType): IValueTypeData | null {
  ****************************************************************************/
 
 export type SharedString = string;
-export type Empty = number;
+export type Empty = 0;
 export type StringIndex = number;
 export type InstanceIndex = number;
 export type RootInstanceIndex = InstanceIndex;
@@ -228,6 +228,8 @@ export const enum DataTypeID {
     // Universal arrays, of any type (except TypedArray) and can be unequal.
     // (The editor doesn't seem to have a good way of stopping arrays of unequal types either)
     Array,
+
+    ARRAY_LENGTH,
 }
 
 export type DataTypes = {
@@ -365,12 +367,12 @@ export type IArrayData = [
     ...DataTypeID[]
 ];
 
-const TYPEDARRAY_TYPE = 0;
-const TYPEDARRAY_ELEMENTS = 1;
-export interface ITypedArrayData extends Array<number|number[]> {
-    [TYPEDARRAY_TYPE]: number,
-    [TYPEDARRAY_ELEMENTS]: number[],
-}
+// const TYPEDARRAY_TYPE = 0;
+// const TYPEDARRAY_ELEMENTS = 1;
+// export interface ITypedArrayData extends Array<number|number[]> {
+//     [TYPEDARRAY_TYPE]: number,
+//     [TYPEDARRAY_ELEMENTS]: number[],
+// }
 
 /*@__DROP_PURE_EXPORT__*/
 export const enum Refs {
@@ -411,7 +413,7 @@ export const enum File {
 }
 
 // TODO
-type ArrayOrSingle<T> = T[] | T;
+type ArrayOrSingle<T> = T extends Array<any> ? never : (T[] | T);
 
 // Main file structure
 export interface IFileData extends Array<any> {
@@ -423,7 +425,7 @@ export interface IFileData extends Array<any> {
     [File.SharedUuids]: SharedString[] | Empty;           // Shared uuid strings for dependent assets
     [File.SharedStrings]: SharedString[] | Empty;
     [File.SharedClasses]: ArrayOrSingle<IClass|string|AnyCCClass>;
-    [File.SharedMasks]: ArrayOrSingle<IMask> | Empty;            // Shared Object layouts for IClassObjectData // TODO
+    [File.SharedMasks]: IMask | Empty;  // Shared Object layouts for IClassObjectData // TODO
 
     // Data area
 
@@ -595,7 +597,7 @@ function deserializeCCObject (data: IFileData, objectData: IClassObjectData) {
     for (; i < objectData.length; ++i) {
         let key = keys[mask[i]];
         let type = clazz[mask[i] + classTypeOffset];
-        let op = ASSIGNMENTS[type] as ParseFunction;
+        let op = ASSIGNMENTS[type];
         op(data, obj, key, objectData[i]);
     }
 
@@ -676,7 +678,7 @@ function parseDict (data: IFileData, owner: any, key: string, value: IDictData) 
         let key = value[i] as string;
         let type = value[i + 1] as DataTypeID;
         let subValue = value[i + 2] as AnyData;
-        let op = ASSIGNMENTS[type] as ParseFunction;
+        let op = ASSIGNMENTS[type];
         op(data, dict, key, subValue);
     }
 }
@@ -688,7 +690,7 @@ function parseArray (data: IFileData, owner: any, key: string, value: IArrayData
         let subValue = array[i] as AnyData;
         let type = value[i + 1] as DataTypeID;
         if (type !== DataTypeID.SimpleType) {
-            let op = ASSIGNMENTS[type] as ParseFunction;
+            let op = ASSIGNMENTS[type];
             // @ts-ignore
             op(data, array, i, subValue);
         }
@@ -706,7 +708,7 @@ function parseArray (data: IFileData, owner: any, key: string, value: IArrayData
 //     owner[key] = val;
 // }
 
-const ASSIGNMENTS = new Array<ParseFunction | null>(DataTypeID.Array + 1);
+const ASSIGNMENTS = new Array<ParseFunction>(DataTypeID.ARRAY_LENGTH);
 ASSIGNMENTS[DataTypeID.SimpleType] = assignSimple;    // Only be used in the instances array
 ASSIGNMENTS[DataTypeID.InstanceRef] = assignInstanceRef;
 ASSIGNMENTS[DataTypeID.Array_InstanceRef] = genArrayParser(assignInstanceRef);
@@ -870,7 +872,6 @@ export default function deserialize (data: IFileData, details: Details, options?
         data = JSON.parse(data);
     }
 
-    // TODO - formerlySerializedAs
     let borrowDetails = !details;
     details = details || Details.pool.get();
     details.init(data);
@@ -911,7 +912,7 @@ export function packCustomObjData (type: string, data: IClassObjectData|OtherObj
     return [
         SUPPORT_LOWEST_FORMAT_VERSION, 0, 0,
         [type],
-        [],
+        0,
         [data],
         [0],
         0, [], [], []

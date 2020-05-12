@@ -6,6 +6,7 @@ const Fs = require('fs');
 const Del = require('del');
 
 const dropPureExport = require('./drop-pure-export');
+const inlineProp = require('./inline-prop');
 const polyfillPromisify = require('./polyfill-node-promisify');
 
 const preludePath = Path.resolve(__dirname, '../browserify_prelude.js');
@@ -149,8 +150,9 @@ module.exports = function createBundler(entryFiles, options) {
 
     return b
         .transform(dropPureExport)
+        .transform(inlineProp.inlineConst)
         .transform(Babelify, (options && options.babelifyOpt) || {
-            extensions: ['.js', '.ts'],
+            extensions: ['.ts', '.js'],
             presets: (options && options.presets) || presets,
             plugins: (options && options.plugins && options.plugins.concat(plugins)) || plugins,
 
@@ -159,11 +161,13 @@ module.exports = function createBundler(entryFiles, options) {
             //     allowReturnOutsideFunction: true,
             // },
 
+            comments: true,
             ast: false,
             babelrc: false,
             highlightCode: false,
             sourceMaps: true,
             compact: false
         })
+        .transform(inlineProp.inlineEnum)
         .transform(aliasify, (options && options.aliasifyConfig) || {});
 };
