@@ -995,7 +995,7 @@ void GLES3CmdFuncCreateShader(GLES3Device* device, GLES3GPUShader* gpuShader) {
     }
   }
   
-  CC_LOG_INFO("Shader '%s' compilation successed.", gpuShader->name.c_str());
+  CC_LOG_INFO("Shader '%s' compilation succeeded.", gpuShader->name.c_str());
   
   GLint attr_max_length = 0;
   GLint attr_count = 0;

@@ -35,7 +35,7 @@ public:
     void draw(GFXInputAssembler* ia);
     void updateBuffer(GFXBuffer* buff, void* data, uint size, uint offset);
     void copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, const GFXBufferTextureCopyList& regions);
-    void execute(const std::vector<GFXCommandBuffer*>& cmd_buffs, uint32_t count);
+    void execute(const std::vector<GFXCommandBuffer*>& cmd_buffs, uint count);
 
     CCVKGPUCommandBuffer* gpuCommandBuffer() const { return _gpuCommandBuffer; }
 
@@ -46,7 +46,7 @@ private:
     CCVKGPUCommandBuffer* _gpuCommandBuffer = nullptr;
 
     CCVKGPUPipelineState* _curGPUPipelineState = nullptr;
-    CCVKGPUBindingLayout* _curGPUBlendLayout = nullptr;
+    CCVKGPUBindingLayout* _curGPUBindingLayout = nullptr;
     CCVKGPUInputAssembler* _curGPUInputAssember = nullptr;
 
     CCVKGPUFramebuffer* _curGPUFBO = nullptr;

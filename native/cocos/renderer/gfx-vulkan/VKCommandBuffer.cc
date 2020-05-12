@@ -54,7 +54,7 @@ void CCVKCommandBuffer::destroy()
 void CCVKCommandBuffer::begin()
 {
     _curGPUPipelineState = nullptr;
-    _curGPUBlendLayout = nullptr;
+    _curGPUBindingLayout = nullptr;
     _curGPUInputAssember = nullptr;
     _numDrawCalls = 0;
     _numInstances = 0;
@@ -95,7 +95,7 @@ void CCVKCommandBuffer::beginRenderPass(GFXFramebuffer* fbo, const GFXRect& rend
 
     if (attachmentCount)
     {
-        for (uint32_t i = 0u; i < attachmentCount - 1; i++)
+        for (size_t i = 0u; i < attachmentCount - 1; i++)
         {
             barriers[i].image = _curGPUFBO->isOffscreen ? _curGPUFBO->gpuColorViews[i]->gpuTexture->vkImage :
                 _curGPUFBO->swapchain->swapchainImages[_curGPUFBO->swapchain->curImageIndex];
@@ -103,7 +103,7 @@ void CCVKCommandBuffer::beginRenderPass(GFXFramebuffer* fbo, const GFXRect& rend
         }
         barriers[attachmentCount - 1].image = _curGPUFBO->isOffscreen ? _curGPUFBO->gpuDepthStencilView->gpuTexture->vkImage :
             _curGPUFBO->swapchain->depthStencilImages[_curGPUFBO->swapchain->curImageIndex];
-        clearValues[attachmentCount - 1].depthStencil = { depth, (uint32_t)stencil };
+        clearValues[attachmentCount - 1].depthStencil = { depth, (uint)stencil };
 
         vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
             VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
@@ -114,6 +114,8 @@ void CCVKCommandBuffer::beginRenderPass(GFXFramebuffer* fbo, const GFXRect& rend
     passBeginInfo.renderPass = _curGPUFBO->gpuRenderPass->vkRenderPass;
     passBeginInfo.framebuffer = _curGPUFBO->isOffscreen ? _curGPUFBO->vkFramebuffer :
         _curGPUFBO->swapchain->vkSwapchainFramebuffers[_curGPUFBO->swapchain->curImageIndex];
+    passBeginInfo.renderArea.offset.x = renderArea.x;
+    passBeginInfo.renderArea.offset.y = renderArea.y;
     passBeginInfo.renderArea.extent.width = renderArea.width;
     passBeginInfo.renderArea.extent.height = renderArea.height;
     passBeginInfo.clearValueCount = clearValues.size();
@@ -121,7 +123,8 @@ void CCVKCommandBuffer::beginRenderPass(GFXFramebuffer* fbo, const GFXRect& rend
 
     vkCmdBeginRenderPass(_gpuCommandBuffer->vkCommandBuffer, &passBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-    VkViewport viewport{ (float)renderArea.x, (float)(renderArea.height - renderArea.y), (float)renderArea.width, -(float)renderArea.height, 0, 1 };
+    //VkViewport viewport{ (float)renderArea.x, (float)renderArea.y, (float)renderArea.width, (float)renderArea.height, 0, 1 };
+    VkViewport viewport{ (float)renderArea.x, (float)renderArea.height - renderArea.y, (float)renderArea.width, -(float)renderArea.height, 0, 1 };
     vkCmdSetViewport(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &viewport);
 
     VkRect2D scissor{ { renderArea.x, renderArea.y }, { renderArea.width, renderArea.height } };
@@ -138,7 +141,7 @@ void CCVKCommandBuffer::endRenderPass()
 
     if (attachmentCount)
     {
-        for (uint32_t i = 0u; i < attachmentCount - 1; i++)
+        for (size_t i = 0u; i < attachmentCount - 1; i++)
         {
             barriers[i].image = _curGPUFBO->isOffscreen ? _curGPUFBO->gpuColorViews[i]->gpuTexture->vkImage :
                 _curGPUFBO->swapchain->swapchainImages[_curGPUFBO->swapchain->curImageIndex];
@@ -164,8 +167,17 @@ void CCVKCommandBuffer::bindPipelineState(GFXPipelineState* pso)
 
 void CCVKCommandBuffer::bindBindingLayout(GFXBindingLayout* layout)
 {
-    _curGPUBlendLayout = ((CCVKBindingLayout*)layout)->gpuBindingLayout();
-    _isStateInvalid = true;
+    if (_curGPUPipelineState)
+    {
+        _curGPUBindingLayout = ((CCVKBindingLayout*)layout)->gpuBindingLayout();
+        vkCmdBindDescriptorSets(_gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+            _curGPUPipelineState->gpuLayout->vkPipelineLayout, 0, 1, &_curGPUBindingLayout->vkDescriptorSet, 0, nullptr);
+        _isStateInvalid = true;
+    }
+    else
+    {
+        CC_LOG_ERROR("Command 'bindBindingLayout' must be recorded after 'bindPipelineState'.");
+    }
 }
 
 void CCVKCommandBuffer::bindInputAssembler(GFXInputAssembler* ia)
@@ -319,29 +331,29 @@ void CCVKCommandBuffer::draw(GFXInputAssembler* ia)
 
 void CCVKCommandBuffer::updateBuffer(GFXBuffer* buff, void* data, uint size, uint offset)
 {
-    if ((_type == GFXCommandBufferType::PRIMARY && _curGPUFBO) ||
+    if ((_type == GFXCommandBufferType::PRIMARY && !_curGPUFBO) ||
         (_type == GFXCommandBufferType::SECONDARY))
     {
     }
     else
     {
-        CC_LOG_ERROR("Command 'updateBuffer' must be recorded inside a render pass.");
+        CC_LOG_ERROR("Command 'updateBuffer' must be recorded outside a render pass.");
     }
 }
 
 void CCVKCommandBuffer::copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, const GFXBufferTextureCopyList& regions)
 {
-    if ((_type == GFXCommandBufferType::PRIMARY && _curGPUFBO) ||
+    if ((_type == GFXCommandBufferType::PRIMARY && !_curGPUFBO) ||
         (_type == GFXCommandBufferType::SECONDARY))
     {
     }
     else
     {
-        CC_LOG_ERROR("Command 'copyBufferToTexture' must be recorded inside a render pass.");
+        CC_LOG_ERROR("Command 'copyBufferToTexture' must be recorded outside a render pass.");
     }
 }
 
-void CCVKCommandBuffer::execute(const std::vector<GFXCommandBuffer*>& cmd_buffs, uint32_t count)
+void CCVKCommandBuffer::execute(const std::vector<GFXCommandBuffer*>& cmd_buffs, uint count)
 {
     for (uint i = 0; i < count; ++i)
     {

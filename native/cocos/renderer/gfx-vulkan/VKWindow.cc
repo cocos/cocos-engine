@@ -94,7 +94,7 @@ bool CCVKWindow::initialize(const GFXWindowInfo &info)
             GFXTextureViewInfo depthStecnilTexViewInfo;
             depthStecnilTexViewInfo.texture = _depthStencilTex;
             depthStecnilTexViewInfo.type = GFXTextureViewType::TV2D;
-            depthStecnilTexViewInfo.format = _colorFmt;
+            depthStecnilTexViewInfo.format = _depthStencilFmt;
             depthStecnilTexViewInfo.baseLevel = 0;
             depthStecnilTexViewInfo.levelCount = 1;
             depthStecnilTexViewInfo.baseLayer = 0;
@@ -106,7 +106,9 @@ bool CCVKWindow::initialize(const GFXWindowInfo &info)
     GFXFramebufferInfo fboInfo;
     fboInfo.renderPass = _renderPass;
     if (_colorTexView)
+    {
         fboInfo.colorViews.push_back(_colorTexView);
+    }
     fboInfo.depthStencilView = _depthStencilTexView;
     fboInfo.isOffscreen = _isOffscreen;
     _framebuffer = _device->createFramebuffer(fboInfo);

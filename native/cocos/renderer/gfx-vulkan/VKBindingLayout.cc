@@ -4,6 +4,7 @@
 #include "VKBuffer.h"
 #include "VKTextureView.h"
 #include "VKSampler.h"
+#include "VKDevice.h"
 
 NS_CC_BEGIN
 
@@ -28,21 +29,13 @@ bool CCVKBindingLayout::initialize(const GFXBindingLayoutInfo &info)
             bindingUnit.binding = binding.binding;
             bindingUnit.type = binding.type;
             bindingUnit.name = binding.name;
+            bindingUnit.count = binding.count;
+            bindingUnit.shaderStages = binding.shaderStages;
         }
     }
 
     _gpuBindingLayout = CC_NEW(CCVKGPUBindingLayout);
-    _gpuBindingLayout->gpuBindings.resize(_bindingUnits.size());
-    for (size_t i = 0; i < _gpuBindingLayout->gpuBindings.size(); ++i)
-    {
-        CCVKGPUBinding& gpuBinding = _gpuBindingLayout->gpuBindings[i];
-        const GFXBindingUnit& bindingUnit = _bindingUnits[i];
-        gpuBinding.binding = bindingUnit.binding;
-        gpuBinding.type = bindingUnit.type;
-        gpuBinding.name = bindingUnit.name;
-    }
-
-    CCVKCmdFuncCreateBindingLayout((CCVKDevice*)_device, _gpuBindingLayout);
+    CCVKCmdFuncCreateBindingLayout((CCVKDevice*)_device, _gpuBindingLayout, _bindingUnits);
 
     _status = GFXStatus::SUCCESS;
 
@@ -68,31 +61,47 @@ void CCVKBindingLayout::update()
         for (size_t i = 0; i < _bindingUnits.size(); ++i)
         {
             GFXBindingUnit& bindingUnit = _bindingUnits[i];
+            auto &binding = _gpuBindingLayout->bindings[i];
+
             switch (bindingUnit.type)
             {
             case GFXBindingType::UNIFORM_BUFFER:
             {
                 if (bindingUnit.buffer)
                 {
-                    _gpuBindingLayout->gpuBindings[i].gpuBuffer = ((CCVKBuffer*)bindingUnit.buffer)->gpuBuffer();
+                    auto buffer = ((CCVKBuffer*)bindingUnit.buffer)->gpuBuffer();
+                    auto info = (VkDescriptorBufferInfo*)binding.pBufferInfo;
+
+                    info->buffer = buffer->vkBuffer;
+                    info->offset = 0;
+                    info->range = buffer->size;
                 }
+
                 break;
             }
             case GFXBindingType::SAMPLER:
             {
+                auto info = (VkDescriptorImageInfo*)binding.pImageInfo;
+                info->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
                 if (bindingUnit.texView)
                 {
-                    _gpuBindingLayout->gpuBindings[i].gpuTexView = ((CCVKTextureView*)bindingUnit.texView)->gpuTexView();
+                    info->imageView = ((CCVKTextureView*)bindingUnit.texView)->gpuTexView()->vkImageView;
                 }
+
                 if (bindingUnit.sampler)
                 {
-                    _gpuBindingLayout->gpuBindings[i].gpuSampler = ((CCVKSampler*)bindingUnit.sampler)->gpuSampler();
+                    info->sampler = ((CCVKSampler*)bindingUnit.sampler)->gpuSampler()->vkSampler;
                 }
+
                 break;
             }
-            default:;
             }
         }
+
+        vkUpdateDescriptorSets(((CCVKDevice*)_device)->gpuDevice()->vkDevice,
+            _gpuBindingLayout->bindings.size(), _gpuBindingLayout->bindings.data(), 0, nullptr);
+
         _isDirty = false;
     }
 }

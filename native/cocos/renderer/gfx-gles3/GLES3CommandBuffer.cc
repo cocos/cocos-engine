@@ -217,7 +217,7 @@ void GLES3CommandBuffer::draw(GFXInputAssembler* ia) {
 }
 
 void GLES3CommandBuffer::updateBuffer(GFXBuffer* buff, void* data, uint size, uint offset) {
-  if ((_type == GFXCommandBufferType::PRIMARY && _isInRenderPass) ||
+  if ((_type == GFXCommandBufferType::PRIMARY && !_isInRenderPass) ||
       (_type == GFXCommandBufferType::SECONDARY)) {
     GLES3GPUBuffer* gpuBuffer = ((GLES3Buffer*)buff)->gpuBuffer();
     if (gpuBuffer) {
@@ -231,12 +231,12 @@ void GLES3CommandBuffer::updateBuffer(GFXBuffer* buff, void* data, uint size, ui
       _cmdPackage->cmds.push(GFXCmdType::UPDATE_BUFFER);
     }
   } else {
-    CC_LOG_ERROR("Command 'updateBuffer' must be recorded inside a render pass.");
+    CC_LOG_ERROR("Command 'updateBuffer' must be recorded outside a render pass.");
   }
 }
 
 void GLES3CommandBuffer::copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, const GFXBufferTextureCopyList& regions) {
-  if ((_type == GFXCommandBufferType::PRIMARY && _isInRenderPass) ||
+  if ((_type == GFXCommandBufferType::PRIMARY && !_isInRenderPass) ||
       (_type == GFXCommandBufferType::SECONDARY)) {
     GLES3GPUBuffer* gpuBuffer = ((GLES3Buffer*)src)->gpuBuffer();
     GLES3GPUTexture* gpuTexture = ((GLES3Texture*)dst)->gpuTexture();
@@ -254,7 +254,7 @@ void GLES3CommandBuffer::copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GF
       _cmdPackage->cmds.push(GFXCmdType::COPY_BUFFER_TO_TEXTURE);
     }
   } else {
-    CC_LOG_ERROR("Command 'copyBufferToTexture' must be recorded inside a render pass.");
+    CC_LOG_ERROR("Command 'copyBufferToTexture' must be recorded outside a render pass.");
   }
 }
 

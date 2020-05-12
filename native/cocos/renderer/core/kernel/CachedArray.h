@@ -43,7 +43,7 @@ class CachedArray {
   }
   
   T pop() {
-    return _array[_size--];
+    return _array[--_size];
   }
   
   uint size() const {

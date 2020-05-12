@@ -96,9 +96,18 @@ bool CCVKTexture::initialize(const GFXTextureInfo &info)
     _gpuTexture->flags = _flags;
     _gpuTexture->isPowerOf2 = math::IsPowerOfTwo(_width) && math::IsPowerOfTwo(_height);
 
-    CCVKCmdFuncCreateTexture((CCVKDevice*)_device, _gpuTexture);
-    _device->getMemoryStatus().textureSize += _size;
-    _status = GFXStatus::SUCCESS;
+    if (CCVKCmdFuncCreateTexture((CCVKDevice*)_device, _gpuTexture))
+    {
+        _device->getMemoryStatus().textureSize += _size;
+        _status = GFXStatus::SUCCESS;
+    }
+    else
+    {
+        CC_DELETE(_gpuTexture);
+        _gpuTexture = nullptr;
+        _status = GFXStatus::FAILED;
+        return false;
+    }
 
     return true;
 }

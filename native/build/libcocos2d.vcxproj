@@ -526,12 +526,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>$(EngineRoot)external\win32\libs;$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)</TargetName>
-    <IncludePath>$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\renderer\core;$(ProjectDir)..\external\sources\tommyds;$(ProjectDir)..\external\sources\khronos;$(ProjectDir)..\external\sources\jemalloc\include-win;$(ProjectDir)..\external\sources\jemalloc\include-win\msvc_compat;$(ProjectDir)..\external\sources\glslang;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\renderer\core;$(ProjectDir)..\external\sources\tommyds;$(ProjectDir)..\external\sources\khronos;$(ProjectDir)..\external\sources\jemalloc\include-win;$(ProjectDir)..\external\sources\jemalloc\include-win\msvc_compat;$(ProjectDir)..\external\win32\include\glslang;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LibraryPath>$(EngineRoot)external\win32\libs;$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)</TargetName>
-    <IncludePath>$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\renderer\core;$(ProjectDir)..\external\sources\tommyds;$(ProjectDir)..\external\sources\khronos;$(ProjectDir)..\external\sources\jemalloc\include-win;$(ProjectDir)..\external\sources\jemalloc\include-win\msvc_compat;$(ProjectDir)..\external\sources\glslang;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\renderer\core;$(ProjectDir)..\external\sources\tommyds;$(ProjectDir)..\external\sources\khronos;$(ProjectDir)..\external\sources\jemalloc\include-win;$(ProjectDir)..\external\sources\jemalloc\include-win\msvc_compat;$(ProjectDir)..\external\win32\include\glslang;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PreBuildEvent>

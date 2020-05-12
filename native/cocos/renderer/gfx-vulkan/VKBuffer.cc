@@ -35,10 +35,10 @@ bool CCVKBuffer::initialize(const GFXBufferInfo& info)
     _gpuBuffer->stride = _stride;
     _gpuBuffer->count = _count;
 
-    //if (!(_usage & GFXBufferUsageBit::INDIRECT))
-    //{
-    //    _gpuBuffer->buffer = _buffer;
-    //}
+    if (!(_usage & GFXBufferUsageBit::INDIRECT))
+    {
+        _gpuBuffer->buffer = _buffer;
+    }
 
     CCVKCmdFuncCreateBuffer((CCVKDevice*)_device, _gpuBuffer);
     _device->getMemoryStatus().bufferSize += _size;

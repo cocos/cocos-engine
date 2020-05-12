@@ -43,8 +43,8 @@ void CCVKQueue::submit(const std::vector<GFXCommandBuffer*>& cmdBuffs)
     if (!_isAsync)
     {
         _gpuQueue->commandBuffers.clear();
-        uint32_t count = cmdBuffs.size();
-        for (uint32_t i = 0u; i < count; ++i)
+        uint count = cmdBuffs.size();
+        for (uint i = 0u; i < count; ++i)
         {
             CCVKCommandBuffer* cmdBuffer = (CCVKCommandBuffer*)cmdBuffs[i];
             _gpuQueue->commandBuffers.push(cmdBuffer->_gpuCommandBuffer->vkCommandBuffer);

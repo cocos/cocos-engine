@@ -15,6 +15,7 @@ public:
     void destroy();
 
     CC_INLINE CCVKGPUCommandPool* gpuCommandPool() { return _gpuCommandPool; }
+    void reset();
 
 private:
     CCVKGPUCommandPool* _gpuCommandPool;

@@ -5,7 +5,7 @@
 
 NS_CC_BEGIN
 
-class CCVKGPUContext
+class CCVKGPUContext : public Object
 {
 public:
     VkInstance vkInstance = VK_NULL_HANDLE;
@@ -44,10 +44,10 @@ public:
     vector<VkImageMemoryBarrier>::type endBarriers;
 };
 
-class CCVKGPUSwapchain
+class CCVKGPUSwapchain : public Object
 {
 public:
-    uint32_t curImageIndex;
+    uint curImageIndex = 0;
     VkSwapchainKHR vkSwapchain = VK_NULL_HANDLE;
     vector<VkImageView>::type vkSwapchainImageViews;
     vector<VkFramebuffer>::type vkSwapchainFramebuffers;
@@ -62,7 +62,8 @@ class CCVKGPUCommandPool : public Object
 {
 public:
     VkCommandPool vkCommandPool = VK_NULL_HANDLE;
-    map<VkCommandBufferLevel, CachedArray<VkCommandBuffer>>::type commandBuffers;
+    CachedArray<VkCommandBuffer> commandBuffers[2];
+    CachedArray<VkCommandBuffer> usedCommandBuffers[2];
 };
 
 class CCVKGPUCommandBuffer : public Object
@@ -78,7 +79,7 @@ class CCVKGPUQueue : public Object
 public:
     GFXQueueType type;
     VkQueue vkQueue;
-    uint32_t queueFamilyIndex;
+    uint queueFamilyIndex;
     VkSemaphore waitSemaphore = VK_NULL_HANDLE;
     VkSemaphore signalSemaphore = VK_NULL_HANDLE;
     VkPipelineStageFlags submitStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -118,16 +119,7 @@ public:
     bool isPowerOf2 = false;
     VkImage vkImage = VK_NULL_HANDLE;
     VkDeviceMemory vkDeviceMemory = VK_NULL_HANDLE;
-    //GLenum glTarget = 0;
-    //GLenum glInternelFmt = 0;
-    //GLenum glFormat = 0;
-    //GLenum glType = 0;
-    //GLenum glUsage = 0;
-    //GLuint glTexture = 0;
-    //GLenum glWrapS = 0;
-    //GLenum glWrapT = 0;
-    //GLenum glMinFilter = 0;
-    //GLenum glMagFilter = 0;
+    VkImageLayout currentLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 };
 
 class CCVKGPUTextureView : public Object
@@ -143,22 +135,22 @@ public:
 
 typedef vector<CCVKGPUTextureView*>::type CCVKGPUTextureViewList;
 
-class CCVKGPUSampler : public Object {
- public:
-  GFXFilter minFilter = GFXFilter::NONE;
-  GFXFilter magFilter = GFXFilter::NONE;
-  GFXFilter mipFilter = GFXFilter::NONE;
-  GFXAddress addressU = GFXAddress::CLAMP;
-  GFXAddress addressV = GFXAddress::CLAMP;
-  GFXAddress addressW = GFXAddress::CLAMP;
-  uint minLOD = 0;
-  uint maxLOD = 1000;
-  //GLuint gl_sampler = 0;
-  //GLenum glMinFilter = 0;
-  //GLenum glMagFilter = 0;
-  //GLenum glWrapS = 0;
-  //GLenum glWrapT = 0;
-  //GLenum glWrapR = 0;
+class CCVKGPUSampler : public Object
+{
+public:
+    GFXFilter minFilter = GFXFilter::LINEAR;
+    GFXFilter magFilter = GFXFilter::LINEAR;
+    GFXFilter mipFilter = GFXFilter::NONE;
+    GFXAddress addressU = GFXAddress::WRAP;
+    GFXAddress addressV = GFXAddress::WRAP;
+    GFXAddress addressW = GFXAddress::WRAP;
+    uint maxAnisotropy = 16;
+    GFXComparisonFunc cmpFunc = GFXComparisonFunc::NEVER;
+    GFXColor borderColor;
+    uint minLOD = 0;
+    uint maxLOD = 1000;
+    float mipLODBias = 0.0f;
+    VkSampler vkSampler;
 };
 
 struct CCVKGPUInput
@@ -274,22 +266,13 @@ public:
     CCVKGPUSwapchain* swapchain = nullptr;
 };
 
-struct CCVKGPUBinding
-{
-    uint binding = GFX_INVALID_BINDING;
-    GFXBindingType type = GFXBindingType::UNKNOWN;
-    String name;
-    CCVKGPUBuffer* gpuBuffer = nullptr;
-    CCVKGPUTextureView* gpuTexView = nullptr;
-    CCVKGPUSampler* gpuSampler = nullptr;
-};
-typedef vector<CCVKGPUBinding>::type CCVKGPUBindingList;
-
 class CCVKGPUBindingLayout : public Object
 {
 public:
-    CCVKGPUBindingList gpuBindings;
-    VkDescriptorSetLayout vkDescriptorSetLayout;
+    vector<VkWriteDescriptorSet>::type bindings;
+    VkDescriptorSetLayout vkDescriptorSetLayout = VK_NULL_HANDLE;
+    VkDescriptorPool vkDescriptorPool = VK_NULL_HANDLE;
+    VkDescriptorSet vkDescriptorSet = VK_NULL_HANDLE;
 };
 
 class CCVKGPUPipelineLayout : public Object
@@ -316,7 +299,7 @@ public:
     VkPipelineCache vkPipelineCache = VK_NULL_HANDLE;
 };
 
-class CCVKGPUSemaphorePool
+class CCVKGPUSemaphorePool : public Object
 {
 public:
     CCVKGPUSemaphorePool(CCVKGPUDevice* device)
@@ -350,7 +333,7 @@ public:
         return semaphore;
     }
 
-    void clear()
+    void reset()
     {
         _count = 0;
     }
@@ -364,6 +347,60 @@ private:
     CCVKGPUDevice* _device;
     uint _count = 0;
     vector<VkSemaphore>::type _semaphores;
+};
+
+class CCVKGPUFencePool : public Object
+{
+public:
+    CCVKGPUFencePool(CCVKGPUDevice* device)
+        : _device(device)
+    {
+    }
+
+    ~CCVKGPUFencePool()
+    {
+        for (auto fence : _fences)
+        {
+            vkDestroyFence(_device->vkDevice, fence, nullptr);
+        }
+        _fences.clear();
+        _count = 0;
+    }
+
+    VkFence alloc()
+    {
+        if (_count < _fences.size())
+        {
+            return _fences[_count++];
+        }
+
+        VkFence fence = VK_NULL_HANDLE;
+        VkFenceCreateInfo createInfo{ VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
+        VK_CHECK(vkCreateFence(_device->vkDevice, &createInfo, nullptr, &fence));
+        _fences.push_back(fence);
+        _count++;
+
+        return fence;
+    }
+
+    void reset()
+    {
+        if (_count)
+        {
+            VK_CHECK(vkResetFences(_device->vkDevice, _count, _fences.data()));
+            _count = 0;
+        }
+    }
+
+    uint size()
+    {
+        return _count;
+    }
+
+private:
+    CCVKGPUDevice* _device;
+    uint _count = 0;
+    vector<VkFence>::type _fences;
 };
 
 NS_CC_END

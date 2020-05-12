@@ -877,6 +877,7 @@ struct GFXBinding {
   uint binding = 0;
   GFXBindingType type = GFXBindingType::UNKNOWN;
   String name;
+  uint count = 0;
 };
 
 typedef vector<GFXBinding>::type GFXBindingList;
@@ -890,6 +891,7 @@ struct GFXBindingUnit {
   uint binding = 0;
   GFXBindingType type = GFXBindingType::UNKNOWN;
   String name;
+  uint count = 0;
   GFXBuffer* buffer = nullptr;
   GFXTextureView* texView = nullptr;
   GFXSampler* sampler = nullptr;

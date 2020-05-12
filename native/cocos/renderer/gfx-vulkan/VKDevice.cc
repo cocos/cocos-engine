@@ -29,6 +29,11 @@ CCVKDevice::~CCVKDevice()
 {
 }
 
+CCVKGPUContext* CCVKDevice::gpuContext() const
+{
+    return ((CCVKContext*)_context)->gpuContext();
+}
+
 bool CCVKDevice::initialize(const GFXDeviceInfo& info)
 {
     _gfxAPI = GFXAPI::VULKAN;
@@ -68,19 +73,21 @@ bool CCVKDevice::initialize(const GFXDeviceInfo& info)
     requestedFeatures.textureCompressionASTC_LDR = deviceFeatures.textureCompressionASTC_LDR;
     requestedFeatures.textureCompressionBC = deviceFeatures.textureCompressionBC;
     requestedFeatures.textureCompressionETC2 = deviceFeatures.textureCompressionETC2;
+    requestedFeatures.samplerAnisotropy = deviceFeatures.samplerAnisotropy;
 
     ///////////////////// Device Creation /////////////////////
 
     _gpuDevice = CC_NEW(CCVKGPUDevice);
     _gpuSemaphorePool = CC_NEW(CCVKGPUSemaphorePool(_gpuDevice));
+    _gpuFencePool = CC_NEW(CCVKGPUFencePool(_gpuDevice));
 
     // check extensions
-    uint32_t availableLayerCount;
+    uint availableLayerCount;
     VK_CHECK(vkEnumerateDeviceLayerProperties(context->physicalDevice, &availableLayerCount, nullptr));
     _gpuDevice->layers.resize(availableLayerCount);
     VK_CHECK(vkEnumerateDeviceLayerProperties(context->physicalDevice, &availableLayerCount, _gpuDevice->layers.data()));
 
-    uint32_t availableExtensionCount;
+    uint availableExtensionCount;
     VK_CHECK(vkEnumerateDeviceExtensionProperties(context->physicalDevice, nullptr, &availableExtensionCount, nullptr));
     _gpuDevice->extensions.resize(availableExtensionCount);
     VK_CHECK(vkEnumerateDeviceExtensionProperties(context->physicalDevice, nullptr, &availableExtensionCount, _gpuDevice->extensions.data()));
@@ -102,11 +109,11 @@ bool CCVKDevice::initialize(const GFXDeviceInfo& info)
     }
 
     // prepare the device queues
-    uint32_t                             queueFamilyPropertiesCount = toU32(context->queueFamilyProperties.size());
+    uint                             queueFamilyPropertiesCount = toUint(context->queueFamilyProperties.size());
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos(queueFamilyPropertiesCount, { VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO });
     std::vector<std::vector<float>>      queuePriorities(queueFamilyPropertiesCount);
 
-    for (uint32_t queueFamilyIndex = 0u; queueFamilyIndex < queueFamilyPropertiesCount; ++queueFamilyIndex)
+    for (uint queueFamilyIndex = 0u; queueFamilyIndex < queueFamilyPropertiesCount; ++queueFamilyIndex)
     {
         const VkQueueFamilyProperties &queueFamilyProperty = context->queueFamilyProperties[queueFamilyIndex];
 
@@ -121,11 +128,11 @@ bool CCVKDevice::initialize(const GFXDeviceInfo& info)
 
     VkDeviceCreateInfo deviceCreateInfo{ VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO };
 
-    deviceCreateInfo.queueCreateInfoCount = toU32(queueCreateInfos.size());
+    deviceCreateInfo.queueCreateInfoCount = toUint(queueCreateInfos.size());
     deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
-    deviceCreateInfo.enabledLayerCount = toU32(_layers.size());
+    deviceCreateInfo.enabledLayerCount = toUint(_layers.size());
     deviceCreateInfo.ppEnabledLayerNames = _layers.data();
-    deviceCreateInfo.enabledExtensionCount = toU32(_extensions.size());
+    deviceCreateInfo.enabledExtensionCount = toUint(_extensions.size());
     deviceCreateInfo.ppEnabledExtensionNames = _extensions.data();
     deviceCreateInfo.pEnabledFeatures = &requestedFeatures;
     deviceCreateInfo.pNext = nullptr;
@@ -134,7 +141,14 @@ bool CCVKDevice::initialize(const GFXDeviceInfo& info)
 
     ///////////////////// Resource Initialization /////////////////////
 
-    for (uint32_t i = 0; i < context->swapchainCreateInfo.minImageCount; i++)
+    GFXQueueInfo queueInfo;
+    queueInfo.type = GFXQueueType::GRAPHICS;
+    _queue = createQueue(queueInfo);
+
+    GFXCommandAllocatorInfo cmd_alloc_info;
+    _cmdAllocator = createCommandAllocator(cmd_alloc_info);
+
+    for (uint i = 0; i < context->swapchainCreateInfo.minImageCount; i++)
     {
         GFXTextureInfo depthStecnilTexInfo;
         depthStecnilTexInfo.type = GFXTextureType::TEX2D;
@@ -185,13 +199,6 @@ bool CCVKDevice::initialize(const GFXDeviceInfo& info)
     windowInfo.isOffscreen = false;
     _window = createWindow(windowInfo);
 
-    GFXQueueInfo queueInfo;
-    queueInfo.type = GFXQueueType::GRAPHICS;
-    _queue = createQueue(queueInfo);
-
-    GFXCommandAllocatorInfo cmd_alloc_info;
-    _cmdAllocator = createCommandAllocator(cmd_alloc_info);
-
     String instanceLayers, instanceExtensions, deviceLayers, deviceExtensions;
     for (auto layer : ((CCVKContext*)_context)->getLayers())
     {
@@ -233,8 +240,6 @@ bool CCVKDevice::initialize(const GFXDeviceInfo& info)
     CC_LOG_INFO("DEVICE_EXTENSIONS: %s", deviceExtensions.c_str());
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
 
-    this->begin();
-
     return true;
 }
 
@@ -245,6 +250,7 @@ void CCVKDevice::destroy()
     CC_SAFE_DESTROY(_window);
     CC_SAFE_DESTROY(_renderPass);
     CC_SAFE_DELETE(_gpuSemaphorePool);
+    CC_SAFE_DELETE(_gpuFencePool);
 
     for (auto textureView : _depthStencilTextureViews)
     {
@@ -310,10 +316,18 @@ void CCVKDevice::buildSwapchain()
 {
     auto context = ((CCVKContext*)_context)->gpuContext();
     context->swapchainCreateInfo.oldSwapchain = _gpuSwapchain->vkSwapchain;
+    _gpuSwapchain->curImageIndex = 0;
 
     VkSurfaceCapabilitiesKHR surfaceCapabilities;
     VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(context->physicalDevice, context->vkSurface, &surfaceCapabilities));
-    if (surfaceCapabilities.currentExtent.width == (uint32_t)-1)
+
+    if (context->swapchainCreateInfo.imageExtent.width == surfaceCapabilities.currentExtent.width &&
+        context->swapchainCreateInfo.imageExtent.height == surfaceCapabilities.currentExtent.height)
+    {
+        return;
+    }
+
+    if (surfaceCapabilities.currentExtent.width == (uint)-1)
     {
         context->swapchainCreateInfo.imageExtent.width = _width;
         context->swapchainCreateInfo.imageExtent.height = _height;
@@ -346,7 +360,7 @@ void CCVKDevice::buildSwapchain()
         vkDestroySwapchainKHR(_gpuDevice->vkDevice, context->swapchainCreateInfo.oldSwapchain, nullptr);
     }
 
-    uint32_t imageCount;
+    uint imageCount;
     VK_CHECK(vkGetSwapchainImagesKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, nullptr));
     _gpuSwapchain->swapchainImages.resize(imageCount);
     VK_CHECK(vkGetSwapchainImagesKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, _gpuSwapchain->swapchainImages.data()));
@@ -354,7 +368,7 @@ void CCVKDevice::buildSwapchain()
 
     _gpuSwapchain->vkSwapchainImageViews.resize(imageCount);
     _gpuSwapchain->vkSwapchainFramebuffers.resize(imageCount);
-    for (uint32_t i = 0; i < imageCount; i++)
+    for (uint i = 0; i < imageCount; i++)
     {
         _depthStencilTextures[i]->resize(_width, _height);
         _gpuSwapchain->depthStencilImages.push_back(((CCVKTexture*)_depthStencilTextures[i])->gpuTexture()->vkImage);
@@ -393,21 +407,17 @@ void CCVKDevice::buildSwapchain()
 
 void CCVKDevice::begin()
 {
-    CCVKGPUQueue* queue = ((CCVKQueue*)_queue)->gpuQueue();
-
-    _gpuSemaphorePool->clear();
-    VkSemaphore acquireSemaphore = _gpuSemaphorePool->alloc();
+    auto acquireSemaphore = _gpuSemaphorePool->alloc();
     VK_CHECK(vkAcquireNextImageKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain,
         ~0ull, acquireSemaphore, VK_NULL_HANDLE, &_gpuSwapchain->curImageIndex));
-    VK_CHECK(vkResetCommandPool(_gpuDevice->vkDevice, ((CCVKCommandAllocator*)_cmdAllocator)->gpuCommandPool()->vkCommandPool, 0));
 
+    auto queue = ((CCVKQueue*)_queue)->gpuQueue();
     queue->waitSemaphore = acquireSemaphore;
     queue->signalSemaphore = _gpuSemaphorePool->alloc();
 }
 
 void CCVKDevice::present()
 {
-    //((CCVKCommandAllocator*)_cmdAllocator)->releaseCmds();
     CCVKQueue* queue = (CCVKQueue*)_queue;
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
@@ -424,12 +434,14 @@ void CCVKDevice::present()
 
     VK_CHECK(vkDeviceWaitIdle(_gpuDevice->vkDevice));
 
+    _gpuSemaphorePool->reset();
+    _gpuFencePool->reset();
+    ((CCVKCommandAllocator*)_cmdAllocator)->reset();
+
     // Clear queue stats
     queue->_numDrawCalls = 0;
     queue->_numInstances = 0;
     queue->_numTriangles = 0;
-
-    this->begin();
 }
 
 GFXWindow* CCVKDevice::createWindow(const GFXWindowInfo& info)
@@ -585,7 +597,6 @@ GFXPipelineLayout* CCVKDevice::createPipelineLayout(const GFXPipelineLayoutInfo&
 
 void CCVKDevice::copyBuffersToTexture(const GFXDataArray& buffers, GFXTexture* dst, const GFXBufferTextureCopyList& regions)
 {
-
    CCVKCmdFuncCopyBuffersToTexture(this, buffers.datas.data(), ((CCVKTexture*)dst)->gpuTexture(), regions);
 }
 

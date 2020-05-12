@@ -4,9 +4,11 @@
 NS_CC_BEGIN
 
 class CCVKStateCache;
+class CCVKGPUContext;
 class CCVKGPUDevice;
 class CCVKGPUSwapchain;
 class CCVKGPUSemaphorePool;
+class CCVKGPUFencePool;
 class CCVKTexture;
 class CCVKTextureView;
 class CCVKRenderPass;;
@@ -49,9 +51,11 @@ public:
         }) != _extensions.end();
     }
 
+    CC_INLINE CCVKGPUContext* gpuContext() const;
     CC_INLINE CCVKGPUDevice* gpuDevice() const { return _gpuDevice; }
     CC_INLINE CCVKGPUSwapchain* gpuSwapchain() { return _gpuSwapchain; }
     CC_INLINE CCVKGPUSemaphorePool* gpuSemaphorePool() { return _gpuSemaphorePool; }
+    CC_INLINE CCVKGPUFencePool* gpuFencePool() { return _gpuFencePool; }
     CC_INLINE const std::vector<const char *>& getLayers() const { return _layers; }
     CC_INLINE const std::vector<const char *>& getExtensions() const { return _extensions; }
 
@@ -60,6 +64,7 @@ private:
 
     CCVKGPUDevice* _gpuDevice = nullptr;
     CCVKGPUSemaphorePool* _gpuSemaphorePool = nullptr;
+    CCVKGPUFencePool* _gpuFencePool = nullptr;
     CCVKGPUSwapchain* _gpuSwapchain = nullptr;
     std::vector<CCVKTextureView*> _depthStencilTextureViews;
     std::vector<CCVKTexture*> _depthStencilTextures;

@@ -85,3 +85,7 @@ set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCGFXVulkan_d)
 use_precompiled_header("${CMAKE_CURRENT_SOURCE_DIR}/VKStd.h" "${CMAKE_CURRENT_SOURCE_DIR}/VKStd.cpp" SOURCE_CPP_FILES)
 
 message(STATUS "${TARGET_NAME} configuration completed.") 
+
+target_compile_definitions(${TARGET_NAME} PUBLIC 
+    $<$<CONFIG:Debug>:COCOS2D_DEBUG=1>
+)

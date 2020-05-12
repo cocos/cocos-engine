@@ -17,25 +17,25 @@
 #	define CC_VULKAN_API
 #endif
 
-#define VK_CHECK(x)                                                 \
-	do                                                              \
-	{                                                               \
-		VkResult err = x;                                           \
-		if (err)                                                    \
-		{                                                           \
-			CC_LOG_ERROR("Detected Vulkan error: %d", err);         \
-			abort();                                                \
-		}                                                           \
-	} while (0)
+#define VK_CHECK(x)                                         \
+    do                                                      \
+    {                                                       \
+        VkResult err = x;                                   \
+        if (err)                                            \
+        {                                                   \
+            CC_LOG_ERROR("Detected Vulkan error: %d", err); \
+            CCASSERT(0, "Vulkan Error");                    \
+        }                                                   \
+    } while (0)
 
 #define ASSERT_VK_HANDLE(handle)            \
-	do                                      \
-	{                                       \
-		if ((handle) == VK_NULL_HANDLE)     \
-		{                                   \
-			CC_LOG_ERROR("Handle is NULL"); \
-			abort();                        \
-		}                                   \
-	} while (0)
+    do                                      \
+    {                                       \
+	    if ((handle) == VK_NULL_HANDLE)     \
+	    {                                   \
+		    CC_LOG_ERROR("Handle is NULL"); \
+		    CCASSERT(0);                    \
+	    }                                   \
+    } while (0)
 
 #endif

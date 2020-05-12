@@ -28,7 +28,7 @@ namespace
         else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
         {
             CC_LOG_ERROR("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
-            assert(false);
+            CCASSERT(0, "Validation Error");
         }
         return VK_FALSE;
     }
@@ -39,7 +39,7 @@ namespace
         if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
         {
             CC_LOG_ERROR("VError: %s: %s", layerPrefix, message);
-            assert(false);
+            CCASSERT(0, "Validation Error");
         }
         else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
         {
@@ -94,12 +94,12 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
             return false;
         }
 
-        uint32_t availableLayerCount;
+        uint availableLayerCount;
         VK_CHECK(vkEnumerateInstanceLayerProperties(&availableLayerCount, nullptr));
         std::vector<VkLayerProperties> supportedLayers(availableLayerCount);
         VK_CHECK(vkEnumerateInstanceLayerProperties(&availableLayerCount, supportedLayers.data()));
 
-        uint32_t availableExtensionCount;
+        uint availableExtensionCount;
         VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, nullptr));
         std::vector<VkExtensionProperties> supportedExtensions(availableExtensionCount);
         VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, supportedExtensions.data()));
@@ -189,7 +189,7 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
             }
         }
 
-        uint32_t apiVersion;
+        uint apiVersion;
         vkEnumerateInstanceVersion(&apiVersion);
 
         VkApplicationInfo app{ VK_STRUCTURE_TYPE_APPLICATION_INFO };
@@ -198,9 +198,9 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
 
         VkInstanceCreateInfo instanceInfo{ VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO };
         instanceInfo.pApplicationInfo = &app;
-        instanceInfo.enabledExtensionCount = toU32(_extensions.size());
+        instanceInfo.enabledExtensionCount = toUint(_extensions.size());
         instanceInfo.ppEnabledExtensionNames = _extensions.data();
-        instanceInfo.enabledLayerCount = toU32(_layers.size());
+        instanceInfo.enabledLayerCount = toUint(_layers.size());
         instanceInfo.ppEnabledLayerNames = _layers.data();
 
 #ifdef CC_GFX_DEBUG
@@ -278,7 +278,7 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
         ///////////////////// Physical Device Selection /////////////////////
 
         // Querying valid physical devices on the machine
-        uint32_t physicalDeviceCount{ 0 };
+        uint physicalDeviceCount{ 0 };
         VK_CHECK(vkEnumeratePhysicalDevices(_gpuContext->vkInstance, &physicalDeviceCount, nullptr));
 
         if (physicalDeviceCount < 1)
@@ -291,7 +291,7 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
 
         std::vector<VkPhysicalDeviceProperties> physicalDeviceProperties(physicalDeviceCount);
 
-        uint32_t deviceIndex;
+        uint deviceIndex;
         for (deviceIndex = 0u; deviceIndex < physicalDeviceCount; ++deviceIndex)
         {
             VkPhysicalDeviceProperties& properties = physicalDeviceProperties[deviceIndex];
@@ -311,12 +311,12 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
         _gpuContext->physicalDeviceProperties = physicalDeviceProperties[deviceIndex];
         vkGetPhysicalDeviceFeatures(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceFeatures);
         vkGetPhysicalDeviceMemoryProperties(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceMemoryProperties);
-        uint32_t queueFamilyPropertiesCount = 0;
+        uint queueFamilyPropertiesCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(_gpuContext->physicalDevice, &queueFamilyPropertiesCount, nullptr);
         _gpuContext->queueFamilyProperties.resize(queueFamilyPropertiesCount);
         vkGetPhysicalDeviceQueueFamilyProperties(_gpuContext->physicalDevice, &queueFamilyPropertiesCount, _gpuContext->queueFamilyProperties.data());
         _gpuContext->queueFamilyPresentables.resize(queueFamilyPropertiesCount);
-        for (uint32_t propertyIndex = 0U; propertyIndex < queueFamilyPropertiesCount; propertyIndex++)
+        for (uint propertyIndex = 0U; propertyIndex < queueFamilyPropertiesCount; propertyIndex++)
         {
             vkGetPhysicalDeviceSurfaceSupportKHR(_gpuContext->physicalDevice, propertyIndex,
                 _gpuContext->vkSurface, &_gpuContext->queueFamilyPresentables[propertyIndex]);
@@ -330,17 +330,17 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
         VkSurfaceCapabilitiesKHR surfaceCapabilities{};
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &surfaceCapabilities);
 
-        uint32_t surfaceFormatCount = 0u;
+        uint surfaceFormatCount = 0u;
         VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &surfaceFormatCount, nullptr));
         std::vector<VkSurfaceFormatKHR> surfaceFormats(surfaceFormatCount);
         VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &surfaceFormatCount, surfaceFormats.data()));
 
-        uint32_t presentModeCount = 0u;
+        uint presentModeCount = 0u;
         VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &presentModeCount, nullptr));
         std::vector<VkPresentModeKHR> presentModes(presentModeCount);
         VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &presentModeCount, presentModes.data()));
 
-        VkExtent2D imageExtent{ surfaceCapabilities.currentExtent.width, surfaceCapabilities.currentExtent.height };
+        VkExtent2D imageExtent{ 1u, 1u };
 
         VkFormat colorFormat = VK_FORMAT_B8G8R8A8_UNORM;
         VkColorSpaceKHR colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
@@ -423,7 +423,7 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
         }
 
         // Determine the number of images
-        uint32_t desiredNumberOfSwapchainImages = surfaceCapabilities.minImageCount + 1;
+        uint desiredNumberOfSwapchainImages = surfaceCapabilities.minImageCount + 1;
         if ((surfaceCapabilities.maxImageCount > 0) && (desiredNumberOfSwapchainImages > surfaceCapabilities.maxImageCount))
         {
             desiredNumberOfSwapchainImages = surfaceCapabilities.maxImageCount;

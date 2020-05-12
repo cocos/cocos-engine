@@ -12,16 +12,16 @@ namespace
     #define COUNTOF(array) (sizeof(*countof_helper(array)) + 0)
 
     template <class T>
-    uint32_t toU32(T value)
+    uint toUint(T value)
     {
         static_assert(std::is_arithmetic<T>::value, "T must be numeric");
 
-        if (static_cast<uintmax_t>(value) > static_cast<uintmax_t>(std::numeric_limits<uint32_t>::max()))
+        if (static_cast<uintmax_t>(value) > static_cast<uintmax_t>(std::numeric_limits<uint>::max()))
         {
-            throw std::runtime_error("to_u32() failed, value is too big to be converted to uint32_t");
+            throw std::runtime_error("to_u32() failed, value is too big to be converted to uint");
         }
 
-        return static_cast<uint32_t>(value);
+        return static_cast<uint>(value);
     }
 
     bool isLayerSupported(const char * required, const std::vector<VkLayerProperties> &available)
