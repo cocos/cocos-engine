@@ -10,5 +10,6 @@ bool js_register_cocos2d_CCMTLDevice(se::Object* obj);
 bool register_all_mtl(se::Object* obj);
 SE_DECLARE_FUNC(js_mtl_CCMTLDevice_getMTKView);
 SE_DECLARE_FUNC(js_mtl_CCMTLDevice_getMTLDevice);
+SE_DECLARE_FUNC(js_mtl_CCMTLDevice_getMaximumSamplerUnits);
 SE_DECLARE_FUNC(js_mtl_CCMTLDevice_CCMTLDevice);
 

@@ -5763,6 +5763,34 @@ bool js_register_gfx_GFXUniform(se::Object* obj)
 se::Object* __jsb_cocos2d_GFXUniformBlock_proto = nullptr;
 se::Class* __jsb_cocos2d_GFXUniformBlock_class = nullptr;
 
+static bool js_gfx_GFXUniformBlock_get_shaderStages(se::State& s)
+{
+    cocos2d::GFXUniformBlock* cobj = (cocos2d::GFXUniformBlock*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformBlock_get_shaderStages : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= int32_to_seval((int)cobj->shaderStages, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_GFXUniformBlock_get_shaderStages)
+
+static bool js_gfx_GFXUniformBlock_set_shaderStages(se::State& s)
+{
+    const auto& args = s.args();
+    cocos2d::GFXUniformBlock* cobj = (cocos2d::GFXUniformBlock*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformBlock_set_shaderStages : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    cocos2d::GFXShaderType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+    SE_PRECONDITION2(ok, false, "js_gfx_GFXUniformBlock_set_shaderStages : Error processing new value");
+    cobj->shaderStages = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_GFXUniformBlock_set_shaderStages)
+
 static bool js_gfx_GFXUniformBlock_get_binding(se::State& s)
 {
     cocos2d::GFXUniformBlock* cobj = (cocos2d::GFXUniformBlock*)s.nativeThisObject();
@@ -5868,23 +5896,29 @@ static bool js_gfx_GFXUniformBlock_constructor(se::State& s)
         se::Value field;
 
         cocos2d::GFXUniformBlock* cobj = JSB_ALLOC(cocos2d::GFXUniformBlock);
-        unsigned int arg0 = 0;
+        cocos2d::GFXShaderType arg0;
+        json->getProperty("shaderStages", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            cobj->shaderStages = arg0;
+        }
+        unsigned int arg1 = 0;
         json->getProperty("binding", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg0);
-            cobj->binding = arg0;
+            ok &= seval_to_uint32(field, (uint32_t*)&arg1);
+            cobj->binding = arg1;
         }
-        cocos2d::String arg1;
+        cocos2d::String arg2;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
-            arg1 = field.toStringForce().c_str();
-            cobj->name = arg1;
+            arg2 = field.toStringForce().c_str();
+            cobj->name = arg2;
         }
-        std::vector<cocos2d::GFXUniform> arg2;
+        std::vector<cocos2d::GFXUniform> arg3;
         json->getProperty("uniforms", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_std_vector(field, &arg2);
-            cobj->uniforms = arg2;
+            ok &= seval_to_std_vector(field, &arg3);
+            cobj->uniforms = arg3;
         }
 
         if(!ok) {
@@ -5897,23 +5931,28 @@ static bool js_gfx_GFXUniformBlock_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 3)
+    else if(argc == 4)
     {
         cocos2d::GFXUniformBlock* cobj = JSB_ALLOC(cocos2d::GFXUniformBlock);
-        unsigned int arg0 = 0;
+        cocos2d::GFXShaderType arg0;
         if (!args[0].isUndefined()) {
-            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-            cobj->binding = arg0;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            cobj->shaderStages = arg0;
         }
-        cocos2d::String arg1;
+        unsigned int arg1 = 0;
         if (!args[1].isUndefined()) {
-            arg1 = args[1].toStringForce().c_str();
-            cobj->name = arg1;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->binding = arg1;
         }
-        std::vector<cocos2d::GFXUniform> arg2;
+        cocos2d::String arg2;
         if (!args[2].isUndefined()) {
-            ok &= seval_to_std_vector(args[2], &arg2);
-            cobj->uniforms = arg2;
+            arg2 = args[2].toStringForce().c_str();
+            cobj->name = arg2;
+        }
+        std::vector<cocos2d::GFXUniform> arg3;
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_std_vector(args[3], &arg3);
+            cobj->uniforms = arg3;
         }
 
         if(!ok) {
@@ -5953,6 +5992,7 @@ bool js_register_gfx_GFXUniformBlock(se::Object* obj)
 {
     auto cls = se::Class::create("GFXUniformBlock", obj, nullptr, _SE(js_gfx_GFXUniformBlock_constructor));
 
+    cls->defineProperty("shaderStages", _SE(js_gfx_GFXUniformBlock_get_shaderStages), _SE(js_gfx_GFXUniformBlock_set_shaderStages));
     cls->defineProperty("binding", _SE(js_gfx_GFXUniformBlock_get_binding), _SE(js_gfx_GFXUniformBlock_set_binding));
     cls->defineProperty("name", _SE(js_gfx_GFXUniformBlock_get_name), _SE(js_gfx_GFXUniformBlock_set_name));
     cls->defineProperty("uniforms", _SE(js_gfx_GFXUniformBlock_get_uniforms), _SE(js_gfx_GFXUniformBlock_set_uniforms));
@@ -5969,6 +6009,34 @@ bool js_register_gfx_GFXUniformBlock(se::Object* obj)
 
 se::Object* __jsb_cocos2d_GFXUniformSampler_proto = nullptr;
 se::Class* __jsb_cocos2d_GFXUniformSampler_class = nullptr;
+
+static bool js_gfx_GFXUniformSampler_get_shaderStages(se::State& s)
+{
+    cocos2d::GFXUniformSampler* cobj = (cocos2d::GFXUniformSampler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformSampler_get_shaderStages : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= int32_to_seval((int)cobj->shaderStages, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_GFXUniformSampler_get_shaderStages)
+
+static bool js_gfx_GFXUniformSampler_set_shaderStages(se::State& s)
+{
+    const auto& args = s.args();
+    cocos2d::GFXUniformSampler* cobj = (cocos2d::GFXUniformSampler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformSampler_set_shaderStages : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    cocos2d::GFXShaderType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+    SE_PRECONDITION2(ok, false, "js_gfx_GFXUniformSampler_set_shaderStages : Error processing new value");
+    cobj->shaderStages = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_GFXUniformSampler_set_shaderStages)
 
 static bool js_gfx_GFXUniformSampler_get_binding(se::State& s)
 {
@@ -6103,29 +6171,35 @@ static bool js_gfx_GFXUniformSampler_constructor(se::State& s)
         se::Value field;
 
         cocos2d::GFXUniformSampler* cobj = JSB_ALLOC(cocos2d::GFXUniformSampler);
-        unsigned int arg0 = 0;
+        cocos2d::GFXShaderType arg0;
+        json->getProperty("shaderStages", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            cobj->shaderStages = arg0;
+        }
+        unsigned int arg1 = 0;
         json->getProperty("binding", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg0);
-            cobj->binding = arg0;
+            ok &= seval_to_uint32(field, (uint32_t*)&arg1);
+            cobj->binding = arg1;
         }
-        cocos2d::String arg1;
+        cocos2d::String arg2;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
-            arg1 = field.toStringForce().c_str();
-            cobj->name = arg1;
+            arg2 = field.toStringForce().c_str();
+            cobj->name = arg2;
         }
-        cocos2d::GFXType arg2;
+        cocos2d::GFXType arg3;
         json->getProperty("type", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXType)tmp; } while(false);
-            cobj->type = arg2;
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cocos2d::GFXType)tmp; } while(false);
+            cobj->type = arg3;
         }
-        unsigned int arg3 = 0;
+        unsigned int arg4 = 0;
         json->getProperty("count", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg3);
-            cobj->count = arg3;
+            ok &= seval_to_uint32(field, (uint32_t*)&arg4);
+            cobj->count = arg4;
         }
 
         if(!ok) {
@@ -6138,28 +6212,33 @@ static bool js_gfx_GFXUniformSampler_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 4)
+    else if(argc == 5)
     {
         cocos2d::GFXUniformSampler* cobj = JSB_ALLOC(cocos2d::GFXUniformSampler);
-        unsigned int arg0 = 0;
+        cocos2d::GFXShaderType arg0;
         if (!args[0].isUndefined()) {
-            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-            cobj->binding = arg0;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            cobj->shaderStages = arg0;
         }
-        cocos2d::String arg1;
+        unsigned int arg1 = 0;
         if (!args[1].isUndefined()) {
-            arg1 = args[1].toStringForce().c_str();
-            cobj->name = arg1;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->binding = arg1;
         }
-        cocos2d::GFXType arg2;
+        cocos2d::String arg2;
         if (!args[2].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXType)tmp; } while(false);
-            cobj->type = arg2;
+            arg2 = args[2].toStringForce().c_str();
+            cobj->name = arg2;
         }
-        unsigned int arg3 = 0;
+        cocos2d::GFXType arg3;
         if (!args[3].isUndefined()) {
-            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
-            cobj->count = arg3;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cocos2d::GFXType)tmp; } while(false);
+            cobj->type = arg3;
+        }
+        unsigned int arg4 = 0;
+        if (!args[4].isUndefined()) {
+            ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+            cobj->count = arg4;
         }
 
         if(!ok) {
@@ -6199,6 +6278,7 @@ bool js_register_gfx_GFXUniformSampler(se::Object* obj)
 {
     auto cls = se::Class::create("GFXUniformSampler", obj, nullptr, _SE(js_gfx_GFXUniformSampler_constructor));
 
+    cls->defineProperty("shaderStages", _SE(js_gfx_GFXUniformSampler_get_shaderStages), _SE(js_gfx_GFXUniformSampler_set_shaderStages));
     cls->defineProperty("binding", _SE(js_gfx_GFXUniformSampler_get_binding), _SE(js_gfx_GFXUniformSampler_set_binding));
     cls->defineProperty("name", _SE(js_gfx_GFXUniformSampler_get_name), _SE(js_gfx_GFXUniformSampler_set_name));
     cls->defineProperty("type", _SE(js_gfx_GFXUniformSampler_get_type), _SE(js_gfx_GFXUniformSampler_set_type));
@@ -8393,6 +8473,34 @@ bool js_register_gfx_GFXFramebufferInfo(se::Object* obj)
 se::Object* __jsb_cocos2d_GFXBinding_proto = nullptr;
 se::Class* __jsb_cocos2d_GFXBinding_class = nullptr;
 
+static bool js_gfx_GFXBinding_get_shaderStages(se::State& s)
+{
+    cocos2d::GFXBinding* cobj = (cocos2d::GFXBinding*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBinding_get_shaderStages : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= int32_to_seval((int)cobj->shaderStages, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_GFXBinding_get_shaderStages)
+
+static bool js_gfx_GFXBinding_set_shaderStages(se::State& s)
+{
+    const auto& args = s.args();
+    cocos2d::GFXBinding* cobj = (cocos2d::GFXBinding*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBinding_set_shaderStages : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    cocos2d::GFXShaderType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+    SE_PRECONDITION2(ok, false, "js_gfx_GFXBinding_set_shaderStages : Error processing new value");
+    cobj->shaderStages = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_GFXBinding_set_shaderStages)
+
 static bool js_gfx_GFXBinding_get_binding(se::State& s)
 {
     cocos2d::GFXBinding* cobj = (cocos2d::GFXBinding*)s.nativeThisObject();
@@ -8498,23 +8606,29 @@ static bool js_gfx_GFXBinding_constructor(se::State& s)
         se::Value field;
 
         cocos2d::GFXBinding* cobj = JSB_ALLOC(cocos2d::GFXBinding);
-        unsigned int arg0 = 0;
+        cocos2d::GFXShaderType arg0;
+        json->getProperty("shaderStages", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            cobj->shaderStages = arg0;
+        }
+        unsigned int arg1 = 0;
         json->getProperty("binding", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg0);
-            cobj->binding = arg0;
+            ok &= seval_to_uint32(field, (uint32_t*)&arg1);
+            cobj->binding = arg1;
         }
-        cocos2d::GFXBindingType arg1;
+        cocos2d::GFXBindingType arg2;
         json->getProperty("type", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXBindingType)tmp; } while(false);
-            cobj->type = arg1;
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXBindingType)tmp; } while(false);
+            cobj->type = arg2;
         }
-        cocos2d::String arg2;
+        cocos2d::String arg3;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
-            arg2 = field.toStringForce().c_str();
-            cobj->name = arg2;
+            arg3 = field.toStringForce().c_str();
+            cobj->name = arg3;
         }
 
         if(!ok) {
@@ -8527,23 +8641,28 @@ static bool js_gfx_GFXBinding_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 3)
+    else if(argc == 4)
     {
         cocos2d::GFXBinding* cobj = JSB_ALLOC(cocos2d::GFXBinding);
-        unsigned int arg0 = 0;
+        cocos2d::GFXShaderType arg0;
         if (!args[0].isUndefined()) {
-            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-            cobj->binding = arg0;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            cobj->shaderStages = arg0;
         }
-        cocos2d::GFXBindingType arg1;
+        unsigned int arg1 = 0;
         if (!args[1].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXBindingType)tmp; } while(false);
-            cobj->type = arg1;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->binding = arg1;
         }
-        cocos2d::String arg2;
+        cocos2d::GFXBindingType arg2;
         if (!args[2].isUndefined()) {
-            arg2 = args[2].toStringForce().c_str();
-            cobj->name = arg2;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXBindingType)tmp; } while(false);
+            cobj->type = arg2;
+        }
+        cocos2d::String arg3;
+        if (!args[3].isUndefined()) {
+            arg3 = args[3].toStringForce().c_str();
+            cobj->name = arg3;
         }
 
         if(!ok) {
@@ -8583,6 +8702,7 @@ bool js_register_gfx_GFXBinding(se::Object* obj)
 {
     auto cls = se::Class::create("GFXBinding", obj, nullptr, _SE(js_gfx_GFXBinding_constructor));
 
+    cls->defineProperty("shaderStages", _SE(js_gfx_GFXBinding_get_shaderStages), _SE(js_gfx_GFXBinding_set_shaderStages));
     cls->defineProperty("binding", _SE(js_gfx_GFXBinding_get_binding), _SE(js_gfx_GFXBinding_set_binding));
     cls->defineProperty("type", _SE(js_gfx_GFXBinding_get_type), _SE(js_gfx_GFXBinding_set_type));
     cls->defineProperty("name", _SE(js_gfx_GFXBinding_get_name), _SE(js_gfx_GFXBinding_set_name));
@@ -8703,6 +8823,34 @@ bool js_register_gfx_GFXBindingLayoutInfo(se::Object* obj)
 
 se::Object* __jsb_cocos2d_GFXBindingUnit_proto = nullptr;
 se::Class* __jsb_cocos2d_GFXBindingUnit_class = nullptr;
+
+static bool js_gfx_GFXBindingUnit_get_shaderStages(se::State& s)
+{
+    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_get_shaderStages : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= int32_to_seval((int)cobj->shaderStages, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_GFXBindingUnit_get_shaderStages)
+
+static bool js_gfx_GFXBindingUnit_set_shaderStages(se::State& s)
+{
+    const auto& args = s.args();
+    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_set_shaderStages : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    cocos2d::GFXShaderType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+    SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingUnit_set_shaderStages : Error processing new value");
+    cobj->shaderStages = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_GFXBindingUnit_set_shaderStages)
 
 static bool js_gfx_GFXBindingUnit_get_binding(se::State& s)
 {
@@ -8893,41 +9041,47 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
         se::Value field;
 
         cocos2d::GFXBindingUnit* cobj = JSB_ALLOC(cocos2d::GFXBindingUnit);
-        unsigned int arg0 = 0;
+        cocos2d::GFXShaderType arg0;
+        json->getProperty("shaderStages", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            cobj->shaderStages = arg0;
+        }
+        unsigned int arg1 = 0;
         json->getProperty("binding", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg0);
-            cobj->binding = arg0;
+            ok &= seval_to_uint32(field, (uint32_t*)&arg1);
+            cobj->binding = arg1;
         }
-        cocos2d::GFXBindingType arg1;
+        cocos2d::GFXBindingType arg2;
         json->getProperty("type", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXBindingType)tmp; } while(false);
-            cobj->type = arg1;
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXBindingType)tmp; } while(false);
+            cobj->type = arg2;
         }
-        cocos2d::String arg2;
+        cocos2d::String arg3;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
-            arg2 = field.toStringForce().c_str();
-            cobj->name = arg2;
+            arg3 = field.toStringForce().c_str();
+            cobj->name = arg3;
         }
-        cocos2d::GFXBuffer* arg3 = nullptr;
+        cocos2d::GFXBuffer* arg4 = nullptr;
         json->getProperty("buffer", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_native_ptr(field, &arg3);
-            cobj->buffer = arg3;
+            ok &= seval_to_native_ptr(field, &arg4);
+            cobj->buffer = arg4;
         }
-        cocos2d::GFXTextureView* arg4 = nullptr;
+        cocos2d::GFXTextureView* arg5 = nullptr;
         json->getProperty("texView", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_native_ptr(field, &arg4);
-            cobj->texView = arg4;
+            ok &= seval_to_native_ptr(field, &arg5);
+            cobj->texView = arg5;
         }
-        cocos2d::GFXSampler* arg5 = nullptr;
+        cocos2d::GFXSampler* arg6 = nullptr;
         json->getProperty("sampler", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_native_ptr(field, &arg5);
-            cobj->sampler = arg5;
+            ok &= seval_to_native_ptr(field, &arg6);
+            cobj->sampler = arg6;
         }
 
         if(!ok) {
@@ -8940,38 +9094,43 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 6)
+    else if(argc == 7)
     {
         cocos2d::GFXBindingUnit* cobj = JSB_ALLOC(cocos2d::GFXBindingUnit);
-        unsigned int arg0 = 0;
+        cocos2d::GFXShaderType arg0;
         if (!args[0].isUndefined()) {
-            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-            cobj->binding = arg0;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            cobj->shaderStages = arg0;
         }
-        cocos2d::GFXBindingType arg1;
+        unsigned int arg1 = 0;
         if (!args[1].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXBindingType)tmp; } while(false);
-            cobj->type = arg1;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->binding = arg1;
         }
-        cocos2d::String arg2;
+        cocos2d::GFXBindingType arg2;
         if (!args[2].isUndefined()) {
-            arg2 = args[2].toStringForce().c_str();
-            cobj->name = arg2;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXBindingType)tmp; } while(false);
+            cobj->type = arg2;
         }
-        cocos2d::GFXBuffer* arg3 = nullptr;
+        cocos2d::String arg3;
         if (!args[3].isUndefined()) {
-            ok &= seval_to_native_ptr(args[3], &arg3);
-            cobj->buffer = arg3;
+            arg3 = args[3].toStringForce().c_str();
+            cobj->name = arg3;
         }
-        cocos2d::GFXTextureView* arg4 = nullptr;
+        cocos2d::GFXBuffer* arg4 = nullptr;
         if (!args[4].isUndefined()) {
             ok &= seval_to_native_ptr(args[4], &arg4);
-            cobj->texView = arg4;
+            cobj->buffer = arg4;
         }
-        cocos2d::GFXSampler* arg5 = nullptr;
+        cocos2d::GFXTextureView* arg5 = nullptr;
         if (!args[5].isUndefined()) {
             ok &= seval_to_native_ptr(args[5], &arg5);
-            cobj->sampler = arg5;
+            cobj->texView = arg5;
+        }
+        cocos2d::GFXSampler* arg6 = nullptr;
+        if (!args[6].isUndefined()) {
+            ok &= seval_to_native_ptr(args[6], &arg6);
+            cobj->sampler = arg6;
         }
 
         if(!ok) {
@@ -9011,6 +9170,7 @@ bool js_register_gfx_GFXBindingUnit(se::Object* obj)
 {
     auto cls = se::Class::create("GFXBindingUnit", obj, nullptr, _SE(js_gfx_GFXBindingUnit_constructor));
 
+    cls->defineProperty("shaderStages", _SE(js_gfx_GFXBindingUnit_get_shaderStages), _SE(js_gfx_GFXBindingUnit_set_shaderStages));
     cls->defineProperty("binding", _SE(js_gfx_GFXBindingUnit_get_binding), _SE(js_gfx_GFXBindingUnit_set_binding));
     cls->defineProperty("type", _SE(js_gfx_GFXBindingUnit_get_type), _SE(js_gfx_GFXBindingUnit_set_type));
     cls->defineProperty("name", _SE(js_gfx_GFXBindingUnit_get_name), _SE(js_gfx_GFXBindingUnit_set_name));
