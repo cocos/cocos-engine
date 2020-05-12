@@ -67,3 +67,5 @@ export enum TransformBit {
     TRS = TransformBit.POSITION | TransformBit.ROTATION | TransformBit.SCALE,
     TRS_MASK = ~TransformBit.TRS,
 }
+
+cc.internal.TransformBit = TransformBit;
