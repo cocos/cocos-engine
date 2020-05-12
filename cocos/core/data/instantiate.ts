@@ -34,6 +34,7 @@ import { CCObject } from './object';
 import { js } from '../utils';
 import { errorID, warn } from '../platform/debug';
 import { DEV } from 'internal:constants';
+import { legacyGlobalExports } from '../global-exports';
 
 // @ts-ignore
 const Destroyed = CCObject.Flags.Destroyed;
@@ -77,13 +78,13 @@ function instantiate (original, internal_force?) {
             }
             return null;
         }
-        if (!cc.isValid(original)) {
+        if (!legacyGlobalExports.isValid(original)) {
             if (DEV) {
                 errorID(6902);
             }
             return null;
         }
-        if (DEV && original instanceof cc.Component) {
+        if (DEV && original instanceof legacyGlobalExports.Component) {
             warn('Should not instantiate a single cc.Component directly, you must instantiate the entire node.');
         }
     }
@@ -98,12 +99,12 @@ function instantiate (original, internal_force?) {
         //                                  no need to create new object by itself.
         // @returns {Object} - the instantiated object
         if (original._instantiate) {
-            cc.game._isCloning = true;
+            legacyGlobalExports.game._isCloning = true;
             clone = original._instantiate();
-            cc.game._isCloning = false;
+            legacyGlobalExports.game._isCloning = false;
             return clone;
         }
-        else if (original instanceof cc.Asset) {
+        else if (original instanceof legacyGlobalExports.Asset) {
             // 不允许用通用方案实例化资源
             if (DEV) {
                 errorID(6903);
@@ -112,9 +113,9 @@ function instantiate (original, internal_force?) {
         }
     }
 
-    cc.game._isCloning = true;
+    legacyGlobalExports.game._isCloning = true;
     clone = doInstantiate(original);
-    cc.game._isCloning = false;
+    legacyGlobalExports.game._isCloning = false;
     return clone;
 }
 
@@ -199,7 +200,7 @@ function enumerateObject (obj, clone, parent) {
     js.value(obj, '_iN$t', clone, true);
     objsToClearTmpVar.push(obj);
     const klass = obj.constructor;
-    if (cc.Class._isCCClass(klass)) {
+    if (legacyGlobalExports.Class._isCCClass(klass)) {
         enumerateCCClass(klass, obj, clone, parent);
     }
     else {
@@ -236,7 +237,7 @@ function instantiateObj (obj, parent) {
     if (obj instanceof ValueType) {
         return obj.clone();
     }
-    if (obj instanceof cc.Asset) {
+    if (obj instanceof legacyGlobalExports.Asset) {
         // 所有资源直接引用，不需要拷贝
         return obj;
     }
@@ -264,21 +265,21 @@ function instantiateObj (obj, parent) {
     }
 
     const ctor = obj.constructor;
-    if (cc.Class._isCCClass(ctor)) {
+    if (legacyGlobalExports.Class._isCCClass(ctor)) {
         if (parent) {
-            if (parent instanceof cc.Component) {
-                if (obj instanceof cc._BaseNode || obj instanceof cc.Component) {
+            if (parent instanceof legacyGlobalExports.Component) {
+                if (obj instanceof legacyGlobalExports._BaseNode || obj instanceof legacyGlobalExports.Component) {
                     return obj;
                 }
             }
-            else if (parent instanceof cc._BaseNode) {
-                if (obj instanceof cc._BaseNode) {
+            else if (parent instanceof legacyGlobalExports._BaseNode) {
+                if (obj instanceof legacyGlobalExports._BaseNode) {
                     if (!obj.isChildOf(parent)) {
                         // should not clone other nodes if not descendant
                         return obj;
                     }
                 }
-                else if (obj instanceof cc.Component) {
+                else if (obj instanceof legacyGlobalExports.Component) {
                     if (!obj.node.isChildOf(parent)) {
                         // should not clone other component if not descendant
                         return obj;
@@ -303,5 +304,5 @@ function instantiateObj (obj, parent) {
 }
 
 instantiate._clone = doInstantiate;
-cc.instantiate = instantiate;
+legacyGlobalExports.instantiate = instantiate;
 export default instantiate;

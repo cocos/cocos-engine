@@ -37,6 +37,7 @@ import { EventMouse, EventTouch } from '../platform/event-manager/events';
 import { Touch } from '../platform/event-manager/touch';
 import { BaseNode } from './base-node';
 import { Node } from './node';
+import { legacyGlobalExports } from '../global-exports';
 
 const _cachedArray = new Array<BaseNode>(16);
 let _currentHovered: BaseNode | null = null;
@@ -270,10 +271,10 @@ function _doDispatchEvent (owner: BaseNode, event: Event) {
 }
 
 function _searchMaskInParent (node: Node | null) {
-    const Mask = cc.MaskComponent;
+    const Mask = legacyGlobalExports.MaskComponent;
     if (Mask) {
         let index = 0;
-        for (let curr = node; curr && cc.Node.isNode(curr); curr = curr.parent, ++index) {
+        for (let curr = node; curr && legacyGlobalExports.Node.isNode(curr); curr = curr.parent, ++index) {
             if (curr.getComponent(Mask)) {
                 return {
                     index,
@@ -650,8 +651,8 @@ export class NodeEventProcessor {
         // just for ui
         if (_touchEvents.indexOf(type) !== -1) {
             if (!this.touchListener) {
-                this.touchListener = cc.EventListener.create({
-                    event: cc.EventListener.TOUCH_ONE_BY_ONE,
+                this.touchListener = legacyGlobalExports.EventListener.create({
+                    event: legacyGlobalExports.EventListener.TOUCH_ONE_BY_ONE,
                     swallowTouches: true,
                     owner: this._node,
                     mask: _searchMaskInParent(this._node as Node),
@@ -666,8 +667,8 @@ export class NodeEventProcessor {
             forDispatch = true;
         } else if (_mouseEvents.indexOf(type) !== -1) {
             if (!this.mouseListener) {
-                this.mouseListener = cc.EventListener.create({
-                    event: cc.EventListener.MOUSE,
+                this.mouseListener = legacyGlobalExports.EventListener.create({
+                    event: legacyGlobalExports.EventListener.MOUSE,
                     _previousIn: false,
                     owner: this._node,
                     mask: _searchMaskInParent(this._node as Node),
@@ -682,7 +683,7 @@ export class NodeEventProcessor {
             forDispatch = true;
         }
         if (newAdded && !this._node.activeInHierarchy) {
-            cc.director.getScheduler().schedule(() => {
+            legacyGlobalExports.director.getScheduler().schedule(() => {
                 if (!this._node.activeInHierarchy) {
                     eventManager.pauseTarget(this._node as Node);
                 }
@@ -698,7 +699,7 @@ export class NodeEventProcessor {
             target = undefined;
         } else { useCapture = !!useCapture; }
         if (!callback) {
-            cc.errorID(6800);
+            legacyGlobalExports.errorID(6800);
             return;
         }
 
@@ -740,4 +741,4 @@ export class NodeEventProcessor {
     }
 }
 
-cc.NodeEventProcessor = NodeEventProcessor;
+legacyGlobalExports.NodeEventProcessor = NodeEventProcessor;

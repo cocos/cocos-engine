@@ -4,11 +4,12 @@
 
 import { Mat4, Vec3, Vec4 } from '../math';
 import enums from './enums';
+import { legacyGlobalExports } from '../global-exports';
 
 const v1 = new Vec3(0, 0, 0);
 const v2 = new Vec3(0, 0, 0);
-const temp_mat = cc.mat4();
-const temp_vec4 = cc.v4();
+const temp_mat = legacyGlobalExports.mat4();
+const temp_vec4 = legacyGlobalExports.v4();
 
 /**
  * @en

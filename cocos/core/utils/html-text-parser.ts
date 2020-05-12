@@ -25,6 +25,7 @@
 */
 
 import { TEST } from 'internal:constants';
+import { legacyGlobalExports } from '../global-exports';
 
 /**
  *
@@ -367,5 +368,5 @@ export class HtmlTextParser {
 }
 
 if (TEST) {
-    cc._Test.HtmlTextParser = HtmlTextParser;
+    legacyGlobalExports._Test.HtmlTextParser = HtmlTextParser;
 }

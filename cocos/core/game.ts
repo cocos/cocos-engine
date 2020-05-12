@@ -38,6 +38,7 @@ import inputManager from './platform/event-manager/input-manager';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from './renderer';
+import { legacyGlobalExports } from './global-exports';
 
 /**
  * @zh
@@ -418,7 +419,7 @@ export class Game extends EventTarget {
      * @zh 执行一帧游戏循环。
      */
     public step () {
-        cc.director.mainLoop();
+        legacyGlobalExports.director.mainLoop();
     }
 
     /**
@@ -443,7 +444,7 @@ export class Game extends EventTarget {
                 if (--swapbuffers > 1) {
                     window.requestAnimationFrame(cb);
                 }
-                const root = cc.director.root;
+                const root = legacyGlobalExports.director.root;
                 root.frameMove(0); root.device.present();
             };
             window.requestAnimationFrame(cb);
@@ -476,20 +477,20 @@ export class Game extends EventTarget {
      * @zh 重新开始游戏
      */
     public restart () {
-        cc.director.once(cc.Director.EVENT_AFTER_DRAW, () => {
+        legacyGlobalExports.director.once(legacyGlobalExports.Director.EVENT_AFTER_DRAW, () => {
             // tslint:disable-next-line: forin
-            for (const id in cc.game._persistRootNodes) {
-                cc.game.removePersistRootNode(cc.game._persistRootNodes[id]);
+            for (const id in legacyGlobalExports.game._persistRootNodes) {
+                legacyGlobalExports.game.removePersistRootNode(legacyGlobalExports.game._persistRootNodes[id]);
             }
 
             // Clear scene
-            cc.director.getScene().destroy();
-            cc.Object._deferredDestroy();
+            legacyGlobalExports.director.getScene().destroy();
+            legacyGlobalExports.Object._deferredDestroy();
 
-            cc.director.purgeDirector();
+            legacyGlobalExports.director.purgeDirector();
 
-            cc.director.reset();
-            cc.game.onStart();
+            legacyGlobalExports.director.reset();
+            legacyGlobalExports.game.onStart();
         });
     }
 
@@ -580,11 +581,11 @@ export class Game extends EventTarget {
             this._initEvents();
         }
 
-        if (!EDITOR && !PREVIEW && cc.internal.SplashScreenWebgl && this.canvas) {
-            cc.internal.SplashScreenWebgl.instance.main(this.canvas);
+        if (!EDITOR && !PREVIEW && legacyGlobalExports.internal.SplashScreenWebgl && this.canvas) {
+            legacyGlobalExports.internal.SplashScreenWebgl.instance.main(this.canvas);
         }
 
-        cc.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
+        legacyGlobalExports.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
 
         return this._inited;
     }
@@ -612,7 +613,7 @@ export class Game extends EventTarget {
             inputManager.registerSystemEvent(game.canvas);
         }
 
-        const splashScreen = cc.internal.SplashScreenWebgl && cc.internal.SplashScreenWebgl.instance;
+        const splashScreen = legacyGlobalExports.internal.SplashScreenWebgl && legacyGlobalExports.internal.SplashScreenWebgl.instance;
         const useSplash = (!EDITOR && !PREVIEW && splashScreen);
         if (useSplash) {
             splashScreen.setOnFinish(() => {
@@ -622,7 +623,7 @@ export class Game extends EventTarget {
         // Load render pipeline if needed
         const renderPipeline = this.config.renderPipeline;
         if (renderPipeline) {
-            cc.loader.load({ uuid: renderPipeline }, (err, asset) => {
+            legacyGlobalExports.loader.load({ uuid: renderPipeline }, (err, asset) => {
                 // failed load renderPipeline
                 if (err || !(asset instanceof RenderPipeline)) {
                     console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, all process stopped`);
@@ -662,18 +663,18 @@ export class Game extends EventTarget {
      * @param {Node} node - The node to be made persistent
      */
     public addPersistRootNode (node: { uuid: any; parent: any; _persistNode: boolean; }) {
-        if (!cc.Node.isNode(node) || !node.uuid) {
+        if (!legacyGlobalExports.Node.isNode(node) || !node.uuid) {
             debug.warnID(3800);
             return;
         }
         const id = node.uuid;
         if (!this._persistRootNodes[id]) {
-            const scene = cc.director._scene;
-            if (cc.isValid(scene)) {
+            const scene = legacyGlobalExports.director._scene;
+            if (legacyGlobalExports.isValid(scene)) {
                 if (!node.parent) {
                     node.parent = scene;
                 }
-                else if (!(node.parent instanceof cc.Scene)) {
+                else if (!(node.parent instanceof legacyGlobalExports.Scene)) {
                     debug.warnID(3801);
                     return;
                 }
@@ -714,11 +715,11 @@ export class Game extends EventTarget {
 
     private _initEngine () {
         this._initDevice();
-        cc.director._init();
+        legacyGlobalExports.director._init();
         this.setRenderPipeline();
 
         // Log engine version
-        console.log('Cocos Creator 3D v' + cc.ENGINE_VERSION);
+        console.log('Cocos Creator 3D v' + legacyGlobalExports.ENGINE_VERSION);
         this.emit(Game.EVENT_ENGINE_INITED);
         this._inited = true;
     }
@@ -728,7 +729,7 @@ export class Game extends EventTarget {
     //  @Time ticker section
     private _setAnimFrame () {
         this._lastTime = new Date();
-        const frameRate = cc.game.config.frameRate;
+        const frameRate = legacyGlobalExports.game.config.frameRate;
         this._frameTime = 1000 / frameRate;
 
         if (JSB) {
@@ -762,9 +763,9 @@ export class Game extends EventTarget {
     }
     private _stTime (callback) {
         const currTime = new Date().getTime();
-        const timeToCall = Math.max(0, cc.game._frameTime - (currTime - cc.game._lastTime));
+        const timeToCall = Math.max(0, legacyGlobalExports.game._frameTime - (currTime - legacyGlobalExports.game._lastTime));
         const id = window.setTimeout(callback, timeToCall);
-        cc.game._lastTime = currTime + timeToCall;
+        legacyGlobalExports.game._lastTime = currTime + timeToCall;
         return id;
     }
     private _ctTime (id: number | undefined) {
@@ -774,7 +775,7 @@ export class Game extends EventTarget {
     private _runMainLoop () {
         let callback: FrameRequestCallback;
         const config = this.config;
-        const director = cc.director;
+        const director = legacyGlobalExports.director;
         let skip: boolean = true;
         const frameRate = config.frameRate;
 
@@ -842,20 +843,20 @@ export class Game extends EventTarget {
         let supportRender = false;
 
         if (userRenderMode === 0) {
-            if (cc.sys.capabilities.opengl) {
+            if (legacyGlobalExports.sys.capabilities.opengl) {
                 this.renderType = Game.RENDER_TYPE_WEBGL;
                 supportRender = true;
             }
-            else if (cc.sys.capabilities.canvas) {
+            else if (legacyGlobalExports.sys.capabilities.canvas) {
                 this.renderType = Game.RENDER_TYPE_CANVAS;
                 supportRender = true;
             }
         }
-        else if (userRenderMode === 1 && cc.sys.capabilities.canvas) {
+        else if (userRenderMode === 1 && legacyGlobalExports.sys.capabilities.canvas) {
             this.renderType = Game.RENDER_TYPE_CANVAS;
             supportRender = true;
         }
-        else if (userRenderMode === 2 && cc.sys.capabilities.opengl) {
+        else if (userRenderMode === 2 && legacyGlobalExports.sys.capabilities.opengl) {
             this.renderType = Game.RENDER_TYPE_WEBGL;
             supportRender = true;
         }
@@ -887,10 +888,10 @@ export class Game extends EventTarget {
             }
 
             // useWebGL2 = false;
-            if (useWebGL2 && cc.WebGL2GFXDevice) {
-                this._gfxDevice = new cc.WebGL2GFXDevice();
-            } else if (cc.WebGLGFXDevice) {
-                this._gfxDevice = new cc.WebGLGFXDevice();
+            if (useWebGL2 && legacyGlobalExports.WebGL2GFXDevice) {
+                this._gfxDevice = new legacyGlobalExports.WebGL2GFXDevice();
+            } else if (legacyGlobalExports.WebGLGFXDevice) {
+                this._gfxDevice = new legacyGlobalExports.WebGLGFXDevice();
             }
 
             const opts = {
@@ -903,7 +904,7 @@ export class Game extends EventTarget {
             };
             // fallback if WebGL2 is actually unavailable (usually due to driver issues)
             if (!this._gfxDevice!.initialize(opts) && useWebGL2) {
-                this._gfxDevice = new cc.WebGLGFXDevice();
+                this._gfxDevice = new legacyGlobalExports.WebGLGFXDevice();
                 this._gfxDevice!.initialize(opts);
             }
         }
@@ -916,7 +917,7 @@ export class Game extends EventTarget {
         }
 
         this.canvas!.oncontextmenu = () => {
-            if (!cc._isContextMenuEnable) { return false; }
+            if (!legacyGlobalExports._isContextMenuEnable) { return false; }
         };
     }
 
@@ -939,13 +940,13 @@ export class Game extends EventTarget {
         function onHidden () {
             if (!hidden) {
                 hidden = true;
-                cc.game.emit(Game.EVENT_HIDE);
+                legacyGlobalExports.game.emit(Game.EVENT_HIDE);
             }
         }
         function onShown () {
             if (hidden) {
                 hidden = false;
-                cc.game.emit(Game.EVENT_SHOW);
+                legacyGlobalExports.game.emit(Game.EVENT_SHOW);
             }
         }
 
@@ -990,10 +991,10 @@ export class Game extends EventTarget {
         }
 
         this.on(Game.EVENT_HIDE, () => {
-            cc.game.pause();
+            legacyGlobalExports.game.pause();
         });
         this.on(Game.EVENT_SHOW, () => {
-            cc.game.resume();
+            legacyGlobalExports.game.resume();
         });
     }
 
@@ -1002,7 +1003,7 @@ export class Game extends EventTarget {
             rppl = new ForwardPipeline();
             rppl.initialize(ForwardPipeline.initInfo);
         }
-        if (!cc.director.root.setRenderPipeline(rppl)) {
+        if (!legacyGlobalExports.director.root.setRenderPipeline(rppl)) {
             this.setRenderPipeline();
         }
 
@@ -1011,5 +1012,5 @@ export class Game extends EventTarget {
     }
 }
 
-cc.Game = Game;
-export const game = cc.game = new Game();
+legacyGlobalExports.Game = Game;
+export const game = legacyGlobalExports.game = new Game();

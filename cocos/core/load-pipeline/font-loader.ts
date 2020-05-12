@@ -28,6 +28,7 @@
  */
 
 import {safeMeasureText} from '../utils/text-utils';
+import { legacyGlobalExports } from '../global-exports';
 
 interface IFontLoadHandle {
     fontFamilyName;
@@ -109,7 +110,7 @@ function nativeCheckFontLoaded (start, font, callback) {
         }
         callback(null, font);
     }, function () {
-        cc.warnID(4933, font);
+        legacyGlobalExports.warnID(4933, font);
         callback(null, font);
     });
 }
@@ -123,7 +124,7 @@ function _checkFontLoaded () {
         let fontFamily = fontLoadHandle.fontFamilyName;
         // load timeout
         if (now - fontLoadHandle.startTime > _timeout) {
-            cc.warnID(4933, fontFamily);
+            legacyGlobalExports.warnID(4933, fontFamily);
             fontLoadHandle.callback(null, fontFamily);
             _loadingFonts.splice(i, 1);
             continue;

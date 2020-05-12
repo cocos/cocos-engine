@@ -37,6 +37,7 @@ import { Asset } from './asset';
 import { RenderTexture } from './render-texture';
 import { TextureBase } from './texture-base';
 import { EDITOR } from 'internal:constants';
+import { legacyGlobalExports } from '../global-exports';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -662,12 +663,12 @@ export class SpriteFrame extends Asset {
         }
 
         if (maxX > texture.width) {
-            cc.errorID(3300, this.name + '/' + texture.name, maxX, texture.width);
+            legacyGlobalExports.errorID(3300, this.name + '/' + texture.name, maxX, texture.width);
             return false;
         }
 
         if (maxY > texture.height) {
-            cc.errorID(3301, this.name + '/' + texture.name, maxY, texture.height);
+            legacyGlobalExports.errorID(3301, this.name + '/' + texture.name, maxY, texture.height);
             return false;
         }
 
@@ -952,4 +953,4 @@ export class SpriteFrame extends Asset {
     }
 }
 
-cc.SpriteFrame = SpriteFrame;
+legacyGlobalExports.SpriteFrame = SpriteFrame;

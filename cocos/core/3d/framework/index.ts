@@ -55,19 +55,20 @@ export {
 };
 
 // cc.AnimationComponent = AnimationComponent;
-cc.CameraComponent = CameraComponent;
-cc.EditorComponent = EditorCameraComponent;
-cc.RenderableComponent = RenderableComponent;
-cc.ModelComponent = ModelComponent;
-cc.SkinningModelComponent = SkinningModelComponent;
+legacyGlobalExports.CameraComponent = CameraComponent;
+legacyGlobalExports.EditorComponent = EditorCameraComponent;
+legacyGlobalExports.RenderableComponent = RenderableComponent;
+legacyGlobalExports.ModelComponent = ModelComponent;
+legacyGlobalExports.SkinningModelComponent = SkinningModelComponent;
 
-cc.BatchedSkinningModelComponent = BatchedSkinningModelComponent;
-cc.SkinningModelUnit = SkinningModelUnit;
+legacyGlobalExports.BatchedSkinningModelComponent = BatchedSkinningModelComponent;
+legacyGlobalExports.SkinningModelUnit = SkinningModelUnit;
 
-cc.LightComponent = LightComponent;
-cc.DirectionalLightComponent = DirectionalLightComponent;
-cc.SphereLightComponent = SphereLightComponent;
-cc.SpotLightComponent = SpotLightComponent;
+legacyGlobalExports.LightComponent = LightComponent;
+legacyGlobalExports.DirectionalLightComponent = DirectionalLightComponent;
+legacyGlobalExports.SphereLightComponent = SphereLightComponent;
+legacyGlobalExports.SpotLightComponent = SpotLightComponent;
 
 /** deprecated */
-import './deprecated';
+import './deprecated';import { legacyGlobalExports } from '../../global-exports';
+

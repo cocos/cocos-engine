@@ -7,6 +7,7 @@ import * as math from './math';
 import { Scheduler } from './scheduler';
 import { CameraComponent } from './3d';
 import { EventTouch } from './platform';
+import { legacyGlobalExports } from './global-exports';
 
 // VMATH
 
@@ -163,7 +164,7 @@ replaceProperty(vmath,'vmath',[
     },
 ]);
 
-cc.vmath = vmath;
+legacyGlobalExports.vmath = vmath;
 
 export { vmath };
 

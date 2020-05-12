@@ -32,20 +32,21 @@ export {
     ConstantForce
 };
 
-cc.PhysicsSystem = PhysicsSystem;
+legacyGlobalExports.PhysicsSystem = PhysicsSystem;
 
-cc.ColliderComponent = ColliderComponent;
-cc.BoxColliderComponent = BoxColliderComponent;
-cc.SphereColliderComponent = SphereColliderComponent;
+legacyGlobalExports.ColliderComponent = ColliderComponent;
+legacyGlobalExports.BoxColliderComponent = BoxColliderComponent;
+legacyGlobalExports.SphereColliderComponent = SphereColliderComponent;
 
-cc.RigidBodyComponent = RigidBodyComponent;
+legacyGlobalExports.RigidBodyComponent = RigidBodyComponent;
 
-cc.PhysicMaterial = PhysicMaterial;
-cc.PhysicsRayResult = PhysicsRayResult;
-cc.ConstantForce = ConstantForce;
+legacyGlobalExports.PhysicMaterial = PhysicMaterial;
+legacyGlobalExports.PhysicsRayResult = PhysicsRayResult;
+legacyGlobalExports.ConstantForce = ConstantForce;
 
 export * from './physics-interface';
 export * from './physics-enum';
 
 import './deprecated';
+import { legacyGlobalExports } from '../../core/global-exports';
 

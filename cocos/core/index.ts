@@ -30,8 +30,8 @@
 import * as geometry from './geometry';
 import * as math from './math';
 import * as memop from './memop';
-cc.math = math;
-cc.geometry = geometry;
+legacyGlobalExports.math = math;
+legacyGlobalExports.geometry = geometry;
 
 export { math, memop, geometry };
 
@@ -60,4 +60,5 @@ export * from './utils/profiler/profiler';
 
 import './deprecated';
 // import './splash-image';
-import './splash-screen-webgl';
+import './splash-screen-webgl';import { legacyGlobalExports } from './global-exports';
+

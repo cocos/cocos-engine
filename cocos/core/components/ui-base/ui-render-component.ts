@@ -43,6 +43,7 @@ import { UI } from '../../renderer/ui/ui';
 import { Node } from '../../scene-graph';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { UIComponent } from './ui-component';
+import { legacyGlobalExports } from '../../global-exports';
 
 // hack
 ccenum(GFXBlendFactor);
@@ -461,4 +462,4 @@ export class UIRenderComponent extends UIComponent {
     protected _flushAssembler? (): void;
 }
 
-cc.UIRenderComponent = UIRenderComponent;
+legacyGlobalExports.UIRenderComponent = UIRenderComponent;

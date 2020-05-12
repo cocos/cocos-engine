@@ -30,6 +30,7 @@
 
 import {ccclass} from '../data/class-decorator';
 import { Asset } from './asset';
+import { legacyGlobalExports } from '../global-exports';
 
 /**
  * @zh
@@ -38,7 +39,7 @@ import { Asset } from './asset';
 @ccclass('cc.Script')
 export class Script extends Asset {
 }
-cc._Script = Script;
+legacyGlobalExports._Script = Script;
 
 /**
  * @zh
@@ -47,7 +48,7 @@ cc._Script = Script;
 @ccclass('cc.JavaScript')
 export class JavaScript extends Script {
 }
-cc._JavaScript = JavaScript;
+legacyGlobalExports._JavaScript = JavaScript;
 
 /**
  * @zh
@@ -56,4 +57,4 @@ cc._JavaScript = JavaScript;
 @ccclass('cc.TypeScript')
 export class TypeScript extends Script {
 }
-cc._TypeScript = TypeScript;
+legacyGlobalExports._TypeScript = TypeScript;

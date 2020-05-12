@@ -29,6 +29,7 @@
  */
 
 import { Pipeline, IPipe } from './pipeline';
+import { legacyGlobalExports } from '../global-exports';
 
 const ID = 'MD5Pipe';
 const ExtnameRegex = /(\.[^.\n\\/]*)$/;
@@ -79,8 +80,8 @@ export default class MD5Pipe implements IPipe {
             let hashValue = map[uuid];
             if (hashValue) {
                 if (hashPatchInFolder) {
-                    let dirname = cc.path.dirname(url);
-                    let basename = cc.path.basename(url);
+                    let dirname = legacyGlobalExports.path.dirname(url);
+                    let basename = legacyGlobalExports.path.basename(url);
                     url = `${dirname}.${hashValue}/${basename}`;
                 } else {
                     let matched = false;

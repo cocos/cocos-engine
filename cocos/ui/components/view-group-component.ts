@@ -44,6 +44,7 @@
 
 import { Component } from '../../core/components';
 import { ccclass, executionOrder } from '../../core/data/class-decorator';
+import { legacyGlobalExports } from '../../core/global-exports';
 
 @ccclass('cc.ViewGroupComponent')
 @executionOrder(110)
@@ -51,4 +52,4 @@ export class ViewGroupComponent extends Component {
 
 }
 
-cc.ViewGroupComponent = ViewGroupComponent;
+legacyGlobalExports.ViewGroupComponent = ViewGroupComponent;

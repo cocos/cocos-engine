@@ -35,6 +35,7 @@ import CCClass from './class';
 import * as Attr from './utils/attribute';
 import MissingScript from '../components/missing-script';
 import { EDITOR, TEST, DEV, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
+import { legacyGlobalExports } from '../global-exports';
 
 // HELPERS
 
@@ -169,7 +170,7 @@ function _dereference (self) {
 }
 
 function compileObjectTypeJit (sources, defaultValue, accessorToSet, propNameLiteralToSet, assumeHavePropIfIsValue, stillUseUrl) {
-    if (defaultValue instanceof cc.ValueType) {
+    if (defaultValue instanceof legacyGlobalExports.ValueType) {
         // fast case
         if (!assumeHavePropIfIsValue) {
             sources.push('if(prop){');
@@ -245,10 +246,10 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
             let isPrimitiveType;
             const userType = attrs[propName + TYPE];
             if (defaultValue === undefined && userType) {
-                isPrimitiveType = userType === cc.String ||
-                                  userType === cc.Integer ||
-                                  userType === cc.Float ||
-                                  userType === cc.Boolean;
+                isPrimitiveType = userType === legacyGlobalExports.String ||
+                                  userType === legacyGlobalExports.Integer ||
+                                  userType === legacyGlobalExports.Float ||
+                                  userType === legacyGlobalExports.Boolean;
             }
             else {
                 const defaultType = typeof defaultValue;
@@ -273,9 +274,9 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
         }
         sources.push('}');
     }
-    if (cc.js.isChildClassOf(klass, cc._BaseNode) || cc.js.isChildClassOf(klass, cc.Component)) {
+    if (legacyGlobalExports.js.isChildClassOf(klass, legacyGlobalExports._BaseNode) || legacyGlobalExports.js.isChildClassOf(klass, legacyGlobalExports.Component)) {
         if (PREVIEW || (EDITOR && self._ignoreEditorOnly)) {
-            const mayUsedInPersistRoot = js.isChildClassOf(klass, cc.Node);
+            const mayUsedInPersistRoot = js.isChildClassOf(klass, legacyGlobalExports.Node);
             if (mayUsedInPersistRoot) {
                 sources.push('d._id&&(o._id=d._id);');
             }
@@ -293,7 +294,7 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
     return Function('s', 'o', 'd', 'k', 't', sources.join(''));
 } : (self, klass) => {
     const fastMode = misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
-    const shouldCopyId = cc.js.isChildClassOf(klass, cc._BaseNode) || cc.js.isChildClassOf(klass, cc.Component);
+    const shouldCopyId = legacyGlobalExports.js.isChildClassOf(klass, legacyGlobalExports._BaseNode) || legacyGlobalExports.js.isChildClassOf(klass, legacyGlobalExports.Component);
     let shouldCopyRawData;
 
     const simpleProps: any = [];
@@ -327,10 +328,10 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
             if (fastMode) {
                 const userType = attrs[propName + TYPE];
                 if (defaultValue === undefined && userType) {
-                    isPrimitiveType = userType === cc.String ||
-                                      userType === cc.Integer ||
-                                      userType === cc.Float ||
-                                      userType === cc.Boolean;
+                    isPrimitiveType = userType === legacyGlobalExports.String ||
+                                      userType === legacyGlobalExports.Integer ||
+                                      userType === legacyGlobalExports.Float ||
+                                      userType === legacyGlobalExports.Boolean;
                 }
                 else {
                     const defaultType = typeof defaultValue;
@@ -357,7 +358,7 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
                     advancedPropsToRead.push(propNameToRead);
                 }
                 advancedPropsUseUrl.push(stillUseUrl);
-                advancedPropsValueType.push((defaultValue instanceof cc.ValueType) && defaultValue.constructor);
+                advancedPropsValueType.push((defaultValue instanceof legacyGlobalExports.ValueType) && defaultValue.constructor);
             }
         }
     })();
@@ -448,7 +449,7 @@ function _deserializeFireClass (self, obj, serialized, klass, target) {
     deserialize(self, obj, serialized, klass, target);
     // if preview or build worker
     if (PREVIEW || (EDITOR && self._ignoreEditorOnly)) {
-        if (klass === cc._PrefabInfo && !obj.sync) {
+        if (klass === legacyGlobalExports._PrefabInfo && !obj.sync) {
             unlinkUnusedPrefab(self, serialized, obj);
         }
     }
@@ -590,7 +591,7 @@ class _Deserializer {
             if (!klass) {
                 const notReported = this._classFinder === js._getClassById;
                 if (notReported) {
-                    cc.deserialize.reportMissingClass(type);
+                    legacyGlobalExports.deserialize.reportMissingClass(type);
                 }
                 return null;
             }
@@ -613,7 +614,7 @@ class _Deserializer {
                     obj._deserialize(serialized.content, self);
                     return;
                 }
-                if (cc.Class._isCCClass(klass)) {
+                if (legacyGlobalExports.Class._isCCClass(klass)) {
                     _deserializeFireClass(self, obj, serialized, klass, target);
                 }
                 else {
@@ -629,12 +630,12 @@ class _Deserializer {
                 catch (e) {
                     console.error('deserialize ' + klass.name + ' failed, ' + e.stack);
                     klass = MissingScript.getMissingWrapper(type, serialized);
-                    cc.deserialize.reportMissingClass(type);
+                    legacyGlobalExports.deserialize.reportMissingClass(type);
                     deserializeByType();
                 }
             }
 
-            if (EDITOR && cc.js.isChildClassOf(klass, cc.Component)) {
+            if (EDITOR && legacyGlobalExports.js.isChildClassOf(klass, legacyGlobalExports.Component)) {
                 checkDeserializeByType();
             }
             else {
@@ -746,23 +747,23 @@ class _Deserializer {
     }
 
     private _deserializeTypedObject (instance, serialized, klass) {
-        if (klass === cc.Vec2) {
+        if (klass === legacyGlobalExports.Vec2) {
             instance.x = serialized.x || 0;
             instance.y = serialized.y || 0;
             return;
-        } else if (klass === cc.Vec3) {
+        } else if (klass === legacyGlobalExports.Vec3) {
             instance.x = serialized.x || 0;
             instance.y = serialized.y || 0;
             instance.z = serialized.z || 0;
             return;
-        } else if (klass === cc.Color) {
+        } else if (klass === legacyGlobalExports.Color) {
             instance.r = serialized.r || 0;
             instance.g = serialized.g || 0;
             instance.b = serialized.b || 0;
             const a = serialized.a;
             instance.a = (a === undefined ? 255 : a);
             return;
-        } else if (klass === cc.Size) {
+        } else if (klass === legacyGlobalExports.Size) {
             instance.width = serialized.width || 0;
             instance.height = serialized.height || 0;
             return;
@@ -849,7 +850,7 @@ function deserialize (data, details, options) {
     options = options || {};
     const classFinder = options.classFinder || js._getClassById;
     // 启用 createAssetRefs 后，如果有 url 属性则会被统一强制设置为 { uuid: 'xxx' }，必须后面再特殊处理
-    const createAssetRefs = options.createAssetRefs || cc.sys.platform === cc.sys.EDITOR_CORE;
+    const createAssetRefs = options.createAssetRefs || legacyGlobalExports.sys.platform === legacyGlobalExports.sys.EDITOR_CORE;
     const target = (EDITOR || TEST) && options.target;
     const customEnv = options.customEnv;
     const ignoreEditorOnly = options.ignoreEditorOnly;
@@ -865,9 +866,9 @@ function deserialize (data, details, options) {
     // @ts-ignore
     const deserializer: any = _Deserializer.pool.get(details, target, classFinder, customEnv, ignoreEditorOnly);
 
-    cc.game._isCloning = true;
+    legacyGlobalExports.game._isCloning = true;
     const res = deserializer.deserialize(data);
-    cc.game._isCloning = false;
+    legacyGlobalExports.game._isCloning = false;
 
     _Deserializer.pool.put(deserializer);
     if (createAssetRefs) {
@@ -894,6 +895,6 @@ deserialize.reportMissingClass = (id) => {
         warnID(5302, id);
     }
 };
-cc.deserialize = deserialize;
+legacyGlobalExports.deserialize = deserialize;
 
 export default deserialize;

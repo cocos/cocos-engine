@@ -44,6 +44,7 @@ import { LoadingItems } from './loading-items';
 import { Pipeline } from './pipeline';
 import ReleasedAssetChecker from './released-asset-checker';
 import { DEBUG, EDITOR, DEV } from 'internal:constants';
+import { legacyGlobalExports } from '../global-exports';
 
 const assetTables = Object.create(null);
 assetTables.assets = new AssetTable();
@@ -81,8 +82,8 @@ function getResWithUrl (res) {
         result = {};
         id = res;
     }
-    isUuid = result.type ? result.type === 'uuid' : cc.AssetLibrary._uuidInSettings(id);
-    cc.AssetLibrary._getAssetInfoInRuntime(id, _info);
+    isUuid = result.type ? result.type === 'uuid' : legacyGlobalExports.AssetLibrary._uuidInSettings(id);
+    legacyGlobalExports.AssetLibrary._getAssetInfoInRuntime(id, _info);
     result.url = !isUuid ? id : _info.url;
     if (_info.url && result.type === 'uuid' && _info.raw) {
         result.type = null;
@@ -199,7 +200,7 @@ export class CCLoader extends Pipeline {
     public init (director) {
         if (DEBUG) {
             const self = this;
-            director.on(cc.Director.EVENT_AFTER_UPDATE, () => {
+            director.on(legacyGlobalExports.Director.EVENT_AFTER_UPDATE, () => {
                 self._releasedAssetChecker_DEBUG.checkCouldRelease(self._cache);
             });
         }
@@ -291,7 +292,7 @@ export class CCLoader extends Pipeline {
      */
     public load (resources, progressCallback, completeCallback?) {
         if (DEV && !resources) {
-            return cc.error('[cc.loader.load] resources must be non-nil.');
+            return legacyGlobalExports.error('[cc.loader.load] resources must be non-nil.');
         }
 
         if (completeCallback === undefined) {
@@ -317,7 +318,7 @@ export class CCLoader extends Pipeline {
             const resource = resources[i];
             // Backward compatibility
             if (resource && resource.id) {
-                cc.warnID(4920, resource.id);
+                legacyGlobalExports.warnID(4920, resource.id);
                 if (!resource.uuid && !resource.url) {
                     resource.url = resource.id;
                 }
@@ -582,7 +583,7 @@ export class CCLoader extends Pipeline {
             // To show users the exact structure in asset panel, we need to return the spriteFrame assets in spriteAtlas
             const assetResLength = assetRes.length;
             for (let i = 0; i < assetResLength; ++i) {
-                if (assetRes[i] instanceof cc.SpriteAtlas) {
+                if (assetRes[i] instanceof legacyGlobalExports.SpriteAtlas) {
                     const spriteFrames = assetRes[i].getSpriteFrames();
                     // tslint:disable: forin
                     for (const k in spriteFrames) {
@@ -808,7 +809,7 @@ export class CCLoader extends Pipeline {
             if (item) {
                 const removed = this.removeItem(id);
                 asset = item.content;
-                if (asset instanceof cc.Asset) {
+                if (asset instanceof legacyGlobalExports.Asset) {
                     const nativeUrl = asset.nativeUrl;
                     if (nativeUrl) {
                         this.release(nativeUrl);  // uncache loading item of native asset
@@ -852,7 +853,7 @@ export class CCLoader extends Pipeline {
             this.release(uuid);
         }
         else {
-            cc.errorID(4914, url);
+            legacyGlobalExports.errorID(4914, url);
         }
     }
 
@@ -935,7 +936,7 @@ export class CCLoader extends Pipeline {
             this._autoReleaseSetting[key] = !!autoRelease;
         }
         else if (DEV) {
-            cc.warnID(4902);
+            legacyGlobalExports.warnID(4902);
         }
     }
 
@@ -983,7 +984,7 @@ export class CCLoader extends Pipeline {
             }
         }
         else if (DEV) {
-            cc.warnID(4902);
+            legacyGlobalExports.warnID(4902);
         }
     }
 
@@ -1030,13 +1031,13 @@ export class CCLoader extends Pipeline {
                 }
                 uuid = assetTable.getUuid(url, type);
                 if (!uuid) {
-                    const extname = cc.path.extname(url);
+                    const extname = legacyGlobalExports.path.extname(url);
                     if (extname) {
                         // strip extname
                         url = url.slice(0, - extname.length);
                         uuid = assetTable.getUuid(url, type);
                         if (uuid && !quiet) {
-                            cc.warnID(4901, url, extname);
+                            legacyGlobalExports.warnID(4901, url, extname);
                         }
                     }
                 }
@@ -1044,7 +1045,7 @@ export class CCLoader extends Pipeline {
         }
         if (!uuid && type) {
             if (isChildClassOf(type, SpriteFrame) || isChildClassOf(type, Texture2D) || isChildClassOf(type, TextureCube)) {
-                cc.warnID(4934);
+                legacyGlobalExports.warnID(4934);
             }
         }
         return uuid;
@@ -1065,10 +1066,10 @@ export class CCLoader extends Pipeline {
             key = this._getResUuid(assetOrUrlOrUuid, null, null, true) || assetOrUrlOrUuid;
         }
         if (!key) {
-            cc.warnID(4800, assetOrUrlOrUuid);
+            legacyGlobalExports.warnID(4800, assetOrUrlOrUuid);
             return key;
         }
-        cc.AssetLibrary._getAssetInfoInRuntime(key, _info);
+        legacyGlobalExports.AssetLibrary._getAssetInfoInRuntime(key, _info);
         return this._cache[_info.url!] ? _info.url : key;
     }
 
@@ -1078,7 +1079,7 @@ export class CCLoader extends Pipeline {
      */
     private _urlNotFound (url, type, completeCallback) {
         callInNextTick(() => {
-            url = cc.url.normalize(url);
+            url = legacyGlobalExports.url.normalize(url);
             const info = `${type ? getClassName(type) : 'Asset'} in "resources/${url}" does not exist.`;
             if (completeCallback) {
                 completeCallback(new Error(info), []);
@@ -1097,7 +1098,7 @@ export class CCLoader extends Pipeline {
      */
     private _parseLoadResArgs (type, onProgress, onComplete) {
         if (onComplete === undefined) {
-            const isValidType = isChildClassOf(type, cc.RawAsset);
+            const isValidType = isChildClassOf(type, legacyGlobalExports.RawAsset);
             if (onProgress) {
                 onComplete = onProgress;
                 if (isValidType) {
@@ -1175,10 +1176,10 @@ export class CCLoader extends Pipeline {
     }
 }
 
-export const loader = cc.loader = new CCLoader();
+export const loader = legacyGlobalExports.loader = new CCLoader();
 
 if (EDITOR) {
-    cc.loader.refreshUrl = function (uuid, oldUrl, newUrl) {
+    legacyGlobalExports.loader.refreshUrl = function (uuid, oldUrl, newUrl) {
         let item = this._cache[uuid];
         if (item) {
             item.url = newUrl;

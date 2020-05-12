@@ -46,7 +46,7 @@ export { LabelAtlas } from './label-atlas';
 export { BitmapFont } from './bitmap-font';
 export { Font } from './font';
 import * as textureUtil from './texture-util';
-cc.textureUtil = textureUtil;
+legacyGlobalExports.textureUtil = textureUtil;
 export { textureUtil };
 export { EffectAsset } from './effect-asset';
 export { Material } from './material';
@@ -54,4 +54,5 @@ export { Mesh } from './mesh';
 export { Skeleton } from './skeleton';
 export { RenderTexture } from './render-texture';
 export { default as RenderPipelineAsset } from './render-pipeline-asset';
-import './deprecation';
+import './deprecation';import { legacyGlobalExports } from '../global-exports';
+

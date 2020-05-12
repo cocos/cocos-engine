@@ -31,6 +31,7 @@
 import {ccclass, property} from '../data/class-decorator';
 import { Scene } from '../scene-graph';
 import { Asset } from './asset';
+import { legacyGlobalExports } from '../global-exports';
 
 /**
  * @en Class for scene handling.
@@ -57,4 +58,4 @@ export default class SceneAsset extends Asset {
     public asyncLoadAssets = false;
 }
 
-cc.SceneAsset = SceneAsset;
+legacyGlobalExports.SceneAsset = SceneAsset;

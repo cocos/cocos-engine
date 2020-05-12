@@ -49,6 +49,7 @@ import { UIBatchModel } from './ui-batch-model';
 import { UIDrawBatch } from './ui-draw-batch';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
+import { legacyGlobalExports } from '../../global-exports';
 
 /**
  * @zh
@@ -110,7 +111,7 @@ export class UI {
             name: 'GUIScene',
         });
         this._uiModelPool = new Pool(() => {
-            const model = cc.director.root.createModel(UIBatchModel);
+            const model = legacyGlobalExports.director.root.createModel(UIBatchModel);
             model.enabled = true;
             model.visFlags |= Layers.Enum.UI_3D;
             return model;
@@ -118,7 +119,7 @@ export class UI {
         this._modelInUse = new CachedArray<UIBatchModel>(10);
         this._batches = new CachedArray(64);
 
-        cc.director.on(cc.Director.EVENT_BEFORE_DRAW, this.update, this);
+        legacyGlobalExports.director.on(legacyGlobalExports.Director.EVENT_BEFORE_DRAW, this.update, this);
     }
 
     public initialize () {

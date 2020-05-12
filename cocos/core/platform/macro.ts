@@ -30,6 +30,7 @@
  */
 
 import { Vec2 } from '../math';
+import { legacyGlobalExports } from '../global-exports';
 
 const SUPPORT_TEXTURE_FORMATS = ['.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];
 
@@ -1014,6 +1015,6 @@ const macro = {
     ENABLE_MULTI_TOUCH: true,
 };
 
-cc.macro = macro;
+legacyGlobalExports.macro = macro;
 
 export { macro };

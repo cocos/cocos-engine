@@ -34,6 +34,7 @@ import plistParser from './plist-parser';
 import { Pipeline, IPipe } from './pipeline';
 import {loadUuid} from './uuid-loader';
 import {loadFont} from './font-loader';
+import { legacyGlobalExports } from '../global-exports';
 
 function loadNothing () {
     return null;
@@ -54,14 +55,14 @@ function loadJSON (item) {
 }
 
 function loadImage (item) {
-    let loadByDeserializedAsset = (item._owner instanceof cc.Asset);
+    let loadByDeserializedAsset = (item._owner instanceof legacyGlobalExports.Asset);
     if (loadByDeserializedAsset) {
         // already has cc.Asset
         return null;
     }
 
     let image = item.content;
-    if (cc.sys.platform !== cc.sys.FB_PLAYABLE_ADS && !(image instanceof Image)) {
+    if (legacyGlobalExports.sys.platform !== legacyGlobalExports.sys.FB_PLAYABLE_ADS && !(image instanceof Image)) {
         return new Error('Image Loader: Input item doesn\'t contain Image content');
     }
 
@@ -78,13 +79,13 @@ function loadImage (item) {
 // If audio is loaded by url directly, than this loader will wrap it into a new cc.AudioClip object.
 // If audio is loaded by deserialized AudioClip, than this loader will be skipped.
 function loadAudioAsAsset (item, callback) {
-    let loadByDeserializedAsset = (item._owner instanceof cc.Asset);
+    let loadByDeserializedAsset = (item._owner instanceof legacyGlobalExports.Asset);
     if (loadByDeserializedAsset) {
         // already has cc.Asset
         return null;
     }
 
-    let audioClip = new cc.AudioClip();
+    let audioClip = new legacyGlobalExports.AudioClip();
     audioClip._setRawAsset(item.rawUrl, false);
     audioClip._nativeAsset = item.content;
     return audioClip;

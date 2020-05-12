@@ -8,6 +8,7 @@ import { toRadian } from '../../math';
 import { Camera } from '../../renderer';
 import { CameraComponent } from './camera-component';
 import { CAMERA_EDITOR_MASK } from '../../pipeline/define';
+import { legacyGlobalExports } from '../../global-exports';
 
 @ccclass('cc.EditorCameraComponent')
 export class EditorCameraComponent extends CameraComponent {
@@ -111,7 +112,7 @@ export class EditorCameraComponent extends CameraComponent {
     public onEnable () {
         super.onEnable();
         if (this._uiEditorCamera) {
-            cc.director.root!.ui.renderScene.addCamera(this._uiEditorCamera);
+            legacyGlobalExports.director.root!.ui.renderScene.addCamera(this._uiEditorCamera);
             this._uiEditorCamera.enabled = true;
         }
     }
@@ -119,14 +120,14 @@ export class EditorCameraComponent extends CameraComponent {
     public onDisable () {
         super.onDisable();
         if (this._uiEditorCamera) {
-            cc.director.root!.ui.renderScene.removeCamera(this._uiEditorCamera);
+            legacyGlobalExports.director.root!.ui.renderScene.removeCamera(this._uiEditorCamera);
         }
     }
 
     public onDestroy () {
         super.onDestroy();
         if (this._uiEditorCamera) {
-            cc.director.root!.destroyCamera(this._uiEditorCamera);
+            legacyGlobalExports.director.root!.destroyCamera(this._uiEditorCamera);
             this._uiEditorCamera = null;
         }
     }
@@ -137,15 +138,15 @@ export class EditorCameraComponent extends CameraComponent {
 
         if (this._camera !== priorCamera && this._camera) {
             if (this._uiEditorCamera) {
-                cc.director.root!.destroyCamera(this._uiEditorCamera);
+                legacyGlobalExports.director.root!.destroyCamera(this._uiEditorCamera);
                 this._uiEditorCamera = null;
             }
-            this._uiEditorCamera = cc.director.root!.createCamera();
+            this._uiEditorCamera = legacyGlobalExports.director.root!.createCamera();
             this._uiEditorCamera!.initialize({
                 name: 'Editor UICamera',
                 node: this._camera.node,
                 projection: this._projection,
-                window: cc.director.root!.mainWindow,
+                window: legacyGlobalExports.director.root!.mainWindow,
                 priority: this._priority + 1,
                 flows: ['UIFlow'],
             });

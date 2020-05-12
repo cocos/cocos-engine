@@ -33,6 +33,7 @@ import { GFXDevice, GFXFeature } from '../gfx/device';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { EDITOR, MINIGAME } from 'internal:constants';
+import { legacyGlobalExports } from '../global-exports';
 
 /**
  * 内存图像源。
@@ -123,7 +124,7 @@ export class ImageAsset extends Asset {
 
     get _texture () {
         if (!this._tex) {
-            const tex = new cc.Texture2D();
+            const tex = new legacyGlobalExports.Texture2D();
             tex.name = this._url;
             tex.image = this;
             this._tex = tex;
@@ -193,7 +194,7 @@ export class ImageAsset extends Asset {
                     this._onDataComplete();
                 });
                 data.addEventListener('error', (err) => {
-                    cc.warnID(3119, err.message);
+                    legacyGlobalExports.warnID(3119, err.message);
                 });
             }
         }
@@ -249,7 +250,7 @@ export class ImageAsset extends Asset {
         let preferedExtensionIndex = Number.MAX_VALUE;
         let format = this._format;
         let ext = '';
-        const SupportTextureFormats = cc.macro.SUPPORT_TEXTURE_FORMATS as string[];
+        const SupportTextureFormats = legacyGlobalExports.macro.SUPPORT_TEXTURE_FORMATS as string[];
         for (const extensionID of extensionIDs) {
             const extFormat = extensionID.split('@');
 
@@ -267,7 +268,7 @@ export class ImageAsset extends Asset {
                 } else if ((fmt === PixelFormat.RGB_ETC2 || fmt === PixelFormat.RGBA_ETC2) &&
                     (!device || !device.hasFeature(GFXFeature.FORMAT_ETC2))) {
                     continue;
-                } else if (tmpExt === '.webp' && !cc.sys.capabilities.webp) {
+                } else if (tmpExt === '.webp' && !legacyGlobalExports.sys.capabilities.webp) {
                     continue;
                 }
                 preferedExtensionIndex = index;
@@ -297,8 +298,8 @@ export class ImageAsset extends Asset {
 }
 
 function _getGlobalDevice (): GFXDevice | null {
-    if (cc.director.root) {
-        return cc.director.root.device;
+    if (legacyGlobalExports.director.root) {
+        return legacyGlobalExports.director.root.device;
     } else {
         return null;
     }
@@ -313,4 +314,4 @@ function _getGlobalDevice (): GFXDevice | null {
  * @event loads
  */
 
-cc.ImageAsset = ImageAsset;
+legacyGlobalExports.ImageAsset = ImageAsset;
