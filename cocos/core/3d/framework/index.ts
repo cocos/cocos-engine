@@ -27,7 +27,7 @@
 /**
  * @hidden
  */
-
+import { legacyGlobalExports } from '../../global-exports';
 import { BatchedSkinningModelComponent, SkinningModelUnit } from './batched-skinning-model-component';
 import { CameraComponent } from './camera-component';
 import { DirectionalLightComponent } from './directional-light-component';
@@ -70,5 +70,4 @@ legacyGlobalExports.SphereLightComponent = SphereLightComponent;
 legacyGlobalExports.SpotLightComponent = SpotLightComponent;
 
 /** deprecated */
-import './deprecated';import { legacyGlobalExports } from '../../global-exports';
-
+import './deprecated';

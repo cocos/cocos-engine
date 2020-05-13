@@ -27,7 +27,7 @@
 /**
  * @hidden
  */
-
+import { legacyGlobalExports } from '../global-exports';
 export { RawAsset } from './raw-asset';
 export { Asset } from './asset';
 export {default as Prefab} from './prefab';
@@ -54,5 +54,4 @@ export { Mesh } from './mesh';
 export { Skeleton } from './skeleton';
 export { RenderTexture } from './render-texture';
 export { default as RenderPipelineAsset } from './render-pipeline-asset';
-import './deprecation';import { legacyGlobalExports } from '../global-exports';
-
+import './deprecation';

@@ -26,10 +26,12 @@
 /**
  * @category core
  */
+import { legacyGlobalExports } from './global-exports';
 
 import * as geometry from './geometry';
 import * as math from './math';
 import * as memop from './memop';
+
 legacyGlobalExports.math = math;
 legacyGlobalExports.geometry = geometry;
 
@@ -60,5 +62,6 @@ export * from './utils/profiler/profiler';
 
 import './deprecated';
 // import './splash-image';
-import './splash-screen-webgl';import { legacyGlobalExports } from './global-exports';
+import './splash-screen-webgl';
+
 
