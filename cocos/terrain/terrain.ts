@@ -104,7 +104,7 @@ export class TerrainRenderable extends RenderableComponent {
     public _currentMaterialLayers: number = 0;
 
     public destroy () {
-        this._invalidMaterial();
+        // this._invalidMaterial();
         if (this._model != null) {
             cc.director.root.destroyModel(this._model);
             this._model = null;
