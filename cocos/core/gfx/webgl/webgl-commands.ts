@@ -2709,14 +2709,8 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                             region.texOffset.x, region.texOffset.y, w, h,
                             gpuTexture.glFormat, gpuTexture.glType, pixels);
                     } else {
-                        if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
-                            gl.compressedTexSubImage2D(gl.TEXTURE_2D, m,
-                                region.texOffset.x, region.texOffset.y, w, h,
-                                gpuTexture.glFormat, pixels);
-                        } else {
-                            gl.compressedTexImage2D(gl.TEXTURE_2D, m,
-                                gpuTexture.glInternelFmt, w, h, 0, pixels);
-                        }
+                        gl.compressedTexImage2D(gl.TEXTURE_2D, m,
+                            gpuTexture.glInternelFmt, w, h, 0, pixels);
                     }
 
                     w = Math.max(1, w >> 1);
@@ -2743,14 +2737,8 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                                 region.texOffset.x, region.texOffset.y, w, h,
                                 gpuTexture.glFormat, gpuTexture.glType, pixels);
                         } else {
-                            if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
-                                gl.compressedTexSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
-                                    region.texOffset.x, region.texOffset.y, w, h,
-                                    gpuTexture.glFormat, pixels);
-                            } else {
-                                gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
-                                    gpuTexture.glInternelFmt, w, h, 0, pixels);
-                            }
+                            gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
+                                gpuTexture.glInternelFmt, w, h, 0, pixels);
                         }
                         w = Math.max(1, w >> 1);
                         h = Math.max(1, w >> 1);
