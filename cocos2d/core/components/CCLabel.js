@@ -739,10 +739,17 @@ let Label = cc.Class({
         this._frame._texture._nativeUrl = this.uuid + '_texture';
     },
 
+    _getDefaultMaterial() {
+        return Material.getBuiltinMaterial("2d-label");
+    },
+
     _updateMaterialWebgl () {
 
         let material = this.getMaterial(0);
         if(this._nativeTTF()) {
+            if (material.getDefine('CC_SUPPORT_standard_derivatives') !== undefined && cc.sys.glExtension('OES_standard_derivatives')) {
+                material.define('CC_SUPPORT_standard_derivatives', true);
+            }
             if(material) this._assembler._updateTTFMaterial(material, this)
             return;
         }
