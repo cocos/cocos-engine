@@ -422,7 +422,7 @@ export interface IFileData extends Array<any> {
 
     // Shared data area, the higher the number of references, the higher the position
 
-    [File.SharedUuids]: SharedString[] | Empty;           // Shared uuid strings for dependent assets
+    [File.SharedUuids]: SharedString[] | Empty; // Shared uuid strings for dependent assets
     [File.SharedStrings]: SharedString[] | Empty;
     [File.SharedClasses]: ArrayOrSingle<IClass|string|AnyCCClass>;
     [File.SharedMasks]: IMask | Empty;  // Shared Object layouts for IClassObjectData // TODO
@@ -574,7 +574,7 @@ function dereference(refs: IRefs, instances: IFileData[File.Instances], strings:
 
 function deserializeCCObject (data: IFileData, objectData: IClassObjectData) {
     let mask = data[File.SharedMasks][objectData[OBJ_DATA_MASK]];
-    let clazz = data[File.SharedClasses][mask[MASK_CLASS]]; // TODO - will it faster if we cache class in mask[0]?
+    let clazz = mask[MASK_CLASS];
     let ctor = clazz[CLASS_TYPE] as Exclude<AnyCtor, ICustomClass>;
     // if (!ctor) {
     //     return null;
@@ -822,6 +822,17 @@ function lookupClasses (data: IFileData, options: IOptions) {
     }
 }
 
+function cacheMasks (data: IFileData) {
+    let masks = data[File.SharedMasks];
+    if (masks) {
+        let classes = data[File.SharedClasses];
+        for (let i = 0; i < masks.length; ++i) {
+            let mask = masks[i];
+            mask[MASK_CLASS] = classes[mask[MASK_CLASS]];
+        }
+    }
+}
+
 function parseResult (data: IFileData) {
     let instances = data[File.Instances];
     let sharedStrings = data[File.SharedStrings];
@@ -887,6 +898,7 @@ export default function deserialize (data: IFileData, details: Details, options?
     data[File.Context] = options;
 
     lookupClasses(data, options);
+    cacheMasks(data);
 
     cc.game._isCloning = true;
     let instances = data[File.Instances];
