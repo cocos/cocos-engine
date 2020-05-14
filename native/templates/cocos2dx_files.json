@@ -550,6 +550,7 @@
         "cocos/renderer/gfx-vulkan/VKUtils.h", 
         "cocos/renderer/gfx-vulkan/VKWindow.cc", 
         "cocos/renderer/gfx-vulkan/VKWindow.h", 
+        "cocos/renderer/gfx-vulkan/vk_mem_alloc.h", 
         "cocos/renderer/gfx-vulkan/volk.c", 
         "cocos/renderer/gfx-vulkan/volk.h", 
         "cocos/renderer/soa-mgr/CMakeLists.txt", 
