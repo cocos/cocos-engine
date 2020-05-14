@@ -24,7 +24,12 @@ bool CCVKTextureView::initialize(const GFXTextureViewInfo &info)
     _levelCount = info.levelCount;
     _baseLayer = info.baseLayer;
     _layerCount = info.layerCount;
-
+    if(_texture == nullptr)
+    {
+        CC_LOG_ERROR("CCVKTextureView: texture should not be nullptr.");
+        _status = GFXStatus::FAILED;
+        return false;
+    }
     _gpuTexView = CC_NEW(CCVKGPUTextureView);
     _gpuTexView->gpuTexture = static_cast<CCVKTexture*>(_texture)->gpuTexture();
     _gpuTexView->type = _type;

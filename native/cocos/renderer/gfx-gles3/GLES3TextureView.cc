@@ -22,6 +22,12 @@ bool GLES3TextureView::initialize(const GFXTextureViewInfo &info) {
   _baseLayer = info.baseLayer;
   _layerCount = info.layerCount;
   
+    if(_texture == nullptr)
+    {
+        CC_LOG_ERROR("GLES3TextureView: texture should not be nullptr.");
+        _status = GFXStatus::FAILED;
+        return false;
+    }
   _gpuTexView = CC_NEW(GLES3GPUTextureView);
   _gpuTexView->gpuTexture = static_cast<GLES3Texture*>(_texture)->gpuTexture();
   _gpuTexView->type = _type;

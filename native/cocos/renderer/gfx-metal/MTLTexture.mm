@@ -60,6 +60,12 @@ bool CCMTLTexture::initialize(const GFXTextureInfo& info)
 
 bool CCMTLTexture::createMTLTexture()
 {
+    if(_width == 0 || _height == 0)
+    {
+        
+        CC_LOG_ERROR("CCMTLTexture: width or height should not be zero.");
+        return false;
+    }
     _convertedFormat = mu::convertGFXPixelFormat(_format);
     MTLPixelFormat mtlFormat = mu::toMTLPixelFormat(_convertedFormat);
     if (mtlFormat == MTLPixelFormatInvalid)
