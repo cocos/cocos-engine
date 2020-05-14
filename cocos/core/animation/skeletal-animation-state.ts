@@ -37,6 +37,7 @@ import { AnimationState } from './animation-state';
 import { SkeletalAnimationComponent, Socket } from './skeletal-animation-component';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { getWorldTransformUntilRoot } from './transform-utils';
+import { legacyCC } from '../global-exports';
 
 const m4_1 = new Mat4();
 const m4_2 = new Mat4();
@@ -68,7 +69,7 @@ export class SkeletalAnimationState extends AnimationState {
 
     constructor (clip: AnimationClip, name = '') {
         super(clip, name);
-        this._animInfoMgr = cc.director.root.dataPoolManager.jointAnimationInfo;
+        this._animInfoMgr = legacyCC.director.root.dataPoolManager.jointAnimationInfo;
     }
 
     public initialize (root: Node) {
@@ -169,7 +170,7 @@ export class SkeletalAnimationState extends AnimationState {
 
     private _sampleCurvesRealTime (ratio: number) {
         super._sampleCurves(ratio);
-        const stamp = cc.director.getTotalFrames();
+        const stamp = legacyCC.director.getTotalFrames();
         for (let i = 0; i < this._sockets.length; ++i) {
             const { target, transform } = this._sockets[i];
             target.matrix = getWorldMatrix(transform, stamp);

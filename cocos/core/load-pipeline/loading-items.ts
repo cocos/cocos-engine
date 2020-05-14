@@ -31,6 +31,7 @@
 import {CallbacksInvoker} from '../event/callbacks-invoker';
 import {extname} from '../utils/path';
 import {createMap, mixin} from '../utils/js';
+import { legacyCC } from '../global-exports';
 
 let _qid = (0|(Math.random()*998));
 let _queues = createMap(true);
@@ -93,7 +94,7 @@ function createItem (id, queueId) {
         complete: false,
         states: {},
         deps: null,
-        isScene: id.uuid && cc.game._sceneInfos.find((info) => info.uuid === id.uuid),
+        isScene: id.uuid && legacyCC.game._sceneInfos.find((info) => info.uuid === id.uuid),
     };
 
     if (typeof id === 'object') {
@@ -196,7 +197,7 @@ export class LoadingItems extends CallbacksInvoker {
     /**
      * @property {Number} ERROR
      */
-    static ItemState = new cc.Enum(ItemState);
+    static ItemState = new legacyCC.Enum(ItemState);
 
     /**
      * @en This is a callback which will be invoked while an item flow out the pipeline.
@@ -781,4 +782,4 @@ export class LoadingItems extends CallbacksInvoker {
     }
 }
 
-cc.LoadingItems = LoadingItems;
+legacyCC.LoadingItems = LoadingItems;

@@ -30,6 +30,7 @@
 import { warnID } from '../platform/debug';
 import { Node } from './node';
 import { DEV } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 /**
  * Finds a node by hierarchy path, the path is case-sensitive.
@@ -39,7 +40,7 @@ import { DEV } from 'internal:constants';
  */
 export function find (path: string, referenceNode?: Node): Node | null {
     if (!referenceNode) {
-        const scene = cc.director.getScene();
+        const scene = legacyCC.director.getScene();
         if (!scene) {
             if (DEV) {
                 warnID(5601);
@@ -57,4 +58,4 @@ export function find (path: string, referenceNode?: Node): Node | null {
     return referenceNode!.getChildByPath(path);
 }
 
-cc.find = find;
+legacyCC.find = find;

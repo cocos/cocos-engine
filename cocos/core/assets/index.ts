@@ -27,7 +27,7 @@
 /**
  * @hidden
  */
-
+import { legacyCC } from '../global-exports';
 export { RawAsset } from './raw-asset';
 export { Asset } from './asset';
 export {default as Prefab} from './prefab';
@@ -46,7 +46,7 @@ export { LabelAtlas } from './label-atlas';
 export { BitmapFont } from './bitmap-font';
 export { Font } from './font';
 import * as textureUtil from './texture-util';
-cc.textureUtil = textureUtil;
+legacyCC.textureUtil = textureUtil;
 export { textureUtil };
 export { EffectAsset } from './effect-asset';
 export { Material } from './material';

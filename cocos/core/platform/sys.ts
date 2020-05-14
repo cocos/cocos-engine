@@ -29,6 +29,7 @@
  */
 
 import { EDITOR, TEST, WECHAT, ALIPAY, XIAOMI, BAIDU, COCOSPLAY, JSB, MINIGAME } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 // tslint:disable
 
@@ -656,8 +657,8 @@ export const sys: { [x: string]: any; } = {
         str += 'os : ' + this.os + '\r\n';
         str += 'osVersion : ' + this.osVersion + '\r\n';
         str += 'platform : ' + this.platform + '\r\n';
-        str += 'Using ' + (cc.game.renderType === cc.game.RENDER_TYPE_WEBGL ? 'WEBGL' : 'CANVAS') + ' renderer.' + '\r\n';
-        cc.log(str);
+        str += 'Using ' + (legacyCC.game.renderType === legacyCC.game.RENDER_TYPE_WEBGL ? 'WEBGL' : 'CANVAS') + ' renderer.' + '\r\n';
+        legacyCC.log(str);
     },
 
     /**
@@ -945,7 +946,7 @@ else {
         localStorage = null;
     } catch (e) {
         const warn = function () {
-            cc.warnID(5200);
+            legacyCC.warnID(5200);
         };
         sys.localStorage = {
             getItem: warn,
@@ -1063,11 +1064,11 @@ else {
 
         if (DEBUG) {
             setTimeout(function () {
-                cc.log('browse type: ' + sys.browserType);
-                cc.log('browse version: ' + version);
-                cc.log('MULTI_CHANNEL: ' + __audioSupport.MULTI_CHANNEL);
-                cc.log('WEB_AUDIO: ' + __audioSupport.WEB_AUDIO);
-                cc.log('AUTOPLAY: ' + __audioSupport.AUTOPLAY);
+                legacyCC.log('browse type: ' + sys.browserType);
+                legacyCC.log('browse version: ' + version);
+                legacyCC.log('MULTI_CHANNEL: ' + __audioSupport.MULTI_CHANNEL);
+                legacyCC.log('WEB_AUDIO: ' + __audioSupport.WEB_AUDIO);
+                legacyCC.log('AUTOPLAY: ' + __audioSupport.AUTOPLAY);
             }, 0);
         }
     })();
@@ -1085,7 +1086,7 @@ else {
         }
     } catch (error) {
         __audioSupport.WEB_AUDIO = false;
-        cc.logID(5201);
+        legacyCC.logID(5201);
     }
 
     const formatSupport: string[] = [];
@@ -1109,4 +1110,4 @@ else {
     sys.__audioSupport = __audioSupport;
 }
 
-cc.sys = sys;
+legacyCC.sys = sys;

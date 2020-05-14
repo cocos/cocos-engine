@@ -40,6 +40,7 @@ import { Enum } from '../../value-types';
 import { builtinResMgr } from '../builtin';
 import { RenderableComponent } from './renderable-component';
 import { MorphRenderingInstance } from '../../assets/morph';
+import { legacyCC } from '../../global-exports';
 
 /**
  * @en Shadow projection mode.
@@ -244,7 +245,7 @@ export class ModelComponent extends RenderableComponent {
 
     public onDestroy () {
         if (this._model) {
-            cc.director.root.destroyModel(this._model);
+            legacyCC.director.root.destroyModel(this._model);
             this._model = null;
             this._models.length = 0;
         }
@@ -294,7 +295,7 @@ export class ModelComponent extends RenderableComponent {
     }
 
     protected _createModel () {
-        this._model = (cc.director.root as Root).createModel(this._modelType);
+        this._model = (legacyCC.director.root as Root).createModel(this._modelType);
         this._model.visFlags = this.visibility;
         this._model.initialize(this.node);
         this._models.length = 0;

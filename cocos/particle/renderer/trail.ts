@@ -18,6 +18,7 @@ import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
 import { Particle } from '../particle';
+import { legacyCC } from '../../core/global-exports';
 
 // tslint:disable: max-line-length
 const PRE_TRIANGLE_INDEX = 1;
@@ -389,7 +390,7 @@ export default class TrailModule {
     public destroy () {
         this.destroySubMeshData();
         if (this._trailModel) {
-            cc.director.root.destroyModel(this._trailModel);
+            legacyCC.director.root.destroyModel(this._trailModel);
             this._trailModel = null;
         }
         if (this._trailSegments) {
@@ -620,7 +621,7 @@ export default class TrailModule {
         this._subMeshData.indexBuffer = indexBuffer;
         this._subMeshData.indirectBuffer = this._iaInfoBuffer;
 
-        this._trailModel = cc.director.root.createModel(Model);
+        this._trailModel = legacyCC.director.root.createModel(Model);
         this._trailModel!.initialize(this._particleSystem.node);
         this._trailModel!.visFlags = this._particleSystem.visibility;
         this._trailModel!.setSubModelMesh(0, this._subMeshData);

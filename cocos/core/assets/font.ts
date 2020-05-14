@@ -30,6 +30,7 @@
 
 import {ccclass} from '../data/class-decorator';
 import { Asset } from './asset';
+import { legacyCC } from '../global-exports';
 
 /**
  * @en
@@ -43,4 +44,4 @@ import { Asset } from './asset';
 export class Font extends Asset {
 }
 
-cc.Font = Font;
+legacyCC.Font = Font;

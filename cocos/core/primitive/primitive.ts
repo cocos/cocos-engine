@@ -7,6 +7,7 @@ import { Mesh } from '../assets/mesh';
 import { ccclass, property } from '../data/class-decorator';
 import * as primitives from '../primitive';
 import { ccenum } from '../value-types/enum';
+import { legacyCC } from '../global-exports';
 
 enum PrimitiveType {
     BOX = 0,
@@ -62,4 +63,4 @@ export class Primitive extends Mesh {
     }
 }
 
-cc.Primitive = Primitive;
+legacyCC.Primitive = Primitive;

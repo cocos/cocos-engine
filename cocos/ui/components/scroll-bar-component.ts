@@ -36,6 +36,7 @@ import { clamp01 } from '../../core/math/utils';
 import { ScrollViewComponent } from './scroll-view-component';
 import { SpriteComponent } from './sprite-component';
 import { Node } from '../../core';
+import { legacyCC } from '../../core/global-exports';
 
 const GETTINGSHORTERFACTOR = 20;
 const ZERO = new Vec3();
@@ -495,4 +496,4 @@ export class ScrollBarComponent extends Component {
     }
 }
 
-cc.ScrollBarComponent = ScrollBarComponent;
+legacyCC.ScrollBarComponent = ScrollBarComponent;

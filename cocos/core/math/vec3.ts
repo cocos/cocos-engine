@@ -33,6 +33,7 @@ import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
 import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
 import { clamp, EPSILON, random } from './utils';
+import { legacyCC } from '../global-exports';
 
 /**
  * 三维向量。
@@ -978,7 +979,7 @@ const v3_1 = new Vec3();
 const v3_2 = new Vec3();
 
 CCClass.fastDefine('cc.Vec3', Vec3, { x: 0, y: 0, z: 0 });
-cc.Vec3 = Vec3;
+legacyCC.Vec3 = Vec3;
 
 export function v3 (other: Vec3): Vec3;
 export function v3 (x?: number, y?: number, z?: number): Vec3;
@@ -987,4 +988,4 @@ export function v3 (x?: number | Vec3, y?: number, z?: number) {
     return new Vec3(x as any, y, z);
 }
 
-cc.v3 = v3;
+legacyCC.v3 = v3;

@@ -5,6 +5,7 @@
 import { warnID, warn, easing } from '../core';
 import { ActionInterval } from './actions/action-interval';
 import { ITweenOption } from './export-api';
+import { legacyCC } from '../core/global-exports';
 
 /** adapter */
 function TweenEasinAdapter (easingName: string) {
@@ -50,7 +51,7 @@ function TweenEasinAdapter (easingName: string) {
 /** checker */
 function TweenOptionChecker (opts: ITweenOption) {
     const header = ' [Tween:] ';
-    const message = ' option is not support in v' + cc.ENGINE_VERSION;
+    const message = ' option is not support in v' + legacyCC.ENGINE_VERSION;
     if (opts['delay']) {
         warn(header + 'delay' + message);
     }

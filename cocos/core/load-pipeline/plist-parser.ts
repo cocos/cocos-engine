@@ -26,6 +26,7 @@
  */
 
 import { EDITOR } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 /**
  * @category loader
@@ -89,7 +90,7 @@ class PlistParser extends SAXParser {
         let xmlDoc = this._parseXML(xmlTxt);
         let plist = xmlDoc.documentElement;
         if (plist.tagName !== 'plist') {
-            cc.warnID(5100);
+            legacyCC.warnID(5100);
             return {};
         }
 

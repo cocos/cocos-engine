@@ -12,6 +12,7 @@ import { Pass } from '../renderer/core/pass';
 import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
 import { Layers } from '../scene-graph/layers';
+import { legacyCC } from '../global-exports';
 
 export const PIPELINE_FLOW_FORWARD: string = 'ForwardFlow';
 export const PIPELINE_FLOW_SMAA: string = 'SMAAFlow';
@@ -24,7 +25,7 @@ export const PIPELINE_FLOW_TONEMAP: string = 'ToneMapFlow';
 export enum RenderPassStage {
     DEFAULT = 100,
 }
-cc.RenderPassStage = RenderPassStage;
+legacyCC.RenderPassStage = RenderPassStage;
 
 /**
  * @zh

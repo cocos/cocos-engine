@@ -44,6 +44,7 @@ import { UITransformComponent } from '../../core/components/ui-base/ui-transform
 import { assert, warnID } from '../../core/platform/debug';
 import { loader } from '../../core/load-pipeline';
 import { EDITOR, DEV } from 'internal:constants';
+import { legacyCC } from '../../core/global-exports';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
@@ -82,7 +83,7 @@ const pool = new Pool((labelSeg: ILabelSegment) => {
     if (DEV) {
         assert(!labelSeg.node.parent, 'Recycling node\'s parent should be null!');
     }
-    if (!cc.isValid(labelSeg.node)) {
+    if (!legacyCC.isValid(labelSeg.node)) {
         return false;
     }
     else if (labelSeg.node.getComponent(LabelOutlineComponent)) {
@@ -1030,4 +1031,4 @@ export class RichTextComponent extends UIComponent {
     }
 }
 
-cc.RichTextComponent = RichTextComponent;
+legacyCC.RichTextComponent = RichTextComponent;

@@ -16,6 +16,7 @@ import { IRenderSceneInfo, RenderScene } from './renderer/scene/render-scene';
 import { SphereLight } from './renderer/scene/sphere-light';
 import { SpotLight } from './renderer/scene/spot-light';
 import { UI } from './renderer/ui/ui';
+import { legacyCC } from './global-exports';
 
 export let _createSceneFun;
 export let _createViewFun;
@@ -232,9 +233,9 @@ export class Root {
 
         builtinResMgr.initBuiltinRes(this._device);
 
-        cc.view.on('design-resolution-changed', () => {
-            const width = cc.game.canvas.width;
-            const height = cc.game.canvas.height;
+        legacyCC.view.on('design-resolution-changed', () => {
+            const width = legacyCC.game.canvas.width;
+            const height = legacyCC.game.canvas.height;
             this.resize(width, height);
         }, this);
 

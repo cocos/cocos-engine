@@ -1,6 +1,7 @@
 import { replaceProperty, removeProperty, markAsWarning } from "../../utils";
 import { RenderScene } from "./render-scene";
 import { Layers } from "../../scene-graph";
+import { legacyCC } from '../../global-exports';
 
 replaceProperty(RenderScene.prototype, 'RenderScene.prototype', [
     {
@@ -86,7 +87,7 @@ replaceProperty(CameraVisFlags, 'CameraVisFlags', [
     },
 ]);
 
-cc.CameraVisFlags = CameraVisFlags;
+legacyCC.CameraVisFlags = CameraVisFlags;
 
 export { CameraVisFlags };
 
@@ -137,6 +138,6 @@ replaceProperty(VisibilityFlags, 'VisibilityFlags', [
     },
 ]);
 
-cc.VisibilityFlags = VisibilityFlags;
+legacyCC.VisibilityFlags = VisibilityFlags;
 
 export { VisibilityFlags };

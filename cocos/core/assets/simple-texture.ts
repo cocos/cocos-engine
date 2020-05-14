@@ -12,6 +12,7 @@ import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { TextureBase } from './texture-base';
 import { DEV } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 const _regions: GFXBufferTextureCopy[] = [{
     buffOffset: 0,
@@ -160,10 +161,10 @@ export class SimpleTexture extends TextureBase {
                 upload();
             });
             if (!this.isCompressed) {
-                const defaultImg = cc.builtinResMgr.get('black-texture').image as ImageAsset;
+                const defaultImg = legacyCC.builtinResMgr.get('black-texture').image as ImageAsset;
                 this.uploadData(defaultImg.data as HTMLCanvasElement, level, arrayIndex);
             }
-            cc.textureUtil.postLoadImage(image);
+            legacyCC.textureUtil.postLoadImage(image);
         }
     }
 
@@ -259,4 +260,4 @@ export class SimpleTexture extends TextureBase {
     }
 }
 
-cc.SimpleTexture = SimpleTexture;
+legacyCC.SimpleTexture = SimpleTexture;

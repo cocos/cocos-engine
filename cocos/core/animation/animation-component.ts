@@ -40,6 +40,7 @@ import { AnimationClip } from './animation-clip';
 import { AnimationState } from './animation-state';
 import { CrossFade } from './cross-fade';
 import { EDITOR, TEST } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 /**
  * @en The event type supported by Animation
@@ -510,7 +511,7 @@ applyMixins(AnimationComponent, [CallbacksInvoker, EventTarget]);
 AnimationComponent.prototype.on = on;
 AnimationComponent.prototype.off = off;
 
-cc.AnimationComponent = AnimationComponent;
+legacyCC.AnimationComponent = AnimationComponent;
 
 function equalClips (clip1: AnimationClip | null, clip2: AnimationClip | null) {
     if (clip1 === clip2) {

@@ -23,6 +23,8 @@
  THE SOFTWARE.
 */
 
+import { legacyCC } from '../global-exports';
+
 export {default as MutableForwardIterator} from './mutable-forward-iterator';
 
 /**
@@ -86,7 +88,7 @@ export function verifyType<T> (array: T[], type: Function) {
     if (array && array.length > 0) {
         for (const item of array) {
             if (!(item instanceof type)) {
-                cc.logID(1300);
+                legacyCC.logID(1300);
                 return false;
             }
         }

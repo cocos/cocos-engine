@@ -9,6 +9,7 @@ import { MorphRendering, SubMeshMorph, Morph, MorphRenderingInstance } from './m
 import { assertIsNonNullable, assertIsTrue } from '../data/utils/asserts';
 import { nextPow2 } from '../math/bits';
 import { IMacroPatch } from '../renderer';
+import { legacyCC } from '../global-exports';
 
 /**
  * True if force to use cpu computing based sub-mesh rendering.
@@ -415,7 +416,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
             if (false) {
                 for (let i = 0; i <myAttribute.local.length; ++i) {
                     if (i % 3 === 1) {
-                        myAttribute.local[i] = (cc.director.getTotalFrames() % 500) * 0.001;
+                        myAttribute.local[i] = (legacyCC.director.getTotalFrames() % 500) * 0.001;
                     } else {
                         myAttribute.local[i] = 0;
                     }
@@ -503,13 +504,13 @@ class MorphUniforms {
     public setWeights (weights: number[]) {
         assertIsTrue(weights.length === this._targetCount);
         for (let iWeight = 0; iWeight < weights.length; ++iWeight) {
-            this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_WEIGHTS + 4 * iWeight, weights[iWeight], cc.sys.isLittleEndian);
+            this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_WEIGHTS + 4 * iWeight, weights[iWeight], legacyCC.sys.isLittleEndian);
         }
     }
 
     public setMorphTextureInfo (width: number, height: number) {
-        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH, width, cc.sys.isLittleEndian);
-        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT, height, cc.sys.isLittleEndian);
+        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH, width, legacyCC.sys.isLittleEndian);
+        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT, height, legacyCC.sys.isLittleEndian);
     }
 
     public commit () {

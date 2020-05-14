@@ -31,6 +31,7 @@ import { clamp01, Mat4, Quat, Vec3 } from '../math';
 import { DataPoolManager } from '../renderer/data-pool-manager';
 import { AnimationClip, IObjectCurveData } from './animation-clip';
 import { HierarchyPath, isCustomPath, isPropertyPath } from './target-path';
+import { legacyCC } from '../global-exports';
 
 type CurveData = Vec3 | Quat | Mat4;
 type ConvertedProps = Record<string, IPropertyCurve>;
@@ -57,7 +58,7 @@ export class SkelAnimDataHub {
         let data = SkelAnimDataHub.pool.get(clip);
         if (!data || data.info.sample !== clip.sample) {
             // release outdated render data
-            if (data) { (cc.director.root.dataPoolManager as DataPoolManager).releaseAnimationClip(clip); }
+            if (data) { (legacyCC.director.root.dataPoolManager as DataPoolManager).releaseAnimationClip(clip); }
             data = convertToSkeletalCurves(clip);
             SkelAnimDataHub.pool.set(clip, data);
         }

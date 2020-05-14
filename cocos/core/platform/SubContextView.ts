@@ -35,6 +35,7 @@ import { Node } from '../scene-graph';
 import { UITransformComponent } from '../components/ui-base/ui-transform-component';
 import { SpriteFrame, ImageAsset } from '../assets';
 import { Rect } from '../math';
+import { legacyCC } from '../global-exports';
 
 /**
  * @en SubContextView is a view component which controls open data context viewport in WeChat game platform.<br/>
@@ -251,4 +252,4 @@ export class SubContextView extends Component {
         }
     }
 }
-cc.SubContextView = SubContextView;
+legacyCC.SubContextView = SubContextView;

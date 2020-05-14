@@ -36,6 +36,7 @@ import { ccenum } from '../../core/value-types/enum';
 import { clamp01 } from '../../core/math/utils';
 import { SpriteComponent } from './sprite-component';
 import { EDITOR } from 'internal:constants';
+import { legacyCC } from '../../core/global-exports';
 
 const _tempPos = new Vec3();
 /**
@@ -321,7 +322,7 @@ export class SliderComponent extends Component {
     }
 }
 
-cc.SliderComponent = SliderComponent;
+legacyCC.SliderComponent = SliderComponent;
 
 /**
  * @zh

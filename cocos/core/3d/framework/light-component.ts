@@ -37,6 +37,7 @@ import { Light, LightType } from '../../renderer/scene/light';
 import { SphereLight } from '../../renderer/scene/sphere-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
 import { Root } from '../../root';
+import { legacyCC } from '../../global-exports';
 
 export const PhotometricTerm = Enum({
     LUMINOUS_POWER: 0,
@@ -177,7 +178,7 @@ export class LightComponent extends Component {
 
     protected _createLight () {
         if (!this._light) {
-            this._light = (cc.director.root as Root).createLight(this._lightType);
+            this._light = (legacyCC.director.root as Root).createLight(this._lightType);
         }
         this.color = this._color;
         this.useColorTemperature = this._useColorTemperature;
@@ -187,7 +188,7 @@ export class LightComponent extends Component {
 
     protected _destroyLight () {
         if (this._light) {
-            cc.director.root.destroyLight(this);
+            legacyCC.director.root.destroyLight(this);
             this._light = null;
         }
     }

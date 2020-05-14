@@ -29,6 +29,7 @@
  */
 
 import {createMap, getClassName, clear} from '../utils/js';
+import { legacyCC } from '../global-exports';
 
 let _tmpInfo:any = null;
 
@@ -37,7 +38,7 @@ function getItemDesc (item) {
         if (!_tmpInfo) {
             _tmpInfo = { path: "", type: null };
         }
-        if (cc.loader._assetTables.assets._getInfo_DEBUG(item.uuid, _tmpInfo)) {
+        if (legacyCC.loader._assetTables.assets._getInfo_DEBUG(item.uuid, _tmpInfo)) {
             _tmpInfo.path = 'resources/' + _tmpInfo.path;
             return `"${_tmpInfo.path}" (type: ${getClassName(_tmpInfo.type)}, uuid: ${item.uuid})`;
         }
@@ -53,7 +54,7 @@ function getItemDesc (item) {
 function doCheckCouldRelease (releasedKey, refOwnerItem, caches) {
     var loadedAgain = caches[releasedKey];
     if (!loadedAgain) {
-        cc.log(`"${releasedKey}" was released but maybe still referenced by ${getItemDesc(refOwnerItem)}`);
+        legacyCC.log(`"${releasedKey}" was released but maybe still referenced by ${getItemDesc(refOwnerItem)}`);
     }
 }
 

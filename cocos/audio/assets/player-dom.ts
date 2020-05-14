@@ -29,6 +29,7 @@
 
 import { clamp } from '../../core/math/utils';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
+import { legacyCC } from '../../core/global-exports';
 
 export class AudioPlayerDOM extends AudioPlayer {
     protected _volume = 1;
@@ -48,8 +49,8 @@ export class AudioPlayerDOM extends AudioPlayer {
 
         this._remove_cb = () => {
             if (!this._cbRegistered) { return; }
-            cc.game.canvas.removeEventListener('touchend', this._on_gesture);
-            cc.game.canvas.removeEventListener('mouseup', this._on_gesture);
+            legacyCC.game.canvas.removeEventListener('touchend', this._on_gesture);
+            legacyCC.game.canvas.removeEventListener('mouseup', this._on_gesture);
             this._cbRegistered = false;
         };
 
@@ -70,7 +71,7 @@ export class AudioPlayerDOM extends AudioPlayer {
             if (!promise) { // Chrome50/Firefox53 below
                 // delay eval here to yield uniform behavior with other platforms
                 this._state = PlayingState.PLAYING;
-                cc.director.once(cc.Director.EVENT_AFTER_UPDATE, this._post_gesture);
+                legacyCC.director.once(legacyCC.Director.EVENT_AFTER_UPDATE, this._post_gesture);
                 return;
             }
             promise.then(this._post_gesture);
@@ -88,8 +89,8 @@ export class AudioPlayerDOM extends AudioPlayer {
         });
         /* play & stop immediately after receiving a gesture so that
            we can freely invoke play() outside event listeners later */
-        cc.game.canvas.addEventListener('touchend', this._on_gesture);
-        cc.game.canvas.addEventListener('mouseup', this._on_gesture);
+        legacyCC.game.canvas.addEventListener('touchend', this._on_gesture);
+        legacyCC.game.canvas.addEventListener('mouseup', this._on_gesture);
         this._cbRegistered = true;
     }
 
@@ -100,7 +101,7 @@ export class AudioPlayerDOM extends AudioPlayer {
         if (!promise) {
             // delay eval here to yield uniform behavior with other platforms
             this._state = PlayingState.PLAYING;
-            cc.director.once(cc.Director.EVENT_AFTER_UPDATE, this._post_play);
+            legacyCC.director.once(legacyCC.Director.EVENT_AFTER_UPDATE, this._post_play);
             return;
         }
         promise.then(this._post_play).catch(() => { this._interrupted = true; });

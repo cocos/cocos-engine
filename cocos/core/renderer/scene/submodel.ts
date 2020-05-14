@@ -7,6 +7,7 @@ import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { RenderPriority } from '../../pipeline/define';
+import { legacyCC } from '../../global-exports';
 
 export class SubModel {
 
@@ -33,7 +34,7 @@ export class SubModel {
         if (this._inputAssembler) {
             this._inputAssembler.initialize(sm);
         } else {
-            this._inputAssembler = (cc.director.root.device as GFXDevice).createInputAssembler(sm);
+            this._inputAssembler = (legacyCC.director.root.device as GFXDevice).createInputAssembler(sm);
         }
     }
 
@@ -103,7 +104,7 @@ export class SubModel {
     }
 
     protected recordCommandBuffer (index: number) {
-        const device = cc.director.root.device as GFXDevice;
+        const device = legacyCC.director.root.device as GFXDevice;
         const pso = this._psos![index];
         if (this._cmdBuffers[index] == null) {
             const cmdBufferInfo = {

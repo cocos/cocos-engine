@@ -11,6 +11,7 @@ import { ccclass, help, executeInEditMode, menu, property } from '../core/data/c
 import { GFXAttributeName, GFXFormat, GFXPrimitiveMode } from '../core/gfx';
 import { Color, toDegree, toRadian, Vec4 } from '../core/math';
 import { Model } from '../core/renderer/scene/model';
+import { legacyCC } from '../core/global-exports';
 
 @ccclass('cc.BillboardComponent')
 @help('i18n:cc.BillboardComponent')
@@ -171,7 +172,7 @@ export class BillboardComponent extends Component {
             ],
             indices: [0, 1, 2, 1, 2, 3],
         }, undefined, { calculateBounds: false });
-        this._model = cc.director.root.createModel(Model, this.node);
+        this._model = legacyCC.director.root.createModel(Model, this.node);
         this._model!.initialize(this.node);
         if (this._material == null) {
             this._material = new Material();

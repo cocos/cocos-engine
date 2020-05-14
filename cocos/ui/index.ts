@@ -21,6 +21,7 @@ import {
 import { MeshBuffer } from '../core/renderer/ui/mesh-buffer';
 import * as UIVertexFormat from '../core/renderer/ui/ui-vertex-format';
 import { StencilManager } from '../core/renderer/ui/stencil-manager';
+import { legacyCC } from '../core/global-exports';
 
 export * from './components';
 
@@ -45,7 +46,7 @@ export {
 
 };
 
-cc.UI = {
+legacyCC.UI = {
     MeshBuffer,
     UIVertexFormat,
     barFilled,

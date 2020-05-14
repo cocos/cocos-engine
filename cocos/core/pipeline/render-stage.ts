@@ -17,6 +17,7 @@ import { RenderFlow } from './render-flow';
 import { RenderPipeline } from './render-pipeline';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from './render-queue';
 import { RenderView } from './render-view';
+import { legacyCC } from '../global-exports';
 
 const _colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -406,4 +407,4 @@ export abstract class RenderStage {
     }
 }
 
-cc.RenderStage = RenderStage;
+legacyCC.RenderStage = RenderStage;

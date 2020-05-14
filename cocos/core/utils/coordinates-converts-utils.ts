@@ -6,6 +6,7 @@ import { CameraComponent } from '../3d/framework/camera-component';
 import { Vec3 } from '../math';
 import { Node } from '../scene-graph';
 import { replaceProperty } from './deprecated';
+import { legacyCC } from '../global-exports';
 
 const _vec3 = new Vec3();
 
@@ -47,8 +48,8 @@ export function WorldNode3DToWorldNodeUI (mainCamera: CameraComponent, wpos: Vec
     }
 
     mainCamera.worldToScreen(wpos, out);
-    out.x = out.x / cc.view.getScaleX();
-    out.y = out.y / cc.view.getScaleY();
+    out.x = out.x / legacyCC.view.getScaleX();
+    out.y = out.y / legacyCC.view.getScaleY();
     return out;
 }
 
@@ -61,9 +62,9 @@ const convertUtils = {
 };
 
 export { convertUtils };
-cc.pipelineUtils = convertUtils;
+legacyCC.pipelineUtils = convertUtils;
 
-replaceProperty(cc.pipelineUtils, 'cc.pipelineUtils', [
+replaceProperty(legacyCC.pipelineUtils, 'cc.pipelineUtils', [
     {
         'name': 'WorldNode3DToLocalNodeUI',
         'newName': 'convertToUINode',

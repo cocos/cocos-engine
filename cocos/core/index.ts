@@ -26,12 +26,14 @@
 /**
  * @category core
  */
+import { legacyCC } from './global-exports';
 
 import * as geometry from './geometry';
 import * as math from './math';
 import * as memop from './memop';
-cc.math = math;
-cc.geometry = geometry;
+
+legacyCC.math = math;
+legacyCC.geometry = geometry;
 
 export { math, memop, geometry };
 
@@ -61,3 +63,5 @@ export * from './utils/profiler/profiler';
 import './deprecated';
 // import './splash-image';
 import './splash-screen-webgl';
+
+

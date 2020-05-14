@@ -38,6 +38,7 @@ import { IDefineMap } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { Asset } from './asset';
 import { EDITOR } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 export interface IPropertyInfo {
     type: number; // auto-extracted from shader
@@ -183,12 +184,12 @@ export class EffectAsset extends Asset {
      */
     public onLoaded () {
         this.shaders.forEach((s) => programLib.define(s));
-        if (!EDITOR) { cc.game.once(cc.Game.EVENT_ENGINE_INITED, this._precompile, this); }
+        if (!EDITOR) { legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this._precompile, this); }
         EffectAsset.register(this);
     }
 
     protected _precompile () {
-        const root = cc.director.root as Root;
+        const root = legacyCC.director.root as Root;
         for (let i = 0; i < this.shaders.length; i++) {
             const shader = this.shaders[i];
             const combination = this.combinations[i];
@@ -204,4 +205,4 @@ export class EffectAsset extends Asset {
     }
 }
 
-cc.EffectAsset = EffectAsset;
+legacyCC.EffectAsset = EffectAsset;

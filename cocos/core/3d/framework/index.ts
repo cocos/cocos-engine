@@ -27,7 +27,7 @@
 /**
  * @hidden
  */
-
+import { legacyCC } from '../../global-exports';
 import { BatchedSkinningModelComponent, SkinningModelUnit } from './batched-skinning-model-component';
 import { CameraComponent } from './camera-component';
 import { DirectionalLightComponent } from './directional-light-component';
@@ -55,19 +55,19 @@ export {
 };
 
 // cc.AnimationComponent = AnimationComponent;
-cc.CameraComponent = CameraComponent;
-cc.EditorComponent = EditorCameraComponent;
-cc.RenderableComponent = RenderableComponent;
-cc.ModelComponent = ModelComponent;
-cc.SkinningModelComponent = SkinningModelComponent;
+legacyCC.CameraComponent = CameraComponent;
+legacyCC.EditorComponent = EditorCameraComponent;
+legacyCC.RenderableComponent = RenderableComponent;
+legacyCC.ModelComponent = ModelComponent;
+legacyCC.SkinningModelComponent = SkinningModelComponent;
 
-cc.BatchedSkinningModelComponent = BatchedSkinningModelComponent;
-cc.SkinningModelUnit = SkinningModelUnit;
+legacyCC.BatchedSkinningModelComponent = BatchedSkinningModelComponent;
+legacyCC.SkinningModelUnit = SkinningModelUnit;
 
-cc.LightComponent = LightComponent;
-cc.DirectionalLightComponent = DirectionalLightComponent;
-cc.SphereLightComponent = SphereLightComponent;
-cc.SpotLightComponent = SpotLightComponent;
+legacyCC.LightComponent = LightComponent;
+legacyCC.DirectionalLightComponent = DirectionalLightComponent;
+legacyCC.SphereLightComponent = SphereLightComponent;
+legacyCC.SpotLightComponent = SpotLightComponent;
 
 /** deprecated */
 import './deprecated';

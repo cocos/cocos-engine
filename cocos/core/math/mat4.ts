@@ -34,6 +34,7 @@ import { Quat } from './quat';
 import { IMat4Like, IVec3Like } from './type-define';
 import { EPSILON } from './utils';
 import { Vec3 } from './vec3';
+import { legacyCC } from '../global-exports';
 
 /**
  * 表示四维（4x4）矩阵。
@@ -2032,7 +2033,7 @@ CCClass.fastDefine('cc.Mat4', Mat4, {
     m08: 0, m09: 0, m10: 1, m11: 0,
     m12: 0, m13: 0, m14: 0, m15: 1,
 });
-cc.Mat4 = Mat4;
+legacyCC.Mat4 = Mat4;
 
 export function mat4 (other: Mat4): Mat4;
 export function mat4 (
@@ -2049,4 +2050,4 @@ export function mat4 (
     return new Mat4(m00 as any, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
 }
 
-cc.mat4 = mat4;
+legacyCC.mat4 = mat4;

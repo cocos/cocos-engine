@@ -30,6 +30,7 @@
 import { CCObject } from '../data/object';
 import * as js from '../utils/js';
 import { EDITOR, DEV, TEST } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 // @ts-ignore
 const Destroying = CCObject.Flags.Destroying;
@@ -40,9 +41,9 @@ export function baseNodePolyfill (BaseNode) {
             const existing = this.getComponent(ctor._disallowMultiple);
             if (existing) {
                 if (existing.constructor === ctor) {
-                    cc.errorID(3805, js.getClassName(ctor), this._name);
+                    legacyCC.errorID(3805, js.getClassName(ctor), this._name);
                 } else {
-                    cc.errorID(3806, js.getClassName(ctor), this._name, js.getClassName(existing));
+                    legacyCC.errorID(3806, js.getClassName(ctor), this._name, js.getClassName(existing));
                 }
                 return false;
             }
@@ -57,13 +58,13 @@ export function baseNodePolyfill (BaseNode) {
          */
         BaseNode.prototype._addComponentAt = function (comp, index) {
             if (this._objFlags & Destroying) {
-                return cc.error('isDestroying');
+                return legacyCC.error('isDestroying');
             }
-            if (!(comp instanceof cc.Component)) {
-                return cc.errorID(3811);
+            if (!(comp instanceof legacyCC.Component)) {
+                return legacyCC.errorID(3811);
             }
             if (index > this._components.length) {
-                return cc.errorID(3812);
+                return legacyCC.errorID(3812);
             }
 
             // recheck attributes because script may changed
@@ -90,11 +91,11 @@ export function baseNodePolyfill (BaseNode) {
 
             comp.node = this;
             this._components.splice(index, 0, comp);
-            if ((EDITOR || TEST) && cc.engine && (this._id in cc.engine.attachedObjsForEditor)) {
-                cc.engine.attachedObjsForEditor[comp._id] = comp;
+            if ((EDITOR || TEST) && legacyCC.engine && (this._id in legacyCC.engine.attachedObjsForEditor)) {
+                legacyCC.engine.attachedObjsForEditor[comp._id] = comp;
             }
             if (this._activeInHierarchy) {
-                cc.director._nodeActivator.activateComp(comp);
+                legacyCC.director._nodeActivator.activateComp(comp);
             }
         };
 
@@ -107,7 +108,7 @@ export function baseNodePolyfill (BaseNode) {
             // tslint:disable-next-line: prefer-for-of
             for (let i = 0; i < this._components.length; i++) {
                 const comp = this._components[i];
-                if (comp !== depended && comp.isValid && !cc.Object._willDestroy(comp)) {
+                if (comp !== depended && comp.isValid && !legacyCC.Object._willDestroy(comp)) {
                     const depend = comp.constructor._requireComponent;
                     if (depend && depended instanceof depend) {
                         return comp;
@@ -121,7 +122,7 @@ export function baseNodePolyfill (BaseNode) {
             // check activity state
             const shouldActiveNow = this._active && !!(this._parent && this._parent._activeInHierarchy);
             if (this._activeInHierarchy !== shouldActiveNow) {
-                cc.director._nodeActivator.activateNode(this, shouldActiveNow);
+                legacyCC.director._nodeActivator.activateNode(this, shouldActiveNow);
             }
         };
 
@@ -140,7 +141,7 @@ export function baseNodePolyfill (BaseNode) {
 
     if (EDITOR || TEST) {
         BaseNode.prototype._registerIfAttached = function (register) {
-            const attachedObjsForEditor = cc.engine.attachedObjsForEditor;
+            const attachedObjsForEditor = legacyCC.engine.attachedObjsForEditor;
             if (register) {
                 attachedObjsForEditor[this._id] = this;
                 for (let i = this._components.length - 1; i >= 0; i--) {
@@ -152,9 +153,9 @@ export function baseNodePolyfill (BaseNode) {
                     }
                     attachedObjsForEditor[comp._id] = comp;
                 }
-                cc.engine.emit('node-attach-to-scene', this);
+                legacyCC.engine.emit('node-attach-to-scene', this);
             } else {
-                cc.engine.emit('node-detach-from-scene', this);
+                legacyCC.engine.emit('node-detach-from-scene', this);
                 delete attachedObjsForEditor[this._id];
                 for (const comp of this._components) {
                     delete attachedObjsForEditor[comp._id];
@@ -174,7 +175,7 @@ export function baseNodePolyfill (BaseNode) {
             let path = '';
             // @ts-ignore
             let node = this;
-            while (node && !(node instanceof cc.Scene)) {
+            while (node && !(node instanceof legacyCC.Scene)) {
                 if (path) {
                     path = node.name + '/' + path;
                 } else {

@@ -33,6 +33,7 @@ import { Mat4 } from './mat4';
 import { Rect } from './rect';
 import { Size } from './size';
 import { Vec2 } from './vec2';
+import { legacyCC } from '../global-exports';
 
 /**
  * 二维仿射变换矩阵，描述了平移、缩放和缩放。
@@ -228,4 +229,4 @@ export class AffineTransform {
     }
 }
 
-cc.AffineTransform = AffineTransform;
+legacyCC.AffineTransform = AffineTransform;

@@ -13,6 +13,7 @@ import { getDefaultFromType } from '../../renderer/core/pass-utils';
 import { samplerLib } from '../../renderer/core/sampler-lib';
 import { IValueProxy, IValueProxyFactory } from '../value-proxy';
 import { warn } from '../../platform/debug';
+import { legacyCC } from '../../global-exports';
 
 @ccclass('cc.animation.UniformProxyFactory')
 export class UniformProxyFactory implements IValueProxyFactory {
@@ -74,7 +75,7 @@ export class UniformProxyFactory implements IValueProxyFactory {
                     if (!tv || !tv.texture.width || !tv.texture.height) { return; }
                     pass.bindTextureView(binding, tv);
                     if (value instanceof TextureBase) {
-                        pass.bindSampler(binding, samplerLib.getSampler(cc.game._gfxDevice, value.getSamplerHash()));
+                        pass.bindSampler(binding, samplerLib.getSampler(legacyCC.game._gfxDevice, value.getSamplerHash()));
                     }
                 },
             };

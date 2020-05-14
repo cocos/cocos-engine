@@ -33,6 +33,7 @@ import { Mat4 } from '../../core/math';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { DataPoolManager } from '../renderer/data-pool-manager';
 import { Asset } from './asset';
+import { legacyCC } from '../global-exports';
 
 /**
  * 骨骼资源。
@@ -90,9 +91,9 @@ export class Skeleton extends Asset {
     }
 
     public destroy () {
-        (cc.director.root.dataPoolManager as DataPoolManager).releaseSkeleton(this);
+        (legacyCC.director.root.dataPoolManager as DataPoolManager).releaseSkeleton(this);
         return super.destroy();
     }
 }
 
-cc.Skeleton = Skeleton;
+legacyCC.Skeleton = Skeleton;

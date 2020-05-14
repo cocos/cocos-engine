@@ -35,6 +35,7 @@ import downloadBinary from './binary-downloader';
 import downloadText from './text-downloader';
 import {urlAppendTimestamp} from './utils';
 import { downloadAudio } from '../../audio/audio-downloader';
+import { legacyCC } from '../global-exports';
 
 function skip () {
     return null;
@@ -239,7 +240,7 @@ export default class Downloader implements IPipe {
     }
 
     _handleLoadQueue () {
-        while (this._curConcurrent < cc.macro.DOWNLOAD_MAX_CONCURRENT) {
+        while (this._curConcurrent < legacyCC.macro.DOWNLOAD_MAX_CONCURRENT) {
             let nextOne = this._loadQueue.shift();
             if (!nextOne) {
                 break;
@@ -260,7 +261,7 @@ export default class Downloader implements IPipe {
         let self = this;
         let downloadFunc = this.extMap[item.type] || this.extMap['default'];
         let syncRet = undefined;
-        if (this._curConcurrent < cc.macro.DOWNLOAD_MAX_CONCURRENT) {
+        if (this._curConcurrent < legacyCC.macro.DOWNLOAD_MAX_CONCURRENT) {
             this._curConcurrent++;
             syncRet = downloadFunc.call(this, item, function (err, result) {
                 self._curConcurrent = Math.max(0, self._curConcurrent - 1);

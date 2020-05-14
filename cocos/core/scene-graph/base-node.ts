@@ -39,6 +39,7 @@ import * as js from '../utils/js';
 import { baseNodePolyfill } from './base-node-dev';
 import { NodeEventProcessor } from './node-event-processor';
 import { DEV, DEBUG, EDITOR } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 /**
  *
@@ -212,7 +213,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             if (parent) {
                 const couldActiveInScene = parent._activeInHierarchy;
                 if (couldActiveInScene) {
-                    cc.director._nodeActivator.activateNode(this, isActive);
+                    legacyCC.director._nodeActivator.activateNode(this, isActive);
                 }
             }
         }
@@ -255,11 +256,11 @@ export class BaseNode extends CCObject implements ISchedulable {
     }
 
     public static _setScene (node: BaseNode) {
-        if (node instanceof cc.Scene) {
+        if (node instanceof legacyCC.Scene) {
             node._scene = node;
         } else {
             if (node._parent == null) {
-                cc.error('Node %s(%s) has not attached to a scene.', node.name, node.uuid);
+                legacyCC.error('Node %s(%s) has not attached to a scene.', node.name, node.uuid);
             } else {
                 node._scene = node._parent._scene;
             }
@@ -524,7 +525,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      */
     public getChildByUuid (uuid: string) {
         if (!uuid) {
-            cc.log('Invalid uuid');
+            legacyCC.log('Invalid uuid');
             return null;
         }
 
@@ -549,7 +550,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      */
     public getChildByName (name: string) {
         if (!name) {
-            cc.log('Invalid name');
+            legacyCC.log('Invalid name');
             return null;
         }
 
@@ -591,11 +592,11 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     public addChild (child: this): void {
 
-        if (DEV && !(child instanceof cc._BaseNode)) {
-            return errorID(1634, cc.js.getClassName(child));
+        if (DEV && !(child instanceof legacyCC._BaseNode)) {
+            return errorID(1634, legacyCC.js.getClassName(child));
         }
-        cc.assertID(child, 1606);
-        cc.assertID(child._parent === null, 1605);
+        legacyCC.assertID(child, 1606);
+        legacyCC.assertID(child._parent === null, 1605);
 
         // invokes the parent setter
         child.setParent(this);
@@ -1002,7 +1003,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     public addComponent (typeOrClassName: string | Function) {
         if (EDITOR && (this._objFlags & Destroying)) {
-            cc.error('isDestroying');
+            legacyCC.error('isDestroying');
             return null;
         }
 
@@ -1013,7 +1014,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             constructor = js.getClassByName(typeOrClassName);
             if (!constructor) {
                 errorID(3807, typeOrClassName);
-                if (cc._RF.peek()) {
+                if (legacyCC._RF.peek()) {
                     errorID(3808, typeOrClassName);
                 }
                 return null;
@@ -1032,7 +1033,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             errorID(3809);
             return null;
         }
-        if (!js.isChildClassOf(constructor, cc.Component)) {
+        if (!js.isChildClassOf(constructor, legacyCC.Component)) {
             errorID(3810);
             return null;
         }
@@ -1072,7 +1073,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             }
         }
         if (this._activeInHierarchy) {
-            cc.director._nodeActivator.activateComp(component);
+            legacyCC.director._nodeActivator.activateComp(component);
         }
 
         return component;
@@ -1275,7 +1276,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     protected _instantiate (cloned) {
         if (!cloned) {
-            cloned = cc.instantiate._clone(this, this);
+            cloned = legacyCC.instantiate._clone(this, this);
         }
 
         const thisPrefabInfo = this._prefab;
@@ -1287,7 +1288,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             // if (thisPrefabInfo._synced) {
             //    return clone;
             // }
-        } else if (EDITOR && cc.engine._isPlaying) {
+        } else if (EDITOR && legacyCC.engine._isPlaying) {
             cloned._name += ' (Clone)';
         }
 
@@ -1300,15 +1301,15 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     protected _onHierarchyChangedBase (oldParent: this | null) {
         const newParent = this._parent;
-        if (this._persistNode && !(newParent instanceof cc.Scene)) {
-            cc.game.removePersistRootNode(this);
+        if (this._persistNode && !(newParent instanceof legacyCC.Scene)) {
+            legacyCC.game.removePersistRootNode(this);
             if (EDITOR) {
                 warnID(1623);
             }
         }
 
         if (EDITOR) {
-            const scene = cc.director.getScene() as this | null;
+            const scene = legacyCC.director.getScene() as this | null;
             const inCurrentSceneBefore = oldParent && oldParent.isChildOf(scene);
             const inCurrentSceneNow = newParent && newParent.isChildOf(scene);
             if (!inCurrentSceneBefore && inCurrentSceneNow) {
@@ -1325,7 +1326,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
         const shouldActiveNow = this._active && !!(newParent && newParent._activeInHierarchy);
         if (this._activeInHierarchy !== shouldActiveNow) {
-            cc.director._nodeActivator.activateNode(this, shouldActiveNow);
+            legacyCC.director._nodeActivator.activateNode(this, shouldActiveNow);
         }
     }
 
@@ -1366,7 +1367,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
         // remove from persist
         if (this._persistNode) {
-            cc.game.removePersistRootNode(this);
+            legacyCC.game.removePersistRootNode(this);
         }
 
         if (!destroyByParent) {
@@ -1393,7 +1394,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         for (let i = 0; i < comps.length; ++i) {
             const component = comps[i];
             if (component._enabled) {
-                cc.director._compScheduler.disableComp(component);
+                legacyCC.director._compScheduler.disableComp(component);
             }
         }
         // deactivate recursively
@@ -1423,4 +1424,4 @@ baseNodePolyfill(BaseNode);
  * @param {Event.EventCustom} event
  */
 
-cc._BaseNode = BaseNode;
+legacyCC._BaseNode = BaseNode;

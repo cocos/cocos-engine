@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 import { Mesh } from '../mesh';
+import { legacyCC } from '../../global-exports';
 export function postLoadMesh (mesh: Mesh, callback?: Function) {
     if (mesh.loaded) {
         if (callback) {
@@ -37,7 +38,7 @@ export function postLoadMesh (mesh: Mesh, callback?: Function) {
         return;
     }
     // load image
-    cc.loader.load({
+    legacyCC.loader.load({
         url: mesh.nativeUrl,
     }, (err, arrayBuffer) => {
         if (arrayBuffer) {

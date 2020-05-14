@@ -13,6 +13,7 @@ import { LineModel } from './models/line-model';
 import { builtinResMgr } from '../core/3d/builtin';
 import CurveRange from './animator/curve-range';
 import GradientRange from './animator/gradient-range';
+import { legacyCC } from '../core/global-exports';
 
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
 const define = { CC_USE_WORLD_SPACE: false };
@@ -201,7 +202,7 @@ export class LineComponent extends Component {
     }
 
     public onLoad () {
-        this._model = cc.director.root.createModel(LineModel);
+        this._model = legacyCC.director.root.createModel(LineModel);
         this._model!.initialize(this.node);
         this._model!.setCapacity(100);
         if (this._material == null) {

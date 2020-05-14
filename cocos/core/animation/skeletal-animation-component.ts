@@ -37,6 +37,7 @@ import { AnimationComponent } from './animation-component';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { SkeletalAnimationState } from './skeletal-animation-state';
 import { getWorldTransformUntilRoot } from './transform-utils';
+import { legacyCC } from '../global-exports';
 
 @ccclass('cc.SkeletalAnimationComponent.Socket')
 export class Socket {
@@ -148,7 +149,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
 
     public onDestroy () {
         super.onDestroy();
-        (cc.director.root.dataPoolManager as DataPoolManager).jointAnimationInfo.destroy(this.node.uuid);
+        (legacyCC.director.root.dataPoolManager as DataPoolManager).jointAnimationInfo.destroy(this.node.uuid);
     }
 
     public start () {
@@ -213,4 +214,4 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     }
 }
 
-cc.SkeletalAnimationComponent = SkeletalAnimationComponent;
+legacyCC.SkeletalAnimationComponent = SkeletalAnimationComponent;

@@ -53,6 +53,7 @@ import { customizeType, getBindingFromHandle, getBindingTypeFromHandle,
     getDefaultFromType, getOffsetFromHandle, getTypeFromHandle, IDefineMap, MaterialProperty, type2reader, type2writer } from './pass-utils';
 import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
+import { legacyCC } from '../../global-exports';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -401,7 +402,7 @@ export class Pass {
                 block.dirty = false;
             }
         }
-        const source = (cc.director.root as Root).pipeline.globalBindings;
+        const source = (legacyCC.director.root as Root).pipeline.globalBindings;
         const target = this._shaderInfo.builtins.globals;
         const samplerLen = target.samplers.length;
         for (let i = 0; i < samplerLen; i++) {
@@ -515,7 +516,7 @@ export class Pass {
      * @param defineOverrides shader 预处理宏定义重载
      */
     public tryCompile () {
-        const pipeline = (cc.director.root as Root).pipeline;
+        const pipeline = (legacyCC.director.root as Root).pipeline;
         if (!pipeline) { return null; }
         this._dynamicBatchingSync();
         this._renderPass = pipeline.getRenderPass(this._stage);
@@ -550,7 +551,7 @@ export class Pass {
             bindingLayout.bindTextureView(parseInt(t), this._textureViews[t]);
         }
         // bind pipeline builtins
-        const source = (cc.director.root as Root).pipeline.globalBindings;
+        const source = (legacyCC.director.root as Root).pipeline.globalBindings;
         const target = this._shaderInfo.builtins.globals;
         for (const b of target.blocks) {
             const info = source.get(b.name);
@@ -668,7 +669,7 @@ export class Pass {
                 }
             }
         }
-        const pipeline = (cc.director.root as Root).pipeline;
+        const pipeline = (legacyCC.director.root as Root).pipeline;
         if (!pipeline) { return null; }
         for (let i = 0; i < patches.length; i++) {
             const patch = patches[i];

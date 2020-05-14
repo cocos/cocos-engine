@@ -28,12 +28,13 @@
  */
 
 import {urlAppendTimestamp} from './utils';
+import { legacyCC } from '../global-exports';
 
 export default function (item, callback) {
     let url = item.url;
     url = urlAppendTimestamp(url);
 
-    let xhr = cc.loader.getXMLHttpRequest(),
+    let xhr = legacyCC.loader.getXMLHttpRequest(),
         errInfo = 'Load text file failed: ' + url;
     xhr.open('GET', url, true);
     if (xhr.overrideMimeType) xhr.overrideMimeType('text/plain; charset=utf-8');

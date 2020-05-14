@@ -32,6 +32,7 @@ import CCClass from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { IColorLike } from './type-define';
 import { clamp, EPSILON } from './utils';
+import { legacyCC } from '../global-exports';
 
 const toFloat = 1 / 255;
 
@@ -629,7 +630,7 @@ export class Color extends ValueType {
 }
 
 CCClass.fastDefine('cc.Color', Color, { r: 0, g: 0, b: 0, a: 255 });
-cc.Color = Color;
+legacyCC.Color = Color;
 
 export function color (other: Color | string): Color;
 export function color (r?: number, g?: number, b?: number, a?: number): Color;
@@ -638,4 +639,4 @@ export function color (r?: number | Color | string, g?: number, b?: number, a?: 
     return new Color(r as any, g, b, a);
 }
 
-cc.color = color;
+legacyCC.color = color;

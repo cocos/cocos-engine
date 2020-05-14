@@ -36,6 +36,7 @@ import { CCObject } from './object';
 import * as Attr from './utils/attribute';
 import {flattenCodeArray} from './utils/compiler';
 import { TEST } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 // @ts-ignore
 const Destroyed = CCObject.Flags.Destroyed;
@@ -329,7 +330,7 @@ class Parser {
             if (equalsToDefault(defaultValue, val)) {
                 continue;
             }
-            if (typeof val === 'object' && val instanceof cc.ValueType) {
+            if (typeof val === 'object' && val instanceof legacyCC.ValueType) {
                 defaultValue = CCClass.getDefault(defaultValue);
                 if (defaultValue && defaultValue.constructor === val.constructor) {
                     // fast case
@@ -417,7 +418,7 @@ class Parser {
     // codeArray - the source code array for this object
     public enumerateObject (codeArray, obj) {
         const klass = obj.constructor;
-        if (cc.Class._isCCClass(klass)) {
+        if (legacyCC.Class._isCCClass(klass)) {
             this.enumerateCCClass(codeArray, obj, klass);
         }
         else {
@@ -439,10 +440,10 @@ class Parser {
     }
 
     public instantiateObj (obj) {
-        if (obj instanceof cc.ValueType) {
+        if (obj instanceof legacyCC.ValueType) {
             return CCClass.getNewValueTypeCode(obj);
         }
-        if (obj instanceof cc.Asset) {
+        if (obj instanceof legacyCC.Asset) {
             // register to asset list and just return the reference.
             return this.getObjRef(obj);
         }
@@ -453,21 +454,21 @@ class Parser {
 
         let createCode;
         const ctor = obj.constructor;
-        if (cc.Class._isCCClass(ctor)) {
+        if (legacyCC.Class._isCCClass(ctor)) {
             if (this.parent) {
-                if (this.parent instanceof cc.Component) {
-                    if (obj instanceof cc._BaseNode || obj instanceof cc.Component) {
+                if (this.parent instanceof legacyCC.Component) {
+                    if (obj instanceof legacyCC._BaseNode || obj instanceof legacyCC.Component) {
                         return this.getObjRef(obj);
                     }
                 }
-                else if (this.parent instanceof cc._BaseNode) {
-                    if (obj instanceof cc._BaseNode) {
+                else if (this.parent instanceof legacyCC._BaseNode) {
+                    if (obj instanceof legacyCC._BaseNode) {
                         if (!obj.isChildOf(this.parent)) {
                             // should not clone other nodes if not descendant
                             return this.getObjRef(obj);
                         }
                     }
-                    else if (obj instanceof cc.Component) {
+                    else if (obj instanceof legacyCC.Component) {
                         if (!obj.node.isChildOf(this.parent)) {
                             // should not clone other component if not descendant
                             return this.getObjRef(obj);
@@ -519,7 +520,7 @@ export function equalsToDefault (def, value) {
         return true;
     }
     if (def && value) {
-        if (def instanceof cc.ValueType && def.equals(value)) {
+        if (def instanceof legacyCC.ValueType && def.equals(value)) {
             return true;
         }
         if ((Array.isArray(def) && Array.isArray(value)) ||
@@ -536,13 +537,13 @@ export function equalsToDefault (def, value) {
 }
 
 export function compile (node) {
-    const root = (node instanceof cc._BaseNode) && node;
+    const root = (node instanceof legacyCC._BaseNode) && node;
     const parser = new Parser(node, root);
     return parser.result;
 }
 
 if (TEST) {
-    cc._Test.IntantiateJit = {
+    legacyCC._Test.IntantiateJit = {
         equalsToDefault,
         compile,
     };

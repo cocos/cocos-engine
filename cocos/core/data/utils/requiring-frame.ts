@@ -25,6 +25,7 @@
 */
 
 import { EDITOR } from 'internal:constants';
+import { legacyCC } from '../../global-exports';
 
 /**
  *
@@ -66,14 +67,14 @@ export function peek () {
     return requiringFrames[requiringFrames.length - 1];
 }
 
-cc._RF = {
+legacyCC._RF = {
     push,
     pop,
     peek,
 };
 
 if (EDITOR) {
-    cc._RF.reset = () => {
+    legacyCC._RF.reset = () => {
         requiringFrames = [];
     };
 }

@@ -35,6 +35,7 @@ import { IMat3Like, IMat4Like, IVec2Like } from './type-define';
 import { clamp } from './utils';
 import { EPSILON, random } from './utils';
 import { Vec3 } from './vec3';
+import { legacyCC } from '../global-exports';
 
 /**
  * 二维向量。
@@ -755,7 +756,7 @@ const v2_1 = new Vec2();
 const v2_2 = new Vec2();
 
 CCClass.fastDefine('cc.Vec2', Vec2, { x: 0, y: 0 });
-cc.Vec2 = Vec2;
+legacyCC.Vec2 = Vec2;
 
 export function v2 (other: Vec2): Vec2;
 export function v2 (x?: number, y?: number): Vec2;
@@ -764,4 +765,4 @@ export function v2 (x?: number | Vec2, y?: number) {
     return new Vec2(x as any, y);
 }
 
-cc.v2 = v2;
+legacyCC.v2 = v2;

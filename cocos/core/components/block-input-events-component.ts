@@ -43,6 +43,7 @@ import { ccclass, help, menu } from '../data/class-decorator';
 import { Component } from './component';
 import { Event } from '../event';
 import { SystemEventType } from '../platform/event-manager/event-enum';
+import { legacyCC } from '../global-exports';
 
 const BlockEvents = [SystemEventType.TOUCH_START, SystemEventType.TOUCH_END, SystemEventType.TOUCH_MOVE,
   SystemEventType.MOUSE_DOWN, SystemEventType.MOUSE_MOVE, SystemEventType.MOUSE_UP,
@@ -71,4 +72,4 @@ export class BlockInputEventsComponent extends Component {
   }
 }
 
-cc.BlockInputEventsComponent = BlockInputEventsComponent;
+legacyCC.BlockInputEventsComponent = BlockInputEventsComponent;

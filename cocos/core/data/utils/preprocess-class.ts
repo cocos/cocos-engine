@@ -28,6 +28,7 @@ import { error, errorID, warn, warnID } from '../../platform/debug';
 import * as js from '../../utils/js';
 import { PrimitiveType } from './attribute';
 import { DEV, EDITOR, TEST } from 'internal:constants';
+import { legacyCC } from '../../global-exports';
 
 // 增加预处理属性这个步骤的目的是降低 CCClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。
 
@@ -107,10 +108,10 @@ function checkUrl (val, className, propName, url) {
         if (url == null) {
             return warnID(5503, className, propName);
         }
-        if (typeof url !== 'function' || !js.isChildClassOf(url, cc.RawAsset)) {
+        if (typeof url !== 'function' || !js.isChildClassOf(url, legacyCC.RawAsset)) {
             return errorID(5504, className, propName);
         }
-        if (url === cc.RawAsset) {
+        if (url === legacyCC.RawAsset) {
             warn('Please change the definition of property \'%s\' in class \'%s\'. Starting from v1.10,\n' +
                     'the use of declaring a property in CCClass as a URL has been deprecated.\n' +
                     'For example, if property is cc.RawAsset, the previous definition is:\n' +
@@ -133,8 +134,8 @@ function checkUrl (val, className, propName, url) {
                     'sorry for the inconvenience. \uD83D\uDE30 )',
                     propName, className, propName, propName, propName, propName, propName);
         }
-        else if (js.isChildClassOf(url, cc.Asset)) {
-            return errorID(5505, className, propName, cc.js.getClassName(url));
+        else if (js.isChildClassOf(url, legacyCC.Asset)) {
+            return errorID(5505, className, propName, legacyCC.js.getClassName(url));
         }
         if (val.type) {
             return warnID(5506, className, propName);
@@ -149,12 +150,12 @@ function checkUrl (val, className, propName, url) {
 function parseType (val, type, className, propName) {
     if (Array.isArray(type)) {
         if ((EDITOR || TEST) && 'default' in val) {
-            if (!cc.Class.isArray(val.default)) {
+            if (!legacyCC.Class.isArray(val.default)) {
                 warnID(5507, className, propName);
             }
         }
         if (type.length > 0) {
-            if (cc.RawAsset.isRawAssetType(type[0])) {
+            if (legacyCC.RawAsset.isRawAssetType(type[0])) {
                 val.url = type[0];
                 delete val.type;
                 return;
@@ -167,16 +168,16 @@ function parseType (val, type, className, propName) {
     }
     if (EDITOR || TEST) {
         if (typeof type === 'function') {
-            if (cc.RawAsset.isRawAssetType(type)) {
+            if (legacyCC.RawAsset.isRawAssetType(type)) {
                 warnID(5509, className, propName, js.getClassName(type));
             } else if (type === String) {
-                val.type = cc.String;
+                val.type = legacyCC.String;
                 warnID(3608, `"${className}.${propName}"`);
             } else if (type === Boolean) {
-                val.type = cc.Boolean;
+                val.type = legacyCC.Boolean;
                 warnID(3609, `"${className}.${propName}"`);
             } else if (type === Number) {
-                val.type = cc.Float;
+                val.type = legacyCC.Float;
                 warnID(3610, `"${className}.${propName}"`);
             }
         } else {
@@ -206,7 +207,7 @@ function parseType (val, type, className, propName) {
 
 function postCheckType (val, type, className, propName) {
     if (EDITOR && typeof type === 'function') {
-        if (cc.Class._isCCClass(type) && val.serializable !== false && !js._getClassId(type, false)) {
+        if (legacyCC.Class._isCCClass(type) && val.serializable !== false && !js._getClassId(type, false)) {
             warnID(5512, className, propName, className, propName);
         }
     }
@@ -240,9 +241,9 @@ export function getFullFormOfProperty (options, propname_dev?, classname_dev?) {
             };
         } else if (typeof options === 'function') {
             const type = options;
-            if (!cc.RawAsset.isRawAssetType(type)) {
+            if (!legacyCC.RawAsset.isRawAssetType(type)) {
                 return {
-                    default: js.isChildClassOf(type, cc.ValueType) ? new type() : null,
+                    default: js.isChildClassOf(type, legacyCC.ValueType) ? new type() : null,
                     type,
                     _short: true,
                 };
@@ -283,7 +284,7 @@ export function preprocessAttrs (properties, className, cls, es6) {
                     else if (val.set) {
                         errorID(5514, className, propName);
                     }
-                    else if (cc.Class._isCCClass(val.default)) {
+                    else if (legacyCC.Class._isCCClass(val.default)) {
                         val.default = null;
                         errorID(5515, className, propName);
                     }
@@ -334,7 +335,7 @@ export function doValidateMethodWithProps_DEV (func, funcName, className, cls, b
         return false;
     }
     if (funcName === 'destroy' &&
-        js.isChildClassOf(base, cc.Component) &&
+        js.isChildClassOf(base, legacyCC.Component) &&
         !CALL_SUPER_DESTROY_REG_DEV.test(func)
     ) {
         // tslint:disable-next-line: max-line-length

@@ -28,6 +28,7 @@
  */
 
 import { BitMask, Enum } from '../value-types';
+import { legacyCC } from '../global-exports';
 
 // built-in layers, users can use 0~19 bits, 20~31 are system preserve bits.
 const layerList = {
@@ -118,4 +119,4 @@ export class Layers {
   }
 }
 
-cc.Layers = Layers;
+legacyCC.Layers = Layers;

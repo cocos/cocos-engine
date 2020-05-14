@@ -32,6 +32,7 @@ import { Component } from '../../core/components/component';
 import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { Color } from '../../core/math';
 import { LabelComponent } from './label-component';
+import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en
@@ -125,4 +126,4 @@ export class LabelOutlineComponent extends Component {
     }
 }
 
-cc.LabelOutlineComponent = LabelOutlineComponent;
+legacyCC.LabelOutlineComponent = LabelOutlineComponent;

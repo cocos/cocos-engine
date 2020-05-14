@@ -22,6 +22,7 @@ import { Root } from '../core/root';
 import { PrivateNode } from '../core/scene-graph/private-node';
 import { HeightField } from './height-field';
 import { TerrainAsset, TerrainLayerInfo } from './terrain-asset';
+import { legacyCC } from '../core/global-exports';
 
 export const TERRAIN_MAX_LEVELS = 4;
 export const TERRAIN_MAX_BLEND_LAYERS = 4;
@@ -106,7 +107,7 @@ export class TerrainRenderable extends RenderableComponent {
     public destroy () {
         this._invalidMaterial();
         if (this._model != null) {
-            cc.director.root.destroyModel(this._model);
+            legacyCC.director.root.destroyModel(this._model);
             this._model = null;
         }
 
@@ -136,7 +137,7 @@ export class TerrainRenderable extends RenderableComponent {
             this._currentMaterial = new Material();
 
             this._currentMaterial.initialize({
-                effectAsset: cc.EffectAsset.get('builtin-terrain'),
+                effectAsset: legacyCC.EffectAsset.get('builtin-terrain'),
                 defines: block._getMaterialDefines(nlayers),
             });
 
@@ -223,7 +224,7 @@ export class TerrainBlock {
         // @ts-ignore
         this._node.setParent(this._terrain.node);
         // @ts-ignore
-        this._node._objFlags |= cc.Object.Flags.DontSave;
+        this._node._objFlags |= legacyCC.Object.Flags.DontSave;
 
         this._renderable =  this._node.addComponent(TerrainRenderable) as TerrainRenderable;
     }
@@ -270,7 +271,7 @@ export class TerrainBlock {
         const subMesh = this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes, GFXPrimitiveMode.TRIANGLE_LIST);
         subMesh.indexBuffer = this._terrain.getSharedIndexBuffer() || undefined;
 
-        this._renderable._model = (cc.director.root as Root).createModel(Model);
+        this._renderable._model = (legacyCC.director.root as Root).createModel(Model);
         this._renderable._model.initialize(this._node);
         this._renderable._getRenderScene().addModel(this._renderable._model);
 
@@ -320,7 +321,7 @@ export class TerrainBlock {
                     mtl.setProperty('detailMap0', l0 != null ? l0.detailMap : null);
                 }
                 else {
-                    mtl.setProperty('detailMap0', cc.builtinResMgr.get('default-texture'));
+                    mtl.setProperty('detailMap0', legacyCC.builtinResMgr.get('default-texture'));
                 }
             }
             else if (nlayers === 1) {
@@ -848,7 +849,7 @@ export class Terrain extends Component {
     }
 
     public onLoad () {
-        const gfxDevice = cc.director.root.device as GFXDevice;
+        const gfxDevice = legacyCC.director.root.device as GFXDevice;
 
         // initialize shared index buffer
         const indexData = new Uint16Array(TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6);
@@ -1315,7 +1316,7 @@ export class Terrain extends Component {
                 for (const i of this._asset.layerInfos) {
                     const layer = new TerrainLayer();
                     layer.tileSize = i.tileSize;
-                    cc.loader.loadRes(i.detailMap, Texture2D, (err, asset) => {
+                    legacyCC.loader.loadRes(i.detailMap, Texture2D, (err, asset) => {
                         layer.detailMap = asset;
                     });
 

@@ -52,6 +52,7 @@ import { Asset } from './asset';
 import { Skeleton } from './skeleton';
 import { postLoadMesh } from './utils/mesh-utils';
 import { Morph, createMorphRendering, MorphRendering } from './morph';
+import { legacyCC } from '../global-exports';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -139,7 +140,7 @@ export class RenderingSubMesh {
         const indices = mesh.readIndices(index) as Uint16Array;
         const max = new Vec3();
         const min = new Vec3();
-        const pAttri = this.attributes.find(element => element.name == cc.GFXAttributeName.ATTR_POSITION);
+        const pAttri = this.attributes.find(element => element.name == legacyCC.GFXAttributeName.ATTR_POSITION);
         if (pAttri) {
             const conut = GFXFormatInfos[pAttri.format].count;
             if (conut == 2) {
@@ -221,7 +222,7 @@ export class RenderingSubMesh {
         }
         let jointFormat: GFXFormat;
         let jointOffset: number;
-        const device: GFXDevice = cc.director.root.device;
+        const device: GFXDevice = legacyCC.director.root.device;
         for (let i = 0; i < prim.vertexBundelIndices.length; i++) {
             const bundle = struct.vertexBundles[prim.vertexBundelIndices[i]];
             jointOffset = 0;
@@ -465,8 +466,8 @@ export class Mesh extends Asset {
     set _nativeAsset (value: ArrayBuffer) {
         if (this._data && this._data.byteLength === value.byteLength) {
             this._data.set(new Uint8Array(value));
-            if (cc.loader._cache[this.nativeUrl]) {
-                cc.loader._cache[this.nativeUrl].content = this._data.buffer;
+            if (legacyCC.loader._cache[this.nativeUrl]) {
+                legacyCC.loader._cache[this.nativeUrl].content = this._data.buffer;
             }
         }
         else {
@@ -564,7 +565,7 @@ export class Mesh extends Asset {
             postLoadMesh(this);
         }
         const buffer = this._data.buffer;
-        const gfxDevice: GFXDevice = cc.director.root.device;
+        const gfxDevice: GFXDevice = legacyCC.director.root.device;
         const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
         const indexBuffers: GFXBuffer[] = [];
         const subMeshes: RenderingSubMesh[] = [];
@@ -1275,7 +1276,7 @@ export class Mesh extends Asset {
 
     public morphRendering: MorphRendering | null = null;
 }
-cc.Mesh = Mesh;
+legacyCC.Mesh = Mesh;
 
 function getOffset (attributes: IGFXAttribute[], attributeIndex: number) {
     let result = 0;

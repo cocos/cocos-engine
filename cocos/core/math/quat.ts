@@ -33,6 +33,7 @@ import { Mat3 } from './mat3';
 import { IQuatLike, IVec3Like } from './type-define';
 import { EPSILON, toDegree } from './utils';
 import { Vec3 } from './vec3';
+import { legacyCC } from '../global-exports';
 
 /**
  * 四元数。
@@ -782,7 +783,7 @@ const m3_1 = new Mat3();
 const halfToRad = 0.5 * Math.PI / 180.0;
 
 CCClass.fastDefine('cc.Quat', Quat, { x: 0, y: 0, z: 0, w: 1 });
-cc.Quat = Quat;
+legacyCC.Quat = Quat;
 
 export function quat (other: Quat): Quat;
 export function quat (x?: number, y?: number, z?: number, w?: number): Quat;
@@ -791,4 +792,4 @@ export function quat (x: number | Quat = 0, y: number = 0, z: number = 0, w: num
     return new Quat(x as any, y, z, w);
 }
 
-cc.quat = quat;
+legacyCC.quat = quat;

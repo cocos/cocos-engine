@@ -47,6 +47,7 @@ import { preprocessAttrs, validateMethodWithProps } from './utils/preprocess-cla
 import * as RF from './utils/requiring-frame';
 import { error } from '../platform/debug';
 import { DEV, EDITOR, SUPPORT_JIT, TEST } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 const DELIMETER = attributeUtils.DELIMETER;
 
@@ -235,7 +236,7 @@ function getDefault (defaultVal) {
                 return defaultVal();
             }
             catch (e) {
-                cc._throw(e);
+                legacyCC._throw(e);
                 return undefined;
             }
         }
@@ -354,7 +355,7 @@ function doDefine (className, baseClass, mixins, options) {
 }
 
 function define (className, baseClass, mixins, options) {
-    const Component = cc.Component;
+    const Component = legacyCC.Component;
     const frame = RF.peek();
 
     if (frame && js.isChildClassOf(baseClass, Component)) {
@@ -377,9 +378,9 @@ function define (className, baseClass, mixins, options) {
     const cls = doDefine(className, baseClass, mixins, options);
 
     // for RenderPipeline, RenderFlow, RenderStage
-    const isRenderPipeline = js.isChildClassOf(baseClass, cc.RenderPipeline);
-    const isRenderFlow = js.isChildClassOf(baseClass, cc.RenderFlow);
-    const isRenderStage = js.isChildClassOf(baseClass, cc.RenderStage);
+    const isRenderPipeline = js.isChildClassOf(baseClass, legacyCC.RenderPipeline);
+    const isRenderFlow = js.isChildClassOf(baseClass, legacyCC.RenderFlow);
+    const isRenderStage = js.isChildClassOf(baseClass, legacyCC.RenderStage);
 
     const isRender = isRenderPipeline || isRenderFlow || isRenderStage || false;
 
@@ -499,7 +500,7 @@ function getInitPropsJit (attrs, propList) {
             let expression;
             const def = attrs[attrKey];
             if (typeof def === 'object' && def) {
-                if (def instanceof cc.ValueType) {
+                if (def instanceof legacyCC.ValueType) {
                     expression = getNewValueTypeCodeJit(def);
                 }
                 else if (Array.isArray(def)) {
@@ -577,7 +578,7 @@ function getInitProps (attrs, propList) {
             let expression;
             const def = advancedValues[i];
             if (typeof def === 'object') {
-                if (def instanceof cc.ValueType) {
+                if (def instanceof legacyCC.ValueType) {
                     expression = def.clone();
                 }
                 else if (Array.isArray(def)) {
@@ -594,7 +595,7 @@ function getInitProps (attrs, propList) {
                         expression = def();
                     }
                     catch (err) {
-                        cc._throw(err);
+                        legacyCC._throw(err);
                         continue;
                     }
                 }
@@ -993,7 +994,7 @@ function CCClass (options) {
     // create constructor
     const cls = define(name, base, mixins, options);
     if (!name) {
-        name = cc.js.getClassName(cls);
+        name = legacyCC.js.getClassName(cls);
     }
 
     cls._sealed = true;
@@ -1053,8 +1054,8 @@ function CCClass (options) {
 
     const editor = options.editor;
     if (editor) {
-        if (js.isChildClassOf(base, cc.Component)) {
-            cc.Component._registerEditorProps(cls, editor);
+        if (js.isChildClassOf(base, legacyCC.Component)) {
+            legacyCC.Component._registerEditorProps(cls, editor);
         }
         else if (DEV) {
             warnID(3623, name);
@@ -1321,4 +1322,4 @@ CCClass.getNewValueTypeCode = (SUPPORT_JIT && getNewValueTypeCodeJit) as ((value
 
 export default CCClass;
 
-cc.Class = CCClass;
+legacyCC.Class = CCClass;

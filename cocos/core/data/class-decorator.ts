@@ -55,6 +55,7 @@ import { doValidateMethodWithProps_DEV, getFullFormOfProperty } from './utils/pr
 import { CCString, CCInteger, CCFloat, CCBoolean, PrimitiveType } from './utils/attribute';
 import { error, errorID, warnID } from '../platform/debug';
 import { DEV } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 // caches for class construction
 const CACHE_KEY = '__ccclassCache__';
@@ -93,7 +94,7 @@ function _checkNormalArgument (validator_DEV, decorate, decoratorName) {
 }
 
 const checkCompArgument = _checkNormalArgument.bind(null, DEV && function (arg, decoratorName) {
-    if (!cc.Class._isCCClass(arg)) {
+    if (!legacyCC.Class._isCCClass(arg)) {
         error('The parameter for %s is missing.', decoratorName);
         return false;
     }
@@ -101,7 +102,7 @@ const checkCompArgument = _checkNormalArgument.bind(null, DEV && function (arg, 
 
 function _argumentChecker (type) {
     return _checkNormalArgument.bind(null, DEV && function (arg, decoratorName) {
-        if (arg instanceof cc.Component || arg === undefined) {
+        if (arg instanceof legacyCC.Component || arg === undefined) {
             error('The parameter for %s is missing.', decoratorName);
             return false;
         }
@@ -116,7 +117,7 @@ const checkNumberArgument = _argumentChecker('number');
 // var checkBooleanArgument = _argumentChecker('boolean');
 
 function getClassCache (ctor, decoratorName?) {
-    if (DEV && cc.Class._isCCClass(ctor)) {
+    if (DEV && legacyCC.Class._isCCClass(ctor)) {
         error('`@%s` should be used after @ccclass for class "%s"', decoratorName, js.getClassName(ctor));
         return null;
     }
@@ -289,7 +290,7 @@ export const ccclass = checkCtorArgument(function (ctor, name) {
         ctor[CACHE_KEY] = undefined;
     }
 
-    const res = cc.Class(proto);
+    const res = legacyCC.Class(proto);
 
     // validate methods
     if (DEV) {

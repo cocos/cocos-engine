@@ -39,6 +39,7 @@ import { error } from '../platform/debug';
 import { EDITOR } from 'internal:constants';
 import { HierarchyPath, TargetPath, evaluatePath } from './target-path';
 import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter } from './skeletal-animation-blending';
+import { legacyCC } from '../global-exports';
 
 enum PropertySpecialization {
     NodePosition,
@@ -329,7 +330,7 @@ export class AnimationState extends Playable {
         this._curveLoaded = true;
         this._destroyBlendStateWriters();
         this._samplerSharedGroups.length = 0;
-        this._blendStateBuffer = cc.director.getAnimationManager()?.blendState ?? null;
+        this._blendStateBuffer = legacyCC.director.getAnimationManager()?.blendState ?? null;
         this._targetNode = root;
         const clip = this._clip;
 
@@ -428,7 +429,7 @@ export class AnimationState extends Playable {
         for (let i = 0, l = args.length; i < l; i++) {
             args[i] = restargs[i];
         }
-        cc.director.getAnimationManager().pushDelayEvent(this, '_emit', args);
+        legacyCC.director.getAnimationManager().pushDelayEvent(this, '_emit', args);
     }
 
     public on<K extends string> (type: K, callback: EventCallbackOf<K, IAnimationEventDefinitionMap>, target?: any): void;
@@ -817,7 +818,7 @@ export class AnimationState extends Playable {
 
                 lastIndex += direction;
 
-                cc.director.getAnimationManager().pushDelayEvent(this, '_fireEvent', [lastIndex]);
+                legacyCC.director.getAnimationManager().pushDelayEvent(this, '_fireEvent', [lastIndex]);
             } while (lastIndex !== eventIndex && lastIndex > -1 && lastIndex < length);
         }
 
@@ -854,11 +855,11 @@ export class AnimationState extends Playable {
             }
             this._isBlendStateWriterInitialized = true;
         }
-        cc.director.getAnimationManager().addAnimation(this);
+        legacyCC.director.getAnimationManager().addAnimation(this);
     }
 
     private _onPauseOrStop () {
-        cc.director.getAnimationManager().removeAnimation(this);
+        legacyCC.director.getAnimationManager().removeAnimation(this);
     }
 
     private _destroyBlendStateWriters () {
@@ -899,4 +900,4 @@ function wrapIterations (iterations: number) {
     return iterations | 0;
 }
 
-cc.AnimationState = AnimationState;
+legacyCC.AnimationState = AnimationState;

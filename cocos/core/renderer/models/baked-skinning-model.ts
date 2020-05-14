@@ -43,6 +43,7 @@ import { DataPoolManager } from '../data-pool-manager';
 import { Model, ModelType } from '../scene/model';
 import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
+import { legacyCC } from '../../global-exports';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;
@@ -77,7 +78,7 @@ export class BakedSkinningModel extends MorphModel {
     constructor () {
         super();
         this.type = ModelType.BAKED_SKINNING;
-        this._dataPoolManager = cc.director.root.dataPoolManager;
+        this._dataPoolManager = legacyCC.director.root.dataPoolManager;
         const jointTextureInfo = new Float32Array(4);
         const animInfo = this._dataPoolManager.jointAnimationInfo.getData();
         this._jointsMedium = { buffer: null, jointTextureInfo, animInfo, texture: null, boundsInfo: null };

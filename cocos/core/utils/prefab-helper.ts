@@ -27,6 +27,7 @@
 import { ccclass, property } from '../data/class-decorator';
 import { Quat } from '../math';
 import { EDITOR, SUPPORT_JIT } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 @ccclass('cc.PrefabInfo')
 export class PrefabInfo {
@@ -67,7 +68,7 @@ export class PrefabInfo {
     // }
 }
 
-cc._PrefabInfo = PrefabInfo;
+legacyCC._PrefabInfo = PrefabInfo;
 
 // update node to make it sync with prefab
 export default function syncWithPrefab (node) {
@@ -87,7 +88,7 @@ export default function syncWithPrefab (node) {
             // node.name += PrefabUtils.MISSING_PREFAB_SUFFIX;
         }
         else {
-            cc.errorID(3701, node.name);
+            legacyCC.errorID(3701, node.name);
         }
         node._prefab = null;
         return;
@@ -106,7 +107,7 @@ export default function syncWithPrefab (node) {
     const _globalZOrder = node._globalZOrder;
 
     // instantiate prefab
-    cc.game._isCloning = true;
+    legacyCC.game._isCloning = true;
     if (SUPPORT_JIT) {
         _prefab.asset._doInstantiate(node);
     }
@@ -119,9 +120,9 @@ export default function syncWithPrefab (node) {
         prefabRoot._iN$t = node;
 
         // instantiate prefab and apply to node
-        cc.instantiate._clone(prefabRoot, prefabRoot);
+        legacyCC.instantiate._clone(prefabRoot, prefabRoot);
     }
-    cc.game._isCloning = false;
+    legacyCC.game._isCloning = false;
 
     // restore preserved props
     node._objFlags = _objFlags;

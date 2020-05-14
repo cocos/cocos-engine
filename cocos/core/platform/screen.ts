@@ -28,6 +28,8 @@
  * @category core
  */
 
+import { legacyCC } from '../global-exports';
+
 /**
  * @en The screen API provides an easy way for web content to be presented using the user's entire screen.
  * It's designed for web platforms and some mobile browsers don't provide such behavior, e.g. Safari
@@ -159,7 +161,7 @@ const screen = {
      */
     autoFullScreen (element: HTMLElement, onFullScreenChange: (this: Document, ev: any) => any) {
         element = element || document.body;
-        const touchTarget = cc.game.canvas || element;
+        const touchTarget = legacyCC.game.canvas || element;
         const theScreen = this;
         // Function bind will be too complicated here because we need the callback function's reference to remove the listener
         function callback () {
@@ -172,6 +174,6 @@ const screen = {
 };
 screen.init();
 
-cc.screen = screen;
+legacyCC.screen = screen;
 
 export { screen };

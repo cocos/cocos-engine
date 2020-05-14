@@ -40,6 +40,7 @@ import { Node } from '../../core/scene-graph/node';
 import { director, Director } from '../../core/director';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { EDITOR } from 'internal:constants';
+import { legacyCC } from '../../core/global-exports';
 
 const NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED = 5;
 const OUT_OF_BOUNDARY_BREAKING_FACTOR = 0.05;
@@ -1753,7 +1754,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 }
 
-cc.ScrollViewComponent = ScrollViewComponent;
+legacyCC.ScrollViewComponent = ScrollViewComponent;
 
 /**
  * @en

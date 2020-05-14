@@ -44,6 +44,7 @@ import { Root } from '../../root';
 import { Layers, Node, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
 import { TransformBit } from '../../scene-graph/node-enum';
+import { legacyCC } from '../../global-exports';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -443,7 +444,7 @@ export class CameraComponent extends Component {
         this._updateTargetTexture();
 
         if (!value && this._camera) {
-            this._camera.changeTargetWindow(EDITOR ? cc.director.root.tempWindow : null);
+            this._camera.changeTargetWindow(EDITOR ? legacyCC.director.root.tempWindow : null);
             this._camera.isWindowSize = true;
         }
     }
@@ -469,7 +470,7 @@ export class CameraComponent extends Component {
     set inEditorMode (value) {
         this._inEditorMode = value;
         if (this._camera) {
-            this._camera.changeTargetWindow(value ? cc.director.root && cc.director.root.mainWindow : cc.director.root && cc.director.root.tempWindow);
+            this._camera.changeTargetWindow(value ? legacyCC.director.root && legacyCC.director.root.mainWindow : legacyCC.director.root && legacyCC.director.root.tempWindow);
         }
     }
 
@@ -481,7 +482,7 @@ export class CameraComponent extends Component {
     }
 
     public onLoad () {
-        cc.director.on(cc.Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneChanged, this);
+        legacyCC.director.on(legacyCC.Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneChanged, this);
         this._createCamera();
     }
 
@@ -501,7 +502,7 @@ export class CameraComponent extends Component {
 
     public onDestroy () {
         if (this._camera) {
-            cc.director.root.destroyCamera(this._camera);
+            legacyCC.director.root.destroyCamera(this._camera);
             this._camera = null;
         }
 
@@ -552,8 +553,8 @@ export class CameraComponent extends Component {
         const designSize = view.getVisibleSize();
         const xoffset = _temp_vec3_1.x - this._camera!.width * 0.5;
         const yoffset = _temp_vec3_1.y - this._camera!.height * 0.5;
-        _temp_vec3_1.x = xoffset / cc.view.getScaleX() + designSize.width * 0.5;
-        _temp_vec3_1.y = yoffset / cc.view.getScaleY() + designSize.height * 0.5;
+        _temp_vec3_1.x = xoffset / legacyCC.view.getScaleX() + designSize.width * 0.5;
+        _temp_vec3_1.y = yoffset / legacyCC.view.getScaleY() + designSize.height * 0.5;
 
         if (cmp) {
             cmp.convertToNodeSpaceAR(_temp_vec3_1, out);
@@ -563,12 +564,12 @@ export class CameraComponent extends Component {
     }
 
     protected _createCamera () {
-        this._camera = (cc.director.root as Root).createCamera();
+        this._camera = (legacyCC.director.root as Root).createCamera();
         this._camera.initialize({
             name: this.node.name,
             node: this.node,
             projection: this._projection,
-            window: this._inEditorMode ? cc.director.root && cc.director.root.mainWindow : cc.director.root && cc.director.root.tempWindow,
+            window: this._inEditorMode ? legacyCC.director.root && legacyCC.director.root.mainWindow : legacyCC.director.root && legacyCC.director.root.tempWindow,
             priority: this._priority,
             flows: this._flows,
         });

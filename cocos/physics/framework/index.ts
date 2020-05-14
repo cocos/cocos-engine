@@ -13,6 +13,7 @@ import { CylinderColliderComponent } from './components/collider/cylinder-collid
 import { MeshColliderComponent } from './components/collider/mesh-collider-component';
 import { RigidBodyComponent } from './components/rigid-body-component';
 import { ConstantForce } from './components/constant-force';
+import { legacyCC } from '../../core/global-exports';
 
 export {
     PhysicsSystem,
@@ -32,20 +33,19 @@ export {
     ConstantForce
 };
 
-cc.PhysicsSystem = PhysicsSystem;
+legacyCC.PhysicsSystem = PhysicsSystem;
 
-cc.ColliderComponent = ColliderComponent;
-cc.BoxColliderComponent = BoxColliderComponent;
-cc.SphereColliderComponent = SphereColliderComponent;
+legacyCC.ColliderComponent = ColliderComponent;
+legacyCC.BoxColliderComponent = BoxColliderComponent;
+legacyCC.SphereColliderComponent = SphereColliderComponent;
 
-cc.RigidBodyComponent = RigidBodyComponent;
+legacyCC.RigidBodyComponent = RigidBodyComponent;
 
-cc.PhysicMaterial = PhysicMaterial;
-cc.PhysicsRayResult = PhysicsRayResult;
-cc.ConstantForce = ConstantForce;
+legacyCC.PhysicMaterial = PhysicMaterial;
+legacyCC.PhysicsRayResult = PhysicsRayResult;
+legacyCC.ConstantForce = ConstantForce;
 
 export * from './physics-interface';
 export * from './physics-enum';
 
 import './deprecated';
-

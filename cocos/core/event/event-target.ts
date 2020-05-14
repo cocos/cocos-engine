@@ -30,6 +30,7 @@
 
 import * as js from '../utils/js';
 import { CallbacksInvoker } from './callbacks-invoker';
+import { legacyCC } from '../global-exports';
 
 const fastRemove = js.array.fastRemove;
 
@@ -85,7 +86,7 @@ export class EventTarget extends CallbacksInvoker {
      */
     public on (type: string, callback: Function, target?: Object) {
         if (!callback) {
-            cc.errorID(6800);
+            legacyCC.errorID(6800);
             return;
         }
 
@@ -174,7 +175,7 @@ export class EventTarget extends CallbacksInvoker {
      */
     public once (type: string, callback: Function, target?: Object) {
         if (!callback) {
-            cc.errorID(6800);
+            legacyCC.errorID(6800);
             return;
         }
 
@@ -194,4 +195,4 @@ export class EventTarget extends CallbacksInvoker {
     }
 }
 
-cc.EventTarget = EventTarget;
+legacyCC.EventTarget = EventTarget;

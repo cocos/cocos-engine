@@ -25,6 +25,7 @@
  */
 
 import { EDITOR } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 /**
  * 加载相关模块
@@ -70,20 +71,20 @@ let url = {
      */
     raw: function (url) {
         if (EDITOR && !this._rawAssets) {
-            cc.errorID(7000);
+            legacyCC.errorID(7000);
             return '';
         }
 
         url = this.normalize(url);
 
         if ( !url.startsWith('resources/') ) {
-            cc.errorID(EDITOR ? 7001 : 7002, url);
+            legacyCC.errorID(EDITOR ? 7001 : 7002, url);
         }
         else {
             // Compatible with versions lower than 1.10
-            var uuid = cc.loader._getResUuid(url.slice(10), cc.Asset, null, true);
+            var uuid = legacyCC.loader._getResUuid(url.slice(10), legacyCC.Asset, null, true);
             if (uuid) {
-                return cc.AssetLibrary.getLibUrlNoExt(uuid, true) + cc.path.extname(url);
+                return legacyCC.AssetLibrary.getLibUrlNoExt(uuid, true) + legacyCC.path.extname(url);
             }
         }
 
@@ -91,10 +92,10 @@ let url = {
     },
 
     _init: function (assets) {
-        this._rawAssets = cc.path.stripSep(assets) + '/';
+        this._rawAssets = legacyCC.path.stripSep(assets) + '/';
     }
 }
 
-cc.url = url;
+legacyCC.url = url;
 
 export default url;

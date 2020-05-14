@@ -46,6 +46,7 @@ import NodeActivator from './scene-graph/node-activator';
 import { Scheduler } from './scheduler';
 import { js } from './utils';
 import { DEBUG, EDITOR, BUILD } from 'internal:constants';
+import { legacyCC } from './global-exports';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -301,11 +302,11 @@ export class Director extends EventTarget {
 
         this._systems = [];
 
-        cc.game.on(Game.EVENT_SHOW, () => {
+        legacyCC.game.on(Game.EVENT_SHOW, () => {
             this._lastUpdate = performance.now();
         });
 
-        cc.game.once(Game.EVENT_RENDERER_INITED, this._initOnRendererInitialized, this);
+        legacyCC.game.once(Game.EVENT_RENDERER_INITED, this._initOnRendererInitialized, this);
     }
 
     /**
@@ -331,8 +332,8 @@ export class Director extends EventTarget {
      * @deprecated since v2.0
      */
     public convertToGL (uiPoint: Vec2) {
-        const container = cc.game.container;
-        const view = cc.view;
+        const container = legacyCC.game.container;
+        const view = legacyCC.view;
         const box = container.getBoundingClientRect();
         const left = box.left + window.pageXOffset - container.clientLeft;
         const top = box.top + window.pageYOffset - container.clientTop;
@@ -350,8 +351,8 @@ export class Director extends EventTarget {
      * @deprecated since v2.0
      */
     public convertToUI (glPoint: Vec2) {
-        const container = cc.game.container;
-        const view = cc.view;
+        const container = legacyCC.game.container;
+        const view = legacyCC.view;
         const box = container.getBoundingClientRect();
         const left = box.left + window.pageXOffset - container.clientLeft;
         const top = box.top + window.pageYOffset - container.clientTop;
@@ -382,7 +383,7 @@ export class Director extends EventTarget {
      * @deprecated since v2.0
      */
     public getWinSize () {
-        return size(cc.winSize);
+        return size(legacyCC.winSize);
     }
 
     /**
@@ -397,7 +398,7 @@ export class Director extends EventTarget {
      * @deprecated since v2.0
      */
     public getWinSizeInPixels () {
-        return size(cc.winSize);
+        return size(legacyCC.winSize);
     }
 
     /**
@@ -421,7 +422,7 @@ export class Director extends EventTarget {
      * @deprecated since v2.0
      */
     public purgeCachedData () {
-        cc.loader.releaseAll();
+        legacyCC.loader.releaseAll();
     }
 
     /**
@@ -445,7 +446,7 @@ export class Director extends EventTarget {
         // cc.renderer.clear();
 
         if (!EDITOR) {
-            if (cc.isValid(this._scene)) {
+            if (legacyCC.isValid(this._scene)) {
                 this._scene!.destroy();
             }
             this._scene = null;
@@ -459,7 +460,7 @@ export class Director extends EventTarget {
         this._root = null;
 
         // Clear all caches
-        cc.loader.releaseAll();
+        legacyCC.loader.releaseAll();
     }
 
     /**
@@ -488,11 +489,11 @@ export class Director extends EventTarget {
      * @param onLaunched - The function invoked at the scene after launch.
      */
     public runSceneImmediate (scene: Scene, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched) {
-        cc.assertID(scene instanceof cc.Scene, 1216);
+        legacyCC.assertID(scene instanceof legacyCC.Scene, 1216);
 
-        const uuid = cc.loader._getReferenceKey(scene.uuid);
+        const uuid = legacyCC.loader._getReferenceKey(scene.uuid);
         // Scene cannot be cached in loader, because it will be destroyed after switching.
-        cc.loader.removeItem(uuid);
+        legacyCC.loader.removeItem(uuid);
 
         if (BUILD && DEBUG) {
             console.time('InitScene');
@@ -506,13 +507,13 @@ export class Director extends EventTarget {
         if (BUILD && DEBUG) {
             console.time('AttachPersist');
         }
-        const persistNodeList = Object.keys(cc.game._persistRootNodes).map((x) => {
-            return cc.game._persistRootNodes[x];
+        const persistNodeList = Object.keys(legacyCC.game._persistRootNodes).map((x) => {
+            return legacyCC.game._persistRootNodes[x];
         });
         // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < persistNodeList.length; i++) {
             const node = persistNodeList[i];
-            node.emit(cc.Node.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
+            node.emit(legacyCC.Node.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
             const existNode = scene.getChildByUuid(node.uuid);
             if (existNode) {
                 // scene also contains the persist node, select the old one
@@ -544,7 +545,7 @@ export class Director extends EventTarget {
         if (BUILD && DEBUG) {
             console.time('Destroy');
         }
-        if (cc.isValid(oldScene)) {
+        if (legacyCC.isValid(oldScene)) {
             oldScene!.destroy();
         }
 
@@ -557,7 +558,7 @@ export class Director extends EventTarget {
         if (onBeforeLoadScene) {
             onBeforeLoadScene();
         }
-        this.emit(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
+        this.emit(legacyCC.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
 
         // Run an Entity Scene
         this._scene = scene;
@@ -579,7 +580,7 @@ export class Director extends EventTarget {
         if (onLaunched) {
             onLaunched(null, scene);
         }
-        this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
+        this.emit(legacyCC.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
     }
 
     /**
@@ -593,15 +594,15 @@ export class Director extends EventTarget {
      * @private
      */
     public runScene (scene: Scene, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched) {
-        cc.assertID(scene, 1205);
-        cc.assertID(scene instanceof cc.Scene, 1216);
+        legacyCC.assertID(scene, 1205);
+        legacyCC.assertID(scene instanceof legacyCC.Scene, 1216);
 
         // ensure scene initialized
         // @ts-ignore
         scene._load();
 
         // Delay run / replace scene to the end of the frame
-        this.once(cc.Director.EVENT_AFTER_UPDATE, () => {
+        this.once(legacyCC.Director.EVENT_AFTER_UPDATE, () => {
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
         });
     }
@@ -609,7 +610,7 @@ export class Director extends EventTarget {
     //  @Scene loading section
 
     public _getSceneUuid (key: string | number) {
-        const scenes = cc.game._sceneInfos;
+        const scenes = legacyCC.game._sceneInfos;
         if (typeof key === 'string') {
             if (!key.endsWith('.scene')) {
                 key += '.scene';
@@ -631,11 +632,11 @@ export class Director extends EventTarget {
                 return scenes[key];
             }
             else {
-                cc.errorID(1206, key);
+                legacyCC.errorID(1206, key);
             }
         }
         else {
-            cc.errorID(1207, key);
+            legacyCC.errorID(1207, key);
         }
         return null;
     }
@@ -650,19 +651,19 @@ export class Director extends EventTarget {
      */
     public loadScene (sceneName: string, onLaunched?: Director.OnSceneLaunched, onUnloaded?: Director.OnUnload) {
         if (this._loadingScene) {
-            cc.errorID(1208, sceneName, this._loadingScene);
+            legacyCC.errorID(1208, sceneName, this._loadingScene);
             return false;
         }
         const info = this._getSceneUuid(sceneName);
         if (info) {
             const uuid = info.uuid;
-            this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
+            this.emit(legacyCC.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
             this._loadSceneByUuid(uuid, onLaunched, onUnloaded);
             return true;
         }
         else {
-            cc.errorID(1209, sceneName);
+            legacyCC.errorID(1209, sceneName);
             return false;
         }
     }
@@ -714,12 +715,12 @@ export class Director extends EventTarget {
 
         const info = this._getSceneUuid(sceneName);
         if (info) {
-            this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
-            cc.loader.load({ uuid: info.uuid, type: 'uuid' },
+            this.emit(legacyCC.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
+            legacyCC.loader.load({ uuid: info.uuid, type: 'uuid' },
                 onProgress,
                 (error: null | Error, asset: SceneAsset) => {
                     if (error) {
-                        cc.errorID(1210, sceneName, error.message);
+                        legacyCC.errorID(1210, sceneName, error.message);
                     }
                     if (onLoaded) {
                         onLoaded(error, asset);
@@ -731,7 +732,7 @@ export class Director extends EventTarget {
             if (onLoaded) {
                 onLoaded(new Error(error));
             }
-            cc.error('preloadScene: ' + error);
+            legacyCC.error('preloadScene: ' + error);
         }
     }
 
@@ -770,16 +771,16 @@ export class Director extends EventTarget {
 
         // cc.AssetLibrary.unloadAsset(uuid);     // force reload
         console.time('LoadScene ' + uuid);
-        cc.AssetLibrary.loadAsset(uuid, (error, sceneAsset) => {
+        legacyCC.AssetLibrary.loadAsset(uuid, (error, sceneAsset) => {
             console.timeEnd('LoadScene ' + uuid);
             const self = director;
             self._loadingScene = '';
             if (error) {
                 error = 'Failed to load scene: ' + error;
-                cc.error(error);
+                legacyCC.error(error);
             }
             else {
-                if (sceneAsset instanceof cc.SceneAsset) {
+                if (sceneAsset instanceof legacyCC.SceneAsset) {
                     const scene = sceneAsset.scene;
                     scene._id = sceneAsset._uuid;
                     scene._name = sceneAsset._name;
@@ -801,7 +802,7 @@ export class Director extends EventTarget {
                 }
                 else {
                     error = 'The asset ' + uuid + ' is not a scene';
-                    cc.error(error);
+                    legacyCC.error(error);
                 }
             }
             if (onLaunched) {
@@ -821,7 +822,7 @@ export class Director extends EventTarget {
 
         this._lastUpdate = performance.now();
         if (!this._lastUpdate) {
-            cc.logID(1200);
+            legacyCC.logID(1200);
         }
 
         this._paused = false;
@@ -836,10 +837,10 @@ export class Director extends EventTarget {
      * @deprecated since v2.0
      */
     public setDepthTest (value: boolean) {
-        if (!cc.Camera.main) {
+        if (!legacyCC.Camera.main) {
             return;
         }
-        cc.Camera.main.depth = !!value;
+        legacyCC.Camera.main.depth = !!value;
     }
 
     /**
@@ -852,10 +853,10 @@ export class Director extends EventTarget {
      * @deprecated since v2.0
      */
     public setClearColor (clearColor: Color) {
-        if (!cc.Camera.main) {
+        if (!legacyCC.Camera.main) {
             return;
         }
-        cc.Camera.main.backgroundColor = clearColor;
+        legacyCC.Camera.main.backgroundColor = clearColor;
     }
 
     get root () {
@@ -891,7 +892,7 @@ export class Director extends EventTarget {
      * @deprecated since v2.0.
      */
     public getAnimationInterval () {
-        return 1000 / cc.game.getFrameRate();
+        return 1000 / legacyCC.game.getFrameRate();
     }
 
     /**
@@ -903,7 +904,7 @@ export class Director extends EventTarget {
      * @param value - The animation interval desired.
      */
     public setAnimationInterval (value: number) {
-        cc.game.setFrameRate(Math.round(1000 / value));
+        legacyCC.game.setFrameRate(Math.round(1000 / value));
     }
 
     /**
@@ -991,7 +992,7 @@ export class Director extends EventTarget {
      * @deprecated
      */
     public getAnimationManager (): any {
-        return this.getSystem(cc.AnimationManager.ID);
+        return this.getSystem(legacyCC.AnimationManager.ID);
     }
 
     // Loop management
@@ -1081,8 +1082,8 @@ export class Director extends EventTarget {
     }
 
     private _init () {
-        cc.loader.init(this);
-        this._root = new Root(cc.game._gfxDevice);
+        legacyCC.loader.init(this);
+        this._root = new Root(legacyCC.game._gfxDevice);
         const rootInfo = {};
         if (!this._root.initialize(rootInfo)) {
             return false;
@@ -1109,10 +1110,10 @@ export declare namespace Director {
     export type OnLoadSceneProgress = (completedCount: number, totalCount: number, item: any) => void;
 }
 
-cc.Director = Director;
+legacyCC.Director = Director;
 
 /**
  * 导演类。
  * @property director
  */
-export const director: Director = Director.instance = cc.director = new Director();
+export const director: Director = Director.instance = legacyCC.director = new Director();

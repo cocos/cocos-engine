@@ -12,6 +12,7 @@ import { Layers, RecyclePool } from '../../core';
 import { ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
 import { EDITOR, PHYSICS_BUILTIN, DEBUG, PHYSICS_CANNON, PHYSICS_AMMO } from 'internal:constants';
+import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en
@@ -273,8 +274,8 @@ export class PhysicsSystem extends System {
 
 if (PHYSICS_BUILTIN || PHYSICS_CANNON || PHYSICS_AMMO) {
     director.on(Director.EVENT_INIT, function () {
-        const sys = new cc.PhysicsSystem();
-        cc.PhysicsSystem._instance = sys;
+        const sys = new legacyCC.PhysicsSystem();
+        legacyCC.PhysicsSystem._instance = sys;
         director.registerSystem(PhysicsSystem.ID, sys, 0);
     });
 }

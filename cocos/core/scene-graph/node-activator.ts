@@ -32,6 +32,7 @@ import { array, Pool } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
 import { EDITOR, DEV, TEST, SUPPORT_JIT } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 const MAX_POOL_SIZE = 4;
 
@@ -50,7 +51,7 @@ const callOnLoadInTryCatch = EDITOR && function (c) {
         c.onLoad();
     }
     catch (e) {
-        cc._throw(e);
+        legacyCC._throw(e);
     }
     c._objFlags |= IsOnLoadCalled;
     _onLoadInEditor(c);
@@ -128,7 +129,7 @@ activateTasksPool.get = function getActivateTask () {
 
 function _componentCorrupted (node, comp, index) {
     if (DEV) {
-        cc.errorID(3817, node.name, index);
+        legacyCC.errorID(3817, node.name, index);
         console.log('Corrupted component value:', comp);
     }
     if (comp) {
@@ -140,7 +141,7 @@ function _componentCorrupted (node, comp, index) {
 }
 
 function _onLoadInEditor (comp) {
-    if (comp.onLoad && !cc.engine._isPlaying) {
+    if (comp.onLoad && !legacyCC.engine._isPlaying) {
         // @ts-ignore
         const focused = Editor.Selection.curActivate('node') === comp.node.uuid;
         if (focused) {
@@ -237,13 +238,13 @@ export default class NodeActivator {
             if (deactivatedOnLoading) {
                 return;
             }
-            cc.director._compScheduler.enableComp(comp, onEnableInvoker);
+            legacyCC.director._compScheduler.enableComp(comp, onEnableInvoker);
         }
     }
 
     public destroyComp (comp) {
         // ensure onDisable called
-        cc.director._compScheduler.disableComp(comp);
+        legacyCC.director._compScheduler.disableComp(comp);
 
         if (comp.onDestroy && (comp._objFlags & IsOnLoadCalled)) {
             comp.onDestroy();
@@ -258,7 +259,7 @@ export default class NodeActivator {
             // zh:
             // 对相同节点而言，无法撤销反激活，防止反激活 - 激活 - 反激活的死循环发生。
             // 这样设计简化了一些引擎的实现，而且对调用者来说能保证反激活操作都能成功。
-            cc.errorID(3816, node.name);
+            legacyCC.errorID(3816, node.name);
             return;
         }
 
@@ -270,7 +271,7 @@ export default class NodeActivator {
         // activate components
         for (let i = 0; i < originCount; ++i) {
             const component = node._components[i];
-            if (component instanceof cc.Component) {
+            if (component instanceof legacyCC.Component) {
                 this.activateComp(component, preloadInvoker, onLoadInvoker, onEnableInvoker);
             }
             else {
@@ -292,9 +293,9 @@ export default class NodeActivator {
 
     protected _deactivateNodeRecursively (node) {
         if (DEV) {
-            cc.assert(!(node._objFlags & Deactivating), 'node should not deactivating');
+            legacyCC.assert(!(node._objFlags & Deactivating), 'node should not deactivating');
             // ensures _activeInHierarchy is always changing when Deactivating flagged
-            cc.assert(node._activeInHierarchy, 'node should not deactivated');
+            legacyCC.assert(node._activeInHierarchy, 'node should not deactivated');
         }
         node._objFlags |= Deactivating;
         node._activeInHierarchy = false;
@@ -305,7 +306,7 @@ export default class NodeActivator {
         for (let c = 0; c < originCount; ++c) {
             const component = node._components[c];
             if (component._enabled) {
-                cc.director._compScheduler.disableComp(component);
+                legacyCC.director._compScheduler.disableComp(component);
 
                 if (node._activeInHierarchy) {
                     // reactivated from root
@@ -334,7 +335,7 @@ export default class NodeActivator {
 
 if (EDITOR) {
     NodeActivator.prototype.activateComp = (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) => {
-        if (cc.engine._isPlaying || comp.constructor._executeInEditMode) {
+        if (legacyCC.engine._isPlaying || comp.constructor._executeInEditMode) {
             if (!(comp._objFlags & IsPreloadStarted)) {
                 comp._objFlags |= IsPreloadStarted;
                 if (comp.__preload) {
@@ -367,16 +368,16 @@ if (EDITOR) {
             if (deactivatedOnLoading) {
                 return;
             }
-            cc.director._compScheduler.enableComp(comp, onEnableInvoker);
+            legacyCC.director._compScheduler.enableComp(comp, onEnableInvoker);
         }
     };
 
     NodeActivator.prototype.destroyComp = (comp) => {
         // ensure onDisable called
-        cc.director._compScheduler.disableComp(comp);
+        legacyCC.director._compScheduler.disableComp(comp);
 
         if (comp.onDestroy && (comp._objFlags & IsOnLoadCalled)) {
-            if (cc.engine._isPlaying || comp.constructor._executeInEditMode) {
+            if (legacyCC.engine._isPlaying || comp.constructor._executeInEditMode) {
                 callOnDestroyInTryCatch && callOnDestroyInTryCatch(comp);
             }
         }

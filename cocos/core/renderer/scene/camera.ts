@@ -6,6 +6,7 @@ import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { RenderView } from '../../pipeline/render-view';
 import { Node } from '../../scene-graph';
 import { RenderScene } from './render-scene';
+import { legacyCC } from '../../global-exports';
 
 export enum CameraFOVAxis {
     VERTICAL,
@@ -149,7 +150,7 @@ export class Camera {
         this._proj = info.projection;
         this._priority = info.priority || 0;
 
-        this._view = cc.director.root.createView({
+        this._view = legacyCC.director.root.createView({
             camera: this,
             name: this._name,
             priority: this._priority,
@@ -161,7 +162,7 @@ export class Camera {
     }
 
     public destroy () {
-        cc.director.root.destroyView(this._view);
+        legacyCC.director.root.destroyView(this._view);
         this._view = null;
         this._name = null;
     }
@@ -517,7 +518,7 @@ export class Camera {
     }
 
     public changeTargetWindow (window: GFXWindow | null = null) {
-        const win = window || cc.director.root.mainWindow;
+        const win = window || legacyCC.director.root.mainWindow;
         if (win && this._view) {
             this._view.window = win;
             this.resize(win.width, win.height);

@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+import { legacyCC } from '../global-exports';
+
 /**
  * @category loader
  */
@@ -37,7 +39,7 @@ export class JsonUnpacker {
      */
     load (indices, packedJson) {
         if (packedJson.length !== indices.length) {
-            cc.errorID(4915);
+            legacyCC.errorID(4915);
         }
         for (let i = 0; i < indices.length; i++) {
             let key = indices[i];
@@ -62,7 +64,7 @@ export class TextureUnpacker {
     load (indices, packedJson) {
         let datas = packedJson.data;
         if (datas.length !== indices.length) {
-            cc.errorID(4915);
+            legacyCC.errorID(4915);
         }
         for (let i = 0; i < indices.length; i++) {
             this.contents[indices[i]] = {base: datas[i][0], mipmaps: datas[i][1]};
@@ -73,7 +75,7 @@ export class TextureUnpacker {
         let content = this.contents[key];
         if (content) {
             return {
-                __type__: cc.js._getClassId(cc.Texture2D),
+                __type__: legacyCC.js._getClassId(legacyCC.Texture2D),
                 content: content
             };
         }

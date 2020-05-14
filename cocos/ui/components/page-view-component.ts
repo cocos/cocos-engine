@@ -41,6 +41,7 @@ import { extendsEnum } from '../../core/data/utils/extends-enum';
 import { EventType as ScrollEventType } from './scroll-view-component';
 import { Node } from '../../core';
 import { EDITOR } from 'internal:constants';
+import { legacyCC } from '../../core/global-exports';
 
 const _temp_vec2 = new Vec2();
 
@@ -791,7 +792,7 @@ export class PageViewComponent extends ScrollViewComponent {
 
 }
 
-cc.PageViewComponent = PageViewComponent;
+legacyCC.PageViewComponent = PageViewComponent;
 
 /**
  * @en

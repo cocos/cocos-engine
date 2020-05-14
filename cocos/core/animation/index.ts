@@ -8,8 +8,9 @@ import * as easing from './easing';
 import { ComponentPath, HierarchyPath, ICustomTargetPath, TargetPath } from './target-path';
 import { IValueProxyFactory } from './value-proxy';
 import { UniformProxyFactory } from './value-proxy-factories/uniform';
+import { legacyCC } from '../global-exports';
 
-cc.easing = easing;
+legacyCC.easing = easing;
 export * from './bezier';
 export { easing };
 export * from './animation-curve';
@@ -37,7 +38,7 @@ export * from './cubic-spline-value';
  */
 @ccclass('cc.HierachyModifier')
 export class HierachyModifier extends HierarchyPath {}
-cc.HierachyModifier = HierachyModifier;
+legacyCC.HierachyModifier = HierachyModifier;
 
 /**
  * Alias of `ComponentPath`.
@@ -45,7 +46,7 @@ cc.HierachyModifier = HierachyModifier;
  */
 @ccclass('cc.ComponentModifier')
 export class ComponentModifier extends ComponentPath {}
-cc.ComponentModifier = ComponentModifier;
+legacyCC.ComponentModifier = ComponentModifier;
 
 /**
  * Implements `IValueProxyFactory` but do nothing.
@@ -61,7 +62,7 @@ export class CurveValueAdapter implements IValueProxyFactory {
         };
     }
 }
-cc.CurveValueAdapter = CurveValueAdapter;
+legacyCC.CurveValueAdapter = CurveValueAdapter;
 
 /**
  * Alias of `UniformProxyFactory`.
@@ -69,7 +70,7 @@ cc.CurveValueAdapter = CurveValueAdapter;
  */
 @ccclass('cc.UniformCurveValueAdapter')
 export class UniformCurveValueAdapter extends UniformProxyFactory {}
-cc.UniformCurveValueAdapter = UniformCurveValueAdapter;
+legacyCC.UniformCurveValueAdapter = UniformCurveValueAdapter;
 
 /**
  * Alias of `isPropertyPath(path) && typeof path === 'string'`.
@@ -78,7 +79,7 @@ cc.UniformCurveValueAdapter = UniformCurveValueAdapter;
 export function isPropertyModifier (path: TargetPath): path is string {
     return typeof path === 'string';
 }
-cc.isPropertyModifier = isPropertyModifier;
+legacyCC.isPropertyModifier = isPropertyModifier;
 
 /**
  * Alias of `isPropertyPath(path) && typeof path === 'number'`.
@@ -87,7 +88,7 @@ cc.isPropertyModifier = isPropertyModifier;
 export function isElementModifier (path: TargetPath): path is number {
     return typeof path === 'number';
 }
-cc.isElementModifier = isElementModifier;
+legacyCC.isElementModifier = isElementModifier;
 
 /**
  * Alias of `isCustomPath()`.
@@ -96,4 +97,4 @@ cc.isElementModifier = isElementModifier;
 export function isCustomTargetModifier<T extends ICustomTargetPath> (path: TargetPath, constructor: Constructor<T>): path is T {
     return path instanceof constructor;
 }
-cc.isCustomTargetModifier = isCustomTargetModifier;
+legacyCC.isCustomTargetModifier = isCustomTargetModifier;

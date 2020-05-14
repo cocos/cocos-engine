@@ -17,6 +17,7 @@ import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { ComponentPath, HierarchyPath, TargetPath } from './target-path';
 import { WrapMode as AnimationWrapMode } from './types';
 import { IValueProxyFactory } from './value-proxy';
+import { legacyCC } from '../global-exports';
 
 export interface IObjectCurveData {
     [propertyName: string]: IPropertyCurveData;
@@ -308,7 +309,7 @@ export class AnimationClip extends Asset {
     }
 
     public destroy () {
-        (cc.director.root.dataPoolManager as DataPoolManager).releaseAnimationClip(this);
+        (legacyCC.director.root.dataPoolManager as DataPoolManager).releaseAnimationClip(this);
         SkelAnimDataHub.destroy(this);
         return super.destroy();
     }
@@ -394,4 +395,4 @@ export class AnimationClip extends Asset {
     }
 }
 
-cc.AnimationClip = AnimationClip;
+legacyCC.AnimationClip = AnimationClip;

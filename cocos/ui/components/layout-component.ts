@@ -38,6 +38,7 @@ import { director, Director } from '../../core/director';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Node } from '../../core';
 import { EDITOR } from 'internal:constants';
+import { legacyCC } from '../../core/global-exports';
 const NodeEvent = SystemEventType;
 /**
  * @en Enum for layout.
@@ -292,7 +293,7 @@ export class LayoutComponent extends Component {
             return;
         }
 
-        if (EDITOR && this._resizeMode === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
+        if (EDITOR && this._resizeMode === ResizeMode.CONTAINER && !legacyCC.engine.isPlaying) {
             // const reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
             // if (reLayouted) {
             //     return;
@@ -996,7 +997,7 @@ export class LayoutComponent extends Component {
             parentTransform.convertToNodeSpaceAR(_tempPos, rightTopInParentSpace);
             Vec3.set(rightTopInParentSpace, rightTopInParentSpace.x + this._paddingRight, rightTopInParentSpace.y + this._paddingTop, rightTopInParentSpace.z);
 
-            const newSize = cc.size(parseFloat((rightTopInParentSpace.x - leftBottomInParentSpace.x).toFixed(2)),
+            const newSize = legacyCC.size(parseFloat((rightTopInParentSpace.x - leftBottomInParentSpace.x).toFixed(2)),
                 parseFloat((rightTopInParentSpace.y - leftBottomInParentSpace.y).toFixed(2)));
 
             this.node.getPosition(_tempPos);
@@ -1203,4 +1204,4 @@ export class LayoutComponent extends Component {
 
 }
 
-cc.LayoutComponent = LayoutComponent;
+legacyCC.LayoutComponent = LayoutComponent;

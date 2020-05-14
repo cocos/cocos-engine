@@ -29,9 +29,10 @@
 
 import {createMap} from '../utils/js';
 import { RawAsset } from '../assets/raw-asset';
+import { legacyCC } from '../global-exports';
 
 function parseDepends (key, parsed) {
-    let item = cc.loader.getItem(key);
+    let item = legacyCC.loader.getItem(key);
     if (item) {
         let depends = item.dependKeys;
         if (depends) {
@@ -51,7 +52,7 @@ function visitAsset (asset, excludeMap) {
     if (!asset._uuid) {
         return;
     }
-    let key = cc.loader._getReferenceKey(asset);
+    let key = legacyCC.loader._getReferenceKey(asset);
     if ( !excludeMap[key] ) {
         excludeMap[key] = true;
         parseDepends(key, excludeMap);
@@ -98,7 +99,7 @@ function visitNode (node, excludeMap) {
 
 // do auto release
 export function autoRelease (oldSceneAssets, nextSceneAssets, persistNodes) {
-    let releaseSettings = cc.loader._autoReleaseSetting;
+    let releaseSettings = legacyCC.loader._autoReleaseSetting;
     let excludeMap = createMap();
 
     // collect next scene assets
@@ -118,7 +119,7 @@ export function autoRelease (oldSceneAssets, nextSceneAssets, persistNodes) {
         for (let i = 0; i < oldSceneAssets.length; i++) {
             let key = oldSceneAssets[i];
             if (releaseSettings[key] !== false && !excludeMap[key]) {
-                cc.loader.release(key);
+                legacyCC.loader.release(key);
             }
         }
     }
@@ -129,7 +130,7 @@ export function autoRelease (oldSceneAssets, nextSceneAssets, persistNodes) {
     for (let i = 0; i < keys.length; i++) {
         let key = keys[i];
         if (releaseSettings[key] === true && !excludeMap[key]) {
-            cc.loader.release(key);
+            legacyCC.loader.release(key);
         }
     }
 }

@@ -9,6 +9,7 @@ import { ValueType } from '../value-types';
 import { bezierByTime, BezierControlPoints } from './bezier';
 import * as easing from './easing';
 import { ILerpable, isLerpable } from './types';
+import { legacyCC } from '../global-exports';
 
 /**
  * 表示曲线值，曲线值可以是任意类型，但必须符合插值方式的要求。
@@ -100,7 +101,7 @@ export class RatioSampler {
         return this._findRatio(this.ratios, ratio);
     }
 }
-cc.RatioSampler = RatioSampler;
+legacyCC.RatioSampler = RatioSampler;
 
 /**
  * 动画曲线。
@@ -243,7 +244,7 @@ export class AnimCurve {
         return this._values.length === 1;
     }
 }
-cc.AnimCurve = AnimCurve;
+legacyCC.AnimCurve = AnimCurve;
 
 export class EventInfo {
     public events: any[] = [];
@@ -281,7 +282,7 @@ export function sampleAnimationCurve (curve: AnimCurve, sampler: RatioSampler, r
     }
     return curve.valueAt(index);
 }
-cc.sampleAnimationCurve = sampleAnimationCurve;
+legacyCC.sampleAnimationCurve = sampleAnimationCurve;
 
 /**
  * Compute a new ratio by curve type.

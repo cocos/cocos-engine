@@ -39,6 +39,7 @@ import { UIRenderComponent } from '../../core/components/ui-base/ui-render-compo
 import { warnID } from '../../core/platform/debug';
 import { sys } from '../../core/platform/sys';
 import { EDITOR } from 'internal:constants';
+import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en Enum for horizontal text alignment.
@@ -846,4 +847,4 @@ export class LabelComponent extends UIRenderComponent {
     }
 }
 
-cc.LabelComponent = LabelComponent;
+legacyCC.LabelComponent = LabelComponent;

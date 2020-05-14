@@ -6,6 +6,7 @@ import { clamp01 } from '../math/utils';
 import { remove } from '../utils/array';
 import { AnimationState } from './animation-state';
 import { Playable } from './playable';
+import { legacyCC } from '../global-exports';
 
 interface IManagedState {
     state: AnimationState | null;
@@ -127,7 +128,7 @@ export class CrossFade extends Playable {
 
     protected onPlay () {
         super.onPlay();
-        cc.director.getAnimationManager().addCrossFade(this);
+        legacyCC.director.getAnimationManager().addCrossFade(this);
     }
 
     /**
@@ -135,7 +136,7 @@ export class CrossFade extends Playable {
      */
     protected onPause () {
         super.onPause();
-        cc.director.getAnimationManager().removeCrossFade(this);
+        legacyCC.director.getAnimationManager().removeCrossFade(this);
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
             if (state) {
@@ -149,7 +150,7 @@ export class CrossFade extends Playable {
      */
     protected onResume () {
         super.onResume();
-        cc.director.getAnimationManager().addCrossFade(this);
+        legacyCC.director.getAnimationManager().addCrossFade(this);
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
             if (state) {
@@ -163,7 +164,7 @@ export class CrossFade extends Playable {
      */
     protected onStop () {
         super.onStop();
-        cc.director.getAnimationManager().removeCrossFade(this);
+        legacyCC.director.getAnimationManager().removeCrossFade(this);
         this.clear();
     }
 }

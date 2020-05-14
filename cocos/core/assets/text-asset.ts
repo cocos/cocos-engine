@@ -30,6 +30,7 @@
 
 import {ccclass, property} from '../data/class-decorator';
 import { Asset } from './asset';
+import { legacyCC } from '../global-exports';
 
 /**
  * @en Class for text file.
@@ -52,4 +53,4 @@ export default class TextAsset extends Asset {
     }
 }
 
-cc.TextAsset = TextAsset;
+legacyCC.TextAsset = TextAsset;

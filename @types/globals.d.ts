@@ -64,13 +64,6 @@ interface HTMLElement{
 type ActiveXObject = new (s: string) => any;
 declare var ActiveXObject: ActiveXObject;
 
-declare const cc: {
-    // polyfills: {
-    //     destroyObject? (object: any): void;
-    // };
-    [x: string]: any;
-};
-
 declare type CompareFunction<T> = (a: T, b: T) => number;
 
 declare type RecursivePartial<T> = {

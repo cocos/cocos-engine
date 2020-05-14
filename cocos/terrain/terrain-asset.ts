@@ -3,6 +3,7 @@
  */
 import { Asset } from '../core/assets';
 import { ccclass } from '../core/data/class-decorator';
+import { legacyCC } from '../core/global-exports';
 
 export const TERRAIN_DATA_VERSION = 0x01010001;
 export const TERRAIN_DATA_VERSION2 = 0x01010002;
@@ -179,8 +180,8 @@ export class TerrainAsset extends Asset{
     set _nativeAsset (value: ArrayBuffer) {
         if (this._data && this._data.byteLength === value.byteLength) {
             this._data.set(new Uint8Array(value));
-            if (cc.loader._cache[this.nativeUrl]) {
-                cc.loader._cache[this.nativeUrl].content = this._data.buffer;
+            if (legacyCC.loader._cache[this.nativeUrl]) {
+                legacyCC.loader._cache[this.nativeUrl].content = this._data.buffer;
             }
         }
         else {
