@@ -38,7 +38,7 @@ test('dereference', function () {
 });
 
 {
-    let { deserializeCCObject, File, DataTypeID, dereference, BuiltinValueTypes } = cc._Test.deserializeCompiled;
+    let { deserializeCCObject, File, DataTypeID, dereference, BuiltinValueTypes, cacheMasks } = cc._Test.deserializeCompiled;
 
     let Ctor = function () {
     };
@@ -71,6 +71,7 @@ test('dereference', function () {
             [File.Refs]: refs,
             [File.DependObjs]: dependObjs,
         };
+        cacheMasks(fileData);
         let obj = deserializeCCObject(fileData, objectData);
         if (refs) {
             dereference(fileData[File.Refs], instances, strings);
@@ -129,7 +130,7 @@ test('dereference', function () {
                 0, 0, 1
             ],
         };
-
+        cacheMasks(data);
         let obj = deserializeCCObject(data, [0]);
         strictEqual(obj instanceof Ctor, true, 'object should instance of the class');
         let jsonObj = [1, {}, null];
@@ -196,6 +197,7 @@ test('dereference', function () {
                     [File.SharedMasks]: [ mask ],
                 };
                 let objectData = [0, [BuiltinValueTypes.indexOf(valueTypeCtor)].concat(subsequentData)];
+                cacheMasks(fileData);
                 let obj = deserializeCCObject(fileData, objectData);
                 return obj[PROP];
             };
@@ -232,6 +234,7 @@ test('dereference', function () {
                     [File.SharedMasks]: [ mask ],
                 };
                 let objectData = [0, [BuiltinValueTypes.indexOf(valueTypeCtor)].concat(subsequentData)];
+                cacheMasks(fileData);
                 let obj = deserializeCCObject(fileData, objectData);
                 return obj[PROP];
             };
@@ -370,7 +373,7 @@ test('dereference', function () {
 }
 
 test('deserializeCustomCCObject', function () {
-    let { File, DataTypeID, parseInstances, deserialize: deserializeCompiled } = cc._Test.deserializeCompiled;
+    let { File, DataTypeID, parseInstances, deserialize: deserializeCompiled, cacheMasks } = cc._Test.deserializeCompiled;
 
     var Asset = cc.Class({
         name: 'a a b b',
@@ -408,6 +411,7 @@ test('deserializeCustomCCObject', function () {
         ]
     };
 
+    cacheMasks(data);
     parseInstances(data);
     let instances = data[File.Instances];
     ok(instances[0].obj instanceof Asset, 'embedded custom class should be created');

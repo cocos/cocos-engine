@@ -81,7 +81,7 @@ exports.inlineConst = function (filename) {
             if (content.includes(COMMENT_ANNOTATION)) { // fast test
                 let error = null;
                 matchAll(content, CONST_NUM_REG, function (match, name, value) {
-                    let reg = new RegExp(`([{,]\\s*)?(\\b${name}\\b)(?![ \\t]*=)`, 'g');  // not support negative lookbehind...
+                    let reg = new RegExp(`([{,]\\s*|\\btypeof[ \\t]+)?(\\b${name}\\b)(?![ \\t]*=)`, 'g');  // not support negative lookbehind...
                     let replaced = content.replace(reg, function (m, g1, g2) {
                         if (m === g2) {
                             return value;

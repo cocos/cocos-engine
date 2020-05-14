@@ -40,6 +40,7 @@ import Mat4 from '../value-types/mat4';
  ****************************************************************************/
 
 const SUPPORT_LOWEST_FORMAT_VERSION = 1;
+const EMPTY_PLACEHOLDER = 0;
 
 // Used for Data.ValueType.
 // If a value type is not registered in this list, it will be serialized to Data.Class.
@@ -149,7 +150,7 @@ function serializeBuiltinValueTypes(obj: ValueType): IValueTypeData | null {
  ****************************************************************************/
 
 export type SharedString = string;
-export type Empty = 0;
+export type Empty = typeof EMPTY_PLACEHOLDER;
 export type StringIndex = number;
 export type InstanceIndex = number;
 export type RootInstanceIndex = InstanceIndex;
@@ -412,9 +413,6 @@ export const enum File {
     ARRAY_LENGTH,
 }
 
-// TODO
-type ArrayOrSingle<T> = T extends Array<any> ? never : (T[] | T);
-
 // Main file structure
 export interface IFileData extends Array<any> {
     // version
@@ -424,15 +422,15 @@ export interface IFileData extends Array<any> {
 
     [File.SharedUuids]: SharedString[] | Empty; // Shared uuid strings for dependent assets
     [File.SharedStrings]: SharedString[] | Empty;
-    [File.SharedClasses]: ArrayOrSingle<IClass|string|AnyCCClass>;
-    [File.SharedMasks]: IMask | Empty;  // Shared Object layouts for IClassObjectData // TODO
+    [File.SharedClasses]: (IClass|string|AnyCCClass)[];
+    [File.SharedMasks]: IMask[] | Empty;  // Shared Object layouts for IClassObjectData
 
     // Data area
 
     // A one-dimensional array to represent object datas, layout is [...IClassObjectData[], ...AdvancedObjectData[], RootInstanceIndex]
     // If the last element is not RootInstanceIndex, the first element will be the root object to return
-    [File.Instances]: IClassObjectData|OtherObjectData|RootInstanceIndex;
-    [File.InstanceTypes]: ArrayOrSingle<OtherObjectTypeID> | Empty;
+    [File.Instances]: (IClassObjectData|OtherObjectData|RootInstanceIndex)[];
+    [File.InstanceTypes]: OtherObjectTypeID[] | Empty;
     // Object references infomation
     [File.Refs]: IRefs | Empty;
 
@@ -729,7 +727,7 @@ ASSIGNMENTS[DataTypeID.Array] = parseArray;
 function parseInstances (data: IFileData): RootInstanceIndex {
     let instances = data[File.Instances];
     let instanceTypes = data[File.InstanceTypes];
-    let instanceTypesLen = instanceTypes ? (instanceTypes as OtherObjectTypeID[]).length : 0;
+    let instanceTypesLen = instanceTypes === EMPTY_PLACEHOLDER ? 0 : (instanceTypes as OtherObjectTypeID[]).length;
     let rootIndex = instances[instances.length - 1];
     let normalObjectCount = instances.length - instanceTypesLen;
     if (typeof rootIndex !== 'number') {
@@ -738,6 +736,8 @@ function parseInstances (data: IFileData): RootInstanceIndex {
     else {
         --normalObjectCount;
     }
+
+    // DataTypeID.Class
 
     let insIndex = 0;
     for (; insIndex < normalObjectCount; ++insIndex) {
@@ -754,6 +754,7 @@ function parseInstances (data: IFileData): RootInstanceIndex {
             instances[insIndex] = deserializeCustomCCObject(data, ctor, eachData as ICustomObjectDataContent);
         }
         else {
+            // Other
             type = (~type) as PrimitiveObjectTypeID;
             let op = ASSIGNMENTS[type];
             // @ts-ignore
@@ -828,6 +829,7 @@ function cacheMasks (data: IFileData) {
         let classes = data[File.SharedClasses];
         for (let i = 0; i < masks.length; ++i) {
             let mask = masks[i];
+            // @ts-ignore
             mask[MASK_CLASS] = classes[mask[MASK_CLASS]];
         }
     }
@@ -922,18 +924,19 @@ deserialize.Details = Details;
 
 export function packCustomObjData (type: string, data: IClassObjectData|OtherObjectData): IFileData {
     return [
-        SUPPORT_LOWEST_FORMAT_VERSION, 0, 0,
+        SUPPORT_LOWEST_FORMAT_VERSION, EMPTY_PLACEHOLDER, EMPTY_PLACEHOLDER,
         [type],
-        0,
+        EMPTY_PLACEHOLDER,
         [data],
         [0],
-        0, [], [], []
+        EMPTY_PLACEHOLDER, [], [], []
     ];
 }
 
 if (CC_EDITOR || CC_TEST) {
     cc._deserializeCompiled = deserialize;
     deserialize.macros = {
+        EMPTY_PLACEHOLDER,
         CUSTOM_OBJ_DATA_CLASS,
         CUSTOM_OBJ_DATA_CONTENT,
         CLASS_PROP_TYPE_OFFSET,
@@ -952,6 +955,7 @@ if (CC_TEST) {
         deserializeCCObject,
         deserializeCustomCCObject,
         parseInstances,
+        cacheMasks,
         File: {
             Version: File.Version,
             Context: File.Context,
