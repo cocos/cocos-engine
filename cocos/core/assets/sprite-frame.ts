@@ -190,12 +190,12 @@ export class SpriteFrame extends Asset {
      * @zh
      * 通过 Image 资源创建一个 SpriteFrame 对象
      */
-    public static createSpriteFrameByImage (image: ImageAsset) {
-        const sprite = new SpriteFrame();
+    public static createWithImage (image: ImageAsset) {
+        const spf = new SpriteFrame();
         const tex = new Texture2D();
         tex.image = image;
-        sprite.texture = tex;
-        return sprite;
+        spf.texture = tex;
+        return spf;
     }
 
     /**
@@ -205,13 +205,13 @@ export class SpriteFrame extends Asset {
      * 通过原始 image 资源来创建一个 SpriteFrame 对象
      * @param imageSource support HTMLCanvasElement HTMLImageElement IMemoryImageSource
      */
-    public static createSpriteFrameByImageSource (imageSource: ImageSource) {
+    public static createWithImageSource (imageSource: ImageSource) {
         const img = new ImageAsset(imageSource);
         const tex = new Texture2D();
         tex.image = img;
-        const sprite = new SpriteFrame();
-        sprite.texture = tex;
-        return sprite;
+        const spf = new SpriteFrame();
+        spf.texture = tex;
+        return spf;
     }
 
     /**
