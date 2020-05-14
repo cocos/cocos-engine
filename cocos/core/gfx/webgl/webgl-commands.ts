@@ -38,6 +38,7 @@ import { WebGLGFXDevice } from './webgl-device';
 import { IWebGLGPUInputAssembler, IWebGLGPUUniform, WebGLAttrib, WebGLGPUBindingLayout,
     WebGLGPUBuffer, WebGLGPUFramebuffer, WebGLGPUInput,
     WebGLGPUPipelineState, WebGLGPUShader, WebGLGPUTexture, WebGLGPUUniformBlock, WebGLGPUUniformSampler } from './webgl-gpu-objects';
+import { WECHAT } from 'internal:constants';
 
 function CmpF32NotEuqal (a: number, b: number): boolean {
     const c = a - b;
@@ -2709,8 +2710,14 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                             region.texOffset.x, region.texOffset.y, w, h,
                             gpuTexture.glFormat, gpuTexture.glType, pixels);
                     } else {
-                        gl.compressedTexImage2D(gl.TEXTURE_2D, m,
-                            gpuTexture.glInternelFmt, w, h, 0, pixels);
+                        if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL && !WECHAT) {
+                            gl.compressedTexSubImage2D(gl.TEXTURE_2D, m,
+                                region.texOffset.x, region.texOffset.y, w, h,
+                                gpuTexture.glFormat, pixels);
+                        } else {
+                            gl.compressedTexImage2D(gl.TEXTURE_2D, m,
+                                gpuTexture.glInternelFmt, w, h, 0, pixels);
+                        }
                     }
 
                     w = Math.max(1, w >> 1);
@@ -2737,8 +2744,14 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                                 region.texOffset.x, region.texOffset.y, w, h,
                                 gpuTexture.glFormat, gpuTexture.glType, pixels);
                         } else {
-                            gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
-                                gpuTexture.glInternelFmt, w, h, 0, pixels);
+                            if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL && !WECHAT) {
+                                gl.compressedTexSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
+                                    region.texOffset.x, region.texOffset.y, w, h,
+                                    gpuTexture.glFormat, pixels);
+                            } else {
+                                gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
+                                    gpuTexture.glInternelFmt, w, h, 0, pixels);
+                            }
                         }
                         w = Math.max(1, w >> 1);
                         h = Math.max(1, w >> 1);
