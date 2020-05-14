@@ -39,7 +39,6 @@ module.exports = {
             ToggleContainerComponent: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/toggleContainer.html',
             ToggleComponent: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/toggle.html',
             UIModelComponent: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/ui-model.html',
-            WebviewComponent: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/webview.html',
             WidgetComponent: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/widget.html',
             UIReorderComponent: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/ui-reorder-component.html',
             PageViewIndicatorComponent: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/pageviewindicator.html',
