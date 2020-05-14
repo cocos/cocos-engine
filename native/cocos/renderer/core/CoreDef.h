@@ -306,15 +306,15 @@ Note:
 #define CC_TOSTR(s) #s
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-//#   ifdef CC_STATIC
-//#       define CC_CORE_API
-//#   else
+#   ifdef CC_STATIC
+#       define CC_CORE_API
+#   else
 #	    ifdef CC_CORE_EXPORTS
 #		    define CC_CORE_API __declspec(dllexport)
 #	    else
 #		    define CC_CORE_API __declspec(dllimport)
 # 	    endif
-//#	endif
+#	endif
 #else
 #	define CC_CORE_API
 #endif
