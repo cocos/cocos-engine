@@ -223,7 +223,8 @@ cc.js.mixin(View.prototype, {
     },
 
     _resize: function() {
-        cc.view._resizeEvent(true);
+        //force resize when size is changed at native
+        cc.view._resizeEvent(CC_JSB);
     },
 
     /**
