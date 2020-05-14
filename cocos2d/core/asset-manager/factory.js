@@ -86,7 +86,7 @@ function createAsset (id, data, options, onComplete) {
 
 function createBundle (id, data, options, onComplete) {
     let bundle = new Bundle();
-    data.base = id + '/';
+    data.base = data.base || id + '/';
     bundle.init(data);
     onComplete && onComplete(null, bundle);
 }
