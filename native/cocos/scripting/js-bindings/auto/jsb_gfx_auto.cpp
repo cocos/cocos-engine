@@ -8585,6 +8585,34 @@ static bool js_gfx_GFXBinding_set_name(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXBinding_set_name)
 
+static bool js_gfx_GFXBinding_get_count(se::State& s)
+{
+    cocos2d::GFXBinding* cobj = (cocos2d::GFXBinding*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBinding_get_count : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= uint32_to_seval((unsigned int)cobj->count, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_GFXBinding_get_count)
+
+static bool js_gfx_GFXBinding_set_count(se::State& s)
+{
+    const auto& args = s.args();
+    cocos2d::GFXBinding* cobj = (cocos2d::GFXBinding*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBinding_set_count : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    unsigned int arg0 = 0;
+    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GFXBinding_set_count : Error processing new value");
+    cobj->count = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_GFXBinding_set_count)
+
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXBinding_finalize)
 
 static bool js_gfx_GFXBinding_constructor(se::State& s)
@@ -8630,6 +8658,12 @@ static bool js_gfx_GFXBinding_constructor(se::State& s)
             arg3 = field.toStringForce().c_str();
             cobj->name = arg3;
         }
+        unsigned int arg4 = 0;
+        json->getProperty("count", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg4);
+            cobj->count = arg4;
+        }
 
         if(!ok) {
             JSB_FREE(cobj);
@@ -8641,7 +8675,7 @@ static bool js_gfx_GFXBinding_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 4)
+    else if(argc == 5)
     {
         cocos2d::GFXBinding* cobj = JSB_ALLOC(cocos2d::GFXBinding);
         cocos2d::GFXShaderType arg0;
@@ -8663,6 +8697,11 @@ static bool js_gfx_GFXBinding_constructor(se::State& s)
         if (!args[3].isUndefined()) {
             arg3 = args[3].toStringForce().c_str();
             cobj->name = arg3;
+        }
+        unsigned int arg4 = 0;
+        if (!args[4].isUndefined()) {
+            ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+            cobj->count = arg4;
         }
 
         if(!ok) {
@@ -8706,6 +8745,7 @@ bool js_register_gfx_GFXBinding(se::Object* obj)
     cls->defineProperty("binding", _SE(js_gfx_GFXBinding_get_binding), _SE(js_gfx_GFXBinding_set_binding));
     cls->defineProperty("type", _SE(js_gfx_GFXBinding_get_type), _SE(js_gfx_GFXBinding_set_type));
     cls->defineProperty("name", _SE(js_gfx_GFXBinding_get_name), _SE(js_gfx_GFXBinding_set_name));
+    cls->defineProperty("count", _SE(js_gfx_GFXBinding_get_count), _SE(js_gfx_GFXBinding_set_count));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBinding_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXBinding>(cls);
@@ -8936,6 +8976,34 @@ static bool js_gfx_GFXBindingUnit_set_name(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXBindingUnit_set_name)
 
+static bool js_gfx_GFXBindingUnit_get_count(se::State& s)
+{
+    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_get_count : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= uint32_to_seval((unsigned int)cobj->count, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_GFXBindingUnit_get_count)
+
+static bool js_gfx_GFXBindingUnit_set_count(se::State& s)
+{
+    const auto& args = s.args();
+    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_set_count : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    unsigned int arg0 = 0;
+    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingUnit_set_count : Error processing new value");
+    cobj->count = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_GFXBindingUnit_set_count)
+
 static bool js_gfx_GFXBindingUnit_get_buffer(se::State& s)
 {
     cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
@@ -9065,23 +9133,29 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
             arg3 = field.toStringForce().c_str();
             cobj->name = arg3;
         }
-        cocos2d::GFXBuffer* arg4 = nullptr;
+        unsigned int arg4 = 0;
+        json->getProperty("count", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg4);
+            cobj->count = arg4;
+        }
+        cocos2d::GFXBuffer* arg5 = nullptr;
         json->getProperty("buffer", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_native_ptr(field, &arg4);
-            cobj->buffer = arg4;
+            ok &= seval_to_native_ptr(field, &arg5);
+            cobj->buffer = arg5;
         }
-        cocos2d::GFXTextureView* arg5 = nullptr;
+        cocos2d::GFXTextureView* arg6 = nullptr;
         json->getProperty("texView", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_native_ptr(field, &arg5);
-            cobj->texView = arg5;
+            ok &= seval_to_native_ptr(field, &arg6);
+            cobj->texView = arg6;
         }
-        cocos2d::GFXSampler* arg6 = nullptr;
+        cocos2d::GFXSampler* arg7 = nullptr;
         json->getProperty("sampler", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_native_ptr(field, &arg6);
-            cobj->sampler = arg6;
+            ok &= seval_to_native_ptr(field, &arg7);
+            cobj->sampler = arg7;
         }
 
         if(!ok) {
@@ -9094,7 +9168,7 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 7)
+    else if(argc == 8)
     {
         cocos2d::GFXBindingUnit* cobj = JSB_ALLOC(cocos2d::GFXBindingUnit);
         cocos2d::GFXShaderType arg0;
@@ -9117,20 +9191,25 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
             arg3 = args[3].toStringForce().c_str();
             cobj->name = arg3;
         }
-        cocos2d::GFXBuffer* arg4 = nullptr;
+        unsigned int arg4 = 0;
         if (!args[4].isUndefined()) {
-            ok &= seval_to_native_ptr(args[4], &arg4);
-            cobj->buffer = arg4;
+            ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+            cobj->count = arg4;
         }
-        cocos2d::GFXTextureView* arg5 = nullptr;
+        cocos2d::GFXBuffer* arg5 = nullptr;
         if (!args[5].isUndefined()) {
             ok &= seval_to_native_ptr(args[5], &arg5);
-            cobj->texView = arg5;
+            cobj->buffer = arg5;
         }
-        cocos2d::GFXSampler* arg6 = nullptr;
+        cocos2d::GFXTextureView* arg6 = nullptr;
         if (!args[6].isUndefined()) {
             ok &= seval_to_native_ptr(args[6], &arg6);
-            cobj->sampler = arg6;
+            cobj->texView = arg6;
+        }
+        cocos2d::GFXSampler* arg7 = nullptr;
+        if (!args[7].isUndefined()) {
+            ok &= seval_to_native_ptr(args[7], &arg7);
+            cobj->sampler = arg7;
         }
 
         if(!ok) {
@@ -9174,6 +9253,7 @@ bool js_register_gfx_GFXBindingUnit(se::Object* obj)
     cls->defineProperty("binding", _SE(js_gfx_GFXBindingUnit_get_binding), _SE(js_gfx_GFXBindingUnit_set_binding));
     cls->defineProperty("type", _SE(js_gfx_GFXBindingUnit_get_type), _SE(js_gfx_GFXBindingUnit_set_type));
     cls->defineProperty("name", _SE(js_gfx_GFXBindingUnit_get_name), _SE(js_gfx_GFXBindingUnit_set_name));
+    cls->defineProperty("count", _SE(js_gfx_GFXBindingUnit_get_count), _SE(js_gfx_GFXBindingUnit_set_count));
     cls->defineProperty("buffer", _SE(js_gfx_GFXBindingUnit_get_buffer), _SE(js_gfx_GFXBindingUnit_set_buffer));
     cls->defineProperty("texView", _SE(js_gfx_GFXBindingUnit_get_texView), _SE(js_gfx_GFXBindingUnit_set_texView));
     cls->defineProperty("sampler", _SE(js_gfx_GFXBindingUnit_get_sampler), _SE(js_gfx_GFXBindingUnit_set_sampler));
