@@ -40,7 +40,7 @@ import { array } from '../../core/utils/js';
 import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, WidgetComponent } from './widget-component';
 import { UITransformComponent } from '../../core/components';
 import { EDITOR, DEV } from 'internal:constants';
-import { legacyGlobalExports } from '../../core/global-exports';
+import { legacyCC } from '../../core/global-exports';
 
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();
@@ -212,7 +212,7 @@ function visitNode (node: any) {
         if ((!EDITOR || widgetManager.animationState!.animatedSinceLastFrame) && widget.alignMode !== AlignMode.ALWAYS) {
             widget.enabled = false;
         } else {
-            if (legacyGlobalExports.isValid(node, true)) {
+            if (legacyCC.isValid(node, true)) {
                 activeWidgets.push(widget);
             } else {
                 return;
@@ -342,7 +342,7 @@ function updateAlignment (node: Node) {
 
 const canvasList: CanvasComponent[] = [];
 
-export const widgetManager = legacyGlobalExports._widgetManager = {
+export const widgetManager = legacyCC._widgetManager = {
     isAligning: false,
     _nodesOrderDirty: false,
     _activeWidgetsIterator: new array.MutableForwardIterator(activeWidgets),
@@ -417,7 +417,7 @@ export const widgetManager = legacyGlobalExports._widgetManager = {
             }
 
             if (!widgetParent.getComponent(UITransformComponent)) {
-                legacyGlobalExports.warnID(6501, widget.node.name);
+                legacyCC.warnID(6501, widget.node.name);
                 return;
             }
 

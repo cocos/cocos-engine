@@ -33,7 +33,7 @@ import {_getClassById} from '../utils/js';
 import {BUILTIN_CLASSID_RE} from '../utils/misc';
 import { Component } from './component';
 import { EDITOR } from 'internal:constants';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 /**
  * @en
@@ -81,7 +81,7 @@ export default class MissingScript extends Component {
             return cls;
         }
         if (id) {
-            legacyGlobalExports.deserialize.reportMissingClass(id);
+            legacyCC.deserialize.reportMissingClass(id);
             return MissingScript.getMissingWrapper(id, data);
         }
         return null;
@@ -117,8 +117,8 @@ export default class MissingScript extends Component {
     }
 
     public onLoad () {
-        legacyGlobalExports.warnID(4600, this.node.name);
+        legacyCC.warnID(4600, this.node.name);
     }
 }
 
-legacyGlobalExports._MissingScript = MissingScript;
+legacyCC._MissingScript = MissingScript;

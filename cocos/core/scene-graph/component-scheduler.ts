@@ -32,7 +32,7 @@ import { MutableForwardIterator } from '../utils/array';
 import { array } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import { EDITOR, SUPPORT_JIT, DEV, TEST } from 'internal:constants';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 const fastRemoveAt = array.fastRemoveAt;
 
 // @ts-ignore
@@ -114,7 +114,7 @@ export class LifeCycleInvoker {
         this._pos = new Iterator([]);
 
         if (TEST) {
-            legacyGlobalExports.assert(typeof invokeFunc === 'function', 'invokeFunc must be type function');
+            legacyCC.assert(typeof invokeFunc === 'function', 'invokeFunc must be type function');
         }
         this._invoke = invokeFunc;
     }
@@ -176,7 +176,7 @@ class ReusableInvoker extends LifeCycleInvoker {
                 array.splice(~i, 0, comp);
             }
             else if (DEV) {
-                legacyGlobalExports.error('component already added');
+                legacyCC.error('component already added');
             }
         }
     }
@@ -210,7 +210,7 @@ class ReusableInvoker extends LifeCycleInvoker {
 
 function enableInEditor (comp) {
     if (!(comp._objFlags & IsEditorOnEnableCalled)) {
-        legacyGlobalExports.engine.emit('component-enabled', comp.uuid);
+        legacyCC.engine.emit('component-enabled', comp.uuid);
         comp._objFlags |= IsEditorOnEnableCalled;
     }
 }
@@ -240,7 +240,7 @@ export function createInvokeImpl (singleInvoke, fastPath, ensureFlag?) {
         }
         catch (e) {
             // slow path
-            legacyGlobalExports._throw(e);
+            legacyCC._throw(e);
             var array = iterator.array;
             if (ensureFlag) {
                 array[iterator.i]._objFlags |= ensureFlag;
@@ -251,7 +251,7 @@ export function createInvokeImpl (singleInvoke, fastPath, ensureFlag?) {
                     singleInvoke(array[iterator.i], dt);
                 }
                 catch (e) {
-                    legacyGlobalExports._throw(e);
+                    legacyCC._throw(e);
                     if (ensureFlag) {
                         array[iterator.i]._objFlags |= ensureFlag;
                     }
@@ -305,7 +305,7 @@ const invokeLateUpdate = SUPPORT_JIT ? createInvokeImplJit('c.lateUpdate(dt)', t
     );
 
 export const invokeOnEnable = EDITOR ? (iterator) => {
-    const compScheduler = legacyGlobalExports.director._compScheduler;
+    const compScheduler = legacyCC.director._compScheduler;
     const array = iterator.array;
     for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
         const comp = array[iterator.i];
@@ -318,7 +318,7 @@ export const invokeOnEnable = EDITOR ? (iterator) => {
         }
     }
 } : (iterator) => {
-    const compScheduler = legacyGlobalExports.director._compScheduler;
+    const compScheduler = legacyCC.director._compScheduler;
     const array = iterator.array;
     for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
         const comp = array[iterator.i];
@@ -358,7 +358,7 @@ export class ComponentScheduler {
     }
 
     public _onEnabled (comp) {
-        legacyGlobalExports.director.getScheduler().resumeTarget(comp);
+        legacyCC.director.getScheduler().resumeTarget(comp);
         comp._objFlags |= IsOnEnableCalled;
 
         // schedule
@@ -371,7 +371,7 @@ export class ComponentScheduler {
     }
 
     public _onDisabled (comp) {
-        legacyGlobalExports.director.getScheduler().pauseTarget(comp);
+        legacyCC.director.getScheduler().pauseTarget(comp);
         comp._objFlags &= ~IsOnEnableCalled;
 
         // cancel schedule task
@@ -494,7 +494,7 @@ export class ComponentScheduler {
 
 if (EDITOR) {
     ComponentScheduler.prototype.enableComp = function (comp, invoker) {
-        if (legacyGlobalExports.engine.isPlaying || comp.constructor._executeInEditMode) {
+        if (legacyCC.engine.isPlaying || comp.constructor._executeInEditMode) {
             if (!(comp._objFlags & IsOnEnableCalled)) {
                 if (comp.onEnable) {
                     if (invoker) {
@@ -518,7 +518,7 @@ if (EDITOR) {
     };
 
     ComponentScheduler.prototype.disableComp = function (comp) {
-        if (legacyGlobalExports.engine.isPlaying || comp.constructor._executeInEditMode) {
+        if (legacyCC.engine.isPlaying || comp.constructor._executeInEditMode) {
             if (comp._objFlags & IsOnEnableCalled) {
                 if (comp.onDisable) {
                     callOnDisableInTryCatch(comp);
@@ -527,7 +527,7 @@ if (EDITOR) {
             }
         }
         if (comp._objFlags & IsEditorOnEnableCalled) {
-            legacyGlobalExports.engine.emit('component-disabled', comp.uuid);
+            legacyCC.engine.emit('component-disabled', comp.uuid);
             comp._objFlags &= ~IsEditorOnEnableCalled;
         }
     };

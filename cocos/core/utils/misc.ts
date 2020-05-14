@@ -28,7 +28,7 @@
 
 import { getClassName, getset } from './js';
 import { EDITOR, DEV } from 'internal:constants';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
@@ -62,10 +62,10 @@ export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets) {
         else {
             const getterFunc = np[getter];
             if (DEV && !getterFunc) {
-                const clsName = (legacyGlobalExports.Class._isCCClass(ctor) && getClassName(ctor)) ||
+                const clsName = (legacyCC.Class._isCCClass(ctor) && getClassName(ctor)) ||
                     ctor.name ||
                     '(anonymous class)';
-                legacyGlobalExports.warnID(5700, propName, getter, clsName);
+                legacyCC.warnID(5700, propName, getter, clsName);
             }
             else {
                 getset(np, propName, getterFunc, np[setter]);
@@ -216,7 +216,7 @@ export function cloneable_DEV (obj) {
 //     }
 // }
 
-legacyGlobalExports.misc = {
+legacyCC.misc = {
     BUILTIN_CLASSID_RE,
     BASE64_VALUES,
     propertyDefine,

@@ -36,7 +36,7 @@ import { SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
 import { ModelComponent } from './model-component';
 import { SkeletalAnimationComponent } from '../../animation/skeletal-animation-component';
-import { legacyGlobalExports } from '../../global-exports';
+import { legacyCC } from '../../global-exports';
 
 /**
  * @en The Skinning Model Component.
@@ -119,7 +119,7 @@ export class SkinningModelComponent extends ModelComponent {
         this._modelType = modelType;
         const modelCreated = !!this._model;
         if (modelCreated) {
-            legacyGlobalExports.director.root.destroyModel(this._model);
+            legacyCC.director.root.destroyModel(this._model);
             this._model = null;
             this._models.length = 0;
         }

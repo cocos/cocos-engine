@@ -41,7 +41,7 @@ import { Node } from '../../core/scene-graph/node';
 import { ccenum } from '../../core/value-types/enum';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { EDITOR, DEV } from 'internal:constants';
-import { legacyGlobalExports } from '../../core/global-exports';
+import { legacyCC } from '../../core/global-exports';
 
 const _zeroVec3 = new Vec3();
 
@@ -233,7 +233,7 @@ export class WidgetComponent extends Component {
         this._registerTargetEvents();
         if (EDITOR /*&& !cc.engine._isPlaying*/ && this.node.parent) {
             // adjust the offsets to keep the size and position unchanged after target changed
-            legacyGlobalExports._widgetManager.updateOffsetsToStayPut(this);
+            legacyCC._widgetManager.updateOffsetsToStayPut(this);
         }
 
         this._validateTargetInDEV();
@@ -786,7 +786,7 @@ export class WidgetComponent extends Component {
      * ```
      */
     public updateAlignment () {
-        legacyGlobalExports._widgetManager.updateAlignment(this.node as Node);
+        legacyCC._widgetManager.updateAlignment(this.node as Node);
     }
 
     public _validateTargetInDEV () {
@@ -812,13 +812,13 @@ export class WidgetComponent extends Component {
     public onEnable () {
         this.node.getPosition(this._lastPos);
         this.node.getContentSize(this._lastSize);
-        legacyGlobalExports._widgetManager.add(this);
+        legacyCC._widgetManager.add(this);
         this._registerEvent();
         this._registerTargetEvents();
     }
 
     public onDisable () {
-        legacyGlobalExports._widgetManager.remove(this);
+        legacyCC._widgetManager.remove(this);
         this._unregisterEvent();
         this._unregisterTargetEvents();
     }
@@ -832,7 +832,7 @@ export class WidgetComponent extends Component {
             return;
         }
 
-        if (legacyGlobalExports._widgetManager.isAligning) {
+        if (legacyCC._widgetManager.isAligning) {
             return;
         }
 
@@ -885,7 +885,7 @@ export class WidgetComponent extends Component {
         //     return;
         // }
 
-        if (legacyGlobalExports._widgetManager.isAligning) {
+        if (legacyCC._widgetManager.isAligning) {
             return;
         }
 
@@ -990,7 +990,7 @@ export class WidgetComponent extends Component {
                 target.on(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
                 target.on(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
             } else {
-                legacyGlobalExports.warnID(6501, this.node.name);
+                legacyCC.warnID(6501, this.node.name);
             }
         }
     }
@@ -1050,7 +1050,7 @@ export class WidgetComponent extends Component {
 
             if (EDITOR && this.node.parent) {
                 // adjust the offsets to keep the size and position unchanged after alignment changed
-                legacyGlobalExports._widgetManager.updateOffsetsToStayPut(this, flag);
+                legacyCC._widgetManager.updateOffsetsToStayPut(this, flag);
             }
         } else {
             if (isHorizontal) {
@@ -1079,6 +1079,6 @@ export class WidgetComponent extends Component {
 }
 
 // @ts-ignore
-legacyGlobalExports.WidgetComponent = WidgetComponent;
+legacyCC.WidgetComponent = WidgetComponent;
 
 // cc.Widget = module.exports = Widget;

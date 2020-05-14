@@ -6,7 +6,7 @@
 import { ccclass, property } from '../data/class-decorator';
 import { Quat, Vec2, Vec3, Vec4 } from '../math';
 import { ILerpable } from './types';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 interface ICubicSplineValue<T> extends ILerpable {
     dataPoint: T;
@@ -86,19 +86,19 @@ function makeCubicSplineValueConstructor<T> (
 
 export const CubicSplineVec2Value = makeCubicSplineValueConstructor(
     'cc.CubicSplineVec2Value', Vec2, Vec2.multiplyScalar, Vec2.scaleAndAdd);
-legacyGlobalExports.CubicSplineVec2Value = CubicSplineVec2Value;
+legacyCC.CubicSplineVec2Value = CubicSplineVec2Value;
 
 export const CubicSplineVec3Value = makeCubicSplineValueConstructor(
     'cc.CubicSplineVec3Value', Vec3, Vec3.multiplyScalar, Vec3.scaleAndAdd);
-legacyGlobalExports.CubicSplineVec3Value = CubicSplineVec3Value;
+legacyCC.CubicSplineVec3Value = CubicSplineVec3Value;
 
 export const CubicSplineVec4Value = makeCubicSplineValueConstructor(
     'cc.CubicSplineVec4Value', Vec4, Vec4.multiplyScalar, Vec4.scaleAndAdd);
-legacyGlobalExports.CubicSplineVec4Value = CubicSplineVec4Value;
+legacyCC.CubicSplineVec4Value = CubicSplineVec4Value;
 
 export const CubicSplineQuatValue = makeCubicSplineValueConstructor(
     'cc.CubicSplineQuatValue', Quat, Quat.multiplyScalar, Quat.scaleAndAdd);
-legacyGlobalExports.CubicSplineQuatValue = CubicSplineQuatValue;
+legacyCC.CubicSplineQuatValue = CubicSplineQuatValue;
 
 @ccclass('cc.CubicSplineNumberValue')
 export class CubicSplineNumberValue implements ICubicSplineValue<number> {
@@ -136,4 +136,4 @@ export class CubicSplineNumberValue implements ICubicSplineValue<number> {
         return this.dataPoint;
     }
 }
-legacyGlobalExports.CubicSplineNumberValue = CubicSplineNumberValue;
+legacyCC.CubicSplineNumberValue = CubicSplineNumberValue;

@@ -44,7 +44,7 @@ import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { sys } from '../../../core/platform/sys';
 import { EDITOR } from 'internal:constants';
-import { legacyGlobalExports } from '../../../core/global-exports';
+import { legacyCC } from '../../../core/global-exports';
 
 const LEFT_PADDING = 2;
 
@@ -865,7 +865,7 @@ if (sys.isBrowser){
     EditBoxComponent._EditBoxImpl = EditBoxImpl;
 }
 
-legacyGlobalExports.EditBoxComponent = EditBoxComponent;
+legacyCC.EditBoxComponent = EditBoxComponent;
 
 /**
  * @en

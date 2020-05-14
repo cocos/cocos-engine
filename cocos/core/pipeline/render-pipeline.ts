@@ -31,7 +31,7 @@ import { IRenderObject, RenderPassStage, UBOGlobal, UBOShadow, UNIFORM_ENVIRONME
 import { FrameBufferDesc, RenderFlowType, RenderPassDesc, RenderTextureDesc } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 const v3_1 = new Vec3();
 
@@ -517,7 +517,7 @@ export abstract class RenderPipeline {
         // update UBOGlobal
         fv[UBOGlobal.TIME_OFFSET] = this._root.cumulativeTime;
         fv[UBOGlobal.TIME_OFFSET + 1] = this._root.frameTime;
-        fv[UBOGlobal.TIME_OFFSET + 2] = legacyGlobalExports.director.getTotalFrames();
+        fv[UBOGlobal.TIME_OFFSET + 2] = legacyCC.director.getTotalFrames();
 
         fv[UBOGlobal.SCREEN_SIZE_OFFSET] = device.width;
         fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = device.height;
@@ -619,7 +619,7 @@ export abstract class RenderPipeline {
         }
 
         const models = scene.models;
-        const stamp = legacyGlobalExports.director.getTotalFrames();
+        const stamp = legacyCC.director.getTotalFrames();
 
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
@@ -1074,4 +1074,4 @@ export abstract class RenderPipeline {
         }
     }
 }
-legacyGlobalExports.RenderPipeline = RenderPipeline;
+legacyCC.RenderPipeline = RenderPipeline;

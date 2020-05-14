@@ -35,7 +35,7 @@ import { errorID } from '../platform/debug';
 import { js } from '../utils';
 import { Texture2D } from '../assets/texture-2d';
 import { DEBUG, TEST } from 'internal:constants';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 // when more than one package contains the required asset,
 // choose to load from the package with the largest state value.
@@ -86,8 +86,8 @@ export function initPacks (packs) {
 }
 
 export function _loadNewPack (uuid, packUuid, callback) {
-    var packUrl = legacyGlobalExports.AssetLibrary.getLibUrlNoExt(packUuid) + '.json';
-    legacyGlobalExports.loader.load({ url: packUrl, ignoreMaxConcurrency: true }, function (err, packJson) {
+    var packUrl = legacyCC.AssetLibrary.getLibUrlNoExt(packUuid) + '.json';
+    legacyCC.loader.load({ url: packUrl, ignoreMaxConcurrency: true }, function (err, packJson) {
         if (err) {
             errorID(4916, uuid);
             return callback(err);
@@ -206,7 +206,7 @@ export function load (item, callback) {
 }
 
 if (TEST) {
-    legacyGlobalExports._Test.PackDownloader = {
+    legacyCC._Test.PackDownloader = {
         initPacks,
         _loadNewPack,
         _doPreload,

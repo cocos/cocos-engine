@@ -44,7 +44,7 @@ import { Enum } from '../../value-types';
 import { Component } from '../component';
 import { UITransformComponent } from './ui-transform-component';
 import { EDITOR } from 'internal:constants';
-import { legacyGlobalExports } from '../../global-exports';
+import { legacyCC } from '../../global-exports';
 
 const _worldPos = new Vec3();
 
@@ -344,7 +344,7 @@ export class CanvasComponent extends Component {
             designSize = view.getDesignResolutionSize();
             const policy = view.getResolutionPolicy();
             // const clipTopRight = !this.fitHeight && !this.fitWidth;
-            const clipTopRight = policy === legacyGlobalExports.view._rpNoBorder;
+            const clipTopRight = policy === legacyCC.view._rpNoBorder;
             let offsetX = 0;
             let offsetY = 0;
             if (clipTopRight) {
@@ -424,4 +424,4 @@ export class CanvasComponent extends Component {
     }
 }
 
-legacyGlobalExports.CanvasComponent = CanvasComponent;
+legacyCC.CanvasComponent = CanvasComponent;

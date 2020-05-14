@@ -30,7 +30,7 @@
 import { getError, log } from '../core/platform/debug';
 import { sys } from '../core/platform/sys';
 import { AudioClip, AudioType } from './assets/clip';
-import { legacyGlobalExports } from '../core/global-exports';
+import { legacyCC } from '../core/global-exports';
 
 const __audioSupport = sys.__audioSupport;
 const formatSupport = __audioSupport.format;
@@ -77,7 +77,7 @@ function loadWebAudio (item, callback) {
         callback(new Error(getError(4926)));
     }
 
-    const request = legacyGlobalExports.loader.getXMLHttpRequest();
+    const request = legacyCC.loader.getXMLHttpRequest();
     request.open('GET', item.url, true);
     request.responseType = 'arraybuffer';
 

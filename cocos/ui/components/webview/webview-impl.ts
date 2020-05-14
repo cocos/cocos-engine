@@ -36,7 +36,7 @@ import { logID, log } from '../../../core/platform/debug';
 import { view } from '../../../core/platform/view';
 import { Node } from '../../../core';
 import { EDITOR } from 'internal:constants';
-import { legacyGlobalExports } from '../../../core/global-exports';
+import { legacyCC } from '../../../core/global-exports';
 
 const _mat4_temp = new Mat4();
 
@@ -126,9 +126,9 @@ export class WebViewImpl {
     public removeDom () {
         const div = this._div;
         if (div) {
-            const hasChild = misc.contains(legacyGlobalExports.game.container, div);
+            const hasChild = misc.contains(legacyCC.game.container, div);
             if (hasChild) {
-                legacyGlobalExports.game.container.removeChild(div);
+                legacyCC.game.container.removeChild(div);
             }
 
             this._div = null;
@@ -342,7 +342,7 @@ export class WebViewImpl {
         scaleX /= dpr;
         scaleY /= dpr;
 
-        const container = legacyGlobalExports.game.container;
+        const container = legacyCC.game.container;
         const a = _mat4_temp.m00 * scaleX;
         const b = _mat4_temp.m01;
         const c = _mat4_temp.m04;
@@ -455,7 +455,7 @@ export class WebViewImpl {
         this._div.style.overflow = 'scroll';
         this._iframe.style.border = 'none';
 
-        legacyGlobalExports.game.container.appendChild(this._div);
+        legacyCC.game.container.appendChild(this._div);
         this._updateVisibility();
     }
 

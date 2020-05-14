@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 /**
  * 事件相关
@@ -286,4 +286,4 @@ export default class Event {
 }
 
 /* tslint:disable:no-string-literal */
-legacyGlobalExports.Event = Event;
+legacyCC.Event = Event;

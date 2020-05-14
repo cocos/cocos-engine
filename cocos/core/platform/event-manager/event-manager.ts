@@ -35,7 +35,7 @@ import { EventTouch } from './events';
 import { EventListener, TouchOneByOne } from './event-listener';
 import { Node } from '../../scene-graph';
 import { macro } from '../macro';
-import { legacyGlobalExports } from '../../global-exports';
+import { legacyCC } from '../../global-exports';
 const ListenerID = EventListener.ListenerID;
 
 function checkUINode (node) {
@@ -105,7 +105,7 @@ function __getListenerID (event: Event) {
         // Touch listener is very special, it contains two kinds of listeners:
         // EventListenerTouchOneByOne and EventListenerTouchAllAtOnce.
         // return UNKNOWN instead.
-        legacyGlobalExports.logID(2000);
+        legacyCC.logID(2000);
     }
     return '';
 }
@@ -148,8 +148,8 @@ class EventManager {
      * @param recursive - 是否往子节点递归暂停。默认为 false。
      */
     public pauseTarget (node: Node, recursive = false) {
-        if (!(node instanceof legacyGlobalExports._BaseNode)) {
-            legacyGlobalExports.warnID(3506);
+        if (!(node instanceof legacyCC._BaseNode)) {
+            legacyCC.warnID(3506);
             return;
         }
         const listeners = this._nodeListenersMap[node.uuid];
@@ -181,8 +181,8 @@ class EventManager {
      * @param recursive - 是否往子节点递归。默认为 false。
      */
     public resumeTarget (node: Node, recursive = false) {
-        if (!(node instanceof legacyGlobalExports._BaseNode)) {
-            legacyGlobalExports.warnID(3506);
+        if (!(node instanceof legacyCC._BaseNode)) {
+            legacyCC.warnID(3506);
             return;
         }
         const listeners = this._nodeListenersMap[node.uuid];
@@ -260,17 +260,17 @@ class EventManager {
      * @returns
      */
     public addListener (listener: EventListener, nodeOrPriority: any | number): any {
-        legacyGlobalExports.assertID(listener && nodeOrPriority, 3503);
-        if (!(legacyGlobalExports.js.isNumber(nodeOrPriority) || nodeOrPriority instanceof legacyGlobalExports._BaseNode)) {
-            legacyGlobalExports.warnID(3506);
+        legacyCC.assertID(listener && nodeOrPriority, 3503);
+        if (!(legacyCC.js.isNumber(nodeOrPriority) || nodeOrPriority instanceof legacyCC._BaseNode)) {
+            legacyCC.warnID(3506);
             return;
         }
-        if (!(listener instanceof legacyGlobalExports.EventListener)) {
-            legacyGlobalExports.assertID(!legacyGlobalExports.js.isNumber(nodeOrPriority), 3504);
-            listener = legacyGlobalExports.EventListener.create(listener);
+        if (!(listener instanceof legacyCC.EventListener)) {
+            legacyCC.assertID(!legacyCC.js.isNumber(nodeOrPriority), 3504);
+            listener = legacyCC.EventListener.create(listener);
         } else {
             if (listener._isRegistered()) {
-                legacyGlobalExports.logID(3505);
+                legacyCC.logID(3505);
                 return;
             }
         }
@@ -279,9 +279,9 @@ class EventManager {
             return;
         }
 
-        if (legacyGlobalExports.js.isNumber(nodeOrPriority)) {
+        if (legacyCC.js.isNumber(nodeOrPriority)) {
             if (nodeOrPriority === 0) {
-                legacyGlobalExports.logID(3500);
+                legacyCC.logID(3500);
                 return;
             }
 
@@ -292,7 +292,7 @@ class EventManager {
             this._addListener(listener);
         } else {
             if (!checkUINode(nodeOrPriority)) {
-                legacyGlobalExports.logID(3512);
+                legacyCC.logID(3512);
                 return;
             }
             listener._setSceneGraphPriority(nodeOrPriority);
@@ -317,7 +317,7 @@ class EventManager {
      */
     public addCustomListener (eventName: string, callback: Function) {
         const listener = EventListener.create({
-            event: legacyGlobalExports.EventListener.CUSTOM,
+            event: legacyCC.EventListener.CUSTOM,
             eventName,
             callback,
         });
@@ -372,7 +372,7 @@ class EventManager {
             for (let i = locToAddedListeners.length - 1; i >= 0; i--) {
                 const selListener = locToAddedListeners[i];
                 if (selListener === listener) {
-                    legacyGlobalExports.js.array.removeAt(locToAddedListeners, i);
+                    legacyCC.js.array.removeAt(locToAddedListeners, i);
                     selListener._setRegistered(false);
                     break;
                 }
@@ -400,8 +400,8 @@ class EventManager {
      * @param recursive - 递归子节点的同类型监听器一并移除。默认为 false。
      */
     public removeListeners (listenerType: number | any, recursive = false) {
-        if (!(legacyGlobalExports.js.isNumber(listenerType) || listenerType instanceof legacyGlobalExports._BaseNode)) {
-            legacyGlobalExports.warnID(3506);
+        if (!(legacyCC.js.isNumber(listenerType) || listenerType instanceof legacyCC._BaseNode)) {
+            legacyCC.warnID(3506);
             return;
         }
         if (listenerType._id !== undefined) {
@@ -409,7 +409,7 @@ class EventManager {
             // Don't want any dangling pointers or the possibility of dealing with deleted objects..
             const listeners = this._nodeListenersMap[listenerType._id];
             if (listeners) {
-                const listenersCopy = legacyGlobalExports.js.array.copy(listeners);
+                const listenersCopy = legacyCC.js.array.copy(listeners);
                 for (let i = 0; i < listenersCopy.length; ++i) {
                     const listenerCopy = listenersCopy[i];
                     this.removeListener(listenerCopy);
@@ -443,18 +443,18 @@ class EventManager {
                 }
             }
         } else {
-            if (listenerType === legacyGlobalExports.EventListener.TOUCH_ONE_BY_ONE) {
+            if (listenerType === legacyCC.EventListener.TOUCH_ONE_BY_ONE) {
                 this._removeListenersForListenerID(ListenerID.TOUCH_ONE_BY_ONE);
-            } else if (listenerType === legacyGlobalExports.EventListener.TOUCH_ALL_AT_ONCE) {
+            } else if (listenerType === legacyCC.EventListener.TOUCH_ALL_AT_ONCE) {
                 this._removeListenersForListenerID(ListenerID.TOUCH_ALL_AT_ONCE);
-            } else if (listenerType === legacyGlobalExports.EventListener.MOUSE) {
+            } else if (listenerType === legacyCC.EventListener.MOUSE) {
                 this._removeListenersForListenerID(ListenerID.MOUSE);
-            } else if (listenerType === legacyGlobalExports.EventListener.ACCELERATION) {
+            } else if (listenerType === legacyCC.EventListener.ACCELERATION) {
                 this._removeListenersForListenerID(ListenerID.ACCELERATION);
-            } else if (listenerType === legacyGlobalExports.EventListener.KEYBOARD) {
+            } else if (listenerType === legacyCC.EventListener.KEYBOARD) {
                 this._removeListenersForListenerID(ListenerID.KEYBOARD);
             } else {
-                legacyGlobalExports.logID(3501);
+                legacyCC.logID(3501);
             }
         }
     }
@@ -512,7 +512,7 @@ class EventManager {
                 const found = fixedPriorityListeners.indexOf(listener);
                 if (found !== -1) {
                     if (listener._getSceneGraphPriority() != null) {
-                        legacyGlobalExports.logID(3502);
+                        legacyCC.logID(3502);
                     }
                     if (listener._getFixedPriority() !== fixedPriority) {
                         listener._setFixedPriority(fixedPriority);
@@ -566,10 +566,10 @@ class EventManager {
         this._updateDirtyFlagForSceneGraph();
         this._inDispatch++;
         if (!event || !event.getType) {
-            legacyGlobalExports.errorID(3511);
+            legacyCC.errorID(3511);
             return;
         }
-        if (event.getType().startsWith(legacyGlobalExports.Event.TOUCH)) {
+        if (event.getType().startsWith(legacyCC.Event.TOUCH)) {
             this._dispatchTouchEvent(event as EventTouch);
             this._inDispatch--;
             return;
@@ -606,7 +606,7 @@ class EventManager {
      * @param optionalUserData
      */
     public dispatchCustomEvent (eventName, optionalUserData) {
-        const ev = new legacyGlobalExports.Event.EventCustom(eventName);
+        const ev = new legacyCC.Event.EventCustom(eventName);
         ev.setUserData(optionalUserData);
         this.dispatchEvent(ev);
     }
@@ -654,7 +654,7 @@ class EventManager {
 
             const node = listener._getSceneGraphPriority();
             if (node === null) {
-                legacyGlobalExports.logID(3507);
+                legacyCC.logID(3507);
             }
 
             this._associateNodeAndEventListener(node, listener);
@@ -693,7 +693,7 @@ class EventManager {
             }
 
             if (this._inDispatch === 0) {
-                legacyGlobalExports.js.array.removeAt(listenerVector, i);
+                legacyCC.js.array.removeAt(listenerVector, i);
             }
         }
     }
@@ -721,7 +721,7 @@ class EventManager {
         for (let i = locToAddedListeners.length - 1; i >= 0; i--) {
             const listener = locToAddedListeners[i];
             if (listener && listener._getListenerID() === listenerID) {
-                legacyGlobalExports.js.array.removeAt(locToAddedListeners, i);
+                legacyCC.js.array.removeAt(locToAddedListeners, i);
             }
         }
     }
@@ -742,7 +742,7 @@ class EventManager {
             }
 
             if (dirtyFlag & DIRTY_SCENE_GRAPH_PRIORITY) {
-                const rootEntity = legacyGlobalExports.director.getScene();
+                const rootEntity = legacyCC.director.getScene();
                 if (rootEntity) {
                     this._sortListenersOfSceneGraphPriority(listenerID);
                 }
@@ -838,7 +838,7 @@ class EventManager {
             for (let i = sceneGraphPriorityListeners.length - 1; i >= 0; i--) {
                 const selListener = sceneGraphPriorityListeners[i];
                 if (!selListener._isRegistered()) {
-                    legacyGlobalExports.js.array.removeAt(sceneGraphPriorityListeners, i);
+                    legacyCC.js.array.removeAt(sceneGraphPriorityListeners, i);
                     // if item in toRemove list, remove it from the list
                     const idx = toRemovedListeners.indexOf(selListener);
                     if (idx !== -1) {
@@ -852,7 +852,7 @@ class EventManager {
             for (let i = fixedPriorityListeners.length - 1; i >= 0; i--) {
                 const selListener = fixedPriorityListeners[i];
                 if (!selListener._isRegistered()) {
-                    legacyGlobalExports.js.array.removeAt(fixedPriorityListeners, i);
+                    legacyCC.js.array.removeAt(fixedPriorityListeners, i);
                     // if item in toRemove list, remove it from the list
                     const idx = toRemovedListeners.indexOf(selListener);
                     if (idx !== -1) {
@@ -873,7 +873,7 @@ class EventManager {
 
     private _updateTouchListeners (event) {
         const locInDispatch = this._inDispatch;
-        legacyGlobalExports.assertID(locInDispatch > 0, 3508);
+        legacyCC.assertID(locInDispatch > 0, 3508);
 
         if (locInDispatch > 1) {
             return;
@@ -889,7 +889,7 @@ class EventManager {
             this._onUpdateListeners(listeners);
         }
 
-        legacyGlobalExports.assertID(locInDispatch === 1, 3509);
+        legacyCC.assertID(locInDispatch === 1, 3509);
 
         const locToAddedListeners = this._toAddedListeners;
         if (locToAddedListeners.length !== 0) {
@@ -1021,7 +1021,7 @@ class EventManager {
         }
 
         const originalTouches = event.getTouches();
-        const mutableTouches = legacyGlobalExports.js.array.copy(originalTouches);
+        const mutableTouches = legacyCC.js.array.copy(originalTouches);
         const oneByOneArgsObj = { event, needsMutableSet: (oneByOneListeners && allAtOnceListeners), touches: mutableTouches, selTouch: null };
 
         //
@@ -1089,7 +1089,7 @@ class EventManager {
     private _dissociateNodeAndEventListener (node: Node, listener: EventListener) {
         const listeners = this._nodeListenersMap[node.uuid];
         if (listeners) {
-            legacyGlobalExports.js.array.remove(listeners, listener);
+            legacyCC.js.array.remove(listeners, listener);
             if (listeners.length === 0) {
                 delete this._nodeListenersMap[node.uuid];
             }
@@ -1165,7 +1165,7 @@ class EventManager {
                 }
 
                 if (this._inDispatch === 0) {
-                    legacyGlobalExports.js.array.removeAt(listeners, i);
+                    legacyCC.js.array.removeAt(listeners, i);
                 } else {
                     this._toRemovedListeners.push(selListener);
                 }
@@ -1191,7 +1191,7 @@ class EventManager {
                 }
 
                 if (this._inDispatch === 0) {
-                    legacyGlobalExports.js.array.removeAt(listeners, i);
+                    legacyCC.js.array.removeAt(listeners, i);
                 } else {
                     this._toRemovedListeners.push(selListener);
                 }
@@ -1223,6 +1223,6 @@ class EventManager {
  */
 export const eventManager = new EventManager();
 
-legacyGlobalExports.eventManager = eventManager;
+legacyCC.eventManager = eventManager;
 
 export default eventManager;

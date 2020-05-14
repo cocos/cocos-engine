@@ -34,7 +34,7 @@ import { CCObject } from './object';
 import { js } from '../utils';
 import { errorID, warn } from '../platform/debug';
 import { DEV } from 'internal:constants';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 // @ts-ignore
 const Destroyed = CCObject.Flags.Destroyed;
@@ -78,13 +78,13 @@ function instantiate (original, internal_force?) {
             }
             return null;
         }
-        if (!legacyGlobalExports.isValid(original)) {
+        if (!legacyCC.isValid(original)) {
             if (DEV) {
                 errorID(6902);
             }
             return null;
         }
-        if (DEV && original instanceof legacyGlobalExports.Component) {
+        if (DEV && original instanceof legacyCC.Component) {
             warn('Should not instantiate a single cc.Component directly, you must instantiate the entire node.');
         }
     }
@@ -99,12 +99,12 @@ function instantiate (original, internal_force?) {
         //                                  no need to create new object by itself.
         // @returns {Object} - the instantiated object
         if (original._instantiate) {
-            legacyGlobalExports.game._isCloning = true;
+            legacyCC.game._isCloning = true;
             clone = original._instantiate();
-            legacyGlobalExports.game._isCloning = false;
+            legacyCC.game._isCloning = false;
             return clone;
         }
-        else if (original instanceof legacyGlobalExports.Asset) {
+        else if (original instanceof legacyCC.Asset) {
             // 不允许用通用方案实例化资源
             if (DEV) {
                 errorID(6903);
@@ -113,9 +113,9 @@ function instantiate (original, internal_force?) {
         }
     }
 
-    legacyGlobalExports.game._isCloning = true;
+    legacyCC.game._isCloning = true;
     clone = doInstantiate(original);
-    legacyGlobalExports.game._isCloning = false;
+    legacyCC.game._isCloning = false;
     return clone;
 }
 
@@ -200,7 +200,7 @@ function enumerateObject (obj, clone, parent) {
     js.value(obj, '_iN$t', clone, true);
     objsToClearTmpVar.push(obj);
     const klass = obj.constructor;
-    if (legacyGlobalExports.Class._isCCClass(klass)) {
+    if (legacyCC.Class._isCCClass(klass)) {
         enumerateCCClass(klass, obj, clone, parent);
     }
     else {
@@ -237,7 +237,7 @@ function instantiateObj (obj, parent) {
     if (obj instanceof ValueType) {
         return obj.clone();
     }
-    if (obj instanceof legacyGlobalExports.Asset) {
+    if (obj instanceof legacyCC.Asset) {
         // 所有资源直接引用，不需要拷贝
         return obj;
     }
@@ -265,21 +265,21 @@ function instantiateObj (obj, parent) {
     }
 
     const ctor = obj.constructor;
-    if (legacyGlobalExports.Class._isCCClass(ctor)) {
+    if (legacyCC.Class._isCCClass(ctor)) {
         if (parent) {
-            if (parent instanceof legacyGlobalExports.Component) {
-                if (obj instanceof legacyGlobalExports._BaseNode || obj instanceof legacyGlobalExports.Component) {
+            if (parent instanceof legacyCC.Component) {
+                if (obj instanceof legacyCC._BaseNode || obj instanceof legacyCC.Component) {
                     return obj;
                 }
             }
-            else if (parent instanceof legacyGlobalExports._BaseNode) {
-                if (obj instanceof legacyGlobalExports._BaseNode) {
+            else if (parent instanceof legacyCC._BaseNode) {
+                if (obj instanceof legacyCC._BaseNode) {
                     if (!obj.isChildOf(parent)) {
                         // should not clone other nodes if not descendant
                         return obj;
                     }
                 }
-                else if (obj instanceof legacyGlobalExports.Component) {
+                else if (obj instanceof legacyCC.Component) {
                     if (!obj.node.isChildOf(parent)) {
                         // should not clone other component if not descendant
                         return obj;
@@ -304,5 +304,5 @@ function instantiateObj (obj, parent) {
 }
 
 instantiate._clone = doInstantiate;
-legacyGlobalExports.instantiate = instantiate;
+legacyCC.instantiate = instantiate;
 export default instantiate;

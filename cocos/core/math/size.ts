@@ -31,7 +31,7 @@
 import CCClass from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { ISizeLike } from './type-define';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 /**
  * 二维尺寸。
@@ -179,6 +179,6 @@ export function size (width: Size | number = 0, height: number = 0) {
     return new Size(width as any, height);
 }
 
-legacyGlobalExports.size = size;
+legacyCC.size = size;
 
-legacyGlobalExports.Size = Size;
+legacyCC.Size = Size;

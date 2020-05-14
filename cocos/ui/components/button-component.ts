@@ -40,7 +40,7 @@ import { Node } from '../../core/scene-graph/node';
 import { SpriteComponent } from './sprite-component';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { EDITOR } from 'internal:constants';
-import { legacyGlobalExports } from '../../core/global-exports';
+import { legacyCC } from '../../core/global-exports';
 
 const _tempColor = new Color();
 
@@ -867,7 +867,7 @@ export class ButtonComponent extends Component {
 
 }
 
-legacyGlobalExports.ButtonComponent = ButtonComponent;
+legacyCC.ButtonComponent = ButtonComponent;
 
 /**
  * @zh

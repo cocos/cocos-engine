@@ -31,7 +31,7 @@
 import {createMap} from '../utils/js';
 import { LoadingItems, IItem } from './loading-items';
 import { EDITOR } from 'internal:constants';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 const ItemState = LoadingItems.ItemState;
 
 export interface IPipe {
@@ -172,12 +172,12 @@ export class Pipeline {
     insertPipe (pipe, index) {
         // Must have handle and id, handle for flow, id for state flag
         if (!pipe.handle || !pipe.id || index > this._pipes.length) {
-            legacyGlobalExports.warnID(4921);
+            legacyCC.warnID(4921);
             return;
         }
 
         if (this._pipes.indexOf(pipe) > 0) {
-            legacyGlobalExports.warnID(4922);
+            legacyCC.warnID(4922);
             return;
         }
 
@@ -395,7 +395,7 @@ export class Pipeline {
             if (EDITOR) {
                 let references = removed.references;
                 if (references) {
-                    let dependListener = legacyGlobalExports.AssetLibrary.dependListener;
+                    let dependListener = legacyCC.AssetLibrary.dependListener;
                     if (dependListener) {
                         for (let uuid in references) {
                             dependListener.off(uuid, references[uuid]);
@@ -424,4 +424,4 @@ export class Pipeline {
     }
 }
 
-legacyGlobalExports.Pipeline = Pipeline;
+legacyCC.Pipeline = Pipeline;

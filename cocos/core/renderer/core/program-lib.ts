@@ -37,7 +37,7 @@ import { GFXShader, GFXUniformBlock } from '../../gfx/shader';
 import { IInternalBindingDesc, localBindingsDesc } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { genHandle, IDefineMap } from './pass-utils';
-import { legacyGlobalExports } from '../../global-exports';
+import { legacyCC } from '../../global-exports';
 
 interface IDefineRecord extends IDefineInfo {
     _map: (value: any) => number;
@@ -348,4 +348,4 @@ class ProgramLib {
 }
 
 export const programLib = new ProgramLib();
-legacyGlobalExports.programLib = programLib;
+legacyCC.programLib = programLib;

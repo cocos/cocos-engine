@@ -30,7 +30,7 @@
 
 import { errorID } from '../platform/debug';
 import * as js from '../utils/js';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 /**
  * 所有值类型的基类。
@@ -79,4 +79,4 @@ export class ValueType {
 }
 js.setClassName('cc.ValueType', ValueType);
 
-legacyGlobalExports.ValueType = ValueType;
+legacyCC.ValueType = ValueType;

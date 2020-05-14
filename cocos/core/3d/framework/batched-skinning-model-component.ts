@@ -42,7 +42,7 @@ import { IGFXAttribute } from '../../gfx/input-assembler';
 import { Mat4, Vec2, Vec3 } from '../../math';
 import { mapBuffer, readBuffer, writeBuffer } from '../misc/buffer';
 import { SkinningModelComponent } from './skinning-model-component';
-import { legacyGlobalExports } from '../../global-exports';
+import { legacyCC } from '../../global-exports';
 
 const repeat = (n: number) => n - Math.floor(n);
 const batch_id: IGFXAttribute = { name: GFXAttributeName.ATTR_BATCH_ID, format: GFXFormat.R32F, isNormalized: false };
@@ -473,7 +473,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
             }
         }
         const gfxTex = target.getGFXTexture()!;
-        const device: GFXDevice = legacyGlobalExports.director.root!.device;
+        const device: GFXDevice = legacyCC.director.root!.device;
         if (texBuffers.length > 0) { device.copyBuffersToTexture(texBuffers, gfxTex, texBufferRegions); }
         if (texImages.length > 0) { device.copyTexImagesToTexture(texImages, gfxTex, texImageRegions); }
     }
@@ -555,10 +555,10 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
             const srcVertex = src.subarray(oldOffset, oldOffset + oldStride);
             newMeshData.set(srcVertex, newOffset);
             // insert batch ID
-            dataView.setFloat32(newOffset + oldStride, unitIdx, legacyGlobalExports.sys.isLittleEndian);
+            dataView.setFloat32(newOffset + oldStride, unitIdx, legacyCC.sys.isLittleEndian);
             // insert batch UV
-            dataView.setFloat32(newOffset + oldStride + 4, uvs[j * 2], legacyGlobalExports.sys.isLittleEndian);
-            dataView.setFloat32(newOffset + oldStride + 8, uvs[j * 2 + 1], legacyGlobalExports.sys.isLittleEndian);
+            dataView.setFloat32(newOffset + oldStride + 4, uvs[j * 2], legacyCC.sys.isLittleEndian);
+            dataView.setFloat32(newOffset + oldStride + 8, uvs[j * 2 + 1], legacyCC.sys.isLittleEndian);
             newOffset += newStride; oldOffset += oldStride;
         }
         for (let k = 0; k < newMeshStruct.primitives.length; k++) {

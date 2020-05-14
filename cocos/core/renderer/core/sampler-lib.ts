@@ -30,7 +30,7 @@
 import { GFXAddress, GFXComparisonFunc, GFXFilter } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXSampler, IGFXSamplerInfo } from '../../gfx/sampler';
-import { legacyGlobalExports } from '../../global-exports';
+import { legacyCC } from '../../global-exports';
 
 export enum SamplerInfoIndex {
     minFilter,
@@ -124,4 +124,4 @@ class SamplerLib {
 }
 
 export const samplerLib = new SamplerLib();
-legacyGlobalExports.samplerLib = samplerLib;
+legacyCC.samplerLib = samplerLib;

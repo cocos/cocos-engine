@@ -37,7 +37,7 @@ import IDGenerator from '../utils/id-generator';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import { GFXSampler } from '../gfx';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 const CHAR_CODE_1 = 49;    // '1'
 
@@ -270,7 +270,7 @@ export class TextureBase extends Asset {
             if (this._gfxDevice) {
                 this._gfxSampler = samplerLib.getSampler(this._gfxDevice, this._samplerHash);
             } else {
-                legacyGlobalExports.errorID(9302);
+                legacyCC.errorID(9302);
             }
         }
         return this._gfxSampler;
@@ -315,7 +315,7 @@ export class TextureBase extends Asset {
     }
 
     protected _getGFXDevice (): GFXDevice | null {
-        return legacyGlobalExports.director.root && legacyGlobalExports.director.root.device;
+        return legacyCC.director.root && legacyCC.director.root.device;
     }
 
     protected _getGFXFormat () {
@@ -327,4 +327,4 @@ export class TextureBase extends Asset {
     }
 }
 
-legacyGlobalExports.TextureBase = TextureBase;
+legacyCC.TextureBase = TextureBase;

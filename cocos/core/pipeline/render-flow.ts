@@ -9,7 +9,7 @@ import { RenderFlowType } from './pipeline-serialization';
 import { RenderPipeline } from './render-pipeline';
 import { RenderStage } from './render-stage';
 import { RenderView } from './render-view';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 /**
  * @zh
@@ -94,7 +94,7 @@ export abstract class RenderFlow {
      * 材质。
      */
     @property({
-        type: legacyGlobalExports.Material,
+        type: legacyCC.Material,
         displayOrder: 2,
         visible: true,
     })
@@ -211,4 +211,4 @@ export abstract class RenderFlow {
     }
 }
 
-legacyGlobalExports.RenderFlow = RenderFlow;
+legacyCC.RenderFlow = RenderFlow;

@@ -31,7 +31,7 @@ import * as js from '../utils/js';
 import CCClass from './class';
 import { errorID, warnID } from '../platform/debug';
 import { SUPPORT_JIT, EDITOR, TEST } from 'internal:constants';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 // definitions for CCObject.Flags
 
@@ -73,7 +73,7 @@ const objectsToDestroy: any = [];
 let deferredDestroyTimer = null;
 
 function compileDestruct (obj, ctor) {
-    const shouldSkipId = obj instanceof legacyGlobalExports._BaseNode || obj instanceof legacyGlobalExports.Component;
+    const shouldSkipId = obj instanceof legacyCC._BaseNode || obj instanceof legacyCC.Component;
     const idToSkip = shouldSkipId ? '_id' : null;
 
     let key;
@@ -96,12 +96,12 @@ function compileDestruct (obj, ctor) {
     }
     // Overwrite propsToReset according to Class
     if (CCClass._isCCClass(ctor)) {
-        const attrs = legacyGlobalExports.Class.Attr.getClassAttrs(ctor);
+        const attrs = legacyCC.Class.Attr.getClassAttrs(ctor);
         const propList = ctor.__props__;
         // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < propList.length; i++) {
             key = propList[i];
-            const attrKey = key + legacyGlobalExports.Class.Attr.DELIMETER + 'default';
+            const attrKey = key + legacyCC.Class.Attr.DELIMETER + 'default';
             if (attrKey in attrs) {
                 if (shouldSkipId && key === '_id') {
                     continue;
@@ -282,7 +282,7 @@ class CCObject {
         this._objFlags |= ToDestroy;
         objectsToDestroy.push(this);
 
-        if (EDITOR && deferredDestroyTimer === null && legacyGlobalExports.engine && ! legacyGlobalExports.engine._isUpdating) {
+        if (EDITOR && deferredDestroyTimer === null && legacyCC.engine && ! legacyCC.engine._isUpdating) {
             // auto destroy immediate in edit mode
             // @ts-ignore
             deferredDestroyTimer = setImmediate(CCObject._deferredDestroy);
@@ -333,7 +333,7 @@ class CCObject {
             this._onPreDestroy();
         }
 
-        if ((TEST ? (/* make EDITOR mockable*/ Function('return !EDITOR'))() : !EDITOR) || legacyGlobalExports.engine._isPlaying) {
+        if ((TEST ? (/* make EDITOR mockable*/ Function('return !EDITOR'))() : !EDITOR) || legacyCC.engine._isPlaying) {
             this._destruct();
         }
 
@@ -560,7 +560,7 @@ export function isValid (value: any, strictMode?: boolean) {
         return typeof value !== 'undefined';
     }
 }
-legacyGlobalExports.isValid = isValid;
+legacyCC.isValid = isValid;
 
 if (EDITOR || TEST) {
     js.value(CCObject, '_willDestroy', (obj) => {
@@ -572,5 +572,5 @@ if (EDITOR || TEST) {
     });
 }
 
-legacyGlobalExports.Object = CCObject;
+legacyCC.Object = CCObject;
 export { CCObject };

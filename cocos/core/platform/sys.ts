@@ -29,7 +29,7 @@
  */
 
 import { EDITOR, TEST, WECHAT, ALIPAY, XIAOMI, BAIDU, COCOSPLAY, JSB, MINIGAME } from 'internal:constants';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 // tslint:disable
 
@@ -657,8 +657,8 @@ export const sys: { [x: string]: any; } = {
         str += 'os : ' + this.os + '\r\n';
         str += 'osVersion : ' + this.osVersion + '\r\n';
         str += 'platform : ' + this.platform + '\r\n';
-        str += 'Using ' + (legacyGlobalExports.game.renderType === legacyGlobalExports.game.RENDER_TYPE_WEBGL ? 'WEBGL' : 'CANVAS') + ' renderer.' + '\r\n';
-        legacyGlobalExports.log(str);
+        str += 'Using ' + (legacyCC.game.renderType === legacyCC.game.RENDER_TYPE_WEBGL ? 'WEBGL' : 'CANVAS') + ' renderer.' + '\r\n';
+        legacyCC.log(str);
     },
 
     /**
@@ -946,7 +946,7 @@ else {
         localStorage = null;
     } catch (e) {
         const warn = function () {
-            legacyGlobalExports.warnID(5200);
+            legacyCC.warnID(5200);
         };
         sys.localStorage = {
             getItem: warn,
@@ -1064,11 +1064,11 @@ else {
 
         if (DEBUG) {
             setTimeout(function () {
-                legacyGlobalExports.log('browse type: ' + sys.browserType);
-                legacyGlobalExports.log('browse version: ' + version);
-                legacyGlobalExports.log('MULTI_CHANNEL: ' + __audioSupport.MULTI_CHANNEL);
-                legacyGlobalExports.log('WEB_AUDIO: ' + __audioSupport.WEB_AUDIO);
-                legacyGlobalExports.log('AUTOPLAY: ' + __audioSupport.AUTOPLAY);
+                legacyCC.log('browse type: ' + sys.browserType);
+                legacyCC.log('browse version: ' + version);
+                legacyCC.log('MULTI_CHANNEL: ' + __audioSupport.MULTI_CHANNEL);
+                legacyCC.log('WEB_AUDIO: ' + __audioSupport.WEB_AUDIO);
+                legacyCC.log('AUTOPLAY: ' + __audioSupport.AUTOPLAY);
             }, 0);
         }
     })();
@@ -1086,7 +1086,7 @@ else {
         }
     } catch (error) {
         __audioSupport.WEB_AUDIO = false;
-        legacyGlobalExports.logID(5201);
+        legacyCC.logID(5201);
     }
 
     const formatSupport: string[] = [];
@@ -1110,4 +1110,4 @@ else {
     sys.__audioSupport = __audioSupport;
 }
 
-legacyGlobalExports.sys = sys;
+legacyCC.sys = sys;

@@ -61,7 +61,7 @@ import {
     _nameToClass,
 } from './js-typed';
 import { EDITOR } from 'internal:constants';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 export * from './js-typed';
 export {default as IDGenerator} from './id-generator';
@@ -103,10 +103,10 @@ export const js = {
  * This module provides some JavaScript utilities.
  * All members can be accessed with "cc.js".
  */
-legacyGlobalExports.js = js;
+legacyCC.js = js;
 
 if (EDITOR) {
-    legacyGlobalExports.js.getset(legacyGlobalExports.js, '_registeredClassIds', () => {
+    legacyCC.js.getset(legacyCC.js, '_registeredClassIds', () => {
             const dump = {};
             for (const id in _idToClass) {
                 if (!(id in _idToClass)) {
@@ -126,7 +126,7 @@ if (EDITOR) {
             }
         },
     );
-    legacyGlobalExports.js.getset(legacyGlobalExports.js, '_registeredClassNames',
+    legacyCC.js.getset(legacyCC.js, '_registeredClassNames',
         () => {
             const dump = {};
             for (const id in _nameToClass) {

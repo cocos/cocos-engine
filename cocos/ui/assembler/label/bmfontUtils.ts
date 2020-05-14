@@ -34,7 +34,7 @@ import { Rect, Size, Vec2 } from '../../../core/math';
 import { HorizontalTextAlignment, VerticalTextAlignment } from '../../components/label-component';
 import { LabelComponent, Overflow } from '../../components/label-component';
 import { js } from '../../../core/utils';
-import { legacyGlobalExports } from '../../../core/global-exports';
+import { legacyCC } from '../../../core/global-exports';
 
 class FontLetterDefinition {
     public u = 0;
@@ -97,7 +97,7 @@ export class FontAtlas {
     }
 }
 
-legacyGlobalExports.FontAtlas = FontAtlas;
+legacyCC.FontAtlas = FontAtlas;
 
 class LetterInfo {
     public char = '';

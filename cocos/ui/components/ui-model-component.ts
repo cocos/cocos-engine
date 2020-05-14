@@ -36,7 +36,7 @@ import { director } from '../../core/director';
 import { RenderPriority } from '../../core/pipeline/define';
 import { UI } from '../../core/renderer/ui/ui';
 import { Model } from '../../core/renderer';
-import { legacyGlobalExports } from '../../core/global-exports';
+import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en
@@ -99,7 +99,7 @@ export class UIModelComponent extends UIComponent {
         }
 
         this._modelComponent._sceneGetter = null;
-        if (legacyGlobalExports.isValid(this._modelComponent, true)) {
+        if (legacyCC.isValid(this._modelComponent, true)) {
             (this._modelComponent as any)._attachToScene();
         }
         this._models = null;
@@ -167,4 +167,4 @@ export class UIModelComponent extends UIComponent {
     }
 }
 
-legacyGlobalExports.UIModelComponent = UIModelComponent;
+legacyCC.UIModelComponent = UIModelComponent;

@@ -32,7 +32,7 @@ import * as debug from '../platform/debug';
 import { Pipeline, IPipe } from './pipeline';
 import { LoadingItems } from './loading-items';
 import { EDITOR } from 'internal:constants';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 const ID = 'AssetLoader';
 let reusedArray:Array<any> = [];
@@ -49,7 +49,7 @@ export default class AssetLoader implements IPipe {
             return item.content || null;
         }
 
-        legacyGlobalExports.AssetLibrary.queryAssetInfo(uuid, (error, url, isRawAsset) => {
+        legacyCC.AssetLibrary.queryAssetInfo(uuid, (error, url, isRawAsset) => {
             if (error) {
                 callback(error);
             }

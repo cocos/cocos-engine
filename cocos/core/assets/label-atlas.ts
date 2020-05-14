@@ -30,7 +30,7 @@
 
 import { ccclass } from '../data/class-decorator';
 import { BitmapFont } from './bitmap-font';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 /**
  * @en
  * Class for LabelAtlas handling.
@@ -44,4 +44,4 @@ import { legacyGlobalExports } from '../global-exports';
 export class LabelAtlas extends BitmapFont{
 }
 
-legacyGlobalExports.LabelAtlas = LabelAtlas;
+legacyCC.LabelAtlas = LabelAtlas;

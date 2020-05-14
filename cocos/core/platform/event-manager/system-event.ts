@@ -36,7 +36,7 @@ import eventManager from './event-manager';
 import inputManager from './input-manager';
 import { Touch } from './touch';
 import { EDITOR } from 'internal:constants';
-import { legacyGlobalExports } from '../../global-exports';
+import { legacyCC } from '../../global-exports';
 
 let keyboardListener: EventListener | null = null;
 let accelerationListener: EventListener | null = null;
@@ -147,7 +147,7 @@ export class SystemEvent extends EventTarget {
                     event: EventListener.ACCELERATION,
                     callback (acc: Object, event: EventAcceleration) {
                         event.type = SystemEventType.DEVICEMOTION;
-                        legacyGlobalExports.systemEvent.emit(event.type, event);
+                        legacyCC.systemEvent.emit(event.type, event);
                     },
                 });
                 eventManager.addListener(accelerationListener!, 256);
@@ -165,20 +165,20 @@ export class SystemEvent extends EventTarget {
                     event: EventListener.TOUCH_ONE_BY_ONE,
                     onTouchBegan (touch: Touch, event: EventTouch) {
                         event.type = SystemEventType.TOUCH_START;
-                        legacyGlobalExports.systemEvent.emit(event.type, touch, event);
+                        legacyCC.systemEvent.emit(event.type, touch, event);
                         return true;
                     },
                     onTouchMoved (touch: Touch, event: EventTouch) {
                         event.type = SystemEventType.TOUCH_MOVE;
-                        legacyGlobalExports.systemEvent.emit(event.type, touch, event);
+                        legacyCC.systemEvent.emit(event.type, touch, event);
                     },
                     onTouchEnded (touch: Touch, event: EventTouch) {
                         event.type = SystemEventType.TOUCH_END;
-                        legacyGlobalExports.systemEvent.emit(event.type, touch, event);
+                        legacyCC.systemEvent.emit(event.type, touch, event);
                     },
                     onTouchCancelled (touch: Touch, event: EventTouch) {
                         event.type = SystemEventType.TOUCH_CANCEL;
-                        legacyGlobalExports.systemEvent.emit(event.type, touch, event);
+                        legacyCC.systemEvent.emit(event.type, touch, event);
                     },
                 });
                 eventManager.addListener(touchListener, 256);
@@ -196,19 +196,19 @@ export class SystemEvent extends EventTarget {
                     event: EventListener.MOUSE,
                     onMouseDown (event: EventMouse) {
                         event.type = SystemEventType.MOUSE_DOWN;
-                        legacyGlobalExports.systemEvent.emit(event.type, event);
+                        legacyCC.systemEvent.emit(event.type, event);
                     },
                     onMouseMove (event:EventMouse) {
                         event.type = SystemEventType.MOUSE_MOVE;
-                        legacyGlobalExports.systemEvent.emit(event.type, event);
+                        legacyCC.systemEvent.emit(event.type, event);
                     },
                     onMouseUp (event: EventMouse) {
                         event.type = SystemEventType.MOUSE_UP;
-                        legacyGlobalExports.systemEvent.emit(event.type, event);
+                        legacyCC.systemEvent.emit(event.type, event);
                     },
                     onMouseScroll (event: EventMouse) {
                         event.type = SystemEventType.MOUSE_WHEEL;
-                        legacyGlobalExports.systemEvent.emit(event.type, event);
+                        legacyCC.systemEvent.emit(event.type, event);
                     },
                 });
                 eventManager.addListener(mouseListener, 256);
@@ -279,7 +279,7 @@ export class SystemEvent extends EventTarget {
     }
 }
 
-legacyGlobalExports.SystemEvent = SystemEvent;
+legacyCC.SystemEvent = SystemEvent;
 /**
  * @module cc
  */
@@ -289,4 +289,4 @@ legacyGlobalExports.SystemEvent = SystemEvent;
  * @zh 系统事件单例，方便全局使用。
  */
 export const systemEvent = new SystemEvent();
-legacyGlobalExports.systemEvent = systemEvent;
+legacyCC.systemEvent = systemEvent;

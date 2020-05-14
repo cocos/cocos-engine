@@ -5,7 +5,7 @@ import { Texture2D } from '../../assets/texture-2d';
 import { TextureCube } from '../../assets/texture-cube';
 import { GFXDevice } from '../../gfx/device';
 import effects from './effects';
-import { legacyGlobalExports } from '../../global-exports';
+import { legacyCC } from '../../global-exports';
 
 class BuiltinResMgr {
     protected _device: GFXDevice | null = null;
@@ -119,12 +119,12 @@ class BuiltinResMgr {
 
         // builtin effects
         effects.forEach((e) => {
-            const effect = Object.assign(new legacyGlobalExports.EffectAsset(), e);
+            const effect = Object.assign(new legacyCC.EffectAsset(), e);
             effect.onLoaded();
         });
 
         // standard material
-        const standardMtl = new legacyGlobalExports.Material();
+        const standardMtl = new legacyCC.Material();
         standardMtl._uuid = 'standard-material';
         standardMtl.initialize({
             effectName: 'builtin-standard',
@@ -132,63 +132,63 @@ class BuiltinResMgr {
         resources[standardMtl._uuid] = standardMtl;
 
         // material indicating missing effect (yellow)
-        const missingEfxMtl = new legacyGlobalExports.Material();
+        const missingEfxMtl = new legacyCC.Material();
         missingEfxMtl._uuid = 'missing-effect-material';
         missingEfxMtl.initialize({
             effectName: 'builtin-unlit',
             defines: { USE_COLOR: true },
         });
-        missingEfxMtl.setProperty('mainColor', legacyGlobalExports.color('#ffff00'));
+        missingEfxMtl.setProperty('mainColor', legacyCC.color('#ffff00'));
         resources[missingEfxMtl._uuid] = missingEfxMtl;
 
         // material indicating missing material (purple)
-        const missingMtl = new legacyGlobalExports.Material();
+        const missingMtl = new legacyCC.Material();
         missingMtl._uuid = 'missing-material';
         missingMtl.initialize({
             effectName: 'builtin-unlit',
             defines: { USE_COLOR: true },
         });
-        missingMtl.setProperty('mainColor', legacyGlobalExports.color('#ff00ff'));
+        missingMtl.setProperty('mainColor', legacyCC.color('#ff00ff'));
         resources[missingMtl._uuid] = missingMtl;
 
         // sprite material
-        const spriteMtl = new legacyGlobalExports.Material();
+        const spriteMtl = new legacyCC.Material();
         spriteMtl._uuid = 'ui-base-material';
         spriteMtl.initialize({ defines: { USE_TEXTURE: false }, effectName: 'builtin-sprite' });
         resources[spriteMtl._uuid] = spriteMtl;
 
         // sprite material
-        const spriteColorMtl = new legacyGlobalExports.Material();
+        const spriteColorMtl = new legacyCC.Material();
         spriteColorMtl._uuid = 'ui-sprite-material';
         spriteColorMtl.initialize({ defines: { USE_TEXTURE: true, IS_GRAY: false }, effectName: 'builtin-sprite' });
         resources[spriteColorMtl._uuid] = spriteColorMtl;
 
         // sprite gray material
-        const spriteGrayMtl = new legacyGlobalExports.Material();
+        const spriteGrayMtl = new legacyCC.Material();
         spriteGrayMtl._uuid = 'ui-sprite-gray-material';
         spriteGrayMtl.initialize({ defines: { USE_TEXTURE: true, IS_GRAY: true }, effectName: 'builtin-sprite' });
         resources[spriteGrayMtl._uuid] = spriteGrayMtl;
 
         // default particle material
-        const defaultParticleMtl = new legacyGlobalExports.Material();
+        const defaultParticleMtl = new legacyCC.Material();
         defaultParticleMtl._uuid = 'default-particle-material';
         defaultParticleMtl.initialize({ effectName: 'builtin-particle' });
         resources[defaultParticleMtl._uuid] = defaultParticleMtl;
 
         // default particle gpu material
-        const defaultParticleGPUMtl = new legacyGlobalExports.Material();
+        const defaultParticleGPUMtl = new legacyCC.Material();
         defaultParticleGPUMtl._uuid = 'default-particle-gpu-material';
         defaultParticleGPUMtl.initialize({ effectName: 'builtin-particle-gpu' });
         resources[defaultParticleGPUMtl._uuid] = defaultParticleGPUMtl;
 
         // default particle material
-        const defaultTrailMtl = new legacyGlobalExports.Material();
+        const defaultTrailMtl = new legacyCC.Material();
         defaultTrailMtl._uuid = 'default-trail-material';
         defaultTrailMtl.initialize({ effectName: 'builtin-particle-trail' });
         resources[defaultTrailMtl._uuid] = defaultTrailMtl;
 
         // default particle material
-        const defaultBillboardMtl = new legacyGlobalExports.Material();
+        const defaultBillboardMtl = new legacyCC.Material();
         defaultBillboardMtl._uuid = 'default-billboard-material';
         defaultBillboardMtl.initialize({ effectName: 'builtin-billboard' });
         resources[defaultBillboardMtl._uuid] = defaultBillboardMtl;
@@ -199,5 +199,5 @@ class BuiltinResMgr {
     }
 }
 
-const builtinResMgr = legacyGlobalExports.builtinResMgr = new BuiltinResMgr();
+const builtinResMgr = legacyCC.builtinResMgr = new BuiltinResMgr();
 export { builtinResMgr };

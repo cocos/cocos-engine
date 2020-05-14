@@ -2,7 +2,7 @@
  * @category event
  */
 import { ccenum } from '../../value-types/enum';
-import { legacyGlobalExports } from '../../global-exports';
+import { legacyCC } from '../../global-exports';
 
 /**
  * @en The event type supported by SystemEvent and Node events
@@ -200,4 +200,4 @@ export enum SystemEventType {
 
 ccenum(SystemEventType);
 
-legacyGlobalExports.SystemEventType = SystemEventType;
+legacyCC.SystemEventType = SystemEventType;

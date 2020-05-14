@@ -30,7 +30,7 @@
 import { ccclass } from '../data/class-decorator';
 import { CCObject } from '../data/object';
 import { Node } from './node';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 // const LocalDirtyFlag = Node._LocalDirtyFlag;
 // const POSITION_ON = 1 << 0;
@@ -169,4 +169,4 @@ export class PrivateNode extends Node {
 // cc.js.getset(PrivateNode.prototype, 'parent', PrivateNode.prototype.getParent, PrivateNode.prototype.setParent);
 // cc.js.getset(PrivateNode.prototype, 'position', PrivateNode.prototype.getPosition, PrivateNode.prototype.setPosition);
 
-legacyGlobalExports.PrivateNode = PrivateNode;
+legacyCC.PrivateNode = PrivateNode;

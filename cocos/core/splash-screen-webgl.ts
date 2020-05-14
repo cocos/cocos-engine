@@ -8,7 +8,7 @@ import { easing } from "./animation";
 import { macro } from "./platform";
 import { sys } from "./platform/sys";
 import { COCOSPLAY, XIAOMI, JSB, ALIPAY } from 'internal:constants';
-import { legacyGlobalExports } from './global-exports';
+import { legacyCC } from './global-exports';
 
 type SplashEffectType = 'none' | 'Fade-InOut';
 
@@ -152,12 +152,12 @@ export class SplashScreenWebgl {
             this._directCall = true;
             return;
         } else {
-            legacyGlobalExports.view.enableRetina(true);
+            legacyCC.view.enableRetina(true);
             const designRes = window._CCSettings.designResolution;
             if (designRes) {
-                legacyGlobalExports.view.setDesignResolutionSize(designRes.width, designRes.height, designRes.policy);
+                legacyCC.view.setDesignResolutionSize(designRes.width, designRes.height, designRes.policy);
             } else {
-                legacyGlobalExports.view.setDesignResolutionSize(960, 640, 4);
+                legacyCC.view.setDesignResolutionSize(960, 640, 4);
             }
 
             let useWebGL2 = (!!window.WebGL2RenderingContext);
@@ -181,7 +181,7 @@ export class SplashScreenWebgl {
 
             let gl: WebGLRenderingContext | null = null;
             let gl2: WebGL2RenderingContext | null = null;
-            if (useWebGL2 && legacyGlobalExports.WebGL2GFXDevice) {
+            if (useWebGL2 && legacyCC.WebGL2GFXDevice) {
                 gl2 = canvas.getContext('webgl2', webGLCtxAttribs) as WebGL2RenderingContext;
                 if (gl2 == null) {
                     gl = canvas.getContext('webgl', webGLCtxAttribs) as WebGLRenderingContext;
@@ -222,7 +222,7 @@ export class SplashScreenWebgl {
     private init () {
         // adapt for native mac & ios
         if (JSB) {
-            if (sys.os == legacyGlobalExports.sys.OS_OSX || sys.os == legacyGlobalExports.sys.OS_IOS) {
+            if (sys.os == legacyCC.sys.OS_OSX || sys.os == legacyCC.sys.OS_IOS) {
                 this.gl.canvas.width = screen.width * devicePixelRatio;
                 this.gl.canvas.height = screen.height * devicePixelRatio;
             }
@@ -449,4 +449,4 @@ export class SplashScreenWebgl {
     private constructor () { };
 }
 
-legacyGlobalExports.internal.SplashScreenWebgl = SplashScreenWebgl;
+legacyCC.internal.SplashScreenWebgl = SplashScreenWebgl;

@@ -36,7 +36,7 @@ import { applyMixins, IEventTarget } from '../event/event-target-factory';
 import { createMap } from '../utils/js-typed';
 import { RawAsset } from './raw-asset';
 import { Node } from '../scene-graph';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 /**
  * @en
@@ -89,7 +89,7 @@ export class Asset extends RawAsset implements IEventTarget {
      * @return {Asset}
      */
     public static deserialize (data) {
-        return legacyGlobalExports.deserialize(data);
+        return legacyCC.deserialize(data);
     }
 
     /**
@@ -159,8 +159,8 @@ export class Asset extends RawAsset implements IEventTarget {
                 // not imported in library, just created on-the-fly
                 return name.slice(1);
             }
-            if (legacyGlobalExports.AssetLibrary) {
-                const base = legacyGlobalExports.AssetLibrary.getLibUrlNoExt(this._uuid, true);
+            if (legacyCC.AssetLibrary) {
+                const base = legacyCC.AssetLibrary.getLibUrlNoExt(this._uuid, true);
                 if (name.charCodeAt(0) === 46) {  // '.'
                     // imported in dir where json exist
                     return base + name;
@@ -171,7 +171,7 @@ export class Asset extends RawAsset implements IEventTarget {
                 }
             }
             else {
-                legacyGlobalExports.errorID(6400);
+                legacyCC.errorID(6400);
             }
         }
         return '';
@@ -276,4 +276,4 @@ type CreateNodeCallback = (error: Error | null, node: Node) => void;
 // @ts-ignore
 Asset.prototype.createNode = null;
 
-legacyGlobalExports.Asset = Asset;
+legacyCC.Asset = Asset;

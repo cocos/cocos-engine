@@ -26,14 +26,14 @@
 /**
  * @category core
  */
-import { legacyGlobalExports } from './global-exports';
+import { legacyCC } from './global-exports';
 
 import * as geometry from './geometry';
 import * as math from './math';
 import * as memop from './memop';
 
-legacyGlobalExports.math = math;
-legacyGlobalExports.geometry = geometry;
+legacyCC.math = math;
+legacyCC.geometry = geometry;
 
 export { math, memop, geometry };
 

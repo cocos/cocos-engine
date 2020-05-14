@@ -51,15 +51,15 @@ import {
  * Cocos 引擎的主要命名空间，引擎代码中所有的类，函数，属性和常量都在这个命名空间中定义。
  * @deprecated
  */
-export const legacyGlobalExports: Record<string, any> = {};
+export const legacyCC: Record<string, any> = {};
 
 // For internal usage
-legacyGlobalExports.internal = {};
+legacyCC.internal = {};
 
 // @ts-ignore
 const _global = typeof window === 'undefined' ? global : window;
 
-legacyGlobalExports._global = _global;
+legacyCC._global = _global;
 
 if (BUILD) {
     // Supports dynamically access from external scripts such as adapters and debugger.
@@ -89,7 +89,7 @@ if (DEV) {
      * contains internal apis for unit tests
      * @expose
      */
-    legacyGlobalExports._Test = {};
+    legacyCC._Test = {};
 }
 
 /**
@@ -111,6 +111,6 @@ if (!(RUNTIME_BASED || ALIPAY)) {
  * If you post a bug to forum, please attach this flag.
  */
 const engineVersion = '1.1.0';
-_global.CocosEngine = legacyGlobalExports.ENGINE_VERSION = engineVersion;
+_global.CocosEngine = legacyCC.ENGINE_VERSION = engineVersion;
 
-_global.cc = legacyGlobalExports;
+_global.cc = legacyCC;

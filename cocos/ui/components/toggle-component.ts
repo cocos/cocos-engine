@@ -36,7 +36,7 @@ import { ToggleContainerComponent } from './toggle-container-component';
 import { extendsEnum } from '../../core/data/utils/extends-enum';
 import { EventType as ButtonEventType } from './button-component';
 import { EDITOR } from 'internal:constants';
-import { legacyGlobalExports } from '../../core/global-exports';
+import { legacyCC } from '../../core/global-exports';
 
 enum EventType {
     TOGGLE = 'toggle',
@@ -283,7 +283,7 @@ export class ToggleComponent extends ButtonComponent {
     }
 }
 
-legacyGlobalExports.ToggleComponent = ToggleComponent;
+legacyCC.ToggleComponent = ToggleComponent;
 
 /**
  * @zh

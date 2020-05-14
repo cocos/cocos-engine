@@ -33,7 +33,7 @@ import { GFXTextureType, GFXTextureViewType } from '../gfx/define';
 import { PixelFormat } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 /**
  * 贴图创建选项。
@@ -276,7 +276,7 @@ export class Texture2D extends SimpleTexture {
     }
 }
 
-legacyGlobalExports.Texture2D = Texture2D;
+legacyCC.Texture2D = Texture2D;
 
 export interface ITexture2DSerializeData {
     base: string;

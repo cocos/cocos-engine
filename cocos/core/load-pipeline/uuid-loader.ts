@@ -34,7 +34,7 @@ import { getError } from '../platform/debug';
 import { LoadingItems } from './loading-items';
 import { decompressJson } from './utils';
 import { EDITOR, DEBUG, JSB } from 'internal:constants';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 export function isSceneObj (json) {
     let SCENE_ID = 'cc.Scene';
@@ -63,7 +63,7 @@ function parseDepends (item, asset, tdInfo, deferredLoadRawAssetsInRuntime) {
             dependUuid = uuidList[i];
             let obj = objList[i];
             let prop = propList[i];
-            let info = legacyGlobalExports.AssetLibrary._getAssetInfoInRuntime(dependUuid);
+            let info = legacyCC.AssetLibrary._getAssetInfoInRuntime(dependUuid);
             if (info.raw) {
                 // skip preloading raw assets
                 let url = info.url;
@@ -159,7 +159,7 @@ function loadDepends (pipeline, item, asset, depends, callback) {
                         missingAssetReporter.stashByOwner(dependObj, dependProp, EditorExtends.serialize.asAsset(dependSrc));
                     }
                     else {
-                        legacyGlobalExports._throw(item.error);
+                        legacyCC._throw(item.error);
                     }
                 }
                 else {
@@ -199,12 +199,12 @@ function canDeferredLoad (asset, item, isScene) {
     let res = item.deferredLoadRaw;
     if (res) {
         // check if asset support deferred
-        if ((asset instanceof legacyGlobalExports.Asset) && asset.constructor.preventDeferredLoadDependents) {
+        if ((asset instanceof legacyCC.Asset) && asset.constructor.preventDeferredLoadDependents) {
             res = false;
         }
     }
     else if (isScene) {
-        if (asset instanceof legacyGlobalExports.SceneAsset || asset instanceof legacyGlobalExports.Prefab) {
+        if (asset instanceof legacyCC.SceneAsset || asset instanceof legacyCC.Prefab) {
             res = asset.asyncLoadAssets;
             //if (res) {
             //    cc.log('deferred load raw assets for ' + item.id);
@@ -256,12 +256,12 @@ export function loadUuid (item, callback) {
                 if (res) {
                     return res;
                 }
-                return legacyGlobalExports._MissingScript.getMissingWrapper(type, data);
+                return legacyCC._MissingScript.getMissingWrapper(type, data);
             };
             classFinder.onDereferenced = MissingClass.classFinder.onDereferenced;
         }
         else {
-            classFinder = legacyGlobalExports._MissingScript.safeFindClass;
+            classFinder = legacyCC._MissingScript.safeFindClass;
         }
     }
     else {
@@ -270,23 +270,23 @@ export function loadUuid (item, callback) {
             if (cls) {
                 return cls;
             }
-            legacyGlobalExports.warnID(4903, id);
+            legacyCC.warnID(4903, id);
             return Object;
         };
     }
 
-    let tdInfo = legacyGlobalExports.deserialize.Details.pool.get();
+    let tdInfo = legacyCC.deserialize.Details.pool.get();
 
     let asset;
     try {
-        asset = legacyGlobalExports.deserialize(json, tdInfo, {
+        asset = legacyCC.deserialize(json, tdInfo, {
             classFinder: classFinder,
             target: item.existingAsset,
             customEnv: item
         });
     }
     catch (e) {
-        legacyGlobalExports.deserialize.Details.pool.put(tdInfo);
+        legacyCC.deserialize.Details.pool.put(tdInfo);
         console.error(e);
         return new Error(`Failed to load asset ${item.id}, exception occurs during deserialization: ${JSB ? (e + '\n' + e.stack) : e.stack}.`);
         // return new Error(debug.getError(4925, item.id, err));
@@ -301,7 +301,7 @@ export function loadUuid (item, callback) {
     let deferredLoad = canDeferredLoad(asset, item, isScene);
     let depends = parseDepends(item, asset, tdInfo, deferredLoad);
 
-    legacyGlobalExports.deserialize.Details.pool.put(tdInfo);
+    legacyCC.deserialize.Details.pool.put(tdInfo);
 
     let wrappedCallback = function(err, asset) {
         if (!err && asset.onLoaded) {
@@ -312,15 +312,15 @@ export function loadUuid (item, callback) {
             }
         }
         if (EDITOR && !isScene) {
-            let dependListener = legacyGlobalExports.AssetLibrary.dependListener;
-            let assetListener = legacyGlobalExports.AssetLibrary.assetListener;
+            let dependListener = legacyCC.AssetLibrary.dependListener;
+            let assetListener = legacyCC.AssetLibrary.assetListener;
 
             // @ts-ignore
             function propSetter (asset, obj, propName, oldAsset, newAsset) {
                 if (oldAsset === newAsset || obj[propName] === newAsset) {
                     return;
                 }
-                if (asset instanceof legacyGlobalExports.Material && newAsset instanceof legacyGlobalExports.Texture2D) {
+                if (asset instanceof legacyCC.Material && newAsset instanceof legacyCC.Texture2D) {
                     for (let i = 0, l = asset.passes.length; i < l; i++) {
                         if (asset.getProperty(propName, i) === oldAsset) {
                             asset.setProperty(propName, newAsset, i);

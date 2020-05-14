@@ -14,7 +14,7 @@ import { Layers } from '../../scene-graph/layers';
 import { IMacroPatch, Pass } from '../core/pass';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
-import { legacyGlobalExports } from '../../global-exports';
+import { legacyCC } from '../../global-exports';
 
 const m4_1 = new Mat4();
 
@@ -115,7 +115,7 @@ export class Model {
      * Setup a default empty model
      */
     constructor () {
-        this._device = legacyGlobalExports.director.root!.device;
+        this._device = legacyCC.director.root!.device;
     }
 
     public initialize (node: Node) {

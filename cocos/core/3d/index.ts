@@ -30,9 +30,9 @@
 export * from './builtin';
 export * from './framework';
 import * as utils from './misc/utils';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 export {
     utils,
 };
-legacyGlobalExports.utils = utils;
+legacyCC.utils = utils;

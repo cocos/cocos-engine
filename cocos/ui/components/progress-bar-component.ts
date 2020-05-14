@@ -35,7 +35,7 @@ import { Enum } from '../../core/value-types';
 import { clamp01 } from '../../core/math/utils';
 import { SpriteComponent } from './sprite-component';
 import { warn } from '../../core/platform/debug';
-import { legacyGlobalExports } from '../../core/global-exports';
+import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en
@@ -350,4 +350,4 @@ export class ProgressBarComponent extends Component {
     }
 }
 
-legacyGlobalExports.ProgressBarComponent = ProgressBarComponent;
+legacyCC.ProgressBarComponent = ProgressBarComponent;

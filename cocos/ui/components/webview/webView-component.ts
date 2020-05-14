@@ -33,7 +33,7 @@ import { ccclass, help, executionOrder, menu, property } from '../../../core/dat
 import { UIComponent } from '../../../core/components/ui-base/ui-component';
 import { WebViewEventType, WebViewImpl } from './webview-impl';
 import { EDITOR } from 'internal:constants';
-import { legacyGlobalExports } from '../../../core/global-exports';
+import { legacyCC } from '../../../core/global-exports';
 
 /**
  * @en WebView event type
@@ -251,7 +251,7 @@ export class WebviewComponent extends UIComponent {
     }
 }
 
-legacyGlobalExports.WebviewComponent = WebviewComponent;
+legacyCC.WebviewComponent = WebviewComponent;
 
 /**
  * @en if you don't need the WebView and it isn't in any running Scene, you should

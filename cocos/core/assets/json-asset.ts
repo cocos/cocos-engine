@@ -29,7 +29,7 @@
 
 import {ccclass, property} from '../data/class-decorator';
 import { Asset } from './asset';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 /**
  * @zh
@@ -45,4 +45,4 @@ export default class JsonAsset extends Asset {
     public json: object | null = null;
 }
 
-legacyGlobalExports.JsonAsset = JsonAsset;
+legacyCC.JsonAsset = JsonAsset;

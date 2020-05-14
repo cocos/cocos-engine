@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { legacyGlobalExports } from '../../core/global-exports';
+import { legacyCC } from '../../core/global-exports';
 
 /**
  * @category component/audio
@@ -65,8 +65,8 @@ export abstract class AudioPlayer {
             this.play(); this._interrupted = false;
         };
         /* handle hide & show */
-        legacyGlobalExports.game.on(legacyGlobalExports.Game.EVENT_HIDE, this._onHide);
-        legacyGlobalExports.game.on(legacyGlobalExports.Game.EVENT_SHOW, this._onShow);
+        legacyCC.game.on(legacyCC.Game.EVENT_HIDE, this._onHide);
+        legacyCC.game.on(legacyCC.Game.EVENT_SHOW, this._onShow);
     }
 
     public abstract play (): void;
@@ -82,9 +82,9 @@ export abstract class AudioPlayer {
     public getState () { return this._state; }
     public getDuration () { return this._duration; }
     public destroy () {
-        legacyGlobalExports.game.off(legacyGlobalExports.Game.EVENT_HIDE, this._onHide);
-        legacyGlobalExports.game.off(legacyGlobalExports.Game.EVENT_SHOW, this._onShow);
+        legacyCC.game.off(legacyCC.Game.EVENT_HIDE, this._onHide);
+        legacyCC.game.off(legacyCC.Game.EVENT_SHOW, this._onShow);
     }
 }
 
-legacyGlobalExports.internal.AudioPlayer = AudioPlayer;
+legacyCC.internal.AudioPlayer = AudioPlayer;

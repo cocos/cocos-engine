@@ -27,11 +27,11 @@
  * @category loader
  */
 
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 export default function downloadBinary (item, callback) {
     var url = item.url;
-    var xhr = legacyGlobalExports.loader.getXMLHttpRequest(),
+    var xhr = legacyCC.loader.getXMLHttpRequest(),
         errInfo = 'Load binary data failed: ' + url + '';
     xhr.open('GET', url, true);
     xhr.responseType = "arraybuffer";

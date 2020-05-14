@@ -4,7 +4,7 @@
 
 import * as debug from './platform/debug';
 import { _normalize, basename, changeBasename, changeExtname, dirname, extname, getSeperator, join, mainFileName, stripSep } from './utils/path';
-import { legacyGlobalExports } from './global-exports';
+import { legacyCC } from './global-exports';
 // import Pipeline from './load-pipeline/pipeline';
 // import Url from './load-pipeline/url';
 
@@ -13,19 +13,19 @@ import { legacyGlobalExports } from './global-exports';
 // cc.AssetLibrary = AssetLibrary;
 
 // CCDebug.js
-legacyGlobalExports.log = debug.log;
-legacyGlobalExports.warn = debug.warn;
-legacyGlobalExports.error = debug.error;
-legacyGlobalExports.assert = debug.assert;
-legacyGlobalExports._throw = debug._throw;
-legacyGlobalExports.logID = debug.logID;
-legacyGlobalExports.warnID = debug.warnID;
-legacyGlobalExports.errorID = debug.errorID;
-legacyGlobalExports.assertID = debug.assertID;
-legacyGlobalExports.debug = debug;
+legacyCC.log = debug.log;
+legacyCC.warn = debug.warn;
+legacyCC.error = debug.error;
+legacyCC.assert = debug.assert;
+legacyCC._throw = debug._throw;
+legacyCC.logID = debug.logID;
+legacyCC.warnID = debug.warnID;
+legacyCC.errorID = debug.errorID;
+legacyCC.assertID = debug.assertID;
+legacyCC.debug = debug;
 
 // path.js
-legacyGlobalExports.path = {
+legacyCC.path = {
     join,
     extname,
     mainFileName,

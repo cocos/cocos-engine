@@ -39,7 +39,7 @@ import { IAssembler } from '../../core/renderer/ui/base';
 import { UI } from '../../core/renderer/ui/ui';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
-import { legacyGlobalExports } from '../../core/global-exports';
+import { legacyCC } from '../../core/global-exports';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
@@ -618,4 +618,4 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 }
 
-legacyGlobalExports.GraphicsComponent = GraphicsComponent;
+legacyCC.GraphicsComponent = GraphicsComponent;

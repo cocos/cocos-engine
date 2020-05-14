@@ -36,7 +36,7 @@ import eventManager from './event-manager';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './events';
 import { Touch } from './touch';
 import { JSB, RUNTIME_BASED } from 'internal:constants';
-import { legacyGlobalExports } from '../../global-exports';
+import { legacyCC } from '../../global-exports';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 
@@ -82,7 +82,7 @@ class Acceleration {
         this.timestamp = timestamp;
     }
 }
-legacyGlobalExports.internal.Acceleration = Acceleration;
+legacyCC.internal.Acceleration = Acceleration;
 
 /**
  *  This class manages all events of input. include: touch, mouse, accelerometer, keyboard
@@ -128,7 +128,7 @@ class InputManager {
             if (index === undefined) {
                 const unusedIndex = this._getUnUsedIndex();
                 if (unusedIndex === -1) {
-                    legacyGlobalExports.logID(2300, unusedIndex);
+                    legacyCC.logID(2300, unusedIndex);
                     continue;
                 }
                 // curTouch = this._touches[unusedIndex] = touch;
@@ -389,7 +389,7 @@ class InputManager {
             return;
         }
 
-        this._glView = legacyGlobalExports.view;
+        this._glView = legacyCC.view;
 
         let prohibition = sys.isMobile;
         let supportMouse = ('mouse' in sys.capabilities);
@@ -416,7 +416,7 @@ class InputManager {
         }
 
         // Register keyboard events.
-        if (legacyGlobalExports.sys.browserType !== legacyGlobalExports.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+        if (legacyCC.sys.browserType !== legacyCC.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
             this._registerKeyboardEvent();
         }
 
@@ -432,7 +432,7 @@ class InputManager {
         }
 
         this._accelEnabled = isEnable;
-        const scheduler = legacyGlobalExports.director.getScheduler();
+        const scheduler = legacyCC.director.getScheduler();
         scheduler.enableForTarget(this);
         if (this._accelEnabled) {
             this._registerAccelerometerEvent();
@@ -478,7 +478,7 @@ class InputManager {
             z = ((deviceOrientationEvent.alpha || 0) / 90) * 0.981;
         }
 
-        if (legacyGlobalExports.view._isRotated) {
+        if (legacyCC.view._isRotated) {
             const tmp = x;
             x = -y;
             y = tmp;
@@ -501,8 +501,8 @@ class InputManager {
             mAcceleration.y = -mAcceleration.y;
         }
         // fix android acc values are opposite
-        if (legacyGlobalExports.sys.os === legacyGlobalExports.sys.OS_ANDROID &&
-            legacyGlobalExports.sys.browserType !== legacyGlobalExports.sys.BROWSER_TYPE_MOBILE_QQ) {
+        if (legacyCC.sys.os === legacyCC.sys.OS_ANDROID &&
+            legacyCC.sys.browserType !== legacyCC.sys.BROWSER_TYPE_MOBILE_QQ) {
             mAcceleration.x = -mAcceleration.x;
             mAcceleration.y = -mAcceleration.y;
         }
@@ -536,7 +536,7 @@ class InputManager {
 
     private _getUnUsedIndex () {
         let temp = this._indexBitsUsed;
-        const now = legacyGlobalExports.director.getCurrentTime();
+        const now = legacyCC.director.getCurrentTime();
 
         for (let i = 0; i < this._maxTouches; i++) {
             if (!(temp & 0x00000001)) {
@@ -587,7 +587,7 @@ class InputManager {
 
     private _registerPointerLockEvent () {
         const lockChangeAlert = () => {
-            const canvas = legacyGlobalExports.game.canvas;
+            const canvas = legacyCC.game.canvas;
             // @ts-ignore
             if (document.pointerLockElement === canvas || document.mozPointerLockElement === canvas){
                 this._pointLocked = true;
@@ -709,7 +709,7 @@ class InputManager {
     }
 
     private _registerTouchEvents (element: HTMLElement) {
-        if (legacyGlobalExports.sys.browserType === legacyGlobalExports.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+        if (legacyCC.sys.browserType === legacyCC.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
             this._registerWXGameTouchEvents(element);
         } else {
             this._registerHTMLTouchEvents(element);
@@ -778,7 +778,7 @@ class InputManager {
     }
 
     private _registerKeyboardEvent () {
-        const canvas = legacyGlobalExports.game.canvas as HTMLCanvasElement;
+        const canvas = legacyCC.game.canvas as HTMLCanvasElement;
         canvas.addEventListener('keydown', (event: KeyboardEvent) => {
             eventManager.dispatchEvent(new EventKeyboard(event, true));
             event.stopPropagation();
@@ -798,7 +798,7 @@ class InputManager {
         this._accelDeviceEvent = window.DeviceMotionEvent || window.DeviceOrientationEvent;
 
         // TODO fix DeviceMotionEvent bug on QQ Browser version 4.1 and below.
-        if (legacyGlobalExports.sys.browserType === legacyGlobalExports.sys.BROWSER_TYPE_MOBILE_QQ) {
+        if (legacyCC.sys.browserType === legacyCC.sys.BROWSER_TYPE_MOBILE_QQ) {
             // TODO
         // @ts-ignore
             this._accelDeviceEvent = window.DeviceOrientationEvent;
@@ -829,4 +829,4 @@ const inputManager = new InputManager();
 
 export default inputManager;
 
-legacyGlobalExports.internal.inputManager = inputManager;
+legacyCC.internal.inputManager = inputManager;

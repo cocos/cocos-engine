@@ -38,7 +38,7 @@ import { LayoutComponent } from './layout-component';
 import { PageViewComponent } from './page-view-component';
 import { SpriteComponent } from './sprite-component';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-import { legacyGlobalExports } from '../../core/global-exports';
+import { legacyCC } from '../../core/global-exports';
 
 const _color = new Color();
 
@@ -274,4 +274,4 @@ export class PageViewIndicatorComponent extends Component {
   }
 }
 
-legacyGlobalExports.PageViewIndicatorComponent = PageViewIndicatorComponent;
+legacyCC.PageViewIndicatorComponent = PageViewIndicatorComponent;

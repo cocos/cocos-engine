@@ -30,7 +30,7 @@
 
 import {ccclass, property, string} from '../data/class-decorator';
 import { Font } from './font';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 /**
  * @en
@@ -57,4 +57,4 @@ export class TTFFont extends Font {
     }
 }
 
-legacyGlobalExports.TTFFont = TTFFont;
+legacyCC.TTFFont = TTFFont;

@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { legacyGlobalExports } from '../cocos/core/global-exports';
+import { legacyCC } from '../cocos/core/global-exports';
 // has to import predefines first
 import '../predefine';
 
@@ -13,15 +13,15 @@ import '../cocos/core/legacy';
 export * from '../cocos/core';
 import * as renderer from '../cocos/core/renderer';
 export { renderer };
-legacyGlobalExports.renderer = renderer;
+legacyCC.renderer = renderer;
 
 export * from '../extensions/ccpool/node-pool';
 
-export { legacyGlobalExports as cclegacy };
+export { legacyCC as cclegacy };
 
 import * as primitives from '../cocos/core/primitive';
 export {
     primitives,
 };
-legacyGlobalExports.primitives = primitives;
+legacyCC.primitives = primitives;
 export * from '../cocos/core/primitive/primitive';

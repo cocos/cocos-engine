@@ -37,7 +37,7 @@ import { clamp } from '../../core/math/utils';
 import { UI } from '../../core/renderer/ui/ui';
 import { UIRenderComponent, InstanceMaterialType } from '../../core/components/ui-base/ui-render-component';
 import { EDITOR } from 'internal:constants';
-import { legacyGlobalExports } from '../../core/global-exports';
+import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en
@@ -655,7 +655,7 @@ export class SpriteComponent extends UIRenderComponent {
         const spriteFrame = this._spriteFrame;
         const material = this._material;
         // WebGL
-        if (legacyGlobalExports.game.renderType !== legacyGlobalExports.game.RENDER_TYPE_CANVAS) {
+        if (legacyCC.game.renderType !== legacyCC.game.RENDER_TYPE_CANVAS) {
             // if (!material) {
             //     this._material = cc.builtinResMgr.get('sprite-material');
             //     material = this._material;
@@ -774,4 +774,4 @@ export class SpriteComponent extends UIRenderComponent {
     }
 }
 
-legacyGlobalExports.SpriteComponent = SpriteComponent;
+legacyCC.SpriteComponent = SpriteComponent;

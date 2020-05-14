@@ -34,7 +34,7 @@ import { obsolete } from '../utils/js';
 import { Enum } from '../value-types';
 import { Asset } from './asset';
 import { SUPPORT_JIT, ALIPAY, RUNTIME_BASED } from 'internal:constants';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 /**
  * Prefab 创建实例所用的优化策略，配合 [[optimizationPolicy]] 使用。
@@ -119,7 +119,7 @@ export default class Prefab extends Asset {
     }
 
     public createNode (cb: Function): void {
-        const node = legacyGlobalExports.instantiate(this);
+        const node = legacyCC.instantiate(this);
         node.name = this.name;
         cb(null, node);
     }
@@ -148,7 +148,7 @@ export default class Prefab extends Asset {
         }
         else {
             // temp guard code
-            legacyGlobalExports.warnID(3700);
+            legacyCC.warnID(3700);
         }
         if (!this._createFunction) {
             this.compileCreateFunction();
@@ -189,9 +189,9 @@ export default class Prefab extends Asset {
     }
 }
 
-legacyGlobalExports.Prefab = Prefab;
+legacyCC.Prefab = Prefab;
 if (ALIPAY || RUNTIME_BASED) {
-    legacyGlobalExports._Prefab = Prefab;
+    legacyCC._Prefab = Prefab;
 } else {
-    obsolete(legacyGlobalExports, 'cc._Prefab', 'Prefab');
+    obsolete(legacyCC, 'cc._Prefab', 'Prefab');
 }

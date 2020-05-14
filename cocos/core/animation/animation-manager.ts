@@ -12,7 +12,7 @@ import { MutableForwardIterator, remove } from '../utils/array';
 import { BlendStateBuffer } from './skeletal-animation-blending';
 import { AnimationState } from './animation-state';
 import { CrossFade } from './cross-fade';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 @ccclass
 export class AnimationManager extends System {
@@ -91,4 +91,4 @@ director.on(Director.EVENT_INIT, () => {
     director.registerSystem(AnimationManager.ID, animationManager, Scheduler.PRIORITY_SYSTEM);
 });
 
-legacyGlobalExports.AnimationManager = AnimationManager;
+legacyCC.AnimationManager = AnimationManager;

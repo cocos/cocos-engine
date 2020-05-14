@@ -30,7 +30,7 @@
 
 import { EventKeyboard, EventAcceleration, EventMouse } from './events';
 import { Node } from '../../scene-graph';
-import { legacyGlobalExports } from '../../global-exports';
+import { legacyCC } from '../../global-exports';
 
 export interface IEventListenerCreateInfo {
     event?: number;
@@ -111,21 +111,21 @@ export class EventListener {
      * @param argObj a json object
      */
     public static create (argObj: IEventListenerCreateInfo): EventListener {
-        legacyGlobalExports.assertID(argObj && argObj.event, 1900);
+        legacyCC.assertID(argObj && argObj.event, 1900);
 
         const listenerType = argObj.event;
         delete argObj.event;
 
         let listener: EventListener | null = null;
-        if (listenerType === legacyGlobalExports.EventListener.TOUCH_ONE_BY_ONE) {
+        if (listenerType === legacyCC.EventListener.TOUCH_ONE_BY_ONE) {
             listener = new TouchOneByOne();
-        } else if (listenerType === legacyGlobalExports.EventListener.TOUCH_ALL_AT_ONCE) {
+        } else if (listenerType === legacyCC.EventListener.TOUCH_ALL_AT_ONCE) {
             listener = new TouchAllAtOnce();
-        } else if (listenerType === legacyGlobalExports.EventListener.MOUSE) {
+        } else if (listenerType === legacyCC.EventListener.MOUSE) {
             listener = new Mouse();
-        } else if (listenerType === legacyGlobalExports.EventListener.KEYBOARD) {
+        } else if (listenerType === legacyCC.EventListener.KEYBOARD) {
             listener = new Keyboard();
-        } else if (listenerType === legacyGlobalExports.EventListener.ACCELERATION) {
+        } else if (listenerType === legacyCC.EventListener.ACCELERATION) {
             listener = new Acceleration(argObj.callback);
             delete argObj.callback;
         }
@@ -351,7 +351,7 @@ export class Mouse extends EventListener {
     }
 
     public _callback (event: EventMouse) {
-        const eventType = legacyGlobalExports.Event.EventMouse;
+        const eventType = legacyCC.Event.EventMouse;
         switch (event.eventType) {
             case eventType.DOWN:
                 if (this.onMouseDown) {
@@ -425,7 +425,7 @@ export class TouchOneByOne extends EventListener {
 
     public checkAvailable () {
         if (!this.onTouchBegan) {
-            legacyGlobalExports.logID(1801);
+            legacyCC.logID(1801);
             return false;
         }
         return true;
@@ -454,7 +454,7 @@ export class TouchAllAtOnce extends EventListener {
     public checkAvailable () {
         if (this.onTouchesBegan === null && this.onTouchesMoved === null
             && this.onTouchesEnded === null && this.onTouchesCancelled === null) {
-            legacyGlobalExports.logID(1802);
+            legacyCC.logID(1802);
             return false;
         }
         return true;
@@ -478,7 +478,7 @@ export class Acceleration extends EventListener {
     }
 
     public checkAvailable () {
-        legacyGlobalExports.assertID(this._onAccelerationEvent, 1803);
+        legacyCC.assertID(this._onAccelerationEvent, 1803);
         return true;
     }
 
@@ -518,11 +518,11 @@ export class Keyboard extends EventListener {
 
     public checkAvailable () {
         if (this.onKeyPressed === null && this.onKeyReleased === null) {
-            legacyGlobalExports.logID(1800);
+            legacyCC.logID(1800);
             return false;
         }
         return true;
     }
 }
 
-legacyGlobalExports.EventListener = EventListener;
+legacyCC.EventListener = EventListener;

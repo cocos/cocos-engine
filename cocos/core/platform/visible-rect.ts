@@ -29,7 +29,7 @@
  */
 
 import { Rect } from '../math';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 /**
  * cc.visibleRect is a singleton object which defines the actual visible rect of the current view,
@@ -39,47 +39,47 @@ const visibleRect = {
     /**
      * Top left coordinate of the screen related to the game scene.
      */
-    topLeft: legacyGlobalExports.v2(0, 0),
+    topLeft: legacyCC.v2(0, 0),
 
     /**
      * Top right coordinate of the screen related to the game scene.
      */
-    topRight: legacyGlobalExports.v2(0, 0),
+    topRight: legacyCC.v2(0, 0),
 
     /**
      * Top center coordinate of the screen related to the game scene.
      */
-    top: legacyGlobalExports.v2(0, 0),
+    top: legacyCC.v2(0, 0),
 
     /**
      * Bottom left coordinate of the screen related to the game scene.
      */
-    bottomLeft: legacyGlobalExports.v2(0, 0),
+    bottomLeft: legacyCC.v2(0, 0),
 
     /**
      * Bottom right coordinate of the screen related to the game scene.
      */
-    bottomRight: legacyGlobalExports.v2(0, 0),
+    bottomRight: legacyCC.v2(0, 0),
 
     /**
      * Bottom center coordinate of the screen related to the game scene.
      */
-    bottom: legacyGlobalExports.v2(0, 0),
+    bottom: legacyCC.v2(0, 0),
 
     /**
      * Center coordinate of the screen related to the game scene.
      */
-    center: legacyGlobalExports.v2(0, 0),
+    center: legacyCC.v2(0, 0),
 
     /**
      * Left center coordinate of the screen related to the game scene.
      */
-    left: legacyGlobalExports.v2(0, 0),
+    left: legacyCC.v2(0, 0),
 
     /**
      * Right center coordinate of the screen related to the game scene.
      */
-    right: legacyGlobalExports.v2(0, 0),
+    right: legacyCC.v2(0, 0),
 
     /**
      * Width of the screen.
@@ -133,5 +133,5 @@ const visibleRect = {
     },
 };
 
-legacyGlobalExports.visibleRect = visibleRect;
+legacyCC.visibleRect = visibleRect;
 export default visibleRect;

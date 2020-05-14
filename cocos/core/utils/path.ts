@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 const EXTNAME_RE = /(\.[^\.\/\?\\]*)(\?.*)?$/;
 const DIRNAME_RE = /((.*)(\/|\\|\\\\))?(.*?\..*$)?/;
@@ -158,5 +158,5 @@ export function stripSep (path: string) {
 }
 
 export function getSeperator () {
-    return legacyGlobalExports.sys.os === legacyGlobalExports.sys.OS_WINDOWS ? '\\' : '/';
+    return legacyCC.sys.os === legacyCC.sys.OS_WINDOWS ? '\\' : '/';
 }

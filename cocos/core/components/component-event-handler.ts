@@ -30,7 +30,7 @@
 
 import {ccclass, property} from '../data/class-decorator';
 import { Node } from '../scene-graph';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 /**
  * @zh
@@ -81,7 +81,7 @@ export class EventHandler {
      * @zh
      * 目标节点。
      */
-    @property(legacyGlobalExports.Node)
+    @property(legacyCC.Node)
     public target: Node | null = null;
     /**
      * @zh
@@ -124,13 +124,13 @@ export class EventHandler {
      */
     public emit (params: any[]) {
         const target = this.target;
-        if (!legacyGlobalExports.isValid(target)) { return; }
+        if (!legacyCC.isValid(target)) { return; }
 
         this._genCompIdIfNeeded();
-        const compType = legacyGlobalExports.js._getClassById(this._componentId);
+        const compType = legacyCC.js._getClassById(this._componentId);
 
         const comp = target!.getComponent(compType);
-        if (!legacyGlobalExports.isValid(comp)) { return; }
+        if (!legacyCC.isValid(comp)) { return; }
 
         const handler = comp![this.handler];
         if (typeof(handler) !== 'function') { return; }
@@ -144,13 +144,13 @@ export class EventHandler {
     }
 
     private _compName2Id (compName) {
-        const comp = legacyGlobalExports.js.getClassByName(compName);
-        return legacyGlobalExports.js._getClassId(comp);
+        const comp = legacyCC.js.getClassByName(compName);
+        return legacyCC.js._getClassId(comp);
     }
 
     private _compId2Name (compId) {
-        const comp = legacyGlobalExports.js._getClassById(compId);
-        return legacyGlobalExports.js.getClassName(comp);
+        const comp = legacyCC.js._getClassById(compId);
+        return legacyCC.js.getClassName(comp);
     }
 
     // to be deprecated in the future
@@ -162,4 +162,4 @@ export class EventHandler {
     }
 }
 
-legacyGlobalExports.Component.EventHandler = EventHandler;
+legacyCC.Component.EventHandler = EventHandler;

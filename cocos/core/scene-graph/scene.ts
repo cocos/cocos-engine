@@ -34,7 +34,7 @@ import { RenderScene } from '../renderer/scene/render-scene';
 import { BaseNode } from './base-node';
 import { SceneGlobals } from './scene-globals';
 import { EDITOR, TEST } from 'internal:constants';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 /**
  * @en
@@ -85,15 +85,15 @@ export class Scene extends BaseNode {
     constructor (name: string) {
         super(name);
         this._activeInHierarchy = false;
-        if (legacyGlobalExports.director && legacyGlobalExports.director.root) {
-            this._renderScene = legacyGlobalExports.director.root.createScene({});
+        if (legacyCC.director && legacyCC.director.root) {
+            this._renderScene = legacyCC.director.root.createScene({});
         }
-        this._inited = legacyGlobalExports.game ? !legacyGlobalExports.game._isCloning : true;
+        this._inited = legacyCC.game ? !legacyCC.game._isCloning : true;
     }
 
     public destroy () {
         const success = super.destroy();
-        legacyGlobalExports.director.root.destroyScene(this._renderScene);
+        legacyCC.director.root.destroyScene(this._renderScene);
         this._activeInHierarchy = false;
         return success;
     }
@@ -145,7 +145,7 @@ export class Scene extends BaseNode {
     protected _load () {
         if (!this._inited) {
             if (TEST) {
-                legacyGlobalExports.assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
+                legacyCC.assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
             }
             this._onBatchCreated();
             this._inited = true;
@@ -160,9 +160,9 @@ export class Scene extends BaseNode {
             // register all nodes to editor
             this._registerIfAttached!(active);
         }
-        legacyGlobalExports.director._nodeActivator.activateNode(this, active);
+        legacyCC.director._nodeActivator.activateNode(this, active);
         this._globals.renderScene = this._renderScene!;
     }
 }
 
-legacyGlobalExports.Scene = Scene;
+legacyCC.Scene = Scene;

@@ -25,7 +25,7 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 /**
  * 加载相关模块
@@ -71,20 +71,20 @@ let url = {
      */
     raw: function (url) {
         if (EDITOR && !this._rawAssets) {
-            legacyGlobalExports.errorID(7000);
+            legacyCC.errorID(7000);
             return '';
         }
 
         url = this.normalize(url);
 
         if ( !url.startsWith('resources/') ) {
-            legacyGlobalExports.errorID(EDITOR ? 7001 : 7002, url);
+            legacyCC.errorID(EDITOR ? 7001 : 7002, url);
         }
         else {
             // Compatible with versions lower than 1.10
-            var uuid = legacyGlobalExports.loader._getResUuid(url.slice(10), legacyGlobalExports.Asset, null, true);
+            var uuid = legacyCC.loader._getResUuid(url.slice(10), legacyCC.Asset, null, true);
             if (uuid) {
-                return legacyGlobalExports.AssetLibrary.getLibUrlNoExt(uuid, true) + legacyGlobalExports.path.extname(url);
+                return legacyCC.AssetLibrary.getLibUrlNoExt(uuid, true) + legacyCC.path.extname(url);
             }
         }
 
@@ -92,10 +92,10 @@ let url = {
     },
 
     _init: function (assets) {
-        this._rawAssets = legacyGlobalExports.path.stripSep(assets) + '/';
+        this._rawAssets = legacyCC.path.stripSep(assets) + '/';
     }
 }
 
-legacyGlobalExports.url = url;
+legacyCC.url = url;
 
 export default url;

@@ -31,7 +31,7 @@
 import { Component, EventHandler as ComponentEventHandler } from '../../core/components';
 import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { ToggleComponent} from './toggle-component';
-import { legacyGlobalExports } from '../../core/global-exports';
+import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en
@@ -183,4 +183,4 @@ export class ToggleContainerComponent extends Component {
     }
 }
 
-legacyGlobalExports.ToggleContainerComponent = ToggleContainerComponent;
+legacyCC.ToggleContainerComponent = ToggleContainerComponent;

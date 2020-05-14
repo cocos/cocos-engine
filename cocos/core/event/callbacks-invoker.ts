@@ -31,7 +31,7 @@
 import { Pool } from '../memop';
 import { array, createMap } from '../utils/js';
 import { TEST } from 'internal:constants';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 const fastRemoveAt = array.fastRemoveAt;
 
 function empty (){}
@@ -336,5 +336,5 @@ export class CallbacksInvoker {
 }
 
 if (TEST) {
-    legacyGlobalExports._Test.CallbacksInvoker = CallbacksInvoker;
+    legacyCC._Test.CallbacksInvoker = CallbacksInvoker;
 }

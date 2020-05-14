@@ -32,7 +32,7 @@ import { ccclass, property } from '../data/class-decorator';
 import * as js from '../utils/js';
 import { Asset } from './asset';
 import { SpriteFrame } from './sprite-frame';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 interface ISpriteAtlasSerializeData{
     name: string;
@@ -137,4 +137,4 @@ export class SpriteAtlas extends Asset {
     }
 }
 
-legacyGlobalExports.SpriteAtlas = SpriteAtlas;
+legacyCC.SpriteAtlas = SpriteAtlas;

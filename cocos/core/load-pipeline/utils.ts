@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 /**
  * @category loader
@@ -32,7 +32,7 @@ import { legacyGlobalExports } from '../global-exports';
 let _noCacheRex = /\?/;
 
 export function urlAppendTimestamp (url) {
-    if (legacyGlobalExports.game.config['noCache'] && typeof url === 'string') {
+    if (legacyCC.game.config['noCache'] && typeof url === 'string') {
         if (_noCacheRex.test(url))
             //@ts-ignore
             url += '&_t=' + (new Date() - 0);

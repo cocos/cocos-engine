@@ -41,7 +41,7 @@ import { Asset } from './asset';
 import { EffectAsset } from './effect-asset';
 import { SpriteFrame } from './sprite-frame';
 import { TextureBase } from './texture-base';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 /**
  * @en
@@ -366,7 +366,7 @@ export class Material extends Asset {
             if (passInfo.switch && !defs[passInfo.switch]) { continue; }
             passInfo.stateOverrides = this._states.length > k ? this._states[k] : {};
             passInfo.idxInTech = k;
-            const pass = new Pass(legacyGlobalExports.director.root.device);
+            const pass = new Pass(legacyCC.director.root.device);
             pass.initialize(passInfo);
             passes.push(pass);
         }
@@ -426,7 +426,7 @@ export class Material extends Asset {
                 }
                 pass.bindTextureView(binding, textureView);
                 if (val instanceof TextureBase) {
-                    pass.bindSampler(binding, samplerLib.getSampler(legacyGlobalExports.director.root.device, val.getSamplerHash()));
+                    pass.bindSampler(binding, samplerLib.getSampler(legacyCC.director.root.device, val.getSamplerHash()));
                 }
             } else if (!val) {
                 pass.resetTexture(name);
@@ -449,4 +449,4 @@ export class Material extends Asset {
     }
 }
 
-legacyGlobalExports.Material = Material;
+legacyCC.Material = Material;

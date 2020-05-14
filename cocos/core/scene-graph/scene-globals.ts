@@ -37,7 +37,7 @@ import { RenderScene } from '../renderer/scene/render-scene';
 import { Skybox } from '../renderer/scene/skybox';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -101,7 +101,7 @@ export class AmbientInfo {
         this.groundAlbedo = this._groundAlbedo;
     }
 }
-legacyGlobalExports.AmbientInfo = AmbientInfo;
+legacyCC.AmbientInfo = AmbientInfo;
 
 /**
  * @zh 天空盒相关信息
@@ -175,7 +175,7 @@ export class SkyboxInfo {
         this.useIBL = this._useIBL;
     }
 }
-legacyGlobalExports.SkyboxInfo = SkyboxInfo;
+legacyCC.SkyboxInfo = SkyboxInfo;
 
 /**
  * @zh 全局雾相关信息
@@ -466,7 +466,7 @@ export class PlanarShadowInfo {
         this.enabled = this._enabled;
     }
 }
-legacyGlobalExports.PlanarShadowInfo = PlanarShadowInfo;
+legacyCC.PlanarShadowInfo = PlanarShadowInfo;
 
 /**
  * @zh 各类场景级别的渲染参数，将影响全场景的所有物体
@@ -498,4 +498,4 @@ export class SceneGlobals {
         this.fog.renderScene = rs;
     }
 }
-legacyGlobalExports.SceneGlobals = SceneGlobals;
+legacyCC.SceneGlobals = SceneGlobals;

@@ -38,7 +38,7 @@ import { Node } from '../../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
 import { TEST } from 'internal:constants';
-import { legacyGlobalExports } from '../../global-exports';
+import { legacyCC } from '../../global-exports';
 
 const _characters = '0123456789. ';
 
@@ -140,33 +140,33 @@ export class Profiler {
                 this._rootNode.active = false;
             }
 
-            legacyGlobalExports.director.off(legacyGlobalExports.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
-            legacyGlobalExports.director.off(legacyGlobalExports.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
-            legacyGlobalExports.director.off(legacyGlobalExports.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
-            legacyGlobalExports.director.off(legacyGlobalExports.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
-            legacyGlobalExports.director.off(legacyGlobalExports.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            legacyGlobalExports.director.off(legacyGlobalExports.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+            legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
+            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
+            legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
+            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
+            legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
+            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
             this._showFPS = false;
         }
     }
 
     public showStats () {
         if (!this._showFPS) {
-            if (!this._device) { this._device = legacyGlobalExports.director.root.device; }
+            if (!this._device) { this._device = legacyCC.director.root.device; }
             this.generateCanvas();
             this.generateStats();
-            legacyGlobalExports.game.once(legacyGlobalExports.Game.EVENT_ENGINE_INITED, this.generateNode, this);
+            legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this.generateNode, this);
 
             if (this._rootNode) {
                 this._rootNode.active = true;
             }
 
-            legacyGlobalExports.director.on(legacyGlobalExports.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
-            legacyGlobalExports.director.on(legacyGlobalExports.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
-            legacyGlobalExports.director.on(legacyGlobalExports.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
-            legacyGlobalExports.director.on(legacyGlobalExports.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
-            legacyGlobalExports.director.on(legacyGlobalExports.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            legacyGlobalExports.director.on(legacyGlobalExports.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
+            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
+            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
+            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
+            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
+            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
 
             this._showFPS = true;
             this._canvasDone = true;
@@ -261,7 +261,7 @@ export class Profiler {
         }
 
         this._rootNode = new Node('PROFILER_NODE');
-        legacyGlobalExports.game.addPersistRootNode(this._rootNode);
+        legacyCC.game.addPersistRootNode(this._rootNode);
 
         const cameraNode = new Node('Profiler_Camera');
         cameraNode.setPosition(0, 0, 1);
@@ -356,7 +356,7 @@ export class Profiler {
         }
 
         const now = performance.now();
-        if (legacyGlobalExports.director.isPaused()) {
+        if (legacyCC.director.isPaused()) {
             (this._stats.frame.counter as PerfCounter).start(now);
         } else {
             (this._stats.logic.counter as PerfCounter).end(now);
@@ -432,4 +432,4 @@ export class Profiler {
 }
 
 export const profiler = new Profiler();
-legacyGlobalExports.profiler = profiler;
+legacyCC.profiler = profiler;

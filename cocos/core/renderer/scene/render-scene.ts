@@ -16,7 +16,7 @@ import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
 import { PREVIEW } from 'internal:constants';
 import { Fog } from './fog';
-import { legacyGlobalExports } from '../../global-exports';
+import { legacyCC } from '../../global-exports';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -410,7 +410,7 @@ export class RenderScene {
      */
     public raycastAllCanvas (worldRay: ray, mask = Layers.Enum.UI_2D, distance = Infinity): boolean {
         poolUI.reset();
-        const canvasComs = legacyGlobalExports.director.getScene().getComponentsInChildren(legacyGlobalExports.CanvasComponent);
+        const canvasComs = legacyCC.director.getScene().getComponentsInChildren(legacyCC.CanvasComponent);
         if (canvasComs != null && canvasComs.length > 0) {
             for (let i = 0; i < canvasComs.length; i++) {
                 const canvasNode = canvasComs[i].node;

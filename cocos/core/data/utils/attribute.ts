@@ -31,7 +31,7 @@ import { errorID, log, warnID } from '../../platform/debug';
 import { extend, formatStr, get, getClassName, isChildClassOf, value } from '../../utils/js';
 import { isPlainEmptyObj_DEV } from '../../utils/misc';
 import { EDITOR, DEV, SUPPORT_JIT } from 'internal:constants';
-import { legacyGlobalExports } from '../../global-exports';
+import { legacyCC } from '../../global-exports';
 
 export const DELIMETER = '$_$';
 
@@ -63,7 +63,7 @@ export function createAttrsSingle (owner: Object, ownerConstructor: Function, su
  */
 export function createAttrs (subclass: any) {
     let superClass: any;
-    const chains: any[] = legacyGlobalExports.Class.getInheritanceChain(subclass);
+    const chains: any[] = legacyCC.Class.getInheritanceChain(subclass);
     for (let i = chains.length - 1; i >= 0; i--) {
         const cls = chains[i];
         const attrs = cls.hasOwnProperty('__attrs__') && cls.__attrs__;
@@ -186,8 +186,8 @@ export class PrimitiveType<T> {
  * ```
  */
 export const CCInteger = new PrimitiveType('Integer', 0);
-legacyGlobalExports.Integer = CCInteger;
-legacyGlobalExports.CCInteger = CCInteger;
+legacyCC.Integer = CCInteger;
+legacyCC.CCInteger = CCInteger;
 
 /**
  * 指定编辑器以浮点数形式对待该属性或数组元素。
@@ -205,11 +205,11 @@ legacyGlobalExports.CCInteger = CCInteger;
  * ```
  */
 export const CCFloat = new PrimitiveType('Float', 0.0);
-legacyGlobalExports.Float = CCFloat;
-legacyGlobalExports.CCFloat = CCFloat;
+legacyCC.Float = CCFloat;
+legacyCC.CCFloat = CCFloat;
 
 if (EDITOR) {
-    get(legacyGlobalExports, 'Number', function () {
+    get(legacyCC, 'Number', function () {
         warnID(3603);
         return CCFloat;
     });
@@ -231,8 +231,8 @@ if (EDITOR) {
  * ```
  */
 export const CCBoolean = new PrimitiveType('Boolean', false);
-legacyGlobalExports.Boolean = CCBoolean;
-legacyGlobalExports.CCBoolean = CCBoolean;
+legacyCC.Boolean = CCBoolean;
+legacyCC.CCBoolean = CCBoolean;
 
 /**
  * 指定编辑器以字符串形式对待该属性或数组元素。
@@ -250,8 +250,8 @@ legacyGlobalExports.CCBoolean = CCBoolean;
  * ```
  */
 export const CCString = new PrimitiveType('String', '');
-legacyGlobalExports.String = CCString;
-legacyGlobalExports.CCString = CCString;
+legacyCC.String = CCString;
+legacyCC.CCString = CCString;
 
 /*
 BuiltinAttributes: {
@@ -312,7 +312,7 @@ export function getTypeChecker (type: string, attributeName: string) {
             }
         } else if (defaultType !== 'function') {
             if (type === CCString.default && defaultVal == null) {
-                if (!isChildClassOf(mainPropAttrs.ctor, legacyGlobalExports.RawAsset)) {
+                if (!isChildClassOf(mainPropAttrs.ctor, legacyCC.RawAsset)) {
                     warnID(3607, propInfo);
                 }
             } else {
@@ -331,8 +331,8 @@ export function getObjTypeChecker (typeCtor) {
         getTypeChecker('Object', 'type')(classCtor, mainPropName);
         // check ValueType
         const defaultDef = getClassAttrs(classCtor)[mainPropName + DELIMETER + 'default'];
-        const defaultVal = legacyGlobalExports.Class.getDefault(defaultDef);
-        if (!Array.isArray(defaultVal) && isChildClassOf(typeCtor, legacyGlobalExports.ValueType)) {
+        const defaultVal = legacyCC.Class.getDefault(defaultDef);
+        if (!Array.isArray(defaultVal) && isChildClassOf(typeCtor, legacyCC.ValueType)) {
             const typename = getClassName(typeCtor);
             const info = formatStr('No need to specify the "type" of "%s.%s" because %s is a child class of ValueType.',
             getClassName(classCtor), mainPropName, typename);

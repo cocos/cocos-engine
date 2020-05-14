@@ -10,7 +10,7 @@ import { Action } from './actions/action';
 import { ITweenOption } from './export-api';
 import { TweenAction } from './tween-action';
 import { SetAction } from './set-action';
-import { legacyGlobalExports } from '../core/global-exports';
+import { legacyCC } from '../core/global-exports';
 
 /**
  * @en
@@ -429,7 +429,7 @@ export class Tween {
         return spawn.apply(spawn, tmp_args as any);
     }
 }
-legacyGlobalExports.Tween = Tween;
+legacyCC.Tween = Tween;
 
 
 /**
@@ -449,7 +449,7 @@ legacyGlobalExports.Tween = Tween;
 export function tween (target?: object) {
     return new Tween(target);
 }
-legacyGlobalExports.tween = tween;
+legacyCC.tween = tween;
 
 /**
  * @en
@@ -462,4 +462,4 @@ export function tweenUtil (target?: object) {
     warn("tweenUtil' is deprecated, please use 'tween' instead ");
     return new Tween(target);
 }
-legacyGlobalExports.tweenUtil = tweenUtil;
+legacyCC.tweenUtil = tweenUtil;

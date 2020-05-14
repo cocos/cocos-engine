@@ -36,7 +36,7 @@ import { BaseNode, TRANSFORM_ON } from './base-node';
 import { Layers } from './layers';
 import { NodeSpace, TransformBit } from './node-enum';
 import { NodeUIProperties } from './node-ui-properties';
-import { legacyGlobalExports } from '../global-exports';
+import { legacyCC } from '../global-exports';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -87,7 +87,7 @@ export class Node extends BaseNode {
      * @param obj 待测试的节点
      */
     public static isNode (obj: object | null): obj is Node {
-        return obj instanceof Node && (obj.constructor === Node || !(obj instanceof legacyGlobalExports.Scene));
+        return obj instanceof Node && (obj.constructor === Node || !(obj instanceof legacyCC.Scene));
     }
 
     // UI 部分的脏数据
@@ -973,4 +973,4 @@ export class Node extends BaseNode {
     }
 }
 
-legacyGlobalExports.Node = Node;
+legacyCC.Node = Node;
