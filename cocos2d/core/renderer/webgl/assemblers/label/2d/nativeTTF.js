@@ -15,8 +15,10 @@ export default class NativeTTF {
 
 
     init(comp) {
-        this._label = comp;
+        this._renderComp = comp;
         renderer.CustomAssembler.prototype.ctor.call(this);
+        comp.node._proxy.setAssembler(this);
+        this._label = comp;
         this._layout = new jsb.LabelRenderer();
         this._layout.init();
         this._cfg = new DataView(this._layout._cfg);
@@ -24,7 +26,6 @@ export default class NativeTTF {
 
         this._cfgFields = jsb.LabelRenderer._cfgFields;
         this._layoutFields = jsb.LabelRenderer._layoutFields;
-        comp.node._proxy.setAssembler(this);
         this._layout.bindNodeProxy(comp.node._proxy);
     }
 
@@ -298,7 +299,7 @@ export default class NativeTTF {
         if (comp.font && comp.font.nativeUrl) {
             this.setFontPath(comp.font.nativeUrl);
         }
-        let thislayout = this._layout;
+        let layout = this._layout;
         let c = comp.node.color;
         let node = comp.node;
         let retinaSize = comp.fontSize;
@@ -332,9 +333,8 @@ export default class NativeTTF {
             this._updateTTFMaterial(material, comp);
         }
 
-        thislayout.render();
+        layout.render();
         comp._vertsDirty = false;
-
     }
 
     _updateTTFMaterial(material, comp) {
@@ -359,6 +359,7 @@ export default class NativeTTF {
     fillBuffers (comp, renderer) {
         this._layout.render();
     }
-    getVfmt () {
+    getVfmt() {
+        return null;
     }
 }

@@ -647,6 +647,13 @@ let Label = cc.Class({
         }
     },
 
+    setVertsDirty() {
+        this._super();
+        if(CC_JSB && this._nativeTTF()) {
+            this._assembler && this._assembler.updateRenderData(this)
+        }
+    },
+
     _updateColor () {
         if (!(this.font instanceof cc.BitmapFont)) {
             this.setVertsDirty();
@@ -759,7 +766,7 @@ let Label = cc.Class({
     },
 
     _nativeTTF() {
-        return !!this._assembler._updateTTFMaterial
+        return !!this._assembler && !!this._assembler._updateTTFMaterial
     },
 
     _forceUpdateRenderData () {
