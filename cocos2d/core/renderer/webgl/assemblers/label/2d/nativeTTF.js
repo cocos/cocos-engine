@@ -1,7 +1,7 @@
 //@ts-check
 import RenderBuffer from '../../../../../../renderer/gfx/render-buffer';
 
-
+import Assembler from '../../../../assembler';
 const Label = require('../../../../../components/CCLabel');
 const LabelShadow = require('../../../../../components/CCLabelShadow');
 const LabelOutline = require('../../../../../components/CCLabelOutline');
@@ -11,17 +11,12 @@ const UPDATE_CONTENT = 1 << 0;
 const UPDATE_FONT = 1 << 1;
 const UPDATE_EFFECT = 1 << 2;
 
-export default class NativeTTF {
+export default class NativeTTF extends Assembler {
 
 
     init(comp) {
+        super.init(comp);
         this._label = comp;
-        this._extendNative();
-        comp.node._proxy.setAssembler(this);
-        this._layout.bindNodeProxy(comp.node._proxy);
-    }
-
-    _extendNative() {
         renderer.CustomAssembler.prototype.ctor.call(this);
         this._layout = new jsb.LabelRenderer();
         this._layout.init();
@@ -30,7 +25,10 @@ export default class NativeTTF {
 
         this._cfgFields = jsb.LabelRenderer._cfgFields;
         this._layoutFields = jsb.LabelRenderer._layoutFields;
+        comp.node._proxy.setAssembler(this);
+        this._layout.bindNodeProxy(comp.node._proxy);
     }
+
 
     _setBufferFlag(dv, offset, size,  type, flag){
         if ( type == "int8"  && size == 1) {
@@ -110,7 +108,7 @@ export default class NativeTTF {
     _updateCfgFlag_Content() {
         this._updateCfgFlag(UPDATE_CONTENT);
     }
-    
+
     _updateCfgFlag_Font() {
         this._updateCfgFlag(UPDATE_FONT);
     }
@@ -336,6 +334,8 @@ export default class NativeTTF {
         }
 
         thislayout.render();
+        comp._vertsDirty = false;
+
     }
 
     _updateTTFMaterial(material, comp) {
