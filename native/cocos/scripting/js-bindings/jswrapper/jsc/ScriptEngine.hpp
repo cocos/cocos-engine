@@ -142,6 +142,17 @@ namespace se {
         bool evalString(const char* scriptStr, ssize_t length = -1, Value* rval = nullptr, const char* fileName = nullptr);
 
         /**
+         *  @brief Compile script file into bytecode.
+         *  @param[in] scriptPath The path of script file.
+         *  @param[in] outputPath The location where bytecode file should be written to. The path should be ends with ".bc", which indicates a bytecode file.
+         *  @return true if succeed, otherwise false.
+         */
+        bool saveByteCodeToFile(const std::string& scriptPath, const std::string& outputPath) {
+            //not implemented for JavaScriptCore
+            return false;
+        }
+
+        /**
          *  Delegate class for file operation
          */
         class FileOperationDelegate

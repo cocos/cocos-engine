@@ -161,6 +161,14 @@ namespace se {
         bool evalString(const char* scriptStr, ssize_t length = -1, Value* rval = nullptr, const char* fileName = nullptr);
 
         /**
+         *  @brief Compile script file into v8::ScriptCompiler::CachedData and save to file.
+         *  @param[in] scriptPath The path of script file.
+         *  @param[in] outputPath The location where bytecode file should be written to. The path should be ends with ".bc", which indicates a bytecode file.
+         *  @return true if succeed, otherwise false.
+         */
+        bool saveByteCodeToFile(const std::string& scriptPath, const std::string& outputPath);
+
+        /**
          * @brief Grab a snapshot of the current JavaScript execution stack.
          * @return current stack trace string
          */
@@ -292,12 +300,20 @@ namespace se {
     private:
         ScriptEngine();
         ~ScriptEngine();
-
         static void privateDataFinalize(void* nativeObj);
 
         static void onFatalErrorCallback(const char* location, const char* message);
         static void onOOMErrorCallback(const char* location, bool is_heap_oom);
         static void onMessageCallback(v8::Local<v8::Message> message, v8::Local<v8::Value> data);
+
+
+        /**
+         *  @brief Load the bytecode file and set the return value
+         *  @param[in] path_bc The path of bytecode file.
+         *  @param[in] ret The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
+         *  @return true if succeed, otherwise false.
+         */
+        bool runByteCodeFile(const std::string &path_bc, Value* ret/* = nullptr */);
 
         std::chrono::steady_clock::time_point _startTime;
         std::vector<RegisterCallback> _registerCallbackArray;

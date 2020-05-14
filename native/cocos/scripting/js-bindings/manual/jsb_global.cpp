@@ -39,6 +39,8 @@
 #endif
 
 #include <regex>
+#include <chrono>
+#include <sstream>
 
 using namespace cocos2d;
 
@@ -287,7 +289,7 @@ namespace {
         int argc = (int)args.size();
         assert(argc >= 1);
         assert(args[0].isString());
-
+        
         return jsb_run_script(args[0].toString(), &s.rval());
     }
     SE_BIND_FUNC(require)
@@ -658,6 +660,24 @@ static bool JSB_setCursorEnabled(se::State& s)
    return true;
 }
 SE_BIND_FUNC(JSB_setCursorEnabled)
+
+static bool JSB_saveByteCode(se::State& s)
+{
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    SE_PRECONDITION2(argc == 2, false, "Invalid number of arguments");
+    bool ok = true, value = true;
+    std::string srcfile;
+    std::string dstfile;
+    ok &= seval_to_std_string(args[0], &srcfile);
+    ok &= seval_to_std_string(args[1], &dstfile);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    ok = se::ScriptEngine::getInstance()->saveByteCodeToFile(srcfile, dstfile);
+    s.rval().setBoolean(ok);
+    return true;
+}
+SE_BIND_FUNC(JSB_saveByteCode)
+
 
 static bool getOrCreatePlainObject_r(const char* name, se::Object* parent, se::Object** outObj)
 {
@@ -1175,10 +1195,11 @@ bool jsb_register_global_variables(se::Object* global)
 //    __jsbObj->defineFunction("openDebugView", _SE(js_openDebugView));
     __jsbObj->defineFunction("openURL", _SE(JSB_openURL));
     __jsbObj->defineFunction("copyTextToClipboard", _SE(JSB_copyTextToClipboard));
-   __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
+    __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
     __jsbObj->defineFunction("showInputBox", _SE(JSB_showInputBox));
     __jsbObj->defineFunction("hideInputBox", _SE(JSB_hideInputBox));
     __jsbObj->defineFunction("setCursorEnabled", _SE(JSB_setCursorEnabled));
+    __jsbObj->defineFunction("saveByteCode", _SE(JSB_saveByteCode));
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));
     global->defineFunction("__getOSVersion", _SE(JSB_getOSVersion));
