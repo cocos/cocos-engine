@@ -265,7 +265,7 @@ export const ttfUtils =  {
                 tex.reset({
                     width: _canvas.width,
                     height: _canvas.height,
-                    mipmapLevel: uploadAgain ? 0 : 1,
+                    mipmapLevel: 1
                 });
                 tex.uploadData(_canvas);
             }
