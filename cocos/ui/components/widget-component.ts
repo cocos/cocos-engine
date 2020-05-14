@@ -763,7 +763,9 @@ export class WidgetComponent extends Component {
     private _originalHeight = 0;
     @property
     private _alignMode = AlignMode.ON_WINDOW_RESIZE;
-    @property
+    @property({
+        editorOnly: true,
+    })
     private _lockFlags = 0;
 
     /**
