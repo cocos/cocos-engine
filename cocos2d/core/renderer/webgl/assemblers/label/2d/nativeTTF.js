@@ -11,11 +11,10 @@ const UPDATE_CONTENT = 1 << 0;
 const UPDATE_FONT = 1 << 1;
 const UPDATE_EFFECT = 1 << 2;
 
-export default class NativeTTF extends Assembler {
+export default class NativeTTF {
 
 
     init(comp) {
-        super.init(comp);
         this._label = comp;
         renderer.CustomAssembler.prototype.ctor.call(this);
         this._layout = new jsb.LabelRenderer();

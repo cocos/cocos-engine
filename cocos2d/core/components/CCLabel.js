@@ -740,10 +740,7 @@ let Label = cc.Class({
     },
 
     _getDefaultMaterial() {
-        if(CC_JSB)
-            return Material.getBuiltinMaterial("2d-label");
-        else
-            return Material.getBuiltinMaterial("2d-sprite"); 
+        return Material.getBuiltinMaterial("2d-label");
     },
 
     _updateMaterialWebgl () {
