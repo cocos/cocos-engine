@@ -5,8 +5,6 @@ type Constructor<T = {}> = new (...args: any[]) => T;
 
 type EventType = string;
 
-export type IEventCallback<This extends {}, Args extends any[]> = (this: This, ...args: Args) => void;
-
 /**
  * 实现该接口的对象具有处理事件的能力。
  */
@@ -30,16 +28,14 @@ export interface IEventful {
      * @param type - A string representing the event type to listen for.
      * @param callback - The callback that will be invoked when the event is dispatched.
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
-     * @param target - The target (this object) to invoke the callback, can be null
+     * @param thisArg - The target (this object) to invoke the callback, can be null
      * @return - Just returns the incoming callback so you can save the anonymous function easier.
      * @example
      * eventTarget.on('fire', function () {
      *     cc.log("fire in the hole");
      * }, node);
      */
-    on<This extends object, Args extends any[] = []> (type: EventType, callback: IEventCallback<This, Args>, target?: This): IEventCallback<This, Args>;
-
-    on<Callback extends Function> (type: EventType, callback: Callback, target?: any): Callback;
+    on<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any): typeof callback;
 
     /**
      * @en
@@ -57,9 +53,7 @@ export interface IEventful {
      *     cc.log("this is the callback and will be invoked only once");
      * }, node);
      */
-    once<This extends object, Args extends any[] = []> (type: EventType, callback: IEventCallback<This, Args>, target?: This): IEventCallback<This, Args>;
-
-    once<Callback extends Function> (type: EventType, callback: Callback, target?: object): Callback;
+    once<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any): typeof callback;
 
     /**
      * @en
@@ -81,7 +75,7 @@ export interface IEventful {
      * // remove all fire event listeners
      * eventTarget.off('fire');
      */
-    off (type: EventType, callback?: Function, target?: object): void;
+    off<TFunction extends Function> (type: EventType, callback?: TFunction, thisArg?: any): void;
 
     /**
      * @en Removes all callbacks previously registered with the same target (passed as parameter).

@@ -29,7 +29,7 @@
 
 import { Component } from '../components/component';
 import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../data/class-decorator';
-import { Eventful, IEventCallback } from '../event/eventful';
+import { Eventful } from '../event/eventful';
 import { warnID } from '../platform/debug';
 import * as ArrayUtils from '../utils/array';
 import { createMap } from '../utils/js-typed';
@@ -408,19 +408,8 @@ export class AnimationComponent extends Eventful(Component) {
      * animation.on('play', this.onPlay, this);
      * ```
      */
-    public on<This, TEventType extends EventType>(
-        type: TEventType,
-        /**
-         * @param state 触发事件的动画状态对象。
-         */
-        callback: (this: This, type: TEventType, state: AnimationState) => void,
-        target: This,
-    ): AnimationEventCallback<This>;
-
-    public on<This extends {}, Args extends any[]> (type: string, callback: IEventCallback<This, Args>, target: This): IEventCallback<This, Args>;
-
-    public on<This extends {}, Args extends any[]> (type: string, callback: IEventCallback<This, Args>, target: This) {
-        const ret = super.on(type, callback, target);
+    public on<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any) {
+        const ret = super.on(type, callback, thisArg);
         if (type === 'lastframe') {
             for (const stateName of Object.keys(this._nameToState)) {
                 this._nameToState[stateName]!._lastframeEventOn = true;
@@ -443,7 +432,7 @@ export class AnimationComponent extends Eventful(Component) {
      * animation.off('play', this.onPlay, this);
      * ```
      */
-    public off (type: string, callback: Function, target?: Object) {
+    public off<TFunction extends Function> (type: EventType, callback?: TFunction, thisArg?: any) {
         if (type === 'lastframe') {
             const nameToState = this._nameToState;
             for (const name of Object.keys(nameToState)) {
@@ -451,7 +440,7 @@ export class AnimationComponent extends Eventful(Component) {
                 state._lastframeEventOn = false;
             }
         }
-        super.off(type, callback, target);
+        super.off(type, callback, thisArg);
     }
 
     protected _createState (clip: AnimationClip, name?: string) {
