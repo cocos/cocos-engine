@@ -85,6 +85,10 @@ export class Model {
         return this._updateStamp;
     }
 
+    get isInstancingEnabled () {
+        return this._instMatWorldIdx >= 0;
+    }
+
     public type = ModelType.DEFAULT;
     public scene: RenderScene | null = null;
     public node: Node = null!;
@@ -280,6 +284,7 @@ export class Model {
             const pass = mat.passes[i];
             ret[i] = this.createPipelineState(pass, subModelIdx);
         }
+        if (ret[0]) { this.updateInstancedAttributeList(ret[0], mat.passes[0]); }
         return ret;
     }
 
@@ -295,7 +300,6 @@ export class Model {
         const bindingLayout = pso.pipelineLayout.layouts[0];
         if (this._localBuffer) { bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer); }
         if (this._lightBuffer) { bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, this._lightBuffer); }
-        this.updateInstancedAttributeList(pso, pass);
         return pso;
     }
 
