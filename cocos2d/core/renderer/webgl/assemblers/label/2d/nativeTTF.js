@@ -360,6 +360,5 @@ export default class NativeTTF {
         this._layout.render();
     }
     getVfmt() {
-        return null;
     }
 }

@@ -649,9 +649,9 @@ let Label = cc.Class({
 
     setVertsDirty() {
         this._super();
-        if(CC_JSB && this._nativeTTF()) {
-            this._assembler && this._assembler.updateRenderData(this)
-        }
+        // if(CC_JSB && this._nativeTTF()) {
+        //     this._assembler && this._assembler.updateRenderData(this)
+        // }
     },
 
     _updateColor () {
