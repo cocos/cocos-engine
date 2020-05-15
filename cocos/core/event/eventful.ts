@@ -133,7 +133,7 @@ export function Eventful<TBase> (base: Constructor<TBase>): Constructor<TBase & 
         }
 
         public hasEventListener (type: string, callback?: Function, target?: object): boolean {
-            return this._callbacksInvoker.hasEventListener(type);
+            return this._callbacksInvoker.hasEventListener(type, callback, target);
         }
 
         public on<Callback extends Function> (type: EventType, callback: Callback, target?: object) {
