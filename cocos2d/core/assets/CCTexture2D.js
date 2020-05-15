@@ -60,7 +60,7 @@ var idGenerater = new (require('../platform/id-generater'))('Tex');
 let CUSTOM_PIXEL_FORMAT = 1024;
 
 /**
- * The texture pixel format, default value is RGBA8888, 
+ * The texture pixel format, default value is RGBA8888,
  * you should note that textures loaded by normal image files (png, jpg) can only support RGBA8888 format,
  * other formats are supported by compressed file types or raw data.
  * @enum Texture2D.PixelFormat
@@ -304,8 +304,8 @@ var Texture2D = cc.Class({
                 return this._image;
             },
             set (data) {
-                if (data._compressed && data._data) {
-                    this.initWithData(data._data, this._format, data.width, data.height);
+                if (data.data) {
+                    this.initWithData(data.data, this._format, data.width, data.height);
                 }
                 else {
                     this.initWithElement(data);
@@ -321,6 +321,8 @@ var Texture2D = cc.Class({
         _mipFilter: Filter.LINEAR,
         _wrapS: WrapMode.CLAMP_TO_EDGE,
         _wrapT: WrapMode.CLAMP_TO_EDGE,
+
+        _isAlphaAtlas: false,
 
         _genMipmaps: false,
         /**
@@ -344,10 +346,10 @@ var Texture2D = cc.Class({
 
         _packable: true,
         /**
-         * !#en 
+         * !#en
          * Sets whether texture can be packed into texture atlas.
          * If need use texture uv in custom Effect, please sets packable to false.
-         * !#zh 
+         * !#zh
          * 设置纹理是否允许参与合图。
          * 如果需要在自定义 Effect 中使用纹理 UV，需要禁止该选项。
          * @property {Boolean} packable
@@ -360,6 +362,13 @@ var Texture2D = cc.Class({
             set (val) {
                 this._packable = val;
             }
+        },
+
+        _nativeDep: {
+            get () {
+                return {isNative: true, uuid: this._uuid, ext: this._native};
+            },
+            override: true
         }
     },
 
@@ -368,9 +377,70 @@ var Texture2D = cc.Class({
         WrapMode: WrapMode,
         Filter: Filter,
         _FilterIndex: FilterIndex,
-
         // predefined most common extnames
         extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm'],
+
+        _parseNativeDepFromJson (json) {
+            var data = json.content;
+            let fields = data.split(',');
+            // decode extname
+            var extIdStr = fields[0];
+            var ext = '';
+            if (extIdStr) {
+                var result = Texture2D._parseExt(extIdStr, PixelFormat.RGBA8888);
+                ext = result.bestExt || result.defaultExt;
+            }
+
+            return { isNative: true, ext };
+        },
+
+        _parseExt (extIdStr, defaultFormat) {
+            let device = cc.renderer.device;
+            let extIds = extIdStr.split('_');
+
+            let defaultExt = '';
+            let bestExt = '';
+            let bestIndex = 999;
+            let bestFormat = defaultFormat;
+            let SupportTextureFormats = cc.macro.SUPPORT_TEXTURE_FORMATS;
+            for (let i = 0; i < extIds.length; i++) {
+                let extFormat = extIds[i].split('@');
+                let tmpExt = extFormat[0];
+                tmpExt = Texture2D.extnames[tmpExt.charCodeAt(0) - CHAR_CODE_0] || tmpExt;
+
+                let index = SupportTextureFormats.indexOf(tmpExt);
+                if (index !== -1 && index < bestIndex) {
+
+                    let tmpFormat = extFormat[1] ? parseInt(extFormat[1]) : defaultFormat;
+
+                    // check whether or not support compressed texture
+                    if ( tmpExt === '.pvr' && !device.ext('WEBGL_compressed_texture_pvrtc')) {
+                        continue;
+                    }
+                    else if ((tmpFormat === PixelFormat.RGB_ETC1 || tmpFormat === PixelFormat.RGBA_ETC1) && !device.ext('WEBGL_compressed_texture_etc1')) {
+                        continue;
+                    }
+                    else if ((tmpFormat === PixelFormat.RGB_ETC2 || tmpFormat === PixelFormat.RGBA_ETC2) && !device.ext('WEBGL_compressed_texture_etc')) {
+                        continue;
+                    }
+                    else if (tmpExt === '.webp' && !cc.sys.capabilities.webp) {
+                        continue;
+                    }
+
+                    bestIndex = index;
+                    bestExt = tmpExt;
+                    bestFormat = tmpFormat;
+                }
+                else if (!defaultExt) {
+                    defaultExt = tmpExt;
+                }
+            }
+            return { bestExt, bestFormat, defaultExt };
+        },
+
+        _parseDepsFromJson () {
+            return [];
+        }
     },
 
     ctor () {
@@ -408,7 +478,7 @@ var Texture2D = cc.Class({
         this._hashDirty = true;
         this._hash = 0;
         this._texture = null;
-        
+
         if (CC_EDITOR) {
             this._exportedExts = null;
         }
@@ -430,7 +500,7 @@ var Texture2D = cc.Class({
     },
 
     toString () {
-        return this.url || '';
+        return this.nativeUrl || '';
     },
 
     /**
@@ -526,7 +596,7 @@ var Texture2D = cc.Class({
         if (!element)
             return;
         this._image = element;
-        if (element.complete || element instanceof HTMLCanvasElement) {
+        if (element.complete || element instanceof HTMLCanvasElement || (cc.sys.capabilities.createImageBitmap && element instanceof ImageBitmap)) {
             this.handleLoadedTexture();
         }
         else {
@@ -575,6 +645,7 @@ var Texture2D = cc.Class({
         this.width = pixelsWidth;
         this.height = pixelsHeight;
 
+        this._updateFormat();
         this._checkPackable();
 
         this.loaded = true;
@@ -596,11 +667,11 @@ var Texture2D = cc.Class({
     getHtmlElementObj () {
         return this._image;
     },
-    
+
     /**
      * !#en
      * Destory this texture and immediately release its video memory. (Inherit from cc.Object.destroy)<br>
-     * After destroy, this object is not usable any more.
+     * After destroy, this object is not usable anymore.
      * You can use cc.isValid(obj) to check whether the object is destroyed before accessing it.
      * !#zh
      * 销毁该贴图，并立即释放它对应的显存。（继承自 cc.Object.destroy）<br/>
@@ -609,12 +680,13 @@ var Texture2D = cc.Class({
      * @return {Boolean} inherit from the CCObject
      */
     destroy () {
+        if (cc.sys.capabilities.createImageBitmap && this._image instanceof ImageBitmap) {
+            this._image.close();
+        }
         this._packable && cc.dynamicAtlasManager && cc.dynamicAtlasManager.deleteAtlasTexture(this);
 
         this._image = null;
         this._texture && this._texture.destroy();
-        // TODO cc.textureUtil ?
-        // cc.textureCache.removeTextureForKey(this.url);  // item.rawUrl || item.url
         this._super();
     },
 
@@ -641,6 +713,10 @@ var Texture2D = cc.Class({
         return this._premultiplyAlpha || false;
     },
 
+    isAlphaAtlas () {
+        return this._isAlphaAtlas;
+    },
+
     /**
      * !#en
      * Handler of texture loaded event.
@@ -652,7 +728,7 @@ var Texture2D = cc.Class({
     handleLoadedTexture () {
         if (!this._image || !this._image.width || !this._image.height)
             return;
-        
+
         this.width = this._image.width;
         this.height = this._image.height;
         let opts = _getSharedOptions();
@@ -669,7 +745,7 @@ var Texture2D = cc.Class({
         opts.magFilter = FilterIndex[this._magFilter];
         opts.wrapS = this._wrapS;
         opts.wrapT = this._wrapT;
-        
+
         if (!this._texture) {
             this._texture = new renderer.Texture2D(renderer.device, opts);
         }
@@ -677,14 +753,20 @@ var Texture2D = cc.Class({
             this._texture.update(opts);
         }
 
+        this._updateFormat();
         this._checkPackable();
 
         //dispatch load event to listener.
         this.loaded = true;
         this.emit("load");
 
-        if (cc.macro.CLEANUP_IMAGE_CACHE && this._image instanceof HTMLImageElement) {
-            this._clearImage();
+        if (cc.macro.CLEANUP_IMAGE_CACHE) {
+            if (this._image instanceof HTMLImageElement) {
+                this._clearImage();
+            }
+            else if (cc.sys.capabilities.createImageBitmap && this._image instanceof ImageBitmap) {
+                this._image.close();
+            }
         }
     },
 
@@ -696,7 +778,7 @@ var Texture2D = cc.Class({
      * @returns {String}
      */
     description () {
-        return "<cc.Texture2D | Name = " + this.url + " | Dimensions = " + this.width + " x " + this.height + ">";
+        return "<cc.Texture2D | Name = " + this.nativeUrl + " | Dimensions = " + this.width + " x " + this.height + ">";
     },
 
     /**
@@ -756,6 +838,7 @@ var Texture2D = cc.Class({
         if (this._flipY !== flipY) {
             var opts = _getSharedOptions();
             opts.flipY = flipY;
+            opts.premultiplyAlpha = this._premultiplyAlpha;
             this.update(opts);
         }
     },
@@ -770,8 +853,16 @@ var Texture2D = cc.Class({
     setPremultiplyAlpha (premultiply) {
         if (this._premultiplyAlpha !== premultiply) {
             var opts = _getSharedOptions();
+            opts.flipY = this._flipY;
             opts.premultiplyAlpha = premultiply;
             this.update(opts);
+        }
+    },
+
+    _updateFormat () {
+        this._isAlphaAtlas = this._format === PixelFormat.RGBA_ETC1 || this._format === PixelFormat.RGB_A_PVRTC_4BPPV1 || this._format === PixelFormat.RGB_A_PVRTC_2BPPV1;
+        if (CC_JSB) {
+            this._texture.setAlphaAtlas(this._isAlphaAtlas);
         }
     },
 
@@ -786,7 +877,7 @@ var Texture2D = cc.Class({
 
         let w = this.width, h = this.height;
         if (!this._image ||
-            w > dynamicAtlas.maxFrameSize || h > dynamicAtlas.maxFrameSize || 
+            w > dynamicAtlas.maxFrameSize || h > dynamicAtlas.maxFrameSize ||
             this._getHash() !== dynamicAtlas.Atlas.DEFAULT_HASH) {
             this._packable = false;
             return;
@@ -870,60 +961,20 @@ var Texture2D = cc.Class({
         return asset;
     },
 
-    _deserialize: function (data, handle) {
-        let device = cc.renderer.device;
-
+    _deserialize: function (data) {
         let fields = data.split(',');
         // decode extname
         let extIdStr = fields[0];
         if (extIdStr) {
-            let extIds = extIdStr.split('_');
+            var result = Texture2D._parseExt(extIdStr, this._format);
 
-            let defaultExt = '';
-            let bestExt = '';
-            let bestIndex = 999;
-            let bestFormat = this._format;
-            let SupportTextureFormats = cc.macro.SUPPORT_TEXTURE_FORMATS;
-            for (let i = 0; i < extIds.length; i++) {
-                let extFormat = extIds[i].split('@');
-                let tmpExt = extFormat[0];
-                tmpExt = Texture2D.extnames[tmpExt.charCodeAt(0) - CHAR_CODE_0] || tmpExt;
-
-                let index = SupportTextureFormats.indexOf(tmpExt);
-                if (index !== -1 && index < bestIndex) {
-                    
-                    let tmpFormat = extFormat[1] ? parseInt(extFormat[1]) : this._format;
-
-                    // check whether or not support compressed texture
-                    if ( tmpExt === '.pvr' && !device.ext('WEBGL_compressed_texture_pvrtc')) {
-                        continue;
-                    }
-                    else if ((tmpFormat === PixelFormat.RGB_ETC1 || tmpFormat === PixelFormat.RGBA_ETC1) && !device.ext('WEBGL_compressed_texture_etc1')) {
-                        continue;
-                    }
-                    else if ((tmpFormat === PixelFormat.RGB_ETC2 || tmpFormat === PixelFormat.RGBA_ETC2) && !device.ext('WEBGL_compressed_texture_etc')) {
-                        continue;
-                    }
-                    else if (tmpExt === '.webp' && !cc.sys.capabilities.webp) {
-                        continue;
-                    }
-
-                    bestIndex = index;
-                    bestExt = tmpExt;
-                    bestFormat = tmpFormat;
-                }
-                else if (!defaultExt) {
-                    defaultExt = tmpExt;
-                }
-            }
-
-            if (bestExt) {
-                this._setRawAsset(bestExt);
-                this._format = bestFormat;
+            if (result.bestExt) {
+                this._setRawAsset(result.bestExt);
+                this._format = result.bestFormat;
             }
             else {
-                this._setRawAsset(defaultExt);
-                cc.warnID(3120, handle.customEnv.url, defaultExt, defaultExt);
+                this._setRawAsset(result.defaultExt);
+                cc.warnID(3120, handle.customEnv.url, result.defaultExt, result.defaultExt);
             }
         }
         if (fields.length === 8) {
@@ -967,13 +1018,8 @@ var Texture2D = cc.Class({
     _isCompressed () {
         return this._format < PixelFormat.A8 || this._format > PixelFormat.RGBA32F;
     },
-    
+
     _clearImage () {
-        // wechat game platform will cache image parsed data, 
-        // so image will consume much more memory than web, releasing it
-        // Release image in loader cache
-        // native image element has not image.id, release by image.src.
-        cc.loader.removeItem(this._image.id || this._image.src);
         this._image.src = "";
     }
 });
