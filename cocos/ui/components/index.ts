@@ -17,7 +17,6 @@ export { ToggleComponent } from './toggle-component';
 export { ToggleContainerComponent } from './toggle-container-component';
 export { UIModelComponent } from './ui-model-component';
 export { ViewGroupComponent } from './view-group-component';
-export { WebviewComponent } from './webview/webView-component';
 export { WidgetComponent } from './widget-component';
 export { LabelOutlineComponent } from './label-outline-component';
 export { GraphicsComponent } from './graphics-component';

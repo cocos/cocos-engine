@@ -275,7 +275,6 @@
         "cc.ToggleContainerComponent",
         "cc.ToggleComponent",
         "cc.UIModelComponent",
-        "cc.WebviewComponent",
         "cc.WidgetComponent",
         "cc.UIReorderComponent",
         "cc.PageViewIndicatorComponent",
