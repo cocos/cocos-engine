@@ -430,7 +430,7 @@ let ArmatureDisplay = cc.Class({
             baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
             baseMaterial.define('USE_TEXTURE', true);
             
-            let srcBlendFactor = this.premultipliedAlpha? cc.gfx.BLEND_ONE:cc.gfx.BLEND_SRC_ALPHA;
+            let srcBlendFactor = this.premultipliedAlpha ? cc.gfx.BLEND_ONE : cc.gfx.BLEND_SRC_ALPHA;
             let dstBlendFactor = cc.gfx.BLEND_ONE_MINUS_SRC_ALPHA;
 
             baseMaterial.setBlend(
