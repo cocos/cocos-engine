@@ -29,11 +29,15 @@ import Label from '../../../../components/CCLabel';
 import TTF from './2d/ttf';
 import Bmfont from './2d/bmfont';
 import Letter from './2d/letter';
-import NativeTTF from './2d/nativeTTF.js';
 
 import TTF3D from './3d/ttf';
 import Bmfont3D from './3d/bmfont';
 import Letter3D from './3d/letter';
+
+let NativeTTF = undefined;
+if(CC_JSB) {
+    NativeTTF = require("./2d/nativeTTF");
+}
 
 Label._canvasPool = {
     pool: [],
@@ -83,9 +87,9 @@ Assembler.register(cc.Label, {
     TTF,
     Bmfont,
     Letter,
-    NativeTTF,
 
     TTF3D,
     Bmfont3D,
-    Letter3D
+    Letter3D,
+    NativeTTF
 });

@@ -1,7 +1,6 @@
-//@ts-check
+
 import RenderBuffer from '../../../../../../renderer/gfx/render-buffer';
 
-import Assembler from '../../../../assembler';
 const Label = require('../../../../../components/CCLabel');
 const LabelShadow = require('../../../../../components/CCLabelShadow');
 const LabelOutline = require('../../../../../components/CCLabelOutline');
