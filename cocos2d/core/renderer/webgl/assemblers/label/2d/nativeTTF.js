@@ -292,6 +292,14 @@ export default class NativeTTF {
         }
     }
 
+    setSpacingX(x) {
+        let oldX = this._getLayoutValue("spaceX");
+        if(oldX != x && typeof x == "number"  && ! isNaN(x)) {
+            this._setLayoutValue("spaceX", x);
+            this._updateCfgFlag_Content();
+        }
+    }
+
     updateRenderData(comp) {
 
         if (!comp._vertsDirty) return;
@@ -314,6 +322,7 @@ export default class NativeTTF {
         this.setOverFlow(comp.overflow);
         this.setVerticalAlign(comp.verticalAlign);
         this.setHorizontalAlign(comp.horizontalAlign);
+        this.setSpacingX(comp.spacingX);
         this.setContentSize(node.getContentSize().width, node.getContentSize().height);
         this.setAnchorPoint(node.anchorX, node.anchorY);
         this.setColor(this._colorToObj(c.getR(), c.getG(), c.getB(), Math.ceil(c.getA() * node.opacity / 255)));
@@ -334,7 +343,7 @@ export default class NativeTTF {
         }
 
         layout.render();
-        comp._vertsDirty = false;
+        //comp._vertsDirty = false;
     }
 
     _updateTTFMaterial(material, comp) {
@@ -353,6 +362,9 @@ export default class NativeTTF {
         material.define('USE_TEXTURE_ALPHAONLY', true);
         material.define('USE_SDF', outlineSize > 0.0 || comp.enableBold );
         material.define('USE_SDF_EXTEND', comp.enableBold ? 1 : 0);
+        if (material.getDefine('CC_SUPPORT_standard_derivatives') !== undefined && cc.sys.glExtension('OES_standard_derivatives')) {
+            material.define('CC_SUPPORT_standard_derivatives', true);
+        }
         layout.setEffect(material.effect._nativeObj);
     }
 
