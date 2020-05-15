@@ -234,7 +234,6 @@ let dynamicAtlasManager = {
                 _debugNode = null;
             }
         }
-        
     },
 
     update () {
