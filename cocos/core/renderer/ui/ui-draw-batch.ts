@@ -40,6 +40,7 @@ export class UIDrawBatch {
 
         if (this.ia) {
             this.ia.destroy();
+            this.ia = null;
         }
     }
 
