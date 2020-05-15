@@ -183,7 +183,7 @@ let dynamicAtlasManager = {
      * @method showDebug
      * @param {Boolean} show
      */
-    showDebug: CC_DEV && function (show) {
+    showDebug: CC_DEBUG && function (show) {
         if (show) {
             if (!_debugNode || !_debugNode.isValid) {
                 let width = cc.visibleRect.width;
