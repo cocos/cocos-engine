@@ -186,29 +186,15 @@ export class SpriteFrame extends Asset {
 
     /**
      * @en
-     * Create a SpriteFrame object by an image asset
+     * Create a SpriteFrame object by an image asset or an native image asset
      * @zh
-     * 通过 Image 资源创建一个 SpriteFrame 对象
+     * 通过 Image 资源或者原始 image 资源创建一个 SpriteFrame 对象
+     * @param imageSourceOrImageAsset ImageAsset or ImageSource, ImageSource support HTMLCanvasElement HTMLImageElement IMemoryImageSource
      */
-    public static createWithImage (image: ImageAsset) {
-        const spf = new SpriteFrame();
+    public static createWithImage (imageSourceOrImageAsset: ImageSource | ImageAsset) {
+        const imageAsset = imageSourceOrImageAsset instanceof ImageAsset ? imageSourceOrImageAsset : new ImageAsset(imageSourceOrImageAsset);
         const tex = new Texture2D();
-        tex.image = image;
-        spf.texture = tex;
-        return spf;
-    }
-
-    /**
-     * @en
-     * Create a SpriteFrame object by an native image asset
-     * @zh
-     * 通过原始 image 资源来创建一个 SpriteFrame 对象
-     * @param imageSource support HTMLCanvasElement HTMLImageElement IMemoryImageSource
-     */
-    public static createWithImageSource (imageSource: ImageSource) {
-        const img = new ImageAsset(imageSource);
-        const tex = new Texture2D();
-        tex.image = img;
+        tex.image = imageAsset;
         const spf = new SpriteFrame();
         spf.texture = tex;
         return spf;
