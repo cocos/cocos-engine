@@ -131,13 +131,13 @@ export class TerrainRenderable extends RenderableComponent {
             return;
         }
 
-        const nlayers = block.getMaxLayer();
-        if (this._currentMaterial == null || nlayers !== this._currentMaterialLayers) {
+        const nLayers = block.getMaxLayer();
+        if (this._currentMaterial == null || nLayers !== this._currentMaterialLayers) {
             this._currentMaterial = new Material();
 
             this._currentMaterial.initialize({
                 effectAsset: cc.EffectAsset.get('builtin-terrain'),
-                defines: block._getMaterialDefines(nlayers),
+                defines: block._getMaterialDefines(nLayers),
             });
 
             if (this._brushMaterial !== null) {
@@ -151,7 +151,7 @@ export class TerrainRenderable extends RenderableComponent {
             }
 
             this.setMaterial(this._currentMaterial, 0);
-            this._currentMaterialLayers = nlayers;
+            this._currentMaterialLayers = nLayers;
             this._model.enabled = true;
         }
     }
@@ -834,13 +834,13 @@ export class Terrain extends Component {
         }
 
         for (let i = 0; i < this._layers.length; ++i) {
-            const tlayer = this._layers[i];
-            if (tlayer != null && tlayer.detailMap != null) {
-                const ilayer = new TerrainLayerInfo();
-                ilayer.slot = i;
-                ilayer.tileSize = tlayer.tileSize;
-                ilayer.detailMap = tlayer.detailMap._uuid;
-                asset.layerInfos.push(ilayer);
+            const temp = this._layers[i];
+            if (temp != null && temp.detailMap != null) {
+                const layer = new TerrainLayerInfo();
+                layer.slot = i;
+                layer.tileSize = temp.tileSize;
+                layer.detailMap = temp.detailMap._uuid;
+                asset.layerInfos.push(layer);
             }
         }
 
@@ -911,7 +911,7 @@ export class Terrain extends Component {
         this._buildImp(true);
     }
 
-    public update (dtime: number) {
+    public update (deltaTime: number) {
         for (const i of this._blocks) {
             i.update();
         }
@@ -1174,12 +1174,12 @@ export class Terrain extends Component {
         }
     }
 
-    public _updateLightmap (blockId: number, tex: Texture2D|null, uoff: number, voff: number, uscale: number, vscale: number) {
+    public _updateLightmap (blockId: number, tex: Texture2D|null, uOff: number, vOff: number, uScale: number, vScale: number) {
         this._lightmapInfos[blockId].texture = tex;
-        this._lightmapInfos[blockId].UOff = uoff;
-        this._lightmapInfos[blockId].VOff = voff;
-        this._lightmapInfos[blockId].UScale = uscale;
-        this._lightmapInfos[blockId].VScale = vscale;
+        this._lightmapInfos[blockId].UOff = uOff;
+        this._lightmapInfos[blockId].VOff = vOff;
+        this._lightmapInfos[blockId].UScale = uScale;
+        this._lightmapInfos[blockId].VScale = vScale;
         this._blocks[blockId]._updateLightmap(this._lightmapInfos[blockId]);
     }
 
@@ -1188,17 +1188,17 @@ export class Terrain extends Component {
         return index < this._lightmapInfos.length ? this._lightmapInfos[index] : null;
     }
 
-    public rayCheck (start: Vec3, dir: Vec3, step: number, worldspace: boolean = true) {
+    public rayCheck (start: Vec3, dir: Vec3, step: number, worldSpace: boolean = true) {
         const MAX_COUNT = 2000;
 
         const trace = start;
-        if (worldspace) {
+        if (worldSpace) {
             Vec3.subtract(trace, start, this.node.getWorldPosition());
         }
 
-        const dstep = new Vec3();
-        dstep.set(dir);
-        dstep.multiplyScalar(step);
+        const delta = new Vec3();
+        delta.set(dir);
+        delta.multiplyScalar(step);
 
         let position: Vec3|null = null;
 
@@ -1235,14 +1235,14 @@ export class Terrain extends Component {
                     break;
                 }
 
-                trace.add(dstep);
+                trace.add(delta);
             }
         }
 
         return position;
     }
 
-    public _calcuNormal (x: number, z: number) {
+    public _calcNormal (x: number, z: number) {
         let flip = 1;
         const here = this.getPosition(x, z);
         let right: Vec3;
@@ -1280,7 +1280,7 @@ export class Terrain extends Component {
         let index = 0;
         for (let y = 0; y < this.vertexCount[1]; ++y) {
             for (let x = 0; x < this.vertexCount[0]; ++x) {
-                const n = this._calcuNormal(x, y);
+                const n = this._calcNormal(x, y);
 
                 this._normals[index * 3 + 0] = n.x;
                 this._normals[index * 3 + 1] = n.y;
@@ -1329,12 +1329,12 @@ export class Terrain extends Component {
         }
 
         // build heights & normals
-        const vcount = this.vertexCount[0] * this.vertexCount[1];
-        if (this._heights === null || this._heights.length !== vcount) {
-            this._heights = new Uint16Array(vcount);
-            this._normals = new Array<number>(vcount * 3);
+        const vertexCount = this.vertexCount[0] * this.vertexCount[1];
+        if (this._heights === null || this._heights.length !== vertexCount) {
+            this._heights = new Uint16Array(vertexCount);
+            this._normals = new Array<number>(vertexCount * 3);
 
-            for (let i = 0; i < vcount; ++i) {
+            for (let i = 0; i < vertexCount; ++i) {
                 this._heights[i] = TERRAIN_HEIGHT_BASE;
                 this._normals[i * 3 + 0] = 0;
                 this._normals[i * 3 + 1] = 1;
@@ -1342,7 +1342,7 @@ export class Terrain extends Component {
             }
         }
         else {
-            this._normals = new Array<number>(vcount * 3);
+            this._normals = new Array<number>(vertexCount * 3);
             this._buildNormals();
         }
 
@@ -1467,7 +1467,7 @@ export class Terrain extends Component {
         };
 
         // sample weight
-        const sampleOldWeight = (_x: number, _y: number, _xoff: number, _yoff: number, _weights: Uint8Array) => {
+        const sampleOldWeight = (_x: number, _y: number, _xOff: number, _yOff: number, _weights: Uint8Array) => {
             const ix0 = Math.floor(_x);
             const iz0 = Math.floor(_y);
             const ix1 = ix0 + 1;
@@ -1475,10 +1475,10 @@ export class Terrain extends Component {
             const dx = _x - ix0;
             const dz = _y - iz0;
 
-            const a = getOldWeight(ix0 + _xoff, iz0 + _yoff, this._weights);
-            const b = getOldWeight(ix1 + _xoff, iz0 + _yoff, this._weights);
-            const c = getOldWeight(ix0 + _xoff, iz1 + _yoff, this._weights);
-            const d = getOldWeight(ix1 + _xoff, iz1 + _yoff, this._weights);
+            const a = getOldWeight(ix0 + _xOff, iz0 + _yOff, this._weights);
+            const b = getOldWeight(ix1 + _xOff, iz0 + _yOff, this._weights);
+            const c = getOldWeight(ix0 + _xOff, iz1 + _yOff, this._weights);
+            const d = getOldWeight(ix1 + _xOff, iz1 + _yOff, this._weights);
             const m = new Vec4();
             Vec4.add(m, b, c).multiplyScalar(0.5);
 
@@ -1506,20 +1506,20 @@ export class Terrain extends Component {
         // fill new weights
         for (let j = 0; j < h; ++j) {
             for (let i = 0; i < w; ++i) {
-                const uoff = i * oldWeightMapSize;
-                const voff = j * oldWeightMapSize;
+                const uOff = i * oldWeightMapSize;
+                const vOff = j * oldWeightMapSize;
 
                 for (let v = 0; v < info.weightMapSize; ++v) {
                     for (let u = 0; u < info.weightMapSize; ++u) {
                         // tslint:disable-next-line: no-shadowed-variable
                         let w: Vec4;
                         if (info.weightMapSize === oldWeightMapSize) {
-                            w = getOldWeight(u + uoff, v + voff, this._weights);
+                            w = getOldWeight(u + uOff, v + vOff, this._weights);
                         }
                         else {
                             const x = u / (info.weightMapSize - 1) * (oldWeightMapSize - 1);
                             const y = v / (info.weightMapSize - 1) * (oldWeightMapSize - 1);
-                            w = sampleOldWeight(x, y, uoff, voff, this._weights);
+                            w = sampleOldWeight(x, y, uOff, vOff, this._weights);
                         }
 
                         const du = i * info.weightMapSize + u;

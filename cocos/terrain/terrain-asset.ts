@@ -10,128 +10,128 @@ export const TERRAIN_DATA_VERSION3 = 0x01010003;
 export const TERRAIN_DATA_VERSION_DEFAULT = 0x01010111;
 
 export class TerrainBuffer {
-    public Length: number = 0;
-    public Buffer: Uint8Array = new Uint8Array(2048);
-    private _dview: DataView = new DataView(this.Buffer.buffer);
+    public length: number = 0;
+    public buffer: Uint8Array = new Uint8Array(2048);
+    private _buffView: DataView = new DataView(this.buffer.buffer);
     private _seekPos: number = 0;
 
     public Reserve (size: number) {
-        if (this.Buffer.byteLength > size) {
+        if (this.buffer.byteLength > size) {
             return;
         }
 
-        let capacity = this.Buffer.byteLength;
+        let capacity = this.buffer.byteLength;
         while (capacity < size) {
             capacity += capacity;
         }
 
         const temp = new Uint8Array(capacity);
-        for (let i = 0; i < this.Length; ++i) {
-            temp[i] = this.Buffer[i];
+        for (let i = 0; i < this.length; ++i) {
+            temp[i] = this.buffer[i];
         }
 
-        this.Buffer = temp;
-        this._dview = new DataView(this.Buffer.buffer);
+        this.buffer = temp;
+        this._buffView = new DataView(this.buffer.buffer);
     }
 
     public Assign (buff: Uint8Array) {
-        this.Buffer = buff;
-        this.Length = buff.length;
+        this.buffer = buff;
+        this.length = buff.length;
         this._seekPos = buff.byteOffset;
-        this._dview = new DataView(buff.buffer);
+        this._buffView = new DataView(buff.buffer);
     }
 
     public WriteInt8 (value: number) {
-        this.Reserve(this.Length + 1);
+        this.Reserve(this.length + 1);
 
-        this._dview.setInt8(this.Length, value);
-        this.Length += 1;
+        this._buffView.setInt8(this.length, value);
+        this.length += 1;
     }
 
     public WriteInt16 (value: number) {
-        this.Reserve(this.Length + 2);
+        this.Reserve(this.length + 2);
 
-        this._dview.setInt16(this.Length, value, true);
-        this.Length += 2;
+        this._buffView.setInt16(this.length, value, true);
+        this.length += 2;
     }
 
     public WriteInt32 (value: number) {
-        this.Reserve(this.Length + 4);
+        this.Reserve(this.length + 4);
 
-        this._dview.setInt32(this.Length, value, true);
-        this.Length += 4;
+        this._buffView.setInt32(this.length, value, true);
+        this.length += 4;
     }
 
     public WriteIntArray (value: number[]) {
-        this.Reserve(this.Length + 4 * value.length);
+        this.Reserve(this.length + 4 * value.length);
 
         for (let i = 0; i < value.length; ++i) {
-            this._dview.setInt32(this.Length + i * 4, value[i], true);
+            this._buffView.setInt32(this.length + i * 4, value[i], true);
         }
-        this.Length += 4 * value.length;
+        this.length += 4 * value.length;
     }
 
     public WriteFloat (value: number) {
-        this.Reserve(this.Length + 4);
+        this.Reserve(this.length + 4);
 
-        this._dview.setFloat32(this.Length, value, true);
-        this.Length += 4;
+        this._buffView.setFloat32(this.length, value, true);
+        this.length += 4;
     }
 
     public WriteFloatArray (value: number[]) {
-        this.Reserve(this.Length + 4 * value.length);
+        this.Reserve(this.length + 4 * value.length);
 
         for (let i = 0; i < value.length; ++i) {
-            this._dview.setFloat32(this.Length + i * 4, value[i], true);
+            this._buffView.setFloat32(this.length + i * 4, value[i], true);
         }
-        this.Length += 4 * value.length;
+        this.length += 4 * value.length;
     }
 
     public WriteString (value: string) {
-        this.Reserve(this.Length + value.length + 4);
+        this.Reserve(this.length + value.length + 4);
 
-        this._dview.setInt32(this.Length, value.length, true);
+        this._buffView.setInt32(this.length, value.length, true);
         for (let i = 0; i < value.length; ++i) {
-            this._dview.setInt8(this.Length + 4 + i, value.charCodeAt(i));
+            this._buffView.setInt8(this.length + 4 + i, value.charCodeAt(i));
         }
-        this.Length += value.length + 4;
+        this.length += value.length + 4;
     }
 
     public ReadInt8 () {
-        const value = this._dview.getInt8(this._seekPos);
+        const value = this._buffView.getInt8(this._seekPos);
         this._seekPos += 1;
         return value;
     }
 
     public ReadInt16 () {
-        const value = this._dview.getInt16(this._seekPos, true);
+        const value = this._buffView.getInt16(this._seekPos, true);
         this._seekPos += 2;
         return value;
     }
 
     public ReadInt () {
-        const value = this._dview.getInt32(this._seekPos, true);
+        const value = this._buffView.getInt32(this._seekPos, true);
         this._seekPos += 4;
         return value;
     }
 
     public ReadIntArray (value: number[]) {
         for (let i = 0; i < value.length; ++i) {
-            value[i] = this._dview.getInt32(this._seekPos + i * 4, true);
+            value[i] = this._buffView.getInt32(this._seekPos + i * 4, true);
         }
         this._seekPos += 4 * value.length;
         return value;
     }
 
     public ReadFloat () {
-        const value = this._dview.getFloat32(this._seekPos, true);
+        const value = this._buffView.getFloat32(this._seekPos, true);
         this._seekPos += 4;
         return value;
     }
 
     public ReadFloatArray (value: number[]) {
         for (let i = 0; i < value.length; ++i) {
-            value[i] = this._dview.getFloat32(this._seekPos + i * 4, true);
+            value[i] = this._buffView.getFloat32(this._seekPos + i * 4, true);
         }
         this._seekPos += 4 * value.length;
         return value;
@@ -256,11 +256,11 @@ export class TerrainAsset extends Asset{
         return this._layerInfos;
     }
 
-    public getLayer (xblock: number, yblock: number, layerId: number) {
-        const blockId = yblock * this.blockCount[0] + xblock;
+    public getLayer (xBlock: number, yBlock: number, layerId: number) {
+        const blockId = yBlock * this.blockCount[0] + xBlock;
         const index = blockId * 4 + layerId;
 
-        if (xblock < this.blockCount[0] && yblock < this.blockCount[1] && index < this._layerBuffer.length) {
+        if (xBlock < this.blockCount[0] && yBlock < this.blockCount[1] && index < this._layerBuffer.length) {
             return this._layerBuffer[index];
         }
 
@@ -369,7 +369,7 @@ export class TerrainAsset extends Asset{
             stream.WriteString(this.layerInfos[i].detailMap);
         }
 
-        return stream.Buffer;
+        return stream.buffer;
     }
 
     public _exportDefaultNativeData (): Uint8Array {
@@ -377,7 +377,7 @@ export class TerrainAsset extends Asset{
 
         stream.WriteInt32(TERRAIN_DATA_VERSION_DEFAULT);
 
-        return stream.Buffer;
+        return stream.buffer;
 
     }
  }
