@@ -102,28 +102,26 @@ var downloadBundle = function (url, options, onComplete) {
     var version = options.version || downloader.bundleVers[bundleName];
     var count = 0;
     var config = version ?  `${url}/config.${version}.json` : `${url}/config.json`;
-    let out = null;
+    let out = null, error = null;
     downloadJson(config, options, function (err, response) {
         if (err) {
-            onComplete(err);
-            return;
+            error = err;
         }
         out = response;
         count++;
         if (count === 2) {
-            onComplete(null, out);
+            onComplete(error, out);
         }
     });
 
     var js = version ?  `${url}/index.${version}.js` : `${url}/index.js`;
     downloadScript(js, options, function (err) {
         if (err) {
-            onComplete(err);
-            return;
+            error = err;
         }
         count++;
         if (count === 2) {
-            onComplete(null, out);
+            onComplete(error, out);
         }
     });
 };

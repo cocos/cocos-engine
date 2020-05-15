@@ -199,24 +199,6 @@ var releaseManager = {
         _toDelete.remove(asset._uuid);
 
         if (!force) {
-
-            if (!CC_NATIVERENDERER) {
-                var glTexture = null;
-                if (asset instanceof cc.Texture2D) {
-                    glTexture = asset._texture;
-                }
-        
-                if (glTexture && glTexture._glID != -1) {
-                    var textureUnits = cc.renderer.device._current.textureUnits;
-                    for (var i = 0; i < textureUnits.length; i++) {
-                        if (glTexture === textureUnits[i]) {
-                            console.error(`this texture ${asset._uuid} is being used`);
-                            return;
-                        }
-                    }
-                }
-            }
-
             if (asset.refCount > 0) {
                 if (checkCircularReference(asset) > 0) return; 
             }
