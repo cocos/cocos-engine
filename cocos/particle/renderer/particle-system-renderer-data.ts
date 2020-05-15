@@ -3,16 +3,23 @@ import { ccclass, property } from '../../core/data/class-decorator';
 import { RenderMode} from '../enum';
 import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
 import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
+/**
+ * @en The render data of 3d particle.
+ * @zh 3D 粒子的渲染数据模块
+ * @class ParticleSystemRenderer
+ */
 @ccclass('cc.ParticleSystemRenderer')
 export default class ParticleSystemRenderer {
 
     /**
-     * @zh 设定粒子生成模式。
+     * @en Particle generation mode
+     * @zh 设定粒子生成模式
+     * @property {RenderMode} renderMode
      */
     @property({
         type: RenderMode,
         displayOrder: 0,
-        tooltip: '设定粒子生成模式',
+        tooltip: 'i18n:particle.render_mode',
     })
     public get renderMode () {
         return this._renderMode;
@@ -27,11 +34,13 @@ export default class ParticleSystemRenderer {
     }
 
     /**
-     * @zh 在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按速度大小进行拉伸。
+     * @en When the particle generation mode is StrecthedBillboard, in the direction of movement of the particles is stretched by velocity magnitude
+     * @zh 在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按速度大小进行拉伸
+     * @property {Number} velocityScale
      */
     @property({
         displayOrder: 1,
-        tooltip: '在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按速度大小进行拉伸',
+        tooltip: 'i18n:particle.velocity_scale',
     })
     public get velocityScale () {
         return this._velocityScale;
@@ -44,11 +53,13 @@ export default class ParticleSystemRenderer {
     }
 
     /**
-     * @zh 在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸。
+     * @en When the particle generation method is StrecthedBillboard, the particles are stretched according to the particle size in the direction of motion
+     * @zh 在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸
+     * @property {Number} lengthScale
      */
     @property({
         displayOrder: 2,
-        tooltip: '在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸',
+        tooltip: 'i18n:particle.length_scale',
     })
     public get lengthScale () {
         return this._lengthScale;
@@ -80,14 +91,15 @@ export default class ParticleSystemRenderer {
         displayOrder: 6,
     })
     private _mesh: Mesh | null = null;
-
     /**
-     * @zh 粒子发射的模型。
+     * @en Particle model
+     * @zh 粒子模型
+     * @property {Mesh} mesh
      */
     @property({
         type: Mesh,
         displayOrder: 7,
-        tooltip: '粒子发射的模型',
+        tooltip: 'i18n:particle.mesh',
     })
     public get mesh () {
         return this._mesh;
@@ -99,12 +111,14 @@ export default class ParticleSystemRenderer {
     }
 
     /**
-     * @zh 粒子使用的材质。
+     * @en Particle material
+     * @zh 粒子材质
+     * @property {Material} particleMaterial
      */
     @property({
         type: Material,
         displayOrder: 8,
-        tooltip: '粒子使用的材质',
+        tooltip: 'i18n:particle.particle_material',
     })
     public get particleMaterial () {
         if (!this._particleSystem) {
@@ -118,12 +132,14 @@ export default class ParticleSystemRenderer {
     }
 
     /**
-     * @zh 拖尾使用的材质。
+     * @en Particle trail material
+     * @zh 粒子轨迹材质
+     * @property {Material} trailMaterial
      */
     @property({
         type: Material,
         displayOrder: 9,
-        tooltip: '拖尾使用的材质',
+        tooltip: 'i18n:particle.trail_material',
     })
     public get trailMaterial () {
         if (!this._particleSystem) {
@@ -138,10 +154,14 @@ export default class ParticleSystemRenderer {
 
     @property
     private _useGPU: boolean = false;
-
+    /**
+     * @en Whether to use a GPU renderer.
+     * @zh 是否使用 GPU 渲染器
+     * @property {Material} trailMaterial
+     */
     @property({
         displayOrder: 10,
-        tooltip:'是否启用GPU粒子',
+        tooltip:'i18n:particle.use_gpu',
     })
     public get useGPU () {
         return this._useGPU;

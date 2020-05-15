@@ -6,6 +6,11 @@ import { ccclass, property } from '../core/data/class-decorator';
 import { repeat } from '../core/math';
 import CurveRange from './animator/curve-range';
 
+/**
+ * @en The burst of 3d particle.
+ * @zh 3D 粒子发射时的爆发个数
+ * @class Burst
+ */
 @ccclass('cc.Burst')
 export default class Burst {
 
@@ -13,7 +18,9 @@ export default class Burst {
     private _time: number = 0;
 
     /**
-     * @zh 粒子系统开始运行到触发此次 Brust 的时间。
+     * @en Time between the start of the particle system and the trigger of this Brust
+     * @zh 粒子系统开始运行到触发此次 Brust 的时间
+     * @property {Number} time
      */
     @property
     get time () {
@@ -29,7 +36,9 @@ export default class Burst {
     private _repeatCount: number = 1;
 
     /**
-     * @zh Burst 的触发次数。
+     * @en The number of times Burst was triggered.
+     * @zh Burst 的触发次数
+     * @property {Number} repeatCount
      */
     @property
     get repeatCount () {
@@ -42,13 +51,17 @@ export default class Burst {
     }
 
     /**
-     * @zh 每次触发的间隔时间。
+     * @en Interval of each trigger
+     * @zh 每次触发的间隔时间
+     * @property {Number} repeatInterval
      */
     @property
     public repeatInterval: number = 1;
 
     /**
-     * @zh 发射的粒子的数量。
+     * @en Number of particles emitted
+     * @zh 发射的粒子的数量
+     * @property {CurveRange} count
      */
     @property({
         type: CurveRange,

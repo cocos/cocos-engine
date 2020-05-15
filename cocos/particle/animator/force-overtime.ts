@@ -16,12 +16,19 @@ const FORCE_OVERTIME_RAND_OFFSET = ModuleRandSeed.FORCE;
 
 const _temp_v3 = new Vec3();
 
+/**
+ * @en The force over time module of 3d particle.
+ * @zh 3D 粒子的加速度模块
+ * @class ForceOvertimeModule
+ */
 @ccclass('cc.ForceOvertimeModule')
 export default class ForceOvertimeModule extends ParticleModuleBase {
     @property
     _enable: Boolean = false;
     /**
-     * @zh 是否启用。
+     * @en The enable of ColorOvertimeModule.
+     * @zh 是否启用
+     * @property {Boolean} enable
      */
     @property({
         displayOrder: 0,
@@ -38,45 +45,53 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
     }
 
     /**
+     * @en X-axis acceleration component.
      * @zh X 轴方向上的加速度分量。
+     * @property {CurveRange} x
      */
     @property({
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 2,
-        tooltip:'X 轴方向上的加速度分量',
+        tooltip:'i18n:particle.force_x',
     })
     public x = new CurveRange();
 
     /**
+     * @en Y-axis acceleration component.
      * @zh Y 轴方向上的加速度分量。
+     * @property {CurveRange} y
      */
     @property({
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 3,
-        tooltip:'Y 轴方向上的加速度分量',
+        tooltip:'i18n:particle.force_y',
     })
     public y = new CurveRange();
 
     /**
+     * @en Z-axis acceleration component.
      * @zh Z 轴方向上的加速度分量。
+     * @property {CurveRange} z
      */
     @property({
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 4,
-        tooltip:'Z 轴方向上的加速度分量',
+        tooltip:'i18n:particle.force_z',
     })
     public z = new CurveRange();
 
     /**
-     * @zh 加速度计算时采用的坐标系 [[Space]]。
+     * @en Coordinate system used in acceleration calculation.
+     * @zh 加速度计算时采用的坐标系。
+     * @property {Space} space
      */
     @property({
         type: Space,
         displayOrder: 1,
-        tooltip:'加速度计算时采用的坐标',
+        tooltip:'i18n:particle.force_space',
     })
     public space = Space.Local;
 

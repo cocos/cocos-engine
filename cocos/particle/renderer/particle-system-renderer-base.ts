@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { Component, IGFXAttribute } from '../../core';
 import ParticleBatchModel from '../models/particle-batch-model';
 import ParticleSystemRenderer from './particle-system-renderer-data';

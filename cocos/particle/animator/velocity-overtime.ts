@@ -17,13 +17,19 @@ const VELOCITY_Y_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_Y;
 const VELOCITY_Z_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_Z;
 
 const _temp_v3 = new Vec3();
-
+/**
+ * @en The velocity module of 3d particle.
+ * @zh 3D 粒子的速度模块
+ * @class VelocityOvertimeModule
+ */
 @ccclass('cc.VelocityOvertimeModule')
 export default class VelocityOvertimeModule extends ParticleModuleBase {
     @property
     _enable: Boolean = false;
     /**
-     * @zh 是否启用。
+     * @en The enable of VelocityOvertimeModule.
+     * @zh 是否启用
+     * @property {Boolean} enable
      */
     @property({
         displayOrder: 0,
@@ -40,56 +46,66 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     }
 
     /**
+     * @en Velocity component in X axis direction
      * @zh X 轴方向上的速度分量。
+     * @property {CurveRange} x
      */
     @property({
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 2,
-        tooltip:'X 轴方向上的速度分量',
+        tooltip:'i18n:particle.velocity_x',
     })
     public x = new CurveRange();
 
     /**
+     * @en Velocity component in Y axis direction
      * @zh Y 轴方向上的速度分量。
+     * @property {CurveRange} y
      */
     @property({
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 3,
-        tooltip:'Y 轴方向上的速度分量',
+        tooltip:'i18n:particle.velocity_y',
     })
     public y = new CurveRange();
 
     /**
+     * @en Velocity component in Z axis direction
      * @zh Z 轴方向上的速度分量。
+     * @property {CurveRange} z
      */
     @property({
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 4,
-        tooltip:'Z 轴方向上的速度分量',
+        tooltip:'i18n:particle.velocity_z',
     })
     public z = new CurveRange();
 
     /**
+     * @en Speed correction factor (only supports CPU particles).
      * @zh 速度修正系数（只支持 CPU 粒子）。
+     * @property {CurveRange} speedModifier
      */
     @property({
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 5,
-        tooltip:'速度修正系数（只支持 CPU 粒子）',
+        tooltip:'i18n:particle.velocity_speed',
     })
     public speedModifier = new CurveRange();
 
     /**
-     * @zh 速度计算时采用的坐标系[[Space]]。
+     * @en Coordinate system used in speed calculation.
+     * @zh 速度计算时采用的坐标系。
+     * @property {Space} space
      */
     @property({
         type: Space,
         displayOrder: 1,
-        tooltip:'速度计算时采用的坐标系',
+        tooltip:'i18n:particle.velocity_space',
     })
     public space = Space.Local;
 

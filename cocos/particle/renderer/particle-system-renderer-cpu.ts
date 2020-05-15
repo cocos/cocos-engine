@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 import { builtinResMgr } from '../../core/3d/builtin';
 import { Material } from '../../core/assets';
 import { GFXAttributeName, GFXFormat } from '../../core/gfx/define';

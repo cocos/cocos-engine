@@ -14,12 +14,19 @@ import { ParticleModuleBase } from '../particle';
 
 const COLOR_OVERTIME_RAND_OFFSET = ModuleRandSeed.COLOR;
 
+/**
+ * @en The color over time module of 3d particle.
+ * @zh 3D 粒子颜色变化模块
+ * @class ColorOvertimeModule
+ */
 @ccclass('cc.ColorOvertimeModule')
 export default class ColorOvertimeModule extends ParticleModuleBase {
     @property
     _enable = false;
     /**
-     * @zh 是否启用。
+     * @en The enable of ColorOvertimeModule.
+     * @zh 是否启用
+     * @property {Boolean} enable
      */
     @property({
         displayOrder: 0,
@@ -36,7 +43,9 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
     }
 
     /**
+     * @en The parameter of color change over time, the linear difference between each key changes.
      * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。
+     * @type {GradientRange} color
      */
     @property({
         type: GradientRange,

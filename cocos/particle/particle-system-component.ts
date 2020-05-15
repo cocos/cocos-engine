@@ -33,6 +33,12 @@ import { PARTICLE_MODULE_PROPERTY } from './particle';
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
 
+/**
+ * @en The ParticleSystem3D Component.
+ * @zh 3D 粒子组件
+ * @class ParticleSystemComponent
+ * @extends RenderableComponent
+ */
 @ccclass('cc.ParticleSystemComponent')
 @help('i18n:cc.ParticleSystemComponent')
 @menu('Components/ParticleSystem')
@@ -41,11 +47,13 @@ const _world_rol = new Quat();
 export class ParticleSystemComponent extends RenderableComponent {
 
     /**
-     * @zh 粒子系统能生成的最大粒子数量。
+     * @en The maximum number of particles that a particle system can generate.
+     * @zh 粒子系统能生成的最大粒子数量
+     * @property {Number} capacity
      */
     @property({
         displayOrder: 1,
-        tooltip:'粒子系统能生成的最大粒子数量',
+        tooltip:'i18n:particle.capacity',
     })
     public get capacity () {
         return this._capacity;
@@ -61,102 +69,133 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     /**
-     * @zh 粒子初始颜色。
+     * @en Particle initial color
+     * @zh 粒子初始颜色
+     * @property {GradientRange} startColor
      */
     @property({
         type: GradientRange,
         displayOrder: 8,
-        tooltip:'粒子初始颜色',
+        tooltip:'i18n:particle.start_color',
     })
     public startColor = new GradientRange();
 
+    /**
+     * @en Particle scale space
+     * @zh 缩放空间
+     * @property {Space} scaleSpace
+     */
     @property({
         type: Space,
         displayOrder: 9,
-        tooltip:'选择缩放坐标系',
+        tooltip:'i18n:particle.scale_space',
     })
     public scaleSpace = Space.Local;
 
+    /**
+     * @en Whether to open the particle at the initial size of the XYZ axis
+     * @zh 是否开启粒子分别在 XYZ 轴的初始大小
+     * @property {boolean} startSize3D
+     */
     @property({
         displayOrder: 10,
-        tooltip:'粒子初始大小',
+        tooltip:'i18n:particle.start_size_3d',
     })
     public startSize3D = false;
 
     /**
-     * @zh 粒子初始大小。
+     * @en Initial particle size
+     * @zh 粒子初始大小
+     * @property {CurveRange} startSizeX
      */
     @property({
         type: CurveRange,
         displayOrder: 10,
         formerlySerializedAs: 'startSize',
-        tooltip:'粒子初始大小',
+        tooltip:'i18n:particle.start_size',
     })
     public startSizeX = new CurveRange();
 
     /**
-     * @zh 粒子初始大小。
+     * @en Initial particle size
+     * @zh 粒子初始大小
+     * @property {CurveRange} startSizeY
      */
     @property({
         type: CurveRange,
         displayOrder: 10,
-        tooltip:'粒子初始大小',
+        tooltip:'i18n:particle.start_size',
     })
     public startSizeY = new CurveRange();
 
     /**
-     * @zh 粒子初始大小。
+     * @en Initial particle size
+     * @zh 粒子初始大小
+     * @property {CurveRange} startSizeZ
      */
     @property({
         type: CurveRange,
         displayOrder: 10,
-        tooltip:'粒子初始大小',
+        tooltip:'i18n:particle.start_size',
     })
     public startSizeZ = new CurveRange();
 
     /**
-     * @zh 粒子初始速度。
+     * @en Initial particle speed
+     * @zh 粒子初始速度
+     * @property {CurveRange} startSpeed
      */
     @property({
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 11,
-        tooltip:'粒子初始速度',
+        tooltip:'i18n:particle.start_speed',
     })
     public startSpeed = new CurveRange();
 
+    /**
+     * @en Whether to open the particle at the rotation angle of the XYZ axis
+     * @zh 是否开启粒子分别在 XYZ 轴的旋转角度
+     * @property {boolean} startRotation3D
+     */
     @property({
         displayOrder: 12,
-        tooltip:'粒子初始旋转角度',
+        tooltip:'i18n:particle.start_rotation_3d',
     })
     public startRotation3D = false;
 
     /**
-     * @zh 粒子初始旋转角度。
+     * @en Particle initial rotation angle
+     * @zh 粒子初始旋转角度
+     * @property {CurveRange} startRotationX
      */
     @property({
         type: CurveRange,
         range: [-1, 1],
         radian: true,
         displayOrder: 12,
-        tooltip:'粒子初始旋转角度'
+        tooltip:'i18n:particle.start_rotation',
     })
     public startRotationX = new CurveRange();
 
     /**
-     * @zh 粒子初始旋转角度。
+     * @en Particle initial rotation angle
+     * @zh 粒子初始旋转角度
+     * @property {CurveRange} startRotationY
      */
     @property({
         type: CurveRange,
         range: [-1, 1],
         radian: true,
         displayOrder: 12,
-        tooltip:'粒子初始旋转角度'
+        tooltip:'i18n:particle.start_rotation',
     })
     public startRotationY = new CurveRange();
 
     /**
-     * @zh 粒子初始旋转角度。
+     * @en Particle initial rotation angle
+     * @zh 粒子初始旋转角度
+     * @property {CurveRange} startRotationZ
      */
     @property({
         type: CurveRange,
@@ -164,54 +203,64 @@ export class ParticleSystemComponent extends RenderableComponent {
         radian: true,
         displayOrder: 12,
         formerlySerializedAs: 'startRotation',
-        tooltip:'粒子初始旋转角度'
+        tooltip:'i18n:particle.start_rotation',
     })
     public startRotationZ = new CurveRange();
 
     /**
+     * @en Delay particle emission time after particle system starts running.
      * @zh 粒子系统开始运行后，延迟粒子发射的时间。
+     * @property {CurveRange} startDelay
      */
     @property({
         type: CurveRange,
         displayOrder: 6,
-        tooltip:'粒子系统开始运行后，延迟粒子发射的时间',
+        tooltip:'i18n:particle.start_delay',
     })
     public startDelay = new CurveRange();
 
     /**
+     * @en Particle life cycle。
      * @zh 粒子生命周期。
+     * @property {CurveRange} startLifetime
      */
     @property({
         type: CurveRange,
         displayOrder: 7,
-        tooltip:'粒子生命周期',
+        tooltip:'i18n:particle.start_life_time',
     })
     public startLifetime = new CurveRange();
 
     /**
-     * @zh 粒子系统运行时间。
+     * @en The run time of particle.
+     * @zh 粒子系统运行时间
+     * @property {Number} duration
      */
     @property({
         displayOrder: 0,
-        tooltip:'粒子系统运行时间',
+        tooltip:'i18n:particle.duration',
     })
     public duration = 5.0;
 
     /**
-     * @zh 粒子系统是否循环播放。
+     * @en Whether the particle system loops.
+     * @zh 粒子系统是否循环播放
+     * @property {Boolean} loop
      */
     @property({
         displayOrder: 2,
-        tooltip:'粒子系统是否循环播放',
+        tooltip:'i18n:particle.loop',
     })
     public loop = true;
 
     /**
-     * @zh 选中之后，粒子系统会以已播放完一轮之后的状态开始播放（仅当循环播放启用时有效）。
+     * @en When selected, the particle system will start playing after one round has been played (only effective when loop is enabled).
+     * @zh 选中之后，粒子系统会以已播放完一轮之后的状态开始播放（仅当循环播放启用时有效）
+     * @property {Boolean} prewarm
      */
     @property({
         displayOrder: 3,
-        tooltip:'选中之后，粒子系统会以已播放完一轮之后的状态开始播放（仅当循环播放启用时有效）',
+        tooltip:'i18n:particle.prewarm',
     })
     get prewarm () {
         return this._prewarm;
@@ -225,12 +274,20 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     /**
-     * @zh 选择粒子系统所在的坐标系[[Space]]。<br>
+     * @en The coordinate system in which the particle system is located.<br>
+     * World coordinates (does not change when the position of other objects changes)<br>
+     * Local coordinates (moving as the position of the parent node changes)<br>
+     * Custom coordinates (moving with the position of a custom node)
+     * @zh 选择粒子系统所在的坐标系<br>
+     * 世界坐标（不随其他物体位置改变而变换）<br>
+     * 局部坐标（跟随父节点位置改变而移动）<br>
+     * 自定坐标（跟随自定义节点的位置改变而移动）
+     * @property {Space} simulationSpace
      */
     @property({
         type: Space,
         displayOrder: 4,
-        tooltip:'控制粒子坐标计算所在的坐标系',
+        tooltip:'i18n:particle.simulation_space',
     })
     get simulationSpace () {
         return this._simulationSpace;
@@ -247,62 +304,74 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     /**
+     * @en Controlling the update speed of the entire particle system.
      * @zh 控制整个粒子系统的更新速度。
+     * @property {Number} simulationSpeed
      */
     @property({
         displayOrder: 5,
-        tooltip:'控制整个粒子系统的更新速度',
+        tooltip:'i18n:particle.simulation_speed',
     })
     public simulationSpeed = 1.0;
 
     /**
-     * @zh 粒子系统加载后是否自动开始播放。
+     * @en Whether the particles start playing automatically after loaded.
+     * @zh 粒子系统加载后是否自动开始播放
+     * @property {Boolean} playOnAwake
      */
     @property({
         displayOrder: 2,
-        tooltip:'粒子系统加载后是否自动开始播放',
+        tooltip:'i18n:particle.play_on_awake',
     })
     public playOnAwake = true;
 
     /**
-     * @zh 粒子受重力影响的重力系数。
+     * @en Gravity coefficient of particles affected by gravity.
+     * @zh 粒子受重力影响的重力系数
+     * @property {CurveRange} gravityModifier
      */
     @property({
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 13,
-        tooltip:'粒子受重力影响的重力系数',
+        tooltip:'i18n:particle.gravity_modifier',
     })
     public gravityModifier = new CurveRange();
 
     // emission module
     /**
-     * @zh 每秒发射的粒子数。
+     * @en Particles emitted per second
+     * @zh 每秒发射的粒子数
+     * @property {CurveRange} rateOverTime
      */
     @property({
         type: CurveRange,
         displayOrder: 14,
-        tooltip:'每秒发射的粒子数',
+        tooltip:'i18n:particle.rate_over_time',
     })
     public rateOverTime = new CurveRange();
 
     /**
-     * @zh 每移动单位距离发射的粒子数。
+     * @en Number of particles emitted per unit distance moved
+     * @zh 每移动单位距离发射的粒子数
+     * @property {CurveRange} rateOverDistance
      */
     @property({
         type: CurveRange,
         displayOrder: 15,
-        tooltip:'每移动单位距离发射的粒子数',
+        tooltip:'i18n:particle.rate_over_distance',
     })
     public rateOverDistance = new CurveRange();
 
     /**
-     * @zh 设定在指定时间发射指定数量的粒子的 burst 的数量。
+     * @en The number of Brusts that emit a specified number of particles at a specified time
+     * @zh 设定在指定时间发射指定数量的粒子的 Brust 的数量
+     * @property {[Burst]} bursts
      */
     @property({
         type: [Burst],
         displayOrder: 16,
-        tooltip:'在某个时间点发射给定数量的粒子'
+        tooltip:'i18n:particle.bursts',
     })
     public bursts: Burst[] = new Array();
 
@@ -325,109 +394,132 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     // color over lifetime module
     /**
-     * @zh 颜色控制模块。
+     * @en Color control module
+     * @zh 颜色控制模块
+     * @property {ColorOverLifetimeModule} colorOverLifetimeModule
      */
     @property({
         type: ColorOverLifetimeModule,
         displayOrder: 23,
-        tooltip:'颜色模块',
+        tooltip:'i18n:particle.color_module',
     })
     public colorOverLifetimeModule = new ColorOverLifetimeModule();
 
     // Shape module
     /**
-     * @zh 粒子发射器模块。
+     * @en Particle emitter module
+     * @zh 粒子发射器模块
+     * @property {ShapeModule} shapeModule
      */
     @property({
         type: ShapeModule,
         displayOrder: 17,
-        tooltip:'发射器模块',
+        tooltip:'i18n:particle.shape_module',
     })
     public shapeModule = new ShapeModule();
 
     // size over lifetime module
     /**
-     * @zh 粒子大小模块。
+     * @en Particle size module
+     * @zh 粒子大小模块
+     * @property {SizeOvertimeModule} sizeOvertimeModule
      */
     @property({
         type: SizeOvertimeModule,
         displayOrder: 21,
-        tooltip:'大小模块',
+        tooltip:'i18n:particle.size_module',
     })
     public sizeOvertimeModule = new SizeOvertimeModule();
 
     /**
-     * @zh 粒子速度模块。
+     * @en Particle speed module
+     * @zh 粒子速度模块
+     * @property {VelocityOvertimeModule} velocityOvertimeModule
      */
     @property({
         type: VelocityOvertimeModule,
         displayOrder: 18,
-        tooltip:'速度模块',
+        tooltip:'i18n:particle.speed_module',
     })
     public velocityOvertimeModule = new VelocityOvertimeModule();
 
     /**
-     * @zh 粒子加速度模块。
+     * @en Particle acceleration module
+     * @zh 粒子加速度模块
+     * @property {ForceOvertimeModule} forceOvertimeModule
      */
     @property({
         type: ForceOvertimeModule,
         displayOrder: 19,
-        tooltip:'加速度模块',
+        tooltip:'i18n:particle.force_module',
     })
     public forceOvertimeModule = new ForceOvertimeModule();
 
     /**
-     * @zh 粒子限制速度模块（只支持 CPU 粒子）。
+     * @en Particle limit speed module (only CPU particles are supported)
+     * @zh 粒子限制速度模块（只支持 CPU 粒子）
+     * @property {LimitVelocityOvertimeModule} limitVelocityOvertimeModule
      */
     @property({
         type: LimitVelocityOvertimeModule,
         displayOrder: 20,
-        tooltip:'限速模块',
+        tooltip:'i18n:particle.limit_module',
     })
     public limitVelocityOvertimeModule = new LimitVelocityOvertimeModule();
 
     /**
-     * @zh 粒子旋转模块。
+     * @en Particle rotation module
+     * @zh 粒子旋转模块
+     * @property {RotationOvertimeModule} rotationOvertimeModule
      */
     @property({
         type: RotationOvertimeModule,
         displayOrder: 22,
-        tooltip:'旋转模块',
+        tooltip:'i18n:particle.rotation_module',
     })
     public rotationOvertimeModule = new RotationOvertimeModule();
 
     /**
-     * @zh 贴图动画模块。
+     * @en Texture Animation Module
+     * @zh 贴图动画模块
+     * @property {TextureAnimationModule} textureAnimationModule
      */
     @property({
         type: TextureAnimationModule,
         displayOrder: 24,
-        tooltip:'贴图动画模块',
+        tooltip:'i18n:particle.texture_module',
     })
     public textureAnimationModule = new TextureAnimationModule();
 
     /**
-     * @zh 粒子轨迹模块。
+     * @en Particle Trajectory Module
+     * @zh 粒子轨迹模块
+     * @property {TrailModule} trailModule
      */
     @property({
         type: TrailModule,
         displayOrder: 25,
-        tooltip:'拖尾模块',
+        tooltip:'i18n:particle.trail_module',
     })
     public trailModule = new TrailModule();
 
     // particle system renderer
+    /**
+     * @en Particle renderer.
+     * @zh 粒子渲染器
+     * @property {ParticleSystemRenderer} renderer
+     */
     @property({
         type: ParticleSystemRenderer,
         displayOrder: 26,
-        tooltip:'渲染模块',
+        tooltip:'i18n:particle.renderer_module',
     })
     public renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
 
     // serilized culling
     @property({
         displayOrder: 27,
-        tooltip:'是否剔除非 enable 的模块数据',
+        tooltip:'i18n:particle.culling',
     })
     public enableCulling: boolean = false;
 
@@ -604,7 +696,8 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     // remove all particles from current particle system.
     /**
-     * 将所有粒子从粒子系统中清除。
+     * @en Remove all particles from the particle system.
+     * @zh 将所有粒子从粒子系统中清除。
      */
     public clear () {
         if (this.enabledInHierarchy) {
@@ -614,6 +707,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     /**
+     * @en Get the current particle count.
      * @zh 获取当前粒子数量
      */
     public getParticleCount () {

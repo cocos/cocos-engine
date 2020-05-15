@@ -143,11 +143,18 @@ class TrailSegment {
     // }
 }
 
+/**
+ * @en The trail module of 3d particle.
+ * @zh 3D 粒子拖尾模块
+ * @class TrailModule
+ */
 @ccclass('cc.TrailModule')
 export default class TrailModule {
 
     /**
-     * 是否启用。
+     * @en The enable of trailModule.
+     * @zh 是否启用
+     * @property {Boolean} enable
      */
     @property({
         displayOrder: 0,
@@ -179,22 +186,26 @@ export default class TrailModule {
     public _enable = false;
 
     /**
-     * 设定粒子生成轨迹的方式。
+     * @en Sets how particles generate trajectories.
+     * @zh 设定粒子生成轨迹的方式。
+     * @property {TrailMode} mode
      */
     @property({
         type: TrailMode,
         displayOrder: 1,
-        tooltip: 'Particle在每个粒子的运动轨迹上形成拖尾效果',
+        tooltip: 'i18n:particle.trail_mode',
     })
     public mode = TrailMode.Particles;
 
     /**
-     * 轨迹存在的生命周期。
+     * @en Life cycle of trajectory.
+     * @zh 轨迹存在的生命周期。
+     * @property {CurveRange} lifeTime
      */
     @property({
         type: CurveRange,
         displayOrder: 3,
-        tooltip: '拖尾的生命周期',
+        tooltip: 'i18n:particle.trail_life',
     })
     public lifeTime = new CurveRange();
 
@@ -202,11 +213,13 @@ export default class TrailModule {
     public _minParticleDistance = 0.1;
 
     /**
-     * 每个轨迹粒子之间的最小间距。
+     * @en Minimum spacing between each track particle
+     * @zh 每个轨迹粒子之间的最小间距。
+     * @property {Number} minParticleDistance
      */
     @property({
         displayOrder: 5,
-        tooltip: '粒子每生成一个拖尾节点所运行的最短距离',
+        tooltip: 'i18n:particle.trail_distance',
     })
     public get minParticleDistance () {
         return this._minParticleDistance;
@@ -216,11 +229,15 @@ export default class TrailModule {
         this._minParticleDistance = val;
         this._minSquaredDistance = val * val;
     }
-
+    /**
+     * @en The coordinate system of trajectories.
+     * @zh 轨迹设定时的坐标系。
+     * @property {Space} space
+     */
     @property({
         type: Space,
         displayOrder: 6,
-        tooltip: '拖尾所在的坐标系，World在世界坐标系中运行，Local在本地坐标系中运行',
+        tooltip: 'i18n:particle.trail_space',
     })
     public get space () {
         return this._space;
@@ -234,64 +251,83 @@ export default class TrailModule {
     }
 
     /**
-     * 粒子本身是否存在。
+     * @en Whether the particle itself exists.
+     * @zh 粒子本身是否存在。
+     * @property {Boolean} existWithParticles
      */
     @property({
         displayOrder: 7,
-        tooltip: '拖尾是否跟随粒子一起消失',
+        tooltip: 'i18n:particle.trail_exist',
         visible: false,
     })
     public existWithParticles = true;
 
     /**
-     * 设定纹理填充方式。
+     * @en Set the texture fill method
+     * @zh 设定纹理填充方式。
+     * @property {TextureMode} textureMode
      */
     @property({
         type: TextureMode,
         displayOrder: 8,
-        tooltip: '贴图在拖尾上的展开形式，Stretch贴图覆盖在整条拖尾上，Repeat贴图覆盖在一段拖尾上',
+        tooltip: 'i18n:particle.trail_texture',
     })
     public textureMode = TextureMode.Stretch;
-
+    /**
+     * @en Whether to use particle width
+     * @zh 是否使用粒子的宽度。
+     * @property {Boolean} widthFromParticle
+     */
     @property({
         displayOrder: 9,
-        tooltip: '拖尾宽度继承自粒子大小',
+        tooltip: 'i18n:particle.trail_width',
     })
     public widthFromParticle = true;
 
     /**
-     * 控制轨迹长度的曲线。
+     * @en Curves that control track length
+     * @zh 控制轨迹长度的曲线。
+     * @property {CurveRange} widthRatio
      */
     @property({
         type: CurveRange,
         displayOrder: 10,
-        tooltip: '拖尾宽度，如果继承自粒子则是粒子大小的比例',
+        tooltip: 'i18n:particle.trail_ratio',
     })
     public widthRatio = new CurveRange();
-
+    /**
+     * @en Whether to use particle color
+     * @zh 是否使用粒子的颜色。
+     * @property {Boolean} colorFromParticle
+     */
     @property({
         displayOrder: 11,
-        tooltip: '拖尾颜色是否继承自粒子',
+        tooltip: 'i18n:particle.trail_color',
     })
     public colorFromParticle = false;
-
+    /**
+     * @en The color of trajectories.
+     * @zh 轨迹的颜色。
+     * @property {GradientRange} colorOverTrail
+     */
     @property({
         type: GradientRange,
         displayOrder: 12,
-        tooltip: '拖尾颜色随拖尾自身长度的颜色渐变',
+        tooltip: 'i18n:particle.trail_gradient',
     })
     public colorOverTrail = new GradientRange();
-
+    /**
+     * @en Trajectories color over time.
+     * @zh 轨迹随时间变化的颜色。
+     * @property {GradientRange} colorOvertime
+     */
     @property({
         type: GradientRange,
         displayOrder: 13,
-        tooltip: '拖尾颜色随时间的颜色渐变',
+        tooltip: 'i18n:particle.trail_time_gradient',
     })
     public colorOvertime = new GradientRange();
 
-    /**
-     * 轨迹设定时的坐标系。
-     */
     @property({
         type: Space,
     })

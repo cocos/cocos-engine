@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 import { builtinResMgr } from '../../core/3d/builtin';
 import { Material } from '../../core/assets';
 import { Texture2D } from '../../core';

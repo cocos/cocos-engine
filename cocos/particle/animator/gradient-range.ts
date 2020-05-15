@@ -28,11 +28,18 @@ const Mode = Enum({
     RandomColor: 4,
 });
 
+/**
+ * @en The gradient range of color.
+ * @zh 颜色值的渐变范围
+ * @class GradientRange
+ */
 @ccclass('cc.GradientRange')
 export default class GradientRange {
 
     /**
-     * @zh 渐变色类型 [[Mode]]。
+     * @en Gradient type.
+     * @zh 渐变色类型。
+     * @property {Mode} mode
      */
     @property({
         type: Mode,
@@ -57,26 +64,34 @@ export default class GradientRange {
 
     public static Mode = Mode;
 
-    /**
-     * @zh 当mode为Color时的颜色。
+    /** 
+     * @en The color when mode is Color.
+     * @zh 当 mode 为 Color 时的颜色。
+     * @property {Color} color
      */
     @property
     public color = Color.WHITE.clone();
 
     /**
-     * @zh 当mode为TwoColors时的颜色下限。
+     * @en Lower color limit when mode is TwoColors.
+     * @zh 当 mode 为 TwoColors 时的颜色下限。
+     * @property {Color} colorMin
      */
     @property
     public colorMin = Color.WHITE.clone();
 
     /**
-     * @zh 当mode为TwoColors时的颜色上限。
+     * @en Upper color limit when mode is TwoColors.
+     * @zh 当 mode 为 TwoColors 时的颜色上限。
+     * @property {Color} colorMax
      */
     @property
     public colorMax = Color.WHITE.clone();
 
     /**
-     * @zh 当mode为Gradient时的颜色渐变。
+     * @en Color gradient when mode is Gradient
+     * @zh 当 mode 为 Gradient 时的颜色渐变。
+     * @property {Gradient} gradient
      */
     @property({
         type: Gradient,
@@ -84,7 +99,9 @@ export default class GradientRange {
     public gradient = new Gradient();
 
     /**
-     * @zh 当mode为TwoGradients时的颜色渐变下限。
+     * @en Lower color gradient limit when mode is TwoGradients.
+     * @zh 当 mode 为 TwoGradients 时的颜色渐变下限。
+     * @property {Gradient} gradientMin
      */
     @property({
         type: Gradient,
@@ -92,7 +109,9 @@ export default class GradientRange {
     public gradientMin = new Gradient();
 
     /**
-     * @zh 当mode为TwoGradients时的颜色渐变上限。
+     * @en Upper color gradient limit when mode is TwoGradients.
+     * @zh 当 mode 为 TwoGradients 时的颜色渐变上限。
+     * @property {Gradient} gradientMax
      */
     @property({
         type: Gradient,

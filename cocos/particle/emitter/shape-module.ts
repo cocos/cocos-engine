@@ -15,16 +15,22 @@ import { ParticleSystemComponent } from '../particle-system-component';
 const _intermediVec = new Vec3(0, 0, 0);
 const _intermediArr = new Array();
 const _unitBoxExtent = new Vec3(0.5, 0.5, 0.5);
-
+/**
+ * @en The shape module of 3d particle.
+ * @zh 3D 粒子的发射形状模块
+ * @class ShapeModule
+ */
 @ccclass('cc.ShapeModule')
 export default class ShapeModule {
 
     /**
+     * @en Particle Emitter Position
      * @zh 粒子发射器位置。
+     * @property {Vec3} position
      */
     @property({
         displayOrder: 13,
-        tooltip:'粒子发射器位置',
+        tooltip:'i18n:particle.shape_position',
     })
     get position () {
         return this._position;
@@ -35,11 +41,13 @@ export default class ShapeModule {
     }
 
     /**
+     * @en Particle emitter rotation angle.
      * @zh 粒子发射器旋转角度。
+     * @property {Vec3} rotation
      */
     @property({
         displayOrder: 14,
-        tooltip:'粒子发射器旋转角度',
+        tooltip:'i18n:particle.shape_rotation',
     })
     get rotation () {
         return this._rotation;
@@ -50,11 +58,13 @@ export default class ShapeModule {
     }
 
     /**
+     * @en Particle emitter scaling
      * @zh 粒子发射器缩放比例。
+     * @property {Vec3} scale
      */
     @property({
         displayOrder: 15,
-        tooltip:'粒子发射器缩放比例',
+        tooltip:'i18n:particle.shape_scale',
     })
     get scale () {
         return this._scale;
@@ -65,11 +75,13 @@ export default class ShapeModule {
     }
 
     /**
+     * @en Particle emitters emit in a fan-shaped range.
      * @zh 粒子发射器在一个扇形范围内发射。
+     * @property {Number} arc
      */
     @property({
         displayOrder: 6,
-        tooltip:'粒子发射器在一个扇形范围内发射',
+        tooltip:'i18n:particle.shape_arc',
     })
     get arc () {
         return toDegree(this._arc);
@@ -80,12 +92,15 @@ export default class ShapeModule {
     }
 
     /**
+     * @en The angle between the axis of the cone and the generatrix<bg>
+     * Determines the opening and closing of the cone launcher
      * @zh 圆锥的轴与母线的夹角<bg>。
      * 决定圆锥发射器的开合程度。
+     * @property {Number} angle
      */
     @property({
         displayOrder: 5,
-        tooltip:'圆锥的轴与母线的夹角\n决定圆锥发射器的开合程度',
+        tooltip:'i18n:particle.shape_angle',
     })
     get angle () {
         return Math.round(toDegree(this._angle) * 100) / 100;
@@ -98,7 +113,9 @@ export default class ShapeModule {
     @property
     private _enable = false;
     /**
-     * @zh 是否启用。
+     * @en The enable of shapeModule.
+     * @zh 是否启用
+     * @property {Boolean} enable
      */
     @property({
         displayOrder: 0,
@@ -112,7 +129,9 @@ export default class ShapeModule {
     }
 
     /**
-     * @zh 粒子发射器类型 [[ShapeType]]。
+     * @en Particle emitter type.
+     * @zh 粒子发射器类型。
+     * @property {ShapeType} shapeType
      */
     @property({
         type: ShapeType,
@@ -123,7 +142,7 @@ export default class ShapeModule {
 
     @property({
         type: ShapeType,
-        tooltip:'粒子发射器类型',
+        tooltip:'i18n:particle.shape_type',
     })
     public get shapeType () {
         return this._shapeType;
@@ -152,117 +171,139 @@ export default class ShapeModule {
     }
 
     /**
-     * @zh 粒子从发射器哪个部位发射 [[EmitLocation]]。
+     * @en The emission site of the particle.
+     * @zh 粒子从发射器哪个部位发射。
+     * @property {EmitLocation} emitFrom
      */
     @property({
         type: EmitLocation,
         displayOrder: 2,
-        tooltip:'粒子从发射器哪个部位发射',
+        tooltip:'i18n:particle.shape_emit',
     })
     public emitFrom = EmitLocation.Volume;
 
     /**
+     * @en The direction of particle movement is determined based on the initial direction of the particles.
      * @zh 根据粒子的初始方向决定粒子的移动方向。
+     * @property {Boolean} alignToDirection
      */
     @property({
         displayOrder: 16,
-        tooltip:'根据粒子的初始方向决定粒子的移动方向',
+        tooltip:'i18n:particle.shape_dir',
     })
     public alignToDirection = false;
 
     /**
+     * @en Set particle generation direction randomly.
      * @zh 粒子生成方向随机设定。
+     * @property {Number} randomDirectionAmount
      */
     @property({
         displayOrder: 17,
-        tooltip:'粒子生成方向随机设定',
+        tooltip:'i18n:particle.shape_random',
     })
     public randomDirectionAmount = 0;
 
     /**
+     * @en Interpolation between the current emission direction and the direction from the current position to the center of the node.
      * @zh 表示当前发射方向与当前位置到结点中心连线方向的插值。
+     * @property {Number} sphericalDirectionAmount
      */
     @property({
         displayOrder: 18,
-        tooltip:'表示当前发射方向与当前位置到结点中心连线方向的插值',
+        tooltip:'i18n:particle.shape_spherical',
     })
     public sphericalDirectionAmount = 0;
 
     /**
-     * @zh 粒子生成位置随机设定（设定此值为非 0 会使粒子生成位置超出生成器大小范围）。
+     * @en Interpolation between the current emission direction and the direction from the current position to the center of the node.
+     * @zh 表示当前发射方向与当前位置到结点中心连线方向的插值。
+     * @property {Number} sphericalDirectionAmount
      */
     @property({
         displayOrder: 19,
-        tooltip:'粒子生成位置随机设定（设定此值为非 0 会使粒子生成位置超出生成器大小范围）',
+        tooltip:'i18n:particle.shape_amount',
     })
     public randomPositionAmount = 0;
 
     /**
+     * @en Particle emitter radius.
      * @zh 粒子发射器半径。
+     * @property {Number} radius
      */
     @property({
         displayOrder: 3,
-        tooltip:'粒子发射器半径',
+        tooltip:'i18n:particle.shape_radius',
     })
     public radius = 1;
 
     /**
-     * @zh 粒子发射器发射位置（对 Box 类型的发射器无效）：<bg>
-     * - 0 表示从表面发射；
-     * - 1 表示从中心发射；
-     * - 0 ~ 1 之间表示在中心到表面之间发射。
+     * @en Radius thickness
+     * @zh 半径厚度
+     * @property {Number} radiusThickness
      */
     @property({
         displayOrder: 4,
-        tooltip:'粒子发射器发射位置（对 Box 类型的发射器无效）:\n - 0 表示从表面发射；\n - 1 表示从中心发射；\n - 0 ~ 1 之间表示在中心到表面之间发射。',
+        tooltip:'i18n:particle.shape_thickness',
     })
     public radiusThickness = 1;
 
     /**
-     * @zh 粒子在扇形范围内的发射方式 [[ArcMode]]。
+     * @en How particles are emitted in the sector range.
+     * @zh 粒子在扇形范围内的发射方式。
+     * @property {ArcMode} arcMode
      */
     @property({
         type: ArcMode,
         displayOrder: 7,
-        tooltip:'粒子在扇形范围内的发射方式',
+        tooltip:'i18n:particle.shape_arc_mode',
     })
     public arcMode = ArcMode.Random;
 
     /**
+     * @en Controls the discrete intervals around the arcs where particles might be generated.
      * @zh 控制可能产生粒子的弧周围的离散间隔。
+     * @property {Number} arcSpread
      */
     @property({
         displayOrder: 9,
-        tooltip:'控制可能产生粒子的弧周围的离散间隔',
+        tooltip:'i18n:particle.shape_arc_spread',
     })
     public arcSpread = 0;
 
     /**
+     * @en The speed at which particles are emitted around the circumference.
      * @zh 粒子沿圆周发射的速度。
+     * @property {CurveRange} arcSpeed
      */
     @property({
         type: CurveRange,
         displayOrder: 10,
-        tooltip:'粒子沿圆周发射的速度',
+        tooltip:'i18n:particle.shape_arc_speed',
     })
     public arcSpeed = new CurveRange();
 
     /**
+     * @en Axis length from top of cone to bottom of cone <bg>.
+     * Determines the height of the cone emitter.
      * @zh 圆锥顶部截面距离底部的轴长<bg>。
      * 决定圆锥发射器的高度。
+     * @property {Number} length
      */
     @property({
         displayOrder: 11,
-        tooltip:'圆锥顶部截面距离底部的轴长\n决定圆锥发射器的高度',
+        tooltip:'i18n:particle.shape_length',
     })
     public length = 5;
 
     /**
-     * @zh 粒子发射器发射位置（针对 Box 类型的粒子发射器）。
+     * @en Particle emitter emission location (for box-type particle emitters).
+     * @zh 粒子发射器发射位置（针对 Box 类型的粒子发射器。
+     * @property {Vec3} boxThickness
      */
     @property({
         displayOrder: 12,
-        tooltip:'粒子发射器发射位置（针对 Box 类型的粒子发射器）',
+        tooltip:'i18n:particle.shape_box',
     })
     public boxThickness = new Vec3(0, 0, 0);
 

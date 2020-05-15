@@ -16,13 +16,20 @@ const LIMIT_VELOCITY_RAND_OFFSET = ModuleRandSeed.LIMIT;
 const _temp_v3 = new Vec3();
 const _temp_v3_1 = new Vec3();
 
+/**
+ * @en The limit velocity module of 3d particle.
+ * @zh 3D 粒子的限速模块
+ * @class LimitVelocityOvertimeModule
+ */
 @ccclass('cc.LimitVelocityOvertimeModule')
 export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
 
     @property
     _enable: Boolean = false;
     /**
-     * @zh 是否启用。
+     * @en The enable of LimitVelocityOvertimeModule.
+     * @zh 是否启用
+     * @property {Boolean} enable
      */
     @property({
         displayOrder: 0,
@@ -39,74 +46,88 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     }
 
     /**
+     * @en Lower speed limit in X direction.
      * @zh X 轴方向上的速度下限。
+     * @property {CurveRange} limitX
      */
     @property({
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 4,
-        tooltip:'X 轴方向上的速度下限',
+        tooltip:'i18n:particle.limit_x',
     })
     public limitX = new CurveRange();
 
     /**
+     * @en Lower speed limit in Y direction.
      * @zh Y 轴方向上的速度下限。
+     * @property {CurveRange} limitY
      */
     @property({
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 5,
-        tooltip:'Y 轴方向上的速度下限',
+        tooltip:'i18n:particle.limit_y',
     })
     public limitY = new CurveRange();
 
     /**
+     * @en Lower speed limit in Z direction.
      * @zh Z 轴方向上的速度下限。
+     * @property {CurveRange} limitZ
      */
     @property({
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 6,
-        tooltip:'Z 轴方向上的速度下限',
+        tooltip:'i18n:particle.limit_z',
     })
     public limitZ = new CurveRange();
 
     /**
+     * @en Lower speed limit
      * @zh 速度下限。
+     * @property {CurveRange} limit
      */
     @property({
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 3,
-        tooltip:'速度下限',
+        tooltip:'i18n:particle.limit_v',
     })
     public limit = new CurveRange();
 
     /**
+     * @en Interpolation of current speed and lower speed limit.
      * @zh 当前速度与速度下限的插值。
+     * @property {Number} dampen
      */
     @property({
         displayOrder: 7,
-        tooltip:'当前速度与速度下限的插值',
+        tooltip:'i18n:particle.limit_dampen',
     })
     public dampen = 3;
 
     /**
+     * @en Whether to limit the three axes separately.
      * @zh 是否三个轴分开限制。
+     * @property {Boolean} separateAxes
      */
     @property({
         displayOrder: 2,
-        tooltip:'是否三个轴分开限制',
+        tooltip:'i18n:particle.limit_separate',
     })
     public separateAxes = false;
 
     /**
-     * @zh 计算速度下限时采用的坐标系 [[Space]]。
+     * @en The coordinate system used when calculating the lower speed limit.
+     * @zh 计算速度下限时采用的坐标系。
+     * @property {Space} space
      */
     @property({
         type: Space,
         displayOrder: 1,
-        tooltip:'计算速度下限时采用的坐标系',
+        tooltip:'i18n:particle.limit_space',
     })
     public space = Space.Local;
 

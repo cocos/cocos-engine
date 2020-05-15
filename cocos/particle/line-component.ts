@@ -17,6 +17,12 @@ import GradientRange from './animator/gradient-range';
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
 const define = { CC_USE_WORLD_SPACE: false };
 
+/**
+ * @en The Line Component.
+ * @zh 线段组件
+ * @class LineComponent
+ * @extends Component
+ */
 @ccclass('cc.LineComponent')
 @help('i18n:cc.LineComponent')
 @menu('Components/Line')
@@ -28,12 +34,13 @@ export class LineComponent extends Component {
     private _texture = null;
 
     /**
-     * @zh 显示的纹理。
+     * @en The texture shown in the line.
+     * @zh 线段中显示的贴图。
      */
     @property({
         type: Texture2D,
         displayOrder: 0,
-        tooltip:'线段中显示的贴图',
+        tooltip:'i18n:particle.line_texture',
     })
     get texture () {
         return this._texture;
@@ -52,11 +59,12 @@ export class LineComponent extends Component {
     private _worldSpace = false;
 
     /**
+     * @en Whether positions are world space coordinates.
      * @zh positions是否为世界空间坐标。
      */
     @property({
         displayOrder: 1,
-        tooltip:'线段中各个点的坐标采用哪个坐标系，勾选使用世界坐标系，不选使用本地坐标系',
+        tooltip:'i18n:particle.line_space',
     })
     get worldSpace () {
         return this._worldSpace;
@@ -79,12 +87,13 @@ export class LineComponent extends Component {
     private _positions = [];
 
     /**
-     * 每段折线的拐点坐标。
+     * @en Coordinates of the inflection point of each line.
+     * @zh 每段折线的拐点坐标。
      */
     @property({
         type: [Vec3],
         displayOrder: 2,
-        tooltip:'每个线段端点的坐标',
+        tooltip:'i18n:particle.line_positions',
     })
     get positions () {
         return this._positions;
@@ -103,12 +112,13 @@ export class LineComponent extends Component {
     private _width = new CurveRange();
 
     /**
+     * @en The width of line.
      * @zh 线段的宽度。
      */
     @property({
         type: CurveRange,
         displayOrder: 3,
-        tooltip:'线段宽度，如果采用曲线，则表示沿着线段方向上的曲线变化',
+        tooltip:'i18n:particle.line_width',
     })
     get width () {
         return this._width;
@@ -125,12 +135,13 @@ export class LineComponent extends Component {
     private _tile = new Vec2(1, 1);
 
     /**
+     * @en The number of tile.
      * @zh 图块数。
      */
     @property({
         type: Vec2,
         displayOrder: 4,
-        tooltip:'贴图平铺次数',
+        tooltip:'i18n:particle.line_tile',
     })
     get tile () {
         return this._tile;
@@ -148,10 +159,14 @@ export class LineComponent extends Component {
     @property
     private _offset = new Vec2(0, 0);
 
+    /**
+     * @en The offset of texture.
+     * @zh 贴图坐标的偏移
+     */
     @property({
         type: Vec2,
         displayOrder: 5,
-        tooltip:'贴图坐标的偏移',
+        tooltip:'i18n:particle.line_offset',
     })
     get offset () {
         return this._offset;
@@ -172,12 +187,13 @@ export class LineComponent extends Component {
     private _color = new GradientRange();
 
     /**
+     * @en The color of line.
      * @zh 线段颜色。
      */
     @property({
         type: GradientRange,
         displayOrder: 6,
-        tooltip:'线段颜色，如果采用渐变色，则表示沿着线段方向上的颜色渐变',
+        tooltip:'i18n:particle.line_color',
     })
     get color () {
         return this._color;
