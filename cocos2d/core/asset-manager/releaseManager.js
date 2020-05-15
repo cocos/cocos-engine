@@ -22,9 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-/**
- * @module cc.AssetManager
- */
 const dependUtil = require('./depend-util');
 const Cache = require('./cache');
 require('../assets/CCAsset');
@@ -69,6 +66,8 @@ function visitComponent (comp, deps) {
     }
 }
 
+let _temp = [];
+
 function visitNode (node, deps) {
     for (let i = 0; i < node._components.length; i++) {
         visitComponent(node._components[i], deps);
@@ -78,25 +77,43 @@ function visitNode (node, deps) {
     }
 }
 
-function checkCircularReference (asset, refs) {
+function descendOpRef (asset, refs, exclude, op) {
+    exclude.push(asset._uuid);
     var depends = dependUtil.getDeps(asset._uuid);
     for (let i = 0, l = depends.length; i < l; i++) {
         var dependAsset = assets.get(depends[i]);
         if (dependAsset) {
-            if (!(dependAsset._uuid in refs)) { 
-                refs[dependAsset._uuid] = dependAsset._ref - 1;
-                if (refs[dependAsset._uuid] === 0) {
-                    checkCircularReference(dependAsset, refs);
-                }
+            let uuid = dependAsset._uuid;
+            if (!(uuid in refs)) { 
+                refs[uuid] = dependAsset.refCount + op;
             }
             else {
-                refs[dependAsset._uuid]--;
-            } 
+                refs[uuid] += op;
+            }
+            if (exclude.includes(uuid)) continue; 
+            descendOpRef(dependAsset, refs, exclude, op);
         }
     }
 }
 
-var _lockedAsset = Object.create(null);
+function checkCircularReference (asset) {
+    // check circular reference
+    var refs = Object.create(null);
+    refs[asset._uuid] = asset.refCount;
+    descendOpRef(asset, refs, _temp, -1);
+    _temp.length = 0;
+    if (refs[asset._uuid] !== 0) return refs[asset._uuid];
+
+    for (let uuid in refs) {
+        if (refs[uuid] !== 0) {
+            descendOpRef(assets.get(uuid), refs, _temp, 1);
+        }
+    }
+    _temp.length = 0;
+
+    return refs[asset._uuid];
+}
+
 var _persistNodeDeps = new Cache();
 var _toDelete = new Cache();
 var eventListener = false;
@@ -104,33 +121,12 @@ var eventListener = false;
 function freeAssets () {
     eventListener = false;
     _toDelete.forEach(function (asset) {
-        finalizer._free(asset);
+        releaseManager._free(asset);
     });
     _toDelete.clear();
 }
 
-/**
- * !#en
- * Control resource release, it's a singleton, all member can be accessed with cc.assetManager.finalizer
- * 
- * !#zh
- * 控制资源释放，这是一个单例，所有成员能通过 `cc.assetManager.finalizer` 访问
- * 
- * @class Finalizer
- */
-var finalizer = {
-    /**
-     * !#en
-     * Initialize
-     * 
-     * !#zh
-     * 初始化
-     * 
-     * @method init
-     * 
-     * @typescript
-     * init(): void
-     */
+var releaseManager = {
     init () {
         _persistNodeDeps.clear();
         _toDelete.clear();
@@ -154,7 +150,7 @@ var finalizer = {
             for (let i = 0, l = deps.length; i < l; i++) {
                 var dependAsset = assets.get(deps[i]);
                 if (dependAsset) {
-                    dependAsset.removeRef();
+                    dependAsset.decRef();
                 }
             }
             _persistNodeDeps.remove(node.uuid);
@@ -185,90 +181,29 @@ var finalizer = {
             var childs = dependUtil.getDeps(oldScene._id);
             for (let i = 0, l = childs.length; i < l; i++) {
                 let asset = assets.get(childs[i]);
-                asset && asset.removeRef();
-                if (CC_TEST || oldScene.autoReleaseAssets) this.release(asset);
+                asset && asset.decRef(CC_TEST || oldScene.autoReleaseAssets);
             }
             var dependencies = dependUtil._depends.get(oldScene._id);
             if (dependencies && dependencies.persistDeps) {
                 var persistDeps = dependencies.persistDeps;
                 for (let i = 0, l = persistDeps.length; i < l; i++) {
                     let asset = assets.get(persistDeps[i]);
-                    asset && asset.removeRef();
-                    if (CC_TEST || oldScene.autoReleaseAssets) this.release(asset);
+                    asset && asset.decRef(CC_TEST || oldScene.autoReleaseAssets);
                 }
             }
             dependUtil.remove(oldScene._id);
         }
     },
 
-    /**
-     * !#en
-     * Lock this asset, it can not be released unless unlock it
-     * 
-     * !#zh
-     * 锁上此资源，除非解锁，否则此资源不能被释放
-     * 
-     * @method lock
-     * @param {Asset} asset - The asset to be locked
-     * 
-     * @typescript
-     * lock(asset: cc.Asset): void
-     */
-    lock (asset) {
-        if (asset instanceof cc.Asset) {
-            _lockedAsset[asset._uuid] = true;
-        }
-    },
-
-    /**
-     * !#en
-     * Unlock this asset, so it can be released normally
-     * 
-     * !#zh
-     * 解锁此资源，此资源能被正常释放
-     * 
-     * @method unlock
-     * @param {Asset} asset - The asset to be unlocked
-     * 
-     * @typescript
-     * unlock(asset: cc.Asset): void
-     */
-    unlock (asset) {
-        if (asset instanceof cc.Asset) {
-            delete _lockedAsset[asset._uuid];
-        }
-    },
-
-    /**
-     * !#en
-     * Indicates whether or not this asset is locked
-     * 
-     * !#zh
-     * 表明此资源是否被加锁
-     * 
-     * @method isLocked
-     * @param {Asset} asset - The asset
-     * 
-     * @typescript
-     * isLocked(asset: cc.Asset): boolean
-     */
-    isLocked (asset) {
-        if (asset instanceof cc.Asset) {
-            return asset._uuid in _lockedAsset;
-        }
-        return null;
-    },
-
     _free (asset, force) {
         _toDelete.remove(asset._uuid);
+
         if (!force) {
+
             if (!CC_NATIVERENDERER) {
                 var glTexture = null;
                 if (asset instanceof cc.Texture2D) {
                     glTexture = asset._texture;
-                }
-                else if (asset instanceof cc.SpriteFrame && asset._texture) {
-                    glTexture = asset._texture._texture;
                 }
         
                 if (glTexture && glTexture._glID != -1) {
@@ -282,14 +217,8 @@ var finalizer = {
                 }
             }
 
-            if (asset._ref > 0) {
-                // check circular reference
-                var refs = Object.create(null);
-                refs[asset._uuid] = asset._ref;
-
-                checkCircularReference(asset, refs);
-
-                if (refs[asset._uuid] > 0) return; 
+            if (asset.refCount > 0) {
+                if (checkCircularReference(asset) > 0) return; 
             }
         }
     
@@ -299,33 +228,18 @@ var finalizer = {
         for (let i = 0, l = depends.length; i < l; i++) {
             var dependAsset = assets.get(depends[i]);
             if (dependAsset) {
-                dependAsset.removeRef();
-                finalizer._free(dependAsset, force);
+                dependAsset.decRef(false);
+                releaseManager._free(dependAsset, false);
             }
         }
         asset.destroy();
         dependUtil.remove(asset._uuid);
     },
 
-    /**
-     * !#en
-     * Refer to {{#crossLink "AssetManager/release:method"}}{{/crossLink}} for detailed informations
-     * 
-     * !#zh
-     * 详细信息请参考 {{#crossLink "AssetManager/release:method"}}{{/crossLink}}
-     * 
-     * @method release
-     * @param {Asset} asset - The asset to be released
-     * @param {boolean} [force] - Indicates whether or not release this asset forcely
-     *
-     * @typescript
-     * release(asset: cc.Asset, force?: boolean): void
-     */
-    release (asset, force) {
+    tryRelease (asset, force) {
         if (!(asset instanceof cc.Asset)) return;
-        if (finalizer.isLocked(asset)) return;
         if (force) {
-            finalizer._free(asset, force);
+            releaseManager._free(asset, force);
         }
         else {
             _toDelete.add(asset._uuid, asset);
@@ -337,5 +251,4 @@ var finalizer = {
     }
 };
 
-
-module.exports = finalizer;
+module.exports = releaseManager;

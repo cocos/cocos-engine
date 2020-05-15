@@ -100,13 +100,29 @@ cc.Asset = cc.Class({
                         }
                         else {
                             // imported in an independent dir
-                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {_native: name, ext: cc.path.extname(name), isNative: true});
+                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {__nativeName__: name, ext: cc.path.extname(name), isNative: true});
                         }
                     }
                 }
                 return this._nativeUrl;
             },
             visible: false
+        },
+
+        /**
+         * !#en
+         * The number of reference
+         * 
+         * !#zh
+         * 引用的数量
+         * 
+         * @property refCount
+         * @type {Number}
+         */
+        refCount: {
+            get () {
+                return this._ref;
+            }
         },
 
         /**
@@ -145,7 +161,7 @@ cc.Asset = cc.Class({
         _nativeDep: {
             get () {
                 if (this._native) {
-                    return {isNative: true, uuid: this._uuid, ext: this._native};
+                    return {__isNative__: true, uuid: this._uuid, ext: this._native};
                 }
             }
         }
@@ -195,7 +211,7 @@ cc.Asset = cc.Class({
         },
 
         _parseNativeDepFromJson (json) {
-            if (json._native) return {isNative: true, ext: json._native};
+            if (json._native) return { __isNative__: true, ext: json._native};
             return null;
         }
 
@@ -274,34 +290,39 @@ cc.Asset = cc.Class({
 
     /**
      * !#en
-     * Add references of asset.
+     * Add references of asset
      * 
      * !#zh
-     * 增加资源的引用。
+     * 增加资源的引用
      * 
      * @method addRef
+     * @return {Asset} itself
      * 
      * @typescript
-     * addRef(): void
+     * addRef(): cc.Asset
      */
     addRef () {
         this._ref++;
+        return this;
     },
 
     /**
      * !#en
-     * Reduce references of asset.
+     * Reduce references of asset and it will be auto released when refCount equals 0.
      * 
      * !#zh
-     * 减少资源的引用。
+     * 减少资源的引用并尝试进行自动释放。
      * 
-     * @method removeRef
+     * @method decRef
+     * @return {Asset} itself
      * 
      * @typescript
-     * removeRef(): void
+     * decRef(): cc.Asset
      */
-    removeRef () {
+    decRef (autoRelease) {
         this._ref--;
+        autoRelease !== false && cc.assetManager._releaseManager.tryRelease(this);
+        return this;
     }
 });
 

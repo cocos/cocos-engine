@@ -1,6 +1,6 @@
 (function () {
     var packManager = cc.assetManager.packManager;
-    var originTransform = cc.assetManager.transform;
+    var originTransform = cc.assetManager._transform;
     var originDownload = cc.assetManager.downloader.download;
 
     module('pack manager', {
@@ -8,7 +8,7 @@
 
         },
         teardown: function () {
-            cc.assetManager.transform = originTransform;
+            cc.assetManager._transform = originTransform;
             cc.assetManager.downloader.download = originDownload;
             cc.assetManager.packManager.init();
             cc.assetManager._files.clear();
@@ -26,7 +26,7 @@
                 "f10d21ed"
             ],
         };
-        cc.assetManager.transform = function (uuid, options) {
+        cc.assetManager._transform = function (uuid, options) {
             return uuid;
         };
 
@@ -53,7 +53,7 @@
                     "2",
                 ],
             };
-            cc.assetManager.transform = function (uuid, options) {
+            cc.assetManager._transform = function (uuid, options) {
                 return uuid;
             };
     
@@ -86,7 +86,7 @@
                 "2",
             ],
         };
-        cc.assetManager.transform = function (uuid, options) {
+        cc.assetManager._transform = function (uuid, options) {
             return uuid;
         };
 

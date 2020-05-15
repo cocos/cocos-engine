@@ -514,6 +514,10 @@ let ArmatureDisplay = cc.Class({
         if (this._preCacheMode !== cacheMode) {
             this._cacheMode = cacheMode;
             this._buildArmature();
+
+            if (this._armature && !this.isAnimationCached()) {
+                this._factory._dragonBones.clock.add(this._armature);
+            }            
         }
     },
     
@@ -703,7 +707,7 @@ let ArmatureDisplay = cc.Class({
             this._armature = this._displayProxy._armature;
             this._armature.animation.timeScale = this.timeScale;
             // If change mode or armature, armature must insert into clock.
-            this._factory._dragonBones.clock.add(this._armature);
+            // this._factory._dragonBones.clock.add(this._armature);
         }
 
         if (this._cacheMode !== AnimationCacheMode.REALTIME && this.debugBones) {

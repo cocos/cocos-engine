@@ -621,6 +621,7 @@ var Component = cc.Class({
 
 Component._requireComponent = null;
 Component._executionOrder = 0;
+if (CC_EDITOR && CC_PREVIEW) Component._disallowMultiple = null;
 
 if (CC_EDITOR || CC_TEST) {
 
@@ -628,7 +629,6 @@ if (CC_EDITOR || CC_TEST) {
 
     Component._executeInEditMode = false;
     Component._playOnFocus = false;
-    Component._disallowMultiple = null;
     Component._help = '';
 
     // NON-INHERITED STATIC MEMBERS
@@ -659,6 +659,9 @@ js.value(Component, '_registerEditorProps', function (cls, props) {
     var order = props.executionOrder;
     if (order && typeof order === 'number') {
         cls._executionOrder = order;
+    }
+    if ((CC_EDITOR || CC_PREVIEW) && 'disallowMultiple' in props) {
+        cls._disallowMultiple = cls;
     }
     if (CC_EDITOR || CC_TEST) {
         var name = cc.js.getClassName(cls);
@@ -691,10 +694,6 @@ js.value(Component, '_registerEditorProps', function (cls, props) {
 
                 case 'menu':
                     Component._addMenuItem(cls, val, props.menuPriority);
-                    break;
-
-                case 'disallowMultiple':
-                    cls._disallowMultiple = cls;
                     break;
 
                 case 'requireComponent':

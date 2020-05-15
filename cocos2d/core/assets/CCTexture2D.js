@@ -366,7 +366,13 @@ var Texture2D = cc.Class({
         
         _nativeDep: {
             get () {
-                return {isNative: true, uuid: this._uuid, ext: this._native};
+                return {
+                    __isNative__: true, 
+                    uuid: this._uuid, 
+                    ext: this._native, 
+                    __flipY__: this._flipY,
+                    __premultiplyAlpha__: this._premultiplyAlpha
+                };
             },
             override: true
         }
@@ -391,7 +397,7 @@ var Texture2D = cc.Class({
                 ext = result.bestExt || result.defaultExt;
             }
 
-            return { isNative: true, ext };
+            return { __isNative__: true, ext, __flipY__: false, __premultiplyAlpha__: fields[5] && fields[5].charCodeAt(0) === CHAR_CODE_1 };
         },
 
         _parseExt (extIdStr, defaultFormat) {
@@ -559,26 +565,37 @@ var Texture2D = cc.Class({
                 this._genMipmaps = options.genMipmaps;
             }
 
-            if (updateImg && this._image) {
-                options.image = this._image;
+            if (cc.sys.capabilities.imageBitmap && this._image instanceof ImageBitmap) {
+                this._checkImageBitmap(this._upload.bind(this, options, updateImg));
             }
-            if (options.images && options.images.length > 0) {
-                this._image = options.images[0];
+            else {
+                this._upload(options, updateImg);
             }
-            else if (options.image !== undefined) {
-                this._image = options.image;
-                if (!options.images) {
-                    _images.length = 0;
-                    options.images = _images;
-                }
-                // webgl texture 2d uses images
-                options.images.push(options.image);
-            }
-
-            this._texture && this._texture.update(options);
-
-            this._hashDirty = true;
+            
         }
+    },
+
+
+    _upload (options, updateImg) {
+        if (updateImg && this._image) {
+            options.image = this._image;
+        }
+        if (options.images && options.images.length > 0) {
+            this._image = options.images[0];
+        }
+        else if (options.image !== undefined) {
+            this._image = options.image;
+            if (!options.images) {
+                _images.length = 0;
+                options.images = _images;
+            }
+            // webgl texture 2d uses images
+            options.images.push(options.image);
+        }
+
+        this._texture && this._texture.update(options);
+
+        this._hashDirty = true;
     },
 
     /**
@@ -596,8 +613,11 @@ var Texture2D = cc.Class({
         if (!element)
             return;
         this._image = element;
-        if (element.complete || element instanceof HTMLCanvasElement || (cc.sys.capabilities.createImageBitmap && element instanceof ImageBitmap)) {
+        if (element.complete || element instanceof HTMLCanvasElement) {
             this.handleLoadedTexture();
+        }
+        else if (cc.sys.capabilities.imageBitmap && element instanceof ImageBitmap) {
+            this._checkImageBitmap(this.handleLoadedTexture.bind(this));
         }
         else {
             var self = this;
@@ -680,8 +700,8 @@ var Texture2D = cc.Class({
      * @return {Boolean} inherit from the CCObject
      */
     destroy () {
-        if (cc.sys.capabilities.createImageBitmap && this._image instanceof ImageBitmap) {
-            this._image.close();
+        if (cc.sys.capabilities.imageBitmap && this._image instanceof ImageBitmap) {
+            this._image.close && this._image.close();
         }
         this._packable && cc.dynamicAtlasManager && cc.dynamicAtlasManager.deleteAtlasTexture(this);
 
@@ -764,8 +784,8 @@ var Texture2D = cc.Class({
             if (this._image instanceof HTMLImageElement) {
                 this._clearImage();
             }
-            else if (cc.sys.capabilities.createImageBitmap && this._image instanceof ImageBitmap) {
-                this._image.close();
+            else if (cc.sys.capabilities.imageBitmap && this._image instanceof ImageBitmap) {
+                this._image.close && this._image.close();
             }
         }
     },
@@ -838,6 +858,7 @@ var Texture2D = cc.Class({
         if (this._flipY !== flipY) {
             var opts = _getSharedOptions();
             opts.flipY = flipY;
+            opts.premultiplyAlpha = this._premultiplyAlpha;
             this.update(opts);
         }
     },
@@ -852,6 +873,7 @@ var Texture2D = cc.Class({
     setPremultiplyAlpha (premultiply) {
         if (this._premultiplyAlpha !== premultiply) {
             var opts = _getSharedOptions();
+            opts.flipY = this._flipY;
             opts.premultiplyAlpha = premultiply;
             this.update(opts);
         }
@@ -1019,6 +1041,29 @@ var Texture2D = cc.Class({
     
     _clearImage () {
         this._image.src = "";
+    },
+
+    _checkImageBitmap (cb) {
+        let image = this._image;
+        let flipY = this._flipY;
+        let premultiplyAlpha = this._premultiplyAlpha;
+        if (this._flipY !== image.flipY || this._premultiplyAlpha !== image.premultiplyAlpha) {
+            createImageBitmap(image, {
+                imageOrientation: flipY !== image.flipY ? 'flipY' : 'none',
+                premultiplyAlpha: premultiplyAlpha ? 'premultiply' : 'none'}
+                ).then((result) => {
+                    image.close && image.close();
+                    result.flipY = flipY;
+                    result.premultiplyAlpha = premultiplyAlpha;
+                    this._image = result;
+                    cb();
+                }, (err) => {
+                    cc.error(err.message);
+                });
+        }
+        else {
+            cb();
+        }
     }
 });
 

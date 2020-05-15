@@ -25,10 +25,13 @@
 
 import Assembler from '../renderer/assembler';
 import MaterialVariant from '../assets/material/material-variant';
+import { Color } from '../value-types';
 
 const Component = require('./CCComponent');
 const RenderFlow = require('../renderer/render-flow');
 const Material = require('../assets/material/CCMaterial');
+
+let _temp_color = new Color();
 
 /**
  * !#en
@@ -230,7 +233,10 @@ let RenderComponent = cc.Class({
 
     _updateColor () {
         if (this._assembler.updateColor) {
-            this._assembler.updateColor(this);
+            let premultiply = this.srcBlendFactor === cc.macro.BlendFactor.ONE;
+            premultiply && Color.premultiplyAlpha(_temp_color, this.node._color);
+            let color = premultiply ? _temp_color._val : null;
+            this._assembler.updateColor(this, color);
         }
     },
 

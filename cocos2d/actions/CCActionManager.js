@@ -182,23 +182,24 @@ cc.ActionManager.prototype = {
      */
     removeAction:function (action) {
         // explicit null handling
-        if (action == null)
+        if (!action) {
             return;
+        }
         var target = action.getOriginalTarget();
         var element = this._hashTargets[target._id];
 
-        if (element) {
-            for (var i = 0; i < element.actions.length; i++) {
-                if (element.actions[i] === action) {
-                    element.actions.splice(i, 1);
-                    // update actionIndex in case we are in tick. looping over the actions
-                    if (element.actionIndex >= i)
-                        element.actionIndex--;
-                    break;
-                }
+        if (!element) {
+            return;
+        }
+
+        for (var i = 0; i < element.actions.length; i++) {
+            if (element.actions[i] === action) {
+                element.actions.splice(i, 1);
+                // update actionIndex in case we are in tick. looping over the actions
+                if (element.actionIndex >= i)
+                    element.actionIndex--;
+                break;
             }
-        } else {
-            cc.logID(1001);
         }
     },
 

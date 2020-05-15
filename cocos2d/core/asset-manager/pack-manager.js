@@ -100,18 +100,6 @@ var packManager = {
         onComplete && onComplete(err, out);
     },
 
-    /**
-     * !#en
-     * Initialize
-     * 
-     * !#zh
-     * 初始化 packManager
-     * 
-     * @method init
-     * 
-     * @typescript
-     * init(): void
-     */
     init () {
         _loading.clear();
     },
@@ -230,10 +218,13 @@ var packManager = {
                     pack = packs[0];
                     _loading.add(pack.uuid, [{ onComplete, id: item.id }]);
 
-                    var url = cc.assetManager.transform(pack.uuid, {ext: pack.ext, bundle: item.config.name});
+                    var url = cc.assetManager._transform(pack.uuid, {ext: pack.ext, bundle: item.config.name});
 
                     downloader.download(pack.uuid, url, pack.ext, item.options, function (err, data) {
                         files.remove(pack.uuid);
+                        if (err) {
+                            cc.error(err.message, err.stack);
+                        }
                         // unpack package
                         packManager.unpack(pack.packs, data, pack.ext, item.options, function (err, result) {
                             if (!err) {
