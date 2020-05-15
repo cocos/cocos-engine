@@ -14,6 +14,7 @@ import { Layers } from '../../scene-graph/layers';
 import { IMacroPatch, Pass } from '../core/pass';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
+import { programLib } from '../core/program-lib';
 
 const m4_1 = new Mat4();
 
@@ -344,7 +345,8 @@ export class Model {
         if (!mat) { return; }
         let hasForwardLight = false;
         for (const p of mat.passes) {
-            if (p.bindings.find((b) => b.name === UBOForwardLight.BLOCK.name)) {
+            const blocks = programLib.getTemplate(p.program).builtins.locals.blocks;
+            if (blocks.find((b) => b.name === UBOForwardLight.BLOCK.name)) {
                 hasForwardLight = true;
                 break;
             }
