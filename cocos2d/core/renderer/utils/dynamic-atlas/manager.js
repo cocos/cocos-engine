@@ -193,6 +193,7 @@ let dynamicAtlasManager = {
                 _debugNode = new cc.Node('DYNAMIC_ATLAS_DEBUG_NODE');
                 _debugNode.width = width;
                 _debugNode.height = height;
+                _debugNode.zIndex = cc.macro.MAX_ZINDEX;
                 _debugNode.x = width/2;
                 _debugNode.y = height/2;
                 _debugNode.parent = cc.director.getScene();
