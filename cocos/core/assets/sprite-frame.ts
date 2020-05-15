@@ -37,6 +37,8 @@ import { Asset } from './asset';
 import { RenderTexture } from './render-texture';
 import { TextureBase } from './texture-base';
 import { EDITOR } from 'internal:constants';
+import { ImageAsset, ImageSource } from './image-asset';
+import { Texture2D } from './texture-2d';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -181,6 +183,37 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  */
 @ccclass('cc.SpriteFrame')
 export class SpriteFrame extends Asset {
+
+    /**
+     * @en
+     * Create a SpriteFrame object by an image asset
+     * @zh
+     * 通过 Image 资源创建一个 SpriteFrame 对象
+     */
+    public static createWithImage (image: ImageAsset) {
+        const spf = new SpriteFrame();
+        const tex = new Texture2D();
+        tex.image = image;
+        spf.texture = tex;
+        return spf;
+    }
+
+    /**
+     * @en
+     * Create a SpriteFrame object by an native image asset
+     * @zh
+     * 通过原始 image 资源来创建一个 SpriteFrame 对象
+     * @param imageSource support HTMLCanvasElement HTMLImageElement IMemoryImageSource
+     */
+    public static createWithImageSource (imageSource: ImageSource) {
+        const img = new ImageAsset(imageSource);
+        const tex = new Texture2D();
+        tex.image = img;
+        const spf = new SpriteFrame();
+        spf.texture = tex;
+        return spf;
+    }
+
     /**
      * @en
      * Top border of the sprite.
