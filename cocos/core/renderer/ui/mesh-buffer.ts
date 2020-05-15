@@ -142,6 +142,7 @@ export class MeshBuffer {
         this.vb!.destroy();
         this.ib = null;
         this.vb = null;
+        this.attributes = null;
     }
 
     public uploadData () {
