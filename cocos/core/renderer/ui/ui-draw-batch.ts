@@ -62,7 +62,6 @@ export class UIDrawBatch {
             this.ia.firstIndex = 0;
             this.ia.indexCount = 0;
         }
-
     }
 
     get bufferBatch () {
