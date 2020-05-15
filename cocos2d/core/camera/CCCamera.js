@@ -46,7 +46,17 @@ let _v3_temp_1 = cc.v3();
 let _v3_temp_2 = cc.v3();
 let _v3_temp_3 = cc.v3();
 
-let _cameras = [];
+let _cameras = [];  // unstable array
+
+function updateMainCamera () {
+    for (let i = 0, minDepth = Number.MAX_VALUE; i < _cameras.length; i++) {
+        let camera = _cameras[i];
+        if (camera._depth < minDepth) {
+            Camera.main = camera;
+            minDepth = camera._depth;
+        }
+    }
+}
 
 let _debugCamera = null;
 
@@ -340,9 +350,9 @@ let Camera = cc.Class({
 
         /**
          * !#en
-         * Camera's depth in the camera rendering order.
+         * Camera's depth in the camera rendering order. Cameras with higher depth are rendered after cameras with lower depth.
          * !#zh
-         * 摄像机深度，用于决定摄像机的渲染顺序。
+         * 摄像机深度。用于决定摄像机的渲染顺序，值越大渲染在越上层。
          * @property {Number} depth
          */
         depth: {
@@ -350,6 +360,15 @@ let Camera = cc.Class({
                 return this._depth;
             },
             set (value) {
+                if (Camera.main === this) {
+                    if (this._depth < value) {
+                        updateMainCamera();
+                    }
+                }
+                else if (Camera.main && value < Camera.main._depth && _cameras.includes(this)) {
+                    Camera.main = this;
+                }
+
                 this._depth = value;
                 if (this._camera) {
                     this._camera.setPriority(value);
@@ -420,9 +439,9 @@ let Camera = cc.Class({
     statics: {
         /**
          * !#en
-         * The first enabled camera.
+         * The primary camera in the scene. Returns the rear most rendered camera, which is the camera with the lowest depth.
          * !#zh
-         * 第一个被激活的摄像机。
+         * 当前场景中激活的主摄像机。将会返回渲染在屏幕最底层，也就是 depth 最小的摄像机。
          * @property {Camera} main
          * @static
          */
@@ -432,7 +451,7 @@ let Camera = cc.Class({
          * !#en
          * All enabled cameras.
          * !#zh
-         * 激活的所有摄像机。
+         * 当前激活的所有摄像机。
          * @property {[Camera]} cameras
          * @static
          */
@@ -587,6 +606,9 @@ let Camera = cc.Class({
             renderer.scene.addCamera(this._camera);
         }
         _cameras.push(this);
+        if (!Camera.main || (this._depth < Camera.main._depth)) {
+            Camera.main = this;
+        }
     },
 
     onDisable () {
@@ -594,7 +616,11 @@ let Camera = cc.Class({
             cc.director.off(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
             renderer.scene.removeCamera(this._camera);
         }
-        cc.js.array.remove(_cameras, this);
+        cc.js.array.fastRemove(_cameras, this);
+        if (Camera.main === this) {
+            Camera.main = null;
+            updateMainCamera();
+        }
     },
 
     /**
@@ -727,7 +753,7 @@ let Camera = cc.Class({
      * @return {Boolean}
      */
     containsNode (node) {
-        return node._cullingMask & this.cullingMask;
+        return (node._cullingMask & this.cullingMask) > 0;
     },
 
     /**
@@ -736,19 +762,17 @@ let Camera = cc.Class({
      * !#zh
      * 手动渲染摄像机。
      * @method render
-     * @param {Node} root 
+     * @param {Node} [rootNode] 
      */
-    render (root) {
-        root = root || cc.director.getScene();
-        if (!root) return null;
+    render (rootNode) {
+        rootNode = rootNode || cc.director.getScene();
+        if (!rootNode) return null;
 
         // force update node world matrix
         this.node.getWorldMatrix(_mat4_temp_1);
         this.beforeDraw();
-        RenderFlow.render(root);
-        if (!CC_JSB) {
-            renderer._forward.renderCamera(this._camera, renderer.scene);
-        }
+
+        RenderFlow.renderCamera(this._camera, rootNode);
     },
 
     _onAlignWithScreen () {

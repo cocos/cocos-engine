@@ -131,7 +131,9 @@ var ToggleContainer = cc.Class({
 var js = require('../platform/js');
 js.get(ToggleContainer.prototype, 'toggleItems',
     function () {
-        return this.node.getComponentsInChildren(cc.Toggle);
+        return this.node._children.map(function (item) {
+            return item.getComponent(cc.Toggle);
+        }).filter(Boolean);
     }
 );
 

@@ -345,6 +345,27 @@ export default class Color extends ValueType {
         return out;
     }
 
+    /**
+     * !#zh 颜色 RGB 预乘 Alpha 通道
+     * !#en RGB premultiply alpha channel
+     * @method premultiplyAlpha
+     * @typescript
+     * premultiplyAlpha <Out extends IColorLike> (out: Out, a: IColorLike)
+     * @param out 返回颜色
+     * @param color 预乘处理的目标颜色
+     * @static
+     */
+    static premultiplyAlpha (out, color) {
+        let alpha = color.a / 255.0;
+        out.r = color.r * alpha;
+        out.g = color.g * alpha;
+        out.b = color.b * alpha;
+
+        out._fastSetA(color.a);
+    
+        return out;
+    }
+
     _val: number = 0;
 
     /**
@@ -600,17 +621,17 @@ export default class Color extends ValueType {
     toCSS (opt: string): string {
         if (!opt || opt === 'rgba') {
             return "rgba(" +
-                (this.r | 0) + "," +
-                (this.g | 0) + "," +
-                (this.b | 0) + "," +
+                this.r + "," +
+                this.g + "," +
+                this.b + "," +
                 (this.a / 255).toFixed(2) + ")"
                 ;
         }
         else if (opt === 'rgb') {
             return "rgb(" +
-                (this.r | 0) + "," +
-                (this.g | 0) + "," +
-                (this.b | 0) + ")"
+                this.r + "," +
+                this.g + "," +
+                this.b + ")"
                 ;
         }
         else {
@@ -641,10 +662,9 @@ export default class Color extends ValueType {
 
     /**
      * !#en convert Color to HEX color string.
-     * e.g.  cc.color(255,6,255)  to : "#ff06ff"
      * !#zh 转换为 16 进制。
      * @method toHEX
-     * @param {String} fmt - "#rgb", "#rrggbb" or "#rrggbbaa".
+     * @param {String} [fmt="#rrggbb"] - "#rgb", "#rrggbb" or "#rrggbbaa".
      * @return {String}
      * @example
      * var color = cc.Color.BLACK;
@@ -652,29 +672,20 @@ export default class Color extends ValueType {
      * color.toHEX("#rrggbb");  // "000000";
      */
     toHEX (fmt): string {
-        let prefix = '0';
+        const prefix = '0';
+        // #rrggbb
         let hex = [
-            (this.r < 16 ? prefix : '') + (this.r | 0).toString(16),
-            (this.g < 16 ? prefix : '') + (this.g | 0).toString(16),
-            (this.b < 16 ? prefix : '') + (this.b | 0).toString(16),
+            (this.r < 16 ? prefix : '') + (this.r).toString(16),
+            (this.g < 16 ? prefix : '') + (this.g).toString(16),
+            (this.b < 16 ? prefix : '') + (this.b).toString(16),
         ];
-        var i = -1;
         if (fmt === '#rgb') {
-            for (i = 0; i < hex.length; ++i) {
-                if (hex[i].length > 1) {
-                    hex[i] = hex[i][0];
-                }
-            }
-        }
-        else if (fmt === '#rrggbb') {
-            for (i = 0; i < hex.length; ++i) {
-                if (hex[i].length === 1) {
-                    hex[i] = '0' + hex[i];
-                }
-            }
+            hex[0] = hex[0][0];
+            hex[1] = hex[1][0];
+            hex[2] = hex[2][0];
         }
         else if (fmt === '#rrggbbaa') {
-            hex.push((this.a < 16 ? prefix : '') + (this.a | 0).toString(16));
+            hex.push((this.a < 16 ? prefix : '') + (this.a).toString(16));
         }
         return hex.join('');
     };
@@ -717,8 +728,6 @@ export default class Color extends ValueType {
             else {
                 if (h === 1) h = 0;
                 h *= 6;
-                s = s;
-                v = v;
                 var i = Math.floor(h);
                 var f = h - i;
                 var p = v * (1 - s);

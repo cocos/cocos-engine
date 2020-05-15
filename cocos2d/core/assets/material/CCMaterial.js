@@ -68,6 +68,7 @@ let Material = cc.Class({
     extends: Asset,
 
     ctor () {
+        this.loaded = false;
         this._manualHash = false;
         this._dirty = true;
         this._effect = null;
@@ -98,7 +99,7 @@ let Material = cc.Class({
                 return this._effectAsset && this._effectAsset.name;
             },
             set (val) {
-                let effectAsset = cc.AssetLibrary.getBuiltin('effect', val);
+                let effectAsset = cc.assetManager.builtins.getBuiltin('effect', val);
                 if (!effectAsset) {
                     Editor.warn(`no effect named '${val}' found`);
                     return;
@@ -148,7 +149,7 @@ let Material = cc.Class({
             if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
                 return new cc.Material();
             }
-            return cc.AssetLibrary.getBuiltin('material', 'builtin-' + name);
+            return cc.assetManager.builtins.getBuiltin('material', 'builtin-' + name);
         },
 
         BUILTIN_NAME,
@@ -163,7 +164,7 @@ let Material = cc.Class({
          * @return {Material}
          */
         createWithBuiltin (effectName, techniqueIndex = 0) {
-            let effectAsset = cc.AssetLibrary.getBuiltin('effect', 'builtin-' + effectName);
+            let effectAsset = cc.assetManager.builtins.getBuiltin('effect', 'builtin-' + effectName);
             return Material.create(effectAsset, techniqueIndex);
         },
         /**
@@ -201,12 +202,11 @@ let Material = cc.Class({
         }
 
         if (val instanceof Texture) {
-            let format = val.getPixelFormat();
-            let value = (format === PixelFormat.RGBA_ETC1 || format === PixelFormat.RGB_A_PVRTC_4BPPV1 || format === PixelFormat.RGB_A_PVRTC_2BPPV1);
+            let isAlphaAtlas = val.isAlphaAtlas();
             let key = 'CC_USE_ALPHA_ATLAS_' + name;
             let def = this.getDefine(key, passIdx);
-            if (value || def) {
-                this.define(key, value);
+            if (isAlphaAtlas || def) {
+                this.define(key, isAlphaAtlas);
             }
             function loaded () {
                 this._effect.setProperty(name, val, passIdx);
@@ -214,7 +214,7 @@ let Material = cc.Class({
 
             if (!val.loaded) {
                 val.once('load', loaded, this);
-                textureUtil.postLoadTexture(val);
+                cc.assetManager.postLoadNative(val);
                 return;
             }
         }

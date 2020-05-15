@@ -29,6 +29,7 @@ let Model = cc.Class({
 
     ctor () {
         this._rootNode = null;
+        this.loaded = false;
     },
 
     properties: {

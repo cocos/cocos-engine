@@ -94,20 +94,11 @@ var AudioSource = cc.Class({
                 return this._clip;
             },
             set: function (value) {
-                if (typeof value === 'string') {
-                    // backward compatibility since 1.10
-                    cc.warnID(8401, 'cc.AudioSource', 'cc.AudioClip', 'AudioClip', 'cc.AudioClip', 'audio');
-                    let self = this;
-                    AudioClip._loadByUrl(value, function (err, clip) {
-                        if (clip) {
-                            self.clip = clip;
-                        }
-                    });
-                    return;
-                }
-
                 if (value === this._clip) {
                     return;
+                }
+                if (!(value instanceof AudioClip)) {
+                    return cc.error('Wrong type of AudioClip.');
                 }
                 this._clip = value;
                 this.audio.stop();

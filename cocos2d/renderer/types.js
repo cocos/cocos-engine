@@ -99,6 +99,9 @@ export function getInspectorProps (prop) {
     
     editor.defines = prop.defines;
     editor.value = getInstanceCtor(editor.type)(prop.value);
+    if (prop.range) {
+        editor.range = prop.range;
+    }
 
     let className = getClassName(editor.type);
     editor.typeName = className2InspectorName[className] || className;

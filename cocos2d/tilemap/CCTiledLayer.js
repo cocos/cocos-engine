@@ -32,6 +32,7 @@ import MaterialVariant from '../core/assets/material/material-variant';
 let _mat4_temp = cc.mat4();
 let _vec2_temp = cc.v2();
 let _vec2_temp2 = cc.v2();
+let _vec2_temp3 = cc.v2();
 let _tempRowCol = {row:0, col:0};
 
 let TiledUserNodeData = cc.Class({
@@ -74,6 +75,8 @@ let TiledLayer = cc.Class({
 
         // store the layer tilesets index array
         this._tilesetIndexArr = [];
+        // tileset index to array index
+        this._tilesetIndexToArrIndex = {};
         // texture id to material index
         this._texIdToMatIndex = {};
 
@@ -446,8 +449,9 @@ let TiledLayer = cc.Class({
     _positionForIsoAt (x, y) {
         let offsetX = 0, offsetY = 0;
         let index = Math.floor(x) + Math.floor(y) * this._layerSize.width;
-        let gid = this._tiles[index];
-        if (gid) {
+        let gidAndFlags = this._tiles[index];
+        if (gidAndFlags) {
+            let gid = ((gidAndFlags & cc.TiledMap.TileFlag.FLIPPED_MASK) >>> 0);
             let tileset = this._texGrids[gid].tileset;
             let offset = tileset.tileOffset;
             offsetX = offset.x;
@@ -463,8 +467,9 @@ let TiledLayer = cc.Class({
     _positionForOrthoAt (x, y) {
         let offsetX = 0, offsetY = 0;
         let index = Math.floor(x) + Math.floor(y) * this._layerSize.width;
-        let gid = this._tiles[index];
-        if (gid) {
+        let gidAndFlags = this._tiles[index];
+        if (gidAndFlags) {
+            let gid = ((gidAndFlags & cc.TiledMap.TileFlag.FLIPPED_MASK) >>> 0);
             let tileset = this._texGrids[gid].tileset;
             let offset = tileset.tileOffset;
             offsetX = offset.x;
@@ -514,6 +519,34 @@ let TiledLayer = cc.Class({
 
     /**
      * !#en
+     * Sets the tiles gid (gid = tile global id) at a given tiles rect.
+     * !#zh
+     * 设置给定区域的 tile 的 gid (gid = tile 全局 id)，
+     * @method setTilesGIDAt
+     * @param {Array} gids an array contains gid
+     * @param {Number} beginCol begin col number
+     * @param {Number} beginRow begin row number
+     * @param {Number} totalCols count of column
+     * @example
+     * tiledLayer.setTilesGIDAt([1, 1, 1, 1], 10, 10, 2)
+     */
+    setTilesGIDAt (gids, beginCol, beginRow, totalCols) {
+        if (!gids || gids.length === 0 || totalCols <= 0) return;
+        if (beginRow < 0) beginRow = 0;
+        if (beginCol < 0) beginCol = 0;
+        let gidsIdx = 0;
+        let endCol = beginCol + totalCols;
+        for (let row = beginRow; ; row++) {
+            for (let col = beginCol; col < endCol; col++) {
+                if (gidsIdx >= gids.length) return;
+                this._updateTileForGID(gids[gidsIdx], col, row);
+                gidsIdx++;
+            }
+        }
+    },
+
+    /**
+     * !#en
      * Sets the tile gid (gid = tile global id) at a given tile coordinate.<br />
      * The Tile GID can be obtained by using the method "tileGIDAt" or by using the TMX editor . Tileset Mgr +1.<br />
      * If a tile is already placed at that position, then it will be removed.
@@ -536,11 +569,15 @@ let TiledLayer = cc.Class({
         let pos;
         if (flags !== undefined || !(posOrX instanceof cc.Vec2)) {
             // four parameters or posOrX is not a Vec2 object
-            pos = cc.v2(posOrX, flagsOrY);
+            _vec2_temp3.x = posOrX;
+            _vec2_temp3.y = flagsOrY;
+            pos = _vec2_temp3;
         } else {
             pos = posOrX;
             flags = flagsOrY;
         }
+        
+        let ugid = gid & cc.TiledMap.TileFlag.FLIPPED_MASK;
 
         pos.x = Math.floor(pos.x);
         pos.y = Math.floor(pos.y);
@@ -551,31 +588,34 @@ let TiledLayer = cc.Class({
             cc.logID(7238);
             return;
         }
-        if (gid !== 0 && gid < this._tilesets[0].firstGid) {
+        if (ugid !== 0 && ugid < this._tilesets[0].firstGid) {
             cc.logID(7239, gid);
             return;
         }
 
         flags = flags || 0;
-        let currentFlags = this.getTileFlagsAt(pos);
-        let currentGID = this.getTileGIDAt(pos);
-
-        if (currentGID === gid && currentFlags === flags) return;
-
-        let gidAndFlags = (gid | flags) >>> 0;
-        this._updateTileForGID(gidAndFlags, pos);
+        this._updateTileForGID( (gid | flags) >>> 0, pos.x, pos.y);
     },
 
-    _updateTileForGID (gid, pos) {
-        if (gid !== 0 && !this._texGrids[gid]) {
-            return;
-        }
+    _updateTileForGID (gidAndFlags, x, y) {
+        let idx = 0 | (x + y * this._layerSize.width);
+        if (idx >= this._tiles.length) return;
 
-        let idx = 0 | (pos.x + pos.y * this._layerSize.width);
-        if (idx < this._tiles.length) {
-            this._tiles[idx] = gid;
-            this._cullingDirty = true;
+        let oldGIDAndFlags = this._tiles[idx];
+        if (gidAndFlags === oldGIDAndFlags) return;
+
+        let gid = ((gidAndFlags & cc.TiledMap.TileFlag.FLIPPED_MASK) >>> 0);
+        let grid = this._texGrids[gid];
+        let tilesetIdx = grid && grid.texId;
+        
+        if (grid) {
+            this._tiles[idx] = gidAndFlags;
+            this._updateVertex(x, y);
+            this._buildMaterial(tilesetIdx);
+        } else {
+            this._tiles[idx] = 0;
         }
+        this._cullingDirty = true;
     },
 
     /**
@@ -809,7 +849,7 @@ let TiledLayer = cc.Class({
         return this._properties;
     },
 
-    _updateVertices () {
+    _updateVertex (col, row) {
         const TiledMap = cc.TiledMap;
         const TileFlag = TiledMap.TileFlag;
         const FLIPPED_MASK = TileFlag.FLIPPED_MASK;
@@ -817,7 +857,6 @@ let TiledLayer = cc.Class({
         const Orientation = TiledMap.Orientation;
 
         let vertices = this._vertices;
-        vertices.length = 0;
 
         let layerOrientation = this._layerOrientation,
             tiles = this._tiles;
@@ -827,9 +866,6 @@ let TiledLayer = cc.Class({
         }
 
         let rightTop = this._rightTop;
-        rightTop.row = -1;
-        rightTop.col = -1;
-
         let maptw = this._mapTileSize.width,
             mapth = this._mapTileSize.height,
             maptw2 = maptw * 0.5,
@@ -838,7 +874,7 @@ let TiledLayer = cc.Class({
             cols = this._layerSize.width,
             grids = this._texGrids;
         
-        let colOffset = 0, gid, grid, left, bottom,
+        let gid, grid, left, bottom,
             axis, diffX1, diffY1, odd_even, diffX2, diffY2;
 
         if (layerOrientation === Orientation.HEX) {
@@ -851,123 +887,141 @@ let TiledLayer = cc.Class({
         let cullingCol = 0, cullingRow = 0;
         let tileOffset = null, gridGID = 0;
 
+        // grid border
+        let topBorder = 0, downBorder = 0, leftBorder = 0, rightBorder = 0;
+        let index = row * cols + col;
+        gid = tiles[index];
+        gridGID = ((gid & FLIPPED_MASK) >>> 0);
+        grid = grids[gridGID];
+        if (!grid) {
+            return;
+        }
+
+        // if has animation, grid must be updated per frame
+        if (this._animations[gridGID]) {
+            this._hasAniGrid = this._hasAniGrid || true;
+        }
+
+        switch (layerOrientation) {
+            // left top to right dowm
+            case Orientation.ORTHO:
+                cullingCol = col;
+                cullingRow = rows - row - 1;
+                left = cullingCol * maptw;
+                bottom = cullingRow * mapth;
+                break;
+            // right top to left down
+            case Orientation.ISO:
+            	// if not consider about col, then left is 'w/2 * (rows - row - 1)'
+                // if consider about col then left must add 'w/2 * col'
+                // so left is 'w/2 * (rows - row - 1) + w/2 * col'
+                // combine expression is 'w/2 * (rows - row + col -1)'
+                cullingCol = rows + col - row - 1;
+                // if not consider about row, then bottom is 'h/2 * (cols - col -1)'
+                // if consider about row then bottom must add 'h/2 * (rows - row - 1)'
+                // so bottom is 'h/2 * (cols - col -1) + h/2 * (rows - row - 1)'
+                // combine expressionn is 'h/2 * (rows + cols - col - row - 2)'
+                cullingRow = rows + cols - col - row - 2;
+                left = maptw2 * cullingCol;
+                bottom = mapth2 * cullingRow;
+                break;
+            // left top to right dowm
+            case Orientation.HEX:
+                diffX2 = (axis === StaggerAxis.STAGGERAXIS_Y && row % 2 === 1) ? maptw2 * odd_even : 0;
+                diffY2 = (axis === StaggerAxis.STAGGERAXIS_X && col % 2 === 1) ? mapth2 * -odd_even : 0;
+
+                left = col * (maptw - diffX1) + diffX2;
+                bottom = (rows - row - 1) * (mapth - diffY1) + diffY2;
+                cullingCol = col;
+                cullingRow = rows - row - 1;
+                break;
+        }
+
+        let rowData = vertices[cullingRow] = vertices[cullingRow] || {minCol:0, maxCol:0};
+        let colData = rowData[cullingCol] = rowData[cullingCol] || {};
+        
+        // record each row range, it will faster when culling grid
+        if (rowData.minCol > cullingCol) {
+            rowData.minCol = cullingCol;
+        }
+
+        if (rowData.maxCol < cullingCol) {
+            rowData.maxCol = cullingCol;
+        }
+
+        // record max rect, when viewPort is bigger than layer, can make it smaller
+        if (rightTop.row < cullingRow) {
+            rightTop.row = cullingRow;
+        }
+
+        if (rightTop.col < cullingCol) {
+            rightTop.col = cullingCol;
+        }
+
+        // _offset is whole layer offset
+        // tileOffset is tileset offset which is related to each grid
+        // tileOffset coordinate system's y axis is opposite with engine's y axis.
+        tileOffset = grid.tileset.tileOffset;
+        left += this._offset.x + tileOffset.x;
+        bottom += this._offset.y - tileOffset.y;
+        
+        topBorder = -tileOffset.y + grid.tileset._tileSize.height - mapth;
+        topBorder = topBorder < 0 ? 0 : topBorder;
+        downBorder = tileOffset.y < 0 ? 0 : tileOffset.y;
+        leftBorder = -tileOffset.x < 0 ? 0 : -tileOffset.x;
+        rightBorder = tileOffset.x + grid.tileset._tileSize.width - maptw;
+        rightBorder = rightBorder < 0 ? 0 : rightBorder;
+
+        if (this._rightOffset < leftBorder) {
+            this._rightOffset = leftBorder;
+        }
+
+        if (this._leftOffset < rightBorder) {
+            this._leftOffset = rightBorder;
+        }
+
+        if (this._topOffset < downBorder) {
+            this._topOffset = downBorder;
+        }
+
+        if (this._downOffset < topBorder) {
+            this._downOffset = topBorder;
+        }
+
+        colData.left = left;
+        colData.bottom = bottom;
+        // this index is tiledmap grid index
+        colData.index = index; 
+
+        this._cullingDirty = true;
+    },
+
+    _updateVertices () {
+        let vertices = this._vertices;
+        vertices.length = 0;
+
+        let tiles = this._tiles;
+        if (!tiles) {
+            return;
+        }
+
+        let rightTop = this._rightTop;
+        rightTop.row = -1;
+        rightTop.col = -1;
+
+        let rows = this._layerSize.height,
+            cols = this._layerSize.width;
+
         this._topOffset = 0;
         this._downOffset = 0;
         this._leftOffset = 0;
         this._rightOffset = 0;
         this._hasAniGrid = false;
 
-        // grid border
-        let topBorder = 0, downBorder = 0, leftBorder = 0, rightBorder = 0;
-
         for (let row = 0; row < rows; ++row) {
             for (let col = 0; col < cols; ++col) {
-                let index = colOffset + col;
-                gid = tiles[index];
-                gridGID = ((gid & FLIPPED_MASK) >>> 0);
-                grid = grids[gridGID];
-
-                // if has animation, grid must be updated per frame
-                if (this._animations[gridGID]) {
-                    this._hasAniGrid = true;
-                }
-
-                if (!grid) {
-                    continue;
-                }
-
-                switch (layerOrientation) {
-                    // left top to right dowm
-                    case Orientation.ORTHO:
-                        cullingCol = col;
-                        cullingRow = rows - row - 1;
-                        left = cullingCol * maptw;
-                        bottom = cullingRow * mapth;
-                        break;
-                    // right top to left down
-                    case Orientation.ISO:
-                        // if not consider about col, then left is 'w/2 * (rows - row - 1)'
-                        // if consider about col then left must add 'w/2 * col'
-                        // so left is 'w/2 * (rows - row - 1) + w/2 * col'
-                        // combine expression is 'w/2 * (rows - row + col -1)'
-                        cullingCol = rows + col - row - 1;
-                        // if not consider about row, then bottom is 'h/2 * (cols - col -1)'
-                        // if consider about row then bottom must add 'h/2 * (rows - row - 1)'
-                        // so bottom is 'h/2 * (cols - col -1) + h/2 * (rows - row - 1)'
-                        // combine expressionn is 'h/2 * (rows + cols - col - row - 2)'
-                        cullingRow = rows + cols - col - row - 2;
-                        left = maptw2 * cullingCol;
-                        bottom = mapth2 * cullingRow;
-                        break;
-                    // left top to right dowm
-                    case Orientation.HEX:
-                        diffX2 = (axis === StaggerAxis.STAGGERAXIS_Y && row % 2 === 1) ? maptw2 * odd_even : 0;
-                        diffY2 = (axis === StaggerAxis.STAGGERAXIS_X && col % 2 === 1) ? mapth2 * -odd_even : 0;
-
-                        left = col * (maptw - diffX1) + diffX2;
-                        bottom = (rows - row - 1) * (mapth - diffY1) + diffY2;
-                        cullingCol = col;
-                        cullingRow = rows - row - 1;
-                        break;
-                }
-
-                let rowData = vertices[cullingRow] = vertices[cullingRow] || {minCol:0, maxCol:0};
-                let colData = rowData[cullingCol] = rowData[cullingCol] || {};
-                
-                // record each row range, it will faster when culling grid
-                if (rowData.minCol > cullingCol) {
-                    rowData.minCol = cullingCol;
-                }
-
-                if (rowData.maxCol < cullingCol) {
-                    rowData.maxCol = cullingCol;
-                }
-
-                // record max rect, when viewPort is bigger than layer, can make it smaller
-                if (rightTop.row < cullingRow) {
-                    rightTop.row = cullingRow;
-                }
-
-                if (rightTop.col < cullingCol) {
-                    rightTop.col = cullingCol;
-                }
-
-                // _offset is whole layer offset
-                // tileOffset is tileset offset which is related to each grid
-                // tileOffset coordinate system's y axis is opposite with engine's y axis.
-                tileOffset = grid.tileset.tileOffset;
-                left += this._offset.x + tileOffset.x;
-                bottom += this._offset.y - tileOffset.y;
-                
-                topBorder = -tileOffset.y + grid.tileset._tileSize.height - mapth;
-                topBorder = topBorder < 0 ? 0 : topBorder;
-                downBorder = tileOffset.y < 0 ? 0 : tileOffset.y;
-                leftBorder = -tileOffset.x < 0 ? 0 : -tileOffset.x;
-                rightBorder = tileOffset.x + grid.tileset._tileSize.width - maptw;
-                rightBorder = rightBorder < 0 ? 0 : rightBorder;
-
-                if (this._rightOffset < leftBorder) {
-                    this._rightOffset = leftBorder;
-                }
-
-                if (this._leftOffset < rightBorder) {
-                    this._leftOffset = rightBorder;
-                }
-
-                if (this._topOffset < downBorder) {
-                    this._topOffset = downBorder;
-                }
-
-                if (this._downOffset < topBorder) {
-                    this._downOffset = topBorder;
-                }
-
-                colData.left = left;
-                colData.bottom = bottom;
-                // this index is tiledmap grid index
-                colData.index = index; 
+                this._updateVertex(col, row);
             }
-            colOffset += cols;
         }
         this._verticesDirty = false;
     },
@@ -1188,7 +1242,7 @@ let TiledLayer = cc.Class({
         let tiles = this._tiles;
         let texGrids = this._texGrids;
         let tilesetIndexArr = this._tilesetIndexArr;
-        let tilesetIdxMap = {};
+        let tilesetIndexToArrIndex = this._tilesetIndexToArrIndex = {};
 
         const TiledMap = cc.TiledMap;
         const TileFlag = TiledMap.TileFlag;
@@ -1205,8 +1259,8 @@ let TiledLayer = cc.Class({
                 continue;
             }
             let tilesetIdx = grid.texId;
-            if (tilesetIdxMap[tilesetIdx]) continue;
-            tilesetIdxMap[tilesetIdx] = true;
+            if (tilesetIndexToArrIndex[tilesetIdx] !== undefined) continue;
+            tilesetIndexToArrIndex[tilesetIdx] = tilesetIndexArr.length;
             tilesetIndexArr.push(tilesetIdx);
         }
     },
@@ -1291,6 +1345,35 @@ let TiledLayer = cc.Class({
         this._activateMaterial();
     },
 
+    _buildMaterial (tilesetIdx) {
+        let texIdMatIdx = this._texIdToMatIndex;
+        if (texIdMatIdx[tilesetIdx] !== undefined) {
+            return null;
+        }
+
+        let tilesetIndexArr = this._tilesetIndexArr;
+        let tilesetIndexToArrIndex = this._tilesetIndexToArrIndex;
+        let index = tilesetIndexToArrIndex[tilesetIdx];
+        if (index === undefined) {
+            tilesetIndexToArrIndex[tilesetIdx] = index = tilesetIndexArr.length;
+            tilesetIndexArr.push(tilesetIdx);
+        }
+
+        let texture = this._textures[tilesetIdx];
+        let material = this._materials[index];
+        if (!material) {
+            material = Material.getBuiltinMaterial('2d-sprite');
+        }
+        material = MaterialVariant.create(material, this);
+
+        material.define('CC_USE_MODEL', true);
+        material.setProperty('texture', texture);
+
+        this._materials[index] = material;
+        texIdMatIdx[tilesetIdx] = index;
+        return material;
+    },
+
     _activateMaterial () {
         let tilesetIndexArr = this._tilesetIndexArr;
         if (tilesetIndexArr.length === 0) {
@@ -1298,26 +1381,9 @@ let TiledLayer = cc.Class({
             return;
         }
 
-        let texIdMatIdx = this._texIdToMatIndex = {};
-        let textures = this._textures;
         let matLen = tilesetIndexArr.length;
-
         for (let i = 0; i < matLen; i++) {
-            let tilesetIdx = tilesetIndexArr[i];
-            let texture = textures[tilesetIdx];
-
-            let material = this._materials[i];
-            if (!material) {
-                material = Material.getBuiltinMaterial('2d-sprite');
-            }
-            material = MaterialVariant.create(material, this);
-
-            material.define('CC_USE_MODEL', true);
-            material.setProperty('texture', texture);
-
-            this._materials[i] = material;
-            
-            texIdMatIdx[tilesetIdx] = i;
+            this._buildMaterial(tilesetIndexArr[i]);
         }
         this._materials.length = matLen;
         this.markForRender(true);

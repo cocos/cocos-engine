@@ -126,7 +126,6 @@ var audioEngine = {
 
     AudioState: Audio.State,
 
-    _maxWebAudioSize: 2097152, // 2048kb * 1024
     _maxAudioInstance: 24,
 
     _id2audio: _id2audio,
@@ -140,40 +139,22 @@ var audioEngine = {
      * @param {Number} volume - Volume size.
      * @return {Number} audioId
      * @example
-     * cc.loader.loadRes(url, cc.AudioClip, function (err, clip) {
+     * cc.resources.load(path, cc.AudioClip, null, function (err, clip) {
      *     var audioID = cc.audioEngine.play(clip, false, 0.5);
      * });
      */
-    play: function (clip, loop, volume/*, profile*/) {
-        var path = clip;
-        var audio;
-        if (typeof clip === 'string') {
-            // backward compatibility since 1.10
-            cc.warnID(8401, 'cc.audioEngine', 'cc.AudioClip', 'AudioClip', 'cc.AudioClip', 'audio');
-            path = clip;
-            // load clip
-            audio = getAudioFromPath(path);
-            AudioClip._loadByUrl(path, function (err, clip) {
-                if (clip) {
-                    audio.src = clip;
-                }
-            });
+    play: function (clip, loop, volume) {
+        if (!(clip instanceof AudioClip)) {
+            return cc.error('Wrong type of AudioClip.');
         }
-        else {
-            if (!clip) {
-                return;
-            }
-            path = clip.nativeUrl;
-            audio = getAudioFromPath(path);
-            audio.src = clip;
-        }
-
+        let path = clip.nativeUrl;
+        let audio = getAudioFromPath(path);
+        audio.src = clip;
         audio._shouldRecycleOnEnded = true;
         audio.setLoop(loop || false);
         volume = handleVolume(volume);
         audio.setVolume(volume);
         audio.play();
-
         return audio.id;
     },
 
@@ -432,16 +413,20 @@ var audioEngine = {
      * @param {Number} num - a number of instances to be created from within an audio
      * @example
      * cc.audioEngine.setMaxAudioInstance(20);
+     * @deprecated since v2.4.0
      */
     setMaxAudioInstance: function (num) {
-        this._maxAudioInstance = num;
+        if (CC_DEBUG) {
+            cc.warn('Since v2.4.0, maxAudioInstance has become a read only property.\n'
+            + 'audioEngine.setMaxAudioInstance() method will be removed in the future');
+        }
     },
 
     /**
      * !#en Getting audio can produce several examples.
      * !#zh 获取一个音频可以设置几个实例
      * @method getMaxAudioInstance
-     * @return {Number} a - number of instances to be created from within an audio
+     * @return {Number} max number of instances to be created from within an audio
      * @example
      * cc.audioEngine.getMaxAudioInstance();
      */
@@ -507,49 +492,6 @@ var audioEngine = {
         _url2id = {};
     },
 
-    /**
-     * !#en Gets an audio profile by name.
-     *
-     * @param profileName A name of audio profile.
-     * @return The audio profile.
-     */
-    getProfile: function (profileName) {},
-
-    /**
-     * !#en Preload audio file.
-     * !#zh 预加载一个音频
-     * @method preload
-     * @param {String} filePath - The file path of an audio.
-     * @param {Function} [callback] - The callback of an audio.
-     * @example
-     * cc.audioEngine.preload(path);
-     * @deprecated `cc.audioEngine.preload` is deprecated, use `cc.loader.loadRes(url, cc.AudioClip)` instead please.
-     */
-    preload: function (filePath, callback) {
-        if (CC_DEBUG) {
-            cc.warn('`cc.audioEngine.preload` is deprecated, use `cc.loader.loadRes(url, cc.AudioClip)` instead please.');
-        }
-
-        cc.loader.load(filePath, callback && function (error) {
-            if (!error) {
-                callback();
-            }
-        });
-    },
-
-    /**
-     * !#en Set a size, the unit is KB. Over this size is directly resolved into DOM nodes.
-     * !#zh 设置一个以 KB 为单位的尺寸，大于这个尺寸的音频在加载的时候会强制使用 dom 方式加载
-     * @method setMaxWebAudioSize
-     * @param {Number} kb - The file path of an audio.
-     * @example
-     * cc.audioEngine.setMaxWebAudioSize(300);
-     */
-    // Because webAudio takes up too much memory，So allow users to manually choose
-    setMaxWebAudioSize: function (kb) {
-        this._maxWebAudioSize = kb * 1024;
-    },
-
     _breakCache: null,
     _break: function () {
         this._breakCache = [];
@@ -597,7 +539,7 @@ var audioEngine = {
      * @param {Boolean} loop - Whether the music loop or not.
      * @return {Number} audioId
      * @example
-     * cc.loader.loadRes(url, cc.AudioClip, function (err, clip) {
+     * cc.resources.load(path, cc.AudioClip, null, function (err, clip) {
      *     var audioID = cc.audioEngine.playMusic(clip, false);
      * });
      */
@@ -692,7 +634,7 @@ var audioEngine = {
      * @param {Boolean} loop - Whether the music loop or not.
      * @return {Number} audioId
      * @example
-     * cc.loader.loadRes(url, cc.AudioClip, function (err, clip) {
+     * cc.resources.load(path, cc.AudioClip, null, function (err, clip) {
      *     var audioID = cc.audioEngine.playEffect(clip, false);
      * });
      */

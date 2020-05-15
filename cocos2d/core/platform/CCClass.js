@@ -1142,7 +1142,7 @@ function parseAttributes (cls, attributes, className, propName, usedInGetter) {
                     (attrs || initAttrs())[propNamePrefix + 'type'] = 'Object';
                     attrs[propNamePrefix + 'ctor'] = type;
                     if (((CC_EDITOR && !Editor.isBuilder) || CC_TEST) && !attributes._short) {
-                        onAfterProps_ET.push(attributes.url ? Attr.getTypeChecker_ET('String', 'cc.String') : Attr.getObjTypeChecker_ET(type));
+                        onAfterProps_ET.push(Attr.getObjTypeChecker_ET(type));
                     }
                 }
                 else if (CC_DEV) {
@@ -1183,9 +1183,6 @@ function parseAttributes (cls, attributes, className, propName, usedInGetter) {
         parseSimpleAttr('slide', 'boolean');
     }
 
-    if (attributes.url) {
-        (attrs || initAttrs())[propNamePrefix + 'saveUrlAsAsset'] = true;
-    }
     if (attributes.serializable === false) {
         if (CC_DEV && usedInGetter) {
             cc.errorID(3613, "serializable", name, propName);

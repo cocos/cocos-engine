@@ -30,7 +30,6 @@ require('./CCClassDecorator');
 require('./CCEnum');
 require('./CCObject');
 require('./callbacks-invoker');
-require('./url');
 require('./deserialize');
 require('./instantiate');
 require('./instantiate-jit');
@@ -39,6 +38,5 @@ require('./CCSys');
 require('./CCMacro');
 
 if (!(CC_EDITOR && Editor.isMainProcess)) {
-    require('./CCAssetLibrary');
     require('./CCVisibleRect');
 }

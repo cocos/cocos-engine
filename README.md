@@ -28,7 +28,7 @@
 
 # Cocos Creator
 
-![image](https://user-images.githubusercontent.com/1503156/50451713-97d7cc00-0970-11e9-89f8-ccdd8b2cc5cb.png)
+![2.2.0 Main Window](https://user-images.githubusercontent.com/1503156/67261891-3cfdfb00-f4d5-11e9-9b2d-15ff2cb015f4.png)
 
 Cocos Creator is a complete package of game development tools and workflow, including a game engine, resource management, scene editing, game preview, debug and publish one project to multiple platforms. Cocos Creator focused on content creation, which has realized features like thorough scriptability, componentization and data driven, etc. on the basis of Cocos2d-x. With JavaScript, you can scripting your component in no time. The editor and engine extension is also made with JavaScript so you can make games and refine your tool in a single programming language. Cocos Creator is an provides an innovative, easy to use toolset such as the UI system and Animation editor. The toolset will be expanding continuously and quickly, thanks to the open editor extension system.
 
@@ -63,71 +63,77 @@ This is all you have to do to set engine development environment.
 gulp build
 ```
 
+If the compilation process encounters a "JavaScript heap out memory" warning, you can use the following command line
+
+```bash
+gulp build --max-old-space-size=8192
+```
+
 ### Test
 
 #### Prerequisite
 
- - Install [express](http://expressjs.com/): `npm install express`
- - Install gulp-qunit: `npm install gulp-qunit`
+- Install [express](http://expressjs.com/): `npm install express`.
+- Install gulp-qunit: `npm install gulp-qunit`.
 
 #### Unit Test
 
-##### Test in CLI
+- Test in CLI
 
-```bash
-npm test
-```
+  ```bash
+  npm test
+  ```
 
-##### Test in browser
+- Test in browser
 
-1. Build for testing. <br>
+  1. Build for testing.
 
-    ```bash
-    gulp build-test
-    ```
+      ```bash
+      gulp build-test
+      ```
 
-2. Start express in cloned project folder.
+  2. Start express in cloned project folder.
 
-    ```
-    node test/qunit/server.js
-    ```
+      ```bash
+      node test/qunit/server.js
+      ```
 
-3. Open [http://localhost:8511/bin/qunit-runner.html](http://localhost:8511/bin/qunit-runner.html) in your browser.
+  3. Open [http://localhost:8511/bin/qunit-runner.html](http://localhost:8511/bin/qunit-runner.html) in your browser.
 
 ### DebugInfos
 
 View [EngineErrorMap.md](https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md)  
 All the debug infos are defined in file EngineErrorMap.md.  
-The file DebugInfos.json will be generated based on EngineErrorMap.md, when run gulp build* command.
+The file DebugInfos.json will be generated based on EngineErrorMap.md, when run `gulp build` command.
 
 For details below:
 
 1. Define log in EngineErrorMap.md 
 
-    example
+    example:
+
     ```
     ### 1001  
       
-    cocos2d: removeAction: Target not found
-          
+    cocos2d: removeAction: Target not found  
     ```
 
-2. Define deprecated log in EngineErrorMap.md 
+2. Define deprecated log in EngineErrorMap.md  
    The log should be marked as DEPRECATED when then logId is no longer referenced in the project.
 
-    example
+    example:
+
     ```
     ### 1000
       
     <!-- DEPRECATED -->
     cc.ActionManager.addAction(): action must be non-null  
-    
     ```
 
 ## Useful links
 
-* [Official site](http://cocos2d-x.org/creator)
-* [Download](http://cocos2d-x.org/download)
-* [Documentation](https://docs.cocos2d-x.org/creator/manual/en/)
-* [API References](https://docs.cocos2d-x.org/creator/api/en/)
+* [Official site](https://www.cocos.com/products#CocosCreator)
+* [Download](https://www.cocos.com/creator)
+* [Documentation](https://docs.cocos.com/creator/manual/)
+* [API References](https://docs.cocos.com/creator/api/)
 * [Forum](https://discuss.cocos2d-x.org/c/creator)

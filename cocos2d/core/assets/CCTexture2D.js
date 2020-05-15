@@ -304,7 +304,7 @@ var Texture2D = cc.Class({
                 return this._image;
             },
             set (data) {
-                if (data._compressed && data._data) {
+                if (data._data) {
                     this.initWithData(data._data, this._format, data.width, data.height);
                 }
                 else {
@@ -321,6 +321,8 @@ var Texture2D = cc.Class({
         _mipFilter: Filter.LINEAR,
         _wrapS: WrapMode.CLAMP_TO_EDGE,
         _wrapT: WrapMode.CLAMP_TO_EDGE,
+
+        _isAlphaAtlas: false,
 
         _genMipmaps: false,
         /**
@@ -360,6 +362,19 @@ var Texture2D = cc.Class({
             set (val) {
                 this._packable = val;
             }
+        },
+        
+        _nativeDep: {
+            get () {
+                return {
+                    __isNative__: true, 
+                    uuid: this._uuid, 
+                    ext: this._native, 
+                    __flipY__: this._flipY,
+                    __premultiplyAlpha__: this._premultiplyAlpha
+                };
+            },
+            override: true
         }
     },
 
@@ -368,9 +383,70 @@ var Texture2D = cc.Class({
         WrapMode: WrapMode,
         Filter: Filter,
         _FilterIndex: FilterIndex,
-
         // predefined most common extnames
         extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm'],
+
+        _parseNativeDepFromJson (json) {
+            var data = json.content;
+            let fields = data.split(',');
+            // decode extname
+            var extIdStr = fields[0];
+            var ext = '';
+            if (extIdStr) {
+                var result = Texture2D._parseExt(extIdStr, PixelFormat.RGBA8888);
+                ext = result.bestExt || result.defaultExt;
+            }
+
+            return { __isNative__: true, ext, __flipY__: false, __premultiplyAlpha__: fields[5] && fields[5].charCodeAt(0) === CHAR_CODE_1 };
+        },
+
+        _parseExt (extIdStr, defaultFormat) {
+            let device = cc.renderer.device;
+            let extIds = extIdStr.split('_');
+
+            let defaultExt = '';
+            let bestExt = '';
+            let bestIndex = 999;
+            let bestFormat = defaultFormat;
+            let SupportTextureFormats = cc.macro.SUPPORT_TEXTURE_FORMATS;
+            for (let i = 0; i < extIds.length; i++) {
+                let extFormat = extIds[i].split('@');
+                let tmpExt = extFormat[0];
+                tmpExt = Texture2D.extnames[tmpExt.charCodeAt(0) - CHAR_CODE_0] || tmpExt;
+
+                let index = SupportTextureFormats.indexOf(tmpExt);
+                if (index !== -1 && index < bestIndex) {
+                    
+                    let tmpFormat = extFormat[1] ? parseInt(extFormat[1]) : defaultFormat;
+
+                    // check whether or not support compressed texture
+                    if ( tmpExt === '.pvr' && !device.ext('WEBGL_compressed_texture_pvrtc')) {
+                        continue;
+                    }
+                    else if ((tmpFormat === PixelFormat.RGB_ETC1 || tmpFormat === PixelFormat.RGBA_ETC1) && !device.ext('WEBGL_compressed_texture_etc1')) {
+                        continue;
+                    }
+                    else if ((tmpFormat === PixelFormat.RGB_ETC2 || tmpFormat === PixelFormat.RGBA_ETC2) && !device.ext('WEBGL_compressed_texture_etc')) {
+                        continue;
+                    }
+                    else if (tmpExt === '.webp' && !cc.sys.capabilities.webp) {
+                        continue;
+                    }
+
+                    bestIndex = index;
+                    bestExt = tmpExt;
+                    bestFormat = tmpFormat;
+                }
+                else if (!defaultExt) {
+                    defaultExt = tmpExt;
+                }
+            }
+            return { bestExt, bestFormat, defaultExt };
+        },
+
+        _parseDepsFromJson () {
+            return [];
+        } 
     },
 
     ctor () {
@@ -430,7 +506,7 @@ var Texture2D = cc.Class({
     },
 
     toString () {
-        return this.url || '';
+        return this.nativeUrl || '';
     },
 
     /**
@@ -489,26 +565,37 @@ var Texture2D = cc.Class({
                 this._genMipmaps = options.genMipmaps;
             }
 
-            if (updateImg && this._image) {
-                options.image = this._image;
+            if (cc.sys.capabilities.imageBitmap && this._image instanceof ImageBitmap) {
+                this._checkImageBitmap(this._upload.bind(this, options, updateImg));
             }
-            if (options.images && options.images.length > 0) {
-                this._image = options.images[0];
+            else {
+                this._upload(options, updateImg);
             }
-            else if (options.image !== undefined) {
-                this._image = options.image;
-                if (!options.images) {
-                    _images.length = 0;
-                    options.images = _images;
-                }
-                // webgl texture 2d uses images
-                options.images.push(options.image);
-            }
-
-            this._texture && this._texture.update(options);
-
-            this._hashDirty = true;
+            
         }
+    },
+
+
+    _upload (options, updateImg) {
+        if (updateImg && this._image) {
+            options.image = this._image;
+        }
+        if (options.images && options.images.length > 0) {
+            this._image = options.images[0];
+        }
+        else if (options.image !== undefined) {
+            this._image = options.image;
+            if (!options.images) {
+                _images.length = 0;
+                options.images = _images;
+            }
+            // webgl texture 2d uses images
+            options.images.push(options.image);
+        }
+
+        this._texture && this._texture.update(options);
+
+        this._hashDirty = true;
     },
 
     /**
@@ -528,6 +615,9 @@ var Texture2D = cc.Class({
         this._image = element;
         if (element.complete || element instanceof HTMLCanvasElement) {
             this.handleLoadedTexture();
+        }
+        else if (cc.sys.capabilities.imageBitmap && element instanceof ImageBitmap) {
+            this._checkImageBitmap(this.handleLoadedTexture.bind(this));
         }
         else {
             var self = this;
@@ -575,6 +665,7 @@ var Texture2D = cc.Class({
         this.width = pixelsWidth;
         this.height = pixelsHeight;
 
+        this._updateFormat();
         this._checkPackable();
 
         this.loaded = true;
@@ -600,7 +691,7 @@ var Texture2D = cc.Class({
     /**
      * !#en
      * Destory this texture and immediately release its video memory. (Inherit from cc.Object.destroy)<br>
-     * After destroy, this object is not usable any more.
+     * After destroy, this object is not usable anymore.
      * You can use cc.isValid(obj) to check whether the object is destroyed before accessing it.
      * !#zh
      * 销毁该贴图，并立即释放它对应的显存。（继承自 cc.Object.destroy）<br/>
@@ -609,12 +700,13 @@ var Texture2D = cc.Class({
      * @return {Boolean} inherit from the CCObject
      */
     destroy () {
+        if (cc.sys.capabilities.imageBitmap && this._image instanceof ImageBitmap) {
+            this._image.close && this._image.close();
+        }
         this._packable && cc.dynamicAtlasManager && cc.dynamicAtlasManager.deleteAtlasTexture(this);
 
         this._image = null;
         this._texture && this._texture.destroy();
-        // TODO cc.textureUtil ?
-        // cc.textureCache.removeTextureForKey(this.url);  // item.rawUrl || item.url
         this._super();
     },
 
@@ -639,6 +731,10 @@ var Texture2D = cc.Class({
      */
     hasPremultipliedAlpha () {
         return this._premultiplyAlpha || false;
+    },
+
+    isAlphaAtlas () {
+        return this._isAlphaAtlas;
     },
 
     /**
@@ -677,14 +773,20 @@ var Texture2D = cc.Class({
             this._texture.update(opts);
         }
 
+        this._updateFormat();
         this._checkPackable();
 
         //dispatch load event to listener.
         this.loaded = true;
         this.emit("load");
 
-        if (cc.macro.CLEANUP_IMAGE_CACHE && this._image instanceof HTMLImageElement) {
-            this._clearImage();
+        if (cc.macro.CLEANUP_IMAGE_CACHE) {
+            if (this._image instanceof HTMLImageElement) {
+                this._clearImage();
+            }
+            else if (cc.sys.capabilities.imageBitmap && this._image instanceof ImageBitmap) {
+                this._image.close && this._image.close();
+            }
         }
     },
 
@@ -696,7 +798,7 @@ var Texture2D = cc.Class({
      * @returns {String}
      */
     description () {
-        return "<cc.Texture2D | Name = " + this.url + " | Dimensions = " + this.width + " x " + this.height + ">";
+        return "<cc.Texture2D | Name = " + this.nativeUrl + " | Dimensions = " + this.width + " x " + this.height + ">";
     },
 
     /**
@@ -756,6 +858,7 @@ var Texture2D = cc.Class({
         if (this._flipY !== flipY) {
             var opts = _getSharedOptions();
             opts.flipY = flipY;
+            opts.premultiplyAlpha = this._premultiplyAlpha;
             this.update(opts);
         }
     },
@@ -770,8 +873,16 @@ var Texture2D = cc.Class({
     setPremultiplyAlpha (premultiply) {
         if (this._premultiplyAlpha !== premultiply) {
             var opts = _getSharedOptions();
+            opts.flipY = this._flipY;
             opts.premultiplyAlpha = premultiply;
             this.update(opts);
+        }
+    },
+
+    _updateFormat () {
+        this._isAlphaAtlas = this._format === PixelFormat.RGBA_ETC1 || this._format === PixelFormat.RGB_A_PVRTC_4BPPV1 || this._format === PixelFormat.RGB_A_PVRTC_2BPPV1;
+        if (CC_JSB) {
+            this._texture.setAlphaAtlas(this._isAlphaAtlas);
         }
     },
 
@@ -871,59 +982,19 @@ var Texture2D = cc.Class({
     },
 
     _deserialize: function (data, handle) {
-        let device = cc.renderer.device;
-
         let fields = data.split(',');
         // decode extname
         let extIdStr = fields[0];
         if (extIdStr) {
-            let extIds = extIdStr.split('_');
+            var result = Texture2D._parseExt(extIdStr, this._format);
 
-            let defaultExt = '';
-            let bestExt = '';
-            let bestIndex = 999;
-            let bestFormat = this._format;
-            let SupportTextureFormats = cc.macro.SUPPORT_TEXTURE_FORMATS;
-            for (let i = 0; i < extIds.length; i++) {
-                let extFormat = extIds[i].split('@');
-                let tmpExt = extFormat[0];
-                tmpExt = Texture2D.extnames[tmpExt.charCodeAt(0) - CHAR_CODE_0] || tmpExt;
-
-                let index = SupportTextureFormats.indexOf(tmpExt);
-                if (index !== -1 && index < bestIndex) {
-                    
-                    let tmpFormat = extFormat[1] ? parseInt(extFormat[1]) : this._format;
-
-                    // check whether or not support compressed texture
-                    if ( tmpExt === '.pvr' && !device.ext('WEBGL_compressed_texture_pvrtc')) {
-                        continue;
-                    }
-                    else if ((tmpFormat === PixelFormat.RGB_ETC1 || tmpFormat === PixelFormat.RGBA_ETC1) && !device.ext('WEBGL_compressed_texture_etc1')) {
-                        continue;
-                    }
-                    else if ((tmpFormat === PixelFormat.RGB_ETC2 || tmpFormat === PixelFormat.RGBA_ETC2) && !device.ext('WEBGL_compressed_texture_etc')) {
-                        continue;
-                    }
-                    else if (tmpExt === '.webp' && !cc.sys.capabilities.webp) {
-                        continue;
-                    }
-
-                    bestIndex = index;
-                    bestExt = tmpExt;
-                    bestFormat = tmpFormat;
-                }
-                else if (!defaultExt) {
-                    defaultExt = tmpExt;
-                }
-            }
-
-            if (bestExt) {
-                this._setRawAsset(bestExt);
-                this._format = bestFormat;
+            if (result.bestExt) {
+                this._setRawAsset(result.bestExt);
+                this._format = result.bestFormat;
             }
             else {
-                this._setRawAsset(defaultExt);
-                cc.warnID(3120, handle.customEnv.url, defaultExt, defaultExt);
+                this._setRawAsset(result.defaultExt);
+                cc.warnID(3120, handle.customEnv.url, result.defaultExt, result.defaultExt);
             }
         }
         if (fields.length === 8) {
@@ -969,12 +1040,30 @@ var Texture2D = cc.Class({
     },
     
     _clearImage () {
-        // wechat game platform will cache image parsed data, 
-        // so image will consume much more memory than web, releasing it
-        // Release image in loader cache
-        // native image element has not image.id, release by image.src.
-        cc.loader.removeItem(this._image.id || this._image.src);
         this._image.src = "";
+    },
+
+    _checkImageBitmap (cb) {
+        let image = this._image;
+        let flipY = this._flipY;
+        let premultiplyAlpha = this._premultiplyAlpha;
+        if (this._flipY !== image.flipY || this._premultiplyAlpha !== image.premultiplyAlpha) {
+            createImageBitmap(image, {
+                imageOrientation: flipY !== image.flipY ? 'flipY' : 'none',
+                premultiplyAlpha: premultiplyAlpha ? 'premultiply' : 'none'}
+                ).then((result) => {
+                    image.close && image.close();
+                    result.flipY = flipY;
+                    result.premultiplyAlpha = premultiplyAlpha;
+                    this._image = result;
+                    cb();
+                }, (err) => {
+                    cc.error(err.message);
+                });
+        }
+        else {
+            cb();
+        }
     }
 });
 

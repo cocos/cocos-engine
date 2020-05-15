@@ -53,7 +53,7 @@ let temp_uvs = [{u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}];
  * // load a cc.SpriteFrame with image path (Recommend)
  * var self = this;
  * var url = "test assets/PurpleMonster";
- * cc.loader.loadRes(url, cc.SpriteFrame, function (err, spriteFrame) {
+ * cc.resources.load(url, cc.SpriteFrame, null, function (err, spriteFrame) {
  *  var node = new cc.Node("New Sprite");
  *  var sprite = node.addComponent(cc.Sprite);
  *  sprite.spriteFrame = spriteFrame;
@@ -78,20 +78,9 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                     if (this._texture !== texture) {
                         this._refreshTexture(texture);
                     }
-                    this._textureFilename = texture.url;
                 }
             }
         },
-
-        // _textureFilename: {
-        //     get () {
-        //         return (this._texture && this._texture.url) || "";
-        //     },
-        //     set (url) {
-        //         let texture = cc.textureCache.addImage(url);
-        //         this._refreshTexture(texture);
-        //     }
-        // },
 
         /**
          * !#en Top border of the sprite
@@ -170,6 +159,12 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         },
     },
 
+    statics: {
+        _parseDepsFromJson (json) {
+            return [cc.assetManager.utils.decodeUuid(json.content.texture)];
+        }
+    },
+
     /**
      * !#en
      * Constructor of SpriteFrame class.
@@ -217,8 +212,6 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this._capInsets = [0, 0, 0, 0];
 
         this.uvSliced = [];
-
-        this._textureFilename = '';
 
         if (CC_EDITOR) {
             // Atlas asset uuid
@@ -453,21 +446,21 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {SpriteFrame}
      */
     clone: function () {
-        return new SpriteFrame(this._texture || this._textureFilename, this._rect, this._rotated, this._offset, this._originalSize);
+        return new SpriteFrame(this._texture, this._rect, this._rotated, this._offset, this._originalSize);
     },
 
     /**
      * !#en Set SpriteFrame with Texture, rect, rotated, offset and originalSize.<br/>
      * !#zh 通过 Texture，rect，rotated，offset 和 originalSize 设置 SpriteFrame。
      * @method setTexture
-     * @param {String|Texture2D} textureOrTextureFile
+     * @param {Texture2D} texture
      * @param {Rect} [rect=null]
      * @param {Boolean} [rotated=false]
      * @param {Vec2} [offset=cc.v2(0,0)]
      * @param {Size} [originalSize=rect.size]
      * @return {Boolean}
      */
-    setTexture: function (textureOrTextureFile, rect, rotated, offset, originalSize) {
+    setTexture: function (texture, rect, rotated, offset, originalSize) {
         if (rect) {
             this._rect = rect;
         }
@@ -491,24 +484,15 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
         this._rotated = rotated || false;
 
-        // loading texture
-        let texture = textureOrTextureFile;
-        if (typeof texture === 'string' && texture) {
-            this._textureFilename = texture;
-            this._loadTexture();
+        if (typeof texture === 'string') {
+            cc.errorID(3401);
+            return;
         }
         if (texture instanceof cc.Texture2D && this._texture !== texture) {
             this._refreshTexture(texture);
         }
 
         return true;
-    },
-
-    _loadTexture: function () {
-        if (this._textureFilename) {
-            let texture = textureUtil.loadImage(this._textureFilename);
-            this._refreshTexture(texture);
-        }
     },
 
     /**
@@ -534,12 +518,8 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             if (!this._texture.loaded) {
                 // load exists texture
                 this._refreshTexture(this._texture);
-                textureUtil.postLoadTexture(this._texture);
+                cc.assetManager.postLoadNative(this._texture);
             }
-        }
-        else if (this._textureFilename) {
-            // load new texture
-            this._loadTexture();
         }
     },
 
@@ -564,10 +544,10 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             maxY += rect.height;
         }
         if (maxX > texture.width) {
-            cc.errorID(3300, texture.url + '/' + this.name, maxX, texture.width);
+            cc.errorID(3300, texture.nativeUrl + '/' + this.name, maxX, texture.width);
         }
         if (maxY > texture.height) {
-            cc.errorID(3400, texture.url + '/' + this.name, maxY, texture.height);
+            cc.errorID(3400, texture.nativeUrl + '/' + this.name, maxY, texture.height);
         }
     },
 

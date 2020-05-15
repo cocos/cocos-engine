@@ -44,8 +44,12 @@
     
     "./cocos2d/core/geom-utils/**/*",
 
-    "./cocos2d/core/load-pipeline/**/*",
-    "!./cocos2d/core/load-pipeline/asset-table.js",
+    "./cocos2d/core/asset-manager/**/*",
+    "!./cocos2d/core/asset-manager/fetch.js",
+    "!./cocos2d/core/asset-manager/load.js",
+    "!./cocos2d/core/asset-manager/preprocess.js",
+    "!./cocos2d/core/asset-manager/urlTransformer.js",
+    "!./cocos2d/core/asset-manager/utilities.js",
 
     "./cocos2d/core/physics/**/*",
     

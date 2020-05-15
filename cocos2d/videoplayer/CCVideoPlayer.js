@@ -339,10 +339,7 @@ let VideoPlayer = cc.Class({
             url = this.remoteURL;
         }
         else if (this._clip) {
-            url = this._clip.nativeUrl || '';
-        }
-        if (url && cc.loader.md5Pipe) {
-            url = cc.loader.md5Pipe.transformURL(url);
+            url = this._clip.nativeUrl;
         }
         this._impl.setURL(url, this._mute || this._volume === 0);
         this._impl.setKeepAspectRatioEnabled(this.keepAspectRatio);
