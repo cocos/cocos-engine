@@ -3,10 +3,7 @@
  */
 
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { EventTarget } from '../../../../core/event';
-import { CallbacksInvoker, ICallbackTable } from '../../../../core/event/callbacks-invoker';
-import { applyMixins, IEventTarget } from '../../../../core/event/event-target-factory';
-import { createMap } from '../../../../core/utils/js';
+import { Eventful } from '../../../../core/event';
 import { Vec3 } from '../../../../core/math';
 import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../physics-interface';
 import { RigidBodyComponent } from '../rigid-body-component';
@@ -23,15 +20,7 @@ import { EDITOR, PHYSICS_BUILTIN } from 'internal:constants';
  * 碰撞器的基类。
  */
 @ccclass('cc.ColliderComponent')
-export class ColliderComponent extends Component implements IEventTarget {
-
-    /**
-     * @en
-     * Stores a list of callbacks to the registration event, not directly modified.
-     * @zh
-     * 存储注册事件的回调列表，请不要直接修改。
-     */
-    public _callbackTable: ICallbackTable = createMap(true);
+export class ColliderComponent extends Eventful(Component) {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -187,60 +176,6 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     constructor () { super() }
 
-    /// EVENT INTERFACE ///
-
-    /**
-     * @zh
-     * 注册触发事件或碰撞事件相关的回调。
-     * @param type - 触发或碰撞事件的类型，可为 'onTriggerEnter'，'onTriggerStay'，'onTriggerExit' 或 'onCollisionEnter'，'onCollisionStay'，'onCollisionExit';
-     * @param callback - 注册的回调函数
-     * @param target - 可选参数，执行回调函数的目标
-     * @param useCapture - 可选参数，当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
-     */
-    public on (type: TriggerEventType | CollisionEventType, callback: TriggerCallback | CollisionCallback, target?: Object, useCapture?: any): any {
-    }
-
-    /**
-     * @zh
-     * 取消已经注册的触发事件或碰撞事件相关的回调。
-     * @param type - 触发或碰撞事件的类型，可为 'onTriggerEnter'，'onTriggerStay'，'onTriggerExit' 或 'onCollisionEnter'，'onCollisionStay'，'onCollisionExit';
-     * @param callback - 注册的回调函数
-     * @param target - 可选参数，执行回调函数的目标
-     * @param useCapture - 可选参数，当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
-     */
-    public off (type: TriggerEventType | CollisionEventType, callback: TriggerCallback | CollisionCallback, target?: Object, useCapture?: any) {
-    }
-
-    /**
-     * @zh
-     * 注册触发事件或碰撞事件相关的回调，但只会执行一次。
-     * @param type - 触发或碰撞事件的类型，可为 'onTriggerEnter'，'onTriggerStay'，'onTriggerExit' 或 'onCollisionEnter'，'onCollisionStay'，'onCollisionExit';
-     * @param callback - 注册的回调函数
-     * @param target - 可选参数，执行回调函数的目标
-     * @param useCapture - 可选参数，当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
-     */
-    public once (type: TriggerEventType | CollisionEventType, callback: TriggerCallback | CollisionCallback, target?: Object, useCapture?: any): any {
-    }
-
-    /**
-     * IEventTarget implementations, they will be overwrote with the same implementation in EventTarget by applyMixins
-     */
-    public targetOff (keyOrTarget?: TriggerEventType | CollisionEventType | Object): void {
-    }
-
-    public dispatchEvent (event: Event): void {
-    }
-
-    public hasEventListener (key: TriggerEventType | CollisionEventType, callback?: TriggerCallback | CollisionCallback, target?: Object): boolean {
-        return false;
-    }
-
-    public removeAll (keyOrTarget?: TriggerEventType | CollisionEventType | Object): void {
-    }
-
-    public emit (key: TriggerEventType | CollisionEventType, ...args: any[]): void {
-    }
-
     /// GROUP MASK ///
 
     /**
@@ -374,5 +309,3 @@ export class ColliderComponent extends Component implements IEventTarget {
     }
 
 }
-
-applyMixins(ColliderComponent, [CallbacksInvoker, EventTarget]);

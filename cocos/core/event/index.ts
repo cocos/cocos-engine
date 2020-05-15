@@ -30,3 +30,4 @@
 
 export { default as Event } from './event';
 export { EventTarget } from './event-target';
+export { Eventful as Eventful } from './eventful';
