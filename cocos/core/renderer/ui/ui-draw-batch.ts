@@ -65,7 +65,7 @@ export class UIDrawBatch {
     }
 
     get bufferBatch () {
-        return this._bufferBatch!;
+        return this._bufferBatch;
     }
 
     set bufferBatch(meshBuffer : MeshBuffer | null) {
