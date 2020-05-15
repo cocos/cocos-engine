@@ -794,7 +794,6 @@ export function GFXFormatSurfaceSize (
         size += GFXFormatSize(format, width, height, depth);
         width = Math.max(width >> 1, 1);
         height = Math.max(height >> 1, 1);
-        depth = Math.max(depth >> 1, 1);
     }
 
     return size;
