@@ -20,7 +20,11 @@ if(USE_SE_JSC AND APPLE)
     set(USE_V8_DEBUGGER OFF)
 endif()
 
-set(TARGET_IOS_VERSION "8.0")
+if(CMAKE_OSX_SYSROOT STREQUAL "iphonesimulator")
+    set(TARGET_IOS_VERSION "9.0")
+else()
+    set(TARGET_IOS_VERSION "8.0")
+endif()
 
 set(cocosdir "${COCOS_X_ROOT}")
 if(NOT cocosdir)
@@ -123,7 +127,10 @@ elseif(IOS)
         proj.ios_mac/ios/ViewController.h
         ${UI_RESOURCES}
     )
-
+elseif(ANDROID)
+    list(APPEND PROJ_SOURCES
+        proj.android-studio/app/jni/hellojavascript/main.cpp
+    )
 endif()
 
 set(asset_files)
@@ -152,6 +159,7 @@ endforeach()
 
 if(ANDROID)
     add_library(${LIB_NAME} SHARED ${PROJ_SOURCES} ${PROJ_EXTRA_SOURCE})
+    set_property(TARGET ${LIB_NAME} APPEND_STRING PROPERTY LINK_FLAGS "-u ANativeActivity_onCreate")
 elseif(APPLE OR MSVC)
     add_executable(${LIB_NAME} ${PROJ_SOURCES} ${asset_files} ${PROJ_EXTRA_SOURCE})
     source_group(TREE ${GAME_RES_ROOT} PREFIX "Resources" FILES ${asset_files})
@@ -184,6 +192,7 @@ if(APPLE)
     elseif(IOS)
         set(EXECUTABLE_NAME ${LIB_NAME}) # referenced in Info.plist
         set(PRODUCT_NAME ${APP_NAME})
+        set(MACOSX_BUNDLE_GUI_IDENTIFIER org.cocos2dx.test-cases-3d)
         target_include_directories(${LIB_NAME} PRIVATE proj.ios_mac/ios/service )
         set_target_properties(${LIB_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/proj.ios_mac/ios/Info.plist")
         set_property(TARGET ${LIB_NAME} PROPERTY XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "")
@@ -197,18 +206,18 @@ if(APPLE)
 
 elseif(WINDOWS)
     
-    if(EXISTS ../../../jsb-adapter)
+    if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/../../jsb-adapter)
         add_custom_command(TARGET ${LIB_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory ../../../jsb-adapter $<TARGET_FILE_DIR:${LIB_NAME}>/jsb-adapter
-            COMMAND ${CMAKE_COMMAND} -E copy_directory ../../../res $<TARGET_FILE_DIR:${LIB_NAME}>/res
-            COMMAND ${CMAKE_COMMAND} -E copy_directory ../../../src $<TARGET_FILE_DIR:${LIB_NAME}>/src
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ../../../main.js $<TARGET_FILE_DIR:${LIB_NAME}>/main.js
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ../../../project.json $<TARGET_FILE_DIR:${LIB_NAME}>/project.json
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/../../jsb-adapter $<TARGET_FILE_DIR:${LIB_NAME}>/jsb-adapter
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/../../res $<TARGET_FILE_DIR:${LIB_NAME}>/res
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/../../src $<TARGET_FILE_DIR:${LIB_NAME}>/src
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/../../main.js $<TARGET_FILE_DIR:${LIB_NAME}>/main.js
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/../../project.json $<TARGET_FILE_DIR:${LIB_NAME}>/project.json
         )
     endif()
     
     target_include_directories(${LIB_NAME} PRIVATE 
-        proj.win32
+        ${CMAKE_CURRENT_LIST_DIR}/proj.win32
     )
 
     if(MSVC) 

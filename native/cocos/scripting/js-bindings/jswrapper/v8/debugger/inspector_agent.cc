@@ -666,13 +666,13 @@ bool Agent::StartIoThread(bool wait_for_connect) {
   HandleScope handle_scope(isolate);
   Local<Object> process_object = parent_env_->process_object();
   Local<Value> emit_fn =
-      process_object->Get(FIXED_ONE_BYTE_STRING(isolate, "emit"));
+    process_object->Get(parent_env_->context(), FIXED_ONE_BYTE_STRING(isolate, "emit")).ToLocalChecked();
   // In case the thread started early during the startup
   if (!emit_fn->IsFunction())
     return true;
 
   Local<Object> message = Object::New(isolate);
-  message->Set(FIXED_ONE_BYTE_STRING(isolate, "cmd"),
+    message->Set(parent_env_->context(), FIXED_ONE_BYTE_STRING(isolate, "cmd"),
                FIXED_ONE_BYTE_STRING(isolate, "NODE_DEBUG_ENABLED"));
   Local<Value> argv[] = {
     FIXED_ONE_BYTE_STRING(isolate, "internalMessage"),

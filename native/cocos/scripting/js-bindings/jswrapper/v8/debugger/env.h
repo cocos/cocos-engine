@@ -525,7 +525,7 @@ inline void Environment::SetMethod(v8::Local<v8::Object> that,
     const v8::NewStringType type = v8::NewStringType::kInternalized;
     v8::Local<v8::String> name_string =
     v8::String::NewFromUtf8(isolate(), name, type).ToLocalChecked();
-    that->Set(name_string, function);
+    that->Set(isolate()->GetCurrentContext(), name_string, function);
     function->SetName(name_string);  // NODE_SET_METHOD() compatibility.
 }
 
