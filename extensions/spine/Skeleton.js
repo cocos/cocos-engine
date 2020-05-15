@@ -461,9 +461,9 @@ sp.Skeleton = cc.Class({
 
             baseMaterial.setBlend(
                 true,
-                gfx.BLEND_FUNC_ADD,
+                cc.gfx.BLEND_FUNC_ADD,
                 srcBlendFactor, srcBlendFactor,
-                gfx.BLEND_FUNC_ADD,
+                cc.gfx.BLEND_FUNC_ADD,
                 dstBlendFactor, dstBlendFactor
             );
         }
