@@ -192,9 +192,9 @@ export class SpriteFrame extends Asset {
      * @param imageSourceOrImageAsset ImageAsset or ImageSource, ImageSource support HTMLCanvasElement HTMLImageElement IMemoryImageSource
      */
     public static createWithImage (imageSourceOrImageAsset: ImageSource | ImageAsset) {
-        const imageAsset = imageSourceOrImageAsset instanceof ImageAsset ? imageSourceOrImageAsset : new ImageAsset(imageSourceOrImageAsset);
+        const img = imageSourceOrImageAsset instanceof ImageAsset ? imageSourceOrImageAsset : new ImageAsset(imageSourceOrImageAsset);
         const tex = new Texture2D();
-        tex.image = imageAsset;
+        tex.image = img;
         const spf = new SpriteFrame();
         spf.texture = tex;
         return spf;
