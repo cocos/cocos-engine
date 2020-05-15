@@ -590,7 +590,8 @@ let Animation = cc.Class({
      * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
      * @typescript
      * on(type: string, callback: (event: Event.EventCustom) => void, target?: any, useCapture?: boolean): (event: Event.EventCustom) => void
-     * on<T>(type: string, callback: (type: string, state: cc.AnimationState) => void, target?: any, useCapture?: boolean): (event: T) => void
+     * on<T>(type: string, callback: (event: T) => void, target?: any, useCapture?: boolean): (event: T) => void
+     * on(type: string, callback: (type: string, state: cc.AnimationState) => void, target?: any, useCapture?: boolean): (type: string, state: cc.AnimationState) => void
      * @example
      * onPlay: function (type, state) {
      *     // callback
