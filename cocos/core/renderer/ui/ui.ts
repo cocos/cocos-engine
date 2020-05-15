@@ -336,7 +336,7 @@ export class UI {
                     bindingLayout.bindSampler(UniformBinding.CUSTOM_SAMPLER_BINDING_START_POINT, batch.sampler!);
                     bindingLayout.update();
 
-                    const ia = batch.bufferBatch!.ia!;
+                    const ia = batch.ia!;
                     ia.firstIndex = batch.firstIdx;
                     ia.indexCount = batch.idxCount;
 
