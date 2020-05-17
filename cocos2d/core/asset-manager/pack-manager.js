@@ -22,6 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
+import { packCustomObjData } from '../platform/deserialize-compiled';
+
 const downloader = require('./downloader');
 const Cache = require('./cache');
 const js = require('../platform/js');
@@ -79,23 +82,23 @@ var packManager = {
                 out[key] = json[i];
             }
         }
-        else if (json.type === js._getClassId(cc.Texture2D)) {
-            if (json.data) {
-                var datas = json.data.split('|');
-                if (datas.length !== pack.length) {
-                    cc.errorID(4915);
-                }
-                for (let i = 0; i < pack.length; i++) {
-                    out[pack[i] + '@import'] = {
-                        __type__: json.type,
-                        content: datas[i]
-                    };
+        else {
+            const textureType = js._getClassId(cc.Texture2D);
+            if (json.type === textureType) {
+                if (json.data) {
+                    var datas = json.data.split('|');
+                    if (datas.length !== pack.length) {
+                        cc.errorID(4915);
+                    }
+                    for (let i = 0; i < pack.length; i++) {
+                        out[pack[i] + '@import'] = packCustomObjData(textureType, datas[i]);
+                    }
                 }
             }
-        }
-        else {
-            err = new Error('unmatched type pack!');
-            out = null;
+            else {
+                err = new Error('unmatched type pack!');
+                out = null;
+            }
         }
         onComplete && onComplete(err, out);
     },

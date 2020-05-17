@@ -3,6 +3,11 @@
 const Path = require('path');
 allowReturnOutsideFunctionInBrowserifyTransform();
 const Fs = require('fs');
+const Del = require('del');
+
+const dropPureExport = require('./drop-pure-export');
+const inlineProp = require('./inline-prop');
+const polyfillPromisify = require('./polyfill-node-promisify');
 
 const preludePath = Path.resolve(__dirname, '../browserify_prelude.js');
 const prelude = Fs.readFileSync(preludePath, 'utf8');
@@ -56,13 +61,18 @@ function allowReturnOutsideFunctionInBrowserifyTransform () {
  * @param [options.aliasifyConfig]
  */
 module.exports = function createBundler(entryFiles, options) {
+
+    // Ignore IDE compiled JavaScript files
+    Del.sync('./cocos2d/core/platform/deserialize-compiled.js');
+    Del.sync('./cocos2d/core/value-types/*.js');
+
     // https://github.com/substack/node-browserify#methods
     var browserifyOpt = {
         extensions: ['.js', '.json', '.ts'],
         entries: [].concat(entryFiles),
         debug: (options && 'sourcemaps' in options) ? options.sourcemaps : true,
         detectGlobals: false,    // dont insert `process`, `global`, `__filename`, and `__dirname`
-        bundleExternal: false,   // dont bundle external modules
+        bundleExternal: !!(options && options.bundleExternal) || false,   // dont bundle external modules
         //standalone: 'engine-framework',
         //basedir: tempScriptDir
 
@@ -76,6 +86,7 @@ module.exports = function createBundler(entryFiles, options) {
             require('@babel/preset-env'),
             {
                 "loose": true,
+                "bugfixes": true,
             }
         ],
         require('@babel/preset-typescript'),
@@ -84,7 +95,10 @@ module.exports = function createBundler(entryFiles, options) {
     var plugins = [
     //     // < 6.16.0
     //     [ 'babel-plugin-parser-opts', { allowReturnOutsideFunction: true } ]
-        // make sure that transform-decorators-legacy comes before transform-class-properties.
+        [
+            require('babel-plugin-const-enum'),
+            { transform: "constObject" },
+        ],
         [
             require('@babel/plugin-proposal-decorators'),
             { legacy: true },
@@ -128,23 +142,32 @@ module.exports = function createBundler(entryFiles, options) {
         b = new Browserify(browserifyOpt);
     }
 
+    b = b.exclude(Path.join(__dirname, '../../package.json'));
+
+    if (browserifyOpt.bundleExternal) {
+        b = b.transform(polyfillPromisify);
+    }
+
     return b
-        .exclude(Path.join(__dirname, '../../package.json'))
+        .transform(dropPureExport)
+        .transform(inlineProp.inlineConst)
         .transform(Babelify, (options && options.babelifyOpt) || {
-            extensions: ['.js', '.ts'],
-            presets: presets,
-            plugins: plugins,
+            extensions: ['.ts', '.js'],
+            presets: (options && options.presets) || presets,
+            plugins: (options && options.plugins && options.plugins.concat(plugins)) || plugins,
 
             // >= 6.16.0
             // parserOpts: {
             //     allowReturnOutsideFunction: true,
             // },
 
+            comments: true,
             ast: false,
             babelrc: false,
             highlightCode: false,
             sourceMaps: true,
             compact: false
         })
+        .transform(inlineProp.inlineEnum)
         .transform(aliasify, (options && options.aliasifyConfig) || {});
 };

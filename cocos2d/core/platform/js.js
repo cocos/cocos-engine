@@ -643,8 +643,10 @@ js.formatStr = function () {
         for (let i = 1; i < argLen; ++i) {
             var arg = arguments[i];
             var regExpToTest = typeof arg === 'number' ? REGEXP_NUM_OR_STR : REGEXP_STR;
-            if (regExpToTest.test(msg))
-                msg = msg.replace(regExpToTest, arg);
+            if (regExpToTest.test(msg)) {
+                const notReplaceFunction = '' + arg;
+                msg = msg.replace(regExpToTest, notReplaceFunction);
+            }
             else
                 msg += ' ' + arg;
         }

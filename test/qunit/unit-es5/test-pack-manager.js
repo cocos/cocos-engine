@@ -32,7 +32,7 @@
 
         cc.assetManager.downloader.download = function (id, url, type, options, onComplete) {
             onComplete(null, PACKS[url]);
-        }
+        };
 
         packManager.load({ id: "f10d21ed@import" , info: { packs: [{ uuid: "01532d877", packs: ["9b0754b9",
         "f10d21ed"], ext: '.json'}] }, config: {}}, null, function (err, data) {
@@ -59,7 +59,7 @@
     
             cc.assetManager.downloader.download = function (id, url, type, options, onComplete) {
                 onComplete(null, PACKS[url]);
-            }
+            };
             //
             packManager.load(firstToLoad, null, function (err, data) {
                 var result = cc.assetManager._files.remove('A@import');

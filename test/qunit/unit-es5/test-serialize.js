@@ -283,6 +283,16 @@
         cc.js.unregisterClass(Vec3);
     });
 
+    test('Root is TypedArray', function () {
+        var trs = new Float64Array(10);
+        var expect = {
+            __type__: 'TypedArray',
+            ctor: 'Float64Array',
+            array: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        };
+        match(trs, expect);
+    });
+
     test('test asset property', function () {
         var sprite = new TestSprite();
         sprite.texture = new TestTexture();

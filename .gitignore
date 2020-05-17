@@ -12,3 +12,5 @@ node_modules
 /.project
 npm-debug.log
 DebugInfos.json
+cocos2d/core/platform/deserialize-compiled.js
+cocos2d/core/value-types/*.js
