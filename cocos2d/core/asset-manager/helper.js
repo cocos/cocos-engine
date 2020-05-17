@@ -119,29 +119,6 @@ var helper = {
 
     /**
      * !#en
-     * Check if the type of data is cc.Scene or cc.Prefab
-     * 
-     * !#zh
-     * 检测数据的类型是否是 Scene 或者 Prefab
-     * 
-     * @method isSceneObj
-     * @param {Object} json - serialized data
-     * @returns {boolean} - whether or not the type is cc.Scene or cc.Prefab
-     * 
-     * @typescript
-     * isSceneObj(json: any): boolean
-     */
-    isSceneObj: function (json) {
-        var SCENE_ID = 'cc.Scene', PREFAB_ID = 'cc.Prefab';
-        return json && (
-                   (json[0] && json[0].__type__ === SCENE_ID) ||
-                   (json[1] && json[1].__type__ === SCENE_ID) ||
-                   (json[0] && json[0].__type__ === PREFAB_ID)
-               );
-    },
-
-    /**
-     * !#en
      * Check if the type of asset is scene
      * 
      * !#zh

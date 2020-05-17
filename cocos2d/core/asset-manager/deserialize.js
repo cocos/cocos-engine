@@ -30,33 +30,21 @@ require('../platform/deserialize');
 
 function deserialize (json, options) {
     if (!json) throw new Error('empty json');
+
     var classFinder, missingClass;
-    var isScene = helper.isSceneObj(json);
-    if (isScene) {
-        if (CC_EDITOR) {
-            missingClass = MissingClass;
-            classFinder = function (type, data, owner, propName) {
-                var res = missingClass.classFinder(type, data, owner, propName);
-                if (res) {
-                    return res;
-                }
-                return cc._MissingScript;
-            };
-            classFinder.onDereferenced = missingClass.classFinder.onDereferenced;
-        }
-        else {
-            classFinder = cc._MissingScript.safeFindClass;
-        }
+    if (CC_EDITOR) {
+        missingClass = MissingClass;
+        classFinder = function (type, data, owner, propName) {
+            var res = missingClass.classFinder(type, data, owner, propName);
+            if (res) {
+                return res;
+            }
+            return cc._MissingScript;
+        };
+        classFinder.onDereferenced = missingClass.classFinder.onDereferenced;
     }
     else {
-        classFinder = function (id) {
-            var cls = js._getClassById(id);
-            if (cls) {
-                return cls;
-            }
-            cc.warnID(4903, id);
-            return Object;
-        };
+        classFinder = cc._MissingScript.safeFindClass;
     }
 
     var tdInfo = cc.deserialize.Details.pool.get();

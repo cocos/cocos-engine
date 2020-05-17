@@ -499,7 +499,7 @@ var downloader = {
                 for (let i = 0, l = callbacks.length; i < l; i++) {
                     callbacks[i](err, result);
                 }
-            };
+            }
     
             retry(process, maxRetryCount, this.retryInterval, finale);
         }

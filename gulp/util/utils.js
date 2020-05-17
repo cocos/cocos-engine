@@ -91,8 +91,11 @@ exports.getUglifyOptions = function (platform, flags) {
                 unsafe_math: true,
                 unsafe_methods: true,
             },
+            // mangle: false,
             output: {
                 // http://lisperator.net/uglifyjs/codegen
+                // beautify: true,
+                // indent_level: 2,
                 ascii_only: true,
             },
         };

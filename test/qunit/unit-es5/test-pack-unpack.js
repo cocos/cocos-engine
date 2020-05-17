@@ -3,7 +3,7 @@
     module('JSON packer/unpacker');
 
     test('unpack from empty package', function () {
-        cc.assetManager.packManager.unpack([], [], '.json', null, function (err, data) {
+        cc.assetManager.packManager.unpack([], [1,0,0,[],0,[]], '.json', null, function (err, data) {
             var res = data['non-exists key'];
             ok(!res, 'chould not unpack if key is invalid');
         });
@@ -21,19 +21,20 @@
     });
 
     var KEY1 = 'amitabha';
-    var JSON1 = {
+    var JSON1 = Editor.serializeCompiled({
         __born__: 1985,
         $$: 'Amoy'
-    };
+    }, { stringify: false });
+
     var KEY2 = 'hallelujah';
-    var JSON2 = [{
+    var JSON2 = Editor.serializeCompiled([{
         text: 'hallelujah\nalujah\\alujah...\uD83D\uDE02'
-    }];
+    }], { stringify: false });
 
     test('pack and unpack something', function () {
         var packer = new Editor.JsonPacker();
-        packer.add(KEY2, JSON2);
-        packer.add(KEY1, JSON1);
+        packer.add(KEY2, JSON.parse(JSON.stringify(JSON2)));
+        packer.add(KEY1, JSON.parse(JSON.stringify(JSON1)));
         var res = packer.pack();
 
         ok(res.indices.indexOf(KEY1) !== -1 && res.indices.indexOf(KEY2) !== -1, 'should generate index data when packing');

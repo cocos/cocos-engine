@@ -444,16 +444,24 @@ export interface IFileData extends Array<any> {
     [File.DependUuidIndices]: (StringIndex|string)[];
 }
 
+// type Body = Pick<IFileData, File.Instances | File.InstanceTypes | File.Refs | File.DependObjs | File.DependKeys | File.DependUuidIndices>
+type Shared = Pick<IFileData, File.Version | File.SharedUuids | File.SharedStrings | File.SharedClasses | File.SharedMasks>
+const PACKED_SECTIONS = File.Instances;
+export interface IPackedFileData extends Shared {
+    [PACKED_SECTIONS]: IFileData[];
+}
+
 interface ICustomHandler {
     result: Details,
     customEnv: any,
 }
+type ClassFinder = {
+    (type: string): AnyCtor;
+    // // for editor
+    // onDereferenced: (curOwner: object, curPropName: string, newOwner: object, newPropName: string) => void;
+};
 interface IOptions extends Partial<ICustomHandler> {
-    classFinder?: {
-        (type: string): AnyCtor;
-        // // for editor
-        // onDereferenced: (curOwner: object, curPropName: string, newOwner: object, newPropName: string) => void;
-    };
+    classFinder?: ClassFinder;
     _version?: number;
 }
 interface ICustomClass {
@@ -749,12 +757,16 @@ function parseInstances (data: IFileData): RootInstanceIndex {
         let type = instanceTypes[typeIndex] as OtherObjectTypeID;
         let eachData = instances[insIndex];
         if (type >= 0) {
+
             // class index for DataTypeID.CustomizedClass
-            let ctor = classes[type] as CCClass<ICustomClass>;
+
+            let ctor = classes[type] as CCClass<ICustomClass>;  // class
             instances[insIndex] = deserializeCustomCCObject(data, ctor, eachData as ICustomObjectDataContent);
         }
         else {
+
             // Other
+
             type = (~type) as PrimitiveObjectTypeID;
             let op = ASSIGNMENTS[type];
             // @ts-ignore
@@ -784,8 +796,38 @@ function parseInstances (data: IFileData): RootInstanceIndex {
 //     }
 // }
 
-function lookupClasses (data: IFileData, options: IOptions) {
-    let customFinder = options.classFinder;
+function getMissingClass (hasCustomFinder, type) {
+    if (!hasCustomFinder) {
+        // @ts-ignore
+        deserialize.reportMissingClass(type);
+    }
+    return Object;
+}
+function doLookupClass(classFinder, type: string, container: any[], index: number, silent: boolean, hasCustomFinder) {
+    let klass = classFinder(type);
+    if (!klass) {
+        // if (klass.__FSA__) {
+        //     deserializeAs(klass, klassLayout as IClass);
+        // }
+        if (silent) {
+            // generate a lazy proxy for ctor
+            container[index] = (function (container, index, type) {
+                return function proxy () {
+                    let klass = classFinder(type) || getMissingClass(hasCustomFinder, type);
+                    container[index] = klass;
+                    return new klass();
+                };
+            })(container, index, type);
+            return;
+        }
+        else {
+            klass = getMissingClass(hasCustomFinder, type);
+        }
+    }
+    container[index] = klass;
+}
+
+function lookupClasses (data: IPackedFileData, silent: boolean, customFinder?: ClassFinder) {
     let classFinder = customFinder || js._getClassById;
     let classes = data[File.SharedClasses];
     for (let i = 0; i < classes.length; ++i) {
@@ -796,34 +838,16 @@ function lookupClasses (data: IFileData, options: IOptions) {
                     throw new Error('Can not deserialize the same JSON data again.');
                 }
             }
-            let klass = classFinder(klassLayout[CLASS_TYPE]);
-            if (!klass) {
-                // if (klass.__FSA__) {
-                //     deserializeAs(klass, klassLayout as IClass);
-                // }
-                if (!customFinder) {
-                    // @ts-ignore
-                    deserialize.reportMissingClass(klassLayout[CLASS_TYPE]);
-                }
-                klass = Object;
-            }
-            klassLayout[CLASS_TYPE] = klass;
+            let type: string = klassLayout[CLASS_TYPE];
+            doLookupClass(classFinder, type, klassLayout as IClass, CLASS_TYPE, silent, customFinder);
         }
         else {
-            let klass = classFinder(klassLayout);
-            if (!klass) {
-                if (!customFinder) {
-                    // @ts-ignore
-                    deserialize.reportMissingClass(klassLayout);
-                }
-                klass = Object;
-            }
-            classes[i] = klass;
+            doLookupClass(classFinder, klassLayout, classes, i, silent, customFinder);
         }
     }
 }
 
-function cacheMasks (data: IFileData) {
+function cacheMasks (data: IPackedFileData) {
     let masks = data[File.SharedMasks];
     if (masks) {
         let classes = data[File.SharedClasses];
@@ -884,23 +908,28 @@ export default function deserialize (data: IFileData, details: Details, options?
     if (typeof data === 'string') {
         data = JSON.parse(data);
     }
-
     let borrowDetails = !details;
     details = details || Details.pool.get();
     details.init(data);
+    options = options || {};
+
     let version = data[File.Version];
+    let preprocessed = false;
+    if (typeof version === 'object') {
+        preprocessed = true;
+        version = version.version;
+    }
     if (version < SUPPORT_LOWEST_FORMAT_VERSION) {
         throw new Error(cc.debug.getError(5304, version));
     }
-
-    options = options || {};
     options._version = version;
     options.result = details;
-
     data[File.Context] = options;
 
-    lookupClasses(data, options);
-    cacheMasks(data);
+    if (!preprocessed) {
+        lookupClasses(data, false, options.classFinder);
+        cacheMasks(data);
+    }
 
     cc.game._isCloning = true;
     let instances = data[File.Instances];
@@ -922,6 +951,31 @@ export default function deserialize (data: IFileData, details: Details, options?
 
 deserialize.Details = Details;
 
+export function unpackJSONs (data: IPackedFileData, classFinder?: ClassFinder): IFileData[] {
+    if (data[File.Version] < SUPPORT_LOWEST_FORMAT_VERSION) {
+        throw new Error(cc.debug.getError(5304, data[File.Version]));
+    }
+    lookupClasses(data, true, classFinder);
+    cacheMasks(data);
+
+    let version = { version: data[File.Version] };  // use an object to marked as preprocessed
+    let sharedUuids = data[File.SharedUuids];
+    let sharedStrings = data[File.SharedStrings];
+    let sharedClasses = data[File.SharedClasses];
+    let sharedMasks = data[File.SharedMasks];
+
+    let sections = data[PACKED_SECTIONS];
+    for (let i = 0; i < sections.length; ++i) {
+        let section = sections[i];
+        section[File.Version] = version;
+        section[File.SharedUuids] = sharedUuids;
+        section[File.SharedStrings] = sharedStrings;
+        section[File.SharedClasses] = sharedClasses;
+        section[File.SharedMasks] = sharedMasks;
+    }
+    return sections;
+}
+
 export function packCustomObjData (type: string, data: IClassObjectData|OtherObjectData): IFileData {
     return [
         SUPPORT_LOWEST_FORMAT_VERSION, EMPTY_PLACEHOLDER, EMPTY_PLACEHOLDER,
@@ -939,10 +993,14 @@ if (CC_EDITOR || CC_TEST) {
         EMPTY_PLACEHOLDER,
         CUSTOM_OBJ_DATA_CLASS,
         CUSTOM_OBJ_DATA_CONTENT,
+        CLASS_TYPE,
+        CLASS_KEYS,
         CLASS_PROP_TYPE_OFFSET,
         MASK_CLASS,
         OBJ_DATA_MASK,
         DICT_JSON_LAYOUT,
+        ARRAY_ITEM_VALUES,
+        PACKED_SECTIONS,
     };
     deserialize._BuiltinValueTypes = BuiltinValueTypes;
     deserialize._serializeBuiltinValueTypes = serializeBuiltinValueTypes;
@@ -988,5 +1046,6 @@ if (CC_TEST) {
             // TypedArray: DataTypeID.TypedArray,
         },
         BuiltinValueTypes,
+        unpackJSONs,
     };
 }
