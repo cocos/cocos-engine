@@ -29,7 +29,7 @@
 
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
-import { GFXInputAssembler, IGFXAttribute } from '../../gfx/input-assembler';
+import { IGFXAttribute } from '../../gfx/input-assembler';
 import { UI } from './ui';
 
 export class MeshBuffer {
@@ -40,7 +40,7 @@ export class MeshBuffer {
     public iData: Uint16Array | null = null;
     public vb: GFXBuffer | null = null;
     public ib: GFXBuffer | null = null;
-    public ia: GFXInputAssembler | null = null;
+    public attributes: IGFXAttribute[] | null = null;
 
     public byteStart = 0;
     public byteOffset = 0;
@@ -84,11 +84,7 @@ export class MeshBuffer {
             stride: ibStride,
         });
 
-        this.ia = this.ia || this.batcher.device.createInputAssembler({
-            attributes: attrs,
-            vertexBuffers: [this.vb],
-            indexBuffer: this.ib,
-        });
+        this.attributes = attrs;
 
         this._reallocBuffer();
     }
@@ -144,10 +140,9 @@ export class MeshBuffer {
     public destroy () {
         this.ib!.destroy();
         this.vb!.destroy();
-        this.ia!.destroy();
         this.ib = null;
         this.vb = null;
-        this.ia = null;
+        this.attributes = null;
     }
 
     public uploadData () {
