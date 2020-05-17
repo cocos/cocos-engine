@@ -375,7 +375,7 @@ test('dereference', function () {
 test('deserializeCustomCCObject', function () {
     let { File, DataTypeID, parseInstances, deserialize: deserializeCompiled, cacheMasks } = cc._Test.deserializeCompiled;
 
-    var Asset = cc.Class({
+    var MyClass = cc.Class({
         name: 'a a b b',
         extend: cc.Object,
         properties: {
@@ -401,7 +401,7 @@ test('deserializeCustomCCObject', function () {
             ['obj'],
             3 - 0,  // offset
             DataTypeID.CustomizedClass,
-        ], Asset],
+        ], MyClass],
         [File.SharedMasks]: [[0, 0, 1]],
         [File.Instances]: [
             [0, [1, ['inner prop1', 'inner-uuid-123']]], [23333, 'outer-uuid-123'], 0
@@ -414,16 +414,16 @@ test('deserializeCustomCCObject', function () {
     cacheMasks(data);
     parseInstances(data);
     let instances = data[File.Instances];
-    ok(instances[0].obj instanceof Asset, 'embedded custom class should be created');
+    ok(instances[0].obj instanceof MyClass, 'embedded custom class should be created');
     strictEqual(instances[0].obj.prop1, 'inner prop1', 'embedded custom class should be deserialized correctly');
-    ok(instances[1] instanceof Asset, 'indexed custom class should be created');
+    ok(instances[1] instanceof MyClass, 'indexed custom class should be created');
     strictEqual(instances[1].prop1, 23333, 'indexed custom class should be deserialized correctly');
 
     deepEqual(details.uuidObjList, [instances[0].obj, instances[1]], 'uuid objects should be deserialized correctly');
     deepEqual(details.uuidPropList, ['asset', 'asset'], 'uuid keys should be deserialized correctly');
     deepEqual(details.uuidList, ['inner-uuid-123', 'outer-uuid-123'], 'uuids should be deserialized correctly');
 
-    cc.js.unregisterClass(Asset);
+    cc.js.unregisterClass(MyClass);
 });
 
 if (TestEditorExtends) { (function () {
@@ -558,8 +558,8 @@ if (TestEditorExtends) { (function () {
     //     cc.js.unregisterClass(MyAsset);
     // });
 
-    test('custom deserialization', function () {
-        var Asset = cc.Class({
+    test('custom serialization - deserialization', function () {
+        var MyClass = cc.Class({
             name: 'a a b b',
             extend: cc.Object,
             properties: {
@@ -574,12 +574,12 @@ if (TestEditorExtends) { (function () {
                 this.prop2 = data[1];
             }
         });
-        var a = new Asset();
+        var a = new MyClass();
         a.prop1 = 2333;
         a.prop2 = 666;
         match(a, 'pass');
 
-        cc.js.unregisterClass(Asset);
+        cc.js.unregisterClass(MyClass);
     });
 
     test('eliminated default property for unknown value type', function () {

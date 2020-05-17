@@ -93,7 +93,7 @@ if (TestEditorExtends) { (function () {
             0,
             0,
             [],
-            [],
+            0,
             [{}],
             [~DataTypeID.SimpleType],
             0,
@@ -105,7 +105,7 @@ if (TestEditorExtends) { (function () {
             0,
             0,
             [],
-            [],
+            0,
             [[]],
             [~DataTypeID.SimpleType],
             0,
@@ -283,7 +283,7 @@ if (TestEditorExtends) { (function () {
             0,
             0,
             [],
-            [],
+            0,
             [{
                 "null": null,
             }],
@@ -292,6 +292,38 @@ if (TestEditorExtends) { (function () {
             [], [], []
         ];
         match(obj, expect);
+    });
+
+    test('multi custom classes (not asset)', function () {
+        var MyClass1 = cc.Class({
+            name: 'a',
+            _serialize: function () {
+                return ['aaa'];
+            },
+            _deserialize: function (data) {}
+        });
+        var MyClass2 = cc.Class({
+            name: 'b',
+            _serialize: function () {
+                return 'bbb';
+            },
+            _deserialize: function (data) {}
+        });
+        var a = new MyClass1();
+        var b = new MyClass2();
+        var obj = [a, b, a, b];
+
+        var expect = [
+            1, 0, 0,
+            ["a", "b"],
+            0,
+            [['aaa'], 'bbb', [0, 1, 0, 1], 2],
+            [0, 1, -3],
+            0, [], [], []
+        ];
+        match(obj, expect);
+
+        cc.js.unregisterClass(MyClass1, MyClass2);
     });
 
     test('test inherited CCAsset', function() {
