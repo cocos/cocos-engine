@@ -16,7 +16,6 @@ export class EditorCameraComponent extends CameraComponent {
     private _uiEditorCamera: Camera | null = null;
 
     set projection (val) {
-        // @ts-ignore
         super.projection = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.projectionType = val;
@@ -24,7 +23,6 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set fov (val) {
-        // @ts-ignore
         super.fov = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.fov = toRadian(val);
@@ -32,7 +30,6 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set orthoHeight (val) {
-        // @ts-ignore
         super.orthoHeight = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.orthoHeight = val;
@@ -40,7 +37,6 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set near (val) {
-        // @ts-ignore
         super.near = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.nearClip = val;
@@ -48,7 +44,6 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set far (val) {
-        // @ts-ignore
         super.far = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.farClip = val;
@@ -56,7 +51,6 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set clearColor (val) {
-        // @ts-ignore
         super.clearColor = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.clearColor = val;
@@ -64,7 +58,6 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set clearDepth (val) {
-        // @ts-ignore
         super.clearDepth = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.clearDepth = val;
@@ -72,7 +65,6 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set clearStencil (val) {
-        // @ts-ignore
         super.clearStencil = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.clearStencil = val;
@@ -80,7 +72,6 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set clearFlags (val) {
-        // @ts-ignore
         super.clearFlags = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.clearFlag = val;
@@ -88,7 +79,6 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set rect (val) {
-        // @ts-ignore
         super.rect = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.viewport = val;
@@ -96,7 +86,6 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set screenScale (val) {
-        // @ts-ignore
         super.screenScale = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.screenScale = val;
