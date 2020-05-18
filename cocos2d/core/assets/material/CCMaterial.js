@@ -150,7 +150,7 @@ let Material = cc.Class({
          * !#zh 获取内置材质
          * @static
          * @method getBuiltinMaterial
-         * @param {string} material 
+         * @param {string} name 
          * @return {Material}
          */
         getBuiltinMaterial (name) {
