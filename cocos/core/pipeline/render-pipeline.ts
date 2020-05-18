@@ -19,7 +19,7 @@ import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
 import { Mat4, Vec3, Vec4 } from '../math';
-import { Camera, Model } from '../renderer';
+import { Camera, Model, Light } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { SKYBOX_FLAG } from '../renderer/scene/camera';
@@ -31,7 +31,11 @@ import { IRenderObject, RenderPassStage, UBOGlobal, UBOShadow, UNIFORM_ENVIRONME
 import { FrameBufferDesc, RenderFlowType, RenderPassDesc, RenderTextureDesc } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
+<<<<<<< HEAD
 import { legacyCC } from '../global-exports';
+=======
+import { RenderLightBatchedQueue } from './render-light-batched-queue'
+>>>>>>> c68e31d4f... Add forward-lighting
 
 const v3_1 = new Vec3();
 
@@ -1073,5 +1077,35 @@ export abstract class RenderPipeline {
             return format;
         }
     }
+
+    /**
+     * @zh
+     * 获取参与渲染的灯光。
+     */
+    public abstract get validLights () : Light[];
+
+    /**
+     * @zh
+     * 获取灯光索引偏移量数组。
+     */
+    public abstract get lightIndexOffsets () : number[];
+
+    /**
+     * @zh
+     * 获取灯光索引数组。
+     */
+    public abstract get lightIndices () : number[];
+
+    /**
+     * @zh
+     * 灯光GFXbuffer数组。
+     */
+    public abstract get lightBuffers () : GFXBuffer[];
+
+    /**
+     * @zh
+     * get light batch queues
+     */
+    public abstract get lightBatchQueues () : RenderLightBatchedQueue[];
 }
 legacyCC.RenderPipeline = RenderPipeline;
