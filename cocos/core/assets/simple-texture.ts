@@ -14,7 +14,6 @@ import { TextureBase } from './texture-base';
 import { DEV } from 'internal:constants';
 
 const _regions: GFXBufferTextureCopy[] = [{
-    buffOffset: 0,
     buffStride: 0,
     buffTexHeight: 0,
     texOffset: {
@@ -28,8 +27,7 @@ const _regions: GFXBufferTextureCopy[] = [{
         depth: 1,
     },
     texSubres: {
-        baseMipLevel: 1,
-        levelCount: 1,
+        mipLevel: 0,
         baseArrayLayer: 0,
         layerCount: 1,
     },
@@ -125,7 +123,7 @@ export class SimpleTexture extends TextureBase {
         const region = _regions[0];
         region.texExtent.width = this._gfxTexture.width >> level;
         region.texExtent.height = this._gfxTexture.height >> level;
-        region.texSubres.baseMipLevel = level;
+        region.texSubres.mipLevel = level;
         region.texSubres.baseArrayLayer = arrayIndex;
 
         if (DEV) {
