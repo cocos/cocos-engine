@@ -31,11 +31,8 @@ import { IRenderObject, RenderPassStage, UBOGlobal, UBOShadow, UNIFORM_ENVIRONME
 import { FrameBufferDesc, RenderFlowType, RenderPassDesc, RenderTextureDesc } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
-<<<<<<< HEAD
 import { legacyCC } from '../global-exports';
-=======
 import { RenderLightBatchedQueue } from './render-light-batched-queue'
->>>>>>> c68e31d4f... Add forward-lighting
 
 const v3_1 = new Vec3();
 
