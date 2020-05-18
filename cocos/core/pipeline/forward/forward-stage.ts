@@ -13,12 +13,7 @@ import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
-import { opaqueCompareFn } from '../render-queue';
-import { IRenderPass } from '../define';
-import { getPhaseID } from '../pass-phase'
 import { Light } from '../../renderer';
-import { GFXBuffer } from '../../gfx';
-import { RenderLightBatchedQueue } from '../render-light-batched-queue'
 import { LightType } from '../../renderer/scene/light';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
@@ -58,7 +53,6 @@ export class ForwardStage extends RenderStage {
 
     private _opaqueBatchedQueue: RenderBatchedQueue;
     private _opaqueInstancedQueue: RenderInstancedQueue;
-    private _lightBatchQueues: RenderLightBatchedQueue[] = [];
 
     /**
      * 构造函数。
@@ -83,12 +77,6 @@ export class ForwardStage extends RenderStage {
         if (this._cmdBuff) {
             this._cmdBuff.destroy();
             this._cmdBuff = null;            
-        }
-        
-        if(this._lightBatchQueues)
-        {
-            this._lightBatchQueues.forEach(this.lightBatchQueueClearFunc);
-            this._lightBatchQueues.length = 0;
         }
     }
 
@@ -118,27 +106,13 @@ export class ForwardStage extends RenderStage {
         this._opaqueInstancedQueue.clear();
         this._opaqueBatchedQueue.clear();
         this._renderQueues.forEach(this.renderQueueClearFunc); 
-        this._lightBatchQueues.forEach(this.lightBatchQueueClearFunc);
 
         const renderObjects = this._pipeline.renderObjects;
-        const lightIndexOffset: number[] = this.pipeline.getLightIndexOffsets();
-        const lightIndices: number[] = this.pipeline.getLightIndices();
-        const validLights: Light[] = this.pipeline.getValidLights();
-        const lightBuffers: GFXBuffer[] = this.pipeline.getLightBuffers();
+        const lightIndexOffset: number[] = this.pipeline.lightIndexOffsets;
+        const lightIndices: number[] = this.pipeline.lightIndices;
+        const validLights: Light[] = this.pipeline.validLights;
+        const lightBatchQueues = this.pipeline.lightBatchQueues;
 
-        // update lightbatchQueues length
-        for (let l = 0; l < validLights.length; ++l) {
-            if (!this._lightBatchQueues[l]) {
-                let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
-                this._lightBatchQueues.push(new RenderLightBatchedQueue({
-                    isTransparent: false,
-                    phases: getPhaseID("forward-add"),
-                    sortFunc,
-                }));
-            }
-            // update per-lightBatchQueue UBO
-            this._lightBatchQueues[l].updateLightBuffer(lightBuffers[l]);
-        }
 
         let m = 0; let p = 0; let k = 0; let l = 0;
         for (let i = 0; i < renderObjects.length; ++i) {                
@@ -178,11 +152,11 @@ export class ForwardStage extends RenderStage {
                             const light = validLights[lightIndices[l]];
                             switch (light.type) {
                                 case LightType.SPHERE:
-                                    this._lightBatchQueues[lightIndices[l]].add(pass, ro, m, myForward_Light_Sphere_Patches);
+                                    lightBatchQueues[lightIndices[l]].add(pass, ro, m, myForward_Light_Sphere_Patches);
                                     break;
 
                                 case LightType.SPOT:
-                                    this._lightBatchQueues[lightIndices[l]].add(pass, ro, m, myForward_Light_Sport_Patches);
+                                    lightBatchQueues[lightIndices[l]].add(pass, ro, m, myForward_Light_Sport_Patches);
                                     break;
                             }                            
                         }
@@ -240,8 +214,8 @@ export class ForwardStage extends RenderStage {
         this._opaqueBatchedQueue.recordCommandBuffer(cmdBuff);
 
         // Commit light-batched-queues
-        for (let l = 0; l < this._lightBatchQueues.length; ++l) {
-            this._lightBatchQueues[l].recordCommandBuffer(cmdBuff);
+        for (let l = 0; l < lightBatchQueues.length; ++l) {
+            lightBatchQueues[l].recordCommandBuffer(cmdBuff);
         }        
 
         if (camera.visibility & Layers.BitMask.DEFAULT) {
@@ -263,9 +237,5 @@ export class ForwardStage extends RenderStage {
                 this._renderArea!,
                 GFXFilter.POINT);
         }
-    }
-    
-    protected lightBatchQueueClearFunc (rlbq: RenderLightBatchedQueue){
-        rlbq.clear();
     }
 }

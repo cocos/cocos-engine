@@ -31,6 +31,7 @@ import { IRenderObject, RenderPassStage, UBOGlobal, UBOShadow, UNIFORM_ENVIRONME
 import { FrameBufferDesc, RenderFlowType, RenderPassDesc, RenderTextureDesc } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
+import { RenderLightBatchedQueue } from './render-light-batched-queue'
 
 const v3_1 = new Vec3();
 
@@ -1066,24 +1067,30 @@ export abstract class RenderPipeline {
      * @zh
      * 获取参与渲染的灯光。
      */
-    public abstract getValidLights () : Light[];
+    public abstract get validLights () : Light[];
 
     /**
      * @zh
      * 获取灯光索引偏移量数组。
      */
-    public abstract getLightIndexOffsets () : number[];
+    public abstract get lightIndexOffsets () : number[];
 
     /**
      * @zh
      * 获取灯光索引数组。
      */
-    public abstract getLightIndices () : number[];
+    public abstract get lightIndices () : number[];
 
     /**
      * @zh
      * 灯光GFXbuffer数组。
      */
-    public abstract getLightBuffers() : GFXBuffer[];
+    public abstract get lightBuffers () : GFXBuffer[];
+
+    /**
+     * @zh
+     * get light batch queues
+     */
+    public abstract get lightBatchQueues () : RenderLightBatchedQueue[];
 }
 cc.RenderPipeline = RenderPipeline;
