@@ -560,7 +560,7 @@ Bundle.prototype = {
         var self = this;
         assets.forEach(function (asset) {
             let info = self.getAssetInfo(asset._uuid);
-            if (info && !info.redirect) {
+            if (info && info.path && !info.redirect) {
                 releaseManager.tryRelease(asset);
             }
         });
@@ -586,7 +586,7 @@ Bundle.prototype = {
         var self = this;
         assets.forEach(function (asset) {
             let info = self.getAssetInfo(asset._uuid);
-            if (info && !info.redirect) {
+            if (info && info.path && !info.redirect) {
                 releaseManager.tryRelease(asset, true);
             }
         });
