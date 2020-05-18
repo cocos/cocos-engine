@@ -131,8 +131,7 @@ export class BakedSkinningModel extends MorphModel {
         if (idx >= 0) {
             const view = this.instancedAttributes.list[idx].view;
             view[0] = view[1] * info.data[0] + view[2];
-        }
-        if (info.dirty) {
+        } else if (info.dirty) {
             info.buffer.update(info.data);
             info.dirty = false;
         }
