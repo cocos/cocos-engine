@@ -66,6 +66,7 @@ export class GraphicsComponent extends UIRenderComponent {
      * @zh
      * 当前线条宽度。
      */
+    @property
     get lineWidth () {
         return this._lineWidth;
     }
