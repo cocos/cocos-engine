@@ -57,7 +57,7 @@ export class RenderLightBatchedQueue {
      * @param patches pass desc
      */
     public add (pass: Pass, renderObj: IRenderObject, modelIdx: number, patches?: IMacroPatch[]){
-        if(pass.phase == this._passDesc.phases)
+        if(pass.phase === this._passDesc.phases)
         {
             const nowStep = this._subModels.length;
             this._subModels.push(renderObj.model.subModels[modelIdx]);
