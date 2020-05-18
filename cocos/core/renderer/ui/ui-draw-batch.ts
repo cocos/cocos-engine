@@ -58,11 +58,6 @@ export class UIDrawBatch {
         this.idxCount = 0;
         this.model = null;
         this.isStatic = false;
-
-        if (this.ia) {
-            this.ia.firstIndex = 0;
-            this.ia.indexCount = 0;
-        }
     }
 
     get bufferBatch () {
