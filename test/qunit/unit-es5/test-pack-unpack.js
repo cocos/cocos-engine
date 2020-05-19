@@ -25,11 +25,13 @@
         __born__: 1985,
         $$: 'Amoy'
     }, { stringify: false });
+    JSON1[0] = { "version": JSON1[0] };
 
     var KEY2 = 'hallelujah';
     var JSON2 = Editor.serializeCompiled([{
         text: 'hallelujah\nalujah\\alujah...\uD83D\uDE02'
     }], { stringify: false });
+    JSON2[0] = { "version": JSON2[0] };
 
     test('pack and unpack something', function () {
         var packer = new Editor.JsonPacker();

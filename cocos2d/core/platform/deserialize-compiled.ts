@@ -39,7 +39,7 @@ import Mat4 from '../value-types/mat4';
  * BUILT-IN TYPES / CONSTAINTS
  ****************************************************************************/
 
-const SUPPORT_LOWEST_FORMAT_VERSION = 1;
+const SUPPORT_MIN_FORMAT_VERSION = 1;
 const EMPTY_PLACEHOLDER = 0;
 
 // Used for Data.ValueType.
@@ -400,16 +400,21 @@ export interface IRefs extends Array<number> {
 export const enum File {
     Version = 0,
     Context = 0,
+
     SharedUuids,
     SharedStrings,
     SharedClasses,
     SharedMasks,
+
     Instances,
     InstanceTypes,
+
     Refs,
+
     DependObjs,
     DependKeys,
     DependUuidIndices,
+
     ARRAY_LENGTH,
 }
 
@@ -919,7 +924,7 @@ export default function deserialize (data: IFileData, details: Details, options?
         preprocessed = true;
         version = version.version;
     }
-    if (version < SUPPORT_LOWEST_FORMAT_VERSION) {
+    if (version < SUPPORT_MIN_FORMAT_VERSION) {
         throw new Error(cc.debug.getError(5304, version));
     }
     options._version = version;
@@ -952,7 +957,7 @@ export default function deserialize (data: IFileData, details: Details, options?
 deserialize.Details = Details;
 
 export function unpackJSONs (data: IPackedFileData, classFinder?: ClassFinder): IFileData[] {
-    if (data[File.Version] < SUPPORT_LOWEST_FORMAT_VERSION) {
+    if (data[File.Version] < SUPPORT_MIN_FORMAT_VERSION) {
         throw new Error(cc.debug.getError(5304, data[File.Version]));
     }
     lookupClasses(data, true, classFinder);
@@ -966,19 +971,14 @@ export function unpackJSONs (data: IPackedFileData, classFinder?: ClassFinder): 
 
     let sections = data[PACKED_SECTIONS];
     for (let i = 0; i < sections.length; ++i) {
-        let section = sections[i];
-        section[File.Version] = version;
-        section[File.SharedUuids] = sharedUuids;
-        section[File.SharedStrings] = sharedStrings;
-        section[File.SharedClasses] = sharedClasses;
-        section[File.SharedMasks] = sharedMasks;
+        sections[i].unshift(version, sharedUuids, sharedStrings, sharedClasses, sharedMasks);
     }
     return sections;
 }
 
 export function packCustomObjData (type: string, data: IClassObjectData|OtherObjectData): IFileData {
     return [
-        SUPPORT_LOWEST_FORMAT_VERSION, EMPTY_PLACEHOLDER, EMPTY_PLACEHOLDER,
+        SUPPORT_MIN_FORMAT_VERSION, EMPTY_PLACEHOLDER, EMPTY_PLACEHOLDER,
         [type],
         EMPTY_PLACEHOLDER,
         [data],
