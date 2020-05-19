@@ -46,6 +46,7 @@ export class UIBatchModel extends Model {
     public updateTransform () {
     }
 
+
     public updateUBOs () {
         return false;
     }
@@ -73,8 +74,5 @@ class UISubModel extends SubModel {
     }
 
     public destroy () {
-        if (this.commandBuffers.length > 0) {
-            this.commandBuffers[0].destroy();
-        }
     }
 }
