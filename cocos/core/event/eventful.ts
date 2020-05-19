@@ -6,7 +6,10 @@ type Constructor<T = {}> = new (...args: any[]) => T;
 type EventType = string;
 
 /**
+ * @zh
  * 实现该接口的对象具有处理事件的能力。
+ * @en
+ * Objects those implement this interface have essentially the capability to process events.
  */
 export interface IEventful {
     /**
