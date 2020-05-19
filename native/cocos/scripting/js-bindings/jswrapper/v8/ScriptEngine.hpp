@@ -328,6 +328,8 @@ namespace se {
         v8::Isolate* _isolate;
         v8::HandleScope* _handleScope;
         Object* _globalObj;
+        Value _gcFuncValue;
+        Object *_gcFunc = nullptr;
 
         FileOperationDelegate _fileOperationDelegate;
         ExceptionCallback _exceptionCallback;
