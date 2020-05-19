@@ -1,6 +1,5 @@
 /**
  * @category pipeline
- *              --by troublemaker52025
  */
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
