@@ -2,7 +2,6 @@ import { EDITOR } from 'internal:constants';
 import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXCommandBufferType, GFXStatus } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
@@ -60,10 +59,6 @@ export class SubModel {
         return this._inputAssembler;
     }
 
-    get commandBuffers () {
-        return this._cmdBuffers;
-    }
-
     public initialize (subMesh: RenderingSubMesh, mat: Material, psos: GFXPipelineState[]) {
         this.psos = psos;
         this.subMeshData = subMesh;
@@ -78,10 +73,6 @@ export class SubModel {
         for (let i = 0; i < this.passes.length; i++) {
             this.passes[i].destroyPipelineState(this._psos![i]);
         }
-        for (const cmdBuffer of this._cmdBuffers) {
-            cmdBuffer.destroy();
-        }
-        this._cmdBuffers.length = 0;
         this._material = null;
     }
 }
