@@ -367,7 +367,6 @@ export class WebGL2GFXDevice extends GFXDevice {
         });
 
         const nullTexRegion: GFXBufferTextureCopy = {
-            buffOffset: 0,
             buffStride: 0,
             buffTexHeight: 0,
             texOffset: {
@@ -381,8 +380,7 @@ export class WebGL2GFXDevice extends GFXDevice {
                 depth: 1,
             },
             texSubres: {
-                baseMipLevel: 0,
-                levelCount: 1,
+                mipLevel: 0,
                 baseArrayLayer: 0,
                 layerCount: 1,
             },
@@ -532,6 +530,8 @@ export class WebGL2GFXDevice extends GFXDevice {
         return window;
     }
 
+    public acquire () {}
+
     public present () {
         (this._cmdAllocator as WebGL2GFXCommandAllocator).releaseCmds();
         const queue = (this._queue as WebGL2GFXQueue);
@@ -583,15 +583,11 @@ export class WebGL2GFXDevice extends GFXDevice {
         const view = new ctor(dstBuffer);
 
         for (const region of regions) {
-            const buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
 
             const w = region.texExtent.width;
             const h = region.texExtent.height;
 
-            const memSize = GFXFormatSize(format, w, h, 1);
-            const data = view.subarray(buffOffset, buffOffset + memSize);
-
-            gl.readPixels(region.texOffset.x, region.texOffset.y, w, h, glFormat, glType, data);
+            gl.readPixels(region.texOffset.x, region.texOffset.y, w, h, glFormat, glType, view);
         }
 
         if (this.stateCache.glFramebuffer !== curFBO) {

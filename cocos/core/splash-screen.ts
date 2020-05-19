@@ -82,7 +82,7 @@ export class SplashScreen {
     private screenHeight!: number;
 
     public main (device: GFXDevice) {
-        if (device == null) return console.error("GFX DEVICE IS NULL.");
+        if (device == null) return console.error('GFX DEVICE IS NULL.');
 
         if (window._CCSettings && window._CCSettings.splashScreen) {
             this.setting = window._CCSettings.splashScreen;
@@ -103,7 +103,7 @@ export class SplashScreen {
             };
         }
 
-        if (this.setting.base64src == '' || this.setting.totalTime <= 0) {
+        if (this.setting.base64src === '' || this.setting.totalTime <= 0) {
             if (this.callBack) { this.callBack(); }
             this.callBack = null;
             (this.setting as any) = null;
@@ -157,7 +157,7 @@ export class SplashScreen {
     private init () {
         // adapt for native mac & ios
         if (JSB) {
-            if (sys.os == cc.sys.OS_OSX || sys.os == cc.sys.OS_IOS) {
+            if (sys.os === cc.sys.OS_OSX || sys.os === cc.sys.OS_IOS) {
                 const width = screen.width * devicePixelRatio;
                 const height = screen.height * devicePixelRatio;
                 this.device.resize(width, height);
@@ -169,8 +169,8 @@ export class SplashScreen {
         // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
         if (COCOSPLAY || XIAOMI) {
             if (window._CCSettings.orientation === 'landscape' && this.device.width < this.device.height) {
-                let width = this.device.height;
-                let height = this.device.width;
+                const width = this.device.height;
+                const height = this.device.width;
                 this.device.resize(width, height);
                 this.screenWidth = this.device.width;
                 this.screenHeight = this.device.height;
@@ -222,7 +222,7 @@ export class SplashScreen {
             /** update uniform */
             const PERCENT = clamp01(elapsedTime / this.setting.totalTime);
             let u_p = easing.cubicOut(PERCENT);
-            if (this.setting.effect == 'NONE') u_p = 1.0;
+            if (this.setting.effect === 'NONE') u_p = 1.0;
             this.material.setProperty('u_precent', u_p);
             this.material.passes[0].update();
 
@@ -252,8 +252,8 @@ export class SplashScreen {
         // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
         if (COCOSPLAY || XIAOMI) {
             if (window._CCSettings.orientation === 'landscape' && this.device.width < this.device.height) {
-                let width = this.device.height;
-                let height = this.device.width;
+                const width = this.device.height;
+                const height = this.device.width;
                 this.device.resize(width, height);
                 this.screenWidth = this.device.width;
                 this.screenHeight = this.device.height;
@@ -279,7 +279,7 @@ export class SplashScreen {
         ctx.textBaseline = 'top';
         ctx.textAlign = 'left';
         ctx.fillStyle = '`#424242`';
-        const text = "Powered by Cocos Creator 3D";
+        const text = 'Powered by Cocos Creator 3D';
         const textMetrics = ctx.measureText(text);
         ctx.fillText(text, (330 - textMetrics.width) / 2, 6);
 
@@ -308,7 +308,7 @@ export class SplashScreen {
 
         /** PSO */
         this.textMaterial = new Material();
-        this.textMaterial.initialize({ effectName: "util/splash-screen" });
+        this.textMaterial.initialize({ effectName: 'util/splash-screen' });
 
         const pass = this.textMaterial.passes[0];
         const binding = pass.getBinding('mainTexture');
@@ -474,7 +474,7 @@ export class SplashScreen {
         const device = this.device as GFXDevice;
 
         this.material = new Material();
-        this.material.initialize({ effectName: "util/splash-screen" });
+        this.material.initialize({ effectName: 'util/splash-screen' });
 
         this.sampler = device.createSampler({
             'addressU': GFXAddress.CLAMP,

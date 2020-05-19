@@ -132,17 +132,21 @@ export class RenderingSubMesh {
      */
     get geometricInfo () {
         if (this._geometricInfo) { return this._geometricInfo; }
-        if (this.mesh == undefined) { return { positions: new Float32Array(), indices: new Uint8Array(), boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO } }; }
-        if (this.subMeshIdx == undefined) { return { positions: new Float32Array(), indices: new Uint8Array(), boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO } }; }
+        if (this.mesh === undefined) {
+            return { positions: new Float32Array(), indices: new Uint8Array(), boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO } };
+        }
+        if (this.subMeshIdx === undefined) {
+            return { positions: new Float32Array(), indices: new Uint8Array(), boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO } };
+        }
         const mesh = this.mesh!; const index = this.subMeshIdx!;
         const positions = mesh.readAttribute(index, GFXAttributeName.ATTR_POSITION) as unknown as Float32Array;
         const indices = mesh.readIndices(index) as Uint16Array;
         const max = new Vec3();
         const min = new Vec3();
-        const pAttri = this.attributes.find(element => element.name == cc.GFXAttributeName.ATTR_POSITION);
+        const pAttri = this.attributes.find(element => element.name === cc.GFXAttributeName.ATTR_POSITION);
         if (pAttri) {
             const conut = GFXFormatInfos[pAttri.format].count;
-            if (conut == 2) {
+            if (conut === 2) {
                 max.set(positions[0], positions[1], 0);
                 min.set(positions[0], positions[1], 0);
             } else {
@@ -150,7 +154,7 @@ export class RenderingSubMesh {
                 min.set(positions[0], positions[1], positions[2]);
             }
             for (let i = 0; i < positions.length; i += conut) {
-                if (conut == 2) {
+                if (conut === 2) {
                     max.x = positions[i] > max.x ? positions[i] : max.x;
                     max.y = positions[i + 1] > max.y ? positions[i + 1] : max.y;
                     min.x = positions[i] < min.x ? positions[i] : min.x;
@@ -242,7 +246,7 @@ export class RenderingSubMesh {
                     bundle.view.length, bundle.view.stride, dataView);
                 const buffer = device.createBuffer({
                     usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                    memUsage: GFXMemoryUsageBit.DEVICE,
                     size: bundle.view.length,
                     stride: bundle.view.stride,
                 });
@@ -339,7 +343,7 @@ export class RenderingSubMesh {
 
         const vertexIdBuffer = device.createBuffer({
             usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            memUsage: GFXMemoryUsageBit.DEVICE,
             size: vertexIds.byteLength,
             stride: vertexIds.BYTES_PER_ELEMENT,
         });
@@ -544,7 +548,7 @@ export class Mesh extends Asset {
     private _data: Uint8Array | null = null;
     private _initialized = false;
     private _renderingSubMeshes: RenderingSubMesh[] | null = null;
-    private _boneSpaceBounds = new Map<number, Array<aabb | null>>();
+    private _boneSpaceBounds = new Map<number, (aabb | null)[]>();
     private _jointBufferIndices: number[] | null = null;
 
     constructor () {
@@ -595,7 +599,7 @@ export class Mesh extends Asset {
 
                 indexBuffer = gfxDevice.createBuffer({
                     usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-                    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                    memUsage: GFXMemoryUsageBit.DEVICE,
                     size: dstSize,
                     stride: dstStride,
                 });
@@ -631,7 +635,7 @@ export class Mesh extends Asset {
         }
 
         this._renderingSubMeshes = subMeshes;
-        
+
         if (this._struct.morph) {
             this.morphRendering = createMorphRendering(this, gfxDevice);
         }
@@ -697,7 +701,7 @@ export class Mesh extends Asset {
         if (this._boneSpaceBounds.has(skeleton.hash)) {
             return this._boneSpaceBounds.get(skeleton.hash)!;
         }
-        const bounds: Array<aabb | null> = [];
+        const bounds: (aabb | null)[] = [];
         this._boneSpaceBounds.set(skeleton.hash, bounds);
         const valid: boolean[] = [];
         const bindposes = skeleton.bindposes;
@@ -1255,7 +1259,7 @@ export class Mesh extends Asset {
 
             const vertexBuffer = gfxDevice.createBuffer({
                 usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                memUsage: GFXMemoryUsageBit.DEVICE,
                 size: vertexBundle.view.length,
                 stride: vertexBundle.view.stride,
             });

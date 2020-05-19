@@ -581,7 +581,7 @@ export class Game extends EventTarget {
             this._initEvents();
         }
 
-        if (!EDITOR && !PREVIEW && cc.internal.SplashScreen) {
+        if (!JSB && !EDITOR && !PREVIEW && cc.internal.SplashScreen) {
             cc.internal.SplashScreen.instance.main(this._gfxDevice);
         }
 
@@ -614,7 +614,7 @@ export class Game extends EventTarget {
         }
 
         const splashScreen = cc.internal.SplashScreen && cc.internal.SplashScreen.instance;
-        const useSplash = (!EDITOR && !PREVIEW && splashScreen);
+        const useSplash = (!JSB && !EDITOR && !PREVIEW && splashScreen);
         if (useSplash) {
             splashScreen.setOnFinish(() => {
                 if (this.onStart) { this.onStart(); }
@@ -878,9 +878,10 @@ export class Game extends EventTarget {
 
         // WebGL context created successfully
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
-            const ctors: Array<Constructor<GFXDevice>> = [];
-        
+            const ctors: Constructor<GFXDevice>[] = [];
+
             if (JSB) {
+                if (gfx.CCVKDevice) { ctors.push(gfx.CCVKDevice); }
                 if (gfx.CCMTLDevice) { ctors.push(gfx.CCMTLDevice); }
                 if (gfx.GLES3Device) { ctors.push(gfx.GLES3Device); }
                 if (gfx.GLES2Device) { ctors.push(gfx.GLES2Device); }
@@ -899,7 +900,7 @@ export class Game extends EventTarget {
                     ctors.push(cc.WebGLGFXDevice);
                 }
             }
-        
+
             const opts = {
                 canvasElm: this.canvas as HTMLCanvasElement,
                 debug: true,
@@ -912,7 +913,7 @@ export class Game extends EventTarget {
                 this._gfxDevice = new ctors[i]();
                 if (this._gfxDevice!.initialize(opts)) { break; }
             }
-        }        
+        }
 
         if (!this._gfxDevice) {
             // todo fix here for wechat game

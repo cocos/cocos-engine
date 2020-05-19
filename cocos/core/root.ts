@@ -350,6 +350,8 @@ export class Root {
             this._fpsTime = 0.0;
         }
 
+        this._device.acquire();
+
         const views = this._views;
         for (let i = 0; i < views.length; i++) {
             const view = views[i];
@@ -360,7 +362,7 @@ export class Root {
             }
         }
 
-        // this._device.present();
+        this._device.present();
     }
 
     /**

@@ -506,6 +506,12 @@ export abstract class GFXDevice {
     public abstract createWindow (info: IGFXWindowInfo): GFXWindow;
 
     /**
+     * @en Begin current frame.
+     * @zh 开始当前帧。
+     */
+    public abstract acquire (): void;
+
+    /**
      * @en Present current frame.
      * @zh 呈现当前帧。
      */

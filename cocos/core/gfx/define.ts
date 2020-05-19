@@ -558,8 +558,7 @@ export interface IGFXExtent {
 }
 
 export class GFXTextureSubres {
-    public baseMipLevel: number = 0;
-    public levelCount: number = 1;
+    public mipLevel: number = 0;
     public baseArrayLayer: number = 0;
     public layerCount: number = 1;
 }
@@ -569,15 +568,14 @@ export class GFXTextureCopy {
     public srcOffset: IGFXOffset = { x: 0, y: 0, z: 0 };
     public dstSubres: GFXTextureSubres = new GFXTextureSubres();
     public dstOffset: IGFXOffset = { x: 0, y: 0, z: 0 };
-    public extent: IGFXExtent = { width: 0, height: 0, depth: 0 };
+    public extent: IGFXExtent = { width: 0, height: 0, depth: 1 };
 }
 
 export class GFXBufferTextureCopy {
-    public buffOffset: number = 0;
     public buffStride: number = 0;
     public buffTexHeight: number = 0;
     public texOffset: IGFXOffset = { x: 0, y: 0, z: 0 };
-    public texExtent: IGFXExtent = { width: 0, height: 0, depth: 0 };
+    public texExtent: IGFXExtent = { width: 0, height: 0, depth: 1 };
     public texSubres: GFXTextureSubres = new GFXTextureSubres();
 }
 
