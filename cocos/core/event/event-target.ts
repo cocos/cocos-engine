@@ -30,10 +30,7 @@
 
 import { Eventful, IEventful } from './eventful';
 
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
-class Empty {};
-
-export const EventTarget = Eventful(Empty);
+export const EventTarget = Eventful(Object);
 
 export type EventTarget = IEventful;
 
