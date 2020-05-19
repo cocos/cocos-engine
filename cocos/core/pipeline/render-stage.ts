@@ -9,7 +9,7 @@ import { GFXClearFlag, GFXCommandBufferType, IGFXColor, IGFXRect } from '../gfx/
 import { GFXDevice } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXPipelineState } from '../gfx/pipeline-state';
-import { Pass } from '../renderer';
+import { Pass } from '../renderer/core/pass';
 import { ccenum } from '../value-types/enum';
 import { IRenderPass } from './define';
 import { getPhaseID } from './pass-phase';

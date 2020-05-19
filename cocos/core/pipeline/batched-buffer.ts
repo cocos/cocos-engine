@@ -2,12 +2,12 @@
  * @hidden
  */
 
-import { GFXBufferFlagBit, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit } from '../gfx';
+import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit } from '../gfx';
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { GFXPipelineState } from '../gfx/pipeline-state';
 import { Mat4 } from '../math';
-import { Pass } from '../renderer';
+import { Pass } from '../renderer/core/pass';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOLocalBatched } from './define';
 
