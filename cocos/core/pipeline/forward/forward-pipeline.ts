@@ -37,13 +37,52 @@ const _tempVec3 = new Vec3();
  */
 @ccclass('ForwardPipeline')
 export class ForwardPipeline extends RenderPipeline {
-
+    public static initInfo: IRenderPipelineInfo = {
+    };
+    
     public get lightsUBO (): GFXBuffer {
         return this._lightsUBO!;
     }
 
-    public static initInfo: IRenderPipelineInfo = {
-    };
+    /**
+     * @zh
+     * 获取参与渲染的灯光。
+     */
+    public get validLights () {
+        return this._validLights
+    }
+
+    /**
+     * @zh
+     * 获取灯光索引偏移量数组。
+     */
+    public get lightIndexOffsets () {
+        return this._lightIndexOffset;
+    }
+
+    /**
+     * @zh
+     * 获取灯光索引数组。
+     */
+    public get lightIndices () {
+        return this._lightIndices;
+    }
+
+    /**
+     * @zh
+     * 灯光GFXbuffer数组。
+     */
+    public get lightBuffers () {
+        return this._lightBuffers;
+    }
+
+    /**
+     * @zh
+     * get light batch queues
+     */
+    public get lightBatchQueues () {
+        return this._lightBatchQueues;
+    }
 
     /**
      * @zh
@@ -235,46 +274,6 @@ export class ForwardPipeline extends RenderPipeline {
             }
             this._lightBuffers[l]!.update(this._uboLight.view);
         }
-    }
-
-    /**
-     * @zh
-     * 获取参与渲染的灯光。
-     */
-    public get validLights () {
-        return this._validLights
-    }
-
-    /**
-     * @zh
-     * 获取灯光索引偏移量数组。
-     */
-    public get lightIndexOffsets () {
-        return this._lightIndexOffset;
-    }
-
-    /**
-     * @zh
-     * 获取灯光索引数组。
-     */
-    public get lightIndices () {
-        return this._lightIndices;
-    }
-
-    /**
-     * @zh
-     * 灯光GFXbuffer数组。
-     */
-    public get lightBuffers () {
-        return this._lightBuffers;
-    }
-
-    /**
-     * @zh
-     * get light batch queues
-     */
-    public get lightBatchQueues () {
-        return this._lightBatchQueues;
     }
 
     /**
