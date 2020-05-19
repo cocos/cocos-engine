@@ -46,7 +46,6 @@ export class UIBatchModel extends Model {
     public updateTransform () {
     }
 
-
     public updateUBOs () {
         return false;
     }
