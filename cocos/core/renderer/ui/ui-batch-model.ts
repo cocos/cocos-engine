@@ -73,5 +73,6 @@ class UISubModel extends SubModel {
     }
 
     public destroy () {
+        super.destroy();
     }
 }
