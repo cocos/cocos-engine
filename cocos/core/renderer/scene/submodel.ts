@@ -46,7 +46,6 @@ export class SubModel {
         if (material == null) {
             return;
         }
-        this.updateCommandBuffer();
     }
 
     get material () {
@@ -84,47 +83,5 @@ export class SubModel {
         }
         this._cmdBuffers.length = 0;
         this._material = null;
-    }
-
-    public updateCommandBuffer () {
-        if (!this._material) { return; }
-        for (let i = 0; i < this._material.passes.length; i++) {
-            if (EDITOR && this._subMeshObject && this._material.passes[i].primitive !== this._subMeshObject.primitiveMode) {
-                console.warn(`mesh primitive type doesn't match with pass settings`);
-            }
-            this.recordCommandBuffer(i);
-        }
-        for (let i = this._cmdBuffers.length - 1; i >= this._material!.passes.length; i--) {
-            const cmdBuff = this._cmdBuffers.pop();
-            if (cmdBuff) {
-                cmdBuff.destroy();
-            }
-        }
-    }
-
-    protected recordCommandBuffer (index: number) {
-        const device = cc.director.root.device as GFXDevice;
-        const pso = this._psos![index];
-        if (this._cmdBuffers[index] == null) {
-            const cmdBufferInfo = {
-                allocator: device.commandAllocator,
-                type: GFXCommandBufferType.SECONDARY,
-            };
-            this._cmdBuffers[index] = device.createCommandBuffer(cmdBufferInfo);
-        } else if (this._cmdBuffers[index].status === GFXStatus.UNREADY) {
-            this._cmdBuffers[index].initialize({
-                allocator: device.commandAllocator,
-                type: GFXCommandBufferType.SECONDARY,
-            });
-        }
-        const inputAssembler = this._inputAssembler as GFXInputAssembler;
-
-        const cmdBuff = this._cmdBuffers[index];
-        cmdBuff.begin();
-        cmdBuff.bindPipelineState(pso);
-        cmdBuff.bindBindingLayout(pso.pipelineLayout.layouts[0]);
-        cmdBuff.bindInputAssembler(inputAssembler);
-        cmdBuff.draw(inputAssembler);
-        cmdBuff.end();
     }
 }

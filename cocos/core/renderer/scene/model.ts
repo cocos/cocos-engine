@@ -259,9 +259,6 @@ export class Model {
                 psos[j] = newPSOs[j];
             }
         });
-        for (let i = 0; i < subModels.length; i++) {
-            subModels[i].updateCommandBuffer();
-        }
     }
 
     public insertImplantPSO (pso: GFXPipelineState) {
