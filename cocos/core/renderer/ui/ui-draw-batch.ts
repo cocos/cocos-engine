@@ -21,8 +21,6 @@ export class UIDrawBatch {
     public material: Material | null = null;
     public texView: GFXTextureView | null = null;
     public sampler: GFXSampler | null = null;
-    public firstIdx: number = 0;
-    public idxCount: number = 0;
     public pipelineState: GFXPipelineState | null = null;
     public bindingLayout: GFXBindingLayout | null = null;
     public useLocalData: Node | null = null;
@@ -54,15 +52,8 @@ export class UIDrawBatch {
         this.material = null;
         this.texView = null;
         this.sampler = null;
-        this.firstIdx = 0;
-        this.idxCount = 0;
         this.model = null;
         this.isStatic = false;
-
-        if (this.ia) {
-            this.ia.firstIndex = 0;
-            this.ia.indexCount = 0;
-        }
     }
 
     get bufferBatch () {
