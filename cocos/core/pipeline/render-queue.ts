@@ -96,7 +96,6 @@ export class RenderQueue {
      * 排序渲染队列。
      */
     public sort () {
-
         this.queue.sort();
     }
 
