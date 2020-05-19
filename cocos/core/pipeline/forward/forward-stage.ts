@@ -175,7 +175,7 @@ export class ForwardStage extends RenderStage {
         cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea!,
             camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
 
-        cmdBuff.execute(this._renderQueues[0].cmdBuffs.array, this._renderQueues[0].cmdBuffCount);
+        this._renderQueues[0].recordCommandBuffer(cmdBuff);
 
         this._opaqueInstancedQueue.recordCommandBuffer(cmdBuff);
         this._opaqueBatchedQueue.recordCommandBuffer(cmdBuff);
@@ -183,8 +183,7 @@ export class ForwardStage extends RenderStage {
         if (camera.visibility & Layers.BitMask.DEFAULT) {
             cmdBuff.execute(planarShadow.cmdBuffs.array, planarShadow.cmdBuffCount);
         }
-        cmdBuff.execute(this._renderQueues[1].cmdBuffs.array, this._renderQueues[1].cmdBuffCount);
-
+        this._renderQueues[1].recordCommandBuffer(cmdBuff);
         cmdBuff.endRenderPass();
         cmdBuff.end();
 

@@ -54,7 +54,7 @@ export interface IRenderPass {
     depth: number;
     shaderId: number;
     subModel: SubModel;
-    cmdBuff: GFXCommandBuffer;
+    passIdx: number;
 }
 
 /**

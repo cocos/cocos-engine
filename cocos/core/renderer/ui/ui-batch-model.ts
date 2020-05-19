@@ -73,8 +73,6 @@ class UISubModel extends SubModel {
     }
 
     public destroy () {
-        if (this.commandBuffers.length > 0) {
-            this.commandBuffers[0].destroy();
-        }
+        super.destroy();
     }
 }

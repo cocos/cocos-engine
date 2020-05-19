@@ -2,7 +2,6 @@ import { EDITOR } from 'internal:constants';
 import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXCommandBufferType, GFXStatus } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
@@ -46,7 +45,6 @@ export class SubModel {
         if (material == null) {
             return;
         }
-        this.updateCommandBuffer();
     }
 
     get material () {
@@ -59,10 +57,6 @@ export class SubModel {
 
     get inputAssembler () {
         return this._inputAssembler;
-    }
-
-    get commandBuffers () {
-        return this._cmdBuffers;
     }
 
     public initialize (subMesh: RenderingSubMesh, mat: Material, psos: GFXPipelineState[]) {
@@ -79,52 +73,6 @@ export class SubModel {
         for (let i = 0; i < this.passes.length; i++) {
             this.passes[i].destroyPipelineState(this._psos![i]);
         }
-        for (const cmdBuffer of this._cmdBuffers) {
-            cmdBuffer.destroy();
-        }
-        this._cmdBuffers.length = 0;
         this._material = null;
-    }
-
-    public updateCommandBuffer () {
-        if (!this._material) { return; }
-        for (let i = 0; i < this._material.passes.length; i++) {
-            if (EDITOR && this._subMeshObject && this._material.passes[i].primitive !== this._subMeshObject.primitiveMode) {
-                console.warn(`mesh primitive type doesn't match with pass settings`);
-            }
-            this.recordCommandBuffer(i);
-        }
-        for (let i = this._cmdBuffers.length - 1; i >= this._material!.passes.length; i--) {
-            const cmdBuff = this._cmdBuffers.pop();
-            if (cmdBuff) {
-                cmdBuff.destroy();
-            }
-        }
-    }
-
-    protected recordCommandBuffer (index: number) {
-        const device = cc.director.root.device as GFXDevice;
-        const pso = this._psos![index];
-        if (this._cmdBuffers[index] == null) {
-            const cmdBufferInfo = {
-                allocator: device.commandAllocator,
-                type: GFXCommandBufferType.SECONDARY,
-            };
-            this._cmdBuffers[index] = device.createCommandBuffer(cmdBufferInfo);
-        } else if (this._cmdBuffers[index].status === GFXStatus.UNREADY) {
-            this._cmdBuffers[index].initialize({
-                allocator: device.commandAllocator,
-                type: GFXCommandBufferType.SECONDARY,
-            });
-        }
-        const inputAssembler = this._inputAssembler as GFXInputAssembler;
-
-        const cmdBuff = this._cmdBuffers[index];
-        cmdBuff.begin();
-        cmdBuff.bindPipelineState(pso);
-        cmdBuff.bindBindingLayout(pso.pipelineLayout.layouts[0]);
-        cmdBuff.bindInputAssembler(inputAssembler);
-        cmdBuff.draw(inputAssembler);
-        cmdBuff.end();
     }
 }

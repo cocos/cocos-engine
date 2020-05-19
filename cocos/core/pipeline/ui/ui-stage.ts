@@ -85,7 +85,7 @@ export class UIStage extends RenderStage {
         cmdBuff.beginRenderPass(framebuffer, this._renderArea!,
             camera.clearFlag, [camera.clearColor], camera.clearDepth, camera.clearStencil);
 
-        cmdBuff.execute(this._renderQueues[0].cmdBuffs.array, this._renderQueues[0].cmdBuffCount);
+        this._renderQueues[0].recordCommandBuffer(cmdBuff);
 
         cmdBuff.endRenderPass();
         cmdBuff.end();
