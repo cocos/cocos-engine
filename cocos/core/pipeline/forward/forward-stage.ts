@@ -76,7 +76,7 @@ export class ForwardStage extends RenderStage {
     public destroy () {
         if (this._cmdBuff) {
             this._cmdBuff.destroy();
-            this._cmdBuff = null;            
+            this._cmdBuff = null;
         }
     }
 
@@ -105,7 +105,7 @@ export class ForwardStage extends RenderStage {
 
         this._opaqueInstancedQueue.clear();
         this._opaqueBatchedQueue.clear();
-        this._renderQueues.forEach(this.renderQueueClearFunc); 
+        this._renderQueues.forEach(this.renderQueueClearFunc);
 
         const renderObjects = this._pipeline.renderObjects;
         const lightIndexOffset: number[] = this.pipeline.lightIndexOffsets;

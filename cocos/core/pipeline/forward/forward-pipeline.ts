@@ -103,7 +103,7 @@ export class ForwardPipeline extends RenderPipeline {
         super.initialize(info);
         const forwardFlow = new ForwardFlow();
         forwardFlow.initialize(ForwardFlow.initInfo);
-        this._flows.push(forwardFlow);           
+        this._flows.push(forwardFlow);
     }
 
     public activate (root: Root): boolean {
@@ -239,6 +239,46 @@ export class ForwardPipeline extends RenderPipeline {
 
     /**
      * @zh
+     * 获取参与渲染的灯光。
+     */
+    public get validLights () {
+        return this._validLights
+    }
+
+    /**
+     * @zh
+     * 获取灯光索引偏移量数组。
+     */
+    public get lightIndexOffsets () {
+        return this._lightIndexOffset;
+    }
+
+    /**
+     * @zh
+     * 获取灯光索引数组。
+     */
+    public get lightIndices () {
+        return this._lightIndices;
+    }
+
+    /**
+     * @zh
+     * 灯光GFXbuffer数组。
+     */
+    public get lightBuffers () {
+        return this._lightBuffers;
+    }
+
+    /**
+     * @zh
+     * get light batch queues
+     */
+    public get lightBatchQueues () {
+        return this._lightBatchQueues;
+    }
+
+    /**
+     * @zh
      * 场景裁剪。
      * @param view 渲染视图。
      */
@@ -339,45 +379,5 @@ export class ForwardPipeline extends RenderPipeline {
 
     private sortLight (a: number, b: number) {
         return _tempLightDist[a] - _tempLightDist[b];
-    }
-
-    /**
-     * @zh
-     * 获取参与渲染的灯光。
-     */
-    public get validLights () {
-        return this._validLights
-    }
-
-    /**
-     * @zh
-     * 获取灯光索引偏移量数组。
-     */
-    public get lightIndexOffsets () {
-        return this._lightIndexOffset;
-    }
-
-    /**
-     * @zh
-     * 获取灯光索引数组。
-     */
-    public get lightIndices () {
-        return this._lightIndices;
-    }
-
-    /**
-     * @zh
-     * 灯光GFXbuffer数组。
-     */
-    public get lightBuffers () {
-        return this._lightBuffers;
-    }
-
-    /**
-     * @zh
-     * get light batch queues
-     */
-    public get lightBatchQueues () {
-        return this._lightBatchQueues;
     }
 }
