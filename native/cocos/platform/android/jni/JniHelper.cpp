@@ -82,6 +82,7 @@ namespace cocos2d {
     }
 
     void JniHelper::setAndroidApp(android_app *app) {
+        pthread_key_create(&g_key, _detachCurrentThread);
         JniHelper::_app = app;
         JniHelper::setClassLoaderFrom(_app->activity->clazz);
         static_cast<FileUtilsAndroid*>(FileUtils::getInstance())->setassetmanager(_app->activity->assetManager);
