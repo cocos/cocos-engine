@@ -73,7 +73,6 @@ namespace cocos2d {
     std::function<void()> JniHelper::classloaderCallback = nullptr;
     
     jobject JniHelper::_activity = nullptr;
-    std::unordered_map<JNIEnv*, std::vector<jobject>> JniHelper::localRefs;
 
     JavaVM* JniHelper::getJavaVM() {
         pthread_t thisthread = pthread_self();
@@ -98,7 +97,7 @@ namespace cocos2d {
         JNIEnv* _env = nullptr;
         // get jni environment
         jint ret = jvm->GetEnv((void**)&_env, JNI_VERSION_1_4);
-        
+
         switch (ret) {
         case JNI_OK :
             // Success!
@@ -133,7 +132,7 @@ namespace cocos2d {
             _env = JniHelper::cacheEnv();
         return _env;
     }
-    
+
     jobject JniHelper::getActivity() {
         return _activity;
     }
@@ -295,7 +294,7 @@ namespace cocos2d {
         return strValue;
     }
 
-    jstring JniHelper::convert(cocos2d::JniMethodInfo& t, const char* x) {
+    jstring JniHelper::convert(JniHelper::LocalRefMapType& localRefs, cocos2d::JniMethodInfo& t, const char* x) {
         jstring ret = nullptr;
         if (x)
           ret = cocos2d::StringUtils::newStringUTFJNI(t.env, x);
@@ -304,11 +303,11 @@ namespace cocos2d {
         return ret;
     }
 
-    jstring JniHelper::convert(cocos2d::JniMethodInfo& t, const std::string& x) {
-        return convert(t, x.c_str());
+    jstring JniHelper::convert(JniHelper::LocalRefMapType& localRefs, cocos2d::JniMethodInfo& t, const std::string& x) {
+        return convert(localRefs, t, x.c_str());
     }
 
-    void JniHelper::deleteLocalRefs(JNIEnv* env) {
+    void JniHelper::deleteLocalRefs(JNIEnv* env, JniHelper::LocalRefMapType& localRefs) {
         if (!env) {
             return;
         }
