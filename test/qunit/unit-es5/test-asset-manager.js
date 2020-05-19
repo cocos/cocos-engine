@@ -47,7 +47,7 @@
 
         cc.assetManager.loadAny(resources, { __requestType__: 'url'}, function (finish, total, item) {
             if (item.uuid === image1) {
-                ok(item.content instanceof ImageBitmap, 'image url\'s result should be Image');
+                ok(item.content instanceof ImageBitmapOrImage, 'image url\'s result should be Image');
             }
             else if (item.uuid === json1) {
                 strictEqual(item.content.width, 89, 'should give correct js object as result of JSON');
@@ -60,7 +60,7 @@
             }
         }, function (err, assets) {
             strictEqual(assets.length, 3, 'should equal to 3');
-            ok(assets[0] instanceof ImageBitmap, 'image url\'s result should be Image');
+            ok(assets[0] instanceof ImageBitmapOrImage, 'image url\'s result should be Image');
             strictEqual(assets[1].width, 89, 'should give correct js object as result of JSON');
             strictEqual(assets[2]._native, 'YouKnowEverything', 'should give correct js object as result of JSON');
             ok(!cc.assetManager.assets.has(image1), 'should not cache');
@@ -75,14 +75,14 @@
 
         cc.assetManager.loadAny({ url: image1 }, function (completedCount, totalCount, item) {
             if (item.uuid === image1) {
-                ok(item.content instanceof ImageBitmap, 'image url\'s result should be Image');
+                ok(item.content instanceof ImageBitmapOrImage, 'image url\'s result should be Image');
             }
             else {
                 ok(false, 'should not load an unknown url');
             }
         }, function (error, image) {
             ok(!error, 'should not return error');
-            ok(image instanceof ImageBitmap, 'the single result should be Image');
+            ok(image instanceof ImageBitmapOrImage, 'the single result should be Image');
             ok(!cc.assetManager.assets.has(image1), 'should not cache');
             start();
         });
@@ -102,7 +102,7 @@
 
         var progressCallback = new Callback(function (completedCount, totalCount, item) {
             if (item.uuid === image) {
-                ok(item.content instanceof ImageBitmap, 'image url\'s result should be Image');
+                ok(item.content instanceof ImageBitmapOrImage, 'image url\'s result should be Image');
             }
             else if (item.uuid === font.url) {
                 strictEqual(item.content, 'Thonburi_LABEL', 'should set family name as content for Font type');
@@ -114,7 +114,7 @@
 
         cc.assetManager.loadAny(resources, { __requestType__: 'url' }, progressCallback, function (error, assets) {
             ok(assets.length === 2, 'be able to load all resources');
-            ok(assets[0] instanceof ImageBitmap, 'the single result should be Image');
+            ok(assets[0] instanceof ImageBitmapOrImage, 'the single result should be Image');
             strictEqual(assets[1], 'Thonburi_LABEL', 'should give correct js object as result of JSON');
             progressCallback.expect(total, 'should call ' + total + ' times progress callback for ' + total + ' resources');
 
@@ -127,8 +127,8 @@
         var image2 = assetDir + '/button.png?url=http://.../2';
         cc.assetManager.loadAny({url: image1, ext: '.png' }, function (error, image1) {
             cc.assetManager.loadAny({url: image2, ext: '.png' }, function (error, image2) {
-                ok(image1 instanceof ImageBitmap, 'image1 url\'s result should be Image');
-                ok(image2 instanceof ImageBitmap, 'image2 url\'s result should be Image');
+                ok(image1 instanceof ImageBitmapOrImage, 'image1 url\'s result should be Image');
+                ok(image2 instanceof ImageBitmapOrImage, 'image2 url\'s result should be Image');
                 ok(image1 !== image2, 'should split cache if query is different');
                 start();
             });
@@ -139,7 +139,7 @@
         var image = assetDir + '/button.png';
         cc.assetManager.loadRemote(image, function (error, texture) {
             ok(texture instanceof cc.Texture2D, 'should be texture');
-            ok(texture._nativeAsset instanceof ImageBitmap, 'should be Image');
+            ok(texture._nativeAsset instanceof ImageBitmapOrImage, 'should be Image');
             ok(texture.refCount === 0, 'reference should be 0');
             start();
         });
