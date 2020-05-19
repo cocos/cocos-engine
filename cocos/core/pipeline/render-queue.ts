@@ -6,6 +6,7 @@ import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { RecyclePool } from '../memop';
 import { CachedArray } from '../memop/cached-array';
 import { IRenderObject, IRenderPass, IRenderQueueDesc } from './define';
+import { GFXInputAssembler } from '../gfx/input-assembler';
 
 /**
  * @en
@@ -39,18 +40,6 @@ export class RenderQueue {
      */
     public queue: CachedArray<IRenderPass>;
 
-    /**
-     * @zh
-     * 基于缓存数组的命令缓冲。
-     */
-    public cmdBuffs: CachedArray<GFXCommandBuffer>;
-
-    /**
-     * @zh
-     * 命令缓冲数量。
-     */
-    public cmdBuffCount: number = 0;
-
     private _passDesc: IRenderQueueDesc;
     private _passPool: RecyclePool<IRenderPass>;
 
@@ -65,9 +54,8 @@ export class RenderQueue {
             depth: 0,
             shaderId: 0,
             subModel: null!,
-            cmdBuff: null!,
+            passIdx: 0,
         }), 64);
-        this.cmdBuffs = new CachedArray(64);
         this.queue = new CachedArray(64, this._passDesc.sortFunc);
     }
 
@@ -78,7 +66,6 @@ export class RenderQueue {
     public clear () {
         this.queue.clear();
         this._passPool.reset();
-        this.cmdBuffCount = 0;
     }
 
     /**
@@ -99,7 +86,7 @@ export class RenderQueue {
         rp.depth = renderObj.depth;
         rp.shaderId = pso.shader.id;
         rp.subModel = subModel;
-        rp.cmdBuff = subModel.commandBuffers[passIdx];
+        rp.passIdx = passIdx;
         this.queue.push(rp);
         return true;
     }
@@ -111,11 +98,19 @@ export class RenderQueue {
     public sort () {
 
         this.queue.sort();
+    }
 
-        this.cmdBuffCount = this.queue.length;
-
+    public recordCommandBuffer (cmdBuff: GFXCommandBuffer) {
         for (let i = 0; i < this.queue.length; ++i) {
-            this.cmdBuffs.array[i] = this.queue.array[i].cmdBuff;
+            let subModel = this.queue.array[i].subModel; 
+            let passIdx = this.queue.array[i].passIdx;
+            if (subModel.psos) {
+                let pso = subModel.psos[passIdx];
+                cmdBuff.bindPipelineState(pso);
+                cmdBuff.bindBindingLayout(pso.pipelineLayout.layouts[0]);
+                cmdBuff.bindInputAssembler(subModel.inputAssembler as GFXInputAssembler);
+                cmdBuff.draw(subModel.inputAssembler as GFXInputAssembler);
+            }
         }
     }
 }
