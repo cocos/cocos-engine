@@ -136,6 +136,7 @@ export class ForwardPipeline extends RenderPipeline {
         this._lightIndexOffset = [];
         this._lightIndices = [];
         this._lightBuffers = [];
+        this._lightBatchQueues = [];
     }
 
     public initialize (info: IRenderPipelineInfo) {
@@ -272,7 +273,7 @@ export class ForwardPipeline extends RenderPipeline {
                     break;   
                 }
             }
-            this._lightBuffers[l]!.update(this._uboLight.view);
+            this._lightBuffers[l].update(this._uboLight.view);
         }
     }
 
@@ -284,8 +285,8 @@ export class ForwardPipeline extends RenderPipeline {
     public sceneCulling (view: RenderView) {
         super.sceneCulling(view);
         this._validLights.length = 0;
-        this._lightBuffers.length = 0;
-        this._lightBatchQueues.length = 0;
+        //this._lightBuffers.length = 0;
+        //this._lightBatchQueues.length = 0;
         const sphereLights = view.camera.scene!.sphereLights;
 
         for (let i = 0; i < sphereLights.length; i++) {
@@ -295,13 +296,13 @@ export class ForwardPipeline extends RenderPipeline {
             if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
                 this._validLights.push(light);
 
-                let lightBuffer : GFXBuffer = this._device.createBuffer({
-                    usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                    size: UBOForwardLight.SIZE,
-                            stride: UBOForwardLight.SIZE,
-                });
-                this._lightBuffers.push(lightBuffer);
+                // let lightBuffer : GFXBuffer = this._device.createBuffer({
+                //     usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                //     memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                //     size: UBOForwardLight.SIZE,
+                //             stride: UBOForwardLight.SIZE,
+                // });
+                // this._lightBuffers.push(lightBuffer);
             }
         }
         const spotLights = view.camera.scene!.spotLights;
@@ -312,27 +313,50 @@ export class ForwardPipeline extends RenderPipeline {
             if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
                 this._validLights.push(light);
 
-                let lightBuffer : GFXBuffer = this._device.createBuffer({
-                    usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                    size: UBOForwardLight.SIZE,
-                            stride: UBOForwardLight.SIZE,
-                });
-                this._lightBuffers.push(lightBuffer);
+                // let lightBuffer : GFXBuffer = this._device.createBuffer({
+                //     usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                //     memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                //     size: UBOForwardLight.SIZE,
+                //             stride: UBOForwardLight.SIZE,
+                // });
+                // this._lightBuffers.push(lightBuffer);
             }
         }
 
-        // update lightbatchQueues length
-        for (let l = 0; l < this._validLights.length; ++l) {
-            let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
-            this._lightBatchQueues.push(new RenderLightBatchedQueue({
-                isTransparent: false,
-                phases: getPhaseID("forward-add"),
-                sortFunc,
-            }));
-            // update per-lightBatchQueue UBO
-            this._lightBatchQueues[l].updateLightBuffer(this.lightBuffers[l]);
+        if (this._validLights.length > this._lightBuffers.length) {
+            for (let l = this._lightBuffers.length; l < this._validLights.length; ++l) {
+                let lightBuffer: GFXBuffer = this._device.createBuffer({
+                    usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                    size: UBOForwardLight.SIZE,
+                    stride: UBOForwardLight.SIZE,
+                });
+                this._lightBuffers.push(lightBuffer);
+
+                let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
+                this._lightBatchQueues.push(new RenderLightBatchedQueue({
+                    isTransparent: false,
+                    phases: getPhaseID("forward-add"),
+                    sortFunc,
+                }));
+
+                // update per-lightBatchQueue UBO
+                this._lightBatchQueues[l].updateLightBuffer(this.lightBuffers[l]);
+            }
         }
+        
+
+        // update lightbatchQueues length
+        // for (let l = 0; l < this._validLights.length; ++l) {
+        //     let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
+        //     this._lightBatchQueues.push(new RenderLightBatchedQueue({
+        //         isTransparent: false,
+        //         phases: getPhaseID("forward-add"),
+        //         sortFunc,
+        //     }));
+        //     // update per-lightBatchQueue UBO
+        //     this._lightBatchQueues[l].updateLightBuffer(this.lightBuffers[l]);
+        // }
 
         this._lightIndexOffset.length = this._lightIndices.length = 0;
         if (this._validLights.length) {
