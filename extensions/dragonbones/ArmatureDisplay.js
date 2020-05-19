@@ -429,6 +429,17 @@ let ArmatureDisplay = cc.Class({
         if (baseMaterial) {
             baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
             baseMaterial.define('USE_TEXTURE', true);
+            
+            let srcBlendFactor = this.premultipliedAlpha ? cc.gfx.BLEND_ONE : cc.gfx.BLEND_SRC_ALPHA;
+            let dstBlendFactor = cc.gfx.BLEND_ONE_MINUS_SRC_ALPHA;
+
+            baseMaterial.setBlend(
+                true,
+                cc.gfx.BLEND_FUNC_ADD,
+                srcBlendFactor, srcBlendFactor,
+                cc.gfx.BLEND_FUNC_ADD,
+                dstBlendFactor, dstBlendFactor
+            );
         }
         this._materialCache = {};
     },
