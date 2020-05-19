@@ -63,6 +63,8 @@ bool CCMTLDevice::initialize(const GFXDeviceInfo& info)
     _maxSamplerUnits = mu::getMaxEntriesInSamplerStateArgumentTable(gpuFamily);
     _maxTextureSize = mu::getMaxTexture2DWidthHeight(gpuFamily);
     _maxCubeMapTextureSize = mu::getMaxCubeMapTextureWidthHeight(gpuFamily);
+    _maxColorRenderTargets = mu::getMaxColorRenderTarget(gpuFamily);
+    _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
     if([id<MTLDevice>(_mtlDevice) isDepth24Stencil8PixelFormatSupported])
     {
         _depthBits = 24;

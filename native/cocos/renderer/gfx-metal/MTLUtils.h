@@ -44,13 +44,13 @@ namespace mu
     uint8_t* convertRGB32FToRGBA32F(uint8_t* source, uint length);
     NSUInteger highestSupportedFeatureSet(id<MTLDevice> device);
     uint getGPUFamily(MTLFeatureSet featureSet);
-    int getMaxVertexAttributes(uint family);
-    int getMaxEntriesInBufferArgumentTable(uint family);
-    int getMaxEntriesInTextureArgumentTable(uint family);
-    int getMaxEntriesInSamplerStateArgumentTable(uint family);
-    int getMaxTexture2DWidthHeight(uint family);
-    int getMaxCubeMapTextureWidthHeight(uint family);
-    int getMaxColorRenderTarget(uint family);
+    uint getMaxVertexAttributes(uint family);
+    uint getMaxEntriesInBufferArgumentTable(uint family);
+    uint getMaxEntriesInTextureArgumentTable(uint family);
+    uint getMaxEntriesInSamplerStateArgumentTable(uint family);
+    uint getMaxTexture2DWidthHeight(uint family);
+    uint getMaxCubeMapTextureWidthHeight(uint family);
+    uint getMaxColorRenderTarget(uint family);
     bool isPVRTCSuppported(uint family);
     bool isEAC_ETCCSuppported(uint family);
     bool isASTCSuppported(uint family);
@@ -58,6 +58,7 @@ namespace mu
     bool isColorBufferFloatSupported(uint family);
     bool isColorBufferHalfFloatSupported(uint family);
     bool isLinearTextureSupported(uint family);
+    bool isIndirectCommandBufferSupported(MTLFeatureSet featureSet);
     String featureSetToString(MTLFeatureSet featureSet);
 }
 

@@ -1055,7 +1055,7 @@ namespace mu
 #endif
     }
     
-    int getMaxVertexAttributes(uint family)
+    uint getMaxVertexAttributes(uint family)
     {
         switch (static_cast<GPUFamily>(family)) {
             case GPUFamily::Apple1:
@@ -1072,7 +1072,7 @@ namespace mu
         }
     }
 
-    int getMaxEntriesInBufferArgumentTable(uint family)
+    uint getMaxEntriesInBufferArgumentTable(uint family)
     {
         switch (static_cast<GPUFamily>(family)) {
             case GPUFamily::Apple1:
@@ -1089,7 +1089,7 @@ namespace mu
         }
     }
 
-    int getMaxEntriesInTextureArgumentTable(uint family)
+    uint getMaxEntriesInTextureArgumentTable(uint family)
     {
         switch (static_cast<GPUFamily>(family)) {
             case GPUFamily::Apple1:
@@ -1108,7 +1108,7 @@ namespace mu
         }
     }
 
-    int getMaxEntriesInSamplerStateArgumentTable(uint family)
+    uint getMaxEntriesInSamplerStateArgumentTable(uint family)
     {
         switch (static_cast<GPUFamily>(family)) {
             case GPUFamily::Apple1:
@@ -1125,7 +1125,7 @@ namespace mu
         }
     }
 
-    int getMaxTexture2DWidthHeight(uint family)
+    uint getMaxTexture2DWidthHeight(uint family)
     {
         switch (static_cast<GPUFamily>(family)) {
             case GPUFamily::Apple1:
@@ -1143,7 +1143,7 @@ namespace mu
         }
     }
 
-    int getMaxCubeMapTextureWidthHeight(uint family)
+    uint getMaxCubeMapTextureWidthHeight(uint family)
     {
         switch (static_cast<GPUFamily>(family)) {
             case GPUFamily::Apple1:
@@ -1161,7 +1161,7 @@ namespace mu
         }
     }
 
-    int getMaxColorRenderTarget(uint family)
+    uint getMaxColorRenderTarget(uint family)
     {
         switch (static_cast<GPUFamily>(family)) {
             case GPUFamily::Apple1:
@@ -1303,7 +1303,20 @@ namespace mu
         }
     }
 
-    
+    bool isIndirectCommandBufferSupported(MTLFeatureSet featureSet)
+    {
+    #if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+        if (@available(iOS 12.0, *)) {
+            return featureSet >= MTLFeatureSet_iOS_GPUFamily3_v4;
+        }
+    #else
+        if (@available(macOS 10.14, *)) {
+            return featureSet >= MTLFeatureSet_macOS_GPUFamily2_v1;
+        }
+    #endif
+        return false;
+    }
+
     String featureSetToString(MTLFeatureSet featureSet)
     {
     #if CC_PLATFORM == CC_PLATFORM_MAC_IOS

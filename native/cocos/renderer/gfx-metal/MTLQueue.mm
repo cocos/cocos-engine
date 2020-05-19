@@ -101,21 +101,33 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 cmdBeginRenderPass = commandPackage->beginRenderPassCmds[cmdIdx++];
                 
                 MTLRenderPassDescriptor* mtlRenderPassDescriptor;
-                if (!cmdBeginRenderPass->frameBuffer->isOffscreen() )
-                    mtlRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
-                else
-                    mtlRenderPassDescriptor = static_cast<CCMTLRenderPass*>(cmdBeginRenderPass->frameBuffer->getRenderPass() )->getMTLRenderPassDescriptor();
-                                
-                if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::COLOR)
+                auto isOffscreen = cmdBeginRenderPass->frameBuffer->isOffscreen();
+                if (isOffscreen)
                 {
-                    mtlRenderPassDescriptor.colorAttachments[0].clearColor = mu::toMTLClearColor(cmdBeginRenderPass->clearColors[0]);
-                    mtlRenderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+                    mtlRenderPassDescriptor = static_cast<CCMTLRenderPass*>(cmdBeginRenderPass->frameBuffer->getRenderPass())->getMTLRenderPassDescriptor();
                 }
                 else
-                    mtlRenderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionLoad;
+                {
+                    mtlRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
+                }
                 
-                mtlRenderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
-
+                if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::COLOR)
+                {
+                    auto count = isOffscreen ? cmdBeginRenderPass->clearColors.size() : 1;
+                    for(size_t slot = 0; slot < count; slot++)
+                    {
+                        mtlRenderPassDescriptor.colorAttachments[slot].clearColor = mu::toMTLClearColor(cmdBeginRenderPass->clearColors[i]);
+                        mtlRenderPassDescriptor.colorAttachments[slot].loadAction = MTLLoadActionClear;
+                    }
+                }
+                else
+                {
+                    auto count = isOffscreen ? static_cast<CCMTLRenderPass*>(cmdBeginRenderPass->frameBuffer->getRenderPass())->getColorRenderTargetNums() : 1;
+                    for(size_t slot = 0; slot < count; slot ++)
+                    {
+                        mtlRenderPassDescriptor.colorAttachments[slot].loadAction = MTLLoadActionLoad;
+                    }
+                }
                 
                 if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::DEPTH)
                 {
@@ -124,9 +136,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 }
                 else
                     mtlRenderPassDescriptor.depthAttachment.loadAction = MTLLoadActionLoad;
-                
-                mtlRenderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
-                
+                                
                 if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::STENCIL)
                 {
                     mtlRenderPassDescriptor.stencilAttachment.clearStencil = cmdBeginRenderPass->clearStencil;
@@ -134,9 +144,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 }
                 else
                     mtlRenderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionLoad;
-                
-                mtlRenderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionStore;
-                
+                                
                 encoder = [mtlCommandBuffer renderCommandEncoderWithDescriptor:mtlRenderPassDescriptor];
                 
                 break;

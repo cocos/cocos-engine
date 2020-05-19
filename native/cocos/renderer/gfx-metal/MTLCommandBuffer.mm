@@ -88,8 +88,7 @@ void CCMTLCommandBuffer::beginRenderPass(GFXFramebuffer* fbo, const GFXRect& ren
     cmd->renderArea = render_area;
     cmd->clearStencil = stencil;
     cmd->clearDepth = depth;
-    for (uint i = 0; i < colors.size(); ++i)
-        cmd->clearColors[i] = colors[i];
+    cmd->clearColors = colors;
     
     _commandPackage->beginRenderPassCmds.push(cmd);
     _commandPackage->commandTypes.push(GFXCmdType::BEGIN_RENDER_PASS);

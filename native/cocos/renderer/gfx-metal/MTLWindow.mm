@@ -80,7 +80,7 @@ bool CCMTLWindow::initialize(const GFXWindowInfo& info)
             if (_colorTexView)
             {
                 id<MTLTexture> mtlTexture = static_cast<CCMTLTextureView*>(_colorTexView)->getMTLTexture();
-                static_cast<CCMTLRenderPass*>(_renderPass)->setDepthStencilAttachment(mtlTexture);
+                static_cast<CCMTLRenderPass*>(_renderPass)->setColorAttachment(mtlTexture, 0);
             }
         }
         if (_depthStencilFmt != GFXFormat::UNKNOWN) {
