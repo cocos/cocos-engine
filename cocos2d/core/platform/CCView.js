@@ -460,7 +460,7 @@ cc.js.mixin(View.prototype, {
         if(cc.game.renderType === cc.game.RENDER_TYPE_WEBGL) {
             var cache = cc.assetManager.assets;
             cache.forEach(function (asset) {
-                if (asset instanceof cc.Texture2Dx) {
+                if (asset instanceof cc.Texture2D) {
                     var Filter = cc.Texture2D.Filter;
                     if (enabled) {
                         asset.setFilters(Filter.LINEAR, Filter.LINEAR);
