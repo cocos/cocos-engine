@@ -10,6 +10,16 @@ import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, IRenderQueueDesc } from './define';
 import { IMacroPatch } from '../renderer/core/pass'
 import { UBOForwardLight } from '../pipeline/define';
+import { Light } from '../renderer';
+import { LightType } from '../renderer/scene/light';
+
+const myForward_Light_Sphere_Patches = [
+    { name: 'CC_FOWARD_ADD', value: true },
+];
+const myForward_Light_Spot_Patches = [
+    { name: 'CC_FOWARD_ADD', value: true },
+    { name: 'CC_SPOTLIGHT', value: true },
+];
 
 /**
  * @zh
@@ -17,9 +27,10 @@ import { UBOForwardLight } from '../pipeline/define';
  */
 export class RenderLightBatchedQueue {
 
-    private _subModels: SubModel[] = [];
-    private _psos: GFXPipelineState[] = [];
-    private _lightBuffer: GFXBuffer | null = null;
+    private _sortedSubModelsArray: Array<SubModel[]>;
+    private _sortedPSOArray: Array<GFXPipelineState[]>;
+    private _lightBuffers: GFXBuffer[] = [];
+
     private _passDesc: IRenderQueueDesc;
 
     /**
@@ -28,14 +39,28 @@ export class RenderLightBatchedQueue {
      */
     constructor (desc: IRenderQueueDesc) {
         this._passDesc = desc;
+        this._sortedSubModelsArray = new Array<SubModel[]>();
+        this._sortedPSOArray = new Array<GFXPipelineState[]>();
     }
 
     /**
      * update lightBuffer for light-batch-queue
      * @param lightBuffer GFXBuffer for light
      */
-    public updateLightBuffer (lightBuffer: GFXBuffer) {
-        this._lightBuffer = lightBuffer;
+    public updateLightBuffers (index, lightBuffers: GFXBuffer) {
+        this._lightBuffers[index] = lightBuffers;
+    }
+
+    /**
+     * update lightBuffer for light-batch-queue.size()
+     * @param size
+     */
+    public updateValidLights (validLights: Light[]) {
+        this._sortedSubModelsArray.length = this._sortedPSOArray.length = validLights.length;
+        for (let i = 0; i < validLights.length; ++i) {
+            this._sortedSubModelsArray[i] = [];
+            this._sortedPSOArray[i] = [];
+        }
     }
 
     /**
@@ -43,29 +68,31 @@ export class RenderLightBatchedQueue {
      * clear ligth-Batched-Queue
      */
     public clear () {
-        this._subModels.length = 0;
-        this._psos.length = 0;
-        this._lightBuffer = null;
+        for(let i = 0; i < this._sortedSubModelsArray.length; ++i)
+        {
+            this._sortedSubModelsArray[i].length = 0;
+            this._sortedPSOArray[i].length = 0;
+        }
+        this._sortedSubModelsArray.length = 0;
+        this._sortedPSOArray.length = 0;
+        this._lightBuffers.length = 0;
     }
 
-    /**
-     * Push batch to lightBatchQueue
-     * @param pass Pass
-     * @param renderObj RenderObject
-     * @param modelIdx submodels index
-     * @param patches pass desc
-     */
-    public add (pass: Pass, renderObj: IRenderObject, modelIdx: number, patches?: IMacroPatch[]){
-        if(pass.phase === this._passDesc.phases)
-        {
-            const nowStep = this._subModels.length;
-            this._subModels.push(renderObj.model.subModels[modelIdx]);
-            // keep _psos.length  =  _subModels.length
-            this._psos.length = this._subModels.length;
-            //@ts-ignore
-            this._psos[nowStep] = renderObj.model.createPipelineState(pass, modelIdx, patches);
-            const bindingLayout = this._psos[nowStep]!.pipelineLayout.layouts[0];
-            if(this._lightBuffer){bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, this._lightBuffer);}
+    public add(index: number, lightIndexOffset: number[], nextLightIndex: number, lightIndices: number[],
+        validLights: Light[], pass: Pass, renderObj: IRenderObject, modelIdx: number) {
+        if (pass.phase === this._passDesc.phases) {
+            for (let l = lightIndexOffset[index]; l < nextLightIndex; l++) {
+                const light = validLights[lightIndices[l]];
+                switch (light.type) {
+                    case LightType.SPHERE:
+                        this.attache(lightIndices[l], pass, renderObj, modelIdx, myForward_Light_Sphere_Patches);
+                        break;
+
+                    case LightType.SPOT:
+                        this.attache(lightIndices[l], pass, renderObj, modelIdx, myForward_Light_Spot_Patches);
+                        break;
+                }
+            }
         }
     }
 
@@ -73,15 +100,35 @@ export class RenderLightBatchedQueue {
      * @zh
      * record CommandBuffer
      */
-    public recordCommandBuffer (cmdBuff: GFXCommandBuffer) {
-        for(let i = 0; i < this._subModels.length; ++i)
-        {
-            cmdBuff.bindPipelineState(this._psos[i]);
-            let bindingLayout = this._psos[i]!.pipelineLayout.layouts[0];
-            bindingLayout.update();
-            cmdBuff.bindBindingLayout(bindingLayout);
-            cmdBuff.bindInputAssembler(this._subModels[i].inputAssembler!);
-            cmdBuff.draw(this._subModels[i].inputAssembler!);
+    public recordCommandBuffer(cmdBuff: GFXCommandBuffer) {
+        for (let i = 0; i < this._sortedSubModelsArray.length; ++i) {
+            for (let j = 0; j < this._sortedSubModelsArray[i].length; ++j) {
+                cmdBuff.bindPipelineState(this._sortedPSOArray[i][j]);
+                let bindingLayout = this._sortedPSOArray[i][j].pipelineLayout.layouts[0];
+                bindingLayout.update();
+                cmdBuff.bindBindingLayout(bindingLayout);
+                cmdBuff.bindInputAssembler(this._sortedSubModelsArray[i][j].inputAssembler!);
+                cmdBuff.draw(this._sortedSubModelsArray[i][j].inputAssembler!);
+            }
         }
+    }
+
+    /**
+     * Organization queue
+     * @param index someOne queue
+     * @param pass Pass
+     * @param renderObj RenderObject
+     * @param modelIdx submodel Index
+     * @param patches Sphere/Spot Light
+     */
+    private attache(index: number, pass: Pass, renderObj: IRenderObject, modelIdx: number, patches?: IMacroPatch[]) {
+        const nowStep = this._sortedSubModelsArray[index].length;
+        this._sortedSubModelsArray[index].push(renderObj.model.subModels[modelIdx]);
+        // keep pos == subModel
+        this._sortedPSOArray[index].length = this._sortedSubModelsArray[index].length;
+        //@ts-ignore
+        this._sortedPSOArray[index][nowStep] = renderObj.model.createPipelineState(pass, modelIdx, patches);
+        const bindingLayout = this._sortedPSOArray[index][nowStep].pipelineLayout.layouts[0];
+        if (this._lightBuffers[index]) { bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, this._lightBuffers[index]); }
     }
 }

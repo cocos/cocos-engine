@@ -14,18 +14,9 @@ import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-st
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
 import { Light } from '../../renderer';
-import { LightType } from '../../renderer/scene/light';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
-
-const myForward_Light_Sphere_Patches = [
-    { name: 'CC_FOWARD_ADD', value: true },
-];
-const myForward_Light_Sport_Patches = [
-    { name: 'CC_FOWARD_ADD', value: true },
-    { name: 'CC_SPOTLIGHT', value: true },
-];
 
 /**
  * @zh
@@ -111,8 +102,6 @@ export class ForwardStage extends RenderStage {
         const lightIndexOffset: number[] = this.pipeline.lightIndexOffsets;
         const lightIndices: number[] = this.pipeline.lightIndices;
         const validLights: Light[] = this.pipeline.validLights;
-        const lightBatchQueues = this.pipeline.lightBatchQueues;
-
 
         let m = 0; let p = 0; let k = 0; let l = 0;
         for (let i = 0; i < renderObjects.length; ++i) {                
@@ -146,20 +135,10 @@ export class ForwardStage extends RenderStage {
                         for (k = 0; k < this._renderQueues.length; k++) {
                             this._renderQueues[k].insertRenderPass(ro, m, p);
                         }
-                                               
-                        // Organize light-batched-queues
-                        for (l = lightIndexOffset[i]; l < nextLightIndex; l++) {
-                            const light = validLights[lightIndices[l]];
-                            switch (light.type) {
-                                case LightType.SPHERE:
-                                    lightBatchQueues[lightIndices[l]].add(pass, ro, m, myForward_Light_Sphere_Patches);
-                                    break;
 
-                                case LightType.SPOT:
-                                    lightBatchQueues[lightIndices[l]].add(pass, ro, m, myForward_Light_Sport_Patches);
-                                    break;
-                            }                            
-                        }
+                        // Organize light-batched-queue
+                        this._pipeline.lightBatchQueue.add(i, lightIndexOffset, nextLightIndex,
+                            lightIndices, validLights, pass, ro, m);                                  
                     }
                 }
             }
@@ -213,10 +192,8 @@ export class ForwardStage extends RenderStage {
         this._opaqueInstancedQueue.recordCommandBuffer(cmdBuff);
         this._opaqueBatchedQueue.recordCommandBuffer(cmdBuff);
 
-        // Commit light-batched-queues
-        for (let l = 0; l < lightBatchQueues.length; ++l) {
-            lightBatchQueues[l].recordCommandBuffer(cmdBuff);
-        }        
+        // Commit light-batched-queue
+        this._pipeline.lightBatchQueue.recordCommandBuffer(cmdBuff);
 
         if (camera.visibility & Layers.BitMask.DEFAULT) {
             cmdBuff.execute(planarShadow.cmdBuffs.array, planarShadow.cmdBuffCount);

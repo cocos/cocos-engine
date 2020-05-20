@@ -80,8 +80,8 @@ export class ForwardPipeline extends RenderPipeline {
      * @zh
      * get light batch queues
      */
-    public get lightBatchQueues () {
-        return this._lightBatchQueues;
+    public get lightBatchQueue () {
+        return this._lightBatchQueue;
     }
 
     /**
@@ -124,7 +124,7 @@ export class ForwardPipeline extends RenderPipeline {
      * @zh
      * Light batch Queue
      */
-    private _lightBatchQueues: RenderLightBatchedQueue[] = [];
+    private _lightBatchQueue: RenderLightBatchedQueue;
 
     /**
      * 构造函数。
@@ -136,7 +136,13 @@ export class ForwardPipeline extends RenderPipeline {
         this._lightIndexOffset = [];
         this._lightIndices = [];
         this._lightBuffers = [];
-        this._lightBatchQueues = [];
+        
+        let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
+        this._lightBatchQueue = new RenderLightBatchedQueue({
+            isTransparent: false,
+            phases: getPhaseID("forward-add"),
+            sortFunc,
+        });
     }
 
     public initialize (info: IRenderPipelineInfo) {
@@ -179,16 +185,8 @@ export class ForwardPipeline extends RenderPipeline {
      * 销毁函数。
      */
     public destroy () {
-        this._destroy();
-
-        if(this._lightBuffers){
-            for ( let i = 0; i < this._lightBuffers.length; ++i ) {
-                this._lightBuffers[i].destroy();
-                this._lightBatchQueues[i].clear();
-            }
-            this._lightBuffers.length = 0;
-            this._lightBatchQueues.length = 0;
-        }
+        this._destroy();       
+        this._lightBatchQueue.clear();
     }
 
     /**
@@ -273,7 +271,11 @@ export class ForwardPipeline extends RenderPipeline {
                     break;   
                 }
             }
-            this._lightBuffers[l].update(this._uboLight.view);
+            // update lightBuffer
+            this._lightBuffers[l].update(this._uboLight.view); 
+
+            // update per-lightBatchQueue UBO
+            this._lightBatchQueue.updateLightBuffers(l, this._lightBuffers[l]);                 
         }
     }
 
@@ -285,9 +287,8 @@ export class ForwardPipeline extends RenderPipeline {
     public sceneCulling (view: RenderView) {
         super.sceneCulling(view);
         this._validLights.length = 0;
-        //this._lightBuffers.length = 0;
-        //this._lightBatchQueues.length = 0;
         const sphereLights = view.camera.scene!.sphereLights;
+        this._lightBatchQueue.clear();
 
         for (let i = 0; i < sphereLights.length; i++) {
             const light = sphereLights[i];
@@ -295,14 +296,6 @@ export class ForwardPipeline extends RenderPipeline {
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
                 this._validLights.push(light);
-
-                // let lightBuffer : GFXBuffer = this._device.createBuffer({
-                //     usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                //     memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                //     size: UBOForwardLight.SIZE,
-                //             stride: UBOForwardLight.SIZE,
-                // });
-                // this._lightBuffers.push(lightBuffer);
             }
         }
         const spotLights = view.camera.scene!.spotLights;
@@ -312,14 +305,6 @@ export class ForwardPipeline extends RenderPipeline {
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
                 this._validLights.push(light);
-
-                // let lightBuffer : GFXBuffer = this._device.createBuffer({
-                //     usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                //     memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                //     size: UBOForwardLight.SIZE,
-                //             stride: UBOForwardLight.SIZE,
-                // });
-                // this._lightBuffers.push(lightBuffer);
             }
         }
 
@@ -332,31 +317,8 @@ export class ForwardPipeline extends RenderPipeline {
                     stride: UBOForwardLight.SIZE,
                 });
                 this._lightBuffers.push(lightBuffer);
-
-                let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
-                this._lightBatchQueues.push(new RenderLightBatchedQueue({
-                    isTransparent: false,
-                    phases: getPhaseID("forward-add"),
-                    sortFunc,
-                }));
-
-                // update per-lightBatchQueue UBO
-                this._lightBatchQueues[l].updateLightBuffer(this.lightBuffers[l]);
             }
         }
-        
-
-        // update lightbatchQueues length
-        // for (let l = 0; l < this._validLights.length; ++l) {
-        //     let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
-        //     this._lightBatchQueues.push(new RenderLightBatchedQueue({
-        //         isTransparent: false,
-        //         phases: getPhaseID("forward-add"),
-        //         sortFunc,
-        //     }));
-        //     // update per-lightBatchQueue UBO
-        //     this._lightBatchQueues[l].updateLightBuffer(this.lightBuffers[l]);
-        // }
 
         this._lightIndexOffset.length = this._lightIndices.length = 0;
         if (this._validLights.length) {
@@ -364,6 +326,7 @@ export class ForwardPipeline extends RenderPipeline {
                 this._lightIndexOffset[i] = this._lightIndices.length;
                 this.cullLightPerModel(this._renderObjects[i].model);
             }
+            this._lightBatchQueue.updateValidLights(this._validLights);
         }
     }
 

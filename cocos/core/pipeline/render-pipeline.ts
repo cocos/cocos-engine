@@ -238,6 +238,36 @@ export abstract class RenderPipeline {
         return this._useDynamicBatching;
     }
 
+    /**
+     * @zh
+     * 获取参与渲染的灯光。
+     */
+    public abstract get validLights () : Light[];
+
+    /**
+     * @zh
+     * 获取灯光索引偏移量数组。
+     */
+    public abstract get lightIndexOffsets () : number[];
+
+    /**
+     * @zh
+     * 获取灯光索引数组。
+     */
+    public abstract get lightIndices () : number[];
+
+    /**
+     * @zh
+     * 灯光GFXbuffer数组。
+     */
+    public abstract get lightBuffers () : GFXBuffer[];
+
+    /**
+     * @zh
+     * get light batch queues
+     */
+    public abstract get lightBatchQueue () : RenderLightBatchedQueue;
+
     protected _root: Root = null!;
     protected _device: GFXDevice = null!;
     protected _renderObjects: IRenderObject[] = [];
@@ -1074,35 +1104,5 @@ export abstract class RenderPipeline {
             return format;
         }
     }
-
-    /**
-     * @zh
-     * 获取参与渲染的灯光。
-     */
-    public abstract get validLights () : Light[];
-
-    /**
-     * @zh
-     * 获取灯光索引偏移量数组。
-     */
-    public abstract get lightIndexOffsets () : number[];
-
-    /**
-     * @zh
-     * 获取灯光索引数组。
-     */
-    public abstract get lightIndices () : number[];
-
-    /**
-     * @zh
-     * 灯光GFXbuffer数组。
-     */
-    public abstract get lightBuffers () : GFXBuffer[];
-
-    /**
-     * @zh
-     * get light batch queues
-     */
-    public abstract get lightBatchQueues () : RenderLightBatchedQueue[];
 }
 legacyCC.RenderPipeline = RenderPipeline;
