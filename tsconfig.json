@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-      "target": "es5",
+      "target": "es6",
       "lib": ["es2015", "es2017", "dom"],
       "module": "commonjs",
       "sourceMap": true,
@@ -17,7 +17,7 @@
         "./@types/consts",
         "./@types/editor-extends",
         "./@types/wx",
-        "./@types/webGL.extras", 
+        "./@types/webGL.extras",
         "./@types/webGL2.extras",
         "./node_modules/@cocos/cannon/CANNON",
         "./node_modules/@cocos/ammo/Ammo",

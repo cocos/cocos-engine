@@ -172,19 +172,17 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
 
     @property({ override: true, visible: false })
     get mesh () {
-        return this._mesh;
+        return super.mesh;
     }
     set mesh (val) {
-        // @ts-ignore
         super.mesh = val;
     }
 
     @property({ override: true, visible: false })
     get skeleton () {
-        return this._skeleton;
+        return super.skeleton;
     }
     set skeleton (val) {
-        // @ts-ignore
         super.skeleton = val;
     }
 
