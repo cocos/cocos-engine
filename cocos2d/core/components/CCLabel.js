@@ -745,11 +745,7 @@ let Label = cc.Class({
         if (!this._frame) return;
         this._frame._texture._nativeUrl = this.uuid + '_texture';
     },
-
-    _getDefaultMaterial() {
-        return Material.getBuiltinMaterial("2d-label");
-    },
-
+    
     _updateMaterialWebgl () {
 
         let material = this.getMaterial(0);
