@@ -21,13 +21,13 @@ if (!isPhantomJS) {
             strictEqual(audioSource.isPlaying, true, 'audio scource play state true after play');
 
             audioSource.volume = 0.5;
-            strictEqual(audioSource.audio._volume, 0.5, 'audio scource volume after play');
+            strictEqual(audioSource.audio.getVolume(), 0.5, 'audio scource volume after play');
 
             audioSource.loop = true;
-            strictEqual(audioSource.audio._loop, true, 'audio scource loop after play');
+            strictEqual(audioSource.audio.getLoop(), true, 'audio scource loop after play');
 
             audioSource.mute = true;
-            strictEqual(audioSource.audio._volume, 0, 'audio scource volume after mute');
+            strictEqual(audioSource.audio.getVolume(), 0, 'audio scource volume after mute');
 
             start();
         });

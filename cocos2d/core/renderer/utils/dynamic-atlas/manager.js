@@ -182,8 +182,9 @@ let dynamicAtlasManager = {
      * !#zh 在当前场景中显示所有动态图集，可以用来查看当前的合图状态。
      * @method showDebug
      * @param {Boolean} show
+     * @return {Node}
      */
-    showDebug: CC_DEV && function (show) {
+    showDebug: CC_DEBUG && function (show) {
         if (show) {
             if (!_debugNode || !_debugNode.isValid) {
                 let width = cc.visibleRect.width;
@@ -226,6 +227,7 @@ let dynamicAtlasManager = {
                     node.parent = content;
                 }
             }
+            return _debugNode;
         }
         else {
             if (_debugNode) {
