@@ -82,8 +82,8 @@ const _profileInfo = {
 };
 
 const _constants = {
-    fontSize: 24,
-    quadHeight: 0.18,
+    fontSize: 23,
+    quadHeight: 0.4,
     segmentsPerLine: 8,
     textureWidth: 256,
     textureHeight: 256,
@@ -117,8 +117,6 @@ export class Profiler {
     private _totalLines = 0; // total lines to display
 
     private lastTime = 0;   // update use time
-
-    private _uvOffset: Vec4[] = [];
 
     constructor () {
         if (!TEST) {
@@ -231,22 +229,14 @@ export class Profiler {
         this._totalLines = i;
         this._wordHeight = this._totalLines * this._lineHeight / this._canvas.height;
 
-        const offsets = new Array();
-        offsets[0] = 0;
         for (let j = 0; j < _characters.length; ++j) {
             const offset = this._ctx.measureText(_characters[j]).width;
             this._eachNumWidth = Math.max(this._eachNumWidth, offset);
-            offsets[j + 1] = offsets[j] + offset / this._canvas.width;
         }
         for (let j = 0; j < _characters.length; ++j) {
             this._ctx.fillText(_characters[j], j * this._eachNumWidth, this._totalLines * this._lineHeight);
         }
         this._eachNumWidth /= this._canvas.width;
-
-        const len = Math.ceil(offsets.length / 4);
-        for (let j = 0; j < len; j++) {
-            this._uvOffset.push(new Vec4(offsets[j * 4], offsets[j * 4 + 1], offsets[j * 4 + 2], offsets[j * 4 + 3]));
-        }
 
         this._stats = _profileInfo as IProfilerState;
         this._canvasArr[0] = this._canvas;
@@ -317,6 +307,12 @@ export class Profiler {
             }
         }
 
+        // device NDC correction
+        const ySign = this._device!.projectionSignY;
+        for (let i = 1; i < vertexPos.length; i += 3) {
+            vertexPos[i] *= ySign;
+        }
+
         const modelCom = managerNode.addComponent('cc.ModelComponent') as ModelComponent;
         modelCom.mesh = createMesh({
             positions: vertexPos,
@@ -326,7 +322,7 @@ export class Profiler {
 
         const _material = new Material();
         _material.initialize({ effectName: 'util/profiler' });
-        _material.setProperty('offset', new Vec4(-0.9, -0.9, this._eachNumWidth, 0));
+        _material.setProperty('offset', new Vec4(-0.9, -0.9 * ySign, this._eachNumWidth, 0));
         const pass = _material.passes[0];
         const handle = pass.getBinding('mainTexture');
         const binding = pass.getBinding('digits')!;
