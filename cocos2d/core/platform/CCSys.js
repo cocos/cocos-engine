@@ -1000,7 +1000,7 @@ function initSys () {
             createImageBitmap(_tmpCanvas1, {}).then(imageBitmap => {
                 capabilities.imageBitmap = true;
                 imageBitmap.close && imageBitmap.close();
-            });
+            }).catch(err => {});
         }
         if (docEle['ontouchstart'] !== undefined || doc['ontouchstart'] !== undefined || nav.msPointerEnabled)
             capabilities["touches"] = true;
