@@ -202,7 +202,6 @@ uint GFXFormatSurfaceSize(GFXFormat format, uint width, uint height, uint depth,
     size += GFXFormatSize(format, width, height, depth);
     width = std::max(width >> 1, 1U);
     height = std::max(height >> 1, 1U);
-    depth = std::max(depth >> 1, 1U);
   }
   
   return size;

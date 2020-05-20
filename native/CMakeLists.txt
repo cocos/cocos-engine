@@ -44,6 +44,8 @@ set(CC_USE_GLES3 ON)
 set(CC_USE_GLES2 OFF)
 
 if(ANDROID OR WINDOWS) 
+    set(CC_USE_VULKAN ON)
+    set(CC_USE_GLES3 ON)
     set(CC_USE_GLES2 ON)
 elseif(MACOSX)
     set(CC_USE_METAL ON)
@@ -608,7 +610,6 @@ if(CC_USE_GLES3)
     endif()
 endif()
 
-
 if(CC_USE_METAL)
     cocos_source_files(
         cocos/renderer/gfx-metal/GFXMTL.h
@@ -652,6 +653,57 @@ if(CC_USE_METAL)
         cocos/renderer/gfx-metal/MTLUtils.mm
         cocos/renderer/gfx-metal/MTLWindow.h
         cocos/renderer/gfx-metal/MTLWindow.mm
+    )
+endif()
+
+if(CC_USE_VULKAN)
+
+    cocos_source_files(
+        cocos/renderer/gfx-vulkan/GFXVulkan.h
+        cocos/renderer/gfx-vulkan/vk_mem_alloc.h
+        cocos/renderer/gfx-vulkan/VKBindingLayout.cc
+        cocos/renderer/gfx-vulkan/VKBindingLayout.h
+        cocos/renderer/gfx-vulkan/VKBuffer.cc
+        cocos/renderer/gfx-vulkan/VKBuffer.h
+        cocos/renderer/gfx-vulkan/VKCommandAllocator.cc
+        cocos/renderer/gfx-vulkan/VKCommandAllocator.h
+        cocos/renderer/gfx-vulkan/VKCommandBuffer.cc
+        cocos/renderer/gfx-vulkan/VKCommandBuffer.h
+        cocos/renderer/gfx-vulkan/VKCommands.cc
+        cocos/renderer/gfx-vulkan/VKCommands.h
+        cocos/renderer/gfx-vulkan/VKContext.cc
+        cocos/renderer/gfx-vulkan/VKContext.h
+        cocos/renderer/gfx-vulkan/VKDevice.cc
+        cocos/renderer/gfx-vulkan/VKDevice.h
+        cocos/renderer/gfx-vulkan/VKFramebuffer.cc
+        cocos/renderer/gfx-vulkan/VKFramebuffer.h
+        cocos/renderer/gfx-vulkan/VKGPUObjects.h
+        cocos/renderer/gfx-vulkan/VKInputAssembler.cc
+        cocos/renderer/gfx-vulkan/VKInputAssembler.h
+        cocos/renderer/gfx-vulkan/VKPipelineLayout.cc
+        cocos/renderer/gfx-vulkan/VKPipelineLayout.h
+        cocos/renderer/gfx-vulkan/VKPipelineState.cc
+        cocos/renderer/gfx-vulkan/VKPipelineState.h
+        cocos/renderer/gfx-vulkan/VKQueue.cc
+        cocos/renderer/gfx-vulkan/VKQueue.h
+        cocos/renderer/gfx-vulkan/VKRenderPass.cc
+        cocos/renderer/gfx-vulkan/VKRenderPass.h
+        cocos/renderer/gfx-vulkan/VKSampler.cc
+        cocos/renderer/gfx-vulkan/VKSampler.h
+        cocos/renderer/gfx-vulkan/VKShader.cc
+        cocos/renderer/gfx-vulkan/VKShader.h
+        cocos/renderer/gfx-vulkan/VKSPIRV.h
+        cocos/renderer/gfx-vulkan/VKStd.cc
+        cocos/renderer/gfx-vulkan/VKStd.h
+        cocos/renderer/gfx-vulkan/VKTexture.cc
+        cocos/renderer/gfx-vulkan/VKTexture.h
+        cocos/renderer/gfx-vulkan/VKTextureView.cc
+        cocos/renderer/gfx-vulkan/VKTextureView.h
+        cocos/renderer/gfx-vulkan/VKUtils.h
+        cocos/renderer/gfx-vulkan/VKWindow.cc
+        cocos/renderer/gfx-vulkan/VKWindow.h
+        cocos/renderer/gfx-vulkan/volk.h
+        cocos/renderer/gfx-vulkan/volk.c
     )
 endif()
 
@@ -739,6 +791,13 @@ if(CC_USE_METAL)
     cocos_source_files(
         cocos/scripting/js-bindings/auto/jsb_mtl_auto.hpp
         cocos/scripting/js-bindings/auto/jsb_mtl_auto.cpp
+    )
+endif()
+
+if(CC_USE_VULKAN)
+    cocos_source_files(
+        cocos/scripting/js-bindings/auto/jsb_vk_auto.hpp
+        cocos/scripting/js-bindings/auto/jsb_vk_auto.cpp
     )
 endif()
 
@@ -936,7 +995,23 @@ target_compile_definitions(cocos2d PUBLIC
     $<$<CONFIG:Debug>:COCOS2D_DEBUG=1>
 )
 
+if(CC_USE_VULKAN)
 
+    target_compile_definitions(cocos2d PUBLIC VK_NO_PROTOTYPES)
+
+    if(WIN32)
+        target_compile_definitions(cocos2d PUBLIC VK_USE_PLATFORM_WIN32_KHR)
+    elseif(ANDROID)
+        target_compile_definitions(cocos2d PUBLIC VK_USE_PLATFORM_ANDROID_KHR)
+    elseif(IOS)
+        target_compile_definitions(cocos2d PUBLIC VK_USE_PLATFORM_IOS_MVK)
+    elseif(MACOSX)
+        target_compile_definitions(cocos2d PUBLIC VK_USE_PLATFORM_MACOS_MVK)
+    else()
+        target_compile_definitions(cocos2d PUBLIC VK_USE_PLATFORM_XCB_KHR)
+    endif()
+    
+endif()
 
 target_include_directories(cocos2d PUBLIC 
     ${CC_EXTERNAL_INCLUDES}

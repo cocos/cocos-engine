@@ -13,6 +13,8 @@ set(INCLUDE_FILES
 
 add_subdirectory(${GFX_EXTERNAL_PATH}/glslang glslang)
 
+add_definitions("-DVK_NO_PROTOTYPES")
+
 if(WIN32)
 	add_definitions("-DVK_USE_PLATFORM_WIN32_KHR")
 	add_definitions("-DNOMINMAX")
@@ -22,21 +24,6 @@ elseif(COCOS_PLATFORM_OSX)
 	add_definitions("-DVK_USE_PLATFORM_MACOS_MVK")
 else()
 	add_definitions("-DVK_USE_PLATFORM_XLIB_KHR")
-endif()
-
-if(WIN32)
-  list(APPEND INCLUDE_FILES ${GFX_EXTERNAL_PATH}/pvrsdk/include)
-
-if(COCOS_CPU_X64)
-  set(PVRSDK_LIB_DIR ${GFX_EXTERNAL_PATH}/pvrsdk/lib/Windows_x86_64)
-else()
-  set(PVRSDK_LIB_DIR ${GFX_EXTERNAL_PATH}/pvrsdk/lib/Windows_x86_32)
-endif()
-
-  link_libraries(
-    ${PVRSDK_LIB_DIR}/libEGL.lib
-	${PVRSDK_LIB_DIR}/libGLESv2.lib
-  )
 endif()
 
 include_directories( ${INCLUDE_FILES} )
@@ -62,7 +49,7 @@ if(COCOS_PLATFORM_IOS OR COCOS_PLATFORM_OSX)
 else()
 	list(REMOVE_ITEM ALL_FILES "${COCOS_SRC_PATH}/renderer/gfx-vulkan/gles3w.mm")
 endif()
-	
+
 add_definitions("-DCC_VK_EXPORTS")
 if(WIN32)
 	add_definitions("-DGLEW_BUILD")
@@ -84,8 +71,8 @@ set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCGFXVulkan_d)
 
 use_precompiled_header("${CMAKE_CURRENT_SOURCE_DIR}/VKStd.h" "${CMAKE_CURRENT_SOURCE_DIR}/VKStd.cpp" SOURCE_CPP_FILES)
 
-message(STATUS "${TARGET_NAME} configuration completed.") 
+message(STATUS "${TARGET_NAME} configuration completed.")
 
-target_compile_definitions(${TARGET_NAME} PUBLIC 
+target_compile_definitions(${TARGET_NAME} PUBLIC
     $<$<CONFIG:Debug>:COCOS2D_DEBUG=1>
 )

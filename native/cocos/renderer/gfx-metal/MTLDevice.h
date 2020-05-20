@@ -13,7 +13,7 @@ public:
     virtual bool initialize(const GFXDeviceInfo& info) override;
     virtual void destroy() override;
     virtual void resize(uint width, uint height) override;
-    virtual void begin() override {};
+    virtual void acquire() override {};
     virtual void present() override;
     virtual GFXWindow* createWindow(const GFXWindowInfo& info) override;
     virtual GFXQueue* createQueue(const GFXQueueInfo& info) override;

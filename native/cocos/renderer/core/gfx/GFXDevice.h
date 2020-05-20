@@ -14,7 +14,7 @@ class CC_CORE_API GFXDevice : public Object {
   virtual bool initialize(const GFXDeviceInfo& info) = 0;
   virtual void destroy() = 0;
   virtual void resize(uint width, uint height) = 0;
-  virtual void begin() = 0;
+  virtual void acquire() = 0;
   virtual void present() = 0;
   virtual GFXWindow* createWindow(const GFXWindowInfo& info) = 0;
   virtual GFXQueue* createQueue(const GFXQueueInfo& info) = 0;
@@ -67,8 +67,8 @@ class CC_CORE_API GFXDevice : public Object {
   CC_INLINE bool hasFeature(GFXFeature feature) const { return _features[static_cast<uint8_t>(feature)]; }
   CC_INLINE void defineMacro(const String& macro, const String& value) { _macros[macro] = value; }
   CC_INLINE void setReverseCW(bool reverseCW) { _reverseCW = reverseCW; }
-    CC_INLINE float getMinClipZ() const { return _minClipZ; }
-    CC_INLINE int getProjectionSignY() const { return _projectionSignY; }
+  CC_INLINE float getMinClipZ() const { return _minClipZ; }
+  CC_INLINE float getProjectionSignY() const { return _projectionSignY; }
  
 protected:
     GFXAPI _gfxAPI = GFXAPI::UNKNOWN;
@@ -104,8 +104,8 @@ protected:
     bool _reverseCW = false;
     uint _shaderIdGen = 0;
     std::unordered_map<String, String> _macros;
-    float _minClipZ = -1;
-    int _projectionSignY = 1;
+    float _minClipZ = -1.0f;
+    float _projectionSignY = 1.0f;
 };
 
 NS_CC_END

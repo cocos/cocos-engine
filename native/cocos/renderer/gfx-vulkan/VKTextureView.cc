@@ -16,7 +16,6 @@ CCVKTextureView::~CCVKTextureView()
 
 bool CCVKTextureView::initialize(const GFXTextureViewInfo &info)
 {
-
     _texture = info.texture;
     _type = info.type;
     _format = info.format;

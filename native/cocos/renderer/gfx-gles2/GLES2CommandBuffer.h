@@ -18,7 +18,7 @@ class CC_GLES2_API GLES2CommandBuffer : public GFXCommandBuffer {
   bool initialize(const GFXCommandBufferInfo& info);
   void destroy();
   
-  void begin();
+  void begin(GFXRenderPass* renderPass = nullptr, uint subpass = 0, GFXFramebuffer* frameBuffer = nullptr);
   void end();
   void beginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, const std::vector<GFXColor>& colors, float depth, int stencil);
   void endRenderPass();

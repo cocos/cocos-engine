@@ -55,17 +55,17 @@ void CCVKQueue::submit(const std::vector<GFXCommandBuffer*>& cmdBuffs)
 
         VkSubmitInfo submitInfo{ VK_STRUCTURE_TYPE_SUBMIT_INFO };
         submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &_gpuQueue->waitSemaphore;
+        submitInfo.pWaitSemaphores = &_gpuQueue->nextWaitSemaphore;
         submitInfo.pWaitDstStageMask = &_gpuQueue->submitStageMask;
         submitInfo.commandBufferCount = count;
         submitInfo.pCommandBuffers = &_gpuQueue->commandBuffers[0];
         submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &_gpuQueue->signalSemaphore;
+        submitInfo.pSignalSemaphores = &_gpuQueue->nextSignalSemaphore;
 
         VK_CHECK(vkQueueSubmit(_gpuQueue->vkQueue, 1, &submitInfo, VK_NULL_HANDLE));
 
-        _gpuQueue->waitSemaphore = _gpuQueue->signalSemaphore;
-        _gpuQueue->signalSemaphore = ((CCVKDevice*)_device)->gpuSemaphorePool()->alloc();
+        _gpuQueue->nextWaitSemaphore = _gpuQueue->nextSignalSemaphore;
+        _gpuQueue->nextSignalSemaphore = ((CCVKDevice*)_device)->gpuSemaphorePool()->alloc();
     }
 }
 

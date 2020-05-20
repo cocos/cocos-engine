@@ -581,6 +581,9 @@
     <ClCompile Include="..\cocos\renderer\gfx-vulkan\volk.c">
       <Filter>renderer\gfx-vulkan</Filter>
     </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_vk_auto.cpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\cocos\base\base64.h">
@@ -1301,9 +1304,6 @@
     <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKSPIRV.h">
       <Filter>renderer\gfx-vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKStateCache.h">
-      <Filter>renderer\gfx-vulkan</Filter>
-    </ClInclude>
     <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKStd.h">
       <Filter>renderer\gfx-vulkan</Filter>
     </ClInclude>
@@ -1321,6 +1321,9 @@
     </ClInclude>
     <ClInclude Include="..\cocos\renderer\gfx-vulkan\volk.h">
       <Filter>renderer\gfx-vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_vk_auto.hpp">
+      <Filter>js-bindings\auto</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

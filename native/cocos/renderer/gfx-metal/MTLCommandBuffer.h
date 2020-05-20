@@ -20,7 +20,7 @@ public:
     
     virtual bool initialize(const GFXCommandBufferInfo& info) override;
     virtual void destroy() override;
-    virtual void begin() override;
+    virtual void begin(GFXRenderPass* renderPass = nullptr, uint subpass = 0, GFXFramebuffer* frameBuffer = nullptr) override;
     virtual void end() override;
     virtual void beginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, const std::vector<GFXColor>& colors, float depth, int stencil) override;
     virtual void endRenderPass() override;

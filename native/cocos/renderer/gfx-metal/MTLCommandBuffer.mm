@@ -66,7 +66,7 @@ void CCMTLCommandBuffer::destroy()
     CC_SAFE_DELETE(_currentDepthBounds);
 }
 
-void CCMTLCommandBuffer::begin()
+void CCMTLCommandBuffer::begin(GFXRenderPass* renderPass, uint subpass, GFXFramebuffer* frameBuffer)
 {
     _MTLCommandAllocator->clearCommands(_commandPackage);
     _numTriangles = 0;

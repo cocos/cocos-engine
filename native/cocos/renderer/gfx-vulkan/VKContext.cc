@@ -7,9 +7,6 @@
 #include "VKTexture.h"
 #include "VKTextureView.h"
 
-#define WIN32_LEAN_AND_MEAN
-#include "windows.h"
-
 #define CC_GFX_DEBUG
 
 NS_CC_BEGIN
@@ -20,6 +17,12 @@ namespace
     VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
         VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT *callbackData, void * user_data)
     {
+        // https://github.com/KhronosGroup/Vulkan-ValidationLayers/issues/1818
+        if (!strcmp(callbackData->pMessageIdName, "VUID-vkQueuePresentKHR-pWaitSemaphores-03268"))
+        {
+            return VK_FALSE;
+        }
+
         // Log debug messge
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
         {
@@ -78,11 +81,11 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
         _gpuContext = CC_NEW(CCVKGPUContext);
 
         // only enable the absolute essentials for now
-        std::vector<const char *> requestedLayers
+        vector<const char *>::type requestedLayers
         {
 
         };
-        std::vector<const char *> requestedExtensions
+        vector<const char *>::type requestedExtensions
         {
             VK_KHR_SURFACE_EXTENSION_NAME,
         };
@@ -96,12 +99,12 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
 
         uint availableLayerCount;
         VK_CHECK(vkEnumerateInstanceLayerProperties(&availableLayerCount, nullptr));
-        std::vector<VkLayerProperties> supportedLayers(availableLayerCount);
+        vector<VkLayerProperties>::type supportedLayers(availableLayerCount);
         VK_CHECK(vkEnumerateInstanceLayerProperties(&availableLayerCount, supportedLayers.data()));
 
         uint availableExtensionCount;
         VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, nullptr));
-        std::vector<VkExtensionProperties> supportedExtensions(availableExtensionCount);
+        vector<VkExtensionProperties>::type supportedExtensions(availableExtensionCount);
         VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, supportedExtensions.data()));
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
@@ -122,7 +125,7 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
 
 #ifdef CC_GFX_DEBUG
         // Determine the optimal validation layers to enable that are necessary for useful debugging
-        std::vector<std::vector<const char *>> validationLayerPriorityList
+        vector<vector<const char*>::type>::type validationLayerPriorityList
         {
             // The preferred validation layer is "VK_LAYER_KHRONOS_validation"
             {"VK_LAYER_KHRONOS_validation"},
@@ -142,10 +145,10 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
             // Otherwise as a last resort we fallback to attempting to enable the LunarG core layer
             {"VK_LAYER_LUNARG_core_validation"}
         };
-        for (auto &validationLayers : validationLayerPriorityList)
+        for (vector<const char*>::type &validationLayers : validationLayerPriorityList)
         {
             bool found = true;
-            for (auto &layer : validationLayers)
+            for (const char* layer : validationLayers)
             {
                 if (!isLayerSupported(layer, supportedLayers))
                 {
@@ -174,14 +177,14 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
 #endif
 
         // just filter out the unsupported layers & extensions
-        for (auto &layer : requestedLayers)
+        for (const char* layer : requestedLayers)
         {
             if (isLayerSupported(layer, supportedLayers))
             {
                 _layers.push_back(layer);
             }
         }
-        for (auto &extension : requestedExtensions)
+        for (const char* extension : requestedExtensions)
         {
             if (isExtensionSupported(extension, supportedExtensions))
             {
@@ -286,10 +289,10 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
             return false;
         }
 
-        std::vector<VkPhysicalDevice> physicalDeviceHandles(physicalDeviceCount);
+        vector<VkPhysicalDevice>::type physicalDeviceHandles(physicalDeviceCount);
         VK_CHECK(vkEnumeratePhysicalDevices(_gpuContext->vkInstance, &physicalDeviceCount, physicalDeviceHandles.data()));
 
-        std::vector<VkPhysicalDeviceProperties> physicalDeviceProperties(physicalDeviceCount);
+        vector<VkPhysicalDeviceProperties>::type physicalDeviceProperties(physicalDeviceCount);
 
         uint deviceIndex;
         for (deviceIndex = 0u; deviceIndex < physicalDeviceCount; ++deviceIndex)
@@ -332,12 +335,12 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
 
         uint surfaceFormatCount = 0u;
         VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &surfaceFormatCount, nullptr));
-        std::vector<VkSurfaceFormatKHR> surfaceFormats(surfaceFormatCount);
+        vector<VkSurfaceFormatKHR>::type surfaceFormats(surfaceFormatCount);
         VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &surfaceFormatCount, surfaceFormats.data()));
 
         uint presentModeCount = 0u;
         VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &presentModeCount, nullptr));
-        std::vector<VkPresentModeKHR> presentModes(presentModeCount);
+        vector<VkPresentModeKHR>::type presentModes(presentModeCount);
         VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &presentModeCount, presentModes.data()));
 
         VkExtent2D imageExtent{ 1u, 1u };
@@ -356,7 +359,7 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
             // iterate over the list of available surface format and
             // check for the presence of VK_FORMAT_B8G8R8A8_UNORM
             bool imageFormatFound = false;
-            for (auto&& surfaceFormat : surfaceFormats)
+            for (VkSurfaceFormatKHR &surfaceFormat : surfaceFormats)
             {
                 if (surfaceFormat.format == VK_FORMAT_B8G8R8A8_UNORM)
                 {
@@ -376,7 +379,7 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
             }
         }
 
-        std::vector<std::pair<GFXFormat, VkFormat>> depthFormatPriorityList =
+        vector<std::pair<GFXFormat, VkFormat>>::type depthFormatPriorityList =
         {
             { GFXFormat::D32F_S8, VK_FORMAT_D32_SFLOAT_S8_UINT },
             { GFXFormat::D24S8, VK_FORMAT_D24_UNORM_S8_UINT },
@@ -384,7 +387,7 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
             { GFXFormat::D32F, VK_FORMAT_D32_SFLOAT },
             { GFXFormat::D16, VK_FORMAT_D16_UNORM }
         };
-        for (auto& format : depthFormatPriorityList)
+        for (std::pair<GFXFormat, VkFormat> &format : depthFormatPriorityList)
         {
             VkFormatProperties formatProperties;
             vkGetPhysicalDeviceFormatProperties(_gpuContext->physicalDevice, format.second, &formatProperties);
@@ -401,7 +404,7 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
 
         // Select a present mode for the swapchain
 
-        std::vector<VkPresentModeKHR> presentModePriorityList;
+        vector<VkPresentModeKHR>::type presentModePriorityList;
 
         switch (_vsyncMode)
         {
@@ -414,7 +417,7 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
 
         VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
 
-        for (auto &presentMode : presentModePriorityList)
+        for (VkPresentModeKHR presentMode : presentModePriorityList)
         {
             if (std::find(presentModes.begin(), presentModes.end(), presentMode) != presentModes.end())
             {
@@ -444,13 +447,13 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
         // Find a supported composite alpha format (not all devices support alpha opaque)
         VkCompositeAlphaFlagBitsKHR compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
         // Simply select the first composite alpha format available
-        std::vector<VkCompositeAlphaFlagBitsKHR> compositeAlphaFlags = {
+        vector<VkCompositeAlphaFlagBitsKHR>::type compositeAlphaFlags = {
             VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
             VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR,
             VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR,
             VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR,
         };
-        for (auto& compositeAlphaFlag : compositeAlphaFlags)
+        for (VkCompositeAlphaFlagBitsKHR compositeAlphaFlag : compositeAlphaFlags)
         {
             if (surfaceCapabilities.supportedCompositeAlpha & compositeAlphaFlag)
             {

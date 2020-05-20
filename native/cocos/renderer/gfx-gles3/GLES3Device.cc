@@ -100,6 +100,7 @@ bool GLES3Device::initialize(const GFXDeviceInfo& info)
     _vendor = (const char*)glGetString(GL_VENDOR);
     _version = (const char*)glGetString(GL_VERSION);
 
+    CC_LOG_INFO("GLES3 device initialized.");
     CC_LOG_INFO("RENDERER: %s", _renderer.c_str());
     CC_LOG_INFO("VENDOR: %s", _vendor.c_str());
     CC_LOG_INFO("VERSION: %s", _version.c_str());

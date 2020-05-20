@@ -589,8 +589,7 @@ struct GFXExtent {
 };
 
 struct GFXTextureSubres {
-  uint baseMipLevel = 0;
-  uint levelCount = 1;
+  uint mipLevel = 0;
   uint baseArrayLayer = 0;
   uint layerCount = 1;
 };
@@ -604,7 +603,6 @@ struct GFXTextureCopy {
 };
 
 struct GFXBufferTextureCopy {
-  uint buffOffset = 0;
   uint buffStride = 0;
   uint buffTexHeight = 0;
   GFXOffset texOffset = { 0, 0, 0 };

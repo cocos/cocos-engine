@@ -173,6 +173,35 @@
 #define CC_CACHELINE_SIZE    64
 
 #if (CC_COMPILER == CC_COMPILER_MSVC)
+// MSVC ENABLE/DISABLE WARNING DEFINITION
+#	define CC_DISABLE_WARNINGS() \
+		__pragma(warning(push, 0))
+
+#	define CC_ENABLE_WARNINGS() \
+		__pragma(warning(pop))
+#elif (CC_COMPILER == CC_COMPILER_GNUC)
+// GCC ENABLE/DISABLE WARNING DEFINITION
+#	define CC_DISABLE_WARNINGS()                                \
+        _Pragma("GCC diagnostic push")                          \
+            _Pragma("GCC diagnostic ignored \"-Wall\"")         \
+                _Pragma("clang diagnostic ignored \"-Wextra\"") \
+                    _Pragma("clang diagnostic ignored \"-Wtautological-compare\"")
+
+#	define CC_ENABLE_WARNINGS() \
+		_Pragma("GCC diagnostic pop")
+#elif (CC_COMPILER == CC_COMPILER_CLANG)
+// CLANG ENABLE/DISABLE WARNING DEFINITION
+#	define CC_DISABLE_WARNINGS()                                \
+        _Pragma("clang diagnostic push")                        \
+            _Pragma("clang diagnostic ignored \"-Wall\"")       \
+                _Pragma("clang diagnostic ignored \"-Wextra\"") \
+                    _Pragma("clang diagnostic ignored \"-Wtautological-compare\"")
+
+#	define CC_ENABLE_WARNINGS() \
+		_Pragma("clang diagnostic pop")
+#endif
+
+#if (CC_COMPILER == CC_COMPILER_MSVC)
 #	define CC_ALIGN(N)			__declspec(align(N))
 #	define CC_CACHE_ALIGN		__declspec(align(CC_CACHELINE_SIZE))
 #	define CC_PACKED_ALIGN(N)	__declspec(align(N))

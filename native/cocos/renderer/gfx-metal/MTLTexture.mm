@@ -198,22 +198,17 @@ void CCMTLTexture::update(uint8_t* const* datas, const GFXBufferTextureCopyList&
                 const auto& region = regions[i];
                 w = region.texExtent.width;
                 h = region.texExtent.height;
-                auto level = region.texSubres.baseMipLevel;
-                auto levelCount = level + region.texSubres.levelCount;
-                for (; level <  levelCount ; level++) {
-                    w = w >> level;
-                    h = h >> level;
-                    uint8_t* buffer = region.buffOffset + region.buffTexHeight * region.buffStride + datas[n];
-                    uint8_t* convertedData = convertData(buffer, w * h, _format);
-                    MTLRegion mtlRegion = { {(uint)region.texOffset.x, (uint)region.texOffset.y, (uint)region.texOffset.z}, {w, h, 1} };
-                    [_mtlTexture replaceRegion:mtlRegion
-                                   mipmapLevel:level
-                                     withBytes:convertedData
-                                   bytesPerRow:GFX_FORMAT_INFOS[(uint)_convertedFormat].size * w];
-                    if (convertedData != datas[n])
-                        CC_FREE(convertedData);
-                    n++;
-                }
+                
+                uint8_t* buffer = datas[n];
+                uint8_t* convertedData = convertData(buffer, w * h, _format);
+                MTLRegion mtlRegion = { {(uint)region.texOffset.x, (uint)region.texOffset.y, (uint)region.texOffset.z}, {w, h, 1} };
+                [_mtlTexture replaceRegion:mtlRegion
+                                mipmapLevel:region.texSubres.mipLevel
+                                    withBytes:convertedData
+                                bytesPerRow:GFX_FORMAT_INFOS[(uint)_convertedFormat].size * w];
+                if (convertedData != datas[n])
+                    CC_FREE(convertedData);
+                n++;
             }
             break;
         case MTLTextureType2DArray:
@@ -225,23 +220,17 @@ void CCMTLTexture::update(uint8_t* const* datas, const GFXBufferTextureCopyList&
                 for (; layer < layerCount; layer++) {
                     w = region.texExtent.width;
                     h = region.texExtent.height;
-                    auto level = region.texSubres.baseMipLevel;
-                    auto levelCount = level + region.texSubres.levelCount;
-                    for (; level < levelCount; level++) {
-                        w = w >> level;
-                        h = w >> level;
-                        uint8_t* buffer = region.buffOffset + region.buffTexHeight * region.buffStride + datas[n];
-                        uint8_t* convertedData = convertData(buffer, w * h, _format);
-                        MTLRegion mtlRegion = { {(uint)region.texOffset.x, (uint)region.texOffset.y, (uint)region.texOffset.z}, {w, h, 1} };
-                        [_mtlTexture replaceRegion:mtlRegion
-                                       mipmapLevel:level
-                                             slice:layer
-                                         withBytes:convertedData
-                                       bytesPerRow:GFX_FORMAT_INFOS[(uint)_convertedFormat].size * w
-                                     bytesPerImage:0];
-                        if (convertedData != datas[n++])
-                            CC_FREE(convertedData);
-                    }
+                    uint8_t* buffer = datas[n];
+                    uint8_t* convertedData = convertData(buffer, w * h, _format);
+                    MTLRegion mtlRegion = { {(uint)region.texOffset.x, (uint)region.texOffset.y, (uint)region.texOffset.z}, {w, h, 1} };
+                    [_mtlTexture replaceRegion:mtlRegion
+                                    mipmapLevel:region.texSubres.mipLevel
+                                            slice:layer
+                                        withBytes:convertedData
+                                    bytesPerRow:GFX_FORMAT_INFOS[(uint)_convertedFormat].size * w
+                                    bytesPerImage:0];
+                    if (convertedData != datas[n++])
+                        CC_FREE(convertedData);
                 }
             }
             break;

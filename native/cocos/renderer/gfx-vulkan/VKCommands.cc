@@ -3,590 +3,13 @@
 #include "VKDevice.h"
 #include "VKQueue.h"
 #include "VKContext.h"
-#include "VKStateCache.h"
 #include "VKCommandAllocator.h"
 #include "VKSPIRV.h"
+#include "VKBuffer.h"
 
 #define BUFFER_OFFSET(idx) (static_cast<char*>(0) + (idx))
-#define DEFAULT_FENCE_TIMEOUT 100000000000
 
 NS_CC_BEGIN
-
-namespace
-{
-    VkFormat MapVkFormat(GFXFormat format)
-    {
-        switch (format)
-        {
-        case GFXFormat::R8: return VK_FORMAT_R8_UNORM;
-        case GFXFormat::R8SN: return VK_FORMAT_R8_SNORM;
-        case GFXFormat::R8UI: return VK_FORMAT_R8_UINT;
-        case GFXFormat::R8I: return VK_FORMAT_R8_SINT;
-        case GFXFormat::RG8: return VK_FORMAT_R8G8_UNORM;
-        case GFXFormat::RG8SN: return VK_FORMAT_R8G8_SNORM;
-        case GFXFormat::RG8UI: return VK_FORMAT_R8G8_UINT;
-        case GFXFormat::RG8I: return VK_FORMAT_R8G8_SINT;
-        case GFXFormat::RGB8: return VK_FORMAT_R8G8B8_UNORM;
-        case GFXFormat::RGB8SN: return VK_FORMAT_R8G8B8_SNORM;
-        case GFXFormat::RGB8UI: return VK_FORMAT_R8G8B8_UINT;
-        case GFXFormat::RGB8I: return VK_FORMAT_R8G8B8_SINT;
-        case GFXFormat::RGBA8: return VK_FORMAT_R8G8B8A8_UNORM;
-        case GFXFormat::BGRA8: return VK_FORMAT_B8G8R8A8_UNORM;
-        case GFXFormat::RGBA8SN: return VK_FORMAT_R8G8B8A8_SNORM;
-        case GFXFormat::RGBA8UI: return VK_FORMAT_R8G8B8A8_UINT;
-        case GFXFormat::RGBA8I: return VK_FORMAT_R8G8B8A8_SINT;
-        case GFXFormat::R16I: return VK_FORMAT_R16_SINT;
-        case GFXFormat::R16UI: return VK_FORMAT_R16_UINT;
-        case GFXFormat::R16F: return VK_FORMAT_R16_SFLOAT;
-        case GFXFormat::RG16I: return VK_FORMAT_R16G16_SINT;
-        case GFXFormat::RG16UI: return VK_FORMAT_R16G16_UINT;
-        case GFXFormat::RG16F: return VK_FORMAT_R16G16_SFLOAT;
-        case GFXFormat::RGB16I: return VK_FORMAT_R16G16B16_SINT;
-        case GFXFormat::RGB16UI: return VK_FORMAT_R16G16B16_UINT;
-        case GFXFormat::RGB16F: return VK_FORMAT_R16G16B16_SFLOAT;
-        case GFXFormat::RGBA16I: return VK_FORMAT_R16G16B16A16_SINT;
-        case GFXFormat::RGBA16UI: return VK_FORMAT_R16G16B16A16_UINT;
-        case GFXFormat::RGBA16F: return VK_FORMAT_R16G16B16A16_SFLOAT;
-        case GFXFormat::R32I: return VK_FORMAT_R32_SINT;
-        case GFXFormat::R32UI: return VK_FORMAT_R32_UINT;
-        case GFXFormat::R32F: return VK_FORMAT_R32_SFLOAT;
-        case GFXFormat::RG32I: return VK_FORMAT_R32G32_SINT;
-        case GFXFormat::RG32UI: return VK_FORMAT_R32G32_UINT;
-        case GFXFormat::RG32F: return VK_FORMAT_R32G32_SFLOAT;
-        case GFXFormat::RGB32I: return VK_FORMAT_R32G32B32_SINT;
-        case GFXFormat::RGB32UI: return VK_FORMAT_R32G32B32_UINT;
-        case GFXFormat::RGB32F: return VK_FORMAT_R32G32B32_SFLOAT;
-        case GFXFormat::RGBA32I: return VK_FORMAT_R32G32B32A32_SINT;
-        case GFXFormat::RGBA32UI: return VK_FORMAT_R32G32B32A32_UINT;
-        case GFXFormat::RGBA32F: return VK_FORMAT_R32G32B32A32_SFLOAT;
-
-        case GFXFormat::R5G6B5: return VK_FORMAT_R5G6B5_UNORM_PACK16;
-        case GFXFormat::R11G11B10F: return VK_FORMAT_B10G11R11_UFLOAT_PACK32;
-        case GFXFormat::RGB5A1: return VK_FORMAT_R5G5B5A1_UNORM_PACK16;
-        case GFXFormat::RGBA4: return VK_FORMAT_R4G4B4A4_UNORM_PACK16;
-        case GFXFormat::RGB10A2: return VK_FORMAT_A2B10G10R10_UNORM_PACK32;
-        case GFXFormat::RGB10A2UI: return VK_FORMAT_A2B10G10R10_UINT_PACK32;
-        case GFXFormat::RGB9E5: return VK_FORMAT_E5B9G9R9_UFLOAT_PACK32;
-        case GFXFormat::D16: return VK_FORMAT_D16_UNORM;
-        case GFXFormat::D16S8: return VK_FORMAT_D16_UNORM_S8_UINT;
-        case GFXFormat::D24: return VK_FORMAT_X8_D24_UNORM_PACK32;
-        case GFXFormat::D24S8: return VK_FORMAT_D24_UNORM_S8_UINT;
-        case GFXFormat::D32F: return VK_FORMAT_D32_SFLOAT;
-        case GFXFormat::D32F_S8: return VK_FORMAT_D32_SFLOAT_S8_UINT;
-
-        case GFXFormat::BC1: return VK_FORMAT_BC1_RGB_UNORM_BLOCK;
-        case GFXFormat::BC1_ALPHA: return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
-        case GFXFormat::BC1_SRGB: return VK_FORMAT_BC1_RGB_SRGB_BLOCK;
-        case GFXFormat::BC1_SRGB_ALPHA: return VK_FORMAT_BC1_RGBA_SRGB_BLOCK;
-        case GFXFormat::BC2: return VK_FORMAT_BC2_UNORM_BLOCK;
-        case GFXFormat::BC2_SRGB: return VK_FORMAT_BC2_SRGB_BLOCK;
-        case GFXFormat::BC3: return VK_FORMAT_BC3_UNORM_BLOCK;
-        case GFXFormat::BC3_SRGB: return VK_FORMAT_BC3_SRGB_BLOCK;
-        case GFXFormat::BC4: return VK_FORMAT_BC4_UNORM_BLOCK;
-        case GFXFormat::BC4_SNORM: return VK_FORMAT_BC4_SNORM_BLOCK;
-        case GFXFormat::BC5: return VK_FORMAT_BC5_UNORM_BLOCK;
-        case GFXFormat::BC5_SNORM: return VK_FORMAT_BC5_SNORM_BLOCK;
-        case GFXFormat::BC6H_UF16: return VK_FORMAT_BC6H_UFLOAT_BLOCK;
-        case GFXFormat::BC6H_SF16: return VK_FORMAT_BC6H_SFLOAT_BLOCK;
-        case GFXFormat::BC7: return VK_FORMAT_BC7_UNORM_BLOCK;
-        case GFXFormat::BC7_SRGB: return VK_FORMAT_BC7_SRGB_BLOCK;
-
-        case GFXFormat::ETC2_RGB8: return VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
-        case GFXFormat::ETC2_SRGB8: return VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK;
-        case GFXFormat::ETC2_RGB8_A1: return VK_FORMAT_ETC2_R8G8B8A1_UNORM_BLOCK;
-        case GFXFormat::ETC2_SRGB8_A1: return VK_FORMAT_ETC2_R8G8B8A1_SRGB_BLOCK;
-        case GFXFormat::ETC2_RGBA8: return VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK;
-        case GFXFormat::ETC2_SRGB8_A8: return VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK;
-        case GFXFormat::EAC_R11: return VK_FORMAT_EAC_R11_UNORM_BLOCK;
-        case GFXFormat::EAC_R11SN: return VK_FORMAT_EAC_R11_SNORM_BLOCK;
-        case GFXFormat::EAC_RG11: return VK_FORMAT_EAC_R11G11_UNORM_BLOCK;
-        case GFXFormat::EAC_RG11SN: return VK_FORMAT_EAC_R11G11_SNORM_BLOCK;
-
-        case GFXFormat::PVRTC_RGB2: return VK_FORMAT_PVRTC1_2BPP_UNORM_BLOCK_IMG;
-        case GFXFormat::PVRTC_RGBA2: return VK_FORMAT_PVRTC1_2BPP_UNORM_BLOCK_IMG;
-        case GFXFormat::PVRTC_RGB4: return VK_FORMAT_PVRTC1_4BPP_UNORM_BLOCK_IMG;
-        case GFXFormat::PVRTC_RGBA4: return VK_FORMAT_PVRTC1_4BPP_UNORM_BLOCK_IMG;
-        case GFXFormat::PVRTC2_2BPP: return VK_FORMAT_PVRTC2_2BPP_UNORM_BLOCK_IMG;
-        case GFXFormat::PVRTC2_4BPP: return VK_FORMAT_PVRTC2_4BPP_UNORM_BLOCK_IMG;
-        default:
-        {
-            CCASSERT(false, "Unsupported GFXFormat, convert to VkFormat failed.");
-            return VK_FORMAT_B8G8R8A8_UNORM;
-        }
-        }
-    }
-
-    VkSampleCountFlagBits MapVkSampleCount(uint sampleCount)
-    {
-        if      (sampleCount ==  1) return VK_SAMPLE_COUNT_1_BIT;
-        else if (sampleCount ==  2) return VK_SAMPLE_COUNT_2_BIT;
-        else if (sampleCount ==  4) return VK_SAMPLE_COUNT_4_BIT;
-        else if (sampleCount ==  8) return VK_SAMPLE_COUNT_8_BIT;
-        else if (sampleCount == 16) return VK_SAMPLE_COUNT_16_BIT;
-        else if (sampleCount == 32) return VK_SAMPLE_COUNT_32_BIT;
-        else if (sampleCount == 64) return VK_SAMPLE_COUNT_64_BIT;
-        else                        return VK_SAMPLE_COUNT_1_BIT;
-    }
-
-    VkAttachmentLoadOp MapVkLoadOp(GFXLoadOp loadOp)
-    {
-        switch (loadOp)
-        {
-        case GFXLoadOp::CLEAR: return VK_ATTACHMENT_LOAD_OP_CLEAR;
-        case GFXLoadOp::LOAD: return VK_ATTACHMENT_LOAD_OP_LOAD;
-        case GFXLoadOp::DISCARD: return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        default:
-        {
-            CCASSERT(false, "Unsupported GFXLoadOp, convert to VkLoadOp failed.");
-            return VK_ATTACHMENT_LOAD_OP_LOAD;
-        }
-        }
-    }
-
-    VkAttachmentStoreOp MapVkStoreOp(GFXStoreOp storeOp)
-    {
-        switch (storeOp)
-        {
-        case GFXStoreOp::STORE: return VK_ATTACHMENT_STORE_OP_STORE;
-        case GFXStoreOp::DISCARD: return VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        default:
-        {
-            CCASSERT(false, "Unsupported GFXStoreOp, convert to VkStoreOp failed.");
-            return VK_ATTACHMENT_STORE_OP_STORE;
-        }
-        }
-    }
-
-    VkImageLayout MapVkImageLayout(GFXTextureLayout layout)
-    {
-        switch (layout)
-        {
-        case GFXTextureLayout::UNDEFINED: return VK_IMAGE_LAYOUT_UNDEFINED;
-        case GFXTextureLayout::GENERAL: return VK_IMAGE_LAYOUT_GENERAL;
-        case GFXTextureLayout::COLOR_ATTACHMENT_OPTIMAL: return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        case GFXTextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        case GFXTextureLayout::DEPTH_STENCIL_READONLY_OPTIMAL: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
-        case GFXTextureLayout::SHADER_READONLY_OPTIMAL: return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        case GFXTextureLayout::TRANSFER_SRC_OPTIMAL: return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-        case GFXTextureLayout::TRANSFER_DST_OPTIMAL: return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        case GFXTextureLayout::PREINITIALIZED: return VK_IMAGE_LAYOUT_PREINITIALIZED;
-        case GFXTextureLayout::PRESENT_SRC: return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-        default:
-        {
-            CCASSERT(false, "Unsupported GFXTextureLayout, convert to VkImageLayout failed.");
-            return VK_IMAGE_LAYOUT_GENERAL;
-        }
-        }
-    }
-
-    VkAccessFlags MapVkAccessFlags(GFXTextureLayout layout)
-    {
-        switch (layout)
-        {
-        case GFXTextureLayout::UNDEFINED: return 0;
-        case GFXTextureLayout::GENERAL: return 0;
-        case GFXTextureLayout::COLOR_ATTACHMENT_OPTIMAL: return VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        case GFXTextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL: return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-        case GFXTextureLayout::DEPTH_STENCIL_READONLY_OPTIMAL: return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
-        case GFXTextureLayout::SHADER_READONLY_OPTIMAL: return VK_ACCESS_SHADER_READ_BIT;
-        case GFXTextureLayout::TRANSFER_SRC_OPTIMAL: return VK_ACCESS_TRANSFER_READ_BIT;
-        case GFXTextureLayout::TRANSFER_DST_OPTIMAL: return VK_ACCESS_TRANSFER_WRITE_BIT;
-        case GFXTextureLayout::PREINITIALIZED: return 0;
-        case GFXTextureLayout::PRESENT_SRC: return 0;
-        default:
-        {
-            CCASSERT(false, "Unsupported GFXTextureLayout, convert to VkImageLayout failed.");
-            return 0;
-        }
-        }
-    }
-
-    VkAccessFlags MapVkAccessFlags(GFXTextureUsage usage, GFXFormat format)
-    {
-        if (usage & GFXTextureUsage::TRANSFER_SRC) return VK_ACCESS_TRANSFER_READ_BIT;
-        if (usage & GFXTextureUsage::TRANSFER_DST) return VK_ACCESS_TRANSFER_WRITE_BIT;
-        if (usage & GFXTextureUsage::COLOR_ATTACHMENT) return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        if (usage & GFXTextureUsage::DEPTH_STENCIL_ATTACHMENT) return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-        if (usage & GFXTextureUsage::INPUT_ATTACHMENT) return VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
-        if (usage & GFXTextureUsage::SAMPLED)
-        {
-            if (GFX_FORMAT_INFOS[(uint)format].hasDepth) return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
-            else return VK_ACCESS_SHADER_READ_BIT;
-        }
-        return VK_ACCESS_SHADER_READ_BIT;
-    }
-
-    VkPipelineBindPoint MapVkPipelineBindPoint(GFXPipelineBindPoint bindPoint)
-    {
-        switch (bindPoint)
-        {
-        case GFXPipelineBindPoint::GRAPHICS: return VK_PIPELINE_BIND_POINT_GRAPHICS;
-        case GFXPipelineBindPoint::COMPUTE: return VK_PIPELINE_BIND_POINT_COMPUTE;
-        case GFXPipelineBindPoint::RAY_TRACING: return VK_PIPELINE_BIND_POINT_RAY_TRACING_NV;
-        default:
-        {
-            CCASSERT(false, "Unsupported GFXPipelineBindPoint, convert to VkPipelineBindPoint failed.");
-            return VK_PIPELINE_BIND_POINT_GRAPHICS;
-        }
-        }
-    }
-
-    VkBufferUsageFlagBits MapVkBufferUsageFlagBits(GFXBufferUsage usage)
-    {
-        uint flags = 0u;
-        if (usage & GFXBufferUsage::TRANSFER_SRC) flags |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-        if (usage & GFXBufferUsage::TRANSFER_DST) flags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-        if (usage & GFXBufferUsage::INDEX) flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-        if (usage & GFXBufferUsage::VERTEX) flags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-        if (usage & GFXBufferUsage::UNIFORM) flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-        if (usage & GFXBufferUsage::STORAGE) flags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-        if (usage & GFXBufferUsage::INDIRECT) flags |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
-        return (VkBufferUsageFlagBits)flags;
-    }
-
-    VkImageType MapVkImageType(GFXTextureType type)
-    {
-        switch (type)
-        {
-        case GFXTextureType::TEX1D: return VK_IMAGE_TYPE_1D;
-        case GFXTextureType::TEX2D: return VK_IMAGE_TYPE_2D;
-        case GFXTextureType::TEX3D: return VK_IMAGE_TYPE_3D;
-        default:
-        {
-            CCASSERT(false, "Unsupported GFXTextureType, convert to VkImageType failed.");
-            return VK_IMAGE_TYPE_2D;
-        }
-        }
-    }
-
-    VkSampleCountFlagBits MapVkSampleCount(GFXSampleCount count)
-    {
-        switch (count)
-        {
-        case GFXSampleCount::X1: return VK_SAMPLE_COUNT_1_BIT;
-        case GFXSampleCount::X2: return VK_SAMPLE_COUNT_2_BIT;
-        case GFXSampleCount::X4: return VK_SAMPLE_COUNT_4_BIT;
-        case GFXSampleCount::X8: return VK_SAMPLE_COUNT_8_BIT;
-        case GFXSampleCount::X16: return VK_SAMPLE_COUNT_16_BIT;
-        case GFXSampleCount::X32: return VK_SAMPLE_COUNT_32_BIT;
-        default:
-        {
-            CCASSERT(false, "Unsupported GFXTextureType, convert to VkImageType failed.");
-            return VK_SAMPLE_COUNT_1_BIT;
-        }
-        }
-    }
-
-    VkFormatFeatureFlags MapVkFormatFeatureFlags(GFXTextureUsage usage)
-    {
-        uint flags = 0u;
-        if (usage & GFXTextureUsage::TRANSFER_SRC) flags |= VK_FORMAT_FEATURE_TRANSFER_SRC_BIT;
-        if (usage & GFXTextureUsage::TRANSFER_DST) flags |= VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
-        if (usage & GFXTextureUsage::SAMPLED) flags |= VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT;
-        if (usage & GFXTextureUsage::STORAGE) flags |= VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT;
-        if (usage & GFXTextureUsage::COLOR_ATTACHMENT) flags |= VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT;
-        if (usage & GFXTextureUsage::DEPTH_STENCIL_ATTACHMENT) flags |= VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
-        if (usage & GFXTextureUsage::TRANSIENT_ATTACHMENT) flags |= VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT;
-        if (usage & GFXTextureUsage::INPUT_ATTACHMENT) flags |= VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT;
-        return (VkFormatFeatureFlags)flags;
-    }
-
-    VkImageUsageFlagBits MapVkImageUsageFlagBits(GFXTextureUsage usage)
-    {
-        uint flags = 0u;
-        if (usage & GFXTextureUsage::TRANSFER_SRC) flags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-        if (usage & GFXTextureUsage::TRANSFER_DST) flags |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-        if (usage & GFXTextureUsage::SAMPLED) flags |= VK_IMAGE_USAGE_SAMPLED_BIT;
-        if (usage & GFXTextureUsage::STORAGE) flags |= VK_IMAGE_USAGE_STORAGE_BIT;
-        if (usage & GFXTextureUsage::COLOR_ATTACHMENT) flags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-        if (usage & GFXTextureUsage::DEPTH_STENCIL_ATTACHMENT) flags |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-        if (usage & GFXTextureUsage::TRANSIENT_ATTACHMENT) flags |= VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
-        if (usage & GFXTextureUsage::INPUT_ATTACHMENT) flags |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
-        return (VkImageUsageFlagBits)flags;
-    }
-
-    VkImageLayout MapVkImageLayout(GFXTextureUsage usage, GFXFormat format)
-    {
-        auto &info = GFX_FORMAT_INFOS[(uint)format];
-        if (usage & GFXTextureUsage::TRANSFER_SRC) return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-        if (usage & GFXTextureUsage::TRANSFER_DST) return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        if (usage & GFXTextureUsage::COLOR_ATTACHMENT) return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        if (usage & GFXTextureUsage::DEPTH_STENCIL_ATTACHMENT)
-        {
-            if (info.hasStencil) return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-            else return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
-        }
-        if (usage & GFXTextureUsage::SAMPLED)
-        {
-            if (info.hasDepth && info.hasStencil) return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
-            else if (info.hasDepth) return VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL;
-            else return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        }
-        return VK_IMAGE_LAYOUT_UNDEFINED;
-    }
-
-    VkImageAspectFlags MapVkImageAspectFlags(GFXFormat format)
-    {
-        VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        auto &info = GFX_FORMAT_INFOS[(uint)format];
-        if (info.hasDepth) { aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT; }
-        if (info.hasStencil) { aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT; }
-        return aspectMask;
-    }
-
-    VkPipelineStageFlags MapVkPipelineStageFlags(GFXTextureUsage usage)
-    {
-        if (usage & GFXTextureUsage::TRANSFER_SRC) return VK_PIPELINE_STAGE_TRANSFER_BIT;
-        if (usage & GFXTextureUsage::TRANSFER_DST) return VK_PIPELINE_STAGE_TRANSFER_BIT;
-        if (usage & GFXTextureUsage::COLOR_ATTACHMENT) return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        if (usage & GFXTextureUsage::DEPTH_STENCIL_ATTACHMENT) return VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-        if (usage & GFXTextureUsage::SAMPLED) return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
-        return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
-    }
-
-    uint selectMemoryType(const VkPhysicalDeviceMemoryProperties& memoryProperties, uint memoryTypeBits, VkMemoryPropertyFlags flags)
-    {
-        for (uint i = 0; i < memoryProperties.memoryTypeCount; ++i)
-            if ((memoryTypeBits & (1 << i)) != 0 && (memoryProperties.memoryTypes[i].propertyFlags & flags) == flags)
-                return i;
-
-        CCASSERT(false, "No compatible memory type found.");
-        return ~0u;
-    }
-
-    VkImageCreateFlags MapVkImageCreateFlags(GFXTextureViewType type)
-    {
-        uint res = 0u;
-        switch (type)
-        {
-        case cocos2d::GFXTextureViewType::CUBE: res |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT; break;
-        case cocos2d::GFXTextureViewType::TV2D_ARRAY: res |= VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT; break;
-        }
-        return (VkImageCreateFlags)res;
-    }
-
-    VkImageViewType MapVkImageViewType(GFXTextureViewType viewType)
-    {
-        switch (viewType)
-        {
-        case GFXTextureViewType::TV1D: return VK_IMAGE_VIEW_TYPE_1D;
-        case GFXTextureViewType::TV1D_ARRAY: return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
-        case GFXTextureViewType::TV2D: return VK_IMAGE_VIEW_TYPE_2D;
-        case GFXTextureViewType::TV2D_ARRAY: return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-        case GFXTextureViewType::TV3D: return VK_IMAGE_VIEW_TYPE_3D;
-        case GFXTextureViewType::CUBE: return VK_IMAGE_VIEW_TYPE_CUBE;
-        default:
-        {
-            CCASSERT(false, "Unsupported GFXTextureViewType, convert to VkImageViewType failed.");
-            return VK_IMAGE_VIEW_TYPE_2D;
-        }
-        }
-    }
-
-    VkCommandBufferLevel MapVkCommandBufferLevel(GFXCommandBufferType type)
-    {
-        switch (type)
-        {
-        case GFXCommandBufferType::PRIMARY: return VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        case GFXCommandBufferType::SECONDARY: return VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-        default:
-        {
-            CCASSERT(false, "Unsupported GFXCommandBufferType, convert to VkCommandBufferLevel failed.");
-            return VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-        }
-        }
-    }
-
-    VkDescriptorType MapVkDescriptorType(GFXBindingType type)
-    {
-        switch (type)
-        {
-        case cocos2d::GFXBindingType::UNIFORM_BUFFER: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        case cocos2d::GFXBindingType::SAMPLER: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        case cocos2d::GFXBindingType::STORAGE_BUFFER: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        default:
-        {
-            CCASSERT(false, "Unsupported GFXBindingType, convert to VkDescriptorType failed.");
-            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        }
-        }
-    }
-
-    void InsertVkDynamicStates(vector<VkDynamicState>::type& out, const vector<GFXDynamicState>::type& dynamicStates)
-    {
-        for (auto dynamicState : dynamicStates)
-        {
-            switch (dynamicState)
-            {
-            case GFXDynamicState::VIEWPORT: break; // we make this dynamic by default
-            case GFXDynamicState::SCISSOR: break; // we make this dynamic by default
-            case GFXDynamicState::LINE_WIDTH: out.push_back(VK_DYNAMIC_STATE_LINE_WIDTH); break;
-            case GFXDynamicState::DEPTH_BIAS: out.push_back(VK_DYNAMIC_STATE_DEPTH_BIAS); break;
-            case GFXDynamicState::BLEND_CONSTANTS: out.push_back(VK_DYNAMIC_STATE_BLEND_CONSTANTS); break;
-            case GFXDynamicState::DEPTH_BOUNDS: out.push_back(VK_DYNAMIC_STATE_DEPTH_BOUNDS); break;
-            case GFXDynamicState::STENCIL_WRITE_MASK: out.push_back(VK_DYNAMIC_STATE_STENCIL_WRITE_MASK); break;
-            case GFXDynamicState::STENCIL_COMPARE_MASK:
-                out.push_back(VK_DYNAMIC_STATE_STENCIL_REFERENCE);
-                out.push_back(VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK);
-                break;
-            default:
-            {
-                CCASSERT(false, "Unsupported GFXPrimitiveMode, convert to VkPrimitiveTopology failed.");
-                break;
-            }
-            }
-        }
-    }
-
-    VkColorComponentFlags MapVkColorComponentFlags(GFXColorMask colorMask)
-    {
-        uint flags = 0u;
-        if (colorMask & GFXColorMask::R) flags |= VK_COLOR_COMPONENT_R_BIT;
-        if (colorMask & GFXColorMask::G) flags |= VK_COLOR_COMPONENT_G_BIT;
-        if (colorMask & GFXColorMask::B) flags |= VK_COLOR_COMPONENT_B_BIT;
-        if (colorMask & GFXColorMask::A) flags |= VK_COLOR_COMPONENT_A_BIT;
-        if (colorMask & GFXColorMask::ALL) flags |= VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-        return (VkColorComponentFlags)flags;
-    }
-
-    VkShaderStageFlagBits MapVkShaderStageFlagBits(GFXShaderType stage)
-    {
-        switch (stage)
-        {
-        case GFXShaderType::VERTEX: return VK_SHADER_STAGE_VERTEX_BIT;
-        case GFXShaderType::CONTROL: return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
-        case GFXShaderType::EVALUATION: return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
-        case GFXShaderType::GEOMETRY: return VK_SHADER_STAGE_GEOMETRY_BIT;
-        case GFXShaderType::FRAGMENT: return VK_SHADER_STAGE_FRAGMENT_BIT;
-        case GFXShaderType::COMPUTE: return VK_SHADER_STAGE_COMPUTE_BIT;
-        default:
-        {
-            CCASSERT(false, "Unsupported GFXShaderType, convert to VkShaderStageFlagBits failed.");
-            return VK_SHADER_STAGE_VERTEX_BIT;
-        }
-        }
-    }
-    
-    VkShaderStageFlags MapVkShaderStageFlags(GFXShaderType stages)
-    {
-        uint flags = 0u;
-        if (stages & GFXShaderType::VERTEX) flags |= VK_SHADER_STAGE_VERTEX_BIT;
-        if (stages & GFXShaderType::CONTROL) flags |= VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
-        if (stages & GFXShaderType::EVALUATION) flags |= VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
-        if (stages & GFXShaderType::GEOMETRY) flags |= VK_SHADER_STAGE_GEOMETRY_BIT;
-        if (stages & GFXShaderType::FRAGMENT) flags |= VK_SHADER_STAGE_FRAGMENT_BIT;
-        if (stages & GFXShaderType::COMPUTE) flags |= VK_SHADER_STAGE_COMPUTE_BIT;
-        return (VkShaderStageFlags)flags;
-    }
-
-    const VkPrimitiveTopology VK_PRIMITIVE_MODES[] =
-    {
-        VK_PRIMITIVE_TOPOLOGY_POINT_LIST,                     // POINT_LIST
-        VK_PRIMITIVE_TOPOLOGY_LINE_LIST,                      // LINE_LIST
-        VK_PRIMITIVE_TOPOLOGY_LINE_STRIP,                     // LINE_STRIP
-        (VkPrimitiveTopology)0,                               // LINE_LOOP
-        VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY,       // LINE_LIST_ADJACENCY
-        VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY,      // LINE_STRIP_ADJACENCY
-        (VkPrimitiveTopology)0,                               // ISO_LINE_LIST
-        VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,                  // TRIANGLE_LIST
-        VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,                 // TRIANGLE_STRIP
-        VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN,                   // TRIANGLE_FAN
-        VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY,   // TRIANGLE_LIST_ADJACENCY
-        VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY,  // TRIANGLE_STRIP_ADJACENCY,
-        (VkPrimitiveTopology)0,                               // TRIANGLE_PATCH_ADJACENCY,
-        VK_PRIMITIVE_TOPOLOGY_PATCH_LIST,                     // QUAD_PATCH_LIST,
-    };
-
-    const VkCullModeFlags VK_CULL_MODES[] =
-    {
-        VK_CULL_MODE_NONE,
-        VK_CULL_MODE_FRONT_BIT,
-        VK_CULL_MODE_BACK_BIT,
-    };
-
-    const VkPolygonMode VK_POLYGON_MODES[] =
-    {
-        VK_POLYGON_MODE_FILL,
-        VK_POLYGON_MODE_LINE,
-        VK_POLYGON_MODE_POINT,
-    };
-
-    const VkCompareOp VK_CMP_FUNCS[] =
-    {
-        VK_COMPARE_OP_NEVER,
-        VK_COMPARE_OP_LESS,
-        VK_COMPARE_OP_EQUAL,
-        VK_COMPARE_OP_LESS_OR_EQUAL,
-        VK_COMPARE_OP_GREATER,
-        VK_COMPARE_OP_NOT_EQUAL,
-        VK_COMPARE_OP_GREATER_OR_EQUAL,
-        VK_COMPARE_OP_ALWAYS,
-    };
-
-    const VkStencilOp VK_STENCIL_OPS[] =
-    {
-        VK_STENCIL_OP_ZERO,
-        VK_STENCIL_OP_KEEP,
-        VK_STENCIL_OP_REPLACE,
-        VK_STENCIL_OP_INCREMENT_AND_CLAMP,
-        VK_STENCIL_OP_DECREMENT_AND_CLAMP,
-        VK_STENCIL_OP_INVERT,
-        VK_STENCIL_OP_INCREMENT_AND_WRAP,
-        VK_STENCIL_OP_DECREMENT_AND_WRAP,
-    };
-
-    const VkBlendOp VK_BLEND_OPS[] =
-    {
-        VK_BLEND_OP_ADD,
-        VK_BLEND_OP_SUBTRACT,
-        VK_BLEND_OP_REVERSE_SUBTRACT,
-        VK_BLEND_OP_ADD,
-        VK_BLEND_OP_ADD,
-    };
-
-    const VkBlendFactor VK_BLEND_FACTORS[] =
-    {
-        VK_BLEND_FACTOR_ZERO,
-        VK_BLEND_FACTOR_ONE,
-        VK_BLEND_FACTOR_SRC_ALPHA,
-        VK_BLEND_FACTOR_DST_ALPHA,
-        VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
-        VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA,
-        VK_BLEND_FACTOR_SRC_COLOR,
-        VK_BLEND_FACTOR_DST_COLOR,
-        VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR,
-        VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR,
-        VK_BLEND_FACTOR_SRC_ALPHA_SATURATE,
-        VK_BLEND_FACTOR_CONSTANT_COLOR,
-        VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR,
-        VK_BLEND_FACTOR_CONSTANT_ALPHA,
-        VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA,
-    };
-
-    const VkFilter VK_FILTERS[] =
-    {
-        (VkFilter)0,        // NONE
-        VK_FILTER_NEAREST,  // POINT
-        VK_FILTER_LINEAR,   // LINEAR
-        (VkFilter)0,        // ANISOTROPIC
-    };
-
-    const VkSamplerMipmapMode VK_SAMPLER_MIPMAP_MODES[] =
-    {
-        (VkSamplerMipmapMode)0,         // NONE
-        VK_SAMPLER_MIPMAP_MODE_NEAREST, // POINT
-        VK_SAMPLER_MIPMAP_MODE_LINEAR,  // LINEAR
-        (VkSamplerMipmapMode)0,         // ANISOTROPIC
-    };
-
-    const VkSamplerAddressMode VK_SAMPLER_ADDRESS_MODES[] =
-    {
-        VK_SAMPLER_ADDRESS_MODE_REPEAT,          // WRAP
-        VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT, // MIRROR
-        VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,   // CLAMP
-        VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER, // BORDER
-    };
-}
 
 void beginOneTimeCommands(CCVKDevice* device, CCVKGPUCommandBuffer* cmdBuff)
 {
@@ -603,8 +26,8 @@ void endOneTimeCommands(CCVKDevice* device, CCVKGPUCommandBuffer* cmdBuff)
 {
     VK_CHECK(vkEndCommandBuffer(cmdBuff->vkCommandBuffer));
 
-    auto fence = device->gpuFencePool()->alloc();
-    auto queue = ((CCVKQueue*)device->getQueue())->gpuQueue();
+    VkFence fence = device->gpuFencePool()->alloc();
+    const CCVKGPUQueue* queue = ((CCVKQueue*)device->getQueue())->gpuQueue();
     VkSubmitInfo submitInfo{ VK_STRUCTURE_TYPE_SUBMIT_INFO };
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &cmdBuff->vkCommandBuffer;
@@ -616,18 +39,18 @@ void endOneTimeCommands(CCVKDevice* device, CCVKGPUCommandBuffer* cmdBuff)
 
 void CCVKCmdFuncCreateRenderPass(CCVKDevice* device, CCVKGPURenderPass* gpuRenderPass)
 {
-    auto colorAttachmentCount = gpuRenderPass->colorAttachments.size();
+    size_t colorAttachmentCount = gpuRenderPass->colorAttachments.size();
     vector<VkAttachmentDescription>::type attachmentDescriptions(colorAttachmentCount + 1);
     gpuRenderPass->clearValues.resize(colorAttachmentCount + 1);
     gpuRenderPass->beginBarriers.resize(colorAttachmentCount + 1, { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER });
     gpuRenderPass->endBarriers.resize(colorAttachmentCount + 1, { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER });
     for (size_t i = 0u; i < colorAttachmentCount; i++)
     {
-        auto &attachment = gpuRenderPass->colorAttachments[i];
-        auto beginLayout = MapVkImageLayout(attachment.beginLayout);
-        auto endLayout = MapVkImageLayout(attachment.endLayout);
-        auto beginAccessMask = MapVkAccessFlags(attachment.beginLayout);
-        auto endAccessMask = MapVkAccessFlags(attachment.endLayout);
+        const GFXColorAttachment &attachment = gpuRenderPass->colorAttachments[i];
+        const VkImageLayout beginLayout = MapVkImageLayout(attachment.beginLayout);
+        const VkImageLayout endLayout = MapVkImageLayout(attachment.endLayout);
+        const VkAccessFlags beginAccessMask = MapVkAccessFlags(attachment.beginLayout);
+        const VkAccessFlags endAccessMask = MapVkAccessFlags(attachment.endLayout);
         attachmentDescriptions[i].format = MapVkFormat(attachment.format);
         attachmentDescriptions[i].samples = MapVkSampleCount(attachment.sampleCount);
         attachmentDescriptions[i].loadOp = MapVkLoadOp(attachment.loadOp);
@@ -637,7 +60,7 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice* device, CCVKGPURenderPass* gpuRende
         attachmentDescriptions[i].initialLayout = beginLayout;
         attachmentDescriptions[i].finalLayout = endLayout;
 
-        auto &beginBarrier = gpuRenderPass->beginBarriers[i];
+        VkImageMemoryBarrier &beginBarrier = gpuRenderPass->beginBarriers[i];
         beginBarrier.srcAccessMask = 0;
         beginBarrier.dstAccessMask = beginAccessMask;
         beginBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -648,10 +71,10 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice* device, CCVKGPURenderPass* gpuRende
         beginBarrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
         beginBarrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
 
-        auto &endBarrier = gpuRenderPass->endBarriers[i];
+        VkImageMemoryBarrier &endBarrier = gpuRenderPass->endBarriers[i];
         endBarrier.srcAccessMask = beginAccessMask;
         endBarrier.dstAccessMask = endAccessMask;
-        endBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED; // TODO: we get a layout mismatch validation error if pass beginLayout here, probably a bug in the validation layer
+        endBarrier.oldLayout = beginLayout;
         endBarrier.newLayout = endLayout;
         endBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         endBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
@@ -659,12 +82,12 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice* device, CCVKGPURenderPass* gpuRende
         endBarrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
         endBarrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
     }
-    auto &depthStencilAttachment = gpuRenderPass->depthStencilAttachment;
-    auto beginLayout = MapVkImageLayout(depthStencilAttachment.beginLayout);
-    auto endLayout = MapVkImageLayout(depthStencilAttachment.endLayout);
-    auto beginAccessMask = MapVkAccessFlags(depthStencilAttachment.beginLayout);
-    auto endAccessMask = MapVkAccessFlags(depthStencilAttachment.endLayout);
-    auto aspectMask = GFX_FORMAT_INFOS[(uint)depthStencilAttachment.format].hasStencil ?
+    const GFXDepthStencilAttachment &depthStencilAttachment = gpuRenderPass->depthStencilAttachment;
+    const VkImageLayout beginLayout = MapVkImageLayout(depthStencilAttachment.beginLayout);
+    const VkImageLayout endLayout = MapVkImageLayout(depthStencilAttachment.endLayout);
+    const VkAccessFlags beginAccessMask = MapVkAccessFlags(depthStencilAttachment.beginLayout);
+    const VkAccessFlags endAccessMask = MapVkAccessFlags(depthStencilAttachment.endLayout);
+    const VkImageAspectFlags aspectMask = GFX_FORMAT_INFOS[(uint)depthStencilAttachment.format].hasStencil ?
         VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_DEPTH_BIT;
     attachmentDescriptions[colorAttachmentCount].format = MapVkFormat(depthStencilAttachment.format);
     attachmentDescriptions[colorAttachmentCount].samples = MapVkSampleCount(depthStencilAttachment.sampleCount);
@@ -672,10 +95,10 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice* device, CCVKGPURenderPass* gpuRende
     attachmentDescriptions[colorAttachmentCount].storeOp = MapVkStoreOp(depthStencilAttachment.depthStoreOp);
     attachmentDescriptions[colorAttachmentCount].stencilLoadOp = MapVkLoadOp(depthStencilAttachment.stencilLoadOp);
     attachmentDescriptions[colorAttachmentCount].stencilStoreOp = MapVkStoreOp(depthStencilAttachment.stencilStoreOp);
-    attachmentDescriptions[colorAttachmentCount].initialLayout = MapVkImageLayout(depthStencilAttachment.beginLayout);
-    attachmentDescriptions[colorAttachmentCount].finalLayout = MapVkImageLayout(depthStencilAttachment.endLayout);
+    attachmentDescriptions[colorAttachmentCount].initialLayout = beginLayout;
+    attachmentDescriptions[colorAttachmentCount].finalLayout = endLayout;
 
-    auto &beginBarrier = gpuRenderPass->beginBarriers[colorAttachmentCount];
+    VkImageMemoryBarrier &beginBarrier = gpuRenderPass->beginBarriers[colorAttachmentCount];
     beginBarrier.srcAccessMask = 0;
     beginBarrier.dstAccessMask = beginAccessMask;
     beginBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -686,10 +109,10 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice* device, CCVKGPURenderPass* gpuRende
     beginBarrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
     beginBarrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
 
-    auto &endBarrier = gpuRenderPass->endBarriers[colorAttachmentCount];
+    VkImageMemoryBarrier &endBarrier = gpuRenderPass->endBarriers[colorAttachmentCount];
     endBarrier.srcAccessMask = beginAccessMask;
     endBarrier.dstAccessMask = endAccessMask;
-    endBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED; // TODO: we get a layout mismatch validation error if pass beginLayout here, probably a bug in the validation layer
+    endBarrier.oldLayout = beginLayout;
     endBarrier.newLayout = endLayout;
     endBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     endBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
@@ -697,7 +120,7 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice* device, CCVKGPURenderPass* gpuRende
     endBarrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
     endBarrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
 
-    auto subpassCount = gpuRenderPass->subPasses.size();
+    size_t subpassCount = gpuRenderPass->subPasses.size();
     vector<VkSubpassDescription>::type subpassDescriptions(1, { VK_PIPELINE_BIND_POINT_GRAPHICS });
     vector<VkAttachmentReference>::type attachmentReferences;
     if (subpassCount) // pass on user-specified subpasses
@@ -705,7 +128,7 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice* device, CCVKGPURenderPass* gpuRende
         subpassDescriptions.resize(subpassCount);
         for (size_t i = 0u; i < subpassCount; i++)
         {
-            auto &subpass = gpuRenderPass->subPasses[i];
+            const GFXSubPass &subpass = gpuRenderPass->subPasses[i];
             subpassDescriptions[i].pipelineBindPoint = MapVkPipelineBindPoint(subpass.bindPoint);
             // TODO
         }
@@ -753,7 +176,7 @@ void CCVKCmdFuncGetDeviceQueue(CCVKDevice* device, CCVKGPUQueue* gpuQueue)
 
     const CCVKGPUContext* context = ((CCVKContext*)device->getContext())->gpuContext();
 
-    auto queueCount = context->queueFamilyProperties.size();
+    size_t queueCount = context->queueFamilyProperties.size();
     for (size_t i = 0u; i < queueCount; ++i)
     {
         const VkQueueFamilyProperties &properties = context->queueFamilyProperties[i];
@@ -788,7 +211,7 @@ void CCVKCmdFuncDestroyCommandPool(CCVKDevice* device, CCVKGPUCommandPool* gpuCo
 void CCVKCmdFuncAllocateCommandBuffer(CCVKDevice* device, CCVKGPUCommandBuffer* gpuCommandBuffer)
 {
     CCVKGPUCommandPool* commandPool = gpuCommandBuffer->commandPool;
-    auto &availableList = commandPool->commandBuffers[(uint)gpuCommandBuffer->type];
+    CachedArray<VkCommandBuffer> &availableList = commandPool->commandBuffers[(uint)gpuCommandBuffer->type];
 
     if (availableList.size())
     {
@@ -816,47 +239,43 @@ void CCVKCmdFuncFreeCommandBuffer(CCVKDevice* device, CCVKGPUCommandBuffer* gpuC
 
 void CCVKCmdFuncCreateBuffer(CCVKDevice* device, CCVKGPUBuffer* gpuBuffer)
 {
-    auto vkDevice = device->gpuDevice()->vkDevice;
-    bool isHostVisible = gpuBuffer->memUsage & GFXMemoryUsage::HOST;
+    if (!gpuBuffer->size) { return; }
 
-    VkBufferCreateInfo createInfo{ VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-    createInfo.size = gpuBuffer->size;
-    createInfo.usage = MapVkBufferUsageFlagBits(gpuBuffer->usage);
+    VkBufferCreateInfo bufferInfo{ VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+    bufferInfo.size = gpuBuffer->size;
+    bufferInfo.usage = MapVkBufferUsageFlagBits(gpuBuffer->usage);
 
-    VK_CHECK(vkCreateBuffer(vkDevice, &createInfo, nullptr, &gpuBuffer->vkBuffer));
+    VmaAllocationCreateInfo allocInfo{};
+    allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
 
-    VkMemoryRequirements memoryRequirements;
-    vkGetBufferMemoryRequirements(vkDevice, gpuBuffer->vkBuffer, &memoryRequirements);
+    if (gpuBuffer->memUsage == GFXMemoryUsage::HOST)
+    {
+        bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+        allocInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
+    }
+    else if (gpuBuffer->memUsage == GFXMemoryUsage::DEVICE)
+    {
+        bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+    }
+    else if (gpuBuffer->memUsage == (GFXMemoryUsage::HOST | GFXMemoryUsage::DEVICE))
+    {
+        allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+    }
 
-    uint memoryTypeIndex = selectMemoryType(
-        device->gpuContext()->physicalDeviceMemoryProperties,
-        memoryRequirements.memoryTypeBits, isHostVisible ?
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT :
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-    VkMemoryAllocateInfo allocateInfo{ VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
-    allocateInfo.allocationSize = memoryRequirements.size;
-    allocateInfo.memoryTypeIndex = memoryTypeIndex;
-
-    VK_CHECK(vkAllocateMemory(vkDevice, &allocateInfo, nullptr, &gpuBuffer->vkDeviceMemory));
-
-    VK_CHECK(vkBindBufferMemory(vkDevice, gpuBuffer->vkBuffer, gpuBuffer->vkDeviceMemory, 0));
+    VmaAllocationInfo res;
+    VK_CHECK(vmaCreateBuffer(device->gpuDevice()->memoryAllocator, &bufferInfo, &allocInfo, &gpuBuffer->vkBuffer, &gpuBuffer->vmaAllocation, &res));
+    CC_LOG_DEBUG("Allocated buffer: %llu, %llx %llx %llu", res.size, gpuBuffer->vkBuffer, res.deviceMemory, res.offset);
+    gpuBuffer->mappedData = (uint8_t*)res.pMappedData;
 }
 
 void CCVKCmdFuncDestroyBuffer(CCVKDevice* device, CCVKGPUBuffer* gpuBuffer)
 {
-    auto vkDevice = device->gpuDevice()->vkDevice;
-
-    if (gpuBuffer->vkDeviceMemory)
+    if (gpuBuffer->vmaAllocation)
     {
-        vkFreeMemory(vkDevice, gpuBuffer->vkDeviceMemory, nullptr);
-        gpuBuffer->vkDeviceMemory = VK_NULL_HANDLE;
-    }
-
-    if (gpuBuffer->vkBuffer)
-    {
-        vkDestroyBuffer(vkDevice, gpuBuffer->vkBuffer, nullptr);
-        gpuBuffer->vkBuffer = VK_NULL_HANDLE;
+        vmaDestroyBuffer(device->gpuDevice()->memoryAllocator, gpuBuffer->vkBuffer, gpuBuffer->vmaAllocation);
+        gpuBuffer->buffer = VK_NULL_HANDLE;
+        gpuBuffer->vmaAllocation = VK_NULL_HANDLE;
     }
 }
 
@@ -868,42 +287,42 @@ void CCVKCmdFuncResizeBuffer(CCVKDevice* device, CCVKGPUBuffer* gpuBuffer)
 
 void CCVKCmdFuncUpdateBuffer(CCVKDevice* device, CCVKGPUBuffer* gpuBuffer, void* buffer, uint offset, uint size)
 {
-    if (gpuBuffer->memUsage & GFXMemoryUsage::HOST)
+    if (gpuBuffer->mappedData)
     {
-        void *buf;
-        VK_CHECK(vkMapMemory(device->gpuDevice()->vkDevice, gpuBuffer->vkDeviceMemory, 0, gpuBuffer->size, 0, &buf));
-        memcpy((unsigned char*)buf + offset, buffer, size);
-        vkUnmapMemory(device->gpuDevice()->vkDevice, gpuBuffer->vkDeviceMemory);
+        memcpy(gpuBuffer->mappedData + offset, buffer, size);
     }
-    else
+    else if (gpuBuffer->memUsage == GFXMemoryUsage::DEVICE)
     {
-        //auto vkDevice = device->gpuDevice()->vkDevice;
-        // TODO
+        const CCVKGPUBuffer* stagingBuffer = device->stagingBuffer()->gpuBuffer();
+        if (stagingBuffer->size < size) device->stagingBuffer()->resize(nextPowerOf2(size));
+
+        memcpy(stagingBuffer->mappedData, buffer, size);
+
+        CCVKGPUCommandBuffer cmdBuff;
+        beginOneTimeCommands(device, &cmdBuff);
+
+        VkBufferCopy region{ 0, gpuBuffer->startOffset + offset, size };
+        vkCmdCopyBuffer(cmdBuff.vkCommandBuffer, stagingBuffer->vkBuffer, gpuBuffer->vkBuffer, 1, &region);
+
+        endOneTimeCommands(device, &cmdBuff);
     }
 }
 
 bool CCVKCmdFuncCreateTexture(CCVKDevice* device, CCVKGPUTexture* gpuTexture)
 {
-    auto format = MapVkFormat(gpuTexture->format);
-    auto features = MapVkFormatFeatureFlags(gpuTexture->usage);
-    VkImageTiling tiling = VK_IMAGE_TILING_LINEAR; // TODO: use staging buffer to upload data
+    if (!gpuTexture->width || !gpuTexture->height) { return true; }
+
+    VkFormat format = MapVkFormat(gpuTexture->format);
+    VkFormatFeatureFlags features = MapVkFormatFeatureFlags(gpuTexture->usage);
+    VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
 
     VkFormatProperties formatProperties;
     vkGetPhysicalDeviceFormatProperties(device->gpuContext()->physicalDevice, format, &formatProperties);
 
-    if (!(formatProperties.linearTilingFeatures & features)) // TODO: change to optimal tiling
+    if (!(formatProperties.optimalTilingFeatures& features))
     {
-        if (formatProperties.optimalTilingFeatures & features)
-        {
-            tiling = VK_IMAGE_TILING_OPTIMAL;
-        }
-        else
-        {
-            return false;
-        }
+        return false;
     }
-    
-    auto vkDevice = device->gpuDevice()->vkDevice;
 
     VkImageCreateInfo createInfo{ VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
     createInfo.flags = MapVkImageCreateFlags(gpuTexture->viewType);
@@ -914,27 +333,20 @@ bool CCVKCmdFuncCreateTexture(CCVKDevice* device, CCVKGPUTexture* gpuTexture)
     createInfo.arrayLayers = gpuTexture->arrayLayer;
     createInfo.samples = MapVkSampleCount(gpuTexture->samples);
     createInfo.tiling = tiling;
-    createInfo.usage = MapVkImageUsageFlagBits(gpuTexture->usage);
+    createInfo.usage = MapVkImageUsageFlagBits(gpuTexture->usage) | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-    VK_CHECK(vkCreateImage(vkDevice, &createInfo, nullptr, &gpuTexture->vkImage));
+    VmaAllocationCreateInfo allocInfo{};
+    allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 
-    VkMemoryRequirements memoryRequirements;
-    vkGetImageMemoryRequirements(vkDevice, gpuTexture->vkImage, &memoryRequirements);
-
-    uint memoryTypeIndex = selectMemoryType(
-        ((CCVKContext*)device->getContext())->gpuContext()->physicalDeviceMemoryProperties,
-        memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-    VkMemoryAllocateInfo allocateInfo{ VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
-    allocateInfo.allocationSize = memoryRequirements.size;
-    allocateInfo.memoryTypeIndex = memoryTypeIndex;
-
-    VK_CHECK(vkAllocateMemory(vkDevice, &allocateInfo, nullptr, &gpuTexture->vkDeviceMemory));
-
-    VK_CHECK(vkBindImageMemory(vkDevice, gpuTexture->vkImage, gpuTexture->vkDeviceMemory, 0));
+    VmaAllocationInfo res;
+    VK_CHECK(vmaCreateImage(device->gpuDevice()->memoryAllocator, &createInfo, &allocInfo, &gpuTexture->vkImage, &gpuTexture->vmaAllocation, &res));
+    CC_LOG_DEBUG("Allocated texture: %llu %llx %llx %llu", res.size, gpuTexture->vkImage, res.deviceMemory, res.offset);
 
     gpuTexture->currentLayout = MapVkImageLayout(gpuTexture->usage, gpuTexture->format);
+    gpuTexture->accessMask = MapVkAccessFlags(gpuTexture->usage, gpuTexture->format);
+    gpuTexture->aspectMask = MapVkImageAspectFlags(gpuTexture->format);
+    gpuTexture->targetStage = MapVkPipelineStageFlags(gpuTexture->usage);
 
     if (gpuTexture->currentLayout != VK_IMAGE_LAYOUT_UNDEFINED)
     {
@@ -944,15 +356,15 @@ bool CCVKCmdFuncCreateTexture(CCVKDevice* device, CCVKGPUTexture* gpuTexture)
         VkImageMemoryBarrier barrier{ VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
         barrier.image = gpuTexture->vkImage;
         barrier.srcAccessMask = 0;
-        barrier.dstAccessMask = MapVkAccessFlags(gpuTexture->usage, gpuTexture->format);
+        barrier.dstAccessMask = gpuTexture->accessMask;
         barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         barrier.newLayout = gpuTexture->currentLayout;
         barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        barrier.subresourceRange.aspectMask = MapVkImageAspectFlags(gpuTexture->format);
+        barrier.subresourceRange.aspectMask = gpuTexture->aspectMask;
         barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
         barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
-        vkCmdPipelineBarrier(cmdBuff.vkCommandBuffer, VK_PIPELINE_STAGE_HOST_BIT, MapVkPipelineStageFlags(gpuTexture->usage), 0,
+        vkCmdPipelineBarrier(cmdBuff.vkCommandBuffer, VK_PIPELINE_STAGE_HOST_BIT, gpuTexture->targetStage, 0,
             0, nullptr, 0, nullptr, 1, &barrier);
 
         endOneTimeCommands(device, &cmdBuff);
@@ -963,18 +375,11 @@ bool CCVKCmdFuncCreateTexture(CCVKDevice* device, CCVKGPUTexture* gpuTexture)
 
 void CCVKCmdFuncDestroyTexture(CCVKDevice* device, CCVKGPUTexture* gpuTexture)
 {
-    auto vkDevice = device->gpuDevice()->vkDevice;
-
-    if (gpuTexture->vkImage)
+    if (gpuTexture->vmaAllocation)
     {
-        vkDestroyImage(vkDevice, gpuTexture->vkImage, nullptr);
+        vmaDestroyImage(device->gpuDevice()->memoryAllocator, gpuTexture->vkImage, gpuTexture->vmaAllocation);
         gpuTexture->vkImage = VK_NULL_HANDLE;
-    }
-
-    if (gpuTexture->vkDeviceMemory)
-    {
-        vkFreeMemory(vkDevice, gpuTexture->vkDeviceMemory, nullptr);
-        gpuTexture->vkDeviceMemory = VK_NULL_HANDLE;
+        gpuTexture->vmaAllocation = VK_NULL_HANDLE;
     }
 }
 
@@ -1041,9 +446,9 @@ void CCVKCmdFuncDestroySampler(CCVKDevice* device, CCVKGPUSampler* gpuSampler)
 
 void CCVKCmdFuncCreateShader(CCVKDevice* device, CCVKGPUShader* gpuShader)
 {
-    for (auto &stage : gpuShader->gpuStages)
+    for (CCVKGPUShaderStage &stage : gpuShader->gpuStages)
     {
-        auto spirv = GLSL2SPIRV(stage.type, "#version 450\n" + stage.source, ((CCVKContext*)device->getContext())->minorVersion());
+        vector<unsigned int>::type spirv = GLSL2SPIRV(stage.type, "#version 450\n" + stage.source, ((CCVKContext*)device->getContext())->minorVersion());
         VkShaderModuleCreateInfo createInfo{ VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
         createInfo.codeSize = spirv.size() * sizeof(unsigned int);
         createInfo.pCode = spirv.data();
@@ -1054,7 +459,7 @@ void CCVKCmdFuncCreateShader(CCVKDevice* device, CCVKGPUShader* gpuShader)
 
 void CCVKCmdFuncDestroyShader(CCVKDevice* device, CCVKGPUShader* gpuShader)
 {
-    for (auto &stage : gpuShader->gpuStages)
+    for (CCVKGPUShaderStage &stage : gpuShader->gpuStages)
     {
         vkDestroyShaderModule(device->gpuDevice()->vkDevice, stage.vkShader, nullptr);
         stage.vkShader = VK_NULL_HANDLE;
@@ -1063,14 +468,14 @@ void CCVKCmdFuncDestroyShader(CCVKDevice* device, CCVKGPUShader* gpuShader)
 
 void CCVKCmdFuncCreateInputAssembler(CCVKDevice* device, CCVKGPUInputAssembler* gpuInputAssembler)
 {
-    auto vbCount = gpuInputAssembler->gpuVertexBuffers.size();
+    size_t vbCount = gpuInputAssembler->gpuVertexBuffers.size();
     gpuInputAssembler->vertexBuffers.resize(vbCount);
     gpuInputAssembler->vertexBufferOffsets.resize(vbCount);
 
     for (size_t i = 0; i < vbCount; i++)
     {
         gpuInputAssembler->vertexBuffers[i] = gpuInputAssembler->gpuVertexBuffers[i]->vkBuffer;
-        gpuInputAssembler->vertexBufferOffsets[i] = 0;
+        gpuInputAssembler->vertexBufferOffsets[i] = gpuInputAssembler->gpuVertexBuffers[i]->startOffset;
     }
 }
 
@@ -1088,7 +493,7 @@ void CCVKCmdFuncCreateFramebuffer(CCVKDevice* device, CCVKGPUFramebuffer* gpuFra
         return;
     }
 
-    auto colorViewCount = gpuFramebuffer->gpuColorViews.size();
+    size_t colorViewCount = gpuFramebuffer->gpuColorViews.size();
     vector<VkImageView>::type attachments(colorViewCount + (gpuFramebuffer->gpuDepthStencilView ? 1 : 0));
     for (size_t i = 0u; i < colorViewCount; i++)
     {
@@ -1121,12 +526,12 @@ void CCVKCmdFuncDestroyFramebuffer(CCVKDevice* device, CCVKGPUFramebuffer* gpuFr
 
 void CCVKCmdFuncCreateBindingLayout(CCVKDevice* device, CCVKGPUBindingLayout* gpuBindingLayout, GFXBindingUnitList bindings)
 {
-    auto count = bindings.size();
+    size_t count = bindings.size();
 
     vector<VkDescriptorSetLayoutBinding>::type setBindings(count);
     for (size_t i = 0u; i < count; i++)
     {
-        auto &binding = bindings[i];
+        const GFXBindingUnit &binding = bindings[i];
         setBindings[i].binding = binding.binding;
         setBindings[i].descriptorType = MapVkDescriptorType(binding.type);
         setBindings[i].descriptorCount = binding.count;
@@ -1140,10 +545,10 @@ void CCVKCmdFuncCreateBindingLayout(CCVKDevice* device, CCVKGPUBindingLayout* gp
     VK_CHECK(vkCreateDescriptorSetLayout(device->gpuDevice()->vkDevice, &setCreateInfo, nullptr, &gpuBindingLayout->vkDescriptorSetLayout));
 
     vector<VkDescriptorPoolSize>::type poolSizes;
-    for (auto & binding : setBindings)
+    for (const VkDescriptorSetLayoutBinding &binding : setBindings)
     {
         bool found = false;
-        for (auto &poolSize : poolSizes)
+        for (VkDescriptorPoolSize &poolSize : poolSizes)
         {
             if (poolSize.type == binding.descriptorType)
             {
@@ -1175,7 +580,7 @@ void CCVKCmdFuncCreateBindingLayout(CCVKDevice* device, CCVKGPUBindingLayout* gp
     gpuBindingLayout->bindings.resize(bindings.size(), { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET });
     for (size_t i = 0u; i < count; i++)
     {
-        auto &binding = gpuBindingLayout->bindings[i];
+        VkWriteDescriptorSet &binding = gpuBindingLayout->bindings[i];
         binding.dstSet = gpuBindingLayout->vkDescriptorSet;
         binding.dstBinding = setBindings[i].binding;
         binding.dstArrayElement = 0;
@@ -1206,7 +611,7 @@ void CCVKCmdFuncCreateBindingLayout(CCVKDevice* device, CCVKGPUBindingLayout* gp
 
 void CCVKCmdFuncDestroyBindingLayout(CCVKDevice* device, CCVKGPUBindingLayout* gpuBindingLayout)
 {
-    for (auto &binding : gpuBindingLayout->bindings)
+    for (VkWriteDescriptorSet &binding : gpuBindingLayout->bindings)
     {
         CC_SAFE_DELETE(binding.pBufferInfo);
         CC_SAFE_DELETE(binding.pImageInfo);
@@ -1231,11 +636,11 @@ void CCVKCmdFuncDestroyBindingLayout(CCVKDevice* device, CCVKGPUBindingLayout* g
 
 void CCVKCmdFuncCreatePipelineLayout(CCVKDevice* device, CCVKGPUPipelineLayout* gpuPipelineLayout)
 {
-    auto count = gpuPipelineLayout->gpuBindingLayouts.size();
+    size_t count = gpuPipelineLayout->gpuBindingLayouts.size();
     vector<VkDescriptorSetLayout>::type descriptorSetLayouts(count);
     for (size_t i = 0u; i < count; i++)
     {
-        auto layout = gpuPipelineLayout->gpuBindingLayouts[i];
+        const CCVKGPUBindingLayout* layout = gpuPipelineLayout->gpuBindingLayouts[i];
         descriptorSetLayouts[i] = layout->vkDescriptorSetLayout;
     }
 
@@ -1261,8 +666,8 @@ void CCVKCmdFuncCreatePipelineState(CCVKDevice* device, CCVKGPUPipelineState* gp
 
     ///////////////////// Shader Stage /////////////////////
 
-    auto &stages = gpuPipelineState->gpuShader->gpuStages;
-    auto stageCount = stages.size();
+    const CCVKGPUShaderStageList &stages = gpuPipelineState->gpuShader->gpuStages;
+    size_t stageCount = stages.size();
     vector<VkPipelineShaderStageCreateInfo>::type stageInfos(stageCount, { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO });
     for (size_t i = 0u; i < stageCount; i++)
     {
@@ -1275,12 +680,12 @@ void CCVKCmdFuncCreatePipelineState(CCVKDevice* device, CCVKGPUPipelineState* gp
 
     ///////////////////// Input State /////////////////////
 
-    auto &attributes = gpuPipelineState->inputState.attributes;
-    auto attributeCount = attributes.size();
+    const GFXAttributeList &attributes = gpuPipelineState->inputState.attributes;
+    size_t attributeCount = attributes.size();
     size_t bindingCount = 1u;
     for (size_t i = 0u; i < attributeCount; i++)
     {
-        auto &attr = attributes[i];
+        const GFXAttribute &attr = attributes[i];
         bindingCount = std::max(bindingCount, attr.stream + 1);
     }
 
@@ -1293,7 +698,7 @@ void CCVKCmdFuncCreatePipelineState(CCVKDevice* device, CCVKGPUPipelineState* gp
     }
     for (size_t i = 0u; i < attributeCount; i++)
     {
-        auto &attr = attributes[i];
+        const GFXAttribute &attr = attributes[i];
         bindingDescriptions[attr.stream].stride += GFX_FORMAT_INFOS[(uint)attr.format].size;
         if (attr.isInstanced)
         {
@@ -1305,7 +710,7 @@ void CCVKCmdFuncCreatePipelineState(CCVKDevice* device, CCVKGPUPipelineState* gp
     vector<VkVertexInputAttributeDescription>::type attributeDescriptions(attributeCount);
     for (size_t i = 0u; i < attributeCount; i++)
     {
-        auto &attr = attributes[i];
+        const GFXAttribute &attr = attributes[i];
         attributeDescriptions[i].location = i;
         attributeDescriptions[i].binding = attr.stream;
         attributeDescriptions[i].format = MapVkFormat(attr.format);
@@ -1404,11 +809,11 @@ void CCVKCmdFuncCreatePipelineState(CCVKDevice* device, CCVKGPUPipelineState* gp
 
     ///////////////////// Blend State /////////////////////
 
-    auto blendTargetCount = gpuPipelineState->bs.targets.size();
+    size_t blendTargetCount = gpuPipelineState->bs.targets.size();
     vector<VkPipelineColorBlendAttachmentState>::type blendTargets(blendTargetCount);
     for (size_t i = 0u; i < blendTargetCount; i++)
     {
-        auto &target = gpuPipelineState->bs.targets[i];
+        GFXBlendTarget &target = gpuPipelineState->bs.targets[i];
         blendTargets[i].blendEnable = target.blend;
         blendTargets[i].srcColorBlendFactor = VK_BLEND_FACTORS[(uint)target.blendSrc];
         blendTargets[i].dstColorBlendFactor = VK_BLEND_FACTORS[(uint)target.blendDst];
@@ -1418,7 +823,7 @@ void CCVKCmdFuncCreatePipelineState(CCVKDevice* device, CCVKGPUPipelineState* gp
         blendTargets[i].alphaBlendOp = VK_BLEND_OPS[(uint)target.blendAlphaEq];
         blendTargets[i].colorWriteMask = MapVkColorComponentFlags(target.blendColorMask);
     }
-    auto &blendColor = gpuPipelineState->bs.blendColor;
+    GFXColor &blendColor = gpuPipelineState->bs.blendColor;
 
     VkPipelineColorBlendStateCreateInfo colorBlendState{ VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO };
     //colorBlendState.logicOpEnable;
@@ -1454,28 +859,84 @@ void CCVKCmdFuncDestroyPipelineState(CCVKDevice* device, CCVKGPUPipelineState* g
 void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice* device, uint8_t* const* buffers, CCVKGPUTexture* gpuTexture, const GFXBufferTextureCopyList& regions)
 {
     //bool isCompressed = GFX_FORMAT_INFOS[(int)gpuTexture->format].isCompressed;
-    uint n = 0u, w, h;
+    VkImageAspectFlags aspectFlags = MapVkImageAspectFlags(gpuTexture->format);
 
-    // TODO
-    void *buffer;
-    VK_CHECK(vkMapMemory(device->gpuDevice()->vkDevice, gpuTexture->vkDeviceMemory, 0, gpuTexture->size, 0, &buffer));
-
-    for (size_t i = 0; i < regions.size(); ++i)
+    uint regionCount = regions.size(), totalSize = 0u;
+    vector<uint>::type regionSizes(regionCount);
+    for (size_t i = 0u; i < regionCount; ++i)
     {
-        const GFXBufferTextureCopy& region = regions[i];
-        w = region.texExtent.width;
-        h = region.texExtent.height;
-        for (uint m = region.texSubres.baseMipLevel; m < region.texSubres.baseMipLevel + region.texSubres.levelCount; ++m)
-        {
-            uint8_t* buff = region.buffOffset + region.buffTexHeight * region.buffStride + buffers[n++];
-            memcpy(buffer, buff, w * h * 4);
-
-            w = std::max(w >> 1, 1U);
-            h = std::max(h >> 1, 1U);
-        }
+        const GFXBufferTextureCopy &region = regions[i];
+        uint w = region.buffStride > 0 ? region.buffStride : region.texExtent.width;
+        uint h = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
+        totalSize += regionSizes[i] = GFXFormatSize(gpuTexture->format, w, h, region.texExtent.depth);
     }
 
-    vkUnmapMemory(device->gpuDevice()->vkDevice, gpuTexture->vkDeviceMemory);
+    CCVKGPUBuffer* stagingBuffer = device->stagingBuffer()->gpuBuffer();
+    if (stagingBuffer->size < totalSize) device->stagingBuffer()->resize(nextPowerOf2(totalSize));
+
+    vector<VkBufferImageCopy>::type stagingRegions(regionCount);
+    VkDeviceSize offset = stagingBuffer->startOffset;
+    for (size_t i = 0u; i < regionCount; ++i)
+    {
+        const GFXBufferTextureCopy &region = regions[i];
+        VkBufferImageCopy &stagingRegion = stagingRegions[i];
+        stagingRegion.bufferOffset = offset;
+        stagingRegion.bufferRowLength = region.buffStride;
+        stagingRegion.bufferImageHeight = region.buffTexHeight;
+        stagingRegion.imageSubresource = { aspectFlags, region.texSubres.mipLevel, region.texSubres.baseArrayLayer, region.texSubres.layerCount };
+        stagingRegion.imageOffset = { region.texOffset.x, region.texOffset.y, region.texOffset.z };
+        stagingRegion.imageExtent = { region.texExtent.width, region.texExtent.height, region.texExtent.depth };
+
+        memcpy(stagingBuffer->mappedData + offset, buffers[i], regionSizes[i]);
+        offset += regionSizes[i++];
+    }
+
+    CCVKGPUCommandBuffer cmdBuff;
+    beginOneTimeCommands(device, &cmdBuff);
+
+    if (gpuTexture->currentLayout != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+    {
+        VkImageMemoryBarrier barrier{ VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+        barrier.image = gpuTexture->vkImage;
+        barrier.srcAccessMask = gpuTexture->accessMask;
+        barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        barrier.oldLayout = gpuTexture->currentLayout;
+        barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.subresourceRange.aspectMask = gpuTexture->aspectMask;
+        barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+        barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+        vkCmdPipelineBarrier(cmdBuff.vkCommandBuffer, gpuTexture->targetStage, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+            0, nullptr, 0, nullptr, 1, &barrier);
+    }
+
+    vkCmdCopyBufferToImage(cmdBuff.vkCommandBuffer, stagingBuffer->vkBuffer, gpuTexture->vkImage,
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, stagingRegions.size(), stagingRegions.data());
+
+    if (gpuTexture->currentLayout != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+    {
+        VkImageMemoryBarrier barrier{ VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+        barrier.image = gpuTexture->vkImage;
+        barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        barrier.dstAccessMask = gpuTexture->accessMask;
+        barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        barrier.newLayout = gpuTexture->currentLayout;
+        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.subresourceRange.aspectMask = gpuTexture->aspectMask;
+        barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+        barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+        vkCmdPipelineBarrier(cmdBuff.vkCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, gpuTexture->targetStage, 0,
+            0, nullptr, 0, nullptr, 1, &barrier);
+    }
+
+    if (gpuTexture->flags & GFXTextureFlags::GEN_MIPMAP)
+    {
+
+    }
+
+    endOneTimeCommands(device, &cmdBuff);
 }
 
 NS_CC_END

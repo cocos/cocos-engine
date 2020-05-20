@@ -164,7 +164,7 @@ namespace
         /* .generalConstantMatrixVectorIndexing = */ 1,
     } };
 
-    const std::vector<unsigned int> GLSL2SPIRV(GFXShaderType type, String source, int vulkanMinorVersion = 2)
+    const vector<unsigned int>::type GLSL2SPIRV(GFXShaderType type, const String &source, int vulkanMinorVersion = 2)
     {
         if (!glslangInitialized)
         {
@@ -172,8 +172,8 @@ namespace
             glslangInitialized = true;
         }
 
-        auto stage = getShaderStage(type);
-        auto string = source.c_str();
+        EShLanguage stage = getShaderStage(type);
+        const char* string = source.c_str();
         glslang::TShader shader(stage);
         shader.setStrings(&string, 1);
 

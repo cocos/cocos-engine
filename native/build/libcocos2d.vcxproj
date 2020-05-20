@@ -76,6 +76,7 @@
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gles2_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gles3_auto.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_vk_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_gfx_manual.cpp" />
     <ClCompile Include="..\external\sources\tommyds\tommy.c" />
     <ClCompile Include="..\cocos\audio\AudioEngine.cpp" />
@@ -273,7 +274,6 @@
     <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKSampler.h" />
     <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKShader.h" />
     <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKSPIRV.h" />
-    <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKStateCache.h" />
     <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKStd.h" />
     <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKTexture.h" />
     <ClInclude Include="..\cocos\renderer\gfx-vulkan\VKTextureView.h" />
@@ -283,6 +283,7 @@
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gles2_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gles3_auto.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_vk_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_gfx_manual.hpp" />
     <ClInclude Include="..\external\sources\tommyds\tommy.h" />
     <ClInclude Include="..\cocos\audio\include\AudioEngine.h" />
@@ -524,12 +525,12 @@
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>$(EngineRoot)external\win32\libs;$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(EngineRoot)external\win32\libs;$(EngineRoot)external\win32\libs\glslang;$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)</TargetName>
     <IncludePath>$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\renderer\core;$(ProjectDir)..\external\sources\tommyds;$(ProjectDir)..\external\sources\khronos;$(ProjectDir)..\external\sources\jemalloc\include-win;$(ProjectDir)..\external\sources\jemalloc\include-win\msvc_compat;$(ProjectDir)..\external\win32\include\glslang;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LibraryPath>$(EngineRoot)external\win32\libs;$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(EngineRoot)external\win32\libs;$(EngineRoot)external\win32\libs\glslang;$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)</TargetName>
     <IncludePath>$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\renderer\core;$(ProjectDir)..\external\sources\tommyds;$(ProjectDir)..\external\sources\khronos;$(ProjectDir)..\external\sources\jemalloc\include-win;$(ProjectDir)..\external\sources\jemalloc\include-win\msvc_compat;$(ProjectDir)..\external\win32\include\glslang;$(IncludePath)</IncludePath>
   </PropertyGroup>
@@ -541,7 +542,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(ProjectDir)..\cocos;$(ProjectDir)..\external\sources;$(ProjectDir)..\cocos\renderer\gfx;$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\platform;$(ProjectDir)..\external\win32\include\zlib;$(ProjectDir)..\external\win32\include\v8;$(ProjectDir)..\external\sources\firefox;$(projectDir)..;$(ProjectDir)..\external\win32\include;$(ProjectDir)..\external\win32\include\uv;$(ProjectDir)..\cocos\editor-support</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;CC_STATIC;_USRDLL;_LIB;COCOS2D_DEBUG=1;JS_HAVE____INTN;JS_INTPTR_TYPE=int;XP_WIN;_CRT_SECURE_NO_WARNINGS;_WINDOWS;_WIN32;__MWERKS__;CC_CORE_EXPORTS;GLEW_BUILD;VK_USE_PLATFORM_WIN32_KHR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;CC_STATIC;_USRDLL;_LIB;COCOS2D_DEBUG=1;JS_HAVE____INTN;JS_INTPTR_TYPE=int;XP_WIN;_CRT_SECURE_NO_WARNINGS;_WINDOWS;_WIN32;__MWERKS__;CC_CORE_EXPORTS;GLEW_BUILD;VK_USE_PLATFORM_WIN32_KHR;VK_NO_PROTOTYPES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -558,6 +559,7 @@
     <PreLinkEvent>
       <Command>if not exist "$(OutDir)" mkdir "$(OutDir)"
 xcopy /Y /Q "$(ProjectDir)..\external\win32\libs\*.*" "$(OutDir)"
+xcopy /Y /Q "$(ProjectDir)..\external\win32\libs\glslang\*.*" "$(OutDir)"
 xcopy /Y /Q "$(ProjectDir)..\external\win32\libs\Debug\*.*" "$(OutDir)"</Command>
     </PreLinkEvent>
     <Link>
@@ -575,6 +577,7 @@ xcopy /Y /Q "$(ProjectDir)..\external\win32\libs\Debug\*.*" "$(OutDir)"</Command
       <Command>
       </Command>
     </PostBuildEvent>
+    <Lib />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <PreBuildEvent>
@@ -583,7 +586,7 @@ xcopy /Y /Q "$(ProjectDir)..\external\win32\libs\Debug\*.*" "$(OutDir)"</Command
     </PreBuildEvent>
     <ClCompile>
       <AdditionalIncludeDirectories>$(ProjectDir)..\cocos;$(ProjectDir)..\external\sources;$(ProjectDir)..\cocos\renderer\gfx;$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\platform;$(ProjectDir)..\external\win32\include\zlib;$(ProjectDir)..\external\win32\include\v8;$(ProjectDir)..\external\sources\firefox;$(projectDir)..;$(ProjectDir)..\external\win32\include;$(ProjectDir)..\external\win32\include\uv;$(ProjectDir)..\cocos\editor-support;$(ProjectDir)..\external\sources\glslang</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;CC_STATIC;_USRDLL;USING_V8_SHARED;_LIB;JS_HAVE____INTN;JS_INTPTR_TYPE=int;XP_WIN;_CRT_SECURE_NO_WARNINGS;GLFW_EXPOSE_NATIVE_WIN32;GLFW_EXPOSE_NATIVE_WGL;_WIN32;__MWERKS__;CC_CORE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;CC_STATIC;_USRDLL;USING_V8_SHARED;_LIB;JS_HAVE____INTN;JS_INTPTR_TYPE=int;XP_WIN;_CRT_SECURE_NO_WARNINGS;GLFW_EXPOSE_NATIVE_WIN32;GLFW_EXPOSE_NATIVE_WGL;_WIN32;__MWERKS__;CC_CORE_EXPORTS;VK_USE_PLATFORM_WIN32_KHR;VK_NO_PROTOTYPES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
@@ -597,9 +600,9 @@ xcopy /Y /Q "$(ProjectDir)..\external\win32\libs\Debug\*.*" "$(OutDir)"</Command
       <ObjectFileName>$(Configuration).win32\$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <PreLinkEvent>
-      <Command>
-      if not exist "$(OutDir)" mkdir "$(OutDir)"
+      <Command>if not exist "$(OutDir)" mkdir "$(OutDir)"
 xcopy /Y /Q "$(ProjectDir)..\external\win32\libs\*.*" "$(OutDir)"
+xcopy /Y /Q "$(ProjectDir)..\external\win32\libs\glslang\*.*" "$(OutDir)"
 xcopy /Y /Q "$(ProjectDir)..\external\win32\libs\Debug\*.*" "$(OutDir)"</Command>
     </PreLinkEvent>
     <Link>

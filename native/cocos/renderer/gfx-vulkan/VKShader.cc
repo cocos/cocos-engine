@@ -26,8 +26,7 @@ bool CCVKShader::initialize(const GFXShaderInfo &info)
     _gpuShader->samplers = _samplers;
     for (const auto& stage : _stages)
     {
-        CCVKGPUShaderStage gpuShaderStage = { stage.type, stage.source, stage.macros };
-        _gpuShader->gpuStages.emplace_back(std::move(gpuShaderStage));
+        _gpuShader->gpuStages.push_back({ stage.type, stage.source, stage.macros });
     }
 
     CCVKCmdFuncCreateShader((CCVKDevice*)_device, _gpuShader);

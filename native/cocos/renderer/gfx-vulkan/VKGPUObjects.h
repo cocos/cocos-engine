@@ -1,7 +1,7 @@
 #ifndef CC_GFXVULKAN_GPU_OBJECTS_H_
 #define CC_GFXVULKAN_GPU_OBJECTS_H_
 
-#include "volk.h"
+#include "VKUtils.h"
 
 NS_CC_BEGIN
 
@@ -30,6 +30,7 @@ public:
     VkDevice vkDevice = VK_NULL_HANDLE;
     vector<VkLayerProperties>::type layers;
     vector<VkExtensionProperties>::type extensions;
+    VmaAllocator memoryAllocator = VK_NULL_HANDLE;
 };
 
 class CCVKGPURenderPass : public Object
@@ -80,8 +81,8 @@ public:
     GFXQueueType type;
     VkQueue vkQueue;
     uint queueFamilyIndex;
-    VkSemaphore waitSemaphore = VK_NULL_HANDLE;
-    VkSemaphore signalSemaphore = VK_NULL_HANDLE;
+    VkSemaphore nextWaitSemaphore = VK_NULL_HANDLE;
+    VkSemaphore nextSignalSemaphore = VK_NULL_HANDLE;
     VkPipelineStageFlags submitStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     CachedArray<VkCommandBuffer> commandBuffers;
 };
@@ -94,10 +95,13 @@ public:
     uint size = 0;
     uint stride = 0;
     uint count = 0;
-    VkBuffer vkBuffer = VK_NULL_HANDLE;
-    VkDeviceMemory vkDeviceMemory = VK_NULL_HANDLE;
     void* buffer = nullptr;
     GFXDrawInfoList indirects;
+
+    VkBuffer vkBuffer = VK_NULL_HANDLE;
+    VkDeviceSize startOffset = 0u;
+    uint8_t* mappedData = nullptr;
+    VmaAllocation vmaAllocation = VK_NULL_HANDLE;
 };
 typedef vector<CCVKGPUBuffer*>::type CCVKGPUBufferList;
 
@@ -117,9 +121,13 @@ public:
     GFXSampleCount samples = GFXSampleCount::X1;
     GFXTextureFlags flags = GFXTextureFlagBit::NONE;
     bool isPowerOf2 = false;
+
     VkImage vkImage = VK_NULL_HANDLE;
-    VkDeviceMemory vkDeviceMemory = VK_NULL_HANDLE;
+    VmaAllocation vmaAllocation = VK_NULL_HANDLE;
     VkImageLayout currentLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    VkAccessFlags accessMask = VK_ACCESS_SHADER_READ_BIT;
+    VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    VkPipelineStageFlags targetStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 };
 
 class CCVKGPUTextureView : public Object
@@ -153,55 +161,6 @@ public:
     VkSampler vkSampler;
 };
 
-struct CCVKGPUInput
-{
-    uint binding = 0;
-    String name;
-    GFXType type = GFXType::UNKNOWN;
-    uint stride = 0;
-    uint count = 0;
-    uint size = 0;
-    //GLenum glType = 0;
-    //GLint glLoc = -1;
-};
-typedef vector<CCVKGPUInput>::type CCVKGPUInputList;
-
-struct CCVKGPUUniform
-{
-    uint binding = GFX_INVALID_BINDING;
-    String name;
-    GFXType type = GFXType::UNKNOWN;
-    uint stride = 0;
-    uint count = 0;
-    uint size = 0;
-    uint offset = 0;
-    //GLenum glType = 0;
-    //GLint glLoc = -1;
-};
-typedef vector<CCVKGPUUniform>::type CCVKGPUUniformList;
-
-struct CCVKGPUUniformBlock
-{
-    uint binding = 0;
-    uint idx = 0;
-    String name;
-    uint size = 0;
-    CCVKGPUUniformList glUniforms;
-    CCVKGPUUniformList glActiveUniforms;
-};
-typedef vector<CCVKGPUUniformBlock>::type CCVKGPUUniformBlockList;
-
-struct CCVKGPUUniformSampler
-{
-    uint binding = 0;
-    String name;
-    GFXType type = GFXType::UNKNOWN;
-    vector<int>::type units;
-    //GLenum glType = 0;
-    //GLint glLoc = -1;
-};
-typedef vector<CCVKGPUUniformSampler>::type CCVKGPUUniformSamplerList;
-
 struct CCVKGPUShaderStage
 {
     CCVKGPUShaderStage(GFXShaderType t, String s, GFXShaderMacroList m)
@@ -224,25 +183,7 @@ public:
     GFXUniformBlockList blocks;
     GFXUniformSamplerList samplers;
     CCVKGPUShaderStageList gpuStages;
-    CCVKGPUInputList gpuInputs;
-    CCVKGPUUniformBlockList gpuBlocks;
-    CCVKGPUUniformSamplerList gpuSamplers;
 };
-
-struct CCVKGPUAttribute
-{
-    String name;
-    //GLuint glBuffer = 0;
-    //GLenum glType = 0;
-    uint size = 0;
-    uint count = 0;
-    uint stride = 1;
-    uint componentCount = 1;
-    bool isNormalized = false;
-    bool isInstanced = false;
-    uint offset = 0;
-};
-typedef vector<CCVKGPUAttribute>::type CCVKGPUAttributeList;
 
 class CCVKGPUInputAssembler : public Object
 {
@@ -309,7 +250,7 @@ public:
 
     ~CCVKGPUSemaphorePool()
     {
-        for (auto semaphore : _semaphores)
+        for (VkBuffer semaphore : _semaphores)
         {
             vkDestroySemaphore(_device->vkDevice, semaphore, nullptr);
         }
@@ -359,7 +300,7 @@ public:
 
     ~CCVKGPUFencePool()
     {
-        for (auto fence : _fences)
+        for (VkFence fence : _fences)
         {
             vkDestroyFence(_device->vkDevice, fence, nullptr);
         }
