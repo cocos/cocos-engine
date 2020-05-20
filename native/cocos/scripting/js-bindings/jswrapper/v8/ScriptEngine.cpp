@@ -693,6 +693,8 @@ namespace se {
 
         if (!maybeScript.IsEmpty())
         {
+            v8::TryCatch block(_isolate);
+
             v8::Local<v8::Script> v8Script = maybeScript.ToLocalChecked();
             v8::MaybeLocal<v8::Value> maybeResult = v8Script->Run(_context.Get(_isolate));
 
@@ -706,6 +708,12 @@ namespace se {
                 }
 
                 success = true;
+            }
+
+            if (block.HasCaught()) {
+                v8::Local<v8::Message> message = block.Message();
+                SE_LOGE("ScriptEngine::evalString catch exception:\n");
+                onMessageCallback(message, v8::Undefined(_isolate));
             }
         }
 
