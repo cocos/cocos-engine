@@ -145,6 +145,14 @@ let Material = cc.Class({
     },
 
     statics: {
+        /**
+         * !#en Get built-in materials
+         * !#zh 获取内置材质
+         * @static
+         * @method getBuiltinMaterial
+         * @param {string} name 
+         * @return {Material}
+         */
         getBuiltinMaterial (name) {
             if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
                 return new cc.Material();
@@ -302,7 +310,7 @@ let Material = cc.Class({
      * !#en Sets the Material blend states.
      * !#zh 设置材质的混合渲染状态。
      * @method setBlend
-     * @param {number} enabled 
+     * @param {boolean} enabled 
      * @param {number} blendEq 
      * @param {number} blendSrc 
      * @param {number} blendDst 

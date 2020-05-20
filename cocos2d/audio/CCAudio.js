@@ -129,7 +129,13 @@ Audio.State = {
             self._state = Audio.State.PLAYING;
             // TODO: move to audio event listeners
             self._bindEnded();
-            self._element.play();
+            let playPromise = self._element.play();
+            // dom audio throws an error if pause audio immediately after playing
+            if (window.Promise && playPromise instanceof Promise) {
+                playPromise.catch(function (err) {
+                    // do nothing
+                });
+            }
             self._touchToPlay();
         });
     };
