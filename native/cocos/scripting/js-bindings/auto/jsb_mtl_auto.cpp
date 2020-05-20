@@ -13,24 +13,6 @@
 se::Object* __jsb_cocos2d_CCMTLDevice_proto = nullptr;
 se::Class* __jsb_cocos2d_CCMTLDevice_class = nullptr;
 
-static bool js_mtl_CCMTLDevice_getMTKView(se::State& s)
-{
-    cocos2d::CCMTLDevice* cobj = (cocos2d::CCMTLDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_mtl_CCMTLDevice_getMTKView : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        void* result = cobj->getMTKView();
-        #pragma warning NO CONVERSION FROM NATIVE FOR void*;
-        SE_PRECONDITION2(ok, false, "js_mtl_CCMTLDevice_getMTKView : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_mtl_CCMTLDevice_getMTKView)
-
 static bool js_mtl_CCMTLDevice_getMTLDevice(se::State& s)
 {
     cocos2d::CCMTLDevice* cobj = (cocos2d::CCMTLDevice*)s.nativeThisObject();
@@ -49,6 +31,24 @@ static bool js_mtl_CCMTLDevice_getMTLDevice(se::State& s)
 }
 SE_BIND_FUNC(js_mtl_CCMTLDevice_getMTLDevice)
 
+static bool js_mtl_CCMTLDevice_getMTKView(se::State& s)
+{
+    cocos2d::CCMTLDevice* cobj = (cocos2d::CCMTLDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_mtl_CCMTLDevice_getMTKView : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        void* result = cobj->getMTKView();
+        #pragma warning NO CONVERSION FROM NATIVE FOR void*;
+        SE_PRECONDITION2(ok, false, "js_mtl_CCMTLDevice_getMTKView : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_mtl_CCMTLDevice_getMTKView)
+
 static bool js_mtl_CCMTLDevice_getMaximumSamplerUnits(se::State& s)
 {
     cocos2d::CCMTLDevice* cobj = (cocos2d::CCMTLDevice*)s.nativeThisObject();
@@ -57,8 +57,8 @@ static bool js_mtl_CCMTLDevice_getMaximumSamplerUnits(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = cobj->getMaximumSamplerUnits();
-        ok &= int32_to_seval((int)result, &s.rval());
+        unsigned int result = cobj->getMaximumSamplerUnits();
+        ok &= uint32_to_seval((unsigned int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_mtl_CCMTLDevice_getMaximumSamplerUnits : Error processing arguments");
         return true;
     }
@@ -66,6 +66,42 @@ static bool js_mtl_CCMTLDevice_getMaximumSamplerUnits(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_mtl_CCMTLDevice_getMaximumSamplerUnits)
+
+static bool js_mtl_CCMTLDevice_getMaximumColorRenderTargets(se::State& s)
+{
+    cocos2d::CCMTLDevice* cobj = (cocos2d::CCMTLDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_mtl_CCMTLDevice_getMaximumColorRenderTargets : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getMaximumColorRenderTargets();
+        ok &= uint32_to_seval((unsigned int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_mtl_CCMTLDevice_getMaximumColorRenderTargets : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_mtl_CCMTLDevice_getMaximumColorRenderTargets)
+
+static bool js_mtl_CCMTLDevice_isIndirectCommandBufferSupported(se::State& s)
+{
+    cocos2d::CCMTLDevice* cobj = (cocos2d::CCMTLDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_mtl_CCMTLDevice_isIndirectCommandBufferSupported : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isIndirectCommandBufferSupported();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_mtl_CCMTLDevice_isIndirectCommandBufferSupported : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_mtl_CCMTLDevice_isIndirectCommandBufferSupported)
 
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_CCMTLDevice_finalize)
 
@@ -100,9 +136,11 @@ bool js_register_mtl_CCMTLDevice(se::Object* obj)
 {
     auto cls = se::Class::create("CCMTLDevice", obj, __jsb_cocos2d_GFXDevice_proto, _SE(js_mtl_CCMTLDevice_constructor));
 
-    cls->defineFunction("getMTKView", _SE(js_mtl_CCMTLDevice_getMTKView));
     cls->defineFunction("getMTLDevice", _SE(js_mtl_CCMTLDevice_getMTLDevice));
+    cls->defineFunction("getMTKView", _SE(js_mtl_CCMTLDevice_getMTKView));
     cls->defineFunction("getMaximumSamplerUnits", _SE(js_mtl_CCMTLDevice_getMaximumSamplerUnits));
+    cls->defineFunction("getMaximumColorRenderTargets", _SE(js_mtl_CCMTLDevice_getMaximumColorRenderTargets));
+    cls->defineFunction("isIndirectCommandBufferSupported", _SE(js_mtl_CCMTLDevice_isIndirectCommandBufferSupported));
     cls->defineFinalizeFunction(_SE(js_cocos2d_CCMTLDevice_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::CCMTLDevice>(cls);
