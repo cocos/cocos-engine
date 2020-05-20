@@ -166,6 +166,7 @@ cc.screen = /** @lends cc.screen# */{
         }
 
         let requestPromise = element[this._fn.requestFullscreen]();
+        // the requestFullscreen API can only be initiated by user gesture.
         if (typeof document[this._fn.fullscreenerror] === 'undefined' 
             && window.Promise && requestPromise instanceof Promise) {
             requestPromise.catch(function (err) {
