@@ -185,8 +185,8 @@ export class ForwardPipeline extends RenderPipeline {
      * 销毁函数。
      */
     public destroy () {
-        this._destroy();       
         this._lightBatchQueue.clear();
+        this._destroy();
     }
 
     /**
@@ -275,7 +275,7 @@ export class ForwardPipeline extends RenderPipeline {
             this._lightBuffers[l].update(this._uboLight.view); 
 
             // update per-lightBatchQueue UBO
-            this._lightBatchQueue.updateLightBuffers(l, this._lightBuffers[l]);                 
+            this._lightBatchQueue.updateLightBuffer(l, this._lightBuffers[l]);                 
         }
     }
 
@@ -326,7 +326,7 @@ export class ForwardPipeline extends RenderPipeline {
                 this._lightIndexOffset[i] = this._lightIndices.length;
                 this.cullLightPerModel(this._renderObjects[i].model);
             }
-            this._lightBatchQueue.updateValidLights(this._validLights);
+            this._lightBatchQueue.updateQueueSize(this._validLights.length);
         }
     }
 

@@ -47,17 +47,17 @@ export class RenderLightBatchedQueue {
      * update lightBuffer for light-batch-queue
      * @param lightBuffer GFXBuffer for light
      */
-    public updateLightBuffers (index, lightBuffers: GFXBuffer) {
-        this._lightBuffers[index] = lightBuffers;
+    public updateLightBuffer (index, lightBuffer: GFXBuffer) {
+        this._lightBuffers[index] = lightBuffer;
     }
 
     /**
      * update lightBuffer for light-batch-queue.size()
      * @param size
      */
-    public updateValidLights (validLights: Light[]) {
-        this._sortedSubModelsArray.length = this._sortedPSOArray.length = validLights.length;
-        for (let i = 0; i < validLights.length; ++i) {
+    public updateQueueSize (lightSize: number) {
+        this._sortedSubModelsArray.length = this._sortedPSOArray.length = lightSize;
+        for (let i = 0; i < lightSize; ++i) {
             this._sortedSubModelsArray[i] = [];
             this._sortedPSOArray[i] = [];
         }
@@ -78,18 +78,18 @@ export class RenderLightBatchedQueue {
         this._lightBuffers.length = 0;
     }
 
-    public add(index: number, lightIndexOffset: number[], nextLightIndex: number, lightIndices: number[],
+    public add (index: number, lightIndexOffset: number[], nextLightIndex: number, lightIndices: number[],
         validLights: Light[], pass: Pass, renderObj: IRenderObject, modelIdx: number) {
         if (pass.phase === this._passDesc.phases) {
             for (let l = lightIndexOffset[index]; l < nextLightIndex; l++) {
                 const light = validLights[lightIndices[l]];
                 switch (light.type) {
                     case LightType.SPHERE:
-                        this.attache(lightIndices[l], pass, renderObj, modelIdx, myForward_Light_Sphere_Patches);
+                        this.attach(lightIndices[l], pass, renderObj, modelIdx, myForward_Light_Sphere_Patches);
                         break;
 
                     case LightType.SPOT:
-                        this.attache(lightIndices[l], pass, renderObj, modelIdx, myForward_Light_Spot_Patches);
+                        this.attach(lightIndices[l], pass, renderObj, modelIdx, myForward_Light_Spot_Patches);
                         break;
                 }
             }
@@ -100,7 +100,7 @@ export class RenderLightBatchedQueue {
      * @zh
      * record CommandBuffer
      */
-    public recordCommandBuffer(cmdBuff: GFXCommandBuffer) {
+    public recordCommandBuffer (cmdBuff: GFXCommandBuffer) {
         for (let i = 0; i < this._sortedSubModelsArray.length; ++i) {
             for (let j = 0; j < this._sortedSubModelsArray[i].length; ++j) {
                 cmdBuff.bindPipelineState(this._sortedPSOArray[i][j]);
@@ -121,7 +121,7 @@ export class RenderLightBatchedQueue {
      * @param modelIdx submodel Index
      * @param patches Sphere/Spot Light
      */
-    private attache(index: number, pass: Pass, renderObj: IRenderObject, modelIdx: number, patches?: IMacroPatch[]) {
+    private attach (index: number, pass: Pass, renderObj: IRenderObject, modelIdx: number, patches?: IMacroPatch[]) {
         const nowStep = this._sortedSubModelsArray[index].length;
         this._sortedSubModelsArray[index].push(renderObj.model.subModels[modelIdx]);
         // keep pos == subModel
