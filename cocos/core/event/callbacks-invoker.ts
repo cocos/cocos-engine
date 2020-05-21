@@ -297,9 +297,13 @@ export class CallbacksInvoker {
      * @zh 派发一个指定事件，并传递需要的参数
      * @en Trigger an event directly with the event name and necessary arguments.
      * @param key - event type
-     * @param args - Arguments when the event triggered
+     * @param arg0 - The first argument to be passed to the callback
+     * @param arg1 - The second argument to be passed to the callback
+     * @param arg2 - The third argument to be passed to the callback
+     * @param arg3 - The fourth argument to be passed to the callback
+     * @param arg4 - The fifth argument to be passed to the callback
      */
-    public emit (key: string, ...args: any[]) {
+    public emit (key: string, arg0, arg1, arg2, arg3, arg4) {
         const list: CallbackList = this._callbackTable[key]!;
         if (list) {
             const rootInvoker = !list.isInvoking;
@@ -316,10 +320,10 @@ export class CallbacksInvoker {
                         this.off(key, callback, target);
                     }
                     if (target) {
-                        callback.call(target, ...args);
+                        callback.call(target, arg0, arg1, arg2, arg3, arg4);
                     }
                     else {
-                        callback(...args);
+                        callback(arg0, arg1, arg2, arg3, arg4);
                     }
                 }
             }

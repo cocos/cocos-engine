@@ -39,7 +39,6 @@ import * as js from '../utils/js';
 import { baseNodePolyfill } from './base-node-dev';
 import { NodeEventProcessor } from './node-event-processor';
 import { DEV, DEBUG, EDITOR } from 'internal:constants';
-import { CallbackFunction } from '../event/event-target';
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
@@ -1078,7 +1077,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * node.on(SystemEventType.TOUCH_END, callback, this);
      * ```
      */
-    public on (type: string | SystemEventType, callback: CallbackFunction, target?: Object, useCapture: any = false) {
+    public on (type: string | SystemEventType, callback: Function, target?: Object, useCapture: any = false) {
         switch (type) {
             case SystemEventType.TRANSFORM_CHANGED:
                 this._eventMask |= TRANSFORM_ON;
@@ -1102,7 +1101,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * node.off(SystemEventType.TOUCH_START, callback, this.node);
      * ```
      */
-    public off (type: string, callback?: CallbackFunction, target?: Object, useCapture: any = false) {
+    public off (type: string, callback?: Function, target?: Object, useCapture: any = false) {
         this._eventProcessor.off(type, callback, target, useCapture);
 
         const hasListeners = this._eventProcessor.hasEventListener(type);
@@ -1128,7 +1127,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param target - The target (this object) to invoke the callback, can be null
      */
-    public once (type: string, callback: CallbackFunction, target?: Object, useCapture?: any) {
+    public once (type: string, callback: Function, target?: Object, useCapture?: any) {
         this._eventProcessor.once(type, callback, target, useCapture);
     }
 

@@ -1,3 +1,7 @@
+/**
+ * @category event
+ */
+
 import { fastRemove } from '../utils/array';
 import { CallbacksInvoker } from './callbacks-invoker';
 
@@ -105,29 +109,26 @@ export interface IEventified {
      * @param type - event type
      * @param args - Arguments when the event triggered
      */
-    emit (type: EventType, ...args: any[]): void;
+    emit (type: EventType, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any): void;
 }
 
 /**
- * 生成一个类，该类继承自指定的基类，并实现了 `IEventified` 的所有接口。
- * @param base 基类。
+ * @en Generate a new class from the given base class, after polyfill all functionalities in [[IEventified]] as if it's extended from [[EventTarget]]
+ * @zh 生成一个类，该类继承自指定的基类，并以和 [[EventTarget]] 等同的方式实现了 [[IEventified]] 的所有接口。
+ * @param base The base class
  * @example
  * ```ts
  * class Base { say() { console.log('Hello!'); } }
  * class MyClass extends Eventify(Base) { }
  * function (o: MyClass) {
- *     o.say(); // Ok: 继承自 `Base`
- *     o.emit('sing', 'The ghost'); // Ok: `MyClass`类的对象实现了 IEventified
+ *     o.say(); // Ok: Extend from `Base`
+ *     o.emit('sing', 'The ghost'); // Ok: `MyClass` implements IEventified
  * }
  * ```
  */
 export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & IEventified> {
     return class extends (base as unknown as any) implements IEventified {
         private _callbacksInvoker: CallbacksInvoker = new CallbacksInvoker();
-
-        constructor (...args: any[]) {
-            super(...args);
-        }
 
         public hasEventListener (type: string, callback?: Function, target?: object): boolean {
             return this._callbacksInvoker.hasEventListener(type, callback, target);
@@ -172,8 +173,8 @@ export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & 
             this._callbacksInvoker.removeAll(typeOrTarget);
         }
 
-        public emit (type: EventType, ...args: any[]) {
-            return this._callbacksInvoker.emit(type, ...args);
+        public emit (type: EventType, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
+            return this._callbacksInvoker.emit(type, arg0, arg1, arg2, arg3, arg4);
         }
 
         private _registerThisIntoTarget (target: ITargetImpl) {

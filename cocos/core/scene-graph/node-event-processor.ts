@@ -28,7 +28,7 @@
  */
 
 import Event from '../event/event';
-import { EventTarget, CallbackFunction } from '../event/event-target';
+import { EventTarget } from '../event/event-target';
 import { Vec2 } from '../math/vec2';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { EventListener } from '../platform/event-manager/event-listener';
@@ -455,7 +455,7 @@ export class NodeEventProcessor {
      * node.once(cc.Node.EventType.ANCHOR_CHANGED, callback);
      * ```
      */
-    public once (type: string, callback: CallbackFunction, target?: Object, useCapture?: Object) {
+    public once (type: string, callback: Function, target?: Object, useCapture?: Object) {
         const forDispatch = this._checknSetupSysEvent(type);
 
         let listeners: EventTarget;
@@ -485,7 +485,7 @@ export class NodeEventProcessor {
      * node.off(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
      * ```
      */
-    public off (type: string, callback?: CallbackFunction, target?: Object, useCapture?: Object) {
+    public off (type: string, callback?: Function, target?: Object, useCapture?: Object) {
         const touchEvent = _touchEvents.indexOf(type) !== -1;
         const mouseEvent = !touchEvent && _mouseEvents.indexOf(type) !== -1;
         if (touchEvent || mouseEvent) {
@@ -716,7 +716,7 @@ export class NodeEventProcessor {
         return callback;
     }
 
-    private _offDispatch (type: string, callback?: CallbackFunction, target?: Object, useCapture?: Object) {
+    private _offDispatch (type: string, callback?: Function, target?: Object, useCapture?: Object) {
         // Accept also patameters like: (type, callback, useCapture)
         if (typeof target === 'boolean') {
             useCapture = target;

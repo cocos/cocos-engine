@@ -37,7 +37,6 @@ import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { EDITOR } from 'internal:constants';
 import { HierarchyPath, evaluatePath } from './target-path';
 import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter } from './skeletal-animation-blending';
-import { CallbackFunction } from '../event/event-target';
 
 enum PropertySpecialization {
     NodePosition,
@@ -432,7 +431,7 @@ export class AnimationState extends Playable {
 
     public on<K extends string> (type: K, callback: EventCallbackOf<K, IAnimationEventDefinitionMap>, target?: any): void;
 
-    public on (type: string, callback: CallbackFunction, target?: any) {
+    public on (type: string, callback: Function, target?: any) {
         if (this._target && this._target.isValid) {
             if (type === 'lastframe') {
                 this._lastframeEventOn = true;
@@ -461,7 +460,7 @@ export class AnimationState extends Playable {
         }
     }
 
-    public off (type: string, callback: CallbackFunction, target?: any) {
+    public off (type: string, callback: Function, target?: any) {
         if (this._target && this._target.isValid) {
             if (type === 'lastframe') {
                 if (!this._target.hasEventListener(type)) {

@@ -29,7 +29,7 @@
 
 import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
 import AssetLibrary from './assets/asset-library';
-import { EventTarget, CallbackFunction } from './event/event-target';
+import { EventTarget } from './event/event-target';
 import { WebGLGFXDevice } from './gfx/webgl/webgl-device';
 import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
 import { ForwardPipeline, RenderPipeline } from './pipeline';
@@ -552,7 +552,7 @@ export class Game extends EventTarget {
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      */
     // @ts-ignore
-    public once (type: string, callback: CallbackFunction, target?: object) {
+    public once (type: string, callback: Function, target?: object) {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if (this._inited && type === Game.EVENT_ENGINE_INITED) {
             callback.call(target);
