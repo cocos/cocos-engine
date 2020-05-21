@@ -156,29 +156,32 @@ var dependUtil = {
         if (Array.isArray(json)) {
 
             if (this._depends.has(uuid)) return this._depends.get(uuid)
-            out = {};
-            out.deps = cc.Asset._parseDepsFromJson(json);
-            out.asyncLoadAssets = json[0].asyncLoadAssets;
+            out = {
+                deps: cc.Asset._parseDepsFromJson(json),
+                asyncLoadAssets: json[0].asyncLoadAssets
+            };
         }
         // get deps from json
         else if (json.__type__) {
 
             if (this._depends.has(uuid)) return this._depends.get(uuid);
-            out = {};
             var ctor = js._getClassById(json.__type__);
-            out.preventPreloadNativeObject = ctor.preventPreloadNativeObject;
-            out.preventDeferredLoadDependents = ctor.preventDeferredLoadDependents;
-            out.deps = ctor._parseDepsFromJson(json);
-            out.nativeDep = ctor._parseNativeDepFromJson(json);
+            out = {
+                preventPreloadNativeObject: ctor.preventPreloadNativeObject,
+                preventDeferredLoadDependents: ctor.preventDeferredLoadDependents,
+                deps: ctor._parseDepsFromJson(json),
+                nativeDep: ctor._parseNativeDepFromJson(json)
+            };
             out.nativeDep && (out.nativeDep.uuid = uuid);
         }
         // get deps from an existing asset 
         else {
             var asset = json;
-            out = {};
-            out.deps = [];
-            out.preventPreloadNativeObject = asset.constructor.preventPreloadNativeObject;
-            out.preventDeferredLoadDependents = asset.constructor.preventDeferredLoadDependents;
+            out = {
+                deps: [],
+                preventPreloadNativeObject: asset.constructor.preventPreloadNativeObject,
+                preventDeferredLoadDependents: asset.constructor.preventDeferredLoadDependents
+            };
             let deps = asset.__depends__;
             for (var i = 0, l = deps.length; i < l; i++) {
                 var dep = deps[i].uuid;

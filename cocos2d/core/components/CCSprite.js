@@ -415,9 +415,14 @@ var Sprite = cc.Class({
      */
     getState () {},
 
-    onEnable () {
+    __preload () {
         this._super();
         this._applySpriteFrame();
+    },
+
+    onEnable () {
+        this._super();
+        this._spriteFrame && this._spriteFrame.ensureLoadTexture();
 
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this.setVertsDirty, this);
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this.setVertsDirty, this);
@@ -492,12 +497,12 @@ var Sprite = cc.Class({
         if (spriteFrame) {
             this._updateMaterial();
             let newTexture = spriteFrame.getTexture();
-            if (oldTexture === newTexture && (newTexture && newTexture.loaded)) {
+            if (newTexture && newTexture.loaded) {
                 this._applySpriteSize();
             }
             else {
                 this.disableRender();
-                spriteFrame.onTextureLoaded(this._applySpriteSize, this);
+                spriteFrame.once('load', this._applySpriteSize, this);
             }
         }
         else {
@@ -539,6 +544,7 @@ if (CC_EDITOR) {
     Sprite.prototype.__preload = function () {
         if (this.__superPreload) this.__superPreload();
         this.node.on(NodeEvent.SIZE_CHANGED, this._resizedInEditor, this);
+        this._applySpriteFrame();
     };
     // override onDestroy
     Sprite.prototype.__superOnDestroy = cc.Component.prototype.onDestroy;

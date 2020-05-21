@@ -534,7 +534,7 @@ AssetManager.prototype = {
         if (!(asset instanceof cc.Asset)) throw new Error('input is not asset');
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
 
-        if (asset.loaded || !asset._native || asset._nativeAsset) {
+        if (!asset._native || asset._nativeAsset) {
             return asyncify(onComplete)(null);
         }
 
@@ -702,6 +702,7 @@ AssetManager.prototype = {
      * 释放所有没有用到的资源。详细信息请参考 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}}
      *
      * @method releaseUnusedAssets
+     * @private
      * 
      * @typescript
      * releaseUnusedAssets(): void
