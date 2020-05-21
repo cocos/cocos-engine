@@ -29,9 +29,7 @@
 
 import { Component } from '../components/component';
 import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../data/class-decorator';
-import { Event, EventTarget } from '../event';
-import { CallbacksInvoker, ICallbackTable } from '../event/callbacks-invoker';
-import { applyMixins, IEventTarget } from '../event/event-target-factory';
+import { Eventify } from '../event/eventify';
 import { warnID } from '../platform/debug';
 import * as ArrayUtils from '../utils/array';
 import { createMap } from '../utils/js-typed';
@@ -79,6 +77,8 @@ export enum EventType {
 }
 ccenum(EventType);
 
+type AnimationEventCallback<ThisType> = (this: ThisType, type: EventType, state: AnimationState) => void;
+
 /**
  * 动画组件管理动画状态来控制动画的播放。
  * 它提供了方便的接口用来预创建指定动画剪辑的动画状态，并提供了一系列事件：
@@ -94,7 +94,7 @@ ccenum(EventType);
 @executionOrder(99)
 @executeInEditMode
 @menu('Components/Animation')
-export class AnimationComponent extends Component implements IEventTarget {
+export class AnimationComponent extends Eventify(Component) {
     /**
      * 获取此动画组件的自有动画剪辑。
      * 动画组件开始运行时会为每个自有动画剪辑创建动画状态。
@@ -179,8 +179,6 @@ export class AnimationComponent extends Component implements IEventTarget {
         tooltip: '是否在动画组件开始运行时自动播放默认动画剪辑',
     })
     public playOnLoad = false;
-
-    public _callbackTable: ICallbackTable = createMap(true);
 
     protected _crossFade = new CrossFade();
 
@@ -410,8 +408,8 @@ export class AnimationComponent extends Component implements IEventTarget {
      * animation.on('play', this.onPlay, this);
      * ```
      */
-    public on (type: string, callback: (type: string, state: AnimationState) => void, target?: Object) {
-        const ret = EventTarget.prototype.on.call(this, type, callback, target);
+    public on<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any) {
+        const ret = super.on(type, callback, thisArg);
         if (type === 'lastframe') {
             for (const stateName of Object.keys(this._nameToState)) {
                 this._nameToState[stateName]!._lastframeEventOn = true;
@@ -434,7 +432,7 @@ export class AnimationComponent extends Component implements IEventTarget {
      * animation.off('play', this.onPlay, this);
      * ```
      */
-    public off (type: string, callback: Function, target?: Object) {
+    public off<TFunction extends Function> (type: EventType, callback?: TFunction, thisArg?: any) {
         if (type === 'lastframe') {
             const nameToState = this._nameToState;
             for (const name of Object.keys(nameToState)) {
@@ -442,24 +440,8 @@ export class AnimationComponent extends Component implements IEventTarget {
                 state._lastframeEventOn = false;
             }
         }
-
-        EventTarget.prototype.off.call(this, type, callback, target);
+        super.off(type, callback, thisArg);
     }
-
-    /**
-     * @en IEventTarget implementations, they will be overwrote with the same implementation in EventTarget by applyMixins
-     * @zh IEventTarget 实现，它们将被 applyMixins 在 EventTarget 中用相同的实现覆盖。
-     */
-    public targetOff (keyOrTarget?: string | Object | undefined): void {}
-    public once (type: string, callback: Function, target?: Object | undefined): Function | undefined {
-        return;
-    }
-    public dispatchEvent (event: Event): void {}
-    public hasEventListener (key: string, callback?: Function | undefined, target?: Object | undefined): boolean {
-        return false;
-    }
-    public removeAll (keyOrTarget?: string | Object | undefined): void {}
-    public emit (key: string, ...args: any[]): void {}
 
     protected _createState (clip: AnimationClip, name?: string) {
         return new AnimationState(clip, name);
@@ -502,13 +484,6 @@ export class AnimationComponent extends Component implements IEventTarget {
         }
     }
 }
-
-// for restore on and off
-const {on, off} = AnimationComponent.prototype;
-applyMixins(AnimationComponent, [CallbacksInvoker, EventTarget]);
-// restore
-AnimationComponent.prototype.on = on;
-AnimationComponent.prototype.off = off;
 
 cc.AnimationComponent = AnimationComponent;
 
