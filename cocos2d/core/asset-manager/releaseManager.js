@@ -198,6 +198,8 @@ var releaseManager = {
     _free (asset, force) {
         _toDelete.remove(asset._uuid);
 
+        if (!cc.isValid(asset, true)) return;
+
         if (!force) {
             if (asset.refCount > 0) {
                 if (checkCircularReference(asset) > 0) return; 
