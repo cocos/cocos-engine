@@ -408,9 +408,15 @@ let WebAudioElement = function (buffer, audio) {
                 }
             }, 10);
         }
-        // HACK: fix mobile safari can't play
-        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_SAFARI && cc.sys.isMobile) {
-            if (audio.context.state === 'interrupted') {
+        
+        let sys = cc.sys;
+        if (sys.os === sys.OS_IOS && sys.isBrowser && sys.isMobile) {
+            // Audio context is suspended when you unplug the earphones,
+            // and is interrupted when the app enters background.
+            // Both make the audioBufferSource unplayable.
+            if ((audio.context.state === "suspended" && this._context.currentTime !== 0)
+                || audio.context.state === 'interrupted') {
+                // reference: https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/resume
                 audio.context.resume();
             }
         }
