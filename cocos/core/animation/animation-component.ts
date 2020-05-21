@@ -29,7 +29,7 @@
 
 import { Component } from '../components/component';
 import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../data/class-decorator';
-import { Eventful } from '../event/eventful';
+import { Eventify } from '../event/eventify';
 import { warnID } from '../platform/debug';
 import * as ArrayUtils from '../utils/array';
 import { createMap } from '../utils/js-typed';
@@ -94,7 +94,7 @@ type AnimationEventCallback<ThisType> = (this: ThisType, type: EventType, state:
 @executionOrder(99)
 @executeInEditMode
 @menu('Components/Animation')
-export class AnimationComponent extends Eventful(Component) {
+export class AnimationComponent extends Eventify(Component) {
     /**
      * 获取此动画组件的自有动画剪辑。
      * 动画组件开始运行时会为每个自有动画剪辑创建动画状态。

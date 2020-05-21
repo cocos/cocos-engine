@@ -3,7 +3,7 @@
  */
 
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { Eventful } from '../../../../core/event';
+import { Eventify } from '../../../../core/event';
 import { Vec3 } from '../../../../core/math';
 import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../physics-interface';
 import { RigidBodyComponent } from '../rigid-body-component';
@@ -20,7 +20,7 @@ import { EDITOR, PHYSICS_BUILTIN } from 'internal:constants';
  * 碰撞器的基类。
  */
 @ccclass('cc.ColliderComponent')
-export class ColliderComponent extends Eventful(Component) {
+export class ColliderComponent extends Eventify(Component) {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 

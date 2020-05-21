@@ -9,6 +9,8 @@
         "deinterleave",
         "deserialize",
         "earcut",
+        "eventify",
+        "eventified",
         "forin",
         "glsl",
         "grayscale",

@@ -29,7 +29,7 @@
  */
 
 import { ccclass, property, string } from '../data/class-decorator';
-import { Eventful } from '../event';
+import { Eventify } from '../event';
 import { RawAsset } from './raw-asset';
 import { Node } from '../scene-graph';
 
@@ -55,7 +55,7 @@ import { Node } from '../scene-graph';
  * @extends RawAsset
  */
 @ccclass('cc.Asset')
-export class Asset extends Eventful(RawAsset) {
+export class Asset extends Eventify(RawAsset) {
 
     /**
      * @en Indicates whether its dependent raw assets can support deferred load if the owner scene (or prefab) is marked as `asyncLoadAssets`.

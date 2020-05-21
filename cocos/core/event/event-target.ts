@@ -28,13 +28,13 @@
  * @category event
  */
 
-import { Eventful, IEventful } from './eventful';
+import { Eventify } from './eventify';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 class Empty {};
 
-export const EventTarget = Eventful(Empty);
+export const EventTarget = Eventify(Empty);
 
-export type EventTarget = IEventful;
+export type EventTarget = InstanceType<typeof EventTarget>;
 
 cc.EventTarget = EventTarget;

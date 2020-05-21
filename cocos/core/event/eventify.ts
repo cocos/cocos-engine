@@ -11,7 +11,7 @@ type EventType = string;
  * @en
  * Objects those implement this interface have essentially the capability to process events.
  */
-export interface IEventful {
+export interface IEventified {
     /**
      * @zh 检查指定事件是否已注册回调。
      * @en Checks whether there is correspond event listener registered on the given event.
@@ -109,20 +109,20 @@ export interface IEventful {
 }
 
 /**
- * 生成一个类，该类继承自指定的基类，并实现了 `IEventful` 的所有接口。
+ * 生成一个类，该类继承自指定的基类，并实现了 `IEventified` 的所有接口。
  * @param base 基类。
  * @example
  * ```ts
  * class Base { say() { console.log('Hello!'); } }
- * class MyClass extends Eventful(Base) { }
+ * class MyClass extends Eventify(Base) { }
  * function (o: MyClass) {
  *     o.say(); // Ok: 继承自 `Base`
- *     o.emit('sing', 'The ghost'); // Ok: `MyClass`类的对象实现了 IEventful
+ *     o.emit('sing', 'The ghost'); // Ok: `MyClass`类的对象实现了 IEventified
  * }
  * ```
  */
-export function Eventful<TBase> (base: Constructor<TBase>): Constructor<TBase & IEventful> {
-    return class extends (base as unknown as any) implements IEventful {
+export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & IEventified> {
+    return class extends (base as unknown as any) implements IEventified {
         private _callbacksInvoker: CallbacksInvoker = new CallbacksInvoker();
 
         constructor (...args: any[]) {
@@ -196,6 +196,6 @@ export function Eventful<TBase> (base: Constructor<TBase>): Constructor<TBase & 
 }
 
 interface ITargetImpl extends Object {
-    __eventTargets?: IEventful[];
+    __eventTargets?: IEventified[];
     node?: ITargetImpl;
 }
