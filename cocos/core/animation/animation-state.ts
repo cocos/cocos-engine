@@ -30,15 +30,14 @@
 import { EventArgumentsOf, EventCallbackOf } from '../event/defines';
 import { Node } from '../scene-graph/node';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
-import { AnimationComponent } from './animation-component';
 import { AnimCurve, RatioSampler } from './animation-curve';
 import { createBoundTarget, createBufferedTarget, IBufferedTarget, IBoundTarget } from './bound-target';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
-import { error } from '../platform/debug';
 import { EDITOR } from 'internal:constants';
-import { HierarchyPath, TargetPath, evaluatePath } from './target-path';
+import { HierarchyPath, evaluatePath } from './target-path';
 import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter } from './skeletal-animation-blending';
+import { CallbackFunction } from '../event/event-target';
 
 enum PropertySpecialization {
     NodePosition,
@@ -433,7 +432,7 @@ export class AnimationState extends Playable {
 
     public on<K extends string> (type: K, callback: EventCallbackOf<K, IAnimationEventDefinitionMap>, target?: any): void;
 
-    public on (type: string, callback: Function, target?: any) {
+    public on (type: string, callback: CallbackFunction, target?: any) {
         if (this._target && this._target.isValid) {
             if (type === 'lastframe') {
                 this._lastframeEventOn = true;
@@ -462,7 +461,7 @@ export class AnimationState extends Playable {
         }
     }
 
-    public off (type: string, callback: Function, target?: any) {
+    public off (type: string, callback: CallbackFunction, target?: any) {
         if (this._target && this._target.isValid) {
             if (type === 'lastframe') {
                 if (!this._target.hasEventListener(type)) {

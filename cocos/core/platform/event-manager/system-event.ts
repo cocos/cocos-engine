@@ -28,7 +28,7 @@
  * @category event
  */
 
-import { EventTarget } from '../../event/event-target';
+import { EventTarget, CallbackFunction } from '../../event/event-target';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './events';
 import { SystemEventType } from './event-enum';
 import { EventListener } from './event-listener';
@@ -228,7 +228,7 @@ export class SystemEvent extends EventTarget {
      * @param callback - The callback to remove.
      * @param target - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      */
-    public off (type: string, callback?: Function, target?: Object) {
+    public off (type: string, callback?: CallbackFunction, target?: Object) {
         if (EDITOR) {
             return;
         }

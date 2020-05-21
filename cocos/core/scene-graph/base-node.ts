@@ -37,8 +37,9 @@ import { ISchedulable } from '../scheduler';
 import IdGenerator from '../utils/id-generator';
 import * as js from '../utils/js';
 import { baseNodePolyfill } from './base-node-dev';
-import { NodeEventProcessor, CallbackFunction } from './node-event-processor';
+import { NodeEventProcessor } from './node-event-processor';
 import { DEV, DEBUG, EDITOR } from 'internal:constants';
+import { CallbackFunction } from '../event/event-target';
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 

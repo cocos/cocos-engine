@@ -28,7 +28,7 @@
  */
 
 import Event from '../event/event';
-import { EventTarget } from '../event/event-target';
+import { EventTarget, CallbackFunction } from '../event/event-target';
 import { Vec2 } from '../math/vec2';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { EventListener } from '../platform/event-manager/event-listener';
@@ -57,8 +57,6 @@ const _mouseEvents = [
     SystemEventType.MOUSE_UP.toString(),
     SystemEventType.MOUSE_WHEEL.toString(),
 ];
-
-export type CallbackFunction = (arg0?: Event | any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) => void;
 
 // TODO: rearrange event
 function _touchStartHandler (this: EventListener, touch: Touch, event: EventTouch) {
