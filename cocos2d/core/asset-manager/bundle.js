@@ -431,7 +431,7 @@ Bundle.prototype = {
     
         options.preset = options.preset || 'scene';
         options.bundle = this.name;
-        return cc.assetManager.loadAny({ 'scene': sceneName }, options, onProgress, function (err, sceneAsset) {
+        cc.assetManager.loadAny({ 'scene': sceneName }, options, onProgress, function (err, sceneAsset) {
             if (err) {
                 cc.error(err.message, err.stack);
                 onComplete && onComplete(err);

@@ -29,6 +29,11 @@ const { files } = require('./shared');
 
 var _loading = new Cache();
 
+function isLoading (val) {
+    return _loading.has(val.uuid);
+}
+
+
 /**
  * @module cc.AssetManager
  */
@@ -196,64 +201,53 @@ var packManager = {
      */
     load (item, options, onComplete) {
         // if not in any package, download as uausl
-        if (item.isNative || !item.info || !item.info.packs) {
-            downloader.download(item.id, item.url, item.ext, item.options, onComplete);
-        } 
-        else {
-            if (files.has(item.id)) {
-                onComplete(null, files.get(item.id));
-            }
-            else {
-                var packs = item.info.packs;
-                // find a loading package
-                var pack = packs.find(function (val) { 
-                    return _loading.has(val.uuid);
-                });
-                
-                if (pack) {
-                    _loading.get(pack.uuid).push({ onComplete, id: item.id });
-                }
-                else {
-                    // download a new package
-                    pack = packs[0];
-                    _loading.add(pack.uuid, [{ onComplete, id: item.id }]);
+        if (item.isNative || !item.info || !item.info.packs) return downloader.download(item.id, item.url, item.ext, item.options, onComplete);
 
-                    var url = cc.assetManager._transform(pack.uuid, {ext: pack.ext, bundle: item.config.name});
+        if (files.has(item.id)) return onComplete(null, files.get(item.id));
 
-                    downloader.download(pack.uuid, url, pack.ext, item.options, function (err, data) {
-                        files.remove(pack.uuid);
-                        if (err) {
-                            cc.error(err.message, err.stack);
-                        }
-                        // unpack package
-                        packManager.unpack(pack.packs, data, pack.ext, item.options, function (err, result) {
-                            if (!err) {
-                                for (var id in result) {
-                                    files.add(id, result[id]);
-                                }
-                            }
-                            var callbacks = _loading.remove(pack.uuid);
-                            for (var i = 0, l = callbacks.length; i < l; i++) {
-                                var cb = callbacks[i];
-                                if (err) {
-                                    cb.onComplete(err);
-                                }
-                                else {
-                                    var data = result[cb.id];
-                                    if (!data) {
-                                        cb.onComplete(new Error('can not retrieve data from package'));
-                                    }
-                                    else {
-                                        cb.onComplete(null, data);
-                                    }
-                                }
-                            }
-                        });
-                    });
-                }
-            }
-        }
+        var packs = item.info.packs;
+
+        // find a loading package
+        var pack = packs.find(isLoading);
         
+        if (pack) return _loading.get(pack.uuid).push({ onComplete, id: item.id });
+
+        // download a new package
+        pack = packs[0];
+        _loading.add(pack.uuid, [{ onComplete, id: item.id }]);
+
+        let url = cc.assetManager._transform(pack.uuid, {ext: pack.ext, bundle: item.config.name});
+
+        downloader.download(pack.uuid, url, pack.ext, item.options, function (err, data) {
+            files.remove(pack.uuid);
+            if (err) {
+                cc.error(err.message, err.stack);
+            }
+            // unpack package
+            packManager.unpack(pack.packs, data, pack.ext, item.options, function (err, result) {
+                if (!err) {
+                    for (var id in result) {
+                        files.add(id, result[id]);
+                    }
+                }
+                var callbacks = _loading.remove(pack.uuid);
+                for (var i = 0, l = callbacks.length; i < l; i++) {
+                    var cb = callbacks[i];
+                    if (err) {
+                        cb.onComplete(err);
+                        continue;
+                    }
+
+                    var data = result[cb.id];
+                    if (!data) {
+                        cb.onComplete(new Error('can not retrieve data from package'));
+                    }
+                    else {
+                        cb.onComplete(null, data);
+                    }
+                }
+            });
+        });
     }
 };
 

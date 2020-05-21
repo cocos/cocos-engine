@@ -173,6 +173,7 @@ function loadDepends (task, asset, done, init) {
     var { __asyncLoadAssets__, cacheAsset } = options;
 
     var depends = [];
+    // add reference avoid being released during loading dependencies
     asset.addRef && asset.addRef();
     getDepends(uuid, asset, Object.create(null), depends, false, __asyncLoadAssets__, config);
     task.dispatch('progress', ++progress.finish, progress.total += depends.length, item);

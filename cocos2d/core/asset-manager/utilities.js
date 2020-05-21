@@ -147,7 +147,7 @@ var utils = {
                     let dep = info.deps[i];
                     if (!(dep in exclude)) {
                         exclude[dep] = true;
-                        depends.push({uuid: dep, asyncLoadAssets, bundle: config && config.name});
+                        depends.push({uuid: dep, __asyncLoadAssets__: asyncLoadAssets, bundle: config && config.name});
                     }
                 }
 
