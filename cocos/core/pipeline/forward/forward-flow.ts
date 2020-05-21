@@ -9,6 +9,7 @@ import { RenderView } from '../render-view';
 import { ForwardFlowPriority } from './enum';
 import { ForwardStage } from './forward-stage';
 
+
 /**
  * @zh
  * 前向渲染流程。
