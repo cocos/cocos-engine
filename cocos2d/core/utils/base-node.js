@@ -606,6 +606,7 @@ var BaseNode = cc.Class({
             stack[index] = null;
             // Do not repeatly visit child tree, just do post call and continue walk
             if (afterChildren) {
+                if (parent === this._parent) break;
                 afterChildren = false;
             }
             else {
