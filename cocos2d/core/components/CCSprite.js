@@ -417,6 +417,7 @@ var Sprite = cc.Class({
 
     __preload () {
         this._super();
+        CC_EDITOR && this.node.on(NodeEvent.SIZE_CHANGED, this._resizedInEditor, this);
         this._applySpriteFrame();
     },
 
@@ -539,13 +540,6 @@ if (CC_EDITOR) {
         }
     };
 
-    // override __preload
-    Sprite.prototype.__superPreload = cc.RenderComponent.prototype.__preload;
-    Sprite.prototype.__preload = function () {
-        if (this.__superPreload) this.__superPreload();
-        this.node.on(NodeEvent.SIZE_CHANGED, this._resizedInEditor, this);
-        this._applySpriteFrame();
-    };
     // override onDestroy
     Sprite.prototype.__superOnDestroy = cc.Component.prototype.onDestroy;
     Sprite.prototype.onDestroy = function () {
