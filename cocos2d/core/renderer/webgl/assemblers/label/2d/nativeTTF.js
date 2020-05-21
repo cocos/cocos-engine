@@ -1,9 +1,11 @@
 
-import RenderBuffer from '../../../../../../renderer/gfx/render-buffer';
+import MaterialVariant from '../../../../../assets/material/material-variant';
 
 const Label = require('../../../../../components/CCLabel');
 const LabelShadow = require('../../../../../components/CCLabelShadow');
 const LabelOutline = require('../../../../../components/CCLabelOutline');
+const Material = require('../../../../../assets/material/CCMaterial');
+
 
 
 const UPDATE_CONTENT = 1 << 0;
@@ -14,10 +16,10 @@ export default class NativeTTF {
 
 
     init(comp) {
-        this._renderComp = comp;
+        this.labelMaterial = null;
+        this._label = this._renderComp = comp;
         renderer.CustomAssembler.prototype.ctor.call(this);
         comp.node._proxy.setAssembler(this);
-        this._label = comp;
         this._layout = new jsb.LabelRenderer();
         this._layout.init();
         this._cfg = new DataView(this._layout._cfg);
@@ -26,6 +28,7 @@ export default class NativeTTF {
         this._cfgFields = jsb.LabelRenderer._cfgFields;
         this._layoutFields = jsb.LabelRenderer._layoutFields;
         this._layout.bindNodeProxy(comp.node._proxy);
+        this._bindMaterial(comp);
     }
 
 
@@ -336,17 +339,23 @@ export default class NativeTTF {
             this.setShadow(0, 0, -1);
         }
 
-        let material = comp.getMaterial(0);
-        if(material) {
-            this._updateTTFMaterial(material, comp);
-        }
-
+        this._updateTTFMaterial(comp);
+        
         layout.render();
         //comp._vertsDirty = false;
     }
 
-    _updateTTFMaterial(material, comp) {
-        
+    _bindMaterial(comp) {
+        let material = this.labelMaterial;
+        if(!material) {
+            material = MaterialVariant.createWithBuiltin("2d-label", comp);
+            this.labelMaterial = material;
+        }
+        return material;
+    }
+
+    _updateTTFMaterial(comp) {
+        let material = this._bindMaterial(comp)
         let node = this._label.node;
         let layout = this._layout;
         let outline = node.getComponent(cc.LabelOutline);

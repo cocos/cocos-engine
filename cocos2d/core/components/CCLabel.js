@@ -746,15 +746,11 @@ let Label = cc.Class({
         this._frame._texture._nativeUrl = this.uuid + '_texture';
     },
 
-    _getDefaultMaterial() {
-        return Material.getBuiltinMaterial("2d-label");
-    },
-
     _updateMaterialWebgl () {
 
         let material = this.getMaterial(0);
         if(this._nativeTTF()) {
-            if(material) this._assembler._updateTTFMaterial(material, this)
+            if(material) this._assembler._updateTTFMaterial(this)
             return;
         }
 
