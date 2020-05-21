@@ -303,7 +303,7 @@ export class CallbacksInvoker {
      * @param arg3 - The fourth argument to be passed to the callback
      * @param arg4 - The fifth argument to be passed to the callback
      */
-    public emit (key: string, arg0, arg1, arg2, arg3, arg4) {
+    public emit (key: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
         const list: CallbackList = this._callbackTable[key]!;
         if (list) {
             const rootInvoker = !list.isInvoking;
