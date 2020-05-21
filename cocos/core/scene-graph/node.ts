@@ -27,7 +27,6 @@
  * @category scene-graph
  */
 
-import { UIComponent, UITransformComponent } from '../components/ui-base';
 import { ccclass, property } from '../data/class-decorator';
 import { Mat3, Mat4, Quat, Size, Vec2, Vec3 } from '../math';
 import { SystemEventType } from '../platform/event-manager/event-enum';
@@ -54,36 +53,50 @@ const bookOfChange = new Map<string, number>();
  * * 持有各类组件
  * * 维护空间变换（坐标、旋转、缩放）信息
  */
+
+/**
+ * !#en
+ * Class of all entities in Cocos Creator scenes.
+ * Basic functionalities include:
+ * * Hierarchy management with parent and children
+ * * Components management
+ * * Coordinate system with position, scale, rotation in 3d space
+ * !#zh
+ * Cocos Creator 场景中的所有节点类。
+ * 基本特性有：
+ * * 具有层级关系
+ * * 持有各类组件
+ * * 维护 3D 空间左边变换（坐标、旋转、缩放）信息
+ */
 @ccclass('cc.Node')
 export class Node extends BaseNode {
     public static bookOfChange = bookOfChange;
 
     /**
-     * @zh
-     * 节点可能发出的事件类型
+     * @en Event types emitted by Node
+     * @zh 节点可能发出的事件类型
      */
     public static EventType = SystemEventType;
     /**
-     * @zh
-     * 空间变换操作的坐标系
+     * @en Coordinates space
+     * @zh 空间变换操作的坐标系
      */
     public static NodeSpace = NodeSpace;
     /**
-     * @zh
-     * 节点变换更新的具体部分
-     * @deprecated 请使用 [Node.TransformBit]
+     * @en Bit masks for Node transformation parts
+     * @zh 节点变换更新的具体部分
+     * @deprecated please use [[Node.TransformBit]]
      */
     public static TransformDirtyBit = TransformBit;
     /**
-     * @zh
-     * 节点变换更新的具体部分,可用于判断 TRANSFORM_CHANGED 事件的具体类型
+     * @en Bit masks for Node transformation parts, can be used to determine which part changed in [[SystemEventType.TRANSFORM_CHANGED]] event
+     * @zh 节点变换更新的具体部分，可用于判断 [[SystemEventType.TRANSFORM_CHANGED]] 事件的具体类型
      */
     public static TransformBit = TransformBit;
 
     /**
-     * @zh
-     * 指定对象是否是普通的场景节点？
-     * @param obj 待测试的节点
+     * @en Determine whether the given object is a normal Node. Will return false if [[Scene]] given.
+     * @zh 指定对象是否是普通的节点？如果传入 [[Scene]] 会返回 false。
      */
     public static isNode (obj: object | null): obj is Node {
         return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
@@ -117,8 +130,8 @@ export class Node extends BaseNode {
     protected _eulerDirty = false;
 
     /**
-     * @zh
-     * 本地坐标
+     * @en Position in local coordinate system
+     * @zh 本地坐标系下的坐标
      */
     // @constget
     public get position (): Readonly<Vec3> {
@@ -129,8 +142,8 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 世界坐标
+     * @en Position in world coordinate system
+     * @zh 世界坐标系下的坐标
      */
     // @constget
     public get worldPosition (): Readonly<Vec3> {
@@ -142,8 +155,8 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 本地旋转
+     * @en Rotation in local coordinate system, represented by a quaternion
+     * @zh 本地坐标系下的旋转，用四元数表示
      */
     // @constget
     public get rotation (): Readonly<Quat> {
@@ -154,8 +167,8 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 以欧拉角表示的本地旋转值
+     * @en Rotation in local coordinate system, represented by euler angles
+     * @zh 本地坐标系下的旋转，用欧拉角表示
      */
     @property({ type: Vec3 })
     set eulerAngles (val: Readonly<Vec3>) {
@@ -170,8 +183,8 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 世界旋转
+     * @en Rotation in world coordinate system, represented by a quaternion
+     * @zh 世界坐标系下的旋转，用四元数表示
      */
     // @constget
     public get worldRotation (): Readonly<Quat> {
@@ -183,8 +196,8 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 本地缩放
+     * @en Scale in local coordinate system
+     * @zh 本地坐标系下的缩放
      */
     // @constget
     public get scale (): Readonly<Vec3> {
@@ -195,8 +208,8 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 世界缩放
+     * @en Scale in world coordinate system
+     * @zh 世界坐标系下的缩放
      */
     // @constget
     public get worldScale (): Readonly<Vec3> {
@@ -208,8 +221,8 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 本地变换矩阵
+     * @en Local transformation matrix
+     * @zh 本地坐标系变换矩阵
      */
     public set matrix (val: Readonly<Mat4>) {
         Mat4.toRTS(val, this._lrot, this._lpos, this._lscale);
@@ -221,8 +234,8 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 世界变换矩阵
+     * @en World transformation matrix
+     * @zh 世界坐标系变换矩阵
      */
     // @constget
     public get worldMatrix (): Readonly<Mat4> {
@@ -231,8 +244,8 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 当前节点面向的前方方向，默认前方为 -z 方向
+     * @en The vector representing forward direction in local coordinate system, it's the minus z direction by default
+     * @zh 当前节点面向的前方方向，默认前方为 -z 方向
      */
     get forward (): Vec3 {
         return Vec3.transformQuat(new Vec3(), Vec3.FORWARD, this.worldRotation);
@@ -245,8 +258,8 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 节点所属层，主要影响射线检测、物理碰撞等，参考 [[Layers]]
+     * @en Layer of the current Node, it affects raycast, physics etc, refer to [[Layers]]
+     * @zh 节点所属层，主要影响射线检测、物理碰撞等，参考 [[Layers]]
      */
     @property
     set layer (l) {
@@ -257,8 +270,8 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 这个节点的空间变换信息在当前帧内是否有变过？
+     * @en Whether the node's transformation have changed during the current frame.
+     * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     get hasChangedFlags () {
         return bookOfChange.get(this._id) || 0;
@@ -304,10 +317,10 @@ export class Node extends BaseNode {
     // ===============================
 
     /**
-     * @zh
-     * 设置父节点
-     * @param value 父节点
-     * @param keepWorldTransform 是否保留当前世界变换
+     * @en Set parent of the node.
+     * @zh 设置该节点的父节点。
+     * @param value Parent node
+     * @param keepWorldTransform Whether keep node's current world transform unchanged after this operation
      */
     public setParent (value: this | null, keepWorldTransform: boolean = false) {
         if (keepWorldTransform) { this.updateWorldTransform(); }
@@ -357,10 +370,10 @@ export class Node extends BaseNode {
     // ===============================
 
     /**
-     * @zh
-     * 移动节点
-     * @param trans 位置增量
-     * @param ns 操作空间
+     * @en Perform a translation on the node
+     * @zh 移动节点
+     * @param trans The increment on position
+     * @param ns The operation coordinate space
      */
     public translate (trans: Vec3, ns?: NodeSpace): void {
         const space = ns || NodeSpace.LOCAL;
@@ -391,10 +404,10 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 旋转节点
-     * @param trans 旋转增量
-     * @param ns 操作空间
+     * @en Perform a rotation on the node
+     * @zh 旋转节点
+     * @param trans The increment on position
+     * @param ns The operation coordinate space
      */
     public rotate (rot: Quat, ns?: NodeSpace): void {
         const space = ns || NodeSpace.LOCAL;
@@ -418,10 +431,10 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 设置当前节点旋转为面向目标位置，默认前方为 -z 方向
-     * @param pos 目标位置
-     * @param up 坐标系的上方向
+     * @en Set the orientation of the node to face the target position, the node is facing minus z direction by default
+     * @zh 设置当前节点旋转为面向目标位置，默认前方为 -z 方向
+     * @param pos Target position
+     * @param up Up direction
      */
     public lookAt (pos: Vec3, up?: Vec3): void {
         this.getWorldPosition(v3_a);
@@ -436,11 +449,10 @@ export class Node extends BaseNode {
     // ===============================
 
     /**
-     * @en
-     * invalidate the world transform information
+     * @en Invalidate the world transform information
      * for this node and all its children recursively
-     * @zh
-     * 递归标记节点世界变换为 dirty
+     * @zh 递归标记节点世界变换为 dirty
+     * @param dirtyBit The dirty bits to setup to children, can be composed with multiple dirty bits
      */
     public invalidateChildren (dirtyBit: TransformBit) {
         if ((this._dirtyFlags & this.hasChangedFlags & dirtyBit) === dirtyBit) { return; }
@@ -454,10 +466,8 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @en
-     * update the world transform information if outdated
-     * @zh
-     * 更新节点的世界变换信息
+     * @en Update the world transform information if outdated
+     * @zh 更新节点的世界变换信息
      */
     public updateWorldTransform () {
         if (!this._dirtyFlags) { return; }
@@ -517,19 +527,18 @@ export class Node extends BaseNode {
     // ===============================
 
     /**
-     * @zh
-     * 设置本地坐标
-     * @param position 目标本地坐标
+     * @en Set position in local coordinate system
+     * @zh 设置本地坐标
+     * @param position Target position
      */
     public setPosition (position: Vec3): void;
 
     /**
-     * @zh
-     * 设置本地坐标
-     * @param x 目标本地坐标的 X 分量
-     * @param y 目标本地坐标的 Y 分量
-     * @param z 目标本地坐标的 Z 分量
-     * @param w 目标本地坐标的 W 分量
+     * @en Set position in local coordinate system
+     * @zh 设置本地坐标
+     * @param x X axis position
+     * @param y Y axis position
+     * @param z Z axis position
      */
     public setPosition (x: number, y: number, z: number): void;
 
@@ -547,9 +556,10 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 获取本地坐标
-     * @param out 输出到此目标 vector
+     * @en Get position in local coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
+     * @zh 获取本地坐标，注意，尽可能传递复用的 [[Vec3]] 以避免产生垃圾。
+     * @param out Set the result to out vector
+     * @return If `out` given, the return value equals to `out`, otherwise a new vector will be generated and return
      */
     public getPosition (out?: Vec3): Vec3 {
         if (out) {
@@ -560,19 +570,19 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 设置本地旋转
-     * @param rotation 目标本地旋转
+     * @en Set rotation in local coordinate system with a quaternion representing the rotation
+     * @zh 用四元数设置本地旋转
+     * @param rotation Rotation in quaternion
      */
     public setRotation (rotation: Quat): void;
 
     /**
-     * @zh
-     * 设置本地旋转
-     * @param x 目标本地旋转的 X 分量
-     * @param y 目标本地旋转的 Y 分量
-     * @param z 目标本地旋转的 Z 分量
-     * @param w 目标本地旋转的 W 分量
+     * @en Set rotation in local coordinate system with a quaternion representing the rotation
+     * @zh 用四元数设置本地旋转
+     * @param x X value in quaternion
+     * @param y Y value in quaternion
+     * @param z Z value in quaternion
+     * @param w W value in quaternion
      */
     public setRotation (x: number, y: number, z: number, w: number): void;
 
@@ -591,11 +601,11 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 通过欧拉角设置本地旋转
-     * @param x - 目标欧拉角的 X 分量
-     * @param y - 目标欧拉角的 Y 分量
-     * @param z - 目标欧拉角的 Z 分量
+     * @en Set rotation in local coordinate system with euler angles
+     * @zh 用欧拉角设置本地旋转
+     * @param x X axis rotation
+     * @param y Y axis rotation
+     * @param z Z axis rotation
      */
     public setRotationFromEuler (x: number, y: number, z: number): void {
         Vec3.set(this._euler, x, y, z);
@@ -609,9 +619,10 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 获取本地旋转
-     * @param out 输出到此目标 quaternion
+     * @en Get rotation as quaternion in local coordinate system, please try to pass `out` quaternion and reuse it to avoid garbage.
+     * @zh 获取本地旋转，注意，尽可能传递复用的 [[Quat]] 以避免产生垃圾。
+     * @param out Set the result to out quaternion
+     * @return If `out` given, the return value equals to `out`, otherwise a new quaternion will be generated and return
      */
     public getRotation (out?: Quat): Quat {
         if (out) {
@@ -622,18 +633,18 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 设置本地缩放
-     * @param scale 目标本地缩放
+     * @en Set scale in local coordinate system
+     * @zh 设置本地缩放
+     * @param scale Target scale
      */
     public setScale (scale: Vec3): void;
 
     /**
-     * @zh
-     * 设置本地缩放
-     * @param x 目标本地缩放的 X 分量
-     * @param y 目标本地缩放的 Y 分量
-     * @param z 目标本地缩放的 Z 分量
+     * @en Set scale in local coordinate system
+     * @zh 设置本地缩放
+     * @param x X axis scale
+     * @param y Y axis scale
+     * @param z Z axis scale
      */
     public setScale (x: number, y: number, z: number): void;
 
@@ -651,9 +662,10 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 获取本地缩放
-     * @param out 输出到此目标 vector
+     * @en Get scale in local coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
+     * @zh 获取本地缩放，注意，尽可能传递复用的 [[Vec3]] 以避免产生垃圾。
+     * @param out Set the result to out vector
+     * @return If `out` given, the return value equals to `out`, otherwise a new vector will be generated and return
      */
     public getScale (out?: Vec3): Vec3 {
         if (out) {
@@ -663,6 +675,12 @@ export class Node extends BaseNode {
         }
     }
 
+    /**
+     * @en Inversely transform a point from world coordinate system to local coordinate system.
+     * @zh 逆向变换一个空间点，一般用于将世界坐标转换到本地坐标系中。
+     * @param out The result point in local coordinate system will be stored in this vector
+     * @param p A position in world coordinate system
+     */
     public inverseTransformPoint (out: Vec3, p: Vec3) {
         Vec3.copy(out, p);
         let cur = this; let i = 0;
@@ -678,19 +696,18 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 设置世界坐标
-     * @param position 目标世界坐标
+     * @en Set position in world coordinate system
+     * @zh 设置世界坐标
+     * @param position Target position
      */
     public setWorldPosition (position: Vec3): void;
 
     /**
-     * @zh
-     * 设置世界坐标
-     * @param x 目标世界坐标的 X 分量
-     * @param y 目标世界坐标的 Y 分量
-     * @param z 目标世界坐标的 Z 分量
-     * @param w 目标世界坐标的 W 分量
+     * @en Set position in world coordinate system
+     * @zh 设置世界坐标
+     * @param x X axis position
+     * @param y Y axis position
+     * @param z Z axis position
      */
     public setWorldPosition (x: number, y: number, z: number): void;
 
@@ -721,9 +738,10 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 获取世界坐标
-     * @param out 输出到此目标 vector
+     * @en Get position in world coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
+     * @zh 获取世界坐标，注意，尽可能传递复用的 [[Vec3]] 以避免产生垃圾。
+     * @param out Set the result to out vector
+     * @return If `out` given, the return value equals to `out`, otherwise a new vector will be generated and return
      */
     public getWorldPosition (out?: Vec3): Vec3 {
         this.updateWorldTransform();
@@ -735,19 +753,19 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 设置世界旋转
-     * @param rotation 目标世界旋转
+     * @en Set rotation in world coordinate system with a quaternion representing the rotation
+     * @zh 用四元数设置世界坐标系下的旋转
+     * @param rotation Rotation in quaternion
      */
     public setWorldRotation (rotation: Quat): void;
 
     /**
-     * @zh
-     * 设置世界旋转
-     * @param x 目标世界旋转的 X 分量
-     * @param y 目标世界旋转的 Y 分量
-     * @param z 目标世界旋转的 Z 分量
-     * @param w 目标世界旋转的 W 分量
+     * @en Set rotation in world coordinate system with a quaternion representing the rotation
+     * @zh 用四元数设置世界坐标系下的旋转
+     * @param x X value in quaternion
+     * @param y Y value in quaternion
+     * @param z Z value in quaternion
+     * @param w W value in quaternion
      */
     public setWorldRotation (x: number, y: number, z: number, w: number): void;
 
@@ -772,11 +790,11 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 通过欧拉角设置世界旋转
-     * @param x - 目标欧拉角的 X 分量
-     * @param y - 目标欧拉角的 Y 分量
-     * @param z - 目标欧拉角的 Z 分量
+     * @en Set rotation in world coordinate system with euler angles
+     * @zh 用欧拉角设置世界坐标系下的旋转
+     * @param x X axis rotation
+     * @param y Y axis rotation
+     * @param z Z axis rotation
      */
     public setWorldRotationFromEuler (x: number, y: number, z: number): void {
         Quat.fromEuler(this._rot, x, y, z);
@@ -795,9 +813,10 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 获取世界旋转
-     * @param out 输出到此目标 quaternion
+     * @en Get rotation as quaternion in world coordinate system, please try to pass `out` quaternion and reuse it to avoid garbage.
+     * @zh 获取世界坐标系下的旋转，注意，尽可能传递复用的 [[Quat]] 以避免产生垃圾。
+     * @param out Set the result to out quaternion
+     * @return If `out` given, the return value equals to `out`, otherwise a new quaternion will be generated and return
      */
     public getWorldRotation (out?: Quat): Quat {
         this.updateWorldTransform();
@@ -809,18 +828,18 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 设置世界缩放
-     * @param scale 目标世界缩放
+     * @en Set scale in world coordinate system
+     * @zh 设置世界坐标系下的缩放
+     * @param scale Target scale
      */
     public setWorldScale (scale: Vec3): void;
 
     /**
-     * @zh
-     * 设置世界缩放
-     * @param x 目标世界缩放的 X 分量
-     * @param y 目标世界缩放的 Y 分量
-     * @param z 目标世界缩放的 Z 分量
+     * @en Set scale in world coordinate system
+     * @zh 设置世界坐标系下的缩放
+     * @param x X axis scale
+     * @param y Y axis scale
+     * @param z Z axis scale
      */
     public setWorldScale (x: number, y: number, z: number): void;
 
@@ -853,9 +872,10 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 获取世界缩放
-     * @param out 输出到此目标 vector
+     * @en Get scale in world coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
+     * @zh 获取世界缩放，注意，尽可能传递复用的 [[Vec3]] 以避免产生垃圾。
+     * @param out Set the result to out vector
+     * @return If `out` given, the return value equals to `out`, otherwise a new vector will be generated and return
      */
     public getWorldScale (out?: Vec3): Vec3 {
         this.updateWorldTransform();
@@ -867,9 +887,10 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 获取世界变换矩阵
-     * @param out 输出到此目标矩阵
+     * @en Get a world transform matrix
+     * @zh 获取世界变换矩阵
+     * @param out Set the result to out matrix
+     * @return If `out` given, the return value equals to `out`, otherwise a new matrix will be generated and return
      */
     public getWorldMatrix (out?: Mat4): Mat4 {
         this.updateWorldTransform();
@@ -878,9 +899,10 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 获取只包含旋转和缩放的世界变换矩阵
-     * @param out 输出到此目标矩阵
+     * @en Get a world transform matrix with only rotation and scale
+     * @zh 获取只包含旋转和缩放的世界变换矩阵
+     * @param out Set the result to out matrix
+     * @return If `out` given, the return value equals to `out`, otherwise a new matrix will be generated and return
      */
     public getWorldRS (out?: Mat4): Mat4 {
         this.updateWorldTransform();
@@ -891,9 +913,10 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 获取只包含旋转和位移的世界变换矩阵
-     * @param out 输出到此目标矩阵
+     * @en Get a world transform matrix with only rotation and translation
+     * @zh 获取只包含旋转和位移的世界变换矩阵
+     * @param out Set the result to out matrix
+     * @return If `out` given, the return value equals to `out`, otherwise a new matrix will be generated and return
      */
     public getWorldRT (out?: Mat4): Mat4 {
         this.updateWorldTransform();
@@ -902,8 +925,11 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @zh
-     * 一次性设置所有局部变换（平移、旋转、缩放）信息
+     * @en Set local transformation with rotation, position and scale separately.
+     * @zh 一次性设置所有局部变换（平移、旋转、缩放）信息
+     * @param rot The rotation
+     * @param pos The position
+     * @param scale The scale
      */
     public setRTS (rot?: Quat, pos?: Vec3, scale?: Vec3) {
         if (rot) { Quat.copy(this._lrot, rot); }
@@ -944,12 +970,21 @@ export class Node extends BaseNode {
     public setContentSize (size: Size | number, height?: number) {
         this._uiProps.uiTransformComp!.setContentSize(size, height);
     }
-
+    /**
+     * @en Pause all system events which is dispatched by [[SystemEvent]]
+     * @zh 暂停所有 [[SystemEvent]] 派发的系统事件
+     * @param recursive Whether pause system events recursively for the child node tree
+     */
     public pauseSystemEvents (recursive: boolean): void {
         // @ts-ignore
         eventManager.pauseTarget(this, recursive);
     }
 
+    /**
+     * @en Resume all paused system events which is dispatched by [[SystemEvent]]
+     * @zh 恢复所有 [[SystemEvent]] 派发的系统事件
+     * @param recursive Whether resume system events recursively for the child node tree
+     */
     public resumeSystemEvents (recursive: boolean): void {
         // @ts-ignore
         eventManager.resumeTarget(this, recursive);

@@ -33,6 +33,8 @@ import { Eventify } from './eventify';
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 class Empty {};
 
+type CallbackFunction = (arg0?: Event | any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) => void;
+
 export const EventTarget = Eventify(Empty);
 
 export type EventTarget = InstanceType<typeof EventTarget>;

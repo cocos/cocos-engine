@@ -24,7 +24,7 @@
 */
 
 /**
- * @category scene-graph
+ * @hidden
  */
 
 import Event from '../event/event';
@@ -57,6 +57,8 @@ const _mouseEvents = [
     SystemEventType.MOUSE_UP.toString(),
     SystemEventType.MOUSE_WHEEL.toString(),
 ];
+
+export type CallbackFunction = (arg0?: Event | any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) => void;
 
 // TODO: rearrange event
 function _touchStartHandler (this: EventListener, touch: Touch, event: EventTouch) {
@@ -455,7 +457,7 @@ export class NodeEventProcessor {
      * node.once(cc.Node.EventType.ANCHOR_CHANGED, callback);
      * ```
      */
-    public once (type: string, callback: Function, target?: Object, useCapture?: Object) {
+    public once (type: string, callback: CallbackFunction, target?: Object, useCapture?: Object) {
         const forDispatch = this._checknSetupSysEvent(type);
 
         let listeners: EventTarget;
@@ -485,7 +487,7 @@ export class NodeEventProcessor {
      * node.off(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
      * ```
      */
-    public off (type: string, callback?: Function, target?: Object, useCapture?: Object) {
+    public off (type: string, callback?: CallbackFunction, target?: Object, useCapture?: Object) {
         const touchEvent = _touchEvents.indexOf(type) !== -1;
         const mouseEvent = !touchEvent && _mouseEvents.indexOf(type) !== -1;
         if (touchEvent || mouseEvent) {
@@ -716,7 +718,7 @@ export class NodeEventProcessor {
         return callback;
     }
 
-    private _offDispatch (type: string, callback?: Function, target?: Object, useCapture?: Object) {
+    private _offDispatch (type: string, callback?: CallbackFunction, target?: Object, useCapture?: Object) {
         // Accept also patameters like: (type, callback, useCapture)
         if (typeof target === 'boolean') {
             useCapture = target;
