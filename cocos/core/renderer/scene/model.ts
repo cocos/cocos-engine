@@ -73,10 +73,6 @@ export class Model {
         return this._modelBounds;
     }
 
-    get lightBuffer () {
-        return this._lightBuffer;
-    }
-
     get localBuffer () {
         return this._localBuffer;
     }
@@ -108,7 +104,7 @@ export class Model {
     protected _matRefCount = new Map<Material, number>();
     protected _localData = new Float32Array(UBOLocal.COUNT);
     protected _localBuffer: GFXBuffer | null = null;
-    protected _lightBuffer: GFXBuffer | null = null;
+    //protected _lightBuffer: GFXBuffer | null = null;
     protected _inited = false;
     protected _updateStamp = -1;
     protected _transformUpdated = true;
@@ -134,10 +130,6 @@ export class Model {
         if (this._localBuffer) {
             this._localBuffer.destroy();
             this._localBuffer = null;
-        }
-        if (this._lightBuffer) {
-            this._lightBuffer.destroy();
-            this._lightBuffer = null;
         }
         this._worldBounds = null;
         this._modelBounds = null;
@@ -300,7 +292,7 @@ export class Model {
         const pso = pass.createPipelineState(patches)!;
         const bindingLayout = pso.pipelineLayout.layouts[0];
         if (this._localBuffer) { bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer); }
-        if (this._lightBuffer) { bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, this._lightBuffer); }
+        //if (this._lightBuffer) { bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, this._lightBuffer); }
         return pso;
     }
 
@@ -355,14 +347,6 @@ export class Model {
                 hasForwardLight = true;
                 break;
             }
-        }
-        if (hasForwardLight && !this._lightBuffer) {
-            this._lightBuffer = this._device.createBuffer({
-                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: UBOForwardLight.SIZE,
-                stride: UBOForwardLight.SIZE,
-            });
         }
     }
 
