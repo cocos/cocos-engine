@@ -11,7 +11,6 @@ import { Pool } from '../../memop';
 import { INST_MAT_WORLD, UBOForwardLight, UBOLocal } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
-import { IMacroPatch, Pass } from '../core/pass';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
 
@@ -99,8 +98,6 @@ export class Model {
     protected _modelBounds: aabb | null = null;
     protected _subModels: SubModel[] = [];
     protected _implantPSOs: GFXPipelineState[] = [];
-    protected _matPSORecord = new Map<Material, GFXPipelineState[]>();
-    protected _matRefCount = new Map<Material, number>();
     protected _localData = new Float32Array(UBOLocal.COUNT);
     protected _localBuffer: GFXBuffer | null = null;
     protected _lightBuffer: GFXBuffer | null = null;
@@ -137,8 +134,6 @@ export class Model {
         this._worldBounds = null;
         this._modelBounds = null;
         this._subModels.length = 0;
-        this._matPSORecord.clear();
-        this._matRefCount.clear();
         this._inited = false;
         this._transformUpdated = true;
         this.isDynamicBatching = false;
@@ -170,7 +165,8 @@ export class Model {
     }
 
     public updateUBOs (stamp: number) {
-        this._matPSORecord.forEach(this._updatePass, this);
+        // this._matPSORecord.forEach(this._updatePass, this);
+        this._subModels.forEach(this._updatePass, this);
         this._updateStamp = stamp;
         if (!this._transformUpdated) { return; }
         this._transformUpdated = false;
@@ -203,12 +199,10 @@ export class Model {
         if (this._subModels[idx] == null) {
             this._subModels[idx] = _subMeshPool.alloc();
         } else {
-            const oldMat = this._subModels[idx].material;
             this._subModels[idx].destroy();
-            this.releasePSO(oldMat!);
         }
-        this.allocatePSO(mat, idx);
-        this._subModels[idx].initialize(subMeshData, mat, this._matPSORecord.get(mat)!);
+        this._subModels[idx].initialize(subMeshData, mat, this.getMacroPatches(idx) );
+        this.updateAttributesAndBinding(idx);
         this._inited = true;
     }
 
@@ -222,43 +216,20 @@ export class Model {
     public setSubModelMaterial (idx: number, mat: Material | null) {
         this.initLocalBindings(mat);
         if (!this._subModels[idx]) { return; }
-        if (this._subModels[idx].material === mat) {
-            if (mat) {
-                this.destroyPipelineStates(mat, this._matPSORecord.get(mat)!);
-                this._matPSORecord.set(mat, this.createPipelineStates(mat, idx));
-            }
-        } else {
-            if (this._subModels[idx].material) {
-                this.releasePSO(this._subModels[idx].material!);
-            }
-            if (mat) {
-                this.allocatePSO(mat, idx);
-            }
-        }
-        this._subModels[idx].psos = (mat ? this._matPSORecord.get(mat) || null : null);
         this._subModels[idx].material = mat;
+
+        if (mat) {
+            this.updateAttributesAndBinding(idx);
+        }
     }
 
     public onGlobalPipelineStateChanged () {
         const subModels = this._subModels;
-        this._matPSORecord.forEach((psos, mat) => {
-            let i = 0; for (; i < subModels.length; i++) {
-                if (subModels[i].material === mat) { break; }
-            }
-            if (i >= subModels.length) { return; }
-            for (let j = 0; j < mat.passes.length; j++) {
-                const pass = mat.passes[j];
-                pass.destroyPipelineState(psos[j]);
-                pass.beginChangeStatesSilently();
-                pass.tryCompile(); // force update shaders
-                pass.endChangeStatesSilently();
-            }
-            const newPSOs = this.createPipelineStates(mat, i);
-            psos.length = newPSOs.length;
-            for (let j = 0; j < newPSOs.length; j++) {
-                psos[j] = newPSOs[j];
-            }
-        });
+
+        for (let i = 0; i < subModels.length; ++i) {
+            subModels[i].onPipelineStateChanged();
+            this.updateAttributesAndBinding(i);
+        }
     }
 
     public insertImplantPSO (pso: GFXPipelineState) {
@@ -270,33 +241,31 @@ export class Model {
         if (idx >= 0) { this._implantPSOs.splice(idx, 1); }
     }
 
-    protected createPipelineStates (mat: Material, subModelIdx: number): GFXPipelineState[] {
-        const ret: GFXPipelineState[] = [];
-        for (let i = 0; i < mat.passes.length; i++) {
-            const pass = mat.passes[i];
-            ret[i] = this.createPipelineState(pass, subModelIdx);
+    protected updateAttributesAndBinding(subModelIndex : number) {
+        const subModel = this._subModels[subModelIndex];
+        if (!subModel) {
+            return;
         }
-        if (ret[0]) { this.updateInstancedAttributeList(ret[0], mat.passes[0]); }
-        return ret;
+
+        const psos = subModel.psos;
+        for (let i = 0; i < psos.length; ++i) {
+            const bindingLayout = psos[i].pipelineLayout.layouts[0];
+            if (this._localBuffer) { bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer); }
+            if (this._lightBuffer) { bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, this._lightBuffer); }
+        }
+
+        this.updateInstancedAttributeList(subModel.psos[0], subModel.passes[0]);
     }
 
-    protected destroyPipelineStates (mat: Material, pso: GFXPipelineState[]) {
-        for (let i = 0; i < mat.passes.length; i++) {
-            const pass = mat.passes[i];
-            pass.destroyPipelineState(pso[i]);
-        }
-    }
-
-    protected createPipelineState (pass: Pass, subModelIdx: number, patches?: IMacroPatch[]) {
-        const pso = pass.createPipelineState(patches)!;
-        const bindingLayout = pso.pipelineLayout.layouts[0];
-        if (this._localBuffer) { bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer); }
-        if (this._lightBuffer) { bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, this._lightBuffer); }
-        return pso;
+    protected getMacroPatches(subModelIndex: number) : any {
+        return undefined;
     }
 
     // for now no submodel level instancing attributes
     protected updateInstancedAttributeList (pso: GFXPipelineState, pass: Pass) {
+        if (!pass || !pso) {
+            return;
+        }
         const attributes = pso.inputState.attributes;
         let size = 0;
         for (let j = 0; j < attributes.length; j++) {
@@ -356,30 +325,7 @@ export class Model {
         }
     }
 
-    private _updatePass (psos: GFXPipelineState[], mat: Material) {
-        for (let i = 0; i < mat.passes.length; i++) {
-            mat.passes[i].update();
-        }
-        for (let i = 0; i < psos.length; i++) {
-            psos[i].pipelineLayout.layouts[0].update();
-        }
-    }
-
-    private allocatePSO (mat: Material, subModelIdx: number) {
-        if (this._matRefCount.get(mat) == null) {
-            this._matRefCount.set(mat, 1);
-            this._matPSORecord.set(mat, this.createPipelineStates(mat, subModelIdx));
-        } else {
-            this._matRefCount.set(mat, this._matRefCount.get(mat)! + 1);
-        }
-    }
-
-    private releasePSO (mat: Material) {
-        this._matRefCount.set(mat, this._matRefCount.get(mat)! - 1);
-        if (this._matRefCount.get(mat) === 0) {
-            this.destroyPipelineStates(mat, this._matPSORecord.get(mat)!);
-            this._matPSORecord.delete(mat);
-            this._matRefCount.delete(mat);
-        }
+    private _updatePass (subModel: SubModel) {
+        subModel.update();
     }
 }

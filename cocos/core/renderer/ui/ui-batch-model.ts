@@ -61,15 +61,11 @@ export class UIBatchModel extends Model {
 }
 
 class UISubModel extends SubModel {
-    constructor () {
-        super();
-        this._psos = [];
-    }
-
     public directInitialize (ia: GFXInputAssembler, mat: Material, pso: GFXPipelineState) {
         this._inputAssembler = ia;
-        this._psos![0] = pso;
-        this.material = mat;
+        this._psos[0] = pso;
+        // Should not use this.material = mat, or _pso[] will be overrided.
+        this._material = mat;
     }
 
     public destroy () {

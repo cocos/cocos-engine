@@ -244,15 +244,19 @@ export class SkinningModel extends MorphModel {
         subMeshData.vertexBuffers = original;
     }
 
-    protected createPipelineState (pass: Pass, subModelIdx: number, patches?: IMacroPatch[]) {
-        if (EDITOR && pass.instancedBuffer) {
-            console.warn('real-time skeletal animation doesn\'t support instancing, expect rendering anomalies');
-        }
-        const pso = super.createPipelineState(pass, subModelIdx, patches?.concat(myPatches) ?? myPatches);
-        const bindingLayout = pso.pipelineLayout.layouts[0];
-        const buffer = this._buffers[this._bufferIndices![subModelIdx]];
-        if (buffer) { bindingLayout.bindBuffer(UBOSkinning.BLOCK.binding, buffer); }
-        return pso;
+    protected getMacroPatches(subModelIndex: number) : any {
+        return myPatches;
+    }
+
+    protected updateAttributesAndBinding(subModelIndex : number) {
+        super.updateAttributesAndBinding(subModelIndex);
+
+        const psos = this._subModels[subModelIndex].psos;
+        for (let i = 0;i < psos.length; ++i) {
+            const bindingLayout = psos[i].pipelineLayout.layouts[0];
+            const buffer = this._buffers[this._bufferIndices![subModelIndex]];
+            if (buffer) { bindingLayout.bindBuffer(UBOSkinning.BLOCK.binding, buffer); }
+            }
     }
 
     private _ensureEnoughBuffers (count: number) {

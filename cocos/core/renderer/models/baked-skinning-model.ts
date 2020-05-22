@@ -182,15 +182,15 @@ export class BakedSkinningModel extends MorphModel {
         }
         if (buffer) { buffer.update(jointTextureInfo); }
         const tv = texture.handle.texView;
-        const it = this._matPSORecord.values(); let res = it.next();
-        while (!res.done) {
-            const psos = res.value;
-            for (let i = 0; i < psos.length; i++) {
-                const bindingLayout = psos[i].pipelineLayout.layouts[0];
+
+        for (let i = 0; i < this._subModels.length; ++i) {
+            const psos = this._subModels[i].psos;
+            for (let j = 0; j < psos.length; ++j) {
+                const bindingLayout = psos[j].pipelineLayout.layouts[0];
                 bindingLayout.bindTextureView(UniformJointTexture.binding, tv);
             }
-            res = it.next();
         }
+
         for (let i = 0; i < this._implantPSOs.length; i++) {
             const bindingLayout = this._implantPSOs[i].pipelineLayout.layouts[0];
             bindingLayout.bindTextureView(UniformJointTexture.binding, tv);
@@ -198,18 +198,25 @@ export class BakedSkinningModel extends MorphModel {
         }
     }
 
-    protected createPipelineState (pass: Pass, subModelIdx: number, patches?: IMacroPatch[]) {
-        const pso = super.createPipelineState(pass, subModelIdx, patches?.concat(myPatches) ?? myPatches);
-        const { buffer, texture, animInfo } = this._jointsMedium;
-        const bindingLayout = pso.pipelineLayout.layouts[0];
-        bindingLayout.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
-        bindingLayout.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
-        const sampler = samplerLib.getSampler(this._device, jointTextureSamplerHash);
-        if (texture) {
-            bindingLayout.bindTextureView(UniformJointTexture.binding, texture.handle.texView);
-            bindingLayout.bindSampler(UniformJointTexture.binding, sampler);
+    protected getMacroPatches(subModelIndex: number) : any {
+        return myPatches;
+    }
+
+    protected updateAttributesAndBinding(subModelIndex : number) {
+        super.updateAttributesAndBinding(subModelIndex);
+        
+        const psos = this._subModels[subModelIndex].psos;
+        for (let i = 0;i < psos.length; ++i) {
+            const { buffer, texture, animInfo } = this._jointsMedium;
+            const bindingLayout = psos[i].pipelineLayout.layouts[0];
+            bindingLayout.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
+            bindingLayout.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
+            const sampler = samplerLib.getSampler(this._device, jointTextureSamplerHash);
+            if (texture) {
+                bindingLayout.bindTextureView(UniformJointTexture.binding, texture.handle.texView);
+                bindingLayout.bindSampler(UniformJointTexture.binding, sampler);
+            }
         }
-        return pso;
     }
 
     protected updateInstancedAttributeList (pso: GFXPipelineState, pass: Pass) {

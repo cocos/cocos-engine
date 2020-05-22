@@ -6,19 +6,17 @@ import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { RenderPriority } from '../../pipeline/define';
+import { IMacroPatch } from '../core/pass';
 
 export class SubModel {
 
     public priority: RenderPriority = RenderPriority.DEFAULT;
-    protected _psos: GFXPipelineState[] | null = null;
+    protected _psos: GFXPipelineState[] = [];
     protected _subMeshObject: RenderingSubMesh | null = null;
     protected _material: Material | null = null;
     protected _inputAssembler: GFXInputAssembler | null = null;
     protected _cmdBuffers: GFXCommandBuffer[] = [];
-
-    set psos (val) {
-        this._psos = val;
-    }
+    protected _pathces? : IMacroPatch[];
 
     get psos () {
         return this._psos;
@@ -41,10 +39,10 @@ export class SubModel {
     }
 
     set material (material) {
+        this.destroyPipelineStates();
+
         this._material = material;
-        if (material == null) {
-            return;
-        }
+        this.createPipelineStates();
     }
 
     get material () {
@@ -59,9 +57,9 @@ export class SubModel {
         return this._inputAssembler;
     }
 
-    public initialize (subMesh: RenderingSubMesh, mat: Material, psos: GFXPipelineState[]) {
-        this.psos = psos;
+    public initialize (subMesh: RenderingSubMesh, mat: Material, patches? : IMacroPatch[]) {
         this.subMeshData = subMesh;
+        this._pathces = patches;
         this.material = mat;
     }
 
@@ -70,9 +68,69 @@ export class SubModel {
             this._inputAssembler.destroy();
             this._inputAssembler = null;
         }
-        for (let i = 0; i < this.passes.length; i++) {
-            this.passes[i].destroyPipelineState(this._psos![i]);
-        }
+        this.destroyPipelineStates();
         this._material = null;
+    }
+
+    public update() {
+        for (let i = 0; i < this.passes.length; ++i) {
+            this.passes[i].update();
+        }
+
+        this.updateLayout();
+    }
+
+    public updateLayout() {
+        for (let i = 0; i < this._psos.length; ++i) {
+            let pso = this._psos[i];
+            if (pso) {
+                pso.pipelineLayout.layouts[0].update();
+            }
+        }
+    }
+
+    public onPipelineStateChanged() {
+        const materail = this._material;
+        if (!materail) {
+            return;
+        }
+
+        const passes = materail.passes;
+        for (let j = 0; j < passes.length; ++j) {
+            const pass = passes[j];
+            pass.destroyPipelineState(this._psos[j]);
+            pass.beginChangeStatesSilently();
+            pass.tryCompile(); // force update shaders
+            pass.endChangeStatesSilently();
+        }
+        this._psos = [];
+
+        this.createPipelineStates();
+    }
+
+    protected createPipelineStates() {
+        if (!this._material) {
+            return;
+        }
+
+        const passes = this._material.passes;
+        for (let i = 0; i < passes.length; ++i) {
+            const pso = passes[i].createPipelineState(this._pathces);
+            if (pso) {
+                this._psos[i] = pso;
+            }
+        }
+    }
+
+    protected destroyPipelineStates() {
+        if (!this._material) {
+            return;
+        }
+
+        for (let i = 0; i < this.passes.length; i++) {
+            this.passes[i].destroyPipelineState(this._psos[i]);
+        }
+
+        this._psos = [];
     }
 }

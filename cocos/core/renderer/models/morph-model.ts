@@ -7,24 +7,25 @@ import { RenderingSubMesh } from '../../assets/mesh';
 
 export class MorphModel extends Model {
     private _morphRenderingInstance: MorphRenderingInstance | null = null;
-
     private _usedMaterials = new Set<Material>();
 
-    protected createPipelineState (pass: Pass, subModelIndex: number, patches?: IMacroPatch[]) {
-        if (!this._morphRenderingInstance) {
-            // @ts-ignore
-            return super.createPipelineState(...arguments);
+    protected getMacroPatches(subModelIndex: number) : any {
+        if (this._morphRenderingInstance) {
+            return this._morphRenderingInstance.requiredPatches(subModelIndex);
+        } else {
+            return undefined;
+        } 
+    }
+
+    protected updateAttributesAndBinding(subModelIndex : number) {
+        super.updateAttributesAndBinding(subModelIndex);
+        
+        if (this._morphRenderingInstance) {
+            const psos = this._subModels[subModelIndex].psos;
+            for (let i = 0;i < psos.length; ++i) {
+                this._morphRenderingInstance.adaptPipelineState(subModelIndex, psos[i]);
+            }
         }
-        const myPatches = this._morphRenderingInstance.requiredPatches(subModelIndex);
-        const pipelineState = super.createPipelineState(
-            pass,
-            subModelIndex,
-            myPatches ?
-                (patches?.concat(myPatches) ?? myPatches):
-                patches,
-        );
-        this._morphRenderingInstance.adaptPipelineState(subModelIndex, pipelineState);
-        return pipelineState;
     }
 
     public initSubModel (subModelIndex: number, subMeshData: RenderingSubMesh, material: Material) {
