@@ -485,6 +485,10 @@ export class AnimationComponent extends Eventify(Component) {
     }
 }
 
+export namespace AnimationComponent {
+    export type EventType = typeof EventType;
+}
+
 cc.AnimationComponent = AnimationComponent;
 
 function equalClips (clip1: AnimationClip | null, clip2: AnimationClip | null) {

@@ -225,3 +225,8 @@ export class LightComponent extends Component {
         }
     }
 }
+
+export namespace LightComponent {
+    export type Type = typeof LightType;
+    export type PhotometricTerm = typeof PhotometricTerm;
+}

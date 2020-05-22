@@ -131,4 +131,9 @@ export class AudioClip extends Asset {
     }
 }
 
+export namespace AudioClip {
+    export type PlayingState = typeof PlayingState;
+    export type AudioType = typeof AudioType;
+}
+
 cc.AudioClip = AudioClip;
