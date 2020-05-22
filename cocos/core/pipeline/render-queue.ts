@@ -101,10 +101,10 @@ export class RenderQueue {
 
     public recordCommandBuffer (cmdBuff: GFXCommandBuffer) {
         for (let i = 0; i < this.queue.length; ++i) {
-            let subModel = this.queue.array[i].subModel; 
-            let passIdx = this.queue.array[i].passIdx;
+            const subModel = this.queue.array[i].subModel;
+            const passIdx = this.queue.array[i].passIdx;
             if (subModel.psos) {
-                let pso = subModel.psos[passIdx];
+                const pso = subModel.psos[passIdx];
                 cmdBuff.bindPipelineState(pso);
                 cmdBuff.bindBindingLayout(pso.pipelineLayout.layouts[0]);
                 cmdBuff.bindInputAssembler(subModel.inputAssembler as GFXInputAssembler);

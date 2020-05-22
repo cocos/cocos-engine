@@ -71,7 +71,7 @@ export class MeshBuffer {
         this.vb = this.vb || this.batcher.device.createBuffer({
             usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: 0,
+            size: vbStride,
             stride: vbStride,
         });
 
@@ -80,7 +80,7 @@ export class MeshBuffer {
         this.ib = this.ib || this.batcher.device.createBuffer({
             usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: 0,
+            size: ibStride,
             stride: ibStride,
         });
 
