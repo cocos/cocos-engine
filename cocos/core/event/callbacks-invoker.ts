@@ -332,6 +332,13 @@ export class CallbacksInvoker {
             }
         }
     }
+
+    /**
+     * 移除所有回调。
+     */
+    public clear () {
+        this._callbackTable = createMap(true);
+    }
 }
 
 if (TEST) {
