@@ -462,3 +462,7 @@ export class ModelComponent extends RenderableComponent {
         subMeshMorphInstance.renderResources.setWeights(subMeshMorphInstance.weights);
     }
 }
+
+export namespace ModelComponent {
+    export type ShadowCastingMode = typeof ModelShadowCastingMode;
+}

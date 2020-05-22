@@ -394,4 +394,8 @@ export class AnimationClip extends Asset {
     }
 }
 
+export namespace AnimationClip {
+    export type WrapMode = typeof AnimationWrapMode;
+}
+
 cc.AnimationClip = AnimationClip;
