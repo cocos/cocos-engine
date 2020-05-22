@@ -2,7 +2,7 @@
 #define CC_GFXVULKAN_SPIRV_H_
 
 #include "SPIRV/GlslangToSpv.h"
-#include "glslang/public/ShaderLang.h"
+#include "glslang/Public/ShaderLang.h"
 
 NS_CC_BEGIN
 

@@ -57,7 +57,9 @@ function build_android()
     echo "Compile Android - cmake ..."
     echo "ANDORID_NDK ${ANDROID_NDK} or ${ANDROID_NDK_HOME}" 
     ./gradlew assembleDebug --quiet
-    echo "Compile Android Done!"
+    echo "Compile Android Debug Done!"
+    # ./gradlew assembleRelease # --quiet
+    # echo "Compile Android Release Done!"
 }
 
 function mac_install_cmake()
@@ -100,8 +102,10 @@ function build_macosx()
     mkdir build-mac 
     cd build-mac
     cmake .. -GXcode -DCOCOS_X_ROOT=$COCOS2DX_ROOT
+    cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES
+    echo "Compile MacOSX Debug Done!"
     cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES
-    echo "Compile MacOSX Done!"
+    echo "Compile MacOSX Release Done!"
 }
 
 function build_ios()
@@ -125,22 +129,15 @@ function build_ios()
 
 function build_windows()
 {
-    echo "Compile build/libcocos2d.vcxproj ..."
-
-    if ! [ -x "$(command -v MSBuild)" ]; then
-        echo 'Error: MSBuild is not located!' 
-    else
-        cd $COCOS2DX_ROOT/build
-        MSBuild /nologo /t:Build libcocos2d.vcxproj
-    fi
-
     echo "Compiling Win32 ... "
     cd  $COCOS2DX_ROOT/templates/js-template-link/frameworks/runtime-src
     mkdir build-win32 
     cd build-win32
     cmake .. -G"Visual Studio 15 2017" -DCOCOS_X_ROOT=$COCOS2DX_ROOT 
     cmake --build . --config Debug 
-    echo "Compile Win32 Done!"
+    echo "Compile Win32 Debug Done!"
+    cmake --build . --config Release
+    echo "Compile Win32 Debug Done!"
 }
 
 
