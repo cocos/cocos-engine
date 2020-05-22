@@ -13,6 +13,7 @@ import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
+import { Pass } from '../core/pass';
 
 const m4_1 = new Mat4();
 
