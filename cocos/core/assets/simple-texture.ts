@@ -202,6 +202,9 @@ export class SimpleTexture extends TextureBase {
 
     protected _tryReset () {
         this._tryDestroyTexture();
+        if(this._mipmapLevel === 0) {
+            return;
+        }
         const device = this._getGFXDevice();
         if (!device) {
             return;
@@ -215,6 +218,7 @@ export class SimpleTexture extends TextureBase {
             this._mipmapLevel = getMipLevel(this._width, this._height);
             flags = GFXTextureFlagBit.GEN_MIPMAP;
         }
+
         const textureCreateInfo = this._getGfxTextureCreateInfo({
             usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
             format: this._getGFXFormat(),
