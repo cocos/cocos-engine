@@ -110,7 +110,7 @@ class Component extends CCObject {
     get __scriptAsset () { return null; }
 
     /**
-     * @en indicates whether this component is enabled or not.
+     * @en Indicates whether this component is enabled or not.
      * @zh 表示该组件自身是否启用。
      * @property enabled
      * @type {Boolean}
@@ -143,7 +143,7 @@ class Component extends CCObject {
     }
 
     /**
-     * @en indicates whether this component is enabled and its node is also active in the hierarchy.
+     * @en Indicates whether this component is enabled and its node is also active in the hierarchy.
      * @zh 表示该组件是否被启用并且所在的节点也处于激活状态。
      * @property enabledInHierarchy
      * @type {Boolean}

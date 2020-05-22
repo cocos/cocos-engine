@@ -32,6 +32,10 @@ import {ccclass, property} from '../data/class-decorator';
 import { Node } from '../scene-graph';
 
 /**
+ * @en
+ * The EventHandle class sets the event callback in the scene.
+ * This class allows the user to set the callback target node,target component name,component method name, and call the target method through the `emit` method.
+ *
  * @zh
  * “EventHandler” 类用来设置场景中的事件回调，该类允许用户设置回调目标节点，目标组件名，组件方法名，并可通过 emit 方法调用目标函数。
  * 可通过 cc.Component.EventHandler 获得该事件。
@@ -60,6 +64,8 @@ export class EventHandler {
     }
 
     /**
+     * @en
+     * Dispatching component events.
      * @zh
      * 组件事件派发。
      *
@@ -77,12 +83,18 @@ export class EventHandler {
         }
     }
     /**
+     * @en
+     * Target node.
+     *
      * @zh
      * 目标节点。
      */
     @property(cc.Node)
     public target: Node | null = null;
     /**
+     * @en
+     * Target component name.
+     *
      * @zh
      * 目标组件名。
      */
@@ -94,6 +106,9 @@ export class EventHandler {
     public _componentId = '';
 
     /**
+     * @en
+     * Response event function name.
+     *
      * @zh
      * 响应事件函数名。
      */
@@ -101,6 +116,9 @@ export class EventHandler {
     public handler = '';
 
     /**
+     * @en
+     * Custom event data.
+     *
      * @zh
      * 自定义事件数据。
      */

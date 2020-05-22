@@ -52,6 +52,15 @@ function stopPropagation(event: Event) {
   event.propagationStopped = true;
 }
 
+/**
+ * @en
+ * Class for event interception.
+ * Mainly responsible for intercepting the incident and not letting the incident continue to be distributed.
+ *
+ * @zh
+ * 事件拦截类。
+ * 主要负责拦截事件，不让事件继续往下派发。
+ */
 @ccclass('cc.BlockInputEventsComponent')
 @help('i18n:cc.BlockInputEventsComponent')
 @menu('Components/BlockInputEvents')

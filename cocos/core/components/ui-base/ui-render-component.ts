@@ -357,7 +357,6 @@ export class UIRenderComponent extends UIComponent {
         this._renderData = null;
     }
 
-    // Don't call it unless you know your purpose.
     public updateAssembler (render: UI) {
         super.updateAssembler(render);
         if (this._renderFlag){
@@ -366,7 +365,6 @@ export class UIRenderComponent extends UIComponent {
         }
     }
 
-    // Don't call it unless you know your purpose.
     public postUpdateAssembler (render: UI) {
         super.postUpdateAssembler(render);
         if (this._renderFlag) {

@@ -29,6 +29,13 @@
 
 import { ISchedulable } from "../scheduler";
 
+/**
+ * @en
+ * Functional system.
+ *
+ * @zh
+ * 功能系统。
+ */
 export default class System implements ISchedulable {
     protected _id = '';
     protected _priority = 0;
@@ -48,7 +55,14 @@ export default class System implements ISchedulable {
         return this._id;
     }
 
-    public static sortByPriority (a: System, b: System) {
+    /**
+     * @en Sorting between different systems.
+     *
+     * @zh 不同系统间排序。
+     * @param a 系统 a。
+     * @param b 系统 b。
+     */
+    public static sortByPriority (a:System, b:System) {
         if (a._priority < b._priority) {
             return 1;
         }

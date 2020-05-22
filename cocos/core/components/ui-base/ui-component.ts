@@ -63,9 +63,28 @@ export class UIComponent extends Component {
         }
     }
 
+    /**
+     * @en
+     * Forward rendering data submission procedure.Usually called when each frame gets its own rendering data.
+     * Don't call it unless you know your purpose.
+     *
+     * @zh 前向渲染数据提交程序。
+     * 注意：不要手动调用该函数，除非你知道整个流程。
+     * @param render
+     */
     public updateAssembler (render: UI) {
     }
 
+
+    /**
+     * @en
+     * After rendering data submission procedure.Usually called when the rendering data of its own child node is finished.
+     * Don't call it unless you know your purpose.
+     *
+     * @zh 后向渲染数据提交程序。
+     * 注意：不要手动调用该函数，除非你知道整个流程。
+     * @param render
+     */
     public postUpdateAssembler (render: UI) {
     }
 }

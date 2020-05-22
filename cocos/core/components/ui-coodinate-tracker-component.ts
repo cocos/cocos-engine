@@ -32,12 +32,15 @@ import { Component } from './component';
 import { EventHandler } from './component-event-handler';
 import { ccclass, help, property, menu, executionOrder } from '../data/class-decorator';
 import { Node } from '../scene-graph';
-import { convertUtils } from '../utils';
 import { CameraComponent } from '../3d';
 import { Vec3 } from '../math';
 
 /**
- * @zh 3D 节点映射 UI 节点组件
+ * @en
+ * The component that converts 3D node coordinates to UI node coordinates.
+ * It mainly provides the converted world coordinates after mapping and the perspective ratio of the simulated perspective camera.
+ *
+ * @zh 3D 节点坐标转换到 UI 节点坐标组件
  * 主要提供映射后的转换世界坐标以及模拟透视相机远近比。
  */
 @ccclass('cc.UICoordinateTrackerComponent')
@@ -46,6 +49,9 @@ import { Vec3 } from '../math';
 @executionOrder(110)
 export class UICoordinateTrackerComponent extends Component {
     /**
+     * @en
+     * Target node.
+     *
      * @zh
      * 目标对象。
      */
@@ -67,6 +73,9 @@ export class UICoordinateTrackerComponent extends Component {
     }
 
     /**
+     * @en
+     * 3D camera for conversion.
+     *
      * @zh
      * 照射相机。
      */
@@ -88,6 +97,10 @@ export class UICoordinateTrackerComponent extends Component {
     }
 
     /**
+     * @en
+     * Do you need to scale the converted 2d node size according to how far the 3D node is from the camera.
+     * Note:need to combine the distance parameter to calculate.
+     *
      * @zh
      * 是否是缩放映射。
      */
@@ -107,6 +120,9 @@ export class UICoordinateTrackerComponent extends Component {
     }
 
     /**
+     * @en
+     * The distance from the camera is the normal display calculation size.
+     *
      * @zh
      * 距相机多少距离为正常显示计算大小。
      */
@@ -126,6 +142,9 @@ export class UICoordinateTrackerComponent extends Component {
     }
 
     /**
+     * @en
+     * Event callback after value change.
+     *
      * @zh
      * 映射数据事件。回调的第一个参数是映射后的本地坐标，第二个是距相机距离比。
      */
@@ -147,7 +166,7 @@ export class UICoordinateTrackerComponent extends Component {
     protected _transformPos = new Vec3();
     protected _viewPos = new Vec3();
     protected _canMove = true;
-    protected _lastWpos = new Vec3();
+    protected _lastWPos = new Vec3();
     protected _lastCameraPos = new Vec3();
 
     public onEnable () {
@@ -155,22 +174,19 @@ export class UICoordinateTrackerComponent extends Component {
     }
 
     public update () {
-        const wpos = this.node.worldPosition;
+        const wPos = this.node.worldPosition;
         const camera = this._camera;
-        // @ts-ignore
-        if (!this._canMove || !camera._camera || (this._lastWpos.equals(wpos) && this._lastCameraPos.equals(camera!.node.worldPosition))) {
+        if (!this._canMove || !camera || !camera.camera || (this._lastWPos.equals(wPos) && this._lastCameraPos.equals(camera.node.worldPosition))) {
             return;
         }
 
-        this._lastWpos.set(wpos);
-        this._lastCameraPos.set(camera!.node.worldPosition);
+        this._lastWPos.set(wPos);
+        this._lastCameraPos.set(camera.node.worldPosition);
         // [HACK]
-        // @ts-ignore
-        camera._camera.update();
-        convertUtils.WorldNode3DToLocalNodeUI(camera!, wpos, this._target!, this._transformPos);
+        camera.camera.update();
+        camera.convertToUINode(wPos, this._target!, this._transformPos);
         if (this._useScale) {
-            // @ts-ignore
-            Vec3.transformMat4(this._viewPos, this.node.worldPosition, camera._camera!.matView);
+            Vec3.transformMat4(this._viewPos, this.node.worldPosition, camera.camera.matView);
         }
 
         if (this.syncEvents.length > 0) {
