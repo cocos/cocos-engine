@@ -692,6 +692,9 @@ function initSys () {
             width: 0,
             height: 0
         };
+        sys.capabilities = {
+            'imageBitmap': false
+        };
         sys.__audioSupport = {};
     }
     else if (CC_JSB || CC_RUNTIME) {
@@ -763,7 +766,7 @@ function initSys () {
             capabilities["touches"] = false;
         }
 
-        capabilities['createImageBitmap'] = typeof createImageBitmap !== 'undefined';
+        capabilities['imageBitmap'] = false;
 
         sys.__audioSupport = {
             ONLY_ONE: false,
@@ -989,8 +992,16 @@ function initSys () {
             "canvas": _supportCanvas,
             "opengl": _supportWebGL,
             "webp": _supportWebp,
-            'createImageBitmap': typeof createImageBitmap !== 'undefined',
+            'imageBitmap': false,
         };
+
+        if (typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined') {
+            _tmpCanvas1.width = _tmpCanvas1.height = 2;
+            createImageBitmap(_tmpCanvas1, {}).then(imageBitmap => {
+                capabilities.imageBitmap = true;
+                imageBitmap.close && imageBitmap.close();
+            }).catch(err => {});
+        }
         if (docEle['ontouchstart'] !== undefined || doc['ontouchstart'] !== undefined || nav.msPointerEnabled)
             capabilities["touches"] = true;
         if (docEle['onmouseup'] !== undefined)

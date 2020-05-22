@@ -27,7 +27,7 @@ const js = require('../platform/js');
 require('../CCDirector');
 const utilities = require('./utilities');
 const { getDepsRecursively } = require('./depend-util');
-const finalizer = require('./finalizer');
+const releaseManager = require('./releaseManager');
 const downloader = require('./downloader');
 
 const ImageFmts = ['.png', '.jpg', '.bmp', '.jpeg', '.gif', '.ico', '.tiff', '.webp', '.image', '.pvr', '.pkm'];
@@ -39,12 +39,12 @@ const md5Pipe = {
     transformURL (url) {
         url = url.replace(/.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-]{8,})/, function (match, uuid) {
             var bundle = cc.assetManager.bundles.find(function (bundle) {
-                return bundle.config.getAssetInfo(uuid);
+                return bundle.getAssetInfo(uuid);
             });
             let hashValue = '';
             if (bundle) {
-                var info = bundle.config.getAssetInfo(uuid);
-                if (url.startsWith(bundle.config.base + bundle.config.nativeBase)) {
+                var info = bundle.getAssetInfo(uuid);
+                if (url.startsWith(bundle.base + bundle._config.nativeBase)) {
                     hashValue = info.nativeVer;
                 }
                 else {
@@ -73,9 +73,6 @@ const loader = {
     onProgress: null,
     _autoReleaseSetting: Object.create(null),
 
-    /**
-     * @deprecated `cc.loader._cache` is deprecated, please use `cc.assetManager.assets` instead
-     */
     get _cache () {
         return cc.assetManager.assets._map;
     },
@@ -83,7 +80,7 @@ const loader = {
     /**
      * `cc.loader.load` is deprecated, please use {{#crossLink "AssetManager/load:method"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.load` is deprecated, please use `cc.assetManager.load` instead
+     * @deprecated `cc.loader.load` is deprecated, please use `cc.assetManager.loadAny` instead
      *
      * @method load
      * @param {String|String[]|Object} resources - Url list in an array
@@ -107,7 +104,7 @@ const loader = {
         for (var i = 0; i < resources.length; i++) {
             var item = resources[i];
             if (typeof item === 'string') {
-                resources[i] = { url: item, isNative: true, isCrossOrigin: true };
+                resources[i] = { url: item, __isNative__: true};
             }
             else {
                 if (item.type) {
@@ -116,14 +113,13 @@ const loader = {
                 }
 
                 if (item.url) {
-                    item.isNative = true;
-                    item.isCrossOrigin = true;
+                    item.__isNative__ = true;
                 }
             }
         }
         var images = [];
         var audios = [];
-        cc.assetManager.load(resources, null, (finish, total, item) => {
+        cc.assetManager.loadAny(resources, null, (finish, total, item) => {
             if (item.content) {
                 if (ImageFmts.includes(item.ext)) {
                     images.push(item.content);
@@ -144,14 +140,14 @@ const loader = {
                         var url = resources[i].url;
                         if (images.includes(asset)) {
                             asset = new cc.Texture2D();
-                            asset._setRawAsset(url, false);
+                            asset._nativeUrl = url;
                             asset._nativeAsset = item;
                             native[i] = asset;
                             asset._uuid = url;
                         }
                         else if (audios.includes(asset)) {
                             asset = new cc.AudioClip();
-                            asset._setRawAsset(url, false);
+                            asset._nativeUrl = url;
                             asset._nativeAsset = item;
                             native[i] = asset;
                             asset._uuid = url;
@@ -202,7 +198,7 @@ const loader = {
     /**
      * `cc.loader.loadRes` is deprecated, please use {{#crossLink "AssetManager/loadRes:method"}}{{/crossLink}}  instead
      *
-     * @deprecated `cc.loader.loadRes` is deprecated, please use `cc.assetManager.loadRes`  instead
+     * @deprecated `cc.loader.loadRes` is deprecated, please use `cc.resources.load`  instead
      * @method loadRes
      * @param {String} url - Url of the target resource.
      *                       The url is relative to the "resources" folder, extensions must be omitted.
@@ -225,13 +221,18 @@ const loader = {
      */
     loadRes (url, type, progressCallback, completeCallback) {
         var { type, onProgress, onComplete } = this._parseLoadResArgs(type, progressCallback, completeCallback);
-        cc.assetManager.loadRes(url, type, onProgress, onComplete);
+        var extname = cc.path.extname(url);
+        if (extname) {
+            // strip extname
+            url = url.slice(0, - extname.length);
+        }
+        cc.resources.load(url, type, onProgress, onComplete);
     },
 
     /**
      * `cc.loader.loadResArray` is deprecated, please use {{#crossLink "AssetManager/loadRes:method"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.loadResArray` is deprecated, please use `cc.assetManager.loadRes` instead
+     * @deprecated `cc.loader.loadResArray` is deprecated, please use `cc.resources.load` instead
      * @method loadResArray
      * @param {String[]} urls - Array of URLs of the target resource.
      *                          The url is relative to the "resources" folder, extensions must be omitted.
@@ -256,13 +257,20 @@ const loader = {
      */
     loadResArray (urls, type, progressCallback, completeCallback) {
         var { type, onProgress, onComplete } = this._parseLoadResArgs(type, progressCallback, completeCallback);
-        cc.assetManager.loadRes(urls, type, onProgress, onComplete);
+        urls.forEach((url, i) => {
+            var extname = cc.path.extname(url);
+            if (extname) {
+                // strip extname
+                urls[i] = url.slice(0, - extname.length);
+            }
+        })
+        cc.resources.load(urls, type, onProgress, onComplete);
     },
 
     /**
      * `cc.loader.loadResDir` is deprecated, please use {{#crossLink "AssetManager/loadResDir:method"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.loadResDir` is deprecated, please use `cc.assetManager.loadResDir` instead
+     * @deprecated `cc.loader.loadResDir` is deprecated, please use `cc.resources.loadDir` instead
      * @method loadResDir
      * @param {String} url - Url of the target folder.
      *                       The url is relative to the "resources" folder, extensions must be omitted.
@@ -288,10 +296,10 @@ const loader = {
      */
     loadResDir (url, type, progressCallback, completeCallback) {
         var { type, onProgress, onComplete } = this._parseLoadResArgs(type, progressCallback, completeCallback);
-        cc.assetManager.loadResDir(url, type, onProgress, function (err, assets) {
+        cc.resources.loadDir(url, type, onProgress, function (err, assets) {
             var urls = [];
             if (!err) {
-                var infos = cc.assetManager.resources.config.getDirWithPath(url, type);
+                var infos = cc.resources.getDirWithPath(url, type);
                 urls = infos.map(function (info) {
                     return info.path;
                 });
@@ -301,21 +309,18 @@ const loader = {
     },
 
     /**
-     * `cc.loader.getRes` is deprecated, please use {{#crossLink "AssetManager/getRes:method"}}{{/crossLink}} instead
+     * `cc.loader.getRes` is deprecated, please use {{#crossLink "Bundle/get:method"}}{{/crossLink}} instead
      *
      * @method getRes
      * @param {String} url
      * @param {Function} [type] - Only asset of type will be returned if this argument is supplied.
      * @returns {*}
-     * @deprecated `cc.loader.getRes` is deprecated, please use `cc.assetManager.getRes` instead
+     * @deprecated `cc.loader.getRes` is deprecated, please use `cc.resources.get` instead
      */
     getRes (url, type) {
-        return cc.assetManager.assets.has(url) ? cc.assetManager.assets.get(url) : cc.assetManager.getRes(url, type);
+        return cc.assetManager.assets.has(url) ? cc.assetManager.assets.get(url) : cc.resources.get(url, type);
     },
 
-    /**
-     * @deprecated `cc.loader.getResCount` is deprecated , please use `cc.assetManager.assets.count` instead
-     */
     getResCount () {
         return cc.assetManager.assets.count;
     },
@@ -428,35 +433,35 @@ const loader = {
     },
 
     /**
-     * `cc.loader.release` is deprecated, please use {{#crossLink "AssetManager/release:method"}}{{/crossLink}} instead
+     * `cc.loader.release` is deprecated, please use {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} instead
      *
      * @method release
      * @param {Asset|String|Array} asset
-     * @deprecated `cc.loader.release` is deprecated, please use `cc.assetManager.release` instead
+     * @deprecated `cc.loader.release` is deprecated, please use `cc.assetManager.releaseAsset` instead
      */
     release (asset) {
         if (Array.isArray(asset)) {
             for (let i = 0; i < asset.length; i++) {
                 var key = asset[i];
                 if (typeof key === 'string') key = cc.assetManager.assets.get(key);
-                cc.assetManager.release(key, true);
+                cc.assetManager.releaseAsset(key, true);
             }
         }
         else if (asset) {
             if (typeof asset === 'string') asset = cc.assetManager.assets.get(asset);
-            cc.assetManager.release(asset, true);
+            cc.assetManager.releaseAsset(asset, true);
         }
     },
 
     /**
-     * `cc.loader.releaseAsset` is deprecated, please use {{#crossLink "AssetManager/release:method"}}{{/crossLink}} instead
+     * `cc.loader.releaseAsset` is deprecated, please use {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.releaseAsset` is deprecated, please use `cc.assetManager.release` instead
+     * @deprecated `cc.loader.releaseAsset` is deprecated, please use `cc.assetManager.releaseAsset` instead
      * @method releaseAsset
      * @param {Asset} asset
      */
     releaseAsset (asset) {
-        cc.assetManager.release(asset, true);
+        cc.assetManager.releaseAsset(asset, true);
     },
 
     /**
@@ -479,7 +484,7 @@ const loader = {
      */
     releaseResDir () {
         if (CC_DEBUG) {
-            cc.error('cc.loader.releaseResDir was removed, please use cc.assetManager.release instead');
+            cc.error('cc.loader.releaseResDir was removed, please use cc.assetManager.releaseAsset instead');
         }
     },
 
@@ -490,7 +495,7 @@ const loader = {
      * @method releaseAll
      */
     releaseAll () {
-        cc.assetManager.releaseAll(true);
+        cc.assetManager.releaseAll();
         cc.assetManager.assets.clear();
     },
 
@@ -507,9 +512,9 @@ const loader = {
     },
 
     /**
-     * `cc.loader.setAutoRelease` is deprecated, if you want to lock some asset, please use {{#crossLink "Finalizer/lock:method"}}{{/crossLink}} instead
+     * `cc.loader.setAutoRelease` is deprecated, if you want to prevent some asset from auto releasing, please use {{#crossLink "Asset/addRef:method"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.setAutoRelease` is deprecated, if you want to lock some asset, please use `cc.assetManager.finalizer.lock` instead
+     * @deprecated `cc.loader.setAutoRelease` is deprecated, if you want to prevent some asset from auto releasing, please use `cc.Asset.addRef` instead
      * @method setAutoRelease
      * @param {Asset|String} assetOrUrlOrUuid - asset object or the raw asset's url or uuid
      * @param {Boolean} autoRelease - indicates whether should release automatically
@@ -520,12 +525,12 @@ const loader = {
     },
 
     /**
-     * `cc.loader.setAutoReleaseRecursively` is deprecated, if you want to lock some asset, please use {{#crossLink "Finalizer/lock:method"}}{{/crossLink}} instead
+     * `cc.loader.setAutoReleaseRecursively` is deprecated, if you want to prevent some asset from auto releasing, please use {{#crossLink "Asset/addRef:method"}}{{/crossLink}} instead
      *
      * @method setAutoReleaseRecursively
      * @param {Asset|String} assetOrUrlOrUuid - asset object or the raw asset's url or uuid
      * @param {Boolean} autoRelease - indicates whether should release automatically
-     * @deprecated `cc.loader.setAutoReleaseRecursively` is deprecated, if you want to lock some asset, please use `cc.assetManager.finalizer.lock` instead
+     * @deprecated `cc.loader.setAutoReleaseRecursively` is deprecated, if you want to prevent some asset from auto releasing, please use `cc.Asset.addRef` instead
      */
     setAutoReleaseRecursively (asset, autoRelease) {
         if (typeof asset === 'object') asset = asset._uuid;
@@ -593,10 +598,10 @@ var AssetLibrary = {
     },
 
     /**
-     * @deprecated `cc.AssetLibrary` is deprecated, please use `cc.assetManager.load` instead
+     * @deprecated `cc.AssetLibrary` is deprecated, please use `cc.assetManager.loadAny` instead
      */
     loadAsset (uuid, onComplete) {
-        cc.assetManager.load(uuid, onComplete);
+        cc.assetManager.loadAny(uuid, onComplete);
     },
 
     getLibUrlNoExt () {
@@ -626,17 +631,17 @@ cc.url = {
     },
 
     /**
-     * `cc.url.raw` is deprecated, please use `cc.assetManager.loadRes` directly, or use `Asset.nativeUrl` instead.
+     * `cc.url.raw` is deprecated, please use `cc.resources.load` directly, or use `Asset.nativeUrl` instead.
      *
-     * @deprecated `cc.url.raw` is deprecated, please use `cc.assetManager.loadRes` directly, or use `Asset.nativeUrl` instead.
+     * @deprecated `cc.url.raw` is deprecated, please use `cc.resources.load` directly, or use `Asset.nativeUrl` instead.
      * @method raw
      * @param {String} url
      * @return {String}
      */
     raw (url) {
-        cc.warnID(1400, 'cc.url.raw', 'cc.assetManager.loadRes');
+        cc.warnID(1400, 'cc.url.raw', 'cc.resources.load');
         if (url.startsWith('resources/')) {
-            return cc.assetManager.transform({'path': cc.path.changeExtname(url.substr(10)), bundle: cc.AssetManager.BuiltinBundleName.RESOURCES, isNative: true, ext: cc.path.extname(url)});
+            return cc.assetManager._transform({'path': cc.path.changeExtname(url.substr(10)), bundle: cc.AssetManager.BuiltinBundleName.RESOURCES, __isNative__: true, ext: cc.path.extname(url)});
         }
         return '';
     }
@@ -712,60 +717,34 @@ js.obsolete(cc.Asset.prototype, 'cc.Asset.url', 'nativeUrl');
  */
 Object.defineProperties(cc.macro, {
     /**
-     * `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use {{#crossLink "Downloader/limitations:property"}}{{/crossLink}} instead
+     * `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use {{#crossLink "Downloader/maxConcurrency:property"}}{{/crossLink}} instead
      * 
      * @property DOWNLOAD_MAX_CONCURRENT
      * @type {Number}
-     * @deprecated `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use `cc.assetManager.downloader.limitations` instead
+     * @deprecated `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use `cc.assetManager.downloader.maxConcurrency` instead
      */
     DOWNLOAD_MAX_CONCURRENT: {
         get () {
-            return cc.assetManager.downloader.limitations[cc.AssetManager.LoadStrategy.NORMAL].maxConcurrent;
+            return cc.assetManager.downloader.maxConcurrency;
         },
 
         set (val) {
-            cc.assetManager.downloader.limitations[cc.AssetManager.LoadStrategy.NORMAL].maxConcurrent = val;
+            cc.assetManager.downloader.maxConcurrency = val;
         }
     }
 });
 
-/**
- * @class Director
- */
 Object.assign(cc.director, {
-    /**
-     * `cc.director.preloadScene` is deprecated, please use {{#crossLink "AssetManager/preloadScene:method"}}{{/crossLink}} instead
-     *
-     * @deprecated `cc.director.preloadScene` is deprecated, please use `cc.assetManager.preloadScene` instead
-     * @method preloadScene
-     * @param {String} sceneName - The name of the scene to preload.
-     * @param {Function} [onProgress] - callback, will be called when the load progression change.
-     * @param {Number} onProgress.completedCount - The number of the items that are already completed
-     * @param {Number} onProgress.totalCount - The total number of the items
-     * @param {Object} onProgress.item - The latest item which flow out the pipeline
-     * @param {Function} [onLoaded] - callback, will be called after scene loaded.
-     * @param {Error} onLoaded.error - null or the error object.
-     */
-    preloadScene (sceneName, onProgress, onLoaded) {
-        cc.assetManager.preloadScene(sceneName, null, onProgress, onLoaded);
-    },
-
-    /**
-     * @deprecated `cc.director._getSceneUuid` is deprecated, please use `config.getSceneInfo` instead
-     */
     _getSceneUuid (sceneName) {
-        cc.assetManager.bundles.get(cc.AssetManager.BuiltinBundleName.MAIN).config.getSceneInfo(sceneName);
+        cc.assetManager.main.getSceneInfo(sceneName);
     }
 });
 
 Object.defineProperties(cc.game, {
-    /**
-     * @deprecated `cc.game._sceneInfos` is deprecated now, please use `config.scenes` instead
-     */
     _sceneInfos: {
         get () {
             var scenes = [];
-            cc.assetManager.bundles.get(cc.AssetManager.BuiltinBundleName.MAIN).config.scenes.forEach(function (val) {
+            cc.assetManager.main._config.scenes.forEach(function (val) {
                 scenes.push(val);
             });
             return scenes;
@@ -780,8 +759,8 @@ utilities.parseParameters = function (options, onProgress, onComplete) {
     return result;
 };
 
-var autoRelease = finalizer._autoRelease;
-finalizer._autoRelease = function () {
+var autoRelease = releaseManager._autoRelease;
+releaseManager._autoRelease = function () {
     autoRelease.apply(this, arguments);
     var releaseSettings = loader._autoReleaseSetting;
     var keys = Object.keys(releaseSettings);
@@ -789,7 +768,7 @@ finalizer._autoRelease = function () {
         let key = keys[i];
         if (releaseSettings[key] === true) {
             var asset = cc.assetManager.assets.get(key);
-            asset && finalizer.release(asset);
+            asset && releaseManager.tryRelease(asset);
         }
     }
 };

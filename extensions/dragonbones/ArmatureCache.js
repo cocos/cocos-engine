@@ -287,8 +287,8 @@ let AnimationCache = cc.Class({
             texture = slot.getTexture();
             if (!texture) continue;
 
-            if (_preTexUrl !== texture.url || _preBlendMode !== slot._blendMode) {
-                _preTexUrl = texture.url;
+            if (_preTexUrl !== texture.nativeUrl || _preBlendMode !== slot._blendMode) {
+                _preTexUrl = texture.nativeUrl;
                 _preBlendMode = slot._blendMode;
                 // Handle pre segment.
                 preSegOffset = _segOffset - 1;

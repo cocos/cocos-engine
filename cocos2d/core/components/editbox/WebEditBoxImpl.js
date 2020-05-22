@@ -151,7 +151,7 @@ Object.assign(WebEditBoxImpl.prototype, {
     },
 
     update () {
-        // do nothing...
+        this._updateMatrix();
     },
 
     setTabIndex (index) {
@@ -214,7 +214,6 @@ Object.assign(WebEditBoxImpl.prototype, {
     },
 
     _showDom () {
-        this._updateMatrix();
         this._updateMaxLength();
         this._updateInputType();
         this._updateStyleSheet();
@@ -299,28 +298,50 @@ Object.assign(WebEditBoxImpl.prototype, {
         }, DELAY_TIME);
     },
 
-    _updateMatrix () {    
+    _updateCameraMatrix () {
         let node = this._delegate.node;    
         node.getWorldMatrix(this._worldMat);
         let worldMat = this._worldMat;
-        let worldMatm = worldMat.m;
+        let nodeContentSize = node._contentSize,
+            nodeAnchorPoint = node._anchorPoint;
+
+        _vec3.x = -nodeAnchorPoint.x * nodeContentSize.width;
+        _vec3.y = -nodeAnchorPoint.y * nodeContentSize.height;
+    
+        Mat4.transform(worldMat, worldMat, _vec3);
+
+        // can't find node camera in editor
+        if (CC_EDITOR) {
+            this._cameraMat = worldMat;
+        }
+        else {
+            let camera = cc.Camera.findCamera(node);
+            camera.getWorldToScreenMatrix2D(this._cameraMat);
+            Mat4.mul(this._cameraMat, this._cameraMat, worldMat);
+        }
+    },
+
+    _updateMatrix () {    
+        this._updateCameraMatrix();
+        let cameraMatm = this._cameraMat.m;
+        let node = this._delegate.node;
         let localView = cc.view;
         // check whether need to update
-        if (this._m00 === worldMatm[0] && this._m01 === worldMatm[1] &&
-            this._m04 === worldMatm[4] && this._m05 === worldMatm[5] &&
-            this._m12 === worldMatm[12] && this._m13 === worldMatm[13] &&
+        if (this._m00 === cameraMatm[0] && this._m01 === cameraMatm[1] &&
+            this._m04 === cameraMatm[4] && this._m05 === cameraMatm[5] &&
+            this._m12 === cameraMatm[12] && this._m13 === cameraMatm[13] &&
             this._w === node._contentSize.width && this._h === node._contentSize.height &&
             this._cacheViewportRect.equals(localView._viewportRect)) {
             return;
         }
 
         // update matrix cache
-        this._m00 = worldMatm[0];
-        this._m01 = worldMatm[1];
-        this._m04 = worldMatm[4];
-        this._m05 = worldMatm[5];
-        this._m12 = worldMatm[12];
-        this._m13 = worldMatm[13];
+        this._m00 = cameraMatm[0];
+        this._m01 = cameraMatm[1];
+        this._m04 = cameraMatm[4];
+        this._m05 = cameraMatm[5];
+        this._m12 = cameraMatm[12];
+        this._m13 = cameraMatm[13];
         this._w = node._contentSize.width;
         this._h = node._contentSize.height;
         // update viewport cache
@@ -329,30 +350,11 @@ Object.assign(WebEditBoxImpl.prototype, {
         let scaleX = localView._scaleX, scaleY = localView._scaleY,
             viewport = localView._viewportRect,
             dpr = localView._devicePixelRatio;
-
-        _vec3.x = -node._anchorPoint.x * this._w;
-        _vec3.y = -node._anchorPoint.y * this._h;
-    
-        Mat4.transform(worldMat, worldMat, _vec3);
-
-        // can't find camera in editor
-        let cameraMat;
-        if (CC_EDITOR) {
-            cameraMat = this._cameraMat = worldMat;
-        }
-        else {
-            let camera = cc.Camera.findCamera(node);
-            camera.getWorldToScreenMatrix2D(this._cameraMat);
-            cameraMat = this._cameraMat;
-            Mat4.mul(cameraMat, cameraMat, worldMat);
-        }
         
-    
         scaleX /= dpr;
         scaleY /= dpr;
     
         let container = cc.game.container;
-        let cameraMatm = cameraMat.m;
         let a = cameraMatm[0] * scaleX, b = cameraMatm[1], c = cameraMatm[4], d = cameraMatm[5] * scaleY;
     
         let offsetX = container && container.style.paddingLeft && parseInt(container.style.paddingLeft);
@@ -635,6 +637,11 @@ Object.assign(WebEditBoxImpl.prototype, {
             if (inputLock) {
                 return;
             }
+            // input of number type doesn't support maxLength attribute
+            let maxLength = impl._delegate.maxLength;
+            if (maxLength >= 0) {
+                elem.value = elem.value.slice(0, maxLength);
+            }
             impl._delegate.editBoxTextChanged(elem.value);
         };
         
@@ -668,16 +675,15 @@ Object.assign(WebEditBoxImpl.prototype, {
         };
 
         cbs.onBlur = function () {
+            // on mobile, sometimes input element doesn't fire compositionend event
+            if (cc.sys.isMobile && inputLock) {
+                cbs.compositionEnd();
+            }
             impl._editing = false;
             _currentEditBoxImpl = null;
             impl._hideDom();
             impl._delegate.editBoxEditingDidEnded();
         };
-
-        cbs.onResize = function () {
-            impl._updateMatrix();
-        };
-
 
         elem.addEventListener('compositionstart', cbs.compositionStart);
         elem.addEventListener('compositionend', cbs.compositionEnd);
@@ -685,10 +691,6 @@ Object.assign(WebEditBoxImpl.prototype, {
         elem.addEventListener('keydown', cbs.onKeydown);
         elem.addEventListener('blur', cbs.onBlur);
         elem.addEventListener('touchstart', cbs.onClick);
-
-        // editBox is editing, need to update matrix when window resized or orientation changed
-        window.addEventListener('resize', cbs.onResize);
-        window.addEventListener('orientationchange', cbs.onResize);
     },
 
     _removeEventListeners () {
@@ -701,9 +703,6 @@ Object.assign(WebEditBoxImpl.prototype, {
         elem.removeEventListener('keydown', cbs.onKeydown);
         elem.removeEventListener('blur', cbs.onBlur);
         elem.removeEventListener('touchstart', cbs.onClick);
-
-        window.removeEventListener('resize', cbs.onResize);
-        window.removeEventListener('orientationchange', cbs.onResize);
         
         cbs.compositionStart = null;
         cbs.compositionEnd = null;
@@ -711,7 +710,6 @@ Object.assign(WebEditBoxImpl.prototype, {
         cbs.onKeydown = null;
         cbs.onBlur = null;
         cbs.onClick = null;
-        cbs.onResize = null;
     },
 });
 

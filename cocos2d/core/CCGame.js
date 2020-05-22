@@ -528,7 +528,7 @@ var game = {
             }
             this._persistRootNodes[id] = node;
             node._persistNode = true;
-            cc.assetManager.finalizer._addPersistNodeRef(node);
+            cc.assetManager._releaseManager._addPersistNodeRef(node);
         }
     },
 
@@ -543,7 +543,7 @@ var game = {
         if (node === this._persistRootNodes[id]) {
             delete this._persistRootNodes[id];
             node._persistNode = false;
-            cc.assetManager.finalizer._removePersistNodeRef(node);
+            cc.assetManager._releaseManager._removePersistNodeRef(node);
         }
     },
 

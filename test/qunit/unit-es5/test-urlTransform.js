@@ -2,11 +2,11 @@ module('url-transform');
 
 test('transform url', function () {
     cc.assetManager.init({importBase: 'import', nativeBase: 'native'});
-    var result = cc.assetManager.transform({ uuid: '0cbZa5Y71CTZAccaIFluuZ'});
+    var result = cc.assetManager._transform({ uuid: '0cbZa5Y71CTZAccaIFluuZ'});
     strictEqual(result, 'import/0c/0c6d96b9-63bd-424d-901c-71a20596eb99.json', 'should equal to import/0c/0cbZa5Y71CTZAccaIFluuZ.json');
-    result = cc.assetManager.transform({ uuid: '0cbZa5Y71CTZAccaIFluuZ', ext: '.png', isNative: true});
+    result = cc.assetManager._transform({ uuid: '0cbZa5Y71CTZAccaIFluuZ', ext: '.png', __isNative__: true});
     strictEqual(result, 'native/0c/0c6d96b9-63bd-424d-901c-71a20596eb99.png', 'should equal to native/0c/0cbZa5Y71CTZAccaIFluuZ.png');
-    result = cc.assetManager.transform({ url: 'www.cocos.com/test.jpg', isNative: true});
+    result = cc.assetManager._transform({ url: 'www.cocos.com/test.jpg', __isNative__: true});
     strictEqual(result, 'www.cocos.com/test.jpg', 'should equal to www.cocos.com/test.jpg');
     var bundle = new cc.AssetManager.Bundle();
     bundle.init({
@@ -21,9 +21,9 @@ test('transform url', function () {
         }, 
         uuids: ['AAA']
     });
-    result = cc.assetManager.transform({ uuid: '0cbZa5Y71CTZAccaIFluuZ', bundle: 'test'});
+    result = cc.assetManager._transform({ uuid: '0cbZa5Y71CTZAccaIFluuZ', bundle: 'test'});
     strictEqual(result, 'test/import/0c/0c6d96b9-63bd-424d-901c-71a20596eb99.json', 'should equal to test/import/0c/0c6d96b9-63bd-424d-901c-71a20596eb99.json');
-    result = cc.assetManager.transform({ path: 'images/test', bundle: 'test'});
+    result = cc.assetManager._transform({ path: 'images/test', bundle: 'test'});
     strictEqual(result, 'test/import/AA/AAA.dswq123sq.json', 'should equal to test/import/AA/AAA.dswq123sq.json');
 });
 

@@ -201,7 +201,7 @@ let Button = cc.Class({
             default: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.button.auto_gray_effect',
             notify () {
-                this._updateDisabledState();
+                this._updateDisabledState(true);
             }
         },
 
@@ -462,6 +462,8 @@ let Button = cc.Class({
         if (!CC_EDITOR) {
             this._registerNodeEvent();
         }
+
+        this._updateState();
     },
 
     onDisable () {
@@ -501,8 +503,10 @@ let Button = cc.Class({
 
     _setTargetColor (color) {
         let target = this._getTarget();
-        target.color = color;
-        target.opacity = color.a;
+        let cloneColor = color.clone();
+        target.opacity = cloneColor.a;
+        cloneColor.a = 255;  // don't set node opacity via node.color.a
+        target.color = cloneColor;
     },
 
     _getStateColor (state) {
@@ -844,18 +848,15 @@ let Button = cc.Class({
         this.node.setContentSize(this._getTarget().getContentSize());
     },
 
-    _updateDisabledState () {
-        if (this._sprite) {
+    _updateDisabledState (force) {
+        if (!this._sprite) return;
+
+        if (this.enableAutoGrayEffect || force) {
             let useGrayMaterial = false;
 
-            if (this.enableAutoGrayEffect) {
-                if (!(this.transition === Transition.SPRITE && this.disabledSprite)) {
-                    if (!this.interactable) {
-                        useGrayMaterial = true;
-                    }
-                }
+            if (!(this.transition === Transition.SPRITE && this.disabledSprite)) {
+                useGrayMaterial = this.enableAutoGrayEffect && !this.interactable;
             }
-
             this._switchGrayMaterial(useGrayMaterial, this._sprite);
         }
     }

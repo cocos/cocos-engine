@@ -103,7 +103,7 @@ var utils = {
         for (var i = 0, l = task.input.length; i < l; i++) {
             var item = task.input[i];
             if (clearRef) {
-                !item.isNative && item.content && item.content.removeRef && item.content.removeRef();
+                !item.isNative && item.content && item.content.decRef && item.content.decRef(false);
             }
             item.recycle();
         }
@@ -111,7 +111,7 @@ var utils = {
     },
 
     urlAppendTimestamp (url) {
-        if (cc.assetManager.appendTimeStamp && typeof url === 'string') {
+        if (cc.assetManager.downloader.appendTimeStamp && typeof url === 'string') {
             if (/\?/.test(url))
                 return url + '&_t=' + (new Date() - 0);
             else
@@ -147,7 +147,7 @@ var utils = {
                     let dep = info.deps[i];
                     if (!(dep in exclude)) {
                         exclude[dep] = true;
-                        depends.push({uuid: dep, asyncLoadAssets, bundle: config && config.name});
+                        depends.push({uuid: dep, __asyncLoadAssets__: asyncLoadAssets, bundle: config && config.name});
                     }
                 }
 
@@ -208,8 +208,7 @@ var utils = {
                     missingAsset = true;
                 }
                 else {
-                    depend.owner[depend.prop] = dependAsset;
-                    dependAsset.addRef();
+                    depend.owner[depend.prop] = dependAsset.addRef();
                 }
             }
 
@@ -241,7 +240,7 @@ var utils = {
             task.output.push(item.content);
         }
 
-        if (task.output.length === 1) {
+        if (!task.options.__outputAsArray__ && task.output.length === 1) {
             task.output = task.output[0];
         }
     },
@@ -308,16 +307,20 @@ var utils = {
         return { type, onProgress, onComplete };
     },
 
-    checkCircleReference (owner, uuid, map) {
-        if (!map[uuid]) {
+    checkCircleReference (owner, uuid, map, checked) {
+        if (!checked) { 
+            checked = Object.create(null);
+        }
+        if (!map[uuid] || checked[uuid]) {
             return false;
         }
+        checked[uuid] = true;
         var result = false;
         var deps = map[uuid].content && map[uuid].content.__depends__;
         if (deps) {
             for (var i = 0, l = deps.length; i < l; i++) {
                 var dep = deps[i];
-                if (dep.uuid === owner || utils.checkCircleReference(owner, dep.uuid, map)) {
+                if (dep.uuid === owner || utils.checkCircleReference(owner, dep.uuid, map, checked)) {
                     result = true;
                     break;
                 }

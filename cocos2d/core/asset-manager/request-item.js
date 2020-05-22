@@ -115,16 +115,6 @@ function RequestItem () {
      */
     this.info = null;
 
-    /**
-     * !#en
-     * The bundle of asset
-     * 
-     * !#zh
-     * 资源所在的 bundle
-     * 
-     * @property config
-     * @type {Config}
-     */
     this.config = null;
 
     /**

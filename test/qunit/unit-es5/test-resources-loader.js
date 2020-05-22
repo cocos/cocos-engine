@@ -99,7 +99,7 @@
             strictEqual(results.length, urls.length, 'url dict should contains the same count with array');
 
             var url = urls[0];
-            cc.assetManager.loadRes(url, cc.Texture2D, null, function (err, result) {
+            cc.resources.load(url, cc.Texture2D, null, function (err, result) {
                 strictEqual(result, results[0], 'url is correct');
                 start();
             });

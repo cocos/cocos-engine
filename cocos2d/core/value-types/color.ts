@@ -345,6 +345,27 @@ export default class Color extends ValueType {
         return out;
     }
 
+    /**
+     * !#zh 颜色 RGB 预乘 Alpha 通道
+     * !#en RGB premultiply alpha channel
+     * @method premultiplyAlpha
+     * @typescript
+     * premultiplyAlpha <Out extends IColorLike> (out: Out, a: IColorLike)
+     * @param out 返回颜色
+     * @param color 预乘处理的目标颜色
+     * @static
+     */
+    static premultiplyAlpha (out, color) {
+        let alpha = color.a / 255.0;
+        out.r = color.r * alpha;
+        out.g = color.g * alpha;
+        out.b = color.b * alpha;
+
+        out._fastSetA(color.a);
+    
+        return out;
+    }
+
     _val: number = 0;
 
     /**

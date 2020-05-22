@@ -222,6 +222,11 @@ cc.js.mixin(View.prototype, {
         }
     },
 
+    _resize: function() {
+        //force resize when size is changed at native
+        cc.view._resizeEvent(CC_JSB);
+    },
+
     /**
      * !#en
      * Sets view's target-densitydpi for android mobile browser. it can be set to:           <br/>
@@ -260,14 +265,14 @@ cc.js.mixin(View.prototype, {
             //enable
             if (!this._resizeWithBrowserSize) {
                 this._resizeWithBrowserSize = true;
-                window.addEventListener('resize', this._resizeEvent);
+                window.addEventListener('resize', this._resize);
                 window.addEventListener('orientationchange', this._orientationChange);
             }
         } else {
             //disable
             if (this._resizeWithBrowserSize) {
                 this._resizeWithBrowserSize = false;
-                window.removeEventListener('resize', this._resizeEvent);
+                window.removeEventListener('resize', this._resize);
                 window.removeEventListener('orientationchange', this._orientationChange);
             }
         }
@@ -460,7 +465,7 @@ cc.js.mixin(View.prototype, {
         if(cc.game.renderType === cc.game.RENDER_TYPE_WEBGL) {
             var cache = cc.assetManager.assets;
             cache.forEach(function (asset) {
-                if (asset instanceof cc.Texture2Dx) {
+                if (asset instanceof cc.Texture2D) {
                     var Filter = cc.Texture2D.Filter;
                     if (enabled) {
                         asset.setFilters(Filter.LINEAR, Filter.LINEAR);

@@ -70,8 +70,13 @@ var parser = {
      * parseImage(file: Blob, options: Record<string, any>, onComplete?: (err: Error, img: ImageBitmap|HTMLImageElement) => void): void
      */
     parseImage (file, options, onComplete) {
-        if (capabilities.createImageBitmap && file instanceof Blob) {
-            createImageBitmap(file).then(function (result) {
+        if (capabilities.imageBitmap && file instanceof Blob) {
+            let imageOptions = {};
+            imageOptions.imageOrientation = options.__flipY__ ? 'flipY' : 'none';
+            imageOptions.premultiplyAlpha = options.__premultiplyAlpha__ ? 'premultiply' : 'none';
+            createImageBitmap(file, imageOptions).then(function (result) {
+                result.flipY = !!options.__flipY__;
+                result.premultiplyAlpha = !!options.__premultiplyAlpha__;
                 onComplete && onComplete(null, result);
             }, function (err) {
                 onComplete && onComplete(err, null);
@@ -156,6 +161,7 @@ var parser = {
         const PVR_HEADER_METADATA = 12;
     
         return function (file, options, onComplete) {
+            let err = null, out = null;
             try {
                 let buffer = file instanceof ArrayBuffer ? file : file.buffer;
                 // Get a view of the arrayBuffer that represents the DDS header.
@@ -172,17 +178,18 @@ var parser = {
                 let dataOffset = header[PVR_HEADER_METADATA] + 52;
                 let pvrtcData = new Uint8Array(buffer, dataOffset);
     
-                pvrAsset = {
+                out = {
                     _data: pvrtcData,
                     _compressed: true,
                     width: width,
                     height: height,
                 };
-                onComplete && onComplete(null, pvrAsset);
+                
             }
             catch (e) {
-                onComplete && onComplete(e, null);
+                err = e;
             }
+            onComplete && onComplete(err, out);
         };
     })(),
 
@@ -228,6 +235,7 @@ var parser = {
             return (header[offset] << 8) | header[offset+1];
         }
         return function (file, options, onComplete) {
+            let err = null, out = null;
             try {
                 let buffer = file instanceof ArrayBuffer ? file : file.buffer;
                 let header = new Uint8Array(buffer);
@@ -240,17 +248,18 @@ var parser = {
                 let encodedWidth = readBEUint16(header, ETC_PKM_ENCODED_WIDTH_OFFSET);
                 let encodedHeight = readBEUint16(header, ETC_PKM_ENCODED_HEIGHT_OFFSET);
                 let etcData = new Uint8Array(buffer, ETC_PKM_HEADER_SIZE);
-                let etcAsset = {
+                out = {
                     _data: etcData,
                     _compressed: true,
                     width: width,
                     height: height
                 };
-                onComplete && onComplete(null, etcAsset);
+                
             }
             catch (e) {
-                onComplete && onComplete(e, null);
+                err = e;
             }
+            onComplete && onComplete(err, out);
         }
     })(),
 
@@ -306,29 +315,16 @@ var parser = {
      * parseImport (file: any, options: Record<string, any>, onComplete?: (err: Error, asset: cc.Asset) => void): void
      */
     parseImport (file, options, onComplete) {
-        var result;
+        var result, err = null;
         try {
             result = deserialize(file, options);
         }
         catch (e) {
-            onComplete && onComplete(e, null);
-            return;
+            err = e;
         }
-        onComplete && onComplete(null, result);
+        onComplete && onComplete(err, result);
     },
 
-    /**
-     * !#en 
-     * Initialize parser
-     * 
-     * !#zh
-     * 初始化解析器
-     * 
-     * @method init
-     * 
-     * @typescript
-     * init(): void
-     */
     init () {
         _parsing.clear();
     },

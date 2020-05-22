@@ -649,6 +649,13 @@ let Label = cc.Class({
         }
     },
 
+    setVertsDirty() {
+        if(CC_JSB && this._nativeTTF()) {
+            this._assembler && this._assembler.updateRenderData(this)
+        }
+        this._super();
+    },
+
     _updateColor () {
         if (!(this.font instanceof cc.BitmapFont)) {
             if (!(this._srcBlendFactor === cc.macro.BlendFactor.SRC_ALPHA && this.node._renderFlag & cc.RenderFlow.FLAG_OPACITY)) {
@@ -719,29 +726,29 @@ let Label = cc.Class({
             }
         }
         else {
-            if (!this._frame) {
-                this._frame = new LabelFrame();
-            }
- 
-            if (this.cacheMode === CacheMode.CHAR) {
-                this._letterTexture = this._assembler._getAssemblerData();
-                this._frame._refreshTexture(this._letterTexture);
-            } else if (!this._ttfTexture) {
-                this._ttfTexture = new cc.Texture2D();
-                this._assemblerData = this._assembler._getAssemblerData();
-                this._ttfTexture.initWithElement(this._assemblerData.canvas);
-            } 
-
-            if (this.cacheMode !== CacheMode.CHAR) {
-                this._frame._resetDynamicAtlasFrame();
-                this._frame._refreshTexture(this._ttfTexture);
-
-                if (this._srcBlendFactor === cc.macro.BlendFactor.ONE) {
-                    this._ttfTexture.setPremultiplyAlpha(true);
+            if(!this._nativeTTF()){
+                if (!this._frame) {
+                    this._frame = new LabelFrame();
                 }
+    
+                if (this.cacheMode === CacheMode.CHAR) {
+                    this._letterTexture = this._assembler._getAssemblerData();
+                    this._frame._refreshTexture(this._letterTexture);
+                } else if (!this._ttfTexture) {
+                    this._ttfTexture = new cc.Texture2D();
+                    this._assemblerData = this._assembler._getAssemblerData();
+                    this._ttfTexture.initWithElement(this._assemblerData.canvas);
+                } 
+
+                if (this.cacheMode !== CacheMode.CHAR) {
+                    this._frame._resetDynamicAtlasFrame();
+                    this._frame._refreshTexture(this._ttfTexture);
+                    if (this._srcBlendFactor === cc.macro.BlendFactor.ONE) {
+                        this._ttfTexture.setPremultiplyAlpha(true);
+                    }
+                }
+                this._updateMaterial();
             }
-            
-            this._updateMaterial();
             this._assembler && this._assembler.updateRenderData(this);
         }
         this.markForValidate();
@@ -752,12 +759,26 @@ let Label = cc.Class({
         this._frame._texture._nativeUrl = this.uuid + '_texture';
     },
 
+    _getDefaultMaterial() {
+        return Material.getBuiltinMaterial("2d-label");
+    },
+
     _updateMaterialWebgl () {
-        if (!this._frame) return;
+
         let material = this.getMaterial(0);
+        if(this._nativeTTF()) {
+            if(material) this._assembler._updateTTFMaterial(material, this)
+            return;
+        }
+
+        if (!this._frame) return;
         material && material.setProperty('texture', this._frame._texture);
 
         BlendFunc.prototype._updateMaterial.call(this);
+    },
+
+    _nativeTTF() {
+        return !!this._assembler && !!this._assembler._updateTTFMaterial
     },
 
     _forceUpdateRenderData () {

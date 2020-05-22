@@ -429,6 +429,17 @@ let ArmatureDisplay = cc.Class({
         if (baseMaterial) {
             baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
             baseMaterial.define('USE_TEXTURE', true);
+            
+            let srcBlendFactor = this.premultipliedAlpha ? cc.gfx.BLEND_ONE : cc.gfx.BLEND_SRC_ALPHA;
+            let dstBlendFactor = cc.gfx.BLEND_ONE_MINUS_SRC_ALPHA;
+
+            baseMaterial.setBlend(
+                true,
+                cc.gfx.BLEND_FUNC_ADD,
+                srcBlendFactor, srcBlendFactor,
+                cc.gfx.BLEND_FUNC_ADD,
+                dstBlendFactor, dstBlendFactor
+            );
         }
         this._materialCache = {};
     },
@@ -514,6 +525,10 @@ let ArmatureDisplay = cc.Class({
         if (this._preCacheMode !== cacheMode) {
             this._cacheMode = cacheMode;
             this._buildArmature();
+
+            if (this._armature && !this.isAnimationCached()) {
+                this._factory._dragonBones.clock.add(this._armature);
+            }            
         }
     },
     
@@ -703,7 +718,7 @@ let ArmatureDisplay = cc.Class({
             this._armature = this._displayProxy._armature;
             this._armature.animation.timeScale = this.timeScale;
             // If change mode or armature, armature must insert into clock.
-            this._factory._dragonBones.clock.add(this._armature);
+            // this._factory._dragonBones.clock.add(this._armature);
         }
 
         if (this._cacheMode !== AnimationCacheMode.REALTIME && this.debugBones) {

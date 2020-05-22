@@ -26,7 +26,6 @@
 import gfx from '../../renderer/gfx';
 import InputAssembler from '../../renderer/core/input-assembler';
 import Aabb from '../geom-utils/aabb';
-import { postLoadMesh } from '../utils/mesh-util';
 import Vec3 from '../value-types/vec3';
 import Mat4 from '../value-types/mat4';
 import MaterialVariant from '../assets/material/material-variant';
@@ -220,7 +219,7 @@ let MeshRenderer = cc.Class({
                 this._setMesh(this._mesh);
                 this.markForRender(true);
             });
-            postLoadMesh(this._mesh);
+            cc.assetManager.postLoadNative(this._mesh);
         }
         else {
             this._setMesh(this._mesh);
