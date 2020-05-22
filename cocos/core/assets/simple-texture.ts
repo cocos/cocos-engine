@@ -204,6 +204,9 @@ export class SimpleTexture extends TextureBase {
 
     protected _tryReset () {
         this._tryDestroyTexture();
+        if(this._mipmapLevel === 0) {
+            return;
+        }
         const device = this._getGFXDevice();
         if (!device) {
             return;
