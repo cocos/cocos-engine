@@ -107,7 +107,7 @@ class PlistParser extends SAXParser {
     }
 
     _parseNode (node) {
-        let data:any = null, tagName = node.tagName;
+        let data: any = null, tagName = node.tagName;
         if(tagName === "dict"){
             data = this._parseDict(node);
         }else if(tagName === "array"){
@@ -134,7 +134,7 @@ class PlistParser extends SAXParser {
     }
 
     _parseArray (node) {
-        let data:Array<any> = [];
+        let data: Array<any> = [];
         for (let i = 0, len = node.childNodes.length; i < len; i++) {
             let child = node.childNodes[i];
             if (child.nodeType !== 1)

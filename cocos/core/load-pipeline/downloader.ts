@@ -205,12 +205,12 @@ export default class Downloader implements IPipe {
     static ID = ID;
     static PackDownloader = PackDownloader;
 
-    public id:string = ID;
-    public async:boolean = true;
-    public pipeline:Pipeline | null = null;
-    private extMap:object;
+    public id: string = ID;
+    public async: boolean = true;
+    public pipeline: Pipeline | null = null;
+    private extMap: object;
     private _curConcurrent = 0;
-    private _loadQueue:Array<IDownloadItem> = [];
+    private _loadQueue: Array<IDownloadItem> = [];
     private _subPackages = {};
 
     constructor (extMap?) {
@@ -231,7 +231,7 @@ export default class Downloader implements IPipe {
      * @zh 添加自定义支持的类型处理程序或修改现有的类型处理程序。
      * @param extMap Custom supported types with corresponded handler
      */
-    addHandlers (extMap:Map<string, Function>) {
+    addHandlers (extMap: Map<string, Function>) {
         mixin(this.extMap, extMap);
     }
 
@@ -291,7 +291,7 @@ export default class Downloader implements IPipe {
      * @param completeCallback -  Callback invoked when sub package loaded
      * @param {Error} completeCallback.error - error information
      */
-    loadSubpackage (name:string, completeCallback?:Function) {
+    loadSubpackage (name: string, completeCallback?: Function) {
         let pac = this._subPackages[name];
         if (pac) {
             if (pac.loaded) {

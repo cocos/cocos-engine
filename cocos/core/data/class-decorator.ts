@@ -255,7 +255,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
  * }
  * ```
  */
-export const ccclass:any|((name?:string)=>Function) = checkCtorArgument(function (ctor, name) {
+export const ccclass: any | ((name?: string) => Function) = checkCtorArgument(function (ctor, name) {
     // if (FIX_BABEL6) {
     //     eval('if(typeof _classCallCheck==="function"){_classCallCheck=function(){};}');
     // }
@@ -411,7 +411,7 @@ export const executeInEditMode = (DEV ? createEditorDecorator : createDummyDecor
  * }
  * ```
  */
-export const requireComponent:(requiredComponent:Function)=>Function = createEditorDecorator(checkCompArgument, 'requireComponent');
+export const requireComponent: (requiredComponent: Function) => Function = createEditorDecorator(checkCompArgument, 'requireComponent');
 
 /**
  * @en Add the current component to the specific menu path in `Add Component` selector of the inspector panel
@@ -428,7 +428,7 @@ export const requireComponent:(requiredComponent:Function)=>Function = createEdi
  * }
  * ```
  */
-export const menu:(path:string)=>Function = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'menu');
+export const menu: (path: string) => Function = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'menu');
 
 /**
  * @en Set the component priority, it decides at which order the life cycle functions of components will be invoked. Smaller priority get invoked before larger priority.
@@ -446,7 +446,7 @@ export const menu:(path:string)=>Function = (DEV ? createEditorDecorator : creat
  * }
  * ```
  */
-export const executionOrder:(priority:number)=>Function = createEditorDecorator(checkNumberArgument, 'executionOrder');
+export const executionOrder: (priority: number) => Function = createEditorDecorator(checkNumberArgument, 'executionOrder');
 
 /**
  * @en Forbid add multiple instances of the component to the same node.
@@ -496,7 +496,7 @@ export const playOnFocus = (DEV ? createEditorDecorator : createDummyDecorator)(
  * }
  * ```
  */
-export const inspector:(url:string)=>Function = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'inspector');
+export const inspector: (url: string) => Function = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'inspector');
 
 /**
  * @en Define the icon of the component.
@@ -514,7 +514,7 @@ export const inspector:(url:string)=>Function = (DEV ? createEditorDecorator : c
  * }
  * ```
  */
-export const icon:(url:string)=>Function = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'icon');
+export const icon: (url: string) => Function = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'icon');
 
 /**
  * @en Define the help documentation url, if given, the component section in the **inspector** will have a help documentation icon reference to the web page given. 
@@ -531,7 +531,7 @@ export const icon:(url:string)=>Function = (DEV ? createEditorDecorator : create
  * }
  * ```
  */
-export const help:(url:string)=>Function = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'help');
+export const help: (url: string) => Function = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'help');
 
 // Other Decorators
 

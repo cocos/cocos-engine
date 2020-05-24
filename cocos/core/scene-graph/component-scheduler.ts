@@ -215,7 +215,7 @@ function enableInEditor (comp) {
 }
 
 // return function to simply call each component with try catch protection
-export function createInvokeImplJit (code:string, useDt?, ensureFlag?) {
+export function createInvokeImplJit (code: string, useDt?, ensureFlag?) {
     // function (it) {
     //     let a = it.array;
     //     for (it.i = 0; it.i < a.length; ++it.i) {

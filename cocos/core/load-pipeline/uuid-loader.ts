@@ -53,7 +53,7 @@ function parseDepends (item, asset, tdInfo, deferredLoadRawAssetsInRuntime) {
     let depends;
     let i, dependUuid;
     // cache dependencies for auto release
-    let dependKeys:Array<string> = item.dependKeys = [];
+    let dependKeys: Array<string> = item.dependKeys = [];
 
     if (deferredLoadRawAssetsInRuntime) {
         depends = [];

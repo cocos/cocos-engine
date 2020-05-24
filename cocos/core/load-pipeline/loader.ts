@@ -291,7 +291,7 @@ export default class Loader implements IPipe {
     public id = ID;
     public async = true;
     public pipeline: Pipeline | null = null;
-    private extMap:object;
+    private extMap: object;
     constructor (extMap?) {
         this.extMap = mixin(extMap, defaultMap);
     }
@@ -302,7 +302,7 @@ export default class Loader implements IPipe {
      * @param extMap Custom supported types with corresponded handler
      * @param extMap Custom supported types with corresponded handler
      */
-    addHandlers (extMap:Map<string, Function>) {
+    addHandlers (extMap: Map<string, Function>) {
         this.extMap = mixin(this.extMap, extMap);
     }
 

@@ -245,7 +245,7 @@ class CCObject {
      * cc.log(node.isValid);    // false, destroyed in the end of last frame
      * ```
      */
-    get isValid ():boolean {
+    get isValid (): boolean {
         return !(this._objFlags & Destroyed);
     }
 

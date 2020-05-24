@@ -281,7 +281,7 @@ export class CCLoader extends Pipeline {
      * @param {Object} progressCallback.item - The latest item which flow out the pipeline
      * @param completeCallback - Completion callback
      */
-    public load (resources: string|string[]|Object, progressCallback?: Function|null, completeCallback?:Function|null) {
+    public load (resources: string|string[]|Object, progressCallback?: Function|null, completeCallback?: Function|null) {
         if (DEV && !resources) {
             return error('[loader.load] resources must be non-nil.');
         }
@@ -310,7 +310,7 @@ export class CCLoader extends Pipeline {
         _sharedResources.length = 0;
         // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < resList.length; ++i) {
-            const resource:any = resList[i];
+            const resource: any = resList[i];
             // Backward compatibility
             if (resource && resource.id) {
                 warnID(4920, resource.id);
@@ -951,7 +951,7 @@ export class CCLoader extends Pipeline {
      * @en Retrieve asset's uuid
      * @zh 获取资源的 uuid
      */
-    public _getResUuid (url:string, type?:Function, mount?, quiet?) {
+    public _getResUuid (url: string, type?: Function, mount?, quiet?) {
         mount = mount || 'assets';
         let uuid = '';
         if (EDITOR) {

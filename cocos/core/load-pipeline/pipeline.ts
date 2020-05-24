@@ -34,11 +34,11 @@ import { EDITOR } from 'internal:constants';
 const ItemState = LoadingItems.ItemState;
 
 export interface IPipe {
-    id:string;
-    async:boolean;
-    handle (item:IItem, callback);
-    next?:IPipe|null;
-    pipeline?:Pipeline|null;
+    id: string;
+    async: boolean;
+    handle (item: IItem, callback);
+    next?: IPipe|null;
+    pipeline?: Pipeline|null;
 }
 
 function flow (pipe, item) {
@@ -125,7 +125,7 @@ export class Pipeline {
      */
     static ItemState = ItemState;
 
-    protected _pipes:Array<IPipe>;
+    protected _pipes: Array<IPipe>;
     public _cache = createMap(true);
 
     /**
@@ -148,7 +148,7 @@ export class Pipeline {
      *  ]);
      * ```
      */
-    constructor (pipes:IPipe[]) {
+    constructor (pipes: IPipe[]) {
         this._pipes = pipes;
 
         for (let i = 0; i < pipes.length; ++i) {
@@ -185,12 +185,12 @@ export class Pipeline {
 
         pipe.pipeline = this;
 
-        let nextPipe:IPipe|null = null;
+        let nextPipe: IPipe|null = null;
         if (index < this._pipes.length) {
             nextPipe = this._pipes[index];
         }
 
-        let previousPipe:IPipe|null = null;
+        let previousPipe: IPipe|null = null;
         if (index > 0) {
             previousPipe = this._pipes[index-1];
         }
@@ -209,7 +209,7 @@ export class Pipeline {
      * @param refPipe An existing pipe in the pipeline.
      * @param newPipe The pipe to be inserted.
      */
-    insertPipeAfter (refPipe:IPipe, newPipe:IPipe)  {
+    insertPipeAfter (refPipe: IPipe, newPipe: IPipe)  {
         let index = this._pipes.indexOf(refPipe);
         if (index < 0) {
             return;
@@ -224,7 +224,7 @@ export class Pipeline {
      * 该 pipe 必须包含一个字符串类型 ‘id’ 和 ‘handle’ 函数，该 id 在 pipeline 必须是唯一标识。
      * @param pipe The pipe to be appended
      */
-    appendPipe (pipe:IPipe) {
+    appendPipe (pipe: IPipe) {
         // Must have handle and id, handle for flow, id for state flag
         if (!pipe.handle || !pipe.id) {
             return;
@@ -267,7 +267,7 @@ export class Pipeline {
      *  ]);
      * ```
      */
-    flowIn (items:Array<IItem>) {
+    flowIn (items: Array<IItem>) {
         let i, pipe = this._pipes[0], item;
         if (pipe) {
             // Cache all items first, in case synchronous loading flow same item repeatly
@@ -304,7 +304,7 @@ export class Pipeline {
      * @param callback The callback to be invoked when all dependencies are completed.
      * @return Items accepted by the pipeline
      */
-    flowInDeps (owner:IItem, urlList:object[], callback:Function):IItem[] {
+    flowInDeps (owner: IItem, urlList: object[], callback: Function): IItem[] {
         let deps = LoadingItems.create(this, function (errors, items) {
             callback(errors, items);
             items.destroy();
@@ -317,7 +317,7 @@ export class Pipeline {
      * @zh 这个函数会在 `item` 完成了所有管道，它会被标记为 `complete` 并流出管线。
      * @param item The item which is completed
      */
-    flowOut (item:IItem) {
+    flowOut (item: IItem) {
         if (item.error) {
             delete this._cache[item.id];
         }
@@ -346,7 +346,7 @@ export class Pipeline {
      * @param srcItem The source item
      * @param dstItems A single destination item or an array of destination items
      */
-    copyItemStates (srcItem:IItem, dstItems:IItem|Array<IItem>) {
+    copyItemStates (srcItem: IItem, dstItems: IItem|Array<IItem>) {
         if (!(dstItems instanceof Array)) {
             dstItems.states = srcItem.states;
             return;
@@ -361,7 +361,7 @@ export class Pipeline {
      * @zh 根据 id 获取一个 item
      * @param id The id of the item
      */
-    getItem (id:string):IItem|null {
+    getItem (id: string): IItem|null {
         let item = this._cache[id];
 
         if (!item)
@@ -385,7 +385,7 @@ export class Pipeline {
      * @param id The id of the item
      * @return succeed or not
      */
-    removeItem (id:string):boolean {
+    removeItem (id: string): boolean {
         let removed = this._cache[id];
         if (removed && removed.complete) {
             delete this._cache[id];

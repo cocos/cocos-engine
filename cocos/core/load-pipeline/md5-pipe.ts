@@ -81,7 +81,7 @@ export default class MD5Pipe implements IPipe {
      * @param url The url to be parsed
      * @param hashPatchInFolder NA
      */
-    transformURL (url, hashPatchInFolder?:boolean) {
+    transformURL (url, hashPatchInFolder?: boolean) {
         let uuid = getUuidFromURL(url);
         if (uuid) {
             let isNativeAsset = !url.match(this.libraryBase);

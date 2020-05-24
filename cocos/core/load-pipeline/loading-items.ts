@@ -34,22 +34,22 @@ import {createMap, mixin} from '../utils/js';
 
 let _qid = (0|(Math.random()*998));
 let _queues = createMap(true);
-let _pool:Array<LoadingItems> = [];
+let _pool: Array<LoadingItems> = [];
 const _POOL_MAX_LENGTH = 10;
 
 export interface IItem {
     queueId;
-    id:string;
+    id: string;
     url; // real download url, maybe changed
     rawUrl; // url used in scripts
     urlParam;
-    type:string;
-    error:Error|null;
-    content:any;
-    complete:boolean;
-    states:object;
+    type: string;
+    error: Error|null;
+    content: any;
+    complete: boolean;
+    states: object;
     deps;
-    isScene:boolean;
+    isScene: boolean;
 }
 
 enum ItemState {
@@ -121,8 +121,8 @@ function createItem (id, queueId) {
     return result;
 }
 
-let _checkedIds:Array<string> = [];
-function checkCircleReference(owner, item:IItem, recursiveCall?) {
+let _checkedIds: Array<string> = [];
+function checkCircleReference(owner, item: IItem, recursiveCall?) {
     if (!owner || !item) {
         return false;
     }
@@ -206,7 +206,7 @@ export class LoadingItems extends CallbacksInvoker {
      *  }
      * ```
      */
-    public onProgress:((completedCount:number, totalCount:number, IItem)=>void)|undefined;
+    public onProgress:((completedCount: number, totalCount: number, IItem) => void) | undefined;
 
     /**
      * @en This is a callback which will be invoked while all items is completed,
@@ -224,13 +224,13 @@ export class LoadingItems extends CallbacksInvoker {
      *  }
      * ```
      */
-    public onComplete:((errors:string[]|null, items:LoadingItems)=>void)|undefined;
+    public onComplete:((errors: string[]|null, items: LoadingItems) => void) | undefined;
 
     /**
      * @en The map of all items.
      * @zh 存储所有加载项的对象。
      */
-    public map:Map<string, IItem> = createMap(true);
+    public map: Map<string, IItem> = createMap(true);
 
     /**
      * @en The map of completed items.
@@ -254,13 +254,13 @@ export class LoadingItems extends CallbacksInvoker {
      * @en Activated or not.
      * @zh 是否启用。
      */
-    public active:boolean;
+    public active: boolean;
 
-    private _id:number;
+    private _id: number;
     private _pipeline;
-    private _errorUrls:Array<string> = [];
+    private _errorUrls: Array<string> = [];
     private _appending = false;
-    public _ownerQueue:LoadingItems|null = null;
+    public _ownerQueue: LoadingItems|null = null;
 
     constructor (pipeline, urlList, onProgress, onComplete) {
         super();
@@ -363,7 +363,7 @@ export class LoadingItems extends CallbacksInvoker {
      * @param item The item to query
      * @return The LoadingItems queue object
      */
-    static getQueue (item:IItem):LoadingItems|null {
+    static getQueue (item: IItem): LoadingItems | null {
         return item.queueId ? _queues[item.queueId] : null;
     }
 
@@ -372,7 +372,7 @@ export class LoadingItems extends CallbacksInvoker {
      * @zh 通知 LoadingItems 队列一个 item 对象已完成，请不要调用这个函数，除非你知道自己在做什么。
      * @param item The item which has completed
      */
-    static itemComplete (item:IItem) {
+    static itemComplete (item: IItem) {
         let queue = _queues[item.queueId];
         if (queue) {
             // console.log('----- Completed by pipeline ' + item.id + ', rest: ' + (queue.totalCount - queue.completedCount-1));
@@ -437,7 +437,7 @@ export class LoadingItems extends CallbacksInvoker {
      * @param owner
      * @return 在已接受的url列表中，可以拒绝某些无效项
      */
-    append (urlList:object[], owner?):IItem[] {
+    append (urlList: object[], owner?): IItem[] {
         if (!this.active) {
             return [];
         }
@@ -446,7 +446,7 @@ export class LoadingItems extends CallbacksInvoker {
         }
 
         this._appending = true;
-        let accepted:Array<IItem> = [], i, url, item;
+        let accepted: Array<IItem> = [], i, url, item;
         for (i = 0; i < urlList.length; ++i) {
             url = urlList[i];
 
@@ -529,7 +529,7 @@ export class LoadingItems extends CallbacksInvoker {
      * @en Check whether all items are completed.
      * @zh 检查是否所有加载项都已经完成。
      */
-    isCompleted ():boolean {
+    isCompleted (): boolean {
         return this.completedCount >= this.totalCount;
     }
 
@@ -538,7 +538,7 @@ export class LoadingItems extends CallbacksInvoker {
      * @zh 通过 id 检查指定加载项是否已经加载完成。
      * @param id The item's id.
      */
-    isItemCompleted (id:string):boolean {
+    isItemCompleted (id: string): boolean {
         return !!this.completed[id];
     }
 
@@ -547,7 +547,7 @@ export class LoadingItems extends CallbacksInvoker {
      * @zh 通过 id 检查加载项是否存在。
      * @param id The item's id.
      */
-    exists (id:string):boolean {
+    exists (id: string): boolean {
         return !!this.map[id];
     }
 
@@ -556,7 +556,7 @@ export class LoadingItems extends CallbacksInvoker {
      * @zh 通过 id 获取指定对象的内容。
      * @param id The item's id.
      */
-    getContent (id:string):any {
+    getContent (id: string): any {
         let item = this.map[id];
         let ret = null;
         if (item) {
@@ -576,7 +576,7 @@ export class LoadingItems extends CallbacksInvoker {
      * @zh 通过 id 获取指定对象的错误信息。
      * @param id The item's id.
      */
-    getError (id:string):any {
+    getError (id: string): any {
         let item = this.map[id];
         let ret = null;
         if (item) {
@@ -595,7 +595,7 @@ export class LoadingItems extends CallbacksInvoker {
      * @zh 移除加载项，这里只会移除已经完成的加载项，正在进行的加载项将不能被删除。
      * @param url
      */
-    removeItem (url:string) {
+    removeItem (url: string) {
         let item = this.map[url];
         if (!item) return;
 
@@ -617,7 +617,7 @@ export class LoadingItems extends CallbacksInvoker {
      * @zh 通知 LoadingItems 队列一个 item 对象已完成，请不要调用这个函数，除非你知道自己在做什么。
      * @param id The item url
      */
-    itemComplete (id:string) {
+    itemComplete (id: string) {
         let item = this.map[id];
         if (!item) {
             return;
@@ -690,7 +690,7 @@ export class LoadingItems extends CallbacksInvoker {
      * @param callback - Callback function when item loaded
      * @param target - Callback callee
      */
-    addListener (key:string, callback:Function, target?:any) {
+    addListener (key: string, callback: Function, target?: any) {
         return super.on(key, callback, target);
     }
 
@@ -706,7 +706,7 @@ export class LoadingItems extends CallbacksInvoker {
      * @param target - Callback callee
      * @return Whether the corresponding listener for the item is registered
      */
-    hasListener (key:string, callback?:Function, target?:any):boolean {
+    hasListener (key: string, callback?: Function, target?: any): boolean {
         return super.hasEventListener(key, callback, target);
     }
 
@@ -721,7 +721,7 @@ export class LoadingItems extends CallbacksInvoker {
      * @param callback - Callback function when item loaded
      * @param target - Callback callee
      */
-    removeListener (key:string, callback?:Function, target?:any) {
+    removeListener (key: string, callback?: Function, target?: any) {
         return super.off(key, callback, target);
     }
 
