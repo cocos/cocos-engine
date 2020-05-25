@@ -83,7 +83,7 @@ void CCMTLCommandBuffer::beginRenderPass(GFXFramebuffer* fbo, const GFXRect& ren
     _isInRenderPass = true;
     
     CCMTLCmdBeginRenderPass* cmd = _MTLCommandAllocator->_beginRenderPassCmdPool.alloc();
-    cmd->frameBuffer = (CCMTLFrameBuffer*)fbo;
+    cmd->frameBuffer = (CCMTLFramebuffer*)fbo;
     cmd->clearFlags = clear_flags;
     cmd->renderArea = render_area;
     cmd->clearStencil = stencil;

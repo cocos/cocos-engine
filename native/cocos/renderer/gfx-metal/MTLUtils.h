@@ -12,6 +12,7 @@ NS_CC_BEGIN
 
 namespace mu
 {
+    MTLResourceOptions toMTLResourseOption(GFXMemoryUsage usage);
     MTLLoadAction toMTLLoadAction(GFXLoadOp op);
     MTLStoreAction toMTLStoreAction(GFXStoreOp op);
     MTLClearColor toMTLClearColor(const GFXColor& clearColor);

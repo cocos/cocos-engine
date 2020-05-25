@@ -30,10 +30,13 @@ else()
 	add_library(${TARGET_NAME} SHARED ${HEADER_FILES} ${ALL_FILES})
 endif()
 
+target_compile_definitions(${TARGET_NAME} PRIVATE USE_METAL)
 find_library(METAL_LIBRARY Metal)
 find_library(METALKIT_LIBRARY MetalKit)
-target_link_libraries(${TARGET_NAME} Core ${METAL_LIBRARY} ${METALKIT_LIBRARY})
-
+set(glslang_libs_name glslang OGLCompiler OSDependent SPIRV)
+set(spirv-cross_libs_name spirv-cross-core spirv-cross-glsl spirv-cross-msl)
+target_link_libraries(${TARGET_NAME} Core ${METAL_LIBRARY} ${METALKIT_LIBRARY} ${glslang_libs_name} ${spirv-cross_libs_name})
+target_include_directories(${TARGET_NAME} PUBLIC ${COCOS_EXTERNAL_PATH}/mac/include)
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME CCGFXMetal)
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCGFXMetal_d)
 

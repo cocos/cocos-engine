@@ -475,7 +475,6 @@
 		46BFDFF623CC573500CC5F8E /* MTLPipelineLayout.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFCC23CC573200CC5F8E /* MTLPipelineLayout.cpp */; };
 		46BFDFF723CC573500CC5F8E /* MTLCommandBuffer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFCD23CC573200CC5F8E /* MTLCommandBuffer.mm */; };
 		46BFDFF823CC573500CC5F8E /* MTLShader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFCE23CC573200CC5F8E /* MTLShader.mm */; };
-		46BFDFF923CC573500CC5F8E /* MTLFrameBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFCF23CC573200CC5F8E /* MTLFrameBuffer.cpp */; };
 		46BFDFFA23CC573500CC5F8E /* MTLGPUObjects.h in Headers */ = {isa = PBXBuildFile; fileRef = 46BFDFD023CC573200CC5F8E /* MTLGPUObjects.h */; };
 		46BFDFFB23CC573500CC5F8E /* MTLCommands.h in Headers */ = {isa = PBXBuildFile; fileRef = 46BFDFD123CC573200CC5F8E /* MTLCommands.h */; };
 		46BFDFFC23CC573500CC5F8E /* MTLWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 46BFDFD223CC573300CC5F8E /* MTLWindow.h */; };
@@ -934,6 +933,7 @@
 		EDAD7A4623FFDE040014B660 /* jsb_gfx_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EDAD7A4323FFDE040014B660 /* jsb_gfx_manual.cpp */; };
 		EDAD7A4723FFDE040014B660 /* jsb_gfx_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = EDAD7A4423FFDE040014B660 /* jsb_gfx_manual.hpp */; };
 		EDAD7A4823FFDE040014B660 /* jsb_gfx_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = EDAD7A4423FFDE040014B660 /* jsb_gfx_manual.hpp */; };
+		EDC3CF752475381F00C9E38B /* MTLFrameBuffer.mm in Sources */ = {isa = PBXBuildFile; fileRef = EDC3CF742475381F00C9E38B /* MTLFrameBuffer.mm */; };
 		EDE5DFF81C0D6B3F0014147A /* libwebsockets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EDE5DFF71C0D6B3F0014147A /* libwebsockets.a */; };
 /* End PBXBuildFile section */
 
@@ -1215,7 +1215,6 @@
 		46BFDFCC23CC573200CC5F8E /* MTLPipelineLayout.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MTLPipelineLayout.cpp; sourceTree = "<group>"; };
 		46BFDFCD23CC573200CC5F8E /* MTLCommandBuffer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MTLCommandBuffer.mm; sourceTree = "<group>"; };
 		46BFDFCE23CC573200CC5F8E /* MTLShader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MTLShader.mm; sourceTree = "<group>"; };
-		46BFDFCF23CC573200CC5F8E /* MTLFrameBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MTLFrameBuffer.cpp; sourceTree = "<group>"; };
 		46BFDFD023CC573200CC5F8E /* MTLGPUObjects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MTLGPUObjects.h; sourceTree = "<group>"; };
 		46BFDFD123CC573200CC5F8E /* MTLCommands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MTLCommands.h; sourceTree = "<group>"; };
 		46BFDFD223CC573300CC5F8E /* MTLWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MTLWindow.h; sourceTree = "<group>"; };
@@ -1508,6 +1507,7 @@
 		EDAD7A3E23FFDDEC0014B660 /* jsb_gfx_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_gfx_auto.cpp; sourceTree = "<group>"; };
 		EDAD7A4323FFDE040014B660 /* jsb_gfx_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_gfx_manual.cpp; sourceTree = "<group>"; };
 		EDAD7A4423FFDE040014B660 /* jsb_gfx_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_gfx_manual.hpp; sourceTree = "<group>"; };
+		EDC3CF742475381F00C9E38B /* MTLFrameBuffer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MTLFrameBuffer.mm; sourceTree = "<group>"; };
 		EDE5DFF71C0D6B3F0014147A /* libwebsockets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libwebsockets.a; path = ../external/ios/libs/libwebsockets.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -2390,7 +2390,7 @@
 				46BFDFEB23CC573400CC5F8E /* MTLCommands.mm */,
 				46BFDFD523CC573300CC5F8E /* MTLDevice.h */,
 				46BFDFE723CC573400CC5F8E /* MTLDevice.mm */,
-				46BFDFCF23CC573200CC5F8E /* MTLFrameBuffer.cpp */,
+				EDC3CF742475381F00C9E38B /* MTLFrameBuffer.mm */,
 				46BFDFEC23CC573400CC5F8E /* MTLFrameBuffer.h */,
 				46BFDFD023CC573200CC5F8E /* MTLGPUObjects.h */,
 				46BFDFD623CC573300CC5F8E /* MTLInputAssembler.h */,
@@ -3203,7 +3203,6 @@
 				469304262046AE06004A3D6C /* jsb_conversions.cpp in Sources */,
 				469304582046AE06004A3D6C /* EventDispatcher.cpp in Sources */,
 				1A52DAF8205BB81400350EE3 /* CCThreadPool.cpp in Sources */,
-				46BFDFF923CC573500CC5F8E /* MTLFrameBuffer.cpp in Sources */,
 				BA06A68023583DBD007740C5 /* AllocatedObj.cc in Sources */,
 				BA06A6E223583DBD007740C5 /* GFXContext.cc in Sources */,
 				BA06A6B423583DBD007740C5 /* GFXTextureView.cc in Sources */,
@@ -3253,6 +3252,7 @@
 				1AAAC873205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.cpp in Sources */,
 				46930468204FE20F004A3D6C /* CCLog.cpp in Sources */,
 				1A28FF991F20AFAB007A1D9D /* SRSecurityPolicy.m in Sources */,
+				EDC3CF752475381F00C9E38B /* MTLFrameBuffer.mm in Sources */,
 				46BFE01C23CC573500CC5F8E /* MTLRenderPass.mm in Sources */,
 				BA06A6CC23583DBD007740C5 /* GFXInputAssembler.cc in Sources */,
 				BA06A6DC23583DBD007740C5 /* GFXBindingLayout.cc in Sources */,

@@ -27,7 +27,7 @@ bool CCMTLShader::initialize(const GFXShaderInfo& info)
     }
     
     _status = GFXStatus::SUCCESS;
-        
+    CC_LOG_INFO("%s compile succeed.", _name.c_str());
     return true;
 }
 
@@ -104,7 +104,6 @@ bool CCMTLShader::createMTLFunction(const GFXShaderStage& stage)
         _fragMtlShader = mtlShader;
     }
 #endif
-    
     return true;
 }
 

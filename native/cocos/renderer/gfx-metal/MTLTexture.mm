@@ -198,14 +198,15 @@ void CCMTLTexture::update(uint8_t* const* datas, const GFXBufferTextureCopyList&
                 const auto& region = regions[i];
                 w = region.texExtent.width;
                 h = region.texExtent.height;
-                
+               
                 uint8_t* buffer = datas[n];
                 uint8_t* convertedData = convertData(buffer, w * h, _format);
                 MTLRegion mtlRegion = { {(uint)region.texOffset.x, (uint)region.texOffset.y, (uint)region.texOffset.z}, {w, h, 1} };
                 [_mtlTexture replaceRegion:mtlRegion
-                                mipmapLevel:region.texSubres.mipLevel
-                                    withBytes:convertedData
-                                bytesPerRow:GFX_FORMAT_INFOS[(uint)_convertedFormat].size * w];
+                               mipmapLevel:region.texSubres.mipLevel
+                                 withBytes:convertedData
+                               bytesPerRow:GFX_FORMAT_INFOS[(uint)_convertedFormat].size * w];
+                
                 if (convertedData != datas[n])
                     CC_FREE(convertedData);
                 n++;
@@ -224,11 +225,11 @@ void CCMTLTexture::update(uint8_t* const* datas, const GFXBufferTextureCopyList&
                     uint8_t* convertedData = convertData(buffer, w * h, _format);
                     MTLRegion mtlRegion = { {(uint)region.texOffset.x, (uint)region.texOffset.y, (uint)region.texOffset.z}, {w, h, 1} };
                     [_mtlTexture replaceRegion:mtlRegion
-                                    mipmapLevel:region.texSubres.mipLevel
-                                            slice:layer
-                                        withBytes:convertedData
-                                    bytesPerRow:GFX_FORMAT_INFOS[(uint)_convertedFormat].size * w
-                                    bytesPerImage:0];
+                                   mipmapLevel:region.texSubres.mipLevel
+                                         slice:layer
+                                     withBytes:convertedData
+                                   bytesPerRow:GFX_FORMAT_INFOS[(uint)_convertedFormat].size * w
+                                 bytesPerImage:0];
                     if (convertedData != datas[n++])
                         CC_FREE(convertedData);
                 }

@@ -31,6 +31,7 @@ public:
     virtual GFXPipelineState* createPipelineState(const GFXPipelineStateInfo& info) override;
     virtual GFXPipelineLayout* createPipelineLayout(const GFXPipelineLayoutInfo& info) override;
     virtual void copyBuffersToTexture(const GFXDataArray& buffers, GFXTexture* dst, const GFXBufferTextureCopyList& regions) override;
+    virtual void blitBuffer(void* srcBuffer, uint offset, uint size, void* dstBuffer);
     
     CC_INLINE void* getMTKView() const { return _mtkView; }
     CC_INLINE void* getMTLDevice() const { return _mtlDevice; }
@@ -47,6 +48,7 @@ private:
     uint _maxSamplerUnits = 0;
     uint _maxColorRenderTargets = 0;
     bool _icbSuppored = false;
+    void* _blitedBuffer = nullptr;
 };
 
 NS_CC_END

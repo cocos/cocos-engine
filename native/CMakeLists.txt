@@ -625,8 +625,8 @@ if(CC_USE_METAL)
         cocos/renderer/gfx-metal/MTLCommands.mm
         cocos/renderer/gfx-metal/MTLDevice.h
         cocos/renderer/gfx-metal/MTLDevice.mm
-        cocos/renderer/gfx-metal/MTLFrameBuffer.cpp
-        cocos/renderer/gfx-metal/MTLFrameBuffer.h
+        cocos/renderer/gfx-metal/MTLFramebuffer.mm
+        cocos/renderer/gfx-metal/MTLFramebuffer.h
         cocos/renderer/gfx-metal/MTLGPUObjects.h
         cocos/renderer/gfx-metal/MTLInputAssembler.h
         cocos/renderer/gfx-metal/MTLInputAssembler.mm
@@ -1010,7 +1010,9 @@ if(CC_USE_VULKAN)
     else()
         target_compile_definitions(cocos2d PUBLIC VK_USE_PLATFORM_XCB_KHR)
     endif()
-    
+
+elseif(CC_USE_METAL)
+    target_compile_definitions(cocos2d PUBLIC USE_METAL)
 endif()
 
 target_include_directories(cocos2d PUBLIC 

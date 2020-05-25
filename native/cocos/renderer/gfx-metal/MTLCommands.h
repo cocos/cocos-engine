@@ -4,7 +4,7 @@
 
 NS_CC_BEGIN
 
-class CCMTLFrameBuffer;
+class CCMTLFramebuffer;
 struct CCMTLGPUPipelineState;
 class CCMTLInputAssembler;
 class CCMTLBindingLayout;
@@ -30,7 +30,7 @@ class CCMTLCmdBeginRenderPass : public GFXCmd
 public:
     GFXRect renderArea;
     GFXClearFlags clearFlags = GFXClearFlags::NONE;
-    CCMTLFrameBuffer* frameBuffer = nullptr;
+    CCMTLFramebuffer* frameBuffer = nullptr;
     uint numOfClearColor = 0;
     vector<GFXColor>::type clearColors;
     float clearDepth = 1.f;

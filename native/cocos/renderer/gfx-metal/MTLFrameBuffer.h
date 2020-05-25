@@ -2,11 +2,11 @@
 
 NS_CC_BEGIN
 
-class CCMTLFrameBuffer : public GFXFramebuffer
+class CCMTLFramebuffer : public GFXFramebuffer
 {
 public:
-    CCMTLFrameBuffer(GFXDevice* device);
-    ~CCMTLFrameBuffer();
+    CCMTLFramebuffer(GFXDevice* device);
+    ~CCMTLFramebuffer();
     
     virtual bool initialize(const GFXFramebufferInfo& info) override;
     virtual void destroy() override;

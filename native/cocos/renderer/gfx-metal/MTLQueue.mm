@@ -180,12 +180,11 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 
                 for(const auto& binding : cmd->bindingLayout->getBindingUnits())
                 {
+                    if(binding.buffer)
+                        static_cast<CCMTLBuffer*>(binding.buffer)->encodeBuffer(encoder, 0, binding.binding, binding.shaderStages);
+                    
                     if(binding.shaderStages & GFXShaderType::VERTEX)
                     {
-                        if(binding.buffer)
-                            [encoder setVertexBuffer:static_cast<CCMTLBuffer*>(binding.buffer)->getMTLBuffer()
-                                              offset:0 atIndex:binding.binding];
-                        
                         if(binding.texView)
                             [encoder setVertexTexture:static_cast<CCMTLTextureView*>(binding.texView)->getMTLTexture()
                                               atIndex:binding.binding];
@@ -197,10 +196,6 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                     
                     if(binding.shaderStages & GFXShaderType::FRAGMENT)
                     {
-                        if(binding.buffer)
-                            [encoder setFragmentBuffer:static_cast<CCMTLBuffer*>(binding.buffer)->getMTLBuffer()
-                                              offset:0 atIndex:binding.binding];
-                        
                         if(binding.texView)
                             [encoder setFragmentTexture:static_cast<CCMTLTextureView*>(binding.texView)->getMTLTexture()
                                               atIndex:binding.binding];
@@ -228,10 +223,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                     {
                         auto index = std::get<0>(bindingInfo);
                         auto stream = std::get<1>(bindingInfo);
-                        id<MTLBuffer> vertexBuffer = static_cast<CCMTLBuffer*>(inputAssembler->_vertexBuffers[stream])->getMTLBuffer();
-                        [encoder setVertexBuffer:vertexBuffer
-                                          offset:0
-                                         atIndex:index];
+                        static_cast<CCMTLBuffer*>(inputAssembler->_vertexBuffers[stream])->encodeBuffer(encoder, 0, index, GFXShaderType::VERTEX);
                     }
                 }
                 
@@ -245,7 +237,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                     auto indirectBuffer = inputAssembler->getIndirectBuffer();
                     if (!indirectBuffer)
                     {
-                        if (mtlIndexBuffer && cmd->drawInfo.indexCount >= 0)
+                        if (cmd->drawInfo.indexCount > 0)
                         {
                             NSUInteger offset = 0;
                             offset += cmd->drawInfo.firstIndex * inputAssembler->getIndexBuffer()->getStride();

@@ -2,6 +2,7 @@
 
 #import <Metal/MTLBuffer.h>
 #import <Metal/MTLStageInputOutputDescriptor.h>
+#import <Metal/MTLRenderCommandEncoder.h>
 
 NS_CC_BEGIN
 
@@ -20,15 +21,21 @@ public:
     CC_INLINE uint8_t* getTransferBuffer() const { return _transferBuffer; }
     CC_INLINE MTLIndexType getIndexType() const { return _indexType; }
     CC_INLINE const GFXDrawInfoList& getIndirects() const { return _indirects; }
+    void encodeBuffer(id<MTLRenderCommandEncoder> encoder, uint offset, uint binding, GFXShaderType stages);
     
 private:
     void resizeBuffer(uint8_t**, uint, uint);
+    bool createMTLBuffer(uint size, GFXMemoryUsage usage);
     
     id<MTLBuffer> _mtlBuffer = nullptr;
     uint8_t* _transferBuffer = nullptr;
     MTLIndexType _indexType = MTLIndexTypeUInt16;
     MTLResourceOptions _mtlResourceOptions = MTLResourceStorageModePrivate;
     GFXDrawInfoList _indirects;
+    
+    // to store vertex and ubo data when size is small, otherwise use MTLBuffer instead.
+    bool _useOptimizedBufferEncoder = false;
+    uint8_t* _bufferBytes = nullptr;
 };
 
 NS_CC_END

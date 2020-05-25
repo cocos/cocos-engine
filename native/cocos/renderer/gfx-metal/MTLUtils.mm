@@ -231,6 +231,20 @@ namespace {
 
 namespace mu
 {
+    MTLResourceOptions toMTLResourseOption(GFXMemoryUsage usage)
+    {
+        if (usage & GFXMemoryUsage::HOST && usage & GFXMemoryUsage::DEVICE)
+            return MTLResourceStorageModeShared;
+        else if(usage & GFXMemoryUsage::DEVICE)
+            return MTLResourceStorageModePrivate;
+        else
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+            return MTLResourceStorageModeShared;
+#else
+            return MTLResourceStorageModeManaged;
+#endif
+    }
+
     MTLLoadAction toMTLLoadAction(GFXLoadOp op)
     {
         switch (op) {
