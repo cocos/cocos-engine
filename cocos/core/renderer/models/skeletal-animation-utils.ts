@@ -56,7 +56,7 @@ export function selectJointsMediumFormat (device: GFXDevice): GFXFormat {
 }
 
 // negative zeros cannot be decoded correctly at GLSL 100 minimum highp float precision, 1/1024
-// and it has a significant effect on the final transformation
+// and it has a significant impact on the final transformation
 function makeStable (n: number) { return n ? n : 0; }
 
 // Linear Blending Skinning
@@ -224,20 +224,16 @@ export class JointTexturePool {
         for (let i = 0; i < joints.length; i++) {
             const node = skinningRoot.getChildByPath(joints[i]);
             const bound = boneSpaceBounds[i];
-            if (!node) { // don't skip null `bound` here, or it becomes mesh-specific
-                if (buildTexture) { uploadJointData(textureBuffer, 12 * i, Mat4.IDENTITY, i === 0); }
-                continue;
-            }
-            getWorldTransformUntilRoot(node, skinningRoot, m4_1);
+            const mat = node ? getWorldTransformUntilRoot(node, skinningRoot, m4_1) : Mat4.IDENTITY;
             if (bound) {
-                aabb.transform(ab_1, bound, m4_1);
+                aabb.transform(ab_1, bound, mat);
                 ab_1.getBoundary(v3_3, v3_4);
                 Vec3.min(v3_min, v3_min, v3_3);
                 Vec3.max(v3_max, v3_max, v3_4);
             }
             if (buildTexture) {
-                Mat4.multiply(m4_1, m4_1, bindposes[i]);
-                uploadJointData(textureBuffer, 12 * i, m4_1, i === 0);
+                if (mat !== Mat4.IDENTITY) { Mat4.multiply(mat, mat, bindposes[i]); }
+                uploadJointData(textureBuffer, 12 * i, mat, i === 0);
             }
         }
         const bounds = [new aabb()]; texture.bounds.set(mesh.hash, bounds);
@@ -285,24 +281,21 @@ export class JointTexturePool {
             const bound = bounds[frame];
             for (let i = 0; i < totalJoints; i++, offset += 12) {
                 const nodeData = clipData.data[joints[i]];
-                if (!nodeData) { // don't skip null `boneSpaceBounds` here, or it becomes mesh-specific
+                let mat = Mat4.IDENTITY;
+                if (nodeData) {  mat = nodeData.worldMatrix.values[frame] as Mat4; }
+                else {
                     const node = skinningRoot.getChildByPath(joints[i]); // fallback to default pose
-                    const mat = node ? getWorldTransformUntilRoot(node, skinningRoot, m4_1) : Mat4.IDENTITY;
-                    if (buildTexture) { uploadJointData(textureBuffer, offset, mat, i === 0); }
-                    continue;
+                    mat = node ? getWorldTransformUntilRoot(node, skinningRoot, m4_1) : Mat4.IDENTITY;
                 }
-                const matrix = nodeData.worldMatrix.values as Mat4[];
-                const m = matrix[frame];
                 const boneSpaceBound = boneSpaceBounds[i];
                 if (boneSpaceBound) {
-                    aabb.transform(ab_1, boneSpaceBound, m);
+                    aabb.transform(ab_1, boneSpaceBound, mat);
                     ab_1.getBoundary(v3_3, v3_4);
                     Vec3.min(bound.center, bound.center, v3_3);
                     Vec3.max(bound.halfExtents, bound.halfExtents, v3_4);
                 }
                 if (buildTexture) {
-                    const bindpose = bindposes[i];
-                    Mat4.multiply(m4_1, m, bindpose);
+                    if (mat !== Mat4.IDENTITY) { Mat4.multiply(m4_1, mat, bindposes[i]); }
                     uploadJointData(textureBuffer, offset, m4_1, i === 0);
                 }
             }
