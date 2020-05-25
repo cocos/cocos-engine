@@ -103,6 +103,31 @@ static bool js_mtl_CCMTLDevice_isIndirectCommandBufferSupported(se::State& s)
 }
 SE_BIND_FUNC(js_mtl_CCMTLDevice_isIndirectCommandBufferSupported)
 
+static bool js_mtl_CCMTLDevice_blitBuffer(se::State& s)
+{
+    cocos2d::CCMTLDevice* cobj = (cocos2d::CCMTLDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_mtl_CCMTLDevice_blitBuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 4) {
+        void* arg0 = nullptr;
+        unsigned int arg1 = 0;
+        unsigned int arg2 = 0;
+        void* arg3 = nullptr;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+        ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+        ok &= seval_to_native_ptr(args[3], &arg3);
+        SE_PRECONDITION2(ok, false, "js_mtl_CCMTLDevice_blitBuffer : Error processing arguments");
+        cobj->blitBuffer(arg0, arg1, arg2, arg3);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    return false;
+}
+SE_BIND_FUNC(js_mtl_CCMTLDevice_blitBuffer)
+
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_CCMTLDevice_finalize)
 
 static bool js_mtl_CCMTLDevice_constructor(se::State& s)
@@ -141,6 +166,7 @@ bool js_register_mtl_CCMTLDevice(se::Object* obj)
     cls->defineFunction("getMaximumSamplerUnits", _SE(js_mtl_CCMTLDevice_getMaximumSamplerUnits));
     cls->defineFunction("getMaximumColorRenderTargets", _SE(js_mtl_CCMTLDevice_getMaximumColorRenderTargets));
     cls->defineFunction("isIndirectCommandBufferSupported", _SE(js_mtl_CCMTLDevice_isIndirectCommandBufferSupported));
+    cls->defineFunction("blitBuffer", _SE(js_mtl_CCMTLDevice_blitBuffer));
     cls->defineFinalizeFunction(_SE(js_cocos2d_CCMTLDevice_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::CCMTLDevice>(cls);
