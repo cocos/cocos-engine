@@ -26,10 +26,11 @@
  */
 
 /**
- * @category loader
+ * @hidden
  */
 
 import { EDITOR } from 'internal:constants';
+import { warnID } from '../platform/debug';
 
 /**
  * A SAX Parser
@@ -74,7 +75,7 @@ class SAXParser {
 
 /**
  *
- * cc.plistParser is a singleton object for parsing plist files
+ * plistParser is a singleton object for parsing plist files
  * @class plistParser
  * @extends SAXParser
  */
@@ -89,7 +90,7 @@ class PlistParser extends SAXParser {
         let xmlDoc = this._parseXML(xmlTxt);
         let plist = xmlDoc.documentElement;
         if (plist.tagName !== 'plist') {
-            cc.warnID(5100);
+            warnID(5100);
             return {};
         }
 
@@ -106,7 +107,7 @@ class PlistParser extends SAXParser {
     }
 
     _parseNode (node) {
-        let data:any = null, tagName = node.tagName;
+        let data: any = null, tagName = node.tagName;
         if(tagName === "dict"){
             data = this._parseDict(node);
         }else if(tagName === "array"){
@@ -133,7 +134,7 @@ class PlistParser extends SAXParser {
     }
 
     _parseArray (node) {
-        let data:Array<any> = [];
+        let data: Array<any> = [];
         for (let i = 0, len = node.childNodes.length; i < len; i++) {
             let child = node.childNodes[i];
             if (child.nodeType !== 1)

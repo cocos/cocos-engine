@@ -432,7 +432,7 @@ export class AnimationComponent extends Eventify(Component) {
      * animation.off('play', this.onPlay, this);
      * ```
      */
-    public off<TFunction extends Function> (type: EventType, callback?: TFunction, thisArg?: any) {
+    public off (type: EventType, callback?: Function, thisArg?: any) {
         if (type === 'lastframe') {
             const nameToState = this._nameToState;
             for (const name of Object.keys(nameToState)) {

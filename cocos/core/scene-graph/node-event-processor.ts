@@ -24,7 +24,7 @@
 */
 
 /**
- * @category scene-graph
+ * @hidden
  */
 
 import Event from '../event/event';

@@ -32,6 +32,7 @@ import { assertID, error } from '../platform/debug';
 import { loader } from '../load-pipeline/CCLoader';
 import { ImageAsset, ImageSource } from './image-asset';
 import { DEBUG } from 'internal:constants';
+import { IItem } from '../load-pipeline/loading-items';
 
 export type LoadImageCallback<T> = (
     this: T | undefined,
@@ -96,7 +97,7 @@ export function cacheImage (url: string, image: ImageSource) {
             content: imageAsset,
             complete: false,
         };
-        loader.flowOut(item);
+        loader.flowOut(item as IItem);
         return imageAsset;
     }
 }
