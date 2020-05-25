@@ -78,7 +78,7 @@ class ModelLightmapSettings {
     @property
     protected _castShadow: boolean = false;
     @property({
-        formerlySerializedAs: '_receiveShadow',
+        formerlySerializedAs: '_recieveShadow',
     })
     protected _receiveShadow: boolean = false;
     @property
