@@ -75,10 +75,12 @@ class ModelLightmapSettings {
     public uvParam: Vec4 = new Vec4();
     @property
     protected _bakeable: boolean = false;
-    @property
+    @property({
+        formerlySerializedAs: '_recieveShadow',
+    })
     protected _castShadow: boolean = false;
     @property
-    protected _recieveShadow: boolean = false;
+    protected _receiveShadow: boolean = false;
     @property
     protected _lightmapSize: number = 64;
 
@@ -109,16 +111,16 @@ class ModelLightmapSettings {
     }
 
     /**
-     * @en recieve shadow.
+     * @en receive shadow.
      * @zh 是否接受阴影。
      */
     @property
-    get recieveShadow () {
-        return this._recieveShadow;
+    get receiveShadow () {
+        return this._receiveShadow;
     }
 
-    set recieveShadow (val) {
-        this._recieveShadow = val;
+    set receiveShadow (val) {
+        this._receiveShadow = val;
     }
 
     /**
@@ -280,12 +282,12 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
-    public _updateLightmap (lightmap: Texture2D|null, uoff: number, voff: number, uscale: number, vscale: number) {
+    public _updateLightmap (lightmap: Texture2D|null, uOff: number, vOff: number, uScale: number, vScale: number) {
         this.lightmapSettings.texture = lightmap;
-        this.lightmapSettings.uvParam.x = uoff;
-        this.lightmapSettings.uvParam.y = voff;
-        this.lightmapSettings.uvParam.z = uscale;
-        this.lightmapSettings.uvParam.w = vscale;
+        this.lightmapSettings.uvParam.x = uOff;
+        this.lightmapSettings.uvParam.y = vOff;
+        this.lightmapSettings.uvParam.z = uScale;
+        this.lightmapSettings.uvParam.w = vScale;
     }
 
     protected _updateModels () {
