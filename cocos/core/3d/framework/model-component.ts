@@ -75,11 +75,11 @@ class ModelLightmapSettings {
     public uvParam: Vec4 = new Vec4();
     @property
     protected _bakeable: boolean = false;
-    @property({
-        formerlySerializedAs: '_recieveShadow',
-    })
-    protected _castShadow: boolean = false;
     @property
+    protected _castShadow: boolean = false;
+    @property({
+        formerlySerializedAs: '_receiveShadow',
+    })
     protected _receiveShadow: boolean = false;
     @property
     protected _lightmapSize: number = 64;
