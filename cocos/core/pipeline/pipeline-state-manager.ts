@@ -42,8 +42,6 @@ export class PipelineStateManager {
 
                 pso = device.createPipelineState(createInfo);
                 this._PSOHashMap.set(newHash, pso);
-            } else {
-                console.log('find pso');
             }
             
             return pso;
