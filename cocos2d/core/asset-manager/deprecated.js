@@ -570,7 +570,7 @@ const loader = {
  * @param {Error} completeCallback.error - error information
  */
 downloader.loadSubpackage = function (name, completeCallback) {
-    cc.assetManager.loadBundle('assets/' + name, null, completeCallback);
+    cc.assetManager.loadBundle(name, null, completeCallback);
 };
 
 /**
