@@ -424,7 +424,7 @@ export class UI {
         curDrawBatch.texView = null;
         curDrawBatch.sampler = null;
 
-        curDrawBatch.pipelineState = null;
+        curDrawBatch.psoCreateInfo = null;
         curDrawBatch.bindingLayout = null;
 
         // reset current render state to null
@@ -478,8 +478,8 @@ export class UI {
         curDrawBatch.ia!.firstIndex = indicsStart;
         curDrawBatch.ia!.indexCount = vCount;
 
-        curDrawBatch.pipelineState = this._getUIMaterial(mat).getPipelineState();
-        curDrawBatch.bindingLayout = curDrawBatch.pipelineState!.pipelineLayout.layouts[0];
+        curDrawBatch.psoCreateInfo = this._getUIMaterial(mat).getPipelineCreateInfo();
+        curDrawBatch.bindingLayout = curDrawBatch.psoCreateInfo!.pipelineLayout.layouts[0];
 
         this._batches.push(curDrawBatch);
 

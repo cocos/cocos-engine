@@ -12,7 +12,7 @@ import { INST_MAT_WORLD, UBOForwardLight, UBOLocal } from '../../pipeline/define
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from './render-scene';
-import { SubModel } from './submodel';
+import { SubModel, IPSOCreationInfo } from './submodel';
 import { Pass } from '../core/pass';
 
 const m4_1 = new Mat4();
@@ -166,7 +166,6 @@ export class Model {
     }
 
     public updateUBOs (stamp: number) {
-        // this._matPSORecord.forEach(this._updatePass, this);
         this._subModels.forEach(this._updatePass, this);
         this._updateStamp = stamp;
         if (!this._transformUpdated) { return; }
@@ -248,14 +247,14 @@ export class Model {
             return;
         }
 
-        const psos = subModel.psos;
-        for (let i = 0; i < psos.length; ++i) {
-            const bindingLayout = psos[i].pipelineLayout.layouts[0];
+        const psoCreateInfos = subModel.psoCreateInfos;
+        for (let i = 0; i < psoCreateInfos.length; ++i) {
+            const bindingLayout = psoCreateInfos[i].pipelineLayout.layouts[0];
             if (this._localBuffer) { bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer); }
             if (this._lightBuffer) { bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, this._lightBuffer); }
         }
 
-        this.updateInstancedAttributeList(subModel.psos[0], subModel.passes[0]);
+        this.updateInstancedAttributeList(psoCreateInfos[0], subModel.passes[0]);
     }
 
     protected getMacroPatches(subModelIndex: number) : any {
@@ -263,32 +262,32 @@ export class Model {
     }
 
     // for now no submodel level instancing attributes
-    protected updateInstancedAttributeList (pso: GFXPipelineState, pass: Pass) {
-        if (!pass || !pso) {
-            return;
-        }
-        const attributes = pso.inputState.attributes;
-        let size = 0;
-        for (let j = 0; j < attributes.length; j++) {
-            const attribute = attributes[j];
-            if (!attribute.isInstanced) { continue; }
-            size += GFXFormatInfos[attribute.format].size;
-        }
-        const attrs = this.instancedAttributes;
-        attrs.buffer = new Uint8Array(size); attrs.list.length = 0;
-        let offset = 0; const buffer = attrs.buffer.buffer;
-        for (let j = 0; j < attributes.length; j++) {
-            const attribute = attributes[j];
-            if (!attribute.isInstanced) { continue; }
-            const format = attribute.format;
-            const info = GFXFormatInfos[format];
-            const view = new (getTypedArrayConstructor(info))(buffer, offset, info.count);
-            const isNormalized = attribute.isNormalized;
-            offset += info.size; attrs.list.push({ name: attribute.name, format, isNormalized, view });
-        }
-        if (pass.instancedBuffer) { pass.instancedBuffer.destroy(); } // instancing IA changed
-        this._instMatWorldIdx = this.getInstancedAttributeIndex(INST_MAT_WORLD);
-        this._transformUpdated = true;
+    protected updateInstancedAttributeList (psoCreateInfo: IPSOCreationInfo, pass: Pass) {
+        // if (!pass || !psoCreateInfo) {
+        //     return;
+        // }
+        // const attributes = pso.inputState.attributes;
+        // let size = 0;
+        // for (let j = 0; j < attributes.length; j++) {
+        //     const attribute = attributes[j];
+        //     if (!attribute.isInstanced) { continue; }
+        //     size += GFXFormatInfos[attribute.format].size;
+        // }
+        // const attrs = this.instancedAttributes;
+        // attrs.buffer = new Uint8Array(size); attrs.list.length = 0;
+        // let offset = 0; const buffer = attrs.buffer.buffer;
+        // for (let j = 0; j < attributes.length; j++) {
+        //     const attribute = attributes[j];
+        //     if (!attribute.isInstanced) { continue; }
+        //     const format = attribute.format;
+        //     const info = GFXFormatInfos[format];
+        //     const view = new (getTypedArrayConstructor(info))(buffer, offset, info.count);
+        //     const isNormalized = attribute.isNormalized;
+        //     offset += info.size; attrs.list.push({ name: attribute.name, format, isNormalized, view });
+        // }
+        // if (pass.instancedBuffer) { pass.instancedBuffer.destroy(); } // instancing IA changed
+        // this._instMatWorldIdx = this.getInstancedAttributeIndex(INST_MAT_WORLD);
+        // this._transformUpdated = true;
     }
 
     protected getInstancedAttributeIndex (name: string) {

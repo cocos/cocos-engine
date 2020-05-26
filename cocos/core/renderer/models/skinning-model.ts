@@ -251,9 +251,9 @@ export class SkinningModel extends MorphModel {
     protected updateAttributesAndBinding(subModelIndex : number) {
         super.updateAttributesAndBinding(subModelIndex);
 
-        const psos = this._subModels[subModelIndex].psos;
-        for (let i = 0;i < psos.length; ++i) {
-            const bindingLayout = psos[i].pipelineLayout.layouts[0];
+        const psoCreateInfos = this._subModels[subModelIndex].psoCreateInfos;
+        for (let i = 0;i < psoCreateInfos.length; ++i) {
+            const bindingLayout = psoCreateInfos[i].pipelineLayout.layouts[0];
             const buffer = this._buffers[this._bufferIndices![subModelIndex]];
             if (buffer) { bindingLayout.bindBuffer(UBOSkinning.BLOCK.binding, buffer); }
             }

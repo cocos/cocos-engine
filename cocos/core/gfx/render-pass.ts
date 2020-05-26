@@ -12,6 +12,7 @@ import {
     GFXTextureLayout,
 } from './define';
 import { GFXDevice } from './device';
+import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 
 /**
  * @en Color attachment.
@@ -67,6 +68,7 @@ export abstract class GFXRenderPass extends GFXObject {
     protected _colorInfos: GFXColorAttachment[] = [];
 
     protected _depthStencilInfo: GFXDepthStencilAttachment | null = null;
+    protected _hash: number = 0;
 
     // protected _subPasses : GFXSubPassInfo[] = [];
 
@@ -78,4 +80,21 @@ export abstract class GFXRenderPass extends GFXObject {
     public abstract initialize (info: IGFXRenderPassInfo): boolean;
 
     public abstract destroy (): void;
+    public hash(): number { return this._hash; }
+
+    protected computeHash(): number {
+        let res = 'ca,';
+        for (let i = 0; i < this._colorInfos.length; ++i) {
+            const ca = this._colorInfos[i];
+            res += `${ca.format},${ca.loadOp},${ca.storeOp},${ca.sampleCount},${ca.beginLayout},${ca.endLayout}`;
+        }
+
+        const ds = this._depthStencilInfo;
+        if (ds) {
+            res += `ds,${ds.format},${ds.depthLoadOp},${ds.depthStoreOp},${ds.stencilLoadOp},
+                    ${ds.stencilStoreOp},${ds.beginLayout},${ds.endLayout}`;
+        }
+
+        return murmurhash2_32_gc(res, 666);
+    }
 }

@@ -18,7 +18,7 @@ import {
     IGFXColor,
 } from './define';
 import { GFXDevice } from './device';
-import { IGFXAttribute } from './input-assembler';
+import { IGFXAttribute, GFXInputAssembler } from './input-assembler';
 import { GFXPipelineLayout } from './pipeline-layout';
 import { GFXRenderPass } from './render-pass';
 import { GFXShader } from './shader';
@@ -151,7 +151,8 @@ export class GFXInputState {
 export interface IGFXPipelineStateInfo {
     primitive: GFXPrimitiveMode;
     shader: GFXShader;
-    inputState: GFXInputState;
+    // inputState: GFXInputState;
+    inputAssember: GFXInputAssembler,
     rasterizerState: GFXRasterizerState;
     depthStencilState: GFXDepthStencilState;
     blendState: GFXBlendState;

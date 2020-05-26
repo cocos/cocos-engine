@@ -12,7 +12,7 @@ import { warn } from '../platform/debug';
 import { MorphRendering, SubMeshMorph, Morph, MorphRenderingInstance } from './morph';
 import { assertIsNonNullable, assertIsTrue } from '../data/utils/asserts';
 import { nextPow2 } from '../math/bits';
-import { IMacroPatch } from '../renderer';
+import { IMacroPatch, IPSOCreationInfo } from '../renderer';
 
 /**
  * True if force to use cpu computing based sub-mesh rendering.
@@ -95,8 +95,8 @@ export class StdMorphRendering implements MorphRendering {
                 return patches;
             },
 
-            adaptPipelineState: (subMeshIndex: number, pipelineState: GFXPipelineState) => {
-                subMeshInstances[subMeshIndex]?.adaptPipelineState(pipelineState);
+            adaptPipelineState: (subMeshIndex: number, pipelineCreateInfo: IPSOCreationInfo) => {
+                subMeshInstances[subMeshIndex]?.adaptPipelineState(pipelineCreateInfo);
             },
 
             destroy: () => {
@@ -137,7 +137,7 @@ interface SubMeshMorphRenderingInstance {
      * Adapts the pipelineState to apply the rendering.
      * @param pipelineState 
      */
-    adaptPipelineState(pipelineState: GFXPipelineState): void;
+    adaptPipelineState(pipelineCreateInfo: IPSOCreationInfo): void;
 
     /**
      * Destroy this instance.

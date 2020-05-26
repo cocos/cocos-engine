@@ -4,13 +4,14 @@
 
 import { MeshBuffer } from '../../../ui';
 import { Material } from '../../assets/material';
-import { GFXPipelineState, GFXTextureView, GFXSampler } from '../../gfx';
+import { GFXTextureView, GFXSampler } from '../../gfx';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { Node } from '../../scene-graph';
 import { Camera } from '../scene/camera';
 import { Model } from '../scene/model';
 import { UI } from './ui';
 import { GFXInputAssembler, IGFXAttribute } from '../../gfx/input-assembler';
+import { IPSOCreationInfo } from '../scene/submodel';
 
 export class UIDrawBatch {
     private _bufferBatch: MeshBuffer | null = null;
@@ -21,15 +22,15 @@ export class UIDrawBatch {
     public material: Material | null = null;
     public texView: GFXTextureView | null = null;
     public sampler: GFXSampler | null = null;
-    public pipelineState: GFXPipelineState | null = null;
+    public psoCreateInfo: IPSOCreationInfo | null = null;
     public bindingLayout: GFXBindingLayout | null = null;
     public useLocalData: Node | null = null;
     public isStatic = false;
 
     public destroy (ui: UI) {
-        if (this.pipelineState) {
-            ui._getUIMaterial(this.material!).revertPipelineState(this.pipelineState);
-            this.pipelineState = null;
+        if (this.psoCreateInfo) {
+            ui._getUIMaterial(this.material!).revertPipelineCreateInfo(this.psoCreateInfo);
+            this.psoCreateInfo = null;
         }
 
         if (this.bindingLayout) {
@@ -43,9 +44,9 @@ export class UIDrawBatch {
     }
 
     public clear (ui: UI) {
-        if (this.pipelineState) {
-            ui._getUIMaterial(this.material!).revertPipelineState(this.pipelineState);
-            this.pipelineState = null;
+        if (this.psoCreateInfo) {
+            ui._getUIMaterial(this.material!).revertPipelineCreateInfo(this.psoCreateInfo);
+            this.psoCreateInfo = null;
         }
         this.camera = null;
         this._bufferBatch = null;

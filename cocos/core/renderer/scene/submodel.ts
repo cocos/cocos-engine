@@ -4,22 +4,38 @@ import { RenderingSubMesh } from '../../assets/mesh';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
-import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { RenderPriority } from '../../pipeline/define';
 import { IMacroPatch } from '../core/pass';
+import { GFXShader } from '../../gfx/shader';
+import { GFXDynamicState, GFXPrimitiveMode } from '../../gfx/define';
+import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
+import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
+import { GFXBindingLayout } from '../../gfx';
+
+export interface IPSOCreationInfo {
+    shader: GFXShader;
+    primitive: GFXPrimitiveMode;
+    rasterizerState: GFXRasterizerState;
+    depthStencilState: GFXDepthStencilState;
+    blendState: GFXBlendState;
+    dynamicStates: GFXDynamicState[];
+    pipelineLayout: GFXPipelineLayout;
+    bindingLayout: GFXBindingLayout;
+    hash: number;
+}
 
 export class SubModel {
 
     public priority: RenderPriority = RenderPriority.DEFAULT;
-    protected _psos: GFXPipelineState[] = [];
+    protected _psoCreateInfos: IPSOCreationInfo[] = [];
     protected _subMeshObject: RenderingSubMesh | null = null;
     protected _material: Material | null = null;
     protected _inputAssembler: GFXInputAssembler | null = null;
     protected _cmdBuffers: GFXCommandBuffer[] = [];
     protected _pathces? : IMacroPatch[];
 
-    get psos () {
-        return this._psos;
+    get psoCreateInfos() {
+        return this._psoCreateInfos;
     }
 
     set subMeshData (sm) {
@@ -39,10 +55,10 @@ export class SubModel {
     }
 
     set material (material) {
-        this.destroyPipelineStates();
+        this.destroyPipelineRelatedResource();
 
         this._material = material;
-        this.createPipelineStates();
+        this.getPipelineCreateInfo();
     }
 
     get material () {
@@ -68,23 +84,25 @@ export class SubModel {
             this._inputAssembler.destroy();
             this._inputAssembler = null;
         }
-        this.destroyPipelineStates();
+        this.destroyPipelineRelatedResource();
         this._material = null;
     }
 
     public update() {
         for (let i = 0; i < this.passes.length; ++i) {
-            this.passes[i].update();
+            const pass = this.passes[i];
+            pass.update();
+            this._psoCreateInfos[i].hash = pass.hash;
         }
 
         this.updateLayout();
     }
 
     public updateLayout() {
-        for (let i = 0; i < this._psos.length; ++i) {
-            let pso = this._psos[i];
-            if (pso) {
-                pso.pipelineLayout.layouts[0].update();
+        for (let i = 0; i < this._psoCreateInfos.length; ++i) {
+            let psoCreateInfo = this._psoCreateInfos[i];
+            if (psoCreateInfo) {
+                psoCreateInfo.bindingLayout.update();
             }
         }
     }
@@ -98,39 +116,40 @@ export class SubModel {
         const passes = materail.passes;
         for (let j = 0; j < passes.length; ++j) {
             const pass = passes[j];
-            pass.destroyPipelineState(this._psos[j]);
             pass.beginChangeStatesSilently();
             pass.tryCompile(); // force update shaders
             pass.endChangeStatesSilently();
         }
-        this._psos = [];
+        this._psoCreateInfos = [];
 
-        this.createPipelineStates();
+        this.getPipelineCreateInfo();
     }
 
-    protected createPipelineStates() {
+    protected getPipelineCreateInfo() {
         if (!this._material) {
             return;
         }
 
         const passes = this._material.passes;
         for (let i = 0; i < passes.length; ++i) {
-            const pso = passes[i].createPipelineState(this._pathces);
-            if (pso) {
-                this._psos[i] = pso;
+            const psoCreateInfo = passes[i].getPipelineCreateInfo(this._pathces);
+            if (psoCreateInfo) {
+                this._psoCreateInfos[i] = psoCreateInfo;
             }
         }
     }
 
-    protected destroyPipelineStates() {
-        if (!this._material) {
+    protected destroyPipelineRelatedResource() {
+        const len = this._psoCreateInfos.length;
+        if (len == 0) {
             return;
         }
 
-        for (let i = 0; i < this.passes.length; i++) {
-            this.passes[i].destroyPipelineState(this._psos[i]);
+        for (let i = 0; i < len; ++i) {
+            const { bindingLayout: bl, pipelineLayout: pl } = this._psoCreateInfos[i];
+            bl.destroy();
+            pl.destroy();
         }
-
-        this._psos = [];
+        this._psoCreateInfos = [];
     }
 }

@@ -184,9 +184,9 @@ export class BakedSkinningModel extends MorphModel {
         const tv = texture.handle.texView;
 
         for (let i = 0; i < this._subModels.length; ++i) {
-            const psos = this._subModels[i].psos;
-            for (let j = 0; j < psos.length; ++j) {
-                const bindingLayout = psos[j].pipelineLayout.layouts[0];
+            const psoCreateInfos = this._subModels[i].psoCreateInfos;
+            for (let j = 0; j < psoCreateInfos.length; ++j) {
+                const bindingLayout = psoCreateInfos[j].bindingLayout;
                 bindingLayout.bindTextureView(UniformJointTexture.binding, tv);
             }
         }
@@ -205,10 +205,10 @@ export class BakedSkinningModel extends MorphModel {
     protected updateAttributesAndBinding(subModelIndex : number) {
         super.updateAttributesAndBinding(subModelIndex);
         
-        const psos = this._subModels[subModelIndex].psos;
-        for (let i = 0;i < psos.length; ++i) {
+        const psoCreateInfos = this._subModels[subModelIndex].psoCreateInfos;
+        for (let i = 0;i < psoCreateInfos.length; ++i) {
             const { buffer, texture, animInfo } = this._jointsMedium;
-            const bindingLayout = psos[i].pipelineLayout.layouts[0];
+            const bindingLayout = psoCreateInfos[i].bindingLayout;
             bindingLayout.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
             bindingLayout.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
             const sampler = samplerLib.getSampler(this._device, jointTextureSamplerHash);
@@ -220,7 +220,7 @@ export class BakedSkinningModel extends MorphModel {
     }
 
     protected updateInstancedAttributeList (pso: GFXPipelineState, pass: Pass) {
-        super.updateInstancedAttributeList(pso, pass);
-        this._instAnimInfoIdx = this.getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
+        // super.updateInstancedAttributeList(pso, pass);
+        // this._instAnimInfoIdx = this.getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
     }
 }
