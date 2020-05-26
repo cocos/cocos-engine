@@ -1,6 +1,7 @@
 import { GFXCommandBuffer } from '../command-buffer';
 import { GFXQueue, IGFXQueueInfo } from '../queue';
 import { GFXStatus } from '../define';
+import { GFXFence } from '../fence';
 
 export class WebGLGFXQueue extends GFXQueue {
 
@@ -23,7 +24,7 @@ export class WebGLGFXQueue extends GFXQueue {
         this._status = GFXStatus.UNREADY;
     }
 
-    public submit (cmdBuffs: GFXCommandBuffer[], fence?) {
+    public submit (cmdBuffs: GFXCommandBuffer[], fence?: GFXFence) {
 
         // TODO: Async
         if (!this._isAsync) {

@@ -28,16 +28,9 @@ export class UIStage extends RenderStage {
         framebuffer: 'window',
     };
 
-    constructor () {
-        super();
-    }
-
     public activate (flow: RenderFlow) {
         super.activate(flow);
-        this._cmdBuff = this._device!.createCommandBuffer({
-            allocator: this._device!.commandAllocator,
-            type: GFXCommandBufferType.PRIMARY,
-        });
+        this.createCmdBuffer();
     }
 
     public destroy () {
