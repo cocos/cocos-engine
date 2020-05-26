@@ -438,7 +438,7 @@ export class AnimationComponent extends Eventify(Component) {
      * animation.off('play', this.onPlay, this);
      * ```
      */
-    public off<TFunction extends Function> (type: EventType, callback?: TFunction, thisArg?: any) {
+    public off (type: EventType, callback?: Function, thisArg?: any) {
         super.off(type, callback, thisArg);
         if (type === EventType.LASTFRAME) {
             this._syncDisallowLastFrameEvent();
@@ -502,6 +502,10 @@ export class AnimationComponent extends Eventify(Component) {
             }
         }
     }
+}
+
+export namespace AnimationComponent {
+    export type EventType = typeof EventType;
 }
 
 cc.AnimationComponent = AnimationComponent;

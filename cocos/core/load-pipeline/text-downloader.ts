@@ -24,7 +24,7 @@
  */
 
 /**
- * @category loader
+ * @hidden
  */
 
 import {urlAppendTimestamp} from './utils';
@@ -43,18 +43,18 @@ export default function (item, callback) {
                 callback(null, xhr.responseText);
             }
             else {
-                callback({status:xhr.status, errorMessage:errInfo + '(wrong status)'});
+                callback({status: xhr.status, errorMessage: errInfo + '(wrong status)'});
             }
         }
         else {
-            callback({status:xhr.status, errorMessage:errInfo + '(wrong readyState)'});
+            callback({status: xhr.status, errorMessage: errInfo + '(wrong readyState)'});
         }
     };
     xhr.onerror = function(){
-        callback({status:xhr.status, errorMessage:errInfo + '(error)'});
+        callback({status: xhr.status, errorMessage: errInfo + '(error)'});
     };
     xhr.ontimeout = function(){
-        callback({status:xhr.status, errorMessage:errInfo + '(time out)'});
+        callback({status: xhr.status, errorMessage: errInfo + '(time out)'});
     };
     xhr.send(null);
 }

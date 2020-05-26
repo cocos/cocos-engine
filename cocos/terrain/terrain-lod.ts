@@ -32,7 +32,7 @@ export class TerrainLodKey {
 
 export class TerrainLod {
     public mBodyIndex: TerrainIndexPool[] = TerrainIndexPool[TERRAIN_LOD_LEVELS];
-    public mConecterIndex: TerrainIndexPool[][][] = TerrainIndexPool[TERRAIN_LOD_LEVELS][TERRAIN_LOD_LEVELS][4];
+    public mConnecterIndex: TerrainIndexPool[][][] = TerrainIndexPool[TERRAIN_LOD_LEVELS][TERRAIN_LOD_LEVELS][4];
 
     constructor () {
         for (let i = 0; i < TERRAIN_LOD_LEVELS; ++i) {
@@ -42,13 +42,13 @@ export class TerrainLod {
         for (let i = 0; i < TERRAIN_LOD_LEVELS; ++i) {
             for (let j = 0; j < TERRAIN_LOD_LEVELS; ++j) {
                 for (let k = 0; k < 4; ++k) {
-                    this.mConecterIndex[i][j][k] = new TerrainIndexPool();
+                    this.mConnecterIndex[i][j][k] = new TerrainIndexPool();
                 }
             }
         }
 
         this.genBodyIndex();
-        this.genConecterIndex();
+        this.genConnecterIndex();
 
         /*
         for (let l = 0; l < TERRAIN_LOD_LEVELS; ++l) {
@@ -111,7 +111,7 @@ export class TerrainLod {
         this.mBodyIndex[level].indices = new Uint16Array(count);
 
         let index = 0;
-        const indeces = new Uint16Array(count);
+        const indices = new Uint16Array(count);
 
         // generate triangle list cw
         //
@@ -120,22 +120,22 @@ export class TerrainLod {
         for (let y = 0; y < tiles; ++y) {
             for (let x = 0; x < tiles; ++x) {
                 /*
-                indeces[index++] = row_n + x * step;
-                indeces[index++] = row_c + x * step;
-                indeces[index++] = row_n + (x + 1) * step;
+                indices[index++] = row_n + x * step;
+                indices[index++] = row_c + x * step;
+                indices[index++] = row_n + (x + 1) * step;
 
-                indeces[index++] = row_n + (x + 1) * step;
-                indeces[index++] = row_c + x * step;
-                indeces[index++] = row_c + (x + 1) * step;
+                indices[index++] = row_n + (x + 1) * step;
+                indices[index++] = row_c + x * step;
+                indices[index++] = row_c + (x + 1) * step;
                 */
 
-                indeces[index++] = row_n + x * step;
-                indeces[index++] = row_n + (x + 1) * step;
-                indeces[index++] = row_c + x * step;
+                indices[index++] = row_n + x * step;
+                indices[index++] = row_n + (x + 1) * step;
+                indices[index++] = row_c + x * step;
 
-                indeces[index++] = row_n + (x + 1) * step;
-                indeces[index++] = row_c + (x + 1) * step;
-                indeces[index++] = row_c + x * step;
+                indices[index++] = row_n + (x + 1) * step;
+                indices[index++] = row_c + (x + 1) * step;
+                indices[index++] = row_c + x * step;
             }
 
             row_c += TERRAIN_LOD_VERTS * step;
@@ -143,41 +143,41 @@ export class TerrainLod {
         }
 
         this.mBodyIndex[level].size = index;
-        this.mBodyIndex[level].indices = indeces;
+        this.mBodyIndex[level].indices = indices;
     }
 
-    private genConecterIndex () {
+    private genConnecterIndex () {
         for (let i = 0; i < TERRAIN_LOD_VERTS; ++i) {
             for (let j = 0; j < TERRAIN_LOD_VERTS; ++j) {
-                this._genConecterIndexNorth(i, j);
-                this._genConecterIndexSouth(i, j);
-                this._genConecterIndexWest(i, j);
-                this._genConecterIndexEast(i, j);
+                this._genConnecterIndexNorth(i, j);
+                this._genConnecterIndexSouth(i, j);
+                this._genConnecterIndexWest(i, j);
+                this._genConnecterIndexEast(i, j);
             }
         }
     }
 
-    private _genConecterIndexNorth (level: number, conecter: number) {
+    private _genConnecterIndexNorth (level: number, connecter: number) {
         const TN_NorthIndex = TERRAIN_LOD_NORTH_INDEX;
 
-        if (conecter < level || level === TERRAIN_LOD_LEVELS - 1) {
-            this.mConecterIndex[level][conecter][TN_NorthIndex].size = 0;
-            this.mConecterIndex[level][conecter][TN_NorthIndex].indices = null;
+        if (connecter < level || level === TERRAIN_LOD_LEVELS - 1) {
+            this.mConnecterIndex[level][connecter][TN_NorthIndex].size = 0;
+            this.mConnecterIndex[level][connecter][TN_NorthIndex].indices = null;
             return;
         }
 
         const self_step = 1 << level;
-        const neighbor_step = 1 << conecter;
+        const neighbor_step = 1 << connecter;
         const self_tile = TERRAIN_LOD_TILES >> level;
-        const neighbor_tile = TERRAIN_LOD_TILES >> conecter;
+        const neighbor_tile = TERRAIN_LOD_TILES >> connecter;
         const count = self_tile * 2 + 2;
 
         let index = 0;
-        const indeces = new Uint16Array(count);
+        const indices = new Uint16Array(count);
 
         // starter
-        indeces[index++] = 0;
-        indeces[index++] = 0;
+        indices[index++] = 0;
+        indices[index++] = 0;
 
         // middler
         for (let i = 1; i < self_tile; ++i) {
@@ -189,39 +189,39 @@ export class TerrainLod {
             const index0 = y1 * TERRAIN_LOD_VERTS + x1;
             const index1 = y0 * TERRAIN_LOD_VERTS + x0;
 
-            indeces[index++] = index0;
-            indeces[index++] = index1;
+            indices[index++] = index0;
+            indices[index++] = index1;
         }
 
         // ender
-        indeces[index++] = TERRAIN_LOD_VERTS - 1;
-        indeces[index++] = TERRAIN_LOD_VERTS - 1;
+        indices[index++] = TERRAIN_LOD_VERTS - 1;
+        indices[index++] = TERRAIN_LOD_VERTS - 1;
 
-        this.mConecterIndex[level][conecter][TN_NorthIndex].size = index;
-        this.mConecterIndex[level][conecter][TN_NorthIndex].indices = indeces;
+        this.mConnecterIndex[level][connecter][TN_NorthIndex].size = index;
+        this.mConnecterIndex[level][connecter][TN_NorthIndex].indices = indices;
     }
 
-    private _genConecterIndexSouth (level: number, conecter: number) {
+    private _genConnecterIndexSouth (level: number, connecter: number) {
         const TN_SouthIndex = TERRAIN_LOD_SOUTH_INDEX;
 
-        if (conecter < level || level === TERRAIN_LOD_LEVELS - 1) {
-            this.mConecterIndex[level][conecter][TN_SouthIndex].size = 0;
-            this.mConecterIndex[level][conecter][TN_SouthIndex].indices = null;
+        if (connecter < level || level === TERRAIN_LOD_LEVELS - 1) {
+            this.mConnecterIndex[level][connecter][TN_SouthIndex].size = 0;
+            this.mConnecterIndex[level][connecter][TN_SouthIndex].indices = null;
             return;
         }
 
         const self_step = 1 << level;
-        const neighbor_step = 1 << conecter;
+        const neighbor_step = 1 << connecter;
         const self_tile = TERRAIN_LOD_TILES >> level;
-        const neighbor_tile = TERRAIN_LOD_TILES >> conecter;
+        const neighbor_tile = TERRAIN_LOD_TILES >> connecter;
         const count = self_tile * 2 + 2;
 
         let index = 0;
-        const indeces = new Uint16Array(count);
+        const indices = new Uint16Array(count);
 
         // starter
-        indeces[index++] = TERRAIN_LOD_TILES * TERRAIN_LOD_VERTS;
-        indeces[index++] = TERRAIN_LOD_TILES * TERRAIN_LOD_VERTS;
+        indices[index++] = TERRAIN_LOD_TILES * TERRAIN_LOD_VERTS;
+        indices[index++] = TERRAIN_LOD_TILES * TERRAIN_LOD_VERTS;
 
         // middler
         for (let i = 1; i < self_tile; ++i) {
@@ -233,39 +233,39 @@ export class TerrainLod {
             const index0 = y1 * TERRAIN_LOD_VERTS + x1;
             const index1 = y0 * TERRAIN_LOD_VERTS + x0;
 
-            indeces[index++] = index0;
-            indeces[index++] = index1;
+            indices[index++] = index0;
+            indices[index++] = index1;
         }
 
         // ender
-        indeces[index++] = TERRAIN_LOD_VERTS * TERRAIN_LOD_VERTS - 1;
-        indeces[index++] = TERRAIN_LOD_VERTS * TERRAIN_LOD_VERTS - 1;
+        indices[index++] = TERRAIN_LOD_VERTS * TERRAIN_LOD_VERTS - 1;
+        indices[index++] = TERRAIN_LOD_VERTS * TERRAIN_LOD_VERTS - 1;
 
-        this.mConecterIndex[level][conecter][TN_SouthIndex].size = index;
-        this.mConecterIndex[level][conecter][TN_SouthIndex].indices = indeces;
+        this.mConnecterIndex[level][connecter][TN_SouthIndex].size = index;
+        this.mConnecterIndex[level][connecter][TN_SouthIndex].indices = indices;
     }
 
-    private _genConecterIndexWest (level: number, conecter: number) {
+    private _genConnecterIndexWest (level: number, connecter: number) {
         const TN_WestIndex = TERRAIN_LOD_WEST_INDEX;
 
-        if (conecter < level || level === TERRAIN_LOD_LEVELS - 1) {
-            this.mConecterIndex[level][conecter][TN_WestIndex].size = 0;
-            this.mConecterIndex[level][conecter][TN_WestIndex].indices = null;
+        if (connecter < level || level === TERRAIN_LOD_LEVELS - 1) {
+            this.mConnecterIndex[level][connecter][TN_WestIndex].size = 0;
+            this.mConnecterIndex[level][connecter][TN_WestIndex].indices = null;
             return;
         }
 
         const self_step = 1 << level;
-        const neighbor_step = 1 << conecter;
+        const neighbor_step = 1 << connecter;
         const self_tile = TERRAIN_LOD_TILES >> level;
-        const neighbor_tile = TERRAIN_LOD_TILES >> conecter;
+        const neighbor_tile = TERRAIN_LOD_TILES >> connecter;
         const count = self_tile * 2 + 2;
 
         let index = 0;
-        const indeces = new Uint16Array(count);
+        const indices = new Uint16Array(count);
 
         // starter
-        indeces[index++] = 0;
-        indeces[index++] = 0;
+        indices[index++] = 0;
+        indices[index++] = 0;
 
         // middler
         for (let i = 1; i < self_tile; ++i)  {
@@ -277,39 +277,39 @@ export class TerrainLod {
             const index0 = y0 * TERRAIN_LOD_VERTS + x0;
             const index1 = y1 * TERRAIN_LOD_VERTS + x1;
 
-            indeces[index++] = index0;
-            indeces[index++] = index1;
+            indices[index++] = index0;
+            indices[index++] = index1;
         }
 
         // ender
-        indeces[index++] = TERRAIN_LOD_TILES * TERRAIN_LOD_VERTS;
-        indeces[index++] = TERRAIN_LOD_TILES * TERRAIN_LOD_VERTS;
+        indices[index++] = TERRAIN_LOD_TILES * TERRAIN_LOD_VERTS;
+        indices[index++] = TERRAIN_LOD_TILES * TERRAIN_LOD_VERTS;
 
-        this.mConecterIndex[level][conecter][TN_WestIndex].size = index;
-        this.mConecterIndex[level][conecter][TN_WestIndex].indices = indeces;
+        this.mConnecterIndex[level][connecter][TN_WestIndex].size = index;
+        this.mConnecterIndex[level][connecter][TN_WestIndex].indices = indices;
     }
 
-    private _genConecterIndexEast (level: number, conecter: number) {
+    private _genConnecterIndexEast (level: number, connecter: number) {
         const TN_EastIndex = TERRAIN_LOD_EAST_INDEX;
 
-        if (conecter < level || level === TERRAIN_LOD_LEVELS - 1) {
-            this.mConecterIndex[level][conecter][TN_EastIndex].size = 0;
-            this.mConecterIndex[level][conecter][TN_EastIndex].indices = null;
+        if (connecter < level || level === TERRAIN_LOD_LEVELS - 1) {
+            this.mConnecterIndex[level][connecter][TN_EastIndex].size = 0;
+            this.mConnecterIndex[level][connecter][TN_EastIndex].indices = null;
             return;
         }
 
         const self_step = 1 << level;
-        const neighbor_step = 1 << conecter;
+        const neighbor_step = 1 << connecter;
         const self_tile = TERRAIN_LOD_TILES >> level;
-        const neighbor_tile = TERRAIN_LOD_TILES >> conecter;
+        const neighbor_tile = TERRAIN_LOD_TILES >> connecter;
         const count = self_tile * 2 + 2;
 
         let index = 0;
-        const indeces = new Uint16Array(count);
+        const indices = new Uint16Array(count);
 
         // starter
-        indeces[index++] = TERRAIN_LOD_VERTS - 1;
-        indeces[index++] = TERRAIN_LOD_VERTS - 1;
+        indices[index++] = TERRAIN_LOD_VERTS - 1;
+        indices[index++] = TERRAIN_LOD_VERTS - 1;
 
         // middler
         for (let i = 1; i < self_tile; ++i) {
@@ -321,15 +321,15 @@ export class TerrainLod {
             const index0 = y0 * TERRAIN_LOD_VERTS + x0;
             const index1 = y1 * TERRAIN_LOD_VERTS + x1;
 
-            indeces[index++] = index0;
-            indeces[index++] = index1;
+            indices[index++] = index0;
+            indices[index++] = index1;
         }
 
         // ender
-        indeces[index++] = TERRAIN_LOD_VERTS * TERRAIN_LOD_VERTS - 1;
-        indeces[index++] = TERRAIN_LOD_VERTS * TERRAIN_LOD_VERTS - 1;
+        indices[index++] = TERRAIN_LOD_VERTS * TERRAIN_LOD_VERTS - 1;
+        indices[index++] = TERRAIN_LOD_VERTS * TERRAIN_LOD_VERTS - 1;
 
-        this.mConecterIndex[level][conecter][TN_EastIndex].size = index;
-        this.mConecterIndex[level][conecter][TN_EastIndex].indices = indeces;
+        this.mConnecterIndex[level][connecter][TN_EastIndex].size = index;
+        this.mConnecterIndex[level][connecter][TN_EastIndex].indices = indices;
     }
 }

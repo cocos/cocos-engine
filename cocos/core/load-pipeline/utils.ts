@@ -24,7 +24,7 @@
  */
 
 /**
- * @category loader
+ * @hidden
  */
 
 let _noCacheRex = /\?/;

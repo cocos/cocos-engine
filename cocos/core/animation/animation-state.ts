@@ -30,14 +30,12 @@
 import { EventArgumentsOf, EventCallbackOf } from '../event/defines';
 import { Node } from '../scene-graph/node';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
-import { AnimationComponent } from './animation-component';
 import { AnimCurve, RatioSampler } from './animation-curve';
 import { createBoundTarget, createBufferedTarget, IBufferedTarget, IBoundTarget } from './bound-target';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
-import { error } from '../platform/debug';
 import { EDITOR } from 'internal:constants';
-import { HierarchyPath, TargetPath, evaluatePath } from './target-path';
+import { HierarchyPath, evaluatePath } from './target-path';
 import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter } from './skeletal-animation-blending';
 
 enum PropertySpecialization {

@@ -1078,6 +1078,10 @@ export class WidgetComponent extends Component {
     }
 }
 
+export namespace WidgetComponent {
+    export type AlignMode = typeof AlignMode;
+}
+
 // @ts-ignore
 cc.WidgetComponent = WidgetComponent;
 

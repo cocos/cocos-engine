@@ -28,7 +28,7 @@
  * @category asset
  */
 
-import { ccclass, property, string } from '../data/class-decorator';
+import { ccclass, property } from '../data/class-decorator';
 import { Eventify } from '../event';
 import { RawAsset } from './raw-asset';
 import { Node } from '../scene-graph';

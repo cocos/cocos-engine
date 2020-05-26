@@ -205,7 +205,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
 
     public _onMaterialModified (idx: number, material: Material | null) {
         this.cookMaterials();
-        super._onMaterialModified(idx, this.getMaterial(idx));
+        super._onMaterialModified(idx, this.getMaterialInstance(idx));
     }
 
     public cook () {
@@ -218,7 +218,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         if (!this._batchMaterial) {
             this._batchMaterial = this.getMaterial(0);
         }
-        const mat = this.getMaterial(0);
+        const mat = this.getMaterialInstance(0);
         if (!mat || !this._batchMaterial || !this._batchMaterial.effectAsset) {
             console.warn('incomplete batch material!'); return;
         }
