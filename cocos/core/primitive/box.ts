@@ -100,17 +100,27 @@ export default function box (options?: IBoxOptions): IGeometry {
     ];
 
     const faceNormals = [
-        [0, 0, 1], // FRONT
-        [0, 0, -1], // BACK
-        [0, 1, 0], // TOP
-        [0, -1, 0], // BOTTOM
-        [1, 0, 0], // RIGHT
-        [-1, 0, 0],  // LEFT
+        [ 0,  0,  1], // FRONT
+        [ 0,  0, -1], // BACK
+        [ 0,  1,  0], // TOP
+        [ 0, -1,  0], // BOTTOM
+        [ 1,  0,  0], // RIGHT
+        [-1,  0,  0],  // LEFT
+    ];
+
+    const faceTangents = [
+        [-1, 0,  0, 1], // FRONT
+        [-1, 0,  0, 1], // BACK
+        [-1, 0,  0, 1], // TOP
+        [-1, 0,  0, 1], // BOTTOM
+        [ 0, 0, -1, 1], // RIGHT
+        [ 0, 0,  1, 1], // LEFT
     ];
 
     const positions: number[] = [];
     const normals: number[] = [];
     const uvs: number[] = [];
+    const tangents: number[] = [];
     const indices: number[] = [];
     const minPos = new Vec3(-hw, -hh, -hl);
     const maxPos = new Vec3(hw, hh, hl);
@@ -124,6 +134,7 @@ export default function box (options?: IBoxOptions): IGeometry {
         const offset = positions.length / 3;
         const faceAxe = faceAxes[side];
         const faceNormal = faceNormals[side];
+        const faceTangent = faceTangents[side];
 
         for (iy = 0; iy <= vSegments; iy++) {
             for (ix = 0; ix <= uSegments; ix++) {
@@ -138,6 +149,7 @@ export default function box (options?: IBoxOptions): IGeometry {
                 positions.push(r.x, r.y, r.z);
                 normals.push(faceNormal[0], faceNormal[1], faceNormal[2]);
                 uvs.push(u, v);
+                tangents.push(faceTangent[0], faceTangent[1], faceTangent[2], faceTangent[3]);
 
                 if ((ix < uSegments) && (iy < vSegments)) {
                     const useg1 = uSegments + 1;
@@ -164,6 +176,7 @@ export default function box (options?: IBoxOptions): IGeometry {
         positions,
         normals,
         uvs,
+        tangents,
         indices,
         minPos,
         maxPos,
