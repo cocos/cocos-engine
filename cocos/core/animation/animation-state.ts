@@ -275,7 +275,13 @@ export class AnimationState extends Playable {
 
     public frameRate = 0;
 
-    public _lastframeEventOn = false;
+    /**
+     * @zh
+     * 是否允许触发 `LastFrame` 事件。
+     * @en
+     * Whether `LastFrame` should be triggered.
+     */
+    public allowLastFrameEvent = false;
 
     protected _wrapMode = WrapMode.Normal;
 
@@ -421,11 +427,7 @@ export class AnimationState extends Playable {
 
     public emit<K extends string> (type: K, ...args: EventArgumentsOf<K, IAnimationEventDefinitionMap>): void;
 
-    public emit (...restargs: any[]) {
-        const args = new Array(restargs.length);
-        for (let i = 0, l = args.length; i < l; i++) {
-            args[i] = restargs[i];
-        }
+    public emit (...args: any[]) {
         cc.director.getAnimationManager().pushDelayEvent(this, '_emit', args);
     }
 
@@ -434,7 +436,7 @@ export class AnimationState extends Playable {
     public on (type: string, callback: Function, target?: any) {
         if (this._target && this._target.isValid) {
             if (type === 'lastframe') {
-                this._lastframeEventOn = true;
+                this.allowLastFrameEvent = true;
             }
             return this._target.on(type, callback, target);
         }
@@ -448,11 +450,11 @@ export class AnimationState extends Playable {
     public once (type: string, callback: Function, target?: any) {
         if (this._target && this._target.isValid) {
             if (type === 'lastframe') {
-                this._lastframeEventOn = true;
+                this.allowLastFrameEvent = true;
             }
             return this._target.once(type, (event) => {
                 callback.call(target, event);
-                this._lastframeEventOn = false;
+                this.allowLastFrameEvent = false;
             });
         }
         else {
@@ -464,7 +466,7 @@ export class AnimationState extends Playable {
         if (this._target && this._target.isValid) {
             if (type === 'lastframe') {
                 if (!this._target.hasEventListener(type)) {
-                    this._lastframeEventOn = false;
+                    this.allowLastFrameEvent = false;
                 }
             }
             this._target.off(type, callback, target);
@@ -610,7 +612,7 @@ export class AnimationState extends Playable {
         // sample
         const info = this.sample();
 
-        if (this._lastframeEventOn) {
+        if (this.allowLastFrameEvent) {
             let lastInfo;
             if (!this._lastWrapInfo) {
                 lastInfo = this._lastWrapInfo = new WrappedInfo(info);
@@ -644,7 +646,7 @@ export class AnimationState extends Playable {
             }
         }
 
-        if (this._lastframeEventOn) {
+        if (this.allowLastFrameEvent) {
             if (this._lastIterations === undefined) {
                 this._lastIterations = ratio;
             }

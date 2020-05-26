@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../components/component';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../data/class-decorator';
+import { ccclass, executeInEditMode, executionOrder, help, menu, property } from '../data/class-decorator';
 import { Eventify } from '../event/eventify';
 import { warnID } from '../platform/debug';
 import * as ArrayUtils from '../utils/array';
@@ -76,8 +76,6 @@ export enum EventType {
     FINISHED = 'finished',
 }
 ccenum(EventType);
-
-type AnimationEventCallback<ThisType> = (this: ThisType, type: EventType, state: AnimationState) => void;
 
 /**
  * 动画组件管理动画状态来控制动画的播放。
@@ -182,7 +180,7 @@ export class AnimationComponent extends Eventify(Component) {
 
     protected _crossFade = new CrossFade();
 
-    protected _nameToState: { [name: string]: AnimationState; } = createMap(true);
+    protected _nameToState: Record<string, AnimationState> = createMap(true);
 
     @property({ type: [AnimationClip] })
     protected _clips: (AnimationClip | null)[] = [];
@@ -319,6 +317,7 @@ export class AnimationComponent extends Eventify(Component) {
     public removeState (name: string) {
         const state = this._nameToState[name];
         if (state) {
+            state.allowLastFrameEvent = false;
             state.stop();
             delete this._nameToState[name];
         }
@@ -351,11 +350,12 @@ export class AnimationComponent extends Eventify(Component) {
      * @param {Boolean} [force=false] - If force is true, then will always remove the clip and any animation states based on it.
      */
     public removeClip (clip: AnimationClip, force?: boolean) {
-        let state: AnimationState | undefined;
-        for (const name of Object.keys(this._nameToState)) {
-            state = this._nameToState[name];
+        let removalState: AnimationState | undefined;
+        for (const name in this._nameToState) {
+            const state = this._nameToState[name];
             const stateClip = state.clip;
             if (stateClip === clip) {
+                removalState = state;
                 break;
             }
         }
@@ -368,8 +368,8 @@ export class AnimationComponent extends Eventify(Component) {
             }
         }
 
-        if (state && state.isPlaying) {
-            if (force) { state.stop(); }
+        if (removalState && removalState.isPlaying) {
+            if (force) { removalState.stop(); }
             else {
                 if (!TEST) { warnID(3903); }
                 return;
@@ -378,8 +378,8 @@ export class AnimationComponent extends Eventify(Component) {
 
         this._clips = this._clips.filter((item) => item !== clip);
 
-        if (state) {
-            delete this._nameToState[state.name];
+        if (removalState) {
+            delete this._nameToState[removalState.name];
         }
     }
 
@@ -410,10 +410,16 @@ export class AnimationComponent extends Eventify(Component) {
      */
     public on<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any) {
         const ret = super.on(type, callback, thisArg);
-        if (type === 'lastframe') {
-            for (const stateName of Object.keys(this._nameToState)) {
-                this._nameToState[stateName]!._lastframeEventOn = true;
-            }
+        if (type === EventType.LASTFRAME) {
+            this._syncAllowLastFrameEvent();
+        }
+        return ret;
+    }
+
+    public once<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any) {
+        const ret = super.once(type, callback, thisArg);
+        if (type === EventType.LASTFRAME) {
+            this._syncAllowLastFrameEvent();
         }
         return ret;
     }
@@ -433,14 +439,10 @@ export class AnimationComponent extends Eventify(Component) {
      * ```
      */
     public off (type: EventType, callback?: Function, thisArg?: any) {
-        if (type === 'lastframe') {
-            const nameToState = this._nameToState;
-            for (const name of Object.keys(nameToState)) {
-                const state = nameToState[name]!;
-                state._lastframeEventOn = false;
-            }
-        }
         super.off(type, callback, thisArg);
+        if (type === EventType.LASTFRAME) {
+            this._syncDisallowLastFrameEvent();
+        }
     }
 
     protected _createState (clip: AnimationClip, name?: string) {
@@ -450,6 +452,7 @@ export class AnimationComponent extends Eventify(Component) {
     protected _doCreateState (clip: AnimationClip, name: string) {
         const state = this._createState(clip, name);
         state._setEventTarget(this);
+        state.allowLastFrameEvent = this.hasEventListener(EventType.LASTFRAME);
         if (this.node) {
             state.initialize(this.node);
         }
@@ -480,6 +483,22 @@ export class AnimationComponent extends Eventify(Component) {
             if (equalClips(clip, state.clip)) {
                 state.stop();
                 delete this._nameToState[name];
+            }
+        }
+    }
+
+    private _syncAllowLastFrameEvent () {
+        if (this.hasEventListener(EventType.LASTFRAME)) {
+            for (const stateName in this._nameToState) {
+                this._nameToState[stateName].allowLastFrameEvent = true;
+            }
+        }
+    }
+
+    private _syncDisallowLastFrameEvent () {
+        if (!this.hasEventListener(EventType.LASTFRAME)) {
+            for (const stateName in this._nameToState) {
+                this._nameToState[stateName].allowLastFrameEvent = false;
             }
         }
     }
