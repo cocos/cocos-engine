@@ -912,7 +912,7 @@ sp.Skeleton = cc.Class({
         // update inspector
         this._updateAnimEnum();
         this._updateSkinEnum();
-        Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
+        // Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
     },
 
     _initDebugDraw: function () {

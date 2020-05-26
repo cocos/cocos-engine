@@ -111,7 +111,7 @@ if (TestEditorExtends) {
 
     test('basic test serialize', function() {
         var node = createNode('rootNode');
-        var json = JSON.parse(Editor.serialize(node));
+        var json = JSON.parse(EditorExtends.serialize(node));
         checkNodeData(json, node);
     });
 
@@ -129,7 +129,7 @@ if (TestEditorExtends) {
         child1.addChild(child12);
         child1.addChild(child13);
 
-        var json = Editor.serialize(rootNode);
+        var json = EditorExtends.serialize(rootNode);
         var newNode = cc.deserialize(json);
         compare2Nodes(rootNode, newNode);
     });

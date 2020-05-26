@@ -26,7 +26,7 @@
         var obj = new ToMiss();
         obj.ref = new cc.Object();
 
-        var lastData = Editor.serialize(obj);
+        var lastData = EditorExtends.serialize(obj);
         delete obj.__id__;
         delete obj.ref.__id__;
         cc.js.unregisterClass(ToMiss);
@@ -43,7 +43,7 @@
 
         // serialize
 
-        reSerialized = Editor.serialize(missed, {stringify: false});
+        reSerialized = EditorExtends.serialize(missed, {stringify: false});
         delete obj.ref.__id__;
         deepEqual(reSerialized, JSON.parse(lastData), 'can serialize missing script as its original data');
 

@@ -89,7 +89,7 @@ class DragonBonesAtlasMeta extends CustomAssetMeta {
             var asset = new dragonBones.DragonBonesAtlasAsset();
             asset.name = Path.basenameNoExt(fspath);
             asset.atlasJson = this.atlasJson;
-            asset.texture = Editor.serialize.asAsset(this.texture);
+            asset.texture = EditorExtends.serialize.asAsset(this.texture);
             this._assetdb.saveAssetToLibrary(this.uuid, asset);
             cb();
         });

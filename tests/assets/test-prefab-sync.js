@@ -43,7 +43,7 @@
         // //var asset = new cc.Prefab();
         // //asset.data = parent;
         // nodeToCreatePrefab._prefab.asset._uuid = UUID;
-        // //PrefabUtils.setPrefabAsset(parent, Editor.serialize.asAsset());
+        // //PrefabUtils.setPrefabAsset(parent, EditorExtends.serialize.asAsset());
         // PrefabUtils.setPrefabSync(nodeToCreatePrefab, true);
 
         // otherSyncedNode = cc.instantiate(nodeToCreatePrefab);
@@ -54,12 +54,12 @@
         // prefabAsset = PrefabUtils.createAppliedPrefab(nodeToCreatePrefab);
 
         // // 重新生成已经加载好的 prefab，去除类型，去除 runtime node
-        // prefabJson = Editor.serialize(prefabAsset, { stringify: false });
+        // prefabJson = EditorExtends.serialize(prefabAsset, { stringify: false });
         // prefabAsset = cc.deserialize(prefabJson);
         // prefabAsset._uuid = UUID;
 
         // // SAVE SCENE ASSET
-        // parentJson = Editor.serialize(otherSyncedNode, { stringify: false });
+        // parentJson = EditorExtends.serialize(otherSyncedNode, { stringify: false });
         // if (DEBUG_SERIALIZED_PREFAB) {
         //     console.log(JSON.stringify(parentJson, null, 4));
         // }
@@ -107,7 +107,7 @@
     });
 
     test('prefab info in exported scene if syncable', function () {
-        var exportedParent = cc.deserialize(Editor.serialize(nodeToCreatePrefab, { stringify: false, exporting: true }));
+        var exportedParent = cc.deserialize(EditorExtends.serialize(nodeToCreatePrefab, { stringify: false, exporting: true }));
         ok(exportedParent._prefab, 'prefab info should be saved');
         strictEqual(exportedParent._prefab.sync, true, 'sync should be saved');
         strictEqual(exportedParent._prefab.fileId, nodeToCreatePrefab.uuid, 'fileId should be saved');

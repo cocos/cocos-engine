@@ -3,8 +3,8 @@
     largeModule('Serialize');
 
     function match (obj, expect, info) {
-        deepEqual(JSON.parse(Editor.serialize(obj)), expect, info);
-        //deepEqual(Editor.serialize(obj, {stringify: false}), expect, info);
+        deepEqual(JSON.parse(EditorExtends.serialize(obj)), expect, info);
+        //deepEqual(EditorExtends.serialize(obj, {stringify: false}), expect, info);
     }
 
     test('basic test', function() {
@@ -146,7 +146,7 @@
         });
 
         var sprite = new Sprite();
-        var actual = JSON.parse(Editor.serialize(sprite));
+        var actual = JSON.parse(EditorExtends.serialize(sprite));
 
         strictEqual(actual.image, undefined, 'should not serialize variable which not defined by property');
 
@@ -173,7 +173,7 @@
         var obj = new type();
         obj.name = '阿加西';
 
-        var json = JSON.parse(Editor.serialize(obj));
+        var json = JSON.parse(EditorExtends.serialize(obj));
         var expected = { "__type__": "cc.MyType", "_name": "阿加西", "_objFlags": 0 };
 
         deepEqual(json, expected, 'can serialize CCObject.name');
@@ -225,8 +225,8 @@
         });
 
         var sprite = new Sprite();
-        var resultInEditor = JSON.parse(Editor.serialize(sprite));
-        var resultInPlayer = JSON.parse(Editor.serialize(sprite, { exporting: true }));
+        var resultInEditor = JSON.parse(EditorExtends.serialize(sprite));
+        var resultInPlayer = JSON.parse(EditorExtends.serialize(sprite, { exporting: true }));
 
         strictEqual(resultInEditor.trimThreshold, 2, 'serialize editor only in editor');
 
@@ -289,7 +289,7 @@
         var uuid = '541020432560';
         sprite.texture._uuid = uuid;
 
-        var result = JSON.parse(Editor.serialize(sprite));
+        var result = JSON.parse(EditorExtends.serialize(sprite));
 
         deepEqual(result.texture, {__uuid__: uuid}, 'serialize asset as uuid reference');
     });
@@ -441,7 +441,7 @@
         var data = new Data();
         data.textures = ['foo', 'bar'];
 
-        var actual = JSON.parse(Editor.serialize(data));
+        var actual = JSON.parse(EditorExtends.serialize(data));
         strictEqual(actual.image, undefined, 'should not serialize variable which not defined by property');
 
         var expected = {
@@ -477,7 +477,7 @@
         var node2 = new cc.Node();
         data.nodes = [node1, node2];
 
-        var actual = JSON.parse(Editor.serialize(data));
+        var actual = JSON.parse(EditorExtends.serialize(data));
 
         ok(Array.isArray(actual), 'checking');
         deepEqual(actual[0], {

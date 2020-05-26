@@ -38,7 +38,7 @@ if (TestEditorExtends) {
                     foo: '01',
                 }[url];
             };
-            var serializedAsset = Editor.serialize(asset);
+            var serializedAsset = EditorExtends.serialize(asset);
             Editor.Utils.UuidCache.urlToUuid = sysUrlToUuid;
 
             // deserialize
@@ -92,7 +92,7 @@ if (TestEditorExtends) {
                     foo: '01',
                 }[url];
             };
-            var serializedAsset = Editor.serialize(asset);
+            var serializedAsset = EditorExtends.serialize(asset);
             Editor.Utils.UuidCache.urlToUuid = restore;
 
             // deserialize

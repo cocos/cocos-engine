@@ -126,7 +126,7 @@ class TiledMapMeta extends CustomAssetMeta {
     asset.tmxXmlStr = this._tmxData;
     asset.textures = this._textures.map(p => {
       var uuid = db.fspathToUuid(p);
-      return uuid ? Editor.serialize.asAsset(uuid) : null;
+      return uuid ? EditorExtends.serialize.asAsset(uuid) : null;
     });
     asset.textureNames = this._textureNames;
     asset.tsxFiles = this._tsxFiles.map(p => {
@@ -134,7 +134,7 @@ class TiledMapMeta extends CustomAssetMeta {
         var uuid = db.fspathToUuid(tsxPath);
         if (uuid) {
             asset.tsxFileNames.push(p);
-            return Editor.serialize.asAsset(uuid);
+            return EditorExtends.serialize.asAsset(uuid);
         } else {
             console.error(`Can not find file ${tsxPath}`);
             asset.tsxFileNames.push('');
