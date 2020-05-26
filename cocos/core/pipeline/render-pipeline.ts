@@ -518,7 +518,7 @@ export abstract class RenderPipeline {
         fv[UBOGlobal.TIME_OFFSET + 2] = cc.director.getTotalFrames();
 
         fv[UBOGlobal.SCREEN_SIZE_OFFSET] = device.width;
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = device.height;
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = device.height * device.projectionSignY;
         fv[UBOGlobal.SCREEN_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.SCREEN_SIZE_OFFSET];
         fv[UBOGlobal.SCREEN_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1];
 
