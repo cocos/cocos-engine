@@ -35,8 +35,8 @@ import { RenderView } from './render-view';
 const v3_1 = new Vec3();
 
 /**
- * @zh
- * 渲染流程描述信息。
+ * @en Render pipeline information descriptor
+ * @zh 渲染流程描述信息。
  */
 export interface IRenderPipelineInfo {
     enablePostProcess?: boolean;
@@ -54,91 +54,109 @@ export interface IRenderPipelineDesc {
 }
 
 /**
- * @zh
- * 渲染流程。
+ * @en Render pipeline describes how we handle the rendering process for all render objects in the related render scene root.
+ * It contains some general pipeline configurations, necessary rendering resources and some [[RenderFlow]]s.
+ * The rendering process function [[render]] is invoked by [[Root]] for all [[RenderView]]s.
+ * @zh 渲染管线对象决定了引擎对相关渲染场景下的所有渲染对象实施的完整渲染流程。
+ * 这个类主要包含一些通用的管线配置，必要的渲染资源和一些 [[RenderFlow]]。
+ * 渲染流程函数 [[render]] 会由 [[Root]] 发起调用并对所有 [[RenderView]] 执行预设的渲染流程。
  */
 @ccclass('RenderPipeline')
 export abstract class RenderPipeline {
 
     /**
-     * @zh
-     * Root类对象。
+     * @en Render scene's root object.
+     * @zh 渲染场景的根对象。
+     * @readonly
      */
     public get root (): Root {
         return this._root;
     }
 
     /**
-     * @zh
-     * GFX设备。
+     * @en Rendering backend level GFX device object.
+     * @zh 渲染后端层 GFX 设备对象。
+     * @readonly
      */
     public get device (): GFXDevice {
         return this._device;
     }
 
     /**
-     * @zh
-     * 名称。
+     * @en Name of the render pipeline.
+     * @zh 名称。
+     * @readonly
      */
     public get name (): string {
         return  js.getClassName(this.constructor);
     }
 
     /**
-     * @zh
-     * 渲染对象数组。
+     * @en The list for render objects, only available after the scene culling of the current frame.
+     * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
+     * @readonly
      */
     public get renderObjects (): IRenderObject[] {
         return this._renderObjects;
     }
 
     /**
-     * @zh
-     * 渲染流程数组。
+     * @en The list for render flows.
+     * @zh 渲染流程数组。
+     * @readonly
      */
     public get flows (): RenderFlow[] {
         return this._flows;
     }
 
+    /**
+     * @en Currently activated flows.
+     * @zh 当前开启的渲染流程
+     * @readonly
+     */
     public get activeFlows (): RenderFlow[] {
         return this._activeFlows;
     }
 
     /**
-     * @zh
-     * 启用后期处理。
+     * @en Whether enable the post process phase.
+     * @zh 是否启用后期处理。
+     * @readonly
      */
     public get usePostProcess (): boolean {
         return this._usePostProcess;
     }
 
     /**
-     * @zh
-     * 是否支持HDR。
+     * @en Whether support HDR in the current environment.
+     * @zh 当前运行环境是否支持 HDR。
+     * @readonly
      */
     public get isHDRSupported (): boolean {
         return this._isHDRSupported;
     }
 
     /**
-     * @zh
-     * 是否为HDR管线。
+     * @en Whether the current pipeline is HDR enabled pipeline.
+     * @zh 当前渲染管线是否为启用了 HDR 的管线。
+     * @readonly
      */
     public get isHDR (): boolean {
         return this._isHDR;
     }
 
     /**
-     * @zh
-     * 着色尺寸缩放。
+     * @en The scale used for shading program.
+     * @zh 着色尺寸缩放。
+     * @readonly
      */
     public get shadingScale (): number {
         return this._shadingScale;
     }
 
     /**
-     * @zh
-     * 灯光距离缩放系数（以米为单位）。
+     * @en The scale for the distance of light (in meter).
+     * @zh 灯光距离缩放系数（以米为单位）。
      */
     public set lightMeterScale (scale: number) {
         this._lightMeterScale = scale;
@@ -149,88 +167,108 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @zh
-     * 启用MSAA。
+     * @en Whether activate MSAA anti aliasing.
+     * @zh 是否启用 MSAA 抗锯齿。
+     * @readonly
      */
     public get useMSAA (): boolean {
         return this._useMSAA;
     }
 
     /**
-     * @zh
-     * 启用SMAA。
+     * @en Whether activate SMAA anti aliasing.
+     * @zh 启用 SMAA 抗锯齿。
+     * @readonly
      */
     public get useSMAA (): boolean {
         return this._useSMAA;
     }
 
     /**
-     * @zh
-     * 四边形输入汇集器。
+     * @en The input assembler for quad.
+     * @zh 四边形的渲染输入汇集器。
+     * @readonly
      */
     public get quadIA (): GFXInputAssembler {
         return this._quadIA!;
     }
 
     /**
-     * @zh
-     * 默认的全局绑定表。
+     * @en The default global bindings.
+     * @zh 默认的全局绑定表。
+     * @readonly
      */
     public get globalBindings (): Map<string, IInternalBindingInst> {
         return this._globalBindings;
     }
 
     /**
-     * @zh
-     * 默认纹理。
+     * @en The default texture.
+     * @zh 默认纹理。
+     * @readonly
      */
     public get defaultTexture (): GFXTexture {
         return this._defaultTex!;
     }
 
     /**
-     * @zh
-     * 浮点精度缩放。
+     * @en The scale for float precision.
+     * @zh 浮点精度缩放。
+     * @readonly
      */
     public get fpScale (): number {
         return this._fpScale;
     }
 
     /**
-     * @zh
-     * 浮点精度缩放的倒数。
+     * @en The inverse scale of float precision.
+     * @zh 浮点精度缩放的倒数。
+     * @readonly
      */
     public get fpScaleInv (): number {
         return this._fpScaleInv;
     }
 
     /**
-     * @zh
-     * 管线宏定义。
+     * @en The macros for this pipeline.
+     * @zh 管线宏定义。
+     * @readonly
      */
     public get macros (): IDefineMap {
         return this._macros;
     }
 
     /**
-     * @zh
-     * 默认的全局UBO。
+     * @en The default global uniform buffer object data
+     * @zh 默认的全局 UBO 数据。
+     * @readonly
      */
     public get defaultGlobalUBOData (): Float32Array {
         return this._uboGlobal!.view;
     }
 
+    /**
+     * @en The current frame buffer id for shading
+     * @zh 当前帧缓冲 id
+     * @readonly
+     */
     get currShading () {
         return this._curIdx;
     }
 
+    /**
+     * @en The previous frame buffer id for shading
+     * @zh 前一个帧缓冲 id
+     * @readonly
+     */
     get prevShading () {
         return this._prevIdx;
     }
 
     /**
-     * @zh
-     * 启用动态合批。
+     * @en Whether use dynamic batching in this pipeline
+     * @zh 是否启用动态合批。
+     * @readonly
      */
     public get useDynamicBatching (): boolean {
         return this._useDynamicBatching;
@@ -292,28 +330,36 @@ export abstract class RenderPipeline {
     protected _renderPasses: Map<number, GFXRenderPass> = new Map<number, GFXRenderPass>();
 
     /**
-     * 构造函数。
-     * @param root Root类实例。
+     * @en Fetch the [[TextureView]] referred by the name in the current pipeline
+     * @zh 获取当前管线中名字对应的 [[TextureView]] 对象
+     * @param name 名字
      */
-    constructor () {
-    }
-
     public getTextureView (name: string) {
         return this._textureViews.get(name);
     }
 
+    /**
+     * @en Get the [[RenderTexture]] referred by the name in the current pipeline
+     * @zh 获取当前管线中名字对应的 [[RenderTexture]] 对象
+     * @param name 名字
+     */
     public getRenderTexture (name: string) {
         return this._renderTextures.get(name);
     }
 
+    /**
+     * @en Get the [[FrameBuffer]] referred by the name in the current pipeline
+     * @zh 获取当前管线中名字对应的 [[FrameBuffer]] 对象
+     * @param name 名字
+     */
     public getFrameBuffer (name: string) {
         return this._frameBuffers.get(name);
     }
 
     /**
-     * @zh
-     * 初始化函数，用于不从资源加载RenderPipeline的情况。
-     * @param info 渲染管线描述信息。
+     * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
+     * @zh 初始化函数，正常情况下不会用到，仅用于程序化生成渲染管线的情况。
+     * @param info The render pipeline information
      */
     public initialize (info: IRenderPipelineInfo) {
 
@@ -336,8 +382,9 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * 当RenderPipeline资源加载完成后，启用相应的flow
-     * @param desc
+     * @en Activate the render pipeline after loaded, it mainly activate the flows
+     * @zh 当渲染管线资源加载完成后，启用管线，主要是启用管线内的 flow
+     * @param root The render scene root which will use this render pipeline
      */
     public activate (root: Root): boolean {
         this._root = root;
@@ -359,15 +406,15 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @zh
-     * 销毁函数。
+     * @en Destroy the pipeline.
+     * @zh 销毁函数。
      */
     public abstract destroy ();
 
     /**
-     * @zh
-     * 渲染函数。
-     * @param view 渲染视图。
+     * @en Render function, it basically run the render process of all flows in sequence for the given view.
+     * @zh 渲染函数，对指定的渲染视图按顺序执行所有渲染流程。
+     * @param view Render view。
      */
     public render (view: RenderView) {
         for (let i = 0; i < view.flows.length; i++) {
@@ -376,18 +423,18 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @zh
-     * 重构函数。
+     * @en Rebuild the render pipeline.
+     * @zh 重新构建管线函数。
      */
     public rebuild () {
         this.updateMacros();
     }
 
     /**
-     * @zh
-     * 重置大小。
-     * @param width 屏幕宽度。
-     * @param height 屏幕高度。
+     * @en Reset the size of the render target
+     * @zh 重置渲染目标的尺寸。
+     * @param width The screen width
+     * @param height The screen height
      */
     public resize (width: number, height: number) {
         const w = Math.floor(width * this._shadingScale);
@@ -406,8 +453,8 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @zh
-     * 交换帧缓冲。
+     * @en Swap the frame buffer.
+     * @zh 交换帧缓冲。
      */
     public swapFBOs () {
         const temp = this._curIdx;
@@ -416,10 +463,10 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @zh
-     * 添加渲染过程。
-     * @param stage 渲染阶段。
-     * @param renderPass 渲染过程。
+     * @en Add a render pass.
+     * @zh 添加渲染过程。
+     * @param stage The render stage id
+     * @param renderPass The render pass setting for the stage
      */
     public addRenderPass (stage: number, renderPass: GFXRenderPass) {
         if (renderPass) {
@@ -428,9 +475,9 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @zh
-     * 得到指定阶段的渲染过程。
-     * @param stage 渲染阶段。
+     * @en Get the render pass for the given stage
+     * @zh 获取指定阶段的渲染过程。
+     * @param stage The render stage id
      */
     public getRenderPass (stage: number): GFXRenderPass | null {
         const renderPass = this._renderPasses.get(stage);
@@ -442,25 +489,25 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @zh
-     * 移除指定阶段的渲染过程。
-     * @param stage 渲染阶段。
+     * @en Remove the render pass for a given stage id
+     * @zh 移除指定阶段的渲染过程。
+     * @param stage The render stage id
      */
     public removeRenderPass (stage: number) {
         this._renderPasses.delete(stage);
     }
 
     /**
-     * @zh
-     * 清空渲染过程。
+     * @en Clear all render passes
+     * @zh 清空渲染过程。
      */
     public clearRenderPasses () {
         this._renderPasses.clear();
     }
 
     /**
-     * @zh
-     * 销毁全部渲染流程。
+     * @en Destroy all render flows
+     * @zh 销毁全部渲染流程。
      */
     public destroyFlows () {
         for (let i = 0; i < this._flows.length; i++) {
@@ -470,9 +517,9 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @zh
-     * 得到指定名称的渲染流程。
-     * @param name 名称。
+     * @en Get the flow with the given name
+     * @zh 获取指定名称的渲染流程。
+     * @param name The name of the flow
      */
     public getFlow (name: string): RenderFlow | null {
         for (let i = 0; i < this._flows.length; i++) {
@@ -485,8 +532,8 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @zh
-     * 更新宏定义。
+     * @en Update the macros
+     * @zh 更新宏定义。
      */
     public updateMacros () {
         programLib.destroyShaderByDefines(this._macros);
@@ -498,9 +545,9 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @zh
-     * 更新指定渲染视图的UBO。
-     * @param view 渲染视图。
+     * @en Update all UBOs for the given render view
+     * @zh 为指定的渲染视图更新所有 UBO。
+     * @param view The render view
      */
     public updateUBOs (view: RenderView) {
 
@@ -582,9 +629,9 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @zh
-     * 场景裁剪。
-     * @param view 渲染视图。
+     * @en Do scene culling based on the given render view.
+     * @zh 基于指定渲染视图做场景裁剪。
+     * @param view The render view
      */
     public sceneCulling (view: RenderView) {
 
@@ -794,8 +841,8 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @zh
-     * 内部销毁函数。
+     * @en Internal destroy function
+     * @zh 内部销毁函数。
      */
     protected _destroy () {
 
@@ -834,10 +881,10 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @zh
-     * 重置帧缓冲大小。
-     * @param width 屏幕宽度。
-     * @param height 屏幕高度。
+     * @en Resize all frame buffers
+     * @zh 重置帧缓冲大小。
+     * @param width The screen width
+     * @param height The screen height
      */
     protected resizeFBOs (width: number, height: number) {
 
@@ -871,8 +918,8 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @zh
-     * 创建四边形输入汇集器。
+     * @en Create input assembler for quad
+     * @zh 创建四边形输入汇集器。
      */
     protected createQuadInputAssembler (): boolean {
 
@@ -939,8 +986,8 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @zh
-     * 销毁四边形输入汇集器。
+     * @en Destroy input assembler for quad
+     * @zh 销毁四边形输入汇集器。
      */
     protected destroyQuadInputAssembler () {
         if (this._quadVB) {
@@ -960,8 +1007,8 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @zh
-     * 创建所有UBO。
+     * @en Create all UBOs.
+     * @zh 创建所有 UBO。
      */
     protected createUBOs (): boolean {
         if (!this._globalBindings.get(UBOGlobal.BLOCK.name)) {
@@ -1003,8 +1050,8 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @zh
-     * 销毁全部UBO。
+     * @en Destroy all UBOs
+     * @zh 销毁全部 UBO。
      */
     protected destroyUBOs () {
         const globalUBO = this._globalBindings.get(UBOGlobal.BLOCK.name);
@@ -1020,10 +1067,10 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @zh
-     * 添加可见对象。
-     * @param model 模型。
-     * @param camera 相机。
+     * @en Add a visible model in the given camera as a render object in the pipeline
+     * @zh 向当前管线添加指定摄像机中的可见对象。
+     * @param model The visible model
+     * @param camera The camera from which the model can be seen
      */
     protected addVisibleModel (model: Model, camera: Camera) {
         let depth = 0;
@@ -1038,8 +1085,9 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * 激活一个RenderFlow，将其添加到可执行的RenderFlow数组中
-     * @param flow 运行时会执行的RenderFlow
+     * @en Activate a render flow.
+     * @zh 激活一个 RenderFlow，将其添加到可执行的 RenderFlow 数组中
+     * @param flow The render flow
      */
     private activateFlow (flow: RenderFlow) {
         this._activeFlows.push(flow);
