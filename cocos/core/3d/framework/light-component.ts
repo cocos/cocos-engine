@@ -227,6 +227,6 @@ export class LightComponent extends Component {
 }
 
 export namespace LightComponent {
-    export type Type = typeof LightType;
-    export type PhotometricTerm = typeof PhotometricTerm;
+    export type Type = EnumAlias<typeof LightType>;
+    export type PhotometricTerm = EnumAlias<typeof PhotometricTerm>;
 }

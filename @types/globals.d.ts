@@ -97,3 +97,5 @@ declare type Getter = () => any;
 declare type Setter = (value: any) => void;
 
 declare const Buffer: any;
+
+declare type EnumAlias<EnumT> = EnumT[keyof EnumT];
