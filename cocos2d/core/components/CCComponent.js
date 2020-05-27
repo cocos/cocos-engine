@@ -698,6 +698,7 @@ js.value(Component, '_registerEditorProps', function (cls, props) {
 
                 case 'requireComponent':
                 case 'executionOrder':
+                case 'disallowMultiple':
                     // skip here
                     break;
 
