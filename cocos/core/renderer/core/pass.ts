@@ -151,6 +151,14 @@ export class Pass {
         Object.assign(target._dss, info.depthStencilState);
     }
 
+    /**
+     * @en
+     * Get pass hash value by [[Pass]] hash information.
+     * @zh
+     * 根据 [[Pass]] 的哈希信息获取哈希值。
+     * 
+     * @param passHashInfo the Pass hash information used to compute hash value.
+     */
     public static getPassHash(passHashInfo: IPassHashInfo) {
         const shaderKey = programLib.getKey(passHashInfo.program, passHashInfo.defines);
         let res = `${shaderKey},${passHashInfo.primitive}`;
@@ -501,7 +509,10 @@ export class Pass {
 
     /**
      * @zh
-     * 根据当前 pass 持有的信息创建 [[IPSOHashInfo]]。
+     * 根据当前 pass 持有的信息获取 [[IPSOCreationInfo]]。
+     * @en
+     * Get [[IPSOCreationInfo]] from pass.
+     * @param patches the marcos to be used in shader.
      */
     public getPipelineCreateInfo (patches?: IMacroPatch[]): IPSOCreationInfo | null {
         if ((!this._shader || !this._bindings.length) && !this.tryCompile()) {
