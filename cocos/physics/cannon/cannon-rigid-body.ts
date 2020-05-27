@@ -205,66 +205,38 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     applyForce (force: Vec3, worldPoint?: Vec3) {
-        if (worldPoint == null) {
-            worldPoint = Vec3.ZERO;
-        }
-
-        if (this.impl.isSleeping()) {
-            this.impl.wakeUp();
-        }
-
+        this._sharedBody.syncSceneToPhysics();
+        if (worldPoint == null) worldPoint = Vec3.ZERO;
         this.impl.applyForce(Vec3.copy(v3_cannon0, force), Vec3.copy(v3_cannon1, worldPoint));
     }
 
     applyImpulse (impulse: Vec3, worldPoint?: Vec3) {
-        if (worldPoint == null) {
-            worldPoint = Vec3.ZERO;
-        }
-
-        if (this.impl.isSleeping()) {
-            this.impl.wakeUp();
-        }
-
+        this._sharedBody.syncSceneToPhysics();
+        if (worldPoint == null) worldPoint = Vec3.ZERO;
         this.impl.applyImpulse(Vec3.copy(v3_cannon0, impulse), Vec3.copy(v3_cannon1, worldPoint));
     }
 
     applyLocalForce (force: Vec3, localPoint?: Vec3): void {
-        if (localPoint == null) {
-            localPoint = Vec3.ZERO;
-        }
-
-        if (this.impl.isSleeping()) {
-            this.impl.wakeUp();
-        }
-
+        this._sharedBody.syncSceneToPhysics();
+        if (localPoint == null) localPoint = Vec3.ZERO;
         this.impl.applyLocalForce(Vec3.copy(v3_cannon0, force), Vec3.copy(v3_cannon1, localPoint));
     }
 
     applyLocalImpulse (impulse: Vec3, localPoint?: Vec3): void {
-        if (localPoint == null) {
-            localPoint = Vec3.ZERO;
-        }
-
-        if (this.impl.isSleeping()) {
-            this.impl.wakeUp();
-        }
-
+        this._sharedBody.syncSceneToPhysics();
+        if (localPoint == null) localPoint = Vec3.ZERO;
         this.impl.applyLocalImpulse(Vec3.copy(v3_cannon0, impulse), Vec3.copy(v3_cannon1, localPoint));
     }
 
     applyTorque (torque: Vec3): void {
-        if (this.impl.isSleeping()) {
-            this.impl.wakeUp();
-        }
+        this._sharedBody.syncSceneToPhysics();
         this.impl.torque.x += torque.x;
         this.impl.torque.y += torque.y;
         this.impl.torque.z += torque.z;
     }
 
     applyLocalTorque (torque: Vec3): void {
-        if (this.impl.isSleeping()) {
-            this.impl.wakeUp();
-        }
+        this._sharedBody.syncSceneToPhysics();
         Vec3.copy(v3_cannon0, torque);
         this.impl.vectorToWorldFrame(v3_cannon0, v3_cannon0);
         this.impl.torque.x += v3_cannon0.x;
