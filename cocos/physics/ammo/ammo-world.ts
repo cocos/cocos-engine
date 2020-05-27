@@ -259,6 +259,15 @@ export class AmmoWorld implements IPhysicsWorld {
                     TriggerEventObject.otherCollider = collider0;
                     collider1.emit(TriggerEventObject.type, TriggerEventObject);
                 } else {
+                    const body0 = collider0.attachedRigidBody;
+                    const body1 = collider1.attachedRigidBody;
+                    if (body0 && body1) {
+                        if (body0.isSleeping && body1.isSleeping) continue;
+                    } else if (body0 == null && body1) {
+                        if (body1.isSleeping) continue;
+                    } else if (body1 == null && body0) {
+                        if (body0.isSleeping) continue;
+                    }
                     if (this.collisionArrayMat.get(shape0.id, shape1.id)) {
                         CollisionEventObject.type = 'onCollisionStay';
                     } else {
