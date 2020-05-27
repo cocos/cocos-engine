@@ -34,6 +34,7 @@ export class GFXRasterizerState {
     public cullMode: GFXCullMode = GFXCullMode.BACK;
     public isFrontFaceCCW: boolean = true;
     public depthBias: number = 0;
+    public depthBiasEnabled: boolean = false;
     public depthBiasClamp: number = 0.0;
     public depthBiasSlop: number = 0.0;
     public isDepthClip: boolean = true;

@@ -71,6 +71,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
     protected _curViewport: IGFXViewport | null = null;
     protected _curScissor: IGFXRect | null = null;
     protected _curLineWidth: number | null = null;
+    protected _isDepthBiasEnabled : boolean = false;
     protected _curDepthBias: IWebGLDepthBias | null = null;
     protected _curBlendConstants: number[] = [];
     protected _curDepthBounds: IWebGLDepthBounds | null = null;
@@ -227,6 +228,10 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
             this._curLineWidth = lineWidth;
             this._isStateInvalied = true;
         }
+    }
+    
+    public enableDepthBias(enabled: boolean) {
+        this._isDepthBiasEnabled = enabled;
     }
 
     public setDepthBias (depthBiasConstantFactor: number, depthBiasClamp: number, depthBiasSlopeFactor: number) {
@@ -487,6 +492,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
             bindStatesCmd.scissor = this._curScissor;
             bindStatesCmd.lineWidth = this._curLineWidth;
             bindStatesCmd.depthBias = this._curDepthBias;
+            bindStatesCmd.depthBiasEnabled = this._isDepthBiasEnabled;
             bindStatesCmd.blendConstants = this._curBlendConstants;
             bindStatesCmd.depthBounds = this._curDepthBounds;
             bindStatesCmd.stencilWriteMask = this._curStencilWriteMask;

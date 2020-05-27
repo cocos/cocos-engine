@@ -114,7 +114,7 @@ export class WebGLGFXPrimaryCommandBuffer extends WebGLGFXCommandBuffer {
     protected bindStates () {
         WebGLCmdFuncBindStates(this._device as WebGLGFXDevice,
             this._curGPUPipelineState, this._curGPUBindingLayout, this._curGPUInputAssembler,
-            this._curViewport, this._curScissor, this._curLineWidth, this._curDepthBias, this._curBlendConstants,
+            this._curViewport, this._curScissor, this._curLineWidth, this._isDepthBiasEnabled, this._curDepthBias, this._curBlendConstants,
             this._curDepthBounds, this._curStencilWriteMask, this._curStencilCompareMask);
         this._isStateInvalied = false;
     }

@@ -434,6 +434,7 @@ export class WebGLCmdBindStates extends WebGLCmdObject {
     public scissor: IGFXRect | null = null;
     public lineWidth: number | null = null;
     public depthBias: IWebGLDepthBias | null = null;
+    public depthBiasEnabled : boolean = false;
     public blendConstants: number[] | null = null;
     public depthBounds: IWebGLDepthBounds | null = null;
     public stencilWriteMask: IWebGLStencilWriteMask | null = null;
@@ -451,6 +452,7 @@ export class WebGLCmdBindStates extends WebGLCmdObject {
         this.scissor = null;
         this.lineWidth = null;
         this.depthBias = null;
+        this.depthBiasEnabled = false;
         this.blendConstants = null;
         this.depthBounds = null;
         this.stencilWriteMask = null;
@@ -1678,6 +1680,7 @@ export function WebGLCmdFuncBindStates (
     viewport: IGFXViewport | null,
     scissor: IGFXRect | null,
     lineWidth: number | null,
+    depthBiasEnabled: boolean,
     depthBias: IWebGLDepthBias | null,
     blendConstants: number[] | null,
     depthBounds: IWebGLDepthBounds | null,
@@ -2402,7 +2405,15 @@ export function WebGLCmdFuncBindStates (
                 }
                 case GFXDynamicState.DEPTH_BIAS: {
                     if (depthBias) {
-
+                        if(cache.rs.depthBiasEnabled != depthBiasEnabled) {
+                            if(depthBiasEnabled) {
+                                gl.enable(gl.POLYGON_OFFSET_FILL);
+                            }
+                            else {
+                                gl.disable(gl.POLYGON_OFFSET_FILL);
+                            }
+                            cache.rs.depthBiasEnabled = depthBiasEnabled;
+                        }
                         if ((cache.rs.depthBias !== depthBias.constantFactor) ||
                             (cache.rs.depthBiasSlop !== depthBias.slopeFactor)) {
                             gl.polygonOffset(depthBias.constantFactor, depthBias.slopeFactor);
@@ -2590,7 +2601,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
             case WebGLCmd.BIND_STATES: {
                 const cmd2 = cmdPackage.bindStatesCmds.array[cmdId];
                 WebGLCmdFuncBindStates(device, cmd2.gpuPipelineState, cmd2.gpuBindingLayout, cmd2.gpuInputAssembler,
-                    cmd2.viewport, cmd2.scissor, cmd2.lineWidth, cmd2.depthBias, cmd2.blendConstants,
+                    cmd2.viewport, cmd2.scissor, cmd2.lineWidth, cmd2.depthBiasEnabled, cmd2.depthBias, cmd2.blendConstants,
                     cmd2.depthBounds, cmd2.stencilWriteMask, cmd2.stencilCompareMask);
                 break;
             }
