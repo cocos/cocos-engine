@@ -742,43 +742,7 @@ export class Quat extends ValueType {
      * @param ratio 插值比率，范围为 [0,1]。
      */
     public slerp (to: Quat, ratio: number) {
-        let scale0 = 0;
-        let scale1 = 0;
-        let tox = to.x;
-        let toy = to.y;
-        let toz = to.z;
-        let tow = to.w;
-
-        // calc cosine
-        let cosom = this.x * to.x + this.y * to.y + this.z * to.z + this.w * to.w;
-        // adjust signs (if necessary)
-        if (cosom < 0.0) {
-            cosom = -cosom;
-            tox = -tox;
-            toy = -toy;
-            toz = -toz;
-            tow = -tow;
-        }
-        // calculate coefficients
-        if ((1.0 - cosom) > 0.000001) {
-            // standard case (slerp)
-            const omega = Math.acos(cosom);
-            const sinom = Math.sin(omega);
-            scale0 = Math.sin((1.0 - ratio) * omega) / sinom;
-            scale1 = Math.sin(ratio * omega) / sinom;
-        } else {
-            // "from" and "to" quaternions are very close
-            //  ... so we can do a linear interpolation
-            scale0 = 1.0 - ratio;
-            scale1 = ratio;
-        }
-        // calculate final values
-        this.x = scale0 * this.x + scale1 * tox;
-        this.y = scale0 * this.y + scale1 * toy;
-        this.z = scale0 * this.z + scale1 * toz;
-        this.w = scale0 * this.w + scale1 * tow;
-
-        return this;
+        return Quat.slerp(this, this, to, ratio);
     }
 
     /**
