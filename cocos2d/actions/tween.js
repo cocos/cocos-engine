@@ -217,7 +217,8 @@ Tween.stopAllByTarget = function (target) {
  * !#zh
  * 插入一个 action 或者 tween 到队列中
  * @method then 
- * @param {Action|Tween<T>} other
+ * @param {Action|Tween} other
+ * @typescript then (other: Action|Tween<T>): Tween<T>
  * @return {Tween<T>}
  */
 Tween.prototype.then = function (other) {
@@ -567,8 +568,9 @@ let actions = {
      * !#zh
      * 添加一个队列 action
      * @method sequence
-     * @param {Action|Tween<T>} action
-     * @param {Action|Tween<T>} ...actions
+     * @param {Action|Tween} action
+     * @param {Action|Tween} ...actions
+     * @typescript sequence(action: Action|Tween<T>, ...actions: (Action|Tween<T>)[]): Tween<T>
      * @return {Tween<T>}
      */
     sequence: wrapAction(cc.sequence),
@@ -578,8 +580,9 @@ let actions = {
      * !#zh
      * 添加一个并行 action
      * @method parallel
-     * @param {Action|Tween<T>} action
-     * @param {Action|Tween<T>} ...actions
+     * @param {Action|Tween} action
+     * @param {Action|Tween} ...actions
+     * @typescript parallel(action: Action|Tween<T>, ...actions: (Action|Tween<T>)[]): Tween<T>
      * @return {Tween<T>}
      */
     parallel: wrapAction(cc.spawn)
@@ -595,7 +598,8 @@ let previousAsInputActions = {
      * 添加一个重复 action，这个 action 会将前一个动作作为他的参数。
      * @method repeat
      * @param {Number} repeatTimes
-     * @param {Action | Tween<T>} [action]
+     * @param {Action | Tween} [action]
+     * @typescript repeat(repeatTimes: number, action?: Action|Tween<T>): Tween<T>
      * @return {Tween<T>}
      */
     repeat: cc.repeat,
@@ -607,6 +611,7 @@ let previousAsInputActions = {
      * 添加一个永久重复 action，这个 action 会将前一个动作作为他的参数。
      * @method repeatForever
      * @param {Action | Tween<T>} [action]
+     * @typescript repeatForever(action?: Action|Tween<T>): Tween<T>
      * @return {Tween<T>}
      */
     repeatForever: function (action) {
@@ -621,6 +626,7 @@ let previousAsInputActions = {
      * 添加一个倒置时间 action，这个 action 会将前一个动作作为他的参数。
      * @method reverseTime
      * @param {Action | Tween<T>} [action]
+     * @typescript reverseTime(action?: Action|Tween<T>): Tween<T>
      * @return {Tween<T>}
      */
     reverseTime: cc.reverseTime,
