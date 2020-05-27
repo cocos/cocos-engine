@@ -92,7 +92,7 @@ export default class Mat4 extends ValueType {
      * !#en Copy of the specified matrix to obtain
      * @method clone
      * @typescript
-     * clone<Out extends IMat4Like> (a: Out)
+     * clone<Out extends IMat4Like> (a: Out): Mat4
      * @static
      */
     static clone<Out extends IMat4Like> (a: Out) {
@@ -110,7 +110,7 @@ export default class Mat4 extends ValueType {
      * !#en Copy the target matrix
      * @method copy
      * @typescript
-     * copy<Out extends IMat4Like> (out: Out, a: Out)
+     * copy<Out extends IMat4Like> (out: Out, a: Out): Out
      * @static
      */
     static copy<Out extends IMat4Like> (out: Out, a: Out) {
@@ -159,7 +159,7 @@ export default class Mat4 extends ValueType {
      * !#en The target of an assignment is the identity matrix
      * @method identity
      * @typescript
-     * identity<Out extends IMat4Like> (out: Out)
+     * identity<Out extends IMat4Like> (out: Out): Out
      * @static
      */
     static identity<Out extends IMat4Like> (out: Out) {
@@ -188,7 +188,7 @@ export default class Mat4 extends ValueType {
      * !#en Transposed matrix
      * @method transpose
      * @typescript
-     * transpose<Out extends IMat4Like> (out: Out, a: Out)
+     * transpose<Out extends IMat4Like> (out: Out, a: Out): Out
      * @static
      */
     static transpose<Out extends IMat4Like> (out: Out, a: Out) {
@@ -234,7 +234,7 @@ export default class Mat4 extends ValueType {
      * !#en Matrix inversion
      * @method invert
      * @typescript
-     * invert<Out extends IMat4Like> (out: Out, a: Out)
+     * invert<Out extends IMat4Like> (out: Out, a: Out): Out
      * @static
      */
     static invert<Out extends IMat4Like> (out: Out, a: Out) {
@@ -321,7 +321,7 @@ export default class Mat4 extends ValueType {
      * !#en Matrix Multiplication
      * @method multiply
      * @typescript
-     * multiply<Out extends IMat4Like> (out: Out, a: Out, b: Out)
+     * multiply<Out extends IMat4Like> (out: Out, a: Out, b: Out): Out
      * @static
      */
     static multiply<Out extends IMat4Like> (out: Out, a: Out, b: Out) {
@@ -363,7 +363,7 @@ export default class Mat4 extends ValueType {
      * !#en Was added in a given transformation matrix transformation on the basis of
      * @method transform
      * @typescript
-     * transform<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike)
+     * transform<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike): Out
      * @static
      */
     static transform<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
@@ -397,7 +397,7 @@ export default class Mat4 extends ValueType {
      * !#en Add new displacement transducer in a matrix transformation on the basis of a given
      * @method translate
      * @typescript
-     * translate<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike)
+     * translate<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike): Out
      * @static
      */
     static translate<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
@@ -423,7 +423,7 @@ export default class Mat4 extends ValueType {
      * !#en Add new scaling transformation in a given matrix transformation on the basis of
      * @method scale
      * @typescript
-     * scale<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike)
+     * scale<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike): Out
      * @static
      */
     static scale<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
@@ -453,7 +453,7 @@ export default class Mat4 extends ValueType {
      * !#en Add a new rotational transform matrix transformation on the basis of a given
      * @method rotate
      * @typescript
-     * rotate<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, rad: number, axis: VecLike)
+     * rotate<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, rad: number, axis: VecLike): Out
      * @param rad 旋转角度
      * @param axis 旋转轴
      * @static
@@ -517,7 +517,7 @@ export default class Mat4 extends ValueType {
      * !#en Add rotational transformation around the X axis at a given matrix transformation on the basis of
      * @method rotateX
      * @typescript
-     * rotateX<Out extends IMat4Like> (out: Out, a: Out, rad: number)
+     * rotateX<Out extends IMat4Like> (out: Out, a: Out, rad: number): Out
      * @param rad 旋转角度
      * @static
      */
@@ -563,7 +563,7 @@ export default class Mat4 extends ValueType {
      * !#en Add about the Y axis rotation transformation in a given matrix transformation on the basis of
      * @method rotateY
      * @typescript
-     * rotateY<Out extends IMat4Like> (out: Out, a: Out, rad: number)
+     * rotateY<Out extends IMat4Like> (out: Out, a: Out, rad: number): Out
      * @param rad 旋转角度
      * @static
      */
@@ -609,7 +609,7 @@ export default class Mat4 extends ValueType {
      * !#en Added about the Z axis at a given rotational transformation matrix transformation on the basis of
      * @method rotateZ
      * @typescript
-     * rotateZ<Out extends IMat4Like> (out: Out, a: Out, rad: number)
+     * rotateZ<Out extends IMat4Like> (out: Out, a: Out, rad: number): Out
      * @param rad 旋转角度
      * @static
      */
@@ -657,7 +657,7 @@ export default class Mat4 extends ValueType {
      * !#en Displacement matrix calculation
      * @method fromTranslation
      * @typescript
-     * fromTranslation<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike)
+     * fromTranslation<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike): Out
      * @static
      */
     static fromTranslation<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike) {
@@ -686,7 +686,7 @@ export default class Mat4 extends ValueType {
      * !#en Scaling matrix calculation
      * @method fromScaling
      * @typescript
-     * fromScaling<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike)
+     * fromScaling<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike): Out
      * @static
      */
     static fromScaling<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike) {
@@ -715,7 +715,7 @@ export default class Mat4 extends ValueType {
      * !#en Calculates the rotation matrix
      * @method fromRotation
      * @typescript
-     * fromRotation<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, rad: number, axis: VecLike)
+     * fromRotation<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, rad: number, axis: VecLike): Out
      * @static
      */
     static fromRotation<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, rad: number, axis: VecLike) {
@@ -761,7 +761,7 @@ export default class Mat4 extends ValueType {
      * !#en Calculating rotation matrix about the X axis
      * @method fromXRotation
      * @typescript
-     * fromXRotation<Out extends IMat4Like> (out: Out, rad: number)
+     * fromXRotation<Out extends IMat4Like> (out: Out, rad: number): Out
      * @static
      */
     static fromXRotation<Out extends IMat4Like> (out: Out, rad: number) {
@@ -793,7 +793,7 @@ export default class Mat4 extends ValueType {
      * !#en Calculating rotation matrix about the Y axis
      * @method fromYRotation
      * @typescript
-     * fromYRotation<Out extends IMat4Like> (out: Out, rad: number)
+     * fromYRotation<Out extends IMat4Like> (out: Out, rad: number): Out
      * @static
      */
     static fromYRotation<Out extends IMat4Like> (out: Out, rad: number) {
@@ -825,7 +825,7 @@ export default class Mat4 extends ValueType {
      * !#en Calculating rotation matrix about the Z axis
      * @method fromZRotation
      * @typescript
-     * fromZRotation<Out extends IMat4Like> (out: Out, rad: number)
+     * fromZRotation<Out extends IMat4Like> (out: Out, rad: number): Out
      * @static
      */
     static fromZRotation<Out extends IMat4Like> (out: Out, rad: number) {
@@ -857,7 +857,7 @@ export default class Mat4 extends ValueType {
      * !#en The rotation and displacement information calculating matrix
      * @method fromRT
      * @typescript
-     * fromRT<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike)
+     * fromRT<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike): Out
      * @static
      */
     static fromRT<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike) {
@@ -902,7 +902,7 @@ export default class Mat4 extends ValueType {
      * !#en Extracting displacement information of the matrix, the matrix transform to the default sequential application S-> R-> T is
      * @method getTranslation
      * @typescript
-     * getTranslation<Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out)
+     * getTranslation<Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out): VecLike
      * @static
      */
     static getTranslation<Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out) {
@@ -919,7 +919,7 @@ export default class Mat4 extends ValueType {
      * !#en Scaling information extraction matrix, the matrix transform to the default sequential application S-> R-> T is
      * @method getScaling
      * @typescript
-     * getScaling<Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out)
+     * getScaling<Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out): VecLike
      * @static
      */
     static getScaling<Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out) {
@@ -947,7 +947,7 @@ export default class Mat4 extends ValueType {
      * !#en Rotation information extraction matrix, the matrix containing no default input scaling information, such as the use of `toRTS` should consider the scaling function.
      * @method getRotation
      * @typescript
-     * getRotation<Out extends IMat4Like> (out: Quat, mat: Out)
+     * getRotation<Out extends IMat4Like> (out: Quat, mat: Out): Quat
      * @static
      */
     static getRotation<Out extends IMat4Like> (out: Quat, mat: Out) {
@@ -989,7 +989,7 @@ export default class Mat4 extends ValueType {
      * !#en Extracting rotational displacement, zoom information, the default matrix transformation in order S-> R-> T applications
      * @method toRTS
      * @typescript
-     * toRTS<Out extends IMat4Like, VecLike extends IVec3Like> (mat: Out, q: Quat, v: VecLike, s: VecLike)
+     * toRTS<Out extends IMat4Like, VecLike extends IVec3Like> (mat: Out, q: Quat, v: VecLike, s: VecLike): void
      * @static
      */
     static toRTS<Out extends IMat4Like, VecLike extends IVec3Like> (mat: Out, q: Quat, v: VecLike, s: VecLike) {
@@ -1018,7 +1018,7 @@ export default class Mat4 extends ValueType {
      * !#en The rotary displacement, the scaling matrix calculation information, the order S-> R-> T applications
      * @method fromRTS
      * @typescript
-     * fromRTS<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike, s: VecLike)
+     * fromRTS<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike, s: VecLike): Out
      * @static
      */
     static fromRTS<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike, s: VecLike) {
@@ -1066,7 +1066,7 @@ export default class Mat4 extends ValueType {
      * !#en According to the specified rotation, displacement, and scale conversion matrix calculation information center, order S-> R-> T applications
      * @method fromRTSOrigin
      * @typescript
-     * fromRTSOrigin<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike, s: VecLike, o: VecLike)
+     * fromRTSOrigin<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike, s: VecLike, o: VecLike): Out
      * @param q 旋转值
      * @param v 位移值
      * @param s 缩放值
@@ -1123,7 +1123,7 @@ export default class Mat4 extends ValueType {
      * !#en The rotation matrix calculation information specified
      * @method fromQuat
      * @typescript
-     * fromQuat<Out extends IMat4Like> (out: Out, q: Quat)
+     * fromQuat<Out extends IMat4Like> (out: Out, q: Quat): Out
      * @static
      */
     static fromQuat<Out extends IMat4Like> (out: Out, q: Quat) {
@@ -1171,7 +1171,7 @@ export default class Mat4 extends ValueType {
      * !#en The matrix calculation information specified frustum
      * @method frustum
      * @typescript
-     * frustum<Out extends IMat4Like> (out: Out, left: number, right: number, bottom: number, top: number, near: number, far: number)
+     * frustum<Out extends IMat4Like> (out: Out, left: number, right: number, bottom: number, top: number, near: number, far: number): Out
      * @param left 左平面距离
      * @param right 右平面距离
      * @param bottom 下平面距离
@@ -1210,7 +1210,7 @@ export default class Mat4 extends ValueType {
      * !#en Perspective projection matrix calculation
      * @method perspective
      * @typescript
-     * perspective<Out extends IMat4Like> (out: Out, fovy: number, aspect: number, near: number, far: number)
+     * perspective<Out extends IMat4Like> (out: Out, fovy: number, aspect: number, near: number, far: number): Out
      * @param fovy 纵向视角高度
      * @param aspect 长宽比
      * @param near 近平面距离
@@ -1246,7 +1246,7 @@ export default class Mat4 extends ValueType {
      * !#en Computing orthogonal projection matrix
      * @method ortho
      * @typescript
-     * ortho<Out extends IMat4Like> (out: Out, left: number, right: number, bottom: number, top: number, near: number, far: number)
+     * ortho<Out extends IMat4Like> (out: Out, left: number, right: number, bottom: number, top: number, near: number, far: number): Out
      * @param left 左平面距离
      * @param right 右平面距离
      * @param bottom 下平面距离
@@ -1284,7 +1284,7 @@ export default class Mat4 extends ValueType {
      * !#en `Up` parallel vector or vector center` not be zero - the matrix calculation according to the viewpoint, note` eye
      * @method lookAt
      * @typescript
-     * lookAt<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, eye: VecLike, center: VecLike, up: VecLike)
+     * lookAt<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, eye: VecLike, center: VecLike, up: VecLike): Out
      * @param eye 当前位置
      * @param center 目标视点
      * @param up 视口上方向
@@ -1348,7 +1348,7 @@ export default class Mat4 extends ValueType {
      * !#en Reversal matrix calculation
      * @method inverseTranspose
      * @typescript
-     * inverseTranspose<Out extends IMat4Like> (out: Out, a: Out)
+     * inverseTranspose<Out extends IMat4Like> (out: Out, a: Out): Out
      * @static
      */
     static inverseTranspose<Out extends IMat4Like> (out: Out, a: Out) {
@@ -1409,7 +1409,7 @@ export default class Mat4 extends ValueType {
      * !#en Element by element matrix addition
      * @method add
      * @typescript
-     * add<Out extends IMat4Like> (out: Out, a: Out, b: Out)
+     * add<Out extends IMat4Like> (out: Out, a: Out, b: Out): Out
      * @static
      */
     static add<Out extends IMat4Like> (out: Out, a: Out, b: Out) {
@@ -1438,7 +1438,7 @@ export default class Mat4 extends ValueType {
      * !#en Matrix element by element subtraction
      * @method subtract
      * @typescript
-     * subtract<Out extends IMat4Like> (out: Out, a: Out, b: Out)
+     * subtract<Out extends IMat4Like> (out: Out, a: Out, b: Out): Out
      * @static
      */
     static subtract<Out extends IMat4Like> (out: Out, a: Out, b: Out) {
@@ -1467,7 +1467,7 @@ export default class Mat4 extends ValueType {
      * !#en Matrix scalar multiplication
      * @method multiplyScalar
      * @typescript
-     * multiplyScalar<Out extends IMat4Like> (out: Out, a: Out, b: number)
+     * multiplyScalar<Out extends IMat4Like> (out: Out, a: Out, b: number): Out
      * @static
      */
     static multiplyScalar<Out extends IMat4Like> (out: Out, a: Out, b: number) {
@@ -1496,7 +1496,7 @@ export default class Mat4 extends ValueType {
      * !#en Elements of the matrix by the scalar multiplication and addition: A + B * scale
      * @method multiplyScalarAndAdd
      * @typescript
-     * multiplyScalarAndAdd<Out extends IMat4Like> (out: Out, a: Out, b: Out, scale: number)
+     * multiplyScalarAndAdd<Out extends IMat4Like> (out: Out, a: Out, b: Out, scale: number): Out
      * @static
      */
     static multiplyScalarAndAdd<Out extends IMat4Like> (out: Out, a: Out, b: Out, scale: number) {
@@ -1526,7 +1526,7 @@ export default class Mat4 extends ValueType {
      * @method strictEquals
      * @return {bool}
      * @typescript
-     * strictEquals<Out extends IMat4Like> (a: Out, b: Out)
+     * strictEquals<Out extends IMat4Like> (a: Out, b: Out): boolean
      * @static
      */
     static strictEquals<Out extends IMat4Like> (a: Out, b: Out) {
@@ -1542,7 +1542,7 @@ export default class Mat4 extends ValueType {
      * !#en Negative floating point error is approximately equivalent to determining a matrix
      * @method equals
      * @typescript
-     * equals<Out extends IMat4Like> (a: Out, b: Out, epsilon = EPSILON)
+     * equals<Out extends IMat4Like> (a: Out, b: Out, epsilon?: number): boolean
      * @static
      */
     static equals<Out extends IMat4Like> (a: Out, b: Out, epsilon = EPSILON) {
@@ -1606,7 +1606,7 @@ export default class Mat4 extends ValueType {
      * !#en Matrix transpose array
      * @method toArray
      * @typescript
-     * toArray <Out extends IWritableArrayLike<number>> (out: Out, mat: IMat4Like, ofs = 0)
+     * toArray <Out extends IWritableArrayLike<number>> (out: Out, mat: IMat4Like, ofs?: number): Out
      * @param ofs 数组内的起始偏移量
      * @static
      */
@@ -1623,7 +1623,7 @@ export default class Mat4 extends ValueType {
      * !#en Transfer matrix array
      * @method fromArray
      * @typescript
-     * fromArray <Out extends IMat4Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0)
+     * fromArray <Out extends IMat4Like> (out: Out, arr: IWritableArrayLike<number>, ofs?: number): Out
      * @param ofs 数组起始偏移量
      * @static
      */
@@ -1651,7 +1651,7 @@ export default class Mat4 extends ValueType {
      * 构造函数，可查看 {{#crossLink "cc/mat4:method"}}cc.mat4{{/crossLink}}
      * @method constructor
      * @typescript
-     * constructor ( m00: number = 1, m01: number = 0, m02: number = 0, m03: number = 0, m10: number = 0, m11: number = 1, m12: number = 0, m13: number = 0, m20: number = 0, m21: number = 0, m22: number = 1, m23: number = 0, m30: number = 0, m31: number = 0, m32: number = 0, m33: number = 1)
+     * constructor ( m00?: number, m01?: number, m02?: number, m03?: number, m10?: number, m11?: number, m12?: number, m13?: number, m20?: number, m21?: number, m22?: number, m23?: number, m30?: number, m31?: number, m32?: number, m33?: number)
      */
     constructor (
         m00: number | FloatArray = 1, m01: number = 0, m02: number = 0, m03: number = 0,

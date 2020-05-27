@@ -1,5 +1,9 @@
 import Enum  from '../../platform/CCEnum';
 
+/**
+ * @enum ParticleSystem3DAssembler.Space
+ */
+
 export const Space = Enum({
     World: 0,
     Local: 1,
