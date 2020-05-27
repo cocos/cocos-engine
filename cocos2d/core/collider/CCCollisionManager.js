@@ -60,6 +60,58 @@ function obbApplyMatrix (rect, mat4, out_bl, out_tl, out_tr, out_br) {
 
 /**
  * !#en
+ * Collider Info.
+ * !#zh
+ * 碰撞体信息。
+ * @class ColliderInfo
+ */
+/**
+ * !#en
+ * Collider aabb information of last frame
+ * !#zh
+ * 碰撞体上一帧的 aabb 信息
+ * @property {Rect} preAabb
+ */
+/**
+ * !#en
+ * Collider aabb information of current frame
+ * !#zh
+ * 碰撞体当前帧的 aabb 信息
+ * @property {Rect} aabb
+ */
+/**
+ * !#en
+ * Collider matrix
+ * !#zh
+ * 碰撞体的矩阵信息
+ * @property {Mat4} matrix
+ */
+/**
+ * !#en
+ * Collider radius (for CircleCollider)
+ * !#zh
+ * 碰撞体的半径（只对 CircleCollider 有效）
+ * @property {Number} radius
+ */
+/**
+ * !#en
+ * Collider position (for CircleCollider)
+ * !#zh
+ * 碰撞体的位置（只对 CircleCollider 有效）
+ * @property {Vec2} position
+ */
+/**
+* !#en
+ * Collider points (for BoxCollider and PolygonCollider)
+ * !#zh
+ * 碰撞体的顶点信息（只对 BoxCollider 和 PolygonCollider 有效）
+ * @property {Vec2[]} points
+ */
+
+
+
+/**
+ * !#en
  * A simple collision manager class. 
  * It will calculate whether the collider collides other colliders, if collides then call the callbacks.
  * !#zh
