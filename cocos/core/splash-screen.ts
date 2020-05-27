@@ -185,30 +185,6 @@ export class SplashScreen {
             this.initText();
         }
 
-        // record command
-        const cmdBuff = this.cmdBuff;
-        const framebuffer = this.framebuffer;
-        const renderArea = this.renderArea;
-
-        cmdBuff.begin();
-        cmdBuff.beginRenderPass(framebuffer, renderArea,
-            GFXClearFlag.ALL, this.clearColors, 1.0, 0);
-
-        cmdBuff.bindPipelineState(this.pso);
-        cmdBuff.bindBindingLayout(this.pso.pipelineLayout.layouts[0]);
-        cmdBuff.bindInputAssembler(this.assmebler);
-        cmdBuff.draw(this.assmebler);
-
-        if (this.setting.displayWatermark && this.textPSO && this.textAssmebler) {
-            cmdBuff.bindPipelineState(this.textPSO);
-            cmdBuff.bindBindingLayout(this.textPSO.pipelineLayout.layouts[0]);
-            cmdBuff.bindInputAssembler(this.textAssmebler);
-            cmdBuff.draw(this.textAssmebler);
-        }
-
-        cmdBuff.endRenderPass();
-        cmdBuff.end();
-
         const animate = (time: number) => {
             if (this.cancelAnimate) {
                 return;
@@ -261,7 +237,32 @@ export class SplashScreen {
         }
 
         const device = this.device;
+        device.acquire();
+
+        // record command
         const cmdBuff = this.cmdBuff;
+        const framebuffer = this.framebuffer;
+        const renderArea = this.renderArea;
+
+        cmdBuff.begin();
+        cmdBuff.beginRenderPass(framebuffer, renderArea,
+            GFXClearFlag.ALL, this.clearColors, 1.0, 0);
+
+        cmdBuff.bindPipelineState(this.pso);
+        cmdBuff.bindBindingLayout(this.pso.pipelineLayout.layouts[0]);
+        cmdBuff.bindInputAssembler(this.assmebler);
+        cmdBuff.draw(this.assmebler);
+
+        if (this.setting.displayWatermark && this.textPSO && this.textAssmebler) {
+            cmdBuff.bindPipelineState(this.textPSO);
+            cmdBuff.bindBindingLayout(this.textPSO.pipelineLayout.layouts[0]);
+            cmdBuff.bindInputAssembler(this.textAssmebler);
+            cmdBuff.draw(this.textAssmebler);
+        }
+
+        cmdBuff.endRenderPass();
+        cmdBuff.end();
+
         device.queue.submit([cmdBuff]);
         device.present();
     }
@@ -351,9 +352,10 @@ export class SplashScreen {
         }
 
         // transform to clipspace
+        const ySign = this.device.projectionSignY;
         for (let i = 0; i < verts.length; i += 4) {
             verts[i] = verts[i] / this.screenWidth * 2 - 1;
-            verts[i + 1] = verts[i + 1] / this.screenHeight * 2 - 1;
+            verts[i + 1] = (verts[i + 1] / this.screenHeight * 2 - 1) * ySign;
         }
 
         this.textVB.update(verts);
@@ -434,9 +436,10 @@ export class SplashScreen {
         }
 
         // transform to clipspace
+        const ySign = device.projectionSignY;
         for (let i = 0; i < verts.length; i += 4) {
             verts[i] = verts[i] / this.screenWidth * 2 - 1;
-            verts[i + 1] = verts[i + 1] / this.screenHeight * 2 - 1;
+            verts[i + 1] = (verts[i + 1] / this.screenHeight * 2 - 1) * ySign;
         }
 
         this.vertexBuffers.update(verts);

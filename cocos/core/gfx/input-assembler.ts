@@ -13,6 +13,7 @@ export interface IGFXAttribute {
     isNormalized?: boolean;
     stream?: number;
     isInstanced?: boolean;
+    location?: number;
 }
 
 export interface IGFXInputAssemblerInfo {
