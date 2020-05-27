@@ -172,10 +172,10 @@ export class ForwardStage extends RenderStage {
         const planarShadow = camera.scene!.planarShadows;
 
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea!,
+        cmdBuff.beginRenderPass(this._framebuffer, this._renderArea!,
             camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
 
-        this._renderQueues[0].recordCommandBuffer(this._device!, this._framebuffer!.renderPass!, cmdBuff);
+        this._renderQueues[0].recordCommandBuffer(this._device!, this._framebuffer.renderPass!, cmdBuff);
 
         // this._opaqueInstancedQueue.recordCommandBuffer(cmdBuff);
         this._opaqueBatchedQueue.recordCommandBuffer(this._device!, this._framebuffer.renderPass!, cmdBuff);
@@ -183,7 +183,7 @@ export class ForwardStage extends RenderStage {
         if (camera.visibility & Layers.BitMask.DEFAULT) {
             cmdBuff.execute(planarShadow.cmdBuffs.array, planarShadow.cmdBuffCount);
         }
-        this._renderQueues[1].recordCommandBuffer(this._device!, this._framebuffer!.renderPass!, cmdBuff);
+        this._renderQueues[1].recordCommandBuffer(this._device!, this._framebuffer.renderPass!, cmdBuff);
         cmdBuff.endRenderPass();
         cmdBuff.end();
 

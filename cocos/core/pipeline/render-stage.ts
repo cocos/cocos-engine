@@ -382,7 +382,7 @@ export abstract class RenderStage {
             camera.clearFlag, _colors, camera.clearDepth, camera.clearStencil);
 
         for (let i = 0; i < this._renderQueues.length; i++) {
-            this._renderQueues[i].recordCommandBuffer(this._device!, this._framebuffer!.renderPass!, cmdBuff);
+            this._renderQueues[i].recordCommandBuffer(this._device!, this._framebuffer.renderPass!, cmdBuff);
         }
 
         cmdBuff.endRenderPass();
