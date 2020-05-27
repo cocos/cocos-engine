@@ -466,5 +466,5 @@ export class ModelComponent extends RenderableComponent {
 }
 
 export namespace ModelComponent {
-    export type ShadowCastingMode = typeof ModelShadowCastingMode;
+    export type ShadowCastingMode = EnumAlias<typeof ModelShadowCastingMode>;
 }

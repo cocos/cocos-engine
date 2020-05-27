@@ -651,10 +651,10 @@ export class CameraComponent extends Component {
 }
 
 export namespace CameraComponent {
-    export type ProjectionType = typeof ProjectionType;
-    export type FOVAxis = typeof FOVAxis;
-    export type ClearFlag = typeof ClearFlag;
-    export type Aperture = typeof Aperture;
-    export type Shutter = typeof Shutter;
-    export type ISO = typeof ISO;
+    export type ProjectionType = EnumAlias<typeof ProjectionType>;
+    export type FOVAxis = EnumAlias<typeof FOVAxis>;
+    export type ClearFlag = EnumAlias<typeof ClearFlag>;
+    export type Aperture = EnumAlias<typeof Aperture>;
+    export type Shutter = EnumAlias<typeof Shutter>;
+    export type ISO = EnumAlias<typeof ISO>;
 }

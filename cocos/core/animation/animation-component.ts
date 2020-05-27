@@ -505,7 +505,7 @@ export class AnimationComponent extends Eventify(Component) {
 }
 
 export namespace AnimationComponent {
-    export type EventType = typeof EventType;
+    export type EventType = EnumAlias<typeof EventType>;
 }
 
 cc.AnimationComponent = AnimationComponent;

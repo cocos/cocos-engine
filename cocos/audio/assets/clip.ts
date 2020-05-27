@@ -132,8 +132,8 @@ export class AudioClip extends Asset {
 }
 
 export namespace AudioClip {
-    export type PlayingState = typeof PlayingState;
-    export type AudioType = typeof AudioType;
+    export type PlayingState = EnumAlias<typeof PlayingState>;
+    export type AudioType = EnumAlias<typeof AudioType>;
 }
 
 cc.AudioClip = AudioClip;
