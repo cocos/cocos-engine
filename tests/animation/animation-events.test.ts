@@ -1,7 +1,7 @@
 import { Node, AnimationComponent, director, AnimationClip, math, AnimationState } from '../../cocos/core';
 
 test('Animation events(general)', () => {
-    jest.spyOn(globalThis.cc.director, 'getAnimationManager').mockImplementation(() => {
+    jest.spyOn((global as any).cc.director, 'getAnimationManager').mockImplementation(() => {
         return {
             addAnimation: () => { },
             removeAnimation: () => { },
