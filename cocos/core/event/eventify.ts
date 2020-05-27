@@ -130,11 +130,15 @@ export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & 
     return class extends (base as unknown as any) implements IEventified {
         private _callbacksInvoker: CallbacksInvoker = new CallbacksInvoker();
 
+        private get _isVaildInvoker () { return this._callbacksInvoker != null; }
+
         public hasEventListener (type: string, callback?: Function, target?: object): boolean {
+            if (!this._isVaildInvoker) return false;
             return this._callbacksInvoker.hasEventListener(type, callback, target);
         }
 
         public on<Callback extends Function> (type: EventType, callback: Callback, target?: object) {
+            if (!this._isVaildInvoker) return callback;
             if (!this.hasEventListener(type, callback, target)) {
                 this._callbacksInvoker.on(type, callback, target);
                 if (target) {
@@ -145,6 +149,7 @@ export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & 
         }
 
         public once<Callback extends Function> (type: EventType, callback: Callback, target?: object) {
+            if (!this._isVaildInvoker) return callback;
             if (!this.hasEventListener(type, callback, target)) {
                 this._callbacksInvoker.on(type, callback, target, true);
                 if (target) {
@@ -155,6 +160,7 @@ export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & 
         }
 
         public off (type: EventType, callback?: Function, target?: object) {
+            if (!this._isVaildInvoker) return;
             if (!callback) {
                 this.removeAll(type);
             } else {
@@ -170,10 +176,12 @@ export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & 
         }
 
         public removeAll (typeOrTarget: string | object) {
+            if (!this._isVaildInvoker) return;
             this._callbacksInvoker.removeAll(typeOrTarget);
         }
 
         public emit (type: EventType, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
+            if (!this._isVaildInvoker) return;
             return this._callbacksInvoker.emit(type, arg0, arg1, arg2, arg3, arg4);
         }
 
