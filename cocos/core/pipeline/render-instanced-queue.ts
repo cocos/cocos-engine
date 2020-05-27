@@ -45,14 +45,16 @@ export class RenderInstancedQueue {
         const it = this.queue.values(); let res = it.next();
         while (!res.done) {
             const { instances, pso } = res.value;
-            res.value.uploadBuffers();
-            cmdBuff.bindPipelineState(pso!);
-            cmdBuff.bindBindingLayout(pso!.pipelineLayout.layouts[0]);
-            for (let b = 0; b < instances.length; ++b) {
-                const instance = instances[b];
-                if (!instance.count) { continue; }
-                cmdBuff.bindInputAssembler(instance.ia);
-                cmdBuff.draw(instance.ia);
+            if (pso) {
+                res.value.uploadBuffers();
+                cmdBuff.bindPipelineState(pso);
+                cmdBuff.bindBindingLayout(pso.pipelineLayout.layouts[0]);
+                for (let b = 0; b < instances.length; ++b) {
+                    const instance = instances[b];
+                    if (!instance.count) { continue; }
+                    cmdBuff.bindInputAssembler(instance.ia);
+                    cmdBuff.draw(instance.ia);
+                }
             }
             res = it.next();
         }

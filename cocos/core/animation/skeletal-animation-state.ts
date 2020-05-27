@@ -131,16 +131,15 @@ export class SkeletalAnimationState extends AnimationState {
                 if (idx < 0) { break; }
             }
             // create animation data
+            const frames = source.worldMatrix.values as Mat4[];
             const socketData: ISocketData = {
                 target: socket.target,
-                frames: source.worldMatrix.values.map(() => ({ pos: new Vec3(), rot: new Quat(), scale: new Vec3() })),
+                frames: frames.map(() => ({ pos: new Vec3(), rot: new Quat(), scale: new Vec3() })),
             };
-            const frames = source.worldMatrix.values as Mat4[];
-            const data = socketData.frames;
             // apply downstream default pose
             getWorldTransformUntilRoot(targetNode!, animNode, m4_1);
             for (let j = 0; j < socketData.frames.length; j++) {
-                const m = frames[j]; const dst = data[j];
+                const m = frames[j]; const dst = socketData.frames[j];
                 Mat4.toRTS(Mat4.multiply(m4_2, m, m4_1), dst.rot, dst.pos, dst.scale);
             }
             this._sockets.push(socketData);
