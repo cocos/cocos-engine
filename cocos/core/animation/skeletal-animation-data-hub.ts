@@ -127,7 +127,8 @@ function convertToUniformSample (clip: AnimationClip, curve: IPropertyCurve, fra
             if (idx > keys.length - 1) { idx = keys.length - 1; time = keys[idx]; }
             else if (idx === 0) { idx = 1; }
             const from = curve.values[idx - 1].clone();
-            const ratio = clamp01((time - keys[idx - 1]) / (keys[idx] - keys[idx - 1]));
+            const denom = keys[idx] - keys[idx - 1];
+            const ratio = denom ? clamp01((time - keys[idx - 1]) / denom) : 1;
             if (isQuat) {
                 (from as Quat).slerp(curve.values[idx] as Quat, ratio);
             } else {
