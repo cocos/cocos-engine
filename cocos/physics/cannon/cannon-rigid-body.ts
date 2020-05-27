@@ -31,9 +31,7 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     setAllowSleep (v: boolean) {
-        if (this.impl.isSleeping()) {
-            this.impl.wakeUp();
-        }
+        this.impl.wakeUp();
         this.impl.allowSleep = v;
     }
 
@@ -41,13 +39,12 @@ export class CannonRigidBody implements IRigidBody {
         this.impl.mass = value;
         if (this.impl.mass == 0) {
             this.impl.type = CANNON.Body.STATIC;
+        } else {
+            this.impl.type = this._rigidBody.isKinematic ? CANNON.Body.KINEMATIC : CANNON.Body.DYNAMIC;
         }
 
         this.impl.updateMassProperties();
-
-        if (this.impl.isSleeping()) {
-            this.impl.wakeUp();
-        }
+        this.impl.wakeUp();
     }
 
     setIsKinematic (value: boolean) {
@@ -63,11 +60,7 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     fixRotation (value: boolean) {
-
-        if (this.impl.isSleeping()) {
-            this.impl.wakeUp();
-        }
-
+        this.impl.wakeUp();
         this.impl.fixedRotation = value;
         this.impl.updateMassProperties();
     }
@@ -81,29 +74,17 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     useGravity (value: boolean) {
-
-        if (this.impl.isSleeping()) {
-            this.impl.wakeUp();
-        }
-
+        this.impl.wakeUp();
         this.impl.useGravity = value;
     }
 
     setLinearFactor (value: IVec3Like) {
-
-        if (this.impl.isSleeping()) {
-            this.impl.wakeUp();
-        }
-
+        this.impl.wakeUp();
         Vec3.copy(this.impl.linearFactor, value);
     }
 
     setAngularFactor (value: IVec3Like) {
-
-        if (this.impl.isSleeping()) {
-            this.impl.wakeUp();
-        }
-
+        this.impl.wakeUp();
         Vec3.copy(this.impl.angularFactor, value);
     }
 
@@ -182,11 +163,7 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     setLinearVelocity (value: Vec3): void {
-
-        if (this.impl.isSleeping()) {
-            this.impl.wakeUp();
-        }
-
+        this.impl.wakeUp();
         Vec3.copy(this.impl.velocity, value);
     }
 
@@ -196,39 +173,40 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     setAngularVelocity (value: Vec3): void {
-
-        if (this.impl.isSleeping()) {
-            this.impl.wakeUp();
-        }
-
+        this.impl.wakeUp();
         Vec3.copy(this.impl.angularVelocity, value);
     }
 
     applyForce (force: Vec3, worldPoint?: Vec3) {
+        this.impl.wakeUp();
         this._sharedBody.syncSceneToPhysics();
         if (worldPoint == null) worldPoint = Vec3.ZERO;
         this.impl.applyForce(Vec3.copy(v3_cannon0, force), Vec3.copy(v3_cannon1, worldPoint));
     }
 
     applyImpulse (impulse: Vec3, worldPoint?: Vec3) {
+        this.impl.wakeUp();
         this._sharedBody.syncSceneToPhysics();
         if (worldPoint == null) worldPoint = Vec3.ZERO;
         this.impl.applyImpulse(Vec3.copy(v3_cannon0, impulse), Vec3.copy(v3_cannon1, worldPoint));
     }
 
     applyLocalForce (force: Vec3, localPoint?: Vec3): void {
+        this.impl.wakeUp();
         this._sharedBody.syncSceneToPhysics();
         if (localPoint == null) localPoint = Vec3.ZERO;
         this.impl.applyLocalForce(Vec3.copy(v3_cannon0, force), Vec3.copy(v3_cannon1, localPoint));
     }
 
     applyLocalImpulse (impulse: Vec3, localPoint?: Vec3): void {
+        this.impl.wakeUp();
         this._sharedBody.syncSceneToPhysics();
         if (localPoint == null) localPoint = Vec3.ZERO;
         this.impl.applyLocalImpulse(Vec3.copy(v3_cannon0, impulse), Vec3.copy(v3_cannon1, localPoint));
     }
 
     applyTorque (torque: Vec3): void {
+        this.impl.wakeUp();
         this._sharedBody.syncSceneToPhysics();
         this.impl.torque.x += torque.x;
         this.impl.torque.y += torque.y;
@@ -236,6 +214,7 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     applyLocalTorque (torque: Vec3): void {
+        this.impl.wakeUp();
         this._sharedBody.syncSceneToPhysics();
         Vec3.copy(v3_cannon0, torque);
         this.impl.vectorToWorldFrame(v3_cannon0, v3_cannon0);

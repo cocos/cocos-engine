@@ -131,10 +131,12 @@ export class CannonSharedBody {
 
     syncPhysicsToScene () {
         if (this.body.type != ERigidBodyType.STATIC) {
-            Vec3.copy(v3_0, this.body.position);
-            Quat.copy(quat_0, this.body.quaternion);
-            this.node.worldPosition = v3_0;
-            this.node.worldRotation = quat_0;
+            if (!this.body.isSleeping()) {
+                Vec3.copy(v3_0, this.body.position);
+                Quat.copy(quat_0, this.body.quaternion);
+                this.node.worldPosition = v3_0;
+                this.node.worldRotation = quat_0;
+            }
         }
     }
 

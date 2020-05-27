@@ -74,7 +74,6 @@ export class AmmoRigidBody implements IRigidBody {
     fixRotation (value: boolean) {
         if (value) {
             /** TODO : should i reset angular velocity & torque ? */
-
             this.impl.setAngularFactor(cocos2AmmoVec3(this._btVec3_0, Vec3.ZERO));
         } else {
             this.impl.setAngularFactor(cocos2AmmoVec3(this._btVec3_0, this._rigidBody.angularFactor));
@@ -91,12 +90,9 @@ export class AmmoRigidBody implements IRigidBody {
 
     setAllowSleep (v: boolean) {
         if (v) {
-            const state = this.impl.getActivationState();
-            if (state == AmmoCollisionObjectStates.DISABLE_DEACTIVATION) {
-                this.impl.setActivationState(AmmoCollisionObjectStates.ACTIVE_TAG);
-            }
+            this.impl.forceActivationState(AmmoCollisionObjectStates.ACTIVE_TAG);
         } else {
-            this.impl.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+            this.impl.forceActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
         }
     }
 
@@ -183,6 +179,7 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     setLinearVelocity (value: Vec3): void {
+        this.impl.activate();
         cocos2AmmoVec3(this.impl.getLinearVelocity(), value);
     }
 
@@ -191,12 +188,14 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     setAngularVelocity (value: Vec3): void {
+        this.impl.activate();
         cocos2AmmoVec3(this.impl.getAngularVelocity(), value);
     }
 
     /** dynamic */
 
     applyLocalForce (force: Vec3, rel_pos?: Vec3): void {
+        this.impl.activate();
         this._sharedBody.syncSceneToPhysics();
         const quat = this._sharedBody.node.worldRotation;
         const v = Vec3.transformQuat(v3_0, force, quat);
@@ -208,12 +207,14 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     applyLocalTorque (torque: Vec3): void {
+        this.impl.activate();
         this._sharedBody.syncSceneToPhysics();
         Vec3.transformQuat(v3_0, torque, this._sharedBody.node.worldRotation);
         this.impl.applyTorque(cocos2AmmoVec3(this._btVec3_0, v3_0));
     }
 
     applyLocalImpulse (impulse: Vec3, rel_pos?: Vec3): void {
+        this.impl.activate();
         this._sharedBody.syncSceneToPhysics();
         const quat = this._sharedBody.node.worldRotation;
         const v = Vec3.transformQuat(v3_0, impulse, quat);
@@ -225,6 +226,7 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     applyForce (force: Vec3, rel_pos?: Vec3): void {
+        this.impl.activate();
         this._sharedBody.syncSceneToPhysics();
         const rp = rel_pos ? rel_pos : Vec3.ZERO;
         this.impl.applyForce(
@@ -234,11 +236,13 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     applyTorque (torque: Vec3): void {
+        this.impl.activate();
         this._sharedBody.syncSceneToPhysics();
         this.impl.applyTorque(cocos2AmmoVec3(this._btVec3_0, torque));
     }
 
     applyImpulse (impulse: Vec3, rel_pos?: Vec3): void {
+        this.impl.activate();
         this._sharedBody.syncSceneToPhysics();
         const rp = rel_pos ? rel_pos : Vec3.ZERO;
         this.impl.applyImpulse(
