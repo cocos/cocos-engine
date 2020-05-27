@@ -247,7 +247,7 @@ export class Model {
             return;
         }
 
-        const psoCreateInfos = subModel.psoCreateInfos;
+        const psoCreateInfos = subModel.psoInfos;
         for (let i = 0; i < psoCreateInfos.length; ++i) {
             const bindingLayout = psoCreateInfos[i].pipelineLayout.layouts[0];
             if (this._localBuffer) { bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer); }

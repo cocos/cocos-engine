@@ -21,7 +21,7 @@ export class MorphModel extends Model {
         super.updateAttributesAndBinding(subModelIndex);
         
         if (this._morphRenderingInstance) {
-            const psoCreateInfos = this._subModels[subModelIndex].psoCreateInfos;
+            const psoCreateInfos = this._subModels[subModelIndex].psoInfos;
             for (let i = 0;i < psoCreateInfos.length; ++i) {
                 this._morphRenderingInstance.adaptPipelineState(subModelIndex, psoCreateInfos[i]);
             }

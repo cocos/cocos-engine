@@ -251,7 +251,7 @@ export class SkinningModel extends MorphModel {
     protected updateAttributesAndBinding(subModelIndex : number) {
         super.updateAttributesAndBinding(subModelIndex);
 
-        const psoCreateInfos = this._subModels[subModelIndex].psoCreateInfos;
+        const psoCreateInfos = this._subModels[subModelIndex].psoInfos;
         for (let i = 0;i < psoCreateInfos.length; ++i) {
             const bindingLayout = psoCreateInfos[i].pipelineLayout.layouts[0];
             const buffer = this._buffers[this._bufferIndices![subModelIndex]];

@@ -34,7 +34,7 @@ export class SubModel {
     protected _cmdBuffers: GFXCommandBuffer[] = [];
     protected _pathces? : IMacroPatch[];
 
-    get psoCreateInfos() {
+    get psoInfos() {
         return this._psoCreateInfos;
     }
 
@@ -120,7 +120,7 @@ export class SubModel {
             pass.tryCompile(); // force update shaders
             pass.endChangeStatesSilently();
         }
-        this._psoCreateInfos = [];
+        this._psoCreateInfos.length = 0;
 
         this.getPipelineCreateInfo();
     }
@@ -150,6 +150,6 @@ export class SubModel {
             bl.destroy();
             pl.destroy();
         }
-        this._psoCreateInfos = [];
+        this._psoCreateInfos.length = 0;
     }
 }

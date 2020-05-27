@@ -78,7 +78,7 @@ export class RenderQueue {
     public insertRenderPass (renderObj: IRenderObject, modelIdx: number, passIdx: number): boolean {
         const subModel = renderObj.model.getSubModel(modelIdx);
         const pass = subModel.passes[passIdx];
-        const psoCreateInfo = subModel.psoCreateInfos[passIdx];
+        const psoCreateInfo = subModel.psoInfos[passIdx];
         const isTransparent = psoCreateInfo.blendState.targets[0].blend;
         if (isTransparent !== this._passDesc.isTransparent || !(pass.phase & this._passDesc.phases)) {
             return false;
@@ -107,7 +107,7 @@ export class RenderQueue {
             const subModel = this.queue.array[i].subModel; 
             const passIdx = this.queue.array[i].passIdx;
             const ia = subModel.inputAssembler as GFXInputAssembler;
-            const psoCreateInfo = subModel.psoCreateInfos[passIdx];
+            const psoCreateInfo = subModel.psoInfos[passIdx];
             const pso = PipelineStateManager.getOrCreatePipelineState(device, psoCreateInfo, renderPass, ia);
             cmdBuff.bindPipelineState(pso);
             cmdBuff.bindBindingLayout(psoCreateInfo.bindingLayout);

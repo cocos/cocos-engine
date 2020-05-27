@@ -185,7 +185,7 @@ export class BakedSkinningModel extends MorphModel {
         const tv = texture.handle.texView;
 
         for (let i = 0; i < this._subModels.length; ++i) {
-            const psoCreateInfos = this._subModels[i].psoCreateInfos;
+            const psoCreateInfos = this._subModels[i].psoInfos;
             for (let j = 0; j < psoCreateInfos.length; ++j) {
                 const bindingLayout = psoCreateInfos[j].bindingLayout;
                 bindingLayout.bindTextureView(UniformJointTexture.binding, tv);
@@ -206,7 +206,7 @@ export class BakedSkinningModel extends MorphModel {
     protected updateAttributesAndBinding(subModelIndex : number) {
         super.updateAttributesAndBinding(subModelIndex);
         
-        const psoCreateInfos = this._subModels[subModelIndex].psoCreateInfos;
+        const psoCreateInfos = this._subModels[subModelIndex].psoInfos;
         for (let i = 0;i < psoCreateInfos.length; ++i) {
             const { buffer, texture, animInfo } = this._jointsMedium;
             const bindingLayout = psoCreateInfos[i].bindingLayout;
