@@ -40,14 +40,15 @@ export class InstancedBuffer {
     }
 
     public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, pso: GFXPipelineState) {
-        if (!this.pso) { this.pso = pso; }
         const stride = attrs.buffer.length;
+        if (!stride) { return; } // we assume per-instance attributes are always present
+        if (!this.pso) { this.pso = pso; }
         const sourceIA = subModel.inputAssembler!;
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             if (instance.ia.indexBuffer !== sourceIA.indexBuffer || instance.count >= MAX_CAPACITY) { continue; }
             if (instance.stride !== stride) {
-                console.error(`instanced buffer stride mismatch! ${stride}/${instance.stride}`);
+                // console.error(`instanced buffer stride mismatch! ${stride}/${instance.stride}`);
                 return;
             }
             if (instance.count >= instance.capacity) { // resize buffers
