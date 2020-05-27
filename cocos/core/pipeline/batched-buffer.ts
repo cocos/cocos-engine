@@ -46,14 +46,13 @@ export class BatchedBuffer {
         this.batches.length = 0;
     }
 
-    // public merge (subModel: SubModel, ro: IRenderObject, pso: GFXPipelineState) {
     public merge (subModel: SubModel, passIndx: number, ro: IRenderObject) {
         const flatBuffers = subModel.subMeshData.flatBuffers;
         if (flatBuffers.length === 0) { return; }
         let vbSize = 0;
         let vbIdxSize = 0;
         const vbCount = flatBuffers[0].count;
-        const psoCreateInfo = subModel.psoCreateInfos[passIndx];
+        const psoCreateInfo = subModel.psoInfos[passIndx];
         const bindingLayout = psoCreateInfo.pipelineLayout.layouts[0];
         let isBatchExist = false;
         for (let i = 0; i < this.batches.length; ++i) {

@@ -112,7 +112,6 @@ export class ForwardStage extends RenderStage {
                             // pass.instancedBuffer.merge(subModel, ro.model.instancedAttributes, pso);
                             this._opaqueInstancedQueue.queue.add(pass.instancedBuffer);
                         } else if (pass.batchedBuffer) {
-                            // pass.batchedBuffer.merge(subModel, ro, pso);
                             pass.batchedBuffer.merge(subModel, p, ro);
                             this._opaqueBatchedQueue.queue.add(pass.batchedBuffer);
                         } else {
