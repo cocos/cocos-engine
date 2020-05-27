@@ -731,16 +731,20 @@ export class Quat extends ValueType {
     public lerp (to: Quat, ratio: number) {
         let scale0 = 0;
         let scale1 = 0;
+        let bx = to.x;
+        let by = to.y;
+        let bz = to.z;
+        let bw = to.w;
 
         // calc cosine
         let cosom = this.x * to.x + this.y * to.y + this.z * to.z + this.w * to.w;
         // adjust signs (if necessary)
         if (cosom < 0.0) {
             cosom = -cosom;
-            to.x = -to.x;
-            to.y = -to.y;
-            to.z = -to.z;
-            to.w = -to.w;
+            bx = -bx;
+            by = -by;
+            bz = -bz;
+            bw = -bw;
         }
         // calculate coefficients
         if ((1.0 - cosom) > 0.000001) {
@@ -756,10 +760,10 @@ export class Quat extends ValueType {
             scale1 = ratio;
         }
         // calculate final values
-        this.x = scale0 * this.x + scale1 * to.x;
-        this.y = scale0 * this.y + scale1 * to.y;
-        this.z = scale0 * this.z + scale1 * to.z;
-        this.w = scale0 * this.w + scale1 * to.w;
+        this.x = scale0 * this.x + scale1 * bx;
+        this.y = scale0 * this.y + scale1 * by;
+        this.z = scale0 * this.z + scale1 * bz;
+        this.w = scale0 * this.w + scale1 * bw;
 
         return this;
     }
