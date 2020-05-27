@@ -289,16 +289,20 @@ export class Quat extends ValueType {
 
         let scale0 = 0;
         let scale1 = 0;
+        let bx = b.x;
+        let by = b.y;
+        let bz = b.z;
+        let bw = b.w;
 
         // calc cosine
         let cosom = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
         // adjust signs (if necessary)
         if (cosom < 0.0) {
             cosom = -cosom;
-            b.x = -b.x;
-            b.y = -b.y;
-            b.z = -b.z;
-            b.w = -b.w;
+            bx = -bx;
+            by = -by;
+            bz = -bz;
+            bw = -bw;
         }
         // calculate coefficients
         if ((1.0 - cosom) > 0.000001) {
@@ -314,10 +318,10 @@ export class Quat extends ValueType {
             scale1 = t;
         }
         // calculate final values
-        out.x = scale0 * a.x + scale1 * b.x;
-        out.y = scale0 * a.y + scale1 * b.y;
-        out.z = scale0 * a.z + scale1 * b.z;
-        out.w = scale0 * a.w + scale1 * b.w;
+        out.x = scale0 * a.x + scale1 * bx;
+        out.y = scale0 * a.y + scale1 * by;
+        out.z = scale0 * a.z + scale1 * bz;
+        out.w = scale0 * a.w + scale1 * bw;
 
         return out;
     }
