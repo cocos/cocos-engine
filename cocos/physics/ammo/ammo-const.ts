@@ -12,6 +12,7 @@ export const CollisionEventObject = {
     selfCollider: null as unknown as ColliderComponent,
     otherCollider: null as unknown as ColliderComponent,
     contacts: [] as IContactEquation[],
+    isA: false,
 };
 
 export class AmmoConstant {

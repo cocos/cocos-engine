@@ -123,6 +123,14 @@ export interface ICollisionEvent {
      * 碰撞中的所有碰撞点的信息。
      */
     readonly contacts: IContactEquation[];
+
+    /**
+     * @en
+     * Used to marks the selfCollider is `A` or not.
+     * @zh
+     * 用于标记自身碰撞器是否为`A`.
+     */
+    readonly isA: boolean;
 }
 
 /**

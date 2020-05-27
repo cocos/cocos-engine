@@ -19,6 +19,7 @@ const CollisionEventObject = {
     selfCollider: null as ColliderComponent | null,
     otherCollider: null as ColliderComponent | null,
     contacts: [] as any,
+    isA: false,
 };
 
 /**
@@ -162,8 +163,8 @@ export class CannonSharedBody {
         CollisionEventObject.type = event.event;
         const self = getWrap<CannonShape>(event.selfShape);
         const other = getWrap<CannonShape>(event.otherShape);
-
         if (self) {
+            CollisionEventObject.isA = event['bi'] == event.selfShape.body;
             CollisionEventObject.selfCollider = self.collider;
             CollisionEventObject.otherCollider = other ? other.collider : null;
             let i = 0;
