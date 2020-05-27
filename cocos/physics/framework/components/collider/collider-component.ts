@@ -176,6 +176,39 @@ export class ColliderComponent extends Eventify(Component) {
 
     constructor () { super() }
 
+    /**
+     * @zh
+     * 注册触发事件或碰撞事件相关的回调。
+     * @param type - 触发或碰撞事件的类型，可为 'onTriggerEnter'，'onTriggerStay'，'onTriggerExit' 或 'onCollisionEnter'，'onCollisionStay'，'onCollisionExit';
+     * @param callback - 注册的回调函数
+     * @param target - 可选参数，执行回调函数的目标
+     */
+    public on (type: TriggerEventType | CollisionEventType, callback: Function, target?: Object): any {
+        super.on(type, callback, target);
+    }
+
+    /**
+     * @zh
+     * 取消已经注册的触发事件或碰撞事件相关的回调。
+     * @param type - 触发或碰撞事件的类型，可为 'onTriggerEnter'，'onTriggerStay'，'onTriggerExit' 或 'onCollisionEnter'，'onCollisionStay'，'onCollisionExit';
+     * @param callback - 注册的回调函数
+     * @param target - 可选参数，执行回调函数的目标
+     */
+    public off (type: TriggerEventType | CollisionEventType, callback?: Function, target?: Object) {
+        super.off(type, callback, target);
+    }
+
+    /**
+     * @zh
+     * 注册触发事件或碰撞事件相关的回调，但只会执行一次。
+     * @param type - 触发或碰撞事件的类型，可为 'onTriggerEnter'，'onTriggerStay'，'onTriggerExit' 或 'onCollisionEnter'，'onCollisionStay'，'onCollisionExit';
+     * @param callback - 注册的回调函数
+     * @param target - 可选参数，执行回调函数的目标
+     */
+    public once (type: TriggerEventType | CollisionEventType, callback: Function, target?: Object): any {
+        super.once(type, callback, target);
+    }
+
     /// GROUP MASK ///
 
     /**
