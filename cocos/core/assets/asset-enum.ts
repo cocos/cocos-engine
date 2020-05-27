@@ -4,6 +4,9 @@
 
 import { GFXAddress, GFXFilter, GFXFormat } from '../gfx/define';
 
+// define a specified number for the pixel format which gfx do not have a standard definition.
+let CUSTOM_PIXEL_FORMAT = 1024;
+
 /**
  * @en
  * The texture pixel format, default value is RGBA8888,<br>
@@ -94,6 +97,12 @@ export enum PixelFormat {
      */
     RGBA_PVRTC_2BPPV1 = GFXFormat.PVRTC_RGBA2,
     /**
+     * rgb separate a 2 bpp pvrtc
+     * RGB_A_PVRTC_2BPPV1 texture is a 2x height RGB_PVRTC_2BPPV1 format texture.
+     * It separate the origin alpha channel to the bottom half atlas, the origin rgb channel to the top half atlas
+     */
+    RGB_A_PVRTC_2BPPV1 = CUSTOM_PIXEL_FORMAT++,
+    /**
      * rgb 4 bpp pvrtc
      */
     RGB_PVRTC_4BPPV1 = GFXFormat.PVRTC_RGB4,
@@ -102,9 +111,19 @@ export enum PixelFormat {
      */
     RGBA_PVRTC_4BPPV1 = GFXFormat.PVRTC_RGBA4,
     /**
+     * rgb a 4 bpp pvrtc
+     * RGB_A_PVRTC_4BPPV1 texture is a 2x height RGB_PVRTC_4BPPV1 format texture.
+     * It separate the origin alpha channel to the bottom half atlas, the origin rgb channel to the top half atlas
+     */
+    RGB_A_PVRTC_4BPPV1 = CUSTOM_PIXEL_FORMAT++,
+    /**
      * rgb etc1
      */
     RGB_ETC1 = GFXFormat.ETC_RGB8,
+    /**
+     * rgba etc1
+     */
+    RGBA_ETC1 = CUSTOM_PIXEL_FORMAT++,
     /**
      * rgb etc2
      */

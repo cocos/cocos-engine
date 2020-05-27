@@ -82,6 +82,24 @@ export enum InstanceMaterialType {
      * 着色器带颜色和贴图属性,并使用灰度模式。
      */
     GRAYSCALE = 2,
+
+    /**
+     * @en
+     * The shader has color and texture properties and uses embedded alpha mode.
+     *
+     * @zh
+     * 着色器带颜色和贴图属性,并使用透明通道分离贴图。
+     */
+    USEEMBEDDEDALPHA = 3,
+
+    /**
+     * @en
+     * The shader has color and texture properties and uses embedded alpha and grayscale mode.
+     *
+     * @zh
+     * 着色器带颜色和贴图属性,并使用灰度模式。
+     */
+    USEEMBEDDEDALPHAANDGRAY = 4,
 }
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -451,6 +469,14 @@ export class UIRenderComponent extends UIComponent {
                     break;
                 case InstanceMaterialType.GRAYSCALE:
                     _matInsInfo.parent = builtinResMgr.get('ui-sprite-gray-material');
+                    mat = new MaterialInstance(_matInsInfo);
+                    break;
+                case InstanceMaterialType.USEEMBEDDEDALPHA:
+                    _matInsInfo.parent = builtinResMgr.get('ui-sprite-alpha-material');
+                    mat = new MaterialInstance(_matInsInfo);
+                    break;
+                case InstanceMaterialType.USEEMBEDDEDALPHAANDGRAY:
+                    _matInsInfo.parent = builtinResMgr.get('ui-sprite-alpha-gray-material');
                     mat = new MaterialInstance(_matInsInfo);
                     break;
             }

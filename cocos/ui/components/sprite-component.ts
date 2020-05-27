@@ -38,6 +38,7 @@ import { UI } from '../../core/renderer/ui/ui';
 import { UIRenderComponent, InstanceMaterialType } from '../../core/components/ui-base/ui-render-component';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
+import { PixelFormat } from '../../core/assets/asset-enum';
 
 /**
  * @en
@@ -489,9 +490,7 @@ export class SpriteComponent extends UIRenderComponent {
     // static State = State;
 
     public __preload () {
-        if (this._useGrayscale) {
-            this._instanceMaterialType = InstanceMaterialType.GRAYSCALE;
-        }
+        this.changeMaterialForDefine();
 
         if (super.__preload) {
             super.__preload();
@@ -562,6 +561,21 @@ export class SpriteComponent extends UIRenderComponent {
         }
         const sprite = this._atlas.getSpriteFrame(name);
         this.spriteFrame = sprite;
+    }
+
+    public changeMaterialForDefine () {
+        const format = this._spriteFrame!.texture.getPixelFormat();
+        const value = (format === PixelFormat.RGBA_ETC1 || format === PixelFormat.RGB_A_PVRTC_4BPPV1 || format === PixelFormat.RGB_A_PVRTC_2BPPV1);
+
+        if (value && this.grayscale) {
+            this._instanceMaterialType = InstanceMaterialType.USEEMBEDDEDALPHAANDGRAY;
+        } else if (value) {
+            this._instanceMaterialType = InstanceMaterialType.USEEMBEDDEDALPHA;
+        } else if (this.grayscale) {
+            this._instanceMaterialType = InstanceMaterialType.GRAYSCALE;
+        } else {
+            this._instanceMaterialType = InstanceMaterialType.ADDCOLORANDTEXTURE;
+        }
     }
 
     protected _render (render: UI) {
@@ -711,6 +725,8 @@ export class SpriteComponent extends UIRenderComponent {
             return;
         }
 
+        this.changeMaterialForDefine();
+        this._instanceMaterial();
         this._applySpriteSize();
     }
 
