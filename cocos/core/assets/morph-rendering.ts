@@ -258,8 +258,8 @@ class GpuComputing implements SubMeshMorphRendering {
                 return [{ name: 'CC_MORPH_TARGET_USE_TEXTURE', value: true, }];
             },
 
-            adaptPipelineState: (pipelineState: GFXPipelineState) => {
-                const bindingLayout = pipelineState.pipelineLayout.layouts[0];
+            adaptPipelineState: (pipelineCreateInfo: IPSOCreationInfo) => {
+                const bindingLayout = pipelineCreateInfo.bindingLayout;
                 for (const attribute of this._attributes) {
                     let binding: number | undefined;
                     switch (attribute.name) {
@@ -437,8 +437,8 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
         ];
     }
 
-    public adaptPipelineState (pipelineState: GFXPipelineState) {
-        const bindingLayout = pipelineState.pipelineLayout.layouts[0];
+    public adaptPipelineState (pipelineCreateInfo: IPSOCreationInfo) {
+        const bindingLayout = pipelineCreateInfo.bindingLayout;
         for (const attribute of this._attributes) {
             const attributeName = attribute.attributeName;
             let binding: number | undefined;

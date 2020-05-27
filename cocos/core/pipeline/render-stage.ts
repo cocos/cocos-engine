@@ -17,6 +17,7 @@ import { RenderFlow } from './render-flow';
 import { RenderPipeline } from './render-pipeline';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from './render-queue';
 import { RenderView } from './render-view';
+import { IPSOCreationInfo } from '../renderer';
 
 const _colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -190,7 +191,7 @@ export abstract class RenderStage {
      * @zh
      * GFX管线状态。
      */
-    protected _pso: GFXPipelineState | null = null;
+    protected _psoCreateInfo: IPSOCreationInfo | null = null;
 
     /**
      * 构造函数。
@@ -381,7 +382,7 @@ export abstract class RenderStage {
             camera.clearFlag, _colors, camera.clearDepth, camera.clearStencil);
 
         for (let i = 0; i < this._renderQueues.length; i++) {
-            this._renderQueues[i].recordCommandBuffer(cmdBuff);
+            this._renderQueues[i].recordCommandBuffer(this._device!, this._framebuffer!.renderPass!, cmdBuff);
         }
 
         cmdBuff.endRenderPass();

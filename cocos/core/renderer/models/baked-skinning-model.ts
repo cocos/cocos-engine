@@ -43,6 +43,7 @@ import { DataPoolManager } from '../data-pool-manager';
 import { Model, ModelType } from '../scene/model';
 import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
+import { IPSOCreationInfo } from '../scene/submodel';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;
@@ -219,8 +220,8 @@ export class BakedSkinningModel extends MorphModel {
         }
     }
 
-    protected updateInstancedAttributeList (pso: GFXPipelineState, pass: Pass) {
-        // super.updateInstancedAttributeList(pso, pass);
+    protected updateInstancedAttributeList (psoCreateInfo: IPSOCreationInfo, pass: Pass) {
+        // super.updateInstancedAttributeList(psoCreateInfo, pass);
         // this._instAnimInfoIdx = this.getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
     }
 }
