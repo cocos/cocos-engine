@@ -298,6 +298,9 @@ export class ColliderComponent extends Eventify(Component) {
 
     protected onDestroy () {
         if (!EDITOR) {
+            if (this._material) {
+                this._material.off('physics_material_update', this._updateMaterial, this);
+            }
             this._shape.onDestroy!();
         }
     }
