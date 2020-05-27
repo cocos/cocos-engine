@@ -6811,6 +6811,34 @@ static bool js_gfx_GFXAttribute_set_isInstanced(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXAttribute_set_isInstanced)
 
+static bool js_gfx_GFXAttribute_get_location(se::State& s)
+{
+    cocos2d::GFXAttribute* cobj = (cocos2d::GFXAttribute*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXAttribute_get_location : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= uint32_to_seval((unsigned int)cobj->location, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_GFXAttribute_get_location)
+
+static bool js_gfx_GFXAttribute_set_location(se::State& s)
+{
+    const auto& args = s.args();
+    cocos2d::GFXAttribute* cobj = (cocos2d::GFXAttribute*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXAttribute_set_location : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    unsigned int arg0 = 0;
+    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GFXAttribute_set_location : Error processing new value");
+    cobj->location = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_GFXAttribute_set_location)
+
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXAttribute_finalize)
 
 static bool js_gfx_GFXAttribute_constructor(se::State& s)
@@ -6862,6 +6890,12 @@ static bool js_gfx_GFXAttribute_constructor(se::State& s)
             ok &= seval_to_boolean(field, &arg4);
             cobj->isInstanced = arg4;
         }
+        unsigned int arg5 = 0;
+        json->getProperty("location", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg5);
+            cobj->location = arg5;
+        }
 
         if(!ok) {
             JSB_FREE(cobj);
@@ -6873,7 +6907,7 @@ static bool js_gfx_GFXAttribute_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 5)
+    else if(argc == 6)
     {
         cocos2d::GFXAttribute* cobj = JSB_ALLOC(cocos2d::GFXAttribute);
         cocos2d::String arg0;
@@ -6900,6 +6934,11 @@ static bool js_gfx_GFXAttribute_constructor(se::State& s)
         if (!args[4].isUndefined()) {
             ok &= seval_to_boolean(args[4], &arg4);
             cobj->isInstanced = arg4;
+        }
+        unsigned int arg5 = 0;
+        if (!args[5].isUndefined()) {
+            ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
+            cobj->location = arg5;
         }
 
         if(!ok) {
@@ -6944,6 +6983,7 @@ bool js_register_gfx_GFXAttribute(se::Object* obj)
     cls->defineProperty("isNormalized", _SE(js_gfx_GFXAttribute_get_isNormalized), _SE(js_gfx_GFXAttribute_set_isNormalized));
     cls->defineProperty("stream", _SE(js_gfx_GFXAttribute_get_stream), _SE(js_gfx_GFXAttribute_set_stream));
     cls->defineProperty("isInstanced", _SE(js_gfx_GFXAttribute_get_isInstanced), _SE(js_gfx_GFXAttribute_set_isInstanced));
+    cls->defineProperty("location", _SE(js_gfx_GFXAttribute_get_location), _SE(js_gfx_GFXAttribute_set_location));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXAttribute_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXAttribute>(cls);
