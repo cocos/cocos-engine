@@ -32,7 +32,7 @@ if (TestEditorExtends) {
         })();
 
         var asset = new MyAsset();
-        var serializedAsset = Editor.serialize(asset);
+        var serializedAsset = EditorExtends.serialize(asset);
         delete asset.__id__;
         var deserializedAsset = cc.deserialize(serializedAsset);
 
@@ -61,7 +61,7 @@ if (TestEditorExtends) {
             return MyAsset;
         })();
         var asset = new MyAsset();
-        var serializedAsset = Editor.serialize(asset);
+        var serializedAsset = EditorExtends.serialize(asset);
         delete asset.__id__;
 
         var newObj = {a:100};
@@ -202,11 +202,11 @@ if (TestEditorExtends) {
             }
          */
 
-        var serializedAsset = Editor.serialize(asset);
+        var serializedAsset = EditorExtends.serialize(asset);
         var deserializedAsset = cc.deserialize(serializedAsset);
 
         ok(deserializedAsset.refSelf === deserializedAsset, 'should ref to self');
-        //deepEqual(Editor.serialize(deserializedAsset), serializedAsset, 'test deserialize');
+        //deepEqual(EditorExtends.serialize(deserializedAsset), serializedAsset, 'test deserialize');
     });
 
     test('reference to main asset with formerlySerializedAs', function () {
@@ -222,12 +222,12 @@ if (TestEditorExtends) {
         var asset = new MyAsset();
         asset.newRefSelf = asset;
 
-        var serializedAsset = Editor.serialize(asset);
+        var serializedAsset = EditorExtends.serialize(asset);
         serializedAsset = serializedAsset.replace(/newRefSelf/g, 'oldRefSelf');
         var deserializedAsset = cc.deserialize(serializedAsset);
 
         ok(deserializedAsset.newRefSelf === deserializedAsset, 'should ref to self');
-        //deepEqual(Editor.serialize(deserializedAsset), serializedAsset, 'test deserialize');
+        //deepEqual(EditorExtends.serialize(deserializedAsset), serializedAsset, 'test deserialize');
 
         cc.js.unregisterClass(MyAsset);
     });
@@ -235,7 +235,7 @@ if (TestEditorExtends) {
     test('reference to main asset with target', function () {
         var asset = {};
         asset.refSelf = asset;
-        var serializedAsset = Editor.serialize(asset);
+        var serializedAsset = EditorExtends.serialize(asset);
 
         asset.refSelf = null;
 
@@ -274,7 +274,7 @@ if (TestEditorExtends) {
         asset.refSelf = asset;
         mainAsset.myAsset = asset;
 
-        var serializedAsset = Editor.serialize(mainAsset);
+        var serializedAsset = EditorExtends.serialize(mainAsset);
         delete mainAsset.__id__;
         delete asset.__id__;
         var deserializedAsset = cc.deserialize(serializedAsset, null, useTarget ? {target: mainAsset} : null);
@@ -306,7 +306,7 @@ if (TestEditorExtends) {
         })();
 
         var expectAsset = new MyAsset();
-        //cc.log(Editor.serialize(expectAsset));
+        //cc.log(EditorExtends.serialize(expectAsset));
         var json = '[{"__type__":"MyAsset","array1":{"__id__":1},"array2":{"__id__":2}},[1,{"__id__":2}],[{"__id__":1},2]]';
         var deserializedAsset = cc.deserialize(json, null, useTarget ? {target: expectAsset} : null);
 
@@ -358,7 +358,7 @@ if (TestEditorExtends) {
         var myAsset = new MyAsset();
         myAsset.tmpVal = 321;
         myAsset.saveVal = 111;
-        var data = Editor.serialize(myAsset);
+        var data = EditorExtends.serialize(myAsset);
         myAsset.saveVal = 0;
 
         var newAsset = cc.deserialize(data, null, { target:myAsset });
@@ -387,7 +387,7 @@ if (TestEditorExtends) {
             }
         });
         var a = new Asset();
-        var sa = Editor.serialize(a, { stringify: false });
+        var sa = EditorExtends.serialize(a, { stringify: false });
         deepEqual(sa.content, [1, 2], 'should pack value to array');
 
         var da = cc.deserialize(sa);

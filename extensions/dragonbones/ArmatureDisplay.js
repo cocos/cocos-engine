@@ -401,7 +401,7 @@ let ArmatureDisplay = cc.Class({
             // update inspector
             this._updateArmatureEnum();
             this._updateAnimEnum();
-            Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
+            // Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
         }
     },
 

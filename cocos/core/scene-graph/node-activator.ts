@@ -143,7 +143,7 @@ function _componentCorrupted (node, comp, index) {
 function _onLoadInEditor (comp) {
     if (comp.onLoad && !legacyCC.engine._isPlaying) {
         // @ts-ignore
-        const focused = Editor.Selection.curActivate('node') === comp.node.uuid;
+        const focused = Editor.Selection.getLastSelected('node') === comp.node.uuid;
         if (focused) {
             if (comp.onFocusInEditor && callOnFocusInTryCatch) {
                 callOnFocusInTryCatch(comp);

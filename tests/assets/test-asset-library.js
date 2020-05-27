@@ -21,7 +21,7 @@
             //var texture = new TestTexture();
             //texture.height = 123;
             //texture.width = 321;
-            //cc.log(Editor.serialize(texture));
+            //cc.log(EditorExtends.serialize(texture));
 
             AssetLibrary.loadAsset(grossini_uuid, function (err, asset) {
                 clearTimeout(timerId);
@@ -42,7 +42,7 @@
         //var sprite = new cc.SpriteFrame();
         //sprite.texture = new TestTexture();
         //sprite.texture._uuid = grossini_uuid;
-        //cc.log(Editor.serialize(sprite));
+        //cc.log(EditorExtends.serialize(sprite));
 
         AssetLibrary.loadAsset(grossiniSprite_uuid, function (err, asset) {
             if (err) {
