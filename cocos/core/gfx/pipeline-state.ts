@@ -151,7 +151,6 @@ export class GFXInputState {
 export interface IGFXPipelineStateInfo {
     primitive: GFXPrimitiveMode;
     shader: GFXShader;
-    // inputState: GFXInputState;
     inputAssember: GFXInputAssembler,
     rasterizerState: GFXRasterizerState;
     depthStencilState: GFXDepthStencilState;
