@@ -8,7 +8,6 @@ import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { GFXClearFlag, GFXCommandBufferType, IGFXColor, IGFXRect } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
-import { GFXPipelineState } from '../gfx/pipeline-state';
 import { Pass } from '../renderer/core/pass';
 import { ccenum } from '../value-types/enum';
 import { IRenderPass } from './define';
@@ -17,7 +16,7 @@ import { RenderFlow } from './render-flow';
 import { RenderPipeline } from './render-pipeline';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from './render-queue';
 import { RenderView } from './render-view';
-import { IPSOCreationInfo } from '../renderer';
+import { IPSOCreateInfo } from '../renderer';
 
 const _colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -191,7 +190,7 @@ export abstract class RenderStage {
      * @zh
      * GFX管线状态。
      */
-    protected _psoCreateInfo: IPSOCreationInfo | null = null;
+    protected _psoCreateInfo: IPSOCreateInfo | null = null;
 
     /**
      * 构造函数。

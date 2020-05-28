@@ -33,7 +33,6 @@ import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
-import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Vec3 } from '../../math';
 import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UniformJointTexture } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
@@ -43,7 +42,7 @@ import { DataPoolManager } from '../data-pool-manager';
 import { Model, ModelType } from '../scene/model';
 import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
-import { IPSOCreationInfo } from '../scene/submodel';
+import { IPSOCreateInfo } from '../scene/submodel';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;
@@ -220,7 +219,7 @@ export class BakedSkinningModel extends MorphModel {
         }
     }
 
-    protected updateInstancedAttributeList (psoCreateInfo: IPSOCreationInfo, pass: Pass) {
+    protected updateInstancedAttributeList (psoCreateInfo: IPSOCreateInfo, pass: Pass) {
         // super.updateInstancedAttributeList(psoCreateInfo, pass);
         // this._instAnimInfoIdx = this.getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
     }

@@ -29,7 +29,7 @@
 import { Material } from '../../assets/material';
 import { Pool } from '../../memop';
 import { Pass } from '../../renderer/core/pass';
-import { IPSOCreationInfo } from '../scene/submodel';
+import { IPSOCreateInfo } from '../scene/submodel';
 
 export interface IUIMaterialInfo {
     material: Material;
@@ -47,7 +47,7 @@ export class UIMaterial {
 
     protected _material: Material | null = null;
     protected _pass: Pass | null = null;
-    private _psoCreateInfo: Pool<IPSOCreationInfo> | null;
+    private _psoCreateInfo: Pool<IPSOCreateInfo> | null;
     private _refCount: number = 0;
 
     constructor () {
@@ -88,17 +88,17 @@ export class UIMaterial {
         return this._refCount;
     }
 
-    public getPipelineCreateInfo (): IPSOCreationInfo {
+    public getPipelineCreateInfo (): IPSOCreateInfo {
         return this._psoCreateInfo!.alloc();
     }
 
-    public revertPipelineCreateInfo (psoCeateInfo: IPSOCreationInfo) {
+    public revertPipelineCreateInfo (psoCeateInfo: IPSOCreateInfo) {
         this._psoCreateInfo!.free(psoCeateInfo);
     }
 
     public destroy () {
         if (this._psoCreateInfo) {
-            this._psoCreateInfo.clear((obj: IPSOCreationInfo) => {
+            this._psoCreateInfo.clear((obj: IPSOCreateInfo) => {
                 const { bindingLayout: bl, pipelineLayout: pl } = obj;
                 bl.destroy();
                 pl.destroy();

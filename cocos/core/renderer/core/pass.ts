@@ -52,7 +52,7 @@ import { customizeType, getBindingFromHandle, getBindingTypeFromHandle,
     getDefaultFromType, getOffsetFromHandle, getTypeFromHandle, IDefineMap, MaterialProperty, type2reader, type2writer } from './pass-utils';
 import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
-import { IPSOCreationInfo } from '../scene/submodel';
+import {IPSOCreateInfo } from '../scene/submodel';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -509,12 +509,12 @@ export class Pass {
 
     /**
      * @zh
-     * 根据当前 pass 持有的信息获取 [[IPSOCreationInfo]]。
+     * 根据当前 pass 持有的信息获取 [[IPSOCreateInfo]]。
      * @en
-     * Get [[IPSOCreationInfo]] from pass.
+     * Get [[IPSOCreateInfo]] from pass.
      * @param patches the marcos to be used in shader.
      */
-    public getPipelineCreateInfo (patches?: IMacroPatch[]): IPSOCreationInfo | null {
+    public getPipelineCreateInfo (patches?: IMacroPatch[]): IPSOCreateInfo | null {
         if ((!this._shader || !this._bindings.length) && !this.tryCompile()) {
             console.warn(`pass resources not complete, create PSO hash info failed`);
             return null;

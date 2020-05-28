@@ -12,7 +12,7 @@ import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../../g
 import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
 import { GFXBindingLayout } from '../../gfx';
 
-export interface IPSOCreationInfo {
+export interface IPSOCreateInfo {
     shader: GFXShader;
     primitive: GFXPrimitiveMode;
     rasterizerState: GFXRasterizerState;
@@ -27,7 +27,7 @@ export interface IPSOCreationInfo {
 export class SubModel {
 
     public priority: RenderPriority = RenderPriority.DEFAULT;
-    protected _psoCreateInfos: IPSOCreationInfo[] = [];
+    protected _psoCreateInfos: IPSOCreateInfo[] = [];
     protected _subMeshObject: RenderingSubMesh | null = null;
     protected _material: Material | null = null;
     protected _inputAssembler: GFXInputAssembler | null = null;

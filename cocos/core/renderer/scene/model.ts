@@ -12,7 +12,7 @@ import { INST_MAT_WORLD, UBOForwardLight, UBOLocal } from '../../pipeline/define
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from './render-scene';
-import { SubModel, IPSOCreationInfo } from './submodel';
+import { SubModel, IPSOCreateInfo } from './submodel';
 import { Pass } from '../core/pass';
 
 const m4_1 = new Mat4();
@@ -262,7 +262,7 @@ export class Model {
     }
 
     // for now no submodel level instancing attributes
-    protected updateInstancedAttributeList (psoCreateInfo: IPSOCreationInfo, pass: Pass) {
+    protected updateInstancedAttributeList (psoCreateInfo: IPSOCreateInfo, pass: Pass) {
         // if (!pass || !psoCreateInfo) {
         //     return;
         // }

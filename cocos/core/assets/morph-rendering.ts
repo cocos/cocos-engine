@@ -12,7 +12,7 @@ import { warn } from '../platform/debug';
 import { MorphRendering, SubMeshMorph, Morph, MorphRenderingInstance } from './morph';
 import { assertIsNonNullable, assertIsTrue } from '../data/utils/asserts';
 import { nextPow2 } from '../math/bits';
-import { IMacroPatch, IPSOCreationInfo } from '../renderer';
+import { IMacroPatch, IPSOCreateInfo } from '../renderer';
 
 /**
  * True if force to use cpu computing based sub-mesh rendering.
@@ -95,7 +95,7 @@ export class StdMorphRendering implements MorphRendering {
                 return patches;
             },
 
-            adaptPipelineState: (subMeshIndex: number, pipelineCreateInfo: IPSOCreationInfo) => {
+            adaptPipelineState: (subMeshIndex: number, pipelineCreateInfo: IPSOCreateInfo) => {
                 subMeshInstances[subMeshIndex]?.adaptPipelineState(pipelineCreateInfo);
             },
 
@@ -137,7 +137,7 @@ interface SubMeshMorphRenderingInstance {
      * Adapts the pipelineState to apply the rendering.
      * @param pipelineState 
      */
-    adaptPipelineState(pipelineCreateInfo: IPSOCreationInfo): void;
+    adaptPipelineState(pipelineCreateInfo: IPSOCreateInfo): void;
 
     /**
      * Destroy this instance.
@@ -258,7 +258,7 @@ class GpuComputing implements SubMeshMorphRendering {
                 return [{ name: 'CC_MORPH_TARGET_USE_TEXTURE', value: true, }];
             },
 
-            adaptPipelineState: (pipelineCreateInfo: IPSOCreationInfo) => {
+            adaptPipelineState: (pipelineCreateInfo: IPSOCreateInfo) => {
                 const bindingLayout = pipelineCreateInfo.bindingLayout;
                 for (const attribute of this._attributes) {
                     let binding: number | undefined;
@@ -437,7 +437,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
         ];
     }
 
-    public adaptPipelineState (pipelineCreateInfo: IPSOCreationInfo) {
+    public adaptPipelineState (pipelineCreateInfo: IPSOCreateInfo) {
         const bindingLayout = pipelineCreateInfo.bindingLayout;
         for (const attribute of this._attributes) {
             const attributeName = attribute.attributeName;

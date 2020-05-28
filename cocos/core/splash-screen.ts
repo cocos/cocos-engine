@@ -19,7 +19,7 @@ import { clamp01 } from './math/utils';
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import { sys } from './platform/sys';
 import { GFXSampler } from './gfx';
-import { IPSOCreationInfo } from './renderer';
+import { IPSOCreateInfo } from './renderer';
 import { PipelineStateManager } from './pipeline/pipeline-state-manager';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
@@ -55,7 +55,7 @@ export class SplashScreen {
     private assmebler!: GFXInputAssembler;
     private vertexBuffers!: GFXBuffer;
     private indicesBuffers!: GFXBuffer;
-    private psoCreateInfo!: IPSOCreationInfo;
+    private psoCreateInfo!: IPSOCreateInfo;
     private framebuffer!: GFXFramebuffer;
     private renderArea!: IGFXRect;
     private region!: GFXBufferTextureCopy;
@@ -77,7 +77,7 @@ export class SplashScreen {
     private textIB!: GFXBuffer;
     private textAssmebler!: GFXInputAssembler;
     private textMaterial!: Material;
-    private textPSOCreateInfo!: IPSOCreationInfo;
+    private textPSOCreateInfo!: IPSOCreateInfo;
 
     private screenWidth!: number;
     private screenHeight!: number;
@@ -318,7 +318,7 @@ export class SplashScreen {
         const binding = pass.getBinding('mainTexture');
         pass.bindTextureView(binding!, this.textTextureView!);
 
-        this.textPSOCreateInfo = pass.getPipelineCreateInfo() as IPSOCreationInfo;
+        this.textPSOCreateInfo = pass.getPipelineCreateInfo() as IPSOCreateInfo;
         this.textPSOCreateInfo.bindingLayout.update();
 
         /** Assembler */
@@ -506,7 +506,7 @@ export class SplashScreen {
         const binding = pass.getBinding('mainTexture');
         pass.bindTextureView(binding!, this.textureView!);
 
-        this.psoCreateInfo = pass.getPipelineCreateInfo() as IPSOCreationInfo;
+        this.psoCreateInfo = pass.getPipelineCreateInfo() as IPSOCreateInfo;
         this.psoCreateInfo.bindingLayout.bindSampler(binding!, this.sampler);
         this.psoCreateInfo.bindingLayout.update();
 

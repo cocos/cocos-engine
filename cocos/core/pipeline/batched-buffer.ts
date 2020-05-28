@@ -7,7 +7,7 @@ import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { Mat4 } from '../math';
 import { Pass } from '../renderer/core/pass';
-import { SubModel, IPSOCreationInfo } from '../renderer/scene/submodel';
+import { SubModel, IPSOCreateInfo } from '../renderer/scene/submodel';
 import { IRenderObject, UBOLocalBatched } from './define';
 
 export interface IBatchedItem {
@@ -20,7 +20,7 @@ export interface IBatchedItem {
     ia: GFXInputAssembler;
     ubo: GFXBuffer;
     uboData: UBOLocalBatched;
-    psoCreateInfo: IPSOCreationInfo;
+    psoCreateInfo: IPSOCreateInfo;
 }
 
 const _localBatched = new UBOLocalBatched();

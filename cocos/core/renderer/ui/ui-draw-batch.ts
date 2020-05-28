@@ -10,8 +10,8 @@ import { Node } from '../../scene-graph';
 import { Camera } from '../scene/camera';
 import { Model } from '../scene/model';
 import { UI } from './ui';
-import { GFXInputAssembler, IGFXAttribute } from '../../gfx/input-assembler';
-import { IPSOCreationInfo } from '../scene/submodel';
+import { GFXInputAssembler } from '../../gfx/input-assembler';
+import { IPSOCreateInfo } from '../scene/submodel';
 
 export class UIDrawBatch {
     private _bufferBatch: MeshBuffer | null = null;
@@ -22,7 +22,7 @@ export class UIDrawBatch {
     public material: Material | null = null;
     public texView: GFXTextureView | null = null;
     public sampler: GFXSampler | null = null;
-    public psoCreateInfo: IPSOCreationInfo | null = null;
+    public psoCreateInfo: IPSOCreateInfo | null = null;
     public bindingLayout: GFXBindingLayout | null = null;
     public useLocalData: Node | null = null;
     public isStatic = false;

@@ -3,7 +3,7 @@
  */
 
 import { GFXPipelineState, IGFXPipelineStateInfo } from '../gfx/pipeline-state';
-import { IPSOCreationInfo } from '../renderer/scene/submodel';
+import { IPSOCreateInfo } from '../renderer/scene/submodel';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXInputAssembler } from '../gfx/input-assembler';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
@@ -14,7 +14,7 @@ export class PipelineStateManager {
 
     static getOrCreatePipelineState(
         device: GFXDevice,
-        psoCreateInfo: IPSOCreationInfo,
+        psoCreateInfo: IPSOCreateInfo,
         renderPass: GFXRenderPass,
         ia: GFXInputAssembler
         ): GFXPipelineState {
