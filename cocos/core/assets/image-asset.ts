@@ -262,7 +262,8 @@ export class ImageAsset extends Asset {
                 // check whether or not support compressed texture
                 if ( tmpExt === '.pvr' && (!device || !device.hasFeature(GFXFeature.FORMAT_PVRTC))) {
                     continue;
-                } else if (fmt === PixelFormat.RGB_ETC1 && (!device || !device.hasFeature(GFXFeature.FORMAT_ETC1))) {
+                } else if ((fmt === PixelFormat.RGB_ETC1 || fmt === PixelFormat.RGBA_ETC1) &&
+                    (!device || !device.hasFeature(GFXFeature.FORMAT_ETC1))) {
                     continue;
                 } else if ((fmt === PixelFormat.RGB_ETC2 || fmt === PixelFormat.RGBA_ETC2) &&
                     (!device || !device.hasFeature(GFXFeature.FORMAT_ETC2))) {
