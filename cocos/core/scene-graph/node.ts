@@ -461,7 +461,8 @@ export class Node extends BaseNode {
         dirtyBit |= TransformBit.POSITION;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
-            this._children[i].invalidateChildren(dirtyBit);
+            const child = this._children[i];
+            child.isValid && child.invalidateChildren(dirtyBit);
         }
     }
 
