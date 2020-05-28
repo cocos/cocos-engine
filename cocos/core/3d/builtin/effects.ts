@@ -167,7 +167,7 @@ export default [
           "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }], "samplers": [] }
         },
         "defines": [
-          { "name": "CC_RENDER_MODE", "type": "number", "dummyDependency": true, "range": [0, 4] },
+          { "name": "CC_RENDER_MODE", "type": "number", "range": [0, 4] },
           { "name": "CC_DRAW_WIRE_FRAME", "type": "boolean" },
           { "name": "CC_USE_WORLD_SPACE", "type": "boolean" },
           { "name": "CC_USE_HDR", "type": "boolean" }
@@ -314,7 +314,7 @@ export default [
           { "name": "USE_INSTANCING", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
-          { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "dummyDependency": true, "range": [2, 8] },
+          { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
           { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
@@ -328,21 +328,21 @@ export default [
           { "name": "CC_USE_IBL", "type": "number", "range": [0, 2] },
           { "name": "CC_USE_HDR", "type": "boolean" },
           { "name": "USE_ALBEDO_MAP", "type": "boolean" },
-          { "name": "ALBEDO_UV", "type": "string", "dummyDependency": true, "options": ["v_uv", "v_uv1"] },
-          { "name": "NORMAL_UV", "type": "string", "dummyDependency": true, "options": ["v_uv", "v_uv1"] },
+          { "name": "ALBEDO_UV", "type": "string", "options": ["v_uv", "v_uv1"] },
+          { "name": "NORMAL_UV", "type": "string", "options": ["v_uv", "v_uv1"] },
           { "name": "USE_PBR_MAP", "type": "boolean" },
-          { "name": "PBR_UV", "type": "string", "dummyDependency": true, "options": ["v_uv", "v_uv1"] },
+          { "name": "PBR_UV", "type": "string", "options": ["v_uv", "v_uv1"] },
           { "name": "USE_METALLIC_ROUGHNESS_MAP", "type": "boolean" },
-          { "name": "METALLIC_ROUGHNESS_UV", "type": "string", "dummyDependency": true, "options": ["v_uv", "v_uv1"] },
+          { "name": "METALLIC_ROUGHNESS_UV", "type": "string", "options": ["v_uv", "v_uv1"] },
           { "name": "USE_OCCLUSION_MAP", "type": "boolean" },
-          { "name": "OCCLUSION_UV", "type": "string", "dummyDependency": true, "options": ["v_uv", "v_uv1"] },
+          { "name": "OCCLUSION_UV", "type": "string", "options": ["v_uv", "v_uv1"] },
           { "name": "USE_EMISSIVE_MAP", "type": "boolean" },
-          { "name": "EMISSIVE_UV", "type": "string", "dummyDependency": true, "options": ["v_uv", "v_uv1"] },
-          { "name": "OCCLUSION_CHANNEL", "type": "string", "dummyDependency": true, "options": ["r", "g", "b"] },
-          { "name": "ROUGHNESS_CHANNEL", "type": "string", "dummyDependency": true, "options": ["g", "b", "r"] },
-          { "name": "METALLIC_CHANNEL", "type": "string", "dummyDependency": true, "options": ["b", "r", "g"] },
+          { "name": "EMISSIVE_UV", "type": "string", "options": ["v_uv", "v_uv1"] },
+          { "name": "OCCLUSION_CHANNEL", "type": "string", "options": ["r", "g", "b"] },
+          { "name": "ROUGHNESS_CHANNEL", "type": "string", "options": ["g", "b", "r"] },
+          { "name": "METALLIC_CHANNEL", "type": "string", "options": ["b", "r", "g"] },
           { "name": "USE_ALPHA_TEST", "type": "boolean" },
-          { "name": "ALPHA_TEST_CHANNEL", "type": "string", "dummyDependency": true, "options": ["a", "r"] }
+          { "name": "ALPHA_TEST_CHANNEL", "type": "string", "options": ["a", "r"] }
         ],
         "blocks": [
           {"name": "Constants", "defines": [], "binding": 0, "members": [
@@ -456,7 +456,7 @@ export default [
           { "name": "USE_INSTANCING", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
-          { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "dummyDependency": true, "range": [2, 8] },
+          { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
           { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
@@ -469,7 +469,7 @@ export default [
           { "name": "FLIP_UV", "type": "boolean" },
           { "name": "CC_USE_HDR", "type": "boolean" },
           { "name": "USE_ALPHA_TEST", "type": "boolean" },
-          { "name": "ALPHA_TEST_CHANNEL", "type": "string", "dummyDependency": true, "options": ["a", "r", "g", "b"] }
+          { "name": "ALPHA_TEST_CHANNEL", "type": "string", "options": ["a", "r", "g", "b"] }
         ],
         "blocks": [
           {"name": "TexCoords", "defines": ["USE_TEXTURE"], "binding": 0, "members": [
@@ -525,7 +525,7 @@ export default [
           { "name": "USE_INSTANCING", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
-          { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "dummyDependency": true, "range": [2, 8] },
+          { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
           { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
@@ -574,7 +574,7 @@ export default [
           "locals": { "blocks": [], "samplers": [] }
         },
         "defines": [
-          { "name": "CC_USE_IBL", "type": "number", "dummyDependency": true, "range": [0, 2] },
+          { "name": "CC_USE_IBL", "type": "number", "range": [0, 2] },
           { "name": "CC_USE_HDR", "type": "boolean" },
           { "name": "USE_RGBE_CUBEMAP", "type": "boolean" }
         ],
