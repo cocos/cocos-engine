@@ -63,7 +63,7 @@ export enum InstanceMaterialType {
      * @zh
      * 着色器只带颜色属性。
      */
-    ADDCOLOR = 0,
+    ADD_COLOR = 0,
 
     /**
      * @en
@@ -72,7 +72,7 @@ export enum InstanceMaterialType {
      * @zh
      * 着色器带颜色和贴图属性。
      */
-    ADDCOLORANDTEXTURE = 1,
+    ADD_COLOR_AND_TEXTURE = 1,
 
     /**
      * @en
@@ -90,7 +90,7 @@ export enum InstanceMaterialType {
      * @zh
      * 着色器带颜色和贴图属性,并使用透明通道分离贴图。
      */
-    USEEMBEDDEDALPHA = 3,
+    USE_ALPHA_SEPARATED = 3,
 
     /**
      * @en
@@ -99,7 +99,7 @@ export enum InstanceMaterialType {
      * @zh
      * 着色器带颜色和贴图属性,并使用灰度模式。
      */
-    USEEMBEDDEDALPHAANDGRAY = 4,
+    USE_ALPHA_SEPARATED_AND_GRAY = 4,
 }
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -275,7 +275,7 @@ export class UIRenderComponent extends UIComponent {
     // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
     protected _delegateSrc: Node | null = null;
     protected _material: Material | null = null;
-    protected _instanceMaterialType = InstanceMaterialType.ADDCOLORANDTEXTURE;
+    protected _instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
     protected _blendTemplate = {
         blendState: {
             targets: [
@@ -459,11 +459,11 @@ export class UIRenderComponent extends UIComponent {
             mat = new MaterialInstance(_matInsInfo);
         } else {
             switch (this._instanceMaterialType) {
-                case InstanceMaterialType.ADDCOLOR:
+                case InstanceMaterialType.ADD_COLOR:
                     _matInsInfo.parent = builtinResMgr.get('ui-base-material');
                     mat = new MaterialInstance(_matInsInfo);
                     break;
-                case InstanceMaterialType.ADDCOLORANDTEXTURE:
+                case InstanceMaterialType.ADD_COLOR_AND_TEXTURE:
                     _matInsInfo.parent = builtinResMgr.get('ui-sprite-material');
                     mat = new MaterialInstance(_matInsInfo);
                     break;
@@ -471,12 +471,12 @@ export class UIRenderComponent extends UIComponent {
                     _matInsInfo.parent = builtinResMgr.get('ui-sprite-gray-material');
                     mat = new MaterialInstance(_matInsInfo);
                     break;
-                case InstanceMaterialType.USEEMBEDDEDALPHA:
-                    _matInsInfo.parent = builtinResMgr.get('ui-sprite-alpha-material');
+                case InstanceMaterialType.USE_ALPHA_SEPARATED:
+                    _matInsInfo.parent = builtinResMgr.get('ui-sprite-alpha-sep-material');
                     mat = new MaterialInstance(_matInsInfo);
                     break;
-                case InstanceMaterialType.USEEMBEDDEDALPHAANDGRAY:
-                    _matInsInfo.parent = builtinResMgr.get('ui-sprite-alpha-gray-material');
+                case InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY:
+                    _matInsInfo.parent = builtinResMgr.get('ui-sprite-gray-alpha-sep-material');
                     mat = new MaterialInstance(_matInsInfo);
                     break;
             }

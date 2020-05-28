@@ -257,14 +257,14 @@ export default [
     "shaders": [
       {
         "name": "builtin-sprite|sprite-vs:vert|sprite-fs:frag",
-        "hash": 951794746,
+        "hash": 2999916052,
         "glsl3": {
           "vert": `\nprecision mediump float;\nuniform CCGlobal {\n  highp   vec4 cc_time;\n  mediump vec4 cc_screenSize;\n  mediump vec4 cc_screenScale;\n  mediump vec4 cc_nativeSize;\n  highp   mat4 cc_matView;\n  highp   mat4 cc_matViewInv;\n  highp   mat4 cc_matProj;\n  highp   mat4 cc_matProjInv;\n  highp   mat4 cc_matViewProj;\n  highp   mat4 cc_matViewProjInv;\n  highp   vec4 cc_cameraPos;\n  mediump vec4 cc_exposure;\n  mediump vec4 cc_mainLitDir;\n  mediump vec4 cc_mainLitColor;\n  mediump vec4 cc_ambientSky;\n  mediump vec4 cc_ambientGround;\n  mediump vec4 cc_fogColor;\n  mediump vec4 cc_fogBase;\n  mediump vec4 cc_fogAdd;\n};\n#if USE_LOCAL\nuniform CCLocal {\n  highp mat4 cc_matWorld;\n  highp mat4 cc_matWorldIT;\n};\n#endif\nin vec3 a_position;\nin vec2 a_texCoord;\nin vec4 a_color;\nout vec4 color;\nout vec2 uv0;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  #if USE_LOCAL\n    pos = cc_matViewProj * cc_matWorld * pos;\n  #else\n    pos = cc_matViewProj * pos;\n  #endif\n  uv0 = a_texCoord;\n  color = a_color;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }`,
-          "frag": `\nprecision mediump float;\nvec4 CCSampleTexture(sampler2D tex, vec2 uv) {\n#if CC_USE_EMBEDDED_ALPHA\n    return vec4(texture(tex, uv).rgb, texture(tex, uv + vec2(0.0, 0.5)).r);\n#else\n    return texture(tex, uv);\n#endif\n}\nin vec4 color;\n#if USE_TEXTURE\n  in vec2 uv0;\n  uniform sampler2D mainTexture;\n#endif\nvec4 frag () {\n  vec4 o = vec4(1, 1, 1, 1);\n  #if USE_TEXTURE\n    o *= CCSampleTexture(mainTexture, uv0);\n    #if IS_GRAY\n      float gray  = 0.2126 * o.r + 0.7152 * o.g + 0.0722 * o.b;\n      o.r = o.g = o.b = gray;\n    #endif\n  #endif\n  o *= color;\n  return o;\n}\nout vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }`
+          "frag": `\nprecision mediump float;\nvec4 CCSampleTexture(sampler2D tex, vec2 uv) {\n#if CC_ALPHA_SEPARATED\n    return vec4(texture(tex, uv).rgb, texture(tex, uv + vec2(0.0, 0.5)).r);\n#else\n    return texture(tex, uv);\n#endif\n}\nin vec4 color;\n#if USE_TEXTURE\n  in vec2 uv0;\n  uniform sampler2D mainTexture;\n#endif\nvec4 frag () {\n  vec4 o = vec4(1, 1, 1, 1);\n  #if USE_TEXTURE\n    o *= CCSampleTexture(mainTexture, uv0);\n    #if IS_GRAY\n      float gray  = 0.2126 * o.r + 0.7152 * o.g + 0.0722 * o.b;\n      o.r = o.g = o.b = gray;\n    #endif\n  #endif\n  o *= color;\n  return o;\n}\nout vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }`
         },
         "glsl1": {
           "vert": `\nprecision mediump float;\nuniform highp mat4 cc_matViewProj;\n#if USE_LOCAL\nuniform highp mat4 cc_matWorld;\n#endif\nattribute vec3 a_position;\nattribute vec2 a_texCoord;\nattribute vec4 a_color;\nvarying vec4 color;\nvarying vec2 uv0;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  #if USE_LOCAL\n    pos = cc_matViewProj * cc_matWorld * pos;\n  #else\n    pos = cc_matViewProj * pos;\n  #endif\n  uv0 = a_texCoord;\n  color = a_color;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }`,
-          "frag": `\nprecision mediump float;\nvec4 CCSampleTexture(sampler2D tex, vec2 uv) {\n#if CC_USE_EMBEDDED_ALPHA\n    return vec4(texture2D(tex, uv).rgb, texture2D(tex, uv + vec2(0.0, 0.5)).r);\n#else\n    return texture2D(tex, uv);\n#endif\n}\nvarying vec4 color;\n#if USE_TEXTURE\n  varying vec2 uv0;\n  uniform sampler2D mainTexture;\n#endif\nvec4 frag () {\n  vec4 o = vec4(1, 1, 1, 1);\n  #if USE_TEXTURE\n    o *= CCSampleTexture(mainTexture, uv0);\n    #if IS_GRAY\n      float gray  = 0.2126 * o.r + 0.7152 * o.g + 0.0722 * o.b;\n      o.r = o.g = o.b = gray;\n    #endif\n  #endif\n  o *= color;\n  return o;\n}\nvoid main() { gl_FragColor = frag(); }`
+          "frag": `\nprecision mediump float;\nvec4 CCSampleTexture(sampler2D tex, vec2 uv) {\n#if CC_ALPHA_SEPARATED\n    return vec4(texture2D(tex, uv).rgb, texture2D(tex, uv + vec2(0.0, 0.5)).r);\n#else\n    return texture2D(tex, uv);\n#endif\n}\nvarying vec4 color;\n#if USE_TEXTURE\n  varying vec2 uv0;\n  uniform sampler2D mainTexture;\n#endif\nvec4 frag () {\n  vec4 o = vec4(1, 1, 1, 1);\n  #if USE_TEXTURE\n    o *= CCSampleTexture(mainTexture, uv0);\n    #if IS_GRAY\n      float gray  = 0.2126 * o.r + 0.7152 * o.g + 0.0722 * o.b;\n      o.r = o.g = o.b = gray;\n    #endif\n  #endif\n  o *= color;\n  return o;\n}\nvoid main() { gl_FragColor = frag(); }`
         },
         "builtins": {
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }], "samplers": [] },
@@ -272,7 +272,7 @@ export default [
         },
         "defines": [
           { "name": "USE_LOCAL", "type": "boolean" },
-          { "name": "CC_USE_EMBEDDED_ALPHA", "type": "boolean" },
+          { "name": "CC_ALPHA_SEPARATED", "type": "boolean" },
           { "name": "USE_TEXTURE", "type": "boolean" },
           { "name": "IS_GRAY", "type": "boolean" }
         ],
