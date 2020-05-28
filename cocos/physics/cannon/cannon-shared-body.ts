@@ -7,7 +7,7 @@ import { CannonShape } from './shapes/cannon-shape';
 import { ColliderComponent } from '../../../exports/physics-framework';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Node } from '../../core';
-import { CollisionEventType } from '../framework/physics-interface';
+import { CollisionEventType, IContactEquation } from '../framework/physics-interface';
 import { CannonRigidBody } from './cannon-rigid-body';
 import { commitShapeUpdates } from './cannon-util';
 
@@ -18,8 +18,7 @@ const CollisionEventObject = {
     type: 'onCollisionEnter' as CollisionEventType,
     selfCollider: null as ColliderComponent | null,
     otherCollider: null as ColliderComponent | null,
-    contacts: [] as any,
-    isBodyA: false,
+    contacts: [] as IContactEquation[],
 };
 
 /**
@@ -166,7 +165,6 @@ export class CannonSharedBody {
         const self = getWrap<CannonShape>(event.selfShape);
         const other = getWrap<CannonShape>(event.otherShape);
         if (self) {
-            CollisionEventObject.isBodyA = event['bi'] == event.selfShape.body;
             CollisionEventObject.selfCollider = self.collider;
             CollisionEventObject.otherCollider = other ? other.collider : null;
             let i = 0;

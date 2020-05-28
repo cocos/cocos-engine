@@ -116,6 +116,7 @@ export interface ICollisionEvent {
      */
     readonly otherCollider: ColliderComponent;
 
+    // TODO: Provide interface to dynamic instantiate instead static data
     /**
      * @en
      * Information about all points of impact in a collision event.
@@ -124,13 +125,6 @@ export interface ICollisionEvent {
      */
     readonly contacts: IContactEquation[];
 
-    /**
-     * @en
-     * Used to marks the selfCollider is `A` or not.
-     * @zh
-     * 用于标记自身碰撞器是否为`A`.
-     */
-    readonly isBodyA: boolean;
 }
 
 /**
