@@ -295,12 +295,12 @@ export class AmmoWorld implements IPhysicsWorld {
 
                     CollisionEventObject.selfCollider = collider0;
                     CollisionEventObject.otherCollider = collider1;
-                    CollisionEventObject.isA = true;
+                    CollisionEventObject.isBodyA = true;
                     collider0.emit(CollisionEventObject.type, CollisionEventObject);
 
                     CollisionEventObject.selfCollider = collider1;
                     CollisionEventObject.otherCollider = collider0;
-                    CollisionEventObject.isA = false;
+                    CollisionEventObject.isBodyA = false;
                     collider1.emit(CollisionEventObject.type, CollisionEventObject);
                 }
 
@@ -366,12 +366,12 @@ export class AmmoWorld implements IPhysicsWorld {
                             CollisionEventObject.type = 'onCollisionExit';
                             CollisionEventObject.selfCollider = collider0;
                             CollisionEventObject.otherCollider = collider1;
-                            CollisionEventObject.isA = true;
+                            CollisionEventObject.isBodyA = true;
                             collider0.emit(CollisionEventObject.type, CollisionEventObject);
 
                             CollisionEventObject.selfCollider = collider1;
                             CollisionEventObject.otherCollider = collider0;
-                            CollisionEventObject.isA = false;
+                            CollisionEventObject.isBodyA = false;
                             collider1.emit(CollisionEventObject.type, CollisionEventObject);
 
                             this.collisionArrayMat.set(shape0.id, shape1.id, false);

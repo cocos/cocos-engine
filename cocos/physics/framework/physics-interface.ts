@@ -130,7 +130,7 @@ export interface ICollisionEvent {
      * @zh
      * 用于标记自身碰撞器是否为`A`.
      */
-    readonly isA: boolean;
+    readonly isBodyA: boolean;
 }
 
 /**
