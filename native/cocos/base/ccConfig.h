@@ -93,6 +93,12 @@ THE SOFTWARE.
 #define CC_USE_WEBP  1
 #endif // CC_USE_WEBP
 
+/** Support EditBox 
+ */
+#ifndef CC_USE_EDITBOX
+#define CC_USE_EDITBOX 1
+#endif
+
 #ifndef CC_FILEUTILS_APPLE_ENABLE_OBJC
 #define CC_FILEUTILS_APPLE_ENABLE_OBJC  1
 #endif

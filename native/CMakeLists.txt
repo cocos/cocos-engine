@@ -57,6 +57,13 @@ if(USE_SE_JSC)
     set(USE_V8_DEBUGGER OFF)
 endif()
 
+
+## disable webview & videoplay on non-mobile platforms
+if(NOT ANDROID AND NOT IOS)
+    set(USE_WEBVIEW OFF)
+    set(USE_VIDEOPLAYER OFF)
+endif()
+
 ################################# external source code ################################
 
 
@@ -86,109 +93,111 @@ cocos_source_files(
 )
 
 ##### audio
-cocos_source_files(
-    cocos/audio/AudioEngine.cpp
-    cocos/audio/include/AudioEngine.h
-    cocos/audio/include/Export.h
-)
-if(WINDOWS)
+if(USE_AUDIO)
     cocos_source_files(
-        cocos/audio/win32/AudioCache.cpp
-        cocos/audio/win32/AudioCache.h
-        cocos/audio/win32/AudioDecoder.cpp
-        cocos/audio/win32/AudioDecoder.h
-        cocos/audio/win32/AudioDecoderManager.cpp
-        cocos/audio/win32/AudioDecoderManager.h
-        cocos/audio/win32/AudioDecoderMp3.cpp
-        cocos/audio/win32/AudioDecoderMp3.h
-        cocos/audio/win32/AudioDecoderOgg.cpp
-        cocos/audio/win32/AudioDecoderOgg.h
-        cocos/audio/win32/AudioEngine-win32.cpp
-        cocos/audio/win32/AudioEngine-win32.h
-        cocos/audio/win32/AudioMacros.h
-        cocos/audio/win32/AudioPlayer.cpp
-        cocos/audio/win32/AudioPlayer.h
+        cocos/audio/AudioEngine.cpp
+        cocos/audio/include/AudioEngine.h
+        cocos/audio/include/Export.h
     )
-elseif(ANDROID)
-    cocos_source_files(
-        cocos/audio/android/AssetFd.cpp
-        cocos/audio/android/AssetFd.h
-        cocos/audio/android/audio.h
-        cocos/audio/android/AudioBufferProvider.h
-        cocos/audio/android/AudioDecoder.cpp
-        cocos/audio/android/AudioDecoder.h
-        cocos/audio/android/AudioDecoderMp3.cpp
-        cocos/audio/android/AudioDecoderMp3.h
-        cocos/audio/android/AudioDecoderOgg.cpp
-        cocos/audio/android/AudioDecoderOgg.h
-        cocos/audio/android/AudioDecoderProvider.cpp
-        cocos/audio/android/AudioDecoderProvider.h
-        cocos/audio/android/AudioDecoderSLES.cpp
-        cocos/audio/android/AudioDecoderSLES.h
-        cocos/audio/android/AudioDecoderWav.cpp
-        cocos/audio/android/AudioDecoderWav.h
-        cocos/audio/android/AudioEngine-inl.cpp
-        cocos/audio/android/AudioEngine-inl.h
-        cocos/audio/android/AudioMixer.cpp
-        cocos/audio/android/AudioMixer.h
-        cocos/audio/android/AudioMixerController.cpp
-        cocos/audio/android/AudioMixerController.h
-        cocos/audio/android/AudioMixerOps.h
-        cocos/audio/android/AudioPlayerProvider.cpp
-        cocos/audio/android/AudioPlayerProvider.h
-        cocos/audio/android/AudioResampler.cpp
-        cocos/audio/android/AudioResampler.h
-        cocos/audio/android/AudioResamplerCubic.cpp
-        cocos/audio/android/AudioResamplerCubic.h
-        cocos/audio/android/AudioResamplerPublic.h
-        cocos/audio/android/audio_utils/format.c
-        cocos/audio/android/audio_utils/include/audio_utils/format.h
-        cocos/audio/android/audio_utils/include/audio_utils/minifloat.h
-        cocos/audio/android/audio_utils/include/audio_utils/primitives.h
-        cocos/audio/android/audio_utils/minifloat.cpp
-        cocos/audio/android/audio_utils/primitives.c
-        cocos/audio/android/audio_utils/private/private.h
-        cocos/audio/android/cutils/bitops.h
-        cocos/audio/android/cutils/log.h
-        cocos/audio/android/IAudioPlayer.h
-        cocos/audio/android/ICallerThreadUtils.h
-        cocos/audio/android/IVolumeProvider.h
-        cocos/audio/android/mp3reader.cpp
-        cocos/audio/android/mp3reader.h
-        cocos/audio/android/OpenSLHelper.h
-        cocos/audio/android/PcmAudioPlayer.cpp
-        cocos/audio/android/PcmAudioPlayer.h
-        cocos/audio/android/PcmAudioService.cpp
-        cocos/audio/android/PcmAudioService.h
-        cocos/audio/android/PcmBufferProvider.cpp
-        cocos/audio/android/PcmBufferProvider.h
-        cocos/audio/android/PcmData.cpp
-        cocos/audio/android/PcmData.h
-        cocos/audio/android/tinysndfile.cpp
-        cocos/audio/android/tinysndfile.h
-        cocos/audio/android/Track.cpp
-        cocos/audio/android/Track.h
-        cocos/audio/android/UrlAudioPlayer.cpp
-        cocos/audio/android/UrlAudioPlayer.h
-        cocos/audio/android/utils/Compat.h
-        cocos/audio/android/utils/Errors.h
-        cocos/audio/android/utils/Utils.cpp
-        cocos/audio/android/utils/Utils.h
-    )
-elseif(APPLE)
-    cocos_source_files(
-        cocos/audio/apple/AudioDecoder.h
-        cocos/audio/apple/AudioPlayer.mm
-        cocos/audio/apple/AudioDecoder.mm
-        cocos/audio/apple/AudioPlayer.h
-        cocos/audio/apple/AudioEngine-inl.mm
-        cocos/audio/apple/AudioMacros.h
-        cocos/audio/apple/AudioCache.mm
-        cocos/audio/apple/AudioCache.h
-        cocos/audio/apple/AudioEngine-inl.h
-    )
-endif()
+    if(WINDOWS)
+        cocos_source_files(
+            cocos/audio/win32/AudioCache.cpp
+            cocos/audio/win32/AudioCache.h
+            cocos/audio/win32/AudioDecoder.cpp
+            cocos/audio/win32/AudioDecoder.h
+            cocos/audio/win32/AudioDecoderManager.cpp
+            cocos/audio/win32/AudioDecoderManager.h
+            cocos/audio/win32/AudioDecoderMp3.cpp
+            cocos/audio/win32/AudioDecoderMp3.h
+            cocos/audio/win32/AudioDecoderOgg.cpp
+            cocos/audio/win32/AudioDecoderOgg.h
+            cocos/audio/win32/AudioEngine-win32.cpp
+            cocos/audio/win32/AudioEngine-win32.h
+            cocos/audio/win32/AudioMacros.h
+            cocos/audio/win32/AudioPlayer.cpp
+            cocos/audio/win32/AudioPlayer.h
+        )
+    elseif(ANDROID)
+        cocos_source_files(
+            cocos/audio/android/AssetFd.cpp
+            cocos/audio/android/AssetFd.h
+            cocos/audio/android/audio.h
+            cocos/audio/android/AudioBufferProvider.h
+            cocos/audio/android/AudioDecoder.cpp
+            cocos/audio/android/AudioDecoder.h
+            cocos/audio/android/AudioDecoderMp3.cpp
+            cocos/audio/android/AudioDecoderMp3.h
+            cocos/audio/android/AudioDecoderOgg.cpp
+            cocos/audio/android/AudioDecoderOgg.h
+            cocos/audio/android/AudioDecoderProvider.cpp
+            cocos/audio/android/AudioDecoderProvider.h
+            cocos/audio/android/AudioDecoderSLES.cpp
+            cocos/audio/android/AudioDecoderSLES.h
+            cocos/audio/android/AudioDecoderWav.cpp
+            cocos/audio/android/AudioDecoderWav.h
+            cocos/audio/android/AudioEngine-inl.cpp
+            cocos/audio/android/AudioEngine-inl.h
+            cocos/audio/android/AudioMixer.cpp
+            cocos/audio/android/AudioMixer.h
+            cocos/audio/android/AudioMixerController.cpp
+            cocos/audio/android/AudioMixerController.h
+            cocos/audio/android/AudioMixerOps.h
+            cocos/audio/android/AudioPlayerProvider.cpp
+            cocos/audio/android/AudioPlayerProvider.h
+            cocos/audio/android/AudioResampler.cpp
+            cocos/audio/android/AudioResampler.h
+            cocos/audio/android/AudioResamplerCubic.cpp
+            cocos/audio/android/AudioResamplerCubic.h
+            cocos/audio/android/AudioResamplerPublic.h
+            cocos/audio/android/audio_utils/format.c
+            cocos/audio/android/audio_utils/include/audio_utils/format.h
+            cocos/audio/android/audio_utils/include/audio_utils/minifloat.h
+            cocos/audio/android/audio_utils/include/audio_utils/primitives.h
+            cocos/audio/android/audio_utils/minifloat.cpp
+            cocos/audio/android/audio_utils/primitives.c
+            cocos/audio/android/audio_utils/private/private.h
+            cocos/audio/android/cutils/bitops.h
+            cocos/audio/android/cutils/log.h
+            cocos/audio/android/IAudioPlayer.h
+            cocos/audio/android/ICallerThreadUtils.h
+            cocos/audio/android/IVolumeProvider.h
+            cocos/audio/android/mp3reader.cpp
+            cocos/audio/android/mp3reader.h
+            cocos/audio/android/OpenSLHelper.h
+            cocos/audio/android/PcmAudioPlayer.cpp
+            cocos/audio/android/PcmAudioPlayer.h
+            cocos/audio/android/PcmAudioService.cpp
+            cocos/audio/android/PcmAudioService.h
+            cocos/audio/android/PcmBufferProvider.cpp
+            cocos/audio/android/PcmBufferProvider.h
+            cocos/audio/android/PcmData.cpp
+            cocos/audio/android/PcmData.h
+            cocos/audio/android/tinysndfile.cpp
+            cocos/audio/android/tinysndfile.h
+            cocos/audio/android/Track.cpp
+            cocos/audio/android/Track.h
+            cocos/audio/android/UrlAudioPlayer.cpp
+            cocos/audio/android/UrlAudioPlayer.h
+            cocos/audio/android/utils/Compat.h
+            cocos/audio/android/utils/Errors.h
+            cocos/audio/android/utils/Utils.cpp
+            cocos/audio/android/utils/Utils.h
+        )
+    elseif(APPLE)
+        cocos_source_files(
+            cocos/audio/apple/AudioDecoder.h
+            cocos/audio/apple/AudioPlayer.mm
+            cocos/audio/apple/AudioDecoder.mm
+            cocos/audio/apple/AudioPlayer.h
+            cocos/audio/apple/AudioEngine-inl.mm
+            cocos/audio/apple/AudioMacros.h
+            cocos/audio/apple/AudioCache.mm
+            cocos/audio/apple/AudioCache.h
+            cocos/audio/apple/AudioEngine-inl.h
+        )
+    endif()
 
+endif()
 
 ##### base
 cocos_source_files(
@@ -280,12 +289,17 @@ cocos_source_files(
     cocos/network/HttpCookie.h
     cocos/network/HttpRequest.h
     cocos/network/HttpResponse.h
-    cocos/network/SocketIO.cpp
-    cocos/network/SocketIO.h
     cocos/network/Uri.cpp
     cocos/network/Uri.h
-    cocos/network/WebSocket.h
     )
+
+if(USE_SOCKET)
+    cocos_source_files(
+        cocos/network/WebSocket.h
+        cocos/network/SocketIO.cpp
+        cocos/network/SocketIO.h
+    )
+endif()
 
 if(APPLE)
     cocos_source_files(
@@ -294,12 +308,15 @@ if(APPLE)
         cocos/network/HttpAsynConnection-apple.h
         cocos/network/HttpAsynConnection-apple.m
         cocos/network/HttpClient-apple.mm
-        cocos/network/WebSocket-apple.mm
-        cocos/network/WebSocket-apple.mm
     )
-    set_source_files_properties(${CWD}/cocos/network/WebSocket-apple.mm PROPERTIES
-        COMPILE_FLAGS -fobjc-arc
-    )
+    if(USE_SOCKET)
+        cocos_source_files(
+            cocos/network/WebSocket-apple.mm
+        )
+        set_source_files_properties(${CWD}/cocos/network/WebSocket-apple.mm PROPERTIES
+            COMPILE_FLAGS -fobjc-arc
+        )
+    endif()
 endif()
 
 if(ANDROID)
@@ -310,7 +327,7 @@ if(ANDROID)
     )
 endif()
 
-if(NOT APPLE)
+if(NOT APPLE AND USE_SOCKET)
     cocos_source_files(
         cocos/network/WebSocket-libwebsockets.cpp
     )
@@ -710,21 +727,37 @@ endif()
 ##### script bindings
 ######## auto
 cocos_source_files(
-    cocos/scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.cpp
-    cocos/scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.hpp
     cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.cpp
     cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp
     cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.cpp
     cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.hpp
-    cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.cpp
-    cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.hpp
     cocos/scripting/js-bindings/auto/jsb_gfx_auto.cpp
     cocos/scripting/js-bindings/auto/jsb_gfx_auto.hpp
-    cocos/scripting/js-bindings/auto/jsb_video_auto.cpp
-    cocos/scripting/js-bindings/auto/jsb_video_auto.hpp
-    cocos/scripting/js-bindings/auto/jsb_webview_auto.cpp
-    cocos/scripting/js-bindings/auto/jsb_webview_auto.hpp
+    cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.cpp
+    cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.hpp
+
 )
+
+if(USE_AUDIO)
+    cocos_source_files(
+        cocos/scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.cpp
+        cocos/scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.hpp
+    )
+endif()
+
+if(USE_WEBVIEW)
+    cocos_source_files(
+        cocos/scripting/js-bindings/auto/jsb_webview_auto.cpp
+        cocos/scripting/js-bindings/auto/jsb_webview_auto.hpp
+    )
+endif()
+
+if(USE_VIDEOPLAYER)
+    cocos_source_files(
+        cocos/scripting/js-bindings/auto/jsb_video_auto.cpp
+        cocos/scripting/js-bindings/auto/jsb_video_auto.hpp
+    )
+endif()
 
 ######## manual
 cocos_source_files(
@@ -734,8 +767,6 @@ cocos_source_files(
     #cocos/scripting/js-bindings/manual/jsb_cocos2dx_extension_manual.hpp
     cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.cpp
     cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.hpp
-    cocos/scripting/js-bindings/manual/jsb_cocos2dx_network_manual.cpp
-    cocos/scripting/js-bindings/manual/jsb_cocos2dx_network_manual.h
     cocos/scripting/js-bindings/manual/jsb_conversions.cpp
     cocos/scripting/js-bindings/manual/jsb_conversions.hpp
     cocos/scripting/js-bindings/manual/jsb_gfx_manual.cpp
@@ -747,13 +778,21 @@ cocos_source_files(
     # cocos/scripting/js-bindings/manual/jsb_module_register.cpp
     cocos/scripting/js-bindings/manual/jsb_module_register.hpp
     cocos/scripting/js-bindings/manual/jsb_platform.h
-    cocos/scripting/js-bindings/manual/jsb_socketio.cpp
-    cocos/scripting/js-bindings/manual/jsb_socketio.hpp
-    cocos/scripting/js-bindings/manual/jsb_websocket.cpp
-    cocos/scripting/js-bindings/manual/jsb_websocket.hpp
+    cocos/scripting/js-bindings/manual/jsb_cocos2dx_network_manual.cpp
+    cocos/scripting/js-bindings/manual/jsb_cocos2dx_network_manual.h
     cocos/scripting/js-bindings/manual/jsb_xmlhttprequest.cpp
     cocos/scripting/js-bindings/manual/jsb_xmlhttprequest.hpp
 )
+
+if(USE_SOCKET)
+    cocos_source_files(
+        cocos/scripting/js-bindings/manual/jsb_socketio.cpp
+        cocos/scripting/js-bindings/manual/jsb_socketio.hpp
+        cocos/scripting/js-bindings/manual/jsb_websocket.cpp
+        cocos/scripting/js-bindings/manual/jsb_websocket.hpp
+    )
+endif()
+
 
 if(ANDROID)
     cocos_source_files(
@@ -905,9 +944,11 @@ if(ANDROID)
 endif()
 
 #### ui
-cocos_source_files(
-    cocos/ui/edit-box/EditBox.h
-)
+if(USE_EDIT_BOX)
+    cocos_source_files(
+        cocos/ui/edit-box/EditBox.h
+    )
+endif()
 
 if(ANDROID OR IOS) 
     if(USE_WEBVIEW)
@@ -924,9 +965,11 @@ if(ANDROID OR IOS)
 endif()
 
 if(ANDROID)
-    cocos_source_files(
-        cocos/ui/edit-box/EditBox-android.cpp
-    )
+    if(USE_EDIT_BOX)
+        cocos_source_files(
+            cocos/ui/edit-box/EditBox-android.cpp
+        )
+    endif()
     if(USE_VIDEOPLAYER)
         cocos_source_files(
             cocos/ui/videoplayer/VideoPlayer-android.cpp
@@ -939,13 +982,17 @@ if(ANDROID)
         )
     endif()
 elseif(MACOSX)
-    cocos_source_files(
-        cocos/ui/edit-box/EditBox-mac.mm
-    )
+    if(USE_EDIT_BOX)
+        cocos_source_files(
+            cocos/ui/edit-box/EditBox-mac.mm
+        )
+    endif()
 elseif(IOS)
-    cocos_source_files(
-        cocos/ui/edit-box/EditBox-ios.mm
-    )
+    if(USE_EDIT_BOX)
+        cocos_source_files(
+            cocos/ui/edit-box/EditBox-ios.mm
+        )
+    endif()
     if(USE_VIDEOPLAYER)
         cocos_source_files(
             cocos/ui/videoplayer/VideoPlayer-ios.mm
@@ -958,9 +1005,11 @@ elseif(IOS)
         )
     endif()
 elseif(WIN32)
-    cocos_source_files(
-        cocos/ui/edit-box/EditBox-win32.cpp
-    )
+    if(USE_EDIT_BOX)
+        cocos_source_files(
+            cocos/ui/edit-box/EditBox-win32.cpp
+        )
+    endif()
 endif()
 
 ##### extensions
@@ -989,7 +1038,7 @@ target_compile_definitions(cocos2d PUBLIC
     $<$<NOT:$<BOOL:${USE_WEBVIEW}>>:USE_WEB_VIEW=0>
     $<$<NOT:$<BOOL:${USE_AUDIO}>>:USE_AUDIO=0>
     $<$<NOT:$<BOOL:${USE_SOCKET}>>:USE_SOCKET=0>
-    $<$<NOT:$<BOOL:${USE_TIFF}>>:CC_USE_TIFF=0>
+    $<$<NOT:$<BOOL:${USE_EDIT_BOX}>>:CC_USE_EDITBOX=0>
     $<$<NOT:$<BOOL:${USE_V8_DEBUGGER}>>:USE_V8_DEBUGGER=0>
     $<$<BOOL:${USE_SE_JSC}>:SCRIPT_ENGINE_TYPE=3>
     $<$<CONFIG:Debug>:COCOS2D_DEBUG=1>
@@ -1015,15 +1064,18 @@ elseif(CC_USE_METAL)
     target_compile_definitions(cocos2d PUBLIC USE_METAL)
 endif()
 
-target_include_directories(cocos2d PUBLIC 
-    ${CC_EXTERNAL_INCLUDES}
-    ${CWD}
-    ${CWD}/cocos
-    ${CWD}/cocos/renderer
-    ${CWD}/cocos/platform
-    ${CWD}/cocos/renderer/core
-    ${CWD}/external/sources/khronos
-    $<$<BOOL:USE_SE_JSC>:${CWD}/cocos/scripting/js-bindings/jswrapper>
+target_include_directories(cocos2d
+    PUBLIC 
+        ${CC_EXTERNAL_INCLUDES}
+        ${CWD}
+        ${CWD}/cocos
+        ${CWD}/cocos/renderer
+        ${CWD}/cocos/platform
+        ${CWD}/cocos/renderer/core
+        ${CWD}/external/sources/khronos
+        $<$<BOOL:USE_SE_JSC>:${CWD}/cocos/scripting/js-bindings/jswrapper>
+    PRIVATE 
+        ${CC_EXTERNAL_PRIVATE_INCLUDES}
 )
 
 if(WIN32)
@@ -1143,4 +1195,10 @@ if(MSVC)
         ${CWD}/external/win32/libs/Debug/*.dll
     )
     target_compile_options(cocos2d PUBLIC /MP)
+endif()
+
+if(COMMAND target_precompile_headers)
+    target_precompile_headers(cocos2d PUBLIC 
+        $<$<COMPILE_LANGUAGE:CXX>:${CWD}/cocos/cocos2d.h>
+    )
 endif()

@@ -328,7 +328,7 @@ protected:
 
         std::list<int> audioIDs;
 
-        std::chrono::steady_clock::time_point lastPlayTime;
+        std::chrono::high_resolution_clock::time_point lastPlayTime;
 
         ProfileHelper()
         {

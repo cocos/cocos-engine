@@ -53,6 +53,7 @@ public class SDKWrapper {
 
     public void init(Context context) {
         this.mainActive = context;
+        this.loadSDKClass();
         for (SDKClass sdk : this.sdkClasses) {
             sdk.init(context);
         }
@@ -95,14 +96,6 @@ public class SDKWrapper {
             sb.delete(0, sb.length());
         }
         return sb.toString().trim();
-    }
-
-    public void setGLSurfaceView(GLSurfaceView view, Context context) {
-        this.mainActive = context;
-        this.loadSDKClass();
-        for (SDKClass sdk : this.sdkClasses) {
-            sdk.setGLSurfaceView(view);
-        }
     }
 
     public void onResume() {

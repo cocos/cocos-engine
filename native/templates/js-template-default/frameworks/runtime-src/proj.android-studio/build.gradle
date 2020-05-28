@@ -20,7 +20,7 @@ allprojects {
         google()
         jcenter()
         flatDir {
-                dirs 'libs'
+            dirs 'libs'
         }
     }
 }

@@ -1077,6 +1077,7 @@ static bool JSB_setPreferredFramesPerSecond(se::State& s)
 }
 SE_BIND_FUNC(JSB_setPreferredFramesPerSecond)
 
+#if CC_USE_EDITBOX
 static bool JSB_showInputBox(se::State& s)
 {
     const auto& args = s.args();
@@ -1170,6 +1171,8 @@ static bool JSB_hideInputBox(se::State& s)
 }
 SE_BIND_FUNC(JSB_hideInputBox)
 
+#endif
+
 bool jsb_register_global_variables(se::Object* global)
 {
     __threadPool = ThreadPool::newFixedThreadPool(3);
@@ -1196,8 +1199,10 @@ bool jsb_register_global_variables(se::Object* global)
     __jsbObj->defineFunction("openURL", _SE(JSB_openURL));
     __jsbObj->defineFunction("copyTextToClipboard", _SE(JSB_copyTextToClipboard));
     __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
+    #if CC_USE_EDITBOX
     __jsbObj->defineFunction("showInputBox", _SE(JSB_showInputBox));
     __jsbObj->defineFunction("hideInputBox", _SE(JSB_hideInputBox));
+    #endif
     __jsbObj->defineFunction("setCursorEnabled", _SE(JSB_setCursorEnabled));
     __jsbObj->defineFunction("saveByteCode", _SE(JSB_saveByteCode));
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));

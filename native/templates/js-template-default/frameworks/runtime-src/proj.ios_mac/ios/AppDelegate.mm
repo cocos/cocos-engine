@@ -23,21 +23,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
-#import "AppController.h"
-#import "cocos2d.h"
 #import "AppDelegate.h"
-#import "RootViewController.h"
-#import "SDKWrapper.h"
-#import "platform/ios/CCEAGLView-ios.h"
+#import "ViewController.h"
+#import "platform/ios/CCView.h"
 
+#include "SDKWrapper.h"
+#include "Game.h"
 
+@implementation AppDelegate
 
-using namespace cocos2d;
-
-@implementation AppController
-
-Application* app = nullptr;
+Game* game = nullptr;
 @synthesize window;
 
 #pragma mark -
@@ -46,41 +41,20 @@ Application* app = nullptr;
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     [[SDKWrapper getInstance] application:application didFinishLaunchingWithOptions:launchOptions];
     // Add the view controller's view to the window and display.
-    float scale = [[UIScreen mainScreen] scale];
     CGRect bounds = [[UIScreen mainScreen] bounds];
-    window = [[UIWindow alloc] initWithFrame: bounds];
+    self.window = [[UIWindow alloc] initWithFrame: bounds];
+
+    // Should create view controller first, cocos2d::Application will use it.
+    _viewController = [[ViewController alloc]init];
+    _viewController.view = [[View alloc] initWithFrame:bounds];
+    _viewController.view.contentScaleFactor = UIScreen.mainScreen.scale;
+    [self.window setRootViewController:_viewController];
     
     // cocos2d application instance
-    app = new AppDelegate(bounds.size.width * scale, bounds.size.height * scale);
-    app->setMultitouch(true);
+    game = new Game(bounds.size.width, bounds.size.height);
+    game->init();
     
-    // Use RootViewController to manage CCEAGLView
-    _viewController = [[RootViewController alloc]init];
-#ifdef NSFoundationVersionNumber_iOS_7_0
-    _viewController.automaticallyAdjustsScrollViewInsets = NO;
-    _viewController.extendedLayoutIncludesOpaqueBars = NO;
-    _viewController.edgesForExtendedLayout = UIRectEdgeAll;
-#else
-    _viewController.wantsFullScreenLayout = YES;
-#endif
-    // Set RootViewController to window
-    if ( [[UIDevice currentDevice].systemVersion floatValue] < 6.0)
-    {
-        // warning: addSubView doesn't work on iOS6
-        [window addSubview: _viewController.view];
-    }
-    else
-    {
-        // use this method on ios6
-        [window setRootViewController:_viewController];
-    }
-    
-    [window makeKeyAndVisible];
-    
-    [[UIApplication sharedApplication] setStatusBarHidden:YES];
-    
-    //run the cocos2d-x game scene
-    app->start();
+    [self.window makeKeyAndVisible];
     
     return YES;
 }
@@ -91,6 +65,7 @@ Application* app = nullptr;
      Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
      */
     [[SDKWrapper getInstance] applicationWillResignActive:application];
+    game->onPause();
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
@@ -98,6 +73,7 @@ Application* app = nullptr;
      Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
      */
     [[SDKWrapper getInstance] applicationDidBecomeActive:application];
+    game->onResume();
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
@@ -106,8 +82,6 @@ Application* app = nullptr;
      If your application supports background execution, called instead of applicationWillTerminate: when the user quits.
      */
     [[SDKWrapper getInstance] applicationDidEnterBackground:application];
-    app->applicationDidEnterBackground();
-    
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
@@ -115,17 +89,14 @@ Application* app = nullptr;
      Called as part of  transition from the background to the inactive state: here you can undo many of the changes made on entering the background.
      */
     [[SDKWrapper getInstance] applicationWillEnterForeground:application];
-    app->applicationWillEnterForeground();
-    
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
     [[SDKWrapper getInstance] applicationWillTerminate:application];
-    delete app;
-    app = nil;
+    delete game;
+    game = nullptr;
 }
-
 
 #pragma mark -
 #pragma mark Memory management

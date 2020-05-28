@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,32 +22,89 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
-#include "AppDelegate.h"
-#include "cocos2d.h"
-#include "platform/android/jni/JniHelper.h"
 #include <jni.h>
+#include <android_native_app_glue.h>
 #include <android/log.h>
+#include <unordered_map>
+#include "platform/android/jni/JniHelper.h"
+#include "platform/android/CCView.h"
+#include "Game.h"
 
 #define LOG_TAG "main"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
-using namespace cocos2d;
 
-//called when JNI_OnLoad()
-void cocos_jni_env_init(JNIEnv *env)
+namespace
 {
-    LOGD("cocos_jni_env_init");
+    Game *game = nullptr;
+
+    /**
+ * Shared state for our app.
+ */
+    struct SavedState {
+        struct android_app* app = nullptr;
+        int animating = 0;
+    };
 }
 
-//called when onSurfaceCreated()
-Application *cocos_android_app_init(JNIEnv *env, int width, int height)
+void handle_cmd(struct android_app* app, int32_t cmd)
 {
-    LOGD("cocos_android_app_init");
-    auto app = new AppDelegate(width, height);
-    return app;
+    struct SavedState* state = (struct SavedState*)app->userData;
+    switch (cmd)
+    {
+        case APP_CMD_INIT_WINDOW:
+            if (state->app->window && !game)
+            {
+                auto width = ANativeWindow_getWidth(app->window);
+                auto height = ANativeWindow_getHeight(app->window);
+                game = new Game(width, height);
+                game->init();
+            }
+            break;
+        case APP_CMD_LOST_FOCUS:
+            state->animating = 0;
+            break;
+        case APP_CMD_GAINED_FOCUS:
+            state->animating = 1;
+            break;
+        default:
+            break;
+    }
+
+    cocos2d::View::engineHandleCmd(app, cmd);
 }
 
-extern "C"
-{
-    /*JNI_CALL_FUNCTION*/
+void android_main(struct android_app* state) {
+    struct SavedState savedState;
+    memset(&savedState, 0, sizeof(savedState));
+    state->userData = &savedState;
+    state->onAppCmd = handle_cmd;
+    state->onInputEvent = cocos2d::View::engineHandleInput;
+    savedState.app = state;
+    cocos2d::JniHelper::setAndroidApp(state);
+
+    while (1)
+    {
+        // Read all pending events.
+        int ident;
+        int events;
+        struct android_poll_source* source;
+
+        // If not animating, we will block forever waiting for events.
+        // If animating, we loop until all events are read, then continue
+        // to draw the next frame of animation.
+        while ((ident = ALooper_pollAll(savedState.animating ? 0 : -1, NULL, &events,
+                                        (void**)&source)) >= 0)
+        {
+
+            // Process this event.
+            if (source != nullptr)
+                source->process(state, source);
+        }
+
+        if (state->destroyRequested != 0)
+            return;
+
+        if (savedState.animating)
+            game->tick();
+    }
 }

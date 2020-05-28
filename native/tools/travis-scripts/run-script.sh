@@ -93,10 +93,6 @@ function build_macosx()
 {
     NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
 
-    echo "Compile build/cocos2d_libs.xcodeproj ..."
-    cd $COCOS2DX_ROOT/build
-    xcodebuild -project cocos2d_libs.xcodeproj -target "libcocos2d Mac" -jobs $NUM_OF_CORES -quiet build 
-
     echo "Compiling MacOSX ... "
     cd  $COCOS2DX_ROOT/templates/js-template-link/frameworks/runtime-src
     mkdir build-mac 
@@ -111,10 +107,6 @@ function build_macosx()
 function build_ios()
 {
     NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
-
-    echo "Compile build/cocos2d_libs.xcodeproj ..."
-    cd $COCOS2DX_ROOT/build
-    xcodebuild -project cocos2d_libs.xcodeproj -target "libcocos2d iOS" -jobs $NUM_OF_CORES -quiet build 
 
     echo "Compiling iOS ... "
     cd  $COCOS2DX_ROOT/templates/js-template-link/frameworks/runtime-src

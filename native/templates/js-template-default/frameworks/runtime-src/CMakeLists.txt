@@ -4,6 +4,9 @@ set(APP_NAME HelloJavascript)
 project(${APP_NAME} CXX)
 
 enable_language(C ASM)
+if(APPLE)
+    enable_language(OBJCXX OBJC)
+endif()
 
 set(CMAKE_CXX_STANDARD 14)
 option(USE_SE_V8        "USE V8 JavaScript Engine"          ON)
@@ -28,10 +31,7 @@ else()
     set(TARGET_IOS_VERSION "8.0")
 endif()
 
-set(cocosdir "${COCOS_X_ROOT}")
-if(NOT cocosdir)
-    message(FATAL_ERROR "COCOS_X_ROOT is not set!")
-endif()
+set(cocosdir ${CMAKE_CURRENT_LIST_DIR}/../cocos2d-x)
 include(${cocosdir}/CMakeLists.txt)
 
 if(ANDROID)
@@ -71,9 +71,9 @@ set(PROJ_SOURCES
 
 if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/Classes/jsb_module_register.cpp)
     file(COPY "${cocosdir}/cocos/scripting/js-bindings/manual/jsb_module_register.cpp" 
-        DESTINATION ${CMAKE_CURRENT_LIST_DIR}/Classes/)
+        DESTINATION Classes/)
 endif()
-list(APPEND PROJ_SOURCES ${CMAKE_CURRENT_LIST_DIR}/Classes/jsb_module_register.cpp)
+list(APPEND PROJ_SOURCES Classes/jsb_module_register.cpp)
 
 
 if(WINDOWS)
@@ -186,7 +186,7 @@ if(APPLE)
         set(MACOSX_BUNDLE_GUI_IDENTIFIER org.cocos2dx.hellojavascript.ios)
 
         target_include_directories(${LIB_NAME} PRIVATE proj.ios_mac/ios/service )
-
+        
         set_target_properties(${LIB_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/proj.ios_mac/ios/Info.plist")
         set_property(TARGET ${LIB_NAME} PROPERTY XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "")
         set_property(TARGET ${LIB_NAME} PROPERTY XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer")
@@ -210,7 +210,7 @@ elseif(WINDOWS)
             COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_LIST_DIR}/../../project.json ${bin_dir}/project.json
         )
     endif()
-        
+    
     target_include_directories(${LIB_NAME} PRIVATE 
         ${CMAKE_CURRENT_LIST_DIR}/proj.win32
     )

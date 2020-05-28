@@ -15,6 +15,10 @@
 #define USE_METAL
 #endif
 
+#if !(defined(USE_GLES2) || defined(USE_GLES3) || defined(USE_VULKAN) || defined(USE_METAL))
+#error "gfx backend is not defined!"
+#endif
+
 #ifdef USE_VULKAN
 #include "scripting/js-bindings/auto/jsb_vk_auto.hpp"
 #include "renderer/gfx-vulkan/GFXVulkan.h"
