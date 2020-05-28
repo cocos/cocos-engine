@@ -19,6 +19,7 @@ const CollisionEventObject = {
     selfCollider: null as ColliderComponent | null,
     otherCollider: null as ColliderComponent | null,
     contacts: [] as any,
+    isBodyA: false,
 };
 
 /**
@@ -130,10 +131,12 @@ export class CannonSharedBody {
 
     syncPhysicsToScene () {
         if (this.body.type != ERigidBodyType.STATIC) {
-            Vec3.copy(v3_0, this.body.position);
-            Quat.copy(quat_0, this.body.quaternion);
-            this.node.worldPosition = v3_0;
-            this.node.worldRotation = quat_0;
+            if (!this.body.isSleeping()) {
+                Vec3.copy(v3_0, this.body.position);
+                Quat.copy(quat_0, this.body.quaternion);
+                this.node.worldPosition = v3_0;
+                this.node.worldRotation = quat_0;
+            }
         }
     }
 
@@ -162,8 +165,8 @@ export class CannonSharedBody {
         CollisionEventObject.type = event.event;
         const self = getWrap<CannonShape>(event.selfShape);
         const other = getWrap<CannonShape>(event.otherShape);
-
         if (self) {
+            CollisionEventObject.isBodyA = event['bi'] == event.selfShape.body;
             CollisionEventObject.selfCollider = self.collider;
             CollisionEventObject.otherCollider = other ? other.collider : null;
             let i = 0;

@@ -44,14 +44,14 @@ export class Quat extends ValueType {
     /**
      * @zh 获得指定四元数的拷贝
      */
-    public static clone <Out extends IQuatLike> (a: Out) {
+    public static clone<Out extends IQuatLike> (a: Out) {
         return new Quat(a.x, a.y, a.z, a.w);
     }
 
     /**
      * @zh 复制目标四元数
      */
-    public static copy <Out extends IQuatLike, QuatLike extends IQuatLike> (out: Out, a: QuatLike) {
+    public static copy<Out extends IQuatLike, QuatLike extends IQuatLike> (out: Out, a: QuatLike) {
         out.x = a.x;
         out.y = a.y;
         out.z = a.z;
@@ -62,7 +62,7 @@ export class Quat extends ValueType {
     /**
      * @zh 设置四元数值
      */
-    public static set <Out extends IQuatLike> (out: Out, x: number, y: number, z: number, w: number) {
+    public static set<Out extends IQuatLike> (out: Out, x: number, y: number, z: number, w: number) {
         out.x = x;
         out.y = y;
         out.z = z;
@@ -73,7 +73,7 @@ export class Quat extends ValueType {
     /**
      * @zh 将目标赋值为单位四元数
      */
-    public static identity <Out extends IQuatLike> (out: Out) {
+    public static identity<Out extends IQuatLike> (out: Out) {
         out.x = 0;
         out.y = 0;
         out.z = 0;
@@ -84,7 +84,7 @@ export class Quat extends ValueType {
     /**
      * @zh 设置四元数为两向量间的最短路径旋转，默认两向量都已归一化
      */
-    public static rotationTo <Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, a: VecLike, b: VecLike) {
+    public static rotationTo<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, a: VecLike, b: VecLike) {
         const dot = Vec3.dot(a, b);
         if (dot < -0.999999) {
             Vec3.cross(v3_1, Vec3.UNIT_X, a);
@@ -116,7 +116,7 @@ export class Quat extends ValueType {
      * @param q 源四元数
      * @return 旋转弧度
      */
-    public static getAxisAngle <Out extends IQuatLike, VecLike extends IVec3Like> (outAxis: VecLike, q: Out) {
+    public static getAxisAngle<Out extends IQuatLike, VecLike extends IVec3Like> (outAxis: VecLike, q: Out) {
         const rad = Math.acos(q.w) * 2.0;
         const s = Math.sin(rad / 2.0);
         if (s !== 0.0) {
@@ -135,7 +135,7 @@ export class Quat extends ValueType {
     /**
      * @zh 四元数乘法
      */
-    public static multiply <Out extends IQuatLike, QuatLike_1 extends IQuatLike, QuatLike_2 extends IQuatLike> (out: Out, a: QuatLike_1, b: QuatLike_2) {
+    public static multiply<Out extends IQuatLike, QuatLike_1 extends IQuatLike, QuatLike_2 extends IQuatLike> (out: Out, a: QuatLike_1, b: QuatLike_2) {
         const x = a.x * b.w + a.w * b.x + a.y * b.z - a.z * b.y;
         const y = a.y * b.w + a.w * b.y + a.z * b.x - a.x * b.z;
         const z = a.z * b.w + a.w * b.z + a.x * b.y - a.y * b.x;
@@ -150,7 +150,7 @@ export class Quat extends ValueType {
     /**
      * @zh 四元数标量乘法
      */
-    public static multiplyScalar <Out extends IQuatLike> (out: Out, a: Out, b: number) {
+    public static multiplyScalar<Out extends IQuatLike> (out: Out, a: Out, b: number) {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -161,7 +161,7 @@ export class Quat extends ValueType {
     /**
      * @zh 四元数乘加：A + B * scale
      */
-    public static scaleAndAdd <Out extends IQuatLike> (out: Out, a: Out, b: Out, scale: number) {
+    public static scaleAndAdd<Out extends IQuatLike> (out: Out, a: Out, b: Out, scale: number) {
         out.x = a.x + b.x * scale;
         out.y = a.y + b.y * scale;
         out.z = a.z + b.z * scale;
@@ -173,7 +173,7 @@ export class Quat extends ValueType {
      * @zh 绕 X 轴旋转指定四元数
      * @param rad 旋转弧度
      */
-    public static rotateX <Out extends IQuatLike> (out: Out, a: Out, rad: number) {
+    public static rotateX<Out extends IQuatLike> (out: Out, a: Out, rad: number) {
         rad *= 0.5;
 
         const bx = Math.sin(rad);
@@ -191,7 +191,7 @@ export class Quat extends ValueType {
      * @zh 绕 Y 轴旋转指定四元数
      * @param rad 旋转弧度
      */
-    public static rotateY <Out extends IQuatLike> (out: Out, a: Out, rad: number) {
+    public static rotateY<Out extends IQuatLike> (out: Out, a: Out, rad: number) {
         rad *= 0.5;
 
         const by = Math.sin(rad);
@@ -209,7 +209,7 @@ export class Quat extends ValueType {
      * @zh 绕 Z 轴旋转指定四元数
      * @param rad 旋转弧度
      */
-    public static rotateZ <Out extends IQuatLike> (out: Out, a: Out, rad: number) {
+    public static rotateZ<Out extends IQuatLike> (out: Out, a: Out, rad: number) {
         rad *= 0.5;
 
         const bz = Math.sin(rad);
@@ -228,7 +228,7 @@ export class Quat extends ValueType {
      * @param axis 旋转轴，默认已归一化
      * @param rad 旋转弧度
      */
-    public static rotateAround <Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, rot: Out, axis: VecLike, rad: number) {
+    public static rotateAround<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, rot: Out, axis: VecLike, rad: number) {
         // get inv-axis (local to rot)
         Quat.invert(qt_1, rot);
         Vec3.transformQuat(v3_1, axis, qt_1);
@@ -243,7 +243,7 @@ export class Quat extends ValueType {
      * @param axis 旋转轴
      * @param rad 旋转弧度
      */
-    public static rotateAroundLocal <Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, rot: Out, axis: VecLike, rad: number) {
+    public static rotateAroundLocal<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, rot: Out, axis: VecLike, rad: number) {
         Quat.fromAxisAngle(qt_1, axis, rad);
         Quat.multiply(out, rot, qt_1);
         return out;
@@ -252,7 +252,7 @@ export class Quat extends ValueType {
     /**
      * @zh 根据 xyz 分量计算 w 分量，默认已归一化
      */
-    public static calculateW <Out extends IQuatLike> (out: Out, a: Out) {
+    public static calculateW<Out extends IQuatLike> (out: Out, a: Out) {
 
         out.x = a.x;
         out.y = a.y;
@@ -264,14 +264,14 @@ export class Quat extends ValueType {
     /**
      * @zh 四元数点积（数量积）
      */
-    public static dot <Out extends IQuatLike> (a: Out, b: Out) {
+    public static dot<Out extends IQuatLike> (a: Out, b: Out) {
         return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
     }
 
     /**
      * @zh 逐元素线性插值： A + t * (B - A)
      */
-    public static lerp <Out extends IQuatLike> (out: Out, a: Out, b: Out, t: number) {
+    public static lerp<Out extends IQuatLike> (out: Out, a: Out, b: Out, t: number) {
         out.x = a.x + t * (b.x - a.x);
         out.y = a.y + t * (b.y - a.y);
         out.z = a.z + t * (b.z - a.z);
@@ -282,8 +282,8 @@ export class Quat extends ValueType {
     /**
      * @zh 四元数球面插值
      */
-    public static slerp <Out extends IQuatLike, QuatLike_1 extends IQuatLike, QuatLike_2 extends IQuatLike>
-     (out: Out, a: QuatLike_1, b: QuatLike_2, t: number) {
+    public static slerp<Out extends IQuatLike, QuatLike_1 extends IQuatLike, QuatLike_2 extends IQuatLike>
+        (out: Out, a: QuatLike_1, b: QuatLike_2, t: number) {
         // benchmarks:
         //    http://jsperf.com/quaternion-slerp-implementations
 
@@ -329,7 +329,7 @@ export class Quat extends ValueType {
     /**
      * @zh 带两个控制点的四元数球面插值
      */
-    public static sqlerp <Out extends IQuatLike> (out: Out, a: Out, b: Out, c: Out, d: Out, t: number) {
+    public static sqlerp<Out extends IQuatLike> (out: Out, a: Out, b: Out, c: Out, d: Out, t: number) {
         Quat.slerp(qt_1, a, d, t);
         Quat.slerp(qt_2, b, c, t);
         Quat.slerp(out, qt_1, qt_2, 2 * t * (1 - t));
@@ -339,7 +339,7 @@ export class Quat extends ValueType {
     /**
      * @zh 四元数求逆
      */
-    public static invert <Out extends IQuatLike, QuatLike extends IQuatLike> (out: Out, a: QuatLike) {
+    public static invert<Out extends IQuatLike, QuatLike extends IQuatLike> (out: Out, a: QuatLike) {
         const dot = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
         const invDot = dot ? 1.0 / dot : 0;
 
@@ -355,7 +355,7 @@ export class Quat extends ValueType {
     /**
      * @zh 求共轭四元数，对单位四元数与求逆等价，但更高效
      */
-    public static conjugate <Out extends IQuatLike> (out: Out, a: Out) {
+    public static conjugate<Out extends IQuatLike> (out: Out, a: Out) {
         out.x = -a.x;
         out.y = -a.y;
         out.z = -a.z;
@@ -366,21 +366,21 @@ export class Quat extends ValueType {
     /**
      * @zh 求四元数长度
      */
-    public static len <Out extends IQuatLike> (a: Out) {
+    public static len<Out extends IQuatLike> (a: Out) {
         return Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
     }
 
     /**
      * @zh 求四元数长度平方
      */
-    public static lengthSqr <Out extends IQuatLike> (a: Out) {
+    public static lengthSqr<Out extends IQuatLike> (a: Out) {
         return a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
     }
 
     /**
      * @zh 归一化四元数
      */
-    public static normalize <Out extends IQuatLike> (out: Out, a: Out) {
+    public static normalize<Out extends IQuatLike> (out: Out, a: Out) {
         let len = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
         if (len > 0) {
             len = 1 / Math.sqrt(len);
@@ -395,7 +395,7 @@ export class Quat extends ValueType {
     /**
      * @zh 根据本地坐标轴朝向计算四元数，默认三向量都已归一化且相互垂直
      */
-    public static fromAxes <Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, xAxis: VecLike, yAxis: VecLike, zAxis: VecLike) {
+    public static fromAxes<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, xAxis: VecLike, yAxis: VecLike, zAxis: VecLike) {
         Mat3.set(m3_1,
             xAxis.x, xAxis.y, xAxis.z,
             yAxis.x, yAxis.y, yAxis.z,
@@ -409,7 +409,7 @@ export class Quat extends ValueType {
      * @param view 视口面向的前方向，必须归一化
      * @param up 视口的上方向，必须归一化，默认为 (0, 1, 0)
      */
-    public static fromViewUp <Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, view: VecLike, up?: Vec3) {
+    public static fromViewUp<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, view: VecLike, up?: Vec3) {
         Mat3.fromViewUp(m3_1, view, up);
         return Quat.normalize(out, Quat.fromMat3(out, m3_1));
     }
@@ -417,7 +417,7 @@ export class Quat extends ValueType {
     /**
      * @zh 根据旋转轴和旋转弧度计算四元数
      */
-    public static fromAxisAngle <Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, axis: VecLike, rad: number) {
+    public static fromAxisAngle<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, axis: VecLike, rad: number) {
         rad = rad * 0.5;
         const s = Math.sin(rad);
         out.x = s * axis.x;
@@ -430,7 +430,7 @@ export class Quat extends ValueType {
     /**
      * @zh 根据三维矩阵信息计算四元数，默认输入矩阵不含有缩放信息
      */
-    public static fromMat3 <Out extends IQuatLike> (out: Out, m: Mat3) {
+    public static fromMat3<Out extends IQuatLike> (out: Out, m: Mat3) {
         const {
             m00: m00, m03: m01, m06: m02,
             m01: m10, m04: m11, m07: m12,
@@ -478,7 +478,7 @@ export class Quat extends ValueType {
     /**
      * @zh 根据欧拉角信息计算四元数，旋转顺序为 YZX
      */
-    public static fromEuler <Out extends IQuatLike> (out: Out, x: number, y: number, z: number) {
+    public static fromEuler<Out extends IQuatLike> (out: Out, x: number, y: number, z: number) {
         x *= halfToRad;
         y *= halfToRad;
         z *= halfToRad;
@@ -501,7 +501,7 @@ export class Quat extends ValueType {
     /**
      * @zh 返回定义此四元数的坐标系 X 轴向量
      */
-    public static toAxisX <Out extends IQuatLike, VecLike extends IVec3Like> (out: VecLike, q: Out) {
+    public static toAxisX (out: IVec3Like, q: IQuatLike) {
         const fy = 2.0 * q.y;
         const fz = 2.0 * q.z;
         out.x = 1.0 - fy * q.y - fz * q.z;
@@ -514,7 +514,7 @@ export class Quat extends ValueType {
     /**
      * @zh 返回定义此四元数的坐标系 Y 轴向量
      */
-    public static toAxisY <Out extends IQuatLike, VecLike extends IVec3Like> (out: VecLike, q: Out) {
+    public static toAxisY (out: IVec3Like, q: IQuatLike) {
         const fx = 2.0 * q.x;
         const fy = 2.0 * q.y;
         const fz = 2.0 * q.z;
@@ -528,7 +528,7 @@ export class Quat extends ValueType {
     /**
      * @zh 返回定义此四元数的坐标系 Z 轴向量
      */
-    public static toAxisZ <Out extends IQuatLike, VecLike extends IVec3Like> (out: VecLike, q: Out) {
+    public static toAxisZ (out: IVec3Like, q: IQuatLike) {
         const fx = 2.0 * q.x;
         const fy = 2.0 * q.y;
         const fz = 2.0 * q.z;
@@ -543,7 +543,7 @@ export class Quat extends ValueType {
      * @zh 根据四元数计算欧拉角，返回角度 x, y 在 [-180, 180] 区间内, z 默认在 [-90, 90] 区间内，旋转顺序为 YZX
      * @param outerZ z 取值范围区间改为 [-180, -90] U [90, 180]
      */
-    public static toEuler <Out extends IVec3Like> (out: Out, q: IQuatLike, outerZ?: boolean) {
+    public static toEuler (out: IVec3Like, q: IQuatLike, outerZ?: boolean) {
         const { x, y, z, w } = q;
         let bank = 0;
         let heading = 0;
@@ -578,7 +578,7 @@ export class Quat extends ValueType {
      * @zh 四元数转数组
      * @param ofs 数组内的起始偏移量
      */
-    public static toArray <Out extends IWritableArrayLike<number>> (out: Out, q: IQuatLike, ofs = 0) {
+    public static toArray<Out extends IWritableArrayLike<number>> (out: Out, q: IQuatLike, ofs = 0) {
         out[ofs + 0] = q.x;
         out[ofs + 1] = q.y;
         out[ofs + 2] = q.z;
@@ -590,7 +590,7 @@ export class Quat extends ValueType {
      * @zh 数组转四元数
      * @param ofs 数组起始偏移量
      */
-    public static fromArray <Out extends IQuatLike> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {
+    public static fromArray (out: IQuatLike, arr: IWritableArrayLike<number>, ofs = 0) {
         out.x = arr[ofs + 0];
         out.y = arr[ofs + 1];
         out.z = arr[ofs + 2];
@@ -601,14 +601,14 @@ export class Quat extends ValueType {
     /**
      * @zh 四元数等价判断
      */
-    public static strictEquals <Out extends IQuatLike> (a: Out, b: Out) {
+    public static strictEquals (a: IQuatLike, b: IQuatLike) {
         return a.x === b.x && a.y === b.y && a.z === b.z && a.w === b.w;
     }
 
     /**
      * @zh 排除浮点数误差的四元数近似等价判断
      */
-    public static equals <Out extends IQuatLike> (a: Out, b: Out, epsilon = EPSILON) {
+    public static equals (a: IQuatLike, b: IQuatLike, epsilon = EPSILON) {
         return (Math.abs(a.x - b.x) <= epsilon * Math.max(1.0, Math.abs(a.x), Math.abs(b.x)) &&
             Math.abs(a.y - b.y) <= epsilon * Math.max(1.0, Math.abs(a.y), Math.abs(b.y)) &&
             Math.abs(a.z - b.z) <= epsilon * Math.max(1.0, Math.abs(a.z), Math.abs(b.z)) &&
@@ -639,7 +639,7 @@ export class Quat extends ValueType {
 
     constructor (x?: number, y?: number, z?: number, w?: number);
 
-    constructor (x?: number | Quat, y?: number, z?: number, w?: number) {
+    constructor (x?: number | IQuatLike, y?: number, z?: number, w?: number) {
         super();
         if (x && typeof x === 'object') {
             this.x = x.x;

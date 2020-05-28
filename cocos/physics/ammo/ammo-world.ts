@@ -59,9 +59,10 @@ export class AmmoWorld implements IPhysicsWorld {
         this._btWorld.setGravity(this._btGravity);
     }
 
-    step (timeStep: number, fixTimeStep?: number, maxSubStep?: number) {
+    step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep: number = 0) {
         if (this.bodies.length == 0 && this.ghosts.length == 0) return;
-        this._btWorld.stepSimulation(timeStep, maxSubStep, fixTimeStep);
+        if (timeSinceLastCalled == undefined) timeSinceLastCalled = deltaTime;
+        this._btWorld.stepSimulation(timeSinceLastCalled, maxSubStep, deltaTime);
 
         for (let i = 0; i < this.bodies.length; i++) {
             this.bodies[i].syncPhysicsToScene();
@@ -258,6 +259,15 @@ export class AmmoWorld implements IPhysicsWorld {
                     TriggerEventObject.otherCollider = collider0;
                     collider1.emit(TriggerEventObject.type, TriggerEventObject);
                 } else {
+                    const body0 = collider0.attachedRigidBody;
+                    const body1 = collider1.attachedRigidBody;
+                    if (body0 && body1) {
+                        if (body0.isSleeping && body1.isSleeping) continue;
+                    } else if (body0 == null && body1) {
+                        if (body1.isSleeping) continue;
+                    } else if (body1 == null && body0) {
+                        if (body0.isSleeping) continue;
+                    }
                     if (this.collisionArrayMat.get(shape0.id, shape1.id)) {
                         CollisionEventObject.type = 'onCollisionStay';
                     } else {
@@ -285,10 +295,12 @@ export class AmmoWorld implements IPhysicsWorld {
 
                     CollisionEventObject.selfCollider = collider0;
                     CollisionEventObject.otherCollider = collider1;
+                    CollisionEventObject.isBodyA = true;
                     collider0.emit(CollisionEventObject.type, CollisionEventObject);
 
                     CollisionEventObject.selfCollider = collider1;
                     CollisionEventObject.otherCollider = collider0;
+                    CollisionEventObject.isBodyA = false;
                     collider1.emit(CollisionEventObject.type, CollisionEventObject);
                 }
 
@@ -354,10 +366,12 @@ export class AmmoWorld implements IPhysicsWorld {
                             CollisionEventObject.type = 'onCollisionExit';
                             CollisionEventObject.selfCollider = collider0;
                             CollisionEventObject.otherCollider = collider1;
+                            CollisionEventObject.isBodyA = true;
                             collider0.emit(CollisionEventObject.type, CollisionEventObject);
 
                             CollisionEventObject.selfCollider = collider1;
                             CollisionEventObject.otherCollider = collider0;
+                            CollisionEventObject.isBodyA = false;
                             collider1.emit(CollisionEventObject.type, CollisionEventObject);
 
                             this.collisionArrayMat.set(shape0.id, shape1.id, false);

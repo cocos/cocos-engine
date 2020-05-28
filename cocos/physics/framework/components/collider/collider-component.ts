@@ -176,6 +176,45 @@ export class ColliderComponent extends Eventify(Component) {
 
     constructor () { super() }
 
+    /**
+     * @en
+     * Registers callbacks associated with triggered or collision events.
+     * @zh
+     * 注册触发或碰撞事件相关的回调。
+     * @param type - The event type, onTriggerEnter|onTriggerStay|onTriggerExit|onCollisionEnter|onCollisionStay|onCollisionExit;
+     * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
+     * @param target - The event callback target.
+     */
+    public on (type: TriggerEventType | CollisionEventType, callback: Function, target?: Object): any {
+        super.on(type, callback, target);
+    }
+
+    /**
+     * @en
+     * Unregisters callbacks associated with trigger or collision events that have been registered.
+     * @zh
+     * 取消已经注册的触发或碰撞事件相关的回调。
+     * @param type - The event type, onTriggerEnter|onTriggerStay|onTriggerExit|onCollisionEnter|onCollisionStay|onCollisionExit;
+     * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
+     * @param target - The event callback target.
+     */
+    public off (type: TriggerEventType | CollisionEventType, callback?: Function, target?: Object) {
+        super.off(type, callback, target);
+    }
+
+    /**
+     * @en
+     * Registers a callback associated with a trigger or collision event, which is automatically unregistered once executed.
+     * @zh
+     * 注册触发或碰撞事件相关的回调，执行一次后会自动取消注册。
+     * @param type - The event type, onTriggerEnter|onTriggerStay|onTriggerExit|onCollisionEnter|onCollisionStay|onCollisionExit;
+     * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
+     * @param target - The event callback target.
+     */
+    public once (type: TriggerEventType | CollisionEventType, callback: Function, target?: Object): any {
+        super.once(type, callback, target);
+    }
+
     /// GROUP MASK ///
 
     /**
@@ -298,6 +337,9 @@ export class ColliderComponent extends Eventify(Component) {
 
     protected onDestroy () {
         if (!EDITOR) {
+            if (this._material) {
+                this._material.off('physics_material_update', this._updateMaterial, this);
+            }
             this._shape.onDestroy!();
         }
     }
