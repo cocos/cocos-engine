@@ -38,6 +38,8 @@ const { files } = require('./shared');
 const { __audioSupport, capabilities } = require('../platform/CCSys');
 const { urlAppendTimestamp, retry } = require('./utilities');
 
+const REGEX = /^\w+:\/\/.*/;
+
 
 var formatSupport = __audioSupport.format || [];
 
@@ -97,33 +99,34 @@ var downloadVideo = function (url, options, onComplete) {
     onComplete(null, url);
 };
 
-var downloadBundle = function (url, options, onComplete) {
-    let bundleName = cc.path.basename(url);
+var downloadBundle = function (nameOrUrl, options, onComplete) {
+    let bundleName = cc.path.basename(nameOrUrl);
+    let url = nameOrUrl;
+    if (!REGEX.test(url)) url = 'assets/' + bundleName;
     var version = options.version || downloader.bundleVers[bundleName];
     var count = 0;
-    var config = version ?  `${url}/config.${version}.json` : `${url}/config.json`;
-    let out = null;
+    var config = `${url}/config.${version ? version + '.' : ''}json`;
+    let out = null, error = null;
     downloadJson(config, options, function (err, response) {
         if (err) {
-            onComplete(err);
-            return;
+            error = err;
         }
         out = response;
+        out && (out.base = url + '/');
         count++;
         if (count === 2) {
-            onComplete(null, out);
+            onComplete(error, out);
         }
     });
 
-    var js = version ?  `${url}/index.${version}.js` : `${url}/index.js`;
+    var js = `${url}/index.${version ? version + '.' : ''}js`;
     downloadScript(js, options, function (err) {
         if (err) {
-            onComplete(err);
-            return;
+            error = err;
         }
         count++;
         if (count === 2) {
-            onComplete(null, out);
+            onComplete(error, out);
         }
     });
 };

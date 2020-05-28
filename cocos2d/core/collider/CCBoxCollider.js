@@ -90,6 +90,13 @@ cc.Collider.Box = cc.Class({
  * @extends Collider
  * @uses Collider.Box
  */
+/**
+ * !#en
+ * Collider info in world coordinate.
+ * !#zh
+ * 碰撞体的世界坐标系下的信息。
+ * @property {ColliderInfo} world
+ */
 var BoxCollider = cc.Class({
     name: 'cc.BoxCollider',
     extends: cc.Collider,

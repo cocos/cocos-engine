@@ -218,7 +218,9 @@ export default class Light extends CCComponent {
     }
 
     set color(val) {
-        this._color = val;
+        if (!this._color.equals(val)) {
+            this._color.set(val);
+        }
         this._light.setColor(val.r / 255, val.g / 255, val.b / 255);
     }
 

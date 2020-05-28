@@ -86,6 +86,13 @@ cc.Collider.Circle = cc.Class({
  * @extends Collider
  * @uses Collider.Circle
  */
+/**
+ * !#en
+ * Collider info in world coordinate.
+ * !#zh
+ * 碰撞体的世界坐标系下的信息。
+ * @property {ColliderInfo} world
+ */
 var CircleCollider = cc.Class({
     name: 'cc.CircleCollider',
     extends: cc.Collider,

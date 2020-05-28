@@ -543,6 +543,9 @@ cc.easeBackIn = function(){
  */
 var _easeBackOutObj = {
     easing: function (time1) {
+        if (time1 === 0) {
+            return 0;
+        }
         var overshoot = 1.70158;
         time1 = time1 - 1;
         return time1 * time1 * ((overshoot + 1) * time1 + overshoot) + 1;

@@ -416,8 +416,8 @@ AssetManager.prototype = {
      * Every custom parameter in `requests` will be tranfered to handler of `downloader` and `parser` as `options`. 
      * You can register you own handler downloader or parser to collect these custom parameters for some effect.
      * 
-     * Reserved Keyword: [`uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`, `bundle`, `onFileProgress`, `maxConcurrency`, `maxRequestsPerFrame`
-     * `maxRetryCount`, `version`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload`, `cacheAsset`, `cacheEnabled`],
+     * Reserved Keyword: `uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`, `bundle`, `onFileProgress`, `maxConcurrency`, `maxRequestsPerFrame`
+     * `maxRetryCount`, `version`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload`, `cacheAsset`, `cacheEnabled`,
      * Please DO NOT use these words as custom options!
      * 
      * !#zh
@@ -426,8 +426,8 @@ AssetManager.prototype = {
      * 依赖资源，则 `options` 中的参数会继续向依赖项中分发。request中的自定义参数都会以 `options` 形式传入加载流程中的 `downloader`, `parser` 的方法中, 你可以
      * 扩展 `downloader`, `parser` 收集参数完成想实现的效果。
      * 
-     * 保留关键字: [`uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`, `bundle`, `onFileProgress`, `maxConcurrency`, `maxRequestsPerFrame`
-     * `maxRetryCount`, `version`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload`, `cacheAsset`, `cacheEnabled`],
+     * 保留关键字: `uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`, `bundle`, `onFileProgress`, `maxConcurrency`, `maxRequestsPerFrame`
+     * `maxRetryCount`, `version`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload`, `cacheAsset`, `cacheEnabled`,
      * 请不要使用这些字段为自定义参数!
      * 
      * @method loadAny
@@ -534,7 +534,7 @@ AssetManager.prototype = {
         if (!(asset instanceof cc.Asset)) throw new Error('input is not asset');
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
 
-        if (asset.loaded || !asset._native || asset._nativeAsset) {
+        if (!asset._native || asset._nativeAsset) {
             return asyncify(onComplete)(null);
         }
 
@@ -636,7 +636,7 @@ AssetManager.prototype = {
      * 加载资源包
      * 
      * @method loadBundle
-     * @param {string} root - The root path of bundle
+     * @param {string} nameOrUrl - The name or root path of bundle
      * @param {Object} [options] - Some optional paramter, same like downloader.downloadFile
      * @param {string} [options.version] - The version of this bundle, you can check config.json in this bundle
      * @param {Function} [onComplete] - Callback when bundle loaded or failed
@@ -647,17 +647,13 @@ AssetManager.prototype = {
      * loadBundle('http://localhost:8080/test', null, (err, bundle) => console.log(err));
      * 
      * @typescript
-     * loadBundle(root: string, options?: Record<string, any>, onComplete?: (err: Error, bundle: cc.AssetManager.Bundle) => void): void
-     * loadBundle(root: string, onComplete?: (err: Error, bundle: cc.AssetManager.Bundle) => void): void
+     * loadBundle(nameOrUrl: string, options?: Record<string, any>, onComplete?: (err: Error, bundle: cc.AssetManager.Bundle) => void): void
+     * loadBundle(nameOrUrl: string, onComplete?: (err: Error, bundle: cc.AssetManager.Bundle) => void): void
      */
-    loadBundle (root, options, onComplete) {
-        if (!root) return;
-
+    loadBundle (nameOrUrl, options, onComplete) {
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
 
-        if (root.endsWith('/')) root = root.substr(0, root.length - 1);
-
-        let bundleName = cc.path.basename(root);
+        let bundleName = cc.path.basename(nameOrUrl);
 
         if (this.bundles.has(bundleName)) {
             return asyncify(onComplete)(null, this.getBundle(bundleName));
@@ -665,7 +661,7 @@ AssetManager.prototype = {
 
         options.preset = options.preset || 'bundle';
         options.ext = 'bundle';
-        this.loadRemote(root, options, onComplete);
+        this.loadRemote(nameOrUrl, options, onComplete);
     },
 
     /**

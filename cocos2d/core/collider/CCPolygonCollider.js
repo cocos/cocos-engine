@@ -84,6 +84,13 @@ cc.Collider.Polygon = cc.Class({
  * @extends Collider
  * @uses Collider.Polygon
  */
+/**
+ * !#en
+ * Collider info in world coordinate.
+ * !#zh
+ * 碰撞体的世界坐标系下的信息。
+ * @property {ColliderInfo} world
+ */
 var PolygonCollider = cc.Class({
     name: 'cc.PolygonCollider',
     extends: cc.Collider,

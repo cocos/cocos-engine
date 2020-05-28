@@ -54,6 +54,7 @@ let _color = null;
 let _fontFamily = '';
 let _overflow = Overflow.NONE;
 let _isWrapText = false;
+let _premultiply = false;
 
 // outline
 let _outlineComp = null;
@@ -77,6 +78,12 @@ let _drawUnderlineWidth = 0;
 
 let _sharedLabelData;
 
+const Alignment = [
+    'left', // macro.TextAlignment.LEFT
+    'center', // macro.TextAlignment.CENTER
+    'right' // macro.TextAlignment.RIGHT
+];
+
 export default class TTFAssembler extends Assembler2D {
     _getAssemblerData () {
         _sharedLabelData = Label._canvasPool.get();
@@ -95,12 +102,9 @@ export default class TTFAssembler extends Assembler2D {
         
         if (!comp._vertsDirty) return;
 
-        this._updateFontFamily(comp);
         this._updateProperties(comp);
         this._calculateLabelFont();
-        this._calculateSplitedStrings();
         this._updateLabelDimensions();
-        this._calculateTextBaseline();
         this._updateTexture(comp);
         this._calDynamicAtlas(comp);
 
@@ -147,10 +151,6 @@ export default class TTFAssembler extends Assembler2D {
         _canvasPadding.height = top + bottom;
     }
 
-    _updateFontFamily (comp) {
-        _fontFamily = getFontFamily(comp);
-    }
-
     _updateProperties (comp) {
         let assemblerData = comp._assemblerData;
         _context = assemblerData.context;
@@ -172,6 +172,12 @@ export default class TTFAssembler extends Assembler2D {
         _enableBold = comp.enableBold;
         _enableItalic = comp.enableItalic;
         _enableUnderline = comp.enableUnderline;
+        _fontFamily = getFontFamily(comp);
+        _premultiply = comp.srcBlendFactor === cc.macro.BlendFactor.ONE;
+
+        if (CC_NATIVERENDERER) {
+            _context._setPremultiply(_premultiply);
+        }
 
         if (_overflow === Overflow.NONE) {
             _isWrapText = false;
@@ -206,8 +212,7 @@ export default class TTFAssembler extends Assembler2D {
         let labelX = 0;
         if (_hAlign === macro.TextAlignment.RIGHT) {
             labelX = _canvasSize.width - _canvasPadding.width;
-        }
-        else if (_hAlign === macro.TextAlignment.CENTER) {
+        } else if (_hAlign === macro.TextAlignment.CENTER) {
             labelX = (_canvasSize.width - _canvasPadding.width) / 2;
         }
 
@@ -246,43 +251,19 @@ export default class TTFAssembler extends Assembler2D {
         _context.shadowOffsetY = -_shadowComp.offset.y;
     }
 
-    _drawUnderline (underlinewidth) {
-        if (_outlineComp) {
-            this._setupOutline();
-            _context.strokeRect(_drawUnderlinePos.x, _drawUnderlinePos.y, underlinewidth, _underlineThickness);
-        }
-        _context.lineWidth = _underlineThickness;
-        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255})`;
-        _context.fillRect(_drawUnderlinePos.x, _drawUnderlinePos.y, underlinewidth, _underlineThickness);
-    }
+    _drawTextEffect (startPosition, lineHeight) {
+        if (!_shadowComp && !_outlineComp && !_enableUnderline) return;
 
-    _updateTexture () {
-        _context.clearRect(0, 0, _canvas.width, _canvas.height);
-        //Add a white background to avoid black edges.
-        //TODO: it is best to add alphaTest to filter out the background color.
-        let _fillColor = _outlineComp ? _outlineColor : _color;
-        _context.fillStyle = `rgba(${_fillColor.r}, ${_fillColor.g}, ${_fillColor.b}, ${_invisibleAlpha})`;
-        _context.fillRect(0, 0, _canvas.width, _canvas.height);
-        _context.font = _fontDesc;
-
-        let startPosition = this._calculateFillTextStartPosition();
-        let lineHeight = this._getLineHeight();
-        //use round for line join to avoid sharp intersect point
-        _context.lineJoin = 'round';
-        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, 1)`;
-
-        let isMultiple = _splitedStrings.length > 1;
-
-        //do real rendering
+        let isMultiple = _splitedStrings.length > 1 && _shadowComp;
         let measureText = this._measureText(_context, _fontDesc);
-
         let drawTextPosX = 0, drawTextPosY = 0;
 
         // only one set shadow and outline
         if (_shadowComp) {
             this._setupShadow();
         }
-        if (_outlineComp && _outlineComp.width > 0) {
+        
+        if (_outlineComp) {
             this._setupOutline();
         }
 
@@ -290,14 +271,12 @@ export default class TTFAssembler extends Assembler2D {
         for (let i = 0; i < _splitedStrings.length; ++i) {
             drawTextPosX = startPosition.x;
             drawTextPosY = startPosition.y + i * lineHeight;
-            if (_shadowComp) {
-                // multiple lines need to be drawn outline and fill text
-                if (isMultiple) {
-                    if (_outlineComp && _outlineComp.width > 0) {
-                        _context.strokeText(_splitedStrings[i], drawTextPosX, drawTextPosY);
-                    }
-                    _context.fillText(_splitedStrings[i], drawTextPosX, drawTextPosY);
+            // multiple lines need to be drawn outline and fill text
+            if (isMultiple) {
+                if (_outlineComp) {
+                    _context.strokeText(_splitedStrings[i], drawTextPosX, drawTextPosY);
                 }
+                _context.fillText(_splitedStrings[i], drawTextPosX, drawTextPosY);
             }
 
             // draw underline
@@ -311,19 +290,37 @@ export default class TTFAssembler extends Assembler2D {
                     _drawUnderlinePos.x = startPosition.x;
                 }
                 _drawUnderlinePos.y = drawTextPosY + _drawFontSize / 8;
-                this._drawUnderline(_drawUnderlineWidth);
+                _context.fillRect(_drawUnderlinePos.x, _drawUnderlinePos.y, _drawUnderlineWidth, _underlineThickness);
             }
         }
 
-        if (_shadowComp && isMultiple) {
+        if (isMultiple) {
             _context.shadowColor = 'transparent';
         }
+    }
 
+    _updateTexture () {
+        _context.clearRect(0, 0, _canvas.width, _canvas.height);
+        //Add a white background to avoid black edges.
+        if (!_premultiply) {
+            //TODO: it is best to add alphaTest to filter out the background color.
+            let _fillColor = _outlineComp ? _outlineColor : _color;
+            _context.fillStyle = `rgba(${_fillColor.r}, ${_fillColor.g}, ${_fillColor.b}, ${_invisibleAlpha})`;
+            _context.fillRect(0, 0, _canvas.width, _canvas.height);
+            _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, 1)`;
+        } else {
+            _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255.0})`;
+        }
+
+        let startPosition = this._calculateFillTextStartPosition();
+        let lineHeight = this._getLineHeight();
+        let drawTextPosX = startPosition.x, drawTextPosY = 0;
+        // draw shadow and underline
+        this._drawTextEffect(startPosition, lineHeight);
         // draw text and outline
         for (let i = 0; i < _splitedStrings.length; ++i) {
-            drawTextPosX = startPosition.x;
             drawTextPosY = startPosition.y + i * lineHeight;
-            if (_outlineComp && _outlineComp.width > 0) {
+            if (_outlineComp) {
                 _context.strokeText(_splitedStrings[i], drawTextPosX, drawTextPosY);
             }
             _context.fillText(_splitedStrings[i], drawTextPosX, drawTextPosY);
@@ -348,78 +345,23 @@ export default class TTFAssembler extends Assembler2D {
     }
 
     _updateLabelDimensions () {
-        let paragraphedStrings = _string.split('\n');
-
-        if (_overflow === Overflow.RESIZE_HEIGHT) {
-            let rawHeight = (_splitedStrings.length + textUtils.BASELINE_RATIO) * this._getLineHeight();
-            _canvasSize.height = rawHeight + _canvasPadding.height;
-            // set node height
-            _nodeContentSize.height = rawHeight + _contentSizeExtend.height;
-        }
-        else if (_overflow === Overflow.NONE) {
-            _splitedStrings = paragraphedStrings;
-            let canvasSizeX = 0;
-            let canvasSizeY = 0;
-            for (let i = 0; i < paragraphedStrings.length; ++i) {
-                let paraLength = textUtils.safeMeasureText(_context, paragraphedStrings[i], _fontDesc);
-                canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
-            }
-            canvasSizeY = (_splitedStrings.length + textUtils.BASELINE_RATIO) * this._getLineHeight();
-            let rawWidth = parseFloat(canvasSizeX.toFixed(2));
-            let rawHeight = parseFloat(canvasSizeY.toFixed(2));
-            _canvasSize.width = rawWidth + _canvasPadding.width;
-            _canvasSize.height = rawHeight + _canvasPadding.height;
-            _nodeContentSize.width = rawWidth + _contentSizeExtend.width;
-            _nodeContentSize.height = rawHeight + _contentSizeExtend.height;
-        }
-
         _canvasSize.width = Math.min(_canvasSize.width, MAX_SIZE);
         _canvasSize.height = Math.min(_canvasSize.height, MAX_SIZE);
 
+        let recreate = false;
         if (_canvas.width !== _canvasSize.width) {
             _canvas.width = _canvasSize.width;
+            recreate = true
         }
 
         if (_canvas.height !== _canvasSize.height) {
             _canvas.height = _canvasSize.height;
-        }
-    }
-
-    _calculateTextBaseline () {
-        let hAlign;
-
-        if (_hAlign === macro.TextAlignment.RIGHT) {
-            hAlign = 'right';
-        }
-        else if (_hAlign === macro.TextAlignment.CENTER) {
-            hAlign = 'center';
-        }
-        else {
-            hAlign = 'left';
-        }
-        _context.textAlign = hAlign;
-        _context.textBaseline = 'alphabetic';
-    }
-
-    _calculateSplitedStrings () {
-        let paragraphedStrings = _string.split('\n');
-
-        if (_isWrapText) {
-            _splitedStrings = [];
-            let canvasWidthNoMargin = _nodeContentSize.width;
-            for (let i = 0; i < paragraphedStrings.length; ++i) {
-                let allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i], _fontDesc);
-                let textFragment = textUtils.fragmentText(paragraphedStrings[i],
-                                                        allWidth,
-                                                        canvasWidthNoMargin,
-                                                        this._measureText(_context, _fontDesc));
-                _splitedStrings = _splitedStrings.concat(textFragment);
-            }
-        }
-        else {
-            _splitedStrings = paragraphedStrings;
+            recreate = true
         }
 
+        recreate && (_context.font = _fontDesc);
+        // align
+        _context.textAlign = Alignment[_hAlign];
     }
 
     _getFontDesc () {
@@ -462,89 +404,134 @@ export default class TTFAssembler extends Assembler2D {
         };
     }
 
+    _calculateShrinkFont (paragraphedStrings) {
+        let paragraphLength = this._calculateParagraphLength(paragraphedStrings, _context);
+        
+        let i = 0;
+        let totalHeight = 0;
+        let maxLength = 0;
+
+        if (_isWrapText) {
+            let canvasWidthNoMargin = _nodeContentSize.width;
+            let canvasHeightNoMargin = _nodeContentSize.height;
+            if (canvasWidthNoMargin < 0 || canvasHeightNoMargin < 0) {
+                return;
+            }
+            totalHeight = canvasHeightNoMargin + 1;
+            let actualFontSize = _fontSize + 1;
+            let textFragment = "";
+            //let startShrinkFontSize = actualFontSize | 0;
+            let left = 0, right = actualFontSize | 0, mid = 0;
+
+            while (left < right) {
+                mid = (left + right + 1) >> 1;
+
+                if (mid <= 0) {
+                    cc.logID(4003);
+                    break;
+                }
+
+                _fontSize = mid;
+                _fontDesc = this._getFontDesc();
+                _context.font = _fontDesc;
+                let lineHeight = this._getLineHeight();
+
+                totalHeight = 0;
+                for (i = 0; i < paragraphedStrings.length; ++i) {
+                    let allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i], _fontDesc);
+                    textFragment = textUtils.fragmentText(paragraphedStrings[i],
+                                                        allWidth,
+                                                        canvasWidthNoMargin,
+                                                        this._measureText(_context, _fontDesc));
+                    totalHeight += textFragment.length * lineHeight;
+                }
+
+                if (totalHeight > canvasHeightNoMargin) {
+                    right = mid - 1;
+                } else {
+                    left = mid;
+                }
+            }
+
+            if (left === 0) {
+                cc.logID(4003);
+            } else {
+                _fontSize = left;
+                _fontDesc = this._getFontDesc();
+                _context.font = _fontDesc;
+            }
+        } else {
+            totalHeight = paragraphedStrings.length * this._getLineHeight();
+
+            for (i = 0; i < paragraphedStrings.length; ++i) {
+                if (maxLength < paragraphLength[i]) {
+                    maxLength = paragraphLength[i];
+                }
+            }
+            let scaleX = (_canvasSize.width - _canvasPadding.width) / maxLength;
+            let scaleY = _canvasSize.height / totalHeight;
+
+            _fontSize = (_drawFontSize * Math.min(1, scaleX, scaleY)) | 0;
+            _fontDesc = this._getFontDesc();
+            _context.font = _fontDesc;
+        }
+    }
+
+    _calculateWrapText (paragraphedStrings) {
+        if (!_isWrapText) return;
+
+        _splitedStrings = [];
+        let canvasWidthNoMargin = _nodeContentSize.width;
+        for (let i = 0; i < paragraphedStrings.length; ++i) {
+            let allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i], _fontDesc);
+            let textFragment = textUtils.fragmentText(paragraphedStrings[i],
+                                                    allWidth,
+                                                    canvasWidthNoMargin,
+                                                    this._measureText(_context, _fontDesc));
+            _splitedStrings = _splitedStrings.concat(textFragment);
+        }
+    }
+
     _calculateLabelFont () {
+        let paragraphedStrings = _string.split('\n');
+
+        _splitedStrings = paragraphedStrings;
         _fontDesc = this._getFontDesc();
         _context.font = _fontDesc;
 
-        if (_overflow === Overflow.SHRINK) {
-            let paragraphedStrings = _string.split('\n');
-            let paragraphLength = this._calculateParagraphLength(paragraphedStrings, _context);
-            
-            let i = 0;
-            let totalHeight = 0;
-            let maxLength = 0;
-
-            if (_isWrapText) {
-                let canvasWidthNoMargin = _nodeContentSize.width;
-                let canvasHeightNoMargin = _nodeContentSize.height;
-                if (canvasWidthNoMargin < 0 || canvasHeightNoMargin < 0) {
-                    _fontDesc = this._getFontDesc();
-                    _context.font = _fontDesc;
-                    return;
+        switch (_overflow) {
+            case Overflow.NONE: {
+                let canvasSizeX = 0;
+                let canvasSizeY = 0;
+                for (let i = 0; i < paragraphedStrings.length; ++i) {
+                    let paraLength = textUtils.safeMeasureText(_context, paragraphedStrings[i], _fontDesc);
+                    canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
                 }
-                totalHeight = canvasHeightNoMargin + 1;
-                maxLength = canvasWidthNoMargin + 1;
-                let actualFontSize = _fontSize + 1;
-                let textFragment = "";
-                //let startShrinkFontSize = actualFontSize | 0;
-                let left = 0, right = actualFontSize | 0, mid = 0;
-
-                while (left < right) {
-                    mid = (left + right + 1) >> 1;
-
-                    if (mid <= 0) {
-                        cc.logID(4003);
-                        break;
-                    }
-
-                    _fontSize = mid;
-                    _fontDesc = this._getFontDesc();
-                    _context.font = _fontDesc;
-
-                    totalHeight = 0;
-                    for (i = 0; i < paragraphedStrings.length; ++i) {
-                        let j = 0;
-                        let allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i], _fontDesc);
-                        textFragment = textUtils.fragmentText(paragraphedStrings[i],
-                                                            allWidth,
-                                                            canvasWidthNoMargin,
-                                                            this._measureText(_context, _fontDesc));
-                        while (j < textFragment.length) {
-                            maxLength = textUtils.safeMeasureText(_context, textFragment[j], _fontDesc);
-                            totalHeight += this._getLineHeight();
-                            ++j;
-                        }
-                    }
-
-                    if (totalHeight > canvasHeightNoMargin) {
-                        right = mid - 1;
-                    } else {
-                        left = mid;
-                    }
-                }
-
-                if (left === 0) {
-                    cc.logID(4003);
-                } else {
-                    _fontSize = left;
-                    _fontDesc = this._getFontDesc();
-                    _context.font = _fontDesc;
-                }
+                canvasSizeY = (_splitedStrings.length + textUtils.BASELINE_RATIO) * this._getLineHeight();
+                let rawWidth = parseFloat(canvasSizeX.toFixed(2));
+                let rawHeight = parseFloat(canvasSizeY.toFixed(2));
+                _canvasSize.width = rawWidth + _canvasPadding.width;
+                _canvasSize.height = rawHeight + _canvasPadding.height;
+                _nodeContentSize.width = rawWidth + _contentSizeExtend.width;
+                _nodeContentSize.height = rawHeight + _contentSizeExtend.height;
+                break;
             }
-            else {
-                totalHeight = paragraphedStrings.length * this._getLineHeight();
-
-                for (i = 0; i < paragraphedStrings.length; ++i) {
-                    if (maxLength < paragraphLength[i]) {
-                        maxLength = paragraphLength[i];
-                    }
-                }
-                let scaleX = (_canvasSize.width - _canvasPadding.width) / maxLength;
-                let scaleY = _canvasSize.height / totalHeight;
-
-                _fontSize = (_drawFontSize * Math.min(1, scaleX, scaleY)) | 0;
-                _fontDesc = this._getFontDesc();
-                _context.font = _fontDesc;
+            case Overflow.SHRINK: {
+                this._calculateShrinkFont(paragraphedStrings);
+                this._calculateWrapText(paragraphedStrings);
+                break;
+            }
+            case Overflow.CLAMP: {
+                this._calculateWrapText(paragraphedStrings);
+                break;
+            }
+            case Overflow.RESIZE_HEIGHT: {
+                this._calculateWrapText(paragraphedStrings);
+                let rawHeight = (_splitedStrings.length + textUtils.BASELINE_RATIO) * this._getLineHeight();
+                _canvasSize.height = rawHeight + _canvasPadding.height;
+                // set node height
+                _nodeContentSize.height = rawHeight + _contentSizeExtend.height;
+                break;
             }
         }
     }

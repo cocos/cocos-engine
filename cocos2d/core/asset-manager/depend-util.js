@@ -151,31 +151,37 @@ var dependUtil = {
      * parse(uuid: string, json: any): { deps?: string[], nativeDep?: any }
      */
     parse (uuid, json) {
-        if (!CC_EDITOR && this._depends.has(uuid)) return this._depends.get(uuid);
-        
-        var out = Object.create(null);
-        var type = json.__type__;
-
+        var out = null;
         // scene or prefab
         if (Array.isArray(json)) {
-            out.deps = cc.Asset._parseDepsFromJson(json);
-            out.asyncLoadAssets = json[0].asyncLoadAssets;
+
+            if (this._depends.has(uuid)) return this._depends.get(uuid)
+            out = {
+                deps: cc.Asset._parseDepsFromJson(json),
+                asyncLoadAssets: json[0].asyncLoadAssets
+            };
         }
         // get deps from json
-        else if (type) {
-            var ctor = js._getClassById(type);
-            out.preventPreloadNativeObject = ctor.preventPreloadNativeObject;
-            out.preventDeferredLoadDependents = ctor.preventDeferredLoadDependents;
-            out.deps = ctor._parseDepsFromJson(json);
-            out.nativeDep = ctor._parseNativeDepFromJson(json);
+        else if (json.__type__) {
+
+            if (this._depends.has(uuid)) return this._depends.get(uuid);
+            var ctor = js._getClassById(json.__type__);
+            out = {
+                preventPreloadNativeObject: ctor.preventPreloadNativeObject,
+                preventDeferredLoadDependents: ctor.preventDeferredLoadDependents,
+                deps: ctor._parseDepsFromJson(json),
+                nativeDep: ctor._parseNativeDepFromJson(json)
+            };
             out.nativeDep && (out.nativeDep.uuid = uuid);
         }
         // get deps from an existing asset 
         else {
             var asset = json;
-            out.deps = [];
-            out.preventPreloadNativeObject = asset.constructor.preventPreloadNativeObject;
-            out.preventDeferredLoadDependents = asset.constructor.preventDeferredLoadDependents;
+            out = {
+                deps: [],
+                preventPreloadNativeObject: asset.constructor.preventPreloadNativeObject,
+                preventDeferredLoadDependents: asset.constructor.preventDeferredLoadDependents
+            };
             let deps = asset.__depends__;
             for (var i = 0, l = deps.length; i < l; i++) {
                 var dep = deps[i].uuid;
