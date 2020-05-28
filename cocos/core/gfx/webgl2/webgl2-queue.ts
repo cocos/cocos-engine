@@ -2,6 +2,8 @@ import { GFXCommandBuffer } from '../command-buffer';
 import { GFXQueue, IGFXQueueInfo } from '../queue';
 import { WebGL2GFXCommandBuffer } from './webgl2-command-buffer';
 import { GFXStatus } from '../define';
+import { GFXFence } from '../fence';
+import { WebGL2GFXFence } from './webgl2-fence';
 
 export class WebGL2GFXQueue extends GFXQueue {
 
@@ -24,7 +26,7 @@ export class WebGL2GFXQueue extends GFXQueue {
         this._status = GFXStatus.UNREADY;
     }
 
-    public submit (cmdBuffs: GFXCommandBuffer[], fence?) {
+    public submit (cmdBuffs: GFXCommandBuffer[], fence?: GFXFence) {
         // TODO: Async
         if (!this._isAsync) {
             for (let i = 0; i < cmdBuffs.length; i++) {
@@ -34,6 +36,9 @@ export class WebGL2GFXQueue extends GFXQueue {
                 this.numInstances += cmdBuff.numInstances;
                 this.numTris += cmdBuff.numTris;
             }
+        }
+        if (fence) {
+            (fence as WebGL2GFXFence).insert();
         }
     }
 

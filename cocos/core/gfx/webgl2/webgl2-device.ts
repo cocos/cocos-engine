@@ -10,7 +10,6 @@ import {
     GFXFilter,
     GFXFormat,
     GFXFormatInfos,
-    GFXFormatSize,
     GFXQueueType,
     GFXTextureFlagBit,
     GFXTextureType,
@@ -18,6 +17,7 @@ import {
     IGFXRect,
 } from '../define';
 import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
+import { GFXFence, IGFXFenceInfo } from '../fence';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
 import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from '../pipeline-layout';
@@ -37,6 +37,7 @@ import {
     GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer,
     WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture,
 } from './webgl2-commands';
+import { WebGL2GFXFence } from './webgl2-fence';
 import { WebGL2GFXFramebuffer } from './webgl2-framebuffer';
 import { WebGL2GFXInputAssembler } from './webgl2-input-assembler';
 import { WebGL2GFXPipelineLayout } from './webgl2-pipeline-layout';
@@ -516,6 +517,12 @@ export class WebGL2GFXDevice extends GFXDevice {
         const cmdBuff = new ctor(this);
         cmdBuff.initialize(info);
         return cmdBuff;
+    }
+
+    public createFence (info: IGFXFenceInfo): GFXFence {
+        const fence = new WebGL2GFXFence(this);
+        fence.initialize(info);
+        return fence;
     }
 
     public createQueue (info: IGFXQueueInfo): GFXQueue {
