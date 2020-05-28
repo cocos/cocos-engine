@@ -37,22 +37,61 @@ import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { EDITOR } from 'internal:constants';
 import { HierarchyPath, evaluatePath } from './target-path';
 import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter } from './skeletal-animation-blending';
+import { ccenum } from '../value-types/enum';
+import { Eventify } from '../event';
 
-enum PropertySpecialization {
-    NodePosition,
-    NodeScale,
-    NodeRotation,
-    None,
+/**
+ * @en The event type supported by Animation
+ * @zh Animation 支持的事件类型。
+ */
+export enum EventType {
+    /**
+     * @en Emit when begin playing animation
+     * @zh 开始播放时触发。
+     */
+    PLAY = 'play',
+    /**
+     * @en Emit when stop playing animation
+     * @zh 停止播放时触发。
+     */
+    STOP = 'stop',
+    /**
+     * @en Emit when pause animation
+     * @zh 暂停播放时触发。
+     */
+    PAUSE = 'pause',
+    /**
+     * @en Emit when resume animation
+     * @zh 恢复播放时触发。
+     */
+    RESUME = 'resume',
+
+    /**
+     * @en If animation repeat count is larger than 1, emit when animation play to the last frame.
+     * @zh 假如动画循环次数大于 1，当动画播放到最后一帧时触发。
+     */
+    LASTFRAME = 'lastframe',
+
+    /**
+     * @en Triggered when finish playing animation.
+     * @zh 动画完成播放时触发。
+     */
+    FINISHED = 'finished',
+
+    /**
+     * @en Triggered when the animation playing to the last frame or when finish its playing.
+     * @zh 当动画完成播放时，或每当动画播放到最后一帧时触发。
+     */
+    LAST_FRAME_ARRIVED = 'last-frame-arrived',
 }
+ccenum(EventType);
 
 export class ICurveInstance {
     public commonTargetIndex?: number;
 
     private _curve: AnimCurve;
     private _boundTarget: IBoundTarget;
-    private _rootTarget: any;
     private _rootTargetProperty?: string;
-    private _cached?: any[];
     private _curveDetail: Omit<IRuntimeCurve, 'sampler'>;
 
     constructor (
@@ -63,7 +102,6 @@ export class ICurveInstance {
         this._curveDetail = runtimeCurve;
 
         this._boundTarget = boundTarget;
-        this._rootTarget = target;
     }
 
     public applySample (ratio: number, index: number, lerpRequired: boolean, samplerResultCache, weight: number) {
@@ -123,15 +161,7 @@ function makeSamplerSharedGroup (sampler: RatioSampler | null): ISamplerSharedGr
 }
 
 const InvalidIndex = -1;
-
-export interface IAnimationEventDefinitionMap {
-    'finished': (animationState: AnimationState) => void;
-    'lastframe': (animationState: AnimationState) => void;
-    'play': (animationState: AnimationState) => void;
-    'pause': (animationState: AnimationState) => void;
-    'resume': (animationState: AnimationState) => void;
-    'stop': (animationState: AnimationState) => void;
-}
+const stateAspect = 2;
 
 /**
  * @en
@@ -142,7 +172,7 @@ export interface IAnimationEventDefinitionMap {
  * 大多数情况下 动画组件 是足够和易于使用的。如果您需要更多的动画控制接口，请使用 AnimationState。
  *
  */
-export class AnimationState extends Playable {
+export class AnimationState extends Eventify(Playable) {
 
     /**
      * @en The clip that is being played by this animation state.
@@ -239,12 +269,6 @@ export class AnimationState extends Playable {
         this._delayTime = this._delay = value;
     }
 
-    /**
-     * @en The curves list.
-     * @zh 曲线列表。
-     */
-    // public curves: AnimCurve[] = [];
-
     // http://www.w3.org/TR/web-animations/#idl-def-AnimationTiming
 
     /**
@@ -274,14 +298,6 @@ export class AnimationState extends Playable {
     public weight = 0;
 
     public frameRate = 0;
-
-    /**
-     * @zh
-     * 是否允许触发 `LastFrame` 事件。
-     * @en
-     * Whether `LastFrame` should be triggered.
-     */
-    public allowLastFrameEvent = false;
 
     protected _wrapMode = WrapMode.Normal;
 
@@ -317,6 +333,7 @@ export class AnimationState extends Playable {
     private _blendStateBuffer: BlendStateBuffer | null = null;
     private _blendStateWriters: IBlendStateWriter[] = [];
     private _isBlendStateWriterInitialized = false;
+    private _allowLastFrameEventMask = 0;
 
     constructor (clip: AnimationClip, name = '') {
         super();
@@ -419,57 +436,44 @@ export class AnimationState extends Playable {
         this._destroyBlendStateWriters();
     }
 
-    public _emit (type, state) {
-        if (this._target && this._target.isValid) {
-            this._target.emit(type, type, state);
+    /**
+     * @zh
+     * 是否允许触发 `LastFrame` 事件。
+     * @en
+     * Whether `LastFrame` should be triggered.
+     * @param allowed True if the last frame events may be triggered.
+     * @param aspect DO NOT pass this argument. It's for internal usage.
+     */
+    public allowLastFrameEvent (allowed: boolean, aspect: number = 1) {
+        if (allowed) {
+            this._allowLastFrameEventMask |= (1 << aspect);
+        } else {
+            this._allowLastFrameEventMask &= ~(1 << aspect);
         }
     }
 
-    public emit<K extends string> (type: K, ...args: EventArgumentsOf<K, IAnimationEventDefinitionMap>): void;
-
-    public emit (...args: any[]) {
-        cc.director.getAnimationManager().pushDelayEvent(this, '_emit', args);
+    public on<TFunction extends Function> (type: string, callback: TFunction, thisArg?: any) {
+        if (type === EventType.LASTFRAME ||
+            type === EventType.LAST_FRAME_ARRIVED) {
+            this.allowLastFrameEvent(true, stateAspect);
+        }
+        return super.once(type, callback, thisArg);
     }
 
-    public on<K extends string> (type: K, callback: EventCallbackOf<K, IAnimationEventDefinitionMap>, target?: any): void;
-
-    public on (type: string, callback: Function, target?: any) {
-        if (this._target && this._target.isValid) {
-            if (type === 'lastframe') {
-                this.allowLastFrameEvent = true;
-            }
-            return this._target.on(type, callback, target);
+    public once<TFunction extends Function> (type: string, callback: TFunction, thisArg?: any) {
+        if (type === EventType.LASTFRAME ||
+            type === EventType.LAST_FRAME_ARRIVED) {
+            this.allowLastFrameEvent(true, stateAspect);
         }
-        else {
-            return null;
-        }
+        return super.once(type, callback, thisArg);
     }
 
-    public once<K extends string> (type: K, callback: EventCallbackOf<K, IAnimationEventDefinitionMap>, target?: any): void;
-
-    public once (type: string, callback: Function, target?: any) {
-        if (this._target && this._target.isValid) {
-            if (type === 'lastframe') {
-                this.allowLastFrameEvent = true;
-            }
-            return this._target.once(type, (event) => {
-                callback.call(target, event);
-                this.allowLastFrameEvent = false;
-            });
-        }
-        else {
-            return null;
-        }
-    }
-
-    public off (type: string, callback: Function, target?: any) {
-        if (this._target && this._target.isValid) {
-            if (type === 'lastframe') {
-                if (!this._target.hasEventListener(type)) {
-                    this.allowLastFrameEvent = false;
-                }
-            }
-            this._target.off(type, callback, target);
+    public off<TFunction extends Function> (type: string, callback?: TFunction, thisArg?: any) {
+        super.off(type, callback, thisArg);
+        if ((type === EventType.LASTFRAME ||
+            type === EventType.LAST_FRAME_ARRIVED) &&
+            this.hasEventListener(type)) {
+            this.allowLastFrameEvent(false, stateAspect);
         }
     }
 
@@ -612,7 +616,7 @@ export class AnimationState extends Playable {
         // sample
         const info = this.sample();
 
-        if (this.allowLastFrameEvent) {
+        if (this._allowLastFrameEventMask) {
             let lastInfo;
             if (!this._lastWrapInfo) {
                 lastInfo = this._lastWrapInfo = new WrappedInfo(info);
@@ -621,7 +625,8 @@ export class AnimationState extends Playable {
             }
 
             if (this.repeatCount > 1 && ((info.iterations | 0) > (lastInfo.iterations | 0))) {
-                this.emit('lastframe', this);
+                this._delayEmit(EventType.LASTFRAME, this);
+                this._delayEmit(EventType.LAST_FRAME_ARRIVED, this);
             }
 
             lastInfo.set(info);
@@ -629,7 +634,8 @@ export class AnimationState extends Playable {
 
         if (info.stopped) {
             this.stop();
-            this.emit('finished', this);
+            this._delayEmit(EventType.FINISHED, this);
+            this._delayEmit(EventType.LAST_FRAME_ARRIVED, this);
         }
     }
 
@@ -646,13 +652,14 @@ export class AnimationState extends Playable {
             }
         }
 
-        if (this.allowLastFrameEvent) {
+        if (this._allowLastFrameEventMask) {
             if (this._lastIterations === undefined) {
                 this._lastIterations = ratio;
             }
 
             if ((this.time > 0 && this._lastIterations > ratio) || (this.time < 0 && this._lastIterations < ratio)) {
-                this.emit('lastframe', this);
+                this._delayEmit(EventType.LASTFRAME, this);
+                this._delayEmit(EventType.LAST_FRAME_ARRIVED, this);
             }
 
             this._lastIterations = ratio;
@@ -666,24 +673,24 @@ export class AnimationState extends Playable {
         this.setTime(0);
         this._delayTime = this._delay;
         this._onReplayOrResume();
-        this.emit('play', this);
+        this._delayEmit(EventType.PLAY, this);
     }
 
     protected onStop () {
         if (!this.isPaused) {
             this._onPauseOrStop();
         }
-        this.emit('stop', this);
+        this._delayEmit(EventType.STOP, this);
     }
 
     protected onResume () {
         this._onReplayOrResume();
-        this.emit('resume', this);
+        this._delayEmit(EventType.RESUME, this);
     }
 
     protected onPause () {
         this._onPauseOrStop();
-        this.emit('pause', this);
+        this._delayEmit(EventType.PAUSE, this);
     }
 
     protected _sampleCurves (ratio: number) {
@@ -817,7 +824,7 @@ export class AnimationState extends Playable {
 
                 lastIndex += direction;
 
-                cc.director.getAnimationManager().pushDelayEvent(this, '_fireEvent', [lastIndex]);
+                cc.director.getAnimationManager().pushDelayEvent(this._fireEvent, this, [lastIndex]);
             } while (lastIndex !== eventIndex && lastIndex > -1 && lastIndex < length);
         }
 
@@ -867,6 +874,19 @@ export class AnimationState extends Playable {
         }
         this._blendStateWriters.length = 0;
         this._isBlendStateWriterInitialized = false;
+    }
+
+    private _delayEmit (...args: any[]) {
+        cc.director.getAnimationManager().pushDelayEvent(this._emit, this, args);
+    }
+
+    private _emit (type: EventType, state: AnimationState) {
+        if (state === this) {
+            this.emit(type);
+        }
+        if (this._target && this._target.isValid) {
+            this._target.emit(type, type, state);
+        }
     }
 }
 

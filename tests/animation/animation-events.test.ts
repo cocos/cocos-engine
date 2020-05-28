@@ -7,8 +7,8 @@ test('Animation events(general)', () => {
             removeAnimation: () => { },
             addCrossFade: () => { },
             removeCrossFade: () => { },
-            pushDelayEvent: (target: Node, func: string, args: any[]) => {
-                target[func].apply(target, args);
+            pushDelayEvent: (fn: Function, thisArg: any, args: any[]) => {
+                fn.apply(thisArg, args);
             },
         };
     });
@@ -116,30 +116,32 @@ test('Animation event(last-frame event optimization)', () => {
     const handler1 = () => {};
     const handler2 = () => {};
 
-    expect(initialStates.every((state) => !state.allowLastFrameEvent)).toBeTruthy();
+    const isLastFrameEventAllowed = (state: AnimationState) => (state as any)['_allowLastFrameEventMask'] !== 0;
+
+    expect(initialStates.every(state => !isLastFrameEventAllowed(state))).toBeTruthy();
 
     animationComponent.on(AnimationComponent.EventType.LASTFRAME, handler1);
     // After subscribe the last-frame event, all states should have `allowLastFrameEvent` set to `true`.
-    expect(initialStates.every((state) => state.allowLastFrameEvent)).toBeTruthy();
+    expect(initialStates.every(isLastFrameEventAllowed)).toBeTruthy();
 
     animationComponent.on(AnimationComponent.EventType.LASTFRAME, handler2);
     // Should no problem.
-    expect(initialStates.every((state) => state.allowLastFrameEvent)).toBeTruthy();
+    expect(initialStates.every(isLastFrameEventAllowed)).toBeTruthy();
 
     animationComponent.off(AnimationComponent.EventType.LASTFRAME, handler2);
     // Now we unsubscribe one, but this should still true.
-    expect(initialStates.every((state) => state.allowLastFrameEvent)).toBeTruthy();
+    expect(initialStates.every(isLastFrameEventAllowed)).toBeTruthy();
 
     animationComponent.off(AnimationComponent.EventType.LASTFRAME, handler1);
     // All states should have `allowLastFrameEvent` set to `false`
     // if no any subscribe on 'last-frame' event.
-    expect(initialStates.every((state) => !state.allowLastFrameEvent)).toBeTruthy();
+    expect(initialStates.every(state => !isLastFrameEventAllowed(state))).toBeTruthy();
 
     animationComponent.on(AnimationComponent.EventType.LASTFRAME, handler1);
     // The newly added state should automatically have `allowLastFrameEvent` set to `true`.
     const newState = animationComponent.createState(createTestClip('clip-new'));
     // The newly added state should also have `allowLastFrameEvent` set to `true`.
-    expect(newState.allowLastFrameEvent).toBeTruthy();
+    expect(isLastFrameEventAllowed(newState)).toBeTruthy();
 });
 
 function createTestAnimationComponent() {
