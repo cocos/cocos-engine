@@ -511,7 +511,8 @@ export class Node extends BaseNode {
                 if (dirtyBits & TransformBit.RS) {
                     if (dirtyBits & TransformBit.ROTATION) {
                         Quat.copy(child._rot, child._lrot);
-                    } else {
+                    } 
+                    if (dirtyBits & TransformBit.SCALE) {
                         Vec3.copy(child._scale, child._lscale);
                     }
                     Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
