@@ -459,6 +459,8 @@ export class Node extends BaseNode {
         this._dirtyFlags |= dirtyBit;
         bookOfChange.set(this._id, this.hasChangedFlags | dirtyBit);
         dirtyBit |= TransformBit.POSITION;
+        // Protect for button._resetState
+        if (!this._children) { return; }
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i].invalidateChildren(dirtyBit);
