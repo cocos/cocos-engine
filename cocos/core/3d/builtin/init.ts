@@ -159,14 +159,26 @@ class BuiltinResMgr {
         // sprite material
         const spriteColorMtl = new cc.Material();
         spriteColorMtl._uuid = 'ui-sprite-material';
-        spriteColorMtl.initialize({ defines: { USE_TEXTURE: true, IS_GRAY: false }, effectName: 'builtin-sprite' });
+        spriteColorMtl.initialize({ defines: { USE_TEXTURE: true, CC_ALPHA_SEPARATED: false, IS_GRAY: false }, effectName: 'builtin-sprite' });
         resources[spriteColorMtl._uuid] = spriteColorMtl;
 
         // sprite gray material
         const spriteGrayMtl = new cc.Material();
         spriteGrayMtl._uuid = 'ui-sprite-gray-material';
-        spriteGrayMtl.initialize({ defines: { USE_TEXTURE: true, IS_GRAY: true }, effectName: 'builtin-sprite' });
+        spriteGrayMtl.initialize({ defines: { USE_TEXTURE: true, CC_ALPHA_SEPARATED: false, IS_GRAY: true }, effectName: 'builtin-sprite' });
         resources[spriteGrayMtl._uuid] = spriteGrayMtl;
+
+        // sprite alpha material
+        const spriteAlphaMtl = new cc.Material();
+        spriteAlphaMtl._uuid = 'ui-sprite-alpha-sep-material';
+        spriteAlphaMtl.initialize({ defines: { USE_TEXTURE: true, CC_ALPHA_SEPARATED: true, IS_GRAY: false }, effectName: 'builtin-sprite' });
+        resources[spriteAlphaMtl._uuid] = spriteAlphaMtl;
+
+        // sprite alpha & gray material
+        const spriteAlphaGrayMtl = new cc.Material();
+        spriteAlphaGrayMtl._uuid = 'ui-sprite-gray-alpha-sep-material';
+        spriteAlphaGrayMtl.initialize({ defines: { USE_TEXTURE: true, CC_ALPHA_SEPARATED: true, IS_GRAY: true }, effectName: 'builtin-sprite' });
+        resources[spriteAlphaGrayMtl._uuid] = spriteAlphaGrayMtl;
 
         // default particle material
         const defaultParticleMtl = new cc.Material();

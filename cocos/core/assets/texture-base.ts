@@ -318,11 +318,24 @@ export class TextureBase extends Asset {
     }
 
     protected _getGFXFormat () {
-        return this._format;
+        return this._getGFXPixelFormat(this._format);
     }
 
     protected _setGFXFormat (format?: PixelFormat) {
         this._format = format === undefined ? PixelFormat.RGBA8888 : format;
+    }
+
+    protected _getGFXPixelFormat (format) {
+        if (format === PixelFormat.RGBA_ETC1) {
+            format = PixelFormat.RGB_ETC1;
+        }
+        else if (format === PixelFormat.RGB_A_PVRTC_4BPPV1) {
+            format = PixelFormat.RGB_PVRTC_4BPPV1;
+        }
+        else if (format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
+            format = PixelFormat.RGB_PVRTC_2BPPV1;
+        }
+        return format;
     }
 }
 
