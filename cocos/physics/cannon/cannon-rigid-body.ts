@@ -31,8 +31,8 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     setAllowSleep (v: boolean) {
-        this.impl.wakeUp();
         this.impl.allowSleep = v;
+        if (this.impl.isSleeping()) this.impl.wakeUp();
     }
 
     setMass (value: number) {
@@ -44,7 +44,7 @@ export class CannonRigidBody implements IRigidBody {
         }
 
         this.impl.updateMassProperties();
-        this.impl.wakeUp();
+        if (this.impl.isSleeping()) this.impl.wakeUp();
     }
 
     setIsKinematic (value: boolean) {
@@ -60,9 +60,9 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     fixRotation (value: boolean) {
-        this.impl.wakeUp();
         this.impl.fixedRotation = value;
         this.impl.updateMassProperties();
+        if (this.impl.isSleeping()) this.impl.wakeUp();
     }
 
     setLinearDamping (value: number) {
@@ -74,18 +74,18 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     useGravity (value: boolean) {
-        this.impl.wakeUp();
         this.impl.useGravity = value;
+        if (this.impl.isSleeping()) this.impl.wakeUp();
     }
 
     setLinearFactor (value: IVec3Like) {
-        this.impl.wakeUp();
         Vec3.copy(this.impl.linearFactor, value);
+        if (this.impl.isSleeping()) this.impl.wakeUp();
     }
 
     setAngularFactor (value: IVec3Like) {
-        this.impl.wakeUp();
         Vec3.copy(this.impl.angularFactor, value);
+        if (this.impl.isSleeping()) this.impl.wakeUp();
     }
 
     get impl () {

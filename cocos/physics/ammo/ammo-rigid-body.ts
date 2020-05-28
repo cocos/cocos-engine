@@ -78,14 +78,17 @@ export class AmmoRigidBody implements IRigidBody {
         } else {
             this.impl.setAngularFactor(cocos2AmmoVec3(this._btVec3_0, this._rigidBody.angularFactor));
         }
+        if (this.isSleeping) this.impl.activate();
     }
 
     setLinearFactor (value: IVec3Like) {
         this.impl.setLinearFactor(cocos2AmmoVec3(this._btVec3_0, value));
+        if (this.isSleeping) this.impl.activate();
     }
 
     setAngularFactor (value: IVec3Like) {
         this.impl.setAngularFactor(cocos2AmmoVec3(this._btVec3_0, value));
+        if (this.isSleeping) this.impl.activate();
     }
 
     setAllowSleep (v: boolean) {
@@ -94,6 +97,7 @@ export class AmmoRigidBody implements IRigidBody {
         } else {
             this.impl.forceActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
         }
+        if (this.isSleeping) this.impl.activate();
     }
 
     get isEnabled () { return this._isEnabled; }
