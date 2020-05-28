@@ -144,6 +144,12 @@ export interface ICustomJointTextureLayout {
     contents: IChunkContent[];
 }
 
+interface IJointAnimInfo {
+    downstream?: Mat4; // downstream default pose, if present
+    curveData?: Mat4[]; // the nearest animation curve, if present
+    correctionPath?: string; // path of the nearest curve, if downstream pose does not exist
+}
+
 // Have to use some big number to replace the actual 'Infinity'.
 // For (Infinity - Infinity) evaluates to NaN
 const Inf = Number.MAX_SAFE_INTEGER;
@@ -276,16 +282,43 @@ export class JointTexturePool {
         for (let fid = 0; fid < frames; fid++) {
             bounds.push(new aabb(Inf, Inf, Inf, -Inf, -Inf, -Inf));
         }
+        const animInfos: IJointAnimInfo[] = [];
+        for (let i = 0; i < totalJoints; i++) {
+            let animPath = joints[i];
+            let source = clipData.data[animPath];
+            let animNode = skinningRoot.getChildByPath(animPath);
+            let downstream: Mat4 | undefined;
+            let correctionPath: string | undefined;
+            while (!source) {
+                const idx = animPath.lastIndexOf('/');
+                if (idx < 0) { break; }
+                animPath = animPath.substring(0, idx);
+                source = clipData.data[animPath];
+                if (animNode) {
+                    if (!downstream) { downstream = new Mat4(); }
+                    Mat4.fromRTS(m4_1, animNode.rotation, animNode.position, animNode.scale);
+                    Mat4.multiply(downstream, m4_1, downstream);
+                    animNode = animNode.parent;
+                } else { // record the nearest curve path if no downstream pose is present
+                    correctionPath = animPath;
+                }
+            }
+            animInfos.push({ curveData: source && source.worldMatrix.values as Mat4[], downstream, correctionPath });
+        }
         let offset = 0;
         for (let frame = 0; frame < frames; frame++) {
             const bound = bounds[frame];
             for (let i = 0; i < totalJoints; i++, offset += 12) {
-                const nodeData = clipData.data[joints[i]];
-                let mat = Mat4.IDENTITY;
-                if (nodeData) {  mat = nodeData.worldMatrix.values[frame] as Mat4; }
-                else {
-                    const node = skinningRoot.getChildByPath(joints[i]); // fallback to default pose
-                    mat = node ? getWorldTransformUntilRoot(node, skinningRoot, m4_1) : Mat4.IDENTITY;
+                const animInfo = animInfos[i];
+                let mat: Mat4;
+                if (animInfo.curveData && animInfo.downstream) { // curve & static two-way combination
+                    mat = Mat4.multiply(m4_1, animInfo.curveData[frame], animInfo.downstream);
+                } else if (animInfo.curveData) { // there is a curve directly controlling the joint
+                    mat = animInfo.curveData[frame];
+                } else if (animInfo.downstream) { // fallback to default pose if no animation curve can be found upstream
+                    mat = animInfo.downstream;
+                } else { // bottom line: render the original mesh as-is
+                    mat = Mat4.IDENTITY;
                 }
                 const boneSpaceBound = boneSpaceBounds[i];
                 if (boneSpaceBound) {
@@ -295,8 +328,26 @@ export class JointTexturePool {
                     Vec3.max(bound.halfExtents, bound.halfExtents, v3_4);
                 }
                 if (buildTexture) {
-                    if (mat !== Mat4.IDENTITY) { Mat4.multiply(m4_1, mat, bindposes[i]); }
-                    uploadJointData(textureBuffer, offset, m4_1, i === 0);
+                    let bindposeIdx = i;
+                    // It is regularly observed that developers may choose to delete the whole skeleton node tree
+                    // for skinning models that only use baked animations, to reduce prefab file size.
+                    // This becomes troublesome in some cases during baking though, e.g. when a skeleton joint node
+                    // is not directly controlled by any animation curve, but its parent nodes are.
+                    // Due to the lack of proper downstream default pose, the joint transform can not be calculated accurately.
+                    // We address this issue by employing some pragmatic approximation.
+                    // Specifically, by multiplying the bindpose of the joint corresponding to the nearest curve, instead of the actual target joint.
+                    // It gives more visually-plausible results compared to the naive approach for most cases we've covered.
+                    if (animInfo.correctionPath !== undefined) {
+                        bindposeIdx = i - 1; // just use the previous joint if the exact path is not found
+                        for (let j = 0; j < totalJoints; j++) {
+                            if (joints[j] === animInfo.correctionPath) {
+                                bindposeIdx = j; break;
+                            }
+                        }
+                    }
+                    // no need to apply bindpose if we are rendering the mesh as-is
+                    if (mat !== Mat4.IDENTITY) { mat = Mat4.multiply(m4_1, mat, bindposes[bindposeIdx]); }
+                    uploadJointData(textureBuffer, offset, mat, i === 0);
                 }
             }
             aabb.fromPoints(bound, bound.center, bound.halfExtents);
