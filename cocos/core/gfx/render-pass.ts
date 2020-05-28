@@ -86,7 +86,7 @@ export abstract class GFXRenderPass extends GFXObject {
         let res = 'ca,';
         for (let i = 0; i < this._colorInfos.length; ++i) {
             const ca = this._colorInfos[i];
-            res += `${ca.format},${ca.loadOp},${ca.storeOp},${ca.sampleCount},${ca.beginLayout},${ca.endLayout}`;
+            res += `,${ca.format},${ca.loadOp},${ca.storeOp},${ca.sampleCount},${ca.beginLayout},${ca.endLayout}`;
         }
 
         const ds = this._depthStencilInfo;

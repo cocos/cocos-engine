@@ -213,7 +213,7 @@ export abstract class GFXInputAssembler extends GFXObject {
         let res = 'atts';
         for (let i = 0; i < this.attributes.length; ++i) {
             const at = this.attributes[i];
-            res += `,${at.format},${at.isNormalized},${at.stream},${at.isInstanced}`;
+            res += `,${at.name},${at.format},${at.isNormalized},${at.stream},${at.isInstanced}`;
         }
         return murmurhash2_32_gc(res, 666);
     }
