@@ -59,10 +59,10 @@ export class AmmoWorld implements IPhysicsWorld {
         this._btWorld.setGravity(this._btGravity);
     }
 
-    step (fixTimeStep: number, timeStep?: number, maxSubSteps: number = 0) {
+    step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep: number = 0) {
         if (this.bodies.length == 0 && this.ghosts.length == 0) return;
-        if (timeStep == undefined) timeStep = fixTimeStep;
-        this._btWorld.stepSimulation(timeStep, maxSubSteps, fixTimeStep);
+        if (timeSinceLastCalled == undefined) timeSinceLastCalled = deltaTime;
+        this._btWorld.stepSimulation(timeSinceLastCalled, maxSubStep, deltaTime);
 
         for (let i = 0; i < this.bodies.length; i++) {
             this.bodies[i].syncPhysicsToScene();
