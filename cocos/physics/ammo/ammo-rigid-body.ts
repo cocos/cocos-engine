@@ -119,6 +119,15 @@ export class AmmoRigidBody implements IRigidBody {
         this.id = AmmoRigidBody.idCounter++;
     }
 
+    clearVelocity (): void {
+        this.setLinearVelocity(Vec3.ZERO);
+        this.setAngularVelocity(Vec3.ZERO);
+    }
+
+    clearForces (): void {
+        this.impl.clearForces();
+    }
+
     /** LIFECYCLE */
 
     initialize (com: RigidBodyComponent) {
@@ -160,6 +169,10 @@ export class AmmoRigidBody implements IRigidBody {
 
     sleep (): void {
         return this.impl.wantsSleeping() as any;
+    }
+
+    clearState (): void {
+        this.impl.clearState();
     }
 
     /** type */
