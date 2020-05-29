@@ -150,6 +150,8 @@ export class ForwardPipeline extends RenderPipeline {
         const forwardFlow = new ForwardFlow();
         forwardFlow.initialize(ForwardFlow.initInfo);
         this._flows.push(forwardFlow);
+
+        // add shadowMap-flow
     }
 
     public activate (root: Root): boolean {
