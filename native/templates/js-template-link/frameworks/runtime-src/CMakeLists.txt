@@ -200,15 +200,18 @@ if(APPLE)
 elseif(WINDOWS)
     
     if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/../../jsb-adapter)
-        set(bin_dir $<TARGET_FILE_DIR:${LIB_NAME}>)
-        add_custom_command(TARGET ${LIB_NAME} PRE_BUILD
-            COMMAND ${CMAKE_COMMAND} -E echo "Linking resources for ${LIB_NAME} ..."
-            COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_LIST_DIR}/../../jsb-adapter ${bin_dir}/jsb-adapter
-            COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_LIST_DIR}/../../res ${bin_dir}/res
-            COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_LIST_DIR}/../../src ${bin_dir}/src
-            COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_LIST_DIR}/../../main.js ${bin_dir}/main.js
-            COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_LIST_DIR}/../../project.json ${bin_dir}/project.json
+        set(bin_dir ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR})
+        add_custom_target(copy_resource ALL
+            COMMAND ${CMAKE_COMMAND} -E echo "Copying resources to ${bin_dir}"
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${bin_dir}
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/../../jsb-adapter ${bin_dir}/jsb-adapter
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/../../res ${bin_dir}/res
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/../../src ${bin_dir}/src
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/../../main.js ${bin_dir}/main.js
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/../../project.json ${bin_dir}/project.json
         )
+        add_dependencies(${LIB_NAME} copy_resource)
+        set_target_properties(copy_resource PROPERTIES FOLDER Utils)
     endif()
         
     target_include_directories(${LIB_NAME} PRIVATE 
