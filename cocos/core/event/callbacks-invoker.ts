@@ -161,189 +161,189 @@ export interface ICallbackTable {
  * @en CallbacksInvoker is used to manager and invoke event listeners with different event keys, 
  * each key is mapped to a CallbackList.
  */
-export function CallbacksInvoker (this: any) {
-    this._callbackTable = createMap(true);
-};
+export class CallbacksInvoker {
+    public _callbackTable: ICallbackTable = createMap(true);
 
-/**
- * @zh 向一个事件名注册一个新的事件监听器，包含回调函数和调用者
- * @en Register an event listener to a given event key with callback and target.
- *
- * @param key - Event type
- * @param callback - Callback function when event triggered
- * @param target - Callback callee
- * @param once - Whether invoke the callback only once (and remove it)
- */
-CallbacksInvoker.prototype.on = function (key: string, callback: Function, target?: Object, once?: boolean) {
-    let list = this._callbackTable[key];
-    if (!list) {
-        list = this._callbackTable[key] = callbackListPool.alloc();
+    /**
+     * @zh 向一个事件名注册一个新的事件监听器，包含回调函数和调用者
+     * @en Register an event listener to a given event key with callback and target.
+     *
+     * @param key - Event type
+     * @param callback - Callback function when event triggered
+     * @param target - Callback callee
+     * @param once - Whether invoke the callback only once (and remove it)
+     */
+    public on (key: string, callback: Function, target?: Object, once?: boolean) {
+        let list = this._callbackTable[key];
+        if (!list) {
+            list = this._callbackTable[key] = callbackListPool.alloc();
+        }
+        const info = callbackInfoPool.alloc();
+        info.set(callback, target, once);
+        list.callbackInfos.push(info);
     }
-    const info = callbackInfoPool.alloc();
-    info.set(callback, target, once);
-    list.callbackInfos.push(info);
-};
 
-/**
- * @zh 检查指定事件是否已注册回调。
- * @en Checks whether there is correspond event listener registered on the given event
- * @param key - Event type
- * @param callback - Callback function when event triggered
- * @param target - Callback callee
- */
-CallbacksInvoker.prototype.hasEventListener = function (key: string, callback?: Function, target: Object | null = null) {
-    const list = this._callbackTable[key];
-    if (!list) {
+    /**
+     * @zh 检查指定事件是否已注册回调。
+     * @en Checks whether there is correspond event listener registered on the given event
+     * @param key - Event type
+     * @param callback - Callback function when event triggered
+     * @param target - Callback callee
+     */
+    public hasEventListener (key: string, callback?: Function, target: Object | null = null) {
+        const list = this._callbackTable[key];
+        if (!list) {
+            return false;
+        }
+
+        // check any valid callback
+        const infos = list.callbackInfos;
+        if (!callback) {
+            // Make sure no cancelled callbacks
+            if (list.isInvoking) {
+                for (const info of infos) {
+                    if (info) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            else {
+                return infos.length > 0;
+            }
+        }
+
+        for (const info of infos) {
+            if (info && info.callback === callback && info.target === target) {
+                return true;
+            }
+        }
         return false;
     }
 
-    // check any valid callback
-    const infos = list.callbackInfos;
-    if (!callback) {
-        // Make sure no cancelled callbacks
-        if (list.isInvoking) {
-            for (const info of infos) {
-                if (info) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        else {
-            return infos.length > 0;
-        }
-    }
-
-    for (const info of infos) {
-        if (info && info.callback === callback && info.target === target) {
-            return true;
-        }
-    }
-    return false;
-};
-
-/**
- * @zh 移除在特定事件类型中注册的所有回调或在某个目标中注册的所有回调。
- * @en Removes all callbacks registered in a certain event type or all callbacks registered with a certain target
- * @param keyOrTarget - The event type or target with which the listeners will be removed
- */
-CallbacksInvoker.prototype.removeAll = function (keyOrTarget?: string | Object) {
-    if (typeof keyOrTarget === 'string') {
-        // remove by key
-        const list = this._callbackTable[keyOrTarget];
-        if (list) {
-            if (list.isInvoking) {
-                list.cancelAll();
-            }
-            else {
-                list.clear();
-                callbackListPool.free(list);
-                delete this._callbackTable[keyOrTarget];
-            }
-        }
-    }
-    else if (keyOrTarget) {
-        // remove by target
-        for (const key in this._callbackTable) {
-            const list = this._callbackTable[key]!;
-            if (list.isInvoking) {
-                const infos = list.callbackInfos;
-                for (let i = 0; i < infos.length; ++i) {
-                    const info = infos[i];
-                    if (info && info.target === keyOrTarget) {
-                        list.cancel(i);
-                    }
-                }
-            }
-            else {
-                list.removeByTarget(keyOrTarget);
-            }
-        }
-    }
-};
-
-/**
- * @zh 删除以指定事件，回调函数，目标注册的回调。
- * @en Remove event listeners registered with the given event key, callback and target
- * @param key - Event type
- * @param callback - The callback function of the event listener, if absent all event listeners for the given type will be removed
- * @param target - The callback callee of the event listener
- */
-CallbacksInvoker.prototype.off = function (key: string, callback?: Function, target?: Object) {
-    const list = this._callbackTable[key];
-    if (list) {
-        const infos = list.callbackInfos;
-        if (callback) {
-            for (let i = 0; i < infos.length; ++i) {
-                const info = infos[i];
-                if (info && info.callback === callback && info.target === target) {
-                    if (list.isInvoking) {
-                        list.cancel(i);
-                    }
-                    else {
-                        fastRemoveAt(infos, i);
-                        callbackInfoPool.free(info);
-                    }
-                    break;
-                }
-            }
-        }
-        else {
-            this.removeAll(key);
-        }
-    }
-};
-
-/**
- * @zh 派发一个指定事件，并传递需要的参数
- * @en Trigger an event directly with the event name and necessary arguments.
- * @param key - event type
- * @param arg0 - The first argument to be passed to the callback
- * @param arg1 - The second argument to be passed to the callback
- * @param arg2 - The third argument to be passed to the callback
- * @param arg3 - The fourth argument to be passed to the callback
- * @param arg4 - The fifth argument to be passed to the callback
- */
-CallbacksInvoker.prototype.emit = function (key: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
-    const list: CallbackList = this._callbackTable[key]!;
-    if (list) {
-        const rootInvoker = !list.isInvoking;
-        list.isInvoking = true;
-
-        const infos = list.callbackInfos;
-        for (let i = 0, len = infos.length; i < len; ++i) {
-            const info = infos[i];
-            if (info) {
-                const callback = info.callback;
-                const target = info.target;
-                // Pre off once callbacks to avoid influence on logic in callback
-                if (info.once) {
-                    this.off(key, callback, target);
-                }
-                if (target) {
-                    callback.call(target, arg0, arg1, arg2, arg3, arg4);
+    /**
+     * @zh 移除在特定事件类型中注册的所有回调或在某个目标中注册的所有回调。
+     * @en Removes all callbacks registered in a certain event type or all callbacks registered with a certain target
+     * @param keyOrTarget - The event type or target with which the listeners will be removed
+     */
+    public removeAll (keyOrTarget?: string | Object) {
+        if (typeof keyOrTarget === 'string') {
+            // remove by key
+            const list = this._callbackTable[keyOrTarget];
+            if (list) {
+                if (list.isInvoking) {
+                    list.cancelAll();
                 }
                 else {
-                    callback(arg0, arg1, arg2, arg3, arg4);
+                    list.clear();
+                    callbackListPool.free(list);
+                    delete this._callbackTable[keyOrTarget];
                 }
             }
         }
-
-        if (rootInvoker) {
-            list.isInvoking = false;
-            if (list.containCanceled) {
-                list.purgeCanceled();
+        else if (keyOrTarget) {
+            // remove by target
+            for (const key in this._callbackTable) {
+                const list = this._callbackTable[key]!;
+                if (list.isInvoking) {
+                    const infos = list.callbackInfos;
+                    for (let i = 0; i < infos.length; ++i) {
+                        const info = infos[i];
+                        if (info && info.target === keyOrTarget) {
+                            list.cancel(i);
+                        }
+                    }
+                }
+                else {
+                    list.removeByTarget(keyOrTarget);
+                }
             }
         }
     }
-};
 
-/**
- * 移除所有回调。
- */
-CallbacksInvoker.prototype.clear = function () {
-    this._callbackTable = createMap(true);
-};
+    /**
+     * @zh 删除以指定事件，回调函数，目标注册的回调。
+     * @en Remove event listeners registered with the given event key, callback and target
+     * @param key - Event type
+     * @param callback - The callback function of the event listener, if absent all event listeners for the given type will be removed
+     * @param target - The callback callee of the event listener
+     */
+    public off (key: string, callback?: Function, target?: Object) {
+        const list = this._callbackTable[key];
+        if (list) {
+            const infos = list.callbackInfos;
+            if (callback) {
+                for (let i = 0; i < infos.length; ++i) {
+                    const info = infos[i];
+                    if (info && info.callback === callback && info.target === target) {
+                        if (list.isInvoking) {
+                            list.cancel(i);
+                        }
+                        else {
+                            fastRemoveAt(infos, i);
+                            callbackInfoPool.free(info);
+                        }
+                        break;
+                    }
+                }
+            }
+            else {
+                this.removeAll(key);
+            }
+        }
+    }
+
+    /**
+     * @zh 派发一个指定事件，并传递需要的参数
+     * @en Trigger an event directly with the event name and necessary arguments.
+     * @param key - event type
+     * @param arg0 - The first argument to be passed to the callback
+     * @param arg1 - The second argument to be passed to the callback
+     * @param arg2 - The third argument to be passed to the callback
+     * @param arg3 - The fourth argument to be passed to the callback
+     * @param arg4 - The fifth argument to be passed to the callback
+     */
+    public emit (key: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
+        const list: CallbackList = this._callbackTable[key]!;
+        if (list) {
+            const rootInvoker = !list.isInvoking;
+            list.isInvoking = true;
+
+            const infos = list.callbackInfos;
+            for (let i = 0, len = infos.length; i < len; ++i) {
+                const info = infos[i];
+                if (info) {
+                    const callback = info.callback;
+                    const target = info.target;
+                    // Pre off once callbacks to avoid influence on logic in callback
+                    if (info.once) {
+                        this.off(key, callback, target);
+                    }
+                    if (target) {
+                        callback.call(target, arg0, arg1, arg2, arg3, arg4);
+                    }
+                    else {
+                        callback(arg0, arg1, arg2, arg3, arg4);
+                    }
+                }
+            }
+
+            if (rootInvoker) {
+                list.isInvoking = false;
+                if (list.containCanceled) {
+                    list.purgeCanceled();
+                }
+            }
+        }
+    }
+
+    /**
+     * 移除所有回调。
+     */
+    public clear () {
+        this._callbackTable = createMap(true);
+    }
+}
 
 if (TEST) {
     cc._Test.CallbacksInvoker = CallbacksInvoker;
