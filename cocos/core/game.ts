@@ -734,7 +734,12 @@ export class Game extends EventTarget {
         if (JSB) {
             jsb.setPreferredFramesPerSecond(frameRate);
         }
-        else {
+        else {     
+            if (this._intervalId) {
+                window.cAF(this._intervalId);
+                this._intervalId = 0;
+            }
+            
             if (frameRate !== 60 && frameRate !== 30) {
                 window.rAF = this._stTime;
                 window.cAF = this._ctTime;
