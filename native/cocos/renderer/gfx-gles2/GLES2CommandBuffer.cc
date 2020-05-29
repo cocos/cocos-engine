@@ -312,6 +312,7 @@ void GLES2CommandBuffer::BindStates() {
   cmd->scissor = _curScissor;
   cmd->lineWidth = _curLineWidth;
   cmd->depthBias = _curDepthBias;
+  cmd->depthBiasEnabled = _depthBiasEnabled;
   cmd->blendConstants.r = _curBlendConstants.r;
   cmd->blendConstants.g = _curBlendConstants.g;
   cmd->blendConstants.b = _curBlendConstants.b;

@@ -32,7 +32,8 @@ public:
   virtual void updateBuffer(GFXBuffer* buff, void* data, uint size, uint offset = 0) = 0;
   virtual void copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, const GFXBufferTextureCopyList& regions) = 0;
   virtual void execute(const std::vector<GFXCommandBuffer*>& cmd_buffs, uint32_t count) = 0;
-  
+  virtual void enableDepthBias(bool enabled) { _depthBiasEnabled = enabled; }
+
   CC_INLINE GFXDevice* getDevice() const { return _device; }
   CC_INLINE GFXCommandAllocator* getAllocator() const { return _allocator; }
   CC_INLINE GFXCommandBufferType getType() const { return _type; }
@@ -47,6 +48,7 @@ protected:
   uint32_t _numDrawCalls = 0;
   uint32_t _numInstances = 0;
   uint32_t _numTriangles = 0;
+  bool _depthBiasEnabled = false;
 };
 
 NS_CC_END

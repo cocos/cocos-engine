@@ -206,12 +206,6 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                     }
                 }
                 
-                if (cmd->viewportDirty) [encoder setViewport:cmd->viewport];
-                if (cmd->scissorDirty) [encoder setScissorRect:cmd->scissorRect];
-                [encoder setDepthBias:cmd->depthBias.depthBias
-                           slopeScale:cmd->depthBias.slopeScale
-                                clamp:cmd->depthBias.clamp];
-                
                 // bind vertex buffer
                 inputAssembler = cmd->inputAssembler;
                 if (inputAssembler)
@@ -227,6 +221,26 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                     }
                 }
                 
+                if (cmd->dynamicStateDirty[static_cast<uint>(GFXDynamicState::VIEWPORT)])
+                    [encoder setViewport:cmd->viewport];
+                if (cmd->dynamicStateDirty[static_cast<uint>(GFXDynamicState::SCISSOR)])
+                    [encoder setScissorRect:cmd->scissorRect];
+                if(cmd->depthBiasEnabled)
+                {
+                    if (cmd->dynamicStateDirty[static_cast<uint>(GFXDynamicState::DEPTH_BIAS)])
+                        [encoder setDepthBias:cmd->depthBias.depthBias
+                                   slopeScale:cmd->depthBias.slopeScale
+                                        clamp:cmd->depthBias.clamp];
+                }
+                else
+                {
+                        [encoder setDepthBias:0 slopeScale:0 clamp:0];
+                }
+                if (cmd->dynamicStateDirty[static_cast<uint>(GFXDynamicState::BLEND_CONSTANTS)])
+                    [encoder setBlendColorRed:cmd->blendConstants.r
+                                        green:cmd->blendConstants.g
+                                         blue:cmd->blendConstants.b
+                                        alpha:cmd->blendConstants.a];
                 break;
             }
             case GFXCmdType::DRAW:

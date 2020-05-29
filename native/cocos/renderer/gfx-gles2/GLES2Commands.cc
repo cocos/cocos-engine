@@ -1899,10 +1899,149 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
           } // if
         }
           
-        //TODO: implementation setting dynamic states.
-        
+        if(gpuPipelineState)
+        {
+            for(auto dynamicState : gpuPipelineState->dynamicStates)
+            {
+                switch (dynamicState)
+                {
+                case GFXDynamicState::VIEWPORT:
+                    if(cache->viewport != cmd->viewport)
+                    {
+                        cache->viewport = cmd->viewport;
+                        glViewport(cmd->viewport.left, cmd->viewport.top, cmd->viewport.width, cmd->viewport.height);
+                    }
+                    break;
+                case GFXDynamicState::SCISSOR:
+                    if(cache->scissor != cmd->scissor)
+                    {
+                        cache->scissor = cmd->scissor;
+                        glScissor(cmd->scissor.x, cmd->scissor.y, cmd->scissor.width, cmd->scissor.height);
+                    }
+                    break;
+                case GFXDynamicState::LINE_WIDTH:
+                    if(cache->rs.lineWidth != cmd->lineWidth)
+                    {
+                        cache->rs.lineWidth = cmd->lineWidth;
+                        glLineWidth(cmd->lineWidth);
+                    }
+                    break;
+                case GFXDynamicState::DEPTH_BIAS:
+                    if(cache->rs.depthBiasEnabled != cmd->depthBiasEnabled)
+                    {
+                        if(cmd->depthBiasEnabled)
+                          glEnable(GL_POLYGON_OFFSET_FILL);
+                        else
+                          glDisable(GL_POLYGON_OFFSET_FILL);
+
+                        cache->rs.depthBiasEnabled = cmd->depthBiasEnabled;
+                    }
+                    if((cache->rs.depthBias != cmd->depthBias.constant) ||
+                       (cache->rs.depthBiasSlop != cmd->depthBias.slope))
+                    {
+                        glPolygonOffset(cmd->depthBias.constant, cmd->depthBias.slope);
+                        cache->rs.depthBias = cmd->depthBias.constant;
+                        cache->rs.depthBiasSlop = cmd->depthBias.slope;
+                    }
+                    break;
+                case GFXDynamicState::BLEND_CONSTANTS:
+                    if ((cache->bs.blendColor.r != gpuPipelineState->bs.blendColor.r) ||
+                        (cache->bs.blendColor.g != gpuPipelineState->bs.blendColor.g) ||
+                        (cache->bs.blendColor.b != gpuPipelineState->bs.blendColor.b) ||
+                        (cache->bs.blendColor.a != gpuPipelineState->bs.blendColor.a)) 
+                    {
+                        glBlendColor(gpuPipelineState->bs.blendColor.r,
+                                    gpuPipelineState->bs.blendColor.g,
+                                    gpuPipelineState->bs.blendColor.b,
+                                    gpuPipelineState->bs.blendColor.a);
+                        cache->bs.blendColor = gpuPipelineState->bs.blendColor;
+                    }
+                    break;
+                case GFXDynamicState::STENCIL_WRITE_MASK:
+                    switch(cmd->stencilWriteMask.face)
+                    {
+                        case GFXStencilFace::FRONT:
+                            if (cache->dss.stencilWriteMaskFront != cmd->stencilWriteMask.write_mask) 
+                            {
+                                glStencilMaskSeparate(GL_FRONT, cmd->stencilWriteMask.write_mask);
+                                cache->dss.stencilWriteMaskFront = cmd->stencilWriteMask.write_mask;
+                            }
+                            break;
+                        case GFXStencilFace::BACK:
+                            if (cache->dss.stencilWriteMaskBack != cmd->stencilWriteMask.write_mask) 
+                            {
+                                glStencilMaskSeparate(GL_BACK, cmd->stencilWriteMask.write_mask);
+                                cache->dss.stencilWriteMaskBack = cmd->stencilWriteMask.write_mask;
+                            }
+                            break;
+                        case GFXStencilFace::ALL:
+                            if ((cache->dss.stencilWriteMaskFront != cmd->stencilWriteMask.write_mask) ||
+                                (cache->dss.stencilWriteMaskBack != cmd->stencilWriteMask.write_mask)) 
+                            {
+                                glStencilMask(cmd->stencilWriteMask.write_mask);
+                                cache->dss.stencilWriteMaskFront = cmd->stencilWriteMask.write_mask;
+                                cache->dss.stencilWriteMaskBack = cmd->stencilWriteMask.write_mask;
+                            }
+                            break;
+                    }
+                    break;
+                case GFXDynamicState::STENCIL_COMPARE_MASK:
+                    switch (cmd->stencilCompareMask.face)
+                    {
+                    case GFXStencilFace::FRONT:
+                        if ((cache->dss.stencilRefFront != (int)cmd->stencilCompareMask.refrence) ||
+                            (cache->dss.stencilReadMaskFront != cmd->stencilCompareMask.compare_mask)) 
+                        {
+                            glStencilFuncSeparate(GL_FRONT,
+                                                  GLES2_CMP_FUNCS[(int)cache->dss.stencilFuncFront],
+                                                  cmd->stencilCompareMask.refrence,
+                                                  cmd->stencilCompareMask.compare_mask);
+                            cache->dss.stencilRefFront = cmd->stencilCompareMask.refrence;
+                            cache->dss.stencilReadMaskFront = cmd->stencilCompareMask.compare_mask;
+                        }
+                        break;
+                    case GFXStencilFace::BACK:
+                        if ((cache->dss.stencilRefBack != (int)cmd->stencilCompareMask.refrence) ||
+                            (cache->dss.stencilReadMaskBack != cmd->stencilCompareMask.compare_mask)) 
+                        {
+                            glStencilFuncSeparate(GL_BACK,
+                                                  GLES2_CMP_FUNCS[(int)cache->dss.stencilFuncBack],
+                                                  cmd->stencilCompareMask.refrence,
+                                                  cmd->stencilCompareMask.compare_mask);
+                            cache->dss.stencilRefBack = cmd->stencilCompareMask.refrence;
+                            cache->dss.stencilReadMaskBack = cmd->stencilCompareMask.compare_mask;
+                        }
+                        break;
+                    case GFXStencilFace::ALL:
+                        if ((cache->dss.stencilRefFront != (int)cmd->stencilCompareMask.refrence) ||
+                            (cache->dss.stencilReadMaskFront != cmd->stencilCompareMask.compare_mask) ||
+                            (cache->dss.stencilRefBack != (int)cmd->stencilCompareMask.refrence) ||
+                            (cache->dss.stencilReadMaskBack != cmd->stencilCompareMask.compare_mask)) 
+                        {
+                            glStencilFuncSeparate(GL_FRONT,
+                                                  GLES2_CMP_FUNCS[(int)cache->dss.stencilFuncFront],
+                                                  cmd->stencilCompareMask.refrence,
+                                                  cmd->stencilCompareMask.compare_mask);
+                            glStencilFuncSeparate(GL_BACK,
+                                                  GLES2_CMP_FUNCS[(int)cache->dss.stencilFuncBack],
+                                                  cmd->stencilCompareMask.refrence,
+                                                  cmd->stencilCompareMask.compare_mask);
+                            cache->dss.stencilRefFront = cmd->stencilCompareMask.refrence;
+                            cache->dss.stencilReadMaskFront = cmd->stencilCompareMask.compare_mask;
+                            cache->dss.stencilRefBack = cmd->stencilCompareMask.refrence;
+                            cache->dss.stencilReadMaskBack = cmd->stencilCompareMask.compare_mask;
+                        }
+                        break;
+                    }
+                break;
+                default:
+                    CC_LOG_ERROR("Invalid dynamic states.");
+                    break;
+                } // switch dynamicState
+            } // for each dynamicState
+        } // if gpuPipelineState
         break;
-      }
+      } // case BIND_STATES
       case GFXCmdType::DRAW: {
         GLES2CmdDraw* cmd = cmd_package->drawCmds[cmd_idx];
         if (gpuInputAssembler && gpuPipelineState) {

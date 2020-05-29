@@ -924,6 +924,7 @@ struct GFXRasterizerState {
   GFXShadeModel shadeModel = GFXShadeModel::GOURAND;
   GFXCullMode cullMode = GFXCullMode::BACK;
   bool isFrontFaceCCW = true;
+  bool depthBiasEnabled = false;
   float depthBias = 0.0f;
   float depthBiasClamp = 0.0f;
   float depthBiasSlop = 0.0f;

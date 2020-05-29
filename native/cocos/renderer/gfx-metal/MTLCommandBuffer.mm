@@ -123,7 +123,7 @@ void CCMTLCommandBuffer::setViewport(const GFXViewport& vp)
     if (_currentViewport != vp)
     {
         _currentViewport = vp;
-        _isViewportDirty = true;
+        _dynamicStateDirty[static_cast<uint>(GFXDynamicState::VIEWPORT)] = true;
         _isStateInValid = true;
     }
 }
@@ -133,7 +133,7 @@ void CCMTLCommandBuffer::setScissor(const GFXRect& rect)
     if ( _currentScissor != rect)
     {
         _currentScissor = rect;
-        _isScissorDirty = true;
+        _dynamicStateDirty[static_cast<uint>(GFXDynamicState::SCISSOR)] = true;
         _isStateInValid = true;
     }
 }
@@ -153,6 +153,7 @@ void CCMTLCommandBuffer::setDepthBias(float constant, float clamp, float slope)
         _currentDepthBias->slopeScale = slope;
         _currentDepthBias->clamp = clamp;
         _isStateInValid = true;
+        _dynamicStateDirty[static_cast<uint>(GFXDynamicState::DEPTH_BIAS)] = true;
     }
 }
 
@@ -168,18 +169,13 @@ void CCMTLCommandBuffer::setBlendConstants(const GFXColor& constants)
         _currentBlendConstants.b = constants.b;
         _currentBlendConstants.a = constants.a;
         _isStateInValid = true;
+        _dynamicStateDirty[static_cast<uint>(GFXDynamicState::BLEND_CONSTANTS)] = true;
     }
 }
 
 void CCMTLCommandBuffer::setDepthBound(float minBounds, float maxBounds)
 {
-    if (math::IsNotEqualF(minBounds, _currentDepthBounds->minBounds) ||
-        math::IsNotEqualF(maxBounds, _currentDepthBounds->maxBounds))
-    {
-        _currentDepthBounds->minBounds = minBounds;
-        _currentDepthBounds->maxBounds = maxBounds;
-        _isStateInValid = true;
-    }
+    CC_LOG_ERROR("Metal doesn't support setting depth bound.");
 }
 
 void CCMTLCommandBuffer::setStencilWriteMask(GFXStencilFace face, uint mask)
@@ -319,15 +315,14 @@ void CCMTLCommandBuffer::bindStates()
     auto commandBindState = _MTLCommandAllocator->_bindStatesCmdPool.alloc();
     commandBindState->inputAssembler = _currentInputAssembler;
 
+    commandBindState->depthBiasEnabled = _depthBiasEnabled;
     commandBindState->depthBias = *_currentDepthBias;
     commandBindState->blendConstants = _currentBlendConstants;
     commandBindState->depthBounds = *_currentDepthBounds;
     
-    if ( (commandBindState->viewportDirty = _isViewportDirty) )
-        commandBindState->viewport = mu::toMTLViewport(_currentViewport);
-    
-    if ( (commandBindState->scissorDirty = _isScissorDirty) )
-        commandBindState->scissorRect = mu::toMTLScissorRect(_currentScissor);
+    commandBindState->dynamicStateDirty = _dynamicStateDirty;
+    commandBindState->viewport = mu::toMTLViewport(_currentViewport);
+    commandBindState->scissorRect = mu::toMTLScissorRect(_currentScissor);
     
     commandBindState->pipelineState = _currentPipelineState;
     commandBindState->bindingLayout = _currentBindingLayout;
@@ -336,8 +331,7 @@ void CCMTLCommandBuffer::bindStates()
     _commandPackage->commandTypes.push(GFXCmdType::BIND_STATES);
     
     _isStateInValid = false;
-    _isViewportDirty = false;
-    _isScissorDirty = false;
+    std::fill(_dynamicStateDirty.begin(), _dynamicStateDirty.end(), false);
 }
 
 NS_CC_END

@@ -52,11 +52,12 @@ public:
     CCMTLInputAssembler* inputAssembler = nullptr;
     MTLViewport viewport = {};
     MTLScissorRect scissorRect = {};
+    bool depthBiasEnabled = false;
     CCMTLDepthBias depthBias;
     CCMTLDepthBounds depthBounds;
     GFXColor blendConstants;
-    bool viewportDirty = false;
-    bool scissorDirty = false;
+    const static uint DYNAMIC_STATE_SIZE = 8;
+    std::array<bool, DYNAMIC_STATE_SIZE> dynamicStateDirty = { false, false, false, false, false, false, false, false };
     
     CCMTLCmdBindStates() : GFXCmd(GFXCmdType::BIND_STATES) {}
     

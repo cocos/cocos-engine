@@ -20,13 +20,13 @@ struct GLES2DepthBounds {
 
 struct GLES2StencilWriteMask {
   GFXStencilFace face = GFXStencilFace::FRONT;
-  GLuint write_mask = 0;
+  uint write_mask = 0;
 };
 
 struct GLES2StencilCompareMask {
   GFXStencilFace face = GFXStencilFace::FRONT;
-  GLint refrence = 0;
-  GLuint compare_mask = 0;
+  int refrence = 0;
+  uint compare_mask = 0;
 };
 
 struct GLES2TextureSubres {
@@ -84,6 +84,7 @@ class GLES2CmdBindStates : public GFXCmd {
   GFXViewport viewport;
   GFXRect scissor;
   float lineWidth = 1.0f;
+  bool depthBiasEnabled = false;
   GLES2DepthBias depthBias;
   GFXColor blendConstants;
   GLES2DepthBounds depthBounds;

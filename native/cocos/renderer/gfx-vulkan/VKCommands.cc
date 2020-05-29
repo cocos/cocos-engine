@@ -783,7 +783,7 @@ void CCVKCmdFuncCreatePipelineState(CCVKDevice* device, CCVKGPUPipelineState* gp
     rasterizationState.polygonMode = VK_POLYGON_MODES[(uint)gpuPipelineState->rs.polygonMode];
     rasterizationState.cullMode = VK_CULL_MODES[(uint)gpuPipelineState->rs.cullMode];
     rasterizationState.frontFace = gpuPipelineState->rs.isFrontFaceCCW ? VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
-    rasterizationState.depthBiasEnable = !!gpuPipelineState->rs.depthBias;
+    rasterizationState.depthBiasEnable = gpuPipelineState->rs.depthBiasEnabled;
     rasterizationState.depthBiasConstantFactor = gpuPipelineState->rs.depthBias;
     rasterizationState.depthBiasClamp = gpuPipelineState->rs.depthBiasClamp;
     rasterizationState.depthBiasSlopeFactor = gpuPipelineState->rs.depthBiasSlop;

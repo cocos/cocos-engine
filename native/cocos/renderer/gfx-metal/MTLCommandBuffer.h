@@ -54,14 +54,14 @@ private:
     CCMTLPipelineState* _currentPipelineState = nullptr;
     CCMTLInputAssembler* _currentInputAssembler = nullptr;
     CCMTLBindingLayout* _currentBindingLayout = nullptr;
-    bool _isViewportDirty = false;
     GFXViewport _currentViewport;
-    bool _isScissorDirty = false;
     GFXRect _currentScissor;
     // Just don't want to include "Commands.h", because "Commands.h" includes Objective-C codes.
     CCMTLDepthBias* _currentDepthBias = nullptr;
     CCMTLDepthBounds* _currentDepthBounds = nullptr;
     GFXColor _currentBlendConstants;
+    const static uint DYNAMIC_STATE_SIZE = 8;
+    std::array<bool, DYNAMIC_STATE_SIZE> _dynamicStateDirty = { false, false, false, false, false, false, false, false };
 };
 
 NS_CC_END
