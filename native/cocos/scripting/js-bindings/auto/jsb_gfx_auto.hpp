@@ -445,6 +445,7 @@ SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_setDepthBound);
 SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_getAllocator);
 SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_copyBufferToTexture);
 SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_setLineWidth);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_enableDepthBias);
 SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_updateBuffer);
 SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_end);
 SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_setStencilWriteMask);

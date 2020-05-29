@@ -9849,6 +9849,34 @@ static bool js_gfx_GFXRasterizerState_set_isFrontFaceCCW(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXRasterizerState_set_isFrontFaceCCW)
 
+static bool js_gfx_GFXRasterizerState_get_depthBiasEnabled(se::State& s)
+{
+    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_get_depthBiasEnabled : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= boolean_to_seval(cobj->depthBiasEnabled, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_GFXRasterizerState_get_depthBiasEnabled)
+
+static bool js_gfx_GFXRasterizerState_set_depthBiasEnabled(se::State& s)
+{
+    const auto& args = s.args();
+    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_set_depthBiasEnabled : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    bool arg0;
+    ok &= seval_to_boolean(args[0], &arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GFXRasterizerState_set_depthBiasEnabled : Error processing new value");
+    cobj->depthBiasEnabled = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_GFXRasterizerState_set_depthBiasEnabled)
+
 static bool js_gfx_GFXRasterizerState_get_depthBias(se::State& s)
 {
     cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
@@ -10068,41 +10096,47 @@ static bool js_gfx_GFXRasterizerState_constructor(se::State& s)
             ok &= seval_to_boolean(field, &arg4);
             cobj->isFrontFaceCCW = arg4;
         }
-        float arg5 = 0;
-        json->getProperty("depthBias", &field);
+        bool arg5;
+        json->getProperty("depthBiasEnabled", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_float(field, &arg5);
-            cobj->depthBias = arg5;
+            ok &= seval_to_boolean(field, &arg5);
+            cobj->depthBiasEnabled = arg5;
         }
         float arg6 = 0;
-        json->getProperty("depthBiasClamp", &field);
+        json->getProperty("depthBias", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_float(field, &arg6);
-            cobj->depthBiasClamp = arg6;
+            cobj->depthBias = arg6;
         }
         float arg7 = 0;
-        json->getProperty("depthBiasSlop", &field);
+        json->getProperty("depthBiasClamp", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_float(field, &arg7);
-            cobj->depthBiasSlop = arg7;
+            cobj->depthBiasClamp = arg7;
         }
-        bool arg8;
-        json->getProperty("isDepthClip", &field);
+        float arg8 = 0;
+        json->getProperty("depthBiasSlop", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_boolean(field, &arg8);
-            cobj->isDepthClip = arg8;
+            ok &= seval_to_float(field, &arg8);
+            cobj->depthBiasSlop = arg8;
         }
         bool arg9;
-        json->getProperty("isMultisample", &field);
+        json->getProperty("isDepthClip", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_boolean(field, &arg9);
-            cobj->isMultisample = arg9;
+            cobj->isDepthClip = arg9;
         }
-        float arg10 = 0;
+        bool arg10;
+        json->getProperty("isMultisample", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg10);
+            cobj->isMultisample = arg10;
+        }
+        float arg11 = 0;
         json->getProperty("lineWidth", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_float(field, &arg10);
-            cobj->lineWidth = arg10;
+            ok &= seval_to_float(field, &arg11);
+            cobj->lineWidth = arg11;
         }
 
         if(!ok) {
@@ -10115,7 +10149,7 @@ static bool js_gfx_GFXRasterizerState_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 11)
+    else if(argc == 12)
     {
         cocos2d::GFXRasterizerState* cobj = JSB_ALLOC(cocos2d::GFXRasterizerState);
         bool arg0;
@@ -10143,35 +10177,40 @@ static bool js_gfx_GFXRasterizerState_constructor(se::State& s)
             ok &= seval_to_boolean(args[4], &arg4);
             cobj->isFrontFaceCCW = arg4;
         }
-        float arg5 = 0;
+        bool arg5;
         if (!args[5].isUndefined()) {
-            ok &= seval_to_float(args[5], &arg5);
-            cobj->depthBias = arg5;
+            ok &= seval_to_boolean(args[5], &arg5);
+            cobj->depthBiasEnabled = arg5;
         }
         float arg6 = 0;
         if (!args[6].isUndefined()) {
             ok &= seval_to_float(args[6], &arg6);
-            cobj->depthBiasClamp = arg6;
+            cobj->depthBias = arg6;
         }
         float arg7 = 0;
         if (!args[7].isUndefined()) {
             ok &= seval_to_float(args[7], &arg7);
-            cobj->depthBiasSlop = arg7;
+            cobj->depthBiasClamp = arg7;
         }
-        bool arg8;
+        float arg8 = 0;
         if (!args[8].isUndefined()) {
-            ok &= seval_to_boolean(args[8], &arg8);
-            cobj->isDepthClip = arg8;
+            ok &= seval_to_float(args[8], &arg8);
+            cobj->depthBiasSlop = arg8;
         }
         bool arg9;
         if (!args[9].isUndefined()) {
             ok &= seval_to_boolean(args[9], &arg9);
-            cobj->isMultisample = arg9;
+            cobj->isDepthClip = arg9;
         }
-        float arg10 = 0;
+        bool arg10;
         if (!args[10].isUndefined()) {
-            ok &= seval_to_float(args[10], &arg10);
-            cobj->lineWidth = arg10;
+            ok &= seval_to_boolean(args[10], &arg10);
+            cobj->isMultisample = arg10;
+        }
+        float arg11 = 0;
+        if (!args[11].isUndefined()) {
+            ok &= seval_to_float(args[11], &arg11);
+            cobj->lineWidth = arg11;
         }
 
         if(!ok) {
@@ -10216,6 +10255,7 @@ bool js_register_gfx_GFXRasterizerState(se::Object* obj)
     cls->defineProperty("shadeModel", _SE(js_gfx_GFXRasterizerState_get_shadeModel), _SE(js_gfx_GFXRasterizerState_set_shadeModel));
     cls->defineProperty("cullMode", _SE(js_gfx_GFXRasterizerState_get_cullMode), _SE(js_gfx_GFXRasterizerState_set_cullMode));
     cls->defineProperty("isFrontFaceCCW", _SE(js_gfx_GFXRasterizerState_get_isFrontFaceCCW), _SE(js_gfx_GFXRasterizerState_set_isFrontFaceCCW));
+    cls->defineProperty("depthBiasEnabled", _SE(js_gfx_GFXRasterizerState_get_depthBiasEnabled), _SE(js_gfx_GFXRasterizerState_set_depthBiasEnabled));
     cls->defineProperty("depthBias", _SE(js_gfx_GFXRasterizerState_get_depthBias), _SE(js_gfx_GFXRasterizerState_set_depthBias));
     cls->defineProperty("depthBiasClamp", _SE(js_gfx_GFXRasterizerState_get_depthBiasClamp), _SE(js_gfx_GFXRasterizerState_set_depthBiasClamp));
     cls->defineProperty("depthBiasSlop", _SE(js_gfx_GFXRasterizerState_get_depthBiasSlop), _SE(js_gfx_GFXRasterizerState_set_depthBiasSlop));
@@ -14297,6 +14337,24 @@ static bool js_gfx_GFXWindow_getDepthStencilFormat(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXWindow_getDepthStencilFormat)
 
+static bool js_gfx_GFXWindow_getFramebuffer(se::State& s)
+{
+    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_getFramebuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cocos2d::GFXFramebuffer* result = cobj->getFramebuffer();
+        ok &= native_ptr_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_getFramebuffer : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXWindow_getFramebuffer)
+
 static bool js_gfx_GFXWindow_getLeft(se::State& s)
 {
     cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
@@ -14440,24 +14498,6 @@ static bool js_gfx_GFXWindow_isOffscreen(se::State& s)
     return false;
 }
 SE_BIND_PROP_GET(js_gfx_GFXWindow_isOffscreen)
-
-static bool js_gfx_GFXWindow_getFramebuffer(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_getFramebuffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXFramebuffer* result = cobj->getFramebuffer();
-        ok &= native_ptr_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_getFramebuffer : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_GFXWindow_getFramebuffer)
 
 static bool js_gfx_GFXWindow_getTitle(se::State& s)
 {
@@ -17711,6 +17751,25 @@ static bool js_gfx_GFXCommandBuffer_setLineWidth(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXCommandBuffer_setLineWidth)
 
+static bool js_gfx_GFXCommandBuffer_enableDepthBias(se::State& s)
+{
+    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_enableDepthBias : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        bool arg0;
+        ok &= seval_to_boolean(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_enableDepthBias : Error processing arguments");
+        cobj->enableDepthBias(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GFXCommandBuffer_enableDepthBias)
+
 static bool js_gfx_GFXCommandBuffer_updateBuffer(se::State& s)
 {
     cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
@@ -18175,6 +18234,7 @@ bool js_register_gfx_GFXCommandBuffer(se::Object* obj)
     cls->defineFunction("getAllocator", _SE(js_gfx_GFXCommandBuffer_getAllocator));
     cls->defineFunction("copyBufferToTexture", _SE(js_gfx_GFXCommandBuffer_copyBufferToTexture));
     cls->defineFunction("setLineWidth", _SE(js_gfx_GFXCommandBuffer_setLineWidth));
+    cls->defineFunction("enableDepthBias", _SE(js_gfx_GFXCommandBuffer_enableDepthBias));
     cls->defineFunction("updateBuffer", _SE(js_gfx_GFXCommandBuffer_updateBuffer));
     cls->defineFunction("end", _SE(js_gfx_GFXCommandBuffer_end));
     cls->defineFunction("setStencilWriteMask", _SE(js_gfx_GFXCommandBuffer_setStencilWriteMask));
@@ -18514,7 +18574,7 @@ bool register_all_gfx(se::Object* obj)
     js_register_gfx_GFXInputAssembler(ns);
     js_register_gfx_GFXContextInfo(ns);
     js_register_gfx_GFXShader(ns);
-    js_register_gfx_GFXShaderStage(ns);
+    js_register_gfx_GFXDeviceInfo(ns);
     js_register_gfx_GFXTextureView(ns);
     js_register_gfx_GFXPipelineLayout(ns);
     js_register_gfx_GFXFramebufferInfo(ns);
@@ -18523,7 +18583,7 @@ bool register_all_gfx(se::Object* obj)
     js_register_gfx_GFXRasterizerState(ns);
     js_register_gfx_GFXTextureInfo(ns);
     js_register_gfx_GFXQueueInfo(ns);
-    js_register_gfx_GFXDeviceInfo(ns);
+    js_register_gfx_GFXShaderStage(ns);
     js_register_gfx_GFXShaderInfo(ns);
     js_register_gfx_GFXOffset(ns);
     js_register_gfx_GFXPushConstantRange(ns);
