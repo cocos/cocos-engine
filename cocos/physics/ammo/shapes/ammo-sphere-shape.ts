@@ -12,7 +12,10 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
 
     setRadius (radius: number) {
         const ws = this._collider.node.worldScale;
-        const max_sp = Math.abs(Math.max(Math.max(ws.x, ws.y), ws.z));
+        const absX = Math.abs(ws.x);
+        const absY = Math.abs(ws.y);
+        const absZ = Math.abs(ws.z);
+        const max_sp = Math.abs(Math.max(Math.max(absX, absY), absZ));
         v3_0.set(radius, radius, radius);
         v3_0.multiplyScalar(max_sp * 2);
         cocos2AmmoVec3(this.scale, v3_0);

@@ -166,7 +166,8 @@ export class AmmoSharedBody {
             'shape': bodyShape,
             'rbInfo': rbInfo,
             'worldQuat': bodyQuat,
-            'wrappedShapes': []
+            'wrappedShapes': [],
+            'useCompound': false,
         }
         AmmoInstance.bodyStructs['KEY' + this.bodyStruct.id] = this.bodyStruct;
         this.body.setUserIndex(this.bodyStruct.id);
@@ -186,7 +187,8 @@ export class AmmoSharedBody {
         AmmoInstance.ghostStructs['KEY' + this.ghostStruct.id] = this.ghostStruct;
         this.ghost.setUserIndex(this.ghostStruct.id);
 
-        /** DEBUG */
+        if (Ammo['CC_CONFIG']['ignoreSelfBody']) this.ghost.setIgnoreCollisionCheck(this.body, true);
+
         this.body.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
         this.ghost.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
     }

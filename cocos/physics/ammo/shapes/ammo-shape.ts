@@ -15,12 +15,13 @@ export class AmmoShape implements IBaseShape {
 
     setMaterial (v: PhysicMaterial | null) {
         if (!this._isTrigger && this._isEnabled && v) {
+            const rollingFriction = Ammo['CC_CONFIG']['rollingFriction'];
             if (this._btCompound) {
-                const rollingFriction = 0.1;
                 this._btCompound.setMaterial(this._index, v.friction, v.restitution, rollingFriction);
             } else {
                 this._sharedBody.body.setFriction(v.friction);
                 this._sharedBody.body.setRestitution(v.restitution);
+                this._sharedBody.body.setRollingFriction(rollingFriction);
             }
         }
     }
@@ -30,7 +31,7 @@ export class AmmoShape implements IBaseShape {
         v3_0.multiply(this._collider.node.worldScale);
         cocos2AmmoVec3(this.transform.getOrigin(), v3_0);
         if (this._btCompound) {
-            this._btCompound.updateChildTransform(this._index, this.transform);
+            this._btCompound.updateChildTransform(this._index, this.transform, true);
         }
     }
 
@@ -77,7 +78,7 @@ export class AmmoShape implements IBaseShape {
         this.type = type;
         this.id = AmmoShape.idCounter++;
 
-        this.pos = new Ammo.btVector3(0, 0, 0);
+        this.pos = new Ammo.btVector3();
         this.quat = new Ammo.btQuaternion();
         this.transform = new Ammo.btTransform(this.quat, this.pos);
         this.transform.setIdentity();
