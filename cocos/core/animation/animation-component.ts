@@ -371,8 +371,7 @@ export class AnimationComponent extends Eventify(Component) {
      */
     public on<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any) {
         const ret = super.on(type, callback, thisArg);
-        if (type === EventType.LASTFRAME ||
-            type === EventType.ITERATION_END) {
+        if (type === EventType.LASTFRAME) {
             this._syncAllowLastFrameEvent();
         }
         return ret;
@@ -380,8 +379,7 @@ export class AnimationComponent extends Eventify(Component) {
 
     public once<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any) {
         const ret = super.once(type, callback, thisArg);
-        if (type === EventType.LASTFRAME ||
-            type === EventType.ITERATION_END) {
+        if (type === EventType.LASTFRAME) {
             this._syncAllowLastFrameEvent();
         }
         return ret;
@@ -403,8 +401,7 @@ export class AnimationComponent extends Eventify(Component) {
      */
     public off (type: EventType, callback?: Function, thisArg?: any) {
         super.off(type, callback, thisArg);
-        if (type === EventType.LASTFRAME ||
-            type === EventType.ITERATION_END) {
+        if (type === EventType.LASTFRAME) {
             this._syncDisallowLastFrameEvent();
         }
     }
@@ -452,8 +449,7 @@ export class AnimationComponent extends Eventify(Component) {
     }
 
     private _syncAllowLastFrameEvent () {
-        if (this.hasEventListener(EventType.LASTFRAME) ||
-            this.hasEventListener(EventType.ITERATION_END)) {
+        if (this.hasEventListener(EventType.LASTFRAME)) {
             for (const stateName in this._nameToState) {
                 this._nameToState[stateName].allowLastFrameEvent(true);
             }
@@ -461,8 +457,7 @@ export class AnimationComponent extends Eventify(Component) {
     }
 
     private _syncDisallowLastFrameEvent () {
-        if (!this.hasEventListener(EventType.LASTFRAME) &&
-            !this.hasEventListener(EventType.ITERATION_END)) {
+        if (!this.hasEventListener(EventType.LASTFRAME)) {
             for (const stateName in this._nameToState) {
                 this._nameToState[stateName].allowLastFrameEvent(false);
             }

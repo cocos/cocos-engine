@@ -75,12 +75,6 @@ export enum EventType {
      * @zh 动画完成播放时触发。
      */
     FINISHED = 'finished',
-
-    /**
-     * @en Triggered when the animation playing to the last frame or when finish its playing.
-     * @zh 当动画完成播放时，或每当动画播放到最后一帧时触发。
-     */
-    ITERATION_END = 'iteration-end',
 }
 ccenum(EventType);
 
@@ -438,7 +432,7 @@ export class AnimationState extends Playable {
      * To process animation events, use `AnimationComponent` instead.
      */
     public emit (...args: any[]) {
-        cc.director.getAnimationManager().pushDelayEvent(this, '_emit', args);
+        cc.director.getAnimationManager().pushDelayEvent(this._emit, this, args);
     }
 
     /**
@@ -635,7 +629,6 @@ export class AnimationState extends Playable {
 
             if (this.repeatCount > 1 && ((info.iterations | 0) > (lastInfo.iterations | 0))) {
                 this.emit(EventType.LASTFRAME, this);
-                this.emit(EventType.ITERATION_END, this);
             }
 
             lastInfo.set(info);
@@ -644,7 +637,6 @@ export class AnimationState extends Playable {
         if (info.stopped) {
             this.stop();
             this.emit(EventType.FINISHED, this);
-            this.emit(EventType.ITERATION_END, this);
         }
     }
 
@@ -668,7 +660,6 @@ export class AnimationState extends Playable {
 
             if ((this.time > 0 && this._lastIterations > ratio) || (this.time < 0 && this._lastIterations < ratio)) {
                 this.emit(EventType.LASTFRAME, this);
-                this.emit(EventType.ITERATION_END, this);
             }
 
             this._lastIterations = ratio;

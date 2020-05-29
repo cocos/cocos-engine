@@ -116,7 +116,7 @@ test('Animation event(last-frame event optimization)', () => {
     const handler1 = () => {};
     const handler2 = () => {};
 
-    const isLastFrameEventAllowed = (state: AnimationState) => (state as any)['_allowLastFrameEventMask'] !== 0;
+    const isLastFrameEventAllowed = (state: AnimationState) => (state as any)['_allowLastFrame'] !== 0;
 
     expect(initialStates.every(state => !isLastFrameEventAllowed(state))).toBeTruthy();
 
