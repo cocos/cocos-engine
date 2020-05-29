@@ -9,6 +9,8 @@ import { CannonTrimeshShape } from './shapes/cannon-trimesh-shape';
 import { CannonCylinderShape } from './shapes/cannon-cylinder-shape';
 import { CannonConeShape } from './shapes/cannon-cone-shape';
 import { CannonTerrainShape } from './shapes/cannon-terrain-shape';
+import { CannonSimpleShape } from './shapes/cannon-simple-shape';
+
 
 if (PHYSICS_CANNON) {
     instantiate({
@@ -20,5 +22,6 @@ if (PHYSICS_CANNON) {
         cylinder: CannonCylinderShape,
         cone: CannonConeShape,
         terrain: CannonTerrainShape,
+        simple: CannonSimpleShape,
     });
 }

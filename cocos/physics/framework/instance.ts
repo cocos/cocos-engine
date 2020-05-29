@@ -3,9 +3,9 @@
  */
 
 import { Vec3 } from '../../core/math';
-import { BoxShape, PhysicsWorld, RigidBody, SphereShape, CapsuleShape, TrimeshShape, CylinderShape, ConeShape, TerrainShape } from './physics-selector';
 import { IRigidBody } from '../spec/i-rigid-body';
-import { IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape, IConeShape, ITerrainShape } from '../spec/i-physics-shape';
+import { BoxShape, PhysicsWorld, RigidBody, SphereShape, CapsuleShape, TrimeshShape, CylinderShape, ConeShape, TerrainShape, SimpleShape } from './physics-selector';
+import { IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape, IConeShape, ITerrainShape, ISimpleShape } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { errorID, warnID, warn } from '../../core';
 import { EDITOR, DEBUG, PHYSICS_BUILTIN, PHYSICS_AMMO, TEST, PHYSICS_CANNON } from 'internal:constants';
@@ -129,6 +129,28 @@ export function createTerrainShape (): ITerrainShape {
         const func = () => { };
         return {
             setTerrain: func,
+            setMaterial: func,
+            setIsTrigger: func,
+            setCenter: func,
+            initialize: func,
+            onLoad: func,
+            onEnable: func,
+            onDisable: func,
+            onDestroy: func
+        } as any
+    }
+}
+
+export function createSimpleShape (): ISimpleShape {
+    if (PHYSICS_CANNON || PHYSICS_AMMO) {
+        if (DEBUG && checkPhysicsModule(SimpleShape)) { return null as any; }
+        return new SimpleShape() as ISimpleShape;
+    } else {
+        warn("[Physics]: builtin physics system doesn't support simple collider");
+        const func = () => { };
+        return {
+            setShapeType: func,
+            setVertices: func,
             setMaterial: func,
             setIsTrigger: func,
             setCenter: func,

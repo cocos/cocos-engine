@@ -94,7 +94,7 @@ export class AmmoShape implements IBaseShape {
     }
 
     // virtual
-    onComponentSet () { }
+    protected onComponentSet () { }
 
     onLoad () {
         this.setCenter(this._collider.center);

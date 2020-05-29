@@ -9,6 +9,7 @@ import { AmmoBvhTriangleMeshShape } from '../ammo/shapes/ammo-bvh-triangle-mesh-
 import { AmmoCylinderShape } from '../ammo/shapes/ammo-cylinder-shape';
 import { AmmoConeShape } from "../ammo/shapes/ammo-cone-shape";
 import { AmmoTerrainShape } from "../ammo/shapes/ammo-terrain-shape";
+import { AmmoSimpleShape } from "../ammo/shapes/ammo-simple-shape";
 
 if (PHYSICS_AMMO) {
     instantiate({
@@ -21,6 +22,7 @@ if (PHYSICS_AMMO) {
         cylinder: AmmoCylinderShape,
         cone: AmmoConeShape,
         terrain: AmmoTerrainShape,
+        simple: AmmoSimpleShape,
     });
 }
 
