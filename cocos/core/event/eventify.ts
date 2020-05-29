@@ -10,6 +10,13 @@ type Constructor<T = {}> = new (...args: any[]) => T;
 
 type EventType = string;
 
+const {
+    prototype: {
+        on: callbacksInvokerOn,
+        off: callbacksInvokerOff,
+    },
+} = CallbacksInvoker;
+
 /**
  * @zh
  * 实现该接口的对象具有处理事件的能力。
@@ -133,7 +140,7 @@ export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & 
         
         public on<Callback extends Function> (type: EventType, callback: Callback, target?: object) {
             if (!this.hasEventListener(type, callback, target)) {
-                CallbacksInvoker.prototype.on.call(this, type, callback, target);
+                callbacksInvokerOn.call(this, type, callback, target);
                 if (target) {
                     this._registerThisIntoTarget(target);
                 }
@@ -143,7 +150,7 @@ export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & 
 
         public once<Callback extends Function> (type: EventType, callback: Callback, target?: object) {
             if (!this.hasEventListener(type, callback, target)) {
-                CallbacksInvoker.prototype.on.call(this, type, callback, target, true);
+                callbacksInvokerOn.call(this, type, callback, target, true);
                 if (target) {
                     this._registerThisIntoTarget(target);
                 }
@@ -155,7 +162,7 @@ export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & 
             if (!callback) {
                 this.removeAll(type);
             } else {
-                CallbacksInvoker.prototype.off.call(this, type, callback, target);
+                callbacksInvokerOff.call(this, type, callback, target);
                 if (target) {
                     this._unregisterThisIntoTarget(target);
                 }
