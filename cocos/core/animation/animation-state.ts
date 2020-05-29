@@ -27,7 +27,6 @@
  * @category animation
  */
 
-import { EventArgumentsOf, EventCallbackOf } from '../event/defines';
 import { Node } from '../scene-graph/node';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
 import { AnimCurve, RatioSampler } from './animation-curve';
@@ -38,7 +37,6 @@ import { EDITOR } from 'internal:constants';
 import { HierarchyPath, evaluatePath } from './target-path';
 import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter } from './skeletal-animation-blending';
 import { ccenum } from '../value-types/enum';
-import { Eventify } from '../event';
 
 /**
  * @en The event type supported by Animation
@@ -161,7 +159,6 @@ function makeSamplerSharedGroup (sampler: RatioSampler | null): ISamplerSharedGr
 }
 
 const InvalidIndex = -1;
-const stateAspect = 2;
 
 /**
  * @en
@@ -172,7 +169,7 @@ const stateAspect = 2;
  * 大多数情况下 动画组件 是足够和易于使用的。如果您需要更多的动画控制接口，请使用 AnimationState。
  *
  */
-export class AnimationState extends Eventify(Playable) {
+export class AnimationState extends Playable {
 
     /**
      * @en The clip that is being played by this animation state.
@@ -333,7 +330,7 @@ export class AnimationState extends Eventify(Playable) {
     private _blendStateBuffer: BlendStateBuffer | null = null;
     private _blendStateWriters: IBlendStateWriter[] = [];
     private _isBlendStateWriterInitialized = false;
-    private _allowLastFrameEventMask = 0;
+    private _allowLastFrame = false;
 
     constructor (clip: AnimationClip, name = '') {
         super();
@@ -436,49 +433,41 @@ export class AnimationState extends Eventify(Playable) {
         this._destroyBlendStateWriters();
     }
 
+    public emit (...args: any[]) {
+        cc.director.getAnimationManager().pushDelayEvent(this, '_emit', args);
+    }
+
+    public on (type: string, callback: Function, target?: any) {
+        if (this._target && this._target.isValid) {
+            return this._target.on(type, callback, target);
+        } else {
+            return null;
+        }
+    }
+
+    public once (type: string, callback: Function, target?: any) {
+        if (this._target && this._target.isValid) {
+            return this._target.once(type, callback, target);
+        } else {
+            return null;
+        }
+    }
+
+    public off (type: string, callback: Function, target?: any) {
+        if (this._target && this._target.isValid) {
+            this._target.off(type, callback, target);
+        }
+    }
+
     /**
      * @zh
      * 是否允许触发 `LastFrame` 事件。
      * @en
      * Whether `LastFrame` should be triggered.
      * @param allowed True if the last frame events may be triggered.
-     * @param aspect DO NOT pass this argument. It indicates who fired the 'allowLastFrameEvent' request:
-     * either from `AnimationState` itself or from `AnimationComponent`.
-     * Because both `AnimationState` and `AnimationComponent` can subscribe to the 'last-frame' event or not.
-     * We should distinguish here to keep them isolated.
      */
-    public allowLastFrameEvent (allowed: boolean, aspect: number = 1) {
-        if (allowed) {
-            this._allowLastFrameEventMask |= (1 << aspect);
-        } else {
-            this._allowLastFrameEventMask &= ~(1 << aspect);
-        }
-    }
-
-    public on<TFunction extends Function> (type: string, callback: TFunction, thisArg?: any) {
-        if (type === EventType.LASTFRAME ||
-            type === EventType.ITERATION_END) {
-            this.allowLastFrameEvent(true, stateAspect);
-        }
-        return super.once(type, callback, thisArg);
-    }
-
-    public once<TFunction extends Function> (type: string, callback: TFunction, thisArg?: any) {
-        if (type === EventType.LASTFRAME ||
-            type === EventType.ITERATION_END) {
-            this.allowLastFrameEvent(true, stateAspect);
-        }
-        return super.once(type, callback, thisArg);
-    }
-
-    public off<TFunction extends Function> (type: string, callback?: TFunction, thisArg?: any) {
-        super.off(type, callback, thisArg);
-        if ((type === EventType.LASTFRAME ||
-            type === EventType.ITERATION_END) &&
-            (this.hasEventListener(EventType.LASTFRAME ||
-            this.hasEventListener(EventType.ITERATION_END)))) {
-            this.allowLastFrameEvent(false, stateAspect);
-        }
+    public allowLastFrameEvent (allowed: boolean) {
+        this._allowLastFrame = allowed;
     }
 
     public _setEventTarget (target) {
@@ -620,7 +609,7 @@ export class AnimationState extends Eventify(Playable) {
         // sample
         const info = this.sample();
 
-        if (this._allowLastFrameEventMask) {
+        if (this._allowLastFrame) {
             let lastInfo;
             if (!this._lastWrapInfo) {
                 lastInfo = this._lastWrapInfo = new WrappedInfo(info);
@@ -629,8 +618,8 @@ export class AnimationState extends Eventify(Playable) {
             }
 
             if (this.repeatCount > 1 && ((info.iterations | 0) > (lastInfo.iterations | 0))) {
-                this._delayEmit(EventType.LASTFRAME, this);
-                this._delayEmit(EventType.ITERATION_END, this);
+                this.emit(EventType.LASTFRAME, this);
+                this.emit(EventType.ITERATION_END, this);
             }
 
             lastInfo.set(info);
@@ -638,8 +627,8 @@ export class AnimationState extends Eventify(Playable) {
 
         if (info.stopped) {
             this.stop();
-            this._delayEmit(EventType.FINISHED, this);
-            this._delayEmit(EventType.ITERATION_END, this);
+            this.emit(EventType.FINISHED, this);
+            this.emit(EventType.ITERATION_END, this);
         }
     }
 
@@ -656,14 +645,14 @@ export class AnimationState extends Eventify(Playable) {
             }
         }
 
-        if (this._allowLastFrameEventMask) {
+        if (this._allowLastFrame) {
             if (this._lastIterations === undefined) {
                 this._lastIterations = ratio;
             }
 
             if ((this.time > 0 && this._lastIterations > ratio) || (this.time < 0 && this._lastIterations < ratio)) {
-                this._delayEmit(EventType.LASTFRAME, this);
-                this._delayEmit(EventType.ITERATION_END, this);
+                this.emit(EventType.LASTFRAME, this);
+                this.emit(EventType.ITERATION_END, this);
             }
 
             this._lastIterations = ratio;
@@ -677,24 +666,24 @@ export class AnimationState extends Eventify(Playable) {
         this.setTime(0);
         this._delayTime = this._delay;
         this._onReplayOrResume();
-        this._delayEmit(EventType.PLAY, this);
+        this.emit(EventType.PLAY, this);
     }
 
     protected onStop () {
         if (!this.isPaused) {
             this._onPauseOrStop();
         }
-        this._delayEmit(EventType.STOP, this);
+        this.emit(EventType.STOP, this);
     }
 
     protected onResume () {
         this._onReplayOrResume();
-        this._delayEmit(EventType.RESUME, this);
+        this.emit(EventType.RESUME, this);
     }
 
     protected onPause () {
         this._onPauseOrStop();
-        this._delayEmit(EventType.PAUSE, this);
+        this.emit(EventType.PAUSE, this);
     }
 
     protected _sampleCurves (ratio: number) {
@@ -835,6 +824,12 @@ export class AnimationState extends Eventify(Playable) {
         this._lastWrapInfoEvent.set(wrapInfo);
     }
 
+    private _emit (type, state) {
+        if (this._target && this._target.isValid) {
+            this._target.emit(type, type, state);
+        }
+    }
+
     private _fireEvent (index: number) {
         if (!this._targetNode || !this._targetNode.isValid) {
             return;
@@ -878,19 +873,6 @@ export class AnimationState extends Eventify(Playable) {
         }
         this._blendStateWriters.length = 0;
         this._isBlendStateWriterInitialized = false;
-    }
-
-    private _delayEmit (...args: any[]) {
-        cc.director.getAnimationManager().pushDelayEvent(this._emit, this, args);
-    }
-
-    private _emit (type: EventType, state: AnimationState) {
-        if (state === this) {
-            this.emit(type);
-        }
-        if (this._target && this._target.isValid) {
-            this._target.emit(type, type, state);
-        }
     }
 }
 
