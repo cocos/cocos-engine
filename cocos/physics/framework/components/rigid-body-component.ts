@@ -41,9 +41,10 @@ export class RigidBodyComponent extends Component {
      * @zh
      * 获取或设置是否允许休眠。
      */
-    // @property({
-    //     displayOrder: -1,
-    // })
+    @property({
+        displayOrder: -1,
+        tooltip: '是否允许休眠',
+    })
     public get allowSleep (): boolean {
         return this._allowSleep;
     }
@@ -276,7 +277,7 @@ export class RigidBodyComponent extends Component {
 
     /// PRIVATE PROPERTY ///
 
-    // @property
+    @property
     private _allowSleep: boolean = true;
 
     @property
