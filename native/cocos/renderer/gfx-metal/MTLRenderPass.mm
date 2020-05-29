@@ -30,6 +30,7 @@ bool CCMTLRenderPass::initialize(const GFXRenderPassInfo& info)
     _mtlRenderPassDescriptor.stencilAttachment.loadAction = mu::toMTLLoadAction(_depthStencilAttachment.depthLoadOp);
     _mtlRenderPassDescriptor.stencilAttachment.storeAction = mu::toMTLStoreAction(_depthStencilAttachment.depthStoreOp);
     
+    _hash = computeHash();
     _status = GFXStatus::SUCCESS;
     
     return true;

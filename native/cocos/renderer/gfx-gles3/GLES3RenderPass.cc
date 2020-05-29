@@ -20,6 +20,7 @@ bool GLES3RenderPass::initialize(const GFXRenderPassInfo &info) {
   _gpuRenderPass->colorAttachments = _colorAttachments;
   _gpuRenderPass->depthStencilAttachment = _depthStencilAttachment;
     
+    _hash = computeHash();
     _status = GFXStatus::SUCCESS;
   
   return true;

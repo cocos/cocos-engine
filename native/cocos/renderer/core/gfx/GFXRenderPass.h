@@ -18,12 +18,16 @@ class CC_CORE_API GFXRenderPass : public GFXObject {
   CC_INLINE const GFXColorAttachmentList& getColorAttachments() const { return _colorAttachments; }
   CC_INLINE const GFXDepthStencilAttachment& getDepthStencilAttachment() const { return _depthStencilAttachment; }
   CC_INLINE const GFXSubPassList& getSubPasses() const { return _subPasses; }
+    CC_INLINE uint getHash() const { return _hash; }
 
  protected:
+    uint computeHash() const;
+    
   GFXDevice* _device = nullptr;
   GFXColorAttachmentList _colorAttachments;
   GFXDepthStencilAttachment _depthStencilAttachment;
   GFXSubPassList _subPasses;
+    uint _hash = 0;
 };
 
 NS_CC_END

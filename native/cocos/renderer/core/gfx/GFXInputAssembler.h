@@ -28,6 +28,7 @@ class CC_CORE_API GFXInputAssembler : public GFXObject {
   CC_INLINE uint getVertexOffset() const { return _vertexOffset; }
   CC_INLINE uint getInstanceCount() const { return _instanceCount; }
   CC_INLINE uint getFirstInstance() const { return _firstInstance; }
+    CC_INLINE uint getAttributesHash() const { return _attributesHash; }
   
   CC_INLINE void setVertexCount(uint count) { _vertexCount = count; }
   CC_INLINE void setFirstVertex(uint first) { _firstVertex = first; }
@@ -38,6 +39,8 @@ class CC_CORE_API GFXInputAssembler : public GFXObject {
   CC_INLINE void setFirstInstance(uint first) { _firstInstance = first; }
 
  protected:
+    uint computeAttributesHash() const;
+    
   GFXDevice* _device = nullptr;
   GFXAttributeList _attributes;
   GFXBufferList _vertexBuffers;
@@ -50,6 +53,7 @@ class CC_CORE_API GFXInputAssembler : public GFXObject {
   uint _vertexOffset = 0;
   uint _instanceCount = 0;
   uint _firstInstance = 0;
+    uint _attributesHash = 0;
 };
 
 NS_CC_END

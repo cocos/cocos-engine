@@ -33,6 +33,7 @@ bool CCMTLInputAssembler::initialize(const GFXInputAssemblerInfo& info)
     for (const auto& vertexBuffer : info.vertexBuffers)
         _GPUInputAssembler->mtlVertexBufers.push_back(static_cast<CCMTLBuffer*>(vertexBuffer)->getMTLBuffer() );
     
+    _attributesHash = computeAttributesHash();
     _status = GFXStatus::SUCCESS;
     
     return true;

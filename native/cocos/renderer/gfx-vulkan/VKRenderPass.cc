@@ -25,6 +25,7 @@ bool CCVKRenderPass::initialize(const GFXRenderPassInfo &info)
     _gpuRenderPass->subPasses = _subPasses;
     CCVKCmdFuncCreateRenderPass((CCVKDevice*)_device, _gpuRenderPass);
 
+    _hash = computeHash();
     _status = GFXStatus::SUCCESS;
 
     return true;

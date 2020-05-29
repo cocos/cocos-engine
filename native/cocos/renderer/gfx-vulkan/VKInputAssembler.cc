@@ -51,6 +51,7 @@ bool CCVKInputAssembler::initialize(const GFXInputAssemblerInfo &info)
     }
 
     CCVKCmdFuncCreateInputAssembler((CCVKDevice*)_device, _gpuInputAssembler);
+    _attributesHash = computeAttributesHash();
     _status = GFXStatus::SUCCESS;
 
     return true;
