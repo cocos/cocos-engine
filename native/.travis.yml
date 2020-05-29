@@ -1,24 +1,28 @@
 language: cpp
 
-matrix: 
+jobs: 
   include:
     - os: windows
+      name: Win32
       env: 
         - BUILD_TARGET=windows_cmake
       language: cpp
     - os: osx
+      name: MacOSX
       env:
         - BUILD_TARGET=macosx_cmake
       language: cpp
       osx_image: xcode10.3
       sudo: required
     - os: osx
+      name: iOS
       env:
         - BUILD_TARGET=ios_cmake
       language: cpp
       osx_image: xcode10.3
       sudo: required
     - os: linux
+      name: Android
       dist: xenial
       sudo: required
       env: 
