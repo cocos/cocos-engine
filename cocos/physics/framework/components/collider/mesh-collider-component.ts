@@ -49,14 +49,20 @@ export class MeshColliderComponent extends ColliderComponent {
         if (!EDITOR && !TEST) this.shape.setMesh(this._mesh);
     }
 
-    // @property
-    // get convex () {
-    //     return this._convex;
-    // }
+    /**
+     * @en
+     * Gets or sets whether the collider replaces the mesh with a convex shape.
+     * @zh
+     * 获取或设置此碰撞体是否用凸形状代替网格.
+     */
+    @property
+    get convex () {
+        return this._convex;
+    }
 
-    // set convex (value) {
-    //     this._convex = value;
-    // }
+    set convex (value) {
+        this._convex = value;
+    }
 
     /**
      * @en
@@ -73,8 +79,8 @@ export class MeshColliderComponent extends ColliderComponent {
     @property
     private _mesh: Mesh | null = null;
 
-    // @property
-    // private _convex: boolean = false;
+    @property
+    private _convex: boolean = false;
 
     constructor () {
         super();
