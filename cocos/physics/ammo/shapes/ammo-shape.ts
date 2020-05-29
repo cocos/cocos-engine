@@ -3,11 +3,13 @@ import { Vec3, Quat } from "../../../core/math";
 import { ColliderComponent, RigidBodyComponent, PhysicMaterial, PhysicsSystem } from "../../../../exports/physics-framework";
 import { AmmoWorld } from '../ammo-world';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
-import { cocos2AmmoVec3, ammoDeletePtr } from '../ammo-util';
+import { cocos2AmmoVec3, ammoDeletePtr, cocos2AmmoQuat } from '../ammo-util';
 import { Node } from '../../../core';
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { AmmoSharedBody } from '../ammo-shared-body';
+import { aabb, sphere } from '../../../core/geometry';
+import { AmmoConstant } from '../ammo-const';
 
 const v3_0 = new Vec3();
 
@@ -82,6 +84,22 @@ export class AmmoShape implements IBaseShape {
         this.transform.setIdentity();
 
         this.scale = new Ammo.btVector3(1, 1, 1);
+    }
+
+    getAABB (v: aabb) {
+        const TRANS = AmmoConstant.instance.TRANSFORM;
+        TRANS.setIdentity();
+        TRANS.setRotation(cocos2AmmoQuat(AmmoConstant.instance.QUAT_0, this._collider.node.worldRotation));
+        const MIN = AmmoConstant.instance.VECTOR3_0;
+        const MAX = AmmoConstant.instance.VECTOR3_1;
+        this._btShape.getAabb(TRANS, MIN, MAX);
+        v.halfExtents.set((MAX.x() - MIN.x()) / 2, (MAX.y() - MIN.y()) / 2, (MAX.z() - MIN.z()) / 2);
+        Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
+    }
+
+    getBoundingSphere (v: sphere) {
+        v.radius = this._btShape.getLocalBoundingSphere();
+        Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
 
     initialize (com: ColliderComponent) {

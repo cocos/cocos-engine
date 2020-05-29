@@ -12,6 +12,7 @@ import { PhysicsSystem } from '../../physics-system';
 import { Component, error } from '../../../../core';
 import { IBaseShape } from '../../../spec/i-physics-shape';
 import { EDITOR } from 'internal:constants';
+import { aabb, sphere } from '../../../../core/geometry';
 
 /**
  * @en
@@ -147,10 +148,23 @@ export class ColliderComponent extends Eventify(Component) {
         return this._shape;
     }
 
+    public get worldBounds (): Readonly<aabb> {
+        if (this._aabb == null) this._aabb = new aabb();
+        this._shape.getAABB(this._aabb);
+        return this._aabb;
+    }
+
+    public get boundingSphere (): Readonly<sphere> {
+        if (this._boundingSphere == null) this._boundingSphere = new sphere();
+        this._shape.getBoundingSphere(this._boundingSphere);
+        return this._boundingSphere;
+    }
+
     /// PRIVATE PROPERTY ///
 
     protected _shape!: IBaseShape;
-
+    protected _aabb: aabb | null = null;
+    protected _boundingSphere: sphere | null = null;
     protected _isSharedMaterial: boolean = true;
 
     @property({ type: PhysicMaterial })

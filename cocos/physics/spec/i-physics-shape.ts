@@ -8,6 +8,7 @@ import { IVec3Like } from '../../core/math/type-define';
 import { ColliderComponent, RigidBodyComponent, PhysicMaterial, ESimpleShapeType } from '../../../exports/physics-framework';
 import { Mesh } from '../../core';
 import { ITerrainAsset } from './i-external';
+import { aabb, sphere } from '../../core/geometry';
 
 export interface IBaseShape extends ILifecycle, IGroupMask {
     readonly impl: any;
@@ -17,6 +18,8 @@ export interface IBaseShape extends ILifecycle, IGroupMask {
     setMaterial: (v: PhysicMaterial | null) => void;
     setAsTrigger: (v: boolean) => void;
     setCenter: (v: IVec3Like) => void;
+    getAABB: (v: aabb) => void;
+    getBoundingSphere: (v: sphere) => void;
 }
 
 export interface IBoxShape extends IBaseShape {
