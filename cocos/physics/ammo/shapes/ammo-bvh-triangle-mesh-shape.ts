@@ -1,13 +1,11 @@
 import Ammo from '@cocos/ammo';
 import { AmmoShape } from "./ammo-shape";
-import { Mesh, GFXPrimitiveMode, warn, warnID } from "../../../core";
+import { Mesh, warnID } from "../../../core";
 import { MeshColliderComponent } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3, cocos2AmmoTriMesh } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
 import { AmmoConstant } from '../ammo-const';
-
-Ammo["BT_TRIANGLE_MESH"] = {};
 
 export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape {
 
@@ -28,19 +26,14 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
         } else {
             const mesh = v;
             if (mesh && mesh.renderingSubMeshes.length > 0) {
-                if (Ammo["BT_TRIANGLE_MESH"][mesh._uuid] == null) {
-                    var btm = new Ammo.btTriangleMesh();
-                    Ammo["BT_TRIANGLE_MESH"][mesh._uuid] = btm;
-                    cocos2AmmoTriMesh(btm, mesh);
-                }
-                var btTriangleMesh: Ammo.btTriangleMesh = Ammo["BT_TRIANGLE_MESH"][mesh._uuid];
+                var btTriangleMesh: Ammo.btTriangleMesh = this._getBtTriangleMesh(mesh);
                 if (this.collider.convex) {
                     this._btShape = new Ammo.btConvexTriangleMeshShape(btTriangleMesh, true);
                 } else {
                     this._btShape = new Ammo.btBvhTriangleMeshShape(btTriangleMesh, true, true);
                 }
                 cocos2AmmoVec3(this.scale, this._collider.node.worldScale);
-                this._btShape.setMargin(0.04);
+                this._btShape.setMargin(0.01);
                 this._btShape.setLocalScaling(this.scale);
                 this.setWrapper();
                 this.setCompound(this._btCompound);
@@ -50,12 +43,19 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
         }
     }
 
+    private refBtTriangleMesh: Ammo.btTriangleMesh | null = null;
+
     constructor () {
         super(AmmoBroadphaseNativeTypes.TRIANGLE_MESH_SHAPE_PROXYTYPE);
     }
 
     onComponentSet () {
         this.setMesh(this.collider.mesh);
+    }
+
+    onDestroy () {
+        super.onDestroy();
+        if (this.refBtTriangleMesh) { Ammo.destroy(this.refBtTriangleMesh); }
     }
 
     setCompound (compound: Ammo.btCompoundShape | null) {
@@ -70,6 +70,22 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
         if (this._btCompound) {
             this._btCompound.updateChildTransform(this.index, this.transform, true);
         }
+    }
+
+    private _getBtTriangleMesh (mesh: Mesh): Ammo.btTriangleMesh {
+        var btTriangleMesh: Ammo.btTriangleMesh;
+        if (Ammo['CC_CACHE']['BT_TRIANGLE_MESH'].enable) {
+            if (Ammo['CC_CACHE']['BT_TRIANGLE_MESH'][mesh._uuid] == null) {
+                var btm = new Ammo.btTriangleMesh();
+                Ammo['CC_CACHE']['BT_TRIANGLE_MESH'][mesh._uuid] = btm;
+                cocos2AmmoTriMesh(btm, mesh);
+            }
+            btTriangleMesh = Ammo['CC_CACHE']['BT_TRIANGLE_MESH'][mesh._uuid];
+        } else {
+            this.refBtTriangleMesh = btTriangleMesh = new Ammo.btTriangleMesh();
+            cocos2AmmoTriMesh(btTriangleMesh, mesh);
+        }
+        return btTriangleMesh;
     }
 
 }
