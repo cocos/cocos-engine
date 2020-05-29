@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { GFXPipelineState, IGFXPipelineStateInfo } from '../gfx/pipeline-state';
+import { GFXPipelineState, IGFXPipelineStateInfo, GFXInputState } from '../gfx/pipeline-state';
 import { IPSOCreateInfo } from '../renderer/scene/submodel';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXInputAssembler } from '../gfx/input-assembler';
@@ -11,6 +11,7 @@ import { GFXDevice } from '../gfx/device';
 
 export class PipelineStateManager {
     private static _PSOHashMap: Map<number, GFXPipelineState> = new Map<number, GFXPipelineState>();
+    private static _inputState: GFXInputState = new GFXInputState();;
 
     static getOrCreatePipelineState(
         device: GFXDevice,
@@ -27,10 +28,11 @@ export class PipelineStateManager {
         const newHash = murmurhash2_32_gc(res, 666);
         let pso = this._PSOHashMap.get(newHash);
         if (!pso) {
+            this._inputState.attributes = ia.attributes
             const createInfo: IGFXPipelineStateInfo = {
                 primitive: psoCreateInfo.primitive,
                 shader: psoCreateInfo.shader,
-                inputAssember: ia,
+                inputState: this._inputState,
                 rasterizerState: psoCreateInfo.rasterizerState,
                 depthStencilState: psoCreateInfo.depthStencilState,
                 blendState: psoCreateInfo.blendState,
