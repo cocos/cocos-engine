@@ -8,6 +8,7 @@ import { GFXBuffer, IGFXBufferInfo } from './buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from './command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from './command-buffer';
 import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFilter, GFXFormat, IGFXMemoryStatus, IGFXRect } from './define';
+import { GFXFence, IGFXFenceInfo } from './fence';
 import { GFXFramebuffer, IGFXFramebufferInfo } from './framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from './input-assembler';
 import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from './pipeline-layout';
@@ -497,6 +498,13 @@ export abstract class GFXDevice {
      * @param info GFX queue description info.
      */
     public abstract createQueue (info: IGFXQueueInfo): GFXQueue;
+
+    /**
+     * @en Create fence.
+     * @zh 创建同步信号。
+     * @param info GFX fence description info.
+     */
+    public abstract createFence (info: IGFXFenceInfo): GFXFence;
 
     /**
      * @en Create window.

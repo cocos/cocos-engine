@@ -22,6 +22,7 @@ export enum GFXObjectType {
     INPUT_ASSEMBLER,
     COMMAND_ALLOCATOR,
     COMMAND_BUFFER,
+    FENCE,
     QUEUE,
     WINDOW,
 }
