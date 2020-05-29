@@ -4,7 +4,7 @@
 
 import { fastRemove } from '../utils/array';
 import { CallbacksInvoker } from './callbacks-invoker';
-import { createMap, mixin } from '../utils/js';
+import { createMap } from '../utils/js';
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
@@ -183,7 +183,13 @@ export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & 
         }
     };
 
-    mixin(Eventified.prototype, CallbacksInvoker.prototype);
+    // Mixin with `CallbacksInvokers`'s prototype
+    const propertyDescriptors = Object.getOwnPropertyDescriptors(CallbacksInvoker.prototype);
+    for (const propertyName in propertyDescriptors) {
+        if (!(propertyName in Eventified.prototype)) {
+            Object.defineProperty(Eventified.prototype, propertyName, propertyDescriptors[propertyName]);
+        }
+    }
 
     return Eventified as unknown as any;
 }
