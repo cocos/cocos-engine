@@ -29,6 +29,9 @@
 
 #include "stdafx.h"
 #include "PlayerEditBoxServiceProtocol.h"
+#include <array>
+
+typedef std::array<uint8_t, 3> Color3B;
 
 PLAYER_NS_BEGIN
 
@@ -44,7 +47,7 @@ public:
 
     virtual void setText(const std::string &text);
     virtual void setFont(const std::string &name, int size);
-    virtual void setFontColor(const cocos2d::Color3B &color);
+    virtual void setFontColor(const Color3B &color);
 
     virtual void setFormator(int formator);
 protected:

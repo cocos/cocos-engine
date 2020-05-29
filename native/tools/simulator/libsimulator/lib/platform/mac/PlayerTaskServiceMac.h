@@ -31,6 +31,9 @@
 
 #include "PlayerTaskServiceProtocol.h"
 
+#import <AppKit/AppKit.h>
+
+
 PLAYER_NS_BEGIN
 class PlayerTaskMac;
 PLAYER_NS_END

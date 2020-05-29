@@ -31,27 +31,19 @@
 #include <vector>
 
 #import "SimulatorApp.h"
-#include "AppDelegate.h"
-#include "glfw3.h"
-#include "glfw3native.h"
+#include "ViewController.h"
+#include "Game.h"
 #include "runtime/Runtime.h"
 #include "runtime/ConfigParser.h"
 
 #include "cocos2d.h"
-#include "base/CCConfiguration.h"
 #include "ide-support/CodeIDESupport.h"
-#include "platform/desktop/CCGLView-desktop.h"
+#include "cocos/platform/mac/CCView.h"
 
 #include "platform/mac/PlayerMac.h"
 #include "AppEvent.h"
 #include "AppLang.h"
 
-
-#if (GLFW_VERSION_MAJOR >= 3) && (GLFW_VERSION_MINOR >= 1)
-#define PLAYER_SUPPORT_DROP 1
-#else
-#define PLAYER_SUPPORT_DROP 0
-#endif
 
 using namespace std;
 using namespace cocos2d;
@@ -99,10 +91,10 @@ std::string getCurAppName(void)
     if (isDirectory)
     {
         // check src folder
-        if ([fm fileExistsAtPath:[path stringByAppendingString:@"/src/main.js"]])
+        if ([fm fileExistsAtPath:[path stringByAppendingString:@"/main.js"]])
         {
             _project.setProjectDir([path cStringUsingEncoding:NSUTF8StringEncoding]);
-            _entryPath = "$(PROJDIR)/src/main.js";
+            _entryPath = "$(PROJDIR)/main.js";
         }
     }
     else
@@ -129,7 +121,7 @@ std::string getCurAppName(void)
         _project.setScriptFile(_entryPath);
     }
 
-    [self createWindowAndGLView];
+    [self createWindowAndView];
     [self startup];
 }
 
@@ -323,7 +315,7 @@ std::string getCurAppName(void)
 
 }
 
-- (void) createWindowAndGLView
+- (void) createWindowAndView
 {
     // create console window **MUST** before create opengl view
 #if (CC_CODE_IDE_DEBUG_SUPPORT == 1)
@@ -368,17 +360,36 @@ std::string getCurAppName(void)
     std::stringstream title;
     title << "Cocos Simulator (" << _project.getFrameScale() * 100 << "%)";
 
-    // create opengl view, and init app
-    _app = new AppDelegate(title.str(), _project.getFrameScale() * frameSize.width, _project.getFrameScale() * frameSize.height);
 
     // this **MUST** be called after create opengl view, or crash will occur at 'gatherGPUInfo'
-    CCLOG("%s\n",Configuration::getInstance()->getInfo().c_str());
+    //CCLOG("%s\n",Configuration::getInstance()->getInfo().c_str());
 
-    auto glfwWindow = ((GLView*)_app->getView())->getGLFWWindow();
-    _window = glfwGetCocoaWindow((GLFWwindow*)glfwWindow);
-    [_window center];
+    int frameWidth = (int) (_project.getFrameScale() * frameSize.width);
+    int frameHeight = (int) (_project.getFrameScale() * frameSize.height);
 
-     [self setZoom:_project.getFrameScale()];
+
+    NSRect rect = NSMakeRect(200, 200, frameWidth, frameHeight);
+    _window = [[NSWindow alloc] initWithContentRect:rect
+                                          styleMask:NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskTitled | NSWindowStyleMaskClosable
+                                            backing:NSBackingStoreBuffered
+                                              defer:NO];
+    if (!_window) {
+        NSLog(@"Failed to allocated the window.");
+        return;
+    }
+    
+    _window.title = @"Cocos creator 3D Game";
+    
+    ViewController* viewController = [[ViewController alloc] initWithSize: rect];
+    _window.contentViewController = viewController;
+    _window.contentView = viewController.view;
+    [_window.contentView setWantsBestResolutionOpenGLSurface:YES];
+    [_window makeKeyAndOrderFront:nil];
+
+
+    // create opengl view, and init app
+    _app = new Game(frameWidth, frameHeight);
+
     if (pos.x != 0 && pos.y != 0)
     {
         [_window setFrameOrigin:NSMakePoint(pos.x, pos.y)];
@@ -430,7 +441,8 @@ std::string getCurAppName(void)
      [self adjustEditMenuIndex];
 
     RuntimeEngine::getInstance()->setProjectConfig(_project);
-    _app->start();
+
+    _app->init();
     // After run, application needs to be terminated immediately.
     [[NSApplication sharedApplication] terminate:self];
 }
@@ -538,7 +550,7 @@ std::string getCurAppName(void)
                     string data = dArgParse["data"].GetString();
                     if ((data == "CLOSE_MENU") || (data == "EXIT_MENU"))
                     {
-                        _app->end();
+                        exit(0); // exit process
                     }
                     else if (data == "REFRESH_MENU")
                     {
@@ -670,7 +682,6 @@ std::string getCurAppName(void)
 
 -(IBAction)onFileClose:(id)sender
 {
-    _app->end();
    [[NSApplication sharedApplication] terminate:self];
 }
 
@@ -693,6 +704,11 @@ std::string getCurAppName(void)
 - (void)applicationWillTerminate:(NSNotification *)notification
 {
     CC_SAFE_DELETE(_app);
+}
+
+- (NSWindow*)getWindow
+{
+    return _window;
 }
 
 @end

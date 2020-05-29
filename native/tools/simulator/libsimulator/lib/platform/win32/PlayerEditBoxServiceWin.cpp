@@ -38,9 +38,9 @@ PlayerEditBoxServiceWin::PlayerEditBoxServiceWin(HWND hwnd)
     _hwnd = hwnd;
     HINSTANCE instance = (HINSTANCE)GetWindowLong(_hwnd, GWL_HINSTANCE);
     DWORD style = WS_CHILD | ES_LEFT | ES_AUTOHSCROLL;
-    _hwndSingle = CreateWindowEx(WS_EX_CLIENTEDGE, L"Edit", L"", style, 0, 0, 0, 0, _hwnd, NULL, instance, NULL);
+    _hwndSingle = CreateWindowEx(WS_EX_CLIENTEDGE, (LPCSTR)L"Edit", (LPCSTR)L"", style, 0, 0, 0, 0, _hwnd, NULL, instance, NULL);
     style = WS_CHILD | ES_MULTILINE | ES_LEFT | ES_AUTOVSCROLL | ES_WANTRETURN | WS_VSCROLL;
-    _hwndMulti = CreateWindowEx(WS_EX_CLIENTEDGE, L"Edit", L"", style, 0, 0, 0, 0, _hwnd, NULL, instance, NULL);
+    _hwndMulti = CreateWindowEx(WS_EX_CLIENTEDGE,(LPCSTR) L"Edit", (LPCSTR)L"", style, 0, 0, 0, 0, _hwnd, NULL, instance, NULL);
 }
 
 PlayerEditBoxServiceWin::~PlayerEditBoxServiceWin()
@@ -99,7 +99,7 @@ void PlayerEditBoxServiceWin::setFont(const std::string &name, int size)
     }
 }
 
-void PlayerEditBoxServiceWin::setFontColor(const cocos2d::Color3B &color)
+void PlayerEditBoxServiceWin::setFontColor(const Color3B &color)
 {
 
 }

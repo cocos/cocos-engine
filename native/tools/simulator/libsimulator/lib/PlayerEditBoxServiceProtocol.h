@@ -28,12 +28,15 @@
 #define __PLAYER_EDITBOX_SERVICE_PROTOCOL_H_
 
 #include <string>
+#include <array>
 
 #include "cocos2d.h"
 #include "PlayerMacros.h"
 #include "PlayerServiceProtocol.h"
 
 PLAYER_NS_BEGIN
+
+typedef std::array<uint8_t, 3> Color3B;
 
 class PlayerEditBoxServiceProtocol : public PlayerServiceProtocol
 {
@@ -47,7 +50,7 @@ public:
 
     virtual void setText(const std::string &text) = 0;
     virtual void setFont(const std::string &name, int size) = 0;
-    virtual void setFontColor(const cocos2d::Color3B &color) = 0;
+    virtual void setFontColor(const Color3B &color) = 0;
     virtual void setFormator(int formator) = 0;
     
     void registerHandler(int handler)   { _handler = handler; }

@@ -30,7 +30,7 @@
 #if (CC_LUA_ENGINE_ENABLED > 0)
 #include "CCLuaEngine.h"
 #endif
-#include "glfw3native.h"
+//#include "glfw3native.h"
 
 // internal
 
@@ -229,9 +229,9 @@ void PlayerEditBoxServiceMac::setFont(const std::string &name, int size)
     }
 }
 
-void PlayerEditBoxServiceMac::setFontColor(const cocos2d::Color3B &color)
+void PlayerEditBoxServiceMac::setFontColor(const Color3B &color)
 {
-    NSColor *textColor = [NSColor colorWithCalibratedRed:color.r / 255.0f green:color.g / 255.0f blue:color.b / 255.0f alpha:1.0f];
+    NSColor *textColor = [NSColor colorWithCalibratedRed:color[0] / 255.0f green:color[1] / 255.0f blue:color[2] / 255.0f alpha:1.0f];
     _sysEdit.textField.textColor = textColor;
 }
 

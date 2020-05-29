@@ -36,6 +36,8 @@
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/stubs/stl_util.h>
 
+#include <algorithm> //fix min/max not found
+
 namespace google {
 namespace protobuf {
 namespace io {

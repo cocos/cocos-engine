@@ -28,9 +28,12 @@
 #include "stdafx.h"
 #include "Resource.h"
 #include "cocos2d.h"
-#include "AppDelegate.h"
+#include "Game.h"
 #include "ProjectConfig/ProjectConfig.h"
 #include "ProjectConfig/SimulatorConfig.h"
+#include "cocos/platform/win32/View-win32.h"
+
+#include <memory>
 
 class SimulatorWin
 {
@@ -54,8 +57,13 @@ protected:
     ProjectConfig _project;
     HWND _hwnd;
     HWND _hwndConsole;
-    AppDelegate *_app;
+    
     FILE *_writeDebugLogFile;
+
+    std::shared_ptr<Game> _app;
+    std::shared_ptr<cocos2d::View> _view;
+
+    bool _quit = false;
 
     // 
     void setupUI();

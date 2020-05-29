@@ -26,13 +26,14 @@
 
 #include "PlayerFileDialogServiceMac.h"
 
-#include "glfw3.h"
-#include "glfw3native.h"
-
-#define VALIDATE_FRAMEBUFFER { \
-NSOpenGLContext *__context = glfwGetNSGLContext(glfwGetCurrentContext()); \
-[__context makeCurrentContext]; \
-}
+#import <AppKit/AppKit.h>
+//#include "glfw3.h"
+//#include "glfw3native.h"
+//
+//#define VALIDATE_FRAMEBUFFER { \
+//NSOpenGLContext *__context = glfwGetNSGLContext(glfwGetCurrentContext()); \
+//[__context makeCurrentContext]; \
+//}
 
 PLAYER_NS_BEGIN
 
@@ -81,7 +82,7 @@ std::string PlayerFileDialogServiceMac::openFile(const std::string &title,
     }
     
     [openDlg close];
-    VALIDATE_FRAMEBUFFER
+//    VALIDATE_FRAMEBUFFER
     return filePath;
 }
 
@@ -109,7 +110,7 @@ std::string PlayerFileDialogServiceMac::openDirectory( const std::string &title,
     }
     
     [openDlg close];
-    VALIDATE_FRAMEBUFFER
+    //VALIDATE_FRAMEBUFFER
     return path;
 }
 
@@ -159,7 +160,7 @@ std::vector<std::string> PlayerFileDialogServiceMac::openMultiple(  const std::s
     }
     
     [openDlg close];
-    VALIDATE_FRAMEBUFFER
+    //VALIDATE_FRAMEBUFFER
     return  pathes;
 }
 
@@ -192,7 +193,7 @@ std::string PlayerFileDialogServiceMac::saveFile(const std::string &title,
     }
 
     [saveDlg close];
-    VALIDATE_FRAMEBUFFER
+    //VALIDATE_FRAMEBUFFER
     return filePath;
 }
 

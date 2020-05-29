@@ -172,9 +172,9 @@ void RuntimeEngine::setProjectPath(const std::string &workPath)
                     nEnd = i;
             }
             szAppDir[nEnd] = 0;
-            int iLen = 2 * wcslen(szAppDir);
+            int iLen = 2 * wcslen((wchar_t*)szAppDir);
             char* chRtn = new char[iLen + 1];
-            wcstombs(chRtn, szAppDir, iLen + 1);
+            wcstombs(chRtn, (wchar_t*)szAppDir, iLen + 1);
             std::string strPath = chRtn;
             delete[] chRtn;
             chRtn = NULL;
@@ -245,8 +245,8 @@ void RuntimeEngine::start()
     }
 
     setupRuntime();
-    startScript("jsb-adapter/jsb-builtin.js");
-    startScript("");
+    //startScript("jsb-adapter/jsb-builtin.js");
+    //startScript("");
 }
 
 void RuntimeEngine::end()

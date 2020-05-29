@@ -33,6 +33,8 @@
 #include "PlayerMacros.h"
 #include "PlayerMenuServiceProtocol.h"
 
+#import <AppKit/AppKit.h>
+
 //
 // Menu item Helper
 //

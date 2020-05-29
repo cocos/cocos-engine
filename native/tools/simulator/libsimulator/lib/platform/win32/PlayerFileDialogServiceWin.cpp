@@ -78,10 +78,10 @@ std::string PlayerFileDialogServiceWin::saveFile(const std::string &title,
     OPENFILENAME ofn = {0};
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = _hwnd;
-    ofn.lpstrFilter = L"All Files (*.*)\0*.*\0";
+    ofn.lpstrFilter = (LPSTR)L"All Files (*.*)\0*.*\0";
     ofn.lpstrTitle = (LPCTSTR)u16title.c_str();
     ofn.Flags = OFN_DONTADDTORECENT | OFN_ENABLESIZING | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_LONGNAMES;
-    ofn.lpstrFile = buff;
+    ofn.lpstrFile = (LPSTR)buff;
     ofn.nMaxFile = MAX_PATH;
 
     std::string result;
@@ -126,13 +126,13 @@ std::string PlayerFileDialogServiceWin::openDirectory(const std::string &title,
     }
     else
     {
-        GetCurrentDirectory(MAX_PATH, basedir);
+        GetCurrentDirectory(MAX_PATH, (LPSTR)basedir);
     }
 
     WCHAR buff[MAX_PATH + 1] = {0};
     BROWSEINFO bi = {0};
     bi.hwndOwner = _hwnd;
-    bi.pszDisplayName = buff;
+    bi.pszDisplayName = (LPSTR)buff;
     bi.lpszTitle = (LPCTSTR)u16title.c_str();
     bi.lParam = (LPARAM)basedir;
     bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NONEWFOLDERBUTTON | BIF_NEWDIALOGSTYLE;
@@ -141,7 +141,7 @@ std::string PlayerFileDialogServiceWin::openDirectory(const std::string &title,
     PIDLIST_ABSOLUTE pid = SHBrowseForFolder(&bi);
     if (pid)
     {
-        SHGetPathFromIDList(pid, buff);
+        SHGetPathFromIDList(pid, (LPSTR)buff);
         std::string result;
         cocos2d::StringUtils::UTF16ToUTF8((char16_t*)buff, result);
         return result;
@@ -159,7 +159,7 @@ LPTSTR PlayerFileDialogServiceWin::parseExtensions(const std::string &extensions
     {
         WCHAR *buff = new WCHAR[wcslen(defaultExtensions) + 1];
         wcscpy(buff, defaultExtensions);
-        return buff;
+        return (LPSTR)buff;
     }
 
     // 1.
@@ -209,7 +209,7 @@ LPTSTR PlayerFileDialogServiceWin::parseExtensions(const std::string &extensions
         offset += ext.length() + 1;
     }
 
-    return buff;
+    return (LPSTR)buff;
 }
 
 std::vector<std::string> PlayerFileDialogServiceWin::openMultipleInternal(const std::string &title,
@@ -229,7 +229,7 @@ std::vector<std::string> PlayerFileDialogServiceWin::openMultipleInternal(const 
     }
     else
     {
-        GetCurrentDirectory(MAX_PATH, basedir);
+        GetCurrentDirectory(MAX_PATH, (LPSTR)basedir);
     }
 
     size_t buffsize = MAX_PATH;
@@ -242,10 +242,10 @@ std::vector<std::string> PlayerFileDialogServiceWin::openMultipleInternal(const 
     ofn.hwndOwner = _hwnd;
     ofn.lpstrFilter = parseExtensions(extensions);
     ofn.lpstrTitle = (LPCTSTR)u16title.c_str();
-    ofn.lpstrInitialDir = basedir;
+    ofn.lpstrInitialDir = (LPSTR)basedir;
     ofn.Flags = OFN_DONTADDTORECENT | OFN_ENABLESIZING | OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_LONGNAMES;
     if (isMulti) ofn.Flags |= OFN_ALLOWMULTISELECT | OFN_EXPLORER;
-    ofn.lpstrFile = buff;
+    ofn.lpstrFile = (LPSTR)buff;
     ofn.nMaxFile = buffsize;
 
     vector<std::string> result;

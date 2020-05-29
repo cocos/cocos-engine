@@ -25,20 +25,20 @@
  ****************************************************************************/
 
 
-#include <string>
 #import <Cocoa/Cocoa.h>
-
 #import "ConsoleWindowController.h"
+
+#include <string>
 #include "ProjectConfig/ProjectConfig.h"
 #include "ProjectConfig/SimulatorConfig.h"
-#include "AppDelegate.h"
+#include "Game.h"
 
 @interface AppController : NSObject <NSApplicationDelegate, NSWindowDelegate, NSFileManagerDelegate>
 {
     NSWindow *_window;
     NSMenu *menu;
     
-    AppDelegate *_app;
+    Game *_app;
     ProjectConfig _project;
     int _debugLogFile;
     std::string _entryPath;
@@ -57,5 +57,5 @@
 -(BOOL)application:(NSApplication*)app openFile:(NSString*)path;
 -(IBAction)onFileClose:(id)sender;
 -(IBAction)onWindowAlwaysOnTop:(id)sender;
-
+-(NSWindow*)getWindow;
 @end

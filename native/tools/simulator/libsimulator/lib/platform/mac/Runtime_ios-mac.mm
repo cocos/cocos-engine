@@ -33,6 +33,9 @@
 
 #include "ConfigParser.h"
 
+#import <AppKit/AppKit.h>
+
+
 using namespace std;
 
 string getIPAddress()

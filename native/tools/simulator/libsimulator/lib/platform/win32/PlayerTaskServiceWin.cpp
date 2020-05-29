@@ -118,7 +118,7 @@ bool PlayerTaskWin::run()
     wcscpy_s(command, MAX_COMMAND, (WCHAR*)u16command.c_str());
 
     BOOL success = CreateProcess(NULL,
-                                 command,   // command line 
+                                 (LPSTR)command,   // command line 
                                  NULL,      // process security attributes 
                                  NULL,      // primary thread security attributes 
                                  TRUE,      // handles are inherited 
@@ -154,7 +154,7 @@ void PlayerTaskWin::runInTerminal()
 	std::u16string u16command;
 	cocos2d::StringUtils::UTF8ToUTF16(buf.str(), u16command);
 
-	ShellExecute(NULL, NULL, L"CMD.EXE", (WCHAR*)u16command.c_str(), NULL, SW_SHOWNORMAL);
+	ShellExecute(NULL, NULL, (LPCSTR)L"CMD.EXE", (LPCSTR)u16command.c_str(), NULL, SW_SHOWNORMAL);
 }
 
 void PlayerTaskWin::stop()

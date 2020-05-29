@@ -64,7 +64,7 @@ int PlayerMessageBoxServiceWin::showMessageBox(const std::string &title,
     }
 
     // MessageBox() used by cocos2d
-    int result = ::MessageBoxW(_hwnd, (LPCTSTR)u16message.c_str(), (LPCTSTR)u16title.c_str(), mbtype);
+    int result = ::MessageBoxW(_hwnd, (LPCWSTR)u16message.c_str(), (LPCWSTR)u16title.c_str(), mbtype);
 
     switch (result)
     {

@@ -25,6 +25,7 @@
 
 
 #include "PlayerMessageBoxServiceMac.h"
+#import <AppKit/AppKit.h>
 
 PLAYER_NS_BEGIN
 

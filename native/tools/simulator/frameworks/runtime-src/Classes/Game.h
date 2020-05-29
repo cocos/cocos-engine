@@ -23,51 +23,24 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "AppDelegate.h"
+#pragma once
 
-#include "cocos2d.h"
-#include "cocos/scripting/js-bindings/event/EventDispatcher.h"
+#include "platform/CCApplication.h"
 
-#include "ide-support/CodeIDESupport.h"
-#include "runtime/Runtime.h"
-#include "ide-support/RuntimeJsImpl.h"
-USING_NS_CC;
-using namespace std;
-
-AppDelegate::AppDelegate(const std::string& name, int width, int height) : Application(name, width, height)
+/**
+ @brief    The cocos2d Application.
+ 
+ The reason for implement as private inheritance is to hide some interface call by Director.
+ */
+class Game : public cocos2d::Application
 {
-}
-
-AppDelegate::~AppDelegate()
-{
-    // NOTE:Please don't remove this call if you want to debug with Cocos Code IDE
-    RuntimeEngine::getInstance()->end();
-}
-
-bool AppDelegate::applicationDidFinishLaunching()
-{
-    // set default FPS
-    Application::getInstance()->setPreferredFramesPerSecond(60);
-
-    auto runtimeEngine = RuntimeEngine::getInstance();
-    runtimeEngine->setEventTrackingEnable(true);
-    auto jsRuntime = RuntimeJsImpl::create();
-    runtimeEngine->addRuntime(jsRuntime, kRuntimeEngineJs);
-    runtimeEngine->start();
-
-    // Runtime end
-    cocos2d::log("iShow!");
-    return true;
-}
-
-// This function will be called when the app is inactive. When comes a phone call,it's be invoked too
-void AppDelegate::applicationDidEnterBackground()
-{
-    EventDispatcher::dispatchEnterBackgroundEvent();
-}
-
-// this function will be called when the app is active again
-void AppDelegate::applicationWillEnterForeground()
-{
-    EventDispatcher::dispatchEnterForegroundEvent();
-}
+public:
+    /**
+     * width and height in logical pixel unit
+     */
+    Game(int width, int height);
+    virtual ~Game();
+    virtual bool init() override;
+    virtual void onPause() override;
+    virtual void onResume() override;
+};

@@ -42,11 +42,11 @@
 #include <shlguid.h>
 #include <shellapi.h>
 #include <Winuser.h>
+#include <shellapi.h>
+#include <MMSystem.h>
+#include <sstream>
 
 #include "SimulatorWin.h"
-
-#include "glfw3.h"
-#include "glfw3native.h"
 
 #include "AppEvent.h"
 #include "AppLang.h"
@@ -56,9 +56,77 @@
 #include "platform/CCApplication.h"
 #include "platform/win32/PlayerWin.h"
 #include "platform/win32/PlayerMenuServiceWin.h"
-#include "platform/desktop/CCGLView-desktop.h"
+
+#include "platform/CCStdC.h"
+#include "scripting/js-bindings/jswrapper/SeApi.h"
 
 #include "resource.h"
+
+namespace
+{
+    std::weak_ptr<cocos2d::View> gView;
+    /**
+    @brief  This function changes the PVRFrame show/hide setting in register.
+    @param  bEnable If true show the PVRFrame window, otherwise hide.
+    */
+    void PVRFrameEnableControlWindow(bool bEnable)
+    {
+        HKEY hKey = 0;
+
+        // Open PVRFrame control key, if not exist create it.
+        if (ERROR_SUCCESS != RegCreateKeyExW(HKEY_CURRENT_USER,
+            L"Software\\Imagination Technologies\\PVRVFRame\\STARTUP\\",
+            0,
+            0,
+            REG_OPTION_NON_VOLATILE,
+            KEY_ALL_ACCESS,
+            0,
+            &hKey,
+            nullptr))
+        {
+            return;
+        }
+
+        const WCHAR* wszValue = L"hide_gui";
+        const WCHAR* wszNewData = (bEnable) ? L"NO" : L"YES";
+        WCHAR wszOldData[256] = { 0 };
+        DWORD   dwSize = sizeof(wszOldData);
+        LSTATUS status = RegQueryValueExW(hKey, wszValue, 0, nullptr, (LPBYTE)wszOldData, &dwSize);
+        if (ERROR_FILE_NOT_FOUND == status              // the key not exist
+            || (ERROR_SUCCESS == status                 // or the hide_gui value is exist
+                && 0 != wcscmp(wszNewData, wszOldData)))    // but new data and old data not equal
+        {
+            dwSize = sizeof(WCHAR) * (wcslen(wszNewData) + 1);
+            RegSetValueEx(hKey, wszValue, 0, REG_SZ, (const BYTE*)wszNewData, dwSize);
+        }
+
+        RegCloseKey(hKey);
+    }
+
+    bool setCanvasCallback(se::Object* global)
+    {
+        std::stringstream ss;
+        se::ScriptEngine* se = se::ScriptEngine::getInstance();
+        auto view = gView.lock();
+        auto handler = view->getWindowHandler();
+        auto viewSize = view->getViewSize();
+        char commandBuf[200] = { 0 };
+        ss << "window.innerWidth = " << viewSize[0] << "; "
+            << "window.innerHeight = " << viewSize[1] << "; "
+            << "window.windowHandler = "
+            << reinterpret_cast<intptr_t>(handler)
+            << ";";
+
+        se->evalString(ss.str().c_str());
+        return true;
+    }
+}
+
+//exported function
+std::shared_ptr<cocos2d::View> cc_get_application_view() {
+    return gView.lock();
+}
+
 
 USING_NS_CC;
 
@@ -95,18 +163,12 @@ INT_PTR CALLBACK AboutDialogCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
     return (INT_PTR)FALSE;
 }
 
-HWND getWin32Window()
-{
-  auto glfwWindow = ((cocos2d::GLView*)cocos2d::Application::getInstance()->getView())->getGLFWWindow();
-  return glfwGetWin32Window(glfwWindow);
-}
-
 
 void onHelpAbout()
 {
     DialogBox(GetModuleHandle(NULL),
               MAKEINTRESOURCE(IDD_DIALOG_ABOUT),
-              getWin32Window(),
+              cc_get_application_view()->getWindowHandler(),
               AboutDialogCallback);
 }
 
@@ -114,7 +176,7 @@ void onHelpAbout()
 void shutDownApp()
 {
     
-    ::SendMessage(getWin32Window(), WM_CLOSE, NULL, NULL);
+    ::SendMessage(cc_get_application_view()->getWindowHandler(), WM_CLOSE, NULL, NULL);
 }
 
 std::string getCurAppPath(void)
@@ -161,8 +223,7 @@ SimulatorWin *SimulatorWin::getInstance()
 }
 
 SimulatorWin::SimulatorWin()
-    : _app(nullptr)
-    , _hwnd(NULL)
+    : _hwnd(NULL)
     , _hwndConsole(NULL)
     , _writeDebugLogFile(nullptr)
 {
@@ -178,7 +239,7 @@ SimulatorWin::~SimulatorWin()
 
 void SimulatorWin::quit()
 {
-    _app->end();
+    _quit = true;
 }
 
 void SimulatorWin::relaunch()
@@ -401,14 +462,23 @@ int SimulatorWin::run()
     const bool isResize = _project.isResizeWindow();
     std::stringstream title;
     title << "Cocos Simulator (" << _project.getFrameScale() * 100 << "%)";
+    
+    auto frameWidth = (int) (_project.getFrameScale() * frameSize.width);
+    auto frameHeight = (int) (_project.getFrameScale() * frameSize.height);
+
+    _view = std::make_shared<cocos2d::View>(title.str(), frameWidth, frameWidth);
 
     // create opengl view, and init app
-    _app = new AppDelegate(title.str(), _project.getFrameScale() * frameSize.width, _project.getFrameScale() * frameSize.height);
+    _app.reset(new Game(frameWidth, frameHeight));
 
     // path for looking Lang file, Studio Default images
     FileUtils::getInstance()->addSearchPath(getApplicationPath().c_str());
-    
-    _hwnd = getWin32Window();
+
+    if (!_view->init()) return false;
+
+    gView = _view;
+
+    _hwnd = _view->getWindowHandler();
     player::PlayerWin::createWithHwnd(_hwnd);
     DragAcceptFiles(_hwnd, TRUE);
     // SendMessage(_hwnd, WM_SETICON, ICON_BIG, (LPARAM)icon);
@@ -448,8 +518,79 @@ int SimulatorWin::run()
     // update window title
     updateWindowTitle();
 
-    _app->start();
-    CC_SAFE_DELETE(_app);
+    bool resume, pause;
+    se::ScriptEngine::getInstance()->addRegisterCallback(setCanvasCallback);
+
+    if (!_app->init()) return false;
+    _quit = false;
+
+    PVRFrameEnableControlWindow(false);
+
+    ///////////////////////////////////////////////////////////////////////////
+    /////////////// changing timer resolution
+    ///////////////////////////////////////////////////////////////////////////
+    UINT TARGET_RESOLUTION = 1; // 1 millisecond target resolution
+    TIMECAPS tc;
+    UINT wTimerRes = 0;
+    if (TIMERR_NOERROR == timeGetDevCaps(&tc, sizeof(TIMECAPS)))
+    {
+        wTimerRes = std::min(std::max(tc.wPeriodMin, TARGET_RESOLUTION), tc.wPeriodMax);
+        timeBeginPeriod(wTimerRes);
+    }
+
+    float dt = 0.f;
+    const DWORD _16ms = 16;
+
+    // Main message loop:
+    LARGE_INTEGER nFreq;
+    LARGE_INTEGER nLast;
+    LARGE_INTEGER nNow;
+
+    LONGLONG actualInterval = 0LL; // actual frame internal
+    LONGLONG desiredInterval = 0LL; // desired frame internal, 1 / fps
+    LONG waitMS = 0L;
+
+    QueryPerformanceCounter(&nLast);
+    QueryPerformanceFrequency(&nFreq);
+    se::ScriptEngine* se = se::ScriptEngine::getInstance();
+
+
+    _app->onResume();
+
+    while (!_quit)
+    {
+        desiredInterval = (LONGLONG)(1.0 / _app->getPreferredFramesPerSecond() * nFreq.QuadPart);
+
+        while (_view->pollEvent(&_quit, &resume, &pause)) {}
+
+        if (pause) _app->onPause();
+        if (resume) _app->onResume();
+
+        QueryPerformanceCounter(&nNow);
+        actualInterval = nNow.QuadPart - nLast.QuadPart;
+        if (actualInterval >= desiredInterval)
+        {
+            nLast.QuadPart = nNow.QuadPart;
+            _app->tick();
+            _view->swapbuffer();
+        }
+        else
+        {
+            // The precision of timer on Windows is set to highest (1ms) by 'timeBeginPeriod' from above code,
+            // but it's still not precise enough. For example, if the precision of timer is 1ms,
+            // Sleep(3) may make a sleep of 2ms or 4ms. Therefore, we subtract 1ms here to make Sleep time shorter.
+            // If 'waitMS' is equal or less than 1ms, don't sleep and run into next loop to
+            // boost CPU to next frame accurately.
+            waitMS = (desiredInterval - actualInterval) * 1000LL / nFreq.QuadPart - 1L;
+            if (waitMS > 1L)
+                Sleep(waitMS);
+        }
+    }
+
+
+    if (wTimerRes != 0)
+        timeEndPeriod(wTimerRes);
+
     return true;
 }
 
