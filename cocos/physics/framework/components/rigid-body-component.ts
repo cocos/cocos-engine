@@ -450,6 +450,42 @@ export class RigidBodyComponent extends Component {
 
     /**
      * @en
+     * Clear the forces and velocity of the rigid body.
+     * @zh
+     * 清除刚体受到的力和速度。
+     */
+    public clearState () {
+        if (!PHYSICS_BUILTIN && this._assertOnload) {
+            this._body.clearState();
+        }
+    }
+
+    /**
+     * @en
+     * Clear the forces of the rigid body.
+     * @zh
+     * 清除刚体受到的力。
+     */
+    public clearForces () {
+        if (!PHYSICS_BUILTIN && this._assertOnload) {
+            this._body.clearForces();
+        }
+    }
+
+    /**
+     * @en
+     * Clear velocity of the rigid body.
+     * @zh
+     * 清除刚体的速度。
+     */
+    public clearVelocity () {
+        if (!PHYSICS_BUILTIN && this._assertOnload) {
+            this._body.clearVelocity();
+        }
+    }
+
+    /**
+     * @en
      * Gets the linear velocity.
      * @zh
      * 获取线性速度。
