@@ -442,7 +442,10 @@ export class AnimationState extends Eventify(Playable) {
      * @en
      * Whether `LastFrame` should be triggered.
      * @param allowed True if the last frame events may be triggered.
-     * @param aspect DO NOT pass this argument. It's for internal usage.
+     * @param aspect DO NOT pass this argument. It indicates who fired the 'allowLastFrameEvent' request:
+     * either from `AnimationState` itself or from `AnimationComponent`.
+     * Because both `AnimationState` and `AnimationComponent` can subscribe to the 'last-frame' event or not.
+     * We should distinguish here to keep them isolated.
      */
     public allowLastFrameEvent (allowed: boolean, aspect: number = 1) {
         if (allowed) {
