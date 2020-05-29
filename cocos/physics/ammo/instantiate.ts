@@ -10,6 +10,7 @@ import { AmmoCylinderShape } from '../ammo/shapes/ammo-cylinder-shape';
 import { AmmoConeShape } from "../ammo/shapes/ammo-cone-shape";
 import { AmmoTerrainShape } from "../ammo/shapes/ammo-terrain-shape";
 import { AmmoSimpleShape } from "../ammo/shapes/ammo-simple-shape";
+import { AmmoPlaneShape } from "../ammo/shapes/ammo-plane-shape";
 
 if (PHYSICS_AMMO) {
     instantiate({
@@ -23,6 +24,7 @@ if (PHYSICS_AMMO) {
         cone: AmmoConeShape,
         terrain: AmmoTerrainShape,
         simple: AmmoSimpleShape,
+        plane: AmmoPlaneShape,
     });
 }
 

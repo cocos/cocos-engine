@@ -66,3 +66,8 @@ export interface IConeShape extends IBaseShape {
     setHeight: (v: number) => void;
     setDirection: (v: number) => void;
 }
+
+export interface IPlaneShape extends IBaseShape {
+    setNormal: (v: IVec3Like) => void;
+    setConstant: (v: number) => void;
+}

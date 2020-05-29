@@ -16,6 +16,7 @@ import { RigidBodyComponent } from './components/rigid-body-component';
 import { ConstantForce } from './components/constant-force';
 import { TerrainColliderComponent } from './components/collider/terrain-collider-component';
 import { SimpleColliderComponent } from './components/collider/simple-collider-component';
+import { PlaneColliderComponent } from './components/collider/plane-collider-component';
 
 export {
     PhysicsSystem,
@@ -30,6 +31,7 @@ export {
     ConeColliderComponent,
     TerrainColliderComponent,
     SimpleColliderComponent,
+    PlaneColliderComponent,
 
     RigidBodyComponent,
 
