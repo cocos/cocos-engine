@@ -433,10 +433,18 @@ export class AnimationState extends Playable {
         this._destroyBlendStateWriters();
     }
 
+    /**
+     * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
+     * To process animation events, use `AnimationComponent` instead.
+     */
     public emit (...args: any[]) {
         cc.director.getAnimationManager().pushDelayEvent(this, '_emit', args);
     }
 
+    /**
+     * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
+     * To process animation events, use `AnimationComponent` instead.
+     */
     public on (type: string, callback: Function, target?: any) {
         if (this._target && this._target.isValid) {
             return this._target.on(type, callback, target);
@@ -445,6 +453,10 @@ export class AnimationState extends Playable {
         }
     }
 
+    /**
+     * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
+     * To process animation events, use `AnimationComponent` instead.
+     */
     public once (type: string, callback: Function, target?: any) {
         if (this._target && this._target.isValid) {
             return this._target.once(type, callback, target);
@@ -453,6 +465,10 @@ export class AnimationState extends Playable {
         }
     }
 
+    /**
+     * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
+     * To process animation events, use `AnimationComponent` instead.
+     */
     public off (type: string, callback: Function, target?: any) {
         if (this._target && this._target.isValid) {
             this._target.off(type, callback, target);
