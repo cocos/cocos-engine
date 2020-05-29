@@ -631,7 +631,7 @@ export class Game extends EventTarget {
                 else {
                     this.setRenderPipeline(asset);
                 }
-                this.emit(Game.EVENT_GAME_INITED);
+                this._safeEmit(Game.EVENT_GAME_INITED);
                 if (useSplash) {
                     splashScreen.loadFinish = true;
                 }
@@ -641,7 +641,7 @@ export class Game extends EventTarget {
             });
         }
         else {
-            this.emit(Game.EVENT_GAME_INITED);
+            this._safeEmit(Game.EVENT_GAME_INITED);
             if (useSplash) {
                 splashScreen.loadFinish = true;
             }
@@ -719,7 +719,7 @@ export class Game extends EventTarget {
 
         // Log engine version
         console.log('Cocos Creator 3D v' + cc.ENGINE_VERSION);
-        this.emit(Game.EVENT_ENGINE_INITED);
+        this._safeEmit(Game.EVENT_ENGINE_INITED);
         this._inited = true;
     }
 
@@ -1007,7 +1007,21 @@ export class Game extends EventTarget {
         }
 
         this._rendererInitialized = true;
-        this.emit(Game.EVENT_RENDERER_INITED);
+        this._safeEmit(Game.EVENT_RENDERER_INITED);
+    }
+
+    private _safeEmit (event) {
+        if (EDITOR) {
+            try {
+                this.emit(event);
+            }
+            catch (e) {
+                console.warn(e);
+            }
+        }
+        else {
+            this.emit(event);
+        }
     }
 }
 
