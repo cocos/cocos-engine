@@ -311,7 +311,6 @@ export default class TrailModule {
     private _trailModel: Model | null = null;
     private _iaInfo: IGFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer | null = null;
-    private _subMeshData: RenderingSubMesh | null = null;
     private _vertAttrs: IGFXAttribute[];
     private _vbF32: Float32Array | null = null;
     private _vbUint32: Uint32Array | null = null;
@@ -387,7 +386,6 @@ export default class TrailModule {
     }
 
     public destroy () {
-        this.destroySubMeshData();
         if (this._trailModel) {
             cc.director.root.destroyModel(this._trailModel);
             this._trailModel = null;
@@ -616,14 +614,14 @@ export default class TrailModule {
         this._iaInfo.drawInfos[0].indexCount = this._trailNum * 6;
         this._iaInfoBuffer.update(this._iaInfo);
 
-        this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, GFXPrimitiveMode.TRIANGLE_LIST);
-        this._subMeshData.indexBuffer = indexBuffer;
-        this._subMeshData.indirectBuffer = this._iaInfoBuffer;
+        const subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, GFXPrimitiveMode.TRIANGLE_LIST);
+        subMeshData.indexBuffer = indexBuffer;
+        subMeshData.indirectBuffer = this._iaInfoBuffer;
 
         this._trailModel = cc.director.root.createModel(Model);
         this._trailModel!.initialize(this._particleSystem.node);
         this._trailModel!.visFlags = this._particleSystem.visibility;
-        this._trailModel!.setSubModelMesh(0, this._subMeshData);
+        this._trailModel!.setSubModelMesh(0, subMeshData);
         this._trailModel!.enabled = true;
     }
 
@@ -693,13 +691,6 @@ export default class TrailModule {
             currElement.direction = 1 - prevElement.direction;
         } else {
             currElement.direction = prevElement.direction;
-        }
-    }
-
-    private destroySubMeshData () {
-        if (this._subMeshData) {
-            this._subMeshData.destroy();
-            this._subMeshData = null;
         }
     }
 

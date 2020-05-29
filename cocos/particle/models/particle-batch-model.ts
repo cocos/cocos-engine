@@ -55,7 +55,6 @@ export default class ParticleBatchModel extends Model {
     private _vdataUint32: Uint32Array | null;
     private _iaInfo: IGFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer;
-    private _subMeshData: RenderingSubMesh | null;
     private _mesh: Mesh | null;
     private _vertCount: number = 0;
     private _indexCount: number = 0;
@@ -90,7 +89,6 @@ export default class ParticleBatchModel extends Model {
             size: GFX_DRAW_INFO_SIZE,
             stride: 1,
         });
-        this._subMeshData = null;
         this._mesh = null;
     }
 
@@ -122,7 +120,6 @@ export default class ParticleBatchModel extends Model {
     }
 
     public _createSubMeshData (): ArrayBuffer {
-        this.destroySubMeshData();
         this._vertCount = 4;
         this._indexCount = 6;
         if (this._mesh) {
@@ -200,10 +197,10 @@ export default class ParticleBatchModel extends Model {
         }
         this._iaInfoBuffer.update(this._iaInfo);
 
-        this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, GFXPrimitiveMode.TRIANGLE_LIST);
-        this._subMeshData.indexBuffer = indexBuffer;
-        this._subMeshData.indirectBuffer = this._iaInfoBuffer;
-        this.setSubModelMesh(0, this._subMeshData!);
+        const subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, GFXPrimitiveMode.TRIANGLE_LIST);
+        subMeshData.indexBuffer = indexBuffer;
+        subMeshData.indirectBuffer = this._iaInfoBuffer;
+        this.setSubModelMesh(0, subMeshData!);
         return vBuffer;
     }
 
@@ -339,7 +336,6 @@ export default class ParticleBatchModel extends Model {
         super.destroy();
         this._vBuffer = null;
         this._vdataF32 = null;
-        this.destroySubMeshData();
         this._iaInfoBuffer.destroy();
     }
 
@@ -348,12 +344,5 @@ export default class ParticleBatchModel extends Model {
         this.getSubModel(0).updateCommandBuffer();
         this._vdataF32 = new Float32Array(this._vBuffer);
         this._vdataUint32 = new Uint32Array(this._vBuffer);
-    }
-
-    private destroySubMeshData () {
-        if (this._subMeshData) {
-            this._subMeshData.destroy();
-            this._subMeshData = null;
-        }
     }
 }

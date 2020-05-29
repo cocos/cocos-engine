@@ -30,7 +30,6 @@ export class LineModel extends Model {
     private _vdataUint32: Uint32Array | null = null;
     private _iaInfo: IGFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer;
-    private _subMeshData: RenderingSubMesh | null = null;
     private _vertCount: number = 0;
     private _indexCount: number = 0;
 
@@ -75,9 +74,6 @@ export class LineModel extends Model {
     }
 
     public _createSubMeshData (): ArrayBuffer {
-        if (this._subMeshData) {
-            this.destroySubMeshData();
-        }
         this._vertCount = 2;
         this._indexCount = 6;
         const vertexBuffer = this._device.createBuffer({
@@ -114,10 +110,10 @@ export class LineModel extends Model {
         this._iaInfo.drawInfos[0].indexCount = (this._capacity - 1) * this._indexCount;
         this._iaInfoBuffer.update(this._iaInfo);
 
-        this._subMeshData = new RenderingSubMesh([vertexBuffer], _vertex_attrs, GFXPrimitiveMode.TRIANGLE_LIST);
-        this._subMeshData.indexBuffer = indexBuffer;
-        this._subMeshData.indirectBuffer = this._iaInfoBuffer;
-        this.setSubModelMesh(0, this._subMeshData);
+        const subMeshData = new RenderingSubMesh([vertexBuffer], _vertex_attrs, GFXPrimitiveMode.TRIANGLE_LIST);
+        subMeshData.indexBuffer = indexBuffer;
+        subMeshData.indirectBuffer = this._iaInfoBuffer;
+        this.setSubModelMesh(0, subMeshData);
         return vBuffer;
     }
 
@@ -208,12 +204,5 @@ export class LineModel extends Model {
         ia.indexCount = this._indexCount * count;
         this._iaInfo.drawInfos[0] = ia;
         this._iaInfoBuffer.update(this._iaInfo);
-    }
-
-    private destroySubMeshData () {
-        if (this._subMeshData) {
-            this._subMeshData.destroy();
-            this._subMeshData = null;
-        }
     }
 }
