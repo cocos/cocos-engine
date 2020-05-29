@@ -1515,6 +1515,9 @@ export function WebGLCmdFuncBeginRenderPass (
     clearDepth: number,
     clearStencil: number) {
 
+    gfxStateCache.gpuInputAssembler = null;
+    gfxStateCache.gpuShader = null;
+
     const gl = device.gl;
     const cache = device.stateCache;
     let clears: GLbitfield = 0;
@@ -1523,8 +1526,6 @@ export function WebGLCmdFuncBeginRenderPass (
         if (cache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
             gl.bindFramebuffer(gl.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
             cache.glFramebuffer = gpuFramebuffer.glFramebuffer;
-            gfxStateCache.gpuInputAssembler = null;
-            gfxStateCache.gpuShader = null;
         }
 
         if (cache.viewport.left !== renderArea.x ||
@@ -2582,8 +2583,6 @@ export function WebGLCmdFuncDraw (device: WebGLGFXDevice, drawInfo: IGFXDrawInfo
 const cmdIds = new Array<number>(WebGLCmd.COUNT);
 export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: WebGLCmdPackage) {
     cmdIds.fill(0);
-    gfxStateCache.gpuShader = null;
-    gfxStateCache.gpuInputAssembler = null;
 
     for (let i = 0; i < cmdPackage.cmds.length; ++i) {
         const cmd = cmdPackage.cmds.array[i];

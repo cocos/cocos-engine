@@ -823,10 +823,18 @@ export function WebGL2CmdFuncDestroyBuffer (device: WebGL2GFXDevice, gpuBuffer: 
         // can be reproduced in the static batching scene at https://github.com/cocos-creator/test-cases-3d
         switch (gpuBuffer.glTarget) {
             case gl.ARRAY_BUFFER:
+                if (device.useVAO && device.stateCache.glVAO) {
+                    gl.bindVertexArray(null);
+                    device.stateCache.glVAO = null;
+                }
                 gl.bindBuffer(gl.ARRAY_BUFFER, null);
                 device.stateCache.glArrayBuffer = null;
                 break;
             case gl.ELEMENT_ARRAY_BUFFER:
+                if (device.useVAO && device.stateCache.glVAO) {
+                    gl.bindVertexArray(null);
+                    device.stateCache.glVAO = null;
+                }
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
                 device.stateCache.glElementArrayBuffer = null;
                 break;
@@ -1767,6 +1775,9 @@ export function WebGL2CmdFuncBeginRenderPass (
     clearDepth: number,
     clearStencil: number) {
 
+    gfxStateCache.gpuInputAssembler = null;
+    gfxStateCache.gpuShader = null;
+
     const gl = device.gl;
     const cache = device.stateCache;
 
@@ -1776,8 +1787,6 @@ export function WebGL2CmdFuncBeginRenderPass (
         if (cache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
             gl.bindFramebuffer(gl.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
             cache.glFramebuffer = gpuFramebuffer.glFramebuffer;
-            gfxStateCache.gpuInputAssembler = null;
-            gfxStateCache.gpuShader = null;
         }
 
         if (cache.viewport.left !== renderArea.x ||
@@ -2608,8 +2617,6 @@ export function WebGL2CmdFuncDraw (device: WebGL2GFXDevice, drawInfo: IGFXDrawIn
 const cmdIds = new Array<number>(WebGL2Cmd.COUNT);
 export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: WebGL2CmdPackage) {
     cmdIds.fill(0);
-    gfxStateCache.gpuShader = null;
-    gfxStateCache.gpuInputAssembler = null;
 
     for (let i = 0; i < cmdPackage.cmds.length; ++i) {
         const cmd = cmdPackage.cmds.array[i];
