@@ -11,7 +11,7 @@ import { PhysicMaterial } from '../../assets/physic-material';
 import { PhysicsSystem } from '../../physics-system';
 import { Component, error } from '../../../../core';
 import { IBaseShape } from '../../../spec/i-physics-shape';
-import { EDITOR, PHYSICS_BUILTIN } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 
 /**
  * @en
@@ -55,38 +55,32 @@ export class ColliderComponent extends Eventify(Component) {
      * 获取或设置此碰撞器的物理材质，共享状态下获取将会生成新的实例。
      */
     public get material () {
-        if (!PHYSICS_BUILTIN) {
-            if (this._isSharedMaterial && this._material != null) {
-                this._material.off('physics_material_update', this._updateMaterial, this);
-                this._material = this._material.clone();
-                this._material.on('physics_material_update', this._updateMaterial, this);
-                this._isSharedMaterial = false;
-            }
+        if (this._isSharedMaterial && this._material != null) {
+            this._material.off('physics_material_update', this._updateMaterial, this);
+            this._material = this._material.clone();
+            this._material.on('physics_material_update', this._updateMaterial, this);
+            this._isSharedMaterial = false;
         }
         return this._material;
     }
 
     public set material (value) {
         if (!EDITOR) {
-            if (!PHYSICS_BUILTIN) {
-                if (value != null && this._material != null) {
-                    if (this._material._uuid != value._uuid) {
-                        this._material.off('physics_material_update', this._updateMaterial, this);
-                        value.on('physics_material_update', this._updateMaterial, this);
-                        this._isSharedMaterial = false;
-                        this._material = value;
-                    }
-                } else if (value != null && this._material == null) {
+            if (value != null && this._material != null) {
+                if (this._material._uuid != value._uuid) {
+                    this._material.off('physics_material_update', this._updateMaterial, this);
                     value.on('physics_material_update', this._updateMaterial, this);
-                    this._material = value;
-                } else if (value == null && this._material != null) {
-                    this._material!.off('physics_material_update', this._updateMaterial, this);
+                    this._isSharedMaterial = false;
                     this._material = value;
                 }
-                this._updateMaterial();
-            } else {
+            } else if (value != null && this._material == null) {
+                value.on('physics_material_update', this._updateMaterial, this);
+                this._material = value;
+            } else if (value == null && this._material != null) {
+                this._material!.off('physics_material_update', this._updateMaterial, this);
                 this._material = value;
             }
+            this._updateMaterial();
         }
     }
 
@@ -168,13 +162,7 @@ export class ColliderComponent extends Eventify(Component) {
     @property
     protected readonly _center: Vec3 = new Vec3();
 
-    protected get _assertOnload (): boolean {
-        const r = this._isOnLoadCalled == 0;
-        if (r) { error('Physics Error: Please make sure that the node has been added to the scene'); }
-        return !r;
-    }
-
-    constructor () { super() }
+    /// EVENT INTERFACE ///
 
     /**
      * @en
@@ -315,9 +303,7 @@ export class ColliderComponent extends Eventify(Component) {
 
     protected onLoad () {
         if (!EDITOR) {
-            if (!PHYSICS_BUILTIN) {
-                this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
-            }
+            this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
             this._shape.onLoad!();
         }
 
