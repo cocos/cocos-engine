@@ -66,7 +66,8 @@ export class CannonShape implements IBaseShape {
 
     getAABB (v: aabb) {
         Quat.copy(cannonQuat_0, this._collider.node.worldRotation);
-        this._shape.calculateWorldAABB(CANNON.Vec3.ZERO, cannonQuat_0, cannonVec3_0, cannonVec3_1);
+        // TODO: typing
+        (this._shape as any).calculateWorldAABB(CANNON.Vec3.ZERO, cannonQuat_0, cannonVec3_0, cannonVec3_1);
         Vec3.subtract(v.halfExtents, cannonVec3_1, cannonVec3_0);
         Vec3.multiplyScalar(v.halfExtents, v.halfExtents, 0.5);
         Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
