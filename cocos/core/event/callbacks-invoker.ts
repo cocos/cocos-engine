@@ -165,26 +165,6 @@ export class CallbacksInvoker {
     public _callbackTable: ICallbackTable = createMap(true);
 
     /**
-     * After "once subscription" is triggered,
-     * the corresponding `CallbacksInvoker.prototype.off` was going to be called
-     * as a matter of course.
-     * But `Eventify(base).prototype.off` was not called though it should be.
-     * This is because `Eventify(base)` use `CallbacksInvoker` in a composition way.
-     * We do this HACK here to solve this problem temporarily.
-     */
-    private _thisProxy: {
-        off: CallbacksInvoker['off'];
-    };
-
-    /**
-     * 
-     * @param thisProxy Note, this is for special use case. DO NOT take to use this parameter.
-     */
-    constructor (thisProxy?: CallbacksInvoker['_thisProxy']) {
-        this._thisProxy = thisProxy ?? this;
-    }
-
-    /**
      * @zh 向一个事件名注册一个新的事件监听器，包含回调函数和调用者
      * @en Register an event listener to a given event key with callback and target.
      *
@@ -337,7 +317,7 @@ export class CallbacksInvoker {
                     const target = info.target;
                     // Pre off once callbacks to avoid influence on logic in callback
                     if (info.once) {
-                        this._thisProxy.off(key, callback, target);
+                        this.off(key, callback, target);
                     }
                     if (target) {
                         callback.call(target, arg0, arg1, arg2, arg3, arg4);

@@ -128,7 +128,7 @@ export interface IEventified {
  */
 export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & IEventified> {
     return class extends (base as unknown as any) implements IEventified {
-        private _callbacksInvoker: CallbacksInvoker = new CallbacksInvoker(this);
+        private _callbacksInvoker: CallbacksInvoker = new CallbacksInvoker();
 
         public hasEventListener (type: string, callback?: Function, target?: object): boolean {
             return this._callbacksInvoker.hasEventListener(type, callback, target);
