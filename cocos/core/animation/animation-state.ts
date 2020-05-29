@@ -82,7 +82,7 @@ export enum EventType {
      * @en Triggered when the animation playing to the last frame or when finish its playing.
      * @zh 当动画完成播放时，或每当动画播放到最后一帧时触发。
      */
-    LAST_FRAME_ARRIVED = 'last-frame-arrived',
+    ITERATION_END = 'iteration-end',
 }
 ccenum(EventType);
 
@@ -457,7 +457,7 @@ export class AnimationState extends Eventify(Playable) {
 
     public on<TFunction extends Function> (type: string, callback: TFunction, thisArg?: any) {
         if (type === EventType.LASTFRAME ||
-            type === EventType.LAST_FRAME_ARRIVED) {
+            type === EventType.ITERATION_END) {
             this.allowLastFrameEvent(true, stateAspect);
         }
         return super.once(type, callback, thisArg);
@@ -465,7 +465,7 @@ export class AnimationState extends Eventify(Playable) {
 
     public once<TFunction extends Function> (type: string, callback: TFunction, thisArg?: any) {
         if (type === EventType.LASTFRAME ||
-            type === EventType.LAST_FRAME_ARRIVED) {
+            type === EventType.ITERATION_END) {
             this.allowLastFrameEvent(true, stateAspect);
         }
         return super.once(type, callback, thisArg);
@@ -474,8 +474,9 @@ export class AnimationState extends Eventify(Playable) {
     public off<TFunction extends Function> (type: string, callback?: TFunction, thisArg?: any) {
         super.off(type, callback, thisArg);
         if ((type === EventType.LASTFRAME ||
-            type === EventType.LAST_FRAME_ARRIVED) &&
-            this.hasEventListener(type)) {
+            type === EventType.ITERATION_END) &&
+            (this.hasEventListener(EventType.LASTFRAME ||
+            this.hasEventListener(EventType.ITERATION_END)))) {
             this.allowLastFrameEvent(false, stateAspect);
         }
     }
@@ -629,7 +630,7 @@ export class AnimationState extends Eventify(Playable) {
 
             if (this.repeatCount > 1 && ((info.iterations | 0) > (lastInfo.iterations | 0))) {
                 this._delayEmit(EventType.LASTFRAME, this);
-                this._delayEmit(EventType.LAST_FRAME_ARRIVED, this);
+                this._delayEmit(EventType.ITERATION_END, this);
             }
 
             lastInfo.set(info);
@@ -638,7 +639,7 @@ export class AnimationState extends Eventify(Playable) {
         if (info.stopped) {
             this.stop();
             this._delayEmit(EventType.FINISHED, this);
-            this._delayEmit(EventType.LAST_FRAME_ARRIVED, this);
+            this._delayEmit(EventType.ITERATION_END, this);
         }
     }
 
@@ -662,7 +663,7 @@ export class AnimationState extends Eventify(Playable) {
 
             if ((this.time > 0 && this._lastIterations > ratio) || (this.time < 0 && this._lastIterations < ratio)) {
                 this._delayEmit(EventType.LASTFRAME, this);
-                this._delayEmit(EventType.LAST_FRAME_ARRIVED, this);
+                this._delayEmit(EventType.ITERATION_END, this);
             }
 
             this._lastIterations = ratio;
