@@ -190,48 +190,82 @@ export class AmmoWorld implements IPhysicsWorld {
         const numManifolds = this._btDispatcher.getNumManifolds();
         for (let i = 0; i < numManifolds; i++) {
             const manifold = this._btDispatcher.getManifoldByIndexInternal(i);
+            const body0 = manifold.getBody0();
+            const body1 = manifold.getBody1();
+
+            //TODO: SUPPORT CHARACTER EVENT
+            if (body0['useCharacter'] || body1['useCharacter'])
+                continue;
+
+            const isUseCCD = body0['useCCD'] || body1['useCCD'];
             const numContacts = manifold.getNumContacts();
             for (let j = 0; j < numContacts; j++) {
                 const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
-                // const d = manifoldPoint.getDistance();
-                // if (d <= 0) {
-                const s0 = manifoldPoint.getShape0();
-                const s1 = manifoldPoint.getShape1();
-                let shape0: AmmoShape;
-                let shape1: AmmoShape;
-                if (s0.isCompound()) {
-                    const com = Ammo.castObject(s0, Ammo.btCompoundShape) as Ammo.btCompoundShape;
-                    shape0 = (com.getChildShape(manifoldPoint.m_index0) as any).wrapped;
-                } else {
-                    shape0 = (s0 as any).wrapped;
-                }
-
-                if (s1.isCompound()) {
-                    const com = Ammo.castObject(s1, Ammo.btCompoundShape) as Ammo.btCompoundShape;
-                    shape1 = (com.getChildShape(manifoldPoint.m_index1) as any).wrapped;
-                } else {
-                    shape1 = (s1 as any).wrapped;
-                }
-
-                if (shape0.collider.needTriggerEvent ||
-                    shape1.collider.needTriggerEvent ||
-                    shape0.collider.needCollisionEvent ||
-                    shape1.collider.needCollisionEvent
-                ) {
-                    // current contact
-                    var item = this.contactsDic.get(shape0.id, shape1.id) as any;
-                    if (item == null) {
-                        item = this.contactsDic.set(shape0.id, shape1.id,
-                            {
-                                shape0: shape0,
-                                shape1: shape1,
-                                contacts: []
+                const d = manifoldPoint.getDistance();
+                if (d <= 0) {
+                    const s0 = manifoldPoint.getShape0();
+                    const s1 = manifoldPoint.getShape1();
+                    let shape0: AmmoShape;
+                    let shape1: AmmoShape;
+                    if (isUseCCD) {
+                        if (body0['useCCD']) {
+                            shape0 = (body0.getCollisionShape() as any).wrapped;
+                        } else {
+                            const btShape0 = body0.getCollisionShape();
+                            if (btShape0.isCompound()) {
+                                // TODO: SUPPORT COMPOUND COLLISION WITH CCD
+                                continue;
+                            } else {
+                                shape0 = (btShape0 as any).wrapped;
                             }
-                        );
+                        }
+
+                        if (body1['useCCD']) {
+                            shape1 = (body1.getCollisionShape() as any).wrapped;
+                        } else {
+                            const btShape1 = body1.getCollisionShape();
+                            if (btShape1.isCompound()) {
+                                // TODO: SUPPORT COMPOUND COLLISION WITH CCD
+                                continue;
+                            } else {
+                                shape1 = (btShape1 as any).wrapped;
+                            }
+                        }
+                    } else {
+                        if (s0.isCompound()) {
+                            const com = Ammo.castObject(s0, Ammo.btCompoundShape) as Ammo.btCompoundShape;
+                            shape0 = (com.getChildShape(manifoldPoint.m_index0) as any).wrapped;
+                        } else {
+                            shape0 = (s0 as any).wrapped;
+                        }
+
+                        if (s1.isCompound()) {
+                            const com = Ammo.castObject(s1, Ammo.btCompoundShape) as Ammo.btCompoundShape;
+                            shape1 = (com.getChildShape(manifoldPoint.m_index1) as any).wrapped;
+                        } else {
+                            shape1 = (s1 as any).wrapped;
+                        }
                     }
-                    item.contacts.push(manifoldPoint);
+
+                    if (shape0.collider.needTriggerEvent ||
+                        shape1.collider.needTriggerEvent ||
+                        shape0.collider.needCollisionEvent ||
+                        shape1.collider.needCollisionEvent
+                    ) {
+                        // current contact
+                        var item = this.contactsDic.get(shape0.id, shape1.id) as any;
+                        if (item == null) {
+                            item = this.contactsDic.set(shape0.id, shape1.id,
+                                {
+                                    shape0: shape0,
+                                    shape1: shape1,
+                                    contacts: []
+                                }
+                            );
+                        }
+                        item.contacts.push(manifoldPoint);
+                    }
                 }
-                // }
             }
         }
 
