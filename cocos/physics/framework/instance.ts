@@ -3,11 +3,11 @@
  */
 
 import { Vec3 } from '../../core/math';
-import { BoxShape, PhysicsWorld, RigidBody, SphereShape, CapsuleShape, TrimeshShape, CylinderShape } from './physics-selector';
+import { BoxShape, PhysicsWorld, RigidBody, SphereShape, CapsuleShape, TrimeshShape, CylinderShape, TerrainShape } from './physics-selector';
 import { IRigidBody } from '../spec/i-rigid-body';
-import { IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape } from '../spec/i-physics-shape';
+import { IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape, ITerrainShape } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { errorID, warnID } from '../../core';
+import { errorID, warnID, warn } from '../../core';
 import { EDITOR, DEBUG, PHYSICS_BUILTIN, PHYSICS_AMMO, TEST, PHYSICS_CANNON } from 'internal:constants';
 
 export function createPhysicsWorld (): IPhysicsWorld {
@@ -85,6 +85,27 @@ export function createTrimeshShape (): ITrimeshShape {
         const func = () => { };
         return {
             setMesh: func,
+            setMaterial: func,
+            setIsTrigger: func,
+            setCenter: func,
+            initialize: func,
+            onLoad: func,
+            onEnable: func,
+            onDisable: func,
+            onDestroy: func
+        } as any
+    }
+}
+
+export function createTerrainShape (): ITerrainShape {
+    if (PHYSICS_CANNON || PHYSICS_AMMO) {
+        if (DEBUG && checkPhysicsModule(TerrainShape)) { return null as any; }
+        return new TerrainShape() as ITerrainShape;
+    } else {
+        warn("[Physics]: builtin physics system doesn't support cylinder collider");
+        const func = () => { };
+        return {
+            setTerrain: func,
             setMaterial: func,
             setIsTrigger: func,
             setCenter: func,

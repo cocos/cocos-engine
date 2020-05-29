@@ -205,7 +205,23 @@ export class AmmoSharedBody {
             const index = this.bodyStruct.wrappedShapes.indexOf(v);
             if (index < 0) {
                 this.bodyStruct.wrappedShapes.push(v);
-                v.setCompound(this.bodyCompoundShape);
+                if (this.bodyStruct.useCompound) {
+                    v.setCompound(this.bodyCompoundShape);
+                } else {
+                    const l = this.bodyStruct.wrappedShapes.length;
+                    if (l == 1 && !v.needCompound()) {
+                        this.body.setCollisionShape(v.impl);
+                        this.updateByReAdd();
+                    } else {
+                        this.bodyStruct.useCompound = true;
+                        for (let i = 0; i < l; i++) {
+                            const childShape = this.bodyStruct.wrappedShapes[i];
+                            childShape.setCompound(this.bodyCompoundShape);
+                        }
+                        this.body.setCollisionShape(this.bodyStruct.shape);
+                        this.updateByReAdd();
+                    }
+                }
                 this.bodyEnabled = true;
             }
         }

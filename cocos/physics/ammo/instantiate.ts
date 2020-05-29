@@ -7,6 +7,7 @@ import { AmmoSphereShape } from '../ammo/shapes/ammo-sphere-shape';
 import { AmmoCapsuleShape } from '../ammo/shapes/ammo-capsule-shape';
 import { AmmoBvhTriangleMeshShape } from '../ammo/shapes/ammo-bvh-triangle-mesh-shape';
 import { AmmoCylinderShape } from '../ammo/shapes/ammo-cylinder-shape';
+import { AmmoTerrainShape } from "../ammo/shapes/ammo-terrain-shape";
 
 if (PHYSICS_AMMO) {
     instantiate({
@@ -16,7 +17,8 @@ if (PHYSICS_AMMO) {
         world: AmmoWorld,
         capsule: AmmoCapsuleShape,
         trimesh: AmmoBvhTriangleMeshShape,
-        cylinder: AmmoCylinderShape
+        cylinder: AmmoCylinderShape,
+        terrain: AmmoTerrainShape,
     });
 }
 

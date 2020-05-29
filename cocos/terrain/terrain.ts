@@ -21,20 +21,7 @@ import { Model } from '../core/renderer/scene/model';
 import { Root } from '../core/root';
 import { PrivateNode } from '../core/scene-graph/private-node';
 import { HeightField } from './height-field';
-import { TerrainAsset, TerrainLayerInfo } from './terrain-asset';
-
-export const TERRAIN_MAX_LEVELS = 4;
-export const TERRAIN_MAX_BLEND_LAYERS = 4;
-export const TERRAIN_MAX_LAYER_COUNT = 256;
-export const TERRAIN_BLOCK_TILE_COMPLEXITY = 32;
-export const TERRAIN_BLOCK_VERTEX_COMPLEXITY = 33;
-export const TERRAIN_BLOCK_VERTEX_SIZE = 8; // position + normal + uv
-export const TERRAIN_HEIGHT_BASE = 32768;
-export const TERRAIN_HEIGHT_FACTORY = 1.0 / 512.0;
-export const TERRAIN_NORTH_INDEX = 0;
-export const TERRAIN_SOUTH_INDEX = 1;
-export const TERRAIN_WEST_INDEX = 2;
-export const TERRAIN_EAST_INDEX = 3;
+import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY, TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY, TERRAIN_MAX_LAYER_COUNT, } from './terrain-asset';
 
 /**
  * @en Terrain info

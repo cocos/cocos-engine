@@ -13,6 +13,7 @@ import { CylinderColliderComponent } from './components/collider/cylinder-collid
 import { MeshColliderComponent } from './components/collider/mesh-collider-component';
 import { RigidBodyComponent } from './components/rigid-body-component';
 import { ConstantForce } from './components/constant-force';
+import { TerrainColliderComponent } from './components/collider/terrain-collider-component';
 
 export {
     PhysicsSystem,
@@ -24,6 +25,7 @@ export {
     CapsuleColliderComponent,
     MeshColliderComponent,
     CylinderColliderComponent,
+    TerrainColliderComponent,
 
     RigidBodyComponent,
 
