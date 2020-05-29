@@ -1344,6 +1344,16 @@ export class BaseNode extends CCObject implements ISchedulable {
             this._registerIfAttached!(false);
         }
 
+        // Clear event targets
+        const eventTargets = this.__eventTargets;
+        for (let i = 0; i < eventTargets.length; ++i) {
+            const et = eventTargets[i];
+            if (et) {
+                et.targetOff(this);
+            }
+        }
+        eventTargets.length = 0;
+
         // destroy children
         const children = this._children;
         for (let i = 0; i < children.length; ++i) {
@@ -1358,15 +1368,6 @@ export class BaseNode extends CCObject implements ISchedulable {
             // TO DO
             comps[i]._destroyImmediate();
         }
-
-        const eventTargets = this.__eventTargets;
-        for (let i = 0; i < eventTargets.length; ++i) {
-            const et = eventTargets[i];
-            if (et) {
-                et.targetOff(this);
-            }
-        }
-        eventTargets.length = 0;
 
         // remove from persist
         if (this._persistNode) {
