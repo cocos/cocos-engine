@@ -126,7 +126,7 @@ var builtins = {
                 releaseManager.tryRelease(asset, true);
             });
             assets.clear();
-        })
+        });
     }
 }
 

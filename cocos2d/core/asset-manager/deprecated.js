@@ -444,11 +444,19 @@ const loader = {
             for (let i = 0; i < asset.length; i++) {
                 var key = asset[i];
                 if (typeof key === 'string') key = cc.assetManager.assets.get(key);
+                let isBuiltin = cc.assetManager.builtins._assets.find(function (assets) {
+                    return assets.find(builtinAsset => builtinAsset === key);
+                });
+                if (isBuiltin) continue;
                 cc.assetManager.releaseAsset(key);
             }
         }
         else if (asset) {
             if (typeof asset === 'string') asset = cc.assetManager.assets.get(asset);
+            let isBuiltin = cc.assetManager.builtins._assets.find(function (assets) {
+                return assets.find(builtinAsset => builtinAsset === asset);
+            });
+            if (isBuiltin) return;
             cc.assetManager.releaseAsset(asset);
         }
     },
