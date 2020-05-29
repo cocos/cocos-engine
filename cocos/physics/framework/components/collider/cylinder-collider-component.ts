@@ -25,7 +25,7 @@ import { EAxisDirection } from '../../physics-enum';
 @ccclass('cc.CylinderColliderComponent')
 @help('i18n:cc.CylinderColliderComponent')
 @executionOrder(98)
-@menu('Physics/CylinderCollider(beta)')
+@menu('Physics/CylinderCollider')
 @executeInEditMode
 export class CylinderColliderComponent extends ColliderComponent {
     /// PUBLIC PROPERTY GETTER\SETTER ///

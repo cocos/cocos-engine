@@ -25,7 +25,7 @@ import { EDITOR, TEST } from 'internal:constants';
 @ccclass('cc.PlaneColliderComponent')
 @help('i18n:cc.PlaneColliderComponent')
 @executionOrder(98)
-@menu('Physics/PlaneCollider')
+@menu('Physics/PlaneCollider(beta)')
 @executeInEditMode
 export class PlaneColliderComponent extends ColliderComponent {
 

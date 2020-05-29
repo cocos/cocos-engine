@@ -27,7 +27,7 @@ import { IVec3Like } from '../../../../core/math/type-define';
 @ccclass('cc.SimpleColliderComponent')
 @help('i18n:cc.SimpleColliderComponent')
 @executionOrder(98)
-@menu('Physics/SimpleCollider')
+@menu('Physics/SimpleCollider(beta)')
 @executeInEditMode
 export class SimpleColliderComponent extends ColliderComponent {
 

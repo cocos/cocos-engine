@@ -27,7 +27,7 @@ import { TerrainAsset } from '../../../../terrain/terrain-asset';
 @ccclass('cc.TerrainColliderComponent')
 @help('i18n:cc.TerrainColliderComponent')
 @executionOrder(98)
-@menu('Physics/TerrainCollider')
+@menu('Physics/TerrainCollider(beta)')
 @executeInEditMode
 export class TerrainColliderComponent extends ColliderComponent {
 
