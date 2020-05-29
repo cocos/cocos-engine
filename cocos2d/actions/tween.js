@@ -218,8 +218,8 @@ Tween.stopAllByTarget = function (target) {
  * 插入一个 action 或者 tween 到队列中
  * @method then 
  * @param {Action|Tween} other
- * @typescript then (other: Action|Tween<T>): Tween<T>
  * @return {Tween}
+ * @typescript then(other: Action|Tween<T>): Tween<T>
  */
 Tween.prototype.then = function (other) {
     if (other instanceof cc.Action) {
@@ -240,6 +240,7 @@ Tween.prototype.then = function (other) {
  * @method target
  * @param {Object} target
  * @return {Tween}
+ * @typescript target(target: any): Tween<T>
  */
 Tween.prototype.target = function (target) {
     this._target = target;
@@ -253,6 +254,7 @@ Tween.prototype.target = function (target) {
  * 运行当前 tween
  * @method start
  * @return {Tween}
+ * @typescript start(): Tween<T>
  */
 Tween.prototype.start = function () {
     let target = this._target;
@@ -285,6 +287,7 @@ Tween.prototype.start = function () {
  * 停止当前 tween
  * @method stop
  * @return {Tween}
+ * @typescript stop(): Tween<T>
  */
 Tween.prototype.stop = function () {
     if (this._finalAction) {
@@ -300,6 +303,7 @@ Tween.prototype.stop = function () {
  * @method tag
  * @param {number} tag
  * @return {Tween}
+ * @typescript tag(tag: number): Tween<T>
  */
 Tween.prototype.tag = function (tag) {
     this._tag = tag;
@@ -315,6 +319,7 @@ Tween.prototype.tag = function (tag) {
  * @method clone
  * @param {Object} [target]
  * @return {Tween}
+ * @typescript clone(target?: any): Tween<T>
  */
 Tween.prototype.clone = function (target) {
     let action = this._union();
@@ -328,6 +333,7 @@ Tween.prototype.clone = function (target) {
  * 将之前所有的 action 整合为一个 action。
  * @method union
  * @return {Tween}
+ * @typescritp union(): Tween<T>
  */
 Tween.prototype.union = function () {
     let action = this._union();
@@ -359,6 +365,7 @@ Object.assign(Tween.prototype, {
      * @param {cc.Vec2} c2
      * @param {cc.Vec2} to
      * @return {Tween}
+     * @typescript bezierTo(duration: number, c1: Vec2, c2: Vec2, to: Vec2): Tween<T>
      */
     bezierTo (duration, c1, c2, to, opts) {
         let c0x = c1.x, c0y = c1.y,
@@ -381,6 +388,7 @@ Object.assign(Tween.prototype, {
      * @param {cc.Vec2} c2
      * @param {cc.Vec2} to
      * @return {Tween}
+     * @typescript bezierBy(duration: number, c1: Vec2, c2: Vec2, to: Vec2): Tween<T>
      */
     bezierBy (duration, c1, c2, to, opts) {
         let c0x = c1.x, c0y = c1.y,
@@ -400,6 +408,7 @@ Object.assign(Tween.prototype, {
      * !#zh 翻转目标的 scaleX 属性
      * @method flipX
      * @return {Tween}
+     * @typescript flipX(): Tween<T>
      */
     flipX () {
         return this.call(() => { this._target.scaleX *= -1; }, this);
@@ -410,6 +419,7 @@ Object.assign(Tween.prototype, {
      * !#zh 翻转目标的 scaleY 属性
      * @method flipY
      * @return {Tween}
+     * @typescript flipY(): Tween<T>
      */
     flipY () {
         return this.call(() => { this._target.scaleY *= -1; }, this);
@@ -425,6 +435,7 @@ Object.assign(Tween.prototype, {
      * @param {Function} [opts.progress]
      * @param {Function|String} [opts.easing]
      * @return {Tween}
+     * @typescript blink(duration: number, times: number, opts?: {progress?: Function; easing?: Function|string; }): Tween<T>
      */
     blink (duration, times, opts) {
         var slice = 1.0 / times;
@@ -524,6 +535,7 @@ let actions = {
      * @method delay
      * @param {Number} duration
      * @return {Tween}
+     * @typescript delay(duration: number): Tween<T>
      */
     delay: cc.delayTime,
     /**
@@ -534,6 +546,7 @@ let actions = {
      * @method call
      * @param {Function} callback
      * @return {Tween}
+     * @typescript call(callback: Function): Tween<T>
      */
     call: cc.callFunc,
     /**
@@ -543,6 +556,7 @@ let actions = {
      * 添加一个隐藏 action
      * @method hide
      * @return {Tween}
+     * @typescript hide(): Tween<T>
      */
     hide: cc.hide,
     /**
@@ -552,6 +566,7 @@ let actions = {
      * 添加一个显示 action
      * @method show
      * @return {Tween}
+     * @typescript show(): Tween<T>
      */
     show: cc.show,
     /**
@@ -561,6 +576,7 @@ let actions = {
      * 添加一个移除自己 action
      * @method removeSelf
      * @return {Tween}
+     * @typescript removeSelf(): Tween<T>
      */
     removeSelf: cc.removeSelf,
     /**
@@ -571,8 +587,8 @@ let actions = {
      * @method sequence
      * @param {Action|Tween} action
      * @param {Action|Tween} ...actions
-     * @typescript sequence(action: Action|Tween<T>, ...actions: (Action|Tween<T>)[]): Tween<T>
      * @return {Tween}
+     * @typescript sequence(action: Action|Tween<T>, ...actions: (Action|Tween<T>)[]): Tween<T>
      */
     sequence: wrapAction(cc.sequence),
     /**
@@ -583,8 +599,8 @@ let actions = {
      * @method parallel
      * @param {Action|Tween} action
      * @param {Action|Tween} ...actions
-     * @typescript parallel(action: Action|Tween<T>, ...actions: (Action|Tween<T>)[]): Tween<T>
      * @return {Tween}
+     * @typescript parallel(action: Action|Tween<T>, ...actions: (Action|Tween<T>)[]): Tween<T>
      */
     parallel: wrapAction(cc.spawn)
 };
@@ -600,8 +616,8 @@ let previousAsInputActions = {
      * @method repeat
      * @param {Number} repeatTimes
      * @param {Action | Tween} [action]
-     * @typescript repeat(repeatTimes: number, action?: Action|Tween<T>): Tween<T>
      * @return {Tween}
+     * @typescript repeat(repeatTimes: number, action?: Action|Tween<T>): Tween<T>
      */
     repeat: cc.repeat,
     /**
@@ -612,8 +628,8 @@ let previousAsInputActions = {
      * 添加一个永久重复 action，这个 action 会将前一个动作作为他的参数。
      * @method repeatForever
      * @param {Action | Tween} [action]
-     * @typescript repeatForever(action?: Action|Tween<T>): Tween<T>
      * @return {Tween}
+     * @typescript repeatForever(action?: Action|Tween<T>): Tween<T>
      */
     repeatForever: function (action) {
         // TODO: fixed with cc.repeatForever
@@ -627,8 +643,8 @@ let previousAsInputActions = {
      * 添加一个倒置时间 action，这个 action 会将前一个动作作为他的参数。
      * @method reverseTime
      * @param {Action | Tween} [action]
-     * @typescript reverseTime(action?: Action|Tween<T>): Tween<T>
      * @return {Tween}
+     * @typescript reverseTime(action?: Action|Tween<T>): Tween<T>
      */
     reverseTime: cc.reverseTime,
 };
