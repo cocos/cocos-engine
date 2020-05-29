@@ -22,6 +22,8 @@ const _subMeshPool = new Pool(() => {
     return new SubModel();
 }, 32);
 
+const _defaultTransform = new Node();
+
 export interface IInstancedAttribute {
     name: string;
     format: GFXFormat;
@@ -83,7 +85,7 @@ export class Model {
 
     public type = ModelType.DEFAULT;
     public scene: RenderScene | null = null;
-    public node: Node = null!;
+    public node: Node = _defaultTransform;
     public transform: Node = null!;
     public enabled: boolean = true;
     public visFlags = Layers.Enum.NONE;
