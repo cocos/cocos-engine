@@ -79,7 +79,7 @@ Assembler.register(cc.Label, {
 
             if(CC_JSB && !is3DNode && !!jsb.LabelRenderer && label.font instanceof cc.TTFFont){
                 ctor = NativeTTF;
-            } else if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+            } else if (cc.sys.platform === cc.sys.WECHAT_GAME_SUB) {
                 cc.warn('sorry, subdomain does not support CHAR mode currently!');
             } else {
                 ctor = is3DNode ? Letter3D : Letter;
