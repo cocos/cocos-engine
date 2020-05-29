@@ -17,13 +17,13 @@ export class AmmoShape implements IBaseShape {
 
     setMaterial (v: PhysicMaterial | null) {
         if (!this._isTrigger && this._isEnabled && v) {
-            const rollingFriction = Ammo['CC_CONFIG']['rollingFriction'];
             if (this._btCompound) {
-                this._btCompound.setMaterial(this._index, v.friction, v.restitution, rollingFriction);
+                this._btCompound.setMaterial(this._index, v.friction, v.restitution, v.rollingFriction, v.spinningFriction);
             } else {
                 this._sharedBody.body.setFriction(v.friction);
                 this._sharedBody.body.setRestitution(v.restitution);
-                this._sharedBody.body.setRollingFriction(rollingFriction);
+                this._sharedBody.body.setRollingFriction(v.rollingFriction);
+                this._sharedBody.body.setSpinningFriction(v.spinningFriction);
             }
         }
     }

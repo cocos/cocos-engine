@@ -157,6 +157,8 @@ export class AmmoSharedBody {
         const bodyShape = new Ammo.btCompoundShape();
         const rbInfo = new Ammo.btRigidBodyConstructionInfo(0, motionState, bodyShape, localInertia);
         const body = new Ammo.btRigidBody(rbInfo);
+        body.setRollingFriction(Ammo['CC_CONFIG'].rollingFriction);
+        body.setSpinningFriction(Ammo['CC_CONFIG'].spinningFriction);
         this.bodyStruct = {
             'id': sharedIDCounter++,
             'body': body,
@@ -211,6 +213,7 @@ export class AmmoSharedBody {
                     const l = this.bodyStruct.wrappedShapes.length;
                     if (l == 1 && !v.needCompound()) {
                         this.body.setCollisionShape(v.impl);
+                        if (this._wrappedBody) { this._wrappedBody.setMass(this._wrappedBody.rigidBody.mass) }
                         this.updateByReAdd();
                     } else {
                         this.bodyStruct.useCompound = true;
@@ -219,6 +222,7 @@ export class AmmoSharedBody {
                             childShape.setCompound(this.bodyCompoundShape);
                         }
                         this.body.setCollisionShape(this.bodyStruct.shape);
+                        if (this._wrappedBody) { this._wrappedBody.setMass(this._wrappedBody.rigidBody.mass) }
                         this.updateByReAdd();
                     }
                 }
