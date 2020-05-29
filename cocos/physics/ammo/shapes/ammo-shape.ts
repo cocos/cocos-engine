@@ -211,6 +211,10 @@ export class AmmoShape implements IBaseShape {
     updateCompoundTransform () {
         if (this._btCompound) {
             this._btCompound.updateChildTransform(this.index, this.transform, true);
+        } else if (this._isEnabled && !this._isTrigger) {
+            if (this._sharedBody && !this._sharedBody.bodyStruct.useCompound) {
+                this._sharedBody.updateBodyByReAdd();
+            }
         }
     }
 

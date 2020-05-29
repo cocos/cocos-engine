@@ -43,7 +43,7 @@ export class AmmoRigidBody implements IRigidBody {
             shape.calculateLocalInertia(this._rigidBody.mass, localInertia);
         }
         this.impl.setMassProps(value, localInertia);
-        this._sharedBody.updateByReAdd();
+        this._sharedBody.updateBodyByReAdd();
     }
 
     setLinearDamping (value: number) {
@@ -73,7 +73,7 @@ export class AmmoRigidBody implements IRigidBody {
             m_rigidBodyFlag |= AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY;
         }
         this.impl.setFlags(m_rigidBodyFlag);
-        this._sharedBody.updateByReAdd();
+        this._sharedBody.updateBodyByReAdd();
     }
 
     fixRotation (value: boolean) {

@@ -61,7 +61,8 @@ export class AmmoSharedBody {
     set collisionFilterGroup (v: number) {
         if (v != this._collisionFilterGroup) {
             this._collisionFilterGroup = v;
-            this.updateByReAdd();
+            this.updateBodyByReAdd();
+            this.updateGhostByReAdd();
         }
     }
 
@@ -69,7 +70,8 @@ export class AmmoSharedBody {
     set collisionFilterMask (v: number) {
         if (v != this._collisionFilterMask) {
             this._collisionFilterMask = v;
-            this.updateByReAdd();
+            this.updateBodyByReAdd();
+            this.updateGhostByReAdd();
         }
     }
 
@@ -214,7 +216,7 @@ export class AmmoSharedBody {
                     if (l == 1 && !v.needCompound()) {
                         this.body.setCollisionShape(v.impl);
                         if (this._wrappedBody) { this._wrappedBody.setMass(this._wrappedBody.rigidBody.mass) }
-                        this.updateByReAdd();
+                        this.updateBodyByReAdd();
                     } else {
                         this.bodyStruct.useCompound = true;
                         for (let i = 0; i < l; i++) {
@@ -223,7 +225,7 @@ export class AmmoSharedBody {
                         }
                         this.body.setCollisionShape(this.bodyStruct.shape);
                         if (this._wrappedBody) { this._wrappedBody.setMass(this._wrappedBody.rigidBody.mass) }
-                        this.updateByReAdd();
+                        this.updateBodyByReAdd();
                     }
                 }
                 this.bodyEnabled = true;
@@ -324,15 +326,18 @@ export class AmmoSharedBody {
         this.ghost.activate();
     }
 
-    updateByReAdd () {
-        /**
-         * see: https://pybullet.org/Bullet/phpBB3/viewtopic.php?f=9&t=5312&p=19094&hilit=how+to+change+group+mask#p19097
-         */
+    /**
+     * see: https://pybullet.org/Bullet/phpBB3/viewtopic.php?f=9&t=5312&p=19094&hilit=how+to+change+group+mask#p19097
+     */
+    updateBodyByReAdd () {
         if (this.bodyIndex >= 0) {
             this.wrappedWorld.removeSharedBody(this);
             this.wrappedWorld.addSharedBody(this);
             this.bodyIndex = this.wrappedWorld.bodies.length;
         }
+    }
+
+    updateGhostByReAdd () {
         if (this.ghostIndex >= 0) {
             this.wrappedWorld.removeGhostObject(this);
             this.wrappedWorld.addGhostObject(this);
