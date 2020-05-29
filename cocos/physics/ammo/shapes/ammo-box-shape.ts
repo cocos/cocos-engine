@@ -34,9 +34,9 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
         this._btShape = new Ammo.btBoxShape(this.halfExt);
     }
 
-    onLoad () {
-        super.onLoad();
+    onComponentSet () {
         this.setSize(this.collider.size);
+        this.setScale();
     }
 
     onDestroy () {

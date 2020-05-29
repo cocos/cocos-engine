@@ -11,15 +11,6 @@ const v3_0 = new Vec3();
 export class AmmoSphereShape extends AmmoShape implements ISphereShape {
 
     setRadius (radius: number) {
-        // const ws = this._collider.node.worldScale;
-        // const absX = Math.abs(ws.x);
-        // const absY = Math.abs(ws.y);
-        // const absZ = Math.abs(ws.z);
-        // const max_sp = Math.max(Math.max(absX, absY), absZ);
-        // v3_0.set(radius, radius, radius);
-        // v3_0.multiplyScalar(max_sp * 2);
-        // cocos2AmmoVec3(this.scale, v3_0);
-        // this._btShape.setLocalScaling(this.scale);
         this.impl.setUnscaledRadius(radius);
         this.updateCompoundTransform();
     }
@@ -37,9 +28,9 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
         this._btShape = new Ammo.btSphereShape(0.5);
     }
 
-    onLoad () {
-        super.onLoad();
+    onComponentSet () {
         this.setRadius(this.collider.radius);
+        this.setScale();
     }
 
     setScale () {
