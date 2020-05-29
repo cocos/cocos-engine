@@ -34,11 +34,16 @@ export class AmmoRigidBody implements IRigidBody {
         // See https://studiofreya.com/game-maker/bullet-physics/bullet-physics-how-to-change-body-mass/
         const localInertia = this._sharedBody.bodyStruct.localInertia;
         localInertia.setValue(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
-        if (this._btCompoundShape.getNumChildShapes() > 0) {
-            this._btCompoundShape.calculateLocalInertia(this._rigidBody.mass, localInertia);
+        const shape = this.impl.getCollisionShape();
+        if (shape.isCompound()) {
+            if (this._sharedBody.bodyCompoundShape.getNumChildShapes() > 0) {
+                shape.calculateLocalInertia(this._rigidBody.mass, localInertia);
+            }
+        } else {
+            shape.calculateLocalInertia(this._rigidBody.mass, localInertia);
         }
         this.impl.setMassProps(value, localInertia);
-        this._sharedBody.updateByReAdd();
+        this._sharedBody.updateBodyByReAdd();
     }
 
     setLinearDamping (value: number) {
@@ -68,7 +73,7 @@ export class AmmoRigidBody implements IRigidBody {
             m_rigidBodyFlag |= AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY;
         }
         this.impl.setFlags(m_rigidBodyFlag);
-        this._sharedBody.updateByReAdd();
+        this._sharedBody.updateBodyByReAdd();
     }
 
     fixRotation (value: boolean) {
@@ -110,13 +115,25 @@ export class AmmoRigidBody implements IRigidBody {
     private _isEnabled = false;
     private _sharedBody!: AmmoSharedBody;
     private _rigidBody!: RigidBodyComponent;
-    private get _btCompoundShape () { return this._sharedBody.bodyCompoundShape };
 
     private _btVec3_0 = new Ammo.btVector3();
     private _btVec3_1 = new Ammo.btVector3();
 
     constructor () {
         this.id = AmmoRigidBody.idCounter++;
+    }
+
+    clearState (): void {
+        this.impl.clearState();
+    }
+
+    clearVelocity (): void {
+        this.setLinearVelocity(Vec3.ZERO);
+        this.setAngularVelocity(Vec3.ZERO);
+    }
+
+    clearForces (): void {
+        this.impl.clearForces();
     }
 
     /** LIFECYCLE */

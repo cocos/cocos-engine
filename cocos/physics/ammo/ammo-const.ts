@@ -1,5 +1,6 @@
 import Ammo from '@cocos/ammo';
 import { ColliderComponent, TriggerEventType, CollisionEventType, IContactEquation } from '../../../exports/physics-framework';
+import { Vec3 } from '../../core';
 
 export const TriggerEventObject = {
     type: 'onTriggerEnter' as unknown as TriggerEventType,
@@ -21,4 +22,10 @@ export class AmmoConstant {
         return AmmoConstant._instance;
     }
     readonly EMPTY_SHAPE = new Ammo.btEmptyShape();
+    readonly TRANSFORM = new Ammo.btTransform();
+    readonly VECTOR3_0 = new Ammo.btVector3();
+    readonly VECTOR3_1 = new Ammo.btVector3();
+    readonly QUAT_0 = new Ammo.btQuaternion();
 }
+
+export const CC_V3_0 = new Vec3();

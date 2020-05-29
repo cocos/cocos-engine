@@ -164,7 +164,7 @@ export class CannonSharedBody {
         CollisionEventObject.type = event.event;
         const self = getWrap<CannonShape>(event.selfShape);
         const other = getWrap<CannonShape>(event.otherShape);
-        if (self) {
+        if (self && self.collider.needCollisionEvent) {
             CollisionEventObject.selfCollider = self.collider;
             CollisionEventObject.otherCollider = other ? other.collider : null;
             let i = 0;

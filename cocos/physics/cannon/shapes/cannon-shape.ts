@@ -11,13 +11,16 @@ import { Node } from '../../../core';
 import { TriggerEventType } from '../../framework/physics-interface';
 import { PhysicsSystem } from '../../framework/physics-system';
 import { ColliderComponent } from '../../framework';
+import { aabb, sphere } from '../../../core/geometry';
 
 const TriggerEventObject = {
     type: 'onTriggerEnter' as TriggerEventType,
     selfCollider: null as ColliderComponent | null,
     otherCollider: null as ColliderComponent | null,
 };
-
+const cannonQuat_0 = new CANNON.Quaternion();
+const cannonVec3_0 = new CANNON.Vec3();
+const cannonVec3_1 = new CANNON.Vec3();
 export class CannonShape implements IBaseShape {
 
     static readonly idToMaterial = {};
@@ -61,8 +64,21 @@ export class CannonShape implements IBaseShape {
         }
     }
 
-    _collider!: ColliderComponent;
+    getAABB (v: aabb) {
+        Quat.copy(cannonQuat_0, this._collider.node.worldRotation);
+        // TODO: typing
+        (this._shape as any).calculateWorldAABB(CANNON.Vec3.ZERO, cannonQuat_0, cannonVec3_0, cannonVec3_1);
+        Vec3.subtract(v.halfExtents, cannonVec3_1, cannonVec3_0);
+        Vec3.multiplyScalar(v.halfExtents, v.halfExtents, 0.5);
+        Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
+    }
 
+    getBoundingSphere (v: sphere) {
+        v.radius = this._shape.boundingSphereRadius;
+        Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
+    }
+
+    protected _collider!: ColliderComponent;
     protected _shape!: CANNON.Shape;
     protected _offset = new CANNON.Vec3();
     protected _orient = new CANNON.Quaternion();
@@ -181,7 +197,7 @@ export class CannonShape implements IBaseShape {
         const self = getWrap<CannonShape>(event.selfShape);
         const other = getWrap<CannonShape>(event.otherShape);
 
-        if (self) {
+        if (self && self.collider.needTriggerEvent) {
             TriggerEventObject.selfCollider = self.collider;
             TriggerEventObject.otherCollider = other ? other.collider : null;
             this._collider.emit(TriggerEventObject.type, TriggerEventObject);
