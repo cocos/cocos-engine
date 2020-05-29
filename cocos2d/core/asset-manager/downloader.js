@@ -432,7 +432,7 @@ var downloader = {
     download (id, url, type, options, onComplete) {
         var func = downloaders[type] || downloaders['default'];
         var self = this;
-        // if url is downloading, don't download again
+        // if it is downloaded, don't download again
         if (files.has(id)) {
             onComplete(null, files.get(id));
         }
