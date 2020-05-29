@@ -89,36 +89,34 @@ function parse (task) {
                                 config = bundles.get(info.redirect)._config;
                                 info = config.getAssetInfo(info.uuid);
                             }
+
+                            if (!info) {
+                                out.recycle();
+                                throw new Error(`Bundle ${item.bundle} doesn't contain ${item.path}`);
+                            }
                             out.config = config; 
                             out.uuid = info.uuid;
                             out.info = info;
                         }
                         out.ext = item.ext || '.json';
-                        if (!info) {
-                            out.recycle();
-                            throw new Error(`Bundle ${item.bundle} doesn't contain ${item.path}`);
-                        }
                         break;
                     case RequestType.SCENE:
                         if (bundles.has(item.bundle)) {
                             var config = bundles.get(item.bundle)._config;
                             var info = config.getSceneInfo(item.scene);
-                            if (!info) {
-                                throw new Error(`Bundle ${config.name} doesn't contain scene ${item.scene}`);
-                            }
-
+                            
                             if (info && info.redirect) {
                                 if (!bundles.has(info.redirect)) throw new Error(`you need to load bundle ${info.redirect} first`);
                                 config = bundles.get(info.redirect)._config;
                                 info = config.getAssetInfo(info.uuid);
                             }
+                            if (!info) {
+                                out.recycle();
+                                throw new Error(`Bundle ${config.name} doesn't contain scene ${item.scene}`);
+                            }
                             out.config = config; 
                             out.uuid = info.uuid;
                             out.info = info;
-                        }
-                        if (!info) {
-                            out.recycle();
-                            throw new Error(`this bundle ${item.bundle} does not contain scene ${item.scene}`);
                         }
                         break;
                     case '__isNative__': 
