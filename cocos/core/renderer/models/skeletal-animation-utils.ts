@@ -147,7 +147,7 @@ export interface ICustomJointTextureLayout {
 interface IJointAnimInfo {
     downstream?: Mat4; // downstream default pose, if present
     curveData?: Mat4[]; // the nearest animation curve, if present
-    correctionPath?: string; // path of the nearest curve, if downstream pose does not exist
+    bindpose: Mat4; // the actual bindpose to use
 }
 
 // Have to use some big number to replace the actual 'Infinity'.
@@ -303,7 +303,24 @@ export class JointTexturePool {
                     correctionPath = animPath;
                 }
             }
-            animInfos.push({ curveData: source && source.worldMatrix.values as Mat4[], downstream, correctionPath });
+            let bindposeIdx = i;
+            // It is regularly observed that developers may choose to delete the whole skeleton node tree
+            // for skinning models that only use baked animations, to reduce prefab file size.
+            // This becomes troublesome in some cases during baking though, e.g. when a skeleton joint node
+            // is not directly controlled by any animation curve, but its parent nodes are.
+            // Due to the lack of proper downstream default pose, the joint transform can not be calculated accurately.
+            // We address this issue by employing some pragmatic approximation.
+            // Specifically, by multiplying the bindpose of the joint corresponding to the nearest curve, instead of the actual target joint.
+            // It gives more visually-plausible results compared to the naive approach for most cases we've covered.
+            if (correctionPath !== undefined) {
+                bindposeIdx = i - 1; // just use the previous joint if the exact path is not found
+                for (let j = 0; j < totalJoints; j++) {
+                    if (joints[j] === correctionPath) {
+                        bindposeIdx = j; break;
+                    }
+                }
+            }
+            animInfos.push({ curveData: source && source.worldMatrix.values as Mat4[], downstream, bindpose: bindposes[bindposeIdx] });
         }
         let offset = 0;
         for (let frame = 0; frame < frames; frame++) {
@@ -328,25 +345,8 @@ export class JointTexturePool {
                     Vec3.max(bound.halfExtents, bound.halfExtents, v3_4);
                 }
                 if (buildTexture) {
-                    let bindposeIdx = i;
-                    // It is regularly observed that developers may choose to delete the whole skeleton node tree
-                    // for skinning models that only use baked animations, to reduce prefab file size.
-                    // This becomes troublesome in some cases during baking though, e.g. when a skeleton joint node
-                    // is not directly controlled by any animation curve, but its parent nodes are.
-                    // Due to the lack of proper downstream default pose, the joint transform can not be calculated accurately.
-                    // We address this issue by employing some pragmatic approximation.
-                    // Specifically, by multiplying the bindpose of the joint corresponding to the nearest curve, instead of the actual target joint.
-                    // It gives more visually-plausible results compared to the naive approach for most cases we've covered.
-                    if (animInfo.correctionPath !== undefined) {
-                        bindposeIdx = i - 1; // just use the previous joint if the exact path is not found
-                        for (let j = 0; j < totalJoints; j++) {
-                            if (joints[j] === animInfo.correctionPath) {
-                                bindposeIdx = j; break;
-                            }
-                        }
-                    }
                     // no need to apply bindpose if we are rendering the mesh as-is
-                    if (mat !== Mat4.IDENTITY) { mat = Mat4.multiply(m4_1, mat, bindposes[bindposeIdx]); }
+                    if (mat !== Mat4.IDENTITY) { mat = Mat4.multiply(m4_1, mat, animInfo.bindpose); }
                     uploadJointData(textureBuffer, offset, mat, i === 0);
                 }
             }

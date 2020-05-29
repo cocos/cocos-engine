@@ -1523,6 +1523,8 @@ export function WebGLCmdFuncBeginRenderPass (
         if (cache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
             gl.bindFramebuffer(gl.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
             cache.glFramebuffer = gpuFramebuffer.glFramebuffer;
+            gfxStateCache.gpuInputAssembler = null;
+            gfxStateCache.gpuShader = null;
         }
 
         if (cache.viewport.left !== renderArea.x ||
