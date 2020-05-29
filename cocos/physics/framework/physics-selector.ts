@@ -9,6 +9,7 @@ export let SphereShape: any;
 export let CapsuleShape: any;
 export let TrimeshShape: any;
 export let CylinderShape: any;
+export let ConeShape: any;
 export let TerrainShape: any;
 
 export interface IPhysicsWrapperObject {
@@ -19,6 +20,7 @@ export interface IPhysicsWrapperObject {
     capsule?: any,
     trimesh?: any,
     cylinder?: any,
+    cone?: any,
     terrain?: any,
 }
 
@@ -30,5 +32,6 @@ export function instantiate (obj: IPhysicsWrapperObject) {
     if (obj.capsule) { CapsuleShape = obj.capsule; }
     if (obj.trimesh) { TrimeshShape = obj.trimesh; }
     if (obj.cylinder) { CylinderShape = obj.cylinder; }
+    if (obj.cone) { ConeShape = obj.cone; }
     if (obj.terrain) { TerrainShape = obj.terrain; }
 }

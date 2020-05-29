@@ -30,9 +30,7 @@ export class AmmoShape implements IBaseShape {
         Vec3.copy(v3_0, v);
         v3_0.multiply(this._collider.node.worldScale);
         cocos2AmmoVec3(this.transform.getOrigin(), v3_0);
-        if (this._btCompound) {
-            this._btCompound.updateChildTransform(this._index, this.transform, true);
-        }
+        this.updateCompoundTransform();
     }
 
     setAsTrigger (v: boolean) {

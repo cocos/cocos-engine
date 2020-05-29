@@ -92,9 +92,7 @@ export class AmmoTerrainShape extends AmmoShape implements ITerrainShape {
         CC_V3_0.add(this._localOffset);
         CC_V3_0.multiply(this._collider.node.worldScale);
         cocos2AmmoVec3(this.transform.getOrigin(), CC_V3_0);
-        if (this._btCompound) {
-            this._btCompound.updateChildTransform(this._index, this.transform);
-        }
+        this.updateCompoundTransform();
     }
 
     // setScale () {

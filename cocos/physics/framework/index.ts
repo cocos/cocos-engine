@@ -10,6 +10,7 @@ import { ColliderComponent } from './components/collider/collider-component';
 import { SphereColliderComponent } from './components/collider/sphere-collider-component';
 import { CapsuleColliderComponent } from './components/collider/capsule-collider-component';
 import { CylinderColliderComponent } from './components/collider/cylinder-collider-component';
+import { ConeColliderComponent } from './components/collider/cone-collider-component';
 import { MeshColliderComponent } from './components/collider/mesh-collider-component';
 import { RigidBodyComponent } from './components/rigid-body-component';
 import { ConstantForce } from './components/constant-force';
@@ -25,6 +26,7 @@ export {
     CapsuleColliderComponent,
     MeshColliderComponent,
     CylinderColliderComponent,
+    ConeColliderComponent,
     TerrainColliderComponent,
 
     RigidBodyComponent,

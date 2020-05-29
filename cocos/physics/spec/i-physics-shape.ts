@@ -46,3 +46,9 @@ export interface ITrimeshShape extends IBaseShape {
 export interface ITerrainShape extends IBaseShape {
     setTerrain: (v: ITerrainAsset | null) => void;
 }
+
+export interface IConeShape extends IBaseShape {
+    setRadius: (v: number) => void;
+    setHeight: (v: number) => void;
+    setDirection: (v: number) => void;
+}

@@ -11,18 +11,17 @@ const v3_0 = new Vec3();
 export class AmmoSphereShape extends AmmoShape implements ISphereShape {
 
     setRadius (radius: number) {
-        const ws = this._collider.node.worldScale;
-        const absX = Math.abs(ws.x);
-        const absY = Math.abs(ws.y);
-        const absZ = Math.abs(ws.z);
-        const max_sp = Math.abs(Math.max(Math.max(absX, absY), absZ));
-        v3_0.set(radius, radius, radius);
-        v3_0.multiplyScalar(max_sp * 2);
-        cocos2AmmoVec3(this.scale, v3_0);
-        this._btShape.setLocalScaling(this.scale);
-        if (this._btCompound) {
-            this._btCompound.updateChildTransform(this.index, this.transform, true);
-        }
+        // const ws = this._collider.node.worldScale;
+        // const absX = Math.abs(ws.x);
+        // const absY = Math.abs(ws.y);
+        // const absZ = Math.abs(ws.z);
+        // const max_sp = Math.max(Math.max(absX, absY), absZ);
+        // v3_0.set(radius, radius, radius);
+        // v3_0.multiplyScalar(max_sp * 2);
+        // cocos2AmmoVec3(this.scale, v3_0);
+        // this._btShape.setLocalScaling(this.scale);
+        this.impl.setUnscaledRadius(radius);
+        this.updateCompoundTransform();
     }
 
     get impl () {
@@ -45,6 +44,14 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
 
     setScale () {
         super.setScale();
-        this.setRadius(this.collider.radius);
+        const ws = this._collider.node.worldScale;
+        const absX = Math.abs(ws.x);
+        const absY = Math.abs(ws.y);
+        const absZ = Math.abs(ws.z);
+        const max_sp = Math.max(Math.max(absX, absY), absZ);
+        v3_0.set(max_sp, max_sp, max_sp);
+        cocos2AmmoVec3(this.scale, v3_0);
+        this._btShape.setLocalScaling(this.scale);
+        this.updateCompoundTransform();
     }
 }

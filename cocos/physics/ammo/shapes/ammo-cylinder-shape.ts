@@ -16,9 +16,6 @@ export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
             this.collider.direction,
             this._collider.node.worldScale
         );
-        if (this._btCompound) {
-            this._btCompound.updateChildTransform(this.index, this.transform, true);
-        }
     }
 
     setDirection (v: number) {
@@ -28,9 +25,6 @@ export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
             this.collider.direction,
             this._collider.node.worldScale
         );
-        if (this._btCompound) {
-            this._btCompound.updateChildTransform(this.index, this.transform, true);
-        }
     }
 
     setRadius (v: number) {
@@ -40,9 +34,6 @@ export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
             this.collider.direction,
             this._collider.node.worldScale
         );
-        if (this._btCompound) {
-            this._btCompound.updateChildTransform(this.index, this.transform, true);
-        }
     }
 
     get impl () {
@@ -90,6 +81,7 @@ export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
             const halfH = wh / 2;
             this.impl.updateProp(wr, halfH, upAxis);
         }
+        this.updateCompoundTransform();
     }
 
 }
