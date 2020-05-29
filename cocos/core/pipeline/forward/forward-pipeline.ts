@@ -355,7 +355,13 @@ export class ForwardPipeline extends RenderPipeline {
                 if (this._validLights[i].type === LightType.DIRECTIONAL) {
                     _tempLightDist[i] = 0;
                 } else {
-                    _tempLightDist[i] = Vec3.distance((this._validLights[i] as SphereLight | SpotLight).position, model.node.getWorldPosition(_tempVec3));
+                    // Temporary modification
+                    if(model.node){
+                        _tempLightDist[i] = Vec3.distance((this._validLights[i] as SphereLight | SpotLight).position, model.node.getWorldPosition(_tempVec3));
+                    }else{
+                        _tempLightDist[i] = Vec3.distance((this._validLights[i] as SphereLight | SpotLight).position, new Vec3(0.0, 0.0, 0.0));
+                    }
+                    
                 }
             }
         }
