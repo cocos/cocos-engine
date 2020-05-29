@@ -196,7 +196,7 @@ export class CannonShape implements IBaseShape {
         const self = getWrap<CannonShape>(event.selfShape);
         const other = getWrap<CannonShape>(event.otherShape);
 
-        if (self) {
+        if (self && self.collider.needTriggerEvent) {
             TriggerEventObject.selfCollider = self.collider;
             TriggerEventObject.otherCollider = other ? other.collider : null;
             this._collider.emit(TriggerEventObject.type, TriggerEventObject);

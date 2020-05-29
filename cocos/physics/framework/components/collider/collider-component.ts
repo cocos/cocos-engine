@@ -160,12 +160,22 @@ export class ColliderComponent extends Eventify(Component) {
         return this._boundingSphere;
     }
 
+    public get needTriggerEvent () {
+        return this._needTriggerEvent;
+    }
+
+    public get needCollisionEvent () {
+        return this._needCollisionEvent;
+    }
+
     /// PRIVATE PROPERTY ///
 
     protected _shape!: IBaseShape;
     protected _aabb: aabb | null = null;
     protected _boundingSphere: sphere | null = null;
     protected _isSharedMaterial: boolean = true;
+    protected _needTriggerEvent: boolean = false;
+    protected _needCollisionEvent: boolean = false;
 
     @property({ type: PhysicMaterial })
     protected _material: PhysicMaterial | null = null;
@@ -188,7 +198,9 @@ export class ColliderComponent extends Eventify(Component) {
      * @param target - The event callback target.
      */
     public on (type: TriggerEventType | CollisionEventType, callback: Function, target?: Object): any {
-        super.on(type, callback, target);
+        const ret = super.on(type, callback, target);
+        this._updateNeedEvent(type);
+        return ret;
     }
 
     /**
@@ -202,6 +214,7 @@ export class ColliderComponent extends Eventify(Component) {
      */
     public off (type: TriggerEventType | CollisionEventType, callback?: Function, target?: Object) {
         super.off(type, callback, target);
+        this._updateNeedEvent();
     }
 
     /**
@@ -214,7 +227,22 @@ export class ColliderComponent extends Eventify(Component) {
      * @param target - The event callback target.
      */
     public once (type: TriggerEventType | CollisionEventType, callback: Function, target?: Object): any {
-        super.once(type, callback, target);
+        //TODO: callback invoker now is a entity, after `once` will not calling the upper `off`.
+        const ret = super.once(type, callback, target);
+        this._updateNeedEvent(type);
+        return ret;
+    }
+
+    /**
+     * @en
+     * Removes all registered events of the specified target or type.
+     * @zh
+     * 移除所有指定目标或类型的注册事件。
+     * @param typeOrTarget - The event type or target.
+     */
+    public removeAll (typeOrTarget: TriggerEventType | CollisionEventType | {}) {
+        super.removeAll(typeOrTarget);
+        this._updateNeedEvent();
     }
 
     /// GROUP MASK ///
@@ -350,4 +378,21 @@ export class ColliderComponent extends Eventify(Component) {
         }
     }
 
+    private _updateNeedEvent (type?: string) {
+        if (this.isValid) {
+            if (type !== undefined) {
+                if (type == 'onCollisionEnter' || type == 'onCollisionStay' || type == 'onCollisionExit') {
+                    this._needCollisionEvent = true;
+                } else if (type == 'onTriggerEnter' || type == 'onTriggerStay' || type == 'onTriggerExit') {
+                    this._needTriggerEvent = true;
+                }
+            } else {
+                if (!(this.hasEventListener('onTriggerEnter') || this.hasEventListener('onTriggerStay') || this.hasEventListener('onTriggerExit'))) {
+                    this._needTriggerEvent = false;
+                } else if (!(this.hasEventListener('onCollisionEnter') || this.hasEventListener('onCollisionStay') || this.hasEventListener('onCollisionExit'))) {
+                    this._needCollisionEvent = false;
+                }
+            }
+        }
+    }
 }
