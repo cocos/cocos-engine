@@ -16,6 +16,7 @@ public:
     virtual void acquire() override {};
     virtual void present() override;
     virtual GFXWindow* createWindow(const GFXWindowInfo& info) override;
+    virtual GFXFence* createFence(const GFXFenceInfo& info) override;
     virtual GFXQueue* createQueue(const GFXQueueInfo& info) override;
     virtual GFXCommandAllocator* createCommandAllocator(const GFXCommandAllocatorInfo& info) override;
     virtual GFXCommandBuffer* createCommandBuffer(const GFXCommandBufferInfo& info) override;

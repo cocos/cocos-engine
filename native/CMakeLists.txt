@@ -479,6 +479,8 @@ cocos_source_files(
     cocos/renderer/core/gfx/GFXTextureView.h
     cocos/renderer/core/gfx/GFXWindow.cc
     cocos/renderer/core/gfx/GFXWindow.h
+    cocos/renderer/core/gfx/GFXFence.h
+    cocos/renderer/core/gfx/GFXFence.cc
     cocos/renderer/core/kernel/Assertion.cc
     cocos/renderer/core/kernel/Assertion.h
     cocos/renderer/core/kernel/CachedArray.h
@@ -550,6 +552,8 @@ if(CC_USE_GLES2)
         cocos/renderer/gfx-gles2/gles2w.h
         cocos/renderer/gfx-gles2/GLES2Window.cc
         cocos/renderer/gfx-gles2/GLES2Window.h
+        cocos/renderer/gfx-gles2/GLES2Fence.h
+        cocos/renderer/gfx-gles2/GLES2Fence.cc
     )
 
     if(APPLE) 
@@ -610,6 +614,8 @@ if(CC_USE_GLES3)
         cocos/renderer/gfx-gles3/gles3w.h
         cocos/renderer/gfx-gles3/GLES3Window.cc
         cocos/renderer/gfx-gles3/GLES3Window.h
+        cocos/renderer/gfx-gles3/GLES3Fence.h
+        cocos/renderer/gfx-gles3/GLES3Fence.cc
     )
     if(APPLE) 
         cocos_source_files(
@@ -670,6 +676,8 @@ if(CC_USE_METAL)
         cocos/renderer/gfx-metal/MTLUtils.mm
         cocos/renderer/gfx-metal/MTLWindow.h
         cocos/renderer/gfx-metal/MTLWindow.mm
+        cocos/renderer/gfx-metal/MTLFence.h
+        cocos/renderer/gfx-metal/MTLFence.mm
     )
 endif()
 
@@ -719,6 +727,8 @@ if(CC_USE_VULKAN)
         cocos/renderer/gfx-vulkan/VKUtils.h
         cocos/renderer/gfx-vulkan/VKWindow.cc
         cocos/renderer/gfx-vulkan/VKWindow.h
+        cocos/renderer/gfx-vulkan/VKFence.h
+        cocos/renderer/gfx-vulkan/VKFence.cc
         cocos/renderer/gfx-vulkan/volk.h
         cocos/renderer/gfx-vulkan/volk.c
     )

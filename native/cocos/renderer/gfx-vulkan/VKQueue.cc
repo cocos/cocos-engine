@@ -1,6 +1,7 @@
 #include "VKStd.h"
 #include "VKQueue.h"
 #include "VKDevice.h"
+#include "VKFence.h"
 #include "VKCommands.h"
 #include "VKCommandBuffer.h"
 
@@ -38,7 +39,7 @@ void CCVKQueue::destroy()
     _status = GFXStatus::UNREADY;
 }
 
-void CCVKQueue::submit(const std::vector<GFXCommandBuffer*>& cmdBuffs)
+void CCVKQueue::submit(const std::vector<GFXCommandBuffer*>& cmdBuffs, GFXFence* fence)
 {
     if (!_isAsync)
     {
@@ -62,7 +63,8 @@ void CCVKQueue::submit(const std::vector<GFXCommandBuffer*>& cmdBuffs)
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = &_gpuQueue->nextSignalSemaphore;
 
-        VK_CHECK(vkQueueSubmit(_gpuQueue->vkQueue, 1, &submitInfo, VK_NULL_HANDLE));
+        VkFence vkFence = fence ? ((CCVKFence*)fence)->gpuFence()->vkFence : VK_NULL_HANDLE;
+        VK_CHECK(vkQueueSubmit(_gpuQueue->vkQueue, 1, &submitInfo, vkFence));
 
         _gpuQueue->nextWaitSemaphore = _gpuQueue->nextSignalSemaphore;
         _gpuQueue->nextSignalSemaphore = ((CCVKDevice*)_device)->gpuSemaphorePool()->alloc();

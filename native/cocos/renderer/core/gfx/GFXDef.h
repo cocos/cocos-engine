@@ -17,6 +17,7 @@ class GFXPipelineLayout;
 class GFXPipelineState;
 class GFXCommandAllocator;
 class GFXCommandBuffer;
+class GFXFence;
 class GFXQueue;
 class GFXWindow;
 class GFXContext;
@@ -43,6 +44,7 @@ enum class GFXObjectType : uint8_t {
     INPUT_ASSEMBLER,
     COMMAND_ALLOCATOR,
     COMMAND_BUFFER,
+    FENCE,
     QUEUE,
     WINDOW,
 };
@@ -802,7 +804,7 @@ struct GFXAttribute {
   bool isNormalized = false;
   uint stream = 0;
   bool isInstanced = false;
-    uint location = 0;
+  uint location = 0;
 };
 
 typedef vector<GFXAttribute>::type GFXAttributeList;
@@ -998,6 +1000,9 @@ struct GFXCommandBufferInfo {
 
 struct GFXQueueInfo {
   GFXQueueType type;
+};
+
+struct GFXFenceInfo {
 };
 
 struct GFXFormatInfo {

@@ -40,15 +40,11 @@ public:
     CCVKGPUCommandBuffer* gpuCommandBuffer() const { return _gpuCommandBuffer; }
 
 private:
-    void BindStates();
-
-private:
     CCVKGPUCommandBuffer* _gpuCommandBuffer = nullptr;
 
     CCVKGPUPipelineState* _curGPUPipelineState = nullptr;
     CCVKGPUBindingLayout* _curGPUBindingLayout = nullptr;
     CCVKGPUInputAssembler* _curGPUInputAssember = nullptr;
-
     CCVKGPUFramebuffer* _curGPUFBO = nullptr;
 
     GFXViewport _curViewport;
@@ -59,7 +55,6 @@ private:
     CCVKDepthBounds _curDepthBounds;
     CCVKStencilWriteMask _curStencilWriteMask;
     CCVKStencilCompareMask _curStencilCompareMask;
-    bool _isStateInvalid = false;
 };
 
 NS_CC_END

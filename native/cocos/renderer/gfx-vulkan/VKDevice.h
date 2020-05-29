@@ -26,6 +26,7 @@ public:
     void acquire() override;
     void present() override;
     GFXWindow* createWindow(const GFXWindowInfo& info) override;
+    GFXFence* createFence(const GFXFenceInfo& info) override;
     GFXQueue* createQueue(const GFXQueueInfo& info) override;
     GFXCommandAllocator* createCommandAllocator(const GFXCommandAllocatorInfo& info) override;
     GFXCommandBuffer* createCommandBuffer(const GFXCommandBufferInfo& info) override;

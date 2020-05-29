@@ -22,6 +22,11 @@ namespace
         {
             return VK_FALSE;
         }
+        // TODO: handle the few frames with no command submission at start up
+        if (!strcmp(callbackData->pMessageIdName, "VUID-VkPresentInfoKHR-pImageIndices-01296"))
+        {
+            return VK_FALSE;
+        }
 
         // Log debug messge
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
@@ -88,6 +93,7 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
         vector<const char *>::type requestedExtensions
         {
             VK_KHR_SURFACE_EXTENSION_NAME,
+            VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
         };
 
         ///////////////////// Instance Creation /////////////////////
@@ -194,6 +200,10 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
 
         uint apiVersion;
         vkEnumerateInstanceVersion(&apiVersion);
+        //apiVersion = VK_API_VERSION_1_0;
+
+        _majorVersion = VK_VERSION_MAJOR(apiVersion);
+        _minorVersion = VK_VERSION_MINOR(apiVersion);
 
         VkApplicationInfo app{ VK_STRUCTURE_TYPE_APPLICATION_INFO };
         app.pEngineName = "Cocos Creator";
@@ -241,9 +251,6 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
             VK_CHECK(vkCreateDebugReportCallbackEXT(_gpuContext->vkInstance, &debugReportCreateInfo, nullptr, &_gpuContext->vkDebugReport));
         }
 #endif
-
-        _majorVersion = VK_VERSION_MAJOR(apiVersion);
-        _minorVersion = VK_VERSION_MINOR(apiVersion);
 
         ///////////////////// Surface Creation /////////////////////
 
@@ -313,6 +320,13 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
         _gpuContext->physicalDevice = physicalDeviceHandles[deviceIndex];
         _gpuContext->physicalDeviceProperties = physicalDeviceProperties[deviceIndex];
         vkGetPhysicalDeviceFeatures(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceFeatures);
+        _gpuContext->physicalDeviceFeatures2.pNext = &_gpuContext->physicalDeviceVulkan11Features;
+        _gpuContext->physicalDeviceVulkan11Features.pNext = &_gpuContext->physicalDeviceVulkan12Features;
+        if (_minorVersion >= 1 || checkExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME))
+        {
+            vkGetPhysicalDeviceFeatures2(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceFeatures2);
+        }
+
         vkGetPhysicalDeviceMemoryProperties(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceMemoryProperties);
         uint queueFamilyPropertiesCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(_gpuContext->physicalDevice, &queueFamilyPropertiesCount, nullptr);

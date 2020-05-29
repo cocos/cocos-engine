@@ -17,6 +17,7 @@
 #include "MTLTextureView.h"
 #include "MTLSampler.h"
 #include "MTLUtils.h"
+#include "MTLFence.h"
 #include <platform/mac/CCView.h>
 #import <MetalKit/MTKView.h>
 
@@ -142,6 +143,16 @@ GFXWindow* CCMTLDevice::createWindow(const GFXWindowInfo& info)
         return window;
     
     CC_SAFE_DESTROY(window);
+    return nullptr;
+}
+
+GFXFence* CCMTLDevice::createFence(const GFXFenceInfo& info)
+{
+    auto fence = CC_NEW(CCMTLFence(this) );
+    if (fence && fence->initialize(info) )
+        return fence;
+    
+    CC_SAFE_DESTROY(fence);
     return nullptr;
 }
 

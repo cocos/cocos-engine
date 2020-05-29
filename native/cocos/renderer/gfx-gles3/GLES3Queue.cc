@@ -23,7 +23,7 @@ void GLES3Queue::destroy() {
   _status = GFXStatus::UNREADY;
 }
 
-void GLES3Queue::submit(const std::vector<GFXCommandBuffer*>& cmd_buffs) {
+void GLES3Queue::submit(const std::vector<GFXCommandBuffer*>& cmd_buffs, GFXFence* fence) {
   if (!_isAsync) {
     uint count = static_cast<uint>(cmd_buffs.size());
     for (uint i = 0; i < count; ++i) {

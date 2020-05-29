@@ -25,19 +25,15 @@
 
 #include "main.h"
 #include "AppDelegate.h"
+#include "sdl2/SDL.h"
 
 USING_NS_CC;
 
 // uncomment below line, open debug console
 // #define USE_WIN32_CONSOLE
 
-int APIENTRY _tWinMain(HINSTANCE hInstance,
-                       HINSTANCE hPrevInstance,
-                       LPTSTR    lpCmdLine,
-                       int       nCmdShow)
+int SDL_main(int argc, char *argv[])
 {
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
 
 #ifdef USE_WIN32_CONSOLE
     AllocConsole();

@@ -11,6 +11,32 @@
 
 NS_CC_BEGIN
 
+void InsertVkDynamicStates(vector<VkDynamicState>::type& out, const vector<GFXDynamicState>::type& dynamicStates)
+{
+    for (GFXDynamicState dynamicState : dynamicStates)
+    {
+        switch (dynamicState)
+        {
+        case GFXDynamicState::VIEWPORT: break; // we make this dynamic by default
+        case GFXDynamicState::SCISSOR: break; // we make this dynamic by default
+        case GFXDynamicState::LINE_WIDTH: out.push_back(VK_DYNAMIC_STATE_LINE_WIDTH); break;
+        case GFXDynamicState::DEPTH_BIAS: out.push_back(VK_DYNAMIC_STATE_DEPTH_BIAS); break;
+        case GFXDynamicState::BLEND_CONSTANTS: out.push_back(VK_DYNAMIC_STATE_BLEND_CONSTANTS); break;
+        case GFXDynamicState::DEPTH_BOUNDS: out.push_back(VK_DYNAMIC_STATE_DEPTH_BOUNDS); break;
+        case GFXDynamicState::STENCIL_WRITE_MASK: out.push_back(VK_DYNAMIC_STATE_STENCIL_WRITE_MASK); break;
+        case GFXDynamicState::STENCIL_COMPARE_MASK:
+            out.push_back(VK_DYNAMIC_STATE_STENCIL_REFERENCE);
+            out.push_back(VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK);
+            break;
+        default:
+        {
+            CCASSERT(false, "Unsupported GFXPrimitiveMode, convert to VkPrimitiveTopology failed.");
+            break;
+        }
+        }
+    }
+}
+
 void beginOneTimeCommands(CCVKDevice* device, CCVKGPUCommandBuffer* cmdBuff)
 {
     cmdBuff->commandPool = ((CCVKCommandAllocator*)device->getCommandAllocator())->gpuCommandPool();
@@ -194,7 +220,7 @@ void CCVKCmdFuncCreateCommandPool(CCVKDevice* device, CCVKGPUCommandPool* gpuCom
 {
     VkCommandPoolCreateInfo createInfo{ VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
     createInfo.queueFamilyIndex = ((CCVKQueue*)device->getQueue())->gpuQueue()->queueFamilyIndex;
-    createInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+    createInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
     VK_CHECK(vkCreateCommandPool(device->gpuDevice()->vkDevice, &createInfo, nullptr, &gpuCommandPool->vkCommandPool));
 }
@@ -265,7 +291,7 @@ void CCVKCmdFuncCreateBuffer(CCVKDevice* device, CCVKGPUBuffer* gpuBuffer)
 
     VmaAllocationInfo res;
     VK_CHECK(vmaCreateBuffer(device->gpuDevice()->memoryAllocator, &bufferInfo, &allocInfo, &gpuBuffer->vkBuffer, &gpuBuffer->vmaAllocation, &res));
-    CC_LOG_DEBUG("Allocated buffer: %llu, %llx %llx %llu", res.size, gpuBuffer->vkBuffer, res.deviceMemory, res.offset);
+    //CC_LOG_DEBUG("Allocated buffer: %llu, %llx %llx %llu", res.size, gpuBuffer->vkBuffer, res.deviceMemory, res.offset);
     gpuBuffer->mappedData = (uint8_t*)res.pMappedData;
 }
 
@@ -341,7 +367,7 @@ bool CCVKCmdFuncCreateTexture(CCVKDevice* device, CCVKGPUTexture* gpuTexture)
 
     VmaAllocationInfo res;
     VK_CHECK(vmaCreateImage(device->gpuDevice()->memoryAllocator, &createInfo, &allocInfo, &gpuTexture->vkImage, &gpuTexture->vmaAllocation, &res));
-    CC_LOG_DEBUG("Allocated texture: %llu %llx %llx %llu", res.size, gpuTexture->vkImage, res.deviceMemory, res.offset);
+    //CC_LOG_DEBUG("Allocated texture: %llu %llx %llx %llu", res.size, gpuTexture->vkImage, res.deviceMemory, res.offset);
 
     gpuTexture->currentLayout = MapVkImageLayout(gpuTexture->usage, gpuTexture->format);
     gpuTexture->accessMask = MapVkAccessFlags(gpuTexture->usage, gpuTexture->format);
@@ -711,7 +737,7 @@ void CCVKCmdFuncCreatePipelineState(CCVKDevice* device, CCVKGPUPipelineState* gp
     for (size_t i = 0u; i < attributeCount; i++)
     {
         const GFXAttribute &attr = attributes[i];
-        attributeDescriptions[i].location = i;
+        attributeDescriptions[i].location = attr.location;
         attributeDescriptions[i].binding = attr.stream;
         attributeDescriptions[i].format = MapVkFormat(attr.format);
         attributeDescriptions[i].offset = offsets[attr.stream];
@@ -888,7 +914,7 @@ void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice* device, uint8_t* const* buffers
         stagingRegion.imageExtent = { region.texExtent.width, region.texExtent.height, region.texExtent.depth };
 
         memcpy(stagingBuffer->mappedData + offset, buffers[i], regionSizes[i]);
-        offset += regionSizes[i++];
+        offset += regionSizes[i];
     }
 
     CCVKGPUCommandBuffer cmdBuff;
@@ -914,6 +940,11 @@ void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice* device, uint8_t* const* buffers
     vkCmdCopyBufferToImage(cmdBuff.vkCommandBuffer, stagingBuffer->vkBuffer, gpuTexture->vkImage,
         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, stagingRegions.size(), stagingRegions.data());
 
+    if (gpuTexture->flags & GFXTextureFlags::GEN_MIPMAP)
+    {
+
+    }
+
     if (gpuTexture->currentLayout != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
     {
         VkImageMemoryBarrier barrier{ VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
@@ -929,11 +960,6 @@ void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice* device, uint8_t* const* buffers
         barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
         vkCmdPipelineBarrier(cmdBuff.vkCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, gpuTexture->targetStage, 0,
             0, nullptr, 0, nullptr, 1, &barrier);
-    }
-
-    if (gpuTexture->flags & GFXTextureFlags::GEN_MIPMAP)
-    {
-
     }
 
     endOneTimeCommands(device, &cmdBuff);

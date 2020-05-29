@@ -22,6 +22,7 @@
 #include "gfx/GFXPipelineState.h"
 #include "gfx/GFXCommandAllocator.h"
 #include "gfx/GFXCommandBuffer.h"
+#include "gfx/GFXFence.h"
 #include "gfx/GFXQueue.h"
 #include "gfx/GFXCommand.h"
 #include "gfx/GFXCommandPool.h"

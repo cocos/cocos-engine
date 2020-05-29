@@ -17,6 +17,7 @@ class CC_CORE_API GFXDevice : public Object {
   virtual void acquire() = 0;
   virtual void present() = 0;
   virtual GFXWindow* createWindow(const GFXWindowInfo& info) = 0;
+  virtual GFXFence* createFence(const GFXFenceInfo& info) = 0;
   virtual GFXQueue* createQueue(const GFXQueueInfo& info) = 0;
   virtual GFXCommandAllocator* createCommandAllocator(const GFXCommandAllocatorInfo& info) = 0;
   virtual GFXCommandBuffer* createCommandBuffer(const GFXCommandBufferInfo& info) = 0;

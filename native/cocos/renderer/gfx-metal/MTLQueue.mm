@@ -43,7 +43,7 @@ void CCMTLQueue::destroy()
     _status = GFXStatus::UNREADY;
 }
 
-void CCMTLQueue::submit(const std::vector<GFXCommandBuffer*>& cmd_buffs)
+void CCMTLQueue::submit(const std::vector<GFXCommandBuffer*>& cmd_buffs, GFXFence* fence)
 {
     // Should remove USE_METAL aftr switch to use metal.
 #ifdef USE_METAL

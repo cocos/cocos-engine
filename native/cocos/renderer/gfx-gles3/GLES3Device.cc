@@ -3,6 +3,7 @@
 #include "GLES3StateCache.h"
 #include "GLES3Context.h"
 #include "GLES3Window.h"
+#include "GLES3Fence.h"
 #include "GLES3Queue.h"
 #include "GLES3CommandAllocator.h"
 #include "GLES3CommandBuffer.h"
@@ -169,131 +170,141 @@ void GLES3Device::present()
 
 GFXWindow* GLES3Device::createWindow(const GFXWindowInfo& info)
 {
-    GFXWindow* gfx_window = CC_NEW(GLES3Window(this));
-    if (gfx_window->initialize(info))
-        return gfx_window;
+    GFXWindow* window = CC_NEW(GLES3Window(this));
+    if (window->initialize(info))
+        return window;
 
-    CC_SAFE_DESTROY(gfx_window);
+    CC_SAFE_DESTROY(window);
+    return nullptr;
+}
+
+GFXFence* GLES3Device::createFence(const GFXFenceInfo& info)
+{
+    GFXFence* fence = CC_NEW(GLES3Fence(this));
+    if (fence->initialize(info))
+        return fence;
+
+    CC_SAFE_DESTROY(fence);
     return nullptr;
 }
 
 GFXQueue* GLES3Device::createQueue(const GFXQueueInfo& info)
 {
-    GFXQueue* gfx_queue = CC_NEW(GLES3Queue(this));
-    if (gfx_queue->initialize(info))
-        return gfx_queue;
+    GFXQueue* queue = CC_NEW(GLES3Queue(this));
+    if (queue->initialize(info))
+        return queue;
 
-    CC_SAFE_DESTROY(gfx_queue);
+    CC_SAFE_DESTROY(queue);
     return nullptr;
 }
 
 GFXCommandAllocator* GLES3Device::createCommandAllocator(const GFXCommandAllocatorInfo& info)
 {
-    GFXCommandAllocator* gfx_cmd_allocator = CC_NEW(GLES3CommandAllocator(this));
-    if (gfx_cmd_allocator->initialize(info))
-        return gfx_cmd_allocator;
+    GFXCommandAllocator* cmdAllocator = CC_NEW(GLES3CommandAllocator(this));
+    if (cmdAllocator->initialize(info))
+        return cmdAllocator;
 
-    CC_SAFE_DESTROY(gfx_cmd_allocator);
+    CC_SAFE_DESTROY(cmdAllocator);
     return nullptr;
 }
 
 GFXCommandBuffer* GLES3Device::createCommandBuffer(const GFXCommandBufferInfo& info)
 {
-    GFXCommandBuffer* gfx_cmd_buff = CC_NEW(GLES3CommandBuffer(this));
-    if (gfx_cmd_buff->initialize(info))
-        return gfx_cmd_buff;
+    GFXCommandBuffer* cmd_buff = CC_NEW(GLES3CommandBuffer(this));
+    if (cmd_buff->initialize(info))
+        return cmd_buff;
 
-    CC_SAFE_DESTROY(gfx_cmd_buff)
+    CC_SAFE_DESTROY(cmd_buff)
     return nullptr;
 }
 
 GFXBuffer* GLES3Device::createBuffer(const GFXBufferInfo& info)
 {
-    GFXBuffer* gfx_buffer = CC_NEW(GLES3Buffer(this));
-    if (gfx_buffer->initialize(info))
-        return gfx_buffer;
+    GFXBuffer* buffer = CC_NEW(GLES3Buffer(this));
+    if (buffer->initialize(info))
+        return buffer;
 
-    CC_SAFE_DESTROY(gfx_buffer);
+    CC_SAFE_DESTROY(buffer);
     return nullptr;
 }
 
 GFXTexture* GLES3Device::createTexture(const GFXTextureInfo& info)
 {
-    GFXTexture* gfx_texture = CC_NEW(GLES3Texture(this));
-    if (gfx_texture->initialize(info))
-        return gfx_texture;
+    GFXTexture* texture = CC_NEW(GLES3Texture(this));
+    if (texture->initialize(info))
+        return texture;
 
-    CC_SAFE_DESTROY(gfx_texture);
+    CC_SAFE_DESTROY(texture);
     return nullptr;
 }
 
 GFXTextureView* GLES3Device::createTextureView(const GFXTextureViewInfo& info)
 {
-    GFXTextureView* gfx_tex_view = CC_NEW(GLES3TextureView(this));
-    if (gfx_tex_view->initialize(info))
-        return gfx_tex_view;
+    GFXTextureView* texView = CC_NEW(GLES3TextureView(this));
+    if (texView->initialize(info))
+        return texView;
 
-    CC_SAFE_DESTROY(gfx_tex_view);
+    CC_SAFE_DESTROY(texView);
     return nullptr;
 }
 
 GFXSampler* GLES3Device::createSampler(const GFXSamplerInfo& info)
 {
-    GFXSampler* gfx_sampler = CC_NEW(GLES3Sampler(this));
-    if (gfx_sampler->initialize(info))
-        return gfx_sampler;
+    GFXSampler* sampler = CC_NEW(GLES3Sampler(this));
+    if (sampler->initialize(info))
+        return sampler;
 
-    CC_SAFE_DESTROY(gfx_sampler);
+    CC_SAFE_DESTROY(sampler);
     return nullptr;
 }
 
 GFXShader* GLES3Device::createShader(const GFXShaderInfo& info)
 {
-    GFXShader* gfx_shader = CC_NEW(GLES3Shader(this));
-    if (gfx_shader->initialize(info))
-        return gfx_shader;
+    GFXShader* shader = CC_NEW(GLES3Shader(this));
+    if (shader->initialize(info))
+        return shader;
 
-    CC_SAFE_DESTROY(gfx_shader);
+    CC_SAFE_DESTROY(shader);
     return nullptr;
 }
 
 GFXInputAssembler* GLES3Device::createInputAssembler(const GFXInputAssemblerInfo& info)
 {
-    GFXInputAssembler* gfx_input_assembler = CC_NEW(GLES3InputAssembler(this));
-    if (gfx_input_assembler->initialize(info))
-        return gfx_input_assembler;
+    GFXInputAssembler* inputAssembler = CC_NEW(GLES3InputAssembler(this));
+    if (inputAssembler->initialize(info))
+        return inputAssembler;
 
-    CC_SAFE_DESTROY(gfx_input_assembler);
+    CC_SAFE_DESTROY(inputAssembler);
     return nullptr;
 }
 
 GFXRenderPass* GLES3Device::createRenderPass(const GFXRenderPassInfo& info)
 {
-    GFXRenderPass* gfx_render_pass = CC_NEW(GLES3RenderPass(this));
-    if (gfx_render_pass->initialize(info))
-        return gfx_render_pass;
+    GFXRenderPass* renderPass = CC_NEW(GLES3RenderPass(this));
+    if (renderPass->initialize(info))
+        return renderPass;
 
-    CC_SAFE_DESTROY(gfx_render_pass);
+    CC_SAFE_DESTROY(renderPass);
     return nullptr;
 }
 
 GFXFramebuffer* GLES3Device::createFramebuffer(const GFXFramebufferInfo& info)
 {
-    GFXFramebuffer* gfx_framebuffer = CC_NEW(GLES3Framebuffer(this));
-    if (gfx_framebuffer->initialize(info))
-        return gfx_framebuffer;
+    GFXFramebuffer* framebuffer = CC_NEW(GLES3Framebuffer(this));
+    if (framebuffer->initialize(info))
+        return framebuffer;
 
-    CC_SAFE_DESTROY(gfx_framebuffer);
+    CC_SAFE_DESTROY(framebuffer);
     return nullptr;
 }
 
 GFXBindingLayout* GLES3Device::createBindingLayout(const GFXBindingLayoutInfo& info)
 {
-    GFXBindingLayout* gfx_binding_layout = CC_NEW(GLES3BindingLayout(this));
-    if (gfx_binding_layout->initialize(info))
-        return gfx_binding_layout;
+    GFXBindingLayout* bindingLayout = CC_NEW(GLES3BindingLayout(this));
+    if (bindingLayout->initialize(info))
+        return bindingLayout;
 
-    CC_SAFE_DESTROY(gfx_binding_layout);
+    CC_SAFE_DESTROY(bindingLayout);
     return nullptr;
 }
 

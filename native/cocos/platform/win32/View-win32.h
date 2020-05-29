@@ -36,11 +36,8 @@ THE SOFTWARE.
 #include "sdl2/SDL_main.h"
 #include "sdl2/SDL.h"
 #include "sdl2/SDL_syswm.h"
-#include "sdl2/SDL_opengl.h"
 
 #include "scripting/js-bindings/event/EventDispatcher.h"
-
-
 
 NS_CC_BEGIN
 

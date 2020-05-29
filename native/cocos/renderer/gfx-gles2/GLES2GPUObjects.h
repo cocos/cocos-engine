@@ -253,6 +253,11 @@ class GLES2GPUBindingLayout : public Object {
   GLES2GPUBindingList gpuBindings;
 };
 
+class GLES2GPUFence : public Object
+{
+public:
+};
+
 NS_CC_END
 
 #endif

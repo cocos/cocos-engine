@@ -3,6 +3,7 @@
 #include "VKUtils.h"
 #include "VKContext.h"
 #include "VKWindow.h"
+#include "VKFence.h"
 #include "VKQueue.h"
 #include "VKCommandAllocator.h"
 #include "VKCommandBuffer.h"
@@ -60,13 +61,17 @@ bool CCVKDevice::initialize(const GFXDeviceInfo& info)
         destroy();
         return false;
     }
-    const CCVKGPUContext* context = ((CCVKContext*)_context)->gpuContext();
-    const VkPhysicalDeviceFeatures &deviceFeatures = context->physicalDeviceFeatures;
+    const CCVKContext* context = (CCVKContext*)_context;
+    const CCVKGPUContext* gpuContext = ((CCVKContext*)_context)->gpuContext();
+    const VkPhysicalDeviceFeatures &deviceFeatures = gpuContext->physicalDeviceFeatures;
+    const VkPhysicalDeviceFeatures2 &deviceFeatures2 = gpuContext->physicalDeviceFeatures2;
+    const VkPhysicalDeviceVulkan11Features &deviceVulkan11Features = gpuContext->physicalDeviceVulkan11Features;
+    const VkPhysicalDeviceVulkan12Features &deviceVulkan12Features = gpuContext->physicalDeviceVulkan12Features;
 
     // only enable the absolute essentials for now
     std::vector<const char *> requestedValidationLayers
     {
-
+        "VK_LAYER_KHRONOS_validation",
     };
     std::vector<const char *> requestedExtensions
     {
@@ -74,12 +79,14 @@ bool CCVKDevice::initialize(const GFXDeviceInfo& info)
         VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
         VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
     };
-    VkPhysicalDeviceFeatures requestedFeatures{};
-    // features should be enabled like this
-    requestedFeatures.textureCompressionASTC_LDR = deviceFeatures.textureCompressionASTC_LDR;
-    requestedFeatures.textureCompressionBC = deviceFeatures.textureCompressionBC;
-    requestedFeatures.textureCompressionETC2 = deviceFeatures.textureCompressionETC2;
-    requestedFeatures.samplerAnisotropy = deviceFeatures.samplerAnisotropy;
+    VkPhysicalDeviceFeatures2 requestedFeatures2{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
+    VkPhysicalDeviceVulkan11Features requestedVulkan11Features{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES };
+    VkPhysicalDeviceVulkan12Features requestedVulkan12Features{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES };
+    // features should be enabled like this:
+    requestedFeatures2.features.textureCompressionASTC_LDR = deviceFeatures2.features.textureCompressionASTC_LDR;
+    requestedFeatures2.features.textureCompressionBC = deviceFeatures2.features.textureCompressionBC;
+    requestedFeatures2.features.textureCompressionETC2 = deviceFeatures2.features.textureCompressionETC2;
+    requestedFeatures2.features.samplerAnisotropy = deviceFeatures2.features.samplerAnisotropy;
 
     ///////////////////// Device Creation /////////////////////
 
@@ -87,14 +94,14 @@ bool CCVKDevice::initialize(const GFXDeviceInfo& info)
 
     // check extensions
     uint availableLayerCount;
-    VK_CHECK(vkEnumerateDeviceLayerProperties(context->physicalDevice, &availableLayerCount, nullptr));
+    VK_CHECK(vkEnumerateDeviceLayerProperties(gpuContext->physicalDevice, &availableLayerCount, nullptr));
     _gpuDevice->layers.resize(availableLayerCount);
-    VK_CHECK(vkEnumerateDeviceLayerProperties(context->physicalDevice, &availableLayerCount, _gpuDevice->layers.data()));
+    VK_CHECK(vkEnumerateDeviceLayerProperties(gpuContext->physicalDevice, &availableLayerCount, _gpuDevice->layers.data()));
 
     uint availableExtensionCount;
-    VK_CHECK(vkEnumerateDeviceExtensionProperties(context->physicalDevice, nullptr, &availableExtensionCount, nullptr));
+    VK_CHECK(vkEnumerateDeviceExtensionProperties(gpuContext->physicalDevice, nullptr, &availableExtensionCount, nullptr));
     _gpuDevice->extensions.resize(availableExtensionCount);
-    VK_CHECK(vkEnumerateDeviceExtensionProperties(context->physicalDevice, nullptr, &availableExtensionCount, _gpuDevice->extensions.data()));
+    VK_CHECK(vkEnumerateDeviceExtensionProperties(gpuContext->physicalDevice, nullptr, &availableExtensionCount, _gpuDevice->extensions.data()));
 
     // just filter out the unsupported layers & extensions
     for (const char* layer : requestedValidationLayers)
@@ -113,13 +120,13 @@ bool CCVKDevice::initialize(const GFXDeviceInfo& info)
     }
 
     // prepare the device queues
-    uint                                 queueFamilyPropertiesCount = toUint(context->queueFamilyProperties.size());
+    uint                                 queueFamilyPropertiesCount = toUint(gpuContext->queueFamilyProperties.size());
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos(queueFamilyPropertiesCount, { VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO });
     std::vector<std::vector<float>>      queuePriorities(queueFamilyPropertiesCount);
 
     for (uint queueFamilyIndex = 0u; queueFamilyIndex < queueFamilyPropertiesCount; ++queueFamilyIndex)
     {
-        const VkQueueFamilyProperties &queueFamilyProperty = context->queueFamilyProperties[queueFamilyIndex];
+        const VkQueueFamilyProperties &queueFamilyProperty = gpuContext->queueFamilyProperties[queueFamilyIndex];
 
         queuePriorities[queueFamilyIndex].resize(queueFamilyProperty.queueCount, 1.0f);
 
@@ -138,10 +145,19 @@ bool CCVKDevice::initialize(const GFXDeviceInfo& info)
     deviceCreateInfo.ppEnabledLayerNames = _layers.data();
     deviceCreateInfo.enabledExtensionCount = toUint(_extensions.size());
     deviceCreateInfo.ppEnabledExtensionNames = _extensions.data();
-    deviceCreateInfo.pEnabledFeatures = &requestedFeatures;
-    deviceCreateInfo.pNext = nullptr;
+    if (context->minorVersion() < 1 &&
+        !context->checkExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME))
+    {
+        deviceCreateInfo.pEnabledFeatures = &requestedFeatures2.features;
+    }
+    else
+    {
+        deviceCreateInfo.pNext = &requestedFeatures2;
+        if (context->minorVersion() >= VK_API_VERSION_1_1) requestedFeatures2.pNext = &requestedVulkan11Features;
+        if (context->minorVersion() >= VK_API_VERSION_1_2) requestedVulkan11Features.pNext = &requestedVulkan12Features;
+    }
 
-    VK_CHECK(vkCreateDevice(context->physicalDevice, &deviceCreateInfo, nullptr, &_gpuDevice->vkDevice));
+    VK_CHECK(vkCreateDevice(gpuContext->physicalDevice, &deviceCreateInfo, nullptr, &_gpuDevice->vkDevice));
 
     ///////////////////// Resource Initialization /////////////////////
 
@@ -164,9 +180,9 @@ bool CCVKDevice::initialize(const GFXDeviceInfo& info)
     vmaVulkanFunc.vkUnmapMemory = vkUnmapMemory;
     
     VmaAllocatorCreateInfo allocatorInfo{};
-    allocatorInfo.physicalDevice = context->physicalDevice;
+    allocatorInfo.physicalDevice = gpuContext->physicalDevice;
     allocatorInfo.device = _gpuDevice->vkDevice;
-    allocatorInfo.instance = context->vkInstance;
+    allocatorInfo.instance = gpuContext->vkInstance;
 
     if (checkExtension(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME) && 
         checkExtension(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME))
@@ -197,7 +213,7 @@ bool CCVKDevice::initialize(const GFXDeviceInfo& info)
     GFXCommandAllocatorInfo cmdAllocInfo;
     _cmdAllocator = createCommandAllocator(cmdAllocInfo);
 
-    for (uint i = 0; i < context->swapchainCreateInfo.minImageCount; i++)
+    for (uint i = 0; i < gpuContext->swapchainCreateInfo.minImageCount; i++)
     {
         GFXTextureInfo depthStecnilTexInfo;
         depthStecnilTexInfo.type = GFXTextureType::TEX2D;
@@ -279,7 +295,7 @@ bool CCVKDevice::initialize(const GFXDeviceInfo& info)
     }
 
     CC_LOG_INFO("Vulkan device initialized.");
-    CC_LOG_INFO("DEVICE_NAME: %s", context->physicalDeviceProperties.deviceName);
+    CC_LOG_INFO("DEVICE_NAME: %s", gpuContext->physicalDeviceProperties.deviceName);
     CC_LOG_INFO("VULKAN_VERSION: %d.%d", ((CCVKContext*)_context)->majorVersion(), ((CCVKContext*)_context)->minorVersion());
     CC_LOG_INFO("SCREEN_SIZE: %d x %d", _width, _height);
     CC_LOG_INFO("NATIVE_SIZE: %d x %d", _nativeWidth, _nativeHeight);
@@ -469,6 +485,7 @@ void CCVKDevice::buildSwapchain()
 
 void CCVKDevice::acquire()
 {
+    VK_CHECK(vkDeviceWaitIdle(_gpuDevice->vkDevice));
     _gpuSemaphorePool->reset();
     _gpuFencePool->reset();
     ((CCVKCommandAllocator*)_cmdAllocator)->reset();
@@ -501,8 +518,6 @@ void CCVKDevice::present()
     presentInfo.pImageIndices = &_gpuSwapchain->curImageIndex;
 
     VK_CHECK(vkQueuePresentKHR(queue->gpuQueue()->vkQueue, &presentInfo));
-
-    VK_CHECK(vkDeviceWaitIdle(_gpuDevice->vkDevice));
 }
 
 GFXWindow* CCVKDevice::createWindow(const GFXWindowInfo& info)
@@ -512,6 +527,16 @@ GFXWindow* CCVKDevice::createWindow(const GFXWindowInfo& info)
         return window;
 
     CC_SAFE_DESTROY(window);
+    return nullptr;
+}
+
+GFXFence* CCVKDevice::createFence(const GFXFenceInfo& info)
+{
+    GFXFence* fence = CC_NEW(CCVKFence(this));
+    if (fence->initialize(info))
+        return fence;
+
+    CC_SAFE_DESTROY(fence);
     return nullptr;
 }
 
