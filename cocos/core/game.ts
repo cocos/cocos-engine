@@ -733,6 +733,8 @@ export class Game extends EventTarget {
 
         if (JSB) {
             jsb.setPreferredFramesPerSecond(frameRate);
+            window.rAF = window.requestAnimationFrame;
+            window.cAF = window.cancelAnimationFrame;
         }
         else {     
             if (this._intervalId) {
