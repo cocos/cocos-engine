@@ -303,17 +303,29 @@ export class JointTexturePool {
                     correctionPath = animPath;
                 }
             }
+            // the default behavior, just use the bindpose for current joint directly
             let bindposeIdx = i;
-            // It is regularly observed that developers may choose to delete the whole skeleton node tree
-            // for skinning models that only use baked animations, to reduce prefab file size.
-            // This becomes troublesome in some cases during baking though, e.g. when a skeleton joint node
-            // is not directly controlled by any animation curve, but its parent nodes are.
-            // Due to the lack of proper downstream default pose, the joint transform can not be calculated accurately.
-            // We address this issue by employing some pragmatic approximation.
-            // Specifically, by multiplying the bindpose of the joint corresponding to the nearest curve, instead of the actual target joint.
-            // It gives more visually-plausible results compared to the naive approach for most cases we've covered.
+            /**
+             * It is regularly observed that developers may choose to delete the whole
+             * skeleton node tree for skinning models that only use baked animations,
+             * to reduce prefab file size.
+             *
+             * This becomes troublesome in some cases during baking though, e.g. when a
+             * skeleton joint node is not directly controlled by any animation curve,
+             * but its parent nodes are. Due to lack of proper downstream default pose,
+             * the joint transform can not be calculated accurately.
+             *
+             * We address this issue by employing some pragmatic approximation.
+             * Specifically, by multiplying the bindpose of the joint corresponding to
+             * the nearest curve, instead of the actual target joint. This effectively
+             * merges the skinning influence of the 'incomplete' joint into its nearest
+             * parent with accurate transform data.
+             * It gives more visually-plausible results compared to the naive approach
+             * for most cases we've covered.
+             */
             if (correctionPath !== undefined) {
-                bindposeIdx = i - 1; // just use the previous joint if the exact path is not found
+                // just use the previous joint if the exact path is not found
+                bindposeIdx = i - 1;
                 for (let j = 0; j < totalJoints; j++) {
                     if (joints[j] === correctionPath) {
                         bindposeIdx = j; break;
@@ -338,7 +350,7 @@ export class JointTexturePool {
                     mat = Mat4.IDENTITY;
                 }
                 const boneSpaceBound = boneSpaceBounds[i];
-                if (boneSpaceBound) {
+                if (boneSpaceBound && mat !== Mat4.IDENTITY) {
                     aabb.transform(ab_1, boneSpaceBound, mat);
                     ab_1.getBoundary(v3_3, v3_4);
                     Vec3.min(bound.center, bound.center, v3_3);
