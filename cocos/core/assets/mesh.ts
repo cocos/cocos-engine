@@ -748,7 +748,7 @@ export class Mesh extends Asset {
      * @returns 是否验证成功。若验证选项为 `true` 且验证未通过则返回 `false`，否则返回 `true`。
      */
     public merge (mesh: Mesh, worldMatrix?: Mat4, validate?: boolean): boolean {
-        if (validate !== undefined && validate) {
+        if (validate) {
             if (!this.loaded || !mesh.loaded || !this.validateMergingMesh(mesh)) {
                 return false;
             }
