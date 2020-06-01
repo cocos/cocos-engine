@@ -35,7 +35,6 @@ import { AnimationClip, IRuntimeCurve } from './animation-clip';
 import { AnimationState } from './animation-state';
 import { SkeletalAnimationComponent, Socket } from './skeletal-animation-component';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
-import { getWorldTransformUntilRoot } from './transform-utils';
 
 const m4_1 = new Mat4();
 const m4_2 = new Mat4();
@@ -125,25 +124,25 @@ export class SkeletalAnimationState extends AnimationState {
             let downstream: Mat4 | undefined;
             while (!source) {
                 const idx = animPath.lastIndexOf('/');
-                if (idx < 0) { break; }
                 animPath = animPath.substring(0, idx);
                 source = clipData.data[animPath];
                 if (animNode) {
-                    if (!downstream) { downstream = m4_2; Mat4.identity(downstream); }
+                    if (!downstream) { downstream = Mat4.identity(m4_2); }
                     Mat4.fromRTS(m4_1, animNode.rotation, animNode.position, animNode.scale);
                     Mat4.multiply(downstream, m4_1, downstream);
                     animNode = animNode.parent;
                 }
+                if (idx < 0) { break; }
             }
             const curveData: Mat4[] | undefined = source && source.worldMatrix.values as Mat4[];
             const frames = clipData.info.frames;
             const transforms: ITransform[] = [];
-            for (let frame = 0; frame < frames; frame++) {
+            for (let f = 0; f < frames; f++) {
                 let mat: Mat4;
                 if (curveData && downstream) { // curve & static two-way combination
-                    mat = Mat4.multiply(m4_1, curveData[frame], downstream);
+                    mat = Mat4.multiply(m4_1, curveData[f], downstream);
                 } else if (curveData) { // there is a curve directly controlling the joint
-                    mat = curveData[frame];
+                    mat = curveData[f];
                 } else if (downstream) { // fallback to default pose if no animation curve can be found upstream
                     mat = downstream;
                 } else { // bottom line: render the original mesh as-is
