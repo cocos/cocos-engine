@@ -77,10 +77,8 @@ class ModelLightmapSettings {
     protected _bakeable: boolean = false;
     @property
     protected _castShadow: boolean = false;
-    @property({
-        formerlySerializedAs: '_recieveShadow',
-    })
-    protected _receiveShadow: boolean = false;
+    @property
+    protected _recieveShadow: boolean = false;
     @property
     protected _lightmapSize: number = 64;
 
@@ -111,22 +109,23 @@ class ModelLightmapSettings {
     }
 
     /**
-     * @en receive shadow.
+     * @en recieve shadow.
      * @zh 是否接受阴影。
      */
     @property
-    get receiveShadow () {
-        return this._receiveShadow;
+    get recieveShadow () {
+        return this._recieveShadow;
     }
 
-    set receiveShadow (val) {
-        this._receiveShadow = val;
+    set recieveShadow (val) {
+        this._recieveShadow = val;
     }
 
     /**
      * @en lightmap size.
      * @zh 光照图大小
      */
+    @property
     get lightmapSize () {
         return this._lightmapSize;
     }
@@ -282,12 +281,16 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
-    public _updateLightmap (lightmap: Texture2D|null, uOff: number, vOff: number, uScale: number, vScale: number) {
+    public _updateLightmap (lightmap: Texture2D|null, uoff: number, voff: number, uscale: number, vscale: number) {
         this.lightmapSettings.texture = lightmap;
-        this.lightmapSettings.uvParam.x = uOff;
-        this.lightmapSettings.uvParam.y = vOff;
-        this.lightmapSettings.uvParam.z = uScale;
-        this.lightmapSettings.uvParam.w = vScale;
+        this.lightmapSettings.uvParam.x = uoff;
+        this.lightmapSettings.uvParam.y = voff;
+        this.lightmapSettings.uvParam.z = uscale;
+        this.lightmapSettings.uvParam.w = vscale;
+
+        if (this.model !== null) {
+            this.model.updateLightingmap(this.lightmapSettings.texture, this.lightmapSettings.uvParam);
+        }
     }
 
     protected _updateModels () {
@@ -303,6 +306,10 @@ export class ModelComponent extends RenderableComponent {
         }
 
         this._updateModelParams();
+
+        if (this.model != null) {
+            this.model.updateLightingmap(this.lightmapSettings.texture, this.lightmapSettings.uvParam);
+        }
     }
 
     protected _createModel () {
@@ -370,6 +377,7 @@ export class ModelComponent extends RenderableComponent {
         if (!this._model || !this._model.inited) { return; }
         this._model.isDynamicBatching = this._isBatchingEnabled();
         this._model.setSubModelMaterial(idx, material);
+        this._model.updateLightingmap(this.lightmapSettings.texture, this.lightmapSettings.uvParam);
     }
 
     protected _onMeshChanged (old: Mesh | null) {
