@@ -444,12 +444,20 @@ const loader = {
             for (let i = 0; i < asset.length; i++) {
                 var key = asset[i];
                 if (typeof key === 'string') key = cc.assetManager.assets.get(key);
-                cc.assetManager.releaseAsset(key, true);
+                let isBuiltin = cc.assetManager.builtins._assets.find(function (assets) {
+                    return assets.find(builtinAsset => builtinAsset === key);
+                });
+                if (isBuiltin) continue;
+                cc.assetManager.releaseAsset(key);
             }
         }
         else if (asset) {
             if (typeof asset === 'string') asset = cc.assetManager.assets.get(asset);
-            cc.assetManager.releaseAsset(asset, true);
+            let isBuiltin = cc.assetManager.builtins._assets.find(function (assets) {
+                return assets.find(builtinAsset => builtinAsset === asset);
+            });
+            if (isBuiltin) return;
+            cc.assetManager.releaseAsset(asset);
         }
     },
 
@@ -461,7 +469,7 @@ const loader = {
      * @param {Asset} asset
      */
     releaseAsset (asset) {
-        cc.assetManager.releaseAsset(asset, true);
+        cc.assetManager.releaseAsset(asset);
     },
 
     /**
@@ -473,7 +481,7 @@ const loader = {
      * @param {Function} [type] - Only asset of type will be released if this argument is supplied.
      */
     releaseRes (url, type) {
-        cc.assetManager.releaseRes(url, type, true);
+        cc.resources.release(url, type);
     },
 
     /**
