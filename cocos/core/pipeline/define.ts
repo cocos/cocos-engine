@@ -101,11 +101,12 @@ export enum UniformBinding {
     SAMPLER_MORPH_POSITION = MAX_BINDING_SUPPORTED + 3,
     SAMPLER_MORPH_NORMAL = MAX_BINDING_SUPPORTED + 4,
     SAMPLER_MORPH_TANGENT = MAX_BINDING_SUPPORTED + 5,
+    SAMPLER_LIGHTING_MAP = MAX_BINDING_SUPPORTED + 6,
 
     // rooms left for custom bindings
     // effect importer prepares bindings according to this
     CUSTUM_UBO_BINDING_END_POINT = UniformBinding.UBO_BUILTIN_BINDING_END,
-    CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 6,
+    CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 7,
 }
 
 export const isBuiltinBinding = (binding: number) =>
@@ -199,13 +200,15 @@ export const localBindingsDesc: Map<string, IInternalBindingDesc> = new Map<stri
 export class UBOLocal {
     public static MAT_WORLD_OFFSET: number = 0;
     public static MAT_WORLD_IT_OFFSET: number = UBOLocal.MAT_WORLD_OFFSET + 16;
-    public static COUNT: number = UBOLocal.MAT_WORLD_IT_OFFSET + 16;
+    public static LIGHTINGMAP_UVPARAM: number = UBOLocal.MAT_WORLD_IT_OFFSET + 16;
+    public static COUNT: number = UBOLocal.LIGHTINGMAP_UVPARAM + 4;
     public static SIZE: number = UBOLocal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
         binding: UniformBinding.UBO_LOCAL, name: 'CCLocal', members: [
             { name: 'cc_matWorld', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matWorldIT', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_lightingMapUVParam', type: GFXType.FLOAT4, count: 1 },
         ],
     };
 
@@ -380,6 +383,17 @@ export const UniformNormalMorphTexture: Readonly<GFXUniformSampler> = {
 localBindingsDesc.set(UniformNormalMorphTexture.name, {
     type: GFXBindingType.SAMPLER,
     samplerInfo: UniformNormalMorphTexture,
+});
+
+/**
+ * 光照图纹理采样器。
+ */
+export const UniformLightingMapSampler: Readonly<GFXUniformSampler> = {
+    binding: UniformBinding.SAMPLER_LIGHTING_MAP, name: 'cc_lightingMap', type: GFXType.SAMPLER2D, count: 1,
+};
+localBindingsDesc.set(UniformLightingMapSampler.name, {
+    type: GFXBindingType.SAMPLER,
+    samplerInfo: UniformLightingMapSampler,
 });
 
 /**
