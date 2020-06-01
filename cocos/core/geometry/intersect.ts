@@ -482,14 +482,14 @@ const ray_model = (function () {
         minDis = 0;
         const opt = option == undefined ? deOpt : option;
         const length = model.subModelNum;
+        const wb = model.worldBounds;
+        if (wb && !ray_aabb(r, wb)) return minDis;
         ray.copy(modelRay, r);
         if (model.node) {
             Mat4.invert(m4, model.node.getWorldMatrix(m4));
             Vec3.transformMat4(modelRay.o, r.o, m4);
             Vec3.normalize(modelRay.d, Vec3.transformMat4Normal(modelRay.d, r.d, m4));
         }
-        const bounds = model.modelBounds;
-        if (bounds && !ray_aabb(modelRay, bounds)) return minDis;
         for (let i = 0; i < length; i++) {
             const sm = model.getSubModel(i).subMeshData;
             const dis = ray_subMesh(modelRay, sm, opt);
