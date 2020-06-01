@@ -432,7 +432,7 @@ export class Game extends EventTarget {
         this._paused = true;
         // Pause main loop
         if (this._intervalId) {
-            window.cancelAnimationFrame(this._intervalId);
+            window.cAF(this._intervalId);
             this._intervalId = 0;
         }
         // Because JSB platforms never actually stops the swap chain,
@@ -441,12 +441,12 @@ export class Game extends EventTarget {
             let swapbuffers = 3;
             const cb = () => {
                 if (--swapbuffers > 1) {
-                    window.requestAnimationFrame(cb);
+                    window.rAF(cb);
                 }
                 const root = cc.director.root;
                 root.frameMove(0); root.device.present();
             };
-            window.requestAnimationFrame(cb);
+            window.rAF(cb);
         }
     }
 
@@ -631,7 +631,7 @@ export class Game extends EventTarget {
                 else {
                     this.setRenderPipeline(asset);
                 }
-                this.emit(Game.EVENT_GAME_INITED);
+                this._safeEmit(Game.EVENT_GAME_INITED);
                 if (useSplash) {
                     splashScreen.loadFinish = true;
                 }
@@ -641,7 +641,7 @@ export class Game extends EventTarget {
             });
         }
         else {
-            this.emit(Game.EVENT_GAME_INITED);
+            this._safeEmit(Game.EVENT_GAME_INITED);
             if (useSplash) {
                 splashScreen.loadFinish = true;
             }
@@ -719,7 +719,7 @@ export class Game extends EventTarget {
 
         // Log engine version
         console.log('Cocos Creator 3D v' + cc.ENGINE_VERSION);
-        this.emit(Game.EVENT_ENGINE_INITED);
+        this._safeEmit(Game.EVENT_ENGINE_INITED);
         this._inited = true;
     }
 
@@ -733,20 +733,27 @@ export class Game extends EventTarget {
 
         if (JSB) {
             jsb.setPreferredFramesPerSecond(frameRate);
+            window.rAF = window.requestAnimationFrame;
+            window.cAF = window.cancelAnimationFrame;
         }
-        else {
+        else {     
+            if (this._intervalId) {
+                window.cAF(this._intervalId);
+                this._intervalId = 0;
+            }
+            
             if (frameRate !== 60 && frameRate !== 30) {
-                window.requestAnimationFrame = this._stTime;
-                window.cancelAnimationFrame = this._ctTime;
+                window.rAF = this._stTime;
+                window.cAF = this._ctTime;
             }
             else {
-                window.requestAnimationFrame = window.requestAnimationFrame ||
+                window.rAF = window.requestAnimationFrame ||
                     window.webkitRequestAnimationFrame ||
                     window.mozRequestAnimationFrame ||
                     window.oRequestAnimationFrame ||
                     window.msRequestAnimationFrame ||
                     this._stTime;
-                window.cancelAnimationFrame = window.cancelAnimationFrame ||
+                window.cAF = window.cancelAnimationFrame ||
                     window.cancelRequestAnimationFrame ||
                     window.msCancelRequestAnimationFrame ||
                     window.mozCancelRequestAnimationFrame ||
@@ -782,7 +789,7 @@ export class Game extends EventTarget {
 
         callback = (time: number) => {
             if (this._paused) { return; }
-            this._intervalId = window.requestAnimationFrame(callback);
+            this._intervalId = window.rAF(callback);
             if (!JSB && frameRate === 30) {
                 skip = !skip;
                 if (skip) {
@@ -793,11 +800,11 @@ export class Game extends EventTarget {
         };
 
         if (this._intervalId) {
-            window.cancelAnimationFrame(this._intervalId);
+            window.cAF(this._intervalId);
             this._intervalId = 0;
         }
 
-        this._intervalId = window.requestAnimationFrame(callback);
+        this._intervalId = window.rAF(callback);
         this._paused = false;
     }
 
@@ -1007,7 +1014,21 @@ export class Game extends EventTarget {
         }
 
         this._rendererInitialized = true;
-        this.emit(Game.EVENT_RENDERER_INITED);
+        this._safeEmit(Game.EVENT_RENDERER_INITED);
+    }
+
+    private _safeEmit (event) {
+        if (EDITOR) {
+            try {
+                this.emit(event);
+            }
+            catch (e) {
+                console.warn(e);
+            }
+        }
+        else {
+            this.emit(event);
+        }
     }
 }
 

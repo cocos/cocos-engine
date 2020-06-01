@@ -118,31 +118,45 @@ export class SkeletalAnimationState extends AnimationState {
             const socket = sockets[i];
             const targetNode = root.getChildByPath(socket.path);
             if (!socket.target) { continue; }
-            const sourceData = SkelAnimDataHub.getOrExtract(this.clip).data;
-            // find lowest joint animation
+            const clipData = SkelAnimDataHub.getOrExtract(this.clip);
             let animPath = socket.path;
-            let source = sourceData[animPath];
-            let animNode = targetNode!;
+            let source = clipData.data[animPath];
+            let animNode = targetNode;
+            let downstream: Mat4 | undefined;
             while (!source) {
                 const idx = animPath.lastIndexOf('/');
-                animPath = animPath.substring(0, idx);
-                source = sourceData[animPath];
-                animNode = animNode.parent!;
                 if (idx < 0) { break; }
+                animPath = animPath.substring(0, idx);
+                source = clipData.data[animPath];
+                if (animNode) {
+                    if (!downstream) { downstream = m4_2; Mat4.identity(downstream); }
+                    Mat4.fromRTS(m4_1, animNode.rotation, animNode.position, animNode.scale);
+                    Mat4.multiply(downstream, m4_1, downstream);
+                    animNode = animNode.parent;
+                }
             }
-            // create animation data
-            const frames = source.worldMatrix.values as Mat4[];
-            const socketData: ISocketData = {
+            const curveData: Mat4[] | undefined = source && source.worldMatrix.values as Mat4[];
+            const frames = clipData.info.frames;
+            const transforms: ITransform[] = [];
+            for (let frame = 0; frame < frames; frame++) {
+                let mat: Mat4;
+                if (curveData && downstream) { // curve & static two-way combination
+                    mat = Mat4.multiply(m4_1, curveData[frame], downstream);
+                } else if (curveData) { // there is a curve directly controlling the joint
+                    mat = curveData[frame];
+                } else if (downstream) { // fallback to default pose if no animation curve can be found upstream
+                    mat = downstream;
+                } else { // bottom line: render the original mesh as-is
+                    mat = Mat4.IDENTITY;
+                }
+                const tfm = { pos: new Vec3(), rot: new Quat(), scale: new Vec3() };
+                Mat4.toRTS(mat, tfm.rot, tfm.pos, tfm.scale);
+                transforms.push(tfm);
+            }
+            this._sockets.push({
                 target: socket.target,
-                frames: frames.map(() => ({ pos: new Vec3(), rot: new Quat(), scale: new Vec3() })),
-            };
-            // apply downstream default pose
-            getWorldTransformUntilRoot(targetNode!, animNode, m4_1);
-            for (let j = 0; j < socketData.frames.length; j++) {
-                const m = frames[j]; const dst = socketData.frames[j];
-                Mat4.toRTS(Mat4.multiply(m4_2, m, m4_1), dst.rot, dst.pos, dst.scale);
-            }
-            this._sockets.push(socketData);
+                frames: transforms,
+            });
         }
     }
 

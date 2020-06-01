@@ -39,6 +39,8 @@ import * as js from '../utils/js';
 import { baseNodePolyfill } from './base-node-dev';
 import { NodeEventProcessor } from './node-event-processor';
 import { DEV, DEBUG, EDITOR } from 'internal:constants';
+import { Node } from './node';
+import { Scene } from './scene';
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
@@ -404,18 +406,19 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @en Set parent of the node.
      * @zh 设置该节点的父节点。
      */
-    public setParent (value: this | null, keepWorldTransform: boolean = false) {
+    public setParent (value: this | Scene | null, keepWorldTransform: boolean = false) {
         if (this._parent === value) {
             return;
         }
         const oldParent = this._parent;
+        const newParent = value as this;
         if (DEBUG && oldParent &&
             // Change parent when old parent desactivating or activating
             (oldParent._objFlags & ChangingState)) {
             errorID(3821);
         }
 
-        this._parent = value;
+        this._parent = newParent;
         // Reset sibling index
         this._siblingIndex = 0;
 
@@ -425,14 +428,14 @@ export class BaseNode extends CCObject implements ISchedulable {
             this.emit(SystemEventType.PARENT_CHANGED, oldParent);
         }
 
-        if (value) {
-            if (DEBUG && (value._objFlags & Deactivating)) {
+        if (newParent) {
+            if (DEBUG && (newParent._objFlags & Deactivating)) {
                 errorID(3821);
             }
-            value._children.push(this);
-            this._siblingIndex = value._children.length - 1;
-            if (value.emit) {
-                value.emit(SystemEventType.CHILD_ADDED, this);
+            newParent._children.push(this);
+            this._siblingIndex = newParent._children.length - 1;
+            if (newParent.emit) {
+                newParent.emit(SystemEventType.CHILD_ADDED, this);
             }
         }
         if (oldParent) {
@@ -524,23 +527,20 @@ export class BaseNode extends CCObject implements ISchedulable {
         }
         return lastNode;
     }
-
     /**
      * @en Add a child to the current node, it will be pushed to the end of [[children]] array.
      * @zh 添加一个子节点，它会被添加到 [[children]] 数组的末尾。
      * @param child - the child node to be added
      */
-    public addChild (child: this): void {
-
+    public addChild (child: this | Node): void {
         if (DEV && !(child instanceof cc._BaseNode)) {
             return errorID(1634, cc.js.getClassName(child));
         }
         cc.assertID(child, 1606);
-        cc.assertID(child._parent === null, 1605);
+        cc.assertID((child as this)._parent === null, 1605);
 
         // invokes the parent setter
-        child.setParent(this);
-
+        (child as this).setParent(this);
     }
 
     /**
@@ -553,7 +553,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * node.insertChild(child, 2);
      * ```
      */
-    public insertChild (child: this, siblingIndex: number) {
+    public insertChild (child: this | Node, siblingIndex: number) {
         child.parent = this;
         child.setSiblingIndex(siblingIndex);
     }
@@ -719,8 +719,8 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @zh 移除节点中指定的子节点。
      * @param child - The child node which will be removed.
      */
-    public removeChild (child: this) {
-        if (this._children.indexOf(child) > -1) {
+    public removeChild (child: this | Node) {
+        if (this._children.indexOf(child as this) > -1) {
             // invoke the parent setter
             child.parent = null;
         }
@@ -747,7 +747,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @zh 是否是指定节点的子节点？
      * @return True if this node is a child, deep child or identical to the given node.
      */
-    public isChildOf (parent: this | null): boolean {
+    public isChildOf (parent: this | Scene | null): boolean {
         let child: BaseNode | null = this;
         do {
             if (child === parent) {
@@ -1344,6 +1344,16 @@ export class BaseNode extends CCObject implements ISchedulable {
             this._registerIfAttached!(false);
         }
 
+        // Clear event targets
+        const eventTargets = this.__eventTargets;
+        for (let i = 0; i < eventTargets.length; ++i) {
+            const et = eventTargets[i];
+            if (et) {
+                et.targetOff(this);
+            }
+        }
+        eventTargets.length = 0;
+
         // destroy children
         const children = this._children;
         for (let i = 0; i < children.length; ++i) {
@@ -1358,15 +1368,6 @@ export class BaseNode extends CCObject implements ISchedulable {
             // TO DO
             comps[i]._destroyImmediate();
         }
-
-        const eventTargets = this.__eventTargets;
-        for (let i = 0; i < eventTargets.length; ++i) {
-            const et = eventTargets[i];
-            if (et) {
-                et.targetOff(this);
-            }
-        }
-        eventTargets.length = 0;
 
         // remove from persist
         if (this._persistNode) {

@@ -279,14 +279,14 @@ export class AmmoWorld implements IPhysicsWorld {
                         const cq = data.contacts[i] as Ammo.btManifoldPoint;
                         if (contactsPool.length > 0) {
                             const c = contactsPool.pop();
-                            ammo2CocosVec3(c.contactA, cq.m_positionWorldOnA);
-                            ammo2CocosVec3(c.contactB, cq.m_positionWorldOnB);
+                            ammo2CocosVec3(c.contactA, cq.m_localPointA);
+                            ammo2CocosVec3(c.contactB, cq.m_localPointB);
                             ammo2CocosVec3(c.normal, cq.m_normalWorldOnB);
                             CollisionEventObject.contacts.push(c);
                         } else {
                             const c = {
-                                contactA: ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnA),
-                                contactB: ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnB),
+                                contactA: ammo2CocosVec3(new Vec3(), cq.m_localPointA),
+                                contactB: ammo2CocosVec3(new Vec3(), cq.m_localPointB),
                                 normal: ammo2CocosVec3(new Vec3(), cq.m_normalWorldOnB),
                             };
                             CollisionEventObject.contacts.push(c);
@@ -295,12 +295,10 @@ export class AmmoWorld implements IPhysicsWorld {
 
                     CollisionEventObject.selfCollider = collider0;
                     CollisionEventObject.otherCollider = collider1;
-                    CollisionEventObject.isBodyA = true;
                     collider0.emit(CollisionEventObject.type, CollisionEventObject);
 
                     CollisionEventObject.selfCollider = collider1;
                     CollisionEventObject.otherCollider = collider0;
-                    CollisionEventObject.isBodyA = false;
                     collider1.emit(CollisionEventObject.type, CollisionEventObject);
                 }
 
@@ -349,14 +347,14 @@ export class AmmoWorld implements IPhysicsWorld {
                                 const cq = data.contacts[i] as Ammo.btManifoldPoint;
                                 if (contactsPool.length > 0) {
                                     const c = contactsPool.pop();
-                                    ammo2CocosVec3(c.contactA, cq.m_positionWorldOnA);
-                                    ammo2CocosVec3(c.contactB, cq.m_positionWorldOnB);
+                                    ammo2CocosVec3(c.contactA, cq.m_localPointA);
+                                    ammo2CocosVec3(c.contactB, cq.m_localPointB);
                                     ammo2CocosVec3(c.normal, cq.m_normalWorldOnB);
                                     CollisionEventObject.contacts.push(c);
                                 } else {
                                     const c = {
-                                        contactA: ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnA),
-                                        contactB: ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnB),
+                                        contactA: ammo2CocosVec3(new Vec3(), cq.m_localPointA),
+                                        contactB: ammo2CocosVec3(new Vec3(), cq.m_localPointB),
                                         normal: ammo2CocosVec3(new Vec3(), cq.m_normalWorldOnB),
                                     };
                                     CollisionEventObject.contacts.push(c);
@@ -366,12 +364,10 @@ export class AmmoWorld implements IPhysicsWorld {
                             CollisionEventObject.type = 'onCollisionExit';
                             CollisionEventObject.selfCollider = collider0;
                             CollisionEventObject.otherCollider = collider1;
-                            CollisionEventObject.isBodyA = true;
                             collider0.emit(CollisionEventObject.type, CollisionEventObject);
 
                             CollisionEventObject.selfCollider = collider1;
                             CollisionEventObject.otherCollider = collider0;
-                            CollisionEventObject.isBodyA = false;
                             collider1.emit(CollisionEventObject.type, CollisionEventObject);
 
                             this.collisionArrayMat.set(shape0.id, shape1.id, false);

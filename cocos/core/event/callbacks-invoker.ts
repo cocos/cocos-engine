@@ -226,7 +226,7 @@ export class CallbacksInvoker {
      * @en Removes all callbacks registered in a certain event type or all callbacks registered with a certain target
      * @param keyOrTarget - The event type or target with which the listeners will be removed
      */
-    public removeAll (keyOrTarget?: string | Object) {
+    public removeAll (keyOrTarget: string | Object) {
         if (typeof keyOrTarget === 'string') {
             // remove by key
             const list = this._callbackTable[keyOrTarget];
