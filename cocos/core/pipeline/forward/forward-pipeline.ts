@@ -20,10 +20,12 @@ import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
-import { RenderLightBatchedQueue } from '../render-light-batched-queue'
-import { getPhaseID } from '../pass-phase'
+import { RenderLightBatchedQueue } from '../render-light-batched-queue';
+import { getPhaseID } from '../pass-phase';
 import { IRenderPass } from '../define';
 import { opaqueCompareFn } from '../render-queue';
+import { RenderShadowMapBatchedQueue } from '../render-shadowMap-batched-queue';
+import { RenderDepthBatchedQueue } from '../render-depth-batched-queue';
 
 const _vec4Array = new Float32Array(4);
 const _sphere = sphere.create(0, 0, 0, 1);
@@ -86,6 +88,22 @@ export class ForwardPipeline extends RenderPipeline {
 
     /**
      * @zh
+     * get shadowMap batch queue
+     */
+    public get shadowMapQueue () {
+        return this._shadowMapBatchQueue;
+    }
+
+    /**
+     * @zh
+     * get depth batch queue
+     */
+    public get depthQueue () {
+        return this._depthBatchQueue;
+    }
+
+    /**
+     * @zh
      * 全部光源的UBO结构描述。
      */
     protected _uboLight: UBOForwardLight = new UBOForwardLight();
@@ -127,6 +145,18 @@ export class ForwardPipeline extends RenderPipeline {
     private _lightBatchQueue: RenderLightBatchedQueue;
 
     /**
+     * @zh
+     * shadowMap batch Queue
+     */
+    private _shadowMapBatchQueue: RenderShadowMapBatchedQueue;
+
+    /**
+     * @zh
+     * depth batch Queue
+     */
+    private _depthBatchQueue: RenderDepthBatchedQueue;
+
+    /**
      * 构造函数。
      * @param root Root类实例。
      */
@@ -143,6 +173,14 @@ export class ForwardPipeline extends RenderPipeline {
             phases: getPhaseID("forward-add"),
             sortFunc,
         });
+
+        this._shadowMapBatchQueue = new RenderShadowMapBatchedQueue({
+            isTransparent: false,
+            phases: getPhaseID("shadowMap"),
+            sortFunc,
+        });
+
+        this._depthBatchQueue = new RenderDepthBatchedQueue();
     }
 
     public initialize (info: IRenderPipelineInfo) {
@@ -274,10 +312,10 @@ export class ForwardPipeline extends RenderPipeline {
                 }
             }
             // update lightBuffer
-            this._lightBuffers[l].update(this._uboLight.view); 
+            this._lightBuffers[l].update(this._uboLight.view);
 
             // update per-lightBatchQueue UBO
-            this._lightBatchQueue.updateLightBuffer(l, this._lightBuffers[l]);                 
+            this._lightBatchQueue.updateLightBuffer(l, this._lightBuffers[l]);
         }
     }
 
@@ -291,6 +329,8 @@ export class ForwardPipeline extends RenderPipeline {
         this._validLights.length = 0;
         const sphereLights = view.camera.scene!.sphereLights;
         this._lightBatchQueue.clear();
+        this._shadowMapBatchQueue.clear();
+        this._depthBatchQueue.clear();
 
         for (let i = 0; i < sphereLights.length; i++) {
             const light = sphereLights[i];
@@ -329,6 +369,15 @@ export class ForwardPipeline extends RenderPipeline {
                 this.cullLightPerModel(this._renderObjects[i].model);
             }
             this._lightBatchQueue.updateQueueSize(this._validLights.length);
+        }
+
+        // per-model check shadow casting
+        for (let i = 0; i < this._renderObjects.length; ++i) {
+            if(this._renderObjects[i].model.castShadow) {
+                for (let j = 0; j < this._renderObjects[i].model.subModels.length; ++j) {
+                    this._depthBatchQueue.add(this._renderObjects[i], j);
+                }               
+            }
         }
     }
 

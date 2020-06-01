@@ -32,7 +32,9 @@ import { FrameBufferDesc, RenderFlowType, RenderPassDesc, RenderTextureDesc } fr
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
-import { RenderLightBatchedQueue } from './render-light-batched-queue'
+import { RenderLightBatchedQueue } from './render-light-batched-queue';
+import { RenderShadowMapBatchedQueue } from './render-shadowMap-batched-queue';
+import { RenderDepthBatchedQueue } from './render-depth-batched-queue';
 
 const v3_1 = new Vec3();
 
@@ -264,9 +266,21 @@ export abstract class RenderPipeline {
 
     /**
      * @zh
-     * get light batch queues
+     * get light batch queue
      */
     public abstract get lightBatchQueue () : RenderLightBatchedQueue;
+
+    /**
+     * @zh
+     * get shadowMap batch queue
+     */
+    public abstract get shadowMapQueue () : RenderShadowMapBatchedQueue;
+
+    /**
+     * @zh
+     * get depth batch queue
+     */
+    public abstract get depthQueue () : RenderDepthBatchedQueue;
 
     protected _root: Root = null!;
     protected _device: GFXDevice = null!;

@@ -31,13 +31,15 @@ export class ShadowMapFlow extends RenderFlow {
 
     public render (view: RenderView) {
 
-        view.camera.update();
+        //view.camera.update();
 
         // this.pipeline.sceneCulling(view);
 
         // this.pipeline.updateUBOs(view);
 
-        super.render(view);
+        //this.pipeline.updateShadowUBOs(view);
+
+        //super.render(view);
     }
 
     /**
