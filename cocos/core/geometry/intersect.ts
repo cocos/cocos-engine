@@ -473,7 +473,10 @@ const ray_mesh = (function () {
                 }
             }
         }
-        if (minDis && opt.mode == ERaycastMode.CLOSEST && opt.result) opt.result.length = 1;
+        if (minDis && opt.mode == ERaycastMode.CLOSEST) {
+            if (opt.result) opt.result.length = 1;
+            if (opt.subIndices) opt.subIndices.length = 1;
+        }
         return minDis;
     }
 })();
@@ -527,7 +530,10 @@ const ray_model = (function () {
                 }
             }
         }
-        if (minDis && opt.mode == ERaycastMode.CLOSEST && opt.result) opt.result.length = 1;
+        if (minDis && opt.mode == ERaycastMode.CLOSEST) {
+            if (opt.result) opt.result.length = 1;
+            if (opt.subIndices) opt.subIndices.length = 1;
+        }
         return minDis;
     }
 })();
