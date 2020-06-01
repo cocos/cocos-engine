@@ -324,17 +324,16 @@ const ray_capsule = (function () {
  * ray-subMesh intersect detect.
  * @zh
  * 射线和子三角网格的相交性检测。
+ * @param {ray} ray 射线
+ * @param {RenderingSubMesh} subMesh 子网格
+ * @param {IRaySubMeshOptions} options 可选参数结构
+ * @return {number} 0 或 非0
  */
 const ray_subMesh = (function () {
     const tri = triangle.create();
     const deOpt: IRaySubMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
     const tr: IRaySubMeshResult = { distance: 0, vertexIndex0: 0, vertexIndex1: 0, vertexIndex2: 0 };
     let minDis = 0;
-    const broadphase = (ray: ray, submesh: RenderingSubMesh) => {
-        const min = submesh.geometricInfo.boundingBox.min;
-        const max = submesh.geometricInfo.boundingBox.max;
-        return ray_aabb2(ray, min, max);
-    }
     const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, ray: ray, opt: IRaySubMeshOptions) => {
         if (pm === GFXPrimitiveMode.TRIANGLE_LIST) {
             const cnt = ib.length;
@@ -418,15 +417,17 @@ const ray_subMesh = (function () {
         return minDis;
     };
     return function (ray: ray, submesh: RenderingSubMesh, option?: IRaySubMeshOptions) {
+        minDis = 0;
         const opt = option == undefined ? deOpt : option;
-        if (!opt.doNotZeroMin) minDis = 0;
         if (submesh.geometricInfo.positions.length == 0) return;
-        if (broadphase(ray, submesh)) {
+        const min = submesh.geometricInfo.boundingBox.min;
+        const max = submesh.geometricInfo.boundingBox.max;
+        if (ray_aabb2(ray, min, max)) {
             const pm = submesh.primitiveMode;
             const { positions: vb, indices: ib } = submesh.geometricInfo!;
             narrowphase(vb, ib!, pm, ray, opt);
         }
-        return minDis != 0;
+        return minDis;
     }
 })();
 
@@ -435,27 +436,45 @@ const ray_subMesh = (function () {
  * ray-mesh intersect detect.
  * @zh
  * 射线和三角网格资源的相交性检测。
+ * @param {ray} ray 射线
+ * @param {Mesh} mesh 网格
+ * @param {IRayMeshOptions} options 可选参数结构
+ * @return {number} 0 或 非0
  */
 const ray_mesh = (function () {
-    const deOpt: IRayMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY, doNotZeroMin: true };
+    let minDis = 0;
+    const deOpt: IRayMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
     return function (ray: ray, mesh: Mesh, option?: IRayMeshOptions) {
+        minDis = 0;
         const opt = option == undefined ? deOpt : option;
         const length = mesh.renderingSubMeshes.length;
-        let result = false;
         const min = mesh.struct.minPosition;
         const max = mesh.struct.maxPosition;
-        if (min && max && !ray_aabb2(ray, min, max)) return false;
+        if (min && max && !ray_aabb2(ray, min, max)) return minDis;
         for (let i = 0; i < length; i++) {
             const sm = mesh.renderingSubMeshes[i];
-            if (ray_subMesh(ray, sm, opt)) {
-                result = true;
-                if (opt.subIndices) opt.subIndices.push(i);
-                if (opt.mode == ERaycastMode.ANY) {
-                    return true;
+            const dis = ray_subMesh(ray, sm, opt);
+            if (dis) {
+                if (opt.mode == ERaycastMode.CLOSEST) {
+                    if (minDis == 0) {
+                        minDis = dis;
+                        if (opt.subIndices) opt.subIndices[0] = i;
+                    } else if (minDis > dis) {
+                        minDis = dis;
+                        if (opt.subIndices) opt.subIndices[0] = i;
+                        if (opt.result) opt.result[0] = opt.result[i];
+                    }
+                } else {
+                    minDis = dis;
+                    if (opt.subIndices) opt.subIndices.push(i);
+                    if (opt.mode == ERaycastMode.ANY) {
+                        return dis;
+                    }
                 }
             }
         }
-        return result;
+        if (minDis && opt.mode == ERaycastMode.CLOSEST && opt.result) opt.result.length = 1;
+        return minDis;
     }
 })();
 
@@ -464,34 +483,52 @@ const ray_mesh = (function () {
  * ray-model intersect detect.
  * @zh
  * 射线和渲染模型的相交性检测。
+ * @param {ray} ray 射线
+ * @param {Model} model 模型
+ * @param {IRayModelOptions} options 可选参数结构
+ * @return {number} 0 或 非0
  */
 const ray_model = (function () {
-    const deOpt: IRayModelOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY, doNotZeroMin: true, doNotTransformRay: false };
+    let minDis = 0;
+    const deOpt: IRayModelOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
     const modelRay = new ray();
     const m4 = new Mat4;
     return function (r: ray, model: Model, option?: IRayModelOptions) {
+        minDis = 0;
         const opt = option == undefined ? deOpt : option;
         const length = model.subModelNum;
-        let result = false;
         ray.copy(modelRay, r);
-        if (!opt.doNotTransformRay) {
+        if (model.node) {
             Mat4.invert(m4, model.node.getWorldMatrix(m4));
             Vec3.transformMat4(modelRay.o, r.o, m4);
             Vec3.normalize(modelRay.d, Vec3.transformMat4Normal(modelRay.d, r.d, m4));
         }
-        const box = model.modelBounds;
-        if (box && !ray_aabb(modelRay, box)) return false;
+        const bounds = model.modelBounds;
+        if (bounds && !ray_aabb(modelRay, bounds)) return minDis;
         for (let i = 0; i < length; i++) {
             const sm = model.getSubModel(i).subMeshData;
-            if (ray_subMesh(modelRay, sm, opt)) {
-                result = true;
-                if (opt.subIndices) opt.subIndices.push(i);
-                if (opt.mode == ERaycastMode.ANY) {
-                    return true;
+            const dis = ray_subMesh(modelRay, sm, opt);
+            if (dis) {
+                if (opt.mode == ERaycastMode.CLOSEST) {
+                    if (minDis > dis) {
+                        minDis = dis;
+                        if (opt.subIndices) opt.subIndices[0] = i;
+                    } else if (minDis == 0) {
+                        minDis = dis;
+                        if (opt.subIndices) opt.subIndices[0] = i;
+                        if (opt.result) opt.result[0] = opt.result[i];
+                    }
+                } else {
+                    minDis = dis;
+                    if (opt.subIndices) opt.subIndices.push(i);
+                    if (opt.mode == ERaycastMode.ANY) {
+                        return dis;
+                    }
                 }
             }
         }
-        return result;
+        if (minDis && opt.mode == ERaycastMode.CLOSEST && opt.result) opt.result.length = 1;
+        return minDis;
     }
 })();
 
