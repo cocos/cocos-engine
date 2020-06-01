@@ -322,7 +322,11 @@ export default class SpineAssembler extends Assembler {
 
         for (let slotIdx = 0, slotCount = locSkeleton.drawOrder.length; slotIdx < slotCount; slotIdx++) {
             slot = locSkeleton.drawOrder[slotIdx];
-    
+
+            if(slot == undefined) {
+                continue;
+            }
+
             if (_slotRangeStart >= 0 && _slotRangeStart == slot.data.index) {
                 _inRange = true;
             }
