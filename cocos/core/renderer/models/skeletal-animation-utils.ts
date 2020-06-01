@@ -118,6 +118,13 @@ export const jointTextureSamplerHash = genSamplerHash([
     GFXAddress.CLAMP,
 ]);
 
+interface IInternalJointAnimInfo {
+    downstream?: Mat4; // downstream default pose, if present
+    curveData?: Mat4[]; // the nearest animation curve, if present
+    bindposeIdx: number; // index of the actual bindpose to use
+    bindposeCorrection?: Mat4; // correction factor from the original bindpose
+}
+
 export interface IJointTextureHandle {
     pixelOffset: number;
     refCount: number;
@@ -126,6 +133,7 @@ export interface IJointTextureHandle {
     readyToBeDeleted: boolean;
     handle: ITextureBufferHandle;
     bounds: Map<number, aabb[]>;
+    animInfos?: IInternalJointAnimInfo[];
 }
 
 const v3_3 = new Vec3();
@@ -133,6 +141,7 @@ const v3_4 = new Vec3();
 const v3_min = new Vec3();
 const v3_max = new Vec3();
 const m4_1 = new Mat4();
+const m4_2 = new Mat4();
 const ab_1 = new aabb();
 
 export interface IChunkContent {
@@ -142,12 +151,6 @@ export interface IChunkContent {
 export interface ICustomJointTextureLayout {
     textureLength: number;
     contents: IChunkContent[];
-}
-
-interface IJointAnimInfo {
-    downstream?: Mat4; // downstream default pose, if present
-    curveData?: Mat4[]; // the nearest animation curve, if present
-    bindpose: Mat4; // the actual bindpose to use
 }
 
 // Have to use some big number to replace the actual 'Infinity'.
@@ -213,8 +216,9 @@ export class JointTexturePool {
         if (texture && texture.bounds.has(mesh.hash)) { texture.refCount++; return texture; }
         const { joints, bindposes } = skeleton;
         let textureBuffer: Float32Array = null!; let buildTexture = false;
+        const jointCount = joints.length;
         if (!texture) {
-            const bufSize = joints.length * 12;
+            const bufSize = jointCount * 12;
             const customChunkIdx = this._chunkIdxMap.get(hash);
             const handle = customChunkIdx !== undefined ?
                 this._customPool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT, customChunkIdx) :
@@ -227,10 +231,10 @@ export class JointTexturePool {
         Vec3.set(v3_min,  Inf,  Inf,  Inf);
         Vec3.set(v3_max, -Inf, -Inf, -Inf);
         const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
-        for (let i = 0; i < joints.length; i++) {
-            const node = skinningRoot.getChildByPath(joints[i]);
-            const bound = boneSpaceBounds[i];
-            const mat = node ? getWorldTransformUntilRoot(node, skinningRoot, m4_1) : Mat4.IDENTITY;
+        for (let j = 0, offset = 0; j < jointCount; j++, offset += 12) {
+            const node = skinningRoot.getChildByPath(joints[j]);
+            const mat = node ? getWorldTransformUntilRoot(node, skinningRoot, m4_1) : skeleton.inverseBindposes[j];
+            const bound = boneSpaceBounds[j];
             if (bound) {
                 aabb.transform(ab_1, bound, mat);
                 ab_1.getBoundary(v3_3, v3_4);
@@ -238,8 +242,8 @@ export class JointTexturePool {
                 Vec3.max(v3_max, v3_max, v3_4);
             }
             if (buildTexture) {
-                if (mat !== Mat4.IDENTITY) { Mat4.multiply(mat, mat, bindposes[i]); }
-                uploadJointData(textureBuffer, 12 * i, mat, i === 0);
+                if (node) { Mat4.multiply(mat, mat, bindposes[j]); }
+                uploadJointData(textureBuffer, offset, node ? mat : Mat4.IDENTITY, j === 0);
             }
         }
         const bounds = [new aabb()]; texture.bounds.set(mesh.hash, bounds);
@@ -265,101 +269,50 @@ export class JointTexturePool {
         const clipData = SkelAnimDataHub.getOrExtract(clip);
         const frames = clipData.info.frames;
         let textureBuffer: Float32Array = null!; let buildTexture = false;
-        const totalJoints = joints.length;
+        const jointCount = joints.length;
         if (!texture) {
-            const bufSize = totalJoints * 12 * frames;
+            const bufSize = jointCount * 12 * frames;
             const customChunkIdx = this._chunkIdxMap.get(hash);
             const handle = customChunkIdx !== undefined ?
                 this._customPool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT, customChunkIdx) :
                 this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
             if (!handle) { return null; }
+            const animInfos = this._createAnimInfos(skeleton, clip, skinningRoot);
             texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, bounds: new Map(),
-                skeletonHash: skeleton.hash, clipHash: clip.hash, readyToBeDeleted: false, handle };
+                skeletonHash: skeleton.hash, clipHash: clip.hash, readyToBeDeleted: false, handle, animInfos };
             textureBuffer = new Float32Array(bufSize); buildTexture = true;
         } else { texture.refCount++; }
         const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
         const bounds: aabb[] = []; texture.bounds.set(mesh.hash, bounds);
-        for (let fid = 0; fid < frames; fid++) {
+        for (let f = 0; f < frames; f++) {
             bounds.push(new aabb(Inf, Inf, Inf, -Inf, -Inf, -Inf));
         }
-        const animInfos: IJointAnimInfo[] = [];
-        for (let i = 0; i < totalJoints; i++) {
-            let animPath = joints[i];
-            let source = clipData.data[animPath];
-            let animNode = skinningRoot.getChildByPath(animPath);
-            let downstream: Mat4 | undefined;
-            let correctionPath: string | undefined;
-            while (!source) {
-                const idx = animPath.lastIndexOf('/');
-                if (idx < 0) { break; }
-                animPath = animPath.substring(0, idx);
-                source = clipData.data[animPath];
-                if (animNode) {
-                    if (!downstream) { downstream = new Mat4(); }
-                    Mat4.fromRTS(m4_1, animNode.rotation, animNode.position, animNode.scale);
-                    Mat4.multiply(downstream, m4_1, downstream);
-                    animNode = animNode.parent;
-                } else { // record the nearest curve path if no downstream pose is present
-                    correctionPath = animPath;
-                }
-            }
-            // the default behavior, just use the bindpose for current joint directly
-            let bindposeIdx = i;
-            /**
-             * It is regularly observed that developers may choose to delete the whole
-             * skeleton node tree for skinning models that only use baked animations,
-             * to reduce prefab file size.
-             *
-             * This becomes troublesome in some cases during baking though, e.g. when a
-             * skeleton joint node is not directly controlled by any animation curve,
-             * but its parent nodes are. Due to lack of proper downstream default pose,
-             * the joint transform can not be calculated accurately.
-             *
-             * We address this issue by employing some pragmatic approximation.
-             * Specifically, by multiplying the bindpose of the joint corresponding to
-             * the nearest curve, instead of the actual target joint. This effectively
-             * merges the skinning influence of the 'incomplete' joint into its nearest
-             * parent with accurate transform data.
-             * It gives more visually-plausible results compared to the naive approach
-             * for most cases we've covered.
-             */
-            if (correctionPath !== undefined) {
-                // just use the previous joint if the exact path is not found
-                bindposeIdx = i - 1;
-                for (let j = 0; j < totalJoints; j++) {
-                    if (joints[j] === correctionPath) {
-                        bindposeIdx = j; break;
-                    }
-                }
-            }
-            animInfos.push({ curveData: source && source.worldMatrix.values as Mat4[], downstream, bindpose: bindposes[bindposeIdx] });
-        }
-        let offset = 0;
-        for (let frame = 0; frame < frames; frame++) {
-            const bound = bounds[frame];
-            for (let i = 0; i < totalJoints; i++, offset += 12) {
-                const animInfo = animInfos[i];
-                let mat: Mat4;
-                if (animInfo.curveData && animInfo.downstream) { // curve & static two-way combination
-                    mat = Mat4.multiply(m4_1, animInfo.curveData[frame], animInfo.downstream);
-                } else if (animInfo.curveData) { // there is a curve directly controlling the joint
-                    mat = animInfo.curveData[frame];
-                } else if (animInfo.downstream) { // fallback to default pose if no animation curve can be found upstream
-                    mat = animInfo.downstream;
+        for (let f = 0, offset = 0; f < frames; f++) {
+            const bound = bounds[f];
+            for (let j = 0; j < jointCount; j++, offset += 12) {
+                const { curveData, downstream, bindposeIdx, bindposeCorrection } = texture.animInfos![j];
+                let mat: Mat4; let transformValid = true;
+                if (curveData && downstream) { // curve & static two-way combination
+                    mat = Mat4.multiply(m4_1, curveData[f], downstream);
+                } else if (curveData) { // there is a curve directly controlling the joint
+                    mat = curveData[f];
+                } else if (downstream) { // fallback to default pose if no animation curve can be found upstream
+                    mat = downstream;
                 } else { // bottom line: render the original mesh as-is
-                    mat = Mat4.IDENTITY;
+                    mat = skeleton.inverseBindposes[bindposeIdx];
+                    transformValid = false;
                 }
-                const boneSpaceBound = boneSpaceBounds[i];
-                if (boneSpaceBound && mat !== Mat4.IDENTITY) {
-                    aabb.transform(ab_1, boneSpaceBound, mat);
+                const boneSpaceBound = boneSpaceBounds[j];
+                if (boneSpaceBound) {
+                    const transform = bindposeCorrection ? Mat4.multiply(m4_2, mat, bindposeCorrection) : mat;
+                    aabb.transform(ab_1, boneSpaceBound, transform);
                     ab_1.getBoundary(v3_3, v3_4);
                     Vec3.min(bound.center, bound.center, v3_3);
                     Vec3.max(bound.halfExtents, bound.halfExtents, v3_4);
                 }
                 if (buildTexture) {
-                    // no need to apply bindpose if we are rendering the mesh as-is
-                    if (mat !== Mat4.IDENTITY) { mat = Mat4.multiply(m4_1, mat, animInfo.bindpose); }
-                    uploadJointData(textureBuffer, offset, mat, i === 0);
+                    if (transformValid) { Mat4.multiply(m4_1, mat, bindposes[bindposeIdx]); }
+                    uploadJointData(textureBuffer, offset, transformValid ? m4_1 : Mat4.IDENTITY, j === 0);
                 }
             }
             aabb.fromPoints(bound, bound.center, bound.halfExtents);
@@ -374,9 +327,12 @@ export class JointTexturePool {
     public releaseHandle (handle: IJointTextureHandle) {
         if (handle.refCount > 0) { handle.refCount--; }
         if (!handle.refCount && handle.readyToBeDeleted) {
-            const customChunkIdx = this._chunkIdxMap.get(handle.skeletonHash ^ handle.clipHash);
+            const hash = handle.skeletonHash ^ handle.clipHash;
+            const customChunkIdx = this._chunkIdxMap.get(hash);
             (customChunkIdx !== undefined ? this._customPool : this._pool).free(handle.handle);
-            this._textureBuffers.delete(handle.skeletonHash ^ handle.clipHash);
+            if (this._textureBuffers.get(hash) === handle) {
+                this._textureBuffers.delete(hash);
+            }
         }
     }
 
@@ -414,6 +370,69 @@ export class JointTexturePool {
             }
             res = it.next();
         }
+    }
+
+    private _createAnimInfos (skeleton: Skeleton, clip: AnimationClip, skinningRoot: Node) {
+        const animInfos: IInternalJointAnimInfo[] = [];
+        const { joints, bindposes } = skeleton;
+        const jointCount = joints.length;
+        const clipData = SkelAnimDataHub.getOrExtract(clip);
+        for (let j = 0; j < jointCount; j++) {
+            let animPath = joints[j];
+            let source = clipData.data[animPath];
+            let animNode = skinningRoot.getChildByPath(animPath);
+            let downstream: Mat4 | undefined;
+            let correctionPath: string | undefined;
+            while (!source) {
+                const idx = animPath.lastIndexOf('/');
+                animPath = animPath.substring(0, idx);
+                source = clipData.data[animPath];
+                if (animNode) {
+                    if (!downstream) { downstream = new Mat4(); }
+                    Mat4.fromRTS(m4_1, animNode.rotation, animNode.position, animNode.scale);
+                    Mat4.multiply(downstream, m4_1, downstream);
+                    animNode = animNode.parent;
+                } else { // record the nearest curve path if no downstream pose is present
+                    correctionPath = animPath;
+                }
+                if (idx < 0) { break; }
+            }
+            // the default behavior, just use the bindpose for current joint directly
+            let bindposeIdx = j;
+            let bindposeCorrection: Mat4 | undefined;
+            /**
+             * It is regularly observed that developers may choose to delete the whole
+             * skeleton node tree for skinning models that only use baked animations,
+             * to reduce prefab file size.
+             *
+             * This becomes troublesome in some cases during baking though, e.g. when a
+             * skeleton joint node is not directly controlled by any animation curve,
+             * but its parent nodes are. Due to lack of proper downstream default pose,
+             * the joint transform can not be calculated accurately.
+             *
+             * We address this issue by employing some pragmatic approximation.
+             * Specifically, by multiplying the bindpose of the joint corresponding to
+             * the nearest curve, instead of the actual target joint. This effectively
+             * merges the skinning influence of the 'incomplete' joint into its nearest
+             * parent with accurate transform data.
+             * It gives more visually-plausible results compared to the naive approach
+             * for most cases we've covered.
+             */
+            if (correctionPath !== undefined && source) {
+                // just use the previous joint if the exact path is not found
+                bindposeIdx = j - 1;
+                for (let t = 0; t < jointCount; t++) {
+                    if (joints[t] === correctionPath) {
+                        bindposeIdx = t;
+                        bindposeCorrection = new Mat4();
+                        Mat4.multiply(bindposeCorrection, bindposes[t], skeleton.inverseBindposes[j]);
+                        break;
+                    }
+                }
+            }
+            animInfos.push({ curveData: source && source.worldMatrix.values as Mat4[], downstream, bindposeIdx, bindposeCorrection });
+        }
+        return animInfos;
     }
 }
 
