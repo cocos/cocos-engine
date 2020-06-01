@@ -4,7 +4,7 @@ import { RenderingSubMesh } from '../../assets/mesh';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit } from '../../gfx/define';
-import { GFXDevice } from '../../gfx/device';
+import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Mat4, Vec3 } from '../../math';
 import { Pool } from '../../memop';
@@ -306,6 +306,7 @@ export class Model {
 
     // for now no submodel level instancing attributes
     protected updateInstancedAttributeList (pso: GFXPipelineState, pass: Pass) {
+        if (!pass.device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) { return; }
         const attributes = pso.inputState.attributes;
         let size = 0;
         for (let j = 0; j < attributes.length; j++) {
