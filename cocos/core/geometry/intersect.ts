@@ -367,7 +367,7 @@ const ray_subMesh = (function () {
                 const dist = intersect.ray_triangle(ray, tri, opt.doubleSided);
                 if (dist == 0 || dist > opt.distance) continue;
                 fillResult(opt.mode, dist, i0, i1, i2, opt.result);
-                if (opt.mode = ERaycastMode.ANY) return dist;
+                if (opt.mode == ERaycastMode.ANY) return dist;
             }
         } else if (pm === GFXPrimitiveMode.TRIANGLE_STRIP) {
             const cnt = ib.length - 2;
@@ -383,7 +383,7 @@ const ray_subMesh = (function () {
                 const dist = intersect.ray_triangle(ray, tri, opt.doubleSided);
                 if (dist == 0 || dist > opt.distance) continue;
                 fillResult(opt.mode, dist, i0, i1, i2, opt.result);
-                if (opt.mode = ERaycastMode.ANY) return dist;
+                if (opt.mode == ERaycastMode.ANY) return dist;
             }
         } else if (pm === GFXPrimitiveMode.TRIANGLE_FAN) {
             const cnt = ib.length - 1;
@@ -397,7 +397,7 @@ const ray_subMesh = (function () {
                 const dist = intersect.ray_triangle(ray, tri, opt.doubleSided);
                 if (dist == 0 || dist > opt.distance) continue;
                 fillResult(opt.mode, dist, i0, i1, i2, opt.result);
-                if (opt.mode = ERaycastMode.ANY) return dist;
+                if (opt.mode == ERaycastMode.ANY) return dist;
             }
         }
         return minDis;
@@ -406,7 +406,6 @@ const ray_subMesh = (function () {
         minDis = 0;
         if (submesh.geometricInfo.positions.length == 0) return minDis;
         const opt = option == undefined ? deOpt : option;
-        if (opt.result) opt.result.length = 0;
         const min = submesh.geometricInfo.boundingBox.min;
         const max = submesh.geometricInfo.boundingBox.max;
         if (ray_aabb2(ray, min, max)) {
@@ -434,7 +433,6 @@ const ray_mesh = (function () {
     return function (ray: ray, mesh: Mesh, option?: IRayMeshOptions) {
         minDis = 0;
         const opt = option == undefined ? deOpt : option;
-        if (opt.result) opt.result.length = 0;
         const length = mesh.renderingSubMeshes.length;
         const min = mesh.struct.minPosition;
         const max = mesh.struct.maxPosition;
@@ -444,13 +442,9 @@ const ray_mesh = (function () {
             const dis = ray_subMesh(ray, sm, opt);
             if (dis) {
                 if (opt.mode == ERaycastMode.CLOSEST) {
-                    if (minDis == 0) {
+                    if (minDis == 0 || minDis > dis) {
                         minDis = dis;
                         if (opt.subIndices) opt.subIndices[0] = i;
-                    } else if (minDis > dis) {
-                        minDis = dis;
-                        if (opt.subIndices) opt.subIndices[0] = i;
-                        if (opt.result) opt.result[0] = opt.result[i];
                     }
                 } else {
                     minDis = dis;
@@ -487,7 +481,6 @@ const ray_model = (function () {
     return function (r: ray, model: Model, option?: IRayModelOptions) {
         minDis = 0;
         const opt = option == undefined ? deOpt : option;
-        if (opt.result) opt.result.length = 0;
         const length = model.subModelNum;
         ray.copy(modelRay, r);
         if (model.node) {
@@ -502,13 +495,9 @@ const ray_model = (function () {
             const dis = ray_subMesh(modelRay, sm, opt);
             if (dis) {
                 if (opt.mode == ERaycastMode.CLOSEST) {
-                    if (minDis > dis) {
+                    if (minDis == 0 || minDis > dis) {
                         minDis = dis;
                         if (opt.subIndices) opt.subIndices[0] = i;
-                    } else if (minDis == 0) {
-                        minDis = dis;
-                        if (opt.subIndices) opt.subIndices[0] = i;
-                        if (opt.result) opt.result[0] = opt.result[i];
                     }
                 } else {
                     minDis = dis;
