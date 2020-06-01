@@ -332,8 +332,28 @@ const ray_capsule = (function () {
 const ray_subMesh = (function () {
     const tri = triangle.create();
     const deOpt: IRaySubMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
-    const tr: IRaySubMeshResult = { distance: 0, vertexIndex0: 0, vertexIndex1: 0, vertexIndex2: 0 };
     let minDis = 0;
+
+    const fillResult = (m: ERaycastMode, d: number, i0: number, i1: number, i2: number, r?: IRaySubMeshResult[]) => {
+        if (m == ERaycastMode.CLOSEST) {
+            if (minDis > d || minDis == 0) {
+                minDis = d;
+                if (r) {
+                    if (r.length == 0) r.push({ distance: d, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                    else {
+                        r[0].distance = d; r[0].vertexIndex0 = i0; r[0].vertexIndex1 = i1; r[0].vertexIndex2 = i2;
+                    }
+                }
+            }
+        } else if (m == ERaycastMode.ALL) {
+            minDis = d;
+            if (r) r.push({ distance: d, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+        } else {
+            minDis = d;
+            if (r) r.push({ distance: d, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+        }
+    }
+
     const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, ray: ray, opt: IRaySubMeshOptions) => {
         if (pm === GFXPrimitiveMode.TRIANGLE_LIST) {
             const cnt = ib.length;
@@ -345,25 +365,9 @@ const ray_subMesh = (function () {
                 Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
                 Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
                 const dist = intersect.ray_triangle(ray, tri, opt.doubleSided);
-                if (dist == 0 || dist > opt.distance!) continue;
-                if (opt.mode == ERaycastMode.CLOSEST) {
-                    if (minDis > dist || minDis == 0) {
-                        minDis = dist;
-                        tr.distance = dist;
-                        tr.vertexIndex0 = i0;
-                        tr.vertexIndex1 = i1;
-                        tr.vertexIndex2 = i2;
-                        if (opt.result && j + 3 < cnt)
-                            opt.result.push({ distance: tr.distance, vertexIndex0: tr.vertexIndex0, vertexIndex1: tr.vertexIndex1, vertexIndex2: tr.vertexIndex2 });
-                    }
-                } else if (opt.mode == ERaycastMode.ALL) {
-                    minDis = dist;
-                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
-                } else {
-                    minDis = dist;
-                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
-                    return minDis;
-                }
+                if (dist == 0 || dist > opt.distance) continue;
+                fillResult(opt.mode, dist, i0, i1, i2, opt.result);
+                if (opt.mode = ERaycastMode.ANY) return dist;
             }
         } else if (pm === GFXPrimitiveMode.TRIANGLE_STRIP) {
             const cnt = ib.length - 2;
@@ -377,18 +381,9 @@ const ray_subMesh = (function () {
                 Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
                 rev = ~rev;
                 const dist = intersect.ray_triangle(ray, tri, opt.doubleSided);
-                if (dist == 0 || dist > opt.distance!) continue;
-                if (opt.mode == ERaycastMode.CLOSEST) {
-                    if (minDis < dist) continue;
-                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
-                } else if (opt.mode == ERaycastMode.ALL) {
-                    minDis = dist;
-                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
-                } else {
-                    minDis = dist;
-                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
-                    return minDis;
-                }
+                if (dist == 0 || dist > opt.distance) continue;
+                fillResult(opt.mode, dist, i0, i1, i2, opt.result);
+                if (opt.mode = ERaycastMode.ANY) return dist;
             }
         } else if (pm === GFXPrimitiveMode.TRIANGLE_FAN) {
             const cnt = ib.length - 1;
@@ -400,26 +395,18 @@ const ray_subMesh = (function () {
                 Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
                 Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
                 const dist = intersect.ray_triangle(ray, tri, opt.doubleSided);
-                if (dist == 0 || dist > opt.distance!) continue;
-                if (opt.mode == ERaycastMode.CLOSEST) {
-                    if (minDis < dist) continue;
-                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
-                } else if (opt.mode == ERaycastMode.ALL) {
-                    minDis = dist;
-                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
-                } else {
-                    minDis = dist;
-                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
-                    return minDis;
-                }
+                if (dist == 0 || dist > opt.distance) continue;
+                fillResult(opt.mode, dist, i0, i1, i2, opt.result);
+                if (opt.mode = ERaycastMode.ANY) return dist;
             }
         }
         return minDis;
     };
     return function (ray: ray, submesh: RenderingSubMesh, option?: IRaySubMeshOptions) {
         minDis = 0;
+        if (submesh.geometricInfo.positions.length == 0) return minDis;
         const opt = option == undefined ? deOpt : option;
-        if (submesh.geometricInfo.positions.length == 0) return;
+        if (opt.result) opt.result.length = 0;
         const min = submesh.geometricInfo.boundingBox.min;
         const max = submesh.geometricInfo.boundingBox.max;
         if (ray_aabb2(ray, min, max)) {
@@ -447,6 +434,7 @@ const ray_mesh = (function () {
     return function (ray: ray, mesh: Mesh, option?: IRayMeshOptions) {
         minDis = 0;
         const opt = option == undefined ? deOpt : option;
+        if (opt.result) opt.result.length = 0;
         const length = mesh.renderingSubMeshes.length;
         const min = mesh.struct.minPosition;
         const max = mesh.struct.maxPosition;
@@ -499,6 +487,7 @@ const ray_model = (function () {
     return function (r: ray, model: Model, option?: IRayModelOptions) {
         minDis = 0;
         const opt = option == undefined ? deOpt : option;
+        if (opt.result) opt.result.length = 0;
         const length = model.subModelNum;
         ray.copy(modelRay, r);
         if (model.node) {
