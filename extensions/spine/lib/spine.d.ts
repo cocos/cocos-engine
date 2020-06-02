@@ -1,4 +1,4 @@
-declare module spine {
+declare namespace sp.spine {
     class Animation {
         name: string;
         timelines: Array<Timeline>;
