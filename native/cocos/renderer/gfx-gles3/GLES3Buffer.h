@@ -7,19 +7,19 @@ class GLES3GPUBuffer;
 
 class CC_GLES3_API GLES3Buffer : public GFXBuffer {
 public:
-  GLES3Buffer(GFXDevice* device);
-  ~GLES3Buffer();
+    GLES3Buffer(GFXDevice* device);
+    ~GLES3Buffer();
   
 public:
-  bool initialize(const GFXBufferInfo& info);
-  void destroy();
-  void resize(uint size);
-  void update(void* buffer, uint offset, uint size);
-  
-  CC_INLINE GLES3GPUBuffer* gpuBuffer() const { return _gpuBuffer; }
+    virtual bool initialize(const GFXBufferInfo& info) override;
+    virtual void destroy() override;
+    virtual void resize(uint size) override;
+    virtual void update(void* buffer, uint offset, uint size) override;
+
+    CC_INLINE GLES3GPUBuffer* gpuBuffer() const { return _gpuBuffer; }
 
 private:
-  GLES3GPUBuffer* _gpuBuffer = nullptr;
+    GLES3GPUBuffer* _gpuBuffer = nullptr;
 };
 
 NS_CC_END

@@ -6,19 +6,19 @@ NS_CC_BEGIN
 class GLES3GPUBindingLayout;
 
 class CC_GLES3_API GLES3BindingLayout : public GFXBindingLayout {
- public:
-  GLES3BindingLayout(GFXDevice* device);
-  ~GLES3BindingLayout();
+public:
+    GLES3BindingLayout(GFXDevice* device);
+    ~GLES3BindingLayout();
   
- public:
-  bool initialize(const GFXBindingLayoutInfo& info);
-  void destroy();
-  void update();
+public:
+    virtual bool initialize(const GFXBindingLayoutInfo& info) override;
+    virtual void destroy() override;
+    virtual void update() override;
+
+    CC_INLINE GLES3GPUBindingLayout* gpuBindingLayout() const { return _gpuBindingLayout; }
   
-  CC_INLINE GLES3GPUBindingLayout* gpuBindingLayout() const { return _gpuBindingLayout; }
-  
- private:
-  GLES3GPUBindingLayout* _gpuBindingLayout = nullptr;
+private:
+    GLES3GPUBindingLayout* _gpuBindingLayout = nullptr;
 };
 
 NS_CC_END
