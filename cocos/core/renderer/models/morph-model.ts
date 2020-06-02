@@ -11,7 +11,7 @@ export class MorphModel extends Model {
 
     protected getMacroPatches(subModelIndex: number) : any {
         if (this._morphRenderingInstance) {
-            return this._morphRenderingInstance.requiredPatches(subModelIndex);
+            return this._morphRenderingInstance.requiredPatches(subModelIndex)?.concat(super.getMacroPatches(subModelIndex) );
         } else {
             return undefined;
         } 

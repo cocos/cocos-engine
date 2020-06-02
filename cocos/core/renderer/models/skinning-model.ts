@@ -245,7 +245,7 @@ export class SkinningModel extends MorphModel {
     }
 
     protected getMacroPatches(subModelIndex: number) : any {
-        return myPatches;
+        return myPatches.concat(super.getMacroPatches(subModelIndex) );
     }
 
     protected updateAttributesAndBinding(subModelIndex : number) {
