@@ -324,9 +324,9 @@ const ray_capsule = (function () {
  * ray-subMesh intersect detect.
  * @zh
  * 射线和子三角网格的相交性检测。
- * @param {ray} ray 射线
- * @param {RenderingSubMesh} subMesh 子网格
- * @param {IRaySubMeshOptions} options 可选参数结构
+ * @param {ray} ray
+ * @param {RenderingSubMesh} subMesh
+ * @param {IRaySubMeshOptions} options
  * @return {number} 0 或 非0
  */
 const ray_subMesh = (function () {
@@ -420,9 +420,9 @@ const ray_subMesh = (function () {
  * ray-mesh intersect detect.
  * @zh
  * 射线和三角网格资源的相交性检测。
- * @param {ray} ray 射线
- * @param {Mesh} mesh 网格
- * @param {IRayMeshOptions} options 可选参数结构
+ * @param {ray} ray 
+ * @param {Mesh} mesh 
+ * @param {IRayMeshOptions} options
  * @return {number} 0 或 非0
  */
 const ray_mesh = (function () {
@@ -466,10 +466,10 @@ const ray_mesh = (function () {
  * ray-model intersect detect.
  * @zh
  * 射线和渲染模型的相交性检测。
- * @param {ray} ray 射线
- * @param {Model} model 模型
- * @param {IRayModelOptions} options 可选参数结构
- * @return {number} 0 或 非0
+ * @param {ray} ray
+ * @param {Model} model
+ * @param {IRayModelOptions} options
+ * @return {number} 0 or !0
  */
 const ray_model = (function () {
     let minDis = 0;
