@@ -1402,14 +1402,14 @@ let NodeDefines = {
             set (value) {
                 if (!this._color.equals(value)) {
                     this._color.set(value);
-                    if (CC_DEV && value.a !== 255) {
+                    if (CC_DEV && this._color.a !== 255) {
                         cc.warnID(1626);
                     }
 
                     this._renderFlag |= RenderFlow.FLAG_COLOR;
 
                     if (this._eventMask & COLOR_ON) {
-                        this.emit(EventType.COLOR_CHANGED, value);
+                        this.emit(EventType.COLOR_CHANGED, this._color);
                     }
                 }
             },
