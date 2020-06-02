@@ -339,15 +339,13 @@ const ray_subMesh = (function () {
             if (minDis > d || minDis == 0) {
                 minDis = d;
                 if (r) {
-                    if (r.length == 0) r.push({ distance: d, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
-                    else {
+                    if (r.length == 0) {
+                        r.push({ distance: d, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                    } else {
                         r[0].distance = d; r[0].vertexIndex0 = i0; r[0].vertexIndex1 = i1; r[0].vertexIndex2 = i2;
                     }
                 }
             }
-        } else if (m == ERaycastMode.ALL) {
-            minDis = d;
-            if (r) r.push({ distance: d, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
         } else {
             minDis = d;
             if (r) r.push({ distance: d, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
