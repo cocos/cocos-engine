@@ -244,7 +244,7 @@ declare namespace sp.spine {
         apply(skeleton: Skeleton, lastTime: number, time: number, firedEvents: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class AnimationState {
         static emptyAnimation: Animation;
         static SUBSEQUENT: number;
@@ -369,7 +369,7 @@ declare module spine {
         event(entry: TrackEntry, event: Event): void;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class AnimationStateData {
         skeletonData: SkeletonData;
         animationToMixTime: Map<number>;
@@ -380,7 +380,7 @@ declare module spine {
         getMix(from: Animation, to: Animation): number;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class AssetManager implements Disposable {
         private pathPrefix;
         private textureLoader;
@@ -408,7 +408,7 @@ declare module spine {
         getErrors(): Map<string>;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class AtlasAttachmentLoader implements AttachmentLoader {
         atlas: TextureAtlas;
         constructor(atlas: TextureAtlas);
@@ -420,7 +420,7 @@ declare module spine {
         newClippingAttachment(skin: Skin, name: string): ClippingAttachment;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     enum BlendMode {
         Normal = 0,
         Additive = 1,
@@ -428,7 +428,7 @@ declare module spine {
         Screen = 3
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class Bone implements Updatable {
         data: BoneData;
         skeleton: Skeleton;
@@ -475,7 +475,7 @@ declare module spine {
         rotateWorld(degrees: number): void;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class BoneData {
         index: number;
         name: string;
@@ -501,7 +501,7 @@ declare module spine {
         NoScaleOrReflection = 4
     }
 }
-declare module spine {
+declare namespace sp.spine {
     abstract class ConstraintData {
         name: string;
         order: number;
@@ -509,7 +509,7 @@ declare module spine {
         constructor(name: string, order: number, skinRequired: boolean);
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class Event {
         data: EventData;
         intValue: number;
@@ -521,7 +521,7 @@ declare module spine {
         constructor(time: number, data: EventData);
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class EventData {
         name: string;
         intValue: number;
@@ -533,7 +533,7 @@ declare module spine {
         constructor(name: string);
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class IkConstraint implements Updatable {
         data: IkConstraintData;
         bones: Array<Bone>;
@@ -552,7 +552,7 @@ declare module spine {
         apply2(parent: Bone, child: Bone, targetX: number, targetY: number, bendDir: number, stretch: boolean, softness: number, alpha: number): void;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class IkConstraintData extends ConstraintData {
         bones: BoneData[];
         target: BoneData;
@@ -565,7 +565,7 @@ declare module spine {
         constructor(name: string);
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class PathConstraint implements Updatable {
         static NONE: number;
         static BEFORE: number;
@@ -595,7 +595,7 @@ declare module spine {
         addCurvePosition(p: number, x1: number, y1: number, cx1: number, cy1: number, cx2: number, cy2: number, x2: number, y2: number, out: Array<number>, o: number, tangents: boolean): void;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class PathConstraintData extends ConstraintData {
         bones: BoneData[];
         target: SlotData;
@@ -624,7 +624,7 @@ declare module spine {
         ChainScale = 2
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class SharedAssetManager implements Disposable {
         private pathPrefix;
         private clientAssets;
@@ -644,7 +644,7 @@ declare module spine {
         getErrors(): Map<string>;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class Skeleton {
         data: SkeletonData;
         bones: Array<Bone>;
@@ -692,7 +692,7 @@ declare module spine {
         update(delta: number): void;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class SkeletonBinary {
         static AttachmentTypeValues: number[];
         static TransformModeValues: TransformMode[];
@@ -728,7 +728,7 @@ declare module spine {
         setCurve(timeline: CurveTimeline, frameIndex: number, cx1: number, cy1: number, cx2: number, cy2: number): void;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class SkeletonBounds {
         minX: number;
         minY: number;
@@ -751,7 +751,7 @@ declare module spine {
         getHeight(): number;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class SkeletonClipping {
         private triangulator;
         private clippingPolygon;
@@ -770,7 +770,7 @@ declare module spine {
         static makeClockwise(polygon: ArrayLike<number>): void;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class SkeletonData {
         name: string;
         bones: BoneData[];
@@ -804,7 +804,7 @@ declare module spine {
         findPathConstraintIndex(pathConstraintName: string): number;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class SkeletonJson {
         attachmentLoader: AttachmentLoader;
         scale: number;
@@ -823,7 +823,7 @@ declare module spine {
         static transformModeFromString(str: string): TransformMode;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class SkinEntry {
         slotIndex: number;
         name: string;
@@ -847,7 +847,7 @@ declare module spine {
         attachAll(skeleton: Skeleton, oldSkin: Skin): void;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class Slot {
         data: SlotData;
         bone: Bone;
@@ -866,7 +866,7 @@ declare module spine {
         setToSetupPose(): void;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class SlotData {
         index: number;
         name: string;
@@ -878,7 +878,7 @@ declare module spine {
         constructor(index: number, name: string, boneData: BoneData);
     }
 }
-declare module spine {
+declare namespace sp.spine {
     abstract class Texture {
         protected _image: HTMLImageElement;
         constructor(image: HTMLImageElement);
@@ -923,7 +923,7 @@ declare module spine {
         dispose(): void;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class TextureAtlas implements Disposable {
         pages: TextureAtlasPage[];
         regions: TextureAtlasRegion[];
@@ -953,7 +953,7 @@ declare module spine {
         texture: Texture;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class TransformConstraint implements Updatable {
         data: TransformConstraintData;
         bones: Array<Bone>;
@@ -974,7 +974,7 @@ declare module spine {
         applyRelativeLocal(): void;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class TransformConstraintData extends ConstraintData {
         bones: BoneData[];
         target: BoneData;
@@ -993,7 +993,7 @@ declare module spine {
         constructor(name: string);
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class Triangulator {
         private convexPolygons;
         private convexPolygonsIndices;
@@ -1009,13 +1009,13 @@ declare module spine {
         private static winding;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     interface Updatable {
         update(): void;
         isActive(): boolean;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     interface Map<T> {
         [key: string]: T;
     }
@@ -1139,7 +1139,7 @@ declare module spine {
         getMean(): number;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     interface VertexEffect {
         begin(skeleton: Skeleton): void;
         transform(position: Vector2, uv: Vector2, light: Color, dark: Color): void;
@@ -1149,7 +1149,7 @@ declare module spine {
 interface Math {
     fround(n: number): number;
 }
-declare module spine {
+declare namespace sp.spine {
     abstract class Attachment {
         name: string;
         constructor(name: string);
@@ -1167,7 +1167,7 @@ declare module spine {
         copyTo(attachment: VertexAttachment): void;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     interface AttachmentLoader {
         newRegionAttachment(skin: Skin, name: string, path: string): RegionAttachment;
         newMeshAttachment(skin: Skin, name: string, path: string): MeshAttachment;
@@ -1177,7 +1177,7 @@ declare module spine {
         newClippingAttachment(skin: Skin, name: string): ClippingAttachment;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     enum AttachmentType {
         Region = 0,
         BoundingBox = 1,
@@ -1188,14 +1188,14 @@ declare module spine {
         Clipping = 6
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class BoundingBoxAttachment extends VertexAttachment {
         color: Color;
         constructor(name: string);
         copy(): Attachment;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class ClippingAttachment extends VertexAttachment {
         endSlot: SlotData;
         color: Color;
@@ -1203,7 +1203,7 @@ declare module spine {
         copy(): Attachment;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class MeshAttachment extends VertexAttachment {
         region: TextureRegion;
         path: string;
@@ -1225,7 +1225,7 @@ declare module spine {
         newLinkedMesh(): MeshAttachment;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class PathAttachment extends VertexAttachment {
         lengths: Array<number>;
         closed: boolean;
@@ -1235,7 +1235,7 @@ declare module spine {
         copy(): Attachment;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class PointAttachment extends VertexAttachment {
         x: number;
         y: number;
@@ -1247,7 +1247,7 @@ declare module spine {
         copy(): Attachment;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class RegionAttachment extends Attachment {
         static OX1: number;
         static OY1: number;
@@ -1310,7 +1310,7 @@ declare module spine {
         copy(): Attachment;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class JitterEffect implements VertexEffect {
         jitterX: number;
         jitterY: number;
@@ -1320,7 +1320,7 @@ declare module spine {
         end(): void;
     }
 }
-declare module spine {
+declare namespace sp.spine {
     class SwirlEffect implements VertexEffect {
         static interpolation: PowOut;
         centerX: number;
