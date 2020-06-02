@@ -340,15 +340,15 @@ const ray_subMesh = (function () {
                 minDis = d;
                 if (r) {
                     if (r.length == 0) {
-                        r.push({ distance: d, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                        r.push({ distance: d, vertexIndex0: i0 / 3, vertexIndex1: i1 / 3, vertexIndex2: i2 / 3 });
                     } else {
-                        r[0].distance = d; r[0].vertexIndex0 = i0; r[0].vertexIndex1 = i1; r[0].vertexIndex2 = i2;
+                        r[0].distance = d; r[0].vertexIndex0 = i0 / 3; r[0].vertexIndex1 = i1 / 3; r[0].vertexIndex2 = i2 / 3;
                     }
                 }
             }
         } else {
             minDis = d;
-            if (r) r.push({ distance: d, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+            if (r) r.push({ distance: d, vertexIndex0: i0 / 3, vertexIndex1: i1 / 3, vertexIndex2: i2 / 3 });
         }
     }
 
