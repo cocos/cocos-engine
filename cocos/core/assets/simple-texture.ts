@@ -155,9 +155,7 @@ export class SimpleTexture extends TextureBase {
             this._checkTextureLoaded();
 
             if (macro.CLEANUP_IMAGE_CACHE) {
-                if (data instanceof HTMLImageElement) {
-                    data.src = "";
-                }
+                image.destroy();
             }
         };
         if (image.loaded) {
