@@ -22,12 +22,15 @@ export class RenderDepthBatchedQueue {
     private _subModelsArray: SubModel[] = [];
     private _psoArray: GFXPipelineState[] = [];
     private _depthBuffer: GFXBuffer|null = null;
+    private _passDesc: IRenderQueueDesc;
+    private _pass: Pass|null= null;
 
     /**
      * constructor
      * @param desc Render queue description
      */
-    constructor () {
+    constructor (desc: IRenderQueueDesc) {
+        this._passDesc = desc;
     }
 
     /**
@@ -46,19 +49,26 @@ export class RenderDepthBatchedQueue {
         this._subModelsArray.length = 0;
         this._psoArray.length = 0;
         this._depthBuffer = null;
+        this._pass = null;
     }
 
-    public add (renderObj: IRenderObject, modelIdx: number) {
-        const nowStep = this._subModelsArray.length;
-        this._subModelsArray.push(renderObj.model.subModels[modelIdx]);
+    public add (pass: Pass, renderObj: IRenderObject, modelIdx: number) {
+        if (pass.phase === this._passDesc.phases) {
+            if(this._subModelsArray.length < 1) {
+                this._pass = pass;
+            }
 
-        // keep pos == subModel
-        this._psoArray.length = this._subModelsArray.length;
-
-        //@ts-ignore
-        this._psoArray[nowStep] = renderObj.model.createPipelineState(pass, modelIdx, myForward_Depth_Patches);
-        const bindingLayout = this._psoArray[nowStep].pipelineLayout.layouts[0];
-        if (this._depthBuffer) { bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, this._depthBuffer); }/// UBO depth
+            const nowStep = this._subModelsArray.length;
+            this._subModelsArray.push(renderObj.model.subModels[modelIdx]);
+    
+            // keep pos == subModel
+            this._psoArray.length = this._subModelsArray.length;
+    
+            //@ts-ignore
+            this._psoArray[nowStep] = renderObj.model.createPipelineState(pass, modelIdx, myForward_Depth_Patches);
+            const bindingLayout = this._psoArray[nowStep].pipelineLayout.layouts[0];
+            if (this._depthBuffer) { bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, this._depthBuffer); }/// UBO depth
+        }
     }
 
     /**
@@ -74,5 +84,10 @@ export class RenderDepthBatchedQueue {
             cmdBuff.bindInputAssembler(this._subModelsArray[i].inputAssembler!);
             cmdBuff.draw(this._subModelsArray[i].inputAssembler!);
         }
+    }
+
+    // get pass
+    public get pass () {
+        return this._pass;
     }
 }

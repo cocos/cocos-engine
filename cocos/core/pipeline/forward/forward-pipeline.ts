@@ -26,6 +26,8 @@ import { IRenderPass } from '../define';
 import { opaqueCompareFn } from '../render-queue';
 import { RenderShadowMapBatchedQueue } from '../render-shadowMap-batched-queue';
 import { RenderDepthBatchedQueue } from '../render-depth-batched-queue';
+import { ShadowMapFlow } from '../flow/shadowMap-flow';
+import { CameraComponent } from '../../3d';
 
 const _vec4Array = new Float32Array(4);
 const _sphere = sphere.create(0, 0, 0, 1);
@@ -180,7 +182,11 @@ export class ForwardPipeline extends RenderPipeline {
             sortFunc,
         });
 
-        this._depthBatchQueue = new RenderDepthBatchedQueue();
+        this._depthBatchQueue = new RenderDepthBatchedQueue({
+            isTransparent: false,
+            phases: getPhaseID("depth"),
+            sortFunc,
+        });
     }
 
     public initialize (info: IRenderPipelineInfo) {
@@ -190,6 +196,10 @@ export class ForwardPipeline extends RenderPipeline {
         this._flows.push(forwardFlow);
 
         // add shadowMap-flow
+        const camera= new CameraComponent("shadowMapCamera");
+        const shadowMapFlow = new ShadowMapFlow(camera);
+        shadowMapFlow.initialize(ShadowMapFlow.initInfo);
+        this._flows.push(shadowMapFlow);
     }
 
     public activate (root: Root): boolean {
@@ -369,15 +379,6 @@ export class ForwardPipeline extends RenderPipeline {
                 this.cullLightPerModel(this._renderObjects[i].model);
             }
             this._lightBatchQueue.updateQueueSize(this._validLights.length);
-        }
-
-        // per-model check shadow casting
-        for (let i = 0; i < this._renderObjects.length; ++i) {
-            if(this._renderObjects[i].model.castShadow) {
-                for (let j = 0; j < this._renderObjects[i].model.subModels.length; ++j) {
-                    this._depthBatchQueue.add(this._renderObjects[i], j);
-                }               
-            }
         }
     }
 

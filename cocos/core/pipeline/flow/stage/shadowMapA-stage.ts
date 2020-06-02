@@ -18,14 +18,18 @@ import { RenderTexture } from '../../../assets/render-texture'
 import { GFXBufferTextureCopy } from '../../../gfx/define'
 import { CameraComponent } from '../../../3d';
 import { director } from '../../../director';
+import { ForwardStagePriority } from '../../forward/enum';
 
 const readRegions = [new GFXBufferTextureCopy()];
+const writeRegions = [new GFXBufferTextureCopy()];
+const depthcolors: IGFXColor[] = [ { r: 1, g: 1, b: 1, a: 1 } ];
+const bufs: GFXCommandBuffer[] = [];
 
 /**
  * @zh
  * 渲染过程阶段。
  */
-export enum ShadowMapRenderPassStage {
+export enum ShadowMapRenderPassStageA {
     SHADOWMAP = 200,
 }
 
@@ -33,12 +37,30 @@ export enum ShadowMapRenderPassStage {
  * @zh
  * 前向渲染阶段。
  */
-@ccclass('ShadowMapStage')
-export class ShadowMapStage extends RenderStage {
+@ccclass('ShadowMapStageA')
+export class ShadowMapStageA extends RenderStage {
 
-    private _material: Material = null;
-    private _renderTarget: RenderTexture = null;
+    public static initInfo: IRenderStageInfo = {
+        name: 'ShadowMapStageA',
+        priority: ForwardStagePriority.FORWARD,
+        renderQueues: [
+            {
+                isTransparent: false,
+                sortMode: RenderQueueSortMode.FRONT_TO_BACK,
+                stages: ['default'],
+            },
+            {
+                isTransparent: true,
+                sortMode: RenderQueueSortMode.BACK_TO_FRONT,
+                stages: ['default', 'planarShadow'],
+            },
+        ],
+    };
+
+    private _renderTarget: RenderTexture|null  = null;
     private _shadowMapCamera: CameraComponent;
+    private _width = 512;
+    private _height = 512;
 
     /**
      * 构造函数。
@@ -47,6 +69,9 @@ export class ShadowMapStage extends RenderStage {
     constructor (shadowMapCamera: CameraComponent) {
         super();
         this._shadowMapCamera = shadowMapCamera;
+        this._renderTarget = this._shadowMapCamera.targetTexture;
+        director.root!.pipeline.addRenderPass(ShadowMapRenderPassStageA.SHADOWMAP, this._renderTarget!.getGFXWindow()!.renderPass);
+        
     }
 
     public activate (flow: RenderFlow) {
@@ -72,6 +97,8 @@ export class ShadowMapStage extends RenderStage {
      * @param height 屏幕高度。
      */
     public resize (width: number, height: number) {
+        this._width = width;
+        this._height = height;
     }
 
     /**
@@ -86,9 +113,55 @@ export class ShadowMapStage extends RenderStage {
      * 渲染函数。
      * @param view 渲染视图。
      */
-    public render (view: RenderView) {
-        this._renderTarget = this._shadowMapCamera.targetTexture;
-        director.root.pipeline.addRenderPass(ShadowMapRenderPassStage.SHADOWMAP, this._renderTarget.getGFXWindow().renderPass);
-        
-    }  
+    public render (view: RenderView) {                
+        // per-model check shadow casting
+        const renderObjects = this._pipeline.renderObjects;        
+        for (let i = 0; i < renderObjects.length; ++i) {
+            const ro = renderObjects[i];
+            if (ro.model.castShadow) {
+                for (let m = 0; m < ro.model.subModelNum; m++) {
+                    for (let p = 0; p < ro.model.getSubModel(m).passes.length; p++) {
+                        const pass = ro.model.getSubModel(m).passes[p];
+                        this.pipeline.depthQueue.add(pass, renderObjects[i], m);
+                    }
+                }
+            }
+        }
+
+        const camera = view.camera;
+
+        const cmdBuff = this._cmdBuff!;
+
+        cmdBuff.begin();
+        cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea!,
+            camera.clearFlag, depthcolors, camera.clearDepth, camera.clearStencil);
+
+        // Commit depth-queue
+        this.pipeline.depthQueue.recordCommandBuffer(cmdBuff);
+
+        cmdBuff.endRenderPass();
+        cmdBuff.end();
+
+        bufs[0] = cmdBuff;
+        this._device!.queue.submit(bufs);
+
+        const readRegion = readRegions[0];
+        readRegion.texExtent.width = this._width;
+        readRegion.texExtent.height = this._height;
+
+        const writeRegion = writeRegions[0];
+        writeRegion.texExtent.width = this._width;
+        writeRegion.texExtent.height = this._height;
+
+        const pass = this.pipeline.depthQueue.pass;
+        const handle = pass!.getHandle('depth');
+        pass!.setUniform(handle!, 0);
+        const length = this._width * this._height * 4;
+        const buffers: Uint8Array[] = [new Uint8Array(length)];
+        director.root!.device.copyFramebufferToBuffer(view.window!.framebuffer, buffers[0].buffer, readRegions);
+    }
+
+    public get renderTarget() {
+        return this._renderTarget;
+    }
 }

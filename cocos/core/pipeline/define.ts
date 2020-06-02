@@ -15,6 +15,7 @@ import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
 
 export const PIPELINE_FLOW_FORWARD: string = 'ForwardFlow';
+export const PIPELINE_FLOW_SHADOWMAP: string = 'ShadowMapFlow';
 export const PIPELINE_FLOW_SMAA: string = 'SMAAFlow';
 export const PIPELINE_FLOW_TONEMAP: string = 'ToneMapFlow';
 

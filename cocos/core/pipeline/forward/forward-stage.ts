@@ -130,7 +130,7 @@ export class ForwardStage extends RenderStage {
                     }
                 }
             } else {
-                for (m = 0; m < ro.model.subModelNum; m++) {                    
+                for (m = 0; m < ro.model.subModelNum; m++) {
                     for (p = 0; p < ro.model.getSubModel(m).passes.length; p++) {
                         const pass = ro.model.getSubModel(m).passes[p];
                         for (k = 0; k < this._renderQueues.length; k++) {
