@@ -2129,13 +2129,25 @@ void GLES2CmdFuncCopyBuffersToTexture(GLES2Device* device, uint8_t* const* buffe
       w = region.texExtent.width;
       h = region.texExtent.height;
       uint8_t* buff = buffers[n++];
-      if (!isCompressed) {
-        glTexSubImage2D(GL_TEXTURE_2D, region.texSubres.mipLevel, region.texOffset.x, region.texOffset.y, w, h,
-          gpuTexture->glFormat, gpuTexture->glType, (GLvoid*)buff);
-      } else {
+      if (isCompressed) {
         GLsizei memSize = (GLsizei)GFXFormatSize(gpuTexture->format, w, h, 1);
-        glCompressedTexSubImage2D(GL_TEXTURE_2D, region.texSubres.mipLevel, region.texOffset.x, region.texOffset.y, w, h,
-          gpuTexture->glFormat, memSize, (GLvoid*)buff);
+        glCompressedTexSubImage2D(GL_TEXTURE_2D, 
+                                  region.texSubres.mipLevel, 
+                                  region.texOffset.x, 
+                                  region.texOffset.y, 
+                                  w, h, 
+                                  gpuTexture->glFormat, 
+                                  memSize, 
+                                  (GLvoid*)buff);
+      } else {
+        glTexSubImage2D(GL_TEXTURE_2D, 
+                        region.texSubres.mipLevel, 
+                        region.texOffset.x, 
+                        region.texOffset.y, 
+                        w, h,
+                        gpuTexture->glFormat, 
+                        gpuTexture->glType, 
+                        (GLvoid*)buff);
       }
     }
     break;
@@ -2152,14 +2164,27 @@ void GLES2CmdFuncCopyBuffersToTexture(GLES2Device* device, uint8_t* const* buffe
         w = region.texExtent.width;
         h = region.texExtent.height;
         uint8_t* buff = buffers[n++];
-        if (!isCompressed) {
-          glTexSubImage3DOES(GL_TEXTURE_2D_ARRAY, region.texSubres.mipLevel, region.texOffset.x, region.texOffset.y, z,
-            w, h, d, gpuTexture->glFormat, gpuTexture->glType, (GLvoid*)buff);
+        if (isCompressed) {
+          GLsizei memSize = (GLsizei)GFXFormatSize(gpuTexture->format, w, h, 1);
+          glCompressedTexSubImage3DOES(GL_TEXTURE_2D_ARRAY, 
+                                       region.texSubres.mipLevel, 
+                                       region.texOffset.x, 
+                                       region.texOffset.y, z,
+                                       w, h, d, 
+                                       gpuTexture->glFormat, 
+                                       memSize, 
+                                       (GLvoid*)buff);
         }
         else {
-          GLsizei memSize = (GLsizei)GFXFormatSize(gpuTexture->format, w, h, 1);
-          glCompressedTexSubImage3DOES(GL_TEXTURE_2D_ARRAY, region.texSubres.mipLevel, region.texOffset.x, region.texOffset.y, z,
-            w, h, d, gpuTexture->glFormat, memSize, (GLvoid*)buff);
+          glTexSubImage3DOES(GL_TEXTURE_2D_ARRAY, 
+                             region.texSubres.mipLevel, 
+                             region.texOffset.x, 
+                             region.texOffset.y, 
+                             z,
+                             w, h, d, 
+                             gpuTexture->glFormat, 
+                             gpuTexture->glType, 
+                             (GLvoid*)buff);
         }
       }
     }
@@ -2175,14 +2200,28 @@ void GLES2CmdFuncCopyBuffersToTexture(GLES2Device* device, uint8_t* const* buffe
       h = region.texExtent.height;
       d = region.texExtent.depth;
       uint8_t* buff = buffers[n++];
-      if (!isCompressed) {
-        glTexSubImage3DOES(GL_TEXTURE_3D, region.texSubres.mipLevel, 
-          region.texOffset.x, region.texOffset.y, region.texOffset.z, w, h, d, gpuTexture->glFormat, gpuTexture->glType, (GLvoid*)buff);
+      if (isCompressed) {
+        GLsizei memSize = (GLsizei)GFXFormatSize(gpuTexture->format, w, d + 1, 1);
+        glCompressedTexSubImage3DOES(GL_TEXTURE_3D, 
+                                     region.texSubres.mipLevel, 
+                                     region.texOffset.x, 
+                                     region.texOffset.y, 
+                                     region.texOffset.z, 
+                                     w, h, d, 
+                                     gpuTexture->glFormat,
+                                     memSize, 
+                                     (GLvoid*)buff);
       }
       else {
-        GLsizei memSize = (GLsizei)GFXFormatSize(gpuTexture->format, w, d + 1, 1);
-        glCompressedTexSubImage3DOES(GL_TEXTURE_3D, region.texSubres.mipLevel, 
-          region.texOffset.x, region.texOffset.y, region.texOffset.z, w, h, d, gpuTexture->glFormat, memSize, (GLvoid*)buff);
+        glTexSubImage3DOES(GL_TEXTURE_3D, 
+                           region.texSubres.mipLevel,
+                           region.texOffset.x, 
+                           region.texOffset.y, 
+                           region.texOffset.z, 
+                           w, h, d, 
+                           gpuTexture->glFormat, 
+                           gpuTexture->glType, 
+                           (GLvoid*)buff);
       }
     }
     break;
@@ -2198,14 +2237,25 @@ void GLES2CmdFuncCopyBuffersToTexture(GLES2Device* device, uint8_t* const* buffe
         w = region.texExtent.width;
         h = region.texExtent.height;
         uint8_t* buff = buffers[n++];
-        if (!isCompressed) {
-          glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
-            region.texOffset.x, region.texOffset.y, w, h, gpuTexture->glFormat, gpuTexture->glType, (GLvoid*)buff);
+        if (isCompressed) {
+          GLsizei memSize = (GLsizei)GFXFormatSize(gpuTexture->format, w, h, 1);
+          glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f, 
+                                    region.texSubres.mipLevel,
+                                    region.texOffset.x, 
+                                    region.texOffset.y, 
+                                    w, h, 
+                                    gpuTexture->glFormat, 
+                                    memSize, 
+                                    (GLvoid*)buff);
         }
         else {
-          GLsizei memSize = (GLsizei)GFXFormatSize(gpuTexture->format, w, h, 1);
-          glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
-            region.texOffset.x, region.texOffset.y, w, h, gpuTexture->glFormat, memSize, (GLvoid*)buff);
+          glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f, 
+                          region.texSubres.mipLevel,
+                          region.texOffset.x, region.texOffset.y, 
+                          w, h, 
+                          gpuTexture->glFormat, 
+                          gpuTexture->glType, 
+                          (GLvoid*)buff);
         }
       }
     }
@@ -2216,7 +2266,7 @@ void GLES2CmdFuncCopyBuffersToTexture(GLES2Device* device, uint8_t* const* buffe
     break;
   }
     
-    if(gpuTexture->flags & GFXTextureFlagBit::GEN_MIPMAP)
+    if(!isCompressed && (gpuTexture->flags & GFXTextureFlagBit::GEN_MIPMAP))
     {
         glBindTexture(gpuTexture->glTarget, gpuTexture->glTexture);
         glGenerateMipmap(gpuTexture->glTarget);

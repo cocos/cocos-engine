@@ -22,6 +22,7 @@ public:
 private:
     void update(uint8_t* const* datas, const GFXBufferTextureCopyList& regions);
     bool createMTLTexture();
+    void generateMipmaps();
     
 private:
     id<MTLTexture> _mtlTexture = nil;

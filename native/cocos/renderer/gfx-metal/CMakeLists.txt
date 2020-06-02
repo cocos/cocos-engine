@@ -37,6 +37,7 @@ set(glslang_libs_name glslang OGLCompiler OSDependent SPIRV)
 set(spirv-cross_libs_name spirv-cross-core spirv-cross-glsl spirv-cross-msl)
 target_link_libraries(${TARGET_NAME} Core ${METAL_LIBRARY} ${METALKIT_LIBRARY} ${glslang_libs_name} ${spirv-cross_libs_name})
 target_include_directories(${TARGET_NAME} PUBLIC ${COCOS_EXTERNAL_PATH}/mac/include)
+
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME CCGFXMetal)
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCGFXMetal_d)
 

@@ -2,6 +2,7 @@
 #include "MTLTexture.h"
 #include "MTLUtils.h"
 #include "MTLDevice.h"
+#include <platform/mac/CCView.h>
 
 NS_CC_BEGIN
 
@@ -76,15 +77,16 @@ bool CCMTLTexture::createMTLTexture()
     switch (mtlTextureType) {
         case MTLTextureType2D:
         case MTLTextureType2DArray:
+            //No need to set mipmapped flag since mipmapLevelCount was explicty set via `_mipLevel`.
             descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:mtlFormat
                                                                             width:_width
                                                                            height:_height
-                                                                        mipmapped:_flags & GFXTextureFlags::GEN_MIPMAP];
+                                                                        mipmapped:NO];
             break;
         case MTLTextureTypeCube:
             descriptor = [MTLTextureDescriptor textureCubeDescriptorWithPixelFormat:mtlFormat
                                                                                size:_width
-                                                                          mipmapped:_flags & GFXTextureFlags::GEN_MIPMAP];
+                                                                          mipmapped:NO];
             break;
         default:
             CCASSERT(false, "Unsupported MTLTextureType, create MTLTextureDescriptor failed.");
@@ -239,6 +241,19 @@ void CCMTLTexture::update(uint8_t* const* datas, const GFXBufferTextureCopyList&
             CCASSERT(false, "Unsupported MTLTextureType, metal texture update failed.");
             break;
     }
+    if(_flags & GFXTextureFlags::GEN_MIPMAP)
+        generateMipmaps();
+}
+
+void CCMTLTexture::generateMipmaps()
+{
+    id<MTLCommandQueue> commandQueue = ((View*)(((CCMTLDevice*)_device)->getMTKView())).mtlCommandQueue;
+    id<MTLCommandBuffer> mtlCommandBuffer = [commandQueue commandBuffer];
+    [mtlCommandBuffer enqueue];
+    id<MTLBlitCommandEncoder> commandEncoder = [mtlCommandBuffer blitCommandEncoder];
+    [commandEncoder generateMipmapsForTexture:_mtlTexture];
+    [commandEncoder endEncoding];
+    [mtlCommandBuffer commit];
 }
 
 NS_CC_END
