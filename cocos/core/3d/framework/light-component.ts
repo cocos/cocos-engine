@@ -46,7 +46,7 @@ export const PhotometricTerm = Enum({
 
 /**
  * @en static light settings.
- * @zh 模型光照图设置
+ * @zh 静态灯光设置
  */
 @ccclass('cc.ModelLightmapSettings')
 class StaticLightSettings {
@@ -179,8 +179,15 @@ export class LightComponent extends Component {
      * @zh
      * 静态灯光设置。
      */
+    @property({
+        type: StaticLightSettings,
+    })
     get staticSettings () {
         return this._staticSettings;
+    }
+
+    set staticSettings (val) {
+        this._staticSettings = val;
     }
 
     /**
