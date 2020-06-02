@@ -327,7 +327,7 @@ const ray_capsule = (function () {
  * @param {ray} ray
  * @param {RenderingSubMesh} subMesh
  * @param {IRaySubMeshOptions} options
- * @return {number} 0 或 非0
+ * @return {number} 0 or !0
  */
 const ray_subMesh = (function () {
     const tri = triangle.create();
@@ -423,7 +423,7 @@ const ray_subMesh = (function () {
  * @param {ray} ray 
  * @param {Mesh} mesh 
  * @param {IRayMeshOptions} options
- * @return {number} 0 或 非0
+ * @return {number} 0 or !0
  */
 const ray_mesh = (function () {
     let minDis = 0;
