@@ -32,6 +32,19 @@ class BuiltinResMgr {
         blackTexture.image = imgAsset;
         resources[blackTexture._uuid] = blackTexture;
 
+        // empty texture
+        context.fillStyle = 'rgba(0,0,0,0)';
+        context.fillRect(0, 0, l, l);
+        const emptyBuffer = new Uint8Array(4 * 4);
+        for (let i = 0; i < emptyBuffer.length; ++i) {
+            emptyBuffer[i] = 0;
+        }
+        const emptyTexture = new Texture2D();
+        emptyTexture._uuid = 'empty-texture';
+        emptyTexture.image = imgAsset;
+        emptyTexture.uploadData(emptyBuffer);
+        resources[emptyTexture._uuid] = emptyTexture;
+
         // black texture
         const blackCubeTexture = new TextureCube();
         blackCubeTexture._uuid = 'black-cube-texture';
