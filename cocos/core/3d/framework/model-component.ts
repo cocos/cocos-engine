@@ -127,6 +127,7 @@ class ModelLightmapSettings {
      * @en lightmap size.
      * @zh 光照图大小
      */
+    @property
     get lightmapSize () {
         return this._lightmapSize;
     }
@@ -293,6 +294,10 @@ export class ModelComponent extends RenderableComponent {
         this.lightmapSettings.uvParam.y = vOff;
         this.lightmapSettings.uvParam.z = uScale;
         this.lightmapSettings.uvParam.w = vScale;
+
+        if (this.model !== null) {
+            this.model.updateLightingmap(this.lightmapSettings.texture, this.lightmapSettings.uvParam);
+        }
     }
 
     protected _updateModels () {
@@ -308,6 +313,10 @@ export class ModelComponent extends RenderableComponent {
         }
 
         this._updateModelParams();
+
+        if (this.model != null) {
+            this.model.updateLightingmap(this.lightmapSettings.texture, this.lightmapSettings.uvParam);
+        }
     }
 
     protected _createModel () {
@@ -376,6 +385,7 @@ export class ModelComponent extends RenderableComponent {
         if (!this._model || !this._model.inited) { return; }
         this._model.isDynamicBatching = this._isBatchingEnabled();
         this._model.setSubModelMaterial(idx, material);
+        this._model.updateLightingmap(this.lightmapSettings.texture, this.lightmapSettings.uvParam);
     }
 
     protected _onMeshChanged (old: Mesh | null) {
