@@ -62,13 +62,13 @@ const md5Pipe = {
  *
  * @class loader
  * @static
- * @deprecated `cc.loader` is deprecated, please backup your project and upgrade to `cc.assetManager`
+ * @deprecated cc.loader is deprecated, please backup your project and upgrade to cc.assetManager
  */
 const loader = {
     /**
      * `cc.loader.onProgress` is deprecated, please transfer onProgress to API as a parameter
      * @property onProgress
-     * @deprecated `cc.loader.onProgress` is deprecated, please transfer onProgress to API as a parameter
+     * @deprecated cc.loader.onProgress is deprecated, please transfer onProgress to API as a parameter
      */
     onProgress: null,
     _autoReleaseSetting: Object.create(null),
@@ -78,9 +78,9 @@ const loader = {
     },
 
     /**
-     * `cc.loader.load` is deprecated, please use {{#crossLink "AssetManager/load:method"}}{{/crossLink}} instead
+     * `cc.loader.load` is deprecated, please use {{#crossLink "AssetManager/loadAny:method"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.load` is deprecated, please use `cc.assetManager.loadAny` instead
+     * @deprecated cc.loader.load is deprecated, please use cc.assetManager.loadAny instead
      *
      * @method load
      * @param {String|String[]|Object} resources - Url list in an array
@@ -174,7 +174,7 @@ const loader = {
      * `cc.loader.getXMLHttpRequest` is deprecated, please use `XMLHttpRequest` directly
      *
      * @method getXMLHttpRequest
-     * @deprecated `cc.loader.getXMLHttpRequest` is deprecated, please use `XMLHttpRequest` directly
+     * @deprecated cc.loader.getXMLHttpRequest is deprecated, please use XMLHttpRequest directly
      * @returns {XMLHttpRequest}
      */
     getXMLHttpRequest () {
@@ -184,21 +184,21 @@ const loader = {
     _parseLoadResArgs: utilities.parseLoadResArgs,
 
     /**
-     * `cc.loader.getItem` is deprecated, please use `cc.assetManager._asset.get` instead
+     * `cc.loader.getItem` is deprecated, please use `cc.assetManager.asset.get` instead
      *
      * @method getItem
      * @param {Object} id The id of the item
      * @return {Object}
-     * @deprecated `cc.loader.getItem` is deprecated, please use `cc.assetManager._asset.get` instead
+     * @deprecated cc.loader.getItem is deprecated, please use cc.assetManager.asset.get instead
      */
     getItem (key) {
         return cc.assetManager.assets.has(key) ? { content: cc.assetManager.assets.get(key) } : null;
     },
 
     /**
-     * `cc.loader.loadRes` is deprecated, please use {{#crossLink "AssetManager/loadRes:method"}}{{/crossLink}}  instead
+     * `cc.loader.loadRes` is deprecated, please use {{#crossLink "Bundle/load:method"}}{{/crossLink}}  instead
      *
-     * @deprecated `cc.loader.loadRes` is deprecated, please use `cc.resources.load`  instead
+     * @deprecated cc.loader.loadRes is deprecated, please use cc.resources.load  instead
      * @method loadRes
      * @param {String} url - Url of the target resource.
      *                       The url is relative to the "resources" folder, extensions must be omitted.
@@ -230,9 +230,9 @@ const loader = {
     },
 
     /**
-     * `cc.loader.loadResArray` is deprecated, please use {{#crossLink "AssetManager/loadRes:method"}}{{/crossLink}} instead
+     * `cc.loader.loadResArray` is deprecated, please use {{#crossLink "Bundle/load:method"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.loadResArray` is deprecated, please use `cc.resources.load` instead
+     * @deprecated cc.loader.loadResArray is deprecated, please use cc.resources.load instead
      * @method loadResArray
      * @param {String[]} urls - Array of URLs of the target resource.
      *                          The url is relative to the "resources" folder, extensions must be omitted.
@@ -268,9 +268,9 @@ const loader = {
     },
 
     /**
-     * `cc.loader.loadResDir` is deprecated, please use {{#crossLink "AssetManager/loadResDir:method"}}{{/crossLink}} instead
+     * `cc.loader.loadResDir` is deprecated, please use {{#crossLink "Bundle/loadDir:method"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.loadResDir` is deprecated, please use `cc.resources.loadDir` instead
+     * @deprecated cc.loader.loadResDir is deprecated, please use cc.resources.loadDir instead
      * @method loadResDir
      * @param {String} url - Url of the target folder.
      *                       The url is relative to the "resources" folder, extensions must be omitted.
@@ -315,7 +315,7 @@ const loader = {
      * @param {String} url
      * @param {Function} [type] - Only asset of type will be returned if this argument is supplied.
      * @returns {*}
-     * @deprecated `cc.loader.getRes` is deprecated, please use `cc.resources.get` instead
+     * @deprecated cc.loader.getRes is deprecated, please use cc.resources.get instead
      */
     getRes (url, type) {
         return cc.assetManager.assets.has(url) ? cc.assetManager.assets.get(url) : cc.resources.get(url, type);
@@ -328,7 +328,7 @@ const loader = {
     /**
      * `cc.loader.getDependsRecursively` is deprecated, please use use {{#crossLink "DependUtil/getDepsRecursively:method"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.getDependsRecursively` is deprecated, please use use `cc.assetManager.dependUtil.getDepsRecursively` instead
+     * @deprecated cc.loader.getDependsRecursively is deprecated, please use use cc.assetManager.dependUtil.getDepsRecursively instead
      * @method getDependsRecursively
      * @param {Asset|String} owner - The owner asset or the resource url or the asset's uuid
      * @returns {Array}
@@ -342,7 +342,7 @@ const loader = {
      * `cc.loader.assetLoader` was removed, assetLoader and md5Pipe were merged into {{#crossLink "AssetManager/transformPipeline:property"}}{{/crossLink}}
      *
      * @property assetLoader
-     * @deprecated `cc.loader.assetLoader` was removed, assetLoader and md5Pipe were merged into `cc.assetManager.transformPipeline`
+     * @deprecated cc.loader.assetLoader was removed, assetLoader and md5Pipe were merged into cc.assetManager.transformPipeline
      * @type {Object}
      */
     get assetLoader () {
@@ -355,7 +355,7 @@ const loader = {
      * `cc.loader.md5Pipe` is deprecated, assetLoader and md5Pipe were merged into {{#crossLink "AssetManager/transformPipeline:property"}}{{/crossLink}}
      *
      * @property md5Pipe
-     * @deprecated `cc.loader.md5Pipe` is deprecated, assetLoader and md5Pipe were merged into `cc.assetManager.transformPipeline`
+     * @deprecated cc.loader.md5Pipe is deprecated, assetLoader and md5Pipe were merged into cc.assetManager.transformPipeline
      * @type {Object}
      */
     get md5Pipe () {
@@ -365,7 +365,7 @@ const loader = {
     /**
      * `cc.loader.downloader` is deprecated, please use {{#crossLink "AssetManager/downloader:property"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.downloader` is deprecated, please use `cc.assetManager.downloader` instead
+     * @deprecated cc.loader.downloader is deprecated, please use cc.assetManager.downloader instead
      * @property downloader
      * @type {Object}
      */
@@ -378,7 +378,7 @@ const loader = {
      *
      * @property loader
      * @type {Object}
-     * @deprecated `cc.loader.loader` is deprecated, please use `cc.assetManager.parser` instead
+     * @deprecated cc.loader.loader is deprecated, please use cc.assetManager.parser instead
      */
     get loader () {
         return cc.assetManager.parser;
@@ -389,7 +389,7 @@ const loader = {
      *
      * @method addDownloadHandlers
      * @param {Object} extMap Custom supported types with corresponded handler
-     * @deprecated `cc.loader.addDownloadHandlers` is deprecated, please use `cc.assetManager.downloader.register` instead
+     * @deprecated cc.loader.addDownloadHandlers is deprecated, please use cc.assetManager.downloader.register instead
     */
     addDownloadHandlers (extMap) {
         if (CC_DEBUG) {
@@ -410,7 +410,7 @@ const loader = {
      *
      * @method addLoadHandlers
      * @param {Object} extMap Custom supported types with corresponded handler
-     * @deprecated `cc.loader.addLoadHandlers` is deprecated, please use `cc.assetManager.parser.register` instead
+     * @deprecated cc.loader.addLoadHandlers is deprecated, please use cc.assetManager.parser.register instead
      */
     addLoadHandlers (extMap) {
         if (CC_DEBUG) {
@@ -437,7 +437,7 @@ const loader = {
      *
      * @method release
      * @param {Asset|String|Array} asset
-     * @deprecated `cc.loader.release` is deprecated, please use `cc.assetManager.releaseAsset` instead
+     * @deprecated cc.loader.release is deprecated, please use cc.assetManager.releaseAsset instead
      */
     release (asset) {
         if (Array.isArray(asset)) {
@@ -456,7 +456,7 @@ const loader = {
     /**
      * `cc.loader.releaseAsset` is deprecated, please use {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.releaseAsset` is deprecated, please use `cc.assetManager.releaseAsset` instead
+     * @deprecated cc.loader.releaseAsset is deprecated, please use cc.assetManager.releaseAsset instead
      * @method releaseAsset
      * @param {Asset} asset
      */
@@ -467,7 +467,7 @@ const loader = {
     /**
      * `cc.loader.releaseRes` is deprecated, please use {{#crossLink "AssetManager/releaseRes:method"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.releaseRes` is deprecated, please use `cc.assetManager.releaseRes` instead
+     * @deprecated cc.loader.releaseRes is deprecated, please use cc.assetManager.releaseRes instead
      * @method releaseRes
      * @param {String} url
      * @param {Function} [type] - Only asset of type will be released if this argument is supplied.
@@ -479,7 +479,7 @@ const loader = {
     /**
      * `cc.loader.releaseResDir` was removed, please use {{#crossLink "AssetManager/releaseRes:method"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.releaseResDir` was removed, please use `cc.assetManager.releaseRes` instead
+     * @deprecated cc.loader.releaseResDir was removed, please use cc.assetManager.releaseRes instead
      * @method releaseResDir
      */
     releaseResDir () {
@@ -491,7 +491,7 @@ const loader = {
     /**
      * `cc.loader.releaseAll` is deprecated, please use {{#crossLink "AssetManager/releaseAll:method"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.releaseAll` is deprecated, please use `cc.assetManager.releaseAll` instead
+     * @deprecated cc.loader.releaseAll is deprecated, please use cc.assetManager.releaseAll instead
      * @method releaseAll
      */
     releaseAll () {
@@ -502,7 +502,7 @@ const loader = {
     /**
      * `cc.loader.removeItem` is deprecated, please use `cc.assetManager.assets.remove` instead
      *
-     * @deprecated `cc.loader.removeItem` is deprecated, please use `cc.assetManager.assets.remove` instead
+     * @deprecated cc.loader.removeItem is deprecated, please use cc.assetManager.assets.remove instead
      * @method removeItem
      * @param {Object} id The id of the item
      * @return {Boolean} succeed or not
@@ -514,7 +514,7 @@ const loader = {
     /**
      * `cc.loader.setAutoRelease` is deprecated, if you want to prevent some asset from auto releasing, please use {{#crossLink "Asset/addRef:method"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.setAutoRelease` is deprecated, if you want to prevent some asset from auto releasing, please use `cc.Asset.addRef` instead
+     * @deprecated cc.loader.setAutoRelease is deprecated, if you want to prevent some asset from auto releasing, please use cc.Asset.addRef instead
      * @method setAutoRelease
      * @param {Asset|String} assetOrUrlOrUuid - asset object or the raw asset's url or uuid
      * @param {Boolean} autoRelease - indicates whether should release automatically
@@ -530,7 +530,7 @@ const loader = {
      * @method setAutoReleaseRecursively
      * @param {Asset|String} assetOrUrlOrUuid - asset object or the raw asset's url or uuid
      * @param {Boolean} autoRelease - indicates whether should release automatically
-     * @deprecated `cc.loader.setAutoReleaseRecursively` is deprecated, if you want to prevent some asset from auto releasing, please use `cc.Asset.addRef` instead
+     * @deprecated cc.loader.setAutoReleaseRecursively is deprecated, if you want to prevent some asset from auto releasing, please use cc.Asset.addRef instead
      */
     setAutoReleaseRecursively (asset, autoRelease) {
         if (typeof asset === 'object') asset = asset._uuid;
@@ -549,7 +549,7 @@ const loader = {
      * @method isAutoRelease
      * @param {Asset|String} assetOrUrl - asset object or the raw asset's url
      * @returns {Boolean}
-     * @deprecated `cc.loader.isAutoRelease` is deprecated
+     * @deprecated cc.loader.isAutoRelease is deprecated
      */
     isAutoRelease (asset) {
         if (typeof asset === 'object') asset = asset._uuid;
@@ -563,7 +563,7 @@ const loader = {
 /**
  * `cc.loader.downloader.loadSubpackage` is deprecated, please use {{#crossLink "AssetManager/loadBundle:method"}}{{/crossLink}} instead
  *
- * @deprecated `cc.loader.downloader.loadSubpackage` is deprecated, please use {{#crossLink "AssetManager/loadBundle:method"}}{{/crossLink}} instead
+ * @deprecated cc.loader.downloader.loadSubpackage is deprecated, please use AssetManager.loadBundle instead
  * @method loadSubpackage
  * @param {String} name - Subpackage name
  * @param {Function} [completeCallback] -  Callback invoked when subpackage loaded
@@ -574,12 +574,12 @@ downloader.loadSubpackage = function (name, completeCallback) {
 };
 
 /**
- * @deprecated `cc.AssetLibrary` is deprecated, please backup your project and upgrade to `cc.assetManager`
+ * @deprecated cc.AssetLibrary is deprecated, please backup your project and upgrade to cc.assetManager
  */
 var AssetLibrary = {
 
     /**
-     * @deprecated `cc.AssetLibrary.init` is deprecated, please use `cc.assetManager.init` instead
+     * @deprecated cc.AssetLibrary.init is deprecated, please use cc.assetManager.init instead
      */
     init (options) {
         options.importBase = options.libraryPath;
@@ -598,7 +598,7 @@ var AssetLibrary = {
     },
 
     /**
-     * @deprecated `cc.AssetLibrary` is deprecated, please use `cc.assetManager.loadAny` instead
+     * @deprecated cc.AssetLibrary is deprecated, please use cc.assetManager.loadAny instead
      */
     loadAsset (uuid, onComplete) {
         cc.assetManager.loadAny(uuid, onComplete);
@@ -620,7 +620,7 @@ var AssetLibrary = {
 /**
  * `cc.url` is deprecated
  *
- * @deprecated `cc.url` is deprecated
+ * @deprecated cc.url is deprecated
  * @class url
  * @static
  */
@@ -633,7 +633,7 @@ cc.url = {
     /**
      * `cc.url.raw` is deprecated, please use `cc.resources.load` directly, or use `Asset.nativeUrl` instead.
      *
-     * @deprecated `cc.url.raw` is deprecated, please use `cc.resources.load` directly, or use `Asset.nativeUrl` instead.
+     * @deprecated cc.url.raw is deprecated, please use cc.resources.load directly, or use Asset.nativeUrl instead.
      * @method raw
      * @param {String} url
      * @return {String}
@@ -680,7 +680,7 @@ Object.defineProperties(cc, {
     /**
      * `cc.LoadingItems` was removed, please use {{#crossLink "Task"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.LoadingItems` was removed, please use `cc.AssetManager.Task` instead
+     * @deprecated cc.LoadingItems was removed, please use cc.AssetManager.Task instead
      * @class LoadingItems
      */
     LoadingItems: {
@@ -707,7 +707,7 @@ js.obsolete(cc, 'cc.RawAsset', 'cc.Asset');
  * `cc.Asset.url` is deprecated, please use {{#crossLink "Asset/nativeUrl:property"}}{{/crossLink}} instead
  * @property url
  * @type {String}
- * @deprecated `cc.Asset.url` is deprecated, please use `cc.Asset.nativeUrl` instead
+ * @deprecated cc.Asset.url is deprecated, please use cc.Asset.nativeUrl instead
  */
 js.obsolete(cc.Asset.prototype, 'cc.Asset.url', 'nativeUrl');
 
@@ -721,7 +721,7 @@ Object.defineProperties(cc.macro, {
      * 
      * @property DOWNLOAD_MAX_CONCURRENT
      * @type {Number}
-     * @deprecated `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use `cc.assetManager.downloader.maxConcurrency` instead
+     * @deprecated cc.macro.DOWNLOAD_MAX_CONCURRENT is deprecated now, please use cc.assetManager.downloader.maxConcurrency instead
      */
     DOWNLOAD_MAX_CONCURRENT: {
         get () {
