@@ -12,7 +12,7 @@ import { warn } from '../platform/debug';
 import { MorphRendering, SubMeshMorph, Morph, MorphRenderingInstance } from './morph';
 import { assertIsNonNullable, assertIsTrue } from '../data/utils/asserts';
 import { nextPow2 } from '../math/bits';
-import { IMacroPatch } from '../renderer';
+import { IMacroPatch, IPSOCreateInfo } from '../renderer';
 
 /**
  * True if force to use cpu computing based sub-mesh rendering.
@@ -95,8 +95,8 @@ export class StdMorphRendering implements MorphRendering {
                 return patches;
             },
 
-            adaptPipelineState: (subMeshIndex: number, pipelineState: GFXPipelineState) => {
-                subMeshInstances[subMeshIndex]?.adaptPipelineState(pipelineState);
+            adaptPipelineState: (subMeshIndex: number, pipelineCreateInfo: IPSOCreateInfo) => {
+                subMeshInstances[subMeshIndex]?.adaptPipelineState(pipelineCreateInfo);
             },
 
             destroy: () => {
@@ -137,7 +137,7 @@ interface SubMeshMorphRenderingInstance {
      * Adapts the pipelineState to apply the rendering.
      * @param pipelineState 
      */
-    adaptPipelineState(pipelineState: GFXPipelineState): void;
+    adaptPipelineState(pipelineCreateInfo: IPSOCreateInfo): void;
 
     /**
      * Destroy this instance.
@@ -258,8 +258,8 @@ class GpuComputing implements SubMeshMorphRendering {
                 return [{ name: 'CC_MORPH_TARGET_USE_TEXTURE', value: true, }];
             },
 
-            adaptPipelineState: (pipelineState: GFXPipelineState) => {
-                const bindingLayout = pipelineState.pipelineLayout.layouts[0];
+            adaptPipelineState: (pipelineCreateInfo: IPSOCreateInfo) => {
+                const bindingLayout = pipelineCreateInfo.bindingLayout;
                 for (const attribute of this._attributes) {
                     let binding: number | undefined;
                     switch (attribute.name) {
@@ -437,8 +437,8 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
         ];
     }
 
-    public adaptPipelineState (pipelineState: GFXPipelineState) {
-        const bindingLayout = pipelineState.pipelineLayout.layouts[0];
+    public adaptPipelineState (pipelineCreateInfo: IPSOCreateInfo) {
+        const bindingLayout = pipelineCreateInfo.bindingLayout;
         for (const attribute of this._attributes) {
             const attributeName = attribute.attributeName;
             let binding: number | undefined;

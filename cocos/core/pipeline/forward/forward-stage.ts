@@ -107,12 +107,12 @@ export class ForwardStage extends RenderStage {
                     const passes = subModel.passes;
                     for (let p = 0; p < passes.length; ++p) {
                         const pass = passes[p];
-                        const pso = subModel.psos![p];
+                        // const pso = subModel.psos![p];
                         if (pass.instancedBuffer) {
-                            pass.instancedBuffer.merge(subModel, ro.model.instancedAttributes, pso);
+                            // pass.instancedBuffer.merge(subModel, ro.model.instancedAttributes, pso);
                             this._opaqueInstancedQueue.queue.add(pass.instancedBuffer);
                         } else if (pass.batchedBuffer) {
-                            pass.batchedBuffer.merge(subModel, ro, pso);
+                            pass.batchedBuffer.merge(subModel, p, ro);
                             this._opaqueBatchedQueue.queue.add(pass.batchedBuffer);
                         } else {
                             for (let k = 0; k < this._renderQueues.length; k++) {
@@ -172,18 +172,18 @@ export class ForwardStage extends RenderStage {
         const planarShadow = camera.scene!.planarShadows;
 
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea!,
+        cmdBuff.beginRenderPass(this._framebuffer, this._renderArea!,
             camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
 
-        this._renderQueues[0].recordCommandBuffer(cmdBuff);
+        this._renderQueues[0].recordCommandBuffer(this._device!, this._framebuffer.renderPass!, cmdBuff);
 
-        this._opaqueInstancedQueue.recordCommandBuffer(cmdBuff);
-        this._opaqueBatchedQueue.recordCommandBuffer(cmdBuff);
+        // this._opaqueInstancedQueue.recordCommandBuffer(cmdBuff);
+        this._opaqueBatchedQueue.recordCommandBuffer(this._device!, this._framebuffer.renderPass!, cmdBuff);
 
         if (camera.visibility & Layers.BitMask.DEFAULT) {
             cmdBuff.execute(planarShadow.cmdBuffs.array, planarShadow.cmdBuffCount);
         }
-        this._renderQueues[1].recordCommandBuffer(cmdBuff);
+        this._renderQueues[1].recordCommandBuffer(this._device!, this._framebuffer.renderPass!, cmdBuff);
         cmdBuff.endRenderPass();
         cmdBuff.end();
 

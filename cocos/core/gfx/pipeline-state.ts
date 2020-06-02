@@ -18,7 +18,7 @@ import {
     IGFXColor,
 } from './define';
 import { GFXDevice } from './device';
-import { IGFXAttribute } from './input-assembler';
+import { IGFXAttribute, GFXInputAssembler } from './input-assembler';
 import { GFXPipelineLayout } from './pipeline-layout';
 import { GFXRenderPass } from './render-pass';
 import { GFXShader } from './shader';

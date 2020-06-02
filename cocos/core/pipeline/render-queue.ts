@@ -7,6 +7,9 @@ import { RecyclePool } from '../memop';
 import { CachedArray } from '../memop/cached-array';
 import { IRenderObject, IRenderPass, IRenderQueueDesc } from './define';
 import { GFXInputAssembler } from '../gfx/input-assembler';
+import { PipelineStateManager } from './pipeline-state-manager';
+import { GFXDevice } from '../gfx/device';
+import { GFXRenderPass } from '../gfx';
 
 /**
  * @en
@@ -75,8 +78,8 @@ export class RenderQueue {
     public insertRenderPass (renderObj: IRenderObject, modelIdx: number, passIdx: number): boolean {
         const subModel = renderObj.model.getSubModel(modelIdx);
         const pass = subModel.passes[passIdx];
-        const pso = subModel.psos![passIdx];
-        const isTransparent = pso.blendState.targets[0].blend;
+        const psoCreateInfo = subModel.psoInfos[passIdx];
+        const isTransparent = psoCreateInfo.blendState.targets[0].blend;
         if (isTransparent !== this._passDesc.isTransparent || !(pass.phase & this._passDesc.phases)) {
             return false;
         }
@@ -84,7 +87,7 @@ export class RenderQueue {
         const rp = this._passPool.add();
         rp.hash = hash;
         rp.depth = renderObj.depth;
-        rp.shaderId = pso.shader.id;
+        rp.shaderId = psoCreateInfo.shader.id;
         rp.subModel = subModel;
         rp.passIdx = passIdx;
         this.queue.push(rp);
@@ -99,17 +102,17 @@ export class RenderQueue {
         this.queue.sort();
     }
 
-    public recordCommandBuffer (cmdBuff: GFXCommandBuffer) {
+    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
         for (let i = 0; i < this.queue.length; ++i) {
-            const subModel = this.queue.array[i].subModel;
+            const subModel = this.queue.array[i].subModel; 
             const passIdx = this.queue.array[i].passIdx;
-            if (subModel.psos) {
-                const pso = subModel.psos[passIdx];
-                cmdBuff.bindPipelineState(pso);
-                cmdBuff.bindBindingLayout(pso.pipelineLayout.layouts[0]);
-                cmdBuff.bindInputAssembler(subModel.inputAssembler as GFXInputAssembler);
-                cmdBuff.draw(subModel.inputAssembler as GFXInputAssembler);
-            }
+            const ia = subModel.inputAssembler as GFXInputAssembler;
+            const psoCreateInfo = subModel.psoInfos[passIdx];
+            const pso = PipelineStateManager.getOrCreatePipelineState(device, psoCreateInfo, renderPass, ia);
+            cmdBuff.bindPipelineState(pso);
+            cmdBuff.bindBindingLayout(psoCreateInfo.bindingLayout);
+            cmdBuff.bindInputAssembler(ia);
+            cmdBuff.draw(ia);
         }
     }
 }

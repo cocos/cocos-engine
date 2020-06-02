@@ -13,13 +13,14 @@ import {
 import { GFXDevice } from './gfx/device';
 import { GFXFramebuffer } from './gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from './gfx/input-assembler';
-import { GFXPipelineState } from './gfx/pipeline-state';
 import { GFXTexture } from './gfx/texture';
 import { GFXTextureView } from './gfx/texture-view';
 import { clamp01 } from './math/utils';
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import { sys } from './platform/sys';
 import { GFXSampler } from './gfx';
+import { IPSOCreateInfo } from './renderer';
+import { PipelineStateManager } from './pipeline/pipeline-state-manager';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 
@@ -54,7 +55,7 @@ export class SplashScreen {
     private assmebler!: GFXInputAssembler;
     private vertexBuffers!: GFXBuffer;
     private indicesBuffers!: GFXBuffer;
-    private pso!: GFXPipelineState;
+    private psoCreateInfo!: IPSOCreateInfo;
     private framebuffer!: GFXFramebuffer;
     private renderArea!: IGFXRect;
     private region!: GFXBufferTextureCopy;
@@ -76,7 +77,7 @@ export class SplashScreen {
     private textIB!: GFXBuffer;
     private textAssmebler!: GFXInputAssembler;
     private textMaterial!: Material;
-    private textPSO!: GFXPipelineState;
+    private textPSOCreateInfo!: IPSOCreateInfo;
 
     private screenWidth!: number;
     private screenHeight!: number;
@@ -248,14 +249,16 @@ export class SplashScreen {
         cmdBuff.beginRenderPass(framebuffer, renderArea,
             GFXClearFlag.ALL, this.clearColors, 1.0, 0);
 
-        cmdBuff.bindPipelineState(this.pso);
-        cmdBuff.bindBindingLayout(this.pso.pipelineLayout.layouts[0]);
+        const pso = PipelineStateManager.getOrCreatePipelineState(device, this.psoCreateInfo, framebuffer.renderPass!, this.assmebler);
+        cmdBuff.bindPipelineState(pso);
+        cmdBuff.bindBindingLayout(this.psoCreateInfo.bindingLayout);
         cmdBuff.bindInputAssembler(this.assmebler);
         cmdBuff.draw(this.assmebler);
 
-        if (this.setting.displayWatermark && this.textPSO && this.textAssmebler) {
-            cmdBuff.bindPipelineState(this.textPSO);
-            cmdBuff.bindBindingLayout(this.textPSO.pipelineLayout.layouts[0]);
+        if (this.setting.displayWatermark && this.textPSOCreateInfo && this.textAssmebler) {
+            const pso = PipelineStateManager.getOrCreatePipelineState(device, this.textPSOCreateInfo, framebuffer.renderPass!, this.textAssmebler);
+            cmdBuff.bindPipelineState(pso);
+            cmdBuff.bindBindingLayout(this.textPSOCreateInfo.bindingLayout);
             cmdBuff.bindInputAssembler(this.textAssmebler);
             cmdBuff.draw(this.textAssmebler);
         }
@@ -315,8 +318,8 @@ export class SplashScreen {
         const binding = pass.getBinding('mainTexture');
         pass.bindTextureView(binding!, this.textTextureView!);
 
-        this.textPSO = pass.createPipelineState() as GFXPipelineState;
-        this.textPSO.pipelineLayout.layouts[0].update();
+        this.textPSOCreateInfo = pass.getPipelineCreateInfo() as IPSOCreateInfo;
+        this.textPSOCreateInfo.bindingLayout.update();
 
         /** Assembler */
         // create vertex buffer
@@ -503,9 +506,9 @@ export class SplashScreen {
         const binding = pass.getBinding('mainTexture');
         pass.bindTextureView(binding!, this.textureView!);
 
-        this.pso = pass.createPipelineState() as GFXPipelineState;
-        this.pso.pipelineLayout.layouts[0].bindSampler(binding!, this.sampler);
-        this.pso.pipelineLayout.layouts[0].update();
+        this.psoCreateInfo = pass.getPipelineCreateInfo() as IPSOCreateInfo;
+        this.psoCreateInfo.bindingLayout.bindSampler(binding!, this.sampler);
+        this.psoCreateInfo.bindingLayout.update();
 
         this.region = new GFXBufferTextureCopy();
         this.region.texExtent.width = this.image.width;
@@ -526,8 +529,10 @@ export class SplashScreen {
         this.cmdBuff.destroy();
         (this.cmdBuff as any) = null;
 
-        this.pso.destroy();
-        (this.pso as any) = null;
+        const { bindingLayout: bl, pipelineLayout: pl } = this.psoCreateInfo;
+        bl.destroy();
+        pl.destroy();
+        (this.psoCreateInfo as any) = null;
 
         this.material.destroy();
         (this.material as any) = null;
@@ -555,8 +560,10 @@ export class SplashScreen {
             (this.textImg as any) = null;
             (this.textRegion as any) = null;
 
-            this.textPSO.destroy();
-            (this.textPSO as any) = null;
+            const { bindingLayout: bl, pipelineLayout: pl } = this.textPSOCreateInfo;
+            bl.destroy();
+            pl.destroy();
+            (this.textPSOCreateInfo as any) = null;
 
             this.textMaterial.destroy();
             (this.textMaterial as any) = null;

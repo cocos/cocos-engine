@@ -94,7 +94,7 @@ export class PassInstance extends Pass {
     }
 
     protected _onStateChange () {
-        this._hash = Pass.getPSOHash(this);
+        this._hash = Pass.getPassHash(this);
         this._owner.onPassStateChange(this._dontNotify);
     }
 }

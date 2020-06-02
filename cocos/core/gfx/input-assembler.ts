@@ -5,6 +5,7 @@
 import { GFXBuffer } from './buffer';
 import { GFXFormat, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
+import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 
 export interface IGFXAttribute {
     name: string;
@@ -50,6 +51,14 @@ export abstract class GFXInputAssembler extends GFXObject {
      */
     get attributes (): IGFXAttribute[] {
         return this._attributes;
+    }
+
+    /**
+     * @en Get hash of current attributes.
+     * @zh 获取顶点属性数组的哈希值。
+     */
+    get attributesHash(): number {
+        return this._attributesHash;
     }
 
     /**
@@ -175,6 +184,7 @@ export abstract class GFXInputAssembler extends GFXObject {
     protected _firstInstance: number = 0;
 
     protected _isIndirect: boolean = false;
+    protected _attributesHash: number = 0;
 
     protected _indirectBuffer: GFXBuffer | null = null;
 
@@ -197,5 +207,14 @@ export abstract class GFXInputAssembler extends GFXObject {
         } else {
             return null;
         }
+    }
+
+    protected computeAttributesHash(): number {
+        let res = 'atts';
+        for (let i = 0; i < this.attributes.length; ++i) {
+            const at = this.attributes[i];
+            res += `,${at.name},${at.format},${at.isNormalized},${at.stream},${at.isInstanced}`;
+        }
+        return murmurhash2_32_gc(res, 666);
     }
 }

@@ -193,15 +193,16 @@ export class PlanarShadows {
     }
 
     public destroyShadowData (model: Model) {
-        const data = this._record.get(model);
-        if (!data) { return; }
-        data.cmdBuffer.destroy();
-        for (let i = 0; i < data.psos.length; i++) {
-            const pso = data.psos[i];
-            model.removeImplantPSO(pso);
-            this._material.passes[0].destroyPipelineState(pso);
-        }
-        this._record.delete(model);
+        //todo: minggo
+        // const data = this._record.get(model);
+        // if (!data) { return; }
+        // data.cmdBuffer.destroy();
+        // for (let i = 0; i < data.psos.length; i++) {
+        //     const pso = data.psos[i];
+        //     model.removeImplantPSO(pso);
+        //     this._material.passes[0].destroyPipelineState(pso);
+        // }
+        // this._record.delete(model);
     }
 
     public onGlobalPipelineStateChanged () {

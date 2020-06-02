@@ -27,10 +27,9 @@
  */
 
 import { Material } from '../../assets/material';
-import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Pool } from '../../memop';
 import { Pass } from '../../renderer/core/pass';
-import { MaterialInstance } from '../core/material-instance';
+import { IPSOCreateInfo } from '../scene/submodel';
 
 export interface IUIMaterialInfo {
     material: Material;
@@ -48,11 +47,11 @@ export class UIMaterial {
 
     protected _material: Material | null = null;
     protected _pass: Pass | null = null;
-    private _psos: Pool<GFXPipelineState> | null;
+    private _psoCreateInfo: Pool<IPSOCreateInfo> | null;
     private _refCount: number = 0;
 
     constructor () {
-        this._psos = null;
+        this._psoCreateInfo = null;
     }
 
     public initialize (info: IUIMaterialInfo): boolean {
@@ -68,8 +67,8 @@ export class UIMaterial {
         this._pass = this._material.passes[0];
         this._pass.update();
 
-        this._psos = new Pool(() => {
-            const pso = this._pass!.createPipelineState()!;
+        this._psoCreateInfo = new Pool(() => {
+            const pso = this._pass!.getPipelineCreateInfo()!;
             return pso;
         }, 1);
 
@@ -89,18 +88,20 @@ export class UIMaterial {
         return this._refCount;
     }
 
-    public getPipelineState (): GFXPipelineState {
-        return this._psos!.alloc();
+    public getPipelineCreateInfo (): IPSOCreateInfo {
+        return this._psoCreateInfo!.alloc();
     }
 
-    public revertPipelineState (pso: GFXPipelineState) {
-        this._psos!.free(pso);
+    public revertPipelineCreateInfo (psoCeateInfo: IPSOCreateInfo) {
+        this._psoCreateInfo!.free(psoCeateInfo);
     }
 
     public destroy () {
-        if (this._psos) {
-            this._psos.clear((obj: GFXPipelineState) => {
-                this._pass!.destroyPipelineState(obj);
+        if (this._psoCreateInfo) {
+            this._psoCreateInfo.clear((obj: IPSOCreateInfo) => {
+                const { bindingLayout: bl, pipelineLayout: pl } = obj;
+                bl.destroy();
+                pl.destroy();
             });
         }
         if (this._material) {

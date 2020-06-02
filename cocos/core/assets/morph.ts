@@ -7,7 +7,7 @@ import { Mesh } from './mesh';
 import { StdMorphRendering } from './morph-rendering';
 import { MaterialInstance } from '../renderer/core/material-instance';
 import { Material } from './material';
-import { IMacroPatch } from '../renderer';
+import { IMacroPatch, IPSOCreateInfo } from '../renderer';
 
 export interface Morph {
     /**
@@ -72,7 +72,7 @@ export interface MorphRenderingInstance {
      * @param subMeshIndex 
      * @param pipelineState 
      */
-    adaptPipelineState(subMeshIndex: number, pipelineState: GFXPipelineState): void;
+    adaptPipelineState(subMeshIndex: number, pipelineCreateInfo: IPSOCreateInfo): void;
 
     requiredPatches(subMeshIndex: number): IMacroPatch[] | undefined;
 

@@ -84,9 +84,9 @@ export class Skybox extends Model {
         const mat = skybox_material!;
         mat.passes[0].bindSampler(UNIFORM_ENVIRONMENT.binding, sampler);
         mat.passes[0].bindTextureView(UNIFORM_ENVIRONMENT.binding, textureView);
-        const psos = this._matPSORecord.get(mat)!;
-        for (let i = 0; i < psos.length; i++) {
-            psos[i].pipelineLayout.layouts[0].update();
+
+        for (let i = 0; i < this._subModels.length; ++i) {
+            this._subModels[i].updateLayout();
         }
     }
 }

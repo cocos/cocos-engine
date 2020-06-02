@@ -8,7 +8,6 @@ import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { GFXClearFlag, GFXCommandBufferType, IGFXColor, IGFXRect } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
-import { GFXPipelineState } from '../gfx/pipeline-state';
 import { Pass } from '../renderer/core/pass';
 import { ccenum } from '../value-types/enum';
 import { IRenderPass } from './define';
@@ -17,6 +16,7 @@ import { RenderFlow } from './render-flow';
 import { RenderPipeline } from './render-pipeline';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from './render-queue';
 import { RenderView } from './render-view';
+import { IPSOCreateInfo } from '../renderer';
 import { GFXFence } from '../gfx/fence';
 
 const _colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
@@ -191,7 +191,7 @@ export abstract class RenderStage {
      * @zh
      * GFX管线状态。
      */
-    protected _pso: GFXPipelineState | null = null;
+    protected _psoCreateInfo: IPSOCreateInfo | null = null;
 
     /**
      * 构造函数。
@@ -382,7 +382,7 @@ export abstract class RenderStage {
             camera.clearFlag, _colors, camera.clearDepth, camera.clearStencil);
 
         for (let i = 0; i < this._renderQueues.length; i++) {
-            this._renderQueues[i].recordCommandBuffer(cmdBuff);
+            this._renderQueues[i].recordCommandBuffer(this._device!, this._framebuffer.renderPass!, cmdBuff);
         }
 
         cmdBuff.endRenderPass();
