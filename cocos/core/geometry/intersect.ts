@@ -475,7 +475,7 @@ const ray_model = (function () {
     let minDis = 0;
     const deOpt: IRayModelOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
     const modelRay = new ray();
-    const m4 = new Mat4;
+    const m4 = new Mat4();
     return function (r: ray, model: Model, option?: IRayModelOptions) {
         minDis = 0;
         const opt = option == undefined ? deOpt : option;
