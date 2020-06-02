@@ -20,6 +20,7 @@ export class WebGLGFXRenderPass extends GFXRenderPass {
             depthStencilAttachment: this._depthStencilInfo,
         };
 
+        this._hash = this.computeHash();
         this._status = GFXStatus.SUCCESS;
 
         return true;

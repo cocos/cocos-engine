@@ -72,6 +72,10 @@ Failed to preload '%s', %s
 
 Director.runSceneImmediate: scene is not valid
 
+### 1217
+
+Director._initOnEngineInitialized: renderer root initialization failed
+
 ### 1300
 
 element type is wrong!

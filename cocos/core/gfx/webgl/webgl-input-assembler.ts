@@ -21,6 +21,7 @@ export class WebGLGFXInputAssembler extends GFXInputAssembler {
         }
 
         this._attributes = info.attributes;
+        this._attributesHash = this.computeAttributesHash();
         this._vertexBuffers = info.vertexBuffers;
 
         if (info.indexBuffer !== undefined) {

@@ -24,14 +24,13 @@
  THE SOFTWARE.
  */
 
-import { EDITOR } from 'internal:constants';
-import { legacyCC } from '../global-exports';
-
 /**
  * 加载相关模块
  * @category loader
  */
 
+import { EDITOR } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 /**
  * @class url

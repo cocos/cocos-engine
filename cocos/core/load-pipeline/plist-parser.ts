@@ -25,12 +25,12 @@
  THE SOFTWARE.
  */
 
-import { EDITOR } from 'internal:constants';
-import { legacyCC } from '../global-exports';
-
 /**
  * @category loader
  */
+
+import { EDITOR } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 /**
  * A SAX Parser

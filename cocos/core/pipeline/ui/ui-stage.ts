@@ -28,16 +28,9 @@ export class UIStage extends RenderStage {
         framebuffer: 'window',
     };
 
-    constructor () {
-        super();
-    }
-
     public activate (flow: RenderFlow) {
         super.activate(flow);
-        this._cmdBuff = this._device!.createCommandBuffer({
-            allocator: this._device!.commandAllocator,
-            type: GFXCommandBufferType.PRIMARY,
-        });
+        this.createCmdBuffer();
     }
 
     public destroy () {
@@ -85,7 +78,7 @@ export class UIStage extends RenderStage {
         cmdBuff.beginRenderPass(framebuffer, this._renderArea!,
             camera.clearFlag, [camera.clearColor], camera.clearDepth, camera.clearStencil);
 
-        cmdBuff.execute(this._renderQueues[0].cmdBuffs.array, this._renderQueues[0].cmdBuffCount);
+        this._renderQueues[0].recordCommandBuffer(this._device!, this._framebuffer!.renderPass!, cmdBuff);
 
         cmdBuff.endRenderPass();
         cmdBuff.end();

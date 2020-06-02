@@ -9,7 +9,7 @@ import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
 import { Material } from '../core/assets/material';
 import { RenderingSubMesh } from '../core/assets/mesh';
 import { Component } from '../core/components';
-import { ccclass, disallowMultiple, executeInEditMode, menu, property } from '../core/data/class-decorator';
+import { ccclass, disallowMultiple, executeInEditMode, property } from '../core/data/class-decorator';
 import { director } from '../core/director';
 import { GFXBuffer } from '../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../core/gfx/define';

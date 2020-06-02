@@ -337,12 +337,8 @@ export class UI {
                     bindingLayout.bindSampler(UniformBinding.CUSTOM_SAMPLER_BINDING_START_POINT, batch.sampler!);
                     bindingLayout.update();
 
-                    const ia = batch.bufferBatch!.ia!;
-                    ia.firstIndex = batch.firstIdx;
-                    ia.indexCount = batch.idxCount;
-
                     const uiModel = this._uiModelPool!.alloc();
-                    uiModel.directInitialize(ia, batch);
+                    uiModel.directInitialize(batch.ia!, batch);
                     this._scene.addModel(uiModel);
                     uiModel.getSubModel(0).priority = batchPriority++;
                     if (batch.camera) {
@@ -428,10 +424,8 @@ export class UI {
         curDrawBatch.material = mat;
         curDrawBatch.texView = null;
         curDrawBatch.sampler = null;
-        curDrawBatch.firstIdx = 0;
-        curDrawBatch.idxCount = 0;
 
-        curDrawBatch.pipelineState = null;
+        curDrawBatch.psoCreateInfo = null;
         curDrawBatch.bindingLayout = null;
 
         // reset current render state to null
@@ -482,11 +476,11 @@ export class UI {
         curDrawBatch.material = mat;
         curDrawBatch.texView = this._currTexView!;
         curDrawBatch.sampler = this._currSampler;
-        curDrawBatch.firstIdx = indicsStart;
-        curDrawBatch.idxCount = vCount;
+        curDrawBatch.ia!.firstIndex = indicsStart;
+        curDrawBatch.ia!.indexCount = vCount;
 
-        curDrawBatch.pipelineState = this._getUIMaterial(mat).getPipelineState();
-        curDrawBatch.bindingLayout = curDrawBatch.pipelineState!.pipelineLayout.layouts[0];
+        curDrawBatch.psoCreateInfo = this._getUIMaterial(mat).getPipelineCreateInfo();
+        curDrawBatch.bindingLayout = curDrawBatch.psoCreateInfo!.pipelineLayout.layouts[0];
 
         this._batches.push(curDrawBatch);
 

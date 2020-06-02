@@ -427,7 +427,6 @@ export class View extends EventTarget {
         const canvas = legacyCC.game.canvas;
         const container = legacyCC.game.container;
         this._devicePixelRatio = window.devicePixelRatio;
-
         canvas.width = width * this._devicePixelRatio;
         canvas.height = height * this._devicePixelRatio;
 

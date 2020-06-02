@@ -32,8 +32,9 @@ import { UI } from '../../core/renderer/ui/ui';
 import { MeshBuffer } from '../../core/renderer/ui/mesh-buffer';
 import { ccclass, help, menu, executionOrder, property } from '../../core/data/class-decorator';
 import { UIDrawBatch } from '../../core/renderer/ui/ui-draw-batch';
-import { director, Color, GFXBlendFactor, Material, warnID } from '../../core';
+import { director, Color, Material, warnID } from '../../core';
 import { vfmt } from '../../core/renderer/ui/ui-vertex-format';
+import { GFXBlendFactor } from '../../core/gfx';
 
 
 /**

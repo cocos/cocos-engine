@@ -8,6 +8,7 @@ import { GFXBuffer, IGFXBufferInfo } from './buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from './command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from './command-buffer';
 import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFilter, GFXFormat, IGFXMemoryStatus, IGFXRect } from './define';
+import { GFXFence, IGFXFenceInfo } from './fence';
 import { GFXFramebuffer, IGFXFramebufferInfo } from './framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from './input-assembler';
 import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from './pipeline-layout';
@@ -24,6 +25,12 @@ ccenum(GFXFormat);
 
 export enum GFXAPI {
     UNKNOWN,
+    GL,
+    GLES2,
+    GLES3,
+    METAL,
+    VULKAN,
+    DX12,
     WEBGL,
     WEBGL2,
 }
@@ -324,6 +331,22 @@ export abstract class GFXDevice {
         this._reverseCW = val;
     }
 
+    /**
+     * @en The minimum Z value in clip space for the device.
+     * @zh 当前设备剪裁空间的最小 z 值。
+     */
+    get minClipZ () {
+        return this._minClipZ;
+    }
+
+    /**
+     * @en The sign to apply to the Y axis of projection matrices, positive value for pointing upwards.
+     * @zh 投影矩阵的 y 轴符号，正值为向上。
+     */
+    get projectionSignY () {
+        return this._projectionSignY;
+    }
+
     protected _canvas: HTMLCanvasElement | null = null;
     protected _canvas2D: HTMLCanvasElement | null = null;
     protected _gfxAPI: GFXAPI = GFXAPI.UNKNOWN;
@@ -363,6 +386,8 @@ export abstract class GFXDevice {
         bufferSize: 0,
         textureSize: 0,
     };
+    protected _minClipZ = -1;
+    protected _projectionSignY = 1;
 
     public abstract initialize (info: IGFXDeviceInfo): boolean;
 
@@ -475,11 +500,24 @@ export abstract class GFXDevice {
     public abstract createQueue (info: IGFXQueueInfo): GFXQueue;
 
     /**
+     * @en Create fence.
+     * @zh 创建同步信号。
+     * @param info GFX fence description info.
+     */
+    public abstract createFence (info: IGFXFenceInfo): GFXFence;
+
+    /**
      * @en Create window.
      * @zh 创建窗口。
      * @param info GFX window description info.
      */
     public abstract createWindow (info: IGFXWindowInfo): GFXWindow;
+
+    /**
+     * @en Begin current frame.
+     * @zh 开始当前帧。
+     */
+    public abstract acquire (): void;
 
     /**
      * @en Present current frame.

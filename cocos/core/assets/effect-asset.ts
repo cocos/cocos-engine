@@ -29,7 +29,7 @@
 
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Root } from '../../core/root';
-import { GFXDynamicState, GFXPrimitiveMode } from '../gfx/define';
+import { GFXDynamicState, GFXPrimitiveMode, GFXShaderType } from '../gfx/define';
 import { IGFXAttribute } from '../gfx/input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../gfx/pipeline-state';
 import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
@@ -95,6 +95,7 @@ export interface IBuiltinInfo {
 export interface IShaderInfo {
     name: string;
     hash: number;
+    glsl4: { vert: string, frag: string };
     glsl3: { vert: string, frag: string };
     glsl1: { vert: string, frag: string };
     builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo };

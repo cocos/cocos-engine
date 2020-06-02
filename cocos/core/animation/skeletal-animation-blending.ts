@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 
 import { Vec3, Quat } from '../math';
 import { Node } from '../scene-graph';

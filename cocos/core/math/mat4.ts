@@ -995,7 +995,10 @@ export class Mat4 extends ValueType {
      * @param near 近平面距离
      * @param far 远平面距离
      */
-    public static perspective <Out extends IMat4Like> (out: Out, fov: number, aspect: number, near: number, far: number, isFOVY = true) {
+    public static perspective <Out extends IMat4Like> (
+            out: Out, fov: number, aspect: number, near: number, far: number,
+            isFOVY = true, minClipZ = -1, projectionSignY = 1) {
+
         const f = 1.0 / Math.tan(fov / 2);
         const nf = 1 / (near - far);
 
@@ -1004,16 +1007,16 @@ export class Mat4 extends ValueType {
         out.m02 = 0;
         out.m03 = 0;
         out.m04 = 0;
-        out.m05 = isFOVY ? f : f * aspect;
+        out.m05 = (isFOVY ? f : f * aspect) * projectionSignY;
         out.m06 = 0;
         out.m07 = 0;
         out.m08 = 0;
         out.m09 = 0;
-        out.m10 = (far + near) * nf;
+        out.m10 = (far - minClipZ * near) * nf;
         out.m11 = -1;
         out.m12 = 0;
         out.m13 = 0;
-        out.m14 = (2 * far * near) * nf;
+        out.m14 = far * near * nf * (1 - minClipZ);
         out.m15 = 0;
         return out;
     }
@@ -1027,7 +1030,10 @@ export class Mat4 extends ValueType {
      * @param near 近平面距离
      * @param far 远平面距离
      */
-    public static ortho <Out extends IMat4Like> (out: Out, left: number, right: number, bottom: number, top: number, near: number, far: number) {
+    public static ortho <Out extends IMat4Like> (
+            out: Out, left: number, right: number, bottom: number, top: number, near: number, far: number,
+            minClipZ = -1, projectionSignY = 1) {
+
         const lr = 1 / (left - right);
         const bt = 1 / (bottom - top);
         const nf = 1 / (near - far);
@@ -1036,16 +1042,16 @@ export class Mat4 extends ValueType {
         out.m02 = 0;
         out.m03 = 0;
         out.m04 = 0;
-        out.m05 = -2 * bt;
+        out.m05 = -2 * bt * projectionSignY;
         out.m06 = 0;
         out.m07 = 0;
         out.m08 = 0;
         out.m09 = 0;
-        out.m10 = 2 * nf;
+        out.m10 = nf * (1 - minClipZ);
         out.m11 = 0;
         out.m12 = (left + right) * lr;
         out.m13 = (top + bottom) * bt;
-        out.m14 = (far + near) * nf;
+        out.m14 = (near - minClipZ * far) * nf;
         out.m15 = 1;
         return out;
     }

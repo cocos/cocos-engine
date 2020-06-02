@@ -214,7 +214,7 @@ export class Root {
         RenderScene.registerCreateFunc(this);
         RenderView.registerCreateFunc(this);
 
-        this._cameraPool = new Pool(() => new Camera(), 4);
+        this._cameraPool = new Pool(() => new Camera(this._device), 4);
     }
 
     /**
@@ -351,6 +351,8 @@ export class Root {
             this._fpsTime = 0.0;
         }
 
+        this._device.acquire();
+
         const views = this._views;
         for (let i = 0; i < views.length; i++) {
             const view = views[i];
@@ -361,7 +363,7 @@ export class Root {
             }
         }
 
-        // this._device.present();
+        this._device.present();
     }
 
     /**

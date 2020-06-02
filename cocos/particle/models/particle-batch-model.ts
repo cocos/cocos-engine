@@ -88,7 +88,7 @@ export default class ParticleBatchModel extends Model {
             usage: GFXBufferUsageBit.INDIRECT,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: GFX_DRAW_INFO_SIZE,
-            stride: 1,
+            stride: GFX_DRAW_INFO_SIZE,
         });
         this._subMeshData = null;
         this._mesh = null;
@@ -195,7 +195,7 @@ export default class ParticleBatchModel extends Model {
                 usage: GFXBufferUsageBit.INDIRECT,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: GFX_DRAW_INFO_SIZE,
-                stride: 1,
+                stride: GFX_DRAW_INFO_SIZE,
             });
         }
         this._iaInfoBuffer.update(this._iaInfo);
@@ -345,7 +345,6 @@ export default class ParticleBatchModel extends Model {
 
     private _recreateBuffer () {
         this._vBuffer = this._createSubMeshData();
-        this.getSubModel(0).updateCommandBuffer();
         this._vdataF32 = new Float32Array(this._vBuffer);
         this._vdataUint32 = new Uint32Array(this._vBuffer);
     }

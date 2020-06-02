@@ -573,6 +573,7 @@ export abstract class RenderPipeline {
         Mat4.toArray(fv, camera.matViewProj, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
         Mat4.toArray(fv, camera.matViewProjInv, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
         Vec3.toArray(fv, camera.position, UBOGlobal.CAMERA_POS_OFFSET);
+        fv[UBOGlobal.CAMERA_POS_OFFSET + 3] = device.projectionSignY;
 
         const exposure = camera.exposure;
         fv[UBOGlobal.EXPOSURE_OFFSET] = exposure;
@@ -945,7 +946,7 @@ export abstract class RenderPipeline {
         this._quadVB.update(verts);
 
         // create index buffer
-        const ibStride = Uint8Array.BYTES_PER_ELEMENT;
+        const ibStride = Uint16Array.BYTES_PER_ELEMENT;
         const ibSize = ibStride * 6;
 
         this._quadIB = this._device.createBuffer({
@@ -959,7 +960,7 @@ export abstract class RenderPipeline {
             return false;
         }
 
-        const indices = new Uint8Array(6);
+        const indices = new Uint16Array(6);
         indices[0] = 0; indices[1] = 1; indices[2] = 2;
         indices[3] = 1; indices[4] = 3; indices[5] = 2;
 

@@ -1053,8 +1053,6 @@ export class Director extends EventTarget {
 
             this.emit(Director.EVENT_BEFORE_DRAW);
             this._root!.frameMove(this._deltaTime);
-            // Present current frame
-            this._root!.device.present();
             this.emit(Director.EVENT_AFTER_DRAW);
 
             eventManager.frameUpdateListeners();
@@ -1086,6 +1084,7 @@ export class Director extends EventTarget {
         this._root = new Root(legacyCC.game._gfxDevice);
         const rootInfo = {};
         if (!this._root.initialize(rootInfo)) {
+            legacyCC.errorID(1217);
             return false;
         }
 

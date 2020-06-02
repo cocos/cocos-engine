@@ -25,6 +25,7 @@
 */
 
 declare const jsb: any;
+declare const gfx: any;
 
 interface Window {
 

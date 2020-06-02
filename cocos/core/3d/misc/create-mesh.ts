@@ -10,6 +10,7 @@ const _defAttrs: IGFXAttribute[] = [
     { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },
     { name: GFXAttributeName.ATTR_NORMAL, format: GFXFormat.RGB32F },
     { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RG32F },
+    { name: GFXAttributeName.ATTR_TANGENT, format: GFXFormat.RGBA32F },
     { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA32F },
 ];
 
@@ -19,7 +20,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
     // Collect attributes and calculate length of result vertex buffer.
     const attributes: IGFXAttribute[] = [];
     let stride = 0;
-    const channels: Array<{ offset: number; data: number[]; attribute: IGFXAttribute; }> = [];
+    const channels: { offset: number; data: number[]; attribute: IGFXAttribute; }[] = [];
     let vertCount = 0;
 
     let attr: IGFXAttribute | null;
@@ -90,6 +91,28 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
         stride += info.size;
     }
 
+    if (geometry.tangents && geometry.tangents.length > 0) {
+        attr = null;
+        if (geometry.attributes) {
+            for (const att of geometry.attributes) {
+                if (att.name === GFXAttributeName.ATTR_TANGENT) {
+                    attr = att;
+                    break;
+                }
+            }
+        }
+
+        if (!attr) {
+            attr = _defAttrs[3];
+        }
+
+        const info = GFXFormatInfos[attr.format];
+        attributes.push(attr);
+        vertCount = Math.max(vertCount, Math.floor(geometry.tangents.length / info.count));
+        channels.push({ offset: stride, data: geometry.tangents, attribute: attr });
+        stride += info.size;
+    }
+
     if (geometry.colors && geometry.colors.length > 0) {
         attr = null;
         if (geometry.attributes) {
@@ -102,7 +125,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
         }
 
         if (!attr) {
-            attr = _defAttrs[3];
+            attr = _defAttrs[4];
         }
 
         const info = GFXFormatInfos[attr.format];

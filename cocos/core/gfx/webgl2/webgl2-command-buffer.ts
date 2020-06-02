@@ -36,6 +36,7 @@ import { IWebGL2GPUInputAssembler, WebGL2GPUBindingLayout, WebGL2GPUPipelineStat
 import { WebGL2GFXInputAssembler } from './webgl2-input-assembler';
 import { WebGL2GFXPipelineState } from './webgl2-pipeline-state';
 import { WebGL2GFXTexture } from './webgl2-texture';
+import { GFXRenderPass } from '../render-pass';
 
 export interface IWebGL2DepthBias {
     constantFactor: number;
@@ -98,7 +99,7 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
         this._status = GFXStatus.UNREADY;
     }
 
-    public begin () {
+    public begin (renderPass?: GFXRenderPass, subpass = 0, frameBuffer?: GFXFramebuffer) {
         this._webGLAllocator!.clearCmds(this.cmdPackage);
         this._curGPUPipelineState = null;
         this._curGPUBindingLayout = null;
