@@ -5,20 +5,16 @@
 
 NS_CC_BEGIN
 
-GLES2Fence::GLES2Fence(GFXDevice* device)
-    : GFXFence(device)
-{
+GLES2Fence::GLES2Fence(GFXDevice *device)
+: GFXFence(device) {
 }
 
-GLES2Fence::~GLES2Fence()
-{
+GLES2Fence::~GLES2Fence() {
 }
 
-bool GLES2Fence::initialize(const GFXFenceInfo &info)
-{
+bool GLES2Fence::initialize(const GFXFenceInfo &info) {
     _gpuFence = CC_NEW(GLES2GPUFence);
-    if (!_gpuFence)
-    {
+    if (!_gpuFence) {
         CC_LOG_ERROR("GLES2Fence: CC_NEW GLES2GPUFence failed.");
         return false;
     }
@@ -29,10 +25,8 @@ bool GLES2Fence::initialize(const GFXFenceInfo &info)
     return true;
 }
 
-void GLES2Fence::destroy()
-{
-    if (_gpuFence)
-    {
+void GLES2Fence::destroy() {
+    if (_gpuFence) {
         // TODO
 
         CC_DELETE(_gpuFence);
@@ -41,13 +35,11 @@ void GLES2Fence::destroy()
     _status = GFXStatus::UNREADY;
 }
 
-void GLES2Fence::wait()
-{
+void GLES2Fence::wait() {
     // TODO
 }
 
-void GLES2Fence::reset()
-{
+void GLES2Fence::reset() {
     // TODO
 }
 

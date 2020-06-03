@@ -3,14 +3,14 @@
 
 NS_CC_BEGIN
 
-GLES3CommandAllocator::GLES3CommandAllocator(GFXDevice* device)
+GLES3CommandAllocator::GLES3CommandAllocator(GFXDevice *device)
 : GFXCommandAllocator(device) {
 }
 
 GLES3CommandAllocator::~GLES3CommandAllocator() {
 }
 
-bool GLES3CommandAllocator::initialize(const GFXCommandAllocatorInfo& info) {
+bool GLES3CommandAllocator::initialize(const GFXCommandAllocatorInfo &info) {
     _status = GFXStatus::SUCCESS;
     return true;
 }
@@ -19,7 +19,7 @@ void GLES3CommandAllocator::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-void GLES3CommandAllocator::clearCmds(GLES3CmdPackage* cmd_package) {
+void GLES3CommandAllocator::clearCmds(GLES3CmdPackage *cmd_package) {
     if (cmd_package->beginRenderPassCmds.size()) {
         beginRenderPassCmdPool.freeCmds(cmd_package->beginRenderPassCmds);
     }

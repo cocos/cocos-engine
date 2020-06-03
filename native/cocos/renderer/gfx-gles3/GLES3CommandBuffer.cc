@@ -10,20 +10,20 @@
 
 NS_CC_BEGIN
 
-GLES3CommandBuffer::GLES3CommandBuffer(GFXDevice* device)
+GLES3CommandBuffer::GLES3CommandBuffer(GFXDevice *device)
 : GFXCommandBuffer(device) {
 }
 
 GLES3CommandBuffer::~GLES3CommandBuffer() {
 }
 
-bool GLES3CommandBuffer::initialize(const GFXCommandBufferInfo& info) {
+bool GLES3CommandBuffer::initialize(const GFXCommandBufferInfo &info) {
     if (!info.allocator) {
         return false;
     }
 
     _allocator = info.allocator;
-    _gles3Allocator = (GLES3CommandAllocator*)info.allocator;
+    _gles3Allocator = (GLES3CommandAllocator *)info.allocator;
     _type = info.type;
 
     _cmdPackage = CC_NEW(GLES3CmdPackage);
@@ -43,7 +43,7 @@ void GLES3CommandBuffer::destroy() {
     CC_SAFE_DELETE(_cmdPackage);
 }
 
-void GLES3CommandBuffer::begin(GFXRenderPass* renderPass, uint subpass, GFXFramebuffer* frameBuffer) {
+void GLES3CommandBuffer::begin(GFXRenderPass *renderPass, uint subpass, GFXFramebuffer *frameBuffer) {
     _gles3Allocator->clearCmds(_cmdPackage);
     _curGPUPipelineState = nullptr;
     _curGPUBlendLayout = nullptr;
@@ -60,11 +60,11 @@ void GLES3CommandBuffer::end() {
     _isInRenderPass = false;
 }
 
-void GLES3CommandBuffer::beginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, const std::vector<GFXColor>& colors, float depth, int stencil) {
+void GLES3CommandBuffer::beginRenderPass(GFXFramebuffer *fbo, const GFXRect &render_area, GFXClearFlags clear_flags, const std::vector<GFXColor> &colors, float depth, int stencil) {
     _isInRenderPass = true;
 
-    GLES3CmdBeginRenderPass* cmd = _gles3Allocator->beginRenderPassCmdPool.alloc();
-    cmd->gpuFBO = ((GLES3Framebuffer*)fbo)->gpuFBO();
+    GLES3CmdBeginRenderPass *cmd = _gles3Allocator->beginRenderPassCmdPool.alloc();
+    cmd->gpuFBO = ((GLES3Framebuffer *)fbo)->gpuFBO();
     cmd->render_area = render_area;
     cmd->clear_flags = clear_flags;
     cmd->num_clear_colors = (uint32_t)colors.size();
@@ -82,42 +82,41 @@ void GLES3CommandBuffer::endRenderPass() {
     _cmdPackage->cmds.push(GFXCmdType::END_RENDER_PASS);
 }
 
-void GLES3CommandBuffer::bindPipelineState(GFXPipelineState* pso) {
-    _curGPUPipelineState = ((GLES3PipelineState*)pso)->gpuPipelineState();
+void GLES3CommandBuffer::bindPipelineState(GFXPipelineState *pso) {
+    _curGPUPipelineState = ((GLES3PipelineState *)pso)->gpuPipelineState();
     _isStateInvalid = true;
 }
 
-
-void GLES3CommandBuffer::bindBindingLayout(GFXBindingLayout* layout) {
-    _curGPUBlendLayout = ((GLES3BindingLayout*)layout)->gpuBindingLayout();
+void GLES3CommandBuffer::bindBindingLayout(GFXBindingLayout *layout) {
+    _curGPUBlendLayout = ((GLES3BindingLayout *)layout)->gpuBindingLayout();
     _isStateInvalid = true;
 }
 
-void GLES3CommandBuffer::bindInputAssembler(GFXInputAssembler* ia) {
-    _curGPUInputAssember = ((GLES3InputAssembler*)ia)->gpuInputAssembler();
+void GLES3CommandBuffer::bindInputAssembler(GFXInputAssembler *ia) {
+    _curGPUInputAssember = ((GLES3InputAssembler *)ia)->gpuInputAssembler();
     _isStateInvalid = true;
 }
 
-void GLES3CommandBuffer::setViewport(const GFXViewport& vp) {
-  
+void GLES3CommandBuffer::setViewport(const GFXViewport &vp) {
+
     if ((_curViewport.left != vp.left) ||
         (_curViewport.top != vp.top) ||
         (_curViewport.width != vp.width) ||
         (_curViewport.height != vp.height) ||
         math::IsNotEqualF(_curViewport.minDepth, vp.minDepth) ||
         math::IsNotEqualF(_curViewport.maxDepth, vp.maxDepth)) {
-        
+
         _curViewport = vp;
         _isStateInvalid = true;
     }
 }
 
-void GLES3CommandBuffer::setScissor(const GFXRect& rect) {
+void GLES3CommandBuffer::setScissor(const GFXRect &rect) {
     if ((_curScissor.x != rect.x) ||
         (_curScissor.y != rect.y) ||
         (_curScissor.width != rect.width) ||
         (_curScissor.height != rect.height)) {
-        
+
         _curScissor = rect;
         _isStateInvalid = true;
     }
@@ -134,7 +133,7 @@ void GLES3CommandBuffer::setDepthBias(float constant, float clamp, float slope) 
     if (math::IsNotEqualF(_curDepthBias.constant, constant) ||
         math::IsNotEqualF(_curDepthBias.clamp, clamp) ||
         math::IsNotEqualF(_curDepthBias.slope, slope)) {
-        
+
         _curDepthBias.constant = constant;
         _curDepthBias.clamp = clamp;
         _curDepthBias.slope = slope;
@@ -142,12 +141,12 @@ void GLES3CommandBuffer::setDepthBias(float constant, float clamp, float slope) 
     }
 }
 
-void GLES3CommandBuffer::setBlendConstants(const GFXColor& constants) {
+void GLES3CommandBuffer::setBlendConstants(const GFXColor &constants) {
     if (math::IsNotEqualF(_curBlendConstants.r, constants.r) ||
         math::IsNotEqualF(_curBlendConstants.g, constants.g) ||
         math::IsNotEqualF(_curBlendConstants.b, constants.b) ||
         math::IsNotEqualF(_curBlendConstants.a, constants.a)) {
-        
+
         _curBlendConstants.r = constants.r;
         _curBlendConstants.g = constants.g;
         _curBlendConstants.b = constants.b;
@@ -159,7 +158,7 @@ void GLES3CommandBuffer::setBlendConstants(const GFXColor& constants) {
 void GLES3CommandBuffer::setDepthBound(float min_bounds, float max_bounds) {
     if (math::IsNotEqualF(_curDepthBounds.min_bounds, min_bounds) ||
         math::IsNotEqualF(_curDepthBounds.max_bounds, max_bounds)) {
-        
+
         _curDepthBounds.min_bounds = min_bounds;
         _curDepthBounds.max_bounds = max_bounds;
         _isStateInvalid = true;
@@ -169,7 +168,7 @@ void GLES3CommandBuffer::setDepthBound(float min_bounds, float max_bounds) {
 void GLES3CommandBuffer::setStencilWriteMask(GFXStencilFace face, uint mask) {
     if ((_curStencilWriteMask.face != face) ||
         (_curStencilWriteMask.write_mask != mask)) {
-        
+
         _curStencilWriteMask.face = face;
         _curStencilWriteMask.write_mask = mask;
         _isStateInvalid = true;
@@ -180,7 +179,7 @@ void GLES3CommandBuffer::setStencilCompareMask(GFXStencilFace face, int ref, uin
     if ((_curStencilCompareMask.face != face) ||
         (_curStencilCompareMask.refrence != ref) ||
         (_curStencilCompareMask.compare_mask != mask)) {
-        
+
         _curStencilCompareMask.face = face;
         _curStencilCompareMask.refrence = ref;
         _curStencilCompareMask.compare_mask = mask;
@@ -188,34 +187,34 @@ void GLES3CommandBuffer::setStencilCompareMask(GFXStencilFace face, int ref, uin
     }
 }
 
-void GLES3CommandBuffer::draw(GFXInputAssembler* ia) {
+void GLES3CommandBuffer::draw(GFXInputAssembler *ia) {
     if ((_type == GFXCommandBufferType::PRIMARY && _isInRenderPass) ||
         (_type == GFXCommandBufferType::SECONDARY)) {
-        
+
         if (_isStateInvalid) {
             BindStates();
         }
-    
-        GLES3CmdDraw* cmd = _gles3Allocator->drawCmdPool.alloc();
-        ((GLES3InputAssembler*)ia)->ExtractCmdDraw(cmd);
+
+        GLES3CmdDraw *cmd = _gles3Allocator->drawCmdPool.alloc();
+        ((GLES3InputAssembler *)ia)->ExtractCmdDraw(cmd);
         _cmdPackage->drawCmds.push(cmd);
         _cmdPackage->cmds.push(GFXCmdType::DRAW);
 
         ++_numDrawCalls;
         _numInstances += ia->getInstanceCount();
-        if(_curGPUPipelineState) {
+        if (_curGPUPipelineState) {
             switch (_curGPUPipelineState->glPrimitive) {
                 case GL_TRIANGLES: {
-                  _numTriangles += ia->getIndexCount() / 3 * std::max(ia->getInstanceCount(), 1U);
-                  break;
+                    _numTriangles += ia->getIndexCount() / 3 * std::max(ia->getInstanceCount(), 1U);
+                    break;
                 }
                 case GL_TRIANGLE_STRIP:
                 case GL_TRIANGLE_FAN: {
-                  _numTriangles += (ia->getIndexCount() - 2) * std::max(ia->getInstanceCount(), 1U);
-                  break;
+                    _numTriangles += (ia->getIndexCount() - 2) * std::max(ia->getInstanceCount(), 1U);
+                    break;
                 }
                 default:
-                  break;
+                    break;
             }
         }
     } else {
@@ -223,15 +222,15 @@ void GLES3CommandBuffer::draw(GFXInputAssembler* ia) {
     }
 }
 
-void GLES3CommandBuffer::updateBuffer(GFXBuffer* buff, void* data, uint size, uint offset) {
+void GLES3CommandBuffer::updateBuffer(GFXBuffer *buff, void *data, uint size, uint offset) {
     if ((_type == GFXCommandBufferType::PRIMARY && !_isInRenderPass) ||
         (_type == GFXCommandBufferType::SECONDARY)) {
-        
-        GLES3GPUBuffer* gpuBuffer = ((GLES3Buffer*)buff)->gpuBuffer();
+
+        GLES3GPUBuffer *gpuBuffer = ((GLES3Buffer *)buff)->gpuBuffer();
         if (gpuBuffer) {
-            GLES3CmdUpdateBuffer* cmd = _gles3Allocator->updateBufferCmdPool.alloc();
+            GLES3CmdUpdateBuffer *cmd = _gles3Allocator->updateBufferCmdPool.alloc();
             cmd->gpuBuffer = gpuBuffer;
-            cmd->buffer = (uint8_t*)data;
+            cmd->buffer = (uint8_t *)data;
             cmd->size = size;
             cmd->offset = offset;
 
@@ -243,14 +242,14 @@ void GLES3CommandBuffer::updateBuffer(GFXBuffer* buff, void* data, uint size, ui
     }
 }
 
-void GLES3CommandBuffer::copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, const GFXBufferTextureCopyList& regions) {
+void GLES3CommandBuffer::copyBufferToTexture(GFXBuffer *src, GFXTexture *dst, GFXTextureLayout layout, const GFXBufferTextureCopyList &regions) {
     if ((_type == GFXCommandBufferType::PRIMARY && !_isInRenderPass) ||
         (_type == GFXCommandBufferType::SECONDARY)) {
-        
-        GLES3GPUBuffer* gpuBuffer = ((GLES3Buffer*)src)->gpuBuffer();
-        GLES3GPUTexture* gpuTexture = ((GLES3Texture*)dst)->gpuTexture();
+
+        GLES3GPUBuffer *gpuBuffer = ((GLES3Buffer *)src)->gpuBuffer();
+        GLES3GPUTexture *gpuTexture = ((GLES3Texture *)dst)->gpuTexture();
         if (gpuBuffer && gpuTexture) {
-            GLES3CmdCopyBufferToTexture* cmd = _gles3Allocator->copyBufferToTextureCmdPool.alloc();
+            GLES3CmdCopyBufferToTexture *cmd = _gles3Allocator->copyBufferToTextureCmdPool.alloc();
             cmd->gpuBuffer = gpuBuffer;
             cmd->gpuTexture = gpuTexture;
             cmd->dst_layout = layout;
@@ -267,32 +266,32 @@ void GLES3CommandBuffer::copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GF
     }
 }
 
-void GLES3CommandBuffer::execute(const std::vector<GFXCommandBuffer*>& cmd_buffs, uint32_t count) {
+void GLES3CommandBuffer::execute(const std::vector<GFXCommandBuffer *> &cmd_buffs, uint32_t count) {
     for (uint i = 0; i < count; ++i) {
-        GLES3CommandBuffer* cmd_buff = (GLES3CommandBuffer*)cmd_buffs[i];
+        GLES3CommandBuffer *cmd_buff = (GLES3CommandBuffer *)cmd_buffs[i];
 
         for (uint j = 0; j < cmd_buff->_cmdPackage->beginRenderPassCmds.size(); ++j) {
-            GLES3CmdBeginRenderPass* cmd = cmd_buff->_cmdPackage->beginRenderPassCmds[j];
+            GLES3CmdBeginRenderPass *cmd = cmd_buff->_cmdPackage->beginRenderPassCmds[j];
             ++cmd->ref_count;
             _cmdPackage->beginRenderPassCmds.push(cmd);
         }
         for (uint j = 0; j < cmd_buff->_cmdPackage->bindStatesCmds.size(); ++j) {
-            GLES3CmdBindStates* cmd = cmd_buff->_cmdPackage->bindStatesCmds[j];
+            GLES3CmdBindStates *cmd = cmd_buff->_cmdPackage->bindStatesCmds[j];
             ++cmd->ref_count;
             _cmdPackage->bindStatesCmds.push(cmd);
         }
         for (uint j = 0; j < cmd_buff->_cmdPackage->drawCmds.size(); ++j) {
-            GLES3CmdDraw* cmd = cmd_buff->_cmdPackage->drawCmds[j];
+            GLES3CmdDraw *cmd = cmd_buff->_cmdPackage->drawCmds[j];
             ++cmd->ref_count;
             _cmdPackage->drawCmds.push(cmd);
         }
         for (uint j = 0; j < cmd_buff->_cmdPackage->updateBufferCmds.size(); ++j) {
-            GLES3CmdUpdateBuffer* cmd = cmd_buff->_cmdPackage->updateBufferCmds[j];
+            GLES3CmdUpdateBuffer *cmd = cmd_buff->_cmdPackage->updateBufferCmds[j];
             ++cmd->ref_count;
             _cmdPackage->updateBufferCmds.push(cmd);
         }
         for (uint j = 0; j < cmd_buff->_cmdPackage->copyBufferToTextureCmds.size(); ++j) {
-            GLES3CmdCopyBufferToTexture* cmd = cmd_buff->_cmdPackage->copyBufferToTextureCmds[j];
+            GLES3CmdCopyBufferToTexture *cmd = cmd_buff->_cmdPackage->copyBufferToTextureCmds[j];
             ++cmd->ref_count;
             _cmdPackage->copyBufferToTextureCmds.push(cmd);
         }
@@ -305,7 +304,7 @@ void GLES3CommandBuffer::execute(const std::vector<GFXCommandBuffer*>& cmd_buffs
 }
 
 void GLES3CommandBuffer::BindStates() {
-    GLES3CmdBindStates* cmd = _gles3Allocator->bindStatesCmdPool.alloc();
+    GLES3CmdBindStates *cmd = _gles3Allocator->bindStatesCmdPool.alloc();
     cmd->gpuPipelineState = _curGPUPipelineState;
     cmd->gpuBindingLayout = _curGPUBlendLayout;
     cmd->gpuInputAssembler = _curGPUInputAssember;

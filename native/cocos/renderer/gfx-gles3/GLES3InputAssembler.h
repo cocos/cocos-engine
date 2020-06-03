@@ -7,20 +7,20 @@ class GLES3GPUInputAssembler;
 class GLES3CmdDraw;
 
 class CC_GLES3_API GLES3InputAssembler : public GFXInputAssembler {
- public:
-  GLES3InputAssembler(GFXDevice* device);
-  ~GLES3InputAssembler();
-  
- public:
-  bool initialize(const GFXInputAssemblerInfo& info);
-  void destroy();
-  
-  void ExtractCmdDraw(GLES3CmdDraw* cmd);
-  
-  CC_INLINE GLES3GPUInputAssembler* gpuInputAssembler() const { return _gpuInputAssembler; }
-  
- private:
-  GLES3GPUInputAssembler* _gpuInputAssembler = nullptr;
+public:
+    GLES3InputAssembler(GFXDevice *device);
+    ~GLES3InputAssembler();
+
+public:
+    virtual bool initialize(const GFXInputAssemblerInfo &info) override;
+    virtual void destroy() override;
+
+    void ExtractCmdDraw(GLES3CmdDraw *cmd);
+
+    CC_INLINE GLES3GPUInputAssembler *gpuInputAssembler() const { return _gpuInputAssembler; }
+
+private:
+    GLES3GPUInputAssembler *_gpuInputAssembler = nullptr;
 };
 
 NS_CC_END

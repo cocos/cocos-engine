@@ -6,18 +6,18 @@ NS_CC_BEGIN
 class GLES2GPUFramebuffer;
 
 class CC_GLES2_API GLES2Framebuffer : public GFXFramebuffer {
- public:
-  GLES2Framebuffer(GFXDevice* device);
-  ~GLES2Framebuffer();
-  
- public:
-  bool initialize(const GFXFramebufferInfo& info);
-  void destroy();
-  
-  CC_INLINE GLES2GPUFramebuffer* gpuFBO() const { return _gpuFBO; }
-  
- private:
-  GLES2GPUFramebuffer* _gpuFBO = nullptr;
+public:
+    GLES2Framebuffer(GFXDevice *device);
+    ~GLES2Framebuffer();
+
+public:
+    virtual bool initialize(const GFXFramebufferInfo &info) override;
+    virtual void destroy() override;
+
+    CC_INLINE GLES2GPUFramebuffer *gpuFBO() const { return _gpuFBO; }
+
+private:
+    GLES2GPUFramebuffer *_gpuFBO = nullptr;
 };
 
 NS_CC_END

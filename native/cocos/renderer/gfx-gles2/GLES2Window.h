@@ -5,13 +5,13 @@ NS_CC_BEGIN
 
 class CC_GLES2_API GLES2Window : public GFXWindow {
 public:
-  GLES2Window(GFXDevice* device);
-  ~GLES2Window();
-  
+    GLES2Window(GFXDevice *device);
+    ~GLES2Window();
+
 public:
-  bool initialize(const GFXWindowInfo& info);
-  void destroy();
-  void resize(uint width, uint height);
+    virtual bool initialize(const GFXWindowInfo &info) override;
+    virtual void destroy() override;
+    virtual void resize(uint width, uint height) override;
 };
 
 NS_CC_END

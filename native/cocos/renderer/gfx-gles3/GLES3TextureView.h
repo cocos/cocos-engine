@@ -7,17 +7,17 @@ class GLES3GPUTextureView;
 
 class CC_GLES3_API GLES3TextureView : public GFXTextureView {
 public:
-  GLES3TextureView(GFXDevice* device);
-  ~GLES3TextureView();
-  
+    GLES3TextureView(GFXDevice *device);
+    ~GLES3TextureView();
+
 public:
-  bool initialize(const GFXTextureViewInfo& info);
-  void destroy();
-  
-  CC_INLINE GLES3GPUTextureView* gpuTexView() const { return _gpuTexView; }
-  
+    virtual bool initialize(const GFXTextureViewInfo &info) override;
+    virtual void destroy() override;
+
+    CC_INLINE GLES3GPUTextureView *gpuTexView() const { return _gpuTexView; }
+
 private:
-  GLES3GPUTextureView* _gpuTexView = nullptr;
+    GLES3GPUTextureView *_gpuTexView = nullptr;
 };
 
 NS_CC_END

@@ -6,18 +6,18 @@ NS_CC_BEGIN
 class GLES3GPURenderPass;
 
 class CC_GLES3_API GLES3RenderPass : public GFXRenderPass {
- public:
-  GLES3RenderPass(GFXDevice* device);
-  ~GLES3RenderPass();
-  
- public:
-  bool initialize(const GFXRenderPassInfo& info);
-  void destroy();
-  
-  CC_INLINE GLES3GPURenderPass* gpuRenderPass() const { return _gpuRenderPass; }
-  
- private:
-  GLES3GPURenderPass* _gpuRenderPass = nullptr;
+public:
+    GLES3RenderPass(GFXDevice *device);
+    ~GLES3RenderPass();
+
+public:
+    virtual bool initialize(const GFXRenderPassInfo &info) override;
+    virtual void destroy() override;
+
+    CC_INLINE GLES3GPURenderPass *gpuRenderPass() const { return _gpuRenderPass; }
+
+private:
+    GLES3GPURenderPass *_gpuRenderPass = nullptr;
 };
 
 NS_CC_END

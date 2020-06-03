@@ -21,16 +21,13 @@
 
 NS_CC_BEGIN
 
-GLES3Device::GLES3Device()
-{
+GLES3Device::GLES3Device() {
 }
 
-GLES3Device::~GLES3Device()
-{
+GLES3Device::~GLES3Device() {
 }
 
-bool GLES3Device::initialize(const GFXDeviceInfo& info)
-{
+bool GLES3Device::initialize(const GFXDeviceInfo &info) {
     _gfxAPI = GFXAPI::GLES3;
     _deviceName = "GLES3";
     _width = info.width;
@@ -46,13 +43,12 @@ bool GLES3Device::initialize(const GFXDeviceInfo& info)
     ctx_info.sharedCtx = info.sharedCtx;
 
     _context = CC_NEW(GLES3Context(this));
-    if (!_context->initialize(ctx_info))
-    {
+    if (!_context->initialize(ctx_info)) {
         destroy();
         return false;
     }
 
-    String extStr = (const char*)glGetString(GL_EXTENSIONS);
+    String extStr = (const char *)glGetString(GL_EXTENSIONS);
     _extensions = StringUtil::Split(extStr, " ");
 
     _features[(int)GFXFeature::TEXTURE_FLOAT] = true;
@@ -64,20 +60,19 @@ bool GLES3Device::initialize(const GFXDeviceInfo& info)
 
     if (checkExtension("color_buffer_float"))
         _features[(int)GFXFeature::COLOR_FLOAT] = true;
-    
+
     if (checkExtension("color_buffer_half_float"))
         _features[(int)GFXFeature::COLOR_HALF_FLOAT] = true;
-    
+
     if (checkExtension("texture_float_linear"))
         _features[(int)GFXFeature::TEXTURE_FLOAT_LINEAR] = true;
-    
+
     if (checkExtension("texture_half_float_linear"))
         _features[(int)GFXFeature::TEXTURE_HALF_FLOAT_LINEAR] = true;
 
     String compressed_fmts;
 
-    if (checkExtension("compressed_ETC1"))
-    {
+    if (checkExtension("compressed_ETC1")) {
         _features[(int)GFXFeature::FORMAT_ETC1] = true;
         compressed_fmts += "etc1 ";
     }
@@ -85,21 +80,19 @@ bool GLES3Device::initialize(const GFXDeviceInfo& info)
     _features[(int)GFXFeature::FORMAT_ETC2] = true;
     compressed_fmts += "etc2 ";
 
-    if (checkExtension("texture_compression_pvrtc"))
-    {
+    if (checkExtension("texture_compression_pvrtc")) {
         _features[(int)GFXFeature::FORMAT_PVRTC] = true;
         compressed_fmts += "pvrtc ";
     }
 
-    if (checkExtension("texture_compression_astc"))
-    {
+    if (checkExtension("texture_compression_astc")) {
         _features[(int)GFXFeature::FORMAT_ASTC] = true;
         compressed_fmts += "astc ";
     }
 
-    _renderer = (const char*)glGetString(GL_RENDERER);
-    _vendor = (const char*)glGetString(GL_VENDOR);
-    _version = (const char*)glGetString(GL_VERSION);
+    _renderer = (const char *)glGetString(GL_RENDERER);
+    _vendor = (const char *)glGetString(GL_VENDOR);
+    _version = (const char *)glGetString(GL_VERSION);
 
     CC_LOG_INFO("GLES3 device initialized.");
     CC_LOG_INFO("RENDERER: %s", _renderer.c_str());
@@ -136,8 +129,7 @@ bool GLES3Device::initialize(const GFXDeviceInfo& info)
     return true;
 }
 
-void GLES3Device::destroy()
-{
+void GLES3Device::destroy() {
     CC_SAFE_DESTROY(_cmdAllocator);
     CC_SAFE_DESTROY(_queue);
     CC_SAFE_DESTROY(_window);
@@ -145,17 +137,15 @@ void GLES3Device::destroy()
     CC_SAFE_DELETE(stateCache);
 }
 
-void GLES3Device::resize(uint width, uint height)
-{
+void GLES3Device::resize(uint width, uint height) {
     _width = width;
     _height = height;
     _window->resize(width, height);
 }
 
-void GLES3Device::present()
-{
-    ((GLES3CommandAllocator*)_cmdAllocator)->releaseCmds();
-    GLES3Queue* queue = (GLES3Queue*)_queue;
+void GLES3Device::present() {
+    ((GLES3CommandAllocator *)_cmdAllocator)->releaseCmds();
+    GLES3Queue *queue = (GLES3Queue *)_queue;
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
     _numTriangles = queue->_numTriangles;
@@ -168,9 +158,8 @@ void GLES3Device::present()
     queue->_numTriangles = 0;
 }
 
-GFXWindow* GLES3Device::createWindow(const GFXWindowInfo& info)
-{
-    GFXWindow* window = CC_NEW(GLES3Window(this));
+GFXWindow *GLES3Device::createWindow(const GFXWindowInfo &info) {
+    GFXWindow *window = CC_NEW(GLES3Window(this));
     if (window->initialize(info))
         return window;
 
@@ -178,9 +167,8 @@ GFXWindow* GLES3Device::createWindow(const GFXWindowInfo& info)
     return nullptr;
 }
 
-GFXFence* GLES3Device::createFence(const GFXFenceInfo& info)
-{
-    GFXFence* fence = CC_NEW(GLES3Fence(this));
+GFXFence *GLES3Device::createFence(const GFXFenceInfo &info) {
+    GFXFence *fence = CC_NEW(GLES3Fence(this));
     if (fence->initialize(info))
         return fence;
 
@@ -188,9 +176,8 @@ GFXFence* GLES3Device::createFence(const GFXFenceInfo& info)
     return nullptr;
 }
 
-GFXQueue* GLES3Device::createQueue(const GFXQueueInfo& info)
-{
-    GFXQueue* queue = CC_NEW(GLES3Queue(this));
+GFXQueue *GLES3Device::createQueue(const GFXQueueInfo &info) {
+    GFXQueue *queue = CC_NEW(GLES3Queue(this));
     if (queue->initialize(info))
         return queue;
 
@@ -198,9 +185,8 @@ GFXQueue* GLES3Device::createQueue(const GFXQueueInfo& info)
     return nullptr;
 }
 
-GFXCommandAllocator* GLES3Device::createCommandAllocator(const GFXCommandAllocatorInfo& info)
-{
-    GFXCommandAllocator* cmdAllocator = CC_NEW(GLES3CommandAllocator(this));
+GFXCommandAllocator *GLES3Device::createCommandAllocator(const GFXCommandAllocatorInfo &info) {
+    GFXCommandAllocator *cmdAllocator = CC_NEW(GLES3CommandAllocator(this));
     if (cmdAllocator->initialize(info))
         return cmdAllocator;
 
@@ -208,9 +194,8 @@ GFXCommandAllocator* GLES3Device::createCommandAllocator(const GFXCommandAllocat
     return nullptr;
 }
 
-GFXCommandBuffer* GLES3Device::createCommandBuffer(const GFXCommandBufferInfo& info)
-{
-    GFXCommandBuffer* cmd_buff = CC_NEW(GLES3CommandBuffer(this));
+GFXCommandBuffer *GLES3Device::createCommandBuffer(const GFXCommandBufferInfo &info) {
+    GFXCommandBuffer *cmd_buff = CC_NEW(GLES3CommandBuffer(this));
     if (cmd_buff->initialize(info))
         return cmd_buff;
 
@@ -218,9 +203,8 @@ GFXCommandBuffer* GLES3Device::createCommandBuffer(const GFXCommandBufferInfo& i
     return nullptr;
 }
 
-GFXBuffer* GLES3Device::createBuffer(const GFXBufferInfo& info)
-{
-    GFXBuffer* buffer = CC_NEW(GLES3Buffer(this));
+GFXBuffer *GLES3Device::createBuffer(const GFXBufferInfo &info) {
+    GFXBuffer *buffer = CC_NEW(GLES3Buffer(this));
     if (buffer->initialize(info))
         return buffer;
 
@@ -228,9 +212,8 @@ GFXBuffer* GLES3Device::createBuffer(const GFXBufferInfo& info)
     return nullptr;
 }
 
-GFXTexture* GLES3Device::createTexture(const GFXTextureInfo& info)
-{
-    GFXTexture* texture = CC_NEW(GLES3Texture(this));
+GFXTexture *GLES3Device::createTexture(const GFXTextureInfo &info) {
+    GFXTexture *texture = CC_NEW(GLES3Texture(this));
     if (texture->initialize(info))
         return texture;
 
@@ -238,9 +221,8 @@ GFXTexture* GLES3Device::createTexture(const GFXTextureInfo& info)
     return nullptr;
 }
 
-GFXTextureView* GLES3Device::createTextureView(const GFXTextureViewInfo& info)
-{
-    GFXTextureView* texView = CC_NEW(GLES3TextureView(this));
+GFXTextureView *GLES3Device::createTextureView(const GFXTextureViewInfo &info) {
+    GFXTextureView *texView = CC_NEW(GLES3TextureView(this));
     if (texView->initialize(info))
         return texView;
 
@@ -248,9 +230,8 @@ GFXTextureView* GLES3Device::createTextureView(const GFXTextureViewInfo& info)
     return nullptr;
 }
 
-GFXSampler* GLES3Device::createSampler(const GFXSamplerInfo& info)
-{
-    GFXSampler* sampler = CC_NEW(GLES3Sampler(this));
+GFXSampler *GLES3Device::createSampler(const GFXSamplerInfo &info) {
+    GFXSampler *sampler = CC_NEW(GLES3Sampler(this));
     if (sampler->initialize(info))
         return sampler;
 
@@ -258,9 +239,8 @@ GFXSampler* GLES3Device::createSampler(const GFXSamplerInfo& info)
     return nullptr;
 }
 
-GFXShader* GLES3Device::createShader(const GFXShaderInfo& info)
-{
-    GFXShader* shader = CC_NEW(GLES3Shader(this));
+GFXShader *GLES3Device::createShader(const GFXShaderInfo &info) {
+    GFXShader *shader = CC_NEW(GLES3Shader(this));
     if (shader->initialize(info))
         return shader;
 
@@ -268,9 +248,8 @@ GFXShader* GLES3Device::createShader(const GFXShaderInfo& info)
     return nullptr;
 }
 
-GFXInputAssembler* GLES3Device::createInputAssembler(const GFXInputAssemblerInfo& info)
-{
-    GFXInputAssembler* inputAssembler = CC_NEW(GLES3InputAssembler(this));
+GFXInputAssembler *GLES3Device::createInputAssembler(const GFXInputAssemblerInfo &info) {
+    GFXInputAssembler *inputAssembler = CC_NEW(GLES3InputAssembler(this));
     if (inputAssembler->initialize(info))
         return inputAssembler;
 
@@ -278,9 +257,8 @@ GFXInputAssembler* GLES3Device::createInputAssembler(const GFXInputAssemblerInfo
     return nullptr;
 }
 
-GFXRenderPass* GLES3Device::createRenderPass(const GFXRenderPassInfo& info)
-{
-    GFXRenderPass* renderPass = CC_NEW(GLES3RenderPass(this));
+GFXRenderPass *GLES3Device::createRenderPass(const GFXRenderPassInfo &info) {
+    GFXRenderPass *renderPass = CC_NEW(GLES3RenderPass(this));
     if (renderPass->initialize(info))
         return renderPass;
 
@@ -288,9 +266,8 @@ GFXRenderPass* GLES3Device::createRenderPass(const GFXRenderPassInfo& info)
     return nullptr;
 }
 
-GFXFramebuffer* GLES3Device::createFramebuffer(const GFXFramebufferInfo& info)
-{
-    GFXFramebuffer* framebuffer = CC_NEW(GLES3Framebuffer(this));
+GFXFramebuffer *GLES3Device::createFramebuffer(const GFXFramebufferInfo &info) {
+    GFXFramebuffer *framebuffer = CC_NEW(GLES3Framebuffer(this));
     if (framebuffer->initialize(info))
         return framebuffer;
 
@@ -298,9 +275,8 @@ GFXFramebuffer* GLES3Device::createFramebuffer(const GFXFramebufferInfo& info)
     return nullptr;
 }
 
-GFXBindingLayout* GLES3Device::createBindingLayout(const GFXBindingLayoutInfo& info)
-{
-    GFXBindingLayout* bindingLayout = CC_NEW(GLES3BindingLayout(this));
+GFXBindingLayout *GLES3Device::createBindingLayout(const GFXBindingLayoutInfo &info) {
+    GFXBindingLayout *bindingLayout = CC_NEW(GLES3BindingLayout(this));
     if (bindingLayout->initialize(info))
         return bindingLayout;
 
@@ -308,10 +284,8 @@ GFXBindingLayout* GLES3Device::createBindingLayout(const GFXBindingLayoutInfo& i
     return nullptr;
 }
 
-
-GFXPipelineState* GLES3Device::createPipelineState(const GFXPipelineStateInfo& info)
-{
-    GFXPipelineState* pipelineState = CC_NEW(GLES3PipelineState(this));
+GFXPipelineState *GLES3Device::createPipelineState(const GFXPipelineStateInfo &info) {
+    GFXPipelineState *pipelineState = CC_NEW(GLES3PipelineState(this));
     if (pipelineState->initialize(info))
         return pipelineState;
 
@@ -319,9 +293,8 @@ GFXPipelineState* GLES3Device::createPipelineState(const GFXPipelineStateInfo& i
     return nullptr;
 }
 
-GFXPipelineLayout* GLES3Device::createPipelineLayout(const GFXPipelineLayoutInfo& info)
-{
-    GFXPipelineLayout* layout = CC_NEW(GLES3PipelineLayout(this));
+GFXPipelineLayout *GLES3Device::createPipelineLayout(const GFXPipelineLayoutInfo &info) {
+    GFXPipelineLayout *layout = CC_NEW(GLES3PipelineLayout(this));
     if (layout->initialize(info))
         return layout;
 
@@ -329,10 +302,9 @@ GFXPipelineLayout* GLES3Device::createPipelineLayout(const GFXPipelineLayoutInfo
     return nullptr;
 }
 
-void GLES3Device::copyBuffersToTexture(const GFXDataArray& buffers, GFXTexture* dst, const GFXBufferTextureCopyList& regions)
-{
-    
-   GLES3CmdFuncCopyBuffersToTexture(this, buffers.datas.data(), ((GLES3Texture*)dst)->gpuTexture(), regions);
+void GLES3Device::copyBuffersToTexture(const GFXDataArray &buffers, GFXTexture *dst, const GFXBufferTextureCopyList &regions) {
+
+    GLES3CmdFuncCopyBuffersToTexture(this, buffers.datas.data(), ((GLES3Texture *)dst)->gpuTexture(), regions);
 }
 
 NS_CC_END

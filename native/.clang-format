@@ -1,0 +1,29 @@
+BasedOnStyle: LLVM
+
+IndentWidth: 4
+
+BreakBeforeBraces: Attach
+
+AllowShortIfStatementsOnASingleLine: true
+
+AllowShortLoopsOnASingleLine: true
+
+IndentCaseLabels: true
+
+ObjCBlockIndentWidth: 4
+
+ObjCSpaceAfterProperty: true
+
+ColumnLimit: 0
+
+AlignTrailingComments: true  
+
+AllowShortCaseLabelsOnASingleLine: true
+
+AccessModifierOffset: -4
+
+ConstructorInitializerIndentWidth: 0
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+
+AlignConsecutiveMacros: true
+IndentPPDirectives: BeforeHash

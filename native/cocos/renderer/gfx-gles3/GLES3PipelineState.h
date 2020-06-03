@@ -6,18 +6,18 @@ NS_CC_BEGIN
 class GLES3GPUPipelineState;
 
 class CC_GLES3_API GLES3PipelineState : public GFXPipelineState {
- public:
-  GLES3PipelineState(GFXDevice* device);
-  ~GLES3PipelineState();
-  
- public:
-  bool initialize(const GFXPipelineStateInfo& info);
-  void destroy();
+public:
+    GLES3PipelineState(GFXDevice *device);
+    ~GLES3PipelineState();
 
-  CC_INLINE GLES3GPUPipelineState* gpuPipelineState() const { return _gpuPipelineState; }
-  
- private:
-  GLES3GPUPipelineState* _gpuPipelineState = nullptr;
+public:
+    virtual bool initialize(const GFXPipelineStateInfo &info) override;
+    virtual void destroy() override;
+
+    CC_INLINE GLES3GPUPipelineState *gpuPipelineState() const { return _gpuPipelineState; }
+
+private:
+    GLES3GPUPipelineState *_gpuPipelineState = nullptr;
 };
 
 NS_CC_END

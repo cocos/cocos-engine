@@ -7,17 +7,17 @@ class GLES3GPUSampler;
 
 class CC_GLES3_API GLES3Sampler : public GFXSampler {
 public:
-  GLES3Sampler(GFXDevice* device);
-  ~GLES3Sampler();
-  
+    GLES3Sampler(GFXDevice *device);
+    ~GLES3Sampler();
+
 public:
-  bool initialize(const GFXSamplerInfo& info);
-  void destroy();
-  
-  CC_INLINE GLES3GPUSampler* gpuSampler() const { return _gpuSampler; }
-  
+    virtual bool initialize(const GFXSamplerInfo &info) override;
+    virtual void destroy() override;
+
+    CC_INLINE GLES3GPUSampler *gpuSampler() const { return _gpuSampler; }
+
 private:
-  GLES3GPUSampler* _gpuSampler = nullptr;
+    GLES3GPUSampler *_gpuSampler = nullptr;
 };
 
 NS_CC_END

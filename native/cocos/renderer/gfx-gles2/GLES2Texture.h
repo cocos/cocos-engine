@@ -6,19 +6,19 @@ NS_CC_BEGIN
 class GLES2GPUTexture;
 
 class CC_GLES2_API GLES2Texture : public GFXTexture {
- public:
-  GLES2Texture(GFXDevice* device);
-  ~GLES2Texture();
-  
- public:
-  bool initialize(const GFXTextureInfo& info);
-  void destroy();
-  void resize(uint width, uint height);
-  
-  CC_INLINE GLES2GPUTexture* gpuTexture() const { return _gpuTexture; }
+public:
+    GLES2Texture(GFXDevice *device);
+    ~GLES2Texture();
 
- private:
-  GLES2GPUTexture* _gpuTexture = nullptr;
+public:
+    virtual bool initialize(const GFXTextureInfo &info) override;
+    virtual void destroy() override;
+    virtual void resize(uint width, uint height) override;
+
+    CC_INLINE GLES2GPUTexture *gpuTexture() const { return _gpuTexture; }
+
+private:
+    GLES2GPUTexture *_gpuTexture = nullptr;
 };
 
 NS_CC_END

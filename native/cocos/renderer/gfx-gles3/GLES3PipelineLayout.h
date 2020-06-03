@@ -6,17 +6,18 @@ NS_CC_BEGIN
 class GLES3GPUPipelineLayout;
 
 class CC_GLES3_API GLES3PipelineLayout : public GFXPipelineLayout {
- public:
-  GLES3PipelineLayout(GFXDevice* device);
-  ~GLES3PipelineLayout();
-  
- public:
-  bool initialize(const GFXPipelineLayoutInfo& info);
-  void destroy();
-  
-  CC_INLINE GLES3GPUPipelineLayout* gpuPipelineLayout() const { return _gpuPipelineLayout; }
- private:
-  GLES3GPUPipelineLayout* _gpuPipelineLayout = nullptr;
+public:
+    GLES3PipelineLayout(GFXDevice *device);
+    ~GLES3PipelineLayout();
+
+public:
+    virtual bool initialize(const GFXPipelineLayoutInfo &info) override;
+    virtual void destroy() override;
+
+    CC_INLINE GLES3GPUPipelineLayout *gpuPipelineLayout() const { return _gpuPipelineLayout; }
+
+private:
+    GLES3GPUPipelineLayout *_gpuPipelineLayout = nullptr;
 };
 
 NS_CC_END
