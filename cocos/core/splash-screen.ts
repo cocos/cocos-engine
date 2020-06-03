@@ -14,7 +14,6 @@ import { GFXDevice } from './gfx/device';
 import { GFXFramebuffer } from './gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from './gfx/input-assembler';
 import { GFXTexture } from './gfx/texture';
-import { GFXTextureView } from './gfx/texture-view';
 import { clamp01 } from './math/utils';
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import { sys } from './platform/sys';
@@ -62,7 +61,6 @@ export class SplashScreen {
     private region!: GFXBufferTextureCopy;
     private material!: Material;
     private texture!: GFXTexture;
-    private textureView!: GFXTextureView;
     private clearColors!: IGFXColor[];
 
     private _splashFinish: boolean = false;
@@ -73,7 +71,6 @@ export class SplashScreen {
     private textImg!: TexImageSource;
     private textRegion!: GFXBufferTextureCopy;
     private textTexture!: GFXTexture;
-    private textTextureView!: GFXTextureView;
     private textVB!: GFXBuffer;
     private textIB!: GFXBuffer;
     private textAssmebler!: GFXInputAssembler;
@@ -302,12 +299,6 @@ export class SplashScreen {
             mipLevel: 1,
         });
 
-        this.textTextureView = this.device.createTextureView({
-            texture: this.textTexture,
-            type: GFXTextureViewType.TV2D,
-            format: GFXFormat.RGBA8,
-        });
-
         this.device.copyTexImagesToTexture([this.textImg], this.textTexture, [this.textRegion]);
 
 
@@ -317,7 +308,7 @@ export class SplashScreen {
 
         const pass = this.textMaterial.passes[0];
         const binding = pass.getBinding('mainTexture');
-        pass.bindTextureView(binding!, this.textTextureView!);
+        pass.bindTexture(binding!, this.textTexture!);
 
         this.textPSOCreateInfo = pass.getPipelineCreateInfo() as IPSOCreateInfo;
         this.textPSOCreateInfo.bindingLayout.update();
@@ -497,15 +488,9 @@ export class SplashScreen {
             mipLevel: 1,
         });
 
-        this.textureView = device.createTextureView({
-            texture: this.texture,
-            type: GFXTextureViewType.TV2D,
-            format: GFXFormat.RGBA8,
-        });
-
         const pass = this.material.passes[0];
         const binding = pass.getBinding('mainTexture');
-        pass.bindTextureView(binding!, this.textureView!);
+        pass.bindTexture(binding!, this.texture!);
 
         this.psoCreateInfo = pass.getPipelineCreateInfo() as IPSOCreateInfo;
         this.psoCreateInfo.bindingLayout.bindSampler(binding!, this.sampler);
@@ -536,9 +521,6 @@ export class SplashScreen {
         this.material.destroy();
         (this.material as any) = null;
 
-        this.textureView.destroy();
-        (this.textureView as any) = null;
-
         this.texture.destroy();
         (this.texture as any) = null;
 
@@ -564,9 +546,6 @@ export class SplashScreen {
 
             this.textMaterial.destroy();
             (this.textMaterial as any) = null;
-
-            this.textTextureView.destroy();
-            (this.textTextureView as any) = null;
 
             this.textTexture.destroy();
             (this.textTexture as any) = null;

@@ -40,7 +40,7 @@ import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
     GFXRasterizerState } from '../../gfx/pipeline-state';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
-import { GFXTextureView } from '../../gfx/texture-view';
+import { GFXTexture } from '../../gfx/texture';
 import { BatchedBuffer } from '../../pipeline/batched-buffer';
 import { isBuiltinBinding, RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
@@ -163,8 +163,8 @@ export class Pass {
     // internal resources
     protected _buffers: Record<number, GFXBuffer> = {};
     protected _samplers: Record<number, GFXSampler> = {};
-    protected _textureViews: Record<number, GFXTextureView> = {};
     protected _resources: GFXBindingLayout[] = [];
+    protected _textures: Record<number, GFXTexture> = {};
     // internal data
     protected _phase = getPhaseID('default');
     protected _idxInTech = 0;
@@ -311,17 +311,17 @@ export class Pass {
 
     /**
      * @zh
-     * 绑定实际 [[GFXTextureView]] 到指定 binding。
+     * 绑定实际 [[GFXTexture]] 到指定 binding。
      * @param binding 目标贴图类 uniform 的 binding。
-     * @param value 目标 texture view。
+     * @param value 目标 texture
      */
-    public bindTextureView (binding: number, value: GFXTextureView) {
-        if (this._textureViews[binding] === value) { return; }
-        this._textureViews[binding] = value;
+    public bindTexture (binding: number, value: GFXTexture) {
+        if (this._textures[binding] === value) { return; }
+        this._textures[binding] = value;
         const len = this._resources.length;
         for (let i = 0; i < len; i++) {
             const res = this._resources[i];
-            res.bindTextureView(binding, value);
+            res.bindTexture(binding, value);
         }
     }
 
@@ -383,7 +383,7 @@ export class Pass {
             const s = target.samplers[i];
             const info = source.get(s.name)!;
             if (info.sampler) { this.bindSampler(info.samplerInfo!.binding, info.sampler); }
-            this.bindTextureView(info.samplerInfo!.binding, info.textureView!);
+            this.bindTexture(info.samplerInfo!.binding, info.texture!);
         }
     }
 
@@ -399,7 +399,7 @@ export class Pass {
         this._buffers = {};
         // textures are reused
         this._samplers = {};
-        this._textureViews = {};
+        this._textures = {};
         if (this._instancedBuffer) {
             this._instancedBuffer.destroy();
             this._instancedBuffer = null;
@@ -437,16 +437,16 @@ export class Pass {
         const info = this._properties[name];
         const value = info && info.value;
         const texName = value ? value + '-texture' : getDefaultFromType(type) as string;
-        const texture = builtinResMgr.get<TextureBase>(texName);
-        const textureView = texture && texture.getGFXTextureView()!;
-        const samplerHash = info && (info.samplerHash !== undefined) ? info.samplerHash : texture.getSamplerHash();
+        const textureBase = builtinResMgr.get<TextureBase>(texName);
+        const texture = textureBase && textureBase.getGFXTexture()!;
+        const samplerHash = info && (info.samplerHash !== undefined) ? info.samplerHash : textureBase.getSamplerHash();
         const sampler = samplerLib.getSampler(this._device, samplerHash);
-        this._textureViews[binding] = textureView;
+        this._textures[binding] = texture;
         this._samplers[binding] = sampler;
         for (let i = 0; i < this._resources.length; i++) {
             const res = this._resources[i];
             res.bindSampler(binding, sampler);
-            res.bindTextureView(binding, textureView);
+            res.bindTexture(binding, texture);
         }
     }
 
@@ -522,8 +522,8 @@ export class Pass {
         for (const s in this._samplers) {
             bindingLayout.bindSampler(parseInt(s), this._samplers[s]);
         }
-        for (const t in this._textureViews) {
-            bindingLayout.bindTextureView(parseInt(t), this._textureViews[t]);
+        for (const t in this._textures) {
+            bindingLayout.bindTexture(parseInt(t), this._textures[t]);
         }
         // bind pipeline builtins
         const source = this._root.pipeline.globalBindings;
@@ -537,7 +537,7 @@ export class Pass {
             const info = source.get(s.name);
             if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`builtin texture '${s.name}' not available!`); continue; }
             if (info.sampler) { bindingLayout.bindSampler(info.samplerInfo!.binding, info.sampler); }
-            bindingLayout.bindTextureView(info.samplerInfo!.binding, info.textureView!);
+            bindingLayout.bindTexture(info.samplerInfo!.binding, info.texture!);
         }
         this._resources.push(bindingLayout);
         // create pipeline state

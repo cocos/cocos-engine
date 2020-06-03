@@ -582,8 +582,8 @@ export class SpriteFrame extends Asset {
         this.offset = offset;
     }
 
-    public getGFXTextureView () {
-        return this._texture.getGFXTextureView();
+    public getGFXTexture () {
+        return this._texture.getGFXTexture();
     }
 
     public getGFXSampler () {

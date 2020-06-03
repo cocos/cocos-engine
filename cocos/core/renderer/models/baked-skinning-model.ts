@@ -174,19 +174,19 @@ export class BakedSkinningModel extends MorphModel {
         jointTextureInfo[3] = 1 / jointTextureInfo[0];
         this.updateInstancedJointTextureInfo();
         if (buffer) { buffer.update(jointTextureInfo); }
-        const tv = texture.handle.texView;
+        const tex = texture.handle.texture;
 
         for (let i = 0; i < this._subModels.length; ++i) {
             const psoCreateInfos = this._subModels[i].psoInfos;
             for (let j = 0; j < psoCreateInfos.length; ++j) {
                 const bindingLayout = psoCreateInfos[j].bindingLayout;
-                bindingLayout.bindTextureView(UniformJointTexture.binding, tv);
+                bindingLayout.bindTexture(UniformJointTexture.binding, tex);
             }
         }
 
         for (let i = 0; i < this._implantPSOs.length; i++) {
             const bindingLayout = this._implantPSOs[i].pipelineLayout.layouts[0];
-            bindingLayout.bindTextureView(UniformJointTexture.binding, tv);
+            bindingLayout.bindTexture(UniformJointTexture.binding, tex);
             bindingLayout.update();
         }
     }
@@ -206,7 +206,7 @@ export class BakedSkinningModel extends MorphModel {
             bindingLayout.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
             const sampler = samplerLib.getSampler(this._device, jointTextureSamplerHash);
             if (texture) {
-                bindingLayout.bindTextureView(UniformJointTexture.binding, texture.handle.texView);
+                bindingLayout.bindTexture(UniformJointTexture.binding, texture.handle.texture);
                 bindingLayout.bindSampler(UniformJointTexture.binding, sampler);
             }
         }

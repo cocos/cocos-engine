@@ -2,9 +2,10 @@ import { GFXStatus } from '../define';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { WebGLCmdFuncCreateFramebuffer, WebGLCmdFuncDestroyFramebuffer } from './webgl-commands';
 import { WebGLGFXDevice } from './webgl-device';
-import { WebGLGPUFramebuffer, WebGLGPUTextureView } from './webgl-gpu-objects';
+import { WebGLGPUFramebuffer } from './webgl-gpu-objects';
 import { WebGLGFXRenderPass } from './webgl-render-pass';
-import { WebGLGFXTextureView } from './webgl-texture-view';
+import { WebGLGPUTexture } from './webgl-gpu-objects';
+import { WebGLGFXTexture } from './webgl-texture';
 
 export class WebGLGFXFramebuffer extends GFXFramebuffer {
 
@@ -17,28 +18,28 @@ export class WebGLGFXFramebuffer extends GFXFramebuffer {
     public initialize (info: IGFXFramebufferInfo): boolean {
 
         this._renderPass = info.renderPass;
-        this._colorViews = info.colorViews || [];
-        this._depthStencilView = info.depthStencilView || null;
+        this._colorTextures = info.colorTextures || [];
+        this._depthStencilTexture = info.depthStencilTexture || null;
         this._isOffscreen = info.isOffscreen !== undefined ? info.isOffscreen : true;
 
         if (this._isOffscreen) {
 
-            const gpuColorViews: WebGLGPUTextureView[] = [];
-            if (info.colorViews !== undefined) {
-                for (const colorView of info.colorViews) {
-                    gpuColorViews.push((colorView as WebGLGFXTextureView).gpuTextureView);
+            const gpuColorTextures: WebGLGPUTexture[] = [];
+            if (info.colorTextures !== undefined) {
+                for (const colorTexture of info.colorTextures) {
+                    gpuColorTextures.push((colorTexture as WebGLGFXTexture).gpuTexture);
                 }
             }
 
-            let gpuDepthStencilView: WebGLGPUTextureView | null = null;
-            if (info.depthStencilView) {
-                gpuDepthStencilView = (info.depthStencilView as WebGLGFXTextureView).gpuTextureView;
+            let gpuDepthStencilTexture: WebGLGPUTexture | null = null;
+            if (info.depthStencilTexture) {
+                gpuDepthStencilTexture = (info.depthStencilTexture as WebGLGFXTexture).gpuTexture;
             }
 
             this._gpuFramebuffer = {
                 gpuRenderPass: (info.renderPass as WebGLGFXRenderPass).gpuRenderPass,
-                gpuColorViews,
-                gpuDepthStencilView,
+                gpuColorTextures,
+                gpuDepthStencilTexture,
                 isOffscreen: this._isOffscreen,
                 glFramebuffer: null,
             };
@@ -47,8 +48,8 @@ export class WebGLGFXFramebuffer extends GFXFramebuffer {
         } else {
             this._gpuFramebuffer = {
                 gpuRenderPass: (info.renderPass as WebGLGFXRenderPass).gpuRenderPass,
-                gpuColorViews: [],
-                gpuDepthStencilView: null,
+                gpuColorTextures: [],
+                gpuDepthStencilTexture: null,
                 isOffscreen: false,
                 glFramebuffer: null,
             };

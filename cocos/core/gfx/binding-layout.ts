@@ -6,7 +6,7 @@ import { GFXBuffer } from './buffer';
 import { GFXBindingType, GFXObject, GFXObjectType, GFXShaderType } from './define';
 import { GFXDevice } from './device';
 import { GFXSampler } from './sampler';
-import { GFXTextureView } from './texture-view';
+import { GFXTexture } from './texture';
 
 export interface IGFXBinding {
     binding: number;
@@ -25,7 +25,7 @@ export class GFXBindingUnit {
     public type: GFXBindingType = GFXBindingType.UNKNOWN;
     public name: string = '';
     public buffer: GFXBuffer | null = null;
-    public texView: GFXTextureView | null = null;
+    public texture: GFXTexture | null = null;
     public sampler: GFXSampler | null = null;
 }
 
@@ -97,17 +97,17 @@ export abstract class GFXBindingLayout extends GFXObject {
     }
 
     /**
-     * @en Bind texture view to the specified binding unit.
-     * @zh 在指定的 binding 位置上绑定纹理视图。
+     * @en Bind texture to the specified binding unit.
+     * @zh 在指定的 binding 位置上绑定纹理。
      * @param binding The target binding.
-     * @param texView The texture view to be bound.
+     * @param texture The texture to be bound.
      */
-    public bindTextureView (binding: number, texView: GFXTextureView) {
+    public bindTexture (binding: number, texture: GFXTexture) {
         for (const bindingUnit of this._bindingUnits) {
             if (bindingUnit.binding === binding) {
                 if (bindingUnit.type === GFXBindingType.SAMPLER) {
-                    if (bindingUnit.texView !== texView) {
-                        bindingUnit.texView = texView;
+                    if (bindingUnit.texture !== texture) {
+                        bindingUnit.texture = texture;
                         this._isDirty = true;
                     }
                 } else {

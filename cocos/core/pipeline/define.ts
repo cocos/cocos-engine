@@ -3,11 +3,10 @@
  */
 
 import { GFXBuffer } from '../gfx/buffer';
-import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { GFXBindingType, GFXType, GFXShaderType } from '../gfx/define';
 import { GFXSampler } from '../gfx/sampler';
 import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
-import { GFXTextureView } from '../gfx/texture-view';
+import { GFXTexture } from '../gfx/texture';
 import { Pass } from '../renderer/core/pass';
 import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
@@ -417,7 +416,7 @@ export interface IInternalBindingDesc {
 export interface IInternalBindingInst extends IInternalBindingDesc {
     buffer?: GFXBuffer;
     sampler?: GFXSampler;
-    textureView?: GFXTextureView;
+    texture?: GFXTexture;
 }
 
 export const CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,

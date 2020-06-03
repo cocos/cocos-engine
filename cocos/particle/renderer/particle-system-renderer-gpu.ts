@@ -229,7 +229,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             const handle = pass.getHandle('force_over_time_tex0');
             const binding = Pass.getBindingFromHandle(handle!);
             pass.bindSampler(binding, this._forceTexture.getGFXSampler()!);
-            pass.bindTextureView(binding, this._forceTexture.getGFXTextureView()!);
+            pass.bindTexture(binding, this._forceTexture.getGFXTexture()!);
             const spaceHandle = pass.getHandle('u_force_space');
             pass.setUniform(spaceHandle!, forceModule.space);
             const modeHandle = pass.getHandle('u_force_mode');
@@ -246,7 +246,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             const handle = pass.getHandle('velocity_over_time_tex0');
             const binding = Pass.getBindingFromHandle(handle!);
             pass.bindSampler(binding, this._velocityTexture.getGFXSampler()!);
-            pass.bindTextureView(binding, this._velocityTexture.getGFXTextureView()!);
+            pass.bindTexture(binding, this._velocityTexture.getGFXTexture()!);
             const spaceHandle = pass.getHandle('u_velocity_space');
             pass.setUniform(spaceHandle!, velocityModule.space);
             const modeHandle = pass.getHandle('u_velocity_mode');
@@ -263,7 +263,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             const handle = pass.getHandle('color_over_time_tex0');
             const binding = Pass.getBindingFromHandle(handle!);
             pass.bindSampler(binding, this._colorTexture.getGFXSampler()!);
-            pass.bindTextureView(binding, this._colorTexture.getGFXTextureView()!);
+            pass.bindTexture(binding, this._colorTexture.getGFXTexture()!);
             const modeHandle = pass.getHandle('u_color_mode');
             pass.setUniform(modeHandle!, this._colorTexture.height);
         }
@@ -282,7 +282,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             const handle = pass.getHandle('rotation_over_time_tex0');
             const binding = Pass.getBindingFromHandle(handle!);
             pass.bindSampler(binding, this._rotationTexture.getGFXSampler()!);
-            pass.bindTextureView(binding, this._rotationTexture.getGFXTextureView()!);
+            pass.bindTexture(binding, this._rotationTexture.getGFXTexture()!);
             const modeHandle = pass.getHandle('u_rotation_mode');
             pass.setUniform(modeHandle!, this._rotationTexture.height);
         }
@@ -301,7 +301,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             const handle = pass.getHandle('size_over_time_tex0');
             const binding = Pass.getBindingFromHandle(handle!);
             pass.bindSampler(binding, this._sizeTexture.getGFXSampler()!);
-            pass.bindTextureView(binding, this._sizeTexture.getGFXTextureView()!);
+            pass.bindTexture(binding, this._sizeTexture.getGFXTexture()!);
             const modeHandle = pass.getHandle('u_size_mode');
             pass.setUniform(modeHandle!, this._sizeTexture.height);
         }
@@ -316,7 +316,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             const handle = pass.getHandle('texture_animation_tex0');
             const binding = Pass.getBindingFromHandle(handle!);
             pass.bindSampler(binding, this._animTexture.getGFXSampler()!);
-            pass.bindTextureView(binding, this._animTexture.getGFXTextureView()!);
+            pass.bindTexture(binding, this._animTexture.getGFXTexture()!);
             const infoHandle = pass.getHandle('u_anim_info');
             _tempVec4.x = this._animTexture.height;
             _tempVec4.y = textureModule.numTilesX * textureModule.numTilesY;

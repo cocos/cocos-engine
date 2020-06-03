@@ -4,11 +4,10 @@
 
 import { CCString } from '../data';
 import { ccclass, property } from '../data/class-decorator';
-import { GFXFormat, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType} from '../gfx/define';
+import { GFXFormat, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXTextureType, GFXTextureUsageBit} from '../gfx/define';
 import { ccenum } from '../value-types/enum';
 
 ccenum(GFXTextureType);
-ccenum(GFXTextureViewType);
 ccenum(GFXTextureUsageBit);
 ccenum(GFXStoreOp);
 ccenum(GFXLoadOp);
@@ -28,8 +27,6 @@ export class RenderTextureDesc {
     public name: string = '';
     @property({ type: GFXTextureType })
     public type: GFXTextureType = GFXTextureType.TEX2D;
-    @property({ type: GFXTextureViewType })
-    public viewType: GFXTextureViewType = GFXTextureViewType.TV2D;
     @property({ type: GFXTextureUsageBit })
     public usage: GFXTextureUsageBit = GFXTextureUsageBit.COLOR_ATTACHMENT;
     @property({ type: GFXFormat })
@@ -47,9 +44,9 @@ export class FrameBufferDesc {
     @property
     public renderPass: number = 0;
     @property({ type: [CCString] })
-    public colorViews: string[] = [];
+    public colorTextures: string[] = [];
     @property
-    public depthStencilView: string = '';
+    public depthStencilTexture: string = '';
 }
 
 @ccclass('ColorDesc')

@@ -579,7 +579,7 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     protected _render (render: UI) {
-        render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!, this._spriteFrame!.texture.getGFXSampler());
+        render.commitComp(this, this._spriteFrame!.getGFXTexture(), this._assembler!, this._spriteFrame!.texture.getGFXSampler());
         // render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!);
     }
 

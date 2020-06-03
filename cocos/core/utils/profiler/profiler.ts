@@ -27,10 +27,9 @@
 import { CameraComponent, ModelComponent } from '../../3d';
 import { createMesh } from '../../3d/misc/utils';
 import { Material } from '../../assets/material';
-import { GFXBufferTextureCopy, GFXClearFlag, GFXFormat, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../../gfx/define';
+import { GFXBufferTextureCopy, GFXClearFlag, GFXFormat, GFXTextureType, GFXTextureUsageBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXTexture } from '../../gfx/texture';
-import { GFXTextureView } from '../../gfx/texture-view';
 import { Vec4 } from '../../math';
 import { IBlock } from '../../renderer/core/pass';
 import { Layers } from '../../scene-graph';
@@ -102,7 +101,6 @@ export class Profiler {
     private readonly _canvas: HTMLCanvasElement | null = null;
     private readonly _ctx: CanvasRenderingContext2D | null = null;
     private _texture: GFXTexture | null = null;
-    private _textureView: GFXTextureView | null = null;
     private readonly _region: GFXBufferTextureCopy = new GFXBufferTextureCopy();
     private readonly _canvasArr: HTMLCanvasElement[] = [];
     private readonly _regionArr = [this._region];
@@ -199,12 +197,6 @@ export class Profiler {
             width: textureWidth,
             height: textureHeight,
             mipLevel: 1,
-        });
-
-        this._textureView = this._device!.createTextureView({
-            texture: this._texture,
-            type: GFXTextureViewType.TV2D,
-            format: GFXFormat.RGBA8,
         });
 
         this._region.texExtent.width = textureWidth;
@@ -327,7 +319,7 @@ export class Profiler {
         const pass = _material.passes[0];
         const handle = pass.getBinding('mainTexture');
         const binding = pass.getBinding('digits')!;
-        pass.bindTextureView(handle!, this._textureView!);
+        pass.bindTexture(handle!, this._texture!);
         this.digitsData = pass.blocks[binding];
         modelCom.material = _material;
         modelCom.node.layer = Layers.Enum.PROFILER;

@@ -31,7 +31,7 @@
 // @ts-check
 import {ccclass, property} from '../data/class-decorator';
 import { GFXDevice } from '../gfx/device';
-import { GFXTextureView } from '../gfx/texture-view';
+import { GFXTexture } from '../gfx/texture';
 import { genSamplerHash, SamplerInfoIndex, samplerLib } from '../renderer/core/sampler-lib';
 import IDGenerator from '../utils/id-generator';
 import { Asset } from './asset';
@@ -248,9 +248,9 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * 获取此贴图底层的 GFX 贴图视图对象。
+     * 获取此贴图底层的 GFX 纹理对象。
      */
-    public getGFXTextureView (): GFXTextureView | null {
+    public getGFXTexture (): GFXTexture | null {
         return null;
     }
 
