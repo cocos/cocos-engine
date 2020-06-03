@@ -203,7 +203,7 @@ export class ImageAsset extends Asset {
     public destroy (): boolean {
         if (this.data && this.data instanceof HTMLImageElement) {
             this.data.src = "";
-            cc.loader.removeItem(this.data.id);
+            legacyCC.loader.removeItem(this.data.id);
         }
         return super.destroy();
     }

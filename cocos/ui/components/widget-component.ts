@@ -1087,5 +1087,5 @@ export namespace WidgetComponent {
 legacyCC.WidgetComponent = WidgetComponent;
 
 // cc.Widget = module.exports = Widget;
-cc.internal.computeInverseTransForTarget = computeInverseTransForTarget;
-cc.internal.getReadonlyNodeSize = getReadonlyNodeSize;
+legacyCC.internal.computeInverseTransForTarget = computeInverseTransForTarget;
+legacyCC.internal.getReadonlyNodeSize = getReadonlyNodeSize;

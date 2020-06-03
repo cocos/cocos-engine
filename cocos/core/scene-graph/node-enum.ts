@@ -23,6 +23,8 @@
  THE SOFTWARE.
 */
 
+import { legacyCC } from '../global-exports';
+
 /**
  * @category scene-graph
  */
@@ -74,4 +76,4 @@ export enum TransformBit {
     TRS_MASK = ~TransformBit.TRS,
 }
 
-cc.internal.TransformBit = TransformBit;
+legacyCC.internal.TransformBit = TransformBit;
