@@ -108,7 +108,7 @@ void PrintDebuggerReadyMessage(const std::string& host,
     return;
   }
   for (const std::string& id : ids) {
-    SE_LOGD("Debugger listening..., visit [ chrome-devtools://devtools/bundled/js_app.html?v8only=true&ws=%s ] in chrome browser to debug!\n",
+    SE_LOGD("Debugger listening..., visit [ devtools://devtools/bundled/js_app.html?v8only=true&ws=%s ] in chrome browser to debug!\n",
             FormatWsAddress(host, port, id, false).c_str());
   }
   SE_LOGD("For help see %s\n",
@@ -385,7 +385,7 @@ void InspectorSocketServer::SendListResponse(InspectorSocket* socket) {
       int port = SocketSession::ServerPortForClient(socket);
       GetSocketHost(&socket->tcp, &host);
       std::ostringstream frontend_url;
-      frontend_url << "chrome-devtools://devtools/bundled";
+      frontend_url << "devtools://devtools/bundled";
       frontend_url << "/js_app.html?experiments=true&v8only=true&ws=";
       frontend_url << FormatWsAddress(host, port, id, false);
       target_map["devtoolsFrontendUrl"] += frontend_url.str();
