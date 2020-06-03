@@ -83,17 +83,20 @@ function _safeSubstring (targetString, startIndex, endIndex?) {
     let newStartIndex = startIndex;
     let newEndIndex = endIndex;
     const startChar = targetString[startIndex];
-    if (lowSurrogateRex.test(startChar)) {
+    // lowSurrogateRex
+    if (startChar >= '\uDC00' && startChar <= '\uDFFF') {
         newStartIndex--;
     }
     if (endIndex !== undefined) {
         if (endIndex - 1 !== startIndex) {
             const endChar = targetString[endIndex - 1];
-            if (highSurrogateRex.test(endChar)) {
+            // highSurrogateRex
+            if (endChar >= '\uD800' && endChar <= '\uDBFF') {
                 newEndIndex--;
             }
         }
-        else if (highSurrogateRex.test(startChar)) {
+        // highSurrogateRex
+        else if (startChar >= '\uD800' && startChar <= '\uDBFF') {
             newEndIndex++;
         }
     }
@@ -149,7 +152,9 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
         if (fuzzyLen === 0) {
             fuzzyLen = 1;
             sLine = _safeSubstring(text, 1);
-        } else if (fuzzyLen === 1 && highSurrogateRex.test(text[0])) {
+        }
+        // highSurrogateRex
+        else if (fuzzyLen === 1 && text[0] >= '\uD800' && text[0] <= '\uDBFF') {
             fuzzyLen = 2;
             sLine = _safeSubstring(text, 2);
         }
