@@ -176,7 +176,7 @@ export class RenderScene {
             if (dlList.length) {
                 this._mainLight = dlList[dlList.length - 1];
                 if (this._mainLight.node) { // trigger update
-                    this._mainLight.node.hasChangedFlags = TransformBit.ROTATION;
+                    this._mainLight.node.hasChangedFlags |= TransformBit.ROTATION;
                 }
             } else {
                 this._mainLight = null;
