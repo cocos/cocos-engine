@@ -241,6 +241,11 @@ export class ModelComponent extends RenderableComponent {
         this._updateCastShadow();
     }
 
+    // Redo, Undo, Prefab restore, etc.
+    public onRestore () {
+        this._updateModels();
+    }
+
     public onEnable () {
         if (!this._model) {
             this._updateModels();
