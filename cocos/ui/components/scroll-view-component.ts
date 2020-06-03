@@ -207,6 +207,62 @@ export enum EventType {
 @executionOrder(110)
 @menu('UI/ScrollView')
 export class ScrollViewComponent extends ViewGroupComponent {
+    public static EventType = EventType;
+
+    /**
+     * @en
+     * The elapse time of bouncing back. A value of 0 will bounce back immediately.
+     *
+     * @zh
+     * 回弹持续的时间，0 表示将立即反弹。
+     */
+    @property({
+        range: [0, 10],
+        tooltip: '回弹持续的时间，0 表示将立即反弹',
+        displayOrder: 0,
+    })
+    public bounceDuration = 1;
+
+    /**
+     * @en
+     * It determines how quickly the content stop moving. A value of 1 will stop the movement immediately.
+     * A value of 0 will never stop the movement until it reaches to the boundary of scrollview.
+     *
+     * @zh
+     * 开启惯性后，在用户停止触摸后滚动多快停止，0表示永不停止，1表示立刻停止。
+     */
+    @property({
+        range: [0, 1, 0.1],
+        tooltip: '开启惯性后，在用户停止触摸后滚动多快停止，0 表示永不停止，1 表示立刻停止',
+        displayOrder: 1,
+    })
+    public brake = 0.5;
+
+    /**
+     * @en
+     * When elastic is set, the content will be bounce back when move out of boundary.
+     *
+     * @zh
+     * 是否允许滚动内容超过边界，并在停止触摸后回弹。
+     */
+    @property({
+        tooltip: '是否允许滚动内容超过边界，并在停止触摸后回弹',
+        displayOrder: 2,
+    })
+    public elastic = true;
+
+    /**
+     * @en
+     * When inertia is set, the content will continue to move when touch ended.
+     *
+     * @zh
+     * 是否开启滚动惯性。
+     */
+    @property({
+        tooltip: '是否开启滚动惯性',
+        displayOrder: 3,
+    })
+    public inertia = true;
 
     /**
      * @en
@@ -218,6 +274,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     @property({
         type: Node,
         tooltip: '可滚动展示内容的节点',
+        displayOrder: 4,
     })
     get content () {
         return this._content;
@@ -233,6 +290,19 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
     /**
      * @en
+     * Enable horizontal scroll.
+     *
+     * @zh
+     * 是否开启水平滚动。
+     */
+    @property({
+        tooltip: '是否开启水平滚动',
+        displayOrder: 5,
+    })
+    public horizontal = true;
+
+    /**
+     * @en
      * The horizontal scrollbar reference.
      * @zh
      * 水平滚动的 ScrollBar。
@@ -240,6 +310,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     @property({
         type: ScrollBarComponent,
         tooltip: '水平滚动的 ScrollBar',
+        displayOrder: 6,
     })
     get horizontalScrollBar () {
         return this._horizontalScrollBar;
@@ -260,6 +331,19 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
     /**
      * @en
+     * Enable vertical scroll.
+     *
+     * @zh
+     * 是否开启垂直滚动。
+     */
+    @property({
+        tooltip: '是否开启垂直滚动',
+        displayOrder: 7,
+    })
+    public vertical = true;
+
+    /**
+     * @en
      * The vertical scrollbar reference.
      *
      * @zh
@@ -268,6 +352,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     @property({
         type: ScrollBarComponent,
         tooltip: '垂直滚动的 ScrollBar',
+        displayOrder: 8,
     })
     get verticalScrollBar () {
         return this._verticalScrollBar;
@@ -286,103 +371,6 @@ export class ScrollViewComponent extends ViewGroupComponent {
         }
     }
 
-    get view () {
-        if (!this._content) {
-            return null;
-        }
-
-        return this._content.parent;
-    }
-
-    public static EventType = EventType;
-    /**
-     * @en
-     * Enable horizontal scroll.
-     *
-     * @zh
-     * 是否开启水平滚动。
-     */
-    @property({
-        tooltip: '是否开启水平滚动',
-    })
-    public horizontal = true;
-
-    /**
-     * @en
-     * Enable vertical scroll.
-     *
-     * @zh
-     * 是否开启垂直滚动。
-     */
-    @property({
-        tooltip: '是否开启垂直滚动',
-    })
-    public vertical = true;
-
-    /**
-     * @en
-     * When inertia is set, the content will continue to move when touch ended.
-     *
-     * @zh
-     * 是否开启滚动惯性。
-     */
-    @property({
-        tooltip: '是否开启滚动惯性',
-    })
-    public inertia = true;
-
-    /**
-     * @en
-     * It determines how quickly the content stop moving. A value of 1 will stop the movement immediately.
-     * A value of 0 will never stop the movement until it reaches to the boundary of scrollview.
-     *
-     * @zh
-     * 开启惯性后，在用户停止触摸后滚动多快停止，0表示永不停止，1表示立刻停止。
-     */
-    @property({
-        range: [0, 1, 0.1],
-        tooltip: '开启惯性后，在用户停止触摸后滚动多快停止，0 表示永不停止，1 表示立刻停止',
-    })
-    public brake = 0.5;
-
-    /**
-     * @en
-     * When elastic is set, the content will be bounce back when move out of boundary.
-     *
-     * @zh
-     * 是否允许滚动内容超过边界，并在停止触摸后回弹。
-     */
-    @property({
-        tooltip: '是否允许滚动内容超过边界，并在停止触摸后回弹',
-    })
-    public elastic = true;
-
-    /**
-     * @en
-     * The elapse time of bouncing back. A value of 0 will bounce back immediately.
-     *
-     * @zh
-     * 回弹持续的时间，0 表示将立即反弹。
-     */
-    @property({
-        range: [0, 10],
-        tooltip: '回弹持续的时间，0 表示将立即反弹',
-    })
-    public bounceDuration = 1;
-
-    /**
-     * @en
-     * Scrollview events callback.
-     *
-     * @zh
-     * 滚动视图的事件回调函数。
-     */
-    @property({
-        type: [ComponentEventHandler],
-        tooltip: '滚动视图的事件回调函数',
-    })
-    public scrollEvents: ComponentEventHandler[] = [];
-
     /**
      * @en
      * If cancelInnerEvents is set to true, the scroll behavior will cancel touch events on inner content nodes
@@ -394,8 +382,31 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         tooltip: '滚动行为是否会取消子节点上注册的触摸事件',
+        displayOrder: 9,
     })
     public cancelInnerEvents = true;
+
+    /**
+     * @en
+     * Scrollview events callback.
+     *
+     * @zh
+     * 滚动视图的事件回调函数。
+     */
+    @property({
+        type: [ComponentEventHandler],
+        tooltip: '滚动视图的事件回调函数',
+        displayOrder: 10,
+    })
+    public scrollEvents: ComponentEventHandler[] = [];
+
+    get view () {
+        if (!this._content) {
+            return null;
+        }
+
+        return this._content.parent;
+    }
 
     protected _autoScrolling = false;
     protected _scrolling = false;

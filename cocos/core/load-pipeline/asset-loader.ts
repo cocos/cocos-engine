@@ -23,6 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
 /**
  * @category loader
  */
@@ -37,6 +38,10 @@ import { legacyCC } from '../global-exports';
 const ID = 'AssetLoader';
 let reusedArray:Array<any> = [];
 
+/**
+ * @en The load pipe in {{loader}} to load an asset with its uuid, it will recursively load its dependencies.
+ * @zh {{loader}} 加载管线中的资源加载管道，用来通过 uuid 加载 asset 资源及其依赖
+ */
 export default class AssetLoader implements IPipe {
     static ID = ID;
     public id:string = ID;
@@ -76,7 +81,7 @@ export default class AssetLoader implements IPipe {
                     if (EDITOR && this.pipeline) {
                         this.pipeline._cache[url] = reusedArray[0];
                     }
-                    queue.append(reusedArray);
+                    queue && queue.append(reusedArray);
                     // Dispatch to other raw type downloader
                     item.type = ext;
                     callback(null, item.content);

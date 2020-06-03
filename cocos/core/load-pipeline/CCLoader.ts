@@ -28,7 +28,9 @@
  * @category loader
  */
 
-import { Asset, RawAsset } from '../assets';
+import { SpriteAtlas } from '../assets/sprite-atlas';
+import { Asset } from '../assets/asset';
+import { RawAsset } from '../assets/raw-asset'
 import { SpriteFrame } from '../assets/sprite-frame';
 import { Texture2D } from '../assets/texture-2d';
 import { TextureCube } from '../assets/texture-cube';
@@ -45,6 +47,8 @@ import { Pipeline } from './pipeline';
 import ReleasedAssetChecker from './released-asset-checker';
 import { DEBUG, EDITOR, DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { warnID, errorID, error } from '../platform/debug';
+import * as path from '../utils/path';
 
 const assetTables = Object.create(null);
 assetTables.assets = new AssetTable();
@@ -56,12 +60,10 @@ function getXMLHttpRequest () {
 
 const _info = { url: null, raw: false };
 
-/**
- * @en
- * Convert a resources by finding its real url with uuid, otherwise we will use the uuid or raw url as its url<br>
+/*
+ * @en Convert a resources by finding its real url with uuid, otherwise we will use the uuid or raw url as its url<br>
  * So we gurantee there will be url in result
- * @zh
- * 通过使用 uuid 查找资源的真实 url 来转换资源，否则将使用 uuid 或原始 url 作为其 url<br>
+ * @zh 通过使用 uuid 查找资源的真实 url 来转换资源，否则将使用 uuid 或原始 url 作为其 url<br>
  * 所以可以保证结果中会有 url
  * @param res
  */
@@ -99,48 +101,40 @@ const _sharedResources: any = [];
 const _sharedList: any = [];
 
 /**
- * @en
- * Loader for resource loading process. It's a singleton object.
- * @zh
- * 资源加载程序，这是一个单例对象。
+ * @en Loader for resource loading process. The engine automatically initialize its singleton object {{loader}}.
+ * @zh 资源加载管理器，引擎会自动创建一个单例对象 {{loader}}。
  */
 export class CCLoader extends Pipeline {
 
     /**
-     * @en
-     * Gets a new XMLHttpRequest instance.
-     * @zh
-     * 获取一个新的 XMLHttpRequest 的实例。
+     * @en Gets a new XMLHttpRequest instance.
+     * @zh 获取一个新的 XMLHttpRequest 的实例。
      */
     public getXMLHttpRequest: Function;
 
     /**
-     * @en
-     * The asset loader in cc.loader's pipeline, it's by default the first pipe.<br>
+     * @en The asset loader in loader's pipeline, it's by default the first pipe.<br>
      * It's used to identify an asset's type, and determine how to download it.
-     * @zh
-     * cc.loader 中的资源加载器，默认情况下是最先加载的。<br>
+     * @zh loader 中的资源加载器，默认情况下是最先加载的。<br>
      * 用于标识资源的类型，并确定如何加载此资源。
      */
     public assetLoader: AssetLoader;
 
     /**
-     * @en
-     * The md5 pipe in cc.loader's pipeline, it could be absent if the project isn't build with md5 option.<br>
+     * @en The md5 pipe in loader's pipeline, it could be absent if the project isn't build with md5 option.<br>
      * It's used to modify the url to the real downloadable url with md5 suffix.
-     * @zh
-     * cc.loader 中的 md5 加载管道，如果项目没有使用 md5 构建，则此项可能不存在。<br>
+     * @zh loader 中的 md5 加载管道，如果项目没有使用 md5 构建，则此项可能不存在。<br>
      * 用于修改带有 md5 后缀的真实可下载的 URL 。
      */
     public md5Pipe: null;
 
     /**
      * @en
-     * The downloader in cc.loader's pipeline, it's by default the second pipe.<br>
+     * The downloader in loader's pipeline, it's by default the second pipe.<br>
      * It's used to download files with several handlers: pure text, image, script, audio, font, uuid.<br>
      * You can add your own download function with addDownloadHandlers
      * @zh
-     * cc.loader 中的资源下载程序，默认情况下是第二个加载的。<br>
+     * loader 中的资源下载程序，默认情况下是第二个加载的。<br>
      * 它用于下载带有多个处理程序的文件：纯文本，图像，脚本，音频，字体，uuid。<br>
      * 您可以使用 addDownloadHandlers 来添加自己的下载函数
      */
@@ -148,23 +142,27 @@ export class CCLoader extends Pipeline {
 
     /**
      * @en
-     * The loader in cc.loader's pipeline, it's by default the third pipe.<br>
+     * The loader in loader's pipeline, it's by default the third pipe.<br>
      * It's used to parse downloaded content with several handlers: JSON, image, plist, fnt, uuid.<br>
      * You can add your own download function with addLoadHandlers
      * @zh
-     * cc.loader 中的资源下载程序，默认情况下是第三个加载的。<br>
+     * loader 中的资源下载程序，默认情况下是第三个加载的。<br>
      * 它用于解析下载的内容及多个处理程序的文件：纯文本，图像，脚本，音频，字体，uuid。<br>
      * 您可以使用 addLoadHandlers 来添加自己的下载函数
      */
     public loader: Loader;
-    public onProgress: null;
-    public _assetTables: any;
+    /**
+     * @en The default progression callback during the loading process, 
+     * if no progression callback is passed to {{load}} function, then this default callback will be used.
+     * @zh Loader 默认的进度回调函数，如果在调用 {{load}} 函数时没有指定进度回调函数的话，会调用默认进度回调函数。
+     */
+    public onProgress: Function | null;
 
+    public _assetTables: any;
     private _autoReleaseSetting: any;
     private _releasedAssetChecker_DEBUG: any;
 
     constructor () {
-
         const assetLoader = new AssetLoader();
         const downloader = new Downloader();
         // tslint:disable-next-line: no-shadowed-letiable
@@ -176,14 +174,11 @@ export class CCLoader extends Pipeline {
             loader,
         ]);
 
-        this.getXMLHttpRequest =  getXMLHttpRequest;
+        this.getXMLHttpRequest = getXMLHttpRequest;
 
         this.assetLoader = assetLoader;
-
         this.md5Pipe = null;
-
         this.downloader = downloader;
-
         this.loader = loader;
 
         this.onProgress = null;
@@ -197,6 +192,11 @@ export class CCLoader extends Pipeline {
         }
     }
 
+    /**
+     * @en Initialize with director
+     * @zh 使用 {{director}} 初始化
+     * @param director The director instance of engine
+     */
     public init (director) {
         if (DEBUG) {
             const self = this;
@@ -207,46 +207,39 @@ export class CCLoader extends Pipeline {
     }
 
     /**
-     * @en
-     * Add custom supported types handler or modify existing type handler for download process.
-     * @zh
-     * 为下载程序添加自定义支持的类型处理程序或修改现有的类型处理程序。
+     * @en Add custom supported types handler or modify existing type handler for download process.
+     * @zh 为下载程序添加自定义支持的类型处理程序或修改现有的类型处理程序。
      * @example
      * ```typescript
-     *  cc.loader.addDownloadHandlers({
+     *  loader.addDownloadHandlers({
      *      // This will match all url with `.scene` extension or all url with `scene` type
      *      'scene' : function (url, callback) {}
      *  });
      * ```
-     * @param extMap 具有相应处理程序的自定义支持类型
+     * @param extMap Handlers for corresponding type in a map
      */
-    public addDownloadHandlers (extMap: Object) {
+    public addDownloadHandlers (extMap: Map<string, Function>) {
         this.downloader.addHandlers(extMap);
     }
 
     /**
-     * @en
-     * Add custom supported types handler or modify existing type handler for load process.
-     * @zh
-     * 为加载程序添加自定义支持的类型处理程序或修改现有的类型处理程序。
+     * @en Add custom supported types handler or modify existing type handler for load process.
+     * @zh 为加载程序添加自定义支持的类型处理程序或修改现有的类型处理程序。
      * @example
      * ```typescript
-     *  cc.loader.addLoadHandlers({
+     *  loader.addLoadHandlers({
      *      // This will match all url with `.scene` extension or all url with `scene` type
      *      'scene' : function (url, callback) {}
      *  });
      * ```
-     * @method addLoadHandlers
-     * @param extMap 具有相应处理程序的自定义支持类型
+     * @param extMap Handlers for corresponding type in a map
      */
-    public  addLoadHandlers (extMap: Object) {
+    public  addLoadHandlers (extMap: Map<string, Function>) {
         this.loader.addHandlers(extMap);
     }
 
     // tslint:disable: max-line-length
 
-    // load(resources: string|string[]|{uuid?: string, url?: string, type?: string}, completeCallback?: Function): void
-    // load(resources: string|string[]|{uuid?: string, url?: string, type?: string}, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: Function|null): void
     /**
      * @en
      * Load resources with a progression callback and a complete callback.<br>
@@ -260,19 +253,19 @@ export class CCLoader extends Pipeline {
      * 唯一的区别是当用户将单个 URL 作为资源传递时，完整的回调将其结果直接设置为第二个参数。
      * @example
      * ```TypeScript
-     * cc.loader.load('a.png', function (err, tex) {
+     * loader.load('a.png', function (err, tex) {
      *     cc.log('Result should be a texture: ' + (tex instanceof cc.Texture2D));
      * });
      *
-     * cc.loader.load('http://example.com/a.png', function (err, tex) {
+     * loader.load('http://example.com/a.png', function (err, tex) {
      *     cc.log('Should load a texture from external url: ' + (tex instanceof cc.Texture2D));
      * });
      *
-     * cc.loader.load({url: 'http://example.com/getImageREST?file=a.png', type: 'png'}, function (err, tex) {
+     * loader.load({url: 'http://example.com/getImageREST?file=a.png', type: 'png'}, function (err, tex) {
      *     cc.log('Should load a texture from RESTful API by specify the type: ' + (tex instanceof cc.Texture2D));
      * });
      *
-     * cc.loader.load(['a.png', 'b.json'], function (errors, results) {
+     * loader.load(['a.png', 'b.json'], function (errors, results) {
      *     if (errors) {
      *         for (let i = 0; i < errors.length; i++) {
      *             cc.log('Error url [' + errors[i] + ']: ' + results.getError(errors[i]));
@@ -282,17 +275,16 @@ export class CCLoader extends Pipeline {
      *     let bJsonObj = results.getContent('b.json');
      * });
      * ```
-     * @method load
-     * @param {String|String[]|Object} resources - Url 列表数组
-     * @param {Function} progressCallback - 当进度改变时调用的回调函数
+     * @param resources - Url list or load request list
+     * @param progressCallback - Progression callback
      * @param {Number} progressCallback.completedCount - The number of the items that are already completed
      * @param {Number} progressCallback.totalCount - The total number of the items
      * @param {Object} progressCallback.item - The latest item which flow out the pipeline
-     * @param {Function} completeCallback - 当所有资源加载完毕后调用的回调函数
+     * @param completeCallback - Completion callback
      */
-    public load (resources, progressCallback, completeCallback?) {
+    public load (resources: string|string[]|Object, progressCallback?: Function|null, completeCallback?: Function|null) {
         if (DEV && !resources) {
-            return legacyCC.error('[cc.loader.load] resources must be non-nil.');
+            return error('[loader.load] resources must be non-nil.');
         }
 
         if (completeCallback === undefined) {
@@ -302,23 +294,27 @@ export class CCLoader extends Pipeline {
 
         const self = this;
         let singleRes: Boolean = false;
+        let resList: Array<string|Object>;
         let res;
-        if (!(resources instanceof Array)) {
+        if (resources instanceof Array) {
+            resList = resources;
+        }
+        else {
             if (resources) {
                 singleRes = true;
-                resources = [resources];
+                resList = [resources];
             } else {
-                resources = [];
+                resList = [];
             }
         }
 
         _sharedResources.length = 0;
         // tslint:disable-next-line: prefer-for-of
-        for (let i = 0; i < resources.length; ++i) {
-            const resource = resources[i];
+        for (let i = 0; i < resList.length; ++i) {
+            const resource: any = resList[i];
             // Backward compatibility
             if (resource && resource.id) {
-                legacyCC.warnID(4920, resource.id);
+                warnID(4920, resource.id);
                 if (!resource.uuid && !resource.url) {
                     resource.url = resource.id;
                 }
@@ -353,10 +349,8 @@ export class CCLoader extends Pipeline {
     }
 
     /**
-     * @en
-     * See: [[Pipeline.flowInDeps]]
-     * @zh
-     * 参考：[[Pipeline.flowInDeps]]
+     * @en See: {{Pipeline.flowInDeps}}
+     * @zh 参考：{{Pipeline.flowInDeps}}
      */
     public flowInDeps (owner, urlList, callback) {
         _sharedList.length = 0;
@@ -421,39 +415,29 @@ export class CCLoader extends Pipeline {
         completeCallback: LoadCompleteCallback<T>,
     );
 
-    // @typescript
-    // loadRes(url: string, type: typeof cc.Asset, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any) => void)|null): void
-    // loadRes(url: string, type: typeof cc.Asset, completeCallback: (error: Error, resource: any) => void): void
-    // loadRes(url: string, type: typeof cc.Asset): void
-    // loadRes(url: string, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any) => void)|null): void
-    // loadRes(url: string, completeCallback: (error: Error, resource: any) => void): void
-    // loadRes(url: string): void
-
     /**
      * @en
-     * Load resources from the "resources" folder inside the "assets" folder of your project.<br>
+     * Load assets from the "resources" folder inside the "assets" folder of your project.<br>
      * <br>
      * Note: All asset URLs in Creator use forward slashes, URLs using backslashes will not work.
      * @zh
      * 从项目的 “assets” 文件夹下的 “resources” 文件夹中加载资源<br>
      * <br>
      * 注意：Creator 中的所有资源 URL 都使用正斜杠，使用反斜杠的 URL 将不起作用。
-     * @method loadRes
-     * @param {String} url - 目标资源的 URL<br>
-     *                       URl 相对于 “resources” 文件夹，必须省略文件扩展名。
-     * @param {Function} type - 如果提供此参数，则将仅加载此类型的资源。
-     * @param {Function} progressCallback - 当进度改变时调用的回调函数
+     * @param url - The url of the asset to be loaded, this url should be related path without file extension to the `resources` folder.
+     * @param type - If type is provided, only asset for correspond type will be loaded
+     * @param progressCallback - Progression callback
      * @param {Number} progressCallback.completedCount - The number of the items that are already completed.
      * @param {Number} progressCallback.totalCount - The total number of the items.
      * @param {Object} progressCallback.item - The latest item which flow out the pipeline.
-     * @param {Function} completeCallback - 当所有资源加载完毕后调用的回调函数
+     * @param completeCallback - Completion callback
      * @param {Error} completeCallback.error - The error info or null if loaded successfully.
      * @param {Object} completeCallback.resource - The loaded resource if it can be found otherwise returns null.
      *
      * @example
      * ```typescript
      * // load the prefab (project/assets/resources/misc/character/cocos) from resources folder
-     * cc.loader.loadRes('misc/character/cocos', function (err, prefab) {
+     * loader.loadRes('misc/character/cocos', function (err, prefab) {
      *     if (err) {
      *         cc.error(err.message || err);
      *         return;
@@ -462,7 +446,7 @@ export class CCLoader extends Pipeline {
      * });
      *
      * // load the sprite frame of (project/assets/resources/imgs/cocos.png) from resources folder
-     * cc.loader.loadRes('imgs/cocos', cc.SpriteFrame, function (err, spriteFrame) {
+     * loader.loadRes('imgs/cocos', cc.SpriteFrame, function (err, spriteFrame) {
      *     if (err) {
      *         cc.error(err.message || err);
      *         return;
@@ -471,7 +455,7 @@ export class CCLoader extends Pipeline {
      * });
      * ```
      */
-    public loadRes (url: String, type: Function, mount: string | Function, progressCallback?: Function, completeCallback?: Function) {
+    public loadRes (url: string, type: Function, mount: string | Function, progressCallback?: Function, completeCallback?: Function) {
         if (arguments.length !== 5) {
             completeCallback = progressCallback;
             progressCallback = mount as Function;
@@ -505,14 +489,6 @@ export class CCLoader extends Pipeline {
         }
     }
 
-    //  @typescript
-    //  loadResDir(url: string, type: typeof cc.Asset, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any[], urls: string[]) => void)|null): void
-    //  loadResDir(url: string, type: typeof cc.Asset, completeCallback: (error: Error, resource: any[], urls: string[]) => void): void
-    //  loadResDir(url: string, type: typeof cc.Asset): void
-    //  loadResDir(url: string, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any[], urls: string[]) => void)|null): void
-    //  loadResDir(url: string, completeCallback: (error: Error, resource: any[], urls: string[]) => void): void
-    //  loadResDir(url: string): void
-
     /**
      * @en
      * Load all assets in a folder inside the "assets/resources" folder of your project.<br>
@@ -522,25 +498,23 @@ export class CCLoader extends Pipeline {
      * 将所有资产加载到项目 “assets / resources” 文件夹中
      * <br>
      * 注意：Creator 中的所有资源 URL 都使用正斜杠，使用反斜杠的 URL 将不起作用。
-     * @method loadResDir
-     * @param {String} url - 目标文件夹的 URL<br>
-     *                       URl 相对于 “resources” 文件夹，必须省略文件扩展名。
-     * @param {Function} type - 如果提供此参数，则将仅加载此类型的资源。
-     * @param {Function} progressCallback - 当进度改变时调用的回调函数
+     * @param url The url of the directory to be loaded, this url should be related path to the `resources` folder.
+     * @param type - If type is provided, only assets for correspond type will be loaded
+     * @param progressCallback - Progression callback
      * @param {Number} progressCallback.completedCount - The number of the items that are already completed.
      * @param {Number} progressCallback.totalCount - The total number of the items.
      * @param {Object} progressCallback.item - The latest item which flow out the pipeline.
-     * @param {Function} completeCallback - 当所有资源加载完毕后或者发生错误时调用的回调函数
+     * @param completeCallback - Completion callback
      * @param {Error} completeCallback.error - If one of the asset failed, the complete callback is immediately called
      *                                         with the error. If all assets are loaded successfully, error will be null.
      * @param {Asset[]|Array} completeCallback.assets - An array of all loaded assets.
      *                                             If nothing to load, assets will be an empty array.
-     * @param {String[]} completeCallback.urls - An array that lists all the URLs of loaded assets.
+     * @param {string[]} completeCallback.urls - An array that lists all the URLs of loaded assets.
      *
      * @example
      * ```typescript
      * // load the texture (resources/imgs/cocos.png) and the corresponding sprite frame
-     * cc.loader.loadResDir('imgs/cocos', function (err, assets) {
+     * loader.loadResDir('imgs/cocos', function (err, assets) {
      *     if (err) {
      *         cc.error(err);
      *         return;
@@ -550,19 +524,19 @@ export class CCLoader extends Pipeline {
      * });
      *
      * // load all textures in "resources/imgs/"
-     * cc.loader.loadResDir('imgs', cc.Texture2D, function (err, textures) {
+     * loader.loadResDir('imgs', cc.Texture2D, function (err, textures) {
      *     let texture1 = textures[0];
      *     let texture2 = textures[1];
      * });
      *
      * // load all JSONs in "resources/data/"
-     * cc.loader.loadResDir('data', function (err, objects, urls) {
+     * loader.loadResDir('data', function (err, objects, urls) {
      *     let data = objects[0];
      *     let url = urls[0];
      * });
      * ```
      */
-    public loadResDir (url: String, type?: Function, mount?, progressCallback?: Function, completeCallback?: Function) {
+    public loadResDir (url: string, type?: Function, mount?, progressCallback?: Function, completeCallback?: Function) {
         if (arguments.length !== 5) {
             completeCallback = progressCallback;
             progressCallback = mount;
@@ -583,7 +557,7 @@ export class CCLoader extends Pipeline {
             // To show users the exact structure in asset panel, we need to return the spriteFrame assets in spriteAtlas
             const assetResLength = assetRes.length;
             for (let i = 0; i < assetResLength; ++i) {
-                if (assetRes[i] instanceof legacyCC.SpriteAtlas) {
+                if (assetRes[i] instanceof SpriteAtlas) {
                     const spriteFrames = assetRes[i].getSpriteFrames();
                     // tslint:disable: forin
                     for (const k in spriteFrames) {
@@ -601,28 +575,17 @@ export class CCLoader extends Pipeline {
         }, urls);
     }
 
-    // * @typescript
-    // * loadResArray(url: string[], type: typeof cc.Asset, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any[]) => void)|null): void
-    // * loadResArray(url: string[], type: typeof cc.Asset, completeCallback: (error: Error, resource: any[]) => void): void
-    // * loadResArray(url: string[], type: typeof cc.Asset): void
-    // * loadResArray(url: string[], progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any[]) => void)|null): void
-    // * loadResArray(url: string[], completeCallback: (error: Error, resource: any[]) => void): void
-    // * loadResArray(url: string[]): void
     /**
-     * @en
-     * This method is like [[loadRes]] except that it accepts array of url.
-     * @zh
-     * 此方法除了接受 URL 数组参数外，与 [[loadRes]] 方法相同。
+     * @en This method is like [[loadRes]] except that it accepts array of url.
+     * @zh 此方法除了接受 URL 数组参数外，与 [[loadRes]] 方法相同。
      *
-     * @method loadResArray
-     * @param {String[]} urls - 目标资源的 URL 数组。
-     *                          URl 为相对于 “resources” 文件夹的，且必须省略文件扩展名。
-     * @param {Function} type - 如果提供此参数，则将仅加载此类型的资源。
-     * @param {Function} progressCallback - 当进度改变时调用的回调函数
+     * @param url The url array of assets to be loaded, this url should be related path without extension to the `resources` folder.
+     * @param type - If type is provided, only assets for correspond type will be loaded
+     * @param progressCallback - Progression callback
      * @param {Number} progressCallback.completedCount - The number of the items that are already completed.
      * @param {Number} progressCallback.totalCount - The total number of the items.
      * @param {Object} progressCallback.item - The latest item which flow out the pipeline.
-     * @param {Function} completeCallback - 当所有资源加载完毕后或者发生错误时调用的回调函数
+     * @param completeCallback - Completion callback
      * @param {Error} completeCallback.error - If one of the asset failed, the complete callback is immediately called
      *                                         with the error. If all assets are loaded successfully, error will be null.
      * @param {Asset[]|Array} completeCallback.assets - An array of all loaded assets.
@@ -632,7 +595,7 @@ export class CCLoader extends Pipeline {
      * // load the SpriteFrames from resources folder
      * let spriteFrames;
      * let urls = ['misc/characters/character_01', 'misc/weapons/weapons_01'];
-     * cc.loader.loadResArray(urls, cc.SpriteFrame, function (err, assets) {
+     * loader.loadResArray(urls, cc.SpriteFrame, function (err, assets) {
      *     if (err) {
      *         cc.error(err);
      *         return;
@@ -642,7 +605,7 @@ export class CCLoader extends Pipeline {
      * });
      * ```
      */
-    public loadResArray (urls: String[], type?: Function, mount?, progressCallback?: Function, completeCallback?: Function) {
+    public loadResArray (urls: string[], type?: Function, mount?, progressCallback?: Function, completeCallback?: Function) {
         if (arguments.length !== 5) {
             completeCallback = progressCallback;
             progressCallback = mount;
@@ -681,10 +644,8 @@ export class CCLoader extends Pipeline {
      * 当使用 [[load]] 或 [[loadRes]] 来加载资源时，<br>
      * URL 将是资源的唯一标识。<br>
      * 在完成加载之后，你可以通过将 URL 传递给此 API 来获取它们。
-     * @method getRes
-     * @param {String} url
-     * @param {Function} type - 如果提供此参数，则将仅返回此类型的资源。
-     * @returns {*}
+     * @param url The asset url, it should be related path without extension to the `resources` folder.
+     * @param type If type is provided, the asset for correspond type will be returned
      */
     public getRes<T = any> (url: string, type?: Function): T | null {
         let item = this._cache[url];
@@ -705,10 +666,8 @@ export class CCLoader extends Pipeline {
     }
 
     /**
-     * @en
-     * Get total resources count in loader.
-     * @zh
-     * 获取加载的总资源数量
+     * @en Get total resources count in loader.
+     * @zh 获取加载的总资源数量
      */
     public getResCount (): Number {
         return Object.keys(this._cache).length;
@@ -731,23 +690,21 @@ export class CCLoader extends Pipeline {
      * @example
      * ```typescript
      * // Release all dependencies of a loaded prefab
-     * let deps = cc.loader.getDependsRecursively(prefab);
-     * cc.loader.release(deps);
+     * let deps = loader.getDependsRecursively(prefab);
+     * loader.release(deps);
      * // Retrieve all dependent textures
-     * let deps = cc.loader.getDependsRecursively('prefabs/sample');
+     * let deps = loader.getDependsRecursively('prefabs/sample');
      * let textures = [];
      * for (let i = 0; i < deps.length; ++i) {
-     *     let item = cc.loader.getRes(deps[i]);
+     *     let item = loader.getRes(deps[i]);
      *     if (item instanceof cc.Texture2D) {
      *         textures.push(item);
      *     }
      * }
      * ```
-     * @method getDependsRecursively
-     * @param {Asset|RawAsset|String} owner - 资源本身或者是资源的 url 或者是资源的 uuid
-     * @return {Array}
+     * @param owner - The asset itself or the asset url or the asset uuid
      */
-    public getDependsRecursively (owner: Asset|RawAsset|String) {
+    public getDependsRecursively (owner: Asset|RawAsset|string): Array<string> {
         if (owner) {
             const key = this._getReferenceKey(owner);
             const assets = getDependsRecursively(key);
@@ -762,14 +719,14 @@ export class CCLoader extends Pipeline {
     /**
      * @en
      * Release the content of an asset or an array of assets by uuid.<br>
-     * Start from v1.3, this method will not only remove the cache of the asset in loader, but also clean up its content.<br>
+     * This method will not only remove the cache of the asset in loader, but also clean up its content.<br>
      * For example, if you release a texture, the texture asset and its gl texture data will be freed up.<br>
      * In complexe project, you can use this function with [[getDependsRecursively]] to free up memory in critical circumstances.<br>
      * Notice, this method may cause the texture to be unusable, if there are still other nodes use the same texture, they may turn to black and report gl errors.<br>
      * If you only want to remove the cache of an asset, please use [[Pipeline.removeItem]]
      * @zh
      * 通过 id（通常是资源 url）来释放一个资源或者一个资源数组。<br>
-     * 从 v1.3 开始，这个方法不仅会从 loader 中删除资源的缓存引用，还会清理它的资源内容。<br>
+     * 这个方法不仅会从 loader 中删除资源的缓存引用，还会清理它的资源内容。<br>
      * 比如说，当你释放一个 texture 资源，这个 texture 和它的 gl 贴图数据都会被释放。<br>
      * 在复杂项目中，我们建议你结合 [[getDependsRecursively]] 来使用，便于在设备内存告急的情况下更快地释放不再需要的资源的内存。<br>
      * 注意，这个函数可能会导致资源贴图或资源所依赖的贴图不可用，如果场景中存在节点仍然依赖同样的贴图，它们可能会变黑并报 GL 错误。<br>
@@ -778,25 +735,24 @@ export class CCLoader extends Pipeline {
      * @example
      * ```typescript
      * // Release a texture which is no longer need
-     * cc.loader.release(texture);
+     * loader.release(texture);
      * // Release all dependencies of a loaded prefab
-     * let deps = cc.loader.getDependsRecursively('prefabs/sample');
-     * cc.loader.release(deps);
+     * let deps = loader.getDependsRecursively('prefabs/sample');
+     * loader.release(deps);
      * // If there is no instance of this prefab in the scene, the prefab and its dependencies like textures, sprite frames, etc, will be freed up.
      * // If you have some other nodes share a texture in this prefab, you can skip it in two ways:
      * // 1. Forbid auto release a texture before release
-     * cc.loader.setAutoRelease(texture2d, false);
+     * loader.setAutoRelease(texture2d, false);
      * // 2. Remove it from the dependencies array
-     * let deps = cc.loader.getDependsRecursively('prefabs/sample');
+     * let deps = loader.getDependsRecursively('prefabs/sample');
      * let index = deps.indexOf(texture2d._uuid);
      * if (index !== -1)
      *     deps.splice(index, 1);
-     * cc.loader.release(deps);
+     * loader.release(deps);
      * ```
-     * @method release
-     * @param {Asset|RawAsset|String|Array} asset
+     * @param asset Asset or assets to be released
      */
-    public release (asset) {
+    public release (asset: Asset|RawAsset|string|Array<Asset|RawAsset|string>) {
         if (Array.isArray(asset)) {
             for (let i = 0; i < asset.length; i++) {
                 const key = asset[i];
@@ -809,7 +765,7 @@ export class CCLoader extends Pipeline {
             if (item) {
                 const removed = this.removeItem(id);
                 asset = item.content;
-                if (asset instanceof legacyCC.Asset) {
+                if (asset instanceof Asset) {
                     const nativeUrl = asset.nativeUrl;
                     if (nativeUrl) {
                         this.release(nativeUrl);  // uncache loading item of native asset
@@ -824,11 +780,9 @@ export class CCLoader extends Pipeline {
     }
 
     /**
-     * @en Release the asset by its object. Refer to [[release]] for detailed informations.
-     * @zh 通过资源对象自身来释放资源。详细信息请参考 [[release]]
-     *
-     * @method releaseAsset
-     * @param {Asset} asset
+     * @en Release the asset by its object. Refer to {{release}} for detailed informations.
+     * @zh 通过资源对象自身来释放资源。详细信息请参考 {{release}}
+     * @param asset The asset to be released
      */
     public releaseAsset (asset: Asset) {
         const uuid = asset._uuid;
@@ -838,36 +792,28 @@ export class CCLoader extends Pipeline {
     }
 
     /**
-     * @en
-     * Release the asset loaded by [[loadRes]]. Refer to [[release]] for detailed informations.
-     * @zh
-     * 释放通过 [[loadRes]] 加载的资源。详细信息请参考 [[release]]
-     *
-     * @method releaseRes
-     * @param {String} url
-     * @param {Function} type - 如果提供此参数，则将仅释放此类型的资源。
+     * @en Release the asset loaded by {{loadRes}}. Refer to {{release}} for detailed informations.
+     * @zh 释放通过 {{loadRes}} 加载的资源。详细信息请参考 {{release}}
+     * @param url The asset url, it should be related path without extension to the `resources` folder.
+     * @param type If type is provided, the asset for correspond type will be returned
      */
-    public releaseRes (url: String, type?: Function, mount?) {
+    public releaseRes (url: string, type?: Function, mount?) {
         const uuid = this._getResUuid(url, type, mount, true);
         if (uuid) {
             this.release(uuid);
         }
         else {
-            legacyCC.errorID(4914, url);
+            errorID(4914, url);
         }
     }
 
     /**
-     * @en
-     * Release the all assets loaded by [[loadResDir]]. Refer to [[release]] for detailed informations.
-     * @zh
-     * 释放通过 [[loadResDir]] 加载的资源。详细信息请参考 [[release]]
-     *
-     * @method releaseResDir
-     * @param {String} url
-     * @param {Function} type - 如果提供此参数，则将仅释放此类型的资源。
+     * @en Release the all assets loaded by {{loadResDir}}. Refer to {{release}} for detailed informations.
+     * @zh 释放通过 {{loadResDir}} 加载的资源。详细信息请参考 {{release}}
+     * @param url The url of the directory to release, it should be related path to the `resources` folder.
+     * @param type If type is provided, the asset for correspond type will be returned
      */
-    public releaseResDir (url: String, type?: Function, mount?) {
+    public releaseResDir (url: string, type?: Function, mount?) {
         mount = mount || 'assets';
         if (!assetTables[mount]) { return; }
 
@@ -879,10 +825,8 @@ export class CCLoader extends Pipeline {
     }
 
     /**
-     * @en Resource all assets. Refer to [[release]] for detailed informations.
-     * @zh 释放所有资源。详细信息请参考 [[release]]
-     *
-     * @method releaseAll
+     * @en Resource all assets. Refer to {{release}} for detailed informations.
+     * @zh 释放所有资源。详细信息请参考 {{release}}
      */
     public releaseAll () {
         for (const id in this._cache) {
@@ -904,39 +848,38 @@ export class CCLoader extends Pipeline {
      * Indicates whether to release the asset when loading a new scene.<br>
      * By default, when loading a new scene, all assets in the previous scene will be released or preserved<br>
      * according to whether the previous scene checked the "Auto Release Assets" option.<br>
-     * On the other hand, assets dynamically loaded by using `cc.loader.loadRes` or `cc.loader.loadResDir`<br>
+     * On the other hand, assets dynamically loaded by using `loader.loadRes` or `loader.loadResDir`<br>
      * will not be affected by that option, remain not released by default.<br>
      * Use this API to change the default behavior on a single asset, to force preserve or release specified asset when scene switching.<br>
      * <br>
-     * See: [[setAutoReleaseRecursively]], [[isAutoRelease]]
+     * See: {{setAutoReleaseRecursively}}, {{isAutoRelease}}
      * @zh
      * 设置当场景切换时是否自动释放资源。<br>
      * 默认情况下，当加载新场景时，旧场景的资源根据旧场景是否勾选“Auto Release Assets”，将会被释放或者保留。<br>
-     * 而使用 `cc.loader.loadRes` 或 `cc.loader.loadResDir` 动态加载的资源，则不受场景设置的影响，默认不自动释放。<br>
+     * 而使用 `loader.loadRes` 或 `loader.loadResDir` 动态加载的资源，则不受场景设置的影响，默认不自动释放。<br>
      * 使用这个 API 可以在单个资源上改变这个默认行为，强制在切换场景时保留或者释放指定资源。<br>
      * <br>
-     * 参考：[[setAutoReleaseRecursively]]，[[isAutoRelease]]
+     * 参考：{{setAutoReleaseRecursively}}，{{isAutoRelease}}
      *
      * @example
      * ```typescript
      * // auto release the texture event if "Auto Release Assets" disabled in current scene
-     * cc.loader.setAutoRelease(texture2d, true);
+     * loader.setAutoRelease(texture2d, true);
      * // don't release the texture even if "Auto Release Assets" enabled in current scene
-     * cc.loader.setAutoRelease(texture2d, false);
+     * loader.setAutoRelease(texture2d, false);
      * // first parameter can be url
-     * cc.loader.setAutoRelease(audioUrl, false);
+     * loader.setAutoRelease(audioUrl, false);
      * ```
-     * @method setAutoRelease
-     * @param {Asset|String} assetOrUrlOrUuid - 资源对象或原始资源的 URL 或是 UUID
-     * @param {Boolean} autoRelease - 表示是否自动释放
+     * @param assetOrUrlOrUuid - The asset or its url or its uuid
+     * @param autoRelease - Whether to release automatically during scene switch
      */
-    public setAutoRelease (assetOrUrlOrUuid: Asset|String, autoRelease: Boolean) {
+    public setAutoRelease (assetOrUrlOrUuid: Asset|string, autoRelease: Boolean) {
         const key = this._getReferenceKey(assetOrUrlOrUuid);
         if (key) {
             this._autoReleaseSetting[key] = !!autoRelease;
         }
         else if (DEV) {
-            legacyCC.warnID(4902);
+            warnID(4902);
         }
     }
 
@@ -945,33 +888,32 @@ export class CCLoader extends Pipeline {
      * Indicates whether to release the asset and its referenced other assets when loading a new scene.<br>
      * By default, when loading a new scene, all assets in the previous scene will be released or preserved<br>
      * according to whether the previous scene checked the "Auto Release Assets" option.<br>
-     * On the other hand, assets dynamically loaded by using `cc.loader.loadRes` or `cc.loader.loadResDir`<br>
+     * On the other hand, assets dynamically loaded by using `loader.loadRes` or `loader.loadResDir`<br>
      * will not be affected by that option, remain not released by default.<br>
      * Use this API to change the default behavior on the specified asset and its recursively referenced assets, to force preserve or release specified asset when scene switching.<br>
      * <br>
-     * See: [[setAutoRelease]], [[isAutoRelease]]
+     * See: {{setAutoRelease}}, {{isAutoRelease}}
      * @zh
      * 设置当场景切换时是否自动释放资源及资源引用的其它资源。<br>
      * 默认情况下，当加载新场景时，旧场景的资源根据旧场景是否勾选“Auto Release Assets”，将会被释放或者保留。<br>
-     * 而使用 `cc.loader.loadRes` 或 `cc.loader.loadResDir` 动态加载的资源，则不受场景设置的影响，默认不自动释放。<br>
+     * 而使用 `loader.loadRes` 或 `loader.loadResDir` 动态加载的资源，则不受场景设置的影响，默认不自动释放。<br>
      * 使用这个 API 可以在指定资源及资源递归引用到的所有资源上改变这个默认行为，强制在切换场景时保留或者释放指定资源。<br>
      * <br>
-     * 参考：[[setAutoRelease]]，[[isAutoRelease]]
+     * 参考：{{setAutoRelease}}，{{isAutoRelease}}
      *
      * @example
      * ```typescript
      * // auto release the SpriteFrame and its Texture event if "Auto Release Assets" disabled in current scene
-     * cc.loader.setAutoReleaseRecursively(spriteFrame, true);
+     * loader.setAutoReleaseRecursively(spriteFrame, true);
      * // don't release the SpriteFrame and its Texture even if "Auto Release Assets" enabled in current scene
-     * cc.loader.setAutoReleaseRecursively(spriteFrame, false);
+     * loader.setAutoReleaseRecursively(spriteFrame, false);
      * // don't release the Prefab and all the referenced assets
-     * cc.loader.setAutoReleaseRecursively(prefab, false);
+     * loader.setAutoReleaseRecursively(prefab, false);
      * ```
-     * @method setAutoReleaseRecursively
-     * @param {Asset|String} assetOrUrlOrUuid - 资源对象或原始资源的 URL 或是 UUID
-     * @param {Boolean} autoRelease - 表示是否自动释放
+     * @param assetOrUrlOrUuid - The asset or its url or its uuid
+     * @param autoRelease - Whether to release automatically during scene switch
      */
-    public setAutoReleaseRecursively (assetOrUrlOrUuid: Asset|String, autoRelease: Boolean) {
+    public setAutoReleaseRecursively (assetOrUrlOrUuid: Asset|string, autoRelease: Boolean) {
         autoRelease = !!autoRelease;
         const key = this._getReferenceKey(assetOrUrlOrUuid);
         if (key) {
@@ -984,25 +926,21 @@ export class CCLoader extends Pipeline {
             }
         }
         else if (DEV) {
-            legacyCC.warnID(4902);
+            warnID(4902);
         }
     }
 
     /**
-     * @en
-     * Returns whether the asset is configured as auto released, despite how "Auto Release Assets" property is set on scene asset.<br>
+     * @en Returns whether the asset is configured as auto released, despite how "Auto Release Assets" property is set on scene asset.<br>
      * <br>
-     * See: [[setAutoRelease]], [[setAutoReleaseRecursively]]
-     *
-     * @zh
-     * 返回指定的资源是否有被设置为自动释放，不论场景的“Auto Release Assets”如何设置。<br>
+     * See: {{setAutoRelease}}, {{setAutoReleaseRecursively}}
+     * @zh 返回指定的资源是否有被设置为自动释放，不论场景的“Auto Release Assets”如何设置。<br>
      * <br>
-     * 参考：[[setAutoRelease]]，[[setAutoReleaseRecursively]]
-     * @method isAutoRelease
-     * @param {Asset|String} assetOrUrl - asset object or the raw asset's url
+     * 参考：{{setAutoRelease}}，{{setAutoReleaseRecursively}}
+     * @param {Asset|string} assetOrUrl - asset object or the raw asset's url
      * @returns {Boolean}
      */
-    public isAutoRelease (assetOrUrl: Asset|String): Boolean{
+    public isAutoRelease (assetOrUrl: Asset|string): Boolean{
         const key = this._getReferenceKey(assetOrUrl);
         if (key) {
             return !!this._autoReleaseSetting[key];
@@ -1011,10 +949,10 @@ export class CCLoader extends Pipeline {
     }
 
     /**
-     * @zh
-     * 获取资源的 uuid
+     * @en Retrieve asset's uuid
+     * @zh 获取资源的 uuid
      */
-    public _getResUuid (url, type, mount, quiet) {
+    public _getResUuid (url: string, type?: Function, mount?, quiet?) {
         mount = mount || 'assets';
         let uuid = '';
         if (EDITOR) {
@@ -1031,13 +969,13 @@ export class CCLoader extends Pipeline {
                 }
                 uuid = assetTable.getUuid(url, type);
                 if (!uuid) {
-                    const extname = legacyCC.path.extname(url);
+                    const extname = path.extname(url);
                     if (extname) {
                         // strip extname
                         url = url.slice(0, - extname.length);
                         uuid = assetTable.getUuid(url, type);
                         if (uuid && !quiet) {
-                            legacyCC.warnID(4901, url, extname);
+                            warnID(4901, url, extname);
                         }
                     }
                 }
@@ -1045,17 +983,15 @@ export class CCLoader extends Pipeline {
         }
         if (!uuid && type) {
             if (isChildClassOf(type, SpriteFrame) || isChildClassOf(type, Texture2D) || isChildClassOf(type, TextureCube)) {
-                legacyCC.warnID(4934);
+                warnID(4934);
             }
         }
         return uuid;
     }
 
     /**
-     * @en
-     * Find the asset's reference id in loader, asset could be asset object, asset uuid or asset url
-     * @zh
-     * 在 laoder 中找到资源的引用 id ，参数可以是资源对象、资源的 uuid 或者是资源的 url
+     * @en Find the asset's reference id in loader, asset could be asset object, asset uuid or asset url
+     * @zh 在 laoder 中找到资源的引用 id ，参数可以是资源对象、资源的 uuid 或者是资源的 url
      */
     public _getReferenceKey (assetOrUrlOrUuid) {
         let key;
@@ -1063,20 +999,17 @@ export class CCLoader extends Pipeline {
             key = assetOrUrlOrUuid._uuid || null;
         }
         else if (typeof assetOrUrlOrUuid === 'string') {
-            key = this._getResUuid(assetOrUrlOrUuid, null, null, true) || assetOrUrlOrUuid;
+            key = this._getResUuid(assetOrUrlOrUuid, undefined, undefined, true) || assetOrUrlOrUuid;
         }
         if (!key) {
-            legacyCC.warnID(4800, assetOrUrlOrUuid);
+            warnID(4800, assetOrUrlOrUuid);
             return key;
         }
         legacyCC.AssetLibrary._getAssetInfoInRuntime(key, _info);
         return this._cache[_info.url!] ? _info.url : key;
     }
 
-    /**
-     * @zh
-     * 当 url 未找到时的操作
-     */
+    // Operation when complete the request without found any asset
     private _urlNotFound (url, type, completeCallback) {
         callInNextTick(() => {
             url = legacyCC.url.normalize(url);
@@ -1087,15 +1020,6 @@ export class CCLoader extends Pipeline {
         });
     }
 
-    /**
-     * @param {Function} [type]
-     * @param {Function} [onProgress]
-     * @param {Function} onComplete
-     * @returns {Object} arguments
-     * @returns {Function} arguments.type
-     * @returns {Function} arguments.onProgress
-     * @returns {Function} arguments.onComplete
-     */
     private _parseLoadResArgs (type, onProgress, onComplete) {
         if (onComplete === undefined) {
             const isValidType = isChildClassOf(type, legacyCC.RawAsset);
@@ -1122,10 +1046,7 @@ export class CCLoader extends Pipeline {
         };
     }
 
-    /**
-     * @zh
-     * 通过uuids 加载资源
-     */
+    // Load assets with uuids
     private _loadResUuids (uuids, progressCallback, completeCallback, urls ?) {
         if (uuids.length > 0) {
             const self = this;
@@ -1176,6 +1097,9 @@ export class CCLoader extends Pipeline {
     }
 }
 
+/**
+ * Singleton object of CCLoader
+ */
 export const loader = legacyCC.loader = new CCLoader();
 
 if (EDITOR) {

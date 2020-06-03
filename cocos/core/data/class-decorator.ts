@@ -25,7 +25,9 @@
 */
 
 /**
- * @category core/data
+ * @category core/_decorator
+ * @en Some TypeScript decorators for class and data definition
+ * @zh 一些用来定义类和数据的 TypeScript 装饰器
  */
 
 // const FIX_BABEL6 = true;
@@ -36,17 +38,7 @@
 // tslint:disable:max-line-length
 // tslint:disable:no-empty-interface
 
-/**
- * Some JavaScript decorators which can be accessed with "cc._decorator".
- * 一些 JavaScript 装饰器，目前可以通过 "cc._decorator" 来访问。
- * （这些 API 仍不完全稳定，有可能随着 JavaScript 装饰器的标准实现而调整）
- *
- * @submodule _decorator
- * @module _decorator
- * @main
- */
-
-// inspired by toddlxt (https://github.com/toddlxt/Creator-TypeScript-Boilerplate)
+// inspired by @toddlxt (https://github.com/toddlxt/Creator-TypeScript-Boilerplate)
 
 import * as js from '../utils/js';
 import './class';
@@ -56,6 +48,7 @@ import { CCString, CCInteger, CCFloat, CCBoolean, PrimitiveType } from './utils/
 import { error, errorID, warnID } from '../platform/debug';
 import { DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { Component } from '../components/component';
 
 // caches for class construction
 const CACHE_KEY = '__ccclassCache__';
@@ -243,10 +236,9 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
 }
 
 /**
- * 将标准写法的 [ES6 Class](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes) 声明为 CCClass，具体用法请参阅[类型定义](/docs/creator/scripting/class/)。
- *
- * @method ccclass
- * @param {String} [name] - The class name used for serialization.
+ * @en Declare a standard ES6 or TS Class as a CCClass, please refer to the [document](https://docs.cocos.com/creator3d/manual/zh/scripting/ccclass.html)
+ * @zh 将标准写法的 ES6 或者 TS Class 声明为 CCClass，具体用法请参阅[类型定义](https://docs.cocos.com/creator3d/manual/zh/scripting/ccclass.html)。
+ * @param name - The class name used for serialization.
  * @example
  * ```typescript
  * const {ccclass} = cc._decorator;
@@ -264,8 +256,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
  * }
  * ```
  */
-
-export const ccclass = checkCtorArgument(function (ctor, name) {
+export const ccclass: any | ((name?: string) => Function) = checkCtorArgument(function (ctor, name) {
     // if (FIX_BABEL6) {
     //     eval('if(typeof _classCallCheck==="function"){_classCallCheck=function(){};}');
     // }
@@ -315,25 +306,29 @@ export type SimplePropertyType = Function | string | typeof CCString | typeof CC
 export type PropertyType = SimplePropertyType | SimplePropertyType[];
 
 /**
- * @zh cc 属性选项。
+ * @zh CCClass 属性选项。
+ * @en CCClass property options
  */
 export interface IPropertyOptions extends IExposedAttributes {
 }
 
 /**
- * @zh 标注属性为 cc 属性。
- * @param options 选项。
+ * @en Declare as a CCClass property with options
+ * @zh 声明属性为 CCClass 属性。
+ * @param options property options
  */
 export function property (options?: IPropertyOptions): PropertyDecorator;
 
 /**
+ * @en Declare as a CCClass property with the property type
  * @zh 标注属性为 cc 属性。<br/>
  * 等价于`@property({type})`。
- * @param type cc 属性的类型。
+ * @param type A {{ccclass}} type or a {{ValueType}}
  */
 export function property (type: PropertyType): PropertyDecorator;
 
 /**
+ * @en Declare as a CCClass property
  * @zh 标注属性为 cc 属性。<br/>
  * 等价于`@property()`。
  */
@@ -382,13 +377,11 @@ function createDummyDecorator (argCheckFunc) {
 }
 
 /**
- * Makes a CCClass that inherit from component execute in edit mode.<br/>
+ * @en Makes a CCClass that inherit from component execute in edit mode.<br/>
  * By default, all components are only executed in play mode,<br/>
  * which means they will not have their callback functions executed while the Editor is in edit mode.<br/>
- * 允许继承自 Component 的 CCClass 在编辑器里执行。<br/>
+ * @zh 允许继承自 Component 的 CCClass 在编辑器里执行。<br/>
  * 默认情况下，所有 Component 都只会在运行时才会执行，也就是说它们的生命周期回调不会在编辑器里触发。
- *
- * @method executeInEditMode
  * @example
  * ```typescript
  * const {ccclass, executeInEditMode} = cc._decorator;
@@ -403,47 +396,46 @@ function createDummyDecorator (argCheckFunc) {
 export const executeInEditMode = (DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'executeInEditMode', true);
 
 /**
- * 为声明为 CCClass 的组件添加依赖的其它组件。当组件添加到节点上时，如果依赖的组件不存在，引擎将会自动将依赖组件添加到同一个节点，防止脚本出错。该设置在运行时同样有效。
- *
- * @method requireComponent
- * @param {Component} requiredComponent
+ * @en Declare that the current component relies on another type of component. 
+ * If the required component doesn't exist, the engine will create a new empty instance of the required component and add to the node.
+ * @zh 为声明为 CCClass 的组件添加依赖的其它组件。当组件添加到节点上时，如果依赖的组件不存在，引擎将会自动将依赖组件添加到同一个节点，防止脚本出错。该设置在运行时同样有效。
+ * @param requiredComponent The required component type
  * @example
  * ```typescript
- * const {ccclass, requireComponent} = cc._decorator;
+ * import {_decorator, SpriteComponent, Component} from cc;
+ * import {ccclass, requireComponent} from _decorator;
  *
- *  @ccclass
- *  @requireComponent(cc.SpriteComponent)
- * class SpriteCtrl extends cc.Component {
+ * @ccclass
+ * @requireComponent(SpriteComponent)
+ * class SpriteCtrl extends Component {
  *     // ...
  * }
  * ```
  */
-export const requireComponent = createEditorDecorator(checkCompArgument, 'requireComponent');
+export const requireComponent: (requiredComponent: Function) => Function = createEditorDecorator(checkCompArgument, 'requireComponent');
 
 /**
- * 将当前组件添加到组件菜单中，方便用户查找。例如 "Rendering/CameraCtrl"。
- *
- * @method menu
- * @param {String} path - The path is the menu represented like a pathname.
- *                        For example the menu could be "Rendering/CameraCtrl".
+ * @en Add the current component to the specific menu path in `Add Component` selector of the inspector panel
+ * @zh 将当前组件添加到组件菜单中，方便用户查找。例如 "Rendering/CameraCtrl"。
+ * @param path - The path is the menu represented like a pathname. For example the menu could be "Rendering/CameraCtrl".
  * @example
  * ```typescript
  * const {ccclass, menu} = cc._decorator;
  *
- *  @ccclass
- *  @menu("Rendering/CameraCtrl")
+ * @ccclass
+ * @menu("Rendering/CameraCtrl")
  * class NewScript extends cc.Component {
  *     // ...
  * }
  * ```
  */
-export const menu = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'menu');
+export const menu: (path: string) => Function = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'menu');
 
 /**
- * 设置脚本生命周期方法调用的优先级。优先级小于 0 的组件将会优先执行，优先级大于 0 的组件将会延后执行。优先级仅会影响 onLoad, onEnable, start, update 和 lateUpdate，而 onDisable 和 onDestroy 不受影响。
- *
- * @method executionOrder
- * @param {Number} order - The execution order of lifecycle methods for Component. Those less than 0 will execute before while those greater than 0 will execute after.
+ * @en Set the component priority, it decides at which order the life cycle functions of components will be invoked. Smaller priority get invoked before larger priority.
+ * This will affect `onLoad`, `onEnable`, `start`, `update` and `lateUpdate`, but `onDisable` and `onDestroy` won't be affected.
+ * @zh 设置脚本生命周期方法调用的优先级。优先级小于 0 的组件将会优先执行，优先级大于 0 的组件将会延后执行。优先级仅会影响 onLoad, onEnable, start, update 和 lateUpdate，而 onDisable 和 onDestroy 不受影响。
+ * @param priority - The execution order of life cycle methods for Component. Smaller priority get invoked before larger priority.
  * @example
  * ```typescript
  * const {ccclass, executionOrder} = cc._decorator;
@@ -455,18 +447,17 @@ export const menu = (DEV ? createEditorDecorator : createDummyDecorator)(checkSt
  * }
  * ```
  */
-export const executionOrder = createEditorDecorator(checkNumberArgument, 'executionOrder');
+export const executionOrder: (priority: number) => Function = createEditorDecorator(checkNumberArgument, 'executionOrder');
 
 /**
- * 防止多个相同类型（或子类型）的组件被添加到同一个节点。
- *
- * @method disallowMultiple
+ * @en Forbid add multiple instances of the component to the same node.
+ * @zh 防止多个相同类型（或子类型）的组件被添加到同一个节点。
  * @example
  * ```typescript
  * const {ccclass, disallowMultiple} = cc._decorator;
  *
- *  @ccclass
- *  @disallowMultiple
+ * @ccclass
+ * @disallowMultiple
  * class CameraCtrl extends cc.Component {
  *     // ...
  * }
@@ -475,16 +466,15 @@ export const executionOrder = createEditorDecorator(checkNumberArgument, 'execut
 export const disallowMultiple = (DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'disallowMultiple');
 
 /**
- * 当指定了 "executeInEditMode" 以后，playOnFocus 可以在选中当前组件所在的节点时，提高编辑器的场景刷新频率到 60 FPS，否则场景就只会在必要的时候进行重绘。
- *
- * @method playOnFocus
+ * @en When {{executeInEditMode}} is set, this decorator will decide when a node with the component is on focus whether the editor should running in high FPS mode.
+ * @zh 当指定了 "executeInEditMode" 以后，playOnFocus 可以在选中当前组件所在的节点时，提高编辑器的场景刷新频率到 60 FPS，否则场景就只会在必要的时候进行重绘。
  * @example
  * ```typescript
  * const {ccclass, playOnFocus, executeInEditMode} = cc._decorator;
  *
- *  @ccclass
- *  @executeInEditMode
- *  @playOnFocus
+ * @ccclass
+ * @executeInEditMode
+ * @playOnFocus
  * class CameraCtrl extends cc.Component {
  *     // ...
  * }
@@ -493,28 +483,26 @@ export const disallowMultiple = (DEV ? createEditorDecorator : createDummyDecora
 export const playOnFocus = (DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'playOnFocus');
 
 /**
- * 自定义当前组件在 **属性检查器** 中渲染时所用的网页 url。
- *
- * @method inspector
- * @param {String} url
+ * @en Use a customized inspector page in the **inspector**
+ * @zh 自定义当前组件在 **属性检查器** 中渲染时所用的 UI 页面描述。
+ * @param url The url of the page definition in js
  * @example
  * ```typescript
  * const {ccclass, inspector} = cc._decorator;
  *
- *  @ccclass
- *  @inspector("packages://inspector/inspectors/comps/camera-ctrl.js")
+ * @ccclass
+ * @inspector("packages://inspector/inspectors/comps/camera-ctrl.js")
  * class NewScript extends cc.Component {
  *     // ...
  * }
  * ```
  */
-export const inspector = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'inspector');
+export const inspector: (url: string) => Function = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'inspector');
 
 /**
- * 自定义当前组件在编辑器中显示的图标 url。
- *
- * @method icon
- * @param {String} url
+ * @en Define the icon of the component.
+ * @zh 自定义当前组件在编辑器中显示的图标 url。
+ * @param url
  * @private
  * @example
  * ```typescript
@@ -527,117 +515,55 @@ export const inspector = (DEV ? createEditorDecorator : createDummyDecorator)(ch
  * }
  * ```
  */
-export const icon = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'icon');
+export const icon: (url: string) => Function = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'icon');
 
 /**
- * 指定当前组件的帮助文档的 url，设置过后，在 **属性检查器** 中就会出现一个帮助图标，用户点击将打开指定的网页。
- *
- * @method help
- * @param {String} url
+ * @en Define the help documentation url, if given, the component section in the **inspector** will have a help documentation icon reference to the web page given. 
+ * @zh 指定当前组件的帮助文档的 url，设置过后，在 **属性检查器** 中就会出现一个帮助图标，用户点击将打开指定的网页。
+ * @param url The url of the help documentation
  * @example
  * ```typescript
  * const {ccclass, help} = cc._decorator;
  *
- *  @ccclass
- *  @help("app://docs/html/components/spine.html")
+ * @ccclass
+ * @help("app://docs/html/components/spine.html")
  * class NewScript extends cc.Component {
  *     // ...
  * }
  * ```
  */
-export const help = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'help');
+export const help: (url: string) => Function = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'help');
 
 // Other Decorators
 
 /**
- * @en
- * NOTE:<br>
- * The old mixins implemented in cc.Class(ES5) behaves exact the same as multiple inheritance.
- * But since ES6, class constructor can't be function-called and class methods become non-enumerable,
- * so we can not mix in ES6 Classes.<br>
- * See:<br>
- * [https://esdiscuss.org/topic/traits-are-now-impossible-in-es6-until-es7-since-rev32](https://esdiscuss.org/topic/traits-are-now-impossible-in-es6-until-es7-since-rev32)<br>
- * One possible solution (but IDE unfriendly):<br>
- * [http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes](http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/)<br>
- * <br>
- * NOTE:<br>
- * You must manually call mixins constructor, this is different from cc.Class(ES5).
- * @zh
- * *注意：<br>
- * 在cc.Class（ES5）中实现的旧mixin的行为与多重继承完全相同。
- * 但是从ES6开始，类构造函数不能被函数调用，类方法变得不可枚举，
- * 所以我们不能混合使用ES6类。<br>
- * 参看：<br>
- * [https://esdiscuss.org/topic/traits-are-now-impossible-in-es6-until-es7-since-rev32](https://esdiscuss.org/topic/traits-are-now-impossible-in-ES6-直到-ES7，因为-rev32）点击
- * 一种可能的解决方案（但对 IDE 不友好）：<br>
- * [http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes](http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/）结果
- * <br>
- * 注意：<br>
- * 您必须手动调用mixins构造函数，这与cc.Class（ES5）不同。
- *
- * @method mixins
- * @param {Function} ...ctor - constructors to mix, only support ES5 constructors or classes defined by using `cc.Class`,
- *                             not support ES6 Classes.
- * @example
- * ```typescript
- * const {ccclass, mixins} = cc._decorator;
- *
- * class Animal { ... }
- *
- * const Fly = cc.Class({
- *     constructor () { ... }
- * });
- *
- *  @ccclass
- *  @mixins(cc.EventTarget, Fly)
- * class Bird extends Animal {
- *     constructor () {
- *         super();
- *
- *         // You must manually call mixins constructor, this is different from cc.Class(ES5)
- *         cc.EventTarget.call(this);
- *         Fly.call(this);
- *     }
- *     // ...
- * }
- * ```
- */
-export function mixins (...constructors: Function[]) {
-    const mixins: Function[] = [];
-    for (let i = 0; i < constructors.length; i++) {
-        mixins[i] = constructors[i];
-    }
-    return function (ctor) {
-        const cache = getClassCache(ctor, 'mixins');
-        if (cache) {
-            getSubDict(cache, 'proto').mixins = mixins;
-        }
-    };
-}
-
-/**
- * 将该属性标记为 cc 整数。
+ * @en Declare the property as integer
+ * @zh 将该属性标记为整数。
  */
 export const integer = type(CCInteger);
 
 /**
- * 将该属性标记为 cc 浮点数。
+ * @en Declare the property as float
+ * @zh 将该属性标记为浮点数。
  */
 export const float = type(CCFloat);
 
 /**
- * 将该属性标记为 cc 布尔值。
+ * @en Declare the property as boolean
+ * @zh 将该属性标记为布尔值。
  */
 export const boolean = type(CCBoolean);
 
 /**
- * 将该属性标记为 cc 字符串。
+ * @en Declare the property as string
+ * @zh 将该属性标记为字符串。
  */
 export const string = type(CCString);
 
 /**
- * 标记该属性的类型。
- * @param type 指定类型。
+ * @en Declare the property as the given type
+ * @zh 标记该属性的类型。
+ * @param type
  */
 export function type (type: Function): PropertyDecorator;
 

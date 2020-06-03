@@ -49,16 +49,13 @@ const HideInHierarchy = CCObject.Flags.HideInHierarchy;
  *    In this way, they can be easily kept inside the bounding box.<br/>
  * Currently, it's used by RichText component and TileMap component.
  * @zh
- * Cocos Creator 3d场景中的私有节点类。<br/>
+ * Cocos Creator 3d 场景中的私有节点类。<br/>
  * 私有节点在编辑器中不可见，对用户透明。<br/>
  * 通常私有节点是被一些特殊的组件创建出来作为父节点的一部分而存在的，理论上来说，它们不是子节点，而是父节点的组成部分。<br/>
  * 私有节点有两个非常重要的特性：<br/>
  * 1. 它有着最小的渲染排序的 Z 轴深度，并且无法被更改，因为它们不能被显示在其他正常子节点之上。<br/>
  * 2. 它的定位也是特殊的，对于私有节点来说，父节点包围盒的左下角是它的局部坐标系原点，这个原点相当于父节点的位置减去它锚点的偏移。这样私有节点可以比较容易被控制在包围盒之中。<br/>
  * 目前在引擎中，RichText 和 TileMap 都有可能生成私有节点。
- * @class PrivateNode
- * @param {String} name
- * @extends Node
  */
 @ccclass('cc.PrivateNode')
 export class PrivateNode extends Node {
@@ -100,9 +97,6 @@ export class PrivateNode extends Node {
     //     cc.warnID(1638);
     // }
 
-    /**
-     * @param {String} [name]
-     */
     constructor (name: string) {
         super(name);
         // this._originPos = cc.v2();

@@ -153,6 +153,39 @@ export class ButtonComponent extends Component {
 
     /**
      * @en
+     * Transition target.
+     * When Button state changed:
+     * - If Transition type is Button.Transition.NONE, Button will do nothing.
+     * - If Transition type is Button.Transition.COLOR, Button will change target's color.
+     * - If Transition type is Button.Transition.SPRITE, Button will change target Sprite's sprite.
+     *
+     * @zh
+     * 需要过渡的目标。<br/>
+     * 当前按钮状态改变规则：<br/>
+     * - 如果 Transition type 选择 Button.Transition.NONE，按钮不做任何过渡。
+     * - 如果 Transition type 选择 Button.Transition.COLOR，按钮会对目标颜色进行颜色之间的过渡。
+     * - 如果 Transition type 选择 Button.Transition.Sprite，按钮会对目标 Sprite 进行 Sprite 之间的过渡。
+     */
+    @property({
+        type: Node,
+        displayOrder: 0,
+        tooltip: '指定 Button 背景节点，Button 状态改变时会修改此节点的 Color 或 Sprite 属性',
+    })
+    get target () {
+        return this._target;
+    }
+
+    set target (value) {
+        if (this._target === value) {
+            return;
+        }
+
+        this._target = value;
+        this._applyTarget();
+    }
+
+    /**
+     * @en
      * Whether the Button is disabled.
      * If true, the Button will trigger event and do transition.
      *
@@ -457,39 +490,6 @@ export class ButtonComponent extends Component {
         this._updateState();
     }
 
-    /**
-     * @en
-     * Transition target.
-     * When Button state changed:
-     * - If Transition type is Button.Transition.NONE, Button will do nothing.
-     * - If Transition type is Button.Transition.COLOR, Button will change target's color.
-     * - If Transition type is Button.Transition.SPRITE, Button will change target Sprite's sprite.
-     *
-     * @zh
-     * 需要过渡的目标。<br/>
-     * 当前按钮状态改变规则：<br/>
-     * - 如果 Transition type 选择 Button.Transition.NONE，按钮不做任何过渡。
-     * - 如果 Transition type 选择 Button.Transition.COLOR，按钮会对目标颜色进行颜色之间的过渡。
-     * - 如果 Transition type 选择 Button.Transition.Sprite，按钮会对目标 Sprite 进行 Sprite 之间的过渡。
-     */
-    @property({
-        type: Node,
-        displayOrder: 0,
-        tooltip:'指定 Button 背景节点，Button 状态改变时会修改此节点的 Color 或 Sprite 属性',
-    })
-    get target () {
-        return this._target;
-    }
-
-    set target (value) {
-        if (this._target === value) {
-            return;
-        }
-
-        this._target = value;
-        this._applyTarget();
-    }
-
     public static Transition = Transition;
     public static EventType = EventType;
     /**
@@ -501,7 +501,7 @@ export class ButtonComponent extends Component {
      */
     @property({
         type: [ComponentEventHandler],
-        displayOrder: 3,
+        displayOrder: 20,
         tooltip:'按钮点击事件的列表。先将数量改为1或更多，就可以为每个点击事件设置接受者和处理方法',
     })
     public clickEvents: ComponentEventHandler[] = [];

@@ -78,7 +78,7 @@ export class ImageAsset extends Asset {
      * 此图像资源的图像数据。
      */
     get data () {
-        const data = (this._nativeData as IMemoryImageSource)._data;
+        const data = this._nativeData && (this._nativeData as IMemoryImageSource)._data;
         return ArrayBuffer.isView(data) ? data : this._nativeData as (HTMLCanvasElement | HTMLImageElement);
     }
 
@@ -200,14 +200,13 @@ export class ImageAsset extends Asset {
         }
     }
 
-    // destroy() {
-    //     if (cc.macro.CLEANUP_IMAGE_CACHE) {
-    //         if (this._data instanceof HTMLImageElement) {
-    //             this._data.src = "";
-    //             cc.loader.removeItem(this._data.id);
-    //         }
-    //     }
-    // }
+    public destroy (): boolean {
+        if (this.data && this.data instanceof HTMLImageElement) {
+            this.data.src = "";
+            legacyCC.loader.removeItem(this.data.id);
+        }
+        return super.destroy();
+    }
 
     // SERIALIZATION
 

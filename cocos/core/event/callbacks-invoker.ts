@@ -227,7 +227,7 @@ export class CallbacksInvoker {
      * @en Removes all callbacks registered in a certain event type or all callbacks registered with a certain target
      * @param keyOrTarget - The event type or target with which the listeners will be removed
      */
-    public removeAll (keyOrTarget?: string | Object) {
+    public removeAll (keyOrTarget: string | Object) {
         if (typeof keyOrTarget === 'string') {
             // remove by key
             const list = this._callbackTable[keyOrTarget];
@@ -298,9 +298,13 @@ export class CallbacksInvoker {
      * @zh 派发一个指定事件，并传递需要的参数
      * @en Trigger an event directly with the event name and necessary arguments.
      * @param key - event type
-     * @param args - Arguments when the event triggered
+     * @param arg0 - The first argument to be passed to the callback
+     * @param arg1 - The second argument to be passed to the callback
+     * @param arg2 - The third argument to be passed to the callback
+     * @param arg3 - The fourth argument to be passed to the callback
+     * @param arg4 - The fifth argument to be passed to the callback
      */
-    public emit (key: string, ...args: any[]) {
+    public emit (key: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
         const list: CallbackList = this._callbackTable[key]!;
         if (list) {
             const rootInvoker = !list.isInvoking;
@@ -317,10 +321,10 @@ export class CallbacksInvoker {
                         this.off(key, callback, target);
                     }
                     if (target) {
-                        callback.call(target, ...args);
+                        callback.call(target, arg0, arg1, arg2, arg3, arg4);
                     }
                     else {
-                        callback(...args);
+                        callback(arg0, arg1, arg2, arg3, arg4);
                     }
                 }
             }
@@ -332,6 +336,13 @@ export class CallbacksInvoker {
                 }
             }
         }
+    }
+
+    /**
+     * 移除所有回调。
+     */
+    public clear () {
+        this._callbackTable = createMap(true);
     }
 }
 

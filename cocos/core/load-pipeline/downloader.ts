@@ -186,45 +186,43 @@ interface IDownloadItem {
 }
 
 /**
- * The downloader pipe, it can download several types of files:
+ * @en The downloader pipe in {{loader}}, it can download several types of files:
  * 1. Text
  * 2. Image
  * 3. Script
  * 4. Audio
- * 5. Assets
+ * 5. Binary
  * All unknown type will be downloaded as plain text.
- * You can pass custom supported types in the constructor.
- * @class Pipeline.Downloader
- */
-/**
- * Constructor of Downloader, you can pass custom supported types.
- *
- * @method constructor
- * @param {Object} extMap Custom supported types with corresponded handler
- * @example
- * ```
- *  let downloader = new Downloader({
- *      // This will match all url with `.scene` extension or all url with `scene` type
- *      'scene' : function (url, callback) {}
- *  });
- * ```
+ * You can pass custom supported types in the {{loader.addDownloadHandlers}}.
+ * @zh {{loader}} 中的下载管线，可以下载下列类型的文件：
+ * 1. Text
+ * 2. Image
+ * 3. Script
+ * 4. Audio
+ * 5. Binary
+ * 所有未知类型会被当做文本来下载，也可以通过 {{loader.addDownloadHandlers}} 来定制下载行为
  */
 export default class Downloader implements IPipe {
     static ID = ID;
     static PackDownloader = PackDownloader;
 
-    public id:string = ID;
-    public async:boolean = true;
-    public pipeline:Pipeline | null = null;
-    private extMap:object;
+    public id: string = ID;
+    public async: boolean = true;
+    public pipeline: Pipeline | null = null;
+    private extMap: object;
     private _curConcurrent = 0;
-    private _loadQueue:Array<IDownloadItem> = [];
+    private _loadQueue: Array<IDownloadItem> = [];
     private _subPackages = {};
 
     constructor (extMap?) {
         this.extMap = mixin(extMap, defaultMap);
     }
 
+    /**
+     * @en Set sub package configurations, only available in certain platforms
+     * @zh 设置子包配置，只在部分平台支持
+     * @param subPackages 
+     */
     setSubPackages (subPackages) {
         this._subPackages = subPackages;
     }
@@ -232,10 +230,9 @@ export default class Downloader implements IPipe {
     /**
      * @en Add custom supported types handler or modify existing type handler.
      * @zh 添加自定义支持的类型处理程序或修改现有的类型处理程序。
-     * @method addHandlers
-     * @param {Object} extMap Custom supported types with corresponded handler
+     * @param extMap Custom supported types with corresponded handler
      */
-    addHandlers (extMap) {
+    addHandlers (extMap: Map<string, Function>) {
         mixin(this.extMap, extMap);
     }
 
@@ -289,16 +286,13 @@ export default class Downloader implements IPipe {
     }
 
     /**
-     * @en
-     * Load subpackage with name.
-     * @zh
-     * 通过子包名加载子包代码。
-     * @method loadSubpackage
-     * @param {String} name - Subpackage name
-     * @param {Function} [completeCallback] -  Callback invoked when subpackage loaded
+     * @en Load sub package with name.
+     * @zh 通过子包名加载子包代码。
+     * @param name - Sub package name
+     * @param completeCallback -  Callback invoked when sub package loaded
      * @param {Error} completeCallback.error - error information
      */
-    loadSubpackage (name, completeCallback) {
+    loadSubpackage (name: string, completeCallback?: Function) {
         let pac = this._subPackages[name];
         if (pac) {
             if (pac.loaded) {

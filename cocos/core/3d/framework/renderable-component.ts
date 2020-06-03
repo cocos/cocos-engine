@@ -34,7 +34,7 @@ export class RenderableComponent extends Component {
 
     set visibility (val) {
         this._visFlags = val;
-        this._onVisiblityChange(val);
+        this._onVisibilityChange(val);
     }
 
     @property({
@@ -204,6 +204,6 @@ export class RenderableComponent extends Component {
     protected _clearMaterials () {
     }
 
-    protected _onVisiblityChange (val) {
+    protected _onVisibilityChange (val) {
     }
 }

@@ -64,7 +64,7 @@ export class UIMaterial {
 
         this._material.copy(info.material);
 
-        this._pass = this._material.passes[0];
+        this._pass = info.material.passes[0];
         this._pass.update();
 
         this._psoCreateInfo = new Pool(() => {

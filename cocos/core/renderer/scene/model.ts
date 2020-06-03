@@ -4,21 +4,22 @@ import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
-import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
-import { GFXDevice } from '../../gfx/device';
+import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
+import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
-import { Mat4, Vec3, Vec4} from '../../math';
+import { Mat4, Vec3, Vec4 } from '../../math';
 import { Pool } from '../../memop';
-import { UBOForwardLight, UBOLocal, UniformLightingMapSampler } from '../../pipeline/define';
+import { UBOForwardLight, UBOLocal, UniformLightingMapSampler, INST_MAT_WORLD } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from './render-scene';
 import { Texture2D } from '../..';
-import { genSamplerHash, samplerLib} from '../../renderer/core/sampler-lib';
-import { GFXSampler } from '../../gfx';
+import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
+import { GFXSampler, IGFXAttribute } from '../../gfx';
 import { SubModel, IPSOCreateInfo } from './submodel';
 import { Pass } from '../core/pass';
 import { legacyCC } from '../../global-exports';
+import { programLib } from '../core/program-lib';
 
 const m4_1 = new Mat4();
 
@@ -83,6 +84,10 @@ export class Model {
 
     get updateStamp () {
         return this._updateStamp;
+    }
+
+    get isInstancingEnabled () {
+        return this._instMatWorldIdx >= 0;
     }
 
     public type = ModelType.DEFAULT;
@@ -217,11 +222,12 @@ export class Model {
         if (idx >= 0) {
             const attrs = this.instancedAttributes!.list;
             uploadMat4AsVec4x3(worldMatrix, attrs[idx].view, attrs[idx + 1].view, attrs[idx + 2].view);
+        } else {
+            Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
+            Mat4.inverseTranspose(m4_1, worldMatrix);
+            Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
+            this._localBuffer!.update(this._localData);
         }
-        Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
-        Mat4.inverseTranspose(m4_1, worldMatrix);
-        Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
-        this._localBuffer!.update(this._localData);
     }
 
     /**
@@ -294,7 +300,7 @@ export class Model {
             if (this._localBuffer) { bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer); }
         }
 
-        this.updateInstancedAttributeList(psoCreateInfos[0], subModel.passes[0]);
+        this.updateInstancedAttributeList(subModel.subMeshData.attributes, subModel.passes[0]);
     }
 
     protected getMacroPatches (subModelIndex: number) : any {
@@ -302,32 +308,29 @@ export class Model {
     }
 
     // for now no submodel level instancing attributes
-    protected updateInstancedAttributeList (psoCreateInfo: IPSOCreateInfo, pass: Pass) {
-        // if (!pass || !psoCreateInfo) {
-        //     return;
-        // }
-        // const attributes = pso.inputState.attributes;
-        // let size = 0;
-        // for (let j = 0; j < attributes.length; j++) {
-        //     const attribute = attributes[j];
-        //     if (!attribute.isInstanced) { continue; }
-        //     size += GFXFormatInfos[attribute.format].size;
-        // }
-        // const attrs = this.instancedAttributes;
-        // attrs.buffer = new Uint8Array(size); attrs.list.length = 0;
-        // let offset = 0; const buffer = attrs.buffer.buffer;
-        // for (let j = 0; j < attributes.length; j++) {
-        //     const attribute = attributes[j];
-        //     if (!attribute.isInstanced) { continue; }
-        //     const format = attribute.format;
-        //     const info = GFXFormatInfos[format];
-        //     const view = new (getTypedArrayConstructor(info))(buffer, offset, info.count);
-        //     const isNormalized = attribute.isNormalized;
-        //     offset += info.size; attrs.list.push({ name: attribute.name, format, isNormalized, view });
-        // }
-        // if (pass.instancedBuffer) { pass.instancedBuffer.destroy(); } // instancing IA changed
-        // this._instMatWorldIdx = this.getInstancedAttributeIndex(INST_MAT_WORLD);
-        // this._transformUpdated = true;
+    protected updateInstancedAttributeList (attributes: IGFXAttribute[], pass: Pass) {
+        if (!pass.device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) { return; }
+        let size = 0;
+        for (let j = 0; j < attributes.length; j++) {
+            const attribute = attributes[j];
+            if (!attribute.isInstanced) { continue; }
+            size += GFXFormatInfos[attribute.format].size;
+        }
+        const attrs = this.instancedAttributes;
+        attrs.buffer = new Uint8Array(size); attrs.list.length = 0;
+        let offset = 0; const buffer = attrs.buffer.buffer;
+        for (let j = 0; j < attributes.length; j++) {
+            const attribute = attributes[j];
+            if (!attribute.isInstanced) { continue; }
+            const format = attribute.format;
+            const info = GFXFormatInfos[format];
+            const view = new (getTypedArrayConstructor(info))(buffer, offset, info.count);
+            const isNormalized = attribute.isNormalized;
+            offset += info.size; attrs.list.push({ name: attribute.name, format, isNormalized, view });
+        }
+        if (pass.instancedBuffer) { pass.instancedBuffer.destroy(); } // instancing IA changed
+        this._instMatWorldIdx = this.getInstancedAttributeIndex(INST_MAT_WORLD);
+        this._transformUpdated = true;
     }
 
     protected getInstancedAttributeIndex (name: string) {
@@ -350,7 +353,8 @@ export class Model {
         if (!mat) { return; }
         let hasForwardLight = false;
         for (const p of mat.passes) {
-            if (p.bindings.find((b) => b.name === UBOForwardLight.BLOCK.name)) {
+            const blocks = programLib.getTemplate(p.program).builtins.locals.blocks;
+            if (blocks.find((b) => b.name === UBOForwardLight.BLOCK.name)) {
                 hasForwardLight = true;
                 break;
             }

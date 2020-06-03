@@ -358,7 +358,7 @@ export class Vec3 extends ValueType {
         const y = a.y;
         const z = a.z;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z + m.m15;
-        rhw = rhw ? 1 / rhw : 1;
+        rhw = rhw ? Math.abs(1 / rhw) : 1;
         out.x = (m.m00 * x + m.m04 * y + m.m08 * z + m.m12) * rhw;
         out.y = (m.m01 * x + m.m05 * y + m.m09 * z + m.m13) * rhw;
         out.z = (m.m02 * x + m.m06 * y + m.m10 * z + m.m14) * rhw;
@@ -373,7 +373,7 @@ export class Vec3 extends ValueType {
         const y = a.y;
         const z = a.z;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z;
-        rhw = rhw ? 1 / rhw : 1;
+        rhw = rhw ? Math.abs(1 / rhw) : 1;
         out.x = (m.m00 * x + m.m04 * y + m.m08 * z) * rhw;
         out.y = (m.m01 * x + m.m05 * y + m.m09 * z) * rhw;
         out.z = (m.m02 * x + m.m06 * y + m.m10 * z) * rhw;
@@ -400,9 +400,9 @@ export class Vec3 extends ValueType {
         const x = v.x;
         const y = v.y;
         const z = v.z;
-        out.x = m.m00 * x + m.m01 * y + m.m02 * z + m.m03;
-        out.y = m.m04 * x + m.m05 * y + m.m06 * z + m.m07;
-        out.x = m.m08 * x + m.m09 * y + m.m10 * z + m.m11;
+        out.x = m.m00 * x + m.m04 * y + m.m08 * z + m.m12;
+        out.y = m.m01 * x + m.m05 * y + m.m09 * z + m.m13;
+        out.x = m.m02 * x + m.m06 * y + m.m10 * z + m.m14;
         return out;
     }
 

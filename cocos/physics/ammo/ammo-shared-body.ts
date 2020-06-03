@@ -233,7 +233,7 @@ export class AmmoSharedBody {
             cocos2AmmoVec3(wt.getOrigin(), this.node.worldPosition)
             cocos2AmmoQuat(this.bodyStruct.worldQuat, this.node.worldRotation);
             wt.setRotation(this.bodyStruct.worldQuat);
-            this.body.activate();
+            if (this.isBodySleeping()) this.body.activate();
 
             if (this.node.hasChangedFlags & TransformBit.SCALE) {
                 for (let i = 0; i < this.bodyStruct.wrappedShapes.length; i++) {
@@ -244,10 +244,10 @@ export class AmmoSharedBody {
     }
 
     /**
-     * TODO: use motionstate
+     * TODO: use motion state
      */
     syncPhysicsToScene () {
-        if (this.body.isStaticObject() || !this.body.isActive()) {
+        if (this.body.isStaticObject() || this.isBodySleeping()) {
             return;
         }
 
@@ -301,17 +301,6 @@ export class AmmoSharedBody {
         }
         this.ghost.activate();
     }
-
-    // private updateGroupMask () {
-    //     const body = this.bodyStruct.body;
-    //     const bodyProxy = body.getBroadphaseHandle();
-    //     bodyProxy.m_collisionFilterGroup = this.collisionFilterGroup;
-    //     bodyProxy.m_collisionFilterMask = this.collisionFilterMask;
-    //     const ghost = this.ghostStruct.ghost;
-    //     const ghostProxy = ghost.getBroadphaseHandle();
-    //     ghostProxy.m_collisionFilterGroup = this.collisionFilterGroup;
-    //     ghostProxy.m_collisionFilterMask = this.collisionFilterMask;
-    // }
 
     updateByReAdd () {
         /**
@@ -367,4 +356,8 @@ export class AmmoSharedBody {
         (this.ghostStruct as any) = null;
     }
 
+    private isBodySleeping () {
+        const state = this.body.getActivationState();
+        return state == AmmoCollisionObjectStates.ISLAND_SLEEPING;
+    }
 }

@@ -132,7 +132,9 @@ export class RenderingSubMesh {
      * （用于射线检测的）几何信息。
      */
     get geometricInfo () {
-        if (this._geometricInfo) { return this._geometricInfo; }
+        if (this._geometricInfo) {
+            return this._geometricInfo;
+        }
         if (this.mesh === undefined) {
             return { positions: new Float32Array(), indices: new Uint8Array(), boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO } };
         }
@@ -747,7 +749,7 @@ export class Mesh extends Asset {
      * @returns 是否验证成功。若验证选项为 `true` 且验证未通过则返回 `false`，否则返回 `true`。
      */
     public merge (mesh: Mesh, worldMatrix?: Mat4, validate?: boolean): boolean {
-        if (validate !== undefined && validate) {
+        if (validate) {
             if (!this.loaded || !mesh.loaded || !this.validateMergingMesh(mesh)) {
                 return false;
             }

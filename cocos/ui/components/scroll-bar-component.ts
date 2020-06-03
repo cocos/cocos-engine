@@ -98,7 +98,8 @@ export class ScrollBarComponent extends Component {
      */
     @property({
         type: SpriteComponent,
-        tooltip:'作为当前滚动区域位置显示的滑块 Sprite',
+        tooltip: '作为当前滚动区域位置显示的滑块 Sprite',
+        displayOrder: 0,
     })
     get handle () {
         return this._handle;
@@ -121,7 +122,8 @@ export class ScrollBarComponent extends Component {
      */
     @property({
         type: Direction,
-        tooltip:'ScrollBar 的滚动方向',
+        tooltip: 'ScrollBar 的滚动方向',
+        displayOrder: 1,
     })
     get direction () {
         return this._direction;
@@ -144,7 +146,8 @@ export class ScrollBarComponent extends Component {
      * 是否在没有滚动动作时自动隐藏 ScrollBar。
      */
     @property({
-        tooltip:'是否在没有滚动动作时自动隐藏 ScrollBar',
+        tooltip: '是否在没有滚动动作时自动隐藏 ScrollBar',
+        displayOrder: 2,
     })
     get enableAutoHide () {
         return this._enableAutoHide;
@@ -171,7 +174,8 @@ export class ScrollBarComponent extends Component {
      * 注意：只要当 “enableAutoHide” 为 true 时，才有效。
      */
     @property({
-        tooltip:'没有滚动动作后经过多久会自动隐藏。\n注意：只要当 “enableAutoHide” 为 true 时，才有效。',
+        tooltip: '没有滚动动作后经过多久会自动隐藏。\n注意：只要当 “enableAutoHide” 为 true 时，才有效。',
+        displayOrder: 3,
     })
     get autoHideTime () {
         return this._autoHideTime;

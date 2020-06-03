@@ -43,6 +43,10 @@ function getUuidFromURL (url) {
     return "";
 }
 
+/**
+ * @en The md5 pipe in {{loader}}, it can transform the url to the real url with md5 suffix
+ * @zh {{loader}} 中的 md5 管道，可以将资源 url 转换到包含 md5 后缀版本
+ */
 export default class MD5Pipe implements IPipe {
     static ID = ID;
 
@@ -72,7 +76,13 @@ export default class MD5Pipe implements IPipe {
         return item;
     }
 
-    transformURL (url, hashPatchInFolder) {
+    /**
+     * @en Transform an url to the real url with md5 suffix
+     * @zh 将一个 url 转换到包含 md5 后缀版本
+     * @param url The url to be parsed
+     * @param hashPatchInFolder NA
+     */
+    transformURL (url, hashPatchInFolder?: boolean) {
         let uuid = getUuidFromURL(url);
         if (uuid) {
             let isNativeAsset = !url.match(this.libraryBase);

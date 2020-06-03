@@ -35,7 +35,7 @@ import { GFXBindingLayout, IGFXBinding, IGFXBindingLayoutInfo } from '../../gfx/
 import { GFXBuffer, IGFXBufferInfo } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXDynamicState,
     GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode, GFXType } from '../../gfx/define';
-import { GFXFeature } from '../../gfx/device';
+import { GFXFeature, GFXDevice } from '../../gfx/device';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
     GFXRasterizerState } from '../../gfx/pipeline-state';
 import { GFXSampler } from '../../gfx/sampler';
@@ -187,6 +187,7 @@ export class Pass {
     protected _hash = 0;
     // external references
     protected _root: Root;
+    protected _device: GFXDevice;
     protected _shader: GFXShader | null = null;
     // for dynamic batching
     protected _batchedBuffer: BatchedBuffer | null = null;
@@ -194,6 +195,7 @@ export class Pass {
 
     public constructor (root: Root) {
         this._root = root;
+        this._device = root.device;
     }
 
     /**
@@ -438,7 +440,7 @@ export class Pass {
         const texture = builtinResMgr.get<TextureBase>(texName);
         const textureView = texture && texture.getGFXTextureView()!;
         const samplerHash = info && (info.samplerHash !== undefined) ? info.samplerHash : texture.getSamplerHash();
-        const sampler = samplerLib.getSampler(this._root.device, samplerHash);
+        const sampler = samplerLib.getSampler(this._device, samplerHash);
         this._textureViews[binding] = textureView;
         this._samplers[binding] = sampler;
         for (let i = 0; i < this._resources.length; i++) {
@@ -491,7 +493,7 @@ export class Pass {
         const pipeline = this._root.pipeline;
         if (!pipeline) { return null; }
         this._dynamicBatchingSync();
-        const res = programLib.getGFXShader(this._root.device, this._programName, this._defines, pipeline);
+        const res = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
         if (!res.shader) { console.warn(`create shader ${this._programName} failed`); return false; }
         this._shader = res.shader; this._bindings = res.bindings;
         return true;
@@ -513,7 +515,7 @@ export class Pass {
         const shader = res && res.shader || this._shader!;
         _blInfo.bindings = res && res.bindings || this._bindings;
         // bind resources
-        const bindingLayout = this._root.device.createBindingLayout(_blInfo);
+        const bindingLayout = this._device.createBindingLayout(_blInfo);
         for (const b in this._buffers) {
             bindingLayout.bindBuffer(parseInt(b), this._buffers[b]);
         }
@@ -562,7 +564,7 @@ export class Pass {
         this._shaderInfo = programLib.getTemplate(info.program);
         this._properties = info.properties || this._properties;
         // pipeline state
-        const device = this._root.device;
+        const device = this._device;
         Pass.fillinPipelineInfo(this, info);
         if (info.stateOverrides) { Pass.fillinPipelineInfo(this, info.stateOverrides); }
         this._hash = Pass.getPassHash(this);
@@ -593,7 +595,7 @@ export class Pass {
 
     protected _dynamicBatchingSync () {
         if (this._defines.USE_INSTANCING) {
-            if (!this._root.device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) {
+            if (!this._device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) {
                 this._defines.USE_INSTANCING = false;
             } else if (!this._instancedBuffer) {
                 this._instancedBuffer = new InstancedBuffer(this);
@@ -628,7 +630,7 @@ export class Pass {
             const patch = patches[i];
             this._defines[patch.name] = patch.value;
         }
-        const res = programLib.getGFXShader(this._root.device, this._programName, this._defines, pipeline);
+        const res = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
         for (let i = 0; i < patches.length; i++) {
             const patch = patches[i];
             delete this._defines[patch.name];
@@ -647,7 +649,8 @@ export class Pass {
     get customizations () { return this._customizations; }
     get phase () { return this._phase; }
     // infos
-    get device () { return this._root.device; }
+    get root () { return this._root; }
+    get device () { return this._device; }
     get shaderInfo () { return this._shaderInfo; }
     get program () { return this._programName; }
     get properties () { return this._properties; }

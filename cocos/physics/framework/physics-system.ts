@@ -215,7 +215,13 @@ export class PhysicsSystem extends System {
             return;
         }
 
-        this._timeSinceLastUpdate = this._timeReset ? 0 : deltaTime;
+        if (this._timeReset) {
+            this._timeSinceLastUpdate = 0;
+            this._timeReset = false;
+        } else {
+            this._timeSinceLastUpdate = deltaTime;
+        }
+
         this.physicsWorld.emitEvents();
         director.emit(Director.EVENT_BEFORE_PHYSICS);
         this.physicsWorld.syncSceneToPhysics();
@@ -224,6 +230,8 @@ export class PhysicsSystem extends System {
         } else {
             this.physicsWorld.step(this._deltaTime, this._timeSinceLastUpdate, this._maxSubStep);
         }
+        // TODO: nesting the dirty flag reset between the syncScenetoPhysics and the simulation to reduce calling syncScenetoPhysics.
+        this.physicsWorld.syncSceneToPhysics();
         director.emit(Director.EVENT_AFTER_PHYSICS);
     }
 

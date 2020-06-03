@@ -35,10 +35,11 @@ import { legacyCC } from '../global-exports';
 const ItemState = LoadingItems.ItemState;
 
 export interface IPipe {
-    id:string;
-    async:boolean;
-    handle (item:IItem, callback);
-    next?:IPipe;
+    id: string;
+    async: boolean;
+    handle (item: IItem, callback);
+    next?: IPipe|null;
+    pipeline?: Pipeline|null;
 }
 
 function flow (pipe, item) {
@@ -117,20 +118,25 @@ function flow (pipe, item) {
  * 一个 item 列表可以在 pipeline 中流动，它将输出加载项经过所有 pipe 之后的结果。<br/>
  * 它们穿过 pipeline 就像水在管子里流动，将会按顺序流过每个 pipe。<br/>
  * 最后当所有加载项都流出 pipeline 时，整个加载流程就结束了。
- * @class Pipeline
  */
 export class Pipeline {
+    /**
+     * @en The item states of the LoadingItems, its value could be {{ItemState.WORKING}} | {{ItemState.COMPLETE}} | {{ItemState.ERROR}}
+     * @zh LoadingItems 队列中的加载项状态，状态的值可能是 {{ItemState.WORKING}} | {{ItemState.COMPLETE}} | {{ItemState.ERROR}}
+     */
     static ItemState = ItemState;
 
-    protected _pipes:Array<IPipe>;
+    protected _pipes: Array<IPipe>;
     public _cache = createMap(true);
 
     /**
-     * 构造函数，通过一系列的 pipe 来构造一个新的 pipeline，pipes 将会在给定的顺序中被锁定。<br/>
+     * @en The constructor of the Pipeline, the order of pipes will remain as given.
+     * A pipe is an {{IPipe}} object which must have an `id` and a `handle` function, the `id` must be unique.
+     * It should also include an `async` property to identify whether the pipe's `handle` function is asynchronous.
+     * @zh 构造函数，通过一系列的 pipe 来构造一个新的 pipeline，pipes 将会在给定的顺序中被锁定。<br/>
      * 一个 pipe 就是一个对象，它包含了字符串类型的 ‘id’ 和 ‘handle’ 函数，在 pipeline 中 id 必须是唯一的。<br/>
      * 它还可以包括 ‘async’ 属性以确定它是否是一个异步过程。
-     *
-     * @param {Array} pipes
+     * @param pipes All pipes for constructing the pipeline
      * @example
      * ```
      *  let pipeline = new Pipeline([
@@ -143,7 +149,7 @@ export class Pipeline {
      *  ]);
      * ```
      */
-    constructor (pipes) {
+    constructor (pipes: IPipe[]) {
         this._pipes = pipes;
 
         for (let i = 0; i < pipes.length; ++i) {
@@ -159,17 +165,14 @@ export class Pipeline {
     }
 
     /**
-     * @en
-     * Insert a new pipe at the given index of the pipeline. <br/>
+     * @en Insert a new pipe at the given index of the pipeline. <br/>
      * A pipe must contain an `id` in string and a `handle` function, the id must be unique in the pipeline.
-     * @zh
-     * 在给定的索引位置插入一个新的 pipe。<br/>
+     * @zh 在给定的索引位置插入一个新的 pipe。<br/>
      * 一个 pipe 必须包含一个字符串类型的 ‘id’ 和 ‘handle’ 函数，该 id 在 pipeline 必须是唯一标识。
-     * @method insertPipe
-     * @param {Object} pipe The pipe to be inserted
-     * @param {Number} index The index to insert
+     * @param pipe The pipe to be inserted
+     * @param index The index to insert
      */
-    insertPipe (pipe, index) {
+    insertPipe (pipe: IPipe, index: number) {
         // Must have handle and id, handle for flow, id for state flag
         if (!pipe.handle || !pipe.id || index > this._pipes.length) {
             legacyCC.warnID(4921);
@@ -183,12 +186,12 @@ export class Pipeline {
 
         pipe.pipeline = this;
 
-        let nextPipe:IPipe|null = null;
+        let nextPipe: IPipe|null = null;
         if (index < this._pipes.length) {
             nextPipe = this._pipes[index];
         }
 
-        let previousPipe:IPipe|null = null;
+        let previousPipe: IPipe|null = null;
         if (index > 0) {
             previousPipe = this._pipes[index-1];
         }
@@ -202,15 +205,12 @@ export class Pipeline {
     }
 
     /**
-     * @en
-     * Insert a pipe to the end of an existing pipe. The existing pipe must be a valid pipe in the pipeline.
-     * @zh
-     * 在当前 pipeline 的一个已知 pipe 后面插入一个新的 pipe。
-     * @method insertPipeAfter
-     * @param {Object} refPipe An existing pipe in the pipeline.
-     * @param {Object} newPipe The pipe to be inserted.
+     * @en Insert a pipe to the end of an existing pipe. The existing pipe must be a valid pipe in the pipeline.
+     * @zh 在当前 pipeline 的一个已知 pipe 后面插入一个新的 pipe。
+     * @param refPipe An existing pipe in the pipeline.
+     * @param newPipe The pipe to be inserted.
      */
-    insertPipeAfter (refPipe, newPipe)  {
+    insertPipeAfter (refPipe: IPipe, newPipe: IPipe)  {
         let index = this._pipes.indexOf(refPipe);
         if (index < 0) {
             return;
@@ -219,16 +219,13 @@ export class Pipeline {
     }
 
     /**
-     * @en
-     * Add a new pipe at the end of the pipeline. <br/>
+     * @en Add a new pipe at the end of the pipeline. <br/>
      * A pipe must contain an `id` in string and a `handle` function, the id must be unique in the pipeline.
-     * @zh
-     * 添加一个新的 pipe 到 pipeline 尾部。 <br/>
+     * @zh 添加一个新的 pipe 到 pipeline 尾部。 <br/>
      * 该 pipe 必须包含一个字符串类型 ‘id’ 和 ‘handle’ 函数，该 id 在 pipeline 必须是唯一标识。
-     * @method appendPipe
-     * @param {Object} pipe The pipe to be appended
+     * @param pipe The pipe to be appended
      */
-    appendPipe (pipe) {
+    appendPipe (pipe: IPipe) {
         // Must have handle and id, handle for flow, id for state flag
         if (!pipe.handle || !pipe.id) {
             return;
@@ -257,7 +254,7 @@ export class Pipeline {
      * 你也可以指定它的 ‘type’ 属性类型，默认情况下，该类型是 ‘url’ 的后缀名。<br/>
      * 也通过添加一个 包含 ‘skips’ 属性的 item 对象，你就可以跳过 skips 中包含的 pipe。<br/>
      * 该对象可以包含任何附加属性。
-     * @param {Array} items
+     * @param items The {{IItem}} to be appended to the current pipeline
      * @example
      * ```
      *  pipeline.flowIn([
@@ -271,7 +268,7 @@ export class Pipeline {
      *  ]);
      * ```
      */
-    flowIn (items) {
+    flowIn (items: Array<IItem>) {
         let i, pipe = this._pipes[0], item;
         if (pipe) {
             // Cache all items first, in case synchronous loading flow same item repeatly
@@ -303,12 +300,12 @@ export class Pipeline {
      * 这个 API 的使用通常是为了加载依赖项。<br/>
      * 例如：<br/>
      * 我们需要加载一个场景配置的 JSON 文件，该场景会将所有的依赖项全部都加载完毕以后，进行回调表示加载完毕。
-     * @deprecated since v1.3
-     * @param {Array} urlList
-     * @param {Function} callback
-     * @return {Array} Items accepted by the pipeline
+     * @param owner The owner item
+     * @param urlList The list of urls to be appended as dependencies of the owner.
+     * @param callback The callback to be invoked when all dependencies are completed.
+     * @return Items accepted by the pipeline
      */
-    flowInDeps (owner, urlList, callback) {
+    flowInDeps (owner: IItem, urlList: object[], callback: Function): IItem[] {
         let deps = LoadingItems.create(this, function (errors, items) {
             callback(errors, items);
             items.destroy();
@@ -316,7 +313,12 @@ export class Pipeline {
         return deps.append(urlList, owner);
     }
 
-    flowOut (item) {
+    /**
+     * @en This function is invoked when an item has completed all pipes, it will flow out of the pipeline.
+     * @zh 这个函数会在 `item` 完成了所有管道，它会被标记为 `complete` 并流出管线。
+     * @param item The item which is completed
+     */
+    flowOut (item: IItem) {
         if (item.error) {
             delete this._cache[item.id];
         }
@@ -342,11 +344,10 @@ export class Pipeline {
      * 你希望让这些新的依赖项进入 pipeline，但是又不希望它们通过源 item 已经经过的 pipe，<br/>
      * 但是你可能希望他们源 item 已经通过并跳过所有 pipes，<br/>
      * 这个时候就可以使用这个 API。
-     * @method copyItemStates
-     * @param {Object} srcItem The source item
-     * @param {Array|Object} dstItems A single destination item or an array of destination items
+     * @param srcItem The source item
+     * @param dstItems A single destination item or an array of destination items
      */
-    copyItemStates (srcItem, dstItems) {
+    copyItemStates (srcItem: IItem, dstItems: IItem|Array<IItem>) {
         if (!(dstItems instanceof Array)) {
             dstItems.states = srcItem.states;
             return;
@@ -359,11 +360,9 @@ export class Pipeline {
     /**
      * @en Returns an item in pipeline.
      * @zh 根据 id 获取一个 item
-     * @method getItem
-     * @param {Object} id The id of the item
-     * @return {Object}
+     * @param id The id of the item
      */
-    getItem (id) {
+    getItem (id: string): IItem|null {
         let item = this._cache[id];
 
         if (!item)
@@ -380,15 +379,14 @@ export class Pipeline {
      * @en Removes an completed item in pipeline.
      * It will only remove the cache in the pipeline or loader, its dependencies won't be released.
      * cc.loader provided another method to completely cleanup the resource and its dependencies,
-     * please refer to [[CCLoader.release]]
+     * please refer to {{Loader.release}}
      * @zh 移除指定的已完成 item。
      * 这将仅仅从 pipeline 或者 loader 中删除其缓存，并不会释放它所依赖的资源。
-     * cc.loader 中提供了另一种删除资源及其依赖的清理方法，请参考 [[CCLoader.release]]
-     * @method removeItem
-     * @param {Object} id The id of the item
-     * @return {Boolean} succeed or not
+     * cc.loader 中提供了另一种删除资源及其依赖的清理方法，请参考 {{Loader.release}}
+     * @param id The id of the item
+     * @return succeed or not
      */
-    removeItem (id) {
+    removeItem (id: string): boolean {
         let removed = this._cache[id];
         if (removed && removed.complete) {
             delete this._cache[id];

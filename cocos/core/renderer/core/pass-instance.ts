@@ -43,7 +43,7 @@ export class PassInstance extends Pass {
     private _dontNotify = false;
 
     constructor (parent: Pass, owner: MaterialInstance) {
-        super(parent.device);
+        super(parent.root);
         this._parent = parent;
         this._owner = owner;
         this._doInit(this._parent, true); // defines may change now

@@ -3,10 +3,7 @@
  */
 
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { EventTarget } from '../../../../core/event';
-import { CallbacksInvoker, ICallbackTable } from '../../../../core/event/callbacks-invoker';
-import { applyMixins, IEventTarget } from '../../../../core/event/event-target-factory';
-import { createMap } from '../../../../core/utils/js';
+import { Eventify } from '../../../../core/event';
 import { Vec3 } from '../../../../core/math';
 import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../physics-interface';
 import { RigidBodyComponent } from '../rigid-body-component';
@@ -23,15 +20,7 @@ import { EDITOR, PHYSICS_BUILTIN } from 'internal:constants';
  * 碰撞器的基类。
  */
 @ccclass('cc.ColliderComponent')
-export class ColliderComponent extends Component implements IEventTarget {
-
-    /**
-     * @en
-     * Stores a list of callbacks to the registration event, not directly modified.
-     * @zh
-     * 存储注册事件的回调列表，请不要直接修改。
-     */
-    public _callbackTable: ICallbackTable = createMap(true);
+export class ColliderComponent extends Eventify(Component) {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -146,17 +135,17 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     /**
      * @en
-     * Gets the collider attached rigidbody, this may be null
+     * Gets the collider attached rigid-body, this may be null
      * @zh
      * 获取碰撞器所绑定的刚体组件，可能为 null
      */
-    public get attachedRigidbody (): RigidBodyComponent | null {
+    public get attachedRigidBody (): RigidBodyComponent | null {
         return this.shape.attachedRigidBody;
     }
 
     /**
      * @en
-     * Gets the wrapper object, through which the lowlevel instance can be accessed.
+     * Gets the wrapper object, through which the lowLevel instance can be accessed.
      * @zh
      * 获取封装对象，通过此对象可以访问到底层实例。
      */
@@ -187,58 +176,43 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     constructor () { super() }
 
-    /// EVENT INTERFACE ///
-
     /**
+     * @en
+     * Registers callbacks associated with triggered or collision events.
      * @zh
-     * 注册触发事件或碰撞事件相关的回调。
-     * @param type - 触发或碰撞事件的类型，可为 'onTriggerEnter'，'onTriggerStay'，'onTriggerExit' 或 'onCollisionEnter'，'onCollisionStay'，'onCollisionExit';
-     * @param callback - 注册的回调函数
-     * @param target - 可选参数，执行回调函数的目标
-     * @param useCapture - 可选参数，当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
+     * 注册触发或碰撞事件相关的回调。
+     * @param type - The event type, onTriggerEnter|onTriggerStay|onTriggerExit|onCollisionEnter|onCollisionStay|onCollisionExit;
+     * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
+     * @param target - The event callback target.
      */
-    public on (type: TriggerEventType | CollisionEventType, callback: TriggerCallback | CollisionCallback, target?: Object, useCapture?: any): any {
+    public on (type: TriggerEventType | CollisionEventType, callback: Function, target?: Object): any {
+        super.on(type, callback, target);
     }
 
     /**
+     * @en
+     * Unregisters callbacks associated with trigger or collision events that have been registered.
      * @zh
-     * 取消已经注册的触发事件或碰撞事件相关的回调。
-     * @param type - 触发或碰撞事件的类型，可为 'onTriggerEnter'，'onTriggerStay'，'onTriggerExit' 或 'onCollisionEnter'，'onCollisionStay'，'onCollisionExit';
-     * @param callback - 注册的回调函数
-     * @param target - 可选参数，执行回调函数的目标
-     * @param useCapture - 可选参数，当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
+     * 取消已经注册的触发或碰撞事件相关的回调。
+     * @param type - The event type, onTriggerEnter|onTriggerStay|onTriggerExit|onCollisionEnter|onCollisionStay|onCollisionExit;
+     * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
+     * @param target - The event callback target.
      */
-    public off (type: TriggerEventType | CollisionEventType, callback: TriggerCallback | CollisionCallback, target?: Object, useCapture?: any) {
+    public off (type: TriggerEventType | CollisionEventType, callback?: Function, target?: Object) {
+        super.off(type, callback, target);
     }
 
     /**
+     * @en
+     * Registers a callback associated with a trigger or collision event, which is automatically unregistered once executed.
      * @zh
-     * 注册触发事件或碰撞事件相关的回调，但只会执行一次。
-     * @param type - 触发或碰撞事件的类型，可为 'onTriggerEnter'，'onTriggerStay'，'onTriggerExit' 或 'onCollisionEnter'，'onCollisionStay'，'onCollisionExit';
-     * @param callback - 注册的回调函数
-     * @param target - 可选参数，执行回调函数的目标
-     * @param useCapture - 可选参数，当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
+     * 注册触发或碰撞事件相关的回调，执行一次后会自动取消注册。
+     * @param type - The event type, onTriggerEnter|onTriggerStay|onTriggerExit|onCollisionEnter|onCollisionStay|onCollisionExit;
+     * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
+     * @param target - The event callback target.
      */
-    public once (type: TriggerEventType | CollisionEventType, callback: TriggerCallback | CollisionCallback, target?: Object, useCapture?: any): any {
-    }
-
-    /**
-     * IEventTarget implementations, they will be overwrote with the same implementation in EventTarget by applyMixins
-     */
-    public targetOff (keyOrTarget?: TriggerEventType | CollisionEventType | Object): void {
-    }
-
-    public dispatchEvent (event: Event): void {
-    }
-
-    public hasEventListener (key: TriggerEventType | CollisionEventType, callback?: TriggerCallback | CollisionCallback, target?: Object): boolean {
-        return false;
-    }
-
-    public removeAll (keyOrTarget?: TriggerEventType | CollisionEventType | Object): void {
-    }
-
-    public emit (key: TriggerEventType | CollisionEventType, ...args: any[]): void {
+    public once (type: TriggerEventType | CollisionEventType, callback: Function, target?: Object): any {
+        super.once(type, callback, target);
     }
 
     /// GROUP MASK ///
@@ -363,6 +337,9 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     protected onDestroy () {
         if (!EDITOR) {
+            if (this._material) {
+                this._material.off('physics_material_update', this._updateMaterial, this);
+            }
             this._shape.onDestroy!();
         }
     }
@@ -374,5 +351,3 @@ export class ColliderComponent extends Component implements IEventTarget {
     }
 
 }
-
-applyMixins(ColliderComponent, [CallbacksInvoker, EventTarget]);

@@ -28,12 +28,8 @@
  * @category asset
  */
 
-import { ccclass, property, string } from '../data/class-decorator';
-import { Event } from '../event';
-import { CallbacksInvoker } from '../event/callbacks-invoker';
-import { EventTarget } from '../event/event-target';
-import { applyMixins, IEventTarget } from '../event/event-target-factory';
-import { createMap } from '../utils/js-typed';
+import { ccclass, property } from '../data/class-decorator';
+import { Eventify } from '../event';
 import { RawAsset } from './raw-asset';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
@@ -60,7 +56,7 @@ import { legacyCC } from '../global-exports';
  * @extends RawAsset
  */
 @ccclass('cc.Asset')
-export class Asset extends RawAsset implements IEventTarget {
+export class Asset extends Eventify(RawAsset) {
 
     /**
      * @en Indicates whether its dependent raw assets can support deferred load if the owner scene (or prefab) is marked as `asyncLoadAssets`.
@@ -111,33 +107,6 @@ export class Asset extends RawAsset implements IEventTarget {
     public _native: string = '';
 
     private _file: any = null;
-
-    constructor (...args: ConstructorParameters<typeof RawAsset>) {
-        super(...args);
-    }
-
-    /**
-     * @en
-     * IEventTarget implementations, they will be overwrote with the same implementation in EventTarget by applyMixins
-     * @zh
-     * IEventTarget 实现，它们将被 applyMixins 在 EventTarget 中用相同的实现覆盖
-     */
-    // tslint:disable-next-line: member-ordering
-    public _callbackTable = createMap(true);
-    public on (type: string, callback: Function, target?: Object | undefined): Function | undefined {
-        return;
-    }
-    public off (type: string, callback?: Function | undefined, target?: Object | undefined): void {}
-    public targetOff (keyOrTarget?: string | Object | undefined): void {}
-    public once (type: string, callback: Function, target?: Object | undefined): Function | undefined {
-        return;
-    }
-    public dispatchEvent (event: Event): void {}
-    public hasEventListener (key: string, callback?: Function | undefined, target?: Object | undefined): boolean {
-        return false;
-    }
-    public removeAll (keyOrTarget?: string | Object | undefined): void {}
-    public emit (key: string, ...args: any[]): void {}
 
     /**
      * @en
@@ -264,8 +233,6 @@ export class Asset extends RawAsset implements IEventTarget {
      */
     public createNode? (callback: CreateNodeCallback): void;
 }
-
-applyMixins(Asset, [CallbacksInvoker, EventTarget]);
 
 /**
  * @param error - null or the error info

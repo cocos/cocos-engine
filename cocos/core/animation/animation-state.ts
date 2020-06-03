@@ -27,35 +27,64 @@
  * @category animation
  */
 
-import { EventArgumentsOf, EventCallbackOf } from '../event/defines';
 import { Node } from '../scene-graph/node';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
-import { AnimationComponent } from './animation-component';
 import { AnimCurve, RatioSampler } from './animation-curve';
 import { createBoundTarget, createBufferedTarget, IBufferedTarget, IBoundTarget } from './bound-target';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
-import { error } from '../platform/debug';
 import { EDITOR } from 'internal:constants';
-import { HierarchyPath, TargetPath, evaluatePath } from './target-path';
+import { HierarchyPath, evaluatePath } from './target-path';
 import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter } from './skeletal-animation-blending';
 import { legacyCC } from '../global-exports';
+import { ccenum } from '../value-types/enum';
 
-enum PropertySpecialization {
-    NodePosition,
-    NodeScale,
-    NodeRotation,
-    None,
+/**
+ * @en The event type supported by Animation
+ * @zh Animation 支持的事件类型。
+ */
+export enum EventType {
+    /**
+     * @en Emit when begin playing animation
+     * @zh 开始播放时触发。
+     */
+    PLAY = 'play',
+    /**
+     * @en Emit when stop playing animation
+     * @zh 停止播放时触发。
+     */
+    STOP = 'stop',
+    /**
+     * @en Emit when pause animation
+     * @zh 暂停播放时触发。
+     */
+    PAUSE = 'pause',
+    /**
+     * @en Emit when resume animation
+     * @zh 恢复播放时触发。
+     */
+    RESUME = 'resume',
+
+    /**
+     * @en If animation repeat count is larger than 1, emit when animation play to the last frame.
+     * @zh 假如动画循环次数大于 1，当动画播放到最后一帧时触发。
+     */
+    LASTFRAME = 'lastframe',
+
+    /**
+     * @en Triggered when finish playing animation.
+     * @zh 动画完成播放时触发。
+     */
+    FINISHED = 'finished',
 }
+ccenum(EventType);
 
 export class ICurveInstance {
     public commonTargetIndex?: number;
 
     private _curve: AnimCurve;
     private _boundTarget: IBoundTarget;
-    private _rootTarget: any;
     private _rootTargetProperty?: string;
-    private _cached?: any[];
     private _curveDetail: Omit<IRuntimeCurve, 'sampler'>;
 
     constructor (
@@ -66,7 +95,6 @@ export class ICurveInstance {
         this._curveDetail = runtimeCurve;
 
         this._boundTarget = boundTarget;
-        this._rootTarget = target;
     }
 
     public applySample (ratio: number, index: number, lerpRequired: boolean, samplerResultCache, weight: number) {
@@ -126,15 +154,6 @@ function makeSamplerSharedGroup (sampler: RatioSampler | null): ISamplerSharedGr
 }
 
 const InvalidIndex = -1;
-
-export interface IAnimationEventDefinitionMap {
-    'finished': (animationState: AnimationState) => void;
-    'lastframe': (animationState: AnimationState) => void;
-    'play': (animationState: AnimationState) => void;
-    'pause': (animationState: AnimationState) => void;
-    'resume': (animationState: AnimationState) => void;
-    'stop': (animationState: AnimationState) => void;
-}
 
 /**
  * @en
@@ -242,12 +261,6 @@ export class AnimationState extends Playable {
         this._delayTime = this._delay = value;
     }
 
-    /**
-     * @en The curves list.
-     * @zh 曲线列表。
-     */
-    // public curves: AnimCurve[] = [];
-
     // http://www.w3.org/TR/web-animations/#idl-def-AnimationTiming
 
     /**
@@ -278,8 +291,6 @@ export class AnimationState extends Playable {
 
     public frameRate = 0;
 
-    public _lastframeEventOn = false;
-
     protected _wrapMode = WrapMode.Normal;
 
     protected _repeatCount = 1;
@@ -305,15 +316,16 @@ export class AnimationState extends Playable {
     /**
      * May be `null` due to failed to initialize.
      */
-    protected _commonTargetStatuses: Array<null | {
+    protected _commonTargetStatuses: (null | {
         target: IBufferedTarget;
         changed: boolean;
-    }> = [];
+    })[] = [];
     protected _curveLoaded = false;
     protected _ignoreIndex = InvalidIndex;
     private _blendStateBuffer: BlendStateBuffer | null = null;
     private _blendStateWriters: IBlendStateWriter[] = [];
     private _isBlendStateWriterInitialized = false;
+    private _allowLastFrame = false;
 
     constructor (clip: AnimationClip, name = '') {
         super();
@@ -368,7 +380,7 @@ export class AnimationState extends Playable {
                 this._samplerSharedGroups.push(samplerSharedGroup);
             }
 
-            let rootTarget: any = undefined;
+            let rootTarget: any;
             if (typeof propertyCurve.commonTarget === 'undefined') {
                 rootTarget = root;
             } else {
@@ -416,62 +428,57 @@ export class AnimationState extends Playable {
         this._destroyBlendStateWriters();
     }
 
-    public _emit (type, state) {
-        if (this._target && this._target.isValid) {
-            this._target.emit(type, type, state);
-        }
+    /**
+     * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
+     * To process animation events, use `AnimationComponent` instead.
+     */
+    public emit (...args: any[]) {
+        legacyCC.director.getAnimationManager().pushDelayEvent(this._emit, this, args);
     }
 
-    public emit<K extends string> (type: K, ...args: EventArgumentsOf<K, IAnimationEventDefinitionMap>): void;
-
-    public emit (...restargs: any[]) {
-        const args = new Array(restargs.length);
-        for (let i = 0, l = args.length; i < l; i++) {
-            args[i] = restargs[i];
-        }
-        legacyCC.director.getAnimationManager().pushDelayEvent(this, '_emit', args);
-    }
-
-    public on<K extends string> (type: K, callback: EventCallbackOf<K, IAnimationEventDefinitionMap>, target?: any): void;
-
+    /**
+     * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
+     * To process animation events, use `AnimationComponent` instead.
+     */
     public on (type: string, callback: Function, target?: any) {
         if (this._target && this._target.isValid) {
-            if (type === 'lastframe') {
-                this._lastframeEventOn = true;
-            }
             return this._target.on(type, callback, target);
-        }
-        else {
+        } else {
             return null;
         }
     }
 
-    public once<K extends string> (type: K, callback: EventCallbackOf<K, IAnimationEventDefinitionMap>, target?: any): void;
-
+    /**
+     * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
+     * To process animation events, use `AnimationComponent` instead.
+     */
     public once (type: string, callback: Function, target?: any) {
         if (this._target && this._target.isValid) {
-            if (type === 'lastframe') {
-                this._lastframeEventOn = true;
-            }
-            return this._target.once(type, (event) => {
-                callback.call(target, event);
-                this._lastframeEventOn = false;
-            });
-        }
-        else {
+            return this._target.once(type, callback, target);
+        } else {
             return null;
         }
     }
 
+    /**
+     * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
+     * To process animation events, use `AnimationComponent` instead.
+     */
     public off (type: string, callback: Function, target?: any) {
         if (this._target && this._target.isValid) {
-            if (type === 'lastframe') {
-                if (!this._target.hasEventListener(type)) {
-                    this._lastframeEventOn = false;
-                }
-            }
             this._target.off(type, callback, target);
         }
+    }
+
+    /**
+     * @zh
+     * 是否允许触发 `LastFrame` 事件。
+     * @en
+     * Whether `LastFrame` should be triggered.
+     * @param allowed True if the last frame events may be triggered.
+     */
+    public allowLastFrameEvent (allowed: boolean) {
+        this._allowLastFrame = allowed;
     }
 
     public _setEventTarget (target) {
@@ -613,7 +620,7 @@ export class AnimationState extends Playable {
         // sample
         const info = this.sample();
 
-        if (this._lastframeEventOn) {
+        if (this._allowLastFrame) {
             let lastInfo;
             if (!this._lastWrapInfo) {
                 lastInfo = this._lastWrapInfo = new WrappedInfo(info);
@@ -622,7 +629,7 @@ export class AnimationState extends Playable {
             }
 
             if (this.repeatCount > 1 && ((info.iterations | 0) > (lastInfo.iterations | 0))) {
-                this.emit('lastframe', this);
+                this.emit(EventType.LASTFRAME, this);
             }
 
             lastInfo.set(info);
@@ -630,7 +637,7 @@ export class AnimationState extends Playable {
 
         if (info.stopped) {
             this.stop();
-            this.emit('finished', this);
+            this.emit(EventType.FINISHED, this);
         }
     }
 
@@ -647,13 +654,13 @@ export class AnimationState extends Playable {
             }
         }
 
-        if (this._lastframeEventOn) {
+        if (this._allowLastFrame) {
             if (this._lastIterations === undefined) {
                 this._lastIterations = ratio;
             }
 
             if ((this.time > 0 && this._lastIterations > ratio) || (this.time < 0 && this._lastIterations < ratio)) {
-                this.emit('lastframe', this);
+                this.emit(EventType.LASTFRAME, this);
             }
 
             this._lastIterations = ratio;
@@ -667,24 +674,24 @@ export class AnimationState extends Playable {
         this.setTime(0);
         this._delayTime = this._delay;
         this._onReplayOrResume();
-        this.emit('play', this);
+        this.emit(EventType.PLAY, this);
     }
 
     protected onStop () {
         if (!this.isPaused) {
             this._onPauseOrStop();
         }
-        this.emit('stop', this);
+        this.emit(EventType.STOP, this);
     }
 
     protected onResume () {
         this._onReplayOrResume();
-        this.emit('resume', this);
+        this.emit(EventType.RESUME, this);
     }
 
     protected onPause () {
         this._onPauseOrStop();
-        this.emit('pause', this);
+        this.emit(EventType.PAUSE, this);
     }
 
     protected _sampleCurves (ratio: number) {
@@ -818,11 +825,17 @@ export class AnimationState extends Playable {
 
                 lastIndex += direction;
 
-                legacyCC.director.getAnimationManager().pushDelayEvent(this, '_fireEvent', [lastIndex]);
+                legacyCC.director.getAnimationManager().pushDelayEvent(this._fireEvent, this, [lastIndex]);
             } while (lastIndex !== eventIndex && lastIndex > -1 && lastIndex < length);
         }
 
         this._lastWrapInfoEvent.set(wrapInfo);
+    }
+
+    private _emit (type, state) {
+        if (this._target && this._target.isValid) {
+            this._target.emit(type, type, state);
+        }
     }
 
     private _fireEvent (index: number) {

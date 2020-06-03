@@ -25,7 +25,7 @@
 */
 
 /**
- * @category loader
+ * @hidden
  */
 
 export {default as url} from './url';
