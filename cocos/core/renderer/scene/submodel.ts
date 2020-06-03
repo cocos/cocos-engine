@@ -20,7 +20,6 @@ export interface IPSOCreateInfo {
     depthStencilState: GFXDepthStencilState;
     blendState: GFXBlendState;
     dynamicStates: GFXDynamicState[];
-    pipelineLayout: GFXPipelineLayout;
     bindingLayout: GFXBindingLayout;
     hash: number;
 }
@@ -145,11 +144,9 @@ export class SubModel {
         if (len === 0) {
             return;
         }
-
         for (let i = 0; i < len; ++i) {
-            const { bindingLayout: bl, pipelineLayout: pl } = this._psoCreateInfos[i];
-            bl.destroy();
-            pl.destroy();
+            const bindingLayout = this._psoCreateInfos[i].bindingLayout;
+            bindingLayout.destroy();
         }
         this._psoCreateInfos.length = 0;
     }

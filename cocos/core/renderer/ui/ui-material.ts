@@ -99,9 +99,7 @@ export class UIMaterial {
     public destroy () {
         if (this._psoCreateInfo) {
             this._psoCreateInfo.clear((obj: IPSOCreateInfo) => {
-                const { bindingLayout: bl, pipelineLayout: pl } = obj;
-                bl.destroy();
-                pl.destroy();
+                obj.bindingLayout.destroy();
             });
         }
         if (this._material) {

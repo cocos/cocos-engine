@@ -35,8 +35,7 @@ import { GFXBindingLayout, IGFXBinding, IGFXBindingLayoutInfo } from '../../gfx/
 import { GFXBuffer, IGFXBufferInfo } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXDynamicState,
     GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode, GFXType } from '../../gfx/define';
-import { GFXDevice, GFXFeature } from '../../gfx/device';
-import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from '../../gfx/pipeline-layout';
+import { GFXFeature } from '../../gfx/device';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
     GFXRasterizerState } from '../../gfx/pipeline-state';
 import { GFXSampler } from '../../gfx/sampler';
@@ -53,7 +52,6 @@ import { customizeType, getBindingFromHandle, getBindingTypeFromHandle,
 import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
 import { IPSOCreateInfo } from '../scene/submodel';
-import { legacyCC } from '../../global-exports';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -71,11 +69,6 @@ export interface IBlock {
 export interface IMacroPatch {
     name: string;
     value: boolean | number | string;
-}
-
-interface IPassResources {
-    bindingLayout: GFXBindingLayout;
-    pipelineLayout: GFXPipelineLayout;
 }
 
 interface IPassDynamics {
@@ -103,10 +96,6 @@ const _bfInfo: IGFXBufferInfo = {
 
 const _blInfo: IGFXBindingLayoutInfo = {
     bindings: null!,
-};
-
-const _plInfo: IGFXPipelineLayoutInfo = {
-    layouts: null!,
 };
 
 /**
@@ -175,7 +164,7 @@ export class Pass {
     protected _buffers: Record<number, GFXBuffer> = {};
     protected _samplers: Record<number, GFXSampler> = {};
     protected _textureViews: Record<number, GFXTextureView> = {};
-    protected _resources: IPassResources[] = [];
+    protected _resources: GFXBindingLayout[] = [];
     // internal data
     protected _phase = getPhaseID('default');
     protected _idxInTech = 0;
@@ -197,14 +186,14 @@ export class Pass {
     protected _properties: Record<string, IPropertyInfo> = {};
     protected _hash = 0;
     // external references
-    protected _device: GFXDevice;
+    protected _root: Root;
     protected _shader: GFXShader | null = null;
     // for dynamic batching
     protected _batchedBuffer: BatchedBuffer | null = null;
     protected _instancedBuffer: InstancedBuffer | null = null;
 
-    public constructor (device: GFXDevice) {
-        this._device = device;
+    public constructor (root: Root) {
+        this._root = root;
     }
 
     /**
@@ -314,7 +303,7 @@ export class Pass {
         const len = this._resources.length;
         for (let i = 0; i < len; i++) {
             const res = this._resources[i];
-            res.bindingLayout.bindBuffer(binding, value);
+            res.bindBuffer(binding, value);
         }
     }
 
@@ -330,7 +319,7 @@ export class Pass {
         const len = this._resources.length;
         for (let i = 0; i < len; i++) {
             const res = this._resources[i];
-            res.bindingLayout.bindTextureView(binding, value);
+            res.bindTextureView(binding, value);
         }
     }
 
@@ -346,7 +335,7 @@ export class Pass {
         const len = this._resources.length;
         for (let i = 0; i < len; i++) {
             const res = this._resources[i];
-            res.bindingLayout.bindSampler(binding, value);
+            res.bindSampler(binding, value);
         }
     }
 
@@ -385,7 +374,7 @@ export class Pass {
                 block.dirty = false;
             }
         }
-        const source = (legacyCC.director.root as Root).pipeline.globalBindings;
+        const source = this._root.pipeline.globalBindings;
         const target = this._shaderInfo.builtins.globals;
         const samplerLen = target.samplers.length;
         for (let i = 0; i < samplerLen; i++) {
@@ -449,13 +438,13 @@ export class Pass {
         const texture = builtinResMgr.get<TextureBase>(texName);
         const textureView = texture && texture.getGFXTextureView()!;
         const samplerHash = info && (info.samplerHash !== undefined) ? info.samplerHash : texture.getSamplerHash();
-        const sampler = samplerLib.getSampler(this._device, samplerHash);
+        const sampler = samplerLib.getSampler(this._root.device, samplerHash);
         this._textureViews[binding] = textureView;
         this._samplers[binding] = sampler;
         for (let i = 0; i < this._resources.length; i++) {
             const res = this._resources[i];
-            res.bindingLayout.bindSampler(binding, sampler);
-            res.bindingLayout.bindTextureView(binding, textureView);
+            res.bindSampler(binding, sampler);
+            res.bindTextureView(binding, textureView);
         }
     }
 
@@ -499,10 +488,10 @@ export class Pass {
      * @param defineOverrides shader 预处理宏定义重载
      */
     public tryCompile () {
-        const pipeline = (legacyCC.director.root as Root).pipeline;
+        const pipeline = this._root.pipeline;
         if (!pipeline) { return null; }
         this._dynamicBatchingSync();
-        const res = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
+        const res = programLib.getGFXShader(this._root.device, this._programName, this._defines, pipeline);
         if (!res.shader) { console.warn(`create shader ${this._programName} failed`); return false; }
         this._shader = res.shader; this._bindings = res.bindings;
         return true;
@@ -524,7 +513,7 @@ export class Pass {
         const shader = res && res.shader || this._shader!;
         _blInfo.bindings = res && res.bindings || this._bindings;
         // bind resources
-        const bindingLayout = this._device.createBindingLayout(_blInfo);
+        const bindingLayout = this._root.device.createBindingLayout(_blInfo);
         for (const b in this._buffers) {
             bindingLayout.bindBuffer(parseInt(b), this._buffers[b]);
         }
@@ -535,7 +524,7 @@ export class Pass {
             bindingLayout.bindTextureView(parseInt(t), this._textureViews[t]);
         }
         // bind pipeline builtins
-        const source = (legacyCC.director.root as Root).pipeline.globalBindings;
+        const source = this._root.pipeline.globalBindings;
         const target = this._shaderInfo.builtins.globals;
         for (const b of target.blocks) {
             const info = source.get(b.name);
@@ -548,9 +537,7 @@ export class Pass {
             if (info.sampler) { bindingLayout.bindSampler(info.samplerInfo!.binding, info.sampler); }
             bindingLayout.bindTextureView(info.samplerInfo!.binding, info.textureView!);
         }
-        _plInfo.layouts = [bindingLayout];
-        const pipelineLayout = this._device.createPipelineLayout(_plInfo);
-        this._resources.push({ bindingLayout, pipelineLayout});
+        this._resources.push(bindingLayout);
         // create pipeline state
         return {
             primitive: this._primitive,
@@ -559,7 +546,6 @@ export class Pass {
             depthStencilState: this._dss,
             blendState: this._bs,
             dynamicStates: this._dynamicStates,
-            pipelineLayout,
             bindingLayout,
             hash: this._hash,
         };
@@ -576,7 +562,7 @@ export class Pass {
         this._shaderInfo = programLib.getTemplate(info.program);
         this._properties = info.properties || this._properties;
         // pipeline state
-        const device = this._device;
+        const device = this._root.device;
         Pass.fillinPipelineInfo(this, info);
         if (info.stateOverrides) { Pass.fillinPipelineInfo(this, info.stateOverrides); }
         this._hash = Pass.getPassHash(this);
@@ -607,7 +593,7 @@ export class Pass {
 
     protected _dynamicBatchingSync () {
         if (this._defines.USE_INSTANCING) {
-            if (!this._device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) {
+            if (!this._root.device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) {
                 this._defines.USE_INSTANCING = false;
             } else if (!this._instancedBuffer) {
                 this._instancedBuffer = new InstancedBuffer(this);
@@ -636,13 +622,13 @@ export class Pass {
                 }
             }
         }
-        const pipeline = (legacyCC.director.root as Root).pipeline;
+        const pipeline = this._root.pipeline;
         if (!pipeline) { return null; }
         for (let i = 0; i < patches.length; i++) {
             const patch = patches[i];
             this._defines[patch.name] = patch.value;
         }
-        const res = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
+        const res = programLib.getGFXShader(this._root.device, this._programName, this._defines, pipeline);
         for (let i = 0; i < patches.length; i++) {
             const patch = patches[i];
             delete this._defines[patch.name];
@@ -661,7 +647,7 @@ export class Pass {
     get customizations () { return this._customizations; }
     get phase () { return this._phase; }
     // infos
-    get device () { return this._device; }
+    get device () { return this._root.device; }
     get shaderInfo () { return this._shaderInfo; }
     get program () { return this._programName; }
     get properties () { return this._properties; }

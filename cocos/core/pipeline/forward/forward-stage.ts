@@ -103,9 +103,9 @@ export class ForwardStage extends RenderStage {
         const lightIndices: number[] = this.pipeline.lightIndices;
         const validLights: Light[] = this.pipeline.validLights;
 
-        let m = 0; let p = 0; let k = 0; let l = 0;
-        for (let i = 0; i < renderObjects.length; ++i) {                
-            const nextLightIndex = i + 1 < renderObjects.length ? lightIndexOffset[i + 1] : lightIndices.length;           
+        let m = 0; let p = 0; let k = 0;
+        for (let i = 0; i < renderObjects.length; ++i) {
+            const nextLightIndex = i + 1 < renderObjects.length ? lightIndexOffset[i + 1] : lightIndices.length;
             const ro = renderObjects[i];
             if (ro.model.isDynamicBatching) {
                 const subModels = ro.model.subModels;
@@ -138,7 +138,7 @@ export class ForwardStage extends RenderStage {
 
                         // Organize light-batched-queue
                         this._pipeline.lightBatchQueue.add(i, lightIndexOffset, nextLightIndex,
-                            lightIndices, validLights, pass, ro, m);                                  
+                            lightIndices, validLights, pass, ro, m);
                     }
                 }
             }

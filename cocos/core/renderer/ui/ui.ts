@@ -480,7 +480,7 @@ export class UI {
         curDrawBatch.ia!.indexCount = vCount;
 
         curDrawBatch.psoCreateInfo = this._getUIMaterial(mat).getPipelineCreateInfo();
-        curDrawBatch.bindingLayout = curDrawBatch.psoCreateInfo!.pipelineLayout.layouts[0];
+        curDrawBatch.bindingLayout = curDrawBatch.psoCreateInfo!.bindingLayout;
 
         this._batches.push(curDrawBatch);
 

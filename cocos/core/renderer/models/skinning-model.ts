@@ -244,19 +244,19 @@ export class SkinningModel extends MorphModel {
         subMeshData.vertexBuffers = original;
     }
 
-    protected getMacroPatches(subModelIndex: number) : any {
+    protected getMacroPatches (subModelIndex: number) : any {
         return myPatches.concat(super.getMacroPatches(subModelIndex) );
     }
 
-    protected updateAttributesAndBinding(subModelIndex : number) {
+    protected updateAttributesAndBinding (subModelIndex : number) {
         super.updateAttributesAndBinding(subModelIndex);
 
         const psoCreateInfos = this._subModels[subModelIndex].psoInfos;
         for (let i = 0;i < psoCreateInfos.length; ++i) {
-            const bindingLayout = psoCreateInfos[i].pipelineLayout.layouts[0];
+            const bindingLayout = psoCreateInfos[i].bindingLayout;
             const buffer = this._buffers[this._bufferIndices![subModelIndex]];
             if (buffer) { bindingLayout.bindBuffer(UBOSkinning.BLOCK.binding, buffer); }
-            }
+        }
     }
 
     private _ensureEnoughBuffers (count: number) {

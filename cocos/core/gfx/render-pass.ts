@@ -54,7 +54,7 @@ export interface IGFXSubPassInfo {
 export interface IGFXRenderPassInfo {
     colorAttachments?: GFXColorAttachment[];
     depthStencilAttachment?: GFXDepthStencilAttachment;
-    // subPasses? : GFXSubPassInfo[];
+    subPasses? : IGFXSubPassInfo[];
 }
 
 /**
@@ -80,9 +80,9 @@ export abstract class GFXRenderPass extends GFXObject {
     public abstract initialize (info: IGFXRenderPassInfo): boolean;
 
     public abstract destroy (): void;
-    public hash(): number { return this._hash; }
+    public get hash (): number { return this._hash; }
 
-    protected computeHash(): number {
+    protected computeHash (): number {
         let res = 'ca,';
         for (let i = 0; i < this._colorInfos.length; ++i) {
             const ca = this._colorInfos[i];

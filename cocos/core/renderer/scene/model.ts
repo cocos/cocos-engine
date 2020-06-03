@@ -198,9 +198,9 @@ export class Model {
 
             for (const sub of this._subModels) {
                 for (let i = 0; i < sub.psoInfos.length; i++) {
-                    sub.psoInfos[i].pipelineLayout.layouts[0].bindTextureView(UniformLightingMapSampler.binding, textureView);
-                    sub.psoInfos[i].pipelineLayout.layouts[0].bindSampler(UniformLightingMapSampler.binding, sampler);
-                    sub.psoInfos[i].pipelineLayout.layouts[0].update();
+                    sub.psoInfos[i].bindingLayout.bindTextureView(UniformLightingMapSampler.binding, textureView);
+                    sub.psoInfos[i].bindingLayout.bindSampler(UniformLightingMapSampler.binding, sampler);
+                    sub.psoInfos[i].bindingLayout.update();
                 }
             }
         }
@@ -290,7 +290,7 @@ export class Model {
 
         const psoCreateInfos = subModel.psoInfos;
         for (let i = 0; i < psoCreateInfos.length; ++i) {
-            const bindingLayout = psoCreateInfos[i].pipelineLayout.layouts[0];
+            const bindingLayout = psoCreateInfos[i].bindingLayout;
             if (this._localBuffer) { bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer); }
         }
 

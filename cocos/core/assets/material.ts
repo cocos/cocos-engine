@@ -366,7 +366,7 @@ export class Material extends Asset {
             if (passInfo.switch && !defs[passInfo.switch]) { continue; }
             passInfo.stateOverrides = this._states.length > k ? this._states[k] : {};
             passInfo.idxInTech = k;
-            const pass = new Pass(legacyCC.director.root.device);
+            const pass = new Pass(legacyCC.director.root);
             pass.initialize(passInfo);
             passes.push(pass);
         }

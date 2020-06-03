@@ -530,9 +530,7 @@ export class SplashScreen {
         this.cmdBuff.destroy();
         (this.cmdBuff as any) = null;
 
-        const { bindingLayout, pipelineLayout } = this.psoCreateInfo;
-        bindingLayout.destroy();
-        pipelineLayout.destroy();
+        this.psoCreateInfo.bindingLayout.destroy();
         (this.psoCreateInfo as any) = null;
 
         this.material.destroy();
@@ -561,9 +559,7 @@ export class SplashScreen {
             (this.textImg as any) = null;
             (this.textRegion as any) = null;
 
-            const { bindingLayout: bl, pipelineLayout: pl } = this.textPSOCreateInfo;
-            bl.destroy();
-            pl.destroy();
+            this.textPSOCreateInfo.bindingLayout.destroy();
             (this.textPSOCreateInfo as any) = null;
 
             this.textMaterial.destroy();
