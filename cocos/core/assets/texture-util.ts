@@ -32,6 +32,7 @@ import { assertID, error } from '../platform/debug';
 import { loader } from '../load-pipeline/CCLoader';
 import { ImageAsset, ImageSource } from './image-asset';
 import { DEBUG } from 'internal:constants';
+import { IItem } from '../load-pipeline/loading-items';
 
 export type LoadImageCallback<T> = (
     this: T | undefined,
@@ -46,7 +47,7 @@ export type LoadImageCallback<T> = (
  * @param target 回调函数的 `this` 参数。
  * @returns 图像资源，返回时可能还未完成加载；加载完成或失败时会调用回调函数。
  */
-export function loadImage<T> (url: string, callback?: LoadImageCallback<T>, target?: T) {
+export function loadImage<T extends object> (url: string, callback?: LoadImageCallback<T>, target?: T) {
     assertID(!!url, 3103);
 
     let imageAsset = loader.getRes<ImageAsset>(url);
@@ -96,7 +97,7 @@ export function cacheImage (url: string, image: ImageSource) {
             content: imageAsset,
             complete: false,
         };
-        loader.flowOut(item);
+        loader.flowOut(item as IItem);
         return imageAsset;
     }
 }

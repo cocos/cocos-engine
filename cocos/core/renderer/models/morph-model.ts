@@ -44,14 +44,14 @@ export class MorphModel extends Model {
 
     private _launderMaterial (material: Material) {
         return material;
-        if (this._usedMaterials.has(material)) {
-            return new MaterialInstance({
-                parent: material,
-            });
-        } else {
-            this._usedMaterials.add(material);
-            return material;
-        }
+        // if (this._usedMaterials.has(material)) {
+        //     return new MaterialInstance({
+        //         parent: material,
+        //     });
+        // } else {
+        //     this._usedMaterials.add(material);
+        //     return material;
+        // }
     }
 
     public setMorphRendering (morphRendering: MorphRenderingInstance) {

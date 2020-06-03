@@ -50,8 +50,8 @@ const _worldPos = new Vec3();
 
 const CanvasClearFlag = Enum({
     SOLID_COLOR: GFXClearFlag.ALL,
-    DEPTH_STENCIL: GFXClearFlag.DEPTH_STENCIL,
-    NONE: GFXClearFlag.NONE,
+    DEPTH_ONLY: GFXClearFlag.DEPTH_STENCIL,
+    DONT_CLEAR: GFXClearFlag.NONE,
 });
 
 const RenderMode = Enum({
@@ -232,7 +232,7 @@ export class CanvasComponent extends Component {
     @property({
         type: CanvasClearFlag,
     })
-    protected _clearFlag = CanvasClearFlag.NONE;
+    protected _clearFlag = CanvasClearFlag.DONT_CLEAR;
     @property
     protected _color = new Color(0, 0, 0, 0);
     @property({

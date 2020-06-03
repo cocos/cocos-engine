@@ -33,12 +33,12 @@ import { AnimationClip, IObjectCurveData } from './animation-clip';
 import { HierarchyPath, isCustomPath, isPropertyPath } from './target-path';
 import { legacyCC } from '../global-exports';
 
-type CurveData = Vec3 | Quat | Mat4;
+type CurveData = Vec3[] | Quat[] | Mat4[];
 type ConvertedProps = Record<string, IPropertyCurve>;
 
 interface IPropertyCurve {
     keys: number;
-    values: CurveData[];
+    values: CurveData;
 }
 interface ISkeletalCurveInfo {
     frames: number;
@@ -115,20 +115,27 @@ function convertToSkeletalCurves (clip: AnimationClip): IConvertedData {
 
 function convertToUniformSample (clip: AnimationClip, curve: IPropertyCurve, frames: number) {
     const keys = clip.keys[curve.keys];
-    const values: CurveData[] = [];
+    const values: CurveData = [];
     if (!keys || keys.length === 1) {
         for (let i = 0; i < frames; i++) {
             values[i] = curve.values[0].clone(); // never forget to clone
         }
     } else {
+        const isQuat = curve.values[0] instanceof Quat;
         for (let i = 0, idx = 0; i < frames; i++) {
-           let time = i / clip.sample;
-           while (keys[idx] <= time) { idx++; }
-           if (idx > keys.length - 1) { idx = keys.length - 1; time = keys[idx]; }
-           else if (idx === 0) { idx = 1; }
-           const from = curve.values[idx - 1].clone() as any;
-           from.lerp(curve.values[idx], clamp01((time - keys[idx - 1]) / (keys[idx] - keys[idx - 1])));
-           values[i] = from;
+            let time = i / clip.sample;
+            while (keys[idx] <= time) { idx++; }
+            if (idx > keys.length - 1) { idx = keys.length - 1; time = keys[idx]; }
+            else if (idx === 0) { idx = 1; }
+            const from = curve.values[idx - 1].clone();
+            const denom = keys[idx] - keys[idx - 1];
+            const ratio = denom ? clamp01((time - keys[idx - 1]) / denom) : 1;
+            if (isQuat) {
+                (from as Quat).slerp(curve.values[idx] as Quat, ratio);
+            } else {
+                (from as Vec3).lerp(curve.values[idx] as Vec3, ratio);
+            }
+            values[i] = from;
        }
     }
     curve.values = values;

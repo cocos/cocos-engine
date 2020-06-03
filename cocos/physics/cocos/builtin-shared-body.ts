@@ -63,7 +63,7 @@ export class BuiltinSharedBody extends BuiltinObject {
 
     set reference (v: boolean) {
         v ? this.ref++ : this.ref--;
-        if (this.ref == 0) { this.destory(); }
+        if (this.ref == 0) { this.destroy(); }
     }
 
     /** id generator */
@@ -132,7 +132,7 @@ export class BuiltinSharedBody extends BuiltinObject {
         }
     }
 
-    private destory () {
+    private destroy () {
         BuiltinSharedBody.sharedBodesMap.delete(this.node.uuid);
         (this.node as any) = null;
         (this.world as any) = null;

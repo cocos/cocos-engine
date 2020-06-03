@@ -25,7 +25,7 @@
  */
 
 /**
- * @category loader
+ * @hidden
  */
 
 import {pushToMap} from '../utils/misc';

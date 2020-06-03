@@ -26,7 +26,7 @@
 import { legacyCC } from '../global-exports';
 
 /**
- * @category loader
+ * @hidden
  */
 
 let _noCacheRex = /\?/;

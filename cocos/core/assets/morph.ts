@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { GFXAttributeName, GFXDevice, GFXPipelineState } from '../gfx';
 import { Mesh } from './mesh';
 import { StdMorphRendering } from './morph-rendering';

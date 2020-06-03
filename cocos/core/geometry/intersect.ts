@@ -324,17 +324,34 @@ const ray_capsule = (function () {
  * ray-subMesh intersect detect.
  * @zh
  * 射线和子三角网格的相交性检测。
+ * @param {ray} ray
+ * @param {RenderingSubMesh} subMesh
+ * @param {IRaySubMeshOptions} options
+ * @return {number} 0 or !0
  */
 const ray_subMesh = (function () {
     const tri = triangle.create();
     const deOpt: IRaySubMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
-    const tr: IRaySubMeshResult = { distance: 0, vertexIndex0: 0, vertexIndex1: 0, vertexIndex2: 0 };
     let minDis = 0;
-    const broadphase = (ray: ray, submesh: RenderingSubMesh) => {
-        const min = submesh.geometricInfo.boundingBox.min;
-        const max = submesh.geometricInfo.boundingBox.max;
-        return ray_aabb2(ray, min, max);
+
+    const fillResult = (m: ERaycastMode, d: number, i0: number, i1: number, i2: number, r?: IRaySubMeshResult[]) => {
+        if (m == ERaycastMode.CLOSEST) {
+            if (minDis > d || minDis == 0) {
+                minDis = d;
+                if (r) {
+                    if (r.length == 0) {
+                        r.push({ distance: d, vertexIndex0: i0 / 3, vertexIndex1: i1 / 3, vertexIndex2: i2 / 3 });
+                    } else {
+                        r[0].distance = d; r[0].vertexIndex0 = i0 / 3; r[0].vertexIndex1 = i1 / 3; r[0].vertexIndex2 = i2 / 3;
+                    }
+                }
+            }
+        } else {
+            minDis = d;
+            if (r) r.push({ distance: d, vertexIndex0: i0 / 3, vertexIndex1: i1 / 3, vertexIndex2: i2 / 3 });
+        }
     }
+
     const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, ray: ray, opt: IRaySubMeshOptions) => {
         if (pm === GFXPrimitiveMode.TRIANGLE_LIST) {
             const cnt = ib.length;
@@ -346,25 +363,9 @@ const ray_subMesh = (function () {
                 Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
                 Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
                 const dist = intersect.ray_triangle(ray, tri, opt.doubleSided);
-                if (dist == 0 || dist > opt.distance!) continue;
-                if (opt.mode == ERaycastMode.CLOSEST) {
-                    if (minDis > dist || minDis == 0) {
-                        minDis = dist;
-                        tr.distance = dist;
-                        tr.vertexIndex0 = i0;
-                        tr.vertexIndex1 = i1;
-                        tr.vertexIndex2 = i2;
-                        if (opt.result && j + 3 < cnt)
-                            opt.result.push({ distance: tr.distance, vertexIndex0: tr.vertexIndex0, vertexIndex1: tr.vertexIndex1, vertexIndex2: tr.vertexIndex2 });
-                    }
-                } else if (opt.mode == ERaycastMode.ALL) {
-                    minDis = dist;
-                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
-                } else {
-                    minDis = dist;
-                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
-                    return minDis;
-                }
+                if (dist == 0 || dist > opt.distance) continue;
+                fillResult(opt.mode, dist, i0, i1, i2, opt.result);
+                if (opt.mode == ERaycastMode.ANY) return dist;
             }
         } else if (pm === GFXPrimitiveMode.TRIANGLE_STRIP) {
             const cnt = ib.length - 2;
@@ -378,18 +379,9 @@ const ray_subMesh = (function () {
                 Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
                 rev = ~rev;
                 const dist = intersect.ray_triangle(ray, tri, opt.doubleSided);
-                if (dist == 0 || dist > opt.distance!) continue;
-                if (opt.mode == ERaycastMode.CLOSEST) {
-                    if (minDis < dist) continue;
-                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
-                } else if (opt.mode == ERaycastMode.ALL) {
-                    minDis = dist;
-                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
-                } else {
-                    minDis = dist;
-                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
-                    return minDis;
-                }
+                if (dist == 0 || dist > opt.distance) continue;
+                fillResult(opt.mode, dist, i0, i1, i2, opt.result);
+                if (opt.mode == ERaycastMode.ANY) return dist;
             }
         } else if (pm === GFXPrimitiveMode.TRIANGLE_FAN) {
             const cnt = ib.length - 1;
@@ -401,32 +393,25 @@ const ray_subMesh = (function () {
                 Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
                 Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
                 const dist = intersect.ray_triangle(ray, tri, opt.doubleSided);
-                if (dist == 0 || dist > opt.distance!) continue;
-                if (opt.mode == ERaycastMode.CLOSEST) {
-                    if (minDis < dist) continue;
-                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
-                } else if (opt.mode == ERaycastMode.ALL) {
-                    minDis = dist;
-                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
-                } else {
-                    minDis = dist;
-                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
-                    return minDis;
-                }
+                if (dist == 0 || dist > opt.distance) continue;
+                fillResult(opt.mode, dist, i0, i1, i2, opt.result);
+                if (opt.mode == ERaycastMode.ANY) return dist;
             }
         }
         return minDis;
     };
     return function (ray: ray, submesh: RenderingSubMesh, option?: IRaySubMeshOptions) {
+        minDis = 0;
+        if (submesh.geometricInfo.positions.length == 0) return minDis;
         const opt = option == undefined ? deOpt : option;
-        if (!opt.doNotZeroMin) minDis = 0;
-        if (submesh.geometricInfo.positions.length == 0) return;
-        if (broadphase(ray, submesh)) {
+        const min = submesh.geometricInfo.boundingBox.min;
+        const max = submesh.geometricInfo.boundingBox.max;
+        if (ray_aabb2(ray, min, max)) {
             const pm = submesh.primitiveMode;
             const { positions: vb, indices: ib } = submesh.geometricInfo!;
             narrowphase(vb, ib!, pm, ray, opt);
         }
-        return minDis != 0;
+        return minDis;
     }
 })();
 
@@ -435,27 +420,44 @@ const ray_subMesh = (function () {
  * ray-mesh intersect detect.
  * @zh
  * 射线和三角网格资源的相交性检测。
+ * @param {ray} ray 
+ * @param {Mesh} mesh 
+ * @param {IRayMeshOptions} options
+ * @return {number} 0 or !0
  */
 const ray_mesh = (function () {
-    const deOpt: IRayMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY, doNotZeroMin: true };
+    let minDis = 0;
+    const deOpt: IRayMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
     return function (ray: ray, mesh: Mesh, option?: IRayMeshOptions) {
+        minDis = 0;
         const opt = option == undefined ? deOpt : option;
         const length = mesh.renderingSubMeshes.length;
-        let result = false;
         const min = mesh.struct.minPosition;
         const max = mesh.struct.maxPosition;
-        if (min && max && !ray_aabb2(ray, min, max)) return false;
+        if (min && max && !ray_aabb2(ray, min, max)) return minDis;
         for (let i = 0; i < length; i++) {
             const sm = mesh.renderingSubMeshes[i];
-            if (ray_subMesh(ray, sm, opt)) {
-                result = true;
-                if (opt.subIndices) opt.subIndices.push(i);
-                if (opt.mode == ERaycastMode.ANY) {
-                    return true;
+            const dis = ray_subMesh(ray, sm, opt);
+            if (dis) {
+                if (opt.mode == ERaycastMode.CLOSEST) {
+                    if (minDis == 0 || minDis > dis) {
+                        minDis = dis;
+                        if (opt.subIndices) opt.subIndices[0] = i;
+                    }
+                } else {
+                    minDis = dis;
+                    if (opt.subIndices) opt.subIndices.push(i);
+                    if (opt.mode == ERaycastMode.ANY) {
+                        return dis;
+                    }
                 }
             }
         }
-        return result;
+        if (minDis && opt.mode == ERaycastMode.CLOSEST) {
+            if (opt.result) opt.result.length = 1;
+            if (opt.subIndices) opt.subIndices.length = 1;
+        }
+        return minDis;
     }
 })();
 
@@ -464,34 +466,51 @@ const ray_mesh = (function () {
  * ray-model intersect detect.
  * @zh
  * 射线和渲染模型的相交性检测。
+ * @param {ray} ray
+ * @param {Model} model
+ * @param {IRayModelOptions} options
+ * @return {number} 0 or !0
  */
 const ray_model = (function () {
-    const deOpt: IRayModelOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY, doNotZeroMin: true, doNotTransformRay: false };
+    let minDis = 0;
+    const deOpt: IRayModelOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
     const modelRay = new ray();
-    const m4 = new Mat4;
+    const m4 = new Mat4();
     return function (r: ray, model: Model, option?: IRayModelOptions) {
+        minDis = 0;
         const opt = option == undefined ? deOpt : option;
         const length = model.subModelNum;
-        let result = false;
+        const wb = model.worldBounds;
+        if (wb && !ray_aabb(r, wb)) return minDis;
         ray.copy(modelRay, r);
-        if (!opt.doNotTransformRay) {
+        if (model.node) {
             Mat4.invert(m4, model.node.getWorldMatrix(m4));
             Vec3.transformMat4(modelRay.o, r.o, m4);
             Vec3.normalize(modelRay.d, Vec3.transformMat4Normal(modelRay.d, r.d, m4));
         }
-        const box = model.modelBounds;
-        if (box && !ray_aabb(modelRay, box)) return false;
         for (let i = 0; i < length; i++) {
             const sm = model.getSubModel(i).subMeshData;
-            if (ray_subMesh(modelRay, sm, opt)) {
-                result = true;
-                if (opt.subIndices) opt.subIndices.push(i);
-                if (opt.mode == ERaycastMode.ANY) {
-                    return true;
+            const dis = ray_subMesh(modelRay, sm, opt);
+            if (dis) {
+                if (opt.mode == ERaycastMode.CLOSEST) {
+                    if (minDis == 0 || minDis > dis) {
+                        minDis = dis;
+                        if (opt.subIndices) opt.subIndices[0] = i;
+                    }
+                } else {
+                    minDis = dis;
+                    if (opt.subIndices) opt.subIndices.push(i);
+                    if (opt.mode == ERaycastMode.ANY) {
+                        return dis;
+                    }
                 }
             }
         }
-        return result;
+        if (minDis && opt.mode == ERaycastMode.CLOSEST) {
+            if (opt.result) opt.result.length = 1;
+            if (opt.subIndices) opt.subIndices.length = 1;
+        }
+        return minDis;
     }
 })();
 

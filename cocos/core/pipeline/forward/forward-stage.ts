@@ -196,7 +196,7 @@ export class ForwardStage extends RenderStage {
         this._pipeline.lightBatchQueue.recordCommandBuffer(cmdBuff);
 
         if (camera.visibility & Layers.BitMask.DEFAULT) {
-            cmdBuff.execute(planarShadow.cmdBuffs.array, planarShadow.cmdBuffCount);
+            planarShadow.recordCommandBuffer(cmdBuff);
         }
         cmdBuff.execute(this._renderQueues[1].cmdBuffs.array, this._renderQueues[1].cmdBuffCount);
 

@@ -155,7 +155,7 @@ export function isDomNode (obj) {
     }
 }
 
-export function callInNextTick (callback, p1?:any, p2?:any) {
+export function callInNextTick (callback, p1?: any, p2?: any) {
     if (EDITOR) {
         if (callback) {
             // @ts-ignore

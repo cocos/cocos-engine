@@ -6,7 +6,7 @@ import { CannonWorld } from './cannon-world';
 import { CannonBoxShape } from './shapes/cannon-box-shape';
 import { CannonSphereShape } from './shapes/cannon-sphere-shape';
 import { CannonTrimeshShape } from './shapes/cannon-trimesh-shape';
-import { CannonCyliderShape } from './shapes/cannon-cylinder-shape';
+import { CannonCylinderShape } from './shapes/cannon-cylinder-shape';
 
 if (PHYSICS_CANNON) {
     instantiate({
@@ -15,6 +15,6 @@ if (PHYSICS_CANNON) {
         body: CannonRigidBody,
         world: CannonWorld,
         trimesh: CannonTrimeshShape,
-        cylinder: CannonCyliderShape
+        cylinder: CannonCylinderShape
     });
 }

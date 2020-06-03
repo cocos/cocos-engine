@@ -25,7 +25,7 @@
 */
 
 /**
- * @category core/data
+ * @hidden
  */
 
 // Some helper methods for compile instantiation code

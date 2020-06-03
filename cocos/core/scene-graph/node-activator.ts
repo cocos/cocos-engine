@@ -163,7 +163,7 @@ function _onLoadInEditor (comp) {
 
 /**
  * @en The class used to perform activating and deactivating operations of node and component.
- * @zh 用于执行节点和组件的激活和停用操作的类。
+ * @zh 用于执行节点和组件的激活和停用操作的管理器。
  */
 export default class NodeActivator {
     public resetComp: any;
@@ -173,11 +173,21 @@ export default class NodeActivator {
         this.reset();
     }
 
+    /**
+     * @en Reset all activation or des-activation tasks
+     * @zh 重置所有激活或非激活任务
+     */
     public reset () {
         // a stack of node's activating tasks
         this._activatingStack = [];
     }
 
+    /**
+     * @en Activate or des-activate a node
+     * @zh 激活或者停用某个节点
+     * @param node Target node
+     * @param active Which state to set the node to
+     */
     public activateNode (node, active) {
         if (active) {
             const task: any = activateTasksPool.get();
@@ -206,6 +216,14 @@ export default class NodeActivator {
         node.emit('active-in-hierarchy-changed', node);
     }
 
+    /**
+     * @en Activate or des-activate a component
+     * @zh 激活或者停用某个组件
+     * @param comp Target component
+     * @param preloadInvoker The invoker for `_preload` method, normally from [[ComponentScheduler]]
+     * @param onLoadInvoker The invoker for `onLoad` method, normally from [[ComponentScheduler]]
+     * @param onEnableInvoker The invoker for `onEnable` method, normally from [[ComponentScheduler]]
+     */
     public activateComp (comp, preloadInvoker?, onLoadInvoker?, onEnableInvoker?) {
         if (!(comp._objFlags & IsPreloadStarted)) {
             comp._objFlags |= IsPreloadStarted;
@@ -242,6 +260,11 @@ export default class NodeActivator {
         }
     }
 
+    /**
+     * @en Destroy a component
+     * @zh 销毁一个组件
+     * @param comp Target component
+     */
     public destroyComp (comp) {
         // ensure onDisable called
         legacyCC.director._compScheduler.disableComp(comp);

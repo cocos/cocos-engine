@@ -51,6 +51,19 @@ export class Skeleton extends Asset {
     @property
     private _hash = 0;
 
+    private _invBindposes: Mat4[] | null = null;
+
+    /**
+     * 所有关节的路径。该数组的长度始终与 `this.bindposes` 的长度相同。
+     */
+    get joints () {
+        return this._joints;
+    }
+
+    set joints (value) {
+        this._joints = value;
+    }
+
     /**
      * 所有关节的绑定姿势矩阵。该数组的长度始终与 `this.joints` 的长度相同。
      */
@@ -62,15 +75,16 @@ export class Skeleton extends Asset {
         this._bindposes = value;
     }
 
-    /**
-     * 所有关节的路径。该数组的长度始终与 `this.bindposes` 的长度相同。
-     */
-    get joints () {
-        return this._joints;
-    }
-
-    set joints (value) {
-        this._joints = value;
+    get inverseBindposes () {
+        if (!this._invBindposes) {
+            this._invBindposes = [];
+            for (let i = 0; i < this._bindposes.length; i++) {
+                const inv = new Mat4();
+                Mat4.invert(inv, this._bindposes[i]);
+                this._invBindposes.push(inv);
+            }
+        }
+        return this._invBindposes;
     }
 
     get hash () {

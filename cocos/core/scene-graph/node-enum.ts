@@ -27,13 +27,19 @@
  * @category scene-graph
  */
 
-import { ccenum } from '../value-types/enum';
-
+/**
+ * @en Node's coordinate space
+ * @zh 节点的坐标空间
+ */
 export enum NodeSpace {
     LOCAL,
     WORLD,
 }
 
+/**
+ * @en Bit masks for node's transformation
+ * @zh 节点的空间变换位标记
+ */
 export enum TransformBit {
     /**
      * @zh
@@ -67,3 +73,5 @@ export enum TransformBit {
     TRS = TransformBit.POSITION | TransformBit.ROTATION | TransformBit.SCALE,
     TRS_MASK = ~TransformBit.TRS,
 }
+
+cc.internal.TransformBit = TransformBit;

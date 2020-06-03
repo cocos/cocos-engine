@@ -485,7 +485,7 @@ export class Root {
         this._views = [];
     }
 
-    public createModel<T extends Model> (mClass: new () => T): T {
+    public createModel<T extends Model> (mClass: typeof Model): T {
         let p = this._modelPools.get(mClass);
         if (!p) {
             this._modelPools.set(mClass, new Pool(() => new mClass(), 10));

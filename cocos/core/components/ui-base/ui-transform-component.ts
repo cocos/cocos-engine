@@ -43,6 +43,7 @@ const _vec2b = new Vec2();
 const _mat4_temp = new Mat4();
 const _matrix = new Mat4();
 const _worldMatrix = new Mat4();
+const _zeroMatrix = new Mat4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 const _rect = new Rect();
 /**
  * @en
@@ -397,6 +398,9 @@ export class UITransformComponent extends Component {
 
         this.node.getWorldMatrix(_worldMatrix);
         Mat4.invert(_mat4_temp, _worldMatrix);
+        if (Mat4.strictEquals(_mat4_temp, _zeroMatrix)) {
+            return false;
+        }
         Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
         testPt.x += this._anchorPoint.x * w;
         testPt.y += this._anchorPoint.y * h;

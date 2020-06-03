@@ -44,6 +44,7 @@ const _v3 = new Vec3();
 const _qt = new Quat();
 
 /**
+ * @en Environment lighting information in the Scene
  * @zh 场景的环境光照相关信息
  */
 @ccclass('cc.AmbientInfo')
@@ -58,6 +59,7 @@ export class AmbientInfo {
     protected _resource: Ambient | null = null;
 
     /**
+     * @en Sky color
      * @zh 天空颜色
      */
     @property({ type: Color })
@@ -70,6 +72,7 @@ export class AmbientInfo {
     }
 
     /**
+     * @en Sky illuminance
      * @zh 天空亮度
      */
     @float
@@ -82,6 +85,7 @@ export class AmbientInfo {
     }
 
     /**
+     * @en Ground color
      * @zh 地面颜色
      */
     @property({ type: Color })
@@ -104,6 +108,7 @@ export class AmbientInfo {
 legacyCC.AmbientInfo = AmbientInfo;
 
 /**
+ * @en Skybox related information
  * @zh 天空盒相关信息
  */
 @ccclass('cc.SkyboxInfo')
@@ -120,6 +125,7 @@ export class SkyboxInfo {
     protected _resource: Skybox | null = null;
 
     /**
+     * @en Whether activate skybox in the scene
      * @zh 是否启用天空盒？
      */
     @property({ type: CCBoolean })
@@ -132,6 +138,7 @@ export class SkyboxInfo {
     }
 
     /**
+     * @en Whether use environment lighting
      * @zh 是否启用环境光照？
      */
     @property({ type: CCBoolean })
@@ -144,6 +151,7 @@ export class SkyboxInfo {
     }
 
     /**
+     * @en The texture cube used for the skybox
      * @zh 使用的立方体贴图
      */
     @property({ type: TextureCube })
@@ -156,6 +164,7 @@ export class SkyboxInfo {
     }
 
     /**
+     * @en Whether enable RGBE data support in skybox shader
      * @zh 是否需要开启 shader 内的 RGBE 数据支持？
      */
     @property({ type: CCBoolean })
@@ -384,6 +393,7 @@ export class FogInfo {
 }
 
 /**
+ * @en Scene level planar shadow related information
  * @zh 平面阴影相关信息
  */
 @ccclass('cc.PlanarShadowInfo')
@@ -400,6 +410,7 @@ export class PlanarShadowInfo {
     protected _resource: PlanarShadows | null = null;
 
     /**
+     * @en Whether activate planar shadow
      * @zh 是否启用平面阴影？
      */
     @property({ type: CCBoolean })
@@ -412,6 +423,7 @@ export class PlanarShadowInfo {
     }
 
     /**
+     * @en The normal of the plane which receives shadow
      * @zh 阴影接收平面的法线
      */
     @property({ type: Vec3 })
@@ -424,6 +436,7 @@ export class PlanarShadowInfo {
     }
 
     /**
+     * @en The distance from coordinate origin to the receiving plane.
      * @zh 阴影接收平面与原点的距离
      */
     @property({ type: CCFloat })
@@ -436,6 +449,7 @@ export class PlanarShadowInfo {
     }
 
     /**
+     * @en Shadow color
      * @zh 阴影颜色
      */
     @property({ type: Color })
@@ -448,8 +462,9 @@ export class PlanarShadowInfo {
     }
 
     /**
+     * @en Set plane which receives shadow with the given node's world transformation
      * @zh 根据指定节点的世界变换设置阴影接收平面的信息
-     * @param node 阴影接收平面的世界变换
+     * @param node The node for setting up the plane
      */
     public setPlaneFromNode (node: Node) {
         node.getWorldRotation(_qt);
@@ -469,24 +484,36 @@ export class PlanarShadowInfo {
 legacyCC.PlanarShadowInfo = PlanarShadowInfo;
 
 /**
+ * @en All scene related global parameters, it affects all content in the corresponding scene
  * @zh 各类场景级别的渲染参数，将影响全场景的所有物体
  */
 @ccclass('cc.SceneGlobals')
 export class SceneGlobals {
+    /**
+     * @en The environment light information
+     * @zh 场景的环境光照相关信息
+     */
     @property
     public ambient = new AmbientInfo();
+    /**
+     * @en Scene level planar shadow related information
+     * @zh 平面阴影相关信息
+     */
     @property
     public planarShadows = new PlanarShadowInfo();
     @property
     private _skybox = new SkyboxInfo();
     @property
     public fog = new FogInfo();
-    
+
+    /**
+     * @en Skybox related information
+     * @zh 天空盒相关信息
+     */
     @property({ type: SkyboxInfo })
     get skybox () {
         return this._skybox;
     }
-
     set skybox (value) {
         this._skybox = value;
     }

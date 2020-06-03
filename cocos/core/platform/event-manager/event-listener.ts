@@ -187,8 +187,8 @@ export class EventListener {
      * <p><br/>
      *     Sets paused state for the listener<br/>
      *     The paused state is only used for scene graph priority listeners.<br/>
-     *     `EventDispatcher::resumeAllEventListenersForTarget(node)` will set the paused state to `true`,<br/>
-     *     while `EventDispatcher::pauseAllEventListenersForTarget(node)` will set it to `false`.<br/>
+     *     `EventDispatcher.resumeAllEventListenersForTarget(node)` will set the paused state to `true`,<br/>
+     *     while `EventDispatcher.pauseAllEventListenersForTarget(node)` will set it to `false`.<br/>
      *     @note 1) Fixed priority listeners will never get paused. If a fixed priority doesn't want to receive events,<br/>
      *              call `setEnabled(false)` instead.<br/>
      *            2) In `Node`'s onEnter and onExit, the `paused state` of the listeners<br/>

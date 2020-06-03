@@ -25,13 +25,13 @@
  */
 
 /**
- * @category loader
+ * @hidden
  */
 
 import {createMap, getClassName, clear} from '../utils/js';
 import { legacyCC } from '../global-exports';
 
-let _tmpInfo:any = null;
+let _tmpInfo: any = null;
 
 function getItemDesc (item) {
     if (item.uuid) {

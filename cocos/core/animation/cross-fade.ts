@@ -44,10 +44,6 @@ export class CrossFade extends Playable {
         let absoluteWeight = 1.0;
         let deadFadingBegin = this._fadings.length;
         for (let iFading = 0; iFading < this._fadings.length; ++iFading) {
-            if (absoluteWeight === 0) {
-                deadFadingBegin = iFading;
-                break;
-            }
             const fading = this._fadings[iFading];
             fading.easeTime += deltaTime;
             const relativeWeight = clamp01(fading.easeTime / fading.easeDuration);
@@ -55,6 +51,11 @@ export class CrossFade extends Playable {
             absoluteWeight = absoluteWeight * (1.0 - relativeWeight);
             if (fading.target.state) {
                 fading.target.state.weight += weight;
+            }
+            if (fading.easeTime >= fading.easeDuration) {
+                deadFadingBegin = iFading + 1;
+                fading.easeTime = fading.easeDuration;
+                break;
             }
         }
 

@@ -427,9 +427,9 @@ export class RenderScene {
         if (PREVIEW) {
             if (ui2dNode == null) { console.error('make sure UINode is not null'); }
         }
-        const uiTransfrom = ui2dNode._uiProps.uiTransformComp;
-        if (uiTransfrom == null || ui2dNode.layer & Layers.Enum.IGNORE_RAYCAST || !(ui2dNode.layer & mask)) { return; }
-        uiTransfrom.getComputeAABB(aabbUI);
+        const uiTransform = ui2dNode._uiProps.uiTransformComp;
+        if (uiTransform == null || ui2dNode.layer & Layers.Enum.IGNORE_RAYCAST || !(ui2dNode.layer & mask)) { return; }
+        uiTransform.getComputeAABB(aabbUI);
         const d = intersect.ray_aabb(worldRay, aabbUI);
 
         if (d <= 0) {
@@ -464,7 +464,7 @@ const pool = new RecyclePool<IRaycastResult>(() => {
     return { node: null!, distance: Infinity };
 }, 8);
 const resultModels: IRaycastResult[] = [];
-/** Canavas raycast result pool */
+/** Canvas raycast result pool */
 const aabbUI = new aabb();
 const poolUI = new RecyclePool<IRaycastResult>(() => {
     return { node: null!, distance: Infinity };

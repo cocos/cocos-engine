@@ -38,6 +38,7 @@ import { WebGLGFXDevice } from './webgl-device';
 import { IWebGLGPUInputAssembler, IWebGLGPUUniform, WebGLAttrib, WebGLGPUBindingLayout,
     WebGLGPUBuffer, WebGLGPUFramebuffer, WebGLGPUInput,
     WebGLGPUPipelineState, WebGLGPUShader, WebGLGPUTexture, WebGLGPUUniformBlock, WebGLGPUUniformSampler } from './webgl-gpu-objects';
+import { WECHAT } from 'internal:constants';
 
 function CmpF32NotEuqal (a: number, b: number): boolean {
     const c = a - b;
@@ -178,6 +179,16 @@ export function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGLRend
         case GFXFormat.BC3_SRGB: return WebGLEXT.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
 
         case GFXFormat.ETC_RGB8: return WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL;
+        case GFXFormat.ETC2_RGB8: return WebGLEXT.COMPRESSED_RGB8_ETC2;
+        case GFXFormat.ETC2_SRGB8: return WebGLEXT.COMPRESSED_SRGB8_ETC2;
+        case GFXFormat.ETC2_RGB8_A1: return WebGLEXT.COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+        case GFXFormat.ETC2_SRGB8_A1: return WebGLEXT.COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+        case GFXFormat.ETC2_RGBA8: return WebGLEXT.COMPRESSED_RGBA8_ETC2_EAC;
+        case GFXFormat.ETC2_SRGB8_A8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC;
+        case GFXFormat.EAC_R11: return WebGLEXT.COMPRESSED_R11_EAC;
+        case GFXFormat.EAC_R11SN: return WebGLEXT.COMPRESSED_SIGNED_R11_EAC;
+        case GFXFormat.EAC_RG11: return WebGLEXT.COMPRESSED_RG11_EAC;
+        case GFXFormat.EAC_RG11SN: return WebGLEXT.COMPRESSED_SIGNED_RG11_EAC;
 
         case GFXFormat.PVRTC_RGB2: return WebGLEXT.COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
         case GFXFormat.PVRTC_RGBA2: return WebGLEXT.COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
@@ -1504,6 +1515,9 @@ export function WebGLCmdFuncBeginRenderPass (
     clearDepth: number,
     clearStencil: number) {
 
+    gfxStateCache.gpuInputAssembler = null;
+    gfxStateCache.gpuShader = null;
+
     const gl = device.gl;
     const cache = device.stateCache;
     let clears: GLbitfield = 0;
@@ -2569,8 +2583,6 @@ export function WebGLCmdFuncDraw (device: WebGLGFXDevice, drawInfo: IGFXDrawInfo
 const cmdIds = new Array<number>(WebGLCmd.COUNT);
 export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: WebGLCmdPackage) {
     cmdIds.fill(0);
-    gfxStateCache.gpuShader = null;
-    gfxStateCache.gpuInputAssembler = null;
 
     for (let i = 0; i < cmdPackage.cmds.length; ++i) {
         const cmd = cmdPackage.cmds.array[i];
@@ -2709,7 +2721,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                             region.texOffset.x, region.texOffset.y, w, h,
                             gpuTexture.glFormat, gpuTexture.glType, pixels);
                     } else {
-                        if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
+                        if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL && !WECHAT) {
                             gl.compressedTexSubImage2D(gl.TEXTURE_2D, m,
                                 region.texOffset.x, region.texOffset.y, w, h,
                                 gpuTexture.glFormat, pixels);
@@ -2743,7 +2755,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                                 region.texOffset.x, region.texOffset.y, w, h,
                                 gpuTexture.glFormat, gpuTexture.glType, pixels);
                         } else {
-                            if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
+                            if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL && !WECHAT) {
                                 gl.compressedTexSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
                                     region.texOffset.x, region.texOffset.y, w, h,
                                     gpuTexture.glFormat, pixels);

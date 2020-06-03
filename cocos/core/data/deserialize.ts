@@ -25,7 +25,7 @@
 */
 
 /**
- * @category core/data
+ * @hidden
  */
 
 import { warnID } from '../platform/debug';

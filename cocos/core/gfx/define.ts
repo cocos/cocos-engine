@@ -755,6 +755,7 @@ export function GFXFormatSize (format: GFXFormat, width: number, height: number,
             case GFXFormat.EAC_R11:
             case GFXFormat.EAC_R11SN:
                 return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
+            case GFXFormat.ETC2_RGBA8:
             case GFXFormat.EAC_RG11:
             case GFXFormat.EAC_RG11SN:
                 return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
@@ -794,7 +795,6 @@ export function GFXFormatSurfaceSize (
         size += GFXFormatSize(format, width, height, depth);
         width = Math.max(width >> 1, 1);
         height = Math.max(height >> 1, 1);
-        depth = Math.max(depth >> 1, 1);
     }
 
     return size;

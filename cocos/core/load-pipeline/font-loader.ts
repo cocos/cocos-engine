@@ -24,7 +24,7 @@
  */
 
 /**
- * @category loader
+ * @hidden
  */
 
 import {safeMeasureText} from '../utils/text-utils';
@@ -43,7 +43,7 @@ const _testString = "BES bswy:->@123\u4E01\u3041\u1101";
 
 let _fontFaces = {};
 let _intervalId = -1;
-let _loadingFonts:Array<IFontLoadHandle> = [];
+let _loadingFonts: Array<IFontLoadHandle> = [];
 // 3 seconds timeout
 let _timeout = 3000;
 
@@ -201,7 +201,7 @@ export function loadFont (item, callback) {
     }
     else {
         // Save loading font
-        let fontLoadHandle:IFontLoadHandle = {
+        let fontLoadHandle: IFontLoadHandle = {
             fontFamilyName,
             refWidth,
             callback,

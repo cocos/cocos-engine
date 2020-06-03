@@ -63,6 +63,7 @@ export function getWorldMatrix (transform: IJointTransform | null, stamp: number
     while (transform) {
         if (transform.stamp === stamp || transform.stamp + 1 === stamp && !transform.node.hasChangedFlags) {
             res = transform.world;
+            transform.stamp = stamp;
             break;
         }
         transform.stamp = stamp;
@@ -111,7 +112,7 @@ export function deleteTransform (node: Node) {
     }
 }
 
-function getRevelantBuffers (outIndices: number[], outBuffers: number[], jointMaps: number[][], targetJoint: number) {
+function getRelevantBuffers (outIndices: number[], outBuffers: number[], jointMaps: number[][], targetJoint: number) {
     for (let i = 0; i < jointMaps.length; i++) {
         const idxMap = jointMaps[i];
         let index = -1;
@@ -152,7 +153,7 @@ export class SkinningModel extends MorphModel {
     public uploadAnimation = null;
 
     private _buffers: GFXBuffer[] = [];
-    private _datas: Float32Array[] = [];
+    private _dataArray: Float32Array[] = [];
     private _joints: IJointInfo[] = [];
     private _bufferIndices: number[] | null = null;
 
@@ -192,7 +193,7 @@ export class SkinningModel extends MorphModel {
             const indices: number[] = [];
             const buffers: number[] = [];
             if (!jointMaps) { indices.push(index); buffers.push(0); }
-            else { getRevelantBuffers(indices, buffers, jointMaps, index); }
+            else { getRelevantBuffers(indices, buffers, jointMaps, index); }
             this._joints.push({ indices, buffers, bound, target, bindpose, transform });
         }
     }
@@ -228,11 +229,11 @@ export class SkinningModel extends MorphModel {
             const { indices, buffers, transform, bindpose } = this._joints[i];
             Mat4.multiply(m4_1, transform.world, bindpose);
             for (let b = 0; b < buffers.length; b++) {
-                uploadJointData(this._datas[buffers[b]], indices[b] * 12, m4_1, i === 0);
+                uploadJointData(this._dataArray[buffers[b]], indices[b] * 12, m4_1, i === 0);
             }
         }
         for (let b = 0; b < this._buffers.length; b++) {
-            this._buffers[b].update(this._datas[b]);
+            this._buffers[b].update(this._dataArray[b]);
         }
         return true;
     }
@@ -265,8 +266,8 @@ export class SkinningModel extends MorphModel {
                     stride: UBOSkinning.SIZE,
                 });
             }
-            if (!this._datas[i]) {
-                this._datas[i] = new Float32Array(UBOSkinning.COUNT);
+            if (!this._dataArray[i]) {
+                this._dataArray[i] = new Float32Array(UBOSkinning.COUNT);
             }
         }
     }

@@ -18,7 +18,6 @@ export class Skybox extends Model {
     set useIBL (val) {
         this._useIBL = val;
         this._updatePipeline();
-        this._updateGlobalBinding();
     }
     get useIBL () {
         return this._useIBL;
@@ -29,7 +28,6 @@ export class Skybox extends Model {
         skybox_material!.recompileShaders({ USE_RGBE_CUBEMAP: this._isRGBE });
         this.setSubModelMaterial(0, skybox_material);
         this._updatePipeline();
-        this._updateGlobalBinding();
     }
     get isRGBE () {
         return this._isRGBE;
@@ -63,6 +61,11 @@ export class Skybox extends Model {
         }
         if (!skybox_mesh) { skybox_mesh = createMesh(box({ width: 2, height: 2, length: 2 })); }
         this.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
+    }
+
+    public onGlobalPipelineStateChanged () {
+        super.onGlobalPipelineStateChanged();
+        this._updateGlobalBinding();
     }
 
     protected _updatePipeline () {

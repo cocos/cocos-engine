@@ -48,7 +48,7 @@ export default class System implements ISchedulable {
         return this._id;
     }
 
-    public static sortByPriority (a:System, b:System) {
+    public static sortByPriority (a: System, b: System) {
         if (a._priority < b._priority) {
             return 1;
         }

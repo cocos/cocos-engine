@@ -24,11 +24,13 @@
  THE SOFTWARE.
  */
 
-import { legacyCC } from '../global-exports';
-
 /**
- * @category loader
+ * @hidden
  */
+
+import { errorID } from "../platform/debug";
+import { js } from "../utils/js";
+import { Texture2D } from "../assets/texture-2d";
 
 export class JsonUnpacker {
     public jsons = {};
@@ -39,7 +41,7 @@ export class JsonUnpacker {
      */
     load (indices, packedJson) {
         if (packedJson.length !== indices.length) {
-            legacyCC.errorID(4915);
+            errorID(4915);
         }
         for (let i = 0; i < indices.length; i++) {
             let key = indices[i];
@@ -64,7 +66,7 @@ export class TextureUnpacker {
     load (indices, packedJson) {
         let datas = packedJson.data;
         if (datas.length !== indices.length) {
-            legacyCC.errorID(4915);
+            errorID(4915);
         }
         for (let i = 0; i < indices.length; i++) {
             this.contents[indices[i]] = {base: datas[i][0], mipmaps: datas[i][1]};
@@ -75,7 +77,7 @@ export class TextureUnpacker {
         let content = this.contents[key];
         if (content) {
             return {
-                __type__: legacyCC.js._getClassId(legacyCC.Texture2D),
+                __type__: js._getClassId(Texture2D),
                 content: content
             };
         }
