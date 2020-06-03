@@ -248,6 +248,8 @@ export class SkinningModel extends MorphModel {
         const superMacroPatches = super.getMacroPatches(subModelIndex);
         if (superMacroPatches) {
             return myPatches.concat(superMacroPatches);
+        } else {
+            return myPatches;
         }
     }
 
