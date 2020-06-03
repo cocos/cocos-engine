@@ -1,5 +1,6 @@
 {
     "common": [
+        ".clang-format", 
         "CMakeLists.txt", 
         "cocos/audio/AudioEngine.cpp", 
         "cocos/audio/android/AssetFd.cpp", 
