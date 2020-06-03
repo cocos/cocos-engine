@@ -24,7 +24,7 @@
  THE SOFTWARE.
  */
 /**
- * @category loader
+ * @hidden
  */
 
 import {createMap} from '../utils/js';

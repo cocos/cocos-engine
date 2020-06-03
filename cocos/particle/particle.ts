@@ -71,15 +71,15 @@ export const PARTICLE_MODULE_ORDER = [
 ];
 
 export const PARTICLE_MODULE_PROPERTY = [
-    'colorOverLifetimeModule',
-    'shapeModule',
-    'sizeOvertimeModule',
-    'velocityOvertimeModule',
-    'forceOvertimeModule',
-    'limitVelocityOvertimeModule',
-    'rotationOvertimeModule',
-    'textureAnimationModule',
-    'trailModule'
+    '_colorOverLifetimeModule',
+    '_shapeModule',
+    '_sizeOvertimeModule',
+    '_velocityOvertimeModule',
+    '_forceOvertimeModule',
+    '_limitVelocityOvertimeModule',
+    '_rotationOvertimeModule',
+    '_textureAnimationModule',
+    '_trailModule'
 ];
 
 export interface IParticleModule {

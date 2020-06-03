@@ -30,7 +30,15 @@
 import { UIComponent } from '../components/ui-base/ui-component';
 import { UITransformComponent } from '../components/ui-base/ui-transform-component';
 
+/**
+ * @en Node's UI properties abstraction
+ * @zh 节点上 UI 相关的属性抽象类
+ */
 export class NodeUIProperties {
+    /**
+     * @en The UI transform component
+     * @zh UI 变换组件
+     */
     get uiTransformComp () {
         if (!this._uiTransformComp) {
             this._uiTransformComp = this._node.getComponent(UITransformComponent);
@@ -38,12 +46,19 @@ export class NodeUIProperties {
 
         return this._uiTransformComp;
     }
-
     set uiTransformComp (value) {
         this._uiTransformComp = value;
     }
 
+    /**
+     * @en The base UI component
+     * @zh UI 基类组件
+     */
     public uiComp: UIComponent | null = null;
+    /**
+     * @en The opacity of the UI node
+     * @zh UI 透明度
+     */
     public opacity = 1;
     protected _uiTransformComp: UITransformComponent | null = null;
     private _node: any;

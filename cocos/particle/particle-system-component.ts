@@ -29,6 +29,7 @@ import ParticleSystemRenderer from './renderer/particle-system-renderer-data';
 import TrailModule from './renderer/trail';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 import { PARTICLE_MODULE_PROPERTY } from './particle';
+import { EDITOR } from 'internal:constants';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -52,7 +53,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     public set capacity (val) {
-        this._capacity = val;
+        this._capacity = Math.floor(val);
         // @ts-ignore
         if (this.processor && this.processor._model) {
             // @ts-ignore
@@ -297,14 +298,14 @@ export class ParticleSystemComponent extends RenderableComponent {
     public rateOverDistance = new CurveRange();
 
     /**
-     * @zh 设定在指定时间发射指定数量的粒子的 Brust 的数量。
+     * @zh 设定在指定时间发射指定数量的粒子的 burst 的数量。
      */
     @property({
         type: [Burst],
         displayOrder: 16,
         tooltip:'在某个时间点发射给定数量的粒子'
     })
-    public bursts = new Array();
+    public bursts: Burst[] = new Array();
 
     @property({
         type: Material,
@@ -324,6 +325,8 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     // color over lifetime module
+    @property({type: ColorOverLifetimeModule})
+    _colorOverLifetimeModule:ColorOverLifetimeModule | null = null;
     /**
      * @zh 颜色控制模块。
      */
@@ -332,9 +335,24 @@ export class ParticleSystemComponent extends RenderableComponent {
         displayOrder: 23,
         tooltip:'颜色模块',
     })
-    public colorOverLifetimeModule = new ColorOverLifetimeModule();
+    public get colorOverLifetimeModule () {
+        if (EDITOR) {
+            if (!this._colorOverLifetimeModule) {
+                this._colorOverLifetimeModule = new ColorOverLifetimeModule();
+                this._colorOverLifetimeModule.bindTarget(this.processor!);
+            }
+        }
+        return this._colorOverLifetimeModule;
+    }
 
-    // shpae module
+    public set colorOverLifetimeModule (val) {
+        if (!val) return;
+        this._colorOverLifetimeModule = val;
+    }
+
+    // shape module
+    @property({type: ShapeModule})
+    _shapeModule:ShapeModule | null = null;
     /**
      * @zh 粒子发射器模块。
      */
@@ -343,9 +361,24 @@ export class ParticleSystemComponent extends RenderableComponent {
         displayOrder: 17,
         tooltip:'发射器模块',
     })
-    public shapeModule = new ShapeModule();
+    public get shapeModule () {
+        if (EDITOR) {
+            if (!this._shapeModule) {
+                this._shapeModule = new ShapeModule();
+                this._shapeModule.onInit(this);
+            }
+        }
+        return this._shapeModule;
+    }
+
+    public set shapeModule (val) {
+        if (!val) return;
+        this._shapeModule = val;
+    }
 
     // size over lifetime module
+    @property({type: SizeOvertimeModule})
+    _sizeOvertimeModule:SizeOvertimeModule | null = null;
     /**
      * @zh 粒子大小模块。
      */
@@ -354,8 +387,24 @@ export class ParticleSystemComponent extends RenderableComponent {
         displayOrder: 21,
         tooltip:'大小模块',
     })
-    public sizeOvertimeModule = new SizeOvertimeModule();
+    public get sizeOvertimeModule () {
+        if (EDITOR) {
+            if (!this._sizeOvertimeModule) {
+                this._sizeOvertimeModule = new SizeOvertimeModule();
+                this._sizeOvertimeModule.bindTarget(this.processor!);
+            }
+        }
+        return this._sizeOvertimeModule;
+    }
 
+    public set sizeOvertimeModule (val) {
+        if (!val) return;
+        this._sizeOvertimeModule = val;
+    }
+
+    // velocity overtime module
+    @property({type: VelocityOvertimeModule})
+    _velocityOvertimeModule:VelocityOvertimeModule | null = null;
     /**
      * @zh 粒子速度模块。
      */
@@ -364,8 +413,24 @@ export class ParticleSystemComponent extends RenderableComponent {
         displayOrder: 18,
         tooltip:'速度模块',
     })
-    public velocityOvertimeModule = new VelocityOvertimeModule();
+    public get velocityOvertimeModule () {
+        if (EDITOR) {
+            if (!this._velocityOvertimeModule) {
+                this._velocityOvertimeModule = new VelocityOvertimeModule();
+                this._velocityOvertimeModule.bindTarget(this.processor!);
+            }
+        }
+        return this._velocityOvertimeModule;
+    }
 
+    public set velocityOvertimeModule (val) {
+        if (!val) return;
+        this._velocityOvertimeModule = val;
+    }
+
+    // force overTime module
+    @property({type: ForceOvertimeModule})
+    _forceOvertimeModule:ForceOvertimeModule | null = null;
     /**
      * @zh 粒子加速度模块。
      */
@@ -374,8 +439,24 @@ export class ParticleSystemComponent extends RenderableComponent {
         displayOrder: 19,
         tooltip:'加速度模块',
     })
-    public forceOvertimeModule = new ForceOvertimeModule();
+    public get forceOvertimeModule () {
+        if (EDITOR) {
+            if (!this._forceOvertimeModule) {
+                this._forceOvertimeModule = new ForceOvertimeModule();
+                this._forceOvertimeModule.bindTarget(this.processor!);
+            }
+        }
+        return this._forceOvertimeModule;
+    }
 
+    public set forceOvertimeModule (val) {
+        if (!val) return;
+        this._forceOvertimeModule = val;
+    }
+
+    // limit velocity overtime module
+    @property({type: LimitVelocityOvertimeModule})
+    _limitVelocityOvertimeModule:LimitVelocityOvertimeModule | null = null;
     /**
      * @zh 粒子限制速度模块（只支持 CPU 粒子）。
      */
@@ -384,8 +465,24 @@ export class ParticleSystemComponent extends RenderableComponent {
         displayOrder: 20,
         tooltip:'限速模块',
     })
-    public limitVelocityOvertimeModule = new LimitVelocityOvertimeModule();
+    public get limitVelocityOvertimeModule () {
+        if (EDITOR) {
+            if (!this._limitVelocityOvertimeModule) {
+                this._limitVelocityOvertimeModule = new LimitVelocityOvertimeModule();
+                this._limitVelocityOvertimeModule.bindTarget(this.processor!);
+            }
+        }
+        return this._limitVelocityOvertimeModule;
+    }
 
+    public set limitVelocityOvertimeModule (val) {
+        if (!val) return;
+        this._limitVelocityOvertimeModule = val;
+    }
+
+    // rotation overtime module
+    @property({type: RotationOvertimeModule})
+    _rotationOvertimeModule:RotationOvertimeModule | null = null;
     /**
      * @zh 粒子旋转模块。
      */
@@ -394,8 +491,24 @@ export class ParticleSystemComponent extends RenderableComponent {
         displayOrder: 22,
         tooltip:'旋转模块',
     })
-    public rotationOvertimeModule = new RotationOvertimeModule();
+    public get rotationOvertimeModule () {
+        if (EDITOR) {
+            if (!this._rotationOvertimeModule) {
+                this._rotationOvertimeModule = new RotationOvertimeModule();
+                this._rotationOvertimeModule.bindTarget(this.processor!);
+            }
+        }
+        return this._rotationOvertimeModule;
+    }
 
+    public set rotationOvertimeModule (val) {
+        if (!val) return;
+        this._rotationOvertimeModule = val;
+    }
+
+    // texture animation module
+    @property({type: TextureAnimationModule})
+    _textureAnimationModule:TextureAnimationModule | null = null;
     /**
      * @zh 贴图动画模块。
      */
@@ -404,8 +517,24 @@ export class ParticleSystemComponent extends RenderableComponent {
         displayOrder: 24,
         tooltip:'贴图动画模块',
     })
-    public textureAnimationModule = new TextureAnimationModule();
+    public get textureAnimationModule () {
+        if (EDITOR) {
+            if (!this._textureAnimationModule) {
+                this._textureAnimationModule = new TextureAnimationModule();
+                this._textureAnimationModule.bindTarget(this.processor!);
+            }
+        }
+        return this._textureAnimationModule;
+    }
 
+    public set textureAnimationModule (val) {
+        if (!val) return;
+        this._textureAnimationModule = val;
+    }
+
+    // trail module
+    @property({type: TrailModule})
+    _trailModule:TrailModule | null = null;
     /**
      * @zh 粒子轨迹模块。
      */
@@ -414,7 +543,21 @@ export class ParticleSystemComponent extends RenderableComponent {
         displayOrder: 25,
         tooltip:'拖尾模块',
     })
-    public trailModule = new TrailModule();
+    public get trailModule () {
+        if (EDITOR) {
+            if (!this._trailModule) {
+                this._trailModule = new TrailModule();
+                this._trailModule.onInit(this);
+                this._trailModule.onEnable();
+            }
+        }
+        return this._trailModule;
+    }
+
+    public set trailModule (val) {
+        if (!val) return;
+        this._trailModule = val;
+    }
 
     // particle system renderer
     @property({
@@ -490,8 +633,8 @@ export class ParticleSystemComponent extends RenderableComponent {
     public onLoad () {
         // HACK, TODO
         this.renderer.onInit(this);
-        this.shapeModule.onInit(this);
-        this.trailModule.onInit(this);
+        this._shapeModule && this._shapeModule.onInit(this);
+        this._trailModule && this._trailModule.onInit(this);
         this.bindModule();
         this._resetPosition();
 
@@ -509,37 +652,37 @@ export class ParticleSystemComponent extends RenderableComponent {
     public _collectModels (): Model[] {
         this._models.length = 0;
         this._models.push((this.processor as any)._model);
-        if (this.trailModule.enable && (this.trailModule as any)._trailModel) {
-            this._models.push((this.trailModule as any)._trailModel);
+        if (this._trailModule && this._trailModule.enable && (this._trailModule as any)._trailModel) {
+            this._models.push((this._trailModule as any)._trailModel);
         }
         return this._models;
     }
 
     protected _attachToScene () {
         this.processor!.attachToScene();
-        if (this.trailModule.enable) {
-            this.trailModule._attachToScene();
+        if (this._trailModule && this._trailModule.enable) {
+            this._trailModule._attachToScene();
         }
     }
 
     protected _detachFromScene () {
         this.processor!.detachFromScene();
-        if (this.trailModule.enable) {
-            this.trailModule._detachFromScene();
+        if (this._trailModule && this._trailModule.enable) {
+            this._trailModule._detachFromScene();
         }
     }
 
     public bindModule () {
-        this.colorOverLifetimeModule.bindTarget(this.processor!);
-        this.sizeOvertimeModule.bindTarget(this.processor!);
-        this.rotationOvertimeModule.bindTarget(this.processor!);
-        this.forceOvertimeModule.bindTarget(this.processor!);
-        this.limitVelocityOvertimeModule.bindTarget(this.processor!);
-        this.velocityOvertimeModule.bindTarget(this.processor!);
-        this.textureAnimationModule.bindTarget(this.processor!);
+        this._colorOverLifetimeModule && this._colorOverLifetimeModule.bindTarget(this.processor!);
+        this._sizeOvertimeModule && this._sizeOvertimeModule.bindTarget(this.processor!);
+        this._rotationOvertimeModule && this._rotationOvertimeModule.bindTarget(this.processor!);
+        this._forceOvertimeModule && this._forceOvertimeModule.bindTarget(this.processor!);
+        this._limitVelocityOvertimeModule && this._limitVelocityOvertimeModule.bindTarget(this.processor!);
+        this._velocityOvertimeModule && this._velocityOvertimeModule.bindTarget(this.processor!);
+        this._textureAnimationModule && this._textureAnimationModule.bindTarget(this.processor!);
     }
 
-    // TODO: fastforward current particle system by simulating particles over given period of time, then pause it.
+    // TODO: Fast forward current particle system by simulating particles over given period of time, then pause it.
     // simulate(time, withChildren, restart, fixedTimeStep) {
 
     // }
@@ -609,7 +752,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public clear () {
         if (this.enabledInHierarchy) {
             this.processor!.clear();
-            this.trailModule.clear();
+            this._trailModule && this._trailModule.clear();
         }
     }
 
@@ -634,7 +777,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     protected onDestroy () {
         // this._system.remove(this);
         this.processor!.onDestroy();
-        this.trailModule.destroy();
+        this._trailModule && this._trailModule.destroy();
     }
 
     protected onEnable () {
@@ -642,18 +785,18 @@ export class ParticleSystemComponent extends RenderableComponent {
             this.play();
         }
         this.processor!.onEnable();
-        this.trailModule.onEnable();
+        this._trailModule && this._trailModule.onEnable();
     }
     protected onDisable () {
         this.processor!.onDisable();
-        this.trailModule.onDisable();
+        this._trailModule && this._trailModule.onDisable();
     }
     protected update (dt) {
         const scaledDeltaTime = dt * this.simulationSpeed;
         if (this._isPlaying) {
             this._time += scaledDeltaTime;
 
-            // excute emission
+            // Execute emission
             this._emit(scaledDeltaTime);
 
             // simulation, update particles.
@@ -665,13 +808,13 @@ export class ParticleSystemComponent extends RenderableComponent {
             this.processor!.updateRenderData();
 
             // update trail
-            if (this.trailModule.enable) {
-                this.trailModule.updateRenderData();
+            if (this._trailModule && this._trailModule.enable) {
+                this._trailModule.updateRenderData();
             }
         }
     }
 
-    protected _onVisiblityChange (val) {
+    protected _onVisibilityChange (val) {
         // @ts-ignore
         if (this.processor._model) {
             // @ts-ignore
@@ -694,16 +837,15 @@ export class ParticleSystemComponent extends RenderableComponent {
             }
             const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
 
-            if (this.shapeModule.enable) {
-                this.shapeModule.emit(particle);
-            }
-            else {
+            if (this._shapeModule && this._shapeModule.enable) {
+                this._shapeModule.emit(particle);
+            } else {
                 Vec3.set(particle.position, 0, 0, 0);
                 Vec3.copy(particle.velocity, particleEmitZAxis);
             }
 
-            if (this.textureAnimationModule.enable) {
-                this.textureAnimationModule.init(particle);
+            if (this._textureAnimationModule && this._textureAnimationModule.enable) {
+                this._textureAnimationModule.init(particle);
             }
 
             Vec3.multiplyScalar(particle.velocity, particle.velocity, this.startSpeed.evaluate(delta, rand)!);

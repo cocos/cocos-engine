@@ -1,5 +1,5 @@
 import CANNON from '@cocos/cannon';
-import { Vec3 } from '../../../core/math';
+import { Vec3, Quat } from '../../../core/math';
 import { getWrap, setWrap } from '../../framework/util';
 import { commitShapeUpdates } from '../cannon-util';
 import { PhysicMaterial } from '../../framework/assets/physic-material';
@@ -163,9 +163,11 @@ export class CannonShape implements IBaseShape {
         this._index = index;
     }
 
-    setOffsetAndOrient (offset: CANNON.Vec3, Orient: CANNON.Quaternion) {
+    setOffsetAndOrient (offset: CANNON.Vec3, orient: CANNON.Quaternion) {
+        Vec3.copy(offset, this._offset);
+        Quat.copy(orient, this._orient);
         this._offset = offset;
-        this._orient = Orient;
+        this._orient = orient;
     }
 
     protected _setCenter (v: IVec3Like) {

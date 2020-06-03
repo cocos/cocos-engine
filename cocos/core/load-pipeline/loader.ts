@@ -266,28 +266,25 @@ let defaultMap = {
 let ID = 'Loader';
 
 /**
- * The loader pipe, it can load several types of files:
+ * @en The loader pipe in {{loader}}, it can load several types of files:
  * 1. Images
  * 2. JSON
  * 3. Plist
  * 4. Audio
  * 5. Font
- * 6. Cocos Creator scene
+ * 6. Binary
+ * 7. Cocos Assets
  * It will not interfere with items of unknown type.
- * You can pass custom supported types in the constructor.
- * @class Pipeline.Loader
- */
-/**
- * Constructor of Loader, you can pass custom supported types.
- *
- * @param {Object} extMap Custom supported types with corresponded handler
- * @example
- * ```
- * let loader = new Loader({
- *    // This will match all url with `.scene` extension or all url with `scene` type
- *    'scene' : function (url, callback) {}
- * });
- * ```
+ * You can pass custom supported types in the {{loader.addLoadHandlers}}.
+ * @zh {{loader}} 中的解析加载管线，可以解析加载下列类型的资源：
+ * 1. Images
+ * 2. JSON
+ * 3. Plist
+ * 4. Audio
+ * 5. Font
+ * 6. Binary
+ * 7. Cocos Assets
+ * 所有未知类型不会被处理，也可以通过 {{loader.addLoadHandlers}} 来定制加载行为
  */
 export default class Loader implements IPipe {
     static ID = ID;
@@ -295,16 +292,18 @@ export default class Loader implements IPipe {
     public id = ID;
     public async = true;
     public pipeline: Pipeline | null = null;
-    private extMap:object;
+    private extMap: object;
     constructor (extMap?) {
         this.extMap = mixin(extMap, defaultMap);
     }
 
     /**
-     * Add custom supported types handler or modify existing type handler.
-     * @param {Object} extMap Custom supported types with corresponded handler
+     * @en Add custom supported types handler or modify existing type handler.
+     * @zh 添加自定义支持的类型处理程序或修改现有的类型处理程序。
+     * @param extMap Custom supported types with corresponded handler
+     * @param extMap Custom supported types with corresponded handler
      */
-    addHandlers (extMap?) {
+    addHandlers (extMap: Map<string, Function>) {
         this.extMap = mixin(this.extMap, extMap);
     }
 

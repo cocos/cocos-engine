@@ -40,7 +40,7 @@ import { Node } from '../../scene-graph';
 import { Pass, IMacroPatch } from '../core/pass';
 import { samplerLib } from '../core/sampler-lib';
 import { DataPoolManager } from '../data-pool-manager';
-import { Model, ModelType } from '../scene/model';
+import { ModelType } from '../scene/model';
 import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../global-exports';
@@ -131,9 +131,8 @@ export class BakedSkinningModel extends MorphModel {
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) {
             const view = this.instancedAttributes.list[idx].view;
-            view[0] = view[1] * info.data[0] + view[2];
-        }
-        if (info.dirty) {
+            view[0] = info.data[0];
+        } else if (info.dirty) {
             info.buffer.update(info.data);
             info.dirty = false;
         }
@@ -167,20 +166,12 @@ export class BakedSkinningModel extends MorphModel {
         if (oldTex && oldTex !== texture) { this._dataPoolManager.jointTexturePool.releaseHandle(oldTex); }
         this._jointsMedium.texture = texture;
         if (!texture) { return; }
-        const { buffer, jointTextureInfo: jointTextureInfo } = this._jointsMedium;
+        const { buffer, jointTextureInfo } = this._jointsMedium;
         jointTextureInfo[0] = texture.handle.texture.width;
         jointTextureInfo[1] = this._skeleton!.joints.length;
         jointTextureInfo[2] = texture.pixelOffset + 0.1; // guard against floor() underflow
         jointTextureInfo[3] = 1 / jointTextureInfo[0];
-        const idx = this._instAnimInfoIdx;
-        if (idx >= 0) { // update instancing data too
-            const info = this._jointsMedium.animInfo;
-            const view = this.instancedAttributes.list[idx].view;
-            const pixelsPerJoint = this._dataPoolManager.jointTexturePool.pixelsPerJoint;
-            view[1] = pixelsPerJoint * jointTextureInfo[1];
-            view[2] = jointTextureInfo[2];
-            view[0] = view[1] * info.data[0] + view[2];
-        }
+        this.updateInstancedJointTextureInfo();
         if (buffer) { buffer.update(jointTextureInfo); }
         const tv = texture.handle.texView;
         const it = this._matPSORecord.values(); let res = it.next();
@@ -216,5 +207,17 @@ export class BakedSkinningModel extends MorphModel {
     protected updateInstancedAttributeList (pso: GFXPipelineState, pass: Pass) {
         super.updateInstancedAttributeList(pso, pass);
         this._instAnimInfoIdx = this.getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
+        this.updateInstancedJointTextureInfo();
+    }
+
+    private updateInstancedJointTextureInfo () {
+        const { jointTextureInfo, animInfo } = this._jointsMedium;
+        const idx = this._instAnimInfoIdx;
+        if (idx >= 0) { // update instancing data too
+            const view = this.instancedAttributes.list[idx].view;
+            view[0] = animInfo.data[0];
+            view[1] = jointTextureInfo[1];
+            view[2] = jointTextureInfo[2];
+        }
     }
 }

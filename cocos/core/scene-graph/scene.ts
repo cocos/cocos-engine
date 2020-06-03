@@ -38,20 +38,27 @@ import { legacyCC } from '../global-exports';
 
 /**
  * @en
- * cc.Scene is a subclass of cc.Node that is used only as an abstract concept.<br/>
- * cc.Scene and cc.Node are almost identical with the difference that users can not modify cc.Scene manually.
+ * Scene is a subclass of [[BaseNode]], composed by nodes, representing the root of a runnable environment in the game.
+ * It's managed by [[Director]] and user can switch from a scene to another using [[Director.loadScene]]
  * @zh
- * cc.Scene 是 cc._BaseNode 的子类，仅作为一个抽象的概念。<br/>
- * cc.Scene 和 cc._BaseNode 有点不同，用户不应直接修改 cc.Scene。
+ * Scene 是 [[BaseNode]] 的子类，由节点所构成，代表着游戏中可运行的某一个整体环境。
+ * 它由 [[Director]] 管理，用户可以使用 [[Director.loadScene]] 来切换场景
  */
 @ccclass('cc.Scene')
 export class Scene extends BaseNode {
-
+    /**
+     * @en The renderer scene, normally user don't need to use it
+     * @zh 渲染层场景，一般情况下用户不需要关心它
+     */
     get renderScene () {
         return this._renderScene;
     }
 
-    get globals () {
+    /**
+     * @en All scene related global parameters, it affects all content in the scene
+     * @zh 各类场景级别的渲染参数，将影响全场景的所有物体
+     */
+    get globals (): SceneGlobals {
         return this._globals;
     }
 
@@ -62,15 +69,11 @@ export class Scene extends BaseNode {
     @property
     public autoReleaseAssets = false;
 
-    /**
-     * @en Per-scene level rendering info
-     * @zh 场景级别的渲染信息
-     */
-    @property
-    public _globals = new SceneGlobals();
-
     public _renderScene: RenderScene | null = null;
     public dependAssets = null; // cache all depend assets for auto release
+
+    @property
+    protected _globals = new SceneGlobals();
 
     protected _inited: boolean;
     protected _prefabSyncedInLiveReload = false;
@@ -91,6 +94,10 @@ export class Scene extends BaseNode {
         this._inited = legacyCC.game ? !legacyCC.game._isCloning : true;
     }
 
+    /**
+     * @en Destroy the current scene and all its nodes, this action won't destroy related assets
+     * @zh 销毁当前场景中的所有节点，这个操作不会销毁资源
+     */
     public destroy () {
         const success = super.destroy();
         legacyCC.director.root.destroyScene(this._renderScene);
@@ -98,6 +105,10 @@ export class Scene extends BaseNode {
         return success;
     }
 
+    /**
+     * @en Only for compatibility purpose, user should not add any component to the scene
+     * @zh 仅为兼容性保留，用户不应该在场景上直接添加任何组件
+     */
     public addComponent (typeOrClassName: string | Function) {
         warnID(3822);
         return null;
@@ -119,23 +130,77 @@ export class Scene extends BaseNode {
 
     // transform helpers
 
+    /**
+     * Refer to [[Node.getPosition]]
+     */
     public getPosition (out?: Vec3): Vec3 { return Vec3.copy(out || new Vec3(), Vec3.ZERO); }
+    /**
+     * Refer to [[Node.getRotation]]
+     */
     public getRotation (out?: Quat): Quat { return Quat.copy(out || new Quat(), Quat.IDENTITY); }
+    /**
+     * Refer to [[Node.getScale]]
+     */
     public getScale (out?: Vec3): Vec3 { return Vec3.copy(out || new Vec3(), Vec3.ONE); }
+    /**
+     * Refer to [[Node.getWorldPosition]]
+     */
     public getWorldPosition (out?: Vec3) { return Vec3.copy(out || new Vec3(), Vec3.ZERO); }
+    /**
+     * Refer to [[Node.getWorldRotation]]
+     */
     public getWorldRotation (out?: Quat) { return Quat.copy(out || new Quat(), Quat.IDENTITY); }
+    /**
+     * Refer to [[Node.getWorldScale]]
+     */
     public getWorldScale (out?: Vec3) { return Vec3.copy(out || new Vec3(), Vec3.ONE); }
+    /**
+     * Refer to [[Node.getWorldMatrix]]
+     */
     public getWorldMatrix (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
+    /**
+     * Refer to [[Node.getWorldRS]]
+     */
     public getWorldRS (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
+    /**
+     * Refer to [[Node.getWorldRT]]
+     */
     public getWorldRT (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
+    /**
+     * Refer to [[Node.position]]
+     */
     public get position (): Readonly<Vec3> { return Vec3.ZERO; }
+    /**
+     * Refer to [[Node.worldPosition]]
+     */
     public get worldPosition (): Readonly<Vec3> { return Vec3.ZERO; }
+    /**
+     * Refer to [[Node.rotation]]
+     */
     public get rotation (): Readonly<Quat> { return Quat.IDENTITY; }
+    /**
+     * Refer to [[Node.worldRotation]]
+     */
     public get worldRotation (): Readonly<Quat> { return Quat.IDENTITY; }
+    /**
+     * Refer to [[Node.scale]]
+     */
     public get scale (): Readonly<Vec3> { return Vec3.ONE; }
+    /**
+     * Refer to [[Node.worldScale]]
+     */
     public get worldScale (): Readonly<Vec3> { return Vec3.ONE; }
+    /**
+     * Refer to [[Node.eulerAngles]]
+     */
     public get eulerAngles (): Readonly<Vec3> { return Vec3.ZERO; }
+    /**
+     * Refer to [[Node.worldMatrix]]
+     */
     public get worldMatrix (): Readonly<Mat4> { return Mat4.IDENTITY; }
+    /**
+     * Refer to [[Node.updateWorldTransform]]
+     */
     public updateWorldTransform () {}
 
     // life-cycle call backs

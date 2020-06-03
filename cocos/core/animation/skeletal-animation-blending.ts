@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 
 import { Vec3, Quat } from '../math';
 import { Node } from '../scene-graph';
@@ -77,7 +80,7 @@ export type IBlendStateWriter = IValueProxyFactory & {
     destroy: () => void;
 };
 
-export function createBlendStateWriter<P extends BlendingProperty>(
+export function createBlendStateWriter<P extends BlendingProperty> (
     blendState: BlendStateBuffer,
     node: Node,
     property: P,
@@ -95,18 +98,18 @@ export function createBlendStateWriter<P extends BlendingProperty>(
     let isConstCacheValid = false;
     let lastWeight = -1;
     return {
-        initialize: function () {
+        initialize () {
             if (!propertyBlendState) {
                 propertyBlendState = blendState.ref(node, property);
             }
         },
-        destroy: function () {
+        destroy () {
             if (propertyBlendState) {
                 blendState.deRef(node, property);
                 propertyBlendState = null;
             }
         },
-        forTarget: (_) => {
+        forTarget: () => {
             return {
                 set: (value: BlendingPropertyValue<P>) => {
                     if (!propertyBlendState) {
@@ -117,7 +120,7 @@ export function createBlendStateWriter<P extends BlendingProperty>(
                         if (weight !== 1 ||
                             weight !== lastWeight) {
                             // If there are multi writer for this property at this time,
-                            // or if the weight has been changed since last write, 
+                            // or if the weight has been changed since last write,
                             // we should invalidate the cache.
                             isConstCacheValid = false;
                         } else if (isConstCacheValid) {

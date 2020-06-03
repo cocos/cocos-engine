@@ -116,6 +116,7 @@ export interface ICollisionEvent {
      */
     readonly otherCollider: ColliderComponent;
 
+    // TODO: Provide interface to dynamic instantiate instead static data
     /**
      * @en
      * Information about all points of impact in a collision event.
@@ -123,6 +124,7 @@ export interface ICollisionEvent {
      * 碰撞中的所有碰撞点的信息。
      */
     readonly contacts: IContactEquation[];
+
 }
 
 /**

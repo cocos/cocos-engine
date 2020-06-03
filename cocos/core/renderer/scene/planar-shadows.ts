@@ -1,29 +1,25 @@
 
 import { Material } from '../../assets/material';
 import { aabb, frustum, intersect } from '../../geometry';
-import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../../gfx/command-buffer';
-import { GFXCommandBufferType } from '../../gfx/define';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Color, Mat4, Quat, Vec3 } from '../../math';
-import { CachedArray } from '../../memop/cached-array';
 import { IInternalBindingInst, UBOShadow } from '../../pipeline/define';
 import { DirectionalLight } from './directional-light';
 import { Model } from './model';
 import { RenderScene } from './render-scene';
 import { SphereLight } from './sphere-light';
+import { GFXCommandBuffer } from '../../gfx';
+import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
 const _ab = new aabb();
 const _qt = new Quat();
-const _info: IGFXCommandBufferInfo = {
-    allocator: null!,
-    type: GFXCommandBufferType.SECONDARY,
-};
 
 interface IShadowRenderData {
+    model: Model;
     psos: GFXPipelineState[];
-    cmdBuffer: GFXCommandBuffer;
+    instancedBuffer: InstancedBuffer | null;
 }
 
 export class PlanarShadows {
@@ -31,7 +27,6 @@ export class PlanarShadows {
     set enabled (enable: boolean) {
         this._enabled = enable;
         if (this._scene.mainLight) { this.updateDirLight(this._scene.mainLight); }
-        this._cmdBuffs.clear();
     }
 
     get enabled (): boolean {
@@ -67,14 +62,6 @@ export class PlanarShadows {
         return this._data;
     }
 
-    get cmdBuffs () {
-        return this._cmdBuffs;
-    }
-
-    get cmdBuffCount () {
-        return this._cmdBuffs.length;
-    }
-
     protected _scene: RenderScene;
     protected _enabled: boolean = false;
     protected _normal = new Vec3(0, 1, 0);
@@ -85,17 +72,18 @@ export class PlanarShadows {
         0.0, 0.0, 0.0, 0.3, // shadowColor
     ]);
     protected _globalBindings: IInternalBindingInst;
-    protected _cmdBuffs: CachedArray<GFXCommandBuffer>;
-    protected _cmdBuffCount = 0;
     protected _record = new Map<Model, IShadowRenderData>();
+    protected _pendingModels: IShadowRenderData[] = [];
     protected _material: Material;
+    protected _instancingMaterial: Material;
 
     constructor (scene: RenderScene) {
         this._scene = scene;
         this._globalBindings = scene.root.pipeline.globalBindings.get(UBOShadow.BLOCK.name)!;
-        this._cmdBuffs = new CachedArray<GFXCommandBuffer>(64);
         this._material = new Material();
         this._material.initialize({ effectName: 'pipeline/planar-shadow' });
+        this._instancingMaterial = new Material();
+        this._instancingMaterial.initialize({ effectName: 'pipeline/planar-shadow', defines: { USE_INSTANCING: true } });
     }
 
     public updateSphereLight (light: SphereLight) {
@@ -154,7 +142,7 @@ export class PlanarShadows {
     }
 
     public updateCommandBuffers (frstm: frustum, stamp: number) {
-        this._cmdBuffs.clear();
+        this._pendingModels.length = 0;
         if (!this._scene.mainLight) { return; }
         const models = this._scene.models;
         for (let i = 0; i < models.length; i++) {
@@ -165,41 +153,67 @@ export class PlanarShadows {
                 if (!intersect.aabb_frustum(_ab, frstm)) { continue; }
             }
             let data = this._record.get(model);
+            if (data && (!!data.instancedBuffer !== model.isInstancingEnabled)) { this.destroyShadowData(model); data = undefined; }
             if (!data) { data = this.createShadowData(model); this._record.set(model, data); }
             if (model.updateStamp !== stamp) { model.updateUBOs(stamp); } // for those outside the frustum
-            this.cmdBuffs.push(data.cmdBuffer);
+            this._pendingModels.push(data);
+        }
+    }
+
+    public recordCommandBuffer (cmdBuff: GFXCommandBuffer) {
+        const models = this._pendingModels;
+        const modelLen = models.length;
+        const buffer = this._instancingMaterial.passes[0].instancedBuffer;
+        if (buffer) { buffer.clear(); }
+        for (let i = 0; i < modelLen; i++) {
+            const { model, psos, instancedBuffer } = models[i];
+            for (let j = 0; j < psos.length; j++) {
+                const submodel = model.getSubModel(j);
+                const pso = psos[j];
+                if (instancedBuffer) {
+                    instancedBuffer.merge(submodel, model.instancedAttributes, pso);
+                } else {
+                    const ia = submodel.inputAssembler!;
+                    cmdBuff.bindPipelineState(pso);
+                    cmdBuff.bindBindingLayout(pso.pipelineLayout.layouts[0]);
+                    cmdBuff.bindInputAssembler(ia);
+                    cmdBuff.draw(ia);
+                }
+            }
+        }
+        if (buffer && buffer.pso) {
+            buffer.uploadBuffers();
+            cmdBuff.bindPipelineState(buffer.pso!);
+            cmdBuff.bindBindingLayout(buffer.pso!.pipelineLayout.layouts[0]);
+            for (let b = 0; b < buffer.instances.length; ++b) {
+                const instance = buffer.instances[b];
+                if (!instance.count) { continue; }
+                cmdBuff.bindInputAssembler(instance.ia);
+                cmdBuff.draw(instance.ia);
+            }
         }
     }
 
     public createShadowData (model: Model): IShadowRenderData {
-        const device = this._scene.root.device;
-        _info.allocator = device.commandAllocator;
-        const cmdBuffer = device.createCommandBuffer(_info);
         const psos: GFXPipelineState[] = [];
-        cmdBuffer.begin();
+        const material = model.isInstancingEnabled ? this._instancingMaterial : this._material;
         for (let i = 0; i < model.subModelNum; i++) {
-            const ia = model.getSubModel(i).inputAssembler!;
             // @ts-ignore TS2445
-            const pso = model.createPipelineState(this._material.passes[0], i);
+            const pso = model.createPipelineState(material.passes[0], i);
             model.insertImplantPSO(pso); // add back to model to sync binding layouts
             pso.pipelineLayout.layouts[0].update(); psos.push(pso);
-            cmdBuffer.bindPipelineState(pso);
-            cmdBuffer.bindBindingLayout(pso.pipelineLayout.layouts[0]);
-            cmdBuffer.bindInputAssembler(ia);
-            cmdBuffer.draw(ia);
         }
-        cmdBuffer.end();
-        return { psos, cmdBuffer };
+        return { model, psos, instancedBuffer: material.passes[0].instancedBuffer };
     }
 
     public destroyShadowData (model: Model) {
         const data = this._record.get(model);
         if (!data) { return; }
-        data.cmdBuffer.destroy();
+        const material = data.instancedBuffer ? this._instancingMaterial : this._material;
         for (let i = 0; i < data.psos.length; i++) {
             const pso = data.psos[i];
             model.removeImplantPSO(pso);
-            this._material.passes[0].destroyPipelineState(pso);
+            material.passes[0].destroyPipelineState(pso);
         }
         this._record.delete(model);
     }

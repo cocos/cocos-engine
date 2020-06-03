@@ -1,10 +1,14 @@
+/**
+ * @hidden
+ */
+
 import { GFXAttributeName, GFXDevice, GFXSampler, GFXBuffer, GFXBufferUsageBit, GFXMemoryUsageBit, GFXPipelineState, GFXFormat, GFXTexture } from '../gfx';
 import { Mesh } from './mesh';
 import { Texture2D } from './texture-2d';
 import { ImageAsset } from './image-asset';
 import { samplerLib } from '../renderer/core/sampler-lib';
 import { UBOMorph, UniformPositionMorphTexture, UniformNormalMorphTexture, UniformTangentMorphTexture } from '../pipeline/define';
-import { warn } from '../platform/debug';
+import { warn, warnID } from '../platform/debug';
 import { MorphRendering, SubMeshMorph, Morph, MorphRenderingInstance } from './morph';
 import { assertIsNonNullable, assertIsTrue } from '../data/utils/asserts';
 import { nextPow2 } from '../math/bits';
@@ -36,6 +40,11 @@ export class StdMorphRendering implements MorphRendering {
         for (let iSubMesh = 0; iSubMesh < nSubMeshes; ++iSubMesh) {
             const subMeshMorph = this._mesh.struct.morph.subMeshMorphs[iSubMesh];
             if (!subMeshMorph) {
+                continue;
+            }
+
+            if (subMeshMorph.targets.length > UBOMorph.MAX_MORPH_TARGET_COUNT) {
+                warnID(10002, UBOMorph.MAX_MORPH_TARGET_COUNT, subMeshMorph.targets.length);
                 continue;
             }
 

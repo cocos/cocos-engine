@@ -7,7 +7,7 @@ import { CannonShape } from './shapes/cannon-shape';
 import { ColliderComponent } from '../../../exports/physics-framework';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Node } from '../../core';
-import { CollisionEventType } from '../framework/physics-interface';
+import { CollisionEventType, IContactEquation } from '../framework/physics-interface';
 import { CannonRigidBody } from './cannon-rigid-body';
 import { commitShapeUpdates } from './cannon-util';
 
@@ -18,11 +18,11 @@ const CollisionEventObject = {
     type: 'onCollisionEnter' as CollisionEventType,
     selfCollider: null as ColliderComponent | null,
     otherCollider: null as ColliderComponent | null,
-    contacts: [] as any,
+    contacts: [] as IContactEquation[],
 };
 
 /**
- * sharedbody, node : sharedbody = 1 : 1
+ * node : shared-body = 1 : 1
  * static
  */
 export class CannonSharedBody {
@@ -130,10 +130,12 @@ export class CannonSharedBody {
 
     syncPhysicsToScene () {
         if (this.body.type != ERigidBodyType.STATIC) {
-            Vec3.copy(v3_0, this.body.position);
-            Quat.copy(quat_0, this.body.quaternion);
-            this.node.worldPosition = v3_0;
-            this.node.worldRotation = quat_0;
+            if (!this.body.isSleeping()) {
+                Vec3.copy(v3_0, this.body.position);
+                Quat.copy(quat_0, this.body.quaternion);
+                this.node.worldPosition = v3_0;
+                this.node.worldRotation = quat_0;
+            }
         }
     }
 
@@ -162,7 +164,6 @@ export class CannonSharedBody {
         CollisionEventObject.type = event.event;
         const self = getWrap<CannonShape>(event.selfShape);
         const other = getWrap<CannonShape>(event.otherShape);
-
         if (self) {
             CollisionEventObject.selfCollider = self.collider;
             CollisionEventObject.otherCollider = other ? other.collider : null;

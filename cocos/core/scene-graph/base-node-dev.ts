@@ -24,7 +24,7 @@
 */
 
 /**
- * @category scene-graph
+ * @hidden
  */
 
 import { CCObject } from '../data/object';

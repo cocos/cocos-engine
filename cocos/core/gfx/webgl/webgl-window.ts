@@ -46,7 +46,7 @@ export class WebGLGFXWindow extends GFXWindow {
                 storeOp: GFXStoreOp.STORE,
                 sampleCount: 1,
                 beginLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
-                endLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
+                endLayout: GFXTextureLayout.PRESENT_SRC,
             }],
             depthStencilAttachment: {
                 format : this._depthStencilFmt,
@@ -56,7 +56,7 @@ export class WebGLGFXWindow extends GFXWindow {
                 stencilStoreOp : GFXStoreOp.STORE,
                 sampleCount : 1,
                 beginLayout : GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                endLayout : GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                endLayout : GFXTextureLayout.PRESENT_SRC,
             },
         });
 

@@ -173,7 +173,7 @@ export const graphicsAssembler: IAssembler = {
     },
 
     end (graphics: GraphicsComponent) {
-        if (graphics.model) {
+        if (graphics.model && graphics.model.inited) {
             graphics.model.destroy();
         }
         const impl = graphics.impl;

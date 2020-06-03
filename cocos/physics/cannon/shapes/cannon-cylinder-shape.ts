@@ -7,7 +7,7 @@ import { EAxisDirection } from '../../framework/physics-enum';
 import { IVec3Like } from '../../../core/math/type-define';
 import { commitShapeUpdates } from '../cannon-util';
 
-export class CannonCyliderShape extends CannonShape implements ICylinderShape {
+export class CannonCylinderShape extends CannonShape implements ICylinderShape {
 
     get collider () {
         return this._collider as CylinderColliderComponent;

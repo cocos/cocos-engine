@@ -153,7 +153,7 @@ enum CacheMode {
      */
     BITMAP = 1,
     /**
-     * @en In CHAR mode, split text into characters and cache characters into a dynamic atlas which the size of 2048*2048.
+     * @en In CHAR mode, split text into characters and cache characters into a dynamic atlas which the size of 1024 * 1024.
      *
      * @zh CHAR 模式，将文本拆分为字符，并将字符缓存到一张单独的大小为 1024 * 1024 的图集中进行重复使用，不再使用动态图集。
      * （注：当图集满时将不再进行缓存，暂时不支持 SHRINK 自适应文本尺寸（后续完善））。

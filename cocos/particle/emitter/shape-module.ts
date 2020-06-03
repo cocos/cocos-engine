@@ -362,13 +362,12 @@ function sphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
     switch (emitFrom) {
         case EmitLocation.Volume:
             randomPointBetweenSphere(pos, radius * (1 - radiusThickness), radius);
-            Vec3.copy(dir, pos);
-            Vec3.normalize(dir, dir);
+            Vec3.normalize(dir, pos);
             break;
         case EmitLocation.Shell:
             randomUnitVector(pos);
             Vec3.multiplyScalar(pos, pos, radius);
-            Vec3.copy(dir, pos);
+            Vec3.normalize(dir, pos);
             break;
         default:
             console.warn(emitFrom + ' is not supported for sphere emitter.');
@@ -382,8 +381,7 @@ function hemisphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
             if (pos.z > 0) {
                 pos.z *= -1;
             }
-            Vec3.copy(dir, pos);
-            Vec3.normalize(dir, dir);
+            Vec3.normalize(dir, pos);
             break;
         case EmitLocation.Shell:
             randomUnitVector(pos);
@@ -391,7 +389,7 @@ function hemisphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
             if (pos.z > 0) {
                 pos.z *= -1;
             }
-            Vec3.copy(dir, pos);
+            Vec3.normalize(dir, pos);
             break;
         default:
             console.warn(emitFrom + ' is not supported for hemisphere emitter.');

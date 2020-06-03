@@ -10,154 +10,162 @@ export const TERRAIN_DATA_VERSION2 = 0x01010002;
 export const TERRAIN_DATA_VERSION3 = 0x01010003;
 export const TERRAIN_DATA_VERSION_DEFAULT = 0x01010111;
 
-export class TerrainBuffer {
-    public Length: number = 0;
-    public Buffer: Uint8Array = new Uint8Array(2048);
-    private _dview: DataView = new DataView(this.Buffer.buffer);
+class TerrainBuffer {
+    public length: number = 0;
+    public buffer: Uint8Array = new Uint8Array(2048);
+    private _buffView: DataView = new DataView(this.buffer.buffer);
     private _seekPos: number = 0;
 
-    public Reserve (size: number) {
-        if (this.Buffer.byteLength > size) {
+    public reserve (size: number) {
+        if (this.buffer.byteLength > size) {
             return;
         }
 
-        let capacity = this.Buffer.byteLength;
+        let capacity = this.buffer.byteLength;
         while (capacity < size) {
             capacity += capacity;
         }
 
         const temp = new Uint8Array(capacity);
-        for (let i = 0; i < this.Length; ++i) {
-            temp[i] = this.Buffer[i];
+        for (let i = 0; i < this.length; ++i) {
+            temp[i] = this.buffer[i];
         }
 
-        this.Buffer = temp;
-        this._dview = new DataView(this.Buffer.buffer);
+        this.buffer = temp;
+        this._buffView = new DataView(this.buffer.buffer);
     }
 
-    public Assign (buff: Uint8Array) {
-        this.Buffer = buff;
-        this.Length = buff.length;
+    public assign (buff: Uint8Array) {
+        this.buffer = buff;
+        this.length = buff.length;
         this._seekPos = buff.byteOffset;
-        this._dview = new DataView(buff.buffer);
+        this._buffView = new DataView(buff.buffer);
     }
 
-    public WriteInt8 (value: number) {
-        this.Reserve(this.Length + 1);
+    public writeInt8 (value: number) {
+        this.reserve(this.length + 1);
 
-        this._dview.setInt8(this.Length, value);
-        this.Length += 1;
+        this._buffView.setInt8(this.length, value);
+        this.length += 1;
     }
 
-    public WriteInt16 (value: number) {
-        this.Reserve(this.Length + 2);
+    public writeInt16 (value: number) {
+        this.reserve(this.length + 2);
 
-        this._dview.setInt16(this.Length, value, true);
-        this.Length += 2;
+        this._buffView.setInt16(this.length, value, true);
+        this.length += 2;
     }
 
-    public WriteInt32 (value: number) {
-        this.Reserve(this.Length + 4);
+    public writeInt32 (value: number) {
+        this.reserve(this.length + 4);
 
-        this._dview.setInt32(this.Length, value, true);
-        this.Length += 4;
+        this._buffView.setInt32(this.length, value, true);
+        this.length += 4;
     }
 
-    public WriteIntArray (value: number[]) {
-        this.Reserve(this.Length + 4 * value.length);
+    public writeIntArray (value: number[]) {
+        this.reserve(this.length + 4 * value.length);
 
         for (let i = 0; i < value.length; ++i) {
-            this._dview.setInt32(this.Length + i * 4, value[i], true);
+            this._buffView.setInt32(this.length + i * 4, value[i], true);
         }
-        this.Length += 4 * value.length;
+        this.length += 4 * value.length;
     }
 
-    public WriteFloat (value: number) {
-        this.Reserve(this.Length + 4);
+    public writeFloat (value: number) {
+        this.reserve(this.length + 4);
 
-        this._dview.setFloat32(this.Length, value, true);
-        this.Length += 4;
+        this._buffView.setFloat32(this.length, value, true);
+        this.length += 4;
     }
 
-    public WriteFloatArray (value: number[]) {
-        this.Reserve(this.Length + 4 * value.length);
+    public writeFloatArray (value: number[]) {
+        this.reserve(this.length + 4 * value.length);
 
         for (let i = 0; i < value.length; ++i) {
-            this._dview.setFloat32(this.Length + i * 4, value[i], true);
+            this._buffView.setFloat32(this.length + i * 4, value[i], true);
         }
-        this.Length += 4 * value.length;
+        this.length += 4 * value.length;
     }
 
-    public WriteString (value: string) {
-        this.Reserve(this.Length + value.length + 4);
+    public writeString (value: string) {
+        this.reserve(this.length + value.length + 4);
 
-        this._dview.setInt32(this.Length, value.length, true);
+        this._buffView.setInt32(this.length, value.length, true);
         for (let i = 0; i < value.length; ++i) {
-            this._dview.setInt8(this.Length + 4 + i, value.charCodeAt(i));
+            this._buffView.setInt8(this.length + 4 + i, value.charCodeAt(i));
         }
-        this.Length += value.length + 4;
+        this.length += value.length + 4;
     }
 
-    public ReadInt8 () {
-        const value = this._dview.getInt8(this._seekPos);
+    public readInt8 () {
+        const value = this._buffView.getInt8(this._seekPos);
         this._seekPos += 1;
         return value;
     }
 
-    public ReadInt16 () {
-        const value = this._dview.getInt16(this._seekPos, true);
+    public readInt16 () {
+        const value = this._buffView.getInt16(this._seekPos, true);
         this._seekPos += 2;
         return value;
     }
 
-    public ReadInt () {
-        const value = this._dview.getInt32(this._seekPos, true);
+    public readInt () {
+        const value = this._buffView.getInt32(this._seekPos, true);
         this._seekPos += 4;
         return value;
     }
 
-    public ReadIntArray (value: number[]) {
+    public readIntArray (value: number[]) {
         for (let i = 0; i < value.length; ++i) {
-            value[i] = this._dview.getInt32(this._seekPos + i * 4, true);
+            value[i] = this._buffView.getInt32(this._seekPos + i * 4, true);
         }
         this._seekPos += 4 * value.length;
         return value;
     }
 
-    public ReadFloat () {
-        const value = this._dview.getFloat32(this._seekPos, true);
+    public readFloat () {
+        const value = this._buffView.getFloat32(this._seekPos, true);
         this._seekPos += 4;
         return value;
     }
 
-    public ReadFloatArray (value: number[]) {
+    public readFloatArray (value: number[]) {
         for (let i = 0; i < value.length; ++i) {
-            value[i] = this._dview.getFloat32(this._seekPos + i * 4, true);
+            value[i] = this._buffView.getFloat32(this._seekPos + i * 4, true);
         }
         this._seekPos += 4 * value.length;
         return value;
     }
 
-    public ReadString () {
-        const length = this.ReadInt();
+    public readString () {
+        const length = this.readInt();
 
         let value = '';
         for (let i = 0; i < length; ++i) {
-            value += String.fromCharCode(this.ReadInt8());
+            value += String.fromCharCode(this.readInt8());
         }
 
         return value;
     }
 }
 
-export class TerrainLayerInfo{
+/**
+ * @en terrain layer info
+ * @zh 地形纹理信息
+ */
+export class TerrainLayerInfo {
     public slot: number = 0;
     public tileSize: number = 1;
     public detailMap: string = '';
 }
 
+/**
+ * @en terrain asset
+ * @zh 地形资源
+ */
 @ccclass('cc.TerrainAsset')
-export class TerrainAsset extends Asset{
+export class TerrainAsset extends Asset {
     protected _data: Uint8Array|null = null;
     protected _tileSize: number = 1;
     protected _blockCount: number[] = [1, 1];
@@ -193,6 +201,10 @@ export class TerrainAsset extends Asset{
         this.emit('load');
     }
 
+    /**
+     * @en tile size
+     * @zh 栅格大小
+     */
     set tileSize (value: number) {
         this._tileSize = value;
     }
@@ -201,6 +213,10 @@ export class TerrainAsset extends Asset{
         return this._tileSize;
     }
 
+    /**
+     * @en block count
+     * @zh 块数量
+     */
     set blockCount (value: number[]) {
         this._blockCount = value;
     }
@@ -209,6 +225,10 @@ export class TerrainAsset extends Asset{
         return this._blockCount;
     }
 
+    /**
+     * @en light map size
+     * @zh 光照图大小
+     */
     set lightMapSize (value: number) {
         this._lightMapSize = value;
     }
@@ -217,6 +237,10 @@ export class TerrainAsset extends Asset{
         return this._lightMapSize;
     }
 
+    /**
+     * @en weight map size
+     * @zh 权重图大小
+     */
     set weightMapSize (value: number) {
         this._weightMapSize = value;
     }
@@ -225,6 +249,10 @@ export class TerrainAsset extends Asset{
         return this._weightMapSize;
     }
 
+    /**
+     * @en height buffer
+     * @zh 高度缓存
+     */
     set heights (value: Uint16Array) {
         this._heights = value;
     }
@@ -233,6 +261,10 @@ export class TerrainAsset extends Asset{
         return this._heights;
     }
 
+    /**
+     * @en weight buffer
+     * @zh 权重缓存
+     */
     set weights (value: Uint8Array) {
         this._weights = value;
     }
@@ -241,6 +273,10 @@ export class TerrainAsset extends Asset{
         return this._weights;
     }
 
+    /**
+     * @en layer buffer
+     * @zh 纹理索引缓存
+     */
     set layerBuffer (value: number[]) {
         this._layerBuffer = value;
     }
@@ -249,6 +285,10 @@ export class TerrainAsset extends Asset{
         return this._layerBuffer;
     }
 
+    /**
+     * @en layer info
+     * @zh 纹理信息
+     */
     set layerInfos (value: TerrainLayerInfo[]) {
         this._layerInfos = value;
     }
@@ -257,11 +297,21 @@ export class TerrainAsset extends Asset{
         return this._layerInfos;
     }
 
-    public getLayer (xblock: number, yblock: number, layerId: number) {
-        const blockId = yblock * this.blockCount[0] + xblock;
+    /**
+     * @en get layer
+     * @param xBlock block index x
+     * @param yBlock block index y
+     * @param layerId layer id
+     * @zh 获得纹理索引
+     * @param xBlock 地形块索引x
+     * @param yBlock 地形块索引y
+     * @param layerId 层Id
+     */
+    public getLayer (xBlock: number, yBlock: number, layerId: number) {
+        const blockId = yBlock * this.blockCount[0] + xBlock;
         const index = blockId * 4 + layerId;
 
-        if (xblock < this.blockCount[0] && yblock < this.blockCount[1] && index < this._layerBuffer.length) {
+        if (xBlock < this.blockCount[0] && yBlock < this.blockCount[1] && index < this._layerBuffer.length) {
             return this._layerBuffer[index];
         }
 
@@ -274,10 +324,10 @@ export class TerrainAsset extends Asset{
 
     public _loadNativeData (_nativeData: Uint8Array) {
         const stream = new TerrainBuffer();
-        stream.Assign(_nativeData);
+        stream.assign(_nativeData);
 
         // version
-        const version = stream.ReadInt();
+        const version = stream.readInt();
         if (version === TERRAIN_DATA_VERSION_DEFAULT) {
             return true;
         }
@@ -288,43 +338,43 @@ export class TerrainAsset extends Asset{
         }
 
         // geometry info
-        this.tileSize = stream.ReadFloat();
-        stream.ReadIntArray(this._blockCount);
-        this.weightMapSize = stream.ReadInt16();
-        this.lightMapSize = stream.ReadInt16();
+        this.tileSize = stream.readFloat();
+        stream.readIntArray(this._blockCount);
+        this.weightMapSize = stream.readInt16();
+        this.lightMapSize = stream.readInt16();
 
         // heights
-        const heightBufferSize = stream.ReadInt();
+        const heightBufferSize = stream.readInt();
         this.heights = new Uint16Array(heightBufferSize);
         for (let i = 0; i < this.heights.length; ++i) {
-            this.heights[i] = stream.ReadInt16();
+            this.heights[i] = stream.readInt16();
         }
 
         // weights
-        const WeightBufferSize = stream.ReadInt();
+        const WeightBufferSize = stream.readInt();
         this.weights = new Uint8Array(WeightBufferSize);
         for (let i = 0; i < this.weights.length; ++i) {
-            this.weights[i] = stream.ReadInt8();
+            this.weights[i] = stream.readInt8();
         }
 
         // layer buffer
         if (version >= TERRAIN_DATA_VERSION2) {
-            const layerBufferSize = stream.ReadInt();
+            const layerBufferSize = stream.readInt();
             this.layerBuffer = new Array<number>(layerBufferSize);
             for (let i = 0; i < this.layerBuffer.length; ++i) {
-                this.layerBuffer[i] = stream.ReadInt16();
+                this.layerBuffer[i] = stream.readInt16();
             }
         }
 
         // layer infos
         if (version >= TERRAIN_DATA_VERSION3) {
-            const layerInfoSize = stream.ReadInt();
+            const layerInfoSize = stream.readInt();
             this.layerInfos = new Array<TerrainLayerInfo>(layerInfoSize);
             for (let i = 0; i < this.layerInfos.length; ++i) {
                 this.layerInfos[i] = new TerrainLayerInfo();
-                this.layerInfos[i].slot = stream.ReadInt();
-                this.layerInfos[i].tileSize = stream.ReadFloat();
-                this.layerInfos[i].detailMap = stream.ReadString();
+                this.layerInfos[i].slot = stream.readInt();
+                this.layerInfos[i].tileSize = stream.readFloat();
+                this.layerInfos[i].detailMap = stream.readString();
 
             }
         }
@@ -336,49 +386,47 @@ export class TerrainAsset extends Asset{
         const stream = new TerrainBuffer();
 
         // version
-        stream.WriteInt32(TERRAIN_DATA_VERSION3);
+        stream.writeInt32(TERRAIN_DATA_VERSION3);
 
         // geometry info
-        stream.WriteFloat(this.tileSize);
-        stream.WriteIntArray(this._blockCount);
-        stream.WriteInt16(this.weightMapSize);
-        stream.WriteInt16(this.lightMapSize);
+        stream.writeFloat(this.tileSize);
+        stream.writeIntArray(this._blockCount);
+        stream.writeInt16(this.weightMapSize);
+        stream.writeInt16(this.lightMapSize);
 
          // heights
-        stream.WriteInt32(this.heights.length);
+        stream.writeInt32(this.heights.length);
         for (let i = 0; i < this.heights.length; ++i) {
-            stream.WriteInt16(this.heights[i]);
+            stream.writeInt16(this.heights[i]);
         }
 
         // weights
-        stream.WriteInt32(this.weights.length);
+        stream.writeInt32(this.weights.length);
         for (let i = 0; i < this.weights.length; ++i) {
-            stream.WriteInt8(this.weights[i]);
+            stream.writeInt8(this.weights[i]);
         }
 
         // layer buffer
-        stream.WriteInt32(this.layerBuffer.length);
+        stream.writeInt32(this.layerBuffer.length);
         for (let i = 0; i < this.layerBuffer.length; ++i) {
-            stream.WriteInt16(this.layerBuffer[i]);
+            stream.writeInt16(this.layerBuffer[i]);
         }
 
         // layer infos
-        stream.WriteInt32(this.layerInfos.length);
+        stream.writeInt32(this.layerInfos.length);
         for (let i = 0; i < this.layerInfos.length; ++i) {
-            stream.WriteInt32(this.layerInfos[i].slot);
-            stream.WriteFloat(this.layerInfos[i].tileSize);
-            stream.WriteString(this.layerInfos[i].detailMap);
+            stream.writeInt32(this.layerInfos[i].slot);
+            stream.writeFloat(this.layerInfos[i].tileSize);
+            stream.writeString(this.layerInfos[i].detailMap);
         }
 
-        return stream.Buffer;
+        return stream.buffer;
     }
 
     public _exportDefaultNativeData (): Uint8Array {
         const stream = new TerrainBuffer();
-
-        stream.WriteInt32(TERRAIN_DATA_VERSION_DEFAULT);
-
-        return stream.Buffer;
+        stream.writeInt32(TERRAIN_DATA_VERSION_DEFAULT);
+        return stream.buffer;
 
     }
  }

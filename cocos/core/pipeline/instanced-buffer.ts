@@ -15,6 +15,7 @@ export interface IInstancedItem {
     vb: GFXBuffer;
     data: Uint8Array;
     ia: GFXInputAssembler;
+    stride: number;
 }
 
 const INITIAL_CAPACITY = 32;
@@ -39,21 +40,26 @@ export class InstancedBuffer {
     }
 
     public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, pso: GFXPipelineState) {
-        if (!this.pso) { this.pso = pso; }
         const stride = attrs.buffer.length;
+        if (!stride) { return; } // we assume per-instance attributes are always present
+        if (!this.pso) { this.pso = pso; }
         const sourceIA = subModel.inputAssembler!;
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             if (instance.ia.indexBuffer !== sourceIA.indexBuffer || instance.count >= MAX_CAPACITY) { continue; }
+            if (instance.stride !== stride) {
+                // console.error(`instanced buffer stride mismatch! ${stride}/${instance.stride}`);
+                return;
+            }
             if (instance.count >= instance.capacity) { // resize buffers
                 instance.capacity <<= 1;
-                const newSize = stride * instance.capacity;
+                const newSize = instance.stride * instance.capacity;
                 const oldData = instance.data;
                 instance.data = new Uint8Array(newSize);
                 instance.data.set(oldData);
                 instance.vb.resize(newSize);
             }
-            instance.data.set(attrs.buffer, stride * instance.count++);
+            instance.data.set(attrs.buffer, instance.stride * instance.count++);
             return;
         }
 
@@ -85,7 +91,7 @@ export class InstancedBuffer {
 
         vertexBuffers.push(vb);
         const ia = device.createInputAssembler({ attributes, vertexBuffers, indexBuffer });
-        this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia });
+        this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride });
     }
 
     public uploadBuffers () {

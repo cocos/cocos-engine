@@ -35,6 +35,8 @@ import { js } from '../utils';
 import { errorID, warn } from '../platform/debug';
 import { DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import Prefab from '../assets/prefab';
+import { Node } from '../scene-graph/node';
 
 // @ts-ignore
 const Destroyed = CCObject.Flags.Destroyed;
@@ -46,12 +48,9 @@ const objsToClearTmpVar: any = [];   // used to reset _iN$t variable
 /**
  * @en Clones the object `original` and returns the clone, or instantiate a node from the Prefab.
  * @zh 克隆指定的任意类型的对象，或者从 Prefab 实例化出新节点。
- *
  * （Instantiate 时，function 和 dom 等非可序列化对象会直接保留原有引用，Asset 会直接进行浅拷贝，可序列化类型会进行深拷贝。）
- *
- * @method instantiate
- * @param {Prefab|Node|Object} original - An existing object that you want to make a copy of.
- * @return {Node|Object} the newly instantiated object
+ * @param original - An existing object that you want to make a copy of.
+ * @return {} the newly instantiated object
  * @example
  * ```typescript
  * // instantiate node from prefab
@@ -64,7 +63,7 @@ const objsToClearTmpVar: any = [];   // used to reset _iN$t variable
  * node.parent = scene;
  * ```
  */
-function instantiate (original, internal_force?) {
+function instantiate (original: Prefab|Node|Object, internal_force?: Node|Object): Node | null {
     if (!internal_force) {
         if (typeof original !== 'object' || Array.isArray(original)) {
             if (DEV) {
@@ -98,8 +97,10 @@ function instantiate (original, internal_force?) {
         // @param {Object} [instantiated] - If supplied, _instantiate just need to initialize the instantiated object,
         //                                  no need to create new object by itself.
         // @returns {Object} - the instantiated object
+        // @ts-ignore
         if (original._instantiate) {
             legacyCC.game._isCloning = true;
+            // @ts-ignore
             clone = original._instantiate();
             legacyCC.game._isCloning = false;
             return clone;
@@ -119,16 +120,15 @@ function instantiate (original, internal_force?) {
     return clone;
 }
 
-/**
+/*
  * @en
  * Do instantiate object, the object to instantiate must be non-nil.
  * @zh
  * 这是一个通用的 instantiate 方法，可能效率比较低。
  * 之后可以给各种类型重写快速实例化的特殊实现，但应该在单元测试中将结果和这个方法的结果进行对比。
  * 值得注意的是，这个方法不可重入。
- *
- * @param {Object} obj - 该方法仅供内部使用，用户需负责保证参数合法。什么参数是合法的请参考 cc.instantiate 的实现。
- * @param {Node} [parent] - 只有在该对象下的场景物体会被克隆。
+ * @param obj - 该方法仅供内部使用，用户需负责保证参数合法。什么参数是合法的请参考 cc.instantiate 的实现。
+ * @param parent - 只有在该对象下的场景物体会被克隆。
  * @return {Object}
  * @private
  */
