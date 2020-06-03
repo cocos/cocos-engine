@@ -246,7 +246,9 @@ function AssetManager () {
      * 可选参数的预设集
      * 
      * @property presets
-     * @type {Record<string, Record<string, any>>}
+     * @type {Object}
+     * @typescript
+     * presets: Record<string, Record<string, any>>
      */
     this.presets = {
         'default': {
