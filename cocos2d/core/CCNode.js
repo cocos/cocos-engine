@@ -625,7 +625,7 @@ function _doDispatchEvent (owner, event) {
     owner._getCapturingTargets(event.type, _cachedArray);
     // capturing
     event.eventPhase = 1;
-    for (i = _cachedArray.length - 1; i >= 0; --i) {
+    for (i = 0; i < _cachedArray.length; ++i) {
         target = _cachedArray[i];
         if (target._capturingListeners) {
             event.currentTarget = target;
