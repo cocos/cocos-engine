@@ -462,7 +462,7 @@ export class Node extends BaseNode {
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             const child = this._children[i];
-            child.isValid && child.invalidateChildren(dirtyBit);
+            if (child.isValid) { child.invalidateChildren(dirtyBit); }
         }
     }
 

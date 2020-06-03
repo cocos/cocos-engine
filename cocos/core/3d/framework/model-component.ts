@@ -204,7 +204,7 @@ export class ModelComponent extends RenderableComponent {
     }
 
     @property({
-        visible: function (this: ModelComponent) {
+        visible (this: ModelComponent) {
             return !!(
                 this.mesh &&
                 this.mesh.struct.morph &&

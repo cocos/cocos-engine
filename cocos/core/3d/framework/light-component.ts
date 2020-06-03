@@ -50,6 +50,13 @@ export enum LightBakeType {
 }
 Enum(LightBakeType);
 
+// tslint:disable: no-shadowed-variable
+export namespace LightComponent {
+    export type Type = EnumAlias<typeof LightType>;
+    export type PhotometricTerm = EnumAlias<typeof PhotometricTerm>;
+}
+// tslint:enable: no-shadowed-variable
+
 @ccclass('cc.LightComponent')
 export class LightComponent extends Component {
     public static Type = LightType;
@@ -197,6 +204,7 @@ export class LightComponent extends Component {
         if (this._light && !this._light.scene && this.node.scene) {
             switch (this._type) {
                 case LightType.DIRECTIONAL:
+                    this._getRenderScene().addDirectionalLight(this._light as DirectionalLight);
                     this._getRenderScene().setMainLight(this._light as DirectionalLight);
                     break;
                 case LightType.SPHERE:
@@ -213,7 +221,9 @@ export class LightComponent extends Component {
         if (this._light && this._light.scene) {
             switch (this._type) {
                 case LightType.DIRECTIONAL:
-                    this._light.scene.unsetMainLight(this._light as DirectionalLight);
+                    const scene = this._light.scene;
+                    scene.removeDirectionalLight(this._light as DirectionalLight);
+                    scene.unsetMainLight(this._light as DirectionalLight);
                     break;
                 case LightType.SPHERE:
                     this._light.scene.removeSphereLight(this._light as SphereLight);
@@ -224,9 +234,4 @@ export class LightComponent extends Component {
             }
         }
     }
-}
-
-export namespace LightComponent {
-    export type Type = EnumAlias<typeof LightType>;
-    export type PhotometricTerm = EnumAlias<typeof PhotometricTerm>;
 }
