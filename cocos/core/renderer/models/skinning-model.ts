@@ -245,8 +245,13 @@ export class SkinningModel extends MorphModel {
         subMeshData.vertexBuffers = original;
     }
 
-    protected getMacroPatches (subModelIndex: number) : any {
-        return myPatches.concat(super.getMacroPatches(subModelIndex) );
+    protected getMacroPatches(subModelIndex: number) : any {
+        const superMacroPatches = super.getMacroPatches(subModelIndex);
+        if (superMacroPatches) {
+            return myPatches.concat(superMacroPatches);
+        } else {
+            return myPatches;
+        }
     }
 
     protected updateAttributesAndBinding (subModelIndex : number) {
