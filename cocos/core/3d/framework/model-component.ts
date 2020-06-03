@@ -204,7 +204,7 @@ export class ModelComponent extends RenderableComponent {
     }
 
     @property({
-        visible: function (this: ModelComponent) {
+        visible (this: ModelComponent) {
             return !!(
                 this.mesh &&
                 this.mesh.struct.morph &&
@@ -344,7 +344,8 @@ export class ModelComponent extends RenderableComponent {
 
     protected _updateModelParams () {
         if (!this._mesh || !this._model) { return; }
-        this.node.hasChangedFlags = this._model.transform.hasChangedFlags = TransformBit.POSITION;
+        this.node.hasChangedFlags |= TransformBit.POSITION;
+        this._model.transform.hasChangedFlags |= TransformBit.POSITION;
         this._model.isDynamicBatching = this._isBatchingEnabled();
         const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
         const renderingMesh = this._mesh.renderingSubMeshes;

@@ -73,7 +73,7 @@ export class Light {
     set node (n) {
         this._node = n;
         if (this._node) {
-            this._node.hasChangedFlags = TransformBit.ROTATION;
+            this._node.hasChangedFlags |= TransformBit.ROTATION;
         }
     }
 
