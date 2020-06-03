@@ -3,4 +3,6 @@
  */
 
 import { WebGLGFXDevice } from '../cocos/core/gfx/webgl/webgl-device';
-cc.WebGLGFXDevice = WebGLGFXDevice;
+import { legacyCC } from '../cocos/core/global-exports';
+export { WebGLGFXDevice };
+legacyCC.WebGLGFXDevice = WebGLGFXDevice;

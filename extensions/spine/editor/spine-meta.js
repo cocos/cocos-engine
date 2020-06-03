@@ -207,7 +207,7 @@ class SpineMeta extends CustomAssetMeta {
                 }
 
                 this.textures = textureParser.textures;
-                asset.textures = textureParser.textures.map(Editor.serialize.asAsset);
+                asset.textures = textureParser.textures.map(EditorExtends.serialize.asAsset);
                 asset.textureNames = textureParser.textureNames;
                 //
                 asset.atlasText = res.data;

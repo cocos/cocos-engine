@@ -37,6 +37,7 @@ import IDGenerator from '../utils/id-generator';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import { GFXSampler } from '../gfx';
+import { legacyCC } from '../global-exports';
 
 const CHAR_CODE_1 = 49;    // '1'
 
@@ -269,7 +270,7 @@ export class TextureBase extends Asset {
             if (this._gfxDevice) {
                 this._gfxSampler = samplerLib.getSampler(this._gfxDevice, this._samplerHash);
             } else {
-                cc.errorID(9302);
+                legacyCC.errorID(9302);
             }
         }
         return this._gfxSampler;
@@ -314,16 +315,29 @@ export class TextureBase extends Asset {
     }
 
     protected _getGFXDevice (): GFXDevice | null {
-        return cc.director.root && cc.director.root.device;
+        return legacyCC.director.root && legacyCC.director.root.device;
     }
 
     protected _getGFXFormat () {
-        return this._format;
+        return this._getGFXPixelFormat(this._format);
     }
 
     protected _setGFXFormat (format?: PixelFormat) {
         this._format = format === undefined ? PixelFormat.RGBA8888 : format;
     }
+
+    protected _getGFXPixelFormat (format) {
+        if (format === PixelFormat.RGBA_ETC1) {
+            format = PixelFormat.RGB_ETC1;
+        }
+        else if (format === PixelFormat.RGB_A_PVRTC_4BPPV1) {
+            format = PixelFormat.RGB_PVRTC_4BPPV1;
+        }
+        else if (format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
+            format = PixelFormat.RGB_PVRTC_2BPPV1;
+        }
+        return format;
+    }
 }
 
-cc.TextureBase = TextureBase;
+legacyCC.TextureBase = TextureBase;

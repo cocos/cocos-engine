@@ -36,12 +36,14 @@ import { aabb } from '../../geometry';
 import { CanvasComponent } from './canvas-component';
 import { Node } from '../../scene-graph';
 import { EDITOR } from 'internal:constants';
+import { legacyCC } from '../../global-exports';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
 const _mat4_temp = new Mat4();
 const _matrix = new Mat4();
 const _worldMatrix = new Mat4();
+const _zeroMatrix = new Mat4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 const _rect = new Rect();
 /**
  * @en
@@ -211,7 +213,7 @@ export class UITransformComponent extends Component {
         }
 
         if (this._canvas && this._canvas.node === this.node) {
-            cc.warn(9200);
+            legacyCC.warn(9200);
             return;
         }
 
@@ -388,7 +390,7 @@ export class UITransformComponent extends Component {
         canvas.node.getWorldRT(_mat4_temp);
         const m12 = _mat4_temp.m12;
         const m13 = _mat4_temp.m13;
-        const center = cc.visibleRect.center;
+        const center = legacyCC.visibleRect.center;
         _mat4_temp.m12 = center.x - (_mat4_temp.m00 * m12 + _mat4_temp.m04 * m13);
         _mat4_temp.m13 = center.y - (_mat4_temp.m01 * m12 + _mat4_temp.m05 * m13);
         Mat4.invert(_mat4_temp, _mat4_temp);
@@ -396,6 +398,9 @@ export class UITransformComponent extends Component {
 
         this.node.getWorldMatrix(_worldMatrix);
         Mat4.invert(_mat4_temp, _worldMatrix);
+        if (Mat4.strictEquals(_mat4_temp, _zeroMatrix)) {
+            return false;
+        }
         Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
         testPt.x += this._anchorPoint.x * w;
         testPt.y += this._anchorPoint.y * h;
@@ -408,7 +413,7 @@ export class UITransformComponent extends Component {
                 for (let i = 0; parent && i < mask.index; ++i, parent = parent.parent) {
                 }
                 if (parent === mask.node) {
-                    const comp = parent.getComponent(cc.MaskComponent);
+                    const comp = parent.getComponent(legacyCC.MaskComponent);
                     return (comp && comp.enabledInHierarchy) ? comp.isHit(cameraPt) : true;
                 } else {
                     listener.mask = null;
@@ -641,4 +646,4 @@ export class UITransformComponent extends Component {
     }
 }
 
-cc.UITransformComponent = UITransformComponent;
+legacyCC.UITransformComponent = UITransformComponent;

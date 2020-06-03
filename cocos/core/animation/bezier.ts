@@ -3,6 +3,8 @@
  * @category animation
  */
 
+import { legacyCC } from '../global-exports';
+
 export type BezierControlPoints = [ number, number, number, number ];
 
 export function bezier (C1: number, C2: number, C3: number, C4: number, t: number) {
@@ -12,7 +14,7 @@ export function bezier (C1: number, C2: number, C3: number, C4: number, t: numbe
            C3 * 3 * t1 * t * t +
            C4 * t * t * t;
 }
-cc.bezier = bezier;
+legacyCC.bezier = bezier;
 
 // var sin = Math.sin;
 const cos = Math.cos;
@@ -161,4 +163,4 @@ export function bezierByTime (controlPoints: BezierControlPoints, x: number) {
            p2y * 3 * percent * percent * t1 +
            p3y * percent * percent * percent;
 }
-cc.bezierByTime = bezierByTime;
+legacyCC.bezierByTime = bezierByTime;

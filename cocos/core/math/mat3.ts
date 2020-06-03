@@ -33,6 +33,7 @@ import { Quat } from './quat';
 import { IMat3Like, IMat4Like, IQuatLike, IVec2Like, IVec3Like } from './type-define';
 import { EPSILON } from './utils';
 import { Vec3 } from './vec3';
+import { legacyCC } from '../global-exports';
 
 /**
  * 表示三维（3x3）矩阵。
@@ -1007,4 +1008,4 @@ CCClass.fastDefine('cc.Mat3', Mat3, {
     m03: 0, m04: 1, m05: 0,
     m06: 0, m07: 0, m08: 1,
 });
-cc.Mat3 = Mat3;
+legacyCC.Mat3 = Mat3;

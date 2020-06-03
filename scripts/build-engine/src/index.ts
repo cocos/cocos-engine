@@ -95,6 +95,11 @@ namespace build {
         incremental?: string;
 
         progress?: boolean;
+
+        /**
+         * `options.targets` of @babel/preset-env.
+         */
+        targets?: string | string[] | Record<string, string>;
     }
 }
 
@@ -145,6 +150,34 @@ async function _doBuild (options: build.Options & { buildTimeConstants: BuildTim
             break;
     }
 
+    const presetEnvOptions: any = {};
+    if (options.targets !== undefined) {
+        presetEnvOptions.targets = options.targets;
+    }
+
+    const babelPlugins: any[] = [];
+    if (options.targets === undefined) {
+        babelPlugins.push([babelPluginTransformForOf, {
+            loose: true,
+        }]);
+    }
+
+    const babelOptions = {
+        extensions: ['.js', '.ts'],
+        highlightCode: true,
+        ignore: [
+            ps.join(options.engine, 'node_modules/@cocos/ammo/**'),
+            ps.join(options.engine, 'node_modules/@cocos/cannon/**'),
+        ],
+        plugins: babelPlugins,
+        presets: [
+            [babelPresetEnv, presetEnvOptions],
+            [babelPresetCc, {
+                allowDeclareFields: true,
+            } as babelPresetCc.Options],
+        ],
+    };
+
     const rollupPlugins: rollup.Plugin[] = [
         multiEntry(),
 
@@ -156,25 +189,7 @@ async function _doBuild (options: build.Options & { buildTimeConstants: BuildTim
             preferConst: true,
         }),
 
-        babel({
-            extensions: ['.js', '.ts'],
-            highlightCode: true,
-            ignore: [
-                ps.join(options.engine, 'node_modules/@cocos/ammo/**'),
-                ps.join(options.engine, 'node_modules/@cocos/cannon/**'),
-            ],
-            plugins: [
-                [babelPluginTransformForOf, {
-                    loose: true,
-                }],
-            ],
-            presets: [
-                babelPresetEnv,
-                [babelPresetCc, {
-                    allowDeclareFields: true,
-                } as babelPresetCc.Options],
-            ],
-        }),
+        babel(babelOptions),
 
         commonjs({
             namedExports: {

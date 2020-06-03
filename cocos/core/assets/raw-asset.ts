@@ -31,6 +31,7 @@
 import { ccclass } from '../data/class-decorator';
 import { CCObject } from '../data/object';
 import { isChildClassOf } from '../utils/js';
+import { legacyCC } from '../global-exports';
 
 /**
  * 原生资源的基类。内部使用。
@@ -42,7 +43,7 @@ export class RawAsset extends CCObject {
      * 内部使用。
      */
     public static isRawAssetType (ctor: Function) {
-        return isChildClassOf(ctor, cc.RawAsset) && !isChildClassOf(ctor, cc.Asset);
+        return isChildClassOf(ctor, legacyCC.RawAsset) && !isChildClassOf(ctor, legacyCC.Asset);
     }
 
     /**
@@ -62,4 +63,4 @@ export class RawAsset extends CCObject {
     }
 }
 
-cc.RawAsset = RawAsset;
+legacyCC.RawAsset = RawAsset;

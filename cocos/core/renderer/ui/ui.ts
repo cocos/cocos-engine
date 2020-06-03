@@ -49,6 +49,7 @@ import { UIBatchModel } from './ui-batch-model';
 import { UIDrawBatch } from './ui-draw-batch';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
+import { legacyCC } from '../../global-exports';
 
 /**
  * @zh
@@ -110,7 +111,7 @@ export class UI {
             name: 'GUIScene',
         });
         this._uiModelPool = new Pool(() => {
-            const model = cc.director.root.createModel(UIBatchModel);
+            const model = legacyCC.director.root.createModel(UIBatchModel);
             model.enabled = true;
             model.visFlags |= Layers.Enum.UI_3D;
             return model;
@@ -118,7 +119,7 @@ export class UI {
         this._modelInUse = new CachedArray<UIBatchModel>(10);
         this._batches = new CachedArray(64);
 
-        cc.director.on(cc.Director.EVENT_BEFORE_DRAW, this.update, this);
+        legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_DRAW, this.update, this);
     }
 
     public initialize () {
@@ -459,8 +460,8 @@ export class UI {
     public autoMergeBatches () {
         const mat = this._currMaterial;
         const buffer = this._currMeshBuffer!;
-        const indicsStart = buffer.indiceStart;
-        const vCount = buffer.indiceOffset - indicsStart;
+        const indicsStart = buffer.indicesStart;
+        const vCount = buffer.indicesOffset - indicsStart;
         if (!vCount || !mat) {
             return;
         }
@@ -479,12 +480,12 @@ export class UI {
         curDrawBatch.ia!.indexCount = vCount;
 
         curDrawBatch.psoCreateInfo = this._getUIMaterial(mat).getPipelineCreateInfo();
-        curDrawBatch.bindingLayout = curDrawBatch.psoCreateInfo!.pipelineLayout.layouts[0];
+        curDrawBatch.bindingLayout = curDrawBatch.psoCreateInfo!.bindingLayout;
 
         this._batches.push(curDrawBatch);
 
         buffer.vertexStart = buffer.vertexOffset;
-        buffer.indiceStart = buffer.indiceOffset;
+        buffer.indicesStart = buffer.indicesOffset;
         buffer.byteStart = buffer.byteOffset;
     }
 

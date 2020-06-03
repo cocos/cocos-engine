@@ -34,6 +34,9 @@ import { CCObject } from './object';
 import { js } from '../utils';
 import { errorID, warn } from '../platform/debug';
 import { DEV } from 'internal:constants';
+import { legacyCC } from '../global-exports';
+import Prefab from '../assets/prefab';
+import { Node } from '../scene-graph/node';
 
 // @ts-ignore
 const Destroyed = CCObject.Flags.Destroyed;
@@ -45,12 +48,9 @@ const objsToClearTmpVar: any = [];   // used to reset _iN$t variable
 /**
  * @en Clones the object `original` and returns the clone, or instantiate a node from the Prefab.
  * @zh 克隆指定的任意类型的对象，或者从 Prefab 实例化出新节点。
- *
  * （Instantiate 时，function 和 dom 等非可序列化对象会直接保留原有引用，Asset 会直接进行浅拷贝，可序列化类型会进行深拷贝。）
- *
- * @method instantiate
- * @param {Prefab|Node|Object} original - An existing object that you want to make a copy of.
- * @return {Node|Object} the newly instantiated object
+ * @param original - An existing object that you want to make a copy of.
+ * @return {} the newly instantiated object
  * @example
  * ```typescript
  * // instantiate node from prefab
@@ -63,7 +63,7 @@ const objsToClearTmpVar: any = [];   // used to reset _iN$t variable
  * node.parent = scene;
  * ```
  */
-function instantiate (original, internal_force?) {
+function instantiate (original: Prefab|Node|Object, internal_force?: Node|Object): Node | null {
     if (!internal_force) {
         if (typeof original !== 'object' || Array.isArray(original)) {
             if (DEV) {
@@ -77,13 +77,13 @@ function instantiate (original, internal_force?) {
             }
             return null;
         }
-        if (!cc.isValid(original)) {
+        if (!legacyCC.isValid(original)) {
             if (DEV) {
                 errorID(6902);
             }
             return null;
         }
-        if (DEV && original instanceof cc.Component) {
+        if (DEV && original instanceof legacyCC.Component) {
             warn('Should not instantiate a single cc.Component directly, you must instantiate the entire node.');
         }
     }
@@ -97,13 +97,15 @@ function instantiate (original, internal_force?) {
         // @param {Object} [instantiated] - If supplied, _instantiate just need to initialize the instantiated object,
         //                                  no need to create new object by itself.
         // @returns {Object} - the instantiated object
+        // @ts-ignore
         if (original._instantiate) {
-            cc.game._isCloning = true;
+            legacyCC.game._isCloning = true;
+            // @ts-ignore
             clone = original._instantiate();
-            cc.game._isCloning = false;
+            legacyCC.game._isCloning = false;
             return clone;
         }
-        else if (original instanceof cc.Asset) {
+        else if (original instanceof legacyCC.Asset) {
             // 不允许用通用方案实例化资源
             if (DEV) {
                 errorID(6903);
@@ -112,22 +114,21 @@ function instantiate (original, internal_force?) {
         }
     }
 
-    cc.game._isCloning = true;
+    legacyCC.game._isCloning = true;
     clone = doInstantiate(original);
-    cc.game._isCloning = false;
+    legacyCC.game._isCloning = false;
     return clone;
 }
 
-/**
+/*
  * @en
  * Do instantiate object, the object to instantiate must be non-nil.
  * @zh
  * 这是一个通用的 instantiate 方法，可能效率比较低。
  * 之后可以给各种类型重写快速实例化的特殊实现，但应该在单元测试中将结果和这个方法的结果进行对比。
  * 值得注意的是，这个方法不可重入。
- *
- * @param {Object} obj - 该方法仅供内部使用，用户需负责保证参数合法。什么参数是合法的请参考 cc.instantiate 的实现。
- * @param {Node} [parent] - 只有在该对象下的场景物体会被克隆。
+ * @param obj - 该方法仅供内部使用，用户需负责保证参数合法。什么参数是合法的请参考 cc.instantiate 的实现。
+ * @param parent - 只有在该对象下的场景物体会被克隆。
  * @return {Object}
  * @private
  */
@@ -199,7 +200,7 @@ function enumerateObject (obj, clone, parent) {
     js.value(obj, '_iN$t', clone, true);
     objsToClearTmpVar.push(obj);
     const klass = obj.constructor;
-    if (cc.Class._isCCClass(klass)) {
+    if (legacyCC.Class._isCCClass(klass)) {
         enumerateCCClass(klass, obj, clone, parent);
     }
     else {
@@ -236,7 +237,7 @@ function instantiateObj (obj, parent) {
     if (obj instanceof ValueType) {
         return obj.clone();
     }
-    if (obj instanceof cc.Asset) {
+    if (obj instanceof legacyCC.Asset) {
         // 所有资源直接引用，不需要拷贝
         return obj;
     }
@@ -264,21 +265,21 @@ function instantiateObj (obj, parent) {
     }
 
     const ctor = obj.constructor;
-    if (cc.Class._isCCClass(ctor)) {
+    if (legacyCC.Class._isCCClass(ctor)) {
         if (parent) {
-            if (parent instanceof cc.Component) {
-                if (obj instanceof cc._BaseNode || obj instanceof cc.Component) {
+            if (parent instanceof legacyCC.Component) {
+                if (obj instanceof legacyCC._BaseNode || obj instanceof legacyCC.Component) {
                     return obj;
                 }
             }
-            else if (parent instanceof cc._BaseNode) {
-                if (obj instanceof cc._BaseNode) {
+            else if (parent instanceof legacyCC._BaseNode) {
+                if (obj instanceof legacyCC._BaseNode) {
                     if (!obj.isChildOf(parent)) {
                         // should not clone other nodes if not descendant
                         return obj;
                     }
                 }
-                else if (obj instanceof cc.Component) {
+                else if (obj instanceof legacyCC.Component) {
                     if (!obj.node.isChildOf(parent)) {
                         // should not clone other component if not descendant
                         return obj;
@@ -303,5 +304,5 @@ function instantiateObj (obj, parent) {
 }
 
 instantiate._clone = doInstantiate;
-cc.instantiate = instantiate;
+legacyCC.instantiate = instantiate;
 export default instantiate;

@@ -40,7 +40,7 @@ export class BuiltInWorld implements IPhysicsWorld {
     private _collisionMatrixPrev: ArrayCollisionMatrix = new ArrayCollisionMatrix();
 
     step (deltaTime: number): void {
-        // store and reset collsion array
+        // store and reset collision array
         const tmp = this._shapeArrPrev;
         this._shapeArrPrev = this.shapeArr;
         this.shapeArr = tmp;

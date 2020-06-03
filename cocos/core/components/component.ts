@@ -40,6 +40,7 @@ import { Rect } from '../math';
 import * as RF from '../data/utils/requiring-frame';
 import { Node } from '../scene-graph';
 import { EDITOR, TEST, DEV } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 const idGenerator = new IDGenerator('Comp');
 // @ts-ignore
@@ -131,7 +132,7 @@ class Component extends CCObject {
         if (this._enabled !== value) {
             this._enabled = value;
             if (this.node.activeInHierarchy) {
-                const compScheduler = cc.director._compScheduler;
+                const compScheduler = legacyCC.director._compScheduler;
                 if (value) {
                     compScheduler.enableComp(this);
                 }
@@ -361,13 +362,13 @@ class Component extends CCObject {
             // @ts-ignore
             const depend = this.node._getDependComponent(this);
             if (depend) {
-                return cc.errorID(3626,
+                return legacyCC.errorID(3626,
                     getClassName(this), getClassName(depend));
             }
         }
         if (super.destroy()) {
             if (this._enabled && this.node.activeInHierarchy) {
-                cc.director._compScheduler.disableComp(this);
+                legacyCC.director._compScheduler.disableComp(this);
             }
         }
     }
@@ -391,7 +392,7 @@ class Component extends CCObject {
         }
 
         // onDestroy
-        cc.director._nodeActivator.destroyComp(this);
+        legacyCC.director._nodeActivator.destroyComp(this);
 
         // do remove component
         this.node._removeComponent(this);
@@ -399,7 +400,7 @@ class Component extends CCObject {
 
     public _instantiate (cloned) {
         if (!cloned) {
-            cloned = cc.instantiate._clone(this, this);
+            cloned = legacyCC.instantiate._clone(this, this);
         }
         cloned.node = null;
         return cloned;
@@ -427,15 +428,15 @@ class Component extends CCObject {
      * this.schedule(timeCallback, 1);
      * ```
      */
-    public schedule (callback, interval: number = 0, repeat: number = cc.macro.REPEAT_FOREVER, delay: number = 0) {
-        cc.assertID(callback, 1619);
-        cc.assertID(interval >= 0, 1620);
+    public schedule (callback, interval: number = 0, repeat: number = legacyCC.macro.REPEAT_FOREVER, delay: number = 0) {
+        legacyCC.assertID(callback, 1619);
+        legacyCC.assertID(interval >= 0, 1620);
 
         interval = interval || 0;
-        repeat = isNaN(repeat) ? cc.macro.REPEAT_FOREVER : repeat;
+        repeat = isNaN(repeat) ? legacyCC.macro.REPEAT_FOREVER : repeat;
         delay = delay || 0;
 
-        const scheduler = cc.director.getScheduler();
+        const scheduler = legacyCC.director.getScheduler();
 
         // should not use enabledInHierarchy to judge whether paused,
         // because enabledInHierarchy is assigned after onEnable.
@@ -479,7 +480,7 @@ class Component extends CCObject {
             return;
         }
 
-        cc.director.getScheduler().unschedule(callback_fn, this);
+        legacyCC.director.getScheduler().unschedule(callback_fn, this);
     }
 
     /**
@@ -494,7 +495,7 @@ class Component extends CCObject {
      * ```
      */
     public unscheduleAllCallbacks () {
-        cc.director.getScheduler().unscheduleAllForTarget(this);
+        legacyCC.director.getScheduler().unscheduleAllForTarget(this);
     }
 
     // LIFECYCLE METHODS
@@ -706,7 +707,7 @@ if (EDITOR || TEST) {
     // COMPONENT HELPERS
 
     // TODO Keep temporarily, compatible with old version
-    cc._componentMenuItems = [];
+    legacyCC._componentMenuItems = [];
 }
 
 // we make this non-enumerable, to prevent inherited by sub classes.
@@ -735,7 +736,7 @@ value(Component, '_registerEditorProps', function (cls, props) {
                             cls._playOnFocus = true;
                         }
                         else {
-                            cc.warnID(3601, name);
+                            legacyCC.warnID(3601, name);
                         }
                     }
                     break;
@@ -772,12 +773,12 @@ value(Component, '_registerEditorProps', function (cls, props) {
                     break;
 
                 default:
-                    cc.warnID(3602, key, name);
+                    legacyCC.warnID(3602, key, name);
                     break;
             }
         }
     }
 });
 
-cc.Component = Component;
+legacyCC.Component = Component;
 export { Component };

@@ -25,7 +25,7 @@
 */
 
 /**
- * @category core/data
+ * @hidden
  */
 
 // tslint:disable:only-arrow-functions
@@ -47,6 +47,7 @@ import { preprocessAttrs, validateMethodWithProps } from './utils/preprocess-cla
 import * as RF from './utils/requiring-frame';
 import { error } from '../platform/debug';
 import { DEV, EDITOR, SUPPORT_JIT, TEST } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 const DELIMETER = attributeUtils.DELIMETER;
 
@@ -235,7 +236,7 @@ function getDefault (defaultVal) {
                 return defaultVal();
             }
             catch (e) {
-                cc._throw(e);
+                legacyCC._throw(e);
                 return undefined;
             }
         }
@@ -354,7 +355,7 @@ function doDefine (className, baseClass, mixins, options) {
 }
 
 function define (className, baseClass, mixins, options) {
-    const Component = cc.Component;
+    const Component = legacyCC.Component;
     const frame = RF.peek();
 
     if (frame && js.isChildClassOf(baseClass, Component)) {
@@ -377,9 +378,9 @@ function define (className, baseClass, mixins, options) {
     const cls = doDefine(className, baseClass, mixins, options);
 
     // for RenderPipeline, RenderFlow, RenderStage
-    const isRenderPipeline = js.isChildClassOf(baseClass, cc.RenderPipeline);
-    const isRenderFlow = js.isChildClassOf(baseClass, cc.RenderFlow);
-    const isRenderStage = js.isChildClassOf(baseClass, cc.RenderStage);
+    const isRenderPipeline = js.isChildClassOf(baseClass, legacyCC.RenderPipeline);
+    const isRenderFlow = js.isChildClassOf(baseClass, legacyCC.RenderFlow);
+    const isRenderStage = js.isChildClassOf(baseClass, legacyCC.RenderStage);
 
     const isRender = isRenderPipeline || isRenderFlow || isRenderStage || false;
 
@@ -499,7 +500,7 @@ function getInitPropsJit (attrs, propList) {
             let expression;
             const def = attrs[attrKey];
             if (typeof def === 'object' && def) {
-                if (def instanceof cc.ValueType) {
+                if (def instanceof legacyCC.ValueType) {
                     expression = getNewValueTypeCodeJit(def);
                 }
                 else if (Array.isArray(def)) {
@@ -577,7 +578,7 @@ function getInitProps (attrs, propList) {
             let expression;
             const def = advancedValues[i];
             if (typeof def === 'object') {
-                if (def instanceof cc.ValueType) {
+                if (def instanceof legacyCC.ValueType) {
                     expression = def.clone();
                 }
                 else if (Array.isArray(def)) {
@@ -594,7 +595,7 @@ function getInitProps (attrs, propList) {
                         expression = def();
                     }
                     catch (err) {
-                        cc._throw(err);
+                        legacyCC._throw(err);
                         continue;
                     }
                 }
@@ -894,95 +895,6 @@ function declareProperties (cls, className, properties, baseClass, mixins, es6?:
     });
 }
 
-/**
- * @en Defines a CCClass using the given specification
- * @zh 定义一个 CCClass，传入参数必须是一个包含类型参数的字面量对象
- *
- * @method Class
- *
- * @param {Object} [options]
- * @param {String} [options.name] - The class name used for serialization.
- * @param {Function} [options.extends] - The base class.
- * @param {Function} [options.ctor] - The constructor.
- * @param {Function} [options.__ctor__] - The same as ctor, but less encapsulated.
- * @param {Object} [options.properties] - The property definitions.
- * @param {Object} [options.statics] - The static members.
- * @param {Function[]} [options.mixins]
- *
- * @param {Object} [options.editor] - attributes for Component listed below.
- * @param {Boolean} [options.editor.executeInEditMode=false] - Allows the current component to run in edit mode. By default, all components are executed only at runtime, meaning that they will not have their callback functions executed while the Editor is in edit mode.
- * @param {Function} [options.editor.requireComponent] - Automatically add required component as a dependency.
- * @param {String} [options.editor.menu] - The menu path to register a component to the editors "Component" menu. Eg. "Rendering/Camera".
- * @param {Number} [options.editor.executionOrder=0] - The execution order of lifecycle methods for Component. Those less than 0 will execute before while those greater than 0 will execute after. The order will only affect onLoad, onEnable, start, update and lateUpdate while onDisable and onDestroy will not be affected.
- * @param {Boolean} [options.editor.disallowMultiple] - If specified to a type, prevents Component of the same type (or subtype) to be added more than once to a Node.
- * @param {Boolean} [options.editor.playOnFocus=false] - This property is only available when executeInEditMode is set. If specified, the editor's scene view will keep updating this node in 60 fps when it is selected, otherwise, it will update only if necessary.
- * @param {String} [options.editor.inspector] - Customize the page url used by the current component to render in the Properties.
- * @param {String} [options.editor.icon] - Customize the icon that the current component displays in the editor.
- * @param {String} [options.editor.help] - The custom documentation URL
- *
- * @param {Function} [options.update] - lifecycle method for Component, see {{#crossLink "Component/update:method"}}{{/crossLink}}
- * @param {Function} [options.lateUpdate] - lifecycle method for Component, see {{#crossLink "Component/lateUpdate:method"}}{{/crossLink}}
- * @param {Function} [options.onLoad] - lifecycle method for Component, see {{#crossLink "Component/onLoad:method"}}{{/crossLink}}
- * @param {Function} [options.start] - lifecycle method for Component, see {{#crossLink "Component/start:method"}}{{/crossLink}}
- * @param {Function} [options.onEnable] - lifecycle method for Component, see {{#crossLink "Component/onEnable:method"}}{{/crossLink}}
- * @param {Function} [options.onDisable] - lifecycle method for Component, see {{#crossLink "Component/onDisable:method"}}{{/crossLink}}
- * @param {Function} [options.onDestroy] - lifecycle method for Component, see {{#crossLink "Component/onDestroy:method"}}{{/crossLink}}
- * @param {Function} [options.onFocusInEditor] - lifecycle method for Component, see {{#crossLink "Component/onFocusInEditor:method"}}{{/crossLink}}
- * @param {Function} [options.onLostFocusInEditor] - lifecycle method for Component, see {{#crossLink "Component/onLostFocusInEditor:method"}}{{/crossLink}}
- * @param {Function} [options.resetInEditor] - lifecycle method for Component, see {{#crossLink "Component/resetInEditor:method"}}{{/crossLink}}
- * @param {Function} [options.onRestore] - for Component only, see {{#crossLink "Component/onRestore:method"}}{{/crossLink}}
- * @param {Function} [options._getLocalBounds] - for Component only, see {{#crossLink "Component/_getLocalBounds:method"}}{{/crossLink}}
- *
- * @return {Function} - the created class
- *
- * @example
- * ```typescript
- * // define base class
- * var Node = cc.Class();
- * // define sub class
- * var Sprite = cc.Class({
- *     name: 'Sprite',
- *     extends: Node,
- *
- *     ctor: function () {
- *         this.url = "";
- *         this.id = 0;
- *     },
- *
- *     statics: {
- *         // define static members
- *         count: 0,
- *         getBounds: function (spriteList) {
- *             // compute bounds...
- *         }
- *     },
- *
- *     properties {
- *         width: {
- *             default: 128,
- *             type: 'Integer',
- *             tooltip: 'The width of sprite'
- *         },
- *         height: 128,
- *         size: {
- *             get: function () {
- *                 return cc.v2(this.width, this.height);
- *             }
- *         }
- *     },
- *
- *     load: function () {
- *         // load this.url...
- *     };
- * });
- *
- * // instantiate
- *
- * var obj = new Sprite();
- * obj.url = 'sprite.png';
- * obj.load();
- * ```
- */
 function CCClass (options) {
     options = options || {};
 
@@ -993,7 +905,7 @@ function CCClass (options) {
     // create constructor
     const cls = define(name, base, mixins, options);
     if (!name) {
-        name = cc.js.getClassName(cls);
+        name = legacyCC.js.getClassName(cls);
     }
 
     cls._sealed = true;
@@ -1053,8 +965,8 @@ function CCClass (options) {
 
     const editor = options.editor;
     if (editor) {
-        if (js.isChildClassOf(base, cc.Component)) {
-            cc.Component._registerEditorProps(cls, editor);
+        if (js.isChildClassOf(base, legacyCC.Component)) {
+            legacyCC.Component._registerEditorProps(cls, editor);
         }
         else if (DEV) {
             warnID(3623, name);
@@ -1321,4 +1233,4 @@ CCClass.getNewValueTypeCode = (SUPPORT_JIT && getNewValueTypeCodeJit) as ((value
 
 export default CCClass;
 
-cc.Class = CCClass;
+legacyCC.Class = CCClass;

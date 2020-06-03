@@ -4,14 +4,14 @@
 
 import { ccclass, property } from '../data/class-decorator';
 import { Node } from '../scene-graph/node';
-import { error } from '../platform/debug';
+import { warn } from '../platform/debug';
 
 export type PropertyPath = string | number;
 
 export interface ICustomTargetPath {
     /**
      * If errors are encountered, `null` should be returned.
-     * @param target 
+     * @param target
      */
     get(target: any): any;
 }
@@ -37,12 +37,12 @@ export class HierarchyPath implements ICustomTargetPath {
 
     public get (target: Node) {
         if (!(target instanceof Node)) {
-            error(`Target of hierarchy path shall be Node.`);
+            warn(`Target of hierarchy path should be of type Node.`);
             return null;
         }
         const result = target.getChildByPath(this.path);
         if (!result) {
-            error(`Node "${target.name}" has no path "${this.path}"`);
+            warn(`Node "${target.name}" has no path "${this.path}"`);
             return null;
         }
         return result;
@@ -60,12 +60,12 @@ export class ComponentPath implements ICustomTargetPath {
 
     public get (target: Node) {
         if (!(target instanceof Node)) {
-            error(`Target of component path shall be Node.`);
+            warn(`Target of component path should be of type Node.`);
             return null;
         }
         const result = target.getComponent(this.component);
         if (!result) {
-            error(`Node "${target.name}" has no component "${this.component}"`);
+            warn(`Node "${target.name}" has no component "${this.component}"`);
             return null;
         }
         return result;
@@ -83,7 +83,7 @@ export function evaluatePath (root: any, ...paths: TargetPath[]) {
         const path = paths[iPath];
         if (isPropertyPath(path)) {
             if (!(path in result)) {
-                error(`Target object has no property "${path}"`);
+                warn(`Target object has no property "${path}"`);
                 return null;
             } else {
                 result = result[path];

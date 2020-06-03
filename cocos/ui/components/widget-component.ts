@@ -28,7 +28,7 @@
  * @category ui
  */
 
-import { Component} from '../../core/components';
+import { Component } from '../../core/components';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
 import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
 import { Size, Vec3 } from '../../core/math';
@@ -41,6 +41,7 @@ import { Node } from '../../core/scene-graph/node';
 import { ccenum } from '../../core/value-types/enum';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { EDITOR, DEV } from 'internal:constants';
+import { legacyCC } from '../../core/global-exports';
 
 const _zeroVec3 = new Vec3();
 
@@ -223,7 +224,7 @@ export class WidgetComponent extends Component {
     }
 
     set target (value) {
-        if (this._target === value){
+        if (this._target === value) {
             return;
         }
 
@@ -232,7 +233,7 @@ export class WidgetComponent extends Component {
         this._registerTargetEvents();
         if (EDITOR /*&& !cc.engine._isPlaying*/ && this.node.parent) {
             // adjust the offsets to keep the size and position unchanged after target changed
-            cc._widgetManager.updateOffsetsToStayPut(this);
+            legacyCC._widgetManager.updateOffsetsToStayPut(this);
         }
 
         this._validateTargetInDEV();
@@ -573,7 +574,7 @@ export class WidgetComponent extends Component {
         return this._isAbsTop;
     }
     set isAbsoluteTop (value) {
-        if (this._isAbsTop === value){
+        if (this._isAbsTop === value) {
             return;
         }
 
@@ -593,7 +594,7 @@ export class WidgetComponent extends Component {
         return this._isAbsBottom;
     }
     set isAbsoluteBottom (value) {
-        if (this._isAbsBottom === value){
+        if (this._isAbsBottom === value) {
             return;
         }
 
@@ -633,37 +634,12 @@ export class WidgetComponent extends Component {
         return this._isAbsRight;
     }
     set isAbsoluteRight (value) {
-        if (this._isAbsRight === value){
+        if (this._isAbsRight === value) {
             return;
         }
 
         this._isAbsRight = value;
         this._autoChangedValue(AlignFlags.RIGHT, this._isAbsRight);
-    }
-
-    /**
-     * @en
-     * Specifies the alignment mode of the Widget, which determines when the widget should refresh.
-     *
-     * @zh
-     * 指定 Widget 的对齐模式，用于决定 Widget 应该何时刷新。
-     *
-     * @example
-     * ```
-     * widget.alignMode = cc.Widget.AlignMode.ON_WINDOW_RESIZE;
-     * ```
-     */
-    @property({
-        type: AlignMode,
-        tooltip:'指定 widget 的对齐方式，用于决定运行时 widget 应何时更新',
-    })
-    get alignMode () {
-        return this._alignMode;
-    }
-
-    set alignMode (value) {
-        this._alignMode = value;
-        this._recursiveDirty();
     }
 
     /**
@@ -677,7 +653,6 @@ export class WidgetComponent extends Component {
     get isAbsoluteHorizontalCenter () {
         return this._isAbsHorizontalCenter;
     }
-
     set isAbsoluteHorizontalCenter (value) {
         if (this._isAbsHorizontalCenter === value) {
             return;
@@ -699,12 +674,36 @@ export class WidgetComponent extends Component {
         return this._isAbsVerticalCenter;
     }
     set isAbsoluteVerticalCenter (value) {
-        if (this._isAbsVerticalCenter === value){
+        if (this._isAbsVerticalCenter === value) {
             return;
         }
 
         this._isAbsVerticalCenter = value;
         this._autoChangedValue(AlignFlags.MID, this._isAbsVerticalCenter);
+    }
+
+    /**
+     * @en
+     * Specifies the alignment mode of the Widget, which determines when the widget should refresh.
+     *
+     * @zh
+     * 指定 Widget 的对齐模式，用于决定 Widget 应该何时刷新。
+     *
+     * @example
+     * ```
+     * widget.alignMode = cc.Widget.AlignMode.ON_WINDOW_RESIZE;
+     * ```
+     */
+    @property({
+        type: AlignMode,
+        tooltip:'指定 widget 的对齐方式，用于决定运行时 widget 应何时更新',
+    })
+    get alignMode () {
+        return this._alignMode;
+    }
+    set alignMode (value) {
+        this._alignMode = value;
+        this._recursiveDirty();
     }
 
     /**
@@ -715,7 +714,6 @@ export class WidgetComponent extends Component {
     get alignFlags () {
         return this._alignFlags;
     }
-
     set alignFlags (value) {
         if (this._alignFlags === value) {
             return;
@@ -766,6 +764,10 @@ export class WidgetComponent extends Component {
     private _originalHeight = 0;
     @property
     private _alignMode = AlignMode.ON_WINDOW_RESIZE;
+    @property({
+        editorOnly: true,
+    })
+    private _lockFlags = 0;
 
     /**
      * @en
@@ -785,7 +787,7 @@ export class WidgetComponent extends Component {
      * ```
      */
     public updateAlignment () {
-        cc._widgetManager.updateAlignment(this.node as Node);
+        legacyCC._widgetManager.updateAlignment(this.node as Node);
     }
 
     public _validateTargetInDEV () {
@@ -804,20 +806,20 @@ export class WidgetComponent extends Component {
 
     }
 
-    public setDirty (){
+    public setDirty () {
         this._recursiveDirty();
     }
 
     public onEnable () {
         this.node.getPosition(this._lastPos);
         this.node.getContentSize(this._lastSize);
-        cc._widgetManager.add(this);
+        legacyCC._widgetManager.add(this);
         this._registerEvent();
         this._registerTargetEvents();
     }
 
     public onDisable () {
-        cc._widgetManager.remove(this);
+        legacyCC._widgetManager.remove(this);
         this._unregisterEvent();
         this._unregisterTargetEvents();
     }
@@ -831,7 +833,7 @@ export class WidgetComponent extends Component {
             return;
         }
 
-        if (cc._widgetManager.isAligning) {
+        if (legacyCC._widgetManager.isAligning) {
             return;
         }
 
@@ -884,7 +886,7 @@ export class WidgetComponent extends Component {
         //     return;
         // }
 
-        if (cc._widgetManager.isAligning) {
+        if (legacyCC._widgetManager.isAligning) {
             return;
         }
 
@@ -908,7 +910,7 @@ export class WidgetComponent extends Component {
         const targetSize = getReadonlyNodeSize(target);
         const deltaInPercent = new Vec3();
         if (targetSize.width !== 0 && targetSize.height !== 0) {
-            Vec3.set(deltaInPercent, delta.x / targetSize.width , delta.y / targetSize.height, deltaInPercent.z);
+            Vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
         }
 
         const anchor = self.node.getAnchorPoint();
@@ -958,9 +960,9 @@ export class WidgetComponent extends Component {
         this.node.off(SystemEventType.PARENT_CHANGED, this._adjustTargetToParentChanged, this);
     }
 
-    protected _autoChangedValue (flag: AlignFlags, isAbs: boolean){
+    protected _autoChangedValue (flag: AlignFlags, isAbs: boolean) {
         const current = (this._alignFlags & flag) > 0;
-        if (!current || !this.node.parent || !this.node.parent._uiProps.uiTransformComp){
+        if (!current || !this.node.parent || !this.node.parent._uiProps.uiTransformComp) {
             return;
         }
 
@@ -989,7 +991,7 @@ export class WidgetComponent extends Component {
                 target.on(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
                 target.on(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
             } else {
-                cc.warnID(6501, this.node.name);
+                legacyCC.warnID(6501, this.node.name);
             }
         }
     }
@@ -1002,7 +1004,7 @@ export class WidgetComponent extends Component {
         }
     }
 
-    protected _unregisterOldParentEvents ( oldParent: Node ) {
+    protected _unregisterOldParentEvents (oldParent: Node) {
         const target = this._target || oldParent;
         if (target) {
             target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
@@ -1010,7 +1012,7 @@ export class WidgetComponent extends Component {
         }
     }
 
-    protected _targetChangedOperation (){
+    protected _targetChangedOperation () {
         this._recursiveDirty();
     }
 
@@ -1049,7 +1051,7 @@ export class WidgetComponent extends Component {
 
             if (EDITOR && this.node.parent) {
                 // adjust the offsets to keep the size and position unchanged after alignment changed
-                cc._widgetManager.updateOffsetsToStayPut(this, flag);
+                legacyCC._widgetManager.updateOffsetsToStayPut(this, flag);
             }
         } else {
             if (isHorizontal) {
@@ -1069,7 +1071,7 @@ export class WidgetComponent extends Component {
     }
 
     private _recursiveDirty () {
-        if (this._dirty){
+        if (this._dirty) {
             return;
         }
 
@@ -1077,7 +1079,13 @@ export class WidgetComponent extends Component {
     }
 }
 
+export namespace WidgetComponent {
+    export type AlignMode = EnumAlias<typeof AlignMode>;
+}
+
 // @ts-ignore
-cc.WidgetComponent = WidgetComponent;
+legacyCC.WidgetComponent = WidgetComponent;
 
 // cc.Widget = module.exports = Widget;
+legacyCC.internal.computeInverseTransForTarget = computeInverseTransForTarget;
+legacyCC.internal.getReadonlyNodeSize = getReadonlyNodeSize;

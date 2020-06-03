@@ -2,7 +2,7 @@
  * @category pipeline.forward
  */
 
-import { ccclass } from '../../data/class-decorator';
+import { ccclass, boolean } from '../../data/class-decorator';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXClearFlag, GFXFilter, IGFXColor } from '../../gfx/define';
 import { Layers } from '../../scene-graph';
@@ -13,6 +13,7 @@ import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
+import { Light } from '../../renderer';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -98,14 +99,20 @@ export class ForwardStage extends RenderStage {
         this._renderQueues.forEach(this.renderQueueClearFunc);
 
         const renderObjects = this._pipeline.renderObjects;
+        const lightIndexOffset: number[] = this.pipeline.lightIndexOffsets;
+        const lightIndices: number[] = this.pipeline.lightIndices;
+        const validLights: Light[] = this.pipeline.validLights;
+
+        let m = 0; let p = 0; let k = 0;
         for (let i = 0; i < renderObjects.length; ++i) {
+            const nextLightIndex = i + 1 < renderObjects.length ? lightIndexOffset[i + 1] : lightIndices.length;
             const ro = renderObjects[i];
             if (ro.model.isDynamicBatching) {
                 const subModels = ro.model.subModels;
-                for (let m = 0; m < subModels.length; ++m) {
+                for (m = 0; m < subModels.length; ++m) {
                     const subModel = subModels[m];
                     const passes = subModel.passes;
-                    for (let p = 0; p < passes.length; ++p) {
+                    for (p = 0; p < passes.length; ++p) {
                         const pass = passes[p];
                         // const pso = subModel.psos![p];
                         if (pass.instancedBuffer) {
@@ -115,18 +122,23 @@ export class ForwardStage extends RenderStage {
                             pass.batchedBuffer.merge(subModel, p, ro);
                             this._opaqueBatchedQueue.queue.add(pass.batchedBuffer);
                         } else {
-                            for (let k = 0; k < this._renderQueues.length; k++) {
+                            for (k = 0; k < this._renderQueues.length; k++) {
                                 this._renderQueues[k].insertRenderPass(ro, m, p);
                             }
                         }
                     }
                 }
             } else {
-                for (let m = 0; m < ro.model.subModelNum; m++) {
-                    for (let p = 0; p < ro.model.getSubModel(m).passes.length; p++) {
-                        for (let k = 0; k < this._renderQueues.length; k++) {
+                for (m = 0; m < ro.model.subModelNum; m++) {
+                    for (p = 0; p < ro.model.getSubModel(m).passes.length; p++) {
+                        const pass = ro.model.getSubModel(m).passes[p];
+                        for (k = 0; k < this._renderQueues.length; k++) {
                             this._renderQueues[k].insertRenderPass(ro, m, p);
                         }
+
+                        // Organize light-batched-queue
+                        this._pipeline.lightBatchQueue.add(i, lightIndexOffset, nextLightIndex,
+                            lightIndices, validLights, pass, ro, m);
                     }
                 }
             }
@@ -180,8 +192,11 @@ export class ForwardStage extends RenderStage {
         // this._opaqueInstancedQueue.recordCommandBuffer(cmdBuff);
         this._opaqueBatchedQueue.recordCommandBuffer(this._device!, this._framebuffer.renderPass!, cmdBuff);
 
+        // Commit light-batched-queue
+        this._pipeline.lightBatchQueue.recordCommandBuffer(cmdBuff);
+
         if (camera.visibility & Layers.BitMask.DEFAULT) {
-            cmdBuff.execute(planarShadow.cmdBuffs.array, planarShadow.cmdBuffCount);
+            planarShadow.recordCommandBuffer(cmdBuff);
         }
         this._renderQueues[1].recordCommandBuffer(this._device!, this._framebuffer.renderPass!, cmdBuff);
         cmdBuff.endRenderPass();

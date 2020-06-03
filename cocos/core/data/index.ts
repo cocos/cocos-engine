@@ -28,7 +28,8 @@
  */
 
 import * as _decorator from './class-decorator';
-cc._decorator = _decorator;
+import { legacyCC } from '../global-exports';
+legacyCC._decorator = _decorator;
 export { _decorator };
 export { default as CCClass } from './class';
 export { CCObject, isValid } from './object';

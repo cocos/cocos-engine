@@ -30,6 +30,7 @@
 import IdGenerator from './utils/id-generator';
 import {createMap} from './utils/js';
 import System from './components/system';
+import { legacyCC } from './global-exports';
 
 const MAX_POOL_SIZE = 20;
 
@@ -244,7 +245,7 @@ class CallbackTimer {
         this._delay = delay;
         this._useDelay = (this._delay > 0);
         this._repeat = repeat;
-        this._runForever = (this._repeat === cc.macro.REPEAT_FOREVER);
+        this._runForever = (this._repeat === legacyCC.macro.REPEAT_FOREVER);
         return true;
     }
     /**
@@ -385,7 +386,7 @@ export class Scheduler extends System {
         if (!found) {
             // @ts-ignore
             if (target.__instanceId) {
-                cc.warnID(1513);
+                legacyCC.warnID(1513);
             }
             else {
                 target.id = idGenerator.getNewId();
@@ -577,15 +578,15 @@ export class Scheduler extends System {
         // selector, target, interval, paused
         if (arguments.length === 3 || arguments.length === 4 || arguments.length === 5) {
             paused = !!repeat;
-            repeat = cc.macro.REPEAT_FOREVER;
+            repeat = legacyCC.macro.REPEAT_FOREVER;
             delay = 0;
         }
 
-        cc.assertID(target, 1502);
+        legacyCC.assertID(target, 1502);
 
         let targetId = target.uuid || target.id;
         if (!targetId) {
-            cc.errorID(1510);
+            legacyCC.errorID(1510);
             return;
         }
         let element = this._hashForTimers[targetId];
@@ -595,7 +596,7 @@ export class Scheduler extends System {
             this._arrayForTimers.push(element);
             this._hashForTimers[targetId] = element;
         } else if (element.paused !== paused) {
-            cc.warnID(1511);
+            legacyCC.warnID(1511);
         }
 
         let timer;
@@ -607,7 +608,7 @@ export class Scheduler extends System {
             for (i = 0; i < element.timers.length; ++i) {
                 timer = element.timers[i];
                 if (timer && callback === timer._callback) {
-                    cc.logID(1507, timer.getInterval(), interval);
+                    legacyCC.logID(1507, timer.getInterval(), interval);
                     timer._interval = interval;
                     return;
                 }
@@ -638,7 +639,7 @@ export class Scheduler extends System {
     public scheduleUpdate (target: ISchedulable, priority: Number, paused: Boolean) {
         let targetId = target.uuid || target.id;
         if (!targetId) {
-            cc.errorID(1510);
+            legacyCC.errorID(1510);
             return;
         }
         const hashElement = this._hashForUpdates[targetId];
@@ -646,7 +647,7 @@ export class Scheduler extends System {
             // check if priority has changed
             if (hashElement.entry.priority !== priority){
                 if (this._updateHashLocked){
-                    cc.logID(1506);
+                    legacyCC.logID(1506);
                     hashElement.entry.markedForDeletion = false;
                     hashElement.entry.paused = paused;
                     return;
@@ -698,7 +699,7 @@ export class Scheduler extends System {
         }
         let targetId = target.uuid || target.id;
         if (!targetId) {
-            cc.errorID(1510);
+            legacyCC.errorID(1510);
             return;
         }
 
@@ -743,7 +744,7 @@ export class Scheduler extends System {
         }
         let targetId = target.uuid || target.id;
         if (!targetId) {
-            cc.errorID(1510);
+            legacyCC.errorID(1510);
             return;
         }
 
@@ -771,7 +772,7 @@ export class Scheduler extends System {
         }
         let targetId = target.uuid || target.id;
         if (!targetId) {
-            cc.errorID(1510);
+            legacyCC.errorID(1510);
             return;
         }
 
@@ -808,7 +809,7 @@ export class Scheduler extends System {
      * 不用调用此函数，除非你确定你在做什么。
      */
     public unscheduleAll (){
-        this.unscheduleAllWithMinPriority(cc.Scheduler.PRIORITY_SYSTEM);
+        this.unscheduleAllWithMinPriority(legacyCC.Scheduler.PRIORITY_SYSTEM);
     }
 
     /**
@@ -882,11 +883,11 @@ export class Scheduler extends System {
     public isScheduled (callback, target:ISchedulable){
         // key, target
         // selector, target
-        cc.assertID(callback, 1508);
-        cc.assertID(target, 1509);
+        legacyCC.assertID(callback, 1508);
+        legacyCC.assertID(target, 1509);
         let targetId = target.uuid || target.id;
         if (!targetId) {
-            cc.errorID(1510);
+            legacyCC.errorID(1510);
             return;
         }
 
@@ -921,7 +922,7 @@ export class Scheduler extends System {
      * 不要调用这个方法，除非你知道你正在做什么。
      */
     public pauseAllTargets () {
-        return this.pauseAllTargetsWithMinPriority(cc.Scheduler.PRIORITY_SYSTEM);
+        return this.pauseAllTargetsWithMinPriority(legacyCC.Scheduler.PRIORITY_SYSTEM);
     }
 
     /**
@@ -1017,10 +1018,10 @@ export class Scheduler extends System {
      * @param {Object} target
      */
     public pauseTarget (target:ISchedulable) {
-        cc.assertID(target, 1503);
+        legacyCC.assertID(target, 1503);
         let targetId = target.uuid || target.id;
         if (!targetId) {
-            cc.errorID(1510);
+            legacyCC.errorID(1510);
             return;
         }
 
@@ -1050,10 +1051,10 @@ export class Scheduler extends System {
      * @param {Object} target
      */
     public resumeTarget (target:ISchedulable) {
-        cc.assertID(target, 1504);
+        legacyCC.assertID(target, 1504);
         let targetId = target.uuid || target.id;
         if (!targetId) {
-            cc.errorID(1510);
+            legacyCC.errorID(1510);
             return;
         }
 
@@ -1078,10 +1079,10 @@ export class Scheduler extends System {
      * @return {Boolean}
      */
     public isTargetPaused (target:ISchedulable) {
-        cc.assertID(target, 1505);
+        legacyCC.assertID(target, 1505);
         let targetId = target.uuid || target.id;
         if (!targetId) {
-            cc.errorID(1510);
+            legacyCC.errorID(1510);
             return false;
         }
 
@@ -1148,4 +1149,4 @@ export class Scheduler extends System {
 
 }
 
-cc.Scheduler = Scheduler;
+legacyCC.Scheduler = Scheduler;

@@ -2,6 +2,7 @@ import { warnID } from '../platform/debug';
 
 import IDGenerator from './id-generator';
 import { EDITOR, DEV, TEST } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 const tempCIDGenerator = new IDGenerator('TmpCId.');
 
 /**
@@ -307,7 +308,7 @@ export function addon (object?: any, ...sources: any[]) {
     for (const source of sources) {
         if (source) {
             if (typeof source !== 'object') {
-                cc.errorID(5402, source);
+                legacyCC.errorID(5402, source);
                 continue;
             }
             for (const name in source) {
@@ -329,7 +330,7 @@ export function mixin (object?: any, ...sources: any[]) {
     for (const source of sources) {
         if (source) {
             if (typeof source !== 'object') {
-                cc.errorID(5403, source);
+                legacyCC.errorID(5403, source);
                 continue;
             }
             for (const name in source) {
@@ -350,15 +351,15 @@ export function mixin (object?: any, ...sources: any[]) {
 export function extend (cls: Function, base: Function) {
     if (DEV) {
         if (!base) {
-            cc.errorID(5404);
+            legacyCC.errorID(5404);
             return;
         }
         if (!cls) {
-            cc.errorID(5405);
+            legacyCC.errorID(5405);
             return;
         }
         if (Object.keys(cls.prototype).length > 0) {
-            cc.errorID(5406);
+            legacyCC.errorID(5406);
         }
     }
     for (const p in base) { if (base.hasOwnProperty(p)) { cls[p] = base[p]; } }
@@ -454,7 +455,7 @@ export function _setClassId (id, constructor) {
 If you dont need serialization, you can set class id to "". You can also call \
 cc.js.unregisterClass to remove the id of unused class';
             }
-            cc.error(error);
+            legacyCC.error(error);
         }
         else {
             table[id] = constructor;
@@ -483,7 +484,7 @@ function doSetClassName (id, constructor) {
 If you dont need serialization, you can set class id to "". You can also call \
 cc.js.unregisterClass to remove the id of unused class';
             }
-            cc.error(error);
+            legacyCC.error(error);
         }
         else {
             table[id] = constructor;

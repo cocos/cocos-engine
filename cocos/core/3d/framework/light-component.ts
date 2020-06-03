@@ -37,18 +37,64 @@ import { Light, LightType } from '../../renderer/scene/light';
 import { SphereLight } from '../../renderer/scene/sphere-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
 import { Root } from '../../root';
+import { legacyCC } from '../../global-exports';
 
 export const PhotometricTerm = Enum({
     LUMINOUS_POWER: 0,
     LUMINANCE: 1,
 });
 
-export enum LightBakeType {
-    NONE,
-    BAKE_ONLY,
-    BAKEABLE,
+/**
+ * @en static light settings.
+ * @zh 静态灯光设置
+ */
+@ccclass('cc.ModelLightmapSettings')
+class StaticLightSettings {
+    @property
+    protected _editorOnly: boolean = false;
+    @property
+    protected _bakeable: boolean = false;
+    @property
+    protected _castShadow: boolean = false;
+
+    /**
+     * @en editor only.
+     * @zh 是否只在编辑器里生效。
+     */
+    @property
+    get editorOnly () {
+        return this._editorOnly;
+    }
+    set editorOnly (val) {
+       this._editorOnly = val;
+    }
+
+    /**
+     * @en bakeable.
+     * @zh 是否可烘培。
+     */
+    @property
+    get bakeable () {
+        return this._bakeable;
+    }
+
+    set bakeable (val) {
+        this._bakeable = val;
+    }
+
+    /**
+     * @en cast shadow.
+     * @zh 是否投射阴影。
+     */
+    @property
+    get castShadow () {
+        return this._castShadow;
+    }
+
+    set castShadow (val) {
+        this._castShadow = val;
+    }
 }
-Enum(LightBakeType);
 
 @ccclass('cc.LightComponent')
 export class LightComponent extends Component {
@@ -62,28 +108,11 @@ export class LightComponent extends Component {
     @property
     protected _colorTemperature = 6550;
     @property
-    protected _bakeType = LightBakeType.NONE;
+    protected _staticSettings: StaticLightSettings = new StaticLightSettings();
 
     protected _type = LightType.UNKNOWN;
     protected _lightType: typeof Light;
     protected _light: Light | null = null;
-
-     /**
-      * @en
-      * Bake type.
-      * @zh
-      * 烘培类型。
-      */
-    @property({
-        type: LightBakeType,
-    })
-    get bakeType () {
-        return this._bakeType;
-    }
-
-    set bakeType (val) {
-        this._bakeType = val;
-    }
 
     /**
      * @en
@@ -146,6 +175,23 @@ export class LightComponent extends Component {
 
     /**
      * @en
+     * static light setttings.
+     * @zh
+     * 静态灯光设置。
+     */
+    @property({
+        type: StaticLightSettings,
+    })
+    get staticSettings () {
+        return this._staticSettings;
+    }
+
+    set staticSettings (val) {
+        this._staticSettings = val;
+    }
+
+    /**
+     * @en
      * The light type.
      * @zh
      * 光源类型。
@@ -177,7 +223,7 @@ export class LightComponent extends Component {
 
     protected _createLight () {
         if (!this._light) {
-            this._light = (cc.director.root as Root).createLight(this._lightType);
+            this._light = (legacyCC.director.root as Root).createLight(this._lightType);
         }
         this.color = this._color;
         this.useColorTemperature = this._useColorTemperature;
@@ -187,7 +233,7 @@ export class LightComponent extends Component {
 
     protected _destroyLight () {
         if (this._light) {
-            cc.director.root.destroyLight(this);
+            legacyCC.director.root.destroyLight(this);
             this._light = null;
         }
     }
@@ -224,4 +270,9 @@ export class LightComponent extends Component {
             }
         }
     }
+}
+
+export namespace LightComponent {
+    export type Type = EnumAlias<typeof LightType>;
+    export type PhotometricTerm = EnumAlias<typeof PhotometricTerm>;
 }

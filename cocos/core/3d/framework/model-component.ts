@@ -40,6 +40,8 @@ import { Enum } from '../../value-types';
 import { builtinResMgr } from '../builtin';
 import { RenderableComponent } from './renderable-component';
 import { MorphRenderingInstance } from '../../assets/morph';
+import { legacyCC } from '../../global-exports';
+import { assertIsTrue } from '../../data/utils/asserts';
 
 /**
  * @en Shadow projection mode.
@@ -76,8 +78,10 @@ class ModelLightmapSettings {
     protected _bakeable: boolean = false;
     @property
     protected _castShadow: boolean = false;
-    @property
-    protected _recieveShadow: boolean = false;
+    @property({
+        formerlySerializedAs: '_recieveShadow',
+    })
+    protected _receiveShadow: boolean = false;
     @property
     protected _lightmapSize: number = 64;
 
@@ -108,22 +112,23 @@ class ModelLightmapSettings {
     }
 
     /**
-     * @en recieve shadow.
+     * @en receive shadow.
      * @zh 是否接受阴影。
      */
     @property
-    get recieveShadow () {
-        return this._recieveShadow;
+    get receiveShadow () {
+        return this._receiveShadow;
     }
 
-    set recieveShadow (val) {
-        this._recieveShadow = val;
+    set receiveShadow (val) {
+        this._receiveShadow = val;
     }
 
     /**
      * @en lightmap size.
      * @zh 光照图大小
      */
+    @property
     get lightmapSize () {
         return this._lightmapSize;
     }
@@ -200,7 +205,15 @@ export class ModelComponent extends RenderableComponent {
         return this._model;
     }
 
-    @property
+    @property({
+        visible: function (this: ModelComponent) {
+            return !!(
+                this.mesh &&
+                this.mesh.struct.morph &&
+                this.mesh.struct.morph.subMeshMorphs.some((subMeshMorph) => !!subMeshMorph)
+            );
+        },
+    })
     get enableMorph () {
         return this._enableMorph;
     }
@@ -209,8 +222,9 @@ export class ModelComponent extends RenderableComponent {
         this._enableMorph = value;
     }
 
-    protected _modelType: typeof MorphModel;
-    protected _model: MorphModel | null = null;
+    protected _modelType: typeof Model;
+
+    protected _model: Model | null = null;
 
     private _morphInstance: MorphRenderingInstance | null = null;
 
@@ -219,7 +233,7 @@ export class ModelComponent extends RenderableComponent {
 
     constructor () {
         super();
-        this._modelType = MorphModel;
+        this._modelType = Model;
     }
 
     public onLoad () {
@@ -244,7 +258,7 @@ export class ModelComponent extends RenderableComponent {
 
     public onDestroy () {
         if (this._model) {
-            cc.director.root.destroyModel(this._model);
+            legacyCC.director.root.destroyModel(this._model);
             this._model = null;
             this._models.length = 0;
         }
@@ -270,12 +284,16 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
-    public _updateLightmap (lightmap: Texture2D|null, uoff: number, voff: number, uscale: number, vscale: number) {
+    public _updateLightmap (lightmap: Texture2D|null, uOff: number, vOff: number, uScale: number, vScale: number) {
         this.lightmapSettings.texture = lightmap;
-        this.lightmapSettings.uvParam.x = uoff;
-        this.lightmapSettings.uvParam.y = voff;
-        this.lightmapSettings.uvParam.z = uscale;
-        this.lightmapSettings.uvParam.w = vscale;
+        this.lightmapSettings.uvParam.x = uOff;
+        this.lightmapSettings.uvParam.y = vOff;
+        this.lightmapSettings.uvParam.z = uScale;
+        this.lightmapSettings.uvParam.w = vScale;
+
+        if (this.model !== null) {
+            this.model.updateLightingmap(this.lightmapSettings.texture, this.lightmapSettings.uvParam);
+        }
     }
 
     protected _updateModels () {
@@ -291,15 +309,28 @@ export class ModelComponent extends RenderableComponent {
         }
 
         this._updateModelParams();
+
+        if (this.model != null) {
+            this.model.updateLightingmap(this.lightmapSettings.texture, this.lightmapSettings.uvParam);
+        }
     }
 
     protected _createModel () {
-        this._model = (cc.director.root as Root).createModel(this._modelType);
+        const preferMorphOverPlain = !!this._morphInstance;
+        // Note we only change to use `MorphModel` if
+        // we are required to render morph and the `this._modelType` is exactly the basic `Model`.
+        // We do this since the `this._modelType` might be changed in classes derived from `ModelComponent`.
+        // We shall not overwrite it.
+        // Please notice that we do not enforce that
+        // derived classes should use a morph-able model type(i.e. model type derived from `MorphModel`).
+        // So we should take care of the edge case.
+        const modelType = (preferMorphOverPlain && this._modelType === Model) ? MorphModel : this._modelType;
+        this._model = (legacyCC.director.root as Root).createModel(modelType);
         this._model.visFlags = this.visibility;
         this._model.initialize(this.node);
         this._models.length = 0;
         this._models.push(this._model);
-        if (this._morphInstance) {
+        if (this._morphInstance && this._model instanceof MorphModel) {
             this._model.setMorphRendering(this._morphInstance);
         }
     }
@@ -309,10 +340,10 @@ export class ModelComponent extends RenderableComponent {
             return;
         }
         const scene = this._getRenderScene();
-        if (this._model!.scene != null) {
+        if (this._model.scene != null) {
             this._detachFromScene();
         }
-        scene.addModel(this._model!);
+        scene.addModel(this._model);
     }
 
     protected _detachFromScene () {
@@ -349,6 +380,7 @@ export class ModelComponent extends RenderableComponent {
         if (!this._model || !this._model.inited) { return; }
         this._model.isDynamicBatching = this._isBatchingEnabled();
         this._model.setSubModelMaterial(idx, material);
+        this._model.updateLightingmap(this.lightmapSettings.texture, this.lightmapSettings.uvParam);
     }
 
     protected _onMeshChanged (old: Mesh | null) {
@@ -366,7 +398,7 @@ export class ModelComponent extends RenderableComponent {
         return builtinResMgr.get<Material>('missing-material');
     }
 
-    protected _onVisiblityChange (val: number) {
+    protected _onVisibilityChange (val: number) {
         if (!this._model) { return; }
         this._model.visFlags = val;
     }
@@ -375,10 +407,12 @@ export class ModelComponent extends RenderableComponent {
         if (!this._model) { return; }
         if (this._shadowCastingMode === ModelShadowCastingMode.OFF) {
             this._model.castShadow = false;
-        } else if (this._shadowCastingMode === ModelShadowCastingMode.ON) {
-            this._model.castShadow = true;
         } else {
-            console.warn(`ShadowCastingMode ${this._shadowCastingMode} is not supported.`);
+            assertIsTrue(
+                this._shadowCastingMode === ModelShadowCastingMode.ON,
+                `ShadowCastingMode ${this._shadowCastingMode} is not supported.`,
+            );
+            this._model.castShadow = true;
         }
     }
 
@@ -425,7 +459,9 @@ export class ModelComponent extends RenderableComponent {
             this._morphInstance.setWeights(iSubMesh, weights);
         }
 
-        this._model?.setMorphRendering(this._morphInstance);
+        if (this._model && this._model instanceof MorphModel) {
+            this._model.setMorphRendering(this._morphInstance);
+        }
     }
 
     private _syncMorphWeights (subMeshIndex: number) {
@@ -438,4 +474,8 @@ export class ModelComponent extends RenderableComponent {
         }
         subMeshMorphInstance.renderResources.setWeights(subMeshMorphInstance.weights);
     }
+}
+
+export namespace ModelComponent {
+    export type ShadowCastingMode = EnumAlias<typeof ModelShadowCastingMode>;
 }

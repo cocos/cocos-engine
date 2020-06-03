@@ -37,6 +37,8 @@ import { AnimationComponent } from './animation-component';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { SkeletalAnimationState } from './skeletal-animation-state';
 import { getWorldTransformUntilRoot } from './transform-utils';
+import { legacyCC } from '../global-exports';
+import { AnimationManager } from './animation-manager';
 
 @ccclass('cc.SkeletalAnimationComponent.Socket')
 export class Socket {
@@ -77,7 +79,7 @@ function collectRecursively (node: Node, prefix = '', out: string[] = []) {
 
 /**
  * @en
- * Skeletal animaiton component, offers the following features on top of [[AnimationComponent]]:
+ * Skeletal animation component, offers the following features on top of [[AnimationComponent]]:
  * * Choice between baked animation and real-time calculation, to leverage efficiency and expressiveness.
  * * Joint socket system: Create any socket node directly under the animation component root node,
  *   find your target joint and register both to the socket list, so that the socket node would be in-sync with the joint.
@@ -110,6 +112,11 @@ export class SkeletalAnimationComponent extends AnimationComponent {
         return this._sockets;
     }
     set sockets (val) {
+        if (!this._useBakedAnimation) {
+            const animMgr = legacyCC.director.getAnimationManager() as AnimationManager;
+            animMgr.removeSockets(this.node, this._sockets);
+            animMgr.addSockets(this.node, val);
+        }
         this._sockets = val;
         this.rebuildSocketAnimations();
     }
@@ -138,6 +145,8 @@ export class SkeletalAnimationComponent extends AnimationComponent {
                 comp.setUseBakedAnimation(this._useBakedAnimation);
             }
         }
+        if (this._useBakedAnimation) { (legacyCC.director.getAnimationManager() as AnimationManager).removeSockets(this.node, this._sockets); }
+        else { (legacyCC.director.getAnimationManager() as AnimationManager).addSockets(this.node, this._sockets); }
     }
 
     @property
@@ -148,7 +157,8 @@ export class SkeletalAnimationComponent extends AnimationComponent {
 
     public onDestroy () {
         super.onDestroy();
-        (cc.director.root.dataPoolManager as DataPoolManager).jointAnimationInfo.destroy(this.node.uuid);
+        (legacyCC.director.root.dataPoolManager as DataPoolManager).jointAnimationInfo.destroy(this.node.uuid);
+        (legacyCC.director.getAnimationManager() as AnimationManager).removeSockets(this.node, this._sockets);
     }
 
     public start () {
@@ -213,4 +223,4 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     }
 }
 
-cc.SkeletalAnimationComponent = SkeletalAnimationComponent;
+legacyCC.SkeletalAnimationComponent = SkeletalAnimationComponent;

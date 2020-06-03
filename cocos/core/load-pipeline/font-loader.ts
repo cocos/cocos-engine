@@ -24,10 +24,11 @@
  */
 
 /**
- * @category loader
+ * @hidden
  */
 
 import {safeMeasureText} from '../utils/text-utils';
+import { legacyCC } from '../global-exports';
 
 interface IFontLoadHandle {
     fontFamilyName;
@@ -42,7 +43,7 @@ const _testString = "BES bswy:->@123\u4E01\u3041\u1101";
 
 let _fontFaces = {};
 let _intervalId = -1;
-let _loadingFonts:Array<IFontLoadHandle> = [];
+let _loadingFonts: Array<IFontLoadHandle> = [];
 // 3 seconds timeout
 let _timeout = 3000;
 
@@ -109,7 +110,7 @@ function nativeCheckFontLoaded (start, font, callback) {
         }
         callback(null, font);
     }, function () {
-        cc.warnID(4933, font);
+        legacyCC.warnID(4933, font);
         callback(null, font);
     });
 }
@@ -123,7 +124,7 @@ function _checkFontLoaded () {
         let fontFamily = fontLoadHandle.fontFamilyName;
         // load timeout
         if (now - fontLoadHandle.startTime > _timeout) {
-            cc.warnID(4933, fontFamily);
+            legacyCC.warnID(4933, fontFamily);
             fontLoadHandle.callback(null, fontFamily);
             _loadingFonts.splice(i, 1);
             continue;
@@ -200,7 +201,7 @@ export function loadFont (item, callback) {
     }
     else {
         // Save loading font
-        let fontLoadHandle:IFontLoadHandle = {
+        let fontLoadHandle: IFontLoadHandle = {
             fontFamilyName,
             refWidth,
             callback,

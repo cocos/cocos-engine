@@ -65,13 +65,6 @@ interface HTMLElement{
 type ActiveXObject = new (s: string) => any;
 declare var ActiveXObject: ActiveXObject;
 
-declare const cc: {
-    // polyfills: {
-    //     destroyObject? (object: any): void;
-    // };
-    [x: string]: any;
-};
-
 declare type CompareFunction<T> = (a: T, b: T) => number;
 
 declare type RecursivePartial<T> = {
@@ -98,3 +91,5 @@ declare type Getter = () => any;
 declare type Setter = (value: any) => void;
 
 declare const Buffer: any;
+
+declare type EnumAlias<EnumT> = EnumT[keyof EnumT];

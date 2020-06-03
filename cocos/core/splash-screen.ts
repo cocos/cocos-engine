@@ -21,6 +21,7 @@ import { sys } from './platform/sys';
 import { GFXSampler } from './gfx';
 import { IPSOCreateInfo } from './renderer';
 import { PipelineStateManager } from './pipeline/pipeline-state-manager';
+import { legacyCC } from './global-exports';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 
@@ -111,17 +112,17 @@ export class SplashScreen {
             this._directCall = true;
             return;
         } else {
-            cc.view.enableRetina(true);
+            legacyCC.view.enableRetina(true);
             const designRes = window._CCSettings.designResolution;
             if (designRes) {
-                cc.view.setDesignResolutionSize(designRes.width, designRes.height, designRes.policy);
+                legacyCC.view.setDesignResolutionSize(designRes.width, designRes.height, designRes.policy);
             } else {
-                cc.view.setDesignResolutionSize(960, 640, 4);
+                legacyCC.view.setDesignResolutionSize(960, 640, 4);
             }
             this.device = device;
-            cc.game.once(cc.Game.EVENT_GAME_INITED, () => {
-                cc.director._lateUpdate = performance.now();
-            }, cc.director);
+            legacyCC.game.once(legacyCC.Game.EVENT_GAME_INITED, () => {
+                legacyCC.director._lateUpdate = performance.now();
+            }, legacyCC.director);
 
             this.callBack = null;
             this.cancelAnimate = false;
@@ -158,7 +159,7 @@ export class SplashScreen {
     private init () {
         // adapt for native mac & ios
         if (JSB) {
-            if (sys.os === cc.sys.OS_OSX || sys.os === cc.sys.OS_IOS) {
+            if (sys.os === legacyCC.sys.OS_OSX || sys.os === legacyCC.sys.OS_IOS) {
                 const width = screen.width * devicePixelRatio;
                 const height = screen.height * devicePixelRatio;
                 this.device.resize(width, height);
@@ -256,8 +257,8 @@ export class SplashScreen {
         cmdBuff.draw(this.assmebler);
 
         if (this.setting.displayWatermark && this.textPSOCreateInfo && this.textAssmebler) {
-            const pso = PipelineStateManager.getOrCreatePipelineState(device, this.textPSOCreateInfo, framebuffer.renderPass!, this.textAssmebler);
-            cmdBuff.bindPipelineState(pso);
+            const psoWatermark = PipelineStateManager.getOrCreatePipelineState(device, this.textPSOCreateInfo, framebuffer.renderPass!, this.textAssmebler);
+            cmdBuff.bindPipelineState(psoWatermark);
             cmdBuff.bindBindingLayout(this.textPSOCreateInfo.bindingLayout);
             cmdBuff.bindInputAssembler(this.textAssmebler);
             cmdBuff.draw(this.textAssmebler);
@@ -529,9 +530,7 @@ export class SplashScreen {
         this.cmdBuff.destroy();
         (this.cmdBuff as any) = null;
 
-        const { bindingLayout: bl, pipelineLayout: pl } = this.psoCreateInfo;
-        bl.destroy();
-        pl.destroy();
+        this.psoCreateInfo.bindingLayout.destroy();
         (this.psoCreateInfo as any) = null;
 
         this.material.destroy();
@@ -560,9 +559,7 @@ export class SplashScreen {
             (this.textImg as any) = null;
             (this.textRegion as any) = null;
 
-            const { bindingLayout: bl, pipelineLayout: pl } = this.textPSOCreateInfo;
-            bl.destroy();
-            pl.destroy();
+            this.textPSOCreateInfo.bindingLayout.destroy();
             (this.textPSOCreateInfo as any) = null;
 
             this.textMaterial.destroy();
@@ -600,4 +597,4 @@ export class SplashScreen {
     private constructor () { };
 }
 
-cc.internal.SplashScreen = SplashScreen;
+legacyCC.internal.SplashScreen = SplashScreen;

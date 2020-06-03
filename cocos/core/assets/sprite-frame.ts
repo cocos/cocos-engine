@@ -37,6 +37,9 @@ import { Asset } from './asset';
 import { RenderTexture } from './render-texture';
 import { TextureBase } from './texture-base';
 import { EDITOR } from 'internal:constants';
+import { legacyCC } from '../global-exports';
+import { ImageAsset, ImageSource } from './image-asset';
+import { Texture2D } from './texture-2d';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -181,6 +184,23 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  */
 @ccclass('cc.SpriteFrame')
 export class SpriteFrame extends Asset {
+
+    /**
+     * @en
+     * Create a SpriteFrame object by an image asset or an native image asset
+     * @zh
+     * 通过 Image 资源或者原始 image 资源创建一个 SpriteFrame 对象
+     * @param imageSourceOrImageAsset ImageAsset or ImageSource, ImageSource support HTMLCanvasElement HTMLImageElement IMemoryImageSource
+     */
+    public static createWithImage (imageSourceOrImageAsset: ImageSource | ImageAsset) {
+        const img = imageSourceOrImageAsset instanceof ImageAsset ? imageSourceOrImageAsset : new ImageAsset(imageSourceOrImageAsset);
+        const tex = new Texture2D();
+        tex.image = img;
+        const spf = new SpriteFrame();
+        spf.texture = tex;
+        return spf;
+    }
+
     /**
      * @en
      * Top border of the sprite.
@@ -662,12 +682,12 @@ export class SpriteFrame extends Asset {
         }
 
         if (maxX > texture.width) {
-            cc.errorID(3300, this.name + '/' + texture.name, maxX, texture.width);
+            legacyCC.errorID(3300, this.name + '/' + texture.name, maxX, texture.width);
             return false;
         }
 
         if (maxY > texture.height) {
-            cc.errorID(3301, this.name + '/' + texture.name, maxY, texture.height);
+            legacyCC.errorID(3301, this.name + '/' + texture.name, maxY, texture.height);
             return false;
         }
 
@@ -952,4 +972,4 @@ export class SpriteFrame extends Asset {
     }
 }
 
-cc.SpriteFrame = SpriteFrame;
+legacyCC.SpriteFrame = SpriteFrame;

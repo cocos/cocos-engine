@@ -2,18 +2,17 @@
  * @hidden
  */
 
-import { GFXPipelineState, IGFXPipelineStateInfo, GFXInputState } from '../gfx/pipeline-state';
+import { GFXPipelineState, GFXInputState } from '../gfx/pipeline-state';
 import { IPSOCreateInfo } from '../renderer/scene/submodel';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXInputAssembler } from '../gfx/input-assembler';
-import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { GFXDevice } from '../gfx/device';
 
 export class PipelineStateManager {
     private static _PSOHashMap: Map<number, GFXPipelineState> = new Map<number, GFXPipelineState>();
-    private static _inputState: GFXInputState = new GFXInputState();;
+    private static _inputState: GFXInputState = new GFXInputState();
 
-    static getOrCreatePipelineState(
+    static getOrCreatePipelineState (
         device: GFXDevice,
         psoCreateInfo: IPSOCreateInfo,
         renderPass: GFXRenderPass,
@@ -21,15 +20,17 @@ export class PipelineStateManager {
         ): GFXPipelineState {
 
         const hash1 = psoCreateInfo.hash;
-        const hash2= renderPass.hash;
+        const hash2 = renderPass.hash;
         const hash3 = ia.attributesHash;
 
-        const res = `ps,${hash1},${hash2},${hash3}`;
-        const newHash = murmurhash2_32_gc(res, 666);
+        const newHash = hash1 ^ hash2 ^ hash3;
         let pso = this._PSOHashMap.get(newHash);
         if (!pso) {
-            this._inputState.attributes = ia.attributes
-            const createInfo: IGFXPipelineStateInfo = {
+            this._inputState.attributes = ia.attributes;
+            const pipelineLayout = device.createPipelineLayout({
+                layouts: [psoCreateInfo.bindingLayout]
+            });
+            pso = device.createPipelineState({
                 primitive: psoCreateInfo.primitive,
                 shader: psoCreateInfo.shader,
                 inputState: this._inputState,
@@ -37,15 +38,13 @@ export class PipelineStateManager {
                 depthStencilState: psoCreateInfo.depthStencilState,
                 blendState: psoCreateInfo.blendState,
                 dynamicStates: psoCreateInfo.dynamicStates,
-                layout: psoCreateInfo.pipelineLayout,
-                renderPass: renderPass,
+                layout: pipelineLayout,
+                renderPass,
                 hash: newHash,
-            };
-
-            pso = device.createPipelineState(createInfo);
+            });
             this._PSOHashMap.set(newHash, pso);
         }
-        
+
         return pso;
     }
 }

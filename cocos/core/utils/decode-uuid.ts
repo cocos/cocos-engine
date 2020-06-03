@@ -26,6 +26,7 @@
 
 import { BASE64_VALUES } from './misc';
 import { TEST } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 const HexChars = '0123456789abcdef'.split('');
 
@@ -69,5 +70,5 @@ export default function decodeUuid (base64: string) {
 }
 
 if (TEST) {
-    cc._Test.decodeUuid = decodeUuid;
+    legacyCC._Test.decodeUuid = decodeUuid;
 }

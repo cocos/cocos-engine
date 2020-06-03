@@ -31,6 +31,7 @@ import * as js from '../utils/js';
 import CCClass from './class';
 import { errorID, warnID } from '../platform/debug';
 import { SUPPORT_JIT, EDITOR, TEST } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 // definitions for CCObject.Flags
 
@@ -72,7 +73,7 @@ const objectsToDestroy: any = [];
 let deferredDestroyTimer = null;
 
 function compileDestruct (obj, ctor) {
-    const shouldSkipId = obj instanceof cc._BaseNode || obj instanceof cc.Component;
+    const shouldSkipId = obj instanceof legacyCC._BaseNode || obj instanceof legacyCC.Component;
     const idToSkip = shouldSkipId ? '_id' : null;
 
     let key;
@@ -95,12 +96,12 @@ function compileDestruct (obj, ctor) {
     }
     // Overwrite propsToReset according to Class
     if (CCClass._isCCClass(ctor)) {
-        const attrs = cc.Class.Attr.getClassAttrs(ctor);
+        const attrs = legacyCC.Class.Attr.getClassAttrs(ctor);
         const propList = ctor.__props__;
         // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < propList.length; i++) {
             key = propList[i];
-            const attrKey = key + cc.Class.Attr.DELIMETER + 'default';
+            const attrKey = key + legacyCC.Class.Attr.DELIMETER + 'default';
             if (attrKey in attrs) {
                 if (shouldSkipId && key === '_id') {
                     continue;
@@ -155,9 +156,6 @@ function compileDestruct (obj, ctor) {
  * The base class of most of all the objects in Fireball.
  * @zh
  * 大部分对象的基类。
- * @class Object
- *
- * @main
  * @private
  */
 class CCObject {
@@ -235,8 +233,6 @@ class CCObject {
      * 当一个对象的 `destroy` 调用以后，会在这一帧结束后才真正销毁。<br>
      * 因此从下一帧开始 `isValid` 就会返回 false，而当前帧内 `isValid` 仍然会是 true。<br>
      * 如果希望判断当前帧是否调用过 `destroy`，请使用 `cc.isValid(obj, true)`，不过这往往是特殊的业务需求引起的，通常情况下不需要这样。
-     *
-     * @property {Boolean} isValid
      * @default true
      * @readOnly
      * @example
@@ -250,7 +246,7 @@ class CCObject {
      * cc.log(node.isValid);    // false, destroyed in the end of last frame
      * ```
      */
-    get isValid () {
+    get isValid (): boolean {
         return !(this._objFlags & Destroyed);
     }
 
@@ -264,7 +260,7 @@ class CCObject {
      * 销毁该对象，并释放所有它对其它对象的引用。<br/>
      * 实际销毁操作会延迟到当前帧渲染前执行。从下一帧开始，该对象将不再可用。
      * 您可以在访问对象之前使用 cc.isValid(obj) 来检查对象是否已被销毁。
-     * @return {Boolean} whether it is the first time the destroy being called
+     * @return whether it is the first time the destroy being called
      * @example
      * ```
      * obj.destroy();
@@ -281,7 +277,7 @@ class CCObject {
         this._objFlags |= ToDestroy;
         objectsToDestroy.push(this);
 
-        if (EDITOR && deferredDestroyTimer === null && cc.engine && ! cc.engine._isUpdating) {
+        if (EDITOR && deferredDestroyTimer === null && legacyCC.engine && ! legacyCC.engine._isUpdating) {
             // auto destroy immediate in edit mode
             // @ts-ignore
             deferredDestroyTimer = setImmediate(CCObject._deferredDestroy);
@@ -332,7 +328,7 @@ class CCObject {
             this._onPreDestroy();
         }
 
-        if ((TEST ? (/* make EDITOR mockable*/ Function('return !EDITOR'))() : !EDITOR) || cc.engine._isPlaying) {
+        if ((TEST ? (/* make EDITOR mockable*/ Function('return !EDITOR'))() : !EDITOR) || legacyCC.engine._isPlaying) {
             this._destruct();
         }
 
@@ -380,7 +376,7 @@ if (EDITOR) {
         }
     });
 
-    /**
+    /*
      * The customized serialization for this object. (Editor Only)
      * @method _serialize
      * @param {Boolean} exporting
@@ -391,7 +387,7 @@ if (EDITOR) {
     prototype._serialize = null;
 }
 
-/**
+/*
  * Init this object from the custom serialized data.
  * @method _deserialize
  * @param {Object} data - the serialized json data
@@ -400,7 +396,7 @@ if (EDITOR) {
  */
 // @ts-ignore
 prototype._deserialize = null;
-/**
+/*
  * Called before the object being destroyed.
  * @method _onPreDestroy
  * @private
@@ -413,7 +409,6 @@ CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });
 /**
  * Bit mask that controls object states.
  * @enum Object.Flags
- * @static
  * @private
  */
 js.value(CCObject, 'Flags', {
@@ -424,14 +419,12 @@ js.value(CCObject, 'Flags', {
     /**
      * @en The object will not be saved.
      * @zh 该对象将不会被保存。
-     * @property {Number} DontSave
      */
     DontSave,
 
     /**
      * @en The object will not be saved when building a player.
      * @zh 构建项目时，该对象将不会被保存。
-     * @property {Number} EditorOnly
      */
     EditorOnly,
 
@@ -454,7 +447,6 @@ js.value(CCObject, 'Flags', {
     /**
      * @en The node is deactivating.
      * @zh 节点正在反激活的过程中。
-     * @property Deactivating
      * @private
      */
     Deactivating,
@@ -462,8 +454,6 @@ js.value(CCObject, 'Flags', {
     /**
      * @en The lock node, when the node is locked, cannot be clicked in the scene.
      * @zh 锁定节点，锁定后场景内不能点击
-     *
-     * @property LockedInEditor
      * @private
      */
     LockedInEditor,
@@ -484,7 +474,6 @@ js.value(CCObject, 'Flags', {
     /// **
     // * @en This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
     // * @zh 该标记只读，它只能被用作 scene.addEntity()的一个参数。
-    // * @property {Number} HideInEditor
     // */
     HideInHierarchy,
 
@@ -495,7 +484,6 @@ js.value(CCObject, 'Flags', {
     // * @zh
     // * 在游戏视图，层级，场景视图等等...中隐藏该对象。
     // * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
-    // * @property {Number} Hide
     // */
     // Hide: Hide,
 
@@ -518,11 +506,7 @@ js.value(CCObject, 'Flags', {
     IsSizeLocked,
 });
 
-/**
- * @module cc
- */
-
-/**
+/*
  * @en
  * Checks whether the object is non-nil and not yet destroyed.<br>
  * When an object's `destroy` is called, it is actually destroyed after the end of this frame.
@@ -559,7 +543,7 @@ export function isValid (value: any, strictMode?: boolean) {
         return typeof value !== 'undefined';
     }
 }
-cc.isValid = isValid;
+legacyCC.isValid = isValid;
 
 if (EDITOR || TEST) {
     js.value(CCObject, '_willDestroy', (obj) => {
@@ -571,5 +555,5 @@ if (EDITOR || TEST) {
     });
 }
 
-cc.Object = CCObject;
+legacyCC.Object = CCObject;
 export { CCObject };

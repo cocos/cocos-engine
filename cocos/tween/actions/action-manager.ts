@@ -33,6 +33,7 @@ import * as js from '../../core/utils/js';
 import { errorID } from '../../core/platform/debug';
 import { Action } from './action';
 import { Node } from '../../core';
+import { legacyCC } from '../../core/global-exports';
 
 let ID_COUNTER = 0;
 
@@ -216,10 +217,10 @@ export class ActionManager {
      * @param {Node} target
      */
     removeActionByTag (tag: number, target: Node) {
-        if (tag === cc.Action.TAG_INVALID)
-            cc.logID(1002);
+        if (tag === legacyCC.Action.TAG_INVALID)
+            legacyCC.logID(1002);
 
-        cc.assertID(target, 1003);
+        legacyCC.assertID(target, 1003);
 
         var element = this._hashTargets[target.uuid];
 
@@ -244,8 +245,8 @@ export class ActionManager {
      * @return {Action|null}  return the Action with the given tag on success
      */
     getActionByTag (tag: number, target: Node): Action | null {
-        if (tag === cc.Action.TAG_INVALID)
-            cc.logID(1004);
+        if (tag === legacyCC.Action.TAG_INVALID)
+            legacyCC.logID(1004);
 
         var element = this._hashTargets[target.uuid];
         if (element) {
@@ -256,7 +257,7 @@ export class ActionManager {
                         return action;
                 }
             }
-            cc.logID(1005, tag);
+            legacyCC.logID(1005, tag);
         }
         return null;
     }
@@ -371,7 +372,7 @@ export class ActionManager {
      * @method purgeSharedManager
      */
     purgeSharedManager () {
-        cc.director.getScheduler().unscheduleUpdate(this);
+        legacyCC.director.getScheduler().unscheduleUpdate(this);
     }
 
     //protected

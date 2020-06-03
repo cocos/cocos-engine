@@ -41,7 +41,7 @@
 
         "@typescript-eslint/adjacent-overload-signatures": "off",
         "@typescript-eslint/array-type": ["warn", {
-            "default": "array-simple"
+            "default": "array"
         }],
         "@typescript-eslint/await-thenable": "off",
         "@typescript-eslint/ban-ts-ignore": "warn",

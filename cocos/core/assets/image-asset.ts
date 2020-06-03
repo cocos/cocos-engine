@@ -33,6 +33,7 @@ import { GFXDevice, GFXFeature } from '../gfx/device';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { EDITOR, MINIGAME } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 /**
  * 内存图像源。
@@ -77,7 +78,7 @@ export class ImageAsset extends Asset {
      * 此图像资源的图像数据。
      */
     get data () {
-        const data = (this._nativeData as IMemoryImageSource)._data;
+        const data = this._nativeData && (this._nativeData as IMemoryImageSource)._data;
         return ArrayBuffer.isView(data) ? data : this._nativeData as (HTMLCanvasElement | HTMLImageElement);
     }
 
@@ -123,7 +124,7 @@ export class ImageAsset extends Asset {
 
     get _texture () {
         if (!this._tex) {
-            const tex = new cc.Texture2D();
+            const tex = new legacyCC.Texture2D();
             tex.name = this._url;
             tex.image = this;
             this._tex = tex;
@@ -193,20 +194,19 @@ export class ImageAsset extends Asset {
                     this._onDataComplete();
                 });
                 data.addEventListener('error', (err) => {
-                    cc.warnID(3119, err.message);
+                    legacyCC.warnID(3119, err.message);
                 });
             }
         }
     }
 
-    // destroy() {
-    //     if (cc.macro.CLEANUP_IMAGE_CACHE) {
-    //         if (this._data instanceof HTMLImageElement) {
-    //             this._data.src = "";
-    //             cc.loader.removeItem(this._data.id);
-    //         }
-    //     }
-    // }
+    public destroy (): boolean {
+        if (this.data && this.data instanceof HTMLImageElement) {
+            this.data.src = "";
+            legacyCC.loader.removeItem(this.data.id);
+        }
+        return super.destroy();
+    }
 
     // SERIALIZATION
 
@@ -249,7 +249,7 @@ export class ImageAsset extends Asset {
         let preferedExtensionIndex = Number.MAX_VALUE;
         let format = this._format;
         let ext = '';
-        const SupportTextureFormats = cc.macro.SUPPORT_TEXTURE_FORMATS as string[];
+        const SupportTextureFormats = legacyCC.macro.SUPPORT_TEXTURE_FORMATS as string[];
         for (const extensionID of extensionIDs) {
             const extFormat = extensionID.split('@');
 
@@ -262,12 +262,13 @@ export class ImageAsset extends Asset {
                 // check whether or not support compressed texture
                 if ( tmpExt === '.pvr' && (!device || !device.hasFeature(GFXFeature.FORMAT_PVRTC))) {
                     continue;
-                } else if (fmt === PixelFormat.RGB_ETC1 && (!device || !device.hasFeature(GFXFeature.FORMAT_ETC1))) {
+                } else if ((fmt === PixelFormat.RGB_ETC1 || fmt === PixelFormat.RGBA_ETC1) &&
+                    (!device || !device.hasFeature(GFXFeature.FORMAT_ETC1))) {
                     continue;
                 } else if ((fmt === PixelFormat.RGB_ETC2 || fmt === PixelFormat.RGBA_ETC2) &&
                     (!device || !device.hasFeature(GFXFeature.FORMAT_ETC2))) {
                     continue;
-                } else if (tmpExt === '.webp' && !cc.sys.capabilities.webp) {
+                } else if (tmpExt === '.webp' && !legacyCC.sys.capabilities.webp) {
                     continue;
                 }
                 preferedExtensionIndex = index;
@@ -297,8 +298,8 @@ export class ImageAsset extends Asset {
 }
 
 function _getGlobalDevice (): GFXDevice | null {
-    if (cc.director.root) {
-        return cc.director.root.device;
+    if (legacyCC.director.root) {
+        return legacyCC.director.root.device;
     } else {
         return null;
     }
@@ -313,4 +314,4 @@ function _getGlobalDevice (): GFXDevice | null {
  * @event loads
  */
 
-cc.ImageAsset = ImageAsset;
+legacyCC.ImageAsset = ImageAsset;

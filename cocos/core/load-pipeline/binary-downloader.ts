@@ -24,12 +24,14 @@
  THE SOFTWARE.
  */
 /**
- * @category loader
+ * @hidden
  */
+
+import { legacyCC } from '../global-exports';
 
 export default function downloadBinary (item, callback) {
     var url = item.url;
-    var xhr = cc.loader.getXMLHttpRequest(),
+    var xhr = legacyCC.loader.getXMLHttpRequest(),
         errInfo = 'Load binary data failed: ' + url + '';
     xhr.open('GET', url, true);
     xhr.responseType = "arraybuffer";
@@ -40,14 +42,14 @@ export default function downloadBinary (item, callback) {
             callback(null, arrayBuffer);
         }
         else {
-            callback({status:xhr.status, errorMessage:errInfo + '(no response)'});
+            callback({status: xhr.status, errorMessage: errInfo + '(no response)'});
         }
     };
     xhr.onerror = function(){
-        callback({status:xhr.status, errorMessage:errInfo + '(error)'});
+        callback({status: xhr.status, errorMessage: errInfo + '(error)'});
     };
     xhr.ontimeout = function(){
-        callback({status:xhr.status, errorMessage:errInfo + '(time out)'});
+        callback({status: xhr.status, errorMessage: errInfo + '(time out)'});
     };
     xhr.send(null);
 }

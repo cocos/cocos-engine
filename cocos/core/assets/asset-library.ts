@@ -39,6 +39,7 @@ import { SubPackPipe } from '../load-pipeline/subpackage-pipe';
 import { Asset } from './asset';
 import * as debug from '../platform/debug';
 import { EDITOR, TEST, BUILD } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 
 // tslint:disable: max-line-length
 
@@ -49,7 +50,7 @@ let _rawAssetsBase = '';     // The base dir for raw assets in runtime
 const _uuidToRawAsset = createMap(true);
 
 function isScene (asset) {
-    return asset && (asset.constructor === cc.SceneAsset || asset instanceof cc.Scene);
+    return asset && (asset.constructor === legacyCC.SceneAsset || asset instanceof legacyCC.Scene);
 }
 
 // types
@@ -112,17 +113,17 @@ const AssetLibrary = {
         if (options && options.existingAsset) {
             item.existingAsset = options.existingAsset;
         }
-        cc.loader.load(item, (error, asset) => {
+        legacyCC.loader.load(item, (error, asset) => {
             if (error || !asset) {
                 error = new Error('[AssetLibrary] loading JSON or dependencies failed: ' + (error ? error.message : 'Unknown error'));
             }
             else {
-                if (asset.constructor === cc.SceneAsset) {
+                if (asset.constructor === legacyCC.SceneAsset) {
                     if (EDITOR && !asset.scene) {
                         debug.error('Sorry, the scene data of "%s" is corrupted!', uuid);
                     }
                     else {
-                        const key = cc.loader._getReferenceKey(uuid);
+                        const key = legacyCC.loader._getReferenceKey(uuid);
                         asset.scene.dependAssets = getDependsRecursively(key);
                     }
                 }
@@ -165,7 +166,7 @@ const AssetLibrary = {
                     return callback(loadError);
                 }
 
-                const ctor = cc.js.getClassByName(info.type);
+                const ctor = legacyCC.js.getClassByName(info.type);
                 if (ctor) {
                     const isRawAsset = !isChildClassOf(ctor, Asset);
                     const url = `import://${info.uuid.substr(0, 2)}/${info.uuid}.json`;
@@ -186,7 +187,7 @@ const AssetLibrary = {
     _getAssetInfoInRuntime (uuid, result?: any) {
         result = result || {url: null, raw: false};
         const info = _uuidToRawAsset[uuid];
-        if (info && !isChildClassOf(info.type, cc.Asset)) {
+        if (info && !isChildClassOf(info.type, legacyCC.Asset)) {
             // backward compatibility since 1.10
             result.url = _rawAssetsBase + info.url;
             result.raw = true;
@@ -238,12 +239,12 @@ const AssetLibrary = {
             let uuid = '';
             const isImported = url.startsWith(_libraryBase);
             if (isImported) {
-                const dir = cc.path.dirname(url);
-                const dirBasename = cc.path.basename(dir);
+                const dir = legacyCC.path.dirname(url);
+                const dirBasename = legacyCC.path.basename(dir);
 
                 const isAssetUrl = dirBasename.length === 2;
                 if (isAssetUrl) {
-                    uuid = cc.path.basename(url);
+                    uuid = legacyCC.path.basename(url);
                     const index = uuid.indexOf('.');
                     if (index !== -1) {
                         uuid = uuid.slice(0, index);
@@ -273,20 +274,20 @@ const AssetLibrary = {
             uuid: randomUuid,
             type: 'uuid',
             content: json,
-            skips: [ cc.loader.assetLoader.id, cc.loader.downloader.id ],
+            skips: [ legacyCC.loader.assetLoader.id, legacyCC.loader.downloader.id ],
         };
-        cc.loader.load(item, (error, asset) => {
+        legacyCC.loader.load(item, (error, asset) => {
             if (error) {
                 error = new Error('[AssetLibrary] loading JSON or dependencies failed: ' + error.message);
             }
             else {
-                if (asset.constructor === cc.SceneAsset) {
-                    const key = cc.loader._getReferenceKey(randomUuid);
+                if (asset.constructor === legacyCC.SceneAsset) {
+                    const key = legacyCC.loader._getReferenceKey(randomUuid);
                     asset.scene.dependAssets = getDependsRecursively(key);
                 }
                 if (EDITOR || isScene(asset)) {
-                    const id = cc.loader._getReferenceKey(randomUuid);
-                    cc.loader.removeItem(id);
+                    const id = legacyCC.loader._getReferenceKey(randomUuid);
+                    legacyCC.loader.removeItem(id);
                 }
             }
             asset._uuid = '';
@@ -325,7 +326,7 @@ const AssetLibrary = {
      */
     init (options) {
         if (EDITOR && _libraryBase) {
-            cc.errorID(6402);
+            legacyCC.errorID(6402);
             return;
         }
 
@@ -333,7 +334,7 @@ const AssetLibrary = {
         // 不使用 url.format 的原因是 windows 不支持 file:// 和 /// 开头的协议，所以只能用 replace 操作直接把路径转成 URL。
         let libraryPath = options.libraryPath;
         libraryPath = libraryPath.replace(/\\/g, '/');
-        _libraryBase = cc.path.stripSep(libraryPath) + '/';
+        _libraryBase = legacyCC.path.stripSep(libraryPath) + '/';
 
         _rawAssetsBase = options.rawAssetsBase;
 
@@ -365,21 +366,21 @@ const AssetLibrary = {
             }
 
             const md5Pipe = new MD5Pipe(md5ImportMap, md5RawAssetsMap, _libraryBase);
-            cc.loader.insertPipeAfter(cc.loader.assetLoader, md5Pipe);
-            cc.loader.md5Pipe = md5Pipe;
+            legacyCC.loader.insertPipeAfter(legacyCC.loader.assetLoader, md5Pipe);
+            legacyCC.loader.md5Pipe = md5Pipe;
         }
 
         const subPackages = options.subPackages;
         if (subPackages) {
-            cc.loader.downloader.setSubPackages(subPackages);
+            legacyCC.loader.downloader.setSubPackages(subPackages);
             const subPackPipe = new SubPackPipe(subPackages);
-            cc.loader.insertPipeAfter(cc.loader.assetLoader, subPackPipe);
-            cc.loader.subPackPipe = subPackPipe;
+            legacyCC.loader.insertPipeAfter(legacyCC.loader.assetLoader, subPackPipe);
+            legacyCC.loader.subPackPipe = subPackPipe;
         }
 
         // init raw assets
 
-        const assetTables = cc.loader._assetTables;
+        const assetTables = legacyCC.loader._assetTables;
         // tslint:disable: forin
         for (const mount in assetTables) {
             assetTables[mount].reset();
@@ -395,7 +396,7 @@ const AssetLibrary = {
                     const typeId = info[1];
                     const type = _getClassById(typeId);
                     if (!type) {
-                        cc.error('Cannot get', typeId);
+                        legacyCC.error('Cannot get', typeId);
                         continue;
                     }
                     // backward compatibility since 1.10
@@ -417,7 +418,7 @@ const AssetLibrary = {
         }
 
         // init cc.url
-        cc.url._init((options.mountPaths && options.mountPaths.assets) || _rawAssetsBase + 'assets');
+        legacyCC.url._init((options.mountPaths && options.mountPaths.assets) || _rawAssetsBase + 'assets');
     },
 };
 
@@ -431,5 +432,5 @@ const AssetLibrary = {
 //    }
 // };
 
-cc.AssetLibrary = AssetLibrary;
+legacyCC.AssetLibrary = AssetLibrary;
 export default AssetLibrary;

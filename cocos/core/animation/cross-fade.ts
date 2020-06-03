@@ -6,6 +6,7 @@ import { clamp01 } from '../math/utils';
 import { remove } from '../utils/array';
 import { AnimationState } from './animation-state';
 import { Playable } from './playable';
+import { legacyCC } from '../global-exports';
 
 interface IManagedState {
     state: AnimationState | null;
@@ -43,10 +44,6 @@ export class CrossFade extends Playable {
         let absoluteWeight = 1.0;
         let deadFadingBegin = this._fadings.length;
         for (let iFading = 0; iFading < this._fadings.length; ++iFading) {
-            if (absoluteWeight === 0) {
-                deadFadingBegin = iFading;
-                break;
-            }
             const fading = this._fadings[iFading];
             fading.easeTime += deltaTime;
             const relativeWeight = clamp01(fading.easeTime / fading.easeDuration);
@@ -54,6 +51,11 @@ export class CrossFade extends Playable {
             absoluteWeight = absoluteWeight * (1.0 - relativeWeight);
             if (fading.target.state) {
                 fading.target.state.weight += weight;
+            }
+            if (fading.easeTime >= fading.easeDuration) {
+                deadFadingBegin = iFading + 1;
+                fading.easeTime = fading.easeDuration;
+                break;
             }
         }
 
@@ -127,7 +129,7 @@ export class CrossFade extends Playable {
 
     protected onPlay () {
         super.onPlay();
-        cc.director.getAnimationManager().addCrossFade(this);
+        legacyCC.director.getAnimationManager().addCrossFade(this);
     }
 
     /**
@@ -135,7 +137,7 @@ export class CrossFade extends Playable {
      */
     protected onPause () {
         super.onPause();
-        cc.director.getAnimationManager().removeCrossFade(this);
+        legacyCC.director.getAnimationManager().removeCrossFade(this);
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
             if (state) {
@@ -149,7 +151,7 @@ export class CrossFade extends Playable {
      */
     protected onResume () {
         super.onResume();
-        cc.director.getAnimationManager().addCrossFade(this);
+        legacyCC.director.getAnimationManager().addCrossFade(this);
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
             if (state) {
@@ -163,7 +165,7 @@ export class CrossFade extends Playable {
      */
     protected onStop () {
         super.onStop();
-        cc.director.getAnimationManager().removeCrossFade(this);
+        legacyCC.director.getAnimationManager().removeCrossFade(this);
         this.clear();
     }
 }

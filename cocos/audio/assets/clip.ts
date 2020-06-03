@@ -33,6 +33,7 @@ import { Enum } from '../../core/value-types';
 import { AudioPlayer, PlayingState } from './player';
 import { AudioPlayerDOM } from './player-dom';
 import { AudioPlayerWeb } from './player-web';
+import { legacyCC } from '../../core/global-exports';
 
 export const AudioType = Enum({
     WEB_AUDIO: 0,
@@ -131,4 +132,4 @@ export class AudioClip extends Asset {
     }
 }
 
-cc.AudioClip = AudioClip;
+legacyCC.AudioClip = AudioClip;

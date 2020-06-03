@@ -5,6 +5,7 @@ import { Texture2D } from '../../assets/texture-2d';
 import { TextureCube } from '../../assets/texture-cube';
 import { GFXDevice } from '../../gfx/device';
 import effects from './effects';
+import { legacyCC } from '../../global-exports';
 
 class BuiltinResMgr {
     protected _device: GFXDevice | null = null;
@@ -30,6 +31,19 @@ class BuiltinResMgr {
         blackTexture._uuid = 'black-texture';
         blackTexture.image = imgAsset;
         resources[blackTexture._uuid] = blackTexture;
+
+        // empty texture
+        context.fillStyle = 'rgba(0,0,0,0)';
+        context.fillRect(0, 0, l, l);
+        const emptyBuffer = new Uint8Array(4 * 4);
+        for (let i = 0; i < emptyBuffer.length; ++i) {
+            emptyBuffer[i] = 0;
+        }
+        const emptyTexture = new Texture2D();
+        emptyTexture._uuid = 'empty-texture';
+        emptyTexture.image = imgAsset;
+        emptyTexture.uploadData(emptyBuffer);
+        resources[emptyTexture._uuid] = emptyTexture;
 
         // black texture
         const blackCubeTexture = new TextureCube();
@@ -118,12 +132,12 @@ class BuiltinResMgr {
 
         // builtin effects
         effects.forEach((e) => {
-            const effect = Object.assign(new cc.EffectAsset(), e);
+            const effect = Object.assign(new legacyCC.EffectAsset(), e);
             effect.onLoaded();
         });
 
         // standard material
-        const standardMtl = new cc.Material();
+        const standardMtl = new legacyCC.Material();
         standardMtl._uuid = 'standard-material';
         standardMtl.initialize({
             effectName: 'builtin-standard',
@@ -131,63 +145,75 @@ class BuiltinResMgr {
         resources[standardMtl._uuid] = standardMtl;
 
         // material indicating missing effect (yellow)
-        const missingEfxMtl = new cc.Material();
+        const missingEfxMtl = new legacyCC.Material();
         missingEfxMtl._uuid = 'missing-effect-material';
         missingEfxMtl.initialize({
             effectName: 'builtin-unlit',
             defines: { USE_COLOR: true },
         });
-        missingEfxMtl.setProperty('mainColor', cc.color('#ffff00'));
+        missingEfxMtl.setProperty('mainColor', legacyCC.color('#ffff00'));
         resources[missingEfxMtl._uuid] = missingEfxMtl;
 
         // material indicating missing material (purple)
-        const missingMtl = new cc.Material();
+        const missingMtl = new legacyCC.Material();
         missingMtl._uuid = 'missing-material';
         missingMtl.initialize({
             effectName: 'builtin-unlit',
             defines: { USE_COLOR: true },
         });
-        missingMtl.setProperty('mainColor', cc.color('#ff00ff'));
+        missingMtl.setProperty('mainColor', legacyCC.color('#ff00ff'));
         resources[missingMtl._uuid] = missingMtl;
 
         // sprite material
-        const spriteMtl = new cc.Material();
+        const spriteMtl = new legacyCC.Material();
         spriteMtl._uuid = 'ui-base-material';
         spriteMtl.initialize({ defines: { USE_TEXTURE: false }, effectName: 'builtin-sprite' });
         resources[spriteMtl._uuid] = spriteMtl;
 
         // sprite material
-        const spriteColorMtl = new cc.Material();
+        const spriteColorMtl = new legacyCC.Material();
         spriteColorMtl._uuid = 'ui-sprite-material';
-        spriteColorMtl.initialize({ defines: { USE_TEXTURE: true, IS_GRAY: false }, effectName: 'builtin-sprite' });
+        spriteColorMtl.initialize({ defines: { USE_TEXTURE: true, CC_ALPHA_SEPARATED: false, IS_GRAY: false }, effectName: 'builtin-sprite' });
         resources[spriteColorMtl._uuid] = spriteColorMtl;
 
         // sprite gray material
-        const spriteGrayMtl = new cc.Material();
+        const spriteGrayMtl = new legacyCC.Material();
         spriteGrayMtl._uuid = 'ui-sprite-gray-material';
-        spriteGrayMtl.initialize({ defines: { USE_TEXTURE: true, IS_GRAY: true }, effectName: 'builtin-sprite' });
+        spriteGrayMtl.initialize({ defines: { USE_TEXTURE: true, CC_ALPHA_SEPARATED: false, IS_GRAY: true }, effectName: 'builtin-sprite' });
         resources[spriteGrayMtl._uuid] = spriteGrayMtl;
 
+        // sprite alpha material
+        const spriteAlphaMtl = new legacyCC.Material();
+        spriteAlphaMtl._uuid = 'ui-sprite-alpha-sep-material';
+        spriteAlphaMtl.initialize({ defines: { USE_TEXTURE: true, CC_ALPHA_SEPARATED: true, IS_GRAY: false }, effectName: 'builtin-sprite' });
+        resources[spriteAlphaMtl._uuid] = spriteAlphaMtl;
+
+        // sprite alpha & gray material
+        const spriteAlphaGrayMtl = new legacyCC.Material();
+        spriteAlphaGrayMtl._uuid = 'ui-sprite-gray-alpha-sep-material';
+        spriteAlphaGrayMtl.initialize({ defines: { USE_TEXTURE: true, CC_ALPHA_SEPARATED: true, IS_GRAY: true }, effectName: 'builtin-sprite' });
+        resources[spriteAlphaGrayMtl._uuid] = spriteAlphaGrayMtl;
+
         // default particle material
-        const defaultParticleMtl = new cc.Material();
+        const defaultParticleMtl = new legacyCC.Material();
         defaultParticleMtl._uuid = 'default-particle-material';
         defaultParticleMtl.initialize({ effectName: 'builtin-particle' });
         resources[defaultParticleMtl._uuid] = defaultParticleMtl;
 
         // default particle gpu material
-        const defaultParticleGPUMtl = new cc.Material();
+        const defaultParticleGPUMtl = new legacyCC.Material();
         defaultParticleGPUMtl._uuid = 'default-particle-gpu-material';
         defaultParticleGPUMtl.initialize({ effectName: 'builtin-particle-gpu' });
         resources[defaultParticleGPUMtl._uuid] = defaultParticleGPUMtl;
 
         // default particle material
-        const defaultTrailMtl = new cc.Material();
+        const defaultTrailMtl = new legacyCC.Material();
         defaultTrailMtl._uuid = 'default-trail-material';
         defaultTrailMtl.initialize({ effectName: 'builtin-particle-trail' });
         resources[defaultTrailMtl._uuid] = defaultTrailMtl;
 
         // default particle material
-        const defaultBillboardMtl = new cc.Material();
+        const defaultBillboardMtl = new legacyCC.Material();
         defaultBillboardMtl._uuid = 'default-billboard-material';
         defaultBillboardMtl.initialize({ effectName: 'builtin-billboard' });
         resources[defaultBillboardMtl._uuid] = defaultBillboardMtl;
@@ -198,5 +224,5 @@ class BuiltinResMgr {
     }
 }
 
-const builtinResMgr = cc.builtinResMgr = new BuiltinResMgr();
+const builtinResMgr = legacyCC.builtinResMgr = new BuiltinResMgr();
 export { builtinResMgr };

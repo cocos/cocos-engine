@@ -53,7 +53,7 @@ export class BatchedBuffer {
         let vbIdxSize = 0;
         const vbCount = flatBuffers[0].count;
         const psoCreateInfo = subModel.psoInfos[passIndx];
-        const bindingLayout = psoCreateInfo.pipelineLayout.layouts[0];
+        const bindingLayout = psoCreateInfo.bindingLayout;
         let isBatchExist = false;
         for (let i = 0; i < this.batches.length; ++i) {
             const batch = this.batches[i];

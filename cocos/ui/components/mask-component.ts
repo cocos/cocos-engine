@@ -40,6 +40,7 @@ import { GraphicsComponent } from './graphics-component';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Material } from '@cocos/cannon';
 import { Game } from '../../core';
+import { legacyCC } from '../../core/global-exports';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -148,8 +149,8 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     set inverted (value) {
-        if (cc.game.renderType === Game.RENDER_TYPE_CANVAS) {
-            cc.warnID(4202);
+        if (legacyCC.game.renderType === Game.RENDER_TYPE_CANVAS) {
+            legacyCC.warnID(4202);
             return;
         }
 
@@ -254,7 +255,7 @@ export class MaskComponent extends UIRenderComponent {
 
     constructor () {
         super();
-        this._instanceMaterialType = InstanceMaterialType.ADDCOLOR;
+        this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
     }
 
     public onLoad () {
@@ -491,4 +492,4 @@ export class MaskComponent extends UIRenderComponent {
 }
 
 // tslint:disable-next-line
-cc.MaskComponent = MaskComponent;
+legacyCC.MaskComponent = MaskComponent;

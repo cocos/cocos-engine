@@ -19,7 +19,7 @@ import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
 import { Mat4, Vec3, Vec4 } from '../math';
-import { Camera, Model } from '../renderer';
+import { Camera, Model, Light } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { SKYBOX_FLAG } from '../renderer/scene/camera';
@@ -31,6 +31,8 @@ import { IRenderObject, RenderPassStage, UBOGlobal, UBOShadow, UNIFORM_ENVIRONME
 import { FrameBufferDesc, RenderFlowType, RenderPassDesc, RenderTextureDesc } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
+import { legacyCC } from '../global-exports';
+import { RenderLightBatchedQueue } from './render-light-batched-queue'
 
 const v3_1 = new Vec3();
 
@@ -235,6 +237,36 @@ export abstract class RenderPipeline {
     public get useDynamicBatching (): boolean {
         return this._useDynamicBatching;
     }
+
+    /**
+     * @zh
+     * 获取参与渲染的灯光。
+     */
+    public abstract get validLights () : Light[];
+
+    /**
+     * @zh
+     * 获取灯光索引偏移量数组。
+     */
+    public abstract get lightIndexOffsets () : number[];
+
+    /**
+     * @zh
+     * 获取灯光索引数组。
+     */
+    public abstract get lightIndices () : number[];
+
+    /**
+     * @zh
+     * 灯光GFXbuffer数组。
+     */
+    public abstract get lightBuffers () : GFXBuffer[];
+
+    /**
+     * @zh
+     * get light batch queues
+     */
+    public abstract get lightBatchQueue () : RenderLightBatchedQueue;
 
     protected _root: Root = null!;
     protected _device: GFXDevice = null!;
@@ -510,12 +542,13 @@ export abstract class RenderPipeline {
 
         const mainLight = scene.mainLight;
         const ambient = scene.ambient;
+        const fog = scene.fog;
         const fv = this._uboGlobal.view;
 
         // update UBOGlobal
         fv[UBOGlobal.TIME_OFFSET] = this._root.cumulativeTime;
         fv[UBOGlobal.TIME_OFFSET + 1] = this._root.frameTime;
-        fv[UBOGlobal.TIME_OFFSET + 2] = cc.director.getTotalFrames();
+        fv[UBOGlobal.TIME_OFFSET + 2] = legacyCC.director.getTotalFrames();
 
         fv[UBOGlobal.SCREEN_SIZE_OFFSET] = device.width;
         fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = device.height;
@@ -577,6 +610,16 @@ export abstract class RenderPipeline {
         this._uboGlobal.view.set(skyColor, UBOGlobal.AMBIENT_SKY_OFFSET);
 
         this._uboGlobal.view.set(ambient.groundAlbedo, UBOGlobal.AMBIENT_GROUND_OFFSET);
+        
+        this._uboGlobal.view.set(fog.fogColor, UBOGlobal.GLOBAL_FOG_COLOR_OFFSET);
+
+        fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET] = fog.fogStart;
+        fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET + 1] = fog.fogEnd;
+        fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET + 2] = fog.fogDensity;
+
+        fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET] = fog.fogTop;
+        fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
+        fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
 
         // update ubos
         this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._uboGlobal.view);
@@ -608,7 +651,7 @@ export abstract class RenderPipeline {
         }
 
         const models = scene.models;
-        const stamp = cc.director.getTotalFrames();
+        const stamp = legacyCC.director.getTotalFrames();
 
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
@@ -1063,4 +1106,4 @@ export abstract class RenderPipeline {
         }
     }
 }
-cc.RenderPipeline = RenderPipeline;
+legacyCC.RenderPipeline = RenderPipeline;

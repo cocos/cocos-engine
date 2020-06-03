@@ -32,6 +32,7 @@ import { GFXTextureFlagBit, GFXTextureType, GFXTextureViewType } from '../gfx/de
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
+import { legacyCC } from '../global-exports';
 
 export type ITextureCubeCreateInfo = ITexture2DCreateInfo;
 
@@ -275,7 +276,7 @@ export class TextureCube extends SimpleTexture {
 
 }
 
-cc.TextureCube = TextureCube;
+legacyCC.TextureCube = TextureCube;
 
 interface ITextureCubeSerializeData {
     base: string;

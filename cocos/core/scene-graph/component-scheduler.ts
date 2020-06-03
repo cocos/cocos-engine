@@ -32,6 +32,7 @@ import { MutableForwardIterator } from '../utils/array';
 import { array } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import { EDITOR, SUPPORT_JIT, DEV, TEST } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 const fastRemoveAt = array.fastRemoveAt;
 
 // @ts-ignore
@@ -113,7 +114,7 @@ export class LifeCycleInvoker {
         this._pos = new Iterator([]);
 
         if (TEST) {
-            cc.assert(typeof invokeFunc === 'function', 'invokeFunc must be type function');
+            legacyCC.assert(typeof invokeFunc === 'function', 'invokeFunc must be type function');
         }
         this._invoke = invokeFunc;
     }
@@ -175,7 +176,7 @@ class ReusableInvoker extends LifeCycleInvoker {
                 array.splice(~i, 0, comp);
             }
             else if (DEV) {
-                cc.error('component already added');
+                legacyCC.error('component already added');
             }
         }
     }
@@ -209,13 +210,13 @@ class ReusableInvoker extends LifeCycleInvoker {
 
 function enableInEditor (comp) {
     if (!(comp._objFlags & IsEditorOnEnableCalled)) {
-        cc.engine.emit('component-enabled', comp.uuid);
+        legacyCC.engine.emit('component-enabled', comp.uuid);
         comp._objFlags |= IsEditorOnEnableCalled;
     }
 }
 
 // return function to simply call each component with try catch protection
-export function createInvokeImplJit (code:string, useDt?, ensureFlag?) {
+export function createInvokeImplJit (code: string, useDt?, ensureFlag?) {
     // function (it) {
     //     let a = it.array;
     //     for (it.i = 0; it.i < a.length; ++it.i) {
@@ -239,7 +240,7 @@ export function createInvokeImpl (singleInvoke, fastPath, ensureFlag?) {
         }
         catch (e) {
             // slow path
-            cc._throw(e);
+            legacyCC._throw(e);
             var array = iterator.array;
             if (ensureFlag) {
                 array[iterator.i]._objFlags |= ensureFlag;
@@ -250,7 +251,7 @@ export function createInvokeImpl (singleInvoke, fastPath, ensureFlag?) {
                     singleInvoke(array[iterator.i], dt);
                 }
                 catch (e) {
-                    cc._throw(e);
+                    legacyCC._throw(e);
                     if (ensureFlag) {
                         array[iterator.i]._objFlags |= ensureFlag;
                     }
@@ -304,7 +305,7 @@ const invokeLateUpdate = SUPPORT_JIT ? createInvokeImplJit('c.lateUpdate(dt)', t
     );
 
 export const invokeOnEnable = EDITOR ? (iterator) => {
-    const compScheduler = cc.director._compScheduler;
+    const compScheduler = legacyCC.director._compScheduler;
     const array = iterator.array;
     for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
         const comp = array[iterator.i];
@@ -317,7 +318,7 @@ export const invokeOnEnable = EDITOR ? (iterator) => {
         }
     }
 } : (iterator) => {
-    const compScheduler = cc.director._compScheduler;
+    const compScheduler = legacyCC.director._compScheduler;
     const array = iterator.array;
     for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
         const comp = array[iterator.i];
@@ -332,11 +333,26 @@ export const invokeOnEnable = EDITOR ? (iterator) => {
 };
 
 /**
- * The Manager for Component's life-cycle methods.
+ * @en The Manager for Component's life-cycle methods.
+ * It collaborates with [[NodeActivator]] to schedule and invoke life cycle methods for components
+ * @zh 组件生命周期函数的调度器。
+ * 它和 [[NodeActivator]] 一起调度并执行组件的生命周期函数。
  */
 export class ComponentScheduler {
+    /**
+     * @en The invoker of `start` callback
+     * @zh `start` 回调的调度器
+     */
     public startInvoker!: OneOffInvoker;
+    /**
+     * @en The invoker of `update` callback
+     * @zh `update` 回调的调度器
+     */
     public updateInvoker!: ReusableInvoker;
+    /**
+     * @en The invoker of `lateUpdate` callback
+     * @zh `lateUpdate` 回调的调度器
+     */
     public lateUpdateInvoker!: ReusableInvoker;
     // components deferred to schedule
     private _deferredComps: any[] = [];
@@ -346,6 +362,10 @@ export class ComponentScheduler {
         this.unscheduleAll();
     }
 
+    /**
+     * @en Cancel all future callbacks, including `start`, `update` and `lateUpdate`
+     * @zh 取消所有未来的函数调度，包括 `start`，`update` 和 `lateUpdate`
+     */
     public unscheduleAll () {
         // invokers
         this.startInvoker = new OneOffInvoker(invokeStart);
@@ -357,7 +377,7 @@ export class ComponentScheduler {
     }
 
     public _onEnabled (comp) {
-        cc.director.getScheduler().resumeTarget(comp);
+        legacyCC.director.getScheduler().resumeTarget(comp);
         comp._objFlags |= IsOnEnableCalled;
 
         // schedule
@@ -370,7 +390,7 @@ export class ComponentScheduler {
     }
 
     public _onDisabled (comp) {
-        cc.director.getScheduler().pauseTarget(comp);
+        legacyCC.director.getScheduler().pauseTarget(comp);
         comp._objFlags &= ~IsOnEnableCalled;
 
         // cancel schedule task
@@ -392,6 +412,12 @@ export class ComponentScheduler {
         }
     }
 
+    /**
+     * @en Enable a component
+     * @zh 启用一个组件
+     * @param comp The component to be enabled
+     * @param invoker The invoker which is responsible to schedule the `onEnable` call
+     */
     public enableComp (comp, invoker?) {
         if (!(comp._objFlags & IsOnEnableCalled)) {
             if (comp.onEnable) {
@@ -412,6 +438,11 @@ export class ComponentScheduler {
         }
     }
 
+    /**
+     * @en Disable a component
+     * @zh 禁用一个组件
+     * @param comp The component to be disabled
+     */
     public disableComp (comp) {
         if (comp._objFlags & IsOnEnableCalled) {
             if (comp.onDisable) {
@@ -421,6 +452,10 @@ export class ComponentScheduler {
         }
     }
 
+    /**
+     * @en Process start phase for registered components
+     * @zh 为当前注册的组件执行 start 阶段任务
+     */
     public startPhase () {
         // Start of this frame
         this._updating = true;
@@ -446,11 +481,21 @@ export class ComponentScheduler {
         // }
     }
 
-    public updatePhase (dt) {
+    /**
+     * @en Process update phase for registered components
+     * @zh 为当前注册的组件执行 update 阶段任务
+     * @param dt 距离上一帧的时间
+     */
+    public updatePhase (dt:number) {
         this.updateInvoker.invoke(dt);
     }
 
-    public lateUpdatePhase (dt) {
+    /**
+     * @en Process late update phase for registered components
+     * @zh 为当前注册的组件执行 late update 阶段任务
+     * @param dt 距离上一帧的时间
+     */
+    public lateUpdatePhase (dt:number) {
         this.lateUpdateInvoker.invoke(dt);
 
         // End of this frame
@@ -493,7 +538,7 @@ export class ComponentScheduler {
 
 if (EDITOR) {
     ComponentScheduler.prototype.enableComp = function (comp, invoker) {
-        if (cc.engine.isPlaying || comp.constructor._executeInEditMode) {
+        if (legacyCC.engine.isPlaying || comp.constructor._executeInEditMode) {
             if (!(comp._objFlags & IsOnEnableCalled)) {
                 if (comp.onEnable) {
                     if (invoker) {
@@ -517,7 +562,7 @@ if (EDITOR) {
     };
 
     ComponentScheduler.prototype.disableComp = function (comp) {
-        if (cc.engine.isPlaying || comp.constructor._executeInEditMode) {
+        if (legacyCC.engine.isPlaying || comp.constructor._executeInEditMode) {
             if (comp._objFlags & IsOnEnableCalled) {
                 if (comp.onDisable) {
                     callOnDisableInTryCatch(comp);
@@ -526,7 +571,7 @@ if (EDITOR) {
             }
         }
         if (comp._objFlags & IsEditorOnEnableCalled) {
-            cc.engine.emit('component-disabled', comp.uuid);
+            legacyCC.engine.emit('component-disabled', comp.uuid);
             comp._objFlags &= ~IsEditorOnEnableCalled;
         }
     };

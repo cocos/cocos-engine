@@ -15,6 +15,8 @@ import { Skybox } from './skybox';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
 import { PREVIEW } from 'internal:constants';
+import { Fog } from './fog';
+import { legacyCC } from '../../global-exports';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -47,6 +49,10 @@ export class RenderScene {
 
     get ambient (): Ambient {
         return this._ambient;
+    }
+
+    get fog (): Fog {
+        return this._fog;
     }
 
     get skybox (): Skybox {
@@ -120,12 +126,14 @@ export class RenderScene {
     private _spotLights: SpotLight[] = [];
     private _mainLight: DirectionalLight | null = null;
     private _modelId: number = 0;
+    private _fog: Fog;
 
     constructor (root: Root) {
         this._root = root;
         this._ambient = new Ambient(this);
         this._skybox = new Skybox(this);
         this._planarShadows = new PlanarShadows(this);
+        this._fog = new Fog(this);
     }
 
     public initialize (info: IRenderSceneInfo): boolean {
@@ -402,7 +410,7 @@ export class RenderScene {
      */
     public raycastAllCanvas (worldRay: ray, mask = Layers.Enum.UI_2D, distance = Infinity): boolean {
         poolUI.reset();
-        const canvasComs = cc.director.getScene().getComponentsInChildren(cc.CanvasComponent);
+        const canvasComs = legacyCC.director.getScene().getComponentsInChildren(legacyCC.CanvasComponent);
         if (canvasComs != null && canvasComs.length > 0) {
             for (let i = 0; i < canvasComs.length; i++) {
                 const canvasNode = canvasComs[i].node;
@@ -419,9 +427,9 @@ export class RenderScene {
         if (PREVIEW) {
             if (ui2dNode == null) { console.error('make sure UINode is not null'); }
         }
-        const uiTransfrom = ui2dNode._uiProps.uiTransformComp;
-        if (uiTransfrom == null || ui2dNode.layer & Layers.Enum.IGNORE_RAYCAST || !(ui2dNode.layer & mask)) { return; }
-        uiTransfrom.getComputeAABB(aabbUI);
+        const uiTransform = ui2dNode._uiProps.uiTransformComp;
+        if (uiTransform == null || ui2dNode.layer & Layers.Enum.IGNORE_RAYCAST || !(ui2dNode.layer & mask)) { return; }
+        uiTransform.getComputeAABB(aabbUI);
         const d = intersect.ray_aabb(worldRay, aabbUI);
 
         if (d <= 0) {
@@ -456,7 +464,7 @@ const pool = new RecyclePool<IRaycastResult>(() => {
     return { node: null!, distance: Infinity };
 }, 8);
 const resultModels: IRaycastResult[] = [];
-/** Canavas raycast result pool */
+/** Canvas raycast result pool */
 const aabbUI = new aabb();
 const poolUI = new RecyclePool<IRaycastResult>(() => {
     return { node: null!, distance: Infinity };

@@ -12,6 +12,7 @@ import { Pass } from '../renderer/core/pass';
 import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
 import { Layers } from '../scene-graph/layers';
+import { legacyCC } from '../global-exports';
 
 export const PIPELINE_FLOW_FORWARD: string = 'ForwardFlow';
 export const PIPELINE_FLOW_SMAA: string = 'SMAAFlow';
@@ -24,7 +25,7 @@ export const PIPELINE_FLOW_TONEMAP: string = 'ToneMapFlow';
 export enum RenderPassStage {
     DEFAULT = 100,
 }
-cc.RenderPassStage = RenderPassStage;
+legacyCC.RenderPassStage = RenderPassStage;
 
 /**
  * @zh
@@ -92,7 +93,7 @@ export enum UniformBinding {
     UBO_SKINNING_TEXTURE = MAX_BINDING_SUPPORTED - 6,
     UBO_UI = MAX_BINDING_SUPPORTED - 7,
     UBO_MORPH = MAX_BINDING_SUPPORTED - 8,
-    CUSTUM_UBO_BINDING_END_POINT = MAX_BINDING_SUPPORTED - 9, // rooms left for custom bindings, effect importer prepares bindings according to this
+    UBO_BUILTIN_BINDING_END = MAX_BINDING_SUPPORTED - 9,
 
     // samplers
     SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
@@ -100,7 +101,12 @@ export enum UniformBinding {
     SAMPLER_MORPH_POSITION = MAX_BINDING_SUPPORTED + 3,
     SAMPLER_MORPH_NORMAL = MAX_BINDING_SUPPORTED + 4,
     SAMPLER_MORPH_TANGENT = MAX_BINDING_SUPPORTED + 5,
-    CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 6, // rooms left for custom bindings, effect importer prepares bindings according to this
+    SAMPLER_LIGHTING_MAP = MAX_BINDING_SUPPORTED + 6,
+
+    // rooms left for custom bindings
+    // effect importer prepares bindings according to this
+    CUSTUM_UBO_BINDING_END_POINT = UniformBinding.UBO_BUILTIN_BINDING_END,
+    CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 7,
 }
 
 export const isBuiltinBinding = (binding: number) =>
@@ -128,7 +134,10 @@ export class UBOGlobal {
     public static MAIN_LIT_COLOR_OFFSET: number = UBOGlobal.MAIN_LIT_DIR_OFFSET + 4;
     public static AMBIENT_SKY_OFFSET: number = UBOGlobal.MAIN_LIT_COLOR_OFFSET + 4;
     public static AMBIENT_GROUND_OFFSET: number = UBOGlobal.AMBIENT_SKY_OFFSET + 4;
-    public static COUNT: number = UBOGlobal.AMBIENT_GROUND_OFFSET + 4;
+    public static GLOBAL_FOG_COLOR_OFFSET: number = UBOGlobal.AMBIENT_GROUND_OFFSET + 4;
+    public static GLOBAL_FOG_BASE_OFFSET: number = UBOGlobal.GLOBAL_FOG_COLOR_OFFSET + 4;
+    public static GLOBAL_FOG_ADD_OFFSET: number = UBOGlobal.GLOBAL_FOG_BASE_OFFSET + 4;
+    public static COUNT: number = UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 4;
     public static SIZE: number = UBOGlobal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
@@ -149,6 +158,9 @@ export class UBOGlobal {
             { name: 'cc_mainLitColor', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_ambientSky', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_ambientGround', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_fogColor', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_fogBase', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_fogAdd', type: GFXType.FLOAT4, count: 1 }
         ],
     };
 
@@ -188,13 +200,15 @@ export const localBindingsDesc: Map<string, IInternalBindingDesc> = new Map<stri
 export class UBOLocal {
     public static MAT_WORLD_OFFSET: number = 0;
     public static MAT_WORLD_IT_OFFSET: number = UBOLocal.MAT_WORLD_OFFSET + 16;
-    public static COUNT: number = UBOLocal.MAT_WORLD_IT_OFFSET + 16;
+    public static LIGHTINGMAP_UVPARAM: number = UBOLocal.MAT_WORLD_IT_OFFSET + 16;
+    public static COUNT: number = UBOLocal.LIGHTINGMAP_UVPARAM + 4;
     public static SIZE: number = UBOLocal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
         shaderStages: GFXShaderType.VERTEX, binding: UniformBinding.UBO_LOCAL, name: 'CCLocal', members: [
             { name: 'cc_matWorld', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matWorldIT', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_lightingMapUVParam', type: GFXType.FLOAT4, count: 1 },
         ],
     };
 
@@ -230,28 +244,21 @@ localBindingsDesc.set(UBOLocalBatched.BLOCK.name, {
  * 前向灯光 UBO。
  */
 export class UBOForwardLight {
-    public static MAX_SPHERE_LIGHTS = 2;
-    public static MAX_SPOT_LIGHTS = 2;
+    public static LIGHTS_PER_PASS = 1;
 
-    public static SPHERE_LIGHT_POS_OFFSET: number = 0;
-    public static SPHERE_LIGHT_SIZE_RANGE_OFFSET: number = UBOForwardLight.SPHERE_LIGHT_POS_OFFSET + UBOForwardLight.MAX_SPHERE_LIGHTS * 4;
-    public static SPHERE_LIGHT_COLOR_OFFSET: number = UBOForwardLight.SPHERE_LIGHT_SIZE_RANGE_OFFSET + UBOForwardLight.MAX_SPHERE_LIGHTS * 4;
-    public static SPOT_LIGHT_POS_OFFSET: number = UBOForwardLight.SPHERE_LIGHT_COLOR_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
-    public static SPOT_LIGHT_SIZE_RANGE_ANGLE_OFFSET: number = UBOForwardLight.SPOT_LIGHT_POS_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
-    public static SPOT_LIGHT_DIR_OFFSET: number = UBOForwardLight.SPOT_LIGHT_SIZE_RANGE_ANGLE_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
-    public static SPOT_LIGHT_COLOR_OFFSET: number = UBOForwardLight.SPOT_LIGHT_DIR_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
-    public static COUNT: number = UBOForwardLight.SPOT_LIGHT_COLOR_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
+    public static LIGHT_POS_OFFSET: number = 0;
+    public static LIGHT_COLOR_OFFSET: number = UBOForwardLight.LIGHT_POS_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
+    public static LIGHT_SIZE_RANGE_ANGLE_OFFSET: number = UBOForwardLight.LIGHT_COLOR_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
+    public static LIGHT_DIR_OFFSET: number = UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
+    public static COUNT: number = UBOForwardLight.LIGHT_DIR_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
     public static SIZE: number = UBOForwardLight.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
         shaderStages: GFXShaderType.FRAGMENT, binding: UniformBinding.UBO_FORWARD_LIGHTS, name: 'CCForwardLight', members: [
-            { name: 'cc_sphereLitPos', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPHERE_LIGHTS },
-            { name: 'cc_sphereLitSizeRange', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPHERE_LIGHTS },
-            { name: 'cc_sphereLitColor', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPHERE_LIGHTS },
-            { name: 'cc_spotLitPos', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPOT_LIGHTS },
-            { name: 'cc_spotLitSizeRangeAngle', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPOT_LIGHTS },
-            { name: 'cc_spotLitDir', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPOT_LIGHTS },
-            { name: 'cc_spotLitColor', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPOT_LIGHTS },
+            { name: 'cc_lightPos', type: GFXType.FLOAT4, count: UBOForwardLight.LIGHTS_PER_PASS },
+            { name: 'cc_lightColor', type: GFXType.FLOAT4, count: UBOForwardLight.LIGHTS_PER_PASS },
+            { name: 'cc_lightSizeRangeAngle', type: GFXType.FLOAT4, count: UBOForwardLight.LIGHTS_PER_PASS },
+            { name: 'cc_lightDir', type: GFXType.FLOAT4, count: UBOForwardLight.LIGHTS_PER_PASS },
         ],
     };
 
@@ -376,6 +383,17 @@ export const UniformNormalMorphTexture: Readonly<GFXUniformSampler> = {
 localBindingsDesc.set(UniformNormalMorphTexture.name, {
     type: GFXBindingType.SAMPLER,
     samplerInfo: UniformNormalMorphTexture,
+});
+
+/**
+ * 光照图纹理采样器。
+ */
+export const UniformLightingMapSampler: Readonly<GFXUniformSampler> = {
+    shaderStages: GFXShaderType.FRAGMENT, binding: UniformBinding.SAMPLER_LIGHTING_MAP, name: 'cc_lightingMap', type: GFXType.SAMPLER2D, count: 1,
+};
+localBindingsDesc.set(UniformLightingMapSampler.name, {
+    type: GFXBindingType.SAMPLER,
+    samplerInfo: UniformLightingMapSampler,
 });
 
 /**

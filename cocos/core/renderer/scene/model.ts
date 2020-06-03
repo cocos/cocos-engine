@@ -1,19 +1,25 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+import { builtinResMgr } from '../../3d/builtin/init';
 import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
-import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit } from '../../gfx/define';
-import { GFXDevice } from '../../gfx/device';
+import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
+import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
-import { Mat4, Vec3 } from '../../math';
+import { Mat4, Vec3, Vec4 } from '../../math';
 import { Pool } from '../../memop';
-import { INST_MAT_WORLD, UBOForwardLight, UBOLocal } from '../../pipeline/define';
+import { UBOForwardLight, UBOLocal, UniformLightingMapSampler, INST_MAT_WORLD } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from './render-scene';
+import { Texture2D } from '../..';
+import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
+import { GFXSampler, IGFXAttribute } from '../../gfx';
 import { SubModel, IPSOCreateInfo } from './submodel';
 import { Pass } from '../core/pass';
+import { legacyCC } from '../../global-exports';
+import { programLib } from '../core/program-lib';
 
 const m4_1 = new Mat4();
 
@@ -72,16 +78,16 @@ export class Model {
         return this._modelBounds;
     }
 
-    get lightBuffer () {
-        return this._lightBuffer;
-    }
-
     get localBuffer () {
         return this._localBuffer;
     }
 
     get updateStamp () {
         return this._updateStamp;
+    }
+
+    get isInstancingEnabled () {
+        return this._instMatWorldIdx >= 0;
     }
 
     public type = ModelType.DEFAULT;
@@ -101,7 +107,6 @@ export class Model {
     protected _implantPSOs: GFXPipelineState[] = [];
     protected _localData = new Float32Array(UBOLocal.COUNT);
     protected _localBuffer: GFXBuffer | null = null;
-    protected _lightBuffer: GFXBuffer | null = null;
     protected _inited = false;
     protected _updateStamp = -1;
     protected _transformUpdated = true;
@@ -112,7 +117,7 @@ export class Model {
      * Setup a default empty model
      */
     constructor () {
-        this._device = cc.director.root!.device;
+        this._device = legacyCC.director.root!.device;
     }
 
     public initialize (node: Node) {
@@ -127,10 +132,6 @@ export class Model {
         if (this._localBuffer) {
             this._localBuffer.destroy();
             this._localBuffer = null;
-        }
-        if (this._lightBuffer) {
-            this._lightBuffer.destroy();
-            this._lightBuffer = null;
         }
         this._worldBounds = null;
         this._modelBounds = null;
@@ -165,6 +166,51 @@ export class Model {
         }
     }
 
+    public updateLightingmap (tex: Texture2D|null, uvParam: Vec4) {
+        Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
+
+        if (tex === null) {
+            tex = builtinResMgr.get<Texture2D>('empty-texture');
+        }
+
+        const texture = tex;
+        const textureView = texture.getGFXTextureView();
+
+        if (textureView !== null) {
+            let sampler: GFXSampler;
+            if (tex.mipmaps.length > 1) {
+                const samplerHash = genSamplerHash([
+                    GFXFilter.LINEAR,
+                    GFXFilter.LINEAR,
+                    GFXFilter.LINEAR,
+                    GFXAddress.CLAMP,
+                    GFXAddress.CLAMP,
+                    GFXAddress.CLAMP,
+                ]);
+                sampler = samplerLib.getSampler(this._device, samplerHash);
+            }
+            else {
+                const samplerHash = genSamplerHash([
+                    GFXFilter.NONE,
+                    GFXFilter.NONE,
+                    GFXFilter.NONE,
+                    GFXAddress.CLAMP,
+                    GFXAddress.CLAMP,
+                    GFXAddress.CLAMP,
+                ]);
+                sampler = samplerLib.getSampler(this._device, samplerHash);
+            }
+
+            for (const sub of this._subModels) {
+                for (let i = 0; i < sub.psoInfos.length; i++) {
+                    sub.psoInfos[i].bindingLayout.bindTextureView(UniformLightingMapSampler.binding, textureView);
+                    sub.psoInfos[i].bindingLayout.bindSampler(UniformLightingMapSampler.binding, sampler);
+                    sub.psoInfos[i].bindingLayout.update();
+                }
+            }
+        }
+    }
+
     public updateUBOs (stamp: number) {
         this._subModels.forEach(this._updatePass, this);
         this._updateStamp = stamp;
@@ -176,11 +222,12 @@ export class Model {
         if (idx >= 0) {
             const attrs = this.instancedAttributes!.list;
             uploadMat4AsVec4x3(worldMatrix, attrs[idx].view, attrs[idx + 1].view, attrs[idx + 2].view);
+        } else {
+            Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
+            Mat4.inverseTranspose(m4_1, worldMatrix);
+            Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
+            this._localBuffer!.update(this._localData);
         }
-        Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
-        Mat4.inverseTranspose(m4_1, worldMatrix);
-        Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
-        this._localBuffer!.update(this._localData);
     }
 
     /**
@@ -241,7 +288,7 @@ export class Model {
         if (idx >= 0) { this._implantPSOs.splice(idx, 1); }
     }
 
-    protected updateAttributesAndBinding(subModelIndex : number) {
+    protected updateAttributesAndBinding (subModelIndex : number) {
         const subModel = this._subModels[subModelIndex];
         if (!subModel) {
             return;
@@ -249,45 +296,41 @@ export class Model {
 
         const psoCreateInfos = subModel.psoInfos;
         for (let i = 0; i < psoCreateInfos.length; ++i) {
-            const bindingLayout = psoCreateInfos[i].pipelineLayout.layouts[0];
+            const bindingLayout = psoCreateInfos[i].bindingLayout;
             if (this._localBuffer) { bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer); }
-            if (this._lightBuffer) { bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, this._lightBuffer); }
         }
 
-        this.updateInstancedAttributeList(psoCreateInfos[0], subModel.passes[0]);
+        this.updateInstancedAttributeList(subModel.subMeshData.attributes, subModel.passes[0]);
     }
 
-    protected getMacroPatches(subModelIndex: number) : any {
+    protected getMacroPatches (subModelIndex: number) : any {
         return undefined;
     }
 
     // for now no submodel level instancing attributes
-    protected updateInstancedAttributeList (psoCreateInfo: IPSOCreateInfo, pass: Pass) {
-        // if (!pass || !psoCreateInfo) {
-        //     return;
-        // }
-        // const attributes = pso.inputState.attributes;
-        // let size = 0;
-        // for (let j = 0; j < attributes.length; j++) {
-        //     const attribute = attributes[j];
-        //     if (!attribute.isInstanced) { continue; }
-        //     size += GFXFormatInfos[attribute.format].size;
-        // }
-        // const attrs = this.instancedAttributes;
-        // attrs.buffer = new Uint8Array(size); attrs.list.length = 0;
-        // let offset = 0; const buffer = attrs.buffer.buffer;
-        // for (let j = 0; j < attributes.length; j++) {
-        //     const attribute = attributes[j];
-        //     if (!attribute.isInstanced) { continue; }
-        //     const format = attribute.format;
-        //     const info = GFXFormatInfos[format];
-        //     const view = new (getTypedArrayConstructor(info))(buffer, offset, info.count);
-        //     const isNormalized = attribute.isNormalized;
-        //     offset += info.size; attrs.list.push({ name: attribute.name, format, isNormalized, view });
-        // }
-        // if (pass.instancedBuffer) { pass.instancedBuffer.destroy(); } // instancing IA changed
-        // this._instMatWorldIdx = this.getInstancedAttributeIndex(INST_MAT_WORLD);
-        // this._transformUpdated = true;
+    protected updateInstancedAttributeList (attributes: IGFXAttribute[], pass: Pass) {
+        if (!pass.device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) { return; }
+        let size = 0;
+        for (let j = 0; j < attributes.length; j++) {
+            const attribute = attributes[j];
+            if (!attribute.isInstanced) { continue; }
+            size += GFXFormatInfos[attribute.format].size;
+        }
+        const attrs = this.instancedAttributes;
+        attrs.buffer = new Uint8Array(size); attrs.list.length = 0;
+        let offset = 0; const buffer = attrs.buffer.buffer;
+        for (let j = 0; j < attributes.length; j++) {
+            const attribute = attributes[j];
+            if (!attribute.isInstanced) { continue; }
+            const format = attribute.format;
+            const info = GFXFormatInfos[format];
+            const view = new (getTypedArrayConstructor(info))(buffer, offset, info.count);
+            const isNormalized = attribute.isNormalized;
+            offset += info.size; attrs.list.push({ name: attribute.name, format, isNormalized, view });
+        }
+        if (pass.instancedBuffer) { pass.instancedBuffer.destroy(); } // instancing IA changed
+        this._instMatWorldIdx = this.getInstancedAttributeIndex(INST_MAT_WORLD);
+        this._transformUpdated = true;
     }
 
     protected getInstancedAttributeIndex (name: string) {
@@ -310,18 +353,11 @@ export class Model {
         if (!mat) { return; }
         let hasForwardLight = false;
         for (const p of mat.passes) {
-            if (p.bindings.find((b) => b.name === UBOForwardLight.BLOCK.name)) {
+            const blocks = programLib.getTemplate(p.program).builtins.locals.blocks;
+            if (blocks.find((b) => b.name === UBOForwardLight.BLOCK.name)) {
                 hasForwardLight = true;
                 break;
             }
-        }
-        if (hasForwardLight && !this._lightBuffer) {
-            this._lightBuffer = this._device.createBuffer({
-                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: UBOForwardLight.SIZE,
-                stride: UBOForwardLight.SIZE,
-            });
         }
     }
 

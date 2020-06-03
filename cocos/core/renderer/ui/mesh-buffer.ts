@@ -44,8 +44,8 @@ export class MeshBuffer {
 
     public byteStart = 0;
     public byteOffset = 0;
-    public indiceStart = 0;
-    public indiceOffset = 0;
+    public indicesStart = 0;
+    public indicesOffset = 0;
     public vertexStart = 0;
     public vertexOffset = 0;
     public lastByteOffset = 1;
@@ -58,14 +58,14 @@ export class MeshBuffer {
     private _vertexFormatBytes = 9 * Float32Array.BYTES_PER_ELEMENT;
     private _initVDataCount = 256 * this._vertexFormatBytes;
     private _initIDataCount = 256 * 6;
-    private _outofCallback: ((...args: number[]) => void) | null = null;
+    private _outOfCallback: ((...args: number[]) => void) | null = null;
 
     constructor (batcher: UI) {
         this.batcher = batcher;
     }
 
-    public initialize (attrs: IGFXAttribute[], outofCallback: ((...args: number[]) => void) | null) {
-        this._outofCallback = outofCallback;
+    public initialize (attrs: IGFXAttribute[], outOfCallback: ((...args: number[]) => void) | null) {
+        this._outOfCallback = outOfCallback;
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 9;
 
         this.vb = this.vb || this.batcher.device.createBuffer({
@@ -89,36 +89,36 @@ export class MeshBuffer {
         this._reallocBuffer();
     }
 
-    public request (vertexCount = 4, indiceCount = 6) {
+    public request (vertexCount = 4, indicesCount = 6) {
         this.lastByteOffset = this.byteOffset;
         const byteOffset = this.byteOffset + vertexCount * this._vertexFormatBytes;
-        const indiceOffset = this.indiceOffset + indiceCount;
+        const indicesOffset = this.indicesOffset + indicesCount;
 
         if (vertexCount + this.vertexOffset > 65535) {
             // merge last state
             this.batcher.autoMergeBatches();
-            if (this._outofCallback) {
-                this._outofCallback.call(this.batcher, vertexCount, indiceCount);
+            if (this._outOfCallback) {
+                this._outOfCallback.call(this.batcher, vertexCount, indicesCount);
             }
             return false;
         }
 
         let byteLength = this.vData!.byteLength;
-        let indiceLength = this.iData!.length;
-        if (byteOffset > byteLength || indiceOffset > indiceLength) {
-            while (byteLength < byteOffset || indiceLength < indiceOffset) {
+        let indicesLength = this.iData!.length;
+        if (byteOffset > byteLength || indicesOffset > indicesLength) {
+            while (byteLength < byteOffset || indicesLength < indicesOffset) {
                 this._initVDataCount *= 2;
                 this._initIDataCount *= 2;
 
                 byteLength = this._initVDataCount * 4;
-                indiceLength = this._initIDataCount;
+                indicesLength = this._initIDataCount;
             }
 
             this._reallocBuffer();
         }
 
         this.vertexOffset += vertexCount;
-        this.indiceOffset += indiceCount;
+        this.indicesOffset += indicesCount;
         this.byteOffset = byteOffset;
 
         this.dirty = true;
@@ -128,8 +128,8 @@ export class MeshBuffer {
     public reset () {
         this.byteStart = 0;
         this.byteOffset = 0;
-        this.indiceStart = 0;
-        this.indiceOffset = 0;
+        this.indicesStart = 0;
+        this.indicesOffset = 0;
         this.vertexStart = 0;
         this.vertexOffset = 0;
         this.lastByteOffset = 0;
@@ -151,15 +151,15 @@ export class MeshBuffer {
         }
 
         const verticesData = new Float32Array(this.vData!.buffer, 0, this.byteOffset >> 2);
-        const indicesData = new Uint16Array(this.iData!.buffer, 0, this.indiceOffset);
+        const indicesData = new Uint16Array(this.iData!.buffer, 0, this.indicesOffset);
 
         if (this.byteOffset > this.vb!.size) {
             this.vb!.resize(this.byteOffset);
         }
         this.vb!.update(verticesData);
 
-        if (this.indiceOffset * 2 > this.ib!.size) {
-            this.ib!.resize(this.indiceOffset * 2);
+        if (this.indicesOffset * 2 > this.ib!.size) {
+            this.ib!.resize(this.indicesOffset * 2);
         }
         this.ib!.update(indicesData);
     }

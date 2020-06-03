@@ -35,6 +35,7 @@ import { EventTouch } from './events';
 import { EventListener, TouchOneByOne } from './event-listener';
 import { Node } from '../../scene-graph';
 import { macro } from '../macro';
+import { legacyCC } from '../../global-exports';
 const ListenerID = EventListener.ListenerID;
 
 function checkUINode (node) {
@@ -104,7 +105,7 @@ function __getListenerID (event: Event) {
         // Touch listener is very special, it contains two kinds of listeners:
         // EventListenerTouchOneByOne and EventListenerTouchAllAtOnce.
         // return UNKNOWN instead.
-        cc.logID(2000);
+        legacyCC.logID(2000);
     }
     return '';
 }
@@ -147,8 +148,8 @@ class EventManager {
      * @param recursive - 是否往子节点递归暂停。默认为 false。
      */
     public pauseTarget (node: Node, recursive = false) {
-        if (!(node instanceof cc._BaseNode)) {
-            cc.warnID(3506);
+        if (!(node instanceof legacyCC._BaseNode)) {
+            legacyCC.warnID(3506);
             return;
         }
         const listeners = this._nodeListenersMap[node.uuid];
@@ -180,8 +181,8 @@ class EventManager {
      * @param recursive - 是否往子节点递归。默认为 false。
      */
     public resumeTarget (node: Node, recursive = false) {
-        if (!(node instanceof cc._BaseNode)) {
-            cc.warnID(3506);
+        if (!(node instanceof legacyCC._BaseNode)) {
+            legacyCC.warnID(3506);
             return;
         }
         const listeners = this._nodeListenersMap[node.uuid];
@@ -259,17 +260,17 @@ class EventManager {
      * @returns
      */
     public addListener (listener: EventListener, nodeOrPriority: any | number): any {
-        cc.assertID(listener && nodeOrPriority, 3503);
-        if (!(cc.js.isNumber(nodeOrPriority) || nodeOrPriority instanceof cc._BaseNode)) {
-            cc.warnID(3506);
+        legacyCC.assertID(listener && nodeOrPriority, 3503);
+        if (!(legacyCC.js.isNumber(nodeOrPriority) || nodeOrPriority instanceof legacyCC._BaseNode)) {
+            legacyCC.warnID(3506);
             return;
         }
-        if (!(listener instanceof cc.EventListener)) {
-            cc.assertID(!cc.js.isNumber(nodeOrPriority), 3504);
-            listener = cc.EventListener.create(listener);
+        if (!(listener instanceof legacyCC.EventListener)) {
+            legacyCC.assertID(!legacyCC.js.isNumber(nodeOrPriority), 3504);
+            listener = legacyCC.EventListener.create(listener);
         } else {
             if (listener._isRegistered()) {
-                cc.logID(3505);
+                legacyCC.logID(3505);
                 return;
             }
         }
@@ -278,9 +279,9 @@ class EventManager {
             return;
         }
 
-        if (cc.js.isNumber(nodeOrPriority)) {
+        if (legacyCC.js.isNumber(nodeOrPriority)) {
             if (nodeOrPriority === 0) {
-                cc.logID(3500);
+                legacyCC.logID(3500);
                 return;
             }
 
@@ -291,7 +292,7 @@ class EventManager {
             this._addListener(listener);
         } else {
             if (!checkUINode(nodeOrPriority)) {
-                cc.logID(3512);
+                legacyCC.logID(3512);
                 return;
             }
             listener._setSceneGraphPriority(nodeOrPriority);
@@ -316,7 +317,7 @@ class EventManager {
      */
     public addCustomListener (eventName: string, callback: Function) {
         const listener = EventListener.create({
-            event: cc.EventListener.CUSTOM,
+            event: legacyCC.EventListener.CUSTOM,
             eventName,
             callback,
         });
@@ -371,7 +372,7 @@ class EventManager {
             for (let i = locToAddedListeners.length - 1; i >= 0; i--) {
                 const selListener = locToAddedListeners[i];
                 if (selListener === listener) {
-                    cc.js.array.removeAt(locToAddedListeners, i);
+                    legacyCC.js.array.removeAt(locToAddedListeners, i);
                     selListener._setRegistered(false);
                     break;
                 }
@@ -399,8 +400,8 @@ class EventManager {
      * @param recursive - 递归子节点的同类型监听器一并移除。默认为 false。
      */
     public removeListeners (listenerType: number | any, recursive = false) {
-        if (!(cc.js.isNumber(listenerType) || listenerType instanceof cc._BaseNode)) {
-            cc.warnID(3506);
+        if (!(legacyCC.js.isNumber(listenerType) || listenerType instanceof legacyCC._BaseNode)) {
+            legacyCC.warnID(3506);
             return;
         }
         if (listenerType._id !== undefined) {
@@ -408,7 +409,7 @@ class EventManager {
             // Don't want any dangling pointers or the possibility of dealing with deleted objects..
             const listeners = this._nodeListenersMap[listenerType._id];
             if (listeners) {
-                const listenersCopy = cc.js.array.copy(listeners);
+                const listenersCopy = legacyCC.js.array.copy(listeners);
                 for (let i = 0; i < listenersCopy.length; ++i) {
                     const listenerCopy = listenersCopy[i];
                     this.removeListener(listenerCopy);
@@ -442,18 +443,18 @@ class EventManager {
                 }
             }
         } else {
-            if (listenerType === cc.EventListener.TOUCH_ONE_BY_ONE) {
+            if (listenerType === legacyCC.EventListener.TOUCH_ONE_BY_ONE) {
                 this._removeListenersForListenerID(ListenerID.TOUCH_ONE_BY_ONE);
-            } else if (listenerType === cc.EventListener.TOUCH_ALL_AT_ONCE) {
+            } else if (listenerType === legacyCC.EventListener.TOUCH_ALL_AT_ONCE) {
                 this._removeListenersForListenerID(ListenerID.TOUCH_ALL_AT_ONCE);
-            } else if (listenerType === cc.EventListener.MOUSE) {
+            } else if (listenerType === legacyCC.EventListener.MOUSE) {
                 this._removeListenersForListenerID(ListenerID.MOUSE);
-            } else if (listenerType === cc.EventListener.ACCELERATION) {
+            } else if (listenerType === legacyCC.EventListener.ACCELERATION) {
                 this._removeListenersForListenerID(ListenerID.ACCELERATION);
-            } else if (listenerType === cc.EventListener.KEYBOARD) {
+            } else if (listenerType === legacyCC.EventListener.KEYBOARD) {
                 this._removeListenersForListenerID(ListenerID.KEYBOARD);
             } else {
-                cc.logID(3501);
+                legacyCC.logID(3501);
             }
         }
     }
@@ -511,7 +512,7 @@ class EventManager {
                 const found = fixedPriorityListeners.indexOf(listener);
                 if (found !== -1) {
                     if (listener._getSceneGraphPriority() != null) {
-                        cc.logID(3502);
+                        legacyCC.logID(3502);
                     }
                     if (listener._getFixedPriority() !== fixedPriority) {
                         listener._setFixedPriority(fixedPriority);
@@ -565,10 +566,10 @@ class EventManager {
         this._updateDirtyFlagForSceneGraph();
         this._inDispatch++;
         if (!event || !event.getType) {
-            cc.errorID(3511);
+            legacyCC.errorID(3511);
             return;
         }
-        if (event.getType().startsWith(cc.Event.TOUCH)) {
+        if (event.getType().startsWith(legacyCC.Event.TOUCH)) {
             this._dispatchTouchEvent(event as EventTouch);
             this._inDispatch--;
             return;
@@ -605,7 +606,7 @@ class EventManager {
      * @param optionalUserData
      */
     public dispatchCustomEvent (eventName, optionalUserData) {
-        const ev = new cc.Event.EventCustom(eventName);
+        const ev = new legacyCC.Event.EventCustom(eventName);
         ev.setUserData(optionalUserData);
         this.dispatchEvent(ev);
     }
@@ -653,7 +654,7 @@ class EventManager {
 
             const node = listener._getSceneGraphPriority();
             if (node === null) {
-                cc.logID(3507);
+                legacyCC.logID(3507);
             }
 
             this._associateNodeAndEventListener(node, listener);
@@ -692,7 +693,7 @@ class EventManager {
             }
 
             if (this._inDispatch === 0) {
-                cc.js.array.removeAt(listenerVector, i);
+                legacyCC.js.array.removeAt(listenerVector, i);
             }
         }
     }
@@ -720,7 +721,7 @@ class EventManager {
         for (let i = locToAddedListeners.length - 1; i >= 0; i--) {
             const listener = locToAddedListeners[i];
             if (listener && listener._getListenerID() === listenerID) {
-                cc.js.array.removeAt(locToAddedListeners, i);
+                legacyCC.js.array.removeAt(locToAddedListeners, i);
             }
         }
     }
@@ -741,7 +742,7 @@ class EventManager {
             }
 
             if (dirtyFlag & DIRTY_SCENE_GRAPH_PRIORITY) {
-                const rootEntity = cc.director.getScene();
+                const rootEntity = legacyCC.director.getScene();
                 if (rootEntity) {
                     this._sortListenersOfSceneGraphPriority(listenerID);
                 }
@@ -837,7 +838,7 @@ class EventManager {
             for (let i = sceneGraphPriorityListeners.length - 1; i >= 0; i--) {
                 const selListener = sceneGraphPriorityListeners[i];
                 if (!selListener._isRegistered()) {
-                    cc.js.array.removeAt(sceneGraphPriorityListeners, i);
+                    legacyCC.js.array.removeAt(sceneGraphPriorityListeners, i);
                     // if item in toRemove list, remove it from the list
                     const idx = toRemovedListeners.indexOf(selListener);
                     if (idx !== -1) {
@@ -851,7 +852,7 @@ class EventManager {
             for (let i = fixedPriorityListeners.length - 1; i >= 0; i--) {
                 const selListener = fixedPriorityListeners[i];
                 if (!selListener._isRegistered()) {
-                    cc.js.array.removeAt(fixedPriorityListeners, i);
+                    legacyCC.js.array.removeAt(fixedPriorityListeners, i);
                     // if item in toRemove list, remove it from the list
                     const idx = toRemovedListeners.indexOf(selListener);
                     if (idx !== -1) {
@@ -872,7 +873,7 @@ class EventManager {
 
     private _updateTouchListeners (event) {
         const locInDispatch = this._inDispatch;
-        cc.assertID(locInDispatch > 0, 3508);
+        legacyCC.assertID(locInDispatch > 0, 3508);
 
         if (locInDispatch > 1) {
             return;
@@ -888,7 +889,7 @@ class EventManager {
             this._onUpdateListeners(listeners);
         }
 
-        cc.assertID(locInDispatch === 1, 3509);
+        legacyCC.assertID(locInDispatch === 1, 3509);
 
         const locToAddedListeners = this._toAddedListeners;
         if (locToAddedListeners.length !== 0) {
@@ -1020,7 +1021,7 @@ class EventManager {
         }
 
         const originalTouches = event.getTouches();
-        const mutableTouches = cc.js.array.copy(originalTouches);
+        const mutableTouches = legacyCC.js.array.copy(originalTouches);
         const oneByOneArgsObj = { event, needsMutableSet: (oneByOneListeners && allAtOnceListeners), touches: mutableTouches, selTouch: null };
 
         //
@@ -1088,7 +1089,7 @@ class EventManager {
     private _dissociateNodeAndEventListener (node: Node, listener: EventListener) {
         const listeners = this._nodeListenersMap[node.uuid];
         if (listeners) {
-            cc.js.array.remove(listeners, listener);
+            legacyCC.js.array.remove(listeners, listener);
             if (listeners.length === 0) {
                 delete this._nodeListenersMap[node.uuid];
             }
@@ -1164,7 +1165,7 @@ class EventManager {
                 }
 
                 if (this._inDispatch === 0) {
-                    cc.js.array.removeAt(listeners, i);
+                    legacyCC.js.array.removeAt(listeners, i);
                 } else {
                     this._toRemovedListeners.push(selListener);
                 }
@@ -1190,7 +1191,7 @@ class EventManager {
                 }
 
                 if (this._inDispatch === 0) {
-                    cc.js.array.removeAt(listeners, i);
+                    legacyCC.js.array.removeAt(listeners, i);
                 } else {
                     this._toRemovedListeners.push(selListener);
                 }
@@ -1222,6 +1223,6 @@ class EventManager {
  */
 export const eventManager = new EventManager();
 
-cc.eventManager = eventManager;
+legacyCC.eventManager = eventManager;
 
 export default eventManager;

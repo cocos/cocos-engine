@@ -31,6 +31,7 @@
 import { ccclass, property } from '../data/class-decorator';
 import { Font } from './font';
 import { SpriteFrame } from './sprite-frame';
+import { legacyCC } from '../global-exports';
 
 export interface IConfig {
     [key: string]: any;
@@ -73,4 +74,4 @@ export class BitmapFont extends Font {
     public fntConfig: IConfig | null = null;
 }
 
-cc.BitmapFont = BitmapFont;
+legacyCC.BitmapFont = BitmapFont;

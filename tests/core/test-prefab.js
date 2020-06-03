@@ -65,7 +65,7 @@
         //PrefabUtils.setPrefabAsset(parent, prefab);
 
         // 重新生成已经加载好的 prefab，去除类型，去除 runtime node
-        prefabJson = Editor.serialize(prefab);
+        prefabJson = EditorExtends.serialize(prefab);
         if (DEBUG_SERIALIZED_PREFAB) {
             console.log(prefabJson);
         }

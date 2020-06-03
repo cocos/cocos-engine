@@ -50,7 +50,7 @@ export const bmfont: IAssembler = {
         fillMeshVertices3D(node, renderer, comp.renderData!, comp.color);
     },
 
-    appendQuad (comp: LabelComponent, spriteframe: SpriteFrame, rect: Rect, rotated: boolean, x: number, y: number, scale: number) {
+    appendQuad (comp: LabelComponent, spriteFrame: SpriteFrame, rect: Rect, rotated: boolean, x: number, y: number, scale: number) {
         const renderData = comp.renderData;
         if (!renderData){
             return;
@@ -60,11 +60,11 @@ export const bmfont: IAssembler = {
 
         renderData.dataLength += 4;
         renderData.vertexCount = renderData.dataLength;
-        renderData.indiceCount = renderData.dataLength / 2 * 3;
+        renderData.indicesCount = renderData.dataLength / 2 * 3;
 
-        const datas = renderData.datas;
-        const texw = spriteframe.width;
-        const texh = spriteframe.height;
+        const dataList = renderData.data;
+        const texW = spriteFrame.width;
+        const texH = spriteFrame.height;
 
         const rectWidth = rect.width;
         const rectHeight = rect.height;
@@ -74,43 +74,43 @@ export const bmfont: IAssembler = {
         let t = 0;
         let r = 0;
         if (!rotated) {
-            l = (rect.x) / texw;
-            r = (rect.x + rectWidth) / texw;
-            b = (rect.y + rectHeight) / texh;
-            t = (rect.y) / texh;
+            l = (rect.x) / texW;
+            r = (rect.x + rectWidth) / texW;
+            b = (rect.y + rectHeight) / texH;
+            t = (rect.y) / texH;
 
-            datas[dataOffset].u = l;
-            datas[dataOffset].v = b;
-            datas[dataOffset + 1].u = r;
-            datas[dataOffset + 1].v = b;
-            datas[dataOffset + 2].u = l;
-            datas[dataOffset + 2].v = t;
-            datas[dataOffset + 3].u = r;
-            datas[dataOffset + 3].v = t;
+            dataList[dataOffset].u = l;
+            dataList[dataOffset].v = b;
+            dataList[dataOffset + 1].u = r;
+            dataList[dataOffset + 1].v = b;
+            dataList[dataOffset + 2].u = l;
+            dataList[dataOffset + 2].v = t;
+            dataList[dataOffset + 3].u = r;
+            dataList[dataOffset + 3].v = t;
         } else {
-            l = (rect.x) / texw;
-            r = (rect.x + rectHeight) / texw;
-            b = (rect.y + rectWidth) / texh;
-            t = (rect.y) / texh;
+            l = (rect.x) / texW;
+            r = (rect.x + rectHeight) / texW;
+            b = (rect.y + rectWidth) / texH;
+            t = (rect.y) / texH;
 
-            datas[dataOffset].u = l;
-            datas[dataOffset].v = t;
-            datas[dataOffset + 1].u = l;
-            datas[dataOffset + 1].v = b;
-            datas[dataOffset + 2].u = r;
-            datas[dataOffset + 2].v = t;
-            datas[dataOffset + 3].u = r;
-            datas[dataOffset + 3].v = b;
+            dataList[dataOffset].u = l;
+            dataList[dataOffset].v = t;
+            dataList[dataOffset + 1].u = l;
+            dataList[dataOffset + 1].v = b;
+            dataList[dataOffset + 2].u = r;
+            dataList[dataOffset + 2].v = t;
+            dataList[dataOffset + 3].u = r;
+            dataList[dataOffset + 3].v = b;
         }
 
-        datas[dataOffset].x = x;
-        datas[dataOffset].y = y - rectHeight * scale;
-        datas[dataOffset + 1].x = x + rectWidth * scale;
-        datas[dataOffset + 1].y = y - rectHeight * scale;
-        datas[dataOffset + 2].x = x;
-        datas[dataOffset + 2].y = y;
-        datas[dataOffset + 3].x = x + rectWidth * scale;
-        datas[dataOffset + 3].y = y;
+        dataList[dataOffset].x = x;
+        dataList[dataOffset].y = y - rectHeight * scale;
+        dataList[dataOffset + 1].x = x + rectWidth * scale;
+        dataList[dataOffset + 1].y = y - rectHeight * scale;
+        dataList[dataOffset + 2].x = x;
+        dataList[dataOffset + 2].y = y;
+        dataList[dataOffset + 3].x = x + rectWidth * scale;
+        dataList[dataOffset + 3].y = y;
     },
 };
 

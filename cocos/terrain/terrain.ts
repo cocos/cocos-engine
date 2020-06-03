@@ -9,7 +9,7 @@ import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
 import { Material } from '../core/assets/material';
 import { RenderingSubMesh } from '../core/assets/mesh';
 import { Component } from '../core/components';
-import { ccclass, disallowMultiple, executeInEditMode, property } from '../core/data/class-decorator';
+import { ccclass, disallowMultiple, executeInEditMode, help, property } from '../core/data/class-decorator';
 import { director } from '../core/director';
 import { GFXBuffer } from '../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../core/gfx/define';
@@ -22,6 +22,7 @@ import { Root } from '../core/root';
 import { PrivateNode } from '../core/scene-graph/private-node';
 import { HeightField } from './height-field';
 import { TerrainAsset, TerrainLayerInfo } from './terrain-asset';
+import { legacyCC } from '../core/global-exports';
 
 export const TERRAIN_MAX_LEVELS = 4;
 export const TERRAIN_MAX_BLEND_LAYERS = 4;
@@ -37,21 +38,43 @@ export const TERRAIN_WEST_INDEX = 2;
 export const TERRAIN_EAST_INDEX = 3;
 
 /**
- * 地形信息。
+ * @en Terrain info
+ * @zh 地形信息
  */
 @ccclass('cc.TerrainInfo')
 export class TerrainInfo {
-    @property({
-        tooltip: '地形Tile的大小',
-    })
+    /**
+     * @en tile size
+     * @zh 栅格大小
+     */
+    @property
     public tileSize: number = 1;
+
+    /**
+     * @en block count
+     * @zh 地形块的数量
+     */
     @property
     public blockCount: number[] = [1, 1];
+
+    /**
+     * @en weight map size
+     * @zh 权重图大小
+     */
     @property
     public weightMapSize: number = 128;
+
+    /**
+     * @en light map size
+     * @zh 光照图大小
+     */
     @property
     public lightMapSize: number = 128;
 
+    /**
+     * @en terrain size
+     * @zh 地形大小
+     */
     public get size () {
         const sz = new Size(0, 0);
         sz.width = this.blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY * this.tileSize;
@@ -60,6 +83,10 @@ export class TerrainInfo {
         return sz;
     }
 
+    /**
+     * @en tile count
+     * @zh 栅格数量
+     */
     public get tileCount () {
         const _tileCount = [0, 0];
         _tileCount[0] = this.blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY;
@@ -68,6 +95,10 @@ export class TerrainInfo {
         return _tileCount;
     }
 
+    /**
+     * @en vertex count
+     * @zh 顶点数量
+     */
     public get vertexCount () {
         const _vertexCount = this.tileCount;
         _vertexCount[0] += 1;
@@ -77,25 +108,32 @@ export class TerrainInfo {
     }
 }
 
+/**
+ * @en Terrain layer
+ * @zh 地形纹理层
+ */
 @ccclass('cc.TerrainLayer')
 export class TerrainLayer {
-    @property({
-        tooltip: '当前Layer的纹理',
-    })
+    /**
+     * @en detail texture
+     * @zh 细节纹理
+     */
+    @property
     public detailMap: Texture2D|null = null;
-    @property({
-        tooltip: '纹理的平铺大小，值越小会在同样大小的区域内进行更多次的平铺',
-    })
+
+    /**
+     * @en tile size
+     * @zh 平铺大小
+     */
+    @property
     public tileSize: number = 1;
 }
 
-export class TerrainVertex {
-    public position: Vec3 = new Vec3(0, 0, 0);
-    public normal: Vec3 = new Vec3(0, 1, 0);
-    public uv: Vec2 = new Vec2(0, 0);
-}
-
-export class TerrainRenderable extends RenderableComponent {
+/**
+ * @en Terrain renderable
+ * @zh 地形渲染组件
+ */
+class TerrainRenderable extends RenderableComponent {
     public _model: Model | null = null;
     public _meshData: RenderingSubMesh | null = null;
 
@@ -104,9 +142,9 @@ export class TerrainRenderable extends RenderableComponent {
     public _currentMaterialLayers: number = 0;
 
     public destroy () {
-        this._invalidMaterial();
+        // this._invalidMaterial();
         if (this._model != null) {
-            cc.director.root.destroyModel(this._model);
+            legacyCC.director.root.destroyModel(this._model);
             this._model = null;
         }
 
@@ -131,13 +169,13 @@ export class TerrainRenderable extends RenderableComponent {
             return;
         }
 
-        const nlayers = block.getMaxLayer();
-        if (this._currentMaterial == null || nlayers !== this._currentMaterialLayers) {
+        const nLayers = block.getMaxLayer();
+        if (this._currentMaterial == null || nLayers !== this._currentMaterialLayers) {
             this._currentMaterial = new Material();
 
             this._currentMaterial.initialize({
-                effectAsset: cc.EffectAsset.get('builtin-terrain'),
-                defines: block._getMaterialDefines(nlayers),
+                effectAsset: legacyCC.EffectAsset.get('builtin-terrain'),
+                defines: block._getMaterialDefines(nLayers),
             });
 
             if (this._brushMaterial !== null) {
@@ -151,7 +189,7 @@ export class TerrainRenderable extends RenderableComponent {
             }
 
             this.setMaterial(this._currentMaterial, 0);
-            this._currentMaterialLayers = nlayers;
+            this._currentMaterialLayers = nLayers;
             this._model.enabled = true;
         }
     }
@@ -182,12 +220,20 @@ export class TerrainRenderable extends RenderableComponent {
     }
 }
 
+/**
+ * @en Terrain block info
+ * @zh 地形块信息
+ */
 @ccclass('cc.TerrainBlockInfo')
 export class TerrainBlockInfo {
     @property
     public layers: number[] = [-1, -1, -1, -1];
 }
 
+/**
+ * @en Terrain block light map info
+ * @zh 地形块光照图信息
+ */
 @ccclass('cc.TerrainBlockLightmapInfo')
 export class TerrainBlockLightmapInfo {
     @property
@@ -202,6 +248,10 @@ export class TerrainBlockLightmapInfo {
     public VScale: number = 0;
 }
 
+/**
+ * @en Terrain block
+ * @zh 地形块
+ */
 export class TerrainBlock {
     private _terrain: Terrain;
     private _info: TerrainBlockInfo;
@@ -223,7 +273,7 @@ export class TerrainBlock {
         // @ts-ignore
         this._node.setParent(this._terrain.node);
         // @ts-ignore
-        this._node._objFlags |= cc.Object.Flags.DontSave;
+        this._node._objFlags |= legacyCC.Object.Flags.DontSave;
 
         this._renderable =  this._node.addComponent(TerrainRenderable) as TerrainRenderable;
     }
@@ -268,9 +318,9 @@ export class TerrainBlock {
         ];
 
         const subMesh = this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes, GFXPrimitiveMode.TRIANGLE_LIST);
-        subMesh.indexBuffer = this._terrain.getSharedIndexBuffer() || undefined;
+        subMesh.indexBuffer = this._terrain._getSharedIndexBuffer() || undefined;
 
-        this._renderable._model = (cc.director.root as Root).createModel(Model);
+        this._renderable._model = (legacyCC.director.root as Root).createModel(Model);
         this._renderable._model.initialize(this._node);
         this._renderable._getRenderScene().addModel(this._renderable._model);
 
@@ -320,7 +370,7 @@ export class TerrainBlock {
                     mtl.setProperty('detailMap0', l0 != null ? l0.detailMap : null);
                 }
                 else {
-                    mtl.setProperty('detailMap0', cc.builtinResMgr.get('default-texture'));
+                    mtl.setProperty('detailMap0', legacyCC.builtinResMgr.get('default-texture'));
                 }
             }
             else if (nlayers === 1) {
@@ -400,14 +450,26 @@ export class TerrainBlock {
         }
     }
 
+    /**
+     * @en get layers
+     * @zh 获得纹理层索引
+     */
     get layers () {
         return this._info.layers;
     }
 
+    /**
+     * @en get light map
+     * @zh 获得光照图
+     */
     get lightmap () {
         return this._lightmapInfo ? this._lightmapInfo.texture : null;
     }
 
+    /**
+     * @en get light map uv parameter
+     * @zh 获得光照图纹理坐标参数
+     */
     get lightmapUVParam () {
         if (this._lightmapInfo != null) {
             return new Vec4(this._lightmapInfo.UOff, this._lightmapInfo.VOff, this._lightmapInfo.UScale, this._lightmapInfo.VScale);
@@ -417,14 +479,26 @@ export class TerrainBlock {
         }
     }
 
+    /**
+     * @en get terrain owner
+     * @zh 获得地形对象
+     */
     public getTerrain () {
         return this._terrain;
     }
 
+    /**
+     * @en get index
+     * @zh 获得地形索引
+     */
     public getIndex () {
         return this._index;
     }
 
+    /**
+     * @en get rect bound
+     * @zh 获得地形矩形包围体
+     */
     public getRect () {
         const rect = new Rect();
         rect.x = this._index[0] * TERRAIN_BLOCK_TILE_COMPLEXITY;
@@ -435,6 +509,10 @@ export class TerrainBlock {
         return rect;
     }
 
+    /**
+     * @en set layer
+     * @zh 设置纹理层
+     */
     public setLayer (index: number, layerId: number) {
         if (this.layers[index] !== layerId) {
             this.layers[index] = layerId;
@@ -443,10 +521,18 @@ export class TerrainBlock {
         }
     }
 
+    /**
+     * @en get layer
+     * @zh 获得纹理层
+     */
     public getLayer (index: number) {
         return this.layers[index];
     }
 
+    /**
+     * @en get max layer index
+     * @zh 获得最大纹理索引
+     */
     public getMaxLayer () {
         if (this.layers[3] >= 0) {
             return 3;
@@ -579,30 +665,38 @@ export class TerrainBlock {
     }
 }
 
+/**
+ * @en Terrain
+ * @zh 地形组件
+ */
 @ccclass('cc.Terrain')
-// @menu('Components/Terrain')
+@help('i18n:cc.TerrainComponent')
 @executeInEditMode
 @disallowMultiple
 export class Terrain extends Component {
     @property({
         type: TerrainAsset,
         visible: false,
+        animatable: false,
     })
     protected __asset: TerrainAsset|null = null;
 
     @property({
         type: TerrainLayer,
         visible: true,
+        animatable: false,
     })
-    protected _layers: Array<TerrainLayer|null> = [];
+    protected _layers: (TerrainLayer|null)[] = [];
 
     @property({
         visible: false,
+        animatable: false,
     })
     protected _blockInfos: TerrainBlockInfo[] = [];
 
     @property({
         visible: false,
+        animatable: false,
     })
     protected _lightmapInfos: TerrainBlockLightmapInfo[] = [];
 
@@ -648,6 +742,10 @@ export class Terrain extends Component {
         return  this.__asset;
     }
 
+    /**
+     * @en get terrain size
+     * @zh 获得地形大小
+     */
     public get size () {
         const sz = new Size(0, 0);
         sz.width = this.blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY * this.tileSize;
@@ -655,14 +753,26 @@ export class Terrain extends Component {
         return sz;
     }
 
+    /**
+     * @en get tile size
+     * @zh 获得栅格大小
+     */
     get tileSize () {
         return this._tileSize;
     }
 
+    /**
+     * @en get tile count
+     * @zh 获得栅格数量
+     */
     public get tileCount () {
         return [this.blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY, this.blockCount[1] * TERRAIN_BLOCK_TILE_COMPLEXITY];
     }
 
+    /**
+     * @en get vertex count
+     * @zh 获得顶点数量
+     */
     public get vertexCount () {
         const _vertexCount = this.tileCount;
         _vertexCount[0] += 1;
@@ -671,30 +781,58 @@ export class Terrain extends Component {
         return _vertexCount;
     }
 
+    /**
+     * @en get block count
+     * @zh 获得地形块数量
+     */
     get blockCount () {
         return this._blockCount;
     }
 
+    /**
+     * @en get light map size
+     * @zh 获得光照图大小
+     */
     get lightMapSize () {
         return this._lightMapSize;
     }
 
+    /**
+     * @en get weight map size
+     * @zh 获得权重图大小
+     */
     get weightMapSize () {
         return this._weightMapSize;
     }
 
+    /**
+     * @en get height buffer
+     * @zh 获得高度缓存
+     */
     get heights () {
         return this._heights;
     }
 
+    /**
+     * @en get weight buffer
+     * @zh 获得权重缓存
+     */
     get weights () {
         return this._weights;
     }
 
+    /**
+     * @en check valid
+     * @zh 检测是否有效
+     */
     get valid () {
         return this._blocks.length > 0;
     }
 
+    /**
+     * @en get terrain info
+     * @zh 获得地形信息
+     */
     @property({
         type: TerrainInfo,
         visible: true,
@@ -710,6 +848,10 @@ export class Terrain extends Component {
         return ti;
     }
 
+    /**
+     * @en build
+     * @zh 构建地形
+     */
     public build (info: TerrainInfo) {
         this._tileSize = info.tileSize;
         this._blockCount[0] = info.blockCount[0];
@@ -720,6 +862,10 @@ export class Terrain extends Component {
         return this._buildImp();
     }
 
+    /**
+     * @en rebuild
+     * @zh 重建地形
+     */
     public rebuild (info: TerrainInfo) {
         // build block info
         const blockInfos: TerrainBlockInfo[] = [];
@@ -731,8 +877,8 @@ export class Terrain extends Component {
         const h = Math.min(this._blockCount[1], info.blockCount[1]);
         for (let j = 0; j < h; ++j) {
             for (let i = 0; i < w; ++i) {
-                const index0 = j * info.vertexCount[0] + i;
-                const index1 = j * this.vertexCount[0] + i;
+                const index0 = j * info.blockCount[0] + i;
+                const index1 = j * this.blockCount[0] + i;
 
                 blockInfos[index0] = this._blockInfos[index1];
             }
@@ -772,6 +918,10 @@ export class Terrain extends Component {
         }
     }
 
+    /**
+     * @en import height field
+     * @zh 导入高度图
+     */
     public importHeightField (hf: HeightField, heightScale: number) {
         let index = 0;
         for (let j = 0; j < this.vertexCount[1]; ++j) {
@@ -793,6 +943,10 @@ export class Terrain extends Component {
         }
     }
 
+    /**
+     * @en export height field
+     * @zh 导出高度图
+     */
     public exportHeightField (hf: HeightField, heightScale: number) {
         let index = 0;
         for (let j = 0; j < hf.h; ++j) {
@@ -830,13 +984,13 @@ export class Terrain extends Component {
         }
 
         for (let i = 0; i < this._layers.length; ++i) {
-            const tlayer = this._layers[i];
-            if (tlayer != null && tlayer.detailMap != null) {
-                const ilayer = new TerrainLayerInfo();
-                ilayer.slot = i;
-                ilayer.tileSize = tlayer.tileSize;
-                ilayer.detailMap = tlayer.detailMap._uuid;
-                asset.layerInfos.push(ilayer);
+            const temp = this._layers[i];
+            if (temp != null && temp.detailMap != null) {
+                const layer = new TerrainLayerInfo();
+                layer.slot = i;
+                layer.tileSize = temp.tileSize;
+                layer.detailMap = temp.detailMap._uuid;
+                asset.layerInfos.push(layer);
             }
         }
 
@@ -844,7 +998,7 @@ export class Terrain extends Component {
     }
 
     public onLoad () {
-        const gfxDevice = cc.director.root.device as GFXDevice;
+        const gfxDevice = legacyCC.director.root.device as GFXDevice;
 
         // initialize shared index buffer
         const indexData = new Uint16Array(TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6);
@@ -907,12 +1061,16 @@ export class Terrain extends Component {
         this._buildImp(true);
     }
 
-    public update (dtime: number) {
+    public update (deltaTime: number) {
         for (const i of this._blocks) {
             i.update();
         }
     }
 
+    /**
+     * @en add layer
+     * @zh 添加纹理层
+     */
     public addLayer (layer: TerrainLayer) {
         for (let i = 0; i < this._layers.length; ++i) {
             if (this._layers[i] == null) {
@@ -924,14 +1082,26 @@ export class Terrain extends Component {
         return -1;
     }
 
+    /**
+     * @en set layer
+     * @zh 设置纹理层
+     */
     public setLayer (i: number, layer: TerrainLayer) {
         this._layers[i] = layer;
     }
 
+    /**
+     * @en remove layer
+     * @zh 移除纹理层
+     */
     public removeLayer (id: number) {
         this._layers[id] = null;
     }
 
+    /**
+     * @en get layer
+     * @zh 获得纹理层
+     */
     public getLayer (id: number) {
         if (id === -1) {
             return null;
@@ -941,6 +1111,10 @@ export class Terrain extends Component {
 
     }
 
+    /**
+     * @en get position
+     * @zh 获得地形上的位置
+     */
     public getPosition (i: number, j: number) {
         const x = i * this._tileSize;
         const z = j * this._tileSize;
@@ -953,14 +1127,26 @@ export class Terrain extends Component {
         return this._heights;
     }
 
+    /**
+     * @en set height
+     * @zh 设置地形上的高度
+     */
     public setHeight (i: number, j: number, h: number) {
         this._heights[j * this.vertexCount[0] + i] = TERRAIN_HEIGHT_BASE + h / TERRAIN_HEIGHT_FACTORY;
     }
 
+    /**
+     * @en get height
+     * @zh 获得地形上的高度
+     */
     public getHeight (i: number, j: number) {
         return (this._heights[j * this.vertexCount[0] + i] - TERRAIN_HEIGHT_BASE) * TERRAIN_HEIGHT_FACTORY;
     }
 
+    /**
+     * @en set height
+     * @zh 设置高度
+     */
     public getHeightClamp (i: number, j: number) {
         i = clamp(i, 0, this.vertexCount[0] - 1);
         j = clamp(j, 0, this.vertexCount[1] - 1);
@@ -968,6 +1154,10 @@ export class Terrain extends Component {
         return this.getHeight(i, j);
     }
 
+    /**
+     * @en get height by point
+     * @zh 根据点的坐标获得高度
+     */
     public getHeightAt (x: number, y: number) {
         const fx = x / this.tileSize;
         const fy = y / this.tileSize;
@@ -1017,6 +1207,10 @@ export class Terrain extends Component {
         this._normals[index * 3 + 2] =  n.z;
     }
 
+    /**
+     * @en get normal
+     * @zh 获得法线
+     */
     public getNormal (i: number, j: number) {
         const index = j * this.vertexCount[0] + i;
 
@@ -1028,6 +1222,10 @@ export class Terrain extends Component {
         return n;
     }
 
+    /**
+     * @en get normal by point
+     * @zh 根据点的坐标获得法线
+     */
     public getNormalAt (x: number, y: number) {
         const fx = x / this.tileSize;
         const fy = y / this.tileSize;
@@ -1078,6 +1276,10 @@ export class Terrain extends Component {
         return n;
     }
 
+    /**
+     * @en set weight
+     * @zh 设置权重
+     */
     public setWeight (i: number, j: number, w: Vec4) {
         const index = j * this._weightMapSize * this._blockCount[0] + i;
 
@@ -1087,6 +1289,10 @@ export class Terrain extends Component {
         this._weights[index * 4 + 3] = w.w * 255;
     }
 
+    /**
+     * @en get weight
+     * @zh 获得权重
+     */
     public getWeight (i: number, j: number) {
         const index = j * this._weightMapSize * this._blockCount[0] + i;
 
@@ -1099,6 +1305,10 @@ export class Terrain extends Component {
         return w;
     }
 
+    /**
+     * @en get normal by point
+     * @zh 根据点的坐标获得权重
+     */
     public getWeightAt (x: number, y: number) {
         const fx = x / this.tileSize;
         const fy = y / this.tileSize;
@@ -1145,56 +1355,53 @@ export class Terrain extends Component {
         return n;
     }
 
+    /**
+     * @en get block info
+     * @zh 获得地形块信息
+     */
     public getBlockInfo (i: number, j: number) {
         return this._blockInfos[j * this._blockCount[0] + i];
     }
 
+    /**
+     * @en get block
+     * @zh 获得地形块对象
+     */
     public getBlock (i: number, j: number) {
         return this._blocks[j * this._blockCount[0] + i];
     }
 
+    /**
+     * @en get all blocks
+     * @zh 获得地形块缓存
+     */
     public getBlocks () {
         return this._blocks;
     }
 
-    public getSharedIndexBuffer () {
-        return this._sharedIndexBuffer;
-    }
-
-    public _resetLightmap (enble: boolean) {
-        this._lightmapInfos.length = 0;
-        if (enble) {
-            for (let i = 0; i < this._blockCount[0] * this._blockCount[1]; ++i) {
-                this._lightmapInfos.push(new TerrainBlockLightmapInfo());
-            }
-        }
-    }
-
-    public _updateLightmap (blockId: number, tex: Texture2D|null, uoff: number, voff: number, uscale: number, vscale: number) {
-        this._lightmapInfos[blockId].texture = tex;
-        this._lightmapInfos[blockId].UOff = uoff;
-        this._lightmapInfos[blockId].VOff = voff;
-        this._lightmapInfos[blockId].UScale = uscale;
-        this._lightmapInfos[blockId].VScale = vscale;
-        this._blocks[blockId]._updateLightmap(this._lightmapInfos[blockId]);
-    }
-
-    public _getLightmapInfo (i: number, j: number) {
-        const index = j * this._blockCount[0] + i;
-        return index < this._lightmapInfos.length ? this._lightmapInfos[index] : null;
-    }
-
-    public rayCheck (start: Vec3, dir: Vec3, step: number, worldspace: boolean = true) {
+    /**
+     * @en ray check
+     * @param start ray start
+     * @param dir ray direction
+     * @param step ray step
+     * @param worldSpace is world space
+     * @zh 射线检测
+     * @param start 射线原点
+     * @param dir 射线方向
+     * @param step 射线步长
+     * @param worldSpace 是否在世界空间
+     */
+    public rayCheck (start: Vec3, dir: Vec3, step: number, worldSpace: boolean = true) {
         const MAX_COUNT = 2000;
 
         const trace = start;
-        if (worldspace) {
+        if (worldSpace) {
             Vec3.subtract(trace, start, this.node.getWorldPosition());
         }
 
-        const dstep = new Vec3();
-        dstep.set(dir);
-        dstep.multiplyScalar(step);
+        const delta = new Vec3();
+        delta.set(dir);
+        delta.multiplyScalar(step);
 
         let position: Vec3|null = null;
 
@@ -1231,14 +1438,41 @@ export class Terrain extends Component {
                     break;
                 }
 
-                trace.add(dstep);
+                trace.add(delta);
             }
         }
 
         return position;
     }
 
-    public _calcuNormal (x: number, z: number) {
+    public _getSharedIndexBuffer () {
+        return this._sharedIndexBuffer;
+    }
+
+    public _resetLightmap (enble: boolean) {
+        this._lightmapInfos.length = 0;
+        if (enble) {
+            for (let i = 0; i < this._blockCount[0] * this._blockCount[1]; ++i) {
+                this._lightmapInfos.push(new TerrainBlockLightmapInfo());
+            }
+        }
+    }
+
+    public _updateLightmap (blockId: number, tex: Texture2D|null, uOff: number, vOff: number, uScale: number, vScale: number) {
+        this._lightmapInfos[blockId].texture = tex;
+        this._lightmapInfos[blockId].UOff = uOff;
+        this._lightmapInfos[blockId].VOff = vOff;
+        this._lightmapInfos[blockId].UScale = uScale;
+        this._lightmapInfos[blockId].VScale = vScale;
+        this._blocks[blockId]._updateLightmap(this._lightmapInfos[blockId]);
+    }
+
+    public _getLightmapInfo (i: number, j: number) {
+        const index = j * this._blockCount[0] + i;
+        return index < this._lightmapInfos.length ? this._lightmapInfos[index] : null;
+    }
+
+    public _calcNormal (x: number, z: number) {
         let flip = 1;
         const here = this.getPosition(x, z);
         let right: Vec3;
@@ -1276,7 +1510,7 @@ export class Terrain extends Component {
         let index = 0;
         for (let y = 0; y < this.vertexCount[1]; ++y) {
             for (let x = 0; x < this.vertexCount[0]; ++x) {
-                const n = this._calcuNormal(x, y);
+                const n = this._calcNormal(x, y);
 
                 this._normals[index * 3 + 0] = n.x;
                 this._normals[index * 3 + 1] = n.y;
@@ -1311,7 +1545,7 @@ export class Terrain extends Component {
                 for (const i of this._asset.layerInfos) {
                     const layer = new TerrainLayer();
                     layer.tileSize = i.tileSize;
-                    cc.loader.loadRes(i.detailMap, Texture2D, (err, asset) => {
+                    legacyCC.loader.loadRes(i.detailMap, Texture2D, (err, asset) => {
                         layer.detailMap = asset;
                     });
 
@@ -1325,12 +1559,12 @@ export class Terrain extends Component {
         }
 
         // build heights & normals
-        const vcount = this.vertexCount[0] * this.vertexCount[1];
-        if (this._heights === null || this._heights.length !== vcount) {
-            this._heights = new Uint16Array(vcount);
-            this._normals = new Array<number>(vcount * 3);
+        const vertexCount = this.vertexCount[0] * this.vertexCount[1];
+        if (this._heights === null || this._heights.length !== vertexCount) {
+            this._heights = new Uint16Array(vertexCount);
+            this._normals = new Array<number>(vertexCount * 3);
 
-            for (let i = 0; i < vcount; ++i) {
+            for (let i = 0; i < vertexCount; ++i) {
                 this._heights[i] = TERRAIN_HEIGHT_BASE;
                 this._normals[i * 3 + 0] = 0;
                 this._normals[i * 3 + 1] = 1;
@@ -1338,7 +1572,7 @@ export class Terrain extends Component {
             }
         }
         else {
-            this._normals = new Array<number>(vcount * 3);
+            this._normals = new Array<number>(vertexCount * 3);
             this._buildNormals();
         }
 
@@ -1463,7 +1697,7 @@ export class Terrain extends Component {
         };
 
         // sample weight
-        const sampleOldWeight = (_x: number, _y: number, _xoff: number, _yoff: number, _weights: Uint8Array) => {
+        const sampleOldWeight = (_x: number, _y: number, _xOff: number, _yOff: number, _weights: Uint8Array) => {
             const ix0 = Math.floor(_x);
             const iz0 = Math.floor(_y);
             const ix1 = ix0 + 1;
@@ -1471,10 +1705,10 @@ export class Terrain extends Component {
             const dx = _x - ix0;
             const dz = _y - iz0;
 
-            const a = getOldWeight(ix0 + _xoff, iz0 + _yoff, this._weights);
-            const b = getOldWeight(ix1 + _xoff, iz0 + _yoff, this._weights);
-            const c = getOldWeight(ix0 + _xoff, iz1 + _yoff, this._weights);
-            const d = getOldWeight(ix1 + _xoff, iz1 + _yoff, this._weights);
+            const a = getOldWeight(ix0 + _xOff, iz0 + _yOff, this._weights);
+            const b = getOldWeight(ix1 + _xOff, iz0 + _yOff, this._weights);
+            const c = getOldWeight(ix0 + _xOff, iz1 + _yOff, this._weights);
+            const d = getOldWeight(ix1 + _xOff, iz1 + _yOff, this._weights);
             const m = new Vec4();
             Vec4.add(m, b, c).multiplyScalar(0.5);
 
@@ -1502,24 +1736,24 @@ export class Terrain extends Component {
         // fill new weights
         for (let j = 0; j < h; ++j) {
             for (let i = 0; i < w; ++i) {
-                const uoff = i * oldWeightMapSize;
-                const voff = j * oldWeightMapSize;
+                const uOff = i * oldWeightMapSize;
+                const vOff = j * oldWeightMapSize;
 
-                for (let v = 0; v < this._weightMapSize; ++v) {
-                    for (let u = 0; u < this._weightMapSize; ++u) {
+                for (let v = 0; v < info.weightMapSize; ++v) {
+                    for (let u = 0; u < info.weightMapSize; ++u) {
                         // tslint:disable-next-line: no-shadowed-variable
                         let w: Vec4;
                         if (info.weightMapSize === oldWeightMapSize) {
-                            w = getOldWeight(u + uoff, v + voff, this._weights);
+                            w = getOldWeight(u + uOff, v + vOff, this._weights);
                         }
                         else {
-                            const x = u / (this._weightMapSize - 1) * (oldWeightMapSize - 1);
-                            const y = v / (this._weightMapSize - 1) * (oldWeightMapSize - 1);
-                            w = sampleOldWeight(x, y, uoff, voff, this._weights);
+                            const x = u / (info.weightMapSize - 1) * (oldWeightMapSize - 1);
+                            const y = v / (info.weightMapSize - 1) * (oldWeightMapSize - 1);
+                            w = sampleOldWeight(x, y, uOff, vOff, this._weights);
                         }
 
-                        const du = i * this._weightMapSize + u;
-                        const dv = j * this._weightMapSize + v;
+                        const du = i * info.weightMapSize + u;
+                        const dv = j * info.weightMapSize + v;
                         const index = dv * weightMapComplexityU + du;
 
                         weights[index * 4 + 0] = w.x * 255;

@@ -30,6 +30,7 @@
 
 import debugInfos from '../../../DebugInfos';
 import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/3d/EngineErrorMap.md';
 
 // The html element displays log in web page (DebugMode.INFO_FOR_WEB_PAGE)
@@ -48,7 +49,7 @@ let ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
 };
 
 function formatString (message?: any, ...optionalParams: any[]) {
-    return cc.js.formatStr.apply(null, [message].concat(optionalParams));
+    return legacyCC.js.formatStr.apply(null, [message].concat(optionalParams));
 }
 
 /**
@@ -122,7 +123,7 @@ export function _resetDebugSetting (mode: DebugMode) {
     if (mode > DebugMode.ERROR) {
         // Log to web page.
         const logToWebPage = (msg: string) => {
-            if (!cc.game.canvas) {
+            if (!legacyCC.game.canvas) {
                 return;
             }
 
@@ -130,7 +131,7 @@ export function _resetDebugSetting (mode: DebugMode) {
                 const logDiv = document.createElement('Div');
                 logDiv.setAttribute('id', 'logInfoDiv');
                 logDiv.setAttribute('width', '200');
-                logDiv.setAttribute('height', cc.game.canvas.height);
+                logDiv.setAttribute('height', legacyCC.game.canvas.height);
                 const logDivStyle = logDiv.style;
                 logDivStyle.zIndex = '99999';
                 logDivStyle.position = 'absolute';
@@ -149,7 +150,7 @@ export function _resetDebugSetting (mode: DebugMode) {
                 logListStyle.margin = '0px';
 
                 logDiv.appendChild(logList);
-                cc.game.canvas.parentNode.appendChild(logDiv);
+                legacyCC.game.canvas.parentNode.appendChild(logDiv);
             }
 
             logList.value = logList.value + msg + '\r\n';
@@ -359,7 +360,7 @@ export function getError (errorId: any, ...param: any[]): string {
  * @zh 是否显示 FPS 信息和部分调试信息。
  */
 export function isDisplayStats (): boolean {
-    return cc.profiler ? cc.profiler.isShowingStats() : false;
+    return legacyCC.profiler ? legacyCC.profiler.isShowingStats() : false;
 }
 
 /**
@@ -367,8 +368,8 @@ export function isDisplayStats (): boolean {
  * @zh 设置是否在左下角显示 FPS 和部分调试。
  */
 export function setDisplayStats (displayStats: boolean) {
-    if (cc.profiler) {
-        displayStats ? cc.profiler.showStats() : cc.profiler.hideStats();
-        cc.game.config.showFPS = !!displayStats;
+    if (legacyCC.profiler) {
+        displayStats ? legacyCC.profiler.showStats() : legacyCC.profiler.hideStats();
+        legacyCC.game.config.showFPS = !!displayStats;
     }
 }

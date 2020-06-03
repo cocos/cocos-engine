@@ -34,6 +34,7 @@ import { Mat4 } from './mat4';
 import { Size } from './size';
 import { IRectLike, IVec2Like } from './type-define';
 import { Vec2 } from './vec2';
+import { legacyCC } from '../global-exports';
 
 /**
  * 轴对齐矩形。
@@ -189,7 +190,7 @@ export class Rect extends ValueType {
      * 获取或设置矩形最小点的坐标。
      */
     get origin () {
-        return new cc.Vec2(this.x, this.y);
+        return new legacyCC.Vec2(this.x, this.y);
     }
 
     set origin (value) {
@@ -416,7 +417,7 @@ export class Rect extends ValueType {
 
 CCClass.fastDefine('cc.Rect', Rect, { x: 0, y: 0, width: 0, height: 0 });
 
-cc.Rect = Rect;
+legacyCC.Rect = Rect;
 
 /**
  * 构造与指定矩形相等的矩形。等价于 `new Rect(rect)`。
@@ -439,4 +440,4 @@ export function rect (x: Rect | number = 0, y: number = 0, width: number = 0, he
     return new Rect(x as any, y, width, height);
 }
 
-cc.rect = rect;
+legacyCC.rect = rect;

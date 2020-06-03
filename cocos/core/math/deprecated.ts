@@ -10,6 +10,7 @@ import { Quat } from './quat';
 import { Vec2 } from './vec2';
 import { Vec3 } from './vec3';
 import { Vec4 } from './vec4';
+import { legacyCC } from '../global-exports';
 
 replaceProperty(Vec2, 'Vec2', [
     {
@@ -360,9 +361,9 @@ replaceProperty(Color, 'Color', [
     {
         name: 'fromHex',
         newName: 'fromHEX',
-        customFunction: function (...args: any) {
-            let arg1 = args[1].toString(16);
-            return cc.Color.fromHEX(args[0], arg1);
+        customFunction (...args: any) {
+            const arg1 = args[1].toString(16);
+            return legacyCC.Color.fromHEX(args[0], arg1);
         },
     },
 ]);

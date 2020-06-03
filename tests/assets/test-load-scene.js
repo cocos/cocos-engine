@@ -35,7 +35,7 @@
         var root1 = new cc.Node();
         root1.parent = newScene;
 
-        var serialized = Editor.serialize(newScene, {stringify: false});
+        var serialized = EditorExtends.serialize(newScene, {stringify: false});
         strictEqual(serialized[0].__type__, cc.js._getClassId(cc.Scene), 'scene should be serialized');
         ok(serialized[0]._children instanceof Array, 'children should be serialized');
 
@@ -148,7 +148,7 @@ test('lifecycle methods of persist node and replaced node', function () {
 
         cc.game.addPersistRootNode(globalNode);
 
-        var newScene = cc.deserialize(Editor.serialize(new cc.Scene(), {stringify: false}));
+        var newScene = cc.deserialize(EditorExtends.serialize(new cc.Scene(), {stringify: false}));
 
         cc.director.runSceneImmediate(newScene);
 

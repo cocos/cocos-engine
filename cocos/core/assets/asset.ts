@@ -28,14 +28,11 @@
  * @category asset
  */
 
-import { ccclass, property, string } from '../data/class-decorator';
-import { Event } from '../event';
-import { CallbacksInvoker } from '../event/callbacks-invoker';
-import { EventTarget } from '../event/event-target';
-import { applyMixins, IEventTarget } from '../event/event-target-factory';
-import { createMap } from '../utils/js-typed';
+import { ccclass, property } from '../data/class-decorator';
+import { Eventify } from '../event';
 import { RawAsset } from './raw-asset';
 import { Node } from '../scene-graph';
+import { legacyCC } from '../global-exports';
 
 /**
  * @en
@@ -59,7 +56,7 @@ import { Node } from '../scene-graph';
  * @extends RawAsset
  */
 @ccclass('cc.Asset')
-export class Asset extends RawAsset implements IEventTarget {
+export class Asset extends Eventify(RawAsset) {
 
     /**
      * @en Indicates whether its dependent raw assets can support deferred load if the owner scene (or prefab) is marked as `asyncLoadAssets`.
@@ -88,7 +85,7 @@ export class Asset extends RawAsset implements IEventTarget {
      * @return {Asset}
      */
     public static deserialize (data) {
-        return cc.deserialize(data);
+        return legacyCC.deserialize(data);
     }
 
     /**
@@ -111,33 +108,6 @@ export class Asset extends RawAsset implements IEventTarget {
 
     private _file: any = null;
 
-    constructor (...args: ConstructorParameters<typeof RawAsset>) {
-        super(...args);
-    }
-
-    /**
-     * @en
-     * IEventTarget implementations, they will be overwrote with the same implementation in EventTarget by applyMixins
-     * @zh
-     * IEventTarget 实现，它们将被 applyMixins 在 EventTarget 中用相同的实现覆盖
-     */
-    // tslint:disable-next-line: member-ordering
-    public _callbackTable = createMap(true);
-    public on (type: string, callback: Function, target?: Object | undefined): Function | undefined {
-        return;
-    }
-    public off (type: string, callback?: Function | undefined, target?: Object | undefined): void {}
-    public targetOff (keyOrTarget?: string | Object | undefined): void {}
-    public once (type: string, callback: Function, target?: Object | undefined): Function | undefined {
-        return;
-    }
-    public dispatchEvent (event: Event): void {}
-    public hasEventListener (key: string, callback?: Function | undefined, target?: Object | undefined): boolean {
-        return false;
-    }
-    public removeAll (keyOrTarget?: string | Object | undefined): void {}
-    public emit (key: string, ...args: any[]): void {}
-
     /**
      * @en
      * Returns the url of this asset's native object, if none it will returns an empty string.
@@ -158,8 +128,8 @@ export class Asset extends RawAsset implements IEventTarget {
                 // not imported in library, just created on-the-fly
                 return name.slice(1);
             }
-            if (cc.AssetLibrary) {
-                const base = cc.AssetLibrary.getLibUrlNoExt(this._uuid, true);
+            if (legacyCC.AssetLibrary) {
+                const base = legacyCC.AssetLibrary.getLibUrlNoExt(this._uuid, true);
                 if (name.charCodeAt(0) === 46) {  // '.'
                     // imported in dir where json exist
                     return base + name;
@@ -170,7 +140,7 @@ export class Asset extends RawAsset implements IEventTarget {
                 }
             }
             else {
-                cc.errorID(6400);
+                legacyCC.errorID(6400);
             }
         }
         return '';
@@ -264,8 +234,6 @@ export class Asset extends RawAsset implements IEventTarget {
     public createNode? (callback: CreateNodeCallback): void;
 }
 
-applyMixins(Asset, [CallbacksInvoker, EventTarget]);
-
 /**
  * @param error - null or the error info
  * @param node - the created node or null
@@ -275,4 +243,4 @@ type CreateNodeCallback = (error: Error | null, node: Node) => void;
 // @ts-ignore
 Asset.prototype.createNode = null;
 
-cc.Asset = Asset;
+legacyCC.Asset = Asset;

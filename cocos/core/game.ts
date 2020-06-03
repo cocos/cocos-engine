@@ -39,6 +39,7 @@ import { GFXDevice } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from './renderer';
+import { legacyCC } from './global-exports';
 
 /**
  * @zh
@@ -419,7 +420,7 @@ export class Game extends EventTarget {
      * @zh 执行一帧游戏循环。
      */
     public step () {
-        cc.director.mainLoop();
+        legacyCC.director.mainLoop();
     }
 
     /**
@@ -433,7 +434,7 @@ export class Game extends EventTarget {
         this._paused = true;
         // Pause main loop
         if (this._intervalId) {
-            window.cancelAnimationFrame(this._intervalId);
+            window.cAF(this._intervalId);
             this._intervalId = 0;
         }
         // Because JSB platforms never actually stops the swap chain,
@@ -442,12 +443,12 @@ export class Game extends EventTarget {
             let swapbuffers = 3;
             const cb = () => {
                 if (--swapbuffers > 1) {
-                    window.requestAnimationFrame(cb);
+                    window.rAF(cb);
                 }
-                const root = cc.director.root;
+                const root = legacyCC.director.root;
                 root.frameMove(0); root.device.present();
             };
-            window.requestAnimationFrame(cb);
+            window.rAF(cb);
         }
     }
 
@@ -477,20 +478,20 @@ export class Game extends EventTarget {
      * @zh 重新开始游戏
      */
     public restart () {
-        cc.director.once(cc.Director.EVENT_AFTER_DRAW, () => {
+        legacyCC.director.once(legacyCC.Director.EVENT_AFTER_DRAW, () => {
             // tslint:disable-next-line: forin
-            for (const id in cc.game._persistRootNodes) {
-                cc.game.removePersistRootNode(cc.game._persistRootNodes[id]);
+            for (const id in legacyCC.game._persistRootNodes) {
+                legacyCC.game.removePersistRootNode(legacyCC.game._persistRootNodes[id]);
             }
 
             // Clear scene
-            cc.director.getScene().destroy();
-            cc.Object._deferredDestroy();
+            legacyCC.director.getScene().destroy();
+            legacyCC.Object._deferredDestroy();
 
-            cc.director.purgeDirector();
+            legacyCC.director.purgeDirector();
 
-            cc.director.reset();
-            cc.game.onStart();
+            legacyCC.director.reset();
+            legacyCC.game.onStart();
         });
     }
 
@@ -581,11 +582,11 @@ export class Game extends EventTarget {
             this._initEvents();
         }
 
-        if (!JSB && !EDITOR && !PREVIEW && cc.internal.SplashScreen) {
-            cc.internal.SplashScreen.instance.main(this._gfxDevice);
+        if (!JSB && !EDITOR && !PREVIEW && legacyCC.internal.SplashScreen) {
+            legacyCC.internal.SplashScreen.instance.main(this._gfxDevice);
         }
 
-        cc.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
+        legacyCC.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
 
         return this._inited;
     }
@@ -613,7 +614,7 @@ export class Game extends EventTarget {
             inputManager.registerSystemEvent(game.canvas);
         }
 
-        const splashScreen = cc.internal.SplashScreen && cc.internal.SplashScreen.instance;
+        const splashScreen = legacyCC.internal.SplashScreen && legacyCC.internal.SplashScreen.instance;
         const useSplash = (!JSB && !EDITOR && !PREVIEW && splashScreen);
         if (useSplash) {
             splashScreen.setOnFinish(() => {
@@ -623,7 +624,7 @@ export class Game extends EventTarget {
         // Load render pipeline if needed
         const renderPipeline = this.config.renderPipeline;
         if (renderPipeline) {
-            cc.loader.load({ uuid: renderPipeline }, (err, asset) => {
+            legacyCC.loader.load({ uuid: renderPipeline }, (err, asset) => {
                 // failed load renderPipeline
                 if (err || !(asset instanceof RenderPipeline)) {
                     console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, all process stopped`);
@@ -632,7 +633,7 @@ export class Game extends EventTarget {
                 else {
                     this.setRenderPipeline(asset);
                 }
-                this.emit(Game.EVENT_GAME_INITED);
+                this._safeEmit(Game.EVENT_GAME_INITED);
                 if (useSplash) {
                     splashScreen.loadFinish = true;
                 }
@@ -642,7 +643,7 @@ export class Game extends EventTarget {
             });
         }
         else {
-            this.emit(Game.EVENT_GAME_INITED);
+            this._safeEmit(Game.EVENT_GAME_INITED);
             if (useSplash) {
                 splashScreen.loadFinish = true;
             }
@@ -663,18 +664,18 @@ export class Game extends EventTarget {
      * @param {Node} node - The node to be made persistent
      */
     public addPersistRootNode (node: { uuid: any; parent: any; _persistNode: boolean; }) {
-        if (!cc.Node.isNode(node) || !node.uuid) {
+        if (!legacyCC.Node.isNode(node) || !node.uuid) {
             debug.warnID(3800);
             return;
         }
         const id = node.uuid;
         if (!this._persistRootNodes[id]) {
-            const scene = cc.director._scene;
-            if (cc.isValid(scene)) {
+            const scene = legacyCC.director._scene;
+            if (legacyCC.isValid(scene)) {
                 if (!node.parent) {
                     node.parent = scene;
                 }
-                else if (!(node.parent instanceof cc.Scene)) {
+                else if (!(node.parent instanceof legacyCC.Scene)) {
                     debug.warnID(3801);
                     return;
                 }
@@ -715,11 +716,11 @@ export class Game extends EventTarget {
 
     private _initEngine () {
         this._initDevice();
-        cc.director._init();
+        legacyCC.director._init();
         this.setRenderPipeline();
 
         // Log engine version
-        console.log('Cocos Creator 3D v' + cc.ENGINE_VERSION);
+        console.log('Cocos Creator 3D v' + legacyCC.ENGINE_VERSION);
         this.emit(Game.EVENT_ENGINE_INITED);
         this._inited = true;
     }
@@ -729,25 +730,32 @@ export class Game extends EventTarget {
     //  @Time ticker section
     private _setAnimFrame () {
         this._lastTime = new Date();
-        const frameRate = cc.game.config.frameRate;
+        const frameRate = legacyCC.game.config.frameRate;
         this._frameTime = 1000 / frameRate;
 
         if (JSB) {
             jsb.setPreferredFramesPerSecond(frameRate);
+            window.rAF = window.requestAnimationFrame;
+            window.cAF = window.cancelAnimationFrame;
         }
-        else {
+        else {     
+            if (this._intervalId) {
+                window.cAF(this._intervalId);
+                this._intervalId = 0;
+            }
+            
             if (frameRate !== 60 && frameRate !== 30) {
-                window.requestAnimationFrame = this._stTime;
-                window.cancelAnimationFrame = this._ctTime;
+                window.rAF = this._stTime;
+                window.cAF = this._ctTime;
             }
             else {
-                window.requestAnimationFrame = window.requestAnimationFrame ||
+                window.rAF = window.requestAnimationFrame ||
                     window.webkitRequestAnimationFrame ||
                     window.mozRequestAnimationFrame ||
                     window.oRequestAnimationFrame ||
                     window.msRequestAnimationFrame ||
                     this._stTime;
-                window.cancelAnimationFrame = window.cancelAnimationFrame ||
+                window.cAF = window.cancelAnimationFrame ||
                     window.cancelRequestAnimationFrame ||
                     window.msCancelRequestAnimationFrame ||
                     window.mozCancelRequestAnimationFrame ||
@@ -763,9 +771,9 @@ export class Game extends EventTarget {
     }
     private _stTime (callback) {
         const currTime = new Date().getTime();
-        const timeToCall = Math.max(0, cc.game._frameTime - (currTime - cc.game._lastTime));
+        const timeToCall = Math.max(0, legacyCC.game._frameTime - (currTime - legacyCC.game._lastTime));
         const id = window.setTimeout(callback, timeToCall);
-        cc.game._lastTime = currTime + timeToCall;
+        legacyCC.game._lastTime = currTime + timeToCall;
         return id;
     }
     private _ctTime (id: number | undefined) {
@@ -775,7 +783,7 @@ export class Game extends EventTarget {
     private _runMainLoop () {
         let callback: FrameRequestCallback;
         const config = this.config;
-        const director = cc.director;
+        const director = legacyCC.director;
         let skip: boolean = true;
         const frameRate = config.frameRate;
 
@@ -783,7 +791,7 @@ export class Game extends EventTarget {
 
         callback = (time: number) => {
             if (this._paused) { return; }
-            this._intervalId = window.requestAnimationFrame(callback);
+            this._intervalId = window.rAF(callback);
             if (!JSB && frameRate === 30) {
                 skip = !skip;
                 if (skip) {
@@ -794,11 +802,11 @@ export class Game extends EventTarget {
         };
 
         if (this._intervalId) {
-            window.cancelAnimationFrame(this._intervalId);
+            window.cAF(this._intervalId);
             this._intervalId = 0;
         }
 
-        this._intervalId = window.requestAnimationFrame(callback);
+        this._intervalId = window.rAF(callback);
         this._paused = false;
     }
 
@@ -843,20 +851,20 @@ export class Game extends EventTarget {
         let supportRender = false;
 
         if (userRenderMode === 0) {
-            if (cc.sys.capabilities.opengl) {
+            if (legacyCC.sys.capabilities.opengl) {
                 this.renderType = Game.RENDER_TYPE_WEBGL;
                 supportRender = true;
             }
-            else if (cc.sys.capabilities.canvas) {
+            else if (legacyCC.sys.capabilities.canvas) {
                 this.renderType = Game.RENDER_TYPE_CANVAS;
                 supportRender = true;
             }
         }
-        else if (userRenderMode === 1 && cc.sys.capabilities.canvas) {
+        else if (userRenderMode === 1 && legacyCC.sys.capabilities.canvas) {
             this.renderType = Game.RENDER_TYPE_CANVAS;
             supportRender = true;
         }
-        else if (userRenderMode === 2 && cc.sys.capabilities.opengl) {
+        else if (userRenderMode === 2 && legacyCC.sys.capabilities.opengl) {
             this.renderType = Game.RENDER_TYPE_WEBGL;
             supportRender = true;
         }
@@ -893,11 +901,11 @@ export class Game extends EventTarget {
                 ) {
                     useWebGL2 = false;
                 }
-                if (useWebGL2 && cc.WebGL2GFXDevice) {
-                    ctors.push(cc.WebGL2GFXDevice);
+                if (useWebGL2 && legacyCC.WebGL2GFXDevice) {
+                    ctors.push(legacyCC.WebGL2GFXDevice);
                 }
-                if (cc.WebGLGFXDevice) {
-                    ctors.push(cc.WebGLGFXDevice);
+                if (legacyCC.WebGLGFXDevice) {
+                    ctors.push(legacyCC.WebGLGFXDevice);
                 }
             }
 
@@ -923,7 +931,7 @@ export class Game extends EventTarget {
         }
 
         this.canvas!.oncontextmenu = () => {
-            if (!cc._isContextMenuEnable) { return false; }
+            if (!legacyCC._isContextMenuEnable) { return false; }
         };
     }
 
@@ -946,13 +954,13 @@ export class Game extends EventTarget {
         function onHidden () {
             if (!hidden) {
                 hidden = true;
-                cc.game.emit(Game.EVENT_HIDE);
+                legacyCC.game.emit(Game.EVENT_HIDE);
             }
         }
         function onShown () {
             if (hidden) {
                 hidden = false;
-                cc.game.emit(Game.EVENT_SHOW);
+                legacyCC.game.emit(Game.EVENT_SHOW);
             }
         }
 
@@ -997,10 +1005,10 @@ export class Game extends EventTarget {
         }
 
         this.on(Game.EVENT_HIDE, () => {
-            cc.game.pause();
+            legacyCC.game.pause();
         });
         this.on(Game.EVENT_SHOW, () => {
-            cc.game.resume();
+            legacyCC.game.resume();
         });
     }
 
@@ -1009,14 +1017,28 @@ export class Game extends EventTarget {
             rppl = new ForwardPipeline();
             rppl.initialize(ForwardPipeline.initInfo);
         }
-        if (!cc.director.root.setRenderPipeline(rppl)) {
+        if (!legacyCC.director.root.setRenderPipeline(rppl)) {
             this.setRenderPipeline();
         }
 
         this._rendererInitialized = true;
-        this.emit(Game.EVENT_RENDERER_INITED);
+        this._safeEmit(Game.EVENT_RENDERER_INITED);
+    }
+
+    private _safeEmit (event) {
+        if (EDITOR) {
+            try {
+                this.emit(event);
+            }
+            catch (e) {
+                console.warn(e);
+            }
+        }
+        else {
+            this.emit(event);
+        }
     }
 }
 
-cc.Game = Game;
-export const game = cc.game = new Game();
+legacyCC.Game = Game;
+export const game = legacyCC.game = new Game();

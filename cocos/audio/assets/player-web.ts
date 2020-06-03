@@ -30,6 +30,7 @@
 import { clamp } from '../../core/math/utils';
 import { sys } from '../../core/platform/sys';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
+import { legacyCC } from '../../core/global-exports';
 
 const audioSupport = sys.__audioSupport;
 
@@ -65,8 +66,8 @@ export class AudioPlayerWeb extends AudioPlayer {
 
         // Chrome41/Firefox40 below don't have resume
         if (this._context.state !== 'running' && this._context.resume) {
-            cc.game.canvas.addEventListener('touchend', this._onGestureCB);
-            cc.game.canvas.addEventListener('mouseup', this._onGestureCB);
+            legacyCC.game.canvas.addEventListener('touchend', this._onGestureCB);
+            legacyCC.game.canvas.addEventListener('mouseup', this._onGestureCB);
         }
     }
 
@@ -150,7 +151,7 @@ export class AudioPlayerWeb extends AudioPlayer {
         this._startTime = this._context.currentTime;
         this._startInvoked = false;
         // delay eval here to yield uniform behavior with other platforms
-        cc.director.once(cc.Director.EVENT_AFTER_UPDATE, this._playAndEmit, this);
+        legacyCC.director.once(legacyCC.Director.EVENT_AFTER_UPDATE, this._playAndEmit, this);
         /* still not supported by all platforms *
         this._sourceNode.onended = this._onEnded;
         /* doing it manually for now */
@@ -167,7 +168,7 @@ export class AudioPlayerWeb extends AudioPlayer {
     private _doStop () {
         // stop can only be called after play
         if (this._startInvoked) { this._sourceNode.stop(); }
-        else { cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this._playAndEmit, this); }
+        else { legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this._playAndEmit, this); }
     }
 
     private _playAndEmit () {
@@ -186,8 +187,8 @@ export class AudioPlayerWeb extends AudioPlayer {
 
     private _onGestureProceed () {
         if (this._interrupted) { this._doPlay(); this._interrupted = false; }
-        cc.game.canvas.removeEventListener('touchend', this._onGestureCB);
-        cc.game.canvas.removeEventListener('mouseup', this._onGestureCB);
+        legacyCC.game.canvas.removeEventListener('touchend', this._onGestureCB);
+        legacyCC.game.canvas.removeEventListener('mouseup', this._onGestureCB);
     }
 
     private _onGesture () {

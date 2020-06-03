@@ -39,6 +39,7 @@ import { IAssembler } from '../../core/renderer/ui/base';
 import { UI } from '../../core/renderer/ui/ui';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
+import { legacyCC } from '../../core/global-exports';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
@@ -66,6 +67,7 @@ export class GraphicsComponent extends UIRenderComponent {
      * @zh
      * 当前线条宽度。
      */
+    @property
     get lineWidth () {
         return this._lineWidth;
     }
@@ -230,7 +232,7 @@ export class GraphicsComponent extends UIRenderComponent {
 
     constructor (){
         super();
-        this._instanceMaterialType = InstanceMaterialType.ADDCOLOR;
+        this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
     }
 
     public onRestore () {
@@ -504,10 +506,10 @@ export class GraphicsComponent extends UIRenderComponent {
         }
 
         this.impl.clear(clean);
-        if (this.model) {
+        this._detachFromScene();
+        if(this.model){
             this.model.destroy();
         }
-
         this.markForUpdateRenderData();
     }
 
@@ -535,6 +537,7 @@ export class GraphicsComponent extends UIRenderComponent {
      * 根据当前的画线样式，绘制当前或已经存在的路径。
      */
     public stroke () {
+        this._attachToScene();
         (this._assembler as IAssembler).stroke!(this);
     }
 
@@ -546,6 +549,7 @@ export class GraphicsComponent extends UIRenderComponent {
      * 根据当前的画线样式，填充当前或已经存在的路径。
      */
     public fill () {
+        this._attachToScene();
         (this._assembler as IAssembler).fill!(this);
     }
 
@@ -601,10 +605,11 @@ export class GraphicsComponent extends UIRenderComponent {
 
     protected _attachToScene () {
         const scene = director.root!.ui.renderScene;
-        if (!this.model) {
+        if (!this.model || this.model!.scene === scene) {
             return;
         }
-        if (this.model!.scene != null) {
+
+        if (this.model!.scene !== null) {
             this._detachFromScene();
         }
         scene.addModel(this.model!);
@@ -613,8 +618,9 @@ export class GraphicsComponent extends UIRenderComponent {
     protected _detachFromScene () {
         if (this.model && this.model.scene) {
             this.model.scene.removeModel(this.model);
+            this.model.scene = null;
         }
     }
 }
 
-cc.GraphicsComponent = GraphicsComponent;
+legacyCC.GraphicsComponent = GraphicsComponent;

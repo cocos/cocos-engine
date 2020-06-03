@@ -44,13 +44,14 @@ import { Enum } from '../../value-types';
 import { Component } from '../component';
 import { UITransformComponent } from './ui-transform-component';
 import { EDITOR } from 'internal:constants';
+import { legacyCC } from '../../global-exports';
 
 const _worldPos = new Vec3();
 
 const CanvasClearFlag = Enum({
     SOLID_COLOR: GFXClearFlag.ALL,
-    DEPTH_STENCIL: GFXClearFlag.DEPTH_STENCIL,
-    NONE: GFXClearFlag.NONE,
+    DEPTH_ONLY: GFXClearFlag.DEPTH_STENCIL,
+    DONT_CLEAR: GFXClearFlag.NONE,
 });
 
 const RenderMode = Enum({
@@ -231,7 +232,7 @@ export class CanvasComponent extends Component {
     @property({
         type: CanvasClearFlag,
     })
-    protected _clearFlag = CanvasClearFlag.NONE;
+    protected _clearFlag = CanvasClearFlag.DONT_CLEAR;
     @property
     protected _color = new Color(0, 0, 0, 0);
     @property({
@@ -343,7 +344,7 @@ export class CanvasComponent extends Component {
             designSize = view.getDesignResolutionSize();
             const policy = view.getResolutionPolicy();
             // const clipTopRight = !this.fitHeight && !this.fitWidth;
-            const clipTopRight = policy === cc.view._rpNoBorder;
+            const clipTopRight = policy === legacyCC.view._rpNoBorder;
             let offsetX = 0;
             let offsetY = 0;
             if (clipTopRight) {
@@ -423,4 +424,4 @@ export class CanvasComponent extends Component {
     }
 }
 
-cc.CanvasComponent = CanvasComponent;
+legacyCC.CanvasComponent = CanvasComponent;

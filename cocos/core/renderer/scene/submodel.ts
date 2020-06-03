@@ -11,6 +11,7 @@ import { GFXDynamicState, GFXPrimitiveMode } from '../../gfx/define';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
 import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
 import { GFXBindingLayout } from '../../gfx';
+import { legacyCC } from '../../global-exports';
 
 export interface IPSOCreateInfo {
     shader: GFXShader;
@@ -19,7 +20,6 @@ export interface IPSOCreateInfo {
     depthStencilState: GFXDepthStencilState;
     blendState: GFXBlendState;
     dynamicStates: GFXDynamicState[];
-    pipelineLayout: GFXPipelineLayout;
     bindingLayout: GFXBindingLayout;
     hash: number;
 }
@@ -34,7 +34,7 @@ export class SubModel {
     protected _cmdBuffers: GFXCommandBuffer[] = [];
     protected _pathces? : IMacroPatch[];
 
-    get psoInfos() {
+    get psoInfos () {
         return this._psoCreateInfos;
     }
 
@@ -46,7 +46,7 @@ export class SubModel {
         if (this._inputAssembler) {
             this._inputAssembler.initialize(sm);
         } else {
-            this._inputAssembler = (cc.director.root.device as GFXDevice).createInputAssembler(sm);
+            this._inputAssembler = (legacyCC.director.root.device as GFXDevice).createInputAssembler(sm);
         }
     }
 
@@ -88,7 +88,7 @@ export class SubModel {
         this._material = null;
     }
 
-    public update() {
+    public update () {
         for (let i = 0; i < this.passes.length; ++i) {
             const pass = this.passes[i];
             pass.update();
@@ -98,16 +98,16 @@ export class SubModel {
         this.updateLayout();
     }
 
-    public updateLayout() {
+    public updateLayout () {
         for (let i = 0; i < this._psoCreateInfos.length; ++i) {
-            let psoCreateInfo = this._psoCreateInfos[i];
+            const psoCreateInfo = this._psoCreateInfos[i];
             if (psoCreateInfo) {
                 psoCreateInfo.bindingLayout.update();
             }
         }
     }
 
-    public onPipelineStateChanged() {
+    public onPipelineStateChanged () {
         const materail = this._material;
         if (!materail) {
             return;
@@ -125,7 +125,7 @@ export class SubModel {
         this.getPipelineCreateInfo();
     }
 
-    protected getPipelineCreateInfo() {
+    protected getPipelineCreateInfo () {
         if (!this._material) {
             return;
         }
@@ -139,16 +139,14 @@ export class SubModel {
         }
     }
 
-    protected destroyPipelineRelatedResource() {
+    protected destroyPipelineRelatedResource () {
         const len = this._psoCreateInfos.length;
-        if (len == 0) {
+        if (len === 0) {
             return;
         }
-
         for (let i = 0; i < len; ++i) {
-            const { bindingLayout: bl, pipelineLayout: pl } = this._psoCreateInfos[i];
-            bl.destroy();
-            pl.destroy();
+            const bindingLayout = this._psoCreateInfos[i].bindingLayout;
+            bindingLayout.destroy();
         }
         this._psoCreateInfos.length = 0;
     }

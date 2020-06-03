@@ -33,6 +33,7 @@ import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
 import { IMat4Like, IQuatLike, IVec4Like } from './type-define';
 import { clamp, EPSILON, random } from './utils';
+import { legacyCC } from '../global-exports';
 
 /**
  * 四维向量。
@@ -831,7 +832,7 @@ export class Vec4 extends ValueType {
 }
 
 CCClass.fastDefine('cc.Vec4', Vec4, { x: 0, y: 0, z: 0, w: 0 });
-cc.Vec4 = Vec4;
+legacyCC.Vec4 = Vec4;
 
 export function v4 (other: Vec4): Vec4;
 export function v4 (x?: number, y?: number, z?: number, w?: number): Vec4;
@@ -840,4 +841,4 @@ export function v4 (x?: number | Vec4, y?: number, z?: number, w?: number) {
     return new Vec4(x as any, y, z, w);
 }
 
-cc.v4 = v4;
+legacyCC.v4 = v4;

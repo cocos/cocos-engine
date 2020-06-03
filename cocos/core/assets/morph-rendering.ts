@@ -8,11 +8,12 @@ import { Texture2D } from './texture-2d';
 import { ImageAsset } from './image-asset';
 import { samplerLib } from '../renderer/core/sampler-lib';
 import { UBOMorph, UniformPositionMorphTexture, UniformNormalMorphTexture, UniformTangentMorphTexture } from '../pipeline/define';
-import { warn } from '../platform/debug';
+import { warn, warnID } from '../platform/debug';
 import { MorphRendering, SubMeshMorph, Morph, MorphRenderingInstance } from './morph';
 import { assertIsNonNullable, assertIsTrue } from '../data/utils/asserts';
 import { nextPow2 } from '../math/bits';
 import { IMacroPatch, IPSOCreateInfo } from '../renderer';
+import { legacyCC } from '../global-exports';
 
 /**
  * True if force to use cpu computing based sub-mesh rendering.
@@ -39,6 +40,11 @@ export class StdMorphRendering implements MorphRendering {
         for (let iSubMesh = 0; iSubMesh < nSubMeshes; ++iSubMesh) {
             const subMeshMorph = this._mesh.struct.morph.subMeshMorphs[iSubMesh];
             if (!subMeshMorph) {
+                continue;
+            }
+
+            if (subMeshMorph.targets.length > UBOMorph.MAX_MORPH_TARGET_COUNT) {
+                warnID(10002, UBOMorph.MAX_MORPH_TARGET_COUNT, subMeshMorph.targets.length);
                 continue;
             }
 
@@ -135,7 +141,7 @@ interface SubMeshMorphRenderingInstance {
 
     /**
      * Adapts the pipelineState to apply the rendering.
-     * @param pipelineState 
+     * @param pipelineState
      */
     adaptPipelineState(pipelineCreateInfo: IPSOCreateInfo): void;
 
@@ -419,7 +425,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
             if (false) {
                 for (let i = 0; i <myAttribute.local.length; ++i) {
                     if (i % 3 === 1) {
-                        myAttribute.local[i] = (cc.director.getTotalFrames() % 500) * 0.001;
+                        myAttribute.local[i] = (legacyCC.director.getTotalFrames() % 500) * 0.001;
                     } else {
                         myAttribute.local[i] = 0;
                     }
@@ -507,13 +513,13 @@ class MorphUniforms {
     public setWeights (weights: number[]) {
         assertIsTrue(weights.length === this._targetCount);
         for (let iWeight = 0; iWeight < weights.length; ++iWeight) {
-            this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_WEIGHTS + 4 * iWeight, weights[iWeight], cc.sys.isLittleEndian);
+            this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_WEIGHTS + 4 * iWeight, weights[iWeight], legacyCC.sys.isLittleEndian);
         }
     }
 
     public setMorphTextureInfo (width: number, height: number) {
-        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH, width, cc.sys.isLittleEndian);
-        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT, height, cc.sys.isLittleEndian);
+        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH, width, legacyCC.sys.isLittleEndian);
+        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT, height, legacyCC.sys.isLittleEndian);
     }
 
     public commit () {
@@ -529,9 +535,9 @@ class MorphUniforms {
  * When use vertex-texture-fetch technique, we do need
  * `gl_vertexId` when we sample per-vertex data.
  * WebGL 1.0 does not have `gl_vertexId`; WebGL 2.0, however, does.
- * @param mesh 
- * @param subMeshIndex 
- * @param gfxDevice 
+ * @param mesh
+ * @param subMeshIndex
+ * @param gfxDevice
  */
 function enableVertexId (mesh: Mesh, subMeshIndex: number, gfxDevice: GFXDevice) {
     mesh.renderingSubMeshes[subMeshIndex].enableVertexIdChannel(gfxDevice);

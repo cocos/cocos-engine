@@ -4,6 +4,7 @@
 
 import { Component } from '../../cocos/core/components/component';
 import { Node } from '../../cocos/core/scene-graph';
+import { legacyCC } from '../../cocos/core/global-exports';
 
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
@@ -172,4 +173,4 @@ export class NodePool {
     }
 }
 
-cc.NodePool = NodePool;
+legacyCC.NodePool = NodePool;

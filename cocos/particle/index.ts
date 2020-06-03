@@ -7,6 +7,7 @@ import { LineComponent } from './line-component';
 import { ParticleSystemComponent } from './particle-system-component';
 import { ParticleUtils } from './particle-utils';
 import './deprecated';
+import { legacyCC } from '../core/global-exports';
 
 export {
     BillboardComponent,
@@ -15,8 +16,8 @@ export {
     ParticleUtils
 };
 
-cc.ParticleSystemComponent = ParticleSystemComponent;
-cc.BillboardComponent = BillboardComponent;
-cc.LineComponent = LineComponent;
+legacyCC.ParticleSystemComponent = ParticleSystemComponent;
+legacyCC.BillboardComponent = BillboardComponent;
+legacyCC.LineComponent = LineComponent;
 
-cc.ParticleUtils = ParticleUtils;
+legacyCC.ParticleUtils = ParticleUtils;

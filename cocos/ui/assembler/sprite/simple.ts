@@ -48,7 +48,7 @@ export const simple: IAssembler = {
         const renderData = sprite.requestRenderData();
         renderData!.dataLength = 4;
         renderData!.vertexCount = 4;
-        renderData!.indiceCount = 6;
+        renderData!.indicesCount = 6;
 
         renderData.vData = new Float32Array(4 * 9);
 
@@ -72,7 +72,7 @@ export const simple: IAssembler = {
         const renderData = sprite.renderData;
         if (renderData && frame) {
             if (renderData.vertDirty) {
-                this.updateVerts(sprite);
+                this.updateVertexData(sprite);
             }
             if (renderData.uvDirty) {
                 this.updateUvs(sprite);
@@ -87,31 +87,31 @@ export const simple: IAssembler = {
 
         // const buffer: MeshBuffer = renderer.createBuffer(
         //     sprite.renderData!.vertexCount,
-        //     sprite.renderData!.indiceCount,
+        //     sprite.renderData!.indicesCount,
         // );
         // const commitBuffer: IUIRenderData = renderer.createUIRenderData();
-        const datas: IRenderData[] = sprite!.renderData!.datas;
+        const dataList: IRenderData[] = sprite!.renderData!.data;
         const node = sprite.node;
 
         let buffer = renderer.currBufferBatch!;
         let vertexOffset = buffer.byteOffset >> 2;
-        let indiceOffset = buffer.indiceOffset;
+        let indicesOffset = buffer.indicesOffset;
         let vertexId = buffer.vertexOffset;
 
         const isRecreate = buffer.request();
         if (!isRecreate) {
             buffer = renderer.currBufferBatch!;
             vertexOffset = 0;
-            indiceOffset = 0;
+            indicesOffset = 0;
             vertexId = 0;
         }
 
         // buffer data may be reallocated, need get reference after request.
-        const vbuf = buffer.vData!;
-        const ibuf = buffer.iData!;
+        const vBuf = buffer.vData!;
+        const iBuf = buffer.iData!;
         const vData = sprite!.renderData!.vData!;
-        const data0 = datas[0];
-        const data3 = datas[3];
+        const data0 = dataList[0];
+        const data3 = dataList[3];
         const matrix = node.worldMatrix;
         const a = matrix.m00; const b = matrix.m01;
         const c = matrix.m04; const d = matrix.m05;
@@ -135,38 +135,38 @@ export const simple: IAssembler = {
         vData[27] = ar + ct + tx;
         vData[28] = br + dt + ty;
 
-        vbuf.set(vData, vertexOffset);
+        vBuf.set(vData, vertexOffset);
 
         // fill index data
-        ibuf[indiceOffset++] = vertexId;
-        ibuf[indiceOffset++] = vertexId + 1;
-        ibuf[indiceOffset++] = vertexId + 2;
-        ibuf[indiceOffset++] = vertexId + 2;
-        ibuf[indiceOffset++] = vertexId + 1;
-        ibuf[indiceOffset++] = vertexId + 3;
+        iBuf[indicesOffset++] = vertexId;
+        iBuf[indicesOffset++] = vertexId + 1;
+        iBuf[indicesOffset++] = vertexId + 2;
+        iBuf[indicesOffset++] = vertexId + 2;
+        iBuf[indicesOffset++] = vertexId + 1;
+        iBuf[indicesOffset++] = vertexId + 3;
     },
 
-    updateVerts (sprite: SpriteComponent) {
+    updateVertexData (sprite: SpriteComponent) {
         const renderData: RenderData | null = sprite.renderData;
         if (!renderData) {
             return;
         }
 
         const node = sprite.node;
-        const datas: IRenderData[] = renderData.datas;
+        const dataList: IRenderData[] = renderData.data;
         const cw = node.width;
         const ch = node.height;
-        const appx = node.anchorX * cw;
-        const appy = node.anchorY * ch;
+        const appX = node.anchorX * cw;
+        const appY = node.anchorY * ch;
         let l = 0;
         let b = 0;
         let r = 0;
         let t = 0;
         if (sprite.trim) {
-            l = -appx;
-            b = -appy;
-            r = cw - appx;
-            t = ch - appy;
+            l = -appX;
+            b = -appY;
+            r = cw - appX;
+            t = ch - appY;
         }
         else {
             const frame = sprite.spriteFrame!;
@@ -183,22 +183,19 @@ export const simple: IAssembler = {
             const trimRight = offset.x - (ow - rw) / 2;
             const trimBottom = offset.y + (oh - rh) / 2;
             const trimTop = offset.y - (oh - rh) / 2;
-            l = trimLeft * scaleX - appx;
-            b = trimBottom * scaleY - appy;
-            r = cw + trimRight * scaleX - appx;
-            t = ch + trimTop * scaleY - appy;
+            l = trimLeft * scaleX - appX;
+            b = trimBottom * scaleY - appY;
+            r = cw + trimRight * scaleX - appX;
+            t = ch + trimTop * scaleY - appY;
         }
 
-        datas[0].x = l;
-        datas[0].y = b;
-        datas[0].z = 0;
-        // datas[1].x = r;
-        // datas[1].y = b;
-        // datas[2].x = l;
-        // datas[2].y = t;
-        datas[3].x = r;
-        datas[3].y = t;
-        datas[3].z = 0;
+        dataList[0].x = l;
+        dataList[0].y = b;
+        dataList[0].z = 0;
+
+        dataList[3].x = r;
+        dataList[3].y = t;
+        dataList[3].z = 0;
 
         renderData.vertDirty = false;
     },
@@ -224,15 +221,15 @@ export const simple: IAssembler = {
 
         let colorOffset = 5;
         const color = sprite.color;
-        const colorr = color.r / 255;
-        const colorg = color.g / 255;
-        const colorb = color.b / 255;
-        const colora = color.a / 255;
+        const colorR = color.r / 255;
+        const colorG = color.g / 255;
+        const colorB = color.b / 255;
+        const colorA = color.a / 255;
         for (let i = 0; i < 4; i++) {
-            vData![colorOffset] = colorr;
-            vData![colorOffset + 1] = colorg;
-            vData![colorOffset + 2] = colorb;
-            vData![colorOffset + 3] = colora;
+            vData![colorOffset] = colorR;
+            vData![colorOffset + 1] = colorG;
+            vData![colorOffset + 2] = colorB;
+            vData![colorOffset + 3] = colorA;
 
             colorOffset += 9;
         }

@@ -5,7 +5,7 @@
     if (TestEditorExtends) {
 
         function serializedAs (obj, expect, info) {
-            deepEqual(JSON.parse(Editor.serialize(obj)), expect, info);
+            deepEqual(JSON.parse(EditorExtends.serialize(obj)), expect, info);
         }
 
         test('nativeUrl', function () {

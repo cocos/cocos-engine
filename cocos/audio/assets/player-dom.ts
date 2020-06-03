@@ -29,11 +29,12 @@
 
 import { clamp } from '../../core/math/utils';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
+import { legacyCC } from '../../core/global-exports';
 
 export class AudioPlayerDOM extends AudioPlayer {
     protected _volume = 1;
     protected _loop = false;
-    protected _oneShoting = false;
+    protected _oneShotOngoing = false;
     protected _audio: HTMLAudioElement;
     protected _cbRegistered = false;
 
@@ -48,8 +49,8 @@ export class AudioPlayerDOM extends AudioPlayer {
 
         this._remove_cb = () => {
             if (!this._cbRegistered) { return; }
-            cc.game.canvas.removeEventListener('touchend', this._on_gesture);
-            cc.game.canvas.removeEventListener('mouseup', this._on_gesture);
+            legacyCC.game.canvas.removeEventListener('touchend', this._on_gesture);
+            legacyCC.game.canvas.removeEventListener('mouseup', this._on_gesture);
             this._cbRegistered = false;
         };
 
@@ -70,7 +71,7 @@ export class AudioPlayerDOM extends AudioPlayer {
             if (!promise) { // Chrome50/Firefox53 below
                 // delay eval here to yield uniform behavior with other platforms
                 this._state = PlayingState.PLAYING;
-                cc.director.once(cc.Director.EVENT_AFTER_UPDATE, this._post_gesture);
+                legacyCC.director.once(legacyCC.Director.EVENT_AFTER_UPDATE, this._post_gesture);
                 return;
             }
             promise.then(this._post_gesture);
@@ -81,15 +82,15 @@ export class AudioPlayerDOM extends AudioPlayer {
         this._audio.loop = this._loop;
         // callback on audio ended
         this._audio.addEventListener('ended', () => {
-            if (this._oneShoting) { return; }
+            if (this._oneShotOngoing) { return; }
             this._state = PlayingState.STOPPED;
             this._audio!.currentTime = 0;
             this._eventTarget.emit('ended');
         });
         /* play & stop immediately after receiving a gesture so that
            we can freely invoke play() outside event listeners later */
-        cc.game.canvas.addEventListener('touchend', this._on_gesture);
-        cc.game.canvas.addEventListener('mouseup', this._on_gesture);
+        legacyCC.game.canvas.addEventListener('touchend', this._on_gesture);
+        legacyCC.game.canvas.addEventListener('mouseup', this._on_gesture);
         this._cbRegistered = true;
     }
 
@@ -100,7 +101,7 @@ export class AudioPlayerDOM extends AudioPlayer {
         if (!promise) {
             // delay eval here to yield uniform behavior with other platforms
             this._state = PlayingState.PLAYING;
-            cc.director.once(cc.Director.EVENT_AFTER_UPDATE, this._post_play);
+            legacyCC.director.once(legacyCC.Director.EVENT_AFTER_UPDATE, this._post_play);
             return;
         }
         promise.then(this._post_play).catch(() => { this._interrupted = true; });
@@ -110,7 +111,7 @@ export class AudioPlayerDOM extends AudioPlayer {
         if (!this._audio || this._state !== PlayingState.PLAYING) { return; }
         this._audio.pause();
         this._state = PlayingState.STOPPED;
-        this._oneShoting = false;
+        this._oneShotOngoing = false;
     }
 
     public stop () {
@@ -119,7 +120,7 @@ export class AudioPlayerDOM extends AudioPlayer {
         if (this._state !== PlayingState.PLAYING) { return; }
         this._audio.pause();
         this._state = PlayingState.STOPPED;
-        this._oneShoting = false;
+        this._oneShotOngoing = false;
     }
 
     public playOneShot (volume = 1) {
@@ -129,17 +130,17 @@ export class AudioPlayerDOM extends AudioPlayer {
         if (!clip) { return; }
         clip.currentTime = 0;
         clip.volume = volume;
-        if (this._oneShoting) { return; }
+        if (this._oneShotOngoing) { return; }
         clip.loop = false;
-        this._oneShoting = true;
+        this._oneShotOngoing = true;
         clip.play().then(() => {
             clip.addEventListener('ended', () => {
                 clip.currentTime = 0;
                 clip.volume = this._volume;
                 clip.loop = this._loop;
-                this._oneShoting = false;
+                this._oneShotOngoing = false;
             }, { once: true });
-        }).catch(() => { this._oneShoting = false; });
+        }).catch(() => { this._oneShotOngoing = false; });
     }
 
     public setCurrentTime (val: number) {

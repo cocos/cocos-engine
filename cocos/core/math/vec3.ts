@@ -33,6 +33,7 @@ import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
 import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
 import { clamp, EPSILON, random } from './utils';
+import { legacyCC } from '../global-exports';
 
 /**
  * 三维向量。
@@ -357,7 +358,7 @@ export class Vec3 extends ValueType {
         const y = a.y;
         const z = a.z;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z + m.m15;
-        rhw = rhw ? 1 / rhw : 1;
+        rhw = rhw ? Math.abs(1 / rhw) : 1;
         out.x = (m.m00 * x + m.m04 * y + m.m08 * z + m.m12) * rhw;
         out.y = (m.m01 * x + m.m05 * y + m.m09 * z + m.m13) * rhw;
         out.z = (m.m02 * x + m.m06 * y + m.m10 * z + m.m14) * rhw;
@@ -372,7 +373,7 @@ export class Vec3 extends ValueType {
         const y = a.y;
         const z = a.z;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z;
-        rhw = rhw ? 1 / rhw : 1;
+        rhw = rhw ? Math.abs(1 / rhw) : 1;
         out.x = (m.m00 * x + m.m04 * y + m.m08 * z) * rhw;
         out.y = (m.m01 * x + m.m05 * y + m.m09 * z) * rhw;
         out.z = (m.m02 * x + m.m06 * y + m.m10 * z) * rhw;
@@ -399,9 +400,9 @@ export class Vec3 extends ValueType {
         const x = v.x;
         const y = v.y;
         const z = v.z;
-        out.x = m.m00 * x + m.m01 * y + m.m02 * z + m.m03;
-        out.y = m.m04 * x + m.m05 * y + m.m06 * z + m.m07;
-        out.x = m.m08 * x + m.m09 * y + m.m10 * z + m.m11;
+        out.x = m.m00 * x + m.m04 * y + m.m08 * z + m.m12;
+        out.y = m.m01 * x + m.m05 * y + m.m09 * z + m.m13;
+        out.x = m.m02 * x + m.m06 * y + m.m10 * z + m.m14;
         return out;
     }
 
@@ -978,7 +979,7 @@ const v3_1 = new Vec3();
 const v3_2 = new Vec3();
 
 CCClass.fastDefine('cc.Vec3', Vec3, { x: 0, y: 0, z: 0 });
-cc.Vec3 = Vec3;
+legacyCC.Vec3 = Vec3;
 
 export function v3 (other: Vec3): Vec3;
 export function v3 (x?: number, y?: number, z?: number): Vec3;
@@ -987,4 +988,4 @@ export function v3 (x?: number | Vec3, y?: number, z?: number) {
     return new Vec3(x as any, y, z);
 }
 
-cc.v3 = v3;
+legacyCC.v3 = v3;

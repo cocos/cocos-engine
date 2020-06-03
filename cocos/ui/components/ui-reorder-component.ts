@@ -29,6 +29,7 @@
 
 import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu } from '../../core/data/class-decorator';
 import { UIComponent } from '../../core/components/ui-base/ui-component';
+import { legacyCC } from '../../core/global-exports';
 
 /**
  * @zh
@@ -44,4 +45,4 @@ import { UIComponent } from '../../core/components/ui-base/ui-component';
 export class UIReorderComponent extends UIComponent {
 
 }
-cc.UIReorderComponent = UIReorderComponent;
+legacyCC.UIReorderComponent = UIReorderComponent;

@@ -8,6 +8,7 @@ import { Root } from '../root';
 import { CAMERA_DEFAULT_MASK } from './define';
 import { RenderFlowType } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
+import { legacyCC } from '../global-exports';
 
 /**
  * @zh
@@ -73,8 +74,8 @@ export class RenderView {
 
     public set priority (val: number) {
         this._priority = val;
-        if (cc.director.root) {
-            cc.director.root.sortViews();
+        if (legacyCC.director.root) {
+            legacyCC.director.root.sortViews();
         }
     }
 
@@ -209,10 +210,10 @@ export class RenderView {
     public setExecuteFlows (flows: string[] | undefined) {
         this.flows.length = 0;
         if (flows && flows.length === 1 && flows[0] === 'UIFlow') {
-            this._flows.push(cc.director.root.pipeline.getFlow('UIFlow'));
+            this._flows.push(legacyCC.director.root.pipeline.getFlow('UIFlow'));
             return;
         }
-        const pipelineFlows = cc.director.root.pipeline.activeFlows;
+        const pipelineFlows = legacyCC.director.root.pipeline.activeFlows;
         for (const f of pipelineFlows) {
             if (f.type === RenderFlowType.SCENE || (flows && flows.indexOf(f.name) !== -1)) {
                 this.flows.push(f);
