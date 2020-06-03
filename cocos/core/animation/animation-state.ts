@@ -680,6 +680,9 @@ export class AnimationState extends Playable {
         if (!this.isPaused) {
             this._onPauseOrStop();
         }
+        for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
+            this._blendStateWriters[iBlendStateWriter].enable(false);
+        }
         this.emit(EventType.STOP, this);
     }
 
@@ -866,6 +869,9 @@ export class AnimationState extends Playable {
                 this._blendStateWriters[iBlendStateWriter].initialize();
             }
             this._isBlendStateWriterInitialized = true;
+        }
+        for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
+            this._blendStateWriters[iBlendStateWriter].enable(true);
         }
         cc.director.getAnimationManager().addAnimation(this);
     }

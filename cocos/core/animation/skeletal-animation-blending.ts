@@ -78,6 +78,7 @@ export class BlendStateBuffer {
 export type IBlendStateWriter = IValueProxyFactory & {
     initialize: () => void;
     destroy: () => void;
+    enable: (enabled: boolean) => void;
 };
 
 export function createBlendStateWriter<P extends BlendingProperty> (
@@ -97,6 +98,7 @@ export function createBlendStateWriter<P extends BlendingProperty> (
     let propertyBlendState: PropertyBlendState<BlendingPropertyValue<P>> | null = null;
     let isConstCacheValid = false;
     let lastWeight = -1;
+    let isEnabled = true;
     return {
         initialize () {
             if (!propertyBlendState) {
@@ -109,9 +111,15 @@ export function createBlendStateWriter<P extends BlendingProperty> (
                 propertyBlendState = null;
             }
         },
+        enable (enabled: boolean) {
+            isEnabled = enabled;
+        },
         forTarget: () => {
             return {
                 set: (value: BlendingPropertyValue<P>) => {
+                    if (!isEnabled) {
+                        return;
+                    }
                     if (!propertyBlendState) {
                         return;
                     }
