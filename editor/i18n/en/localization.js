@@ -28,7 +28,7 @@ module.exports = {
             "block_input_events": "https://docs.cocos.com/creator/manual/en/components/block-input-events.html",
             "wx_subcontext_view": "https://docs.cocos.com/creator/manual/en/publish/publish-wechatgame-sub-domain.html",
             "swan_subcontext_view": "https://docs.cocos.com/creator/manual/en/publish/publish-baidugame-sub-domain.html",
-            "safe_area": "https://docs.cocos.com/creator/manual/en/publish/safe-area.html"
+            "safe_area": "https://docs.cocos.com/creator/manual/en/components/safearea.html"
         },
         "animation": {
             "default_clip": "When checking, the deault animation clip is automatically played.",
