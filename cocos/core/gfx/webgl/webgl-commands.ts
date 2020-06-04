@@ -19,7 +19,7 @@ import {
     GFXStencilFace,
     GFXTextureFlagBit,
     GFXTextureLayout,
-    GFXTextureViewType,
+    GFXTextureType,
     GFXType,
     IGFXColor,
     IGFXFormatInfo,
@@ -789,10 +789,8 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
     let w = gpuTexture.width;
     let h = gpuTexture.height;
 
-    switch (gpuTexture.viewType) {
-        case GFXTextureViewType.TV2D: {
-
-            gpuTexture.viewType = GFXTextureViewType.TV2D;
+    switch (gpuTexture.type) {
+        case GFXTextureType.TEX2D: {
             gpuTexture.glTarget = gl.TEXTURE_2D;
 
             const maxSize = Math.max(w, h);
@@ -870,9 +868,7 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
 
             break;
         }
-        case GFXTextureViewType.CUBE: {
-
-            gpuTexture.viewType = GFXTextureViewType.CUBE;
+        case GFXTextureType.CUBE: {
             gpuTexture.glTarget = gl.TEXTURE_CUBE_MAP;
 
             const maxSize = Math.max(w, h);
@@ -944,7 +940,7 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
         }
         default: {
             console.error('Unsupported GFXTextureType, create texture failed.');
-            gpuTexture.viewType = GFXTextureViewType.TV2D;
+            gpuTexture.type = GFXTextureType.TEX2D;
             gpuTexture.glTarget = gl.TEXTURE_2D;
         }
     }
@@ -973,9 +969,8 @@ export function WebGLCmdFuncResizeTexture (device: WebGLGFXDevice, gpuTexture: W
     let w = gpuTexture.width;
     let h = gpuTexture.height;
 
-    switch (gpuTexture.viewType) {
-        case GFXTextureViewType.TV2D: {
-            gpuTexture.viewType = GFXTextureViewType.TV2D;
+    switch (gpuTexture.type) {
+        case GFXTextureType.TEX2D: {
             gpuTexture.glTarget = gl.TEXTURE_2D;
 
             const maxSize = Math.max(w, h);
@@ -1011,8 +1006,7 @@ export function WebGLCmdFuncResizeTexture (device: WebGLGFXDevice, gpuTexture: W
             }
             break;
         }
-        case GFXTextureViewType.CUBE: {
-            gpuTexture.viewType = GFXTextureViewType.CUBE;
+        case GFXTextureType.CUBE: {
             gpuTexture.glTarget = gl.TEXTURE_CUBE_MAP;
 
             const maxSize = Math.max(w, h);
@@ -1056,7 +1050,7 @@ export function WebGLCmdFuncResizeTexture (device: WebGLGFXDevice, gpuTexture: W
         }
         default: {
             console.error('Unsupported GFXTextureType, create texture failed.');
-            gpuTexture.viewType = GFXTextureViewType.TV2D;
+            gpuTexture.type = GFXTextureType.TEX2D;
             gpuTexture.glTarget = gl.TEXTURE_2D;
         }
     }

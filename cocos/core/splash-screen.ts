@@ -8,7 +8,7 @@ import { GFXBuffer } from './gfx/buffer';
 import { GFXCommandBuffer } from './gfx/command-buffer';
 import {
     GFXBufferTextureCopy, GFXBufferUsageBit, GFXClearFlag, GFXCommandBufferType, GFXFormat,
-    GFXMemoryUsageBit, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType, IGFXRect, IGFXColor, GFXAddress
+    GFXMemoryUsageBit, GFXTextureType, GFXTextureUsageBit, IGFXRect, IGFXColor, GFXAddress
 } from './gfx/define';
 import { GFXDevice } from './gfx/device';
 import { GFXFramebuffer } from './gfx/framebuffer';

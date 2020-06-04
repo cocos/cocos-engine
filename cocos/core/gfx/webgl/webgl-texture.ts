@@ -1,4 +1,4 @@
-import { GFXTextureFlagBit, GFXTextureType, GFXTextureViewType, GFXStatus, GFXFormatSurfaceSize } from '../define';
+import { GFXTextureFlagBit, GFXTextureType, GFXStatus, GFXFormatSurfaceSize } from '../define';
 import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo, IsPowerOf2 } from '../texture';
 import { WebGLCmdFuncCreateTexture, WebGLCmdFuncDestroyTexture, WebGLCmdFuncResizeTexture } from './webgl-commands';
 import { WebGLGFXDevice } from './webgl-device';
@@ -53,50 +53,8 @@ export class WebGLGFXTexture extends GFXTexture {
             this._buffer = new ArrayBuffer(this._size);
         }
 
-        let viewType: GFXTextureViewType;
-        switch (info.type) {
-            case GFXTextureType.TEX1D: {
-
-                if (info.arrayLayer) {
-                    viewType = info.arrayLayer <= 1 ? GFXTextureViewType.TV1D : GFXTextureViewType.TV1D_ARRAY;
-                } else {
-                    viewType = GFXTextureViewType.TV1D;
-                }
-
-                break;
-            }
-            case GFXTextureType.TEX2D: {
-                let flags = GFXTextureFlagBit.NONE;
-                if (info.flags) {
-                    flags = info.flags;
-                }
-
-                if (info.arrayLayer) {
-                    if (info.arrayLayer <= 1) {
-                        viewType = GFXTextureViewType.TV2D;
-                    } else if (flags & GFXTextureFlagBit.CUBEMAP) {
-                        viewType = GFXTextureViewType.CUBE;
-                    } else {
-                        viewType = GFXTextureViewType.TV2D_ARRAY;
-                    }
-                } else {
-                    viewType = GFXTextureViewType.TV2D;
-                }
-
-                break;
-            }
-            case GFXTextureType.TEX3D: {
-                viewType = GFXTextureViewType.TV3D;
-                break;
-            }
-            default: {
-                viewType = GFXTextureViewType.TV2D;
-            }
-        }
-
         this._gpuTexture = {
             type: this._type,
-            viewType,
             format: this._format,
             usage: this._usage,
             width: this._width,

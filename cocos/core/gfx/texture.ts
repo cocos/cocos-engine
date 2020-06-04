@@ -10,7 +10,6 @@ import {
     GFXTextureFlagBit,
     GFXTextureFlags,
     GFXTextureType,
-    GFXTextureViewType,
     GFXTextureUsage,
     GFXTextureUsageBit,
 } from './define';
@@ -31,7 +30,7 @@ export interface IGFXTextureInfo {
 
 export interface IGFXTextureViewInfo {
     texture: GFXTexture;
-    type: GFXTextureViewType;
+    type: GFXTextureType;
     format: GFXFormat;
     baseLevel?: number;
     levelCount?: number;

@@ -16,7 +16,6 @@ import {
     GFXTextureType,
     GFXTextureUsage,
     GFXTextureUsageBit,
-    GFXTextureViewType,
     GFXType,
 } from '../define';
 import { IGFXAttribute } from '../input-assembler';
@@ -48,7 +47,6 @@ export class WebGL2GPUBuffer {
 
 export class WebGL2GPUTexture {
     public type: GFXTextureType = GFXTextureType.TEX2D;
-    public viewType: GFXTextureViewType = GFXTextureViewType.TV2D;
     public format: GFXFormat = GFXFormat.UNKNOWN;
     public usage: GFXTextureUsage = GFXTextureUsageBit.NONE;
     public width: number = 0;
