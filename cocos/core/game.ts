@@ -576,10 +576,6 @@ export class Game extends EventTarget {
 
         this._initEngine();
 
-        if (!EDITOR) {
-            this._initEvents();
-        }
-
         if (!EDITOR && !PREVIEW && cc.internal.SplashScreenWebgl && this.canvas) {
             cc.internal.SplashScreenWebgl.instance.main(this.canvas);
         }
@@ -595,6 +591,9 @@ export class Game extends EventTarget {
      * @param {Function} onStart - function to be executed after game initialized
      */
     public run (onStart: Function | null, legacyOnStart?: Function | null) {
+        if (!EDITOR) {
+            this._initEvents();
+        }
         if (typeof onStart !== 'function' && legacyOnStart) {
             const config: IGameConfig = this.onStart as IGameConfig;
             this.init(config);
