@@ -31,9 +31,8 @@ export class WebGL2GFXFence extends GFXFence {
     }
 
     public insert () {
-        if (this._sync) {
-            const gl = (this._device as WebGL2GFXDevice).gl;
-            this._sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0);
-        }
+        const gl = (this._device as WebGL2GFXDevice).gl;
+        if (this._sync) { gl.deleteSync(this._sync); }
+        this._sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0);
     }
 }

@@ -8,7 +8,7 @@ import { RenderPriority } from '../../pipeline/define';
 import { IMacroPatch } from '../core/pass';
 import { GFXShader } from '../../gfx/shader';
 import { GFXDynamicState, GFXPrimitiveMode } from '../../gfx/define';
-import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
+import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState, GFXInputState } from '../../gfx/pipeline-state';
 import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
 import { GFXBindingLayout } from '../../gfx';
 import { legacyCC } from '../../global-exports';
@@ -21,6 +21,7 @@ export interface IPSOCreateInfo {
     blendState: GFXBlendState;
     dynamicStates: GFXDynamicState[];
     bindingLayout: GFXBindingLayout;
+    shaderInput: GFXInputState;
     hash: number;
 }
 
@@ -73,7 +74,7 @@ export class SubModel {
         return this._inputAssembler;
     }
 
-    public initialize (subMesh: RenderingSubMesh, mat: Material, patches? : IMacroPatch[]) {
+    public initialize (subMesh: RenderingSubMesh, mat: Material, patches?: IMacroPatch[]) {
         this.subMeshData = subMesh;
         this._pathces = patches;
         this.material = mat;
@@ -129,10 +130,9 @@ export class SubModel {
         if (!this._material) {
             return;
         }
-
         const passes = this._material.passes;
         for (let i = 0; i < passes.length; ++i) {
-            const psoCreateInfo = passes[i].getPipelineCreateInfo(this._pathces);
+            const psoCreateInfo = passes[i].createPipelineStateCI(this._pathces);
             if (psoCreateInfo) {
                 this._psoCreateInfos[i] = psoCreateInfo;
             }
@@ -140,13 +140,14 @@ export class SubModel {
     }
 
     protected destroyPipelineRelatedResource () {
-        const len = this._psoCreateInfos.length;
-        if (len === 0) {
+        if (!this._material) {
             return;
         }
-        for (let i = 0; i < len; ++i) {
-            const bindingLayout = this._psoCreateInfos[i].bindingLayout;
-            bindingLayout.destroy();
+        const passes = this._material.passes;
+        for (let i = 0; i < passes.length; ++i) {
+            if (this._psoCreateInfos[i]) {
+                passes[i].destroyPipelineStateCI(this._psoCreateInfos[i]);
+            }
         }
         this._psoCreateInfos.length = 0;
     }

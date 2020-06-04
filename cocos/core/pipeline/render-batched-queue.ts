@@ -57,9 +57,9 @@ export class RenderBatchedQueue {
                 batch.vbIdx.update(batch.vbIdxData.buffer);
                 batch.ubo.update(batch.uboData.view);
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, batch.psoCreateInfo, renderPass, batch.ia);
-                if (!boundPSO) { 
-                    cmdBuff.bindPipelineState(pso); 
-                    boundPSO = true; 
+                if (!boundPSO) {
+                    cmdBuff.bindPipelineState(pso);
+                    boundPSO = true;
                 }
                 cmdBuff.bindBindingLayout(batch.psoCreateInfo.bindingLayout);
                 cmdBuff.bindInputAssembler(batch.ia);

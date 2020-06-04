@@ -64,7 +64,7 @@ const borderColor = { r: 0, g: 0, b: 0, a: 0 };
 
 const gfxInfo: IGFXSamplerInfo = {};
 
-export function genSamplerHash (info: Array<number | undefined>): number {
+export function genSamplerHash (info: (number | undefined)[]): number {
     let value = 0;
     let hash = 0;
     for (let i = 0; i < defaultInfo.length; i++) {

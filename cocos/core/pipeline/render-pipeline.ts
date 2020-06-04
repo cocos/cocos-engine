@@ -610,7 +610,7 @@ export abstract class RenderPipeline {
         this._uboGlobal.view.set(skyColor, UBOGlobal.AMBIENT_SKY_OFFSET);
 
         this._uboGlobal.view.set(ambient.groundAlbedo, UBOGlobal.AMBIENT_GROUND_OFFSET);
-        
+
         this._uboGlobal.view.set(fog.fogColor, UBOGlobal.GLOBAL_FOG_COLOR_OFFSET);
 
         fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET] = fog.fogStart;
@@ -684,7 +684,7 @@ export abstract class RenderPipeline {
         }
 
         if (planarShadows.enabled) {
-            planarShadows.updateCommandBuffers(camera.frustum, stamp);
+            planarShadows.updateShadowList(camera.frustum, stamp, (camera.visibility & Layers.BitMask.DEFAULT) !== 0);
         }
     }
 

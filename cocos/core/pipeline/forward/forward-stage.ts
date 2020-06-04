@@ -114,9 +114,8 @@ export class ForwardStage extends RenderStage {
                     const passes = subModel.passes;
                     for (p = 0; p < passes.length; ++p) {
                         const pass = passes[p];
-                        // const pso = subModel.psos![p];
                         if (pass.instancedBuffer) {
-                            // pass.instancedBuffer.merge(subModel, ro.model.instancedAttributes, pso);
+                            pass.instancedBuffer.merge(subModel, ro.model.instancedAttributes, subModel.psoInfos[p]);
                             this._opaqueInstancedQueue.queue.add(pass.instancedBuffer);
                         } else if (pass.batchedBuffer) {
                             pass.batchedBuffer.merge(subModel, p, ro);
@@ -181,24 +180,20 @@ export class ForwardStage extends RenderStage {
             this._framebuffer = view.window!.framebuffer;
         }
 
-        const planarShadow = camera.scene!.planarShadows;
+        const device = this._device!;
+        const renderPass = this._framebuffer.renderPass!;
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(this._framebuffer, this._renderArea!,
             camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
 
-        this._renderQueues[0].recordCommandBuffer(this._device!, this._framebuffer.renderPass!, cmdBuff);
+        this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
+        this._opaqueInstancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+        this._opaqueBatchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+        this._pipeline.lightBatchQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+        camera.scene!.planarShadows.recordCommandBuffer(device, renderPass, cmdBuff);
+        this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
 
-        // this._opaqueInstancedQueue.recordCommandBuffer(cmdBuff);
-        this._opaqueBatchedQueue.recordCommandBuffer(this._device!, this._framebuffer.renderPass!, cmdBuff);
-
-        // Commit light-batched-queue
-        this._pipeline.lightBatchQueue.recordCommandBuffer(cmdBuff);
-
-        if (camera.visibility & Layers.BitMask.DEFAULT) {
-            planarShadow.recordCommandBuffer(cmdBuff);
-        }
-        this._renderQueues[1].recordCommandBuffer(this._device!, this._framebuffer.renderPass!, cmdBuff);
         cmdBuff.endRenderPass();
         cmdBuff.end();
 

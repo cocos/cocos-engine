@@ -61,7 +61,7 @@ export class ToneMapStage extends RenderStage {
 
         const globalUBO = this._pipeline!.globalBindings.get(UBOGlobal.BLOCK.name);
 
-        this._psoCreateInfo = this._pass.getPipelineCreateInfo();
+        this._psoCreateInfo = this._pass.createPipelineStateCI();
         this._bindingLayout =  this._psoCreateInfo!.bindingLayout;
 
         this._pass.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO!.buffer!);
