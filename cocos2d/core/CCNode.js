@@ -2152,7 +2152,7 @@ let NodeDefines = {
             listeners = this._bubblingListeners = this._bubblingListeners || new EventTarget();
         }
 
-        listeners.once(type, callback, target);
+        listeners.once(type, callback, target, this);
     },
 
     _onDispatch (type, callback, target, useCapture) {

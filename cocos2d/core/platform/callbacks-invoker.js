@@ -32,25 +32,32 @@ function empty () {}
 function CallbackInfo () {
     this.callback = empty;
     this.target = undefined;
-    this.once = false;
+    this.once = undefined;
 }
 
 CallbackInfo.prototype.set = function (callback, target, once) {
     this.callback = callback;
     this.target = target;
-    this.once = !!once;
+    this.once = once;
 };
 
 let callbackInfoPool = new js.Pool(function (info) {
     info.callback = empty;
     info.target = undefined;
-    info.once = false;
+    info.once = undefined;
     return true;
 }, 32);
 
 callbackInfoPool.get = function () {
     return this._get() || new CallbackInfo();
 };
+
+callbackInfoPool.__put = function (info) {
+    info.callback = empty;
+    info.target = undefined;
+    info.once = undefined;
+    this.put(info);
+}
 
 function CallbackList () {
     this.callbackInfos = [];
@@ -69,7 +76,7 @@ proto.removeByCallback = function (cb) {
     for (let i = 0; i < this.callbackInfos.length; ++i) {
         let info = this.callbackInfos[i];
         if (info && info.callback === cb) {
-            callbackInfoPool.put(info);
+            callbackInfoPool.__put(info);
             fastRemoveAt(this.callbackInfos, i);
             --i;
         }
@@ -85,7 +92,7 @@ proto.removeByTarget = function (target) {
     for (let i = 0; i < this.callbackInfos.length; ++i) {
         const info = this.callbackInfos[i];
         if (info && info.target === target) {
-            callbackInfoPool.put(info);
+            callbackInfoPool.__put(info);
             fastRemoveAt(this.callbackInfos, i);
             --i;
         }
@@ -101,7 +108,7 @@ proto.removeByTarget = function (target) {
 proto.cancel = function (index) {
     const info = this.callbackInfos[index];
     if (info) {
-        callbackInfoPool.put(info);
+        callbackInfoPool.__put(info);
         this.callbackInfos[index] = null;
     }
     this.containCanceled = true;
@@ -115,7 +122,7 @@ proto.cancelAll = function () {
     for (let i = 0; i < this.callbackInfos.length; i++) {
         const info = this.callbackInfos[i];
         if (info) {
-            callbackInfoPool.put(info);
+            callbackInfoPool.__put(info);
             this.callbackInfos[i] = null;
         }
     }
@@ -294,7 +301,7 @@ proto.off = function (key, callback, target) {
                 }
                 else {
                     fastRemoveAt(infos, i);
-                    callbackInfoPool.put(info);
+                    callbackInfoPool.__put(info);
                 }
                 break;
             }
@@ -334,7 +341,7 @@ proto.emit = function (key, arg1, arg2, arg3, arg4, arg5) {
                 let target = info.target;
                 let callback = info.callback;
                 if (info.once) {
-                    this.off(key, callback, target);
+                    info.once.off(key, callback, target);
                 }
 
                 if (target) {

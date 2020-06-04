@@ -198,8 +198,8 @@ proto.targetOff = function (target) {
  *     cc.log("this is the callback and will be invoked only once");
  * }, node);
  */
-proto.once = function (type, callback, target) {
-    this.on(type, callback, target, true);
+proto.once = function (type, callback, target, owner) {
+    this.on(type, callback, target, owner);
 };
 
 /**
