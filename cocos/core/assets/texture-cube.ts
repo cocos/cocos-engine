@@ -258,7 +258,7 @@ export class TextureCube extends SimpleTexture {
 
     protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo) {
         const result =  Object.assign({
-            type: GFXTextureType.TEX2D,
+            type: GFXTextureType.CUBE,
             width: this._width,
             height: this._height,
             arrayLayer: 6,
