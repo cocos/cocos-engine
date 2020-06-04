@@ -28,7 +28,7 @@ import { GFXQueue, IGFXQueueInfo } from '../queue';
 import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
 import { GFXSampler, IGFXSamplerInfo } from '../sampler';
 import { GFXShader, IGFXShaderInfo } from '../shader';
-import { GFXTexture, IGFXTextureInfo } from '../texture';
+import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from '../texture';
 import { GFXWindow, IGFXWindowInfo } from '../window';
 import { WebGLGFXBindingLayout } from './webgl-binding-layout';
 import { WebGLGFXBuffer } from './webgl-buffer';
@@ -552,7 +552,7 @@ export class WebGLGFXDevice extends GFXDevice {
         return buffer;
     }
 
-    public createTexture (info: IGFXTextureInfo): GFXTexture {
+    public createTexture (info: IGFXTextureInfo | IGFXTextureViewInfo): GFXTexture {
         const texture = new WebGLGFXTexture(this);
         texture.initialize(info);
         return texture;

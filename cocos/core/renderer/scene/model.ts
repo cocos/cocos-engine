@@ -173,10 +173,9 @@ export class Model {
             tex = builtinResMgr.get<Texture2D>('empty-texture');
         }
 
-        const texture = tex;
-        const textureView = texture.getGFXTextureView();
+        const texture = tex.getGFXTexture();
 
-        if (textureView !== null) {
+        if (texture !== null) {
             let sampler: GFXSampler;
             if (tex.mipmaps.length > 1) {
                 const samplerHash = genSamplerHash([
@@ -203,7 +202,7 @@ export class Model {
 
             for (const sub of this._subModels) {
                 for (let i = 0; i < sub.psoInfos.length; i++) {
-                    sub.psoInfos[i].bindingLayout.bindTextureView(UniformLightingMapSampler.binding, textureView);
+                    sub.psoInfos[i].bindingLayout.bindTexture(UniformLightingMapSampler.binding, texture);
                     sub.psoInfos[i].bindingLayout.bindSampler(UniformLightingMapSampler.binding, sampler);
                     sub.psoInfos[i].bindingLayout.update();
                 }

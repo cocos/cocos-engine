@@ -10,6 +10,7 @@ import {
     GFXTextureFlagBit,
     GFXTextureFlags,
     GFXTextureType,
+    GFXTextureViewType,
     GFXTextureUsage,
     GFXTextureUsageBit,
 } from './define';
@@ -26,6 +27,16 @@ export interface IGFXTextureInfo {
     mipLevel?: number;
     samples?: GFXSampleCount;
     flags?: GFXTextureFlags;
+}
+
+export interface IGFXTextureViewInfo {
+    texture: GFXTexture;
+    type: GFXTextureViewType;
+    format: GFXFormat;
+    baseLevel?: number;
+    levelCount?: number;
+    baseLayer?: number;
+    layerCount?: number;
 }
 
 export function IsPowerOf2 (x: number): boolean{

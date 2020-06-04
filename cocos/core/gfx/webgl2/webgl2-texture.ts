@@ -1,5 +1,5 @@
 import { GFXTextureFlagBit, GFXTextureType, GFXTextureViewType, GFXStatus, GFXFormatSurfaceSize } from '../define';
-import { GFXTexture, IGFXTextureInfo, IsPowerOf2 } from '../texture';
+import { GFXTexture, IGFXTextureInfo, IsPowerOf2, IGFXTextureViewInfo } from '../texture';
 import { WebGL2CmdFuncCreateTexture, WebGL2CmdFuncDestroyTexture, WebGL2CmdFuncResizeTexture } from './webgl2-commands';
 import { WebGL2GFXDevice } from './webgl2-device';
 import { WebGL2GPUTexture } from './webgl2-gpu-objects';
@@ -12,7 +12,11 @@ export class WebGL2GFXTexture extends GFXTexture {
 
     private _gpuTexture: WebGL2GPUTexture | null = null;
 
-    public initialize (info: IGFXTextureInfo): boolean {
+    public initialize (info: IGFXTextureInfo | IGFXTextureViewInfo): boolean {
+        if ('texture' in info) {
+            console.log('WebGL does not supporte texture view.');
+            return false;
+        }
 
         this._type = info.type;
         this._usage = info.usage;
