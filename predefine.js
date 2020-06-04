@@ -152,6 +152,13 @@ function defined (name) {
 // should not use window.CC_BUILD because we need get global_defs defined in uglify
 defineMacro('CC_BUILD', false);
 
+// Cannon by default on game preview
+// As for a builded project, 
+// the macro will be converted to a literal according to the physics module configuration,
+// don't try to eval CC_PHYSICS_CANNON at runtime, you can only get 'true', also CC_PHYSICS_BUILTIN for 'false'
+_global.CC_PHYSICS_BUILTIN = false;
+_global.CC_PHYSICS_CANNON = true;
+
 // These default values can only be defined after building
 // If you need to modify them
 // please modify the `global_defs` in the option returned by `gulp/util/utils.js: getUglifyOptions`.
@@ -162,8 +169,6 @@ if (CC_BUILD) {
     _global.CC_JSB = CC_JSB;
     _global.CC_NATIVERENDERER = CC_NATIVERENDERER;
     _global.CC_SUPPORT_JIT = CC_SUPPORT_JIT;
-    _global.CC_PHYSICS_BUILTIN = CC_PHYSICS_BUILTIN;
-    _global.CC_PHYSICS_CANNON = CC_PHYSICS_CANNON;
     _global.CC_EDITOR = CC_EDITOR;
     _global.CC_PREVIEW = CC_PREVIEW;
     _global.CC_TEST = CC_TEST;
@@ -176,8 +181,6 @@ else {
     defineMacro('CC_JSB', defined('jsb'));
     defineMacro('CC_NATIVERENDERER', defined('jsb'));
     defineMacro('CC_SUPPORT_JIT', true);
-    defineMacro('CC_PHYSICS_BUILTIN', false);
-    defineMacro('CC_PHYSICS_CANNON', true);
     defineMacro('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
     defineMacro('CC_PREVIEW', !CC_EDITOR);
     defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
