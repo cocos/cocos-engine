@@ -319,7 +319,7 @@ export class SplashScreen {
         const binding = pass.getBinding('mainTexture');
         pass.bindTextureView(binding!, this.textTextureView!);
 
-        this.textPSOCreateInfo = pass.getPipelineCreateInfo() as IPSOCreateInfo;
+        this.textPSOCreateInfo = pass.createPipelineStateCI() as IPSOCreateInfo;
         this.textPSOCreateInfo.bindingLayout.update();
 
         /** Assembler */
@@ -507,7 +507,7 @@ export class SplashScreen {
         const binding = pass.getBinding('mainTexture');
         pass.bindTextureView(binding!, this.textureView!);
 
-        this.psoCreateInfo = pass.getPipelineCreateInfo() as IPSOCreateInfo;
+        this.psoCreateInfo = pass.createPipelineStateCI() as IPSOCreateInfo;
         this.psoCreateInfo.bindingLayout.bindSampler(binding!, this.sampler);
         this.psoCreateInfo.bindingLayout.update();
 

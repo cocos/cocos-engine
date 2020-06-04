@@ -6,20 +6,18 @@ import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
-import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { Pool } from '../../memop';
-import { UBOForwardLight, UBOLocal, UniformLightingMapSampler, INST_MAT_WORLD } from '../../pipeline/define';
+import { UBOLocal, UniformLightingMapSampler, INST_MAT_WORLD } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from './render-scene';
 import { Texture2D } from '../..';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { GFXSampler, IGFXAttribute } from '../../gfx';
+import { IGFXAttribute } from '../../gfx';
 import { SubModel, IPSOCreateInfo } from './submodel';
-import { Pass } from '../core/pass';
+import { Pass, IMacroPatch } from '../core/pass';
 import { legacyCC } from '../../global-exports';
-import { programLib } from '../core/program-lib';
 
 const m4_1 = new Mat4();
 
@@ -52,6 +50,24 @@ function uploadMat4AsVec4x3 (mat: Mat4, v1: ArrayBufferView, v2: ArrayBufferView
     v2[0] = mat.m04; v2[1] = mat.m05; v2[2] = mat.m06; v2[3] = mat.m13;
     v3[0] = mat.m08; v3[1] = mat.m09; v3[2] = mat.m10; v3[3] = mat.m14;
 }
+
+const lightmapSamplerHash = genSamplerHash([
+    GFXFilter.LINEAR,
+    GFXFilter.LINEAR,
+    GFXFilter.NONE,
+    GFXAddress.CLAMP,
+    GFXAddress.CLAMP,
+    GFXAddress.CLAMP,
+]);
+
+const lightmapSamplerWithMipHash = genSamplerHash([
+    GFXFilter.LINEAR,
+    GFXFilter.LINEAR,
+    GFXFilter.LINEAR,
+    GFXAddress.CLAMP,
+    GFXAddress.CLAMP,
+    GFXAddress.CLAMP,
+]);
 
 /**
  * A representation of a model
@@ -104,7 +120,7 @@ export class Model {
     protected _worldBounds: aabb | null = null;
     protected _modelBounds: aabb | null = null;
     protected _subModels: SubModel[] = [];
-    protected _implantPSOs: GFXPipelineState[] = [];
+    protected _implantPSOCIs: IPSOCreateInfo[] = [];
     protected _localData = new Float32Array(UBOLocal.COUNT);
     protected _localBuffer: GFXBuffer | null = null;
     protected _inited = false;
@@ -166,41 +182,17 @@ export class Model {
         }
     }
 
-    public updateLightingmap (tex: Texture2D|null, uvParam: Vec4) {
+    public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
         Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
 
-        if (tex === null) {
-            tex = builtinResMgr.get<Texture2D>('empty-texture');
+        if (texture === null) {
+            texture = builtinResMgr.get<Texture2D>('empty-texture');
         }
 
-        const texture = tex;
         const textureView = texture.getGFXTextureView();
 
         if (textureView !== null) {
-            let sampler: GFXSampler;
-            if (tex.mipmaps.length > 1) {
-                const samplerHash = genSamplerHash([
-                    GFXFilter.LINEAR,
-                    GFXFilter.LINEAR,
-                    GFXFilter.LINEAR,
-                    GFXAddress.CLAMP,
-                    GFXAddress.CLAMP,
-                    GFXAddress.CLAMP,
-                ]);
-                sampler = samplerLib.getSampler(this._device, samplerHash);
-            }
-            else {
-                const samplerHash = genSamplerHash([
-                    GFXFilter.NONE,
-                    GFXFilter.NONE,
-                    GFXFilter.NONE,
-                    GFXAddress.CLAMP,
-                    GFXAddress.CLAMP,
-                    GFXAddress.CLAMP,
-                ]);
-                sampler = samplerLib.getSampler(this._device, samplerHash);
-            }
-
+            const sampler = samplerLib.getSampler(this._device, texture.mipmaps.length > 1 ? lightmapSamplerWithMipHash : lightmapSamplerHash);
             for (const sub of this._subModels) {
                 for (let i = 0; i < sub.psoInfos.length; i++) {
                     sub.psoInfos[i].bindingLayout.bindTextureView(UniformLightingMapSampler.binding, textureView);
@@ -248,7 +240,7 @@ export class Model {
         } else {
             this._subModels[idx].destroy();
         }
-        this._subModels[idx].initialize(subMeshData, mat, this.getMacroPatches(idx) );
+        this._subModels[idx].initialize(subMeshData, mat, this.getMacroPatches(idx));
         this.updateAttributesAndBinding(idx);
         this._inited = true;
     }
@@ -279,16 +271,23 @@ export class Model {
         }
     }
 
-    public insertImplantPSO (pso: GFXPipelineState) {
-        this._implantPSOs.push(pso);
+    public insertImplantPSOCI (psoci: IPSOCreateInfo, submodelIdx: number) {
+        this.updateLocalBindings(psoci, submodelIdx);
+        this._implantPSOCIs.push(psoci);
     }
 
-    public removeImplantPSO (pso: GFXPipelineState) {
-        const idx = this._implantPSOs.indexOf(pso);
-        if (idx >= 0) { this._implantPSOs.splice(idx, 1); }
+    public removeImplantPSOCI (psoci: IPSOCreateInfo) {
+        const idx = this._implantPSOCIs.indexOf(psoci);
+        if (idx >= 0) { this._implantPSOCIs.splice(idx, 1); }
     }
 
-    protected updateAttributesAndBinding (subModelIndex : number) {
+    public updateLocalBindings (psoci: IPSOCreateInfo, submodelIdx: number) {
+        if (this._localBuffer) {
+            psoci.bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer);
+        }
+    }
+
+    protected updateAttributesAndBinding (subModelIndex: number) {
         const subModel = this._subModels[subModelIndex];
         if (!subModel) {
             return;
@@ -296,14 +295,13 @@ export class Model {
 
         const psoCreateInfos = subModel.psoInfos;
         for (let i = 0; i < psoCreateInfos.length; ++i) {
-            const bindingLayout = psoCreateInfos[i].bindingLayout;
-            if (this._localBuffer) { bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer); }
+            this.updateLocalBindings(psoCreateInfos[i], subModelIndex);
         }
 
-        this.updateInstancedAttributeList(subModel.subMeshData.attributes, subModel.passes[0]);
+        this.updateInstancedAttributeList(psoCreateInfos[0].shaderInput.attributes, subModel.passes[0]);
     }
 
-    protected getMacroPatches (subModelIndex: number) : any {
+    public getMacroPatches (subModelIndex: number) : IMacroPatch[] | undefined {
         return undefined;
     }
 
@@ -349,15 +347,6 @@ export class Model {
                 size: UBOLocal.SIZE,
                 stride: UBOLocal.SIZE,
             });
-        }
-        if (!mat) { return; }
-        let hasForwardLight = false;
-        for (const p of mat.passes) {
-            const blocks = programLib.getTemplate(p.program).builtins.locals.blocks;
-            if (blocks.find((b) => b.name === UBOForwardLight.BLOCK.name)) {
-                hasForwardLight = true;
-                break;
-            }
         }
     }
 

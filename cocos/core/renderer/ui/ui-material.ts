@@ -68,7 +68,7 @@ export class UIMaterial {
         this._pass.update();
 
         this._psoCreateInfo = new Pool(() => {
-            const pso = this._pass!.getPipelineCreateInfo()!;
+            const pso = this._pass!.createPipelineStateCI()!;
             return pso;
         }, 1);
 

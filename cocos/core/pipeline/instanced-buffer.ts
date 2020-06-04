@@ -5,10 +5,9 @@
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../gfx';
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
-import { GFXPipelineState } from '../gfx/pipeline-state';
 import { IInstancedAttributeBlock } from '../renderer';
 import { Pass } from '../renderer/core/pass';
-import { SubModel } from '../renderer/scene/submodel';
+import { SubModel, IPSOCreateInfo } from '../renderer/scene/submodel';
 
 export interface IInstancedItem {
     count: number;
@@ -24,7 +23,7 @@ const MAX_CAPACITY = 1024;
 
 export class InstancedBuffer {
     public instances: IInstancedItem[] = [];
-    public pso: GFXPipelineState | null = null;
+    public psoci: IPSOCreateInfo | null = null;
     public pass: Pass;
 
     constructor (pass: Pass) {
@@ -40,10 +39,10 @@ export class InstancedBuffer {
         this.instances.length = 0;
     }
 
-    public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, pso: GFXPipelineState) {
+    public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, psoci: IPSOCreateInfo) {
         const stride = attrs.buffer.length;
         if (!stride) { return; } // we assume per-instance attributes are always present
-        if (!this.pso) { this.pso = pso; }
+        if (!this.psoci) { this.psoci = psoci; }
         const sourceIA = subModel.inputAssembler!;
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
@@ -109,6 +108,6 @@ export class InstancedBuffer {
             const instance = this.instances[i];
             instance.count = 0;
         }
-        this.pso = null;
+        this.psoci = null;
     }
 }
