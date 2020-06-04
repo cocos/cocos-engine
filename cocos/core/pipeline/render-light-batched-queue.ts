@@ -27,8 +27,8 @@ const myForward_Light_Spot_Patches = [
  */
 export class RenderLightBatchedQueue {
 
-    private _sortedSubModelsArray: Array<SubModel[]>;
-    private _sortedPSOArray: Array<GFXPipelineState[]>;
+    private _sortedSubModelsArray: SubModel[][];
+    private _sortedPSOArray: GFXPipelineState[][];
     private _lightBuffers: GFXBuffer[] = [];
 
     private _passDesc: IRenderQueueDesc;
@@ -68,8 +68,7 @@ export class RenderLightBatchedQueue {
      * clear ligth-Batched-Queue
      */
     public clear () {
-        for(let i = 0; i < this._sortedSubModelsArray.length; ++i)
-        {
+        for(let i = 0; i < this._sortedSubModelsArray.length; ++i){
             this._sortedSubModelsArray[i].length = 0;
             this._sortedPSOArray[i].length = 0;
         }
@@ -101,16 +100,16 @@ export class RenderLightBatchedQueue {
      * record CommandBuffer
      */
     public recordCommandBuffer (cmdBuff: GFXCommandBuffer) {
-        for (let i = 0; i < this._sortedSubModelsArray.length; ++i) {
-            for (let j = 0; j < this._sortedSubModelsArray[i].length; ++j) {
-                cmdBuff.bindPipelineState(this._sortedPSOArray[i][j]);
-                let bindingLayout = this._sortedPSOArray[i][j].pipelineLayout.layouts[0];
-                bindingLayout.update();
-                cmdBuff.bindBindingLayout(bindingLayout);
-                cmdBuff.bindInputAssembler(this._sortedSubModelsArray[i][j].inputAssembler!);
-                cmdBuff.draw(this._sortedSubModelsArray[i][j].inputAssembler!);
-            }
-        }
+        // for (let i = 0; i < this._sortedSubModelsArray.length; ++i) {
+        //     for (let j = 0; j < this._sortedSubModelsArray[i].length; ++j) {
+        //         cmdBuff.bindPipelineState(this._sortedPSOArray[i][j]);
+        //         const bindingLayout = this._sortedPSOArray[i][j].pipelineLayout.layouts[0];
+        //         bindingLayout.update();
+        //         cmdBuff.bindBindingLayout(bindingLayout);
+        //         cmdBuff.bindInputAssembler(this._sortedSubModelsArray[i][j].inputAssembler!);
+        //         cmdBuff.draw(this._sortedSubModelsArray[i][j].inputAssembler!);
+        //     }
+        // }
     }
 
     /**
@@ -126,9 +125,8 @@ export class RenderLightBatchedQueue {
         this._sortedSubModelsArray[index].push(renderObj.model.subModels[modelIdx]);
         // keep pos == subModel
         this._sortedPSOArray[index].length = this._sortedSubModelsArray[index].length;
-        //@ts-ignore
-        this._sortedPSOArray[index][nowStep] = renderObj.model.createPipelineState(pass, modelIdx, patches);
-        const bindingLayout = this._sortedPSOArray[index][nowStep].pipelineLayout.layouts[0];
-        if (this._lightBuffers[index]) { bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, this._lightBuffers[index]); }
+        // this._sortedPSOArray[index][nowStep] = renderObj.model.createPipelineState(pass, modelIdx, patches);
+        // const bindingLayout = this._sortedPSOArray[index][nowStep].pipelineLayout.layouts[0];
+        // if (this._lightBuffers[index]) { bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, this._lightBuffers[index]); }
     }
 }

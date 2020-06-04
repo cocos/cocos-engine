@@ -104,7 +104,7 @@ export class RenderQueue {
 
     public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
         for (let i = 0; i < this.queue.length; ++i) {
-            const subModel = this.queue.array[i].subModel; 
+            const subModel = this.queue.array[i].subModel;
             const passIdx = this.queue.array[i].passIdx;
             const ia = subModel.inputAssembler as GFXInputAssembler;
             const psoCreateInfo = subModel.psoInfos[passIdx];
