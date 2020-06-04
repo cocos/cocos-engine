@@ -36,6 +36,11 @@ const LAST_WORD_REG = /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌï
 const LAST_ENGLISH_REG = /[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]+$/;
 const FIRST_ENGLISH_REG = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]/;
 const WRAP_INSPECTION = true;
+// The unicode standard will never assign a character from code point 0xD800 to 0xDFFF
+// high surrogate (0xD800-0xDBFF) and low surrogate(0xDC00-0xDFFF) combines to a character on the Supplementary Multilingual Plane
+// reference: https://en.wikipedia.org/wiki/UTF-16
+const highSurrogateRex = /[\uD800-\uDBFF]/;
+const lowSurrogateRex = /[\uDC00-\uDFFF]/;
 
 export function isUnicodeCJK (ch: string) {
     const __CHINESE_REG = /^[\u4E00-\u9FFF\u3400-\u4DFF]+$/;
@@ -65,6 +70,39 @@ export function safeMeasureText (ctx: CanvasRenderingContext2D, string: string) 
     return metric && metric.width || 0;
 }
 
+// in case truncate a character on the Supplementary Multilingual Plane
+// test case: a = '😉🚗'
+// _safeSubstring(a, 1) === '😉🚗'
+// _safeSubstring(a, 0, 1) === '😉'
+// _safeSubstring(a, 0, 2) === '😉'
+// _safeSubstring(a, 0, 3) === '😉'
+// _safeSubstring(a, 0, 4) === '😉🚗'
+// _safeSubstring(a, 1, 2) === _safeSubstring(a, 1, 3) === '😉'
+// _safeSubstring(a, 2, 3) === _safeSubstring(a, 2, 4) === '🚗'
+function _safeSubstring (targetString, startIndex, endIndex?) {
+    let newStartIndex = startIndex;
+    let newEndIndex = endIndex;
+    const startChar = targetString[startIndex];
+    // lowSurrogateRex
+    if (startChar >= '\uDC00' && startChar <= '\uDFFF') {
+        newStartIndex--;
+    }
+    if (endIndex !== undefined) {
+        if (endIndex - 1 !== startIndex) {
+            const endChar = targetString[endIndex - 1];
+            // highSurrogateRex
+            if (endChar >= '\uD800' && endChar <= '\uDBFF') {
+                newEndIndex--;
+            }
+        }
+        // highSurrogateRex
+        else if (startChar >= '\uD800' && startChar <= '\uDBFF') {
+            newEndIndex++;
+        }
+    }
+    return targetString.substring(newStartIndex, newEndIndex);
+}
+
 export function fragmentText (stringToken: string, allWidth: number, maxWidth: number, measureText: (string: string) => number) {
     // check the first character
     const wrappedWords: string[] = [];
@@ -78,7 +116,7 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
     while (allWidth > maxWidth && text.length > 1) {
 
         let fuzzyLen = text.length * ( maxWidth / allWidth ) | 0;
-        let tmpText = text.substr(fuzzyLen);
+        let tmpText = _safeSubstring(text, fuzzyLen);
         let width = allWidth - measureText(tmpText);
         let sLine = tmpText;
         let pushNum = 0;
@@ -90,7 +128,7 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
         while (width > maxWidth && checkWhile++ < checkCount) {
             fuzzyLen *= maxWidth / width;
             fuzzyLen = fuzzyLen | 0;
-            tmpText = text.substr(fuzzyLen);
+            tmpText = _safeSubstring(text, fuzzyLen);
             width = allWidth - measureText(tmpText);
         }
 
@@ -105,17 +143,23 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
             }
 
             fuzzyLen = fuzzyLen + pushNum;
-            tmpText = text.substr(fuzzyLen);
+            tmpText = _safeSubstring(text, fuzzyLen);
             width = allWidth - measureText(tmpText);
         }
 
         fuzzyLen -= pushNum;
+        // in case maxWidth cannot contain any characters, need at least one character per line
         if (fuzzyLen === 0) {
             fuzzyLen = 1;
-            sLine = sLine.substr(1);
+            sLine = _safeSubstring(text, 1);
+        }
+        // highSurrogateRex
+        else if (fuzzyLen === 1 && text[0] >= '\uD800' && text[0] <= '\uDBFF') {
+            fuzzyLen = 2;
+            sLine = _safeSubstring(text, 2);
         }
 
-        let sText = text.substr(0, fuzzyLen);
+        let sText = _safeSubstring(text, 0, fuzzyLen);
         let result;
 
         // symbol in the first
@@ -125,8 +169,8 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
                 fuzzyLen -= result ? result[0].length : 0;
                 if (fuzzyLen === 0) { fuzzyLen = 1; }
 
-                sLine = text.substr(fuzzyLen);
-                sText = text.substr(0, fuzzyLen);
+                sLine = _safeSubstring(text, fuzzyLen);
+                sText = _safeSubstring(0, fuzzyLen);
             }
         }
 
@@ -135,8 +179,8 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
             result = LAST_ENGLISH_REG.exec(sText);
             if (result && sText !== result[0]) {
                 fuzzyLen -= result[0].length;
-                sLine = text.substr(fuzzyLen);
-                sText = text.substr(0, fuzzyLen);
+                sLine = _safeSubstring(text, fuzzyLen);
+                sText = _safeSubstring(text, 0, fuzzyLen);
             }
         }
 
