@@ -43,6 +43,8 @@ function createAudioClip (id, data, options, onComplete) {
     out._uuid = id;
     out._nativeUrl = id;
     out._nativeAsset = data;
+    // duration maybe be created from deserializing or network requested audio file
+    out.duration = out.duration || data.duration;
     onComplete && onComplete(null, out);
 }
 
