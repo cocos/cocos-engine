@@ -28,9 +28,8 @@
 
 import { Material } from '../../assets/material';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
-import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Model, ModelType } from '../scene/model';
-import { SubModel } from '../scene/submodel';
+import { SubModel, IPSOCreateInfo } from '../scene/submodel';
 import { UIDrawBatch } from './ui-draw-batch';
 
 export class UIBatchModel extends Model {
@@ -51,7 +50,7 @@ export class UIBatchModel extends Model {
     }
 
     public directInitialize (ia: GFXInputAssembler, batch: UIDrawBatch) {
-        this._subModel.directInitialize(ia, batch.material!, batch.pipelineState!);
+        this._subModel.directInitialize(ia, batch.material!, batch.psoCreateInfo!);
         this._subModels[0] = this._subModel;
     }
 
@@ -61,20 +60,14 @@ export class UIBatchModel extends Model {
 }
 
 class UISubModel extends SubModel {
-    constructor () {
-        super();
-        this._psos = [];
-    }
-
-    public directInitialize (ia: GFXInputAssembler, mat: Material, pso: GFXPipelineState) {
+    public directInitialize (ia: GFXInputAssembler, mat: Material, psoCreateInfo: IPSOCreateInfo) {
         this._inputAssembler = ia;
-        this._psos![0] = pso;
-        this.material = mat;
+        this._psoCreateInfos[0] = psoCreateInfo;
+        // Should not use this.material = mat, or _psoCreateInfos[0] will be overrided.
+        this._material = mat;
     }
 
     public destroy () {
-        if (this.commandBuffers.length > 0) {
-            this.commandBuffers[0].destroy();
-        }
+        super.destroy();
     }
 }

@@ -24,7 +24,6 @@
  THE SOFTWARE.
  */
 
-
 /**
  * @category loader
  */

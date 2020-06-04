@@ -4,6 +4,9 @@
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { BatchedBuffer } from './batched-buffer';
+import { PipelineStateManager } from './pipeline-state-manager';
+import { GFXDevice } from '../gfx/device';
+import { GFXRenderPass } from '../gfx';
 
 /**
  * @zh
@@ -41,7 +44,7 @@ export class RenderBatchedQueue {
      * @zh
      * 记录命令缓冲。
      */
-    public recordCommandBuffer (cmdBuff: GFXCommandBuffer) {
+    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
         const it = this.queue.values(); let res = it.next();
         while (!res.done) {
             let boundPSO = false;
@@ -53,8 +56,12 @@ export class RenderBatchedQueue {
                 }
                 batch.vbIdx.update(batch.vbIdxData.buffer);
                 batch.ubo.update(batch.uboData.view);
-                if (!boundPSO) { cmdBuff.bindPipelineState(batch.pso); boundPSO = true; }
-                cmdBuff.bindBindingLayout(batch.pso.pipelineLayout.layouts[0]);
+                const pso = PipelineStateManager.getOrCreatePipelineState(device, batch.psoCreateInfo, renderPass, batch.ia);
+                if (!boundPSO) { 
+                    cmdBuff.bindPipelineState(pso); 
+                    boundPSO = true; 
+                }
+                cmdBuff.bindBindingLayout(batch.psoCreateInfo.bindingLayout);
                 cmdBuff.bindInputAssembler(batch.ia);
                 cmdBuff.draw(batch.ia);
             }

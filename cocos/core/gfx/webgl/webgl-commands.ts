@@ -1888,17 +1888,17 @@ export function WebGLCmdFuncBindStates (
                 cache.bs.isA2C = bs.isA2C;
             }
 
-            if ((cache.bs.blendColor[0] !== bs.blendColor[0]) ||
-                (cache.bs.blendColor[1] !== bs.blendColor[1]) ||
-                (cache.bs.blendColor[2] !== bs.blendColor[2]) ||
-                (cache.bs.blendColor[3] !== bs.blendColor[3])) {
+            if ((cache.bs.blendColor.r !== bs.blendColor.r) ||
+                (cache.bs.blendColor.g !== bs.blendColor.g) ||
+                (cache.bs.blendColor.b !== bs.blendColor.b) ||
+                (cache.bs.blendColor.a !== bs.blendColor.a)) {
 
-                gl.blendColor(bs.blendColor[0], bs.blendColor[1], bs.blendColor[2], bs.blendColor[3]);
+                gl.blendColor(bs.blendColor.r, bs.blendColor.g, bs.blendColor.b, bs.blendColor.a);
 
-                cache.bs.blendColor[0] = bs.blendColor[0];
-                cache.bs.blendColor[1] = bs.blendColor[1];
-                cache.bs.blendColor[2] = bs.blendColor[2];
-                cache.bs.blendColor[3] = bs.blendColor[3];
+                cache.bs.blendColor.r = bs.blendColor.r;
+                cache.bs.blendColor.g = bs.blendColor.g;
+                cache.bs.blendColor.b = bs.blendColor.b;
+                cache.bs.blendColor.a = bs.blendColor.a;
             }
 
             const target0 = bs.targets[0];
@@ -1915,9 +1915,7 @@ export function WebGLCmdFuncBindStates (
 
             if ((target0Cache.blendEq !== target0.blendEq) ||
                 (target0Cache.blendAlphaEq !== target0.blendAlphaEq)) {
-
                 gl.blendEquationSeparate(WebGLBlendOps[target0.blendEq], WebGLBlendOps[target0.blendAlphaEq]);
-
                 target0Cache.blendEq = target0.blendEq;
                 target0Cache.blendAlphaEq = target0.blendAlphaEq;
             }
@@ -2134,8 +2132,10 @@ export function WebGLCmdFuncBindStates (
                 }
                 case GFXBindingType.SAMPLER: {
 
-                    if (gpuBinding.gpuSampler) {
-
+                    if (!gpuBinding.gpuSampler) {
+                        error(`Sampler binding point ${gpuBinding.binding} '${gpuBinding.name}' is not bounded`);
+                    }
+                    else {
                         let glSampler: WebGLGPUUniformSampler | null = null;
 
                         const samplerLen = gpuShader.glSamplers.length;
@@ -2236,10 +2236,7 @@ export function WebGLCmdFuncBindStates (
                                 }
                             }
                         } // if
-                    } else {
-                        error(`Not found sampler on binding unit ${gpuBinding.binding}, name ${gpuBinding.name}`);
                     }
-
                     break;
                 }
             }
@@ -2431,17 +2428,17 @@ export function WebGLCmdFuncBindStates (
                 }
                 case GFXDynamicState.BLEND_CONSTANTS: {
                     if (blendConstants) {
-                        if ((cache.bs.blendColor[0] !== blendConstants[0]) ||
-                            (cache.bs.blendColor[1] !== blendConstants[1]) ||
-                            (cache.bs.blendColor[2] !== blendConstants[2]) ||
-                            (cache.bs.blendColor[3] !== blendConstants[3])) {
+                        if ((cache.bs.blendColor.r !== blendConstants[0]) ||
+                            (cache.bs.blendColor.g !== blendConstants[1]) ||
+                            (cache.bs.blendColor.b !== blendConstants[2]) ||
+                            (cache.bs.blendColor.a !== blendConstants[3])) {
 
                             gl.blendColor(blendConstants[0], blendConstants[1], blendConstants[2], blendConstants[3]);
 
-                            cache.bs.blendColor[0] = blendConstants[0];
-                            cache.bs.blendColor[1] = blendConstants[1];
-                            cache.bs.blendColor[2] = blendConstants[2];
-                            cache.bs.blendColor[3] = blendConstants[3];
+                            cache.bs.blendColor.r = blendConstants[0];
+                            cache.bs.blendColor.g = blendConstants[1];
+                            cache.bs.blendColor.b = blendConstants[2];
+                            cache.bs.blendColor.a = blendConstants[3];
                         }
                     }
                     break;
@@ -2641,7 +2638,6 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
         glTexUnit.glTexture = gpuTexture.glTexture;
     }
 
-    let m = 0;
     let n = 0;
     let f = 0;
 
@@ -2650,11 +2646,9 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
             for (let i = 0; i < regions.length; i++) {
                 const region = regions[i];
                 // console.debug('Copying image to texture 2D: ' + region.texExtent.width + ' x ' + region.texExtent.height);
-                for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
-                    gl.texSubImage2D(gl.TEXTURE_2D, m,
-                        region.texOffset.x, region.texOffset.y,
-                        gpuTexture.glFormat, gpuTexture.glType, texImages[n++]);
-                }
+                gl.texSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
+                    region.texOffset.x, region.texOffset.y,
+                    gpuTexture.glFormat, gpuTexture.glType, texImages[n++]);
             }
             break;
         }
@@ -2664,12 +2658,9 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
                 // console.debug('Copying image to texture cube: ' + region.texExtent.width + ' x ' + region.texExtent.height);
                 const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
                 for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
-                    const mcount = region.texSubres.baseMipLevel + region.texSubres.levelCount;
-                    for (m = region.texSubres.baseMipLevel; m < mcount; ++m) {
-                        gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
-                            region.texOffset.x, region.texOffset.y,
-                            gpuTexture.glFormat, gpuTexture.glType, texImages[n++]);
-                    }
+                    gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
+                        region.texOffset.x, region.texOffset.y,
+                        gpuTexture.glFormat, gpuTexture.glType, texImages[n++]);
                 }
             }
             break;
@@ -2698,7 +2689,6 @@ export function WebGLCmdFuncCopyBuffersToTexture (
         glTexUnit.glTexture = gpuTexture.glTexture;
     }
 
-    let m = 0;
     let n = 0;
     let w = 1;
     let h = 1;
@@ -2714,25 +2704,26 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                 h = region.texExtent.height;
                 // console.debug('Copying buffer to texture 2D: ' + w + ' x ' + h);
 
-                for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
-                    const pixels = buffers[n++];
-                    if (!isCompressed) {
-                        gl.texSubImage2D(gl.TEXTURE_2D, m,
+                const pixels = buffers[n++];
+                if (!isCompressed) {
+                    gl.texSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
+                        region.texOffset.x, region.texOffset.y, w, h,
+                        gpuTexture.glFormat, gpuTexture.glType, pixels);
+                } else {
+                    if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
+                        gl.compressedTexSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
                             region.texOffset.x, region.texOffset.y, w, h,
-                            gpuTexture.glFormat, gpuTexture.glType, pixels);
+                            gpuTexture.glFormat, pixels);
                     } else {
                         if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL && !WECHAT) {
-                            gl.compressedTexSubImage2D(gl.TEXTURE_2D, m,
+                            gl.compressedTexSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
                                 region.texOffset.x, region.texOffset.y, w, h,
                                 gpuTexture.glFormat, pixels);
                         } else {
-                            gl.compressedTexImage2D(gl.TEXTURE_2D, m,
+                            gl.compressedTexImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
                                 gpuTexture.glInternelFmt, w, h, 0, pixels);
                         }
                     }
-
-                    w = Math.max(1, w >> 1);
-                    h = Math.max(1, w >> 1);
                 }
             }
 
@@ -2747,25 +2738,26 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                     h = region.texExtent.height;
                     // console.debug('Copying buffer to texture cube: ' + w + ' x ' + h);
 
-                    const mcount = region.texSubres.baseMipLevel + region.texSubres.levelCount;
-                    for (m = region.texSubres.baseMipLevel; m < mcount; ++m) {
-                        const pixels = buffers[n++];
-                        if (!isCompressed) {
-                            gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
+                    const pixels = buffers[n++];
+                    if (!isCompressed) {
+                        gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
+                            region.texOffset.x, region.texOffset.y, w, h,
+                            gpuTexture.glFormat, gpuTexture.glType, pixels);
+                    } else {
+                        if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
+                            gl.compressedTexSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
                                 region.texOffset.x, region.texOffset.y, w, h,
-                                gpuTexture.glFormat, gpuTexture.glType, pixels);
+                                gpuTexture.glFormat, pixels);
                         } else {
                             if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL && !WECHAT) {
-                                gl.compressedTexSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
+                                gl.compressedTexSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
                                     region.texOffset.x, region.texOffset.y, w, h,
                                     gpuTexture.glFormat, pixels);
                             } else {
-                                gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
+                                gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
                                     gpuTexture.glInternelFmt, w, h, 0, pixels);
                             }
                         }
-                        w = Math.max(1, w >> 1);
-                        h = Math.max(1, w >> 1);
                     }
                 }
             }

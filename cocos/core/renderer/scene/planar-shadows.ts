@@ -198,10 +198,9 @@ export class PlanarShadows {
         const psos: GFXPipelineState[] = [];
         const material = model.isInstancingEnabled ? this._instancingMaterial : this._material;
         for (let i = 0; i < model.subModelNum; i++) {
-            // @ts-ignore TS2445
-            const pso = model.createPipelineState(material.passes[0], i);
-            model.insertImplantPSO(pso); // add back to model to sync binding layouts
-            pso.pipelineLayout.layouts[0].update(); psos.push(pso);
+            // const pso = model.createPipelineState(material.passes[0], i);
+            // model.insertImplantPSO(pso); // add back to model to sync binding layouts
+            // pso.pipelineLayout.layouts[0].update(); psos.push(pso);
         }
         return { model, psos, instancedBuffer: material.passes[0].instancedBuffer };
     }
@@ -213,7 +212,7 @@ export class PlanarShadows {
         for (let i = 0; i < data.psos.length; i++) {
             const pso = data.psos[i];
             model.removeImplantPSO(pso);
-            material.passes[0].destroyPipelineState(pso);
+            // material.passes[0].destroyPipelineState(pso);
         }
         this._record.delete(model);
     }

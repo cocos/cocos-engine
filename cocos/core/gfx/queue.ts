@@ -5,6 +5,7 @@
 import { GFXCommandBuffer } from './command-buffer';
 import { GFXObject, GFXObjectType, GFXQueueType } from './define';
 import { GFXDevice } from './device';
+import { GFXFence } from './fence';
 
 export interface IGFXQueueInfo {
     type: GFXQueueType;
@@ -43,5 +44,5 @@ export abstract class GFXQueue extends GFXObject {
      * @param cmdBuffs The command buffers to be submitted.
      * @param fence The syncing fence.
      */
-    public abstract submit (cmdBuffs: GFXCommandBuffer[], fence?: any): void;
+    public abstract submit (cmdBuffs: GFXCommandBuffer[], fence?: GFXFence): void;
 }

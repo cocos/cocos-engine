@@ -259,13 +259,14 @@ export const ttfUtils =  {
                 tex = _texture;
             }
 
-            const uploadAgain = _canvas.width === 0 || _canvas.height === 0;
-            tex.reset({
-                width: _canvas.width,
-                height: _canvas.height,
-                mipmapLevel: uploadAgain ? 0 : 1,
-            });
-            if (!uploadAgain) {
+            const uploadAgain = _canvas.width !== 0 && _canvas.height !== 0;
+
+            if (uploadAgain) {
+                tex.reset({
+                    width: _canvas.width,
+                    height: _canvas.height,
+                    mipmapLevel: 1
+                });
                 tex.uploadData(_canvas);
             }
         }

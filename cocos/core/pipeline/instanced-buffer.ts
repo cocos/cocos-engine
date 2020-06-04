@@ -6,7 +6,8 @@ import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../gfx';
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { GFXPipelineState } from '../gfx/pipeline-state';
-import { IInstancedAttributeBlock, Pass } from '../renderer';
+import { IInstancedAttributeBlock } from '../renderer';
+import { Pass } from '../renderer/core/pass';
 import { SubModel } from '../renderer/scene/submodel';
 
 export interface IInstancedItem {

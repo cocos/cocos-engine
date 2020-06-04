@@ -16,7 +16,6 @@ import { legacyCC } from '../global-exports';
 import { macro } from '../platform/macro';
 
 const _regions: GFXBufferTextureCopy[] = [{
-    buffOffset: 0,
     buffStride: 0,
     buffTexHeight: 0,
     texOffset: {
@@ -30,8 +29,7 @@ const _regions: GFXBufferTextureCopy[] = [{
         depth: 1,
     },
     texSubres: {
-        baseMipLevel: 1,
-        levelCount: 1,
+        mipLevel: 0,
         baseArrayLayer: 0,
         layerCount: 1,
     },
@@ -127,7 +125,7 @@ export class SimpleTexture extends TextureBase {
         const region = _regions[0];
         region.texExtent.width = this._gfxTexture.width >> level;
         region.texExtent.height = this._gfxTexture.height >> level;
-        region.texSubres.baseMipLevel = level;
+        region.texSubres.mipLevel = level;
         region.texSubres.baseArrayLayer = arrayIndex;
 
         if (DEV) {
@@ -210,6 +208,9 @@ export class SimpleTexture extends TextureBase {
 
     protected _tryReset () {
         this._tryDestroyTexture();
+        if(this._mipmapLevel === 0) {
+            return;
+        }
         const device = this._getGFXDevice();
         if (!device) {
             return;
@@ -223,6 +224,7 @@ export class SimpleTexture extends TextureBase {
             this._mipmapLevel = getMipLevel(this._width, this._height);
             flags = GFXTextureFlagBit.GEN_MIPMAP;
         }
+
         const textureCreateInfo = this._getGfxTextureCreateInfo({
             usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
             format: this._getGFXFormat(),

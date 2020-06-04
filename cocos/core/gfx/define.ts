@@ -22,6 +22,7 @@ export enum GFXObjectType {
     INPUT_ASSEMBLER,
     COMMAND_ALLOCATOR,
     COMMAND_BUFFER,
+    FENCE,
     QUEUE,
     WINDOW,
 }
@@ -81,7 +82,7 @@ export enum GFXAttributeName {
 export enum GFXType {
     // assumptions about the order of this enum: (exploited by other parts of the engine)
     // * vectors always come before samplers
-    // * vectors with the same data type are always consecutive and in an ascending order component-wise
+    // * vectors with the same data type are always consecutive, in an component-wise ascending order
     // * unknown is always zero
     UNKNOWN,
     // vectors
@@ -167,6 +168,7 @@ export enum GFXFormat {
     RGB32I,
 
     RGBA8,
+    BGRA8,
     SRGB8_A8,
     RGBA8SN,
     RGBA8UI,
@@ -437,13 +439,14 @@ export enum GFXTextureViewType {
 }
 
 export enum GFXShaderType {
-    VERTEX,
-    HULL,
-    DOMAIN,
-    GEOMETRY,
-    FRAGMENT,
-    COMPUTE,
-    COUNT,
+    NONE = 0,
+    VERTEX = 0x1,
+    CONTROL = 0x2,
+    EVALUATION = 0x4,
+    GEOMETRY = 0x8,
+    FRAGMENT = 0x10,
+    COMPUTE = 0x20,
+    ALL = 0x3f,
 }
 
 export enum GFXBindingType {
@@ -556,8 +559,7 @@ export interface IGFXExtent {
 }
 
 export class GFXTextureSubres {
-    public baseMipLevel: number = 0;
-    public levelCount: number = 1;
+    public mipLevel: number = 0;
     public baseArrayLayer: number = 0;
     public layerCount: number = 1;
 }
@@ -567,15 +569,14 @@ export class GFXTextureCopy {
     public srcOffset: IGFXOffset = { x: 0, y: 0, z: 0 };
     public dstSubres: GFXTextureSubres = new GFXTextureSubres();
     public dstOffset: IGFXOffset = { x: 0, y: 0, z: 0 };
-    public extent: IGFXExtent = { width: 0, height: 0, depth: 0 };
+    public extent: IGFXExtent = { width: 0, height: 0, depth: 1 };
 }
 
 export class GFXBufferTextureCopy {
-    public buffOffset: number = 0;
     public buffStride: number = 0;
     public buffTexHeight: number = 0;
     public texOffset: IGFXOffset = { x: 0, y: 0, z: 0 };
-    public texExtent: IGFXExtent = { width: 0, height: 0, depth: 0 };
+    public texExtent: IGFXExtent = { width: 0, height: 0, depth: 1 };
     public texSubres: GFXTextureSubres = new GFXTextureSubres();
 }
 
@@ -649,6 +650,7 @@ export const GFXFormatInfos: IGFXFormatInfo[] = [
     { name: 'RGB32I', size: 12, count: 3, type: GFXFormatType.INT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
 
     { name: 'RGBA8', size: 4, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
+    { name: 'BGRA8', size: 4, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
     { name: 'SRGB8_A8', size: 4, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
     { name: 'RGBA8SN', size: 4, count: 4, type: GFXFormatType.SNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
     { name: 'RGBA8UI', size: 4, count: 4, type: GFXFormatType.UINT, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },

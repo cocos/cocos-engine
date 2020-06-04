@@ -3,23 +3,27 @@
  */
 
 import * as easing from './animation/easing';
-import { EffectAsset } from './assets/effect-asset';
 import { Material } from './assets/material';
 import { GFXBuffer } from './gfx/buffer';
 import { GFXCommandBuffer } from './gfx/command-buffer';
 import {
     GFXBufferTextureCopy, GFXBufferUsageBit, GFXClearFlag, GFXCommandBufferType, GFXFormat,
-    GFXMemoryUsageBit, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType, IGFXRect, IGFXColor
+    GFXMemoryUsageBit, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType, IGFXRect, IGFXColor, GFXAddress
 } from './gfx/define';
 import { GFXDevice } from './gfx/device';
 import { GFXFramebuffer } from './gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from './gfx/input-assembler';
-import { GFXPipelineState } from './gfx/pipeline-state';
 import { GFXTexture } from './gfx/texture';
 import { GFXTextureView } from './gfx/texture-view';
 import { clamp01 } from './math/utils';
+import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
+import { sys } from './platform/sys';
+import { GFXSampler } from './gfx';
+import { IPSOCreateInfo } from './renderer';
+import { PipelineStateManager } from './pipeline/pipeline-state-manager';
+import { legacyCC } from './global-exports';
 
-export type SplashEffectType = 'none' | 'Fade-InOut';
+export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 
 export interface ISplashSetting {
     readonly totalTime: number;
@@ -47,11 +51,12 @@ export class SplashScreen {
     private setting!: ISplashSetting;
     private image!: TexImageSource;
     private device!: GFXDevice;
+    private sampler!: GFXSampler;
     private cmdBuff!: GFXCommandBuffer;
     private assmebler!: GFXInputAssembler;
     private vertexBuffers!: GFXBuffer;
     private indicesBuffers!: GFXBuffer;
-    private pso!: GFXPipelineState;
+    private psoCreateInfo!: IPSOCreateInfo;
     private framebuffer!: GFXFramebuffer;
     private renderArea!: IGFXRect;
     private region!: GFXBufferTextureCopy;
@@ -73,105 +78,56 @@ export class SplashScreen {
     private textIB!: GFXBuffer;
     private textAssmebler!: GFXInputAssembler;
     private textMaterial!: Material;
-    private textPSO!: GFXPipelineState;
+    private textPSOCreateInfo!: IPSOCreateInfo;
 
-    /** shader */
-    private program!: { name: string, techniques: any[], shaders: any[] };
-    private effect!: EffectAsset;
-
-    /** size */
     private screenWidth!: number;
     private screenHeight!: number;
 
     public main (device: GFXDevice) {
+        if (device == null) return console.error('GFX DEVICE IS NULL.');
+
         if (window._CCSettings && window._CCSettings.splashScreen) {
             this.setting = window._CCSettings.splashScreen;
             (this.setting.totalTime as number) = this.setting.totalTime != null ? this.setting.totalTime : 3000;
-            (this.setting.base64src as string) = this.setting.base64src != null ? this.setting.base64src : '';
-            (this.setting.effect as SplashEffectType) = this.setting.effect != null ? this.setting.effect : 'Fade-InOut';
-            (this.setting.clearColor as IGFXColor) = this.setting.clearColor != null ? this.setting.clearColor : { r: 0.88, g: 0.88, b: 0.88, a: 1.0 };
+            (this.setting.base64src as string) = this.setting.base64src || '';
+            (this.setting.effect as SplashEffectType) = this.setting.effect || 'FADE-INOUT';
+            (this.setting.clearColor as IGFXColor) = this.setting.clearColor || { r: 0.88, g: 0.88, b: 0.88, a: 1.0 };
             (this.setting.displayRatio as number) = this.setting.displayRatio != null ? this.setting.displayRatio : 0.4;
             (this.setting.displayWatermark as boolean) = this.setting.displayWatermark != null ? this.setting.displayWatermark : true;
         } else {
             this.setting = {
                 totalTime: 3000,
                 base64src: '',
-                effect: 'Fade-InOut',
+                effect: 'FADE-INOUT',
                 clearColor: { r: 0.88, g: 0.88, b: 0.88, a: 1.0 },
                 displayRatio: 0.4,
                 displayWatermark: true
             };
         }
 
-        if (this.setting.base64src == '' || this.setting.totalTime <= 0) {
+        if (this.setting.base64src === '' || this.setting.totalTime <= 0) {
             if (this.callBack) { this.callBack(); }
             this.callBack = null;
             (this.setting as any) = null;
             this._directCall = true;
             return;
         } else {
-            cc.game.once(cc.Game.EVENT_GAME_INITED, () => {
-                cc.director._lateUpdate = performance.now();
-            }, cc.director);
-
-            // this.program = effects.find(function (element) {
-            //     return element.name == 'util/splash-image';
-            // });
-
-            this.program = {
-                name: 'util/splash-image',
-                techniques: [
-                    {
-                        passes: [{
-                            blendState: { targets: [{ blend: true, blendSrc: 2, blendDst: 4, blendDstAlpha: 4 }] },
-                            program: 'util/splash-image|splash-vs:vert|splash-fs:frag',
-                            depthStencilState: { depthTest: true, depthWrite: false },
-                            properties: { mainTexture: { value: 'grey', type: 28 }, u_precent: { type: 13 } }
-                        }],
-                    },
-                ],
-                shaders: [
-                    {
-                        name: 'util/splash-image|splash-vs:vert|splash-fs:frag',
-                        hash: 2381344969,
-                        glsl3: {
-                            // tslint:disable: max-line-length
-                            vert: `\nprecision mediump float;\nin vec2 a_position;\nin vec2 a_texCoord;\nout vec2 v_uv;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 0, 1);\n  v_uv = a_texCoord;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
-                            frag: `\nprecision mediump float;\nin vec2 v_uv;\nuniform sampler2D mainTexture;\nuniform splashFrag {\n  float u_precent;\n};\nvec4 frag () {\n  vec4 color = texture(mainTexture, v_uv);\n  float precent = clamp(u_precent, 0.0, 1.0);\n  color.xyz *= precent;\n  return color;\n}\nout vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }\n`,
-                        },
-                        glsl1: {
-                            vert: `\nprecision mediump float;\nattribute vec2 a_position;\nattribute vec2 a_texCoord;\nvarying vec2 v_uv;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 0, 1);\n  v_uv = a_texCoord;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
-                            frag: `\nprecision mediump float;\nvarying vec2 v_uv;\nuniform sampler2D mainTexture;\nuniform float u_precent;\nvec4 frag () {\n  vec4 color = texture2D(mainTexture, v_uv);\n  float precent = clamp(u_precent, 0.0, 1.0);\n  color.xyz *= precent;\n  return color;\n}\nvoid main() { gl_FragColor = frag(); }\n`,
-                            // tslint:enable: max-line-length
-                        },
-                        builtins: { globals: { blocks: [], samplers: [] }, locals: { blocks: [], samplers: [] } },
-                        defines: [],
-                        blocks: [
-                            {
-                                name: 'splashFrag', defines: [], binding: 0, members: [
-                                    { name: 'u_precent', type: 13, count: 1 },
-                                ],
-                            },
-                        ],
-                        samplers: [
-                            { name: 'mainTexture', type: 28, count: 1, defines: [], binding: 30 },
-                        ],
-                        dependencies: {},
-                    },
-                ],
-            };
-
-            this.effect = new EffectAsset();
-            this.effect.name = this.program.name;
-            this.effect.techniques = this.program.techniques;
-            this.effect.shaders = this.program.shaders;
-            this.effect.onLoaded();
+            legacyCC.view.enableRetina(true);
+            const designRes = window._CCSettings.designResolution;
+            if (designRes) {
+                legacyCC.view.setDesignResolutionSize(designRes.width, designRes.height, designRes.policy);
+            } else {
+                legacyCC.view.setDesignResolutionSize(960, 640, 4);
+            }
+            this.device = device;
+            legacyCC.game.once(legacyCC.Game.EVENT_GAME_INITED, () => {
+                legacyCC.director._lateUpdate = performance.now();
+            }, legacyCC.director);
 
             this.callBack = null;
             this.cancelAnimate = false;
             this.startTime = -1;
             this.clearColors = [this.setting.clearColor];
-            this.device = device;
             this.screenWidth = this.device.width;
             this.screenHeight = this.device.height;
 
@@ -201,6 +157,28 @@ export class SplashScreen {
     }
 
     private init () {
+        // adapt for native mac & ios
+        if (JSB) {
+            if (sys.os === legacyCC.sys.OS_OSX || sys.os === legacyCC.sys.OS_IOS) {
+                const width = screen.width * devicePixelRatio;
+                const height = screen.height * devicePixelRatio;
+                this.device.resize(width, height);
+                this.screenWidth = this.device.width;
+                this.screenHeight = this.device.height;
+            }
+        }
+
+        // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
+        if (COCOSPLAY || XIAOMI) {
+            if (window._CCSettings.orientation === 'landscape' && this.device.width < this.device.height) {
+                const width = this.device.height;
+                const height = this.device.width;
+                this.device.resize(width, height);
+                this.screenWidth = this.device.width;
+                this.screenHeight = this.device.height;
+            }
+        }
+
         this.initCMD();
         this.initIA();
         this.initPSO();
@@ -220,8 +198,9 @@ export class SplashScreen {
             const elapsedTime = time - this.startTime;
 
             /** update uniform */
-            const precent = clamp01(elapsedTime / this.setting.totalTime);
-            const u_p = easing.cubicOut(precent);
+            const PERCENT = clamp01(elapsedTime / this.setting.totalTime);
+            let u_p = easing.cubicOut(PERCENT);
+            if (this.setting.effect === 'NONE') u_p = 1.0;
             this.material.setProperty('u_precent', u_p);
             this.material.passes[0].update();
 
@@ -248,7 +227,21 @@ export class SplashScreen {
     }
 
     private frame (time: number) {
+        // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
+        if (COCOSPLAY || XIAOMI) {
+            if (window._CCSettings.orientation === 'landscape' && this.device.width < this.device.height) {
+                const width = this.device.height;
+                const height = this.device.width;
+                this.device.resize(width, height);
+                this.screenWidth = this.device.width;
+                this.screenHeight = this.device.height;
+            }
+        }
+
         const device = this.device;
+        device.acquire();
+
+        // record command
         const cmdBuff = this.cmdBuff;
         const framebuffer = this.framebuffer;
         const renderArea = this.renderArea;
@@ -257,14 +250,16 @@ export class SplashScreen {
         cmdBuff.beginRenderPass(framebuffer, renderArea,
             GFXClearFlag.ALL, this.clearColors, 1.0, 0);
 
-        cmdBuff.bindPipelineState(this.pso);
-        cmdBuff.bindBindingLayout(this.pso.pipelineLayout.layouts[0]);
+        const pso = PipelineStateManager.getOrCreatePipelineState(device, this.psoCreateInfo, framebuffer.renderPass!, this.assmebler);
+        cmdBuff.bindPipelineState(pso);
+        cmdBuff.bindBindingLayout(this.psoCreateInfo.bindingLayout);
         cmdBuff.bindInputAssembler(this.assmebler);
         cmdBuff.draw(this.assmebler);
 
-        if (this.setting.displayWatermark && this.textPSO && this.textAssmebler) {
-            cmdBuff.bindPipelineState(this.textPSO);
-            cmdBuff.bindBindingLayout(this.textPSO.pipelineLayout.layouts[0]);
+        if (this.setting.displayWatermark && this.textPSOCreateInfo && this.textAssmebler) {
+            const psoWatermark = PipelineStateManager.getOrCreatePipelineState(device, this.textPSOCreateInfo, framebuffer.renderPass!, this.textAssmebler);
+            cmdBuff.bindPipelineState(psoWatermark);
+            cmdBuff.bindBindingLayout(this.textPSOCreateInfo.bindingLayout);
             cmdBuff.bindInputAssembler(this.textAssmebler);
             cmdBuff.draw(this.textAssmebler);
         }
@@ -289,9 +284,9 @@ export class SplashScreen {
         ctx.textBaseline = 'top';
         ctx.textAlign = 'left';
         ctx.fillStyle = '`#424242`';
-        const text = "Powered by Cocos Creator 3D";
+        const text = 'Powered by Cocos Creator 3D';
         const textMetrics = ctx.measureText(text);
-        ctx.fillText(text, (330 - textMetrics.width)/2, 6);
+        ctx.fillText(text, (330 - textMetrics.width) / 2, 6);
 
         this.textRegion = new GFXBufferTextureCopy();
         this.textRegion.texExtent.width = this.textImg.width;
@@ -318,16 +313,14 @@ export class SplashScreen {
 
         /** PSO */
         this.textMaterial = new Material();
-        this.textMaterial.initialize({
-            effectAsset: this.effect,
-        });
+        this.textMaterial.initialize({ effectName: 'util/splash-screen' });
 
         const pass = this.textMaterial.passes[0];
         const binding = pass.getBinding('mainTexture');
         pass.bindTextureView(binding!, this.textTextureView!);
 
-        this.textPSO = pass.createPipelineState() as GFXPipelineState;
-        this.textPSO.pipelineLayout.layouts[0].update();
+        this.textPSOCreateInfo = pass.getPipelineCreateInfo() as IPSOCreateInfo;
+        this.textPSOCreateInfo.bindingLayout.update();
 
         /** Assembler */
         // create vertex buffer
@@ -363,15 +356,16 @@ export class SplashScreen {
         }
 
         // transform to clipspace
+        const ySign = this.device.projectionSignY;
         for (let i = 0; i < verts.length; i += 4) {
             verts[i] = verts[i] / this.screenWidth * 2 - 1;
-            verts[i + 1] = verts[i + 1] / this.screenHeight * 2 - 1;
+            verts[i + 1] = (verts[i + 1] / this.screenHeight * 2 - 1) * ySign;
         }
 
         this.textVB.update(verts);
 
         // create index buffer
-        const ibStride = Uint8Array.BYTES_PER_ELEMENT;
+        const ibStride = Uint16Array.BYTES_PER_ELEMENT;
         const ibSize = ibStride * 6;
 
         this.textIB = this.device.createBuffer({
@@ -381,7 +375,7 @@ export class SplashScreen {
             stride: ibStride,
         });
 
-        const indices = new Uint8Array(6);
+        const indices = new Uint16Array(6);
         indices[0] = 0; indices[1] = 1; indices[2] = 2;
         indices[3] = 1; indices[4] = 3; indices[5] = 2;
         this.textIB.update(indices);
@@ -436,8 +430,8 @@ export class SplashScreen {
         let n = 0;
         verts[n++] = w; verts[n++] = h; verts[n++] = 0.0; verts[n++] = 1.0;
         verts[n++] = -w; verts[n++] = h; verts[n++] = 1.0; verts[n++] = 1.0;
-        verts[n++] = w; verts[n++] = -h; verts[n++] = 0.0; verts[n++] = 0.0;
-        verts[n++] = -w; verts[n++] = -h; verts[n++] = 1.0; verts[n++] = 0.0;
+        verts[n++] = w; verts[n++] = -h; verts[n++] = 0.0; verts[n++] = 0;
+        verts[n++] = -w; verts[n++] = -h; verts[n++] = 1.0; verts[n++] = 0;
 
         // translate to center
         for (let i = 0; i < verts.length; i += 4) {
@@ -446,15 +440,16 @@ export class SplashScreen {
         }
 
         // transform to clipspace
+        const ySign = device.projectionSignY;
         for (let i = 0; i < verts.length; i += 4) {
             verts[i] = verts[i] / this.screenWidth * 2 - 1;
-            verts[i + 1] = verts[i + 1] / this.screenHeight * 2 - 1;
+            verts[i + 1] = (verts[i + 1] / this.screenHeight * 2 - 1) * ySign;
         }
 
         this.vertexBuffers.update(verts);
 
         // create index buffer
-        const ibStride = Uint8Array.BYTES_PER_ELEMENT;
+        const ibStride = Uint16Array.BYTES_PER_ELEMENT;
         const ibSize = ibStride * 6;
 
         this.indicesBuffers = device.createBuffer({
@@ -464,7 +459,7 @@ export class SplashScreen {
             stride: ibStride,
         });
 
-        const indices = new Uint8Array(6);
+        const indices = new Uint16Array(6);
         indices[0] = 0; indices[1] = 1; indices[2] = 2;
         indices[3] = 1; indices[4] = 3; indices[5] = 2;
         this.indicesBuffers.update(indices);
@@ -486,8 +481,11 @@ export class SplashScreen {
         const device = this.device as GFXDevice;
 
         this.material = new Material();
-        this.material.initialize({
-            effectAsset: this.effect,
+        this.material.initialize({ effectName: 'util/splash-screen' });
+
+        this.sampler = device.createSampler({
+            'addressU': GFXAddress.CLAMP,
+            'addressV': GFXAddress.CLAMP,
         });
 
         this.texture = device.createTexture({
@@ -509,8 +507,9 @@ export class SplashScreen {
         const binding = pass.getBinding('mainTexture');
         pass.bindTextureView(binding!, this.textureView!);
 
-        this.pso = pass.createPipelineState() as GFXPipelineState;
-        this.pso.pipelineLayout.layouts[0].update();
+        this.psoCreateInfo = pass.getPipelineCreateInfo() as IPSOCreateInfo;
+        this.psoCreateInfo.bindingLayout.bindSampler(binding!, this.sampler);
+        this.psoCreateInfo.bindingLayout.update();
 
         this.region = new GFXBufferTextureCopy();
         this.region.texExtent.width = this.image.width;
@@ -527,16 +526,12 @@ export class SplashScreen {
         (this.framebuffer as any) = null;
         (this.renderArea as any) = null;
         (this.region as any) = null;
-        (this.program as any) = null;
-
-        this.effect.destroy();
-        (this.effect as any) = null;
 
         this.cmdBuff.destroy();
         (this.cmdBuff as any) = null;
 
-        this.pso.destroy();
-        (this.pso as any) = null;
+        this.psoCreateInfo.bindingLayout.destroy();
+        (this.psoCreateInfo as any) = null;
 
         this.material.destroy();
         (this.material as any) = null;
@@ -556,13 +551,16 @@ export class SplashScreen {
         this.indicesBuffers.destroy();
         (this.indicesBuffers as any) = null;
 
+        this.sampler.destroy();
+        (this.sampler as any) = null;
+
         /** text */
         if (this.setting.displayWatermark && this.textImg) {
             (this.textImg as any) = null;
             (this.textRegion as any) = null;
 
-            this.textPSO.destroy();
-            (this.textPSO as any) = null;
+            this.textPSOCreateInfo.bindingLayout.destroy();
+            (this.textPSOCreateInfo as any) = null;
 
             this.textMaterial.destroy();
             (this.textMaterial as any) = null;
@@ -599,4 +597,4 @@ export class SplashScreen {
     private constructor () { };
 }
 
-cc.internal.SplashScreen = SplashScreen;
+legacyCC.internal.SplashScreen = SplashScreen;

@@ -611,7 +611,7 @@ export default class TrailModule {
             usage: GFXBufferUsageBit.INDIRECT,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: GFX_DRAW_INFO_SIZE,
-            stride: 1,
+            stride: GFX_DRAW_INFO_SIZE,
         });
         this._iaInfo.drawInfos[0].vertexCount = (this._trailNum + 1) * 2;
         this._iaInfo.drawInfos[0].indexCount = this._trailNum * 6;

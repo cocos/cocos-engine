@@ -35,6 +35,7 @@ import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
 import { ForwardPipeline, RenderPipeline } from './pipeline';
 import * as debug from './platform/debug';
 import inputManager from './platform/event-manager/input-manager';
+import { GFXDevice } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from './renderer';
@@ -371,7 +372,7 @@ export class Game extends EventTarget {
     public _inited: boolean = false; // whether the engine has inited
     public _rendererInitialized: boolean = false;
 
-    public _gfxDevice: WebGL2GFXDevice | WebGLGFXDevice | null = null;
+    public _gfxDevice: GFXDevice | null = null;
 
     public _intervalId: number | null = null; // interval target of main
 
@@ -581,8 +582,8 @@ export class Game extends EventTarget {
             this._initEvents();
         }
 
-        if (!EDITOR && !PREVIEW && legacyCC.internal.SplashScreenWebgl && this.canvas) {
-            legacyCC.internal.SplashScreenWebgl.instance.main(this.canvas);
+        if (!JSB && !EDITOR && !PREVIEW && legacyCC.internal.SplashScreen) {
+            legacyCC.internal.SplashScreen.instance.main(this._gfxDevice);
         }
 
         legacyCC.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
@@ -613,8 +614,8 @@ export class Game extends EventTarget {
             inputManager.registerSystemEvent(game.canvas);
         }
 
-        const splashScreen = legacyCC.internal.SplashScreenWebgl && legacyCC.internal.SplashScreenWebgl.instance;
-        const useSplash = (!EDITOR && !PREVIEW && splashScreen);
+        const splashScreen = legacyCC.internal.SplashScreen && legacyCC.internal.SplashScreen.instance;
+        const useSplash = (!JSB && !EDITOR && !PREVIEW && splashScreen);
         if (useSplash) {
             splashScreen.setOnFinish(() => {
                 if (this.onStart) { this.onStart(); }
@@ -885,20 +886,27 @@ export class Game extends EventTarget {
 
         // WebGL context created successfully
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
-            let useWebGL2 = (!!window.WebGL2RenderingContext);
+            const ctors: Constructor<GFXDevice>[] = [];
 
-            const userAgent = window.navigator.userAgent.toLowerCase();
-            if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
-                || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't conform to WebGL2 standard
-            ) {
-                useWebGL2 = false;
-            }
-
-            // useWebGL2 = false;
-            if (useWebGL2 && legacyCC.WebGL2GFXDevice) {
-                this._gfxDevice = new legacyCC.WebGL2GFXDevice();
-            } else if (legacyCC.WebGLGFXDevice) {
-                this._gfxDevice = new legacyCC.WebGLGFXDevice();
+            if (JSB) {
+                if (gfx.CCVKDevice) { ctors.push(gfx.CCVKDevice); }
+                if (gfx.CCMTLDevice) { ctors.push(gfx.CCMTLDevice); }
+                if (gfx.GLES3Device) { ctors.push(gfx.GLES3Device); }
+                if (gfx.GLES2Device) { ctors.push(gfx.GLES2Device); }
+            } else {
+                let useWebGL2 = (!!window.WebGL2RenderingContext);
+                const userAgent = window.navigator.userAgent.toLowerCase();
+                if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
+                    || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't not conform to WebGL2 standard
+                ) {
+                    useWebGL2 = false;
+                }
+                if (useWebGL2 && legacyCC.WebGL2GFXDevice) {
+                    ctors.push(legacyCC.WebGL2GFXDevice);
+                }
+                if (legacyCC.WebGLGFXDevice) {
+                    ctors.push(legacyCC.WebGLGFXDevice);
+                }
             }
 
             const opts = {
@@ -909,10 +917,9 @@ export class Game extends EventTarget {
                 nativeWidth: Math.floor(screen.width * window.devicePixelRatio),
                 nativeHeight: Math.floor(screen.height * window.devicePixelRatio),
             };
-            // fallback if WebGL2 is actually unavailable (usually due to driver issues)
-            if (!this._gfxDevice!.initialize(opts) && useWebGL2) {
-                this._gfxDevice = new legacyCC.WebGLGFXDevice();
-                this._gfxDevice!.initialize(opts);
+            for (let i = 0; i < ctors.length; i++) {
+                this._gfxDevice = new ctors[i]();
+                if (this._gfxDevice!.initialize(opts)) { break; }
             }
         }
 

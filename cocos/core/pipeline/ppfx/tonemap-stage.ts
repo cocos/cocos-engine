@@ -10,6 +10,7 @@ import { UBOGlobal } from '../define';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
+import { PipelineStateManager } from '../pipeline-state-manager';
 
 const bufs: GFXCommandBuffer[] = [];
 
@@ -60,8 +61,8 @@ export class ToneMapStage extends RenderStage {
 
         const globalUBO = this._pipeline!.globalBindings.get(UBOGlobal.BLOCK.name);
 
-        this._pso = this._pass.createPipelineState();
-        this._bindingLayout =  this._pso!.pipelineLayout.layouts[0];
+        this._psoCreateInfo = this._pass.getPipelineCreateInfo();
+        this._bindingLayout =  this._psoCreateInfo!.bindingLayout;
 
         this._pass.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO!.buffer!);
         this._pass.bindTextureView(this._hTexSampler, this._pipeline!.getTextureView(this._pipeline!.currShading)!);
@@ -88,8 +89,9 @@ export class ToneMapStage extends RenderStage {
             this._cmdBuff.begin();
             this._cmdBuff.beginRenderPass(framebuffer, this._renderArea!,
                 GFXClearFlag.ALL, [{ r: 0.0, g: 0.0, b: 0.0, a: 1.0 }], 1.0, 0);
-            this._cmdBuff.bindPipelineState(this._pso!);
-            this._cmdBuff.bindBindingLayout(this._pso!.pipelineLayout.layouts[0]);
+            const pso =  PipelineStateManager.getOrCreatePipelineState(this._device!, this._psoCreateInfo!, framebuffer.renderPass!, this._pipeline!.quadIA);
+            this._cmdBuff.bindPipelineState(pso);
+            this._cmdBuff.bindBindingLayout(this._psoCreateInfo!.bindingLayout);
             this._cmdBuff.bindInputAssembler(this._pipeline!.quadIA);
             this._cmdBuff.draw(this._pipeline!.quadIA);
             this._cmdBuff.endRenderPass();

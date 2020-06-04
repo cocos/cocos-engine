@@ -9,7 +9,7 @@ import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
 import { Material } from '../core/assets/material';
 import { RenderingSubMesh } from '../core/assets/mesh';
 import { Component } from '../core/components';
-import { ccclass, disallowMultiple, executeInEditMode, help, menu, property } from '../core/data/class-decorator';
+import { ccclass, disallowMultiple, executeInEditMode, help, property } from '../core/data/class-decorator';
 import { director } from '../core/director';
 import { GFXBuffer } from '../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../core/gfx/define';
@@ -686,7 +686,7 @@ export class Terrain extends Component {
         visible: true,
         animatable: false,
     })
-    protected _layers: Array<TerrainLayer|null> = [];
+    protected _layers: (TerrainLayer|null)[] = [];
 
     @property({
         visible: false,

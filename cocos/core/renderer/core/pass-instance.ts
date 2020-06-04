@@ -43,10 +43,12 @@ export class PassInstance extends Pass {
     private _dontNotify = false;
 
     constructor (parent: Pass, owner: MaterialInstance) {
-        super(parent.device);
+        super(parent.root);
         this._parent = parent;
         this._owner = owner;
+        this.beginChangeStatesSilently();
         this._doInit(this._parent, true); // defines may change now
+        this.endChangeStatesSilently();
         for (const u of this._shaderInfo.blocks) {
             if (isBuiltinBinding(u.binding)) { continue; }
             const block = this._blocks[u.binding];
@@ -94,7 +96,7 @@ export class PassInstance extends Pass {
     }
 
     protected _onStateChange () {
-        this._hash = Pass.getPSOHash(this);
+        this._hash = Pass.getPassHash(this);
         this._owner.onPassStateChange(this._dontNotify);
     }
 }

@@ -34,7 +34,6 @@ export class WebGL2GFXPipelineState extends GFXPipelineState {
 
         this._primitive = info.primitive;
         this._shader = info.shader;
-        this._is = info.inputState;
         this._rs = info.rasterizerState;
         this._dss = info.depthStencilState;
         this._bs = info.blendState;

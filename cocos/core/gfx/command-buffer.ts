@@ -22,6 +22,7 @@ import { GFXFramebuffer } from './framebuffer';
 import { GFXInputAssembler } from './input-assembler';
 import { GFXPipelineState } from './pipeline-state';
 import { GFXTexture } from './texture';
+import { GFXRenderPass } from './render-pass';
 
 export interface IGFXCommandBufferInfo {
     allocator: GFXCommandAllocator;
@@ -113,8 +114,11 @@ export abstract class GFXCommandBuffer extends GFXObject {
     /**
      * @en Begin recording commands.
      * @zh 开始记录命令。
+     * @param renderPass [Secondary Command Buffer Only] The render pass the subsequent commands will be executed in
+     * @param subpass [Secondary Command Buffer Only] The subpass the subsequent commands will be executed in
+     * @param frameBuffer [Secondary Command Buffer Only, Optional] The framebuffer to be used in the subpass
      */
-    public abstract begin (): void;
+    public abstract begin (renderPass?: GFXRenderPass, subpass?: number, frameBuffer?: GFXFramebuffer): void;
 
     /**
      * @en End recording commands.

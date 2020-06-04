@@ -212,7 +212,6 @@ export class LetterRenderTexture extends Texture2D {
         }
 
         const region: GFXBufferTextureCopy = {
-            buffOffset: 0,
             buffStride: 0,
             buffTexHeight: 0,
             texOffset: {
@@ -226,8 +225,7 @@ export class LetterRenderTexture extends Texture2D {
                 depth: 1,
             },
             texSubres: {
-                baseMipLevel: 0,
-                levelCount: 1,
+                mipLevel: 0,
                 baseArrayLayer: 0,
                 layerCount: 1,
             },

@@ -30,7 +30,7 @@
 
 import { Component } from '../../core/components';
 import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
-import { Color, Size, Vec2, Vec3, size } from '../../core/math';
+import { Color, Size, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp01 } from '../../core/math/utils';
 import { ScrollViewComponent } from './scroll-view-component';

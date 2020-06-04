@@ -249,7 +249,7 @@ export class RenderingSubMesh {
                     bundle.view.length, bundle.view.stride, dataView);
                 const buffer = device.createBuffer({
                     usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                    memUsage: GFXMemoryUsageBit.DEVICE,
                     size: bundle.view.length,
                     stride: bundle.view.stride,
                 });
@@ -346,7 +346,7 @@ export class RenderingSubMesh {
 
         const vertexIdBuffer = device.createBuffer({
             usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            memUsage: GFXMemoryUsageBit.DEVICE,
             size: vertexIds.byteLength,
             stride: vertexIds.BYTES_PER_ELEMENT,
         });
@@ -602,7 +602,7 @@ export class Mesh extends Asset {
 
                 indexBuffer = gfxDevice.createBuffer({
                     usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-                    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                    memUsage: GFXMemoryUsageBit.DEVICE,
                     size: dstSize,
                     stride: dstStride,
                 });
@@ -1262,7 +1262,7 @@ export class Mesh extends Asset {
 
             const vertexBuffer = gfxDevice.createBuffer({
                 usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                memUsage: GFXMemoryUsageBit.DEVICE,
                 size: vertexBundle.view.length,
                 stride: vertexBundle.view.stride,
             });

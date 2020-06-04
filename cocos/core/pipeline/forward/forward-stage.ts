@@ -103,9 +103,9 @@ export class ForwardStage extends RenderStage {
         const lightIndices: number[] = this.pipeline.lightIndices;
         const validLights: Light[] = this.pipeline.validLights;
 
-        let m = 0; let p = 0; let k = 0; let l = 0;
-        for (let i = 0; i < renderObjects.length; ++i) {                
-            const nextLightIndex = i + 1 < renderObjects.length ? lightIndexOffset[i + 1] : lightIndices.length;           
+        let m = 0; let p = 0; let k = 0;
+        for (let i = 0; i < renderObjects.length; ++i) {
+            const nextLightIndex = i + 1 < renderObjects.length ? lightIndexOffset[i + 1] : lightIndices.length;
             const ro = renderObjects[i];
             if (ro.model.isDynamicBatching) {
                 const subModels = ro.model.subModels;
@@ -114,12 +114,12 @@ export class ForwardStage extends RenderStage {
                     const passes = subModel.passes;
                     for (p = 0; p < passes.length; ++p) {
                         const pass = passes[p];
-                        const pso = subModel.psos![p];
+                        // const pso = subModel.psos![p];
                         if (pass.instancedBuffer) {
-                            pass.instancedBuffer.merge(subModel, ro.model.instancedAttributes, pso);
+                            // pass.instancedBuffer.merge(subModel, ro.model.instancedAttributes, pso);
                             this._opaqueInstancedQueue.queue.add(pass.instancedBuffer);
                         } else if (pass.batchedBuffer) {
-                            pass.batchedBuffer.merge(subModel, ro, pso);
+                            pass.batchedBuffer.merge(subModel, p, ro);
                             this._opaqueBatchedQueue.queue.add(pass.batchedBuffer);
                         } else {
                             for (k = 0; k < this._renderQueues.length; k++) {
@@ -138,7 +138,7 @@ export class ForwardStage extends RenderStage {
 
                         // Organize light-batched-queue
                         this._pipeline.lightBatchQueue.add(i, lightIndexOffset, nextLightIndex,
-                            lightIndices, validLights, pass, ro, m);                                  
+                            lightIndices, validLights, pass, ro, m);
                     }
                 }
             }
@@ -184,13 +184,13 @@ export class ForwardStage extends RenderStage {
         const planarShadow = camera.scene!.planarShadows;
 
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea!,
+        cmdBuff.beginRenderPass(this._framebuffer, this._renderArea!,
             camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
 
-        cmdBuff.execute(this._renderQueues[0].cmdBuffs.array, this._renderQueues[0].cmdBuffCount);
+        this._renderQueues[0].recordCommandBuffer(this._device!, this._framebuffer.renderPass!, cmdBuff);
 
-        this._opaqueInstancedQueue.recordCommandBuffer(cmdBuff);
-        this._opaqueBatchedQueue.recordCommandBuffer(cmdBuff);
+        // this._opaqueInstancedQueue.recordCommandBuffer(cmdBuff);
+        this._opaqueBatchedQueue.recordCommandBuffer(this._device!, this._framebuffer.renderPass!, cmdBuff);
 
         // Commit light-batched-queue
         this._pipeline.lightBatchQueue.recordCommandBuffer(cmdBuff);
@@ -198,8 +198,7 @@ export class ForwardStage extends RenderStage {
         if (camera.visibility & Layers.BitMask.DEFAULT) {
             planarShadow.recordCommandBuffer(cmdBuff);
         }
-        cmdBuff.execute(this._renderQueues[1].cmdBuffs.array, this._renderQueues[1].cmdBuffCount);
-
+        this._renderQueues[1].recordCommandBuffer(this._device!, this._framebuffer.renderPass!, cmdBuff);
         cmdBuff.endRenderPass();
         cmdBuff.end();
 

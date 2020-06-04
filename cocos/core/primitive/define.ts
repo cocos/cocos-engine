@@ -80,6 +80,14 @@ export interface IGeometry {
 
     /**
      * @en
+     * Vertex Tangents.
+     * @zh
+     * 顶点切线。
+     */
+    tangents?: number[];
+
+    /**
+     * @en
      * Vertex colors.
      * @zh
      * 顶点颜色。
@@ -94,10 +102,10 @@ export interface IGeometry {
      */
     attributes?: IGFXAttribute[];
 
-    customAttributes?: Array<{
+    customAttributes?: {
         attr: IGFXAttribute,
         values: number[],
-    }>;
+    }[];
 
     /**
      * @en

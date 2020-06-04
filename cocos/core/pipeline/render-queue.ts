@@ -6,6 +6,10 @@ import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { RecyclePool } from '../memop';
 import { CachedArray } from '../memop/cached-array';
 import { IRenderObject, IRenderPass, IRenderQueueDesc } from './define';
+import { GFXInputAssembler } from '../gfx/input-assembler';
+import { PipelineStateManager } from './pipeline-state-manager';
+import { GFXDevice } from '../gfx/device';
+import { GFXRenderPass } from '../gfx';
 
 /**
  * @en
@@ -39,18 +43,6 @@ export class RenderQueue {
      */
     public queue: CachedArray<IRenderPass>;
 
-    /**
-     * @zh
-     * 基于缓存数组的命令缓冲。
-     */
-    public cmdBuffs: CachedArray<GFXCommandBuffer>;
-
-    /**
-     * @zh
-     * 命令缓冲数量。
-     */
-    public cmdBuffCount: number = 0;
-
     private _passDesc: IRenderQueueDesc;
     private _passPool: RecyclePool<IRenderPass>;
 
@@ -65,9 +57,8 @@ export class RenderQueue {
             depth: 0,
             shaderId: 0,
             subModel: null!,
-            cmdBuff: null!,
+            passIdx: 0,
         }), 64);
-        this.cmdBuffs = new CachedArray(64);
         this.queue = new CachedArray(64, this._passDesc.sortFunc);
     }
 
@@ -78,7 +69,6 @@ export class RenderQueue {
     public clear () {
         this.queue.clear();
         this._passPool.reset();
-        this.cmdBuffCount = 0;
     }
 
     /**
@@ -88,8 +78,8 @@ export class RenderQueue {
     public insertRenderPass (renderObj: IRenderObject, modelIdx: number, passIdx: number): boolean {
         const subModel = renderObj.model.getSubModel(modelIdx);
         const pass = subModel.passes[passIdx];
-        const pso = subModel.psos![passIdx];
-        const isTransparent = pso.blendState.targets[0].blend;
+        const psoCreateInfo = subModel.psoInfos[passIdx];
+        const isTransparent = psoCreateInfo.blendState.targets[0].blend;
         if (isTransparent !== this._passDesc.isTransparent || !(pass.phase & this._passDesc.phases)) {
             return false;
         }
@@ -97,9 +87,9 @@ export class RenderQueue {
         const rp = this._passPool.add();
         rp.hash = hash;
         rp.depth = renderObj.depth;
-        rp.shaderId = pso.shader.id;
+        rp.shaderId = psoCreateInfo.shader.id;
         rp.subModel = subModel;
-        rp.cmdBuff = subModel.commandBuffers[passIdx];
+        rp.passIdx = passIdx;
         this.queue.push(rp);
         return true;
     }
@@ -109,13 +99,20 @@ export class RenderQueue {
      * 排序渲染队列。
      */
     public sort () {
-
         this.queue.sort();
+    }
 
-        this.cmdBuffCount = this.queue.length;
-
+    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
         for (let i = 0; i < this.queue.length; ++i) {
-            this.cmdBuffs.array[i] = this.queue.array[i].cmdBuff;
+            const subModel = this.queue.array[i].subModel;
+            const passIdx = this.queue.array[i].passIdx;
+            const ia = subModel.inputAssembler as GFXInputAssembler;
+            const psoCreateInfo = subModel.psoInfos[passIdx];
+            const pso = PipelineStateManager.getOrCreatePipelineState(device, psoCreateInfo, renderPass, ia);
+            cmdBuff.bindPipelineState(pso);
+            cmdBuff.bindBindingLayout(psoCreateInfo.bindingLayout);
+            cmdBuff.bindInputAssembler(ia);
+            cmdBuff.draw(ia);
         }
     }
 }
