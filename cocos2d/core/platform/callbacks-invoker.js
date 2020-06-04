@@ -351,6 +351,10 @@ proto.emit = function (key, arg1, arg2, arg3, arg4, arg5) {
             if (list.containCanceled) {
                 list.purgeCanceled();
             }
+
+            if (list.callbackInfos.length === 0) {
+                delete this._callbackTable[key];
+            }
         }
     }
 };
