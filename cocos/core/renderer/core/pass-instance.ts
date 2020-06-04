@@ -46,7 +46,9 @@ export class PassInstance extends Pass {
         super(parent.root);
         this._parent = parent;
         this._owner = owner;
+        this.beginChangeStatesSilently();
         this._doInit(this._parent, true); // defines may change now
+        this.endChangeStatesSilently();
         for (const u of this._shaderInfo.blocks) {
             if (isBuiltinBinding(u.binding)) { continue; }
             const block = this._blocks[u.binding];
