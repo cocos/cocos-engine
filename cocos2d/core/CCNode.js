@@ -1687,6 +1687,10 @@ let NodeDefines = {
             _currentHovered = null;
         }
 
+        // Remove all eventTargets
+        this._bubblingListeners && this._bubblingListeners.destroy();
+        this._capturingListeners && this._capturingListeners.destroy();
+
         // Remove all event listeners if necessary
         if (this._touchListener || this._mouseListener) {
             eventManager.removeListeners(this);
@@ -2177,10 +2181,6 @@ let NodeDefines = {
 
         if ( !listeners.hasEventListener(type, callback, target) ) {
             listeners.on(type, callback, target);
-
-            if (target && target.__eventTargets) {
-                target.__eventTargets.push(this);
-            }
         }
 
         return callback;
