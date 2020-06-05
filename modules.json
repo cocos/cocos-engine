@@ -244,7 +244,7 @@
     "entries": [
       "./cocos2d/core/components/CCScrollView.js"
     ],
-    "dependencies": ["Layout"]
+    "dependencies": ["Layout", "Mask"]
   },
   {
     "name": "Spine Skeleton",

@@ -29,11 +29,14 @@ import Quat from './quat';
  * Please rest assured, however, that they are the same thing!
  * This is not unique to glMatrix, either, as OpenGL developers have long been confused by the
  * apparent lack of consistency between the memory layout and the documentation.
+ *
+ * @class Mat3
+ * @extends ValueType
  */
 export default class Mat3 {
     static sub = Mat3.subtract;
     static mul = Mat3.multiply;
-    
+
     /**
      * Identity  of Mat3
      * @property {Mat3} IDENTITY
@@ -798,7 +801,7 @@ export default class Mat3 {
      * !#en Matrix transpose array
      * @method toArray
      * @typescript
-     * toArray <Out extends IWritableArrayLike<number>> (out: Out, mat: IMat3Like, ofs = 0)
+     * toArray <Out extends IWritableArrayLike<number>> (out: Out, mat: IMat3Like, ofs?: number): Out
      * @param ofs 数组内的起始偏移量
      * @static
      */
@@ -815,7 +818,7 @@ export default class Mat3 {
      * !#en Transfer matrix array
      * @method fromArray
      * @typescript
-     * fromArray <Out extends IMat3Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0)
+     * fromArray <Out extends IMat3Like> (out: Out, arr: IWritableArrayLike<number>, ofs?: number): Out
      * @param ofs 数组起始偏移量
      * @static
      */
@@ -838,7 +841,7 @@ export default class Mat3 {
     /**
      * @method constructor
      * @typescript
-     * constructor (m00: number | Float32Array = 1, m01 = 0, m02 = 0, m03 = 0, m04 = 1, m05 = 0, m06 = 0, m07 = 0, m08 = 1)
+     * constructor (m00?: number | Float32Array, m01?: number, m02?: number, m03?: number, m04?: number, m05?: number, m06?: number, m07?: number, m08?: number)
      */
     constructor (
         m00: number | FloatArray = 1, m01 = 0, m02 = 0,
