@@ -237,7 +237,7 @@ function visitNode (node) {
         }
         align(node, widget);
         if ((!CC_EDITOR || animationState.animatedSinceLastFrame) && widget.alignMode !== AlignMode.ALWAYS) {
-            widget.enabled = false;
+            widgetManager.remove(widget);
         }
         else {
             activeWidgets.push(widget);
@@ -320,7 +320,7 @@ function refreshScene () {
                             node.isChildOf(editingNode)
                         ) {
                             // widget contains in activeWidgets should aligned at least once
-                            widget.enabled = false;
+                            widgetManager.remove(widget);
                         }
                         else {
                             align(node, widget);
@@ -492,9 +492,9 @@ var widgetManager = cc._widgetManager = module.exports = {
         }
     },
     refreshWidgetOnResized (node) {
-        var widget = cc.Node.isNode(node) && node.getComponent(cc.Widget);
+        var widget = cc.Node.isNode(node) && node._widget;
         if (widget && widget.enabled === true && widget.alignMode === AlignMode.ON_WINDOW_RESIZE) {
-            widget.onEnable();
+            this.add(widget);
         }
 
         var children = node._children;
