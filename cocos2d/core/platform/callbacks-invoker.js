@@ -52,13 +52,6 @@ callbackInfoPool.get = function () {
     return this._get() || new CallbackInfo();
 };
 
-callbackInfoPool.__put = function (info) {
-    info.callback = empty;
-    info.target = undefined;
-    info.once = undefined;
-    this.put(info);
-}
-
 function CallbackList () {
     this.callbackInfos = [];
     this.isInvoking = false;
@@ -76,7 +69,7 @@ proto.removeByCallback = function (cb) {
     for (let i = 0; i < this.callbackInfos.length; ++i) {
         let info = this.callbackInfos[i];
         if (info && info.callback === cb) {
-            callbackInfoPool.__put(info);
+            callbackInfoPool.put(info);
             fastRemoveAt(this.callbackInfos, i);
             --i;
         }
@@ -92,7 +85,7 @@ proto.removeByTarget = function (target) {
     for (let i = 0; i < this.callbackInfos.length; ++i) {
         const info = this.callbackInfos[i];
         if (info && info.target === target) {
-            callbackInfoPool.__put(info);
+            callbackInfoPool.put(info);
             fastRemoveAt(this.callbackInfos, i);
             --i;
         }
@@ -108,7 +101,7 @@ proto.removeByTarget = function (target) {
 proto.cancel = function (index) {
     const info = this.callbackInfos[index];
     if (info) {
-        callbackInfoPool.__put(info);
+        callbackInfoPool.put(info);
         this.callbackInfos[index] = null;
     }
     this.containCanceled = true;
@@ -122,7 +115,7 @@ proto.cancelAll = function () {
     for (let i = 0; i < this.callbackInfos.length; i++) {
         const info = this.callbackInfos[i];
         if (info) {
-            callbackInfoPool.__put(info);
+            callbackInfoPool.put(info);
             this.callbackInfos[i] = null;
         }
     }
@@ -301,7 +294,7 @@ proto.off = function (key, callback, target) {
                 }
                 else {
                     fastRemoveAt(infos, i);
-                    callbackInfoPool.__put(info);
+                    callbackInfoPool.put(info);
                 }
                 break;
             }
@@ -361,10 +354,6 @@ proto.emit = function (key, arg1, arg2, arg3, arg4, arg5) {
             list.isInvoking = false;
             if (list.containCanceled) {
                 list.purgeCanceled();
-            }
-
-            if (list.callbackInfos.length === 0) {
-                delete this._callbackTable[key];
             }
         }
     }
