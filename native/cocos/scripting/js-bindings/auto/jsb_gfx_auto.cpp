@@ -13407,7 +13407,7 @@ static bool js_gfx_GFXDevice_getDepthStencilFormat(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_getDepthStencilFormat)
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getDepthStencilFormat)
 
 static bool js_gfx_GFXDevice_getNumTris(se::State& s)
 {
@@ -13662,7 +13662,7 @@ static bool js_gfx_GFXDevice_getColorFormat(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_getColorFormat)
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getColorFormat)
 
 static bool js_gfx_GFXDevice_createFramebuffer(se::State& s)
 {
@@ -14240,21 +14240,21 @@ bool js_register_gfx_GFXDevice(se::Object* obj)
     cls->defineProperty("minClipZ", _SE(js_gfx_GFXDevice_getMinClipZ), nullptr);
     cls->defineProperty("maxTextureSize", _SE(js_gfx_GFXDevice_getMaxTextureSize), nullptr);
     cls->defineProperty("nativeHeight", _SE(js_gfx_GFXDevice_getNativeHeight), nullptr);
+    cls->defineProperty("depthStencilFormat", _SE(js_gfx_GFXDevice_getDepthStencilFormat), nullptr);
     cls->defineProperty("numTris", _SE(js_gfx_GFXDevice_getNumTris), nullptr);
     cls->defineProperty("stencilBits", _SE(js_gfx_GFXDevice_getStencilBits), nullptr);
     cls->defineProperty("queue", _SE(js_gfx_GFXDevice_getQueue), nullptr);
     cls->defineProperty("context", _SE(js_gfx_GFXDevice_getContext), nullptr);
+    cls->defineProperty("colorFormat", _SE(js_gfx_GFXDevice_getColorFormat), nullptr);
     cls->defineProperty("mainWindow", _SE(js_gfx_GFXDevice_getMainWindow), nullptr);
     cls->defineFunction("hasFeature", _SE(js_gfx_GFXDevice_hasFeature));
     cls->defineFunction("createFence", _SE(js_gfx_GFXDevice_createFence));
     cls->defineFunction("createCommandAllocator", _SE(js_gfx_GFXDevice_createCommandAllocator));
-    cls->defineFunction("getDepthStencilFormat", _SE(js_gfx_GFXDevice_getDepthStencilFormat));
     cls->defineFunction("createPipelineState", _SE(js_gfx_GFXDevice_createPipelineState));
     cls->defineFunction("createCommandBuffer", _SE(js_gfx_GFXDevice_createCommandBuffer));
     cls->defineFunction("present", _SE(js_gfx_GFXDevice_present));
     cls->defineFunction("createTexture", _SE(js_gfx_GFXDevice_createTexture));
     cls->defineFunction("destroy", _SE(js_gfx_GFXDevice_destroy));
-    cls->defineFunction("getColorFormat", _SE(js_gfx_GFXDevice_getColorFormat));
     cls->defineFunction("createFramebuffer", _SE(js_gfx_GFXDevice_createFramebuffer));
     cls->defineFunction("createRenderPass", _SE(js_gfx_GFXDevice_createRenderPass));
     cls->defineFunction("createPipelineLayout", _SE(js_gfx_GFXDevice_createPipelineLayout));

@@ -588,6 +588,20 @@ namespace
         return ++v;
     }
 
+    const char* MapVendorName(uint32_t vendorID)
+    {
+        switch (vendorID)
+        {
+        case 0x1002: return "Advanced Micro Devices, Inc.";
+        case 0x1010: return "Imagination Technologies";
+        case 0x10DE: return "Nvidia Corporation";
+        case 0x13B5: return "Arm Limited";
+        case 0x5143: return "Qualcomm Incorporated";
+        case 0x8086: return "Intel Corporation";
+        }
+        return "Unknown";
+    }
+
     bool isLayerSupported(const char * required, const std::vector<VkLayerProperties> &available)
     {
         for (const VkLayerProperties &availableLayer : available)

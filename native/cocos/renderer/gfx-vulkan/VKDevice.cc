@@ -153,8 +153,8 @@ bool CCVKDevice::initialize(const GFXDeviceInfo& info)
     else
     {
         deviceCreateInfo.pNext = &requestedFeatures2;
-        if (context->minorVersion() >= VK_API_VERSION_1_1) requestedFeatures2.pNext = &requestedVulkan11Features;
-        if (context->minorVersion() >= VK_API_VERSION_1_2) requestedVulkan11Features.pNext = &requestedVulkan12Features;
+        if (context->minorVersion() >= 1) requestedFeatures2.pNext = &requestedVulkan11Features;
+        if (context->minorVersion() >= 2) requestedVulkan11Features.pNext = &requestedVulkan12Features;
     }
 
     VK_CHECK(vkCreateDevice(gpuContext->physicalDevice, &deviceCreateInfo, nullptr, &_gpuDevice->vkDevice));
@@ -282,6 +282,18 @@ bool CCVKDevice::initialize(const GFXDeviceInfo& info)
         deviceExtensions += extension + String(" ");
     }
 
+    _features[(int)GFXFeature::COLOR_FLOAT] = true;
+    _features[(int)GFXFeature::COLOR_HALF_FLOAT] = true;
+    _features[(int)GFXFeature::TEXTURE_FLOAT] = true;
+    _features[(int)GFXFeature::TEXTURE_HALF_FLOAT] = true;
+    _features[(int)GFXFeature::TEXTURE_FLOAT_LINEAR] = true;
+    _features[(int)GFXFeature::TEXTURE_HALF_FLOAT_LINEAR] = true;
+    _features[(int)GFXFeature::FORMAT_R11G11B10F] = true;
+    _features[(int)GFXFeature::FORMAT_D24S8] = true;
+    _features[(int)GFXFeature::MSAA] = true;
+    _features[(int)GFXFeature::ELEMENT_INDEX_UINT] = true;
+    _features[(int)GFXFeature::INSTANCED_ARRAYS] = true;
+
     String compressedFmts;
     if (deviceFeatures.textureCompressionETC2)
     {
@@ -294,9 +306,16 @@ bool CCVKDevice::initialize(const GFXDeviceInfo& info)
         compressedFmts += "astc ";
     }
 
+    uint32_t apiVersion = gpuContext->physicalDeviceProperties.apiVersion;
+    _renderer = gpuContext->physicalDeviceProperties.deviceName;
+    _vendor = MapVendorName(gpuContext->physicalDeviceProperties.vendorID);
+    _version = StringUtil::Format("%d.%d.%d", VK_VERSION_MAJOR(apiVersion),
+        VK_VERSION_MINOR(apiVersion), VK_VERSION_PATCH(apiVersion));
+
     CC_LOG_INFO("Vulkan device initialized.");
-    CC_LOG_INFO("DEVICE_NAME: %s", gpuContext->physicalDeviceProperties.deviceName);
-    CC_LOG_INFO("VULKAN_VERSION: %d.%d", ((CCVKContext*)_context)->majorVersion(), ((CCVKContext*)_context)->minorVersion());
+    CC_LOG_INFO("RENDERER: %s", _renderer.c_str());
+    CC_LOG_INFO("VENDOR: %s", _vendor.c_str());
+    CC_LOG_INFO("VERSION: %s", _version.c_str());
     CC_LOG_INFO("SCREEN_SIZE: %d x %d", _width, _height);
     CC_LOG_INFO("NATIVE_SIZE: %d x %d", _nativeWidth, _nativeHeight);
     CC_LOG_INFO("INSTANCE_LAYERS: %s", instanceLayers.c_str());
