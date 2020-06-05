@@ -34,10 +34,6 @@ import Quat from './quat';
  * @extends ValueType
  */
 
-/**
-* @class Mat3
-* @extends ValueType
-*/
 export default class Mat3 {
     static sub = Mat3.subtract;
     static mul = Mat3.multiply;
