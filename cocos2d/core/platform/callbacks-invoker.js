@@ -341,7 +341,11 @@ proto.emit = function (key, arg1, arg2, arg3, arg4, arg5) {
                 let target = info.target;
                 let callback = info.callback;
                 if (info.once) {
-                    info.once.off(key, callback, target);
+                    if (typeof info.once === 'object') {
+                        info.once.off(key, callback, target);
+                    } else {
+                        this.off(key, callback, target);
+                    }
                 }
 
                 if (target) {
