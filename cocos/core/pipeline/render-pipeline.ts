@@ -18,7 +18,7 @@ import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
-import { Mat4, Vec3, Vec4 } from '../math';
+import { Mat4, Vec3, Vec4, lerp, clamp } from '../math';
 import { Camera, Model, Light } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
@@ -34,7 +34,6 @@ import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
 import { RenderLightBatchedQueue } from './render-light-batched-queue';
 import { RenderShadowMapBatchedQueue } from './render-shadowMap-batched-queue';
-import { RenderDepthBatchedQueue } from './render-depth-batched-queue';
 
 const v3_1 = new Vec3();
 
@@ -275,12 +274,6 @@ export abstract class RenderPipeline {
      * get shadowMap batch queue
      */
     public abstract get shadowMapQueue () : RenderShadowMapBatchedQueue;
-
-    /**
-     * @zh
-     * get depth batch queue
-     */
-    public abstract get depthQueue () : RenderDepthBatchedQueue;
 
     protected _root: Root = null!;
     protected _device: GFXDevice = null!;
@@ -601,7 +594,7 @@ export abstract class RenderPipeline {
                 const colorTempRGB = mainLight.colorTemperatureRGB;
                 fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET] *= colorTempRGB.x;
                 fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 1] *= colorTempRGB.y;
-                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 2] *= colorTempRGB.z;
+                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 2] *= colorTempRGB.z;                
             }
 
             if (this._isHDR) {
@@ -609,6 +602,45 @@ export abstract class RenderPipeline {
             } else {
                 fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
             }
+
+            {
+                // shadowCamera
+                const nearClip = camera.nearClip;
+                const farClip = camera.farClip;
+                const q = farClip / (farClip / nearClip);
+                const r = -q * nearClip;
+
+                // Camera
+                const viewFarClip = camera.farClip;
+                const shadowRange = mainLight.shadowRange;
+                const fadeStart = mainLight.fadeStart * shadowRange / viewFarClip;
+                const fadeEnd = shadowRange / viewFarClip;
+                const fadeRange = fadeEnd - fadeStart;
+                fv[UBOGlobal.MAIN_LIT_SHADOW_DEPTH_FADE_OFFSET + 0] = q;
+                fv[UBOGlobal.MAIN_LIT_SHADOW_DEPTH_FADE_OFFSET + 1] = r;
+                fv[UBOGlobal.MAIN_LIT_SHADOW_DEPTH_FADE_OFFSET + 2] = fadeStart;
+                fv[UBOGlobal.MAIN_LIT_SHADOW_DEPTH_FADE_OFFSET + 3] = 1.0 / fadeRange;
+            }
+            
+            {
+                let intensity = mainLight.shadowIntensity;
+                const fadeStart = mainLight.shadowFadeDistance;
+                const fadeEnd = mainLight.shadowDistance;
+                if (fadeStart > 0.0 && fadeEnd > 0.0 && fadeEnd > fadeStart) {
+                    intensity = lerp(intensity, 1.0, clamp((0.0 - fadeStart) / (fadeEnd - fadeStart), 0.0, 1.0));
+                }
+                const  pcfValues = (1.0 - intensity);
+                const samples = 1.0;
+                fv[UBOGlobal.MAIN_LIT_SHADOW_INTENSITY_OFFSET + 0] = pcfValues / samples;
+                fv[UBOGlobal.MAIN_LIT_SHADOW_INTENSITY_OFFSET + 1] = intensity;
+                fv[UBOGlobal.MAIN_LIT_SHADOW_INTENSITY_OFFSET + 2] = 0.0;
+                fv[UBOGlobal.MAIN_LIT_SHADOW_INTENSITY_OFFSET + 3] = 0.0;
+            }
+
+            {
+                
+            }
+
         } else {
             Vec3.toArray(fv, Vec3.UNIT_Z, UBOGlobal.MAIN_LIT_DIR_OFFSET);
             Vec4.toArray(fv, Vec4.ZERO, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
@@ -1117,6 +1149,10 @@ export abstract class RenderPipeline {
         } else {
             return format;
         }
+    }
+
+    private calculateShadowMatrix () : Mat4 {
+
     }
 }
 legacyCC.RenderPipeline = RenderPipeline;

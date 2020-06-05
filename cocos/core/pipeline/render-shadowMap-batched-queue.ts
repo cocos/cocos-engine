@@ -11,7 +11,7 @@ import { IRenderObject, IRenderQueueDesc } from './define';
 import { UBOForwardLight } from '../pipeline/define';/// UBO depth
 
  const myForward_ShadowMap_Patches = [
-     { name: 'CC_SHADOWMAP', value: true },
+     { name: 'VSM_SHADOW', value: true },
  ];
 
 /**
@@ -24,6 +24,11 @@ export class RenderShadowMapBatchedQueue {
     private _shadowMapBuffer: GFXBuffer|null = null;
 
     private _passDesc: IRenderQueueDesc;
+    private _pass:Pass|null = null;
+
+    public get pass () {
+        return this._pass;
+    }
 
     /**
      * constructor
@@ -53,6 +58,9 @@ export class RenderShadowMapBatchedQueue {
 
     public add (pass: Pass, renderObj: IRenderObject, modelIdx: number) {
         if (pass.phase === this._passDesc.phases) {
+
+            this._pass = pass;
+
             const nowStep = this._subModelsArray.length;
             this._subModelsArray.push(renderObj.model.subModels[modelIdx]);
 

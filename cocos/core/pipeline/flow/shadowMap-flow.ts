@@ -51,15 +51,6 @@ export class ShadowMapFlow extends RenderFlow {
 
     public render (view: RenderView) {
         this._stages[this._frame % 2].render;
-        //view.camera.update();
-
-        // this.pipeline.sceneCulling(view);
-
-        // this.pipeline.updateUBOs(view);
-
-        //this.pipeline.updateShadowUBOs(view);
-
-        //super.render(view);
 
         ++this._frame;
     }

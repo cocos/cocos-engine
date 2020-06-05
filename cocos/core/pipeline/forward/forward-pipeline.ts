@@ -25,7 +25,6 @@ import { getPhaseID } from '../pass-phase';
 import { IRenderPass } from '../define';
 import { opaqueCompareFn } from '../render-queue';
 import { RenderShadowMapBatchedQueue } from '../render-shadowMap-batched-queue';
-import { RenderDepthBatchedQueue } from '../render-depth-batched-queue';
 import { ShadowMapFlow } from '../flow/shadowMap-flow';
 import { CameraComponent } from '../../3d';
 
@@ -98,14 +97,6 @@ export class ForwardPipeline extends RenderPipeline {
 
     /**
      * @zh
-     * get depth batch queue
-     */
-    public get depthQueue () {
-        return this._depthBatchQueue;
-    }
-
-    /**
-     * @zh
      * 全部光源的UBO结构描述。
      */
     protected _uboLight: UBOForwardLight = new UBOForwardLight();
@@ -153,12 +144,6 @@ export class ForwardPipeline extends RenderPipeline {
     private _shadowMapBatchQueue: RenderShadowMapBatchedQueue;
 
     /**
-     * @zh
-     * depth batch Queue
-     */
-    private _depthBatchQueue: RenderDepthBatchedQueue;
-
-    /**
      * 构造函数。
      * @param root Root类实例。
      */
@@ -179,12 +164,6 @@ export class ForwardPipeline extends RenderPipeline {
         this._shadowMapBatchQueue = new RenderShadowMapBatchedQueue({
             isTransparent: false,
             phases: getPhaseID("shadowMap"),
-            sortFunc,
-        });
-
-        this._depthBatchQueue = new RenderDepthBatchedQueue({
-            isTransparent: false,
-            phases: getPhaseID("depth"),
             sortFunc,
         });
     }
@@ -340,7 +319,6 @@ export class ForwardPipeline extends RenderPipeline {
         const sphereLights = view.camera.scene!.sphereLights;
         this._lightBatchQueue.clear();
         this._shadowMapBatchQueue.clear();
-        this._depthBatchQueue.clear();
 
         for (let i = 0; i < sphereLights.length; i++) {
             const light = sphereLights[i];
@@ -377,6 +355,15 @@ export class ForwardPipeline extends RenderPipeline {
             for (let i = 0; i < this._renderObjects.length; i++) {
                 this._lightIndexOffset[i] = this._lightIndices.length;
                 this.cullLightPerModel(this._renderObjects[i].model);
+                const ro = this.renderObjects[i];
+                if (ro.model.castShadow) {
+                for (let m = 0; m < ro.model.subModelNum; m++) {
+                    for (let p = 0; p < ro.model.getSubModel(m).passes.length; p++) {
+                        const pass = ro.model.getSubModel(m).passes[p];
+                        this.shadowMapQueue.add(pass, ro, m);
+                        }
+                    }
+                }
             }
             this._lightBatchQueue.updateQueueSize(this._validLights.length);
         }

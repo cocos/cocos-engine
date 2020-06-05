@@ -114,19 +114,6 @@ export class ShadowMapStageA extends RenderStage {
      * @param view 渲染视图。
      */
     public render (view: RenderView) {                
-        // per-model check shadow casting
-        const renderObjects = this._pipeline.renderObjects;        
-        for (let i = 0; i < renderObjects.length; ++i) {
-            const ro = renderObjects[i];
-            if (ro.model.castShadow) {
-                for (let m = 0; m < ro.model.subModelNum; m++) {
-                    for (let p = 0; p < ro.model.getSubModel(m).passes.length; p++) {
-                        const pass = ro.model.getSubModel(m).passes[p];
-                        this.pipeline.depthQueue.add(pass, renderObjects[i], m);
-                    }
-                }
-            }
-        }
 
         const camera = view.camera;
 
@@ -137,7 +124,7 @@ export class ShadowMapStageA extends RenderStage {
             camera.clearFlag, depthcolors, camera.clearDepth, camera.clearStencil);
 
         // Commit depth-queue
-        this.pipeline.depthQueue.recordCommandBuffer(cmdBuff);
+        this.pipeline.shadowMapQueue.recordCommandBuffer(cmdBuff);
 
         cmdBuff.endRenderPass();
         cmdBuff.end();
@@ -153,7 +140,7 @@ export class ShadowMapStageA extends RenderStage {
         writeRegion.texExtent.width = this._width;
         writeRegion.texExtent.height = this._height;
 
-        const pass = this.pipeline.depthQueue.pass;
+        const pass = this.pipeline.shadowMapQueue.pass;
         const handle = pass!.getHandle('depth');
         pass!.setUniform(handle!, 0);
         const length = this._width * this._height * 4;

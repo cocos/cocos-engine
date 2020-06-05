@@ -140,11 +140,6 @@ export class ForwardStage extends RenderStage {
                         // Organize light-batched-queue
                         this._pipeline.lightBatchQueue.add(i, lightIndexOffset, nextLightIndex,
                             lightIndices, validLights, pass, ro, m);
-                        
-                        if (isShadow) {
-                            // Organize shadowMap-batched-queue
-                            this.pipeline.shadowMapQueue.add(pass, ro, m);
-                        }
                     }
                 }
             }
