@@ -41,7 +41,7 @@
     "jest": "^24.8.0",
     "spectorjs": "^0.9.15",
     "stats.js": "^0.17.0",
-    "tfig": "^1.2.4",
+    "tfig": "^1.2.5",
     "ts-jest": "^24.3.0",
     "typedoc": "^0.14.2",
     "typedoc-plugin-external-module-name": "github:cocos-creator/typedoc-plugin-external-module-name#master",
