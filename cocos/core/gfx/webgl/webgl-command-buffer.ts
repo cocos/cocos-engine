@@ -155,8 +155,10 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
 
     public bindPipelineState (pipelineState: GFXPipelineState) {
         const gpuPipelineState = (pipelineState as WebGLGFXPipelineState).gpuPipelineState;
-        this._curGPUPipelineState = gpuPipelineState;
-        this._isStateInvalied = true;
+        if (gpuPipelineState !== this._curGPUPipelineState) {
+            this._curGPUPipelineState = gpuPipelineState;
+            this._isStateInvalied = true;
+        }
     }
 
     public bindBindingLayout (bindingLayout: GFXBindingLayout) {

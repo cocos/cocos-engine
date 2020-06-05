@@ -32,7 +32,6 @@ import { FrameBufferDesc, RenderFlowType, RenderPassDesc, RenderTextureDesc } fr
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
-import { RenderLightBatchedQueue } from './render-light-batched-queue'
 
 const v3_1 = new Vec3();
 
@@ -261,12 +260,6 @@ export abstract class RenderPipeline {
      * 灯光GFXbuffer数组。
      */
     public abstract get lightBuffers () : GFXBuffer[];
-
-    /**
-     * @zh
-     * get light batch queues
-     */
-    public abstract get lightBatchQueue () : RenderLightBatchedQueue;
 
     protected _root: Root = null!;
     protected _device: GFXDevice = null!;

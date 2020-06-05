@@ -57,7 +57,7 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @en Get hash of current attributes.
      * @zh 获取顶点属性数组的哈希值。
      */
-    get attributesHash(): number {
+    get attributesHash (): number {
         return this._attributesHash;
     }
 
@@ -209,8 +209,8 @@ export abstract class GFXInputAssembler extends GFXObject {
         }
     }
 
-    protected computeAttributesHash(): number {
-        let res = 'atts';
+    protected computeAttributesHash (): number {
+        let res = 'attrs';
         for (let i = 0; i < this.attributes.length; ++i) {
             const at = this.attributes[i];
             res += `,${at.name},${at.format},${at.isNormalized},${at.stream},${at.isInstanced}`;

@@ -33,7 +33,7 @@ export class SubModel {
     protected _material: Material | null = null;
     protected _inputAssembler: GFXInputAssembler | null = null;
     protected _cmdBuffers: GFXCommandBuffer[] = [];
-    protected _pathces? : IMacroPatch[];
+    protected _patches? : IMacroPatch[];
 
     get psoInfos () {
         return this._psoCreateInfos;
@@ -76,7 +76,7 @@ export class SubModel {
 
     public initialize (subMesh: RenderingSubMesh, mat: Material, patches?: IMacroPatch[]) {
         this.subMeshData = subMesh;
-        this._pathces = patches;
+        this._patches = patches;
         this.material = mat;
     }
 
@@ -132,7 +132,7 @@ export class SubModel {
         }
         const passes = this._material.passes;
         for (let i = 0; i < passes.length; ++i) {
-            const psoCreateInfo = passes[i].createPipelineStateCI(this._pathces);
+            const psoCreateInfo = passes[i].createPipelineStateCI(this._patches);
             if (psoCreateInfo) {
                 this._psoCreateInfos[i] = psoCreateInfo;
             }

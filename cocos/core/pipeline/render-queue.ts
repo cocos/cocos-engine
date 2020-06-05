@@ -75,8 +75,8 @@ export class RenderQueue {
      * @zh
      * 插入渲染过程。
      */
-    public insertRenderPass (renderObj: IRenderObject, modelIdx: number, passIdx: number): boolean {
-        const subModel = renderObj.model.getSubModel(modelIdx);
+    public insertRenderPass (renderObj: IRenderObject, subModelIdx: number, passIdx: number): boolean {
+        const subModel = renderObj.model.getSubModel(subModelIdx);
         const pass = subModel.passes[passIdx];
         const psoCreateInfo = subModel.psoInfos[passIdx];
         const isTransparent = psoCreateInfo.blendState.targets[0].blend;
