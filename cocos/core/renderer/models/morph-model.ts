@@ -4,27 +4,25 @@ import { IMacroPatch, Pass } from '../core/pass';
 import { Material } from '../../assets/material';
 import { MaterialInstance } from '../core/material-instance';
 import { RenderingSubMesh } from '../../assets/mesh';
+import { IPSOCreateInfo } from '../scene/submodel';
 
 export class MorphModel extends Model {
     private _morphRenderingInstance: MorphRenderingInstance | null = null;
     private _usedMaterials = new Set<Material>();
 
-    protected getMacroPatches(subModelIndex: number) : any {
+    public getMacroPatches(subModelIndex: number) : any {
         if (this._morphRenderingInstance) {
             return this._morphRenderingInstance.requiredPatches(subModelIndex);
         } else {
             return undefined;
-        } 
+        }
     }
 
-    protected updateAttributesAndBinding(subModelIndex : number) {
-        super.updateAttributesAndBinding(subModelIndex);
-        
+    public updateLocalBindings (psoci: IPSOCreateInfo, submodelIdx: number) {
+        super.updateLocalBindings(psoci, submodelIdx);
+
         if (this._morphRenderingInstance) {
-            const psoCreateInfos = this._subModels[subModelIndex].psoInfos;
-            for (let i = 0;i < psoCreateInfos.length; ++i) {
-                this._morphRenderingInstance.adaptPipelineState(subModelIndex, psoCreateInfos[i]);
-            }
+            this._morphRenderingInstance.adaptPipelineState(submodelIdx, psoci);
         }
     }
 

@@ -177,7 +177,7 @@ function getShaderBindings (
 export interface IShaderResources {
     shader: GFXShader;
     bindings: IGFXBinding[];
-    inputState: GFXInputState;
+    input: GFXInputState;
 }
 
 /**
@@ -349,7 +349,7 @@ class ProgramLib {
                 { type: GFXShaderType.FRAGMENT, source: prefix + src.frag },
             ],
         });
-        return this._cache[key] = { shader, bindings, inputState };
+        return this._cache[key] = { shader, bindings, input: inputState };
     }
 }
 

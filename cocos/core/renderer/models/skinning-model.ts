@@ -41,6 +41,7 @@ import { Pass, IMacroPatch } from '../core/pass';
 import { ModelType } from '../scene/model';
 import { uploadJointData } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
+import { IPSOCreateInfo } from '../scene/submodel';
 
 export interface IJointTransform {
     node: Node;
@@ -245,7 +246,7 @@ export class SkinningModel extends MorphModel {
         subMeshData.vertexBuffers = original;
     }
 
-    protected getMacroPatches(subModelIndex: number) : any {
+    public getMacroPatches (subModelIndex: number) : any {
         const superMacroPatches = super.getMacroPatches(subModelIndex);
         if (superMacroPatches) {
             return myPatches.concat(superMacroPatches);
@@ -254,15 +255,11 @@ export class SkinningModel extends MorphModel {
         }
     }
 
-    protected updateAttributesAndBinding (subModelIndex : number) {
-        super.updateAttributesAndBinding(subModelIndex);
-
-        const psoCreateInfos = this._subModels[subModelIndex].psoInfos;
-        for (let i = 0;i < psoCreateInfos.length; ++i) {
-            const bindingLayout = psoCreateInfos[i].bindingLayout;
-            const buffer = this._buffers[this._bufferIndices![subModelIndex]];
-            if (buffer) { bindingLayout.bindBuffer(UBOSkinning.BLOCK.binding, buffer); }
-        }
+    public updateLocalBindings (psoci: IPSOCreateInfo, submodelIdx: number) {
+        super.updateLocalBindings(psoci, submodelIdx);
+        const bindingLayout = psoci.bindingLayout;
+        const buffer = this._buffers[this._bufferIndices![submodelIdx]];
+        if (buffer) { bindingLayout.bindBuffer(UBOSkinning.BLOCK.binding, buffer); }
     }
 
     private _ensureEnoughBuffers (count: number) {

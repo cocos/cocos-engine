@@ -4,6 +4,8 @@
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { InstancedBuffer } from './instanced-buffer';
+import { GFXDevice, GFXRenderPass, GFXPipelineState } from '../gfx';
+import { PipelineStateManager } from './pipeline-state-manager';
 
 /**
  * @zh
@@ -41,17 +43,22 @@ export class RenderInstancedQueue {
      * @zh
      * 记录命令缓冲。
      */
-    public recordCommandBuffer (cmdBuff: GFXCommandBuffer) {
+    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
         const it = this.queue.values(); let res = it.next();
         while (!res.done) {
-            const { instances, pso } = res.value;
-            if (pso) {
+            const { instances, psoci } = res.value;
+            if (psoci) {
                 res.value.uploadBuffers();
-                cmdBuff.bindPipelineState(pso);
-                cmdBuff.bindBindingLayout(pso.pipelineLayout.layouts[0]);
+                let lastPSO: GFXPipelineState | null = null;
                 for (let b = 0; b < instances.length; ++b) {
                     const instance = instances[b];
                     if (!instance.count) { continue; }
+                    const pso = PipelineStateManager.getOrCreatePipelineState(device, psoci, renderPass, instance.ia);
+                    if (lastPSO !== pso) {
+                        cmdBuff.bindPipelineState(pso);
+                        cmdBuff.bindBindingLayout(psoci.bindingLayout);
+                        lastPSO = pso;
+                    }
                     cmdBuff.bindInputAssembler(instance.ia);
                     cmdBuff.draw(instance.ia);
                 }

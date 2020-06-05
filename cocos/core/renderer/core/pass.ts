@@ -37,7 +37,8 @@ import { GFXBindingType, GFXBufferUsageBit, GFXDynamicState,
     GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode, GFXType } from '../../gfx/define';
 import { GFXFeature, GFXDevice } from '../../gfx/device';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
-    GFXRasterizerState } from '../../gfx/pipeline-state';
+    GFXRasterizerState,
+    GFXInputState} from '../../gfx/pipeline-state';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTexture } from '../../gfx/texture';
@@ -172,7 +173,6 @@ export class Pass {
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _primitive: GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
-    protected _bindings: IGFXBinding[] = [];
     protected _bs: GFXBlendState = new GFXBlendState();
     protected _dss: GFXDepthStencilState = new GFXDepthStencilState();
     protected _rs: GFXRasterizerState = new GFXRasterizerState();
@@ -189,6 +189,8 @@ export class Pass {
     protected _root: Root;
     protected _device: GFXDevice;
     protected _shader: GFXShader | null = null;
+    protected _bindings: IGFXBinding[] = [];
+    protected _shaderInput: GFXInputState | null = null;
     // for dynamic batching
     protected _batchedBuffer: BatchedBuffer | null = null;
     protected _instancedBuffer: InstancedBuffer | null = null;
@@ -495,19 +497,19 @@ export class Pass {
         this._dynamicBatchingSync();
         const res = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
         if (!res.shader) { console.warn(`create shader ${this._programName} failed`); return false; }
-        this._shader = res.shader; this._bindings = res.bindings;
+        this._shader = res.shader; this._bindings = res.bindings; this._shaderInput = res.input;
         return true;
     }
 
     /**
      * @zh
-     * 根据当前 pass 持有的信息获取 [[IPSOCreateInfo]]。
+     * 根据当前 pass 持有的信息创建 [[IPSOCreateInfo]]。
      * @en
-     * Get [[IPSOCreateInfo]] from pass.
+     * Create [[IPSOCreateInfo]] from pass.
      * @param patches the marcos to be used in shader.
      */
-    public getPipelineCreateInfo (patches?: IMacroPatch[]): IPSOCreateInfo | null {
-        if ((!this._shader || !this._bindings.length) && !this.tryCompile()) {
+    public createPipelineStateCI (patches?: IMacroPatch[]): IPSOCreateInfo | null {
+        if ((!this._shader || !this._bindings.length || !this._shaderInput) && !this.tryCompile()) {
             console.warn(`pass resources not complete, create PSO hash info failed`);
             return null;
         }
@@ -550,7 +552,25 @@ export class Pass {
             dynamicStates: this._dynamicStates,
             bindingLayout,
             hash: this._hash,
+            shaderInput: res && res.input || this._shaderInput!,
         };
+    }
+
+    /**
+     * @zh
+     * 销毁此 Pass 创建的 [[IPSOCreateInfo]]。
+     * @en
+     * Delete [[IPSOCreateInfo]] from pass.
+     * @param psoci the PSO create info created by this pass
+     */
+    public destroyPipelineStateCI (psoci: IPSOCreateInfo) {
+        for (let i = 0; i < this._resources.length; i++) {
+            if (this._resources[i] === psoci.bindingLayout) {
+                psoci.bindingLayout.destroy();
+                this._resources.splice(i, 1);
+                break;
+            }
+        }
     }
 
     // internal use
@@ -657,8 +677,9 @@ export class Pass {
     get defines () { return this._defines; }
     get idxInTech () { return this._idxInTech; }
     // resources
-    get bindings () { return this._bindings; }
     get shader () { return this._shader!; }
+    get bindings () { return this._bindings; }
+    get shaderInput () { return this._shaderInput!; }
     get dynamics () { return this._dynamics; }
     get batchedBuffer () { return this._batchedBuffer; }
     get instancedBuffer () { return this._instancedBuffer; }

@@ -184,31 +184,27 @@ export class BakedSkinningModel extends MorphModel {
             }
         }
 
-        for (let i = 0; i < this._implantPSOs.length; i++) {
-            const bindingLayout = this._implantPSOs[i].pipelineLayout.layouts[0];
+        for (let i = 0; i < this._implantPSOCIs.length; i++) {
+            const bindingLayout = this._implantPSOCIs[i].bindingLayout;
             bindingLayout.bindTexture(UniformJointTexture.binding, tex);
             bindingLayout.update();
         }
     }
 
-    protected getMacroPatches (subModelIndex: number) : any {
+    public getMacroPatches (subModelIndex: number) : any {
         return myPatches;
     }
 
-    protected updateAttributesAndBinding (subModelIndex : number) {
-        super.updateAttributesAndBinding(subModelIndex);
-
-        const psoCreateInfos = this._subModels[subModelIndex].psoInfos;
-        for (let i = 0;i < psoCreateInfos.length; ++i) {
-            const { buffer, texture, animInfo } = this._jointsMedium;
-            const bindingLayout = psoCreateInfos[i].bindingLayout;
-            bindingLayout.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
-            bindingLayout.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
-            const sampler = samplerLib.getSampler(this._device, jointTextureSamplerHash);
-            if (texture) {
-                bindingLayout.bindTexture(UniformJointTexture.binding, texture.handle.texture);
-                bindingLayout.bindSampler(UniformJointTexture.binding, sampler);
-            }
+    public updateLocalBindings (psoci: IPSOCreateInfo, submodelIdx: number) {
+        super.updateLocalBindings(psoci, submodelIdx);
+        const { buffer, texture, animInfo } = this._jointsMedium;
+        const bindingLayout = psoci.bindingLayout;
+        bindingLayout.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
+        bindingLayout.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
+        const sampler = samplerLib.getSampler(this._device, jointTextureSamplerHash);
+        if (texture) {
+            bindingLayout.bindTexture(UniformJointTexture.binding, texture.handle.texture);
+            bindingLayout.bindSampler(UniformJointTexture.binding, sampler);
         }
     }
 

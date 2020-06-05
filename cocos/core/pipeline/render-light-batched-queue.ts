@@ -9,15 +9,15 @@ import { Pass } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, IRenderQueueDesc } from './define';
 import { IMacroPatch } from '../renderer/core/pass'
-import { UBOForwardLight } from '../pipeline/define';
 import { Light } from '../renderer';
 import { LightType } from '../renderer/scene/light';
+import { GFXDevice, GFXRenderPass } from '../gfx';
 
 const myForward_Light_Sphere_Patches = [
-    { name: 'CC_FOWARD_ADD', value: true },
+    { name: 'CC_FORWARD_ADD', value: true },
 ];
 const myForward_Light_Spot_Patches = [
-    { name: 'CC_FOWARD_ADD', value: true },
+    { name: 'CC_FORWARD_ADD', value: true },
     { name: 'CC_SPOTLIGHT', value: true },
 ];
 
@@ -99,7 +99,7 @@ export class RenderLightBatchedQueue {
      * @zh
      * record CommandBuffer
      */
-    public recordCommandBuffer (cmdBuff: GFXCommandBuffer) {
+    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
         // for (let i = 0; i < this._sortedSubModelsArray.length; ++i) {
         //     for (let j = 0; j < this._sortedSubModelsArray[i].length; ++j) {
         //         cmdBuff.bindPipelineState(this._sortedPSOArray[i][j]);
