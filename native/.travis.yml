@@ -7,6 +7,12 @@ jobs:
       env: 
         - BUILD_TARGET=windows_cmake
       language: cpp
+      before_install:
+        - choco install nodejs.install --version=12.8.0 
+        - choco install --forcex86 -y python2
+        - export PATH="/C/Program Files/nodejs":$PATH
+        - export PATH="/C/Python27":$PATH
+        - tools/travis-scripts/before-install.sh
     - os: osx
       name: MacOSX
       env:
@@ -14,6 +20,9 @@ jobs:
       language: cpp
       osx_image: xcode10.3
       sudo: required
+      before_install:
+        - nvm install 12
+        - tools/travis-scripts/before-install.sh
     - os: osx
       name: iOS
       env:
@@ -21,6 +30,9 @@ jobs:
       language: cpp
       osx_image: xcode10.3
       sudo: required
+      before_install:
+        - nvm install 12
+        - tools/travis-scripts/before-install.sh
     - os: linux
       name: Android
       dist: xenial
@@ -28,15 +40,14 @@ jobs:
       env: 
         - BUILD_TARGET=android_cmake
       language: cpp
+      before_install:
+        - nvm install 12
+        - tools/travis-scripts/before-install.sh
 
-node_js:
-  - "7"
 jdk:
   - oraclejdk8  
 script:
   - tools/travis-scripts/run-script.sh
-before_install:
-  - tools/travis-scripts/before-install.sh
 
 # blocklist
 # branches:
