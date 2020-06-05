@@ -199,7 +199,7 @@ proto.targetOff = function (target) {
  * }, node);
  */
 proto.once = function (type, callback, target, owner) {
-    this.on(type, callback, target, owner);
+    this.on(type, callback, target, owner || true);
 };
 
 /**
