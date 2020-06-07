@@ -1050,6 +1050,9 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
                     gl.texParameteri(gpuTexture.glTarget, gl.TEXTURE_MAG_FILTER, gpuTexture.glMagFilter);
                     */
                 }
+                else {
+                    gl.deleteTexture(glTexture);
+                }
             } else {
                 const glRenderbuffer = gl.createRenderbuffer();
                 if (glRenderbuffer && gpuTexture.size > 0) {

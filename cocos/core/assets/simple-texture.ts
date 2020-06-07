@@ -155,7 +155,7 @@ export class SimpleTexture extends TextureBase {
             this._checkTextureLoaded();
 
             if (macro.CLEANUP_IMAGE_CACHE) {
-                image.destroy();
+                cc.loader.release(image);
             }
         };
         if (image.loaded) {
