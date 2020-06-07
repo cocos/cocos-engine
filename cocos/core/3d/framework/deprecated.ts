@@ -11,7 +11,7 @@ removeProperty(ModelComponent.prototype, 'ModelComponent.prototype', [
         name: 'enableDynamicBatching',
     },
     {
-        name: 'receiveShadows',
+        name: 'recieveShadows',
     },
 ]);
 
