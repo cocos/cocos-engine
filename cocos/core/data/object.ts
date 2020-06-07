@@ -327,7 +327,7 @@ class CCObject {
             this._onPreDestroy();
         }
 
-        if ((TEST ? (/* make EDITOR mockable*/ Function('return !EDITOR'))() : !EDITOR) || cc.engine._isPlaying) {
+        if (!EDITOR || cc.engine._isPlaying) {
             this._destruct();
         }
 
