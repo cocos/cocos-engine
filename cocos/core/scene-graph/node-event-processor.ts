@@ -287,16 +287,15 @@ function _searchMaskInParent (node: Node | null) {
 
 function _checkListeners (node: BaseNode, events: string[]) {
     if (!node._persistNode) {
-        let i = 0;
         if (node.eventProcessor.bubblingTargets) {
-            for (; i < events.length; ++i) {
+            for (let i = 0; i < events.length; ++i) {
                 if (node.eventProcessor.bubblingTargets.hasEventListener(events[i])) {
                     return true;
                 }
             }
         }
         if (node.eventProcessor.capturingTargets) {
-            for (; i < events.length; ++i) {
+            for (let i = 0; i < events.length; ++i) {
                 if (node.eventProcessor.capturingTargets.hasEventListener(events[i])) {
                     return true;
                 }
@@ -470,6 +469,9 @@ export class NodeEventProcessor {
         }
 
         listeners.on(type, callback, target, true);
+        listeners.on(type, () => {
+            this.off(type, callback, target);
+        }, undefined, true);
     }
 
     /**
