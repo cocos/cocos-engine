@@ -195,7 +195,7 @@ export class Pass {
     protected _batchedBuffer: BatchedBuffer | null = null;
     protected _instancedBuffer: InstancedBuffer | null = null;
 
-    public constructor (root: Root) {
+    constructor (root: Root) {
         this._root = root;
         this._device = root.device;
     }

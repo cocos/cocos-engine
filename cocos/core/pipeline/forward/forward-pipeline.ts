@@ -20,15 +20,9 @@ import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
-import { RenderLightBatchedQueue } from '../render-light-batched-queue'
-import { getPhaseID } from '../pass-phase'
-import { IRenderPass } from '../define';
-import { opaqueCompareFn } from '../render-queue';
 
 const _vec4Array = new Float32Array(4);
 const _sphere = sphere.create(0, 0, 0, 1);
-const _tempLightIndex = [] as number[];
-const _tempLightDist = [] as number[];
 const _tempVec3 = new Vec3();
 
 /**
@@ -39,7 +33,7 @@ const _tempVec3 = new Vec3();
 export class ForwardPipeline extends RenderPipeline {
     public static initInfo: IRenderPipelineInfo = {
     };
-    
+
     public get lightsUBO (): GFXBuffer {
         return this._lightsUBO!;
     }
@@ -49,7 +43,7 @@ export class ForwardPipeline extends RenderPipeline {
      * 获取参与渲染的灯光。
      */
     public get validLights () {
-        return this._validLights
+        return this._validLights;
     }
 
     /**
@@ -74,14 +68,6 @@ export class ForwardPipeline extends RenderPipeline {
      */
     public get lightBuffers () {
         return this._lightBuffers;
-    }
-
-    /**
-     * @zh
-     * get light batch queues
-     */
-    public get lightBatchQueue () {
-        return this._lightBatchQueue;
     }
 
     /**
@@ -121,12 +107,6 @@ export class ForwardPipeline extends RenderPipeline {
     private _lightBuffers: GFXBuffer[] = [];
 
     /**
-     * @zh
-     * Light batch Queue
-     */
-    private _lightBatchQueue: RenderLightBatchedQueue;
-
-    /**
      * 构造函数。
      * @param root Root类实例。
      */
@@ -136,13 +116,6 @@ export class ForwardPipeline extends RenderPipeline {
         this._lightIndexOffset = [];
         this._lightIndices = [];
         this._lightBuffers = [];
-        
-        let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
-        this._lightBatchQueue = new RenderLightBatchedQueue({
-            isTransparent: false,
-            phases: getPhaseID("forward-add"),
-            sortFunc,
-        });
     }
 
     public initialize (info: IRenderPipelineInfo) {
@@ -185,7 +158,6 @@ export class ForwardPipeline extends RenderPipeline {
      * 销毁函数。
      */
     public destroy () {
-        this._lightBatchQueue.clear();
         this._destroy();
     }
 
@@ -210,12 +182,11 @@ export class ForwardPipeline extends RenderPipeline {
         const exposure = view.camera.exposure;
 
         // Fill UBOForwardLight, And update LightGFXBuffer[light_index]
-        for(let l = 0; l < this._validLights.length; ++l)
-        {
+        for(let l = 0; l < this._validLights.length; ++l) {
             this._uboLight.view.fill(0);
             const light = this._validLights[l];
             if (light) {
-                switch (light.type){
+                switch (light.type) {
                     case LightType.SPHERE:
                         const sphereLit = light as SphereLight;
                         Vec3.toArray(_vec4Array, sphereLit.position);
@@ -268,14 +239,11 @@ export class ForwardPipeline extends RenderPipeline {
                             _vec4Array[3] = spotLit.luminance * exposure * this._lightMeterScale;
                         }
                         this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_COLOR_OFFSET);
-                    break;   
+                    break;
                 }
             }
             // update lightBuffer
-            this._lightBuffers[l].update(this._uboLight.view); 
-
-            // update per-lightBatchQueue UBO
-            this._lightBatchQueue.updateLightBuffer(l, this._lightBuffers[l]);                 
+            this._lightBuffers[l].update(this._uboLight.view);
         }
     }
 
@@ -288,7 +256,6 @@ export class ForwardPipeline extends RenderPipeline {
         super.sceneCulling(view);
         this._validLights.length = 0;
         const sphereLights = view.camera.scene!.sphereLights;
-        this._lightBatchQueue.clear();
 
         for (let i = 0; i < sphereLights.length; i++) {
             const light = sphereLights[i];
@@ -310,7 +277,7 @@ export class ForwardPipeline extends RenderPipeline {
 
         if (this._validLights.length > this._lightBuffers.length) {
             for (let l = this._lightBuffers.length; l < this._validLights.length; ++l) {
-                let lightBuffer: GFXBuffer = this._device.createBuffer({
+                const lightBuffer: GFXBuffer = this._device.createBuffer({
                     usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                     memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                     size: UBOForwardLight.SIZE,
@@ -326,7 +293,6 @@ export class ForwardPipeline extends RenderPipeline {
                 this._lightIndexOffset[i] = this._lightIndices.length;
                 this.cullLightPerModel(this._renderObjects[i].model);
             }
-            this._lightBatchQueue.updateQueueSize(this._validLights.length);
         }
     }
 
@@ -336,10 +302,9 @@ export class ForwardPipeline extends RenderPipeline {
      * @param model 模型。
      */
     private cullLightPerModel (model: Model) {
-        _tempLightIndex.length = 0;
-        if(model.node) {
+        if (model.node) {
             model.node.getWorldPosition(_tempVec3);
-        }else {
+        } else {
             _tempVec3.set(0.0, 0.0, 0.0);
         }
         for (let i = 0; i < this._validLights.length; i++) {
@@ -356,19 +321,8 @@ export class ForwardPipeline extends RenderPipeline {
                     break;
             }
             if (!isCulled) {
-                _tempLightIndex.push(i);
-                if (this._validLights[i].type === LightType.DIRECTIONAL) {
-                    _tempLightDist[i] = 0;
-                } else {
-                    _tempLightDist[i] = Vec3.distance((this._validLights[i] as SphereLight | SpotLight).position, _tempVec3);
-                }
+                this._lightIndices.push(i);
             }
         }
-        _tempLightIndex.sort(this.sortLight);
-        Array.prototype.push.apply(this._lightIndices, _tempLightIndex);
-    }
-
-    private sortLight (a: number, b: number) {
-        return _tempLightDist[a] - _tempLightDist[b];
     }
 }

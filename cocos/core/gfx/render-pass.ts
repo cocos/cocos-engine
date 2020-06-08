@@ -83,7 +83,7 @@ export abstract class GFXRenderPass extends GFXObject {
     public get hash (): number { return this._hash; }
 
     protected computeHash (): number {
-        let res = 'ca,';
+        let res = 'ca';
         for (let i = 0; i < this._colorInfos.length; ++i) {
             const ca = this._colorInfos[i];
             res += `,${ca.format},${ca.loadOp},${ca.storeOp},${ca.sampleCount},${ca.beginLayout},${ca.endLayout}`;
