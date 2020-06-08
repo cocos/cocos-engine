@@ -131,7 +131,7 @@ export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & 
         private _callbackTable = createMap(true);
 
         public once<Callback extends Function> (type: EventType, callback: Callback, target?: object) {
-            this.on(type, callback, target, true);
+            return this.on(type, callback, target, true);
         }
 
         public targetOff (typeOrTarget: string | object) {
