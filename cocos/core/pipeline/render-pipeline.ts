@@ -899,7 +899,6 @@ export abstract class RenderPipeline {
             this._textures.get(rt.name)!.resize(width, height)
         }
 
-        const colorMipmapLevels: number[] = [];
         for (let i = 0; i < this.framebuffers.length; i++) {
             const fb = this.framebuffers[i];
             this._frameBuffers.get(fb.name)!.destroy();
@@ -908,9 +907,7 @@ export abstract class RenderPipeline {
                 colorTextures: fb.colorTextures.map((value) => {
                     return this._textures.get(value)!;
                 }, this),
-                colorMipmapLevels: colorMipmapLevels,
                 depthStencilTexture: this._textures.get(fb.depthStencilTexture)!,
-                depStencilMipmapLevel: 0,
             });
         }
 
