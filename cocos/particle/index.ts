@@ -18,7 +18,6 @@ export {
     CurveRange
 };
 
-cc.CurveRange = CurveRange;
 cc.ParticleSystemComponent = ParticleSystemComponent;
 cc.BillboardComponent = BillboardComponent;
 cc.LineComponent = LineComponent;
