@@ -11,6 +11,7 @@ export interface IGFXFramebufferInfo {
     renderPass: GFXRenderPass;
     colorTextures: GFXTexture[];
     depthStencilTexture: GFXTexture | null;
+    mipmapLevel: number;
     isOffscreen?: boolean;
 }
 

@@ -1340,7 +1340,7 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2GFXDevice, gpuFram
                             gl.COLOR_ATTACHMENT0 + i,
                             colorTexture.glTarget,
                             colorTexture.glTexture,
-                            0);
+                            0); // level should be 0.
                     } else {
                         gl.framebufferRenderbuffer(
                             gl.FRAMEBUFFER,

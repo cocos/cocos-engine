@@ -97,6 +97,7 @@ export class WebGL2GFXWindow extends GFXWindow {
             colorTextures,
             depthStencilTexture: this._depthStencilTex,
             isOffscreen: this._isOffscreen,
+            mipmapLevel: 0,
         });
 
         this._status = GFXStatus.SUCCESS;
@@ -153,6 +154,7 @@ export class WebGL2GFXWindow extends GFXWindow {
                     renderPass: this._renderPass!,
                     colorTextures: [ this._colorTex! ],
                     depthStencilTexture: this._depthStencilTex!,
+                    mipmapLevel: 0,
                 });
             }
         }

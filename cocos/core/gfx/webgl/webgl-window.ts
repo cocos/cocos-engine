@@ -96,6 +96,7 @@ export class WebGLGFXWindow extends GFXWindow {
             renderPass: this._renderPass,
             colorTextures,
             depthStencilTexture: this._depthStencilTex,
+            mipmapLevel: 0,
             isOffscreen: this._isOffscreen,
         });
 
@@ -153,6 +154,7 @@ export class WebGLGFXWindow extends GFXWindow {
                     renderPass: this._renderPass!,
                     colorTextures: [ this._colorTex! ],
                     depthStencilTexture: this._depthStencilTex!,
+                    mipmapLevel: 0,
                 });
             }
         }

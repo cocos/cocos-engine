@@ -808,6 +808,7 @@ export abstract class RenderPipeline {
                 renderPass: rp,
                 colorTextures: ts,
                 depthStencilTexture: dsv,
+                mipmapLevel: 0,
             }));
         }
 
@@ -905,6 +906,7 @@ export abstract class RenderPipeline {
                     return this._textures.get(value)!;
                 }, this),
                 depthStencilTexture: this._textures.get(fb.depthStencilTexture)!,
+                mipmapLevel: 0,
             });
         }
 

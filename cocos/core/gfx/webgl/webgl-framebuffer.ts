@@ -22,6 +22,10 @@ export class WebGLGFXFramebuffer extends GFXFramebuffer {
         this._depthStencilTexture = info.depthStencilTexture || null;
         this._isOffscreen = info.isOffscreen !== undefined ? info.isOffscreen : true;
 
+        if (info.mipmapLevel != 0) {
+            console.warn('The mipmap level of th texture image to be attached should be 0. Convert to 0.');
+        }
+
         if (this._isOffscreen) {
 
             const gpuColorTextures: WebGLGPUTexture[] = [];
