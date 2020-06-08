@@ -1105,7 +1105,7 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLGFXDevice, gpuFrameb
                         glAttachment,
                         dst.glTarget,
                         dst.glTexture,
-                        0);
+                        0); // level must be 0
                 } else {
                     gl.framebufferRenderbuffer(
                         gl.FRAMEBUFFER,

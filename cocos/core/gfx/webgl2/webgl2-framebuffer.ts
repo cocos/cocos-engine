@@ -21,8 +21,15 @@ export class WebGL2GFXFramebuffer extends GFXFramebuffer {
         this._depthStencilTexture = info.depthStencilTexture || null;
         this._isOffscreen = info.isOffscreen !== undefined ? info.isOffscreen : true;
 
-        if (info.mipmapLevel != 0) {
-            console.warn('The mipmap level of th texture image to be attached should be 0. Convert to 0.');
+        if (info.depStencilMipmapLevel !== 0) {
+            console.warn('The mipmap level of th texture image to be attached of depth stencil attachment should be 0. Convert to 0.');
+        }
+        if (info.colorMipmapLevels.length > 0) {
+            for (let i = 0; i < info.colorMipmapLevels.length; ++i) {
+                if (info.colorMipmapLevels[i] !== 0) {
+                    console.warn(`The mipmap level of th texture image to be attached of color attachment ${i} should be 0. Convert to 0.`);
+                }
+            }
         }
 
         if (this._isOffscreen) {

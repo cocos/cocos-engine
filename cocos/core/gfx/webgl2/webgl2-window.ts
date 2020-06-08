@@ -92,12 +92,14 @@ export class WebGL2GFXWindow extends GFXWindow {
             }
         }
 
+        const colorMipmapLevels: number[] = [];
         this._framebuffer = this._device.createFramebuffer({
             renderPass: this._renderPass,
             colorTextures,
+            colorMipmapLevels: colorMipmapLevels,
             depthStencilTexture: this._depthStencilTex,
             isOffscreen: this._isOffscreen,
-            mipmapLevel: 0,
+            depStencilMipmapLevel: 0,
         });
 
         this._status = GFXStatus.SUCCESS;
@@ -148,13 +150,15 @@ export class WebGL2GFXWindow extends GFXWindow {
                 this._colorTex.resize(width, height);
             }
 
+            const colorMipmapLevels: number[] = [];
             if (this._framebuffer && this._framebuffer.isOffscreen) {
                 this._framebuffer.destroy();
                 this._framebuffer.initialize({
                     renderPass: this._renderPass!,
                     colorTextures: [ this._colorTex! ],
+                    colorMipmapLevels: colorMipmapLevels,
                     depthStencilTexture: this._depthStencilTex!,
-                    mipmapLevel: 0,
+                    depStencilMipmapLevel: 0,
                 });
             }
         }

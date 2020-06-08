@@ -10,8 +10,9 @@ import { GFXTexture } from './texture';
 export interface IGFXFramebufferInfo {
     renderPass: GFXRenderPass;
     colorTextures: GFXTexture[];
+    colorMipmapLevels: number[];
     depthStencilTexture: GFXTexture | null;
-    mipmapLevel: number;
+    depStencilMipmapLevel: number;
     isOffscreen?: boolean;
 }
 

@@ -17,7 +17,7 @@ import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
-import { Mat4, Vec3, Vec4 } from '../math';
+import { Mat4, Vec3, Vec4, color } from '../math';
 import { Camera, Model, Light } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
@@ -804,11 +804,13 @@ export abstract class RenderPipeline {
                 ts.push(tv);
             }
             const dsv = this._textures.get(fbd.depthStencilTexture) as GFXTexture | null;
+            const colorMipmapLevels: number[] = [];
             this._frameBuffers.set(fbd.name, this._device.createFramebuffer({
                 renderPass: rp,
                 colorTextures: ts,
+                colorMipmapLevels: colorMipmapLevels,
                 depthStencilTexture: dsv,
-                mipmapLevel: 0,
+                depStencilMipmapLevel: 0,
             }));
         }
 
@@ -897,6 +899,7 @@ export abstract class RenderPipeline {
             this._textures.get(rt.name)!.resize(width, height)
         }
 
+        const colorMipmapLevels: number[] = [];
         for (let i = 0; i < this.framebuffers.length; i++) {
             const fb = this.framebuffers[i];
             this._frameBuffers.get(fb.name)!.destroy();
@@ -905,8 +908,9 @@ export abstract class RenderPipeline {
                 colorTextures: fb.colorTextures.map((value) => {
                     return this._textures.get(value)!;
                 }, this),
+                colorMipmapLevels: colorMipmapLevels,
                 depthStencilTexture: this._textures.get(fb.depthStencilTexture)!,
-                mipmapLevel: 0,
+                depStencilMipmapLevel: 0,
             });
         }
 
