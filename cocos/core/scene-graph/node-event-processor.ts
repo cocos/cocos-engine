@@ -375,6 +375,9 @@ export class NodeEventProcessor {
                 this.mouseListener = null;
             }
         }
+
+        this.capturingTargets && this.capturingTargets.clear();
+        this.bubblingTargets && this.bubblingTargets.clear();
     }
 
     /**

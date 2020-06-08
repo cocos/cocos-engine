@@ -1341,6 +1341,9 @@ export class BaseNode extends CCObject implements ISchedulable {
             this._registerIfAttached!(false);
         }
 
+        // Destroy node event processor
+        this._eventProcessor.destroy();
+
         // destroy children
         const children = this._children;
         for (let i = 0; i < children.length; ++i) {

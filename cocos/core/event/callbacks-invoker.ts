@@ -375,7 +375,14 @@ export class CallbacksInvoker {
      * 移除所有回调。
      */
     public clear () {
-        this._callbackTable = createMap(true);
+        for (let key in this._callbackTable) {
+            let list = this._callbackTable[key];
+            if (list) {
+                list.clear();
+                callbackListPool.free(list);
+                delete this._callbackTable[key];
+            }
+        }
     }
 }
 
