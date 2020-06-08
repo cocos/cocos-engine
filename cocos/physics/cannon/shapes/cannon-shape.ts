@@ -123,14 +123,17 @@ export class CannonShape implements IBaseShape {
 
     setGroup (v: number): void {
         this._body.collisionFilterGroup = v;
+        if (!this._body.isAwake()) this._body.wakeUp();
     }
 
     addGroup (v: number): void {
         this._body.collisionFilterGroup |= v;
+        if (!this._body.isAwake()) this._body.wakeUp();
     }
 
     removeGroup (v: number): void {
         this._body.collisionFilterGroup &= ~v;
+        if (!this._body.isAwake()) this._body.wakeUp();
     }
 
     /** mask */
@@ -140,14 +143,17 @@ export class CannonShape implements IBaseShape {
 
     setMask (v: number): void {
         this._body.collisionFilterMask = v;
+        if (!this._body.isAwake()) this._body.wakeUp();
     }
 
     addMask (v: number): void {
         this._body.collisionFilterMask |= v;
+        if (!this._body.isAwake()) this._body.wakeUp();
     }
 
     removeMask (v: number): void {
         this._body.collisionFilterMask &= ~v;
+        if (!this._body.isAwake()) this._body.wakeUp();
     }
 
     /**

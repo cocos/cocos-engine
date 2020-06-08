@@ -226,14 +226,17 @@ export class CannonRigidBody implements IRigidBody {
 
     setGroup (v: number): void {
         this.impl.collisionFilterGroup = v;
+        if (!this.impl.isAwake()) this.impl.wakeUp();
     }
 
     addGroup (v: number): void {
         this.impl.collisionFilterGroup |= v;
+        if (!this.impl.isAwake()) this.impl.wakeUp();
     }
 
     removeGroup (v: number): void {
         this.impl.collisionFilterGroup &= ~v;
+        if (!this.impl.isAwake()) this.impl.wakeUp();
     }
 
     /** mask */
@@ -243,14 +246,17 @@ export class CannonRigidBody implements IRigidBody {
 
     setMask (v: number): void {
         this.impl.collisionFilterMask = v;
+        if (!this.impl.isAwake()) this.impl.wakeUp();
     }
 
     addMask (v: number): void {
         this.impl.collisionFilterMask |= v;
+        if (!this.impl.isAwake()) this.impl.wakeUp();
     }
 
     removeMask (v: number): void {
         this.impl.collisionFilterMask &= ~v;
+        if (!this.impl.isAwake()) this.impl.wakeUp();
     }
 
 }
