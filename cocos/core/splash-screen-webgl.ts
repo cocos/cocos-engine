@@ -239,10 +239,13 @@ export class SplashScreenWebgl {
 
         // adapt for alipay, adjust the canvas size
         if (ALIPAY) {
-            const w = screen.width;
-            this.gl.canvas.width = w;
-            const h = screen.height;
-            this.gl.canvas.height = h;
+            if (window._CCSettings.orientation === 'landscape') {
+                this.gl.canvas.width = screen.height * devicePixelRatio;
+                this.gl.canvas.height = screen.width * devicePixelRatio;
+            } else {
+                this.gl.canvas.width = screen.width * devicePixelRatio;
+                this.gl.canvas.height = screen.height * devicePixelRatio;
+            }
         }
 
         this.initMatrix();
