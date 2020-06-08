@@ -5,6 +5,7 @@ import { Vec3 } from '../../math';
 import { IGeometry } from '../../primitive/define';
 import { writeBuffer } from './buffer';
 import { BufferBlob } from './buffer-blob';
+import { legacyCC } from '../../global-exports';
 
 const _defAttrs: IGFXAttribute[] = [
     { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },
@@ -25,7 +26,8 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
 
     let attr: IGFXAttribute | null;
 
-    if (geometry.positions.length > 0) {
+    const positions = geometry.positions.slice();
+    if (positions.length > 0) {
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
@@ -40,11 +42,18 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
             attr = _defAttrs[0];
         }
 
+        // device NDC correction
         const info = GFXFormatInfos[attr.format];
+        const ySign = legacyCC.director.root.device.projectionSignY;
+        for (let i = 1; i < positions.length; i += info.count) {
+            positions[i] *= ySign;
+        }
+
         attributes.push(attr);
-        vertCount = Math.max(vertCount, Math.floor(geometry.positions.length / info.count));
-        channels.push({ offset: stride, data: geometry.positions, attribute: attr });
+        vertCount = Math.max(vertCount, Math.floor(positions.length / info.count));
+        channels.push({ offset: stride, data: positions, attribute: attr });
         stride += info.size;
+
     }
 
     if (geometry.normals && geometry.normals.length > 0) {
@@ -199,7 +208,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
     if (!minPosition && options.calculateBounds) {
         minPosition = Vec3.set(new Vec3(), Infinity, Infinity, Infinity);
         for (let iVertex = 0; iVertex < vertCount; ++iVertex) {
-            Vec3.set(v3_1, geometry.positions[iVertex * 3 + 0], geometry.positions[iVertex * 3 + 1], geometry.positions[iVertex * 3 + 2]);
+            Vec3.set(v3_1, positions[iVertex * 3 + 0], positions[iVertex * 3 + 1], positions[iVertex * 3 + 2]);
             Vec3.min(minPosition, minPosition, v3_1);
         }
     }
@@ -207,7 +216,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
     if (!maxPosition && options.calculateBounds) {
         maxPosition = Vec3.set(new Vec3(), -Infinity, -Infinity, -Infinity);
         for (let iVertex = 0; iVertex < vertCount; ++iVertex) {
-            Vec3.set(v3_1, geometry.positions[iVertex * 3 + 0], geometry.positions[iVertex * 3 + 1], geometry.positions[iVertex * 3 + 2]);
+            Vec3.set(v3_1, positions[iVertex * 3 + 0], positions[iVertex * 3 + 1], positions[iVertex * 3 + 2]);
             Vec3.max(maxPosition, maxPosition, v3_1);
         }
     }

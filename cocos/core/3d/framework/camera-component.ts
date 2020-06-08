@@ -65,6 +65,17 @@ const ClearFlag = Enum({
     DONT_CLEAR: GFXClearFlag.NONE,
 });
 
+// tslint:disable: no-shadowed-variable
+export namespace CameraComponent {
+    export type ProjectionType = EnumAlias<typeof ProjectionType>;
+    export type FOVAxis = EnumAlias<typeof FOVAxis>;
+    export type ClearFlag = EnumAlias<typeof ClearFlag>;
+    export type Aperture = EnumAlias<typeof Aperture>;
+    export type Shutter = EnumAlias<typeof Shutter>;
+    export type ISO = EnumAlias<typeof ISO>;
+}
+// tslint:enable: no-shadowed-variable
+
 /**
  * @en The Camera Component.
  * @zh 相机组件。
@@ -470,7 +481,8 @@ export class CameraComponent extends Component {
     set inEditorMode (value) {
         this._inEditorMode = value;
         if (this._camera) {
-            this._camera.changeTargetWindow(value ? legacyCC.director.root && legacyCC.director.root.mainWindow : legacyCC.director.root && legacyCC.director.root.tempWindow);
+            this._camera.changeTargetWindow(value ? legacyCC.director.root && legacyCC.director.root.mainWindow :
+                legacyCC.director.root && legacyCC.director.root.tempWindow);
         }
     }
 
@@ -569,7 +581,8 @@ export class CameraComponent extends Component {
             name: this.node.name,
             node: this.node,
             projection: this._projection,
-            window: this._inEditorMode ? legacyCC.director.root && legacyCC.director.root.mainWindow : legacyCC.director.root && legacyCC.director.root.tempWindow,
+            window: this._inEditorMode ? legacyCC.director.root && legacyCC.director.root.mainWindow :
+            legacyCC.director.root && legacyCC.director.root.tempWindow,
             priority: this._priority,
             flows: this._flows,
         });
@@ -649,13 +662,4 @@ export class CameraComponent extends Component {
             this._camera.setFixedSize(window!.width, window!.height);
         }
     }
-}
-
-export namespace CameraComponent {
-    export type ProjectionType = EnumAlias<typeof ProjectionType>;
-    export type FOVAxis = EnumAlias<typeof FOVAxis>;
-    export type ClearFlag = EnumAlias<typeof ClearFlag>;
-    export type Aperture = EnumAlias<typeof Aperture>;
-    export type Shutter = EnumAlias<typeof Shutter>;
-    export type ISO = EnumAlias<typeof ISO>;
 }

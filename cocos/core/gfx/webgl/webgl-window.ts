@@ -38,26 +38,30 @@ export class WebGLGFXWindow extends GFXWindow {
         this._colorFmt = info.colorFmt;
         this._depthStencilFmt = info.depthStencilFmt;
 
-        this._renderPass = this._device.createRenderPass({
-            colorAttachments: [{
-                format: this._colorFmt,
-                loadOp: GFXLoadOp.CLEAR,
-                storeOp: GFXStoreOp.STORE,
-                sampleCount: 1,
-                beginLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
-                endLayout: GFXTextureLayout.PRESENT_SRC,
-            }],
-            depthStencilAttachment: {
-                format : this._depthStencilFmt,
-                depthLoadOp : GFXLoadOp.CLEAR,
-                depthStoreOp : GFXStoreOp.STORE,
-                stencilLoadOp : GFXLoadOp.CLEAR,
-                stencilStoreOp : GFXStoreOp.STORE,
-                sampleCount : 1,
-                beginLayout : GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                endLayout : GFXTextureLayout.PRESENT_SRC,
-            },
-        });
+        if (info.renderPass !== undefined) {
+            this._renderPass = info.renderPass;
+        } else {
+            this._renderPass = this._device.createRenderPass({
+                colorAttachments: [{
+                    format: this._colorFmt,
+                    loadOp: GFXLoadOp.CLEAR,
+                    storeOp: GFXStoreOp.STORE,
+                    sampleCount: 1,
+                    beginLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
+                    endLayout: GFXTextureLayout.SHADER_READONLY_OPTIMAL,
+                }],
+                depthStencilAttachment: {
+                    format : this._depthStencilFmt,
+                    depthLoadOp : GFXLoadOp.CLEAR,
+                    depthStoreOp : GFXStoreOp.STORE,
+                    stencilLoadOp : GFXLoadOp.CLEAR,
+                    stencilStoreOp : GFXStoreOp.STORE,
+                    sampleCount : 1,
+                    beginLayout : GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                    endLayout : GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                },
+            });
+        }
 
         const colorTextures: GFXTexture[] = [];
 

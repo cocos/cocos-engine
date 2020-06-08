@@ -17,6 +17,7 @@ export interface IGFXWindowInfo {
     colorFmt: GFXFormat;
     depthStencilFmt: GFXFormat;
     isOffscreen?: boolean;
+    renderPass?: GFXRenderPass;
 }
 
 /**
