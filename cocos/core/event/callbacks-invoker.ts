@@ -31,7 +31,7 @@
 import { Pool } from '../memop';
 import { array, createMap } from '../utils/js';
 import { TEST } from 'internal:constants';
-import { CCObject } from '../data/object';
+import { CCObject, isValid } from '../data/object';
 const fastRemoveAt = array.fastRemoveAt;
 
 function empty (){}
@@ -55,7 +55,7 @@ class CallbackInfo {
 
     public check () {
         // Validation
-        if (this.target instanceof CCObject && !this.target.isValid) {
+        if (this.target instanceof CCObject && !isValid(this.target)) {
             return false;
         }
         else {
