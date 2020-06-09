@@ -742,7 +742,6 @@ public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?
             if (listeners) {
                 listeners.off(type, callback, target);
             }
-
         }
     }
 }

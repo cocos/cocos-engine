@@ -460,7 +460,6 @@ test('Destroyed node should no longer be invoked as target', () => {
     expect(cb1.mock.calls.length).toBe(1);
 
     node.destroy();
-    CCObject._deferredDestroy();
     expect(ci.hasEventListener('test', cb1, node)).toBeFalsy();
     ci.emit('test');
     expect(cb1.mock.calls.length).toBe(1);
@@ -468,7 +467,6 @@ test('Destroyed node should no longer be invoked as target', () => {
     node = new Node();
     let cb2 = jest.fn(() => {
         node.destroy();
-        CCObject._deferredDestroy();
     });
     
     ci.on('test', cb2, node);
@@ -496,8 +494,7 @@ test('Destroyed component should no longer be invoked as target', () => {
     expect(node.position.x).toBe(100);
     expect(cb1.mock.calls.length).toBe(1);
 
-    node.destroy();
-    CCObject._deferredDestroy();
+    comp.destroy();
     expect(ci.hasEventListener('test', cb1, comp)).toBeFalsy();
     ci.emit('test');
     expect(cb1.mock.calls.length).toBe(1);
@@ -506,6 +503,7 @@ test('Destroyed component should no longer be invoked as target', () => {
     comp = node.addComponent(Component);
     let cb2 = jest.fn(() => {
         node.destroy();
+        // Force destroy node with the component
         CCObject._deferredDestroy();
     });
     

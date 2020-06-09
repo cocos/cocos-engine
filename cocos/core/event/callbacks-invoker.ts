@@ -55,7 +55,7 @@ class CallbackInfo {
 
     public check () {
         // Validation
-        if (this.target instanceof CCObject && !isValid(this.target)) {
+        if (this.target instanceof CCObject && !isValid(this.target, true)) {
             return false;
         }
         else {
