@@ -58,7 +58,6 @@ export class ShadowMapStageA extends RenderStage {
     };
 
     private _renderTarget: RenderTexture|null  = null;
-    private _shadowMapCamera: CameraComponent;
     private _width = 512;
     private _height = 512;
 
@@ -66,10 +65,8 @@ export class ShadowMapStageA extends RenderStage {
      * 构造函数。
      * @param flow 渲染阶段。
      */
-    constructor (shadowMapCamera: CameraComponent) {
+    constructor () {
         super();
-        this._shadowMapCamera = shadowMapCamera;
-        this._renderTarget = this._shadowMapCamera.targetTexture;
         director.root!.pipeline.addRenderPass(ShadowMapRenderPassStageA.SHADOWMAP, this._renderTarget!.getGFXWindow()!.renderPass);
         
     }

@@ -19,7 +19,6 @@ import { CameraComponent } from '../../3d'
 export class ShadowMapFlow extends RenderFlow {
 
     private _frame: number = 0;
-    private _shadowMapCamera: CameraComponent|null = null;
 
     public static initInfo: IRenderFlowInfo = {
         name: PIPELINE_FLOW_SHADOWMAP,
@@ -30,21 +29,20 @@ export class ShadowMapFlow extends RenderFlow {
      * 构造函数。
      * @param pipeline 渲染管线。
      */
-    constructor (shadowMapCamera: CameraComponent) {
+    constructor () {
         super();
-        this._shadowMapCamera = shadowMapCamera;
     }
 
     public initialize (info: IRenderFlowInfo) {
         super.initialize(info);
 
         // add shadowMap-stages
-        const shadowMapStageA = new ShadowMapStageA(this._shadowMapCamera!);
+        const shadowMapStageA = new ShadowMapStageA();
         shadowMapStageA.initialize(ShadowMapStageA.initInfo);
         this._stages.push(shadowMapStageA);
 
         // add shadowMap-stages
-        const shadowMapStageB = new ShadowMapStageB(this._shadowMapCamera!);
+        const shadowMapStageB = new ShadowMapStageB();
         shadowMapStageB.initialize(ShadowMapStageB.initInfo);
         this._stages.push(shadowMapStageB);
     }

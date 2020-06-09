@@ -1979,6 +1979,20 @@ export class Mat4 extends ValueType {
         return this;
     }
 
+    /// Set translation elements.
+    public setTranslation (translation: Vec3) {
+        this.m03 = translation.x;
+        this.m07 = translation.y;
+        this.m11 = translation.z;
+    }
+
+    /// Set scaling elements.
+    public setScale(scale: Vec3) {
+        this.m00 = scale.x;
+        this.m05 = scale.y;
+        this.m10 = scale.z;
+    }
+
     /**
      * @zh 重置当前矩阵的值，使其表示指定四元数表示的旋转变换。
      * @param q 四元数表示的旋转变换。

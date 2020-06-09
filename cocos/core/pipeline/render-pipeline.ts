@@ -18,7 +18,7 @@ import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
-import { Mat4, Vec3, Vec4, lerp, clamp } from '../math';
+import { Mat4, Vec3, Vec4, lerp, clamp, Quat, mat4, Vec2 } from '../math';
 import { Camera, Model, Light } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
@@ -34,6 +34,8 @@ import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
 import { RenderLightBatchedQueue } from './render-light-batched-queue';
 import { RenderShadowMapBatchedQueue } from './render-shadowMap-batched-queue';
+import { ShadowMapFlow } from './flow/shadowMap-flow';
+import { ShadowCamera } from './shadowCamera';
 
 const v3_1 = new Vec3();
 
@@ -47,6 +49,7 @@ export interface IRenderPipelineInfo {
     enableMSAA?: boolean;
     enableSMAA?: boolean;
     enableIBL?: boolean;
+    enableShadow?: boolean;
     renderTextures?: RenderTextureDesc[];
     framebuffers?: FrameBufferDesc[];
     renderPasses?: RenderPassDesc[];
@@ -129,6 +132,14 @@ export abstract class RenderPipeline {
      */
     public get isHDR (): boolean {
         return this._isHDR;
+    }
+
+    /**
+     * @zh
+     * Whether to open castShadow
+     */
+    public get isShadow (): boolean {
+        return this._isShadow;
     }
 
     /**
@@ -275,6 +286,14 @@ export abstract class RenderPipeline {
      */
     public abstract get shadowMapQueue () : RenderShadowMapBatchedQueue;
 
+    /**
+     * @zh
+     * get shadowView
+     */
+    public get shadowView (): RenderView {
+        return this._shadowView!;
+    }
+
     protected _root: Root = null!;
     protected _device: GFXDevice = null!;
     protected _renderObjects: IRenderObject[] = [];
@@ -289,6 +308,7 @@ export abstract class RenderPipeline {
 
     protected _isHDRSupported: boolean = false;
     protected _isHDR: boolean = false;
+    protected _isShadow: boolean = false;
     protected _lightMeterScale: number = 10000.0;
     protected _fboCount: number = 0;
     protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;
@@ -312,6 +332,12 @@ export abstract class RenderPipeline {
     protected _fpScaleInv: number = 1024.0;
     protected _macros: IDefineMap = {};
     protected _useDynamicBatching = false;
+    protected _shadowView: RenderView|null = null;
+    protected _shadowCamera: ShadowCamera = new ShadowCamera();
+    protected _texAdjust: Mat4 = new Mat4();
+    protected _offset: Vec3 = new Vec3();
+    protected _scale: Vec3 = new Vec3();
+    protected _viewport: Vec2 = new Vec2();
 
     @property({
         type: [RenderTextureDesc],
@@ -358,6 +384,7 @@ export abstract class RenderPipeline {
 
         this._usePostProcess = (info.enablePostProcess !== undefined ? info.enablePostProcess : false);
         this._isHDR = (info.enableHDR !== undefined ? info.enableHDR : false);
+        this._isShadow = (info.enableShadow !== undefined ? info.enableShadow : false);
 
         // Config Anti-Aliasing
         this._useSMAA = info.enableSMAA !== undefined ? info.enableSMAA : false;
@@ -372,6 +399,11 @@ export abstract class RenderPipeline {
         if (info.renderPasses) {
             this.renderPasses = info.renderPasses;
         }
+        
+        // add shadowMap-flow
+        const shadowMapFlow = new ShadowMapFlow();
+        shadowMapFlow.initialize(ShadowMapFlow.initInfo);
+        this._flows.push(shadowMapFlow);
     }
 
     /**
@@ -412,6 +444,12 @@ export abstract class RenderPipeline {
         for (let i = 0; i < view.flows.length; i++) {
             view.flows[i].render(view);
         }
+
+        if(this._isShadow) {
+            for (let i = 0; i < this._shadowView!.flows.length; ++i) {
+                this._shadowView!.flows[i].render(this._shadowView!);
+            }
+        }
     }
 
     /**
@@ -442,6 +480,14 @@ export abstract class RenderPipeline {
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].resize(width, height);
         }
+
+        this._viewport.set(width, height);
+
+        // if (this._shadowView) {
+        //     if (this._shadowView.camera.isWindowSize) {
+        //         this._shadowView.camera.resize(width, height);
+        //     }
+        // }
     }
 
     /**
@@ -548,6 +594,15 @@ export abstract class RenderPipeline {
         const device = this._root.device;
 
         const mainLight = scene.mainLight;
+        if (this._isShadow) {
+            this._shadowCamera.setWorldPosition(mainLight?.direction.negative().multiplyScalar(this._shadowCamera.farClip));
+            this._shadowCamera.setWorldPosition(mainLight?.node?.getWorldRotation());
+            this._shadowCamera.setWorldScale(mainLight?.node?.getWorldScale());
+
+            this._shadowCamera.updateWorldTransform();
+            this._shadowCamera.update();
+        }
+
         const ambient = scene.ambient;
         const fog = scene.fog;
         const fv = this._uboGlobal.view;
@@ -621,7 +676,7 @@ export abstract class RenderPipeline {
                 fv[UBOGlobal.MAIN_LIT_SHADOW_DEPTH_FADE_OFFSET + 2] = fadeStart;
                 fv[UBOGlobal.MAIN_LIT_SHADOW_DEPTH_FADE_OFFSET + 3] = 1.0 / fadeRange;
             }
-            
+
             {
                 let intensity = mainLight.shadowIntensity;
                 const fadeStart = mainLight.shadowFadeDistance;
@@ -629,7 +684,7 @@ export abstract class RenderPipeline {
                 if (fadeStart > 0.0 && fadeEnd > 0.0 && fadeEnd > fadeStart) {
                     intensity = lerp(intensity, 1.0, clamp((0.0 - fadeStart) / (fadeEnd - fadeStart), 0.0, 1.0));
                 }
-                const  pcfValues = (1.0 - intensity);
+                const pcfValues = (1.0 - intensity);
                 const samples = 1.0;
                 fv[UBOGlobal.MAIN_LIT_SHADOW_INTENSITY_OFFSET + 0] = pcfValues / samples;
                 fv[UBOGlobal.MAIN_LIT_SHADOW_INTENSITY_OFFSET + 1] = intensity;
@@ -638,9 +693,25 @@ export abstract class RenderPipeline {
             }
 
             {
-                
-            }
-
+                //mainlight
+                const shadowMatrix = this.calculateShadowMatrix();
+                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 0] = shadowMatrix?.m00!;
+                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 1] = shadowMatrix?.m01!;
+                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 2] = shadowMatrix?.m02!;
+                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 3] = shadowMatrix?.m03!;
+                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 4] = shadowMatrix?.m04!;
+                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 5] = shadowMatrix?.m05!;
+                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 6] = shadowMatrix?.m06!;
+                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 7] = shadowMatrix?.m07!;
+                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 8] = shadowMatrix?.m08!;
+                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 9] = shadowMatrix?.m09!;
+                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 10] = shadowMatrix?.m10!;
+                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 11] = shadowMatrix?.m11!;
+                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 12] = shadowMatrix?.m12!;
+                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 13] = shadowMatrix?.m13!;
+                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 14] = shadowMatrix?.m14!;
+                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 15] = shadowMatrix?.m15!;
+            }            
         } else {
             Vec3.toArray(fv, Vec3.UNIT_Z, UBOGlobal.MAIN_LIT_DIR_OFFSET);
             Vec4.toArray(fv, Vec4.ZERO, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
@@ -1151,8 +1222,26 @@ export abstract class RenderPipeline {
         }
     }
 
-    private calculateShadowMatrix () : Mat4 {
+    private calculateShadowMatrix () : Mat4|undefined {
+        const shadowView  = this._shadowCamera.matView;
+        const shadowProj = this._shadowCamera.matProj;
+        if (!this._isShadow) {
+            return new Mat4();
+        }
 
+        const width = 2048;
+        const height = 2048;
+
+        this._offset.set(this._viewport.x / width, this._viewport.y / height, 0.0);
+
+        this._scale.set(
+            0.5 * this._viewport.x / width,
+            0.5 * this._viewport.y / height,
+            1.0);
+        this._texAdjust.setTranslation(this._offset);
+        this._texAdjust.setScale(this._scale);
+
+        return this._texAdjust.multiply(shadowProj).multiply(shadowView);
     }
 }
 legacyCC.RenderPipeline = RenderPipeline;

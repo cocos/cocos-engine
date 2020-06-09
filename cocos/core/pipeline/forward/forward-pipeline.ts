@@ -25,8 +25,6 @@ import { getPhaseID } from '../pass-phase';
 import { IRenderPass } from '../define';
 import { opaqueCompareFn } from '../render-queue';
 import { RenderShadowMapBatchedQueue } from '../render-shadowMap-batched-queue';
-import { ShadowMapFlow } from '../flow/shadowMap-flow';
-import { CameraComponent } from '../../3d';
 
 const _vec4Array = new Float32Array(4);
 const _sphere = sphere.create(0, 0, 0, 1);
@@ -173,12 +171,6 @@ export class ForwardPipeline extends RenderPipeline {
         const forwardFlow = new ForwardFlow();
         forwardFlow.initialize(ForwardFlow.initInfo);
         this._flows.push(forwardFlow);
-
-        // add shadowMap-flow
-        const camera= new CameraComponent("shadowMapCamera");
-        const shadowMapFlow = new ShadowMapFlow(camera);
-        shadowMapFlow.initialize(ShadowMapFlow.initInfo);
-        this._flows.push(shadowMapFlow);
     }
 
     public activate (root: Root): boolean {
