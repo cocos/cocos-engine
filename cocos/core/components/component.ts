@@ -206,12 +206,6 @@ class Component extends CCObject {
      */
     public _id: string = idGenerator.getNewId();
 
-    /**
-     * Register all related EventTargets,
-     * all event callbacks will be removed in _onPreDestroy
-     */
-    private _eventTargets: any[] = [];
-
     // private __scriptUuid = '';
 
     public _getRenderScene (): RenderScene {
@@ -375,14 +369,6 @@ class Component extends CCObject {
     public _onPreDestroy () {
         // Schedules
         this.unscheduleAllCallbacks();
-
-        // Remove all listeners
-        const eventTargets = this._eventTargets;
-        for (let i = 0, l = eventTargets.length; i < l; ++i) {
-            const target = eventTargets[i];
-            target && target.targetOff(this);
-        }
-        eventTargets.length = 0;
 
         //
         if (EDITOR && !TEST) {
