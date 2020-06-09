@@ -348,7 +348,7 @@ bool CCVKCmdFuncCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
     }
 
     VkImageCreateInfo createInfo{VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};
-    createInfo.flags = MapVkImageCreateFlags(gpuTexture->viewType);
+    createInfo.flags = MapVkImageCreateFlags(gpuTexture->type);
     createInfo.imageType = MapVkImageType(gpuTexture->type);
     createInfo.format = format;
     createInfo.extent = {gpuTexture->width, gpuTexture->height, gpuTexture->depth};
@@ -405,6 +405,11 @@ void CCVKCmdFuncDestroyTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
 void CCVKCmdFuncResizeTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
     CCVKCmdFuncDestroyTexture(device, gpuTexture);
     CCVKCmdFuncCreateTexture(device, gpuTexture);
+}
+
+void CCVKCmdFuncResizeTextureView(CCVKDevice *device, CCVKGPUTextureView *gpuTextureView) {
+    CCVKCmdFuncDestroyTextureView(device, gpuTextureView);
+    CCVKCmdFuncCreateTextureView(device, gpuTextureView);
 }
 
 void CCVKCmdFuncCreateTextureView(CCVKDevice *device, CCVKGPUTextureView *gpuTextureView) {

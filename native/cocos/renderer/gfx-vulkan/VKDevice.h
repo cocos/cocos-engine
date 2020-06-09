@@ -9,7 +9,6 @@ class CCVKGPUSwapchain;
 class CCVKGPUSemaphorePool;
 class CCVKGPUFencePool;
 class CCVKTexture;
-class CCVKTextureView;
 class CCVKRenderPass;
 class CCVKBuffer;
 
@@ -31,7 +30,7 @@ public:
     GFXCommandBuffer *createCommandBuffer(const GFXCommandBufferInfo &info) override;
     GFXBuffer *createBuffer(const GFXBufferInfo &info) override;
     GFXTexture *createTexture(const GFXTextureInfo &info) override;
-    GFXTextureView *createTextureView(const GFXTextureViewInfo &info) override;
+    GFXTexture *createTexture(const GFXTextureViewInfo &info) override;
     GFXSampler *createSampler(const GFXSamplerInfo &info) override;
     GFXShader *createShader(const GFXShaderInfo &info) override;
     GFXInputAssembler *createInputAssembler(const GFXInputAssemblerInfo &info) override;
@@ -58,8 +57,8 @@ public:
     CC_INLINE const std::vector<const char *> &getLayers() const { return _layers; }
     CC_INLINE const std::vector<const char *> &getExtensions() const { return _extensions; }
 
-    CCVKTextureView *nullTexView2D = nullptr;
-    CCVKTextureView *nullTexViewCube = nullptr;
+    CCVKTexture *nullTexView2D = nullptr;
+    CCVKTexture *nullTexViewCube = nullptr;
 
 private:
     void buildSwapchain();
@@ -68,7 +67,6 @@ private:
     CCVKGPUSemaphorePool *_gpuSemaphorePool = nullptr;
     CCVKGPUFencePool *_gpuFencePool = nullptr;
     CCVKGPUSwapchain *_gpuSwapchain = nullptr;
-    std::vector<CCVKTextureView *> _depthStencilTextureViews;
     std::vector<CCVKTexture *> _depthStencilTextures;
     CCVKRenderPass *_renderPass = nullptr;
     CCVKBuffer *_stagingBuffer = nullptr;

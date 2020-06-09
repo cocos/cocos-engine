@@ -61,16 +61,6 @@ bool GLES2Window::initialize(const GFXWindowInfo &info) {
             colorTexInfo.arrayLayer = 1;
             colorTexInfo.mipLevel = 1;
             _colorTex = _device->createTexture(colorTexInfo);
-
-            GFXTextureViewInfo colorTexViewInfo;
-            colorTexViewInfo.texture = _colorTex;
-            colorTexViewInfo.type = GFXTextureViewType::TV2D;
-            colorTexViewInfo.format = _colorFmt;
-            colorTexViewInfo.baseLevel = 0;
-            colorTexViewInfo.levelCount = 1;
-            colorTexViewInfo.baseLayer = 0;
-            colorTexViewInfo.layerCount = 1;
-            _colorTexView = _device->createTextureView(colorTexViewInfo);
         }
         if (_depthStencilFmt != GFXFormat::UNKNOWN) {
             GFXTextureInfo depthStecnilTexInfo;
@@ -83,24 +73,14 @@ bool GLES2Window::initialize(const GFXWindowInfo &info) {
             depthStecnilTexInfo.arrayLayer = 1;
             depthStecnilTexInfo.mipLevel = 1;
             _depthStencilTex = _device->createTexture(depthStecnilTexInfo);
-
-            GFXTextureViewInfo depthStecnilTexViewInfo;
-            depthStecnilTexViewInfo.texture = _depthStencilTex;
-            depthStecnilTexViewInfo.type = GFXTextureViewType::TV2D;
-            depthStecnilTexViewInfo.format = _depthStencilFmt;
-            depthStecnilTexViewInfo.baseLevel = 0;
-            depthStecnilTexViewInfo.levelCount = 1;
-            depthStecnilTexViewInfo.baseLayer = 0;
-            depthStecnilTexViewInfo.layerCount = 1;
-            _depthStencilTexView = _device->createTextureView(depthStecnilTexViewInfo);
         }
     }
 
     GFXFramebufferInfo fboInfo;
     fboInfo.renderPass = _renderPass;
-    if (_colorTexView)
-        fboInfo.colorViews.push_back(_colorTexView);
-    fboInfo.depthStencilView = _depthStencilTexView;
+    if (_colorTex)
+        fboInfo.colorTextures.push_back(_colorTex);
+    fboInfo.depthStencilTexture = _depthStencilTex;
     fboInfo.isOffscreen = _isOffscreen;
     _framebuffer = _device->createFramebuffer(fboInfo);
 
@@ -111,9 +91,7 @@ bool GLES2Window::initialize(const GFXWindowInfo &info) {
 
 void GLES2Window::destroy() {
     CC_SAFE_DESTROY(_renderPass);
-    CC_SAFE_DESTROY(_colorTexView);
     CC_SAFE_DESTROY(_colorTex);
-    CC_SAFE_DESTROY(_depthStencilTexView);
     CC_SAFE_DESTROY(_depthStencilTex);
     CC_SAFE_DESTROY(_framebuffer);
     _status = GFXStatus::UNREADY;
@@ -128,22 +106,10 @@ void GLES2Window::resize(uint width, uint height) {
 
         if (_colorTex) {
             _colorTex->resize(width, height);
-            _colorTexView->destroy();
-
-            GFXTextureViewInfo colorTexViewInfo;
-            colorTexViewInfo.type = GFXTextureViewType::TV2D;
-            colorTexViewInfo.format = _colorFmt;
-            _colorTexView->initialize(colorTexViewInfo);
         }
 
         if (_depthStencilTex) {
             _depthStencilTex->resize(width, height);
-            _depthStencilTexView->destroy();
-
-            GFXTextureViewInfo depth_stencil_tex_view__info;
-            depth_stencil_tex_view__info.type = GFXTextureViewType::TV2D;
-            depth_stencil_tex_view__info.format = _depthStencilFmt;
-            _depthStencilTexView->initialize(depth_stencil_tex_view__info);
         }
 
         if (_framebuffer) {
@@ -152,8 +118,8 @@ void GLES2Window::resize(uint width, uint height) {
             GFXFramebufferInfo fboInfo;
             fboInfo.isOffscreen = _isOffscreen;
             fboInfo.renderPass = _renderPass;
-            fboInfo.colorViews.push_back(_colorTexView);
-            fboInfo.depthStencilView = _depthStencilTexView;
+            fboInfo.colorTextures.push_back(_colorTex);
+            fboInfo.depthStencilTexture = _depthStencilTex;
             _framebuffer->initialize(fboInfo);
         }
     }

@@ -315,7 +315,6 @@ void CCMTLCommandBuffer::bindStates()
     auto commandBindState = _MTLCommandAllocator->_bindStatesCmdPool.alloc();
     commandBindState->inputAssembler = _currentInputAssembler;
 
-    commandBindState->depthBiasEnabled = _depthBiasEnabled;
     commandBindState->depthBias = *_currentDepthBias;
     commandBindState->blendConstants = _currentBlendConstants;
     commandBindState->depthBounds = *_currentDepthBounds;

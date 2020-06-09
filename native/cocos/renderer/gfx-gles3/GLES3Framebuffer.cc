@@ -2,8 +2,8 @@
 #include "GLES3Framebuffer.h"
 #include "GLES3RenderPass.h"
 #include "GLES3Commands.h"
-#include "GLES3TextureView.h"
 #include "GLES3Context.h"
+#include "GLES3Texture.h"
 
 NS_CC_BEGIN
 
@@ -17,22 +17,24 @@ GLES3Framebuffer::~GLES3Framebuffer() {
 bool GLES3Framebuffer::initialize(const GFXFramebufferInfo &info) {
 
     _renderPass = info.renderPass;
-    _colorViews = info.colorViews;
-    _depthStencilView = info.depthStencilView;
+    _colorTextures = info.colorTextures;
+    _depthStencilTexture = info.depthStencilTexture;
     _isOffscreen = info.isOffscreen;
 
     _gpuFBO = CC_NEW(GLES3GPUFramebuffer);
     _gpuFBO->gpuRenderPass = ((GLES3RenderPass *)_renderPass)->gpuRenderPass();
+    _gpuFBO->depstencilMipmapLevel = info.depthStencilMipmapLevel;
+    _gpuFBO->colorMipmapLevels = info.colorMipmapLevels;
 
     if (_isOffscreen) {
-        _gpuFBO->gpuColorViews.resize(_colorViews.size());
-        for (size_t i = 0; i < _colorViews.size(); ++i) {
-            GLES3TextureView *color_view = (GLES3TextureView *)_colorViews[i];
-            _gpuFBO->gpuColorViews[i] = color_view->gpuTexView();
+        _gpuFBO->gpuColorTextures.resize(_colorTextures.size());
+        for (size_t i = 0; i < _colorTextures.size(); ++i) {
+            GLES3Texture *colorTexture = (GLES3Texture *)_colorTextures[i];
+            _gpuFBO->gpuColorTextures[i] = colorTexture->gpuTexture();
         }
 
-        if (_depthStencilView) {
-            _gpuFBO->gpuDepthStencilView = ((GLES3TextureView *)_depthStencilView)->gpuTexView();
+        if (_depthStencilTexture) {
+            _gpuFBO->gpuDepthStencilTexture = ((GLES3Texture *)_depthStencilTexture)->gpuTexture();
         }
 
         _gpuFBO->isOffscreen = _isOffscreen;

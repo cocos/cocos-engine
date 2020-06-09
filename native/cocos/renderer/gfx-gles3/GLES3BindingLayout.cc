@@ -2,8 +2,8 @@
 #include "GLES3BindingLayout.h"
 #include "GLES3Commands.h"
 #include "GLES3Buffer.h"
-#include "GLES3TextureView.h"
 #include "GLES3Sampler.h"
+#include "GLES3Texture.h"
 
 NS_CC_BEGIN
 
@@ -64,8 +64,8 @@ void GLES3BindingLayout::update() {
                     break;
                 }
                 case GFXBindingType::SAMPLER: {
-                    if (bindingUnit.texView) {
-                        _gpuBindingLayout->gpuBindings[i].gpuTexView = ((GLES3TextureView *)bindingUnit.texView)->gpuTexView();
+                    if (bindingUnit.texture) {
+                        _gpuBindingLayout->gpuBindings[i].gpuTexture = ((GLES3Texture*)bindingUnit.texture)->gpuTexture();
                     }
                     if (bindingUnit.sampler) {
                         _gpuBindingLayout->gpuBindings[i].gpuSampler = ((GLES3Sampler *)bindingUnit.sampler)->gpuSampler();

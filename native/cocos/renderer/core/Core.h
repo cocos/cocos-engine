@@ -11,7 +11,6 @@
 #include "gfx/GFXWindow.h"
 #include "gfx/GFXBuffer.h"
 #include "gfx/GFXTexture.h"
-#include "gfx/GFXTextureView.h"
 #include "gfx/GFXSampler.h"
 #include "gfx/GFXShader.h"
 #include "gfx/GFXInputAssembler.h"

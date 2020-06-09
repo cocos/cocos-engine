@@ -33,8 +33,7 @@ namespace mu
     MTLStencilOperation toMTLStencilOperation(GFXStencilOp);
     MTLPrimitiveType toMTLPrimitiveType(GFXPrimitiveMode);
     MTLTextureUsage toMTLTextureUsage(GFXTextureUsage);
-    MTLTextureType toMTLTextureType(GFXTextureType type, uint arrayLength, GFXTextureFlags flags);
-    MTLTextureType toMTLTextureType(GFXTextureViewType type);
+    MTLTextureType toMTLTextureType(GFXTextureType type);
     NSUInteger toMTLSampleCount(GFXSampleCount);
     MTLSamplerAddressMode toMTLSamplerAddressMode(GFXAddress);
     MTLSamplerBorderColor toMTLSamplerBorderColor(const GFXColor&);

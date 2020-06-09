@@ -28,9 +28,7 @@ class CC_CORE_API GFXWindow : public GFXObject {
   CC_INLINE bool isOffscreen() const { return _isOffscreen; }
   CC_INLINE GFXRenderPass* getRenderPass() const { return _renderPass; }
   CC_INLINE GFXTexture* getColorTexture() const { return _colorTex; }
-  CC_INLINE GFXTextureView* getColorTexView() const { return _colorTexView; }
   CC_INLINE GFXTexture* getDepthStencilTexture() const { return _depthStencilTex; }
-  CC_INLINE GFXTextureView* getDepthStencilTexView() const { return _depthStencilTexView; }
   CC_INLINE GFXFramebuffer* getFramebuffer() const { return _framebuffer; }
   
  protected:
@@ -48,9 +46,7 @@ class CC_CORE_API GFXWindow : public GFXObject {
   bool _isFullscreen = false;
   GFXRenderPass* _renderPass = nullptr;
   GFXTexture* _colorTex = nullptr;
-  GFXTextureView* _colorTexView = nullptr;
   GFXTexture* _depthStencilTex = nullptr;
-  GFXTextureView* _depthStencilTexView = nullptr;
   GFXFramebuffer* _framebuffer = nullptr;
 };
 

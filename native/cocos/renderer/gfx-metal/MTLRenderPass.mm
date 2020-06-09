@@ -2,7 +2,6 @@
 #include "MTLRenderPass.h"
 #include "MTLDevice.h"
 #include "MTLUtils.h"
-#include "MTLTextureView.h"
 
 NS_CC_BEGIN
 
@@ -47,7 +46,7 @@ void CCMTLRenderPass::destroy()
     _status = GFXStatus::UNREADY;
 }
 
-void CCMTLRenderPass::setColorAttachment(id<MTLTexture> texture, size_t slot)
+void CCMTLRenderPass::setColorAttachment(size_t slot, id<MTLTexture> texture, int level)
 {
     if (! _mtlRenderPassDescriptor)
     {
@@ -64,10 +63,12 @@ void CCMTLRenderPass::setColorAttachment(id<MTLTexture> texture, size_t slot)
     }
     
     _mtlRenderPassDescriptor.colorAttachments[slot].texture = texture;
+    _mtlRenderPassDescriptor.colorAttachments[slot].level = level;
+    
     _status = GFXStatus::SUCCESS;
 }
 
-void CCMTLRenderPass::setDepthStencilAttachment(id<MTLTexture> texture)
+void CCMTLRenderPass::setDepthStencilAttachment(id<MTLTexture> texture, int level)
 {
     if (! _mtlRenderPassDescriptor)
     {
@@ -77,7 +78,10 @@ void CCMTLRenderPass::setDepthStencilAttachment(id<MTLTexture> texture)
     }
     
     _mtlRenderPassDescriptor.depthAttachment.texture = texture;
+    _mtlRenderPassDescriptor.depthAttachment.level = level;
     _mtlRenderPassDescriptor.stencilAttachment.texture = texture;
+    _mtlRenderPassDescriptor.stencilAttachment.level = level;
+    
     _status = GFXStatus::SUCCESS;
 }
 

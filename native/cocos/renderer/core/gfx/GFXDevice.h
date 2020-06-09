@@ -23,7 +23,7 @@ class CC_CORE_API GFXDevice : public Object {
   virtual GFXCommandBuffer* createCommandBuffer(const GFXCommandBufferInfo& info) = 0;
   virtual GFXBuffer* createBuffer(const GFXBufferInfo& info) = 0;
   virtual GFXTexture* createTexture(const GFXTextureInfo& info) = 0;
-  virtual GFXTextureView* createTextureView(const GFXTextureViewInfo& info) = 0;
+    virtual GFXTexture* createTexture(const GFXTextureViewInfo& info) = 0;
   virtual GFXSampler* createSampler(const GFXSamplerInfo& info) = 0;
   virtual GFXShader* createShader(const GFXShaderInfo& info) = 0;
   virtual GFXInputAssembler* createInputAssembler(const GFXInputAssemblerInfo& info) = 0;

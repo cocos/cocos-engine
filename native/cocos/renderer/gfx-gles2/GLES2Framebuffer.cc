@@ -2,8 +2,8 @@
 #include "GLES2Framebuffer.h"
 #include "GLES2RenderPass.h"
 #include "GLES2Commands.h"
-#include "GLES2TextureView.h"
 #include "GLES2Context.h"
+#include "GLES2Texture.h"
 
 NS_CC_BEGIN
 
@@ -17,22 +17,35 @@ GLES2Framebuffer::~GLES2Framebuffer() {
 bool GLES2Framebuffer::initialize(const GFXFramebufferInfo &info) {
 
     _renderPass = info.renderPass;
-    _colorViews = info.colorViews;
-    _depthStencilView = info.depthStencilView;
+    _colorTextures = info.colorTextures;
+    _depthStencilTexture = info.depthStencilTexture;
     _isOffscreen = info.isOffscreen;
+    
+    if (info.depthStencilMipmapLevel != 0) {
+        CC_LOG_WARNING("Mipmap level of depth stencil attachment should be 0 in GLES2. Convert to 0.");
+    }
+    if (info.colorMipmapLevels.size() > 0) {
+        int i = 0;
+        for (const auto mipmapLevel : info.colorMipmapLevels) {
+            if (mipmapLevel != 0) {
+                CC_LOG_WARNING("Mipmap level of color attachment %d should be 0 in GLES2. Convert to 0.", i);
+            }
+            ++i;
+        }
+    }
 
     _gpuFBO = CC_NEW(GLES2GPUFramebuffer);
     _gpuFBO->gpuRenderPass = ((GLES2RenderPass *)_renderPass)->gpuRenderPass();
 
     if (_isOffscreen) {
-        _gpuFBO->gpuColorViews.resize(_colorViews.size());
-        for (size_t i = 0; i < _colorViews.size(); ++i) {
-            GLES2TextureView *color_view = (GLES2TextureView *)_colorViews[i];
-            _gpuFBO->gpuColorViews[i] = color_view->gpuTexView();
+        _gpuFBO->gpuColorTextures.resize(_colorTextures.size());
+        for (size_t i = 0; i < _colorTextures.size(); ++i) {
+            GLES2Texture *colorTexture = (GLES2Texture *)_colorTextures[i];
+            _gpuFBO->gpuColorTextures[i] = colorTexture->gpuTexture();
         }
 
-        if (_depthStencilView) {
-            _gpuFBO->gpuDepthStencilView = ((GLES2TextureView *)_depthStencilView)->gpuTexView();
+        if (_depthStencilTexture) {
+            _gpuFBO->gpuDepthStencilTexture = ((GLES2Texture *)_depthStencilTexture)->gpuTexture();
         }
 
         _gpuFBO->isOffscreen = _isOffscreen;

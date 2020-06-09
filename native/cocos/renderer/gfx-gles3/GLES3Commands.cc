@@ -687,9 +687,8 @@ void GLES3CmdFuncCreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
     gpuTexture->glFormat = MapGLFormat(gpuTexture->format);
     gpuTexture->glType = GFXFormatToGLType(gpuTexture->format);
 
-    switch (gpuTexture->viewType) {
-        case GFXTextureViewType::TV2D: {
-            gpuTexture->viewType = GFXTextureViewType::TV2D;
+    switch (gpuTexture->type) {
+        case GFXTextureType::TEX2D: {
             gpuTexture->glTarget = GL_TEXTURE_2D;
             glGenTextures(1, &gpuTexture->glTexture);
             if (gpuTexture->size > 0) {
@@ -717,8 +716,7 @@ void GLES3CmdFuncCreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
             }
             break;
         }
-        case GFXTextureViewType::CUBE: {
-            gpuTexture->viewType = GFXTextureViewType::CUBE;
+        case GFXTextureType::CUBE: {
             gpuTexture->glTarget = GL_TEXTURE_CUBE_MAP;
             glGenTextures(1, &gpuTexture->glTexture);
             if (gpuTexture->size > 0) {
@@ -762,12 +760,12 @@ void GLES3CmdFuncDestroyTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture
     if (gpuTexture->glTexture) {
         GLuint &glTexture = device->stateCache->glTextures[device->stateCache->texUint];
         if (glTexture == gpuTexture->glTexture) {
-            switch (gpuTexture->viewType) {
-                case GFXTextureViewType::TV2D: {
+            switch (gpuTexture->type) {
+                case GFXTextureType::TEX2D: {
                     glBindTexture(GL_TEXTURE_2D, 0);
                     break;
                 }
-                case GFXTextureViewType::CUBE: {
+                case GFXTextureType::CUBE: {
                     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
                     break;
                 }
@@ -784,9 +782,8 @@ void GLES3CmdFuncResizeTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
     gpuTexture->glFormat = MapGLFormat(gpuTexture->format);
     gpuTexture->glType = GFXFormatToGLType(gpuTexture->format);
 
-    switch (gpuTexture->viewType) {
-        case GFXTextureViewType::TV2D: {
-            gpuTexture->viewType = GFXTextureViewType::TV2D;
+    switch (gpuTexture->type) {
+        case GFXTextureType::TEX2D: {
             gpuTexture->glTarget = GL_TEXTURE_2D;
             if (gpuTexture->size > 0) {
                 GLuint &glTexture = device->stateCache->glTextures[device->stateCache->texUint];
@@ -813,8 +810,7 @@ void GLES3CmdFuncResizeTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
             }
             break;
         }
-        case GFXTextureViewType::CUBE: {
-            gpuTexture->viewType = GFXTextureViewType::CUBE;
+        case GFXTextureType::CUBE: {
             gpuTexture->glTarget = GL_TEXTURE_CUBE_MAP;
             if (gpuTexture->size > 0) {
                 GLuint &glTexture = device->stateCache->glTextures[device->stateCache->texUint];
@@ -1239,19 +1235,24 @@ void GLES3CmdFuncCreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
         GLenum attachments[GFX_MAX_ATTACHMENTS] = {0};
         uint attachment_count = 0;
 
-        for (size_t i = 0; i < gpuFBO->gpuColorViews.size(); ++i) {
-            GLES3GPUTextureView *gpuColorView = gpuFBO->gpuColorViews[i];
-            if (gpuColorView && gpuColorView->gpuTexture) {
-                glFramebufferTexture2D(GL_FRAMEBUFFER, (GLenum)(GL_COLOR_ATTACHMENT0 + i), gpuColorView->gpuTexture->glTarget, gpuColorView->gpuTexture->glTexture, gpuColorView->baseLevel);
+        size_t colorMipmapLevelCount = gpuFBO->colorMipmapLevels.size();
+        for (size_t i = 0; i < gpuFBO->gpuColorTextures.size(); ++i) {
+            GLES3GPUTexture *gpuColorTexture = gpuFBO->gpuColorTextures[i];
+            if (gpuColorTexture) {
+                GLint mipmapLevel = 0;
+                if (colorMipmapLevelCount >= i) {
+                    mipmapLevel = gpuFBO->colorMipmapLevels[i];
+                }
+                glFramebufferTexture2D(GL_FRAMEBUFFER, (GLenum)(GL_COLOR_ATTACHMENT0 + i), gpuColorTexture->glTarget, gpuColorTexture->glTexture, mipmapLevel);
 
                 attachments[attachment_count++] = (GLenum)(GL_COLOR_ATTACHMENT0 + i);
             }
         }
 
-        if (gpuFBO->gpuDepthStencilView) {
-            GLES3GPUTextureView *gpuDepthStencilView = gpuFBO->gpuDepthStencilView;
-            const GLenum gl_attachment = GFX_FORMAT_INFOS[(int)gpuDepthStencilView->format].hasStencil ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
-            glFramebufferTexture2D(GL_FRAMEBUFFER, gl_attachment, gpuDepthStencilView->gpuTexture->glTarget, gpuDepthStencilView->gpuTexture->glTexture, gpuDepthStencilView->baseLevel);
+        if (gpuFBO->gpuDepthStencilTexture) {
+            GLES3GPUTexture *gpuDepthStencilTexture = gpuFBO->gpuDepthStencilTexture;
+            const GLenum gl_attachment = GFX_FORMAT_INFOS[(int)gpuDepthStencilTexture->format].hasStencil ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
+            glFramebufferTexture2D(GL_FRAMEBUFFER, gl_attachment, gpuDepthStencilTexture->glTarget, gpuDepthStencilTexture->glTexture, gpuFBO->depstencilMipmapLevel);
         }
 
         glDrawBuffers(attachment_count, attachments);
@@ -1743,14 +1744,14 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmd_package) 
                                             for (size_t u = 0; u < gpuSampler.units.size(); ++u) {
                                                 uint unit = (uint)gpuSampler.units[u];
 
-                                                if (gpuBinding.gpuTexView && (gpuBinding.gpuTexView->gpuTexture->size > 0)) {
-                                                    GLuint glTexture = gpuBinding.gpuTexView->gpuTexture->glTexture;
+                                                if (gpuBinding.gpuTexture && (gpuBinding.gpuTexture->size > 0)) {
+                                                    GLuint glTexture = gpuBinding.gpuTexture->glTexture;
                                                     if (cache->glTextures[unit] != glTexture) {
                                                         if (cache->texUint != unit) {
                                                             glActiveTexture(GL_TEXTURE0 + unit);
                                                             cache->texUint = unit;
                                                         }
-                                                        glBindTexture(gpuBinding.gpuTexView->gpuTexture->glTarget, glTexture);
+                                                        glBindTexture(gpuBinding.gpuTexture->glTarget, glTexture);
                                                         cache->glTextures[unit] = glTexture;
                                                     }
 

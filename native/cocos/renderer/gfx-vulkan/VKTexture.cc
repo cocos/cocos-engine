@@ -32,39 +32,6 @@ bool CCVKTexture::initialize(const GFXTextureInfo &info) {
 
     _gpuTexture = CC_NEW(CCVKGPUTexture);
     _gpuTexture->type = _type;
-
-    switch (_type) {
-        case GFXTextureType::TEX1D: {
-            if (_arrayLayer) {
-                _gpuTexture->viewType = _arrayLayer <= 1 ? GFXTextureViewType::TV1D : GFXTextureViewType::TV1D_ARRAY;
-            } else {
-                _gpuTexture->viewType = GFXTextureViewType::TV1D;
-            }
-            break;
-        }
-        case GFXTextureType::TEX2D: {
-            if (_arrayLayer) {
-                if (_arrayLayer <= 1) {
-                    _gpuTexture->viewType = GFXTextureViewType::TV2D;
-                } else if (_flags & GFXTextureFlagBit::CUBEMAP) {
-                    _gpuTexture->viewType = GFXTextureViewType::CUBE;
-                } else {
-                    _gpuTexture->viewType = GFXTextureViewType::TV2D_ARRAY;
-                }
-            } else {
-                _gpuTexture->viewType = GFXTextureViewType::TV2D;
-            }
-            break;
-        }
-        case GFXTextureType::TEX3D: {
-            _gpuTexture->viewType = GFXTextureViewType::TV3D;
-            break;
-        }
-        default: {
-            _gpuTexture->viewType = GFXTextureViewType::TV2D;
-        }
-    }
-
     _gpuTexture->format = _format;
     _gpuTexture->usage = _usage;
     _gpuTexture->width = _width;
@@ -87,12 +54,74 @@ bool CCVKTexture::initialize(const GFXTextureInfo &info) {
         return false;
     }
 
+    GFXTextureViewInfo textureViewInfo;
+    textureViewInfo.texture = this;
+    textureViewInfo.type = _type;
+    textureViewInfo.format = _format;
+    textureViewInfo.baseLevel = 0;
+    textureViewInfo.levelCount = _mipLevel;
+    textureViewInfo.baseLayer = 0;
+    textureViewInfo.layerCount = _arrayLayer;
+    
+    if (!createTextureView(textureViewInfo))
+    {
+        _status = GFXStatus::FAILED;
+        return false;
+    }
+    
+    _status = GFXStatus::SUCCESS;
     return true;
 }
 
-void CCVKTexture::destroy() {
+bool CCVKTexture::initialize(const GFXTextureViewInfo& info)
+{
+    _type = info.texture->getType();
+    _format = info.texture->getFormat();
+    _arrayLayer = info.texture->getArrayLayer();
+    _mipLevel = info.texture->getMipLevel();
+    _usage = info.texture->getUsage();
+    _width = info.texture->getWidth();
+    _height = info.texture->getHeight();
+    _depth = info.texture->getDepth();
+    _samples = info.texture->getSamples();
+    _flags = info.texture->getFlags();
+    _size = GFXFormatSize(_format, _width, _height, _depth);
+    
+    if (!createTextureView(info))
+    {
+        _status = GFXStatus::FAILED;
+        return false;
+    }
+
+    _status = GFXStatus::SUCCESS;
+    return true;
+}
+
+bool CCVKTexture::createTextureView(const GFXTextureViewInfo& info)
+{
+    if (!info.texture)
+    {
+        CC_LOG_ERROR("CCVKTexture::createTextureView: texture should not be nullptr.");
+        return false;
+    }
+
+    if (!_gpuTextureView)
+    {
+        _gpuTextureView = CC_NEW(CCVKGPUTextureView);
+    }
+    _gpuTextureView->gpuTexture = static_cast<CCVKTexture*>(info.texture)->gpuTexture();
+    _gpuTextureView->type = info.type;
+    _gpuTextureView->format = info.format;
+    _gpuTextureView->baseLevel = info.baseLevel;
+    _gpuTextureView->levelCount = info.levelCount;
+    CCVKCmdFuncCreateTextureView((CCVKDevice*)_device, _gpuTextureView);
+    return true;
+}
+
+void CCVKTexture::destroy()
+{
     if (_gpuTexture) {
-        CCVKCmdFuncDestroyTexture((CCVKDevice *)_device, _gpuTexture);
+        CCVKCmdFuncDestroyTexture((CCVKDevice*)_device, _gpuTexture);
         _device->getMemoryStatus().textureSize -= _size;
         CC_DELETE(_gpuTexture);
         _gpuTexture = nullptr;
@@ -102,6 +131,13 @@ void CCVKTexture::destroy() {
         CC_FREE(_buffer);
         _device->getMemoryStatus().textureSize -= _size;
         _buffer = nullptr;
+    }
+
+    if (_gpuTextureView)
+    {
+        CCVKCmdFuncDestroyTextureView((CCVKDevice*)_device, _gpuTextureView);
+        CC_DELETE(_gpuTextureView);
+        _gpuTextureView = nullptr;
     }
 
     _status = GFXStatus::UNREADY;
@@ -122,6 +158,9 @@ void CCVKTexture::resize(uint width, uint height) {
         CCVKCmdFuncResizeTexture((CCVKDevice *)_device, _gpuTexture);
         status.bufferSize -= old_size;
         status.bufferSize += _size;
+       
+        _gpuTextureView->gpuTexture = _gpuTexture;
+        CCVKCmdFuncResizeTextureView((CCVKDevice *)_device, _gpuTextureView);
 
         if (_buffer) {
             const uint8_t *old_buff = _buffer;

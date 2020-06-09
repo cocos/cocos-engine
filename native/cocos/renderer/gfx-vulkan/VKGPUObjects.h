@@ -103,7 +103,6 @@ typedef vector<CCVKGPUBuffer *>::type CCVKGPUBufferList;
 class CCVKGPUTexture : public Object {
 public:
     GFXTextureType type = GFXTextureType::TEX2D;
-    GFXTextureViewType viewType = GFXTextureViewType::TV2D;
     GFXFormat format = GFXFormat::UNKNOWN;
     GFXTextureUsage usage = GFXTextureUsageBit::NONE;
     uint width = 0;
@@ -127,7 +126,7 @@ public:
 class CCVKGPUTextureView : public Object {
 public:
     CCVKGPUTexture *gpuTexture = nullptr;
-    GFXTextureViewType type = GFXTextureViewType::TV2D;
+    GFXTextureType type = GFXTextureType::TEX2D;
     GFXFormat format = GFXFormat::UNKNOWN;
     uint baseLevel = 0;
     uint levelCount = 1;

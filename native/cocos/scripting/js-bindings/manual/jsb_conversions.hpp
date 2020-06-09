@@ -739,7 +739,7 @@ native_ptr_to_seval(T* vp, se::Class* cls, se::Value* ret, bool* isReturnCachedV
 }
 
 template<typename T>
-bool std_vector_to_seval(const std::vector<T>& v, se::Value* ret)
+bool std_vector_to_seval(const std::vector<T> & v, se::Value* ret)
 {
     assert(ret != nullptr);
     bool ok = true;

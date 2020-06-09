@@ -42,39 +42,6 @@ bool GLES2Texture::initialize(const GFXTextureInfo &info) {
         return false;
     }
     _gpuTexture->type = _type;
-
-    switch (_type) {
-        case GFXTextureType::TEX1D: {
-            if (_arrayLayer) {
-                _gpuTexture->viewType = _arrayLayer <= 1 ? GFXTextureViewType::TV1D : GFXTextureViewType::TV1D_ARRAY;
-            } else {
-                _gpuTexture->viewType = GFXTextureViewType::TV1D;
-            }
-            break;
-        }
-        case GFXTextureType::TEX2D: {
-            if (_arrayLayer) {
-                if (_arrayLayer <= 1) {
-                    _gpuTexture->viewType = GFXTextureViewType::TV2D;
-                } else if (_flags & GFXTextureFlagBit::CUBEMAP) {
-                    _gpuTexture->viewType = GFXTextureViewType::CUBE;
-                } else {
-                    _gpuTexture->viewType = GFXTextureViewType::TV2D_ARRAY;
-                }
-            } else {
-                _gpuTexture->viewType = GFXTextureViewType::TV2D;
-            }
-            break;
-        }
-        case GFXTextureType::TEX3D: {
-            _gpuTexture->viewType = GFXTextureViewType::TV3D;
-            break;
-        }
-        default: {
-            _gpuTexture->viewType = GFXTextureViewType::TV2D;
-        }
-    }
-
     _gpuTexture->format = _format;
     _gpuTexture->usage = _usage;
     _gpuTexture->width = _width;
@@ -91,6 +58,12 @@ bool GLES2Texture::initialize(const GFXTextureInfo &info) {
     _device->getMemoryStatus().textureSize += _size;
     _status = GFXStatus::SUCCESS;
     return true;
+}
+
+bool GLES2Texture::initialize(const GFXTextureViewInfo &info) {
+    CC_LOG_ERROR("GLES2 doesn't support texture view");
+    _status = GFXStatus::FAILED;
+    return false;
 }
 
 void GLES2Texture::destroy() {

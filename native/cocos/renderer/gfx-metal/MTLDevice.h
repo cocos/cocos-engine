@@ -22,7 +22,7 @@ public:
     virtual GFXCommandBuffer* createCommandBuffer(const GFXCommandBufferInfo& info) override;
     virtual GFXBuffer* createBuffer(const GFXBufferInfo& info) override;
     virtual GFXTexture* createTexture(const GFXTextureInfo& info) override;
-    virtual GFXTextureView* createTextureView(const GFXTextureViewInfo& info) override;
+    virtual GFXTexture* createTexture(const GFXTextureViewInfo& info) override;
     virtual GFXSampler* createSampler(const GFXSamplerInfo& info) override;
     virtual GFXShader* createShader(const GFXShaderInfo& info) override;
     virtual GFXInputAssembler* createInputAssembler(const GFXInputAssemblerInfo& info) override;

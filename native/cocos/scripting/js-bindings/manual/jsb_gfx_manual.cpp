@@ -146,6 +146,73 @@ bool js_GFXDevice_copyTexImagesToTexture(se::State& s, cocos2d::GFXDevice* cobj)
     return false;
 }
 
+static bool js_gfx_GFXDevice_createTexture(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2( cobj, false, "js_gfx_GFXDevice_createTexture : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    if (argc == 2) {
+        cocos2d::GFXTexture* texture = nullptr;
+        
+        bool createTextureView = false;
+        seval_to_boolean(args[1], &createTextureView);
+        
+        if (createTextureView)
+        {
+            auto textureViewInfo = (cocos2d::GFXTextureViewInfo*)(args[0].toObject()->getPrivateData());
+            texture = cobj->createTexture(*textureViewInfo);
+        }
+        else
+        {
+            auto textureInfo = (cocos2d::GFXTextureInfo*)(args[0].toObject()->getPrivateData());
+            texture = cobj->createTexture(*textureInfo);
+        }
+        
+        CC_UNUSED bool ok = native_ptr_to_seval(texture, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createTexture : Error processing arguments");
+        return true;
+    }
+    
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GFXDevice_createTexture)
+
+static bool js_gfx_GFXTexture_initialize(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
+    SE_PRECONDITION2( cobj, false, "js_gfx_GFXTexture_initialize : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    if (argc == 2) {
+        bool initWithTextureViewInfo = false;
+        seval_to_boolean(args[1], &initWithTextureViewInfo);
+        
+        if (initWithTextureViewInfo)
+        {
+            auto textureViewInfo = (cocos2d::GFXTextureViewInfo*)(args[0].toObject()->getPrivateData());
+            ok &= cobj->initialize(*textureViewInfo);
+        }
+        else
+        {
+            auto textureInfo = (cocos2d::GFXTextureInfo*)(args[0].toObject()->getPrivateData());
+            ok &= cobj->initialize(*textureInfo);
+        }
+        
+        ok &= boolean_to_seval(ok, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXTexture_initialize : Error processing arguments");
+        return true;
+    }
+    
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GFXTexture_initialize)
+
 #ifdef USE_VULKAN
 static bool js_gfx_CCVKDevice_copyBuffersToTexture(se::State& s)
 {
@@ -780,6 +847,8 @@ bool register_all_gfx_manual(se::Object* obj)
     __jsb_cocos2d_CCMTLDevice_proto->defineFunction("copyBuffersToTexture", _SE(js_gfx_CCMTLDevice_copyBuffersToTexture));
     __jsb_cocos2d_CCMTLDevice_proto->defineFunction("copyTexImagesToTexture", _SE(js_gfx_CCMTLDevice_copyTexImagesToTexture));
 #endif
+    __jsb_cocos2d_GFXDevice_proto->defineFunction("createTexture", _SE(js_gfx_GFXDevice_createTexture));
+    __jsb_cocos2d_GFXTexture_proto->defineFunction("initialize", _SE(js_gfx_GFXTexture_initialize));
     
     return true;
 }

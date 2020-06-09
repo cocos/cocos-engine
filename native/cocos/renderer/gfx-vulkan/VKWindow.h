@@ -12,6 +12,8 @@ public:
     bool initialize(const GFXWindowInfo &info);
     void destroy();
     void resize(uint width, uint height);
+
+private:
 };
 
 NS_CC_END

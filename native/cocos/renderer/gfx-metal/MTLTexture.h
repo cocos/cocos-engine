@@ -13,6 +13,7 @@ public:
     ~CCMTLTexture();
     
     virtual bool initialize(const GFXTextureInfo& info) override;
+    virtual bool initialize(const GFXTextureViewInfo& info) override;
     virtual void destroy() override;
     virtual void resize(uint width, uint height) override;
     

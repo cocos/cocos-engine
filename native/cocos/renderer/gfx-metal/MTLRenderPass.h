@@ -17,8 +17,8 @@ public:
     virtual bool initialize(const GFXRenderPassInfo& info) override;
     virtual void destroy() override;
     
-    void setColorAttachment(id<MTLTexture> texture, size_t slot);
-    void setDepthStencilAttachment(id<MTLTexture> texture);
+    void setColorAttachment(size_t slot, id<MTLTexture> texture, int level);
+    void setDepthStencilAttachment(id<MTLTexture> texture, int level);
     
     CC_INLINE MTLRenderPassDescriptor* getMTLRenderPassDescriptor() const { return _mtlRenderPassDescriptor; }
     CC_INLINE size_t getColorRenderTargetNums() const { return _colorRenderTargetNums; }

@@ -475,8 +475,6 @@ cocos_source_files(
     cocos/renderer/core/gfx/GFXShader.h
     cocos/renderer/core/gfx/GFXTexture.cc
     cocos/renderer/core/gfx/GFXTexture.h
-    cocos/renderer/core/gfx/GFXTextureView.cc
-    cocos/renderer/core/gfx/GFXTextureView.h
     cocos/renderer/core/gfx/GFXWindow.cc
     cocos/renderer/core/gfx/GFXWindow.h
     cocos/renderer/core/gfx/GFXFence.h
@@ -547,8 +545,6 @@ if(CC_USE_GLES2)
         cocos/renderer/gfx-gles2/GLES2Std.h
         cocos/renderer/gfx-gles2/GLES2Texture.cc
         cocos/renderer/gfx-gles2/GLES2Texture.h
-        cocos/renderer/gfx-gles2/GLES2TextureView.cc
-        cocos/renderer/gfx-gles2/GLES2TextureView.h
         cocos/renderer/gfx-gles2/gles2w.h
         cocos/renderer/gfx-gles2/GLES2Window.cc
         cocos/renderer/gfx-gles2/GLES2Window.h
@@ -609,8 +605,6 @@ if(CC_USE_GLES3)
         cocos/renderer/gfx-gles3/GLES3Std.h
         cocos/renderer/gfx-gles3/GLES3Texture.cc
         cocos/renderer/gfx-gles3/GLES3Texture.h
-        cocos/renderer/gfx-gles3/GLES3TextureView.cc
-        cocos/renderer/gfx-gles3/GLES3TextureView.h
         cocos/renderer/gfx-gles3/gles3w.h
         cocos/renderer/gfx-gles3/GLES3Window.cc
         cocos/renderer/gfx-gles3/GLES3Window.h
@@ -670,8 +664,6 @@ if(CC_USE_METAL)
         cocos/renderer/gfx-metal/MTLStd.h
         cocos/renderer/gfx-metal/MTLTexture.h
         cocos/renderer/gfx-metal/MTLTexture.mm
-        cocos/renderer/gfx-metal/MTLTextureView.h
-        cocos/renderer/gfx-metal/MTLTextureView.mm
         cocos/renderer/gfx-metal/MTLUtils.h
         cocos/renderer/gfx-metal/MTLUtils.mm
         cocos/renderer/gfx-metal/MTLWindow.h
@@ -722,8 +714,6 @@ if(CC_USE_VULKAN)
         cocos/renderer/gfx-vulkan/VKStd.h
         cocos/renderer/gfx-vulkan/VKTexture.cc
         cocos/renderer/gfx-vulkan/VKTexture.h
-        cocos/renderer/gfx-vulkan/VKTextureView.cc
-        cocos/renderer/gfx-vulkan/VKTextureView.h
         cocos/renderer/gfx-vulkan/VKUtils.h
         cocos/renderer/gfx-vulkan/VKWindow.cc
         cocos/renderer/gfx-vulkan/VKWindow.h

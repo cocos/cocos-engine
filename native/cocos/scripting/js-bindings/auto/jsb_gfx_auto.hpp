@@ -301,7 +301,6 @@ SE_DECLARE_FUNC(js_gfx_GFXDevice_initialize);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_resize);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createQueue);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createBindingLayout);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_createTextureView);
 
 extern se::Object* __jsb_cocos2d_GFXWindow_proto;
 extern se::Class* __jsb_cocos2d_GFXWindow_class;
@@ -333,15 +332,6 @@ SE_DECLARE_FUNC(js_gfx_GFXTexture_initialize);
 SE_DECLARE_FUNC(js_gfx_GFXTexture_destroy);
 SE_DECLARE_FUNC(js_gfx_GFXTexture_resize);
 SE_DECLARE_FUNC(js_gfx_GFXTexture_GFXTexture);
-
-extern se::Object* __jsb_cocos2d_GFXTextureView_proto;
-extern se::Class* __jsb_cocos2d_GFXTextureView_class;
-
-bool js_register_cocos2d_GFXTextureView(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXTextureView_initialize);
-SE_DECLARE_FUNC(js_gfx_GFXTextureView_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXTextureView_GFXTextureView);
 
 extern se::Object* __jsb_cocos2d_GFXSampler_proto;
 extern se::Class* __jsb_cocos2d_GFXSampler_class;
@@ -393,10 +383,10 @@ extern se::Class* __jsb_cocos2d_GFXBindingLayout_class;
 
 bool js_register_cocos2d_GFXBindingLayout(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_bindTextureView);
 SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_bindBuffer);
 SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_bindSampler);
 SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_update);
+SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_bindTexture);
 SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_initialize);
 SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_destroy);
 SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_GFXBindingLayout);

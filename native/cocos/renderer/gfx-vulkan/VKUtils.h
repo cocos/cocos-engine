@@ -231,8 +231,11 @@ VkBufferUsageFlagBits MapVkBufferUsageFlagBits(GFXBufferUsage usage) {
 
 VkImageType MapVkImageType(GFXTextureType type) {
     switch (type) {
-        case GFXTextureType::TEX1D: return VK_IMAGE_TYPE_1D;
-        case GFXTextureType::TEX2D: return VK_IMAGE_TYPE_2D;
+        case GFXTextureType::TEX1D:
+        case GFXTextureType::TEX1D_ARRAY: return VK_IMAGE_TYPE_1D;
+        case GFXTextureType::CUBE:
+        case GFXTextureType::TEX2D:
+        case GFXTextureType::TEX2D_ARRAY: return VK_IMAGE_TYPE_2D;
         case GFXTextureType::TEX3D: return VK_IMAGE_TYPE_3D;
         default: {
             CCASSERT(false, "Unsupported GFXTextureType, convert to VkImageType failed.");
@@ -334,23 +337,23 @@ uint selectMemoryType(const VkPhysicalDeviceMemoryProperties &memoryProperties, 
     return ~0u;
 }
 
-VkImageCreateFlags MapVkImageCreateFlags(GFXTextureViewType type) {
+VkImageCreateFlags MapVkImageCreateFlags(GFXTextureType type) {
     uint res = 0u;
     switch (type) {
-        case cocos2d::GFXTextureViewType::CUBE: res |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT; break;
-        case cocos2d::GFXTextureViewType::TV2D_ARRAY: res |= VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT; break;
+        case cocos2d::GFXTextureType::CUBE: res |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT; break;
+        case cocos2d::GFXTextureType::TEX2D_ARRAY: res |= VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT; break;
     }
     return (VkImageCreateFlags)res;
 }
 
-VkImageViewType MapVkImageViewType(GFXTextureViewType viewType) {
+VkImageViewType MapVkImageViewType(GFXTextureType viewType) {
     switch (viewType) {
-        case GFXTextureViewType::TV1D: return VK_IMAGE_VIEW_TYPE_1D;
-        case GFXTextureViewType::TV1D_ARRAY: return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
-        case GFXTextureViewType::TV2D: return VK_IMAGE_VIEW_TYPE_2D;
-        case GFXTextureViewType::TV2D_ARRAY: return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-        case GFXTextureViewType::TV3D: return VK_IMAGE_VIEW_TYPE_3D;
-        case GFXTextureViewType::CUBE: return VK_IMAGE_VIEW_TYPE_CUBE;
+        case GFXTextureType::TEX1D: return VK_IMAGE_VIEW_TYPE_1D;
+        case GFXTextureType::TEX1D_ARRAY: return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+        case GFXTextureType::TEX2D: return VK_IMAGE_VIEW_TYPE_2D;
+        case GFXTextureType::TEX2D_ARRAY: return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+        case GFXTextureType::TEX3D: return VK_IMAGE_VIEW_TYPE_3D;
+        case GFXTextureType::CUBE: return VK_IMAGE_VIEW_TYPE_CUBE;
         default: {
             CCASSERT(false, "Unsupported GFXTextureViewType, convert to VkImageViewType failed.");
             return VK_IMAGE_VIEW_TYPE_2D;

@@ -600,37 +600,15 @@ namespace mu
         return ret;
     }
     
-    MTLTextureType toMTLTextureType(GFXTextureType type, uint arrayLength, GFXTextureFlags flags)
+    MTLTextureType toMTLTextureType(GFXTextureType type)
     {
         switch(type) {
-            case GFXTextureType::TEX1D:
-                if (arrayLength <= 1)
-                    return MTLTextureType1D;
-                else
-                    return MTLTextureType1DArray;
-            case GFXTextureType::TEX2D:
-                if (arrayLength <= 1)
-                    return MTLTextureType2D;
-                else if (flags & GFXTextureFlagBit::CUBEMAP)
-                    return MTLTextureTypeCube;
-                else
-                    return MTLTextureType2DArray;
-            case GFXTextureType::TEX3D:
-                return MTLTextureType3D;
-            default:
-                return MTLTextureType2D;
-        }
-    }
-    
-    MTLTextureType toMTLTextureType(GFXTextureViewType type)
-    {
-        switch (type) {
-            case GFXTextureViewType::TV1D:          return MTLTextureType1D;
-            case GFXTextureViewType::TV1D_ARRAY:    return MTLTextureType1DArray;
-            case GFXTextureViewType::TV2D:          return MTLTextureType2D;
-            case GFXTextureViewType::TV2D_ARRAY:    return MTLTextureType2DArray;
-            case GFXTextureViewType::CUBE:          return MTLTextureTypeCube;
-            case GFXTextureViewType::TV3D:          return MTLTextureType3D;
+            case GFXTextureType::TEX1D: return MTLTextureType1D;
+            case GFXTextureType::TEX2D: return MTLTextureType2D;
+            case GFXTextureType::TEX3D: return MTLTextureType3D;
+            case GFXTextureType::CUBE: return MTLTextureTypeCube;
+            case GFXTextureType::TEX1D_ARRAY: return MTLTextureType1DArray;
+            case GFXTextureType::TEX2D_ARRAY: return MTLTextureType2DArray;
         }
     }
     

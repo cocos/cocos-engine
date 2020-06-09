@@ -13,7 +13,6 @@
 #include "MTLShader.h"
 #include "MTLTexture.h"
 #include "MTLPipelineState.h"
-#include "MTLTextureView.h"
 #include "MTLSampler.h"
 #include "platform/mac/CCView.h"
 
@@ -185,8 +184,8 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                     
                     if(binding.shaderStages & GFXShaderType::VERTEX)
                     {
-                        if(binding.texView)
-                            [encoder setVertexTexture:static_cast<CCMTLTextureView*>(binding.texView)->getMTLTexture()
+                        if(binding.texture)
+                            [encoder setVertexTexture:static_cast<CCMTLTexture*>(binding.texture)->getMTLTexture()
                                               atIndex:binding.binding];
                         
                         if(binding.sampler)
@@ -196,8 +195,8 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                     
                     if(binding.shaderStages & GFXShaderType::FRAGMENT)
                     {
-                        if(binding.texView)
-                            [encoder setFragmentTexture:static_cast<CCMTLTextureView*>(binding.texView)->getMTLTexture()
+                        if(binding.texture)
+                            [encoder setFragmentTexture:static_cast<CCMTLTexture*>(binding.texture)->getMTLTexture()
                                               atIndex:binding.binding];
                         
                         if(binding.sampler)

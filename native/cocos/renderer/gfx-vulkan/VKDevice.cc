@@ -16,7 +16,6 @@
 #include "VKSampler.h"
 #include "VKShader.h"
 #include "VKTexture.h"
-#include "VKTextureView.h"
 #include "VKUtils.h"
 #include "VKWindow.h"
 
@@ -207,13 +206,6 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
         depthStecnilTexInfo.height = 1;
         CCVKTexture *texture = (CCVKTexture *)createTexture(depthStecnilTexInfo);
         _depthStencilTextures.push_back(texture);
-
-        GFXTextureViewInfo depthStecnilTexViewInfo;
-        depthStecnilTexViewInfo.texture = texture;
-        depthStecnilTexViewInfo.type = GFXTextureViewType::TV2D;
-        depthStecnilTexViewInfo.format = _context->getDepthStencilFormat();
-        CCVKTextureView *textureView = (CCVKTextureView *)createTextureView(depthStecnilTexViewInfo);
-        _depthStencilTextureViews.push_back(textureView);
     }
 
     GFXRenderPassInfo renderPassInfo;
@@ -259,7 +251,7 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
 
     texViewInfo.texture = nullTexture2D;
     texViewInfo.format = GFXFormat::RGBA8;
-    nullTexView2D = (CCVKTextureView *)createTextureView(texViewInfo);
+    nullTexView2D = (CCVKTexture *)createTexture(texViewInfo);
 
     textureInfo.arrayLayer = 6;
     textureInfo.flags = GFXTextureFlagBit::CUBEMAP;
@@ -267,7 +259,7 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
 
     texViewInfo.texture = nullTextureCube;
     texViewInfo.layerCount = 6;
-    nullTexViewCube = (CCVKTextureView *)createTextureView(texViewInfo);
+    nullTexViewCube = (CCVKTexture *)createTexture(texViewInfo);
 
     String instanceLayers, instanceExtensions, deviceLayers, deviceExtensions;
     for (const char *layer : ((CCVKContext *)_context)->getLayers()) {
@@ -335,11 +327,8 @@ void CCVKDevice::destroy() {
     CC_SAFE_DELETE(_gpuSemaphorePool);
     CC_SAFE_DELETE(_gpuFencePool);
 
-    for (CCVKTextureView *textureView : _depthStencilTextureViews) {
-        CC_SAFE_DESTROY(textureView);
-    }
-    _depthStencilTextureViews.clear();
-    for (CCVKTexture *texture : _depthStencilTextures) {
+    for (CCVKTexture* texture : _depthStencilTextures)
+    {
         CC_SAFE_DESTROY(texture);
     }
     _depthStencilTextures.clear();
@@ -449,13 +438,12 @@ void CCVKDevice::buildSwapchain() {
         _depthStencilTextures[i]->resize(_width, _height);
         _gpuSwapchain->depthStencilImages.push_back(((CCVKTexture *)_depthStencilTextures[i])->gpuTexture()->vkImage);
 
-        _depthStencilTextureViews[i]->destroy();
         GFXTextureViewInfo textureViewInfo;
         textureViewInfo.texture = _depthStencilTextures[i];
-        textureViewInfo.type = GFXTextureViewType::TV2D;
+        textureViewInfo.type = GFXTextureType::TEX2D;
         textureViewInfo.format = _context->getDepthStencilFormat();
-        _depthStencilTextureViews[i]->initialize(textureViewInfo);
-        _gpuSwapchain->depthStencilImageViews.push_back(((CCVKTextureView *)_depthStencilTextureViews[i])->gpuTexView()->vkImageView);
+        _depthStencilTextures[i]->initialize(textureViewInfo);
+        _gpuSwapchain->depthStencilImageViews.push_back(((CCVKTexture *)_depthStencilTextures[i])->gpuTextureView()->vkImageView);
 
         VkImageViewCreateInfo imageViewCreateInfo{VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
         imageViewCreateInfo.image = _gpuSwapchain->swapchainImages[i];
@@ -467,7 +455,7 @@ void CCVKDevice::buildSwapchain() {
 
         VK_CHECK(vkCreateImageView(_gpuDevice->vkDevice, &imageViewCreateInfo, nullptr, &_gpuSwapchain->vkSwapchainImageViews[i]));
 
-        VkImageView attachments[] = {_gpuSwapchain->vkSwapchainImageViews[i], _depthStencilTextureViews[i]->gpuTexView()->vkImageView};
+        VkImageView attachments[] = {_gpuSwapchain->vkSwapchainImageViews[i], _depthStencilTextures[i]->gpuTextureView()->vkImageView};
 
         VkFramebufferCreateInfo framebufferCreateInfo{VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO};
         framebufferCreateInfo.renderPass = _renderPass->gpuRenderPass()->vkRenderPass;
@@ -579,12 +567,12 @@ GFXTexture *CCVKDevice::createTexture(const GFXTextureInfo &info) {
     return nullptr;
 }
 
-GFXTextureView *CCVKDevice::createTextureView(const GFXTextureViewInfo &info) {
-    GFXTextureView *texView = CC_NEW(CCVKTextureView(this));
-    if (texView->initialize(info))
-        return texView;
+GFXTexture* CCVKDevice::createTexture(const GFXTextureViewInfo& info) {
+    GFXTexture* texture = CC_NEW(CCVKTexture(this));
+    if (texture->initialize(info))
+        return texture;
 
-    CC_SAFE_DESTROY(texView);
+    CC_SAFE_DESTROY(texture);
     return nullptr;
 }
 

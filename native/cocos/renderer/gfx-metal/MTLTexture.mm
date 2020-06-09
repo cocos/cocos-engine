@@ -59,6 +59,42 @@ bool CCMTLTexture::initialize(const GFXTextureInfo& info)
     return true;
 }
 
+bool CCMTLTexture::initialize(const GFXTextureViewInfo& info)
+{
+    if (!info.texture)
+    {
+        _status = GFXStatus::FAILED;
+        return false;
+    }
+    
+    _type = info.type;
+    _usage = info.texture->getUsage();
+    _format = info.format;
+    _width = info.texture->getWidth();
+    _height = info.texture->getHeight();
+    _depth = info.texture->getDepth();
+    _arrayLayer = info.texture->getArrayLayer();
+    _mipLevel = info.texture->getMipLevel();
+    _samples = info.texture->getSamples();
+    _flags = info.texture->getFlags();
+    _size = info.texture->getSize();
+    
+    _convertedFormat = mu::convertGFXPixelFormat(_format);
+    auto mtlTextureType = mu::toMTLTextureType(_type);
+    _mtlTexture = [id<MTLTexture>(info.texture) newTextureViewWithPixelFormat:mu::toMTLPixelFormat(_convertedFormat)
+                                                                  textureType:mtlTextureType
+                                                                       levels:NSMakeRange(info.baseLevel, info.levelCount)
+                                                                       slices:NSMakeRange(info.baseLayer, info.layerCount)];
+    if (!_mtlTexture)
+    {
+        _status = GFXStatus::FAILED;
+        return false;
+    }
+    
+    _status = GFXStatus::SUCCESS;
+    return true;
+}
+
 bool CCMTLTexture::createMTLTexture()
 {
     if(_width == 0 || _height == 0)
@@ -73,7 +109,7 @@ bool CCMTLTexture::createMTLTexture()
         return false;
     
     MTLTextureDescriptor* descriptor = nullptr;
-    auto mtlTextureType = mu::toMTLTextureType(_type, _arrayLayer, _flags);
+    auto mtlTextureType = mu::toMTLTextureType(_type);
     switch (mtlTextureType) {
         case MTLTextureType2D:
         case MTLTextureType2DArray:
@@ -97,7 +133,7 @@ bool CCMTLTexture::createMTLTexture()
         return false;
     
     descriptor.usage = mu::toMTLTextureUsage(_usage);
-    descriptor.textureType = mu::toMTLTextureType(_type, _arrayLayer, _flags);
+    descriptor.textureType = mu::toMTLTextureType(_type);
     descriptor.sampleCount = mu::toMTLSampleCount(_samples);
     descriptor.mipmapLevelCount = _mipLevel;
     descriptor.arrayLength = _flags & GFXTextureFlagBit::CUBEMAP ? 1 : _arrayLayer;
@@ -193,7 +229,7 @@ void CCMTLTexture::update(uint8_t* const* datas, const GFXBufferTextureCopyList&
     uint n = 0;
     uint w = 0;
     uint h = 0;
-    auto mtlTextureType = mu::toMTLTextureType(_type, _arrayLayer, _flags);
+    auto mtlTextureType = mu::toMTLTextureType(_type);
     switch (mtlTextureType) {
         case MTLTextureType2D:
             for (size_t i = 0; i < regions.size(); i++) {

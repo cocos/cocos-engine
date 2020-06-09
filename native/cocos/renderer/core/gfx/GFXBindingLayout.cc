@@ -28,13 +28,13 @@ void GFXBindingLayout::bindBuffer(uint binding, GFXBuffer* buffer) {
   }
 }
 
-void GFXBindingLayout::bindTextureView(uint binding, GFXTextureView* texView) {
+void GFXBindingLayout::bindTexture(uint binding, GFXTexture* texture) {
   for (size_t i = 0; i < _bindingUnits.size(); ++i) {
     GFXBindingUnit& bindingUnit = _bindingUnits[i];
     if (bindingUnit.binding == binding) {
       if (bindingUnit.type == GFXBindingType::SAMPLER) {
-        if (bindingUnit.texView != texView) {
-          bindingUnit.texView = texView;
+        if (bindingUnit.texture != texture) {
+          bindingUnit.texture = texture;
           _isDirty = true;
         }
       } else {

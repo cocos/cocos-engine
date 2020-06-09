@@ -5,7 +5,6 @@
 #include "MTLDevice.h"
 #include "MTLBuffer.h"
 #include "MTLTexture.h"
-#include "MTLTextureView.h"
 #include "MTLSampler.h"
 #include "MTLGPUObjects.h"
 #include "MTLBindingLayout.h"
