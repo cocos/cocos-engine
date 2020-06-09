@@ -4,38 +4,34 @@
 #include <Core.h>
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-#    if defined(CC_STATIC)
-#       define CC_VULKAN_API
-#    else
-#	    ifdef CC_VK_EXPORTS
-#		    define CC_VULKAN_API __declspec(dllexport)
-#	    else
-#		    define CC_VULKAN_API __declspec(dllimport)
-#	    endif
-#	endif
+    #if defined(CC_STATIC)
+        #define CC_VULKAN_API
+    #else
+        #ifdef CC_VK_EXPORTS
+            #define CC_VULKAN_API __declspec(dllexport)
+        #else
+            #define CC_VULKAN_API __declspec(dllimport)
+        #endif
+    #endif
 #else
-#	define CC_VULKAN_API
+    #define CC_VULKAN_API
 #endif
 
 #define VK_CHECK(x)                                         \
-    do                                                      \
-    {                                                       \
+    do {                                                    \
         VkResult err = x;                                   \
-        if (err)                                            \
-        {                                                   \
+        if (err) {                                          \
             CC_LOG_ERROR("Detected Vulkan error: %d", err); \
             CCASSERT(0, "Vulkan Error");                    \
         }                                                   \
     } while (0)
 
 #define ASSERT_VK_HANDLE(handle)            \
-    do                                      \
-    {                                       \
-	    if ((handle) == VK_NULL_HANDLE)     \
-	    {                                   \
-		    CC_LOG_ERROR("Handle is NULL"); \
-		    CCASSERT(0);                    \
-	    }                                   \
+    do {                                    \
+        if ((handle) == VK_NULL_HANDLE) {   \
+            CC_LOG_ERROR("Handle is NULL"); \
+            CCASSERT(0);                    \
+        }                                   \
     } while (0)
 
 #endif

@@ -1,20 +1,18 @@
 #include "VKStd.h"
-#include "VKShader.h"
+
 #include "VKCommands.h"
+#include "VKShader.h"
 
 NS_CC_BEGIN
 
-CCVKShader::CCVKShader(GFXDevice* device)
-    : GFXShader(device)
-{
+CCVKShader::CCVKShader(GFXDevice *device)
+: GFXShader(device) {
 }
 
-CCVKShader::~CCVKShader()
-{
+CCVKShader::~CCVKShader() {
 }
 
-bool CCVKShader::initialize(const GFXShaderInfo &info)
-{
+bool CCVKShader::initialize(const GFXShaderInfo &info) {
     _name = info.name;
     _stages = info.stages;
     _blocks = info.blocks;
@@ -24,23 +22,20 @@ bool CCVKShader::initialize(const GFXShaderInfo &info)
     _gpuShader->name = _name;
     _gpuShader->blocks = _blocks;
     _gpuShader->samplers = _samplers;
-    for (const auto& stage : _stages)
-    {
-        _gpuShader->gpuStages.push_back({ stage.type, stage.source, stage.macros });
+    for (GFXShaderStage &stage : _stages) {
+        _gpuShader->gpuStages.push_back({stage.type, stage.source, stage.macros});
     }
 
-    CCVKCmdFuncCreateShader((CCVKDevice*)_device, _gpuShader);
+    CCVKCmdFuncCreateShader((CCVKDevice *)_device, _gpuShader);
 
     _status = GFXStatus::SUCCESS;
 
     return true;
 }
 
-void CCVKShader::destroy()
-{
-    if (_gpuShader)
-    {
-        CCVKCmdFuncDestroyShader((CCVKDevice*)_device, _gpuShader);
+void CCVKShader::destroy() {
+    if (_gpuShader) {
+        CCVKCmdFuncDestroyShader((CCVKDevice *)_device, _gpuShader);
         CC_DELETE(_gpuShader);
         _gpuShader = nullptr;
     }

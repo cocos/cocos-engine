@@ -5,20 +5,19 @@ NS_CC_BEGIN
 
 class CCVKGPUPipelineState;
 
-class CC_VULKAN_API CCVKPipelineState : public GFXPipelineState
-{
+class CC_VULKAN_API CCVKPipelineState : public GFXPipelineState {
 public:
-    CCVKPipelineState(GFXDevice* device);
+    CCVKPipelineState(GFXDevice *device);
     ~CCVKPipelineState();
 
 public:
-    bool initialize(const GFXPipelineStateInfo& info);
+    bool initialize(const GFXPipelineStateInfo &info);
     void destroy();
 
-    CC_INLINE CCVKGPUPipelineState* gpuPipelineState() const { return _gpuPipelineState; }
+    CC_INLINE CCVKGPUPipelineState *gpuPipelineState() const { return _gpuPipelineState; }
 
 private:
-    CCVKGPUPipelineState* _gpuPipelineState = nullptr;
+    CCVKGPUPipelineState *_gpuPipelineState = nullptr;
 };
 
 NS_CC_END

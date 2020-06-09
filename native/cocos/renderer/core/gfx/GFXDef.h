@@ -676,6 +676,7 @@ struct GFXWindowInfo {
   bool isFullscreen = false;
   GFXVsyncMode vsyncMode = GFXVsyncMode::OFF;
   uintptr_t windowHandle = 0;
+  GFXRenderPass *renderPass = nullptr;
 };
 
 struct GFXContextInfo {

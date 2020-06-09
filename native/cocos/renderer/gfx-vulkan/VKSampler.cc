@@ -1,20 +1,18 @@
 #include "VKStd.h"
-#include "VKSampler.h"
+
 #include "VKCommands.h"
+#include "VKSampler.h"
 
 NS_CC_BEGIN
 
-CCVKSampler::CCVKSampler(GFXDevice* device)
-    : GFXSampler(device)
-{
+CCVKSampler::CCVKSampler(GFXDevice *device)
+: GFXSampler(device) {
 }
 
-CCVKSampler::~CCVKSampler()
-{
+CCVKSampler::~CCVKSampler() {
 }
 
-bool CCVKSampler::initialize(const GFXSamplerInfo &info)
-{
+bool CCVKSampler::initialize(const GFXSamplerInfo &info) {
     _name = info.name;
     _minFilter = info.minFilter;
     _magFilter = info.magFilter;
@@ -43,18 +41,16 @@ bool CCVKSampler::initialize(const GFXSamplerInfo &info)
     _gpuSampler->maxLOD = _maxLOD;
     _gpuSampler->mipLODBias = _mipLODBias;
 
-    CCVKCmdFuncCreateSampler((CCVKDevice*)_device, _gpuSampler);
+    CCVKCmdFuncCreateSampler((CCVKDevice *)_device, _gpuSampler);
 
     _status = GFXStatus::SUCCESS;
 
     return true;
 }
 
-void CCVKSampler::destroy()
-{
-    if (_gpuSampler)
-    {
-        CCVKCmdFuncDestroySampler((CCVKDevice*)_device, _gpuSampler);
+void CCVKSampler::destroy() {
+    if (_gpuSampler) {
+        CCVKCmdFuncDestroySampler((CCVKDevice *)_device, _gpuSampler);
         CC_DELETE(_gpuSampler);
         _gpuSampler = nullptr;
     }

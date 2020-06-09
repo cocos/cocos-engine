@@ -5,8 +5,7 @@
 
 NS_CC_BEGIN
 
-class CCVKGPUContext : public Object
-{
+class CCVKGPUContext : public Object {
 public:
     VkInstance vkInstance = VK_NULL_HANDLE;
     VkDebugUtilsMessengerEXT vkDebugUtilsMessenger = VK_NULL_HANDLE;
@@ -14,9 +13,9 @@ public:
 
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     VkPhysicalDeviceFeatures physicalDeviceFeatures{};
-    VkPhysicalDeviceFeatures2 physicalDeviceFeatures2{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
-    VkPhysicalDeviceVulkan11Features physicalDeviceVulkan11Features{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES};
-    VkPhysicalDeviceVulkan12Features physicalDeviceVulkan12Features{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES };
+    VkPhysicalDeviceFeatures2 physicalDeviceFeatures2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
+    VkPhysicalDeviceVulkan11Features physicalDeviceVulkan11Features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES};
+    VkPhysicalDeviceVulkan12Features physicalDeviceVulkan12Features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES};
     VkPhysicalDeviceProperties physicalDeviceProperties{};
     VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties{};
     vector<VkQueueFamilyProperties>::type queueFamilyProperties;
@@ -24,11 +23,10 @@ public:
 
     VkSurfaceKHR vkSurface = VK_NULL_HANDLE;
 
-    VkSwapchainCreateInfoKHR swapchainCreateInfo{ VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR };
+    VkSwapchainCreateInfoKHR swapchainCreateInfo{VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR};
 };
 
-class CCVKGPUDevice : public Object
-{
+class CCVKGPUDevice : public Object {
 public:
     VkDevice vkDevice = VK_NULL_HANDLE;
     vector<VkLayerProperties>::type layers;
@@ -36,8 +34,7 @@ public:
     VmaAllocator memoryAllocator = VK_NULL_HANDLE;
 };
 
-class CCVKGPURenderPass : public Object
-{
+class CCVKGPURenderPass : public Object {
 public:
     GFXColorAttachmentList colorAttachments;
     GFXDepthStencilAttachment depthStencilAttachment;
@@ -48,8 +45,7 @@ public:
     vector<VkImageMemoryBarrier>::type endBarriers;
 };
 
-class CCVKGPUSwapchain : public Object
-{
+class CCVKGPUSwapchain : public Object {
 public:
     uint curImageIndex = 0;
     VkSwapchainKHR vkSwapchain = VK_NULL_HANDLE;
@@ -59,27 +55,24 @@ public:
     vector<VkImage>::type swapchainImages;
     vector<VkImage>::type depthStencilImages;
     vector<VkImageView>::type depthStencilImageViews;
-    CCVKGPURenderPass* renderPass;
+    CCVKGPURenderPass *renderPass;
 };
 
-class CCVKGPUCommandPool : public Object
-{
+class CCVKGPUCommandPool : public Object {
 public:
     VkCommandPool vkCommandPool = VK_NULL_HANDLE;
     CachedArray<VkCommandBuffer> commandBuffers[2];
     CachedArray<VkCommandBuffer> usedCommandBuffers[2];
 };
 
-class CCVKGPUCommandBuffer : public Object
-{
+class CCVKGPUCommandBuffer : public Object {
 public:
     GFXCommandBufferType type;
-    CCVKGPUCommandPool* commandPool = nullptr;
+    CCVKGPUCommandPool *commandPool = nullptr;
     VkCommandBuffer vkCommandBuffer = VK_NULL_HANDLE;
 };
 
-class CCVKGPUQueue : public Object
-{
+class CCVKGPUQueue : public Object {
 public:
     GFXQueueType type;
     VkQueue vkQueue;
@@ -90,26 +83,24 @@ public:
     CachedArray<VkCommandBuffer> commandBuffers;
 };
 
-class CCVKGPUBuffer : public Object
-{
+class CCVKGPUBuffer : public Object {
 public:
     GFXBufferUsage usage = GFXBufferUsage::NONE;
     GFXMemoryUsage memUsage = GFXMemoryUsage::NONE;
     uint size = 0;
     uint stride = 0;
     uint count = 0;
-    void* buffer = nullptr;
+    void *buffer = nullptr;
     GFXDrawInfoList indirects;
 
     VkBuffer vkBuffer = VK_NULL_HANDLE;
     VkDeviceSize startOffset = 0u;
-    uint8_t* mappedData = nullptr;
+    uint8_t *mappedData = nullptr;
     VmaAllocation vmaAllocation = VK_NULL_HANDLE;
 };
-typedef vector<CCVKGPUBuffer*>::type CCVKGPUBufferList;
+typedef vector<CCVKGPUBuffer *>::type CCVKGPUBufferList;
 
-class CCVKGPUTexture : public Object
-{
+class CCVKGPUTexture : public Object {
 public:
     GFXTextureType type = GFXTextureType::TEX2D;
     GFXTextureViewType viewType = GFXTextureViewType::TV2D;
@@ -133,10 +124,9 @@ public:
     VkPipelineStageFlags targetStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 };
 
-class CCVKGPUTextureView : public Object
-{
+class CCVKGPUTextureView : public Object {
 public:
-    CCVKGPUTexture* gpuTexture = nullptr;
+    CCVKGPUTexture *gpuTexture = nullptr;
     GFXTextureViewType type = GFXTextureViewType::TV2D;
     GFXFormat format = GFXFormat::UNKNOWN;
     uint baseLevel = 0;
@@ -144,10 +134,9 @@ public:
     VkImageView vkImageView = VK_NULL_HANDLE;
 };
 
-typedef vector<CCVKGPUTextureView*>::type CCVKGPUTextureViewList;
+typedef vector<CCVKGPUTextureView *>::type CCVKGPUTextureViewList;
 
-class CCVKGPUSampler : public Object
-{
+class CCVKGPUSampler : public Object {
 public:
     GFXFilter minFilter = GFXFilter::LINEAR;
     GFXFilter magFilter = GFXFilter::LINEAR;
@@ -164,13 +153,9 @@ public:
     VkSampler vkSampler;
 };
 
-struct CCVKGPUShaderStage
-{
+struct CCVKGPUShaderStage {
     CCVKGPUShaderStage(GFXShaderType t, String s, GFXShaderMacroList m)
-        : type(t)
-        , source(s)
-        , macros(m)
-    {
+    : type(t), source(s), macros(m) {
     }
     GFXShaderType type;
     String source;
@@ -179,8 +164,7 @@ struct CCVKGPUShaderStage
 };
 typedef vector<CCVKGPUShaderStage>::type CCVKGPUShaderStageList;
 
-class CCVKGPUShader : public Object
-{
+class CCVKGPUShader : public Object {
 public:
     String name;
     GFXUniformBlockList blocks;
@@ -188,30 +172,27 @@ public:
     CCVKGPUShaderStageList gpuStages;
 };
 
-class CCVKGPUInputAssembler : public Object
-{
+class CCVKGPUInputAssembler : public Object {
 public:
     GFXAttributeList attributes;
     CCVKGPUBufferList gpuVertexBuffers;
-    CCVKGPUBuffer* gpuIndexBuffer = nullptr;
-    CCVKGPUBuffer* gpuIndirectBuffer = nullptr;
+    CCVKGPUBuffer *gpuIndexBuffer = nullptr;
+    CCVKGPUBuffer *gpuIndirectBuffer = nullptr;
     vector<VkBuffer>::type vertexBuffers;
     vector<VkDeviceSize>::type vertexBufferOffsets;
 };
 
-class CCVKGPUFramebuffer : public Object
-{
+class CCVKGPUFramebuffer : public Object {
 public:
-    CCVKGPURenderPass* gpuRenderPass = nullptr;
+    CCVKGPURenderPass *gpuRenderPass = nullptr;
     CCVKGPUTextureViewList gpuColorViews;
-    CCVKGPUTextureView* gpuDepthStencilView = nullptr;
+    CCVKGPUTextureView *gpuDepthStencilView = nullptr;
     VkFramebuffer vkFramebuffer = VK_NULL_HANDLE;
     bool isOffscreen = false;
-    CCVKGPUSwapchain* swapchain = nullptr;
+    CCVKGPUSwapchain *swapchain = nullptr;
 };
 
-class CCVKGPUBindingLayout : public Object
-{
+class CCVKGPUBindingLayout : public Object {
 public:
     vector<VkWriteDescriptorSet>::type bindings;
     VkDescriptorSetLayout vkDescriptorSetLayout = VK_NULL_HANDLE;
@@ -219,63 +200,54 @@ public:
     VkDescriptorSet vkDescriptorSet = VK_NULL_HANDLE;
 };
 
-class CCVKGPUPipelineLayout : public Object
-{
+class CCVKGPUPipelineLayout : public Object {
 public:
     GFXPushConstantRangeList pushConstantRanges;
-    vector<CCVKGPUBindingLayout*>::type gpuBindingLayouts;
+    vector<CCVKGPUBindingLayout *>::type gpuBindingLayouts;
     VkPipelineLayout vkPipelineLayout;
 };
 
-class CCVKGPUPipelineState : public Object
-{
+class CCVKGPUPipelineState : public Object {
 public:
     GFXPrimitiveMode primitive = GFXPrimitiveMode::TRIANGLE_LIST;
-    CCVKGPUShader* gpuShader = nullptr;
+    CCVKGPUShader *gpuShader = nullptr;
     GFXInputState inputState;
     GFXRasterizerState rs;
     GFXDepthStencilState dss;
     GFXBlendState bs;
     GFXDynamicStateList dynamicStates;
-    CCVKGPUPipelineLayout* gpuLayout = nullptr;
-    CCVKGPURenderPass* gpuRenderPass = nullptr;
+    CCVKGPUPipelineLayout *gpuLayout = nullptr;
+    CCVKGPURenderPass *gpuRenderPass = nullptr;
     VkPipeline vkPipeline = VK_NULL_HANDLE;
     VkPipelineCache vkPipelineCache = VK_NULL_HANDLE;
 };
 
-class CCVKGPUFence : public Object
-{
+class CCVKGPUFence : public Object {
 public:
     VkFence vkFence;
 };
 
-class CCVKGPUSemaphorePool : public Object
-{
+class CCVKGPUSemaphorePool : public Object {
 public:
-    CCVKGPUSemaphorePool(CCVKGPUDevice* device)
-        : _device(device)
-    {
+    CCVKGPUSemaphorePool(CCVKGPUDevice *device)
+    : _device(device) {
     }
 
-    ~CCVKGPUSemaphorePool()
-    {
-        for (VkBuffer semaphore : _semaphores)
-        {
+    ~CCVKGPUSemaphorePool() {
+        for (VkBuffer semaphore : _semaphores) {
             vkDestroySemaphore(_device->vkDevice, semaphore, nullptr);
         }
         _semaphores.clear();
         _count = 0;
     }
 
-    VkSemaphore alloc()
-    {
-        if (_count < _semaphores.size())
-        {
+    VkSemaphore alloc() {
+        if (_count < _semaphores.size()) {
             return _semaphores[_count++];
         }
 
         VkSemaphore semaphore = VK_NULL_HANDLE;
-        VkSemaphoreCreateInfo createInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+        VkSemaphoreCreateInfo createInfo{VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
         VK_CHECK(vkCreateSemaphore(_device->vkDevice, &createInfo, nullptr, &semaphore));
         _semaphores.push_back(semaphore);
         _count++;
@@ -283,49 +255,41 @@ public:
         return semaphore;
     }
 
-    void reset()
-    {
+    void reset() {
         _count = 0;
     }
 
-    uint size()
-    {
+    uint size() {
         return _count;
     }
 
 private:
-    CCVKGPUDevice* _device;
+    CCVKGPUDevice *_device;
     uint _count = 0;
     vector<VkSemaphore>::type _semaphores;
 };
 
-class CCVKGPUFencePool : public Object
-{
+class CCVKGPUFencePool : public Object {
 public:
-    CCVKGPUFencePool(CCVKGPUDevice* device)
-        : _device(device)
-    {
+    CCVKGPUFencePool(CCVKGPUDevice *device)
+    : _device(device) {
     }
 
-    ~CCVKGPUFencePool()
-    {
-        for (VkFence fence : _fences)
-        {
+    ~CCVKGPUFencePool() {
+        for (VkFence fence : _fences) {
             vkDestroyFence(_device->vkDevice, fence, nullptr);
         }
         _fences.clear();
         _count = 0;
     }
 
-    VkFence alloc()
-    {
-        if (_count < _fences.size())
-        {
+    VkFence alloc() {
+        if (_count < _fences.size()) {
             return _fences[_count++];
         }
 
         VkFence fence = VK_NULL_HANDLE;
-        VkFenceCreateInfo createInfo{ VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
+        VkFenceCreateInfo createInfo{VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
         VK_CHECK(vkCreateFence(_device->vkDevice, &createInfo, nullptr, &fence));
         _fences.push_back(fence);
         _count++;
@@ -333,22 +297,19 @@ public:
         return fence;
     }
 
-    void reset()
-    {
-        if (_count)
-        {
+    void reset() {
+        if (_count) {
             VK_CHECK(vkResetFences(_device->vkDevice, _count, _fences.data()));
             _count = 0;
         }
     }
 
-    uint size()
-    {
+    uint size() {
         return _count;
     }
 
 private:
-    CCVKGPUDevice* _device;
+    CCVKGPUDevice *_device;
     uint _count = 0;
     vector<VkFence>::type _fences;
 };

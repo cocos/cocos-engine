@@ -1,20 +1,18 @@
 #include "VKStd.h"
-#include "VKWindow.h"
+
 #include "VKCommands.h"
+#include "VKWindow.h"
 
 NS_CC_BEGIN
 
-CCVKWindow::CCVKWindow(GFXDevice* device)
-    : GFXWindow(device)
-{
+CCVKWindow::CCVKWindow(GFXDevice *device)
+: GFXWindow(device) {
 }
 
-CCVKWindow::~CCVKWindow()
-{
+CCVKWindow::~CCVKWindow() {
 }
 
-bool CCVKWindow::initialize(const GFXWindowInfo &info)
-{
+bool CCVKWindow::initialize(const GFXWindowInfo &info) {
     _title = info.title;
     _left = info.left;
     _top = info.top;
@@ -28,35 +26,36 @@ bool CCVKWindow::initialize(const GFXWindowInfo &info)
     _isFullscreen = info.isFullscreen;
 
     // Create render pass
+    if (info.renderPass) {
+        _renderPass = info.renderPass;
+    } else {
+        GFXRenderPassInfo renderPassInfo;
 
-    GFXRenderPassInfo renderPassInfo;
+        GFXColorAttachment colorAttachment;
+        colorAttachment.format = _colorFmt;
+        colorAttachment.loadOp = GFXLoadOp::CLEAR;
+        colorAttachment.storeOp = GFXStoreOp::STORE;
+        colorAttachment.sampleCount = 1;
+        colorAttachment.beginLayout = GFXTextureLayout::COLOR_ATTACHMENT_OPTIMAL;
+        colorAttachment.endLayout = _isOffscreen ? GFXTextureLayout::SHADER_READONLY_OPTIMAL : GFXTextureLayout::COLOR_ATTACHMENT_OPTIMAL;
+        renderPassInfo.colorAttachments.emplace_back(colorAttachment);
 
-    GFXColorAttachment colorAttachment;
-    colorAttachment.format = _colorFmt;
-    colorAttachment.loadOp = GFXLoadOp::CLEAR;
-    colorAttachment.storeOp = GFXStoreOp::STORE;
-    colorAttachment.sampleCount = 1;
-    colorAttachment.beginLayout = GFXTextureLayout::COLOR_ATTACHMENT_OPTIMAL;
-    colorAttachment.endLayout = GFXTextureLayout::PRESENT_SRC;
-    renderPassInfo.colorAttachments.emplace_back(colorAttachment);
+        GFXDepthStencilAttachment &depthStencilAttachment = renderPassInfo.depthStencilAttachment;
+        depthStencilAttachment.format = _depthStencilFmt;
+        depthStencilAttachment.depthLoadOp = GFXLoadOp::CLEAR;
+        depthStencilAttachment.depthStoreOp = GFXStoreOp::STORE;
+        depthStencilAttachment.stencilLoadOp = GFXLoadOp::CLEAR;
+        depthStencilAttachment.stencilStoreOp = GFXStoreOp::STORE;
+        depthStencilAttachment.sampleCount = 1;
+        depthStencilAttachment.beginLayout = GFXTextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        depthStencilAttachment.endLayout = GFXTextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-    GFXDepthStencilAttachment& depthStencilAttachment = renderPassInfo.depthStencilAttachment;
-    depthStencilAttachment.format = _depthStencilFmt;
-    depthStencilAttachment.depthLoadOp = GFXLoadOp::CLEAR;
-    depthStencilAttachment.depthStoreOp = GFXStoreOp::STORE;
-    depthStencilAttachment.stencilLoadOp = GFXLoadOp::CLEAR;
-    depthStencilAttachment.stencilStoreOp = GFXStoreOp::STORE;
-    depthStencilAttachment.sampleCount = 1;
-    depthStencilAttachment.beginLayout = GFXTextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-    depthStencilAttachment.endLayout = GFXTextureLayout::PRESENT_SRC;
-
-    _renderPass = _device->createRenderPass(renderPassInfo);
+        _renderPass = _device->createRenderPass(renderPassInfo);
+    }
 
     // Create texture & texture views
-    if (_isOffscreen)
-    {
-        if (_colorFmt != GFXFormat::UNKNOWN)
-        {
+    if (_isOffscreen) {
+        if (_colorFmt != GFXFormat::UNKNOWN) {
             GFXTextureInfo colorTexInfo;
             colorTexInfo.type = GFXTextureType::TEX2D;
             colorTexInfo.usage = GFXTextureUsageBit::COLOR_ATTACHMENT | GFXTextureUsageBit::SAMPLED;
@@ -78,8 +77,7 @@ bool CCVKWindow::initialize(const GFXWindowInfo &info)
             colorTexViewInfo.layerCount = 1;
             _colorTexView = _device->createTextureView(colorTexViewInfo);
         }
-        if (_depthStencilFmt != GFXFormat::UNKNOWN)
-        {
+        if (_depthStencilFmt != GFXFormat::UNKNOWN) {
             GFXTextureInfo depthStecnilTexInfo;
             depthStecnilTexInfo.type = GFXTextureType::TEX2D;
             depthStecnilTexInfo.usage = GFXTextureUsageBit::DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit::SAMPLED;
@@ -105,8 +103,7 @@ bool CCVKWindow::initialize(const GFXWindowInfo &info)
 
     GFXFramebufferInfo fboInfo;
     fboInfo.renderPass = _renderPass;
-    if (_colorTexView)
-    {
+    if (_colorTexView) {
         fboInfo.colorViews.push_back(_colorTexView);
     }
     fboInfo.depthStencilView = _depthStencilTexView;
@@ -117,8 +114,7 @@ bool CCVKWindow::initialize(const GFXWindowInfo &info)
     return true;
 }
 
-void CCVKWindow::destroy()
-{
+void CCVKWindow::destroy() {
     CC_SAFE_DESTROY(_renderPass);
     CC_SAFE_DESTROY(_colorTexView);
     CC_SAFE_DESTROY(_colorTex);
@@ -129,18 +125,15 @@ void CCVKWindow::destroy()
     _status = GFXStatus::UNREADY;
 }
 
-void CCVKWindow::resize(uint width, uint height)
-{
+void CCVKWindow::resize(uint width, uint height) {
     _width = width;
     _height = height;
 
-    if (width > _nativeWidth || height > _nativeHeight)
-    {
+    if (width > _nativeWidth || height > _nativeHeight) {
         _nativeWidth = width;
         _nativeHeight = height;
 
-        if (_colorTex)
-        {
+        if (_colorTex) {
             _colorTex->resize(width, height);
             _colorTexView->destroy();
 
@@ -150,8 +143,7 @@ void CCVKWindow::resize(uint width, uint height)
             _colorTexView->initialize(colorTexViewInfo);
         }
 
-        if (_depthStencilTex)
-        {
+        if (_depthStencilTex) {
             _depthStencilTex->resize(width, height);
             _depthStencilTexView->destroy();
 
@@ -161,8 +153,7 @@ void CCVKWindow::resize(uint width, uint height)
             _depthStencilTexView->initialize(depth_stencil_tex_view__info);
         }
 
-        if (_framebuffer)
-        {
+        if (_framebuffer) {
             _framebuffer->destroy();
 
             GFXFramebufferInfo fboInfo;

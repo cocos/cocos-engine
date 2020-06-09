@@ -7,21 +7,21 @@ class CCVKGPUQueue;
 
 class CC_VULKAN_API CCVKQueue : public GFXQueue {
 public:
-    CCVKQueue(GFXDevice* device);
+    CCVKQueue(GFXDevice *device);
     ~CCVKQueue();
 
     friend class CCVKDevice;
 
 public:
-    bool initialize(const GFXQueueInfo& info);
+    bool initialize(const GFXQueueInfo &info);
     void destroy();
-    void submit(const std::vector<GFXCommandBuffer*>& cmd_buffs, GFXFence* fence);
+    void submit(const std::vector<GFXCommandBuffer *> &cmd_buffs, GFXFence *fence);
 
     CC_INLINE bool isAsync() const { return _isAsync; }
-    CC_INLINE CCVKGPUQueue* gpuQueue() const { return _gpuQueue; }
+    CC_INLINE CCVKGPUQueue *gpuQueue() const { return _gpuQueue; }
 
 private:
-    CCVKGPUQueue* _gpuQueue;
+    CCVKGPUQueue *_gpuQueue;
     bool _isAsync = false;
     uint _numDrawCalls = 0;
     uint _numInstances = 0;

@@ -7,18 +7,18 @@ class CCVKGPUCommandPool;
 
 class CC_VULKAN_API CCVKCommandAllocator : public GFXCommandAllocator {
 public:
-    CCVKCommandAllocator(GFXDevice* device);
+    CCVKCommandAllocator(GFXDevice *device);
     ~CCVKCommandAllocator();
 
 public:
-    bool initialize(const GFXCommandAllocatorInfo& info);
+    bool initialize(const GFXCommandAllocatorInfo &info);
     void destroy();
 
-    CC_INLINE CCVKGPUCommandPool* gpuCommandPool() { return _gpuCommandPool; }
+    CC_INLINE CCVKGPUCommandPool *gpuCommandPool() { return _gpuCommandPool; }
     void reset();
 
 private:
-    CCVKGPUCommandPool* _gpuCommandPool;
+    CCVKGPUCommandPool *_gpuCommandPool;
 };
 
 NS_CC_END

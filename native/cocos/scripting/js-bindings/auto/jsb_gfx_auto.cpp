@@ -2664,6 +2664,34 @@ static bool js_gfx_GFXWindowInfo_set_windowHandle(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXWindowInfo_set_windowHandle)
 
+static bool js_gfx_GFXWindowInfo_get_renderPass(se::State& s)
+{
+    cocos2d::GFXWindowInfo* cobj = (cocos2d::GFXWindowInfo*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindowInfo_get_renderPass : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= native_ptr_to_seval(cobj->renderPass, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_GFXWindowInfo_get_renderPass)
+
+static bool js_gfx_GFXWindowInfo_set_renderPass(se::State& s)
+{
+    const auto& args = s.args();
+    cocos2d::GFXWindowInfo* cobj = (cocos2d::GFXWindowInfo*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindowInfo_set_renderPass : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    cocos2d::GFXRenderPass* arg0 = nullptr;
+    ok &= seval_to_native_ptr(args[0], &arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GFXWindowInfo_set_renderPass : Error processing new value");
+    cobj->renderPass = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_GFXWindowInfo_set_renderPass)
+
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXWindowInfo_finalize)
 
 static bool js_gfx_GFXWindowInfo_constructor(se::State& s)
@@ -2751,6 +2779,12 @@ static bool js_gfx_GFXWindowInfo_constructor(se::State& s)
             ok &= seval_to_uintptr_t(field, &arg10);
             cobj->windowHandle = arg10;
         }
+        cocos2d::GFXRenderPass* arg11 = nullptr;
+        json->getProperty("renderPass", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_native_ptr(field, &arg11);
+            cobj->renderPass = arg11;
+        }
 
         if(!ok) {
             JSB_FREE(cobj);
@@ -2762,7 +2796,7 @@ static bool js_gfx_GFXWindowInfo_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 11)
+    else if(argc == 12)
     {
         cocos2d::GFXWindowInfo* cobj = JSB_ALLOC(cocos2d::GFXWindowInfo);
         cocos2d::String arg0;
@@ -2820,6 +2854,11 @@ static bool js_gfx_GFXWindowInfo_constructor(se::State& s)
             ok &= seval_to_uintptr_t(args[10], &arg10);
             cobj->windowHandle = arg10;
         }
+        cocos2d::GFXRenderPass* arg11 = nullptr;
+        if (!args[11].isUndefined()) {
+            ok &= seval_to_native_ptr(args[11], &arg11);
+            cobj->renderPass = arg11;
+        }
 
         if(!ok) {
             JSB_FREE(cobj);
@@ -2869,6 +2908,7 @@ bool js_register_gfx_GFXWindowInfo(se::Object* obj)
     cls->defineProperty("isFullscreen", _SE(js_gfx_GFXWindowInfo_get_isFullscreen), _SE(js_gfx_GFXWindowInfo_set_isFullscreen));
     cls->defineProperty("vsyncMode", _SE(js_gfx_GFXWindowInfo_get_vsyncMode), _SE(js_gfx_GFXWindowInfo_set_vsyncMode));
     cls->defineProperty("windowHandle", _SE(js_gfx_GFXWindowInfo_get_windowHandle), _SE(js_gfx_GFXWindowInfo_set_windowHandle));
+    cls->defineProperty("renderPass", _SE(js_gfx_GFXWindowInfo_get_renderPass), _SE(js_gfx_GFXWindowInfo_set_renderPass));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXWindowInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXWindowInfo>(cls);
@@ -14337,24 +14377,6 @@ static bool js_gfx_GFXWindow_getDepthStencilFormat(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXWindow_getDepthStencilFormat)
 
-static bool js_gfx_GFXWindow_getFramebuffer(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_getFramebuffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXFramebuffer* result = cobj->getFramebuffer();
-        ok &= native_ptr_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_getFramebuffer : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_GFXWindow_getFramebuffer)
-
 static bool js_gfx_GFXWindow_getLeft(se::State& s)
 {
     cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
@@ -14498,6 +14520,24 @@ static bool js_gfx_GFXWindow_isOffscreen(se::State& s)
     return false;
 }
 SE_BIND_PROP_GET(js_gfx_GFXWindow_isOffscreen)
+
+static bool js_gfx_GFXWindow_getFramebuffer(se::State& s)
+{
+    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_getFramebuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cocos2d::GFXFramebuffer* result = cobj->getFramebuffer();
+        ok &= native_ptr_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_getFramebuffer : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXWindow_getFramebuffer)
 
 static bool js_gfx_GFXWindow_getTitle(se::State& s)
 {
@@ -18574,7 +18614,7 @@ bool register_all_gfx(se::Object* obj)
     js_register_gfx_GFXInputAssembler(ns);
     js_register_gfx_GFXContextInfo(ns);
     js_register_gfx_GFXShader(ns);
-    js_register_gfx_GFXDeviceInfo(ns);
+    js_register_gfx_GFXShaderStage(ns);
     js_register_gfx_GFXTextureView(ns);
     js_register_gfx_GFXPipelineLayout(ns);
     js_register_gfx_GFXFramebufferInfo(ns);
@@ -18583,7 +18623,7 @@ bool register_all_gfx(se::Object* obj)
     js_register_gfx_GFXRasterizerState(ns);
     js_register_gfx_GFXTextureInfo(ns);
     js_register_gfx_GFXQueueInfo(ns);
-    js_register_gfx_GFXShaderStage(ns);
+    js_register_gfx_GFXDeviceInfo(ns);
     js_register_gfx_GFXShaderInfo(ns);
     js_register_gfx_GFXOffset(ns);
     js_register_gfx_GFXPushConstantRange(ns);

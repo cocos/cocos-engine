@@ -5,20 +5,19 @@ NS_CC_BEGIN
 
 class CCVKGPUInputAssembler;
 
-class CC_VULKAN_API CCVKInputAssembler : public GFXInputAssembler
-{
+class CC_VULKAN_API CCVKInputAssembler : public GFXInputAssembler {
 public:
-    CCVKInputAssembler(GFXDevice* device);
+    CCVKInputAssembler(GFXDevice *device);
     ~CCVKInputAssembler();
 
 public:
-    bool initialize(const GFXInputAssemblerInfo& info);
+    bool initialize(const GFXInputAssemblerInfo &info);
     void destroy();
 
-    CC_INLINE CCVKGPUInputAssembler* gpuInputAssembler() const { return _gpuInputAssembler; }
+    CC_INLINE CCVKGPUInputAssembler *gpuInputAssembler() const { return _gpuInputAssembler; }
 
 private:
-    CCVKGPUInputAssembler* _gpuInputAssembler = nullptr;
+    CCVKGPUInputAssembler *_gpuInputAssembler = nullptr;
 };
 
 NS_CC_END

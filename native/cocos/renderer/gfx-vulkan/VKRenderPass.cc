@@ -1,20 +1,18 @@
 #include "VKStd.h"
-#include "VKRenderPass.h"
+
 #include "VKCommands.h"
+#include "VKRenderPass.h"
 
 NS_CC_BEGIN
 
-CCVKRenderPass::CCVKRenderPass(GFXDevice* device)
-    : GFXRenderPass(device)
-{
+CCVKRenderPass::CCVKRenderPass(GFXDevice *device)
+: GFXRenderPass(device) {
 }
 
-CCVKRenderPass::~CCVKRenderPass()
-{
+CCVKRenderPass::~CCVKRenderPass() {
 }
 
-bool CCVKRenderPass::initialize(const GFXRenderPassInfo &info)
-{
+bool CCVKRenderPass::initialize(const GFXRenderPassInfo &info) {
     _colorAttachments = info.colorAttachments;
     _depthStencilAttachment = info.depthStencilAttachment;
     _subPasses = info.subPasses;
@@ -23,7 +21,7 @@ bool CCVKRenderPass::initialize(const GFXRenderPassInfo &info)
     _gpuRenderPass->colorAttachments = _colorAttachments;
     _gpuRenderPass->depthStencilAttachment = _depthStencilAttachment;
     _gpuRenderPass->subPasses = _subPasses;
-    CCVKCmdFuncCreateRenderPass((CCVKDevice*)_device, _gpuRenderPass);
+    CCVKCmdFuncCreateRenderPass((CCVKDevice *)_device, _gpuRenderPass);
 
     _hash = computeHash();
     _status = GFXStatus::SUCCESS;
@@ -31,11 +29,9 @@ bool CCVKRenderPass::initialize(const GFXRenderPassInfo &info)
     return true;
 }
 
-void CCVKRenderPass::destroy()
-{
-    if (_gpuRenderPass)
-    {
-        CCVKCmdFuncDestroyRenderPass((CCVKDevice*)_device, _gpuRenderPass);
+void CCVKRenderPass::destroy() {
+    if (_gpuRenderPass) {
+        CCVKCmdFuncDestroyRenderPass((CCVKDevice *)_device, _gpuRenderPass);
         CC_DELETE(_gpuRenderPass);
         _gpuRenderPass = nullptr;
     }

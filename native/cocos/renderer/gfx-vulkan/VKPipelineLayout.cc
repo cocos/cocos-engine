@@ -1,21 +1,19 @@
 #include "VKStd.h"
-#include "VKPipelineLayout.h"
-#include "VKCommands.h"
+
 #include "VKBindingLayout.h"
+#include "VKCommands.h"
+#include "VKPipelineLayout.h"
 
 NS_CC_BEGIN
 
-CCVKPipelineLayout::CCVKPipelineLayout(GFXDevice* device)
-    : GFXPipelineLayout(device)
-{
+CCVKPipelineLayout::CCVKPipelineLayout(GFXDevice *device)
+: GFXPipelineLayout(device) {
 }
 
-CCVKPipelineLayout::~CCVKPipelineLayout()
-{
+CCVKPipelineLayout::~CCVKPipelineLayout() {
 }
 
-bool CCVKPipelineLayout::initialize(const GFXPipelineLayoutInfo &info)
-{
+bool CCVKPipelineLayout::initialize(const GFXPipelineLayoutInfo &info) {
 
     _layouts = info.layouts;
     _pushConstantsRanges = info.pushConstantsRanges;
@@ -24,22 +22,19 @@ bool CCVKPipelineLayout::initialize(const GFXPipelineLayoutInfo &info)
     _gpuPipelineLayout->pushConstantRanges = _pushConstantsRanges;
     uint layoutCount = _layouts.size();
     _gpuPipelineLayout->gpuBindingLayouts.resize(layoutCount);
-    for (uint i = 0u; i < layoutCount; i++)
-    {
-        _gpuPipelineLayout->gpuBindingLayouts[i] = ((CCVKBindingLayout*)_layouts[i])->gpuBindingLayout();
+    for (uint i = 0u; i < layoutCount; i++) {
+        _gpuPipelineLayout->gpuBindingLayouts[i] = ((CCVKBindingLayout *)_layouts[i])->gpuBindingLayout();
     }
 
-    CCVKCmdFuncCreatePipelineLayout((CCVKDevice*)_device, _gpuPipelineLayout);
+    CCVKCmdFuncCreatePipelineLayout((CCVKDevice *)_device, _gpuPipelineLayout);
 
     _status = GFXStatus::SUCCESS;
     return true;
 }
 
-void CCVKPipelineLayout::destroy()
-{
-    if (_gpuPipelineLayout)
-    {
-        CCVKCmdFuncDestroyPipelineLayout((CCVKDevice*)_device, _gpuPipelineLayout);
+void CCVKPipelineLayout::destroy() {
+    if (_gpuPipelineLayout) {
+        CCVKCmdFuncDestroyPipelineLayout((CCVKDevice *)_device, _gpuPipelineLayout);
         CC_DELETE(_gpuPipelineLayout);
         _gpuPipelineLayout = nullptr;
     }
