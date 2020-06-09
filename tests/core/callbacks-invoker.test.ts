@@ -232,7 +232,7 @@ test('remove and check has during invoking (node)', function () {
 test('CallbacksInvoker support target', function () {
     let ci = new CallbacksInvoker();
     let cb1 = jest.fn(function () {
-        if (this.name)
+        if (this && this.name)
             this.count++;
     });
     let cb2 = jest.fn();
