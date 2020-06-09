@@ -74,7 +74,7 @@ export abstract class GFXWindow extends GFXObject {
     }
 
     /**
-     * @en Get color texture view of this window.
+     * @en Get color texture of this window.
      * @zh 颜色纹理。
      */
     get colorTexture (): GFXTexture | null {
@@ -82,7 +82,7 @@ export abstract class GFXWindow extends GFXObject {
     }
 
     /**
-     * @en Get depth stencil texture view of this window.
+     * @en Get depth stencil texture of this window.
      * @zh 深度模板纹理。
      */
     get depthStencilTexture (): GFXTexture | null {
