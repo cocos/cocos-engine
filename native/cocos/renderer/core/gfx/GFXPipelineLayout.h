@@ -6,22 +6,22 @@
 NS_CC_BEGIN
 
 class CC_CORE_API GFXPipelineLayout : public GFXObject {
- public:
-  GFXPipelineLayout(GFXDevice* device);
-  virtual ~GFXPipelineLayout();
-  
 public:
-  virtual bool initialize(const GFXPipelineLayoutInfo& info) = 0;
-  virtual void destroy() = 0;
-  
-  CC_INLINE GFXDevice* getDevice() const { return _device; }
-  CC_INLINE const GFXPushConstantRangeList& getPushConstantsRanges() const { return _pushConstantsRanges; }
-  CC_INLINE const GFXBindingLayoutList& getLayouts() const { return _layouts; }
-  
+    GFXPipelineLayout(GFXDevice *device);
+    virtual ~GFXPipelineLayout();
+
+public:
+    virtual bool initialize(const GFXPipelineLayoutInfo &info) = 0;
+    virtual void destroy() = 0;
+
+    CC_INLINE GFXDevice *getDevice() const { return _device; }
+    CC_INLINE const GFXPushConstantRangeList &getPushConstantsRanges() const { return _pushConstantsRanges; }
+    CC_INLINE const GFXBindingLayoutList &getLayouts() const { return _layouts; }
+
 protected:
-  GFXDevice* _device = nullptr;
-  GFXPushConstantRangeList _pushConstantsRanges;
-  GFXBindingLayoutList _layouts;
+    GFXDevice *_device = nullptr;
+    GFXPushConstantRangeList _pushConstantsRanges;
+    GFXBindingLayoutList _layouts;
 };
 
 NS_CC_END

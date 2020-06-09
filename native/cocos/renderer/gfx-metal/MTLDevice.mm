@@ -26,8 +26,7 @@ NS_CC_BEGIN
 CCMTLDevice::CCMTLDevice() {}
 CCMTLDevice::~CCMTLDevice() {}
 
-bool CCMTLDevice::initialize(const GFXDeviceInfo& info)
-{
+bool CCMTLDevice::initialize(const GFXDeviceInfo &info) {
     _gfxAPI = GFXAPI::METAL;
     _deviceName = "Metal";
     _width = info.width;
@@ -66,8 +65,7 @@ bool CCMTLDevice::initialize(const GFXDeviceInfo& info)
     _maxCubeMapTextureSize = mu::getMaxCubeMapTextureWidthHeight(gpuFamily);
     _maxColorRenderTargets = mu::getMaxColorRenderTarget(gpuFamily);
     _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
-    if([id<MTLDevice>(_mtlDevice) isDepth24Stencil8PixelFormatSupported])
-    {
+    if ([id<MTLDevice>(_mtlDevice) isDepth24Stencil8PixelFormatSupported]) {
         _depthBits = 24;
         _stencilBits = 8;
         _features[(int)GFXFeature::FORMAT_D24S8] = true;
@@ -79,23 +77,19 @@ bool CCMTLDevice::initialize(const GFXDeviceInfo& info)
     _features[static_cast<int>(GFXFeature::TEXTURE_HALF_FLOAT_LINEAR)] = mu::isLinearTextureSupported(gpuFamily);
     
     String compressedFormats;
-    if(mu::isPVRTCSuppported(gpuFamily))
-    {
+    if (mu::isPVRTCSuppported(gpuFamily)) {
         _features[static_cast<int>(GFXFeature::FORMAT_PVRTC)] = true;
         compressedFormats += "pvrtc ";
     }
-    if(mu::isEAC_ETCCSuppported(gpuFamily))
-    {
+    if (mu::isEAC_ETCCSuppported(gpuFamily)) {
         _features[static_cast<int>(GFXFeature::FORMAT_ETC2)] = true;
         compressedFormats += "etc2 ";
     }
-    if(mu::isASTCSuppported(gpuFamily))
-    {
+    if (mu::isASTCSuppported(gpuFamily)) {
         _features[static_cast<int>(GFXFeature::FORMAT_ASTC)] = true;
         compressedFormats += "astc ";
     }
-    if(mu::isBCSupported(gpuFamily))
-    {
+    if (mu::isBCSupported(gpuFamily)) {
         _features[static_cast<int>(GFXFeature::FORMAT_ASTC)] = true;
         compressedFormats += "dxt ";
     }
@@ -111,18 +105,13 @@ bool CCMTLDevice::initialize(const GFXDeviceInfo& info)
     return true;
 }
 
-void CCMTLDevice::destroy()
-{
+void CCMTLDevice::destroy() {
     CC_SAFE_DELETE(_stateCache);
 }
 
-void CCMTLDevice::resize(uint width, uint height)
-{
-    
-}
+void CCMTLDevice::resize(uint width, uint height) {}
 
-void CCMTLDevice::present()
-{
+void CCMTLDevice::present() {
     ((CCMTLCommandAllocator*)_cmdAllocator)->releaseCmds();
     CCMTLQueue* queue = (CCMTLQueue*)_queue;
     _numDrawCalls = queue->_numDrawCalls;
@@ -135,8 +124,7 @@ void CCMTLDevice::present()
     queue->_numTriangles = 0;
 }
 
-GFXWindow* CCMTLDevice::createWindow(const GFXWindowInfo& info)
-{
+GFXWindow *CCMTLDevice::createWindow(const GFXWindowInfo &info) {
     auto window = CC_NEW(CCMTLWindow(this) );
     if (window && window->initialize(info) )
         return window;
@@ -145,8 +133,7 @@ GFXWindow* CCMTLDevice::createWindow(const GFXWindowInfo& info)
     return nullptr;
 }
 
-GFXFence* CCMTLDevice::createFence(const GFXFenceInfo& info)
-{
+GFXFence *CCMTLDevice::createFence(const GFXFenceInfo &info) {
     auto fence = CC_NEW(CCMTLFence(this) );
     if (fence && fence->initialize(info) )
         return fence;
@@ -155,8 +142,7 @@ GFXFence* CCMTLDevice::createFence(const GFXFenceInfo& info)
     return nullptr;
 }
 
-GFXQueue* CCMTLDevice::createQueue(const GFXQueueInfo& info)
-{
+GFXQueue *CCMTLDevice::createQueue(const GFXQueueInfo &info) {
     auto queue = CC_NEW(CCMTLQueue(this) );
     if (queue && queue->initialize(info) )
         return queue;
@@ -165,8 +151,7 @@ GFXQueue* CCMTLDevice::createQueue(const GFXQueueInfo& info)
     return nullptr;
 }
 
-GFXCommandAllocator* CCMTLDevice::createCommandAllocator(const GFXCommandAllocatorInfo& info)
-{
+GFXCommandAllocator *CCMTLDevice::createCommandAllocator(const GFXCommandAllocatorInfo &info) {
     auto allocator = CC_NEW(CCMTLCommandAllocator(this) );
     if (allocator && allocator->initialize(info) )
         return allocator;
@@ -175,8 +160,7 @@ GFXCommandAllocator* CCMTLDevice::createCommandAllocator(const GFXCommandAllocat
     return nullptr;
 }
 
-GFXCommandBuffer* CCMTLDevice::createCommandBuffer(const GFXCommandBufferInfo& info)
-{
+GFXCommandBuffer *CCMTLDevice::createCommandBuffer(const GFXCommandBufferInfo &info) {
     auto commandBuffer = CC_NEW(CCMTLCommandBuffer(this) );
     if (commandBuffer && commandBuffer->initialize(info) )
         return commandBuffer;
@@ -185,8 +169,7 @@ GFXCommandBuffer* CCMTLDevice::createCommandBuffer(const GFXCommandBufferInfo& i
     return nullptr;
 }
 
-GFXBuffer* CCMTLDevice::createBuffer(const GFXBufferInfo& info)
-{
+GFXBuffer *CCMTLDevice::createBuffer(const GFXBufferInfo &info) {
     auto buffer = CC_NEW(CCMTLBuffer(this) );
     if (buffer && buffer->initialize(info) )
         return buffer;
@@ -195,8 +178,7 @@ GFXBuffer* CCMTLDevice::createBuffer(const GFXBufferInfo& info)
     return nullptr;
 }
 
-GFXTexture* CCMTLDevice::createTexture(const GFXTextureInfo& info)
-{
+GFXTexture *CCMTLDevice::createTexture(const GFXTextureInfo &info) {
     auto texture = CC_NEW(CCMTLTexture(this) );
     if (texture && texture->initialize(info) )
         return texture;
@@ -205,8 +187,7 @@ GFXTexture* CCMTLDevice::createTexture(const GFXTextureInfo& info)
     return nullptr;
 }
 
-GFXTexture* CCMTLDevice::createTexture(const GFXTextureViewInfo& info)
-{
+GFXTexture *CCMTLDevice::createTexture(const GFXTextureViewInfo &info) {
     auto texture = CC_NEW(CCMTLTexture(this) );
     if (texture && texture->initialize(info) )
         return texture;
@@ -215,8 +196,7 @@ GFXTexture* CCMTLDevice::createTexture(const GFXTextureViewInfo& info)
     return nullptr;
 }
 
-GFXSampler* CCMTLDevice::createSampler(const GFXSamplerInfo& info)
-{
+GFXSampler *CCMTLDevice::createSampler(const GFXSamplerInfo &info) {
     auto sampler = CC_NEW(CCMTLSampler(this) );
     if (sampler && sampler->initialize(info) )
         return sampler;
@@ -225,8 +205,7 @@ GFXSampler* CCMTLDevice::createSampler(const GFXSamplerInfo& info)
     return sampler;
 }
 
-GFXShader* CCMTLDevice::createShader(const GFXShaderInfo& info)
-{
+GFXShader *CCMTLDevice::createShader(const GFXShaderInfo &info) {
     auto shader = CC_NEW(CCMTLShader(this) );
     if (shader && shader->initialize(info) )
         return shader;
@@ -235,8 +214,7 @@ GFXShader* CCMTLDevice::createShader(const GFXShaderInfo& info)
     return shader;
 }
 
-GFXInputAssembler* CCMTLDevice::createInputAssembler(const GFXInputAssemblerInfo& info)
-{
+GFXInputAssembler *CCMTLDevice::createInputAssembler(const GFXInputAssemblerInfo &info) {
     auto ia = CC_NEW(CCMTLInputAssembler(this) );
     if (ia && ia->initialize(info) )
         return ia;
@@ -245,8 +223,7 @@ GFXInputAssembler* CCMTLDevice::createInputAssembler(const GFXInputAssemblerInfo
     return nullptr;
 }
 
-GFXRenderPass* CCMTLDevice::createRenderPass(const GFXRenderPassInfo& info)
-{
+GFXRenderPass *CCMTLDevice::createRenderPass(const GFXRenderPassInfo &info) {
     auto renderPass = CC_NEW(CCMTLRenderPass(this) );
     if (renderPass && renderPass->initialize(info) )
         return renderPass;
@@ -255,8 +232,7 @@ GFXRenderPass* CCMTLDevice::createRenderPass(const GFXRenderPassInfo& info)
     return nullptr;
 }
 
-GFXFramebuffer* CCMTLDevice::createFramebuffer(const GFXFramebufferInfo& info)
-{
+GFXFramebuffer *CCMTLDevice::createFramebuffer(const GFXFramebufferInfo &info) {
     auto frameBuffer = CC_NEW(CCMTLFramebuffer(this) );
     if (frameBuffer && frameBuffer->initialize(info) )
         return frameBuffer;
@@ -265,8 +241,7 @@ GFXFramebuffer* CCMTLDevice::createFramebuffer(const GFXFramebufferInfo& info)
     return nullptr;
 }
 
-GFXBindingLayout* CCMTLDevice::createBindingLayout(const GFXBindingLayoutInfo& info)
-{
+GFXBindingLayout *CCMTLDevice::createBindingLayout(const GFXBindingLayoutInfo &info) {
     auto bl = CC_NEW(CCMTLBindingLayout(this) );
     if (bl && bl->initialize(info) )
         return bl;
@@ -275,8 +250,7 @@ GFXBindingLayout* CCMTLDevice::createBindingLayout(const GFXBindingLayoutInfo& i
     return nullptr;
 }
 
-GFXPipelineState* CCMTLDevice::createPipelineState(const GFXPipelineStateInfo& info)
-{
+GFXPipelineState *CCMTLDevice::createPipelineState(const GFXPipelineStateInfo &info) {
     auto ps = CC_NEW(CCMTLPipelineState(this) );
     if (ps && ps->initialize(info) )
         return ps;
@@ -285,8 +259,7 @@ GFXPipelineState* CCMTLDevice::createPipelineState(const GFXPipelineStateInfo& i
     return nullptr;
 }
 
-GFXPipelineLayout* CCMTLDevice::createPipelineLayout(const GFXPipelineLayoutInfo& info)
-{
+GFXPipelineLayout *CCMTLDevice::createPipelineLayout(const GFXPipelineLayoutInfo &info) {
     auto pl = CC_NEW(CCMTLPipelineLayout(this) );
     if (pl && pl->initialize(info) )
         return pl;
@@ -295,16 +268,13 @@ GFXPipelineLayout* CCMTLDevice::createPipelineLayout(const GFXPipelineLayoutInfo
     return nullptr;
 }
 
-void CCMTLDevice::copyBuffersToTexture(const GFXDataArray& buffers, GFXTexture* dst, const GFXBufferTextureCopyList& regions)
-{
+void CCMTLDevice::copyBuffersToTexture(const GFXDataArray &buffers, GFXTexture *dst, const GFXBufferTextureCopyList &regions) {
     static_cast<CCMTLTexture*>(dst)->update(buffers.datas.data(), regions);
 }
 
-void CCMTLDevice::blitBuffer(void* srcData, uint offset, uint size, void* dstBuffer)
-{
+void CCMTLDevice::blitBuffer(void *srcData, uint offset, uint size, void *dstBuffer) {
     id<MTLBuffer> sourceBuffer = id<MTLBuffer>(_blitedBuffer);
-    if(sourceBuffer == nil || sourceBuffer.allocatedSize < size)
-    {
+    if(sourceBuffer == nil || sourceBuffer.allocatedSize < size) {
         if(sourceBuffer)
             [sourceBuffer release];
         sourceBuffer = [id<MTLDevice>(_mtlDevice) newBufferWithBytes:srcData

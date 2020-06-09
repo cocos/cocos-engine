@@ -2,8 +2,7 @@
 
 NS_CC_BEGIN
 
-enum class GFXCmdType : uint8_t
-{
+enum class GFXCmdType : uint8_t {
     BEGIN_RENDER_PASS,
     END_RENDER_PASS,
     BIND_STATES,
@@ -13,15 +12,14 @@ enum class GFXCmdType : uint8_t
     COUNT,
 };
 
-class GFXCmd : public Object
-{
+class GFXCmd : public Object {
 public:
     GFXCmdType type;
     uint ref_count = 0;
-    
+
     GFXCmd(GFXCmdType _type) : type(_type) {}
     virtual ~GFXCmd() {}
-    
+
     virtual void clear() = 0;
 };
 

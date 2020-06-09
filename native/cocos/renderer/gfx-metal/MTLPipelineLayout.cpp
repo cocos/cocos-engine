@@ -3,20 +3,18 @@
 
 NS_CC_BEGIN
 
-CCMTLPipelineLayout::CCMTLPipelineLayout(GFXDevice* device) : GFXPipelineLayout(device) {}
+CCMTLPipelineLayout::CCMTLPipelineLayout(GFXDevice *device) : GFXPipelineLayout(device) {}
 CCMTLPipelineLayout::~CCMTLPipelineLayout() { destroy(); }
 
-bool CCMTLPipelineLayout::initialize(const GFXPipelineLayoutInfo& info)
-{
+bool CCMTLPipelineLayout::initialize(const GFXPipelineLayoutInfo &info) {
     _layouts = info.layouts;
     _pushConstantsRanges = info.pushConstantsRanges;
     _status = GFXStatus::SUCCESS;
-    
+
     return true;
 }
 
-void CCMTLPipelineLayout::destroy()
-{
+void CCMTLPipelineLayout::destroy() {
     _status = GFXStatus::UNREADY;
 }
 

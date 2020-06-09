@@ -6,26 +6,26 @@
 NS_CC_BEGIN
 
 class CC_CORE_API GFXFramebuffer : public GFXObject {
- public:
-  GFXFramebuffer(GFXDevice* device);
-  virtual ~GFXFramebuffer();
-  
- public:
-  virtual bool initialize(const GFXFramebufferInfo& info) = 0;
-  virtual void destroy() = 0;
-  
-  CC_INLINE GFXDevice* getDevice() const { return _device; }
-  CC_INLINE GFXRenderPass* getRenderPass() const { return _renderPass; }
-  CC_INLINE const GFXTextureList& getColorTextures() const { return _colorTextures; }
-  CC_INLINE GFXTexture* getDepthStencilTexture() const { return _depthStencilTexture; }
-  CC_INLINE bool isOffscreen() const { return _isOffscreen; }
-  
- protected:
-  GFXDevice* _device = nullptr;
-  GFXRenderPass* _renderPass = nullptr;
-  GFXTextureList _colorTextures;
-  GFXTexture* _depthStencilTexture = nullptr;
-  bool _isOffscreen = true;
+public:
+    GFXFramebuffer(GFXDevice *device);
+    virtual ~GFXFramebuffer();
+
+public:
+    virtual bool initialize(const GFXFramebufferInfo &info) = 0;
+    virtual void destroy() = 0;
+
+    CC_INLINE GFXDevice *getDevice() const { return _device; }
+    CC_INLINE GFXRenderPass *getRenderPass() const { return _renderPass; }
+    CC_INLINE const GFXTextureList &getColorTextures() const { return _colorTextures; }
+    CC_INLINE GFXTexture *getDepthStencilTexture() const { return _depthStencilTexture; }
+    CC_INLINE bool isOffscreen() const { return _isOffscreen; }
+
+protected:
+    GFXDevice *_device = nullptr;
+    GFXRenderPass *_renderPass = nullptr;
+    GFXTextureList _colorTextures;
+    GFXTexture *_depthStencilTexture = nullptr;
+    bool _isOffscreen = true;
 };
 
 NS_CC_END

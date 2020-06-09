@@ -3,9 +3,8 @@
 
 NS_CC_BEGIN
 
-GFXTexture::GFXTexture(GFXDevice* device)
-: GFXObject(GFXObjectType::TEXTURE)
-, _device(device){
+GFXTexture::GFXTexture(GFXDevice *device)
+: GFXObject(GFXObjectType::TEXTURE), _device(device) {
 }
 
 GFXTexture::~GFXTexture() {

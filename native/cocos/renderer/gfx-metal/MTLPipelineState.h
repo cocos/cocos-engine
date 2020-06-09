@@ -8,32 +8,31 @@
 
 NS_CC_BEGIN
 
-class CCMTLPipelineState : public GFXPipelineState
-{
+class CCMTLPipelineState : public GFXPipelineState {
 public:
-    CCMTLPipelineState(GFXDevice* device);
+    CCMTLPipelineState(GFXDevice *device);
     virtual ~CCMTLPipelineState();
-    
-    virtual bool initialize(const GFXPipelineStateInfo& info) override;
+
+    virtual bool initialize(const GFXPipelineStateInfo &info) override;
     virtual void destroy() override;
-        
-    CC_INLINE CCMTLGPUPipelineState* getGPUPipelineState() const { return _GPUPipelieState; }
-    
+
+    CC_INLINE CCMTLGPUPipelineState *getGPUPipelineState() const { return _GPUPipelieState; }
+
 private:
-    static bool matchSamplerName(const char* argumentName, const std::string& samplerName);
+    static bool matchSamplerName(const char *argumentName, const std::string &samplerName);
     bool createMTLDepthStencilState();
     bool createGPUPipelineState();
     bool createMTLRenderPipelineState();
-    void setVertexDescriptor(MTLRenderPipelineDescriptor*);
-    void setMTLFunctions(MTLRenderPipelineDescriptor*);
-    void setFormats(MTLRenderPipelineDescriptor*);
-    void setBlendStates(MTLRenderPipelineDescriptor*);
-    bool createMTLRenderPipeline(MTLRenderPipelineDescriptor*);
-    
+    void setVertexDescriptor(MTLRenderPipelineDescriptor *);
+    void setMTLFunctions(MTLRenderPipelineDescriptor *);
+    void setFormats(MTLRenderPipelineDescriptor *);
+    void setBlendStates(MTLRenderPipelineDescriptor *);
+    bool createMTLRenderPipeline(MTLRenderPipelineDescriptor *);
+
 private:
     id<MTLRenderPipelineState> _mtlRenderPipelineState = nil;
     id<MTLDepthStencilState> _mtlDepthStencilState = nil;
-    CCMTLGPUPipelineState* _GPUPipelieState = nullptr;
+    CCMTLGPUPipelineState *_GPUPipelieState = nullptr;
 };
 
 NS_CC_END

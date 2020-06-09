@@ -6,11 +6,10 @@
 
 NS_CC_BEGIN
 
-CCMTLWindow::CCMTLWindow(GFXDevice* device) : GFXWindow(device) {}
+CCMTLWindow::CCMTLWindow(GFXDevice *device) : GFXWindow(device) {}
 CCMTLWindow::~CCMTLWindow() { destroy(); }
 
-bool CCMTLWindow::initialize(const GFXWindowInfo& info)
-{
+bool CCMTLWindow::initialize(const GFXWindowInfo &info) {
     _title = info.title;
     _left = info.left;
     _top = info.top;
@@ -41,7 +40,7 @@ bool CCMTLWindow::initialize(const GFXWindowInfo& info)
     colorAttachment.endLayout = GFXTextureLayout::COLOR_ATTACHMENT_OPTIMAL;
     renderPassInfo.colorAttachments.emplace_back(colorAttachment);
     
-    GFXDepthStencilAttachment& depthStencilAttachment = renderPassInfo.depthStencilAttachment;
+    GFXDepthStencilAttachment &depthStencilAttachment = renderPassInfo.depthStencilAttachment;
     renderPassInfo.depthStencilAttachment.format = GFXFormat::D24S8;
     depthStencilAttachment.depthLoadOp = GFXLoadOp::CLEAR;
     depthStencilAttachment.depthStoreOp = GFXStoreOp::STORE;
@@ -67,8 +66,7 @@ bool CCMTLWindow::initialize(const GFXWindowInfo& info)
             colorTexInfo.mipLevel = 1;
             _colorTex = _device->createTexture(colorTexInfo);
             
-            if (_colorTex)
-            {
+            if (_colorTex) {
                 id<MTLTexture> mtlTexture = static_cast<CCMTLTexture*>(_colorTex)->getMTLTexture();
                 static_cast<CCMTLRenderPass*>(_renderPass)->setColorAttachment(0, mtlTexture, 0);
             }
@@ -85,8 +83,7 @@ bool CCMTLWindow::initialize(const GFXWindowInfo& info)
             depthStecnilTexInfo.mipLevel = 1;
             _depthStencilTex = _device->createTexture(depthStecnilTexInfo);
             
-            if (_depthStencilTex)
-            {
+            if (_depthStencilTex) {
                 id<MTLTexture> mtlTexture = static_cast<CCMTLTexture*>(_depthStencilTex)->getMTLTexture();
                 static_cast<CCMTLRenderPass*>(_renderPass)->setDepthStencilAttachment(mtlTexture, 0);
             }
@@ -103,16 +100,14 @@ bool CCMTLWindow::initialize(const GFXWindowInfo& info)
     return true;
 }
 
-void CCMTLWindow::destroy()
-{
+void CCMTLWindow::destroy() {
     CC_SAFE_DESTROY(_renderPass);
     CC_SAFE_DESTROY(_colorTex);
     CC_SAFE_DESTROY(_depthStencilTex);
     CC_SAFE_DESTROY(_framebuffer);
 }
 
-void CCMTLWindow::resize(uint width, uint height)
-{
+void CCMTLWindow::resize(uint width, uint height) {
     
 }
 

@@ -3,9 +3,8 @@
 
 NS_CC_BEGIN
 
-GFXQueue::GFXQueue(GFXDevice* device)
-: GFXObject(GFXObjectType::QUEUE)
-, _device(device) {
+GFXQueue::GFXQueue(GFXDevice *device)
+: GFXObject(GFXObjectType::QUEUE), _device(device) {
 }
 
 GFXQueue::~GFXQueue() {

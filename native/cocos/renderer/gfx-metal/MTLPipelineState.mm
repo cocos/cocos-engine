@@ -14,11 +14,10 @@
 
 NS_CC_BEGIN
 
-CCMTLPipelineState::CCMTLPipelineState(GFXDevice* device) : GFXPipelineState(device) {}
+CCMTLPipelineState::CCMTLPipelineState(GFXDevice *device) : GFXPipelineState(device) {}
 CCMTLPipelineState::~CCMTLPipelineState() { destroy(); }
 
-bool CCMTLPipelineState::initialize(const GFXPipelineStateInfo& info)
-{
+bool CCMTLPipelineState::initialize(const GFXPipelineStateInfo &info) {
     _primitive = info.primitive;
     _shader = info.shader;
     _inputState = info.inputState;
@@ -29,8 +28,7 @@ bool CCMTLPipelineState::initialize(const GFXPipelineStateInfo& info)
     _layout = info.layout;
     _renderPass = info.renderPass;
     
-    if(!createGPUPipelineState())
-    {
+    if (!createGPUPipelineState()) {
         _status = GFXStatus::FAILED;
         return false;
     }
@@ -38,16 +36,13 @@ bool CCMTLPipelineState::initialize(const GFXPipelineStateInfo& info)
     return true;
 }
 
-void CCMTLPipelineState::destroy()
-{
-    if (_mtlRenderPipelineState)
-    {
+void CCMTLPipelineState::destroy() {
+    if (_mtlRenderPipelineState) {
         [_mtlRenderPipelineState release];
         _mtlRenderPipelineState = nil;
     }
     
-    if (_mtlDepthStencilState)
-    {
+    if (_mtlDepthStencilState) {
         [_mtlDepthStencilState release];
         _mtlDepthStencilState = nil;
     }
@@ -56,11 +51,9 @@ void CCMTLPipelineState::destroy()
     _status = GFXStatus::UNREADY;
 }
 
-bool CCMTLPipelineState::createGPUPipelineState()
-{
+bool CCMTLPipelineState::createGPUPipelineState() {
     _GPUPipelieState = CC_NEW(CCMTLGPUPipelineState);
-    if (!_GPUPipelieState)
-    {
+    if (!_GPUPipelieState) {
         CC_LOG_ERROR("CCMTLPipelineState: CC_NEW CCMTLGPUPipelineState failed.");
         return false;
     }
@@ -83,11 +76,9 @@ bool CCMTLPipelineState::createGPUPipelineState()
     return true;
 }
 
-bool CCMTLPipelineState::createMTLDepthStencilState()
-{
+bool CCMTLPipelineState::createMTLDepthStencilState() {
     MTLDepthStencilDescriptor* descriptor = [[MTLDepthStencilDescriptor alloc] init];
-    if(descriptor == nil)
-    {
+    if (descriptor == nil) {
         CC_LOG_ERROR("CCMTLPipelineState: MTLDepthStencilDescriptor could not be allocated.");
         return false;
     }
@@ -99,8 +90,7 @@ bool CCMTLPipelineState::createMTLDepthStencilState()
     else
        descriptor.depthCompareFunction = mu::toMTLCompareFunction(_depthStencilState.depthFunc);
      
-    if (_depthStencilState.stencilTestFront)
-    {
+    if (_depthStencilState.stencilTestFront) {
         descriptor.frontFaceStencil.stencilCompareFunction = mu::toMTLCompareFunction(_depthStencilState.stencilFuncFront);
         descriptor.frontFaceStencil.readMask = _depthStencilState.stencilReadMaskFront;
         descriptor.frontFaceStencil.writeMask = _depthStencilState.stencilWriteMaskFront;
@@ -108,13 +98,11 @@ bool CCMTLPipelineState::createMTLDepthStencilState()
         descriptor.frontFaceStencil.depthFailureOperation = mu::toMTLStencilOperation(_depthStencilState.stencilZFailOpFront);
         descriptor.frontFaceStencil.depthStencilPassOperation = mu::toMTLStencilOperation(_depthStencilState.stencilPassOpFront);
     }
-    else
-    {
+    else {
         descriptor.frontFaceStencil = nil;
     }
     
-    if (_depthStencilState.stencilTestBack)
-    {
+    if (_depthStencilState.stencilTestBack) {
         descriptor.backFaceStencil.stencilCompareFunction = mu::toMTLCompareFunction(_depthStencilState.stencilFuncBack);
         descriptor.backFaceStencil.readMask = _depthStencilState.stencilReadMaskBack;
         descriptor.backFaceStencil.writeMask = _depthStencilState.stencilWriteMaskBack;
@@ -122,28 +110,24 @@ bool CCMTLPipelineState::createMTLDepthStencilState()
         descriptor.backFaceStencil.depthFailureOperation = mu::toMTLStencilOperation(_depthStencilState.stencilZFailOpBack);
         descriptor.backFaceStencil.depthStencilPassOperation = mu::toMTLStencilOperation(_depthStencilState.stencilPassOpBack);
     }
-    else
-    {
+    else {
         descriptor.backFaceStencil = nil;
     }
     
     id<MTLDevice> mtlDevice = id<MTLDevice>( ((CCMTLDevice*)_device)->getMTLDevice() );
     _mtlDepthStencilState = [mtlDevice newDepthStencilStateWithDescriptor:descriptor];
     
-    if (!_mtlDepthStencilState)
-    {
+    if (!_mtlDepthStencilState) {
         CC_LOG_ERROR("Failed to create MTLDepthStencilState.");
         return false;
     }
     return true;
 }
 
-bool CCMTLPipelineState::createMTLRenderPipelineState()
-{
+bool CCMTLPipelineState::createMTLRenderPipelineState() {
     bool ret = true;
-    MTLRenderPipelineDescriptor* descriptor = [[MTLRenderPipelineDescriptor alloc] init];
-    if(descriptor == nil)
-    {
+    MTLRenderPipelineDescriptor *descriptor = [[MTLRenderPipelineDescriptor alloc] init];
+    if (descriptor == nil) {
         CC_LOG_ERROR("CCMTLPipelineState: MTLRenderPipelineDescriptor could not be allocated.");
         return false;
     }
@@ -157,8 +141,7 @@ bool CCMTLPipelineState::createMTLRenderPipelineState()
     return ret;
 }
 
-void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor* descriptor)
-{
+void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descriptor) {
     // attributes
 
     auto mtlAttributes = static_cast<CCMTLShader*>(_shader)->getVertMTLFunction().vertexAttributes;
@@ -170,14 +153,11 @@ void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor* descri
     const uint DEFAULT_VERTEX_BUFFER_INDEX = 30;
     uint streamOffsets[GFX_MAX_VERTEX_ATTRIBUTES] = {0};
     bool matched = false;
-    for (MTLVertexAttribute* attrib in mtlAttributes)
-    {
+    for (MTLVertexAttribute* attrib in mtlAttributes) {
         auto attributeIndex = attrib.attributeIndex;
         matched = false;
-        for (const auto& inputAttrib : _inputState.attributes)
-        {
-            if (inputAttrib.name.compare([attrib.name UTF8String]) == 0)
-            {
+        for (const auto& inputAttrib : _inputState.attributes) {
+            if (inputAttrib.name.compare([attrib.name UTF8String]) == 0) {
                 descriptor.vertexDescriptor.attributes[attributeIndex].format = mu::toMTLVertexFormat(inputAttrib.format, inputAttrib.isNormalized);
                 descriptor.vertexDescriptor.attributes[attributeIndex].offset = streamOffsets[inputAttrib.stream];
                 //FIXME: because translated metal shader binds argument buffers from 0. So bind vertex buffer to max buffer index: 30.
@@ -193,8 +173,7 @@ void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor* descri
                 break;
             }
         }
-        if (!matched)
-        {
+        if (!matched) {
             CC_LOG_ERROR("Attribute %s is missing.", [attrib.name UTF8String]);
             assert(false);
         }
@@ -210,18 +189,15 @@ void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor* descri
     _GPUPipelieState->vertexBufferBindingInfo = std::move(layouts);
 }
 
-void CCMTLPipelineState::setMTLFunctions(MTLRenderPipelineDescriptor* descriptor)
-{
+void CCMTLPipelineState::setMTLFunctions(MTLRenderPipelineDescriptor *descriptor) {
     descriptor.vertexFunction = ((CCMTLShader*)_shader)->getVertMTLFunction();
     descriptor.fragmentFunction = ((CCMTLShader*)_shader)->getFragmentMTLFunction();
 }
 
-void CCMTLPipelineState::setFormats(MTLRenderPipelineDescriptor* descriptor)
-{
+void CCMTLPipelineState::setFormats(MTLRenderPipelineDescriptor *descriptor) {
     int i = 0;
     MTLPixelFormat mtlPixelFormat;
-    for (const auto& colorAttachment : _renderPass->getColorAttachments())
-    {
+    for (const auto &colorAttachment : _renderPass->getColorAttachments()) {
         mtlPixelFormat = mu::toMTLPixelFormat(colorAttachment.format);
         if (mtlPixelFormat != MTLPixelFormatInvalid)
             descriptor.colorAttachments[i].pixelFormat = mtlPixelFormat;
@@ -238,8 +214,7 @@ void CCMTLPipelineState::setFormats(MTLRenderPipelineDescriptor* descriptor)
         descriptor.stencilAttachmentPixelFormat = mtlPixelFormat;
 }
 
-void CCMTLPipelineState::setBlendStates(MTLRenderPipelineDescriptor* descriptor)
-{
+void CCMTLPipelineState::setBlendStates(MTLRenderPipelineDescriptor *descriptor) {
     //FIXME: how to handle these two attributes?
 //    GFXBlendState::isIndepend
 //    GFXBlendState::blendColor;
@@ -247,9 +222,8 @@ void CCMTLPipelineState::setBlendStates(MTLRenderPipelineDescriptor* descriptor)
     descriptor.alphaToCoverageEnabled = _blendState.isA2C;
     
     int i = 0;
-    for (const auto& blendTarget : _blendState.targets)
-    {
-        MTLRenderPipelineColorAttachmentDescriptor* colorDescriptor = descriptor.colorAttachments[i];
+    for (const auto &blendTarget : _blendState.targets) {
+        MTLRenderPipelineColorAttachmentDescriptor *colorDescriptor = descriptor.colorAttachments[i];
         colorDescriptor.blendingEnabled = blendTarget.blend;
         if (! blendTarget.blend)
             continue;
@@ -266,13 +240,11 @@ void CCMTLPipelineState::setBlendStates(MTLRenderPipelineDescriptor* descriptor)
     }
 }
 
-bool CCMTLPipelineState::createMTLRenderPipeline(MTLRenderPipelineDescriptor* descriptor)
-{
+bool CCMTLPipelineState::createMTLRenderPipeline(MTLRenderPipelineDescriptor *descriptor) {
     id<MTLDevice> mtlDevice = id<MTLDevice>( ((CCMTLDevice*)_device)->getMTLDevice() );
-    NSError* nsError;
+    NSError *nsError = nil;
     _mtlRenderPipelineState = [mtlDevice newRenderPipelineStateWithDescriptor: descriptor error:&nsError];
-    if (!_mtlRenderPipelineState)
-    {
+    if (!_mtlRenderPipelineState) {
         CC_LOG_ERROR("Failed to create MTLRenderPipelineState: %s", [nsError.localizedDescription UTF8String]);
         return false;;
     }

@@ -8,7 +8,7 @@ class GFXObject : public Object {
 public:
     GFXObject(GFXObjectType gfxType);
     virtual ~GFXObject() = default;
-    
+
     CC_INLINE GFXObjectType getType() const { return _gfxType; }
     CC_INLINE GFXStatus getStatus() const { return _status; }
 

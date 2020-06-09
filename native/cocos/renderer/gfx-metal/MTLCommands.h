@@ -12,44 +12,39 @@ class CCMTLPipelineState;
 class CCMTLBuffer;
 class CCMTLTexture;
 
-struct CCMTLDepthBias
-{
+struct CCMTLDepthBias {
     float depthBias = 0.0f;
     float slopeScale = 0.0f;
     float clamp = 0.0f;
 };
 
-struct CCMTLDepthBounds
-{
+struct CCMTLDepthBounds {
     float minBounds = 0.0f;
     float maxBounds = 0.0f;
 };
 
-class CCMTLCmdBeginRenderPass : public GFXCmd
-{
+class CCMTLCmdBeginRenderPass : public GFXCmd {
 public:
     GFXRect renderArea;
     GFXClearFlags clearFlags = GFXClearFlags::NONE;
-    CCMTLFramebuffer* frameBuffer = nullptr;
+    CCMTLFramebuffer *frameBuffer = nullptr;
     uint numOfClearColor = 0;
     vector<GFXColor>::type clearColors;
     float clearDepth = 1.f;
     int clearStencil = 0;
-    
+
     CCMTLCmdBeginRenderPass() : GFXCmd(GFXCmdType::BEGIN_RENDER_PASS) {}
-    
-    virtual void clear() override
-    {
+
+    virtual void clear() override {
         numOfClearColor = 0;
     }
 };
 
-class CCMTLCmdBindStates : public GFXCmd
-{
+class CCMTLCmdBindStates : public GFXCmd {
 public:
-    GFXBindingLayout* bindingLayout = nullptr;
-    CCMTLPipelineState* pipelineState = nullptr;
-    CCMTLInputAssembler* inputAssembler = nullptr;
+    GFXBindingLayout *bindingLayout = nullptr;
+    CCMTLPipelineState *pipelineState = nullptr;
+    CCMTLInputAssembler *inputAssembler = nullptr;
     MTLViewport viewport = {};
     MTLScissorRect scissorRect = {};
     bool depthBiasEnabled = false;
@@ -57,31 +52,29 @@ public:
     CCMTLDepthBounds depthBounds;
     GFXColor blendConstants;
     const static uint DYNAMIC_STATE_SIZE = 8;
-    std::array<bool, DYNAMIC_STATE_SIZE> dynamicStateDirty = { false, false, false, false, false, false, false, false };
-    
+    std::array<bool, DYNAMIC_STATE_SIZE> dynamicStateDirty = {false, false, false, false, false, false, false, false};
+
     CCMTLCmdBindStates() : GFXCmd(GFXCmdType::BIND_STATES) {}
-    
+
     virtual void clear() override {}
 };
 
-class CCMTLCmdDraw : public GFXCmd
-{
+class CCMTLCmdDraw : public GFXCmd {
 public:
     GFXDrawInfo drawInfo;
-    
+
     CCMTLCmdDraw() : GFXCmd(GFXCmdType::DRAW) {}
     virtual void clear() override {}
 };
 
-class CCMTLCmdCopyBufferToTexture : public GFXCmd
-{
+class CCMTLCmdCopyBufferToTexture : public GFXCmd {
 public:
-    CCMTLBuffer* gpuBuffer = nullptr;
-    CCMTLTexture* gpuTexture = nullptr;
+    CCMTLBuffer *gpuBuffer = nullptr;
+    CCMTLTexture *gpuTexture = nullptr;
     GFXTextureLayout dstLayout;
     GFXBufferTextureCopyList regions;
-    
-    CCMTLCmdCopyBufferToTexture(): GFXCmd(GFXCmdType::COPY_BUFFER_TO_TEXTURE) {}
+
+    CCMTLCmdCopyBufferToTexture() : GFXCmd(GFXCmdType::COPY_BUFFER_TO_TEXTURE) {}
     virtual void clear() override {
         gpuBuffer = nullptr;
         gpuTexture = nullptr;
@@ -91,28 +84,27 @@ public:
 
 class CCMTLCmdUpdateBuffer : public GFXCmd {
 public:
-    CCMTLBuffer* gpuBuffer = nullptr;
-    uint8_t* buffer = nullptr;
+    CCMTLBuffer *gpuBuffer = nullptr;
+    uint8_t *buffer = nullptr;
     uint size = 0;
     uint offset = 0;
-    
+
     CCMTLCmdUpdateBuffer() : GFXCmd(GFXCmdType::UPDATE_BUFFER) {}
-    
+
     void clear() {
         buffer = nullptr;
         gpuBuffer = nullptr;
     }
 };
 
-class CCMTLCommandPackage : public Object
-{
+class CCMTLCommandPackage : public Object {
 public:
     CachedArray<GFXCmdType> commandTypes;
-    CachedArray<CCMTLCmdBeginRenderPass*> beginRenderPassCmds;
-    CachedArray<CCMTLCmdBindStates*> bindStatesCmds;
-    CachedArray<CCMTLCmdDraw*> drawCmds;
-    CachedArray<CCMTLCmdUpdateBuffer*> updateBufferCmds;
-    CachedArray<CCMTLCmdCopyBufferToTexture*> copyBufferToTextureCmds;
+    CachedArray<CCMTLCmdBeginRenderPass *> beginRenderPassCmds;
+    CachedArray<CCMTLCmdBindStates *> bindStatesCmds;
+    CachedArray<CCMTLCmdDraw *> drawCmds;
+    CachedArray<CCMTLCmdUpdateBuffer *> updateBufferCmds;
+    CachedArray<CCMTLCmdCopyBufferToTexture *> copyBufferToTextureCmds;
 };
 
 NS_CC_END

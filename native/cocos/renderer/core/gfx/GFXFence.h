@@ -5,20 +5,19 @@
 
 NS_CC_BEGIN
 
-class CC_CORE_API GFXFence : public GFXObject
-{
+class CC_CORE_API GFXFence : public GFXObject {
 public:
-    GFXFence(GFXDevice* device);
+    GFXFence(GFXDevice *device);
     virtual ~GFXFence();
 
 public:
-    virtual bool initialize(const GFXFenceInfo& info) = 0;
+    virtual bool initialize(const GFXFenceInfo &info) = 0;
     virtual void destroy() = 0;
     virtual void wait() = 0;
     virtual void reset() = 0;
 
 protected:
-    GFXDevice* _device = nullptr;
+    GFXDevice *_device = nullptr;
 };
 
 NS_CC_END

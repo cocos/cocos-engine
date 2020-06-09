@@ -5,19 +5,17 @@
 
 NS_CC_BEGIN
 
-CCMTLRenderPass::CCMTLRenderPass(GFXDevice* device) : GFXRenderPass(device) {}
+CCMTLRenderPass::CCMTLRenderPass(GFXDevice *device) : GFXRenderPass(device) {}
 CCMTLRenderPass::~CCMTLRenderPass() { destroy(); }
 
-bool CCMTLRenderPass::initialize(const GFXRenderPassInfo& info)
-{
+bool CCMTLRenderPass::initialize(const GFXRenderPassInfo &info) {
     _colorAttachments = info.colorAttachments;
     _depthStencilAttachment = info.depthStencilAttachment;
     
     _mtlRenderPassDescriptor = [[MTLRenderPassDescriptor alloc] init];
     
     int i = 0;
-    for (const auto& colorAttachment: _colorAttachments)
-    {
+    for (const auto &colorAttachment: _colorAttachments) {
         _mtlRenderPassDescriptor.colorAttachments[i].loadAction = mu::toMTLLoadAction(colorAttachment.loadOp);
         _mtlRenderPassDescriptor.colorAttachments[i].storeAction = mu::toMTLStoreAction(colorAttachment.storeOp);
         
@@ -35,10 +33,8 @@ bool CCMTLRenderPass::initialize(const GFXRenderPassInfo& info)
     return true;
 }
 
-void CCMTLRenderPass::destroy()
-{
-    if (_mtlRenderPassDescriptor)
-    {
+void CCMTLRenderPass::destroy() {
+    if (_mtlRenderPassDescriptor) {
         [_mtlRenderPassDescriptor release];
         _mtlRenderPassDescriptor = nil;
     }
@@ -46,17 +42,14 @@ void CCMTLRenderPass::destroy()
     _status = GFXStatus::UNREADY;
 }
 
-void CCMTLRenderPass::setColorAttachment(size_t slot, id<MTLTexture> texture, int level)
-{
-    if (! _mtlRenderPassDescriptor)
-    {
+void CCMTLRenderPass::setColorAttachment(size_t slot, id<MTLTexture> texture, int level) {
+    if (! _mtlRenderPassDescriptor) {
         CC_LOG_ERROR("CCMTLRenderPass: MTLRenderPassDescriptor should not be nullptr.");
         _status = GFXStatus::FAILED;
         return;
     }
     
-    if(_colorRenderTargetNums < slot)
-    {
+    if (_colorRenderTargetNums < slot) {
         CC_LOG_ERROR("CCMTLRenderPass: invalid color attachment slot %d.", slot);
         _status = GFXStatus::FAILED;
         return;
@@ -68,10 +61,8 @@ void CCMTLRenderPass::setColorAttachment(size_t slot, id<MTLTexture> texture, in
     _status = GFXStatus::SUCCESS;
 }
 
-void CCMTLRenderPass::setDepthStencilAttachment(id<MTLTexture> texture, int level)
-{
-    if (! _mtlRenderPassDescriptor)
-    {
+void CCMTLRenderPass::setDepthStencilAttachment(id<MTLTexture> texture, int level) {
+    if (!_mtlRenderPassDescriptor) {
         CC_LOG_ERROR("CCMTLRenderPass: MTLRenderPassDescriptor should not be nullptr.");
         _status = GFXStatus::FAILED;
         return;

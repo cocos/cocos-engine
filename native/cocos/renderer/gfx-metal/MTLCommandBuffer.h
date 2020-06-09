@@ -11,57 +11,57 @@ class CCMTLInputAssembler;
 class CCMTLPipelineState;
 class CCMTLBindingLayout;
 
-class CCMTLCommandBuffer : public GFXCommandBuffer
-{
+class CCMTLCommandBuffer : public GFXCommandBuffer {
     friend class CCMTLQueue;
+
 public:
-    CCMTLCommandBuffer(GFXDevice* device);
+    CCMTLCommandBuffer(GFXDevice *device);
     ~CCMTLCommandBuffer();
-    
-    virtual bool initialize(const GFXCommandBufferInfo& info) override;
+
+    virtual bool initialize(const GFXCommandBufferInfo &info) override;
     virtual void destroy() override;
-    virtual void begin(GFXRenderPass* renderPass = nullptr, uint subpass = 0, GFXFramebuffer* frameBuffer = nullptr) override;
+    virtual void begin(GFXRenderPass *renderPass = nullptr, uint subpass = 0, GFXFramebuffer *frameBuffer = nullptr) override;
     virtual void end() override;
-    virtual void beginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, const std::vector<GFXColor>& colors, float depth, int stencil) override;
+    virtual void beginRenderPass(GFXFramebuffer *fbo, const GFXRect &render_area, GFXClearFlags clear_flags, const std::vector<GFXColor> &colors, float depth, int stencil) override;
     virtual void endRenderPass() override;
-    virtual void bindPipelineState(GFXPipelineState* pso) override;
-    virtual void bindBindingLayout(GFXBindingLayout* layout) override;
-    virtual void bindInputAssembler(GFXInputAssembler* ia) override;
-    virtual void setViewport(const GFXViewport& vp) override;
-    virtual void setScissor(const GFXRect& rect) override;
+    virtual void bindPipelineState(GFXPipelineState *pso) override;
+    virtual void bindBindingLayout(GFXBindingLayout *layout) override;
+    virtual void bindInputAssembler(GFXInputAssembler *ia) override;
+    virtual void setViewport(const GFXViewport &vp) override;
+    virtual void setScissor(const GFXRect &rect) override;
     virtual void setLineWidth(const float width) override;
     virtual void setDepthBias(float constant, float clamp, float slope) override;
-    virtual void setBlendConstants(const GFXColor& constants) override;
+    virtual void setBlendConstants(const GFXColor &constants) override;
     virtual void setDepthBound(float min_bounds, float max_bounds) override;
     virtual void setStencilWriteMask(GFXStencilFace face, uint mask) override;
     virtual void setStencilCompareMask(GFXStencilFace face, int ref, uint mask) override;
-    virtual void draw(GFXInputAssembler* ia) override;
-    virtual void updateBuffer(GFXBuffer* buff, void* data, uint size, uint offset = 0) override;
-    virtual void copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, const GFXBufferTextureCopyList& regions) override;
-    virtual void execute(const std::vector<GFXCommandBuffer*>& cmd_buffs, uint32_t count) override;
-    
-    CC_INLINE const CCMTLCommandPackage* getCommandPackage() const { return _commandPackage; }
-    
+    virtual void draw(GFXInputAssembler *ia) override;
+    virtual void updateBuffer(GFXBuffer *buff, void *data, uint size, uint offset = 0) override;
+    virtual void copyBufferToTexture(GFXBuffer *src, GFXTexture *dst, GFXTextureLayout layout, const GFXBufferTextureCopyList &regions) override;
+    virtual void execute(const std::vector<GFXCommandBuffer *> &cmd_buffs, uint32_t count) override;
+
+    CC_INLINE const CCMTLCommandPackage *getCommandPackage() const { return _commandPackage; }
+
 private:
     void bindStates();
-    
+
 private:
-    CCMTLCommandPackage* _commandPackage = nullptr;
-    CCMTLCommandAllocator* _MTLCommandAllocator = nullptr;
+    CCMTLCommandPackage *_commandPackage = nullptr;
+    CCMTLCommandAllocator *_MTLCommandAllocator = nullptr;
     bool _isInRenderPass = false;
     bool _isStateInValid = false;
-    
-    CCMTLPipelineState* _currentPipelineState = nullptr;
-    CCMTLInputAssembler* _currentInputAssembler = nullptr;
-    CCMTLBindingLayout* _currentBindingLayout = nullptr;
+
+    CCMTLPipelineState *_currentPipelineState = nullptr;
+    CCMTLInputAssembler *_currentInputAssembler = nullptr;
+    CCMTLBindingLayout *_currentBindingLayout = nullptr;
     GFXViewport _currentViewport;
     GFXRect _currentScissor;
     // Just don't want to include "Commands.h", because "Commands.h" includes Objective-C codes.
-    CCMTLDepthBias* _currentDepthBias = nullptr;
-    CCMTLDepthBounds* _currentDepthBounds = nullptr;
+    CCMTLDepthBias *_currentDepthBias = nullptr;
+    CCMTLDepthBounds *_currentDepthBounds = nullptr;
     GFXColor _currentBlendConstants;
     const static uint DYNAMIC_STATE_SIZE = 8;
-    std::array<bool, DYNAMIC_STATE_SIZE> _dynamicStateDirty = { false, false, false, false, false, false, false, false };
+    std::array<bool, DYNAMIC_STATE_SIZE> _dynamicStateDirty = {false, false, false, false, false, false, false, false};
 };
 
 NS_CC_END

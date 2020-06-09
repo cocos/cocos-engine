@@ -3,9 +3,8 @@
 
 NS_CC_BEGIN
 
-GFXBuffer::GFXBuffer(GFXDevice* device)
-: GFXObject(GFXObjectType::BUFFER), _device(device)
-{
+GFXBuffer::GFXBuffer(GFXDevice *device)
+: GFXObject(GFXObjectType::BUFFER), _device(device) {
 }
 
 GFXBuffer::~GFXBuffer() {

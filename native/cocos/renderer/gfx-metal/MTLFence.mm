@@ -4,15 +4,13 @@
 
 NS_CC_BEGIN
 
-CCMTLFence::CCMTLFence(GFXDevice* device) : GFXFence(device) {}
+CCMTLFence::CCMTLFence(GFXDevice *device) : GFXFence(device) {}
 
-CCMTLFence::~CCMTLFence()
-{
+CCMTLFence::~CCMTLFence() {
     destroy();
 }
 
-bool CCMTLFence::initialize(const GFXFenceInfo &info)
-{
+bool CCMTLFence::initialize(const GFXFenceInfo &info) {
     // TODO
 
     _status = GFXStatus::SUCCESS;
@@ -20,19 +18,16 @@ bool CCMTLFence::initialize(const GFXFenceInfo &info)
     return true;
 }
 
-void CCMTLFence::destroy()
-{
+void CCMTLFence::destroy() {
     // TODO
     _status = GFXStatus::UNREADY;
 }
 
-void CCMTLFence::wait()
-{
+void CCMTLFence::wait() {
     // TODO
 }
 
-void CCMTLFence::reset()
-{
+void CCMTLFence::reset() {
     // TODO
 }
 

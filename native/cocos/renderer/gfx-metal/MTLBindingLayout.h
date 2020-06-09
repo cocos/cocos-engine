@@ -2,13 +2,12 @@
 
 NS_CC_BEGIN
 
-class CCMTLBindingLayout : public GFXBindingLayout
-{
+class CCMTLBindingLayout : public GFXBindingLayout {
 public:
-    CCMTLBindingLayout(GFXDevice* device);
+    CCMTLBindingLayout(GFXDevice *device);
     virtual ~CCMTLBindingLayout();
-    
-    virtual bool initialize(const GFXBindingLayoutInfo& info) override;
+
+    virtual bool initialize(const GFXBindingLayoutInfo &info) override;
     virtual void destroy() override;
     virtual void update() override;
 };

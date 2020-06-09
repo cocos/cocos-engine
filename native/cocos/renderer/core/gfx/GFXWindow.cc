@@ -3,10 +3,8 @@
 
 NS_CC_BEGIN
 
-GFXWindow::GFXWindow(GFXDevice* device)
-: GFXObject(GFXObjectType::WINDOW)
-, _device(device)
-{
+GFXWindow::GFXWindow(GFXDevice *device)
+: GFXObject(GFXObjectType::WINDOW), _device(device) {
 }
 
 GFXWindow::~GFXWindow() {

@@ -7,11 +7,10 @@
 
 NS_CC_BEGIN
 
-CCMTLSampler::CCMTLSampler(GFXDevice* device) : GFXSampler(device) {}
+CCMTLSampler::CCMTLSampler(GFXDevice *device) : GFXSampler(device) {}
 CCMTLSampler::~CCMTLSampler() { destroy(); }
 
-bool CCMTLSampler::initialize(const GFXSamplerInfo& info)
-{
+bool CCMTLSampler::initialize(const GFXSamplerInfo &info) {
     _name = info.name;
     _minFilter = info.minFilter;
     _magFilter = info.magFilter;
@@ -26,7 +25,7 @@ bool CCMTLSampler::initialize(const GFXSamplerInfo& info)
     _maxLOD = info.maxLOD;
     _mipLODBias = info.mipLODBias;
     
-    MTLSamplerDescriptor* descriptor = [[MTLSamplerDescriptor alloc] init];
+    MTLSamplerDescriptor *descriptor = [[MTLSamplerDescriptor alloc] init];
     descriptor.borderColor = mu::toMTLSamplerBorderColor(_borderColor);
     descriptor.sAddressMode = mu::toMTLSamplerAddressMode(_addressU);
     descriptor.tAddressMode = mu::toMTLSamplerAddressMode(_addressV);
@@ -49,10 +48,8 @@ bool CCMTLSampler::initialize(const GFXSamplerInfo& info)
     return _mtlSamplerState != nil;
 }
 
-void CCMTLSampler::destroy()
-{
-    if (_mtlSamplerState)
-    {
+void CCMTLSampler::destroy() {
+    if (_mtlSamplerState) {
         [_mtlSamplerState release];
         _mtlSamplerState = nil;
     }

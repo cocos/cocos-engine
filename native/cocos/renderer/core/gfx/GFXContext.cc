@@ -3,9 +3,8 @@
 
 NS_CC_BEGIN
 
-GFXContext::GFXContext(GFXDevice* device)
-: _device(device)
-{
+GFXContext::GFXContext(GFXDevice *device)
+: _device(device) {
 }
 
 GFXContext::~GFXContext() {

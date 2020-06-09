@@ -4,22 +4,19 @@
 
 NS_CC_BEGIN
 
-CCMTLCommandAllocator::CCMTLCommandAllocator(GFXDevice* device) : GFXCommandAllocator(device) {}
+CCMTLCommandAllocator::CCMTLCommandAllocator(GFXDevice *device) : GFXCommandAllocator(device) {}
 CCMTLCommandAllocator::~CCMTLCommandAllocator() { destroy(); }
 
-bool CCMTLCommandAllocator::initialize(const GFXCommandAllocatorInfo& info)
-{
+bool CCMTLCommandAllocator::initialize(const GFXCommandAllocatorInfo &info) {
     _status = GFXStatus::SUCCESS;
     return true;
 }
 
-void CCMTLCommandAllocator::destroy()
-{
+void CCMTLCommandAllocator::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-void CCMTLCommandAllocator::clearCommands(CCMTLCommandPackage* commandPackage)
-{
+void CCMTLCommandAllocator::clearCommands(CCMTLCommandPackage *commandPackage) {
     //FIXME: it is not a good idea to use like this.
     if (commandPackage->beginRenderPassCmds.size() )
         _beginRenderPassCmdPool.freeCmds(commandPackage->beginRenderPassCmds);

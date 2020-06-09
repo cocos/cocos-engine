@@ -3,10 +3,8 @@
 
 NS_CC_BEGIN
 
-GFXCommandBuffer::GFXCommandBuffer(GFXDevice* device)
-: GFXObject(GFXObjectType::COMMAND_BUFFER)
-, _device(device)
-{
+GFXCommandBuffer::GFXCommandBuffer(GFXDevice *device)
+: GFXObject(GFXObjectType::COMMAND_BUFFER), _device(device) {
 }
 
 GFXCommandBuffer::~GFXCommandBuffer() {

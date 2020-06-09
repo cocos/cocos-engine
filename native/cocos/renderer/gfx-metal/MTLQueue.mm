@@ -20,15 +20,13 @@
 
 NS_CC_BEGIN
 
-CCMTLQueue::CCMTLQueue(GFXDevice* device) : GFXQueue(device) {}
+CCMTLQueue::CCMTLQueue(GFXDevice *device) : GFXQueue(device) {}
 
-CCMTLQueue::~CCMTLQueue()
-{
+CCMTLQueue::~CCMTLQueue() {
     destroy();
 }
 
-bool CCMTLQueue::initialize(const GFXQueueInfo &info)
-{
+bool CCMTLQueue::initialize(const GFXQueueInfo &info) {
     _type = info.type;
     _status = GFXStatus::SUCCESS;
     _frameBoundarySemaphore = dispatch_semaphore_create(1);
@@ -37,13 +35,11 @@ bool CCMTLQueue::initialize(const GFXQueueInfo &info)
     return true;
 }
 
-void CCMTLQueue::destroy()
-{
+void CCMTLQueue::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-void CCMTLQueue::submit(const std::vector<GFXCommandBuffer*>& cmd_buffs, GFXFence* fence)
-{
+void CCMTLQueue::submit(const std::vector<GFXCommandBuffer*> &cmd_buffs, GFXFence *fence) {
     // Should remove USE_METAL aftr switch to use metal.
 #ifdef USE_METAL
 //    dispatch_semaphore_wait(_frameBoundarySemaphore, DISPATCH_TIME_FOREVER);
@@ -52,8 +48,7 @@ void CCMTLQueue::submit(const std::vector<GFXCommandBuffer*>& cmd_buffs, GFXFenc
     id<MTLCommandBuffer> mtlCommandBuffer = [static_cast<View*>(_mtkView).mtlCommandQueue commandBuffer];
     [mtlCommandBuffer enqueue];
     
-    for (uint i = 0; i < count; ++i)
-    {
+    for (uint i = 0; i < count; ++i) {
         CCMTLCommandBuffer* commandBuff = static_cast<CCMTLCommandBuffer*>(cmd_buffs[i]);
         executeCommands(commandBuff->getCommandPackage(), mtlCommandBuffer);
         _numDrawCalls += commandBuff->_numDrawCalls;
@@ -73,8 +68,7 @@ void CCMTLQueue::submit(const std::vector<GFXCommandBuffer*>& cmd_buffs, GFXFenc
 #endif
 }
 
-void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<MTLCommandBuffer> mtlCommandBuffer)
-{
+void CCMTLQueue::executeCommands(const CCMTLCommandPackage *commandPackage, id<MTLCommandBuffer> mtlCommandBuffer) {
     static uint commandIndices[(int)GFXCmdType::COUNT] = {0};
     
     auto commandSize = commandPackage->commandTypes.size();
@@ -85,9 +79,9 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
     
     id<MTLRenderCommandEncoder> encoder;
     GFXCmdType commandType;
-    CCMTLCmdBeginRenderPass* cmdBeginRenderPass = nullptr;
-    CCMTLGPUPipelineState* gpuPipelineState = nullptr;
-    CCMTLInputAssembler* inputAssembler = nullptr;
+    CCMTLCmdBeginRenderPass *cmdBeginRenderPass = nullptr;
+    CCMTLGPUPipelineState *gpuPipelineState = nullptr;
+    CCMTLInputAssembler *inputAssembler = nullptr;
     id<MTLBuffer> mtlIndexBuffer = nil;
     MTLPrimitiveType primitiveType;
     
@@ -99,45 +93,39 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
             case GFXCmdType::BEGIN_RENDER_PASS: {
                 cmdBeginRenderPass = commandPackage->beginRenderPassCmds[cmdIdx++];
                 
-                MTLRenderPassDescriptor* mtlRenderPassDescriptor;
+                MTLRenderPassDescriptor *mtlRenderPassDescriptor;
                 auto isOffscreen = cmdBeginRenderPass->frameBuffer->isOffscreen();
-                if (isOffscreen)
-                {
+                if (isOffscreen) {
                     mtlRenderPassDescriptor = static_cast<CCMTLRenderPass*>(cmdBeginRenderPass->frameBuffer->getRenderPass())->getMTLRenderPassDescriptor();
                 }
-                else
-                {
+                else {
                     mtlRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
                 }
                 
-                if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::COLOR)
-                {
-                    auto count = isOffscreen ? cmdBeginRenderPass->clearColors.size() : 1;
-                    for(size_t slot = 0; slot < count; slot++)
-                    {
+                if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::COLOR) {
+                    auto count = isOffscreen ? cmdBeginRenderPass->clearColors.size()
+                                             : 1;
+                    for (size_t slot = 0; slot < count; slot++) {
                         mtlRenderPassDescriptor.colorAttachments[slot].clearColor = mu::toMTLClearColor(cmdBeginRenderPass->clearColors[i]);
                         mtlRenderPassDescriptor.colorAttachments[slot].loadAction = MTLLoadActionClear;
                     }
                 }
-                else
-                {
-                    auto count = isOffscreen ? static_cast<CCMTLRenderPass*>(cmdBeginRenderPass->frameBuffer->getRenderPass())->getColorRenderTargetNums() : 1;
-                    for(size_t slot = 0; slot < count; slot ++)
-                    {
+                else {
+                    auto count = isOffscreen ? static_cast<CCMTLRenderPass*>(cmdBeginRenderPass->frameBuffer->getRenderPass())->getColorRenderTargetNums()
+                                             : 1;
+                    for (size_t slot = 0; slot < count; slot++) {
                         mtlRenderPassDescriptor.colorAttachments[slot].loadAction = MTLLoadActionLoad;
                     }
                 }
                 
-                if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::DEPTH)
-                {
+                if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::DEPTH) {
                     mtlRenderPassDescriptor.depthAttachment.clearDepth = cmdBeginRenderPass->clearDepth;
                     mtlRenderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
                 }
                 else
                     mtlRenderPassDescriptor.depthAttachment.loadAction = MTLLoadActionLoad;
                                 
-                if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::STENCIL)
-                {
+                if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::STENCIL) {
                     mtlRenderPassDescriptor.stencilAttachment.clearStencil = cmdBeginRenderPass->clearStencil;
                     mtlRenderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionClear;
                 }
@@ -154,8 +142,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 
             case GFXCmdType::BIND_STATES: {
                 auto cmd = commandPackage->bindStatesCmds[cmdIdx++];
-                if (cmd->pipelineState->getGPUPipelineState())
-                {
+                if (cmd->pipelineState->getGPUPipelineState()) {
                     gpuPipelineState = cmd->pipelineState->getGPUPipelineState();
                     
                     [encoder setCullMode:gpuPipelineState->cullMode];
@@ -164,8 +151,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                     [encoder setTriangleFillMode:gpuPipelineState->fillMode];
                     [encoder setRenderPipelineState:gpuPipelineState->mtlRenderPipelineState];
                     
-                    if (gpuPipelineState->mtlDepthStencilState)
-                    {
+                    if (gpuPipelineState->mtlDepthStencilState) {
                         [encoder setStencilFrontReferenceValue:gpuPipelineState->stencilRefFront
                                             backReferenceValue:gpuPipelineState->stencilRefBack];
                         [encoder setDepthStencilState:gpuPipelineState->mtlDepthStencilState];
@@ -173,28 +159,25 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                     primitiveType = gpuPipelineState->primitiveType;
                 }
                 
-                const auto* shader = static_cast<CCMTLShader*>(cmd->pipelineState->getShader());
-                const auto& vertexSamplerBindings = shader->getVertexSamplerBindings();
-                const auto& fragmentSamplerBindings = shader->getFragmentSamplerBindings();
+                const auto *shader = static_cast<CCMTLShader*>(cmd->pipelineState->getShader());
+                const auto &vertexSamplerBindings = shader->getVertexSamplerBindings();
+                const auto &fragmentSamplerBindings = shader->getFragmentSamplerBindings();
                 
-                for(const auto& binding : cmd->bindingLayout->getBindingUnits())
-                {
-                    if(binding.buffer)
+                for (const auto& binding : cmd->bindingLayout->getBindingUnits()) {
+                    if (binding.buffer)
                         static_cast<CCMTLBuffer*>(binding.buffer)->encodeBuffer(encoder, 0, binding.binding, binding.shaderStages);
                     
-                    if(binding.shaderStages & GFXShaderType::VERTEX)
-                    {
+                    if (binding.shaderStages & GFXShaderType::VERTEX) {
                         if(binding.texture)
                             [encoder setVertexTexture:static_cast<CCMTLTexture*>(binding.texture)->getMTLTexture()
                                               atIndex:binding.binding];
                         
-                        if(binding.sampler)
+                        if (binding.sampler)
                             [encoder setVertexSamplerState:static_cast<CCMTLSampler*>(binding.sampler)->getMTLSamplerState()
                                                    atIndex:vertexSamplerBindings.at(binding.binding)];
                     }
                     
-                    if(binding.shaderStages & GFXShaderType::FRAGMENT)
-                    {
+                    if (binding.shaderStages & GFXShaderType::FRAGMENT) {
                         if(binding.texture)
                             [encoder setFragmentTexture:static_cast<CCMTLTexture*>(binding.texture)->getMTLTexture()
                                               atIndex:binding.binding];
@@ -207,13 +190,11 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 
                 // bind vertex buffer
                 inputAssembler = cmd->inputAssembler;
-                if (inputAssembler)
-                {
+                if (inputAssembler) {
                     if (inputAssembler->_indexBuffer)
                         mtlIndexBuffer = static_cast<CCMTLBuffer*>(inputAssembler->_indexBuffer)->getMTLBuffer();
                     
-                    for(const auto& bindingInfo : gpuPipelineState->vertexBufferBindingInfo)
-                    {
+                    for (const auto &bindingInfo : gpuPipelineState->vertexBufferBindingInfo) {
                         auto index = std::get<0>(bindingInfo);
                         auto stream = std::get<1>(bindingInfo);
                         static_cast<CCMTLBuffer*>(inputAssembler->_vertexBuffers[stream])->encodeBuffer(encoder, 0, index, GFXShaderType::VERTEX);
@@ -224,15 +205,13 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                     [encoder setViewport:cmd->viewport];
                 if (cmd->dynamicStateDirty[static_cast<uint>(GFXDynamicState::SCISSOR)])
                     [encoder setScissorRect:cmd->scissorRect];
-                if(cmd->depthBiasEnabled)
-                {
+                if (cmd->depthBiasEnabled) {
                     if (cmd->dynamicStateDirty[static_cast<uint>(GFXDynamicState::DEPTH_BIAS)])
                         [encoder setDepthBias:cmd->depthBias.depthBias
                                    slopeScale:cmd->depthBias.slopeScale
                                         clamp:cmd->depthBias.clamp];
                 }
-                else
-                {
+                else {
                         [encoder setDepthBias:0 slopeScale:0 clamp:0];
                 }
                 if (cmd->dynamicStateDirty[static_cast<uint>(GFXDynamicState::BLEND_CONSTANTS)])
@@ -242,20 +221,15 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                                         alpha:cmd->blendConstants.a];
                 break;
             }
-            case GFXCmdType::DRAW:
-            {
-                CCMTLCmdDraw* cmd = commandPackage->drawCmds[cmdIdx++];
-                if (inputAssembler && gpuPipelineState)
-                {
+            case GFXCmdType::DRAW: {
+                CCMTLCmdDraw *cmd = commandPackage->drawCmds[cmdIdx++];
+                if (inputAssembler && gpuPipelineState) {
                     auto indirectBuffer = inputAssembler->getIndirectBuffer();
-                    if (!indirectBuffer)
-                    {
-                        if (cmd->drawInfo.indexCount > 0)
-                        {
+                    if (!indirectBuffer) {
+                        if (cmd->drawInfo.indexCount > 0) {
                             NSUInteger offset = 0;
                             offset += cmd->drawInfo.firstIndex * inputAssembler->getIndexBuffer()->getStride();
-                            if (cmd->drawInfo.instanceCount == 0)
-                            {
+                            if (cmd->drawInfo.instanceCount == 0) {
                                 [encoder drawIndexedPrimitives:primitiveType
                                                     indexCount:cmd->drawInfo.indexCount
                                                      // TODO: remove static_cast<>.
@@ -263,8 +237,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                                                    indexBuffer:mtlIndexBuffer
                                              indexBufferOffset:offset];
                             }
-                            else
-                            {
+                            else {
                                 [encoder drawIndexedPrimitives:primitiveType
                                        indexCount:cmd->drawInfo.indexCount
                                         indexType:static_cast<CCMTLBuffer*>(inputAssembler->getIndexBuffer() )->getIndexType()
@@ -273,16 +246,13 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                                     instanceCount:cmd->drawInfo.instanceCount];
                             }
                         }
-                        else
-                        {
-                            if (cmd->drawInfo.instanceCount == 0)
-                            {
+                        else {
+                            if (cmd->drawInfo.instanceCount == 0) {
                                 [encoder drawPrimitives:primitiveType
                                             vertexStart:cmd->drawInfo.firstIndex
                                             vertexCount:cmd->drawInfo.vertexCount];
                             }
-                            else
-                            {
+                            else {
                                 [encoder drawPrimitives:primitiveType
                                             vertexStart:cmd->drawInfo.firstIndex
                                             vertexCount:cmd->drawInfo.vertexCount
@@ -290,18 +260,14 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                             }
                         }
                     }
-                    else
-                    {
+                    else {
                         auto indirects = static_cast<CCMTLBuffer*>(indirectBuffer)->getIndirects();
-                        for(size_t j = 0; j < indirects.size(); j++)
-                        {
-                            const auto& draw = indirects[j];
-                            if(mtlIndexBuffer && draw.indexCount)
-                            {
+                        for (size_t j = 0; j < indirects.size(); j++) {
+                            const auto &draw = indirects[j];
+                            if (mtlIndexBuffer && draw.indexCount) {
                                 NSUInteger offset = 0;
                                 offset += draw.firstIndex * inputAssembler->getIndexBuffer()->getStride();
-                                if (cmd->drawInfo.instanceCount == 0)
-                                {
+                                if (cmd->drawInfo.instanceCount == 0) {
                                     [encoder drawIndexedPrimitives:primitiveType
                                                         indexCount:draw.indexCount
                                                          // TODO: remove static_cast<>.
@@ -309,8 +275,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                                                        indexBuffer:mtlIndexBuffer
                                                  indexBufferOffset:offset];
                                 }
-                                else
-                                {
+                                else {
                                     [encoder drawIndexedPrimitives:primitiveType
                                            indexCount:draw.indexCount
                                             indexType:static_cast<CCMTLBuffer*>(inputAssembler->getIndexBuffer() )->getIndexType()
@@ -319,10 +284,8 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                                         instanceCount:draw.instanceCount];
                                 }
                             }
-                            else
-                            {
-                                if (draw.instanceCount == 0)
-                                {
+                            else {
+                                if (draw.instanceCount == 0) {
                                     [encoder drawPrimitives:primitiveType
                                                 vertexStart:draw.firstIndex
                                                 vertexCount:draw.vertexCount];
@@ -340,14 +303,12 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 }
                 break;
             }
-            case GFXCmdType::UPDATE_BUFFER:
-            {
-                CCMTLCmdUpdateBuffer* cmd = commandPackage->updateBufferCmds[cmdIdx];
+            case GFXCmdType::UPDATE_BUFFER: {
+                CCMTLCmdUpdateBuffer *cmd = commandPackage->updateBufferCmds[cmdIdx];
                 cmd->gpuBuffer->update(cmd->buffer, cmd->offset, cmd->size);
             }
-            case GFXCmdType::COPY_BUFFER_TO_TEXTURE:
-            {
-                CCMTLCmdCopyBufferToTexture* cmd = commandPackage->copyBufferToTextureCmds[cmdIdx];
+            case GFXCmdType::COPY_BUFFER_TO_TEXTURE: {
+                CCMTLCmdCopyBufferToTexture *cmd = commandPackage->copyBufferToTextureCmds[cmdIdx];
                 auto buffer = cmd->gpuBuffer->getBufferView();
                 cmd->gpuTexture->update(&buffer, cmd->regions);
             }

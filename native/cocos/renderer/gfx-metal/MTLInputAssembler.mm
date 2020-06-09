@@ -6,11 +6,10 @@
 
 NS_CC_BEGIN
 
-CCMTLInputAssembler::CCMTLInputAssembler(GFXDevice* device) : GFXInputAssembler(device) {}
+CCMTLInputAssembler::CCMTLInputAssembler(GFXDevice *device) : GFXInputAssembler(device) {}
 CCMTLInputAssembler::~CCMTLInputAssembler() { destroy(); }
 
-bool CCMTLInputAssembler::initialize(const GFXInputAssemblerInfo& info)
-{
+bool CCMTLInputAssembler::initialize(const GFXInputAssemblerInfo &info) {
     _attributes = info.attributes;
     _vertexBuffers = info.vertexBuffers;
     _indexBuffer = info.indexBuffer;
@@ -39,14 +38,12 @@ bool CCMTLInputAssembler::initialize(const GFXInputAssemblerInfo& info)
     return true;
 }
 
-void CCMTLInputAssembler::destroy()
-{
+void CCMTLInputAssembler::destroy() {
     CC_SAFE_DELETE(_GPUInputAssembler);
     _status = GFXStatus::UNREADY;
 }
 
-void CCMTLInputAssembler::extractDrawInfo(CCMTLCmdDraw* cmd) const
-{
+void CCMTLInputAssembler::extractDrawInfo(CCMTLCmdDraw *cmd) const {
     cmd->drawInfo.vertexCount = _vertexCount;
     cmd->drawInfo.firstVertex = _firstVertex;
     cmd->drawInfo.indexCount = _indexCount;
