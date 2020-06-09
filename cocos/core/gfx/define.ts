@@ -394,6 +394,9 @@ export enum GFXTextureType {
     TEX1D,
     TEX2D,
     TEX3D,
+    CUBE,
+    TEX1D_ARRAY,
+    TEX2D_ARRAY,
 }
 
 export enum GFXTextureUsageBit {
@@ -428,15 +431,6 @@ export enum GFXTextureFlagBit {
 }
 
 export type GFXTextureFlags = GFXTextureFlagBit;
-
-export enum GFXTextureViewType {
-    TV1D,
-    TV2D,
-    TV3D,
-    CUBE,
-    TV1D_ARRAY,
-    TV2D_ARRAY,
-}
 
 export enum GFXShaderType {
     NONE = 0,

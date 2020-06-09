@@ -3,7 +3,7 @@ import { GFXBindingType, GFXStatus } from '../define';
 import { WebGL2GFXBuffer } from './webgl2-buffer';
 import { WebGL2GPUBinding, WebGL2GPUBindingLayout } from './webgl2-gpu-objects';
 import { WebGL2GFXSampler } from './webgl2-sampler';
-import { WebGL2GFXTextureView } from './webgl2-texture-view';
+import { WebGL2GFXTexture } from './webgl2-texture';
 
 export class WebGL2GFXBindingLayout extends GFXBindingLayout {
 
@@ -24,7 +24,7 @@ export class WebGL2GFXBindingLayout extends GFXBindingLayout {
                 type: binding.bindingType,
                 name: binding.name,
                 buffer: null,
-                texView: null,
+                texture: null,
                 sampler: null,
             };
         }
@@ -40,7 +40,7 @@ export class WebGL2GFXBindingLayout extends GFXBindingLayout {
                 type: binding.bindingType,
                 name: binding.name,
                 gpuBuffer: null,
-                gpuTexView: null,
+                gpuTexture: null,
                 gpuSampler: null,
             };
         }
@@ -68,9 +68,9 @@ export class WebGL2GFXBindingLayout extends GFXBindingLayout {
                         break;
                     }
                     case GFXBindingType.SAMPLER: {
-                        if (bindingUnit.texView) {
-                            this._gpuBindingLayout.gpuBindings[i].gpuTexView =
-                                (bindingUnit.texView as WebGL2GFXTextureView).gpuTextureView;
+                        if (bindingUnit.texture) {
+                            this._gpuBindingLayout.gpuBindings[i].gpuTexture =
+                                (bindingUnit.texture as WebGL2GFXTexture).gpuTexture;
                         }
                         if (bindingUnit.sampler) {
                             this._gpuBindingLayout.gpuBindings[i].gpuSampler =

@@ -28,9 +28,9 @@
  */
 
 import { ccclass, property } from '../data/class-decorator';
-import { GFXTextureFlagBit, GFXTextureType, GFXTextureViewType } from '../gfx/define';
+import { GFXTextureFlagBit, GFXTextureType } from '../gfx/define';
 import { ImageAsset } from './image-asset';
-import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
+import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
 import { legacyCC } from '../global-exports';
 
@@ -258,7 +258,7 @@ export class TextureCube extends SimpleTexture {
 
     protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo) {
         const result =  Object.assign({
-            type: GFXTextureType.TEX2D,
+            type: GFXTextureType.CUBE,
             width: this._width,
             height: this._height,
             arrayLayer: 6,
@@ -266,14 +266,6 @@ export class TextureCube extends SimpleTexture {
         result.flags = (result.flags || 0) | GFXTextureFlagBit.CUBEMAP;
         return result;
     }
-
-    protected _getGfxTextureViewCreateInfo (presumed: PresumedGFXTextureViewInfo) {
-        return Object.assign({
-            type: GFXTextureViewType.CUBE,
-            layerCount: 6,
-        }, presumed);
-    }
-
 }
 
 legacyCC.TextureCube = TextureCube;

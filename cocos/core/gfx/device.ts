@@ -17,8 +17,7 @@ import { GFXQueue, IGFXQueueInfo } from './queue';
 import { GFXRenderPass, IGFXRenderPassInfo } from './render-pass';
 import { GFXSampler, IGFXSamplerInfo } from './sampler';
 import { GFXShader, IGFXShaderInfo } from './shader';
-import { GFXTexture, IGFXTextureInfo } from './texture';
-import { GFXTextureView, IGFXTextureViewInfo } from './texture-view';
+import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from './texture';
 import { GFXWindow, IGFXWindowInfo } from './window';
 
 ccenum(GFXFormat);
@@ -413,14 +412,7 @@ export abstract class GFXDevice {
      * @zh 创建纹理。
      * @param info GFX texture description info.
      */
-    public abstract createTexture (info: IGFXTextureInfo): GFXTexture;
-
-    /**
-     * @en Create texture view.
-     * @zh 创建纹理视图。
-     * @param info GFX texture view description info.
-     */
-    public abstract createTextureView (info: IGFXTextureViewInfo): GFXTextureView;
+    public abstract createTexture (info: IGFXTextureInfo | IGFXTextureViewInfo): GFXTexture;
 
     /**
      * @en Create sampler.

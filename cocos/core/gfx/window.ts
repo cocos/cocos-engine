@@ -7,7 +7,6 @@ import { GFXDevice } from './device';
 import { GFXFramebuffer } from './framebuffer';
 import { GFXRenderPass } from './render-pass';
 import { GFXTexture } from './texture';
-import { GFXTextureView } from './texture-view';
 
 export interface IGFXWindowInfo {
     title?: string;
@@ -75,19 +74,19 @@ export abstract class GFXWindow extends GFXObject {
     }
 
     /**
-     * @en Get color texture view of this window.
-     * @zh 颜色纹理视图。
+     * @en Get color texture of this window.
+     * @zh 颜色纹理。
      */
-    get colorTexView (): GFXTextureView | null {
-        return this._colorTexView;
+    get colorTexture (): GFXTexture | null {
+        return this._colorTex;
     }
 
     /**
-     * @en Get depth stencil texture view of this window.
-     * @zh 深度模板纹理视图。
+     * @en Get depth stencil texture of this window.
+     * @zh 深度模板纹理。
      */
-    get depthStencilTexView (): GFXTextureView | null {
-        return this._depthStencilTexView;
+    get depthStencilTexture (): GFXTexture | null {
+        return this._depthStencilTex;
     }
 
     /**
@@ -111,9 +110,7 @@ export abstract class GFXWindow extends GFXObject {
     protected _isOffscreen: boolean = false;
     protected _renderPass: GFXRenderPass | null = null;
     protected _colorTex: GFXTexture | null = null;
-    protected _colorTexView: GFXTextureView | null = null;
     protected _depthStencilTex: GFXTexture | null = null;
-    protected _depthStencilTexView: GFXTextureView | null = null;
     protected _framebuffer: GFXFramebuffer | null = null;
 
     constructor (device: GFXDevice) {

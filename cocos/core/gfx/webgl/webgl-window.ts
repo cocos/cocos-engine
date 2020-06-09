@@ -6,11 +6,10 @@ import {
     GFXTextureLayout,
     GFXTextureType,
     GFXTextureUsageBit,
-    GFXTextureViewType,
     GFXStatus,
 } from '../define';
-import { GFXTextureView } from '../texture-view';
 import { GFXWindow, IGFXWindowInfo } from '../window';
+import { GFXTexture } from '../../gfx/texture';
 
 export class WebGLGFXWindow extends GFXWindow {
 
@@ -60,7 +59,7 @@ export class WebGLGFXWindow extends GFXWindow {
             },
         });
 
-        const colorViews: GFXTextureView[] = [];
+        const colorTextures: GFXTexture[] = [];
 
         if (this._isOffscreen) {
             if (this._colorFmt !== GFXFormat.UNKNOWN) {
@@ -75,16 +74,7 @@ export class WebGLGFXWindow extends GFXWindow {
                     mipLevel : 1,
                     flags : GFXTextureFlagBit.NONE,
                 });
-                this._colorTexView = this._device.createTextureView({
-                    texture : this._colorTex,
-                    type : GFXTextureViewType.TV2D,
-                    format : this._colorFmt,
-                    baseLevel : 0,
-                    levelCount : 1,
-                    baseLayer : 0,
-                    layerCount : 1,
-                });
-                colorViews.push(this._colorTexView);
+                colorTextures.push(this._colorTex);
             }
 
             if (this._depthStencilFmt !== GFXFormat.UNKNOWN) {
@@ -99,23 +89,13 @@ export class WebGLGFXWindow extends GFXWindow {
                     mipLevel : 1,
                     flags : GFXTextureFlagBit.NONE,
                 });
-
-                this._depthStencilTexView = this._device.createTextureView({
-                    texture : this._depthStencilTex,
-                    type : GFXTextureViewType.TV2D,
-                    format : this._depthStencilFmt,
-                    baseLevel : 0,
-                    levelCount : 1,
-                    baseLayer : 0,
-                    layerCount : 1,
-                });
             }
         }
 
         this._framebuffer = this._device.createFramebuffer({
             renderPass: this._renderPass,
-            colorViews,
-            depthStencilView: this._depthStencilTexView,
+            colorTextures,
+            depthStencilTexture: this._depthStencilTex,
             isOffscreen: this._isOffscreen,
         });
 
@@ -125,19 +105,9 @@ export class WebGLGFXWindow extends GFXWindow {
     }
 
     public destroy () {
-        if (this._depthStencilTexView) {
-            this._depthStencilTexView.destroy();
-            this._depthStencilTexView = null;
-        }
-
         if (this._depthStencilTex) {
             this._depthStencilTex.destroy();
             this._depthStencilTex = null;
-        }
-
-        if (this._colorTexView) {
-            this._colorTexView.destroy();
-            this._colorTexView = null;
         }
 
         if (this._colorTex) {
@@ -171,30 +141,18 @@ export class WebGLGFXWindow extends GFXWindow {
 
             if (this._depthStencilTex) {
                 this._depthStencilTex.resize(width, height);
-                this._depthStencilTexView!.destroy();
-                this._depthStencilTexView!.initialize({
-                    texture : this._depthStencilTex,
-                    type : GFXTextureViewType.TV2D,
-                    format : this._depthStencilFmt,
-                });
             }
 
             if (this._colorTex) {
                 this._colorTex.resize(width, height);
-                this._colorTexView!.destroy();
-                this._colorTexView!.initialize({
-                    texture : this._colorTex,
-                    type : GFXTextureViewType.TV2D,
-                    format : this._colorFmt,
-                });
             }
 
             if (this._framebuffer && this._framebuffer.isOffscreen) {
                 this._framebuffer.destroy();
                 this._framebuffer.initialize({
                     renderPass: this._renderPass!,
-                    colorViews: [ this._colorTexView! ],
-                    depthStencilView: this._depthStencilTexView!,
+                    colorTextures: [ this._colorTex! ],
+                    depthStencilTexture: this._depthStencilTex!,
                 });
             }
         }

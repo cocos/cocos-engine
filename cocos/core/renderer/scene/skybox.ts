@@ -78,15 +78,15 @@ export class Skybox extends Model {
     }
 
     protected _updateGlobalBinding () {
-        const textureView = this._envmap.getGFXTextureView()!;
+        const texture = this._envmap.getGFXTexture()!;
         const sampler = samplerLib.getSampler(this._device, this._envmap.getSamplerHash());
         this._globalBinding.sampler = sampler;
-        this._globalBinding.textureView = textureView;
+        this._globalBinding.texture = texture;
         // update skybox material, need to do this every time pso is created
         // because skybox.updateUBOs is not called in pipeline per frame
         const mat = skybox_material!;
         mat.passes[0].bindSampler(UNIFORM_ENVIRONMENT.binding, sampler);
-        mat.passes[0].bindTextureView(UNIFORM_ENVIRONMENT.binding, textureView);
+        mat.passes[0].bindTexture(UNIFORM_ENVIRONMENT.binding, texture);
 
         for (let i = 0; i < this._subModels.length; ++i) {
             this._subModels[i].updateLayout();

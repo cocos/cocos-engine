@@ -6,7 +6,6 @@ import { ccclass } from '../data/class-decorator';
 import { GFXBufferTextureCopy, GFXTextureFlagBit, GFXTextureUsageBit } from '../gfx/define';
 import { GFXAPI, GFXDevice } from '../gfx/device';
 import { GFXTexture, IGFXTextureInfo } from '../gfx/texture';
-import { GFXTextureView, IGFXTextureViewInfo } from '../gfx/texture-view';
 import { error } from '../platform/debug';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
@@ -37,8 +36,6 @@ const _regions: GFXBufferTextureCopy[] = [{
 
 export type PresumedGFXTextureInfo = Pick<IGFXTextureInfo, 'usage' | 'flags' | 'format' | 'mipLevel'>;
 
-export type PresumedGFXTextureViewInfo = Pick<IGFXTextureViewInfo, 'texture' | 'format'>;
-
 function getMipLevel (width: number, height: number) {
     let size = Math.max(width, height);
     let level = 0;
@@ -61,7 +58,6 @@ function canGenerateMipmap (device: GFXDevice, w: number, h: number) {
 @ccclass('cc.SimpleTexture')
 export class SimpleTexture extends TextureBase {
     protected _gfxTexture: GFXTexture | null = null;
-    protected _gfxTextureView: GFXTextureView | null = null;
     private _mipmapLevel = 1;
 
     get mipmapLevel () {
@@ -73,10 +69,6 @@ export class SimpleTexture extends TextureBase {
      */
     public getGFXTexture () {
         return this._gfxTexture;
-    }
-
-    public getGFXTextureView () {
-        return this._gfxTextureView;
     }
 
     public destroy () {
@@ -198,14 +190,6 @@ export class SimpleTexture extends TextureBase {
         return null;
     }
 
-    /**
-     * This method is overrided by derived classes to provide GFX texture view info.
-     * @param presumed The presumed GFX texture view info.
-     */
-    protected _getGfxTextureViewCreateInfo (texture: PresumedGFXTextureViewInfo): IGFXTextureViewInfo | null {
-        return null;
-    }
-
     protected _tryReset () {
         this._tryDestroyTexture();
         if(this._mipmapLevel === 0) {
@@ -237,32 +221,13 @@ export class SimpleTexture extends TextureBase {
 
         const texture = device.createTexture(textureCreateInfo);
 
-        const textureViewCreateInfo = this._getGfxTextureViewCreateInfo({
-            texture,
-            format: this._getGFXFormat(),
-        });
-        if (!textureViewCreateInfo) {
-            texture.destroy();
-            return;
-        }
-        const view = device.createTextureView(textureViewCreateInfo);
-        if (!view) {
-            texture.destroy();
-            return;
-        }
-
         this._gfxTexture = texture;
-        this._gfxTextureView = view;
     }
 
     protected _tryDestroyTexture () {
         if (this._gfxTexture) {
             this._gfxTexture.destroy();
             this._gfxTexture = null;
-        }
-        if (this._gfxTextureView) {
-            this._gfxTextureView.destroy();
-            this._gfxTextureView = null;
         }
     }
 }

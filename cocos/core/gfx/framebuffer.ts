@@ -5,12 +5,14 @@
 import { GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 import { GFXRenderPass } from './render-pass';
-import { GFXTextureView } from './texture-view';
+import { GFXTexture } from './texture';
 
 export interface IGFXFramebufferInfo {
     renderPass: GFXRenderPass;
-    colorViews: GFXTextureView[];
-    depthStencilView: GFXTextureView | null;
+    colorTextures: GFXTexture[];
+    depthStencilTexture: GFXTexture | null;
+    colorMipmapLevels?: number[];
+    depStencilMipmapLevel?: number;
     isOffscreen?: boolean;
 }
 
@@ -32,16 +34,16 @@ export abstract class GFXFramebuffer extends GFXObject {
      * @en Get current color views.
      * @zh 颜色纹理视图数组。
      */
-    public get colorViews (): GFXTextureView[] {
-        return this._colorViews;
+    public get colorTextures (): GFXTexture[] {
+        return this._colorTextures;
     }
 
     /**
      * @en Get current depth stencil views.
      * @zh 深度模板纹理视图。
      */
-    public get depthStencilView (): GFXTextureView | null {
-        return this._depthStencilView;
+    public get depthStencilTexture (): GFXTexture | null {
+        return this._depthStencilTexture;
     }
 
     /**
@@ -56,9 +58,9 @@ export abstract class GFXFramebuffer extends GFXObject {
 
     protected _renderPass: GFXRenderPass | null = null;
 
-    protected _colorViews: GFXTextureView[] = [];
+    protected _colorTextures: GFXTexture[] = [];
 
-    protected _depthStencilView: GFXTextureView | null = null;
+    protected _depthStencilTexture: GFXTexture | null = null;
 
     protected _isOffscreen: boolean = true;
 

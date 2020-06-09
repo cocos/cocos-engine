@@ -189,13 +189,12 @@ export class Model {
             texture = builtinResMgr.get<Texture2D>('empty-texture');
         }
 
-        const textureView = texture.getGFXTextureView();
-
-        if (textureView !== null) {
+        const gfxTexture = texture.getGFXTexture();
+        if (gfxTexture !== null) {
             const sampler = samplerLib.getSampler(this._device, texture.mipmaps.length > 1 ? lightmapSamplerWithMipHash : lightmapSamplerHash);
             for (const sub of this._subModels) {
                 for (let i = 0; i < sub.psoInfos.length; i++) {
-                    sub.psoInfos[i].bindingLayout.bindTextureView(UniformLightingMapSampler.binding, textureView);
+                    sub.psoInfos[i].bindingLayout.bindTexture(UniformLightingMapSampler.binding, gfxTexture);
                     sub.psoInfos[i].bindingLayout.bindSampler(UniformLightingMapSampler.binding, sampler);
                     sub.psoInfos[i].bindingLayout.update();
                 }

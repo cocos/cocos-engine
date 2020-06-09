@@ -33,7 +33,7 @@ import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { builtinResMgr } from '../3d/builtin/init';
 import { RenderableComponent } from '../3d/framework/renderable-component';
 import { GFXBindingType } from '../gfx/define';
-import { GFXTextureView } from '../gfx/texture-view';
+import { GFXTexture } from '../gfx/texture';
 import { IDefineMap, MaterialProperty } from '../renderer';
 import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
 import { samplerLib } from '../renderer/core/sampler-lib';
@@ -88,7 +88,7 @@ interface IMaterialInfo {
     states?: PassOverrides | PassOverrides[];
 }
 
-type MaterialPropertyFull = MaterialProperty | TextureBase | SpriteFrame | GFXTextureView | null;
+type MaterialPropertyFull = MaterialProperty | TextureBase | SpriteFrame | GFXTexture | null;
 
 /**
  * @en
@@ -416,15 +416,15 @@ export class Material extends Asset {
             }
         } else if (bindingType === GFXBindingType.SAMPLER) {
             const binding = Pass.getBindingFromHandle(handle);
-            if (val instanceof GFXTextureView) {
-                pass.bindTextureView(binding, val);
+            if (val instanceof GFXTexture) {
+                pass.bindTexture(binding, val);
             } else if (val instanceof TextureBase || val instanceof SpriteFrame) {
-                const textureView: GFXTextureView | null = val.getGFXTextureView();
-                if (!textureView || !textureView.texture.width || !textureView.texture.height) {
+                const texture: GFXTexture | null = val.getGFXTexture();
+                if (!texture || !texture.width || !texture.height) {
                     // console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);
                     return false;
                 }
-                pass.bindTextureView(binding, textureView);
+                pass.bindTexture(binding, texture);
                 if (val instanceof TextureBase) {
                     pass.bindSampler(binding, samplerLib.getSampler(legacyCC.director.root.device, val.getSamplerHash()));
                 }

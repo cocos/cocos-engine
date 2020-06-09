@@ -19,7 +19,7 @@ import {
     GFXStencilFace,
     GFXTextureFlagBit,
     GFXTextureLayout,
-    GFXTextureViewType,
+    GFXTextureType,
     GFXType,
     IGFXColor,
     IGFXFormatInfo,
@@ -789,10 +789,8 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
     let w = gpuTexture.width;
     let h = gpuTexture.height;
 
-    switch (gpuTexture.viewType) {
-        case GFXTextureViewType.TV2D: {
-
-            gpuTexture.viewType = GFXTextureViewType.TV2D;
+    switch (gpuTexture.type) {
+        case GFXTextureType.TEX2D: {
             gpuTexture.glTarget = gl.TEXTURE_2D;
 
             const maxSize = Math.max(w, h);
@@ -870,9 +868,7 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
 
             break;
         }
-        case GFXTextureViewType.CUBE: {
-
-            gpuTexture.viewType = GFXTextureViewType.CUBE;
+        case GFXTextureType.CUBE: {
             gpuTexture.glTarget = gl.TEXTURE_CUBE_MAP;
 
             const maxSize = Math.max(w, h);
@@ -944,7 +940,7 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
         }
         default: {
             console.error('Unsupported GFXTextureType, create texture failed.');
-            gpuTexture.viewType = GFXTextureViewType.TV2D;
+            gpuTexture.type = GFXTextureType.TEX2D;
             gpuTexture.glTarget = gl.TEXTURE_2D;
         }
     }
@@ -973,9 +969,8 @@ export function WebGLCmdFuncResizeTexture (device: WebGLGFXDevice, gpuTexture: W
     let w = gpuTexture.width;
     let h = gpuTexture.height;
 
-    switch (gpuTexture.viewType) {
-        case GFXTextureViewType.TV2D: {
-            gpuTexture.viewType = GFXTextureViewType.TV2D;
+    switch (gpuTexture.type) {
+        case GFXTextureType.TEX2D: {
             gpuTexture.glTarget = gl.TEXTURE_2D;
 
             const maxSize = Math.max(w, h);
@@ -1011,8 +1006,7 @@ export function WebGLCmdFuncResizeTexture (device: WebGLGFXDevice, gpuTexture: W
             }
             break;
         }
-        case GFXTextureViewType.CUBE: {
-            gpuTexture.viewType = GFXTextureViewType.CUBE;
+        case GFXTextureType.CUBE: {
             gpuTexture.glTarget = gl.TEXTURE_CUBE_MAP;
 
             const maxSize = Math.max(w, h);
@@ -1056,7 +1050,7 @@ export function WebGLCmdFuncResizeTexture (device: WebGLGFXDevice, gpuTexture: W
         }
         default: {
             console.error('Unsupported GFXTextureType, create texture failed.');
-            gpuTexture.viewType = GFXTextureViewType.TV2D;
+            gpuTexture.type = GFXTextureType.TEX2D;
             gpuTexture.glTarget = gl.TEXTURE_2D;
         }
     }
@@ -1078,23 +1072,23 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLGFXDevice, gpuFrameb
                 device.stateCache.glFramebuffer = gpuFramebuffer.glFramebuffer;
             }
 
-            for (let i = 0; i < gpuFramebuffer.gpuColorViews.length; ++i) {
+            for (let i = 0; i < gpuFramebuffer.gpuColorTextures.length; ++i) {
 
-                const cv = gpuFramebuffer.gpuColorViews[i];
-                if (cv) {
-                    if (cv.gpuTexture.glTexture) {
+                const gpuTexture = gpuFramebuffer.gpuColorTextures[i];
+                if (gpuTexture) {
+                    if (gpuTexture.glTexture) {
                         gl.framebufferTexture2D(
                             gl.FRAMEBUFFER,
                             gl.COLOR_ATTACHMENT0 + i,
-                            cv.gpuTexture.glTarget,
-                            cv.gpuTexture.glTexture,
-                            cv.baseLevel);
+                            gpuTexture.glTarget,
+                            gpuTexture.glTexture,
+                            0); // level must be 0
                     } else {
                         gl.framebufferRenderbuffer(
                             gl.FRAMEBUFFER,
                             gl.COLOR_ATTACHMENT0 + i,
                             gl.RENDERBUFFER,
-                            cv.gpuTexture.glRenderbuffer,
+                            gpuTexture.glRenderbuffer,
                         );
                     }
 
@@ -1102,22 +1096,22 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLGFXDevice, gpuFrameb
                 }
             }
 
-            const dsv = gpuFramebuffer.gpuDepthStencilView;
-            if (dsv) {
-                const glAttachment = GFXFormatInfos[dsv.format].hasStencil ? gl.DEPTH_STENCIL_ATTACHMENT : gl.DEPTH_ATTACHMENT;
-                if (dsv.gpuTexture.glTexture) {
+            const dst = gpuFramebuffer.gpuDepthStencilTexture;
+            if (dst) {
+                const glAttachment = GFXFormatInfos[dst.format].hasStencil ? gl.DEPTH_STENCIL_ATTACHMENT : gl.DEPTH_ATTACHMENT;
+                if (dst.glTexture) {
                     gl.framebufferTexture2D(
                         gl.FRAMEBUFFER,
                         glAttachment,
-                        dsv.gpuTexture.glTarget,
-                        dsv.gpuTexture.glTexture,
-                        dsv.baseLevel);
+                        dst.glTarget,
+                        dst.glTexture,
+                        0); // level must be 0
                 } else {
                     gl.framebufferRenderbuffer(
                         gl.FRAMEBUFFER,
                         glAttachment,
                         gl.RENDERBUFFER,
-                        dsv.gpuTexture.glRenderbuffer,
+                        dst.glRenderbuffer,
                     );
                 }
             }
@@ -2152,10 +2146,10 @@ export function WebGLCmdFuncBindStates (
                             for (let k = 0; k < texUnitLen; k++) {
                                 const texUnit = glSampler.units[k];
 
-                                if (gpuBinding.gpuTexView &&
-                                    gpuBinding.gpuTexView.gpuTexture.size > 0) {
+                                if (gpuBinding.gpuTexture &&
+                                    gpuBinding.gpuTexture.size > 0) {
 
-                                    const gpuTexture = gpuBinding.gpuTexView.gpuTexture;
+                                    const gpuTexture = gpuBinding.gpuTexture;
                                     const glTexUnit = cache.glTexUnits[texUnit];
 
                                     if (glTexUnit.glTexture !== gpuTexture.glTexture) {

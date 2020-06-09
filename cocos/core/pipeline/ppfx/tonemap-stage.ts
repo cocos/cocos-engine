@@ -65,11 +65,11 @@ export class ToneMapStage extends RenderStage {
         this._bindingLayout =  this._psoCreateInfo!.bindingLayout;
 
         this._pass.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO!.buffer!);
-        this._pass.bindTextureView(this._hTexSampler, this._pipeline!.getTextureView(this._pipeline!.currShading)!);
+        this._pass.bindTexture(this._hTexSampler, this._pipeline!.getTexture(this._pipeline!.currShading)!);
 
         if (this._pipeline!.useSMAA) {
             this._hBlendTexSampler = this._pass.getBinding('u_blendTexSampler')!;
-            this._pass.bindTextureView(this._hBlendTexSampler, this._pipeline!.getTextureView('smaaBlend')!);
+            this._pass.bindTexture(this._hBlendTexSampler, this._pipeline!.getTexture('smaaBlend')!);
         }
 
         this._pass.update();

@@ -754,7 +754,7 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     protected _render (render: UI) {
-        render.commitComp(this, this._texture!.getGFXTextureView(), this._assembler!, this._texture!.getGFXSampler());
+        render.commitComp(this, this._texture!.getGFXTexture(), this._assembler!, this._texture!.getGFXSampler());
     }
 
     protected _updateColor () {

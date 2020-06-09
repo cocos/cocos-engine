@@ -28,6 +28,16 @@ export interface IGFXTextureInfo {
     flags?: GFXTextureFlags;
 }
 
+export interface IGFXTextureViewInfo {
+    texture: GFXTexture;
+    type: GFXTextureType;
+    format: GFXFormat;
+    baseLevel?: number;
+    levelCount?: number;
+    baseLayer?: number;
+    layerCount?: number;
+}
+
 export function IsPowerOf2 (x: number): boolean{
     return x > 0 && (x & (x - 1)) === 0;
 }

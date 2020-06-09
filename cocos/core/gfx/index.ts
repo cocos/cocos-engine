@@ -15,7 +15,6 @@ import { GFXRenderPass } from './render-pass';
 import { GFXSampler } from './sampler';
 import { GFXShader } from './shader';
 import { GFXTexture } from './texture';
-import { GFXTextureView } from './texture-view';
 import { legacyCC } from '../global-exports';
 
 export * from './binding-layout';
@@ -32,14 +31,12 @@ export * from './queue';
 export * from './render-pass';
 export * from './sampler';
 export * from './shader';
-export * from './texture-view';
 export * from './texture';
 export * from './window';
 
 legacyCC.GFXDevice = GFXDevice;
 legacyCC.GFXBuffer = GFXBuffer;
 legacyCC.GFXTexture = GFXTexture;
-legacyCC.GFXTextureView = GFXTextureView;
 legacyCC.GFXSampler = GFXSampler;
 legacyCC.GFXShader = GFXShader;
 legacyCC.GFXInputAssembler = GFXInputAssembler;

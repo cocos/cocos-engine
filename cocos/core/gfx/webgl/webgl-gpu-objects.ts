@@ -14,7 +14,6 @@ import {
     GFXTextureType,
     GFXTextureUsage,
     GFXTextureUsageBit,
-    GFXTextureViewType,
     GFXType,
 } from '../define';
 import { IGFXAttribute } from '../input-assembler';
@@ -46,7 +45,6 @@ export class WebGLGPUBuffer {
 
 export class WebGLGPUTexture {
     public type: GFXTextureType = GFXTextureType.TEX2D;
-    public viewType: GFXTextureViewType = GFXTextureViewType.TV2D;
     public format: GFXFormat = GFXFormat.UNKNOWN;
     public usage: GFXTextureUsage = GFXTextureUsageBit.NONE;
     public width: number = 0;
@@ -72,19 +70,6 @@ export class WebGLGPUTexture {
     public glMagFilter: GLenum = 0;
 }
 
-export class WebGLGPUTextureView {
-
-    public gpuTexture: WebGLGPUTexture;
-    public type: GFXTextureViewType = GFXTextureViewType.TV2D;
-    public format: GFXFormat = GFXFormat.UNKNOWN;
-    public baseLevel: number = 0;
-    public levelCount: number = 1;
-
-    constructor (texture: WebGLGPUTexture) {
-        this.gpuTexture = texture;
-    }
-}
-
 export class WebGLGPURenderPass {
 
     public colorAttachments: GFXColorAttachment[] = [];
@@ -94,8 +79,8 @@ export class WebGLGPURenderPass {
 export class WebGLGPUFramebuffer {
 
     public gpuRenderPass: WebGLGPURenderPass;
-    public gpuColorViews: WebGLGPUTextureView[] = [];
-    public gpuDepthStencilView: WebGLGPUTextureView | null = null;
+    public gpuColorTextures: WebGLGPUTexture[] = [];
+    public gpuDepthStencilTexture: WebGLGPUTexture | null = null;
     public isOffscreen?: boolean = false;
 
     public glFramebuffer: WebGLFramebuffer | null = null;
@@ -201,7 +186,7 @@ export class WebGLGPUBinding {
     public type: GFXBindingType = GFXBindingType.UNKNOWN;
     public name: string = '';
     public gpuBuffer: WebGLGPUBuffer | null = null;
-    public gpuTexView: WebGLGPUTextureView | null = null;
+    public gpuTexture: WebGLGPUTexture | null = null;
     public gpuSampler: WebGLGPUSampler | null = null;
 }
 

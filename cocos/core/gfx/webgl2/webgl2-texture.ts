@@ -1,5 +1,5 @@
-import { GFXTextureFlagBit, GFXTextureType, GFXTextureViewType, GFXStatus, GFXFormatSurfaceSize } from '../define';
-import { GFXTexture, IGFXTextureInfo, IsPowerOf2 } from '../texture';
+import { GFXTextureFlagBit, GFXStatus, GFXFormatSurfaceSize } from '../define';
+import { GFXTexture, IGFXTextureInfo, IsPowerOf2, IGFXTextureViewInfo } from '../texture';
 import { WebGL2CmdFuncCreateTexture, WebGL2CmdFuncDestroyTexture, WebGL2CmdFuncResizeTexture } from './webgl2-commands';
 import { WebGL2GFXDevice } from './webgl2-device';
 import { WebGL2GPUTexture } from './webgl2-gpu-objects';
@@ -12,7 +12,12 @@ export class WebGL2GFXTexture extends GFXTexture {
 
     private _gpuTexture: WebGL2GPUTexture | null = null;
 
-    public initialize (info: IGFXTextureInfo): boolean {
+    public initialize (info: IGFXTextureInfo | IGFXTextureViewInfo): boolean {
+        if ('texture' in info) {
+            console.log('WebGL2 does not support texture view.');
+            this._status = GFXStatus.FAILED;
+            return false;
+        }
 
         this._type = info.type;
         this._usage = info.usage;
@@ -49,50 +54,8 @@ export class WebGL2GFXTexture extends GFXTexture {
             this._buffer = new ArrayBuffer(this._size);
         }
 
-        let viewType: GFXTextureViewType;
-        switch (info.type) {
-            case GFXTextureType.TEX1D: {
-
-                if (info.arrayLayer) {
-                    viewType = info.arrayLayer <= 1 ? GFXTextureViewType.TV1D : GFXTextureViewType.TV1D_ARRAY;
-                } else {
-                    viewType = GFXTextureViewType.TV1D;
-                }
-
-                break;
-            }
-            case GFXTextureType.TEX2D: {
-                let flags = GFXTextureFlagBit.NONE;
-                if (info.flags) {
-                    flags = info.flags;
-                }
-
-                if (info.arrayLayer) {
-                    if (info.arrayLayer <= 1) {
-                        viewType = GFXTextureViewType.TV2D;
-                    } else if (flags & GFXTextureFlagBit.CUBEMAP) {
-                        viewType = GFXTextureViewType.CUBE;
-                    } else {
-                        viewType = GFXTextureViewType.TV2D_ARRAY;
-                    }
-                } else {
-                    viewType = GFXTextureViewType.TV2D;
-                }
-
-                break;
-            }
-            case GFXTextureType.TEX3D: {
-                viewType = GFXTextureViewType.TV3D;
-                break;
-            }
-            default: {
-                viewType = GFXTextureViewType.TV2D;
-            }
-        }
-
         this._gpuTexture = {
             type: this._type,
-            viewType,
             format: this._format,
             usage: this._usage,
             width: this._width,

@@ -277,7 +277,7 @@ class GpuComputing implements SubMeshMorphRendering {
                     }
                     if (binding !== undefined) {
                         bindingLayout.bindSampler(binding, attribute.sampler);
-                        bindingLayout.bindTextureView(binding, attribute.texture.getGFXTextureView()!);
+                        bindingLayout.bindTexture(binding, attribute.texture.getGFXTexture()!);
                     }
                 }
                 bindingLayout.bindBuffer(UBOMorph.BLOCK.binding, morphUniforms.buffer);
@@ -370,7 +370,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
             textureAsset.setMipFilter(Texture2D.Filter.NONE);
             textureAsset.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE);
             textureAsset.image = image;
-            if (!textureAsset.getGFXTextureView()) {
+            if (!textureAsset.getGFXTexture()) {
                 warn(`Unexpected: failed to create morph texture?`);
             }
             const sampler = samplerLib.getSampler(gfxDevice, textureAsset.getSamplerHash());
@@ -457,7 +457,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
             }
             if (binding !== undefined) {
                 bindingLayout.bindSampler(binding, attribute.sampler);
-                bindingLayout.bindTextureView(binding, attribute.texture.getGFXTextureView()!);
+                bindingLayout.bindTexture(binding, attribute.texture.getGFXTexture()!);
             }
         }
         bindingLayout.bindBuffer(UBOMorph.BLOCK.binding, this._morphUniforms.buffer);

@@ -4,7 +4,7 @@
 
 import { MeshBuffer } from '../../../ui';
 import { Material } from '../../assets/material';
-import { GFXTextureView, GFXSampler } from '../../gfx';
+import { GFXTexture, GFXSampler } from '../../gfx';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { Node } from '../../scene-graph';
 import { Camera } from '../scene/camera';
@@ -20,7 +20,7 @@ export class UIDrawBatch {
     public ia: GFXInputAssembler | null = null;
     public model: Model | null = null;
     public material: Material | null = null;
-    public texView: GFXTextureView | null = null;
+    public texture: GFXTexture | null = null;
     public sampler: GFXSampler | null = null;
     public psoCreateInfo: IPSOCreateInfo | null = null;
     public bindingLayout: GFXBindingLayout | null = null;
@@ -51,7 +51,7 @@ export class UIDrawBatch {
         this.camera = null;
         this._bufferBatch = null;
         this.material = null;
-        this.texView = null;
+        this.texture = null;
         this.sampler = null;
         this.model = null;
         this.isStatic = false;

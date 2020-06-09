@@ -71,9 +71,9 @@ export class UniformProxyFactory implements IValueProxyFactory {
             return {
                 set: (value: TextureBase | SpriteFrame) => {
                     if (!value) { value = dftTex; }
-                    const tv = value.getGFXTextureView();
-                    if (!tv || !tv.texture.width || !tv.texture.height) { return; }
-                    pass.bindTextureView(binding, tv);
+                    const texture = value.getGFXTexture();
+                    if (!texture || !texture.width || !texture.height) { return; }
+                    pass.bindTexture(binding, texture);
                     if (value instanceof TextureBase) {
                         pass.bindSampler(binding, samplerLib.getSampler(legacyCC.game._gfxDevice, value.getSamplerHash()));
                     }

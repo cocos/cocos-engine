@@ -2,10 +2,9 @@
  * @hidden
  */
 
-import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXFormat, GFXFormatInfos, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../../gfx/define';
+import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXFormat, GFXFormatInfos, GFXTextureType, GFXTextureUsageBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXTexture } from '../../gfx/texture';
-import { GFXTextureView } from '../../gfx/texture-view';
 
 export function nearestPOT (num: number): number {
     --num;
@@ -20,7 +19,6 @@ export function nearestPOT (num: number): number {
 
 export interface ITextureBuffer {
     texture: GFXTexture;
-    texView: GFXTextureView;
     size: number;
     start: number;
     end: number;
@@ -31,7 +29,6 @@ export interface ITextureBufferHandle {
     start: number;
     end: number;
     texture: GFXTexture;
-    texView: GFXTextureView;
 }
 
 export interface ITextureBufferPoolInfo {
@@ -79,7 +76,6 @@ export class TextureBufferPool {
     public destroy () {
         for (let i = 0; i < this._chunkCount; ++i) {
             const chunk = this._chunks[i];
-            chunk.texView.destroy();
             chunk.texture.destroy();
         }
         this._chunks.length = 0;
@@ -112,7 +108,6 @@ export class TextureBufferPool {
                 start,
                 end: start + size,
                 texture: chunk.texture,
-                texView: chunk.texView,
             };
             this._handles.push(handle);
             return handle;
@@ -129,7 +124,6 @@ export class TextureBufferPool {
             start: 0,
             end: size,
             texture: newChunk.texture,
-            texView: newChunk.texView,
         };
         this._handles.push(texHandle);
         return texHandle;
@@ -159,15 +153,8 @@ export class TextureBufferPool {
             mipLevel: 1,
         });
 
-        const texView: GFXTextureView = this._device.createTextureView({
-            texture,
-            type: GFXTextureViewType.TV2D,
-            format: this._format,
-        });
-
         const chunk: ITextureBuffer = {
             texture,
-            texView,
             size: texSize,
             start: 0,
             end: texSize,
@@ -295,7 +282,6 @@ export class TextureBufferPool {
                     start,
                     end: start + size,
                     texture: chunk.texture,
-                    texView: chunk.texView,
                 };
                 this._handles.push(handle);
                 return handle;
@@ -313,7 +299,6 @@ export class TextureBufferPool {
             start: 0,
             end: size,
             texture: newChunk.texture,
-            texView: newChunk.texView,
         };
         this._handles.push(texHandle);
         return texHandle;

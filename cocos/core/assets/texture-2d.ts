@@ -29,10 +29,10 @@
  */
 
 import { ccclass, property } from '../data/class-decorator';
-import { GFXTextureType, GFXTextureViewType } from '../gfx/define';
+import { GFXTextureType } from '../gfx/define';
 import { PixelFormat } from './asset-enum';
 import { ImageAsset } from './image-asset';
-import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
+import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
 import { legacyCC } from '../global-exports';
 
 /**
@@ -251,12 +251,6 @@ export class Texture2D extends SimpleTexture {
             type: GFXTextureType.TEX2D,
             width: this._width,
             height: this._height,
-        }, presumed);
-    }
-
-    protected _getGfxTextureViewCreateInfo (presumed: PresumedGFXTextureViewInfo) {
-        return Object.assign({
-            type: GFXTextureViewType.TV2D,
         }, presumed);
     }
 

@@ -17,8 +17,7 @@ import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
-import { GFXTextureView } from '../gfx/texture-view';
-import { Mat4, Vec3, Vec4 } from '../math';
+import { Mat4, Vec3, Vec4, color } from '../math';
 import { Camera, Model, Light } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
@@ -293,7 +292,6 @@ export abstract class RenderPipeline {
     protected _uboGlobal: UBOGlobal = new UBOGlobal();
     protected _globalBindings: Map<string, IInternalBindingInst> = new Map<string, IInternalBindingInst>();
     protected _defaultTex: GFXTexture | null = null;
-    protected _defaultTexView: GFXTextureView | null = null;
     protected _fpScale: number = 1.0 / 1024.0;
     protected _fpScaleInv: number = 1024.0;
     protected _macros: IDefineMap = {};
@@ -312,7 +310,7 @@ export abstract class RenderPipeline {
     })
     protected renderPasses: RenderPassDesc[] = [];
     protected _renderTextures: Map<string, GFXTexture> = new Map<string, GFXTexture>();
-    protected _textureViews: Map<string, GFXTextureView> = new Map<string, GFXTextureView>();
+    protected _textures: Map<string, GFXTexture> = new Map<string, GFXTexture>();
     protected _frameBuffers: Map<string, GFXFramebuffer> = new Map<string, GFXFramebuffer>();
     protected _renderPasses: Map<number, GFXRenderPass> = new Map<number, GFXRenderPass>();
 
@@ -323,8 +321,8 @@ export abstract class RenderPipeline {
     constructor () {
     }
 
-    public getTextureView (name: string) {
-        return this._textureViews.get(name);
+    public getTexture (name: string) {
+        return this._textures.get(name);
     }
 
     public getRenderTexture (name: string) {
@@ -764,10 +762,14 @@ export abstract class RenderPipeline {
                 console.error('RenderTexture:' + rtd.name + ' not found!');
                 return false;
             }
-            this._textureViews.set(rtd.name, this._device.createTextureView({
-                texture: rt,
-                type: rtd.viewType,
+
+            this._textures.set(rtd.name, this._device.createTexture({
+                type: rtd.type,
+                usage: rtd.usage,
                 format: this._getTextureFormat(rtd.format, rtd.usage),
+                width: rtd.width,
+                height: rtd.height,
+                //FIXME: need other args?
             }));
         }
         for (let i = 0; i < this.renderPasses.length; i++) {
@@ -785,20 +787,23 @@ export abstract class RenderPipeline {
                 console.error('RenderPass:' + fbd.renderPass + ' not found!');
                 return false;
             }
-            const tvs: GFXTextureView[] = [];
-            for (let j = 0; j < fbd.colorViews.length; j++) {
-                const tv = this._textureViews.get(fbd.colorViews[j]);
+            const ts: GFXTexture[] = [];
+            for (let j = 0; j < fbd.colorTextures.length; j++) {
+                const tv = this._textures.get(fbd.colorTextures[j]);
                 if (tv == null) {
-                    console.error('TextureView:' + fbd.colorViews[j] + ' not found!');
+                    console.error('Texture:' + fbd.colorTextures[j] + ' not found!');
                     return false;
                 }
-                tvs.push(tv);
+                ts.push(tv);
             }
-            const dsv = this._textureViews.get(fbd.depthStencilView) as GFXTextureView | null;
+            const dsv = this._textures.get(fbd.depthStencilTexture) as GFXTexture | null;
+            const colorMipmapLevels: number[] = [];
             this._frameBuffers.set(fbd.name, this._device.createFramebuffer({
                 renderPass: rp,
-                colorViews: tvs,
-                depthStencilView: dsv,
+                colorTextures: ts,
+                colorMipmapLevels: colorMipmapLevels,
+                depthStencilTexture: dsv,
+                depStencilMipmapLevel: 0,
             }));
         }
 
@@ -848,11 +853,11 @@ export abstract class RenderPipeline {
             rtRes = rtIter.next();
         }
 
-        const tvIter = this._textureViews.values();
-        let tvRes = tvIter.next();
-        while (!tvRes.done) {
-            tvRes.value.destroy();
-            tvRes = tvIter.next();
+        const textureIter = this._textures.values();
+        let textureRes = textureIter.next();
+        while (!textureRes.done) {
+            textureRes.value.destroy();
+            textureRes = textureIter.next();
         }
 
         const rpIter = this._renderPasses.values();
@@ -884,12 +889,7 @@ export abstract class RenderPipeline {
         for (let i = 0; i < this.renderTextures.length; i++) {
             const rt = this.renderTextures[i];
             this._renderTextures.get(rt.name)!.resize(width, height);
-            this._textureViews.get(rt.name)!.destroy();
-            this._textureViews.get(rt.name)!.initialize({
-                texture: this._renderTextures.get(rt.name)!,
-                type: rt.viewType,
-                format: this._getTextureFormat(rt.format, rt.usage),
-            });
+            this._textures.get(rt.name)!.resize(width, height)
         }
 
         for (let i = 0; i < this.framebuffers.length; i++) {
@@ -897,10 +897,10 @@ export abstract class RenderPipeline {
             this._frameBuffers.get(fb.name)!.destroy();
             this._frameBuffers.get(fb.name)!.initialize({
                 renderPass: this._renderPasses.get(fb.renderPass)!,
-                colorViews: fb.colorViews.map((value) => {
-                    return this._textureViews.get(value)!;
+                colorTextures: fb.colorTextures.map((value) => {
+                    return this._textures.get(value)!;
                 }, this),
-                depthStencilView: this._textureViews.get(fb.depthStencilView)!,
+                depthStencilTexture: this._textures.get(fb.depthStencilTexture)!,
             });
         }
 

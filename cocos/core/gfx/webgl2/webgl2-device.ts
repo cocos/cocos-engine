@@ -26,8 +26,7 @@ import { GFXQueue, IGFXQueueInfo } from '../queue';
 import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
 import { GFXSampler, IGFXSamplerInfo } from '../sampler';
 import { GFXShader, IGFXShaderInfo } from '../shader';
-import { GFXTexture, IGFXTextureInfo } from '../texture';
-import { GFXTextureView, IGFXTextureViewInfo } from '../texture-view';
+import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from '../texture';
 import { GFXWindow, IGFXWindowInfo } from '../window';
 import { WebGL2GFXBindingLayout } from './webgl2-binding-layout';
 import { WebGL2GFXBuffer } from './webgl2-buffer';
@@ -49,7 +48,6 @@ import { WebGL2GFXSampler } from './webgl2-sampler';
 import { WebGL2GFXShader } from './webgl2-shader';
 import { WebGL2StateCache } from './webgl2-state-cache';
 import { WebGL2GFXTexture } from './webgl2-texture';
-import { WebGL2GFXTextureView } from './webgl2-texture-view';
 import { WebGL2GFXWindow } from './webgl2-window';
 
 export class WebGL2GFXDevice extends GFXDevice {
@@ -444,16 +442,10 @@ export class WebGL2GFXDevice extends GFXDevice {
         return buffer;
     }
 
-    public createTexture (info: IGFXTextureInfo): GFXTexture {
+    public createTexture (info: IGFXTextureInfo | IGFXTextureViewInfo): GFXTexture {
         const texture = new WebGL2GFXTexture(this);
         texture.initialize(info);
         return texture;
-    }
-
-    public createTextureView (info: IGFXTextureViewInfo): GFXTextureView {
-        const texView = new WebGL2GFXTextureView(this);
-        texView.initialize(info);
-        return texView;
     }
 
     public createSampler (info: IGFXSamplerInfo): GFXSampler {
@@ -574,7 +566,7 @@ export class WebGL2GFXDevice extends GFXDevice {
 
         const gl = this._webGL2RC!;
         const gpuFramebuffer = (srcFramebuffer as WebGL2GFXFramebuffer).gpuFramebuffer;
-        const format = gpuFramebuffer.gpuColorViews[0].format;
+        const format = gpuFramebuffer.gpuColorTextures[0].format;
         const glFormat = GFXFormatToWebGLFormat(format, gl);
         const glType = GFXFormatToWebGLType(format, gl);
         const ctor = getTypedArrayConstructor(GFXFormatInfos[format]);
