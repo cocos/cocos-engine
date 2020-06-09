@@ -707,7 +707,7 @@ cc.js.mixin(View.prototype, {
     setDesignResolutionSize: function (width, height, resolutionPolicy) {
         // Defensive code
         if( !(width > 0 || height > 0) ){
-            cc.logID(2200);
+            cc.errorID(2200);
             return;
         }
 
