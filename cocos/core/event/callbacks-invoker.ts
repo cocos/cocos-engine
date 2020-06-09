@@ -62,15 +62,6 @@ class CallbackInfo {
             return true;
         }
     }
-
-    public execute (arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
-        if (this.target) {
-            this.callback.call(this.target, arg0, arg1, arg2, arg3, arg4);
-        }
-        else {
-            this.callback(arg0, arg1, arg2, arg3, arg4);
-        }
-    }
 }
 
 const callbackInfoPool = new Pool(() => {
@@ -357,7 +348,12 @@ export class CallbacksInvoker {
                         this.off(key, callback, target);
                     }
                     else {
-                        info.execute(arg0, arg1, arg2, arg3, arg4);
+                        if (target) {
+                            callback.call(target, arg0, arg1, arg2, arg3, arg4);
+                        }
+                        else {
+                            callback(arg0, arg1, arg2, arg3, arg4);
+                        }
                     }
                 }
             }
