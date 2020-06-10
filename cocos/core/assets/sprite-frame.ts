@@ -653,7 +653,7 @@ export class SpriteFrame extends Asset {
             // hack
             if (this._texture instanceof RenderTexture) {
                 // no need to flip render target texcoord on metal and vulkan.
-                this._flipUv = cc.director.root.device.projectionSignY < 0 ? false : true;
+                this._flipUv = legacyCC.director.root.device.projectionSignY < 0 ? false : true;
             }
 
             calUV = true;

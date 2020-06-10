@@ -362,15 +362,18 @@ class Component extends CCObject {
             // @ts-ignore
             const depend = this.node._getDependComponent(this);
             if (depend) {
-                return legacyCC.errorID(3626,
+                legacyCC.errorID(3626,
                     getClassName(this), getClassName(depend));
+                return false;
             }
         }
         if (super.destroy()) {
             if (this._enabled && this.node.activeInHierarchy) {
                 legacyCC.director._compScheduler.disableComp(this);
             }
+            return true;
         }
+        return false;
     }
 
     public _onPreDestroy () {

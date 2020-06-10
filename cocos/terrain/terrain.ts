@@ -148,7 +148,7 @@ class TerrainRenderable extends RenderableComponent {
             this._model = null;
         }
 
-        super.destroy();
+        return super.destroy();
     }
 
     public _invalidMaterial () {
