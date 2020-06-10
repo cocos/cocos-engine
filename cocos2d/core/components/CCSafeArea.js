@@ -95,8 +95,8 @@ var SafeArea = cc.Class({
         let safeArea = cc.sys.getSafeAreaRect();
         widget.top = screenHeight - safeArea.y - safeArea.height;
         widget.bottom = safeArea.y;
-        widget.left = screenWidth - safeArea.x - safeArea.width;
-        widget.right = safeArea.x;
+        widget.left = safeArea.x;
+        widget.right = screenWidth - safeArea.x - safeArea.width;
         widget.updateAlignment();
         // set anchor, keep the original position unchanged
         let curPos = this.node.position;

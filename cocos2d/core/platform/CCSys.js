@@ -672,6 +672,20 @@ function initSys () {
         return sys._maxJointMatrixSize;
     }
 
+    /**
+     * !#en
+     * Return the safe area rect. <br/>
+     * only available on the iOS native platform, otherwise it will return a rect with design resolution size.
+     * !#zh
+     * 返回手机屏幕安全区域，目前仅在 iOS 原生平台有效。其它平台将默认返回设计分辨率尺寸。
+     * @method getSafeAreaRect
+     * @return {Rect}
+    */
+   sys.getSafeAreaRect = function () {
+        let visibleSize = cc.view.getVisibleSize();
+        return cc.rect(0, 0, visibleSize.width, visibleSize.height);
+    };
+
     if (_global.__globalAdapter && _global.__globalAdapter.adaptSys) {
         // init sys info in adapter
         _global.__globalAdapter.adaptSys(sys);
@@ -1185,20 +1199,6 @@ function initSys () {
      */
     sys.restartVM = function () {
         // N/A in web
-    };
-
-    /**
-     * !#en
-     * Return the safe area rect. <br/>
-     * only available on the iOS native platform, otherwise it will return a rect with design resolution size.
-     * !#zh
-     * 返回手机屏幕安全区域，目前仅在 iOS 原生平台有效。其它平台将默认返回设计分辨率尺寸。
-     * @method getSafeAreaRect
-     * @return {Rect}
-    */
-    sys.getSafeAreaRect = function () {
-        let visibleSize = cc.view.getVisibleSize();
-        return cc.rect(0, 0, visibleSize.width, visibleSize.height);
     };
 
     /**
