@@ -122,6 +122,12 @@ export function createBlendStateWriter<P extends BlendingProperty> (
         },
         forTarget: () => {
             return {
+                /**
+                 * Gets the node's actual property for now.
+                 */
+                get: () => {
+                    return node[property];
+                },
                 set: (value: BlendingPropertyValue<P>) => {
                     if (!isEnabled) {
                         return;
