@@ -4,22 +4,19 @@
 
 import { builtinResMgr } from './3d/builtin';
 import { GFXDevice } from './gfx/device';
-import { GFXWindow, IGFXWindowInfo } from './gfx/window';
 import { Pool } from './memop';
 import { RenderPipeline } from './pipeline/render-pipeline';
 import { IRenderViewInfo, RenderView } from './pipeline/render-view';
 import { Camera, Light, Model } from './renderer';
 import { DataPoolManager } from './renderer/data-pool-manager';
-import { DirectionalLight } from './renderer/scene/directional-light';
 import { LightType } from './renderer/scene/light';
 import { IRenderSceneInfo, RenderScene } from './renderer/scene/render-scene';
 import { SphereLight } from './renderer/scene/sphere-light';
 import { SpotLight } from './renderer/scene/spot-light';
 import { UI } from './renderer/ui/ui';
 import { legacyCC } from './global-exports';
-
-export let _createSceneFun;
-export let _createViewFun;
+import { RenderWindow, IRenderWindowInfo } from './pipeline/render-window';
+import { GFXColorAttachment, GFXDepthStencilAttachment } from './gfx/render-pass';
 
 /**
  * @zh
@@ -55,7 +52,7 @@ export class Root {
      * @zh
      * 主窗口
      */
-    public get mainWindow (): GFXWindow | null {
+    public get mainWindow (): RenderWindow | null {
         return this._mainWindow;
     }
 
@@ -63,11 +60,11 @@ export class Root {
      * @zh
      * 当前窗口
      */
-    public set curWindow (window: GFXWindow | null) {
+    public set curWindow (window: RenderWindow | null) {
         this._curWindow = window;
     }
 
-    public get curWindow (): GFXWindow | null {
+    public get curWindow (): RenderWindow | null {
         return this._curWindow;
     }
 
@@ -75,11 +72,11 @@ export class Root {
      * @zh
      * 临时窗口（用于数据传输）
      */
-    public set tempWindow (window: GFXWindow | null) {
+    public set tempWindow (window: RenderWindow | null) {
         this._tempWindow = window;
     }
 
-    public get tempWindow (): GFXWindow | null {
+    public get tempWindow (): RenderWindow | null {
         return this._tempWindow;
     }
 
@@ -87,7 +84,7 @@ export class Root {
      * @zh
      * 窗口列表
      */
-    public get windows (): GFXWindow[] {
+    public get windows (): RenderWindow[] {
         return this._windows;
     }
 
@@ -176,14 +173,15 @@ export class Root {
         return this._dataPoolMgr;
     }
 
-    public _createSceneFun;
-    public _createViewFun;
+    public _createSceneFun: (root: Root) => RenderScene = null!;
+    public _createViewFun: (root: Root, camera: Camera) => RenderView = null!;
+    public _createWindowFun: (root: Root) => RenderWindow = null!;
 
     private _device: GFXDevice;
-    private _windows: GFXWindow[] = [];
-    private _mainWindow: GFXWindow | null = null;
-    private _curWindow: GFXWindow | null = null;
-    private _tempWindow: GFXWindow | null = null;
+    private _windows: RenderWindow[] = [];
+    private _mainWindow: RenderWindow | null = null;
+    private _curWindow: RenderWindow | null = null;
+    private _tempWindow: RenderWindow | null = null;
     private _pipeline: RenderPipeline | null = null;
     private _ui: UI | null = null;
     private _dataPoolMgr: DataPoolManager;
@@ -192,9 +190,6 @@ export class Root {
     private _modelPools: Map<Function, Pool<any>> = new Map<Function, Pool<any>>();
     private _cameraPool: Pool<Camera> | null = null;
     private _lightPools: Map<Function, Pool<any>> = new Map<Function, Pool<any>>();
-    private _directLightPool: Pool<DirectionalLight> | null = null;
-    private _sphereLightPool: Pool<SphereLight> | null = null;
-    private _spotLightPool: Pool<SpotLight> | null = null;
     private _time: number = 0;
     private _frameTime: number = 0;
     private _fpsTime: number = 0;
@@ -213,6 +208,7 @@ export class Root {
 
         RenderScene.registerCreateFunc(this);
         RenderView.registerCreateFunc(this);
+        RenderWindow.registerCreateFunc(this);
 
         this._cameraPool = new Pool(() => new Camera(this._device), 4);
     }
@@ -224,11 +220,15 @@ export class Root {
      */
     public initialize (info: IRootInfo): boolean {
 
-        if (!this._device.mainWindow) {
-            return false;
-        }
-
-        this._mainWindow = this._device.mainWindow;
+        this._mainWindow = this.createWindow({
+            title: 'rootMainWindow',
+            width: this._device.width,
+            height: this._device.height,
+            renderPassInfo: {
+                colorAttachments: [ new GFXColorAttachment() ],
+                depthStencilAttachment: new GFXDepthStencilAttachment(),
+            },
+        });
         this._curWindow = this._mainWindow;
 
         builtinResMgr.initBuiltinRes(this._device);
@@ -310,7 +310,7 @@ export class Root {
      * 激活指定窗口为当前窗口
      * @param window GFX窗口
      */
-    public activeWindow (window: GFXWindow) {
+    public activeWindow (window: RenderWindow) {
         this._curWindow = window;
     }
 
@@ -371,16 +371,11 @@ export class Root {
      * 创建窗口
      * @param info GFX窗口描述信息
      */
-    public createWindow (info: IGFXWindowInfo): GFXWindow | null {
-        if (this._device) {
-            const window = this._device.createWindow(info);
-            if (window) {
-                this._windows.push(window);
-                return window;
-            }
-        }
-
-        return null;
+    public createWindow (info: IRenderWindowInfo): RenderWindow | null {
+        const window = this._createWindowFun(this);
+        window.initialize(info);
+        this._windows.push(window);
+        return window;
     }
 
     /**
@@ -388,7 +383,7 @@ export class Root {
      * 销毁指定的窗口
      * @param window GFX窗口
      */
-    public destroyWindow (window: GFXWindow) {
+    public destroyWindow (window: RenderWindow) {
         for (let i = 0; i < this._windows.length; ++i) {
             if (this._windows[i] === window) {
                 window.destroy();

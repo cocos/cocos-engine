@@ -32,7 +32,6 @@ export * from './render-pass';
 export * from './sampler';
 export * from './shader';
 export * from './texture';
-export * from './window';
 
 legacyCC.GFXDevice = GFXDevice;
 legacyCC.GFXBuffer = GFXBuffer;

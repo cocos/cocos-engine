@@ -34,7 +34,6 @@ import { Component } from '../../components/component';
 import { ccclass, help, executeInEditMode, menu, property } from '../../data/class-decorator';
 import { ray } from '../../geometry';
 import { GFXClearFlag } from '../../gfx/define';
-import { GFXWindow } from '../../gfx/window';
 import { Color, Rect, toRadian, Vec3 } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { view } from '../../platform/view';
@@ -45,6 +44,7 @@ import { Layers, Node, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
+import { RenderWindow } from '../../pipeline';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -636,7 +636,7 @@ export class CameraComponent extends Component {
     }
 
     protected _chechTargetTextureEvent (old: RenderTexture | null) {
-        const resizeFunc = (window: GFXWindow) => {
+        const resizeFunc = (window: RenderWindow) => {
             if (this._camera) {
                 this._camera.setFixedSize(window.width, window.height);
             }

@@ -42,7 +42,7 @@ export class UIStage extends RenderStage {
                 loadOp: GFXLoadOp.LOAD, // shouldn't clear color attachment
                 storeOp: GFXStoreOp.STORE,
                 sampleCount: 1,
-                beginLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
+                beginLayout: GFXTextureLayout.PRESENT_SRC,
                 endLayout: GFXTextureLayout.PRESENT_SRC,
             }],
             depthStencilAttachment: {
@@ -53,7 +53,7 @@ export class UIStage extends RenderStage {
                 stencilStoreOp : GFXStoreOp.STORE,
                 sampleCount : 1,
                 beginLayout : GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                endLayout : GFXTextureLayout.PRESENT_SRC,
+                endLayout : GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
             },
         });
         this._framebuffer = device.createFramebuffer({

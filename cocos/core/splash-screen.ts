@@ -21,6 +21,7 @@ import { GFXSampler } from './gfx';
 import { IPSOCreateInfo } from './renderer';
 import { PipelineStateManager } from './pipeline/pipeline-state-manager';
 import { legacyCC } from './global-exports';
+import { Root } from './root';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 
@@ -49,6 +50,7 @@ export class SplashScreen {
     private startTime: number = -1;
     private setting!: ISplashSetting;
     private image!: TexImageSource;
+    private root!: Root;
     private device!: GFXDevice;
     private sampler!: GFXSampler;
     private cmdBuff!: GFXCommandBuffer;
@@ -80,8 +82,8 @@ export class SplashScreen {
     private screenWidth!: number;
     private screenHeight!: number;
 
-    public main (device: GFXDevice) {
-        if (device == null) return console.error('GFX DEVICE IS NULL.');
+    public main (root: Root) {
+        if (root == null) return console.error('RENDER ROOT IS NULL.');
 
         if (window._CCSettings && window._CCSettings.splashScreen) {
             this.setting = window._CCSettings.splashScreen;
@@ -116,7 +118,8 @@ export class SplashScreen {
             } else {
                 legacyCC.view.setDesignResolutionSize(960, 640, 4);
             }
-            this.device = device;
+            this.root = root;
+            this.device = root.device;
             legacyCC.game.once(legacyCC.Game.EVENT_GAME_INITED, () => {
                 legacyCC.director._lateUpdate = performance.now();
             }, legacyCC.director);
@@ -386,7 +389,7 @@ export class SplashScreen {
     private initCMD () {
         const device = this.device as GFXDevice;
         this.renderArea = { x: 0, y: 0, width: device.width, height: device.height };
-        this.framebuffer = device.mainWindow.framebuffer;
+        this.framebuffer = this.root.mainWindow!.framebuffer;
 
         this.cmdBuff = device.createCommandBuffer({
             allocator: device.commandAllocator,

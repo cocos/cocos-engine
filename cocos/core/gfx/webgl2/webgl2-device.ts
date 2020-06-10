@@ -27,7 +27,6 @@ import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
 import { GFXSampler, IGFXSamplerInfo } from '../sampler';
 import { GFXShader, IGFXShaderInfo } from '../shader';
 import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from '../texture';
-import { GFXWindow, IGFXWindowInfo } from '../window';
 import { WebGL2GFXBindingLayout } from './webgl2-binding-layout';
 import { WebGL2GFXBuffer } from './webgl2-buffer';
 import { WebGL2GFXCommandAllocator } from './webgl2-command-allocator';
@@ -48,7 +47,6 @@ import { WebGL2GFXSampler } from './webgl2-sampler';
 import { WebGL2GFXShader } from './webgl2-shader';
 import { WebGL2StateCache } from './webgl2-state-cache';
 import { WebGL2GFXTexture } from './webgl2-texture';
-import { WebGL2GFXWindow } from './webgl2-window';
 
 export class WebGL2GFXDevice extends GFXDevice {
 
@@ -328,18 +326,6 @@ export class WebGL2GFXDevice extends GFXDevice {
         // create queue
         this._queue = this.createQueue({ type: GFXQueueType.GRAPHICS });
 
-        // create primary window
-        const canvas = this._webGL2RC.canvas as HTMLCanvasElement;
-        this._mainWindow = this.createWindow({
-            title: canvas.title || '',
-            left: canvas.offsetLeft || 0,
-            top: canvas.offsetTop || 0,
-            width: this._webGL2RC.drawingBufferWidth,
-            height: this._webGL2RC.drawingBufferHeight,
-            colorFmt: this._colorFmt,
-            depthStencilFmt: this._depthStencilFmt,
-        });
-
         this._cmdAllocator = this.createCommandAllocator({});
 
         // create default null texture
@@ -406,11 +392,6 @@ export class WebGL2GFXDevice extends GFXDevice {
         if (this.nullTexCube) {
             this.nullTexCube.destroy();
             this.nullTexCube = null;
-        }
-
-        if (this._mainWindow) {
-            this._mainWindow.destroy();
-            this._mainWindow = null;
         }
 
         if (this._cmdAllocator) {
@@ -520,12 +501,6 @@ export class WebGL2GFXDevice extends GFXDevice {
         const queue = new WebGL2GFXQueue(this);
         queue.initialize(info);
         return queue;
-    }
-
-    public createWindow (info: IGFXWindowInfo): GFXWindow {
-        const window = new WebGL2GFXWindow(this);
-        window.initialize(info);
-        return window;
     }
 
     public acquire () {}
