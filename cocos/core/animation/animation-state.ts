@@ -357,24 +357,6 @@ export class AnimationState extends Playable {
             this.repeatCount = 1;
         }
 
-        this._commonTargetStatuses = clip.commonTargets.map((commonTarget, index) => {
-            const target = createBoundTargetOptimized(
-                createBufferedTarget,
-                root,
-                commonTarget.modifiers,
-                commonTarget.valueAdapter,
-                false,
-            );
-            if (target === null) {
-                return null;
-            } else {
-                return {
-                    target,
-                    changed: false,
-                };
-            }
-        });
-
         /**
          * Create the bound target. Especially optimized for skeletal case.
          */
@@ -404,6 +386,24 @@ export class AnimationState extends Playable {
             }
             return null;
         };
+
+        this._commonTargetStatuses = clip.commonTargets.map((commonTarget, index) => {
+            const target = createBoundTargetOptimized(
+                createBufferedTarget,
+                root,
+                commonTarget.modifiers,
+                commonTarget.valueAdapter,
+                false,
+            );
+            if (target === null) {
+                return null;
+            } else {
+                return {
+                    target,
+                    changed: false,
+                };
+            }
+        });
 
         if (!propertyCurves) {
             propertyCurves = clip.getPropertyCurves();
