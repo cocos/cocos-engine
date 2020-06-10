@@ -28,6 +28,7 @@ import { ccclass, property } from '../data/class-decorator';
 import { Quat } from '../math';
 import { EDITOR, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { errorID } from '../platform/debug';
 
 @ccclass('cc.PrefabInfo')
 export class PrefabInfo {
@@ -88,7 +89,7 @@ export default function syncWithPrefab (node) {
             // node.name += PrefabUtils.MISSING_PREFAB_SUFFIX;
         }
         else {
-            legacyCC.errorID(3701, node.name);
+            errorID(3701, node.name);
         }
         node._prefab = null;
         return;

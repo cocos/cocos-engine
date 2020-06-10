@@ -30,7 +30,7 @@
 
 import * as js from '../utils/js';
 import {_getClassById} from '../utils/js';
-import { getError } from '../platform/debug';
+import { getError, warnID } from '../platform/debug';
 import { LoadingItems } from './loading-items';
 import { decompressJson } from './utils';
 import { EDITOR, DEBUG, JSB } from 'internal:constants';
@@ -265,7 +265,7 @@ export function loadUuid (item, callback) {
             if (cls) {
                 return cls;
             }
-            legacyCC.warnID(4903, id);
+            warnID(4903, id);
             return Object;
         };
     }

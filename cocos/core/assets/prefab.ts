@@ -35,6 +35,7 @@ import { Enum } from '../value-types';
 import { Asset } from './asset';
 import { SUPPORT_JIT, ALIPAY, RUNTIME_BASED } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { warnID } from '../platform/debug';
 
 /**
  * Prefab 创建实例所用的优化策略，配合 [[optimizationPolicy]] 使用。
@@ -148,7 +149,7 @@ export default class Prefab extends Asset {
         }
         else {
             // temp guard code
-            legacyCC.warnID(3700);
+            warnID(3700);
         }
         if (!this._createFunction) {
             this.compileCreateFunction();

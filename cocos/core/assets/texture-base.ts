@@ -38,6 +38,7 @@ import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import { GFXSampler } from '../gfx';
 import { legacyCC } from '../global-exports';
+import { errorID } from '../platform/debug';
 
 const CHAR_CODE_1 = 49;    // '1'
 
@@ -270,7 +271,7 @@ export class TextureBase extends Asset {
             if (this._gfxDevice) {
                 this._gfxSampler = samplerLib.getSampler(this._gfxDevice, this._samplerHash);
             } else {
-                legacyCC.errorID(9302);
+                errorID(9302);
             }
         }
         return this._gfxSampler;

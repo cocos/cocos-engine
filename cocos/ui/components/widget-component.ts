@@ -32,7 +32,7 @@ import { Component } from '../../core/components';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
 import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
 import { Size, Vec3 } from '../../core/math';
-import { errorID } from '../../core/platform/debug';
+import { errorID, warnID } from '../../core/platform/debug';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { View } from '../../core/platform/view';
 import visibleRect from '../../core/platform/visible-rect';
@@ -991,7 +991,7 @@ export class WidgetComponent extends Component {
                 target.on(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
                 target.on(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
             } else {
-                legacyCC.warnID(6501, this.node.name);
+                warnID(6501, this.node.name);
             }
         }
     }

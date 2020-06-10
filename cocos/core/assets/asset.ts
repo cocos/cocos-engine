@@ -33,6 +33,7 @@ import { Eventify } from '../event';
 import { RawAsset } from './raw-asset';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
+import { errorID } from '../platform/debug';
 
 /**
  * @en
@@ -140,7 +141,7 @@ export class Asset extends Eventify(RawAsset) {
                 }
             }
             else {
-                legacyCC.errorID(6400);
+                errorID(6400);
             }
         }
         return '';

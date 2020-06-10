@@ -38,6 +38,7 @@ import { Touch } from '../platform/event-manager/touch';
 import { BaseNode } from './base-node';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
+import { errorID } from '../platform/debug';
 
 const _cachedArray = new Array<BaseNode>(16);
 let _currentHovered: BaseNode | null = null;
@@ -699,7 +700,7 @@ export class NodeEventProcessor {
             target = undefined;
         } else { useCapture = !!useCapture; }
         if (!callback) {
-            legacyCC.errorID(6800);
+            errorID(6800);
             return;
         }
 

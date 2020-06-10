@@ -41,6 +41,7 @@ import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSiz
 import { UITransformComponent } from '../../core/components';
 import { EDITOR, DEV } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
+import { warnID } from '../../core/platform/debug';
 
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();
@@ -417,7 +418,7 @@ export const widgetManager = legacyCC._widgetManager = {
             }
 
             if (!widgetParent.getComponent(UITransformComponent)) {
-                legacyCC.warnID(6501, widget.node.name);
+                warnID(6501, widget.node.name);
                 return;
             }
 

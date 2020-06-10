@@ -34,6 +34,7 @@ import {BUILTIN_CLASSID_RE} from '../utils/misc';
 import { Component } from './component';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { warnID } from '../platform/debug';
 
 /**
  * @en
@@ -117,7 +118,7 @@ export default class MissingScript extends Component {
     }
 
     public onLoad () {
-        legacyCC.warnID(4600, this.node.name);
+        warnID(4600, this.node.name);
     }
 }
 

@@ -29,7 +29,7 @@
 
 import { ccclass, property } from '../data/class-decorator';
 import { Mat4, Quat, Vec3 } from '../math';
-import { warnID } from '../platform/debug';
+import { warnID, assert } from '../platform/debug';
 import { RenderScene } from '../renderer/scene/render-scene';
 import { BaseNode } from './base-node';
 import { SceneGlobals } from './scene-globals';
@@ -210,7 +210,7 @@ export class Scene extends BaseNode {
     protected _load () {
         if (!this._inited) {
             if (TEST) {
-                legacyCC.assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
+                assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
             }
             this._onBatchCreated();
             this._inited = true;

@@ -31,6 +31,7 @@ import { CCObject } from '../data/object';
 import * as js from '../utils/js';
 import { EDITOR, DEV, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { error, errorID } from '../platform/debug';
 
 // @ts-ignore
 const Destroying = CCObject.Flags.Destroying;
@@ -41,9 +42,9 @@ export function baseNodePolyfill (BaseNode) {
             const existing = this.getComponent(ctor._disallowMultiple);
             if (existing) {
                 if (existing.constructor === ctor) {
-                    legacyCC.errorID(3805, js.getClassName(ctor), this._name);
+                    errorID(3805, js.getClassName(ctor), this._name);
                 } else {
-                    legacyCC.errorID(3806, js.getClassName(ctor), this._name, js.getClassName(existing));
+                    errorID(3806, js.getClassName(ctor), this._name, js.getClassName(existing));
                 }
                 return false;
             }
@@ -58,13 +59,13 @@ export function baseNodePolyfill (BaseNode) {
          */
         BaseNode.prototype._addComponentAt = function (comp, index) {
             if (this._objFlags & Destroying) {
-                return legacyCC.error('isDestroying');
+                return error('isDestroying');
             }
             if (!(comp instanceof legacyCC.Component)) {
-                return legacyCC.errorID(3811);
+                return errorID(3811);
             }
             if (index > this._components.length) {
-                return legacyCC.errorID(3812);
+                return errorID(3812);
             }
 
             // recheck attributes because script may changed

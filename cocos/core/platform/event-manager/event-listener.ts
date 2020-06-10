@@ -31,6 +31,7 @@
 import { EventKeyboard, EventAcceleration, EventMouse } from './events';
 import { Node } from '../../scene-graph';
 import { legacyCC } from '../../global-exports';
+import { logID, assertID } from '../debug';
 
 export interface IEventListenerCreateInfo {
     event?: number;
@@ -111,7 +112,7 @@ export class EventListener {
      * @param argObj a json object
      */
     public static create (argObj: IEventListenerCreateInfo): EventListener {
-        legacyCC.assertID(argObj && argObj.event, 1900);
+        assertID(argObj && argObj.event, 1900);
 
         const listenerType = argObj.event;
         delete argObj.event;
@@ -425,7 +426,7 @@ export class TouchOneByOne extends EventListener {
 
     public checkAvailable () {
         if (!this.onTouchBegan) {
-            legacyCC.logID(1801);
+            logID(1801);
             return false;
         }
         return true;
@@ -454,7 +455,7 @@ export class TouchAllAtOnce extends EventListener {
     public checkAvailable () {
         if (this.onTouchesBegan === null && this.onTouchesMoved === null
             && this.onTouchesEnded === null && this.onTouchesCancelled === null) {
-            legacyCC.logID(1802);
+            logID(1802);
             return false;
         }
         return true;
@@ -478,7 +479,7 @@ export class Acceleration extends EventListener {
     }
 
     public checkAvailable () {
-        legacyCC.assertID(this._onAccelerationEvent, 1803);
+        assertID(this._onAccelerationEvent, 1803);
         return true;
     }
 
@@ -518,7 +519,7 @@ export class Keyboard extends EventListener {
 
     public checkAvailable () {
         if (this.onKeyPressed === null && this.onKeyReleased === null) {
-            legacyCC.logID(1800);
+            logID(1800);
             return false;
         }
         return true;

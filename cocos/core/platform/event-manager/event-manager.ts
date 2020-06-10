@@ -36,6 +36,7 @@ import { EventListener, TouchOneByOne } from './event-listener';
 import { Node } from '../../scene-graph';
 import { macro } from '../macro';
 import { legacyCC } from '../../global-exports';
+import { errorID, warnID, logID, assertID } from '../../platform/debug';
 const ListenerID = EventListener.ListenerID;
 
 function checkUINode (node) {
@@ -105,7 +106,7 @@ function __getListenerID (event: Event) {
         // Touch listener is very special, it contains two kinds of listeners:
         // EventListenerTouchOneByOne and EventListenerTouchAllAtOnce.
         // return UNKNOWN instead.
-        legacyCC.logID(2000);
+        logID(2000);
     }
     return '';
 }
@@ -149,7 +150,7 @@ class EventManager {
      */
     public pauseTarget (node: Node, recursive = false) {
         if (!(node instanceof legacyCC._BaseNode)) {
-            legacyCC.warnID(3506);
+            warnID(3506);
             return;
         }
         const listeners = this._nodeListenersMap[node.uuid];
@@ -182,7 +183,7 @@ class EventManager {
      */
     public resumeTarget (node: Node, recursive = false) {
         if (!(node instanceof legacyCC._BaseNode)) {
-            legacyCC.warnID(3506);
+            warnID(3506);
             return;
         }
         const listeners = this._nodeListenersMap[node.uuid];
@@ -260,17 +261,17 @@ class EventManager {
      * @returns
      */
     public addListener (listener: EventListener, nodeOrPriority: any | number): any {
-        legacyCC.assertID(listener && nodeOrPriority, 3503);
+        assertID(listener && nodeOrPriority, 3503);
         if (!(legacyCC.js.isNumber(nodeOrPriority) || nodeOrPriority instanceof legacyCC._BaseNode)) {
-            legacyCC.warnID(3506);
+            warnID(3506);
             return;
         }
         if (!(listener instanceof legacyCC.EventListener)) {
-            legacyCC.assertID(!legacyCC.js.isNumber(nodeOrPriority), 3504);
+            assertID(!legacyCC.js.isNumber(nodeOrPriority), 3504);
             listener = legacyCC.EventListener.create(listener);
         } else {
             if (listener._isRegistered()) {
-                legacyCC.logID(3505);
+                logID(3505);
                 return;
             }
         }
@@ -281,7 +282,7 @@ class EventManager {
 
         if (legacyCC.js.isNumber(nodeOrPriority)) {
             if (nodeOrPriority === 0) {
-                legacyCC.logID(3500);
+                logID(3500);
                 return;
             }
 
@@ -292,7 +293,7 @@ class EventManager {
             this._addListener(listener);
         } else {
             if (!checkUINode(nodeOrPriority)) {
-                legacyCC.logID(3512);
+                logID(3512);
                 return;
             }
             listener._setSceneGraphPriority(nodeOrPriority);
@@ -401,7 +402,7 @@ class EventManager {
      */
     public removeListeners (listenerType: number | any, recursive = false) {
         if (!(legacyCC.js.isNumber(listenerType) || listenerType instanceof legacyCC._BaseNode)) {
-            legacyCC.warnID(3506);
+            warnID(3506);
             return;
         }
         if (listenerType._id !== undefined) {
@@ -454,7 +455,7 @@ class EventManager {
             } else if (listenerType === legacyCC.EventListener.KEYBOARD) {
                 this._removeListenersForListenerID(ListenerID.KEYBOARD);
             } else {
-                legacyCC.logID(3501);
+                logID(3501);
             }
         }
     }
@@ -512,7 +513,7 @@ class EventManager {
                 const found = fixedPriorityListeners.indexOf(listener);
                 if (found !== -1) {
                     if (listener._getSceneGraphPriority() != null) {
-                        legacyCC.logID(3502);
+                        logID(3502);
                     }
                     if (listener._getFixedPriority() !== fixedPriority) {
                         listener._setFixedPriority(fixedPriority);
@@ -566,7 +567,7 @@ class EventManager {
         this._updateDirtyFlagForSceneGraph();
         this._inDispatch++;
         if (!event || !event.getType) {
-            legacyCC.errorID(3511);
+            errorID(3511);
             return;
         }
         if (event.getType().startsWith(legacyCC.Event.TOUCH)) {
@@ -654,7 +655,7 @@ class EventManager {
 
             const node = listener._getSceneGraphPriority();
             if (node === null) {
-                legacyCC.logID(3507);
+                logID(3507);
             }
 
             this._associateNodeAndEventListener(node, listener);
@@ -873,7 +874,7 @@ class EventManager {
 
     private _updateTouchListeners (event) {
         const locInDispatch = this._inDispatch;
-        legacyCC.assertID(locInDispatch > 0, 3508);
+        assertID(locInDispatch > 0, 3508);
 
         if (locInDispatch > 1) {
             return;
@@ -889,7 +890,7 @@ class EventManager {
             this._onUpdateListeners(listeners);
         }
 
-        legacyCC.assertID(locInDispatch === 1, 3509);
+        assertID(locInDispatch === 1, 3509);
 
         const locToAddedListeners = this._toAddedListeners;
         if (locToAddedListeners.length !== 0) {
