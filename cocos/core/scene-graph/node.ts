@@ -933,14 +933,32 @@ export class Node extends BaseNode {
      * @param pos The position
      * @param scale The scale
      */
-    public setRTS (rot?: Quat, pos?: Vec3, scale?: Vec3) {
-        if (rot) { Quat.copy(this._lrot, rot); }
-        if (pos) { Vec3.copy(this._lpos, pos); }
-        if (scale) { Vec3.copy(this._lscale, scale); }
-        this.invalidateChildren(TransformBit.TRS);
-        this._eulerDirty = true;
-        if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.TRS);
+    public setRTS (rot?: Quat | Vec3, pos?: Vec3, scale?: Vec3) {
+        let dirtyBit: TransformBit = 0;
+        if (rot) {
+            dirtyBit |= TransformBit.ROTATION;
+            if ((rot as Quat).w !== undefined) {
+                Quat.copy(this._lrot, rot as Quat);
+                this._eulerDirty = true;
+            } else {
+                Vec3.copy(this._euler, rot);
+                Quat.fromEuler(this._lrot, rot.x, rot.y, rot.z);
+                this._eulerDirty = false;
+            }
+        }
+        if (pos) {
+            Vec3.copy(this._lpos, pos);
+            dirtyBit |= TransformBit.POSITION;
+        }
+        if (scale) {
+            Vec3.copy(this._lscale, scale);
+            dirtyBit |= TransformBit.SCALE;
+        }
+        if (dirtyBit) {
+            this.invalidateChildren(dirtyBit);
+            if (this._eventMask & TRANSFORM_ON) {
+                this.emit(SystemEventType.TRANSFORM_CHANGED, dirtyBit);
+            }
         }
     }
 
