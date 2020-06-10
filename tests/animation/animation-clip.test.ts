@@ -81,7 +81,7 @@ test('Common targets that modify eulerAngles', () => {
     const eulerXValues = [0, 1, 2];
     clip.keys = [keys];
     clip.commonTargets = [{
-        modifiers: [new HierarchyPath('partial'), 'eulerAngles'],
+        modifiers: [new HierarchyPath(partialNodeName), 'eulerAngles'],
     }];
     clip.curves = [{
         modifiers: ['eulerAngles'],
