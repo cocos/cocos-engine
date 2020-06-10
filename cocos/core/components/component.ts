@@ -372,7 +372,7 @@ class Component extends CCObject {
                 legacyCC.director._compScheduler.disableComp(this);
             }
         }
-        return false;
+        return true;
     }
 
     public _onPreDestroy () {
