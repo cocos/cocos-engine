@@ -493,8 +493,10 @@ var widgetManager = cc._widgetManager = module.exports = {
     },
     refreshWidgetOnResized (node) {
         var widget = cc.Node.isNode(node) && node.getComponent(cc.Widget);
-        if (widget && widget.enabled === true && widget.alignMode === AlignMode.ON_WINDOW_RESIZE) {
-            widget.onEnable();
+        if (widget) {
+            if (widget.alignMode === AlignMode.ON_WINDOW_RESIZE) {
+                widget.enabled = true;
+            }
         }
 
         var children = node._children;
