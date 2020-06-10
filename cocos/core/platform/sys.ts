@@ -30,6 +30,7 @@
 
 import { EDITOR, TEST, WECHAT, ALIPAY, XIAOMI, BAIDU, COCOSPLAY, JSB, MINIGAME } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { warnID, log, logID } from './debug';
 
 // tslint:disable
 
@@ -658,7 +659,7 @@ export const sys: { [x: string]: any; } = {
         str += 'osVersion : ' + this.osVersion + '\r\n';
         str += 'platform : ' + this.platform + '\r\n';
         str += 'Using ' + (legacyCC.game.renderType === legacyCC.game.RENDER_TYPE_WEBGL ? 'WEBGL' : 'CANVAS') + ' renderer.' + '\r\n';
-        legacyCC.log(str);
+        log(str);
     },
 
     /**
@@ -946,7 +947,7 @@ else {
         localStorage = null;
     } catch (e) {
         const warn = function () {
-            legacyCC.warnID(5200);
+            warnID(5200);
         };
         sys.localStorage = {
             getItem: warn,
@@ -1064,11 +1065,11 @@ else {
 
         if (DEBUG) {
             setTimeout(function () {
-                legacyCC.log('browse type: ' + sys.browserType);
-                legacyCC.log('browse version: ' + version);
-                legacyCC.log('MULTI_CHANNEL: ' + __audioSupport.MULTI_CHANNEL);
-                legacyCC.log('WEB_AUDIO: ' + __audioSupport.WEB_AUDIO);
-                legacyCC.log('AUTOPLAY: ' + __audioSupport.AUTOPLAY);
+                log('browse type: ' + sys.browserType);
+                log('browse version: ' + version);
+                log('MULTI_CHANNEL: ' + __audioSupport.MULTI_CHANNEL);
+                log('WEB_AUDIO: ' + __audioSupport.WEB_AUDIO);
+                log('AUTOPLAY: ' + __audioSupport.AUTOPLAY);
             }, 0);
         }
     })();
@@ -1086,7 +1087,7 @@ else {
         }
     } catch (error) {
         __audioSupport.WEB_AUDIO = false;
-        legacyCC.logID(5201);
+        logID(5201);
     }
 
     const formatSupport: string[] = [];

@@ -37,6 +37,7 @@ import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './even
 import { Touch } from './touch';
 import { JSB, RUNTIME_BASED } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
+import { logID } from '../debug';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 
@@ -128,7 +129,7 @@ class InputManager {
             if (index === undefined) {
                 const unusedIndex = this._getUnUsedIndex();
                 if (unusedIndex === -1) {
-                    legacyCC.logID(2300, unusedIndex);
+                    logID(2300, unusedIndex);
                     continue;
                 }
                 // curTouch = this._touches[unusedIndex] = touch;

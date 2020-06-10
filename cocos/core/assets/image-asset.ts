@@ -34,6 +34,7 @@ import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { EDITOR, MINIGAME } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { warnID } from '../platform/debug';
 
 /**
  * 内存图像源。
@@ -194,13 +195,13 @@ export class ImageAsset extends Asset {
                     this._onDataComplete();
                 });
                 data.addEventListener('error', (err) => {
-                    legacyCC.warnID(3119, err.message);
+                    warnID(3119, err.message);
                 });
             }
         }
     }
 
-    public destroy (): boolean {
+    public destroy () {
         if (this.data && this.data instanceof HTMLImageElement) {
             this.data.src = "";
             legacyCC.loader.removeItem(this.data.id);

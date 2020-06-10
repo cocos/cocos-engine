@@ -47,6 +47,7 @@ import { Scheduler } from './scheduler';
 import { js } from './utils';
 import { DEBUG, EDITOR, BUILD } from 'internal:constants';
 import { legacyCC } from './global-exports';
+import { errorID, error, logID, assertID } from './platform/debug';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -489,7 +490,7 @@ export class Director extends EventTarget {
      * @param onLaunched - The function invoked at the scene after launch.
      */
     public runSceneImmediate (scene: Scene, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched) {
-        legacyCC.assertID(scene instanceof legacyCC.Scene, 1216);
+        assertID(scene instanceof legacyCC.Scene, 1216);
 
         const uuid = legacyCC.loader._getReferenceKey(scene.uuid);
         // Scene cannot be cached in loader, because it will be destroyed after switching.
@@ -594,8 +595,8 @@ export class Director extends EventTarget {
      * @private
      */
     public runScene (scene: Scene, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched) {
-        legacyCC.assertID(scene, 1205);
-        legacyCC.assertID(scene instanceof legacyCC.Scene, 1216);
+        assertID(scene, 1205);
+        assertID(scene instanceof legacyCC.Scene, 1216);
 
         // ensure scene initialized
         // @ts-ignore
@@ -632,11 +633,11 @@ export class Director extends EventTarget {
                 return scenes[key];
             }
             else {
-                legacyCC.errorID(1206, key);
+                errorID(1206, key);
             }
         }
         else {
-            legacyCC.errorID(1207, key);
+            errorID(1207, key);
         }
         return null;
     }
@@ -651,7 +652,7 @@ export class Director extends EventTarget {
      */
     public loadScene (sceneName: string, onLaunched?: Director.OnSceneLaunched, onUnloaded?: Director.OnUnload) {
         if (this._loadingScene) {
-            legacyCC.errorID(1208, sceneName, this._loadingScene);
+            errorID(1208, sceneName, this._loadingScene);
             return false;
         }
         const info = this._getSceneUuid(sceneName);
@@ -663,7 +664,7 @@ export class Director extends EventTarget {
             return true;
         }
         else {
-            legacyCC.errorID(1209, sceneName);
+            errorID(1209, sceneName);
             return false;
         }
     }
@@ -720,7 +721,7 @@ export class Director extends EventTarget {
                 onProgress,
                 (error: null | Error, asset: SceneAsset) => {
                     if (error) {
-                        legacyCC.errorID(1210, sceneName, error.message);
+                        errorID(1210, sceneName, error.message);
                     }
                     if (onLoaded) {
                         onLoaded(error, asset);
@@ -728,11 +729,11 @@ export class Director extends EventTarget {
                 });
         }
         else {
-            const error = 'Can not preload the scene "' + sceneName + '" because it is not in the build settings.';
+            const err = 'Can not preload the scene "' + sceneName + '" because it is not in the build settings.';
             if (onLoaded) {
-                onLoaded(new Error(error));
+                onLoaded(new Error(err));
             }
-            legacyCC.error('preloadScene: ' + error);
+            error('preloadScene: ' + err);
         }
     }
 
@@ -771,13 +772,13 @@ export class Director extends EventTarget {
 
         // cc.AssetLibrary.unloadAsset(uuid);     // force reload
         console.time('LoadScene ' + uuid);
-        legacyCC.AssetLibrary.loadAsset(uuid, (error, sceneAsset) => {
+        legacyCC.AssetLibrary.loadAsset(uuid, (err, sceneAsset) => {
             console.timeEnd('LoadScene ' + uuid);
             const self = director;
             self._loadingScene = '';
-            if (error) {
-                error = 'Failed to load scene: ' + error;
-                legacyCC.error(error);
+            if (err) {
+                err = 'Failed to load scene: ' + err;
+                error(err);
             }
             else {
                 if (sceneAsset instanceof legacyCC.SceneAsset) {
@@ -801,12 +802,12 @@ export class Director extends EventTarget {
                     return;
                 }
                 else {
-                    error = 'The asset ' + uuid + ' is not a scene';
-                    legacyCC.error(error);
+                    err = 'The asset ' + uuid + ' is not a scene';
+                    error(err);
                 }
             }
             if (onLaunched) {
-                onLaunched(error);
+                onLaunched(err);
             }
         });
     }
@@ -822,7 +823,7 @@ export class Director extends EventTarget {
 
         this._lastUpdate = performance.now();
         if (!this._lastUpdate) {
-            legacyCC.logID(1200);
+            logID(1200);
         }
 
         this._paused = false;
@@ -1084,7 +1085,7 @@ export class Director extends EventTarget {
         this._root = new Root(legacyCC.game._gfxDevice);
         const rootInfo = {};
         if (!this._root.initialize(rootInfo)) {
-            legacyCC.errorID(1217);
+            errorID(1217);
             return false;
         }
 

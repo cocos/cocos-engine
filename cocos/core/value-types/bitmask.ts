@@ -30,6 +30,7 @@
 import { value } from '../utils/js';
 import { EDITOR, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { errorID } from '../platform/debug';
 
 export function BitMask<T> (obj: T): T {
     if ('__bitmask__' in obj) {
@@ -58,7 +59,7 @@ export function BitMask<T> (obj: T): T {
         const reverseKey: string = '' + val;
         if (key !== reverseKey) {
             if ((EDITOR || TEST) && reverseKey in obj && obj[reverseKey] !== key) {
-                legacyCC.errorID(7100, reverseKey);
+                errorID(7100, reverseKey);
                 continue;
             }
             value(obj, reverseKey, key);

@@ -30,7 +30,7 @@
  */
 
 import * as js from '../../core/utils/js';
-import { errorID } from '../../core/platform/debug';
+import { errorID, logID, assertID } from '../../core/platform/debug';
 import { Action } from './action';
 import { Node } from '../../core';
 import { legacyCC } from '../../core/global-exports';
@@ -218,9 +218,9 @@ export class ActionManager {
      */
     removeActionByTag (tag: number, target: Node) {
         if (tag === legacyCC.Action.TAG_INVALID)
-            legacyCC.logID(1002);
+            logID(1002);
 
-        legacyCC.assertID(target, 1003);
+        assertID(target, 1003);
 
         var element = this._hashTargets[target.uuid];
 
@@ -246,7 +246,7 @@ export class ActionManager {
      */
     getActionByTag (tag: number, target: Node): Action | null {
         if (tag === legacyCC.Action.TAG_INVALID)
-            legacyCC.logID(1004);
+            logID(1004);
 
         var element = this._hashTargets[target.uuid];
         if (element) {
@@ -257,7 +257,7 @@ export class ActionManager {
                         return action;
                 }
             }
-            legacyCC.logID(1005, tag);
+            logID(1005, tag);
         }
         return null;
     }

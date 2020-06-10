@@ -31,6 +31,7 @@
 import { value } from '../utils/js';
 import { EDITOR, TEST, DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { errorID } from '../platform/debug';
 
 /**
  * @en
@@ -73,7 +74,7 @@ export function Enum<T> (obj: T): T {
         const reverseKey: string = '' + val;
         if (key !== reverseKey) {
             if ((EDITOR || TEST) && reverseKey in obj && obj[reverseKey] !== key) {
-                legacyCC.errorID(7100, reverseKey);
+                errorID(7100, reverseKey);
                 continue;
             }
             value(obj, reverseKey, key);
@@ -116,7 +117,7 @@ if (DEV) {
         THREE: -1,
     });
     if (_TestEnum.ZERO !== 0 || _TestEnum.ONE !== 1 || _TestEnum.THREE !== 3) {
-        legacyCC.errorID(7101);
+        errorID(7101);
     }
 }
 

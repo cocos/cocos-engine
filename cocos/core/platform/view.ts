@@ -36,6 +36,7 @@ import { Rect, Size, Vec2 } from '../math';
 import visibleRect from './visible-rect';
 import { EDITOR, MINIGAME, WECHAT, JSB } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { logID } from './debug';
 
 class BrowserGetter {
 
@@ -576,7 +577,7 @@ export class View extends EventTarget {
     public setDesignResolutionSize (width: number, height: number, resolutionPolicy: ResolutionPolicy|number) {
         // Defensive code
         if ( !(width > 0 || height > 0) ){
-            legacyCC.logID(2200);
+            logID(2200);
             return;
         }
 
@@ -599,7 +600,7 @@ export class View extends EventTarget {
         }
 
         if (!policy) {
-            legacyCC.logID(2201);
+            logID(2201);
             return;
         }
 

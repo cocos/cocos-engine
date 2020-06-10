@@ -31,7 +31,7 @@ import { Component } from '../components/component';
 import { ccclass, property } from '../data/class-decorator';
 import { CCObject } from '../data/object';
 import { Event } from '../event';
-import { errorID, warnID } from '../platform/debug';
+import { errorID, warnID, error, log, assertID } from '../platform/debug';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { ISchedulable } from '../scheduler';
 import IdGenerator from '../utils/id-generator';
@@ -229,7 +229,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             node._scene = node;
         } else {
             if (node._parent == null) {
-                legacyCC.error('Node %s(%s) has not attached to a scene.', node.name, node.uuid);
+                error('Node %s(%s) has not attached to a scene.', node.name, node.uuid);
             } else {
                 node._scene = node._parent._scene;
             }
@@ -464,7 +464,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      */
     public getChildByUuid (uuid: string) {
         if (!uuid) {
-            legacyCC.log('Invalid uuid');
+            log('Invalid uuid');
             return null;
         }
 
@@ -489,7 +489,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      */
     public getChildByName (name: string) {
         if (!name) {
-            legacyCC.log('Invalid name');
+            log('Invalid name');
             return null;
         }
 
@@ -537,8 +537,8 @@ export class BaseNode extends CCObject implements ISchedulable {
         if (DEV && !(child instanceof legacyCC._BaseNode)) {
             return errorID(1634, legacyCC.js.getClassName(child));
         }
-        legacyCC.assertID(child, 1606);
-        legacyCC.assertID((child as this)._parent === null, 1605);
+        assertID(child, 1606);
+        assertID((child as this)._parent === null, 1605);
 
         // invokes the parent setter
         (child as this).setParent(this);
@@ -911,7 +911,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     public addComponent (typeOrClassName: string | Function) {
         if (EDITOR && (this._objFlags & Destroying)) {
-            legacyCC.error('isDestroying');
+            error('isDestroying');
             return null;
         }
 

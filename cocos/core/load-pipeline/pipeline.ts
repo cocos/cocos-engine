@@ -32,6 +32,7 @@ import {createMap} from '../utils/js';
 import { LoadingItems, IItem } from './loading-items';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { warnID } from '../platform/debug';
 const ItemState = LoadingItems.ItemState;
 
 export interface IPipe {
@@ -175,12 +176,12 @@ export class Pipeline {
     insertPipe (pipe: IPipe, index: number) {
         // Must have handle and id, handle for flow, id for state flag
         if (!pipe.handle || !pipe.id || index > this._pipes.length) {
-            legacyCC.warnID(4921);
+            warnID(4921);
             return;
         }
 
         if (this._pipes.indexOf(pipe) > 0) {
-            legacyCC.warnID(4922);
+            warnID(4922);
             return;
         }
 

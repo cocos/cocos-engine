@@ -30,6 +30,7 @@
 
 import {createMap, getClassName, clear} from '../utils/js';
 import { legacyCC } from '../global-exports';
+import { log } from '../platform/debug';
 
 let _tmpInfo: any = null;
 
@@ -54,7 +55,7 @@ function getItemDesc (item) {
 function doCheckCouldRelease (releasedKey, refOwnerItem, caches) {
     var loadedAgain = caches[releasedKey];
     if (!loadedAgain) {
-        legacyCC.log(`"${releasedKey}" was released but maybe still referenced by ${getItemDesc(refOwnerItem)}`);
+        log(`"${releasedKey}" was released but maybe still referenced by ${getItemDesc(refOwnerItem)}`);
     }
 }
 

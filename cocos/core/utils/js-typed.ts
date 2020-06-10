@@ -1,8 +1,7 @@
-import { warnID } from '../platform/debug';
+import { warnID, error, errorID } from '../platform/debug';
 
 import IDGenerator from './id-generator';
 import { EDITOR, DEV, TEST } from 'internal:constants';
-import { legacyCC } from '../global-exports';
 const tempCIDGenerator = new IDGenerator('TmpCId.');
 
 /**
@@ -308,7 +307,7 @@ export function addon (object?: any, ...sources: any[]) {
     for (const source of sources) {
         if (source) {
             if (typeof source !== 'object') {
-                legacyCC.errorID(5402, source);
+                errorID(5402, source);
                 continue;
             }
             for (const name in source) {
@@ -330,7 +329,7 @@ export function mixin (object?: any, ...sources: any[]) {
     for (const source of sources) {
         if (source) {
             if (typeof source !== 'object') {
-                legacyCC.errorID(5403, source);
+                errorID(5403, source);
                 continue;
             }
             for (const name in source) {
@@ -351,15 +350,15 @@ export function mixin (object?: any, ...sources: any[]) {
 export function extend (cls: Function, base: Function) {
     if (DEV) {
         if (!base) {
-            legacyCC.errorID(5404);
+            errorID(5404);
             return;
         }
         if (!cls) {
-            legacyCC.errorID(5405);
+            errorID(5405);
             return;
         }
         if (Object.keys(cls.prototype).length > 0) {
-            legacyCC.errorID(5406);
+            errorID(5406);
         }
     }
     for (const p in base) { if (base.hasOwnProperty(p)) { cls[p] = base[p]; } }
@@ -449,13 +448,13 @@ export function _setClassId (id, constructor) {
     if (id) {
         const registered = table[id];
         if (registered && registered !== constructor) {
-            let error = 'A Class already exists with the same ' + key + ' : "' + id + '".';
+            let err = 'A Class already exists with the same ' + key + ' : "' + id + '".';
             if (TEST) {
-                error += ' (This may be caused by error of unit test.) \
+                err += ' (This may be caused by error of unit test.) \
 If you dont need serialization, you can set class id to "". You can also call \
 cc.js.unregisterClass to remove the id of unused class';
             }
-            legacyCC.error(error);
+            error(err);
         }
         else {
             table[id] = constructor;
@@ -478,13 +477,13 @@ function doSetClassName (id, constructor) {
     if (id) {
         const registered = table[id];
         if (registered && registered !== constructor) {
-            let error = 'A Class already exists with the same ' + key + ' : "' + id + '".';
+            let err = 'A Class already exists with the same ' + key + ' : "' + id + '".';
             if (TEST) {
-                error += ' (This may be caused by error of unit test.) \
+                err += ' (This may be caused by error of unit test.) \
 If you dont need serialization, you can set class id to "". You can also call \
 cc.js.unregisterClass to remove the id of unused class';
             }
-            legacyCC.error(error);
+            error(err);
         }
         else {
             table[id] = constructor;

@@ -33,6 +33,7 @@ import { array } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import { EDITOR, SUPPORT_JIT, DEV, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { error, assert } from '../platform/debug';
 const fastRemoveAt = array.fastRemoveAt;
 
 // @ts-ignore
@@ -114,7 +115,7 @@ export class LifeCycleInvoker {
         this._pos = new Iterator([]);
 
         if (TEST) {
-            legacyCC.assert(typeof invokeFunc === 'function', 'invokeFunc must be type function');
+            assert(typeof invokeFunc === 'function', 'invokeFunc must be type function');
         }
         this._invoke = invokeFunc;
     }
@@ -176,7 +177,7 @@ class ReusableInvoker extends LifeCycleInvoker {
                 array.splice(~i, 0, comp);
             }
             else if (DEV) {
-                legacyCC.error('component already added');
+                error('component already added');
             }
         }
     }

@@ -292,7 +292,7 @@ export function errorID (id: number, ...optionalParams: any[]) {
 }
 
 const assertFormatter = getTypedFormatter('Assert');
-export function assertID (condition: boolean, id: number, ...optionalParams: any[]) {
+export function assertID (condition: any, id: number, ...optionalParams: any[]) {
     if (condition) {
         return;
     }

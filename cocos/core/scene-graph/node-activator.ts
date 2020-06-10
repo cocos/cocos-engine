@@ -33,6 +33,7 @@ import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
 import { EDITOR, DEV, TEST, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { assert, errorID } from '../platform/debug';
 
 const MAX_POOL_SIZE = 4;
 
@@ -129,7 +130,7 @@ activateTasksPool.get = function getActivateTask () {
 
 function _componentCorrupted (node, comp, index) {
     if (DEV) {
-        legacyCC.errorID(3817, node.name, index);
+        errorID(3817, node.name, index);
         console.log('Corrupted component value:', comp);
     }
     if (comp) {
@@ -282,7 +283,7 @@ export default class NodeActivator {
             // zh:
             // 对相同节点而言，无法撤销反激活，防止反激活 - 激活 - 反激活的死循环发生。
             // 这样设计简化了一些引擎的实现，而且对调用者来说能保证反激活操作都能成功。
-            legacyCC.errorID(3816, node.name);
+            errorID(3816, node.name);
             return;
         }
 
@@ -316,9 +317,9 @@ export default class NodeActivator {
 
     protected _deactivateNodeRecursively (node) {
         if (DEV) {
-            legacyCC.assert(!(node._objFlags & Deactivating), 'node should not deactivating');
+            assert(!(node._objFlags & Deactivating), 'node should not deactivating');
             // ensures _activeInHierarchy is always changing when Deactivating flagged
-            legacyCC.assert(node._activeInHierarchy, 'node should not deactivated');
+            assert(node._activeInHierarchy, 'node should not deactivated');
         }
         node._objFlags |= Deactivating;
         node._activeInHierarchy = false;

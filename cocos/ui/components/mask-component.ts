@@ -31,7 +31,7 @@
 import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
-import { view } from '../../core/platform';
+import { view, warnID } from '../../core/platform';
 import visibleRect from '../../core/platform/visible-rect';
 import { UI } from '../../core/renderer/ui/ui';
 import { Node } from '../../core/scene-graph';
@@ -150,7 +150,7 @@ export class MaskComponent extends UIRenderComponent {
 
     set inverted (value) {
         if (legacyCC.game.renderType === Game.RENDER_TYPE_CANVAS) {
-            legacyCC.warnID(4202);
+            warnID(4202);
             return;
         }
 

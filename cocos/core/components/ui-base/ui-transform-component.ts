@@ -37,6 +37,7 @@ import { CanvasComponent } from './canvas-component';
 import { Node } from '../../scene-graph';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
+import { warnID } from '../../platform/debug';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -213,7 +214,7 @@ export class UITransformComponent extends Component {
         }
 
         if (this._canvas && this._canvas.node === this.node) {
-            legacyCC.warn(9200);
+            warnID(9200);
             return;
         }
 

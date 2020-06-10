@@ -29,6 +29,7 @@
 import { getClassName, getset } from './js';
 import { EDITOR, DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { warnID } from '../platform/debug';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
@@ -65,7 +66,7 @@ export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets) {
                 const clsName = (legacyCC.Class._isCCClass(ctor) && getClassName(ctor)) ||
                     ctor.name ||
                     '(anonymous class)';
-                legacyCC.warnID(5700, propName, getter, clsName);
+                warnID(5700, propName, getter, clsName);
             }
             else {
                 getset(np, propName, getterFunc, np[setter]);

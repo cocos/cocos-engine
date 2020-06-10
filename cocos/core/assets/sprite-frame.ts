@@ -40,6 +40,7 @@ import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { ImageAsset, ImageSource } from './image-asset';
 import { Texture2D } from './texture-2d';
+import { errorID } from '../platform/debug';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -683,12 +684,12 @@ export class SpriteFrame extends Asset {
         }
 
         if (maxX > texture.width) {
-            legacyCC.errorID(3300, this.name + '/' + texture.name, maxX, texture.width);
+            errorID(3300, this.name + '/' + texture.name, maxX, texture.width);
             return false;
         }
 
         if (maxY > texture.height) {
-            legacyCC.errorID(3301, this.name + '/' + texture.name, maxY, texture.height);
+            errorID(3301, this.name + '/' + texture.name, maxY, texture.height);
             return false;
         }
 

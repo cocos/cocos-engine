@@ -29,6 +29,7 @@
 
 import {safeMeasureText} from '../utils/text-utils';
 import { legacyCC } from '../global-exports';
+import { warnID } from '../platform/debug';
 
 interface IFontLoadHandle {
     fontFamilyName;
@@ -110,7 +111,7 @@ function nativeCheckFontLoaded (start, font, callback) {
         }
         callback(null, font);
     }, function () {
-        legacyCC.warnID(4933, font);
+        warnID(4933, font);
         callback(null, font);
     });
 }
@@ -124,7 +125,7 @@ function _checkFontLoaded () {
         let fontFamily = fontLoadHandle.fontFamilyName;
         // load timeout
         if (now - fontLoadHandle.startTime > _timeout) {
-            legacyCC.warnID(4933, fontFamily);
+            warnID(4933, fontFamily);
             fontLoadHandle.callback(null, fontFamily);
             _loadingFonts.splice(i, 1);
             continue;

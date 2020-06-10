@@ -326,7 +326,7 @@ const AssetLibrary = {
      */
     init (options) {
         if (EDITOR && _libraryBase) {
-            legacyCC.errorID(6402);
+            debug.errorID(6402);
             return;
         }
 
@@ -396,7 +396,7 @@ const AssetLibrary = {
                     const typeId = info[1];
                     const type = _getClassById(typeId);
                     if (!type) {
-                        legacyCC.error('Cannot get', typeId);
+                        debug.error('Cannot get', typeId);
                         continue;
                     }
                     // backward compatibility since 1.10

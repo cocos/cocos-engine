@@ -41,6 +41,7 @@ import * as RF from '../data/utils/requiring-frame';
 import { Node } from '../scene-graph';
 import { EDITOR, TEST, DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { errorID, warnID, assertID } from '../platform/debug';
 
 const idGenerator = new IDGenerator('Comp');
 // @ts-ignore
@@ -362,7 +363,7 @@ class Component extends CCObject {
             // @ts-ignore
             const depend = this.node._getDependComponent(this);
             if (depend) {
-                legacyCC.errorID(3626,
+                errorID(3626,
                     getClassName(this), getClassName(depend));
                 return false;
             }
@@ -432,8 +433,8 @@ class Component extends CCObject {
      * ```
      */
     public schedule (callback, interval: number = 0, repeat: number = legacyCC.macro.REPEAT_FOREVER, delay: number = 0) {
-        legacyCC.assertID(callback, 1619);
-        legacyCC.assertID(interval >= 0, 1620);
+        assertID(callback, 1619);
+        assertID(interval >= 0, 1620);
 
         interval = interval || 0;
         repeat = isNaN(repeat) ? legacyCC.macro.REPEAT_FOREVER : repeat;
@@ -739,7 +740,7 @@ value(Component, '_registerEditorProps', function (cls, props) {
                             cls._playOnFocus = true;
                         }
                         else {
-                            legacyCC.warnID(3601, name);
+                            warnID(3601, name);
                         }
                     }
                     break;
@@ -776,7 +777,7 @@ value(Component, '_registerEditorProps', function (cls, props) {
                     break;
 
                 default:
-                    legacyCC.warnID(3602, key, name);
+                    warnID(3602, key, name);
                     break;
             }
         }
