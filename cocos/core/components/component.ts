@@ -371,8 +371,9 @@ class Component extends CCObject {
             if (this._enabled && this.node.activeInHierarchy) {
                 legacyCC.director._compScheduler.disableComp(this);
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
     public _onPreDestroy () {
