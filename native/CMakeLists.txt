@@ -58,9 +58,8 @@ if(USE_SE_JSC)
 endif()
 
 
-## disable webview & videoplay on non-mobile platforms
+## disable videoplay on non-mobile platforms
 if(NOT ANDROID AND NOT IOS)
-    set(USE_WEBVIEW OFF)
     set(USE_VIDEOPLAYER OFF)
 endif()
 
@@ -745,13 +744,6 @@ if(USE_AUDIO)
     )
 endif()
 
-if(USE_WEBVIEW)
-    cocos_source_files(
-        cocos/scripting/js-bindings/auto/jsb_webview_auto.cpp
-        cocos/scripting/js-bindings/auto/jsb_webview_auto.hpp
-    )
-endif()
-
 if(USE_VIDEOPLAYER)
     cocos_source_files(
         cocos/scripting/js-bindings/auto/jsb_video_auto.cpp
@@ -951,15 +943,9 @@ if(USE_EDIT_BOX)
 endif()
 
 if(ANDROID OR IOS) 
-    if(USE_WEBVIEW)
-        cocos_source_files(
-            cocos/ui/videoplayer/VideoPlayer.h
-        )
-    endif()
     if(USE_VIDEOPLAYER)
         cocos_source_files(
-            cocos/ui/webview/WebView-inl.h
-            cocos/ui/webview/WebView.h
+            cocos/ui/videoplayer/VideoPlayer.h
         )
     endif()
 endif()
@@ -973,12 +959,6 @@ if(ANDROID)
     if(USE_VIDEOPLAYER)
         cocos_source_files(
             cocos/ui/videoplayer/VideoPlayer-android.cpp
-        )
-    endif()
-    if(USE_WEBVIEW)
-        cocos_source_files(
-            cocos/ui/webview/WebViewImpl-android.cpp
-            cocos/ui/webview/WebViewImpl-android.h
         )
     endif()
 elseif(MACOSX)
@@ -996,12 +976,6 @@ elseif(IOS)
     if(USE_VIDEOPLAYER)
         cocos_source_files(
             cocos/ui/videoplayer/VideoPlayer-ios.mm
-        )
-    endif()
-    if(USE_WEBVIEW)
-        cocos_source_files(
-            cocos/ui/webview/WebViewImpl-ios.h
-            cocos/ui/webview/WebViewImpl-ios.mm
         )
     endif()
 elseif(WIN32)
@@ -1035,7 +1009,6 @@ add_library(cocos2d ${COCOS2D_SOURCE_LIST})
 # setup default flags
 target_compile_definitions(cocos2d PUBLIC 
     $<$<NOT:$<BOOL:${USE_VIDEO}>>:USE_VIDEO=0>
-    $<$<NOT:$<BOOL:${USE_WEBVIEW}>>:USE_WEB_VIEW=0>
     $<$<NOT:$<BOOL:${USE_AUDIO}>>:USE_AUDIO=0>
     $<$<NOT:$<BOOL:${USE_SOCKET}>>:USE_SOCKET=0>
     $<$<NOT:$<BOOL:${USE_EDIT_BOX}>>:CC_USE_EDITBOX=0>

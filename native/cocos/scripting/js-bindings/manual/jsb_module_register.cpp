@@ -67,10 +67,6 @@
 #include "cocos/scripting/js-bindings/auto/jsb_video_auto.hpp"
 #endif
 
-#if USE_WEB_VIEW
-#include "cocos/scripting/js-bindings/auto/jsb_webview_auto.hpp"
-#endif
-
 #endif // (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
 using namespace cocos2d;
@@ -124,10 +120,6 @@ bool jsb_register_all_modules()
 
 #if USE_VIDEO
 //    se->addRegisterCallback(register_all_video);
-#endif
-
-#if USE_WEB_VIEW
-//    se->addRegisterCallback(register_all_webview);
 #endif
 
 #endif // (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
