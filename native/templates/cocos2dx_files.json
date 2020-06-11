@@ -1398,6 +1398,7 @@
         "external/android/x86/v8/libv8_monolith.a", 
         "external/cmake/CocosExternalConfig.cmake", 
         "external/cmake/scripts/sync_folder.py", 
+        "external/config.json", 
         "external/ios/CMakeLists.txt", 
         "external/ios/include/freetype/config/ftconfig.h", 
         "external/ios/include/freetype/config/ftheader.h", 
@@ -2994,7 +2995,8 @@
         "external/win32/libs/websockets.lib", 
         "external/win32/libs/zlib.dll", 
         "external/win32/libs/zlib.dll.lib", 
-        "external/win32/libs/zlib1.dll"
+        "external/win32/libs/zlib1.dll", 
+        "package-lock.json"
     ], 
     "js": [
         "cocos/scripting/js-bindings/auto/api/jsb_cocos2dx_audioengine_auto_api.js", 
