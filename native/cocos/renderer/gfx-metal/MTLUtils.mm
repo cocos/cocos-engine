@@ -1210,6 +1210,43 @@ bool isIndirectCommandBufferSupported(MTLFeatureSet featureSet) {
 #endif
     return false;
 }
+bool isDepthStencilFormatSupported(GFXFormat format, uint family) {
+    GPUFamily gpuFamily = static_cast<GPUFamily>(family);
+    switch(format) {
+        case GFXFormat::D16:
+            switch (gpuFamily) {
+            case GPUFamily::Apple1:
+            case GPUFamily::Apple2:
+            case GPUFamily::Apple3:
+            case GPUFamily::Apple4:
+            case GPUFamily::Apple5:
+            case GPUFamily::Apple6:
+            case GPUFamily::Mac1:
+            case GPUFamily::Mac2:
+                return true;
+            default:
+                return false;
+            }
+        case GFXFormat::D32F:
+        case GFXFormat::D32F_S8:
+            switch (gpuFamily) {
+                case GPUFamily::Apple1:
+                case GPUFamily::Apple2:
+                case GPUFamily::Apple3:
+                case GPUFamily::Apple4:
+                case GPUFamily::Apple5:
+                case GPUFamily::Apple6:
+                    return false;
+                case GPUFamily::Mac1:
+                case GPUFamily::Mac2:
+                    return true;
+                default:
+                    return false;
+                }
+        default:
+            return false;
+    }
+}
 
 String featureSetToString(MTLFeatureSet featureSet) {
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS

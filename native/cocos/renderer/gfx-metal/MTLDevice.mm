@@ -99,6 +99,15 @@ bool CCMTLDevice::initialize(const GFXDeviceInfo &info) {
     _features[(int)GFXFeature::FORMAT_R11G11B10F] = true;
     _features[(int)GFXFeature::MSAA] = true;
     _features[(int)GFXFeature::INSTANCED_ARRAYS] = true;
+    _features[static_cast<uint>(GFXFeature::DEPTH_BOUNDS)] = false;
+    _features[static_cast<uint>(GFXFeature::LINE_WIDTH)] = false;
+    _features[static_cast<uint>(GFXFeature::STENCIL_COMPARE_MASK)] = false;
+    _features[static_cast<uint>(GFXFeature::STENCIL_WRITE_MASK)] = false;
+    _features[static_cast<uint>(GFXFeature::FORMAT_RGB8)] = false;
+    _features[static_cast<uint>(GFXFeature::FORMAT_D16)] = mu::isDepthStencilFormatSupported(GFXFormat::D16, gpuFamily);
+    _features[static_cast<uint>(GFXFeature::FORMAT_D16S8)] = mu::isDepthStencilFormatSupported(GFXFormat::D16S8, gpuFamily);
+    _features[static_cast<uint>(GFXFeature::FORMAT_D32F)] = mu::isDepthStencilFormatSupported(GFXFormat::D32F, gpuFamily);
+    _features[static_cast<uint>(GFXFeature::FORMAT_D32FS8)] = mu::isDepthStencilFormatSupported(GFXFormat::D32F_S8, gpuFamily);
     
     CC_LOG_INFO("Metal Feature Set: %s", mu::featureSetToString(MTLFeatureSet(_mtlFeatureSet)).c_str());
     

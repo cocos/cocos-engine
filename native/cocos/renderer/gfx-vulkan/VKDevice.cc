@@ -293,6 +293,17 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
         _features[(int)GFXFeature::FORMAT_ASTC] = true;
         compressedFmts += "astc ";
     }
+    _features[static_cast<uint>(GFXFeature::DEPTH_BOUNDS)] = deviceFeatures.depthBounds;
+    _features[static_cast<uint>(GFXFeature::LINE_WIDTH)] = true;
+    _features[static_cast<uint>(GFXFeature::STENCIL_COMPARE_MASK)] = true;
+    _features[static_cast<uint>(GFXFeature::STENCIL_WRITE_MASK)] = true;
+    _features[static_cast<uint>(GFXFeature::FORMAT_RGB8)] = findSupportedFormat({ GFXFormat::RGB8, VK_FORMAT_R8G8B8_UNORM }, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT, gpuContext->physicalDevice);
+    _features[static_cast<uint>(GFXFeature::FORMAT_D16)] = findSupportedFormat({ GFXFormat::D16, VK_FORMAT_D16_UNORM }, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, gpuContext->physicalDevice);
+    _features[static_cast<uint>(GFXFeature::FORMAT_D16S8)] = findSupportedFormat({ GFXFormat::D16S8, VK_FORMAT_D16_UNORM_S8_UINT }, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, gpuContext->physicalDevice);
+    _features[static_cast<uint>(GFXFeature::FORMAT_D24)] = false;
+    _features[static_cast<uint>(GFXFeature::FORMAT_D24S8)] = findSupportedFormat({ GFXFormat::D24S8, VK_FORMAT_D24_UNORM_S8_UINT }, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, gpuContext->physicalDevice);
+    _features[static_cast<uint>(GFXFeature::FORMAT_D32F)] = findSupportedFormat({ GFXFormat::D32F, VK_FORMAT_D32_SFLOAT }, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, gpuContext->physicalDevice);
+    _features[static_cast<uint>(GFXFeature::FORMAT_D32FS8)] = findSupportedFormat({ GFXFormat::D32F_S8, VK_FORMAT_D32_SFLOAT_S8_UINT }, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, gpuContext->physicalDevice);
 
     uint32_t apiVersion = gpuContext->physicalDeviceProperties.apiVersion;
     _renderer = gpuContext->physicalDeviceProperties.deviceName;

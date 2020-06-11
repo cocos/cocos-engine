@@ -1,12 +1,13 @@
 #pragma once
 
-#include <unordered_map>
-#import <Metal/MTLRenderPass.h>
-#import <Metal/MTLVertexDescriptor.h>
-#import <Metal/MTLRenderPipeline.h>
 #import <Metal/MTLDepthStencil.h>
-#import <Metal/MTLTexture.h>
+#import <Metal/MTLRenderPass.h>
+#import <Metal/MTLRenderPipeline.h>
 #import <Metal/MTLSampler.h>
+#import <Metal/MTLTexture.h>
+#import <Metal/MTLVertexDescriptor.h>
+#include <unordered_map>
+
 
 NS_CC_BEGIN
 
@@ -58,6 +59,7 @@ bool isColorBufferFloatSupported(uint family);
 bool isColorBufferHalfFloatSupported(uint family);
 bool isLinearTextureSupported(uint family);
 bool isIndirectCommandBufferSupported(MTLFeatureSet featureSet);
+bool isDepthStencilFormatSupported(GFXFormat format, uint family);
 String featureSetToString(MTLFeatureSet featureSet);
 } // namespace mu
 

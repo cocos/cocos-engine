@@ -599,6 +599,18 @@ bool isExtensionSupported(const char *required, const std::vector<VkExtensionPro
     }
     return false;
 }
+
+bool findSupportedFormat(std::pair<GFXFormat, VkFormat> format, VkImageTiling tiling, VkFormatFeatureFlags features, VkPhysicalDevice physicalDevice) {
+    VkFormatProperties properties;
+    vkGetPhysicalDeviceFormatProperties(physicalDevice, format.second, &properties);
+
+    if ((tiling == VK_IMAGE_TILING_OPTIMAL) && (properties.optimalTilingFeatures & features) == features)
+        return true;
+    else if ((tiling == VK_IMAGE_TILING_LINEAR) && (properties.linearTilingFeatures & features) == features)
+        return true;
+    else
+        return false;
+}
 } // namespace
 
 NS_CC_END
