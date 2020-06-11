@@ -545,7 +545,6 @@ cc.Director.prototype = {
                 }
                 else {
                     self.runSceneImmediate(scene, _onUnloaded, onLaunched);
-                    return;
                 }
             });
             return true;
