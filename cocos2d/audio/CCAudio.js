@@ -129,7 +129,13 @@ Audio.State = {
             self._state = Audio.State.PLAYING;
             // TODO: move to audio event listeners
             self._bindEnded();
-            self._element.play();
+            let playPromise = self._element.play();
+            // dom audio throws an error if pause audio immediately after playing
+            if (window.Promise && playPromise instanceof Promise) {
+                playPromise.catch(function (err) {
+                    // do nothing
+                });
+            }
             self._touchToPlay();
         });
     };
@@ -402,9 +408,15 @@ let WebAudioElement = function (buffer, audio) {
                 }
             }, 10);
         }
-        // HACK: fix mobile safari can't play
-        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_SAFARI && cc.sys.isMobile) {
-            if (audio.context.state === 'interrupted') {
+        
+        let sys = cc.sys;
+        if (sys.os === sys.OS_IOS && sys.isBrowser && sys.isMobile) {
+            // Audio context is suspended when you unplug the earphones,
+            // and is interrupted when the app enters background.
+            // Both make the audioBufferSource unplayable.
+            if ((audio.context.state === "suspended" && this._context.currentTime !== 0)
+                || audio.context.state === 'interrupted') {
+                // reference: https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/resume
                 audio.context.resume();
             }
         }
@@ -521,4 +533,4 @@ let WebAudioElement = function (buffer, audio) {
 
 })(WebAudioElement.prototype);
 
-module.exports = cc.Audio = Audio;
+module.exports = cc._Audio = Audio;

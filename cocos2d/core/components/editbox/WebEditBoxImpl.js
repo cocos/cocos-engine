@@ -637,6 +637,11 @@ Object.assign(WebEditBoxImpl.prototype, {
             if (inputLock) {
                 return;
             }
+            // input of number type doesn't support maxLength attribute
+            let maxLength = impl._delegate.maxLength;
+            if (maxLength >= 0) {
+                elem.value = elem.value.slice(0, maxLength);
+            }
             impl._delegate.editBoxTextChanged(elem.value);
         };
         

@@ -545,7 +545,6 @@ cc.Director.prototype = {
                 }
                 else {
                     self.runSceneImmediate(scene, _onUnloaded, onLaunched);
-                    return;
                 }
             });
             return true;
@@ -580,7 +579,7 @@ cc.Director.prototype = {
             return bundle.getSceneInfo(sceneName);
         });
         if (bundle) {
-            return bundle.preloadScene(sceneName, null, onProgress, onLoaded);
+            bundle.preloadScene(sceneName, null, onProgress, onLoaded);
         }
         else {
             cc.errorID(1209, sceneName);

@@ -310,16 +310,14 @@ Bundle.prototype = {
      * 加载目标文件夹中的所有资源, 注意：路径中只能使用斜杠，反斜杠将停止工作
      *
      * @method loadDir
-     * @param {string} dir - path of the target folder.
-     *                       The path is relative to the bundle folder, extensions must be omitted.
+     * @param {string} dir - path of the target folder.The path is relative to the bundle folder, extensions must be omitted.
      * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
      * @param {Function} [onProgress] - Callback invoked when progression change.
      * @param {Number} onProgress.finish - The number of the items that are already completed.
      * @param {Number} onProgress.total - The total number of the items.
      * @param {Object} onProgress.item - The latest request item
      * @param {Function} [onComplete] - A callback which is called when all assets have been loaded, or an error occurs.
-     * @param {Error} onComplete.error - If one of the asset failed, the complete callback is immediately called
-     *                                         with the error. If all assets are loaded successfully, error will be null.
+     * @param {Error} onComplete.error - If one of the asset failed, the complete callback is immediately called with the error. If all assets are loaded successfully, error will be null.
      * @param {Asset[]|Asset} onComplete.assets - An array of all loaded assets.
      * 
      * @example
@@ -359,16 +357,14 @@ Bundle.prototype = {
      * 就算预加载还没完成，你也可以直接调用 `Bundle.loadDir`。
      *
      * @method preloadDir
-     * @param {string} dir - path of the target folder.
-     *                       The path is relative to the bundle folder, extensions must be omitted.
+     * @param {string} dir - path of the target folder.The path is relative to the bundle folder, extensions must be omitted.
      * @param {Function} [type] - Only asset of type will be preloaded if this argument is supplied.
      * @param {Function} [onProgress] - Callback invoked when progression change.
      * @param {Number} onProgress.finish - The number of the items that are already completed.
      * @param {Number} onProgress.total - The total number of the items.
      * @param {Object} onProgress.item - The latest request item
      * @param {Function} [onComplete] - A callback which is called when all assets have been loaded, or an error occurs.
-     * @param {Error} onComplete.error - If one of the asset failed, the complete callback is immediately called
-     *                                         with the error. If all assets are preloaded successfully, error will be null.
+     * @param {Error} onComplete.error - If one of the asset failed, the complete callback is immediately called with the error. If all assets are preloaded successfully, error will be null.
      * @param {RequestItem[]} onComplete.items - An array of all preloaded items.
      * 
      * @example
@@ -431,7 +427,7 @@ Bundle.prototype = {
     
         options.preset = options.preset || 'scene';
         options.bundle = this.name;
-        return cc.assetManager.loadAny({ 'scene': sceneName }, options, onProgress, function (err, sceneAsset) {
+        cc.assetManager.loadAny({ 'scene': sceneName }, options, onProgress, function (err, sceneAsset) {
             if (err) {
                 cc.error(err.message, err.stack);
                 onComplete && onComplete(err);

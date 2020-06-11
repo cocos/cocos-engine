@@ -104,10 +104,10 @@ function AssetManager () {
 
     /**
      * !#en 
-     * The collection of bundle which is already loaded, you can remove cache with {{#crossLink "Bundle/destroy:method"}}{{/crossLink}}
+     * The collection of bundle which is already loaded, you can remove cache with {{#crossLink "AssetManager/removeBundle:method"}}{{/crossLink}}
      * 
      * !#zh
-     * 已加载 bundle 的集合， 你能通过 {{#crossLink "Bundle/destroy:method"}}{{/crossLink}} 来移除缓存
+     * 已加载 bundle 的集合， 你能通过 {{#crossLink "AssetManager/removeBundle:method"}}{{/crossLink}} 来移除缓存
      * 
      * @property bundles
      * @type {Cache}
@@ -246,7 +246,9 @@ function AssetManager () {
      * 可选参数的预设集
      * 
      * @property presets
-     * @type {Record<string, Record<string, any>>}
+     * @type {Object}
+     * @typescript
+     * presets: Record<string, Record<string, any>>
      */
     this.presets = {
         'default': {
@@ -411,23 +413,23 @@ AssetManager.prototype = {
     /**
      * !#en
      * General interface used to load assets with a progression callback and a complete callback. You can achieve almost all effect you want with combination of `requests` and `options`.
-     * It is highly recommended that you use more simple API, such as `loadRes`, `loadResDir` etc. Every custom parameter in `options` will be distribute to each of `requests`. 
+     * It is highly recommended that you use more simple API, such as `load`, `loadDir` etc. Every custom parameter in `options` will be distribute to each of `requests`. 
      * if request already has same one, the parameter in request will be given priority. Besides, if request has dependencies, `options` will distribute to dependencies too.
      * Every custom parameter in `requests` will be tranfered to handler of `downloader` and `parser` as `options`. 
      * You can register you own handler downloader or parser to collect these custom parameters for some effect.
      * 
-     * Reserved Keyword: [`uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`, `bundle`, `onFileProgress`, `maxConcurrency`, `maxRequestsPerFrame`
-     * `maxRetryCount`, `version`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload`, `cacheAsset`, `cacheEnabled`],
+     * Reserved Keyword: `uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`, `bundle`, `onFileProgress`, `maxConcurrency`, `maxRequestsPerFrame`
+     * `maxRetryCount`, `version`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload`, `cacheAsset`, `cacheEnabled`,
      * Please DO NOT use these words as custom options!
      * 
      * !#zh
-     * 通用加载资源接口，可传入进度回调以及完成回调，通过组合 `request` 和 `options` 参数，几乎可以实现和扩展所有想要的加载效果。非常建议你使用更简单的API，例如 `loadRes`、`loadResDir` 等。
+     * 通用加载资源接口，可传入进度回调以及完成回调，通过组合 `request` 和 `options` 参数，几乎可以实现和扩展所有想要的加载效果。非常建议你使用更简单的API，例如 `load`、`loadDir` 等。
      * `options` 中的自定义参数将会分发到 `requests` 的每一项中，如果request中已存在同名的参数则以 `requests` 中为准，同时如果有其他
      * 依赖资源，则 `options` 中的参数会继续向依赖项中分发。request中的自定义参数都会以 `options` 形式传入加载流程中的 `downloader`, `parser` 的方法中, 你可以
      * 扩展 `downloader`, `parser` 收集参数完成想实现的效果。
      * 
-     * 保留关键字: [`uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`, `bundle`, `onFileProgress`, `maxConcurrency`, `maxRequestsPerFrame`
-     * `maxRetryCount`, `version`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload`, `cacheAsset`, `cacheEnabled`],
+     * 保留关键字: `uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`, `bundle`, `onFileProgress`, `maxConcurrency`, `maxRequestsPerFrame`
+     * `maxRetryCount`, `version`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload`, `cacheAsset`, `cacheEnabled`,
      * 请不要使用这些字段为自定义参数!
      * 
      * @method loadAny
@@ -534,7 +536,7 @@ AssetManager.prototype = {
         if (!(asset instanceof cc.Asset)) throw new Error('input is not asset');
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
 
-        if (asset.loaded || !asset._native || asset._nativeAsset) {
+        if (!asset._native || asset._nativeAsset) {
             return asyncify(onComplete)(null);
         }
 
@@ -636,7 +638,7 @@ AssetManager.prototype = {
      * 加载资源包
      * 
      * @method loadBundle
-     * @param {string} root - The root path of bundle
+     * @param {string} nameOrUrl - The name or root path of bundle
      * @param {Object} [options] - Some optional paramter, same like downloader.downloadFile
      * @param {string} [options.version] - The version of this bundle, you can check config.json in this bundle
      * @param {Function} [onComplete] - Callback when bundle loaded or failed
@@ -647,17 +649,13 @@ AssetManager.prototype = {
      * loadBundle('http://localhost:8080/test', null, (err, bundle) => console.log(err));
      * 
      * @typescript
-     * loadBundle(root: string, options?: Record<string, any>, onComplete?: (err: Error, bundle: cc.AssetManager.Bundle) => void): void
-     * loadBundle(root: string, onComplete?: (err: Error, bundle: cc.AssetManager.Bundle) => void): void
+     * loadBundle(nameOrUrl: string, options?: Record<string, any>, onComplete?: (err: Error, bundle: cc.AssetManager.Bundle) => void): void
+     * loadBundle(nameOrUrl: string, onComplete?: (err: Error, bundle: cc.AssetManager.Bundle) => void): void
      */
-    loadBundle (root, options, onComplete) {
-        if (!root) return;
-
+    loadBundle (nameOrUrl, options, onComplete) {
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
 
-        if (root.endsWith('/')) root = root.substr(0, root.length - 1);
-
-        let bundleName = cc.path.basename(root);
+        let bundleName = cc.path.basename(nameOrUrl);
 
         if (this.bundles.has(bundleName)) {
             return asyncify(onComplete)(null, this.getBundle(bundleName));
@@ -665,7 +663,7 @@ AssetManager.prototype = {
 
         options.preset = options.preset || 'bundle';
         options.ext = 'bundle';
-        this.loadRemote(root, options, onComplete);
+        this.loadRemote(nameOrUrl, options, onComplete);
     },
 
     /**
@@ -766,6 +764,12 @@ cc.assetManager = new AssetManager();
 
 Object.defineProperty(cc, 'resources', {
     /**
+     * !#en
+     * cc.resources is a bundle and controls all asset under assets/resources
+     * 
+     * !#zh
+     * cc.resources 是一个 bundle，用于管理所有在 assets/resources 下的资源
+     * 
      * @property resources
      * @readonly
      * @type {AssetManager.Bundle}

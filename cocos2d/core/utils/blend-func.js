@@ -31,6 +31,7 @@ let BlendFunc = cc.Class({
                 if (this._srcBlendFactor === value) return;
                 this._srcBlendFactor = value;
                 this._updateBlendFunc(true);
+                this._onBlendChanged && this._onBlendChanged();
             },
             animatable: false,
             type: BlendFactor,

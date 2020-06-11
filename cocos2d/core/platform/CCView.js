@@ -465,7 +465,7 @@ cc.js.mixin(View.prototype, {
         if(cc.game.renderType === cc.game.RENDER_TYPE_WEBGL) {
             var cache = cc.assetManager.assets;
             cache.forEach(function (asset) {
-                if (asset instanceof cc.Texture2Dx) {
+                if (asset instanceof cc.Texture2D) {
                     var Filter = cc.Texture2D.Filter;
                     if (enabled) {
                         asset.setFilters(Filter.LINEAR, Filter.LINEAR);
@@ -707,7 +707,7 @@ cc.js.mixin(View.prototype, {
     setDesignResolutionSize: function (width, height, resolutionPolicy) {
         // Defensive code
         if( !(width > 0 || height > 0) ){
-            cc.logID(2200);
+            cc.errorID(2200);
             return;
         }
 

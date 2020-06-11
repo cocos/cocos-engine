@@ -40,6 +40,11 @@ let canvasPool = {
                 canvas: canvas,
                 context: context
             }
+
+            // default text info
+            context.textBaseline = 'alphabetic';
+            // use round for line join to avoid sharp intersect point
+            context.lineJoin = 'round';
         }
 
         return data;

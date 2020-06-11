@@ -34,6 +34,11 @@ import TTF3D from './3d/ttf';
 import Bmfont3D from './3d/bmfont';
 import Letter3D from './3d/letter';
 
+let NativeTTF = undefined;
+if(CC_JSB) {
+    NativeTTF = require("./2d/nativeTTF");
+}
+
 Label._canvasPool = {
     pool: [],
     get () {
@@ -46,6 +51,11 @@ Label._canvasPool = {
                 canvas: canvas,
                 context: context
             }
+
+            // default text info
+            context.textBaseline = 'alphabetic';
+            // use round for line join to avoid sharp intersect point
+            context.lineJoin = 'round';
         }
 
         return data;
@@ -66,7 +76,10 @@ Assembler.register(cc.Label, {
         if (label.font instanceof cc.BitmapFont) {
             ctor = is3DNode ? Bmfont3D : Bmfont;
         } else if (label.cacheMode === Label.CacheMode.CHAR) {
-            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+
+            if(CC_JSB && !is3DNode && !!jsb.LabelRenderer && label.font instanceof cc.TTFFont){
+                ctor = NativeTTF;
+            } else if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
                 cc.warn('sorry, subdomain does not support CHAR mode currently!');
             } else {
                 ctor = is3DNode ? Letter3D : Letter;
@@ -82,5 +95,6 @@ Assembler.register(cc.Label, {
 
     TTF3D,
     Bmfont3D,
-    Letter3D
+    Letter3D,
+    NativeTTF
 });

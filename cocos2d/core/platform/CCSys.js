@@ -693,7 +693,7 @@ function initSys () {
             height: 0
         };
         sys.capabilities = {
-            'imageBitmap': typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined'
+            'imageBitmap': false
         };
         sys.__audioSupport = {};
     }
@@ -766,7 +766,7 @@ function initSys () {
             capabilities["touches"] = false;
         }
 
-        capabilities['imageBitmap'] = typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined';
+        capabilities['imageBitmap'] = false;
 
         sys.__audioSupport = {
             ONLY_ONE: false,
@@ -992,8 +992,16 @@ function initSys () {
             "canvas": _supportCanvas,
             "opengl": _supportWebGL,
             "webp": _supportWebp,
-            'imageBitmap': typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined',
+            'imageBitmap': false,
         };
+
+        if (typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined') {
+            _tmpCanvas1.width = _tmpCanvas1.height = 2;
+            createImageBitmap(_tmpCanvas1, {}).then(imageBitmap => {
+                capabilities.imageBitmap = true;
+                imageBitmap.close && imageBitmap.close();
+            }).catch(err => {});
+        }
         if (docEle['ontouchstart'] !== undefined || doc['ontouchstart'] !== undefined || nav.msPointerEnabled)
             capabilities["touches"] = true;
         if (docEle['onmouseup'] !== undefined)

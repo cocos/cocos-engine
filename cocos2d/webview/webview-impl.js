@@ -122,7 +122,6 @@ let WebViewImpl = cc.Class({
         if (WebViewImpl._polyfill.enableBG)
             this._div.style["background"] = "#FFF";
 
-        this._div.style["background"] = "#FFF";
         this._div.style.height = h + "px";
         this._div.style.width = w + "px";
         this._div.style.overflow = "scroll";
