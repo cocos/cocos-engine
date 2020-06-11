@@ -218,8 +218,6 @@ cocos_source_files(
     cocos/base/CCRef.cpp
     cocos/base/CCRef.h
     cocos/base/CCRefPtr.h
-    #cocos/base/CCRenderTexture.cpp
-    #cocos/base/CCRenderTexture.h
     cocos/base/CCScheduler.cpp
     cocos/base/CCScheduler.h
     cocos/base/CCThreadPool.cpp
