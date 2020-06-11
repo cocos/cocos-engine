@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 const Widget = require('./CCWidget');
-
+const WidgetManager = require('../base-ui/CCWidgetManager');
 /**
  * !#en
  * This component is used to adjust the layout of current node to respect the safe area of a notched mobile device such as the iPhone X.
@@ -104,7 +104,7 @@ var SafeArea = cc.Class({
         let anchorY = lastAnchorPoint.y - (curPos.y - lastPos.y) / this.node.height;
         this.node.setAnchorPoint(anchorX, anchorY);
         // IMPORTANT: restore to lastPos even if widget is not ALWAYS
-        widget.enabled = true;
+        WidgetManager.add(widget);
     }
 });
 

@@ -236,6 +236,7 @@ let Material = cc.Class({
      * @method getProperty
      * @param {string} name 
      * @param {number} passIdx 
+     * @return {Object}
      */
     getProperty (name, passIdx) {
         if (typeof passIdx === 'string') {
