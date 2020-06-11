@@ -86,7 +86,7 @@ module.exports = function createBundler(entryFiles, options) {
             require('@babel/preset-env'),
             {
                 "loose": true,
-                "bugfixes": true,
+                // "bugfixes": true, since babel 7.9
             }
         ],
         require('@babel/preset-typescript'),

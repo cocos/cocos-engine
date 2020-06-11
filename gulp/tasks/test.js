@@ -80,7 +80,7 @@ exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFi
                         require('@babel/preset-env'),
                         {
                             loose: true,
-                            bugfixes: true,
+                            // bugfixes: true, since babel 7.9
                             targets: 'PhantomJS 2.1',
                         }
                     ],
@@ -139,7 +139,7 @@ exports.buildTestCase = function (outDir, callback) {
                     require('@babel/preset-env'),
                     {
                         "loose": true,
-                        "bugfixes": true,
+                        // "bugfixes": true, since babel 7.9
                         "targets": "PhantomJS 2.1"
                     }
                 ]
