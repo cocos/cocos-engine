@@ -674,10 +674,11 @@ function initSys () {
 
     /**
      * !#en
-     * Return the safe area rect. <br/>
-     * only available on the iOS native platform, otherwise it will return a rect with design resolution size.
+     * Returns the safe area of the phone screen that will default to the design resolution size if it is not a shaped screen.
+     * Only supported on Android, iOS and WeChat Mini Game platform
      * !#zh
-     * 返回手机屏幕安全区域，目前仅在 iOS 原生平台有效。其它平台将默认返回设计分辨率尺寸。
+     * 返回手机屏幕安全区域，如果不是异形屏将默认返回设计分辨率尺寸。
+     * 目前只支持安卓、iOS 原生平台和微信小游戏平台
      * @method getSafeAreaRect
      * @return {Rect}
     */
