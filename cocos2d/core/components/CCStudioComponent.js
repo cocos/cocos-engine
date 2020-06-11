@@ -288,6 +288,7 @@ var StudioComponent = cc.Class({
     },
 });
 
+// TODO: nest by the built-in manner
 var PrefabHelper = require('../utils/prefab-helper');
 StudioComponent.PlaceHolder = cc.Class({
     name: 'cc.StudioComponent.PlaceHolder',

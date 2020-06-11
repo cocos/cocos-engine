@@ -1920,7 +1920,7 @@ let NodeDefines = {
         this._cullingMask = 1 << _getActualGroupIndex(this);
         if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy && this._proxy.updateCullingMask();
-        };
+        }
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default

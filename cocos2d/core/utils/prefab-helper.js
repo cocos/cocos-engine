@@ -28,14 +28,15 @@ cc._PrefabInfo = cc.Class({
     name: 'cc.PrefabInfo',
     // extends: require('../platform/CCObject'),
     properties: {
-        // the most top node of this prefab in the scene
+        // the most top node of this prefab
         root: null,
 
         // 所属的 prefab 资源对象 (cc.Prefab)
         // In Editor, only asset._uuid is usable because asset will be changed.
         asset: null,
 
-        // 用来标识别该节点在 prefab 资源中的位置，因此这个 ID 只需要保证在 Assets 里不重复就行
+        // To identify the node in the prefab asset, so only needs to be unique.
+        // Not available in the root node.
         fileId: '',
 
         // Indicates whether this node should always synchronize with the prefab asset, only available in the root node

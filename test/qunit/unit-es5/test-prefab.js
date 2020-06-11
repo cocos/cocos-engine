@@ -189,7 +189,7 @@
         testNode.insertChild(newNode2, 0);
 
         var PrefabUtils = Editor.require('scene://utils/prefab');
-        PrefabUtils.revertPrefab(testNode, function () {
+        PrefabUtils.revertPrefab(testNode, PrefabUtils.Deep.None, function () {
             cc.assetManager.pipeline.remove(1);
             ok(testNode.x != prefab.data.x, 'Should not revert root position');
             ok(testNode.scaleX === 123 && testNode.scaleY === 432, 'Revert property of the parent node');

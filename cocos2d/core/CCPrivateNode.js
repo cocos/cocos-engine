@@ -92,7 +92,6 @@ let PrivateNode = cc.Class({
                 return cc.macro.MIN_ZINDEX;
             },
             set () {
-                cc.warnID(1638);
             },
             override: true
         },
