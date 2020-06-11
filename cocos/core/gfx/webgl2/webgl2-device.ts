@@ -257,6 +257,16 @@ export class WebGL2GFXDevice extends GFXDevice {
         this._features[GFXFeature.MSAA] = true;
         this._features[GFXFeature.ELEMENT_INDEX_UINT] = true;
         this._features[GFXFeature.INSTANCED_ARRAYS] = true;
+        this._features[GFXFeature.MSAA] = false;
+        this._features[GFXFeature.DEPTH_BOUNDS] = true;
+        this._features[GFXFeature.LINE_WIDTH] = true;
+        this._features[GFXFeature.STENCIL_COMPARE_MASK] = true;
+        this._features[GFXFeature.STENCIL_WRITE_MASK] = true;
+        this._features[GFXFeature.FORMAT_RGB8] = true;
+        this._features[GFXFeature.FORMAT_D16] = true;
+        this._features[GFXFeature.FORMAT_D24S8] = true;
+        this._features[GFXFeature.FORMAT_D32F] = true;
+        this._features[GFXFeature.FORMAT_D32FS8] = true;
 
         if (this._EXT_color_buffer_float) {
             this._features[GFXFeature.COLOR_FLOAT] = true;

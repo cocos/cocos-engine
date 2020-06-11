@@ -396,6 +396,13 @@ export class WebGLGFXDevice extends GFXDevice {
         }
 
         this._features[GFXFeature.MSAA] = false;
+        this._features[GFXFeature.DEPTH_BOUNDS] = true;
+        this._features[GFXFeature.LINE_WIDTH] = true;
+        this._features[GFXFeature.STENCIL_COMPARE_MASK] = true;
+        this._features[GFXFeature.STENCIL_WRITE_MASK] = true;
+        this._features[GFXFeature.FORMAT_RGB8] = true;
+        this._features[GFXFeature.FORMAT_D16] = true;
+        this._features[GFXFeature.FORMAT_D24] = this.getExtension('OES_depth24');
 
         if (this._OES_vertex_array_object) {
             if (RUNTIME_BASED) {
