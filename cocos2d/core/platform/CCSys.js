@@ -674,7 +674,7 @@ function initSys () {
 
     /**
      * !#en
-     * Returns the safe area of the phone screen that will default to the design resolution size if it is not a shaped screen.
+     * Returns the safe area of the phone screen that will default to the design resolution size if it is not a notched mobile device.
      * Only supported on Android, iOS and WeChat Mini Game platform
      * !#zh
      * 返回手机屏幕安全区域，如果不是异形屏将默认返回设计分辨率尺寸。
