@@ -984,7 +984,7 @@ export class Terrain extends Component {
 
         for (let i = 0; i < this._layers.length; ++i) {
             const temp = this._layers[i];
-            if (temp != null && temp.detailMap != null) {
+            if (temp && temp.detailMap && temp.detailMap._uuid) {
                 const layer = new TerrainLayerInfo();
                 layer.slot = i;
                 layer.tileSize = temp.tileSize;
