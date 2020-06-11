@@ -675,7 +675,7 @@ function initSys () {
     /**
      * !#en
      * Returns the safe area of the screen. If the screen is not notched, the design resolution will be returned by default.
-     * Only supported on Android, iOS and WeChat Mini Game platform
+     * Only supported on Android, iOS and WeChat Mini Game platform.
      * !#zh
      * 返回手机屏幕安全区域，如果不是异形屏将默认返回设计分辨率尺寸。目前只支持安卓、iOS 原生平台和微信小游戏平台。
      * @method getSafeAreaRect
