@@ -533,4 +533,4 @@ let WebAudioElement = function (buffer, audio) {
 
 })(WebAudioElement.prototype);
 
-module.exports = cc.Audio = Audio;
+module.exports = cc._Audio = Audio;
