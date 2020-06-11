@@ -8,7 +8,7 @@
             packManager.register('.json', function (pack, json, options, onComplete) {
                 var out = {};
                 if (Array.isArray(json)) {
-                    for (let i = 0; i < pack.length; i++) {
+                    for (var i = 0; i < pack.length; i++) {
                         out[pack[i] + '@import'] = json[i];
                     }
                     onComplete && onComplete(null, out);
@@ -19,7 +19,7 @@
             });
         },
         teardown: function () {
-            let packManager = cc.assetManager.packManager;
+            var packManager = cc.assetManager.packManager;
             cc.assetManager._transform = originTransform;
             cc.assetManager.downloader.download = originDownload;
             packManager.init();
