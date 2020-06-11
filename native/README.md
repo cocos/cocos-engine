@@ -58,6 +58,22 @@ Git user attention
     If you need to debug the simulator on macOS, you should sign the "./simulator/mac/simulator.app" by using `codesign` after build, or manually build the simulator project ("./tools/simulator/frameworks/runtime-src/proj.ios_mac/simulator.xcodeproj") in Xcode and enable Signing.
     ![](https://user-images.githubusercontent.com/1503156/32046986-3ab1f0b6-ba0a-11e7-9c7f-7fe0a385d338.png)
 
+Note, you may change to use other mirror for external config instead of github.
+For example, use gitlab:
+```json
+{
+    "version": "v3d-gfx-15",
+    "from": {
+        "type": "gitlab",
+        "origin": "http://gitlab.cocos.net:8929",
+        "owner": "publics",
+        "name": "cocos2d-x-lite-external",
+        "checkout": "v3d-gfx-15"
+    }
+}
+
+```
+
 Contributing to the Project
 --------------------------------
 

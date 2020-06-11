@@ -11,17 +11,13 @@ set -x
 function download_external()
 {
     pushd $COCOS2DX_ROOT
-    #python download-deps.py -r=yes
-    cd $COCOS2DX_ROOT/external
-    external_version=`grep version config.json  |awk -F'"' '{print $4}'`
-    external_repo_name=`grep repo_name config.json  |awk -F'"' '{print $4}'`
-    external_repo_parent=`grep repo_parent config.json  |awk -F'"' '{print $4}'`
-    rm *
-    git clone --branch $external_version --depth 1 $external_repo_parent$external_repo_name .
-    #git checkout $external_version
-    git log --oneline -1
+    node ./utils/download-deps.js
     popd
 }
+
+pushd $COCOS2DX_ROOT
+npm install
+popd
 
 download_external
 
