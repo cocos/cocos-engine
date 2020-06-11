@@ -582,7 +582,7 @@ export class CameraComponent extends Component {
             node: this.node,
             projection: this._projection,
             window: this._inEditorMode ? legacyCC.director.root && legacyCC.director.root.mainWindow :
-            legacyCC.director.root && legacyCC.director.root.tempWindow,
+                legacyCC.director.root && legacyCC.director.root.tempWindow,
             priority: this._priority,
             flows: this._flows,
         });
