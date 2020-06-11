@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 const Widget = require('./CCWidget');
-var WidgetManager = require('../base-ui/CCWidgetManager');
+const WidgetManager = require('../base-ui/CCWidgetManager');
 /**
  * !#en
  * This component is used to adjust the layout of current node to respect the safe area of a notched mobile device such as the iPhone X.
