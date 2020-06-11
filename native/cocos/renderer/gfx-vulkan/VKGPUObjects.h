@@ -41,64 +41,8 @@ public:
     GFXSubPassList subPasses;
     VkRenderPass vkRenderPass;
     vector<VkClearValue>::type clearValues;
-    vector<VkImageMemoryBarrier>::type beginBarriers;
-    vector<VkImageMemoryBarrier>::type endBarriers;
+    vector<VkImageMemoryBarrier>::type barriers;
 };
-
-class CCVKGPUSwapchain : public Object {
-public:
-    uint curImageIndex = 0;
-    VkSwapchainKHR vkSwapchain = VK_NULL_HANDLE;
-    vector<VkImageView>::type vkSwapchainImageViews;
-    vector<VkFramebuffer>::type vkSwapchainFramebuffers;
-    // external references
-    vector<VkImage>::type swapchainImages;
-    vector<VkImage>::type depthStencilImages;
-    vector<VkImageView>::type depthStencilImageViews;
-    CCVKGPURenderPass *renderPass;
-};
-
-class CCVKGPUCommandPool : public Object {
-public:
-    VkCommandPool vkCommandPool = VK_NULL_HANDLE;
-    CachedArray<VkCommandBuffer> commandBuffers[2];
-    CachedArray<VkCommandBuffer> usedCommandBuffers[2];
-};
-
-class CCVKGPUCommandBuffer : public Object {
-public:
-    GFXCommandBufferType type;
-    CCVKGPUCommandPool *commandPool = nullptr;
-    VkCommandBuffer vkCommandBuffer = VK_NULL_HANDLE;
-};
-
-class CCVKGPUQueue : public Object {
-public:
-    GFXQueueType type;
-    VkQueue vkQueue;
-    uint queueFamilyIndex;
-    VkSemaphore nextWaitSemaphore = VK_NULL_HANDLE;
-    VkSemaphore nextSignalSemaphore = VK_NULL_HANDLE;
-    VkPipelineStageFlags submitStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    CachedArray<VkCommandBuffer> commandBuffers;
-};
-
-class CCVKGPUBuffer : public Object {
-public:
-    GFXBufferUsage usage = GFXBufferUsage::NONE;
-    GFXMemoryUsage memUsage = GFXMemoryUsage::NONE;
-    uint size = 0;
-    uint stride = 0;
-    uint count = 0;
-    void *buffer = nullptr;
-    GFXDrawInfoList indirects;
-
-    VkBuffer vkBuffer = VK_NULL_HANDLE;
-    VkDeviceSize startOffset = 0u;
-    uint8_t *mappedData = nullptr;
-    VmaAllocation vmaAllocation = VK_NULL_HANDLE;
-};
-typedef vector<CCVKGPUBuffer *>::type CCVKGPUBufferList;
 
 class CCVKGPUTexture : public Object {
 public:
@@ -134,6 +78,76 @@ public:
 };
 
 typedef vector<CCVKGPUTextureView *>::type CCVKGPUTextureViewList;
+
+class CCVKGPUSwapchain;
+class CCVKGPUFramebuffer : public Object {
+public:
+    CCVKGPURenderPass *gpuRenderPass = nullptr;
+    CCVKGPUTextureViewList gpuColorViews;
+    CCVKGPUTextureView *gpuDepthStencilView = nullptr;
+    VkFramebuffer vkFramebuffer = VK_NULL_HANDLE;
+    bool isOffscreen = false;
+    CCVKGPUSwapchain *swapchain = nullptr;
+};
+
+typedef vector<VkFramebuffer>::type FramebufferList;
+typedef map<CCVKGPUFramebuffer *, FramebufferList>::type FramebufferListMap;
+typedef std::pair<CCVKGPUFramebuffer *, FramebufferList> FramebufferListMapPair;
+typedef FramebufferListMap::iterator FramebufferListMapIter;
+
+class CCVKGPUSwapchain : public Object {
+public:
+    uint curImageIndex = 0;
+    VkSwapchainKHR vkSwapchain = VK_NULL_HANDLE;
+    vector<VkImageView>::type vkSwapchainImageViews;
+    FramebufferListMap vkSwapchainFramebufferListMap;
+    // external references
+    vector<VkImage>::type swapchainImages;
+    vector<VkImage>::type depthStencilImages;
+    vector<VkImageView>::type depthStencilImageViews;
+};
+
+class CCVKGPUCommandPool : public Object {
+public:
+    VkCommandPool vkCommandPool = VK_NULL_HANDLE;
+    CachedArray<VkCommandBuffer> commandBuffers[2];
+    CachedArray<VkCommandBuffer> usedCommandBuffers[2];
+};
+
+class CCVKGPUCommandBuffer : public Object {
+public:
+    GFXCommandBufferType type;
+    CCVKGPUCommandPool *commandPool = nullptr;
+    VkCommandBuffer vkCommandBuffer = VK_NULL_HANDLE;
+};
+
+class CCVKGPUQueue : public Object {
+public:
+    GFXQueueType type;
+    VkQueue vkQueue;
+    uint queueFamilyIndex;
+    VkSemaphore nextWaitSemaphore = VK_NULL_HANDLE;
+    VkSemaphore nextSignalSemaphore = VK_NULL_HANDLE;
+    VkPipelineStageFlags submitStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    CachedArray<VkCommandBuffer> commandBuffers;
+};
+
+class CCVKGPUBuffer : public Object {
+public:
+    GFXBufferUsage usage = GFXBufferUsage::NONE;
+    GFXMemoryUsage memUsage = GFXMemoryUsage::NONE;
+    uint size = 0;
+    uint stride = 0;
+    uint count = 0;
+    void *buffer = nullptr;
+    GFXDrawInfoList indirects;
+
+    VkBuffer vkBuffer = VK_NULL_HANDLE;
+    VkDeviceSize startOffset = 0u;
+    uint8_t *mappedData = nullptr;
+    VmaAllocation vmaAllocation = VK_NULL_HANDLE;
+};
+typedef vector<CCVKGPUBuffer *>::type CCVKGPUBufferList;
 
 class CCVKGPUSampler : public Object {
 public:
@@ -179,16 +193,6 @@ public:
     CCVKGPUBuffer *gpuIndirectBuffer = nullptr;
     vector<VkBuffer>::type vertexBuffers;
     vector<VkDeviceSize>::type vertexBufferOffsets;
-};
-
-class CCVKGPUFramebuffer : public Object {
-public:
-    CCVKGPURenderPass *gpuRenderPass = nullptr;
-    CCVKGPUTextureViewList gpuColorViews;
-    CCVKGPUTextureView *gpuDepthStencilView = nullptr;
-    VkFramebuffer vkFramebuffer = VK_NULL_HANDLE;
-    bool isOffscreen = false;
-    CCVKGPUSwapchain *swapchain = nullptr;
 };
 
 class CCVKGPUBindingLayout : public Object {

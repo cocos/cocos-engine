@@ -29,7 +29,7 @@ bool CCVKInputAssembler::initialize(const GFXInputAssemblerInfo &info) {
     _gpuInputAssembler->attributes = _attributes;
     _gpuInputAssembler->gpuVertexBuffers.resize(_vertexBuffers.size());
 
-    for (size_t i = 0; i < _gpuInputAssembler->gpuVertexBuffers.size(); ++i) {
+    for (size_t i = 0u; i < _gpuInputAssembler->gpuVertexBuffers.size(); ++i) {
         CCVKBuffer *vb = (CCVKBuffer *)_vertexBuffers[i];
         _gpuInputAssembler->gpuVertexBuffers[i] = vb->gpuBuffer();
     }

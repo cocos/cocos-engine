@@ -8,14 +8,19 @@
 
 #include "VKUtils.h"
 
-#define CC_GFX_DEBUG
-
 NS_CC_BEGIN
 
 namespace {
-#ifdef CC_GFX_DEBUG
+
+constexpr uint FORCE_MINOR_VERSION = 0;             // 0 for default version, otherwise minorVersion = (FORCE_MINOR_VERSION - 1)
+constexpr uint ALLOW_VALIDATION_ERRORS = 0;         // 0 for default behavior, otherwise assertions will be disabled
+constexpr uint PREFERRED_SWAPCHAIN_IMAGE_COUNT = 0; // 0 for default count, otherwise prefer the specified number
+
+#if COCOS2D_DEBUG > 0
 VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                                           VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT *callbackData, void *user_data) {
+                                                           VkDebugUtilsMessageTypeFlagsEXT messageType,
+                                                           const VkDebugUtilsMessengerCallbackDataEXT *callbackData,
+                                                           void *user_data) {
     // https://github.com/KhronosGroup/Vulkan-ValidationLayers/issues/1818
     if (!strcmp(callbackData->pMessageIdName, "VUID-vkQueuePresentKHR-pWaitSemaphores-03268")) {
         return VK_FALSE;
@@ -30,16 +35,22 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSe
         CC_LOG_WARNING("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
     } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
         CC_LOG_ERROR("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
-        CCASSERT(0, "Validation Error");
+        CCASSERT(ALLOW_VALIDATION_ERRORS, "Validation Error");
     }
     return VK_FALSE;
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT type,
-                                                   uint64_t object, size_t location, int32_t messageCode, const char *layerPrefix, const char *message, void *userData) {
+VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT flags,
+                                                   VkDebugReportObjectTypeEXT type,
+                                                   uint64_t object,
+                                                   size_t location,
+                                                   int32_t messageCode,
+                                                   const char *layerPrefix,
+                                                   const char *message,
+                                                   void *userData) {
     if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
         CC_LOG_ERROR("VError: %s: %s", layerPrefix, message);
-        CCASSERT(0, "Validation Error");
+        CCASSERT(ALLOW_VALIDATION_ERRORS, "Validation Error");
     } else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
         CC_LOG_ERROR("VWarning: %s: %s", layerPrefix, message);
     } else if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) {
@@ -111,7 +122,7 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
     #pragma error Platform not supported
 #endif
 
-#ifdef CC_GFX_DEBUG
+#if COCOS2D_DEBUG > 0
         // Determine the optimal validation layers to enable that are necessary for useful debugging
         vector<vector<const char *>::type>::type validationLayerPriorityList{
             // The preferred validation layer is "VK_LAYER_KHRONOS_validation"
@@ -130,7 +141,8 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
             },
 
             // Otherwise as a last resort we fallback to attempting to enable the LunarG core layer
-            {"VK_LAYER_LUNARG_core_validation"}};
+            {"VK_LAYER_LUNARG_core_validation"},
+        };
         for (vector<const char *>::type &validationLayers : validationLayerPriorityList) {
             bool found = true;
             for (const char *layer : validationLayers) {
@@ -169,7 +181,9 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
 
         uint apiVersion;
         vkEnumerateInstanceVersion(&apiVersion);
-        //apiVersion = VK_API_VERSION_1_0;
+        if (FORCE_MINOR_VERSION) {
+            apiVersion = VK_MAKE_VERSION(1, FORCE_MINOR_VERSION - 1, 0);
+        }
 
         _majorVersion = VK_VERSION_MAJOR(apiVersion);
         _minorVersion = VK_VERSION_MINOR(apiVersion);
@@ -185,7 +199,7 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
         instanceInfo.enabledLayerCount = toUint(_layers.size());
         instanceInfo.ppEnabledLayerNames = _layers.data();
 
-#ifdef CC_GFX_DEBUG
+#if COCOS2D_DEBUG > 0
         VkDebugUtilsMessengerCreateInfoEXT debugUtilsCreateInfo{VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT};
         VkDebugReportCallbackCreateInfoEXT debugReportCreateInfo{VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT};
         if (debugUtils) {
@@ -207,7 +221,7 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
 
         volkLoadInstance(_gpuContext->vkInstance);
 
-#ifdef CC_GFX_DEBUG
+#if COCOS2D_DEBUG > 0
         if (debugUtils) {
             VK_CHECK(vkCreateDebugUtilsMessengerEXT(_gpuContext->vkInstance, &debugUtilsCreateInfo, nullptr, &_gpuContext->vkDebugUtilsMessenger));
         } else {
@@ -344,13 +358,13 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
             }
         }
 
-        vector<std::pair<GFXFormat, VkFormat>>::type depthFormatPriorityList =
-            {
-                {GFXFormat::D32F_S8, VK_FORMAT_D32_SFLOAT_S8_UINT},
-                {GFXFormat::D24S8, VK_FORMAT_D24_UNORM_S8_UINT},
-                {GFXFormat::D16S8, VK_FORMAT_D16_UNORM_S8_UINT},
-                {GFXFormat::D32F, VK_FORMAT_D32_SFLOAT},
-                {GFXFormat::D16, VK_FORMAT_D16_UNORM}};
+        vector<std::pair<GFXFormat, VkFormat>>::type depthFormatPriorityList = {
+            {GFXFormat::D32F_S8, VK_FORMAT_D32_SFLOAT_S8_UINT},
+            {GFXFormat::D24S8, VK_FORMAT_D24_UNORM_S8_UINT},
+            {GFXFormat::D16S8, VK_FORMAT_D16_UNORM_S8_UINT},
+            {GFXFormat::D32F, VK_FORMAT_D32_SFLOAT},
+            {GFXFormat::D16, VK_FORMAT_D16_UNORM},
+        };
         for (std::pair<GFXFormat, VkFormat> &format : depthFormatPriorityList) {
             VkFormatProperties formatProperties;
             vkGetPhysicalDeviceFormatProperties(_gpuContext->physicalDevice, format.second, &formatProperties);
@@ -385,6 +399,10 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
 
         // Determine the number of images
         uint desiredNumberOfSwapchainImages = surfaceCapabilities.minImageCount + 1;
+        if (PREFERRED_SWAPCHAIN_IMAGE_COUNT) {
+            desiredNumberOfSwapchainImages = PREFERRED_SWAPCHAIN_IMAGE_COUNT;
+        }
+
         if ((surfaceCapabilities.maxImageCount > 0) && (desiredNumberOfSwapchainImages > surfaceCapabilities.maxImageCount)) {
             desiredNumberOfSwapchainImages = surfaceCapabilities.maxImageCount;
         }
@@ -455,7 +473,7 @@ void CCVKContext::destroy() {
             _gpuContext->vkSurface = VK_NULL_HANDLE;
         }
 
-#ifdef CC_GFX_DEBUG
+#if COCOS2D_DEBUG > 0
         if (_gpuContext->vkDebugUtilsMessenger != VK_NULL_HANDLE) {
             vkDestroyDebugUtilsMessengerEXT(_gpuContext->vkInstance, _gpuContext->vkDebugUtilsMessenger, nullptr);
             _gpuContext->vkDebugUtilsMessenger = VK_NULL_HANDLE;

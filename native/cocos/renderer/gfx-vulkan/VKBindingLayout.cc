@@ -19,7 +19,7 @@ CCVKBindingLayout::~CCVKBindingLayout() {
 bool CCVKBindingLayout::initialize(const GFXBindingLayoutInfo &info) {
     if (info.bindings.size()) {
         _bindingUnits.resize(info.bindings.size());
-        for (size_t i = 0; i < _bindingUnits.size(); ++i) {
+        for (size_t i = 0u; i < _bindingUnits.size(); ++i) {
             GFXBindingUnit &bindingUnit = _bindingUnits[i];
             const GFXBinding &binding = info.bindings[i];
             bindingUnit.binding = binding.binding;
@@ -50,7 +50,7 @@ void CCVKBindingLayout::destroy() {
 
 void CCVKBindingLayout::update() {
     if (_isDirty && _gpuBindingLayout) {
-        for (size_t i = 0; i < _bindingUnits.size(); ++i) {
+        for (size_t i = 0u; i < _bindingUnits.size(); ++i) {
             GFXBindingUnit &bindingUnit = _bindingUnits[i];
             VkWriteDescriptorSet &binding = _gpuBindingLayout->bindings[i];
 

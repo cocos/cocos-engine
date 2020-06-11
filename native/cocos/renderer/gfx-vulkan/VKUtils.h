@@ -175,8 +175,8 @@ VkAccessFlags MapVkAccessFlags(GFXTextureLayout layout) {
     switch (layout) {
         case GFXTextureLayout::UNDEFINED: return 0;
         case GFXTextureLayout::GENERAL: return 0;
-        case GFXTextureLayout::COLOR_ATTACHMENT_OPTIMAL: return VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        case GFXTextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL: return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        case GFXTextureLayout::COLOR_ATTACHMENT_OPTIMAL: return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        case GFXTextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL: return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
         case GFXTextureLayout::DEPTH_STENCIL_READONLY_OPTIMAL: return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
         case GFXTextureLayout::SHADER_READONLY_OPTIMAL: return VK_ACCESS_SHADER_READ_BIT;
         case GFXTextureLayout::TRANSFER_SRC_OPTIMAL: return VK_ACCESS_TRANSFER_READ_BIT;
@@ -329,7 +329,7 @@ VkPipelineStageFlags MapVkPipelineStageFlags(GFXTextureUsage usage) {
 }
 
 uint selectMemoryType(const VkPhysicalDeviceMemoryProperties &memoryProperties, uint memoryTypeBits, VkMemoryPropertyFlags flags) {
-    for (uint i = 0; i < memoryProperties.memoryTypeCount; ++i)
+    for (uint i = 0u; i < memoryProperties.memoryTypeCount; ++i)
         if ((memoryTypeBits & (1 << i)) != 0 && (memoryProperties.memoryTypes[i].propertyFlags & flags) == flags)
             return i;
 
@@ -517,6 +517,32 @@ const VkSamplerAddressMode VK_SAMPLER_ADDRESS_MODES[] = {
     VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,   // CLAMP
     VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER, // BORDER
 };
+
+const VkAccessFlags FULL_ACCESS_FLAGS = VK_ACCESS_INDIRECT_COMMAND_READ_BIT |
+                                        VK_ACCESS_INDEX_READ_BIT |
+                                        VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT |
+                                        VK_ACCESS_UNIFORM_READ_BIT |
+                                        VK_ACCESS_INPUT_ATTACHMENT_READ_BIT |
+                                        VK_ACCESS_SHADER_READ_BIT |
+                                        VK_ACCESS_SHADER_WRITE_BIT |
+                                        VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+                                        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
+                                        VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
+                                        VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+                                        VK_ACCESS_TRANSFER_READ_BIT |
+                                        VK_ACCESS_TRANSFER_WRITE_BIT |
+                                        VK_ACCESS_HOST_READ_BIT |
+                                        VK_ACCESS_HOST_WRITE_BIT;
+
+void fullPipelineBarrier(VkCommandBuffer cmdBuff) {
+#ifdef _DEBUG
+    VkMemoryBarrier memoryBarrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
+    memoryBarrier.srcAccessMask = FULL_ACCESS_FLAGS;
+    memoryBarrier.dstAccessMask = FULL_ACCESS_FLAGS;
+    vkCmdPipelineBarrier(cmdBuff, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                         0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
+#endif
+}
 
 template <typename T, size_t Size>
 char (*countofHelper(T (&_Array)[Size]))[Size];
