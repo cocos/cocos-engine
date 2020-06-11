@@ -853,16 +853,16 @@ export class Node extends BaseNode {
         }
         const parent = this._parent;
         if (parent) {
-            parent.updateWorldTransform();
-            Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, parent._rot));
+            this.updateWorldTransform();
+            Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, this._rot));
             Mat3.multiplyMat4(m3_1, m3_1, parent._mat);
             m3_scaling.m00 = this._scale.x;
             m3_scaling.m04 = this._scale.y;
             m3_scaling.m08 = this._scale.z;
             Mat3.multiply(m3_1, m3_scaling, Mat3.invert(m3_1, m3_1));
-            this._lscale.x = m3_1.m00;
-            this._lscale.y = m3_1.m04;
-            this._lscale.z = m3_1.m08;
+            this._lscale.x = Vec3.set(v3_a, m3_1.m00, m3_1.m01, m3_1.m02).length();
+            this._lscale.y = Vec3.set(v3_a, m3_1.m03, m3_1.m04, m3_1.m05).length();
+            this._lscale.z = Vec3.set(v3_a, m3_1.m06, m3_1.m07, m3_1.m08).length();
         } else {
             Vec3.copy(this._lscale, this._scale);
         }
