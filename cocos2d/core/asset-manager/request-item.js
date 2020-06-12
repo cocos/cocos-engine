@@ -27,7 +27,7 @@
  * @module cc.AssetManager
  */
 
-var MAX_DEAD_NUM = 50;
+var MAX_DEAD_NUM = 500;
 var _deadPool = [];
 
 /**
@@ -188,6 +188,7 @@ RequestItem.prototype = {
      * recycle(): void
      */
     recycle () {
+        if (_deadPool.length > MAX_DEAD_NUM) return;
         this._id = '';
         this.uuid = '';
         this.url = '';
@@ -198,7 +199,7 @@ RequestItem.prototype = {
         this.config = null;
         this.isNative = false;
         this.options = Object.create(null);
-        _deadPool.length < MAX_DEAD_NUM && _deadPool.push(this);
+        _deadPool.push(this);
     }
 };
 
