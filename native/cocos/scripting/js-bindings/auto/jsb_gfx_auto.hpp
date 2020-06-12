@@ -57,12 +57,6 @@ extern se::Class* __jsb_cocos2d_GFXDeviceInfo_class;
 bool js_register_cocos2d_GFXDeviceInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cocos2d_GFXWindowInfo_proto;
-extern se::Class* __jsb_cocos2d_GFXWindowInfo_class;
-
-bool js_register_cocos2d_GFXWindowInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
 extern se::Object* __jsb_cocos2d_GFXContextInfo_proto;
 extern se::Class* __jsb_cocos2d_GFXContextInfo_class;
 
@@ -290,7 +284,6 @@ SE_DECLARE_FUNC(js_gfx_GFXDevice_createFramebuffer);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createRenderPass);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createPipelineLayout);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_acquire);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_createWindow);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createShader);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createInputAssembler);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_defineMacro);
@@ -300,17 +293,6 @@ SE_DECLARE_FUNC(js_gfx_GFXDevice_initialize);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_resize);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createQueue);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createBindingLayout);
-
-extern se::Object* __jsb_cocos2d_GFXWindow_proto;
-extern se::Class* __jsb_cocos2d_GFXWindow_class;
-
-bool js_register_cocos2d_GFXWindow(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXWindow_getDepthStencilFormat);
-SE_DECLARE_FUNC(js_gfx_GFXWindow_initialize);
-SE_DECLARE_FUNC(js_gfx_GFXWindow_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXWindow_resize);
-SE_DECLARE_FUNC(js_gfx_GFXWindow_GFXWindow);
 
 extern se::Object* __jsb_cocos2d_GFXBuffer_proto;
 extern se::Class* __jsb_cocos2d_GFXBuffer_class;
