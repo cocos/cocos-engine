@@ -4,6 +4,7 @@
 
 import { GFXObject, GFXObjectType, GFXShaderType, GFXType } from './define';
 import { GFXDevice } from './device';
+import { IGFXAttribute } from './input-assembler';
 
 export interface IGFXShaderMacro {
     macro: string;
@@ -34,7 +35,6 @@ export class GFXUniformBlock {
     public shaderStages: GFXShaderType = GFXShaderType.NONE;
     public binding: number = -1;
     public name: string = '';
-    // instance : string;
     public members: GFXUniform[] = [];
 }
 
@@ -53,10 +53,10 @@ export class GFXUniformSampler {
 export interface IGFXShaderInfo {
     name: string;
     stages: IGFXShaderStage[];
-    // bindings: GFXBinding[];
 
-    blocks?: GFXUniformBlock[];
-    samplers?: GFXUniformSampler[];
+    attributes: IGFXAttribute[];
+    blocks: GFXUniformBlock[];
+    samplers: GFXUniformSampler[];
 }
 
 /**
@@ -81,6 +81,18 @@ export abstract class GFXShader extends GFXObject {
         return this._name;
     }
 
+    public get attributes () {
+        return this._attributes;
+    }
+
+    public get blocks () {
+        return this._blocks;
+    }
+
+    public get samplers () {
+        return this._samplers;
+    }
+
     protected _device: GFXDevice;
 
     protected _id: number;
@@ -89,9 +101,9 @@ export abstract class GFXShader extends GFXObject {
 
     protected _stages: IGFXShaderStage[] = [];
 
-    // protected _bindings: GFXBinding[] = [];
+    protected _attributes: IGFXAttribute[] = [];
 
-    protected _blocks: GFXUniformBlock[] = [];  // blocks are used for being compatible with single uniforms
+    protected _blocks: GFXUniformBlock[] = [];
 
     protected _samplers: GFXUniformSampler[] = [];
 

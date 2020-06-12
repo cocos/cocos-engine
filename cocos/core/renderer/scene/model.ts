@@ -297,7 +297,7 @@ export class Model {
             this.updateLocalBindings(psoCreateInfos[i], subModelIndex);
         }
 
-        this.updateInstancedAttributeList(psoCreateInfos[0].shaderInput.attributes, subModel.passes[0]);
+        this.updateInstancedAttributeList(psoCreateInfos[0].shader.attributes, subModel.passes[0]);
     }
 
     public getMacroPatches (subModelIndex: number) : IMacroPatch[] | undefined {

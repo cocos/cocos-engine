@@ -8,9 +8,8 @@ import { RenderPriority } from '../../pipeline/define';
 import { IMacroPatch } from '../core/pass';
 import { GFXShader } from '../../gfx/shader';
 import { GFXDynamicState, GFXPrimitiveMode } from '../../gfx/define';
-import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState, GFXInputState } from '../../gfx/pipeline-state';
-import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
-import { GFXBindingLayout } from '../../gfx';
+import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
+import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { legacyCC } from '../../global-exports';
 
 export interface IPSOCreateInfo {
@@ -21,7 +20,6 @@ export interface IPSOCreateInfo {
     blendState: GFXBlendState;
     dynamicStates: GFXDynamicState[];
     bindingLayout: GFXBindingLayout;
-    shaderInput: GFXInputState;
     hash: number;
 }
 
