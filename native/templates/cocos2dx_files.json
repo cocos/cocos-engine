@@ -197,7 +197,6 @@
         "cocos/platform/CCFileUtils.h", 
         "cocos/platform/CCImage.cpp", 
         "cocos/platform/CCImage.h", 
-        "cocos/platform/CCPlatformConfig.h", 
         "cocos/platform/CCPlatformDefine.h", 
         "cocos/platform/CCSAXParser.cpp", 
         "cocos/platform/CCSAXParser.h", 

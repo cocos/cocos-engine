@@ -32,7 +32,7 @@
 #ifndef _MSC_STDINT_H_ // [
 #define _MSC_STDINT_H_
 
-#include "platform/CCPlatformConfig.h"
+
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
 #ifndef _MSC_VER // [

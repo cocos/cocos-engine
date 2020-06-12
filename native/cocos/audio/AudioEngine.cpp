@@ -23,8 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "platform/CCPlatformConfig.h"
-
 #include "audio/include/AudioEngine.h"
 #include "platform/CCFileUtils.h"
 #include "base/ccUtils.h"

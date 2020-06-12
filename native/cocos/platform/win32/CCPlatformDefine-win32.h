@@ -26,7 +26,7 @@ THE SOFTWARE.
 #ifndef __CCPLATFORMDEFINE_H__
 #define __CCPLATFORMDEFINE_H__
 
-#include "platform/CCPlatformConfig.h"
+
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
 #ifdef __MINGW32__

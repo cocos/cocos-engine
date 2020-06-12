@@ -1,24 +1,41 @@
 
 
+set(CC_PLATFORM_MAC_IOS 1)
+set(CC_PLATFORM_WINDOWS 2)
+set(CC_PLATFORM_ANDROID 3)
+set(CC_PLATFORM_MAC_OSX 4)
+set(CC_PLATFORM 1)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(WINDOWS TRUE)
     set(PLATFORM_FOLDER win32)
+    set(CC_PLATFORM ${CC_PLATFORM_WINDOWS})
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Android")
     set(PLATFORM_FOLDER android)    
     set(ANDROID TRUE)
+    set(CC_PLATFORM ${CC_PLATFORM_ANDROID})
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(APPLE TRUE)
     set(MACOSX TRUE)
     set(PLATFORM_FOLDER mac)
+    set(CC_PLATFORM ${CC_PLATFORM_MAC_OSX})
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "iOS")
     set(APPLE TRUE)
     set(IOS TRUE)
     set(PLATFORM_FOLDER ios)
+    set(CC_PLATFORM ${CC_PLATFORM_MAC_IOS})
 else()
     message(FATAL_ERROR "Unsupported platform, CMake will exit")
     return()
 endif()
+
+# platform macros
+
+add_definitions(-DCC_PLATFORM_WINDOWS=${CC_PLATFORM_WINDOWS} )
+add_definitions(-DCC_PLATFORM_MAC_OSX=${CC_PLATFORM_MAC_OSX} )
+add_definitions(-DCC_PLATFORM_MAC_IOS=${CC_PLATFORM_MAC_IOS} )
+add_definitions(-DCC_PLATFORM_ANDROID=${CC_PLATFORM_ANDROID} )
+add_definitions(-DCC_PLATFORM=${CC_PLATFORM})
 
 # generators that are capable of organizing into a hierarchy of folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -353,7 +370,6 @@ cocos_source_files(
     cocos/platform/CCFileUtils.h
     cocos/platform/CCImage.cpp
     cocos/platform/CCImage.h
-    cocos/platform/CCPlatformConfig.h
     cocos/platform/CCPlatformDefine.h
     cocos/platform/CCSAXParser.cpp
     cocos/platform/CCSAXParser.h

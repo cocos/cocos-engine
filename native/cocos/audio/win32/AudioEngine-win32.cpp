@@ -24,7 +24,7 @@
  ****************************************************************************/
 #define LOG_TAG "AudioEngine-Win32"
 
-#include "platform/CCPlatformConfig.h"
+
 
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
 

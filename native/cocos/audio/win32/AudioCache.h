@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "platform/CCPlatformConfig.h"
+
 
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
 

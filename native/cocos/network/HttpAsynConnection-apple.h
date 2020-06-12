@@ -27,7 +27,7 @@
 #define __HTTPASYNCONNECTION_H__
 /// @cond DO_NOT_SHOW
 
-#include "platform/CCPlatformConfig.h"
+
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX) || (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
 
 #import <Foundation/Foundation.h>

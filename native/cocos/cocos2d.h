@@ -73,7 +73,6 @@ THE SOFTWARE.
 #include "platform/CCDevice.h"
 #include "platform/CCFileUtils.h"
 #include "platform/CCImage.h"
-#include "platform/CCPlatformConfig.h"
 #include "base/ccMacros.h"
 #include "platform/CCSAXParser.h"
 #include "platform/CCCanvasRenderingContext2D.h"

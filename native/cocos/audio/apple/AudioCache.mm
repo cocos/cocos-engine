@@ -25,7 +25,6 @@
 
 #define LOG_TAG "AudioCache"
 
-#include "platform/CCPlatformConfig.h"
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
 
 #include "audio/apple/AudioCache.h"

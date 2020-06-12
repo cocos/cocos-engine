@@ -25,7 +25,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "platform/CCPlatformConfig.h"
+
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
 
 #include "network/HttpClient.h"

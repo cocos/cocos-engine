@@ -28,7 +28,7 @@ THE SOFTWARE.
 #define __PLATFORM_CCPLATFORMDEFINE_H__
 /// @cond DO_NOT_SHOW
 
-#include "platform/CCPlatformConfig.h"
+
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
 #include "platform/mac/CCPlatformDefine-mac.h"

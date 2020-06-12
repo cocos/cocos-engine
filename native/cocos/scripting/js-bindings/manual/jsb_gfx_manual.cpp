@@ -3,7 +3,7 @@
 #include "scripting/js-bindings/manual/jsb_global.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "scripting/js-bindings/auto/jsb_gfx_auto.hpp"
-#include "platform/CCPlatformConfig.h"
+
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #define USE_VULKAN

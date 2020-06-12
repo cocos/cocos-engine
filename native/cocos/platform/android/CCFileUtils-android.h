@@ -26,7 +26,7 @@ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 #ifndef __CC_FILEUTILS_ANDROID_H__
 #define __CC_FILEUTILS_ANDROID_H__
 
-#include "platform/CCPlatformConfig.h"
+
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
 
 #include "platform/CCFileUtils.h"

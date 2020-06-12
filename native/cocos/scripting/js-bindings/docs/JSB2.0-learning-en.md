@@ -962,7 +962,8 @@ clang_flags = -nostdinc -x c++ -std=c++11 -fsigned-char -U__SSE__
 cocos_headers = -I%(cocosdir)s/cocos -I%(cocosdir)s/cocos/platform/android -I%(cocosdir)s/external/sources
 
 # Configure building parameters for Cocos2D-X
-cocos_flags = -DANDROID
+cocos_flags = -DANDROID -DCC_PLATFORM=3 -DCC_PLATFORM_MAC_IOS=1 -DCC_PLATFORM_MAC_OSX=4 -DCC_PLATFORM_WINDOWS=2 -DCC_PLATFORM_ANDROID=3
+
 
 # Configure extra building parameters
 extra_arguments = %(android_headers)s %(clang_headers)s %(cxxgenerator_headers)s %(cocos_headers)s %(android_flags)s %(clang_flags)s %(cocos_flags)s %(extra_flags)s

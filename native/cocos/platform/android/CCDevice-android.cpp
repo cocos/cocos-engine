@@ -24,7 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#include "platform/CCPlatformConfig.h"
+
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
 
 #include "platform/CCDevice.h"

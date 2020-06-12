@@ -25,7 +25,7 @@
 
 #define LOG_TAG "AudioPlayer"
 
-#include "platform/CCPlatformConfig.h"
+
 
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
 #include "audio/win32/AudioPlayer.h"

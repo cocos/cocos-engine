@@ -28,7 +28,7 @@ THE SOFTWARE.
 #include <memory>
 #include <thread>    // // std::this_thread::sleep_for
 #include "base/ccMacros.h"
-#include "platform/CCPlatformConfig.h"
+
 #include "platform/CCPlatformDefine.h"
 #include "scripting/js-bindings/event/EventDispatcher.h"
 #include "base/CCScheduler.h"

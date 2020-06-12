@@ -25,7 +25,7 @@
 
 #define LOG_TAG "AudioEngine-inl.mm"
 
-#include "platform/CCPlatformConfig.h"
+
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
 
 #include "audio/apple/AudioEngine-inl.h"
