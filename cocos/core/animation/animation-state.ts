@@ -367,7 +367,7 @@ export class AnimationState extends Playable {
             valueAdapter: IValueProxyFactory | undefined,
             isConstant: boolean,
         ): BoundTargetT | null => {
-            if (!isTargetingTrs(path) || !this._blendStateBuffer) {
+            if (!isTargetingTRS(path) || !this._blendStateBuffer) {
                 return createFn(rootTarget, path, valueAdapter);
             } else {
                 const targetNode = evaluatePath(rootTarget, ...path.slice(0, path.length - 1));
@@ -915,7 +915,7 @@ export class AnimationState extends Playable {
     }
 }
 
-function isTargetingTrs (path: TargetPath[]) {
+function isTargetingTRS (path: TargetPath[]) {
     let prs: string | undefined;
     if (path.length === 1 && typeof path[0] === 'string') {
         prs = path[0];
