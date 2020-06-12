@@ -16,5 +16,6 @@ export enum ForwardStagePriority {
  */
 export enum ForwardFlowPriority {
     FORWARD = 0,
+    DEPTH = 1,
     UI = 10,
 }
