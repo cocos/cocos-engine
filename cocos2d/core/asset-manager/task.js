@@ -266,7 +266,7 @@ Task.prototype = {
      * recycle(): void
      */
     recycle () {
-        if (_deadPool.length > MAX_DEAD_NUM) return;
+        if (_deadPool.length === MAX_DEAD_NUM) return;
         this.onComplete = null;
         this.onProgress = null;
         this.onError = null;
