@@ -8,7 +8,6 @@
 
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXContext.h"
-#include "gfx/GFXWindow.h"
 #include "gfx/GFXBuffer.h"
 #include "gfx/GFXTexture.h"
 #include "gfx/GFXSampler.h"

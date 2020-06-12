@@ -89,7 +89,6 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     size_t colorAttachmentCount = gpuRenderPass->colorAttachments.size();
     vector<VkAttachmentDescription>::type attachmentDescriptions(colorAttachmentCount + 1);
     gpuRenderPass->clearValues.resize(colorAttachmentCount + 1);
-    gpuRenderPass->barriers.resize(colorAttachmentCount + 1, {VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER});
     for (size_t i = 0u; i < colorAttachmentCount; i++) {
         const GFXColorAttachment &attachment = gpuRenderPass->colorAttachments[i];
         const VkImageLayout beginLayout = MapVkImageLayout(attachment.beginLayout);
@@ -104,24 +103,6 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         attachmentDescriptions[i].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         attachmentDescriptions[i].initialLayout = beginLayout;
         attachmentDescriptions[i].finalLayout = endLayout;
-
-        // initial -> color attachment optimal
-        VkImageMemoryBarrier &beginBarrier = gpuRenderPass->barriers[i];
-        if (attachment.loadOp == GFXLoadOp::LOAD) {
-            beginBarrier.srcAccessMask = beginAccessMask;
-            beginBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-            beginBarrier.oldLayout = beginLayout;
-        } else {
-            beginBarrier.srcAccessMask = 0;
-            beginBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-            beginBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        }
-        beginBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        beginBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        beginBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        beginBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        beginBarrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
-        beginBarrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
     }
     const GFXDepthStencilAttachment &depthStencilAttachment = gpuRenderPass->depthStencilAttachment;
     const VkImageLayout beginLayout = MapVkImageLayout(depthStencilAttachment.beginLayout);
@@ -137,24 +118,6 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     attachmentDescriptions[colorAttachmentCount].stencilStoreOp = MapVkStoreOp(depthStencilAttachment.stencilStoreOp);
     attachmentDescriptions[colorAttachmentCount].initialLayout = beginLayout;
     attachmentDescriptions[colorAttachmentCount].finalLayout = endLayout;
-
-    // initial -> depth stencil attachment optimal
-    VkImageMemoryBarrier &beginBarrier = gpuRenderPass->barriers[colorAttachmentCount];
-    if (depthStencilAttachment.depthLoadOp == GFXLoadOp::LOAD || depthStencilAttachment.stencilLoadOp == GFXLoadOp::LOAD) {
-        beginBarrier.srcAccessMask = beginAccessMask;
-        beginBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-        beginBarrier.oldLayout = beginLayout;
-    } else {
-        beginBarrier.srcAccessMask = 0;
-        beginBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-        beginBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    }
-    beginBarrier.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-    beginBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    beginBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    beginBarrier.subresourceRange.aspectMask = aspectMask;
-    beginBarrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
-    beginBarrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
 
     size_t subpassCount = gpuRenderPass->subPasses.size();
     vector<VkSubpassDescription>::type subpassDescriptions(1, {VK_PIPELINE_BIND_POINT_GRAPHICS});
@@ -716,11 +679,10 @@ void CCVKCmdFuncCreatePipelineState(CCVKDevice *device, CCVKGPUPipelineState *gp
     }
 
     vector<uint>::type offsets(bindingCount, 0);
-    vector<uint>::type locations(bindingCount, 0);
     vector<VkVertexInputAttributeDescription>::type attributeDescriptions(attributeCount);
     for (size_t i = 0u; i < attributeCount; i++) {
         const GFXAttribute &attr = attributes[i];
-        attributeDescriptions[i].location = locations[attr.stream]++;
+        attributeDescriptions[i].location = attr.location;
         attributeDescriptions[i].binding = attr.stream;
         attributeDescriptions[i].format = MapVkFormat(attr.format);
         attributeDescriptions[i].offset = offsets[attr.stream];

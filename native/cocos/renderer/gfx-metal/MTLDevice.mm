@@ -4,7 +4,6 @@
 #include "MTLBuffer.h"
 #include "MTLCommandBuffer.h"
 #include "MTLCommandAllocator.h"
-#include "MTLWindow.h"
 #include "MTLRenderPass.h"
 #include "MTLFrameBuffer.h"
 #include "MTLStateCache.h"
@@ -34,28 +33,24 @@ bool CCMTLDevice::initialize(const GFXDeviceInfo &info) {
     _nativeWidth = info.nativeWidth;
     _nativeHeight = info.nativeHeight;
     _windowHandle = info.windowHandle;
-    
+
     _stateCache = CC_NEW(CCMTLStateCache);
-    
+
     _mtkView = (MTKView*)_windowHandle;
     _mtlDevice = ((MTKView*)_mtkView).device;
-        
-    GFXWindowInfo window_info;
-    window_info.isOffscreen = false;
-    _window = createWindow(window_info);
-    
+
     GFXQueueInfo queue_info;
     queue_info.type = GFXQueueType::GRAPHICS;
     _queue = createQueue(queue_info);
-    
+
     GFXCommandAllocatorInfo cmd_alloc_info;
     _cmdAllocator = createCommandAllocator(cmd_alloc_info);
-    
+
     _minClipZ = 0;
     _depthBits = 24;
     _stencilBits = 8;
     //TODO: other information
-    
+
     _mtlFeatureSet = mu::highestSupportedFeatureSet(id<MTLDevice>(_mtlDevice));
     auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
     _maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
@@ -70,12 +65,12 @@ bool CCMTLDevice::initialize(const GFXDeviceInfo &info) {
         _stencilBits = 8;
         _features[(int)GFXFeature::FORMAT_D24S8] = true;
     }
-    
+
     _features[static_cast<int>(GFXFeature::COLOR_FLOAT)] = mu::isColorBufferFloatSupported(gpuFamily);
     _features[static_cast<int>(GFXFeature::COLOR_HALF_FLOAT)] = mu::isColorBufferHalfFloatSupported(gpuFamily);
     _features[static_cast<int>(GFXFeature::TEXTURE_FLOAT_LINEAR)] = mu::isLinearTextureSupported(gpuFamily);
     _features[static_cast<int>(GFXFeature::TEXTURE_HALF_FLOAT_LINEAR)] = mu::isLinearTextureSupported(gpuFamily);
-    
+
     String compressedFormats;
     if (mu::isPVRTCSuppported(gpuFamily)) {
         _features[static_cast<int>(GFXFeature::FORMAT_PVRTC)] = true;
@@ -93,7 +88,7 @@ bool CCMTLDevice::initialize(const GFXDeviceInfo &info) {
         _features[static_cast<int>(GFXFeature::FORMAT_ASTC)] = true;
         compressedFormats += "dxt ";
     }
-    
+
     _features[(int)GFXFeature::TEXTURE_FLOAT] = true;
     _features[(int)GFXFeature::TEXTURE_HALF_FLOAT] = true;
     _features[(int)GFXFeature::FORMAT_R11G11B10F] = true;
@@ -108,9 +103,9 @@ bool CCMTLDevice::initialize(const GFXDeviceInfo &info) {
     _features[static_cast<uint>(GFXFeature::FORMAT_D16S8)] = mu::isDepthStencilFormatSupported(GFXFormat::D16S8, gpuFamily);
     _features[static_cast<uint>(GFXFeature::FORMAT_D32F)] = mu::isDepthStencilFormatSupported(GFXFormat::D32F, gpuFamily);
     _features[static_cast<uint>(GFXFeature::FORMAT_D32FS8)] = mu::isDepthStencilFormatSupported(GFXFormat::D32F_S8, gpuFamily);
-    
+
     CC_LOG_INFO("Metal Feature Set: %s", mu::featureSetToString(MTLFeatureSet(_mtlFeatureSet)).c_str());
-    
+
     return true;
 }
 
@@ -126,27 +121,18 @@ void CCMTLDevice::present() {
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
     _numTriangles = queue->_numTriangles;
-        
+
     // Clear queue stats
     queue->_numDrawCalls = 0;
     queue->_numInstances = 0;
     queue->_numTriangles = 0;
 }
 
-GFXWindow *CCMTLDevice::createWindow(const GFXWindowInfo &info) {
-    auto window = CC_NEW(CCMTLWindow(this) );
-    if (window && window->initialize(info) )
-        return window;
-    
-    CC_SAFE_DESTROY(window);
-    return nullptr;
-}
-
 GFXFence *CCMTLDevice::createFence(const GFXFenceInfo &info) {
     auto fence = CC_NEW(CCMTLFence(this) );
     if (fence && fence->initialize(info) )
         return fence;
-    
+
     CC_SAFE_DESTROY(fence);
     return nullptr;
 }
@@ -155,7 +141,7 @@ GFXQueue *CCMTLDevice::createQueue(const GFXQueueInfo &info) {
     auto queue = CC_NEW(CCMTLQueue(this) );
     if (queue && queue->initialize(info) )
         return queue;
-    
+
     CC_SAFE_DESTROY(queue);
     return nullptr;
 }
@@ -164,7 +150,7 @@ GFXCommandAllocator *CCMTLDevice::createCommandAllocator(const GFXCommandAllocat
     auto allocator = CC_NEW(CCMTLCommandAllocator(this) );
     if (allocator && allocator->initialize(info) )
         return allocator;
-    
+
     CC_SAFE_DESTROY(allocator);
     return nullptr;
 }
@@ -173,7 +159,7 @@ GFXCommandBuffer *CCMTLDevice::createCommandBuffer(const GFXCommandBufferInfo &i
     auto commandBuffer = CC_NEW(CCMTLCommandBuffer(this) );
     if (commandBuffer && commandBuffer->initialize(info) )
         return commandBuffer;
-    
+
     CC_SAFE_DESTROY(commandBuffer);
     return nullptr;
 }
@@ -182,7 +168,7 @@ GFXBuffer *CCMTLDevice::createBuffer(const GFXBufferInfo &info) {
     auto buffer = CC_NEW(CCMTLBuffer(this) );
     if (buffer && buffer->initialize(info) )
         return buffer;
-        
+
     CC_SAFE_DESTROY(buffer);
     return nullptr;
 }
@@ -191,7 +177,7 @@ GFXTexture *CCMTLDevice::createTexture(const GFXTextureInfo &info) {
     auto texture = CC_NEW(CCMTLTexture(this) );
     if (texture && texture->initialize(info) )
         return texture;
-    
+
     CC_SAFE_DESTROY(texture);
     return nullptr;
 }
@@ -200,7 +186,7 @@ GFXTexture *CCMTLDevice::createTexture(const GFXTextureViewInfo &info) {
     auto texture = CC_NEW(CCMTLTexture(this) );
     if (texture && texture->initialize(info) )
         return texture;
-    
+
     CC_SAFE_DESTROY(texture);
     return nullptr;
 }
@@ -209,7 +195,7 @@ GFXSampler *CCMTLDevice::createSampler(const GFXSamplerInfo &info) {
     auto sampler = CC_NEW(CCMTLSampler(this) );
     if (sampler && sampler->initialize(info) )
         return sampler;
-    
+
     CC_SAFE_DESTROY(sampler);
     return sampler;
 }
@@ -218,7 +204,7 @@ GFXShader *CCMTLDevice::createShader(const GFXShaderInfo &info) {
     auto shader = CC_NEW(CCMTLShader(this) );
     if (shader && shader->initialize(info) )
         return shader;
-    
+
     CC_SAFE_DESTROY(shader);
     return shader;
 }
@@ -227,7 +213,7 @@ GFXInputAssembler *CCMTLDevice::createInputAssembler(const GFXInputAssemblerInfo
     auto ia = CC_NEW(CCMTLInputAssembler(this) );
     if (ia && ia->initialize(info) )
         return ia;
-    
+
     CC_SAFE_DESTROY(ia);
     return nullptr;
 }
@@ -236,7 +222,7 @@ GFXRenderPass *CCMTLDevice::createRenderPass(const GFXRenderPassInfo &info) {
     auto renderPass = CC_NEW(CCMTLRenderPass(this) );
     if (renderPass && renderPass->initialize(info) )
         return renderPass;
-    
+
     CC_SAFE_DESTROY(renderPass);
     return nullptr;
 }
@@ -245,7 +231,7 @@ GFXFramebuffer *CCMTLDevice::createFramebuffer(const GFXFramebufferInfo &info) {
     auto frameBuffer = CC_NEW(CCMTLFramebuffer(this) );
     if (frameBuffer && frameBuffer->initialize(info) )
         return frameBuffer;
-    
+
     CC_SAFE_DESTROY(frameBuffer);
     return nullptr;
 }
@@ -254,7 +240,7 @@ GFXBindingLayout *CCMTLDevice::createBindingLayout(const GFXBindingLayoutInfo &i
     auto bl = CC_NEW(CCMTLBindingLayout(this) );
     if (bl && bl->initialize(info) )
         return bl;
-    
+
     CC_SAFE_DESTROY(bl);
     return nullptr;
 }
@@ -263,7 +249,7 @@ GFXPipelineState *CCMTLDevice::createPipelineState(const GFXPipelineStateInfo &i
     auto ps = CC_NEW(CCMTLPipelineState(this) );
     if (ps && ps->initialize(info) )
         return ps;
-    
+
     CC_SAFE_DESTROY(ps);
     return nullptr;
 }
@@ -272,7 +258,7 @@ GFXPipelineLayout *CCMTLDevice::createPipelineLayout(const GFXPipelineLayoutInfo
     auto pl = CC_NEW(CCMTLPipelineLayout(this) );
     if (pl && pl->initialize(info) )
         return pl;
-    
+
     CC_SAFE_DESTROY(pl);
     return nullptr;
 }
@@ -290,11 +276,11 @@ void CCMTLDevice::blitBuffer(void *srcData, uint offset, uint size, void *dstBuf
                                                               length:size
                                                              options:MTLResourceStorageModeShared];
     }
-    
+
     // Create a command buffer for GPU work.
     id <MTLCommandBuffer> commandBuffer = [static_cast<View*>(_mtkView).mtlCommandQueue commandBuffer];
-    
-    
+
+
     // Encode a blit pass to copy data from the source buffer to the private buffer.
     id <MTLBlitCommandEncoder> blitCommandEncoder = [commandBuffer blitCommandEncoder];
     [blitCommandEncoder copyFromBuffer:sourceBuffer

@@ -87,23 +87,14 @@ void CCVKCommandBuffer::beginRenderPass(GFXFramebuffer *fbo, const GFXRect &rend
         framebuffer = _curGPUFBO->swapchain->vkSwapchainFramebufferListMap[_curGPUFBO][_curGPUFBO->swapchain->curImageIndex];
     }
 
-    vector<VkImageMemoryBarrier>::type &barriers = renderPass->barriers;
     vector<VkClearValue>::type &clearValues = renderPass->clearValues;
-    size_t attachmentCount = barriers.size();
+    size_t attachmentCount = clearValues.size();
 
     if (attachmentCount) {
         for (size_t i = 0u; i < attachmentCount - 1; i++) {
-            barriers[i].image = _curGPUFBO->isOffscreen ? _curGPUFBO->gpuColorViews[i]->gpuTexture->vkImage : _curGPUFBO->swapchain->swapchainImages[_curGPUFBO->swapchain->curImageIndex];
             clearValues[i].color = {colors[i].r, colors[i].g, colors[i].b, colors[i].a};
         }
-        barriers[attachmentCount - 1].image = _curGPUFBO->isOffscreen ? _curGPUFBO->gpuDepthStencilView->gpuTexture->vkImage : _curGPUFBO->swapchain->depthStencilImages[_curGPUFBO->swapchain->curImageIndex];
         clearValues[attachmentCount - 1].depthStencil = {depth, (uint)stencil};
-
-        // initial -> COLOR_ATTACHMENT_OPTIMAL
-        vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer,
-                             VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-                             VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-                             VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, attachmentCount, barriers.data());
     }
 
     VkRenderPassBeginInfo passBeginInfo{VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};

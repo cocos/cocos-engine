@@ -1,11 +1,12 @@
 #include "GLES2Std.h"
+
 #include "GLES2Context.h"
 #include "gles2w.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "android/native_window.h"
-    #include "scripting/js-bindings/event/EventDispatcher.h"
     #include "scripting/js-bindings/event/CustomEventTypes.h"
+    #include "scripting/js-bindings/event/EventDispatcher.h"
 #endif
 
 // #define CC_GFX_DEBUG
@@ -51,7 +52,7 @@ void APIENTRY GLES2EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum se
 
     if (severity == GL_DEBUG_SEVERITY_HIGH_KHR) {
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-            // CC_ASSERTS(false, msg.c_str());
+        CCASSERT(false, msg.c_str());
     #else
         CC_LOG_ERROR(msg.c_str());
     #endif
@@ -242,8 +243,7 @@ bool GLES2Context::initialize(const GFXContextInfo &info) {
         _colorFmt = sharedCtx->getColorFormat();
         _depthStencilFmt = sharedCtx->getDepthStencilFormat();
 
-        EGLint pbuff_attribs[] =
-            {
+        EGLint pbuff_attribs[] = {
                 EGL_WIDTH, 2,
                 EGL_HEIGHT, 2,
                 EGL_LARGEST_PBUFFER, EGL_TRUE,
@@ -376,7 +376,7 @@ bool GLES2Context::MakeCurrent() {
                 case GFXVsyncMode::RELAXED: interval = -1; break;
                 case GFXVsyncMode::MAILBOX: interval = 0; break;
                 case GFXVsyncMode::HALF: interval = 2; break;
-                default:;
+                default: break;
             }
 
             if (eglSwapInterval(_eglDisplay, interval) != 1) {

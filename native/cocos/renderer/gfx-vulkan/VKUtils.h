@@ -420,6 +420,47 @@ VkShaderStageFlags MapVkShaderStageFlags(GFXShaderType stages) {
     return (VkShaderStageFlags)flags;
 }
 
+const char *MapVendorName(uint32_t vendorID) {
+    switch (vendorID) {
+        case 0x1002: return "Advanced Micro Devices, Inc.";
+        case 0x1010: return "Imagination Technologies";
+        case 0x10DE: return "Nvidia Corporation";
+        case 0x13B5: return "Arm Limited";
+        case 0x5143: return "Qualcomm Incorporated";
+        case 0x8086: return "Intel Corporation";
+    }
+    return "Unknown";
+}
+
+void MapDepthStencilBits(GFXFormat format, uint &depthBits, uint &stencilBits) {
+    switch (format) {
+        case GFXFormat::D16:
+            depthBits = 16;
+            stencilBits = 0;
+            break;
+        case GFXFormat::D16S8:
+            depthBits = 16;
+            stencilBits = 8;
+            break;
+        case GFXFormat::D24:
+            depthBits = 24;
+            stencilBits = 0;
+            break;
+        case GFXFormat::D24S8:
+            depthBits = 24;
+            stencilBits = 8;
+            break;
+        case GFXFormat::D32F:
+            depthBits = 32;
+            stencilBits = 0;
+            break;
+        case GFXFormat::D32F_S8:
+            depthBits = 32;
+            stencilBits = 8;
+            break;
+    }
+}
+
 const VkPrimitiveTopology VK_PRIMITIVE_MODES[] = {
     VK_PRIMITIVE_TOPOLOGY_POINT_LIST,                    // POINT_LIST
     VK_PRIMITIVE_TOPOLOGY_LINE_LIST,                     // LINE_LIST
@@ -568,18 +609,6 @@ uint nextPowerOf2(uint v) {
     v |= v >> 8;
     v |= v >> 16;
     return ++v;
-}
-
-const char *MapVendorName(uint32_t vendorID) {
-    switch (vendorID) {
-        case 0x1002: return "Advanced Micro Devices, Inc.";
-        case 0x1010: return "Imagination Technologies";
-        case 0x10DE: return "Nvidia Corporation";
-        case 0x13B5: return "Arm Limited";
-        case 0x5143: return "Qualcomm Incorporated";
-        case 0x8086: return "Intel Corporation";
-    }
-    return "Unknown";
 }
 
 bool isLayerSupported(const char *required, const std::vector<VkLayerProperties> &available) {

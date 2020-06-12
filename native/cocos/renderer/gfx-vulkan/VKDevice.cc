@@ -17,7 +17,6 @@
 #include "VKShader.h"
 #include "VKTexture.h"
 #include "VKUtils.h"
-#include "VKWindow.h"
 
 CC_DISABLE_WARNINGS()
 #define VMA_IMPLEMENTATION
@@ -208,34 +207,8 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
         _depthStencilTextures.push_back(texture);
     }
 
-    GFXRenderPassInfo renderPassInfo;
-    GFXColorAttachment colorAttachment;
-    colorAttachment.format = _context->getColorFormat();
-    colorAttachment.loadOp = GFXLoadOp::CLEAR;
-    colorAttachment.storeOp = GFXStoreOp::STORE;
-    colorAttachment.sampleCount = 1;
-    colorAttachment.beginLayout = GFXTextureLayout::COLOR_ATTACHMENT_OPTIMAL;
-    colorAttachment.endLayout = GFXTextureLayout::PRESENT_SRC;
-    renderPassInfo.colorAttachments.emplace_back(colorAttachment);
-
-    GFXDepthStencilAttachment &depthStencilAttachment = renderPassInfo.depthStencilAttachment;
-    depthStencilAttachment.format = _context->getDepthStencilFormat();
-    depthStencilAttachment.depthLoadOp = GFXLoadOp::CLEAR;
-    depthStencilAttachment.depthStoreOp = GFXStoreOp::STORE;
-    depthStencilAttachment.stencilLoadOp = GFXLoadOp::CLEAR;
-    depthStencilAttachment.stencilStoreOp = GFXStoreOp::STORE;
-    depthStencilAttachment.sampleCount = 1;
-    depthStencilAttachment.beginLayout = GFXTextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-    depthStencilAttachment.endLayout = GFXTextureLayout::PRESENT_SRC;
-
     _gpuSwapchain = CC_NEW(CCVKGPUSwapchain);
     buildSwapchain();
-
-    GFXWindowInfo windowInfo;
-    windowInfo.colorFmt = _context->getColorFormat();
-    windowInfo.depthStencilFmt = _context->getDepthStencilFormat();
-    windowInfo.isOffscreen = false;
-    _window = createWindow(windowInfo);
 
     GFXTextureInfo textureInfo;
     GFXTextureViewInfo texViewInfo;
@@ -323,6 +296,18 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
     CC_LOG_INFO("DEVICE_EXTENSIONS: %s", deviceExtensions.c_str());
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
 
+    const VkPhysicalDeviceLimits &limits = gpuContext->physicalDeviceProperties.limits;
+    _maxVertexAttributes = limits.maxVertexInputAttributes;
+    _maxVertexUniformVectors = limits.maxPerStageDescriptorUniformBuffers;
+    _maxFragmentUniformVectors = limits.maxPerStageDescriptorUniformBuffers;
+    _maxUniformBufferBindings = limits.maxDescriptorSetUniformBuffers;
+    _maxUniformBlockSize = limits.maxUniformBufferRange;
+    _maxTextureUnits = limits.maxDescriptorSetSampledImages;
+    _maxVertexTextureUnits = limits.maxPerStageDescriptorSampledImages;
+    _maxTextureSize = limits.maxImageDimension2D;
+    _maxCubeMapTextureSize = limits.maxImageDimensionCube;
+    MapDepthStencilBits(_context->getDepthStencilFormat(), _depthBits, _stencilBits);
+
     return true;
 }
 
@@ -330,7 +315,6 @@ void CCVKDevice::destroy() {
     CC_SAFE_DESTROY(_cmdAllocator);
     CC_SAFE_DESTROY(_queue);
     CC_SAFE_DESTROY(_stagingBuffer);
-    CC_SAFE_DESTROY(_window);
     CC_SAFE_DELETE(_gpuSemaphorePool);
     CC_SAFE_DELETE(_gpuFencePool);
 
@@ -392,7 +376,6 @@ void CCVKDevice::resize(uint width, uint height) {
     _width = width;
     _height = height;
     buildSwapchain();
-    _window->resize(_width, _height);
 }
 
 void CCVKDevice::buildSwapchain() {
@@ -504,15 +487,6 @@ void CCVKDevice::present() {
     presentInfo.pImageIndices = &_gpuSwapchain->curImageIndex;
 
     VK_CHECK(vkQueuePresentKHR(queue->gpuQueue()->vkQueue, &presentInfo));
-}
-
-GFXWindow *CCVKDevice::createWindow(const GFXWindowInfo &info) {
-    GFXWindow *window = CC_NEW(CCVKWindow(this));
-    if (window->initialize(info))
-        return window;
-
-    CC_SAFE_DESTROY(window);
-    return nullptr;
 }
 
 GFXFence *CCVKDevice::createFence(const GFXFenceInfo &info) {

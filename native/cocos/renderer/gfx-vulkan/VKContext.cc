@@ -20,11 +20,12 @@ constexpr uint PREFERRED_SWAPCHAIN_IMAGE_COUNT = 0; // 0 for default count, othe
 VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                                            VkDebugUtilsMessageTypeFlagsEXT messageType,
                                                            const VkDebugUtilsMessengerCallbackDataEXT *callbackData,
-                                                           void *user_data) {
-    // https://github.com/KhronosGroup/Vulkan-ValidationLayers/issues/1818
-    if (!strcmp(callbackData->pMessageIdName, "VUID-vkQueuePresentKHR-pWaitSemaphores-03268")) {
+                                                           void *userData) {
+    // https://github.com/KhronosGroup/SPIRV-Tools/issues/3422
+    if (!strcmp(callbackData->pMessageIdName, "UNASSIGNED-CoreValidation-Shader-InconsistentSpirv")) {
         return VK_FALSE;
     }
+
     // TODO: handle the few frames with no command submission at start up
     if (!strcmp(callbackData->pMessageIdName, "VUID-VkPresentInfoKHR-pImageIndices-01296")) {
         return VK_FALSE;

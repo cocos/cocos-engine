@@ -16,7 +16,6 @@ public:
     virtual void resize(uint width, uint height) = 0;
     virtual void acquire() = 0;
     virtual void present() = 0;
-    virtual GFXWindow *createWindow(const GFXWindowInfo &info) = 0;
     virtual GFXFence *createFence(const GFXFenceInfo &info) = 0;
     virtual GFXQueue *createQueue(const GFXQueueInfo &info) = 0;
     virtual GFXCommandAllocator *createCommandAllocator(const GFXCommandAllocatorInfo &info) = 0;
@@ -42,7 +41,6 @@ public:
     CC_INLINE uint getNativeHeight() { return _nativeHeight; }
     CC_INLINE GFXMemoryStatus &getMemoryStatus() { return _memoryStatus; }
     CC_INLINE GFXContext *getContext() const { return _context; }
-    CC_INLINE GFXWindow *getMainWindow() const { return _window; }
     CC_INLINE GFXQueue *getQueue() const { return _queue; }
     CC_INLINE GFXCommandAllocator *getCommandAllocator() const { return _cmdAllocator; }
     CC_INLINE const String &getRenderer() const { return _renderer; }
@@ -85,23 +83,22 @@ protected:
     GFXMemoryStatus _memoryStatus;
     uintptr_t _windowHandle = 0;
     GFXContext *_context = nullptr;
-    GFXWindow *_window = nullptr;
     GFXQueue *_queue = nullptr;
     GFXCommandAllocator *_cmdAllocator = nullptr;
     uint _numDrawCalls = 0;
     uint _numInstances = 0;
     uint _numTriangles = 0;
-    int _maxVertexAttributes = -1;
-    int _maxVertexUniformVectors = -1;
-    int _maxFragmentUniformVectors = -1;
-    int _maxTextureUnits = -1;
-    int _maxVertexTextureUnits = -1;
-    int _maxUniformBufferBindings = GFX_MAX_BUFFER_BINDINGS;
-    int _maxUniformBlockSize = -1;
-    int _maxTextureSize = -1;
-    int _maxCubeMapTextureSize = -1;
-    int _depthBits = -1;
-    int _stencilBits = -1;
+    uint _maxVertexAttributes = 0;
+    uint _maxVertexUniformVectors = 0;
+    uint _maxFragmentUniformVectors = 0;
+    uint _maxTextureUnits = 0;
+    uint _maxVertexTextureUnits = 0;
+    uint _maxUniformBufferBindings = GFX_MAX_BUFFER_BINDINGS;
+    uint _maxUniformBlockSize = 0;
+    uint _maxTextureSize = 0;
+    uint _maxCubeMapTextureSize = 0;
+    uint _depthBits = 0;
+    uint _stencilBits = 0;
     bool _reverseCW = false;
     uint _shaderIdGen = 0;
     std::unordered_map<String, String> _macros;

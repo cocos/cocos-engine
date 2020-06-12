@@ -1,11 +1,12 @@
 #include "GLES3Std.h"
+
 #include "GLES3Context.h"
 #include "gles3w.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-#include "android/native_window.h"
-#include "scripting/js-bindings/event/EventDispatcher.h"
-#include "scripting/js-bindings/event/CustomEventTypes.h"
+    #include "android/native_window.h"
+    #include "scripting/js-bindings/event/CustomEventTypes.h"
+    #include "scripting/js-bindings/event/EventDispatcher.h"
 #endif
 
 // #define CC_GFX_DEBUG
@@ -50,11 +51,11 @@ void APIENTRY GLES3EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum se
                                     source_desc.c_str(), type_desc.c_str(), severity_desc.c_str(), message);
 
     if (severity == GL_DEBUG_SEVERITY_HIGH_KHR) {
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-        // CC_ASSERTS(false, msg.c_str());
-#else
+    #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+        CCASSERT(false, msg.c_str());
+    #else
         CC_LOG_ERROR(msg.c_str());
-#endif
+    #endif
     } else {
         CC_LOG_DEBUG(msg.c_str());
     }
@@ -82,7 +83,7 @@ bool GLES3Context::initialize(const GFXContextInfo &info) {
         _isPrimaryContex = true;
         _windowHandle = info.windowHandle;
 
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+    #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
         _nativeDisplay = (NativeDisplayType)GetDC((HWND)_windowHandle);
         if (!_nativeDisplay) {
             return false;
@@ -92,9 +93,9 @@ bool GLES3Context::initialize(const GFXContextInfo &info) {
         if (_eglDisplay == EGL_NO_DISPLAY) {
             _eglDisplay = eglGetDisplay((EGLNativeDisplayType)EGL_DEFAULT_DISPLAY);
         }
-#else
+    #else
         _eglDisplay = eglGetDisplay((EGLNativeDisplayType)EGL_DEFAULT_DISPLAY);
-#endif
+    #endif
         // If a display still couldn't be obtained, return an error.
         if (_eglDisplay == EGL_NO_DISPLAY) {
             CC_LOG_ERROR("eglGetDisplay() - FAILED.");
@@ -177,7 +178,7 @@ bool GLES3Context::initialize(const GFXContextInfo &info) {
     * As soon as we picked a EGLConfig, we can safely reconfigure the
     * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
 
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
         EGLint n_fmt;
         if (eglGetConfigAttrib(_eglDisplay, _eglConfig, EGL_NATIVE_VISUAL_ID, &n_fmt) == EGL_FALSE) {
             CC_LOG_ERROR("Getting configuration attributes failed.");
@@ -187,7 +188,7 @@ bool GLES3Context::initialize(const GFXContextInfo &info) {
         uint width = _device->getWidth();
         uint height = _device->getHeight();
         ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, n_fmt);
-#endif
+    #endif
 
         _eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL);
         if (_eglSurface == EGL_NO_SURFACE) {
@@ -214,10 +215,10 @@ bool GLES3Context::initialize(const GFXContextInfo &info) {
                 ctx_attribs[n++] = EGL_CONTEXT_MINOR_VERSION_KHR;
                 ctx_attribs[n++] = m;
 
-#ifdef CC_GFX_DEBUG
+    #ifdef CC_GFX_DEBUG
                 ctx_attribs[n++] = EGL_CONTEXT_FLAGS_KHR;
                 ctx_attribs[n++] = EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR;
-#endif
+    #endif
                 ctx_attribs[n] = EGL_NONE;
 
                 _eglContext = eglCreateContext(_eglDisplay, _eglConfig, NULL, ctx_attribs);
@@ -284,10 +285,10 @@ bool GLES3Context::initialize(const GFXContextInfo &info) {
             ctx_attribs[n++] = EGL_CONTEXT_MINOR_VERSION_KHR;
             ctx_attribs[n++] = _minorVersion;
 
-#ifdef CC_GFX_DEBUG
+    #ifdef CC_GFX_DEBUG
             ctx_attribs[n++] = EGL_CONTEXT_FLAGS_KHR;
             ctx_attribs[n++] = EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR;
-#endif
+    #endif
         } else {
             ctx_attribs[n++] = EGL_CONTEXT_CLIENT_VERSION;
             ctx_attribs[n++] = _majorVersion;
@@ -306,7 +307,7 @@ bool GLES3Context::initialize(const GFXContextInfo &info) {
         return false;
     }
 
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [=](const CustomEvent &) -> void {
         if (_eglSurface != EGL_NO_SURFACE) {
             eglDestroySurface(_eglDisplay, _eglSurface);
@@ -334,7 +335,7 @@ bool GLES3Context::initialize(const GFXContextInfo &info) {
 
         MakeCurrent();
     });
-#endif
+    #endif
 
     return true;
 }
@@ -352,11 +353,11 @@ void GLES3Context::destroy() {
 
     eglMakeCurrent(_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+    #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     if (_isPrimaryContex && _nativeDisplay) {
         ReleaseDC((HWND)_windowHandle, _nativeDisplay);
     }
-#endif
+    #endif
 
     _isPrimaryContex = false;
     _windowHandle = 0;
@@ -387,7 +388,7 @@ bool GLES3Context::MakeCurrent() {
                 case GFXVsyncMode::RELAXED: interval = -1; break;
                 case GFXVsyncMode::MAILBOX: interval = 0; break;
                 case GFXVsyncMode::HALF: interval = 2; break;
-                default:;
+                default: break;
             }
 
             if (eglSwapInterval(_eglDisplay, interval) != 1) {

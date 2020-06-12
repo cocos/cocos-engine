@@ -1,22 +1,22 @@
 #include "GLES3Std.h"
+
 #include "GLES3Device.h"
-#include "GLES3StateCache.h"
-#include "GLES3Context.h"
-#include "GLES3Window.h"
-#include "GLES3Fence.h"
-#include "GLES3Queue.h"
+#include "GLES3BindingLayout.h"
+#include "GLES3Buffer.h"
 #include "GLES3CommandAllocator.h"
 #include "GLES3CommandBuffer.h"
-#include "GLES3Buffer.h"
-#include "GLES3Texture.h"
-#include "GLES3Sampler.h"
-#include "GLES3Shader.h"
-#include "GLES3InputAssembler.h"
-#include "GLES3RenderPass.h"
+#include "GLES3Context.h"
+#include "GLES3Fence.h"
 #include "GLES3Framebuffer.h"
-#include "GLES3BindingLayout.h"
+#include "GLES3InputAssembler.h"
 #include "GLES3PipelineLayout.h"
 #include "GLES3PipelineState.h"
+#include "GLES3Queue.h"
+#include "GLES3RenderPass.h"
+#include "GLES3Sampler.h"
+#include "GLES3Shader.h"
+#include "GLES3StateCache.h"
+#include "GLES3Texture.h"
 
 NS_CC_BEGIN
 
@@ -113,12 +113,6 @@ bool GLES3Device::initialize(const GFXDeviceInfo &info) {
     CC_LOG_INFO("USE_VAO: %s", _useVAO ? "true" : "false");
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressed_fmts.c_str());
 
-    GFXWindowInfo window_info;
-    window_info.colorFmt = _context->getColorFormat();
-    window_info.depthStencilFmt = _context->getDepthStencilFormat();
-    window_info.isOffscreen = false;
-    _window = createWindow(window_info);
-
     GFXQueueInfo queue_info;
     queue_info.type = GFXQueueType::GRAPHICS;
     _queue = createQueue(queue_info);
@@ -126,15 +120,17 @@ bool GLES3Device::initialize(const GFXDeviceInfo &info) {
     GFXCommandAllocatorInfo cmd_alloc_info;
     _cmdAllocator = createCommandAllocator(cmd_alloc_info);
 
-    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &_maxVertexAttributes);
-    glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, &_maxVertexUniformVectors);
-    glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, &_maxFragmentUniformVectors);
-    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &_maxTextureUnits);
-    glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &_maxVertexTextureUnits);
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &_maxTextureSize);
-    glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &_maxCubeMapTextureSize);
-    glGetIntegerv(GL_DEPTH_BITS, &_depthBits);
-    glGetIntegerv(GL_STENCIL_BITS, &_stencilBits);
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)&_maxVertexAttributes);
+    glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, (GLint *)&_maxVertexUniformVectors);
+    glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, (GLint *)&_maxFragmentUniformVectors);
+    glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, (GLint *)&_maxUniformBufferBindings);
+    glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, (GLint *)&_maxUniformBlockSize);
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint *)&_maxTextureUnits);
+    glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, (GLint *)&_maxVertexTextureUnits);
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint *)&_maxTextureSize);
+    glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, (GLint *)&_maxCubeMapTextureSize);
+    glGetIntegerv(GL_DEPTH_BITS, (GLint *)&_depthBits);
+    glGetIntegerv(GL_STENCIL_BITS, (GLint *)&_stencilBits);
 
     return true;
 }
@@ -142,7 +138,6 @@ bool GLES3Device::initialize(const GFXDeviceInfo &info) {
 void GLES3Device::destroy() {
     CC_SAFE_DESTROY(_cmdAllocator);
     CC_SAFE_DESTROY(_queue);
-    CC_SAFE_DESTROY(_window);
     CC_SAFE_DESTROY(_context);
     CC_SAFE_DELETE(stateCache);
 }
@@ -150,7 +145,6 @@ void GLES3Device::destroy() {
 void GLES3Device::resize(uint width, uint height) {
     _width = width;
     _height = height;
-    _window->resize(width, height);
 }
 
 void GLES3Device::present() {
@@ -166,15 +160,6 @@ void GLES3Device::present() {
     queue->_numDrawCalls = 0;
     queue->_numInstances = 0;
     queue->_numTriangles = 0;
-}
-
-GFXWindow *GLES3Device::createWindow(const GFXWindowInfo &info) {
-    GFXWindow *window = CC_NEW(GLES3Window(this));
-    if (window->initialize(info))
-        return window;
-
-    CC_SAFE_DESTROY(window);
-    return nullptr;
 }
 
 GFXFence *GLES3Device::createFence(const GFXFenceInfo &info) {
@@ -235,7 +220,7 @@ GFXTexture *GLES3Device::createTexture(const GFXTextureViewInfo &info) {
     GFXTexture *texture = CC_NEW(GLES3Texture(this));
     if (texture->initialize(info))
         return texture;
-    
+
     CC_SAFE_DESTROY(texture);
     return nullptr;
 }

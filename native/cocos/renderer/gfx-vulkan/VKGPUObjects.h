@@ -41,7 +41,6 @@ public:
     GFXSubPassList subPasses;
     VkRenderPass vkRenderPass;
     vector<VkClearValue>::type clearValues;
-    vector<VkImageMemoryBarrier>::type barriers;
 };
 
 class CCVKGPUTexture : public Object {
