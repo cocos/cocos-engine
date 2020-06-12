@@ -306,8 +306,10 @@ export class Color extends ValueType {
         super();
         if (typeof r === 'string') {
             this.fromHEX(r);
+        } else if (g !== undefined) {
+            this.set(r as number, g, b, a);
         } else {
-            this.set(r as Color, g, b, a);
+            this.set(r as Color);
         }
     }
 
@@ -574,7 +576,7 @@ export class Color extends ValueType {
      */
     public set(other: Color): Color;
     public set(r?: number, g?: number, b?: number, a?: number): Color;
-    public set(r?: number | Color, g?: number, b?: number, a?: number) {
+    public set(r?: number | Color, g?: number, b?: number, a?: number): Color {
         if (typeof r === 'object') {
             if (r._val != null) {
                 this._val = r._val;
