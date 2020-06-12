@@ -572,8 +572,9 @@ export class Color extends ValueType {
      * @param [a=255] 指定的 Alpha 通道。
      * @returns 当前颜色。
      */
-    public set (other: Color, g?: number, b?: number, a?: number): Color;
-    public set (r?: number | Color, g?: number, b?: number, a?: number) {
+    public set(other: Color): Color;
+    public set(r?: number, g?: number, b?: number, a?: number): Color;
+    public set(r?: number | Color, g?: number, b?: number, a?: number) {
         if (typeof r === 'object') {
             if (r._val != null) {
                 this._val = r._val;
