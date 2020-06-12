@@ -34,7 +34,6 @@ import { Component } from '../../components/component';
 import { ccclass, help, executeInEditMode, menu, property } from '../../data/class-decorator';
 import { ray } from '../../geometry';
 import { GFXClearFlag } from '../../gfx/define';
-import { GFXWindow } from '../../gfx/window';
 import { Color, Rect, toRadian, Vec3 } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { view } from '../../platform/view';
@@ -45,6 +44,7 @@ import { Layers, Node, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
+import { RenderWindow } from '../../pipeline';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -64,6 +64,17 @@ const ClearFlag = Enum({
     DEPTH_ONLY: GFXClearFlag.DEPTH_STENCIL,
     DONT_CLEAR: GFXClearFlag.NONE,
 });
+
+// tslint:disable: no-shadowed-variable
+export namespace CameraComponent {
+    export type ProjectionType = EnumAlias<typeof ProjectionType>;
+    export type FOVAxis = EnumAlias<typeof FOVAxis>;
+    export type ClearFlag = EnumAlias<typeof ClearFlag>;
+    export type Aperture = EnumAlias<typeof Aperture>;
+    export type Shutter = EnumAlias<typeof Shutter>;
+    export type ISO = EnumAlias<typeof ISO>;
+}
+// tslint:enable: no-shadowed-variable
 
 /**
  * @en The Camera Component.
@@ -470,7 +481,8 @@ export class CameraComponent extends Component {
     set inEditorMode (value) {
         this._inEditorMode = value;
         if (this._camera) {
-            this._camera.changeTargetWindow(value ? legacyCC.director.root && legacyCC.director.root.mainWindow : legacyCC.director.root && legacyCC.director.root.tempWindow);
+            this._camera.changeTargetWindow(value ? legacyCC.director.root && legacyCC.director.root.mainWindow :
+                legacyCC.director.root && legacyCC.director.root.tempWindow);
         }
     }
 
@@ -569,7 +581,8 @@ export class CameraComponent extends Component {
             name: this.node.name,
             node: this.node,
             projection: this._projection,
-            window: this._inEditorMode ? legacyCC.director.root && legacyCC.director.root.mainWindow : legacyCC.director.root && legacyCC.director.root.tempWindow,
+            window: this._inEditorMode ? legacyCC.director.root && legacyCC.director.root.mainWindow :
+                legacyCC.director.root && legacyCC.director.root.tempWindow,
             priority: this._priority,
             flows: this._flows,
         });
@@ -623,7 +636,7 @@ export class CameraComponent extends Component {
     }
 
     protected _chechTargetTextureEvent (old: RenderTexture | null) {
-        const resizeFunc = (window: GFXWindow) => {
+        const resizeFunc = (window: RenderWindow) => {
             if (this._camera) {
                 this._camera.setFixedSize(window.width, window.height);
             }
@@ -649,13 +662,4 @@ export class CameraComponent extends Component {
             this._camera.setFixedSize(window!.width, window!.height);
         }
     }
-}
-
-export namespace CameraComponent {
-    export type ProjectionType = EnumAlias<typeof ProjectionType>;
-    export type FOVAxis = EnumAlias<typeof FOVAxis>;
-    export type ClearFlag = EnumAlias<typeof ClearFlag>;
-    export type Aperture = EnumAlias<typeof Aperture>;
-    export type Shutter = EnumAlias<typeof Shutter>;
-    export type ISO = EnumAlias<typeof ISO>;
 }

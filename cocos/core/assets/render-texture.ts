@@ -3,13 +3,14 @@
  */
 
 import { ccclass, property } from '../data/class-decorator';
-import { GFXFormat, GFXTexture } from '../gfx';
+import { GFXFormat, GFXTexture, GFXColorAttachment, GFXDepthStencilAttachment, GFXTextureLayout } from '../gfx';
 import { GFXDevice } from '../gfx/device';
-import { GFXWindow } from '../gfx/window';
 import { ccenum } from '../value-types/enum';
 import { DepthStencilFormat, PixelFormat } from './asset-enum';
 import { TextureBase } from './texture-base';
 import { legacyCC } from '../global-exports';
+import { RenderWindow } from '../pipeline';
+import { IRenderWindowInfo } from '../pipeline/render-window';
 
 export interface IRenderTextureCreateInfo {
     name?: string;
@@ -24,7 +25,7 @@ ccenum(DepthStencilFormat);
 @ccclass('cc.RenderTexture')
 export class RenderTexture extends TextureBase {
     public static DepthStencilFormat = DepthStencilFormat;
-    private _window: GFXWindow | null = null;
+    private _window: RenderWindow | null = null;
 
     @property
     private _depthStencilFormat: DepthStencilFormat = DepthStencilFormat.NONE;
@@ -65,13 +66,11 @@ export class RenderTexture extends TextureBase {
         return this._window;
     }
 
-    public getGFXTexture (
-    ): GFXTexture | null /* TODO: Explicit since ISSUE https://github.com/microsoft/TypeScript/issues/31280 , changes required once the issue is fixed. */ {
-        return this._window ? this._window.colorTexture : null;
+    public getGFXTexture (): GFXTexture | null {
+        return this._window ? this._window.colorTextures[0] : null;
     }
 
-    public getGFXStencilTexture (
-    ): GFXTexture | null /* TODO: Explicit since ISSUE https://github.com/microsoft/TypeScript/issues/31280 , changes required once the issue is fixed. */ {
+    public getGFXStencilTexture (): GFXTexture | null {
         return this._window ? this._window.depthStencilTexture : null;
     }
 
@@ -140,16 +139,24 @@ export class RenderTexture extends TextureBase {
     }
 
     protected _createWindow (device: GFXDevice) {
-        const config = {
+        const colorAttachment = new GFXColorAttachment();
+        colorAttachment.format = this._format;
+        colorAttachment.endLayout = GFXTextureLayout.SHADER_READONLY_OPTIMAL;
+        const depthStencilAttachment = new GFXDepthStencilAttachment();
+        depthStencilAttachment.format = this._depthStencilFormat as unknown as GFXFormat;
+
+        const config: IRenderWindowInfo = {
             title: this.name,
             isOffscreen: true,
             width: this._width,
             height: this._height,
-            colorFmt: this._format,
-            depthStencilFmt: this._depthStencilFormat as unknown as GFXFormat,
+            renderPassInfo: {
+                colorAttachments: [colorAttachment],
+                depthStencilAttachment,
+            }
         };
 
-        if (this._window){
+        if (this._window) {
             this._window.initialize(config);
             return this._window;
         }

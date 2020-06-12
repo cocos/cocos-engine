@@ -9,6 +9,7 @@ export { RenderPipeline } from './render-pipeline';
 export { RenderFlow } from './render-flow';
 export { RenderStage } from './render-stage';
 export { RenderView } from './render-view';
+export { RenderWindow } from './render-window';
 
 export { ForwardPipeline } from './forward/forward-pipeline';
 export { ForwardFlow } from './forward/forward-flow';

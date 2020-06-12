@@ -235,8 +235,6 @@ export abstract class RenderStage {
             throw new Error('');
         }
 
-        this._device = this._flow.pipeline.root.device;
-
         this._clearColors = [{ r: 0.3, g: 0.6, b: 0.9, a: 1.0 }];
         this._renderArea = { x: 0, y: 0, width: 0, height: 0 };
 

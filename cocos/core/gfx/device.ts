@@ -18,7 +18,6 @@ import { GFXRenderPass, IGFXRenderPassInfo } from './render-pass';
 import { GFXSampler, IGFXSamplerInfo } from './sampler';
 import { GFXShader, IGFXShaderInfo } from './shader';
 import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from './texture';
-import { GFXWindow, IGFXWindowInfo } from './window';
 
 ccenum(GFXFormat);
 
@@ -140,14 +139,6 @@ export abstract class GFXDevice {
      */
     get nativeHeight (): number {
         return this._nativeHeight;
-    }
-
-    /**
-     * @en Device main window.
-     * @zh 设备主窗口。
-     */
-    get mainWindow (): GFXWindow {
-        return this._mainWindow as GFXWindow;
     }
 
     /**
@@ -360,7 +351,6 @@ export abstract class GFXDevice {
     protected _height: number = 0;
     protected _nativeWidth: number = 0;
     protected _nativeHeight: number = 0;
-    protected _mainWindow: GFXWindow | null = null;
     protected _cmdAllocator: GFXCommandAllocator | null = null;
     protected _maxVertexAttributes: number = 0;
     protected _maxVertexUniformVectors: number = 0;
@@ -497,13 +487,6 @@ export abstract class GFXDevice {
      * @param info GFX fence description info.
      */
     public abstract createFence (info: IGFXFenceInfo): GFXFence;
-
-    /**
-     * @en Create window.
-     * @zh 创建窗口。
-     * @param info GFX window description info.
-     */
-    public abstract createWindow (info: IGFXWindowInfo): GFXWindow;
 
     /**
      * @en Begin current frame.

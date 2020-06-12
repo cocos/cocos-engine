@@ -583,7 +583,7 @@ export class Game extends EventTarget {
         }
 
         if (!JSB && !EDITOR && !PREVIEW && legacyCC.internal.SplashScreen) {
-            legacyCC.internal.SplashScreen.instance.main(this._gfxDevice);
+            legacyCC.internal.SplashScreen.instance.main(legacyCC.director.root);
         }
 
         legacyCC.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
@@ -738,12 +738,12 @@ export class Game extends EventTarget {
             window.rAF = window.requestAnimationFrame;
             window.cAF = window.cancelAnimationFrame;
         }
-        else {     
+        else {
             if (this._intervalId) {
                 window.cAF(this._intervalId);
                 this._intervalId = 0;
             }
-            
+
             if (frameRate !== 60 && frameRate !== 30) {
                 window.rAF = this._stTime;
                 window.cAF = this._ctTime;

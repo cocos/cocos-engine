@@ -23,8 +23,8 @@ export class GFXColorAttachment {
     public loadOp: GFXLoadOp = GFXLoadOp.CLEAR;
     public storeOp: GFXStoreOp = GFXStoreOp.STORE;
     public sampleCount: number = 1;
-    public beginLayout: GFXTextureLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
-    public endLayout: GFXTextureLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
+    public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED;
+    public endLayout: GFXTextureLayout = GFXTextureLayout.PRESENT_SRC;
 }
 
 /**
@@ -38,7 +38,7 @@ export class GFXDepthStencilAttachment {
     public stencilLoadOp: GFXLoadOp = GFXLoadOp.CLEAR;
     public stencilStoreOp: GFXStoreOp = GFXStoreOp.STORE;
     public sampleCount: number = 1;
-    public beginLayout: GFXTextureLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED;
     public endLayout: GFXTextureLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 }
 
@@ -52,9 +52,9 @@ export interface IGFXSubPassInfo {
 }
 
 export interface IGFXRenderPassInfo {
-    colorAttachments?: GFXColorAttachment[];
-    depthStencilAttachment?: GFXDepthStencilAttachment;
-    subPasses? : IGFXSubPassInfo[];
+    colorAttachments: GFXColorAttachment[];
+    depthStencilAttachment: GFXDepthStencilAttachment;
+    subPasses?: IGFXSubPassInfo[];
 }
 
 /**

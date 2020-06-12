@@ -44,7 +44,7 @@ import {
     GFXPrimitiveMode,
 } from '../gfx/define';
 import { GFXDevice, GFXFeature } from '../gfx/device';
-import { IGFXAttribute } from '../gfx/input-assembler';
+import { IGFXAttribute, IGFXInputAssemblerInfo } from '../gfx/input-assembler';
 import { warnID } from '../platform/debug';
 import { sys } from '../platform/sys';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
@@ -102,7 +102,7 @@ export interface IFlatBuffer {
 /**
  * 渲染子网格。
  */
-export class RenderingSubMesh {
+export class RenderingSubMesh implements IGFXInputAssemblerInfo {
     /**
      * 使用的所有顶点缓冲区。
      */

@@ -48,7 +48,7 @@ export const PhotometricTerm = Enum({
  * @en static light settings.
  * @zh 静态灯光设置
  */
-@ccclass('cc.ModelLightmapSettings')
+@ccclass('cc.StaticLightSettings')
 class StaticLightSettings {
     @property
     protected _editorOnly: boolean = false;

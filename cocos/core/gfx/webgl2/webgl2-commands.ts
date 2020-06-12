@@ -114,6 +114,7 @@ export function GFXFormatToWebGLType (format: GFXFormat, gl: WebGL2RenderingCont
         case GFXFormat.RGB32UI: return gl.UNSIGNED_INT;
         case GFXFormat.RGB32I: return gl.INT;
 
+        case GFXFormat.BGRA8: return gl.UNSIGNED_BYTE;
         case GFXFormat.RGBA8: return gl.UNSIGNED_BYTE;
         case GFXFormat.SRGB8_A8: return gl.UNSIGNED_BYTE;
         case GFXFormat.RGBA8SN: return gl.BYTE;
@@ -198,6 +199,7 @@ export function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGL2Ren
         case GFXFormat.RGB8SN: return gl.RGB8_SNORM;
         case GFXFormat.RGB8UI: return gl.RGB8UI;
         case GFXFormat.RGB8I: return gl.RGB8I;
+        case GFXFormat.BGRA8: return gl.RGBA8;
         case GFXFormat.RGBA8: return gl.RGBA8;
         case GFXFormat.RGBA8SN: return gl.RGBA8_SNORM;
         case GFXFormat.RGBA8UI: return gl.RGBA8UI;
@@ -289,6 +291,7 @@ export function GFXFormatToWebGLFormat (format: GFXFormat, gl: WebGL2RenderingCo
         case GFXFormat.RGB8SN:
         case GFXFormat.RGB8UI:
         case GFXFormat.RGB8I: return gl.RGB;
+        case GFXFormat.BGRA8:
         case GFXFormat.RGBA8:
         case GFXFormat.RGBA8SN:
         case GFXFormat.RGBA8UI:
