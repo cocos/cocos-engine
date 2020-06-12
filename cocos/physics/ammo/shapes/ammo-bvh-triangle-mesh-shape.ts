@@ -1,4 +1,4 @@
-import Ammo from '@cocos/ammo';
+import Ammo from '../ammo-instantiated';
 import { AmmoShape } from "./ammo-shape";
 import { Mesh, GFXPrimitiveMode, warn, warnID } from "../../../core";
 import { MeshColliderComponent } from '../../../../exports/physics-framework';

@@ -1,4 +1,4 @@
-import Ammo from '@cocos/ammo';
+import Ammo from './ammo-instantiated';
 import { ColliderComponent, TriggerEventType, CollisionEventType, IContactEquation } from '../../../exports/physics-framework';
 
 export const TriggerEventObject = {
