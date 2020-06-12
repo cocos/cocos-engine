@@ -418,9 +418,17 @@ PhysicsContact.put = function (b2contact) {
 var _p = PhysicsContact.prototype;
 
 /**
+ * !#en
+ * One of the collider that collided
+ * !#zh
+ * 发生碰撞的碰撞体之一
  * @property {Collider} colliderA
  */
 /**
+ * !#en
+ * One of the collider that collided
+ * !#zh
+ * 发生碰撞的碰撞体之一
  * @property {Collider} colliderB
  */
 /**
