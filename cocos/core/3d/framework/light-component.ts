@@ -181,7 +181,7 @@ export class LightComponent extends Component {
 
     /**
      * @en
-     * static light setttings.
+     * static light settings.
      * @zh
      * 静态灯光设置。
      */
