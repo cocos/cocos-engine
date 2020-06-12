@@ -533,6 +533,7 @@ AssetManager.prototype = {
      * 
      * @typescript
      * postLoadNative(asset: cc.Asset, options: Record<string, any>, onComplete: (err: Error) => void): void
+     * postLoadNative(asset: cc.Asset, options: Record<string, any>): void
      * postLoadNative(asset: cc.Asset, onComplete: (err: Error) => void): void
      * postLoadNative(asset: cc.Asset): void
      */
@@ -588,6 +589,7 @@ AssetManager.prototype = {
      * 
      * @typescript
      * loadRemote<T extends cc.Asset>(url: string, options: Record<string, any>, onComplete: (err: Error, asset: T) => void): void
+     * loadRemote<T extends cc.Asset>(url: string, options: Record<string, any>): void
      * loadRemote<T extends cc.Asset>(url: string, onComplete: (err: Error, asset: T) => void): void
      * loadRemote<T extends cc.Asset>(url: string): void
      */
@@ -626,6 +628,7 @@ AssetManager.prototype = {
      * 
      * @typescript
      * loadScript(url: string|string[], options: Record<string, any>, onComplete: (err: Error) => void): void;
+     * loadScript(url: string|string[], options: Record<string, any>): void;
      * loadScript(url: string|string[], onComplete: (err: Error) => void): void;
      * loadScript(url: string|string[]): void;
      */
@@ -656,6 +659,7 @@ AssetManager.prototype = {
      * 
      * @typescript
      * loadBundle(nameOrUrl: string, options: Record<string, any>, onComplete: (err: Error, bundle: cc.AssetManager.Bundle) => void): void
+     * loadBundle(nameOrUrl: string, options: Record<string, any>): void
      * loadBundle(nameOrUrl: string, onComplete: (err: Error, bundle: cc.AssetManager.Bundle) => void): void
      * loadBundle(nameOrUrl: string): void
      */
