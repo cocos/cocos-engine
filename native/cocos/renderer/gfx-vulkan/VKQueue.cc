@@ -35,7 +35,7 @@ void CCVKQueue::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-void CCVKQueue::submit(const std::vector<GFXCommandBuffer *> &cmdBuffs, GFXFence *fence) {
+void CCVKQueue::submit(const vector<GFXCommandBuffer *>::type &cmdBuffs, GFXFence *fence) {
     if (!_isAsync) {
         _gpuQueue->commandBuffers.clear();
         uint count = cmdBuffs.size();
@@ -58,7 +58,7 @@ void CCVKQueue::submit(const std::vector<GFXCommandBuffer *> &cmdBuffs, GFXFence
 
         VkFence vkFence = fence ? ((CCVKFence *)fence)->gpuFence()->vkFence : ((CCVKDevice *)_device)->gpuFencePool()->alloc();
         VK_CHECK(vkQueueSubmit(_gpuQueue->vkQueue, 1, &submitInfo, vkFence));
-        VK_CHECK(vkWaitForFences(((CCVKDevice *)_device)->gpuDevice()->vkDevice, 1, &vkFence, true, DEFAULT_FENCE_TIMEOUT));
+        VK_CHECK(vkWaitForFences(((CCVKDevice*)_device)->gpuDevice()->vkDevice, 1, &vkFence, VK_TRUE, DEFAULT_FENCE_TIMEOUT));
 
         _gpuQueue->nextWaitSemaphore = _gpuQueue->nextSignalSemaphore;
         _gpuQueue->nextSignalSemaphore = ((CCVKDevice *)_device)->gpuSemaphorePool()->alloc();

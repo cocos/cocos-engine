@@ -39,17 +39,17 @@ void CCMTLQueue::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-void CCMTLQueue::submit(const std::vector<GFXCommandBuffer*> &cmd_buffs, GFXFence *fence) {
+void CCMTLQueue::submit(const vector<GFXCommandBuffer*>::type &cmdBuffs, GFXFence *fence) {
     // Should remove USE_METAL aftr switch to use metal.
 #ifdef USE_METAL
 //    dispatch_semaphore_wait(_frameBoundarySemaphore, DISPATCH_TIME_FOREVER);
     
-    uint count = static_cast<uint>(cmd_buffs.size());
+    uint count = static_cast<uint>(cmdBuffs.size());
     id<MTLCommandBuffer> mtlCommandBuffer = [static_cast<View*>(_mtkView).mtlCommandQueue commandBuffer];
     [mtlCommandBuffer enqueue];
     
     for (uint i = 0; i < count; ++i) {
-        CCMTLCommandBuffer* commandBuff = static_cast<CCMTLCommandBuffer*>(cmd_buffs[i]);
+        CCMTLCommandBuffer* commandBuff = static_cast<CCMTLCommandBuffer*>(cmdBuffs[i]);
         executeCommands(commandBuff->getCommandPackage(), mtlCommandBuffer);
         _numDrawCalls += commandBuff->_numDrawCalls;
         _numInstances += commandBuff->_numInstances;

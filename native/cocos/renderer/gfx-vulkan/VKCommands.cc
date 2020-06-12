@@ -54,7 +54,6 @@ void endOneTimeCommands(CCVKDevice *device, CCVKGPUCommandBuffer *cmdBuff) {
     submitInfo.pCommandBuffers = &cmdBuff->vkCommandBuffer;
     VK_CHECK(vkQueueSubmit(queue->vkQueue, 1, &submitInfo, fence));
     VK_CHECK(vkWaitForFences(device->gpuDevice()->vkDevice, 1, &fence, VK_TRUE, DEFAULT_FENCE_TIMEOUT));
-
     CCVKCmdFuncFreeCommandBuffer(device, cmdBuff);
 }
 
