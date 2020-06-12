@@ -508,7 +508,7 @@ cc.Director.prototype = {
         scene._load();
 
         // Delay run / replace scene to the end of the frame
-        this.once(cc.Director.EVENT_AFTER_UPDATE, function () {
+        this.once(cc.Director.EVENT_BEFORE_UPDATE, function () {
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
         }, this);
     },
