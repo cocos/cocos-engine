@@ -346,7 +346,7 @@ Bundle.prototype = {
      * loadDir<T extends cc.Asset>(dir: string, type: typeof cc.Asset, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: Array<T>) => void): void
      * loadDir<T extends cc.Asset>(dir: string, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: Array<T>) => void): void
      * loadDir<T extends cc.Asset>(dir: string, type: typeof cc.Asset, onComplete: (error: Error, assets: Array<T>) => void): void
-     * loadDir<T extends cc.Asset>(dir: string, type: typeof cc.Asset) => void): void
+     * loadDir<T extends cc.Asset>(dir: string, type: typeof cc.Asset): void
      * loadDir<T extends cc.Asset>(dir: string, onComplete: (error: Error, assets: Array<T>) => void): void
      * loadDir<T extends cc.Asset>(dir: string): void
      */
