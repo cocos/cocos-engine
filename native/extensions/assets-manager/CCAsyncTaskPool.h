@@ -26,7 +26,6 @@ THE SOFTWARE.
 #ifndef __CCSYNC_TASK_POOL_H_
 #define __CCSYNC_TASK_POOL_H_
 
-#include "CCPlatformDefine.h"
 #include "platform/CCApplication.h"
 #include "base/CCScheduler.h"
 #include <vector>

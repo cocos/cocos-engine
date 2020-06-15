@@ -29,7 +29,6 @@ THE SOFTWARE.
 
 #include "base/CCLog.h"
 #include "base/ccConfig.h"
-#include "platform/CCPlatformDefine.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #include <BaseTsd.h>
@@ -43,6 +42,20 @@ typedef SSIZE_T ssize_t;
             #define _SSIZE_T_DEFINED
         #endif
     #endif // __SSIZE_T
+#endif
+
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    #include <android/log.h>
+    #define CC_ASSERT(cond)                                        \
+        if (!(cond)) {                                             \
+            __android_log_print(ANDROID_LOG_ERROR,                 \
+                                "assert",                          \
+                                "%s function:%s line:%d",          \
+                                __FILE__, __FUNCTION__, __LINE__); \
+        }
+#else
+    #include <assert.h>
+    #define CC_ASSERT(cond) assert(cond)
 #endif
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
@@ -266,4 +279,14 @@ It should work same as apples CFSwapInt32LittleToHost(..)
     #define CC_UNUSED __attribute__((unused))
 #else
     #define CC_UNUSED
+#endif
+
+#define CC_UNUSED_PARAM(unusedparam) (void)unusedparam
+
+#ifndef NULL
+    #ifdef __cplusplus
+        #define NULL 0
+    #else
+        #define NULL ((void *)0)
+    #endif
 #endif

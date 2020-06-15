@@ -370,7 +370,6 @@ cocos_source_files(
     cocos/platform/CCFileUtils.h
     cocos/platform/CCImage.cpp
     cocos/platform/CCImage.h
-    cocos/platform/CCPlatformDefine.h
     cocos/platform/CCSAXParser.cpp
     cocos/platform/CCSAXParser.h
     cocos/platform/CCStdC.h
@@ -382,7 +381,6 @@ if(WINDOWS)
         cocos/platform/win32/CCDevice-win32.cpp
         cocos/platform/win32/CCFileUtils-win32.cpp
         cocos/platform/win32/CCFileUtils-win32.h
-        cocos/platform/win32/CCPlatformDefine-win32.h
         cocos/platform/win32/CCUtils-win32.cpp
         cocos/platform/win32/CCUtils-win32.h
         cocos/platform/win32/View-win32.cpp
@@ -399,7 +397,6 @@ elseif(ANDROID)
         cocos/platform/android/CCDevice-android.cpp
         cocos/platform/android/CCFileUtils-android.cpp
         cocos/platform/android/CCFileUtils-android.h
-        cocos/platform/android/CCPlatformDefine-android.h
         cocos/platform/android/CCView.cpp
         cocos/platform/android/CCView.h
         cocos/platform/android/jni/JniHelper.cpp
@@ -425,12 +422,9 @@ elseif(APPLE)
             cocos/platform/mac/CCView.h
             cocos/platform/mac/CCKeyCodeHelper.h
             cocos/platform/mac/CCView.mm
-            cocos/platform/mac/CCModuleConfigMac.debug.xcconfig
             cocos/platform/mac/cocos2d-prefix.pch
-            cocos/platform/mac/CCPlatformDefine-mac.h
             cocos/platform/mac/CCDevice-mac.mm
             cocos/platform/mac/CCApplication-mac.mm
-            cocos/platform/mac/CCModuleConfigMac.release.xcconfig
             cocos/platform/mac/CCKeyCodeHelper.cpp
         )
     elseif(IOS)
@@ -440,7 +434,6 @@ elseif(APPLE)
             cocos/platform/ios/CCApplication-ios.mm
             cocos/platform/ios/cocos2d-prefix.pch
             cocos/platform/ios/CCDevice-ios.mm
-            cocos/platform/ios/CCPlatformDefine-ios.h
             cocos/platform/ios/CCImage-ios.mm
         )
     endif()
