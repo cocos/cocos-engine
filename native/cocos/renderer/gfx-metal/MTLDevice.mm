@@ -16,6 +16,7 @@
 #include "MTLSampler.h"
 #include "MTLUtils.h"
 #include "MTLFence.h"
+#include "MTLContext.h"
 #include <platform/mac/CCView.h>
 #import <MetalKit/MTKView.h>
 
@@ -38,7 +39,16 @@ bool CCMTLDevice::initialize(const GFXDeviceInfo &info) {
 
     _mtkView = (MTKView*)_windowHandle;
     _mtlDevice = ((MTKView*)_mtkView).device;
-
+    
+    GFXContextInfo contextCreateInfo;
+    contextCreateInfo.windowHandle = _windowHandle;
+    contextCreateInfo.sharedCtx = info.sharedCtx;
+    _context = CC_NEW(CCMTLContext(this));
+    if (!_context->initialize(contextCreateInfo)) {
+        destroy();
+        return false;
+    }
+    
     GFXQueueInfo queue_info;
     queue_info.type = GFXQueueType::GRAPHICS;
     _queue = createQueue(queue_info);
