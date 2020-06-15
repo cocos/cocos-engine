@@ -1334,6 +1334,9 @@ export class BaseNode extends CCObject implements ISchedulable {
         // marked as destroying
         this._objFlags |= Destroying;
 
+        // emit node destroy event (this should before event processor destroy)
+        this.emit(SystemEventType.NODE_DESTROYED, this);
+
         // detach self and children from editor
         const parent = this._parent;
         const destroyByParent: boolean = (!!parent) && ((parent._objFlags & Destroying) !== 0);
@@ -1378,7 +1381,6 @@ export class BaseNode extends CCObject implements ISchedulable {
             }
         }
 
-        this.emit(SystemEventType.NODE_DESTROYED, this);
         return destroyByParent;
     }
 
