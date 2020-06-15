@@ -85,7 +85,7 @@ Cache.prototype = {
      * add(key: string, val: T): T
      */
     add (key, val) {       
-        if (!this.has(key)) this._count++;
+        if (!(key in this._map)) this._count++;
         return this._map[key] = val;
     },
 
@@ -108,8 +108,7 @@ Cache.prototype = {
      * get(key: string): T
      */
     get (key) {
-        var entry = this._map[key];
-        return entry;
+        return this._map[key];
     },
 
     /**

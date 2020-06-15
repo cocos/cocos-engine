@@ -192,10 +192,11 @@ var utils = {
     setProperties (uuid, asset, assetsMap) {
 
         var missingAsset = false;
-        if (asset.__depends__) {
+        let depends = asset.__depends__;
+        if (depends) {
             var missingAssetReporter = null;
-            for (var i = 0, l = asset.__depends__.length; i < l; i++) {
-                var depend = asset.__depends__[i];
+            for (var i = 0, l = depends.length; i < l; i++) {
+                var depend = depends[i];
                 var dependAsset = assetsMap[depend.uuid + '@import'];
                 if (!dependAsset) {
                     if (CC_EDITOR) {
@@ -213,7 +214,7 @@ var utils = {
             }
 
             missingAssetReporter && missingAssetReporter.reportByOwner();
-            delete asset['__depends__'];
+            asset.__depends__ = undefined;
         }
         
         if (asset.__nativeDepend__) {
@@ -228,20 +229,22 @@ var utils = {
                     }
                 }
             }
-            delete asset['__nativeDepend__'];
+            asset.__nativeDepend__ = undefined;
         }
         return missingAsset;
     },
 
     gatherAsset (task) {
-        task.output = [];
-        for (var i = 0, l = task.source.length; i < l; i++) {
-            var item = task.source[i];
-            task.output.push(item.content);
+        let source = task.source;
+        if (!task.options.__outputAsArray__ && source.length === 1) {
+            task.output = source[0].content;
         }
-
-        if (!task.options.__outputAsArray__ && task.output.length === 1) {
-            task.output = task.output[0];
+        else {
+            let output = task.output = [];
+            for (var i = 0, l = source.length; i < l; i++) {
+                var item = source[i];
+                output.push(item.content);
+            }
         }
     },
 
@@ -311,12 +314,13 @@ var utils = {
         if (!checked) { 
             checked = Object.create(null);
         }
-        if (!map[uuid] || checked[uuid]) {
+        let item = map[uuid];
+        if (!item || checked[uuid]) {
             return false;
         }
         checked[uuid] = true;
         var result = false;
-        var deps = map[uuid].content && map[uuid].content.__depends__;
+        var deps = item.content && item.content.__depends__;
         if (deps) {
             for (var i = 0, l = deps.length; i < l; i++) {
                 var dep = deps[i];
