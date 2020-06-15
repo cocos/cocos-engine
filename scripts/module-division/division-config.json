@@ -60,7 +60,8 @@
                     "text": "ammo.js(beta)",
                     "entry": [
                         "physics-ammo",
-                        "physics-framework"
+                        "physics-framework",
+                        "wait-for-ammo-instantiation"
                     ]
                 }
             ]
