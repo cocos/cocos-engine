@@ -38,7 +38,7 @@ var ActionManagerExist = !!cc.ActionManager;
  * Base class for everything attached to Node(Entity).<br/>
  * <br/>
  * NOTE: Not allowed to use construction parameters for Component's subclasses,
- *       because Component is created by the engine.
+ * because Component is created by the engine.
  * !#zh
  * 所有附加到节点的基类。<br/>
  * <br/>
@@ -58,8 +58,11 @@ var Component = cc.Class({
         this._id = Editor.Utils.UuidUtils.uuid();
 
         /**
+         * !#en
          * Register all related EventTargets,
-         * all event callbacks will be removed in _onPreDestroy
+         * all event callbacks will be removed in `_onPreDestroy`.
+         * !#zh
+         * 注册所有相关的 EventTargets，所有事件回调将在 `_onPreDestroy` 中删除。
          * @property {Array} __eventTargets
          * @private
          */
@@ -466,16 +469,10 @@ var Component = cc.Class({
      * <br/>
      * 如果组件包含了“内部状态”（不在 CCClass 属性中定义的临时成员变量），那么你可能需要实现该方法。<br/>
      * <br/>
-     * 编辑器执行撤销/重做操作时，将调用组件的 get set 来录制和还原组件的状态。
-     * 然而，在极端的情况下，它可能无法良好运作。<br/>
-     * 那么你就应该实现这个方法，手动根据组件的属性同步“内部状态”。
-     * 一旦你实现这个方法，当用户撤销或重做时，组件的所有 get set 都不会再被调用。
-     * 这意味着仅仅指定了默认值的属性将被编辑器记录和还原。<br/>
+     * 编辑器执行撤销/重做操作时，将调用组件的 get set 来录制和还原组件的状态。然而，在极端的情况下，它可能无法良好运作。<br/>
+     * 那么你就应该实现这个方法，手动根据组件的属性同步“内部状态”。一旦你实现这个方法，当用户撤销或重做时，组件的所有 get set 都不会再被调用。这意味着仅仅指定了默认值的属性将被编辑器记录和还原。<br/>
      * <br/>
-     * 同样的，编辑可能无法在极端情况下正确地重置您的组件。<br/>
-     * 于是如果你需要支持组件重置菜单，你需要在该方法中手工同步组件属性到“内部状态”。<br/>
-     * 一旦你实现这个方法，组件的所有 get set 都不会在重置操作时被调用。
-     * 这意味着仅仅指定了默认值的属性将被编辑器重置。
+     * 同样的，编辑可能无法在极端情况下正确地重置您的组件。如果你需要支持组件重置菜单，则需要在该方法中手工同步组件属性到“内部状态”。一旦你实现这个方法，组件的所有 get set 都不会在重置操作时被调用。这意味着仅仅指定了默认值的属性将被编辑器重置。
      * <br/>
      * 此方法仅在编辑器下会被调用。
      * @method onRestore
@@ -612,7 +609,7 @@ var Component = cc.Class({
      * !#en
      * unschedule all scheduled callback functions: custom callback functions, and the 'update' callback function.<br/>
      * Actions are not affected by this method.
-     * !#zh 取消调度所有已调度的回调函数：定制的回调函数以及 'update' 回调函数。动作不受此方法影响。
+     * !#zh 取消调度所有已调度的回调函数：定制的回调函数以及 `update` 回调函数。动作不受此方法影响。
      * @method unscheduleAllCallbacks
      * @example
      * this.unscheduleAllCallbacks();
@@ -624,6 +621,7 @@ var Component = cc.Class({
 
 Component._requireComponent = null;
 Component._executionOrder = 0;
+if (CC_EDITOR && CC_PREVIEW) Component._disallowMultiple = null;
 
 if (CC_EDITOR || CC_TEST) {
 
@@ -631,7 +629,6 @@ if (CC_EDITOR || CC_TEST) {
 
     Component._executeInEditMode = false;
     Component._playOnFocus = false;
-    Component._disallowMultiple = null;
     Component._help = '';
 
     // NON-INHERITED STATIC MEMBERS
@@ -653,7 +650,7 @@ if (CC_EDITOR || CC_TEST) {
     };
 }
 
-// we make this non-enumerable, to prevent inherited by sub classes.
+// We make this non-enumerable, to prevent inherited by sub classes.
 js.value(Component, '_registerEditorProps', function (cls, props) {
     var reqComp = props.requireComponent;
     if (reqComp) {
@@ -662,6 +659,9 @@ js.value(Component, '_registerEditorProps', function (cls, props) {
     var order = props.executionOrder;
     if (order && typeof order === 'number') {
         cls._executionOrder = order;
+    }
+    if ((CC_EDITOR || CC_PREVIEW) && 'disallowMultiple' in props) {
+        cls._disallowMultiple = cls;
     }
     if (CC_EDITOR || CC_TEST) {
         var name = cc.js.getClassName(cls);
@@ -696,12 +696,9 @@ js.value(Component, '_registerEditorProps', function (cls, props) {
                     Component._addMenuItem(cls, val, props.menuPriority);
                     break;
 
-                case 'disallowMultiple':
-                    cls._disallowMultiple = cls;
-                    break;
-
                 case 'requireComponent':
                 case 'executionOrder':
+                case 'disallowMultiple':
                     // skip here
                     break;
 

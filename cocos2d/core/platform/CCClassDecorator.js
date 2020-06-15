@@ -150,8 +150,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
     var fullOptions;
     var isGetset = desc && (desc.get || desc.set);
     if (options) {
-        fullOptions = CC_DEV ? Preprocess.getFullFormOfProperty(options, isGetset, propName, js.getClassName(ctor)) :
-                               Preprocess.getFullFormOfProperty(options, isGetset);
+        fullOptions = Preprocess.getFullFormOfProperty(options, isGetset);
     }
     var existsProperty = properties[propName];
     var prop = js.mixin(existsProperty || {}, fullOptions || options || {});
@@ -221,16 +220,6 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
             else if (!isDefaultValueSpecified) {
                 cc.warnID(3654, js.getClassName(ctor), propName);
                 // prop.default = fullOptions.hasOwnProperty('default') ? fullOptions.default : undefined;
-            }
-            if (cc.RawAsset.wasRawAssetType(prop.url) &&
-                prop._short &&
-                isDefaultValueSpecified &&
-                defaultValue == null
-            ) {
-                // Avoid excessive warning when the ts decorator format is wrong
-                if (typeof options !== 'function' || cc.RawAsset.isRawAssetType(options)) {
-                    cc.errorID(3656, js.getClassName(ctor), propName);
-                }
             }
         }
         prop.default = defaultValue;

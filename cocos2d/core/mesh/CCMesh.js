@@ -134,9 +134,8 @@ let Mesh = cc.Class({
 
     ctor () {
         this._subMeshes = [];
-        this.loaded = false;
-
         this._subDatas = [];
+        this.loaded = false;
     },
 
     initWithBuffer () {

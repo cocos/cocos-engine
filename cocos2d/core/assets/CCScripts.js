@@ -55,20 +55,6 @@ var JavaScript = cc.Class({
 cc._JavaScript = JavaScript;
 
 /**
- * !#en Class for coffeescript handling.
- * !#zh CoffeeScript 资源类。
- * @class CoffeeScript
- * @extends Asset
- *
- */
-var CoffeeScript = cc.Class({
-    name: 'cc.CoffeeScript',
-    extends: Script,
-});
-
-cc._CoffeeScript = CoffeeScript;
-
-/**
  * !#en Class for TypeScript handling.
  * !#zh TypeScript 资源类。
  * @class TypeScript

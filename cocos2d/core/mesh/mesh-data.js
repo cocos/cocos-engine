@@ -27,6 +27,7 @@ import gfx from '../../renderer/gfx';
 
 /**
  * The class BufferRange denotes a range of the buffer.
+ * @class BufferRange
  */
 export let BufferRange = cc.Class({
     name: 'cc.BufferRange',
@@ -45,6 +46,9 @@ export let BufferRange = cc.Class({
     }
 });
 
+/**
+ * @class VertexFormat
+ */
 export let VertexFormat = cc.Class({
     name: 'cc.mesh.VertexFormat',
 

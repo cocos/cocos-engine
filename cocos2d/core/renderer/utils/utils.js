@@ -33,9 +33,10 @@ module.exports = {
     getFontFamily (comp) {
         if (!comp.useSystemFont) {
             if (comp.font) {
-                if (comp.font._nativeAsset) return comp.font._nativeAsset;
-                cc.loader.load(comp.font.nativeUrl, (err, asset) => {
-                    comp.font._nativeAsset = asset;
+                if (comp.font._nativeAsset) {
+                    return comp.font._nativeAsset;
+                }
+                cc.assetManager.postLoadNative(comp.font, function (err) {
                     comp.setVertsDirty();
                 });
                 return 'Arial';

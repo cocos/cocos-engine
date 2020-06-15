@@ -27,7 +27,8 @@ module.exports = {
             "slider": "https://docs.cocos.com/creator/manual/en/components/slider.html",
             "block_input_events": "https://docs.cocos.com/creator/manual/en/components/block-input-events.html",
             "wx_subcontext_view": "https://docs.cocos.com/creator/manual/en/publish/publish-wechatgame-sub-domain.html",
-            "swan_subcontext_view": "https://docs.cocos.com/creator/manual/en/publish/publish-baidugame-sub-domain.html"
+            "swan_subcontext_view": "https://docs.cocos.com/creator/manual/en/publish/publish-baidugame-sub-domain.html",
+            "safe_area": "https://docs.cocos.com/creator/manual/en/components/safearea.html"
         },
         "animation": {
             "default_clip": "When checking, the deault animation clip is automatically played.",
@@ -443,6 +444,10 @@ module.exports = {
         },
         'attach_util': {
             "generate_attached_node": "Generate Attached Node"
+        },
+        'safe_area': {
+            'brief_help': 'This component is used to adjust the layout of current node to respect the safe area of a notched mobile device such as the iPhone X.' +
+                          'It is typically used for the top node of the UI interaction area. (It will take effect automatically on mobile device and has no effect in the editor.)'
         }
     }
 };

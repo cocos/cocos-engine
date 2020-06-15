@@ -105,10 +105,11 @@ var PositionType = cc.Enum({
 
     /**
      * !#en
-     * Living particles are attached to the world but will follow the emitter repositioning.<br/>
-     * Use case: Attach an emitter to an sprite, and you want that the emitter follows the sprite.
+     * In the relative mode, the particle will move with the parent node, but not with the node where the particle is. 
+     * For example, the coffee in the cup is steaming. Then the steam moves (forward) with the train, rather than moves with the cup.
      * !#zh
-     * 相对模式，粒子会随父节点移动而移动，可用于制作移动角色身上的特效等等。（该选项在 Creator 中暂时不支持）
+     * 相对模式，粒子会跟随父节点移动，但不跟随粒子所在节点移动，例如在一列行进火车中，杯中的咖啡飘起雾气，
+     * 杯子移动，雾气整体并不会随着杯子移动，但从火车整体的角度来看，雾气整体会随着火车移动。
      * @property {Number} RELATIVE
      */
     RELATIVE: 1,
@@ -864,7 +865,7 @@ var ParticleSystem = cc.Class({
                 let Url = require('fire-url');
                 let name = Url.basenameNoExt(metaInfo.assetPath);
                 let uuid = meta.subMetas[name].uuid;
-                cc.AssetLibrary.loadAsset(uuid, function (err, sp) {
+                cc.assetManager.loadAny(uuid, function (err, sp) {
                     if (err) return Editor.error(err);
                     _this.spriteFrame = sp;
                 });
@@ -997,9 +998,9 @@ var ParticleSystem = cc.Class({
     _applyFile: function () {
         let file = this._file;
         if (file) {
-            let self = this;
-            cc.loader.load(file.nativeUrl, function (err, content) {
-                if (err || !content) {
+            var self = this;
+            cc.assetManager.postLoadNative(file, function (err) {
+                if (err || !file._nativeAsset) {
                     cc.errorID(6029);
                     return;
                 }
@@ -1009,7 +1010,7 @@ var ParticleSystem = cc.Class({
 
                 self._plistFile = file.nativeUrl;
                 if (!self._custom) {
-                    self._initWithDictionary(content);
+                    self._initWithDictionary(file._nativeAsset);
                 }
 
                 if (!self._spriteFrame) {
@@ -1017,7 +1018,7 @@ var ParticleSystem = cc.Class({
                         self.spriteFrame = file.spriteFrame;
                     }
                     else if (self._custom) {
-                        self._initTextureWithDictionary(content);
+                        self._initTextureWithDictionary(file._nativeAsset);
                     }
                 }
                 else if (!self._renderSpriteFrame && self._spriteFrame) {
@@ -1038,6 +1039,7 @@ var ParticleSystem = cc.Class({
                     this._initTextureWithDictionary(dict);
                 }
                 else {
+                    cc.assetManager.assets.add(imgPath, texture);
                     this.spriteFrame = new cc.SpriteFrame(texture);
                 }
             }, this);
@@ -1045,7 +1047,7 @@ var ParticleSystem = cc.Class({
             let textureData = dict["textureImageData"];
 
             if (textureData && textureData.length > 0) {
-                let tex = cc.loader.getRes(imgPath);
+                let tex = cc.assetManager.assets.get(imgPath);
                 
                 if (!tex) {
                     let buffer = codec.unzipBase64AsArray(textureData, 1);
@@ -1072,7 +1074,7 @@ var ParticleSystem = cc.Class({
                 
                 if (!tex)
                     cc.logID(6032);
-                // TODO: Use cc.loader to load asynchronously the SpriteFrame object, avoid using textureUtil
+                // TODO: Use cc.assetManager to load asynchronously the SpriteFrame object, avoid using textureUtil
                 this.spriteFrame = new cc.SpriteFrame(tex);
             }
             else {

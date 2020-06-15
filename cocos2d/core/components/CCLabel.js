@@ -28,6 +28,7 @@ const macro = require('../platform/CCMacro');
 const RenderComponent = require('./CCRenderComponent');
 const Material = require('../assets/material/CCMaterial');
 const LabelFrame = require('../renderer/utils/label/label-frame');
+const BlendFunc = require('../utils/blend-func');
 
 /**
  * !#en Enum for text alignment.
@@ -165,6 +166,7 @@ const UNDERLINE_FLAG = 1 << 2;
 let Label = cc.Class({
     name: 'cc.Label',
     extends: RenderComponent,
+    mixins: [BlendFunc],
 
     ctor () {
         if (CC_EDITOR) {
@@ -384,10 +386,6 @@ let Label = cc.Class({
                 this._N$file = value;
                 if (value && this._isSystemFontUsed)
                     this._isSystemFontUsed = false;
-
-                if ( typeof value === 'string' ) {
-                    cc.warnID(4000);
-                }
 
                 if (!this.enabledInHierarchy) return;
 
@@ -651,11 +649,20 @@ let Label = cc.Class({
         }
     },
 
+    setVertsDirty() {
+        if(CC_JSB && this._nativeTTF()) {
+            this._assembler && this._assembler.updateRenderData(this)
+        }
+        this._super();
+    },
+
     _updateColor () {
         if (!(this.font instanceof cc.BitmapFont)) {
-            this.setVertsDirty();
+            if (!(this._srcBlendFactor === cc.macro.BlendFactor.SRC_ALPHA && this.node._renderFlag & cc.RenderFlow.FLAG_OPACITY)) {
+                this.setVertsDirty();
+            }
         }
-       RenderComponent.prototype._updateColor.call(this);
+        RenderComponent.prototype._updateColor.call(this);
     },
 
     _validateRender () {
@@ -703,6 +710,12 @@ let Label = cc.Class({
         this._assembler && this._assembler.updateRenderData(this);
     },
 
+    _onBlendChanged () {
+        if (!this.useSystemFont || !this.enabledInHierarchy) return;
+          
+        this._forceUpdateRenderData();
+    },
+
     _applyFontTexture () {
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
@@ -713,25 +726,29 @@ let Label = cc.Class({
             }
         }
         else {
-            if (!this._frame) {
-                this._frame = new LabelFrame();
-            }
- 
-            if (this.cacheMode === CacheMode.CHAR) {
-                this._letterTexture = this._assembler._getAssemblerData();
-                this._frame._refreshTexture(this._letterTexture);
-            } else if (!this._ttfTexture) {
-                this._ttfTexture = new cc.Texture2D();
-                this._assemblerData = this._assembler._getAssemblerData();
-                this._ttfTexture.initWithElement(this._assemblerData.canvas);
-            } 
+            if(!this._nativeTTF()){
+                if (!this._frame) {
+                    this._frame = new LabelFrame();
+                }
+    
+                if (this.cacheMode === CacheMode.CHAR) {
+                    this._letterTexture = this._assembler._getAssemblerData();
+                    this._frame._refreshTexture(this._letterTexture);
+                } else if (!this._ttfTexture) {
+                    this._ttfTexture = new cc.Texture2D();
+                    this._assemblerData = this._assembler._getAssemblerData();
+                    this._ttfTexture.initWithElement(this._assemblerData.canvas);
+                } 
 
-            if (this.cacheMode !== CacheMode.CHAR) {
-                this._frame._resetDynamicAtlasFrame();
-                this._frame._refreshTexture(this._ttfTexture);
+                if (this.cacheMode !== CacheMode.CHAR) {
+                    this._frame._resetDynamicAtlasFrame();
+                    this._frame._refreshTexture(this._ttfTexture);
+                    if (this._srcBlendFactor === cc.macro.BlendFactor.ONE && !CC_NATIVERENDERER) {
+                        this._ttfTexture.setPremultiplyAlpha(true);
+                    }
+                }
+                this._updateMaterial();
             }
-            
-            this._updateMaterial();
             this._assembler && this._assembler.updateRenderData(this);
         }
         this.markForValidate();
@@ -739,13 +756,25 @@ let Label = cc.Class({
 
     _updateMaterialCanvas () {
         if (!this._frame) return;
-        this._frame._texture.url = this.uuid + '_texture';
+        this._frame._texture._nativeUrl = this.uuid + '_texture';
     },
 
     _updateMaterialWebgl () {
-        if (!this._frame) return;
+
         let material = this.getMaterial(0);
+        if(this._nativeTTF()) {
+            if(material) this._assembler._updateTTFMaterial(this)
+            return;
+        }
+
+        if (!this._frame) return;
         material && material.setProperty('texture', this._frame._texture);
+
+        BlendFunc.prototype._updateMaterial.call(this);
+    },
+
+    _nativeTTF() {
+        return !!this._assembler && !!this._assembler._updateTTFMaterial
     },
 
     _forceUpdateRenderData () {

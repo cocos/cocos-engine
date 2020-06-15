@@ -244,7 +244,7 @@
     "entries": [
       "./cocos2d/core/components/CCScrollView.js"
     ],
-    "dependencies": ["Layout"]
+    "dependencies": ["Layout", "Mask"]
   },
   {
     "name": "Spine Skeleton",
@@ -389,5 +389,13 @@
       "builtin-3d-particle-trail"
     ],
     "dependencies": ["3D"]
+  },
+  {
+    "name": "SafeArea",
+    "since": "2.4.0",
+    "entries": [
+      "./cocos2d/core/components/CCSafeArea.js"
+    ],
+    "dependencies": ["Widget"]
   }
 ]

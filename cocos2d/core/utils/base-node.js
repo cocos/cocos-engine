@@ -606,6 +606,7 @@ var BaseNode = cc.Class({
             stack[index] = null;
             // Do not repeatly visit child tree, just do post call and continue walk
             if (afterChildren) {
+                if (parent === this._parent) break;
                 afterChildren = false;
             }
             else {
@@ -861,7 +862,7 @@ var BaseNode = cc.Class({
         return components;
     },
 
-    _checkMultipleComp: CC_EDITOR && function (ctor) {
+    _checkMultipleComp: (CC_EDITOR || CC_PREVIEW) && function (ctor) {
         var existing = this.getComponent(ctor._disallowMultiple);
         if (existing) {
             if (existing.constructor === ctor) {
@@ -926,7 +927,7 @@ var BaseNode = cc.Class({
             return null;
         }
 
-        if (CC_EDITOR && constructor._disallowMultiple) {
+        if ((CC_EDITOR || CC_PREVIEW) && constructor._disallowMultiple) {
             if (!this._checkMultipleComp(constructor)) {
                 return null;
             }

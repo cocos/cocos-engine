@@ -66,7 +66,9 @@ let LabelShadow = cc.Class({
                 return this._color;
             },
             set: function (value) {
-                this._color = value;
+                if (!this._color.equals(value)) {
+                    this._color.set(value);
+                }
                 this._updateRenderData();
             }
         },

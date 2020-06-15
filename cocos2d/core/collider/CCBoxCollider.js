@@ -71,12 +71,14 @@ cc.Collider.Box = cc.Class({
         }
     },
 
-    resetInEditor: CC_EDITOR && function () {
-        var size = this.node.getContentSize();
-        if (size.width !== 0 && size.height !== 0) {
-            this.size = cc.size( size );
-            this.offset.x = (0.5 - this.node.anchorX) * size.width;
-            this.offset.y = (0.5 - this.node.anchorY) * size.height;
+    resetInEditor: CC_EDITOR && function (didResetToDefault) {
+        if (didResetToDefault) {
+            var size = this.node.getContentSize();
+            if (size.width !== 0 && size.height !== 0) {
+                this.size = cc.size( size );
+                this.offset.x = (0.5 - this.node.anchorX) * size.width;
+                this.offset.y = (0.5 - this.node.anchorY) * size.height;
+            }
         }
     }
 });
@@ -87,6 +89,13 @@ cc.Collider.Box = cc.Class({
  * @class BoxCollider
  * @extends Collider
  * @uses Collider.Box
+ */
+/**
+ * !#en
+ * Collider info in world coordinate.
+ * !#zh
+ * 碰撞体的世界坐标系下的信息。
+ * @property {ColliderInfo} world
  */
 var BoxCollider = cc.Class({
     name: 'cc.BoxCollider',

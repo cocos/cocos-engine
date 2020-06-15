@@ -26,6 +26,10 @@ let _float16_pool = new RecyclePool(() => {
   return new Float32Array(16);
 }, 8);
 
+function sortView (a, b) {
+  return (a._priority - b._priority);
+}
+
 export default class ForwardRenderer extends BaseRenderer {
   constructor(device, builtin) {
     super(device, builtin);
@@ -54,7 +58,11 @@ export default class ForwardRenderer extends BaseRenderer {
     this.reset();
 
     if (!CC_EDITOR) {
-      this._time[0] += dt;
+      if (dt) {
+        this._time[0] += dt;
+        this._time[1] = dt;
+        this._time[2] ++;
+      }
       this._device.setUniform('cc_time', this._time);
     }
 
@@ -70,9 +78,7 @@ export default class ForwardRenderer extends BaseRenderer {
     }
 
     // render by cameras
-    this._viewPools.sort((a, b) => {
-      return (a._priority - b._priority);
-    });
+    this._viewPools.sort(sortView);
 
     for (let i = 0; i < this._viewPools.length; ++i) {
       let view = this._viewPools.data[i];
@@ -83,6 +89,8 @@ export default class ForwardRenderer extends BaseRenderer {
   // direct render a single camera
   renderCamera (camera, scene) {
     this.reset();
+
+    this._updateLights(scene);
     
     const canvas = this._device._gl.canvas;
     let width = canvas.width;
@@ -91,7 +99,13 @@ export default class ForwardRenderer extends BaseRenderer {
     let view = this._requestView();
     camera.extractView(view, width, height);
     
-    this._render(view, scene);
+    // render by cameras
+    this._viewPools.sort(sortView);
+
+    for (let i = 0; i < this._viewPools.length; ++i) {
+      let view = this._viewPools.data[i];
+      this._render(view, scene);
+    }
   }
 
   _updateLights (scene) {
@@ -264,7 +278,7 @@ export default class ForwardRenderer extends BaseRenderer {
     // update uniforms
     this._device.setUniform('cc_matView', Mat4.toArray(_a16_view, view._matView));
     this._device.setUniform('cc_matViewInv', Mat4.toArray(_a16_view_inv, view._matViewInv));
-    this._device.setUniform('cc_matpProj', Mat4.toArray(_a16_proj, view._matProj));
+    this._device.setUniform('cc_matProj', Mat4.toArray(_a16_proj, view._matProj));
     this._device.setUniform('cc_matViewProj', Mat4.toArray(_a16_viewProj, view._matViewProj));
     this._device.setUniform('cc_cameraPos', Vec4.toArray(_a4_camPos, _camPos));
 
@@ -282,7 +296,7 @@ export default class ForwardRenderer extends BaseRenderer {
     // update uniforms
     this._device.setUniform('cc_matView', Mat4.toArray(_a16_view, view._matView));
     this._device.setUniform('cc_matViewInv', Mat4.toArray(_a16_view_inv, view._matViewInv));
-    this._device.setUniform('cc_matpProj', Mat4.toArray(_a16_proj, view._matProj));
+    this._device.setUniform('cc_matProj', Mat4.toArray(_a16_proj, view._matProj));
     this._device.setUniform('cc_matViewProj', Mat4.toArray(_a16_viewProj, view._matViewProj));
     this._device.setUniform('cc_cameraPos', Vec4.toArray(_a4_camPos, _camPos));
 

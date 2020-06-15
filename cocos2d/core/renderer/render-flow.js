@@ -52,9 +52,9 @@ _proto._worldTransform = function (node) {
 _proto._opacity = function (node) {
     _batcher.parentOpacityDirty++;
 
-    node._renderFlag &= ~OPACITY;
     this._next._func(node);
 
+    node._renderFlag &= ~OPACITY;
     _batcher.parentOpacityDirty--;
 };
 
@@ -134,16 +134,16 @@ function createFlow (flag, next) {
     flow._next = next || EMPTY_FLOW;
 
     switch (flag) {
-        case DONOTHING:
+        case DONOTHING: 
             flow._func = flow._doNothing;
             break;
         case BREAK_FLOW:
             flow._func = flow._doNothing;
             break;
-        case LOCAL_TRANSFORM:
+        case LOCAL_TRANSFORM: 
             flow._func = flow._localTransform;
             break;
-        case WORLD_TRANSFORM:
+        case WORLD_TRANSFORM: 
             flow._func = flow._worldTransform;
             break;
         case OPACITY:
@@ -155,13 +155,13 @@ function createFlow (flag, next) {
         case UPDATE_RENDER_DATA:
             flow._func = flow._updateRenderData;
             break;
-        case RENDER:
+        case RENDER: 
             flow._func = flow._render;
             break;
-        case CHILDREN:
+        case CHILDREN: 
             flow._func = flow._children;
             break;
-        case POST_RENDER:
+        case POST_RENDER: 
             flow._func = flow._postRender;
             break;
     }
@@ -180,7 +180,7 @@ function getFlow (flag) {
     return flow;
 }
 
-//
+// 
 function init (node) {
     let flag = node._renderFlag;
     let r = flows[flag] = getFlow(flag);
@@ -214,9 +214,10 @@ RenderFlow.validateRenderers = function () {
 
 
 RenderFlow.visitRootNode = function (rootNode) {
-    RenderFlow.validateRenderers();
+    RenderFlow.validateRenderers();    
 
-    _cullingMask = 1 << rootNode.groupIndex;
+    let preCullingMask = _cullingMask;
+    _cullingMask = rootNode._cullingMask;
 
     if (rootNode._renderFlag & WORLD_TRANSFORM) {
         _batcher.worldMatDirty ++;
@@ -230,6 +231,8 @@ RenderFlow.visitRootNode = function (rootNode) {
     else {
         flows[rootNode._renderFlag]._func(rootNode);
     }
+
+    _cullingMask = preCullingMask;
 };
 
 RenderFlow.render = function (rootNode, dt) {

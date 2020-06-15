@@ -45,8 +45,8 @@ var AudioSource = cc.Class({
 
     ctor: function () {
         // We can't require Audio here because jsb Audio is implemented outside the engine,
-        // it can only take effect rely on overwriting cc.Audio
-        this.audio = new cc.Audio();
+        // it can only take effect rely on overwriting cc._Audio
+        this.audio = new cc._Audio();
     },
 
     properties: {
@@ -77,7 +77,7 @@ var AudioSource = cc.Class({
         isPlaying: {
             get: function () {
                 var state = this.audio.getState();
-                return state === cc.Audio.State.PLAYING;
+                return state === cc._Audio.State.PLAYING;
             },
             visible: false
         },
@@ -94,20 +94,11 @@ var AudioSource = cc.Class({
                 return this._clip;
             },
             set: function (value) {
-                if (typeof value === 'string') {
-                    // backward compatibility since 1.10
-                    cc.warnID(8401, 'cc.AudioSource', 'cc.AudioClip', 'AudioClip', 'cc.AudioClip', 'audio');
-                    let self = this;
-                    AudioClip._loadByUrl(value, function (err, clip) {
-                        if (clip) {
-                            self.clip = clip;
-                        }
-                    });
-                    return;
-                }
-
                 if (value === this._clip) {
                     return;
+                }
+                if (!(value instanceof AudioClip)) {
+                    return cc.error('Wrong type of AudioClip.');
                 }
                 this._clip = value;
                 this.audio.stop();
@@ -209,7 +200,7 @@ var AudioSource = cc.Class({
 
     _pausedCallback: function () {
         var state = this.audio.getState();
-        if (state === cc.Audio.State.PLAYING) {
+        if (state === cc._Audio.State.PLAYING) {
             this.audio.pause();
             this._pausedFlag = true;
         }

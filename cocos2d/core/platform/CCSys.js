@@ -672,6 +672,20 @@ function initSys () {
         return sys._maxJointMatrixSize;
     }
 
+    /**
+     * !#en
+     * Returns the safe area of the screen. If the screen is not notched, the design resolution will be returned by default.
+     * Only supported on Android, iOS and WeChat Mini Game platform.
+     * !#zh
+     * 返回手机屏幕安全区域，如果不是异形屏将默认返回设计分辨率尺寸。目前只支持安卓、iOS 原生平台和微信小游戏平台。
+     * @method getSafeAreaRect
+     * @return {Rect}
+    */
+   sys.getSafeAreaRect = function () {
+        let visibleSize = cc.view.getVisibleSize();
+        return cc.rect(0, 0, visibleSize.width, visibleSize.height);
+    };
+
     if (_global.__globalAdapter && _global.__globalAdapter.adaptSys) {
         // init sys info in adapter
         _global.__globalAdapter.adaptSys(sys);
@@ -691,6 +705,9 @@ function initSys () {
         sys.windowPixelResolution = {
             width: 0,
             height: 0
+        };
+        sys.capabilities = {
+            'imageBitmap': false
         };
         sys.__audioSupport = {};
     }
@@ -763,6 +780,8 @@ function initSys () {
             capabilities["touches"] = false;
         }
 
+        capabilities['imageBitmap'] = false;
+
         sys.__audioSupport = {
             ONLY_ONE: false,
             WEB_AUDIO: false,
@@ -819,7 +838,7 @@ function initSys () {
 
         // Get the os of system
         var isAndroid = false, iOS = false, osVersion = '', osMainVersion = 0;
-        var uaResult = /android (\d+(?:\.\d+)*)/i.exec(ua) || /android (\d+(?:\.\d+)*)/i.exec(nav.platform);
+        var uaResult = /android\s*(\d+(?:\.\d+)*)/i.exec(ua) || /android\s*(\d+(?:\.\d+)*)/i.exec(nav.platform);
         if (uaResult) {
             isAndroid = true;
             osVersion = uaResult[1] || '';
@@ -987,7 +1006,16 @@ function initSys () {
             "canvas": _supportCanvas,
             "opengl": _supportWebGL,
             "webp": _supportWebp,
+            'imageBitmap': false,
         };
+
+        if (typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined') {
+            _tmpCanvas1.width = _tmpCanvas1.height = 2;
+            createImageBitmap(_tmpCanvas1, {}).then(imageBitmap => {
+                capabilities.imageBitmap = true;
+                imageBitmap.close && imageBitmap.close();
+            }).catch(err => {});
+        }
         if (docEle['ontouchstart'] !== undefined || doc['ontouchstart'] !== undefined || nav.msPointerEnabled)
             capabilities["touches"] = true;
         if (docEle['onmouseup'] !== undefined)
@@ -1171,20 +1199,6 @@ function initSys () {
      */
     sys.restartVM = function () {
         // N/A in web
-    };
-
-    /**
-     * !#en
-     * Return the safe area rect. <br/>
-     * only available on the iOS native platform, otherwise it will return a rect with design resolution size.
-     * !#zh
-     * 返回手机屏幕安全区域，目前仅在 iOS 原生平台有效。其它平台将默认返回设计分辨率尺寸。
-     * @method getSafeAreaRect
-     * @return {Rect}
-    */
-    sys.getSafeAreaRect = function () {
-        let visibleSize = cc.view.getVisibleSize();
-        return cc.rect(0, 0, visibleSize.width, visibleSize.height);
     };
 
     /**

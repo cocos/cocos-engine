@@ -45,6 +45,7 @@ var AudioClip = cc.Class({
     mixins: [EventTarget],
 
     ctor () {
+        this._loading = false;
         this.loaded = false;
 
         // the web audio buffer or <audio> element
@@ -52,6 +53,13 @@ var AudioClip = cc.Class({
     },
 
     properties: {
+        /**
+         * !#en Get the audio clip duration
+         * !#zh 获取音频剪辑的长度
+         * @property duration
+         * @type {Number}
+         */
+        duration: 0,
         loadMode: {
             default: LoadMode.WEB_AUDIO,
             type: LoadMode
@@ -75,30 +83,56 @@ var AudioClip = cc.Class({
                 }
             },
             override: true
+        },
+
+        _nativeDep: {
+            get () {
+                return { uuid: this._uuid, audioLoadMode: this.loadMode, ext: cc.path.extname(this._native), __isNative__: true };
+            },
+            override: true
         }
     },
 
     statics: {
         LoadMode: LoadMode,
         _loadByUrl: function (url, callback) {
-            var item = cc.loader.getItem(url) || cc.loader.getItem(url + '?useDom=1');
-            if (!item || !item.complete) {
-                cc.loader.load(url, function (error, downloadUrl) {
+            var audioClip = cc.assetManager.assets.get(url);
+            if (!audioClip) {
+                cc.assetManager.loadRemote(url, function (error, data) {
                     if (error) {
                         return callback(error);
                     }
-                    item = cc.loader.getItem(url) || cc.loader.getItem(url + '?useDom=1');
-                    callback(null, item.content);
+                    callback(null, data);
                 });
             }
             else {
-                if (item._owner instanceof AudioClip) {
-                    // preloaded and retained by audio clip
-                    callback(null, item._owner);
-                }
-                else {
-                    callback(null, item.content);
-                }
+                callback(null, audioClip);
+            }
+        },
+
+        _parseDepsFromJson () {
+            return [];
+        },
+
+        _parseNativeDepFromJson (json) {
+            return { audioLoadMode: json.loadMode,  ext: cc.path.extname(json._native), __isNative__: true };
+        }
+    },
+
+    _ensureLoaded (onComplete) {
+        if (this.loaded) {
+            return onComplete && onComplete();
+        }
+        else {
+            if (onComplete) {
+                this.once('load', onComplete);
+            }
+            if (!this._loading) {
+                this._loading = true;
+                let self = this;
+                cc.assetManager.postLoadNative(this, function (err) {
+                    self._loading = false;
+                });
             }
         }
     },

@@ -167,19 +167,23 @@ export default class BmfontAssembler extends Assembler2D {
         let string = _string;
         let stringLen = string.length;
 
-        let kerningDict = _fntConfig.kerningDict;
         let horizontalKernings = _horizontalKernings;
-
-        let prev = -1;
-        for (let i = 0; i < stringLen; ++i) {
-            let key = string.charCodeAt(i);
-            let kerningAmount = kerningDict[(prev << 16) | (key & 0xffff)] || 0;
-            if (i < stringLen - 1) {
-                horizontalKernings[i] = kerningAmount;
-            } else {
-                horizontalKernings[i] = 0;
+        let kerningDict;
+        _fntConfig && (kerningDict = _fntConfig.kerningDict);
+        if (kerningDict && !cc.js.isEmptyObject(kerningDict)) {
+            let prev = -1;
+            for (let i = 0; i < stringLen; ++i) {
+                let key = string.charCodeAt(i);
+                let kerningAmount = kerningDict[(prev << 16) | (key & 0xffff)] || 0;
+                if (i < stringLen - 1) {
+                    horizontalKernings[i] = kerningAmount;
+                } else {
+                    horizontalKernings[i] = 0;
+                }
+                prev = key;
             }
-            prev = key;
+        } else {
+            horizontalKernings.length = 0;
         }
     }
 
@@ -227,7 +231,9 @@ export default class BmfontAssembler extends Assembler2D {
                 letterDef = shareLabelInfo.fontAtlas.getLetterDefinitionForChar(character, shareLabelInfo);
                 if (!letterDef) {
                     this._recordPlaceholderInfo(letterIndex, character);
-                    console.log("Can't find letter definition in texture atlas " + _fntConfig.atlasName + " for letter:" + character);
+                    let atlasName = "";
+                    _fntConfig && (atlasName = _fntConfig.atlasName);
+                    console.log("Can't find letter definition in texture atlas " + atlasName + " for letter:" + character);
                     continue;
                 }
 

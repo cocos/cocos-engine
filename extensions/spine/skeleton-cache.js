@@ -423,8 +423,8 @@ let AnimationCache = cc.Class({
             }
     
             blendMode = slot.data.blendMode;
-            if (_preTexUrl !== texture.url || _preBlendMode !== blendMode) {
-                _preTexUrl = texture.url;
+            if (_preTexUrl !== texture.nativeUrl || _preBlendMode !== blendMode) {
+                _preTexUrl = texture.nativeUrl;
                 _preBlendMode = blendMode;
                 // Handle pre segment.
                 preSegOffset = _segOffset - 1;

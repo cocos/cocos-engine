@@ -41,6 +41,7 @@ cc.Collider.Circle = cc.Class({
          * @type {Vec2}
          */
         offset: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.offset',
             get: function () {
                 return this._offset;
             },
@@ -67,11 +68,13 @@ cc.Collider.Circle = cc.Class({
         }
     },
 
-    resetInEditor: CC_EDITOR && function () {
-        var size = this.node.getContentSize();
-        var radius = Math.max(size.width, size.height);
-        if (radius !== 0) {
-            this.radius = radius;
+    resetInEditor: CC_EDITOR && function (didResetToDefault) {
+        if (didResetToDefault) {
+            var size = this.node.getContentSize();
+            var radius = Math.max(size.width, size.height);
+            if (radius !== 0) {
+                this.radius = radius;
+            }
         }
     }
 });
@@ -82,6 +85,13 @@ cc.Collider.Circle = cc.Class({
  * @class CircleCollider
  * @extends Collider
  * @uses Collider.Circle
+ */
+/**
+ * !#en
+ * Collider info in world coordinate.
+ * !#zh
+ * 碰撞体的世界坐标系下的信息。
+ * @property {ColliderInfo} world
  */
 var CircleCollider = cc.Class({
     name: 'cc.CircleCollider',

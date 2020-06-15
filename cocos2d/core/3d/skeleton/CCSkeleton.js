@@ -29,6 +29,7 @@ let Skeleton = cc.Class({
     extends: cc.Asset,
 
     ctor () {
+        this.loaded = false;
         this._bindposes = [];
         this._uniqueBindPoses = [];
         this._jointPaths = [];

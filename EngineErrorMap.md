@@ -491,7 +491,7 @@ Private node's zIndex can't be set, it will keep cc.macro.MIN_ZINDEX as its valu
 
 ### 1639
 
-cc.Action is deprecated now, please use cc.TweenAction instead
+cc.Action is deprecated, please use cc.TweenAction instead
 
 ### 1700
 
@@ -558,7 +558,7 @@ cc.Layer.addLayer(): layer should be non-null
 
 ### 2200
 
-Resolution not valid
+Design resolution not valid
 
 ### 2201
 
@@ -1107,6 +1107,10 @@ Rect width exceeds maximum margin: %s
 
 Rect height exceeds maximum margin: %s
 
+### 3401
+
+Set texture with a url of image is not supported anymore. Please use cc.assetManager.loadRemote to load a texture first. 
+
 ### 3500
 
 0 priority is forbidden for fixed priority since it's used for scene graph based priority.
@@ -1421,6 +1425,7 @@ set %s (value) {
 
 ### 3656
 
+<!-- DEPRECATED -->
 The default value of %s.%s must be an empty string.
 
 ### 3657
@@ -1594,6 +1599,7 @@ already-playing
 
 ### 4000
 
+<!-- DEPRECATED -->
 Sorry, the cc.Font has been modified from Raw Asset to Asset. Please load the font asset before using.
 
 ### 4001
@@ -1784,7 +1790,8 @@ cc.LabelBMFont._parseImageFileName() : file could not be found
 
 ### 4920
 
-Sorry, you shouldn't use id as item identity any more, please use url or uuid instead, the current id is being set as url: (%s)
+<!-- DEPRECATED -->
+Sorry, you shouldn't use id as item identity anymore, please use url or uuid instead, the current id is being set as url: (%s)
 
 ### 4921
 
@@ -1828,6 +1835,7 @@ Load image ( %s ) failed
 
 ### 4931
 
+<!-- DEPRECATED -->
 Download Uuid: can not find type of raw asset[ %s ]: %s
 
 ### 4932
@@ -1914,22 +1922,27 @@ Class should be extended before assigning any prototype members.
 
 ### 5502
 
+<!-- DEPRECATED -->
 Invalid url of %s.%s
 
 ### 5503
 
+<!-- DEPRECATED -->
 The 'url' attribute of '%s.%s' is undefined when loading script.
 
 ### 5504
 
+<!-- DEPRECATED -->
 The 'url' type of '%s.%s' must be child class of cc.RawAsset.
 
 ### 5505
 
+<!-- DEPRECATED -->
 The 'url' type of '%s.%s' must not be child class of cc.Asset, otherwise you should use 'type: %s' instead.
 
 ### 5506
 
+<!-- DEPRECATED -->
 Can not specify 'type' attribute for '%s.%s', because its 'url' is already defined.
 
 ### 5507
@@ -1942,6 +1955,7 @@ Invalid type of %s.%s
 
 ### 5509
 
+<!-- DEPRECATED -->
 The 'type' attribute of '%s.%s' must be child class of cc.Asset, otherwise you should use 'url: %s' instead
 
 ### 5510
@@ -2281,18 +2295,22 @@ Can not instantiate DOM element
 
 ### 7000
 
+<!-- DEPRECATED -->
 Failed to init asset's raw path.
 
 ### 7001
 
+<!-- DEPRECATED -->
 Should not load '%s' from script dynamically, unless it is placed in the 'resources' folder.
 
 ### 7002
 
+<!-- DEPRECATED -->
 Sorry can not load '%s' because it is not placed in the 'resources' folder.
 
 ### 7003
 
+<!-- DEPRECATED -->
 Failed to init builtin asset's raw path.
 
 ### 7100
@@ -2540,6 +2558,7 @@ Can not render dynamic created SkeletonData
 
 ### 7505
 
+<!-- DEPRECATED -->
 Invalid type of atlasFile, atlas should be registered as raw asset.
 
 ### 7506
@@ -2784,4 +2803,4 @@ Program not support highp precision, will change to mediump.
 
 ### 9200
 
-cc.view.enableAntiAlias is deprecated now, please use cc.Texture2D.setFilters instead
+cc.view.enableAntiAlias is deprecated, please use cc.Texture2D.setFilters instead

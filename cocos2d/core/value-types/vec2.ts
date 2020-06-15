@@ -269,7 +269,7 @@ export default class Vec2 extends ValueType {
      * !#zh 获得指定向量的拷贝
      * @method clone
      * @typescript
-     * clone <Out extends IVec2Like> (a: Out)
+     * clone <Out extends IVec2Like> (a: Out): Vec2
      * @static
      */
     static clone <Out extends IVec2Like> (a: Out) {
@@ -280,7 +280,7 @@ export default class Vec2 extends ValueType {
      * !#zh 复制指定向量的值
      * @method copy
      * @typescript
-     * copy <Out extends IVec2Like> (out: Out, a: Out)
+     * copy <Out extends IVec2Like> (out: Out, a: Out): Out
      * @static
      */
     static copy <Out extends IVec2Like> (out: Out, a: Out) {
@@ -293,7 +293,7 @@ export default class Vec2 extends ValueType {
      * !#zh  设置向量值
      * @method set
      * @typescript
-     * set <Out extends IVec2Like> (out: Out, x: number, y: number)
+     * set <Out extends IVec2Like> (out: Out, x: number, y: number): Out
      * @static
      */
     static set <Out extends IVec2Like> (out: Out, x: number, y: number) {
@@ -306,7 +306,7 @@ export default class Vec2 extends ValueType {
      * !#zh 逐元素向量加法
      * @method add
      * @typescript
-     * add <Out extends IVec2Like> (out: Out, a: Out, b: Out)
+     * add <Out extends IVec2Like> (out: Out, a: Out, b: Out): Out
      * @static
      */
     static add <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
@@ -319,7 +319,7 @@ export default class Vec2 extends ValueType {
      * !#zh 逐元素向量减法
      * @method subtract
      * @typescript
-     * subtract <Out extends IVec2Like> (out: Out, a: Out, b: Out)
+     * subtract <Out extends IVec2Like> (out: Out, a: Out, b: Out): Out
      * @static
      */
     static subtract <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
@@ -332,7 +332,7 @@ export default class Vec2 extends ValueType {
      * !#zh 逐元素向量乘法
      * @method multiply
      * @typescript
-     * multiply <Out extends IVec2Like> (out: Out, a: Out, b: Out)
+     * multiply <Out extends IVec2Like> (out: Out, a: Out, b: Out): Out
      * @static
      */
     static multiply <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
@@ -345,7 +345,7 @@ export default class Vec2 extends ValueType {
      * !#zh 逐元素向量除法
      * @method divide
      * @typescript
-     * divide <Out extends IVec2Like> (out: Out, a: Out, b: Out)
+     * divide <Out extends IVec2Like> (out: Out, a: Out, b: Out): Out
      * @static
      */
     static divide <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
@@ -358,7 +358,7 @@ export default class Vec2 extends ValueType {
      * !#zh 逐元素向量向上取整
      * @method ceil
      * @typescript
-     * ceil <Out extends IVec2Like> (out: Out, a: Out)
+     * ceil <Out extends IVec2Like> (out: Out, a: Out): Out
      * @static
      */
     static ceil <Out extends IVec2Like> (out: Out, a: Out) {
@@ -371,7 +371,7 @@ export default class Vec2 extends ValueType {
      * !#zh 逐元素向量向下取整
      * @method floor
      * @typescript
-     * floor <Out extends IVec2Like> (out: Out, a: Out)
+     * floor <Out extends IVec2Like> (out: Out, a: Out): Out
      * @static
      */
     static floor <Out extends IVec2Like> (out: Out, a: Out) {
@@ -384,7 +384,7 @@ export default class Vec2 extends ValueType {
      * !#zh 逐元素向量最小值
      * @method min
      * @typescript
-     * min <Out extends IVec2Like> (out: Out, a: Out, b: Out)
+     * min <Out extends IVec2Like> (out: Out, a: Out, b: Out): Out
      * @static
      */
     static min <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
@@ -393,12 +393,12 @@ export default class Vec2 extends ValueType {
         return out;
     }
 
-    
+
     /**
      * !#zh 逐元素向量最大值
      * @method max
      * @typescript
-     * max <Out extends IVec2Like> (out: Out, a: Out, b: Out)
+     * max <Out extends IVec2Like> (out: Out, a: Out, b: Out): Out
      * @static
      */
     static max <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
@@ -411,7 +411,7 @@ export default class Vec2 extends ValueType {
      * !#zh 逐元素向量四舍五入取整
      * @method round
      * @typescript
-     * round <Out extends IVec2Like> (out: Out, a: Out)
+     * round <Out extends IVec2Like> (out: Out, a: Out): Out
      * @static
      */
     static round <Out extends IVec2Like> (out: Out, a: Out) {
@@ -424,7 +424,7 @@ export default class Vec2 extends ValueType {
      * !#zh 向量标量乘法
      * @method multiplyScalar
      * @typescript
-     * multiplyScalar <Out extends IVec2Like> (out: Out, a: Out, b: number)
+     * multiplyScalar <Out extends IVec2Like> (out: Out, a: Out, b: number): Out
      * @static
      */
     static multiplyScalar <Out extends IVec2Like> (out: Out, a: Out, b: number) {
@@ -437,7 +437,7 @@ export default class Vec2 extends ValueType {
      * !#zh 逐元素向量乘加: A + B * scale
      * @method scaleAndAdd
      * @typescript
-     * scaleAndAdd <Out extends IVec2Like> (out: Out, a: Out, b: Out, scale: number)
+     * scaleAndAdd <Out extends IVec2Like> (out: Out, a: Out, b: Out, scale: number): Out
      * @static
      */
     static scaleAndAdd <Out extends IVec2Like> (out: Out, a: Out, b: Out, scale: number) {
@@ -450,7 +450,7 @@ export default class Vec2 extends ValueType {
      * !#zh 求两向量的欧氏距离
      * @method distance
      * @typescript
-     * distance <Out extends IVec2Like> (a: Out, b: Out)
+     * distance <Out extends IVec2Like> (a: Out, b: Out): number
      * @static
      */
     static distance <Out extends IVec2Like> (a: Out, b: Out) {
@@ -463,7 +463,7 @@ export default class Vec2 extends ValueType {
      * !#zh 求两向量的欧氏距离平方
      * @method squaredDistance
      * @typescript
-     * squaredDistance <Out extends IVec2Like> (a: Out, b: Out)
+     * squaredDistance <Out extends IVec2Like> (a: Out, b: Out): number
      * @static
      */
     static squaredDistance <Out extends IVec2Like> (a: Out, b: Out) {
@@ -476,7 +476,7 @@ export default class Vec2 extends ValueType {
      * !#zh 求向量长度
      * @method len
      * @typescript
-     * len <Out extends IVec2Like> (a: Out)
+     * len <Out extends IVec2Like> (a: Out): number
      * @static
      */
     static len <Out extends IVec2Like> (a: Out) {
@@ -489,7 +489,7 @@ export default class Vec2 extends ValueType {
      * !#zh 求向量长度平方
      * @method lengthSqr
      * @typescript
-     * lengthSqr <Out extends IVec2Like> (a: Out)
+     * lengthSqr <Out extends IVec2Like> (a: Out): number
      * @static
      */
     static lengthSqr <Out extends IVec2Like> (a: Out) {
@@ -502,7 +502,7 @@ export default class Vec2 extends ValueType {
      * !#zh 逐元素向量取负
      * @method negate
      * @typescript
-     * negate <Out extends IVec2Like> (out: Out, a: Out)
+     * negate <Out extends IVec2Like> (out: Out, a: Out): Out
      * @static
      */
     static negate <Out extends IVec2Like> (out: Out, a: Out) {
@@ -515,7 +515,7 @@ export default class Vec2 extends ValueType {
      * !#zh 逐元素向量取倒数，接近 0 时返回 Infinity
      * @method inverse
      * @typescript
-     * inverse <Out extends IVec2Like> (out: Out, a: Out)
+     * inverse <Out extends IVec2Like> (out: Out, a: Out): Out
      * @static
      */
     static inverse <Out extends IVec2Like> (out: Out, a: Out) {
@@ -528,7 +528,7 @@ export default class Vec2 extends ValueType {
      * !#zh 逐元素向量取倒数，接近 0 时返回 0
      * @method inverseSafe
      * @typescript
-     * inverseSafe <Out extends IVec2Like> (out: Out, a: Out)
+     * inverseSafe <Out extends IVec2Like> (out: Out, a: Out): Out
      * @static
      */
     static inverseSafe <Out extends IVec2Like> (out: Out, a: Out) {
@@ -554,7 +554,7 @@ export default class Vec2 extends ValueType {
      * !#zh 归一化向量
      * @method normalize
      * @typescript
-     * normalize <Out extends IVec2Like, Vec2Like extends IVec2Like> (out: Out, a: Vec2Like)
+     * normalize <Out extends IVec2Like, Vec2Like extends IVec2Like> (out: Out, a: Vec2Like): Out
      * @static
      */
     static normalize <Out extends IVec2Like, Vec2Like extends IVec2Like> (out: Out, a: Vec2Like) {
@@ -573,7 +573,7 @@ export default class Vec2 extends ValueType {
      * !#zh 向量点积（数量积）
      * @method dot
      * @typescript
-     * dot <Out extends IVec2Like> (a: Out, b: Out)
+     * dot <Out extends IVec2Like> (a: Out, b: Out): number
      * @static
      */
     static dot <Out extends IVec2Like> (a: Out, b: Out) {
@@ -584,7 +584,7 @@ export default class Vec2 extends ValueType {
      * !#zh 向量叉积（向量积），注意二维向量的叉积为与 Z 轴平行的三维向量
      * @method cross
      * @typescript
-     * cross <Out extends IVec2Like> (out: Vec2, a: Out, b: Out)
+     * cross <Out extends IVec2Like> (out: Vec2, a: Out, b: Out): Vec2
      * @static
      */
     static cross <Out extends IVec2Like> (out: Vec2, a: Out, b: Out) {
@@ -597,7 +597,7 @@ export default class Vec2 extends ValueType {
      * !#zh 逐元素向量线性插值： A + t * (B - A)
      * @method lerp
      * @typescript
-     * lerp <Out extends IVec2Like> (out: Out, a: Out, b: Out, t: number)
+     * lerp <Out extends IVec2Like> (out: Out, a: Out, b: Out, t: number): Out
      * @static
      */
     static lerp <Out extends IVec2Like> (out: Out, a: Out, b: Out, t: number) {
@@ -612,7 +612,7 @@ export default class Vec2 extends ValueType {
      * !#zh 生成一个在单位圆上均匀分布的随机向量
      * @method random
      * @typescript
-     * random <Out extends IVec2Like> (out: Out, scale?: number)
+     * random <Out extends IVec2Like> (out: Out, scale?: number): Out
      * @static
      */
     static random <Out extends IVec2Like> (out: Out, scale?: number) {
@@ -627,7 +627,7 @@ export default class Vec2 extends ValueType {
      * !#zh 向量与三维矩阵乘法，默认向量第三位为 1。
      * @method transformMat3
      * @typescript
-     * transformMat3 <Out extends IVec2Like, MatLike extends IMat3Like> (out: Out, a: Out, mat: IMat3Like)
+     * transformMat3 <Out extends IVec2Like, MatLike extends IMat3Like> (out: Out, a: Out, mat: IMat3Like): Out
      * @static
      */
     static transformMat3 <Out extends IVec2Like, MatLike extends IMat3Like> (out: Out, a: Out, mat: MatLike) {
@@ -643,7 +643,7 @@ export default class Vec2 extends ValueType {
      * !#zh 向量与四维矩阵乘法，默认向量第三位为 0，第四位为 1。
      * @method transformMat4
      * @typescript
-     * transformMat4 <Out extends IVec2Like, MatLike extends IMat4Like> (out: Out, a: Out, mat: MatLike)
+     * transformMat4 <Out extends IVec2Like, MatLike extends IMat4Like> (out: Out, a: Out, mat: MatLike): Out
      * @static
      */
     static transformMat4 <Out extends IVec2Like, MatLike extends IMat4Like> (out: Out, a: Out, mat: MatLike) {
@@ -659,7 +659,7 @@ export default class Vec2 extends ValueType {
      * !#zh 向量等价判断
      * @method strictEquals
      * @typescript
-     * strictEquals <Out extends IVec2Like> (a: Out, b: Out)
+     * strictEquals <Out extends IVec2Like> (a: Out, b: Out): boolean
      * @static
      */
     static strictEquals <Out extends IVec2Like> (a: Out, b: Out) {
@@ -670,7 +670,7 @@ export default class Vec2 extends ValueType {
      * !#zh 排除浮点数误差的向量近似等价判断
      * @method equals
      * @typescript
-     * equals <Out extends IVec2Like> (a: Out, b: Out,  epsilon = EPSILON)
+     * equals <Out extends IVec2Like> (a: Out, b: Out,  epsilon?: number): boolean
      * @static
      */
     static equals <Out extends IVec2Like> (a: Out, b: Out,  epsilon = EPSILON) {
@@ -686,7 +686,7 @@ export default class Vec2 extends ValueType {
      * !#zh 排除浮点数误差的向量近似等价判断
      * @method angle
      * @typescript
-     * angle <Out extends IVec2Like> (a: Out, b: Out)
+     * angle <Out extends IVec2Like> (a: Out, b: Out): number
      * @static
      */
     static angle <Out extends IVec2Like> (a: Out, b: Out) {
@@ -706,7 +706,7 @@ export default class Vec2 extends ValueType {
      * !#zh 向量转数组
      * @method toArray
      * @typescript
-     * toArray <Out extends IWritableArrayLike<number>> (out: Out, v: IVec2Like, ofs = 0)
+     * toArray <Out extends IWritableArrayLike<number>> (out: Out, v: IVec2Like, ofs?: number): Out
      * @static
      */
     static toArray <Out extends IWritableArrayLike<number>> (out: Out, v: IVec2Like, ofs = 0) {
@@ -719,7 +719,7 @@ export default class Vec2 extends ValueType {
      * !#zh 数组转向量
      * @method fromArray
      * @typescript
-     * fromArray <Out extends IVec2Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0)
+     * fromArray <Out extends IVec2Like> (out: Out, arr: IWritableArrayLike<number>, ofs?: number): Out
      * @static
      */
     static fromArray <Out extends IVec2Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {
@@ -755,8 +755,8 @@ export default class Vec2 extends ValueType {
         super();
 
         if (x && typeof x === 'object') {
-            this.y = x.y || 0;
             this.x = x.x || 0;
+            this.y = x.y || 0;
         } else {
             this.x = x as number || 0;
             this.y = y || 0;

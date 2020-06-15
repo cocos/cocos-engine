@@ -57,20 +57,6 @@ if (cc.sys.os === cc.sys.OS_IOS) // All browsers are WebView
 
 switch (__BrowserGetter.adaptationType) {
     case cc.sys.BROWSER_TYPE_SAFARI:
-        __BrowserGetter.meta["minimal-ui"] = "true";
-        __BrowserGetter.availWidth = cc.sys.isMobile ? function (frame){
-            // bug fix for navigation bar on Safari
-            return window.innerWidth;
-        } : function (frame) {
-            return frame.clientWidth;
-        }
-        __BrowserGetter.availHeight = cc.sys.isMobile ? function (frame){
-            // bug fix for navigation bar on Safari
-            return window.innerHeight;
-        } : function (frame) {
-            return frame.clientHeight;
-        }
-        break;
     case cc.sys.BROWSER_TYPE_SOUGOU:
     case cc.sys.BROWSER_TYPE_UC:
         __BrowserGetter.meta["minimal-ui"] = "true";
@@ -236,6 +222,11 @@ cc.js.mixin(View.prototype, {
         }
     },
 
+    _resize: function() {
+        //force resize when size is changed at native
+        cc.view._resizeEvent(CC_JSB);
+    },
+
     /**
      * !#en
      * Sets view's target-densitydpi for android mobile browser. it can be set to:           <br/>
@@ -274,14 +265,14 @@ cc.js.mixin(View.prototype, {
             //enable
             if (!this._resizeWithBrowserSize) {
                 this._resizeWithBrowserSize = true;
-                window.addEventListener('resize', this._resizeEvent);
+                window.addEventListener('resize', this._resize);
                 window.addEventListener('orientationchange', this._orientationChange);
             }
         } else {
             //disable
             if (this._resizeWithBrowserSize) {
                 this._resizeWithBrowserSize = false;
-                window.removeEventListener('resize', this._resizeEvent);
+                window.removeEventListener('resize', this._resize);
                 window.removeEventListener('orientationchange', this._orientationChange);
             }
         }
@@ -462,7 +453,7 @@ cc.js.mixin(View.prototype, {
      * !#zh 控制抗锯齿是否开启
      * @method enableAntiAlias
      * @param {Boolean} enabled - Enable or not anti-alias
-     * @deprecated cc.view.enableAntiAlias is deprecated now, please use cc.Texture2D.setFilters instead
+     * @deprecated cc.view.enableAntiAlias is deprecated, please use cc.Texture2D.setFilters instead
      * @since v2.3.0
      */
     enableAntiAlias: function (enabled) {
@@ -472,20 +463,18 @@ cc.js.mixin(View.prototype, {
         }
         this._antiAliasEnabled = enabled;
         if(cc.game.renderType === cc.game.RENDER_TYPE_WEBGL) {
-            var cache = cc.loader._cache;
-            for (var key in cache) {
-                var item = cache[key];
-                var tex = item && item.content instanceof cc.Texture2D ? item.content : null;
-                if (tex) {
+            var cache = cc.assetManager.assets;
+            cache.forEach(function (asset) {
+                if (asset instanceof cc.Texture2D) {
                     var Filter = cc.Texture2D.Filter;
                     if (enabled) {
-                        tex.setFilters(Filter.LINEAR, Filter.LINEAR);
+                        asset.setFilters(Filter.LINEAR, Filter.LINEAR);
                     }
                     else {
-                        tex.setFilters(Filter.NEAREST, Filter.NEAREST);
+                        asset.setFilters(Filter.NEAREST, Filter.NEAREST);
                     }
                 }
-            }
+            });
         }
         else if(cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
             var ctx = cc.game.canvas.getContext('2d');
@@ -718,7 +707,7 @@ cc.js.mixin(View.prototype, {
     setDesignResolutionSize: function (width, height, resolutionPolicy) {
         // Defensive code
         if( !(width > 0 || height > 0) ){
-            cc.logID(2200);
+            cc.errorID(2200);
             return;
         }
 

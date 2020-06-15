@@ -406,14 +406,6 @@ let TiledMap = cc.Class({
         return this._groups;
     },
 
-    getTileObjectGroupForGID(gid) {
-        return this._tileObjectGroups[gid];
-    },
-
-    getTileObjectGroups() {
-        return this._tileObjectGroups;
-    },
-
     /**
      * !#en Return the TMXObjectGroup for the specific group.
      * !#zh 获取指定的 TMXObjectGroup。
@@ -584,16 +576,7 @@ let TiledMap = cc.Class({
                 }
             }
 
-            let txFileNames = file.txFileNames;
-            let txFiles = file.txFiles;
-            let txMap = {};
-            for (let i = 0; i < txFileNames.length; ++i) {
-                if (txFileNames[i].length > 0) {
-                    txMap[txFileNames[i]] = txFiles[i]._nativeAsset;
-                }
-            }
-
-            let mapInfo = new cc.TMXMapInfo(file.tmxXmlStr, tsxMap, txMap, textures, textureSizes, imageLayerTextures);
+            let mapInfo = new cc.TMXMapInfo(file.tmxXmlStr, tsxMap, textures, textureSizes, imageLayerTextures);
             let tilesets = mapInfo.getTilesets();
             if(!tilesets || tilesets.length === 0)
                 cc.logID(7241);
@@ -793,7 +776,6 @@ let TiledMap = cc.Class({
         this._mapOrientation = mapInfo.orientation;
         this._properties = mapInfo.properties;
         this._tileProperties = mapInfo.getTileProperties();
-        this._tileObjectGroups = mapInfo.getTileObjectGroups();
         this._imageLayers = mapInfo.getImageLayers();
         this._animations = mapInfo.getTileAnimations();
         this._tilesets = mapInfo.getTilesets();

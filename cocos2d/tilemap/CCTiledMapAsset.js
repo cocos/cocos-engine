@@ -73,9 +73,6 @@ let TiledMapAsset = cc.Class({
 
         tsxFiles: [cc.TextAsset],
         tsxFileNames: [cc.String],
-
-        txFiles: [cc.TextAsset],
-        txFileNames: [cc.String],
     },
 
     statics: {

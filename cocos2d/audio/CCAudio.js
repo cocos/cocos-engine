@@ -36,16 +36,10 @@ let touchPlayList = [
 
 let Audio = function (src) {
     EventTarget.call(this);
-
     this._shouldRecycleOnEnded = false;
     this._src = src;
     this._element = null;
     this.id = 0;
-
-    this._volume = 1;
-    this._loop = false;
-    this._nextTime = 0;  // playback position to set
-
     this._state = Audio.State.INITIALZING;
 
     this._onended = function () {
@@ -107,27 +101,11 @@ Audio.State = {
         }
     };
 
-    // proto.mount = function (elem) {
-    //     if (CC_DEBUG) {
-    //         cc.warn('Audio.mount(value) is deprecated. Please use Audio._onLoaded().');
-    //     }
-    // };
-
     proto._onLoaded = function () {
         this._createElement();
-        
-        this.setVolume(this._volume);
-        this.setLoop(this._loop);
-        if (this._nextTime !== 0) {
-            this.setCurrentTime(this._nextTime);
-        }
-        // need to skip forceUpdatingState when get state on load, because it's a hack operation
-        if (this.getState(false) === Audio.State.PLAYING) {
-            this.play();
-        }
-        else {
-            this._state = Audio.State.INITIALZING;
-        }
+        this._state = Audio.State.INITIALZING;
+        this.setVolume(1);
+        this.setLoop(false);
     };
 
     proto._createElement = function () {
@@ -145,17 +123,21 @@ Audio.State = {
     };
 
     proto.play = function () {
-        // marked as playing so it will playOnLoad
-        this._state = Audio.State.PLAYING;
-
-        if (!this._element) {
-            return;
-        }
-
-        this._bindEnded();
-        this._element.play();
-
-        this._touchToPlay();
+        let self = this;
+        this._src && this._src._ensureLoaded(function () {
+            // marked as playing so it will playOnLoad
+            self._state = Audio.State.PLAYING;
+            // TODO: move to audio event listeners
+            self._bindEnded();
+            let playPromise = self._element.play();
+            // dom audio throws an error if pause audio immediately after playing
+            if (window.Promise && playPromise instanceof Promise) {
+                playPromise.catch(function (err) {
+                    // do nothing
+                });
+            }
+            self._touchToPlay();
+        });
     };
 
     proto._touchToPlay = function () {
@@ -182,86 +164,75 @@ Audio.State = {
     };
 
     proto.pause = function () {
-        if (!this._element || this.getState() !== Audio.State.PLAYING) return;
-        this._unbindEnded();
-        this._element.pause();
-        this._state = Audio.State.PAUSED;
+        if (this.getState() !== Audio.State.PLAYING) return;
+        let self = this;
+        this._src && this._src._ensureLoaded(function () {
+            // pause operation may fire 'ended' event
+            self._unbindEnded();
+            self._element.pause();
+            self._state = Audio.State.PAUSED;
+        });
     };
 
     proto.resume = function () {
-        if (!this._element || this.getState() !== Audio.State.PAUSED) return;
-        this._bindEnded();
-        this._element.play();
-        this._state = Audio.State.PLAYING;
+        if (this.getState() !== Audio.State.PAUSED) return;
+        let self = this;
+        this._src && this._src._ensureLoaded(function () {
+            self._bindEnded();
+            self._element.play();
+            self._state = Audio.State.PLAYING;
+        });
     };
 
     proto.stop = function () {
-        if (!this._element) return;
-        this._element.pause();
-        try {
-            this._element.currentTime = 0;
-        } catch (error) {}
-        // remove touchPlayList
-        for (let i = 0; i < touchPlayList.length; i++) {
-            if (touchPlayList[i].instance === this) {
-                touchPlayList.splice(i, 1);
-                break;
+        let self = this;
+        this._src && this._src._ensureLoaded(function () {
+            self._element.pause();
+            self._element.currentTime = 0;
+            // remove touchPlayList
+            for (let i = 0; i < touchPlayList.length; i++) {
+                if (touchPlayList[i].instance === self) {
+                    touchPlayList.splice(i, 1);
+                    break;
+                }
             }
-        }
-        this._unbindEnded();
-        this.emit('stop');
-        this._state = Audio.State.STOPPED;
+            self._unbindEnded();
+            self.emit('stop');
+            self._state = Audio.State.STOPPED;
+        });
     };
 
     proto.setLoop = function (loop) {
-        this._loop = loop;
-        if (this._element) {
-            this._element.loop = loop;
-        }
+        let self = this;
+        this._src && this._src._ensureLoaded(function () {
+            self._element.loop = loop;
+        });
     };
     proto.getLoop = function () {
-        return this._loop;
+        return this._element ? this._element.loop : false;
     };
 
     proto.setVolume = function (num) {
-        this._volume = num;
-        if (this._element) {
-            this._element.volume = num;
-        }
+        let self = this;
+        this._src && this._src._ensureLoaded(function () {
+            self._element.volume = num;
+        });
     };
     proto.getVolume = function () {
-        return this._volume;
+        return this._element ? this._element.volume : 1;
     };
 
     proto.setCurrentTime = function (num) {
-        if (this._element) {
-            this._nextTime = 0;
-        }
-        else {
-            this._nextTime = num;
-            return;
-        }
-
-        // setCurrentTime would fire 'ended' event
-        // so we need to change the callback to rebind ended callback after setCurrentTime
-        this._unbindEnded();
-        this._bindEnded(function () {
-            this._bindEnded();
-        }.bind(this));
-
-        try {
-            this._element.currentTime = num;
-        }
-        catch (err) {
-            let _element = this._element;
-            if (_element.addEventListener) {
-                let func = function () {
-                    _element.removeEventListener('loadedmetadata', func);
-                    _element.currentTime = num;
-                };
-                _element.addEventListener('loadedmetadata', func);
-            }
-        }
+        let self = this;
+        this._src && this._src._ensureLoaded(function () {
+            // setCurrentTime would fire 'ended' event
+            // so we need to change the callback to rebind ended callback after setCurrentTime
+            self._unbindEnded();
+            self._bindEnded(function () {
+                self._bindEnded();
+            });
+            self._element.currentTime = num;
+        });
     };
 
     proto.getCurrentTime = function () {
@@ -269,7 +240,7 @@ Audio.State = {
     };
 
     proto.getDuration = function () {
-        return this._element ? this._element.duration : 0;
+        return this._src ? this._src.duration : 0;
     };
 
     proto.getState = function (forceUpdating = true) {
@@ -278,7 +249,6 @@ Audio.State = {
         if (forceUpdating) {
             this._forceUpdatingState();
         }
-        
         return this._state;
     };
 
@@ -302,31 +272,13 @@ Audio.State = {
             this._unbindEnded();
             if (clip) {
                 this._src = clip;
-                if (clip.loaded) {
-                    this._onLoaded();
-                }
-                else {
-                    let self = this;
-                    clip.once('load', function () {
-                        if (clip === self._src) {
-                            self._onLoaded();
-                        }
-                    });
-                    cc.loader.load({
-                            url: clip.nativeUrl,
-                            // For audio, we should skip loader otherwise it will load a new audioClip.
-                            skips: ['Loader'],
-                        },
-                        function (err, audioNativeAsset) {
-                            if (err) {
-                                cc.error(err);
-                                return;
-                            }
-                            if (!clip.loaded) {
-                                clip._nativeAsset = audioNativeAsset;
-                            }
-                        });
-                }
+                let self = this;
+                clip._ensureLoaded(function () {
+                    // In case set a new src when the old one hasn't finished loading
+                    if (clip === self._src) {
+                        self._onLoaded();
+                    }
+                });
             }
             else {
                 this._src = null;
@@ -456,9 +408,15 @@ let WebAudioElement = function (buffer, audio) {
                 }
             }, 10);
         }
-        // HACK: fix mobile safari can't play
-        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_SAFARI && cc.sys.isMobile) {
-            if (audio.context.state === 'interrupted') {
+        
+        let sys = cc.sys;
+        if (sys.os === sys.OS_IOS && sys.isBrowser && sys.isMobile) {
+            // Audio context is suspended when you unplug the earphones,
+            // and is interrupted when the app enters background.
+            // Both make the audioBufferSource unplayable.
+            if ((audio.context.state === "suspended" && this._context.currentTime !== 0)
+                || audio.context.state === 'interrupted') {
+                // reference: https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/resume
                 audio.context.resume();
             }
         }
@@ -575,4 +533,4 @@ let WebAudioElement = function (buffer, audio) {
 
 })(WebAudioElement.prototype);
 
-module.exports = cc.Audio = Audio;
+module.exports = cc._Audio = Audio;
