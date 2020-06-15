@@ -101,10 +101,8 @@ var AudioSource = cc.Class({
                     return cc.error('Wrong type of AudioClip.');
                 }
                 this._clip = value;
+                this.audio.src = value;
                 this.audio.stop();
-                if (this.preload) {
-                    this.audio.src = this._clip;
-                }
             },
             type: AudioClip,
             tooltip: CC_DEV && 'i18n:COMPONENT.audio.clip',
@@ -185,17 +183,6 @@ var AudioSource = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.audio.play_on_load',
             animatable: false
         },
-
-        preload: {
-            default: false,
-            animatable: false
-        }
-    },
-
-    _ensureDataLoaded () {
-        if (this.audio.src !== this._clip) {
-            this.audio.src = this._clip;
-        }
     },
 
     _pausedCallback: function () {
@@ -213,15 +200,16 @@ var AudioSource = cc.Class({
         this._pausedFlag = false;
     },
 
+    __preload: function () {
+        this.audio.src = this._clip;
+    },
+
     onLoad: function () {
         this.audio.setVolume(this._mute ? 0 : this._volume);
         this.audio.setLoop(this._loop);
     },
 
     onEnable: function () {
-        if (this.preload) {
-            this.audio.src = this._clip;
-        }
         if (this.playOnLoad) {
             this.play();
         }
@@ -250,10 +238,7 @@ var AudioSource = cc.Class({
         if ( !this._clip ) return;
 
         var audio = this.audio;
-        if (this._clip.loaded) {
-            audio.stop();
-        }
-        this._ensureDataLoaded();
+        audio.stop();
         audio.setCurrentTime(0);
         audio.play();
     },
@@ -282,7 +267,6 @@ var AudioSource = cc.Class({
      * @method resume
      */
     resume: function () {
-        this._ensureDataLoaded();
         this.audio.resume();
     },
 

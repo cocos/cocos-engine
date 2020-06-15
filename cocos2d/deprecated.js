@@ -708,4 +708,8 @@ if (CC_DEBUG) {
         'preload',
         'setMaxWebAudioSize',
     ], 'cc.audioEngine');
+
+    markAsRemoved(cc.AudioSource, [
+        'preload'
+    ]);
 }
