@@ -129,16 +129,16 @@ extern se::Class* __jsb_cocos2d_GFXShaderStage_class;
 bool js_register_cocos2d_GFXShaderStage(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cocos2d_GFXShaderInfo_proto;
-extern se::Class* __jsb_cocos2d_GFXShaderInfo_class;
-
-bool js_register_cocos2d_GFXShaderInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
 extern se::Object* __jsb_cocos2d_GFXAttribute_proto;
 extern se::Class* __jsb_cocos2d_GFXAttribute_class;
 
 bool js_register_cocos2d_GFXAttribute(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXShaderInfo_proto;
+extern se::Class* __jsb_cocos2d_GFXShaderInfo_class;
+
+bool js_register_cocos2d_GFXShaderInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 extern se::Object* __jsb_cocos2d_GFXInputAssemblerInfo_proto;

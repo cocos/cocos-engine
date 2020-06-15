@@ -5894,253 +5894,6 @@ bool js_register_gfx_GFXShaderStage(se::Object* obj)
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXShaderInfo_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXShaderInfo_class = nullptr;
-
-static bool js_gfx_GFXShaderInfo_get_name(se::State& s)
-{
-    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_get_name : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    jsret.setString(cobj->name);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_GFXShaderInfo_get_name)
-
-static bool js_gfx_GFXShaderInfo_set_name(se::State& s)
-{
-    const auto& args = s.args();
-    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_set_name : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    cocos2d::String arg0;
-    arg0 = args[0].toStringForce().c_str();
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderInfo_set_name : Error processing new value");
-    cobj->name = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_GFXShaderInfo_set_name)
-
-static bool js_gfx_GFXShaderInfo_get_stages(se::State& s)
-{
-    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_get_stages : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= std_vector_to_seval(cobj->stages, &jsret);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_GFXShaderInfo_get_stages)
-
-static bool js_gfx_GFXShaderInfo_set_stages(se::State& s)
-{
-    const auto& args = s.args();
-    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_set_stages : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXShaderStage> arg0;
-    ok &= seval_to_std_vector(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderInfo_set_stages : Error processing new value");
-    cobj->stages = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_GFXShaderInfo_set_stages)
-
-static bool js_gfx_GFXShaderInfo_get_blocks(se::State& s)
-{
-    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_get_blocks : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= std_vector_to_seval(cobj->blocks, &jsret);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_GFXShaderInfo_get_blocks)
-
-static bool js_gfx_GFXShaderInfo_set_blocks(se::State& s)
-{
-    const auto& args = s.args();
-    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_set_blocks : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXUniformBlock> arg0;
-    ok &= seval_to_std_vector(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderInfo_set_blocks : Error processing new value");
-    cobj->blocks = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_GFXShaderInfo_set_blocks)
-
-static bool js_gfx_GFXShaderInfo_get_samplers(se::State& s)
-{
-    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_get_samplers : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= std_vector_to_seval(cobj->samplers, &jsret);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_GFXShaderInfo_get_samplers)
-
-static bool js_gfx_GFXShaderInfo_set_samplers(se::State& s)
-{
-    const auto& args = s.args();
-    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_set_samplers : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXUniformSampler> arg0;
-    ok &= seval_to_std_vector(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderInfo_set_samplers : Error processing new value");
-    cobj->samplers = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_GFXShaderInfo_set_samplers)
-
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXShaderInfo_finalize)
-
-static bool js_gfx_GFXShaderInfo_constructor(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-
-    if(argc == 0) 
-    {
-        cocos2d::GFXShaderInfo* cobj = JSB_ALLOC(cocos2d::GFXShaderInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-    else if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        cocos2d::GFXShaderInfo* cobj = JSB_ALLOC(cocos2d::GFXShaderInfo);
-        cocos2d::String arg0;
-        json->getProperty("name", &field);
-        if(!field.isUndefined()) {
-            arg0 = field.toStringForce().c_str();
-            cobj->name = arg0;
-        }
-        std::vector<cocos2d::GFXShaderStage> arg1;
-        json->getProperty("stages", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_std_vector(field, &arg1);
-            cobj->stages = arg1;
-        }
-        std::vector<cocos2d::GFXUniformBlock> arg2;
-        json->getProperty("blocks", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_std_vector(field, &arg2);
-            cobj->blocks = arg2;
-        }
-        std::vector<cocos2d::GFXUniformSampler> arg3;
-        json->getProperty("samplers", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_std_vector(field, &arg3);
-            cobj->samplers = arg3;
-        }
-
-        if(!ok) {
-            JSB_FREE(cobj);
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-    else if(argc == 4)
-    {
-        cocos2d::GFXShaderInfo* cobj = JSB_ALLOC(cocos2d::GFXShaderInfo);
-        cocos2d::String arg0;
-        if (!args[0].isUndefined()) {
-            arg0 = args[0].toStringForce().c_str();
-            cobj->name = arg0;
-        }
-        std::vector<cocos2d::GFXShaderStage> arg1;
-        if (!args[1].isUndefined()) {
-            ok &= seval_to_std_vector(args[1], &arg1);
-            cobj->stages = arg1;
-        }
-        std::vector<cocos2d::GFXUniformBlock> arg2;
-        if (!args[2].isUndefined()) {
-            ok &= seval_to_std_vector(args[2], &arg2);
-            cobj->blocks = arg2;
-        }
-        std::vector<cocos2d::GFXUniformSampler> arg3;
-        if (!args[3].isUndefined()) {
-            ok &= seval_to_std_vector(args[3], &arg3);
-            cobj->samplers = arg3;
-        }
-
-        if(!ok) {
-            JSB_FREE(cobj);
-            SE_REPORT_ERROR("Argument convertion error");
-            return false;
-        }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_CTOR(js_gfx_GFXShaderInfo_constructor, __jsb_cocos2d_GFXShaderInfo_class, js_cocos2d_GFXShaderInfo_finalize)
-
-
-
-
-static bool js_cocos2d_GFXShaderInfo_finalize(se::State& s)
-{
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXShaderInfo)", s.nativeThisObject());
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
-        JSB_FREE(cobj);
-    }
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXShaderInfo_finalize)
-
-bool js_register_gfx_GFXShaderInfo(se::Object* obj)
-{
-    auto cls = se::Class::create("GFXShaderInfo", obj, nullptr, _SE(js_gfx_GFXShaderInfo_constructor));
-
-    cls->defineProperty("name", _SE(js_gfx_GFXShaderInfo_get_name), _SE(js_gfx_GFXShaderInfo_set_name));
-    cls->defineProperty("stages", _SE(js_gfx_GFXShaderInfo_get_stages), _SE(js_gfx_GFXShaderInfo_set_stages));
-    cls->defineProperty("blocks", _SE(js_gfx_GFXShaderInfo_get_blocks), _SE(js_gfx_GFXShaderInfo_set_blocks));
-    cls->defineProperty("samplers", _SE(js_gfx_GFXShaderInfo_get_samplers), _SE(js_gfx_GFXShaderInfo_set_samplers));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXShaderInfo_finalize));
-    cls->install();
-    JSBClassType::registerClass<cocos2d::GFXShaderInfo>(cls);
-
-    __jsb_cocos2d_GFXShaderInfo_proto = cls->getProto();
-    __jsb_cocos2d_GFXShaderInfo_class = cls;
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
 se::Object* __jsb_cocos2d_GFXAttribute_proto = nullptr;
 se::Class* __jsb_cocos2d_GFXAttribute_class = nullptr;
 
@@ -6463,6 +6216,293 @@ bool js_register_gfx_GFXAttribute(se::Object* obj)
 
     __jsb_cocos2d_GFXAttribute_proto = cls->getProto();
     __jsb_cocos2d_GFXAttribute_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cocos2d_GFXShaderInfo_proto = nullptr;
+se::Class* __jsb_cocos2d_GFXShaderInfo_class = nullptr;
+
+static bool js_gfx_GFXShaderInfo_get_name(se::State& s)
+{
+    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_get_name : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    jsret.setString(cobj->name);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_GFXShaderInfo_get_name)
+
+static bool js_gfx_GFXShaderInfo_set_name(se::State& s)
+{
+    const auto& args = s.args();
+    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_set_name : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    cocos2d::String arg0;
+    arg0 = args[0].toStringForce().c_str();
+    SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderInfo_set_name : Error processing new value");
+    cobj->name = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_GFXShaderInfo_set_name)
+
+static bool js_gfx_GFXShaderInfo_get_stages(se::State& s)
+{
+    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_get_stages : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= std_vector_to_seval(cobj->stages, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_GFXShaderInfo_get_stages)
+
+static bool js_gfx_GFXShaderInfo_set_stages(se::State& s)
+{
+    const auto& args = s.args();
+    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_set_stages : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    std::vector<cocos2d::GFXShaderStage> arg0;
+    ok &= seval_to_std_vector(args[0], &arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderInfo_set_stages : Error processing new value");
+    cobj->stages = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_GFXShaderInfo_set_stages)
+
+static bool js_gfx_GFXShaderInfo_get_attributes(se::State& s)
+{
+    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_get_attributes : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= std_vector_to_seval(cobj->attributes, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_GFXShaderInfo_get_attributes)
+
+static bool js_gfx_GFXShaderInfo_set_attributes(se::State& s)
+{
+    const auto& args = s.args();
+    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_set_attributes : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    std::vector<cocos2d::GFXAttribute> arg0;
+    ok &= seval_to_std_vector(args[0], &arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderInfo_set_attributes : Error processing new value");
+    cobj->attributes = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_GFXShaderInfo_set_attributes)
+
+static bool js_gfx_GFXShaderInfo_get_blocks(se::State& s)
+{
+    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_get_blocks : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= std_vector_to_seval(cobj->blocks, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_GFXShaderInfo_get_blocks)
+
+static bool js_gfx_GFXShaderInfo_set_blocks(se::State& s)
+{
+    const auto& args = s.args();
+    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_set_blocks : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    std::vector<cocos2d::GFXUniformBlock> arg0;
+    ok &= seval_to_std_vector(args[0], &arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderInfo_set_blocks : Error processing new value");
+    cobj->blocks = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_GFXShaderInfo_set_blocks)
+
+static bool js_gfx_GFXShaderInfo_get_samplers(se::State& s)
+{
+    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_get_samplers : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= std_vector_to_seval(cobj->samplers, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_GFXShaderInfo_get_samplers)
+
+static bool js_gfx_GFXShaderInfo_set_samplers(se::State& s)
+{
+    const auto& args = s.args();
+    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_set_samplers : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    std::vector<cocos2d::GFXUniformSampler> arg0;
+    ok &= seval_to_std_vector(args[0], &arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderInfo_set_samplers : Error processing new value");
+    cobj->samplers = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_GFXShaderInfo_set_samplers)
+
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXShaderInfo_finalize)
+
+static bool js_gfx_GFXShaderInfo_constructor(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0) 
+    {
+        cocos2d::GFXShaderInfo* cobj = JSB_ALLOC(cocos2d::GFXShaderInfo);
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+    else if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+
+        cocos2d::GFXShaderInfo* cobj = JSB_ALLOC(cocos2d::GFXShaderInfo);
+        cocos2d::String arg0;
+        json->getProperty("name", &field);
+        if(!field.isUndefined()) {
+            arg0 = field.toStringForce().c_str();
+            cobj->name = arg0;
+        }
+        std::vector<cocos2d::GFXShaderStage> arg1;
+        json->getProperty("stages", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_std_vector(field, &arg1);
+            cobj->stages = arg1;
+        }
+        std::vector<cocos2d::GFXAttribute> arg2;
+        json->getProperty("attributes", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_std_vector(field, &arg2);
+            cobj->attributes = arg2;
+        }
+        std::vector<cocos2d::GFXUniformBlock> arg3;
+        json->getProperty("blocks", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_std_vector(field, &arg3);
+            cobj->blocks = arg3;
+        }
+        std::vector<cocos2d::GFXUniformSampler> arg4;
+        json->getProperty("samplers", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_std_vector(field, &arg4);
+            cobj->samplers = arg4;
+        }
+
+        if(!ok) {
+            JSB_FREE(cobj);
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+    else if(argc == 5)
+    {
+        cocos2d::GFXShaderInfo* cobj = JSB_ALLOC(cocos2d::GFXShaderInfo);
+        cocos2d::String arg0;
+        if (!args[0].isUndefined()) {
+            arg0 = args[0].toStringForce().c_str();
+            cobj->name = arg0;
+        }
+        std::vector<cocos2d::GFXShaderStage> arg1;
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_std_vector(args[1], &arg1);
+            cobj->stages = arg1;
+        }
+        std::vector<cocos2d::GFXAttribute> arg2;
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_std_vector(args[2], &arg2);
+            cobj->attributes = arg2;
+        }
+        std::vector<cocos2d::GFXUniformBlock> arg3;
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_std_vector(args[3], &arg3);
+            cobj->blocks = arg3;
+        }
+        std::vector<cocos2d::GFXUniformSampler> arg4;
+        if (!args[4].isUndefined()) {
+            ok &= seval_to_std_vector(args[4], &arg4);
+            cobj->samplers = arg4;
+        }
+
+        if(!ok) {
+            JSB_FREE(cobj);
+            SE_REPORT_ERROR("Argument convertion error");
+            return false;
+        }
+
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_CTOR(js_gfx_GFXShaderInfo_constructor, __jsb_cocos2d_GFXShaderInfo_class, js_cocos2d_GFXShaderInfo_finalize)
+
+
+
+
+static bool js_cocos2d_GFXShaderInfo_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXShaderInfo)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXShaderInfo_finalize)
+
+bool js_register_gfx_GFXShaderInfo(se::Object* obj)
+{
+    auto cls = se::Class::create("GFXShaderInfo", obj, nullptr, _SE(js_gfx_GFXShaderInfo_constructor));
+
+    cls->defineProperty("name", _SE(js_gfx_GFXShaderInfo_get_name), _SE(js_gfx_GFXShaderInfo_set_name));
+    cls->defineProperty("stages", _SE(js_gfx_GFXShaderInfo_get_stages), _SE(js_gfx_GFXShaderInfo_set_stages));
+    cls->defineProperty("attributes", _SE(js_gfx_GFXShaderInfo_get_attributes), _SE(js_gfx_GFXShaderInfo_set_attributes));
+    cls->defineProperty("blocks", _SE(js_gfx_GFXShaderInfo_get_blocks), _SE(js_gfx_GFXShaderInfo_set_blocks));
+    cls->defineProperty("samplers", _SE(js_gfx_GFXShaderInfo_get_samplers), _SE(js_gfx_GFXShaderInfo_set_samplers));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXShaderInfo_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::GFXShaderInfo>(cls);
+
+    __jsb_cocos2d_GFXShaderInfo_proto = cls->getProto();
+    __jsb_cocos2d_GFXShaderInfo_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -14705,6 +14745,24 @@ static bool js_gfx_GFXShader_getName(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_GFXShader_getName)
 
+static bool js_gfx_GFXShader_getAttributes(se::State& s)
+{
+    cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_getAttributes : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<cocos2d::GFXAttribute>& result = cobj->getAttributes();
+        ok &= std_vector_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_getAttributes : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXShader_getAttributes)
+
 static bool js_gfx_GFXShader_getHash(se::State& s)
 {
     cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
@@ -14849,8 +14907,9 @@ bool js_register_gfx_GFXShader(se::Object* obj)
     cls->defineProperty("name", _SE(js_gfx_GFXShader_getName), nullptr);
     cls->defineProperty("samplers", _SE(js_gfx_GFXShader_getSamplers), nullptr);
     cls->defineProperty("device", _SE(js_gfx_GFXShader_getDevice), nullptr);
-    cls->defineProperty("hash", _SE(js_gfx_GFXShader_getHash), nullptr);
+    cls->defineProperty("attributes", _SE(js_gfx_GFXShader_getAttributes), nullptr);
     cls->defineProperty("stages", _SE(js_gfx_GFXShader_getStages), nullptr);
+    cls->defineProperty("hash", _SE(js_gfx_GFXShader_getHash), nullptr);
     cls->defineFunction("initialize", _SE(js_gfx_GFXShader_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXShader_destroy));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXShader_finalize));
