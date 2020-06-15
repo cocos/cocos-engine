@@ -1334,32 +1334,11 @@ export class BaseNode extends CCObject implements ISchedulable {
         // marked as destroying
         this._objFlags |= Destroying;
 
-        // emit node destroy event (this should before event processor destroy)
-        this.emit(SystemEventType.NODE_DESTROYED, this);
-
         // detach self and children from editor
         const parent = this._parent;
         const destroyByParent: boolean = (!!parent) && ((parent._objFlags & Destroying) !== 0);
         if (!destroyByParent && EDITOR) {
             this._registerIfAttached!(false);
-        }
-
-        // Destroy node event processor
-        this._eventProcessor.destroy();
-
-        // destroy children
-        const children = this._children;
-        for (let i = 0; i < children.length; ++i) {
-            // destroy immediate so its _onPreDestroy can be called
-            children[i]._destroyImmediate();
-        }
-
-        // destroy self components
-        const comps = this._components;
-        for (let i = 0; i < comps.length; ++i) {
-            // destroy immediate so its _onPreDestroy can be called
-            // TO DO
-            comps[i]._destroyImmediate();
         }
 
         // remove from persist
@@ -1379,6 +1358,27 @@ export class BaseNode extends CCObject implements ISchedulable {
                     parent.emit(SystemEventType.CHILD_REMOVED, this);
                 }
             }
+        }
+
+        // emit node destroy event (this should before event processor destroy)
+        this.emit(SystemEventType.NODE_DESTROYED, this);
+
+        // Destroy node event processor
+        this._eventProcessor.destroy();
+
+        // destroy children
+        const children = this._children;
+        for (let i = 0; i < children.length; ++i) {
+            // destroy immediate so its _onPreDestroy can be called
+            children[i]._destroyImmediate();
+        }
+
+        // destroy self components
+        const comps = this._components;
+        for (let i = 0; i < comps.length; ++i) {
+            // destroy immediate so its _onPreDestroy can be called
+            // TO DO
+            comps[i]._destroyImmediate();
         }
 
         return destroyByParent;
