@@ -183,7 +183,6 @@ var handleQueue = function (maxConcurrency, maxRequestsPerFrame) {
 }
 
 
-
 /**
  * !#en
  * Control all download process, it is a singleton. All member can be accessed with `cc.assetManager.downloader` , it can download several types of files:
@@ -430,14 +429,15 @@ var downloader = {
      * download(id: string, url: string, type: string, options: Record<string, any>, onComplete: (err: Error, content: any) => void): void
      */
     download (id, url, type, options, onComplete) {
-        var func = downloaders[type] || downloaders['default'];
-        var self = this;
+        let func = downloaders[type] || downloaders['default'];
+        let self = this;
         // if it is downloaded, don't download again
-        if (files.has(id)) {
-            onComplete(null, files.get(id));
+        let file, downloadCallbacks;
+        if (file = files.get(id)) {
+            onComplete(null, file);
         }
-        else if (_downloading.has(id)) {
-            _downloading.get(id).push(onComplete);
+        else if (downloadCallbacks = _downloading.get(id)) {
+            downloadCallbacks.push(onComplete);
             for (let i = 0, l = _queue.length; i < l; i++) {
                 var item = _queue[i];
                 if (item.id === id) {
@@ -502,7 +502,7 @@ var downloader = {
                 for (let i = 0, l = callbacks.length; i < l; i++) {
                     callbacks[i](err, result);
                 }
-            };
+            }
     
             retry(process, maxRetryCount, this.retryInterval, finale);
         }
