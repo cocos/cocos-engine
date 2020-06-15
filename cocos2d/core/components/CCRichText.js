@@ -375,6 +375,10 @@ let RichText = cc.Class({
     _onColorChanged (parentColor) {
         let children = this.node.children;
         children.forEach(function (childNode) {
+            if (parentColor.a !== 255) {
+                childNode.opacity = parentColor.a;
+                parentColor.a = 255;
+            }
             childNode.color = parentColor;
         });
     },
@@ -939,11 +943,17 @@ let RichText = cc.Class({
             textStyle = this._textArray[index].style;
         }
 
+        let color;
         if (textStyle && textStyle.color) {
-            labelNode.color = this._convertLiteralColorValue(textStyle.color);
-        }else {
-            labelNode.color = this.node.color;
+            color = this._convertLiteralColorValue(textStyle.color);
+        } else {
+            color = this.node.color;
         }
+        if (color.a !== 255) {
+            labelNode.opacity = color.a;
+            color.a = 255;
+        }
+        labelNode.color = color;
 
         labelComponent.cacheMode = this.cacheMode;
 
@@ -970,7 +980,12 @@ let RichText = cc.Class({
             if (!labelOutlineComponent) {
                 labelOutlineComponent = labelNode.addComponent(cc.LabelOutline);
             }
-            labelOutlineComponent.color = this._convertLiteralColorValue(textStyle.outline.color);
+            let color = this._convertLiteralColorValue(textStyle.outline.color);
+            if (color.a !== 255) {
+                labelOutlineComponent.opacity = color.a;
+                color.a = 255;
+            }
+            labelOutlineComponent.color = color;
             labelOutlineComponent.width = textStyle.outline.width;
         }
 
