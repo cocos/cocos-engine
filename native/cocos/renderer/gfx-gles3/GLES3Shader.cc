@@ -14,6 +14,7 @@ GLES3Shader::~GLES3Shader() {
 bool GLES3Shader::initialize(const GFXShaderInfo &info) {
     _name = info.name;
     _stages = info.stages;
+    _attributes = info.attributes;
     _blocks = info.blocks;
     _samplers = info.samplers;
 

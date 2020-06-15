@@ -12,6 +12,7 @@ CCMTLShader::~CCMTLShader() { destroy(); }
 bool CCMTLShader::initialize(const GFXShaderInfo &info) {
     _name = info.name;
     _stages = info.stages;
+    _attributes = info.attributes;
     _blocks = info.blocks;
     _samplers = info.samplers;
     

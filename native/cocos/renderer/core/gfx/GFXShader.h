@@ -19,6 +19,7 @@ public:
     CC_INLINE uint getHash() const { return _hash; }
     CC_INLINE const String &getName() const { return _name; }
     CC_INLINE const GFXShaderStageList &getStages() const { return _stages; }
+    CC_INLINE const GFXAttributeList &getAttributes() const { return _attributes; }
     CC_INLINE const GFXUniformBlockList &getBlocks() const { return _blocks; }
     CC_INLINE const GFXUniformSamplerList &getSamplers() const { return _samplers; }
 
@@ -27,6 +28,7 @@ protected:
     uint _hash = 0;
     String _name;
     GFXShaderStageList _stages;
+    GFXAttributeList _attributes;
     GFXUniformBlockList _blocks;
     GFXUniformSamplerList _samplers;
 };

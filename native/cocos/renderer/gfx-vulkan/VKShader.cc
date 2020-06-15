@@ -15,11 +15,13 @@ CCVKShader::~CCVKShader() {
 bool CCVKShader::initialize(const GFXShaderInfo &info) {
     _name = info.name;
     _stages = info.stages;
+    _attributes = info.attributes;
     _blocks = info.blocks;
     _samplers = info.samplers;
 
     _gpuShader = CC_NEW(CCVKGPUShader);
     _gpuShader->name = _name;
+    _gpuShader->attributes = _attributes;
     _gpuShader->blocks = _blocks;
     _gpuShader->samplers = _samplers;
     for (GFXShaderStage &stage : _stages) {

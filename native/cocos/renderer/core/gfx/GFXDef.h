@@ -787,13 +787,6 @@ struct GFXShaderStage {
 
 typedef vector<GFXShaderStage>::type GFXShaderStageList;
 
-struct GFXShaderInfo {
-    String name;
-    GFXShaderStageList stages;
-    GFXUniformBlockList blocks;
-    GFXUniformSamplerList samplers;
-};
-
 struct GFXAttribute {
     String name;
     GFXFormat format = GFXFormat::UNKNOWN;
@@ -805,6 +798,14 @@ struct GFXAttribute {
 
 typedef vector<GFXAttribute>::type GFXAttributeList;
 typedef vector<GFXBuffer *>::type GFXBufferList;
+
+struct GFXShaderInfo {
+    String name;
+    GFXShaderStageList stages;
+    GFXAttributeList attributes;
+    GFXUniformBlockList blocks;
+    GFXUniformSamplerList samplers;
+};
 
 struct GFXInputAssemblerInfo {
     GFXAttributeList attributes;

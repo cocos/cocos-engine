@@ -179,6 +179,7 @@ typedef vector<CCVKGPUShaderStage>::type CCVKGPUShaderStageList;
 class CCVKGPUShader : public Object {
 public:
     String name;
+    GFXAttributeList attributes;
     GFXUniformBlockList blocks;
     GFXUniformSamplerList samplers;
     CCVKGPUShaderStageList gpuStages;

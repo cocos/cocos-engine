@@ -14,6 +14,7 @@ GLES2Shader::~GLES2Shader() {
 bool GLES2Shader::initialize(const GFXShaderInfo &info) {
     _name = info.name;
     _stages = info.stages;
+    _attributes = info.attributes;
     _blocks = info.blocks;
     _samplers = info.samplers;
 

@@ -12,7 +12,7 @@
 
 NS_CC_BEGIN
 
-void InsertVkDynamicStates(vector<VkDynamicState>::type &out, const vector<GFXDynamicState>::type &dynamicStates) {
+void insertVkDynamicStates(vector<VkDynamicState>::type &out, const vector<GFXDynamicState>::type &dynamicStates) {
     for (GFXDynamicState dynamicState : dynamicStates) {
         switch (dynamicState) {
             case GFXDynamicState::VIEWPORT: break; // we make this dynamic by default
@@ -643,7 +643,7 @@ void CCVKCmdFuncCreatePipelineState(CCVKDevice *device, CCVKGPUPipelineState *gp
     ///////////////////// Shader Stage /////////////////////
 
     const CCVKGPUShaderStageList &stages = gpuPipelineState->gpuShader->gpuStages;
-    size_t stageCount = stages.size();
+    const size_t stageCount = stages.size();
     vector<VkPipelineShaderStageCreateInfo>::type stageInfos(stageCount, {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO});
     for (size_t i = 0u; i < stageCount; i++) {
         stageInfos[i].stage = MapVkShaderStageFlagBits(stages[i].type);
@@ -656,7 +656,7 @@ void CCVKCmdFuncCreatePipelineState(CCVKDevice *device, CCVKGPUPipelineState *gp
     ///////////////////// Input State /////////////////////
 
     const GFXAttributeList &attributes = gpuPipelineState->inputState.attributes;
-    size_t attributeCount = attributes.size();
+    const size_t attributeCount = attributes.size();
     size_t bindingCount = 1u;
     for (size_t i = 0u; i < attributeCount; i++) {
         const GFXAttribute &attr = attributes[i];
@@ -677,21 +677,39 @@ void CCVKCmdFuncCreatePipelineState(CCVKDevice *device, CCVKGPUPipelineState *gp
         }
     }
 
+    const GFXAttributeList &shaderAttrs = gpuPipelineState->gpuShader->attributes;
+    const size_t shaderAttrCount = shaderAttrs.size();
+    vector<VkVertexInputAttributeDescription>::type attributeDescriptions(shaderAttrCount);
     vector<uint>::type offsets(bindingCount, 0);
-    vector<VkVertexInputAttributeDescription>::type attributeDescriptions(attributeCount);
+    uint record = 0u;
     for (size_t i = 0u; i < attributeCount; i++) {
         const GFXAttribute &attr = attributes[i];
-        attributeDescriptions[i].location = attr.location;
-        attributeDescriptions[i].binding = attr.stream;
-        attributeDescriptions[i].format = MapVkFormat(attr.format);
-        attributeDescriptions[i].offset = offsets[attr.stream];
+        size_t j = 0u;
+        for (; j < shaderAttrCount; j++) {
+            if (shaderAttrs[j].name == attr.name) {
+                attributeDescriptions[j].location = shaderAttrs[j].location;
+                attributeDescriptions[j].binding = attr.stream;
+                attributeDescriptions[j].format = MapVkFormat(attr.format);
+                attributeDescriptions[j].offset = offsets[attr.stream];
+                record |= 1 << j;
+                break;
+            }
+        }
         offsets[attr.stream] += GFX_FORMAT_INFOS[(uint)attr.format].size;
+    }
+
+    // handle absent attributes
+    for (size_t i = 0u; i < shaderAttrCount; i++) {
+        if (record & (1 << i)) continue;
+        attributeDescriptions[i].location = shaderAttrs[i].location;
+        attributeDescriptions[i].format = MapVkFormat(shaderAttrs[i].format);
+        attributeDescriptions[i].offset = 0; // reuse the first attribute as dummy data
     }
 
     VkPipelineVertexInputStateCreateInfo vertexInput{VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO};
     vertexInput.vertexBindingDescriptionCount = bindingCount;
     vertexInput.pVertexBindingDescriptions = bindingDescriptions.data();
-    vertexInput.vertexAttributeDescriptionCount = attributeCount;
+    vertexInput.vertexAttributeDescriptionCount = shaderAttrCount;
     vertexInput.pVertexAttributeDescriptions = attributeDescriptions.data();
     createInfo.pVertexInputState = &vertexInput;
 
@@ -704,7 +722,7 @@ void CCVKCmdFuncCreatePipelineState(CCVKDevice *device, CCVKGPUPipelineState *gp
     ///////////////////// Dynamic State /////////////////////
 
     vector<VkDynamicState>::type dynamicStates{VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
-    InsertVkDynamicStates(dynamicStates, gpuPipelineState->dynamicStates);
+    insertVkDynamicStates(dynamicStates, gpuPipelineState->dynamicStates);
 
     VkPipelineDynamicStateCreateInfo dynamicState{VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO};
     dynamicState.dynamicStateCount = dynamicStates.size();
