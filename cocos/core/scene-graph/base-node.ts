@@ -1341,24 +1341,6 @@ export class BaseNode extends CCObject implements ISchedulable {
             this._registerIfAttached!(false);
         }
 
-        // Destroy node event processor
-        this._eventProcessor.destroy();
-
-        // destroy children
-        const children = this._children;
-        for (let i = 0; i < children.length; ++i) {
-            // destroy immediate so its _onPreDestroy can be called
-            children[i]._destroyImmediate();
-        }
-
-        // destroy self components
-        const comps = this._components;
-        for (let i = 0; i < comps.length; ++i) {
-            // destroy immediate so its _onPreDestroy can be called
-            // TO DO
-            comps[i]._destroyImmediate();
-        }
-
         // remove from persist
         if (this._persistNode) {
             cc.game.removePersistRootNode(this);
@@ -1378,7 +1360,27 @@ export class BaseNode extends CCObject implements ISchedulable {
             }
         }
 
+        // emit node destroy event (this should before event processor destroy)
         this.emit(SystemEventType.NODE_DESTROYED, this);
+
+        // Destroy node event processor
+        this._eventProcessor.destroy();
+
+        // destroy children
+        const children = this._children;
+        for (let i = 0; i < children.length; ++i) {
+            // destroy immediate so its _onPreDestroy can be called
+            children[i]._destroyImmediate();
+        }
+
+        // destroy self components
+        const comps = this._components;
+        for (let i = 0; i < comps.length; ++i) {
+            // destroy immediate so its _onPreDestroy can be called
+            // TO DO
+            comps[i]._destroyImmediate();
+        }
+
         return destroyByParent;
     }
 

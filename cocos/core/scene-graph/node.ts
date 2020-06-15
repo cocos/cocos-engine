@@ -1021,10 +1021,6 @@ export class Node extends BaseNode {
         }
     }
 
-    public _onPreDestroy () {
-        this._eventProcessor.destroy();
-        super._onPreDestroy();
-    }
 }
 
 cc.Node = Node;
