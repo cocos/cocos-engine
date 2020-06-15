@@ -42,14 +42,8 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
             attr = _defAttrs[0];
         }
 
-        // device NDC correction
-        const info = GFXFormatInfos[attr.format];
-        const ySign = legacyCC.director.root.device.projectionSignY;
-        for (let i = 1; i < positions.length; i += info.count) {
-            positions[i] *= ySign;
-        }
-
         attributes.push(attr);
+        const info = GFXFormatInfos[attr.format];
         vertCount = Math.max(vertCount, Math.floor(positions.length / info.count));
         channels.push({ offset: stride, data: positions, attribute: attr });
         stride += info.size;

@@ -354,7 +354,11 @@ export class WebGLGFXDevice extends GFXDevice {
             this._features[GFXFeature.TEXTURE_HALF_FLOAT_LINEAR] = true;
         }
 
+        this._features[GFXFeature.FORMAT_RGB8] = true;
+
         if (this._WEBGL_depth_texture) {
+            this._features[GFXFeature.FORMAT_D16] = true;
+            this._features[GFXFeature.FORMAT_D24] = true;
             this._features[GFXFeature.FORMAT_D24S8] = true;
         }
 
@@ -392,8 +396,6 @@ export class WebGLGFXDevice extends GFXDevice {
             this._features[GFXFeature.FORMAT_ASTC] = true;
             compressedFormat += 'astc ';
         }
-
-        this._features[GFXFeature.MSAA] = false;
 
         if (this._OES_vertex_array_object) {
             if (RUNTIME_BASED) {

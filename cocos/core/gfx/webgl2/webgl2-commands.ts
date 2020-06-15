@@ -136,7 +136,7 @@ export function GFXFormatToWebGLType (format: GFXFormat, gl: WebGL2RenderingCont
         case GFXFormat.RGB9E5: return gl.FLOAT;
 
         case GFXFormat.D16: return gl.UNSIGNED_SHORT;
-        case GFXFormat.D16S8: return gl.UNSIGNED_SHORT;
+        case GFXFormat.D16S8: return gl.UNSIGNED_INT_24_8; // not supported, fallback
         case GFXFormat.D24: return gl.UNSIGNED_INT;
         case GFXFormat.D24S8: return gl.UNSIGNED_INT_24_8;
         case GFXFormat.D32F: return gl.FLOAT;
