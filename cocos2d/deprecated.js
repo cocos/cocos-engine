@@ -710,6 +710,6 @@ if (CC_DEBUG) {
     ], 'cc.audioEngine');
 
     markAsRemoved(cc.AudioSource, [
-        'preload'
+        'preload',
     ]);
 }
