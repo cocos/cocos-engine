@@ -135,7 +135,7 @@ export function GFXFormatToWebGLType (format: GFXFormat, gl: WebGL2RenderingCont
         case GFXFormat.RGB9E5: return gl.FLOAT;
 
         case GFXFormat.D16: return gl.UNSIGNED_SHORT;
-        case GFXFormat.D16S8: return gl.UNSIGNED_SHORT;
+        case GFXFormat.D16S8: return gl.UNSIGNED_INT_24_8; // no D16S8 support
         case GFXFormat.D24: return gl.UNSIGNED_INT;
         case GFXFormat.D24S8: return gl.UNSIGNED_INT_24_8;
         case GFXFormat.D32F: return gl.FLOAT;
@@ -233,7 +233,7 @@ export function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGL2Ren
         case GFXFormat.RGB10A2UI: return gl.RGB10_A2UI;
         case GFXFormat.R11G11B10F: return gl.R11F_G11F_B10F;
         case GFXFormat.D16: return gl.DEPTH_COMPONENT16;
-        case GFXFormat.D16S8: return gl.DEPTH_STENCIL;
+        case GFXFormat.D16S8: return gl.DEPTH24_STENCIL8; // no D16S8 support
         case GFXFormat.D24: return gl.DEPTH_COMPONENT24;
         case GFXFormat.D24S8: return gl.DEPTH24_STENCIL8;
         case GFXFormat.D32F: return gl.DEPTH_COMPONENT32F;
