@@ -16,14 +16,9 @@ export class WebGLGFXShader extends GFXShader {
 
         this._name = info.name;
         this._stages = info.stages;
-
-        if (info.blocks !== undefined) {
-            this._blocks = info.blocks;
-        }
-
-        if (info.samplers !== undefined) {
-            this._samplers = info.samplers;
-        }
+        this._attributes = info.attributes;
+        this._blocks = info.blocks;
+        this._samplers = info.samplers;
 
         this._gpuShader = {
             name: info.name ? info.name : '',

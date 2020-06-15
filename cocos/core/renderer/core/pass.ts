@@ -190,7 +190,6 @@ export class Pass {
     protected _device: GFXDevice;
     protected _shader: GFXShader | null = null;
     protected _bindings: IGFXBinding[] = [];
-    protected _shaderInput: GFXInputState | null = null;
     // for dynamic batching
     protected _batchedBuffer: BatchedBuffer | null = null;
     protected _instancedBuffer: InstancedBuffer | null = null;
@@ -497,7 +496,7 @@ export class Pass {
         this._dynamicBatchingSync();
         const res = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
         if (!res.shader) { console.warn(`create shader ${this._programName} failed`); return false; }
-        this._shader = res.shader; this._bindings = res.bindings; this._shaderInput = res.input;
+        this._shader = res.shader; this._bindings = res.bindings;
         return true;
     }
 
@@ -509,7 +508,7 @@ export class Pass {
      * @param patches the marcos to be used in shader.
      */
     public createPipelineStateCI (patches?: IMacroPatch[]): IPSOCreateInfo | null {
-        if ((!this._shader || !this._bindings.length || !this._shaderInput) && !this.tryCompile()) {
+        if ((!this._shader || !this._bindings.length) && !this.tryCompile()) {
             console.warn(`pass resources not complete, create PSO hash info failed`);
             return null;
         }
@@ -552,7 +551,6 @@ export class Pass {
             dynamicStates: this._dynamicStates,
             bindingLayout,
             hash: this._hash,
-            shaderInput: res && res.input || this._shaderInput!,
         };
     }
 
@@ -679,7 +677,6 @@ export class Pass {
     // resources
     get shader () { return this._shader!; }
     get bindings () { return this._bindings; }
-    get shaderInput () { return this._shaderInput!; }
     get dynamics () { return this._dynamics; }
     get batchedBuffer () { return this._batchedBuffer; }
     get instancedBuffer () { return this._instancedBuffer; }

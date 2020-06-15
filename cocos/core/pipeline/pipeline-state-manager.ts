@@ -29,18 +29,7 @@ export class PipelineStateManager {
             const pipelineLayout = device.createPipelineLayout({
                 layouts: [psoCreateInfo.bindingLayout]
             });
-            const iaAttrs = this._inputState.attributes = ia.attributes;
-            const shaderAttrs = psoCreateInfo.shaderInput.attributes;
-            for (let i = 0; i < iaAttrs.length; i++) {
-                const attr = iaAttrs[i]; let j = 0;
-                for (; j < shaderAttrs.length; j++) {
-                    const shaderAttr = shaderAttrs[j];
-                    if (shaderAttr.name === attr.name) {
-                        attr.location = shaderAttr.location;
-                        break;
-                    }
-                }
-            }
+            this._inputState.attributes = ia.attributes;
             pso = device.createPipelineState({
                 primitive: psoCreateInfo.primitive,
                 shader: psoCreateInfo.shader,
