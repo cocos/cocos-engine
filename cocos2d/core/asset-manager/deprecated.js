@@ -26,7 +26,7 @@
 const js = require('../platform/js');
 require('../CCDirector');
 const utilities = require('./utilities');
-const { getDepsRecursively } = require('./depend-util');
+const dependUtil = require('./depend-util');
 const releaseManager = require('./releaseManager');
 const downloader = require('./downloader');
 
@@ -335,7 +335,7 @@ const loader = {
      */
     getDependsRecursively (owner) {
         if (!owner) return [];
-        return cc.assetManager.dependUtil.getDepsRecursively(typeof owner === 'string' ? owner : owner._uuid);
+        return dependUtil.getDepsRecursively(typeof owner === 'string' ? owner : owner._uuid).concat([ owner._uuid ]);
     },
 
     /**
@@ -544,7 +544,7 @@ const loader = {
         if (typeof asset === 'object') asset = asset._uuid;
         autoRelease = !!autoRelease;
         this._autoReleaseSetting[asset] = autoRelease;
-        var depends = getDepsRecursively(asset);
+        var depends = dependUtil.getDepsRecursively(asset);
         for (var i = 0; i < depends.length; i++) {
             var depend = depends[i];
             this._autoReleaseSetting[depend] = autoRelease;
