@@ -242,8 +242,7 @@ var utils = {
         else {
             let output = task.output = [];
             for (var i = 0, l = source.length; i < l; i++) {
-                var item = source[i];
-                output.push(item.content);
+                output.push(source[i].content);
             }
         }
     },

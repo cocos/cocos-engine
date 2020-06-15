@@ -463,6 +463,9 @@ var downloader = {
                 
                 if (!self.limited) return func(urlAppendTimestamp(url), options, callback);
 
+                // refresh
+                updateTime();
+
                 function invoke () {
                     func(urlAppendTimestamp(url), options, function () {
                         // when finish downloading, update _totalNum
@@ -474,9 +477,6 @@ var downloader = {
                         callback.apply(this, arguments);
                     });
                 }
-                
-                // refresh
-                updateTime();
 
                 if (_totalNum < maxConcurrency && _totalNumThisPeriod < maxRequestsPerFrame) {
                     invoke();
