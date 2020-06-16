@@ -34,9 +34,10 @@ import { createBoundTarget, createBufferedTarget, IBufferedTarget, IBoundTarget 
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { EDITOR } from 'internal:constants';
-import { HierarchyPath, evaluatePath } from './target-path';
+import { HierarchyPath, evaluatePath, TargetPath } from './target-path';
 import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter } from './skeletal-animation-blending';
 import { ccenum } from '../value-types/enum';
+import { IValueProxyFactory } from './value-proxy';
 
 /**
  * @en The event type supported by Animation
@@ -356,8 +357,44 @@ export class AnimationState extends Playable {
             this.repeatCount = 1;
         }
 
+        /**
+         * Create the bound target. Especially optimized for skeletal case.
+         */
+        const createBoundTargetOptimized = <BoundTargetT extends IBoundTarget>(
+            createFn: (...args: Parameters<typeof createBoundTarget>) => BoundTargetT | null,
+            rootTarget: any,
+            path: TargetPath[],
+            valueAdapter: IValueProxyFactory | undefined,
+            isConstant: boolean,
+        ): BoundTargetT | null => {
+            if (!isTargetingTRS(path) || !this._blendStateBuffer) {
+                return createFn(rootTarget, path, valueAdapter);
+            } else {
+                const targetNode = evaluatePath(rootTarget, ...path.slice(0, path.length - 1));
+                if (targetNode !== null && targetNode instanceof Node) {
+                    const propertyName = path[path.length - 1] as 'position' | 'rotation' | 'scale' | 'eulerAngles';
+                    const blendStateWriter = createBlendStateWriter(
+                        this._blendStateBuffer,
+                        targetNode,
+                        propertyName,
+                        this,
+                        isConstant,
+                    );
+                    this._blendStateWriters.push(blendStateWriter);
+                    return createFn(rootTarget, [], blendStateWriter);
+                }
+            }
+            return null;
+        };
+
         this._commonTargetStatuses = clip.commonTargets.map((commonTarget, index) => {
-            const target = createBufferedTarget(root, commonTarget.modifiers, commonTarget.valueAdapter);
+            const target = createBoundTargetOptimized(
+                createBufferedTarget,
+                root,
+                commonTarget.modifiers,
+                commonTarget.valueAdapter,
+                false,
+            );
             if (target === null) {
                 return null;
             } else {
@@ -390,24 +427,13 @@ export class AnimationState extends Playable {
                 rootTarget = commonTargetStatus.target.peek();
             }
 
-            let boundTarget: IBoundTarget | null = null;
-            if (!isSkeletonCurve(propertyCurve) || !this._blendStateBuffer) {
-                boundTarget = createBoundTarget(rootTarget, propertyCurve.modifiers, propertyCurve.valueAdapter);
-            } else {
-                const targetNode = evaluatePath(rootTarget, ...propertyCurve.modifiers.slice(0, propertyCurve.modifiers.length - 1));
-                if (targetNode !== null && targetNode instanceof Node) {
-                    const propertyName = propertyCurve.modifiers[propertyCurve.modifiers.length - 1] as 'position' | 'rotation' | 'scale';
-                    const blendStateWriter = createBlendStateWriter(
-                        this._blendStateBuffer,
-                        targetNode,
-                        propertyName,
-                        this,
-                        propertyCurve.curve.constant(),
-                    );
-                    this._blendStateWriters.push(blendStateWriter);
-                    boundTarget = createBoundTarget(rootTarget, [], blendStateWriter);
-                }
-            }
+            const boundTarget = createBoundTargetOptimized(
+                createBoundTarget,
+                rootTarget,
+                propertyCurve.modifiers,
+                propertyCurve.valueAdapter,
+                propertyCurve.curve.constant(),
+            );
 
             if (boundTarget === null) {
                 // warn(`Failed to bind "${root.name}" to curve in clip ${clip.name}: ${err}`);
@@ -889,22 +915,23 @@ export class AnimationState extends Playable {
     }
 }
 
-function isSkeletonCurve (curve: IRuntimeCurve) {
+function isTargetingTRS (path: TargetPath[]) {
     let prs: string | undefined;
-    if (curve.modifiers.length === 1 && typeof curve.modifiers[0] === 'string') {
-        prs = curve.modifiers[0];
-    } else if (curve.modifiers.length > 1) {
-        for (let i = 0; i < curve.modifiers.length - 1; ++i) {
-            if (!(curve.modifiers[i] instanceof HierarchyPath)) {
+    if (path.length === 1 && typeof path[0] === 'string') {
+        prs = path[0];
+    } else if (path.length > 1) {
+        for (let i = 0; i < path.length - 1; ++i) {
+            if (!(path[i] instanceof HierarchyPath)) {
                 return false;
             }
         }
-        prs = curve.modifiers[curve.modifiers.length - 1] as string;
+        prs = path[path.length - 1] as string;
     }
     switch (prs) {
         case 'position':
         case 'scale':
         case 'rotation':
+        case 'eulerAngles':
             return true;
         default:
             return false;
