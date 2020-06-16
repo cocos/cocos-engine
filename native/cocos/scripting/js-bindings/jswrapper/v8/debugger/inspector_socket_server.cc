@@ -107,9 +107,42 @@ void PrintDebuggerReadyMessage(const std::string& host,
   if (out == NULL) {
     return;
   }
+
+  std::vector<std::tuple<std::string, bool , std::string> > ipList;
+
+  {
+      char buf[512];
+      uv_interface_address_t *info;
+      int count, i;
+
+      uv_interface_addresses(&info, &count);
+      i = count;
+
+      printf("Number of interfaces: %d\n", count);
+      while (i--) {
+          auto & network_interface = info[i];
+
+          if (network_interface.address.address4.sin_family == AF_INET) {
+              uv_ip4_name(&network_interface.address.address4, buf, sizeof(buf));
+              ipList.push_back(std::make_tuple(network_interface.name, network_interface.is_internal, buf));
+          } 
+
+      }
+      uv_free_interface_addresses(info, count);
+  }
+
   for (const std::string& id : ids) {
-    SE_LOGD("Debugger listening..., visit [ devtools://devtools/bundled/js_app.html?v8only=true&ws=%s ] in chrome browser to debug!\n",
-            FormatWsAddress(host, port, id, false).c_str());
+      if (host != "0.0.0.0") {
+        SE_LOGD("Debugger listening..., visit [ devtools://devtools/bundled/js_app.html?v8only=true&ws=%s ] in chrome browser to debug!\n",
+                FormatWsAddress(host, port, id, false).c_str());
+      } else {
+          SE_LOGD("Debugger listening..., visit [\n");
+          for (auto &nif : ipList) {
+              SE_LOGD("    devtools://devtools/bundled/js_app.html?v8only=true&ws=%s\n",
+                      FormatWsAddress(std::get<2>(nif), port, id, false).c_str());
+          }
+          SE_LOGD("  ] in chrome browser to debug!\n");
+      }
   }
   SE_LOGD("For help see %s\n",
           "https://nodejs.org/en/docs/inspector");
