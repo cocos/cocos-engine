@@ -36,9 +36,7 @@ import { GFXBuffer, IGFXBufferInfo } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXDynamicState,
     GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode, GFXType } from '../../gfx/define';
 import { GFXFeature, GFXDevice } from '../../gfx/device';
-import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
-    GFXRasterizerState,
-    GFXInputState} from '../../gfx/pipeline-state';
+import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTexture } from '../../gfx/texture';
@@ -98,6 +96,17 @@ const _bfInfo: IGFXBufferInfo = {
 const _blInfo: IGFXBindingLayoutInfo = {
     bindings: null!,
 };
+
+// tslint:disable: no-shadowed-variable
+export namespace Pass {
+    export type getBindingTypeFromHandle = typeof getBindingTypeFromHandle;
+    export type getTypeFromHandle = typeof getTypeFromHandle;
+    export type getBindingFromHandle = typeof getBindingFromHandle;
+    export type fillinPipelineInfo = typeof Pass.fillinPipelineInfo;
+    export type getPassHash = typeof Pass.getPassHash;
+    export type getOffsetFromHandle = typeof getOffsetFromHandle;
+}
+// tslint:enable: no-shadowed-variable
 
 /**
  * @zh

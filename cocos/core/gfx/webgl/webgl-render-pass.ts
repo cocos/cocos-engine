@@ -14,6 +14,9 @@ export class WebGLGFXRenderPass extends GFXRenderPass {
 
         this._colorInfos = info.colorAttachments;
         this._depthStencilInfo = info.depthStencilAttachment;
+        if (info.subPasses) {
+            this._subPasses = info.subPasses;
+        }
 
         this._gpuRenderPass = {
             colorAttachments: this._colorInfos,
