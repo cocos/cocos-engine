@@ -291,8 +291,13 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
             }
         }
 
+        if (deviceIndex == physicalDeviceCount) {
+            deviceIndex = 0;
+        }
+
         _gpuContext->physicalDevice = physicalDeviceHandles[deviceIndex];
         _gpuContext->physicalDeviceProperties = physicalDeviceProperties[deviceIndex];
+
         vkGetPhysicalDeviceFeatures(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceFeatures);
         _gpuContext->physicalDeviceFeatures2.pNext = &_gpuContext->physicalDeviceVulkan11Features;
         _gpuContext->physicalDeviceVulkan11Features.pNext = &_gpuContext->physicalDeviceVulkan12Features;

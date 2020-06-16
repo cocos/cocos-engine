@@ -8,6 +8,8 @@
 #include "VKQueue.h"
 #include "VKSPIRV.h"
 
+#include <algorithm>
+
 #define BUFFER_OFFSET(idx) (static_cast<char *>(0) + (idx))
 
 namespace cc {
@@ -130,9 +132,9 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         }
     } else { // generate a default subpass from attachment info
         for (size_t i = 0u; i < colorAttachmentCount; i++) {
-            attachmentReferences.push_back({i, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
+            attachmentReferences.push_back({(uint32_t)i, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
         }
-        attachmentReferences.push_back({colorAttachmentCount, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL});
+        attachmentReferences.push_back({(uint32_t)colorAttachmentCount, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL});
         subpassDescriptions[0].colorAttachmentCount = attachmentReferences.size() - 1;
         subpassDescriptions[0].pColorAttachments = attachmentReferences.data();
         subpassDescriptions[0].pDepthStencilAttachment = &attachmentReferences.back();
@@ -660,7 +662,7 @@ void CCVKCmdFuncCreatePipelineState(CCVKDevice *device, CCVKGPUPipelineState *gp
     size_t bindingCount = 1u;
     for (size_t i = 0u; i < attributeCount; i++) {
         const GFXAttribute &attr = attributes[i];
-        bindingCount = std::max(bindingCount, attr.stream + 1);
+        bindingCount = std::max((size_t)bindingCount, (size_t)(attr.stream + 1));
     }
 
     vector<VkVertexInputBindingDescription>::type bindingDescriptions(bindingCount);

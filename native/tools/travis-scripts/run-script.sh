@@ -49,6 +49,7 @@ function build_android()
     cd $COCOS2DX_ROOT/templates/js-template-link/frameworks/runtime-src/proj.android-studio
     sed -i "s@\${COCOS_X_ROOT}@$COCOS2DX_ROOT@g" app/build.gradle
     sed -i "s@\${COCOS_X_ROOT}@$COCOS2DX_ROOT@g" settings.gradle
+    sed -i "s@PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a:arm64-v8a:x86@" gradle.properties
     sed -i "s/^RELEASE_/#RELEASE_/g" gradle.properties
 
     #echo "Compile Android - ndk-build ..."
