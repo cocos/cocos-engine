@@ -31,8 +31,7 @@ import { FrameBufferDesc, RenderFlowType, RenderPassDesc, RenderTextureDesc } fr
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
-import { RenderShadowMapBatchedQueue } from './render-shadowMap-batched-queue';
-import { ShadowMapFlow } from './flow/shadowMap-flow';
+import { ShadowMapFlow } from './shadowMap/shadowMap-flow'
 import { ShadowCamera } from './shadowCamera';
 
 const v3_1 = new Vec3();
@@ -288,6 +287,14 @@ export abstract class RenderPipeline {
         return this._shadowView!;
     }
 
+    /**
+     * @zh
+     * get shadowMap
+     */
+    public get shadowMap (): GFXFramebuffer {
+        return this._shadowMap!;
+    }
+
     protected _root: Root = null!;
     protected _device: GFXDevice = null!;
     protected _renderObjects: IRenderObject[] = [];
@@ -332,6 +339,7 @@ export abstract class RenderPipeline {
     protected _offset: Vec3 = new Vec3();
     protected _scale: Vec3 = new Vec3();
     protected _viewport: Vec2 = new Vec2();
+    protected _shadowMap: GFXFramebuffer|null = null;
 
     @property({
         type: [RenderTextureDesc],

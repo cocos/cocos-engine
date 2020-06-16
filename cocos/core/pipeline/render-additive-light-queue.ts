@@ -9,16 +9,18 @@ import { IRenderObject, UBOForwardLight } from './define';
 import { IMacroPatch } from '../renderer/core/pass'
 import { Light } from '../renderer';
 import { LightType } from '../renderer/scene/light';
-import { GFXDevice, GFXRenderPass, GFXBuffer } from '../gfx';
+import { GFXDevice, GFXRenderPass, GFXBuffer, GFXBufferTextureCopy, GFXFramebuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 
 const spherePatches = [
     { name: 'CC_FORWARD_ADD', value: true },
+    { name: 'SHADOW', value: true },
 ];
 const spotPatches = [
     { name: 'CC_FORWARD_ADD', value: true },
     { name: 'CC_SPOTLIGHT', value: true },
+    { name: 'SHADOW', value: true },
 ];
 
 /**
@@ -34,6 +36,8 @@ export class RenderAdditiveLightQueue {
     private _validLights: Light[] = [];
     private _lightBuffers: GFXBuffer[] = [];
     private _lightIndices: number[] = [];
+
+    private _pass: Pass|null = null;
 
     /**
      * @zh
@@ -57,6 +61,7 @@ export class RenderAdditiveLightQueue {
 
     public add (renderObj: IRenderObject, subModelIdx: number, pass: Pass, beginIdx: number, endIdx: number) {
         if (pass.phase === this._phaseID) {
+            this._pass = pass;
             for (let i = beginIdx; i < endIdx; i++) {
                 const lightIdx = this._lightIndices[i];
                 const light = this._validLights[lightIdx];
@@ -76,7 +81,7 @@ export class RenderAdditiveLightQueue {
      * @zh
      * 记录命令缓冲。
      */
-    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
+    public recordCommandBuffer (shadowMap: GFXFramebuffer, device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
         for (let i = 0; i < this._sortedPSOCIArray.length; ++i) {
             for (let j = 0; j < this._sortedPSOCIArray[i].length; ++j) {
                 const psoCI = this._sortedPSOCIArray[i][j];
@@ -87,6 +92,15 @@ export class RenderAdditiveLightQueue {
                 cmdBuff.bindInputAssembler(ia);
                 cmdBuff.draw(ia);
             }
+        }
+
+        this.bindShadowMap(shadowMap);
+    }
+
+    private bindShadowMap (input: GFXFramebuffer) {
+        const inputSampler = this._pass?.getBinding('shadowMap');
+        if (inputSampler) {
+            this._pass?.bindTexture(inputSampler,input.colorTextures[0]);
         }
     }
 
