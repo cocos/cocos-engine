@@ -543,6 +543,7 @@ export class Camera {
 
         // far plane intersection
         Vec3.set(v_a, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, 1);
+        v_a.y *= this._device.projectionSignY;
         Vec3.transformMat4(v_a, v_a, this._matViewProjInv);
 
         if (this._proj === CameraProjection.PERSPECTIVE) {
@@ -551,6 +552,7 @@ export class Camera {
         } else {
             // near plane intersection
             Vec3.set(v_b, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, -1);
+            v_b.y *= this._device.projectionSignY;
             Vec3.transformMat4(v_b, v_b, this._matViewProjInv);
         }
 
