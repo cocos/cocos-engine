@@ -36,7 +36,7 @@ THE SOFTWARE.
 #include <sys/utsname.h>
 #include <string>
 
-NS_CC_BEGIN
+namespace cc {
 
 int Device::getDPI()
 {
@@ -116,12 +116,12 @@ Device::NetworkType Device::getNetworkType()
     return ret;
 }
 
-cocos2d::Vec4 Device::getSafeAreaEdge()
+Vec4 Device::getSafeAreaEdge()
 {
     // no SafeArea concept on mac, return ZERO Vec4.
-    return cocos2d::Vec4();
+    return Vec4();
 }
 
-NS_CC_END
+}
 
 #endif // CC_PLATFORM == CC_PLATFORM_MAC_OSX

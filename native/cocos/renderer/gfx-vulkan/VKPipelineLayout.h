@@ -1,7 +1,7 @@
 #ifndef CC_GFXVULKAN_CCVK_PIPELINE_LAYOUT_H_
 #define CC_GFXVULKAN_CCVK_PIPELINE_LAYOUT_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCVKGPUPipelineLayout;
 
@@ -20,6 +20,6 @@ private:
     CCVKGPUPipelineLayout *_gpuPipelineLayout = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

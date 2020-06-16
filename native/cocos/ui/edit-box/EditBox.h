@@ -26,7 +26,7 @@
 #include <string>
 #include "base/ccMacros.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class EditBox 
 {
@@ -56,4 +56,4 @@ private:
     static bool _isShown;
 };
 
-NS_CC_END
+}

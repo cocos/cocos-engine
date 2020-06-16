@@ -1,6 +1,6 @@
 #pragma once
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCMTLFramebuffer : public GFXFramebuffer {
 public:
@@ -11,4 +11,4 @@ public:
     virtual void destroy() override;
 };
 
-NS_CC_END
+}

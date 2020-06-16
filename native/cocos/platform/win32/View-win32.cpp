@@ -26,7 +26,7 @@ THE SOFTWARE.
 #include <unordered_map>
 
 
-using namespace cocos2d;
+using namespace cc;
 
 namespace {
 
@@ -110,7 +110,7 @@ namespace {
 
 
 
-NS_CC_BEGIN
+namespace cc {
 
 View::View(const std::string & title, int width, int height) :
     _title(title), _width(width), _height(height)
@@ -158,9 +158,9 @@ bool View::pollEvent(bool * quit, bool *resume, bool *pause)
     if (cnt == 0) return false;
     *resume = false;
     *pause = false;
-    cocos2d::TouchEvent  touch;
-    cocos2d::MouseEvent mouse;
-    cocos2d::KeyboardEvent  keyboard;
+    cc::TouchEvent  touch;
+    cc::MouseEvent mouse;
+    cc::KeyboardEvent  keyboard;
     switch (sdlEvent.type)
     {
     case SDL_QUIT:
@@ -178,7 +178,7 @@ bool View::pollEvent(bool * quit, bool *resume, bool *pause)
             break;
         case SDL_WINDOWEVENT_SIZE_CHANGED:
         case SDL_WINDOWEVENT_RESIZED:
-            cocos2d::EventDispatcher::dispatchResizeEvent(wevent.data1, wevent.data2);
+            cc::EventDispatcher::dispatchResizeEvent(wevent.data1, wevent.data2);
             break;
         case SDL_WINDOWEVENT_HIDDEN:
             *pause = true;
@@ -196,7 +196,7 @@ bool View::pollEvent(bool * quit, bool *resume, bool *pause)
         mouse.x = event.x;
         mouse.y = event.y;
         mouse.button = event.button - 1;
-        cocos2d::EventDispatcher::dispatchMouseEvent(mouse);
+        cc::EventDispatcher::dispatchMouseEvent(mouse);
         break;
     }
     case SDL_MOUSEBUTTONUP:
@@ -206,7 +206,7 @@ bool View::pollEvent(bool * quit, bool *resume, bool *pause)
         mouse.x = event.x;
         mouse.y = event.y;
         mouse.button = event.button - 1;
-        cocos2d::EventDispatcher::dispatchMouseEvent(mouse);
+        cc::EventDispatcher::dispatchMouseEvent(mouse);
         break;
     }
     case SDL_MOUSEMOTION:
@@ -216,7 +216,7 @@ bool View::pollEvent(bool * quit, bool *resume, bool *pause)
         mouse.x = event.x;
         mouse.y = event.y;
         mouse.button = 0;
-        cocos2d::EventDispatcher::dispatchMouseEvent(mouse);
+        cc::EventDispatcher::dispatchMouseEvent(mouse);
         break;
     }
     case SDL_MOUSEWHEEL:
@@ -226,7 +226,7 @@ bool View::pollEvent(bool * quit, bool *resume, bool *pause)
         mouse.x = event.x;
         mouse.y = event.y;
         mouse.button = 0; //TODO: direction
-        cocos2d::EventDispatcher::dispatchMouseEvent(mouse);
+        cc::EventDispatcher::dispatchMouseEvent(mouse);
         break;
     }
     case SDL_FINGERUP:
@@ -234,7 +234,7 @@ bool View::pollEvent(bool * quit, bool *resume, bool *pause)
         SDL_TouchFingerEvent& event = sdlEvent.tfinger;
         touch.type = TouchEvent::Type::ENDED;
         touch.touches = { TouchInfo(event.x, event.y, (int)event.fingerId) };
-        cocos2d::EventDispatcher::dispatchTouchEvent(touch);
+        cc::EventDispatcher::dispatchTouchEvent(touch);
         break;
     }
     case SDL_FINGERDOWN:
@@ -242,7 +242,7 @@ bool View::pollEvent(bool * quit, bool *resume, bool *pause)
         SDL_TouchFingerEvent& event = sdlEvent.tfinger;
         touch.type = TouchEvent::Type::BEGAN;
         touch.touches = { TouchInfo(event.x, event.y, (int)event.fingerId) };
-        cocos2d::EventDispatcher::dispatchTouchEvent(touch);
+        cc::EventDispatcher::dispatchTouchEvent(touch);
         break;
     }
     case SDL_FINGERMOTION:
@@ -250,7 +250,7 @@ bool View::pollEvent(bool * quit, bool *resume, bool *pause)
         SDL_TouchFingerEvent& event = sdlEvent.tfinger;
         touch.type = TouchEvent::Type::MOVED;
         touch.touches = { TouchInfo(event.x, event.y, (int)event.fingerId) };
-        cocos2d::EventDispatcher::dispatchTouchEvent(touch);
+        cc::EventDispatcher::dispatchTouchEvent(touch);
         break;
     }
     case SDL_KEYDOWN:
@@ -263,7 +263,7 @@ bool View::pollEvent(bool * quit, bool *resume, bool *pause)
         keyboard.ctrlKeyActive = mode & KMOD_CTRL;
         keyboard.shiftKeyActive = mode & KMOD_SHIFT;
         //CCLOG("==> key %d -> code %d", event.keysym.sym, keyboard.key);
-        cocos2d::EventDispatcher::dispatchKeyboardEvent(keyboard);
+        cc::EventDispatcher::dispatchKeyboardEvent(keyboard);
         break;
     }
     case SDL_KEYUP:
@@ -275,7 +275,7 @@ bool View::pollEvent(bool * quit, bool *resume, bool *pause)
         keyboard.altKeyActive = mode & KMOD_ALT;
         keyboard.ctrlKeyActive = mode & KMOD_CTRL;
         keyboard.shiftKeyActive = mode & KMOD_SHIFT;
-        cocos2d::EventDispatcher::dispatchKeyboardEvent(keyboard);
+        cc::EventDispatcher::dispatchKeyboardEvent(keyboard);
         break;
     }
     default:
@@ -300,4 +300,4 @@ void View::setCursorEnabeld(bool enable)
     SDL_SetRelativeMouseMode(enable ? SDL_FALSE : SDL_TRUE);
 }
 
-NS_CC_END
+}

@@ -1,7 +1,7 @@
 #ifndef CC_GFXVULKAN_CCVK_DEVICE_H_
 #define CC_GFXVULKAN_CCVK_DEVICE_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCVKGPUContext;
 class CCVKGPUDevice;
@@ -75,6 +75,6 @@ private:
     std::vector<const char *> _extensions;
 };
 
-NS_CC_END
+}
 
 #endif // CC_GFXVULKAN_CCVK_DEVICE_H_

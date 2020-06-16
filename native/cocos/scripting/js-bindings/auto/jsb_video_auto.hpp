@@ -4,10 +4,10 @@
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
-extern se::Object* __jsb_cocos2d_VideoPlayer_proto;
-extern se::Class* __jsb_cocos2d_VideoPlayer_class;
+extern se::Object* __jsb_cc_VideoPlayer_proto;
+extern se::Class* __jsb_cc_VideoPlayer_class;
 
-bool js_register_cocos2d_VideoPlayer(se::Object* obj);
+bool js_register_cc_VideoPlayer(se::Object* obj);
 bool register_all_video(se::Object* obj);
 SE_DECLARE_FUNC(js_video_VideoPlayer_setFrame);
 SE_DECLARE_FUNC(js_video_VideoPlayer_play);

@@ -10,18 +10,18 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
-se::Object* __jsb_cocos2d_FileUtils_proto = nullptr;
-se::Class* __jsb_cocos2d_FileUtils_class = nullptr;
+se::Object* __jsb_cc_FileUtils_proto = nullptr;
+se::Class* __jsb_cc_FileUtils_class = nullptr;
 
 static bool js_engine_FileUtils_writeDataToFile(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeDataToFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        cocos2d::Data arg0;
+        cc::Data arg0;
         std::string arg1;
         ok &= seval_to_Data(args[0], &arg0);
         ok &= seval_to_std_string(args[1], &arg1);
@@ -38,7 +38,7 @@ SE_BIND_FUNC(js_engine_FileUtils_writeDataToFile)
 
 static bool js_engine_FileUtils_fullPathForFilename(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_fullPathForFilename : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -59,7 +59,7 @@ SE_BIND_FUNC(js_engine_FileUtils_fullPathForFilename)
 
 static bool js_engine_FileUtils_getStringFromFile(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getStringFromFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -80,7 +80,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getStringFromFile)
 
 static bool js_engine_FileUtils_removeFile(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_removeFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -101,7 +101,7 @@ SE_BIND_FUNC(js_engine_FileUtils_removeFile)
 
 static bool js_engine_FileUtils_getDataFromFile(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getDataFromFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -110,7 +110,7 @@ static bool js_engine_FileUtils_getDataFromFile(se::State& s)
         std::string arg0;
         ok &= seval_to_std_string(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getDataFromFile : Error processing arguments");
-        cocos2d::Data result = cobj->getDataFromFile(arg0);
+        cc::Data result = cobj->getDataFromFile(arg0);
         ok &= Data_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getDataFromFile : Error processing arguments");
         return true;
@@ -122,7 +122,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getDataFromFile)
 
 static bool js_engine_FileUtils_isAbsolutePath(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_isAbsolutePath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -144,7 +144,7 @@ SE_BIND_FUNC(js_engine_FileUtils_isAbsolutePath)
 static bool js_engine_FileUtils_renameFile(se::State& s)
 {
     CC_UNUSED bool ok = true;
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2( cobj, false, "js_engine_FileUtils_renameFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -188,7 +188,7 @@ SE_BIND_FUNC(js_engine_FileUtils_renameFile)
 
 static bool js_engine_FileUtils_normalizePath(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_normalizePath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -209,7 +209,7 @@ SE_BIND_FUNC(js_engine_FileUtils_normalizePath)
 
 static bool js_engine_FileUtils_getDefaultResourceRootPath(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getDefaultResourceRootPath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -227,7 +227,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getDefaultResourceRootPath)
 
 static bool js_engine_FileUtils_loadFilenameLookupDictionaryFromFile(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_loadFilenameLookupDictionaryFromFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -246,7 +246,7 @@ SE_BIND_FUNC(js_engine_FileUtils_loadFilenameLookupDictionaryFromFile)
 
 static bool js_engine_FileUtils_isPopupNotify(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_isPopupNotify : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -264,7 +264,7 @@ SE_BIND_FUNC(js_engine_FileUtils_isPopupNotify)
 
 static bool js_engine_FileUtils_getValueVectorFromFile(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getValueVectorFromFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -273,7 +273,7 @@ static bool js_engine_FileUtils_getValueVectorFromFile(se::State& s)
         std::string arg0;
         ok &= seval_to_std_string(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getValueVectorFromFile : Error processing arguments");
-        cocos2d::ValueVector result = cobj->getValueVectorFromFile(arg0);
+        cc::ValueVector result = cobj->getValueVectorFromFile(arg0);
         ok &= ccvaluevector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getValueVectorFromFile : Error processing arguments");
         return true;
@@ -285,7 +285,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getValueVectorFromFile)
 
 static bool js_engine_FileUtils_getSearchPaths(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getSearchPaths : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -303,7 +303,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getSearchPaths)
 
 static bool js_engine_FileUtils_getFileDir(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getFileDir : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -324,13 +324,13 @@ SE_BIND_FUNC(js_engine_FileUtils_getFileDir)
 
 static bool js_engine_FileUtils_writeToFile(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeToFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        cocos2d::ValueMap arg0;
+        cc::ValueMap arg0;
         std::string arg1;
         ok &= seval_to_ccvaluemap(args[0], &arg0);
         ok &= seval_to_std_string(args[1], &arg1);
@@ -347,7 +347,7 @@ SE_BIND_FUNC(js_engine_FileUtils_writeToFile)
 
 static bool js_engine_FileUtils_getOriginalSearchPaths(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getOriginalSearchPaths : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -365,7 +365,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getOriginalSearchPaths)
 
 static bool js_engine_FileUtils_listFiles(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_listFiles : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -386,7 +386,7 @@ SE_BIND_FUNC(js_engine_FileUtils_listFiles)
 
 static bool js_engine_FileUtils_getValueMapFromFile(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getValueMapFromFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -395,7 +395,7 @@ static bool js_engine_FileUtils_getValueMapFromFile(se::State& s)
         std::string arg0;
         ok &= seval_to_std_string(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getValueMapFromFile : Error processing arguments");
-        cocos2d::ValueMap result = cobj->getValueMapFromFile(arg0);
+        cc::ValueMap result = cobj->getValueMapFromFile(arg0);
         ok &= ccvaluemap_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getValueMapFromFile : Error processing arguments");
         return true;
@@ -407,7 +407,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getValueMapFromFile)
 
 static bool js_engine_FileUtils_getFileSize(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getFileSize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -428,7 +428,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getFileSize)
 
 static bool js_engine_FileUtils_getValueMapFromData(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getValueMapFromData : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -439,7 +439,7 @@ static bool js_engine_FileUtils_getValueMapFromData(se::State& s)
         std::string arg0_tmp; ok &= seval_to_std_string(args[0], &arg0_tmp); arg0 = arg0_tmp.c_str();
         do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (int)tmp; } while(false);
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getValueMapFromData : Error processing arguments");
-        cocos2d::ValueMap result = cobj->getValueMapFromData(arg0, arg1);
+        cc::ValueMap result = cobj->getValueMapFromData(arg0, arg1);
         ok &= ccvaluemap_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getValueMapFromData : Error processing arguments");
         return true;
@@ -451,7 +451,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getValueMapFromData)
 
 static bool js_engine_FileUtils_removeDirectory(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_removeDirectory : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -472,7 +472,7 @@ SE_BIND_FUNC(js_engine_FileUtils_removeDirectory)
 
 static bool js_engine_FileUtils_setSearchPaths(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_setSearchPaths : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -491,7 +491,7 @@ SE_BIND_FUNC(js_engine_FileUtils_setSearchPaths)
 
 static bool js_engine_FileUtils_writeStringToFile(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeStringToFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -514,7 +514,7 @@ SE_BIND_FUNC(js_engine_FileUtils_writeStringToFile)
 
 static bool js_engine_FileUtils_setSearchResolutionsOrder(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_setSearchResolutionsOrder : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -533,7 +533,7 @@ SE_BIND_FUNC(js_engine_FileUtils_setSearchResolutionsOrder)
 
 static bool js_engine_FileUtils_addSearchResolutionsOrder(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_addSearchResolutionsOrder : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -561,7 +561,7 @@ SE_BIND_FUNC(js_engine_FileUtils_addSearchResolutionsOrder)
 
 static bool js_engine_FileUtils_addSearchPath(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_addSearchPath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -589,13 +589,13 @@ SE_BIND_FUNC(js_engine_FileUtils_addSearchPath)
 
 static bool js_engine_FileUtils_writeValueVectorToFile(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeValueVectorToFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        cocos2d::ValueVector arg0;
+        cc::ValueVector arg0;
         std::string arg1;
         ok &= seval_to_ccvaluevector(args[0], &arg0);
         ok &= seval_to_std_string(args[1], &arg1);
@@ -612,7 +612,7 @@ SE_BIND_FUNC(js_engine_FileUtils_writeValueVectorToFile)
 
 static bool js_engine_FileUtils_isFileExist(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_isFileExist : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -633,7 +633,7 @@ SE_BIND_FUNC(js_engine_FileUtils_isFileExist)
 
 static bool js_engine_FileUtils_purgeCachedEntries(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_purgeCachedEntries : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -648,7 +648,7 @@ SE_BIND_FUNC(js_engine_FileUtils_purgeCachedEntries)
 
 static bool js_engine_FileUtils_fullPathFromRelativeFile(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_fullPathFromRelativeFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -671,7 +671,7 @@ SE_BIND_FUNC(js_engine_FileUtils_fullPathFromRelativeFile)
 
 static bool js_engine_FileUtils_getSuitableFOpen(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getSuitableFOpen : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -692,13 +692,13 @@ SE_BIND_FUNC(js_engine_FileUtils_getSuitableFOpen)
 
 static bool js_engine_FileUtils_writeValueMapToFile(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeValueMapToFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        cocos2d::ValueMap arg0;
+        cc::ValueMap arg0;
         std::string arg1;
         ok &= seval_to_ccvaluemap(args[0], &arg0);
         ok &= seval_to_std_string(args[1], &arg1);
@@ -715,7 +715,7 @@ SE_BIND_FUNC(js_engine_FileUtils_writeValueMapToFile)
 
 static bool js_engine_FileUtils_getFileExtension(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getFileExtension : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -736,7 +736,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getFileExtension)
 
 static bool js_engine_FileUtils_setWritablePath(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_setWritablePath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -755,7 +755,7 @@ SE_BIND_FUNC(js_engine_FileUtils_setWritablePath)
 
 static bool js_engine_FileUtils_setPopupNotify(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_setPopupNotify : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -774,7 +774,7 @@ SE_BIND_FUNC(js_engine_FileUtils_setPopupNotify)
 
 static bool js_engine_FileUtils_isDirectoryExist(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_isDirectoryExist : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -795,7 +795,7 @@ SE_BIND_FUNC(js_engine_FileUtils_isDirectoryExist)
 
 static bool js_engine_FileUtils_setDefaultResourceRootPath(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_setDefaultResourceRootPath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -814,7 +814,7 @@ SE_BIND_FUNC(js_engine_FileUtils_setDefaultResourceRootPath)
 
 static bool js_engine_FileUtils_getSearchResolutionsOrder(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getSearchResolutionsOrder : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -832,7 +832,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getSearchResolutionsOrder)
 
 static bool js_engine_FileUtils_createDirectory(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_createDirectory : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -853,7 +853,7 @@ SE_BIND_FUNC(js_engine_FileUtils_createDirectory)
 
 static bool js_engine_FileUtils_listFilesRecursively(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_listFilesRecursively : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -874,7 +874,7 @@ SE_BIND_FUNC(js_engine_FileUtils_listFilesRecursively)
 
 static bool js_engine_FileUtils_getWritablePath(se::State& s)
 {
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getWritablePath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -896,10 +896,10 @@ static bool js_engine_FileUtils_setDelegate(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::FileUtils* arg0 = nullptr;
+        cc::FileUtils* arg0 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_setDelegate : Error processing arguments");
-        cocos2d::FileUtils::setDelegate(arg0);
+        cc::FileUtils::setDelegate(arg0);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -913,7 +913,7 @@ static bool js_engine_FileUtils_getInstance(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::FileUtils* result = cocos2d::FileUtils::getInstance();
+        cc::FileUtils* result = cc::FileUtils::getInstance();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getInstance : Error processing arguments");
         return true;
@@ -925,19 +925,19 @@ SE_BIND_FUNC(js_engine_FileUtils_getInstance)
 
 
 
-static bool js_cocos2d_FileUtils_finalize(se::State& s)
+static bool js_cc_FileUtils_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::FileUtils)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::FileUtils)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+        cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_FileUtils_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_FileUtils_finalize)
 
 bool js_register_engine_FileUtils(se::Object* obj)
 {
@@ -986,19 +986,19 @@ bool js_register_engine_FileUtils(se::Object* obj)
     cls->defineFunction("getWritablePath", _SE(js_engine_FileUtils_getWritablePath));
     cls->defineStaticFunction("setDelegate", _SE(js_engine_FileUtils_setDelegate));
     cls->defineStaticFunction("getInstance", _SE(js_engine_FileUtils_getInstance));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_FileUtils_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_FileUtils_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::FileUtils>(cls);
+    JSBClassType::registerClass<cc::FileUtils>(cls);
 
-    __jsb_cocos2d_FileUtils_proto = cls->getProto();
-    __jsb_cocos2d_FileUtils_class = cls;
+    __jsb_cc_FileUtils_proto = cls->getProto();
+    __jsb_cc_FileUtils_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_Device_proto = nullptr;
-se::Class* __jsb_cocos2d_Device_class = nullptr;
+se::Object* __jsb_cc_Device_proto = nullptr;
+se::Class* __jsb_cc_Device_class = nullptr;
 
 static bool js_engine_Device_getDevicePixelRatio(se::State& s)
 {
@@ -1006,7 +1006,7 @@ static bool js_engine_Device_getDevicePixelRatio(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = cocos2d::Device::getDevicePixelRatio();
+        int result = cc::Device::getDevicePixelRatio();
         ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_Device_getDevicePixelRatio : Error processing arguments");
         return true;
@@ -1025,7 +1025,7 @@ static bool js_engine_Device_setAccelerometerEnabled(se::State& s)
         bool arg0;
         ok &= seval_to_boolean(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_engine_Device_setAccelerometerEnabled : Error processing arguments");
-        cocos2d::Device::setAccelerometerEnabled(arg0);
+        cc::Device::setAccelerometerEnabled(arg0);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -1042,7 +1042,7 @@ static bool js_engine_Device_setAccelerometerInterval(se::State& s)
         float arg0 = 0;
         ok &= seval_to_float(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_engine_Device_setAccelerometerInterval : Error processing arguments");
-        cocos2d::Device::setAccelerometerInterval(arg0);
+        cc::Device::setAccelerometerInterval(arg0);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -1059,7 +1059,7 @@ static bool js_engine_Device_vibrate(se::State& s)
         float arg0 = 0;
         ok &= seval_to_float(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_engine_Device_vibrate : Error processing arguments");
-        cocos2d::Device::vibrate(arg0);
+        cc::Device::vibrate(arg0);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -1076,7 +1076,7 @@ static bool js_engine_Device_setKeepScreenOn(se::State& s)
         bool arg0;
         ok &= seval_to_boolean(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_engine_Device_setKeepScreenOn : Error processing arguments");
-        cocos2d::Device::setKeepScreenOn(arg0);
+        cc::Device::setKeepScreenOn(arg0);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -1090,7 +1090,7 @@ static bool js_engine_Device_getNetworkType(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cocos2d::Device::getNetworkType();
+        int result = (int)cc::Device::getNetworkType();
         ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_Device_getNetworkType : Error processing arguments");
         return true;
@@ -1106,7 +1106,7 @@ static bool js_engine_Device_getBatteryLevel(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        float result = cocos2d::Device::getBatteryLevel();
+        float result = cc::Device::getBatteryLevel();
         ok &= float_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_Device_getBatteryLevel : Error processing arguments");
         return true;
@@ -1122,7 +1122,7 @@ static bool js_engine_Device_getDeviceRotation(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cocos2d::Device::getDeviceRotation();
+        int result = (int)cc::Device::getDeviceRotation();
         ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_Device_getDeviceRotation : Error processing arguments");
         return true;
@@ -1138,7 +1138,7 @@ static bool js_engine_Device_getDPI(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = cocos2d::Device::getDPI();
+        int result = cc::Device::getDPI();
         ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_Device_getDPI : Error processing arguments");
         return true;
@@ -1154,7 +1154,7 @@ static bool js_engine_Device_getSafeAreaEdge(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::Vec4 result = cocos2d::Device::getSafeAreaEdge();
+        cc::Vec4 result = cc::Device::getSafeAreaEdge();
         ok &= Vec4_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_Device_getSafeAreaEdge : Error processing arguments");
         return true;
@@ -1170,7 +1170,7 @@ static bool js_engine_Device_getDeviceModel(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        std::string result = cocos2d::Device::getDeviceModel();
+        std::string result = cc::Device::getDeviceModel();
         ok &= std_string_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_Device_getDeviceModel : Error processing arguments");
         return true;
@@ -1199,21 +1199,21 @@ bool js_register_engine_Device(se::Object* obj)
     cls->defineStaticFunction("getSafeAreaEdge", _SE(js_engine_Device_getSafeAreaEdge));
     cls->defineStaticFunction("getDeviceModel", _SE(js_engine_Device_getDeviceModel));
     cls->install();
-    JSBClassType::registerClass<cocos2d::Device>(cls);
+    JSBClassType::registerClass<cc::Device>(cls);
 
-    __jsb_cocos2d_Device_proto = cls->getProto();
-    __jsb_cocos2d_Device_class = cls;
+    __jsb_cc_Device_proto = cls->getProto();
+    __jsb_cc_Device_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_SAXParser_proto = nullptr;
-se::Class* __jsb_cocos2d_SAXParser_class = nullptr;
+se::Object* __jsb_cc_SAXParser_proto = nullptr;
+se::Class* __jsb_cc_SAXParser_class = nullptr;
 
 static bool js_engine_SAXParser_init(se::State& s)
 {
-    cocos2d::SAXParser* cobj = (cocos2d::SAXParser*)s.nativeThisObject();
+    cc::SAXParser* cobj = (cc::SAXParser*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_SAXParser_init : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1241,21 +1241,21 @@ bool js_register_engine_SAXParser(se::Object* obj)
 
     cls->defineFunction("init", _SE(js_engine_SAXParser_init));
     cls->install();
-    JSBClassType::registerClass<cocos2d::SAXParser>(cls);
+    JSBClassType::registerClass<cc::SAXParser>(cls);
 
-    __jsb_cocos2d_SAXParser_proto = cls->getProto();
-    __jsb_cocos2d_SAXParser_class = cls;
+    __jsb_cc_SAXParser_proto = cls->getProto();
+    __jsb_cc_SAXParser_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_CanvasGradient_proto = nullptr;
-se::Class* __jsb_cocos2d_CanvasGradient_class = nullptr;
+se::Object* __jsb_cc_CanvasGradient_proto = nullptr;
+se::Class* __jsb_cc_CanvasGradient_class = nullptr;
 
 static bool js_engine_CanvasGradient_addColorStop(se::State& s)
 {
-    cocos2d::CanvasGradient* cobj = (cocos2d::CanvasGradient*)s.nativeThisObject();
+    cc::CanvasGradient* cobj = (cc::CanvasGradient*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasGradient_addColorStop : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1274,56 +1274,56 @@ static bool js_engine_CanvasGradient_addColorStop(se::State& s)
 }
 SE_BIND_FUNC(js_engine_CanvasGradient_addColorStop)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_CanvasGradient_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_CanvasGradient_finalize)
 
 static bool js_engine_CanvasGradient_constructor(se::State& s)
 {
-    cocos2d::CanvasGradient* cobj = JSB_ALLOC(cocos2d::CanvasGradient);
+    cc::CanvasGradient* cobj = JSB_ALLOC(cc::CanvasGradient);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_engine_CanvasGradient_constructor, __jsb_cocos2d_CanvasGradient_class, js_cocos2d_CanvasGradient_finalize)
+SE_BIND_CTOR(js_engine_CanvasGradient_constructor, __jsb_cc_CanvasGradient_class, js_cc_CanvasGradient_finalize)
 
 
 
 
-static bool js_cocos2d_CanvasGradient_finalize(se::State& s)
+static bool js_cc_CanvasGradient_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::CanvasGradient)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::CanvasGradient)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::CanvasGradient* cobj = (cocos2d::CanvasGradient*)s.nativeThisObject();
+        cc::CanvasGradient* cobj = (cc::CanvasGradient*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_CanvasGradient_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_CanvasGradient_finalize)
 
 bool js_register_engine_CanvasGradient(se::Object* obj)
 {
     auto cls = se::Class::create("CanvasGradient", obj, nullptr, _SE(js_engine_CanvasGradient_constructor));
 
     cls->defineFunction("addColorStop", _SE(js_engine_CanvasGradient_addColorStop));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_CanvasGradient_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_CanvasGradient_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::CanvasGradient>(cls);
+    JSBClassType::registerClass<cc::CanvasGradient>(cls);
 
-    __jsb_cocos2d_CanvasGradient_proto = cls->getProto();
-    __jsb_cocos2d_CanvasGradient_class = cls;
+    __jsb_cc_CanvasGradient_proto = cls->getProto();
+    __jsb_cc_CanvasGradient_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_CanvasRenderingContext2D_proto = nullptr;
-se::Class* __jsb_cocos2d_CanvasRenderingContext2D_class = nullptr;
+se::Object* __jsb_cc_CanvasRenderingContext2D_proto = nullptr;
+se::Class* __jsb_cc_CanvasRenderingContext2D_class = nullptr;
 
 static bool js_engine_CanvasRenderingContext2D_restore(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_restore : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1338,7 +1338,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_restore)
 
 static bool js_engine_CanvasRenderingContext2D_moveTo(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_moveTo : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1359,7 +1359,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_moveTo)
 
 static bool js_engine_CanvasRenderingContext2D_lineTo(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_lineTo : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1380,7 +1380,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_lineTo)
 
 static bool js_engine_CanvasRenderingContext2D_setTransform(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_setTransform : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1409,7 +1409,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_setTransform)
 
 static bool js_engine_CanvasRenderingContext2D_stroke(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_stroke : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1424,7 +1424,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_stroke)
 
 static bool js_engine_CanvasRenderingContext2D_measureText(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_measureText : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1433,7 +1433,7 @@ static bool js_engine_CanvasRenderingContext2D_measureText(se::State& s)
         std::string arg0;
         ok &= seval_to_std_string(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_measureText : Error processing arguments");
-        cocos2d::Size result = cobj->measureText(arg0);
+        cc::Size result = cobj->measureText(arg0);
         ok &= Size_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_measureText : Error processing arguments");
         return true;
@@ -1445,7 +1445,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_measureText)
 
 static bool js_engine_CanvasRenderingContext2D_fill(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_fill : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1460,13 +1460,13 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_fill)
 
 static bool js_engine_CanvasRenderingContext2D__fillImageData(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D__fillImageData : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 5) {
-        cocos2d::Data arg0;
+        cc::Data arg0;
         float arg1 = 0;
         float arg2 = 0;
         float arg3 = 0;
@@ -1487,7 +1487,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D__fillImageData)
 
 static bool js_engine_CanvasRenderingContext2D_scale(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_scale : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1508,7 +1508,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_scale)
 
 static bool js_engine_CanvasRenderingContext2D_clearRect(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_clearRect : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1533,7 +1533,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_clearRect)
 
 static bool js_engine_CanvasRenderingContext2D_transform(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_transform : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1562,7 +1562,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_transform)
 
 static bool js_engine_CanvasRenderingContext2D_fillText(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_fillText : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1598,7 +1598,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_fillText)
 
 static bool js_engine_CanvasRenderingContext2D_strokeText(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_strokeText : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1634,7 +1634,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_strokeText)
 
 static bool js_engine_CanvasRenderingContext2D_save(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_save : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1649,7 +1649,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_save)
 
 static bool js_engine_CanvasRenderingContext2D_fillRect(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_fillRect : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1674,7 +1674,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_fillRect)
 
 static bool js_engine_CanvasRenderingContext2D_rotate(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_rotate : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1693,7 +1693,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_rotate)
 
 static bool js_engine_CanvasRenderingContext2D_beginPath(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_beginPath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1708,7 +1708,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_beginPath)
 
 static bool js_engine_CanvasRenderingContext2D_rect(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_rect : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1733,7 +1733,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_rect)
 
 static bool js_engine_CanvasRenderingContext2D_translate(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_translate : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1754,7 +1754,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_translate)
 
 static bool js_engine_CanvasRenderingContext2D_createLinearGradient(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_createLinearGradient : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1769,7 +1769,7 @@ static bool js_engine_CanvasRenderingContext2D_createLinearGradient(se::State& s
         ok &= seval_to_float(args[2], &arg2);
         ok &= seval_to_float(args[3], &arg3);
         SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_createLinearGradient : Error processing arguments");
-        cocos2d::CanvasGradient* result = cobj->createLinearGradient(arg0, arg1, arg2, arg3);
+        cc::CanvasGradient* result = cobj->createLinearGradient(arg0, arg1, arg2, arg3);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_createLinearGradient : Error processing arguments");
         return true;
@@ -1781,7 +1781,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_createLinearGradient)
 
 static bool js_engine_CanvasRenderingContext2D_closePath(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_closePath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1794,7 +1794,7 @@ static bool js_engine_CanvasRenderingContext2D_closePath(se::State& s)
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_closePath)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_CanvasRenderingContext2D_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_CanvasRenderingContext2D_finalize)
 
 static bool js_engine_CanvasRenderingContext2D_constructor(se::State& s)
 {
@@ -1805,29 +1805,29 @@ static bool js_engine_CanvasRenderingContext2D_constructor(se::State& s)
     ok &= seval_to_float(args[0], &arg0);
     ok &= seval_to_float(args[1], &arg1);
     SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_constructor : Error processing arguments");
-    cocos2d::CanvasRenderingContext2D* cobj = JSB_ALLOC(cocos2d::CanvasRenderingContext2D, arg0, arg1);
+    cc::CanvasRenderingContext2D* cobj = JSB_ALLOC(cc::CanvasRenderingContext2D, arg0, arg1);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_engine_CanvasRenderingContext2D_constructor, __jsb_cocos2d_CanvasRenderingContext2D_class, js_cocos2d_CanvasRenderingContext2D_finalize)
+SE_BIND_CTOR(js_engine_CanvasRenderingContext2D_constructor, __jsb_cc_CanvasRenderingContext2D_class, js_cc_CanvasRenderingContext2D_finalize)
 
 
 
 
-static bool js_cocos2d_CanvasRenderingContext2D_finalize(se::State& s)
+static bool js_cc_CanvasRenderingContext2D_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::CanvasRenderingContext2D)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::CanvasRenderingContext2D)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+        cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_CanvasRenderingContext2D_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_CanvasRenderingContext2D_finalize)
 
 bool js_register_engine_CanvasRenderingContext2D(se::Object* obj)
 {
@@ -1854,12 +1854,12 @@ bool js_register_engine_CanvasRenderingContext2D(se::Object* obj)
     cls->defineFunction("translate", _SE(js_engine_CanvasRenderingContext2D_translate));
     cls->defineFunction("createLinearGradient", _SE(js_engine_CanvasRenderingContext2D_createLinearGradient));
     cls->defineFunction("closePath", _SE(js_engine_CanvasRenderingContext2D_closePath));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_CanvasRenderingContext2D_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_CanvasRenderingContext2D_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::CanvasRenderingContext2D>(cls);
+    JSBClassType::registerClass<cc::CanvasRenderingContext2D>(cls);
 
-    __jsb_cocos2d_CanvasRenderingContext2D_proto = cls->getProto();
-    __jsb_cocos2d_CanvasRenderingContext2D_class = cls;
+    __jsb_cc_CanvasRenderingContext2D_proto = cls->getProto();
+    __jsb_cc_CanvasRenderingContext2D_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;

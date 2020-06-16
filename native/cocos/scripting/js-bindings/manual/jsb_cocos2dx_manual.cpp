@@ -33,15 +33,15 @@
 #include "storage/local-storage/LocalStorage.h"
 #include "cocos2d.h"
 
-using namespace cocos2d;
+using namespace cc;
 
-static bool jsb_cocos2dx_empty_func(se::State& s)
+static bool jsb_ccx_empty_func(se::State& s)
 {
     return true;
 }
-SE_BIND_FUNC(jsb_cocos2dx_empty_func)
+SE_BIND_FUNC(jsb_ccx_empty_func)
 
-class __JSPlistDelegator: public cocos2d::SAXDelegator
+class __JSPlistDelegator: public cc::SAXDelegator
 {
 public:
     static __JSPlistDelegator* getInstance() {
@@ -54,7 +54,7 @@ public:
 
     virtual ~__JSPlistDelegator();
 
-    cocos2d::SAXParser* getParser();
+    cc::SAXParser* getParser();
 
     std::string parse(const std::string& path);
     std::string parseText(const std::string& text);
@@ -65,7 +65,7 @@ public:
     void textHandler(void *ctx, const char *ch, int len) override;
 
 private:
-    cocos2d::SAXParser _parser;
+    cc::SAXParser _parser;
     std::string _result;
     bool _isStoringCharacters;
     std::string _currentValue;
@@ -78,7 +78,7 @@ static bool js_PlistParser_getInstance(se::State& s)
     SAXParser* parser = delegator->getParser();
 
     if (parser) {
-        native_ptr_to_rooted_seval<SAXParser>(parser, __jsb_cocos2d_SAXParser_class, &s.rval());
+        native_ptr_to_rooted_seval<SAXParser>(parser, __jsb_cc_SAXParser_class, &s.rval());
         return true;
     }
     return false;
@@ -113,7 +113,7 @@ static bool js_PlistParser_parse(se::State& s)
 }
 SE_BIND_FUNC(js_PlistParser_parse)
 
-cocos2d::SAXParser* __JSPlistDelegator::getParser() {
+cc::SAXParser* __JSPlistDelegator::getParser() {
     return &_parser;
 }
 
@@ -206,7 +206,7 @@ static bool register_plist_parser(se::Object* obj)
     assert(v.isObject());
     v.toObject()->defineFunction("getInstance", _SE(js_PlistParser_getInstance));
 
-    __jsb_cocos2d_SAXParser_proto->defineFunction("parse", _SE(js_PlistParser_parse));
+    __jsb_cc_SAXParser_proto->defineFunction("parse", _SE(js_PlistParser_parse));
 
     se::ScriptEngine::getInstance()->clearException();
 
@@ -354,7 +354,7 @@ static bool register_sys_localStorage(se::Object* obj)
     localStorageObj->defineFunction("key", _SE(JSB_localStorageKey));
     localStorageObj->defineProperty("length", _SE(JSB_localStorage_getLength), nullptr);
 
-    std::string strFilePath = cocos2d::FileUtils::getInstance()->getWritablePath();
+    std::string strFilePath = cc::FileUtils::getInstance()->getWritablePath();
     strFilePath += "/jsb.sqlite";
     localStorageInit(strFilePath);
 
@@ -370,7 +370,7 @@ static bool register_sys_localStorage(se::Object* obj)
 #define BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(cls, property, type, convertFunc, returnFunc) \
 static bool js_##cls_set_##property(se::State& s) \
 { \
-    cocos2d::cls* cobj = (cocos2d::cls*)s.nativeThisObject(); \
+    cc::cls* cobj = (cc::cls*)s.nativeThisObject(); \
     SE_PRECONDITION2(cobj, false, "js_#cls_set_#property : Invalid Native Object"); \
     const auto& args = s.args(); \
     size_t argc = args.size(); \
@@ -389,7 +389,7 @@ SE_BIND_PROP_SET(js_##cls_set_##property) \
 \
 static bool js_##cls_get_##property(se::State& s) \
 { \
-    cocos2d::cls* cobj = (cocos2d::cls*)s.nativeThisObject(); \
+    cc::cls* cobj = (cc::cls*)s.nativeThisObject(); \
     SE_PRECONDITION2(cobj, false, "js_#cls_get_#property : Invalid Native Object"); \
     s.rval().returnFunc(cobj->_##property); \
     return true; \
@@ -410,25 +410,25 @@ BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, globalComposite
 
 
 #define _SE_DEFINE_PROP(cls, property) \
-    __jsb_cocos2d_##cls##_proto->defineProperty(#property, _SE(js_##cls_get_##property), _SE(js_##cls_set_##property));
+    __jsb_cc_##cls##_proto->defineProperty(#property, _SE(js_##cls_get_##property), _SE(js_##cls_set_##property));
 
 //IDEA:  move to auto bindings.
 static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State& s)
 {
-    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    cc::CanvasRenderingContext2D* cobj = (cc::CanvasRenderingContext2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        std::function<void (const cocos2d::Data &)> arg0;
+        std::function<void (const cc::Data &)> arg0;
         do {
             if (args[0].isObject() && args[0].toObject()->isFunction())
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto lambda = [=](const cocos2d::Data & larg0) -> void {
+                auto lambda = [=](const cc::Data & larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
 
@@ -527,7 +527,7 @@ static bool register_canvas_context2d(se::Object* obj)
     _SE_DEFINE_PROP(CanvasRenderingContext2D, strokeStyle)
     _SE_DEFINE_PROP(CanvasRenderingContext2D, globalCompositeOperation)
 
-    __jsb_cocos2d_CanvasRenderingContext2D_proto->defineFunction("_setCanvasBufferUpdatedCallback", _SE(js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback));
+    __jsb_cc_CanvasRenderingContext2D_proto->defineFunction("_setCanvasBufferUpdatedCallback", _SE(js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback));
 
     se::ScriptEngine::getInstance()->clearException();
 

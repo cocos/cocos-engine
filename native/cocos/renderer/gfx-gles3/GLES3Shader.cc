@@ -2,7 +2,7 @@
 #include "GLES3Shader.h"
 #include "GLES3Commands.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GLES3Shader::GLES3Shader(GFXDevice *device)
 : GFXShader(device) {
@@ -44,4 +44,4 @@ void GLES3Shader::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-NS_CC_END
+}

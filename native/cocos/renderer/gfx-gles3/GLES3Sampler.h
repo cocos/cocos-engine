@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES3_GLES3_SAMPLER_H_
 #define CC_GFXGLES3_GLES3_SAMPLER_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class GLES3GPUSampler;
 
@@ -20,6 +20,6 @@ private:
     GLES3GPUSampler *_gpuSampler = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

@@ -44,8 +44,8 @@
 #include "cocos/base/CCData.h"
 #include "platform/CCApplication.h"
 
-using namespace cocos2d;
-using namespace cocos2d::network;
+using namespace cc;
+using namespace cc::network;
 
 namespace
 {
@@ -152,7 +152,7 @@ public:
     bool open(const std::string& method, const std::string& url);
     void send();
     void sendString(const std::string& str);
-    void sendBinary(const cocos2d::Data& data);
+    void sendBinary(const cc::Data& data);
 
     void setRequestHeader(const std::string& key, const std::string& value);
     std::string getAllResponseHeaders() const;
@@ -162,7 +162,7 @@ public:
     uint16_t getStatus() const { return _status; }
     const std::string& getStatusText() const { return _statusText; }
     const std::string& getResponseText() const { return _responseText; }
-    const cocos2d::Data& getResponseData() const { return _responseData; }
+    const cc::Data& getResponseData() const { return _responseData; }
     ResponseType getResponseType() const { return _responseType; }
     void setResponseType(ResponseType type) { _responseType = type; }
 
@@ -181,7 +181,7 @@ private:
 
     void setReadyState(ReadyState readyState);
     void getHeader(const std::string& header);
-    void onResponse(cocos2d::network::HttpClient* client, cocos2d::network::HttpResponse* response);
+    void onResponse(cc::network::HttpClient* client, cc::network::HttpResponse* response);
 
     void setHttpRequestData(const char* data, size_t len);
     void sendRequest();
@@ -197,10 +197,10 @@ private:
     std::string _statusText;
     std::string _overrideMimeType;
 
-    cocos2d::Data _responseData;
+    cc::Data _responseData;
 
-    cocos2d::network::HttpRequest*  _httpRequest;
-//    cocos2d::EventListenerCustom* _resetDirectorListener;
+    cc::network::HttpRequest*  _httpRequest;
+//    cc::EventListenerCustom* _resetDirectorListener;
 
     unsigned long _timeoutInMilliseconds;
     uint16_t _status;
@@ -537,7 +537,7 @@ void XMLHttpRequest::sendRequest()
     setHttpRequestHeader();
 
     _httpRequest->setResponseCallback(CC_CALLBACK_2(XMLHttpRequest::onResponse, this));
-    cocos2d::network::HttpClient::getInstance()->sendImmediate(_httpRequest);
+    cc::network::HttpClient::getInstance()->sendImmediate(_httpRequest);
 
     if (onloadstart != nullptr)
     {

@@ -32,8 +32,8 @@
 #include "base/ccUTF8.h"
 #include "platform/CCApplication.h"
 
-using namespace cocos2d;
-using namespace cocos2d::network;
+using namespace cc;
+using namespace cc::network;
 
 /*
  [Constructor(in DOMString url, in optional DOMString protocols)]
@@ -77,7 +77,7 @@ void JSB_WebSocketDelegate::onOpen(WebSocket* ws)
     se::ScriptEngine::getInstance()->clearException();
     se::AutoHandleScope hs;
 
-    if (cocos2d::Application::getInstance() == nullptr)
+    if (cc::Application::getInstance() == nullptr)
         return;
 
     auto iter = se::NativePtrToObjectMap::find(ws);
@@ -112,7 +112,7 @@ void JSB_WebSocketDelegate::onMessage(WebSocket* ws, const WebSocket::Data& data
     se::ScriptEngine::getInstance()->clearException();
     se::AutoHandleScope hs;
 
-    if (cocos2d::Application::getInstance() == nullptr)
+    if (cc::Application::getInstance() == nullptr)
         return;
 
     auto iter = se::NativePtrToObjectMap::find(ws);
@@ -174,7 +174,7 @@ void JSB_WebSocketDelegate::onClose(WebSocket* ws)
     se::ScriptEngine::getInstance()->clearException();
     se::AutoHandleScope hs;
 
-    if (cocos2d::Application::getInstance() == nullptr)
+    if (cc::Application::getInstance() == nullptr)
         return;
 
     auto iter = se::NativePtrToObjectMap::find(ws);
@@ -224,7 +224,7 @@ void JSB_WebSocketDelegate::onError(WebSocket* ws, const WebSocket::ErrorCode& e
     se::ScriptEngine::getInstance()->clearException();
     se::AutoHandleScope hs;
 
-    if (cocos2d::Application::getInstance() == nullptr)
+    if (cc::Application::getInstance() == nullptr)
         return;
 
     auto iter = se::NativePtrToObjectMap::find(ws);

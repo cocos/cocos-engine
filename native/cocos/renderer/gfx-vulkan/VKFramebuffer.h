@@ -1,7 +1,7 @@
 #ifndef CC_GFXVULKAN_CCVK_FRAMEBUFFER_H_
 #define CC_GFXVULKAN_CCVK_FRAMEBUFFER_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCVKGPUFramebuffer;
 
@@ -20,6 +20,6 @@ private:
     CCVKGPUFramebuffer *_gpuFBO = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

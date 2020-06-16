@@ -4,7 +4,7 @@
 #include "gfx/GFXCommandPool.h"
 #include "GLES2Commands.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class CC_GLES2_API GLES2CommandAllocator : public GFXCommandAllocator {
 public:
@@ -32,6 +32,6 @@ public:
     }
 };
 
-NS_CC_END
+}
 
 #endif

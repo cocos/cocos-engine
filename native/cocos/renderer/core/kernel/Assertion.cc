@@ -11,7 +11,7 @@
 #	include <android/log.h>
 #endif
 
-NS_CC_BEGIN
+namespace cc {
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
 
@@ -147,4 +147,4 @@ void _ExecAssertOutput(const char* condition, const char* filename, int line, co
 #endif
 }
 
-NS_CC_END
+}

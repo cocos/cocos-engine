@@ -87,7 +87,7 @@ unsigned int __idIndex = 0;
 
 @end
 
-using namespace cocos2d;
+using namespace cc;
 
 AudioCache::AudioCache()
 : _format(-1)

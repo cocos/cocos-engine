@@ -34,7 +34,7 @@
 #include "platform/CCFileUtils.h"
 #include "base/ccMacros.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 /**
  * @addtogroup platform
@@ -74,6 +74,6 @@ private:
 // end of platform group
 /// @}
 
-NS_CC_END
+}
 
 #endif    // __CC_FILEUTILS_APPLE_H__

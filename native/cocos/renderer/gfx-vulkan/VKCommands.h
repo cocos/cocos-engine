@@ -3,7 +3,7 @@
 
 #include "VKGPUObjects.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCVKDevice;
 
@@ -64,6 +64,6 @@ CC_VULKAN_API void CCVKCmdFuncDestroyPipelineState(CCVKDevice *device, CCVKGPUPi
 
 CC_VULKAN_API void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, uint8_t *const *buffers, CCVKGPUTexture *gpuTexture, const GFXBufferTextureCopyList &regions);
 
-NS_CC_END
+}
 
 #endif

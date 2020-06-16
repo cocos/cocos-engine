@@ -5,7 +5,7 @@
 #include "GLES2Sampler.h"
 #include "GLES2Texture.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GLES2BindingLayout::GLES2BindingLayout(GFXDevice *device)
 : GFXBindingLayout(device) {
@@ -78,4 +78,4 @@ void GLES2BindingLayout::update() {
     }
 }
 
-NS_CC_END
+}

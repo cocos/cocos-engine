@@ -670,7 +670,7 @@ namespace se {
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
         if(strncmp("(no filename)", sourceUrl.c_str(), sizeof("(no filename)") )!= 0)
         {
-            sourceUrl = cocos2d::FileUtils::getInstance()->fullPathForFilename(sourceUrl);
+            sourceUrl = cc::FileUtils::getInstance()->fullPathForFilename(sourceUrl);
         }
 #endif
         
@@ -748,7 +748,7 @@ namespace se {
     bool ScriptEngine::saveByteCodeToFile(const std::string& path, const std::string& path_bc)
     {
         bool success = false;
-        auto fu = cocos2d::FileUtils::getInstance();
+        auto fu = cc::FileUtils::getInstance();
 
         if (path_bc.length() > 3 && path_bc.substr(path_bc.length() - 3) != ".bc") {
             SE_LOGE("ScriptEngine::generateByteCode bytecode file path should endwith \".bc\"\n");;
@@ -794,7 +794,7 @@ namespace se {
         // create CachedData
         v8::ScriptCompiler::CachedData *cd = v8::ScriptCompiler::CreateCodeCache(v8_script);
         // save to file
-        cocos2d::Data writeData;
+        cc::Data writeData;
         writeData.copy(cd->data, cd->length);
         success = fu->writeDataToFile(writeData, path_bc);
         if (!success) {
@@ -805,9 +805,9 @@ namespace se {
 
     bool ScriptEngine::runByteCodeFile(const std::string &path_bc, Value* ret/* = nullptr */)
     {
-        auto fu = cocos2d::FileUtils::getInstance();
+        auto fu = cc::FileUtils::getInstance();
 
-        cocos2d::Data cachedData;
+        cc::Data cachedData;
         fu->getContents(path_bc, &cachedData);
         
         // read origin source file length from .bc file
@@ -896,7 +896,7 @@ namespace se {
         assert(!path.empty());
         assert(_fileOperationDelegate.isValid());
 
-        if (!cocos2d::FileUtils::getInstance()->isFileExist(path)) {
+        if (!cc::FileUtils::getInstance()->isFileExist(path)) {
             std::stringstream ss;
             ss << "throw new Error(\"Failed to require file '"
                 << path << "', not found!\");";

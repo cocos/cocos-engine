@@ -22,7 +22,7 @@
 
 #import <MetalKit/MTKView.h>
 
-NS_CC_BEGIN
+namespace cc {
 
 CCMTLDevice::CCMTLDevice() {}
 CCMTLDevice::~CCMTLDevice() {}
@@ -302,4 +302,4 @@ void CCMTLDevice::blitBuffer(void *srcData, uint offset, uint size, void *dstBuf
     [commandBuffer commit];
 }
 
-NS_CC_END
+}

@@ -27,7 +27,7 @@
 
 #include "network/CCIDownloaderImpl.h"
 
-namespace cocos2d { namespace network
+namespace cc { namespace network
 {
     class DownloaderHints;
     class DownloaderApple : public IDownloaderImpl
@@ -43,5 +43,5 @@ namespace cocos2d { namespace network
     private:
         void* _impl;
     };
-}}  // namespace cocos2d::network
+}}  // namespace cc::network
 

@@ -27,7 +27,7 @@
 #include "AppDelegate.h"
 #include "sdl2/SDL.h"
 
-USING_NS_CC;
+using namespace cc;
 
 // uncomment below line, open debug console
 // #define USE_WIN32_CONSOLE

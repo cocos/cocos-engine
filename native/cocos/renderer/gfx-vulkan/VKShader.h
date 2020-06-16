@@ -1,7 +1,7 @@
 #ifndef CC_GFXVULKAN_CCVK_SHADER_H_
 #define CC_GFXVULKAN_CCVK_SHADER_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCVKGPUShader;
 
@@ -20,6 +20,6 @@ private:
     CCVKGPUShader *_gpuShader = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

@@ -31,7 +31,7 @@
 #error WebSocket must be compiled with ARC enabled
 #endif
 
-static std::vector<cocos2d::network::WebSocket*>* __websocketInstances = nullptr;
+static std::vector<cc::network::WebSocket*>* __websocketInstances = nullptr;
 
 @interface WebSocketImpl : NSObject<SRWebSocketDelegate>
 {
@@ -44,20 +44,20 @@ static std::vector<cocos2d::network::WebSocket*>* __websocketInstances = nullptr
 @implementation WebSocketImpl
 {
     SRWebSocket* _ws;
-    cocos2d::network::WebSocket* _ccws;
-    cocos2d::network::WebSocket::Delegate* _delegate;
+    cc::network::WebSocket* _ccws;
+    cc::network::WebSocket::Delegate* _delegate;
 
     std::string _url;
     std::string _selectedProtocol;
     bool _isDestroyed;
 }
 
--(id) initWithURL:(const std::string&) url protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates ws:(cocos2d::network::WebSocket*) ccws delegate:(const cocos2d::network::WebSocket::Delegate&) delegate
+-(id) initWithURL:(const std::string&) url protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates ws:(cc::network::WebSocket*) ccws delegate:(const cc::network::WebSocket::Delegate&) delegate
 {
     if (self = [super init])
     {
         _ccws = ccws;
-        _delegate = const_cast<cocos2d::network::WebSocket::Delegate*>(&delegate);
+        _delegate = const_cast<cc::network::WebSocket::Delegate*>(&delegate);
         _url = url;
         NSURL* nsUrl = [[NSURL alloc] initWithString:[[NSString alloc] initWithUTF8String:_url.c_str()]];
         _ws = [[SRWebSocket alloc] initWithURL:nsUrl protocols:protocols allowsUntrustedSSLCertificates:allowsUntrustedSSLCertificates];
@@ -97,22 +97,22 @@ static std::vector<cocos2d::network::WebSocket*>* __websocketInstances = nullptr
     [_ws close];
 }
 
--(cocos2d::network::WebSocket::State) getReadyState
+-(cc::network::WebSocket::State) getReadyState
 {
-    cocos2d::network::WebSocket::State ret;
+    cc::network::WebSocket::State ret;
     SRReadyState state = _ws.readyState;
     switch (state) {
         case SR_OPEN:
-            ret = cocos2d::network::WebSocket::State::OPEN;
+            ret = cc::network::WebSocket::State::OPEN;
             break;
         case SR_CONNECTING:
-            ret = cocos2d::network::WebSocket::State::CONNECTING;
+            ret = cc::network::WebSocket::State::CONNECTING;
             break;
         case SR_CLOSING:
-            ret = cocos2d::network::WebSocket::State::CLOSING;
+            ret = cc::network::WebSocket::State::CLOSING;
             break;
         default:
-            ret = cocos2d::network::WebSocket::State::CLOSED;
+            ret = cc::network::WebSocket::State::CLOSED;
             break;
     }
     return ret;
@@ -128,9 +128,9 @@ static std::vector<cocos2d::network::WebSocket*>* __websocketInstances = nullptr
     return _selectedProtocol;
 }
 
--(cocos2d::network::WebSocket::Delegate*) getDelegate
+-(cc::network::WebSocket::Delegate*) getDelegate
 {
-    return (cocos2d::network::WebSocket::Delegate*)_delegate;
+    return (cc::network::WebSocket::Delegate*)_delegate;
 }
 
 // Delegate methods
@@ -155,7 +155,7 @@ static std::vector<cocos2d::network::WebSocket*>* __websocketInstances = nullptr
     if (!_isDestroyed)
     {
         NSLog(@":( Websocket Failed With Error %@", error);
-        _delegate->onError(_ccws, cocos2d::network::WebSocket::ErrorCode::UNKNOWN);
+        _delegate->onError(_ccws, cc::network::WebSocket::ErrorCode::UNKNOWN);
         [self webSocket:webSocket didCloseWithCode:0 reason:@"onerror" wasClean:YES];
     }
     else
@@ -169,7 +169,7 @@ static std::vector<cocos2d::network::WebSocket*>* __websocketInstances = nullptr
     if (!_isDestroyed)
     {
         std::string message = [string UTF8String];
-        cocos2d::network::WebSocket::Data data;
+        cc::network::WebSocket::Data data;
         data.bytes = (char*)message.c_str();
         data.len = message.length() + 1;
         data.isBinary = false;
@@ -188,7 +188,7 @@ static std::vector<cocos2d::network::WebSocket*>* __websocketInstances = nullptr
 {
     if (!_isDestroyed)
     {
-        cocos2d::network::WebSocket::Data data;
+        cc::network::WebSocket::Data data;
         data.bytes = (char*)nsData.bytes;
         data.len = nsData.length;
         data.isBinary = true;
@@ -213,7 +213,7 @@ static std::vector<cocos2d::network::WebSocket*>* __websocketInstances = nullptr
 @end
 
 
-NS_CC_BEGIN
+namespace cc {
 
 namespace network {
 
@@ -376,4 +376,4 @@ WebSocket::Delegate* WebSocket::getDelegate() const
 
 } // namespace network {
 
-NS_CC_END
+}

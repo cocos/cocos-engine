@@ -78,11 +78,11 @@ THE SOFTWARE.
 #include "platform/CCCanvasRenderingContext2D.h"
 
 
-NS_CC_BEGIN
+namespace cc {
 
 CC_DLL const char* cocos2dVersion();
 
-NS_CC_END
+}
 
 #endif // __COCOS2D_H__
 

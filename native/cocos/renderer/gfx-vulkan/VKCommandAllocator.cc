@@ -4,7 +4,7 @@
 #include "VKCommands.h"
 #include "VKDevice.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCVKCommandAllocator::CCVKCommandAllocator(GFXDevice *device)
 : GFXCommandAllocator(device) {
@@ -38,4 +38,4 @@ void CCVKCommandAllocator::reset() {
     }
 }
 
-NS_CC_END
+}

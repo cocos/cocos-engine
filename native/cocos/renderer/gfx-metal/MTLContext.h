@@ -1,6 +1,7 @@
 #pragma once
 
-NS_CC_BEGIN
+namespace cc {
+
 
 class CCMTLContext : public GFXContext {
 public:
@@ -12,4 +13,4 @@ public:
     void present() override{};
 };
 
-NS_CC_END
+}

@@ -1,6 +1,6 @@
 #pragma once
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCMTLStateCache;
 
@@ -50,4 +50,4 @@ private:
     void *_blitedBuffer = nullptr;
 };
 
-NS_CC_END
+}

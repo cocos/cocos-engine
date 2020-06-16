@@ -1,7 +1,7 @@
 #ifndef CC_GFXVULKAN_CCVK_BUFFER_H_
 #define CC_GFXVULKAN_CCVK_BUFFER_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCVKGPUBuffer;
 
@@ -22,6 +22,6 @@ private:
     CCVKGPUBuffer *_gpuBuffer = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

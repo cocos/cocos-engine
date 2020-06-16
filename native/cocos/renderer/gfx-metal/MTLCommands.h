@@ -2,7 +2,7 @@
 
 #import <Metal/MTLRenderCommandEncoder.h>
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCMTLFramebuffer;
 struct CCMTLGPUPipelineState;
@@ -107,4 +107,4 @@ public:
     CachedArray<CCMTLCmdCopyBufferToTexture *> copyBufferToTextureCmds;
 };
 
-NS_CC_END
+}

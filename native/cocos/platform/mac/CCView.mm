@@ -29,8 +29,8 @@
 #include "platform/CCApplication.h"
 
 @implementation View {
-    cocos2d::MouseEvent _mouseEvent;
-    cocos2d::KeyboardEvent _keyboardEvent;
+    cc::MouseEvent _mouseEvent;
+    cc::KeyboardEvent _keyboardEvent;
 #ifdef USE_METAL
     dispatch_semaphore_t _frameBoundarySemaphore;
 #endif
@@ -52,7 +52,7 @@
 
 #ifdef USE_METAL
 - (void)drawInMTKView:(MTKView *)view {
-    cocos2d::Application::getInstance()->tick();
+    cc::Application::getInstance()->tick();
     [self.currentDrawable present];
 }
 
@@ -62,17 +62,17 @@
 
 - (void)keyDown:(NSEvent *)event {
     _keyboardEvent.key = translateKeycode(event.keyCode);
-    _keyboardEvent.action = [event isARepeat] ? cocos2d::KeyboardEvent::Action::REPEAT
-    : cocos2d::KeyboardEvent::Action::PRESS;
+    _keyboardEvent.action = [event isARepeat] ? cc::KeyboardEvent::Action::REPEAT
+    : cc::KeyboardEvent::Action::PRESS;
     [self setModifierFlags:event];
-    cocos2d::EventDispatcher::dispatchKeyboardEvent(_keyboardEvent);
+    cc::EventDispatcher::dispatchKeyboardEvent(_keyboardEvent);
 }
 
 - (void)keyUp:(NSEvent *)event {
     _keyboardEvent.key = translateKeycode(event.keyCode);
-    _keyboardEvent.action = cocos2d::KeyboardEvent::Action::RELEASE;
+    _keyboardEvent.action = cc::KeyboardEvent::Action::RELEASE;
     [self setModifierFlags:event];
-    cocos2d::EventDispatcher::dispatchKeyboardEvent(_keyboardEvent);
+    cc::EventDispatcher::dispatchKeyboardEvent(_keyboardEvent);
 }
 
 - (void)setModifierFlags:(NSEvent*)event {
@@ -100,13 +100,13 @@
 
 - (void)mouseDown:(NSEvent *)event {
     [self sendMouseEvent:0
-                    type:cocos2d::MouseEvent::Type::DOWN
+                    type:cc::MouseEvent::Type::DOWN
                    event:event];
 }
 
 - (void)mouseUp:(NSEvent *)event {
     [self sendMouseEvent:0
-                    type:cocos2d::MouseEvent::Type::UP
+                    type:cc::MouseEvent::Type::UP
                    event:event];
 }
 
@@ -116,19 +116,19 @@
 
 - (void)mouseMoved:(NSEvent *)event {
     [self sendMouseEvent:0
-                    type:cocos2d::MouseEvent::Type::MOVE
+                    type:cc::MouseEvent::Type::MOVE
                    event:event];
 }
 
 - (void)otherMouseDown:(NSEvent *)event {
     [self sendMouseEvent:[self translateButtonNumber:event.buttonNumber]
-                    type:cocos2d::MouseEvent::Type::DOWN
+                    type:cc::MouseEvent::Type::DOWN
                    event:event];
 }
 
 - (void)otherMouseUp:(NSEvent *)event {
     [self sendMouseEvent:[self translateButtonNumber:event.buttonNumber]
-                    type:cocos2d::MouseEvent::Type::UP
+                    type:cc::MouseEvent::Type::UP
                    event:event];
 }
 
@@ -151,23 +151,23 @@
     }
     
     if (fabs(deltaX) > 0.0 || fabs(deltaY) > 0.0) {
-        _mouseEvent.type = cocos2d::MouseEvent::Type::WHEEL;
+        _mouseEvent.type = cc::MouseEvent::Type::WHEEL;
         _mouseEvent.button = 0;
         _mouseEvent.x = deltaX;
         _mouseEvent.y = deltaY;
-        cocos2d::EventDispatcher::dispatchMouseEvent(_mouseEvent);
+        cc::EventDispatcher::dispatchMouseEvent(_mouseEvent);
     }
 }
 
 - (void)rightMouseDown:(NSEvent *)event {
     [self sendMouseEvent:2
-                    type:cocos2d::MouseEvent::Type::DOWN
+                    type:cc::MouseEvent::Type::DOWN
                    event:event];
 }
 
 - (void)rightMouseUp:(NSEvent *)event {
     [self sendMouseEvent:2
-                    type:cocos2d::MouseEvent::Type::UP
+                    type:cc::MouseEvent::Type::UP
                    event:event];
 }
 
@@ -175,7 +175,7 @@
     return YES;
 }
 
-- (void)sendMouseEvent:(int)button type:(cocos2d::MouseEvent::Type)type event:(NSEvent*)event {
+- (void)sendMouseEvent:(int)button type:(cc::MouseEvent::Type)type event:(NSEvent*)event {
     const NSRect contentRect = [self frame];
     const NSPoint pos = [event locationInWindow];
     
@@ -183,7 +183,7 @@
     _mouseEvent.button = button;
     _mouseEvent.x = pos.x;
     _mouseEvent.y = contentRect.size.height - pos.y;
-    cocos2d::EventDispatcher::dispatchMouseEvent(_mouseEvent);
+    cc::EventDispatcher::dispatchMouseEvent(_mouseEvent);
 }
 
 @end

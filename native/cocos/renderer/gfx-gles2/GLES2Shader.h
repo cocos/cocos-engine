@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES2_GLES2_SHADER_H_
 #define CC_GFXGLES2_GLES2_SHADER_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class GLES2GPUShader;
 
@@ -20,6 +20,6 @@ private:
     GLES2GPUShader *_gpuShader = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

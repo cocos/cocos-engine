@@ -47,7 +47,7 @@
  * @{
  */
 
-NS_CC_BEGIN
+namespace cc {
 /**
  * @class AudioProfile
  *
@@ -386,7 +386,7 @@ private:
     friend class AudioEngineImpl;
 };
 
-NS_CC_END
+}
 
 // end group
 /// @}

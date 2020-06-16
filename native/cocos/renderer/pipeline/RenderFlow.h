@@ -2,11 +2,11 @@
 
 #include "Define.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class GFXDevice;
 
-NS_CC_END
+}
 
 NS_PP_BEGIN
 
@@ -14,7 +14,7 @@ class RenderPipeline;
 class RenderStage;
 class RenderView;
 
-class CC_DLL RenderFlow : public cocos2d::Object {
+class CC_DLL RenderFlow : public cc::Object {
 public:
     RenderFlow() = default;
     virtual ~RenderFlow() = default;
@@ -29,9 +29,9 @@ public:
 
     void destroyStages();
 
-    CC_INLINE const cocos2d::GFXDevice *getDevice() const { return _device; }
+    CC_INLINE const cc::GFXDevice *getDevice() const { return _device; }
     CC_INLINE const RenderPipeline *getPipeline() const { return _pipeline; }
-    CC_INLINE const cocos2d::String &getName() const { return _name; }
+    CC_INLINE const cc::String &getName() const { return _name; }
     CC_INLINE int getPriority() const { return _priority; }
     CC_INLINE const RenderStageList &getStages() const { return _stages; }
     //    CC_INLINE const Material *getMaterial() const { return _material; }
@@ -41,9 +41,9 @@ protected:
     void activateStages();
 
 protected:
-    cocos2d::GFXDevice *_device = nullptr;
+    cc::GFXDevice *_device = nullptr;
     RenderPipeline *_pipeline = nullptr;
-    cocos2d::String _name;
+    cc::String _name;
     int _priority = 0;
     RenderStageList _stages;
     //    Material *_material = nullptr;

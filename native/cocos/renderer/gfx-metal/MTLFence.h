@@ -1,6 +1,6 @@
 #pragma once
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCMTLFence : public GFXFence {
 public:
@@ -15,4 +15,4 @@ public:
 private:
 };
 
-NS_CC_END
+}

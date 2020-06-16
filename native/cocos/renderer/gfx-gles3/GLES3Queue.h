@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES3_GLES3_QUEUE_H_
 #define CC_GFXGLES3_GLES3_QUEUE_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class CC_GLES3_API GLES3Queue : public GFXQueue {
 public:
@@ -24,6 +24,6 @@ private:
     uint _numTriangles = 0;
 };
 
-NS_CC_END
+}
 
 #endif

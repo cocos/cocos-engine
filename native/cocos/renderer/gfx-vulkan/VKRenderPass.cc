@@ -3,7 +3,7 @@
 #include "VKCommands.h"
 #include "VKRenderPass.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCVKRenderPass::CCVKRenderPass(GFXDevice *device)
 : GFXRenderPass(device) {
@@ -39,4 +39,4 @@ void CCVKRenderPass::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-NS_CC_END
+}

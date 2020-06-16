@@ -45,7 +45,7 @@
 #define JCLS_HTTPCLIENT  "org/cocos2dx/lib/Cocos2dxHttpURLConnection"
 #endif
 
-NS_CC_BEGIN
+namespace cc {
 
 namespace network {
     
@@ -643,7 +643,7 @@ private:
         {
             return nullptr;
         }
-        std::string strValue = cocos2d::StringUtils::getStringUTFCharsJNI(env, jstr);
+        std::string strValue = cc::StringUtils::getStringUTFCharsJNI(env, jstr);
         return strdup(strValue.c_str());
     }
 
@@ -1115,6 +1115,6 @@ const std::string& HttpClient::getSSLVerification()
 
 }
 
-NS_CC_END
+}
 
 #endif // #if (CC_PLATFORM == CC_PLATFORM_ANDROID)

@@ -3,7 +3,7 @@
 
 #if (CC_MEMORY_ALLOCATOR == CC_MEMORY_ALLOCATOR_STD)
 
-NS_CC_BEGIN
+namespace cc {
 
 /**	A "standard" allocation policy for use with AllocatedObject and 
 	STLAllocator. This is the class that actually does the allocation
@@ -135,7 +135,7 @@ class CC_CORE_API StdAllocPolicy {
 	StdAllocPolicy() {}
 };
 
-NS_CC_END
+}
 
 #endif
 

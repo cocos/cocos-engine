@@ -69,7 +69,7 @@
 
 #endif // (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
-using namespace cocos2d;
+using namespace cc;
 
 bool jsb_register_all_modules()
 {

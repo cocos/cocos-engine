@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES2_GLES2_BUFFER_H_
 #define CC_GFXGLES2_GLES2_BUFFER_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class GLES2GPUBuffer;
 
@@ -22,6 +22,6 @@ private:
     GLES2GPUBuffer *_gpuBuffer = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

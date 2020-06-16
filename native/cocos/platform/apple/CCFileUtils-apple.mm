@@ -1,5 +1,5 @@
 /****************************************************************************
-Copyright (c) 2010-2012 cocos2d-x.org
+Copyright (c) 2010-2012 cc-x.org
 Copyright (c) 2011      Zynga Inc.
 Copyright (c) 2013-2016 Chukong Technologies Inc.
 Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
@@ -36,7 +36,7 @@ THE SOFTWARE.
 #include "platform/CCFileUtils.h"
 #include "platform/CCSAXParser.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 struct FileUtilsApple::IMPL {
     IMPL(NSBundle* bundle):bundle_([NSBundle mainBundle]) {}
@@ -50,15 +50,15 @@ private:
     NSBundle* bundle_;
 };
 
-static id convertCCValueToNSObject(const cocos2d::Value &value);
-static cocos2d::Value convertNSObjectToCCValue(id object);
+static id convertCCValueToNSObject(const cc::Value &value);
+static cc::Value convertNSObjectToCCValue(id object);
 
 static void addNSObjectToCCMap(id nsKey, id nsValue, ValueMap& dict);
 static void addCCValueToNSDictionary(const std::string& key, const Value& value, NSMutableDictionary *dict);
 static void addNSObjectToCCVector(id item, ValueVector& array);
 static void addCCValueToNSArray(const Value& value, NSMutableArray *array);
 
-static id convertCCValueToNSObject(const cocos2d::Value &value)
+static id convertCCValueToNSObject(const cc::Value &value)
 {
     switch (value.getType())
     {
@@ -111,7 +111,7 @@ static id convertCCValueToNSObject(const cocos2d::Value &value)
     return [NSNull null];
 }
 
-static cocos2d::Value convertNSObjectToCCValue(id item)
+static cc::Value convertNSObjectToCCValue(id item)
 {
     // add string value into array
     if ([item isKindOfClass:[NSString class]])
@@ -500,4 +500,4 @@ bool FileUtilsApple::createDirectory(const std::string& path)
     return result;
 }
 
-NS_CC_END
+}

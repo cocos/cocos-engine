@@ -5,7 +5,7 @@
 #include "GLES2Context.h"
 #include "GLES2Texture.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GLES2Framebuffer::GLES2Framebuffer(GFXDevice *device)
 : GFXFramebuffer(device) {
@@ -71,4 +71,4 @@ void GLES2Framebuffer::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-NS_CC_END
+}

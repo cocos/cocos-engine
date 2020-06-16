@@ -34,7 +34,7 @@ THE SOFTWARE.
  * @addtogroup base
  * @{
  */
-NS_CC_BEGIN
+namespace cc {
 
 
 /**
@@ -183,6 +183,6 @@ private:
  * @endcond
  */
 
-NS_CC_END
+}
 
 #endif //__AUTORELEASEPOOL_H__

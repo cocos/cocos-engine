@@ -1,7 +1,7 @@
 #include "MTLStd.h"
 #include "MTLPipelineLayout.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCMTLPipelineLayout::CCMTLPipelineLayout(GFXDevice *device) : GFXPipelineLayout(device) {}
 CCMTLPipelineLayout::~CCMTLPipelineLayout() { destroy(); }
@@ -18,4 +18,4 @@ void CCMTLPipelineLayout::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-NS_CC_END
+}

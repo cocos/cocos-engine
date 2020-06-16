@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES2_GLES2_TEXTURE_H_
 #define CC_GFXGLES2_GLES2_TEXTURE_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class GLES2GPUTexture;
 
@@ -22,6 +22,6 @@ private:
     GLES2GPUTexture *_gpuTexture = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

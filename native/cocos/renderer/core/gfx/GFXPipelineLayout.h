@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class CC_CORE_API GFXPipelineLayout : public GFXObject {
 public:
@@ -24,6 +24,6 @@ protected:
     GFXBindingLayoutList _layouts;
 };
 
-NS_CC_END
+}
 
 #endif // CC_CORE_GFX_PIPELINE_LAYOUT_H_

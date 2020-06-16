@@ -2,7 +2,7 @@
 #include "GLES2Sampler.h"
 #include "GLES2Commands.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GLES2Sampler::GLES2Sampler(GFXDevice *device)
 : GFXSampler(device) {
@@ -52,4 +52,4 @@ void GLES2Sampler::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-NS_CC_END
+}

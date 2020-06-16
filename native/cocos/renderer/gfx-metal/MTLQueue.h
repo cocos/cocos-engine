@@ -3,7 +3,7 @@
 #import <Metal/MTLCommandQueue.h>
 #import <MetalKit/MTKView.h>
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCMTLCommandPackage;
 
@@ -30,4 +30,4 @@ private:
     uint _numTriangles = 0;
 };
 
-NS_CC_END
+}

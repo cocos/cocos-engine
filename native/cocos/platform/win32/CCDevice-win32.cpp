@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include "platform/CCFileUtils.h"
 #include "platform/CCStdC.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 int Device::getDPI()
 {
@@ -90,10 +90,10 @@ Device::NetworkType Device::getNetworkType()
     return Device::NetworkType::LAN;
 }
 
-cocos2d::Vec4 Device::getSafeAreaEdge()
+cc::Vec4 Device::getSafeAreaEdge()
 {
     // no SafeArea concept on win32, return ZERO Vec4.
-    return cocos2d::Vec4();
+    return cc::Vec4();
 }
 
 int Device::getDevicePixelRatio()
@@ -101,6 +101,6 @@ int Device::getDevicePixelRatio()
     return 1;
 }
 
-NS_CC_END
+}
 
 #endif // CC_PLATFORM == CC_PLATFORM_WINDOWS

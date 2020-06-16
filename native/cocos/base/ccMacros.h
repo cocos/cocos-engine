@@ -80,7 +80,7 @@ typedef SSIZE_T ssize_t;
         // #define CCASSERT(cond, msg) do {                              \
     //       if (!(cond)) {                                          \
     //         if (!cc_assert_script_compatible(msg) && strlen(msg)) \
-    //           cocos2d::log("Assert failed: %s", msg);             \
+    //           cc::log("Assert failed: %s", msg);             \
     //         CC_ASSERT(cond);                                      \
     //       } \
     //     } while (0)
@@ -132,22 +132,12 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 
 // Generic macros
 
-/// @name namespace cocos2d
+/// @name namespace cc
 /// @{
 #ifdef __cplusplus
-    #define NS_CC_BEGIN namespace cocos2d {
-    #define NS_CC_END   }
-    #define USING_NS_CC using namespace cocos2d
-    #define NS_CC       ::cocos2d
-
     #define NS_PP_BEGIN namespace pipeline {
     #define NS_PP_END   }
 #else
-    #define NS_CC_BEGIN
-    #define NS_CC_END
-    #define USING_NS_CC
-    #define NS_CC
-
     #define NS_PP_BEGIN
     #define NS_PP_END
 #endif
@@ -196,7 +186,7 @@ It should work same as apples CFSwapInt32LittleToHost(..)
     if (cond) break
 
 #define __CCLOGWITHFUNCTION(s, ...) \
-    cocos2d::log("%s : %s", __FUNCTION__, cocos2d::StringUtils::format(s, ##__VA_ARGS__).c_str())
+    cc::log("%s : %s", __FUNCTION__, cc::StringUtils::format(s, ##__VA_ARGS__).c_str())
 
 /// @name Cocos2d debug
 /// @{
@@ -217,7 +207,7 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 #elif COCOS2D_DEBUG == 1
 
     #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-        #define COCOS_LOG_TAG "cocos2d-x"
+        #define COCOS_LOG_TAG "cocos"
         #define CCLOG(...)    __android_log_print(ANDROID_LOG_DEBUG, COCOS_LOG_TAG, __VA_ARGS__)
         #define CCLOGINFO(format, ...) \
             do {                       \
@@ -225,8 +215,8 @@ It should work same as apples CFSwapInt32LittleToHost(..)
         #define CCLOGWARN(...)  __android_log_print(ANDROID_LOG_WARN, COCOS_LOG_TAG, __VA_ARGS__)
         #define CCLOGERROR(...) __android_log_print(ANDROID_LOG_ERROR, COCOS_LOG_TAG, __VA_ARGS__)
     #else
-        #define CCLOG(format, ...)      cocos2d::log(format, ##__VA_ARGS__)
-        #define CCLOGERROR(format, ...) cocos2d::log(format, ##__VA_ARGS__)
+        #define CCLOG(format, ...)      cc::log(format, ##__VA_ARGS__)
+        #define CCLOGERROR(format, ...) cc::log(format, ##__VA_ARGS__)
         #define CCLOGINFO(format, ...) \
             do {                       \
             } while (0)
@@ -234,9 +224,9 @@ It should work same as apples CFSwapInt32LittleToHost(..)
     #endif
 
 #elif COCOS2D_DEBUG > 1
-    #define CCLOG(format, ...)      cocos2d::log(format, ##__VA_ARGS__)
-    #define CCLOGERROR(format, ...) cocos2d::log(format, ##__VA_ARGS__)
-    #define CCLOGINFO(format, ...)  cocos2d::log(format, ##__VA_ARGS__)
+    #define CCLOG(format, ...)      cc::log(format, ##__VA_ARGS__)
+    #define CCLOGERROR(format, ...) cc::log(format, ##__VA_ARGS__)
+    #define CCLOGINFO(format, ...)  cc::log(format, ##__VA_ARGS__)
     #define CCLOGWARN(...)          __CCLOGWITHFUNCTION(__VA_ARGS__)
 #endif // COCOS2D_DEBUG
 

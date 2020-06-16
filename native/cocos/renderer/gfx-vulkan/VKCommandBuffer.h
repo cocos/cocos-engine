@@ -3,7 +3,7 @@
 
 #include "VKCommands.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class CC_VULKAN_API CCVKCommandBuffer : public GFXCommandBuffer {
 public:
@@ -56,6 +56,6 @@ private:
     CCVKStencilCompareMask _curStencilCompareMask;
 };
 
-NS_CC_END
+}
 
 #endif

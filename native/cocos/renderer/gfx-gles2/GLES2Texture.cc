@@ -2,7 +2,7 @@
 #include "GLES2Texture.h"
 #include "GLES2Commands.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GLES2Texture::GLES2Texture(GFXDevice *device)
 : GFXTexture(device) {
@@ -117,4 +117,4 @@ void GLES2Texture::resize(uint width, uint height) {
     }
 }
 
-NS_CC_END
+}

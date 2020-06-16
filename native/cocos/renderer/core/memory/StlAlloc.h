@@ -5,7 +5,7 @@
 #include <queue>
 #include <set>
 
-NS_CC_BEGIN
+namespace cc {
 
 // Base STL allocator class.
 template<typename T>
@@ -342,6 +342,6 @@ typedef std::wstring WString;
 
 typedef vector<String>::type		StringArray;
 
-NS_CC_END
+}
 
 #endif // CC_CORE_STL_ALLOC_H_

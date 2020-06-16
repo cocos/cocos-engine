@@ -2,7 +2,7 @@
 #include "GLES3RenderPass.h"
 #include "GLES3Commands.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GLES3RenderPass::GLES3RenderPass(GFXDevice *device)
 : GFXRenderPass(device) {
@@ -35,4 +35,4 @@ void GLES3RenderPass::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-NS_CC_END
+}

@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class CC_CORE_API GFXRenderPass : public GFXObject {
 public:
@@ -30,6 +30,6 @@ protected:
     uint _hash = 0;
 };
 
-NS_CC_END
+}
 
 #endif // CC_CORE_GFX_RENDER_PASS_H_

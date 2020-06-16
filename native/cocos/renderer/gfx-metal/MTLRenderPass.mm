@@ -4,7 +4,7 @@
 #include "MTLRenderPass.h"
 #include "MTLUtils.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCMTLRenderPass::CCMTLRenderPass(GFXDevice *device) : GFXRenderPass(device) {}
 CCMTLRenderPass::~CCMTLRenderPass() { destroy(); }
@@ -77,4 +77,4 @@ void CCMTLRenderPass::setDepthStencilAttachment(id<MTLTexture> texture, int leve
     _status = GFXStatus::SUCCESS;
 }
 
-NS_CC_END
+}

@@ -3,7 +3,7 @@
 
 #include <string>
 
-NS_CC_BEGIN
+namespace cc {
 
 enum class LogType: uint8_t {
   KERNEL,
@@ -34,13 +34,13 @@ class CC_CORE_API Log {
   static FILE* log_file_;
 };
 
-NS_CC_END
+}
 
-#define CC_LOG_DEBUG(formats, ...)   if(cocos2d::Log::log_level >= cocos2d::LogLevel::DEBUG) cocos2d::Log::LogMessage(cocos2d::LogType::KERNEL, cocos2d::LogLevel::DEBUG, formats, ##__VA_ARGS__)
-#define CC_LOG_INFO(formats, ...)    if(cocos2d::Log::log_level >= cocos2d::LogLevel::INFO) cocos2d::Log::LogMessage(cocos2d::LogType::KERNEL, cocos2d::LogLevel::INFO, formats, ##__VA_ARGS__)
-#define CC_LOG_WARNING(formats, ...) if(cocos2d::Log::log_level >= cocos2d::LogLevel::WARN) cocos2d::Log::LogMessage(cocos2d::LogType::KERNEL, cocos2d::LogLevel::WARN, formats, ##__VA_ARGS__)
-#define CC_LOG_ERROR_(formats, ...)   if(cocos2d::Log::log_level >= cocos2d::LogLevel::ERR) cocos2d::Log::LogMessage(cocos2d::LogType::KERNEL, cocos2d::LogLevel::ERR, formats, ##__VA_ARGS__)
-#define CC_LOG_FATAL(formats, ...)   if(cocos2d::Log::logLevel >= cocos2d::LogLevel::FATAL) cocos2d::Log::LogMessage(cocos2d::LogType::KERNEL, cocos2d::LogLevel::FATAL, formats, ##__VA_ARGS__)
+#define CC_LOG_DEBUG(formats, ...)   if(cc::Log::log_level >= cc::LogLevel::DEBUG) cc::Log::LogMessage(cc::LogType::KERNEL, cc::LogLevel::DEBUG, formats, ##__VA_ARGS__)
+#define CC_LOG_INFO(formats, ...)    if(cc::Log::log_level >= cc::LogLevel::INFO) cc::Log::LogMessage(cc::LogType::KERNEL, cc::LogLevel::INFO, formats, ##__VA_ARGS__)
+#define CC_LOG_WARNING(formats, ...) if(cc::Log::log_level >= cc::LogLevel::WARN) cc::Log::LogMessage(cc::LogType::KERNEL, cc::LogLevel::WARN, formats, ##__VA_ARGS__)
+#define CC_LOG_ERROR_(formats, ...)   if(cc::Log::log_level >= cc::LogLevel::ERR) cc::Log::LogMessage(cc::LogType::KERNEL, cc::LogLevel::ERR, formats, ##__VA_ARGS__)
+#define CC_LOG_FATAL(formats, ...)   if(cc::Log::logLevel >= cc::LogLevel::FATAL) cc::Log::LogMessage(cc::LogType::KERNEL, cc::LogLevel::FATAL, formats, ##__VA_ARGS__)
 
 #define CC_LOG_ERROR(formats, ...) do {CC_LOG_ERROR_("[ERROR] file %s: line %d ", __FILE__, __LINE__); CC_LOG_ERROR_(formats, ##__VA_ARGS__); } while(0)
 

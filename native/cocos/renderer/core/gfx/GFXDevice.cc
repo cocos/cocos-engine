@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXDevice.h"
 #include "GFXContext.h"
-NS_CC_BEGIN
+namespace cc {
 
 GFXDevice::GFXDevice() {
     memset(_features, 0, sizeof(_features));
@@ -18,4 +18,4 @@ GFXFormat GFXDevice::getDepthStencilFormat() const {
     return _context->getDepthStencilFormat();
 }
 
-NS_CC_END
+}

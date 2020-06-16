@@ -34,11 +34,11 @@ THE SOFTWARE.
 
 @interface MyTimer : NSObject
 {
-    cocos2d::Application* _app;
+    cc::Application* _app;
     NSTimer* _timer;
     int _fps;
 }
-- (instancetype)initWithApp:(cocos2d::Application*)app fps:(int)fps;
+- (instancetype)initWithApp:(cc::Application*)app fps:(int)fps;
 - (void)start;
 - (void)changeFPS:(int)fps;
 - (void)pause;
@@ -47,7 +47,7 @@ THE SOFTWARE.
 
 @implementation MyTimer
 
-- (instancetype)initWithApp:(cocos2d::Application*)app fps:(int)fps
+- (instancetype)initWithApp:(cc::Application*)app fps:(int)fps
 {
     if (self = [super init])
     {
@@ -92,7 +92,7 @@ THE SOFTWARE.
 
 @end
 
-NS_CC_BEGIN
+namespace cc {
 
 namespace
 {
@@ -279,4 +279,4 @@ std::string Application::getSystemVersion()
     return version;
 }
 
-NS_CC_END
+}

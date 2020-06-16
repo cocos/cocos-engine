@@ -1,7 +1,7 @@
 #include "MTLStd.h"
 #include "MTLCommands.h"
 
-NS_CC_BEGIN
+namespace cc {
 
-NS_CC_END
+}
     

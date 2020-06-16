@@ -44,7 +44,7 @@
 #include "json/stringbuffer.h"
 #include "json/writer.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 namespace network {
 
@@ -343,7 +343,7 @@ SocketIOPacket * SocketIOPacket::createPacketWithTypeIndex(int type, SocketIOPac
  *         Clients/endpoints may share the same impl to accomplish multiplexing on the same websocket
  */
 class SIOClientImpl :
-    public cocos2d::Ref,
+    public cc::Ref,
     public WebSocket::Delegate
 {
 private:
@@ -1228,5 +1228,5 @@ void SocketIO::removeSocket(const std::string& uri)
 
 }
 
-NS_CC_END
+}
 

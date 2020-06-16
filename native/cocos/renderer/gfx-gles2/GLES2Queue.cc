@@ -3,7 +3,7 @@
 #include "GLES2Commands.h"
 #include "GLES2CommandBuffer.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GLES2Queue::GLES2Queue(GFXDevice *device)
 : GFXQueue(device) {
@@ -36,4 +36,4 @@ void GLES2Queue::submit(const vector<GFXCommandBuffer *>::type &cmdBuffs, GFXFen
     }
 }
 
-NS_CC_END
+}

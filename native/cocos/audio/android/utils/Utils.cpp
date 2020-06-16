@@ -26,11 +26,11 @@ THE SOFTWARE.
 #include "platform/android/jni/JniHelper.h"
 #include <android_native_app_glue.h>
 
-namespace cocos2d {
+namespace cc {
 
 int getSDKVersion()
 {
     return JniHelper::getAndroidApp()->activity->sdkVersion;
 }
 
-} // end of namespace cocos2d
+} // end of namespace cc

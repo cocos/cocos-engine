@@ -50,7 +50,7 @@
 #define CC_FORMAT_PRINTF(formatPos, argPos)
 #endif
 
-namespace cocos2d
+namespace cc
 {
 
     //TODO: add CC_DLL back

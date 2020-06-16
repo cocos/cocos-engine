@@ -32,7 +32,7 @@ THE SOFTWARE.
 
 #define CC_REPEAT_FOREVER (UINT_MAX -1)
 
-NS_CC_BEGIN
+namespace cc {
 
 // data structures
 
@@ -520,4 +520,4 @@ void Scheduler::update(float dt)
     }
 }
 
-NS_CC_END
+}

@@ -44,7 +44,7 @@
 
 #endif
 
-namespace cocos2d { namespace network {
+namespace cc { namespace network {
 
     DownloadTask::DownloadTask()
     {
@@ -194,5 +194,5 @@ namespace cocos2d { namespace network {
 //    return filename;
 //}
 
-}}  //  namespace cocos2d::network
+}}  //  namespace cc::network
 

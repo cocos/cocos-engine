@@ -2,7 +2,7 @@
 #include "GLES2PipelineLayout.h"
 #include "GLES2Commands.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GLES2PipelineLayout::GLES2PipelineLayout(GFXDevice *device)
 : GFXPipelineLayout(device) {
@@ -30,4 +30,4 @@ void GLES2PipelineLayout::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-NS_CC_END
+}

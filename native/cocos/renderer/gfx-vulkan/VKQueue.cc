@@ -6,7 +6,7 @@
 #include "VKFence.h"
 #include "VKQueue.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCVKQueue::CCVKQueue(GFXDevice *device)
 : GFXQueue(device) {
@@ -65,4 +65,4 @@ void CCVKQueue::submit(const vector<GFXCommandBuffer *>::type &cmdBuffs, GFXFenc
     }
 }
 
-NS_CC_END
+}

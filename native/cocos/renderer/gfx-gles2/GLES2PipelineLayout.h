@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES2_GLES2_PIPELINE_LAYOUT_H_
 #define CC_GFXGLES2_GLES2_PIPELINE_LAYOUT_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class GLES2GPUPipelineLayout;
 
@@ -20,6 +20,6 @@ private:
     GLES2GPUPipelineLayout *_gpuPipelineLayout = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

@@ -2,7 +2,7 @@
 
 #include "GFXDef.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class GFXObject : public Object {
 public:
@@ -17,4 +17,4 @@ protected:
     GFXStatus _status = GFXStatus::UNREADY;
 };
 
-NS_CC_END
+}

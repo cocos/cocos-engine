@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXContext.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GFXContext::GFXContext(GFXDevice *device)
 : _device(device) {
@@ -10,4 +10,4 @@ GFXContext::GFXContext(GFXDevice *device)
 GFXContext::~GFXContext() {
 }
 
-NS_CC_END
+}

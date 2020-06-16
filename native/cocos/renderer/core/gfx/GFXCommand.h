@@ -1,6 +1,6 @@
 #pragma once
 
-NS_CC_BEGIN
+namespace cc {
 
 enum class GFXCmdType : uint8_t {
     BEGIN_RENDER_PASS,
@@ -23,4 +23,4 @@ public:
     virtual void clear() = 0;
 };
 
-NS_CC_END
+}

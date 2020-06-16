@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include <thread>
 #include <mutex>
 
-namespace cocos2d { 
+namespace cc { 
 
 /* Explicitly requesting SL_IID_ANDROIDSIMPLEBUFFERQUEUE and SL_IID_PREFETCHSTATUS
 * on the UrlAudioPlayer object for decoding, SL_IID_METADATAEXTRACTION for retrieving the
@@ -646,4 +646,4 @@ void AudioDecoderSLES::decodeToPcmCallback(SLAndroidSimpleBufferQueueItf queueIt
     queryAudioInfo();
 }
 
-} // namespace cocos2d { 
+} // namespace cc { 

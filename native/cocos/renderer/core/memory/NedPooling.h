@@ -3,7 +3,7 @@
 
 #if (CC_MEMORY_ALLOCATOR == CC_MEMORY_ALLOCATOR_NEDPOOLING)
 
-NS_CC_BEGIN
+namespace cc {
 
 //Non-templated utility class just to hide nedmalloc.
 class CC_CORE_API NedPoolingImpl
@@ -50,7 +50,7 @@ private:
 	NedPoolingAllocPolicy() {}
 };
 
-NS_CC_END
+}
 
 #endif // end - #ifdef CC_MEMORY_ALLOCATOR_NEDPOOLING
 

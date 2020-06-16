@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES3_GLES3_PIPELINE_STATE_H_
 #define CC_GFXGLES3_GLES3_PIPELINE_STATE_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class GLES3GPUPipelineState;
 
@@ -20,6 +20,6 @@ private:
     GLES3GPUPipelineState *_gpuPipelineState = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

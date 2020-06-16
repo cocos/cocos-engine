@@ -32,7 +32,7 @@ THE SOFTWARE.
 #include <mutex>
 #include <condition_variable>
 
-namespace cocos2d { 
+namespace cc { 
 
 class AudioMixerController;
 
@@ -78,4 +78,4 @@ private:
     friend class AudioPlayerProvider;
 };
 
-} // namespace cocos2d { 
+} // namespace cc { 

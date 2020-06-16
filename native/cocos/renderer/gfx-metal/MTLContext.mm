@@ -6,7 +6,8 @@
 
 #import <MetalKit/MTKView.h>
 
-NS_CC_BEGIN
+namespace cc {
+
 namespace {
 GFXFormat toGFXFormat(MTLPixelFormat format) {
     switch (format) {
@@ -38,4 +39,4 @@ bool CCMTLContext::initialize(const GFXContextInfo &info) {
     return true;
 }
 
-NS_CC_END
+} // end of namespace cc

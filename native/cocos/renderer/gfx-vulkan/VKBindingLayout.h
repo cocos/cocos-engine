@@ -1,7 +1,7 @@
 #ifndef CC_GFXVULKAN_CCVK_BINDING_LAYOUT_H_
 #define CC_GFXVULKAN_CCVK_BINDING_LAYOUT_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCVKGPUBindingLayout;
 
@@ -21,6 +21,6 @@ private:
     CCVKGPUBindingLayout *_gpuBindingLayout = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

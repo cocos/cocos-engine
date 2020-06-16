@@ -11,7 +11,7 @@
 #define JCLS_CANVASIMPL  "org/cocos2dx/lib/CanvasRenderingContext2DImpl"
 #endif
 
-using namespace cocos2d;
+using namespace cc;
 
 enum class CanvasTextAlign {
     LEFT,
@@ -276,7 +276,7 @@ namespace {
     }
 }
 
-NS_CC_BEGIN
+namespace cc {
 
 CanvasGradient::CanvasGradient()
 {
@@ -370,10 +370,10 @@ void CanvasRenderingContext2D::strokeText(const std::string& text, float x, floa
        _canvasBufferUpdatedCB(_impl->getDataRef());
 }
 
-cocos2d::Size CanvasRenderingContext2D::measureText(const std::string& text)
+cc::Size CanvasRenderingContext2D::measureText(const std::string& text)
 {
 //    SE_LOGD("CanvasRenderingContext2D::measureText: %s\n", text.c_str());
-    return cocos2d::Size(_impl->measureText(text), 0);
+    return cc::Size(_impl->measureText(text), 0);
 }
 
 CanvasGradient* CanvasRenderingContext2D::createLinearGradient(float x0, float y0, float x1, float y1)
@@ -602,4 +602,4 @@ void CanvasRenderingContext2D::setTransform(float a, float b, float c, float d, 
     // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-NS_CC_END
+}

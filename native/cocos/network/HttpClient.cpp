@@ -33,7 +33,7 @@
 #include "platform/CCApplication.h"
 #include "platform/CCStdC.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 namespace network {
 
@@ -631,6 +631,6 @@ const std::string& HttpClient::getSSLVerification()
 
 }
 
-NS_CC_END
+}
 
 

@@ -45,7 +45,7 @@ THE SOFTWARE.
 #define JCLS_HELPER "org/cocos2dx/lib/Cocos2dxHelper"
 #endif
 
-NS_CC_BEGIN
+namespace cc {
 
 AAssetManager* FileUtilsAndroid::assetmanager = nullptr;
 ZipFile* FileUtilsAndroid::obbfile = nullptr;
@@ -56,7 +56,7 @@ void FileUtilsAndroid::setassetmanager(AAssetManager* a) {
         return;
     }
 
-    cocos2d::FileUtilsAndroid::assetmanager = a;
+    cc::FileUtilsAndroid::assetmanager = a;
 }
 
 FileUtils* FileUtils::getInstance()
@@ -328,6 +328,6 @@ std::string FileUtilsAndroid::getWritablePath() const
     }
 }
 
-NS_CC_END
+}
 
 #endif // CC_PLATFORM == CC_PLATFORM_ANDROID

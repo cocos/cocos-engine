@@ -9,7 +9,7 @@
 #include <unordered_map>
 
 
-NS_CC_BEGIN
+namespace cc {
 
 namespace mu {
 MTLResourceOptions toMTLResourseOption(GFXMemoryUsage usage);
@@ -63,4 +63,4 @@ bool isDepthStencilFormatSupported(GFXFormat format, uint family);
 String featureSetToString(MTLFeatureSet featureSet);
 } // namespace mu
 
-NS_CC_END
+}

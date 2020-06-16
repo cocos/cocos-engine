@@ -13,7 +13,7 @@
 #import <Metal/MTLDevice.h>
 #import <Metal/MTLVertexDescriptor.h>
 
-NS_CC_BEGIN
+namespace cc {
 
 CCMTLPipelineState::CCMTLPipelineState(GFXDevice *device) : GFXPipelineState(device) {}
 CCMTLPipelineState::~CCMTLPipelineState() { destroy(); }
@@ -252,4 +252,4 @@ bool CCMTLPipelineState::createMTLRenderPipeline(MTLRenderPipelineDescriptor *de
     return true;
 }
 
-NS_CC_END
+}

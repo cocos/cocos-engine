@@ -3,7 +3,7 @@
 #include "VKCommands.h"
 #include "VKTexture.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCVKTexture::CCVKTexture(GFXDevice *device)
 : GFXTexture(device) {
@@ -167,4 +167,4 @@ void CCVKTexture::resize(uint width, uint height) {
     _status = GFXStatus::UNREADY;
 }
 
-NS_CC_END
+}

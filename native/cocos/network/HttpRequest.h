@@ -40,7 +40,7 @@
  * @{
  */
 
-NS_CC_BEGIN
+namespace cc {
 
 namespace network {
 
@@ -298,7 +298,7 @@ protected:
 
 }
 
-NS_CC_END
+}
 
 // end group
 /// @}

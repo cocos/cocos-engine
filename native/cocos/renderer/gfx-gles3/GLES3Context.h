@@ -28,7 +28,7 @@
 #define EGL_OPENGL_ES3_BIT_KHR 0x00000040
 #endif
 
-NS_CC_BEGIN
+namespace cc {
 
 class CC_GLES3_API GLES3Context : public GFXContext {
 public:
@@ -88,6 +88,6 @@ private:
     bool _isInitialized = false;
 };
 
-NS_CC_END
+}
 
 #endif // CC_GFXGLES3_GLES3_EGL_CONTEXT_H_

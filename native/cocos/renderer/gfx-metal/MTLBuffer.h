@@ -4,7 +4,7 @@
 #import <Metal/MTLStageInputOutputDescriptor.h>
 #import <Metal/MTLRenderCommandEncoder.h>
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCMTLBuffer : public GFXBuffer {
 public:
@@ -37,4 +37,4 @@ private:
     uint8_t *_bufferBytes = nullptr;
 };
 
-NS_CC_END
+}

@@ -4,7 +4,7 @@
 #include "VKFence.h"
 #include "VKGPUObjects.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCVKFence::CCVKFence(GFXDevice *device)
 : GFXFence(device) {
@@ -45,4 +45,4 @@ void CCVKFence::reset() {
     VK_CHECK(vkResetFences(((CCVKDevice *)_device)->gpuDevice()->vkDevice, 1, &_gpuFence->vkFence));
 }
 
-NS_CC_END
+}

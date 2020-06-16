@@ -33,7 +33,7 @@ THE SOFTWARE.
 Misc free functions
 */
 
-NS_CC_BEGIN
+namespace cc {
 
 
 /*
@@ -64,5 +64,5 @@ namespace utils
 
 }
 
-NS_CC_END
+}
 

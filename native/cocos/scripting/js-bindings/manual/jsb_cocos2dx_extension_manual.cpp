@@ -33,8 +33,8 @@
 #include "cocos2d.h"
 #include "extensions/cocos-ext.h"
 
-using namespace cocos2d;
-using namespace cocos2d::extension;
+using namespace cc;
+using namespace cc::extension;
 
 static bool js_cocos2dx_extension_loadRemoteImage(se::State& s)
 {
@@ -94,8 +94,8 @@ static bool js_cocos2dx_extension_loadRemoteImage(se::State& s)
         }
         else
         {
-            auto downloader = new (std::nothrow) cocos2d::network::Downloader();
-            downloader->onDataTaskSuccess = [downloader, url, onSuccess, onError](const cocos2d::network::DownloadTask& task, std::vector<unsigned char>& data){
+            auto downloader = new (std::nothrow) cc::network::Downloader();
+            downloader->onDataTaskSuccess = [downloader, url, onSuccess, onError](const cc::network::DownloadTask& task, std::vector<unsigned char>& data){
                 Image* img = new (std::nothrow) Image();
                 Texture2D* tex = nullptr;
                 do
@@ -123,7 +123,7 @@ static bool js_cocos2dx_extension_loadRemoteImage(se::State& s)
                 });
             };
 
-            downloader->onTaskError = [downloader, onError](const cocos2d::network::DownloadTask& task, int errorCode, int errorCodeInternal, const std::string& errorStr)
+            downloader->onTaskError = [downloader, onError](const cc::network::DownloadTask& task, int errorCode, int errorCodeInternal, const std::string& errorStr)
             {
                 onError();
 
@@ -156,7 +156,7 @@ static bool js_cocos2dx_extension_initRemoteImage(se::State& s)
     bool ok = false;
 
     // get texture
-    cocos2d::Texture2D* texture = nullptr;
+    cc::Texture2D* texture = nullptr;
     ok = seval_to_native_ptr(args[0], &texture);
     SE_PRECONDITION2(ok, false, "Converting 'texture' failed!");
 
@@ -181,8 +181,8 @@ static bool js_cocos2dx_extension_initRemoteImage(se::State& s)
         func.toObject()->call(args, nullptr);
     };
 
-    auto downloader = new (std::nothrow) cocos2d::network::Downloader();
-    downloader->onDataTaskSuccess = [=](const cocos2d::network::DownloadTask& task, std::vector<unsigned char>& data)
+    auto downloader = new (std::nothrow) cc::network::Downloader();
+    downloader->onDataTaskSuccess = [=](const cc::network::DownloadTask& task, std::vector<unsigned char>& data)
     {
         bool success = false;
 
@@ -206,7 +206,7 @@ static bool js_cocos2dx_extension_initRemoteImage(se::State& s)
         });
     };
 
-    downloader->onTaskError = [=](const cocos2d::network::DownloadTask& task, int errorCode, int errorCodeInternal, const std::string& errorStr)
+    downloader->onTaskError = [=](const cc::network::DownloadTask& task, int errorCode, int errorCodeInternal, const std::string& errorStr)
     {
         onCallback(false);
         Director::getInstance()->getScheduler()->performFunctionInCocosThread([downloader](){
@@ -226,9 +226,9 @@ static ThreadPool* getThreadPool()
     if (_threadPool == nullptr)
     {
         _threadPool = ThreadPool::newSingleThreadPool();
-        _resetThreadPoolListener = Director::getInstance()->getEventDispatcher()->addCustomEventListener(Director::EVENT_RESET, [](cocos2d::EventCustom*){
+        _resetThreadPoolListener = Director::getInstance()->getEventDispatcher()->addCustomEventListener(Director::EVENT_RESET, [](cc::EventCustom*){
             CC_SAFE_DELETE(_threadPool);
-            cocos2d::Director::getInstance()->getEventDispatcher()->removeEventListener(_resetThreadPoolListener);
+            cc::Director::getInstance()->getEventDispatcher()->removeEventListener(_resetThreadPoolListener);
             _resetThreadPoolListener = nullptr;
         });
     }

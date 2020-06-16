@@ -45,7 +45,7 @@
 #define JCLS_LOCALSTORAGE  "org/cocos2dx/lib/Cocos2dxLocalStorage"
 #endif
 
-USING_NS_CC;
+using namespace cc;
 static int _initialized = 0;
 
 static void splitFilename (std::string& str)

@@ -8,7 +8,7 @@
 
 #include "VKUtils.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 namespace {
 
@@ -495,4 +495,4 @@ void CCVKContext::destroy() {
     }
 }
 
-NS_CC_END
+}

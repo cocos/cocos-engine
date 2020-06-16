@@ -26,7 +26,7 @@
 
 namespace
 {
-    void dispatchEvents(cocos2d::TouchEvent& touchEvent, NSSet* touches)
+    void dispatchEvents(cc::TouchEvent& touchEvent, NSSet* touches)
     {
         for (UITouch* touch in touches) {
             touchEvent.touches.push_back({
@@ -35,14 +35,14 @@ namespace
                 static_cast<int>((intptr_t)touch)
             });
         }
-        cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
+        cc::EventDispatcher::dispatchTouchEvent(touchEvent);
         touchEvent.touches.clear();
     }
 }
 
 @implementation View
 {
-    cocos2d::TouchEvent _touchEvent;
+    cc::TouchEvent _touchEvent;
 }
 
 @synthesize preventTouch;
@@ -62,7 +62,7 @@ namespace
     if (self.preventTouch)
         return;
     
-    _touchEvent.type = cocos2d::TouchEvent::Type::BEGAN;
+    _touchEvent.type = cc::TouchEvent::Type::BEGAN;
     dispatchEvents(_touchEvent, touches);
 }
 
@@ -71,7 +71,7 @@ namespace
     if (self.preventTouch)
         return;
 
-    _touchEvent.type = cocos2d::TouchEvent::Type::MOVED;
+    _touchEvent.type = cc::TouchEvent::Type::MOVED;
     dispatchEvents(_touchEvent, touches);
 }
 
@@ -79,7 +79,7 @@ namespace
     if (self.preventTouch)
         return;
 
-    _touchEvent.type = cocos2d::TouchEvent::Type::ENDED;
+    _touchEvent.type = cc::TouchEvent::Type::ENDED;
     dispatchEvents(_touchEvent, touches);
 }
 
@@ -87,7 +87,7 @@ namespace
     if (self.preventTouch)
         return;
 
-    _touchEvent.type = cocos2d::TouchEvent::Type::CANCELLED;
+    _touchEvent.type = cc::TouchEvent::Type::CANCELLED;
     dispatchEvents(_touchEvent, touches);
 }
 

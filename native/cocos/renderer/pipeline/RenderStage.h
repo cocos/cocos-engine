@@ -2,9 +2,9 @@
 
 #include "Define.h"
 
-NS_CC_BEGIN
+namespace cc {
 class GFXFramebuffer;
-NS_CC_END
+}
 
 NS_PP_BEGIN
 
@@ -12,7 +12,7 @@ class RenderFlow;
 class RenderPipeline;
 class RenderView;
 
-class CC_DLL RenderStage : public cocos2d::Object {
+class CC_DLL RenderStage : public cc::Object {
 public:
     RenderStage() = default;
     virtual ~RenderStage() = default;
@@ -37,12 +37,12 @@ public:
     CC_INLINE RenderFlow *getFlow() const { return _flow; }
     CC_INLINE RenderPipeline *getPipeline() const { return _pipeline; }
     CC_INLINE int getPriority() const { return _priority; }
-    CC_INLINE cocos2d::GFXFramebuffer *getFrameBuffer() const { return _frameBuffer; }
+    CC_INLINE cc::GFXFramebuffer *getFrameBuffer() const { return _frameBuffer; }
 
 protected:
     RenderFlow *_flow = nullptr;
     RenderPipeline *_pipeline = nullptr;
-    cocos2d::GFXFramebuffer *_frameBuffer = nullptr;
+    cc::GFXFramebuffer *_frameBuffer = nullptr;
     int _priority = 0;
 };
 

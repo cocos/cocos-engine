@@ -5,7 +5,7 @@
 #import <UIKit/UIScreen.h>
 #import <QuartzCore/QuartzCore.h>
 
-NS_CC_BEGIN
+namespace cc {
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
 
@@ -185,4 +185,4 @@ bool GLES2Context::MakeCurrentImpl() {
 
 #endif
 
-NS_CC_END
+}

@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include "base/ccMacros.h"
 
 // implementation of Vec2
-NS_CC_BEGIN
+namespace cc {
 
 // implementation of Size
 
@@ -194,7 +194,7 @@ bool Rect::intersectsRect(const Rect& rect) const
              rect.getMaxY() <      getMinY());
 }
 
-bool Rect::intersectsCircle(const cocos2d::Vec2 &center, float radius) const
+bool Rect::intersectsCircle(const Vec2 &center, float radius) const
 {
     Vec2 rectangleCenter((origin.x + size.width / 2),
                          (origin.y + size.height / 2));
@@ -279,4 +279,4 @@ Rect Rect::unionWithRect(const Rect & rect) const
 
 const Rect Rect::ZERO = Rect(0, 0, 0, 0);
 
-NS_CC_END
+}

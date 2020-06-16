@@ -44,7 +44,7 @@ static const float radToDeg = (180/M_PI);
 @interface CCMotionDispatcher : NSObject<UIAccelerometerDelegate>
 {
     CMMotionManager* _motionManager;
-    cocos2d::Device::MotionValue _motionValue;
+    cc::Device::MotionValue _motionValue;
     float _interval; // unit: seconds
     bool _enabled;
 }
@@ -133,7 +133,7 @@ static CCMotionDispatcher* __motionDispatcher = nullptr;
     }
 }
 
--(const cocos2d::Device::MotionValue&) getMotionValue {
+-(const cc::Device::MotionValue&) getMotionValue {
 
     if (_motionManager.isDeviceMotionAvailable) {
         CMDeviceMotion* motion = _motionManager.deviceMotion;
@@ -163,7 +163,7 @@ static CCMotionDispatcher* __motionDispatcher = nullptr;
 
 //
 
-NS_CC_BEGIN
+namespace cc {
 
 int Device::getDPI()
 {
@@ -297,7 +297,7 @@ Device::NetworkType Device::getNetworkType()
     return ret;
 }
 
-cocos2d::Vec4 Device::getSafeAreaEdge()
+cc::Vec4 Device::getSafeAreaEdge()
 {
     //TODO:minggo
 //    UIView* screenView = (UIView*)Application::getInstance()->getView();
@@ -318,12 +318,12 @@ cocos2d::Vec4 Device::getSafeAreaEdge()
 //        safeAreaEdge.top *= scale;
 //        safeAreaEdge.bottom *= scale;
 //
-//        return cocos2d::Vec4(safeAreaEdge.top, safeAreaEdge.left, safeAreaEdge.bottom, safeAreaEdge.right);
+//        return cc::Vec4(safeAreaEdge.top, safeAreaEdge.left, safeAreaEdge.bottom, safeAreaEdge.right);
 //    }
 //#endif
 //
 //    // If running on iOS devices lower than 11.0, return ZERO Vec4.
-//    return cocos2d::Vec4();
-    return cocos2d::Vec4();
+//    return cc::Vec4();
+    return cc::Vec4();
 }
-NS_CC_END
+}

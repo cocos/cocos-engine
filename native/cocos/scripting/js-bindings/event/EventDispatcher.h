@@ -29,7 +29,7 @@
 #include <functional>
 #include <string>
 
-namespace cocos2d
+namespace cc
 {
     
 // Touch event related
@@ -199,4 +199,4 @@ private:
     static std::unordered_map<std::string, Node*> _listeners;
 };
     
-} // end of namespace cocos2d
+} // end of namespace cc

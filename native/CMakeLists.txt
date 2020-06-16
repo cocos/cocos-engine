@@ -509,6 +509,29 @@ cocos_source_files(
     cocos/renderer/core/TypeDef.h
     cocos/renderer/core/util/StringUtil.cc
     cocos/renderer/core/util/StringUtil.h
+    cocos/renderer/pipeline/BatchedBuffer.cpp
+    cocos/renderer/pipeline/BatchedBuffer.h
+    cocos/renderer/pipeline/Define.h
+    cocos/renderer/pipeline/InstancedBuffer.cpp
+    cocos/renderer/pipeline/InstancedBuffer.h
+    cocos/renderer/pipeline/RenderBatchedQueue.cpp
+    cocos/renderer/pipeline/RenderBatchedQueue.h
+    cocos/renderer/pipeline/RenderFlow.cpp
+    cocos/renderer/pipeline/RenderFlow.h
+    cocos/renderer/pipeline/RenderInstancedQueue.cpp
+    cocos/renderer/pipeline/RenderInstancedQueue.h
+    cocos/renderer/pipeline/RenderPipeline.cpp
+    cocos/renderer/pipeline/RenderPipeline.h
+    cocos/renderer/pipeline/RenderStage.cpp
+    cocos/renderer/pipeline/RenderStage.h
+    cocos/renderer/pipeline/RenderView.cpp
+    cocos/renderer/pipeline/RenderView.h
+    cocos/renderer/pipeline/forward/ForwardFlow.cpp
+    cocos/renderer/pipeline/forward/ForwardFlow.h
+    cocos/renderer/pipeline/forward/ForwardPipeline.cpp
+    cocos/renderer/pipeline/forward/ForwardPipeline.h
+    cocos/renderer/pipeline/forward/ForwardStage.cpp
+    cocos/renderer/pipeline/forward/ForwardStage.h
 )
 
 if(CC_USE_GLES2)

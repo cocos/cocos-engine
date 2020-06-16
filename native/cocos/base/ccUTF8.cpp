@@ -30,7 +30,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-NS_CC_BEGIN
+namespace cc {
 
 namespace StringUtils {
 
@@ -254,7 +254,7 @@ std::string getStringUTFCharsJNI(JNIEnv* env, jstring srcjStr, bool* ret)
 jstring newStringUTFJNI(JNIEnv* env, const std::string& utf8Str, bool* ret)
 {
     std::u16string utf16Str;
-    bool flag = cocos2d::StringUtils::UTF8ToUTF16(utf8Str, utf16Str);
+    bool flag = cc::StringUtils::UTF8ToUTF16(utf8Str, utf16Str);
 
     if (ret)
     {
@@ -378,4 +378,4 @@ bool StringUTF8::insert(std::size_t pos, const StringUTF8& insertStr)
 } //namespace StringUtils {
 
 
-NS_CC_END
+}

@@ -35,9 +35,9 @@ THE SOFTWARE.
 
 #include <math.h>
 
-NS_CC_BEGIN
+namespace cc {
 
-bool cocos2d::Image::saveToFile(const std::string& filename, bool isToRGB)
+bool cc::Image::saveToFile(const std::string& filename, bool isToRGB)
 {
     bool saveToPNG = false;
     bool needToCopyPixels = false;
@@ -121,7 +121,7 @@ bool cocos2d::Image::saveToFile(const std::string& filename, bool isToRGB)
     return true;
 }
 
-NS_CC_END
+}
 
 #endif // CC_PLATFORM_MAC_IOS
 

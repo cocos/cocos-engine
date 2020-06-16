@@ -22,7 +22,7 @@
 #include "audio/android/AudioResampler.h"
 #include "audio/android/AudioBufferProvider.h"
 
-namespace cocos2d { 
+namespace cc { 
 // ----------------------------------------------------------------------------
 
 class AudioResamplerCubic : public AudioResampler {
@@ -62,4 +62,4 @@ private:
 };
 
 // ----------------------------------------------------------------------------
-} // namespace cocos2d { 
+} // namespace cc { 

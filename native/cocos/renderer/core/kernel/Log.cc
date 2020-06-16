@@ -21,7 +21,7 @@
 #  include <android/log.h>
 #endif
 
-NS_CC_BEGIN
+namespace cc {
 
 #define LOG_USE_TIMESTAMP
 LogLevel Log::log_level = LogLevel::DEBUG;
@@ -142,4 +142,4 @@ void Log::LogMessage(LogType type, LogLevel level, const char* formats, ...) {
 #endif
 }
 
-NS_CC_END
+}

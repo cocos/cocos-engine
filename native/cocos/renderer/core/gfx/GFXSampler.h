@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class CC_CORE_API GFXSampler : public GFXObject {
 public:
@@ -46,6 +46,6 @@ protected:
     float _mipLODBias = 0.0f;
 };
 
-NS_CC_END
+}
 
 #endif // CC_CORE_GFX_SAMPLER_H_

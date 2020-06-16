@@ -1,6 +1,6 @@
 #pragma once
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCMTLBindingLayout : public GFXBindingLayout {
 public:
@@ -12,4 +12,4 @@ public:
     virtual void update() override;
 };
 
-NS_CC_END
+}

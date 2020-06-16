@@ -3,7 +3,7 @@
 
 #include "gles2w.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class GLES2StateCache : public Object {
 public:
@@ -31,6 +31,6 @@ public:
     GLES2StateCache() {}
 };
 
-NS_CC_END
+}
 
 #endif

@@ -34,7 +34,7 @@ THE SOFTWARE.
 #include <string>
 #include <vector>
 
-NS_CC_BEGIN
+namespace cc {
 
 /**
  * @addtogroup platform
@@ -136,7 +136,7 @@ protected:
 // end of platform group
 /// @}
 
-NS_CC_END
+}
 
 #endif // CC_PLATFORM == CC_PLATFORM_WINDOWS
 

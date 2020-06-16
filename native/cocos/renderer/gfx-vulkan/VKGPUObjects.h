@@ -3,7 +3,7 @@
 
 #include "VKUtils.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCVKGPUContext : public Object {
 public:
@@ -317,6 +317,6 @@ private:
     vector<VkFence>::type _fences;
 };
 
-NS_CC_END
+}
 
 #endif

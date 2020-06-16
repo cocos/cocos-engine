@@ -32,7 +32,7 @@ THE SOFTWARE.
 #include <algorithm>    // std::find
 #endif
 
-NS_CC_BEGIN
+namespace cc {
 
 #if CC_REF_LEAK_DETECTION
 static void trackRef(Ref* ref);
@@ -168,4 +168,4 @@ static void untrackRef(Ref* ref)
 #endif // #if CC_REF_LEAK_DETECTION
 
 
-NS_CC_END
+}

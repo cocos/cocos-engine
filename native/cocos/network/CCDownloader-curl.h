@@ -27,11 +27,11 @@
 
 #include "network/CCIDownloaderImpl.h"
 
-namespace cocos2d {
+namespace cc {
     class Scheduler;
 }
 
-namespace cocos2d { namespace network
+namespace cc { namespace network
 {
     class DownloadTaskCURL;
     class DownloaderHints;
@@ -60,5 +60,5 @@ namespace cocos2d { namespace network
         std::weak_ptr<Scheduler>    _scheduler;
     };
 
-}}  // namespace cocos2d::network
+}}  // namespace cc::network
 

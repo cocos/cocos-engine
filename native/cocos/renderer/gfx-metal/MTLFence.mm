@@ -3,7 +3,7 @@
 #include "MTLDevice.h"
 #include "MTLFence.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCMTLFence::CCMTLFence(GFXDevice *device) : GFXFence(device) {}
 
@@ -32,4 +32,4 @@ void CCMTLFence::reset() {
     // TODO
 }
 
-NS_CC_END
+}

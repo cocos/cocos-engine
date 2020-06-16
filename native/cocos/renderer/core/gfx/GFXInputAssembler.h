@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class CC_CORE_API GFXInputAssembler : public GFXObject {
 public:
@@ -56,6 +56,6 @@ protected:
     uint _attributesHash = 0;
 };
 
-NS_CC_END
+}
 
 #endif // CC_CORE_GFX_INPUT_ASSEMBLER_H_

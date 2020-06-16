@@ -42,7 +42,7 @@
 #include "base/CCScheduler.h"
 #include "base/ccUtils.h"
 
-using namespace cocos2d;
+using namespace cc;
 
 static ALCdevice* s_ALDevice = nullptr;
 static ALCcontext* s_ALContext = nullptr;

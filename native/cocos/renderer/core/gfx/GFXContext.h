@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class CC_CORE_API GFXContext : public Object {
 public:
@@ -30,6 +30,6 @@ protected:
     GFXFormat _depthStencilFmt = GFXFormat::UNKNOWN;
 };
 
-NS_CC_END
+}
 
 #endif // CC_CORE_GFX_CONTEXT_H_

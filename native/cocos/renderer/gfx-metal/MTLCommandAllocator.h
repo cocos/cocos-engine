@@ -3,7 +3,7 @@
 #include "gfx/GFXCommandPool.h"
 #include "MTLCommands.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCMTLCommandPackage;
 
@@ -34,4 +34,4 @@ private:
     GFXCommandPool<CCMTLCmdCopyBufferToTexture> _copyBufferToTextureCmdPool;
 };
 
-NS_CC_END
+}

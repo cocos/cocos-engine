@@ -2,9 +2,9 @@
 
 #include "core/CoreStd.h"
 
-NS_CC_BEGIN
+namespace cc {
 class PSOCreateInfo;
-NS_CC_END
+}
 
 NS_PP_BEGIN
 
@@ -14,16 +14,16 @@ class RenderFlow;
 struct CC_DLL RenderObject {
     //TODO
 };
-typedef cocos2d::vector<struct RenderObject>::type RenderObjectList;
+typedef cc::vector<struct RenderObject>::type RenderObjectList;
 
 struct CC_DLL RenderPipelineInfo {
     //TODO
 };
 
 struct CC_DLL RenderStageInfo {
-    cocos2d::String name;
+    cc::String name;
     int priority = 0;
-    cocos2d::String framebuffer;
+    cc::String framebuffer;
     // renderQueues?: RenderQueueDesc[];
 };
 
@@ -41,29 +41,29 @@ struct CC_DLL RenderTargetInfo {
 };
 
 struct CC_DLL InstancedItem {
-    cocos2d::GFXBuffer *vb = nullptr;
+    cc::GFXBuffer *vb = nullptr;
     uint8_t *data = nullptr;
-    cocos2d::GFXInputAssembler *ia = nullptr;
+    cc::GFXInputAssembler *ia = nullptr;
     uint count = 0;
     uint capacity = 0;
     uint stride = 0;
 };
-typedef cocos2d::vector<InstancedItem>::type InstancedItemList;
+typedef cc::vector<InstancedItem>::type InstancedItemList;
 
 struct BatchedItem {
-    cocos2d::GFXBufferList vbs;
+    cc::GFXBufferList vbs;
     uint8_t *vbDatas = nullptr;
-    cocos2d::GFXBuffer *vbIdx = nullptr;
+    cc::GFXBuffer *vbIdx = nullptr;
     float *vbIdxData = nullptr;
     uint mergCount = 0;
-    cocos2d::GFXInputAssembler *ia = nullptr;
-    cocos2d::GFXBuffer *ubo = nullptr;
-    cocos2d::PSOCreateInfo *psoCreatedInfo = nullptr;
+    cc::GFXInputAssembler *ia = nullptr;
+    cc::GFXBuffer *ubo = nullptr;
+    cc::PSOCreateInfo *psoCreatedInfo = nullptr;
 };
-typedef cocos2d::vector<BatchedItem>::type BatchedItemList;
+typedef cc::vector<BatchedItem>::type BatchedItemList;
 
-typedef cocos2d::vector<RenderStage *>::type RenderStageList;
-typedef cocos2d::vector<RenderFlow *>::type RenderFlowList;
+typedef cc::vector<RenderStage *>::type RenderStageList;
+typedef cc::vector<RenderFlow *>::type RenderFlowList;
 
 //TODO
 const uint CAMERA_DEFAULT_MASK = 1;

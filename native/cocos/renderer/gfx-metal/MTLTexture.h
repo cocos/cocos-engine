@@ -2,7 +2,7 @@
 
 #import <Metal/MTLTexture.h>
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCMTLTexture : public GFXTexture {
     friend class CCMTLDevice;
@@ -30,4 +30,4 @@ private:
     GFXFormat _convertedFormat = GFXFormat::UNKNOWN;
 };
 
-NS_CC_END
+}

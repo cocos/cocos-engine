@@ -54,7 +54,7 @@ JNIEXPORT jint JNICALL JNI_JSJAVABRIDGE(evalString)
 
     se::AutoHandleScope hs;
     bool strFlag = false;
-    std::string strValue = cocos2d::StringUtils::getStringUTFCharsJNI(env, value, &strFlag);
+    std::string strValue = cc::StringUtils::getStringUTFCharsJNI(env, value, &strFlag);
     if (!strFlag)
     {
         CCLOG("JavaScriptJavaBridge_evalString error, invalid string code");
@@ -218,7 +218,7 @@ bool JavaScriptJavaBridge::CallInfo::execute()
             m_retjstring = (jstring)m_env->CallStaticObjectMethod(m_classID, m_methodID);
             if (m_retjstring)
             {
-                std::string strValue = cocos2d::StringUtils::getStringUTFCharsJNI(m_env, m_retjstring);
+                std::string strValue = cc::StringUtils::getStringUTFCharsJNI(m_env, m_retjstring);
                 m_ret.stringValue = new std::string(strValue);
             }
             else
@@ -272,7 +272,7 @@ bool JavaScriptJavaBridge::CallInfo::executeWithArgs(jvalue *args)
         case JavaScriptJavaBridge::ValueType::STRING:
         {
             m_retjstring = (jstring)m_env->CallStaticObjectMethodA(m_classID, m_methodID, args);
-            std::string strValue = cocos2d::StringUtils::getStringUTFCharsJNI(m_env, m_retjstring);
+            std::string strValue = cc::StringUtils::getStringUTFCharsJNI(m_env, m_retjstring);
             m_ret.stringValue = new std::string(strValue);
             break;
         }
@@ -375,7 +375,7 @@ bool JavaScriptJavaBridge::CallInfo::getMethodInfo()
     m_methodID = 0;
     m_env = 0;
 
-    JavaVM* jvm = cocos2d::JniHelper::getJavaVM();
+    JavaVM* jvm = cc::JniHelper::getJavaVM();
     jint ret = jvm->GetEnv((void**)&m_env, JNI_VERSION_1_4);
     switch (ret) {
         case JNI_OK:
@@ -397,8 +397,8 @@ bool JavaScriptJavaBridge::CallInfo::getMethodInfo()
             return false;
     }
     jstring _jstrClassName = m_env->NewStringUTF(m_className.c_str());
-    m_classID = (jclass) m_env->CallObjectMethod(cocos2d::JniHelper::classloader,
-                                                 cocos2d::JniHelper::loadclassMethod_methodID,
+    m_classID = (jclass) m_env->CallObjectMethod(cc::JniHelper::classloader,
+                                                 cc::JniHelper::loadclassMethod_methodID,
                                                  _jstrClassName);
 
     if (NULL == m_classID) {

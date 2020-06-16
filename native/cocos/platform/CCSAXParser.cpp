@@ -32,7 +32,7 @@
 #include "tinyxml2/tinyxml2.h"
 
 
-NS_CC_BEGIN
+namespace cc {
 
 class XmlSaxHander : public tinyxml2::XMLVisitor
 {
@@ -145,5 +145,5 @@ void SAXParser::setDelegator(SAXDelegator* delegator)
     _delegator = delegator;
 }
 
-NS_CC_END
+}
 

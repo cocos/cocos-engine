@@ -4,7 +4,7 @@
 #import <QuartzCore/CAEAGLLayer.h>
 #import <UIKit/UIScreen.h>
 
-NS_CC_BEGIN
+namespace cc {
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
 
@@ -195,4 +195,4 @@ bool GLES3Context::MakeCurrentImpl()
 
 #endif
 
-NS_CC_END
+}

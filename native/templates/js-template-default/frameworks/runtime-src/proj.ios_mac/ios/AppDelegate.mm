@@ -44,7 +44,7 @@ Game* game = nullptr;
     CGRect bounds = [[UIScreen mainScreen] bounds];
     self.window = [[UIWindow alloc] initWithFrame: bounds];
 
-    // Should create view controller first, cocos2d::Application will use it.
+    // Should create view controller first, cc::Application will use it.
     _viewController = [[ViewController alloc]init];
     _viewController.view = [[View alloc] initWithFrame:bounds];
     _viewController.view.contentScaleFactor = UIScreen.mainScreen.scale;

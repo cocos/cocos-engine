@@ -8,7 +8,7 @@
 
 #define DEFAULT_FENCE_TIMEOUT 100000000000
 
-NS_CC_BEGIN
+namespace cc {
 
 namespace {
 VkFormat MapVkFormat(GFXFormat format) {
@@ -340,8 +340,8 @@ uint selectMemoryType(const VkPhysicalDeviceMemoryProperties &memoryProperties, 
 VkImageCreateFlags MapVkImageCreateFlags(GFXTextureType type) {
     uint res = 0u;
     switch (type) {
-        case cocos2d::GFXTextureType::CUBE: res |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT; break;
-        case cocos2d::GFXTextureType::TEX2D_ARRAY: res |= VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT; break;
+        case cc::GFXTextureType::CUBE: res |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT; break;
+        case cc::GFXTextureType::TEX2D_ARRAY: res |= VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT; break;
     }
     return (VkImageCreateFlags)res;
 }
@@ -374,9 +374,9 @@ VkCommandBufferLevel MapVkCommandBufferLevel(GFXCommandBufferType type) {
 
 VkDescriptorType MapVkDescriptorType(GFXBindingType type) {
     switch (type) {
-        case cocos2d::GFXBindingType::UNIFORM_BUFFER: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        case cocos2d::GFXBindingType::SAMPLER: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        case cocos2d::GFXBindingType::STORAGE_BUFFER: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        case cc::GFXBindingType::UNIFORM_BUFFER: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        case cc::GFXBindingType::SAMPLER: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        case cc::GFXBindingType::STORAGE_BUFFER: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         default: {
             CCASSERT(false, "Unsupported GFXBindingType, convert to VkDescriptorType failed.");
             return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
@@ -642,6 +642,6 @@ bool findSupportedFormat(std::pair<GFXFormat, VkFormat> format, VkImageTiling ti
 }
 } // namespace
 
-NS_CC_END
+}
 
 #endif // CC_GFXVULKAN_CCVK_UTILS_H_

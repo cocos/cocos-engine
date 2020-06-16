@@ -104,7 +104,7 @@ void audioLog(const char * format, ...)
     va_end(args);
 }
 
-using namespace cocos2d;
+using namespace cc;
 
 static ALCdevice *s_ALDevice = nullptr;
 static ALCcontext *s_ALContext = nullptr;

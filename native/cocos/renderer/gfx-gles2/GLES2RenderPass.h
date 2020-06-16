@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES2_GLES2_RENDER_PASS_H_
 #define CC_GFXGLES2_GLES2_RENDER_PASS_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class GLES2GPURenderPass;
 
@@ -20,6 +20,6 @@ private:
     GLES2GPURenderPass *_gpuRenderPass = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

@@ -40,7 +40,7 @@
 
 #define ERRORLOG(msg) log("fun:%s,line:%d,msg:%s",__func__,__LINE__,#msg)
 
-NS_CC_BEGIN
+namespace cc {
 
 struct CustomEvent;
 
@@ -49,7 +49,7 @@ class AudioPlayerProvider;
 
 class AudioEngineImpl;
 
-class AudioEngineImpl : public cocos2d::Ref
+class AudioEngineImpl : public cc::Ref
 {
 public:
     AudioEngineImpl();
@@ -97,6 +97,6 @@ private:
 };
 
 #endif // __AUDIO_ENGINE_INL_H_
-NS_CC_END
+}
 
 #endif

@@ -34,7 +34,7 @@
 #include <memory.h>
 
 
-NS_CC_BEGIN
+namespace cc {
 
 const ValueVector ValueVectorNull;
 const ValueMap ValueMapNull;
@@ -936,5 +936,5 @@ void Value::reset(Type type)
     _type = type;
 }
 
-NS_CC_END
+}
 

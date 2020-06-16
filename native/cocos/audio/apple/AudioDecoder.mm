@@ -30,7 +30,7 @@
 
 #define LOG_TAG "AudioDecoder"
 
-namespace cocos2d { 
+namespace cc { 
 
     AudioDecoder::AudioDecoder()
     : _isOpened(false)
@@ -226,4 +226,4 @@ namespace cocos2d {
         return _isOpened;
     }
 
-} // namespace cocos2d { 
+} // namespace cc { 

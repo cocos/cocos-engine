@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #include "audio/android/AudioDecoder.h"
 
-namespace cocos2d { 
+namespace cc { 
 
 class AudioDecoderMp3 : public AudioDecoder
 {
@@ -40,4 +40,4 @@ protected:
     friend class AudioDecoderProvider;
 };
 
-} // namespace cocos2d { 
+} // namespace cc { 

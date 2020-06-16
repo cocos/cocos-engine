@@ -1,7 +1,7 @@
 #ifndef CC_GFXVULKAN_CCVK_PIPELINE_STATE_H_
 #define CC_GFXVULKAN_CCVK_PIPELINE_STATE_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCVKGPUPipelineState;
 
@@ -20,6 +20,6 @@ private:
     CCVKGPUPipelineState *_gpuPipelineState = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

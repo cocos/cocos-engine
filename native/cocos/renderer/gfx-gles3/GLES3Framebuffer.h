@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES3_GLES3_FRAMEBUFFER_H_
 #define CC_GFXGLES3_GLES3_FRAMEBUFFER_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class GLES3GPUFramebuffer;
 
@@ -20,6 +20,6 @@ private:
     GLES3GPUFramebuffer *_gpuFBO = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

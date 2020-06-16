@@ -43,7 +43,7 @@ THE SOFTWARE.
 #include <sys/stat.h>
 #include <regex>
 
-NS_CC_BEGIN
+namespace cc {
 
 // Implement DictMaker
 
@@ -1500,4 +1500,4 @@ std::string FileUtils::normalizePath(const std::string& path) const
     return ret;
 }
 
-NS_CC_END
+}

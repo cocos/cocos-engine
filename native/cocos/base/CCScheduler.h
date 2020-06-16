@@ -35,7 +35,7 @@ THE SOFTWARE.
 #include "base/CCVector.h"
 #include "base/uthash.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class Scheduler;
 
@@ -309,4 +309,4 @@ private:
 // end of base group
 /** @} */
 
-NS_CC_END
+}

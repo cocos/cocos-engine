@@ -4,7 +4,7 @@
 #include "MTLRenderPass.h"
 #include "MTLTexture.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCMTLFramebuffer::CCMTLFramebuffer(GFXDevice *device) : GFXFramebuffer(device) {}
 CCMTLFramebuffer::~CCMTLFramebuffer() { destroy(); }
@@ -46,4 +46,4 @@ void CCMTLFramebuffer::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-NS_CC_END
+}

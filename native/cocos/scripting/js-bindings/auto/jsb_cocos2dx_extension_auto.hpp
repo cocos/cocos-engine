@@ -3,10 +3,10 @@
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
-extern se::Object* __jsb_cocos2d_extension_EventAssetsManagerEx_proto;
-extern se::Class* __jsb_cocos2d_extension_EventAssetsManagerEx_class;
+extern se::Object* __jsb_cc_extension_EventAssetsManagerEx_proto;
+extern se::Class* __jsb_cc_extension_EventAssetsManagerEx_class;
 
-bool js_register_cocos2d_extension_EventAssetsManagerEx(se::Object* obj);
+bool js_register_cc_extension_EventAssetsManagerEx(se::Object* obj);
 bool register_all_extension(se::Object* obj);
 SE_DECLARE_FUNC(js_extension_EventAssetsManagerEx_getAssetsManagerEx);
 SE_DECLARE_FUNC(js_extension_EventAssetsManagerEx_getDownloadedFiles);
@@ -23,10 +23,10 @@ SE_DECLARE_FUNC(js_extension_EventAssetsManagerEx_getPercent);
 SE_DECLARE_FUNC(js_extension_EventAssetsManagerEx_isResuming);
 SE_DECLARE_FUNC(js_extension_EventAssetsManagerEx_EventAssetsManagerEx);
 
-extern se::Object* __jsb_cocos2d_extension_Manifest_proto;
-extern se::Class* __jsb_cocos2d_extension_Manifest_class;
+extern se::Object* __jsb_cc_extension_Manifest_proto;
+extern se::Class* __jsb_cc_extension_Manifest_class;
 
-bool js_register_cocos2d_extension_Manifest(se::Object* obj);
+bool js_register_cc_extension_Manifest(se::Object* obj);
 bool register_all_extension(se::Object* obj);
 SE_DECLARE_FUNC(js_extension_Manifest_getManifestRoot);
 SE_DECLARE_FUNC(js_extension_Manifest_setUpdating);
@@ -42,10 +42,10 @@ SE_DECLARE_FUNC(js_extension_Manifest_getVersionFileUrl);
 SE_DECLARE_FUNC(js_extension_Manifest_getSearchPaths);
 SE_DECLARE_FUNC(js_extension_Manifest_Manifest);
 
-extern se::Object* __jsb_cocos2d_extension_AssetsManagerEx_proto;
-extern se::Class* __jsb_cocos2d_extension_AssetsManagerEx_class;
+extern se::Object* __jsb_cc_extension_AssetsManagerEx_proto;
+extern se::Class* __jsb_cc_extension_AssetsManagerEx_class;
 
-bool js_register_cocos2d_extension_AssetsManagerEx(se::Object* obj);
+bool js_register_cc_extension_AssetsManagerEx(se::Object* obj);
 bool register_all_extension(se::Object* obj);
 SE_DECLARE_FUNC(js_extension_AssetsManagerEx_setVerifyCallback);
 SE_DECLARE_FUNC(js_extension_AssetsManagerEx_getDownloadedFiles);

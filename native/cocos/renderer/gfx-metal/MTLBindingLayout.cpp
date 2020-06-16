@@ -1,7 +1,7 @@
 #include "MTLStd.h"
 #include "MTLBindingLayout.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCMTLBindingLayout::CCMTLBindingLayout(GFXDevice *device) : GFXBindingLayout(device) {}
 CCMTLBindingLayout::~CCMTLBindingLayout() { destroy(); }
@@ -30,4 +30,4 @@ void CCMTLBindingLayout::destroy() {
 void CCMTLBindingLayout::update() {
 }
 
-NS_CC_END
+}

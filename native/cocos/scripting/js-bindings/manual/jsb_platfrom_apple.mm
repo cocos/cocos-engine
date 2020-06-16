@@ -34,7 +34,7 @@
 #import <CoreText/CoreText.h>
 #include <regex>
 
-using namespace cocos2d;
+using namespace cc;
 
 static std::unordered_map<std::string, std::string> _fontFamilyNameMap;
 

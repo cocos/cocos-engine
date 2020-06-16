@@ -70,7 +70,7 @@ void handle_cmd(struct android_app* app, int32_t cmd)
             break;
     }
 
-    cocos2d::View::engineHandleCmd(app, cmd);
+    cc::View::engineHandleCmd(app, cmd);
 }
 
 void android_main(struct android_app* state) {
@@ -78,9 +78,9 @@ void android_main(struct android_app* state) {
     memset(&savedState, 0, sizeof(savedState));
     state->userData = &savedState;
     state->onAppCmd = handle_cmd;
-    state->onInputEvent = cocos2d::View::engineHandleInput;
+    state->onInputEvent = cc::View::engineHandleInput;
     savedState.app = state;
-    cocos2d::JniHelper::setAndroidApp(state);
+    cc::JniHelper::setAndroidApp(state);
 
     while (1)
     {

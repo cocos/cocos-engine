@@ -1,7 +1,7 @@
 #ifndef CC_GFXVULKAN_CCVK_COMMAND_ALLOCATOR_H_
 #define CC_GFXVULKAN_CCVK_COMMAND_ALLOCATOR_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCVKGPUCommandPool;
 
@@ -21,6 +21,6 @@ private:
     CCVKGPUCommandPool *_gpuCommandPool;
 };
 
-NS_CC_END
+}
 
 #endif

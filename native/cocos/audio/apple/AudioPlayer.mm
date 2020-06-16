@@ -41,7 +41,7 @@
 #define ALOGVV(...) do{} while(false)
 #endif
 
-using namespace cocos2d;
+using namespace cc;
 
 namespace {
 unsigned int __idIndex = 0;

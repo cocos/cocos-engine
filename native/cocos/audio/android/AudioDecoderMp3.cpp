@@ -29,7 +29,7 @@ THE SOFTWARE.
 #include "audio/android/mp3reader.h"
 #include "platform/CCFileUtils.h"
 
-namespace cocos2d { 
+namespace cc { 
 
 AudioDecoderMp3::AudioDecoderMp3()
 {
@@ -80,4 +80,4 @@ bool AudioDecoderMp3::decodeToPcm()
     return false;
 }
 
-} // namespace cocos2d { 
+} // namespace cc { 

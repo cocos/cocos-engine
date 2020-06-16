@@ -3,7 +3,7 @@
 
 #ifdef CC_MEMORY_TRACKER
 
-NS_CC_BEGIN
+namespace cc {
 
 /** This class tracks the allocations and deallocations made, and
 is able to report memory statistics and leaks.
@@ -57,7 +57,7 @@ class CC_CORE_API MemTracker {
   void*         allocations_;
 };
 
-NS_CC_END
+}
 
 #endif
 

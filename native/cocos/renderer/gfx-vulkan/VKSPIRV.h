@@ -4,7 +4,7 @@
     #include "SPIRV/GlslangToSpv.h"
     #include "glslang/Public/ShaderLang.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 namespace {
 EShLanguage getShaderStage(GFXShaderType type) {
@@ -197,4 +197,4 @@ const vector<unsigned int>::type GLSL2SPIRV(GFXShaderType type, const String &so
 
 #endif
 
-NS_CC_END
+}

@@ -42,10 +42,6 @@ THE SOFTWARE.
 #define USE_VIDEO 1
 #endif
 
-#ifndef USE_WEB_VIEW
-#define USE_WEB_VIEW 1
-#endif
-
 #ifndef USE_AUDIO
 #define USE_AUDIO 1
 #endif

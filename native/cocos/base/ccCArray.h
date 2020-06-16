@@ -52,7 +52,7 @@ THE SOFTWARE.
 #include <string.h>
 #include <limits.h>
 
-NS_CC_BEGIN
+namespace cc {
 
 // Easy integration
 #define CCARRAYDATA_FOREACH(__array__, __object__)                                                            \
@@ -203,7 +203,7 @@ void ccCArrayRemoveArray(ccCArray *arr, ccCArray *minusArr);
  */
 void ccCArrayFullRemoveArray(ccCArray *arr, ccCArray *minusArr);
 
-NS_CC_END
+}
 
 /// @endcond
 #endif // CC_ARRAY_H

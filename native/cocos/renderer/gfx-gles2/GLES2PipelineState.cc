@@ -5,7 +5,7 @@
 #include "GLES2RenderPass.h"
 #include "GLES2PipelineLayout.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 const GLenum GLES2Primitives[] = {
     GL_POINTS,
@@ -67,4 +67,4 @@ void GLES2PipelineState::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-NS_CC_END
+}

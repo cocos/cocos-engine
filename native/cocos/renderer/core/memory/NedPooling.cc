@@ -13,7 +13,7 @@
 #define INSECURE 1
 #include <nedmalloc.c>
 
-NS_CC_BEGIN
+namespace cc {
 
 namespace nedPoolingIntern {
 	
@@ -198,6 +198,6 @@ void NedPoolingImpl::DeallocBytes(void* ptr) {
 	nedPoolingIntern::InternalFree(ptr);
 }
 
-NS_CC_END
+}
 
 #endif // end - #ifdef CC_MEMORY_ALLOCATOR_NEDPOOLING

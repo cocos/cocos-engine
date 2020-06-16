@@ -43,10 +43,10 @@
 #endif
 #define JNI_DOWNLOADER(FUNC) JNI_METHOD1(ORG_DOWNLOADER_CLASS_NAME,FUNC)
 
-std::unordered_map<int, cocos2d::network::DownloaderAndroid*> sDownloaderMap;
+std::unordered_map<int, cc::network::DownloaderAndroid*> sDownloaderMap;
 std::mutex sDownloaderMutex;
 
-static void _insertDownloaderAndroid(int id, cocos2d::network::DownloaderAndroid* downloaderPtr)
+static void _insertDownloaderAndroid(int id, cc::network::DownloaderAndroid* downloaderPtr)
 {
     std::lock_guard<std::mutex> guard(sDownloaderMutex);
     sDownloaderMap.insert(std::make_pair(id, downloaderPtr));
@@ -61,7 +61,7 @@ static void _eraseDownloaderAndroid(int id)
 /**
  * If not found, return nullptr, otherwise return the Downloader
  */
-static cocos2d::network::DownloaderAndroid* _findDownloaderAndroid(int id)
+static cc::network::DownloaderAndroid* _findDownloaderAndroid(int id)
 {
     std::lock_guard<std::mutex> guard(sDownloaderMutex);
     auto iter = sDownloaderMap.find(id);
@@ -72,7 +72,7 @@ static cocos2d::network::DownloaderAndroid* _findDownloaderAndroid(int id)
     }
 }
 
-namespace cocos2d { namespace network {
+namespace cc { namespace network {
 
         static int sTaskCounter = 0;
         static int sDownloaderCounter = 0;
@@ -259,7 +259,7 @@ namespace cocos2d { namespace network {
             coTask->task.reset();
         }
     }
-}  // namespace cocos2d::network
+}  // namespace cc::network
 
 extern "C" {
 
@@ -268,7 +268,7 @@ JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnProgress)(JNIEnv *env, jclass claz
     auto func = [=]() -> void {
         DLLOG("_nativeOnProgress(id: %d, taskId: %d, dl: %lld, dlnow: %lld, dltotal: %lld)", id, taskId, dl, dlnow, dltotal);
         //It's not thread-safe here, use thread-safe method instead
-        cocos2d::network::DownloaderAndroid *downloader = _findDownloaderAndroid(id);
+        cc::network::DownloaderAndroid *downloader = _findDownloaderAndroid(id);
         if (nullptr == downloader)
         {
             DLLOG("_nativeOnProgress can't find downloader by key: %p for task: %d", clazz, id);
@@ -276,7 +276,7 @@ JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnProgress)(JNIEnv *env, jclass claz
         }
         downloader->_onProcess((int)taskId, (int64_t)dl, (int64_t)dlnow, (int64_t)dltotal);
     };
-    cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
+    cc::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
 }
 
 JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnFinish)(JNIEnv *env, jclass clazz, jint id, jint taskId, jint errCode, jstring errStr, jbyteArray data)
@@ -284,7 +284,7 @@ JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnFinish)(JNIEnv *env, jclass clazz,
     auto func = [=]() -> void {
         DLLOG("_nativeOnFinish(id: %d, taskId: %d)", id, taskId);
         //It's not thread-safe here, use thread-safe method instead
-        cocos2d::network::DownloaderAndroid *downloader = _findDownloaderAndroid(id);
+        cc::network::DownloaderAndroid *downloader = _findDownloaderAndroid(id);
         if (nullptr == downloader)
         {
             DLLOG("_nativeOnFinish can't find downloader id: %d for task: %d", id, taskId);
@@ -312,7 +312,7 @@ JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnFinish)(JNIEnv *env, jclass clazz,
         }
         downloader->_onFinish((int)taskId, (int)errCode, nullptr, buf);
     };
-    cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
+    cc::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
 }
 
 } // extern "C" {

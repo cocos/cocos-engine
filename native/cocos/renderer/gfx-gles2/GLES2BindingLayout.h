@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES2_GLES2_BINDING_LAYOUT_H_
 #define CC_GFXGLES2_GLES2_BINDING_LAYOUT_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class GLES2GPUBindingLayout;
 
@@ -21,6 +21,6 @@ private:
     GLES2GPUBindingLayout *_gpuBindingLayout = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

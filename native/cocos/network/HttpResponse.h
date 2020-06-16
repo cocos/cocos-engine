@@ -34,7 +34,7 @@
  * @{
  */
 
-NS_CC_BEGIN
+namespace cc {
 
 namespace network {
 
@@ -44,7 +44,7 @@ namespace network {
  * @since v2.0.2.
  * @lua NA
  */
-class CC_DLL HttpResponse : public cocos2d::Ref
+class CC_DLL HttpResponse : public cc::Ref
 {
 public:
     /**
@@ -77,9 +77,9 @@ public:
     /**
      * Override autorelease method to prevent developers from calling it.
      * If this method is called , it would trigger CCASSERT.
-     * @return cocos2d::Ref* always return nullptr.
+     * @return cc::Ref* always return nullptr.
      */
-    cocos2d::Ref* autorelease()
+    cc::Ref* autorelease()
     {
         CCASSERT(false, "HttpResponse is used between network thread and ui thread \
                         therefore, autorelease is forbidden here");
@@ -237,7 +237,7 @@ protected:
 
 }
 
-NS_CC_END
+}
 
 // end group
 /// @}

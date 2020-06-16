@@ -39,7 +39,7 @@ THE SOFTWARE.
 
 #include "scripting/js-bindings/event/EventDispatcher.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class View {
 public:
@@ -70,4 +70,4 @@ private:
 };
 
 
-NS_CC_END
+}

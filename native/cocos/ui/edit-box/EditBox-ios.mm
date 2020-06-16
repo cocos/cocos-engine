@@ -208,7 +208,7 @@ namespace
         return NSLocalizedString(titleKey, nil); // get i18n string to be the title
     }
     
-    void initTextField(const CGRect& rect, const cocos2d::EditBox::ShowInfo& showInfo)
+    void initTextField(const CGRect& rect, const cc::EditBox::ShowInfo& showInfo)
     {
         if (! g_textField)
         {
@@ -235,7 +235,7 @@ namespace
         [g_textFieldConfirmButton setTitle:getConfirmButtonTitle(showInfo.confirmType) forState:UIControlStateNormal];
     }
     
-    void initTextView(const CGRect& viewRect, const CGRect& btnRect, const cocos2d::EditBox::ShowInfo& showInfo)
+    void initTextView(const CGRect& viewRect, const CGRect& btnRect, const cc::EditBox::ShowInfo& showInfo)
     {
         if (!g_textView)
         {
@@ -271,7 +271,7 @@ namespace
         return viewRect;
     }
     
-    void addTextInput(const cocos2d::EditBox::ShowInfo& showInfo)
+    void addTextInput(const cc::EditBox::ShowInfo& showInfo)
     {
         auto safeAreaRect = getSafeAreaRect();
         int height = getTextInputHeight();
@@ -343,7 +343,7 @@ namespace
 
 -(void)keyboardWillHide: (NSNotification*) notification
 {
-    cocos2d::EditBox::hide();
+    cc::EditBox::hide();
 }
 @end
 
@@ -371,7 +371,7 @@ namespace
 
 -(BOOL) textFieldShouldReturn:(UITextField *)textField
 {
-    cocos2d::EditBox::complete();
+    cc::EditBox::complete();
     return YES;
 }
 @end
@@ -382,7 +382,7 @@ namespace
     const std::string text([getCurrentText() UTF8String]);
     callJSFunc("confirm", text);
     if (!g_confirmHold)
-        cocos2d::EditBox::complete();
+        cc::EditBox::complete();
 }
 @end
 
@@ -414,11 +414,11 @@ namespace
 
 // MARK: EditBox
 
-NS_CC_BEGIN
+namespace cc {
 
 bool EditBox::_isShown = false;
 
-void EditBox::show(const cocos2d::EditBox::ShowInfo& showInfo)
+void EditBox::show(const cc::EditBox::ShowInfo& showInfo)
 {
     // Should initialize them at first.
     g_maxLength = showInfo.maxLength;
@@ -457,4 +457,4 @@ bool EditBox::complete()
     return true;
 }
 
-NS_CC_END
+}

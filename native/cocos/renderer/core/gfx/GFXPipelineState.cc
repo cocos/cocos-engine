@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXPipelineState.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GFXPipelineState::GFXPipelineState(GFXDevice *device)
 : GFXObject(GFXObjectType::PIPELINE_STATE), _device(device) {
@@ -10,4 +10,4 @@ GFXPipelineState::GFXPipelineState(GFXDevice *device)
 GFXPipelineState::~GFXPipelineState() {
 }
 
-NS_CC_END
+}

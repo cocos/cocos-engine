@@ -7,7 +7,7 @@
 #include "VKSampler.h"
 #include "VKTexture.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCVKBindingLayout::CCVKBindingLayout(GFXDevice *device)
 : GFXBindingLayout(device) {
@@ -93,4 +93,4 @@ void CCVKBindingLayout::update() {
     }
 }
 
-NS_CC_END
+}

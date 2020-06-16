@@ -6,7 +6,7 @@
 
 #define MINIMUMR_REQUIRED_SIZE_4KB 4096
 
-NS_CC_BEGIN
+namespace cc {
 
 CCMTLBuffer::CCMTLBuffer(GFXDevice *device) : GFXBuffer(device) {}
 
@@ -244,4 +244,4 @@ void CCMTLBuffer::encodeBuffer(id<MTLRenderCommandEncoder> encoder, uint offset,
     
 }
 
-NS_CC_END
+}

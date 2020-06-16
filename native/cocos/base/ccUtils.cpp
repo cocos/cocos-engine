@@ -35,7 +35,7 @@ THE SOFTWARE.
 #include <cmath>
 #include <stdlib.h>
 
-NS_CC_BEGIN
+namespace cc {
 
 
 namespace utils
@@ -76,4 +76,4 @@ int nextPOT(int x)
 
 }
 
-NS_CC_END
+}

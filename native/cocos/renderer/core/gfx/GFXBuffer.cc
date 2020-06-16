@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXBuffer.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GFXBuffer::GFXBuffer(GFXDevice *device)
 : GFXObject(GFXObjectType::BUFFER), _device(device) {
@@ -10,4 +10,4 @@ GFXBuffer::GFXBuffer(GFXDevice *device)
 GFXBuffer::~GFXBuffer() {
 }
 
-NS_CC_END
+}

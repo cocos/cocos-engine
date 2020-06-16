@@ -38,7 +38,7 @@
 
 static const std::string videoHelperClassName = "org/cocos2dx/lib/Cocos2dxVideoHelper";
 
-USING_NS_CC;
+using namespace cc;
 
 static void executeVideoCallback(int index,int event);
 
@@ -49,7 +49,7 @@ extern "C" {
         auto func = []() -> void {
             executeVideoCallback(index,event);
         };
-        cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
+        cc::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
     }
 }
 

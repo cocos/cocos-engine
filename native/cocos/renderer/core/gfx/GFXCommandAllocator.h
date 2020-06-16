@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class CC_CORE_API GFXCommandAllocator : public GFXObject {
 public:
@@ -20,6 +20,6 @@ protected:
     GFXDevice *_device = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif // CC_CORE_GFX_COMMAND_ALLOCATOR_H_

@@ -31,7 +31,7 @@
 #include "base/ccMacros.h"
 #include <string>
 
-NS_CC_BEGIN
+namespace cc {
 
 /**
  * @addtogroup platform
@@ -116,7 +116,7 @@ public:
 // end of platform group
 /// @}
 
-NS_CC_END
+}
 
 /// @endcond
 #endif //__CCSAXPARSER_H__

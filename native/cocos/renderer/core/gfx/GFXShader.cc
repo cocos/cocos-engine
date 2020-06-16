@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXShader.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GFXShader::GFXShader(GFXDevice *device)
 : GFXObject(GFXObjectType::SHADER), _device(device) {
@@ -10,4 +10,4 @@ GFXShader::GFXShader(GFXDevice *device)
 GFXShader::~GFXShader() {
 }
 
-NS_CC_END
+}

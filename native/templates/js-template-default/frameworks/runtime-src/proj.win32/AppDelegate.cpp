@@ -11,7 +11,7 @@
 
 namespace
 {
-    std::weak_ptr<cocos2d::View> gView;
+    std::weak_ptr<cc::View> gView;
     /**
     @brief  This function changes the PVRFrame show/hide setting in register.
     @param  bEnable If true show the PVRFrame window, otherwise hide.
@@ -70,13 +70,13 @@ namespace
 }
 
 //exported function
-std::shared_ptr<cocos2d::View> cc_get_application_view() {
+std::shared_ptr<cc::View> cc_get_application_view() {
     return gView.lock();
 }
 
 AppDelegage::AppDelegage(const std::string &name, int width, int height) 
 {
-    _view = std::make_shared<cocos2d::View>(name, width, height);
+    _view = std::make_shared<cc::View>(name, width, height);
     _game = std::make_shared<Game>(width, height);
 
     gView = _view;

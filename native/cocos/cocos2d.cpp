@@ -28,12 +28,12 @@ THE SOFTWARE.
 
 #include "base/ccMacros.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CC_DLL const char* cocos2dVersion()
 {
     return "2.0.x";
 }
 
-NS_CC_END
+}
 

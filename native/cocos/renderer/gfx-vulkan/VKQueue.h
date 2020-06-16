@@ -1,7 +1,7 @@
 #ifndef CC_GFXVULKAN_CCVK_QUEUE_H_
 #define CC_GFXVULKAN_CCVK_QUEUE_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCVKGPUQueue;
 
@@ -28,6 +28,6 @@ private:
     uint _numTriangles = 0;
 };
 
-NS_CC_END
+}
 
 #endif

@@ -35,7 +35,7 @@ THE SOFTWARE.
  * @{
  */
 
-NS_CC_BEGIN
+namespace cc {
 
 class CC_DLL Size
 {
@@ -215,7 +215,7 @@ public:
     static const Rect ZERO;
 };
 
-NS_CC_END
+}
 
 // end of base group
 /// @}

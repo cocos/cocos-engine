@@ -34,7 +34,7 @@
 
 #include "base/ccMacros.h"
 
-namespace cocos2d { namespace network {
+namespace cc { namespace network {
 
     class IDownloadTask;
     class IDownloaderImpl;
@@ -116,5 +116,5 @@ namespace cocos2d { namespace network {
         std::unique_ptr<IDownloaderImpl> _impl;
     };
 
-}}  // namespace cocos2d::network
+}}  // namespace cc::network
 

@@ -32,11 +32,11 @@
 
 @interface MyTimer : NSObject
 {
-    cocos2d::Application* _app;
+    cc::Application* _app;
     CADisplayLink* _displayLink;
     int _fps;
 }
-- (instancetype)initWithApp:(cocos2d::Application*)app fps:(int)fps;
+- (instancetype)initWithApp:(cc::Application*)app fps:(int)fps;
 - (void)start;
 - (void)changeFPS:(int)fps;
 - (void)pause;
@@ -45,7 +45,7 @@
 
 @implementation MyTimer
 
-- (instancetype)initWithApp:(cocos2d::Application*)app fps:(int)fps
+- (instancetype)initWithApp:(cc::Application*)app fps:(int)fps
 {
     if (self = [super init])
     {
@@ -84,13 +84,13 @@
 
 @end
 
-NS_CC_BEGIN
+namespace cc {
 
 namespace
 {
     bool setCanvasCallback(se::Object* global)
     {
-        auto viewLogicalSize = cocos2d::Application::getInstance()->getViewLogicalSize();
+        auto viewLogicalSize = cc::Application::getInstance()->getViewLogicalSize();
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         char commandBuf[200] = {0};
         // https://stackoverflow.com/questions/5795978/string-format-for-intptr-t-and-uintptr-t/41897226#41897226
@@ -250,4 +250,4 @@ void Application::setPreferredFramesPerSecond(int fps)
     [_timer changeFPS:_fps];
 }
 
-NS_CC_END
+}

@@ -30,7 +30,7 @@
 
 void HttpCookie::readFile()
 {
-    std::string inString = cocos2d::FileUtils::getInstance()->getStringFromFile(_cookieFileName);
+    std::string inString = cc::FileUtils::getInstance()->getStringFromFile(_cookieFileName);
     if(!inString.empty())
     {
         std::vector<std::string> cookiesVec;

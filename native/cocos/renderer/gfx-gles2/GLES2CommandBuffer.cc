@@ -8,7 +8,7 @@
 #include "GLES2Buffer.h"
 #include "GLES2Texture.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GLES2CommandBuffer::GLES2CommandBuffer(GFXDevice *device)
 : GFXCommandBuffer(device) {
@@ -320,4 +320,4 @@ void GLES2CommandBuffer::BindStates() {
     _isStateInvalid = false;
 }
 
-NS_CC_END
+}

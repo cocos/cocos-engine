@@ -3,7 +3,7 @@
 #include "VKCommands.h"
 #include "VKSampler.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCVKSampler::CCVKSampler(GFXDevice *device)
 : GFXSampler(device) {
@@ -57,4 +57,4 @@ void CCVKSampler::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-NS_CC_END
+}

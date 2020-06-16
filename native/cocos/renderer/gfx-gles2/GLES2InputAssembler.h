@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES2_GLES2_INPUT_ASSEMBLER_H_
 #define CC_GFXGLES2_GLES2_INPUT_ASSEMBLER_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class GLES2GPUInputAssembler;
 class GLES2CmdDraw;
@@ -23,6 +23,6 @@ private:
     GLES2GPUInputAssembler *_gpuInputAssembler = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

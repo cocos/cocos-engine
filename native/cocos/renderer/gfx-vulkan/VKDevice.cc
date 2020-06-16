@@ -23,7 +23,7 @@ CC_DISABLE_WARNINGS()
 #include "vk_mem_alloc.h"
 CC_ENABLE_WARNINGS()
 
-NS_CC_BEGIN
+namespace cc {
 
 CCVKDevice::CCVKDevice() {
     _minClipZ = 0.0f;
@@ -628,4 +628,4 @@ void CCVKDevice::copyBuffersToTexture(const GFXDataArray &buffers, GFXTexture *d
     CCVKCmdFuncCopyBuffersToTexture(this, buffers.datas.data(), ((CCVKTexture *)dst)->gpuTexture(), regions);
 }
 
-NS_CC_END
+}

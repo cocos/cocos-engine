@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXBindingLayout.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GFXBindingLayout::GFXBindingLayout(GFXDevice *device)
 : GFXObject(GFXObjectType::BINDING_LAYOUT), _device(device) {
@@ -61,4 +61,4 @@ void GFXBindingLayout::bindSampler(uint binding, GFXSampler *sampler) {
     }
 }
 
-NS_CC_END
+}

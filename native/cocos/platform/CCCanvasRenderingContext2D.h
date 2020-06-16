@@ -40,7 +40,7 @@
 
 OBJC_CLASS(CanvasRenderingContext2DImpl);
 
-NS_CC_BEGIN
+namespace cc {
 
 class CC_DLL CanvasGradient
 {
@@ -76,7 +76,7 @@ public:
     void restore();
 
     // callback
-    using CanvasBufferUpdatedCallback = std::function<void(const cocos2d::Data&) > ;
+    using CanvasBufferUpdatedCallback = std::function<void(const cc::Data&) > ;
     void setCanvasBufferUpdatedCallback(const CanvasBufferUpdatedCallback& cb);
 
     // functions for properties
@@ -136,4 +136,4 @@ private:
     bool _isBufferSizeDirty = true;
 };
 
-NS_CC_END
+}

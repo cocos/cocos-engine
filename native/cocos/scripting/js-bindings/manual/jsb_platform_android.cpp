@@ -37,7 +37,7 @@
 #endif
 
 
-using namespace cocos2d;
+using namespace cc;
 
 static std::unordered_map<std::string, std::string> _fontFamilyNameMap;
 

@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class CC_CORE_API GFXBindingLayout : public GFXObject {
 public:
@@ -28,6 +28,6 @@ protected:
     bool _isDirty = false;
 };
 
-NS_CC_END
+}
 
 #endif // CC_CORE_GFX_BINDING_LAYOUT_H_

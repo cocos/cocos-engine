@@ -53,7 +53,7 @@ enum class CanvasTextBaseline {
 #endif
 
     CGColorSpaceRef _colorSpace;
-    cocos2d::Data _imageData;
+    cc::Data _imageData;
     NSBezierPath* _path;
 
     CanvasTextAlign _textAlign;
@@ -412,7 +412,7 @@ enum class CanvasTextBaseline {
     _strokeStyle[3] = a;
 }
 
--(const cocos2d::Data&) getDataRef {
+-(const cc::Data&) getDataRef {
     return _imageData;
 }
 
@@ -513,7 +513,7 @@ enum class CanvasTextBaseline {
 
 @end
 
-NS_CC_BEGIN
+namespace cc {
 
 CanvasGradient::CanvasGradient()
 {
@@ -622,11 +622,11 @@ void CanvasRenderingContext2D::strokeText(const std::string& text, float x, floa
     SEND_DATA_TO_JS(_canvasBufferUpdatedCB, _impl);
 }
 
-cocos2d::Size CanvasRenderingContext2D::measureText(const std::string& text)
+cc::Size CanvasRenderingContext2D::measureText(const std::string& text)
 {
 //    SE_LOGD("CanvasRenderingContext2D::measureText: %s\n", text.c_str());
     CGSize size = [_impl measureText: [NSString stringWithUTF8String:text.c_str()]];
-    return cocos2d::Size(size.width, size.height);
+    return cc::Size(size.width, size.height);
 }
 
 CanvasGradient* CanvasRenderingContext2D::createLinearGradient(float x0, float y0, float x1, float y1)
@@ -834,4 +834,4 @@ void CanvasRenderingContext2D::setTransform(float a, float b, float c, float d, 
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-NS_CC_END
+}

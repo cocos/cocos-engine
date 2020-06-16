@@ -6,7 +6,7 @@
 #include "VKRenderPass.h"
 #include "VKShader.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCVKPipelineState::CCVKPipelineState(GFXDevice *device)
 : GFXPipelineState(device) {
@@ -53,4 +53,4 @@ void CCVKPipelineState::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-NS_CC_END
+}

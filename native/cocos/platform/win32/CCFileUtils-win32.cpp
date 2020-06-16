@@ -36,7 +36,7 @@ THE SOFTWARE.
 
 using namespace std;
 
-NS_CC_BEGIN
+namespace cc {
 
 #define CC_MAX_PATH  512
 
@@ -424,6 +424,6 @@ bool FileUtilsWin32::removeDirectory(const std::string& dirPath)
     return false;
 }
 
-NS_CC_END
+}
 
 #endif // CC_PLATFORM == CC_PLATFORM_WINDOWS

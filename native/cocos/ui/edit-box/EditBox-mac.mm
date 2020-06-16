@@ -181,7 +181,7 @@ namespace
         g_textInputCallback.toObject()->call(args, nullptr);
     }
     
-    void initTextView(const cocos2d::EditBox::ShowInfo& showInfo)
+    void initTextView(const cc::EditBox::ShowInfo& showInfo)
     {
         CGRect rect = CGRectMake(showInfo.x, showInfo.y, showInfo.width, showInfo.height);
         if (! g_textView)
@@ -208,7 +208,7 @@ namespace
         [nsWindow makeFirstResponder:g_scrollView];
     }
     
-    void doInitTextField(NSTextField* textField, const CGRect& rect, const cocos2d::EditBox::ShowInfo& showInfo)
+    void doInitTextField(NSTextField* textField, const CGRect& rect, const cc::EditBox::ShowInfo& showInfo)
     {
         textField.editable = TRUE;
         textField.wantsLayer = TRUE;
@@ -221,7 +221,7 @@ namespace
         [textField becomeFirstResponder];
     }
     
-    void initTextField(const cocos2d::EditBox::ShowInfo& showInfo)
+    void initTextField(const cc::EditBox::ShowInfo& showInfo)
     {
         CGRect rect = CGRectMake(showInfo.x, showInfo.y, showInfo.width, showInfo.height);
         
@@ -252,7 +252,7 @@ namespace
         }
     }
     
-    void init(const cocos2d::EditBox::ShowInfo& showInfo)
+    void init(const cc::EditBox::ShowInfo& showInfo)
     {
         if (showInfo.isMultiline)
             initTextView(showInfo);
@@ -265,7 +265,7 @@ namespace
  Implementation of EditBox.
  ************************************************************************/
 
-NS_CC_BEGIN
+namespace cc {
 
 bool EditBox::_isShown = false;
 
@@ -321,4 +321,4 @@ bool EditBox::complete()
     return true;
 }
 
-NS_CC_END
+}

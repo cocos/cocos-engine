@@ -6,7 +6,7 @@
 #include "VKRenderPass.h"
 #include "VKTexture.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCVKFramebuffer::CCVKFramebuffer(GFXDevice *device)
 : GFXFramebuffer(device) {
@@ -57,4 +57,4 @@ void CCVKFramebuffer::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-NS_CC_END
+}

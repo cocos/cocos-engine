@@ -42,7 +42,7 @@
 #include "base/ccMacros.h"
 #include "audio/win32/AudioMacros.h"
 
-NS_CC_BEGIN
+namespace cc {
 class AudioEngineImpl;
 class AudioPlayer;
 
@@ -113,6 +113,6 @@ protected:
     friend class AudioPlayer;
 };
 
-NS_CC_END
+}
 
 #endif

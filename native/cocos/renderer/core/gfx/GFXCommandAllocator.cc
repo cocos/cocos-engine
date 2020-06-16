@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXCommandAllocator.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GFXCommandAllocator::GFXCommandAllocator(GFXDevice *device)
 : GFXObject(GFXObjectType::COMMAND_ALLOCATOR), _device(device) {
@@ -10,4 +10,4 @@ GFXCommandAllocator::GFXCommandAllocator(GFXDevice *device)
 GFXCommandAllocator::~GFXCommandAllocator() {
 }
 
-NS_CC_END
+}

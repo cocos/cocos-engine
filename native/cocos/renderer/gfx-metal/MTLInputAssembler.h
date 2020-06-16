@@ -1,6 +1,6 @@
 #pragma once
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCMTLCmdDraw;
 class CCMTLGPUInputAssembler;
@@ -23,4 +23,4 @@ private:
     CCMTLGPUInputAssembler *_GPUInputAssembler = nullptr;
 };
 
-NS_CC_END
+}

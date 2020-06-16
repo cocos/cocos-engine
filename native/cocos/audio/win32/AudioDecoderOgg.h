@@ -29,7 +29,7 @@
 
 #include "vorbis/vorbisfile.h"
 
-namespace cocos2d { 
+namespace cc { 
 
 /**
  * @brief The class for decoding compressed audio file to PCM buffer.
@@ -79,4 +79,4 @@ protected:
     friend class AudioDecoderManager;
 };
 
-} // namespace cocos2d { 
+} // namespace cc { 

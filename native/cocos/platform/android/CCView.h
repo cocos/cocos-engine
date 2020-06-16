@@ -29,7 +29,7 @@
 struct android_app;
 struct AInputEvent;
 
-NS_CC_BEGIN
+namespace cc {
 
 class TouchEvent;
 
@@ -40,4 +40,4 @@ public:
 	static int32_t engineHandleInput(struct android_app* app, AInputEvent* event);
 };
 
-NS_CC_END
+}

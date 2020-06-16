@@ -1,7 +1,7 @@
 #ifndef CC_CORE_KERNEL_CACHED_ARRAY_H_
 #define CC_CORE_KERNEL_CACHED_ARRAY_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 template <typename T>
 class CachedArray {
@@ -72,6 +72,6 @@ class CachedArray {
   T* _array = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif // CC_CORE_KERNEL_CACHED_ARRAY_H_

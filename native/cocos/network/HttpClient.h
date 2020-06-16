@@ -41,7 +41,7 @@
  * @{
  */
 
-NS_CC_BEGIN
+namespace cc {
 
 namespace network {
 
@@ -211,7 +211,7 @@ private:
 
 } // namespace network
 
-NS_CC_END
+}
 
 // end group
 /// @}

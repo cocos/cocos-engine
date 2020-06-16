@@ -18,7 +18,7 @@
 #include "GLES2StateCache.h"
 #include "GLES2Texture.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GLES2Device::GLES2Device() {
 }
@@ -304,4 +304,4 @@ void GLES2Device::copyBuffersToTexture(const GFXDataArray &buffers, GFXTexture *
     GLES2CmdFuncCopyBuffersToTexture(this, buffers.datas.data(), ((GLES2Texture *)dst)->gpuTexture(), regions);
 }
 
-NS_CC_END
+}

@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXRenderPass.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GFXRenderPass::GFXRenderPass(GFXDevice *device)
 : GFXObject(GFXObjectType::RENDER_PASS), _device(device) {
@@ -36,4 +36,4 @@ uint GFXRenderPass::computeHash() const {
     return seed;
 }
 
-NS_CC_END
+}

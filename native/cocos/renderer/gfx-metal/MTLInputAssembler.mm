@@ -5,7 +5,7 @@
 #include "MTLGPUObjects.h"
 #include "MTLInputAssembler.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCMTLInputAssembler::CCMTLInputAssembler(GFXDevice *device) : GFXInputAssembler(device) {}
 CCMTLInputAssembler::~CCMTLInputAssembler() { destroy(); }
@@ -54,4 +54,4 @@ void CCMTLInputAssembler::extractDrawInfo(CCMTLCmdDraw *cmd) const {
     cmd->drawInfo.firstInstance = _firstInstance;
 }
 
-NS_CC_END
+}

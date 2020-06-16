@@ -31,7 +31,7 @@
 
 struct sockaddr;
 
-NS_CC_BEGIN
+namespace cc {
 
 class Reachability final : public Ref
 {
@@ -85,5 +85,5 @@ private:
     SCNetworkReachabilityRef _reachabilityRef;
 };
 
-NS_CC_END
+}
 

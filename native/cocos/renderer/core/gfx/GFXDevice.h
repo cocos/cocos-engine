@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class CC_CORE_API GFXDevice : public Object {
 public:
@@ -106,6 +106,6 @@ protected:
     float _projectionSignY = 1.0f;
 };
 
-NS_CC_END
+}
 
 #endif // CC_CORE_GFX_DEVICE_H_

@@ -36,7 +36,7 @@
 #include "base/ccMacros.h"
 #include "audio/apple/AudioMacros.h"
 
-NS_CC_BEGIN
+namespace cc {
 class AudioEngineImpl;
 class AudioPlayer;
 
@@ -107,6 +107,6 @@ protected:
     friend class AudioPlayer;
 };
 
-NS_CC_END
+}
 
 #endif

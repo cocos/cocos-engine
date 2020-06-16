@@ -37,7 +37,7 @@ THE SOFTWARE.
 #define NANOSECONDS_PER_SECOND 1000000000
 #define NANOSECONDS_60FPS 16666667L
 
-NS_CC_BEGIN
+namespace cc {
 /**
  * @addtogroup platform
  * @{
@@ -112,7 +112,7 @@ public:
         prevTime = std::chrono::steady_clock::now();
 
         _scheduler->update(dt);
-        cocos2d::EventDispatcher::dispatchTickEvent(dt);
+        cc::EventDispatcher::dispatchTickEvent(dt);
 
         PoolManager::getInstance()->getCurrentPool()->clear();
 
@@ -179,17 +179,17 @@ public:
     std::string getSystemVersion();
 
     // return size in logical pixel unit.
-    inline const cocos2d::Vec2& getViewLogicalSize() const { return _viewLogicalSize; }
+    inline const cc::Vec2& getViewLogicalSize() const { return _viewLogicalSize; }
 
 private:
     static Application* _instance;
     static std::shared_ptr<Scheduler> _scheduler;
     int _fps = 60;
     long _prefererredNanosecondsPerFrame = NANOSECONDS_60FPS;
-    cocos2d::Vec2 _viewLogicalSize;
+    cc::Vec2 _viewLogicalSize;
 };
 
 // end of platform group
 /** @} */
 
-NS_CC_END
+}

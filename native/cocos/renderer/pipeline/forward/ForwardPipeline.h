@@ -11,21 +11,21 @@ public:
 
     virtual bool initialize(const RenderPipelineInfo &info) override;
     virtual void destroy() override;
-    virtual bool activate(cocos2d::Root *root) override;
+    virtual bool activate(cc::Root *root) override;
     virtual void rebuild() override;
     virtual void updateUBOs(RenderView *view) override;
     virtual void sceneCulling() override;
-    virtual cocos2d::vector<float>::type &getLightIndices() const override;
-    virtual cocos2d::vector<float>::type &getLightIndexOffsets() const override;
-    virtual cocos2d::vector<cocos2d::GFXBuffer *>::type &getLightBuffers() const override;
+    virtual cc::vector<float>::type &getLightIndices() const override;
+    virtual cc::vector<float>::type &getLightIndexOffsets() const override;
+    virtual cc::vector<cc::GFXBuffer *>::type &getLightBuffers() const override;
 
-    CC_INLINE cocos2d::GFXBuffer *getLightsUBO() { return _lightsUBO; }
-
-private:
-    void cullLightPerModel(cocos2d::Model *model);
+    CC_INLINE cc::GFXBuffer *getLightsUBO() { return _lightsUBO; }
 
 private:
-    cocos2d::GFXBuffer *_lightsUBO = nullptr;
+    void cullLightPerModel(cc::Model *model);
+
+private:
+    cc::GFXBuffer *_lightsUBO = nullptr;
 };
 
 NS_PP_END

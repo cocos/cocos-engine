@@ -29,7 +29,7 @@
 
 #include <functional>
 
-class CleanupTask : public cocos2d::Ref
+class CleanupTask : public cc::Ref
 {
 public:
     static void pushTaskToAutoReleasePool(const std::function<void()>& cb);

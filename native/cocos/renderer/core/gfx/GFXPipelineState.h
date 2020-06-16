@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class CC_CORE_API GFXPipelineState : public GFXObject {
 public:
@@ -38,6 +38,6 @@ protected:
     GFXRenderPass *_renderPass = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif // CC_CORE_GFX_PIPELINE_STATE_H_

@@ -3,10 +3,10 @@
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
-extern se::Object* __jsb_cocos2d_FileUtils_proto;
-extern se::Class* __jsb_cocos2d_FileUtils_class;
+extern se::Object* __jsb_cc_FileUtils_proto;
+extern se::Class* __jsb_cc_FileUtils_class;
 
-bool js_register_cocos2d_FileUtils(se::Object* obj);
+bool js_register_cc_FileUtils(se::Object* obj);
 bool register_all_engine(se::Object* obj);
 SE_DECLARE_FUNC(js_engine_FileUtils_writeDataToFile);
 SE_DECLARE_FUNC(js_engine_FileUtils_fullPathForFilename);
@@ -52,10 +52,10 @@ SE_DECLARE_FUNC(js_engine_FileUtils_getWritablePath);
 SE_DECLARE_FUNC(js_engine_FileUtils_setDelegate);
 SE_DECLARE_FUNC(js_engine_FileUtils_getInstance);
 
-extern se::Object* __jsb_cocos2d_Device_proto;
-extern se::Class* __jsb_cocos2d_Device_class;
+extern se::Object* __jsb_cc_Device_proto;
+extern se::Class* __jsb_cc_Device_class;
 
-bool js_register_cocos2d_Device(se::Object* obj);
+bool js_register_cc_Device(se::Object* obj);
 bool register_all_engine(se::Object* obj);
 SE_DECLARE_FUNC(js_engine_Device_getDevicePixelRatio);
 SE_DECLARE_FUNC(js_engine_Device_setAccelerometerEnabled);
@@ -69,25 +69,25 @@ SE_DECLARE_FUNC(js_engine_Device_getDPI);
 SE_DECLARE_FUNC(js_engine_Device_getSafeAreaEdge);
 SE_DECLARE_FUNC(js_engine_Device_getDeviceModel);
 
-extern se::Object* __jsb_cocos2d_SAXParser_proto;
-extern se::Class* __jsb_cocos2d_SAXParser_class;
+extern se::Object* __jsb_cc_SAXParser_proto;
+extern se::Class* __jsb_cc_SAXParser_class;
 
-bool js_register_cocos2d_SAXParser(se::Object* obj);
+bool js_register_cc_SAXParser(se::Object* obj);
 bool register_all_engine(se::Object* obj);
 SE_DECLARE_FUNC(js_engine_SAXParser_init);
 
-extern se::Object* __jsb_cocos2d_CanvasGradient_proto;
-extern se::Class* __jsb_cocos2d_CanvasGradient_class;
+extern se::Object* __jsb_cc_CanvasGradient_proto;
+extern se::Class* __jsb_cc_CanvasGradient_class;
 
-bool js_register_cocos2d_CanvasGradient(se::Object* obj);
+bool js_register_cc_CanvasGradient(se::Object* obj);
 bool register_all_engine(se::Object* obj);
 SE_DECLARE_FUNC(js_engine_CanvasGradient_addColorStop);
 SE_DECLARE_FUNC(js_engine_CanvasGradient_CanvasGradient);
 
-extern se::Object* __jsb_cocos2d_CanvasRenderingContext2D_proto;
-extern se::Class* __jsb_cocos2d_CanvasRenderingContext2D_class;
+extern se::Object* __jsb_cc_CanvasRenderingContext2D_proto;
+extern se::Class* __jsb_cc_CanvasRenderingContext2D_class;
 
-bool js_register_cocos2d_CanvasRenderingContext2D(se::Object* obj);
+bool js_register_cc_CanvasRenderingContext2D(se::Object* obj);
 bool register_all_engine(se::Object* obj);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_restore);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_moveTo);

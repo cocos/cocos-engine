@@ -3,7 +3,7 @@
 
 #include "gles3w.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class GLES3GPUBuffer : public Object {
 public:
@@ -209,6 +209,6 @@ class GLES3GPUFence : public Object {
 public:
 };
 
-NS_CC_END
+}
 
 #endif

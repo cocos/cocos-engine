@@ -35,7 +35,7 @@
 #endif
 
 
-NS_CC_BEGIN
+namespace cc {
 
 int Device::getDevicePixelRatio()
 {
@@ -51,4 +51,4 @@ int Device::getDevicePixelRatio()
 }
 
 
-NS_CC_END
+}

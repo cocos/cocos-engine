@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class CC_CORE_API GFXCommandBuffer : public GFXObject {
 public:
@@ -49,6 +49,6 @@ protected:
     uint32_t _numTriangles = 0;
 };
 
-NS_CC_END
+}
 
 #endif // CC_CORE_GFX_COMMAND_ALLOCATOR_H_

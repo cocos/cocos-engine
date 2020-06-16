@@ -95,27 +95,27 @@ bool seval_to_longlong(const se::Value& v, long long* ret);
 bool seval_to_ssize(const se::Value& v, ssize_t* ret);
 bool seval_to_size(const se::Value& v, size_t* ret);
 bool seval_to_std_string(const se::Value& v, std::string* ret);
-bool seval_to_Vec2(const se::Value& v, cocos2d::Vec2* pt);
-bool seval_to_Vec3(const se::Value& v, cocos2d::Vec3* pt);
-bool seval_to_Vec4(const se::Value& v, cocos2d::Vec4* pt);
-bool seval_to_Mat4(const se::Value& v, cocos2d::Mat4* mat);
-bool seval_to_Size(const se::Value& v, cocos2d::Size* size);
-bool seval_to_ccvalue(const se::Value& v, cocos2d::Value* ret);
-bool seval_to_ccvaluemap(const se::Value& v, cocos2d::ValueMap* ret);
-bool seval_to_ccvaluemapintkey(const se::Value& v, cocos2d::ValueMapIntKey* ret);
-bool seval_to_ccvaluevector(const se::Value& v, cocos2d::ValueVector* ret);
-bool sevals_variadic_to_ccvaluevector(const se::ValueArray& args, cocos2d::ValueVector* ret);
+bool seval_to_Vec2(const se::Value& v, cc::Vec2* pt);
+bool seval_to_Vec3(const se::Value& v, cc::Vec3* pt);
+bool seval_to_Vec4(const se::Value& v, cc::Vec4* pt);
+bool seval_to_Mat4(const se::Value& v, cc::Mat4* mat);
+bool seval_to_Size(const se::Value& v, cc::Size* size);
+bool seval_to_ccvalue(const se::Value& v, cc::Value* ret);
+bool seval_to_ccvaluemap(const se::Value& v, cc::ValueMap* ret);
+bool seval_to_ccvaluemapintkey(const se::Value& v, cc::ValueMapIntKey* ret);
+bool seval_to_ccvaluevector(const se::Value& v, cc::ValueVector* ret);
+bool sevals_variadic_to_ccvaluevector(const se::ValueArray& args, cc::ValueVector* ret);
 bool seval_to_std_vector_string(const se::Value& v, std::vector<std::string>* ret);
 bool seval_to_std_vector_int(const se::Value& v, std::vector<int>* ret);
 bool seval_to_std_vector_uint16(const se::Value& v, std::vector<uint16_t>* ret);
 bool seval_to_std_vector_float(const se::Value& v, std::vector<float>* ret);
-bool seval_to_std_vector_Vec2(const se::Value& v, std::vector<cocos2d::Vec2>* ret);
+bool seval_to_std_vector_Vec2(const se::Value& v, std::vector<cc::Vec2>* ret);
 bool seval_to_Uint8Array(const se::Value& v, uint8_t* ret);
 bool seval_to_uintptr_t(const se::Value& v, uintptr_t* ret);
 
 bool seval_to_std_map_string_string(const se::Value& v, std::map<std::string, std::string>* ret);
-bool seval_to_Data(const se::Value& v, cocos2d::Data* ret);
-bool seval_to_DownloaderHints(const se::Value& v, cocos2d::network::DownloaderHints* ret);
+bool seval_to_Data(const se::Value& v, cc::Data* ret);
+bool seval_to_DownloaderHints(const se::Value& v, cc::network::DownloaderHints* ret);
 
 #if USE_GFX_RENDERER
 #endif
@@ -153,7 +153,7 @@ bool seval_to_native_ptr(const se::Value& v, T* ret)
 }
 
 template<typename T>
-bool seval_to_Vector(const se::Value& v, cocos2d::Vector<T>* ret)
+bool seval_to_Vector(const se::Value& v, cc::Vector<T>* ret)
 {
     assert(ret != nullptr);
     assert(v.isObject());
@@ -329,7 +329,7 @@ seval_to_std_vector(const se::Value& v, std::vector<T>* ret)
 }
 
 template<typename T>
-bool seval_to_Map_string_key(const se::Value& v, cocos2d::Map<std::string, T>* ret)
+bool seval_to_Map_string_key(const se::Value& v, cc::Map<std::string, T>* ret)
 {
     assert(ret != nullptr);
     assert(v.isObject());
@@ -379,32 +379,32 @@ bool ssize_to_seval(ssize_t v, se::Value* ret);
 bool size_to_seval(size_t v, se::Value* ret);
 bool std_string_to_seval(const std::string& v, se::Value* ret);
 
-bool Vec2_to_seval(const cocos2d::Vec2& v, se::Value* ret);
-bool Vec3_to_seval(const cocos2d::Vec3& v, se::Value* ret);
-bool Vec4_to_seval(const cocos2d::Vec4& v, se::Value* ret);
-bool Mat4_to_seval(const cocos2d::Mat4& v, se::Value* ret);
-bool Size_to_seval(const cocos2d::Size& v, se::Value* ret);
-bool Rect_to_seval(const cocos2d::Rect& v, se::Value* ret);
-bool ccvalue_to_seval(const cocos2d::Value& v, se::Value* ret);
-bool ccvaluemap_to_seval(const cocos2d::ValueMap& v, se::Value* ret);
-bool ccvaluemapintkey_to_seval(const cocos2d::ValueMapIntKey& v, se::Value* ret);
-bool ccvaluevector_to_seval(const cocos2d::ValueVector& v, se::Value* ret);
+bool Vec2_to_seval(const cc::Vec2& v, se::Value* ret);
+bool Vec3_to_seval(const cc::Vec3& v, se::Value* ret);
+bool Vec4_to_seval(const cc::Vec4& v, se::Value* ret);
+bool Mat4_to_seval(const cc::Mat4& v, se::Value* ret);
+bool Size_to_seval(const cc::Size& v, se::Value* ret);
+bool Rect_to_seval(const cc::Rect& v, se::Value* ret);
+bool ccvalue_to_seval(const cc::Value& v, se::Value* ret);
+bool ccvaluemap_to_seval(const cc::ValueMap& v, se::Value* ret);
+bool ccvaluemapintkey_to_seval(const cc::ValueMapIntKey& v, se::Value* ret);
+bool ccvaluevector_to_seval(const cc::ValueVector& v, se::Value* ret);
 bool std_vector_string_to_seval(const std::vector<std::string>& v, se::Value* ret);
 bool std_vector_int_to_seval(const std::vector<int>& v, se::Value* ret);
 bool std_vector_uint16_to_seval(const std::vector<uint16_t>& v, se::Value* ret);
 bool std_vector_float_to_seval(const std::vector<float>& v, se::Value* ret);
 bool std_map_string_string_to_seval(const std::map<std::string, std::string>& v, se::Value* ret);
 
-bool ManifestAsset_to_seval(const cocos2d::extension::ManifestAsset& v, se::Value* ret);
-bool Data_to_seval(const cocos2d::Data& v, se::Value* ret);
-bool DownloadTask_to_seval(const cocos2d::network::DownloadTask& v, se::Value* ret);
-bool std_vector_EffectDefine_to_seval(const std::vector<cocos2d::ValueMap>& v, se::Value* ret);
+bool ManifestAsset_to_seval(const cc::extension::ManifestAsset& v, se::Value* ret);
+bool Data_to_seval(const cc::Data& v, se::Value* ret);
+bool DownloadTask_to_seval(const cc::network::DownloadTask& v, se::Value* ret);
+bool std_vector_EffectDefine_to_seval(const std::vector<cc::ValueMap>& v, se::Value* ret);
 
 #if USE_GFX_RENDERER
 #endif
 
 template<typename T>
-typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,bool>::type
+typename std::enable_if<!std::is_base_of<cc::Ref,T>::value,bool>::type
 native_ptr_to_seval(T* v_c, se::Value* ret, bool* isReturnCachedValue = nullptr)
 {
     typedef typename std::decay<typename std::remove_const<T>::type>::type DecayT;
@@ -446,7 +446,7 @@ native_ptr_to_seval(T* v_c, se::Value* ret, bool* isReturnCachedValue = nullptr)
 
 //handle reference
 template<typename T>
-typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value && !std::is_pointer<T>::value,bool>::type
+typename std::enable_if<!std::is_base_of<cc::Ref,T>::value && !std::is_pointer<T>::value,bool>::type
 native_ptr_to_seval(T& v_ref, se::Value* ret, bool* isReturnCachedValue = nullptr)
 {
     typedef typename std::decay<typename std::remove_const<decltype(v_ref)>::type>::type  DecayT;
@@ -488,7 +488,7 @@ native_ptr_to_seval(T& v_ref, se::Value* ret, bool* isReturnCachedValue = nullpt
 }
 
 template<typename T>
-bool native_ptr_to_rooted_seval(const typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Value* ret, bool* isReturnCachedValue = nullptr)
+bool native_ptr_to_rooted_seval(const typename std::enable_if<!std::is_base_of<cc::Ref,T>::value,T>::type* v, se::Value* ret, bool* isReturnCachedValue = nullptr)
 {
     assert(ret != nullptr);
     if (v == nullptr)
@@ -529,7 +529,7 @@ bool native_ptr_to_rooted_seval(const typename std::enable_if<!std::is_base_of<c
 }
 
 template<typename T>
-typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,bool>::type
+typename std::enable_if<!std::is_base_of<cc::Ref,T>::value,bool>::type
 native_ptr_to_seval(T* vp, se::Class* cls, se::Value* ret, bool* isReturnCachedValue = nullptr)
 {
     typedef typename std::decay<typename std::remove_const<T>::type>::type DecayT;
@@ -571,7 +571,7 @@ native_ptr_to_seval(T* vp, se::Class* cls, se::Value* ret, bool* isReturnCachedV
 
 //handle ref
 template<typename T>
-typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,bool>::type
+typename std::enable_if<!std::is_base_of<cc::Ref,T>::value,bool>::type
 native_ptr_to_seval(T& v_ref, se::Class* cls, se::Value* ret, bool* isReturnCachedValue = nullptr)
 {
     typedef typename std::decay<typename std::remove_const<decltype(v_ref)>::type>::type  DecayT;
@@ -615,7 +615,7 @@ native_ptr_to_seval(T& v_ref, se::Class* cls, se::Value* ret, bool* isReturnCach
 
 
 template<typename T>
-bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Class* cls, se::Value* ret, bool* isReturnCachedValue = nullptr)
+bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cc::Ref,T>::value,T>::type* v, se::Class* cls, se::Value* ret, bool* isReturnCachedValue = nullptr)
 {
     assert(ret != nullptr);
     if (v == nullptr)
@@ -655,7 +655,7 @@ bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cocos2d
 }
 
 template<typename T>
-typename std::enable_if<std::is_base_of<cocos2d::Ref,T>::value, bool>::type
+typename std::enable_if<std::is_base_of<cc::Ref,T>::value, bool>::type
 native_ptr_to_seval(T* vp, se::Value* ret, bool* isReturnCachedValue = nullptr)
 {
     typedef typename std::decay<typename std::remove_const<T>::type>::type DecayT;
@@ -698,7 +698,7 @@ native_ptr_to_seval(T* vp, se::Value* ret, bool* isReturnCachedValue = nullptr)
 }
 
 template<typename T>
-typename std::enable_if<std::is_base_of<cocos2d::Ref,T>::value,bool>::type
+typename std::enable_if<std::is_base_of<cc::Ref,T>::value,bool>::type
 native_ptr_to_seval(T* vp, se::Class* cls, se::Value* ret, bool* isReturnCachedValue = nullptr)
 {
     typedef typename std::decay<typename std::remove_const<T>::type>::type DecayT;

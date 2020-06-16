@@ -40,7 +40,7 @@
 
 #define TIME_MINUS(now, prev) (std::chrono::duration_cast<std::chrono::milliseconds>((now) - (prev)).count() / 1000.0f)
 
-namespace cocos2d {
+namespace cc {
 
 #define DEFAULT_THREAD_POOL_MIN_NUM (4)
 #define DEFAULT_THREAD_POOL_MAX_NUM (20)
@@ -433,4 +433,4 @@ void ThreadPool::setThread(int tid)
             new(std::nothrow) std::thread(f)); // compiler may not support std::make_unique()
 }
 
-} // namespace cocos2d {
+} // namespace cc {

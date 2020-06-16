@@ -44,7 +44,7 @@ THE SOFTWARE.
  * @{
  */
 
-namespace cocos2d
+namespace cc
 {
 #ifndef _unz64_H
 typedef struct unz_file_info_s unz_file_info;
@@ -288,7 +288,7 @@ typedef struct unz_file_info_s unz_file_info;
         /** Internal data like zip file pointer / file list array and so on */
         ZipFilePrivate *_data;
     };
-} // end of namespace cocos2d
+} // end of namespace cc
 
 // end group
 /// @}

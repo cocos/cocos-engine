@@ -1,7 +1,7 @@
 #ifndef CC_GFXVULKAN_CCVK_SAMPLER_H_
 #define CC_GFXVULKAN_CCVK_SAMPLER_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCVKGPUSampler;
 
@@ -20,6 +20,6 @@ private:
     CCVKGPUSampler *_gpuSampler = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

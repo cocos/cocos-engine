@@ -39,9 +39,9 @@ THE SOFTWARE.
 #include "base/CCAutoreleasePool.h"
 #include "audio/include/AudioEngine.h"
 
-extern std::shared_ptr<cocos2d::View> cc_get_application_view();
+extern std::shared_ptr<cc::View> cc_get_application_view();
 
-NS_CC_BEGIN
+namespace cc {
 
 Application* Application::_instance = nullptr;
 std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
@@ -235,4 +235,4 @@ std::string Application::getSystemVersion()
     snprintf(buff, sizeof(buff), "Windows version %d.%d.%d", osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber);
     return buff;
 }
-NS_CC_END
+}

@@ -3,7 +3,7 @@
 #import <Metal/MTLLibrary.h>
 #import <Metal/MTLRenderPipeline.h>
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCMTLShader : public GFXShader {
 public:
@@ -43,4 +43,4 @@ private:
 #endif
 };
 
-NS_CC_END
+}

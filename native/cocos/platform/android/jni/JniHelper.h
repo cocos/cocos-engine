@@ -1,5 +1,5 @@
 /****************************************************************************
-Copyright (c) 2010-2012 cocos2d-x.org
+Copyright (c) 2010-2012 cc-x.org
 Copyright (c) 2013-2016 Chukong Technologies Inc.
 Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 struct android_app;
 
-NS_CC_BEGIN
+namespace cc {
 
 typedef struct JniMethodInfo_
 {
@@ -80,9 +80,9 @@ public:
     {
         jobject ret = nullptr;
         static const char* methodName = "<init>";
-        cocos2d::JniMethodInfo t;
+        cc::JniMethodInfo t;
         std::string signature = "(" + std::string(getJNISignature(xs...)) + ")V";
-        if (cocos2d::JniHelper::getMethodInfo(t, className.c_str(), methodName, signature.c_str())) {
+        if (cc::JniHelper::getMethodInfo(t, className.c_str(), methodName, signature.c_str())) {
             LocalRefMapType localRefs;
             ret = t.env->NewObject(t.classID, t.methodID, convert(localRefs, t, xs)...);
             t.env->DeleteLocalRef(t.classID);
@@ -98,9 +98,9 @@ public:
                                      const std::string& className,
                                      const std::string& methodName,
                                      Ts... xs) {
-        cocos2d::JniMethodInfo t;
+        cc::JniMethodInfo t;
         std::string signature = "(" + std::string(getJNISignature(xs...)) + ")V";
-        if (cocos2d::JniHelper::getMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
+        if (cc::JniHelper::getMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             t.env->CallVoidMethod(object, t.methodID, convert(localRefs, t, xs)...);
             t.env->DeleteLocalRef(t.classID);
@@ -116,9 +116,9 @@ public:
                                      const std::string& methodName,
                                      Ts... xs) {
         float ret = 0.0f;
-        cocos2d::JniMethodInfo t;
+        cc::JniMethodInfo t;
         std::string signature = "(" + std::string(getJNISignature(xs...)) + ")F";
-        if (cocos2d::JniHelper::getMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
+        if (cc::JniHelper::getMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             ret = t.env->CallFloatMethod(object, t.methodID, convert(localRefs, t, xs)...);
             t.env->DeleteLocalRef(t.classID);
@@ -135,9 +135,9 @@ public:
                                      const std::string& methodName,
                                      Ts... xs) {
         jbyteArray ret = nullptr;
-        cocos2d::JniMethodInfo t;
+        cc::JniMethodInfo t;
         std::string signature = "(" + std::string(getJNISignature(xs...)) + ")[B";
-        if (cocos2d::JniHelper::getMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
+        if (cc::JniHelper::getMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             ret = (jbyteArray)t.env->CallObjectMethod(object, t.methodID, convert(localRefs, t, xs)...);
             t.env->DeleteLocalRef(t.classID);
@@ -152,9 +152,9 @@ public:
     static void callStaticVoidMethod(const std::string& className,
                                      const std::string& methodName,
                                      Ts... xs) {
-        cocos2d::JniMethodInfo t;
+        cc::JniMethodInfo t;
         std::string signature = "(" + std::string(getJNISignature(xs...)) + ")V";
-        if (cocos2d::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
+        if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             t.env->CallStaticVoidMethod(t.classID, t.methodID, convert(localRefs, t, xs)...);
             t.env->DeleteLocalRef(t.classID);
@@ -169,9 +169,9 @@ public:
                                         const std::string& methodName,
                                         Ts... xs) {
         jboolean jret = JNI_FALSE;
-        cocos2d::JniMethodInfo t;
+        cc::JniMethodInfo t;
         std::string signature = "(" + std::string(getJNISignature(xs...)) + ")Z";
-        if (cocos2d::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
+        if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             jret = t.env->CallStaticBooleanMethod(t.classID, t.methodID, convert(localRefs, t, xs)...);
             t.env->DeleteLocalRef(t.classID);
@@ -187,9 +187,9 @@ public:
                                    const std::string& methodName,
                                    Ts... xs) {
         jint ret = 0;
-        cocos2d::JniMethodInfo t;
+        cc::JniMethodInfo t;
         std::string signature = "(" + std::string(getJNISignature(xs...)) + ")I";
-        if (cocos2d::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
+        if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             ret = t.env->CallStaticIntMethod(t.classID, t.methodID, convert(localRefs, t, xs)...);
             t.env->DeleteLocalRef(t.classID);
@@ -205,9 +205,9 @@ public:
                                        const std::string& methodName,
                                        Ts... xs) {
         jfloat ret = 0.0;
-        cocos2d::JniMethodInfo t;
+        cc::JniMethodInfo t;
         std::string signature = "(" + std::string(getJNISignature(xs...)) + ")F";
-        if (cocos2d::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
+        if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             ret = t.env->CallStaticFloatMethod(t.classID, t.methodID, convert(localRefs, t, xs)...);
             t.env->DeleteLocalRef(t.classID);
@@ -223,9 +223,9 @@ public:
                                        const std::string& methodName,
                                        Ts... xs) {
         static float ret[32];
-        cocos2d::JniMethodInfo t;
+        cc::JniMethodInfo t;
         std::string signature = "(" + std::string(getJNISignature(xs...)) + ")[F";
-        if (cocos2d::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
+        if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             jfloatArray array = (jfloatArray) t.env->CallStaticObjectMethod(t.classID, t.methodID, convert(localRefs, t, xs)...);
             jsize len = t.env->GetArrayLength(array);
@@ -250,9 +250,9 @@ public:
                                        const std::string& methodName,
                                        Ts... xs) {
         Vec3 ret;
-        cocos2d::JniMethodInfo t;
+        cc::JniMethodInfo t;
         std::string signature = "(" + std::string(getJNISignature(xs...)) + ")[F";
-        if (cocos2d::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
+        if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             jfloatArray array = (jfloatArray) t.env->CallStaticObjectMethod(t.classID, t.methodID, convert(localRefs, t, xs)...);
             jsize len = t.env->GetArrayLength(array);
@@ -276,9 +276,9 @@ public:
                                          const std::string& methodName,
                                          Ts... xs) {
         jdouble ret = 0.0;
-        cocos2d::JniMethodInfo t;
+        cc::JniMethodInfo t;
         std::string signature = "(" + std::string(getJNISignature(xs...)) + ")D";
-        if (cocos2d::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
+        if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             ret = t.env->CallStaticDoubleMethod(t.classID, t.methodID, convert(localRefs, t, xs)...);
             t.env->DeleteLocalRef(t.classID);
@@ -295,12 +295,12 @@ public:
                                               Ts... xs) {
         std::string ret;
 
-        cocos2d::JniMethodInfo t;
+        cc::JniMethodInfo t;
         std::string signature = "(" + std::string(getJNISignature(xs...)) + ")Ljava/lang/String;";
-        if (cocos2d::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
+        if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             jstring jret = (jstring)t.env->CallStaticObjectMethod(t.classID, t.methodID, convert(localRefs, t, xs)...);
-            ret = cocos2d::JniHelper::jstring2string(jret);
+            ret = cc::JniHelper::jstring2string(jret);
             t.env->DeleteLocalRef(t.classID);
             t.env->DeleteLocalRef(jret);
             deleteLocalRefs(t.env, localRefs);
@@ -320,12 +320,12 @@ private:
                                                  const char *methodName,
                                                  const char *paramCode);
 
-    static jstring convert(LocalRefMapType &localRefs, cocos2d::JniMethodInfo& t, const char* x);
+    static jstring convert(LocalRefMapType &localRefs, cc::JniMethodInfo& t, const char* x);
 
-    static jstring convert(LocalRefMapType &localRefs, cocos2d::JniMethodInfo& t, const std::string& x);
+    static jstring convert(LocalRefMapType &localRefs, cc::JniMethodInfo& t, const std::string& x);
 
     template <typename T>
-    static T convert(LocalRefMapType &localRefs, cocos2d::JniMethodInfo&, T x) {
+    static T convert(LocalRefMapType &localRefs, cc::JniMethodInfo&, T x) {
         return x;
     }
 
@@ -390,6 +390,6 @@ private:
     static void reportError(const std::string& className, const std::string& methodName, const std::string& signature);
 };
 
-NS_CC_END
+}
 
 #endif // __ANDROID_JNI_HELPER_H__

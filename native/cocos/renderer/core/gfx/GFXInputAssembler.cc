@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXInputAssembler.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GFXInputAssembler::GFXInputAssembler(GFXDevice *device)
 : GFXObject(GFXObjectType::INPUT_ASSEMBLER), _device(device) {
@@ -35,4 +35,4 @@ uint GFXInputAssembler::computeAttributesHash() const {
     return seed;
 }
 
-NS_CC_END
+}

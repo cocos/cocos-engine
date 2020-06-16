@@ -24,7 +24,7 @@
 
 #include "VideoPlayer.h"
 
-USING_NS_CC;
+using namespace cc;
 
 // No Available on tvOS
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS && !defined(CC_TARGET_OS_TVOS)
@@ -293,7 +293,7 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
 }
 
 -(void)addPlayerControllerSubView {
-    auto eaglview = (CCEAGLView*)cocos2d::Application::getInstance()->getView();
+    auto eaglview = (CCEAGLView*)cc::Application::getInstance()->getView();
     [eaglview addSubview:self.playerController.view];
 }
 
@@ -444,7 +444,7 @@ void VideoPlayer::onPlayEvent(int event)
 
 void VideoPlayer::setFrame(float x, float y, float width, float height)
 {
-    auto eaglview = (CCEAGLView*)cocos2d::Application::getInstance()->getView();
+    auto eaglview = (CCEAGLView*)cc::Application::getInstance()->getView();
     auto scaleFactor = [eaglview contentScaleFactor];
     [((UIVideoViewWrapperIos*)_videoView) setFrame:x/scaleFactor
                                                   :y/scaleFactor

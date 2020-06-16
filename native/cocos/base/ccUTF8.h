@@ -36,7 +36,7 @@
 #include "platform/android/jni/JniHelper.h"
 #endif
 
-NS_CC_BEGIN
+namespace cc {
 
 namespace StringUtils {
 
@@ -217,6 +217,6 @@ private:
 
 } // namespace StringUtils {
 
-NS_CC_END
+}
 
 #endif /** defined(__cocos2dx__ccUTF8__) */

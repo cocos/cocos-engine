@@ -3,7 +3,7 @@
 
 #include "GLES3Commands.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class GLES3CommandAllocator;
 
@@ -59,6 +59,6 @@ private:
     bool _isStateInvalid = false;
 };
 
-NS_CC_END
+}
 
 #endif

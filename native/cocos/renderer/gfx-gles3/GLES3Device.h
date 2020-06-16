@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES3_GLES3_DEVICE_H_
 #define CC_GFXGLES3_GLES3_DEVICE_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class GLES3StateCache;
 
@@ -51,6 +51,6 @@ private:
     bool _useVAO = true;
 };
 
-NS_CC_END
+}
 
 #endif

@@ -12,7 +12,7 @@
 
 #include "core/CoreDef.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 /** Superclass for all objects that wish to use custom memory allocators
  when their new / delete operators are called.
@@ -76,6 +76,6 @@ class CC_CORE_API AllocatedObject
 	}
 };
 
-NS_CC_END
+}
 
 #endif // CC_CORE_ALLOCATED_OBJ_H_

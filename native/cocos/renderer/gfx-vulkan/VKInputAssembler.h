@@ -1,7 +1,7 @@
 #ifndef CC_GFXVULKAN_CCVK_INPUT_ASSEMBLER_H_
 #define CC_GFXVULKAN_CCVK_INPUT_ASSEMBLER_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCVKGPUInputAssembler;
 
@@ -20,6 +20,6 @@ private:
     CCVKGPUInputAssembler *_gpuInputAssembler = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

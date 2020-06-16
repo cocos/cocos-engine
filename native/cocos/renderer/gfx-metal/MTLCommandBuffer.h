@@ -1,6 +1,6 @@
 #pragma once
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCMTLCommandPackage;
 class CCMTLCommandAllocator;
@@ -64,4 +64,4 @@ private:
     std::array<bool, DYNAMIC_STATE_SIZE> _dynamicStateDirty = {false, false, false, false, false, false, false, false};
 };
 
-NS_CC_END
+}

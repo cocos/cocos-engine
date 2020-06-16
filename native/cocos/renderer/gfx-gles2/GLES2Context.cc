@@ -11,7 +11,7 @@
 
 // #define CC_GFX_DEBUG
 
-NS_CC_BEGIN
+namespace cc {
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
 
@@ -446,4 +446,4 @@ bool GLES2Context::CheckExtension(const String &extension) const {
     return (std::find(_extensions.begin(), _extensions.end(), extension) != _extensions.end());
 }
 
-NS_CC_END
+}

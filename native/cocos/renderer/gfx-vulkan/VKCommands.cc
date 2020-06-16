@@ -10,7 +10,7 @@
 
 #define BUFFER_OFFSET(idx) (static_cast<char *>(0) + (idx))
 
-NS_CC_BEGIN
+namespace cc {
 
 void insertVkDynamicStates(vector<VkDynamicState>::type &out, const vector<GFXDynamicState>::type &dynamicStates) {
     for (GFXDynamicState dynamicState : dynamicStates) {
@@ -981,4 +981,4 @@ void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, uint8_t *const *buffers
     endOneTimeCommands(device, &cmdBuff);
 }
 
-NS_CC_END
+}

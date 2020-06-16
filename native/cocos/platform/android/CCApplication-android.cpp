@@ -49,14 +49,14 @@ namespace
 {
     bool setCanvasCallback(se::Object* global)
     {
-        auto viewLogicalSize = cocos2d::Application::getInstance()->getViewLogicalSize();
+        auto viewLogicalSize = cc::Application::getInstance()->getViewLogicalSize();
         se::AutoHandleScope scope;
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         char commandBuf[200] = {0};
         sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
                 (int)(viewLogicalSize.x),
                 (int)(viewLogicalSize.y),
-                (uintptr_t)cocos2d::JniHelper::getAndroidApp()->window);
+                (uintptr_t)cc::JniHelper::getAndroidApp()->window);
         se->evalString(commandBuf);
 
         return true;
@@ -64,7 +64,7 @@ namespace
 }
 
 
-NS_CC_BEGIN
+namespace cc {
 
 Application* Application::_instance = nullptr;
 std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
@@ -248,4 +248,4 @@ std::string Application::getSystemVersion()
     return getSystemVersionJNI();
 }
 
-NS_CC_END
+}

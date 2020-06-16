@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include "audio/android/AudioMixerController.h"
 #include "audio/android/ICallerThreadUtils.h"
 
-namespace cocos2d { 
+namespace cc { 
 
 PcmAudioPlayer::PcmAudioPlayer(AudioMixerController * controller, ICallerThreadUtils* callerThreadUtils)
         : _id(-1)
@@ -223,4 +223,4 @@ IAudioPlayer::State PcmAudioPlayer::getState() const
     return state;
 }
 
-} // namespace cocos2d { 
+} // namespace cc { 

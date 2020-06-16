@@ -36,7 +36,7 @@ THE SOFTWARE.
  * @addtogroup base
  * @{
  */
-NS_CC_BEGIN
+namespace cc {
 
 
 class Ref;
@@ -146,7 +146,7 @@ public:
 };
 
 
-NS_CC_END
+}
 // end of base group
 /** @} */
 

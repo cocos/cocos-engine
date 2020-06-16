@@ -47,7 +47,7 @@
 #define unzGoToNextFile64(A,B,C,D) unzGoToNextFile2(A,B,C,D, NULL, 0, NULL, 0)
 #endif
 
-NS_CC_BEGIN
+namespace cc {
 
 unsigned int ZipUtils::s_uEncryptedPvrKeyParts[4] = {0,0,0,0};
 unsigned int ZipUtils::s_uEncryptionKey[1024];
@@ -715,4 +715,4 @@ bool ZipFile::initWithBuffer(const void *buffer, uLong size)
     return true;
 }
 
-NS_CC_END
+}

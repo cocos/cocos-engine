@@ -7,7 +7,7 @@
 #include "jemalloc/jemalloc.h"
 extern const char* je_malloc_conf = "narenas:4";
 
-NS_CC_BEGIN
+namespace cc {
 
 #ifdef CC_MEMORY_TRACKER
 #define MEM_CHECKTAG_SIZE  4
@@ -148,6 +148,6 @@ void JeAllocImpl::TrimAlloc() {
 	je_mallctl(buf, NULL, NULL, NULL, 0);
 }
 
-NS_CC_END
+}
 
 #endif // end - #ifdef CC_MEMORY_ALLOCATOR_JEMALLOC

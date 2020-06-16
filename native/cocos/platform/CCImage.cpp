@@ -83,7 +83,7 @@ extern "C"
 
 #include <map>
 
-NS_CC_BEGIN
+namespace cc {
 
 //////////////////////////////////////////////////////////////////////////
 //struct and data for pvr structure
@@ -1429,4 +1429,4 @@ void Image::setPVRImagesHavePremultipliedAlpha(bool haveAlphaPremultiplied)
     _PVRHaveAlphaPremultiplied = haveAlphaPremultiplied;
 }
 
-NS_CC_END
+}

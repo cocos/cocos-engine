@@ -30,7 +30,7 @@
  
  The reason for implement as private inheritance is to hide some interface call by Director.
  */
-class  AppDelegate : public cocos2d::Application
+class  AppDelegate : public cc::Application
 {
 public:
     AppDelegate(int width, int height);

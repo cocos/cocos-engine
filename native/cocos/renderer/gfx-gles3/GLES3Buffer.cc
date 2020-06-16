@@ -2,7 +2,7 @@
 #include "GLES3Buffer.h"
 #include "GLES3Commands.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GLES3Buffer::GLES3Buffer(GFXDevice *device)
 : GFXBuffer(device) {
@@ -107,4 +107,4 @@ void GLES3Buffer::update(void *buffer, uint offset, uint size) {
     GLES3CmdFuncUpdateBuffer((GLES3Device *)_device, _gpuBuffer, buffer, offset, size);
 }
 
-NS_CC_END
+}

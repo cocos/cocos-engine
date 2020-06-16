@@ -92,7 +92,7 @@ std::string StringViewToUtf8(const StringView& view) {
 
     std::u16string u16Str((char16_t*)source);
     std::string ret;
-    cocos2d::StringUtils::UTF16ToUTF8(u16Str, ret);
+    cc::StringUtils::UTF16ToUTF8(u16Str, ret);
     return ret;
 //  const UChar* unicodeSource = reinterpret_cast<const UChar*>(source);
 //  static_assert(sizeof(*source) == sizeof(*unicodeSource),
@@ -143,7 +143,7 @@ std::unique_ptr<StringBuffer> Utf8ToStringView(const std::string& message) {
 //      UnicodeString::fromUTF8(StringPiece(message.data(), message.length()));
 
     std::u16string u16Str;
-    cocos2d::StringUtils::UTF8ToUTF16(message, u16Str);
+    cc::StringUtils::UTF8ToUTF16(message, u16Str);
 
 //  StringView view(reinterpret_cast<const uint16_t*>(utf16.getBuffer()),
 //                  utf16.length());

@@ -3,7 +3,7 @@
 #include "VKBuffer.h"
 #include "VKCommands.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCVKBuffer::CCVKBuffer(GFXDevice *device)
 : GFXBuffer(device) {
@@ -91,4 +91,4 @@ void CCVKBuffer::update(void *buffer, uint offset, uint size) {
     CCVKCmdFuncUpdateBuffer((CCVKDevice *)_device, _gpuBuffer, buffer, offset, size);
 }
 
-NS_CC_END
+}

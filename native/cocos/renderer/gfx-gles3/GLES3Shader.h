@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES3_GLES3_SHADER_H_
 #define CC_GFXGLES3_GLES3_SHADER_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class GLES3GPUShader;
 
@@ -20,6 +20,6 @@ private:
     GLES3GPUShader *_gpuShader = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

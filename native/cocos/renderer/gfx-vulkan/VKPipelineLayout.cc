@@ -4,7 +4,7 @@
 #include "VKCommands.h"
 #include "VKPipelineLayout.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCVKPipelineLayout::CCVKPipelineLayout(GFXDevice *device)
 : GFXPipelineLayout(device) {
@@ -41,4 +41,4 @@ void CCVKPipelineLayout::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-NS_CC_END
+}

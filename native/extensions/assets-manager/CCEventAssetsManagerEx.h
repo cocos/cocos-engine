@@ -35,7 +35,7 @@ NS_CC_EXT_BEGIN
 
 class AssetsManagerEx;
 
-class CC_EX_DLL EventAssetsManagerEx : public cocos2d::Ref
+class CC_EX_DLL EventAssetsManagerEx : public cc::Ref
 {
 public:
     //! Update events code
@@ -64,7 +64,7 @@ public:
     
     inline std::string getAssetId() const { return _assetId; };
     
-    inline cocos2d::extension::AssetsManagerEx *getAssetsManagerEx() const { return _manager; };
+    inline cc::extension::AssetsManagerEx *getAssetsManagerEx() const { return _manager; };
     
     bool isResuming() const;
     
@@ -82,14 +82,14 @@ public:
     
 public:
     /** Constructor */
-    EventAssetsManagerEx(const std::string& eventName, cocos2d::extension::AssetsManagerEx *manager, const EventCode &code, const std::string& assetId = "", const std::string& message = "", int curle_code = 0, int curlm_code = 0);
+    EventAssetsManagerEx(const std::string& eventName, cc::extension::AssetsManagerEx *manager, const EventCode &code, const std::string& assetId = "", const std::string& message = "", int curle_code = 0, int curlm_code = 0);
     
 private:
     virtual ~EventAssetsManagerEx() {}
 
     EventCode _code;
     
-    cocos2d::extension::AssetsManagerEx *_manager;
+    cc::extension::AssetsManagerEx *_manager;
     
     std::string _message;
     

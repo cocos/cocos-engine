@@ -12,7 +12,7 @@
 
 #import <Metal/MTLRenderCommandEncoder.h>
 
-NS_CC_BEGIN
+namespace cc {
 
 CCMTLCommandBuffer::CCMTLCommandBuffer(GFXDevice *device) : GFXCommandBuffer(device) {}
 CCMTLCommandBuffer::~CCMTLCommandBuffer() { destroy(); }
@@ -292,4 +292,4 @@ void CCMTLCommandBuffer::bindStates() {
     std::fill(_dynamicStateDirty.begin(), _dynamicStateDirty.end(), false);
 }
 
-NS_CC_END
+}

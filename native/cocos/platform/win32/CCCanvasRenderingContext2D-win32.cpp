@@ -312,7 +312,7 @@ public:
         _lineWidth = lineWidth;
     }
 
-    const cocos2d::Data& getDataRef() const
+    const cc::Data& getDataRef() const
     {
         return _imageData;
     }
@@ -321,7 +321,7 @@ public:
     HBITMAP _bmp;
 private:
 
-    cocos2d::Data _imageData;
+    cc::Data _imageData;
     HFONT   _font;
     HWND    _wnd;
     HPEN _hpen;
@@ -555,7 +555,7 @@ private:
     }
 };
 
-NS_CC_BEGIN
+namespace cc {
 
 CanvasGradient::CanvasGradient()
 {
@@ -642,11 +642,11 @@ void CanvasRenderingContext2D::strokeText(const std::string& text, float x, floa
         _canvasBufferUpdatedCB(_impl->getDataRef());
 }
 
-cocos2d::Size CanvasRenderingContext2D::measureText(const std::string& text)
+cc::Size CanvasRenderingContext2D::measureText(const std::string& text)
 {
     //SE_LOGD("CanvasRenderingContext2D::measureText: %s\n", text.c_str());
     auto s =_impl->measureText(text);
-    return cocos2d::Size(s[0], s[1]);
+    return cc::Size(s[0], s[1]);
 }
 
 CanvasGradient* CanvasRenderingContext2D::createLinearGradient(float x0, float y0, float x1, float y1)
@@ -864,4 +864,4 @@ void CanvasRenderingContext2D::setTransform(float a, float b, float c, float d, 
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-NS_CC_END
+}

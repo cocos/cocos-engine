@@ -1,7 +1,7 @@
 #ifndef CC_GFXVULKAN_CCVK_TEXTURE_H_
 #define CC_GFXVULKAN_CCVK_TEXTURE_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCVKGPUTexture;
 class CCVKGPUTextureView;
@@ -27,6 +27,6 @@ private:
     CCVKGPUTextureView *_gpuTextureView = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif

@@ -1,9 +1,9 @@
 #pragma once
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCMTLStateCache : public Object {
 public:
 };
 
-NS_CC_END
+}

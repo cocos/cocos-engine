@@ -6,7 +6,7 @@
 #import <Metal/MTLRenderPipeline.h>
 #import <Metal/MTLDepthStencil.h>
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCMTLPipelineState : public GFXPipelineState {
 public:
@@ -35,4 +35,4 @@ private:
     CCMTLGPUPipelineState *_GPUPipelieState = nullptr;
 };
 
-NS_CC_END
+}

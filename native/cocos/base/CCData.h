@@ -36,7 +36,7 @@
  * @js NA
  * @lua NA
  */
-NS_CC_BEGIN
+namespace cc {
 
 class CC_DLL Data
 {
@@ -150,7 +150,7 @@ private:
 };
 
 
-NS_CC_END
+}
 
 /** @} */
 #endif // __CCDATA_H__

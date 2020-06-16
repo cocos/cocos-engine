@@ -33,19 +33,19 @@ namespace se {
     class Value;
 }
 
-class JSB_WebSocketDelegate : public cocos2d::Ref, public cocos2d::network::WebSocket::Delegate {
+class JSB_WebSocketDelegate : public cc::Ref, public cc::network::WebSocket::Delegate {
 public:
     JSB_WebSocketDelegate();
 
-    virtual void onOpen(cocos2d::network::WebSocket *ws) override;
+    virtual void onOpen(cc::network::WebSocket *ws) override;
 
-    virtual void onMessage(cocos2d::network::WebSocket *ws,
-                           const cocos2d::network::WebSocket::Data &data) override;
+    virtual void onMessage(cc::network::WebSocket *ws,
+                           const cc::network::WebSocket::Data &data) override;
 
-    virtual void onClose(cocos2d::network::WebSocket *ws) override;
+    virtual void onClose(cc::network::WebSocket *ws) override;
 
-    virtual void onError(cocos2d::network::WebSocket *ws,
-                         const cocos2d::network::WebSocket::ErrorCode &error) override;
+    virtual void onError(cc::network::WebSocket *ws,
+                         const cc::network::WebSocket::ErrorCode &error) override;
 
     void setJSDelegate(const se::Value &jsDelegate);
 

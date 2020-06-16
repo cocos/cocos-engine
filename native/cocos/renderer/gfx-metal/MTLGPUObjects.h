@@ -7,7 +7,7 @@
 #import <Metal/MTLRenderPipeline.h>
 #import <Metal/MTLSampler.h>
 
-NS_CC_BEGIN
+namespace cc {
 
 struct CCMTLGPUUniformBlock {
     uint mtlBinding = 0;
@@ -59,4 +59,4 @@ public:
     std::vector<id<MTLBuffer>> mtlVertexBufers;
 };
 
-NS_CC_END
+}

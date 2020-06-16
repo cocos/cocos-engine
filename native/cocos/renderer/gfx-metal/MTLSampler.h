@@ -2,7 +2,7 @@
 
 #import <Metal/MTLSampler.h>
 
-NS_CC_BEGIN
+namespace cc {
 
 class CCMTLSampler : public GFXSampler {
 public:
@@ -18,4 +18,4 @@ private:
     id<MTLSamplerState> _mtlSamplerState = nil;
 };
 
-NS_CC_END
+}

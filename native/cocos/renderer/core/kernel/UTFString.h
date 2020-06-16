@@ -17,7 +17,7 @@ namespace std {
 
 #include "memory/StlAlloc.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 /* READ THIS NOTICE BEFORE USING IN YOUR OWN APPLICATIONS
  =NOTICE=
@@ -1560,6 +1560,6 @@ inline bool operator<=( const UTFString::_const_rev_iterator& left, const UTFStr
 inline bool operator>( const UTFString::_const_rev_iterator& left, const UTFString::_const_rev_iterator& right ) { return right.iter_ > left.iter_; }
 inline bool operator>=( const UTFString::_const_rev_iterator& left, const UTFString::_const_rev_iterator& right ) { return right.iter_ >= left.iter_; }
 
-NS_CC_END
+}
 
 #endif // CC_CORE_KERNEL_UTF_STRING_H_

@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class CC_CORE_API GFXQueue : public GFXObject {
 public:
@@ -24,6 +24,6 @@ protected:
     GFXQueueType _type = GFXQueueType::GRAPHICS;
 };
 
-NS_CC_END
+}
 
 #endif // CC_CORE_GFX_QUEUE_H_

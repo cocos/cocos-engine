@@ -29,7 +29,7 @@
 
 class _jobject;
 
-namespace cocos2d { namespace network
+namespace cc { namespace network
     {
         class DownloadTaskAndroid;
         class DownloaderHints;
@@ -52,5 +52,5 @@ namespace cocos2d { namespace network
             _jobject* _impl;
             std::unordered_map<int, DownloadTaskAndroid*> _taskMap;
         };
-    }}  // namespace cocos2d::network
+    }}  // namespace cc::network
 

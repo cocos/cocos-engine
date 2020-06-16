@@ -2,7 +2,7 @@
 
 #include "GFXCommand.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 #define INITIAL_CAPACITY 1
 
@@ -85,4 +85,4 @@ private:
     int _freeIdx = 0;
 };
 
-NS_CC_END
+}

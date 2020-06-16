@@ -10,12 +10,12 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
-se::Object* __jsb_cocos2d_GFXOffset_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXOffset_class = nullptr;
+se::Object* __jsb_cc_GFXOffset_proto = nullptr;
+se::Class* __jsb_cc_GFXOffset_class = nullptr;
 
 static bool js_gfx_GFXOffset_get_x(se::State& s)
 {
-    cocos2d::GFXOffset* cobj = (cocos2d::GFXOffset*)s.nativeThisObject();
+    cc::GFXOffset* cobj = (cc::GFXOffset*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXOffset_get_x : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -29,7 +29,7 @@ SE_BIND_PROP_GET(js_gfx_GFXOffset_get_x)
 static bool js_gfx_GFXOffset_set_x(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXOffset* cobj = (cocos2d::GFXOffset*)s.nativeThisObject();
+    cc::GFXOffset* cobj = (cc::GFXOffset*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXOffset_set_x : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -43,7 +43,7 @@ SE_BIND_PROP_SET(js_gfx_GFXOffset_set_x)
 
 static bool js_gfx_GFXOffset_get_y(se::State& s)
 {
-    cocos2d::GFXOffset* cobj = (cocos2d::GFXOffset*)s.nativeThisObject();
+    cc::GFXOffset* cobj = (cc::GFXOffset*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXOffset_get_y : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -57,7 +57,7 @@ SE_BIND_PROP_GET(js_gfx_GFXOffset_get_y)
 static bool js_gfx_GFXOffset_set_y(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXOffset* cobj = (cocos2d::GFXOffset*)s.nativeThisObject();
+    cc::GFXOffset* cobj = (cc::GFXOffset*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXOffset_set_y : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -71,7 +71,7 @@ SE_BIND_PROP_SET(js_gfx_GFXOffset_set_y)
 
 static bool js_gfx_GFXOffset_get_z(se::State& s)
 {
-    cocos2d::GFXOffset* cobj = (cocos2d::GFXOffset*)s.nativeThisObject();
+    cc::GFXOffset* cobj = (cc::GFXOffset*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXOffset_get_z : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -85,7 +85,7 @@ SE_BIND_PROP_GET(js_gfx_GFXOffset_get_z)
 static bool js_gfx_GFXOffset_set_z(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXOffset* cobj = (cocos2d::GFXOffset*)s.nativeThisObject();
+    cc::GFXOffset* cobj = (cc::GFXOffset*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXOffset_set_z : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -97,7 +97,7 @@ static bool js_gfx_GFXOffset_set_z(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXOffset_set_z)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXOffset_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXOffset_finalize)
 
 static bool js_gfx_GFXOffset_constructor(se::State& s)
 {
@@ -107,7 +107,7 @@ static bool js_gfx_GFXOffset_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXOffset* cobj = JSB_ALLOC(cocos2d::GFXOffset);
+        cc::GFXOffset* cobj = JSB_ALLOC(cc::GFXOffset);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -117,7 +117,7 @@ static bool js_gfx_GFXOffset_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXOffset* cobj = JSB_ALLOC(cocos2d::GFXOffset);
+        cc::GFXOffset* cobj = JSB_ALLOC(cc::GFXOffset);
         int arg0 = 0;
         json->getProperty("x", &field);
         if(!field.isUndefined()) {
@@ -149,7 +149,7 @@ static bool js_gfx_GFXOffset_constructor(se::State& s)
     }
     else if(argc == 3)
     {
-        cocos2d::GFXOffset* cobj = JSB_ALLOC(cocos2d::GFXOffset);
+        cc::GFXOffset* cobj = JSB_ALLOC(cc::GFXOffset);
         int arg0 = 0;
         if (!args[0].isUndefined()) {
             do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
@@ -180,24 +180,24 @@ static bool js_gfx_GFXOffset_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXOffset_constructor, __jsb_cocos2d_GFXOffset_class, js_cocos2d_GFXOffset_finalize)
+SE_BIND_CTOR(js_gfx_GFXOffset_constructor, __jsb_cc_GFXOffset_class, js_cc_GFXOffset_finalize)
 
 
 
 
-static bool js_cocos2d_GFXOffset_finalize(se::State& s)
+static bool js_cc_GFXOffset_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXOffset)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXOffset)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXOffset* cobj = (cocos2d::GFXOffset*)s.nativeThisObject();
+        cc::GFXOffset* cobj = (cc::GFXOffset*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXOffset_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXOffset_finalize)
 
 bool js_register_gfx_GFXOffset(se::Object* obj)
 {
@@ -206,23 +206,23 @@ bool js_register_gfx_GFXOffset(se::Object* obj)
     cls->defineProperty("x", _SE(js_gfx_GFXOffset_get_x), _SE(js_gfx_GFXOffset_set_x));
     cls->defineProperty("y", _SE(js_gfx_GFXOffset_get_y), _SE(js_gfx_GFXOffset_set_y));
     cls->defineProperty("z", _SE(js_gfx_GFXOffset_get_z), _SE(js_gfx_GFXOffset_set_z));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXOffset_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXOffset_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXOffset>(cls);
+    JSBClassType::registerClass<cc::GFXOffset>(cls);
 
-    __jsb_cocos2d_GFXOffset_proto = cls->getProto();
-    __jsb_cocos2d_GFXOffset_class = cls;
+    __jsb_cc_GFXOffset_proto = cls->getProto();
+    __jsb_cc_GFXOffset_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXRect_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXRect_class = nullptr;
+se::Object* __jsb_cc_GFXRect_proto = nullptr;
+se::Class* __jsb_cc_GFXRect_class = nullptr;
 
 static bool js_gfx_GFXRect_get_x(se::State& s)
 {
-    cocos2d::GFXRect* cobj = (cocos2d::GFXRect*)s.nativeThisObject();
+    cc::GFXRect* cobj = (cc::GFXRect*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRect_get_x : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -236,7 +236,7 @@ SE_BIND_PROP_GET(js_gfx_GFXRect_get_x)
 static bool js_gfx_GFXRect_set_x(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXRect* cobj = (cocos2d::GFXRect*)s.nativeThisObject();
+    cc::GFXRect* cobj = (cc::GFXRect*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRect_set_x : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -250,7 +250,7 @@ SE_BIND_PROP_SET(js_gfx_GFXRect_set_x)
 
 static bool js_gfx_GFXRect_get_y(se::State& s)
 {
-    cocos2d::GFXRect* cobj = (cocos2d::GFXRect*)s.nativeThisObject();
+    cc::GFXRect* cobj = (cc::GFXRect*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRect_get_y : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -264,7 +264,7 @@ SE_BIND_PROP_GET(js_gfx_GFXRect_get_y)
 static bool js_gfx_GFXRect_set_y(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXRect* cobj = (cocos2d::GFXRect*)s.nativeThisObject();
+    cc::GFXRect* cobj = (cc::GFXRect*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRect_set_y : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -278,7 +278,7 @@ SE_BIND_PROP_SET(js_gfx_GFXRect_set_y)
 
 static bool js_gfx_GFXRect_get_width(se::State& s)
 {
-    cocos2d::GFXRect* cobj = (cocos2d::GFXRect*)s.nativeThisObject();
+    cc::GFXRect* cobj = (cc::GFXRect*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRect_get_width : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -292,7 +292,7 @@ SE_BIND_PROP_GET(js_gfx_GFXRect_get_width)
 static bool js_gfx_GFXRect_set_width(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXRect* cobj = (cocos2d::GFXRect*)s.nativeThisObject();
+    cc::GFXRect* cobj = (cc::GFXRect*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRect_set_width : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -306,7 +306,7 @@ SE_BIND_PROP_SET(js_gfx_GFXRect_set_width)
 
 static bool js_gfx_GFXRect_get_height(se::State& s)
 {
-    cocos2d::GFXRect* cobj = (cocos2d::GFXRect*)s.nativeThisObject();
+    cc::GFXRect* cobj = (cc::GFXRect*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRect_get_height : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -320,7 +320,7 @@ SE_BIND_PROP_GET(js_gfx_GFXRect_get_height)
 static bool js_gfx_GFXRect_set_height(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXRect* cobj = (cocos2d::GFXRect*)s.nativeThisObject();
+    cc::GFXRect* cobj = (cc::GFXRect*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRect_set_height : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -332,7 +332,7 @@ static bool js_gfx_GFXRect_set_height(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXRect_set_height)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXRect_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXRect_finalize)
 
 static bool js_gfx_GFXRect_constructor(se::State& s)
 {
@@ -342,7 +342,7 @@ static bool js_gfx_GFXRect_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXRect* cobj = JSB_ALLOC(cocos2d::GFXRect);
+        cc::GFXRect* cobj = JSB_ALLOC(cc::GFXRect);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -352,7 +352,7 @@ static bool js_gfx_GFXRect_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXRect* cobj = JSB_ALLOC(cocos2d::GFXRect);
+        cc::GFXRect* cobj = JSB_ALLOC(cc::GFXRect);
         int arg0 = 0;
         json->getProperty("x", &field);
         if(!field.isUndefined()) {
@@ -390,7 +390,7 @@ static bool js_gfx_GFXRect_constructor(se::State& s)
     }
     else if(argc == 4)
     {
-        cocos2d::GFXRect* cobj = JSB_ALLOC(cocos2d::GFXRect);
+        cc::GFXRect* cobj = JSB_ALLOC(cc::GFXRect);
         int arg0 = 0;
         if (!args[0].isUndefined()) {
             do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
@@ -426,24 +426,24 @@ static bool js_gfx_GFXRect_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXRect_constructor, __jsb_cocos2d_GFXRect_class, js_cocos2d_GFXRect_finalize)
+SE_BIND_CTOR(js_gfx_GFXRect_constructor, __jsb_cc_GFXRect_class, js_cc_GFXRect_finalize)
 
 
 
 
-static bool js_cocos2d_GFXRect_finalize(se::State& s)
+static bool js_cc_GFXRect_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXRect)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXRect)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXRect* cobj = (cocos2d::GFXRect*)s.nativeThisObject();
+        cc::GFXRect* cobj = (cc::GFXRect*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXRect_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXRect_finalize)
 
 bool js_register_gfx_GFXRect(se::Object* obj)
 {
@@ -453,23 +453,23 @@ bool js_register_gfx_GFXRect(se::Object* obj)
     cls->defineProperty("y", _SE(js_gfx_GFXRect_get_y), _SE(js_gfx_GFXRect_set_y));
     cls->defineProperty("width", _SE(js_gfx_GFXRect_get_width), _SE(js_gfx_GFXRect_set_width));
     cls->defineProperty("height", _SE(js_gfx_GFXRect_get_height), _SE(js_gfx_GFXRect_set_height));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXRect_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXRect_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXRect>(cls);
+    JSBClassType::registerClass<cc::GFXRect>(cls);
 
-    __jsb_cocos2d_GFXRect_proto = cls->getProto();
-    __jsb_cocos2d_GFXRect_class = cls;
+    __jsb_cc_GFXRect_proto = cls->getProto();
+    __jsb_cc_GFXRect_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXExtent_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXExtent_class = nullptr;
+se::Object* __jsb_cc_GFXExtent_proto = nullptr;
+se::Class* __jsb_cc_GFXExtent_class = nullptr;
 
 static bool js_gfx_GFXExtent_get_width(se::State& s)
 {
-    cocos2d::GFXExtent* cobj = (cocos2d::GFXExtent*)s.nativeThisObject();
+    cc::GFXExtent* cobj = (cc::GFXExtent*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXExtent_get_width : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -483,7 +483,7 @@ SE_BIND_PROP_GET(js_gfx_GFXExtent_get_width)
 static bool js_gfx_GFXExtent_set_width(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXExtent* cobj = (cocos2d::GFXExtent*)s.nativeThisObject();
+    cc::GFXExtent* cobj = (cc::GFXExtent*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXExtent_set_width : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -497,7 +497,7 @@ SE_BIND_PROP_SET(js_gfx_GFXExtent_set_width)
 
 static bool js_gfx_GFXExtent_get_height(se::State& s)
 {
-    cocos2d::GFXExtent* cobj = (cocos2d::GFXExtent*)s.nativeThisObject();
+    cc::GFXExtent* cobj = (cc::GFXExtent*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXExtent_get_height : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -511,7 +511,7 @@ SE_BIND_PROP_GET(js_gfx_GFXExtent_get_height)
 static bool js_gfx_GFXExtent_set_height(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXExtent* cobj = (cocos2d::GFXExtent*)s.nativeThisObject();
+    cc::GFXExtent* cobj = (cc::GFXExtent*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXExtent_set_height : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -525,7 +525,7 @@ SE_BIND_PROP_SET(js_gfx_GFXExtent_set_height)
 
 static bool js_gfx_GFXExtent_get_depth(se::State& s)
 {
-    cocos2d::GFXExtent* cobj = (cocos2d::GFXExtent*)s.nativeThisObject();
+    cc::GFXExtent* cobj = (cc::GFXExtent*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXExtent_get_depth : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -539,7 +539,7 @@ SE_BIND_PROP_GET(js_gfx_GFXExtent_get_depth)
 static bool js_gfx_GFXExtent_set_depth(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXExtent* cobj = (cocos2d::GFXExtent*)s.nativeThisObject();
+    cc::GFXExtent* cobj = (cc::GFXExtent*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXExtent_set_depth : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -551,7 +551,7 @@ static bool js_gfx_GFXExtent_set_depth(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXExtent_set_depth)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXExtent_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXExtent_finalize)
 
 static bool js_gfx_GFXExtent_constructor(se::State& s)
 {
@@ -561,7 +561,7 @@ static bool js_gfx_GFXExtent_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXExtent* cobj = JSB_ALLOC(cocos2d::GFXExtent);
+        cc::GFXExtent* cobj = JSB_ALLOC(cc::GFXExtent);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -571,7 +571,7 @@ static bool js_gfx_GFXExtent_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXExtent* cobj = JSB_ALLOC(cocos2d::GFXExtent);
+        cc::GFXExtent* cobj = JSB_ALLOC(cc::GFXExtent);
         unsigned int arg0 = 0;
         json->getProperty("width", &field);
         if(!field.isUndefined()) {
@@ -603,7 +603,7 @@ static bool js_gfx_GFXExtent_constructor(se::State& s)
     }
     else if(argc == 3)
     {
-        cocos2d::GFXExtent* cobj = JSB_ALLOC(cocos2d::GFXExtent);
+        cc::GFXExtent* cobj = JSB_ALLOC(cc::GFXExtent);
         unsigned int arg0 = 0;
         if (!args[0].isUndefined()) {
             ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
@@ -634,24 +634,24 @@ static bool js_gfx_GFXExtent_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXExtent_constructor, __jsb_cocos2d_GFXExtent_class, js_cocos2d_GFXExtent_finalize)
+SE_BIND_CTOR(js_gfx_GFXExtent_constructor, __jsb_cc_GFXExtent_class, js_cc_GFXExtent_finalize)
 
 
 
 
-static bool js_cocos2d_GFXExtent_finalize(se::State& s)
+static bool js_cc_GFXExtent_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXExtent)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXExtent)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXExtent* cobj = (cocos2d::GFXExtent*)s.nativeThisObject();
+        cc::GFXExtent* cobj = (cc::GFXExtent*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXExtent_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXExtent_finalize)
 
 bool js_register_gfx_GFXExtent(se::Object* obj)
 {
@@ -660,23 +660,23 @@ bool js_register_gfx_GFXExtent(se::Object* obj)
     cls->defineProperty("width", _SE(js_gfx_GFXExtent_get_width), _SE(js_gfx_GFXExtent_set_width));
     cls->defineProperty("height", _SE(js_gfx_GFXExtent_get_height), _SE(js_gfx_GFXExtent_set_height));
     cls->defineProperty("depth", _SE(js_gfx_GFXExtent_get_depth), _SE(js_gfx_GFXExtent_set_depth));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXExtent_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXExtent_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXExtent>(cls);
+    JSBClassType::registerClass<cc::GFXExtent>(cls);
 
-    __jsb_cocos2d_GFXExtent_proto = cls->getProto();
-    __jsb_cocos2d_GFXExtent_class = cls;
+    __jsb_cc_GFXExtent_proto = cls->getProto();
+    __jsb_cc_GFXExtent_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXTextureSubres_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXTextureSubres_class = nullptr;
+se::Object* __jsb_cc_GFXTextureSubres_proto = nullptr;
+se::Class* __jsb_cc_GFXTextureSubres_class = nullptr;
 
 static bool js_gfx_GFXTextureSubres_get_mipLevel(se::State& s)
 {
-    cocos2d::GFXTextureSubres* cobj = (cocos2d::GFXTextureSubres*)s.nativeThisObject();
+    cc::GFXTextureSubres* cobj = (cc::GFXTextureSubres*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureSubres_get_mipLevel : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -690,7 +690,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureSubres_get_mipLevel)
 static bool js_gfx_GFXTextureSubres_set_mipLevel(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureSubres* cobj = (cocos2d::GFXTextureSubres*)s.nativeThisObject();
+    cc::GFXTextureSubres* cobj = (cc::GFXTextureSubres*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureSubres_set_mipLevel : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -704,7 +704,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureSubres_set_mipLevel)
 
 static bool js_gfx_GFXTextureSubres_get_baseArrayLayer(se::State& s)
 {
-    cocos2d::GFXTextureSubres* cobj = (cocos2d::GFXTextureSubres*)s.nativeThisObject();
+    cc::GFXTextureSubres* cobj = (cc::GFXTextureSubres*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureSubres_get_baseArrayLayer : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -718,7 +718,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureSubres_get_baseArrayLayer)
 static bool js_gfx_GFXTextureSubres_set_baseArrayLayer(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureSubres* cobj = (cocos2d::GFXTextureSubres*)s.nativeThisObject();
+    cc::GFXTextureSubres* cobj = (cc::GFXTextureSubres*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureSubres_set_baseArrayLayer : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -732,7 +732,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureSubres_set_baseArrayLayer)
 
 static bool js_gfx_GFXTextureSubres_get_layerCount(se::State& s)
 {
-    cocos2d::GFXTextureSubres* cobj = (cocos2d::GFXTextureSubres*)s.nativeThisObject();
+    cc::GFXTextureSubres* cobj = (cc::GFXTextureSubres*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureSubres_get_layerCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -746,7 +746,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureSubres_get_layerCount)
 static bool js_gfx_GFXTextureSubres_set_layerCount(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureSubres* cobj = (cocos2d::GFXTextureSubres*)s.nativeThisObject();
+    cc::GFXTextureSubres* cobj = (cc::GFXTextureSubres*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureSubres_set_layerCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -758,7 +758,7 @@ static bool js_gfx_GFXTextureSubres_set_layerCount(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXTextureSubres_set_layerCount)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXTextureSubres_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXTextureSubres_finalize)
 
 static bool js_gfx_GFXTextureSubres_constructor(se::State& s)
 {
@@ -768,7 +768,7 @@ static bool js_gfx_GFXTextureSubres_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXTextureSubres* cobj = JSB_ALLOC(cocos2d::GFXTextureSubres);
+        cc::GFXTextureSubres* cobj = JSB_ALLOC(cc::GFXTextureSubres);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -778,7 +778,7 @@ static bool js_gfx_GFXTextureSubres_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXTextureSubres* cobj = JSB_ALLOC(cocos2d::GFXTextureSubres);
+        cc::GFXTextureSubres* cobj = JSB_ALLOC(cc::GFXTextureSubres);
         unsigned int arg0 = 0;
         json->getProperty("mipLevel", &field);
         if(!field.isUndefined()) {
@@ -810,7 +810,7 @@ static bool js_gfx_GFXTextureSubres_constructor(se::State& s)
     }
     else if(argc == 3)
     {
-        cocos2d::GFXTextureSubres* cobj = JSB_ALLOC(cocos2d::GFXTextureSubres);
+        cc::GFXTextureSubres* cobj = JSB_ALLOC(cc::GFXTextureSubres);
         unsigned int arg0 = 0;
         if (!args[0].isUndefined()) {
             ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
@@ -841,24 +841,24 @@ static bool js_gfx_GFXTextureSubres_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXTextureSubres_constructor, __jsb_cocos2d_GFXTextureSubres_class, js_cocos2d_GFXTextureSubres_finalize)
+SE_BIND_CTOR(js_gfx_GFXTextureSubres_constructor, __jsb_cc_GFXTextureSubres_class, js_cc_GFXTextureSubres_finalize)
 
 
 
 
-static bool js_cocos2d_GFXTextureSubres_finalize(se::State& s)
+static bool js_cc_GFXTextureSubres_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXTextureSubres)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXTextureSubres)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXTextureSubres* cobj = (cocos2d::GFXTextureSubres*)s.nativeThisObject();
+        cc::GFXTextureSubres* cobj = (cc::GFXTextureSubres*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXTextureSubres_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXTextureSubres_finalize)
 
 bool js_register_gfx_GFXTextureSubres(se::Object* obj)
 {
@@ -867,23 +867,23 @@ bool js_register_gfx_GFXTextureSubres(se::Object* obj)
     cls->defineProperty("mipLevel", _SE(js_gfx_GFXTextureSubres_get_mipLevel), _SE(js_gfx_GFXTextureSubres_set_mipLevel));
     cls->defineProperty("baseArrayLayer", _SE(js_gfx_GFXTextureSubres_get_baseArrayLayer), _SE(js_gfx_GFXTextureSubres_set_baseArrayLayer));
     cls->defineProperty("layerCount", _SE(js_gfx_GFXTextureSubres_get_layerCount), _SE(js_gfx_GFXTextureSubres_set_layerCount));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXTextureSubres_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXTextureSubres_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXTextureSubres>(cls);
+    JSBClassType::registerClass<cc::GFXTextureSubres>(cls);
 
-    __jsb_cocos2d_GFXTextureSubres_proto = cls->getProto();
-    __jsb_cocos2d_GFXTextureSubres_class = cls;
+    __jsb_cc_GFXTextureSubres_proto = cls->getProto();
+    __jsb_cc_GFXTextureSubres_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXTextureCopy_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXTextureCopy_class = nullptr;
+se::Object* __jsb_cc_GFXTextureCopy_proto = nullptr;
+se::Class* __jsb_cc_GFXTextureCopy_class = nullptr;
 
 static bool js_gfx_GFXTextureCopy_get_srcSubres(se::State& s)
 {
-    cocos2d::GFXTextureCopy* cobj = (cocos2d::GFXTextureCopy*)s.nativeThisObject();
+    cc::GFXTextureCopy* cobj = (cc::GFXTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureCopy_get_srcSubres : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -897,11 +897,11 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureCopy_get_srcSubres)
 static bool js_gfx_GFXTextureCopy_set_srcSubres(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureCopy* cobj = (cocos2d::GFXTextureCopy*)s.nativeThisObject();
+    cc::GFXTextureCopy* cobj = (cc::GFXTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureCopy_set_srcSubres : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXTextureSubres* arg0 = nullptr;
+    cc::GFXTextureSubres* arg0 = nullptr;
     ok &= seval_to_reference(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureCopy_set_srcSubres : Error processing new value");
     cobj->srcSubres = *arg0;
@@ -911,7 +911,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureCopy_set_srcSubres)
 
 static bool js_gfx_GFXTextureCopy_get_srcOffset(se::State& s)
 {
-    cocos2d::GFXTextureCopy* cobj = (cocos2d::GFXTextureCopy*)s.nativeThisObject();
+    cc::GFXTextureCopy* cobj = (cc::GFXTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureCopy_get_srcOffset : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -925,11 +925,11 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureCopy_get_srcOffset)
 static bool js_gfx_GFXTextureCopy_set_srcOffset(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureCopy* cobj = (cocos2d::GFXTextureCopy*)s.nativeThisObject();
+    cc::GFXTextureCopy* cobj = (cc::GFXTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureCopy_set_srcOffset : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXOffset* arg0 = nullptr;
+    cc::GFXOffset* arg0 = nullptr;
     ok &= seval_to_reference(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureCopy_set_srcOffset : Error processing new value");
     cobj->srcOffset = *arg0;
@@ -939,7 +939,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureCopy_set_srcOffset)
 
 static bool js_gfx_GFXTextureCopy_get_dstSubres(se::State& s)
 {
-    cocos2d::GFXTextureCopy* cobj = (cocos2d::GFXTextureCopy*)s.nativeThisObject();
+    cc::GFXTextureCopy* cobj = (cc::GFXTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureCopy_get_dstSubres : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -953,11 +953,11 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureCopy_get_dstSubres)
 static bool js_gfx_GFXTextureCopy_set_dstSubres(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureCopy* cobj = (cocos2d::GFXTextureCopy*)s.nativeThisObject();
+    cc::GFXTextureCopy* cobj = (cc::GFXTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureCopy_set_dstSubres : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXTextureSubres* arg0 = nullptr;
+    cc::GFXTextureSubres* arg0 = nullptr;
     ok &= seval_to_reference(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureCopy_set_dstSubres : Error processing new value");
     cobj->dstSubres = *arg0;
@@ -967,7 +967,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureCopy_set_dstSubres)
 
 static bool js_gfx_GFXTextureCopy_get_dstOffset(se::State& s)
 {
-    cocos2d::GFXTextureCopy* cobj = (cocos2d::GFXTextureCopy*)s.nativeThisObject();
+    cc::GFXTextureCopy* cobj = (cc::GFXTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureCopy_get_dstOffset : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -981,11 +981,11 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureCopy_get_dstOffset)
 static bool js_gfx_GFXTextureCopy_set_dstOffset(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureCopy* cobj = (cocos2d::GFXTextureCopy*)s.nativeThisObject();
+    cc::GFXTextureCopy* cobj = (cc::GFXTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureCopy_set_dstOffset : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXOffset* arg0 = nullptr;
+    cc::GFXOffset* arg0 = nullptr;
     ok &= seval_to_reference(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureCopy_set_dstOffset : Error processing new value");
     cobj->dstOffset = *arg0;
@@ -995,7 +995,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureCopy_set_dstOffset)
 
 static bool js_gfx_GFXTextureCopy_get_extent(se::State& s)
 {
-    cocos2d::GFXTextureCopy* cobj = (cocos2d::GFXTextureCopy*)s.nativeThisObject();
+    cc::GFXTextureCopy* cobj = (cc::GFXTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureCopy_get_extent : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1009,11 +1009,11 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureCopy_get_extent)
 static bool js_gfx_GFXTextureCopy_set_extent(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureCopy* cobj = (cocos2d::GFXTextureCopy*)s.nativeThisObject();
+    cc::GFXTextureCopy* cobj = (cc::GFXTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureCopy_set_extent : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXExtent* arg0 = nullptr;
+    cc::GFXExtent* arg0 = nullptr;
     ok &= seval_to_reference(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureCopy_set_extent : Error processing new value");
     cobj->extent = *arg0;
@@ -1021,7 +1021,7 @@ static bool js_gfx_GFXTextureCopy_set_extent(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXTextureCopy_set_extent)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXTextureCopy_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXTextureCopy_finalize)
 
 static bool js_gfx_GFXTextureCopy_constructor(se::State& s)
 {
@@ -1031,7 +1031,7 @@ static bool js_gfx_GFXTextureCopy_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXTextureCopy);
+        cc::GFXTextureCopy* cobj = JSB_ALLOC(cc::GFXTextureCopy);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -1041,32 +1041,32 @@ static bool js_gfx_GFXTextureCopy_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXTextureCopy);
-        cocos2d::GFXTextureSubres* arg0 = nullptr;
+        cc::GFXTextureCopy* cobj = JSB_ALLOC(cc::GFXTextureCopy);
+        cc::GFXTextureSubres* arg0 = nullptr;
         json->getProperty("srcSubres", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_reference(field, &arg0);
             cobj->srcSubres = *arg0;
         }
-        cocos2d::GFXOffset* arg1 = nullptr;
+        cc::GFXOffset* arg1 = nullptr;
         json->getProperty("srcOffset", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_reference(field, &arg1);
             cobj->srcOffset = *arg1;
         }
-        cocos2d::GFXTextureSubres* arg2 = nullptr;
+        cc::GFXTextureSubres* arg2 = nullptr;
         json->getProperty("dstSubres", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_reference(field, &arg2);
             cobj->dstSubres = *arg2;
         }
-        cocos2d::GFXOffset* arg3 = nullptr;
+        cc::GFXOffset* arg3 = nullptr;
         json->getProperty("dstOffset", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_reference(field, &arg3);
             cobj->dstOffset = *arg3;
         }
-        cocos2d::GFXExtent* arg4 = nullptr;
+        cc::GFXExtent* arg4 = nullptr;
         json->getProperty("extent", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_reference(field, &arg4);
@@ -1085,28 +1085,28 @@ static bool js_gfx_GFXTextureCopy_constructor(se::State& s)
     }
     else if(argc == 5)
     {
-        cocos2d::GFXTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXTextureCopy);
-        cocos2d::GFXTextureSubres* arg0 = nullptr;
+        cc::GFXTextureCopy* cobj = JSB_ALLOC(cc::GFXTextureCopy);
+        cc::GFXTextureSubres* arg0 = nullptr;
         if (!args[0].isUndefined()) {
             ok &= seval_to_reference(args[0], &arg0);
             cobj->srcSubres = *arg0;
         }
-        cocos2d::GFXOffset* arg1 = nullptr;
+        cc::GFXOffset* arg1 = nullptr;
         if (!args[1].isUndefined()) {
             ok &= seval_to_reference(args[1], &arg1);
             cobj->srcOffset = *arg1;
         }
-        cocos2d::GFXTextureSubres* arg2 = nullptr;
+        cc::GFXTextureSubres* arg2 = nullptr;
         if (!args[2].isUndefined()) {
             ok &= seval_to_reference(args[2], &arg2);
             cobj->dstSubres = *arg2;
         }
-        cocos2d::GFXOffset* arg3 = nullptr;
+        cc::GFXOffset* arg3 = nullptr;
         if (!args[3].isUndefined()) {
             ok &= seval_to_reference(args[3], &arg3);
             cobj->dstOffset = *arg3;
         }
-        cocos2d::GFXExtent* arg4 = nullptr;
+        cc::GFXExtent* arg4 = nullptr;
         if (!args[4].isUndefined()) {
             ok &= seval_to_reference(args[4], &arg4);
             cobj->extent = *arg4;
@@ -1126,24 +1126,24 @@ static bool js_gfx_GFXTextureCopy_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXTextureCopy_constructor, __jsb_cocos2d_GFXTextureCopy_class, js_cocos2d_GFXTextureCopy_finalize)
+SE_BIND_CTOR(js_gfx_GFXTextureCopy_constructor, __jsb_cc_GFXTextureCopy_class, js_cc_GFXTextureCopy_finalize)
 
 
 
 
-static bool js_cocos2d_GFXTextureCopy_finalize(se::State& s)
+static bool js_cc_GFXTextureCopy_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXTextureCopy)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXTextureCopy)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXTextureCopy* cobj = (cocos2d::GFXTextureCopy*)s.nativeThisObject();
+        cc::GFXTextureCopy* cobj = (cc::GFXTextureCopy*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXTextureCopy_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXTextureCopy_finalize)
 
 bool js_register_gfx_GFXTextureCopy(se::Object* obj)
 {
@@ -1154,23 +1154,23 @@ bool js_register_gfx_GFXTextureCopy(se::Object* obj)
     cls->defineProperty("dstSubres", _SE(js_gfx_GFXTextureCopy_get_dstSubres), _SE(js_gfx_GFXTextureCopy_set_dstSubres));
     cls->defineProperty("dstOffset", _SE(js_gfx_GFXTextureCopy_get_dstOffset), _SE(js_gfx_GFXTextureCopy_set_dstOffset));
     cls->defineProperty("extent", _SE(js_gfx_GFXTextureCopy_get_extent), _SE(js_gfx_GFXTextureCopy_set_extent));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXTextureCopy_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXTextureCopy_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXTextureCopy>(cls);
+    JSBClassType::registerClass<cc::GFXTextureCopy>(cls);
 
-    __jsb_cocos2d_GFXTextureCopy_proto = cls->getProto();
-    __jsb_cocos2d_GFXTextureCopy_class = cls;
+    __jsb_cc_GFXTextureCopy_proto = cls->getProto();
+    __jsb_cc_GFXTextureCopy_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXBufferTextureCopy_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXBufferTextureCopy_class = nullptr;
+se::Object* __jsb_cc_GFXBufferTextureCopy_proto = nullptr;
+se::Class* __jsb_cc_GFXBufferTextureCopy_class = nullptr;
 
 static bool js_gfx_GFXBufferTextureCopy_get_buffStride(se::State& s)
 {
-    cocos2d::GFXBufferTextureCopy* cobj = (cocos2d::GFXBufferTextureCopy*)s.nativeThisObject();
+    cc::GFXBufferTextureCopy* cobj = (cc::GFXBufferTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferTextureCopy_get_buffStride : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1184,7 +1184,7 @@ SE_BIND_PROP_GET(js_gfx_GFXBufferTextureCopy_get_buffStride)
 static bool js_gfx_GFXBufferTextureCopy_set_buffStride(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBufferTextureCopy* cobj = (cocos2d::GFXBufferTextureCopy*)s.nativeThisObject();
+    cc::GFXBufferTextureCopy* cobj = (cc::GFXBufferTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferTextureCopy_set_buffStride : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1198,7 +1198,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBufferTextureCopy_set_buffStride)
 
 static bool js_gfx_GFXBufferTextureCopy_get_buffTexHeight(se::State& s)
 {
-    cocos2d::GFXBufferTextureCopy* cobj = (cocos2d::GFXBufferTextureCopy*)s.nativeThisObject();
+    cc::GFXBufferTextureCopy* cobj = (cc::GFXBufferTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferTextureCopy_get_buffTexHeight : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1212,7 +1212,7 @@ SE_BIND_PROP_GET(js_gfx_GFXBufferTextureCopy_get_buffTexHeight)
 static bool js_gfx_GFXBufferTextureCopy_set_buffTexHeight(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBufferTextureCopy* cobj = (cocos2d::GFXBufferTextureCopy*)s.nativeThisObject();
+    cc::GFXBufferTextureCopy* cobj = (cc::GFXBufferTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferTextureCopy_set_buffTexHeight : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1226,7 +1226,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBufferTextureCopy_set_buffTexHeight)
 
 static bool js_gfx_GFXBufferTextureCopy_get_texOffset(se::State& s)
 {
-    cocos2d::GFXBufferTextureCopy* cobj = (cocos2d::GFXBufferTextureCopy*)s.nativeThisObject();
+    cc::GFXBufferTextureCopy* cobj = (cc::GFXBufferTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferTextureCopy_get_texOffset : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1240,11 +1240,11 @@ SE_BIND_PROP_GET(js_gfx_GFXBufferTextureCopy_get_texOffset)
 static bool js_gfx_GFXBufferTextureCopy_set_texOffset(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBufferTextureCopy* cobj = (cocos2d::GFXBufferTextureCopy*)s.nativeThisObject();
+    cc::GFXBufferTextureCopy* cobj = (cc::GFXBufferTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferTextureCopy_set_texOffset : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXOffset* arg0 = nullptr;
+    cc::GFXOffset* arg0 = nullptr;
     ok &= seval_to_reference(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBufferTextureCopy_set_texOffset : Error processing new value");
     cobj->texOffset = *arg0;
@@ -1254,7 +1254,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBufferTextureCopy_set_texOffset)
 
 static bool js_gfx_GFXBufferTextureCopy_get_texExtent(se::State& s)
 {
-    cocos2d::GFXBufferTextureCopy* cobj = (cocos2d::GFXBufferTextureCopy*)s.nativeThisObject();
+    cc::GFXBufferTextureCopy* cobj = (cc::GFXBufferTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferTextureCopy_get_texExtent : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1268,11 +1268,11 @@ SE_BIND_PROP_GET(js_gfx_GFXBufferTextureCopy_get_texExtent)
 static bool js_gfx_GFXBufferTextureCopy_set_texExtent(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBufferTextureCopy* cobj = (cocos2d::GFXBufferTextureCopy*)s.nativeThisObject();
+    cc::GFXBufferTextureCopy* cobj = (cc::GFXBufferTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferTextureCopy_set_texExtent : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXExtent* arg0 = nullptr;
+    cc::GFXExtent* arg0 = nullptr;
     ok &= seval_to_reference(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBufferTextureCopy_set_texExtent : Error processing new value");
     cobj->texExtent = *arg0;
@@ -1282,7 +1282,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBufferTextureCopy_set_texExtent)
 
 static bool js_gfx_GFXBufferTextureCopy_get_texSubres(se::State& s)
 {
-    cocos2d::GFXBufferTextureCopy* cobj = (cocos2d::GFXBufferTextureCopy*)s.nativeThisObject();
+    cc::GFXBufferTextureCopy* cobj = (cc::GFXBufferTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferTextureCopy_get_texSubres : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1296,11 +1296,11 @@ SE_BIND_PROP_GET(js_gfx_GFXBufferTextureCopy_get_texSubres)
 static bool js_gfx_GFXBufferTextureCopy_set_texSubres(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBufferTextureCopy* cobj = (cocos2d::GFXBufferTextureCopy*)s.nativeThisObject();
+    cc::GFXBufferTextureCopy* cobj = (cc::GFXBufferTextureCopy*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferTextureCopy_set_texSubres : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXTextureSubres* arg0 = nullptr;
+    cc::GFXTextureSubres* arg0 = nullptr;
     ok &= seval_to_reference(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBufferTextureCopy_set_texSubres : Error processing new value");
     cobj->texSubres = *arg0;
@@ -1308,7 +1308,7 @@ static bool js_gfx_GFXBufferTextureCopy_set_texSubres(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXBufferTextureCopy_set_texSubres)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXBufferTextureCopy_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXBufferTextureCopy_finalize)
 
 static bool js_gfx_GFXBufferTextureCopy_constructor(se::State& s)
 {
@@ -1318,7 +1318,7 @@ static bool js_gfx_GFXBufferTextureCopy_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXBufferTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXBufferTextureCopy);
+        cc::GFXBufferTextureCopy* cobj = JSB_ALLOC(cc::GFXBufferTextureCopy);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -1328,7 +1328,7 @@ static bool js_gfx_GFXBufferTextureCopy_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXBufferTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXBufferTextureCopy);
+        cc::GFXBufferTextureCopy* cobj = JSB_ALLOC(cc::GFXBufferTextureCopy);
         unsigned int arg0 = 0;
         json->getProperty("buffStride", &field);
         if(!field.isUndefined()) {
@@ -1341,19 +1341,19 @@ static bool js_gfx_GFXBufferTextureCopy_constructor(se::State& s)
             ok &= seval_to_uint32(field, (uint32_t*)&arg1);
             cobj->buffTexHeight = arg1;
         }
-        cocos2d::GFXOffset* arg2 = nullptr;
+        cc::GFXOffset* arg2 = nullptr;
         json->getProperty("texOffset", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_reference(field, &arg2);
             cobj->texOffset = *arg2;
         }
-        cocos2d::GFXExtent* arg3 = nullptr;
+        cc::GFXExtent* arg3 = nullptr;
         json->getProperty("texExtent", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_reference(field, &arg3);
             cobj->texExtent = *arg3;
         }
-        cocos2d::GFXTextureSubres* arg4 = nullptr;
+        cc::GFXTextureSubres* arg4 = nullptr;
         json->getProperty("texSubres", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_reference(field, &arg4);
@@ -1372,7 +1372,7 @@ static bool js_gfx_GFXBufferTextureCopy_constructor(se::State& s)
     }
     else if(argc == 5)
     {
-        cocos2d::GFXBufferTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXBufferTextureCopy);
+        cc::GFXBufferTextureCopy* cobj = JSB_ALLOC(cc::GFXBufferTextureCopy);
         unsigned int arg0 = 0;
         if (!args[0].isUndefined()) {
             ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
@@ -1383,17 +1383,17 @@ static bool js_gfx_GFXBufferTextureCopy_constructor(se::State& s)
             ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
             cobj->buffTexHeight = arg1;
         }
-        cocos2d::GFXOffset* arg2 = nullptr;
+        cc::GFXOffset* arg2 = nullptr;
         if (!args[2].isUndefined()) {
             ok &= seval_to_reference(args[2], &arg2);
             cobj->texOffset = *arg2;
         }
-        cocos2d::GFXExtent* arg3 = nullptr;
+        cc::GFXExtent* arg3 = nullptr;
         if (!args[3].isUndefined()) {
             ok &= seval_to_reference(args[3], &arg3);
             cobj->texExtent = *arg3;
         }
-        cocos2d::GFXTextureSubres* arg4 = nullptr;
+        cc::GFXTextureSubres* arg4 = nullptr;
         if (!args[4].isUndefined()) {
             ok &= seval_to_reference(args[4], &arg4);
             cobj->texSubres = *arg4;
@@ -1413,24 +1413,24 @@ static bool js_gfx_GFXBufferTextureCopy_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXBufferTextureCopy_constructor, __jsb_cocos2d_GFXBufferTextureCopy_class, js_cocos2d_GFXBufferTextureCopy_finalize)
+SE_BIND_CTOR(js_gfx_GFXBufferTextureCopy_constructor, __jsb_cc_GFXBufferTextureCopy_class, js_cc_GFXBufferTextureCopy_finalize)
 
 
 
 
-static bool js_cocos2d_GFXBufferTextureCopy_finalize(se::State& s)
+static bool js_cc_GFXBufferTextureCopy_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXBufferTextureCopy)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXBufferTextureCopy)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXBufferTextureCopy* cobj = (cocos2d::GFXBufferTextureCopy*)s.nativeThisObject();
+        cc::GFXBufferTextureCopy* cobj = (cc::GFXBufferTextureCopy*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXBufferTextureCopy_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXBufferTextureCopy_finalize)
 
 bool js_register_gfx_GFXBufferTextureCopy(se::Object* obj)
 {
@@ -1441,23 +1441,23 @@ bool js_register_gfx_GFXBufferTextureCopy(se::Object* obj)
     cls->defineProperty("texOffset", _SE(js_gfx_GFXBufferTextureCopy_get_texOffset), _SE(js_gfx_GFXBufferTextureCopy_set_texOffset));
     cls->defineProperty("texExtent", _SE(js_gfx_GFXBufferTextureCopy_get_texExtent), _SE(js_gfx_GFXBufferTextureCopy_set_texExtent));
     cls->defineProperty("texSubres", _SE(js_gfx_GFXBufferTextureCopy_get_texSubres), _SE(js_gfx_GFXBufferTextureCopy_set_texSubres));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBufferTextureCopy_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXBufferTextureCopy_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXBufferTextureCopy>(cls);
+    JSBClassType::registerClass<cc::GFXBufferTextureCopy>(cls);
 
-    __jsb_cocos2d_GFXBufferTextureCopy_proto = cls->getProto();
-    __jsb_cocos2d_GFXBufferTextureCopy_class = cls;
+    __jsb_cc_GFXBufferTextureCopy_proto = cls->getProto();
+    __jsb_cc_GFXBufferTextureCopy_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXViewport_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXViewport_class = nullptr;
+se::Object* __jsb_cc_GFXViewport_proto = nullptr;
+se::Class* __jsb_cc_GFXViewport_class = nullptr;
 
 static bool js_gfx_GFXViewport_get_left(se::State& s)
 {
-    cocos2d::GFXViewport* cobj = (cocos2d::GFXViewport*)s.nativeThisObject();
+    cc::GFXViewport* cobj = (cc::GFXViewport*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXViewport_get_left : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1471,7 +1471,7 @@ SE_BIND_PROP_GET(js_gfx_GFXViewport_get_left)
 static bool js_gfx_GFXViewport_set_left(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXViewport* cobj = (cocos2d::GFXViewport*)s.nativeThisObject();
+    cc::GFXViewport* cobj = (cc::GFXViewport*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXViewport_set_left : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1485,7 +1485,7 @@ SE_BIND_PROP_SET(js_gfx_GFXViewport_set_left)
 
 static bool js_gfx_GFXViewport_get_top(se::State& s)
 {
-    cocos2d::GFXViewport* cobj = (cocos2d::GFXViewport*)s.nativeThisObject();
+    cc::GFXViewport* cobj = (cc::GFXViewport*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXViewport_get_top : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1499,7 +1499,7 @@ SE_BIND_PROP_GET(js_gfx_GFXViewport_get_top)
 static bool js_gfx_GFXViewport_set_top(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXViewport* cobj = (cocos2d::GFXViewport*)s.nativeThisObject();
+    cc::GFXViewport* cobj = (cc::GFXViewport*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXViewport_set_top : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1513,7 +1513,7 @@ SE_BIND_PROP_SET(js_gfx_GFXViewport_set_top)
 
 static bool js_gfx_GFXViewport_get_width(se::State& s)
 {
-    cocos2d::GFXViewport* cobj = (cocos2d::GFXViewport*)s.nativeThisObject();
+    cc::GFXViewport* cobj = (cc::GFXViewport*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXViewport_get_width : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1527,7 +1527,7 @@ SE_BIND_PROP_GET(js_gfx_GFXViewport_get_width)
 static bool js_gfx_GFXViewport_set_width(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXViewport* cobj = (cocos2d::GFXViewport*)s.nativeThisObject();
+    cc::GFXViewport* cobj = (cc::GFXViewport*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXViewport_set_width : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1541,7 +1541,7 @@ SE_BIND_PROP_SET(js_gfx_GFXViewport_set_width)
 
 static bool js_gfx_GFXViewport_get_height(se::State& s)
 {
-    cocos2d::GFXViewport* cobj = (cocos2d::GFXViewport*)s.nativeThisObject();
+    cc::GFXViewport* cobj = (cc::GFXViewport*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXViewport_get_height : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1555,7 +1555,7 @@ SE_BIND_PROP_GET(js_gfx_GFXViewport_get_height)
 static bool js_gfx_GFXViewport_set_height(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXViewport* cobj = (cocos2d::GFXViewport*)s.nativeThisObject();
+    cc::GFXViewport* cobj = (cc::GFXViewport*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXViewport_set_height : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1569,7 +1569,7 @@ SE_BIND_PROP_SET(js_gfx_GFXViewport_set_height)
 
 static bool js_gfx_GFXViewport_get_minDepth(se::State& s)
 {
-    cocos2d::GFXViewport* cobj = (cocos2d::GFXViewport*)s.nativeThisObject();
+    cc::GFXViewport* cobj = (cc::GFXViewport*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXViewport_get_minDepth : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1583,7 +1583,7 @@ SE_BIND_PROP_GET(js_gfx_GFXViewport_get_minDepth)
 static bool js_gfx_GFXViewport_set_minDepth(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXViewport* cobj = (cocos2d::GFXViewport*)s.nativeThisObject();
+    cc::GFXViewport* cobj = (cc::GFXViewport*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXViewport_set_minDepth : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1597,7 +1597,7 @@ SE_BIND_PROP_SET(js_gfx_GFXViewport_set_minDepth)
 
 static bool js_gfx_GFXViewport_get_maxDepth(se::State& s)
 {
-    cocos2d::GFXViewport* cobj = (cocos2d::GFXViewport*)s.nativeThisObject();
+    cc::GFXViewport* cobj = (cc::GFXViewport*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXViewport_get_maxDepth : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1611,7 +1611,7 @@ SE_BIND_PROP_GET(js_gfx_GFXViewport_get_maxDepth)
 static bool js_gfx_GFXViewport_set_maxDepth(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXViewport* cobj = (cocos2d::GFXViewport*)s.nativeThisObject();
+    cc::GFXViewport* cobj = (cc::GFXViewport*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXViewport_set_maxDepth : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1623,7 +1623,7 @@ static bool js_gfx_GFXViewport_set_maxDepth(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXViewport_set_maxDepth)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXViewport_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXViewport_finalize)
 
 static bool js_gfx_GFXViewport_constructor(se::State& s)
 {
@@ -1633,7 +1633,7 @@ static bool js_gfx_GFXViewport_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXViewport* cobj = JSB_ALLOC(cocos2d::GFXViewport);
+        cc::GFXViewport* cobj = JSB_ALLOC(cc::GFXViewport);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -1643,7 +1643,7 @@ static bool js_gfx_GFXViewport_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXViewport* cobj = JSB_ALLOC(cocos2d::GFXViewport);
+        cc::GFXViewport* cobj = JSB_ALLOC(cc::GFXViewport);
         int arg0 = 0;
         json->getProperty("left", &field);
         if(!field.isUndefined()) {
@@ -1693,7 +1693,7 @@ static bool js_gfx_GFXViewport_constructor(se::State& s)
     }
     else if(argc == 6)
     {
-        cocos2d::GFXViewport* cobj = JSB_ALLOC(cocos2d::GFXViewport);
+        cc::GFXViewport* cobj = JSB_ALLOC(cc::GFXViewport);
         int arg0 = 0;
         if (!args[0].isUndefined()) {
             do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
@@ -1739,24 +1739,24 @@ static bool js_gfx_GFXViewport_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXViewport_constructor, __jsb_cocos2d_GFXViewport_class, js_cocos2d_GFXViewport_finalize)
+SE_BIND_CTOR(js_gfx_GFXViewport_constructor, __jsb_cc_GFXViewport_class, js_cc_GFXViewport_finalize)
 
 
 
 
-static bool js_cocos2d_GFXViewport_finalize(se::State& s)
+static bool js_cc_GFXViewport_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXViewport)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXViewport)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXViewport* cobj = (cocos2d::GFXViewport*)s.nativeThisObject();
+        cc::GFXViewport* cobj = (cc::GFXViewport*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXViewport_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXViewport_finalize)
 
 bool js_register_gfx_GFXViewport(se::Object* obj)
 {
@@ -1768,23 +1768,23 @@ bool js_register_gfx_GFXViewport(se::Object* obj)
     cls->defineProperty("height", _SE(js_gfx_GFXViewport_get_height), _SE(js_gfx_GFXViewport_set_height));
     cls->defineProperty("minDepth", _SE(js_gfx_GFXViewport_get_minDepth), _SE(js_gfx_GFXViewport_set_minDepth));
     cls->defineProperty("maxDepth", _SE(js_gfx_GFXViewport_get_maxDepth), _SE(js_gfx_GFXViewport_set_maxDepth));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXViewport_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXViewport_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXViewport>(cls);
+    JSBClassType::registerClass<cc::GFXViewport>(cls);
 
-    __jsb_cocos2d_GFXViewport_proto = cls->getProto();
-    __jsb_cocos2d_GFXViewport_class = cls;
+    __jsb_cc_GFXViewport_proto = cls->getProto();
+    __jsb_cc_GFXViewport_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXColor_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXColor_class = nullptr;
+se::Object* __jsb_cc_GFXColor_proto = nullptr;
+se::Class* __jsb_cc_GFXColor_class = nullptr;
 
 static bool js_gfx_GFXColor_get_r(se::State& s)
 {
-    cocos2d::GFXColor* cobj = (cocos2d::GFXColor*)s.nativeThisObject();
+    cc::GFXColor* cobj = (cc::GFXColor*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColor_get_r : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1798,7 +1798,7 @@ SE_BIND_PROP_GET(js_gfx_GFXColor_get_r)
 static bool js_gfx_GFXColor_set_r(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXColor* cobj = (cocos2d::GFXColor*)s.nativeThisObject();
+    cc::GFXColor* cobj = (cc::GFXColor*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColor_set_r : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1812,7 +1812,7 @@ SE_BIND_PROP_SET(js_gfx_GFXColor_set_r)
 
 static bool js_gfx_GFXColor_get_g(se::State& s)
 {
-    cocos2d::GFXColor* cobj = (cocos2d::GFXColor*)s.nativeThisObject();
+    cc::GFXColor* cobj = (cc::GFXColor*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColor_get_g : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1826,7 +1826,7 @@ SE_BIND_PROP_GET(js_gfx_GFXColor_get_g)
 static bool js_gfx_GFXColor_set_g(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXColor* cobj = (cocos2d::GFXColor*)s.nativeThisObject();
+    cc::GFXColor* cobj = (cc::GFXColor*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColor_set_g : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1840,7 +1840,7 @@ SE_BIND_PROP_SET(js_gfx_GFXColor_set_g)
 
 static bool js_gfx_GFXColor_get_b(se::State& s)
 {
-    cocos2d::GFXColor* cobj = (cocos2d::GFXColor*)s.nativeThisObject();
+    cc::GFXColor* cobj = (cc::GFXColor*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColor_get_b : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1854,7 +1854,7 @@ SE_BIND_PROP_GET(js_gfx_GFXColor_get_b)
 static bool js_gfx_GFXColor_set_b(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXColor* cobj = (cocos2d::GFXColor*)s.nativeThisObject();
+    cc::GFXColor* cobj = (cc::GFXColor*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColor_set_b : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1868,7 +1868,7 @@ SE_BIND_PROP_SET(js_gfx_GFXColor_set_b)
 
 static bool js_gfx_GFXColor_get_a(se::State& s)
 {
-    cocos2d::GFXColor* cobj = (cocos2d::GFXColor*)s.nativeThisObject();
+    cc::GFXColor* cobj = (cc::GFXColor*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColor_get_a : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1882,7 +1882,7 @@ SE_BIND_PROP_GET(js_gfx_GFXColor_get_a)
 static bool js_gfx_GFXColor_set_a(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXColor* cobj = (cocos2d::GFXColor*)s.nativeThisObject();
+    cc::GFXColor* cobj = (cc::GFXColor*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColor_set_a : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1894,7 +1894,7 @@ static bool js_gfx_GFXColor_set_a(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXColor_set_a)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXColor_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXColor_finalize)
 
 static bool js_gfx_GFXColor_constructor(se::State& s)
 {
@@ -1904,7 +1904,7 @@ static bool js_gfx_GFXColor_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXColor* cobj = JSB_ALLOC(cocos2d::GFXColor);
+        cc::GFXColor* cobj = JSB_ALLOC(cc::GFXColor);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -1914,7 +1914,7 @@ static bool js_gfx_GFXColor_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXColor* cobj = JSB_ALLOC(cocos2d::GFXColor);
+        cc::GFXColor* cobj = JSB_ALLOC(cc::GFXColor);
         float arg0 = 0;
         json->getProperty("r", &field);
         if(!field.isUndefined()) {
@@ -1952,7 +1952,7 @@ static bool js_gfx_GFXColor_constructor(se::State& s)
     }
     else if(argc == 4)
     {
-        cocos2d::GFXColor* cobj = JSB_ALLOC(cocos2d::GFXColor);
+        cc::GFXColor* cobj = JSB_ALLOC(cc::GFXColor);
         float arg0 = 0;
         if (!args[0].isUndefined()) {
             ok &= seval_to_float(args[0], &arg0);
@@ -1988,24 +1988,24 @@ static bool js_gfx_GFXColor_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXColor_constructor, __jsb_cocos2d_GFXColor_class, js_cocos2d_GFXColor_finalize)
+SE_BIND_CTOR(js_gfx_GFXColor_constructor, __jsb_cc_GFXColor_class, js_cc_GFXColor_finalize)
 
 
 
 
-static bool js_cocos2d_GFXColor_finalize(se::State& s)
+static bool js_cc_GFXColor_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXColor)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXColor)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXColor* cobj = (cocos2d::GFXColor*)s.nativeThisObject();
+        cc::GFXColor* cobj = (cc::GFXColor*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXColor_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXColor_finalize)
 
 bool js_register_gfx_GFXColor(se::Object* obj)
 {
@@ -2015,23 +2015,23 @@ bool js_register_gfx_GFXColor(se::Object* obj)
     cls->defineProperty("g", _SE(js_gfx_GFXColor_get_g), _SE(js_gfx_GFXColor_set_g));
     cls->defineProperty("b", _SE(js_gfx_GFXColor_get_b), _SE(js_gfx_GFXColor_set_b));
     cls->defineProperty("a", _SE(js_gfx_GFXColor_get_a), _SE(js_gfx_GFXColor_set_a));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXColor_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXColor_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXColor>(cls);
+    JSBClassType::registerClass<cc::GFXColor>(cls);
 
-    __jsb_cocos2d_GFXColor_proto = cls->getProto();
-    __jsb_cocos2d_GFXColor_class = cls;
+    __jsb_cc_GFXColor_proto = cls->getProto();
+    __jsb_cc_GFXColor_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXDeviceInfo_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXDeviceInfo_class = nullptr;
+se::Object* __jsb_cc_GFXDeviceInfo_proto = nullptr;
+se::Class* __jsb_cc_GFXDeviceInfo_class = nullptr;
 
 static bool js_gfx_GFXDeviceInfo_get_windowHandle(se::State& s)
 {
-    cocos2d::GFXDeviceInfo* cobj = (cocos2d::GFXDeviceInfo*)s.nativeThisObject();
+    cc::GFXDeviceInfo* cobj = (cc::GFXDeviceInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDeviceInfo_get_windowHandle : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2045,7 +2045,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDeviceInfo_get_windowHandle)
 static bool js_gfx_GFXDeviceInfo_set_windowHandle(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDeviceInfo* cobj = (cocos2d::GFXDeviceInfo*)s.nativeThisObject();
+    cc::GFXDeviceInfo* cobj = (cc::GFXDeviceInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDeviceInfo_set_windowHandle : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2059,7 +2059,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDeviceInfo_set_windowHandle)
 
 static bool js_gfx_GFXDeviceInfo_get_width(se::State& s)
 {
-    cocos2d::GFXDeviceInfo* cobj = (cocos2d::GFXDeviceInfo*)s.nativeThisObject();
+    cc::GFXDeviceInfo* cobj = (cc::GFXDeviceInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDeviceInfo_get_width : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2073,7 +2073,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDeviceInfo_get_width)
 static bool js_gfx_GFXDeviceInfo_set_width(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDeviceInfo* cobj = (cocos2d::GFXDeviceInfo*)s.nativeThisObject();
+    cc::GFXDeviceInfo* cobj = (cc::GFXDeviceInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDeviceInfo_set_width : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2087,7 +2087,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDeviceInfo_set_width)
 
 static bool js_gfx_GFXDeviceInfo_get_height(se::State& s)
 {
-    cocos2d::GFXDeviceInfo* cobj = (cocos2d::GFXDeviceInfo*)s.nativeThisObject();
+    cc::GFXDeviceInfo* cobj = (cc::GFXDeviceInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDeviceInfo_get_height : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2101,7 +2101,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDeviceInfo_get_height)
 static bool js_gfx_GFXDeviceInfo_set_height(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDeviceInfo* cobj = (cocos2d::GFXDeviceInfo*)s.nativeThisObject();
+    cc::GFXDeviceInfo* cobj = (cc::GFXDeviceInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDeviceInfo_set_height : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2115,7 +2115,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDeviceInfo_set_height)
 
 static bool js_gfx_GFXDeviceInfo_get_nativeWidth(se::State& s)
 {
-    cocos2d::GFXDeviceInfo* cobj = (cocos2d::GFXDeviceInfo*)s.nativeThisObject();
+    cc::GFXDeviceInfo* cobj = (cc::GFXDeviceInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDeviceInfo_get_nativeWidth : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2129,7 +2129,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDeviceInfo_get_nativeWidth)
 static bool js_gfx_GFXDeviceInfo_set_nativeWidth(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDeviceInfo* cobj = (cocos2d::GFXDeviceInfo*)s.nativeThisObject();
+    cc::GFXDeviceInfo* cobj = (cc::GFXDeviceInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDeviceInfo_set_nativeWidth : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2143,7 +2143,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDeviceInfo_set_nativeWidth)
 
 static bool js_gfx_GFXDeviceInfo_get_nativeHeight(se::State& s)
 {
-    cocos2d::GFXDeviceInfo* cobj = (cocos2d::GFXDeviceInfo*)s.nativeThisObject();
+    cc::GFXDeviceInfo* cobj = (cc::GFXDeviceInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDeviceInfo_get_nativeHeight : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2157,7 +2157,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDeviceInfo_get_nativeHeight)
 static bool js_gfx_GFXDeviceInfo_set_nativeHeight(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDeviceInfo* cobj = (cocos2d::GFXDeviceInfo*)s.nativeThisObject();
+    cc::GFXDeviceInfo* cobj = (cc::GFXDeviceInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDeviceInfo_set_nativeHeight : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2171,7 +2171,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDeviceInfo_set_nativeHeight)
 
 static bool js_gfx_GFXDeviceInfo_get_sharedCtx(se::State& s)
 {
-    cocos2d::GFXDeviceInfo* cobj = (cocos2d::GFXDeviceInfo*)s.nativeThisObject();
+    cc::GFXDeviceInfo* cobj = (cc::GFXDeviceInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDeviceInfo_get_sharedCtx : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2185,11 +2185,11 @@ SE_BIND_PROP_GET(js_gfx_GFXDeviceInfo_get_sharedCtx)
 static bool js_gfx_GFXDeviceInfo_set_sharedCtx(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDeviceInfo* cobj = (cocos2d::GFXDeviceInfo*)s.nativeThisObject();
+    cc::GFXDeviceInfo* cobj = (cc::GFXDeviceInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDeviceInfo_set_sharedCtx : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXContext* arg0 = nullptr;
+    cc::GFXContext* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXDeviceInfo_set_sharedCtx : Error processing new value");
     cobj->sharedCtx = arg0;
@@ -2197,7 +2197,7 @@ static bool js_gfx_GFXDeviceInfo_set_sharedCtx(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXDeviceInfo_set_sharedCtx)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXDeviceInfo_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXDeviceInfo_finalize)
 
 static bool js_gfx_GFXDeviceInfo_constructor(se::State& s)
 {
@@ -2207,7 +2207,7 @@ static bool js_gfx_GFXDeviceInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXDeviceInfo* cobj = JSB_ALLOC(cocos2d::GFXDeviceInfo);
+        cc::GFXDeviceInfo* cobj = JSB_ALLOC(cc::GFXDeviceInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -2217,7 +2217,7 @@ static bool js_gfx_GFXDeviceInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXDeviceInfo* cobj = JSB_ALLOC(cocos2d::GFXDeviceInfo);
+        cc::GFXDeviceInfo* cobj = JSB_ALLOC(cc::GFXDeviceInfo);
         uintptr_t arg0 = 0;
         json->getProperty("windowHandle", &field);
         if(!field.isUndefined()) {
@@ -2248,7 +2248,7 @@ static bool js_gfx_GFXDeviceInfo_constructor(se::State& s)
             ok &= seval_to_uint32(field, (uint32_t*)&arg4);
             cobj->nativeHeight = arg4;
         }
-        cocos2d::GFXContext* arg5 = nullptr;
+        cc::GFXContext* arg5 = nullptr;
         json->getProperty("sharedCtx", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_native_ptr(field, &arg5);
@@ -2267,7 +2267,7 @@ static bool js_gfx_GFXDeviceInfo_constructor(se::State& s)
     }
     else if(argc == 6)
     {
-        cocos2d::GFXDeviceInfo* cobj = JSB_ALLOC(cocos2d::GFXDeviceInfo);
+        cc::GFXDeviceInfo* cobj = JSB_ALLOC(cc::GFXDeviceInfo);
         uintptr_t arg0 = 0;
         if (!args[0].isUndefined()) {
             ok &= seval_to_uintptr_t(args[0], &arg0);
@@ -2293,7 +2293,7 @@ static bool js_gfx_GFXDeviceInfo_constructor(se::State& s)
             ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
             cobj->nativeHeight = arg4;
         }
-        cocos2d::GFXContext* arg5 = nullptr;
+        cc::GFXContext* arg5 = nullptr;
         if (!args[5].isUndefined()) {
             ok &= seval_to_native_ptr(args[5], &arg5);
             cobj->sharedCtx = arg5;
@@ -2313,24 +2313,24 @@ static bool js_gfx_GFXDeviceInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXDeviceInfo_constructor, __jsb_cocos2d_GFXDeviceInfo_class, js_cocos2d_GFXDeviceInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXDeviceInfo_constructor, __jsb_cc_GFXDeviceInfo_class, js_cc_GFXDeviceInfo_finalize)
 
 
 
 
-static bool js_cocos2d_GFXDeviceInfo_finalize(se::State& s)
+static bool js_cc_GFXDeviceInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXDeviceInfo)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXDeviceInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXDeviceInfo* cobj = (cocos2d::GFXDeviceInfo*)s.nativeThisObject();
+        cc::GFXDeviceInfo* cobj = (cc::GFXDeviceInfo*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXDeviceInfo_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXDeviceInfo_finalize)
 
 bool js_register_gfx_GFXDeviceInfo(se::Object* obj)
 {
@@ -2342,23 +2342,23 @@ bool js_register_gfx_GFXDeviceInfo(se::Object* obj)
     cls->defineProperty("nativeWidth", _SE(js_gfx_GFXDeviceInfo_get_nativeWidth), _SE(js_gfx_GFXDeviceInfo_set_nativeWidth));
     cls->defineProperty("nativeHeight", _SE(js_gfx_GFXDeviceInfo_get_nativeHeight), _SE(js_gfx_GFXDeviceInfo_set_nativeHeight));
     cls->defineProperty("sharedCtx", _SE(js_gfx_GFXDeviceInfo_get_sharedCtx), _SE(js_gfx_GFXDeviceInfo_set_sharedCtx));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXDeviceInfo_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXDeviceInfo_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXDeviceInfo>(cls);
+    JSBClassType::registerClass<cc::GFXDeviceInfo>(cls);
 
-    __jsb_cocos2d_GFXDeviceInfo_proto = cls->getProto();
-    __jsb_cocos2d_GFXDeviceInfo_class = cls;
+    __jsb_cc_GFXDeviceInfo_proto = cls->getProto();
+    __jsb_cc_GFXDeviceInfo_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXContextInfo_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXContextInfo_class = nullptr;
+se::Object* __jsb_cc_GFXContextInfo_proto = nullptr;
+se::Class* __jsb_cc_GFXContextInfo_class = nullptr;
 
 static bool js_gfx_GFXContextInfo_get_windowHandle(se::State& s)
 {
-    cocos2d::GFXContextInfo* cobj = (cocos2d::GFXContextInfo*)s.nativeThisObject();
+    cc::GFXContextInfo* cobj = (cc::GFXContextInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXContextInfo_get_windowHandle : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2372,7 +2372,7 @@ SE_BIND_PROP_GET(js_gfx_GFXContextInfo_get_windowHandle)
 static bool js_gfx_GFXContextInfo_set_windowHandle(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXContextInfo* cobj = (cocos2d::GFXContextInfo*)s.nativeThisObject();
+    cc::GFXContextInfo* cobj = (cc::GFXContextInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXContextInfo_set_windowHandle : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2386,7 +2386,7 @@ SE_BIND_PROP_SET(js_gfx_GFXContextInfo_set_windowHandle)
 
 static bool js_gfx_GFXContextInfo_get_sharedCtx(se::State& s)
 {
-    cocos2d::GFXContextInfo* cobj = (cocos2d::GFXContextInfo*)s.nativeThisObject();
+    cc::GFXContextInfo* cobj = (cc::GFXContextInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXContextInfo_get_sharedCtx : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2400,11 +2400,11 @@ SE_BIND_PROP_GET(js_gfx_GFXContextInfo_get_sharedCtx)
 static bool js_gfx_GFXContextInfo_set_sharedCtx(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXContextInfo* cobj = (cocos2d::GFXContextInfo*)s.nativeThisObject();
+    cc::GFXContextInfo* cobj = (cc::GFXContextInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXContextInfo_set_sharedCtx : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXContext* arg0 = nullptr;
+    cc::GFXContext* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXContextInfo_set_sharedCtx : Error processing new value");
     cobj->sharedCtx = arg0;
@@ -2414,7 +2414,7 @@ SE_BIND_PROP_SET(js_gfx_GFXContextInfo_set_sharedCtx)
 
 static bool js_gfx_GFXContextInfo_get_vsyncMode(se::State& s)
 {
-    cocos2d::GFXContextInfo* cobj = (cocos2d::GFXContextInfo*)s.nativeThisObject();
+    cc::GFXContextInfo* cobj = (cc::GFXContextInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXContextInfo_get_vsyncMode : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2428,19 +2428,19 @@ SE_BIND_PROP_GET(js_gfx_GFXContextInfo_get_vsyncMode)
 static bool js_gfx_GFXContextInfo_set_vsyncMode(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXContextInfo* cobj = (cocos2d::GFXContextInfo*)s.nativeThisObject();
+    cc::GFXContextInfo* cobj = (cc::GFXContextInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXContextInfo_set_vsyncMode : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXVsyncMode arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXVsyncMode)tmp; } while(false);
+    cc::GFXVsyncMode arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXVsyncMode)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXContextInfo_set_vsyncMode : Error processing new value");
     cobj->vsyncMode = arg0;
     return true;
 }
 SE_BIND_PROP_SET(js_gfx_GFXContextInfo_set_vsyncMode)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXContextInfo_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXContextInfo_finalize)
 
 static bool js_gfx_GFXContextInfo_constructor(se::State& s)
 {
@@ -2450,7 +2450,7 @@ static bool js_gfx_GFXContextInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXContextInfo* cobj = JSB_ALLOC(cocos2d::GFXContextInfo);
+        cc::GFXContextInfo* cobj = JSB_ALLOC(cc::GFXContextInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -2460,23 +2460,23 @@ static bool js_gfx_GFXContextInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXContextInfo* cobj = JSB_ALLOC(cocos2d::GFXContextInfo);
+        cc::GFXContextInfo* cobj = JSB_ALLOC(cc::GFXContextInfo);
         uintptr_t arg0 = 0;
         json->getProperty("windowHandle", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_uintptr_t(field, &arg0);
             cobj->windowHandle = arg0;
         }
-        cocos2d::GFXContext* arg1 = nullptr;
+        cc::GFXContext* arg1 = nullptr;
         json->getProperty("sharedCtx", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_native_ptr(field, &arg1);
             cobj->sharedCtx = arg1;
         }
-        cocos2d::GFXVsyncMode arg2;
+        cc::GFXVsyncMode arg2;
         json->getProperty("vsyncMode", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXVsyncMode)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::GFXVsyncMode)tmp; } while(false);
             cobj->vsyncMode = arg2;
         }
 
@@ -2492,20 +2492,20 @@ static bool js_gfx_GFXContextInfo_constructor(se::State& s)
     }
     else if(argc == 3)
     {
-        cocos2d::GFXContextInfo* cobj = JSB_ALLOC(cocos2d::GFXContextInfo);
+        cc::GFXContextInfo* cobj = JSB_ALLOC(cc::GFXContextInfo);
         uintptr_t arg0 = 0;
         if (!args[0].isUndefined()) {
             ok &= seval_to_uintptr_t(args[0], &arg0);
             cobj->windowHandle = arg0;
         }
-        cocos2d::GFXContext* arg1 = nullptr;
+        cc::GFXContext* arg1 = nullptr;
         if (!args[1].isUndefined()) {
             ok &= seval_to_native_ptr(args[1], &arg1);
             cobj->sharedCtx = arg1;
         }
-        cocos2d::GFXVsyncMode arg2;
+        cc::GFXVsyncMode arg2;
         if (!args[2].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXVsyncMode)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::GFXVsyncMode)tmp; } while(false);
             cobj->vsyncMode = arg2;
         }
 
@@ -2523,24 +2523,24 @@ static bool js_gfx_GFXContextInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXContextInfo_constructor, __jsb_cocos2d_GFXContextInfo_class, js_cocos2d_GFXContextInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXContextInfo_constructor, __jsb_cc_GFXContextInfo_class, js_cc_GFXContextInfo_finalize)
 
 
 
 
-static bool js_cocos2d_GFXContextInfo_finalize(se::State& s)
+static bool js_cc_GFXContextInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXContextInfo)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXContextInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXContextInfo* cobj = (cocos2d::GFXContextInfo*)s.nativeThisObject();
+        cc::GFXContextInfo* cobj = (cc::GFXContextInfo*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXContextInfo_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXContextInfo_finalize)
 
 bool js_register_gfx_GFXContextInfo(se::Object* obj)
 {
@@ -2549,23 +2549,23 @@ bool js_register_gfx_GFXContextInfo(se::Object* obj)
     cls->defineProperty("windowHandle", _SE(js_gfx_GFXContextInfo_get_windowHandle), _SE(js_gfx_GFXContextInfo_set_windowHandle));
     cls->defineProperty("sharedCtx", _SE(js_gfx_GFXContextInfo_get_sharedCtx), _SE(js_gfx_GFXContextInfo_set_sharedCtx));
     cls->defineProperty("vsyncMode", _SE(js_gfx_GFXContextInfo_get_vsyncMode), _SE(js_gfx_GFXContextInfo_set_vsyncMode));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXContextInfo_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXContextInfo_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXContextInfo>(cls);
+    JSBClassType::registerClass<cc::GFXContextInfo>(cls);
 
-    __jsb_cocos2d_GFXContextInfo_proto = cls->getProto();
-    __jsb_cocos2d_GFXContextInfo_class = cls;
+    __jsb_cc_GFXContextInfo_proto = cls->getProto();
+    __jsb_cc_GFXContextInfo_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXBufferInfo_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXBufferInfo_class = nullptr;
+se::Object* __jsb_cc_GFXBufferInfo_proto = nullptr;
+se::Class* __jsb_cc_GFXBufferInfo_class = nullptr;
 
 static bool js_gfx_GFXBufferInfo_get_usage(se::State& s)
 {
-    cocos2d::GFXBufferInfo* cobj = (cocos2d::GFXBufferInfo*)s.nativeThisObject();
+    cc::GFXBufferInfo* cobj = (cc::GFXBufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferInfo_get_usage : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2579,12 +2579,12 @@ SE_BIND_PROP_GET(js_gfx_GFXBufferInfo_get_usage)
 static bool js_gfx_GFXBufferInfo_set_usage(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBufferInfo* cobj = (cocos2d::GFXBufferInfo*)s.nativeThisObject();
+    cc::GFXBufferInfo* cobj = (cc::GFXBufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferInfo_set_usage : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXBufferUsageBit arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXBufferUsageBit)tmp; } while(false);
+    cc::GFXBufferUsageBit arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXBufferUsageBit)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBufferInfo_set_usage : Error processing new value");
     cobj->usage = arg0;
     return true;
@@ -2593,7 +2593,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBufferInfo_set_usage)
 
 static bool js_gfx_GFXBufferInfo_get_memUsage(se::State& s)
 {
-    cocos2d::GFXBufferInfo* cobj = (cocos2d::GFXBufferInfo*)s.nativeThisObject();
+    cc::GFXBufferInfo* cobj = (cc::GFXBufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferInfo_get_memUsage : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2607,12 +2607,12 @@ SE_BIND_PROP_GET(js_gfx_GFXBufferInfo_get_memUsage)
 static bool js_gfx_GFXBufferInfo_set_memUsage(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBufferInfo* cobj = (cocos2d::GFXBufferInfo*)s.nativeThisObject();
+    cc::GFXBufferInfo* cobj = (cc::GFXBufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferInfo_set_memUsage : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXMemoryUsageBit arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXMemoryUsageBit)tmp; } while(false);
+    cc::GFXMemoryUsageBit arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXMemoryUsageBit)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBufferInfo_set_memUsage : Error processing new value");
     cobj->memUsage = arg0;
     return true;
@@ -2621,7 +2621,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBufferInfo_set_memUsage)
 
 static bool js_gfx_GFXBufferInfo_get_stride(se::State& s)
 {
-    cocos2d::GFXBufferInfo* cobj = (cocos2d::GFXBufferInfo*)s.nativeThisObject();
+    cc::GFXBufferInfo* cobj = (cc::GFXBufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferInfo_get_stride : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2635,7 +2635,7 @@ SE_BIND_PROP_GET(js_gfx_GFXBufferInfo_get_stride)
 static bool js_gfx_GFXBufferInfo_set_stride(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBufferInfo* cobj = (cocos2d::GFXBufferInfo*)s.nativeThisObject();
+    cc::GFXBufferInfo* cobj = (cc::GFXBufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferInfo_set_stride : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2649,7 +2649,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBufferInfo_set_stride)
 
 static bool js_gfx_GFXBufferInfo_get_size(se::State& s)
 {
-    cocos2d::GFXBufferInfo* cobj = (cocos2d::GFXBufferInfo*)s.nativeThisObject();
+    cc::GFXBufferInfo* cobj = (cc::GFXBufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferInfo_get_size : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2663,7 +2663,7 @@ SE_BIND_PROP_GET(js_gfx_GFXBufferInfo_get_size)
 static bool js_gfx_GFXBufferInfo_set_size(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBufferInfo* cobj = (cocos2d::GFXBufferInfo*)s.nativeThisObject();
+    cc::GFXBufferInfo* cobj = (cc::GFXBufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferInfo_set_size : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2677,7 +2677,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBufferInfo_set_size)
 
 static bool js_gfx_GFXBufferInfo_get_flags(se::State& s)
 {
-    cocos2d::GFXBufferInfo* cobj = (cocos2d::GFXBufferInfo*)s.nativeThisObject();
+    cc::GFXBufferInfo* cobj = (cc::GFXBufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferInfo_get_flags : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2691,19 +2691,19 @@ SE_BIND_PROP_GET(js_gfx_GFXBufferInfo_get_flags)
 static bool js_gfx_GFXBufferInfo_set_flags(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBufferInfo* cobj = (cocos2d::GFXBufferInfo*)s.nativeThisObject();
+    cc::GFXBufferInfo* cobj = (cc::GFXBufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBufferInfo_set_flags : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXBufferFlagBit arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXBufferFlagBit)tmp; } while(false);
+    cc::GFXBufferFlagBit arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXBufferFlagBit)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBufferInfo_set_flags : Error processing new value");
     cobj->flags = arg0;
     return true;
 }
 SE_BIND_PROP_SET(js_gfx_GFXBufferInfo_set_flags)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXBufferInfo_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXBufferInfo_finalize)
 
 static bool js_gfx_GFXBufferInfo_constructor(se::State& s)
 {
@@ -2713,7 +2713,7 @@ static bool js_gfx_GFXBufferInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXBufferInfo);
+        cc::GFXBufferInfo* cobj = JSB_ALLOC(cc::GFXBufferInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -2723,17 +2723,17 @@ static bool js_gfx_GFXBufferInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXBufferInfo);
-        cocos2d::GFXBufferUsageBit arg0;
+        cc::GFXBufferInfo* cobj = JSB_ALLOC(cc::GFXBufferInfo);
+        cc::GFXBufferUsageBit arg0;
         json->getProperty("usage", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXBufferUsageBit)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cc::GFXBufferUsageBit)tmp; } while(false);
             cobj->usage = arg0;
         }
-        cocos2d::GFXMemoryUsageBit arg1;
+        cc::GFXMemoryUsageBit arg1;
         json->getProperty("memUsage", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXMemoryUsageBit)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cc::GFXMemoryUsageBit)tmp; } while(false);
             cobj->memUsage = arg1;
         }
         unsigned int arg2 = 0;
@@ -2748,10 +2748,10 @@ static bool js_gfx_GFXBufferInfo_constructor(se::State& s)
             ok &= seval_to_uint32(field, (uint32_t*)&arg3);
             cobj->size = arg3;
         }
-        cocos2d::GFXBufferFlagBit arg4;
+        cc::GFXBufferFlagBit arg4;
         json->getProperty("flags", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cocos2d::GFXBufferFlagBit)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cc::GFXBufferFlagBit)tmp; } while(false);
             cobj->flags = arg4;
         }
 
@@ -2767,15 +2767,15 @@ static bool js_gfx_GFXBufferInfo_constructor(se::State& s)
     }
     else if(argc == 5)
     {
-        cocos2d::GFXBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXBufferInfo);
-        cocos2d::GFXBufferUsageBit arg0;
+        cc::GFXBufferInfo* cobj = JSB_ALLOC(cc::GFXBufferInfo);
+        cc::GFXBufferUsageBit arg0;
         if (!args[0].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXBufferUsageBit)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXBufferUsageBit)tmp; } while(false);
             cobj->usage = arg0;
         }
-        cocos2d::GFXMemoryUsageBit arg1;
+        cc::GFXMemoryUsageBit arg1;
         if (!args[1].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXMemoryUsageBit)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::GFXMemoryUsageBit)tmp; } while(false);
             cobj->memUsage = arg1;
         }
         unsigned int arg2 = 0;
@@ -2788,9 +2788,9 @@ static bool js_gfx_GFXBufferInfo_constructor(se::State& s)
             ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
             cobj->size = arg3;
         }
-        cocos2d::GFXBufferFlagBit arg4;
+        cc::GFXBufferFlagBit arg4;
         if (!args[4].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXBufferFlagBit)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::GFXBufferFlagBit)tmp; } while(false);
             cobj->flags = arg4;
         }
 
@@ -2808,24 +2808,24 @@ static bool js_gfx_GFXBufferInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXBufferInfo_constructor, __jsb_cocos2d_GFXBufferInfo_class, js_cocos2d_GFXBufferInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXBufferInfo_constructor, __jsb_cc_GFXBufferInfo_class, js_cc_GFXBufferInfo_finalize)
 
 
 
 
-static bool js_cocos2d_GFXBufferInfo_finalize(se::State& s)
+static bool js_cc_GFXBufferInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXBufferInfo)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXBufferInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXBufferInfo* cobj = (cocos2d::GFXBufferInfo*)s.nativeThisObject();
+        cc::GFXBufferInfo* cobj = (cc::GFXBufferInfo*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXBufferInfo_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXBufferInfo_finalize)
 
 bool js_register_gfx_GFXBufferInfo(se::Object* obj)
 {
@@ -2836,23 +2836,23 @@ bool js_register_gfx_GFXBufferInfo(se::Object* obj)
     cls->defineProperty("stride", _SE(js_gfx_GFXBufferInfo_get_stride), _SE(js_gfx_GFXBufferInfo_set_stride));
     cls->defineProperty("size", _SE(js_gfx_GFXBufferInfo_get_size), _SE(js_gfx_GFXBufferInfo_set_size));
     cls->defineProperty("flags", _SE(js_gfx_GFXBufferInfo_get_flags), _SE(js_gfx_GFXBufferInfo_set_flags));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBufferInfo_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXBufferInfo_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXBufferInfo>(cls);
+    JSBClassType::registerClass<cc::GFXBufferInfo>(cls);
 
-    __jsb_cocos2d_GFXBufferInfo_proto = cls->getProto();
-    __jsb_cocos2d_GFXBufferInfo_class = cls;
+    __jsb_cc_GFXBufferInfo_proto = cls->getProto();
+    __jsb_cc_GFXBufferInfo_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXDrawInfo_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXDrawInfo_class = nullptr;
+se::Object* __jsb_cc_GFXDrawInfo_proto = nullptr;
+se::Class* __jsb_cc_GFXDrawInfo_class = nullptr;
 
 static bool js_gfx_GFXDrawInfo_get_vertexCount(se::State& s)
 {
-    cocos2d::GFXDrawInfo* cobj = (cocos2d::GFXDrawInfo*)s.nativeThisObject();
+    cc::GFXDrawInfo* cobj = (cc::GFXDrawInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDrawInfo_get_vertexCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2866,7 +2866,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDrawInfo_get_vertexCount)
 static bool js_gfx_GFXDrawInfo_set_vertexCount(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDrawInfo* cobj = (cocos2d::GFXDrawInfo*)s.nativeThisObject();
+    cc::GFXDrawInfo* cobj = (cc::GFXDrawInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDrawInfo_set_vertexCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2880,7 +2880,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDrawInfo_set_vertexCount)
 
 static bool js_gfx_GFXDrawInfo_get_firstVertex(se::State& s)
 {
-    cocos2d::GFXDrawInfo* cobj = (cocos2d::GFXDrawInfo*)s.nativeThisObject();
+    cc::GFXDrawInfo* cobj = (cc::GFXDrawInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDrawInfo_get_firstVertex : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2894,7 +2894,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDrawInfo_get_firstVertex)
 static bool js_gfx_GFXDrawInfo_set_firstVertex(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDrawInfo* cobj = (cocos2d::GFXDrawInfo*)s.nativeThisObject();
+    cc::GFXDrawInfo* cobj = (cc::GFXDrawInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDrawInfo_set_firstVertex : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2908,7 +2908,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDrawInfo_set_firstVertex)
 
 static bool js_gfx_GFXDrawInfo_get_indexCount(se::State& s)
 {
-    cocos2d::GFXDrawInfo* cobj = (cocos2d::GFXDrawInfo*)s.nativeThisObject();
+    cc::GFXDrawInfo* cobj = (cc::GFXDrawInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDrawInfo_get_indexCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2922,7 +2922,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDrawInfo_get_indexCount)
 static bool js_gfx_GFXDrawInfo_set_indexCount(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDrawInfo* cobj = (cocos2d::GFXDrawInfo*)s.nativeThisObject();
+    cc::GFXDrawInfo* cobj = (cc::GFXDrawInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDrawInfo_set_indexCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2936,7 +2936,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDrawInfo_set_indexCount)
 
 static bool js_gfx_GFXDrawInfo_get_firstIndex(se::State& s)
 {
-    cocos2d::GFXDrawInfo* cobj = (cocos2d::GFXDrawInfo*)s.nativeThisObject();
+    cc::GFXDrawInfo* cobj = (cc::GFXDrawInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDrawInfo_get_firstIndex : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2950,7 +2950,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDrawInfo_get_firstIndex)
 static bool js_gfx_GFXDrawInfo_set_firstIndex(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDrawInfo* cobj = (cocos2d::GFXDrawInfo*)s.nativeThisObject();
+    cc::GFXDrawInfo* cobj = (cc::GFXDrawInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDrawInfo_set_firstIndex : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2964,7 +2964,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDrawInfo_set_firstIndex)
 
 static bool js_gfx_GFXDrawInfo_get_vertexOffset(se::State& s)
 {
-    cocos2d::GFXDrawInfo* cobj = (cocos2d::GFXDrawInfo*)s.nativeThisObject();
+    cc::GFXDrawInfo* cobj = (cc::GFXDrawInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDrawInfo_get_vertexOffset : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2978,7 +2978,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDrawInfo_get_vertexOffset)
 static bool js_gfx_GFXDrawInfo_set_vertexOffset(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDrawInfo* cobj = (cocos2d::GFXDrawInfo*)s.nativeThisObject();
+    cc::GFXDrawInfo* cobj = (cc::GFXDrawInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDrawInfo_set_vertexOffset : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2992,7 +2992,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDrawInfo_set_vertexOffset)
 
 static bool js_gfx_GFXDrawInfo_get_instanceCount(se::State& s)
 {
-    cocos2d::GFXDrawInfo* cobj = (cocos2d::GFXDrawInfo*)s.nativeThisObject();
+    cc::GFXDrawInfo* cobj = (cc::GFXDrawInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDrawInfo_get_instanceCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3006,7 +3006,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDrawInfo_get_instanceCount)
 static bool js_gfx_GFXDrawInfo_set_instanceCount(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDrawInfo* cobj = (cocos2d::GFXDrawInfo*)s.nativeThisObject();
+    cc::GFXDrawInfo* cobj = (cc::GFXDrawInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDrawInfo_set_instanceCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3020,7 +3020,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDrawInfo_set_instanceCount)
 
 static bool js_gfx_GFXDrawInfo_get_firstInstance(se::State& s)
 {
-    cocos2d::GFXDrawInfo* cobj = (cocos2d::GFXDrawInfo*)s.nativeThisObject();
+    cc::GFXDrawInfo* cobj = (cc::GFXDrawInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDrawInfo_get_firstInstance : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3034,7 +3034,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDrawInfo_get_firstInstance)
 static bool js_gfx_GFXDrawInfo_set_firstInstance(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDrawInfo* cobj = (cocos2d::GFXDrawInfo*)s.nativeThisObject();
+    cc::GFXDrawInfo* cobj = (cc::GFXDrawInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDrawInfo_set_firstInstance : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3046,7 +3046,7 @@ static bool js_gfx_GFXDrawInfo_set_firstInstance(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXDrawInfo_set_firstInstance)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXDrawInfo_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXDrawInfo_finalize)
 
 static bool js_gfx_GFXDrawInfo_constructor(se::State& s)
 {
@@ -3056,7 +3056,7 @@ static bool js_gfx_GFXDrawInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXDrawInfo* cobj = JSB_ALLOC(cocos2d::GFXDrawInfo);
+        cc::GFXDrawInfo* cobj = JSB_ALLOC(cc::GFXDrawInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -3066,7 +3066,7 @@ static bool js_gfx_GFXDrawInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXDrawInfo* cobj = JSB_ALLOC(cocos2d::GFXDrawInfo);
+        cc::GFXDrawInfo* cobj = JSB_ALLOC(cc::GFXDrawInfo);
         unsigned int arg0 = 0;
         json->getProperty("vertexCount", &field);
         if(!field.isUndefined()) {
@@ -3122,7 +3122,7 @@ static bool js_gfx_GFXDrawInfo_constructor(se::State& s)
     }
     else if(argc == 7)
     {
-        cocos2d::GFXDrawInfo* cobj = JSB_ALLOC(cocos2d::GFXDrawInfo);
+        cc::GFXDrawInfo* cobj = JSB_ALLOC(cc::GFXDrawInfo);
         unsigned int arg0 = 0;
         if (!args[0].isUndefined()) {
             ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
@@ -3173,24 +3173,24 @@ static bool js_gfx_GFXDrawInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXDrawInfo_constructor, __jsb_cocos2d_GFXDrawInfo_class, js_cocos2d_GFXDrawInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXDrawInfo_constructor, __jsb_cc_GFXDrawInfo_class, js_cc_GFXDrawInfo_finalize)
 
 
 
 
-static bool js_cocos2d_GFXDrawInfo_finalize(se::State& s)
+static bool js_cc_GFXDrawInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXDrawInfo)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXDrawInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXDrawInfo* cobj = (cocos2d::GFXDrawInfo*)s.nativeThisObject();
+        cc::GFXDrawInfo* cobj = (cc::GFXDrawInfo*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXDrawInfo_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXDrawInfo_finalize)
 
 bool js_register_gfx_GFXDrawInfo(se::Object* obj)
 {
@@ -3203,23 +3203,23 @@ bool js_register_gfx_GFXDrawInfo(se::Object* obj)
     cls->defineProperty("vertexOffset", _SE(js_gfx_GFXDrawInfo_get_vertexOffset), _SE(js_gfx_GFXDrawInfo_set_vertexOffset));
     cls->defineProperty("instanceCount", _SE(js_gfx_GFXDrawInfo_get_instanceCount), _SE(js_gfx_GFXDrawInfo_set_instanceCount));
     cls->defineProperty("firstInstance", _SE(js_gfx_GFXDrawInfo_get_firstInstance), _SE(js_gfx_GFXDrawInfo_set_firstInstance));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXDrawInfo_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXDrawInfo_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXDrawInfo>(cls);
+    JSBClassType::registerClass<cc::GFXDrawInfo>(cls);
 
-    __jsb_cocos2d_GFXDrawInfo_proto = cls->getProto();
-    __jsb_cocos2d_GFXDrawInfo_class = cls;
+    __jsb_cc_GFXDrawInfo_proto = cls->getProto();
+    __jsb_cc_GFXDrawInfo_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXIndirectBuffer_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXIndirectBuffer_class = nullptr;
+se::Object* __jsb_cc_GFXIndirectBuffer_proto = nullptr;
+se::Class* __jsb_cc_GFXIndirectBuffer_class = nullptr;
 
 static bool js_gfx_GFXIndirectBuffer_get_drawInfos(se::State& s)
 {
-    cocos2d::GFXIndirectBuffer* cobj = (cocos2d::GFXIndirectBuffer*)s.nativeThisObject();
+    cc::GFXIndirectBuffer* cobj = (cc::GFXIndirectBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXIndirectBuffer_get_drawInfos : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3233,11 +3233,11 @@ SE_BIND_PROP_GET(js_gfx_GFXIndirectBuffer_get_drawInfos)
 static bool js_gfx_GFXIndirectBuffer_set_drawInfos(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXIndirectBuffer* cobj = (cocos2d::GFXIndirectBuffer*)s.nativeThisObject();
+    cc::GFXIndirectBuffer* cobj = (cc::GFXIndirectBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXIndirectBuffer_set_drawInfos : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXDrawInfo> arg0;
+    std::vector<cc::GFXDrawInfo> arg0;
     ok &= seval_to_std_vector(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXIndirectBuffer_set_drawInfos : Error processing new value");
     cobj->drawInfos = arg0;
@@ -3245,7 +3245,7 @@ static bool js_gfx_GFXIndirectBuffer_set_drawInfos(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXIndirectBuffer_set_drawInfos)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXIndirectBuffer_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXIndirectBuffer_finalize)
 
 static bool js_gfx_GFXIndirectBuffer_constructor(se::State& s)
 {
@@ -3255,15 +3255,15 @@ static bool js_gfx_GFXIndirectBuffer_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXIndirectBuffer* cobj = JSB_ALLOC(cocos2d::GFXIndirectBuffer);
+        cc::GFXIndirectBuffer* cobj = JSB_ALLOC(cc::GFXIndirectBuffer);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
     else if(argc == 1)
     {
-        cocos2d::GFXIndirectBuffer* cobj = JSB_ALLOC(cocos2d::GFXIndirectBuffer);
-        std::vector<cocos2d::GFXDrawInfo> arg0;
+        cc::GFXIndirectBuffer* cobj = JSB_ALLOC(cc::GFXIndirectBuffer);
+        std::vector<cc::GFXDrawInfo> arg0;
         if (!args[0].isUndefined()) {
             ok &= seval_to_std_vector(args[0], &arg0);
             cobj->drawInfos = arg0;
@@ -3283,47 +3283,47 @@ static bool js_gfx_GFXIndirectBuffer_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXIndirectBuffer_constructor, __jsb_cocos2d_GFXIndirectBuffer_class, js_cocos2d_GFXIndirectBuffer_finalize)
+SE_BIND_CTOR(js_gfx_GFXIndirectBuffer_constructor, __jsb_cc_GFXIndirectBuffer_class, js_cc_GFXIndirectBuffer_finalize)
 
 
 
 
-static bool js_cocos2d_GFXIndirectBuffer_finalize(se::State& s)
+static bool js_cc_GFXIndirectBuffer_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXIndirectBuffer)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXIndirectBuffer)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXIndirectBuffer* cobj = (cocos2d::GFXIndirectBuffer*)s.nativeThisObject();
+        cc::GFXIndirectBuffer* cobj = (cc::GFXIndirectBuffer*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXIndirectBuffer_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXIndirectBuffer_finalize)
 
 bool js_register_gfx_GFXIndirectBuffer(se::Object* obj)
 {
     auto cls = se::Class::create("GFXIndirectBuffer", obj, nullptr, _SE(js_gfx_GFXIndirectBuffer_constructor));
 
     cls->defineProperty("drawInfos", _SE(js_gfx_GFXIndirectBuffer_get_drawInfos), _SE(js_gfx_GFXIndirectBuffer_set_drawInfos));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXIndirectBuffer_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXIndirectBuffer_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXIndirectBuffer>(cls);
+    JSBClassType::registerClass<cc::GFXIndirectBuffer>(cls);
 
-    __jsb_cocos2d_GFXIndirectBuffer_proto = cls->getProto();
-    __jsb_cocos2d_GFXIndirectBuffer_class = cls;
+    __jsb_cc_GFXIndirectBuffer_proto = cls->getProto();
+    __jsb_cc_GFXIndirectBuffer_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXTextureInfo_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXTextureInfo_class = nullptr;
+se::Object* __jsb_cc_GFXTextureInfo_proto = nullptr;
+se::Class* __jsb_cc_GFXTextureInfo_class = nullptr;
 
 static bool js_gfx_GFXTextureInfo_get_type(se::State& s)
 {
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_get_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3337,12 +3337,12 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureInfo_get_type)
 static bool js_gfx_GFXTextureInfo_set_type(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_set_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXTextureType arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXTextureType)tmp; } while(false);
+    cc::GFXTextureType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXTextureType)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureInfo_set_type : Error processing new value");
     cobj->type = arg0;
     return true;
@@ -3351,7 +3351,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureInfo_set_type)
 
 static bool js_gfx_GFXTextureInfo_get_usage(se::State& s)
 {
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_get_usage : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3365,12 +3365,12 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureInfo_get_usage)
 static bool js_gfx_GFXTextureInfo_set_usage(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_set_usage : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXTextureUsageBit arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXTextureUsageBit)tmp; } while(false);
+    cc::GFXTextureUsageBit arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXTextureUsageBit)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureInfo_set_usage : Error processing new value");
     cobj->usage = arg0;
     return true;
@@ -3379,7 +3379,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureInfo_set_usage)
 
 static bool js_gfx_GFXTextureInfo_get_format(se::State& s)
 {
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_get_format : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3393,12 +3393,12 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureInfo_get_format)
 static bool js_gfx_GFXTextureInfo_set_format(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_set_format : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXFormat arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXFormat)tmp; } while(false);
+    cc::GFXFormat arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXFormat)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureInfo_set_format : Error processing new value");
     cobj->format = arg0;
     return true;
@@ -3407,7 +3407,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureInfo_set_format)
 
 static bool js_gfx_GFXTextureInfo_get_width(se::State& s)
 {
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_get_width : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3421,7 +3421,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureInfo_get_width)
 static bool js_gfx_GFXTextureInfo_set_width(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_set_width : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3435,7 +3435,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureInfo_set_width)
 
 static bool js_gfx_GFXTextureInfo_get_height(se::State& s)
 {
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_get_height : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3449,7 +3449,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureInfo_get_height)
 static bool js_gfx_GFXTextureInfo_set_height(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_set_height : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3463,7 +3463,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureInfo_set_height)
 
 static bool js_gfx_GFXTextureInfo_get_depth(se::State& s)
 {
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_get_depth : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3477,7 +3477,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureInfo_get_depth)
 static bool js_gfx_GFXTextureInfo_set_depth(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_set_depth : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3491,7 +3491,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureInfo_set_depth)
 
 static bool js_gfx_GFXTextureInfo_get_arrayLayer(se::State& s)
 {
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_get_arrayLayer : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3505,7 +3505,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureInfo_get_arrayLayer)
 static bool js_gfx_GFXTextureInfo_set_arrayLayer(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_set_arrayLayer : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3519,7 +3519,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureInfo_set_arrayLayer)
 
 static bool js_gfx_GFXTextureInfo_get_mipLevel(se::State& s)
 {
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_get_mipLevel : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3533,7 +3533,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureInfo_get_mipLevel)
 static bool js_gfx_GFXTextureInfo_set_mipLevel(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_set_mipLevel : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3547,7 +3547,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureInfo_set_mipLevel)
 
 static bool js_gfx_GFXTextureInfo_get_samples(se::State& s)
 {
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_get_samples : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3561,12 +3561,12 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureInfo_get_samples)
 static bool js_gfx_GFXTextureInfo_set_samples(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_set_samples : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXSampleCount arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXSampleCount)tmp; } while(false);
+    cc::GFXSampleCount arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXSampleCount)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureInfo_set_samples : Error processing new value");
     cobj->samples = arg0;
     return true;
@@ -3575,7 +3575,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureInfo_set_samples)
 
 static bool js_gfx_GFXTextureInfo_get_flags(se::State& s)
 {
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_get_flags : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3589,19 +3589,19 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureInfo_get_flags)
 static bool js_gfx_GFXTextureInfo_set_flags(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+    cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureInfo_set_flags : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXTextureFlagBit arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXTextureFlagBit)tmp; } while(false);
+    cc::GFXTextureFlagBit arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXTextureFlagBit)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureInfo_set_flags : Error processing new value");
     cobj->flags = arg0;
     return true;
 }
 SE_BIND_PROP_SET(js_gfx_GFXTextureInfo_set_flags)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXTextureInfo_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXTextureInfo_finalize)
 
 static bool js_gfx_GFXTextureInfo_constructor(se::State& s)
 {
@@ -3611,7 +3611,7 @@ static bool js_gfx_GFXTextureInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXTextureInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureInfo);
+        cc::GFXTextureInfo* cobj = JSB_ALLOC(cc::GFXTextureInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -3621,23 +3621,23 @@ static bool js_gfx_GFXTextureInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXTextureInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureInfo);
-        cocos2d::GFXTextureType arg0;
+        cc::GFXTextureInfo* cobj = JSB_ALLOC(cc::GFXTextureInfo);
+        cc::GFXTextureType arg0;
         json->getProperty("type", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXTextureType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cc::GFXTextureType)tmp; } while(false);
             cobj->type = arg0;
         }
-        cocos2d::GFXTextureUsageBit arg1;
+        cc::GFXTextureUsageBit arg1;
         json->getProperty("usage", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXTextureUsageBit)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cc::GFXTextureUsageBit)tmp; } while(false);
             cobj->usage = arg1;
         }
-        cocos2d::GFXFormat arg2;
+        cc::GFXFormat arg2;
         json->getProperty("format", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXFormat)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::GFXFormat)tmp; } while(false);
             cobj->format = arg2;
         }
         unsigned int arg3 = 0;
@@ -3670,16 +3670,16 @@ static bool js_gfx_GFXTextureInfo_constructor(se::State& s)
             ok &= seval_to_uint32(field, (uint32_t*)&arg7);
             cobj->mipLevel = arg7;
         }
-        cocos2d::GFXSampleCount arg8;
+        cc::GFXSampleCount arg8;
         json->getProperty("samples", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg8 = (cocos2d::GFXSampleCount)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg8 = (cc::GFXSampleCount)tmp; } while(false);
             cobj->samples = arg8;
         }
-        cocos2d::GFXTextureFlagBit arg9;
+        cc::GFXTextureFlagBit arg9;
         json->getProperty("flags", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg9 = (cocos2d::GFXTextureFlagBit)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg9 = (cc::GFXTextureFlagBit)tmp; } while(false);
             cobj->flags = arg9;
         }
 
@@ -3695,20 +3695,20 @@ static bool js_gfx_GFXTextureInfo_constructor(se::State& s)
     }
     else if(argc == 10)
     {
-        cocos2d::GFXTextureInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureInfo);
-        cocos2d::GFXTextureType arg0;
+        cc::GFXTextureInfo* cobj = JSB_ALLOC(cc::GFXTextureInfo);
+        cc::GFXTextureType arg0;
         if (!args[0].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXTextureType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXTextureType)tmp; } while(false);
             cobj->type = arg0;
         }
-        cocos2d::GFXTextureUsageBit arg1;
+        cc::GFXTextureUsageBit arg1;
         if (!args[1].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXTextureUsageBit)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::GFXTextureUsageBit)tmp; } while(false);
             cobj->usage = arg1;
         }
-        cocos2d::GFXFormat arg2;
+        cc::GFXFormat arg2;
         if (!args[2].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXFormat)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::GFXFormat)tmp; } while(false);
             cobj->format = arg2;
         }
         unsigned int arg3 = 0;
@@ -3736,14 +3736,14 @@ static bool js_gfx_GFXTextureInfo_constructor(se::State& s)
             ok &= seval_to_uint32(args[7], (uint32_t*)&arg7);
             cobj->mipLevel = arg7;
         }
-        cocos2d::GFXSampleCount arg8;
+        cc::GFXSampleCount arg8;
         if (!args[8].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cocos2d::GFXSampleCount)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cc::GFXSampleCount)tmp; } while(false);
             cobj->samples = arg8;
         }
-        cocos2d::GFXTextureFlagBit arg9;
+        cc::GFXTextureFlagBit arg9;
         if (!args[9].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[9], &tmp); arg9 = (cocos2d::GFXTextureFlagBit)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[9], &tmp); arg9 = (cc::GFXTextureFlagBit)tmp; } while(false);
             cobj->flags = arg9;
         }
 
@@ -3761,24 +3761,24 @@ static bool js_gfx_GFXTextureInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXTextureInfo_constructor, __jsb_cocos2d_GFXTextureInfo_class, js_cocos2d_GFXTextureInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXTextureInfo_constructor, __jsb_cc_GFXTextureInfo_class, js_cc_GFXTextureInfo_finalize)
 
 
 
 
-static bool js_cocos2d_GFXTextureInfo_finalize(se::State& s)
+static bool js_cc_GFXTextureInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXTextureInfo)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXTextureInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXTextureInfo* cobj = (cocos2d::GFXTextureInfo*)s.nativeThisObject();
+        cc::GFXTextureInfo* cobj = (cc::GFXTextureInfo*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXTextureInfo_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXTextureInfo_finalize)
 
 bool js_register_gfx_GFXTextureInfo(se::Object* obj)
 {
@@ -3794,23 +3794,23 @@ bool js_register_gfx_GFXTextureInfo(se::Object* obj)
     cls->defineProperty("mipLevel", _SE(js_gfx_GFXTextureInfo_get_mipLevel), _SE(js_gfx_GFXTextureInfo_set_mipLevel));
     cls->defineProperty("samples", _SE(js_gfx_GFXTextureInfo_get_samples), _SE(js_gfx_GFXTextureInfo_set_samples));
     cls->defineProperty("flags", _SE(js_gfx_GFXTextureInfo_get_flags), _SE(js_gfx_GFXTextureInfo_set_flags));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXTextureInfo_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXTextureInfo_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXTextureInfo>(cls);
+    JSBClassType::registerClass<cc::GFXTextureInfo>(cls);
 
-    __jsb_cocos2d_GFXTextureInfo_proto = cls->getProto();
-    __jsb_cocos2d_GFXTextureInfo_class = cls;
+    __jsb_cc_GFXTextureInfo_proto = cls->getProto();
+    __jsb_cc_GFXTextureInfo_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXTextureViewInfo_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXTextureViewInfo_class = nullptr;
+se::Object* __jsb_cc_GFXTextureViewInfo_proto = nullptr;
+se::Class* __jsb_cc_GFXTextureViewInfo_class = nullptr;
 
 static bool js_gfx_GFXTextureViewInfo_get_texture(se::State& s)
 {
-    cocos2d::GFXTextureViewInfo* cobj = (cocos2d::GFXTextureViewInfo*)s.nativeThisObject();
+    cc::GFXTextureViewInfo* cobj = (cc::GFXTextureViewInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureViewInfo_get_texture : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3824,11 +3824,11 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureViewInfo_get_texture)
 static bool js_gfx_GFXTextureViewInfo_set_texture(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureViewInfo* cobj = (cocos2d::GFXTextureViewInfo*)s.nativeThisObject();
+    cc::GFXTextureViewInfo* cobj = (cc::GFXTextureViewInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureViewInfo_set_texture : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXTexture* arg0 = nullptr;
+    cc::GFXTexture* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureViewInfo_set_texture : Error processing new value");
     cobj->texture = arg0;
@@ -3838,7 +3838,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureViewInfo_set_texture)
 
 static bool js_gfx_GFXTextureViewInfo_get_type(se::State& s)
 {
-    cocos2d::GFXTextureViewInfo* cobj = (cocos2d::GFXTextureViewInfo*)s.nativeThisObject();
+    cc::GFXTextureViewInfo* cobj = (cc::GFXTextureViewInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureViewInfo_get_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3852,12 +3852,12 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureViewInfo_get_type)
 static bool js_gfx_GFXTextureViewInfo_set_type(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureViewInfo* cobj = (cocos2d::GFXTextureViewInfo*)s.nativeThisObject();
+    cc::GFXTextureViewInfo* cobj = (cc::GFXTextureViewInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureViewInfo_set_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXTextureType arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXTextureType)tmp; } while(false);
+    cc::GFXTextureType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXTextureType)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureViewInfo_set_type : Error processing new value");
     cobj->type = arg0;
     return true;
@@ -3866,7 +3866,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureViewInfo_set_type)
 
 static bool js_gfx_GFXTextureViewInfo_get_format(se::State& s)
 {
-    cocos2d::GFXTextureViewInfo* cobj = (cocos2d::GFXTextureViewInfo*)s.nativeThisObject();
+    cc::GFXTextureViewInfo* cobj = (cc::GFXTextureViewInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureViewInfo_get_format : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3880,12 +3880,12 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureViewInfo_get_format)
 static bool js_gfx_GFXTextureViewInfo_set_format(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureViewInfo* cobj = (cocos2d::GFXTextureViewInfo*)s.nativeThisObject();
+    cc::GFXTextureViewInfo* cobj = (cc::GFXTextureViewInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureViewInfo_set_format : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXFormat arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXFormat)tmp; } while(false);
+    cc::GFXFormat arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXFormat)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureViewInfo_set_format : Error processing new value");
     cobj->format = arg0;
     return true;
@@ -3894,7 +3894,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureViewInfo_set_format)
 
 static bool js_gfx_GFXTextureViewInfo_get_baseLevel(se::State& s)
 {
-    cocos2d::GFXTextureViewInfo* cobj = (cocos2d::GFXTextureViewInfo*)s.nativeThisObject();
+    cc::GFXTextureViewInfo* cobj = (cc::GFXTextureViewInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureViewInfo_get_baseLevel : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3908,7 +3908,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureViewInfo_get_baseLevel)
 static bool js_gfx_GFXTextureViewInfo_set_baseLevel(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureViewInfo* cobj = (cocos2d::GFXTextureViewInfo*)s.nativeThisObject();
+    cc::GFXTextureViewInfo* cobj = (cc::GFXTextureViewInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureViewInfo_set_baseLevel : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3922,7 +3922,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureViewInfo_set_baseLevel)
 
 static bool js_gfx_GFXTextureViewInfo_get_levelCount(se::State& s)
 {
-    cocos2d::GFXTextureViewInfo* cobj = (cocos2d::GFXTextureViewInfo*)s.nativeThisObject();
+    cc::GFXTextureViewInfo* cobj = (cc::GFXTextureViewInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureViewInfo_get_levelCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3936,7 +3936,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureViewInfo_get_levelCount)
 static bool js_gfx_GFXTextureViewInfo_set_levelCount(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureViewInfo* cobj = (cocos2d::GFXTextureViewInfo*)s.nativeThisObject();
+    cc::GFXTextureViewInfo* cobj = (cc::GFXTextureViewInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureViewInfo_set_levelCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3950,7 +3950,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureViewInfo_set_levelCount)
 
 static bool js_gfx_GFXTextureViewInfo_get_baseLayer(se::State& s)
 {
-    cocos2d::GFXTextureViewInfo* cobj = (cocos2d::GFXTextureViewInfo*)s.nativeThisObject();
+    cc::GFXTextureViewInfo* cobj = (cc::GFXTextureViewInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureViewInfo_get_baseLayer : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3964,7 +3964,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureViewInfo_get_baseLayer)
 static bool js_gfx_GFXTextureViewInfo_set_baseLayer(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureViewInfo* cobj = (cocos2d::GFXTextureViewInfo*)s.nativeThisObject();
+    cc::GFXTextureViewInfo* cobj = (cc::GFXTextureViewInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureViewInfo_set_baseLayer : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3978,7 +3978,7 @@ SE_BIND_PROP_SET(js_gfx_GFXTextureViewInfo_set_baseLayer)
 
 static bool js_gfx_GFXTextureViewInfo_get_layerCount(se::State& s)
 {
-    cocos2d::GFXTextureViewInfo* cobj = (cocos2d::GFXTextureViewInfo*)s.nativeThisObject();
+    cc::GFXTextureViewInfo* cobj = (cc::GFXTextureViewInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureViewInfo_get_layerCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3992,7 +3992,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTextureViewInfo_get_layerCount)
 static bool js_gfx_GFXTextureViewInfo_set_layerCount(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXTextureViewInfo* cobj = (cocos2d::GFXTextureViewInfo*)s.nativeThisObject();
+    cc::GFXTextureViewInfo* cobj = (cc::GFXTextureViewInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureViewInfo_set_layerCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4004,7 +4004,7 @@ static bool js_gfx_GFXTextureViewInfo_set_layerCount(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXTextureViewInfo_set_layerCount)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXTextureViewInfo_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXTextureViewInfo_finalize)
 
 static bool js_gfx_GFXTextureViewInfo_constructor(se::State& s)
 {
@@ -4014,7 +4014,7 @@ static bool js_gfx_GFXTextureViewInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXTextureViewInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureViewInfo);
+        cc::GFXTextureViewInfo* cobj = JSB_ALLOC(cc::GFXTextureViewInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -4024,23 +4024,23 @@ static bool js_gfx_GFXTextureViewInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXTextureViewInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureViewInfo);
-        cocos2d::GFXTexture* arg0 = nullptr;
+        cc::GFXTextureViewInfo* cobj = JSB_ALLOC(cc::GFXTextureViewInfo);
+        cc::GFXTexture* arg0 = nullptr;
         json->getProperty("texture", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_native_ptr(field, &arg0);
             cobj->texture = arg0;
         }
-        cocos2d::GFXTextureType arg1;
+        cc::GFXTextureType arg1;
         json->getProperty("type", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXTextureType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cc::GFXTextureType)tmp; } while(false);
             cobj->type = arg1;
         }
-        cocos2d::GFXFormat arg2;
+        cc::GFXFormat arg2;
         json->getProperty("format", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXFormat)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::GFXFormat)tmp; } while(false);
             cobj->format = arg2;
         }
         unsigned int arg3 = 0;
@@ -4080,20 +4080,20 @@ static bool js_gfx_GFXTextureViewInfo_constructor(se::State& s)
     }
     else if(argc == 7)
     {
-        cocos2d::GFXTextureViewInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureViewInfo);
-        cocos2d::GFXTexture* arg0 = nullptr;
+        cc::GFXTextureViewInfo* cobj = JSB_ALLOC(cc::GFXTextureViewInfo);
+        cc::GFXTexture* arg0 = nullptr;
         if (!args[0].isUndefined()) {
             ok &= seval_to_native_ptr(args[0], &arg0);
             cobj->texture = arg0;
         }
-        cocos2d::GFXTextureType arg1;
+        cc::GFXTextureType arg1;
         if (!args[1].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXTextureType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::GFXTextureType)tmp; } while(false);
             cobj->type = arg1;
         }
-        cocos2d::GFXFormat arg2;
+        cc::GFXFormat arg2;
         if (!args[2].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXFormat)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::GFXFormat)tmp; } while(false);
             cobj->format = arg2;
         }
         unsigned int arg3 = 0;
@@ -4131,24 +4131,24 @@ static bool js_gfx_GFXTextureViewInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXTextureViewInfo_constructor, __jsb_cocos2d_GFXTextureViewInfo_class, js_cocos2d_GFXTextureViewInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXTextureViewInfo_constructor, __jsb_cc_GFXTextureViewInfo_class, js_cc_GFXTextureViewInfo_finalize)
 
 
 
 
-static bool js_cocos2d_GFXTextureViewInfo_finalize(se::State& s)
+static bool js_cc_GFXTextureViewInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXTextureViewInfo)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXTextureViewInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXTextureViewInfo* cobj = (cocos2d::GFXTextureViewInfo*)s.nativeThisObject();
+        cc::GFXTextureViewInfo* cobj = (cc::GFXTextureViewInfo*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXTextureViewInfo_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXTextureViewInfo_finalize)
 
 bool js_register_gfx_GFXTextureViewInfo(se::Object* obj)
 {
@@ -4161,23 +4161,23 @@ bool js_register_gfx_GFXTextureViewInfo(se::Object* obj)
     cls->defineProperty("levelCount", _SE(js_gfx_GFXTextureViewInfo_get_levelCount), _SE(js_gfx_GFXTextureViewInfo_set_levelCount));
     cls->defineProperty("baseLayer", _SE(js_gfx_GFXTextureViewInfo_get_baseLayer), _SE(js_gfx_GFXTextureViewInfo_set_baseLayer));
     cls->defineProperty("layerCount", _SE(js_gfx_GFXTextureViewInfo_get_layerCount), _SE(js_gfx_GFXTextureViewInfo_set_layerCount));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXTextureViewInfo_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXTextureViewInfo_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXTextureViewInfo>(cls);
+    JSBClassType::registerClass<cc::GFXTextureViewInfo>(cls);
 
-    __jsb_cocos2d_GFXTextureViewInfo_proto = cls->getProto();
-    __jsb_cocos2d_GFXTextureViewInfo_class = cls;
+    __jsb_cc_GFXTextureViewInfo_proto = cls->getProto();
+    __jsb_cc_GFXTextureViewInfo_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXSamplerInfo_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXSamplerInfo_class = nullptr;
+se::Object* __jsb_cc_GFXSamplerInfo_proto = nullptr;
+se::Class* __jsb_cc_GFXSamplerInfo_class = nullptr;
 
 static bool js_gfx_GFXSamplerInfo_get_name(se::State& s)
 {
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4191,11 +4191,11 @@ SE_BIND_PROP_GET(js_gfx_GFXSamplerInfo_get_name)
 static bool js_gfx_GFXSamplerInfo_set_name(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXSamplerInfo_set_name : Error processing new value");
     cobj->name = arg0;
@@ -4205,7 +4205,7 @@ SE_BIND_PROP_SET(js_gfx_GFXSamplerInfo_set_name)
 
 static bool js_gfx_GFXSamplerInfo_get_minFilter(se::State& s)
 {
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_get_minFilter : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4219,12 +4219,12 @@ SE_BIND_PROP_GET(js_gfx_GFXSamplerInfo_get_minFilter)
 static bool js_gfx_GFXSamplerInfo_set_minFilter(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_set_minFilter : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXFilter arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXFilter)tmp; } while(false);
+    cc::GFXFilter arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXFilter)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXSamplerInfo_set_minFilter : Error processing new value");
     cobj->minFilter = arg0;
     return true;
@@ -4233,7 +4233,7 @@ SE_BIND_PROP_SET(js_gfx_GFXSamplerInfo_set_minFilter)
 
 static bool js_gfx_GFXSamplerInfo_get_magFilter(se::State& s)
 {
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_get_magFilter : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4247,12 +4247,12 @@ SE_BIND_PROP_GET(js_gfx_GFXSamplerInfo_get_magFilter)
 static bool js_gfx_GFXSamplerInfo_set_magFilter(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_set_magFilter : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXFilter arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXFilter)tmp; } while(false);
+    cc::GFXFilter arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXFilter)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXSamplerInfo_set_magFilter : Error processing new value");
     cobj->magFilter = arg0;
     return true;
@@ -4261,7 +4261,7 @@ SE_BIND_PROP_SET(js_gfx_GFXSamplerInfo_set_magFilter)
 
 static bool js_gfx_GFXSamplerInfo_get_mipFilter(se::State& s)
 {
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_get_mipFilter : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4275,12 +4275,12 @@ SE_BIND_PROP_GET(js_gfx_GFXSamplerInfo_get_mipFilter)
 static bool js_gfx_GFXSamplerInfo_set_mipFilter(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_set_mipFilter : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXFilter arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXFilter)tmp; } while(false);
+    cc::GFXFilter arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXFilter)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXSamplerInfo_set_mipFilter : Error processing new value");
     cobj->mipFilter = arg0;
     return true;
@@ -4289,7 +4289,7 @@ SE_BIND_PROP_SET(js_gfx_GFXSamplerInfo_set_mipFilter)
 
 static bool js_gfx_GFXSamplerInfo_get_addressU(se::State& s)
 {
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_get_addressU : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4303,12 +4303,12 @@ SE_BIND_PROP_GET(js_gfx_GFXSamplerInfo_get_addressU)
 static bool js_gfx_GFXSamplerInfo_set_addressU(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_set_addressU : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXAddress arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXAddress)tmp; } while(false);
+    cc::GFXAddress arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXAddress)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXSamplerInfo_set_addressU : Error processing new value");
     cobj->addressU = arg0;
     return true;
@@ -4317,7 +4317,7 @@ SE_BIND_PROP_SET(js_gfx_GFXSamplerInfo_set_addressU)
 
 static bool js_gfx_GFXSamplerInfo_get_addressV(se::State& s)
 {
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_get_addressV : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4331,12 +4331,12 @@ SE_BIND_PROP_GET(js_gfx_GFXSamplerInfo_get_addressV)
 static bool js_gfx_GFXSamplerInfo_set_addressV(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_set_addressV : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXAddress arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXAddress)tmp; } while(false);
+    cc::GFXAddress arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXAddress)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXSamplerInfo_set_addressV : Error processing new value");
     cobj->addressV = arg0;
     return true;
@@ -4345,7 +4345,7 @@ SE_BIND_PROP_SET(js_gfx_GFXSamplerInfo_set_addressV)
 
 static bool js_gfx_GFXSamplerInfo_get_addressW(se::State& s)
 {
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_get_addressW : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4359,12 +4359,12 @@ SE_BIND_PROP_GET(js_gfx_GFXSamplerInfo_get_addressW)
 static bool js_gfx_GFXSamplerInfo_set_addressW(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_set_addressW : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXAddress arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXAddress)tmp; } while(false);
+    cc::GFXAddress arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXAddress)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXSamplerInfo_set_addressW : Error processing new value");
     cobj->addressW = arg0;
     return true;
@@ -4373,7 +4373,7 @@ SE_BIND_PROP_SET(js_gfx_GFXSamplerInfo_set_addressW)
 
 static bool js_gfx_GFXSamplerInfo_get_maxAnisotropy(se::State& s)
 {
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_get_maxAnisotropy : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4387,7 +4387,7 @@ SE_BIND_PROP_GET(js_gfx_GFXSamplerInfo_get_maxAnisotropy)
 static bool js_gfx_GFXSamplerInfo_set_maxAnisotropy(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_set_maxAnisotropy : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4401,7 +4401,7 @@ SE_BIND_PROP_SET(js_gfx_GFXSamplerInfo_set_maxAnisotropy)
 
 static bool js_gfx_GFXSamplerInfo_get_cmpFunc(se::State& s)
 {
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_get_cmpFunc : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4415,12 +4415,12 @@ SE_BIND_PROP_GET(js_gfx_GFXSamplerInfo_get_cmpFunc)
 static bool js_gfx_GFXSamplerInfo_set_cmpFunc(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_set_cmpFunc : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXComparisonFunc arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+    cc::GFXComparisonFunc arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXComparisonFunc)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXSamplerInfo_set_cmpFunc : Error processing new value");
     cobj->cmpFunc = arg0;
     return true;
@@ -4429,7 +4429,7 @@ SE_BIND_PROP_SET(js_gfx_GFXSamplerInfo_set_cmpFunc)
 
 static bool js_gfx_GFXSamplerInfo_get_borderColor(se::State& s)
 {
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_get_borderColor : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4443,11 +4443,11 @@ SE_BIND_PROP_GET(js_gfx_GFXSamplerInfo_get_borderColor)
 static bool js_gfx_GFXSamplerInfo_set_borderColor(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_set_borderColor : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXColor* arg0 = nullptr;
+    cc::GFXColor* arg0 = nullptr;
     ok &= seval_to_reference(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXSamplerInfo_set_borderColor : Error processing new value");
     cobj->borderColor = *arg0;
@@ -4457,7 +4457,7 @@ SE_BIND_PROP_SET(js_gfx_GFXSamplerInfo_set_borderColor)
 
 static bool js_gfx_GFXSamplerInfo_get_minLOD(se::State& s)
 {
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_get_minLOD : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4471,7 +4471,7 @@ SE_BIND_PROP_GET(js_gfx_GFXSamplerInfo_get_minLOD)
 static bool js_gfx_GFXSamplerInfo_set_minLOD(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_set_minLOD : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4485,7 +4485,7 @@ SE_BIND_PROP_SET(js_gfx_GFXSamplerInfo_set_minLOD)
 
 static bool js_gfx_GFXSamplerInfo_get_maxLOD(se::State& s)
 {
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_get_maxLOD : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4499,7 +4499,7 @@ SE_BIND_PROP_GET(js_gfx_GFXSamplerInfo_get_maxLOD)
 static bool js_gfx_GFXSamplerInfo_set_maxLOD(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_set_maxLOD : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4513,7 +4513,7 @@ SE_BIND_PROP_SET(js_gfx_GFXSamplerInfo_set_maxLOD)
 
 static bool js_gfx_GFXSamplerInfo_get_mipLODBias(se::State& s)
 {
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_get_mipLODBias : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4527,7 +4527,7 @@ SE_BIND_PROP_GET(js_gfx_GFXSamplerInfo_get_mipLODBias)
 static bool js_gfx_GFXSamplerInfo_set_mipLODBias(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+    cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_set_mipLODBias : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4539,7 +4539,7 @@ static bool js_gfx_GFXSamplerInfo_set_mipLODBias(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXSamplerInfo_set_mipLODBias)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXSamplerInfo_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXSamplerInfo_finalize)
 
 static bool js_gfx_GFXSamplerInfo_constructor(se::State& s)
 {
@@ -4549,7 +4549,7 @@ static bool js_gfx_GFXSamplerInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXSamplerInfo* cobj = JSB_ALLOC(cocos2d::GFXSamplerInfo);
+        cc::GFXSamplerInfo* cobj = JSB_ALLOC(cc::GFXSamplerInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -4559,47 +4559,47 @@ static bool js_gfx_GFXSamplerInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXSamplerInfo* cobj = JSB_ALLOC(cocos2d::GFXSamplerInfo);
-        cocos2d::String arg0;
+        cc::GFXSamplerInfo* cobj = JSB_ALLOC(cc::GFXSamplerInfo);
+        cc::String arg0;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
             arg0 = field.toStringForce().c_str();
             cobj->name = arg0;
         }
-        cocos2d::GFXFilter arg1;
+        cc::GFXFilter arg1;
         json->getProperty("minFilter", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXFilter)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cc::GFXFilter)tmp; } while(false);
             cobj->minFilter = arg1;
         }
-        cocos2d::GFXFilter arg2;
+        cc::GFXFilter arg2;
         json->getProperty("magFilter", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXFilter)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::GFXFilter)tmp; } while(false);
             cobj->magFilter = arg2;
         }
-        cocos2d::GFXFilter arg3;
+        cc::GFXFilter arg3;
         json->getProperty("mipFilter", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cocos2d::GFXFilter)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cc::GFXFilter)tmp; } while(false);
             cobj->mipFilter = arg3;
         }
-        cocos2d::GFXAddress arg4;
+        cc::GFXAddress arg4;
         json->getProperty("addressU", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cocos2d::GFXAddress)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cc::GFXAddress)tmp; } while(false);
             cobj->addressU = arg4;
         }
-        cocos2d::GFXAddress arg5;
+        cc::GFXAddress arg5;
         json->getProperty("addressV", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg5 = (cocos2d::GFXAddress)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg5 = (cc::GFXAddress)tmp; } while(false);
             cobj->addressV = arg5;
         }
-        cocos2d::GFXAddress arg6;
+        cc::GFXAddress arg6;
         json->getProperty("addressW", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg6 = (cocos2d::GFXAddress)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg6 = (cc::GFXAddress)tmp; } while(false);
             cobj->addressW = arg6;
         }
         unsigned int arg7 = 0;
@@ -4608,13 +4608,13 @@ static bool js_gfx_GFXSamplerInfo_constructor(se::State& s)
             ok &= seval_to_uint32(field, (uint32_t*)&arg7);
             cobj->maxAnisotropy = arg7;
         }
-        cocos2d::GFXComparisonFunc arg8;
+        cc::GFXComparisonFunc arg8;
         json->getProperty("cmpFunc", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg8 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg8 = (cc::GFXComparisonFunc)tmp; } while(false);
             cobj->cmpFunc = arg8;
         }
-        cocos2d::GFXColor* arg9 = nullptr;
+        cc::GFXColor* arg9 = nullptr;
         json->getProperty("borderColor", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_reference(field, &arg9);
@@ -4651,40 +4651,40 @@ static bool js_gfx_GFXSamplerInfo_constructor(se::State& s)
     }
     else if(argc == 13)
     {
-        cocos2d::GFXSamplerInfo* cobj = JSB_ALLOC(cocos2d::GFXSamplerInfo);
-        cocos2d::String arg0;
+        cc::GFXSamplerInfo* cobj = JSB_ALLOC(cc::GFXSamplerInfo);
+        cc::String arg0;
         if (!args[0].isUndefined()) {
             arg0 = args[0].toStringForce().c_str();
             cobj->name = arg0;
         }
-        cocos2d::GFXFilter arg1;
+        cc::GFXFilter arg1;
         if (!args[1].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXFilter)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::GFXFilter)tmp; } while(false);
             cobj->minFilter = arg1;
         }
-        cocos2d::GFXFilter arg2;
+        cc::GFXFilter arg2;
         if (!args[2].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXFilter)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::GFXFilter)tmp; } while(false);
             cobj->magFilter = arg2;
         }
-        cocos2d::GFXFilter arg3;
+        cc::GFXFilter arg3;
         if (!args[3].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cocos2d::GFXFilter)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::GFXFilter)tmp; } while(false);
             cobj->mipFilter = arg3;
         }
-        cocos2d::GFXAddress arg4;
+        cc::GFXAddress arg4;
         if (!args[4].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXAddress)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::GFXAddress)tmp; } while(false);
             cobj->addressU = arg4;
         }
-        cocos2d::GFXAddress arg5;
+        cc::GFXAddress arg5;
         if (!args[5].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cocos2d::GFXAddress)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cc::GFXAddress)tmp; } while(false);
             cobj->addressV = arg5;
         }
-        cocos2d::GFXAddress arg6;
+        cc::GFXAddress arg6;
         if (!args[6].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cocos2d::GFXAddress)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cc::GFXAddress)tmp; } while(false);
             cobj->addressW = arg6;
         }
         unsigned int arg7 = 0;
@@ -4692,12 +4692,12 @@ static bool js_gfx_GFXSamplerInfo_constructor(se::State& s)
             ok &= seval_to_uint32(args[7], (uint32_t*)&arg7);
             cobj->maxAnisotropy = arg7;
         }
-        cocos2d::GFXComparisonFunc arg8;
+        cc::GFXComparisonFunc arg8;
         if (!args[8].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cc::GFXComparisonFunc)tmp; } while(false);
             cobj->cmpFunc = arg8;
         }
-        cocos2d::GFXColor* arg9 = nullptr;
+        cc::GFXColor* arg9 = nullptr;
         if (!args[9].isUndefined()) {
             ok &= seval_to_reference(args[9], &arg9);
             cobj->borderColor = *arg9;
@@ -4732,24 +4732,24 @@ static bool js_gfx_GFXSamplerInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXSamplerInfo_constructor, __jsb_cocos2d_GFXSamplerInfo_class, js_cocos2d_GFXSamplerInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXSamplerInfo_constructor, __jsb_cc_GFXSamplerInfo_class, js_cc_GFXSamplerInfo_finalize)
 
 
 
 
-static bool js_cocos2d_GFXSamplerInfo_finalize(se::State& s)
+static bool js_cc_GFXSamplerInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXSamplerInfo)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXSamplerInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXSamplerInfo* cobj = (cocos2d::GFXSamplerInfo*)s.nativeThisObject();
+        cc::GFXSamplerInfo* cobj = (cc::GFXSamplerInfo*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXSamplerInfo_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXSamplerInfo_finalize)
 
 bool js_register_gfx_GFXSamplerInfo(se::Object* obj)
 {
@@ -4768,23 +4768,23 @@ bool js_register_gfx_GFXSamplerInfo(se::Object* obj)
     cls->defineProperty("minLOD", _SE(js_gfx_GFXSamplerInfo_get_minLOD), _SE(js_gfx_GFXSamplerInfo_set_minLOD));
     cls->defineProperty("maxLOD", _SE(js_gfx_GFXSamplerInfo_get_maxLOD), _SE(js_gfx_GFXSamplerInfo_set_maxLOD));
     cls->defineProperty("mipLODBias", _SE(js_gfx_GFXSamplerInfo_get_mipLODBias), _SE(js_gfx_GFXSamplerInfo_set_mipLODBias));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXSamplerInfo_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXSamplerInfo_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXSamplerInfo>(cls);
+    JSBClassType::registerClass<cc::GFXSamplerInfo>(cls);
 
-    __jsb_cocos2d_GFXSamplerInfo_proto = cls->getProto();
-    __jsb_cocos2d_GFXSamplerInfo_class = cls;
+    __jsb_cc_GFXSamplerInfo_proto = cls->getProto();
+    __jsb_cc_GFXSamplerInfo_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXShaderMacro_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXShaderMacro_class = nullptr;
+se::Object* __jsb_cc_GFXShaderMacro_proto = nullptr;
+se::Class* __jsb_cc_GFXShaderMacro_class = nullptr;
 
 static bool js_gfx_GFXShaderMacro_get_macro(se::State& s)
 {
-    cocos2d::GFXShaderMacro* cobj = (cocos2d::GFXShaderMacro*)s.nativeThisObject();
+    cc::GFXShaderMacro* cobj = (cc::GFXShaderMacro*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderMacro_get_macro : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4798,11 +4798,11 @@ SE_BIND_PROP_GET(js_gfx_GFXShaderMacro_get_macro)
 static bool js_gfx_GFXShaderMacro_set_macro(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXShaderMacro* cobj = (cocos2d::GFXShaderMacro*)s.nativeThisObject();
+    cc::GFXShaderMacro* cobj = (cc::GFXShaderMacro*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderMacro_set_macro : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderMacro_set_macro : Error processing new value");
     cobj->macro = arg0;
@@ -4812,7 +4812,7 @@ SE_BIND_PROP_SET(js_gfx_GFXShaderMacro_set_macro)
 
 static bool js_gfx_GFXShaderMacro_get_value(se::State& s)
 {
-    cocos2d::GFXShaderMacro* cobj = (cocos2d::GFXShaderMacro*)s.nativeThisObject();
+    cc::GFXShaderMacro* cobj = (cc::GFXShaderMacro*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderMacro_get_value : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4826,11 +4826,11 @@ SE_BIND_PROP_GET(js_gfx_GFXShaderMacro_get_value)
 static bool js_gfx_GFXShaderMacro_set_value(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXShaderMacro* cobj = (cocos2d::GFXShaderMacro*)s.nativeThisObject();
+    cc::GFXShaderMacro* cobj = (cc::GFXShaderMacro*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderMacro_set_value : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderMacro_set_value : Error processing new value");
     cobj->value = arg0;
@@ -4838,7 +4838,7 @@ static bool js_gfx_GFXShaderMacro_set_value(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXShaderMacro_set_value)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXShaderMacro_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXShaderMacro_finalize)
 
 static bool js_gfx_GFXShaderMacro_constructor(se::State& s)
 {
@@ -4848,7 +4848,7 @@ static bool js_gfx_GFXShaderMacro_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXShaderMacro* cobj = JSB_ALLOC(cocos2d::GFXShaderMacro);
+        cc::GFXShaderMacro* cobj = JSB_ALLOC(cc::GFXShaderMacro);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -4858,14 +4858,14 @@ static bool js_gfx_GFXShaderMacro_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXShaderMacro* cobj = JSB_ALLOC(cocos2d::GFXShaderMacro);
-        cocos2d::String arg0;
+        cc::GFXShaderMacro* cobj = JSB_ALLOC(cc::GFXShaderMacro);
+        cc::String arg0;
         json->getProperty("macro", &field);
         if(!field.isUndefined()) {
             arg0 = field.toStringForce().c_str();
             cobj->macro = arg0;
         }
-        cocos2d::String arg1;
+        cc::String arg1;
         json->getProperty("value", &field);
         if(!field.isUndefined()) {
             arg1 = field.toStringForce().c_str();
@@ -4884,13 +4884,13 @@ static bool js_gfx_GFXShaderMacro_constructor(se::State& s)
     }
     else if(argc == 2)
     {
-        cocos2d::GFXShaderMacro* cobj = JSB_ALLOC(cocos2d::GFXShaderMacro);
-        cocos2d::String arg0;
+        cc::GFXShaderMacro* cobj = JSB_ALLOC(cc::GFXShaderMacro);
+        cc::String arg0;
         if (!args[0].isUndefined()) {
             arg0 = args[0].toStringForce().c_str();
             cobj->macro = arg0;
         }
-        cocos2d::String arg1;
+        cc::String arg1;
         if (!args[1].isUndefined()) {
             arg1 = args[1].toStringForce().c_str();
             cobj->value = arg1;
@@ -4910,24 +4910,24 @@ static bool js_gfx_GFXShaderMacro_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXShaderMacro_constructor, __jsb_cocos2d_GFXShaderMacro_class, js_cocos2d_GFXShaderMacro_finalize)
+SE_BIND_CTOR(js_gfx_GFXShaderMacro_constructor, __jsb_cc_GFXShaderMacro_class, js_cc_GFXShaderMacro_finalize)
 
 
 
 
-static bool js_cocos2d_GFXShaderMacro_finalize(se::State& s)
+static bool js_cc_GFXShaderMacro_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXShaderMacro)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXShaderMacro)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXShaderMacro* cobj = (cocos2d::GFXShaderMacro*)s.nativeThisObject();
+        cc::GFXShaderMacro* cobj = (cc::GFXShaderMacro*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXShaderMacro_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXShaderMacro_finalize)
 
 bool js_register_gfx_GFXShaderMacro(se::Object* obj)
 {
@@ -4935,23 +4935,23 @@ bool js_register_gfx_GFXShaderMacro(se::Object* obj)
 
     cls->defineProperty("macro", _SE(js_gfx_GFXShaderMacro_get_macro), _SE(js_gfx_GFXShaderMacro_set_macro));
     cls->defineProperty("value", _SE(js_gfx_GFXShaderMacro_get_value), _SE(js_gfx_GFXShaderMacro_set_value));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXShaderMacro_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXShaderMacro_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXShaderMacro>(cls);
+    JSBClassType::registerClass<cc::GFXShaderMacro>(cls);
 
-    __jsb_cocos2d_GFXShaderMacro_proto = cls->getProto();
-    __jsb_cocos2d_GFXShaderMacro_class = cls;
+    __jsb_cc_GFXShaderMacro_proto = cls->getProto();
+    __jsb_cc_GFXShaderMacro_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXUniform_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXUniform_class = nullptr;
+se::Object* __jsb_cc_GFXUniform_proto = nullptr;
+se::Class* __jsb_cc_GFXUniform_class = nullptr;
 
 static bool js_gfx_GFXUniform_get_name(se::State& s)
 {
-    cocos2d::GFXUniform* cobj = (cocos2d::GFXUniform*)s.nativeThisObject();
+    cc::GFXUniform* cobj = (cc::GFXUniform*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniform_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4965,11 +4965,11 @@ SE_BIND_PROP_GET(js_gfx_GFXUniform_get_name)
 static bool js_gfx_GFXUniform_set_name(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXUniform* cobj = (cocos2d::GFXUniform*)s.nativeThisObject();
+    cc::GFXUniform* cobj = (cc::GFXUniform*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniform_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXUniform_set_name : Error processing new value");
     cobj->name = arg0;
@@ -4979,7 +4979,7 @@ SE_BIND_PROP_SET(js_gfx_GFXUniform_set_name)
 
 static bool js_gfx_GFXUniform_get_type(se::State& s)
 {
-    cocos2d::GFXUniform* cobj = (cocos2d::GFXUniform*)s.nativeThisObject();
+    cc::GFXUniform* cobj = (cc::GFXUniform*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniform_get_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4993,12 +4993,12 @@ SE_BIND_PROP_GET(js_gfx_GFXUniform_get_type)
 static bool js_gfx_GFXUniform_set_type(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXUniform* cobj = (cocos2d::GFXUniform*)s.nativeThisObject();
+    cc::GFXUniform* cobj = (cc::GFXUniform*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniform_set_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXType arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXType)tmp; } while(false);
+    cc::GFXType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXType)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXUniform_set_type : Error processing new value");
     cobj->type = arg0;
     return true;
@@ -5007,7 +5007,7 @@ SE_BIND_PROP_SET(js_gfx_GFXUniform_set_type)
 
 static bool js_gfx_GFXUniform_get_count(se::State& s)
 {
-    cocos2d::GFXUniform* cobj = (cocos2d::GFXUniform*)s.nativeThisObject();
+    cc::GFXUniform* cobj = (cc::GFXUniform*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniform_get_count : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5021,7 +5021,7 @@ SE_BIND_PROP_GET(js_gfx_GFXUniform_get_count)
 static bool js_gfx_GFXUniform_set_count(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXUniform* cobj = (cocos2d::GFXUniform*)s.nativeThisObject();
+    cc::GFXUniform* cobj = (cc::GFXUniform*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniform_set_count : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5033,7 +5033,7 @@ static bool js_gfx_GFXUniform_set_count(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXUniform_set_count)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXUniform_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXUniform_finalize)
 
 static bool js_gfx_GFXUniform_constructor(se::State& s)
 {
@@ -5043,7 +5043,7 @@ static bool js_gfx_GFXUniform_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXUniform* cobj = JSB_ALLOC(cocos2d::GFXUniform);
+        cc::GFXUniform* cobj = JSB_ALLOC(cc::GFXUniform);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -5053,17 +5053,17 @@ static bool js_gfx_GFXUniform_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXUniform* cobj = JSB_ALLOC(cocos2d::GFXUniform);
-        cocos2d::String arg0;
+        cc::GFXUniform* cobj = JSB_ALLOC(cc::GFXUniform);
+        cc::String arg0;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
             arg0 = field.toStringForce().c_str();
             cobj->name = arg0;
         }
-        cocos2d::GFXType arg1;
+        cc::GFXType arg1;
         json->getProperty("type", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cc::GFXType)tmp; } while(false);
             cobj->type = arg1;
         }
         unsigned int arg2 = 0;
@@ -5085,15 +5085,15 @@ static bool js_gfx_GFXUniform_constructor(se::State& s)
     }
     else if(argc == 3)
     {
-        cocos2d::GFXUniform* cobj = JSB_ALLOC(cocos2d::GFXUniform);
-        cocos2d::String arg0;
+        cc::GFXUniform* cobj = JSB_ALLOC(cc::GFXUniform);
+        cc::String arg0;
         if (!args[0].isUndefined()) {
             arg0 = args[0].toStringForce().c_str();
             cobj->name = arg0;
         }
-        cocos2d::GFXType arg1;
+        cc::GFXType arg1;
         if (!args[1].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::GFXType)tmp; } while(false);
             cobj->type = arg1;
         }
         unsigned int arg2 = 0;
@@ -5116,24 +5116,24 @@ static bool js_gfx_GFXUniform_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXUniform_constructor, __jsb_cocos2d_GFXUniform_class, js_cocos2d_GFXUniform_finalize)
+SE_BIND_CTOR(js_gfx_GFXUniform_constructor, __jsb_cc_GFXUniform_class, js_cc_GFXUniform_finalize)
 
 
 
 
-static bool js_cocos2d_GFXUniform_finalize(se::State& s)
+static bool js_cc_GFXUniform_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXUniform)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXUniform)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXUniform* cobj = (cocos2d::GFXUniform*)s.nativeThisObject();
+        cc::GFXUniform* cobj = (cc::GFXUniform*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXUniform_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXUniform_finalize)
 
 bool js_register_gfx_GFXUniform(se::Object* obj)
 {
@@ -5142,23 +5142,23 @@ bool js_register_gfx_GFXUniform(se::Object* obj)
     cls->defineProperty("name", _SE(js_gfx_GFXUniform_get_name), _SE(js_gfx_GFXUniform_set_name));
     cls->defineProperty("type", _SE(js_gfx_GFXUniform_get_type), _SE(js_gfx_GFXUniform_set_type));
     cls->defineProperty("count", _SE(js_gfx_GFXUniform_get_count), _SE(js_gfx_GFXUniform_set_count));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXUniform_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXUniform_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXUniform>(cls);
+    JSBClassType::registerClass<cc::GFXUniform>(cls);
 
-    __jsb_cocos2d_GFXUniform_proto = cls->getProto();
-    __jsb_cocos2d_GFXUniform_class = cls;
+    __jsb_cc_GFXUniform_proto = cls->getProto();
+    __jsb_cc_GFXUniform_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXUniformBlock_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXUniformBlock_class = nullptr;
+se::Object* __jsb_cc_GFXUniformBlock_proto = nullptr;
+se::Class* __jsb_cc_GFXUniformBlock_class = nullptr;
 
 static bool js_gfx_GFXUniformBlock_get_shaderStages(se::State& s)
 {
-    cocos2d::GFXUniformBlock* cobj = (cocos2d::GFXUniformBlock*)s.nativeThisObject();
+    cc::GFXUniformBlock* cobj = (cc::GFXUniformBlock*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformBlock_get_shaderStages : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5172,12 +5172,12 @@ SE_BIND_PROP_GET(js_gfx_GFXUniformBlock_get_shaderStages)
 static bool js_gfx_GFXUniformBlock_set_shaderStages(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXUniformBlock* cobj = (cocos2d::GFXUniformBlock*)s.nativeThisObject();
+    cc::GFXUniformBlock* cobj = (cc::GFXUniformBlock*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformBlock_set_shaderStages : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXShaderType arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+    cc::GFXShaderType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXShaderType)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXUniformBlock_set_shaderStages : Error processing new value");
     cobj->shaderStages = arg0;
     return true;
@@ -5186,7 +5186,7 @@ SE_BIND_PROP_SET(js_gfx_GFXUniformBlock_set_shaderStages)
 
 static bool js_gfx_GFXUniformBlock_get_binding(se::State& s)
 {
-    cocos2d::GFXUniformBlock* cobj = (cocos2d::GFXUniformBlock*)s.nativeThisObject();
+    cc::GFXUniformBlock* cobj = (cc::GFXUniformBlock*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformBlock_get_binding : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5200,7 +5200,7 @@ SE_BIND_PROP_GET(js_gfx_GFXUniformBlock_get_binding)
 static bool js_gfx_GFXUniformBlock_set_binding(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXUniformBlock* cobj = (cocos2d::GFXUniformBlock*)s.nativeThisObject();
+    cc::GFXUniformBlock* cobj = (cc::GFXUniformBlock*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformBlock_set_binding : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5214,7 +5214,7 @@ SE_BIND_PROP_SET(js_gfx_GFXUniformBlock_set_binding)
 
 static bool js_gfx_GFXUniformBlock_get_name(se::State& s)
 {
-    cocos2d::GFXUniformBlock* cobj = (cocos2d::GFXUniformBlock*)s.nativeThisObject();
+    cc::GFXUniformBlock* cobj = (cc::GFXUniformBlock*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformBlock_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5228,11 +5228,11 @@ SE_BIND_PROP_GET(js_gfx_GFXUniformBlock_get_name)
 static bool js_gfx_GFXUniformBlock_set_name(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXUniformBlock* cobj = (cocos2d::GFXUniformBlock*)s.nativeThisObject();
+    cc::GFXUniformBlock* cobj = (cc::GFXUniformBlock*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformBlock_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXUniformBlock_set_name : Error processing new value");
     cobj->name = arg0;
@@ -5242,7 +5242,7 @@ SE_BIND_PROP_SET(js_gfx_GFXUniformBlock_set_name)
 
 static bool js_gfx_GFXUniformBlock_get_uniforms(se::State& s)
 {
-    cocos2d::GFXUniformBlock* cobj = (cocos2d::GFXUniformBlock*)s.nativeThisObject();
+    cc::GFXUniformBlock* cobj = (cc::GFXUniformBlock*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformBlock_get_uniforms : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5256,11 +5256,11 @@ SE_BIND_PROP_GET(js_gfx_GFXUniformBlock_get_uniforms)
 static bool js_gfx_GFXUniformBlock_set_uniforms(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXUniformBlock* cobj = (cocos2d::GFXUniformBlock*)s.nativeThisObject();
+    cc::GFXUniformBlock* cobj = (cc::GFXUniformBlock*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformBlock_set_uniforms : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXUniform> arg0;
+    std::vector<cc::GFXUniform> arg0;
     ok &= seval_to_std_vector(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXUniformBlock_set_uniforms : Error processing new value");
     cobj->uniforms = arg0;
@@ -5268,7 +5268,7 @@ static bool js_gfx_GFXUniformBlock_set_uniforms(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXUniformBlock_set_uniforms)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXUniformBlock_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXUniformBlock_finalize)
 
 static bool js_gfx_GFXUniformBlock_constructor(se::State& s)
 {
@@ -5278,7 +5278,7 @@ static bool js_gfx_GFXUniformBlock_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXUniformBlock* cobj = JSB_ALLOC(cocos2d::GFXUniformBlock);
+        cc::GFXUniformBlock* cobj = JSB_ALLOC(cc::GFXUniformBlock);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -5288,11 +5288,11 @@ static bool js_gfx_GFXUniformBlock_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXUniformBlock* cobj = JSB_ALLOC(cocos2d::GFXUniformBlock);
-        cocos2d::GFXShaderType arg0;
+        cc::GFXUniformBlock* cobj = JSB_ALLOC(cc::GFXUniformBlock);
+        cc::GFXShaderType arg0;
         json->getProperty("shaderStages", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cc::GFXShaderType)tmp; } while(false);
             cobj->shaderStages = arg0;
         }
         unsigned int arg1 = 0;
@@ -5301,13 +5301,13 @@ static bool js_gfx_GFXUniformBlock_constructor(se::State& s)
             ok &= seval_to_uint32(field, (uint32_t*)&arg1);
             cobj->binding = arg1;
         }
-        cocos2d::String arg2;
+        cc::String arg2;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
             arg2 = field.toStringForce().c_str();
             cobj->name = arg2;
         }
-        std::vector<cocos2d::GFXUniform> arg3;
+        std::vector<cc::GFXUniform> arg3;
         json->getProperty("uniforms", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_std_vector(field, &arg3);
@@ -5326,10 +5326,10 @@ static bool js_gfx_GFXUniformBlock_constructor(se::State& s)
     }
     else if(argc == 4)
     {
-        cocos2d::GFXUniformBlock* cobj = JSB_ALLOC(cocos2d::GFXUniformBlock);
-        cocos2d::GFXShaderType arg0;
+        cc::GFXUniformBlock* cobj = JSB_ALLOC(cc::GFXUniformBlock);
+        cc::GFXShaderType arg0;
         if (!args[0].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXShaderType)tmp; } while(false);
             cobj->shaderStages = arg0;
         }
         unsigned int arg1 = 0;
@@ -5337,12 +5337,12 @@ static bool js_gfx_GFXUniformBlock_constructor(se::State& s)
             ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
             cobj->binding = arg1;
         }
-        cocos2d::String arg2;
+        cc::String arg2;
         if (!args[2].isUndefined()) {
             arg2 = args[2].toStringForce().c_str();
             cobj->name = arg2;
         }
-        std::vector<cocos2d::GFXUniform> arg3;
+        std::vector<cc::GFXUniform> arg3;
         if (!args[3].isUndefined()) {
             ok &= seval_to_std_vector(args[3], &arg3);
             cobj->uniforms = arg3;
@@ -5362,24 +5362,24 @@ static bool js_gfx_GFXUniformBlock_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXUniformBlock_constructor, __jsb_cocos2d_GFXUniformBlock_class, js_cocos2d_GFXUniformBlock_finalize)
+SE_BIND_CTOR(js_gfx_GFXUniformBlock_constructor, __jsb_cc_GFXUniformBlock_class, js_cc_GFXUniformBlock_finalize)
 
 
 
 
-static bool js_cocos2d_GFXUniformBlock_finalize(se::State& s)
+static bool js_cc_GFXUniformBlock_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXUniformBlock)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXUniformBlock)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXUniformBlock* cobj = (cocos2d::GFXUniformBlock*)s.nativeThisObject();
+        cc::GFXUniformBlock* cobj = (cc::GFXUniformBlock*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXUniformBlock_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXUniformBlock_finalize)
 
 bool js_register_gfx_GFXUniformBlock(se::Object* obj)
 {
@@ -5389,23 +5389,23 @@ bool js_register_gfx_GFXUniformBlock(se::Object* obj)
     cls->defineProperty("binding", _SE(js_gfx_GFXUniformBlock_get_binding), _SE(js_gfx_GFXUniformBlock_set_binding));
     cls->defineProperty("name", _SE(js_gfx_GFXUniformBlock_get_name), _SE(js_gfx_GFXUniformBlock_set_name));
     cls->defineProperty("uniforms", _SE(js_gfx_GFXUniformBlock_get_uniforms), _SE(js_gfx_GFXUniformBlock_set_uniforms));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXUniformBlock_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXUniformBlock_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXUniformBlock>(cls);
+    JSBClassType::registerClass<cc::GFXUniformBlock>(cls);
 
-    __jsb_cocos2d_GFXUniformBlock_proto = cls->getProto();
-    __jsb_cocos2d_GFXUniformBlock_class = cls;
+    __jsb_cc_GFXUniformBlock_proto = cls->getProto();
+    __jsb_cc_GFXUniformBlock_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXUniformSampler_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXUniformSampler_class = nullptr;
+se::Object* __jsb_cc_GFXUniformSampler_proto = nullptr;
+se::Class* __jsb_cc_GFXUniformSampler_class = nullptr;
 
 static bool js_gfx_GFXUniformSampler_get_shaderStages(se::State& s)
 {
-    cocos2d::GFXUniformSampler* cobj = (cocos2d::GFXUniformSampler*)s.nativeThisObject();
+    cc::GFXUniformSampler* cobj = (cc::GFXUniformSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformSampler_get_shaderStages : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5419,12 +5419,12 @@ SE_BIND_PROP_GET(js_gfx_GFXUniformSampler_get_shaderStages)
 static bool js_gfx_GFXUniformSampler_set_shaderStages(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXUniformSampler* cobj = (cocos2d::GFXUniformSampler*)s.nativeThisObject();
+    cc::GFXUniformSampler* cobj = (cc::GFXUniformSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformSampler_set_shaderStages : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXShaderType arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+    cc::GFXShaderType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXShaderType)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXUniformSampler_set_shaderStages : Error processing new value");
     cobj->shaderStages = arg0;
     return true;
@@ -5433,7 +5433,7 @@ SE_BIND_PROP_SET(js_gfx_GFXUniformSampler_set_shaderStages)
 
 static bool js_gfx_GFXUniformSampler_get_binding(se::State& s)
 {
-    cocos2d::GFXUniformSampler* cobj = (cocos2d::GFXUniformSampler*)s.nativeThisObject();
+    cc::GFXUniformSampler* cobj = (cc::GFXUniformSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformSampler_get_binding : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5447,7 +5447,7 @@ SE_BIND_PROP_GET(js_gfx_GFXUniformSampler_get_binding)
 static bool js_gfx_GFXUniformSampler_set_binding(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXUniformSampler* cobj = (cocos2d::GFXUniformSampler*)s.nativeThisObject();
+    cc::GFXUniformSampler* cobj = (cc::GFXUniformSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformSampler_set_binding : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5461,7 +5461,7 @@ SE_BIND_PROP_SET(js_gfx_GFXUniformSampler_set_binding)
 
 static bool js_gfx_GFXUniformSampler_get_name(se::State& s)
 {
-    cocos2d::GFXUniformSampler* cobj = (cocos2d::GFXUniformSampler*)s.nativeThisObject();
+    cc::GFXUniformSampler* cobj = (cc::GFXUniformSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformSampler_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5475,11 +5475,11 @@ SE_BIND_PROP_GET(js_gfx_GFXUniformSampler_get_name)
 static bool js_gfx_GFXUniformSampler_set_name(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXUniformSampler* cobj = (cocos2d::GFXUniformSampler*)s.nativeThisObject();
+    cc::GFXUniformSampler* cobj = (cc::GFXUniformSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformSampler_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXUniformSampler_set_name : Error processing new value");
     cobj->name = arg0;
@@ -5489,7 +5489,7 @@ SE_BIND_PROP_SET(js_gfx_GFXUniformSampler_set_name)
 
 static bool js_gfx_GFXUniformSampler_get_type(se::State& s)
 {
-    cocos2d::GFXUniformSampler* cobj = (cocos2d::GFXUniformSampler*)s.nativeThisObject();
+    cc::GFXUniformSampler* cobj = (cc::GFXUniformSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformSampler_get_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5503,12 +5503,12 @@ SE_BIND_PROP_GET(js_gfx_GFXUniformSampler_get_type)
 static bool js_gfx_GFXUniformSampler_set_type(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXUniformSampler* cobj = (cocos2d::GFXUniformSampler*)s.nativeThisObject();
+    cc::GFXUniformSampler* cobj = (cc::GFXUniformSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformSampler_set_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXType arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXType)tmp; } while(false);
+    cc::GFXType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXType)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXUniformSampler_set_type : Error processing new value");
     cobj->type = arg0;
     return true;
@@ -5517,7 +5517,7 @@ SE_BIND_PROP_SET(js_gfx_GFXUniformSampler_set_type)
 
 static bool js_gfx_GFXUniformSampler_get_count(se::State& s)
 {
-    cocos2d::GFXUniformSampler* cobj = (cocos2d::GFXUniformSampler*)s.nativeThisObject();
+    cc::GFXUniformSampler* cobj = (cc::GFXUniformSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformSampler_get_count : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5531,7 +5531,7 @@ SE_BIND_PROP_GET(js_gfx_GFXUniformSampler_get_count)
 static bool js_gfx_GFXUniformSampler_set_count(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXUniformSampler* cobj = (cocos2d::GFXUniformSampler*)s.nativeThisObject();
+    cc::GFXUniformSampler* cobj = (cc::GFXUniformSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformSampler_set_count : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5543,7 +5543,7 @@ static bool js_gfx_GFXUniformSampler_set_count(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXUniformSampler_set_count)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXUniformSampler_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXUniformSampler_finalize)
 
 static bool js_gfx_GFXUniformSampler_constructor(se::State& s)
 {
@@ -5553,7 +5553,7 @@ static bool js_gfx_GFXUniformSampler_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXUniformSampler* cobj = JSB_ALLOC(cocos2d::GFXUniformSampler);
+        cc::GFXUniformSampler* cobj = JSB_ALLOC(cc::GFXUniformSampler);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -5563,11 +5563,11 @@ static bool js_gfx_GFXUniformSampler_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXUniformSampler* cobj = JSB_ALLOC(cocos2d::GFXUniformSampler);
-        cocos2d::GFXShaderType arg0;
+        cc::GFXUniformSampler* cobj = JSB_ALLOC(cc::GFXUniformSampler);
+        cc::GFXShaderType arg0;
         json->getProperty("shaderStages", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cc::GFXShaderType)tmp; } while(false);
             cobj->shaderStages = arg0;
         }
         unsigned int arg1 = 0;
@@ -5576,16 +5576,16 @@ static bool js_gfx_GFXUniformSampler_constructor(se::State& s)
             ok &= seval_to_uint32(field, (uint32_t*)&arg1);
             cobj->binding = arg1;
         }
-        cocos2d::String arg2;
+        cc::String arg2;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
             arg2 = field.toStringForce().c_str();
             cobj->name = arg2;
         }
-        cocos2d::GFXType arg3;
+        cc::GFXType arg3;
         json->getProperty("type", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cocos2d::GFXType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cc::GFXType)tmp; } while(false);
             cobj->type = arg3;
         }
         unsigned int arg4 = 0;
@@ -5607,10 +5607,10 @@ static bool js_gfx_GFXUniformSampler_constructor(se::State& s)
     }
     else if(argc == 5)
     {
-        cocos2d::GFXUniformSampler* cobj = JSB_ALLOC(cocos2d::GFXUniformSampler);
-        cocos2d::GFXShaderType arg0;
+        cc::GFXUniformSampler* cobj = JSB_ALLOC(cc::GFXUniformSampler);
+        cc::GFXShaderType arg0;
         if (!args[0].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXShaderType)tmp; } while(false);
             cobj->shaderStages = arg0;
         }
         unsigned int arg1 = 0;
@@ -5618,14 +5618,14 @@ static bool js_gfx_GFXUniformSampler_constructor(se::State& s)
             ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
             cobj->binding = arg1;
         }
-        cocos2d::String arg2;
+        cc::String arg2;
         if (!args[2].isUndefined()) {
             arg2 = args[2].toStringForce().c_str();
             cobj->name = arg2;
         }
-        cocos2d::GFXType arg3;
+        cc::GFXType arg3;
         if (!args[3].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cocos2d::GFXType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::GFXType)tmp; } while(false);
             cobj->type = arg3;
         }
         unsigned int arg4 = 0;
@@ -5648,24 +5648,24 @@ static bool js_gfx_GFXUniformSampler_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXUniformSampler_constructor, __jsb_cocos2d_GFXUniformSampler_class, js_cocos2d_GFXUniformSampler_finalize)
+SE_BIND_CTOR(js_gfx_GFXUniformSampler_constructor, __jsb_cc_GFXUniformSampler_class, js_cc_GFXUniformSampler_finalize)
 
 
 
 
-static bool js_cocos2d_GFXUniformSampler_finalize(se::State& s)
+static bool js_cc_GFXUniformSampler_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXUniformSampler)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXUniformSampler)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXUniformSampler* cobj = (cocos2d::GFXUniformSampler*)s.nativeThisObject();
+        cc::GFXUniformSampler* cobj = (cc::GFXUniformSampler*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXUniformSampler_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXUniformSampler_finalize)
 
 bool js_register_gfx_GFXUniformSampler(se::Object* obj)
 {
@@ -5676,23 +5676,23 @@ bool js_register_gfx_GFXUniformSampler(se::Object* obj)
     cls->defineProperty("name", _SE(js_gfx_GFXUniformSampler_get_name), _SE(js_gfx_GFXUniformSampler_set_name));
     cls->defineProperty("type", _SE(js_gfx_GFXUniformSampler_get_type), _SE(js_gfx_GFXUniformSampler_set_type));
     cls->defineProperty("count", _SE(js_gfx_GFXUniformSampler_get_count), _SE(js_gfx_GFXUniformSampler_set_count));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXUniformSampler_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXUniformSampler_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXUniformSampler>(cls);
+    JSBClassType::registerClass<cc::GFXUniformSampler>(cls);
 
-    __jsb_cocos2d_GFXUniformSampler_proto = cls->getProto();
-    __jsb_cocos2d_GFXUniformSampler_class = cls;
+    __jsb_cc_GFXUniformSampler_proto = cls->getProto();
+    __jsb_cc_GFXUniformSampler_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXShaderStage_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXShaderStage_class = nullptr;
+se::Object* __jsb_cc_GFXShaderStage_proto = nullptr;
+se::Class* __jsb_cc_GFXShaderStage_class = nullptr;
 
 static bool js_gfx_GFXShaderStage_get_type(se::State& s)
 {
-    cocos2d::GFXShaderStage* cobj = (cocos2d::GFXShaderStage*)s.nativeThisObject();
+    cc::GFXShaderStage* cobj = (cc::GFXShaderStage*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderStage_get_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5706,12 +5706,12 @@ SE_BIND_PROP_GET(js_gfx_GFXShaderStage_get_type)
 static bool js_gfx_GFXShaderStage_set_type(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXShaderStage* cobj = (cocos2d::GFXShaderStage*)s.nativeThisObject();
+    cc::GFXShaderStage* cobj = (cc::GFXShaderStage*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderStage_set_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXShaderType arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+    cc::GFXShaderType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXShaderType)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderStage_set_type : Error processing new value");
     cobj->type = arg0;
     return true;
@@ -5720,7 +5720,7 @@ SE_BIND_PROP_SET(js_gfx_GFXShaderStage_set_type)
 
 static bool js_gfx_GFXShaderStage_get_source(se::State& s)
 {
-    cocos2d::GFXShaderStage* cobj = (cocos2d::GFXShaderStage*)s.nativeThisObject();
+    cc::GFXShaderStage* cobj = (cc::GFXShaderStage*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderStage_get_source : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5734,11 +5734,11 @@ SE_BIND_PROP_GET(js_gfx_GFXShaderStage_get_source)
 static bool js_gfx_GFXShaderStage_set_source(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXShaderStage* cobj = (cocos2d::GFXShaderStage*)s.nativeThisObject();
+    cc::GFXShaderStage* cobj = (cc::GFXShaderStage*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderStage_set_source : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderStage_set_source : Error processing new value");
     cobj->source = arg0;
@@ -5748,7 +5748,7 @@ SE_BIND_PROP_SET(js_gfx_GFXShaderStage_set_source)
 
 static bool js_gfx_GFXShaderStage_get_macros(se::State& s)
 {
-    cocos2d::GFXShaderStage* cobj = (cocos2d::GFXShaderStage*)s.nativeThisObject();
+    cc::GFXShaderStage* cobj = (cc::GFXShaderStage*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderStage_get_macros : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5762,11 +5762,11 @@ SE_BIND_PROP_GET(js_gfx_GFXShaderStage_get_macros)
 static bool js_gfx_GFXShaderStage_set_macros(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXShaderStage* cobj = (cocos2d::GFXShaderStage*)s.nativeThisObject();
+    cc::GFXShaderStage* cobj = (cc::GFXShaderStage*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderStage_set_macros : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXShaderMacro> arg0;
+    std::vector<cc::GFXShaderMacro> arg0;
     ok &= seval_to_std_vector(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderStage_set_macros : Error processing new value");
     cobj->macros = arg0;
@@ -5774,7 +5774,7 @@ static bool js_gfx_GFXShaderStage_set_macros(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXShaderStage_set_macros)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXShaderStage_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXShaderStage_finalize)
 
 static bool js_gfx_GFXShaderStage_constructor(se::State& s)
 {
@@ -5784,7 +5784,7 @@ static bool js_gfx_GFXShaderStage_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXShaderStage* cobj = JSB_ALLOC(cocos2d::GFXShaderStage);
+        cc::GFXShaderStage* cobj = JSB_ALLOC(cc::GFXShaderStage);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -5794,20 +5794,20 @@ static bool js_gfx_GFXShaderStage_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXShaderStage* cobj = JSB_ALLOC(cocos2d::GFXShaderStage);
-        cocos2d::GFXShaderType arg0;
+        cc::GFXShaderStage* cobj = JSB_ALLOC(cc::GFXShaderStage);
+        cc::GFXShaderType arg0;
         json->getProperty("type", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cc::GFXShaderType)tmp; } while(false);
             cobj->type = arg0;
         }
-        cocos2d::String arg1;
+        cc::String arg1;
         json->getProperty("source", &field);
         if(!field.isUndefined()) {
             arg1 = field.toStringForce().c_str();
             cobj->source = arg1;
         }
-        std::vector<cocos2d::GFXShaderMacro> arg2;
+        std::vector<cc::GFXShaderMacro> arg2;
         json->getProperty("macros", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_std_vector(field, &arg2);
@@ -5826,18 +5826,18 @@ static bool js_gfx_GFXShaderStage_constructor(se::State& s)
     }
     else if(argc == 3)
     {
-        cocos2d::GFXShaderStage* cobj = JSB_ALLOC(cocos2d::GFXShaderStage);
-        cocos2d::GFXShaderType arg0;
+        cc::GFXShaderStage* cobj = JSB_ALLOC(cc::GFXShaderStage);
+        cc::GFXShaderType arg0;
         if (!args[0].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXShaderType)tmp; } while(false);
             cobj->type = arg0;
         }
-        cocos2d::String arg1;
+        cc::String arg1;
         if (!args[1].isUndefined()) {
             arg1 = args[1].toStringForce().c_str();
             cobj->source = arg1;
         }
-        std::vector<cocos2d::GFXShaderMacro> arg2;
+        std::vector<cc::GFXShaderMacro> arg2;
         if (!args[2].isUndefined()) {
             ok &= seval_to_std_vector(args[2], &arg2);
             cobj->macros = arg2;
@@ -5857,24 +5857,24 @@ static bool js_gfx_GFXShaderStage_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXShaderStage_constructor, __jsb_cocos2d_GFXShaderStage_class, js_cocos2d_GFXShaderStage_finalize)
+SE_BIND_CTOR(js_gfx_GFXShaderStage_constructor, __jsb_cc_GFXShaderStage_class, js_cc_GFXShaderStage_finalize)
 
 
 
 
-static bool js_cocos2d_GFXShaderStage_finalize(se::State& s)
+static bool js_cc_GFXShaderStage_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXShaderStage)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXShaderStage)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXShaderStage* cobj = (cocos2d::GFXShaderStage*)s.nativeThisObject();
+        cc::GFXShaderStage* cobj = (cc::GFXShaderStage*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXShaderStage_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXShaderStage_finalize)
 
 bool js_register_gfx_GFXShaderStage(se::Object* obj)
 {
@@ -5883,23 +5883,23 @@ bool js_register_gfx_GFXShaderStage(se::Object* obj)
     cls->defineProperty("type", _SE(js_gfx_GFXShaderStage_get_type), _SE(js_gfx_GFXShaderStage_set_type));
     cls->defineProperty("source", _SE(js_gfx_GFXShaderStage_get_source), _SE(js_gfx_GFXShaderStage_set_source));
     cls->defineProperty("macros", _SE(js_gfx_GFXShaderStage_get_macros), _SE(js_gfx_GFXShaderStage_set_macros));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXShaderStage_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXShaderStage_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXShaderStage>(cls);
+    JSBClassType::registerClass<cc::GFXShaderStage>(cls);
 
-    __jsb_cocos2d_GFXShaderStage_proto = cls->getProto();
-    __jsb_cocos2d_GFXShaderStage_class = cls;
+    __jsb_cc_GFXShaderStage_proto = cls->getProto();
+    __jsb_cc_GFXShaderStage_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXAttribute_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXAttribute_class = nullptr;
+se::Object* __jsb_cc_GFXAttribute_proto = nullptr;
+se::Class* __jsb_cc_GFXAttribute_class = nullptr;
 
 static bool js_gfx_GFXAttribute_get_name(se::State& s)
 {
-    cocos2d::GFXAttribute* cobj = (cocos2d::GFXAttribute*)s.nativeThisObject();
+    cc::GFXAttribute* cobj = (cc::GFXAttribute*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXAttribute_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5913,11 +5913,11 @@ SE_BIND_PROP_GET(js_gfx_GFXAttribute_get_name)
 static bool js_gfx_GFXAttribute_set_name(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXAttribute* cobj = (cocos2d::GFXAttribute*)s.nativeThisObject();
+    cc::GFXAttribute* cobj = (cc::GFXAttribute*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXAttribute_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXAttribute_set_name : Error processing new value");
     cobj->name = arg0;
@@ -5927,7 +5927,7 @@ SE_BIND_PROP_SET(js_gfx_GFXAttribute_set_name)
 
 static bool js_gfx_GFXAttribute_get_format(se::State& s)
 {
-    cocos2d::GFXAttribute* cobj = (cocos2d::GFXAttribute*)s.nativeThisObject();
+    cc::GFXAttribute* cobj = (cc::GFXAttribute*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXAttribute_get_format : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5941,12 +5941,12 @@ SE_BIND_PROP_GET(js_gfx_GFXAttribute_get_format)
 static bool js_gfx_GFXAttribute_set_format(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXAttribute* cobj = (cocos2d::GFXAttribute*)s.nativeThisObject();
+    cc::GFXAttribute* cobj = (cc::GFXAttribute*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXAttribute_set_format : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXFormat arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXFormat)tmp; } while(false);
+    cc::GFXFormat arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXFormat)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXAttribute_set_format : Error processing new value");
     cobj->format = arg0;
     return true;
@@ -5955,7 +5955,7 @@ SE_BIND_PROP_SET(js_gfx_GFXAttribute_set_format)
 
 static bool js_gfx_GFXAttribute_get_isNormalized(se::State& s)
 {
-    cocos2d::GFXAttribute* cobj = (cocos2d::GFXAttribute*)s.nativeThisObject();
+    cc::GFXAttribute* cobj = (cc::GFXAttribute*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXAttribute_get_isNormalized : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5969,7 +5969,7 @@ SE_BIND_PROP_GET(js_gfx_GFXAttribute_get_isNormalized)
 static bool js_gfx_GFXAttribute_set_isNormalized(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXAttribute* cobj = (cocos2d::GFXAttribute*)s.nativeThisObject();
+    cc::GFXAttribute* cobj = (cc::GFXAttribute*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXAttribute_set_isNormalized : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5983,7 +5983,7 @@ SE_BIND_PROP_SET(js_gfx_GFXAttribute_set_isNormalized)
 
 static bool js_gfx_GFXAttribute_get_stream(se::State& s)
 {
-    cocos2d::GFXAttribute* cobj = (cocos2d::GFXAttribute*)s.nativeThisObject();
+    cc::GFXAttribute* cobj = (cc::GFXAttribute*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXAttribute_get_stream : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -5997,7 +5997,7 @@ SE_BIND_PROP_GET(js_gfx_GFXAttribute_get_stream)
 static bool js_gfx_GFXAttribute_set_stream(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXAttribute* cobj = (cocos2d::GFXAttribute*)s.nativeThisObject();
+    cc::GFXAttribute* cobj = (cc::GFXAttribute*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXAttribute_set_stream : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6011,7 +6011,7 @@ SE_BIND_PROP_SET(js_gfx_GFXAttribute_set_stream)
 
 static bool js_gfx_GFXAttribute_get_isInstanced(se::State& s)
 {
-    cocos2d::GFXAttribute* cobj = (cocos2d::GFXAttribute*)s.nativeThisObject();
+    cc::GFXAttribute* cobj = (cc::GFXAttribute*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXAttribute_get_isInstanced : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6025,7 +6025,7 @@ SE_BIND_PROP_GET(js_gfx_GFXAttribute_get_isInstanced)
 static bool js_gfx_GFXAttribute_set_isInstanced(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXAttribute* cobj = (cocos2d::GFXAttribute*)s.nativeThisObject();
+    cc::GFXAttribute* cobj = (cc::GFXAttribute*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXAttribute_set_isInstanced : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6039,7 +6039,7 @@ SE_BIND_PROP_SET(js_gfx_GFXAttribute_set_isInstanced)
 
 static bool js_gfx_GFXAttribute_get_location(se::State& s)
 {
-    cocos2d::GFXAttribute* cobj = (cocos2d::GFXAttribute*)s.nativeThisObject();
+    cc::GFXAttribute* cobj = (cc::GFXAttribute*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXAttribute_get_location : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6053,7 +6053,7 @@ SE_BIND_PROP_GET(js_gfx_GFXAttribute_get_location)
 static bool js_gfx_GFXAttribute_set_location(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXAttribute* cobj = (cocos2d::GFXAttribute*)s.nativeThisObject();
+    cc::GFXAttribute* cobj = (cc::GFXAttribute*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXAttribute_set_location : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6065,7 +6065,7 @@ static bool js_gfx_GFXAttribute_set_location(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXAttribute_set_location)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXAttribute_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXAttribute_finalize)
 
 static bool js_gfx_GFXAttribute_constructor(se::State& s)
 {
@@ -6075,7 +6075,7 @@ static bool js_gfx_GFXAttribute_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXAttribute* cobj = JSB_ALLOC(cocos2d::GFXAttribute);
+        cc::GFXAttribute* cobj = JSB_ALLOC(cc::GFXAttribute);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -6085,17 +6085,17 @@ static bool js_gfx_GFXAttribute_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXAttribute* cobj = JSB_ALLOC(cocos2d::GFXAttribute);
-        cocos2d::String arg0;
+        cc::GFXAttribute* cobj = JSB_ALLOC(cc::GFXAttribute);
+        cc::String arg0;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
             arg0 = field.toStringForce().c_str();
             cobj->name = arg0;
         }
-        cocos2d::GFXFormat arg1;
+        cc::GFXFormat arg1;
         json->getProperty("format", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXFormat)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cc::GFXFormat)tmp; } while(false);
             cobj->format = arg1;
         }
         bool arg2;
@@ -6135,15 +6135,15 @@ static bool js_gfx_GFXAttribute_constructor(se::State& s)
     }
     else if(argc == 6)
     {
-        cocos2d::GFXAttribute* cobj = JSB_ALLOC(cocos2d::GFXAttribute);
-        cocos2d::String arg0;
+        cc::GFXAttribute* cobj = JSB_ALLOC(cc::GFXAttribute);
+        cc::String arg0;
         if (!args[0].isUndefined()) {
             arg0 = args[0].toStringForce().c_str();
             cobj->name = arg0;
         }
-        cocos2d::GFXFormat arg1;
+        cc::GFXFormat arg1;
         if (!args[1].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXFormat)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::GFXFormat)tmp; } while(false);
             cobj->format = arg1;
         }
         bool arg2;
@@ -6181,24 +6181,24 @@ static bool js_gfx_GFXAttribute_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXAttribute_constructor, __jsb_cocos2d_GFXAttribute_class, js_cocos2d_GFXAttribute_finalize)
+SE_BIND_CTOR(js_gfx_GFXAttribute_constructor, __jsb_cc_GFXAttribute_class, js_cc_GFXAttribute_finalize)
 
 
 
 
-static bool js_cocos2d_GFXAttribute_finalize(se::State& s)
+static bool js_cc_GFXAttribute_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXAttribute)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXAttribute)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXAttribute* cobj = (cocos2d::GFXAttribute*)s.nativeThisObject();
+        cc::GFXAttribute* cobj = (cc::GFXAttribute*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXAttribute_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXAttribute_finalize)
 
 bool js_register_gfx_GFXAttribute(se::Object* obj)
 {
@@ -6210,23 +6210,23 @@ bool js_register_gfx_GFXAttribute(se::Object* obj)
     cls->defineProperty("stream", _SE(js_gfx_GFXAttribute_get_stream), _SE(js_gfx_GFXAttribute_set_stream));
     cls->defineProperty("isInstanced", _SE(js_gfx_GFXAttribute_get_isInstanced), _SE(js_gfx_GFXAttribute_set_isInstanced));
     cls->defineProperty("location", _SE(js_gfx_GFXAttribute_get_location), _SE(js_gfx_GFXAttribute_set_location));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXAttribute_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXAttribute_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXAttribute>(cls);
+    JSBClassType::registerClass<cc::GFXAttribute>(cls);
 
-    __jsb_cocos2d_GFXAttribute_proto = cls->getProto();
-    __jsb_cocos2d_GFXAttribute_class = cls;
+    __jsb_cc_GFXAttribute_proto = cls->getProto();
+    __jsb_cc_GFXAttribute_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXShaderInfo_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXShaderInfo_class = nullptr;
+se::Object* __jsb_cc_GFXShaderInfo_proto = nullptr;
+se::Class* __jsb_cc_GFXShaderInfo_class = nullptr;
 
 static bool js_gfx_GFXShaderInfo_get_name(se::State& s)
 {
-    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    cc::GFXShaderInfo* cobj = (cc::GFXShaderInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6240,11 +6240,11 @@ SE_BIND_PROP_GET(js_gfx_GFXShaderInfo_get_name)
 static bool js_gfx_GFXShaderInfo_set_name(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    cc::GFXShaderInfo* cobj = (cc::GFXShaderInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderInfo_set_name : Error processing new value");
     cobj->name = arg0;
@@ -6254,7 +6254,7 @@ SE_BIND_PROP_SET(js_gfx_GFXShaderInfo_set_name)
 
 static bool js_gfx_GFXShaderInfo_get_stages(se::State& s)
 {
-    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    cc::GFXShaderInfo* cobj = (cc::GFXShaderInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_get_stages : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6268,11 +6268,11 @@ SE_BIND_PROP_GET(js_gfx_GFXShaderInfo_get_stages)
 static bool js_gfx_GFXShaderInfo_set_stages(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    cc::GFXShaderInfo* cobj = (cc::GFXShaderInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_set_stages : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXShaderStage> arg0;
+    std::vector<cc::GFXShaderStage> arg0;
     ok &= seval_to_std_vector(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderInfo_set_stages : Error processing new value");
     cobj->stages = arg0;
@@ -6282,7 +6282,7 @@ SE_BIND_PROP_SET(js_gfx_GFXShaderInfo_set_stages)
 
 static bool js_gfx_GFXShaderInfo_get_attributes(se::State& s)
 {
-    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    cc::GFXShaderInfo* cobj = (cc::GFXShaderInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_get_attributes : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6296,11 +6296,11 @@ SE_BIND_PROP_GET(js_gfx_GFXShaderInfo_get_attributes)
 static bool js_gfx_GFXShaderInfo_set_attributes(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    cc::GFXShaderInfo* cobj = (cc::GFXShaderInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_set_attributes : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXAttribute> arg0;
+    std::vector<cc::GFXAttribute> arg0;
     ok &= seval_to_std_vector(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderInfo_set_attributes : Error processing new value");
     cobj->attributes = arg0;
@@ -6310,7 +6310,7 @@ SE_BIND_PROP_SET(js_gfx_GFXShaderInfo_set_attributes)
 
 static bool js_gfx_GFXShaderInfo_get_blocks(se::State& s)
 {
-    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    cc::GFXShaderInfo* cobj = (cc::GFXShaderInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_get_blocks : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6324,11 +6324,11 @@ SE_BIND_PROP_GET(js_gfx_GFXShaderInfo_get_blocks)
 static bool js_gfx_GFXShaderInfo_set_blocks(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    cc::GFXShaderInfo* cobj = (cc::GFXShaderInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_set_blocks : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXUniformBlock> arg0;
+    std::vector<cc::GFXUniformBlock> arg0;
     ok &= seval_to_std_vector(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderInfo_set_blocks : Error processing new value");
     cobj->blocks = arg0;
@@ -6338,7 +6338,7 @@ SE_BIND_PROP_SET(js_gfx_GFXShaderInfo_set_blocks)
 
 static bool js_gfx_GFXShaderInfo_get_samplers(se::State& s)
 {
-    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    cc::GFXShaderInfo* cobj = (cc::GFXShaderInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_get_samplers : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6352,11 +6352,11 @@ SE_BIND_PROP_GET(js_gfx_GFXShaderInfo_get_samplers)
 static bool js_gfx_GFXShaderInfo_set_samplers(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+    cc::GFXShaderInfo* cobj = (cc::GFXShaderInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_set_samplers : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXUniformSampler> arg0;
+    std::vector<cc::GFXUniformSampler> arg0;
     ok &= seval_to_std_vector(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderInfo_set_samplers : Error processing new value");
     cobj->samplers = arg0;
@@ -6364,7 +6364,7 @@ static bool js_gfx_GFXShaderInfo_set_samplers(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXShaderInfo_set_samplers)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXShaderInfo_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXShaderInfo_finalize)
 
 static bool js_gfx_GFXShaderInfo_constructor(se::State& s)
 {
@@ -6374,7 +6374,7 @@ static bool js_gfx_GFXShaderInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXShaderInfo* cobj = JSB_ALLOC(cocos2d::GFXShaderInfo);
+        cc::GFXShaderInfo* cobj = JSB_ALLOC(cc::GFXShaderInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -6384,32 +6384,32 @@ static bool js_gfx_GFXShaderInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXShaderInfo* cobj = JSB_ALLOC(cocos2d::GFXShaderInfo);
-        cocos2d::String arg0;
+        cc::GFXShaderInfo* cobj = JSB_ALLOC(cc::GFXShaderInfo);
+        cc::String arg0;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
             arg0 = field.toStringForce().c_str();
             cobj->name = arg0;
         }
-        std::vector<cocos2d::GFXShaderStage> arg1;
+        std::vector<cc::GFXShaderStage> arg1;
         json->getProperty("stages", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_std_vector(field, &arg1);
             cobj->stages = arg1;
         }
-        std::vector<cocos2d::GFXAttribute> arg2;
+        std::vector<cc::GFXAttribute> arg2;
         json->getProperty("attributes", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_std_vector(field, &arg2);
             cobj->attributes = arg2;
         }
-        std::vector<cocos2d::GFXUniformBlock> arg3;
+        std::vector<cc::GFXUniformBlock> arg3;
         json->getProperty("blocks", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_std_vector(field, &arg3);
             cobj->blocks = arg3;
         }
-        std::vector<cocos2d::GFXUniformSampler> arg4;
+        std::vector<cc::GFXUniformSampler> arg4;
         json->getProperty("samplers", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_std_vector(field, &arg4);
@@ -6428,28 +6428,28 @@ static bool js_gfx_GFXShaderInfo_constructor(se::State& s)
     }
     else if(argc == 5)
     {
-        cocos2d::GFXShaderInfo* cobj = JSB_ALLOC(cocos2d::GFXShaderInfo);
-        cocos2d::String arg0;
+        cc::GFXShaderInfo* cobj = JSB_ALLOC(cc::GFXShaderInfo);
+        cc::String arg0;
         if (!args[0].isUndefined()) {
             arg0 = args[0].toStringForce().c_str();
             cobj->name = arg0;
         }
-        std::vector<cocos2d::GFXShaderStage> arg1;
+        std::vector<cc::GFXShaderStage> arg1;
         if (!args[1].isUndefined()) {
             ok &= seval_to_std_vector(args[1], &arg1);
             cobj->stages = arg1;
         }
-        std::vector<cocos2d::GFXAttribute> arg2;
+        std::vector<cc::GFXAttribute> arg2;
         if (!args[2].isUndefined()) {
             ok &= seval_to_std_vector(args[2], &arg2);
             cobj->attributes = arg2;
         }
-        std::vector<cocos2d::GFXUniformBlock> arg3;
+        std::vector<cc::GFXUniformBlock> arg3;
         if (!args[3].isUndefined()) {
             ok &= seval_to_std_vector(args[3], &arg3);
             cobj->blocks = arg3;
         }
-        std::vector<cocos2d::GFXUniformSampler> arg4;
+        std::vector<cc::GFXUniformSampler> arg4;
         if (!args[4].isUndefined()) {
             ok &= seval_to_std_vector(args[4], &arg4);
             cobj->samplers = arg4;
@@ -6469,24 +6469,24 @@ static bool js_gfx_GFXShaderInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXShaderInfo_constructor, __jsb_cocos2d_GFXShaderInfo_class, js_cocos2d_GFXShaderInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXShaderInfo_constructor, __jsb_cc_GFXShaderInfo_class, js_cc_GFXShaderInfo_finalize)
 
 
 
 
-static bool js_cocos2d_GFXShaderInfo_finalize(se::State& s)
+static bool js_cc_GFXShaderInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXShaderInfo)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXShaderInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXShaderInfo* cobj = (cocos2d::GFXShaderInfo*)s.nativeThisObject();
+        cc::GFXShaderInfo* cobj = (cc::GFXShaderInfo*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXShaderInfo_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXShaderInfo_finalize)
 
 bool js_register_gfx_GFXShaderInfo(se::Object* obj)
 {
@@ -6497,23 +6497,23 @@ bool js_register_gfx_GFXShaderInfo(se::Object* obj)
     cls->defineProperty("attributes", _SE(js_gfx_GFXShaderInfo_get_attributes), _SE(js_gfx_GFXShaderInfo_set_attributes));
     cls->defineProperty("blocks", _SE(js_gfx_GFXShaderInfo_get_blocks), _SE(js_gfx_GFXShaderInfo_set_blocks));
     cls->defineProperty("samplers", _SE(js_gfx_GFXShaderInfo_get_samplers), _SE(js_gfx_GFXShaderInfo_set_samplers));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXShaderInfo_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXShaderInfo_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXShaderInfo>(cls);
+    JSBClassType::registerClass<cc::GFXShaderInfo>(cls);
 
-    __jsb_cocos2d_GFXShaderInfo_proto = cls->getProto();
-    __jsb_cocos2d_GFXShaderInfo_class = cls;
+    __jsb_cc_GFXShaderInfo_proto = cls->getProto();
+    __jsb_cc_GFXShaderInfo_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXInputAssemblerInfo_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXInputAssemblerInfo_class = nullptr;
+se::Object* __jsb_cc_GFXInputAssemblerInfo_proto = nullptr;
+se::Class* __jsb_cc_GFXInputAssemblerInfo_class = nullptr;
 
 static bool js_gfx_GFXInputAssemblerInfo_get_attributes(se::State& s)
 {
-    cocos2d::GFXInputAssemblerInfo* cobj = (cocos2d::GFXInputAssemblerInfo*)s.nativeThisObject();
+    cc::GFXInputAssemblerInfo* cobj = (cc::GFXInputAssemblerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssemblerInfo_get_attributes : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6527,11 +6527,11 @@ SE_BIND_PROP_GET(js_gfx_GFXInputAssemblerInfo_get_attributes)
 static bool js_gfx_GFXInputAssemblerInfo_set_attributes(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXInputAssemblerInfo* cobj = (cocos2d::GFXInputAssemblerInfo*)s.nativeThisObject();
+    cc::GFXInputAssemblerInfo* cobj = (cc::GFXInputAssemblerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssemblerInfo_set_attributes : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXAttribute> arg0;
+    std::vector<cc::GFXAttribute> arg0;
     ok &= seval_to_std_vector(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssemblerInfo_set_attributes : Error processing new value");
     cobj->attributes = arg0;
@@ -6541,7 +6541,7 @@ SE_BIND_PROP_SET(js_gfx_GFXInputAssemblerInfo_set_attributes)
 
 static bool js_gfx_GFXInputAssemblerInfo_get_vertexBuffers(se::State& s)
 {
-    cocos2d::GFXInputAssemblerInfo* cobj = (cocos2d::GFXInputAssemblerInfo*)s.nativeThisObject();
+    cc::GFXInputAssemblerInfo* cobj = (cc::GFXInputAssemblerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssemblerInfo_get_vertexBuffers : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6555,11 +6555,11 @@ SE_BIND_PROP_GET(js_gfx_GFXInputAssemblerInfo_get_vertexBuffers)
 static bool js_gfx_GFXInputAssemblerInfo_set_vertexBuffers(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXInputAssemblerInfo* cobj = (cocos2d::GFXInputAssemblerInfo*)s.nativeThisObject();
+    cc::GFXInputAssemblerInfo* cobj = (cc::GFXInputAssemblerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssemblerInfo_set_vertexBuffers : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXBuffer *> arg0;
+    std::vector<cc::GFXBuffer *> arg0;
     ok &= seval_to_std_vector(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssemblerInfo_set_vertexBuffers : Error processing new value");
     cobj->vertexBuffers = arg0;
@@ -6569,7 +6569,7 @@ SE_BIND_PROP_SET(js_gfx_GFXInputAssemblerInfo_set_vertexBuffers)
 
 static bool js_gfx_GFXInputAssemblerInfo_get_indexBuffer(se::State& s)
 {
-    cocos2d::GFXInputAssemblerInfo* cobj = (cocos2d::GFXInputAssemblerInfo*)s.nativeThisObject();
+    cc::GFXInputAssemblerInfo* cobj = (cc::GFXInputAssemblerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssemblerInfo_get_indexBuffer : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6583,11 +6583,11 @@ SE_BIND_PROP_GET(js_gfx_GFXInputAssemblerInfo_get_indexBuffer)
 static bool js_gfx_GFXInputAssemblerInfo_set_indexBuffer(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXInputAssemblerInfo* cobj = (cocos2d::GFXInputAssemblerInfo*)s.nativeThisObject();
+    cc::GFXInputAssemblerInfo* cobj = (cc::GFXInputAssemblerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssemblerInfo_set_indexBuffer : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXBuffer* arg0 = nullptr;
+    cc::GFXBuffer* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssemblerInfo_set_indexBuffer : Error processing new value");
     cobj->indexBuffer = arg0;
@@ -6597,7 +6597,7 @@ SE_BIND_PROP_SET(js_gfx_GFXInputAssemblerInfo_set_indexBuffer)
 
 static bool js_gfx_GFXInputAssemblerInfo_get_indirectBuffer(se::State& s)
 {
-    cocos2d::GFXInputAssemblerInfo* cobj = (cocos2d::GFXInputAssemblerInfo*)s.nativeThisObject();
+    cc::GFXInputAssemblerInfo* cobj = (cc::GFXInputAssemblerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssemblerInfo_get_indirectBuffer : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6611,11 +6611,11 @@ SE_BIND_PROP_GET(js_gfx_GFXInputAssemblerInfo_get_indirectBuffer)
 static bool js_gfx_GFXInputAssemblerInfo_set_indirectBuffer(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXInputAssemblerInfo* cobj = (cocos2d::GFXInputAssemblerInfo*)s.nativeThisObject();
+    cc::GFXInputAssemblerInfo* cobj = (cc::GFXInputAssemblerInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssemblerInfo_set_indirectBuffer : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXBuffer* arg0 = nullptr;
+    cc::GFXBuffer* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssemblerInfo_set_indirectBuffer : Error processing new value");
     cobj->indirectBuffer = arg0;
@@ -6623,7 +6623,7 @@ static bool js_gfx_GFXInputAssemblerInfo_set_indirectBuffer(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXInputAssemblerInfo_set_indirectBuffer)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXInputAssemblerInfo_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXInputAssemblerInfo_finalize)
 
 static bool js_gfx_GFXInputAssemblerInfo_constructor(se::State& s)
 {
@@ -6633,7 +6633,7 @@ static bool js_gfx_GFXInputAssemblerInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXInputAssemblerInfo* cobj = JSB_ALLOC(cocos2d::GFXInputAssemblerInfo);
+        cc::GFXInputAssemblerInfo* cobj = JSB_ALLOC(cc::GFXInputAssemblerInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -6643,26 +6643,26 @@ static bool js_gfx_GFXInputAssemblerInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXInputAssemblerInfo* cobj = JSB_ALLOC(cocos2d::GFXInputAssemblerInfo);
-        std::vector<cocos2d::GFXAttribute> arg0;
+        cc::GFXInputAssemblerInfo* cobj = JSB_ALLOC(cc::GFXInputAssemblerInfo);
+        std::vector<cc::GFXAttribute> arg0;
         json->getProperty("attributes", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_std_vector(field, &arg0);
             cobj->attributes = arg0;
         }
-        std::vector<cocos2d::GFXBuffer *> arg1;
+        std::vector<cc::GFXBuffer *> arg1;
         json->getProperty("vertexBuffers", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_std_vector(field, &arg1);
             cobj->vertexBuffers = arg1;
         }
-        cocos2d::GFXBuffer* arg2 = nullptr;
+        cc::GFXBuffer* arg2 = nullptr;
         json->getProperty("indexBuffer", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_native_ptr(field, &arg2);
             cobj->indexBuffer = arg2;
         }
-        cocos2d::GFXBuffer* arg3 = nullptr;
+        cc::GFXBuffer* arg3 = nullptr;
         json->getProperty("indirectBuffer", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_native_ptr(field, &arg3);
@@ -6681,23 +6681,23 @@ static bool js_gfx_GFXInputAssemblerInfo_constructor(se::State& s)
     }
     else if(argc == 4)
     {
-        cocos2d::GFXInputAssemblerInfo* cobj = JSB_ALLOC(cocos2d::GFXInputAssemblerInfo);
-        std::vector<cocos2d::GFXAttribute> arg0;
+        cc::GFXInputAssemblerInfo* cobj = JSB_ALLOC(cc::GFXInputAssemblerInfo);
+        std::vector<cc::GFXAttribute> arg0;
         if (!args[0].isUndefined()) {
             ok &= seval_to_std_vector(args[0], &arg0);
             cobj->attributes = arg0;
         }
-        std::vector<cocos2d::GFXBuffer *> arg1;
+        std::vector<cc::GFXBuffer *> arg1;
         if (!args[1].isUndefined()) {
             ok &= seval_to_std_vector(args[1], &arg1);
             cobj->vertexBuffers = arg1;
         }
-        cocos2d::GFXBuffer* arg2 = nullptr;
+        cc::GFXBuffer* arg2 = nullptr;
         if (!args[2].isUndefined()) {
             ok &= seval_to_native_ptr(args[2], &arg2);
             cobj->indexBuffer = arg2;
         }
-        cocos2d::GFXBuffer* arg3 = nullptr;
+        cc::GFXBuffer* arg3 = nullptr;
         if (!args[3].isUndefined()) {
             ok &= seval_to_native_ptr(args[3], &arg3);
             cobj->indirectBuffer = arg3;
@@ -6717,24 +6717,24 @@ static bool js_gfx_GFXInputAssemblerInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXInputAssemblerInfo_constructor, __jsb_cocos2d_GFXInputAssemblerInfo_class, js_cocos2d_GFXInputAssemblerInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXInputAssemblerInfo_constructor, __jsb_cc_GFXInputAssemblerInfo_class, js_cc_GFXInputAssemblerInfo_finalize)
 
 
 
 
-static bool js_cocos2d_GFXInputAssemblerInfo_finalize(se::State& s)
+static bool js_cc_GFXInputAssemblerInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXInputAssemblerInfo)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXInputAssemblerInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXInputAssemblerInfo* cobj = (cocos2d::GFXInputAssemblerInfo*)s.nativeThisObject();
+        cc::GFXInputAssemblerInfo* cobj = (cc::GFXInputAssemblerInfo*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXInputAssemblerInfo_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXInputAssemblerInfo_finalize)
 
 bool js_register_gfx_GFXInputAssemblerInfo(se::Object* obj)
 {
@@ -6744,23 +6744,23 @@ bool js_register_gfx_GFXInputAssemblerInfo(se::Object* obj)
     cls->defineProperty("vertexBuffers", _SE(js_gfx_GFXInputAssemblerInfo_get_vertexBuffers), _SE(js_gfx_GFXInputAssemblerInfo_set_vertexBuffers));
     cls->defineProperty("indexBuffer", _SE(js_gfx_GFXInputAssemblerInfo_get_indexBuffer), _SE(js_gfx_GFXInputAssemblerInfo_set_indexBuffer));
     cls->defineProperty("indirectBuffer", _SE(js_gfx_GFXInputAssemblerInfo_get_indirectBuffer), _SE(js_gfx_GFXInputAssemblerInfo_set_indirectBuffer));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXInputAssemblerInfo_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXInputAssemblerInfo_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXInputAssemblerInfo>(cls);
+    JSBClassType::registerClass<cc::GFXInputAssemblerInfo>(cls);
 
-    __jsb_cocos2d_GFXInputAssemblerInfo_proto = cls->getProto();
-    __jsb_cocos2d_GFXInputAssemblerInfo_class = cls;
+    __jsb_cc_GFXInputAssemblerInfo_proto = cls->getProto();
+    __jsb_cc_GFXInputAssemblerInfo_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXColorAttachment_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXColorAttachment_class = nullptr;
+se::Object* __jsb_cc_GFXColorAttachment_proto = nullptr;
+se::Class* __jsb_cc_GFXColorAttachment_class = nullptr;
 
 static bool js_gfx_GFXColorAttachment_get_format(se::State& s)
 {
-    cocos2d::GFXColorAttachment* cobj = (cocos2d::GFXColorAttachment*)s.nativeThisObject();
+    cc::GFXColorAttachment* cobj = (cc::GFXColorAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColorAttachment_get_format : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6774,12 +6774,12 @@ SE_BIND_PROP_GET(js_gfx_GFXColorAttachment_get_format)
 static bool js_gfx_GFXColorAttachment_set_format(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXColorAttachment* cobj = (cocos2d::GFXColorAttachment*)s.nativeThisObject();
+    cc::GFXColorAttachment* cobj = (cc::GFXColorAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColorAttachment_set_format : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXFormat arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXFormat)tmp; } while(false);
+    cc::GFXFormat arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXFormat)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXColorAttachment_set_format : Error processing new value");
     cobj->format = arg0;
     return true;
@@ -6788,7 +6788,7 @@ SE_BIND_PROP_SET(js_gfx_GFXColorAttachment_set_format)
 
 static bool js_gfx_GFXColorAttachment_get_loadOp(se::State& s)
 {
-    cocos2d::GFXColorAttachment* cobj = (cocos2d::GFXColorAttachment*)s.nativeThisObject();
+    cc::GFXColorAttachment* cobj = (cc::GFXColorAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColorAttachment_get_loadOp : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6802,12 +6802,12 @@ SE_BIND_PROP_GET(js_gfx_GFXColorAttachment_get_loadOp)
 static bool js_gfx_GFXColorAttachment_set_loadOp(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXColorAttachment* cobj = (cocos2d::GFXColorAttachment*)s.nativeThisObject();
+    cc::GFXColorAttachment* cobj = (cc::GFXColorAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColorAttachment_set_loadOp : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXLoadOp arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXLoadOp)tmp; } while(false);
+    cc::GFXLoadOp arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXLoadOp)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXColorAttachment_set_loadOp : Error processing new value");
     cobj->loadOp = arg0;
     return true;
@@ -6816,7 +6816,7 @@ SE_BIND_PROP_SET(js_gfx_GFXColorAttachment_set_loadOp)
 
 static bool js_gfx_GFXColorAttachment_get_storeOp(se::State& s)
 {
-    cocos2d::GFXColorAttachment* cobj = (cocos2d::GFXColorAttachment*)s.nativeThisObject();
+    cc::GFXColorAttachment* cobj = (cc::GFXColorAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColorAttachment_get_storeOp : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6830,12 +6830,12 @@ SE_BIND_PROP_GET(js_gfx_GFXColorAttachment_get_storeOp)
 static bool js_gfx_GFXColorAttachment_set_storeOp(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXColorAttachment* cobj = (cocos2d::GFXColorAttachment*)s.nativeThisObject();
+    cc::GFXColorAttachment* cobj = (cc::GFXColorAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColorAttachment_set_storeOp : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXStoreOp arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXStoreOp)tmp; } while(false);
+    cc::GFXStoreOp arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXStoreOp)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXColorAttachment_set_storeOp : Error processing new value");
     cobj->storeOp = arg0;
     return true;
@@ -6844,7 +6844,7 @@ SE_BIND_PROP_SET(js_gfx_GFXColorAttachment_set_storeOp)
 
 static bool js_gfx_GFXColorAttachment_get_sampleCount(se::State& s)
 {
-    cocos2d::GFXColorAttachment* cobj = (cocos2d::GFXColorAttachment*)s.nativeThisObject();
+    cc::GFXColorAttachment* cobj = (cc::GFXColorAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColorAttachment_get_sampleCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6858,7 +6858,7 @@ SE_BIND_PROP_GET(js_gfx_GFXColorAttachment_get_sampleCount)
 static bool js_gfx_GFXColorAttachment_set_sampleCount(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXColorAttachment* cobj = (cocos2d::GFXColorAttachment*)s.nativeThisObject();
+    cc::GFXColorAttachment* cobj = (cc::GFXColorAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColorAttachment_set_sampleCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6872,7 +6872,7 @@ SE_BIND_PROP_SET(js_gfx_GFXColorAttachment_set_sampleCount)
 
 static bool js_gfx_GFXColorAttachment_get_beginLayout(se::State& s)
 {
-    cocos2d::GFXColorAttachment* cobj = (cocos2d::GFXColorAttachment*)s.nativeThisObject();
+    cc::GFXColorAttachment* cobj = (cc::GFXColorAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColorAttachment_get_beginLayout : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6886,12 +6886,12 @@ SE_BIND_PROP_GET(js_gfx_GFXColorAttachment_get_beginLayout)
 static bool js_gfx_GFXColorAttachment_set_beginLayout(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXColorAttachment* cobj = (cocos2d::GFXColorAttachment*)s.nativeThisObject();
+    cc::GFXColorAttachment* cobj = (cc::GFXColorAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColorAttachment_set_beginLayout : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXTextureLayout arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+    cc::GFXTextureLayout arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXTextureLayout)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXColorAttachment_set_beginLayout : Error processing new value");
     cobj->beginLayout = arg0;
     return true;
@@ -6900,7 +6900,7 @@ SE_BIND_PROP_SET(js_gfx_GFXColorAttachment_set_beginLayout)
 
 static bool js_gfx_GFXColorAttachment_get_endLayout(se::State& s)
 {
-    cocos2d::GFXColorAttachment* cobj = (cocos2d::GFXColorAttachment*)s.nativeThisObject();
+    cc::GFXColorAttachment* cobj = (cc::GFXColorAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColorAttachment_get_endLayout : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -6914,19 +6914,19 @@ SE_BIND_PROP_GET(js_gfx_GFXColorAttachment_get_endLayout)
 static bool js_gfx_GFXColorAttachment_set_endLayout(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXColorAttachment* cobj = (cocos2d::GFXColorAttachment*)s.nativeThisObject();
+    cc::GFXColorAttachment* cobj = (cc::GFXColorAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXColorAttachment_set_endLayout : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXTextureLayout arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+    cc::GFXTextureLayout arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXTextureLayout)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXColorAttachment_set_endLayout : Error processing new value");
     cobj->endLayout = arg0;
     return true;
 }
 SE_BIND_PROP_SET(js_gfx_GFXColorAttachment_set_endLayout)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXColorAttachment_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXColorAttachment_finalize)
 
 static bool js_gfx_GFXColorAttachment_constructor(se::State& s)
 {
@@ -6936,7 +6936,7 @@ static bool js_gfx_GFXColorAttachment_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXColorAttachment* cobj = JSB_ALLOC(cocos2d::GFXColorAttachment);
+        cc::GFXColorAttachment* cobj = JSB_ALLOC(cc::GFXColorAttachment);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -6946,23 +6946,23 @@ static bool js_gfx_GFXColorAttachment_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXColorAttachment* cobj = JSB_ALLOC(cocos2d::GFXColorAttachment);
-        cocos2d::GFXFormat arg0;
+        cc::GFXColorAttachment* cobj = JSB_ALLOC(cc::GFXColorAttachment);
+        cc::GFXFormat arg0;
         json->getProperty("format", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXFormat)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cc::GFXFormat)tmp; } while(false);
             cobj->format = arg0;
         }
-        cocos2d::GFXLoadOp arg1;
+        cc::GFXLoadOp arg1;
         json->getProperty("loadOp", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXLoadOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cc::GFXLoadOp)tmp; } while(false);
             cobj->loadOp = arg1;
         }
-        cocos2d::GFXStoreOp arg2;
+        cc::GFXStoreOp arg2;
         json->getProperty("storeOp", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXStoreOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::GFXStoreOp)tmp; } while(false);
             cobj->storeOp = arg2;
         }
         unsigned int arg3 = 0;
@@ -6971,16 +6971,16 @@ static bool js_gfx_GFXColorAttachment_constructor(se::State& s)
             ok &= seval_to_uint32(field, (uint32_t*)&arg3);
             cobj->sampleCount = arg3;
         }
-        cocos2d::GFXTextureLayout arg4;
+        cc::GFXTextureLayout arg4;
         json->getProperty("beginLayout", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cc::GFXTextureLayout)tmp; } while(false);
             cobj->beginLayout = arg4;
         }
-        cocos2d::GFXTextureLayout arg5;
+        cc::GFXTextureLayout arg5;
         json->getProperty("endLayout", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg5 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg5 = (cc::GFXTextureLayout)tmp; } while(false);
             cobj->endLayout = arg5;
         }
 
@@ -6996,20 +6996,20 @@ static bool js_gfx_GFXColorAttachment_constructor(se::State& s)
     }
     else if(argc == 6)
     {
-        cocos2d::GFXColorAttachment* cobj = JSB_ALLOC(cocos2d::GFXColorAttachment);
-        cocos2d::GFXFormat arg0;
+        cc::GFXColorAttachment* cobj = JSB_ALLOC(cc::GFXColorAttachment);
+        cc::GFXFormat arg0;
         if (!args[0].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXFormat)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXFormat)tmp; } while(false);
             cobj->format = arg0;
         }
-        cocos2d::GFXLoadOp arg1;
+        cc::GFXLoadOp arg1;
         if (!args[1].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXLoadOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::GFXLoadOp)tmp; } while(false);
             cobj->loadOp = arg1;
         }
-        cocos2d::GFXStoreOp arg2;
+        cc::GFXStoreOp arg2;
         if (!args[2].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXStoreOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::GFXStoreOp)tmp; } while(false);
             cobj->storeOp = arg2;
         }
         unsigned int arg3 = 0;
@@ -7017,14 +7017,14 @@ static bool js_gfx_GFXColorAttachment_constructor(se::State& s)
             ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
             cobj->sampleCount = arg3;
         }
-        cocos2d::GFXTextureLayout arg4;
+        cc::GFXTextureLayout arg4;
         if (!args[4].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::GFXTextureLayout)tmp; } while(false);
             cobj->beginLayout = arg4;
         }
-        cocos2d::GFXTextureLayout arg5;
+        cc::GFXTextureLayout arg5;
         if (!args[5].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cc::GFXTextureLayout)tmp; } while(false);
             cobj->endLayout = arg5;
         }
 
@@ -7042,24 +7042,24 @@ static bool js_gfx_GFXColorAttachment_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXColorAttachment_constructor, __jsb_cocos2d_GFXColorAttachment_class, js_cocos2d_GFXColorAttachment_finalize)
+SE_BIND_CTOR(js_gfx_GFXColorAttachment_constructor, __jsb_cc_GFXColorAttachment_class, js_cc_GFXColorAttachment_finalize)
 
 
 
 
-static bool js_cocos2d_GFXColorAttachment_finalize(se::State& s)
+static bool js_cc_GFXColorAttachment_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXColorAttachment)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXColorAttachment)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXColorAttachment* cobj = (cocos2d::GFXColorAttachment*)s.nativeThisObject();
+        cc::GFXColorAttachment* cobj = (cc::GFXColorAttachment*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXColorAttachment_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXColorAttachment_finalize)
 
 bool js_register_gfx_GFXColorAttachment(se::Object* obj)
 {
@@ -7071,23 +7071,23 @@ bool js_register_gfx_GFXColorAttachment(se::Object* obj)
     cls->defineProperty("sampleCount", _SE(js_gfx_GFXColorAttachment_get_sampleCount), _SE(js_gfx_GFXColorAttachment_set_sampleCount));
     cls->defineProperty("beginLayout", _SE(js_gfx_GFXColorAttachment_get_beginLayout), _SE(js_gfx_GFXColorAttachment_set_beginLayout));
     cls->defineProperty("endLayout", _SE(js_gfx_GFXColorAttachment_get_endLayout), _SE(js_gfx_GFXColorAttachment_set_endLayout));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXColorAttachment_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXColorAttachment_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXColorAttachment>(cls);
+    JSBClassType::registerClass<cc::GFXColorAttachment>(cls);
 
-    __jsb_cocos2d_GFXColorAttachment_proto = cls->getProto();
-    __jsb_cocos2d_GFXColorAttachment_class = cls;
+    __jsb_cc_GFXColorAttachment_proto = cls->getProto();
+    __jsb_cc_GFXColorAttachment_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXDepthStencilAttachment_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXDepthStencilAttachment_class = nullptr;
+se::Object* __jsb_cc_GFXDepthStencilAttachment_proto = nullptr;
+se::Class* __jsb_cc_GFXDepthStencilAttachment_class = nullptr;
 
 static bool js_gfx_GFXDepthStencilAttachment_get_format(se::State& s)
 {
-    cocos2d::GFXDepthStencilAttachment* cobj = (cocos2d::GFXDepthStencilAttachment*)s.nativeThisObject();
+    cc::GFXDepthStencilAttachment* cobj = (cc::GFXDepthStencilAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilAttachment_get_format : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7101,12 +7101,12 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilAttachment_get_format)
 static bool js_gfx_GFXDepthStencilAttachment_set_format(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilAttachment* cobj = (cocos2d::GFXDepthStencilAttachment*)s.nativeThisObject();
+    cc::GFXDepthStencilAttachment* cobj = (cc::GFXDepthStencilAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilAttachment_set_format : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXFormat arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXFormat)tmp; } while(false);
+    cc::GFXFormat arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXFormat)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXDepthStencilAttachment_set_format : Error processing new value");
     cobj->format = arg0;
     return true;
@@ -7115,7 +7115,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilAttachment_set_format)
 
 static bool js_gfx_GFXDepthStencilAttachment_get_depthLoadOp(se::State& s)
 {
-    cocos2d::GFXDepthStencilAttachment* cobj = (cocos2d::GFXDepthStencilAttachment*)s.nativeThisObject();
+    cc::GFXDepthStencilAttachment* cobj = (cc::GFXDepthStencilAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilAttachment_get_depthLoadOp : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7129,12 +7129,12 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilAttachment_get_depthLoadOp)
 static bool js_gfx_GFXDepthStencilAttachment_set_depthLoadOp(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilAttachment* cobj = (cocos2d::GFXDepthStencilAttachment*)s.nativeThisObject();
+    cc::GFXDepthStencilAttachment* cobj = (cc::GFXDepthStencilAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilAttachment_set_depthLoadOp : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXLoadOp arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXLoadOp)tmp; } while(false);
+    cc::GFXLoadOp arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXLoadOp)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXDepthStencilAttachment_set_depthLoadOp : Error processing new value");
     cobj->depthLoadOp = arg0;
     return true;
@@ -7143,7 +7143,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilAttachment_set_depthLoadOp)
 
 static bool js_gfx_GFXDepthStencilAttachment_get_depthStoreOp(se::State& s)
 {
-    cocos2d::GFXDepthStencilAttachment* cobj = (cocos2d::GFXDepthStencilAttachment*)s.nativeThisObject();
+    cc::GFXDepthStencilAttachment* cobj = (cc::GFXDepthStencilAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilAttachment_get_depthStoreOp : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7157,12 +7157,12 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilAttachment_get_depthStoreOp)
 static bool js_gfx_GFXDepthStencilAttachment_set_depthStoreOp(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilAttachment* cobj = (cocos2d::GFXDepthStencilAttachment*)s.nativeThisObject();
+    cc::GFXDepthStencilAttachment* cobj = (cc::GFXDepthStencilAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilAttachment_set_depthStoreOp : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXStoreOp arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXStoreOp)tmp; } while(false);
+    cc::GFXStoreOp arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXStoreOp)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXDepthStencilAttachment_set_depthStoreOp : Error processing new value");
     cobj->depthStoreOp = arg0;
     return true;
@@ -7171,7 +7171,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilAttachment_set_depthStoreOp)
 
 static bool js_gfx_GFXDepthStencilAttachment_get_stencilLoadOp(se::State& s)
 {
-    cocos2d::GFXDepthStencilAttachment* cobj = (cocos2d::GFXDepthStencilAttachment*)s.nativeThisObject();
+    cc::GFXDepthStencilAttachment* cobj = (cc::GFXDepthStencilAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilAttachment_get_stencilLoadOp : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7185,12 +7185,12 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilAttachment_get_stencilLoadOp)
 static bool js_gfx_GFXDepthStencilAttachment_set_stencilLoadOp(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilAttachment* cobj = (cocos2d::GFXDepthStencilAttachment*)s.nativeThisObject();
+    cc::GFXDepthStencilAttachment* cobj = (cc::GFXDepthStencilAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilAttachment_set_stencilLoadOp : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXLoadOp arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXLoadOp)tmp; } while(false);
+    cc::GFXLoadOp arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXLoadOp)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXDepthStencilAttachment_set_stencilLoadOp : Error processing new value");
     cobj->stencilLoadOp = arg0;
     return true;
@@ -7199,7 +7199,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilAttachment_set_stencilLoadOp)
 
 static bool js_gfx_GFXDepthStencilAttachment_get_stencilStoreOp(se::State& s)
 {
-    cocos2d::GFXDepthStencilAttachment* cobj = (cocos2d::GFXDepthStencilAttachment*)s.nativeThisObject();
+    cc::GFXDepthStencilAttachment* cobj = (cc::GFXDepthStencilAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilAttachment_get_stencilStoreOp : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7213,12 +7213,12 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilAttachment_get_stencilStoreOp)
 static bool js_gfx_GFXDepthStencilAttachment_set_stencilStoreOp(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilAttachment* cobj = (cocos2d::GFXDepthStencilAttachment*)s.nativeThisObject();
+    cc::GFXDepthStencilAttachment* cobj = (cc::GFXDepthStencilAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilAttachment_set_stencilStoreOp : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXStoreOp arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXStoreOp)tmp; } while(false);
+    cc::GFXStoreOp arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXStoreOp)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXDepthStencilAttachment_set_stencilStoreOp : Error processing new value");
     cobj->stencilStoreOp = arg0;
     return true;
@@ -7227,7 +7227,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilAttachment_set_stencilStoreOp)
 
 static bool js_gfx_GFXDepthStencilAttachment_get_sampleCount(se::State& s)
 {
-    cocos2d::GFXDepthStencilAttachment* cobj = (cocos2d::GFXDepthStencilAttachment*)s.nativeThisObject();
+    cc::GFXDepthStencilAttachment* cobj = (cc::GFXDepthStencilAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilAttachment_get_sampleCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7241,7 +7241,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilAttachment_get_sampleCount)
 static bool js_gfx_GFXDepthStencilAttachment_set_sampleCount(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilAttachment* cobj = (cocos2d::GFXDepthStencilAttachment*)s.nativeThisObject();
+    cc::GFXDepthStencilAttachment* cobj = (cc::GFXDepthStencilAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilAttachment_set_sampleCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7255,7 +7255,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilAttachment_set_sampleCount)
 
 static bool js_gfx_GFXDepthStencilAttachment_get_beginLayout(se::State& s)
 {
-    cocos2d::GFXDepthStencilAttachment* cobj = (cocos2d::GFXDepthStencilAttachment*)s.nativeThisObject();
+    cc::GFXDepthStencilAttachment* cobj = (cc::GFXDepthStencilAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilAttachment_get_beginLayout : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7269,12 +7269,12 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilAttachment_get_beginLayout)
 static bool js_gfx_GFXDepthStencilAttachment_set_beginLayout(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilAttachment* cobj = (cocos2d::GFXDepthStencilAttachment*)s.nativeThisObject();
+    cc::GFXDepthStencilAttachment* cobj = (cc::GFXDepthStencilAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilAttachment_set_beginLayout : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXTextureLayout arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+    cc::GFXTextureLayout arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXTextureLayout)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXDepthStencilAttachment_set_beginLayout : Error processing new value");
     cobj->beginLayout = arg0;
     return true;
@@ -7283,7 +7283,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilAttachment_set_beginLayout)
 
 static bool js_gfx_GFXDepthStencilAttachment_get_endLayout(se::State& s)
 {
-    cocos2d::GFXDepthStencilAttachment* cobj = (cocos2d::GFXDepthStencilAttachment*)s.nativeThisObject();
+    cc::GFXDepthStencilAttachment* cobj = (cc::GFXDepthStencilAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilAttachment_get_endLayout : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7297,19 +7297,19 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilAttachment_get_endLayout)
 static bool js_gfx_GFXDepthStencilAttachment_set_endLayout(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilAttachment* cobj = (cocos2d::GFXDepthStencilAttachment*)s.nativeThisObject();
+    cc::GFXDepthStencilAttachment* cobj = (cc::GFXDepthStencilAttachment*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilAttachment_set_endLayout : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXTextureLayout arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+    cc::GFXTextureLayout arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXTextureLayout)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXDepthStencilAttachment_set_endLayout : Error processing new value");
     cobj->endLayout = arg0;
     return true;
 }
 SE_BIND_PROP_SET(js_gfx_GFXDepthStencilAttachment_set_endLayout)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXDepthStencilAttachment_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXDepthStencilAttachment_finalize)
 
 static bool js_gfx_GFXDepthStencilAttachment_constructor(se::State& s)
 {
@@ -7319,7 +7319,7 @@ static bool js_gfx_GFXDepthStencilAttachment_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXDepthStencilAttachment* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilAttachment);
+        cc::GFXDepthStencilAttachment* cobj = JSB_ALLOC(cc::GFXDepthStencilAttachment);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -7329,35 +7329,35 @@ static bool js_gfx_GFXDepthStencilAttachment_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXDepthStencilAttachment* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilAttachment);
-        cocos2d::GFXFormat arg0;
+        cc::GFXDepthStencilAttachment* cobj = JSB_ALLOC(cc::GFXDepthStencilAttachment);
+        cc::GFXFormat arg0;
         json->getProperty("format", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXFormat)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cc::GFXFormat)tmp; } while(false);
             cobj->format = arg0;
         }
-        cocos2d::GFXLoadOp arg1;
+        cc::GFXLoadOp arg1;
         json->getProperty("depthLoadOp", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXLoadOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cc::GFXLoadOp)tmp; } while(false);
             cobj->depthLoadOp = arg1;
         }
-        cocos2d::GFXStoreOp arg2;
+        cc::GFXStoreOp arg2;
         json->getProperty("depthStoreOp", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXStoreOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::GFXStoreOp)tmp; } while(false);
             cobj->depthStoreOp = arg2;
         }
-        cocos2d::GFXLoadOp arg3;
+        cc::GFXLoadOp arg3;
         json->getProperty("stencilLoadOp", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cocos2d::GFXLoadOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cc::GFXLoadOp)tmp; } while(false);
             cobj->stencilLoadOp = arg3;
         }
-        cocos2d::GFXStoreOp arg4;
+        cc::GFXStoreOp arg4;
         json->getProperty("stencilStoreOp", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cocos2d::GFXStoreOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cc::GFXStoreOp)tmp; } while(false);
             cobj->stencilStoreOp = arg4;
         }
         unsigned int arg5 = 0;
@@ -7366,16 +7366,16 @@ static bool js_gfx_GFXDepthStencilAttachment_constructor(se::State& s)
             ok &= seval_to_uint32(field, (uint32_t*)&arg5);
             cobj->sampleCount = arg5;
         }
-        cocos2d::GFXTextureLayout arg6;
+        cc::GFXTextureLayout arg6;
         json->getProperty("beginLayout", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg6 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg6 = (cc::GFXTextureLayout)tmp; } while(false);
             cobj->beginLayout = arg6;
         }
-        cocos2d::GFXTextureLayout arg7;
+        cc::GFXTextureLayout arg7;
         json->getProperty("endLayout", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg7 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg7 = (cc::GFXTextureLayout)tmp; } while(false);
             cobj->endLayout = arg7;
         }
 
@@ -7391,30 +7391,30 @@ static bool js_gfx_GFXDepthStencilAttachment_constructor(se::State& s)
     }
     else if(argc == 8)
     {
-        cocos2d::GFXDepthStencilAttachment* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilAttachment);
-        cocos2d::GFXFormat arg0;
+        cc::GFXDepthStencilAttachment* cobj = JSB_ALLOC(cc::GFXDepthStencilAttachment);
+        cc::GFXFormat arg0;
         if (!args[0].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXFormat)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXFormat)tmp; } while(false);
             cobj->format = arg0;
         }
-        cocos2d::GFXLoadOp arg1;
+        cc::GFXLoadOp arg1;
         if (!args[1].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXLoadOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::GFXLoadOp)tmp; } while(false);
             cobj->depthLoadOp = arg1;
         }
-        cocos2d::GFXStoreOp arg2;
+        cc::GFXStoreOp arg2;
         if (!args[2].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXStoreOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::GFXStoreOp)tmp; } while(false);
             cobj->depthStoreOp = arg2;
         }
-        cocos2d::GFXLoadOp arg3;
+        cc::GFXLoadOp arg3;
         if (!args[3].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cocos2d::GFXLoadOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::GFXLoadOp)tmp; } while(false);
             cobj->stencilLoadOp = arg3;
         }
-        cocos2d::GFXStoreOp arg4;
+        cc::GFXStoreOp arg4;
         if (!args[4].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXStoreOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::GFXStoreOp)tmp; } while(false);
             cobj->stencilStoreOp = arg4;
         }
         unsigned int arg5 = 0;
@@ -7422,14 +7422,14 @@ static bool js_gfx_GFXDepthStencilAttachment_constructor(se::State& s)
             ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
             cobj->sampleCount = arg5;
         }
-        cocos2d::GFXTextureLayout arg6;
+        cc::GFXTextureLayout arg6;
         if (!args[6].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cc::GFXTextureLayout)tmp; } while(false);
             cobj->beginLayout = arg6;
         }
-        cocos2d::GFXTextureLayout arg7;
+        cc::GFXTextureLayout arg7;
         if (!args[7].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cc::GFXTextureLayout)tmp; } while(false);
             cobj->endLayout = arg7;
         }
 
@@ -7447,24 +7447,24 @@ static bool js_gfx_GFXDepthStencilAttachment_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXDepthStencilAttachment_constructor, __jsb_cocos2d_GFXDepthStencilAttachment_class, js_cocos2d_GFXDepthStencilAttachment_finalize)
+SE_BIND_CTOR(js_gfx_GFXDepthStencilAttachment_constructor, __jsb_cc_GFXDepthStencilAttachment_class, js_cc_GFXDepthStencilAttachment_finalize)
 
 
 
 
-static bool js_cocos2d_GFXDepthStencilAttachment_finalize(se::State& s)
+static bool js_cc_GFXDepthStencilAttachment_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXDepthStencilAttachment)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXDepthStencilAttachment)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXDepthStencilAttachment* cobj = (cocos2d::GFXDepthStencilAttachment*)s.nativeThisObject();
+        cc::GFXDepthStencilAttachment* cobj = (cc::GFXDepthStencilAttachment*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXDepthStencilAttachment_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXDepthStencilAttachment_finalize)
 
 bool js_register_gfx_GFXDepthStencilAttachment(se::Object* obj)
 {
@@ -7478,23 +7478,23 @@ bool js_register_gfx_GFXDepthStencilAttachment(se::Object* obj)
     cls->defineProperty("sampleCount", _SE(js_gfx_GFXDepthStencilAttachment_get_sampleCount), _SE(js_gfx_GFXDepthStencilAttachment_set_sampleCount));
     cls->defineProperty("beginLayout", _SE(js_gfx_GFXDepthStencilAttachment_get_beginLayout), _SE(js_gfx_GFXDepthStencilAttachment_set_beginLayout));
     cls->defineProperty("endLayout", _SE(js_gfx_GFXDepthStencilAttachment_get_endLayout), _SE(js_gfx_GFXDepthStencilAttachment_set_endLayout));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXDepthStencilAttachment_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXDepthStencilAttachment_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXDepthStencilAttachment>(cls);
+    JSBClassType::registerClass<cc::GFXDepthStencilAttachment>(cls);
 
-    __jsb_cocos2d_GFXDepthStencilAttachment_proto = cls->getProto();
-    __jsb_cocos2d_GFXDepthStencilAttachment_class = cls;
+    __jsb_cc_GFXDepthStencilAttachment_proto = cls->getProto();
+    __jsb_cc_GFXDepthStencilAttachment_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXRenderPassInfo_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXRenderPassInfo_class = nullptr;
+se::Object* __jsb_cc_GFXRenderPassInfo_proto = nullptr;
+se::Class* __jsb_cc_GFXRenderPassInfo_class = nullptr;
 
 static bool js_gfx_GFXRenderPassInfo_get_colorAttachments(se::State& s)
 {
-    cocos2d::GFXRenderPassInfo* cobj = (cocos2d::GFXRenderPassInfo*)s.nativeThisObject();
+    cc::GFXRenderPassInfo* cobj = (cc::GFXRenderPassInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRenderPassInfo_get_colorAttachments : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7508,11 +7508,11 @@ SE_BIND_PROP_GET(js_gfx_GFXRenderPassInfo_get_colorAttachments)
 static bool js_gfx_GFXRenderPassInfo_set_colorAttachments(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXRenderPassInfo* cobj = (cocos2d::GFXRenderPassInfo*)s.nativeThisObject();
+    cc::GFXRenderPassInfo* cobj = (cc::GFXRenderPassInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRenderPassInfo_set_colorAttachments : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXColorAttachment> arg0;
+    std::vector<cc::GFXColorAttachment> arg0;
     ok &= seval_to_std_vector(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXRenderPassInfo_set_colorAttachments : Error processing new value");
     cobj->colorAttachments = arg0;
@@ -7522,7 +7522,7 @@ SE_BIND_PROP_SET(js_gfx_GFXRenderPassInfo_set_colorAttachments)
 
 static bool js_gfx_GFXRenderPassInfo_get_depthStencilAttachment(se::State& s)
 {
-    cocos2d::GFXRenderPassInfo* cobj = (cocos2d::GFXRenderPassInfo*)s.nativeThisObject();
+    cc::GFXRenderPassInfo* cobj = (cc::GFXRenderPassInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRenderPassInfo_get_depthStencilAttachment : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7536,11 +7536,11 @@ SE_BIND_PROP_GET(js_gfx_GFXRenderPassInfo_get_depthStencilAttachment)
 static bool js_gfx_GFXRenderPassInfo_set_depthStencilAttachment(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXRenderPassInfo* cobj = (cocos2d::GFXRenderPassInfo*)s.nativeThisObject();
+    cc::GFXRenderPassInfo* cobj = (cc::GFXRenderPassInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRenderPassInfo_set_depthStencilAttachment : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXDepthStencilAttachment* arg0 = nullptr;
+    cc::GFXDepthStencilAttachment* arg0 = nullptr;
     ok &= seval_to_reference(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXRenderPassInfo_set_depthStencilAttachment : Error processing new value");
     cobj->depthStencilAttachment = *arg0;
@@ -7550,7 +7550,7 @@ SE_BIND_PROP_SET(js_gfx_GFXRenderPassInfo_set_depthStencilAttachment)
 
 static bool js_gfx_GFXRenderPassInfo_get_subPasses(se::State& s)
 {
-    cocos2d::GFXRenderPassInfo* cobj = (cocos2d::GFXRenderPassInfo*)s.nativeThisObject();
+    cc::GFXRenderPassInfo* cobj = (cc::GFXRenderPassInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRenderPassInfo_get_subPasses : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7564,11 +7564,11 @@ SE_BIND_PROP_GET(js_gfx_GFXRenderPassInfo_get_subPasses)
 static bool js_gfx_GFXRenderPassInfo_set_subPasses(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXRenderPassInfo* cobj = (cocos2d::GFXRenderPassInfo*)s.nativeThisObject();
+    cc::GFXRenderPassInfo* cobj = (cc::GFXRenderPassInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRenderPassInfo_set_subPasses : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXSubPass> arg0;
+    std::vector<cc::GFXSubPass> arg0;
     ok &= seval_to_std_vector(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXRenderPassInfo_set_subPasses : Error processing new value");
     cobj->subPasses = arg0;
@@ -7576,7 +7576,7 @@ static bool js_gfx_GFXRenderPassInfo_set_subPasses(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXRenderPassInfo_set_subPasses)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXRenderPassInfo_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXRenderPassInfo_finalize)
 
 static bool js_gfx_GFXRenderPassInfo_constructor(se::State& s)
 {
@@ -7586,7 +7586,7 @@ static bool js_gfx_GFXRenderPassInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXRenderPassInfo* cobj = JSB_ALLOC(cocos2d::GFXRenderPassInfo);
+        cc::GFXRenderPassInfo* cobj = JSB_ALLOC(cc::GFXRenderPassInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -7596,20 +7596,20 @@ static bool js_gfx_GFXRenderPassInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXRenderPassInfo* cobj = JSB_ALLOC(cocos2d::GFXRenderPassInfo);
-        std::vector<cocos2d::GFXColorAttachment> arg0;
+        cc::GFXRenderPassInfo* cobj = JSB_ALLOC(cc::GFXRenderPassInfo);
+        std::vector<cc::GFXColorAttachment> arg0;
         json->getProperty("colorAttachments", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_std_vector(field, &arg0);
             cobj->colorAttachments = arg0;
         }
-        cocos2d::GFXDepthStencilAttachment* arg1 = nullptr;
+        cc::GFXDepthStencilAttachment* arg1 = nullptr;
         json->getProperty("depthStencilAttachment", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_reference(field, &arg1);
             cobj->depthStencilAttachment = *arg1;
         }
-        std::vector<cocos2d::GFXSubPass> arg2;
+        std::vector<cc::GFXSubPass> arg2;
         json->getProperty("subPasses", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_std_vector(field, &arg2);
@@ -7628,18 +7628,18 @@ static bool js_gfx_GFXRenderPassInfo_constructor(se::State& s)
     }
     else if(argc == 3)
     {
-        cocos2d::GFXRenderPassInfo* cobj = JSB_ALLOC(cocos2d::GFXRenderPassInfo);
-        std::vector<cocos2d::GFXColorAttachment> arg0;
+        cc::GFXRenderPassInfo* cobj = JSB_ALLOC(cc::GFXRenderPassInfo);
+        std::vector<cc::GFXColorAttachment> arg0;
         if (!args[0].isUndefined()) {
             ok &= seval_to_std_vector(args[0], &arg0);
             cobj->colorAttachments = arg0;
         }
-        cocos2d::GFXDepthStencilAttachment* arg1 = nullptr;
+        cc::GFXDepthStencilAttachment* arg1 = nullptr;
         if (!args[1].isUndefined()) {
             ok &= seval_to_reference(args[1], &arg1);
             cobj->depthStencilAttachment = *arg1;
         }
-        std::vector<cocos2d::GFXSubPass> arg2;
+        std::vector<cc::GFXSubPass> arg2;
         if (!args[2].isUndefined()) {
             ok &= seval_to_std_vector(args[2], &arg2);
             cobj->subPasses = arg2;
@@ -7659,24 +7659,24 @@ static bool js_gfx_GFXRenderPassInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXRenderPassInfo_constructor, __jsb_cocos2d_GFXRenderPassInfo_class, js_cocos2d_GFXRenderPassInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXRenderPassInfo_constructor, __jsb_cc_GFXRenderPassInfo_class, js_cc_GFXRenderPassInfo_finalize)
 
 
 
 
-static bool js_cocos2d_GFXRenderPassInfo_finalize(se::State& s)
+static bool js_cc_GFXRenderPassInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXRenderPassInfo)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXRenderPassInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXRenderPassInfo* cobj = (cocos2d::GFXRenderPassInfo*)s.nativeThisObject();
+        cc::GFXRenderPassInfo* cobj = (cc::GFXRenderPassInfo*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXRenderPassInfo_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXRenderPassInfo_finalize)
 
 bool js_register_gfx_GFXRenderPassInfo(se::Object* obj)
 {
@@ -7685,23 +7685,23 @@ bool js_register_gfx_GFXRenderPassInfo(se::Object* obj)
     cls->defineProperty("colorAttachments", _SE(js_gfx_GFXRenderPassInfo_get_colorAttachments), _SE(js_gfx_GFXRenderPassInfo_set_colorAttachments));
     cls->defineProperty("depthStencilAttachment", _SE(js_gfx_GFXRenderPassInfo_get_depthStencilAttachment), _SE(js_gfx_GFXRenderPassInfo_set_depthStencilAttachment));
     cls->defineProperty("subPasses", _SE(js_gfx_GFXRenderPassInfo_get_subPasses), _SE(js_gfx_GFXRenderPassInfo_set_subPasses));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXRenderPassInfo_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXRenderPassInfo_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXRenderPassInfo>(cls);
+    JSBClassType::registerClass<cc::GFXRenderPassInfo>(cls);
 
-    __jsb_cocos2d_GFXRenderPassInfo_proto = cls->getProto();
-    __jsb_cocos2d_GFXRenderPassInfo_class = cls;
+    __jsb_cc_GFXRenderPassInfo_proto = cls->getProto();
+    __jsb_cc_GFXRenderPassInfo_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXFramebufferInfo_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXFramebufferInfo_class = nullptr;
+se::Object* __jsb_cc_GFXFramebufferInfo_proto = nullptr;
+se::Class* __jsb_cc_GFXFramebufferInfo_class = nullptr;
 
 static bool js_gfx_GFXFramebufferInfo_get_renderPass(se::State& s)
 {
-    cocos2d::GFXFramebufferInfo* cobj = (cocos2d::GFXFramebufferInfo*)s.nativeThisObject();
+    cc::GFXFramebufferInfo* cobj = (cc::GFXFramebufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebufferInfo_get_renderPass : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7715,11 +7715,11 @@ SE_BIND_PROP_GET(js_gfx_GFXFramebufferInfo_get_renderPass)
 static bool js_gfx_GFXFramebufferInfo_set_renderPass(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXFramebufferInfo* cobj = (cocos2d::GFXFramebufferInfo*)s.nativeThisObject();
+    cc::GFXFramebufferInfo* cobj = (cc::GFXFramebufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebufferInfo_set_renderPass : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXRenderPass* arg0 = nullptr;
+    cc::GFXRenderPass* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXFramebufferInfo_set_renderPass : Error processing new value");
     cobj->renderPass = arg0;
@@ -7729,7 +7729,7 @@ SE_BIND_PROP_SET(js_gfx_GFXFramebufferInfo_set_renderPass)
 
 static bool js_gfx_GFXFramebufferInfo_get_colorTextures(se::State& s)
 {
-    cocos2d::GFXFramebufferInfo* cobj = (cocos2d::GFXFramebufferInfo*)s.nativeThisObject();
+    cc::GFXFramebufferInfo* cobj = (cc::GFXFramebufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebufferInfo_get_colorTextures : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7743,11 +7743,11 @@ SE_BIND_PROP_GET(js_gfx_GFXFramebufferInfo_get_colorTextures)
 static bool js_gfx_GFXFramebufferInfo_set_colorTextures(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXFramebufferInfo* cobj = (cocos2d::GFXFramebufferInfo*)s.nativeThisObject();
+    cc::GFXFramebufferInfo* cobj = (cc::GFXFramebufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebufferInfo_set_colorTextures : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXTexture *> arg0;
+    std::vector<cc::GFXTexture *> arg0;
     ok &= seval_to_std_vector(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXFramebufferInfo_set_colorTextures : Error processing new value");
     cobj->colorTextures = arg0;
@@ -7757,7 +7757,7 @@ SE_BIND_PROP_SET(js_gfx_GFXFramebufferInfo_set_colorTextures)
 
 static bool js_gfx_GFXFramebufferInfo_get_colorMipmapLevels(se::State& s)
 {
-    cocos2d::GFXFramebufferInfo* cobj = (cocos2d::GFXFramebufferInfo*)s.nativeThisObject();
+    cc::GFXFramebufferInfo* cobj = (cc::GFXFramebufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebufferInfo_get_colorMipmapLevels : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7771,7 +7771,7 @@ SE_BIND_PROP_GET(js_gfx_GFXFramebufferInfo_get_colorMipmapLevels)
 static bool js_gfx_GFXFramebufferInfo_set_colorMipmapLevels(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXFramebufferInfo* cobj = (cocos2d::GFXFramebufferInfo*)s.nativeThisObject();
+    cc::GFXFramebufferInfo* cobj = (cc::GFXFramebufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebufferInfo_set_colorMipmapLevels : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7785,7 +7785,7 @@ SE_BIND_PROP_SET(js_gfx_GFXFramebufferInfo_set_colorMipmapLevels)
 
 static bool js_gfx_GFXFramebufferInfo_get_depthStencilTexture(se::State& s)
 {
-    cocos2d::GFXFramebufferInfo* cobj = (cocos2d::GFXFramebufferInfo*)s.nativeThisObject();
+    cc::GFXFramebufferInfo* cobj = (cc::GFXFramebufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebufferInfo_get_depthStencilTexture : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7799,11 +7799,11 @@ SE_BIND_PROP_GET(js_gfx_GFXFramebufferInfo_get_depthStencilTexture)
 static bool js_gfx_GFXFramebufferInfo_set_depthStencilTexture(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXFramebufferInfo* cobj = (cocos2d::GFXFramebufferInfo*)s.nativeThisObject();
+    cc::GFXFramebufferInfo* cobj = (cc::GFXFramebufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebufferInfo_set_depthStencilTexture : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXTexture* arg0 = nullptr;
+    cc::GFXTexture* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXFramebufferInfo_set_depthStencilTexture : Error processing new value");
     cobj->depthStencilTexture = arg0;
@@ -7813,7 +7813,7 @@ SE_BIND_PROP_SET(js_gfx_GFXFramebufferInfo_set_depthStencilTexture)
 
 static bool js_gfx_GFXFramebufferInfo_get_depthStencilMipmapLevel(se::State& s)
 {
-    cocos2d::GFXFramebufferInfo* cobj = (cocos2d::GFXFramebufferInfo*)s.nativeThisObject();
+    cc::GFXFramebufferInfo* cobj = (cc::GFXFramebufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebufferInfo_get_depthStencilMipmapLevel : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7827,7 +7827,7 @@ SE_BIND_PROP_GET(js_gfx_GFXFramebufferInfo_get_depthStencilMipmapLevel)
 static bool js_gfx_GFXFramebufferInfo_set_depthStencilMipmapLevel(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXFramebufferInfo* cobj = (cocos2d::GFXFramebufferInfo*)s.nativeThisObject();
+    cc::GFXFramebufferInfo* cobj = (cc::GFXFramebufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebufferInfo_set_depthStencilMipmapLevel : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7841,7 +7841,7 @@ SE_BIND_PROP_SET(js_gfx_GFXFramebufferInfo_set_depthStencilMipmapLevel)
 
 static bool js_gfx_GFXFramebufferInfo_get_isOffscreen(se::State& s)
 {
-    cocos2d::GFXFramebufferInfo* cobj = (cocos2d::GFXFramebufferInfo*)s.nativeThisObject();
+    cc::GFXFramebufferInfo* cobj = (cc::GFXFramebufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebufferInfo_get_isOffscreen : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7855,7 +7855,7 @@ SE_BIND_PROP_GET(js_gfx_GFXFramebufferInfo_get_isOffscreen)
 static bool js_gfx_GFXFramebufferInfo_set_isOffscreen(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXFramebufferInfo* cobj = (cocos2d::GFXFramebufferInfo*)s.nativeThisObject();
+    cc::GFXFramebufferInfo* cobj = (cc::GFXFramebufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebufferInfo_set_isOffscreen : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -7867,7 +7867,7 @@ static bool js_gfx_GFXFramebufferInfo_set_isOffscreen(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXFramebufferInfo_set_isOffscreen)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXFramebufferInfo_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXFramebufferInfo_finalize)
 
 static bool js_gfx_GFXFramebufferInfo_constructor(se::State& s)
 {
@@ -7877,7 +7877,7 @@ static bool js_gfx_GFXFramebufferInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXFramebufferInfo* cobj = JSB_ALLOC(cocos2d::GFXFramebufferInfo);
+        cc::GFXFramebufferInfo* cobj = JSB_ALLOC(cc::GFXFramebufferInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -7887,14 +7887,14 @@ static bool js_gfx_GFXFramebufferInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXFramebufferInfo* cobj = JSB_ALLOC(cocos2d::GFXFramebufferInfo);
-        cocos2d::GFXRenderPass* arg0 = nullptr;
+        cc::GFXFramebufferInfo* cobj = JSB_ALLOC(cc::GFXFramebufferInfo);
+        cc::GFXRenderPass* arg0 = nullptr;
         json->getProperty("renderPass", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_native_ptr(field, &arg0);
             cobj->renderPass = arg0;
         }
-        std::vector<cocos2d::GFXTexture *> arg1;
+        std::vector<cc::GFXTexture *> arg1;
         json->getProperty("colorTextures", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_std_vector(field, &arg1);
@@ -7906,7 +7906,7 @@ static bool js_gfx_GFXFramebufferInfo_constructor(se::State& s)
             ok &= seval_to_std_vector(field, &arg2);
             cobj->colorMipmapLevels = arg2;
         }
-        cocos2d::GFXTexture* arg3 = nullptr;
+        cc::GFXTexture* arg3 = nullptr;
         json->getProperty("depthStencilTexture", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_native_ptr(field, &arg3);
@@ -7937,13 +7937,13 @@ static bool js_gfx_GFXFramebufferInfo_constructor(se::State& s)
     }
     else if(argc == 6)
     {
-        cocos2d::GFXFramebufferInfo* cobj = JSB_ALLOC(cocos2d::GFXFramebufferInfo);
-        cocos2d::GFXRenderPass* arg0 = nullptr;
+        cc::GFXFramebufferInfo* cobj = JSB_ALLOC(cc::GFXFramebufferInfo);
+        cc::GFXRenderPass* arg0 = nullptr;
         if (!args[0].isUndefined()) {
             ok &= seval_to_native_ptr(args[0], &arg0);
             cobj->renderPass = arg0;
         }
-        std::vector<cocos2d::GFXTexture *> arg1;
+        std::vector<cc::GFXTexture *> arg1;
         if (!args[1].isUndefined()) {
             ok &= seval_to_std_vector(args[1], &arg1);
             cobj->colorTextures = arg1;
@@ -7953,7 +7953,7 @@ static bool js_gfx_GFXFramebufferInfo_constructor(se::State& s)
             ok &= seval_to_std_vector(args[2], &arg2);
             cobj->colorMipmapLevels = arg2;
         }
-        cocos2d::GFXTexture* arg3 = nullptr;
+        cc::GFXTexture* arg3 = nullptr;
         if (!args[3].isUndefined()) {
             ok &= seval_to_native_ptr(args[3], &arg3);
             cobj->depthStencilTexture = arg3;
@@ -7983,24 +7983,24 @@ static bool js_gfx_GFXFramebufferInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXFramebufferInfo_constructor, __jsb_cocos2d_GFXFramebufferInfo_class, js_cocos2d_GFXFramebufferInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXFramebufferInfo_constructor, __jsb_cc_GFXFramebufferInfo_class, js_cc_GFXFramebufferInfo_finalize)
 
 
 
 
-static bool js_cocos2d_GFXFramebufferInfo_finalize(se::State& s)
+static bool js_cc_GFXFramebufferInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXFramebufferInfo)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXFramebufferInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXFramebufferInfo* cobj = (cocos2d::GFXFramebufferInfo*)s.nativeThisObject();
+        cc::GFXFramebufferInfo* cobj = (cc::GFXFramebufferInfo*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXFramebufferInfo_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXFramebufferInfo_finalize)
 
 bool js_register_gfx_GFXFramebufferInfo(se::Object* obj)
 {
@@ -8012,23 +8012,23 @@ bool js_register_gfx_GFXFramebufferInfo(se::Object* obj)
     cls->defineProperty("depthStencilTexture", _SE(js_gfx_GFXFramebufferInfo_get_depthStencilTexture), _SE(js_gfx_GFXFramebufferInfo_set_depthStencilTexture));
     cls->defineProperty("depthStencilMipmapLevel", _SE(js_gfx_GFXFramebufferInfo_get_depthStencilMipmapLevel), _SE(js_gfx_GFXFramebufferInfo_set_depthStencilMipmapLevel));
     cls->defineProperty("isOffscreen", _SE(js_gfx_GFXFramebufferInfo_get_isOffscreen), _SE(js_gfx_GFXFramebufferInfo_set_isOffscreen));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXFramebufferInfo_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXFramebufferInfo_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXFramebufferInfo>(cls);
+    JSBClassType::registerClass<cc::GFXFramebufferInfo>(cls);
 
-    __jsb_cocos2d_GFXFramebufferInfo_proto = cls->getProto();
-    __jsb_cocos2d_GFXFramebufferInfo_class = cls;
+    __jsb_cc_GFXFramebufferInfo_proto = cls->getProto();
+    __jsb_cc_GFXFramebufferInfo_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXBinding_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXBinding_class = nullptr;
+se::Object* __jsb_cc_GFXBinding_proto = nullptr;
+se::Class* __jsb_cc_GFXBinding_class = nullptr;
 
 static bool js_gfx_GFXBinding_get_shaderStages(se::State& s)
 {
-    cocos2d::GFXBinding* cobj = (cocos2d::GFXBinding*)s.nativeThisObject();
+    cc::GFXBinding* cobj = (cc::GFXBinding*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBinding_get_shaderStages : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8042,12 +8042,12 @@ SE_BIND_PROP_GET(js_gfx_GFXBinding_get_shaderStages)
 static bool js_gfx_GFXBinding_set_shaderStages(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBinding* cobj = (cocos2d::GFXBinding*)s.nativeThisObject();
+    cc::GFXBinding* cobj = (cc::GFXBinding*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBinding_set_shaderStages : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXShaderType arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+    cc::GFXShaderType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXShaderType)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBinding_set_shaderStages : Error processing new value");
     cobj->shaderStages = arg0;
     return true;
@@ -8056,7 +8056,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBinding_set_shaderStages)
 
 static bool js_gfx_GFXBinding_get_binding(se::State& s)
 {
-    cocos2d::GFXBinding* cobj = (cocos2d::GFXBinding*)s.nativeThisObject();
+    cc::GFXBinding* cobj = (cc::GFXBinding*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBinding_get_binding : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8070,7 +8070,7 @@ SE_BIND_PROP_GET(js_gfx_GFXBinding_get_binding)
 static bool js_gfx_GFXBinding_set_binding(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBinding* cobj = (cocos2d::GFXBinding*)s.nativeThisObject();
+    cc::GFXBinding* cobj = (cc::GFXBinding*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBinding_set_binding : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8084,7 +8084,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBinding_set_binding)
 
 static bool js_gfx_GFXBinding_get_type(se::State& s)
 {
-    cocos2d::GFXBinding* cobj = (cocos2d::GFXBinding*)s.nativeThisObject();
+    cc::GFXBinding* cobj = (cc::GFXBinding*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBinding_get_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8098,12 +8098,12 @@ SE_BIND_PROP_GET(js_gfx_GFXBinding_get_type)
 static bool js_gfx_GFXBinding_set_type(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBinding* cobj = (cocos2d::GFXBinding*)s.nativeThisObject();
+    cc::GFXBinding* cobj = (cc::GFXBinding*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBinding_set_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXBindingType arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXBindingType)tmp; } while(false);
+    cc::GFXBindingType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXBindingType)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBinding_set_type : Error processing new value");
     cobj->type = arg0;
     return true;
@@ -8112,7 +8112,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBinding_set_type)
 
 static bool js_gfx_GFXBinding_get_name(se::State& s)
 {
-    cocos2d::GFXBinding* cobj = (cocos2d::GFXBinding*)s.nativeThisObject();
+    cc::GFXBinding* cobj = (cc::GFXBinding*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBinding_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8126,11 +8126,11 @@ SE_BIND_PROP_GET(js_gfx_GFXBinding_get_name)
 static bool js_gfx_GFXBinding_set_name(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBinding* cobj = (cocos2d::GFXBinding*)s.nativeThisObject();
+    cc::GFXBinding* cobj = (cc::GFXBinding*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBinding_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBinding_set_name : Error processing new value");
     cobj->name = arg0;
@@ -8140,7 +8140,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBinding_set_name)
 
 static bool js_gfx_GFXBinding_get_count(se::State& s)
 {
-    cocos2d::GFXBinding* cobj = (cocos2d::GFXBinding*)s.nativeThisObject();
+    cc::GFXBinding* cobj = (cc::GFXBinding*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBinding_get_count : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8154,7 +8154,7 @@ SE_BIND_PROP_GET(js_gfx_GFXBinding_get_count)
 static bool js_gfx_GFXBinding_set_count(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBinding* cobj = (cocos2d::GFXBinding*)s.nativeThisObject();
+    cc::GFXBinding* cobj = (cc::GFXBinding*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBinding_set_count : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8166,7 +8166,7 @@ static bool js_gfx_GFXBinding_set_count(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXBinding_set_count)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXBinding_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXBinding_finalize)
 
 static bool js_gfx_GFXBinding_constructor(se::State& s)
 {
@@ -8176,7 +8176,7 @@ static bool js_gfx_GFXBinding_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXBinding* cobj = JSB_ALLOC(cocos2d::GFXBinding);
+        cc::GFXBinding* cobj = JSB_ALLOC(cc::GFXBinding);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -8186,11 +8186,11 @@ static bool js_gfx_GFXBinding_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXBinding* cobj = JSB_ALLOC(cocos2d::GFXBinding);
-        cocos2d::GFXShaderType arg0;
+        cc::GFXBinding* cobj = JSB_ALLOC(cc::GFXBinding);
+        cc::GFXShaderType arg0;
         json->getProperty("shaderStages", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cc::GFXShaderType)tmp; } while(false);
             cobj->shaderStages = arg0;
         }
         unsigned int arg1 = 0;
@@ -8199,13 +8199,13 @@ static bool js_gfx_GFXBinding_constructor(se::State& s)
             ok &= seval_to_uint32(field, (uint32_t*)&arg1);
             cobj->binding = arg1;
         }
-        cocos2d::GFXBindingType arg2;
+        cc::GFXBindingType arg2;
         json->getProperty("type", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXBindingType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::GFXBindingType)tmp; } while(false);
             cobj->type = arg2;
         }
-        cocos2d::String arg3;
+        cc::String arg3;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
             arg3 = field.toStringForce().c_str();
@@ -8230,10 +8230,10 @@ static bool js_gfx_GFXBinding_constructor(se::State& s)
     }
     else if(argc == 5)
     {
-        cocos2d::GFXBinding* cobj = JSB_ALLOC(cocos2d::GFXBinding);
-        cocos2d::GFXShaderType arg0;
+        cc::GFXBinding* cobj = JSB_ALLOC(cc::GFXBinding);
+        cc::GFXShaderType arg0;
         if (!args[0].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXShaderType)tmp; } while(false);
             cobj->shaderStages = arg0;
         }
         unsigned int arg1 = 0;
@@ -8241,12 +8241,12 @@ static bool js_gfx_GFXBinding_constructor(se::State& s)
             ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
             cobj->binding = arg1;
         }
-        cocos2d::GFXBindingType arg2;
+        cc::GFXBindingType arg2;
         if (!args[2].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXBindingType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::GFXBindingType)tmp; } while(false);
             cobj->type = arg2;
         }
-        cocos2d::String arg3;
+        cc::String arg3;
         if (!args[3].isUndefined()) {
             arg3 = args[3].toStringForce().c_str();
             cobj->name = arg3;
@@ -8271,24 +8271,24 @@ static bool js_gfx_GFXBinding_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXBinding_constructor, __jsb_cocos2d_GFXBinding_class, js_cocos2d_GFXBinding_finalize)
+SE_BIND_CTOR(js_gfx_GFXBinding_constructor, __jsb_cc_GFXBinding_class, js_cc_GFXBinding_finalize)
 
 
 
 
-static bool js_cocos2d_GFXBinding_finalize(se::State& s)
+static bool js_cc_GFXBinding_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXBinding)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXBinding)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXBinding* cobj = (cocos2d::GFXBinding*)s.nativeThisObject();
+        cc::GFXBinding* cobj = (cc::GFXBinding*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXBinding_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXBinding_finalize)
 
 bool js_register_gfx_GFXBinding(se::Object* obj)
 {
@@ -8299,23 +8299,23 @@ bool js_register_gfx_GFXBinding(se::Object* obj)
     cls->defineProperty("type", _SE(js_gfx_GFXBinding_get_type), _SE(js_gfx_GFXBinding_set_type));
     cls->defineProperty("name", _SE(js_gfx_GFXBinding_get_name), _SE(js_gfx_GFXBinding_set_name));
     cls->defineProperty("count", _SE(js_gfx_GFXBinding_get_count), _SE(js_gfx_GFXBinding_set_count));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBinding_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXBinding_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXBinding>(cls);
+    JSBClassType::registerClass<cc::GFXBinding>(cls);
 
-    __jsb_cocos2d_GFXBinding_proto = cls->getProto();
-    __jsb_cocos2d_GFXBinding_class = cls;
+    __jsb_cc_GFXBinding_proto = cls->getProto();
+    __jsb_cc_GFXBinding_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXBindingLayoutInfo_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXBindingLayoutInfo_class = nullptr;
+se::Object* __jsb_cc_GFXBindingLayoutInfo_proto = nullptr;
+se::Class* __jsb_cc_GFXBindingLayoutInfo_class = nullptr;
 
 static bool js_gfx_GFXBindingLayoutInfo_get_bindings(se::State& s)
 {
-    cocos2d::GFXBindingLayoutInfo* cobj = (cocos2d::GFXBindingLayoutInfo*)s.nativeThisObject();
+    cc::GFXBindingLayoutInfo* cobj = (cc::GFXBindingLayoutInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingLayoutInfo_get_bindings : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8329,11 +8329,11 @@ SE_BIND_PROP_GET(js_gfx_GFXBindingLayoutInfo_get_bindings)
 static bool js_gfx_GFXBindingLayoutInfo_set_bindings(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBindingLayoutInfo* cobj = (cocos2d::GFXBindingLayoutInfo*)s.nativeThisObject();
+    cc::GFXBindingLayoutInfo* cobj = (cc::GFXBindingLayoutInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingLayoutInfo_set_bindings : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXBinding> arg0;
+    std::vector<cc::GFXBinding> arg0;
     ok &= seval_to_std_vector(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingLayoutInfo_set_bindings : Error processing new value");
     cobj->bindings = arg0;
@@ -8341,7 +8341,7 @@ static bool js_gfx_GFXBindingLayoutInfo_set_bindings(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXBindingLayoutInfo_set_bindings)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXBindingLayoutInfo_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXBindingLayoutInfo_finalize)
 
 static bool js_gfx_GFXBindingLayoutInfo_constructor(se::State& s)
 {
@@ -8351,15 +8351,15 @@ static bool js_gfx_GFXBindingLayoutInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXBindingLayoutInfo* cobj = JSB_ALLOC(cocos2d::GFXBindingLayoutInfo);
+        cc::GFXBindingLayoutInfo* cobj = JSB_ALLOC(cc::GFXBindingLayoutInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
     else if(argc == 1)
     {
-        cocos2d::GFXBindingLayoutInfo* cobj = JSB_ALLOC(cocos2d::GFXBindingLayoutInfo);
-        std::vector<cocos2d::GFXBinding> arg0;
+        cc::GFXBindingLayoutInfo* cobj = JSB_ALLOC(cc::GFXBindingLayoutInfo);
+        std::vector<cc::GFXBinding> arg0;
         if (!args[0].isUndefined()) {
             ok &= seval_to_std_vector(args[0], &arg0);
             cobj->bindings = arg0;
@@ -8379,47 +8379,47 @@ static bool js_gfx_GFXBindingLayoutInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXBindingLayoutInfo_constructor, __jsb_cocos2d_GFXBindingLayoutInfo_class, js_cocos2d_GFXBindingLayoutInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXBindingLayoutInfo_constructor, __jsb_cc_GFXBindingLayoutInfo_class, js_cc_GFXBindingLayoutInfo_finalize)
 
 
 
 
-static bool js_cocos2d_GFXBindingLayoutInfo_finalize(se::State& s)
+static bool js_cc_GFXBindingLayoutInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXBindingLayoutInfo)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXBindingLayoutInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXBindingLayoutInfo* cobj = (cocos2d::GFXBindingLayoutInfo*)s.nativeThisObject();
+        cc::GFXBindingLayoutInfo* cobj = (cc::GFXBindingLayoutInfo*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXBindingLayoutInfo_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXBindingLayoutInfo_finalize)
 
 bool js_register_gfx_GFXBindingLayoutInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXBindingLayoutInfo", obj, nullptr, _SE(js_gfx_GFXBindingLayoutInfo_constructor));
 
     cls->defineProperty("bindings", _SE(js_gfx_GFXBindingLayoutInfo_get_bindings), _SE(js_gfx_GFXBindingLayoutInfo_set_bindings));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBindingLayoutInfo_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXBindingLayoutInfo_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXBindingLayoutInfo>(cls);
+    JSBClassType::registerClass<cc::GFXBindingLayoutInfo>(cls);
 
-    __jsb_cocos2d_GFXBindingLayoutInfo_proto = cls->getProto();
-    __jsb_cocos2d_GFXBindingLayoutInfo_class = cls;
+    __jsb_cc_GFXBindingLayoutInfo_proto = cls->getProto();
+    __jsb_cc_GFXBindingLayoutInfo_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXBindingUnit_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXBindingUnit_class = nullptr;
+se::Object* __jsb_cc_GFXBindingUnit_proto = nullptr;
+se::Class* __jsb_cc_GFXBindingUnit_class = nullptr;
 
 static bool js_gfx_GFXBindingUnit_get_shaderStages(se::State& s)
 {
-    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    cc::GFXBindingUnit* cobj = (cc::GFXBindingUnit*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_get_shaderStages : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8433,12 +8433,12 @@ SE_BIND_PROP_GET(js_gfx_GFXBindingUnit_get_shaderStages)
 static bool js_gfx_GFXBindingUnit_set_shaderStages(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    cc::GFXBindingUnit* cobj = (cc::GFXBindingUnit*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_set_shaderStages : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXShaderType arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+    cc::GFXShaderType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXShaderType)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingUnit_set_shaderStages : Error processing new value");
     cobj->shaderStages = arg0;
     return true;
@@ -8447,7 +8447,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBindingUnit_set_shaderStages)
 
 static bool js_gfx_GFXBindingUnit_get_binding(se::State& s)
 {
-    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    cc::GFXBindingUnit* cobj = (cc::GFXBindingUnit*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_get_binding : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8461,7 +8461,7 @@ SE_BIND_PROP_GET(js_gfx_GFXBindingUnit_get_binding)
 static bool js_gfx_GFXBindingUnit_set_binding(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    cc::GFXBindingUnit* cobj = (cc::GFXBindingUnit*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_set_binding : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8475,7 +8475,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBindingUnit_set_binding)
 
 static bool js_gfx_GFXBindingUnit_get_type(se::State& s)
 {
-    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    cc::GFXBindingUnit* cobj = (cc::GFXBindingUnit*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_get_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8489,12 +8489,12 @@ SE_BIND_PROP_GET(js_gfx_GFXBindingUnit_get_type)
 static bool js_gfx_GFXBindingUnit_set_type(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    cc::GFXBindingUnit* cobj = (cc::GFXBindingUnit*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_set_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXBindingType arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXBindingType)tmp; } while(false);
+    cc::GFXBindingType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXBindingType)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingUnit_set_type : Error processing new value");
     cobj->type = arg0;
     return true;
@@ -8503,7 +8503,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBindingUnit_set_type)
 
 static bool js_gfx_GFXBindingUnit_get_name(se::State& s)
 {
-    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    cc::GFXBindingUnit* cobj = (cc::GFXBindingUnit*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8517,11 +8517,11 @@ SE_BIND_PROP_GET(js_gfx_GFXBindingUnit_get_name)
 static bool js_gfx_GFXBindingUnit_set_name(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    cc::GFXBindingUnit* cobj = (cc::GFXBindingUnit*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingUnit_set_name : Error processing new value");
     cobj->name = arg0;
@@ -8531,7 +8531,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBindingUnit_set_name)
 
 static bool js_gfx_GFXBindingUnit_get_count(se::State& s)
 {
-    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    cc::GFXBindingUnit* cobj = (cc::GFXBindingUnit*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_get_count : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8545,7 +8545,7 @@ SE_BIND_PROP_GET(js_gfx_GFXBindingUnit_get_count)
 static bool js_gfx_GFXBindingUnit_set_count(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    cc::GFXBindingUnit* cobj = (cc::GFXBindingUnit*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_set_count : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8559,7 +8559,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBindingUnit_set_count)
 
 static bool js_gfx_GFXBindingUnit_get_buffer(se::State& s)
 {
-    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    cc::GFXBindingUnit* cobj = (cc::GFXBindingUnit*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_get_buffer : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8573,11 +8573,11 @@ SE_BIND_PROP_GET(js_gfx_GFXBindingUnit_get_buffer)
 static bool js_gfx_GFXBindingUnit_set_buffer(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    cc::GFXBindingUnit* cobj = (cc::GFXBindingUnit*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_set_buffer : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXBuffer* arg0 = nullptr;
+    cc::GFXBuffer* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingUnit_set_buffer : Error processing new value");
     cobj->buffer = arg0;
@@ -8587,7 +8587,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBindingUnit_set_buffer)
 
 static bool js_gfx_GFXBindingUnit_get_texture(se::State& s)
 {
-    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    cc::GFXBindingUnit* cobj = (cc::GFXBindingUnit*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_get_texture : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8601,11 +8601,11 @@ SE_BIND_PROP_GET(js_gfx_GFXBindingUnit_get_texture)
 static bool js_gfx_GFXBindingUnit_set_texture(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    cc::GFXBindingUnit* cobj = (cc::GFXBindingUnit*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_set_texture : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXTexture* arg0 = nullptr;
+    cc::GFXTexture* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingUnit_set_texture : Error processing new value");
     cobj->texture = arg0;
@@ -8615,7 +8615,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBindingUnit_set_texture)
 
 static bool js_gfx_GFXBindingUnit_get_sampler(se::State& s)
 {
-    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    cc::GFXBindingUnit* cobj = (cc::GFXBindingUnit*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_get_sampler : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8629,11 +8629,11 @@ SE_BIND_PROP_GET(js_gfx_GFXBindingUnit_get_sampler)
 static bool js_gfx_GFXBindingUnit_set_sampler(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+    cc::GFXBindingUnit* cobj = (cc::GFXBindingUnit*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_set_sampler : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXSampler* arg0 = nullptr;
+    cc::GFXSampler* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingUnit_set_sampler : Error processing new value");
     cobj->sampler = arg0;
@@ -8641,7 +8641,7 @@ static bool js_gfx_GFXBindingUnit_set_sampler(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXBindingUnit_set_sampler)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXBindingUnit_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXBindingUnit_finalize)
 
 static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
 {
@@ -8651,7 +8651,7 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXBindingUnit* cobj = JSB_ALLOC(cocos2d::GFXBindingUnit);
+        cc::GFXBindingUnit* cobj = JSB_ALLOC(cc::GFXBindingUnit);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -8661,11 +8661,11 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXBindingUnit* cobj = JSB_ALLOC(cocos2d::GFXBindingUnit);
-        cocos2d::GFXShaderType arg0;
+        cc::GFXBindingUnit* cobj = JSB_ALLOC(cc::GFXBindingUnit);
+        cc::GFXShaderType arg0;
         json->getProperty("shaderStages", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cc::GFXShaderType)tmp; } while(false);
             cobj->shaderStages = arg0;
         }
         unsigned int arg1 = 0;
@@ -8674,13 +8674,13 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
             ok &= seval_to_uint32(field, (uint32_t*)&arg1);
             cobj->binding = arg1;
         }
-        cocos2d::GFXBindingType arg2;
+        cc::GFXBindingType arg2;
         json->getProperty("type", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXBindingType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::GFXBindingType)tmp; } while(false);
             cobj->type = arg2;
         }
-        cocos2d::String arg3;
+        cc::String arg3;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
             arg3 = field.toStringForce().c_str();
@@ -8692,19 +8692,19 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
             ok &= seval_to_uint32(field, (uint32_t*)&arg4);
             cobj->count = arg4;
         }
-        cocos2d::GFXBuffer* arg5 = nullptr;
+        cc::GFXBuffer* arg5 = nullptr;
         json->getProperty("buffer", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_native_ptr(field, &arg5);
             cobj->buffer = arg5;
         }
-        cocos2d::GFXTexture* arg6 = nullptr;
+        cc::GFXTexture* arg6 = nullptr;
         json->getProperty("texture", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_native_ptr(field, &arg6);
             cobj->texture = arg6;
         }
-        cocos2d::GFXSampler* arg7 = nullptr;
+        cc::GFXSampler* arg7 = nullptr;
         json->getProperty("sampler", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_native_ptr(field, &arg7);
@@ -8723,10 +8723,10 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
     }
     else if(argc == 8)
     {
-        cocos2d::GFXBindingUnit* cobj = JSB_ALLOC(cocos2d::GFXBindingUnit);
-        cocos2d::GFXShaderType arg0;
+        cc::GFXBindingUnit* cobj = JSB_ALLOC(cc::GFXBindingUnit);
+        cc::GFXShaderType arg0;
         if (!args[0].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXShaderType)tmp; } while(false);
             cobj->shaderStages = arg0;
         }
         unsigned int arg1 = 0;
@@ -8734,12 +8734,12 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
             ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
             cobj->binding = arg1;
         }
-        cocos2d::GFXBindingType arg2;
+        cc::GFXBindingType arg2;
         if (!args[2].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXBindingType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::GFXBindingType)tmp; } while(false);
             cobj->type = arg2;
         }
-        cocos2d::String arg3;
+        cc::String arg3;
         if (!args[3].isUndefined()) {
             arg3 = args[3].toStringForce().c_str();
             cobj->name = arg3;
@@ -8749,17 +8749,17 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
             ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
             cobj->count = arg4;
         }
-        cocos2d::GFXBuffer* arg5 = nullptr;
+        cc::GFXBuffer* arg5 = nullptr;
         if (!args[5].isUndefined()) {
             ok &= seval_to_native_ptr(args[5], &arg5);
             cobj->buffer = arg5;
         }
-        cocos2d::GFXTexture* arg6 = nullptr;
+        cc::GFXTexture* arg6 = nullptr;
         if (!args[6].isUndefined()) {
             ok &= seval_to_native_ptr(args[6], &arg6);
             cobj->texture = arg6;
         }
-        cocos2d::GFXSampler* arg7 = nullptr;
+        cc::GFXSampler* arg7 = nullptr;
         if (!args[7].isUndefined()) {
             ok &= seval_to_native_ptr(args[7], &arg7);
             cobj->sampler = arg7;
@@ -8779,24 +8779,24 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXBindingUnit_constructor, __jsb_cocos2d_GFXBindingUnit_class, js_cocos2d_GFXBindingUnit_finalize)
+SE_BIND_CTOR(js_gfx_GFXBindingUnit_constructor, __jsb_cc_GFXBindingUnit_class, js_cc_GFXBindingUnit_finalize)
 
 
 
 
-static bool js_cocos2d_GFXBindingUnit_finalize(se::State& s)
+static bool js_cc_GFXBindingUnit_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXBindingUnit)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXBindingUnit)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXBindingUnit* cobj = (cocos2d::GFXBindingUnit*)s.nativeThisObject();
+        cc::GFXBindingUnit* cobj = (cc::GFXBindingUnit*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXBindingUnit_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXBindingUnit_finalize)
 
 bool js_register_gfx_GFXBindingUnit(se::Object* obj)
 {
@@ -8810,23 +8810,23 @@ bool js_register_gfx_GFXBindingUnit(se::Object* obj)
     cls->defineProperty("buffer", _SE(js_gfx_GFXBindingUnit_get_buffer), _SE(js_gfx_GFXBindingUnit_set_buffer));
     cls->defineProperty("texture", _SE(js_gfx_GFXBindingUnit_get_texture), _SE(js_gfx_GFXBindingUnit_set_texture));
     cls->defineProperty("sampler", _SE(js_gfx_GFXBindingUnit_get_sampler), _SE(js_gfx_GFXBindingUnit_set_sampler));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBindingUnit_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXBindingUnit_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXBindingUnit>(cls);
+    JSBClassType::registerClass<cc::GFXBindingUnit>(cls);
 
-    __jsb_cocos2d_GFXBindingUnit_proto = cls->getProto();
-    __jsb_cocos2d_GFXBindingUnit_class = cls;
+    __jsb_cc_GFXBindingUnit_proto = cls->getProto();
+    __jsb_cc_GFXBindingUnit_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXPushConstantRange_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXPushConstantRange_class = nullptr;
+se::Object* __jsb_cc_GFXPushConstantRange_proto = nullptr;
+se::Class* __jsb_cc_GFXPushConstantRange_class = nullptr;
 
 static bool js_gfx_GFXPushConstantRange_get_shaderType(se::State& s)
 {
-    cocos2d::GFXPushConstantRange* cobj = (cocos2d::GFXPushConstantRange*)s.nativeThisObject();
+    cc::GFXPushConstantRange* cobj = (cc::GFXPushConstantRange*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPushConstantRange_get_shaderType : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8840,12 +8840,12 @@ SE_BIND_PROP_GET(js_gfx_GFXPushConstantRange_get_shaderType)
 static bool js_gfx_GFXPushConstantRange_set_shaderType(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXPushConstantRange* cobj = (cocos2d::GFXPushConstantRange*)s.nativeThisObject();
+    cc::GFXPushConstantRange* cobj = (cc::GFXPushConstantRange*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPushConstantRange_set_shaderType : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXShaderType arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+    cc::GFXShaderType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXShaderType)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXPushConstantRange_set_shaderType : Error processing new value");
     cobj->shaderType = arg0;
     return true;
@@ -8854,7 +8854,7 @@ SE_BIND_PROP_SET(js_gfx_GFXPushConstantRange_set_shaderType)
 
 static bool js_gfx_GFXPushConstantRange_get_offset(se::State& s)
 {
-    cocos2d::GFXPushConstantRange* cobj = (cocos2d::GFXPushConstantRange*)s.nativeThisObject();
+    cc::GFXPushConstantRange* cobj = (cc::GFXPushConstantRange*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPushConstantRange_get_offset : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8868,7 +8868,7 @@ SE_BIND_PROP_GET(js_gfx_GFXPushConstantRange_get_offset)
 static bool js_gfx_GFXPushConstantRange_set_offset(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXPushConstantRange* cobj = (cocos2d::GFXPushConstantRange*)s.nativeThisObject();
+    cc::GFXPushConstantRange* cobj = (cc::GFXPushConstantRange*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPushConstantRange_set_offset : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8882,7 +8882,7 @@ SE_BIND_PROP_SET(js_gfx_GFXPushConstantRange_set_offset)
 
 static bool js_gfx_GFXPushConstantRange_get_count(se::State& s)
 {
-    cocos2d::GFXPushConstantRange* cobj = (cocos2d::GFXPushConstantRange*)s.nativeThisObject();
+    cc::GFXPushConstantRange* cobj = (cc::GFXPushConstantRange*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPushConstantRange_get_count : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8896,7 +8896,7 @@ SE_BIND_PROP_GET(js_gfx_GFXPushConstantRange_get_count)
 static bool js_gfx_GFXPushConstantRange_set_count(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXPushConstantRange* cobj = (cocos2d::GFXPushConstantRange*)s.nativeThisObject();
+    cc::GFXPushConstantRange* cobj = (cc::GFXPushConstantRange*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPushConstantRange_set_count : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -8908,7 +8908,7 @@ static bool js_gfx_GFXPushConstantRange_set_count(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXPushConstantRange_set_count)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXPushConstantRange_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXPushConstantRange_finalize)
 
 static bool js_gfx_GFXPushConstantRange_constructor(se::State& s)
 {
@@ -8918,7 +8918,7 @@ static bool js_gfx_GFXPushConstantRange_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXPushConstantRange* cobj = JSB_ALLOC(cocos2d::GFXPushConstantRange);
+        cc::GFXPushConstantRange* cobj = JSB_ALLOC(cc::GFXPushConstantRange);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -8928,11 +8928,11 @@ static bool js_gfx_GFXPushConstantRange_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXPushConstantRange* cobj = JSB_ALLOC(cocos2d::GFXPushConstantRange);
-        cocos2d::GFXShaderType arg0;
+        cc::GFXPushConstantRange* cobj = JSB_ALLOC(cc::GFXPushConstantRange);
+        cc::GFXShaderType arg0;
         json->getProperty("shaderType", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cc::GFXShaderType)tmp; } while(false);
             cobj->shaderType = arg0;
         }
         unsigned int arg1 = 0;
@@ -8960,10 +8960,10 @@ static bool js_gfx_GFXPushConstantRange_constructor(se::State& s)
     }
     else if(argc == 3)
     {
-        cocos2d::GFXPushConstantRange* cobj = JSB_ALLOC(cocos2d::GFXPushConstantRange);
-        cocos2d::GFXShaderType arg0;
+        cc::GFXPushConstantRange* cobj = JSB_ALLOC(cc::GFXPushConstantRange);
+        cc::GFXShaderType arg0;
         if (!args[0].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXShaderType)tmp; } while(false);
             cobj->shaderType = arg0;
         }
         unsigned int arg1 = 0;
@@ -8991,24 +8991,24 @@ static bool js_gfx_GFXPushConstantRange_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXPushConstantRange_constructor, __jsb_cocos2d_GFXPushConstantRange_class, js_cocos2d_GFXPushConstantRange_finalize)
+SE_BIND_CTOR(js_gfx_GFXPushConstantRange_constructor, __jsb_cc_GFXPushConstantRange_class, js_cc_GFXPushConstantRange_finalize)
 
 
 
 
-static bool js_cocos2d_GFXPushConstantRange_finalize(se::State& s)
+static bool js_cc_GFXPushConstantRange_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXPushConstantRange)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXPushConstantRange)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXPushConstantRange* cobj = (cocos2d::GFXPushConstantRange*)s.nativeThisObject();
+        cc::GFXPushConstantRange* cobj = (cc::GFXPushConstantRange*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXPushConstantRange_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXPushConstantRange_finalize)
 
 bool js_register_gfx_GFXPushConstantRange(se::Object* obj)
 {
@@ -9017,23 +9017,23 @@ bool js_register_gfx_GFXPushConstantRange(se::Object* obj)
     cls->defineProperty("shaderType", _SE(js_gfx_GFXPushConstantRange_get_shaderType), _SE(js_gfx_GFXPushConstantRange_set_shaderType));
     cls->defineProperty("offset", _SE(js_gfx_GFXPushConstantRange_get_offset), _SE(js_gfx_GFXPushConstantRange_set_offset));
     cls->defineProperty("count", _SE(js_gfx_GFXPushConstantRange_get_count), _SE(js_gfx_GFXPushConstantRange_set_count));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXPushConstantRange_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXPushConstantRange_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXPushConstantRange>(cls);
+    JSBClassType::registerClass<cc::GFXPushConstantRange>(cls);
 
-    __jsb_cocos2d_GFXPushConstantRange_proto = cls->getProto();
-    __jsb_cocos2d_GFXPushConstantRange_class = cls;
+    __jsb_cc_GFXPushConstantRange_proto = cls->getProto();
+    __jsb_cc_GFXPushConstantRange_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXPipelineLayoutInfo_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXPipelineLayoutInfo_class = nullptr;
+se::Object* __jsb_cc_GFXPipelineLayoutInfo_proto = nullptr;
+se::Class* __jsb_cc_GFXPipelineLayoutInfo_class = nullptr;
 
 static bool js_gfx_GFXPipelineLayoutInfo_get_pushConstantsRanges(se::State& s)
 {
-    cocos2d::GFXPipelineLayoutInfo* cobj = (cocos2d::GFXPipelineLayoutInfo*)s.nativeThisObject();
+    cc::GFXPipelineLayoutInfo* cobj = (cc::GFXPipelineLayoutInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineLayoutInfo_get_pushConstantsRanges : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9047,11 +9047,11 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineLayoutInfo_get_pushConstantsRanges)
 static bool js_gfx_GFXPipelineLayoutInfo_set_pushConstantsRanges(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXPipelineLayoutInfo* cobj = (cocos2d::GFXPipelineLayoutInfo*)s.nativeThisObject();
+    cc::GFXPipelineLayoutInfo* cobj = (cc::GFXPipelineLayoutInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineLayoutInfo_set_pushConstantsRanges : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXPushConstantRange> arg0;
+    std::vector<cc::GFXPushConstantRange> arg0;
     ok &= seval_to_std_vector(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineLayoutInfo_set_pushConstantsRanges : Error processing new value");
     cobj->pushConstantsRanges = arg0;
@@ -9061,7 +9061,7 @@ SE_BIND_PROP_SET(js_gfx_GFXPipelineLayoutInfo_set_pushConstantsRanges)
 
 static bool js_gfx_GFXPipelineLayoutInfo_get_layouts(se::State& s)
 {
-    cocos2d::GFXPipelineLayoutInfo* cobj = (cocos2d::GFXPipelineLayoutInfo*)s.nativeThisObject();
+    cc::GFXPipelineLayoutInfo* cobj = (cc::GFXPipelineLayoutInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineLayoutInfo_get_layouts : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9075,11 +9075,11 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineLayoutInfo_get_layouts)
 static bool js_gfx_GFXPipelineLayoutInfo_set_layouts(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXPipelineLayoutInfo* cobj = (cocos2d::GFXPipelineLayoutInfo*)s.nativeThisObject();
+    cc::GFXPipelineLayoutInfo* cobj = (cc::GFXPipelineLayoutInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineLayoutInfo_set_layouts : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXBindingLayout *> arg0;
+    std::vector<cc::GFXBindingLayout *> arg0;
     ok &= seval_to_std_vector(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineLayoutInfo_set_layouts : Error processing new value");
     cobj->layouts = arg0;
@@ -9087,7 +9087,7 @@ static bool js_gfx_GFXPipelineLayoutInfo_set_layouts(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXPipelineLayoutInfo_set_layouts)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXPipelineLayoutInfo_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXPipelineLayoutInfo_finalize)
 
 static bool js_gfx_GFXPipelineLayoutInfo_constructor(se::State& s)
 {
@@ -9097,7 +9097,7 @@ static bool js_gfx_GFXPipelineLayoutInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXPipelineLayoutInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineLayoutInfo);
+        cc::GFXPipelineLayoutInfo* cobj = JSB_ALLOC(cc::GFXPipelineLayoutInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -9107,14 +9107,14 @@ static bool js_gfx_GFXPipelineLayoutInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXPipelineLayoutInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineLayoutInfo);
-        std::vector<cocos2d::GFXPushConstantRange> arg0;
+        cc::GFXPipelineLayoutInfo* cobj = JSB_ALLOC(cc::GFXPipelineLayoutInfo);
+        std::vector<cc::GFXPushConstantRange> arg0;
         json->getProperty("pushConstantsRanges", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_std_vector(field, &arg0);
             cobj->pushConstantsRanges = arg0;
         }
-        std::vector<cocos2d::GFXBindingLayout *> arg1;
+        std::vector<cc::GFXBindingLayout *> arg1;
         json->getProperty("layouts", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_std_vector(field, &arg1);
@@ -9133,13 +9133,13 @@ static bool js_gfx_GFXPipelineLayoutInfo_constructor(se::State& s)
     }
     else if(argc == 2)
     {
-        cocos2d::GFXPipelineLayoutInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineLayoutInfo);
-        std::vector<cocos2d::GFXPushConstantRange> arg0;
+        cc::GFXPipelineLayoutInfo* cobj = JSB_ALLOC(cc::GFXPipelineLayoutInfo);
+        std::vector<cc::GFXPushConstantRange> arg0;
         if (!args[0].isUndefined()) {
             ok &= seval_to_std_vector(args[0], &arg0);
             cobj->pushConstantsRanges = arg0;
         }
-        std::vector<cocos2d::GFXBindingLayout *> arg1;
+        std::vector<cc::GFXBindingLayout *> arg1;
         if (!args[1].isUndefined()) {
             ok &= seval_to_std_vector(args[1], &arg1);
             cobj->layouts = arg1;
@@ -9159,24 +9159,24 @@ static bool js_gfx_GFXPipelineLayoutInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXPipelineLayoutInfo_constructor, __jsb_cocos2d_GFXPipelineLayoutInfo_class, js_cocos2d_GFXPipelineLayoutInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXPipelineLayoutInfo_constructor, __jsb_cc_GFXPipelineLayoutInfo_class, js_cc_GFXPipelineLayoutInfo_finalize)
 
 
 
 
-static bool js_cocos2d_GFXPipelineLayoutInfo_finalize(se::State& s)
+static bool js_cc_GFXPipelineLayoutInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXPipelineLayoutInfo)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXPipelineLayoutInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXPipelineLayoutInfo* cobj = (cocos2d::GFXPipelineLayoutInfo*)s.nativeThisObject();
+        cc::GFXPipelineLayoutInfo* cobj = (cc::GFXPipelineLayoutInfo*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXPipelineLayoutInfo_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXPipelineLayoutInfo_finalize)
 
 bool js_register_gfx_GFXPipelineLayoutInfo(se::Object* obj)
 {
@@ -9184,23 +9184,23 @@ bool js_register_gfx_GFXPipelineLayoutInfo(se::Object* obj)
 
     cls->defineProperty("pushConstantsRanges", _SE(js_gfx_GFXPipelineLayoutInfo_get_pushConstantsRanges), _SE(js_gfx_GFXPipelineLayoutInfo_set_pushConstantsRanges));
     cls->defineProperty("layouts", _SE(js_gfx_GFXPipelineLayoutInfo_get_layouts), _SE(js_gfx_GFXPipelineLayoutInfo_set_layouts));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXPipelineLayoutInfo_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXPipelineLayoutInfo_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXPipelineLayoutInfo>(cls);
+    JSBClassType::registerClass<cc::GFXPipelineLayoutInfo>(cls);
 
-    __jsb_cocos2d_GFXPipelineLayoutInfo_proto = cls->getProto();
-    __jsb_cocos2d_GFXPipelineLayoutInfo_class = cls;
+    __jsb_cc_GFXPipelineLayoutInfo_proto = cls->getProto();
+    __jsb_cc_GFXPipelineLayoutInfo_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXInputState_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXInputState_class = nullptr;
+se::Object* __jsb_cc_GFXInputState_proto = nullptr;
+se::Class* __jsb_cc_GFXInputState_class = nullptr;
 
 static bool js_gfx_GFXInputState_get_attributes(se::State& s)
 {
-    cocos2d::GFXInputState* cobj = (cocos2d::GFXInputState*)s.nativeThisObject();
+    cc::GFXInputState* cobj = (cc::GFXInputState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputState_get_attributes : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9214,11 +9214,11 @@ SE_BIND_PROP_GET(js_gfx_GFXInputState_get_attributes)
 static bool js_gfx_GFXInputState_set_attributes(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXInputState* cobj = (cocos2d::GFXInputState*)s.nativeThisObject();
+    cc::GFXInputState* cobj = (cc::GFXInputState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputState_set_attributes : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXAttribute> arg0;
+    std::vector<cc::GFXAttribute> arg0;
     ok &= seval_to_std_vector(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXInputState_set_attributes : Error processing new value");
     cobj->attributes = arg0;
@@ -9226,7 +9226,7 @@ static bool js_gfx_GFXInputState_set_attributes(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXInputState_set_attributes)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXInputState_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXInputState_finalize)
 
 static bool js_gfx_GFXInputState_constructor(se::State& s)
 {
@@ -9236,15 +9236,15 @@ static bool js_gfx_GFXInputState_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXInputState* cobj = JSB_ALLOC(cocos2d::GFXInputState);
+        cc::GFXInputState* cobj = JSB_ALLOC(cc::GFXInputState);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
     else if(argc == 1)
     {
-        cocos2d::GFXInputState* cobj = JSB_ALLOC(cocos2d::GFXInputState);
-        std::vector<cocos2d::GFXAttribute> arg0;
+        cc::GFXInputState* cobj = JSB_ALLOC(cc::GFXInputState);
+        std::vector<cc::GFXAttribute> arg0;
         if (!args[0].isUndefined()) {
             ok &= seval_to_std_vector(args[0], &arg0);
             cobj->attributes = arg0;
@@ -9264,47 +9264,47 @@ static bool js_gfx_GFXInputState_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXInputState_constructor, __jsb_cocos2d_GFXInputState_class, js_cocos2d_GFXInputState_finalize)
+SE_BIND_CTOR(js_gfx_GFXInputState_constructor, __jsb_cc_GFXInputState_class, js_cc_GFXInputState_finalize)
 
 
 
 
-static bool js_cocos2d_GFXInputState_finalize(se::State& s)
+static bool js_cc_GFXInputState_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXInputState)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXInputState)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXInputState* cobj = (cocos2d::GFXInputState*)s.nativeThisObject();
+        cc::GFXInputState* cobj = (cc::GFXInputState*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXInputState_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXInputState_finalize)
 
 bool js_register_gfx_GFXInputState(se::Object* obj)
 {
     auto cls = se::Class::create("GFXInputState", obj, nullptr, _SE(js_gfx_GFXInputState_constructor));
 
     cls->defineProperty("attributes", _SE(js_gfx_GFXInputState_get_attributes), _SE(js_gfx_GFXInputState_set_attributes));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXInputState_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXInputState_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXInputState>(cls);
+    JSBClassType::registerClass<cc::GFXInputState>(cls);
 
-    __jsb_cocos2d_GFXInputState_proto = cls->getProto();
-    __jsb_cocos2d_GFXInputState_class = cls;
+    __jsb_cc_GFXInputState_proto = cls->getProto();
+    __jsb_cc_GFXInputState_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXRasterizerState_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXRasterizerState_class = nullptr;
+se::Object* __jsb_cc_GFXRasterizerState_proto = nullptr;
+se::Class* __jsb_cc_GFXRasterizerState_class = nullptr;
 
 static bool js_gfx_GFXRasterizerState_get_isDiscard(se::State& s)
 {
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_get_isDiscard : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9318,7 +9318,7 @@ SE_BIND_PROP_GET(js_gfx_GFXRasterizerState_get_isDiscard)
 static bool js_gfx_GFXRasterizerState_set_isDiscard(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_set_isDiscard : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9332,7 +9332,7 @@ SE_BIND_PROP_SET(js_gfx_GFXRasterizerState_set_isDiscard)
 
 static bool js_gfx_GFXRasterizerState_get_polygonMode(se::State& s)
 {
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_get_polygonMode : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9346,12 +9346,12 @@ SE_BIND_PROP_GET(js_gfx_GFXRasterizerState_get_polygonMode)
 static bool js_gfx_GFXRasterizerState_set_polygonMode(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_set_polygonMode : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXPolygonMode arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXPolygonMode)tmp; } while(false);
+    cc::GFXPolygonMode arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXPolygonMode)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXRasterizerState_set_polygonMode : Error processing new value");
     cobj->polygonMode = arg0;
     return true;
@@ -9360,7 +9360,7 @@ SE_BIND_PROP_SET(js_gfx_GFXRasterizerState_set_polygonMode)
 
 static bool js_gfx_GFXRasterizerState_get_shadeModel(se::State& s)
 {
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_get_shadeModel : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9374,12 +9374,12 @@ SE_BIND_PROP_GET(js_gfx_GFXRasterizerState_get_shadeModel)
 static bool js_gfx_GFXRasterizerState_set_shadeModel(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_set_shadeModel : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXShadeModel arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShadeModel)tmp; } while(false);
+    cc::GFXShadeModel arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXShadeModel)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXRasterizerState_set_shadeModel : Error processing new value");
     cobj->shadeModel = arg0;
     return true;
@@ -9388,7 +9388,7 @@ SE_BIND_PROP_SET(js_gfx_GFXRasterizerState_set_shadeModel)
 
 static bool js_gfx_GFXRasterizerState_get_cullMode(se::State& s)
 {
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_get_cullMode : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9402,12 +9402,12 @@ SE_BIND_PROP_GET(js_gfx_GFXRasterizerState_get_cullMode)
 static bool js_gfx_GFXRasterizerState_set_cullMode(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_set_cullMode : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXCullMode arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXCullMode)tmp; } while(false);
+    cc::GFXCullMode arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXCullMode)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXRasterizerState_set_cullMode : Error processing new value");
     cobj->cullMode = arg0;
     return true;
@@ -9416,7 +9416,7 @@ SE_BIND_PROP_SET(js_gfx_GFXRasterizerState_set_cullMode)
 
 static bool js_gfx_GFXRasterizerState_get_isFrontFaceCCW(se::State& s)
 {
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_get_isFrontFaceCCW : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9430,7 +9430,7 @@ SE_BIND_PROP_GET(js_gfx_GFXRasterizerState_get_isFrontFaceCCW)
 static bool js_gfx_GFXRasterizerState_set_isFrontFaceCCW(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_set_isFrontFaceCCW : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9444,7 +9444,7 @@ SE_BIND_PROP_SET(js_gfx_GFXRasterizerState_set_isFrontFaceCCW)
 
 static bool js_gfx_GFXRasterizerState_get_depthBiasEnabled(se::State& s)
 {
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_get_depthBiasEnabled : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9458,7 +9458,7 @@ SE_BIND_PROP_GET(js_gfx_GFXRasterizerState_get_depthBiasEnabled)
 static bool js_gfx_GFXRasterizerState_set_depthBiasEnabled(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_set_depthBiasEnabled : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9472,7 +9472,7 @@ SE_BIND_PROP_SET(js_gfx_GFXRasterizerState_set_depthBiasEnabled)
 
 static bool js_gfx_GFXRasterizerState_get_depthBias(se::State& s)
 {
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_get_depthBias : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9486,7 +9486,7 @@ SE_BIND_PROP_GET(js_gfx_GFXRasterizerState_get_depthBias)
 static bool js_gfx_GFXRasterizerState_set_depthBias(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_set_depthBias : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9500,7 +9500,7 @@ SE_BIND_PROP_SET(js_gfx_GFXRasterizerState_set_depthBias)
 
 static bool js_gfx_GFXRasterizerState_get_depthBiasClamp(se::State& s)
 {
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_get_depthBiasClamp : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9514,7 +9514,7 @@ SE_BIND_PROP_GET(js_gfx_GFXRasterizerState_get_depthBiasClamp)
 static bool js_gfx_GFXRasterizerState_set_depthBiasClamp(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_set_depthBiasClamp : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9528,7 +9528,7 @@ SE_BIND_PROP_SET(js_gfx_GFXRasterizerState_set_depthBiasClamp)
 
 static bool js_gfx_GFXRasterizerState_get_depthBiasSlop(se::State& s)
 {
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_get_depthBiasSlop : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9542,7 +9542,7 @@ SE_BIND_PROP_GET(js_gfx_GFXRasterizerState_get_depthBiasSlop)
 static bool js_gfx_GFXRasterizerState_set_depthBiasSlop(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_set_depthBiasSlop : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9556,7 +9556,7 @@ SE_BIND_PROP_SET(js_gfx_GFXRasterizerState_set_depthBiasSlop)
 
 static bool js_gfx_GFXRasterizerState_get_isDepthClip(se::State& s)
 {
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_get_isDepthClip : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9570,7 +9570,7 @@ SE_BIND_PROP_GET(js_gfx_GFXRasterizerState_get_isDepthClip)
 static bool js_gfx_GFXRasterizerState_set_isDepthClip(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_set_isDepthClip : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9584,7 +9584,7 @@ SE_BIND_PROP_SET(js_gfx_GFXRasterizerState_set_isDepthClip)
 
 static bool js_gfx_GFXRasterizerState_get_isMultisample(se::State& s)
 {
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_get_isMultisample : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9598,7 +9598,7 @@ SE_BIND_PROP_GET(js_gfx_GFXRasterizerState_get_isMultisample)
 static bool js_gfx_GFXRasterizerState_set_isMultisample(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_set_isMultisample : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9612,7 +9612,7 @@ SE_BIND_PROP_SET(js_gfx_GFXRasterizerState_set_isMultisample)
 
 static bool js_gfx_GFXRasterizerState_get_lineWidth(se::State& s)
 {
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_get_lineWidth : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9626,7 +9626,7 @@ SE_BIND_PROP_GET(js_gfx_GFXRasterizerState_get_lineWidth)
 static bool js_gfx_GFXRasterizerState_set_lineWidth(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+    cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRasterizerState_set_lineWidth : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9638,7 +9638,7 @@ static bool js_gfx_GFXRasterizerState_set_lineWidth(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXRasterizerState_set_lineWidth)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXRasterizerState_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXRasterizerState_finalize)
 
 static bool js_gfx_GFXRasterizerState_constructor(se::State& s)
 {
@@ -9648,7 +9648,7 @@ static bool js_gfx_GFXRasterizerState_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXRasterizerState* cobj = JSB_ALLOC(cocos2d::GFXRasterizerState);
+        cc::GFXRasterizerState* cobj = JSB_ALLOC(cc::GFXRasterizerState);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -9658,29 +9658,29 @@ static bool js_gfx_GFXRasterizerState_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXRasterizerState* cobj = JSB_ALLOC(cocos2d::GFXRasterizerState);
+        cc::GFXRasterizerState* cobj = JSB_ALLOC(cc::GFXRasterizerState);
         bool arg0;
         json->getProperty("isDiscard", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_boolean(field, &arg0);
             cobj->isDiscard = arg0;
         }
-        cocos2d::GFXPolygonMode arg1;
+        cc::GFXPolygonMode arg1;
         json->getProperty("polygonMode", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXPolygonMode)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cc::GFXPolygonMode)tmp; } while(false);
             cobj->polygonMode = arg1;
         }
-        cocos2d::GFXShadeModel arg2;
+        cc::GFXShadeModel arg2;
         json->getProperty("shadeModel", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXShadeModel)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::GFXShadeModel)tmp; } while(false);
             cobj->shadeModel = arg2;
         }
-        cocos2d::GFXCullMode arg3;
+        cc::GFXCullMode arg3;
         json->getProperty("cullMode", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cocos2d::GFXCullMode)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cc::GFXCullMode)tmp; } while(false);
             cobj->cullMode = arg3;
         }
         bool arg4;
@@ -9744,25 +9744,25 @@ static bool js_gfx_GFXRasterizerState_constructor(se::State& s)
     }
     else if(argc == 12)
     {
-        cocos2d::GFXRasterizerState* cobj = JSB_ALLOC(cocos2d::GFXRasterizerState);
+        cc::GFXRasterizerState* cobj = JSB_ALLOC(cc::GFXRasterizerState);
         bool arg0;
         if (!args[0].isUndefined()) {
             ok &= seval_to_boolean(args[0], &arg0);
             cobj->isDiscard = arg0;
         }
-        cocos2d::GFXPolygonMode arg1;
+        cc::GFXPolygonMode arg1;
         if (!args[1].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXPolygonMode)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::GFXPolygonMode)tmp; } while(false);
             cobj->polygonMode = arg1;
         }
-        cocos2d::GFXShadeModel arg2;
+        cc::GFXShadeModel arg2;
         if (!args[2].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXShadeModel)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::GFXShadeModel)tmp; } while(false);
             cobj->shadeModel = arg2;
         }
-        cocos2d::GFXCullMode arg3;
+        cc::GFXCullMode arg3;
         if (!args[3].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cocos2d::GFXCullMode)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::GFXCullMode)tmp; } while(false);
             cobj->cullMode = arg3;
         }
         bool arg4;
@@ -9820,24 +9820,24 @@ static bool js_gfx_GFXRasterizerState_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXRasterizerState_constructor, __jsb_cocos2d_GFXRasterizerState_class, js_cocos2d_GFXRasterizerState_finalize)
+SE_BIND_CTOR(js_gfx_GFXRasterizerState_constructor, __jsb_cc_GFXRasterizerState_class, js_cc_GFXRasterizerState_finalize)
 
 
 
 
-static bool js_cocos2d_GFXRasterizerState_finalize(se::State& s)
+static bool js_cc_GFXRasterizerState_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXRasterizerState)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXRasterizerState)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXRasterizerState* cobj = (cocos2d::GFXRasterizerState*)s.nativeThisObject();
+        cc::GFXRasterizerState* cobj = (cc::GFXRasterizerState*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXRasterizerState_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXRasterizerState_finalize)
 
 bool js_register_gfx_GFXRasterizerState(se::Object* obj)
 {
@@ -9855,23 +9855,23 @@ bool js_register_gfx_GFXRasterizerState(se::Object* obj)
     cls->defineProperty("isDepthClip", _SE(js_gfx_GFXRasterizerState_get_isDepthClip), _SE(js_gfx_GFXRasterizerState_set_isDepthClip));
     cls->defineProperty("isMultisample", _SE(js_gfx_GFXRasterizerState_get_isMultisample), _SE(js_gfx_GFXRasterizerState_set_isMultisample));
     cls->defineProperty("lineWidth", _SE(js_gfx_GFXRasterizerState_get_lineWidth), _SE(js_gfx_GFXRasterizerState_set_lineWidth));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXRasterizerState_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXRasterizerState_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXRasterizerState>(cls);
+    JSBClassType::registerClass<cc::GFXRasterizerState>(cls);
 
-    __jsb_cocos2d_GFXRasterizerState_proto = cls->getProto();
-    __jsb_cocos2d_GFXRasterizerState_class = cls;
+    __jsb_cc_GFXRasterizerState_proto = cls->getProto();
+    __jsb_cc_GFXRasterizerState_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXDepthStencilState_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXDepthStencilState_class = nullptr;
+se::Object* __jsb_cc_GFXDepthStencilState_proto = nullptr;
+se::Class* __jsb_cc_GFXDepthStencilState_class = nullptr;
 
 static bool js_gfx_GFXDepthStencilState_get_depthTest(se::State& s)
 {
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_get_depthTest : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9885,7 +9885,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilState_get_depthTest)
 static bool js_gfx_GFXDepthStencilState_set_depthTest(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_set_depthTest : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9899,7 +9899,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilState_set_depthTest)
 
 static bool js_gfx_GFXDepthStencilState_get_depthWrite(se::State& s)
 {
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_get_depthWrite : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9913,7 +9913,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilState_get_depthWrite)
 static bool js_gfx_GFXDepthStencilState_set_depthWrite(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_set_depthWrite : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9927,7 +9927,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilState_set_depthWrite)
 
 static bool js_gfx_GFXDepthStencilState_get_depthFunc(se::State& s)
 {
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_get_depthFunc : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9941,12 +9941,12 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilState_get_depthFunc)
 static bool js_gfx_GFXDepthStencilState_set_depthFunc(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_set_depthFunc : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXComparisonFunc arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+    cc::GFXComparisonFunc arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXComparisonFunc)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXDepthStencilState_set_depthFunc : Error processing new value");
     cobj->depthFunc = arg0;
     return true;
@@ -9955,7 +9955,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilState_set_depthFunc)
 
 static bool js_gfx_GFXDepthStencilState_get_stencilTestFront(se::State& s)
 {
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_get_stencilTestFront : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9969,7 +9969,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilState_get_stencilTestFront)
 static bool js_gfx_GFXDepthStencilState_set_stencilTestFront(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_set_stencilTestFront : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9983,7 +9983,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilState_set_stencilTestFront)
 
 static bool js_gfx_GFXDepthStencilState_get_stencilFuncFront(se::State& s)
 {
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_get_stencilFuncFront : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -9997,12 +9997,12 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilState_get_stencilFuncFront)
 static bool js_gfx_GFXDepthStencilState_set_stencilFuncFront(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_set_stencilFuncFront : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXComparisonFunc arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+    cc::GFXComparisonFunc arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXComparisonFunc)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXDepthStencilState_set_stencilFuncFront : Error processing new value");
     cobj->stencilFuncFront = arg0;
     return true;
@@ -10011,7 +10011,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilState_set_stencilFuncFront)
 
 static bool js_gfx_GFXDepthStencilState_get_stencilReadMaskFront(se::State& s)
 {
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_get_stencilReadMaskFront : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10025,7 +10025,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilState_get_stencilReadMaskFront)
 static bool js_gfx_GFXDepthStencilState_set_stencilReadMaskFront(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_set_stencilReadMaskFront : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10039,7 +10039,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilState_set_stencilReadMaskFront)
 
 static bool js_gfx_GFXDepthStencilState_get_stencilWriteMaskFront(se::State& s)
 {
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_get_stencilWriteMaskFront : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10053,7 +10053,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilState_get_stencilWriteMaskFront)
 static bool js_gfx_GFXDepthStencilState_set_stencilWriteMaskFront(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_set_stencilWriteMaskFront : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10067,7 +10067,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilState_set_stencilWriteMaskFront)
 
 static bool js_gfx_GFXDepthStencilState_get_stencilFailOpFront(se::State& s)
 {
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_get_stencilFailOpFront : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10081,12 +10081,12 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilState_get_stencilFailOpFront)
 static bool js_gfx_GFXDepthStencilState_set_stencilFailOpFront(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_set_stencilFailOpFront : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXStencilOp arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXStencilOp)tmp; } while(false);
+    cc::GFXStencilOp arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXStencilOp)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXDepthStencilState_set_stencilFailOpFront : Error processing new value");
     cobj->stencilFailOpFront = arg0;
     return true;
@@ -10095,7 +10095,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilState_set_stencilFailOpFront)
 
 static bool js_gfx_GFXDepthStencilState_get_stencilZFailOpFront(se::State& s)
 {
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_get_stencilZFailOpFront : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10109,12 +10109,12 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilState_get_stencilZFailOpFront)
 static bool js_gfx_GFXDepthStencilState_set_stencilZFailOpFront(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_set_stencilZFailOpFront : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXStencilOp arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXStencilOp)tmp; } while(false);
+    cc::GFXStencilOp arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXStencilOp)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXDepthStencilState_set_stencilZFailOpFront : Error processing new value");
     cobj->stencilZFailOpFront = arg0;
     return true;
@@ -10123,7 +10123,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilState_set_stencilZFailOpFront)
 
 static bool js_gfx_GFXDepthStencilState_get_stencilPassOpFront(se::State& s)
 {
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_get_stencilPassOpFront : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10137,12 +10137,12 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilState_get_stencilPassOpFront)
 static bool js_gfx_GFXDepthStencilState_set_stencilPassOpFront(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_set_stencilPassOpFront : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXStencilOp arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXStencilOp)tmp; } while(false);
+    cc::GFXStencilOp arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXStencilOp)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXDepthStencilState_set_stencilPassOpFront : Error processing new value");
     cobj->stencilPassOpFront = arg0;
     return true;
@@ -10151,7 +10151,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilState_set_stencilPassOpFront)
 
 static bool js_gfx_GFXDepthStencilState_get_stencilRefFront(se::State& s)
 {
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_get_stencilRefFront : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10165,7 +10165,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilState_get_stencilRefFront)
 static bool js_gfx_GFXDepthStencilState_set_stencilRefFront(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_set_stencilRefFront : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10179,7 +10179,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilState_set_stencilRefFront)
 
 static bool js_gfx_GFXDepthStencilState_get_stencilTestBack(se::State& s)
 {
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_get_stencilTestBack : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10193,7 +10193,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilState_get_stencilTestBack)
 static bool js_gfx_GFXDepthStencilState_set_stencilTestBack(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_set_stencilTestBack : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10207,7 +10207,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilState_set_stencilTestBack)
 
 static bool js_gfx_GFXDepthStencilState_get_stencilFuncBack(se::State& s)
 {
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_get_stencilFuncBack : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10221,12 +10221,12 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilState_get_stencilFuncBack)
 static bool js_gfx_GFXDepthStencilState_set_stencilFuncBack(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_set_stencilFuncBack : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXComparisonFunc arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+    cc::GFXComparisonFunc arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXComparisonFunc)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXDepthStencilState_set_stencilFuncBack : Error processing new value");
     cobj->stencilFuncBack = arg0;
     return true;
@@ -10235,7 +10235,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilState_set_stencilFuncBack)
 
 static bool js_gfx_GFXDepthStencilState_get_stencilReadMaskBack(se::State& s)
 {
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_get_stencilReadMaskBack : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10249,7 +10249,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilState_get_stencilReadMaskBack)
 static bool js_gfx_GFXDepthStencilState_set_stencilReadMaskBack(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_set_stencilReadMaskBack : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10263,7 +10263,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilState_set_stencilReadMaskBack)
 
 static bool js_gfx_GFXDepthStencilState_get_stencilWriteMaskBack(se::State& s)
 {
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_get_stencilWriteMaskBack : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10277,7 +10277,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilState_get_stencilWriteMaskBack)
 static bool js_gfx_GFXDepthStencilState_set_stencilWriteMaskBack(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_set_stencilWriteMaskBack : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10291,7 +10291,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilState_set_stencilWriteMaskBack)
 
 static bool js_gfx_GFXDepthStencilState_get_stencilFailOpBack(se::State& s)
 {
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_get_stencilFailOpBack : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10305,12 +10305,12 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilState_get_stencilFailOpBack)
 static bool js_gfx_GFXDepthStencilState_set_stencilFailOpBack(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_set_stencilFailOpBack : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXStencilOp arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXStencilOp)tmp; } while(false);
+    cc::GFXStencilOp arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXStencilOp)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXDepthStencilState_set_stencilFailOpBack : Error processing new value");
     cobj->stencilFailOpBack = arg0;
     return true;
@@ -10319,7 +10319,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilState_set_stencilFailOpBack)
 
 static bool js_gfx_GFXDepthStencilState_get_stencilZFailOpBack(se::State& s)
 {
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_get_stencilZFailOpBack : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10333,12 +10333,12 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilState_get_stencilZFailOpBack)
 static bool js_gfx_GFXDepthStencilState_set_stencilZFailOpBack(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_set_stencilZFailOpBack : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXStencilOp arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXStencilOp)tmp; } while(false);
+    cc::GFXStencilOp arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXStencilOp)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXDepthStencilState_set_stencilZFailOpBack : Error processing new value");
     cobj->stencilZFailOpBack = arg0;
     return true;
@@ -10347,7 +10347,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilState_set_stencilZFailOpBack)
 
 static bool js_gfx_GFXDepthStencilState_get_stencilPassOpBack(se::State& s)
 {
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_get_stencilPassOpBack : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10361,12 +10361,12 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilState_get_stencilPassOpBack)
 static bool js_gfx_GFXDepthStencilState_set_stencilPassOpBack(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_set_stencilPassOpBack : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXStencilOp arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXStencilOp)tmp; } while(false);
+    cc::GFXStencilOp arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXStencilOp)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXDepthStencilState_set_stencilPassOpBack : Error processing new value");
     cobj->stencilPassOpBack = arg0;
     return true;
@@ -10375,7 +10375,7 @@ SE_BIND_PROP_SET(js_gfx_GFXDepthStencilState_set_stencilPassOpBack)
 
 static bool js_gfx_GFXDepthStencilState_get_stencilRefBack(se::State& s)
 {
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_get_stencilRefBack : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10389,7 +10389,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDepthStencilState_get_stencilRefBack)
 static bool js_gfx_GFXDepthStencilState_set_stencilRefBack(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+    cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDepthStencilState_set_stencilRefBack : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10401,7 +10401,7 @@ static bool js_gfx_GFXDepthStencilState_set_stencilRefBack(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXDepthStencilState_set_stencilRefBack)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXDepthStencilState_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXDepthStencilState_finalize)
 
 static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
 {
@@ -10411,7 +10411,7 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXDepthStencilState* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilState);
+        cc::GFXDepthStencilState* cobj = JSB_ALLOC(cc::GFXDepthStencilState);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -10421,7 +10421,7 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXDepthStencilState* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilState);
+        cc::GFXDepthStencilState* cobj = JSB_ALLOC(cc::GFXDepthStencilState);
         bool arg0;
         json->getProperty("depthTest", &field);
         if(!field.isUndefined()) {
@@ -10434,10 +10434,10 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
             ok &= seval_to_boolean(field, &arg1);
             cobj->depthWrite = arg1;
         }
-        cocos2d::GFXComparisonFunc arg2;
+        cc::GFXComparisonFunc arg2;
         json->getProperty("depthFunc", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::GFXComparisonFunc)tmp; } while(false);
             cobj->depthFunc = arg2;
         }
         bool arg3;
@@ -10446,10 +10446,10 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
             ok &= seval_to_boolean(field, &arg3);
             cobj->stencilTestFront = arg3;
         }
-        cocos2d::GFXComparisonFunc arg4;
+        cc::GFXComparisonFunc arg4;
         json->getProperty("stencilFuncFront", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cc::GFXComparisonFunc)tmp; } while(false);
             cobj->stencilFuncFront = arg4;
         }
         unsigned int arg5 = 0;
@@ -10464,22 +10464,22 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
             ok &= seval_to_uint32(field, (uint32_t*)&arg6);
             cobj->stencilWriteMaskFront = arg6;
         }
-        cocos2d::GFXStencilOp arg7;
+        cc::GFXStencilOp arg7;
         json->getProperty("stencilFailOpFront", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg7 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg7 = (cc::GFXStencilOp)tmp; } while(false);
             cobj->stencilFailOpFront = arg7;
         }
-        cocos2d::GFXStencilOp arg8;
+        cc::GFXStencilOp arg8;
         json->getProperty("stencilZFailOpFront", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg8 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg8 = (cc::GFXStencilOp)tmp; } while(false);
             cobj->stencilZFailOpFront = arg8;
         }
-        cocos2d::GFXStencilOp arg9;
+        cc::GFXStencilOp arg9;
         json->getProperty("stencilPassOpFront", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg9 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg9 = (cc::GFXStencilOp)tmp; } while(false);
             cobj->stencilPassOpFront = arg9;
         }
         unsigned int arg10 = 0;
@@ -10494,10 +10494,10 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
             ok &= seval_to_boolean(field, &arg11);
             cobj->stencilTestBack = arg11;
         }
-        cocos2d::GFXComparisonFunc arg12;
+        cc::GFXComparisonFunc arg12;
         json->getProperty("stencilFuncBack", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg12 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg12 = (cc::GFXComparisonFunc)tmp; } while(false);
             cobj->stencilFuncBack = arg12;
         }
         unsigned int arg13 = 0;
@@ -10512,22 +10512,22 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
             ok &= seval_to_uint32(field, (uint32_t*)&arg14);
             cobj->stencilWriteMaskBack = arg14;
         }
-        cocos2d::GFXStencilOp arg15;
+        cc::GFXStencilOp arg15;
         json->getProperty("stencilFailOpBack", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg15 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg15 = (cc::GFXStencilOp)tmp; } while(false);
             cobj->stencilFailOpBack = arg15;
         }
-        cocos2d::GFXStencilOp arg16;
+        cc::GFXStencilOp arg16;
         json->getProperty("stencilZFailOpBack", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg16 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg16 = (cc::GFXStencilOp)tmp; } while(false);
             cobj->stencilZFailOpBack = arg16;
         }
-        cocos2d::GFXStencilOp arg17;
+        cc::GFXStencilOp arg17;
         json->getProperty("stencilPassOpBack", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg17 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg17 = (cc::GFXStencilOp)tmp; } while(false);
             cobj->stencilPassOpBack = arg17;
         }
         unsigned int arg18 = 0;
@@ -10549,7 +10549,7 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
     }
     else if(argc == 19)
     {
-        cocos2d::GFXDepthStencilState* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilState);
+        cc::GFXDepthStencilState* cobj = JSB_ALLOC(cc::GFXDepthStencilState);
         bool arg0;
         if (!args[0].isUndefined()) {
             ok &= seval_to_boolean(args[0], &arg0);
@@ -10560,9 +10560,9 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
             ok &= seval_to_boolean(args[1], &arg1);
             cobj->depthWrite = arg1;
         }
-        cocos2d::GFXComparisonFunc arg2;
+        cc::GFXComparisonFunc arg2;
         if (!args[2].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::GFXComparisonFunc)tmp; } while(false);
             cobj->depthFunc = arg2;
         }
         bool arg3;
@@ -10570,9 +10570,9 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
             ok &= seval_to_boolean(args[3], &arg3);
             cobj->stencilTestFront = arg3;
         }
-        cocos2d::GFXComparisonFunc arg4;
+        cc::GFXComparisonFunc arg4;
         if (!args[4].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::GFXComparisonFunc)tmp; } while(false);
             cobj->stencilFuncFront = arg4;
         }
         unsigned int arg5 = 0;
@@ -10585,19 +10585,19 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
             ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
             cobj->stencilWriteMaskFront = arg6;
         }
-        cocos2d::GFXStencilOp arg7;
+        cc::GFXStencilOp arg7;
         if (!args[7].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cc::GFXStencilOp)tmp; } while(false);
             cobj->stencilFailOpFront = arg7;
         }
-        cocos2d::GFXStencilOp arg8;
+        cc::GFXStencilOp arg8;
         if (!args[8].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cc::GFXStencilOp)tmp; } while(false);
             cobj->stencilZFailOpFront = arg8;
         }
-        cocos2d::GFXStencilOp arg9;
+        cc::GFXStencilOp arg9;
         if (!args[9].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[9], &tmp); arg9 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[9], &tmp); arg9 = (cc::GFXStencilOp)tmp; } while(false);
             cobj->stencilPassOpFront = arg9;
         }
         unsigned int arg10 = 0;
@@ -10610,9 +10610,9 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
             ok &= seval_to_boolean(args[11], &arg11);
             cobj->stencilTestBack = arg11;
         }
-        cocos2d::GFXComparisonFunc arg12;
+        cc::GFXComparisonFunc arg12;
         if (!args[12].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[12], &tmp); arg12 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[12], &tmp); arg12 = (cc::GFXComparisonFunc)tmp; } while(false);
             cobj->stencilFuncBack = arg12;
         }
         unsigned int arg13 = 0;
@@ -10625,19 +10625,19 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
             ok &= seval_to_uint32(args[14], (uint32_t*)&arg14);
             cobj->stencilWriteMaskBack = arg14;
         }
-        cocos2d::GFXStencilOp arg15;
+        cc::GFXStencilOp arg15;
         if (!args[15].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[15], &tmp); arg15 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[15], &tmp); arg15 = (cc::GFXStencilOp)tmp; } while(false);
             cobj->stencilFailOpBack = arg15;
         }
-        cocos2d::GFXStencilOp arg16;
+        cc::GFXStencilOp arg16;
         if (!args[16].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[16], &tmp); arg16 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[16], &tmp); arg16 = (cc::GFXStencilOp)tmp; } while(false);
             cobj->stencilZFailOpBack = arg16;
         }
-        cocos2d::GFXStencilOp arg17;
+        cc::GFXStencilOp arg17;
         if (!args[17].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[17], &tmp); arg17 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[17], &tmp); arg17 = (cc::GFXStencilOp)tmp; } while(false);
             cobj->stencilPassOpBack = arg17;
         }
         unsigned int arg18 = 0;
@@ -10660,24 +10660,24 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXDepthStencilState_constructor, __jsb_cocos2d_GFXDepthStencilState_class, js_cocos2d_GFXDepthStencilState_finalize)
+SE_BIND_CTOR(js_gfx_GFXDepthStencilState_constructor, __jsb_cc_GFXDepthStencilState_class, js_cc_GFXDepthStencilState_finalize)
 
 
 
 
-static bool js_cocos2d_GFXDepthStencilState_finalize(se::State& s)
+static bool js_cc_GFXDepthStencilState_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXDepthStencilState)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXDepthStencilState)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXDepthStencilState* cobj = (cocos2d::GFXDepthStencilState*)s.nativeThisObject();
+        cc::GFXDepthStencilState* cobj = (cc::GFXDepthStencilState*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXDepthStencilState_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXDepthStencilState_finalize)
 
 bool js_register_gfx_GFXDepthStencilState(se::Object* obj)
 {
@@ -10702,23 +10702,23 @@ bool js_register_gfx_GFXDepthStencilState(se::Object* obj)
     cls->defineProperty("stencilZFailOpBack", _SE(js_gfx_GFXDepthStencilState_get_stencilZFailOpBack), _SE(js_gfx_GFXDepthStencilState_set_stencilZFailOpBack));
     cls->defineProperty("stencilPassOpBack", _SE(js_gfx_GFXDepthStencilState_get_stencilPassOpBack), _SE(js_gfx_GFXDepthStencilState_set_stencilPassOpBack));
     cls->defineProperty("stencilRefBack", _SE(js_gfx_GFXDepthStencilState_get_stencilRefBack), _SE(js_gfx_GFXDepthStencilState_set_stencilRefBack));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXDepthStencilState_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXDepthStencilState_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXDepthStencilState>(cls);
+    JSBClassType::registerClass<cc::GFXDepthStencilState>(cls);
 
-    __jsb_cocos2d_GFXDepthStencilState_proto = cls->getProto();
-    __jsb_cocos2d_GFXDepthStencilState_class = cls;
+    __jsb_cc_GFXDepthStencilState_proto = cls->getProto();
+    __jsb_cc_GFXDepthStencilState_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXBlendTarget_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXBlendTarget_class = nullptr;
+se::Object* __jsb_cc_GFXBlendTarget_proto = nullptr;
+se::Class* __jsb_cc_GFXBlendTarget_class = nullptr;
 
 static bool js_gfx_GFXBlendTarget_get_blend(se::State& s)
 {
-    cocos2d::GFXBlendTarget* cobj = (cocos2d::GFXBlendTarget*)s.nativeThisObject();
+    cc::GFXBlendTarget* cobj = (cc::GFXBlendTarget*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendTarget_get_blend : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10732,7 +10732,7 @@ SE_BIND_PROP_GET(js_gfx_GFXBlendTarget_get_blend)
 static bool js_gfx_GFXBlendTarget_set_blend(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBlendTarget* cobj = (cocos2d::GFXBlendTarget*)s.nativeThisObject();
+    cc::GFXBlendTarget* cobj = (cc::GFXBlendTarget*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendTarget_set_blend : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10746,7 +10746,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBlendTarget_set_blend)
 
 static bool js_gfx_GFXBlendTarget_get_blendSrc(se::State& s)
 {
-    cocos2d::GFXBlendTarget* cobj = (cocos2d::GFXBlendTarget*)s.nativeThisObject();
+    cc::GFXBlendTarget* cobj = (cc::GFXBlendTarget*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendTarget_get_blendSrc : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10760,12 +10760,12 @@ SE_BIND_PROP_GET(js_gfx_GFXBlendTarget_get_blendSrc)
 static bool js_gfx_GFXBlendTarget_set_blendSrc(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBlendTarget* cobj = (cocos2d::GFXBlendTarget*)s.nativeThisObject();
+    cc::GFXBlendTarget* cobj = (cc::GFXBlendTarget*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendTarget_set_blendSrc : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXBlendFactor arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+    cc::GFXBlendFactor arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXBlendFactor)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBlendTarget_set_blendSrc : Error processing new value");
     cobj->blendSrc = arg0;
     return true;
@@ -10774,7 +10774,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBlendTarget_set_blendSrc)
 
 static bool js_gfx_GFXBlendTarget_get_blendDst(se::State& s)
 {
-    cocos2d::GFXBlendTarget* cobj = (cocos2d::GFXBlendTarget*)s.nativeThisObject();
+    cc::GFXBlendTarget* cobj = (cc::GFXBlendTarget*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendTarget_get_blendDst : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10788,12 +10788,12 @@ SE_BIND_PROP_GET(js_gfx_GFXBlendTarget_get_blendDst)
 static bool js_gfx_GFXBlendTarget_set_blendDst(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBlendTarget* cobj = (cocos2d::GFXBlendTarget*)s.nativeThisObject();
+    cc::GFXBlendTarget* cobj = (cc::GFXBlendTarget*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendTarget_set_blendDst : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXBlendFactor arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+    cc::GFXBlendFactor arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXBlendFactor)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBlendTarget_set_blendDst : Error processing new value");
     cobj->blendDst = arg0;
     return true;
@@ -10802,7 +10802,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBlendTarget_set_blendDst)
 
 static bool js_gfx_GFXBlendTarget_get_blendEq(se::State& s)
 {
-    cocos2d::GFXBlendTarget* cobj = (cocos2d::GFXBlendTarget*)s.nativeThisObject();
+    cc::GFXBlendTarget* cobj = (cc::GFXBlendTarget*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendTarget_get_blendEq : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10816,12 +10816,12 @@ SE_BIND_PROP_GET(js_gfx_GFXBlendTarget_get_blendEq)
 static bool js_gfx_GFXBlendTarget_set_blendEq(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBlendTarget* cobj = (cocos2d::GFXBlendTarget*)s.nativeThisObject();
+    cc::GFXBlendTarget* cobj = (cc::GFXBlendTarget*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendTarget_set_blendEq : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXBlendOp arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXBlendOp)tmp; } while(false);
+    cc::GFXBlendOp arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXBlendOp)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBlendTarget_set_blendEq : Error processing new value");
     cobj->blendEq = arg0;
     return true;
@@ -10830,7 +10830,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBlendTarget_set_blendEq)
 
 static bool js_gfx_GFXBlendTarget_get_blendSrcAlpha(se::State& s)
 {
-    cocos2d::GFXBlendTarget* cobj = (cocos2d::GFXBlendTarget*)s.nativeThisObject();
+    cc::GFXBlendTarget* cobj = (cc::GFXBlendTarget*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendTarget_get_blendSrcAlpha : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10844,12 +10844,12 @@ SE_BIND_PROP_GET(js_gfx_GFXBlendTarget_get_blendSrcAlpha)
 static bool js_gfx_GFXBlendTarget_set_blendSrcAlpha(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBlendTarget* cobj = (cocos2d::GFXBlendTarget*)s.nativeThisObject();
+    cc::GFXBlendTarget* cobj = (cc::GFXBlendTarget*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendTarget_set_blendSrcAlpha : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXBlendFactor arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+    cc::GFXBlendFactor arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXBlendFactor)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBlendTarget_set_blendSrcAlpha : Error processing new value");
     cobj->blendSrcAlpha = arg0;
     return true;
@@ -10858,7 +10858,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBlendTarget_set_blendSrcAlpha)
 
 static bool js_gfx_GFXBlendTarget_get_blendDstAlpha(se::State& s)
 {
-    cocos2d::GFXBlendTarget* cobj = (cocos2d::GFXBlendTarget*)s.nativeThisObject();
+    cc::GFXBlendTarget* cobj = (cc::GFXBlendTarget*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendTarget_get_blendDstAlpha : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10872,12 +10872,12 @@ SE_BIND_PROP_GET(js_gfx_GFXBlendTarget_get_blendDstAlpha)
 static bool js_gfx_GFXBlendTarget_set_blendDstAlpha(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBlendTarget* cobj = (cocos2d::GFXBlendTarget*)s.nativeThisObject();
+    cc::GFXBlendTarget* cobj = (cc::GFXBlendTarget*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendTarget_set_blendDstAlpha : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXBlendFactor arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+    cc::GFXBlendFactor arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXBlendFactor)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBlendTarget_set_blendDstAlpha : Error processing new value");
     cobj->blendDstAlpha = arg0;
     return true;
@@ -10886,7 +10886,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBlendTarget_set_blendDstAlpha)
 
 static bool js_gfx_GFXBlendTarget_get_blendAlphaEq(se::State& s)
 {
-    cocos2d::GFXBlendTarget* cobj = (cocos2d::GFXBlendTarget*)s.nativeThisObject();
+    cc::GFXBlendTarget* cobj = (cc::GFXBlendTarget*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendTarget_get_blendAlphaEq : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10900,12 +10900,12 @@ SE_BIND_PROP_GET(js_gfx_GFXBlendTarget_get_blendAlphaEq)
 static bool js_gfx_GFXBlendTarget_set_blendAlphaEq(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBlendTarget* cobj = (cocos2d::GFXBlendTarget*)s.nativeThisObject();
+    cc::GFXBlendTarget* cobj = (cc::GFXBlendTarget*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendTarget_set_blendAlphaEq : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXBlendOp arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXBlendOp)tmp; } while(false);
+    cc::GFXBlendOp arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXBlendOp)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBlendTarget_set_blendAlphaEq : Error processing new value");
     cobj->blendAlphaEq = arg0;
     return true;
@@ -10914,7 +10914,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBlendTarget_set_blendAlphaEq)
 
 static bool js_gfx_GFXBlendTarget_get_blendColorMask(se::State& s)
 {
-    cocos2d::GFXBlendTarget* cobj = (cocos2d::GFXBlendTarget*)s.nativeThisObject();
+    cc::GFXBlendTarget* cobj = (cc::GFXBlendTarget*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendTarget_get_blendColorMask : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -10928,19 +10928,19 @@ SE_BIND_PROP_GET(js_gfx_GFXBlendTarget_get_blendColorMask)
 static bool js_gfx_GFXBlendTarget_set_blendColorMask(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBlendTarget* cobj = (cocos2d::GFXBlendTarget*)s.nativeThisObject();
+    cc::GFXBlendTarget* cobj = (cc::GFXBlendTarget*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendTarget_set_blendColorMask : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXColorMask arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXColorMask)tmp; } while(false);
+    cc::GFXColorMask arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXColorMask)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBlendTarget_set_blendColorMask : Error processing new value");
     cobj->blendColorMask = arg0;
     return true;
 }
 SE_BIND_PROP_SET(js_gfx_GFXBlendTarget_set_blendColorMask)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXBlendTarget_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXBlendTarget_finalize)
 
 static bool js_gfx_GFXBlendTarget_constructor(se::State& s)
 {
@@ -10950,7 +10950,7 @@ static bool js_gfx_GFXBlendTarget_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXBlendTarget* cobj = JSB_ALLOC(cocos2d::GFXBlendTarget);
+        cc::GFXBlendTarget* cobj = JSB_ALLOC(cc::GFXBlendTarget);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -10960,53 +10960,53 @@ static bool js_gfx_GFXBlendTarget_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXBlendTarget* cobj = JSB_ALLOC(cocos2d::GFXBlendTarget);
+        cc::GFXBlendTarget* cobj = JSB_ALLOC(cc::GFXBlendTarget);
         bool arg0;
         json->getProperty("blend", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_boolean(field, &arg0);
             cobj->blend = arg0;
         }
-        cocos2d::GFXBlendFactor arg1;
+        cc::GFXBlendFactor arg1;
         json->getProperty("blendSrc", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cc::GFXBlendFactor)tmp; } while(false);
             cobj->blendSrc = arg1;
         }
-        cocos2d::GFXBlendFactor arg2;
+        cc::GFXBlendFactor arg2;
         json->getProperty("blendDst", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::GFXBlendFactor)tmp; } while(false);
             cobj->blendDst = arg2;
         }
-        cocos2d::GFXBlendOp arg3;
+        cc::GFXBlendOp arg3;
         json->getProperty("blendEq", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cocos2d::GFXBlendOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cc::GFXBlendOp)tmp; } while(false);
             cobj->blendEq = arg3;
         }
-        cocos2d::GFXBlendFactor arg4;
+        cc::GFXBlendFactor arg4;
         json->getProperty("blendSrcAlpha", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cc::GFXBlendFactor)tmp; } while(false);
             cobj->blendSrcAlpha = arg4;
         }
-        cocos2d::GFXBlendFactor arg5;
+        cc::GFXBlendFactor arg5;
         json->getProperty("blendDstAlpha", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg5 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg5 = (cc::GFXBlendFactor)tmp; } while(false);
             cobj->blendDstAlpha = arg5;
         }
-        cocos2d::GFXBlendOp arg6;
+        cc::GFXBlendOp arg6;
         json->getProperty("blendAlphaEq", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg6 = (cocos2d::GFXBlendOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg6 = (cc::GFXBlendOp)tmp; } while(false);
             cobj->blendAlphaEq = arg6;
         }
-        cocos2d::GFXColorMask arg7;
+        cc::GFXColorMask arg7;
         json->getProperty("blendColorMask", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg7 = (cocos2d::GFXColorMask)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg7 = (cc::GFXColorMask)tmp; } while(false);
             cobj->blendColorMask = arg7;
         }
 
@@ -11022,45 +11022,45 @@ static bool js_gfx_GFXBlendTarget_constructor(se::State& s)
     }
     else if(argc == 8)
     {
-        cocos2d::GFXBlendTarget* cobj = JSB_ALLOC(cocos2d::GFXBlendTarget);
+        cc::GFXBlendTarget* cobj = JSB_ALLOC(cc::GFXBlendTarget);
         bool arg0;
         if (!args[0].isUndefined()) {
             ok &= seval_to_boolean(args[0], &arg0);
             cobj->blend = arg0;
         }
-        cocos2d::GFXBlendFactor arg1;
+        cc::GFXBlendFactor arg1;
         if (!args[1].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::GFXBlendFactor)tmp; } while(false);
             cobj->blendSrc = arg1;
         }
-        cocos2d::GFXBlendFactor arg2;
+        cc::GFXBlendFactor arg2;
         if (!args[2].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::GFXBlendFactor)tmp; } while(false);
             cobj->blendDst = arg2;
         }
-        cocos2d::GFXBlendOp arg3;
+        cc::GFXBlendOp arg3;
         if (!args[3].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cocos2d::GFXBlendOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::GFXBlendOp)tmp; } while(false);
             cobj->blendEq = arg3;
         }
-        cocos2d::GFXBlendFactor arg4;
+        cc::GFXBlendFactor arg4;
         if (!args[4].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::GFXBlendFactor)tmp; } while(false);
             cobj->blendSrcAlpha = arg4;
         }
-        cocos2d::GFXBlendFactor arg5;
+        cc::GFXBlendFactor arg5;
         if (!args[5].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cc::GFXBlendFactor)tmp; } while(false);
             cobj->blendDstAlpha = arg5;
         }
-        cocos2d::GFXBlendOp arg6;
+        cc::GFXBlendOp arg6;
         if (!args[6].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cocos2d::GFXBlendOp)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cc::GFXBlendOp)tmp; } while(false);
             cobj->blendAlphaEq = arg6;
         }
-        cocos2d::GFXColorMask arg7;
+        cc::GFXColorMask arg7;
         if (!args[7].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cocos2d::GFXColorMask)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cc::GFXColorMask)tmp; } while(false);
             cobj->blendColorMask = arg7;
         }
 
@@ -11078,24 +11078,24 @@ static bool js_gfx_GFXBlendTarget_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXBlendTarget_constructor, __jsb_cocos2d_GFXBlendTarget_class, js_cocos2d_GFXBlendTarget_finalize)
+SE_BIND_CTOR(js_gfx_GFXBlendTarget_constructor, __jsb_cc_GFXBlendTarget_class, js_cc_GFXBlendTarget_finalize)
 
 
 
 
-static bool js_cocos2d_GFXBlendTarget_finalize(se::State& s)
+static bool js_cc_GFXBlendTarget_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXBlendTarget)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXBlendTarget)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXBlendTarget* cobj = (cocos2d::GFXBlendTarget*)s.nativeThisObject();
+        cc::GFXBlendTarget* cobj = (cc::GFXBlendTarget*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXBlendTarget_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXBlendTarget_finalize)
 
 bool js_register_gfx_GFXBlendTarget(se::Object* obj)
 {
@@ -11109,23 +11109,23 @@ bool js_register_gfx_GFXBlendTarget(se::Object* obj)
     cls->defineProperty("blendDstAlpha", _SE(js_gfx_GFXBlendTarget_get_blendDstAlpha), _SE(js_gfx_GFXBlendTarget_set_blendDstAlpha));
     cls->defineProperty("blendAlphaEq", _SE(js_gfx_GFXBlendTarget_get_blendAlphaEq), _SE(js_gfx_GFXBlendTarget_set_blendAlphaEq));
     cls->defineProperty("blendColorMask", _SE(js_gfx_GFXBlendTarget_get_blendColorMask), _SE(js_gfx_GFXBlendTarget_set_blendColorMask));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBlendTarget_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXBlendTarget_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXBlendTarget>(cls);
+    JSBClassType::registerClass<cc::GFXBlendTarget>(cls);
 
-    __jsb_cocos2d_GFXBlendTarget_proto = cls->getProto();
-    __jsb_cocos2d_GFXBlendTarget_class = cls;
+    __jsb_cc_GFXBlendTarget_proto = cls->getProto();
+    __jsb_cc_GFXBlendTarget_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXBlendState_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXBlendState_class = nullptr;
+se::Object* __jsb_cc_GFXBlendState_proto = nullptr;
+se::Class* __jsb_cc_GFXBlendState_class = nullptr;
 
 static bool js_gfx_GFXBlendState_get_isA2C(se::State& s)
 {
-    cocos2d::GFXBlendState* cobj = (cocos2d::GFXBlendState*)s.nativeThisObject();
+    cc::GFXBlendState* cobj = (cc::GFXBlendState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendState_get_isA2C : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -11139,7 +11139,7 @@ SE_BIND_PROP_GET(js_gfx_GFXBlendState_get_isA2C)
 static bool js_gfx_GFXBlendState_set_isA2C(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBlendState* cobj = (cocos2d::GFXBlendState*)s.nativeThisObject();
+    cc::GFXBlendState* cobj = (cc::GFXBlendState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendState_set_isA2C : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -11153,7 +11153,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBlendState_set_isA2C)
 
 static bool js_gfx_GFXBlendState_get_isIndepend(se::State& s)
 {
-    cocos2d::GFXBlendState* cobj = (cocos2d::GFXBlendState*)s.nativeThisObject();
+    cc::GFXBlendState* cobj = (cc::GFXBlendState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendState_get_isIndepend : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -11167,7 +11167,7 @@ SE_BIND_PROP_GET(js_gfx_GFXBlendState_get_isIndepend)
 static bool js_gfx_GFXBlendState_set_isIndepend(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBlendState* cobj = (cocos2d::GFXBlendState*)s.nativeThisObject();
+    cc::GFXBlendState* cobj = (cc::GFXBlendState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendState_set_isIndepend : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -11181,7 +11181,7 @@ SE_BIND_PROP_SET(js_gfx_GFXBlendState_set_isIndepend)
 
 static bool js_gfx_GFXBlendState_get_blendColor(se::State& s)
 {
-    cocos2d::GFXBlendState* cobj = (cocos2d::GFXBlendState*)s.nativeThisObject();
+    cc::GFXBlendState* cobj = (cc::GFXBlendState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendState_get_blendColor : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -11195,11 +11195,11 @@ SE_BIND_PROP_GET(js_gfx_GFXBlendState_get_blendColor)
 static bool js_gfx_GFXBlendState_set_blendColor(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXBlendState* cobj = (cocos2d::GFXBlendState*)s.nativeThisObject();
+    cc::GFXBlendState* cobj = (cc::GFXBlendState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendState_set_blendColor : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXColor* arg0 = nullptr;
+    cc::GFXColor* arg0 = nullptr;
     ok &= seval_to_reference(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBlendState_set_blendColor : Error processing new value");
     cobj->blendColor = *arg0;
@@ -11207,7 +11207,7 @@ static bool js_gfx_GFXBlendState_set_blendColor(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXBlendState_set_blendColor)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXBlendState_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXBlendState_finalize)
 
 static bool js_gfx_GFXBlendState_constructor(se::State& s)
 {
@@ -11217,7 +11217,7 @@ static bool js_gfx_GFXBlendState_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXBlendState* cobj = JSB_ALLOC(cocos2d::GFXBlendState);
+        cc::GFXBlendState* cobj = JSB_ALLOC(cc::GFXBlendState);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -11227,7 +11227,7 @@ static bool js_gfx_GFXBlendState_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXBlendState* cobj = JSB_ALLOC(cocos2d::GFXBlendState);
+        cc::GFXBlendState* cobj = JSB_ALLOC(cc::GFXBlendState);
         bool arg0;
         json->getProperty("isA2C", &field);
         if(!field.isUndefined()) {
@@ -11240,13 +11240,13 @@ static bool js_gfx_GFXBlendState_constructor(se::State& s)
             ok &= seval_to_boolean(field, &arg1);
             cobj->isIndepend = arg1;
         }
-        cocos2d::GFXColor* arg2 = nullptr;
+        cc::GFXColor* arg2 = nullptr;
         json->getProperty("blendColor", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_reference(field, &arg2);
             cobj->blendColor = *arg2;
         }
-        std::vector<cocos2d::GFXBlendTarget> arg3;
+        std::vector<cc::GFXBlendTarget> arg3;
         json->getProperty("targets", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_std_vector(field, &arg3);
@@ -11265,7 +11265,7 @@ static bool js_gfx_GFXBlendState_constructor(se::State& s)
     }
     else if(argc == 4)
     {
-        cocos2d::GFXBlendState* cobj = JSB_ALLOC(cocos2d::GFXBlendState);
+        cc::GFXBlendState* cobj = JSB_ALLOC(cc::GFXBlendState);
         bool arg0;
         if (!args[0].isUndefined()) {
             ok &= seval_to_boolean(args[0], &arg0);
@@ -11276,12 +11276,12 @@ static bool js_gfx_GFXBlendState_constructor(se::State& s)
             ok &= seval_to_boolean(args[1], &arg1);
             cobj->isIndepend = arg1;
         }
-        cocos2d::GFXColor* arg2 = nullptr;
+        cc::GFXColor* arg2 = nullptr;
         if (!args[2].isUndefined()) {
             ok &= seval_to_reference(args[2], &arg2);
             cobj->blendColor = *arg2;
         }
-        std::vector<cocos2d::GFXBlendTarget> arg3;
+        std::vector<cc::GFXBlendTarget> arg3;
         if (!args[3].isUndefined()) {
             ok &= seval_to_std_vector(args[3], &arg3);
             cobj->targets = arg3;
@@ -11301,24 +11301,24 @@ static bool js_gfx_GFXBlendState_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXBlendState_constructor, __jsb_cocos2d_GFXBlendState_class, js_cocos2d_GFXBlendState_finalize)
+SE_BIND_CTOR(js_gfx_GFXBlendState_constructor, __jsb_cc_GFXBlendState_class, js_cc_GFXBlendState_finalize)
 
 
 
 
-static bool js_cocos2d_GFXBlendState_finalize(se::State& s)
+static bool js_cc_GFXBlendState_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXBlendState)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXBlendState)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXBlendState* cobj = (cocos2d::GFXBlendState*)s.nativeThisObject();
+        cc::GFXBlendState* cobj = (cc::GFXBlendState*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXBlendState_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXBlendState_finalize)
 
 bool js_register_gfx_GFXBlendState(se::Object* obj)
 {
@@ -11327,23 +11327,23 @@ bool js_register_gfx_GFXBlendState(se::Object* obj)
     cls->defineProperty("isA2C", _SE(js_gfx_GFXBlendState_get_isA2C), _SE(js_gfx_GFXBlendState_set_isA2C));
     cls->defineProperty("isIndepend", _SE(js_gfx_GFXBlendState_get_isIndepend), _SE(js_gfx_GFXBlendState_set_isIndepend));
     cls->defineProperty("blendColor", _SE(js_gfx_GFXBlendState_get_blendColor), _SE(js_gfx_GFXBlendState_set_blendColor));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBlendState_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXBlendState_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXBlendState>(cls);
+    JSBClassType::registerClass<cc::GFXBlendState>(cls);
 
-    __jsb_cocos2d_GFXBlendState_proto = cls->getProto();
-    __jsb_cocos2d_GFXBlendState_class = cls;
+    __jsb_cc_GFXBlendState_proto = cls->getProto();
+    __jsb_cc_GFXBlendState_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXPipelineStateInfo_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXPipelineStateInfo_class = nullptr;
+se::Object* __jsb_cc_GFXPipelineStateInfo_proto = nullptr;
+se::Class* __jsb_cc_GFXPipelineStateInfo_class = nullptr;
 
 static bool js_gfx_GFXPipelineStateInfo_get_primitive(se::State& s)
 {
-    cocos2d::GFXPipelineStateInfo* cobj = (cocos2d::GFXPipelineStateInfo*)s.nativeThisObject();
+    cc::GFXPipelineStateInfo* cobj = (cc::GFXPipelineStateInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineStateInfo_get_primitive : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -11357,12 +11357,12 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineStateInfo_get_primitive)
 static bool js_gfx_GFXPipelineStateInfo_set_primitive(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXPipelineStateInfo* cobj = (cocos2d::GFXPipelineStateInfo*)s.nativeThisObject();
+    cc::GFXPipelineStateInfo* cobj = (cc::GFXPipelineStateInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineStateInfo_set_primitive : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXPrimitiveMode arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXPrimitiveMode)tmp; } while(false);
+    cc::GFXPrimitiveMode arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXPrimitiveMode)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineStateInfo_set_primitive : Error processing new value");
     cobj->primitive = arg0;
     return true;
@@ -11371,7 +11371,7 @@ SE_BIND_PROP_SET(js_gfx_GFXPipelineStateInfo_set_primitive)
 
 static bool js_gfx_GFXPipelineStateInfo_get_shader(se::State& s)
 {
-    cocos2d::GFXPipelineStateInfo* cobj = (cocos2d::GFXPipelineStateInfo*)s.nativeThisObject();
+    cc::GFXPipelineStateInfo* cobj = (cc::GFXPipelineStateInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineStateInfo_get_shader : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -11385,11 +11385,11 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineStateInfo_get_shader)
 static bool js_gfx_GFXPipelineStateInfo_set_shader(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXPipelineStateInfo* cobj = (cocos2d::GFXPipelineStateInfo*)s.nativeThisObject();
+    cc::GFXPipelineStateInfo* cobj = (cc::GFXPipelineStateInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineStateInfo_set_shader : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXShader* arg0 = nullptr;
+    cc::GFXShader* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineStateInfo_set_shader : Error processing new value");
     cobj->shader = arg0;
@@ -11399,7 +11399,7 @@ SE_BIND_PROP_SET(js_gfx_GFXPipelineStateInfo_set_shader)
 
 static bool js_gfx_GFXPipelineStateInfo_get_inputState(se::State& s)
 {
-    cocos2d::GFXPipelineStateInfo* cobj = (cocos2d::GFXPipelineStateInfo*)s.nativeThisObject();
+    cc::GFXPipelineStateInfo* cobj = (cc::GFXPipelineStateInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineStateInfo_get_inputState : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -11413,11 +11413,11 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineStateInfo_get_inputState)
 static bool js_gfx_GFXPipelineStateInfo_set_inputState(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXPipelineStateInfo* cobj = (cocos2d::GFXPipelineStateInfo*)s.nativeThisObject();
+    cc::GFXPipelineStateInfo* cobj = (cc::GFXPipelineStateInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineStateInfo_set_inputState : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXInputState* arg0 = nullptr;
+    cc::GFXInputState* arg0 = nullptr;
     ok &= seval_to_reference(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineStateInfo_set_inputState : Error processing new value");
     cobj->inputState = *arg0;
@@ -11427,7 +11427,7 @@ SE_BIND_PROP_SET(js_gfx_GFXPipelineStateInfo_set_inputState)
 
 static bool js_gfx_GFXPipelineStateInfo_get_rasterizerState(se::State& s)
 {
-    cocos2d::GFXPipelineStateInfo* cobj = (cocos2d::GFXPipelineStateInfo*)s.nativeThisObject();
+    cc::GFXPipelineStateInfo* cobj = (cc::GFXPipelineStateInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineStateInfo_get_rasterizerState : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -11441,11 +11441,11 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineStateInfo_get_rasterizerState)
 static bool js_gfx_GFXPipelineStateInfo_set_rasterizerState(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXPipelineStateInfo* cobj = (cocos2d::GFXPipelineStateInfo*)s.nativeThisObject();
+    cc::GFXPipelineStateInfo* cobj = (cc::GFXPipelineStateInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineStateInfo_set_rasterizerState : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXRasterizerState* arg0 = nullptr;
+    cc::GFXRasterizerState* arg0 = nullptr;
     ok &= seval_to_reference(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineStateInfo_set_rasterizerState : Error processing new value");
     cobj->rasterizerState = *arg0;
@@ -11455,7 +11455,7 @@ SE_BIND_PROP_SET(js_gfx_GFXPipelineStateInfo_set_rasterizerState)
 
 static bool js_gfx_GFXPipelineStateInfo_get_depthStencilState(se::State& s)
 {
-    cocos2d::GFXPipelineStateInfo* cobj = (cocos2d::GFXPipelineStateInfo*)s.nativeThisObject();
+    cc::GFXPipelineStateInfo* cobj = (cc::GFXPipelineStateInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineStateInfo_get_depthStencilState : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -11469,11 +11469,11 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineStateInfo_get_depthStencilState)
 static bool js_gfx_GFXPipelineStateInfo_set_depthStencilState(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXPipelineStateInfo* cobj = (cocos2d::GFXPipelineStateInfo*)s.nativeThisObject();
+    cc::GFXPipelineStateInfo* cobj = (cc::GFXPipelineStateInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineStateInfo_set_depthStencilState : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXDepthStencilState* arg0 = nullptr;
+    cc::GFXDepthStencilState* arg0 = nullptr;
     ok &= seval_to_reference(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineStateInfo_set_depthStencilState : Error processing new value");
     cobj->depthStencilState = *arg0;
@@ -11483,7 +11483,7 @@ SE_BIND_PROP_SET(js_gfx_GFXPipelineStateInfo_set_depthStencilState)
 
 static bool js_gfx_GFXPipelineStateInfo_get_blendState(se::State& s)
 {
-    cocos2d::GFXPipelineStateInfo* cobj = (cocos2d::GFXPipelineStateInfo*)s.nativeThisObject();
+    cc::GFXPipelineStateInfo* cobj = (cc::GFXPipelineStateInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineStateInfo_get_blendState : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -11497,11 +11497,11 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineStateInfo_get_blendState)
 static bool js_gfx_GFXPipelineStateInfo_set_blendState(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXPipelineStateInfo* cobj = (cocos2d::GFXPipelineStateInfo*)s.nativeThisObject();
+    cc::GFXPipelineStateInfo* cobj = (cc::GFXPipelineStateInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineStateInfo_set_blendState : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXBlendState* arg0 = nullptr;
+    cc::GFXBlendState* arg0 = nullptr;
     ok &= seval_to_reference(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineStateInfo_set_blendState : Error processing new value");
     cobj->blendState = *arg0;
@@ -11511,7 +11511,7 @@ SE_BIND_PROP_SET(js_gfx_GFXPipelineStateInfo_set_blendState)
 
 static bool js_gfx_GFXPipelineStateInfo_get_dynamicStates(se::State& s)
 {
-    cocos2d::GFXPipelineStateInfo* cobj = (cocos2d::GFXPipelineStateInfo*)s.nativeThisObject();
+    cc::GFXPipelineStateInfo* cobj = (cc::GFXPipelineStateInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineStateInfo_get_dynamicStates : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -11525,11 +11525,11 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineStateInfo_get_dynamicStates)
 static bool js_gfx_GFXPipelineStateInfo_set_dynamicStates(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXPipelineStateInfo* cobj = (cocos2d::GFXPipelineStateInfo*)s.nativeThisObject();
+    cc::GFXPipelineStateInfo* cobj = (cc::GFXPipelineStateInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineStateInfo_set_dynamicStates : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXDynamicState> arg0;
+    std::vector<cc::GFXDynamicState> arg0;
     ok &= seval_to_std_vector(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineStateInfo_set_dynamicStates : Error processing new value");
     cobj->dynamicStates = arg0;
@@ -11539,7 +11539,7 @@ SE_BIND_PROP_SET(js_gfx_GFXPipelineStateInfo_set_dynamicStates)
 
 static bool js_gfx_GFXPipelineStateInfo_get_layout(se::State& s)
 {
-    cocos2d::GFXPipelineStateInfo* cobj = (cocos2d::GFXPipelineStateInfo*)s.nativeThisObject();
+    cc::GFXPipelineStateInfo* cobj = (cc::GFXPipelineStateInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineStateInfo_get_layout : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -11553,11 +11553,11 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineStateInfo_get_layout)
 static bool js_gfx_GFXPipelineStateInfo_set_layout(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXPipelineStateInfo* cobj = (cocos2d::GFXPipelineStateInfo*)s.nativeThisObject();
+    cc::GFXPipelineStateInfo* cobj = (cc::GFXPipelineStateInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineStateInfo_set_layout : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXPipelineLayout* arg0 = nullptr;
+    cc::GFXPipelineLayout* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineStateInfo_set_layout : Error processing new value");
     cobj->layout = arg0;
@@ -11567,7 +11567,7 @@ SE_BIND_PROP_SET(js_gfx_GFXPipelineStateInfo_set_layout)
 
 static bool js_gfx_GFXPipelineStateInfo_get_renderPass(se::State& s)
 {
-    cocos2d::GFXPipelineStateInfo* cobj = (cocos2d::GFXPipelineStateInfo*)s.nativeThisObject();
+    cc::GFXPipelineStateInfo* cobj = (cc::GFXPipelineStateInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineStateInfo_get_renderPass : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -11581,11 +11581,11 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineStateInfo_get_renderPass)
 static bool js_gfx_GFXPipelineStateInfo_set_renderPass(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXPipelineStateInfo* cobj = (cocos2d::GFXPipelineStateInfo*)s.nativeThisObject();
+    cc::GFXPipelineStateInfo* cobj = (cc::GFXPipelineStateInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineStateInfo_set_renderPass : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXRenderPass* arg0 = nullptr;
+    cc::GFXRenderPass* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineStateInfo_set_renderPass : Error processing new value");
     cobj->renderPass = arg0;
@@ -11593,7 +11593,7 @@ static bool js_gfx_GFXPipelineStateInfo_set_renderPass(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXPipelineStateInfo_set_renderPass)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXPipelineStateInfo_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXPipelineStateInfo_finalize)
 
 static bool js_gfx_GFXPipelineStateInfo_constructor(se::State& s)
 {
@@ -11603,7 +11603,7 @@ static bool js_gfx_GFXPipelineStateInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXPipelineStateInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineStateInfo);
+        cc::GFXPipelineStateInfo* cobj = JSB_ALLOC(cc::GFXPipelineStateInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -11613,56 +11613,56 @@ static bool js_gfx_GFXPipelineStateInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXPipelineStateInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineStateInfo);
-        cocos2d::GFXPrimitiveMode arg0;
+        cc::GFXPipelineStateInfo* cobj = JSB_ALLOC(cc::GFXPipelineStateInfo);
+        cc::GFXPrimitiveMode arg0;
         json->getProperty("primitive", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXPrimitiveMode)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cc::GFXPrimitiveMode)tmp; } while(false);
             cobj->primitive = arg0;
         }
-        cocos2d::GFXShader* arg1 = nullptr;
+        cc::GFXShader* arg1 = nullptr;
         json->getProperty("shader", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_native_ptr(field, &arg1);
             cobj->shader = arg1;
         }
-        cocos2d::GFXInputState* arg2 = nullptr;
+        cc::GFXInputState* arg2 = nullptr;
         json->getProperty("inputState", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_reference(field, &arg2);
             cobj->inputState = *arg2;
         }
-        cocos2d::GFXRasterizerState* arg3 = nullptr;
+        cc::GFXRasterizerState* arg3 = nullptr;
         json->getProperty("rasterizerState", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_reference(field, &arg3);
             cobj->rasterizerState = *arg3;
         }
-        cocos2d::GFXDepthStencilState* arg4 = nullptr;
+        cc::GFXDepthStencilState* arg4 = nullptr;
         json->getProperty("depthStencilState", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_reference(field, &arg4);
             cobj->depthStencilState = *arg4;
         }
-        cocos2d::GFXBlendState* arg5 = nullptr;
+        cc::GFXBlendState* arg5 = nullptr;
         json->getProperty("blendState", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_reference(field, &arg5);
             cobj->blendState = *arg5;
         }
-        std::vector<cocos2d::GFXDynamicState> arg6;
+        std::vector<cc::GFXDynamicState> arg6;
         json->getProperty("dynamicStates", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_std_vector(field, &arg6);
             cobj->dynamicStates = arg6;
         }
-        cocos2d::GFXPipelineLayout* arg7 = nullptr;
+        cc::GFXPipelineLayout* arg7 = nullptr;
         json->getProperty("layout", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_native_ptr(field, &arg7);
             cobj->layout = arg7;
         }
-        cocos2d::GFXRenderPass* arg8 = nullptr;
+        cc::GFXRenderPass* arg8 = nullptr;
         json->getProperty("renderPass", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_native_ptr(field, &arg8);
@@ -11681,48 +11681,48 @@ static bool js_gfx_GFXPipelineStateInfo_constructor(se::State& s)
     }
     else if(argc == 9)
     {
-        cocos2d::GFXPipelineStateInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineStateInfo);
-        cocos2d::GFXPrimitiveMode arg0;
+        cc::GFXPipelineStateInfo* cobj = JSB_ALLOC(cc::GFXPipelineStateInfo);
+        cc::GFXPrimitiveMode arg0;
         if (!args[0].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXPrimitiveMode)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXPrimitiveMode)tmp; } while(false);
             cobj->primitive = arg0;
         }
-        cocos2d::GFXShader* arg1 = nullptr;
+        cc::GFXShader* arg1 = nullptr;
         if (!args[1].isUndefined()) {
             ok &= seval_to_native_ptr(args[1], &arg1);
             cobj->shader = arg1;
         }
-        cocos2d::GFXInputState* arg2 = nullptr;
+        cc::GFXInputState* arg2 = nullptr;
         if (!args[2].isUndefined()) {
             ok &= seval_to_reference(args[2], &arg2);
             cobj->inputState = *arg2;
         }
-        cocos2d::GFXRasterizerState* arg3 = nullptr;
+        cc::GFXRasterizerState* arg3 = nullptr;
         if (!args[3].isUndefined()) {
             ok &= seval_to_reference(args[3], &arg3);
             cobj->rasterizerState = *arg3;
         }
-        cocos2d::GFXDepthStencilState* arg4 = nullptr;
+        cc::GFXDepthStencilState* arg4 = nullptr;
         if (!args[4].isUndefined()) {
             ok &= seval_to_reference(args[4], &arg4);
             cobj->depthStencilState = *arg4;
         }
-        cocos2d::GFXBlendState* arg5 = nullptr;
+        cc::GFXBlendState* arg5 = nullptr;
         if (!args[5].isUndefined()) {
             ok &= seval_to_reference(args[5], &arg5);
             cobj->blendState = *arg5;
         }
-        std::vector<cocos2d::GFXDynamicState> arg6;
+        std::vector<cc::GFXDynamicState> arg6;
         if (!args[6].isUndefined()) {
             ok &= seval_to_std_vector(args[6], &arg6);
             cobj->dynamicStates = arg6;
         }
-        cocos2d::GFXPipelineLayout* arg7 = nullptr;
+        cc::GFXPipelineLayout* arg7 = nullptr;
         if (!args[7].isUndefined()) {
             ok &= seval_to_native_ptr(args[7], &arg7);
             cobj->layout = arg7;
         }
-        cocos2d::GFXRenderPass* arg8 = nullptr;
+        cc::GFXRenderPass* arg8 = nullptr;
         if (!args[8].isUndefined()) {
             ok &= seval_to_native_ptr(args[8], &arg8);
             cobj->renderPass = arg8;
@@ -11742,24 +11742,24 @@ static bool js_gfx_GFXPipelineStateInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXPipelineStateInfo_constructor, __jsb_cocos2d_GFXPipelineStateInfo_class, js_cocos2d_GFXPipelineStateInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXPipelineStateInfo_constructor, __jsb_cc_GFXPipelineStateInfo_class, js_cc_GFXPipelineStateInfo_finalize)
 
 
 
 
-static bool js_cocos2d_GFXPipelineStateInfo_finalize(se::State& s)
+static bool js_cc_GFXPipelineStateInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXPipelineStateInfo)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXPipelineStateInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXPipelineStateInfo* cobj = (cocos2d::GFXPipelineStateInfo*)s.nativeThisObject();
+        cc::GFXPipelineStateInfo* cobj = (cc::GFXPipelineStateInfo*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXPipelineStateInfo_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXPipelineStateInfo_finalize)
 
 bool js_register_gfx_GFXPipelineStateInfo(se::Object* obj)
 {
@@ -11774,23 +11774,23 @@ bool js_register_gfx_GFXPipelineStateInfo(se::Object* obj)
     cls->defineProperty("dynamicStates", _SE(js_gfx_GFXPipelineStateInfo_get_dynamicStates), _SE(js_gfx_GFXPipelineStateInfo_set_dynamicStates));
     cls->defineProperty("layout", _SE(js_gfx_GFXPipelineStateInfo_get_layout), _SE(js_gfx_GFXPipelineStateInfo_set_layout));
     cls->defineProperty("renderPass", _SE(js_gfx_GFXPipelineStateInfo_get_renderPass), _SE(js_gfx_GFXPipelineStateInfo_set_renderPass));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXPipelineStateInfo_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXPipelineStateInfo_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXPipelineStateInfo>(cls);
+    JSBClassType::registerClass<cc::GFXPipelineStateInfo>(cls);
 
-    __jsb_cocos2d_GFXPipelineStateInfo_proto = cls->getProto();
-    __jsb_cocos2d_GFXPipelineStateInfo_class = cls;
+    __jsb_cc_GFXPipelineStateInfo_proto = cls->getProto();
+    __jsb_cc_GFXPipelineStateInfo_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXCommandBufferInfo_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXCommandBufferInfo_class = nullptr;
+se::Object* __jsb_cc_GFXCommandBufferInfo_proto = nullptr;
+se::Class* __jsb_cc_GFXCommandBufferInfo_class = nullptr;
 
 static bool js_gfx_GFXCommandBufferInfo_get_allocator(se::State& s)
 {
-    cocos2d::GFXCommandBufferInfo* cobj = (cocos2d::GFXCommandBufferInfo*)s.nativeThisObject();
+    cc::GFXCommandBufferInfo* cobj = (cc::GFXCommandBufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBufferInfo_get_allocator : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -11804,11 +11804,11 @@ SE_BIND_PROP_GET(js_gfx_GFXCommandBufferInfo_get_allocator)
 static bool js_gfx_GFXCommandBufferInfo_set_allocator(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXCommandBufferInfo* cobj = (cocos2d::GFXCommandBufferInfo*)s.nativeThisObject();
+    cc::GFXCommandBufferInfo* cobj = (cc::GFXCommandBufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBufferInfo_set_allocator : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXCommandAllocator* arg0 = nullptr;
+    cc::GFXCommandAllocator* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBufferInfo_set_allocator : Error processing new value");
     cobj->allocator = arg0;
@@ -11818,7 +11818,7 @@ SE_BIND_PROP_SET(js_gfx_GFXCommandBufferInfo_set_allocator)
 
 static bool js_gfx_GFXCommandBufferInfo_get_type(se::State& s)
 {
-    cocos2d::GFXCommandBufferInfo* cobj = (cocos2d::GFXCommandBufferInfo*)s.nativeThisObject();
+    cc::GFXCommandBufferInfo* cobj = (cc::GFXCommandBufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBufferInfo_get_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -11832,19 +11832,19 @@ SE_BIND_PROP_GET(js_gfx_GFXCommandBufferInfo_get_type)
 static bool js_gfx_GFXCommandBufferInfo_set_type(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXCommandBufferInfo* cobj = (cocos2d::GFXCommandBufferInfo*)s.nativeThisObject();
+    cc::GFXCommandBufferInfo* cobj = (cc::GFXCommandBufferInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBufferInfo_set_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXCommandBufferType arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXCommandBufferType)tmp; } while(false);
+    cc::GFXCommandBufferType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXCommandBufferType)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBufferInfo_set_type : Error processing new value");
     cobj->type = arg0;
     return true;
 }
 SE_BIND_PROP_SET(js_gfx_GFXCommandBufferInfo_set_type)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXCommandBufferInfo_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXCommandBufferInfo_finalize)
 
 static bool js_gfx_GFXCommandBufferInfo_constructor(se::State& s)
 {
@@ -11854,7 +11854,7 @@ static bool js_gfx_GFXCommandBufferInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXCommandBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXCommandBufferInfo);
+        cc::GFXCommandBufferInfo* cobj = JSB_ALLOC(cc::GFXCommandBufferInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -11864,17 +11864,17 @@ static bool js_gfx_GFXCommandBufferInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXCommandBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXCommandBufferInfo);
-        cocos2d::GFXCommandAllocator* arg0 = nullptr;
+        cc::GFXCommandBufferInfo* cobj = JSB_ALLOC(cc::GFXCommandBufferInfo);
+        cc::GFXCommandAllocator* arg0 = nullptr;
         json->getProperty("allocator", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_native_ptr(field, &arg0);
             cobj->allocator = arg0;
         }
-        cocos2d::GFXCommandBufferType arg1;
+        cc::GFXCommandBufferType arg1;
         json->getProperty("type", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXCommandBufferType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cc::GFXCommandBufferType)tmp; } while(false);
             cobj->type = arg1;
         }
 
@@ -11890,15 +11890,15 @@ static bool js_gfx_GFXCommandBufferInfo_constructor(se::State& s)
     }
     else if(argc == 2)
     {
-        cocos2d::GFXCommandBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXCommandBufferInfo);
-        cocos2d::GFXCommandAllocator* arg0 = nullptr;
+        cc::GFXCommandBufferInfo* cobj = JSB_ALLOC(cc::GFXCommandBufferInfo);
+        cc::GFXCommandAllocator* arg0 = nullptr;
         if (!args[0].isUndefined()) {
             ok &= seval_to_native_ptr(args[0], &arg0);
             cobj->allocator = arg0;
         }
-        cocos2d::GFXCommandBufferType arg1;
+        cc::GFXCommandBufferType arg1;
         if (!args[1].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXCommandBufferType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::GFXCommandBufferType)tmp; } while(false);
             cobj->type = arg1;
         }
 
@@ -11916,24 +11916,24 @@ static bool js_gfx_GFXCommandBufferInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXCommandBufferInfo_constructor, __jsb_cocos2d_GFXCommandBufferInfo_class, js_cocos2d_GFXCommandBufferInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXCommandBufferInfo_constructor, __jsb_cc_GFXCommandBufferInfo_class, js_cc_GFXCommandBufferInfo_finalize)
 
 
 
 
-static bool js_cocos2d_GFXCommandBufferInfo_finalize(se::State& s)
+static bool js_cc_GFXCommandBufferInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXCommandBufferInfo)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXCommandBufferInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXCommandBufferInfo* cobj = (cocos2d::GFXCommandBufferInfo*)s.nativeThisObject();
+        cc::GFXCommandBufferInfo* cobj = (cc::GFXCommandBufferInfo*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXCommandBufferInfo_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXCommandBufferInfo_finalize)
 
 bool js_register_gfx_GFXCommandBufferInfo(se::Object* obj)
 {
@@ -11941,23 +11941,23 @@ bool js_register_gfx_GFXCommandBufferInfo(se::Object* obj)
 
     cls->defineProperty("allocator", _SE(js_gfx_GFXCommandBufferInfo_get_allocator), _SE(js_gfx_GFXCommandBufferInfo_set_allocator));
     cls->defineProperty("type", _SE(js_gfx_GFXCommandBufferInfo_get_type), _SE(js_gfx_GFXCommandBufferInfo_set_type));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXCommandBufferInfo_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXCommandBufferInfo_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXCommandBufferInfo>(cls);
+    JSBClassType::registerClass<cc::GFXCommandBufferInfo>(cls);
 
-    __jsb_cocos2d_GFXCommandBufferInfo_proto = cls->getProto();
-    __jsb_cocos2d_GFXCommandBufferInfo_class = cls;
+    __jsb_cc_GFXCommandBufferInfo_proto = cls->getProto();
+    __jsb_cc_GFXCommandBufferInfo_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXQueueInfo_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXQueueInfo_class = nullptr;
+se::Object* __jsb_cc_GFXQueueInfo_proto = nullptr;
+se::Class* __jsb_cc_GFXQueueInfo_class = nullptr;
 
 static bool js_gfx_GFXQueueInfo_get_type(se::State& s)
 {
-    cocos2d::GFXQueueInfo* cobj = (cocos2d::GFXQueueInfo*)s.nativeThisObject();
+    cc::GFXQueueInfo* cobj = (cc::GFXQueueInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXQueueInfo_get_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -11971,19 +11971,19 @@ SE_BIND_PROP_GET(js_gfx_GFXQueueInfo_get_type)
 static bool js_gfx_GFXQueueInfo_set_type(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXQueueInfo* cobj = (cocos2d::GFXQueueInfo*)s.nativeThisObject();
+    cc::GFXQueueInfo* cobj = (cc::GFXQueueInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXQueueInfo_set_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXQueueType arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXQueueType)tmp; } while(false);
+    cc::GFXQueueType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXQueueType)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXQueueInfo_set_type : Error processing new value");
     cobj->type = arg0;
     return true;
 }
 SE_BIND_PROP_SET(js_gfx_GFXQueueInfo_set_type)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXQueueInfo_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXQueueInfo_finalize)
 
 static bool js_gfx_GFXQueueInfo_constructor(se::State& s)
 {
@@ -11993,17 +11993,17 @@ static bool js_gfx_GFXQueueInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXQueueInfo* cobj = JSB_ALLOC(cocos2d::GFXQueueInfo);
+        cc::GFXQueueInfo* cobj = JSB_ALLOC(cc::GFXQueueInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
     else if(argc == 1)
     {
-        cocos2d::GFXQueueInfo* cobj = JSB_ALLOC(cocos2d::GFXQueueInfo);
-        cocos2d::GFXQueueType arg0;
+        cc::GFXQueueInfo* cobj = JSB_ALLOC(cc::GFXQueueInfo);
+        cc::GFXQueueType arg0;
         if (!args[0].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXQueueType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXQueueType)tmp; } while(false);
             cobj->type = arg0;
         }
 
@@ -12021,47 +12021,47 @@ static bool js_gfx_GFXQueueInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXQueueInfo_constructor, __jsb_cocos2d_GFXQueueInfo_class, js_cocos2d_GFXQueueInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXQueueInfo_constructor, __jsb_cc_GFXQueueInfo_class, js_cc_GFXQueueInfo_finalize)
 
 
 
 
-static bool js_cocos2d_GFXQueueInfo_finalize(se::State& s)
+static bool js_cc_GFXQueueInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXQueueInfo)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXQueueInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXQueueInfo* cobj = (cocos2d::GFXQueueInfo*)s.nativeThisObject();
+        cc::GFXQueueInfo* cobj = (cc::GFXQueueInfo*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXQueueInfo_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXQueueInfo_finalize)
 
 bool js_register_gfx_GFXQueueInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXQueueInfo", obj, nullptr, _SE(js_gfx_GFXQueueInfo_constructor));
 
     cls->defineProperty("type", _SE(js_gfx_GFXQueueInfo_get_type), _SE(js_gfx_GFXQueueInfo_set_type));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXQueueInfo_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXQueueInfo_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXQueueInfo>(cls);
+    JSBClassType::registerClass<cc::GFXQueueInfo>(cls);
 
-    __jsb_cocos2d_GFXQueueInfo_proto = cls->getProto();
-    __jsb_cocos2d_GFXQueueInfo_class = cls;
+    __jsb_cc_GFXQueueInfo_proto = cls->getProto();
+    __jsb_cc_GFXQueueInfo_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXFormatInfo_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXFormatInfo_class = nullptr;
+se::Object* __jsb_cc_GFXFormatInfo_proto = nullptr;
+se::Class* __jsb_cc_GFXFormatInfo_class = nullptr;
 
 static bool js_gfx_GFXFormatInfo_get_name(se::State& s)
 {
-    cocos2d::GFXFormatInfo* cobj = (cocos2d::GFXFormatInfo*)s.nativeThisObject();
+    cc::GFXFormatInfo* cobj = (cc::GFXFormatInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFormatInfo_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -12075,11 +12075,11 @@ SE_BIND_PROP_GET(js_gfx_GFXFormatInfo_get_name)
 static bool js_gfx_GFXFormatInfo_set_name(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXFormatInfo* cobj = (cocos2d::GFXFormatInfo*)s.nativeThisObject();
+    cc::GFXFormatInfo* cobj = (cc::GFXFormatInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFormatInfo_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXFormatInfo_set_name : Error processing new value");
     cobj->name = arg0;
@@ -12089,7 +12089,7 @@ SE_BIND_PROP_SET(js_gfx_GFXFormatInfo_set_name)
 
 static bool js_gfx_GFXFormatInfo_get_size(se::State& s)
 {
-    cocos2d::GFXFormatInfo* cobj = (cocos2d::GFXFormatInfo*)s.nativeThisObject();
+    cc::GFXFormatInfo* cobj = (cc::GFXFormatInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFormatInfo_get_size : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -12103,7 +12103,7 @@ SE_BIND_PROP_GET(js_gfx_GFXFormatInfo_get_size)
 static bool js_gfx_GFXFormatInfo_set_size(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXFormatInfo* cobj = (cocos2d::GFXFormatInfo*)s.nativeThisObject();
+    cc::GFXFormatInfo* cobj = (cc::GFXFormatInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFormatInfo_set_size : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -12117,7 +12117,7 @@ SE_BIND_PROP_SET(js_gfx_GFXFormatInfo_set_size)
 
 static bool js_gfx_GFXFormatInfo_get_count(se::State& s)
 {
-    cocos2d::GFXFormatInfo* cobj = (cocos2d::GFXFormatInfo*)s.nativeThisObject();
+    cc::GFXFormatInfo* cobj = (cc::GFXFormatInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFormatInfo_get_count : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -12131,7 +12131,7 @@ SE_BIND_PROP_GET(js_gfx_GFXFormatInfo_get_count)
 static bool js_gfx_GFXFormatInfo_set_count(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXFormatInfo* cobj = (cocos2d::GFXFormatInfo*)s.nativeThisObject();
+    cc::GFXFormatInfo* cobj = (cc::GFXFormatInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFormatInfo_set_count : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -12145,7 +12145,7 @@ SE_BIND_PROP_SET(js_gfx_GFXFormatInfo_set_count)
 
 static bool js_gfx_GFXFormatInfo_get_type(se::State& s)
 {
-    cocos2d::GFXFormatInfo* cobj = (cocos2d::GFXFormatInfo*)s.nativeThisObject();
+    cc::GFXFormatInfo* cobj = (cc::GFXFormatInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFormatInfo_get_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -12159,12 +12159,12 @@ SE_BIND_PROP_GET(js_gfx_GFXFormatInfo_get_type)
 static bool js_gfx_GFXFormatInfo_set_type(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXFormatInfo* cobj = (cocos2d::GFXFormatInfo*)s.nativeThisObject();
+    cc::GFXFormatInfo* cobj = (cc::GFXFormatInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFormatInfo_set_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cocos2d::GFXFormatType arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXFormatType)tmp; } while(false);
+    cc::GFXFormatType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXFormatType)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXFormatInfo_set_type : Error processing new value");
     cobj->type = arg0;
     return true;
@@ -12173,7 +12173,7 @@ SE_BIND_PROP_SET(js_gfx_GFXFormatInfo_set_type)
 
 static bool js_gfx_GFXFormatInfo_get_hasAlpha(se::State& s)
 {
-    cocos2d::GFXFormatInfo* cobj = (cocos2d::GFXFormatInfo*)s.nativeThisObject();
+    cc::GFXFormatInfo* cobj = (cc::GFXFormatInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFormatInfo_get_hasAlpha : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -12187,7 +12187,7 @@ SE_BIND_PROP_GET(js_gfx_GFXFormatInfo_get_hasAlpha)
 static bool js_gfx_GFXFormatInfo_set_hasAlpha(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXFormatInfo* cobj = (cocos2d::GFXFormatInfo*)s.nativeThisObject();
+    cc::GFXFormatInfo* cobj = (cc::GFXFormatInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFormatInfo_set_hasAlpha : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -12201,7 +12201,7 @@ SE_BIND_PROP_SET(js_gfx_GFXFormatInfo_set_hasAlpha)
 
 static bool js_gfx_GFXFormatInfo_get_hasDepth(se::State& s)
 {
-    cocos2d::GFXFormatInfo* cobj = (cocos2d::GFXFormatInfo*)s.nativeThisObject();
+    cc::GFXFormatInfo* cobj = (cc::GFXFormatInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFormatInfo_get_hasDepth : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -12215,7 +12215,7 @@ SE_BIND_PROP_GET(js_gfx_GFXFormatInfo_get_hasDepth)
 static bool js_gfx_GFXFormatInfo_set_hasDepth(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXFormatInfo* cobj = (cocos2d::GFXFormatInfo*)s.nativeThisObject();
+    cc::GFXFormatInfo* cobj = (cc::GFXFormatInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFormatInfo_set_hasDepth : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -12229,7 +12229,7 @@ SE_BIND_PROP_SET(js_gfx_GFXFormatInfo_set_hasDepth)
 
 static bool js_gfx_GFXFormatInfo_get_hasStencil(se::State& s)
 {
-    cocos2d::GFXFormatInfo* cobj = (cocos2d::GFXFormatInfo*)s.nativeThisObject();
+    cc::GFXFormatInfo* cobj = (cc::GFXFormatInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFormatInfo_get_hasStencil : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -12243,7 +12243,7 @@ SE_BIND_PROP_GET(js_gfx_GFXFormatInfo_get_hasStencil)
 static bool js_gfx_GFXFormatInfo_set_hasStencil(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXFormatInfo* cobj = (cocos2d::GFXFormatInfo*)s.nativeThisObject();
+    cc::GFXFormatInfo* cobj = (cc::GFXFormatInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFormatInfo_set_hasStencil : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -12257,7 +12257,7 @@ SE_BIND_PROP_SET(js_gfx_GFXFormatInfo_set_hasStencil)
 
 static bool js_gfx_GFXFormatInfo_get_isCompressed(se::State& s)
 {
-    cocos2d::GFXFormatInfo* cobj = (cocos2d::GFXFormatInfo*)s.nativeThisObject();
+    cc::GFXFormatInfo* cobj = (cc::GFXFormatInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFormatInfo_get_isCompressed : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -12271,7 +12271,7 @@ SE_BIND_PROP_GET(js_gfx_GFXFormatInfo_get_isCompressed)
 static bool js_gfx_GFXFormatInfo_set_isCompressed(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXFormatInfo* cobj = (cocos2d::GFXFormatInfo*)s.nativeThisObject();
+    cc::GFXFormatInfo* cobj = (cc::GFXFormatInfo*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFormatInfo_set_isCompressed : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -12283,7 +12283,7 @@ static bool js_gfx_GFXFormatInfo_set_isCompressed(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXFormatInfo_set_isCompressed)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXFormatInfo_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXFormatInfo_finalize)
 
 static bool js_gfx_GFXFormatInfo_constructor(se::State& s)
 {
@@ -12293,7 +12293,7 @@ static bool js_gfx_GFXFormatInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXFormatInfo* cobj = JSB_ALLOC(cocos2d::GFXFormatInfo);
+        cc::GFXFormatInfo* cobj = JSB_ALLOC(cc::GFXFormatInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -12303,8 +12303,8 @@ static bool js_gfx_GFXFormatInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXFormatInfo* cobj = JSB_ALLOC(cocos2d::GFXFormatInfo);
-        cocos2d::String arg0;
+        cc::GFXFormatInfo* cobj = JSB_ALLOC(cc::GFXFormatInfo);
+        cc::String arg0;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
             arg0 = field.toStringForce().c_str();
@@ -12322,10 +12322,10 @@ static bool js_gfx_GFXFormatInfo_constructor(se::State& s)
             ok &= seval_to_uint32(field, (uint32_t*)&arg2);
             cobj->count = arg2;
         }
-        cocos2d::GFXFormatType arg3;
+        cc::GFXFormatType arg3;
         json->getProperty("type", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cocos2d::GFXFormatType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cc::GFXFormatType)tmp; } while(false);
             cobj->type = arg3;
         }
         bool arg4;
@@ -12365,8 +12365,8 @@ static bool js_gfx_GFXFormatInfo_constructor(se::State& s)
     }
     else if(argc == 8)
     {
-        cocos2d::GFXFormatInfo* cobj = JSB_ALLOC(cocos2d::GFXFormatInfo);
-        cocos2d::String arg0;
+        cc::GFXFormatInfo* cobj = JSB_ALLOC(cc::GFXFormatInfo);
+        cc::String arg0;
         if (!args[0].isUndefined()) {
             arg0 = args[0].toStringForce().c_str();
             cobj->name = arg0;
@@ -12381,9 +12381,9 @@ static bool js_gfx_GFXFormatInfo_constructor(se::State& s)
             ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
             cobj->count = arg2;
         }
-        cocos2d::GFXFormatType arg3;
+        cc::GFXFormatType arg3;
         if (!args[3].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cocos2d::GFXFormatType)tmp; } while(false);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::GFXFormatType)tmp; } while(false);
             cobj->type = arg3;
         }
         bool arg4;
@@ -12421,24 +12421,24 @@ static bool js_gfx_GFXFormatInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXFormatInfo_constructor, __jsb_cocos2d_GFXFormatInfo_class, js_cocos2d_GFXFormatInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXFormatInfo_constructor, __jsb_cc_GFXFormatInfo_class, js_cc_GFXFormatInfo_finalize)
 
 
 
 
-static bool js_cocos2d_GFXFormatInfo_finalize(se::State& s)
+static bool js_cc_GFXFormatInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXFormatInfo)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXFormatInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXFormatInfo* cobj = (cocos2d::GFXFormatInfo*)s.nativeThisObject();
+        cc::GFXFormatInfo* cobj = (cc::GFXFormatInfo*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXFormatInfo_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXFormatInfo_finalize)
 
 bool js_register_gfx_GFXFormatInfo(se::Object* obj)
 {
@@ -12452,23 +12452,23 @@ bool js_register_gfx_GFXFormatInfo(se::Object* obj)
     cls->defineProperty("hasDepth", _SE(js_gfx_GFXFormatInfo_get_hasDepth), _SE(js_gfx_GFXFormatInfo_set_hasDepth));
     cls->defineProperty("hasStencil", _SE(js_gfx_GFXFormatInfo_get_hasStencil), _SE(js_gfx_GFXFormatInfo_set_hasStencil));
     cls->defineProperty("isCompressed", _SE(js_gfx_GFXFormatInfo_get_isCompressed), _SE(js_gfx_GFXFormatInfo_set_isCompressed));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXFormatInfo_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXFormatInfo_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXFormatInfo>(cls);
+    JSBClassType::registerClass<cc::GFXFormatInfo>(cls);
 
-    __jsb_cocos2d_GFXFormatInfo_proto = cls->getProto();
-    __jsb_cocos2d_GFXFormatInfo_class = cls;
+    __jsb_cc_GFXFormatInfo_proto = cls->getProto();
+    __jsb_cc_GFXFormatInfo_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXMemoryStatus_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXMemoryStatus_class = nullptr;
+se::Object* __jsb_cc_GFXMemoryStatus_proto = nullptr;
+se::Class* __jsb_cc_GFXMemoryStatus_class = nullptr;
 
 static bool js_gfx_GFXMemoryStatus_get_bufferSize(se::State& s)
 {
-    cocos2d::GFXMemoryStatus* cobj = (cocos2d::GFXMemoryStatus*)s.nativeThisObject();
+    cc::GFXMemoryStatus* cobj = (cc::GFXMemoryStatus*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXMemoryStatus_get_bufferSize : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -12482,7 +12482,7 @@ SE_BIND_PROP_GET(js_gfx_GFXMemoryStatus_get_bufferSize)
 static bool js_gfx_GFXMemoryStatus_set_bufferSize(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXMemoryStatus* cobj = (cocos2d::GFXMemoryStatus*)s.nativeThisObject();
+    cc::GFXMemoryStatus* cobj = (cc::GFXMemoryStatus*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXMemoryStatus_set_bufferSize : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -12496,7 +12496,7 @@ SE_BIND_PROP_SET(js_gfx_GFXMemoryStatus_set_bufferSize)
 
 static bool js_gfx_GFXMemoryStatus_get_textureSize(se::State& s)
 {
-    cocos2d::GFXMemoryStatus* cobj = (cocos2d::GFXMemoryStatus*)s.nativeThisObject();
+    cc::GFXMemoryStatus* cobj = (cc::GFXMemoryStatus*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXMemoryStatus_get_textureSize : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -12510,7 +12510,7 @@ SE_BIND_PROP_GET(js_gfx_GFXMemoryStatus_get_textureSize)
 static bool js_gfx_GFXMemoryStatus_set_textureSize(se::State& s)
 {
     const auto& args = s.args();
-    cocos2d::GFXMemoryStatus* cobj = (cocos2d::GFXMemoryStatus*)s.nativeThisObject();
+    cc::GFXMemoryStatus* cobj = (cc::GFXMemoryStatus*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXMemoryStatus_set_textureSize : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -12522,7 +12522,7 @@ static bool js_gfx_GFXMemoryStatus_set_textureSize(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXMemoryStatus_set_textureSize)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXMemoryStatus_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXMemoryStatus_finalize)
 
 static bool js_gfx_GFXMemoryStatus_constructor(se::State& s)
 {
@@ -12532,7 +12532,7 @@ static bool js_gfx_GFXMemoryStatus_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXMemoryStatus* cobj = JSB_ALLOC(cocos2d::GFXMemoryStatus);
+        cc::GFXMemoryStatus* cobj = JSB_ALLOC(cc::GFXMemoryStatus);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -12542,7 +12542,7 @@ static bool js_gfx_GFXMemoryStatus_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXMemoryStatus* cobj = JSB_ALLOC(cocos2d::GFXMemoryStatus);
+        cc::GFXMemoryStatus* cobj = JSB_ALLOC(cc::GFXMemoryStatus);
         unsigned int arg0 = 0;
         json->getProperty("bufferSize", &field);
         if(!field.isUndefined()) {
@@ -12568,7 +12568,7 @@ static bool js_gfx_GFXMemoryStatus_constructor(se::State& s)
     }
     else if(argc == 2)
     {
-        cocos2d::GFXMemoryStatus* cobj = JSB_ALLOC(cocos2d::GFXMemoryStatus);
+        cc::GFXMemoryStatus* cobj = JSB_ALLOC(cc::GFXMemoryStatus);
         unsigned int arg0 = 0;
         if (!args[0].isUndefined()) {
             ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
@@ -12594,24 +12594,24 @@ static bool js_gfx_GFXMemoryStatus_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXMemoryStatus_constructor, __jsb_cocos2d_GFXMemoryStatus_class, js_cocos2d_GFXMemoryStatus_finalize)
+SE_BIND_CTOR(js_gfx_GFXMemoryStatus_constructor, __jsb_cc_GFXMemoryStatus_class, js_cc_GFXMemoryStatus_finalize)
 
 
 
 
-static bool js_cocos2d_GFXMemoryStatus_finalize(se::State& s)
+static bool js_cc_GFXMemoryStatus_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXMemoryStatus)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXMemoryStatus)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXMemoryStatus* cobj = (cocos2d::GFXMemoryStatus*)s.nativeThisObject();
+        cc::GFXMemoryStatus* cobj = (cc::GFXMemoryStatus*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXMemoryStatus_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXMemoryStatus_finalize)
 
 bool js_register_gfx_GFXMemoryStatus(se::Object* obj)
 {
@@ -12619,23 +12619,23 @@ bool js_register_gfx_GFXMemoryStatus(se::Object* obj)
 
     cls->defineProperty("bufferSize", _SE(js_gfx_GFXMemoryStatus_get_bufferSize), _SE(js_gfx_GFXMemoryStatus_set_bufferSize));
     cls->defineProperty("textureSize", _SE(js_gfx_GFXMemoryStatus_get_textureSize), _SE(js_gfx_GFXMemoryStatus_set_textureSize));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXMemoryStatus_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXMemoryStatus_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXMemoryStatus>(cls);
+    JSBClassType::registerClass<cc::GFXMemoryStatus>(cls);
 
-    __jsb_cocos2d_GFXMemoryStatus_proto = cls->getProto();
-    __jsb_cocos2d_GFXMemoryStatus_class = cls;
+    __jsb_cc_GFXMemoryStatus_proto = cls->getProto();
+    __jsb_cc_GFXMemoryStatus_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXObject_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXObject_class = nullptr;
+se::Object* __jsb_cc_GFXObject_proto = nullptr;
+se::Class* __jsb_cc_GFXObject_class = nullptr;
 
 static bool js_gfx_GFXObject_getType(se::State& s)
 {
-    cocos2d::GFXObject* cobj = (cocos2d::GFXObject*)s.nativeThisObject();
+    cc::GFXObject* cobj = (cc::GFXObject*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXObject_getType : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12653,7 +12653,7 @@ SE_BIND_PROP_GET(js_gfx_GFXObject_getType)
 
 static bool js_gfx_GFXObject_getStatus(se::State& s)
 {
-    cocos2d::GFXObject* cobj = (cocos2d::GFXObject*)s.nativeThisObject();
+    cc::GFXObject* cobj = (cc::GFXObject*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXObject_getStatus : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12669,38 +12669,38 @@ static bool js_gfx_GFXObject_getStatus(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_GFXObject_getStatus)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXObject_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXObject_finalize)
 
 static bool js_gfx_GFXObject_constructor(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    cocos2d::GFXObjectType arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXObjectType)tmp; } while(false);
+    cc::GFXObjectType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXObjectType)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXObject_constructor : Error processing arguments");
-    cocos2d::GFXObject* cobj = JSB_ALLOC(cocos2d::GFXObject, arg0);
+    cc::GFXObject* cobj = JSB_ALLOC(cc::GFXObject, arg0);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GFXObject_constructor, __jsb_cocos2d_GFXObject_class, js_cocos2d_GFXObject_finalize)
+SE_BIND_CTOR(js_gfx_GFXObject_constructor, __jsb_cc_GFXObject_class, js_cc_GFXObject_finalize)
 
 
 
 
-static bool js_cocos2d_GFXObject_finalize(se::State& s)
+static bool js_cc_GFXObject_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXObject)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXObject)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXObject* cobj = (cocos2d::GFXObject*)s.nativeThisObject();
+        cc::GFXObject* cobj = (cc::GFXObject*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXObject_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXObject_finalize)
 
 bool js_register_gfx_GFXObject(se::Object* obj)
 {
@@ -12708,23 +12708,23 @@ bool js_register_gfx_GFXObject(se::Object* obj)
 
     cls->defineProperty("status", _SE(js_gfx_GFXObject_getStatus), nullptr);
     cls->defineProperty("gfxType", _SE(js_gfx_GFXObject_getType), nullptr);
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXObject_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXObject_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXObject>(cls);
+    JSBClassType::registerClass<cc::GFXObject>(cls);
 
-    __jsb_cocos2d_GFXObject_proto = cls->getProto();
-    __jsb_cocos2d_GFXObject_class = cls;
+    __jsb_cc_GFXObject_proto = cls->getProto();
+    __jsb_cc_GFXObject_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXDevice_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXDevice_class = nullptr;
+se::Object* __jsb_cc_GFXDevice_proto = nullptr;
+se::Class* __jsb_cc_GFXDevice_class = nullptr;
 
 static bool js_gfx_GFXDevice_getMaxUniformBlockSize(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMaxUniformBlockSize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12742,7 +12742,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getMaxUniformBlockSize)
 
 static bool js_gfx_GFXDevice_getMaxVertexTextureUnits(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMaxVertexTextureUnits : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12760,7 +12760,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getMaxVertexTextureUnits)
 
 static bool js_gfx_GFXDevice_getProjectionSignY(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getProjectionSignY : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12778,7 +12778,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getProjectionSignY)
 
 static bool js_gfx_GFXDevice_getMaxVertexUniformVectors(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMaxVertexUniformVectors : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12796,7 +12796,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getMaxVertexUniformVectors)
 
 static bool js_gfx_GFXDevice_getGfxAPI(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getGfxAPI : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12814,13 +12814,13 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getGfxAPI)
 
 static bool js_gfx_GFXDevice_getVendor(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getVendor : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cocos2d::String& result = cobj->getVendor();
+        const cc::String& result = cobj->getVendor();
         s.rval().setString(result);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getVendor : Error processing arguments");
         return true;
@@ -12832,14 +12832,14 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getVendor)
 
 static bool js_gfx_GFXDevice_hasFeature(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_hasFeature : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXFeature arg0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXFeature)tmp; } while(false);
+        cc::GFXFeature arg0;
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXFeature)tmp; } while(false);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_hasFeature : Error processing arguments");
         bool result = cobj->hasFeature(arg0);
         ok &= boolean_to_seval(result, &s.rval());
@@ -12853,16 +12853,16 @@ SE_BIND_FUNC(js_gfx_GFXDevice_hasFeature)
 
 static bool js_gfx_GFXDevice_createFence(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_createFence : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXFenceInfo* arg0 = nullptr;
+        cc::GFXFenceInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createFence : Error processing arguments");
-        cocos2d::GFXFence* result = cobj->createFence(*arg0);
+        cc::GFXFence* result = cobj->createFence(*arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createFence : Error processing arguments");
         return true;
@@ -12874,13 +12874,13 @@ SE_BIND_FUNC(js_gfx_GFXDevice_createFence)
 
 static bool js_gfx_GFXDevice_getContext(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getContext : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXContext* result = cobj->getContext();
+        cc::GFXContext* result = cobj->getContext();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getContext : Error processing arguments");
         return true;
@@ -12892,7 +12892,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getContext)
 
 static bool js_gfx_GFXDevice_getWidth(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getWidth : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12910,7 +12910,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getWidth)
 
 static bool js_gfx_GFXDevice_setReverseCW(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_setReverseCW : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12929,16 +12929,16 @@ SE_BIND_PROP_SET(js_gfx_GFXDevice_setReverseCW)
 
 static bool js_gfx_GFXDevice_createCommandAllocator(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_createCommandAllocator : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXCommandAllocatorInfo* arg0 = nullptr;
+        cc::GFXCommandAllocatorInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createCommandAllocator : Error processing arguments");
-        cocos2d::GFXCommandAllocator* result = cobj->createCommandAllocator(*arg0);
+        cc::GFXCommandAllocator* result = cobj->createCommandAllocator(*arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createCommandAllocator : Error processing arguments");
         return true;
@@ -12950,13 +12950,13 @@ SE_BIND_FUNC(js_gfx_GFXDevice_createCommandAllocator)
 
 static bool js_gfx_GFXDevice_getQueue(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getQueue : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXQueue* result = cobj->getQueue();
+        cc::GFXQueue* result = cobj->getQueue();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getQueue : Error processing arguments");
         return true;
@@ -12968,7 +12968,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getQueue)
 
 static bool js_gfx_GFXDevice_getMaxVertexAttributes(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMaxVertexAttributes : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12986,7 +12986,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getMaxVertexAttributes)
 
 static bool js_gfx_GFXDevice_getDepthStencilFormat(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getDepthStencilFormat : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13004,7 +13004,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getDepthStencilFormat)
 
 static bool js_gfx_GFXDevice_getNumTris(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getNumTris : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13022,13 +13022,13 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getNumTris)
 
 static bool js_gfx_GFXDevice_getRenderer(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getRenderer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cocos2d::String& result = cobj->getRenderer();
+        const cc::String& result = cobj->getRenderer();
         s.rval().setString(result);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getRenderer : Error processing arguments");
         return true;
@@ -13040,7 +13040,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getRenderer)
 
 static bool js_gfx_GFXDevice_getStencilBits(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getStencilBits : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13058,13 +13058,13 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getStencilBits)
 
 static bool js_gfx_GFXDevice_getDeviceName(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getDeviceName : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cocos2d::String& result = cobj->getDeviceName();
+        const cc::String& result = cobj->getDeviceName();
         s.rval().setString(result);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getDeviceName : Error processing arguments");
         return true;
@@ -13076,7 +13076,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getDeviceName)
 
 static bool js_gfx_GFXDevice_getNumInstances(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getNumInstances : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13094,7 +13094,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getNumInstances)
 
 static bool js_gfx_GFXDevice_getHeight(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getHeight : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13112,7 +13112,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getHeight)
 
 static bool js_gfx_GFXDevice_getMaxFragmentUniformVectors(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMaxFragmentUniformVectors : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13130,16 +13130,16 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getMaxFragmentUniformVectors)
 
 static bool js_gfx_GFXDevice_createPipelineState(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_createPipelineState : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXPipelineStateInfo* arg0 = nullptr;
+        cc::GFXPipelineStateInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createPipelineState : Error processing arguments");
-        cocos2d::GFXPipelineState* result = cobj->createPipelineState(*arg0);
+        cc::GFXPipelineState* result = cobj->createPipelineState(*arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createPipelineState : Error processing arguments");
         return true;
@@ -13151,16 +13151,16 @@ SE_BIND_FUNC(js_gfx_GFXDevice_createPipelineState)
 
 static bool js_gfx_GFXDevice_createCommandBuffer(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_createCommandBuffer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXCommandBufferInfo* arg0 = nullptr;
+        cc::GFXCommandBufferInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createCommandBuffer : Error processing arguments");
-        cocos2d::GFXCommandBuffer* result = cobj->createCommandBuffer(*arg0);
+        cc::GFXCommandBuffer* result = cobj->createCommandBuffer(*arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createCommandBuffer : Error processing arguments");
         return true;
@@ -13172,7 +13172,7 @@ SE_BIND_FUNC(js_gfx_GFXDevice_createCommandBuffer)
 
 static bool js_gfx_GFXDevice_present(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_present : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13187,7 +13187,7 @@ SE_BIND_FUNC(js_gfx_GFXDevice_present)
 
 static bool js_gfx_GFXDevice_destroy(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13202,7 +13202,7 @@ SE_BIND_FUNC(js_gfx_GFXDevice_destroy)
 
 static bool js_gfx_GFXDevice_getColorFormat(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getColorFormat : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13220,16 +13220,16 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getColorFormat)
 
 static bool js_gfx_GFXDevice_createFramebuffer(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_createFramebuffer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXFramebufferInfo* arg0 = nullptr;
+        cc::GFXFramebufferInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createFramebuffer : Error processing arguments");
-        cocos2d::GFXFramebuffer* result = cobj->createFramebuffer(*arg0);
+        cc::GFXFramebuffer* result = cobj->createFramebuffer(*arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createFramebuffer : Error processing arguments");
         return true;
@@ -13241,7 +13241,7 @@ SE_BIND_FUNC(js_gfx_GFXDevice_createFramebuffer)
 
 static bool js_gfx_GFXDevice_getMaxTextureSize(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMaxTextureSize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13259,16 +13259,16 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getMaxTextureSize)
 
 static bool js_gfx_GFXDevice_createRenderPass(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_createRenderPass : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXRenderPassInfo* arg0 = nullptr;
+        cc::GFXRenderPassInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createRenderPass : Error processing arguments");
-        cocos2d::GFXRenderPass* result = cobj->createRenderPass(*arg0);
+        cc::GFXRenderPass* result = cobj->createRenderPass(*arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createRenderPass : Error processing arguments");
         return true;
@@ -13280,16 +13280,16 @@ SE_BIND_FUNC(js_gfx_GFXDevice_createRenderPass)
 
 static bool js_gfx_GFXDevice_createPipelineLayout(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_createPipelineLayout : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXPipelineLayoutInfo* arg0 = nullptr;
+        cc::GFXPipelineLayoutInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createPipelineLayout : Error processing arguments");
-        cocos2d::GFXPipelineLayout* result = cobj->createPipelineLayout(*arg0);
+        cc::GFXPipelineLayout* result = cobj->createPipelineLayout(*arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createPipelineLayout : Error processing arguments");
         return true;
@@ -13301,7 +13301,7 @@ SE_BIND_FUNC(js_gfx_GFXDevice_createPipelineLayout)
 
 static bool js_gfx_GFXDevice_acquire(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_acquire : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13316,7 +13316,7 @@ SE_BIND_FUNC(js_gfx_GFXDevice_acquire)
 
 static bool js_gfx_GFXDevice_getMaxCubeMapTextureSize(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMaxCubeMapTextureSize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13334,7 +13334,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getMaxCubeMapTextureSize)
 
 static bool js_gfx_GFXDevice_getShaderIdGen(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getShaderIdGen : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13352,7 +13352,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getShaderIdGen)
 
 static bool js_gfx_GFXDevice_getMaxUniformBufferBindings(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMaxUniformBufferBindings : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13370,16 +13370,16 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getMaxUniformBufferBindings)
 
 static bool js_gfx_GFXDevice_createShader(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_createShader : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXShaderInfo* arg0 = nullptr;
+        cc::GFXShaderInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createShader : Error processing arguments");
-        cocos2d::GFXShader* result = cobj->createShader(*arg0);
+        cc::GFXShader* result = cobj->createShader(*arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createShader : Error processing arguments");
         return true;
@@ -13391,16 +13391,16 @@ SE_BIND_FUNC(js_gfx_GFXDevice_createShader)
 
 static bool js_gfx_GFXDevice_createInputAssembler(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_createInputAssembler : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXInputAssemblerInfo* arg0 = nullptr;
+        cc::GFXInputAssemblerInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createInputAssembler : Error processing arguments");
-        cocos2d::GFXInputAssembler* result = cobj->createInputAssembler(*arg0);
+        cc::GFXInputAssembler* result = cobj->createInputAssembler(*arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createInputAssembler : Error processing arguments");
         return true;
@@ -13412,14 +13412,14 @@ SE_BIND_FUNC(js_gfx_GFXDevice_createInputAssembler)
 
 static bool js_gfx_GFXDevice_defineMacro(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_defineMacro : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        cocos2d::String arg0;
-        cocos2d::String arg1;
+        cc::String arg0;
+        cc::String arg1;
         arg0 = args[0].toStringForce().c_str();
         arg1 = args[1].toStringForce().c_str();
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_defineMacro : Error processing arguments");
@@ -13433,16 +13433,16 @@ SE_BIND_FUNC(js_gfx_GFXDevice_defineMacro)
 
 static bool js_gfx_GFXDevice_createSampler(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_createSampler : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXSamplerInfo* arg0 = nullptr;
+        cc::GFXSamplerInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createSampler : Error processing arguments");
-        cocos2d::GFXSampler* result = cobj->createSampler(*arg0);
+        cc::GFXSampler* result = cobj->createSampler(*arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createSampler : Error processing arguments");
         return true;
@@ -13454,16 +13454,16 @@ SE_BIND_FUNC(js_gfx_GFXDevice_createSampler)
 
 static bool js_gfx_GFXDevice_createBuffer(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_createBuffer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXBufferInfo* arg0 = nullptr;
+        cc::GFXBufferInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createBuffer : Error processing arguments");
-        cocos2d::GFXBuffer* result = cobj->createBuffer(*arg0);
+        cc::GFXBuffer* result = cobj->createBuffer(*arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createBuffer : Error processing arguments");
         return true;
@@ -13475,7 +13475,7 @@ SE_BIND_FUNC(js_gfx_GFXDevice_createBuffer)
 
 static bool js_gfx_GFXDevice_getNativeHeight(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getNativeHeight : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13493,13 +13493,13 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getNativeHeight)
 
 static bool js_gfx_GFXDevice_initialize(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXDeviceInfo* arg0 = nullptr;
+        cc::GFXDeviceInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_initialize : Error processing arguments");
         bool result = cobj->initialize(*arg0);
@@ -13514,7 +13514,7 @@ SE_BIND_FUNC(js_gfx_GFXDevice_initialize)
 
 static bool js_gfx_GFXDevice_resize(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_resize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13535,16 +13535,16 @@ SE_BIND_FUNC(js_gfx_GFXDevice_resize)
 
 static bool js_gfx_GFXDevice_createQueue(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_createQueue : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXQueueInfo* arg0 = nullptr;
+        cc::GFXQueueInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createQueue : Error processing arguments");
-        cocos2d::GFXQueue* result = cobj->createQueue(*arg0);
+        cc::GFXQueue* result = cobj->createQueue(*arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createQueue : Error processing arguments");
         return true;
@@ -13556,7 +13556,7 @@ SE_BIND_FUNC(js_gfx_GFXDevice_createQueue)
 
 static bool js_gfx_GFXDevice_getDepthBits(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getDepthBits : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13574,7 +13574,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getDepthBits)
 
 static bool js_gfx_GFXDevice_getMinClipZ(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMinClipZ : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13592,13 +13592,13 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getMinClipZ)
 
 static bool js_gfx_GFXDevice_getMemoryStatus(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMemoryStatus : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXMemoryStatus& result = cobj->getMemoryStatus();
+        cc::GFXMemoryStatus& result = cobj->getMemoryStatus();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getMemoryStatus : Error processing arguments");
         return true;
@@ -13610,7 +13610,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getMemoryStatus)
 
 static bool js_gfx_GFXDevice_getMaxTextureUnits(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMaxTextureUnits : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13628,7 +13628,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getMaxTextureUnits)
 
 static bool js_gfx_GFXDevice_getReverseCW(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getReverseCW : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13646,13 +13646,13 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getReverseCW)
 
 static bool js_gfx_GFXDevice_getCommandAllocator(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getCommandAllocator : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXCommandAllocator* result = cobj->getCommandAllocator();
+        cc::GFXCommandAllocator* result = cobj->getCommandAllocator();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getCommandAllocator : Error processing arguments");
         return true;
@@ -13664,7 +13664,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getCommandAllocator)
 
 static bool js_gfx_GFXDevice_getNumDrawCalls(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getNumDrawCalls : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13682,7 +13682,7 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getNumDrawCalls)
 
 static bool js_gfx_GFXDevice_getNativeWidth(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getNativeWidth : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13700,16 +13700,16 @@ SE_BIND_PROP_GET(js_gfx_GFXDevice_getNativeWidth)
 
 static bool js_gfx_GFXDevice_createBindingLayout(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    cc::GFXDevice* cobj = (cc::GFXDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_createBindingLayout : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXBindingLayoutInfo* arg0 = nullptr;
+        cc::GFXBindingLayoutInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createBindingLayout : Error processing arguments");
-        cocos2d::GFXBindingLayout* result = cobj->createBindingLayout(*arg0);
+        cc::GFXBindingLayout* result = cobj->createBindingLayout(*arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createBindingLayout : Error processing arguments");
         return true;
@@ -13779,21 +13779,21 @@ bool js_register_gfx_GFXDevice(se::Object* obj)
     cls->defineFunction("createQueue", _SE(js_gfx_GFXDevice_createQueue));
     cls->defineFunction("createBindingLayout", _SE(js_gfx_GFXDevice_createBindingLayout));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXDevice>(cls);
+    JSBClassType::registerClass<cc::GFXDevice>(cls);
 
-    __jsb_cocos2d_GFXDevice_proto = cls->getProto();
-    __jsb_cocos2d_GFXDevice_class = cls;
+    __jsb_cc_GFXDevice_proto = cls->getProto();
+    __jsb_cc_GFXDevice_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXBuffer_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXBuffer_class = nullptr;
+se::Object* __jsb_cc_GFXBuffer_proto = nullptr;
+se::Class* __jsb_cc_GFXBuffer_class = nullptr;
 
 static bool js_gfx_GFXBuffer_getBufferView(se::State& s)
 {
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
+    cc::GFXBuffer* cobj = (cc::GFXBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_getBufferView : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13811,7 +13811,7 @@ SE_BIND_PROP_GET(js_gfx_GFXBuffer_getBufferView)
 
 static bool js_gfx_GFXBuffer_getUsage(se::State& s)
 {
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
+    cc::GFXBuffer* cobj = (cc::GFXBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_getUsage : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13829,7 +13829,7 @@ SE_BIND_PROP_GET(js_gfx_GFXBuffer_getUsage)
 
 static bool js_gfx_GFXBuffer_getMemUsage(se::State& s)
 {
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
+    cc::GFXBuffer* cobj = (cc::GFXBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_getMemUsage : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13847,7 +13847,7 @@ SE_BIND_PROP_GET(js_gfx_GFXBuffer_getMemUsage)
 
 static bool js_gfx_GFXBuffer_getSize(se::State& s)
 {
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
+    cc::GFXBuffer* cobj = (cc::GFXBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_getSize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13865,7 +13865,7 @@ SE_BIND_PROP_GET(js_gfx_GFXBuffer_getSize)
 
 static bool js_gfx_GFXBuffer_getCount(se::State& s)
 {
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
+    cc::GFXBuffer* cobj = (cc::GFXBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_getCount : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13883,13 +13883,13 @@ SE_BIND_PROP_GET(js_gfx_GFXBuffer_getCount)
 
 static bool js_gfx_GFXBuffer_initialize(se::State& s)
 {
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
+    cc::GFXBuffer* cobj = (cc::GFXBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXBufferInfo* arg0 = nullptr;
+        cc::GFXBufferInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_initialize : Error processing arguments");
         bool result = cobj->initialize(*arg0);
@@ -13904,7 +13904,7 @@ SE_BIND_FUNC(js_gfx_GFXBuffer_initialize)
 
 static bool js_gfx_GFXBuffer_destroy(se::State& s)
 {
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
+    cc::GFXBuffer* cobj = (cc::GFXBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13919,7 +13919,7 @@ SE_BIND_FUNC(js_gfx_GFXBuffer_destroy)
 
 static bool js_gfx_GFXBuffer_getStride(se::State& s)
 {
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
+    cc::GFXBuffer* cobj = (cc::GFXBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_getStride : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13937,13 +13937,13 @@ SE_BIND_PROP_GET(js_gfx_GFXBuffer_getStride)
 
 static bool js_gfx_GFXBuffer_getDevice(se::State& s)
 {
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
+    cc::GFXBuffer* cobj = (cc::GFXBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_getDevice : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->getDevice();
+        cc::GFXDevice* result = cobj->getDevice();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_getDevice : Error processing arguments");
         return true;
@@ -13955,7 +13955,7 @@ SE_BIND_PROP_GET(js_gfx_GFXBuffer_getDevice)
 
 static bool js_gfx_GFXBuffer_getFlags(se::State& s)
 {
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
+    cc::GFXBuffer* cobj = (cc::GFXBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_getFlags : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13973,7 +13973,7 @@ SE_BIND_PROP_GET(js_gfx_GFXBuffer_getFlags)
 
 static bool js_gfx_GFXBuffer_resize(se::State& s)
 {
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
+    cc::GFXBuffer* cobj = (cc::GFXBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_resize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13990,37 +13990,37 @@ static bool js_gfx_GFXBuffer_resize(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXBuffer_resize)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXBuffer_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXBuffer_finalize)
 
 static bool js_gfx_GFXBuffer_constructor(se::State& s)
 {
-    //#3 cocos2d::GFXBuffer: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXBuffer constructor is skipped\")");
+    //#3 cc::GFXBuffer: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::GFXBuffer constructor is skipped\")");
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXBuffer_constructor, __jsb_cocos2d_GFXBuffer_class, js_cocos2d_GFXBuffer_finalize)
+SE_BIND_CTOR(js_gfx_GFXBuffer_constructor, __jsb_cc_GFXBuffer_class, js_cc_GFXBuffer_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_GFXObject_proto;
+extern se::Object* __jsb_cc_GFXObject_proto;
 
-static bool js_cocos2d_GFXBuffer_finalize(se::State& s)
+static bool js_cc_GFXBuffer_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXBuffer)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXBuffer)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
+        cc::GFXBuffer* cobj = (cc::GFXBuffer*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXBuffer_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXBuffer_finalize)
 
 bool js_register_gfx_GFXBuffer(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXBuffer", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXBuffer_constructor));
+    auto cls = se::Class::create("GFXBuffer", obj, __jsb_cc_GFXObject_proto, _SE(js_gfx_GFXBuffer_constructor));
 
     cls->defineProperty("count", _SE(js_gfx_GFXBuffer_getCount), nullptr);
     cls->defineProperty("memUsage", _SE(js_gfx_GFXBuffer_getMemUsage), nullptr);
@@ -14033,23 +14033,23 @@ bool js_register_gfx_GFXBuffer(se::Object* obj)
     cls->defineFunction("initialize", _SE(js_gfx_GFXBuffer_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXBuffer_destroy));
     cls->defineFunction("resize", _SE(js_gfx_GFXBuffer_resize));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBuffer_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXBuffer_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXBuffer>(cls);
+    JSBClassType::registerClass<cc::GFXBuffer>(cls);
 
-    __jsb_cocos2d_GFXBuffer_proto = cls->getProto();
-    __jsb_cocos2d_GFXBuffer_class = cls;
+    __jsb_cc_GFXBuffer_proto = cls->getProto();
+    __jsb_cc_GFXBuffer_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXTexture_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXTexture_class = nullptr;
+se::Object* __jsb_cc_GFXTexture_proto = nullptr;
+se::Class* __jsb_cc_GFXTexture_class = nullptr;
 
 static bool js_gfx_GFXTexture_getSize(se::State& s)
 {
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
+    cc::GFXTexture* cobj = (cc::GFXTexture*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_getSize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14067,7 +14067,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTexture_getSize)
 
 static bool js_gfx_GFXTexture_getDepth(se::State& s)
 {
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
+    cc::GFXTexture* cobj = (cc::GFXTexture*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_getDepth : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14085,7 +14085,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTexture_getDepth)
 
 static bool js_gfx_GFXTexture_getType(se::State& s)
 {
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
+    cc::GFXTexture* cobj = (cc::GFXTexture*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_getType : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14103,7 +14103,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTexture_getType)
 
 static bool js_gfx_GFXTexture_getHeight(se::State& s)
 {
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
+    cc::GFXTexture* cobj = (cc::GFXTexture*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_getHeight : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14121,7 +14121,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTexture_getHeight)
 
 static bool js_gfx_GFXTexture_getBuffer(se::State& s)
 {
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
+    cc::GFXTexture* cobj = (cc::GFXTexture*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_getBuffer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14139,7 +14139,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTexture_getBuffer)
 
 static bool js_gfx_GFXTexture_getWidth(se::State& s)
 {
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
+    cc::GFXTexture* cobj = (cc::GFXTexture*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_getWidth : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14157,7 +14157,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTexture_getWidth)
 
 static bool js_gfx_GFXTexture_getMipLevel(se::State& s)
 {
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
+    cc::GFXTexture* cobj = (cc::GFXTexture*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_getMipLevel : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14175,7 +14175,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTexture_getMipLevel)
 
 static bool js_gfx_GFXTexture_getArrayLayer(se::State& s)
 {
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
+    cc::GFXTexture* cobj = (cc::GFXTexture*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_getArrayLayer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14193,7 +14193,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTexture_getArrayLayer)
 
 static bool js_gfx_GFXTexture_getUsage(se::State& s)
 {
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
+    cc::GFXTexture* cobj = (cc::GFXTexture*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_getUsage : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14211,7 +14211,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTexture_getUsage)
 
 static bool js_gfx_GFXTexture_destroy(se::State& s)
 {
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
+    cc::GFXTexture* cobj = (cc::GFXTexture*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14226,7 +14226,7 @@ SE_BIND_FUNC(js_gfx_GFXTexture_destroy)
 
 static bool js_gfx_GFXTexture_getSamples(se::State& s)
 {
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
+    cc::GFXTexture* cobj = (cc::GFXTexture*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_getSamples : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14244,7 +14244,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTexture_getSamples)
 
 static bool js_gfx_GFXTexture_getFormat(se::State& s)
 {
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
+    cc::GFXTexture* cobj = (cc::GFXTexture*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_getFormat : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14262,7 +14262,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTexture_getFormat)
 
 static bool js_gfx_GFXTexture_getFlags(se::State& s)
 {
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
+    cc::GFXTexture* cobj = (cc::GFXTexture*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_getFlags : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14280,7 +14280,7 @@ SE_BIND_PROP_GET(js_gfx_GFXTexture_getFlags)
 
 static bool js_gfx_GFXTexture_resize(se::State& s)
 {
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
+    cc::GFXTexture* cobj = (cc::GFXTexture*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_resize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14299,37 +14299,37 @@ static bool js_gfx_GFXTexture_resize(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXTexture_resize)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXTexture_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXTexture_finalize)
 
 static bool js_gfx_GFXTexture_constructor(se::State& s)
 {
-    //#3 cocos2d::GFXTexture: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXTexture constructor is skipped\")");
+    //#3 cc::GFXTexture: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::GFXTexture constructor is skipped\")");
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXTexture_constructor, __jsb_cocos2d_GFXTexture_class, js_cocos2d_GFXTexture_finalize)
+SE_BIND_CTOR(js_gfx_GFXTexture_constructor, __jsb_cc_GFXTexture_class, js_cc_GFXTexture_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_GFXObject_proto;
+extern se::Object* __jsb_cc_GFXObject_proto;
 
-static bool js_cocos2d_GFXTexture_finalize(se::State& s)
+static bool js_cc_GFXTexture_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXTexture)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXTexture)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
+        cc::GFXTexture* cobj = (cc::GFXTexture*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXTexture_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXTexture_finalize)
 
 bool js_register_gfx_GFXTexture(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXTexture", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXTexture_constructor));
+    auto cls = se::Class::create("GFXTexture", obj, __jsb_cc_GFXObject_proto, _SE(js_gfx_GFXTexture_constructor));
 
     cls->defineProperty("arrayLayer", _SE(js_gfx_GFXTexture_getArrayLayer), nullptr);
     cls->defineProperty("format", _SE(js_gfx_GFXTexture_getFormat), nullptr);
@@ -14345,23 +14345,23 @@ bool js_register_gfx_GFXTexture(se::Object* obj)
     cls->defineProperty("size", _SE(js_gfx_GFXTexture_getSize), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_GFXTexture_destroy));
     cls->defineFunction("resize", _SE(js_gfx_GFXTexture_resize));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXTexture_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXTexture_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXTexture>(cls);
+    JSBClassType::registerClass<cc::GFXTexture>(cls);
 
-    __jsb_cocos2d_GFXTexture_proto = cls->getProto();
-    __jsb_cocos2d_GFXTexture_class = cls;
+    __jsb_cc_GFXTexture_proto = cls->getProto();
+    __jsb_cc_GFXTexture_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXSampler_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXSampler_class = nullptr;
+se::Object* __jsb_cc_GFXSampler_proto = nullptr;
+se::Class* __jsb_cc_GFXSampler_class = nullptr;
 
 static bool js_gfx_GFXSampler_getAddressW(se::State& s)
 {
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
+    cc::GFXSampler* cobj = (cc::GFXSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_getAddressW : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14379,7 +14379,7 @@ SE_BIND_PROP_GET(js_gfx_GFXSampler_getAddressW)
 
 static bool js_gfx_GFXSampler_getMaxAnisotropy(se::State& s)
 {
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
+    cc::GFXSampler* cobj = (cc::GFXSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_getMaxAnisotropy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14397,7 +14397,7 @@ SE_BIND_PROP_GET(js_gfx_GFXSampler_getMaxAnisotropy)
 
 static bool js_gfx_GFXSampler_getMipLODBias(se::State& s)
 {
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
+    cc::GFXSampler* cobj = (cc::GFXSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_getMipLODBias : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14415,7 +14415,7 @@ SE_BIND_PROP_GET(js_gfx_GFXSampler_getMipLODBias)
 
 static bool js_gfx_GFXSampler_getCmpFunc(se::State& s)
 {
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
+    cc::GFXSampler* cobj = (cc::GFXSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_getCmpFunc : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14433,13 +14433,13 @@ SE_BIND_PROP_GET(js_gfx_GFXSampler_getCmpFunc)
 
 static bool js_gfx_GFXSampler_getBorderColor(se::State& s)
 {
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
+    cc::GFXSampler* cobj = (cc::GFXSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_getBorderColor : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cocos2d::GFXColor& result = cobj->getBorderColor();
+        const cc::GFXColor& result = cobj->getBorderColor();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_getBorderColor : Error processing arguments");
         return true;
@@ -14451,13 +14451,13 @@ SE_BIND_PROP_GET(js_gfx_GFXSampler_getBorderColor)
 
 static bool js_gfx_GFXSampler_getName(se::State& s)
 {
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
+    cc::GFXSampler* cobj = (cc::GFXSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_getName : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cocos2d::String& result = cobj->getName();
+        const cc::String& result = cobj->getName();
         s.rval().setString(result);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_getName : Error processing arguments");
         return true;
@@ -14469,7 +14469,7 @@ SE_BIND_PROP_GET(js_gfx_GFXSampler_getName)
 
 static bool js_gfx_GFXSampler_getMipFilter(se::State& s)
 {
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
+    cc::GFXSampler* cobj = (cc::GFXSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_getMipFilter : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14487,7 +14487,7 @@ SE_BIND_PROP_GET(js_gfx_GFXSampler_getMipFilter)
 
 static bool js_gfx_GFXSampler_getAddressV(se::State& s)
 {
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
+    cc::GFXSampler* cobj = (cc::GFXSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_getAddressV : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14505,7 +14505,7 @@ SE_BIND_PROP_GET(js_gfx_GFXSampler_getAddressV)
 
 static bool js_gfx_GFXSampler_getAddressU(se::State& s)
 {
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
+    cc::GFXSampler* cobj = (cc::GFXSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_getAddressU : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14523,7 +14523,7 @@ SE_BIND_PROP_GET(js_gfx_GFXSampler_getAddressU)
 
 static bool js_gfx_GFXSampler_getMagFilter(se::State& s)
 {
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
+    cc::GFXSampler* cobj = (cc::GFXSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_getMagFilter : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14541,13 +14541,13 @@ SE_BIND_PROP_GET(js_gfx_GFXSampler_getMagFilter)
 
 static bool js_gfx_GFXSampler_initialize(se::State& s)
 {
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
+    cc::GFXSampler* cobj = (cc::GFXSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXSamplerInfo* arg0 = nullptr;
+        cc::GFXSamplerInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_initialize : Error processing arguments");
         bool result = cobj->initialize(*arg0);
@@ -14562,7 +14562,7 @@ SE_BIND_FUNC(js_gfx_GFXSampler_initialize)
 
 static bool js_gfx_GFXSampler_destroy(se::State& s)
 {
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
+    cc::GFXSampler* cobj = (cc::GFXSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14577,13 +14577,13 @@ SE_BIND_FUNC(js_gfx_GFXSampler_destroy)
 
 static bool js_gfx_GFXSampler_getDevice(se::State& s)
 {
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
+    cc::GFXSampler* cobj = (cc::GFXSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_getDevice : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->getDevice();
+        cc::GFXDevice* result = cobj->getDevice();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_getDevice : Error processing arguments");
         return true;
@@ -14595,7 +14595,7 @@ SE_BIND_PROP_GET(js_gfx_GFXSampler_getDevice)
 
 static bool js_gfx_GFXSampler_getMinLOD(se::State& s)
 {
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
+    cc::GFXSampler* cobj = (cc::GFXSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_getMinLOD : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14613,7 +14613,7 @@ SE_BIND_PROP_GET(js_gfx_GFXSampler_getMinLOD)
 
 static bool js_gfx_GFXSampler_getMinFilter(se::State& s)
 {
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
+    cc::GFXSampler* cobj = (cc::GFXSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_getMinFilter : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14631,7 +14631,7 @@ SE_BIND_PROP_GET(js_gfx_GFXSampler_getMinFilter)
 
 static bool js_gfx_GFXSampler_getMaxLOD(se::State& s)
 {
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
+    cc::GFXSampler* cobj = (cc::GFXSampler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_getMaxLOD : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14647,37 +14647,37 @@ static bool js_gfx_GFXSampler_getMaxLOD(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_GFXSampler_getMaxLOD)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXSampler_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXSampler_finalize)
 
 static bool js_gfx_GFXSampler_constructor(se::State& s)
 {
-    //#3 cocos2d::GFXSampler: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXSampler constructor is skipped\")");
+    //#3 cc::GFXSampler: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::GFXSampler constructor is skipped\")");
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXSampler_constructor, __jsb_cocos2d_GFXSampler_class, js_cocos2d_GFXSampler_finalize)
+SE_BIND_CTOR(js_gfx_GFXSampler_constructor, __jsb_cc_GFXSampler_class, js_cc_GFXSampler_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_GFXObject_proto;
+extern se::Object* __jsb_cc_GFXObject_proto;
 
-static bool js_cocos2d_GFXSampler_finalize(se::State& s)
+static bool js_cc_GFXSampler_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXSampler)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXSampler)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
+        cc::GFXSampler* cobj = (cc::GFXSampler*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXSampler_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXSampler_finalize)
 
 bool js_register_gfx_GFXSampler(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXSampler", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXSampler_constructor));
+    auto cls = se::Class::create("GFXSampler", obj, __jsb_cc_GFXObject_proto, _SE(js_gfx_GFXSampler_constructor));
 
     cls->defineProperty("borderColor", _SE(js_gfx_GFXSampler_getBorderColor), nullptr);
     cls->defineProperty("mipFilter", _SE(js_gfx_GFXSampler_getMipFilter), nullptr);
@@ -14695,29 +14695,29 @@ bool js_register_gfx_GFXSampler(se::Object* obj)
     cls->defineProperty("minLOD", _SE(js_gfx_GFXSampler_getMinLOD), nullptr);
     cls->defineFunction("initialize", _SE(js_gfx_GFXSampler_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXSampler_destroy));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXSampler_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXSampler_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXSampler>(cls);
+    JSBClassType::registerClass<cc::GFXSampler>(cls);
 
-    __jsb_cocos2d_GFXSampler_proto = cls->getProto();
-    __jsb_cocos2d_GFXSampler_class = cls;
+    __jsb_cc_GFXSampler_proto = cls->getProto();
+    __jsb_cc_GFXSampler_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXShader_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXShader_class = nullptr;
+se::Object* __jsb_cc_GFXShader_proto = nullptr;
+se::Class* __jsb_cc_GFXShader_class = nullptr;
 
 static bool js_gfx_GFXShader_getStages(se::State& s)
 {
-    cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
+    cc::GFXShader* cobj = (cc::GFXShader*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_getStages : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const std::vector<cocos2d::GFXShaderStage>& result = cobj->getStages();
+        const std::vector<cc::GFXShaderStage>& result = cobj->getStages();
         ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_getStages : Error processing arguments");
         return true;
@@ -14729,13 +14729,13 @@ SE_BIND_PROP_GET(js_gfx_GFXShader_getStages)
 
 static bool js_gfx_GFXShader_getName(se::State& s)
 {
-    cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
+    cc::GFXShader* cobj = (cc::GFXShader*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_getName : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cocos2d::String& result = cobj->getName();
+        const cc::String& result = cobj->getName();
         s.rval().setString(result);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_getName : Error processing arguments");
         return true;
@@ -14747,13 +14747,13 @@ SE_BIND_PROP_GET(js_gfx_GFXShader_getName)
 
 static bool js_gfx_GFXShader_getAttributes(se::State& s)
 {
-    cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
+    cc::GFXShader* cobj = (cc::GFXShader*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_getAttributes : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const std::vector<cocos2d::GFXAttribute>& result = cobj->getAttributes();
+        const std::vector<cc::GFXAttribute>& result = cobj->getAttributes();
         ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_getAttributes : Error processing arguments");
         return true;
@@ -14765,7 +14765,7 @@ SE_BIND_PROP_GET(js_gfx_GFXShader_getAttributes)
 
 static bool js_gfx_GFXShader_getHash(se::State& s)
 {
-    cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
+    cc::GFXShader* cobj = (cc::GFXShader*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_getHash : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14783,13 +14783,13 @@ SE_BIND_PROP_GET(js_gfx_GFXShader_getHash)
 
 static bool js_gfx_GFXShader_getSamplers(se::State& s)
 {
-    cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
+    cc::GFXShader* cobj = (cc::GFXShader*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_getSamplers : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const std::vector<cocos2d::GFXUniformSampler>& result = cobj->getSamplers();
+        const std::vector<cc::GFXUniformSampler>& result = cobj->getSamplers();
         ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_getSamplers : Error processing arguments");
         return true;
@@ -14801,13 +14801,13 @@ SE_BIND_PROP_GET(js_gfx_GFXShader_getSamplers)
 
 static bool js_gfx_GFXShader_initialize(se::State& s)
 {
-    cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
+    cc::GFXShader* cobj = (cc::GFXShader*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXShaderInfo* arg0 = nullptr;
+        cc::GFXShaderInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_initialize : Error processing arguments");
         bool result = cobj->initialize(*arg0);
@@ -14822,7 +14822,7 @@ SE_BIND_FUNC(js_gfx_GFXShader_initialize)
 
 static bool js_gfx_GFXShader_destroy(se::State& s)
 {
-    cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
+    cc::GFXShader* cobj = (cc::GFXShader*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14837,13 +14837,13 @@ SE_BIND_FUNC(js_gfx_GFXShader_destroy)
 
 static bool js_gfx_GFXShader_getDevice(se::State& s)
 {
-    cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
+    cc::GFXShader* cobj = (cc::GFXShader*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_getDevice : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->getDevice();
+        cc::GFXDevice* result = cobj->getDevice();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_getDevice : Error processing arguments");
         return true;
@@ -14855,13 +14855,13 @@ SE_BIND_PROP_GET(js_gfx_GFXShader_getDevice)
 
 static bool js_gfx_GFXShader_getBlocks(se::State& s)
 {
-    cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
+    cc::GFXShader* cobj = (cc::GFXShader*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_getBlocks : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const std::vector<cocos2d::GFXUniformBlock>& result = cobj->getBlocks();
+        const std::vector<cc::GFXUniformBlock>& result = cobj->getBlocks();
         ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_getBlocks : Error processing arguments");
         return true;
@@ -14871,37 +14871,37 @@ static bool js_gfx_GFXShader_getBlocks(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_GFXShader_getBlocks)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXShader_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXShader_finalize)
 
 static bool js_gfx_GFXShader_constructor(se::State& s)
 {
-    //#3 cocos2d::GFXShader: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXShader constructor is skipped\")");
+    //#3 cc::GFXShader: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::GFXShader constructor is skipped\")");
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXShader_constructor, __jsb_cocos2d_GFXShader_class, js_cocos2d_GFXShader_finalize)
+SE_BIND_CTOR(js_gfx_GFXShader_constructor, __jsb_cc_GFXShader_class, js_cc_GFXShader_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_GFXObject_proto;
+extern se::Object* __jsb_cc_GFXObject_proto;
 
-static bool js_cocos2d_GFXShader_finalize(se::State& s)
+static bool js_cc_GFXShader_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXShader)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXShader)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
+        cc::GFXShader* cobj = (cc::GFXShader*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXShader_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXShader_finalize)
 
 bool js_register_gfx_GFXShader(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXShader", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXShader_constructor));
+    auto cls = se::Class::create("GFXShader", obj, __jsb_cc_GFXObject_proto, _SE(js_gfx_GFXShader_constructor));
 
     cls->defineProperty("blocks", _SE(js_gfx_GFXShader_getBlocks), nullptr);
     cls->defineProperty("name", _SE(js_gfx_GFXShader_getName), nullptr);
@@ -14912,23 +14912,23 @@ bool js_register_gfx_GFXShader(se::Object* obj)
     cls->defineProperty("hash", _SE(js_gfx_GFXShader_getHash), nullptr);
     cls->defineFunction("initialize", _SE(js_gfx_GFXShader_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXShader_destroy));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXShader_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXShader_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXShader>(cls);
+    JSBClassType::registerClass<cc::GFXShader>(cls);
 
-    __jsb_cocos2d_GFXShader_proto = cls->getProto();
-    __jsb_cocos2d_GFXShader_class = cls;
+    __jsb_cc_GFXShader_proto = cls->getProto();
+    __jsb_cc_GFXShader_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXInputAssembler_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXInputAssembler_class = nullptr;
+se::Object* __jsb_cc_GFXInputAssembler_proto = nullptr;
+se::Class* __jsb_cc_GFXInputAssembler_class = nullptr;
 
 static bool js_gfx_GFXInputAssembler_getFirstIndex(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_getFirstIndex : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14946,7 +14946,7 @@ SE_BIND_PROP_GET(js_gfx_GFXInputAssembler_getFirstIndex)
 
 static bool js_gfx_GFXInputAssembler_getVertexOffset(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_getVertexOffset : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14964,7 +14964,7 @@ SE_BIND_PROP_GET(js_gfx_GFXInputAssembler_getVertexOffset)
 
 static bool js_gfx_GFXInputAssembler_getVertexCount(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_getVertexCount : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14982,7 +14982,7 @@ SE_BIND_PROP_GET(js_gfx_GFXInputAssembler_getVertexCount)
 
 static bool js_gfx_GFXInputAssembler_setIndexCount(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_setIndexCount : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15001,7 +15001,7 @@ SE_BIND_PROP_SET(js_gfx_GFXInputAssembler_setIndexCount)
 
 static bool js_gfx_GFXInputAssembler_getAttributesHash(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_getAttributesHash : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15019,7 +15019,7 @@ SE_BIND_PROP_GET(js_gfx_GFXInputAssembler_getAttributesHash)
 
 static bool js_gfx_GFXInputAssembler_setFirstInstance(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_setFirstInstance : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15038,7 +15038,7 @@ SE_BIND_PROP_SET(js_gfx_GFXInputAssembler_setFirstInstance)
 
 static bool js_gfx_GFXInputAssembler_destroy(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15053,13 +15053,13 @@ SE_BIND_FUNC(js_gfx_GFXInputAssembler_destroy)
 
 static bool js_gfx_GFXInputAssembler_getDevice(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_getDevice : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->getDevice();
+        cc::GFXDevice* result = cobj->getDevice();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_getDevice : Error processing arguments");
         return true;
@@ -15071,7 +15071,7 @@ SE_BIND_PROP_GET(js_gfx_GFXInputAssembler_getDevice)
 
 static bool js_gfx_GFXInputAssembler_setVertexOffset(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_setVertexOffset : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15090,7 +15090,7 @@ SE_BIND_PROP_SET(js_gfx_GFXInputAssembler_setVertexOffset)
 
 static bool js_gfx_GFXInputAssembler_getInstanceCount(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_getInstanceCount : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15108,7 +15108,7 @@ SE_BIND_PROP_GET(js_gfx_GFXInputAssembler_getInstanceCount)
 
 static bool js_gfx_GFXInputAssembler_getIndexCount(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_getIndexCount : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15126,13 +15126,13 @@ SE_BIND_PROP_GET(js_gfx_GFXInputAssembler_getIndexCount)
 
 static bool js_gfx_GFXInputAssembler_getIndirectBuffer(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_getIndirectBuffer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXBuffer* result = cobj->getIndirectBuffer();
+        cc::GFXBuffer* result = cobj->getIndirectBuffer();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_getIndirectBuffer : Error processing arguments");
         return true;
@@ -15144,13 +15144,13 @@ SE_BIND_PROP_GET(js_gfx_GFXInputAssembler_getIndirectBuffer)
 
 static bool js_gfx_GFXInputAssembler_getVertexBuffers(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_getVertexBuffers : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const std::vector<cocos2d::GFXBuffer *>& result = cobj->getVertexBuffers();
+        const std::vector<cc::GFXBuffer *>& result = cobj->getVertexBuffers();
         ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_getVertexBuffers : Error processing arguments");
         return true;
@@ -15162,13 +15162,13 @@ SE_BIND_PROP_GET(js_gfx_GFXInputAssembler_getVertexBuffers)
 
 static bool js_gfx_GFXInputAssembler_initialize(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXInputAssemblerInfo* arg0 = nullptr;
+        cc::GFXInputAssemblerInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_initialize : Error processing arguments");
         bool result = cobj->initialize(*arg0);
@@ -15183,7 +15183,7 @@ SE_BIND_FUNC(js_gfx_GFXInputAssembler_initialize)
 
 static bool js_gfx_GFXInputAssembler_setFirstVertex(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_setFirstVertex : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15202,7 +15202,7 @@ SE_BIND_PROP_SET(js_gfx_GFXInputAssembler_setFirstVertex)
 
 static bool js_gfx_GFXInputAssembler_getFirstVertex(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_getFirstVertex : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15220,7 +15220,7 @@ SE_BIND_PROP_GET(js_gfx_GFXInputAssembler_getFirstVertex)
 
 static bool js_gfx_GFXInputAssembler_setVertexCount(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_setVertexCount : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15239,13 +15239,13 @@ SE_BIND_PROP_SET(js_gfx_GFXInputAssembler_setVertexCount)
 
 static bool js_gfx_GFXInputAssembler_getAttributes(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_getAttributes : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const std::vector<cocos2d::GFXAttribute>& result = cobj->getAttributes();
+        const std::vector<cc::GFXAttribute>& result = cobj->getAttributes();
         ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_getAttributes : Error processing arguments");
         return true;
@@ -15257,13 +15257,13 @@ SE_BIND_PROP_GET(js_gfx_GFXInputAssembler_getAttributes)
 
 static bool js_gfx_GFXInputAssembler_getIndexBuffer(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_getIndexBuffer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXBuffer* result = cobj->getIndexBuffer();
+        cc::GFXBuffer* result = cobj->getIndexBuffer();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_getIndexBuffer : Error processing arguments");
         return true;
@@ -15275,7 +15275,7 @@ SE_BIND_PROP_GET(js_gfx_GFXInputAssembler_getIndexBuffer)
 
 static bool js_gfx_GFXInputAssembler_setFirstIndex(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_setFirstIndex : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15294,7 +15294,7 @@ SE_BIND_PROP_SET(js_gfx_GFXInputAssembler_setFirstIndex)
 
 static bool js_gfx_GFXInputAssembler_setInstanceCount(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_setInstanceCount : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15313,7 +15313,7 @@ SE_BIND_PROP_SET(js_gfx_GFXInputAssembler_setInstanceCount)
 
 static bool js_gfx_GFXInputAssembler_getFirstInstance(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_getFirstInstance : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15329,37 +15329,37 @@ static bool js_gfx_GFXInputAssembler_getFirstInstance(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_GFXInputAssembler_getFirstInstance)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXInputAssembler_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXInputAssembler_finalize)
 
 static bool js_gfx_GFXInputAssembler_constructor(se::State& s)
 {
-    //#3 cocos2d::GFXInputAssembler: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXInputAssembler constructor is skipped\")");
+    //#3 cc::GFXInputAssembler: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::GFXInputAssembler constructor is skipped\")");
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXInputAssembler_constructor, __jsb_cocos2d_GFXInputAssembler_class, js_cocos2d_GFXInputAssembler_finalize)
+SE_BIND_CTOR(js_gfx_GFXInputAssembler_constructor, __jsb_cc_GFXInputAssembler_class, js_cc_GFXInputAssembler_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_GFXObject_proto;
+extern se::Object* __jsb_cc_GFXObject_proto;
 
-static bool js_cocos2d_GFXInputAssembler_finalize(se::State& s)
+static bool js_cc_GFXInputAssembler_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXInputAssembler)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXInputAssembler)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+        cc::GFXInputAssembler* cobj = (cc::GFXInputAssembler*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXInputAssembler_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXInputAssembler_finalize)
 
 bool js_register_gfx_GFXInputAssembler(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXInputAssembler", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXInputAssembler_constructor));
+    auto cls = se::Class::create("GFXInputAssembler", obj, __jsb_cc_GFXObject_proto, _SE(js_gfx_GFXInputAssembler_constructor));
 
     cls->defineProperty("instanceCount", _SE(js_gfx_GFXInputAssembler_getInstanceCount), _SE(js_gfx_GFXInputAssembler_setInstanceCount));
     cls->defineProperty("vertexBuffers", _SE(js_gfx_GFXInputAssembler_getVertexBuffers), nullptr);
@@ -15376,29 +15376,29 @@ bool js_register_gfx_GFXInputAssembler(se::Object* obj)
     cls->defineProperty("firstVertex", _SE(js_gfx_GFXInputAssembler_getFirstVertex), _SE(js_gfx_GFXInputAssembler_setFirstVertex));
     cls->defineFunction("destroy", _SE(js_gfx_GFXInputAssembler_destroy));
     cls->defineFunction("initialize", _SE(js_gfx_GFXInputAssembler_initialize));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXInputAssembler_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXInputAssembler_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXInputAssembler>(cls);
+    JSBClassType::registerClass<cc::GFXInputAssembler>(cls);
 
-    __jsb_cocos2d_GFXInputAssembler_proto = cls->getProto();
-    __jsb_cocos2d_GFXInputAssembler_class = cls;
+    __jsb_cc_GFXInputAssembler_proto = cls->getProto();
+    __jsb_cc_GFXInputAssembler_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXRenderPass_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXRenderPass_class = nullptr;
+se::Object* __jsb_cc_GFXRenderPass_proto = nullptr;
+se::Class* __jsb_cc_GFXRenderPass_class = nullptr;
 
 static bool js_gfx_GFXRenderPass_getColorAttachments(se::State& s)
 {
-    cocos2d::GFXRenderPass* cobj = (cocos2d::GFXRenderPass*)s.nativeThisObject();
+    cc::GFXRenderPass* cobj = (cc::GFXRenderPass*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRenderPass_getColorAttachments : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const std::vector<cocos2d::GFXColorAttachment>& result = cobj->getColorAttachments();
+        const std::vector<cc::GFXColorAttachment>& result = cobj->getColorAttachments();
         ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXRenderPass_getColorAttachments : Error processing arguments");
         return true;
@@ -15410,13 +15410,13 @@ SE_BIND_PROP_GET(js_gfx_GFXRenderPass_getColorAttachments)
 
 static bool js_gfx_GFXRenderPass_getSubPasses(se::State& s)
 {
-    cocos2d::GFXRenderPass* cobj = (cocos2d::GFXRenderPass*)s.nativeThisObject();
+    cc::GFXRenderPass* cobj = (cc::GFXRenderPass*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRenderPass_getSubPasses : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const std::vector<cocos2d::GFXSubPass>& result = cobj->getSubPasses();
+        const std::vector<cc::GFXSubPass>& result = cobj->getSubPasses();
         ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXRenderPass_getSubPasses : Error processing arguments");
         return true;
@@ -15428,7 +15428,7 @@ SE_BIND_PROP_GET(js_gfx_GFXRenderPass_getSubPasses)
 
 static bool js_gfx_GFXRenderPass_getHash(se::State& s)
 {
-    cocos2d::GFXRenderPass* cobj = (cocos2d::GFXRenderPass*)s.nativeThisObject();
+    cc::GFXRenderPass* cobj = (cc::GFXRenderPass*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRenderPass_getHash : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15446,13 +15446,13 @@ SE_BIND_PROP_GET(js_gfx_GFXRenderPass_getHash)
 
 static bool js_gfx_GFXRenderPass_initialize(se::State& s)
 {
-    cocos2d::GFXRenderPass* cobj = (cocos2d::GFXRenderPass*)s.nativeThisObject();
+    cc::GFXRenderPass* cobj = (cc::GFXRenderPass*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRenderPass_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXRenderPassInfo* arg0 = nullptr;
+        cc::GFXRenderPassInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXRenderPass_initialize : Error processing arguments");
         bool result = cobj->initialize(*arg0);
@@ -15467,7 +15467,7 @@ SE_BIND_FUNC(js_gfx_GFXRenderPass_initialize)
 
 static bool js_gfx_GFXRenderPass_destroy(se::State& s)
 {
-    cocos2d::GFXRenderPass* cobj = (cocos2d::GFXRenderPass*)s.nativeThisObject();
+    cc::GFXRenderPass* cobj = (cc::GFXRenderPass*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRenderPass_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15482,13 +15482,13 @@ SE_BIND_FUNC(js_gfx_GFXRenderPass_destroy)
 
 static bool js_gfx_GFXRenderPass_getDevice(se::State& s)
 {
-    cocos2d::GFXRenderPass* cobj = (cocos2d::GFXRenderPass*)s.nativeThisObject();
+    cc::GFXRenderPass* cobj = (cc::GFXRenderPass*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRenderPass_getDevice : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->getDevice();
+        cc::GFXDevice* result = cobj->getDevice();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXRenderPass_getDevice : Error processing arguments");
         return true;
@@ -15500,13 +15500,13 @@ SE_BIND_PROP_GET(js_gfx_GFXRenderPass_getDevice)
 
 static bool js_gfx_GFXRenderPass_getDepthStencilAttachment(se::State& s)
 {
-    cocos2d::GFXRenderPass* cobj = (cocos2d::GFXRenderPass*)s.nativeThisObject();
+    cc::GFXRenderPass* cobj = (cc::GFXRenderPass*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXRenderPass_getDepthStencilAttachment : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cocos2d::GFXDepthStencilAttachment& result = cobj->getDepthStencilAttachment();
+        const cc::GFXDepthStencilAttachment& result = cobj->getDepthStencilAttachment();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXRenderPass_getDepthStencilAttachment : Error processing arguments");
         return true;
@@ -15516,37 +15516,37 @@ static bool js_gfx_GFXRenderPass_getDepthStencilAttachment(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_GFXRenderPass_getDepthStencilAttachment)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXRenderPass_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXRenderPass_finalize)
 
 static bool js_gfx_GFXRenderPass_constructor(se::State& s)
 {
-    //#3 cocos2d::GFXRenderPass: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXRenderPass constructor is skipped\")");
+    //#3 cc::GFXRenderPass: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::GFXRenderPass constructor is skipped\")");
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXRenderPass_constructor, __jsb_cocos2d_GFXRenderPass_class, js_cocos2d_GFXRenderPass_finalize)
+SE_BIND_CTOR(js_gfx_GFXRenderPass_constructor, __jsb_cc_GFXRenderPass_class, js_cc_GFXRenderPass_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_GFXObject_proto;
+extern se::Object* __jsb_cc_GFXObject_proto;
 
-static bool js_cocos2d_GFXRenderPass_finalize(se::State& s)
+static bool js_cc_GFXRenderPass_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXRenderPass)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXRenderPass)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXRenderPass* cobj = (cocos2d::GFXRenderPass*)s.nativeThisObject();
+        cc::GFXRenderPass* cobj = (cc::GFXRenderPass*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXRenderPass_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXRenderPass_finalize)
 
 bool js_register_gfx_GFXRenderPass(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXRenderPass", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXRenderPass_constructor));
+    auto cls = se::Class::create("GFXRenderPass", obj, __jsb_cc_GFXObject_proto, _SE(js_gfx_GFXRenderPass_constructor));
 
     cls->defineProperty("device", _SE(js_gfx_GFXRenderPass_getDevice), nullptr);
     cls->defineProperty("colorAttachments", _SE(js_gfx_GFXRenderPass_getColorAttachments), nullptr);
@@ -15555,29 +15555,29 @@ bool js_register_gfx_GFXRenderPass(se::Object* obj)
     cls->defineProperty("subPasses", _SE(js_gfx_GFXRenderPass_getSubPasses), nullptr);
     cls->defineFunction("initialize", _SE(js_gfx_GFXRenderPass_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXRenderPass_destroy));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXRenderPass_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXRenderPass_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXRenderPass>(cls);
+    JSBClassType::registerClass<cc::GFXRenderPass>(cls);
 
-    __jsb_cocos2d_GFXRenderPass_proto = cls->getProto();
-    __jsb_cocos2d_GFXRenderPass_class = cls;
+    __jsb_cc_GFXRenderPass_proto = cls->getProto();
+    __jsb_cc_GFXRenderPass_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXFramebuffer_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXFramebuffer_class = nullptr;
+se::Object* __jsb_cc_GFXFramebuffer_proto = nullptr;
+se::Class* __jsb_cc_GFXFramebuffer_class = nullptr;
 
 static bool js_gfx_GFXFramebuffer_getColorTextures(se::State& s)
 {
-    cocos2d::GFXFramebuffer* cobj = (cocos2d::GFXFramebuffer*)s.nativeThisObject();
+    cc::GFXFramebuffer* cobj = (cc::GFXFramebuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebuffer_getColorTextures : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const std::vector<cocos2d::GFXTexture *>& result = cobj->getColorTextures();
+        const std::vector<cc::GFXTexture *>& result = cobj->getColorTextures();
         ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXFramebuffer_getColorTextures : Error processing arguments");
         return true;
@@ -15589,13 +15589,13 @@ SE_BIND_PROP_GET(js_gfx_GFXFramebuffer_getColorTextures)
 
 static bool js_gfx_GFXFramebuffer_getDepthStencilTexture(se::State& s)
 {
-    cocos2d::GFXFramebuffer* cobj = (cocos2d::GFXFramebuffer*)s.nativeThisObject();
+    cc::GFXFramebuffer* cobj = (cc::GFXFramebuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebuffer_getDepthStencilTexture : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXTexture* result = cobj->getDepthStencilTexture();
+        cc::GFXTexture* result = cobj->getDepthStencilTexture();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXFramebuffer_getDepthStencilTexture : Error processing arguments");
         return true;
@@ -15607,7 +15607,7 @@ SE_BIND_PROP_GET(js_gfx_GFXFramebuffer_getDepthStencilTexture)
 
 static bool js_gfx_GFXFramebuffer_isOffscreen(se::State& s)
 {
-    cocos2d::GFXFramebuffer* cobj = (cocos2d::GFXFramebuffer*)s.nativeThisObject();
+    cc::GFXFramebuffer* cobj = (cc::GFXFramebuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebuffer_isOffscreen : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15625,13 +15625,13 @@ SE_BIND_PROP_GET(js_gfx_GFXFramebuffer_isOffscreen)
 
 static bool js_gfx_GFXFramebuffer_initialize(se::State& s)
 {
-    cocos2d::GFXFramebuffer* cobj = (cocos2d::GFXFramebuffer*)s.nativeThisObject();
+    cc::GFXFramebuffer* cobj = (cc::GFXFramebuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebuffer_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXFramebufferInfo* arg0 = nullptr;
+        cc::GFXFramebufferInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXFramebuffer_initialize : Error processing arguments");
         bool result = cobj->initialize(*arg0);
@@ -15646,7 +15646,7 @@ SE_BIND_FUNC(js_gfx_GFXFramebuffer_initialize)
 
 static bool js_gfx_GFXFramebuffer_destroy(se::State& s)
 {
-    cocos2d::GFXFramebuffer* cobj = (cocos2d::GFXFramebuffer*)s.nativeThisObject();
+    cc::GFXFramebuffer* cobj = (cc::GFXFramebuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebuffer_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15661,13 +15661,13 @@ SE_BIND_FUNC(js_gfx_GFXFramebuffer_destroy)
 
 static bool js_gfx_GFXFramebuffer_getRenderPass(se::State& s)
 {
-    cocos2d::GFXFramebuffer* cobj = (cocos2d::GFXFramebuffer*)s.nativeThisObject();
+    cc::GFXFramebuffer* cobj = (cc::GFXFramebuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebuffer_getRenderPass : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXRenderPass* result = cobj->getRenderPass();
+        cc::GFXRenderPass* result = cobj->getRenderPass();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXFramebuffer_getRenderPass : Error processing arguments");
         return true;
@@ -15679,13 +15679,13 @@ SE_BIND_PROP_GET(js_gfx_GFXFramebuffer_getRenderPass)
 
 static bool js_gfx_GFXFramebuffer_getDevice(se::State& s)
 {
-    cocos2d::GFXFramebuffer* cobj = (cocos2d::GFXFramebuffer*)s.nativeThisObject();
+    cc::GFXFramebuffer* cobj = (cc::GFXFramebuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebuffer_getDevice : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->getDevice();
+        cc::GFXDevice* result = cobj->getDevice();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXFramebuffer_getDevice : Error processing arguments");
         return true;
@@ -15695,37 +15695,37 @@ static bool js_gfx_GFXFramebuffer_getDevice(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_GFXFramebuffer_getDevice)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXFramebuffer_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXFramebuffer_finalize)
 
 static bool js_gfx_GFXFramebuffer_constructor(se::State& s)
 {
-    //#3 cocos2d::GFXFramebuffer: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXFramebuffer constructor is skipped\")");
+    //#3 cc::GFXFramebuffer: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::GFXFramebuffer constructor is skipped\")");
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXFramebuffer_constructor, __jsb_cocos2d_GFXFramebuffer_class, js_cocos2d_GFXFramebuffer_finalize)
+SE_BIND_CTOR(js_gfx_GFXFramebuffer_constructor, __jsb_cc_GFXFramebuffer_class, js_cc_GFXFramebuffer_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_GFXObject_proto;
+extern se::Object* __jsb_cc_GFXObject_proto;
 
-static bool js_cocos2d_GFXFramebuffer_finalize(se::State& s)
+static bool js_cc_GFXFramebuffer_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXFramebuffer)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXFramebuffer)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXFramebuffer* cobj = (cocos2d::GFXFramebuffer*)s.nativeThisObject();
+        cc::GFXFramebuffer* cobj = (cc::GFXFramebuffer*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXFramebuffer_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXFramebuffer_finalize)
 
 bool js_register_gfx_GFXFramebuffer(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXFramebuffer", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXFramebuffer_constructor));
+    auto cls = se::Class::create("GFXFramebuffer", obj, __jsb_cc_GFXObject_proto, _SE(js_gfx_GFXFramebuffer_constructor));
 
     cls->defineProperty("device", _SE(js_gfx_GFXFramebuffer_getDevice), nullptr);
     cls->defineProperty("renderPass", _SE(js_gfx_GFXFramebuffer_getRenderPass), nullptr);
@@ -15734,29 +15734,29 @@ bool js_register_gfx_GFXFramebuffer(se::Object* obj)
     cls->defineProperty("isOffscreen", _SE(js_gfx_GFXFramebuffer_isOffscreen), nullptr);
     cls->defineFunction("initialize", _SE(js_gfx_GFXFramebuffer_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXFramebuffer_destroy));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXFramebuffer_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXFramebuffer_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXFramebuffer>(cls);
+    JSBClassType::registerClass<cc::GFXFramebuffer>(cls);
 
-    __jsb_cocos2d_GFXFramebuffer_proto = cls->getProto();
-    __jsb_cocos2d_GFXFramebuffer_class = cls;
+    __jsb_cc_GFXFramebuffer_proto = cls->getProto();
+    __jsb_cc_GFXFramebuffer_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXBindingLayout_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXBindingLayout_class = nullptr;
+se::Object* __jsb_cc_GFXBindingLayout_proto = nullptr;
+se::Class* __jsb_cc_GFXBindingLayout_class = nullptr;
 
 static bool js_gfx_GFXBindingLayout_getBindingUnits(se::State& s)
 {
-    cocos2d::GFXBindingLayout* cobj = (cocos2d::GFXBindingLayout*)s.nativeThisObject();
+    cc::GFXBindingLayout* cobj = (cc::GFXBindingLayout*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingLayout_getBindingUnits : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const std::vector<cocos2d::GFXBindingUnit>& result = cobj->getBindingUnits();
+        const std::vector<cc::GFXBindingUnit>& result = cobj->getBindingUnits();
         ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingLayout_getBindingUnits : Error processing arguments");
         return true;
@@ -15768,14 +15768,14 @@ SE_BIND_PROP_GET(js_gfx_GFXBindingLayout_getBindingUnits)
 
 static bool js_gfx_GFXBindingLayout_bindBuffer(se::State& s)
 {
-    cocos2d::GFXBindingLayout* cobj = (cocos2d::GFXBindingLayout*)s.nativeThisObject();
+    cc::GFXBindingLayout* cobj = (cc::GFXBindingLayout*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingLayout_bindBuffer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
         unsigned int arg0 = 0;
-        cocos2d::GFXBuffer* arg1 = nullptr;
+        cc::GFXBuffer* arg1 = nullptr;
         ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
         ok &= seval_to_native_ptr(args[1], &arg1);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingLayout_bindBuffer : Error processing arguments");
@@ -15789,14 +15789,14 @@ SE_BIND_FUNC(js_gfx_GFXBindingLayout_bindBuffer)
 
 static bool js_gfx_GFXBindingLayout_bindSampler(se::State& s)
 {
-    cocos2d::GFXBindingLayout* cobj = (cocos2d::GFXBindingLayout*)s.nativeThisObject();
+    cc::GFXBindingLayout* cobj = (cc::GFXBindingLayout*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingLayout_bindSampler : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
         unsigned int arg0 = 0;
-        cocos2d::GFXSampler* arg1 = nullptr;
+        cc::GFXSampler* arg1 = nullptr;
         ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
         ok &= seval_to_native_ptr(args[1], &arg1);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingLayout_bindSampler : Error processing arguments");
@@ -15810,7 +15810,7 @@ SE_BIND_FUNC(js_gfx_GFXBindingLayout_bindSampler)
 
 static bool js_gfx_GFXBindingLayout_update(se::State& s)
 {
-    cocos2d::GFXBindingLayout* cobj = (cocos2d::GFXBindingLayout*)s.nativeThisObject();
+    cc::GFXBindingLayout* cobj = (cc::GFXBindingLayout*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingLayout_update : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15825,14 +15825,14 @@ SE_BIND_FUNC(js_gfx_GFXBindingLayout_update)
 
 static bool js_gfx_GFXBindingLayout_bindTexture(se::State& s)
 {
-    cocos2d::GFXBindingLayout* cobj = (cocos2d::GFXBindingLayout*)s.nativeThisObject();
+    cc::GFXBindingLayout* cobj = (cc::GFXBindingLayout*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingLayout_bindTexture : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
         unsigned int arg0 = 0;
-        cocos2d::GFXTexture* arg1 = nullptr;
+        cc::GFXTexture* arg1 = nullptr;
         ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
         ok &= seval_to_native_ptr(args[1], &arg1);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingLayout_bindTexture : Error processing arguments");
@@ -15846,13 +15846,13 @@ SE_BIND_FUNC(js_gfx_GFXBindingLayout_bindTexture)
 
 static bool js_gfx_GFXBindingLayout_initialize(se::State& s)
 {
-    cocos2d::GFXBindingLayout* cobj = (cocos2d::GFXBindingLayout*)s.nativeThisObject();
+    cc::GFXBindingLayout* cobj = (cc::GFXBindingLayout*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingLayout_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXBindingLayoutInfo* arg0 = nullptr;
+        cc::GFXBindingLayoutInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingLayout_initialize : Error processing arguments");
         bool result = cobj->initialize(*arg0);
@@ -15867,7 +15867,7 @@ SE_BIND_FUNC(js_gfx_GFXBindingLayout_initialize)
 
 static bool js_gfx_GFXBindingLayout_destroy(se::State& s)
 {
-    cocos2d::GFXBindingLayout* cobj = (cocos2d::GFXBindingLayout*)s.nativeThisObject();
+    cc::GFXBindingLayout* cobj = (cc::GFXBindingLayout*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingLayout_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15882,13 +15882,13 @@ SE_BIND_FUNC(js_gfx_GFXBindingLayout_destroy)
 
 static bool js_gfx_GFXBindingLayout_getDevice(se::State& s)
 {
-    cocos2d::GFXBindingLayout* cobj = (cocos2d::GFXBindingLayout*)s.nativeThisObject();
+    cc::GFXBindingLayout* cobj = (cc::GFXBindingLayout*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingLayout_getDevice : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->getDevice();
+        cc::GFXDevice* result = cobj->getDevice();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingLayout_getDevice : Error processing arguments");
         return true;
@@ -15898,37 +15898,37 @@ static bool js_gfx_GFXBindingLayout_getDevice(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_GFXBindingLayout_getDevice)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXBindingLayout_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXBindingLayout_finalize)
 
 static bool js_gfx_GFXBindingLayout_constructor(se::State& s)
 {
-    //#3 cocos2d::GFXBindingLayout: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXBindingLayout constructor is skipped\")");
+    //#3 cc::GFXBindingLayout: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::GFXBindingLayout constructor is skipped\")");
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXBindingLayout_constructor, __jsb_cocos2d_GFXBindingLayout_class, js_cocos2d_GFXBindingLayout_finalize)
+SE_BIND_CTOR(js_gfx_GFXBindingLayout_constructor, __jsb_cc_GFXBindingLayout_class, js_cc_GFXBindingLayout_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_GFXObject_proto;
+extern se::Object* __jsb_cc_GFXObject_proto;
 
-static bool js_cocos2d_GFXBindingLayout_finalize(se::State& s)
+static bool js_cc_GFXBindingLayout_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXBindingLayout)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXBindingLayout)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXBindingLayout* cobj = (cocos2d::GFXBindingLayout*)s.nativeThisObject();
+        cc::GFXBindingLayout* cobj = (cc::GFXBindingLayout*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXBindingLayout_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXBindingLayout_finalize)
 
 bool js_register_gfx_GFXBindingLayout(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXBindingLayout", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXBindingLayout_constructor));
+    auto cls = se::Class::create("GFXBindingLayout", obj, __jsb_cc_GFXObject_proto, _SE(js_gfx_GFXBindingLayout_constructor));
 
     cls->defineProperty("device", _SE(js_gfx_GFXBindingLayout_getDevice), nullptr);
     cls->defineProperty("bindingUnits", _SE(js_gfx_GFXBindingLayout_getBindingUnits), nullptr);
@@ -15938,29 +15938,29 @@ bool js_register_gfx_GFXBindingLayout(se::Object* obj)
     cls->defineFunction("bindTexture", _SE(js_gfx_GFXBindingLayout_bindTexture));
     cls->defineFunction("initialize", _SE(js_gfx_GFXBindingLayout_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXBindingLayout_destroy));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBindingLayout_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXBindingLayout_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXBindingLayout>(cls);
+    JSBClassType::registerClass<cc::GFXBindingLayout>(cls);
 
-    __jsb_cocos2d_GFXBindingLayout_proto = cls->getProto();
-    __jsb_cocos2d_GFXBindingLayout_class = cls;
+    __jsb_cc_GFXBindingLayout_proto = cls->getProto();
+    __jsb_cc_GFXBindingLayout_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXPipelineLayout_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXPipelineLayout_class = nullptr;
+se::Object* __jsb_cc_GFXPipelineLayout_proto = nullptr;
+se::Class* __jsb_cc_GFXPipelineLayout_class = nullptr;
 
 static bool js_gfx_GFXPipelineLayout_getLayouts(se::State& s)
 {
-    cocos2d::GFXPipelineLayout* cobj = (cocos2d::GFXPipelineLayout*)s.nativeThisObject();
+    cc::GFXPipelineLayout* cobj = (cc::GFXPipelineLayout*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineLayout_getLayouts : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const std::vector<cocos2d::GFXBindingLayout *>& result = cobj->getLayouts();
+        const std::vector<cc::GFXBindingLayout *>& result = cobj->getLayouts();
         ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineLayout_getLayouts : Error processing arguments");
         return true;
@@ -15972,13 +15972,13 @@ SE_BIND_FUNC(js_gfx_GFXPipelineLayout_getLayouts)
 
 static bool js_gfx_GFXPipelineLayout_initialize(se::State& s)
 {
-    cocos2d::GFXPipelineLayout* cobj = (cocos2d::GFXPipelineLayout*)s.nativeThisObject();
+    cc::GFXPipelineLayout* cobj = (cc::GFXPipelineLayout*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineLayout_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXPipelineLayoutInfo* arg0 = nullptr;
+        cc::GFXPipelineLayoutInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineLayout_initialize : Error processing arguments");
         bool result = cobj->initialize(*arg0);
@@ -15993,7 +15993,7 @@ SE_BIND_FUNC(js_gfx_GFXPipelineLayout_initialize)
 
 static bool js_gfx_GFXPipelineLayout_destroy(se::State& s)
 {
-    cocos2d::GFXPipelineLayout* cobj = (cocos2d::GFXPipelineLayout*)s.nativeThisObject();
+    cc::GFXPipelineLayout* cobj = (cc::GFXPipelineLayout*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineLayout_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16008,13 +16008,13 @@ SE_BIND_FUNC(js_gfx_GFXPipelineLayout_destroy)
 
 static bool js_gfx_GFXPipelineLayout_getDevice(se::State& s)
 {
-    cocos2d::GFXPipelineLayout* cobj = (cocos2d::GFXPipelineLayout*)s.nativeThisObject();
+    cc::GFXPipelineLayout* cobj = (cc::GFXPipelineLayout*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineLayout_getDevice : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->getDevice();
+        cc::GFXDevice* result = cobj->getDevice();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineLayout_getDevice : Error processing arguments");
         return true;
@@ -16026,13 +16026,13 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineLayout_getDevice)
 
 static bool js_gfx_GFXPipelineLayout_getPushConstantsRanges(se::State& s)
 {
-    cocos2d::GFXPipelineLayout* cobj = (cocos2d::GFXPipelineLayout*)s.nativeThisObject();
+    cc::GFXPipelineLayout* cobj = (cc::GFXPipelineLayout*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineLayout_getPushConstantsRanges : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const std::vector<cocos2d::GFXPushConstantRange>& result = cobj->getPushConstantsRanges();
+        const std::vector<cc::GFXPushConstantRange>& result = cobj->getPushConstantsRanges();
         ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineLayout_getPushConstantsRanges : Error processing arguments");
         return true;
@@ -16042,66 +16042,66 @@ static bool js_gfx_GFXPipelineLayout_getPushConstantsRanges(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXPipelineLayout_getPushConstantsRanges)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXPipelineLayout_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXPipelineLayout_finalize)
 
 static bool js_gfx_GFXPipelineLayout_constructor(se::State& s)
 {
-    //#3 cocos2d::GFXPipelineLayout: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXPipelineLayout constructor is skipped\")");
+    //#3 cc::GFXPipelineLayout: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::GFXPipelineLayout constructor is skipped\")");
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXPipelineLayout_constructor, __jsb_cocos2d_GFXPipelineLayout_class, js_cocos2d_GFXPipelineLayout_finalize)
+SE_BIND_CTOR(js_gfx_GFXPipelineLayout_constructor, __jsb_cc_GFXPipelineLayout_class, js_cc_GFXPipelineLayout_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_GFXObject_proto;
+extern se::Object* __jsb_cc_GFXObject_proto;
 
-static bool js_cocos2d_GFXPipelineLayout_finalize(se::State& s)
+static bool js_cc_GFXPipelineLayout_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXPipelineLayout)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXPipelineLayout)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXPipelineLayout* cobj = (cocos2d::GFXPipelineLayout*)s.nativeThisObject();
+        cc::GFXPipelineLayout* cobj = (cc::GFXPipelineLayout*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXPipelineLayout_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXPipelineLayout_finalize)
 
 bool js_register_gfx_GFXPipelineLayout(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXPipelineLayout", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXPipelineLayout_constructor));
+    auto cls = se::Class::create("GFXPipelineLayout", obj, __jsb_cc_GFXObject_proto, _SE(js_gfx_GFXPipelineLayout_constructor));
 
     cls->defineProperty("device", _SE(js_gfx_GFXPipelineLayout_getDevice), nullptr);
     cls->defineFunction("getLayouts", _SE(js_gfx_GFXPipelineLayout_getLayouts));
     cls->defineFunction("initialize", _SE(js_gfx_GFXPipelineLayout_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXPipelineLayout_destroy));
     cls->defineFunction("getPushConstantsRanges", _SE(js_gfx_GFXPipelineLayout_getPushConstantsRanges));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXPipelineLayout_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXPipelineLayout_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXPipelineLayout>(cls);
+    JSBClassType::registerClass<cc::GFXPipelineLayout>(cls);
 
-    __jsb_cocos2d_GFXPipelineLayout_proto = cls->getProto();
-    __jsb_cocos2d_GFXPipelineLayout_class = cls;
+    __jsb_cc_GFXPipelineLayout_proto = cls->getProto();
+    __jsb_cc_GFXPipelineLayout_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXPipelineState_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXPipelineState_class = nullptr;
+se::Object* __jsb_cc_GFXPipelineState_proto = nullptr;
+se::Class* __jsb_cc_GFXPipelineState_class = nullptr;
 
 static bool js_gfx_GFXPipelineState_getRasterizerState(se::State& s)
 {
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
+    cc::GFXPipelineState* cobj = (cc::GFXPipelineState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_getRasterizerState : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cocos2d::GFXRasterizerState& result = cobj->getRasterizerState();
+        const cc::GFXRasterizerState& result = cobj->getRasterizerState();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_getRasterizerState : Error processing arguments");
         return true;
@@ -16113,13 +16113,13 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineState_getRasterizerState)
 
 static bool js_gfx_GFXPipelineState_getShader(se::State& s)
 {
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
+    cc::GFXPipelineState* cobj = (cc::GFXPipelineState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_getShader : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXShader* result = cobj->getShader();
+        cc::GFXShader* result = cobj->getShader();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_getShader : Error processing arguments");
         return true;
@@ -16131,13 +16131,13 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineState_getShader)
 
 static bool js_gfx_GFXPipelineState_getInputState(se::State& s)
 {
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
+    cc::GFXPipelineState* cobj = (cc::GFXPipelineState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_getInputState : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cocos2d::GFXInputState& result = cobj->getInputState();
+        const cc::GFXInputState& result = cobj->getInputState();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_getInputState : Error processing arguments");
         return true;
@@ -16149,7 +16149,7 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineState_getInputState)
 
 static bool js_gfx_GFXPipelineState_getPrimitive(se::State& s)
 {
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
+    cc::GFXPipelineState* cobj = (cc::GFXPipelineState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_getPrimitive : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16167,13 +16167,13 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineState_getPrimitive)
 
 static bool js_gfx_GFXPipelineState_getDepthStencilState(se::State& s)
 {
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
+    cc::GFXPipelineState* cobj = (cc::GFXPipelineState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_getDepthStencilState : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cocos2d::GFXDepthStencilState& result = cobj->getDepthStencilState();
+        const cc::GFXDepthStencilState& result = cobj->getDepthStencilState();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_getDepthStencilState : Error processing arguments");
         return true;
@@ -16185,13 +16185,13 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineState_getDepthStencilState)
 
 static bool js_gfx_GFXPipelineState_getBlendState(se::State& s)
 {
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
+    cc::GFXPipelineState* cobj = (cc::GFXPipelineState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_getBlendState : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cocos2d::GFXBlendState& result = cobj->getBlendState();
+        const cc::GFXBlendState& result = cobj->getBlendState();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_getBlendState : Error processing arguments");
         return true;
@@ -16203,13 +16203,13 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineState_getBlendState)
 
 static bool js_gfx_GFXPipelineState_getPipelineLayout(se::State& s)
 {
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
+    cc::GFXPipelineState* cobj = (cc::GFXPipelineState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_getPipelineLayout : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cocos2d::GFXPipelineLayout* result = cobj->getPipelineLayout();
+        const cc::GFXPipelineLayout* result = cobj->getPipelineLayout();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_getPipelineLayout : Error processing arguments");
         return true;
@@ -16221,13 +16221,13 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineState_getPipelineLayout)
 
 static bool js_gfx_GFXPipelineState_initialize(se::State& s)
 {
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
+    cc::GFXPipelineState* cobj = (cc::GFXPipelineState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXPipelineStateInfo* arg0 = nullptr;
+        cc::GFXPipelineStateInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_initialize : Error processing arguments");
         bool result = cobj->initialize(*arg0);
@@ -16242,7 +16242,7 @@ SE_BIND_FUNC(js_gfx_GFXPipelineState_initialize)
 
 static bool js_gfx_GFXPipelineState_destroy(se::State& s)
 {
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
+    cc::GFXPipelineState* cobj = (cc::GFXPipelineState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16257,13 +16257,13 @@ SE_BIND_FUNC(js_gfx_GFXPipelineState_destroy)
 
 static bool js_gfx_GFXPipelineState_getRenderPass(se::State& s)
 {
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
+    cc::GFXPipelineState* cobj = (cc::GFXPipelineState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_getRenderPass : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cocos2d::GFXRenderPass* result = cobj->getRenderPass();
+        const cc::GFXRenderPass* result = cobj->getRenderPass();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_getRenderPass : Error processing arguments");
         return true;
@@ -16275,13 +16275,13 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineState_getRenderPass)
 
 static bool js_gfx_GFXPipelineState_getDevice(se::State& s)
 {
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
+    cc::GFXPipelineState* cobj = (cc::GFXPipelineState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_getDevice : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->getDevice();
+        cc::GFXDevice* result = cobj->getDevice();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_getDevice : Error processing arguments");
         return true;
@@ -16293,13 +16293,13 @@ SE_BIND_PROP_GET(js_gfx_GFXPipelineState_getDevice)
 
 static bool js_gfx_GFXPipelineState_getDynamicStates(se::State& s)
 {
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
+    cc::GFXPipelineState* cobj = (cc::GFXPipelineState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_getDynamicStates : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const std::vector<cocos2d::GFXDynamicState>& result = cobj->getDynamicStates();
+        const std::vector<cc::GFXDynamicState>& result = cobj->getDynamicStates();
         ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_getDynamicStates : Error processing arguments");
         return true;
@@ -16309,37 +16309,37 @@ static bool js_gfx_GFXPipelineState_getDynamicStates(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXPipelineState_getDynamicStates)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXPipelineState_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXPipelineState_finalize)
 
 static bool js_gfx_GFXPipelineState_constructor(se::State& s)
 {
-    //#3 cocos2d::GFXPipelineState: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXPipelineState constructor is skipped\")");
+    //#3 cc::GFXPipelineState: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::GFXPipelineState constructor is skipped\")");
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXPipelineState_constructor, __jsb_cocos2d_GFXPipelineState_class, js_cocos2d_GFXPipelineState_finalize)
+SE_BIND_CTOR(js_gfx_GFXPipelineState_constructor, __jsb_cc_GFXPipelineState_class, js_cc_GFXPipelineState_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_GFXObject_proto;
+extern se::Object* __jsb_cc_GFXObject_proto;
 
-static bool js_cocos2d_GFXPipelineState_finalize(se::State& s)
+static bool js_cc_GFXPipelineState_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXPipelineState)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXPipelineState)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
+        cc::GFXPipelineState* cobj = (cc::GFXPipelineState*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXPipelineState_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXPipelineState_finalize)
 
 bool js_register_gfx_GFXPipelineState(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXPipelineState", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXPipelineState_constructor));
+    auto cls = se::Class::create("GFXPipelineState", obj, __jsb_cc_GFXObject_proto, _SE(js_gfx_GFXPipelineState_constructor));
 
     cls->defineProperty("primitive", _SE(js_gfx_GFXPipelineState_getPrimitive), nullptr);
     cls->defineProperty("rasterizerState", _SE(js_gfx_GFXPipelineState_getRasterizerState), nullptr);
@@ -16353,29 +16353,29 @@ bool js_register_gfx_GFXPipelineState(se::Object* obj)
     cls->defineFunction("initialize", _SE(js_gfx_GFXPipelineState_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXPipelineState_destroy));
     cls->defineFunction("getDynamicStates", _SE(js_gfx_GFXPipelineState_getDynamicStates));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXPipelineState_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXPipelineState_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXPipelineState>(cls);
+    JSBClassType::registerClass<cc::GFXPipelineState>(cls);
 
-    __jsb_cocos2d_GFXPipelineState_proto = cls->getProto();
-    __jsb_cocos2d_GFXPipelineState_class = cls;
+    __jsb_cc_GFXPipelineState_proto = cls->getProto();
+    __jsb_cc_GFXPipelineState_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXCommandAllocator_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXCommandAllocator_class = nullptr;
+se::Object* __jsb_cc_GFXCommandAllocator_proto = nullptr;
+se::Class* __jsb_cc_GFXCommandAllocator_class = nullptr;
 
 static bool js_gfx_GFXCommandAllocator_initialize(se::State& s)
 {
-    cocos2d::GFXCommandAllocator* cobj = (cocos2d::GFXCommandAllocator*)s.nativeThisObject();
+    cc::GFXCommandAllocator* cobj = (cc::GFXCommandAllocator*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandAllocator_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXCommandAllocatorInfo* arg0 = nullptr;
+        cc::GFXCommandAllocatorInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandAllocator_initialize : Error processing arguments");
         bool result = cobj->initialize(*arg0);
@@ -16390,7 +16390,7 @@ SE_BIND_FUNC(js_gfx_GFXCommandAllocator_initialize)
 
 static bool js_gfx_GFXCommandAllocator_destroy(se::State& s)
 {
-    cocos2d::GFXCommandAllocator* cobj = (cocos2d::GFXCommandAllocator*)s.nativeThisObject();
+    cc::GFXCommandAllocator* cobj = (cc::GFXCommandAllocator*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandAllocator_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16405,13 +16405,13 @@ SE_BIND_FUNC(js_gfx_GFXCommandAllocator_destroy)
 
 static bool js_gfx_GFXCommandAllocator_getDevice(se::State& s)
 {
-    cocos2d::GFXCommandAllocator* cobj = (cocos2d::GFXCommandAllocator*)s.nativeThisObject();
+    cc::GFXCommandAllocator* cobj = (cc::GFXCommandAllocator*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandAllocator_getDevice : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->getDevice();
+        cc::GFXDevice* result = cobj->getDevice();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandAllocator_getDevice : Error processing arguments");
         return true;
@@ -16421,64 +16421,64 @@ static bool js_gfx_GFXCommandAllocator_getDevice(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXCommandAllocator_getDevice)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXCommandAllocator_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXCommandAllocator_finalize)
 
 static bool js_gfx_GFXCommandAllocator_constructor(se::State& s)
 {
-    //#3 cocos2d::GFXCommandAllocator: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXCommandAllocator constructor is skipped\")");
+    //#3 cc::GFXCommandAllocator: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::GFXCommandAllocator constructor is skipped\")");
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXCommandAllocator_constructor, __jsb_cocos2d_GFXCommandAllocator_class, js_cocos2d_GFXCommandAllocator_finalize)
+SE_BIND_CTOR(js_gfx_GFXCommandAllocator_constructor, __jsb_cc_GFXCommandAllocator_class, js_cc_GFXCommandAllocator_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_GFXObject_proto;
+extern se::Object* __jsb_cc_GFXObject_proto;
 
-static bool js_cocos2d_GFXCommandAllocator_finalize(se::State& s)
+static bool js_cc_GFXCommandAllocator_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXCommandAllocator)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXCommandAllocator)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXCommandAllocator* cobj = (cocos2d::GFXCommandAllocator*)s.nativeThisObject();
+        cc::GFXCommandAllocator* cobj = (cc::GFXCommandAllocator*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXCommandAllocator_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXCommandAllocator_finalize)
 
 bool js_register_gfx_GFXCommandAllocator(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXCommandAllocator", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXCommandAllocator_constructor));
+    auto cls = se::Class::create("GFXCommandAllocator", obj, __jsb_cc_GFXObject_proto, _SE(js_gfx_GFXCommandAllocator_constructor));
 
     cls->defineFunction("initialize", _SE(js_gfx_GFXCommandAllocator_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXCommandAllocator_destroy));
     cls->defineFunction("getDevice", _SE(js_gfx_GFXCommandAllocator_getDevice));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXCommandAllocator_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXCommandAllocator_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXCommandAllocator>(cls);
+    JSBClassType::registerClass<cc::GFXCommandAllocator>(cls);
 
-    __jsb_cocos2d_GFXCommandAllocator_proto = cls->getProto();
-    __jsb_cocos2d_GFXCommandAllocator_class = cls;
+    __jsb_cc_GFXCommandAllocator_proto = cls->getProto();
+    __jsb_cc_GFXCommandAllocator_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXCommandBuffer_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXCommandBuffer_class = nullptr;
+se::Object* __jsb_cc_GFXCommandBuffer_proto = nullptr;
+se::Class* __jsb_cc_GFXCommandBuffer_class = nullptr;
 
 static bool js_gfx_GFXCommandBuffer_draw(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_draw : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXInputAssembler* arg0 = nullptr;
+        cc::GFXInputAssembler* arg0 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_draw : Error processing arguments");
         cobj->draw(arg0);
@@ -16491,13 +16491,13 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_draw)
 
 static bool js_gfx_GFXCommandBuffer_setBlendConstants(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_setBlendConstants : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXColor* arg0 = nullptr;
+        cc::GFXColor* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_setBlendConstants : Error processing arguments");
         cobj->setBlendConstants(*arg0);
@@ -16510,7 +16510,7 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_setBlendConstants)
 
 static bool js_gfx_GFXCommandBuffer_setDepthBound(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_setDepthBound : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16531,13 +16531,13 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_setDepthBound)
 
 static bool js_gfx_GFXCommandBuffer_getAllocator(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_getAllocator : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXCommandAllocator* result = cobj->getAllocator();
+        cc::GFXCommandAllocator* result = cobj->getAllocator();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_getAllocator : Error processing arguments");
         return true;
@@ -16549,19 +16549,19 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_getAllocator)
 
 static bool js_gfx_GFXCommandBuffer_copyBufferToTexture(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_copyBufferToTexture : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 4) {
-        cocos2d::GFXBuffer* arg0 = nullptr;
-        cocos2d::GFXTexture* arg1 = nullptr;
-        cocos2d::GFXTextureLayout arg2;
-        std::vector<cocos2d::GFXBufferTextureCopy> arg3;
+        cc::GFXBuffer* arg0 = nullptr;
+        cc::GFXTexture* arg1 = nullptr;
+        cc::GFXTextureLayout arg2;
+        std::vector<cc::GFXBufferTextureCopy> arg3;
         ok &= seval_to_native_ptr(args[0], &arg0);
         ok &= seval_to_native_ptr(args[1], &arg1);
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::GFXTextureLayout)tmp; } while(false);
         ok &= seval_to_std_vector(args[3], &arg3);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_copyBufferToTexture : Error processing arguments");
         cobj->copyBufferToTexture(arg0, arg1, arg2, arg3);
@@ -16574,7 +16574,7 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_copyBufferToTexture)
 
 static bool js_gfx_GFXCommandBuffer_setLineWidth(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_setLineWidth : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16593,13 +16593,13 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_setLineWidth)
 
 static bool js_gfx_GFXCommandBuffer_updateBuffer(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_updateBuffer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 3) {
-        cocos2d::GFXBuffer* arg0 = nullptr;
+        cc::GFXBuffer* arg0 = nullptr;
         void* arg1 = nullptr;
         unsigned int arg2 = 0;
         ok &= seval_to_native_ptr(args[0], &arg0);
@@ -16610,7 +16610,7 @@ static bool js_gfx_GFXCommandBuffer_updateBuffer(se::State& s)
         return true;
     }
     if (argc == 4) {
-        cocos2d::GFXBuffer* arg0 = nullptr;
+        cc::GFXBuffer* arg0 = nullptr;
         void* arg1 = nullptr;
         unsigned int arg2 = 0;
         unsigned int arg3 = 0;
@@ -16629,7 +16629,7 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_updateBuffer)
 
 static bool js_gfx_GFXCommandBuffer_end(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_end : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16644,15 +16644,15 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_end)
 
 static bool js_gfx_GFXCommandBuffer_setStencilWriteMask(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_setStencilWriteMask : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        cocos2d::GFXStencilFace arg0;
+        cc::GFXStencilFace arg0;
         unsigned int arg1 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXStencilFace)tmp; } while(false);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXStencilFace)tmp; } while(false);
         ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_setStencilWriteMask : Error processing arguments");
         cobj->setStencilWriteMask(arg0, arg1);
@@ -16665,7 +16665,7 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_setStencilWriteMask)
 
 static bool js_gfx_GFXCommandBuffer_getNumInstances(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_getNumInstances : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16683,16 +16683,16 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_getNumInstances)
 
 static bool js_gfx_GFXCommandBuffer_setStencilCompareMask(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_setStencilCompareMask : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 3) {
-        cocos2d::GFXStencilFace arg0;
+        cc::GFXStencilFace arg0;
         int arg1 = 0;
         unsigned int arg2 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXStencilFace)tmp; } while(false);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::GFXStencilFace)tmp; } while(false);
         do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (int)tmp; } while(false);
         ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_setStencilCompareMask : Error processing arguments");
@@ -16706,13 +16706,13 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_setStencilCompareMask)
 
 static bool js_gfx_GFXCommandBuffer_bindInputAssembler(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_bindInputAssembler : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXInputAssembler* arg0 = nullptr;
+        cc::GFXInputAssembler* arg0 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_bindInputAssembler : Error processing arguments");
         cobj->bindInputAssembler(arg0);
@@ -16725,13 +16725,13 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_bindInputAssembler)
 
 static bool js_gfx_GFXCommandBuffer_bindPipelineState(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_bindPipelineState : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXPipelineState* arg0 = nullptr;
+        cc::GFXPipelineState* arg0 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_bindPipelineState : Error processing arguments");
         cobj->bindPipelineState(arg0);
@@ -16744,7 +16744,7 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_bindPipelineState)
 
 static bool js_gfx_GFXCommandBuffer_destroy(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16759,13 +16759,13 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_destroy)
 
 static bool js_gfx_GFXCommandBuffer_getDevice(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_getDevice : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->getDevice();
+        cc::GFXDevice* result = cobj->getDevice();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_getDevice : Error processing arguments");
         return true;
@@ -16777,7 +16777,7 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_getDevice)
 
 static bool js_gfx_GFXCommandBuffer_getNumTris(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_getNumTris : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16795,13 +16795,13 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_getNumTris)
 
 static bool js_gfx_GFXCommandBuffer_setViewport(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_setViewport : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXViewport* arg0 = nullptr;
+        cc::GFXViewport* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_setViewport : Error processing arguments");
         cobj->setViewport(*arg0);
@@ -16814,7 +16814,7 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_setViewport)
 
 static bool js_gfx_GFXCommandBuffer_setDepthBias(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_setDepthBias : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16837,7 +16837,7 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_setDepthBias)
 
 static bool js_gfx_GFXCommandBuffer_begin(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_begin : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16847,14 +16847,14 @@ static bool js_gfx_GFXCommandBuffer_begin(se::State& s)
         return true;
     }
     if (argc == 1) {
-        cocos2d::GFXRenderPass* arg0 = nullptr;
+        cc::GFXRenderPass* arg0 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_begin : Error processing arguments");
         cobj->begin(arg0);
         return true;
     }
     if (argc == 2) {
-        cocos2d::GFXRenderPass* arg0 = nullptr;
+        cc::GFXRenderPass* arg0 = nullptr;
         unsigned int arg1 = 0;
         ok &= seval_to_native_ptr(args[0], &arg0);
         ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
@@ -16863,9 +16863,9 @@ static bool js_gfx_GFXCommandBuffer_begin(se::State& s)
         return true;
     }
     if (argc == 3) {
-        cocos2d::GFXRenderPass* arg0 = nullptr;
+        cc::GFXRenderPass* arg0 = nullptr;
         unsigned int arg1 = 0;
-        cocos2d::GFXFramebuffer* arg2 = nullptr;
+        cc::GFXFramebuffer* arg2 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
         ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
         ok &= seval_to_native_ptr(args[2], &arg2);
@@ -16880,7 +16880,7 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_begin)
 
 static bool js_gfx_GFXCommandBuffer_getType(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_getType : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16898,13 +16898,13 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_getType)
 
 static bool js_gfx_GFXCommandBuffer_bindBindingLayout(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_bindBindingLayout : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXBindingLayout* arg0 = nullptr;
+        cc::GFXBindingLayout* arg0 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_bindBindingLayout : Error processing arguments");
         cobj->bindBindingLayout(arg0);
@@ -16917,7 +16917,7 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_bindBindingLayout)
 
 static bool js_gfx_GFXCommandBuffer_endRenderPass(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_endRenderPass : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16932,13 +16932,13 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_endRenderPass)
 
 static bool js_gfx_GFXCommandBuffer_initialize(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXCommandBufferInfo* arg0 = nullptr;
+        cc::GFXCommandBufferInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_initialize : Error processing arguments");
         bool result = cobj->initialize(*arg0);
@@ -16953,13 +16953,13 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_initialize)
 
 static bool js_gfx_GFXCommandBuffer_setScissor(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_setScissor : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXRect* arg0 = nullptr;
+        cc::GFXRect* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_setScissor : Error processing arguments");
         cobj->setScissor(*arg0);
@@ -16972,21 +16972,21 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_setScissor)
 
 static bool js_gfx_GFXCommandBuffer_beginRenderPass(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_beginRenderPass : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 6) {
-        cocos2d::GFXFramebuffer* arg0 = nullptr;
-        cocos2d::GFXRect* arg1 = nullptr;
-        cocos2d::GFXClearFlagBit arg2;
-        std::vector<cocos2d::GFXColor> arg3;
+        cc::GFXFramebuffer* arg0 = nullptr;
+        cc::GFXRect* arg1 = nullptr;
+        cc::GFXClearFlagBit arg2;
+        std::vector<cc::GFXColor> arg3;
         float arg4 = 0;
         int arg5 = 0;
         ok &= seval_to_native_ptr(args[0], &arg0);
         ok &= seval_to_reference(args[1], &arg1);
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXClearFlagBit)tmp; } while(false);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::GFXClearFlagBit)tmp; } while(false);
         ok &= seval_to_std_vector(args[3], &arg3);
         ok &= seval_to_float(args[4], &arg4);
         do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (int)tmp; } while(false);
@@ -17001,7 +17001,7 @@ SE_BIND_FUNC(js_gfx_GFXCommandBuffer_beginRenderPass)
 
 static bool js_gfx_GFXCommandBuffer_getNumDrawCalls(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_getNumDrawCalls : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17017,37 +17017,37 @@ static bool js_gfx_GFXCommandBuffer_getNumDrawCalls(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXCommandBuffer_getNumDrawCalls)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXCommandBuffer_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXCommandBuffer_finalize)
 
 static bool js_gfx_GFXCommandBuffer_constructor(se::State& s)
 {
-    //#3 cocos2d::GFXCommandBuffer: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXCommandBuffer constructor is skipped\")");
+    //#3 cc::GFXCommandBuffer: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::GFXCommandBuffer constructor is skipped\")");
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXCommandBuffer_constructor, __jsb_cocos2d_GFXCommandBuffer_class, js_cocos2d_GFXCommandBuffer_finalize)
+SE_BIND_CTOR(js_gfx_GFXCommandBuffer_constructor, __jsb_cc_GFXCommandBuffer_class, js_cc_GFXCommandBuffer_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_GFXObject_proto;
+extern se::Object* __jsb_cc_GFXObject_proto;
 
-static bool js_cocos2d_GFXCommandBuffer_finalize(se::State& s)
+static bool js_cc_GFXCommandBuffer_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXCommandBuffer)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXCommandBuffer)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+        cc::GFXCommandBuffer* cobj = (cc::GFXCommandBuffer*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXCommandBuffer_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXCommandBuffer_finalize)
 
 bool js_register_gfx_GFXCommandBuffer(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXCommandBuffer", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXCommandBuffer_constructor));
+    auto cls = se::Class::create("GFXCommandBuffer", obj, __jsb_cc_GFXObject_proto, _SE(js_gfx_GFXCommandBuffer_constructor));
 
     cls->defineFunction("draw", _SE(js_gfx_GFXCommandBuffer_draw));
     cls->defineFunction("setBlendConstants", _SE(js_gfx_GFXCommandBuffer_setBlendConstants));
@@ -17075,29 +17075,29 @@ bool js_register_gfx_GFXCommandBuffer(se::Object* obj)
     cls->defineFunction("setScissor", _SE(js_gfx_GFXCommandBuffer_setScissor));
     cls->defineFunction("beginRenderPass", _SE(js_gfx_GFXCommandBuffer_beginRenderPass));
     cls->defineFunction("getNumDrawCalls", _SE(js_gfx_GFXCommandBuffer_getNumDrawCalls));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXCommandBuffer_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXCommandBuffer_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXCommandBuffer>(cls);
+    JSBClassType::registerClass<cc::GFXCommandBuffer>(cls);
 
-    __jsb_cocos2d_GFXCommandBuffer_proto = cls->getProto();
-    __jsb_cocos2d_GFXCommandBuffer_class = cls;
+    __jsb_cc_GFXCommandBuffer_proto = cls->getProto();
+    __jsb_cc_GFXCommandBuffer_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXFence_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXFence_class = nullptr;
+se::Object* __jsb_cc_GFXFence_proto = nullptr;
+se::Class* __jsb_cc_GFXFence_class = nullptr;
 
 static bool js_gfx_GFXFence_initialize(se::State& s)
 {
-    cocos2d::GFXFence* cobj = (cocos2d::GFXFence*)s.nativeThisObject();
+    cc::GFXFence* cobj = (cc::GFXFence*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFence_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXFenceInfo* arg0 = nullptr;
+        cc::GFXFenceInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXFence_initialize : Error processing arguments");
         bool result = cobj->initialize(*arg0);
@@ -17112,7 +17112,7 @@ SE_BIND_FUNC(js_gfx_GFXFence_initialize)
 
 static bool js_gfx_GFXFence_destroy(se::State& s)
 {
-    cocos2d::GFXFence* cobj = (cocos2d::GFXFence*)s.nativeThisObject();
+    cc::GFXFence* cobj = (cc::GFXFence*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFence_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17127,7 +17127,7 @@ SE_BIND_FUNC(js_gfx_GFXFence_destroy)
 
 static bool js_gfx_GFXFence_wait(se::State& s)
 {
-    cocos2d::GFXFence* cobj = (cocos2d::GFXFence*)s.nativeThisObject();
+    cc::GFXFence* cobj = (cc::GFXFence*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFence_wait : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17142,7 +17142,7 @@ SE_BIND_FUNC(js_gfx_GFXFence_wait)
 
 static bool js_gfx_GFXFence_reset(se::State& s)
 {
-    cocos2d::GFXFence* cobj = (cocos2d::GFXFence*)s.nativeThisObject();
+    cc::GFXFence* cobj = (cc::GFXFence*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFence_reset : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17155,59 +17155,59 @@ static bool js_gfx_GFXFence_reset(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXFence_reset)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXFence_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXFence_finalize)
 
 static bool js_gfx_GFXFence_constructor(se::State& s)
 {
-    //#3 cocos2d::GFXFence: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXFence constructor is skipped\")");
+    //#3 cc::GFXFence: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::GFXFence constructor is skipped\")");
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXFence_constructor, __jsb_cocos2d_GFXFence_class, js_cocos2d_GFXFence_finalize)
+SE_BIND_CTOR(js_gfx_GFXFence_constructor, __jsb_cc_GFXFence_class, js_cc_GFXFence_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_GFXObject_proto;
+extern se::Object* __jsb_cc_GFXObject_proto;
 
-static bool js_cocos2d_GFXFence_finalize(se::State& s)
+static bool js_cc_GFXFence_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXFence)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXFence)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXFence* cobj = (cocos2d::GFXFence*)s.nativeThisObject();
+        cc::GFXFence* cobj = (cc::GFXFence*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXFence_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXFence_finalize)
 
 bool js_register_gfx_GFXFence(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXFence", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXFence_constructor));
+    auto cls = se::Class::create("GFXFence", obj, __jsb_cc_GFXObject_proto, _SE(js_gfx_GFXFence_constructor));
 
     cls->defineFunction("initialize", _SE(js_gfx_GFXFence_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXFence_destroy));
     cls->defineFunction("wait", _SE(js_gfx_GFXFence_wait));
     cls->defineFunction("reset", _SE(js_gfx_GFXFence_reset));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXFence_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXFence_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXFence>(cls);
+    JSBClassType::registerClass<cc::GFXFence>(cls);
 
-    __jsb_cocos2d_GFXFence_proto = cls->getProto();
-    __jsb_cocos2d_GFXFence_class = cls;
+    __jsb_cc_GFXFence_proto = cls->getProto();
+    __jsb_cc_GFXFence_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXQueue_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXQueue_class = nullptr;
+se::Object* __jsb_cc_GFXQueue_proto = nullptr;
+se::Class* __jsb_cc_GFXQueue_class = nullptr;
 
 static bool js_gfx_GFXQueue_getType(se::State& s)
 {
-    cocos2d::GFXQueue* cobj = (cocos2d::GFXQueue*)s.nativeThisObject();
+    cc::GFXQueue* cobj = (cc::GFXQueue*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXQueue_getType : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17226,13 +17226,13 @@ SE_BIND_PROP_GET(js_gfx_GFXQueue_getType)
 static bool js_gfx_GFXQueue_submit(se::State& s)
 {
     CC_UNUSED bool ok = true;
-    cocos2d::GFXQueue* cobj = (cocos2d::GFXQueue*)s.nativeThisObject();
+    cc::GFXQueue* cobj = (cc::GFXQueue*)s.nativeThisObject();
     SE_PRECONDITION2( cobj, false, "js_gfx_GFXQueue_submit : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
         if (argc == 1) {
-            std::vector<cocos2d::GFXCommandBuffer *> arg0;
+            std::vector<cc::GFXCommandBuffer *> arg0;
             ok &= seval_to_std_vector(args[0], &arg0);
             if (!ok) { ok = true; break; }
             cobj->submit(arg0);
@@ -17242,10 +17242,10 @@ static bool js_gfx_GFXQueue_submit(se::State& s)
 
     do {
         if (argc == 2) {
-            std::vector<cocos2d::GFXCommandBuffer *> arg0;
+            std::vector<cc::GFXCommandBuffer *> arg0;
             ok &= seval_to_std_vector(args[0], &arg0);
             if (!ok) { ok = true; break; }
-            cocos2d::GFXFence* arg1 = nullptr;
+            cc::GFXFence* arg1 = nullptr;
             ok &= seval_to_native_ptr(args[1], &arg1);
             if (!ok) { ok = true; break; }
             cobj->submit(arg0, arg1);
@@ -17260,13 +17260,13 @@ SE_BIND_FUNC(js_gfx_GFXQueue_submit)
 
 static bool js_gfx_GFXQueue_initialize(se::State& s)
 {
-    cocos2d::GFXQueue* cobj = (cocos2d::GFXQueue*)s.nativeThisObject();
+    cc::GFXQueue* cobj = (cc::GFXQueue*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXQueue_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::GFXQueueInfo* arg0 = nullptr;
+        cc::GFXQueueInfo* arg0 = nullptr;
         ok &= seval_to_reference(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXQueue_initialize : Error processing arguments");
         bool result = cobj->initialize(*arg0);
@@ -17281,7 +17281,7 @@ SE_BIND_FUNC(js_gfx_GFXQueue_initialize)
 
 static bool js_gfx_GFXQueue_destroy(se::State& s)
 {
-    cocos2d::GFXQueue* cobj = (cocos2d::GFXQueue*)s.nativeThisObject();
+    cc::GFXQueue* cobj = (cc::GFXQueue*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXQueue_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17296,13 +17296,13 @@ SE_BIND_FUNC(js_gfx_GFXQueue_destroy)
 
 static bool js_gfx_GFXQueue_getDevice(se::State& s)
 {
-    cocos2d::GFXQueue* cobj = (cocos2d::GFXQueue*)s.nativeThisObject();
+    cc::GFXQueue* cobj = (cc::GFXQueue*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXQueue_getDevice : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->getDevice();
+        cc::GFXDevice* result = cobj->getDevice();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXQueue_getDevice : Error processing arguments");
         return true;
@@ -17312,49 +17312,49 @@ static bool js_gfx_GFXQueue_getDevice(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_GFXQueue_getDevice)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXQueue_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_GFXQueue_finalize)
 
 static bool js_gfx_GFXQueue_constructor(se::State& s)
 {
-    //#3 cocos2d::GFXQueue: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXQueue constructor is skipped\")");
+    //#3 cc::GFXQueue: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::GFXQueue constructor is skipped\")");
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXQueue_constructor, __jsb_cocos2d_GFXQueue_class, js_cocos2d_GFXQueue_finalize)
+SE_BIND_CTOR(js_gfx_GFXQueue_constructor, __jsb_cc_GFXQueue_class, js_cc_GFXQueue_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_GFXObject_proto;
+extern se::Object* __jsb_cc_GFXObject_proto;
 
-static bool js_cocos2d_GFXQueue_finalize(se::State& s)
+static bool js_cc_GFXQueue_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXQueue)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXQueue)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXQueue* cobj = (cocos2d::GFXQueue*)s.nativeThisObject();
+        cc::GFXQueue* cobj = (cc::GFXQueue*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXQueue_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_GFXQueue_finalize)
 
 bool js_register_gfx_GFXQueue(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXQueue", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXQueue_constructor));
+    auto cls = se::Class::create("GFXQueue", obj, __jsb_cc_GFXObject_proto, _SE(js_gfx_GFXQueue_constructor));
 
     cls->defineProperty("device", _SE(js_gfx_GFXQueue_getDevice), nullptr);
     cls->defineProperty("type", _SE(js_gfx_GFXQueue_getType), nullptr);
     cls->defineFunction("submit", _SE(js_gfx_GFXQueue_submit));
     cls->defineFunction("initialize", _SE(js_gfx_GFXQueue_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXQueue_destroy));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXQueue_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_GFXQueue_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXQueue>(cls);
+    JSBClassType::registerClass<cc::GFXQueue>(cls);
 
-    __jsb_cocos2d_GFXQueue_proto = cls->getProto();
-    __jsb_cocos2d_GFXQueue_class = cls;
+    __jsb_cc_GFXQueue_proto = cls->getProto();
+    __jsb_cc_GFXQueue_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;

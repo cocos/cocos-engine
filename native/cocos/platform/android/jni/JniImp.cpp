@@ -34,7 +34,7 @@
 #define JCLS_HELPER "org/cocos2dx/lib/Cocos2dxHelper"
 #endif
 
-using namespace cocos2d;
+using namespace cc;
 
 /***********************************************************
  * Functions invoke from cpp to Java.

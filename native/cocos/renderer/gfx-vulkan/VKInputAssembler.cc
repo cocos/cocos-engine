@@ -4,7 +4,7 @@
 #include "VKCommands.h"
 #include "VKInputAssembler.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCVKInputAssembler::CCVKInputAssembler(GFXDevice *device)
 : GFXInputAssembler(device) {
@@ -59,4 +59,4 @@ void CCVKInputAssembler::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-NS_CC_END
+}

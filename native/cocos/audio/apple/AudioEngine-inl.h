@@ -35,12 +35,12 @@
 #include "audio/apple/AudioCache.h"
 #include "audio/apple/AudioPlayer.h"
 
-NS_CC_BEGIN
+namespace cc {
 class Scheduler;
 
 #define MAX_AUDIOINSTANCES 24
 
-class AudioEngineImpl : public cocos2d::Ref
+class AudioEngineImpl : public cc::Ref
 {
 public:
     AudioEngineImpl();
@@ -88,6 +88,6 @@ private:
     int _currentAudioID;
     std::weak_ptr<Scheduler> _scheduler;
 };
-NS_CC_END
+}
 #endif // __AUDIO_ENGINE_INL_H_
 #endif

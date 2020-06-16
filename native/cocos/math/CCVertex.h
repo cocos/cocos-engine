@@ -35,7 +35,7 @@
  * @{
  */
 
-NS_CC_BEGIN
+namespace cc {
 
 /** @file CCVertex.h */
 
@@ -48,7 +48,7 @@ bool CC_DLL ccVertexLineIntersect(float Ax, float Ay,
                              float Cx, float Cy,
                              float Dx, float Dy, float *T);
 
-NS_CC_END
+}
 
 
 // end of base group

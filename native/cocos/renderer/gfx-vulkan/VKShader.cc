@@ -3,7 +3,7 @@
 #include "VKCommands.h"
 #include "VKShader.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCVKShader::CCVKShader(GFXDevice *device)
 : GFXShader(device) {
@@ -45,4 +45,4 @@ void CCVKShader::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-NS_CC_END
+}

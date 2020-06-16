@@ -6,7 +6,7 @@
 #include "NedPooling.h"
 #include "JeAlloc.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 #if (CC_MEMORY_ALLOCATOR == CC_MEMORY_ALLOCATOR_STD)
 
@@ -58,35 +58,35 @@ T* ConstructN(T* basePtr, size_t count) {
 	return basePtr;
 }
 
-NS_CC_END
+}
 
 #ifdef CC_MEMORY_TRACKER
 
 /// Allocate a block of raw memory.
-#	define _CC_MALLOC(bytes) ::cocos2d::CategorisedAllocPolicy::AllocateBytes(bytes, __FILE__, __LINE__, __FUNCTION__)
+#	define _CC_MALLOC(bytes) ::cc::CategorisedAllocPolicy::AllocateBytes(bytes, __FILE__, __LINE__, __FUNCTION__)
 /// Reallocate a block of raw memory.
-#	define _CC_REALLOC(ptr, bytes) ::cocos2d::CategorisedAllocPolicy::ReallocateBytes(ptr, bytes, __FILE__, __LINE__, __FUNCTION__)
+#	define _CC_REALLOC(ptr, bytes) ::cc::CategorisedAllocPolicy::ReallocateBytes(ptr, bytes, __FILE__, __LINE__, __FUNCTION__)
 /// Allocate a block of memory for a primitive type.
-#	define _CC_ALLOC_T(T, count) static_cast<T*>(::cocos2d::CategorisedAllocPolicy::AllocateBytes(sizeof(T)*(count), __FILE__, __LINE__, __FUNCTION__))
+#	define _CC_ALLOC_T(T, count) static_cast<T*>(::cc::CategorisedAllocPolicy::AllocateBytes(sizeof(T)*(count), __FILE__, __LINE__, __FUNCTION__))
 /// Free the memory allocated with _CC_MALLOC or _CC_ALLOC_T.
-#	define _CC_FREE(ptr) ::cocos2d::CategorisedAllocPolicy::DeallocateBytes((void*)ptr)
+#	define _CC_FREE(ptr) ::cc::CategorisedAllocPolicy::DeallocateBytes((void*)ptr)
 
 /// Allocate space for one primitive type, external type or non-virtual type with constructor parameters
-#	define _CC_NEW_T(T) new (::cocos2d::CategorisedAllocPolicy::AllocateBytes(sizeof(T), __FILE__, __LINE__, __FUNCTION__)) T
+#	define _CC_NEW_T(T) new (::cc::CategorisedAllocPolicy::AllocateBytes(sizeof(T), __FILE__, __LINE__, __FUNCTION__)) T
 /// Allocate a block of memory for 'count' primitive types - do not use for classes that inherit from AllocatedObject
-#	define _CC_NEW_ARRAY_T(T, count) ::cocos2d::ConstructN(static_cast<T*>(::cocos2d::CategorisedAllocPolicy::AllocateBytes(sizeof(T)*(count), __FILE__, __LINE__, __FUNCTION__)), count)
+#	define _CC_NEW_ARRAY_T(T, count) ::cc::ConstructN(static_cast<T*>(::cc::CategorisedAllocPolicy::AllocateBytes(sizeof(T)*(count), __FILE__, __LINE__, __FUNCTION__)), count)
 /// Free the memory allocated with _CC_NEW_T.
-#	define _CC_DELETE_T(ptr, T) if(ptr){(ptr)->~T(); ::cocos2d::CategorisedAllocPolicy::DeallocateBytes((void*)ptr);}
+#	define _CC_DELETE_T(ptr, T) if(ptr){(ptr)->~T(); ::cc::CategorisedAllocPolicy::DeallocateBytes((void*)ptr);}
 /// Free the memory allocated with _CC_NEW_ARRAY_T.
-#	define _CC_DELETE_ARRAY_T(ptr, T, count) if(ptr){for (size_t b = 0; b < (size_t)count; ++b) {(ptr)[b].~T();} ::cocos2d::CategorisedAllocPolicy::DeallocateBytes((void*)ptr);}
+#	define _CC_DELETE_ARRAY_T(ptr, T, count) if(ptr){for (size_t b = 0; b < (size_t)count; ++b) {(ptr)[b].~T();} ::cc::CategorisedAllocPolicy::DeallocateBytes((void*)ptr);}
 
 // aligned allocation
 /// Allocate a block of raw memory aligned to user defined boundaries.
-#	define _CC_MALLOC_ALIGN(bytes, align) ::cocos2d::CategorisedAllocPolicy::AllocateBytesAligned(align, bytes, __FILE__, __LINE__, __FUNCTION__)
+#	define _CC_MALLOC_ALIGN(bytes, align) ::cc::CategorisedAllocPolicy::AllocateBytesAligned(align, bytes, __FILE__, __LINE__, __FUNCTION__)
 /// Allocate a block of memory for a primitive type aligned to user defined boundaries.
-#	define _CC_ALLOC_T_ALIGN(T, count, align) static_cast<T*>(::cocos2d::CategorisedAllocPolicy::AllocateBytesAligned(align, sizeof(T)*(count), __FILE__, __LINE__, __FUNCTION__))
+#	define _CC_ALLOC_T_ALIGN(T, count, align) static_cast<T*>(::cc::CategorisedAllocPolicy::AllocateBytesAligned(align, sizeof(T)*(count), __FILE__, __LINE__, __FUNCTION__))
 /// Free the memory allocated with either _CC_MALLOC_ALIGN or _CC_ALLOC_T_ALIGN.
-#	define _CC_FREE_ALIGN(ptr, align) ::cocos2d::CategorisedAllocPolicy::DeallocateBytesAligned(ptr)
+#	define _CC_FREE_ALIGN(ptr, align) ::cc::CategorisedAllocPolicy::DeallocateBytesAligned(ptr)
 /// Allocate a block of raw memory aligned to SIMD boundaries.
 #	define _CC_MALLOC_SIMD(bytes) _CC_MALLOC_ALIGN(bytes, CC_SIMD_ALIGNMENT)
 /// Allocate a block of memory for a primitive type aligned to SIMD boundaries.
@@ -95,13 +95,13 @@ NS_CC_END
 #	define _CC_FREE_SIMD(ptr) _CC_FREE_ALIGN(ptr, CC_SIMD_ALIGNMENT)
 
 /// Allocate space for one primitive type, external type or non-virtual type aligned to user defined boundaries
-#	define _CC_NEW_T_ALIGN(T, align) new (::cocos2d::CategorisedAllocPolicy::AllocateBytesAligned(align, sizeof(T), __FILE__, __LINE__, __FUNCTION__)) T
+#	define _CC_NEW_T_ALIGN(T, align) new (::cc::CategorisedAllocPolicy::AllocateBytesAligned(align, sizeof(T), __FILE__, __LINE__, __FUNCTION__)) T
 /// Allocate a block of memory for 'count' primitive types aligned to user defined boundaries - do not use for classes that inherit from AllocatedObject
-#	define _CC_NEW_ARRAY_T_ALIGN(T, count, align) ::cocos2d::ConstructN(static_cast<T*>(::cocos2d::CategorisedAllocPolicy::AllocateBytesAligned(align, sizeof(T)*(count), __FILE__, __LINE__, __FUNCTION__)), count)
+#	define _CC_NEW_ARRAY_T_ALIGN(T, count, align) ::cc::ConstructN(static_cast<T*>(::cc::CategorisedAllocPolicy::AllocateBytesAligned(align, sizeof(T)*(count), __FILE__, __LINE__, __FUNCTION__)), count)
 /// Free the memory allocated with _CC_NEW_T_ALIGN.
-#	define _CC_DELETE_T_ALIGN(ptr, T, align) if(ptr){(ptr)->~T(); ::cocos2d::CategorisedAllocPolicy::DeallocateBytesAligned(ptr);}
+#	define _CC_DELETE_T_ALIGN(ptr, T, align) if(ptr){(ptr)->~T(); ::cc::CategorisedAllocPolicy::DeallocateBytesAligned(ptr);}
 /// Free the memory allocated with _CC_NEW_ARRAY_T_ALIGN.
-#	define _CC_DELETE_ARRAY_T_ALIGN(ptr, T, count, align) if(ptr){for (size_t _b = 0; _b < (size_t)count; ++_b) {(ptr)[_b].~T();} ::cocos2d::CategorisedAllocPolicy::DeallocateBytesAligned(ptr);}
+#	define _CC_DELETE_ARRAY_T_ALIGN(ptr, T, count, align) if(ptr){for (size_t _b = 0; _b < (size_t)count; ++_b) {(ptr)[_b].~T();} ::cc::CategorisedAllocPolicy::DeallocateBytesAligned(ptr);}
 /// Allocate space for one primitive type, external type or non-virtual type aligned to SIMD boundaries
 #	define _CC_NEW_T_SIMD(T) _CC_NEW_T_ALIGN(T, CC_SIMD_ALIGNMENT)
 /// Allocate a block of memory for 'count' primitive types aligned to SIMD boundaries - do not use for classes that inherit from AllocatedObject
@@ -120,30 +120,30 @@ NS_CC_END
 #else
 
 /// Allocate a block of raw memory.
-#	define _CC_MALLOC(bytes) ::cocos2d::CategorisedAllocPolicy::AllocateBytes(bytes)
+#	define _CC_MALLOC(bytes) ::cc::CategorisedAllocPolicy::AllocateBytes(bytes)
 /// Reallocate a block of raw memory.
-#	define _CC_REALLOC(ptr, bytes) ::cocos2d::CategorisedAllocPolicy::ReallocateBytes(ptr, bytes)
+#	define _CC_REALLOC(ptr, bytes) ::cc::CategorisedAllocPolicy::ReallocateBytes(ptr, bytes)
 /// Allocate a block of memory for a primitive type.
-#	define _CC_ALLOC_T(T, count) static_cast<T*>(::cocos2d::CategorisedAllocPolicy::AllocateBytes(sizeof(T)*(count)))
+#	define _CC_ALLOC_T(T, count) static_cast<T*>(::cc::CategorisedAllocPolicy::AllocateBytes(sizeof(T)*(count)))
 /// Free the memory allocated with _CC_MALLOC or _CC_ALLOC_T. Category is required to be restated to ensure the matching policy is used
-#	define _CC_FREE(ptr) ::cocos2d::CategorisedAllocPolicy::DeallocateBytes((void*)ptr)
+#	define _CC_FREE(ptr) ::cc::CategorisedAllocPolicy::DeallocateBytes((void*)ptr)
 
 /// Allocate space for one primitive type, external type or non-virtual type with constructor parameters
-#	define _CC_NEW_T(T) new (::cocos2d::CategorisedAllocPolicy::AllocateBytes(sizeof(T))) T
+#	define _CC_NEW_T(T) new (::cc::CategorisedAllocPolicy::AllocateBytes(sizeof(T))) T
 /// Allocate a block of memory for 'count' primitive types - do not use for classes that inherit from AllocatedObject
-#	define _CC_NEW_ARRAY_T(T, count) ::cocos2d::ConstructN(static_cast<T*>(::cocos2d::CategorisedAllocPolicy::AllocateBytes(sizeof(T)*(count))), count)
+#	define _CC_NEW_ARRAY_T(T, count) ::cc::ConstructN(static_cast<T*>(::cc::CategorisedAllocPolicy::AllocateBytes(sizeof(T)*(count))), count)
 /// Free the memory allocated with _CC_NEW_T.
-#	define _CC_DELETE_T(ptr, T) if(ptr){(ptr)->~T(); ::cocos2d::CategorisedAllocPolicy::DeallocateBytes((void*)ptr);}
+#	define _CC_DELETE_T(ptr, T) if(ptr){(ptr)->~T(); ::cc::CategorisedAllocPolicy::DeallocateBytes((void*)ptr);}
 /// Free the memory allocated with _CC_NEW_ARRAY_T.
-#	define _CC_DELETE_ARRAY_T(ptr, T, count) if(ptr){for (size_t b = 0; b < (size_t)count; ++b) {(ptr)[b].~T();} ::cocos2d::CategorisedAllocPolicy::DeallocateBytes((void*)ptr);}
+#	define _CC_DELETE_ARRAY_T(ptr, T, count) if(ptr){for (size_t b = 0; b < (size_t)count; ++b) {(ptr)[b].~T();} ::cc::CategorisedAllocPolicy::DeallocateBytes((void*)ptr);}
 
 // aligned allocation
 /// Allocate a block of raw memory aligned to user defined boundaries.
-#	define _CC_MALLOC_ALIGN(bytes, align) ::cocos2d::CategorisedAllocPolicy::AllocateBytesAligned(align, bytes)
+#	define _CC_MALLOC_ALIGN(bytes, align) ::cc::CategorisedAllocPolicy::AllocateBytesAligned(align, bytes)
 /// Allocate a block of memory for a primitive type aligned to user defined boundaries.
-#	define _CC_ALLOC_T_ALIGN(T, count, align) static_cast<T*>(::cocos2d::CategorisedAllocPolicy::AllocateBytesAligned(align, sizeof(T)*(count)))
+#	define _CC_ALLOC_T_ALIGN(T, count, align) static_cast<T*>(::cc::CategorisedAllocPolicy::AllocateBytesAligned(align, sizeof(T)*(count)))
 /// Free the memory allocated with either _CC_MALLOC_ALIGN or _CC_ALLOC_T_ALIGN.
-#	define _CC_FREE_ALIGN(ptr, align) ::cocos2d::CategorisedAllocPolicy::DeallocateBytesAligned((void*)ptr)
+#	define _CC_FREE_ALIGN(ptr, align) ::cc::CategorisedAllocPolicy::DeallocateBytesAligned((void*)ptr)
 /// Allocate a block of raw memory aligned to SIMD boundaries.
 #	define _CC_MALLOC_SIMD(bytes) _CC_MALLOC_ALIGN(bytes, CC_SIMD_ALIGNMENT)
 /// Allocate a block of memory for a primitive type aligned to SIMD boundaries.
@@ -152,13 +152,13 @@ NS_CC_END
 #	define _CC_FREE_SIMD(ptr) _CC_FREE_ALIGN(ptr, CC_SIMD_ALIGNMENT)
 
 /// Allocate space for one primitive type, external type or non-virtual type aligned to user defined boundaries
-#	define _CC_NEW_T_ALIGN(T, align) new (::cocos2d::CategorisedAllocPolicy::AllocateBytesAligned(align, sizeof(T))) T
+#	define _CC_NEW_T_ALIGN(T, align) new (::cc::CategorisedAllocPolicy::AllocateBytesAligned(align, sizeof(T))) T
 /// Allocate a block of memory for 'count' primitive types aligned to user defined boundaries - do not use for classes that inherit from AllocatedObject
-#	define _CC_NEW_ARRAY_T_ALIGN(T, count, align) ::cocos2d::ConstructN(static_cast<T*>(::cocos2d::CategorisedAllocPolicy::AllocateBytesAligned(align, sizeof(T)*(count))), count)
+#	define _CC_NEW_ARRAY_T_ALIGN(T, count, align) ::cc::ConstructN(static_cast<T*>(::cc::CategorisedAllocPolicy::AllocateBytesAligned(align, sizeof(T)*(count))), count)
 /// Free the memory allocated with _CC_NEW_T_ALIGN.
-#	define _CC_DELETE_T_ALIGN(ptr, T, align) if(ptr){(ptr)->~T(); ::cocos2d::CategorisedAllocPolicy::DeallocateBytesAligned((void*)ptr);}
+#	define _CC_DELETE_T_ALIGN(ptr, T, align) if(ptr){(ptr)->~T(); ::cc::CategorisedAllocPolicy::DeallocateBytesAligned((void*)ptr);}
 /// Free the memory allocated with _CC_NEW_ARRAY_T_ALIGN.
-#	define _CC_DELETE_ARRAY_T_ALIGN(ptr, T, count, align) if(ptr){for (size_t _b = 0; _b < (size_t)count; ++_b) { (ptr)[_b].~T();} ::cocos2d::CategorisedAllocPolicy::DeallocateBytesAligned((void*)ptr);}
+#	define _CC_DELETE_ARRAY_T_ALIGN(ptr, T, count, align) if(ptr){for (size_t _b = 0; _b < (size_t)count; ++_b) { (ptr)[_b].~T();} ::cc::CategorisedAllocPolicy::DeallocateBytesAligned((void*)ptr);}
 /// Allocate space for one primitive type, external type or non-virtual type aligned to SIMD boundaries
 #	define _CC_NEW_T_SIMD(T) _CC_NEW_T_ALIGN(T, CC_SIMD_ALIGNMENT)
 /// Allocate a block of memory for 'count' primitive types aligned to SIMD boundaries - do not use for classes that inherit from AllocatedObject

@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "UTFString.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 UTFString::unicode_char UTFString::_base_iterator::_getCharacter() const {
   return string_->getChar(_get_index());
@@ -588,4 +588,4 @@ void UTFString::_load_buffer_WStr() const {
 #endif
 }
 
-NS_CC_END
+}

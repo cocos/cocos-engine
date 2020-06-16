@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class CC_CORE_API GFXBuffer : public GFXObject {
 public:
@@ -36,6 +36,6 @@ protected:
     uint8_t *_buffer = nullptr;
 };
 
-NS_CC_END
+}
 
 #endif // CC_CORE_GFX_BUFFER_H_

@@ -38,7 +38,7 @@ namespace {
     bool _inited = false;
 }
 
-namespace cocos2d
+namespace cc
 {
     std::unordered_map<std::string, EventDispatcher::Node*> EventDispatcher::_listeners;
 
@@ -452,4 +452,4 @@ void EventDispatcher::dispatchCustomEvent(const CustomEvent& event)
     }
 }
 
-} // end of namespace cocos2d
+} // end of namespace cc

@@ -3,7 +3,7 @@
 #include "GLES2Device.h"
 #include "GLES2GPUObjects.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GLES2Fence::GLES2Fence(GFXDevice *device)
 : GFXFence(device) {
@@ -43,4 +43,4 @@ void GLES2Fence::reset() {
     // TODO
 }
 
-NS_CC_END
+}

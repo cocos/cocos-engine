@@ -26,7 +26,7 @@
 
 #include "base/CCData.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 const Data Data::Null;
 
@@ -136,4 +136,4 @@ unsigned char* Data::takeBuffer(ssize_t* size)
     return buffer;
 }
 
-NS_CC_END
+}

@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXSampler.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GFXSampler::GFXSampler(GFXDevice *device)
 : GFXObject(GFXObjectType::SAMPLER), _device(device) {
@@ -14,4 +14,4 @@ GFXSampler::GFXSampler(GFXDevice *device)
 GFXSampler::~GFXSampler() {
 }
 
-NS_CC_END
+}

@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES2_GLES2_SAMPLER_H_
 #define CC_GFXGLES2_GLES2_SAMPLER_H_
 
-NS_CC_BEGIN
+namespace cc {
 
 class GLES2GPUSampler;
 
@@ -33,6 +33,6 @@ private:
     float _mipLODBias = 0.0f;
 };
 
-NS_CC_END
+}
 
 #endif

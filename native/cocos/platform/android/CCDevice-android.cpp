@@ -53,7 +53,7 @@ namespace {
         const ASensor* linearAccelerometerSensor = nullptr;
         const ASensor* gyroscopeSensor = nullptr;
         ASensorEventQueue* sensorEventQueue = nullptr;
-        cocos2d::Device::MotionValue motionValue;
+        cc::Device::MotionValue motionValue;
         int delay = 0; // us
 
         Sensor()
@@ -66,7 +66,7 @@ namespace {
             linearAccelerometerSensor = ASensorManager_getDefaultSensor(sensorManager, ASENSOR_TYPE_LINEAR_ACCELERATION);
             gyroscopeSensor = ASensorManager_getDefaultSensor(sensorManager, ASENSOR_TYPE_GYROSCOPE);
 
-            android_app* app = cocos2d::JniHelper::getAndroidApp();
+            android_app* app = cc::JniHelper::getAndroidApp();
             sensorEventQueue = ASensorManager_createEventQueue(sensorManager, app->looper, 3, getSensorEvents, NULL);
             if (!sensorEventQueue)
                 return;
@@ -143,7 +143,7 @@ namespace {
     }
 }
 
-NS_CC_BEGIN
+namespace cc {
 
 int Device::getDPI()
 {
@@ -219,16 +219,16 @@ Device::NetworkType Device::getNetworkType()
     return (Device::NetworkType)JniHelper::callStaticIntMethod(JCLS_HELPER, "getNetworkType");
 }
 
-cocos2d::Vec4 Device::getSafeAreaEdge()
+cc::Vec4 Device::getSafeAreaEdge()
 {
     // no SafeArea concept on android, return ZERO Vec4.
-    return cocos2d::Vec4();
+    return cc::Vec4();
 }
 
 int Device::getDevicePixelRatio()
 {
     return 1;
 }
-NS_CC_END
+}
 
 #endif // CC_PLATFORM == CC_PLATFORM_ANDROID

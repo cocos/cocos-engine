@@ -33,7 +33,7 @@
 #include <functional>
 #include <type_traits>
 
-NS_CC_BEGIN
+namespace cc {
 
 /**
  * Utility/support macros. Defined to enable RefPtr<T> to contain types like 'const T' because we do not
@@ -74,7 +74,7 @@ NS_CC_BEGIN
     }   while (0);
 
 /**
- * Wrapper class which maintains a strong reference to a cocos2dx cocos2d::Ref* type object.
+ * Wrapper class which maintains a strong reference to a cocos2dx cc::Ref* type object.
  * Similar in concept to a boost smart pointer.
  *
  * Enables the use of the RAII idiom with Cocos2dx objects and helps automate some of the more
@@ -250,12 +250,12 @@ public:
      * where the RefPtr<T> has the initial ownership of the object.
      *
      * E.G:
-     *      RefPtr<cocos2d::Image> image;
-     *      image.weakAssign(new cocos2d::Image());
+     *      RefPtr<cc::Image> image;
+     *      image.weakAssign(new cc::Image());
      *
      * Instead of:
-     *      RefPtr<cocos2d::Image> image;
-     *      image = new cocos2d::Image();
+     *      RefPtr<cc::Image> image;
+     *      image = new cc::Image();
      *      image->release();               // Required because new'd object already has a reference count of '1'.
      */
     inline void weakAssign(const RefPtr<T> & other)
@@ -267,7 +267,7 @@ public:
 private:
     T * _ptr;
 
-    // NOTE: We can ensure T is derived from cocos2d::Ref at compile time here.
+    // NOTE: We can ensure T is derived from cc::Ref at compile time here.
     static_assert(std::is_base_of<Ref, typename std::remove_const<T>::type>::value, "T must be derived from Ref");
 };
 
@@ -342,7 +342,7 @@ template<class T, class U> RefPtr<T> dynamic_pointer_cast(const RefPtr<U> & r)
 #undef CC_REF_PTR_SAFE_RELEASE
 #undef CC_REF_PTR_SAFE_RELEASE_NULL
 
-NS_CC_END
+}
 
 /// @endcond
 #endif  // __CC_REF_PTR_H__

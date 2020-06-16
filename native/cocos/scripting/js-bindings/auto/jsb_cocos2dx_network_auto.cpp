@@ -11,25 +11,25 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
-se::Object* __jsb_cocos2d_network_Downloader_proto = nullptr;
-se::Class* __jsb_cocos2d_network_Downloader_class = nullptr;
+se::Object* __jsb_cc_network_Downloader_proto = nullptr;
+se::Class* __jsb_cc_network_Downloader_class = nullptr;
 
 static bool js_network_Downloader_setOnTaskProgress(se::State& s)
 {
-    cocos2d::network::Downloader* cobj = (cocos2d::network::Downloader*)s.nativeThisObject();
+    cc::network::Downloader* cobj = (cc::network::Downloader*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_network_Downloader_setOnTaskProgress : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        std::function<void (const cocos2d::network::DownloadTask &, long long, long long, long long)> arg0;
+        std::function<void (const cc::network::DownloadTask &, long long, long long, long long)> arg0;
         do {
             if (args[0].isObject() && args[0].toObject()->isFunction())
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto lambda = [=](const cocos2d::network::DownloadTask & larg0, long long larg1, long long larg2, long long larg3) -> void {
+                auto lambda = [=](const cc::network::DownloadTask & larg0, long long larg1, long long larg2, long long larg3) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
         
@@ -65,7 +65,7 @@ static bool js_network_Downloader_setOnTaskProgress(se::State& s)
 }
 SE_BIND_FUNC(js_network_Downloader_setOnTaskProgress)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_network_Downloader_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_network_Downloader_finalize)
 
 static bool js_network_Downloader_constructor(se::State& s)
 {
@@ -74,10 +74,10 @@ static bool js_network_Downloader_constructor(se::State& s)
     size_t argc = args.size();
     do {
         if (argc == 1) {
-            cocos2d::network::DownloaderHints arg0;
+            cc::network::DownloaderHints arg0;
             ok &= seval_to_DownloaderHints(args[0], &arg0);
             if (!ok) { ok = true; break; }
-            cocos2d::network::Downloader* cobj = JSB_ALLOC(cocos2d::network::Downloader, arg0);
+            cc::network::Downloader* cobj = JSB_ALLOC(cc::network::Downloader, arg0);
             s.thisObject()->setPrivateData(cobj);
             se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
             return true;
@@ -85,7 +85,7 @@ static bool js_network_Downloader_constructor(se::State& s)
     } while(false);
     do {
         if (argc == 0) {
-            cocos2d::network::Downloader* cobj = JSB_ALLOC(cocos2d::network::Downloader);
+            cc::network::Downloader* cobj = JSB_ALLOC(cc::network::Downloader);
             s.thisObject()->setPrivateData(cobj);
             se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
             return true;
@@ -94,36 +94,36 @@ static bool js_network_Downloader_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_network_Downloader_constructor, __jsb_cocos2d_network_Downloader_class, js_cocos2d_network_Downloader_finalize)
+SE_BIND_CTOR(js_network_Downloader_constructor, __jsb_cc_network_Downloader_class, js_cc_network_Downloader_finalize)
 
 
 
 
-static bool js_cocos2d_network_Downloader_finalize(se::State& s)
+static bool js_cc_network_Downloader_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::network::Downloader)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::network::Downloader)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::network::Downloader* cobj = (cocos2d::network::Downloader*)s.nativeThisObject();
+        cc::network::Downloader* cobj = (cc::network::Downloader*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_network_Downloader_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_network_Downloader_finalize)
 
 bool js_register_network_Downloader(se::Object* obj)
 {
     auto cls = se::Class::create("Downloader", obj, nullptr, _SE(js_network_Downloader_constructor));
 
     cls->defineFunction("setOnTaskProgress", _SE(js_network_Downloader_setOnTaskProgress));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_network_Downloader_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_network_Downloader_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::network::Downloader>(cls);
+    JSBClassType::registerClass<cc::network::Downloader>(cls);
 
-    __jsb_cocos2d_network_Downloader_proto = cls->getProto();
-    __jsb_cocos2d_network_Downloader_class = cls;
+    __jsb_cc_network_Downloader_proto = cls->getProto();
+    __jsb_cc_network_Downloader_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;

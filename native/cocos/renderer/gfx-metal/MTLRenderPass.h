@@ -4,7 +4,7 @@
 #import <Metal/MTLPixelFormat.h>
 #import <Metal/MTLTexture.h>
 
-NS_CC_BEGIN
+namespace cc {
 
 class GFXTextureView;
 
@@ -27,4 +27,4 @@ private:
     size_t _colorRenderTargetNums = 0;
 };
 
-NS_CC_END
+}

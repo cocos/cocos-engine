@@ -99,12 +99,12 @@ namespace
         fflush(stdout);
 #endif
         
-		//cocos2d::log(buf);
+		//cc::log(buf);
         delete [] buf;
     }
 }
 
-namespace cocos2d
+namespace cc
 {
 
 	void log(const char * format, ...)

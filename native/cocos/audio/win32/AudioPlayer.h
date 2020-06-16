@@ -40,7 +40,7 @@
 #endif
 #include "base/ccMacros.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 class AudioCache;
 class AudioEngineImpl;
@@ -91,7 +91,7 @@ protected:
     friend class AudioEngineImpl;
 };
 
-NS_CC_END
+}
 
 #endif //CC_PLATFORM == CC_PLATFORM_WINDOWS
 

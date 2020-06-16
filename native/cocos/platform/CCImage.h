@@ -37,7 +37,7 @@ THE SOFTWARE.
     ((unsigned)((unsigned char)(vb) * ((unsigned char)(va) + 1) >> 8) << 16) | \
     ((unsigned)(unsigned char)(va) << 24))
 
-NS_CC_BEGIN
+namespace cc {
 
 enum class GFXFormat : unsigned int;
 
@@ -221,6 +221,6 @@ protected:
 // end of platform group
 /// @}
 
-NS_CC_END
+}
 
 /// @endcond

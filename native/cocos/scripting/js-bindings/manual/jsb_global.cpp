@@ -42,14 +42,14 @@
 #include <chrono>
 #include <sstream>
 
-using namespace cocos2d;
+using namespace cc;
 
 se::Object* __jsbObj = nullptr;
 se::Object* __glObj = nullptr;
 
 static ThreadPool* __threadPool = nullptr;
 
-static std::shared_ptr<cocos2d::network::Downloader> _localDownloader = nullptr;
+static std::shared_ptr<cc::network::Downloader> _localDownloader = nullptr;
 static std::map<std::string, std::function<void(const std::string&, unsigned char*, int )>> _localDownloaderHandlers;
 static uint64_t _localDownloaderTaskId = 1000000;
 static std::string xxteaKey = "";
@@ -58,12 +58,12 @@ void jsb_set_xxtea_key(const std::string& key)
     xxteaKey = key;
 }
 
-static cocos2d::network::Downloader *localDownloader()
+static cc::network::Downloader *localDownloader()
 {
     if(!_localDownloader)
     {
-        _localDownloader = std::make_shared<cocos2d::network::Downloader>();
-        _localDownloader->onDataTaskSuccess = [=](const cocos2d::network::DownloadTask& task,
+        _localDownloader = std::make_shared<cc::network::Downloader>();
+        _localDownloader->onDataTaskSuccess = [=](const cc::network::DownloadTask& task,
                                             std::vector<unsigned char>& data) {
             if(data.empty())
             {
@@ -85,7 +85,7 @@ static cocos2d::network::Downloader *localDownloader()
             //initImageFunc("", imageData, imageBytes);
             _localDownloaderHandlers.erase(callback);
         };
-        _localDownloader->onTaskError = [=](const cocos2d::network::DownloadTask& task,
+        _localDownloader->onTaskError = [=](const cc::network::DownloadTask& task,
                                       int errorCode,
                                       int errorCodeInternal,
                                       const std::string& errorStr) {
@@ -445,7 +445,7 @@ SE_BIND_FUNC(jsc_garbageCollect)
 
 static bool jsc_dumpNativePtrToSeObjectMap(se::State& s)
 {
-    cocos2d::log(">>> total: %d, Dump (native -> jsobj) map begin", (int)se::NativePtrToObjectMap::size());
+    cc::log(">>> total: %d, Dump (native -> jsobj) map begin", (int)se::NativePtrToObjectMap::size());
 
     struct NamePtrStruct
     {
@@ -480,9 +480,9 @@ static bool jsc_dumpNativePtrToSeObjectMap(se::State& s)
 
     for (const auto& e : namePtrArray)
     {
-        cocos2d::log("%s: %p", e.name, e.ptr);
+        cc::log("%s: %p", e.name, e.ptr);
     }
-    cocos2d::log(">>> total: %d, nonRefMap: %d, Dump (native -> jsobj) map end", (int)se::NativePtrToObjectMap::size(), (int)se::NonRefNativePtrCreatedByCtorMap::size());
+    cc::log(">>> total: %d, nonRefMap: %d, Dump (native -> jsobj) map end", (int)se::NativePtrToObjectMap::size(), (int)se::NonRefNativePtrCreatedByCtorMap::size());
     return true;
 }
 SE_BIND_FUNC(jsc_dumpNativePtrToSeObjectMap)
@@ -722,7 +722,7 @@ namespace
         uint32_t width = 0;
         uint32_t height = 0;
         uint8_t* data = nullptr;
-        cocos2d::GFXFormat format = cocos2d::GFXFormat::UNKNOWN;
+        cc::GFXFormat format = cc::GFXFormat::UNKNOWN;
         uint8_t bpp = 0;
         uint8_t numberOfMipmaps = 0;
         bool hasAlpha = false;
@@ -783,22 +783,22 @@ namespace
         // will create a big texture, and update its content with small pictures.
         // The big texture is RGBA888, then the small picture should be the same
         // format, or it will cause 0x502 error on OpenGL ES 2.
-        if (!imgInfo->compressed && imgInfo->format != cocos2d::GFXFormat::RGBA8) {
+        if (!imgInfo->compressed && imgInfo->format != cc::GFXFormat::RGBA8) {
             imgInfo->length = img->getWidth() * img->getHeight() * 4;
             uint8_t* dst = nullptr;
             uint32_t length = imgInfo->length;
             uint8_t* src = imgInfo->data;
             switch(imgInfo->format) {
-                case cocos2d::GFXFormat::A8:
-                case cocos2d::GFXFormat::LA8:
+                case cc::GFXFormat::A8:
+                case cc::GFXFormat::LA8:
                     dst = convertIA2RGBA(length, src);
                     break;
-                case cocos2d::GFXFormat::L8:
-                case cocos2d::GFXFormat::R8:
-                case cocos2d::GFXFormat::R8I:
+                case cc::GFXFormat::L8:
+                case cc::GFXFormat::R8:
+                case cc::GFXFormat::R8I:
                     dst = convertI2RGBA(length, src);
                     break;
-                case cocos2d::GFXFormat::RGB8:
+                case cc::GFXFormat::RGB8:
                     dst = convertRGB2RGBA(length, src);
                     break;
                 default:
@@ -962,7 +962,7 @@ static bool js_saveImageData(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 4) {
-        cocos2d::Data data;
+        cc::Data data;
         ok &= seval_to_Data(args[0], &data);
 
         uint32_t width, height;
@@ -1067,7 +1067,7 @@ static bool JSB_setPreferredFramesPerSecond(se::State& s)
         int32_t fps;
         ok = seval_to_int32(args[0], &fps);
         SE_PRECONDITION2(ok, false, "fps is invalid!");
-       // cocos2d::log("EMPTY IMPLEMENTATION OF jsb.setPreferredFramesPerSecond");
+       // cc::log("EMPTY IMPLEMENTATION OF jsb.setPreferredFramesPerSecond");
         Application::getInstance()->setPreferredFramesPerSecond(fps);
         return true;
     }
@@ -1088,7 +1088,7 @@ static bool JSB_showInputBox(se::State& s)
         se::Value tmp;
         const auto& obj = args[0].toObject();
 
-        cocos2d::EditBox::ShowInfo showInfo;
+        cc::EditBox::ShowInfo showInfo;
 
         ok = obj->getProperty("defaultValue", &tmp);
         SE_PRECONDITION2(ok && tmp.isString(), false, "defaultValue is invalid!");

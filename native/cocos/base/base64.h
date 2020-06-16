@@ -34,7 +34,7 @@ THE SOFTWARE.
 extern "C" {
 #endif
 
-namespace cocos2d {
+namespace cc {
 
 /** @file
  base64 helper functions

@@ -38,7 +38,7 @@
 #endif
 #endif // OBJC_CLASS
 
-NS_CC_BEGIN
+namespace cc {
 
 /**
  * @class VideoPlayer
@@ -177,4 +177,4 @@ class VideoPlayer : public Ref
     void *_videoView;
 };
 
-NS_CC_END
+}

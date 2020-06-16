@@ -31,8 +31,8 @@ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 namespace
 {
-	struct cocos2d::TouchEvent touchEvent;
-    struct cocos2d::KeyboardEvent keyboardEvent;
+	struct cc::TouchEvent touchEvent;
+    struct cc::KeyboardEvent keyboardEvent;
 
 	// key values in web, refer to http://docs.cocos.com/creator/api/en/enums/KEY.html
     std::unordered_map<int, int> keyCodeMap = {
@@ -46,18 +46,18 @@ namespace
             {AKEYCODE_DPAD_CENTER, 1005}
     };
 
-	void dispatchTouchEvent(int index, AInputEvent* event, cocos2d::TouchEvent& touchEvent) {
+	void dispatchTouchEvent(int index, AInputEvent* event, cc::TouchEvent& touchEvent) {
         int pointerID = AMotionEvent_getPointerId(event, index);
         touchEvent.touches.push_back({
             AMotionEvent_getX(event, index), // x
             AMotionEvent_getY(event, index), // y
             pointerID});
 
-        cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
+        cc::EventDispatcher::dispatchTouchEvent(touchEvent);
         touchEvent.touches.clear();
     }
 
-    void dispatchTouchEvents(AInputEvent* event, cocos2d::TouchEvent& touchEvent) {
+    void dispatchTouchEvents(AInputEvent* event, cc::TouchEvent& touchEvent) {
         size_t pointerCount = AMotionEvent_getPointerCount(event);
         for (size_t i = 0; i < pointerCount; ++i) {
             touchEvent.touches.push_back({
@@ -67,12 +67,12 @@ namespace
             });
         }
 
-        cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
+        cc::EventDispatcher::dispatchTouchEvent(touchEvent);
         touchEvent.touches.clear();
     }
 }
 
-NS_CC_BEGIN
+namespace cc {
 
 void View::engineHandleCmd(struct android_app* app, int32_t cmd)
 {
@@ -84,16 +84,16 @@ void View::engineHandleCmd(struct android_app* app, int32_t cmd)
 	            isWindowInitiliased = true;
 	            return;
 	        } else {
-                cocos2d::CustomEvent event;
+                cc::CustomEvent event;
                 event.name = EVENT_RECREATE_WINDOW;
                 event.args->ptrVal = app->window;
-                cocos2d::EventDispatcher::dispatchCustomEvent(event);
+                cc::EventDispatcher::dispatchCustomEvent(event);
 	        }
 	        break;
 	    case APP_CMD_TERM_WINDOW: {
-            cocos2d::CustomEvent event;
+            cc::CustomEvent event;
             event.name = EVENT_DESTROY_WINDOW;
-            cocos2d::EventDispatcher::dispatchCustomEvent(event);
+            cc::EventDispatcher::dispatchCustomEvent(event);
         }
 	        break;
 	    case APP_CMD_RESUME:
@@ -126,9 +126,9 @@ int32_t View::engineHandleInput(struct android_app* app, AInputEvent* event) {
 
         keyboardEvent.key = keyCode;
         keyboardEvent.action = action == AKEY_EVENT_ACTION_DOWN
-                                         ? cocos2d::KeyboardEvent::Action::RELEASE
-                                         : cocos2d::KeyboardEvent::Action::PRESS;
-        cocos2d::EventDispatcher::dispatchKeyboardEvent(keyboardEvent);
+                                         ? cc::KeyboardEvent::Action::RELEASE
+                                         : cc::KeyboardEvent::Action::PRESS;
+        cc::EventDispatcher::dispatchKeyboardEvent(keyboardEvent);
 
         return 1;
     } else if (type == AINPUT_EVENT_TYPE_MOTION){
@@ -136,31 +136,31 @@ int32_t View::engineHandleInput(struct android_app* app, AInputEvent* event) {
 
         switch (action & AMOTION_EVENT_ACTION_MASK) {
             case AMOTION_EVENT_ACTION_DOWN:
-                touchEvent.type = cocos2d::TouchEvent::Type::BEGAN;
+                touchEvent.type = cc::TouchEvent::Type::BEGAN;
                 dispatchTouchEvent(0, event, touchEvent);
                 break;
             case AMOTION_EVENT_ACTION_POINTER_DOWN:
-                touchEvent.type = cocos2d::TouchEvent::Type::BEGAN;
+                touchEvent.type = cc::TouchEvent::Type::BEGAN;
                 dispatchTouchEvent((action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT,
                                     event,
                                     touchEvent);
                 break;
             case AMOTION_EVENT_ACTION_UP:
-                touchEvent.type = cocos2d::TouchEvent::Type::ENDED;
+                touchEvent.type = cc::TouchEvent::Type::ENDED;
                 dispatchTouchEvent(0, event, touchEvent);
                 break;
             case AMOTION_EVENT_ACTION_POINTER_UP:
-                touchEvent.type = cocos2d::TouchEvent::Type::ENDED;
+                touchEvent.type = cc::TouchEvent::Type::ENDED;
                 dispatchTouchEvent((action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT,
                                    event,
                                    touchEvent);
                 break;
             case AMOTION_EVENT_ACTION_MOVE:
-                touchEvent.type = cocos2d::TouchEvent::Type::MOVED;
+                touchEvent.type = cc::TouchEvent::Type::MOVED;
                 dispatchTouchEvents(event, touchEvent);
                 break;
             case AMOTION_EVENT_ACTION_CANCEL:
-                touchEvent.type = cocos2d::TouchEvent::Type::CANCELLED;
+                touchEvent.type = cc::TouchEvent::Type::CANCELLED;
                 dispatchTouchEvents(event, touchEvent);
                 break;
             default:
@@ -173,4 +173,4 @@ int32_t View::engineHandleInput(struct android_app* app, AInputEvent* event) {
     return 0;
 }
 
-NS_CC_END
+}

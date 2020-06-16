@@ -35,7 +35,7 @@ THE SOFTWARE.
 #define ALOGVV(a...) do { } while (0)
 #endif
 
-namespace cocos2d { 
+namespace cc { 
 
 PcmBufferProvider::PcmBufferProvider()
         : _addr(nullptr)
@@ -99,4 +99,4 @@ void PcmBufferProvider::reset() {
     _nextFrame = 0;
 }
 
-} // namespace cocos2d { 
+} // namespace cc { 

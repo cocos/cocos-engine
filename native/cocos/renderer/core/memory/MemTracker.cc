@@ -30,7 +30,7 @@ extern "C"
 
 #define LEAK_FILENAME "MemoryLeaks.log"
 
-NS_CC_BEGIN
+namespace cc {
 
 struct AllocHashNode {
 	tommy_hashdyn_node node;
@@ -264,5 +264,5 @@ void MemTracker::DumpMemoryAllocation() {
 #endif
 }
 
-NS_CC_END
+}
 #endif

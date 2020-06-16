@@ -42,7 +42,7 @@
 #define CC_CURL_POLL_TIMEOUT_MS 50
 #endif
 
-namespace cocos2d { namespace network {
+namespace cc { namespace network {
     using namespace std;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -876,5 +876,5 @@ namespace cocos2d { namespace network {
         }
     }
 
-}}  //  namespace cocos2d::network
+}}  //  namespace cc::network
 

@@ -6,18 +6,18 @@ NS_PP_BEGIN
 
 class BatchedBuffer;
 
-class CC_DLL RenderBatchedQueue : public cocos2d::Object {
+class CC_DLL RenderBatchedQueue : public cc::Object {
 public:
     RenderBatchedQueue() = default;
     ~RenderBatchedQueue() = default;
 
     void clear();
-    void recordCommandBuffer(cocos2d::GFXDevice *, cocos2d::GFXRenderPass *, cocos2d::GFXCommandBuffer *);
+    void recordCommandBuffer(cc::GFXDevice *, cc::GFXRenderPass *, cc::GFXCommandBuffer *);
 
-    CC_INLINE const cocos2d::set<BatchedBuffer *>::type &getQueue() const { return _queue; }
+    CC_INLINE const cc::set<BatchedBuffer *>::type &getQueue() const { return _queue; }
 
 private:
-    cocos2d::set<BatchedBuffer *>::type _queue;
+    cc::set<BatchedBuffer *>::type _queue;
 };
 
 NS_PP_END

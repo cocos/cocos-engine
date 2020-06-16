@@ -11,7 +11,7 @@
 #include "VKRenderPass.h"
 #include "VKTexture.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 CCVKCommandBuffer::CCVKCommandBuffer(GFXDevice *device)
 : GFXCommandBuffer(device) {
@@ -333,4 +333,4 @@ void CCVKCommandBuffer::copyBufferToTexture(GFXBuffer *src, GFXTexture *dst, GFX
     }
 }
 
-NS_CC_END
+}

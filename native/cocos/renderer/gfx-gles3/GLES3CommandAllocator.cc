@@ -1,7 +1,7 @@
 #include "GLES3Std.h"
 #include "GLES3CommandAllocator.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 GLES3CommandAllocator::GLES3CommandAllocator(GFXDevice *device)
 : GFXCommandAllocator(device) {
@@ -39,4 +39,4 @@ void GLES3CommandAllocator::clearCmds(GLES3CmdPackage *cmd_package) {
     cmd_package->cmds.clear();
 }
 
-NS_CC_END
+}

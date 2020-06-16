@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include "base/CCData.h"
 #include "math/Vec4.h"
 
-NS_CC_BEGIN
+namespace cc {
 
 struct FontDefinition;
 
@@ -139,7 +139,7 @@ public:
      * Gets the SafeArea edge.
      * Vec4(x, y, z, w) means Edge(top, left, bottom, right)
      */
-    static cocos2d::Vec4 getSafeAreaEdge();
+    static Vec4 getSafeAreaEdge();
 
 private:
 	Device();
@@ -149,6 +149,6 @@ private:
 // end group
 /// @}
 
-NS_CC_END
+}
 
 #endif /* __CCDEVICE_H__ */
