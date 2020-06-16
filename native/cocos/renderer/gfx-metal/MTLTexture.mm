@@ -1,7 +1,8 @@
 #include "MTLStd.h"
+
+#include "MTLDevice.h"
 #include "MTLTexture.h"
 #include "MTLUtils.h"
-#include "MTLDevice.h"
 #include <platform/mac/CCView.h>
 
 NS_CC_BEGIN
@@ -9,7 +10,7 @@ NS_CC_BEGIN
 namespace {
 uint8_t *convertData(uint8_t *source, uint length, GFXFormat type) {
     switch (type) {
-        case GFXFormat::RGB8:   return mu::convertRGB8ToRGBA8(source, length);
+        case GFXFormat::RGB8: return mu::convertRGB8ToRGBA8(source, length);
         case GFXFormat::RGB32F: return mu::convertRGB32FToRGBA32F(source, length);
         default: return source;
     }
@@ -31,9 +32,9 @@ bool CCMTLTexture::initialize(const GFXTextureInfo &info) {
     _samples = info.samples;
     _flags = info.flags;
     _size = GFXFormatSize(_format, _width, _height, _depth);
-    
+
     if (_flags & GFXTextureFlags::BAKUP_BUFFER) {
-        _buffer = (uint8_t*)CC_MALLOC(_size);
+        _buffer = (uint8_t *)CC_MALLOC(_size);
         if (!_buffer) {
             _status = GFXStatus::FAILED;
             CC_LOG_ERROR("CCMTLTexture: CC_MALLOC backup buffer failed.");
@@ -41,13 +42,13 @@ bool CCMTLTexture::initialize(const GFXTextureInfo &info) {
         }
         _device->getMemoryStatus().textureSize += _size;
     }
-    
+
     if (!createMTLTexture()) {
         _status = GFXStatus::FAILED;
         CC_LOG_ERROR("CCMTLTexture: create MTLTexture failed.");
         return false;
     }
-    
+
     _device->getMemoryStatus().textureSize += _size;
     _status = GFXStatus::SUCCESS;
     return true;
@@ -58,7 +59,7 @@ bool CCMTLTexture::initialize(const GFXTextureViewInfo &info) {
         _status = GFXStatus::FAILED;
         return false;
     }
-    
+
     _type = info.type;
     _usage = info.texture->getUsage();
     _format = info.format;
@@ -70,7 +71,7 @@ bool CCMTLTexture::initialize(const GFXTextureViewInfo &info) {
     _samples = info.texture->getSamples();
     _flags = info.texture->getFlags();
     _size = info.texture->getSize();
-    
+
     _convertedFormat = mu::convertGFXPixelFormat(_format);
     auto mtlTextureType = mu::toMTLTextureType(_type);
     _mtlTexture = [id<MTLTexture>(info.texture) newTextureViewWithPixelFormat:mu::toMTLPixelFormat(_convertedFormat)
@@ -81,14 +82,14 @@ bool CCMTLTexture::initialize(const GFXTextureViewInfo &info) {
         _status = GFXStatus::FAILED;
         return false;
     }
-    
+
     _status = GFXStatus::SUCCESS;
     return true;
 }
 
 bool CCMTLTexture::createMTLTexture() {
     if (_width == 0 || _height == 0) {
-        
+
         CC_LOG_ERROR("CCMTLTexture: width or height should not be zero.");
         return false;
     }
@@ -96,8 +97,8 @@ bool CCMTLTexture::createMTLTexture() {
     MTLPixelFormat mtlFormat = mu::toMTLPixelFormat(_convertedFormat);
     if (mtlFormat == MTLPixelFormatInvalid)
         return false;
-    
-    MTLTextureDescriptor* descriptor = nullptr;
+
+    MTLTextureDescriptor *descriptor = nullptr;
     auto mtlTextureType = mu::toMTLTextureType(_type);
     switch (mtlTextureType) {
         case MTLTextureType2D:
@@ -117,16 +118,16 @@ bool CCMTLTexture::createMTLTexture() {
             CCASSERT(false, "Unsupported MTLTextureType, create MTLTextureDescriptor failed.");
             break;
     }
-    
-    if(descriptor == nullptr)
+
+    if (descriptor == nullptr)
         return false;
-    
+
     descriptor.usage = mu::toMTLTextureUsage(_usage);
     descriptor.textureType = mu::toMTLTextureType(_type);
     descriptor.sampleCount = mu::toMTLSampleCount(_samples);
     descriptor.mipmapLevelCount = _mipLevel;
     descriptor.arrayLength = _flags & GFXTextureFlagBit::CUBEMAP ? 1 : _arrayLayer;
-    
+
     //FIXME: should change to MTLStorageModeManaged if texture usage is GFXTextureFlags::BAKUP_BUFFER?
     if (_usage & GFXTextureUsage::COLOR_ATTACHMENT ||
         _usage & GFXTextureUsage::DEPTH_STENCIL_ATTACHMENT ||
@@ -134,10 +135,10 @@ bool CCMTLTexture::createMTLTexture() {
         _usage & GFXTextureUsage::TRANSIENT_ATTACHMENT) {
         descriptor.resourceOptions = MTLResourceStorageModePrivate;
     }
-    
-    id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice*>(_device)->getMTLDevice() );
+
+    id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice *>(_device)->getMTLDevice());
     _mtlTexture = [mtlDevice newTextureWithDescriptor:descriptor];
-    
+
     return _mtlTexture != nil;
 }
 
@@ -147,24 +148,24 @@ void CCMTLTexture::destroy() {
         _device->getMemoryStatus().textureSize -= _size;
         _buffer = nullptr;
     }
-    
+
     if (_mtlTexture) {
         [_mtlTexture release];
         _mtlTexture = nil;
     }
-    
+
     _status = GFXStatus::UNREADY;
 }
 
 void CCMTLTexture::resize(uint width, uint height) {
-    if(_width == width && _height == height)
+    if (_width == width && _height == height)
         return;
-    
+
     auto oldSize = _size;
     auto oldWidth = _width;
     auto oldHeight = _height;
     id<MTLTexture> oldMTLTexture = _mtlTexture;
-    
+
     _width = width;
     _height = height;
     _size = GFXFormatSize(_format, _width, _height, _depth);
@@ -177,17 +178,16 @@ void CCMTLTexture::resize(uint width, uint height) {
         CC_LOG_ERROR("CCMTLTexture: create MTLTexture failed when try to resize the texture.");
         return;
     }
-    
+
     if (oldMTLTexture) {
         [oldMTLTexture release];
     }
-    
+
     _device->getMemoryStatus().textureSize -= oldSize;
     if (_flags & GFXTextureFlags::BAKUP_BUFFER) {
-        const uint8_t* oldBuffer = _buffer;
-        uint8_t* buffer = (uint8_t*)CC_MALLOC(_size);
-        if(!buffer)
-        {
+        const uint8_t *oldBuffer = _buffer;
+        uint8_t *buffer = (uint8_t *)CC_MALLOC(_size);
+        if (!buffer) {
             _status = GFXStatus::FAILED;
             CC_LOG_ERROR("CCMTLTexture: CC_MALLOC backup buffer failed when try to resize the texture.");
             return;
@@ -197,12 +197,12 @@ void CCMTLTexture::resize(uint width, uint height) {
         _device->getMemoryStatus().textureSize -= oldSize;
         _device->getMemoryStatus().textureSize += _size;
     }
-    
+
     _device->getMemoryStatus().textureSize += _size;
     _status = GFXStatus::SUCCESS;
 }
 
-void CCMTLTexture::update(uint8_t * const *datas, const GFXBufferTextureCopyList &regions) {
+void CCMTLTexture::update(uint8_t *const *datas, const GFXBufferTextureCopyList &regions) {
     if (!_mtlTexture)
         return;
 
@@ -216,15 +216,15 @@ void CCMTLTexture::update(uint8_t * const *datas, const GFXBufferTextureCopyList
                 const auto &region = regions[i];
                 w = region.texExtent.width;
                 h = region.texExtent.height;
-               
+
                 uint8_t *buffer = datas[n];
                 uint8_t *convertedData = convertData(buffer, w * h, _format);
-                MTLRegion mtlRegion = { {(uint)region.texOffset.x, (uint)region.texOffset.y, (uint)region.texOffset.z}, {w, h, 1} };
+                MTLRegion mtlRegion = {{(uint)region.texOffset.x, (uint)region.texOffset.y, (uint)region.texOffset.z}, {w, h, 1}};
                 [_mtlTexture replaceRegion:mtlRegion
                                mipmapLevel:region.texSubres.mipLevel
                                  withBytes:convertedData
                                bytesPerRow:GFX_FORMAT_INFOS[(uint)_convertedFormat].size * w];
-                
+
                 if (convertedData != datas[n])
                     CC_FREE(convertedData);
                 n++;
@@ -241,7 +241,7 @@ void CCMTLTexture::update(uint8_t * const *datas, const GFXBufferTextureCopyList
                     h = region.texExtent.height;
                     uint8_t *buffer = datas[n];
                     uint8_t *convertedData = convertData(buffer, w * h, _format);
-                    MTLRegion mtlRegion = { {(uint)region.texOffset.x, (uint)region.texOffset.y, (uint)region.texOffset.z}, {w, h, 1} };
+                    MTLRegion mtlRegion = {{(uint)region.texOffset.x, (uint)region.texOffset.y, (uint)region.texOffset.z}, {w, h, 1}};
                     [_mtlTexture replaceRegion:mtlRegion
                                    mipmapLevel:region.texSubres.mipLevel
                                          slice:layer
@@ -257,12 +257,12 @@ void CCMTLTexture::update(uint8_t * const *datas, const GFXBufferTextureCopyList
             CCASSERT(false, "Unsupported MTLTextureType, metal texture update failed.");
             break;
     }
-    if(_flags & GFXTextureFlags::GEN_MIPMAP)
+    if (_flags & GFXTextureFlags::GEN_MIPMAP)
         generateMipmaps();
 }
 
 void CCMTLTexture::generateMipmaps() {
-    id<MTLCommandQueue> commandQueue = ((View*)(((CCMTLDevice*)_device)->getMTKView())).mtlCommandQueue;
+    id<MTLCommandQueue> commandQueue = ((View *)(((CCMTLDevice *)_device)->getMTKView())).mtlCommandQueue;
     id<MTLCommandBuffer> mtlCommandBuffer = [commandQueue commandBuffer];
     [mtlCommandBuffer enqueue];
     id<MTLBlitCommandEncoder> commandEncoder = [mtlCommandBuffer blitCommandEncoder];

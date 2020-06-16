@@ -1,7 +1,8 @@
 #include "MTLStd.h"
+
+#include "MTLDevice.h"
 #include "MTLSampler.h"
 #include "MTLUtils.h"
-#include "MTLDevice.h"
 
 #import <Metal/MTLDevice.h>
 
@@ -24,7 +25,7 @@ bool CCMTLSampler::initialize(const GFXSamplerInfo &info) {
     _minLOD = info.minLOD;
     _maxLOD = info.maxLOD;
     _mipLODBias = info.mipLODBias;
-    
+
     MTLSamplerDescriptor *descriptor = [[MTLSamplerDescriptor alloc] init];
     descriptor.borderColor = mu::toMTLSamplerBorderColor(_borderColor);
     descriptor.sAddressMode = mu::toMTLSamplerAddressMode(_addressU);
@@ -37,14 +38,14 @@ bool CCMTLSampler::initialize(const GFXSamplerInfo &info) {
     descriptor.compareFunction = mu::toMTLCompareFunction(_cmpFunc);
     descriptor.lodMinClamp = _minLOD;
     descriptor.lodMaxClamp = _maxLOD;
-    
-    id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice*>(_device)->getMTLDevice() );
+
+    id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice *>(_device)->getMTLDevice());
     _mtlSamplerState = [mtlDevice newSamplerStateWithDescriptor:descriptor];
-    
+
     [descriptor release];
-    
+
     _status = GFXStatus::SUCCESS;
-    
+
     return _mtlSamplerState != nil;
 }
 
@@ -53,7 +54,7 @@ void CCMTLSampler::destroy() {
         [_mtlSamplerState release];
         _mtlSamplerState = nil;
     }
-    
+
     _status = GFXStatus::UNREADY;
 }
 

@@ -1,6 +1,7 @@
 #include "MTLStd.h"
-#include "MTLFence.h"
+
 #include "MTLDevice.h"
+#include "MTLFence.h"
 
 NS_CC_BEGIN
 
@@ -14,7 +15,7 @@ bool CCMTLFence::initialize(const GFXFenceInfo &info) {
     // TODO
 
     _status = GFXStatus::SUCCESS;
-    
+
     return true;
 }
 
@@ -32,4 +33,3 @@ void CCMTLFence::reset() {
 }
 
 NS_CC_END
-

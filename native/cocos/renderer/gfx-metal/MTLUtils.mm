@@ -1,4 +1,5 @@
 #include "MTLStd.h"
+
 #include "MTLUtils.h"
 #include "SPIRV/GlslangToSpv.h"
 #include "spirv_cross/spirv_msl.hpp"
@@ -109,8 +110,7 @@ const TBuiltInResource DefaultTBuiltInResource = {
         /* .generalSamplerIndexing = */ 1,
         /* .generalVariableIndexing = */ 1,
         /* .generalConstantMatrixVectorIndexing = */ 1,
-    }
-};
+    }};
 
 EShLanguage getShaderStage(GFXShaderType type) {
     switch (type) {
@@ -164,8 +164,8 @@ const std::vector<unsigned int> GLSL2SPIRV(GFXShaderType type, const String &sou
     shader.setStrings(&string, 1);
 
     //Set up Vulkan/SpirV Environment
-    int clientInputSemanticsVersion = 100 + vulkanMinorVersion * 10; // maps to, say, #define VULKAN 120
-    glslang::EShTargetClientVersion clientVersion = getClientVersion(vulkanMinorVersion); // map to, say, Vulkan 1.2
+    int clientInputSemanticsVersion = 100 + vulkanMinorVersion * 10;                        // maps to, say, #define VULKAN 120
+    glslang::EShTargetClientVersion clientVersion = getClientVersion(vulkanMinorVersion);   // map to, say, Vulkan 1.2
     glslang::EShTargetLanguageVersion targetVersion = getTargetVersion(vulkanMinorVersion); // maps to, say, SPIR-V 1.5
 
     shader.setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientVulkan, clientInputSemanticsVersion);
@@ -208,18 +208,17 @@ enum class GPUFamily : uint {
     Apple4, // A11
     Apple5, // A12
     Apple6, // A13
-    
+
     Mac1,
     Mac2,
 };
 }
 
-namespace mu
-{
+namespace mu {
 MTLResourceOptions toMTLResourseOption(GFXMemoryUsage usage) {
     if (usage & GFXMemoryUsage::HOST && usage & GFXMemoryUsage::DEVICE)
         return MTLResourceStorageModeShared;
-    else if(usage & GFXMemoryUsage::DEVICE)
+    else if (usage & GFXMemoryUsage::DEVICE)
         return MTLResourceStorageModePrivate;
     else
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
@@ -284,27 +283,25 @@ MTLVertexFormat toMTLVertexFormat(GFXFormat format, bool isNormalized) {
         case GFXFormat::RGB10A2: return isNormalized ? MTLVertexFormatInt1010102Normalized : MTLVertexFormatInvalid;
         case GFXFormat::RGB10A2UI: return isNormalized ? MTLVertexFormatUInt1010102Normalized : MTLVertexFormatInvalid;
         case GFXFormat::BGRA8: {
-            #if CC_PLATFORM == CC_PLATFORM_MAC_IOS
-                if (@available(iOS 11.0, *)) {
-                    if (isNormalized) {
-                        return MTLVertexFormatUChar4Normalized_BGRA;
-                    }
-                    else {
-                        CC_LOG_ERROR("Invalid metal vertex format %u", format);
-                        return MTLVertexFormatInvalid;
-                    }
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+            if (@available(iOS 11.0, *)) {
+                if (isNormalized) {
+                    return MTLVertexFormatUChar4Normalized_BGRA;
+                } else {
+                    CC_LOG_ERROR("Invalid metal vertex format %u", format);
+                    return MTLVertexFormatInvalid;
                 }
-            #else
-                if (@available(macOS 10.13, *)) {
-                    if (isNormalized) {
-                        return MTLVertexFormatUChar4Normalized_BGRA;
-                    }
-                    else {
-                        CC_LOG_ERROR("Invalid metal vertex format %u", format);
-                        return MTLVertexFormatInvalid;
-                    }
+            }
+#else
+            if (@available(macOS 10.13, *)) {
+                if (isNormalized) {
+                    return MTLVertexFormatUChar4Normalized_BGRA;
+                } else {
+                    CC_LOG_ERROR("Invalid metal vertex format %u", format);
+                    return MTLVertexFormatInvalid;
                 }
-            #endif
+            }
+#endif
         }
         default: {
             CC_LOG_ERROR("Invalid vertex format %u", format);
@@ -315,7 +312,7 @@ MTLVertexFormat toMTLVertexFormat(GFXFormat format, bool isNormalized) {
 
 GFXFormat convertGFXPixelFormat(GFXFormat format) {
     switch (format) {
-        case GFXFormat::RGB8:   return GFXFormat::RGBA8;
+        case GFXFormat::RGB8: return GFXFormat::RGBA8;
         case GFXFormat::RGB32F: return GFXFormat::RGBA32F;
         default: return format;
     }
@@ -331,25 +328,26 @@ MTLPixelFormat toMTLPixelFormat(GFXFormat format) {
         case GFXFormat::R32F: return MTLPixelFormatR32Float;
         case GFXFormat::R32UI: return MTLPixelFormatR32Uint;
         case GFXFormat::R32I: return MTLPixelFormatR32Sint;
-            
+
         case GFXFormat::RG8: return MTLPixelFormatRG8Unorm;
         case GFXFormat::RG8SN: return MTLPixelFormatRG8Snorm;
         case GFXFormat::RG8UI: return MTLPixelFormatRG8Uint;
         case GFXFormat::RG8I: return MTLPixelFormatRG8Sint;
         case GFXFormat::RG16F: return MTLPixelFormatRG16Float;
         case GFXFormat::RG16UI: return MTLPixelFormatRG16Uint;
-        case GFXFormat::RG16I: return MTLPixelFormatRG16Sint;
-            
-//            case GFXFormat::RGB8SN: return MTLPixelFormatRGBA8Snorm;
-//            case GFXFormat::RGB8UI: return MTLPixelFormatRGBA8Uint;
-//            case GFXFormat::RGB8I: return MTLPixelFormatRGBA8Sint;
-//            case GFXFormat::RGB16F: return MTLPixelFormatRGBA16Float;
-//            case GFXFormat::RGB16UI: return MTLPixelFormatRGBA16Uint;
-//            case GFXFormat::RGB16I: return MTLPixelFormatRGBA16Sint;
-//            case GFXFormat::RGB32F: return MTLPixelFormatRGBA32Float;
-//            case GFXFormat::RGB32UI: return MTLPixelFormatRGBA32Uint;
-//            case GFXFormat::RGB32I: return MTLPixelFormatRGBA32Sint;
-            
+        case GFXFormat::RG16I:
+            return MTLPixelFormatRG16Sint;
+
+            //            case GFXFormat::RGB8SN: return MTLPixelFormatRGBA8Snorm;
+            //            case GFXFormat::RGB8UI: return MTLPixelFormatRGBA8Uint;
+            //            case GFXFormat::RGB8I: return MTLPixelFormatRGBA8Sint;
+            //            case GFXFormat::RGB16F: return MTLPixelFormatRGBA16Float;
+            //            case GFXFormat::RGB16UI: return MTLPixelFormatRGBA16Uint;
+            //            case GFXFormat::RGB16I: return MTLPixelFormatRGBA16Sint;
+            //            case GFXFormat::RGB32F: return MTLPixelFormatRGBA32Float;
+            //            case GFXFormat::RGB32UI: return MTLPixelFormatRGBA32Uint;
+            //            case GFXFormat::RGB32I: return MTLPixelFormatRGBA32Sint;
+
         case GFXFormat::RGBA8: return MTLPixelFormatRGBA8Unorm;
         case GFXFormat::RGBA8SN: return MTLPixelFormatRGBA8Snorm;
         case GFXFormat::RGBA8UI: return MTLPixelFormatRGBA8Uint;
@@ -360,25 +358,26 @@ MTLPixelFormat toMTLPixelFormat(GFXFormat format) {
         case GFXFormat::RGBA32F: return MTLPixelFormatRGBA32Float;
         case GFXFormat::RGBA32UI: return MTLPixelFormatRGBA32Uint;
         case GFXFormat::RGBA32I: return MTLPixelFormatRGBA32Sint;
-        case GFXFormat::BGRA8: return MTLPixelFormatBGRA8Unorm;
-            
-        // Should convert.
-//            case GFXFormat::R5G6B5: return MTLPixelFormatB5G6R5Unorm;
-//            case GFXFormat::RGB5A1: return MTLPixelFormatBGR5A1Unorm;
-//            case GFXFormat::RGBA4: return MTLPixelFormatABGR4Unorm;
-//            case GFXFormat::RGB10A2: return MTLPixelFormatBGR10A2Unorm;
+        case GFXFormat::BGRA8:
+            return MTLPixelFormatBGRA8Unorm;
+
+            // Should convert.
+            //            case GFXFormat::R5G6B5: return MTLPixelFormatB5G6R5Unorm;
+            //            case GFXFormat::RGB5A1: return MTLPixelFormatBGR5A1Unorm;
+            //            case GFXFormat::RGBA4: return MTLPixelFormatABGR4Unorm;
+            //            case GFXFormat::RGB10A2: return MTLPixelFormatBGR10A2Unorm;
         case GFXFormat::RGB9E5: return MTLPixelFormatRGB9E5Float;
         case GFXFormat::RGB10A2UI: return MTLPixelFormatRGB10A2Uint;
         case GFXFormat::R11G11B10F: return MTLPixelFormatRG11B10Float;
-        
+
         case GFXFormat::D16: return MTLPixelFormatDepth16Unorm;
         case GFXFormat::D24S8: return MTLPixelFormatDepth24Unorm_Stencil8;
         case GFXFormat::D32F: return MTLPixelFormatDepth32Float;
         case GFXFormat::D32F_S8: return MTLPixelFormatDepth32Float_Stencil8;
-            
+
         case GFXFormat::BC1_ALPHA: return MTLPixelFormatBC1_RGBA;
         case GFXFormat::BC1_SRGB_ALPHA: return MTLPixelFormatBC1_RGBA_sRGB;
-            
+
         default: {
             CC_LOG_ERROR("Invalid pixel format %u", format);
             return MTLPixelFormatInvalid;
@@ -442,8 +441,7 @@ MTLWinding toMTLWinding(bool isFrontFaceCCW) {
         return MTLWindingClockwise;
 }
 
-MTLViewport toMTLViewport(const GFXViewport &viewport)
-{
+MTLViewport toMTLViewport(const GFXViewport &viewport) {
     MTLViewport mtlViewport;
     mtlViewport.originX = viewport.left;
     mtlViewport.originY = viewport.top;
@@ -451,7 +449,7 @@ MTLViewport toMTLViewport(const GFXViewport &viewport)
     mtlViewport.height = viewport.height;
     mtlViewport.znear = viewport.minDepth;
     mtlViewport.zfar = viewport.maxDepth;
-    
+
     return mtlViewport;
 }
 
@@ -461,7 +459,7 @@ MTLScissorRect toMTLScissorRect(const GFXRect &rect) {
     scissorRect.y = rect.y;
     scissorRect.width = rect.width;
     scissorRect.height = rect.height;
-    
+
     return scissorRect;
 }
 
@@ -516,7 +514,7 @@ MTLPrimitiveType toMTLPrimitiveType(GFXPrimitiveMode mode) {
         case GFXPrimitiveMode::LINE_STRIP: return MTLPrimitiveTypeLineStrip;
         case GFXPrimitiveMode::TRIANGLE_LIST: return MTLPrimitiveTypeTriangle;
         case GFXPrimitiveMode::TRIANGLE_STRIP: return MTLPrimitiveTypeTriangleStrip;
-            
+
         case GFXPrimitiveMode::LINE_LOOP: {
             CC_LOG_ERROR("Metal doesn't support GFXPrimitiveMode::LINE_LOOP. Translate to GFXPrimitiveMode::LINE_LIST.");
             return MTLPrimitiveTypeLine;
@@ -532,7 +530,7 @@ MTLPrimitiveType toMTLPrimitiveType(GFXPrimitiveMode mode) {
 MTLTextureUsage toMTLTextureUsage(GFXTextureUsage usage) {
     if (usage == GFXTextureUsage::NONE)
         return MTLTextureUsageUnknown;
-    
+
     MTLTextureUsage ret = MTLTextureUsageUnknown;
     if (usage & GFXTextureUsage::TRANSFER_SRC)
         ret |= MTLTextureUsageShaderRead;
@@ -548,12 +546,12 @@ MTLTextureUsage toMTLTextureUsage(GFXTextureUsage usage) {
         usage & GFXTextureUsage::INPUT_ATTACHMENT) {
         ret |= MTLTextureUsageRenderTarget;
     }
-    
+
     return ret;
 }
 
 MTLTextureType toMTLTextureType(GFXTextureType type) {
-    switch(type) {
+    switch (type) {
         case GFXTextureType::TEX1D: return MTLTextureType1D;
         case GFXTextureType::TEX2D: return MTLTextureType2D;
         case GFXTextureType::TEX3D: return MTLTextureType3D;
@@ -586,9 +584,9 @@ MTLSamplerAddressMode toMTLSamplerAddressMode(GFXAddress mode) {
 
 MTLSamplerBorderColor toMTLSamplerBorderColor(const GFXColor &color) {
     float diff = color.r - 0.5f;
-    if (math::IsEqualF(color.a, 0.f) )
+    if (math::IsEqualF(color.a, 0.f))
         return MTLSamplerBorderColorTransparentBlack;
-    else if (math::IsEqualF(diff, 0.f) )
+    else if (math::IsEqualF(diff, 0.f))
         return MTLSamplerBorderColorOpaqueBlack;
     else
         return MTLSamplerBorderColorOpaqueWhite;
@@ -615,18 +613,18 @@ MTLSamplerMipFilter toMTLSamplerMipFilter(GFXFilter filter) {
 }
 
 String compileGLSLShader2Msl(const String &src,
-                                  GFXShaderType shaderType,
-                                  int maxSamplerUnits,
-                                  std::unordered_map<uint, uint> &samplerBindings) {
+                             GFXShaderType shaderType,
+                             int maxSamplerUnits,
+                             std::unordered_map<uint, uint> &samplerBindings) {
 #if USE_METAL
     String shaderSource("#version 310 es\n");
     shaderSource.append(src);
     const auto &spv = GLSL2SPIRV(shaderType, shaderSource);
     if (spv.size() == 0)
         return "";
-    
+
     spirv_cross::CompilerMSL msl(std::move(spv));
-    
+
     // The SPIR-V is now parsed, and we can perform reflection on it.
     auto executionModel = msl.get_execution_model();
     spirv_cross::MSLResourceBinding newBinding;
@@ -639,27 +637,27 @@ String compileGLSLShader2Msl(const String &src,
     for (const auto &ubo : resources.uniform_buffers) {
         auto set = msl.get_decoration(ubo.id, spv::DecorationDescriptorSet);
         auto binding = msl.get_decoration(ubo.id, spv::DecorationBinding);
-        
+
         newBinding.desc_set = set;
         newBinding.binding = binding;
         newBinding.msl_buffer = binding;
         newBinding.msl_texture = 0;
         newBinding.msl_sampler = 0;
-        msl.add_msl_resource_binding( newBinding );
+        msl.add_msl_resource_binding(newBinding);
     }
-    
+
     //TODO: coulsonwang, need to set sampler binding explicitly
     if (resources.sampled_images.size() > maxSamplerUnits) {
         CC_LOG_ERROR("Implemention limits: Should not use more than %d entries in the sampler state argument table", maxSamplerUnits);
         return "";
     }
-    
+
     // Get all sampled images in the shader.
     unsigned int samplerIndex = 0;
     for (const auto &sampler : resources.sampled_images) {
         unsigned set = msl.get_decoration(sampler.id, spv::DecorationDescriptorSet);
         unsigned binding = msl.get_decoration(sampler.id, spv::DecorationBinding);
-        
+
         samplerBindings[binding] = samplerIndex;
         newBinding.desc_set = set;
         newBinding.binding = binding;
@@ -667,16 +665,15 @@ String compileGLSLShader2Msl(const String &src,
         newBinding.msl_texture = binding;
         newBinding.msl_sampler = samplerIndex++;
         msl.add_msl_resource_binding(newBinding);
-        
     }
-    
+
     // Set some options.
     spirv_cross::CompilerMSL::Options options;
-#if(CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+    #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     options.platform = spirv_cross::CompilerMSL::Options::Platform::iOS;
-#else
+    #else
     options.platform = spirv_cross::CompilerMSL::Options::Platform::macOS;
-#endif
+    #endif
     msl.set_msl_options(options);
 
     // Compile to MSL, ready to give to metal driver.
@@ -693,41 +690,41 @@ String compileGLSLShader2Msl(const String &src,
 
 uint8_t *convertRGB8ToRGBA8(uint8_t *source, uint length) {
     uint finalLength = length * 4;
-    uint8 *out = (uint8*)CC_MALLOC(finalLength);
+    uint8 *out = (uint8 *)CC_MALLOC(finalLength);
     if (!out) {
         CC_LOG_WARNING("Failed to alloc memory in convertRGB8ToRGBA8().");
         return source;
     }
-    
-    uint8_t* src = source;
-    uint8_t* dst = out;
+
+    uint8_t *src = source;
+    uint8_t *dst = out;
     for (uint i = 0; i < length; ++i) {
         *dst++ = *src++;
         *dst++ = *src++;
         *dst++ = *src++;
         *dst++ = 255;
     }
-    
+
     return out;
 }
 
 uint8_t *convertRGB32FToRGBA32F(uint8_t *source, uint length) {
     uint finalLength = length * sizeof(float) * 4;
-    uint8 *out = (uint8*)CC_MALLOC(finalLength);
+    uint8 *out = (uint8 *)CC_MALLOC(finalLength);
     if (!out) {
         CC_LOG_WARNING("Failed to alloc memory in convertRGB32FToRGBA32F().");
         return source;
     }
-    
-    float *src = reinterpret_cast<float*>(source);
-    float *dst = reinterpret_cast<float*>(out);
+
+    float *src = reinterpret_cast<float *>(source);
+    float *dst = reinterpret_cast<float *>(out);
     for (uint i = 0; i < length; ++i) {
         *dst++ = *src++;
         *dst++ = *src++;
         *dst++ = *src++;
         *dst++ = 1.0f;
     }
-    
+
     return out;
 }
 
@@ -736,33 +733,26 @@ NSUInteger highestSupportedFeatureSet(id<MTLDevice> device) {
     NSUInteger defaultFeatureSet;
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS
     defaultFeatureSet = MTLFeatureSet_iOS_GPUFamily1_v1;
-    if(@available(iOS 12.0, *)) {
+    if (@available(iOS 12.0, *)) {
         maxKnownFeatureSet = MTLFeatureSet_iOS_GPUFamily4_v2;
-    }
-    else if(@available(iOS 11.0, *)) {
+    } else if (@available(iOS 11.0, *)) {
         maxKnownFeatureSet = MTLFeatureSet_iOS_GPUFamily4_v1;
-    }
-    else if(@available(iOS 10.0, *)) {
+    } else if (@available(iOS 10.0, *)) {
         maxKnownFeatureSet = MTLFeatureSet_iOS_GPUFamily3_v2;
-    }
-    else if(@available(iOS 9.0, *)) {
+    } else if (@available(iOS 9.0, *)) {
         maxKnownFeatureSet = MTLFeatureSet_iOS_GPUFamily3_v1;
-    }
-    else {
+    } else {
         maxKnownFeatureSet = MTLFeatureSet_iOS_GPUFamily2_v1;
     }
 #else
     defaultFeatureSet = MTLFeatureSet_macOS_GPUFamily1_v1;
     if (@available(macOS 10.14, *)) {
         maxKnownFeatureSet = MTLFeatureSet_macOS_GPUFamily2_v1;
-    }
-    else if(@available(macOS 10.13, *)) {
+    } else if (@available(macOS 10.13, *)) {
         maxKnownFeatureSet = MTLFeatureSet_macOS_GPUFamily1_v3;
-    }
-    else if(@available(macOS 10.12, *)) {
+    } else if (@available(macOS 10.12, *)) {
         maxKnownFeatureSet = MTLFeatureSet_macOS_GPUFamily1_v2;
-    }
-    else {
+    } else {
         maxKnownFeatureSet = MTLFeatureSet_macOS_GPUFamily1_v1;
     }
 #endif
@@ -777,7 +767,7 @@ NSUInteger highestSupportedFeatureSet(id<MTLDevice> device) {
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS
 String getIOSFeatureSetToString(MTLFeatureSet featureSet) {
     if (@available(iOS 8.0, *)) {
-            switch (featureSet) {
+        switch (featureSet) {
             case MTLFeatureSet_iOS_GPUFamily1_v1:
                 return "MTLFeatureSet_iOS_GPUFamily1_v1";
             case MTLFeatureSet_iOS_GPUFamily2_v1:
@@ -841,8 +831,7 @@ String getIOSFeatureSetToString(MTLFeatureSet featureSet) {
     return "Invalid metal feature set";
 }
 
-GPUFamily getIOSGPUFamily(MTLFeatureSet featureSet)
-{
+GPUFamily getIOSGPUFamily(MTLFeatureSet featureSet) {
     if (@available(iOS 12.0, *)) {
         switch (featureSet) {
             case MTLFeatureSet_iOS_GPUFamily1_v5:
@@ -854,7 +843,7 @@ GPUFamily getIOSGPUFamily(MTLFeatureSet featureSet)
             case MTLFeatureSet_iOS_GPUFamily4_v2:
                 return GPUFamily::Apple4;
             default:
-               break;
+                break;
         }
     }
     if (@available(iOS 11.0, *)) {
@@ -1212,20 +1201,20 @@ bool isIndirectCommandBufferSupported(MTLFeatureSet featureSet) {
 }
 bool isDepthStencilFormatSupported(GFXFormat format, uint family) {
     GPUFamily gpuFamily = static_cast<GPUFamily>(family);
-    switch(format) {
+    switch (format) {
         case GFXFormat::D16:
             switch (gpuFamily) {
-            case GPUFamily::Apple1:
-            case GPUFamily::Apple2:
-            case GPUFamily::Apple3:
-            case GPUFamily::Apple4:
-            case GPUFamily::Apple5:
-            case GPUFamily::Apple6:
-            case GPUFamily::Mac1:
-            case GPUFamily::Mac2:
-                return true;
-            default:
-                return false;
+                case GPUFamily::Apple1:
+                case GPUFamily::Apple2:
+                case GPUFamily::Apple3:
+                case GPUFamily::Apple4:
+                case GPUFamily::Apple5:
+                case GPUFamily::Apple6:
+                case GPUFamily::Mac1:
+                case GPUFamily::Mac2:
+                    return true;
+                default:
+                    return false;
             }
         case GFXFormat::D32F:
         case GFXFormat::D32F_S8:
@@ -1242,7 +1231,7 @@ bool isDepthStencilFormatSupported(GFXFormat format, uint family) {
                     return true;
                 default:
                     return false;
-                }
+            }
         default:
             return false;
     }
