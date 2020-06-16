@@ -357,29 +357,40 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         if (!this._particleSystem) {
             return;
         }
-        if (this._particleSystem.sharedMaterial != null && this._particleSystem.sharedMaterial._effectAsset._name.indexOf('particle-gpu') === -1) {
-            // reset material
-            this._particleSystem.setMaterial(null, 0);
+        const ps = this._particleSystem;
+        const shareMaterial = ps.sharedMaterial;
+        if (shareMaterial !== null) {
+            const effectName = shareMaterial._effectAsset._name;
+            this._renderInfo!.mainTexture = shareMaterial.getProperty('mainTexture', 0);
+            if (effectName.indexOf('particle-gpu') === -1) {
+                this._renderInfo!.mainTexture = shareMaterial.getProperty('mainTexture', 0);
+                // reset material
+                this._particleSystem.setMaterial(null, 0);
+            }
         }
-        if (this._particleSystem.sharedMaterial == null && this._defaultMat == null) {
+
+        if (shareMaterial == null && this._defaultMat == null) {
             _matInsInfo.parent = builtinResMgr.get<Material>('default-particle-gpu-material');
-            _matInsInfo.owner = this._particleSystem;
+            _matInsInfo.owner = ps;
             _matInsInfo.subModelIdx = 0;
             this._defaultMat = new MaterialInstance(_matInsInfo);
+            if (this._renderInfo!.mainTexture !== null) {
+                this._defaultMat.setProperty('mainTexture', this._renderInfo!.mainTexture);
+            }
         }
-        const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
+        const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
 
-        this._particleSystem.node.getWorldMatrix(_tempWorldTrans);
-        switch (this._particleSystem.scaleSpace) {
+        ps.node.getWorldMatrix(_tempWorldTrans);
+        switch (ps.scaleSpace) {
             case Space.Local:
-                this._particleSystem.node.getScale(this._node_scale);
+                ps.node.getScale(this._node_scale);
                 break;
             case Space.World:
-                this._particleSystem.node.getWorldScale(this._node_scale);
+                ps.node.getWorldScale(this._node_scale);
                 break;
         }
 
-        if (this._particleSystem._simulationSpace === Space.World) {
+        if (ps._simulationSpace === Space.World) {
             this._defines[CC_USE_WORLD_SPACE] = true;
         } else {
             this._defines[CC_USE_WORLD_SPACE] = false;
@@ -400,7 +411,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         } else {
             console.warn(`particle system renderMode ${renderMode} not support.`);
         }
-        const textureModule = this._particleSystem._textureAnimationModule;
+        const textureModule = ps._textureAnimationModule;
         if (textureModule && textureModule.enable) {
             Vec2.set(this._frameTile_velLenScale, textureModule.numTilesX, textureModule.numTilesY);
         }
