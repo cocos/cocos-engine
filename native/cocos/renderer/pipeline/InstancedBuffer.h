@@ -7,9 +7,10 @@ class Pass;
 struct InstancedAttributeBlock;
 struct PSOCreateInfo;
 class SubModel;
-}
+} // namespace cc
 
-NS_PP_BEGIN
+namespace cc {
+namespace pipeline {
 
 class InstancedBuffer : public cc::Object {
 public:
@@ -34,4 +35,5 @@ private:
     cc::Pass *_pass = nullptr;
 };
 
-NS_PP_END
+} // namespace pipeline
+} // namespace cc

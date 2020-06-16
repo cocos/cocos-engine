@@ -5,9 +5,10 @@
 namespace cc {
 class Camera;
 class Root;
-}
+} // namespace cc
 
-NS_PP_BEGIN
+namespace cc {
+namespace pipeline {
 
 class RenderFlow;
 
@@ -45,4 +46,5 @@ private:
     bool _isEnabled = false;
 };
 
-NS_PP_END
+} // namespace pipeline
+} // namespace cc

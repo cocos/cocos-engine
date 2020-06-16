@@ -3,10 +3,11 @@
 #include "core/CoreStd.h"
 
 namespace cc {
-class PSOCreateInfo;
+struct PSOCreateInfo;
 }
 
-NS_PP_BEGIN
+namespace cc {
+namespace pipeline {
 
 class RenderStage;
 class RenderFlow;
@@ -70,4 +71,5 @@ const uint CAMERA_DEFAULT_MASK = 1;
 //constexpr CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
 //                                                           Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
 
-NS_PP_END
+} // namespace pipeline
+} // namespace cc

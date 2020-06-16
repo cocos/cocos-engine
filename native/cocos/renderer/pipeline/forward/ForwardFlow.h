@@ -2,7 +2,8 @@
 
 #include "../RenderFlow.h"
 
-NS_PP_BEGIN
+namespace cc {
+namespace pipeline {
 
 class RenderView;
 
@@ -17,4 +18,5 @@ public:
     virtual void rebuild() override;
 };
 
-NS_PP_END
+} // namespace pipeline
+} // namespace cc

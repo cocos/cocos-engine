@@ -6,7 +6,8 @@ namespace cc {
 class GFXFramebuffer;
 }
 
-NS_PP_BEGIN
+namespace cc {
+namespace pipeline {
 
 class RenderFlow;
 class RenderPipeline;
@@ -46,4 +47,5 @@ protected:
     int _priority = 0;
 };
 
-NS_PP_END
+} // namespace pipeline
+} // namespace cc

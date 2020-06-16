@@ -2,7 +2,8 @@
 
 #include "core/CoreStd.h"
 
-NS_PP_BEGIN
+namespace cc {
+namespace pipeline {
 
 class InstancedBuffer;
 
@@ -20,4 +21,5 @@ private:
     cc::set<InstancedBuffer *>::type _queue;
 };
 
-NS_PP_END
+} // namespace pipeline
+} // namespace cc

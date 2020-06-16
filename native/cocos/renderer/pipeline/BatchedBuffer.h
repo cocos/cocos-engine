@@ -5,9 +5,10 @@
 namespace cc {
 class Pass;
 class SubModel;
-}
+} // namespace cc
 
-NS_PP_BEGIN
+namespace cc {
+namespace pipeline {
 
 class CC_DLL BatchedBuffer : public cc::Object {
 public:
@@ -28,4 +29,5 @@ private:
     cc::Pass *_pass = nullptr;
 };
 
-NS_PP_END
+} // namespace pipeline
+} // namespace cc

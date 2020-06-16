@@ -13,9 +13,10 @@ class Light;
 class Root;
 class Model;
 class Camera;
-}
+} // namespace cc
 
-NS_PP_BEGIN
+namespace cc {
+namespace pipeline {
 
 class RenderView;
 
@@ -107,4 +108,5 @@ protected:
     bool _isUseDynamicBatching = false;
 };
 
-NS_PP_END
+} // namespace pipeline
+} // namespace cc

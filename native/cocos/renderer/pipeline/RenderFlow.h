@@ -8,7 +8,8 @@ class GFXDevice;
 
 }
 
-NS_PP_BEGIN
+namespace cc {
+namespace pipeline {
 
 class RenderPipeline;
 class RenderStage;
@@ -50,4 +51,5 @@ protected:
     //    RenderFlowType _type = ;
 };
 
-NS_PP_END
+} // namespace pipeline
+} // namespace cc

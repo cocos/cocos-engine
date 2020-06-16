@@ -2,7 +2,8 @@
 
 #include "../RenderPipeline.h"
 
-NS_PP_BEGIN
+namespace cc {
+namespace pipeline {
 
 class CC_DLL ForwardPipeline : public RenderPipeline {
 public:
@@ -28,4 +29,5 @@ private:
     cc::GFXBuffer *_lightsUBO = nullptr;
 };
 
-NS_PP_END
+} // namespace pipeline
+} // namespace cc
