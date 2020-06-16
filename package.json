@@ -53,6 +53,6 @@
   },
   "dependencies": {
     "@cocos/ammo": "^1.0.6",
-    "@cocos/cannon": "^1.1.0"
+    "@cocos/cannon": "^1.1.1"
   }
 }
