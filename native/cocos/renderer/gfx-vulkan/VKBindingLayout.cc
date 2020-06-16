@@ -8,6 +8,7 @@
 #include "VKTexture.h"
 
 namespace cc {
+namespace gfx {
 
 CCVKBindingLayout::CCVKBindingLayout(GFXDevice *device)
 : GFXBindingLayout(device) {
@@ -93,4 +94,5 @@ void CCVKBindingLayout::update() {
     }
 }
 
-}
+} // namespace gfx
+} // namespace cc

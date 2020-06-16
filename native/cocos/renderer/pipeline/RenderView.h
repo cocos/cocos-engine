@@ -12,7 +12,7 @@ namespace pipeline {
 
 class RenderFlow;
 
-class CC_DLL RenderView : public cc::Object {
+class CC_DLL RenderView : public gfx::Object {
 public:
     static void registerCreateFun(cc::Root *root);
 
@@ -22,7 +22,7 @@ public:
     void setExecuteFlows(const RenderFlowList &flows);
     void setPriority();
 
-    CC_INLINE const cc::String &getName() const { return _name; }
+    CC_INLINE const gfx::String &getName() const { return _name; }
     CC_INLINE uint getPriority() const { return _priority; }
     CC_INLINE uint getVisibility() const { return _visibility; }
     CC_INLINE void setVisibility(uint value) { _visibility = value; }
@@ -38,7 +38,7 @@ private:
 
 private:
     RenderFlowList _flows;
-    cc::String _name;
+    gfx::String _name;
     cc::Camera *_camera = nullptr;
     cc::Root *_root = nullptr;
     uint _priority = 0;

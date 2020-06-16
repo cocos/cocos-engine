@@ -4,15 +4,19 @@
 #include "Define.h"
 
 namespace cc {
+class Light;
+class Root;
+class Model;
+class Camera;
+
+namespace gfx {
 class GFXDevice;
 class GFXInputAssembler;
 class GFXTexture;
 class GFXBuffer;
 class GFXRenderPass;
-class Light;
-class Root;
-class Model;
-class Camera;
+} // namespace gfx
+
 } // namespace cc
 
 namespace cc {
@@ -20,15 +24,15 @@ namespace pipeline {
 
 class RenderView;
 
-class CC_DLL RenderPipeline : public cc::Object {
+class CC_DLL RenderPipeline : public gfx::Object {
 public:
     virtual ~RenderPipeline() = default;
 
     virtual void destroy() = 0;
-    virtual cc::vector<cc::Light *>::type &getValidLights() const = 0;
-    virtual cc::vector<float>::type &getLightIndexOffsets() const = 0;
-    virtual cc::vector<float>::type &getLightIndices() const = 0;
-    virtual cc::vector<cc::GFXBuffer *>::type &getLightBuffers() const = 0;
+    virtual gfx::vector<cc::Light *>::type &getValidLights() const = 0;
+    virtual gfx::vector<float>::type &getLightIndexOffsets() const = 0;
+    virtual gfx::vector<float>::type &getLightIndices() const = 0;
+    virtual gfx::vector<gfx::GFXBuffer *>::type &getLightBuffers() const = 0;
 
     virtual bool initialize(const RenderPipelineInfo &info);
     virtual bool activate(cc::Root *root);
@@ -39,21 +43,21 @@ public:
     virtual void sceneCulling();
 
     void swapFBOS();
-    void addRenderPass(uint stage, cc::GFXRenderPass *renderPass);
-    cc::GFXRenderPass *getRenderPass(uint stage) const;
+    void addRenderPass(uint stage, gfx::GFXRenderPass *renderPass);
+    gfx::GFXRenderPass *getRenderPass(uint stage) const;
     void removeRenderPass(uint stage);
     void clearRenderPasses();
     void destroyFlows();
-    RenderFlow *getFlow(const cc::String &name) const;
+    RenderFlow *getFlow(const gfx::String &name) const;
     void updateMacros();
-    cc::GFXTexture *getTexture(const cc::String &name) const;
-    cc::GFXTexture *getRenderTexture(const cc::String &name) const;
-    cc::GFXBuffer *getFrameBuffer(const cc::String &name) const;
+    gfx::GFXTexture *getTexture(const gfx::String &name) const;
+    gfx::GFXTexture *getRenderTexture(const gfx::String &name) const;
+    gfx::GFXBuffer *getFrameBuffer(const gfx::String &name) const;
 
     //    CC_INLINE const Root* getRoot() const {  }
-    CC_INLINE cc::GFXDevice *getDevice() const { return _device; }
-    CC_INLINE cc::GFXTexture *getDefaultTexture() const { return _defaultTexture; }
-    CC_INLINE cc::GFXInputAssembler *getQuadIA() const { return _quadIA; }
+    CC_INLINE gfx::GFXDevice *getDevice() const { return _device; }
+    CC_INLINE gfx::GFXTexture *getDefaultTexture() const { return _defaultTexture; }
+    CC_INLINE gfx::GFXInputAssembler *getQuadIA() const { return _quadIA; }
     CC_INLINE const RenderFlowList &getFlows() const { return _flows; }
     CC_INLINE const RenderFlowList &getActiveFlows() const { return _activeFlows; }
     CC_INLINE const RenderObjectList &getRenderObjects() const { return _renderObjects; }
@@ -61,9 +65,9 @@ public:
     CC_INLINE float getFpScaleInv() const { return _fpScaleInv; }
     CC_INLINE float getShadingScale() const { return _shadingScale; }
     CC_INLINE float getLightMeterScale() const { return _lightMeterScale; }
-    CC_INLINE const cc::String &getCurrentShading() const { return _currIdx; }
-    CC_INLINE const cc::String &getPreviousShading() const { return _prevIdx; }
-    CC_INLINE const cc::String &getName() const { return _name; }
+    CC_INLINE const gfx::String &getCurrentShading() const { return _currIdx; }
+    CC_INLINE const gfx::String &getPreviousShading() const { return _prevIdx; }
+    CC_INLINE const gfx::String &getName() const { return _name; }
     CC_INLINE bool isHDRSupported() const { return _isHDRSupported; }
     CC_INLINE bool isUsePostProcess() const { return _isUsePostProcess; }
     CC_INLINE bool isHDR() const { return _isHDR; }
@@ -85,18 +89,18 @@ protected:
 
 private:
     void activateFlow(RenderFlow *flow);
-    cc::GFXFormat getTextureFormat(cc::GFXFormat format, cc::GFXTextureUsageBit usage) const;
+    gfx::GFXFormat getTextureFormat(gfx::GFXFormat format, gfx::GFXTextureUsageBit usage) const;
 
 protected:
-    cc::String _name;
-    cc::String _currIdx = "shading";
-    cc::String _prevIdx = "shading1";
+    gfx::String _name;
+    gfx::String _currIdx = "shading";
+    gfx::String _prevIdx = "shading1";
     RenderObjectList _renderObjects;
     RenderFlowList _flows;
     RenderFlowList _activeFlows;
-    cc::GFXDevice *_device = nullptr;
-    cc::GFXInputAssembler *_quadIA = nullptr;
-    cc::GFXTexture *_defaultTexture = nullptr;
+    gfx::GFXDevice *_device = nullptr;
+    gfx::GFXInputAssembler *_quadIA = nullptr;
+    gfx::GFXTexture *_defaultTexture = nullptr;
     float _shadingScale = 1.f;
     float _lightMeterScale = 1000.f;
     float _fpScale = 1.f / 1024;

@@ -4,6 +4,7 @@
 #include "GFXDef.h"
 
 namespace cc {
+namespace gfx {
 
 class CC_CORE_API GFXFramebuffer : public GFXObject {
 public:
@@ -28,6 +29,7 @@ protected:
     bool _isOffscreen = true;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif // CC_CORE_GFX_FRAME_BUFFER_H_

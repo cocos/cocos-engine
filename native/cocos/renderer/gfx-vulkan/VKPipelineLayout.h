@@ -2,6 +2,7 @@
 #define CC_GFXVULKAN_CCVK_PIPELINE_LAYOUT_H_
 
 namespace cc {
+namespace gfx {
 
 class CCVKGPUPipelineLayout;
 
@@ -20,6 +21,7 @@ private:
     CCVKGPUPipelineLayout *_gpuPipelineLayout = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

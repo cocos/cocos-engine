@@ -3,10 +3,10 @@
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
-extern se::Object* __jsb_cc_CCMTLDevice_proto;
-extern se::Class* __jsb_cc_CCMTLDevice_class;
+extern se::Object* __jsb_cc_gfx_CCMTLDevice_proto;
+extern se::Class* __jsb_cc_gfx_CCMTLDevice_class;
 
-bool js_register_cc_CCMTLDevice(se::Object* obj);
+bool js_register_cc_gfx_CCMTLDevice(se::Object* obj);
 bool register_all_mtl(se::Object* obj);
 SE_DECLARE_FUNC(js_mtl_CCMTLDevice_getMTLDevice);
 SE_DECLARE_FUNC(js_mtl_CCMTLDevice_getMTKView);

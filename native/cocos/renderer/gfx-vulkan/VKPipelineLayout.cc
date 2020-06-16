@@ -5,6 +5,7 @@
 #include "VKPipelineLayout.h"
 
 namespace cc {
+namespace gfx {
 
 CCVKPipelineLayout::CCVKPipelineLayout(GFXDevice *device)
 : GFXPipelineLayout(device) {
@@ -41,4 +42,5 @@ void CCVKPipelineLayout::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-}
+} // namespace gfx
+} // namespace cc

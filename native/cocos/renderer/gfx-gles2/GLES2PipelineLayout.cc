@@ -3,6 +3,7 @@
 #include "GLES2Commands.h"
 
 namespace cc {
+namespace gfx {
 
 GLES2PipelineLayout::GLES2PipelineLayout(GFXDevice *device)
 : GFXPipelineLayout(device) {
@@ -30,4 +31,5 @@ void GLES2PipelineLayout::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-}
+} // namespace gfx
+} // namespace cc

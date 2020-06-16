@@ -4,6 +4,7 @@
 #include "GFXDef.h"
 
 namespace cc {
+namespace gfx {
 
 class CC_CORE_API GFXShader : public GFXObject {
 public:
@@ -33,6 +34,7 @@ protected:
     GFXUniformSamplerList _samplers;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif // CC_CORE_GFX_TEXTURE_VIEW_H_

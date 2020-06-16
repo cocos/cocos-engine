@@ -1,6 +1,7 @@
 #pragma once
 
 namespace cc {
+namespace gfx {
 
 class CCMTLFramebuffer : public GFXFramebuffer {
 public:
@@ -11,4 +12,5 @@ public:
     virtual void destroy() override;
 };
 
-}
+} // namespace gfx
+} // namespace cc

@@ -4,6 +4,7 @@
 #include "GFXDef.h"
 
 namespace cc {
+namespace gfx {
 
 class CC_CORE_API GFXBuffer : public GFXObject {
 public:
@@ -36,6 +37,7 @@ protected:
     uint8_t *_buffer = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif // CC_CORE_GFX_BUFFER_H_

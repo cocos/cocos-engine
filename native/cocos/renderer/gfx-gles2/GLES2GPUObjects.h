@@ -4,6 +4,7 @@
 #include "gles2w.h"
 
 namespace cc {
+namespace gfx {
 
 class GLES2GPUBuffer : public Object {
 public:
@@ -237,6 +238,7 @@ class GLES2GPUFence : public Object {
 public:
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

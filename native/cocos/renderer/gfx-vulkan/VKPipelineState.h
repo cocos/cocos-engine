@@ -2,6 +2,7 @@
 #define CC_GFXVULKAN_CCVK_PIPELINE_STATE_H_
 
 namespace cc {
+namespace gfx {
 
 class CCVKGPUPipelineState;
 
@@ -20,6 +21,7 @@ private:
     CCVKGPUPipelineState *_gpuPipelineState = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

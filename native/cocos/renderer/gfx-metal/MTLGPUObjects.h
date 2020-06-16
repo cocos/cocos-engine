@@ -8,6 +8,7 @@
 #import <Metal/MTLSampler.h>
 
 namespace cc {
+namespace gfx {
 
 struct CCMTLGPUUniformBlock {
     uint mtlBinding = 0;
@@ -59,4 +60,5 @@ public:
     std::vector<id<MTLBuffer>> mtlVertexBufers;
 };
 
-}
+} // namespace gfx
+} // namespace cc

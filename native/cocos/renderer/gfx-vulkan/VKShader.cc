@@ -4,6 +4,7 @@
 #include "VKShader.h"
 
 namespace cc {
+namespace gfx {
 
 CCVKShader::CCVKShader(GFXDevice *device)
 : GFXShader(device) {
@@ -45,4 +46,5 @@ void CCVKShader::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-}
+} // namespace gfx
+} // namespace cc

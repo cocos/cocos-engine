@@ -12,6 +12,7 @@
 #include "VKTexture.h"
 
 namespace cc {
+namespace gfx {
 
 CCVKCommandBuffer::CCVKCommandBuffer(GFXDevice *device)
 : GFXCommandBuffer(device) {
@@ -333,4 +334,5 @@ void CCVKCommandBuffer::copyBufferToTexture(GFXBuffer *src, GFXTexture *dst, GFX
     }
 }
 
-}
+} // namespace gfx
+} // namespace cc

@@ -2,6 +2,7 @@
 #define CC_GFXGLES3_GLES3_SHADER_H_
 
 namespace cc {
+namespace gfx {
 
 class GLES3GPUShader;
 
@@ -20,6 +21,7 @@ private:
     GLES3GPUShader *_gpuShader = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

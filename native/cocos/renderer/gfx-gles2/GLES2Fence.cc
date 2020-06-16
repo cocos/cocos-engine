@@ -4,6 +4,7 @@
 #include "GLES2GPUObjects.h"
 
 namespace cc {
+namespace gfx {
 
 GLES2Fence::GLES2Fence(GFXDevice *device)
 : GFXFence(device) {
@@ -43,4 +44,5 @@ void GLES2Fence::reset() {
     // TODO
 }
 
-}
+} // namespace gfx
+} // namespace cc

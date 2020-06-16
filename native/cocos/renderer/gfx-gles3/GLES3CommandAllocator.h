@@ -5,6 +5,7 @@
 #include "GLES3Commands.h"
 
 namespace cc {
+namespace gfx {
 
 class CC_GLES3_API GLES3CommandAllocator : public GFXCommandAllocator {
 public:
@@ -32,6 +33,7 @@ public:
     }
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

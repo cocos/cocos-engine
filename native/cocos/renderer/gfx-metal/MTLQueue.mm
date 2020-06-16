@@ -20,6 +20,7 @@
 #import <Metal/MTLDevice.h>
 
 namespace cc {
+namespace gfx {
 
 CCMTLQueue::CCMTLQueue(GFXDevice *device) : GFXQueue(device) {}
 
@@ -306,4 +307,5 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage *commandPackage, id<M
     }
 }
 
-}
+} // namespace gfx
+} // namespace cc

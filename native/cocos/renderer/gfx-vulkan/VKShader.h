@@ -2,6 +2,7 @@
 #define CC_GFXVULKAN_CCVK_SHADER_H_
 
 namespace cc {
+namespace gfx {
 
 class CCVKGPUShader;
 
@@ -20,6 +21,7 @@ private:
     CCVKGPUShader *_gpuShader = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

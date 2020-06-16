@@ -2,6 +2,7 @@
 #define CC_GFXVULKAN_CCVK_BINDING_LAYOUT_H_
 
 namespace cc {
+namespace gfx {
 
 class CCVKGPUBindingLayout;
 
@@ -21,6 +22,7 @@ private:
     CCVKGPUBindingLayout *_gpuBindingLayout = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

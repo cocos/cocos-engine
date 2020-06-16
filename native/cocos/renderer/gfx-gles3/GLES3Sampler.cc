@@ -3,6 +3,7 @@
 #include "GLES3Commands.h"
 
 namespace cc {
+namespace gfx {
 
 GLES3Sampler::GLES3Sampler(GFXDevice *device)
 : GFXSampler(device) {
@@ -52,4 +53,5 @@ void GLES3Sampler::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-}
+} // namespace gfx
+} // namespace cc

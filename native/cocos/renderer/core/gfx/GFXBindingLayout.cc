@@ -2,6 +2,7 @@
 #include "GFXBindingLayout.h"
 
 namespace cc {
+namespace gfx {
 
 GFXBindingLayout::GFXBindingLayout(GFXDevice *device)
 : GFXObject(GFXObjectType::BINDING_LAYOUT), _device(device) {
@@ -61,4 +62,5 @@ void GFXBindingLayout::bindSampler(uint binding, GFXSampler *sampler) {
     }
 }
 
-}
+} // namespace gfx
+} // namespace cc

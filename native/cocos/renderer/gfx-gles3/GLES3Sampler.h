@@ -2,6 +2,7 @@
 #define CC_GFXGLES3_GLES3_SAMPLER_H_
 
 namespace cc {
+namespace gfx {
 
 class GLES3GPUSampler;
 
@@ -20,6 +21,7 @@ private:
     GLES3GPUSampler *_gpuSampler = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

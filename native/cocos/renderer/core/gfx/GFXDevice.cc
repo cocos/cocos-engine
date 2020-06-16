@@ -2,6 +2,7 @@
 #include "GFXDevice.h"
 #include "GFXContext.h"
 namespace cc {
+namespace gfx {
 
 GFXDevice::GFXDevice() {
     memset(_features, 0, sizeof(_features));
@@ -18,4 +19,5 @@ GFXFormat GFXDevice::getDepthStencilFormat() const {
     return _context->getDepthStencilFormat();
 }
 
-}
+} // namespace gfx
+} // namespace cc

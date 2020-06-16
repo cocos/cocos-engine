@@ -12,7 +12,7 @@ class SubModel;
 namespace cc {
 namespace pipeline {
 
-class InstancedBuffer : public cc::Object {
+class InstancedBuffer : public gfx::Object {
 public:
     static const uint INITIAL_CAPACITY = 32;
     static const uint MAX_CAPACITY = 1024;

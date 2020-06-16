@@ -6,6 +6,7 @@
 #import <Metal/MTLDevice.h>
 
 namespace cc {
+namespace gfx {
 
 CCMTLShader::CCMTLShader(GFXDevice *device) : GFXShader(device) {}
 CCMTLShader::~CCMTLShader() { destroy(); }
@@ -93,4 +94,5 @@ bool CCMTLShader::createMTLFunction(const GFXShaderStage &stage) {
     return true;
 }
 
-}
+} // namespace gfx
+} // namespace cc

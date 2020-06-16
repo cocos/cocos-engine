@@ -12,52 +12,104 @@
 // #define CC_GFX_DEBUG
 
 namespace cc {
+namespace gfx {
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
 
-void APIENTRY GLES2EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
+void APIENTRY
+GLES2EGLDebugProc(GLenum
+                      source,
+                  GLenum type, GLuint id,
+                  GLenum severity, GLsizei length,
+                  const GLchar *message,
+                  const void *userParam) {
     String source_desc;
     switch (source) {
-        case GL_DEBUG_SOURCE_API_KHR: source_desc = "API"; break;
-        case GL_DEBUG_SOURCE_SHADER_COMPILER_KHR: source_desc = "SHADER_COMPILER"; break;
-        case GL_DEBUG_SOURCE_WINDOW_SYSTEM_KHR: source_desc = "WINDOW_SYSTEM"; break;
-        case GL_DEBUG_SOURCE_THIRD_PARTY_KHR: source_desc = "THIRD_PARTY"; break;
-        case GL_DEBUG_SOURCE_APPLICATION_KHR: source_desc = "APPLICATION"; break;
-        default: source_desc = "OTHER";
+        case GL_DEBUG_SOURCE_API_KHR:
+            source_desc = "API";
+            break;
+        case GL_DEBUG_SOURCE_SHADER_COMPILER_KHR:
+            source_desc = "SHADER_COMPILER";
+            break;
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM_KHR:
+            source_desc = "WINDOW_SYSTEM";
+            break;
+        case GL_DEBUG_SOURCE_THIRD_PARTY_KHR:
+            source_desc = "THIRD_PARTY";
+            break;
+        case GL_DEBUG_SOURCE_APPLICATION_KHR:
+            source_desc = "APPLICATION";
+            break;
+        default:
+            source_desc = "OTHER";
     }
 
     String type_desc;
     switch (severity) {
-        case GL_DEBUG_TYPE_ERROR_KHR: type_desc = "ERROR"; break;
-        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_KHR: type_desc = "PEPRECATED_BEHAVIOR"; break;
-        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_KHR: type_desc = "UNDEFINED_BEHAVIOR"; break;
-        case GL_DEBUG_TYPE_PERFORMANCE_KHR: type_desc = "PERFORMANCE"; break;
-        case GL_DEBUG_TYPE_PORTABILITY_KHR: type_desc = "PORTABILITY"; break;
-        case GL_DEBUG_TYPE_MARKER_KHR: type_desc = "MARKER"; break;
-        case GL_DEBUG_TYPE_PUSH_GROUP_KHR: type_desc = "PUSH_GROUP"; break;
-        case GL_DEBUG_TYPE_POP_GROUP_KHR: type_desc = "POP_GROUP"; break;
-        default: type_desc = "OTHER";
+        case GL_DEBUG_TYPE_ERROR_KHR:
+            type_desc = "ERROR";
+            break;
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_KHR:
+            type_desc = "PEPRECATED_BEHAVIOR";
+            break;
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_KHR:
+            type_desc = "UNDEFINED_BEHAVIOR";
+            break;
+        case GL_DEBUG_TYPE_PERFORMANCE_KHR:
+            type_desc = "PERFORMANCE";
+            break;
+        case GL_DEBUG_TYPE_PORTABILITY_KHR:
+            type_desc = "PORTABILITY";
+            break;
+        case GL_DEBUG_TYPE_MARKER_KHR:
+            type_desc = "MARKER";
+            break;
+        case GL_DEBUG_TYPE_PUSH_GROUP_KHR:
+            type_desc = "PUSH_GROUP";
+            break;
+        case GL_DEBUG_TYPE_POP_GROUP_KHR:
+            type_desc = "POP_GROUP";
+            break;
+        default:
+            type_desc = "OTHER";
     }
 
     String severity_desc;
     switch (severity) {
-        case GL_DEBUG_SEVERITY_HIGH_KHR: severity_desc = "HIGH"; break;
-        case GL_DEBUG_SEVERITY_MEDIUM_KHR: severity_desc = "MEDIUM"; break;
-        case GL_DEBUG_SEVERITY_LOW_KHR: severity_desc = "LOW"; break;
-        default: severity_desc = "NOTIFICATION";
+        case GL_DEBUG_SEVERITY_HIGH_KHR:
+            severity_desc = "HIGH";
+            break;
+        case GL_DEBUG_SEVERITY_MEDIUM_KHR:
+            severity_desc = "MEDIUM";
+            break;
+        case GL_DEBUG_SEVERITY_LOW_KHR:
+            severity_desc = "LOW";
+            break;
+        default:
+            severity_desc = "NOTIFICATION";
     }
 
     String msg = StringUtil::Format("source: %s, type: %s, severity: %s, message: %s",
-                                    source_desc.c_str(), type_desc.c_str(), severity_desc.c_str(), message);
+                                    source_desc.c_str(), type_desc.c_str(), severity_desc.c_str(),
+                                    message);
 
     if (severity == GL_DEBUG_SEVERITY_HIGH_KHR) {
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-        CCASSERT(false, msg.c_str());
+        CCASSERT(false, msg.
+
+                        c_str()
+
+        );
     #else
         CC_LOG_ERROR(msg.c_str());
     #endif
     } else {
-        CC_LOG_DEBUG(msg.c_str());
+        CC_LOG_DEBUG(msg
+                         .
+
+                     c_str()
+
+        );
     }
 }
 
@@ -143,7 +195,8 @@ bool GLES2Context::initialize(const GFXContextInfo &info) {
         //    its needs perfectly, so we limit it to returning a single EGLConfig.
 
         EGLint num_configs;
-        if (eglChooseConfig(_eglDisplay, attribs, &_eglConfig, 1, &num_configs) == EGL_FALSE || num_configs <= 0) {
+        if (eglChooseConfig(_eglDisplay, attribs, &_eglConfig, 1, &num_configs) == EGL_FALSE ||
+            num_configs <= 0) {
             CC_LOG_ERROR("Choosing configuration failed.");
             return false;
         }
@@ -180,7 +233,8 @@ bool GLES2Context::initialize(const GFXContextInfo &info) {
 
     #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
         EGLint n_fmt;
-        if (eglGetConfigAttrib(_eglDisplay, _eglConfig, EGL_NATIVE_VISUAL_ID, &n_fmt) == EGL_FALSE) {
+        if (eglGetConfigAttrib(_eglDisplay, _eglConfig, EGL_NATIVE_VISUAL_ID, &n_fmt) ==
+            EGL_FALSE) {
             CC_LOG_ERROR("Getting configuration attributes failed.");
             return false;
         }
@@ -190,7 +244,8 @@ bool GLES2Context::initialize(const GFXContextInfo &info) {
         ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, n_fmt);
     #endif
 
-        _eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL);
+        _eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig,
+                                             (EGLNativeWindowType)_windowHandle, NULL);
         if (_eglSurface == EGL_NO_SURFACE) {
             CC_LOG_ERROR("Window surface created failed.");
             return false;
@@ -199,7 +254,8 @@ bool GLES2Context::initialize(const GFXContextInfo &info) {
         //String egl_vendor = eglQueryString(_eglDisplay, EGL_VENDOR);
         //String egl_version = eglQueryString(_eglDisplay, EGL_VERSION);
 
-        _extensions = StringUtil::Split((const char *)eglQueryString(_eglDisplay, EGL_EXTENSIONS), " ");
+        _extensions = StringUtil::Split((const char *)eglQueryString(_eglDisplay, EGL_EXTENSIONS),
+                                        " ");
 
         _majorVersion = 2;
         _minorVersion = 0;
@@ -244,12 +300,12 @@ bool GLES2Context::initialize(const GFXContextInfo &info) {
         _depthStencilFmt = sharedCtx->getDepthStencilFormat();
 
         EGLint pbuff_attribs[] = {
-                EGL_WIDTH, 2,
-                EGL_HEIGHT, 2,
-                EGL_LARGEST_PBUFFER, EGL_TRUE,
-                EGL_TEXTURE_FORMAT, EGL_NO_TEXTURE,
-                EGL_TEXTURE_TARGET, EGL_NO_TEXTURE,
-                EGL_NONE};
+            EGL_WIDTH, 2,
+            EGL_HEIGHT, 2,
+            EGL_LARGEST_PBUFFER, EGL_TRUE,
+            EGL_TEXTURE_FORMAT, EGL_NO_TEXTURE,
+            EGL_TEXTURE_TARGET, EGL_NO_TEXTURE,
+            EGL_NONE};
 
         _eglSurface = eglCreatePbufferSurface(_eglDisplay, _eglConfig, pbuff_attribs);
         if (_eglSurface == EGL_NO_SURFACE) {
@@ -259,7 +315,8 @@ bool GLES2Context::initialize(const GFXContextInfo &info) {
 
         bool has_khr_create_ctx = CheckExtension(CC_TOSTR(EGL_KHR_create_context));
         if (!has_khr_create_ctx) {
-            CC_LOG_INFO("EGL context creation: EGL_KHR_create_context not supported. Minor version will be discarded, and debug disabled.");
+            CC_LOG_INFO(
+                "EGL context creation: EGL_KHR_create_context not supported. Minor version will be discarded, and debug disabled.");
             _minorVersion = 0;
         }
 
@@ -302,26 +359,35 @@ bool GLES2Context::initialize(const GFXContextInfo &info) {
         }
     });
 
-    EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [=](const CustomEvent &event) -> void {
-        _windowHandle = (uintptr_t)event.args->ptrVal;
+    EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW,
+                                            [=](const CustomEvent &event) -> void {
+                                                _windowHandle = (uintptr_t)event.args->ptrVal;
 
-        EGLint n_fmt;
-        if (eglGetConfigAttrib(_eglDisplay, _eglConfig, EGL_NATIVE_VISUAL_ID, &n_fmt) == EGL_FALSE) {
-            CC_LOG_ERROR("Getting configuration attributes failed.");
-            return;
-        }
-        uint width = _device->getWidth();
-        uint height = _device->getHeight();
-        ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, n_fmt);
+                                                EGLint n_fmt;
+                                                if (eglGetConfigAttrib(_eglDisplay, _eglConfig,
+                                                                       EGL_NATIVE_VISUAL_ID,
+                                                                       &n_fmt) == EGL_FALSE) {
+                                                    CC_LOG_ERROR(
+                                                        "Getting configuration attributes failed.");
+                                                    return;
+                                                }
+                                                uint width = _device->getWidth();
+                                                uint height = _device->getHeight();
+                                                ANativeWindow_setBuffersGeometry(
+                                                    (ANativeWindow *)_windowHandle, width,
+                                                    height, n_fmt);
 
-        _eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL);
-        if (_eglSurface == EGL_NO_SURFACE) {
-            CC_LOG_ERROR("Recreate window surface failed.");
-            return;
-        }
+                                                _eglSurface = eglCreateWindowSurface(_eglDisplay,
+                                                                                     _eglConfig,
+                                                                                     (EGLNativeWindowType)_windowHandle,
+                                                                                     NULL);
+                                                if (_eglSurface == EGL_NO_SURFACE) {
+                                                    CC_LOG_ERROR("Recreate window surface failed.");
+                                                    return;
+                                                }
 
-        MakeCurrent();
-    });
+                                                MakeCurrent();
+                                            });
     #endif
 
     return true;
@@ -371,12 +437,23 @@ bool GLES2Context::MakeCurrent() {
             // Turn on or off the vertical sync depending on the input bool value.
             int interval = 1;
             switch (_vsyncMode) {
-                case GFXVsyncMode::OFF: interval = 0; break;
-                case GFXVsyncMode::ON: interval = 1; break;
-                case GFXVsyncMode::RELAXED: interval = -1; break;
-                case GFXVsyncMode::MAILBOX: interval = 0; break;
-                case GFXVsyncMode::HALF: interval = 2; break;
-                default: break;
+                case GFXVsyncMode::OFF:
+                    interval = 0;
+                    break;
+                case GFXVsyncMode::ON:
+                    interval = 1;
+                    break;
+                case GFXVsyncMode::RELAXED:
+                    interval = -1;
+                    break;
+                case GFXVsyncMode::MAILBOX:
+                    interval = 0;
+                    break;
+                case GFXVsyncMode::HALF:
+                    interval = 2;
+                    break;
+                default:
+                    break;
             }
 
             if (eglSwapInterval(_eglDisplay, interval) != 1) {
@@ -446,4 +523,5 @@ bool GLES2Context::CheckExtension(const String &extension) const {
     return (std::find(_extensions.begin(), _extensions.end(), extension) != _extensions.end());
 }
 
-}
+} // namespace gfx
+} // namespace cc

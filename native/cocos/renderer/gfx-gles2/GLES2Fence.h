@@ -2,6 +2,7 @@
 #define CC_GFXGLES2_GLES2_FENCE_H_
 
 namespace cc {
+namespace gfx {
 
 class GLES2GPUFence;
 
@@ -20,6 +21,7 @@ private:
     GLES2GPUFence *_gpuFence = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

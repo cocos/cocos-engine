@@ -5,6 +5,7 @@
 #include "VKDevice.h"
 
 namespace cc {
+namespace gfx {
 
 CCVKCommandAllocator::CCVKCommandAllocator(GFXDevice *device)
 : GFXCommandAllocator(device) {
@@ -38,4 +39,5 @@ void CCVKCommandAllocator::reset() {
     }
 }
 
-}
+} // namespace gfx
+} // namespace cc

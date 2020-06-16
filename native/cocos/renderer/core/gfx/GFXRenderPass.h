@@ -4,6 +4,7 @@
 #include "GFXDef.h"
 
 namespace cc {
+namespace gfx {
 
 class CC_CORE_API GFXRenderPass : public GFXObject {
 public:
@@ -30,6 +31,7 @@ protected:
     uint _hash = 0;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif // CC_CORE_GFX_RENDER_PASS_H_

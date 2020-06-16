@@ -4,6 +4,7 @@
 #include "MTLCommands.h"
 
 namespace cc {
+namespace gfx {
 
 class CCMTLCommandPackage;
 
@@ -34,4 +35,5 @@ private:
     GFXCommandPool<CCMTLCmdCopyBufferToTexture> _copyBufferToTextureCmdPool;
 };
 
-}
+} // namespace gfx
+} // namespace cc

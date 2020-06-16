@@ -2,6 +2,7 @@
 #define CC_GFXVULKAN_CCVK_SAMPLER_H_
 
 namespace cc {
+namespace gfx {
 
 class CCVKGPUSampler;
 
@@ -20,6 +21,7 @@ private:
     CCVKGPUSampler *_gpuSampler = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

@@ -1,8 +1,8 @@
 #ifndef CC_CORE_MATH_CC_MATH_H_
 #define CC_CORE_MATH_CC_MATH_H_
 
-#define CC_MATH_NAMESPACE_BEGIN  namespace cc { namespace math {
-#define CC_MATH_NAMESPACE_END    }}
+#define CC_MATH_NAMESPACE_BEGIN  namespace cc { namespace gfx { namespace math {
+#define CC_MATH_NAMESPACE_END    }}}
 
 CC_MATH_NAMESPACE_BEGIN
 

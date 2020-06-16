@@ -4,6 +4,7 @@
 #include "GLES2Buffer.h"
 
 namespace cc {
+namespace gfx {
 
 GLES2InputAssembler::GLES2InputAssembler(GFXDevice *device)
 : GFXInputAssembler(device) {
@@ -64,4 +65,5 @@ void GLES2InputAssembler::ExtractCmdDraw(GLES2CmdDraw *cmd) {
     cmd->draw_info.firstInstance = _firstInstance;
 }
 
-}
+} // namespace gfx
+} // namespace cc

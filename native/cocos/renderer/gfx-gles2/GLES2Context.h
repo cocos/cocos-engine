@@ -29,6 +29,7 @@
 #endif
 
 namespace cc {
+namespace gfx {
 
 class CC_GLES2_API GLES2Context : public GFXContext {
 public:
@@ -89,6 +90,7 @@ private:
     bool _isInitialized = false;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif // CC_GFXGLES2_GLES2_EGL_CONTEXT_H_

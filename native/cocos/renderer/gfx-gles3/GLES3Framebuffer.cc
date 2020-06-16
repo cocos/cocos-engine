@@ -6,6 +6,7 @@
 #include "GLES3Texture.h"
 
 namespace cc {
+namespace gfx {
 
 GLES3Framebuffer::GLES3Framebuffer(GFXDevice *device)
 : GFXFramebuffer(device) {
@@ -62,4 +63,5 @@ void GLES3Framebuffer::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-}
+} // namespace gfx
+} // namespace cc

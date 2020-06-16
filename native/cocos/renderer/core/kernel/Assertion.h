@@ -2,18 +2,19 @@
 #define CC_CORE_KERNEL_ASSERTION_H_
 
 namespace cc {
+namespace gfx {
 
 //#if defined(__GNUC__)
 #if 0
-#define LIKELY(x)   (__builtin_expect(!!(x), 1))
-#define UNLIKELY(x) (__builtin_expect(!!(x), 0))
+    #define LIKELY(x)   (__builtin_expect(!!(x), 1))
+    #define UNLIKELY(x) (__builtin_expect(!!(x), 0))
 #else
-#define LIKELY(x)   (x)
-#define UNLIKELY(x) (x)
+    #define LIKELY(x)   (x)
+    #define UNLIKELY(x) (x)
 #endif
 
-CC_CORE_API int  _ExecAssert(const char *condition, const char *fileName, int lineNumber, const char *formats, ...);
-CC_CORE_API void _ExecAssertOutput(const char *condition, const char *fileName, int lineNumber, const char* msg);
+CC_CORE_API int _ExecAssert(const char *condition, const char *fileName, int lineNumber, const char *formats, ...);
+CC_CORE_API void _ExecAssertOutput(const char *condition, const char *fileName, int lineNumber, const char *msg);
 
 //#if (CC_MODE == CC_MODE_DEBUG)
 //#   if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
@@ -27,6 +28,7 @@ CC_CORE_API void _ExecAssertOutput(const char *condition, const char *fileName, 
 
 //#define CCASSERT(x) CCASSERT(x, "%s", "")
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif // CC_CORE_KERNEL_ASSERTION_H_

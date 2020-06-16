@@ -4,6 +4,7 @@
 #include "GFXDef.h"
 
 namespace cc {
+namespace gfx {
 
 class CC_CORE_API GFXCommandBuffer : public GFXObject {
 public:
@@ -49,6 +50,7 @@ protected:
     uint32_t _numTriangles = 0;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif // CC_CORE_GFX_COMMAND_ALLOCATOR_H_

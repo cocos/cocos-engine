@@ -9,6 +9,7 @@
 #include "GLES3Texture.h"
 
 namespace cc {
+namespace gfx {
 
 GLES3CommandBuffer::GLES3CommandBuffer(GFXDevice *device)
 : GFXCommandBuffer(device) {
@@ -325,4 +326,5 @@ void GLES3CommandBuffer::BindStates() {
     _isStateInvalid = false;
 }
 
-}
+} // namespace gfx
+} // namespace cc

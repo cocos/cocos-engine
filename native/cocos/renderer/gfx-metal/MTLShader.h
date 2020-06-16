@@ -4,6 +4,7 @@
 #import <Metal/MTLRenderPipeline.h>
 
 namespace cc {
+namespace gfx {
 
 class CCMTLShader : public GFXShader {
 public:
@@ -43,4 +44,5 @@ private:
 #endif
 };
 
-}
+} // namespace gfx
+} // namespace cc

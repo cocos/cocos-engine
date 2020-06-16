@@ -5,6 +5,7 @@
 #include "VKGPUObjects.h"
 
 namespace cc {
+namespace gfx {
 
 CCVKFence::CCVKFence(GFXDevice *device)
 : GFXFence(device) {
@@ -45,4 +46,5 @@ void CCVKFence::reset() {
     VK_CHECK(vkResetFences(((CCVKDevice *)_device)->gpuDevice()->vkDevice, 1, &_gpuFence->vkFence));
 }
 
-}
+} // namespace gfx
+} // namespace cc

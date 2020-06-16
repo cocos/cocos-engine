@@ -19,6 +19,7 @@
 #include "GLES2Texture.h"
 
 namespace cc {
+namespace gfx {
 
 GLES2Device::GLES2Device() {
 }
@@ -304,4 +305,5 @@ void GLES2Device::copyBuffersToTexture(const GFXDataArray &buffers, GFXTexture *
     GLES2CmdFuncCopyBuffersToTexture(this, buffers.datas.data(), ((GLES2Texture *)dst)->gpuTexture(), regions);
 }
 
-}
+} // namespace gfx
+} // namespace cc

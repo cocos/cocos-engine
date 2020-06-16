@@ -3,6 +3,7 @@
 #include "GLES3Commands.h"
 
 namespace cc {
+namespace gfx {
 
 GLES3Texture::GLES3Texture(GFXDevice *device)
 : GFXTexture(device) {
@@ -118,4 +119,5 @@ void GLES3Texture::resize(uint width, uint height) {
     }
 }
 
-}
+} // namespace gfx
+} // namespace cc

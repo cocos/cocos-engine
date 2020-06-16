@@ -7,6 +7,7 @@
 #define BUFFER_OFFSET(idx) (static_cast<char *>(0) + (idx))
 
 namespace cc {
+namespace gfx {
 
 namespace {
 GLenum MapGLInternalFormat(GFXFormat format) {
@@ -2250,4 +2251,5 @@ void GLES2CmdFuncCopyBuffersToTexture(GLES2Device *device, uint8_t *const *buffe
     }
 }
 
-}
+} // namespace gfx
+} // namespace cc

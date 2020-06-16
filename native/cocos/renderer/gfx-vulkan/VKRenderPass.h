@@ -2,6 +2,7 @@
 #define CC_GFXVULKAN_CCVK_RENDER_PASS_H_
 
 namespace cc {
+namespace gfx {
 
 class CCVKGPURenderPass;
 
@@ -20,6 +21,7 @@ private:
     CCVKGPURenderPass *_gpuRenderPass = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

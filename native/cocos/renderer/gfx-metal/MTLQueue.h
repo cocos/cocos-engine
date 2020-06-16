@@ -4,6 +4,7 @@
 #import <MetalKit/MTKView.h>
 
 namespace cc {
+namespace gfx {
 
 class CCMTLCommandPackage;
 
@@ -17,7 +18,7 @@ public:
     virtual bool initialize(const GFXQueueInfo &info) override;
     virtual void destroy() override;
     virtual void submit(const vector<GFXCommandBuffer *>::type &cmdBuffs, GFXFence *fence) override;
-  
+
 private:
     CC_INLINE void executeCommands(const CCMTLCommandPackage *, id<MTLCommandBuffer> mtlCommandBuffer);
 
@@ -30,4 +31,5 @@ private:
     uint _numTriangles = 0;
 };
 
-}
+} // namespace gfx
+} // namespace cc

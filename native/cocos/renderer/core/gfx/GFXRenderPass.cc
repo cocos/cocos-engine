@@ -2,6 +2,7 @@
 #include "GFXRenderPass.h"
 
 namespace cc {
+namespace gfx {
 
 GFXRenderPass::GFXRenderPass(GFXDevice *device)
 : GFXObject(GFXObjectType::RENDER_PASS), _device(device) {
@@ -36,4 +37,5 @@ uint GFXRenderPass::computeHash() const {
     return seed;
 }
 
-}
+} // namespace gfx
+} // namespace cc

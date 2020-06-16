@@ -2,6 +2,7 @@
 #define CC_GFXGLES3_GLES3_TEXTURE_H_
 
 namespace cc {
+namespace gfx {
 
 class GLES3GPUTexture;
 
@@ -22,6 +23,7 @@ private:
     GLES3GPUTexture *_gpuTexture = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

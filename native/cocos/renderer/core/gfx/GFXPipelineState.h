@@ -4,6 +4,7 @@
 #include "GFXDef.h"
 
 namespace cc {
+namespace gfx {
 
 class CC_CORE_API GFXPipelineState : public GFXObject {
 public:
@@ -38,6 +39,7 @@ protected:
     GFXRenderPass *_renderPass = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif // CC_CORE_GFX_PIPELINE_STATE_H_

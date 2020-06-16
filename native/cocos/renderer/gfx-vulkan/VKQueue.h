@@ -2,6 +2,7 @@
 #define CC_GFXVULKAN_CCVK_QUEUE_H_
 
 namespace cc {
+namespace gfx {
 
 class CCVKGPUQueue;
 
@@ -28,6 +29,7 @@ private:
     uint _numTriangles = 0;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

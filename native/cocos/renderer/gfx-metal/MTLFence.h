@@ -1,6 +1,7 @@
 #pragma once
 
 namespace cc {
+namespace gfx {
 
 class CCMTLFence : public GFXFence {
 public:
@@ -15,4 +16,5 @@ public:
 private:
 };
 
-}
+} // namespace gfx
+} // namespace cc

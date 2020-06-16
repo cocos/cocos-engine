@@ -7,6 +7,7 @@
 #include "VKTexture.h"
 
 namespace cc {
+namespace gfx {
 
 CCVKFramebuffer::CCVKFramebuffer(GFXDevice *device)
 : GFXFramebuffer(device) {
@@ -57,4 +58,5 @@ void CCVKFramebuffer::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-}
+} // namespace gfx
+} // namespace cc

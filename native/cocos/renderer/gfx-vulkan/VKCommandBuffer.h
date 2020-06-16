@@ -4,6 +4,7 @@
 #include "VKCommands.h"
 
 namespace cc {
+namespace gfx {
 
 class CC_VULKAN_API CCVKCommandBuffer : public GFXCommandBuffer {
 public:
@@ -56,6 +57,7 @@ private:
     CCVKStencilCompareMask _curStencilCompareMask;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

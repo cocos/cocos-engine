@@ -4,6 +4,7 @@
 #include "GFXDef.h"
 
 namespace cc {
+namespace gfx {
 
 class CC_CORE_API GFXDevice : public Object {
 public:
@@ -106,6 +107,7 @@ protected:
     float _projectionSignY = 1.0f;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif // CC_CORE_GFX_DEVICE_H_

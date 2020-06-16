@@ -31,15 +31,17 @@ THE SOFTWARE.
 
 // premultiply alpha, or the effect will wrong when want to use other pixel format in Texture2D,
 // such as RGB888, RGB5A1
-#define CC_RGB_PREMULTIPLY_ALPHA(vr, vg, vb, va) \
-    (unsigned)(((unsigned)((unsigned char)(vr) * ((unsigned char)(va) + 1)) >> 8) | \
-    ((unsigned)((unsigned char)(vg) * ((unsigned char)(va) + 1) >> 8) << 8) | \
-    ((unsigned)((unsigned char)(vb) * ((unsigned char)(va) + 1) >> 8) << 16) | \
-    ((unsigned)(unsigned char)(va) << 24))
+#define CC_RGB_PREMULTIPLY_ALPHA(vr, vg, vb, va)                                          \
+    (unsigned)(((unsigned)((unsigned char)(vr) * ((unsigned char)(va) + 1)) >> 8) |       \
+               ((unsigned)((unsigned char)(vg) * ((unsigned char)(va) + 1) >> 8) << 8) |  \
+               ((unsigned)((unsigned char)(vb) * ((unsigned char)(va) + 1) >> 8) << 16) | \
+               ((unsigned)(unsigned char)(va) << 24))
 
 namespace cc {
 
+namespace gfx {
 enum class GFXFormat : unsigned int;
+} // namespace gfx
 
 /**
  * @addtogroup platform
@@ -49,15 +51,13 @@ enum class GFXFormat : unsigned int;
 /**
  @brief Structure which can tell where mipmap begins and how long is it
  */
-typedef struct _MipmapInfo
-{
-    unsigned char* address = nullptr;
+typedef struct _MipmapInfo {
+    unsigned char *address = nullptr;
     int offset = 0;
     int len = 0;
-}MipmapInfo;
+} MipmapInfo;
 
-class Image : public Ref
-{
+class Image : public Ref {
 public:
     /**
      * @js ctor
@@ -65,8 +65,7 @@ public:
     Image();
 
     /** Supported formats for Image */
-    enum class Format
-    {
+    enum class Format {
         //! JPEG
         JPG,
         //! PNG
@@ -88,17 +87,14 @@ public:
     struct PixelFormatInfo {
 
         PixelFormatInfo(int aBpp, bool aCompressed, bool anAlpha)
-        : bpp(aBpp)
-        , compressed(aCompressed)
-        , alpha(anAlpha)
-        {}
+        : bpp(aBpp), compressed(aCompressed), alpha(anAlpha) {}
 
         int bpp;
         bool compressed;
         bool alpha;
     };
 
-    typedef std::map<GFXFormat, const PixelFormatInfo> PixelFormatInfoMap;
+    typedef std::map<gfx::GFXFormat, const PixelFormatInfo> PixelFormatInfoMap;
 
     /**
      * Enables or disables premultiplied alpha for PNG files.
@@ -106,7 +102,7 @@ public:
      *  @param enabled (default: true)
      */
     static void setPNGPremultipliedAlphaEnabled(bool enabled) { PNG_PREMULTIPLIED_ALPHA_ENABLED = enabled; }
-    
+
     /** treats (or not) PVR files as if they have alpha premultiplied.
      Since it is impossible to know at runtime if the PVR images have the alpha channel premultiplied, it is
      possible load them as if they have (or not) the alpha channel premultiplied.
@@ -120,7 +116,7 @@ public:
     @param path   the absolute file path.
     @return true if loaded correctly.
     */
-    bool initWithImageFile(const std::string& path);
+    bool initWithImageFile(const std::string &path);
 
     /**
     @brief Load image from stream buffer.
@@ -130,25 +126,25 @@ public:
     * @js NA
     * @lua NA
     */
-    bool initWithImageData(const unsigned char * data, ssize_t dataLen);
+    bool initWithImageData(const unsigned char *data, ssize_t dataLen);
 
     // @warning kFmtRawData only support RGBA8888
-    bool initWithRawData(const unsigned char * data, ssize_t dataLen, int width, int height, int bitsPerComponent, bool preMulti = false);
+    bool initWithRawData(const unsigned char *data, ssize_t dataLen, int width, int height, int bitsPerComponent, bool preMulti = false);
 
     // Getters
-    inline unsigned char*    getData() const               { return _data; }
-    inline ssize_t           getDataLen() const            { return _dataLen; }
-    inline Format            getFileType() const           { return _fileType; }
-    inline GFXFormat         getRenderFormat() const       { return _renderFormat; }
-    inline int               getWidth() const              { return _width; }
-    inline int               getHeight() const             { return _height; }
-    inline int               getNumberOfMipmaps() const    { return _numberOfMipmaps; }
-    inline const MipmapInfo* getMipmaps() const            { return _mipmaps; }
-    inline bool              hasPremultipliedAlpha() const { return _hasPremultipliedAlpha; }
-    inline std::string       getFilePath() const           { return _filePath; }
+    inline unsigned char *getData() const { return _data; }
+    inline ssize_t getDataLen() const { return _dataLen; }
+    inline Format getFileType() const { return _fileType; }
+    inline gfx::GFXFormat getRenderFormat() const { return _renderFormat; }
+    inline int getWidth() const { return _width; }
+    inline int getHeight() const { return _height; }
+    inline int getNumberOfMipmaps() const { return _numberOfMipmaps; }
+    inline const MipmapInfo *getMipmaps() const { return _mipmaps; }
+    inline bool hasPremultipliedAlpha() const { return _hasPremultipliedAlpha; }
+    inline std::string getFilePath() const { return _filePath; }
 
-    bool                     hasAlpha() const;
-    bool                     isCompressed() const;
+    bool hasAlpha() const;
+    bool isCompressed() const;
 
     /**
      @brief    Save Image data to the specified file, with specified format.
@@ -158,17 +154,17 @@ public:
     bool saveToFile(const std::string &filename, bool isToRGB = true);
 
 protected:
-    bool initWithJpgData(const unsigned char *  data, ssize_t dataLen);
-    bool initWithPngData(const unsigned char * data, ssize_t dataLen);
-    bool initWithWebpData(const unsigned char * data, ssize_t dataLen);
-    bool initWithPVRData(const unsigned char * data, ssize_t dataLen);
-    bool initWithPVRv2Data(const unsigned char * data, ssize_t dataLen);
-    bool initWithPVRv3Data(const unsigned char * data, ssize_t dataLen);
-    bool initWithETCData(const unsigned char * data, ssize_t dataLen);
-    bool initWithETC2Data(const unsigned char * data, ssize_t dataLen);
+    bool initWithJpgData(const unsigned char *data, ssize_t dataLen);
+    bool initWithPngData(const unsigned char *data, ssize_t dataLen);
+    bool initWithWebpData(const unsigned char *data, ssize_t dataLen);
+    bool initWithPVRData(const unsigned char *data, ssize_t dataLen);
+    bool initWithPVRv2Data(const unsigned char *data, ssize_t dataLen);
+    bool initWithPVRv3Data(const unsigned char *data, ssize_t dataLen);
+    bool initWithETCData(const unsigned char *data, ssize_t dataLen);
+    bool initWithETC2Data(const unsigned char *data, ssize_t dataLen);
 
-    bool saveImageToPNG(const std::string& filePath, bool isToRGB = true);
-    bool saveImageToJPG(const std::string& filePath);
+    bool saveImageToPNG(const std::string &filePath, bool isToRGB = true);
+    bool saveImageToJPG(const std::string &filePath);
 
     void premultipliedAlpha();
 
@@ -187,8 +183,8 @@ protected:
     int _width = 0;
     int _height = 0;
     Format _fileType = Format::UNKNOWN;
-    GFXFormat _renderFormat;
-    MipmapInfo _mipmaps[MIPMAP_MAX];   // pointer to mipmap images
+    gfx::GFXFormat _renderFormat;
+    MipmapInfo _mipmaps[MIPMAP_MAX]; // pointer to mipmap images
     int _numberOfMipmaps = 0;
     // false if we can't auto detect the image is premultiplied or not.
     bool _hasPremultipliedAlpha = false;
@@ -196,12 +192,12 @@ protected:
 
 protected:
     // noncopyable
-    Image(const Image&) = delete;
-    Image& operator=(const Image&) = delete;
+    Image(const Image &) = delete;
+    Image &operator=(const Image &) = delete;
 
     // nonmoveable
-    Image(Image&&) = delete;
-    Image& operator=(Image&&) = delete;
+    Image(Image &&) = delete;
+    Image &operator=(Image &&) = delete;
 
     /**
      * @js NA
@@ -209,18 +205,18 @@ protected:
      */
     virtual ~Image();
 
-    Format detectFormat(const unsigned char * data, ssize_t dataLen);
-    bool isPng(const unsigned char * data, ssize_t dataLen);
-    bool isJpg(const unsigned char * data, ssize_t dataLen);
-    bool isWebp(const unsigned char * data, ssize_t dataLen);
-    bool isPvr(const unsigned char * data, ssize_t dataLen);
-    bool isEtc(const unsigned char * data, ssize_t dataLen);
-    bool isEtc2(const unsigned char * data, ssize_t dataLen);
+    Format detectFormat(const unsigned char *data, ssize_t dataLen);
+    bool isPng(const unsigned char *data, ssize_t dataLen);
+    bool isJpg(const unsigned char *data, ssize_t dataLen);
+    bool isWebp(const unsigned char *data, ssize_t dataLen);
+    bool isPvr(const unsigned char *data, ssize_t dataLen);
+    bool isEtc(const unsigned char *data, ssize_t dataLen);
+    bool isEtc2(const unsigned char *data, ssize_t dataLen);
 };
 
 // end of platform group
 /// @}
 
-}
+} // namespace cc
 
 /// @endcond

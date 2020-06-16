@@ -9,6 +9,7 @@
 #include "VKUtils.h"
 
 namespace cc {
+namespace gfx {
 
 namespace {
 
@@ -500,4 +501,5 @@ void CCVKContext::destroy() {
     }
 }
 
-}
+} // namespace gfx
+} // namespace cc

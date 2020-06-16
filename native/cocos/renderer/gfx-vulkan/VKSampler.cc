@@ -4,6 +4,7 @@
 #include "VKSampler.h"
 
 namespace cc {
+namespace gfx {
 
 CCVKSampler::CCVKSampler(GFXDevice *device)
 : GFXSampler(device) {
@@ -57,4 +58,5 @@ void CCVKSampler::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-}
+} // namespace gfx
+} // namespace cc

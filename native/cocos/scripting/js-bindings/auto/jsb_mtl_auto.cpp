@@ -10,12 +10,12 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
-se::Object* __jsb_cc_CCMTLDevice_proto = nullptr;
-se::Class* __jsb_cc_CCMTLDevice_class = nullptr;
+se::Object* __jsb_cc_gfx_CCMTLDevice_proto = nullptr;
+se::Class* __jsb_cc_gfx_CCMTLDevice_class = nullptr;
 
 static bool js_mtl_CCMTLDevice_getMTLDevice(se::State& s)
 {
-    cc::CCMTLDevice* cobj = (cc::CCMTLDevice*)s.nativeThisObject();
+    cc::gfx::CCMTLDevice* cobj = (cc::gfx::CCMTLDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_mtl_CCMTLDevice_getMTLDevice : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -33,7 +33,7 @@ SE_BIND_FUNC(js_mtl_CCMTLDevice_getMTLDevice)
 
 static bool js_mtl_CCMTLDevice_getMTKView(se::State& s)
 {
-    cc::CCMTLDevice* cobj = (cc::CCMTLDevice*)s.nativeThisObject();
+    cc::gfx::CCMTLDevice* cobj = (cc::gfx::CCMTLDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_mtl_CCMTLDevice_getMTKView : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -51,7 +51,7 @@ SE_BIND_FUNC(js_mtl_CCMTLDevice_getMTKView)
 
 static bool js_mtl_CCMTLDevice_getMaximumSamplerUnits(se::State& s)
 {
-    cc::CCMTLDevice* cobj = (cc::CCMTLDevice*)s.nativeThisObject();
+    cc::gfx::CCMTLDevice* cobj = (cc::gfx::CCMTLDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_mtl_CCMTLDevice_getMaximumSamplerUnits : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -69,7 +69,7 @@ SE_BIND_FUNC(js_mtl_CCMTLDevice_getMaximumSamplerUnits)
 
 static bool js_mtl_CCMTLDevice_getMaximumColorRenderTargets(se::State& s)
 {
-    cc::CCMTLDevice* cobj = (cc::CCMTLDevice*)s.nativeThisObject();
+    cc::gfx::CCMTLDevice* cobj = (cc::gfx::CCMTLDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_mtl_CCMTLDevice_getMaximumColorRenderTargets : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -87,7 +87,7 @@ SE_BIND_FUNC(js_mtl_CCMTLDevice_getMaximumColorRenderTargets)
 
 static bool js_mtl_CCMTLDevice_isIndirectCommandBufferSupported(se::State& s)
 {
-    cc::CCMTLDevice* cobj = (cc::CCMTLDevice*)s.nativeThisObject();
+    cc::gfx::CCMTLDevice* cobj = (cc::gfx::CCMTLDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_mtl_CCMTLDevice_isIndirectCommandBufferSupported : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -105,7 +105,7 @@ SE_BIND_FUNC(js_mtl_CCMTLDevice_isIndirectCommandBufferSupported)
 
 static bool js_mtl_CCMTLDevice_blitBuffer(se::State& s)
 {
-    cc::CCMTLDevice* cobj = (cc::CCMTLDevice*)s.nativeThisObject();
+    cc::gfx::CCMTLDevice* cobj = (cc::gfx::CCMTLDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_mtl_CCMTLDevice_blitBuffer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -128,38 +128,38 @@ static bool js_mtl_CCMTLDevice_blitBuffer(se::State& s)
 }
 SE_BIND_FUNC(js_mtl_CCMTLDevice_blitBuffer)
 
-SE_DECLARE_FINALIZE_FUNC(js_cc_CCMTLDevice_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_CCMTLDevice_finalize)
 
 static bool js_mtl_CCMTLDevice_constructor(se::State& s)
 {
-    cc::CCMTLDevice* cobj = JSB_ALLOC(cc::CCMTLDevice);
+    cc::gfx::CCMTLDevice* cobj = JSB_ALLOC(cc::gfx::CCMTLDevice);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_mtl_CCMTLDevice_constructor, __jsb_cc_CCMTLDevice_class, js_cc_CCMTLDevice_finalize)
+SE_BIND_CTOR(js_mtl_CCMTLDevice_constructor, __jsb_cc_gfx_CCMTLDevice_class, js_cc_gfx_CCMTLDevice_finalize)
 
 
 
-extern se::Object* __jsb_cc_GFXDevice_proto;
+extern se::Object* __jsb_cc_gfx_GFXDevice_proto;
 
-static bool js_cc_CCMTLDevice_finalize(se::State& s)
+static bool js_cc_gfx_CCMTLDevice_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::CCMTLDevice)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::CCMTLDevice)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cc::CCMTLDevice* cobj = (cc::CCMTLDevice*)s.nativeThisObject();
+        cc::gfx::CCMTLDevice* cobj = (cc::gfx::CCMTLDevice*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cc_CCMTLDevice_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_gfx_CCMTLDevice_finalize)
 
 bool js_register_mtl_CCMTLDevice(se::Object* obj)
 {
-    auto cls = se::Class::create("CCMTLDevice", obj, __jsb_cc_GFXDevice_proto, _SE(js_mtl_CCMTLDevice_constructor));
+    auto cls = se::Class::create("CCMTLDevice", obj, __jsb_cc_gfx_GFXDevice_proto, _SE(js_mtl_CCMTLDevice_constructor));
 
     cls->defineFunction("getMTLDevice", _SE(js_mtl_CCMTLDevice_getMTLDevice));
     cls->defineFunction("getMTKView", _SE(js_mtl_CCMTLDevice_getMTKView));
@@ -167,12 +167,12 @@ bool js_register_mtl_CCMTLDevice(se::Object* obj)
     cls->defineFunction("getMaximumColorRenderTargets", _SE(js_mtl_CCMTLDevice_getMaximumColorRenderTargets));
     cls->defineFunction("isIndirectCommandBufferSupported", _SE(js_mtl_CCMTLDevice_isIndirectCommandBufferSupported));
     cls->defineFunction("blitBuffer", _SE(js_mtl_CCMTLDevice_blitBuffer));
-    cls->defineFinalizeFunction(_SE(js_cc_CCMTLDevice_finalize));
+    cls->defineFinalizeFunction(_SE(js_cc_gfx_CCMTLDevice_finalize));
     cls->install();
-    JSBClassType::registerClass<cc::CCMTLDevice>(cls);
+    JSBClassType::registerClass<cc::gfx::CCMTLDevice>(cls);
 
-    __jsb_cc_CCMTLDevice_proto = cls->getProto();
-    __jsb_cc_CCMTLDevice_class = cls;
+    __jsb_cc_gfx_CCMTLDevice_proto = cls->getProto();
+    __jsb_cc_gfx_CCMTLDevice_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;

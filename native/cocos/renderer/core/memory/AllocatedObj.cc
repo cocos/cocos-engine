@@ -3,6 +3,7 @@
 #include "AllocatedObj.h"
 
 namespace cc {
+namespace gfx {
 
 /*
  The problem is that operator new/delete are *implicitly* static. We have to
@@ -12,4 +13,5 @@ namespace cc {
 
 template class AllocatedObject<GAP>;
 
-}
+} // namespace gfx
+} // namespace cc

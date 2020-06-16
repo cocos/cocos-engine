@@ -4,6 +4,7 @@
 #include "GFXDef.h"
 
 namespace cc {
+namespace gfx {
 
 class CC_CORE_API GFXSampler : public GFXObject {
 public:
@@ -46,6 +47,7 @@ protected:
     float _mipLODBias = 0.0f;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif // CC_CORE_GFX_SAMPLER_H_

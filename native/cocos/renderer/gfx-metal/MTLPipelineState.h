@@ -7,6 +7,7 @@
 #import <Metal/MTLDepthStencil.h>
 
 namespace cc {
+namespace gfx {
 
 class CCMTLPipelineState : public GFXPipelineState {
 public:
@@ -35,4 +36,5 @@ private:
     CCMTLGPUPipelineState *_GPUPipelieState = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc

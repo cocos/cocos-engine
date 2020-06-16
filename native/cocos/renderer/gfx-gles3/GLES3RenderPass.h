@@ -2,6 +2,7 @@
 #define CC_GFXGLES3_GLES3_RENDER_PASS_H_
 
 namespace cc {
+namespace gfx {
 
 class GLES3GPURenderPass;
 
@@ -20,6 +21,7 @@ private:
     GLES3GPURenderPass *_gpuRenderPass = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

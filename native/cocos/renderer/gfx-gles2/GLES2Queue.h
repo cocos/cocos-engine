@@ -2,6 +2,7 @@
 #define CC_GFXGLES2_GLES2_QUEUE_H_
 
 namespace cc {
+namespace gfx {
 
 class CC_GLES2_API GLES2Queue : public GFXQueue {
 public:
@@ -24,6 +25,7 @@ private:
     uint _numTriangles = 0;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

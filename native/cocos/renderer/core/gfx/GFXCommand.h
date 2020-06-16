@@ -1,6 +1,7 @@
 #pragma once
 
 namespace cc {
+namespace gfx {
 
 enum class GFXCmdType : uint8_t {
     BEGIN_RENDER_PASS,
@@ -23,4 +24,5 @@ public:
     virtual void clear() = 0;
 };
 
-}
+} // namespace gfx
+} // namespace cc

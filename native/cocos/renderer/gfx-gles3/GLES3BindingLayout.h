@@ -2,6 +2,7 @@
 #define CC_GFXGLES3_GLES3_BINDING_LAYOUT_H_
 
 namespace cc {
+namespace gfx {
 
 class GLES3GPUBindingLayout;
 
@@ -21,6 +22,7 @@ private:
     GLES3GPUBindingLayout *_gpuBindingLayout = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

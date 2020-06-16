@@ -1,6 +1,7 @@
 #pragma once
 
 namespace cc {
+namespace gfx {
 
 class CCMTLCommandPackage;
 class CCMTLCommandAllocator;
@@ -64,4 +65,5 @@ private:
     std::array<bool, DYNAMIC_STATE_SIZE> _dynamicStateDirty = {false, false, false, false, false, false, false, false};
 };
 
-}
+} // namespace gfx
+} // namespace cc

@@ -6,6 +6,7 @@
 #include "GLES2Texture.h"
 
 namespace cc {
+namespace gfx {
 
 GLES2BindingLayout::GLES2BindingLayout(GFXDevice *device)
 : GFXBindingLayout(device) {
@@ -78,4 +79,5 @@ void GLES2BindingLayout::update() {
     }
 }
 
-}
+} // namespace gfx
+} // namespace cc

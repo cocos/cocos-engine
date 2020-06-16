@@ -7,18 +7,18 @@ namespace pipeline {
 
 class InstancedBuffer;
 
-class CC_DLL RenderInstancedQueue : public cc::Object {
+class CC_DLL RenderInstancedQueue : public gfx::Object {
 public:
     RenderInstancedQueue() = default;
     ~RenderInstancedQueue() = default;
 
     void clear();
-    void recordCommandBuffer(cc::GFXDevice *, cc::GFXRenderPass *, cc::GFXCommandBuffer *);
+    void recordCommandBuffer(gfx::GFXDevice *, gfx::GFXRenderPass *, gfx::GFXCommandBuffer *);
 
-    CC_INLINE const cc::set<InstancedBuffer *>::type &getQueue() const { return _queue; }
+    CC_INLINE const gfx::set<InstancedBuffer *>::type &getQueue() const { return _queue; }
 
 private:
-    cc::set<InstancedBuffer *>::type _queue;
+    gfx::set<InstancedBuffer *>::type _queue;
 };
 
 } // namespace pipeline

@@ -3,6 +3,7 @@
 #import <Metal/MTLSampler.h>
 
 namespace cc {
+namespace gfx {
 
 class CCMTLSampler : public GFXSampler {
 public:
@@ -18,4 +19,5 @@ private:
     id<MTLSamplerState> _mtlSamplerState = nil;
 };
 
-}
+} // namespace gfx
+} // namespace cc

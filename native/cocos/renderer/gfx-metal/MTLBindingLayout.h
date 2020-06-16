@@ -1,6 +1,7 @@
 #pragma once
 
 namespace cc {
+namespace gfx {
 
 class CCMTLBindingLayout : public GFXBindingLayout {
 public:
@@ -12,4 +13,5 @@ public:
     virtual void update() override;
 };
 
-}
+} // namespace gfx
+} // namespace cc

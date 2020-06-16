@@ -1,10 +1,11 @@
 #ifndef CC_GFXVULKAN_SPIRV_H_
-    #define CC_GFXVULKAN_SPIRV_H_
+#define CC_GFXVULKAN_SPIRV_H_
 
-    #include "SPIRV/GlslangToSpv.h"
-    #include "glslang/Public/ShaderLang.h"
+#include "SPIRV/GlslangToSpv.h"
+#include "glslang/Public/ShaderLang.h"
 
 namespace cc {
+namespace gfx {
 
 namespace {
 EShLanguage getShaderStage(GFXShaderType type) {
@@ -193,8 +194,10 @@ const vector<unsigned int>::type GLSL2SPIRV(GFXShaderType type, const String &so
 
     return std::move(spirv);
 }
+
 } // namespace
 
-#endif
+} // namespace gfx
+} // namespace cc
 
-}
+#endif

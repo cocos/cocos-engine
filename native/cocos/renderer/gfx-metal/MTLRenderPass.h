@@ -5,6 +5,7 @@
 #import <Metal/MTLTexture.h>
 
 namespace cc {
+namespace gfx {
 
 class GFXTextureView;
 
@@ -27,4 +28,5 @@ private:
     size_t _colorRenderTargetNums = 0;
 };
 
-}
+} // namespace gfx
+} // namespace cc

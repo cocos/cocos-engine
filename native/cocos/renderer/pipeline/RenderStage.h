@@ -3,17 +3,18 @@
 #include "Define.h"
 
 namespace cc {
-class GFXFramebuffer;
-}
 
-namespace cc {
+namespace gfx {
+class GFXFramebuffer;
+} // namespace gfx
+
 namespace pipeline {
 
 class RenderFlow;
 class RenderPipeline;
 class RenderView;
 
-class CC_DLL RenderStage : public cc::Object {
+class CC_DLL RenderStage : public gfx::Object {
 public:
     RenderStage() = default;
     virtual ~RenderStage() = default;
@@ -38,12 +39,12 @@ public:
     CC_INLINE RenderFlow *getFlow() const { return _flow; }
     CC_INLINE RenderPipeline *getPipeline() const { return _pipeline; }
     CC_INLINE int getPriority() const { return _priority; }
-    CC_INLINE cc::GFXFramebuffer *getFrameBuffer() const { return _frameBuffer; }
+    CC_INLINE gfx::GFXFramebuffer *getFrameBuffer() const { return _frameBuffer; }
 
 protected:
     RenderFlow *_flow = nullptr;
     RenderPipeline *_pipeline = nullptr;
-    cc::GFXFramebuffer *_frameBuffer = nullptr;
+    gfx::GFXFramebuffer *_frameBuffer = nullptr;
     int _priority = 0;
 };
 

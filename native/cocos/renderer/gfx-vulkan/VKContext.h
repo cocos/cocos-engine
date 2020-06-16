@@ -2,6 +2,7 @@
 #define CC_GFXVULKAN_CCVK_CONTEXT_H_
 
 namespace cc {
+namespace gfx {
 
 class CCVKDevice;
 class CCVKGPUDevice;
@@ -41,6 +42,7 @@ private:
     vector<const char *>::type _extensions;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif // CC_GFXVULKAN_CCVK_CONTEXT_H_

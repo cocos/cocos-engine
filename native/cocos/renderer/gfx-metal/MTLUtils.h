@@ -8,8 +8,8 @@
 #import <Metal/MTLVertexDescriptor.h>
 #include <unordered_map>
 
-
 namespace cc {
+namespace gfx {
 
 namespace mu {
 MTLResourceOptions toMTLResourseOption(GFXMemoryUsage usage);
@@ -61,6 +61,8 @@ bool isLinearTextureSupported(uint family);
 bool isIndirectCommandBufferSupported(MTLFeatureSet featureSet);
 bool isDepthStencilFormatSupported(GFXFormat format, uint family);
 String featureSetToString(MTLFeatureSet featureSet);
+
 } // namespace mu
 
-}
+} // namespace gfx
+} // namespace cc

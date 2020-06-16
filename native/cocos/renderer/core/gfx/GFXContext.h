@@ -4,6 +4,7 @@
 #include "GFXDef.h"
 
 namespace cc {
+namespace gfx {
 
 class CC_CORE_API GFXContext : public Object {
 public:
@@ -30,6 +31,7 @@ protected:
     GFXFormat _depthStencilFmt = GFXFormat::UNKNOWN;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif // CC_CORE_GFX_CONTEXT_H_

@@ -2,6 +2,7 @@
 #define CC_GFXGLES3_GLES3_INPUT_ASSEMBLER_H_
 
 namespace cc {
+namespace gfx {
 
 class GLES3GPUInputAssembler;
 class GLES3CmdDraw;
@@ -23,6 +24,7 @@ private:
     GLES3GPUInputAssembler *_gpuInputAssembler = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

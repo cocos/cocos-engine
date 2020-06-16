@@ -6,6 +6,7 @@
 #include <vector>
 
 namespace cc {
+namespace gfx {
 namespace {
 const TBuiltInResource DefaultTBuiltInResource = {
     /* .MaxLights = */ 32,
@@ -1247,4 +1248,5 @@ String featureSetToString(MTLFeatureSet featureSet) {
 
 } //namespace mu
 
-}
+} // namespace gfx
+} // namespace cc

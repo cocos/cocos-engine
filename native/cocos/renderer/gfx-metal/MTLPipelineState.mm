@@ -14,6 +14,7 @@
 #import <Metal/MTLVertexDescriptor.h>
 
 namespace cc {
+namespace gfx {
 
 CCMTLPipelineState::CCMTLPipelineState(GFXDevice *device) : GFXPipelineState(device) {}
 CCMTLPipelineState::~CCMTLPipelineState() { destroy(); }
@@ -252,4 +253,5 @@ bool CCMTLPipelineState::createMTLRenderPipeline(MTLRenderPipelineDescriptor *de
     return true;
 }
 
-}
+} // namespace gfx
+} // namespace cc

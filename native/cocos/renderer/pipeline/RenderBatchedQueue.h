@@ -7,18 +7,18 @@ namespace pipeline {
 
 class BatchedBuffer;
 
-class CC_DLL RenderBatchedQueue : public cc::Object {
+class CC_DLL RenderBatchedQueue : public gfx::Object {
 public:
     RenderBatchedQueue() = default;
     ~RenderBatchedQueue() = default;
 
     void clear();
-    void recordCommandBuffer(cc::GFXDevice *, cc::GFXRenderPass *, cc::GFXCommandBuffer *);
+    void recordCommandBuffer(gfx::GFXDevice *, gfx::GFXRenderPass *, gfx::GFXCommandBuffer *);
 
-    CC_INLINE const cc::set<BatchedBuffer *>::type &getQueue() const { return _queue; }
+    CC_INLINE const gfx::set<BatchedBuffer *>::type &getQueue() const { return _queue; }
 
 private:
-    cc::set<BatchedBuffer *>::type _queue;
+    gfx::set<BatchedBuffer *>::type _queue;
 };
 
 } // namespace pipeline

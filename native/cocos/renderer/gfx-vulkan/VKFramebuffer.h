@@ -2,6 +2,7 @@
 #define CC_GFXVULKAN_CCVK_FRAMEBUFFER_H_
 
 namespace cc {
+namespace gfx {
 
 class CCVKGPUFramebuffer;
 
@@ -20,6 +21,7 @@ private:
     CCVKGPUFramebuffer *_gpuFBO = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

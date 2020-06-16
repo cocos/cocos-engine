@@ -4,9 +4,10 @@
 #import <QuartzCore/CAEAGLLayer.h>
 #import <UIKit/UIScreen.h>
 
-namespace cc {
-
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+
+namespace cc {
+namespace gfx {
 
 bool GLES3Context::initialize(const GFXContextInfo &info)
 {
@@ -193,6 +194,7 @@ bool GLES3Context::MakeCurrentImpl()
   return [EAGLContext setCurrentContext:(EAGLContext*)_eaglContext];
 }
 
-#endif
+} // namespace gfx
+} // namespace cc
 
-}
+#endif

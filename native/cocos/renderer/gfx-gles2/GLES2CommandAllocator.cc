@@ -2,6 +2,7 @@
 #include "GLES2CommandAllocator.h"
 
 namespace cc {
+namespace gfx {
 
 GLES2CommandAllocator::GLES2CommandAllocator(GFXDevice *device)
 : GFXCommandAllocator(device) {
@@ -39,4 +40,5 @@ void GLES2CommandAllocator::clearCmds(GLES2CmdPackage *cmd_package) {
     cmd_package->cmds.clear();
 }
 
-}
+} // namespace gfx
+} // namespace cc

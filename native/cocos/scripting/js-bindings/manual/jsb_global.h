@@ -31,7 +31,7 @@
 #include <type_traits>
 
 template<typename T, class ... Args>
-typename std::enable_if<std::is_base_of<cc::Object, T>::value, T>::type*
+typename std::enable_if<std::is_base_of<cc::gfx::Object, T>::value, T>::type*
 jsb_override_new(Args &&... args)
 {
     //create object in gfx way
@@ -39,7 +39,7 @@ jsb_override_new(Args &&... args)
 }
 
 template<typename T>
-typename std::enable_if<std::is_base_of<cc::Object, T>::value, void>::type
+typename std::enable_if<std::is_base_of<cc::gfx::Object, T>::value, void>::type
 jsb_override_delete(T* arg)
 {
     //create object in gfx way
@@ -47,7 +47,7 @@ jsb_override_delete(T* arg)
 }
 
 template<typename T, class ... Args>
-typename std::enable_if<!std::is_base_of<cc::Object, T>::value, T>::type*
+typename std::enable_if<!std::is_base_of<cc::gfx::Object, T>::value, T>::type*
 jsb_override_new(Args &&... args)
 {
     //create object in the default way
@@ -55,7 +55,7 @@ jsb_override_new(Args &&... args)
 }
 
 template<typename T>
-typename std::enable_if<!std::is_base_of<cc::Object, T>::value, void>::type
+typename std::enable_if<!std::is_base_of<cc::gfx::Object, T>::value, void>::type
 jsb_override_delete(T* arg)
 {
     //create object in gfx way

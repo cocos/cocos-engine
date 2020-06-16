@@ -1,7 +1,7 @@
 #pragma once
 
 namespace cc {
-
+namespace gfx {
 
 class CCMTLContext : public GFXContext {
 public:
@@ -13,4 +13,5 @@ public:
     void present() override{};
 };
 
-}
+} // namespace gfx
+} // namespace cc

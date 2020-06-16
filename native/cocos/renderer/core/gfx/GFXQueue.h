@@ -4,6 +4,7 @@
 #include "GFXDef.h"
 
 namespace cc {
+namespace gfx {
 
 class CC_CORE_API GFXQueue : public GFXObject {
 public:
@@ -24,6 +25,7 @@ protected:
     GFXQueueType _type = GFXQueueType::GRAPHICS;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif // CC_CORE_GFX_QUEUE_H_

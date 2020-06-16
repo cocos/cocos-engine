@@ -2,6 +2,7 @@
 #define CC_GFXGLES2_GLES2_SAMPLER_H_
 
 namespace cc {
+namespace gfx {
 
 class GLES2GPUSampler;
 
@@ -33,6 +34,7 @@ private:
     float _mipLODBias = 0.0f;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

@@ -2,6 +2,7 @@
 #include "GFXContext.h"
 
 namespace cc {
+namespace gfx {
 
 GFXContext::GFXContext(GFXDevice *device)
 : _device(device) {
@@ -10,4 +11,5 @@ GFXContext::GFXContext(GFXDevice *device)
 GFXContext::~GFXContext() {
 }
 
-}
+} // namespace gfx
+} // namespace cc

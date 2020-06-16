@@ -5,6 +5,7 @@
 #include "VKInputAssembler.h"
 
 namespace cc {
+namespace gfx {
 
 CCVKInputAssembler::CCVKInputAssembler(GFXDevice *device)
 : GFXInputAssembler(device) {
@@ -59,4 +60,5 @@ void CCVKInputAssembler::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-}
+} // namespace gfx
+} // namespace cc

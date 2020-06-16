@@ -4,6 +4,7 @@
 #include "GFXDef.h"
 
 namespace cc {
+namespace gfx {
 
 class CC_CORE_API GFXBindingLayout : public GFXObject {
 public:
@@ -28,6 +29,7 @@ protected:
     bool _isDirty = false;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif // CC_CORE_GFX_BINDING_LAYOUT_H_

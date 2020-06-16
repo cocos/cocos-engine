@@ -2,6 +2,7 @@
 #define CC_GFXVULKAN_CCVK_INPUT_ASSEMBLER_H_
 
 namespace cc {
+namespace gfx {
 
 class CCVKGPUInputAssembler;
 
@@ -20,6 +21,7 @@ private:
     CCVKGPUInputAssembler *_gpuInputAssembler = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

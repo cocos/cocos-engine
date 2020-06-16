@@ -5,6 +5,7 @@
 #include "MTLTexture.h"
 
 namespace cc {
+namespace gfx {
 
 CCMTLFramebuffer::CCMTLFramebuffer(GFXDevice *device) : GFXFramebuffer(device) {}
 CCMTLFramebuffer::~CCMTLFramebuffer() { destroy(); }
@@ -46,4 +47,5 @@ void CCMTLFramebuffer::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-}
+} // namespace gfx
+} // namespace cc

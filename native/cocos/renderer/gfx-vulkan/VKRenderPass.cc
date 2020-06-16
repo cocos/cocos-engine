@@ -4,6 +4,7 @@
 #include "VKRenderPass.h"
 
 namespace cc {
+namespace gfx {
 
 CCVKRenderPass::CCVKRenderPass(GFXDevice *device)
 : GFXRenderPass(device) {
@@ -39,4 +40,5 @@ void CCVKRenderPass::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-}
+} // namespace gfx
+} // namespace cc

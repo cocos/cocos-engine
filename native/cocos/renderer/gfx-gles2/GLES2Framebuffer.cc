@@ -6,6 +6,7 @@
 #include "GLES2Texture.h"
 
 namespace cc {
+namespace gfx {
 
 GLES2Framebuffer::GLES2Framebuffer(GFXDevice *device)
 : GFXFramebuffer(device) {
@@ -20,7 +21,7 @@ bool GLES2Framebuffer::initialize(const GFXFramebufferInfo &info) {
     _colorTextures = info.colorTextures;
     _depthStencilTexture = info.depthStencilTexture;
     _isOffscreen = info.isOffscreen;
-    
+
     if (info.depthStencilMipmapLevel != 0) {
         CC_LOG_WARNING("Mipmap level of depth stencil attachment should be 0 in GLES2. Convert to 0.");
     }
@@ -71,4 +72,5 @@ void GLES2Framebuffer::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-}
+} // namespace gfx
+} // namespace cc

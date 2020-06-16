@@ -4,21 +4,18 @@
 #include "GLES3GPUObjects.h"
 
 namespace cc {
+namespace gfx {
 
-GLES3Fence::GLES3Fence(GFXDevice* device)
-    : GFXFence(device)
-{
+GLES3Fence::GLES3Fence(GFXDevice *device)
+: GFXFence(device) {
 }
 
-GLES3Fence::~GLES3Fence()
-{
+GLES3Fence::~GLES3Fence() {
 }
 
-bool GLES3Fence::initialize(const GFXFenceInfo &info)
-{
+bool GLES3Fence::initialize(const GFXFenceInfo &info) {
     _gpuFence = CC_NEW(GLES3GPUFence);
-    if (!_gpuFence)
-    {
+    if (!_gpuFence) {
         CC_LOG_ERROR("GLES2Fence: CC_NEW GLES3GPUFence failed.");
         return false;
     }
@@ -29,10 +26,8 @@ bool GLES3Fence::initialize(const GFXFenceInfo &info)
     return true;
 }
 
-void GLES3Fence::destroy()
-{
-    if (_gpuFence)
-    {
+void GLES3Fence::destroy() {
+    if (_gpuFence) {
         // TODO
 
         CC_DELETE(_gpuFence);
@@ -41,14 +36,13 @@ void GLES3Fence::destroy()
     _status = GFXStatus::UNREADY;
 }
 
-void GLES3Fence::wait()
-{
+void GLES3Fence::wait() {
     // TODO
 }
 
-void GLES3Fence::reset()
-{
+void GLES3Fence::reset() {
     // TODO
 }
 
-}
+} // namespace gfx
+} // namespace cc

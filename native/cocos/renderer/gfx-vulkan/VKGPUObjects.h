@@ -4,6 +4,7 @@
 #include "VKUtils.h"
 
 namespace cc {
+namespace gfx {
 
 class CCVKGPUContext : public Object {
 public:
@@ -317,6 +318,7 @@ private:
     vector<VkFence>::type _fences;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

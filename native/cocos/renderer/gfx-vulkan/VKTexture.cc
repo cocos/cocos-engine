@@ -4,6 +4,7 @@
 #include "VKTexture.h"
 
 namespace cc {
+namespace gfx {
 
 CCVKTexture::CCVKTexture(GFXDevice *device)
 : GFXTexture(device) {
@@ -167,4 +168,5 @@ void CCVKTexture::resize(uint width, uint height) {
     _status = GFXStatus::UNREADY;
 }
 
-}
+} // namespace gfx
+} // namespace cc

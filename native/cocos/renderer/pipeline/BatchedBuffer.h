@@ -10,7 +10,7 @@ class SubModel;
 namespace cc {
 namespace pipeline {
 
-class CC_DLL BatchedBuffer : public cc::Object {
+class CC_DLL BatchedBuffer : public gfx::Object {
 public:
     BatchedBuffer(cc::Pass *pass);
     ~BatchedBuffer() = default;

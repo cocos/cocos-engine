@@ -2,6 +2,7 @@
 #define CC_GFXVULKAN_CCVK_TEXTURE_H_
 
 namespace cc {
+namespace gfx {
 
 class CCVKGPUTexture;
 class CCVKGPUTextureView;
@@ -27,6 +28,7 @@ private:
     CCVKGPUTextureView *_gpuTextureView = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

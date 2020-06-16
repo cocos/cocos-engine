@@ -5,6 +5,7 @@
 #include "MTLUtils.h"
 
 namespace cc {
+namespace gfx {
 
 CCMTLRenderPass::CCMTLRenderPass(GFXDevice *device) : GFXRenderPass(device) {}
 CCMTLRenderPass::~CCMTLRenderPass() { destroy(); }
@@ -77,4 +78,5 @@ void CCMTLRenderPass::setDepthStencilAttachment(id<MTLTexture> texture, int leve
     _status = GFXStatus::SUCCESS;
 }
 
-}
+} // namespace gfx
+} // namespace cc

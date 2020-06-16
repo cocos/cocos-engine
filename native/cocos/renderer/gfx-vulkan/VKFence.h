@@ -2,6 +2,7 @@
 #define CC_GFXVULKAN_CCVK_FENCE_H_
 
 namespace cc {
+namespace gfx {
 
 class CCVKGPUFence;
 
@@ -22,6 +23,7 @@ private:
     CCVKGPUFence *_gpuFence = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

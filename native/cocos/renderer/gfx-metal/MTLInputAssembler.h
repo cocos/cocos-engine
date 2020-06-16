@@ -1,6 +1,7 @@
 #pragma once
 
 namespace cc {
+namespace gfx {
 
 class CCMTLCmdDraw;
 class CCMTLGPUInputAssembler;
@@ -23,4 +24,5 @@ private:
     CCMTLGPUInputAssembler *_GPUInputAssembler = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc

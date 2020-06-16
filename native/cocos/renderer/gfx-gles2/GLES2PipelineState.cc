@@ -6,6 +6,7 @@
 #include "GLES2PipelineLayout.h"
 
 namespace cc {
+namespace gfx {
 
 const GLenum GLES2Primitives[] = {
     GL_POINTS,
@@ -67,4 +68,5 @@ void GLES2PipelineState::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-}
+} // namespace gfx
+} // namespace cc

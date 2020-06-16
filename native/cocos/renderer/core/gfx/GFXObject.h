@@ -3,6 +3,7 @@
 #include "GFXDef.h"
 
 namespace cc {
+namespace gfx {
 
 class GFXObject : public Object {
 public:
@@ -17,4 +18,5 @@ protected:
     GFXStatus _status = GFXStatus::UNREADY;
 };
 
-}
+} // namespace gfx
+} // namespace cc

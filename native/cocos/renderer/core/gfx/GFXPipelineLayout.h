@@ -4,6 +4,7 @@
 #include "GFXDef.h"
 
 namespace cc {
+namespace gfx {
 
 class CC_CORE_API GFXPipelineLayout : public GFXObject {
 public:
@@ -24,6 +25,7 @@ protected:
     GFXBindingLayoutList _layouts;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif // CC_CORE_GFX_PIPELINE_LAYOUT_H_

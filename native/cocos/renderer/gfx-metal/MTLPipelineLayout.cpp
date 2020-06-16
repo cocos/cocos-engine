@@ -2,6 +2,7 @@
 #include "MTLPipelineLayout.h"
 
 namespace cc {
+namespace gfx {
 
 CCMTLPipelineLayout::CCMTLPipelineLayout(GFXDevice *device) : GFXPipelineLayout(device) {}
 CCMTLPipelineLayout::~CCMTLPipelineLayout() { destroy(); }
@@ -18,4 +19,5 @@ void CCMTLPipelineLayout::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-}
+} // namespace gfx
+} // namespace cc

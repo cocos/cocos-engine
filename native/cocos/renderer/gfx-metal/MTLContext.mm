@@ -3,10 +3,10 @@
 #include "MTLContext.h"
 #include "MTLDevice.h"
 
-
 #import <MetalKit/MTKView.h>
 
 namespace cc {
+namespace gfx {
 
 namespace {
 GFXFormat toGFXFormat(MTLPixelFormat format) {
@@ -39,4 +39,5 @@ bool CCMTLContext::initialize(const GFXContextInfo &info) {
     return true;
 }
 
-} // end of namespace cc
+} // namespace gfx
+} // namespace cc

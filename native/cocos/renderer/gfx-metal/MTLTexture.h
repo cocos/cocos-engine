@@ -3,6 +3,7 @@
 #import <Metal/MTLTexture.h>
 
 namespace cc {
+namespace gfx {
 
 class CCMTLTexture : public GFXTexture {
     friend class CCMTLDevice;
@@ -30,4 +31,5 @@ private:
     GFXFormat _convertedFormat = GFXFormat::UNKNOWN;
 };
 
-}
+} // namespace gfx
+} // namespace cc

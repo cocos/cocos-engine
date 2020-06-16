@@ -2,6 +2,7 @@
 #include "GFXSampler.h"
 
 namespace cc {
+namespace gfx {
 
 GFXSampler::GFXSampler(GFXDevice *device)
 : GFXObject(GFXObjectType::SAMPLER), _device(device) {
@@ -14,4 +15,5 @@ GFXSampler::GFXSampler(GFXDevice *device)
 GFXSampler::~GFXSampler() {
 }
 
-}
+} // namespace gfx
+} // namespace cc

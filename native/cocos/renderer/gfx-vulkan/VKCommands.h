@@ -4,6 +4,7 @@
 #include "VKGPUObjects.h"
 
 namespace cc {
+namespace gfx {
 
 class CCVKDevice;
 
@@ -64,6 +65,7 @@ CC_VULKAN_API void CCVKCmdFuncDestroyPipelineState(CCVKDevice *device, CCVKGPUPi
 
 CC_VULKAN_API void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, uint8_t *const *buffers, CCVKGPUTexture *gpuTexture, const GFXBufferTextureCopyList &regions);
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

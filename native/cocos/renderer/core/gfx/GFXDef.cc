@@ -2,6 +2,7 @@
 #include "GFXDef.h"
 
 namespace cc {
+namespace gfx {
 
 const GFXFormatInfo GFX_FORMAT_INFOS[] = {
     {"UNKNOWN", 0, 0, GFXFormatType::NONE, false, false, false, false},
@@ -207,4 +208,5 @@ uint GFXFormatSurfaceSize(GFXFormat format, uint width, uint height, uint depth,
     return size;
 }
 
-}
+} // namespace gfx
+} // namespace cc

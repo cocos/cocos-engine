@@ -4,6 +4,7 @@
 #include "VKCommands.h"
 
 namespace cc {
+namespace gfx {
 
 CCVKBuffer::CCVKBuffer(GFXDevice *device)
 : GFXBuffer(device) {
@@ -91,4 +92,5 @@ void CCVKBuffer::update(void *buffer, uint offset, uint size) {
     CCVKCmdFuncUpdateBuffer((CCVKDevice *)_device, _gpuBuffer, buffer, offset, size);
 }
 
-}
+} // namespace gfx
+} // namespace cc

@@ -4,6 +4,7 @@
 #include "GLES2Commands.h"
 
 namespace cc {
+namespace gfx {
 
 class GLES2CommandAllocator;
 
@@ -59,6 +60,7 @@ private:
     bool _isStateInvalid = false;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

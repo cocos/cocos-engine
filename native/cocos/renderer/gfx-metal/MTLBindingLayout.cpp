@@ -2,6 +2,7 @@
 #include "MTLBindingLayout.h"
 
 namespace cc {
+namespace gfx {
 
 CCMTLBindingLayout::CCMTLBindingLayout(GFXDevice *device) : GFXBindingLayout(device) {}
 CCMTLBindingLayout::~CCMTLBindingLayout() { destroy(); }
@@ -30,4 +31,5 @@ void CCMTLBindingLayout::destroy() {
 void CCMTLBindingLayout::update() {
 }
 
-}
+} // namespace gfx
+} // namespace cc

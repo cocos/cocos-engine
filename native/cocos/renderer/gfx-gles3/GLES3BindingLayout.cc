@@ -6,6 +6,7 @@
 #include "GLES3Texture.h"
 
 namespace cc {
+namespace gfx {
 
 GLES3BindingLayout::GLES3BindingLayout(GFXDevice *device)
 : GFXBindingLayout(device) {
@@ -65,7 +66,7 @@ void GLES3BindingLayout::update() {
                 }
                 case GFXBindingType::SAMPLER: {
                     if (bindingUnit.texture) {
-                        _gpuBindingLayout->gpuBindings[i].gpuTexture = ((GLES3Texture*)bindingUnit.texture)->gpuTexture();
+                        _gpuBindingLayout->gpuBindings[i].gpuTexture = ((GLES3Texture *)bindingUnit.texture)->gpuTexture();
                     }
                     if (bindingUnit.sampler) {
                         _gpuBindingLayout->gpuBindings[i].gpuSampler = ((GLES3Sampler *)bindingUnit.sampler)->gpuSampler();
@@ -79,4 +80,5 @@ void GLES3BindingLayout::update() {
     }
 }
 
-}
+} // namespace gfx
+} // namespace cc

@@ -2,6 +2,7 @@
 #define CC_GFXVULKAN_CCVK_BUFFER_H_
 
 namespace cc {
+namespace gfx {
 
 class CCVKGPUBuffer;
 
@@ -22,6 +23,7 @@ private:
     CCVKGPUBuffer *_gpuBuffer = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

@@ -3,6 +3,7 @@
 #include "GLES3Commands.h"
 
 namespace cc {
+namespace gfx {
 
 GLES3Buffer::GLES3Buffer(GFXDevice *device)
 : GFXBuffer(device) {
@@ -107,4 +108,5 @@ void GLES3Buffer::update(void *buffer, uint offset, uint size) {
     GLES3CmdFuncUpdateBuffer((GLES3Device *)_device, _gpuBuffer, buffer, offset, size);
 }
 
-}
+} // namespace gfx
+} // namespace cc

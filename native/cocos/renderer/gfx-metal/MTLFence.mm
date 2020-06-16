@@ -4,6 +4,7 @@
 #include "MTLFence.h"
 
 namespace cc {
+namespace gfx {
 
 CCMTLFence::CCMTLFence(GFXDevice *device) : GFXFence(device) {}
 
@@ -32,4 +33,5 @@ void CCMTLFence::reset() {
     // TODO
 }
 
-}
+} // namespace gfx
+} // namespace cc

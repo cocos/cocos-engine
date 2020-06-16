@@ -2,6 +2,7 @@
 #define CC_GFXGLES3_GLES3_FRAMEBUFFER_H_
 
 namespace cc {
+namespace gfx {
 
 class GLES3GPUFramebuffer;
 
@@ -20,6 +21,7 @@ private:
     GLES3GPUFramebuffer *_gpuFBO = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

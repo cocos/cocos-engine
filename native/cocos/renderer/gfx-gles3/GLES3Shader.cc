@@ -3,6 +3,7 @@
 #include "GLES3Commands.h"
 
 namespace cc {
+namespace gfx {
 
 GLES3Shader::GLES3Shader(GFXDevice *device)
 : GFXShader(device) {
@@ -44,4 +45,5 @@ void GLES3Shader::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-}
+} // namespace gfx
+} // namespace cc

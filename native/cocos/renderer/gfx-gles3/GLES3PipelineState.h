@@ -2,6 +2,7 @@
 #define CC_GFXGLES3_GLES3_PIPELINE_STATE_H_
 
 namespace cc {
+namespace gfx {
 
 class GLES3GPUPipelineState;
 
@@ -20,6 +21,7 @@ private:
     GLES3GPUPipelineState *_gpuPipelineState = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

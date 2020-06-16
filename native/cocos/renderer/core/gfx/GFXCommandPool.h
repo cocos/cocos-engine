@@ -3,6 +3,7 @@
 #include "GFXCommand.h"
 
 namespace cc {
+namespace gfx {
 
 #define INITIAL_CAPACITY 1
 
@@ -85,4 +86,5 @@ private:
     int _freeIdx = 0;
 };
 
-}
+} // namespace gfx
+} // namespace cc

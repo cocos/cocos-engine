@@ -3,6 +3,7 @@
 #include "GLES2Commands.h"
 
 namespace cc {
+namespace gfx {
 
 GLES2RenderPass::GLES2RenderPass(GFXDevice *device)
 : GFXRenderPass(device) {
@@ -35,4 +36,5 @@ void GLES2RenderPass::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-}
+} // namespace gfx
+} // namespace cc

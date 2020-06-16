@@ -5,6 +5,7 @@
 #import <Metal/MTLRenderCommandEncoder.h>
 
 namespace cc {
+namespace gfx {
 
 class CCMTLBuffer : public GFXBuffer {
 public:
@@ -37,4 +38,5 @@ private:
     uint8_t *_bufferBytes = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc

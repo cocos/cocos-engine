@@ -6,6 +6,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 namespace cc {
+namespace gfx {
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
 
@@ -185,4 +186,5 @@ bool GLES2Context::MakeCurrentImpl() {
 
 #endif
 
-}
+} // namespace gfx
+} // namespace cc

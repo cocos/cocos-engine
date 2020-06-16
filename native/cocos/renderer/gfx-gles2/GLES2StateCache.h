@@ -4,6 +4,7 @@
 #include "gles2w.h"
 
 namespace cc {
+namespace gfx {
 
 class GLES2StateCache : public Object {
 public:
@@ -31,6 +32,7 @@ public:
     GLES2StateCache() {}
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

@@ -4,6 +4,7 @@
 #include "GLES3GPUObjects.h"
 
 namespace cc {
+namespace gfx {
 
 class GLES3Device;
 
@@ -168,6 +169,7 @@ CC_GLES3_API void GLES3CmdFuncDestroyFramebuffer(GLES3Device *device, GLES3GPUFr
 CC_GLES3_API void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmd_package);
 CC_GLES3_API void GLES3CmdFuncCopyBuffersToTexture(GLES3Device *device, uint8_t *const *buffers, GLES3GPUTexture *gpuTexture, const GFXBufferTextureCopyList &regions);
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

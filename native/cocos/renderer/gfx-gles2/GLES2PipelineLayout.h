@@ -2,6 +2,7 @@
 #define CC_GFXGLES2_GLES2_PIPELINE_LAYOUT_H_
 
 namespace cc {
+namespace gfx {
 
 class GLES2GPUPipelineLayout;
 
@@ -20,6 +21,7 @@ private:
     GLES2GPUPipelineLayout *_gpuPipelineLayout = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

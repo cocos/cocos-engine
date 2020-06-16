@@ -4,6 +4,7 @@
 #include "MTLBuffer.h"
 #include "MTLCommandAllocator.h"
 #include "MTLCommandBuffer.h"
+#include "MTLContext.h"
 #include "MTLDevice.h"
 #include "MTLFence.h"
 #include "MTLFrameBuffer.h"
@@ -17,12 +18,12 @@
 #include "MTLStateCache.h"
 #include "MTLTexture.h"
 #include "MTLUtils.h"
-#include "MTLContext.h"
 #include <platform/mac/CCView.h>
 
 #import <MetalKit/MTKView.h>
 
 namespace cc {
+namespace gfx {
 
 CCMTLDevice::CCMTLDevice() {}
 CCMTLDevice::~CCMTLDevice() {}
@@ -38,9 +39,9 @@ bool CCMTLDevice::initialize(const GFXDeviceInfo &info) {
 
     _stateCache = CC_NEW(CCMTLStateCache);
 
-    _mtkView = (MTKView*)_windowHandle;
-    _mtlDevice = ((MTKView*)_mtkView).device;
-    
+    _mtkView = (MTKView *)_windowHandle;
+    _mtlDevice = ((MTKView *)_mtkView).device;
+
     GFXContextInfo contextCreateInfo;
     contextCreateInfo.windowHandle = _windowHandle;
     contextCreateInfo.sharedCtx = info.sharedCtx;
@@ -302,4 +303,5 @@ void CCMTLDevice::blitBuffer(void *srcData, uint offset, uint size, void *dstBuf
     [commandBuffer commit];
 }
 
-}
+} // namespace gfx
+} // namespace cc

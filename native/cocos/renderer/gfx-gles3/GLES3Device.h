@@ -2,6 +2,7 @@
 #define CC_GFXGLES3_GLES3_DEVICE_H_
 
 namespace cc {
+namespace gfx {
 
 class GLES3StateCache;
 
@@ -51,6 +52,7 @@ private:
     bool _useVAO = true;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif

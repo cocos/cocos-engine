@@ -12,6 +12,7 @@
 // #define CC_GFX_DEBUG
 
 namespace cc {
+namespace gfx {
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
 
@@ -458,4 +459,5 @@ bool GLES3Context::CheckExtension(const String &extension) const {
     return (std::find(_extensions.begin(), _extensions.end(), extension) != _extensions.end());
 }
 
-}
+} // namespace gfx
+} // namespace cc

@@ -6,6 +6,7 @@
 #include "MTLInputAssembler.h"
 
 namespace cc {
+namespace gfx {
 
 CCMTLInputAssembler::CCMTLInputAssembler(GFXDevice *device) : GFXInputAssembler(device) {}
 CCMTLInputAssembler::~CCMTLInputAssembler() { destroy(); }
@@ -54,4 +55,5 @@ void CCMTLInputAssembler::extractDrawInfo(CCMTLCmdDraw *cmd) const {
     cmd->drawInfo.firstInstance = _firstInstance;
 }
 
-}
+} // namespace gfx
+} // namespace cc

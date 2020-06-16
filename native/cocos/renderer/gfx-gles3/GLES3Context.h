@@ -2,33 +2,34 @@
 #define CC_GFXGLES3_GLES3_EGL_CONTEXT_H_
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-#ifdef __OBJC__
-#include <OpenGLES/EAGL.h>
-#endif
+    #ifdef __OBJC__
+        #include <OpenGLES/EAGL.h>
+    #endif
 #else
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
-#include <EGL/eglplatform.h>
+    #include <EGL/egl.h>
+    #include <EGL/eglext.h>
+    #include <EGL/eglplatform.h>
 #endif
 
 #ifndef EGL_KHR_create_context
-#define EGL_KHR_create_context 1
-#define EGL_CONTEXT_MAJOR_VERSION_KHR EGL_CONTEXT_CLIENT_VERSION
-#define EGL_CONTEXT_MINOR_VERSION_KHR 0x30FB
-#define EGL_CONTEXT_FLAGS_KHR 0x30FC
-#define EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR 0x30FD
-#define EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY_KHR 0x31BD
-#define EGL_NO_RESET_NOTIFICATION_KHR 0x31BE
-#define EGL_LOSE_CONTEXT_ON_RESET_KHR 0x31BF
-#define EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR 0x00000001
-#define EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE_BIT_KHR 0x00000002
-#define EGL_CONTEXT_OPENGL_ROBUST_ACCESS_BIT_KHR 0x00000004
-#define EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR 0x00000001
-#define EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT_KHR 0x00000002
-#define EGL_OPENGL_ES3_BIT_KHR 0x00000040
+    #define EGL_KHR_create_context                             1
+    #define EGL_CONTEXT_MAJOR_VERSION_KHR                      EGL_CONTEXT_CLIENT_VERSION
+    #define EGL_CONTEXT_MINOR_VERSION_KHR                      0x30FB
+    #define EGL_CONTEXT_FLAGS_KHR                              0x30FC
+    #define EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR                0x30FD
+    #define EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY_KHR 0x31BD
+    #define EGL_NO_RESET_NOTIFICATION_KHR                      0x31BE
+    #define EGL_LOSE_CONTEXT_ON_RESET_KHR                      0x31BF
+    #define EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR                   0x00000001
+    #define EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE_BIT_KHR      0x00000002
+    #define EGL_CONTEXT_OPENGL_ROBUST_ACCESS_BIT_KHR           0x00000004
+    #define EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR            0x00000001
+    #define EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT_KHR   0x00000002
+    #define EGL_OPENGL_ES3_BIT_KHR                             0x00000040
 #endif
 
 namespace cc {
+namespace gfx {
 
 class CC_GLES3_API GLES3Context : public GFXContext {
 public:
@@ -39,7 +40,7 @@ public:
     virtual bool initialize(const GFXContextInfo &info) override;
     virtual void destroy() override;
     virtual void present() override;
-    
+
     bool MakeCurrent();
     bool CheckExtension(const String &extension) const;
 
@@ -88,6 +89,7 @@ private:
     bool _isInitialized = false;
 };
 
-}
+} // namespace gfx
+} // namespace cc
 
 #endif // CC_GFXGLES3_GLES3_EGL_CONTEXT_H_

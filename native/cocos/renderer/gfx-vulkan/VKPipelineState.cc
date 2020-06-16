@@ -7,6 +7,7 @@
 #include "VKShader.h"
 
 namespace cc {
+namespace gfx {
 
 CCVKPipelineState::CCVKPipelineState(GFXDevice *device)
 : GFXPipelineState(device) {
@@ -53,4 +54,5 @@ void CCVKPipelineState::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-}
+} // namespace gfx
+} // namespace cc

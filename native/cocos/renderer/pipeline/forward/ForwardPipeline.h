@@ -16,17 +16,17 @@ public:
     virtual void rebuild() override;
     virtual void updateUBOs(RenderView *view) override;
     virtual void sceneCulling() override;
-    virtual cc::vector<float>::type &getLightIndices() const override;
-    virtual cc::vector<float>::type &getLightIndexOffsets() const override;
-    virtual cc::vector<cc::GFXBuffer *>::type &getLightBuffers() const override;
+    virtual gfx::vector<float>::type &getLightIndices() const override;
+    virtual gfx::vector<float>::type &getLightIndexOffsets() const override;
+    virtual gfx::vector<gfx::GFXBuffer *>::type &getLightBuffers() const override;
 
-    CC_INLINE cc::GFXBuffer *getLightsUBO() { return _lightsUBO; }
+    CC_INLINE gfx::GFXBuffer *getLightsUBO() { return _lightsUBO; }
 
 private:
     void cullLightPerModel(cc::Model *model);
 
 private:
-    cc::GFXBuffer *_lightsUBO = nullptr;
+    gfx::GFXBuffer *_lightsUBO = nullptr;
 };
 
 } // namespace pipeline

@@ -4,6 +4,7 @@
 #include "MTLCommands.h"
 
 namespace cc {
+namespace gfx {
 
 CCMTLCommandAllocator::CCMTLCommandAllocator(GFXDevice *device) : GFXCommandAllocator(device) {}
 CCMTLCommandAllocator::~CCMTLCommandAllocator() { destroy(); }
@@ -37,4 +38,5 @@ void CCMTLCommandAllocator::clearCommands(CCMTLCommandPackage *commandPackage) {
     commandPackage->commandTypes.clear();
 }
 
-}
+} // namespace gfx
+} // namespace cc

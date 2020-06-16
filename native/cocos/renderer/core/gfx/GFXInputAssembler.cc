@@ -2,6 +2,7 @@
 #include "GFXInputAssembler.h"
 
 namespace cc {
+namespace gfx {
 
 GFXInputAssembler::GFXInputAssembler(GFXDevice *device)
 : GFXObject(GFXObjectType::INPUT_ASSEMBLER), _device(device) {
@@ -35,4 +36,5 @@ uint GFXInputAssembler::computeAttributesHash() const {
     return seed;
 }
 
-}
+} // namespace gfx
+} // namespace cc

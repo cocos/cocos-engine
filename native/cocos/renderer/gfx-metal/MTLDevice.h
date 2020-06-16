@@ -1,6 +1,7 @@
 #pragma once
 
 namespace cc {
+namespace gfx {
 
 class CCMTLStateCache;
 
@@ -50,4 +51,5 @@ private:
     void *_blitedBuffer = nullptr;
 };
 
-}
+} // namespace gfx
+} // namespace cc

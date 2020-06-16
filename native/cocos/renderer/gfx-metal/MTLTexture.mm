@@ -6,6 +6,7 @@
 #include <platform/mac/CCView.h>
 
 namespace cc {
+namespace gfx {
 
 namespace {
 uint8_t *convertData(uint8_t *source, uint length, GFXFormat type) {
@@ -271,4 +272,5 @@ void CCMTLTexture::generateMipmaps() {
     [mtlCommandBuffer commit];
 }
 
-}
+} // namespace gfx
+} // namespace cc
