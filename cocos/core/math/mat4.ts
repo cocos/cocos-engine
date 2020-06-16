@@ -2000,9 +2000,9 @@ export class Mat4 extends ValueType {
      * @param scale scale
      */
     public setScale (scale: Vec3) {
-        this.m00 = scale.x;
-        this.m05 = scale.y;
-        this.m10 = scale.z;
+        this.m12 = scale.x;
+        this.m13 = scale.y;
+        this.m14 = scale.z;
     }
 
     /**

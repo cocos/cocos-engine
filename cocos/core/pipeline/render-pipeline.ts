@@ -17,7 +17,7 @@ import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
-import { Mat4, Vec2, Vec3, Vec4, color, lerp, clamp } from '../math';
+import { Mat4, Vec2, Vec3, Vec4, color, lerp, clamp, Quat } from '../math';
 import { Camera, Model, Light } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
@@ -31,10 +31,21 @@ import { FrameBufferDesc, RenderFlowType, RenderPassDesc, RenderTextureDesc } fr
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
-import { ShadowMapFlow } from './shadowMap/shadowMap-flow'
-import { ShadowCamera } from './shadowCamera';
+import { ShadowMapFlow } from './shadowMap/shadowMap-flow';
 
 const v3_1 = new Vec3();
+const shadowCamera_W_P = new Vec3();
+const shadowCamera_W_R = new Quat();
+const shadowCamera_W_S = new Vec3();
+const shadowCamera_W_T = new Mat4();
+const shadowCamera_M_V = new Mat4();
+const shadowCamera_M_P = new Mat4();
+
+// Define shadwoMapCamera
+const shadowCamera_Near = 0.1;
+const shadowCamera_Far = 1000.0;
+const shadowCamera_Fov = 45.0;
+const shadowCamera_Aspect = 1.0;
 
 /**
  * @zh
@@ -334,7 +345,6 @@ export abstract class RenderPipeline {
     protected _macros: IDefineMap = {};
     protected _useDynamicBatching = false;
     protected _shadowView: RenderView|null = null;
-    protected _shadowCamera: ShadowCamera = new ShadowCamera();
     protected _texAdjust: Mat4 = new Mat4();
     protected _offset: Vec3 = new Vec3();
     protected _scale: Vec3 = new Vec3();
@@ -588,13 +598,16 @@ export abstract class RenderPipeline {
         const device = this._root.device;
 
         const mainLight = scene.mainLight;
-        if (this._isShadow) {
-            this._shadowCamera.setWorldPosition(mainLight?.direction.negative().multiplyScalar(this._shadowCamera.farClip));
-            this._shadowCamera.setWorldRotation(mainLight?.node?.getWorldRotation());
-            this._shadowCamera.setWorldScale(mainLight?.node?.getWorldScale());
+        if (this._isShadow && mainLight) {
+            shadowCamera_W_P.set(mainLight.direction.negative().multiplyScalar(shadowCamera_Far));
+            shadowCamera_W_R.set(mainLight.node!.getWorldRotation());
+            shadowCamera_W_S.set(mainLight.node!.getWorldScale());
 
-            this._shadowCamera.updateWorldTransform();
-            this._shadowCamera.update();
+            Mat4.fromRTS(shadowCamera_W_T, shadowCamera_W_R, shadowCamera_W_P, shadowCamera_W_S);
+
+            Mat4.invert(shadowCamera_M_V, shadowCamera_W_T);
+
+            Mat4.perspective(shadowCamera_M_P, shadowCamera_Fov, shadowCamera_Aspect, shadowCamera_Near, shadowCamera_Far);
         }
 
         const ambient = scene.ambient;
@@ -655,8 +668,8 @@ export abstract class RenderPipeline {
 
             {
                 // shadowCamera
-                const nearClip = camera.nearClip;
-                const farClip = camera.farClip;
+                const nearClip = shadowCamera_Near;
+                const farClip = shadowCamera_Far;
                 const q = farClip / (farClip / nearClip);
                 const r = -q * nearClip;
 
@@ -1213,8 +1226,6 @@ export abstract class RenderPipeline {
     }
 
     private calculateShadowMatrix () : Mat4|undefined {
-        const shadowView  = this._shadowCamera.matView;
-        const shadowProj = this._shadowCamera.matProj;
         if (!this._isShadow) {
             return new Mat4();
         }
@@ -1224,14 +1235,15 @@ export abstract class RenderPipeline {
 
         this._offset.set(this._viewport.x / width, this._viewport.y / height, 0.0);
 
-        this._scale.set(
-            0.5 * this._viewport.x / width,
-            0.5 * this._viewport.y / height,
-            1.0);
+        // this._scale.set(
+        //     0.5 * this._viewport.x / width,
+        //     0.5 * this._viewport.y / height,
+        //     1.0);
+        this._scale.set(1.0, 1.0, 1.0);
         this._texAdjust.setTranslation(this._offset);
         this._texAdjust.setScale(this._scale);
 
-        return this._texAdjust.multiply(shadowProj).multiply(shadowView);
+        return this._texAdjust.multiply(shadowCamera_M_P).multiply(shadowCamera_M_V);
     }
 }
 legacyCC.RenderPipeline = RenderPipeline;
