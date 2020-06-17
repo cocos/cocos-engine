@@ -42,7 +42,7 @@ export interface IEventified {
      *     cc.log("fire in the hole");
      * }, node);
      */
-    on<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any): typeof callback;
+    on<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean): typeof callback;
 
     /**
      * @en
