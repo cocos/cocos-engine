@@ -31,22 +31,32 @@ bool GLES2Texture::initialize(const GFXTextureInfo &info) {
     switch (_format) { // device feature validation
         case GFXFormat::D16:
             if (_device->hasFeature(GFXFeature::FORMAT_D16)) break;
-            CC_LOG_ERROR("D16 texture format is not supported on this backend"); return false;
+            CC_LOG_ERROR("D16 texture format is not supported on this backend");
+            return false;
         case GFXFormat::D16S8:
             if (_device->hasFeature(GFXFeature::FORMAT_D16S8)) break;
-            CC_LOG_WARNING("D16S8 texture format is not supported on this backend"); return false;
+            CC_LOG_WARNING("D16S8 texture format is not supported on this backend");
+            return false;
         case GFXFormat::D24:
             if (_device->hasFeature(GFXFeature::FORMAT_D24)) break;
-            CC_LOG_WARNING("D24 texture format is not supported on this backend"); return false;
+            CC_LOG_WARNING("D24 texture format is not supported on this backend");
+            return false;
         case GFXFormat::D24S8:
             if (_device->hasFeature(GFXFeature::FORMAT_D24S8)) break;
-            CC_LOG_WARNING("D24S8 texture format is not supported on this backend"); return false;
+            CC_LOG_WARNING("D24S8 texture format is not supported on this backend");
+            return false;
         case GFXFormat::D32F:
             if (_device->hasFeature(GFXFeature::FORMAT_D32F)) break;
-            CC_LOG_WARNING("D32F texture format is not supported on this backend"); return false;
+            CC_LOG_WARNING("D32F texture format is not supported on this backend");
+            return false;
         case GFXFormat::D32F_S8:
             if (_device->hasFeature(GFXFeature::FORMAT_D32FS8)) break;
-            CC_LOG_WARNING("D32FS8 texture format is not supported on this backend"); return false;
+            CC_LOG_WARNING("D32FS8 texture format is not supported on this backend");
+            return false;
+        case GFXFormat::RGB8:
+            if (_device->hasFeature(GFXFeature::FORMAT_RGB8)) break;
+            CC_LOG_WARNING("RGB8 texture format is not supported on this backend");
+            return false;
     }
 #endif
 

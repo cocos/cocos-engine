@@ -245,8 +245,10 @@ void CCVKCmdFuncCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
 
     VmaAllocationInfo res;
     VK_CHECK(vmaCreateBuffer(device->gpuDevice()->memoryAllocator, &bufferInfo, &allocInfo, &gpuBuffer->vkBuffer, &gpuBuffer->vmaAllocation, &res));
-    //CC_LOG_DEBUG("Allocated buffer: %llu, %llx %llx %llu", res.size, gpuBuffer->vkBuffer, res.deviceMemory, res.offset);
+    //CC_LOG_DEBUG("Allocated buffer: %llu, %llx %llx %llu %x", res.size, gpuBuffer->vkBuffer, res.deviceMemory, res.offset, res.pMappedData);
+
     gpuBuffer->mappedData = (uint8_t *)res.pMappedData;
+    gpuBuffer->startOffset = 0; // we are creating one VkBuffer each for now
 }
 
 void CCVKCmdFuncDestroyBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
@@ -318,7 +320,7 @@ bool CCVKCmdFuncCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
 
     VmaAllocationInfo res;
     VK_CHECK(vmaCreateImage(device->gpuDevice()->memoryAllocator, &createInfo, &allocInfo, &gpuTexture->vkImage, &gpuTexture->vmaAllocation, &res));
-    //CC_LOG_DEBUG("Allocated texture: %llu %llx %llx %llu", res.size, gpuTexture->vkImage, res.deviceMemory, res.offset);
+    //CC_LOG_DEBUG("Allocated texture: %llu %llx %llx %llu %x", res.size, gpuTexture->vkImage, res.deviceMemory, res.offset, res.pMappedData);
 
     gpuTexture->currentLayout = MapVkImageLayout(gpuTexture->usage, gpuTexture->format);
     gpuTexture->accessMask = MapVkAccessFlags(gpuTexture->usage, gpuTexture->format);
