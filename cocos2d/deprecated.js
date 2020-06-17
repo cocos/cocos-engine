@@ -633,6 +633,9 @@ if (CC_DEBUG) {
         rgb2hsv: 'color.toHSV()',
         hsv2rgb: 'color.fromHSV(h, s, v)'
     });
+    markFunctionWarning(cc.Color, {
+        fromHex: 'cc.Color.fromHEX',
+    })
 
     // macro functions
     js.get(cc, 'lerp', function () {
