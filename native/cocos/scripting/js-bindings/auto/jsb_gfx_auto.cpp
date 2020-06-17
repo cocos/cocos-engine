@@ -7755,34 +7755,6 @@ static bool js_gfx_GFXFramebufferInfo_set_colorTextures(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXFramebufferInfo_set_colorTextures)
 
-static bool js_gfx_GFXFramebufferInfo_get_colorMipmapLevels(se::State& s)
-{
-    cc::gfx::GFXFramebufferInfo* cobj = (cc::gfx::GFXFramebufferInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebufferInfo_get_colorMipmapLevels : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= std_vector_int_to_seval(cobj->colorMipmapLevels, &jsret);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_GFXFramebufferInfo_get_colorMipmapLevels)
-
-static bool js_gfx_GFXFramebufferInfo_set_colorMipmapLevels(se::State& s)
-{
-    const auto& args = s.args();
-    cc::gfx::GFXFramebufferInfo* cobj = (cc::gfx::GFXFramebufferInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebufferInfo_set_colorMipmapLevels : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    std::vector<int> arg0;
-    ok &= seval_to_std_vector(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXFramebufferInfo_set_colorMipmapLevels : Error processing new value");
-    cobj->colorMipmapLevels = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_GFXFramebufferInfo_set_colorMipmapLevels)
-
 static bool js_gfx_GFXFramebufferInfo_get_depthStencilTexture(se::State& s)
 {
     cc::gfx::GFXFramebufferInfo* cobj = (cc::gfx::GFXFramebufferInfo*)s.nativeThisObject();
@@ -7900,29 +7872,23 @@ static bool js_gfx_GFXFramebufferInfo_constructor(se::State& s)
             ok &= seval_to_std_vector(field, &arg1);
             cobj->colorTextures = arg1;
         }
-        std::vector<int> arg2;
-        json->getProperty("colorMipmapLevels", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_std_vector(field, &arg2);
-            cobj->colorMipmapLevels = arg2;
-        }
-        cc::gfx::GFXTexture* arg3 = nullptr;
+        cc::gfx::GFXTexture* arg2 = nullptr;
         json->getProperty("depthStencilTexture", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_native_ptr(field, &arg3);
-            cobj->depthStencilTexture = arg3;
+            ok &= seval_to_native_ptr(field, &arg2);
+            cobj->depthStencilTexture = arg2;
         }
-        int arg4 = 0;
+        int arg3 = 0;
         json->getProperty("depthStencilMipmapLevel", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (int)tmp; } while(false);
-            cobj->depthStencilMipmapLevel = arg4;
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (int)tmp; } while(false);
+            cobj->depthStencilMipmapLevel = arg3;
         }
-        bool arg5;
+        bool arg4;
         json->getProperty("isOffscreen", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_boolean(field, &arg5);
-            cobj->isOffscreen = arg5;
+            ok &= seval_to_boolean(field, &arg4);
+            cobj->isOffscreen = arg4;
         }
 
         if(!ok) {
@@ -7935,7 +7901,7 @@ static bool js_gfx_GFXFramebufferInfo_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 6)
+    else if(argc == 5)
     {
         cc::gfx::GFXFramebufferInfo* cobj = JSB_ALLOC(cc::gfx::GFXFramebufferInfo);
         cc::gfx::GFXRenderPass* arg0 = nullptr;
@@ -7948,25 +7914,20 @@ static bool js_gfx_GFXFramebufferInfo_constructor(se::State& s)
             ok &= seval_to_std_vector(args[1], &arg1);
             cobj->colorTextures = arg1;
         }
-        std::vector<int> arg2;
+        cc::gfx::GFXTexture* arg2 = nullptr;
         if (!args[2].isUndefined()) {
-            ok &= seval_to_std_vector(args[2], &arg2);
-            cobj->colorMipmapLevels = arg2;
+            ok &= seval_to_native_ptr(args[2], &arg2);
+            cobj->depthStencilTexture = arg2;
         }
-        cc::gfx::GFXTexture* arg3 = nullptr;
+        int arg3 = 0;
         if (!args[3].isUndefined()) {
-            ok &= seval_to_native_ptr(args[3], &arg3);
-            cobj->depthStencilTexture = arg3;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (int)tmp; } while(false);
+            cobj->depthStencilMipmapLevel = arg3;
         }
-        int arg4 = 0;
+        bool arg4;
         if (!args[4].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (int)tmp; } while(false);
-            cobj->depthStencilMipmapLevel = arg4;
-        }
-        bool arg5;
-        if (!args[5].isUndefined()) {
-            ok &= seval_to_boolean(args[5], &arg5);
-            cobj->isOffscreen = arg5;
+            ok &= seval_to_boolean(args[4], &arg4);
+            cobj->isOffscreen = arg4;
         }
 
         if(!ok) {
@@ -8008,7 +7969,6 @@ bool js_register_gfx_GFXFramebufferInfo(se::Object* obj)
 
     cls->defineProperty("renderPass", _SE(js_gfx_GFXFramebufferInfo_get_renderPass), _SE(js_gfx_GFXFramebufferInfo_set_renderPass));
     cls->defineProperty("colorTextures", _SE(js_gfx_GFXFramebufferInfo_get_colorTextures), _SE(js_gfx_GFXFramebufferInfo_set_colorTextures));
-    cls->defineProperty("colorMipmapLevels", _SE(js_gfx_GFXFramebufferInfo_get_colorMipmapLevels), _SE(js_gfx_GFXFramebufferInfo_set_colorMipmapLevels));
     cls->defineProperty("depthStencilTexture", _SE(js_gfx_GFXFramebufferInfo_get_depthStencilTexture), _SE(js_gfx_GFXFramebufferInfo_set_depthStencilTexture));
     cls->defineProperty("depthStencilMipmapLevel", _SE(js_gfx_GFXFramebufferInfo_get_depthStencilMipmapLevel), _SE(js_gfx_GFXFramebufferInfo_set_depthStencilMipmapLevel));
     cls->defineProperty("isOffscreen", _SE(js_gfx_GFXFramebufferInfo_get_isOffscreen), _SE(js_gfx_GFXFramebufferInfo_set_isOffscreen));
