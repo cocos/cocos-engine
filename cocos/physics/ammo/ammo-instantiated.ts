@@ -1,7 +1,7 @@
 
-import AmmoClosure from '@cocos/ammo';
+import AmmoClosure, * as AmmoJs from '@cocos/ammo';
 
-let Ammo!: typeof AmmoClosure;
+const Ammo: typeof AmmoClosure = {} as any;
 
 /**
  * `'@cocos/ammo'` exports an async namespace. Let's call it `Ammo`.
@@ -33,13 +33,25 @@ export { Ammo as default }; // Note: should not use `export default Ammo` since 
  * await thisFunction();
  * ```
  * before `'cc.physics-ammo'` can be imported;
+ * @param wasmBinary The .wasm file, if any.
  */
-export function waitForAmmoInstantiation () {
+export function waitForAmmoInstantiation (wasmBinary?: ArrayBuffer) {
+    // `this` needed by ammo closure.
     const ammoClosureThis: { Ammo: typeof import('@cocos/ammo') } = { } as any;
+    if (typeof wasmBinary !== 'undefined') {
+        // See https://emscripten.org/docs/compiling/WebAssembly.html#wasm-files-and-compilation
+        Ammo['wasmBinary'] = wasmBinary;
+    }
     return new Promise<void>((resolve, reject) => {
-        AmmoClosure.call(ammoClosureThis).then(() => {
-            Ammo = ammoClosureThis.Ammo;
+        (AmmoClosure as any).call(ammoClosureThis, Ammo).then(() => {
             resolve();
         });
     });
+}
+
+export namespace waitForAmmoInstantiation {
+    /**
+     * True if the `'@cocos/ammo'` is the WebAssembly edition.
+     */
+    export const isWasm = 'isWasm' in AmmoJs;
 }
