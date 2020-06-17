@@ -586,6 +586,7 @@ export class Game extends EventTarget {
             legacyCC.internal.SplashScreen.instance.main(legacyCC.director.root);
         }
 
+        legacyCC.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
 
         return this._inited;
     }
