@@ -5,6 +5,7 @@ import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
 import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
 import { director } from '../../core/director';
 import { GFXDevice, GFXFeature } from '../../core/gfx/device';
+import { legacyCC } from '../../core/global-exports';
 
 function isSupportGPUParticle () {
     const device: GFXDevice = director.root!.device;
@@ -12,7 +13,7 @@ function isSupportGPUParticle () {
         return true;
     }
 
-    cc.warn("Maybe the device has restrictions on vertex textures or does not support float textures.");
+    legacyCC.warn("Maybe the device has restrictions on vertex textures or does not support float textures.");
     return false;
 }
 
