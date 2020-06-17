@@ -15,6 +15,7 @@ export interface IRenderWindowInfo {
     height: number;
     renderPassInfo: IGFXRenderPassInfo;
     isOffscreen?: boolean;
+    renderPass?: GFXRenderPass; // will use this reference instead if specified
 }
 
 export class RenderWindow {
@@ -120,24 +121,33 @@ export class RenderWindow {
         this._nativeWidth = this._width;
         this._nativeHeight = this._height;
 
-        for (let i = 0; i < info.renderPassInfo.colorAttachments.length; i++) {
-            const attachment = info.renderPassInfo.colorAttachments[i];
-            if (attachment.format === GFXFormat.UNKNOWN) {
-                attachment.format = this._root.device.colorFormat;
-            }
-        }
-        if (info.renderPassInfo.depthStencilAttachment) {
-            const attachment = info.renderPassInfo.depthStencilAttachment;
-            if (attachment.format === GFXFormat.UNKNOWN) {
-                attachment.format = this._root.device.depthStencilFormat;
-            }
-        }
-        this._renderPass = this._root.device.createRenderPass(info.renderPassInfo);
+        let colorAttachments = info.renderPassInfo.colorAttachments;
+        let depthStencilAttachment = info.renderPassInfo.depthStencilAttachment;
 
-        let colorTexturesToCreate = info.renderPassInfo.colorAttachments.length;
+        if (info.renderPass) {
+            this._renderPass = info.renderPass;
+            colorAttachments = info.renderPass.colorAttachments;
+            depthStencilAttachment = info.renderPass.depthStencilAttachment;
+        } else {
+            for (let i = 0; i < colorAttachments.length; i++) {
+                const attachment = colorAttachments[i];
+                if (attachment.format === GFXFormat.UNKNOWN) {
+                    attachment.format = this._root.device.colorFormat;
+                }
+            }
+            if (depthStencilAttachment) {
+                const attachment = depthStencilAttachment;
+                if (attachment.format === GFXFormat.UNKNOWN) {
+                    attachment.format = this._root.device.depthStencilFormat;
+                }
+            }
+            this._renderPass = this._root.device.createRenderPass(info.renderPassInfo);
+        }
+
+        let colorTexturesToCreate = colorAttachments.length;
         if (!this._isOffscreen) { colorTexturesToCreate--; } // -1 for swapchain image
         for (let i = 0; i < colorTexturesToCreate; i++) {
-            const format = info.renderPassInfo.colorAttachments[i].format;
+            const format = colorAttachments[i].format;
             const colorTex = this._root.device.createTexture({
                 type: GFXTextureType.TEX2D,
                 usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
@@ -151,8 +161,8 @@ export class RenderWindow {
             });
             this._colorTexs.push(colorTex);
         }
-        if (this._isOffscreen && info.renderPassInfo.depthStencilAttachment) {
-            const format = info.renderPassInfo.depthStencilAttachment.format;
+        if (this._isOffscreen && depthStencilAttachment) {
+            const format = depthStencilAttachment.format;
             this._depthStencilTex = this._root.device.createTexture({
                 type: GFXTextureType.TEX2D,
                 usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,

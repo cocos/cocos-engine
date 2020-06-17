@@ -103,11 +103,11 @@ export function GFXFormatToWebGLType (format: GFXFormat, gl: WebGLRenderingConte
         case GFXFormat.RGB9E5: return gl.UNSIGNED_BYTE;
 
         case GFXFormat.D16: return gl.UNSIGNED_SHORT;
-        case GFXFormat.D16S8: return gl.UNSIGNED_SHORT;
+        case GFXFormat.D16S8: return WebGLEXT.UNSIGNED_INT_24_8_WEBGL; // not supported, fallback
         case GFXFormat.D24: return gl.UNSIGNED_INT;
         case GFXFormat.D24S8: return WebGLEXT.UNSIGNED_INT_24_8_WEBGL;
-        case GFXFormat.D32F: return gl.FLOAT;
-        case GFXFormat.D32F_S8: return gl.FLOAT;
+        case GFXFormat.D32F: return gl.UNSIGNED_INT; // not supported, fallback
+        case GFXFormat.D32F_S8: return WebGLEXT.UNSIGNED_INT_24_8_WEBGL; // not supported, fallback
 
         case GFXFormat.BC1: return gl.UNSIGNED_BYTE;
         case GFXFormat.BC1_SRGB: return gl.UNSIGNED_BYTE;
@@ -810,7 +810,7 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
                         gl.bindRenderbuffer(gl.RENDERBUFFER, gpuTexture.glRenderbuffer);
                         device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
                     }
-                    // Special treatment, refer to https://developer.mozilla.org/zh-CN/docs/Web/API/WebGLRenderingContext/renderbufferStorage
+                    // The internal format here differs from texImage2D convension
                     if (gpuTexture.glInternelFmt === gl.DEPTH_COMPONENT) {
                         gpuTexture.glInternelFmt = gl.DEPTH_COMPONENT16;
                     }

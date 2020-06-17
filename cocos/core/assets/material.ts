@@ -365,7 +365,7 @@ export class Material extends Asset {
             const defs = passInfo.defines = this._defines.length > k ? this._defines[k] : {};
             if (passInfo.switch && !defs[passInfo.switch]) { continue; }
             passInfo.stateOverrides = this._states.length > k ? this._states[k] : {};
-            passInfo.idxInTech = k;
+            passInfo.idxInTech = passInfo.phase === 'forward-add' ? 0 : k;
             const pass = new Pass(legacyCC.director.root);
             pass.initialize(passInfo);
             passes.push(pass);

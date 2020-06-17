@@ -300,6 +300,12 @@ export class Profiler {
             }
         }
 
+        // device NDC correction
+        const ySign = this._device!.projectionSignY;
+        for (let i = 1; i < vertexPos.length; i += 3) {
+            vertexPos[i] *= ySign;
+        }
+
         const modelCom = managerNode.addComponent('cc.ModelComponent') as ModelComponent;
         modelCom.mesh = createMesh({
             positions: vertexPos,
@@ -307,7 +313,6 @@ export class Profiler {
             colors: vertexUV, // pack all the necessary info in a_color: { x: u, y: v, z: id.x, w: id.y }
         });
 
-        const ySign = this._device!.projectionSignY;
         const _material = new Material();
         _material.initialize({ effectName: 'util/profiler' });
         _material.setProperty('offset', new Vec4(-0.9, -0.9 * ySign, this._eachNumWidth, 0));

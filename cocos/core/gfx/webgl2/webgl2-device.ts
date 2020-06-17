@@ -251,7 +251,12 @@ export class WebGL2GFXDevice extends GFXDevice {
         this._features[GFXFeature.TEXTURE_FLOAT] = true;
         this._features[GFXFeature.TEXTURE_HALF_FLOAT] = true;
         this._features[GFXFeature.FORMAT_R11G11B10F] = true;
+        this._features[GFXFeature.FORMAT_RGB8] = true;
+        this._features[GFXFeature.FORMAT_D16] = true;
+        this._features[GFXFeature.FORMAT_D24] = true;
+        this._features[GFXFeature.FORMAT_D32F] = true;
         this._features[GFXFeature.FORMAT_D24S8] = true;
+        this._features[GFXFeature.FORMAT_D32FS8] = true;
         this._features[GFXFeature.MSAA] = true;
         this._features[GFXFeature.ELEMENT_INDEX_UINT] = true;
         this._features[GFXFeature.INSTANCED_ARRAYS] = true;
