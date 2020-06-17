@@ -95,10 +95,9 @@ bool GLES3Device::initialize(const GFXDeviceInfo &info) {
     _features[static_cast<uint>(GFXFeature::STENCIL_WRITE_MASK)] = true;
     _features[static_cast<uint>(GFXFeature::FORMAT_RGB8)] = true;
     _features[static_cast<uint>(GFXFeature::FORMAT_D16)] = true;
-    _features[static_cast<uint>(GFXFeature::FORMAT_D16S8)] = false;
     _features[static_cast<uint>(GFXFeature::FORMAT_D24)] = true;
-    _features[static_cast<uint>(GFXFeature::FORMAT_D24S8)] = true;
     _features[static_cast<uint>(GFXFeature::FORMAT_D32F)] = true;
+    _features[static_cast<uint>(GFXFeature::FORMAT_D24S8)] = true;
     _features[static_cast<uint>(GFXFeature::FORMAT_D32FS8)] = true;
 
     _renderer = (const char *)glGetString(GL_RENDERER);

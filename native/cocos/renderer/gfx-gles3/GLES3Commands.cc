@@ -310,7 +310,7 @@ GLenum GFXFormatToGLType(GFXFormat format) {
         case GFXFormat::RGB9E5: return GL_FLOAT;
 
         case GFXFormat::D16: return GL_UNSIGNED_SHORT;
-        case GFXFormat::D16S8: return GL_UNSIGNED_SHORT;
+        case GFXFormat::D16S8: return GL_UNSIGNED_INT_24_8; // no D16S8 support
         case GFXFormat::D24: return GL_UNSIGNED_INT;
         case GFXFormat::D24S8: return GL_UNSIGNED_INT_24_8;
         case GFXFormat::D32F: return GL_FLOAT;

@@ -80,6 +80,7 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
     requestedFeatures2.features.textureCompressionBC = deviceFeatures2.features.textureCompressionBC;
     requestedFeatures2.features.textureCompressionETC2 = deviceFeatures2.features.textureCompressionETC2;
     requestedFeatures2.features.samplerAnisotropy = deviceFeatures2.features.samplerAnisotropy;
+    requestedFeatures2.features.depthBounds = deviceFeatures2.features.depthBounds;
 
     ///////////////////// Device Creation /////////////////////
 
@@ -253,10 +254,45 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
     _features[(int)GFXFeature::TEXTURE_FLOAT_LINEAR] = true;
     _features[(int)GFXFeature::TEXTURE_HALF_FLOAT_LINEAR] = true;
     _features[(int)GFXFeature::FORMAT_R11G11B10F] = true;
-    _features[(int)GFXFeature::FORMAT_D24S8] = true;
     _features[(int)GFXFeature::MSAA] = true;
     _features[(int)GFXFeature::ELEMENT_INDEX_UINT] = true;
     _features[(int)GFXFeature::INSTANCED_ARRAYS] = true;
+    _features[static_cast<uint>(GFXFeature::DEPTH_BOUNDS)] = deviceFeatures.depthBounds;
+    _features[static_cast<uint>(GFXFeature::LINE_WIDTH)] = true;
+    _features[static_cast<uint>(GFXFeature::STENCIL_COMPARE_MASK)] = true;
+    _features[static_cast<uint>(GFXFeature::STENCIL_WRITE_MASK)] = true;
+
+    VkFormatFeatureFlags requiredFeatures = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT;
+    VkFormatProperties formatProperties;
+    vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_R8G8B8_UNORM, &formatProperties);
+    if (formatProperties.optimalTilingFeatures & requiredFeatures) {
+        _features[(int)GFXFeature::FORMAT_RGB8] = true;
+    }
+    requiredFeatures = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D16_UNORM, &formatProperties);
+    if (formatProperties.optimalTilingFeatures & requiredFeatures) {
+        _features[(int)GFXFeature::FORMAT_D16] = true;
+    }
+    vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_X8_D24_UNORM_PACK32, &formatProperties);
+    if (formatProperties.optimalTilingFeatures & requiredFeatures) {
+        _features[(int)GFXFeature::FORMAT_D24] = true;
+    }
+    vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D32_SFLOAT, &formatProperties);
+    if (formatProperties.optimalTilingFeatures & requiredFeatures) {
+        _features[(int)GFXFeature::FORMAT_D32F] = true;
+    }
+    vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D16_UNORM_S8_UINT, &formatProperties);
+    if (formatProperties.optimalTilingFeatures & requiredFeatures) {
+        _features[(int)GFXFeature::FORMAT_D16S8] = true;
+    }
+    vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D24_UNORM_S8_UINT, &formatProperties);
+    if (formatProperties.optimalTilingFeatures & requiredFeatures) {
+        _features[(int)GFXFeature::FORMAT_D24S8] = true;
+    }
+    vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D32_SFLOAT_S8_UINT, &formatProperties);
+    if (formatProperties.optimalTilingFeatures & requiredFeatures) {
+        _features[(int)GFXFeature::FORMAT_D32FS8] = true;
+    }
 
     String compressedFmts;
     if (deviceFeatures.textureCompressionETC2) {
@@ -267,17 +303,6 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
         _features[(int)GFXFeature::FORMAT_ASTC] = true;
         compressedFmts += "astc ";
     }
-    _features[static_cast<uint>(GFXFeature::DEPTH_BOUNDS)] = deviceFeatures.depthBounds;
-    _features[static_cast<uint>(GFXFeature::LINE_WIDTH)] = true;
-    _features[static_cast<uint>(GFXFeature::STENCIL_COMPARE_MASK)] = true;
-    _features[static_cast<uint>(GFXFeature::STENCIL_WRITE_MASK)] = true;
-    _features[static_cast<uint>(GFXFeature::FORMAT_RGB8)] = findSupportedFormat({GFXFormat::RGB8, VK_FORMAT_R8G8B8_UNORM}, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT, gpuContext->physicalDevice);
-    _features[static_cast<uint>(GFXFeature::FORMAT_D16)] = findSupportedFormat({GFXFormat::D16, VK_FORMAT_D16_UNORM}, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, gpuContext->physicalDevice);
-    _features[static_cast<uint>(GFXFeature::FORMAT_D16S8)] = findSupportedFormat({GFXFormat::D16S8, VK_FORMAT_D16_UNORM_S8_UINT}, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, gpuContext->physicalDevice);
-    _features[static_cast<uint>(GFXFeature::FORMAT_D24)] = false;
-    _features[static_cast<uint>(GFXFeature::FORMAT_D24S8)] = findSupportedFormat({GFXFormat::D24S8, VK_FORMAT_D24_UNORM_S8_UINT}, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, gpuContext->physicalDevice);
-    _features[static_cast<uint>(GFXFeature::FORMAT_D32F)] = findSupportedFormat({GFXFormat::D32F, VK_FORMAT_D32_SFLOAT}, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, gpuContext->physicalDevice);
-    _features[static_cast<uint>(GFXFeature::FORMAT_D32FS8)] = findSupportedFormat({GFXFormat::D32F_S8, VK_FORMAT_D32_SFLOAT_S8_UINT}, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, gpuContext->physicalDevice);
 
     uint32_t apiVersion = gpuContext->physicalDeviceProperties.apiVersion;
     _renderer = gpuContext->physicalDeviceProperties.deviceName;
@@ -329,11 +354,13 @@ void CCVKDevice::destroy() {
             _gpuSwapchain->depthStencilImageViews.clear();
             _gpuSwapchain->depthStencilImages.clear();
 
-            for (FramebufferListMapPair pair : _gpuSwapchain->vkSwapchainFramebufferListMap) {
-                for (VkFramebuffer framebuffer : pair.second) {
+            for (FramebufferListMapIter it = _gpuSwapchain->vkSwapchainFramebufferListMap.begin();
+                 it != _gpuSwapchain->vkSwapchainFramebufferListMap.end(); it++) {
+                FramebufferList &list = it->second;
+                for (VkFramebuffer framebuffer : list) {
                     vkDestroyFramebuffer(_gpuDevice->vkDevice, framebuffer, nullptr);
                 }
-                pair.second.clear();
+                list.clear();
             }
             _gpuSwapchain->vkSwapchainFramebufferListMap.clear();
 
@@ -405,11 +432,13 @@ void CCVKDevice::buildSwapchain() {
         _gpuSwapchain->depthStencilImageViews.clear();
         _gpuSwapchain->depthStencilImages.clear();
 
-        for (FramebufferListMapPair pair : _gpuSwapchain->vkSwapchainFramebufferListMap) {
-            for (VkFramebuffer framebuffer : pair.second) {
+        for (FramebufferListMapIter it = _gpuSwapchain->vkSwapchainFramebufferListMap.begin();
+             it != _gpuSwapchain->vkSwapchainFramebufferListMap.end(); it++) {
+            FramebufferList &list = it->second;
+            for (VkFramebuffer framebuffer : list) {
                 vkDestroyFramebuffer(_gpuDevice->vkDevice, framebuffer, nullptr);
             }
-            pair.second.clear();
+            list.clear();
         }
 
         for (VkImageView imageView : _gpuSwapchain->vkSwapchainImageViews) {
@@ -450,8 +479,9 @@ void CCVKDevice::buildSwapchain() {
         VK_CHECK(vkCreateImageView(_gpuDevice->vkDevice, &imageViewCreateInfo, nullptr, &_gpuSwapchain->vkSwapchainImageViews[i]));
     }
 
-    for (FramebufferListMapPair pair : _gpuSwapchain->vkSwapchainFramebufferListMap) {
-        CCVKCmdFuncCreateFramebuffer(this, pair.first);
+    for (FramebufferListMapIter it = _gpuSwapchain->vkSwapchainFramebufferListMap.begin();
+         it != _gpuSwapchain->vkSwapchainFramebufferListMap.end(); it++) {
+        CCVKCmdFuncCreateFramebuffer(this, it->first);
     }
 }
 

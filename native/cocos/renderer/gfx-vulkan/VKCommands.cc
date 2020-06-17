@@ -294,7 +294,7 @@ bool CCVKCmdFuncCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
     vkGetPhysicalDeviceFormatProperties(device->gpuContext()->physicalDevice, format, &formatProperties);
 
     if (!(formatProperties.optimalTilingFeatures & features)) {
-        CC_LOG_ERROR("CCVKCmdFuncCreateTexture: unsupported feature set in optimalTilingFeatures.");
+        CC_LOG_ERROR("CCVKCmdFuncCreateTexture: %s does not support optimal tiling with specified features", GFX_FORMAT_INFOS[(uint)gpuTexture->format].name.c_str());
         return false;
     }
     if (gpuTexture->flags & GFXTextureFlags::GEN_MIPMAP) {
@@ -928,13 +928,13 @@ void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, uint8_t *const *buffers
                 blit.srcOffsets[1] = {mipWidth, mipHeight, 1};
                 blit.srcSubresource.aspectMask = gpuTexture->aspectMask;
                 blit.srcSubresource.mipLevel = i - 1;
-                blit.srcSubresource.layerCount = 1;
+                blit.srcSubresource.layerCount = gpuTexture->arrayLayer;
 
                 //Destination
                 blit.dstOffsets[1] = {mipWidth > 1 ? mipWidth >> 1 : 1, mipHeight > 1 ? mipHeight >> 1 : 1, 1};
                 blit.dstSubresource.aspectMask = gpuTexture->aspectMask;
                 blit.dstSubresource.mipLevel = i;
-                blit.dstSubresource.layerCount = 1;
+                blit.dstSubresource.layerCount = gpuTexture->arrayLayer;
 
                 vkCmdBlitImage(cmdBuff.vkCommandBuffer,
                                gpuTexture->vkImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
