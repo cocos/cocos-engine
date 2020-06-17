@@ -132,10 +132,7 @@ export class UBOGlobal {
     public static EXPOSURE_OFFSET: number = UBOGlobal.CAMERA_POS_OFFSET + 4;
     public static MAIN_LIT_DIR_OFFSET: number = UBOGlobal.EXPOSURE_OFFSET + 4;
     public static MAIN_LIT_COLOR_OFFSET: number = UBOGlobal.MAIN_LIT_DIR_OFFSET + 4;
-    public static MAIN_LIT_SHADOW_DEPTH_FADE_OFFSET: number = UBOGlobal.MAIN_LIT_COLOR_OFFSET + 4;
-    public static MAIN_LIT_SHADOW_INTENSITY_OFFSET: number = UBOGlobal.MAIN_LIT_SHADOW_DEPTH_FADE_OFFSET + 4;
-    public static MAIN_LIT_MATRIX_OFFSET: number = UBOGlobal.MAIN_LIT_SHADOW_INTENSITY_OFFSET + 4;
-    public static AMBIENT_SKY_OFFSET: number = UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 16;
+    public static AMBIENT_SKY_OFFSET: number = UBOGlobal.MAIN_LIT_COLOR_OFFSET + 4;
     public static AMBIENT_GROUND_OFFSET: number = UBOGlobal.AMBIENT_SKY_OFFSET + 4;
     public static GLOBAL_FOG_COLOR_OFFSET: number = UBOGlobal.AMBIENT_GROUND_OFFSET + 4;
     public static GLOBAL_FOG_BASE_OFFSET: number = UBOGlobal.GLOBAL_FOG_COLOR_OFFSET + 4;
@@ -159,14 +156,33 @@ export class UBOGlobal {
             { name: 'cc_exposure', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_mainLitDir', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_mainLitColor', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_shadowIntensity', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_shadowDepthFade', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_lightMatrix', type: GFXType.MAT4, count: 1 },
             { name: 'cc_ambientSky', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_ambientGround', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_fogColor', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_fogBase', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_fogAdd', type: GFXType.FLOAT4, count: 1 }
+        ],
+    };
+
+    public view: Float32Array = new Float32Array(UBOGlobal.COUNT);
+}
+
+/**
+ * @zh 主光源阴影
+ */
+export class UBOShadowMap {
+
+    public static MAT_SHADOW_VIEW_PROJ_OFFSET: number = 0;
+    public static MAIN_SHADOW_DEPTH_FADE_OFFSET: number = UBOShadowMap.MAT_SHADOW_VIEW_PROJ_OFFSET + 16;
+    public static MAIN_SHADOW_INTENSITY_OFFSET: number = UBOShadowMap.MAIN_SHADOW_DEPTH_FADE_OFFSET + 4;
+    public static MAIN_SHADOW_MATRIX_OFFSET: number = UBOShadowMap.MAIN_SHADOW_INTENSITY_OFFSET + 4;
+
+    public static BLOCK: GFXUniformBlock = {
+        shaderStages: GFXShaderType.ALL, binding: UniformBinding.UBO_GLOBAL, name: 'CCShadowMap', members: [
+            { name: 'cc_shadowMatViewProj', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_shadowIntensity', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_shadowDepthFade', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_shadowLightMatrix', type: GFXType.MAT4, count: 1 }
         ],
     };
 

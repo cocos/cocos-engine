@@ -25,7 +25,7 @@ import { SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Root } from '../root';
 import { Layers } from '../scene-graph';
 import { js } from '../utils/js';
-import { IInternalBindingInst } from './define';
+import { IInternalBindingInst, UBOShadowMap } from './define';
 import { IRenderObject, RenderPassStage, UBOGlobal, UBOShadow, UNIFORM_ENVIRONMENT } from './define';
 import { FrameBufferDesc, RenderFlowType, RenderPassDesc, RenderTextureDesc } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
@@ -586,6 +586,84 @@ export abstract class RenderPipeline {
         }
     }
 
+    public updateShadowMapUBOs (view: RenderView) {
+        const camera = view.camera;
+        const scene = camera.scene!;
+        const device = this._root.device;
+        const mainLight = scene.mainLight;
+        const fv = this._uboGlobal.view;
+
+
+        if (this._isShadow && mainLight) {
+            shadowCamera_W_P.set(mainLight.direction.negative().multiplyScalar(shadowCamera_Far));
+            shadowCamera_W_R.set(mainLight.node!.getWorldRotation());
+            shadowCamera_W_S.set(mainLight.node!.getWorldScale());
+
+            Mat4.fromRTS(shadowCamera_W_T, shadowCamera_W_R, shadowCamera_W_P, shadowCamera_W_S);
+
+            Mat4.invert(shadowCamera_M_V, shadowCamera_W_T);
+
+            Mat4.perspective(shadowCamera_M_P, shadowCamera_Fov, shadowCamera_Aspect, shadowCamera_Near, shadowCamera_Far);
+
+            {
+                // shadowCamera
+                const nearClip = shadowCamera_Near;
+                const farClip = shadowCamera_Far;
+                const q = farClip / (farClip / nearClip);
+                const r = -q * nearClip;
+
+                // Camera
+                const viewFarClip = camera.farClip;
+                const shadowRange = mainLight.shadowRange;
+                const fadeStart = mainLight.fadeStart * shadowRange / viewFarClip;
+                const fadeEnd = shadowRange / viewFarClip;
+                const fadeRange = fadeEnd - fadeStart;
+                fv[UBOShadowMap.MAIN_SHADOW_DEPTH_FADE_OFFSET + 0] = q;
+                fv[UBOShadowMap.MAIN_SHADOW_DEPTH_FADE_OFFSET + 1] = r;
+                fv[UBOShadowMap.MAIN_SHADOW_DEPTH_FADE_OFFSET + 2] = fadeStart;
+                fv[UBOShadowMap.MAIN_SHADOW_DEPTH_FADE_OFFSET + 3] = 1.0 / fadeRange;
+            }
+
+            {
+                let intensity = mainLight.shadowIntensity;
+                const fadeStart = mainLight.shadowFadeDistance;
+                const fadeEnd = mainLight.shadowDistance;
+                if (fadeStart > 0.0 && fadeEnd > 0.0 && fadeEnd > fadeStart) {
+                    intensity = lerp(intensity, 1.0, clamp((0.0 - fadeStart) / (fadeEnd - fadeStart), 0.0, 1.0));
+                }
+                const pcfValues = (1.0 - intensity);
+                const samples = 1.0;
+                fv[UBOShadowMap.MAIN_SHADOW_INTENSITY_OFFSET + 0] = pcfValues / samples;
+                fv[UBOShadowMap.MAIN_SHADOW_INTENSITY_OFFSET + 1] = intensity;
+                fv[UBOShadowMap.MAIN_SHADOW_INTENSITY_OFFSET + 2] = 0.0;
+                fv[UBOShadowMap.MAIN_SHADOW_INTENSITY_OFFSET + 3] = 0.0;
+            }
+
+            {
+                // mainlight
+                const shadowMatrix = this.calculateShadowMatrix();
+                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 0] = shadowMatrix?.m00!;
+                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 1] = shadowMatrix?.m01!;
+                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 2] = shadowMatrix?.m02!;
+                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 3] = shadowMatrix?.m03!;
+                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 4] = shadowMatrix?.m04!;
+                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 5] = shadowMatrix?.m05!;
+                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 6] = shadowMatrix?.m06!;
+                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 7] = shadowMatrix?.m07!;
+                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 8] = shadowMatrix?.m08!;
+                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 9] = shadowMatrix?.m09!;
+                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 10] = shadowMatrix?.m10!;
+                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 11] = shadowMatrix?.m11!;
+                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 12] = shadowMatrix?.m12!;
+                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 13] = shadowMatrix?.m13!;
+                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 14] = shadowMatrix?.m14!;
+                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 15] = shadowMatrix?.m15!;
+            }
+        }
+
+        this._globalShadowMap = this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!;
+    }
+
     /**
      * @zh
      * 更新指定渲染视图的UBO。
@@ -598,17 +676,6 @@ export abstract class RenderPipeline {
         const device = this._root.device;
 
         const mainLight = scene.mainLight;
-        if (this._isShadow && mainLight) {
-            shadowCamera_W_P.set(mainLight.direction.negative().multiplyScalar(shadowCamera_Far));
-            shadowCamera_W_R.set(mainLight.node!.getWorldRotation());
-            shadowCamera_W_S.set(mainLight.node!.getWorldScale());
-
-            Mat4.fromRTS(shadowCamera_W_T, shadowCamera_W_R, shadowCamera_W_P, shadowCamera_W_S);
-
-            Mat4.invert(shadowCamera_M_V, shadowCamera_W_T);
-
-            Mat4.perspective(shadowCamera_M_P, shadowCamera_Fov, shadowCamera_Aspect, shadowCamera_Near, shadowCamera_Far);
-        }
 
         const ambient = scene.ambient;
         const fog = scene.fog;
@@ -666,60 +733,6 @@ export abstract class RenderPipeline {
                 fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
             }
 
-            {
-                // shadowCamera
-                const nearClip = shadowCamera_Near;
-                const farClip = shadowCamera_Far;
-                const q = farClip / (farClip / nearClip);
-                const r = -q * nearClip;
-
-                // Camera
-                const viewFarClip = camera.farClip;
-                const shadowRange = mainLight.shadowRange;
-                const fadeStart = mainLight.fadeStart * shadowRange / viewFarClip;
-                const fadeEnd = shadowRange / viewFarClip;
-                const fadeRange = fadeEnd - fadeStart;
-                fv[UBOGlobal.MAIN_LIT_SHADOW_DEPTH_FADE_OFFSET + 0] = q;
-                fv[UBOGlobal.MAIN_LIT_SHADOW_DEPTH_FADE_OFFSET + 1] = r;
-                fv[UBOGlobal.MAIN_LIT_SHADOW_DEPTH_FADE_OFFSET + 2] = fadeStart;
-                fv[UBOGlobal.MAIN_LIT_SHADOW_DEPTH_FADE_OFFSET + 3] = 1.0 / fadeRange;
-            }
-
-            {
-                let intensity = mainLight.shadowIntensity;
-                const fadeStart = mainLight.shadowFadeDistance;
-                const fadeEnd = mainLight.shadowDistance;
-                if (fadeStart > 0.0 && fadeEnd > 0.0 && fadeEnd > fadeStart) {
-                    intensity = lerp(intensity, 1.0, clamp((0.0 - fadeStart) / (fadeEnd - fadeStart), 0.0, 1.0));
-                }
-                const pcfValues = (1.0 - intensity);
-                const samples = 1.0;
-                fv[UBOGlobal.MAIN_LIT_SHADOW_INTENSITY_OFFSET + 0] = pcfValues / samples;
-                fv[UBOGlobal.MAIN_LIT_SHADOW_INTENSITY_OFFSET + 1] = intensity;
-                fv[UBOGlobal.MAIN_LIT_SHADOW_INTENSITY_OFFSET + 2] = 0.0;
-                fv[UBOGlobal.MAIN_LIT_SHADOW_INTENSITY_OFFSET + 3] = 0.0;
-            }
-
-            {
-                // mainlight
-                const shadowMatrix = this.calculateShadowMatrix();
-                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 0] = shadowMatrix?.m00!;
-                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 1] = shadowMatrix?.m01!;
-                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 2] = shadowMatrix?.m02!;
-                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 3] = shadowMatrix?.m03!;
-                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 4] = shadowMatrix?.m04!;
-                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 5] = shadowMatrix?.m05!;
-                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 6] = shadowMatrix?.m06!;
-                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 7] = shadowMatrix?.m07!;
-                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 8] = shadowMatrix?.m08!;
-                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 9] = shadowMatrix?.m09!;
-                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 10] = shadowMatrix?.m10!;
-                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 11] = shadowMatrix?.m11!;
-                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 12] = shadowMatrix?.m12!;
-                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 13] = shadowMatrix?.m13!;
-                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 14] = shadowMatrix?.m14!;
-                fv[UBOGlobal.MAIN_LIT_MATRIX_OFFSET + 15] = shadowMatrix?.m15!;
-            }
         } else {
             Vec3.toArray(fv, Vec3.UNIT_Z, UBOGlobal.MAIN_LIT_DIR_OFFSET);
             Vec4.toArray(fv, Vec4.ZERO, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
@@ -747,7 +760,6 @@ export abstract class RenderPipeline {
 
         // update ubos
         this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._uboGlobal.view);
-        this._globalShadowMap = this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!;
     }
 
     /**
