@@ -315,6 +315,7 @@ var parser = {
      * parseImport (file: any, options: Record<string, any>, onComplete?: (err: Error, asset: cc.Asset) => void): void
      */
     parseImport (file, options, onComplete) {
+        if (!file) return onComplete && onComplete(new Error('Json is empty'));
         var result, err = null;
         try {
             result = deserialize(file, options);
