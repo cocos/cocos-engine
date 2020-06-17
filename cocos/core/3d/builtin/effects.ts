@@ -31,24 +31,24 @@ export default [
           { "name": "CC_USE_HDR", "type": "boolean" }
         ],
         "blocks": [
-          {"name": "Constants", "defines": [], "binding": 0, "shaderStages": 1, "members": [
+          {"name": "Constants", "defines": [], "binding": 0, "shaderStages": 0, "members": [
             { "name": "mainTiling_Offset", "type": 16, "count": 1 },
             { "name": "frameTile_velLenScale", "type": 16, "count": 1 },
             { "name": "scale", "type": 16, "count": 1 }
           ]},
-          {"name": "builtin", "defines": [], "binding": 1, "shaderStages": 1, "members": [
+          {"name": "builtin", "defines": [], "binding": 1, "shaderStages": 0, "members": [
             { "name": "cc_size_rotation", "type": 16, "count": 1 }
           ]},
-          {"name": "FragConstants", "defines": [], "binding": 2, "shaderStages": 16, "members": [
+          {"name": "FragConstants", "defines": [], "binding": 2, "shaderStages": 4, "members": [
             { "name": "tintColor", "type": 16, "count": 1 }
           ]}
         ],
         "samplers": [
-          { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "shaderStages": 16, "binding": 31 }
+          { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "shaderStages": 4, "binding": 31 }
         ],
         "attributes": [
-          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 0 },
-          { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "shaderStages": 1, "format": 21, "location": 1 }
+          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 0 },
+          { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "shaderStages": 0, "format": 21, "location": 1 }
         ]
       }
     ]
@@ -91,61 +91,61 @@ export default [
           { "name": "CC_USE_HDR", "type": "boolean" }
         ],
         "blocks": [
-          {"name": "Constants", "defines": [], "binding": 0, "shaderStages": 1, "members": [
+          {"name": "Constants", "defines": [], "binding": 0, "shaderStages": 0, "members": [
             { "name": "mainTiling_Offset", "type": 16, "count": 1 },
             { "name": "frameTile_velLenScale", "type": 16, "count": 1 },
             { "name": "scale", "type": 16, "count": 1 }
           ]},
-          {"name": "SampleConstants", "defines": [], "binding": 1, "shaderStages": 1, "members": [
+          {"name": "SampleConstants", "defines": [], "binding": 1, "shaderStages": 0, "members": [
             { "name": "u_sampleInfo", "type": 16, "count": 1 }
           ]},
-          {"name": "TickConstants", "defines": [], "binding": 2, "shaderStages": 1, "members": [
+          {"name": "TickConstants", "defines": [], "binding": 2, "shaderStages": 0, "members": [
             { "name": "u_worldRot", "type": 16, "count": 1 },
             { "name": "u_timeDelta", "type": 16, "count": 1 }
           ]},
-          {"name": "ColorConstant", "defines": ["COLOR_OVER_TIME_MODULE_ENABLE"], "binding": 3, "shaderStages": 1, "members": [
+          {"name": "ColorConstant", "defines": ["COLOR_OVER_TIME_MODULE_ENABLE"], "binding": 3, "shaderStages": 0, "members": [
             { "name": "u_color_mode", "type": 5, "count": 1 }
           ]},
-          {"name": "RotationConstant", "defines": ["ROTATION_OVER_TIME_MODULE_ENABLE"], "binding": 4, "shaderStages": 1, "members": [
+          {"name": "RotationConstant", "defines": ["ROTATION_OVER_TIME_MODULE_ENABLE"], "binding": 4, "shaderStages": 0, "members": [
             { "name": "u_rotation_mode", "type": 5, "count": 1 }
           ]},
-          {"name": "SizeConstant", "defines": ["SIZE_OVER_TIME_MODULE_ENABLE"], "binding": 5, "shaderStages": 1, "members": [
+          {"name": "SizeConstant", "defines": ["SIZE_OVER_TIME_MODULE_ENABLE"], "binding": 5, "shaderStages": 0, "members": [
             { "name": "u_size_mode", "type": 5, "count": 1 }
           ]},
-          {"name": "ForceConstant", "defines": ["FORCE_OVER_TIME_MODULE_ENABLE"], "binding": 6, "shaderStages": 1, "members": [
+          {"name": "ForceConstant", "defines": ["FORCE_OVER_TIME_MODULE_ENABLE"], "binding": 6, "shaderStages": 0, "members": [
             { "name": "u_force_mode", "type": 5, "count": 1 },
             { "name": "u_force_space", "type": 5, "count": 1 }
           ]},
-          {"name": "VelocityConstant", "defines": ["VELOCITY_OVER_TIME_MODULE_ENABLE"], "binding": 7, "shaderStages": 1, "members": [
+          {"name": "VelocityConstant", "defines": ["VELOCITY_OVER_TIME_MODULE_ENABLE"], "binding": 7, "shaderStages": 0, "members": [
             { "name": "u_velocity_mode", "type": 5, "count": 1 },
             { "name": "u_velocity_space", "type": 5, "count": 1 }
           ]},
-          {"name": "AnimationConstant", "defines": ["TEXTURE_ANIMATION_MODULE_ENABLE"], "binding": 8, "shaderStages": 1, "members": [
+          {"name": "AnimationConstant", "defines": ["TEXTURE_ANIMATION_MODULE_ENABLE"], "binding": 8, "shaderStages": 0, "members": [
             { "name": "u_anim_info", "type": 16, "count": 1 }
           ]},
-          {"name": "FragConstants", "defines": [], "binding": 9, "shaderStages": 16, "members": [
+          {"name": "FragConstants", "defines": [], "binding": 9, "shaderStages": 4, "members": [
             { "name": "tintColor", "type": 16, "count": 1 }
           ]}
         ],
         "samplers": [
-          { "name": "color_over_time_tex0", "type": 28, "count": 1, "defines": ["COLOR_OVER_TIME_MODULE_ENABLE"], "shaderStages": 1, "binding": 31 },
-          { "name": "rotation_over_time_tex0", "type": 28, "count": 1, "defines": ["ROTATION_OVER_TIME_MODULE_ENABLE"], "shaderStages": 1, "binding": 32 },
-          { "name": "size_over_time_tex0", "type": 28, "count": 1, "defines": ["SIZE_OVER_TIME_MODULE_ENABLE"], "shaderStages": 1, "binding": 33 },
-          { "name": "force_over_time_tex0", "type": 28, "count": 1, "defines": ["FORCE_OVER_TIME_MODULE_ENABLE"], "shaderStages": 1, "binding": 34 },
-          { "name": "velocity_over_time_tex0", "type": 28, "count": 1, "defines": ["VELOCITY_OVER_TIME_MODULE_ENABLE"], "shaderStages": 1, "binding": 35 },
-          { "name": "texture_animation_tex0", "type": 28, "count": 1, "defines": ["TEXTURE_ANIMATION_MODULE_ENABLE"], "shaderStages": 1, "binding": 36 },
-          { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "shaderStages": 16, "binding": 37 }
+          { "name": "color_over_time_tex0", "type": 28, "count": 1, "defines": ["COLOR_OVER_TIME_MODULE_ENABLE"], "shaderStages": 0, "binding": 31 },
+          { "name": "rotation_over_time_tex0", "type": 28, "count": 1, "defines": ["ROTATION_OVER_TIME_MODULE_ENABLE"], "shaderStages": 0, "binding": 32 },
+          { "name": "size_over_time_tex0", "type": 28, "count": 1, "defines": ["SIZE_OVER_TIME_MODULE_ENABLE"], "shaderStages": 0, "binding": 33 },
+          { "name": "force_over_time_tex0", "type": 28, "count": 1, "defines": ["FORCE_OVER_TIME_MODULE_ENABLE"], "shaderStages": 0, "binding": 34 },
+          { "name": "velocity_over_time_tex0", "type": 28, "count": 1, "defines": ["VELOCITY_OVER_TIME_MODULE_ENABLE"], "shaderStages": 0, "binding": 35 },
+          { "name": "texture_animation_tex0", "type": 28, "count": 1, "defines": ["TEXTURE_ANIMATION_MODULE_ENABLE"], "shaderStages": 0, "binding": 36 },
+          { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "shaderStages": 4, "binding": 37 }
         ],
         "attributes": [
-          { "name": "a_size_uv", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 0 },
-          { "name": "a_rotation_uv", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 1 },
-          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 2 },
-          { "name": "a_dir_life", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 3 },
-          { "name": "a_rndSeed", "type": 13, "count": 1, "defines": [], "shaderStages": 1, "format": 11, "location": 4 },
-          { "name": "a_texCoord", "type": 15, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 1, "format": 32, "location": 5 },
-          { "name": "a_texCoord3", "type": 15, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 1, "format": 32, "location": 6 },
-          { "name": "a_normal", "type": 15, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 1, "format": 32, "location": 7 },
-          { "name": "a_color1", "type": 16, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 1, "format": 44, "location": 8 }
+          { "name": "a_size_uv", "type": 16, "count": 1, "defines": [], "shaderStages": 0, "format": 43, "location": 0 },
+          { "name": "a_rotation_uv", "type": 16, "count": 1, "defines": [], "shaderStages": 0, "format": 43, "location": 1 },
+          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 0, "format": 43, "location": 2 },
+          { "name": "a_dir_life", "type": 16, "count": 1, "defines": [], "shaderStages": 0, "format": 43, "location": 3 },
+          { "name": "a_rndSeed", "type": 13, "count": 1, "defines": [], "shaderStages": 0, "format": 11, "location": 4 },
+          { "name": "a_texCoord", "type": 15, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 0, "format": 32, "location": 5 },
+          { "name": "a_texCoord3", "type": 15, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 0, "format": 32, "location": 6 },
+          { "name": "a_normal", "type": 15, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 0, "format": 32, "location": 7 },
+          { "name": "a_color1", "type": 16, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 0, "format": 43, "location": 8 }
         ]
       }
     ]
@@ -183,24 +183,24 @@ export default [
           { "name": "CC_USE_HDR", "type": "boolean" }
         ],
         "blocks": [
-          {"name": "Constants", "defines": [], "binding": 0, "shaderStages": 1, "members": [
+          {"name": "Constants", "defines": [], "binding": 0, "shaderStages": 0, "members": [
             { "name": "mainTiling_Offset", "type": 16, "count": 1 },
             { "name": "frameTile_velLenScale", "type": 16, "count": 1 },
             { "name": "scale", "type": 16, "count": 1 }
           ]},
-          {"name": "FragConstants", "defines": [], "binding": 1, "shaderStages": 16, "members": [
+          {"name": "FragConstants", "defines": [], "binding": 1, "shaderStages": 4, "members": [
             { "name": "tintColor", "type": 16, "count": 1 }
           ]}
         ],
         "samplers": [
-          { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "shaderStages": 16, "binding": 31 }
+          { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "shaderStages": 4, "binding": 31 }
         ],
         "attributes": [
-          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 0 },
-          { "name": "a_texCoord", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 1 },
-          { "name": "a_texCoord1", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 2 },
-          { "name": "a_texCoord2", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 3 },
-          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 4 }
+          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 0 },
+          { "name": "a_texCoord", "type": 16, "count": 1, "defines": [], "shaderStages": 0, "format": 43, "location": 1 },
+          { "name": "a_texCoord1", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 2 },
+          { "name": "a_texCoord2", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 3 },
+          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 0, "format": 43, "location": 4 }
         ]
       }
     ]
@@ -237,26 +237,26 @@ export default [
           { "name": "CC_USE_HDR", "type": "boolean" }
         ],
         "blocks": [
-          {"name": "Constants", "defines": [], "binding": 0, "shaderStages": 1, "members": [
+          {"name": "Constants", "defines": [], "binding": 0, "shaderStages": 0, "members": [
             { "name": "mainTiling_Offset", "type": 16, "count": 1 },
             { "name": "frameTile_velLenScale", "type": 16, "count": 1 },
             { "name": "scale", "type": 16, "count": 1 }
           ]},
-          {"name": "FragConstants", "defines": [], "binding": 1, "shaderStages": 16, "members": [
+          {"name": "FragConstants", "defines": [], "binding": 1, "shaderStages": 4, "members": [
             { "name": "tintColor", "type": 16, "count": 1 }
           ]}
         ],
         "samplers": [
-          { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "shaderStages": 16, "binding": 31 }
+          { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "shaderStages": 4, "binding": 31 }
         ],
         "attributes": [
-          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 0 },
-          { "name": "a_texCoord", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 1 },
-          { "name": "a_texCoord1", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 2 },
-          { "name": "a_texCoord2", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 3 },
-          { "name": "a_texCoord3", "type": 15, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 1, "format": 32, "location": 4 },
-          { "name": "a_normal", "type": 15, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 1, "format": 32, "location": 5 },
-          { "name": "a_color1", "type": 16, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 1, "format": 44, "location": 6 }
+          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 0 },
+          { "name": "a_texCoord", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 1 },
+          { "name": "a_texCoord1", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 2 },
+          { "name": "a_texCoord2", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 3 },
+          { "name": "a_texCoord3", "type": 15, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 0, "format": 32, "location": 4 },
+          { "name": "a_normal", "type": 15, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 0, "format": 32, "location": 5 },
+          { "name": "a_color1", "type": 16, "count": 1, "defines": ["CC_RENDER_MODE"], "shaderStages": 0, "format": 43, "location": 6 }
         ]
       }
     ]
@@ -295,12 +295,12 @@ export default [
         ],
         "blocks": [],
         "samplers": [
-          { "name": "mainTexture", "type": 28, "count": 1, "defines": ["USE_TEXTURE"], "shaderStages": 16, "binding": 31 }
+          { "name": "mainTexture", "type": 28, "count": 1, "defines": ["USE_TEXTURE"], "shaderStages": 4, "binding": 31 }
         ],
         "attributes": [
-          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 0 },
-          { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "shaderStages": 1, "format": 21, "location": 1 },
-          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 2 }
+          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 0 },
+          { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "shaderStages": 0, "format": 21, "location": 1 },
+          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 0, "format": 43, "location": 2 }
         ]
       }
     ]
@@ -370,7 +370,7 @@ export default [
           { "name": "ALPHA_TEST_CHANNEL", "type": "string", "options": ["a", "r"] }
         ],
         "blocks": [
-          {"name": "Constants", "defines": [], "binding": 0, "shaderStages": 17, "members": [
+          {"name": "Constants", "defines": [], "binding": 0, "shaderStages": 4, "members": [
             { "name": "tilingOffset", "type": 16, "count": 1 },
             { "name": "albedo", "type": 16, "count": 1 },
             { "name": "albedoScaleAndCutoff", "type": 16, "count": 1 },
@@ -380,28 +380,28 @@ export default [
           ]}
         ],
         "samplers": [
-          { "name": "albedoMap", "type": 28, "count": 1, "defines": ["USE_ALBEDO_MAP"], "shaderStages": 16, "binding": 31 },
-          { "name": "normalMap", "type": 28, "count": 1, "defines": ["USE_NORMAL_MAP"], "shaderStages": 16, "binding": 32 },
-          { "name": "pbrMap", "type": 28, "count": 1, "defines": ["USE_PBR_MAP"], "shaderStages": 16, "binding": 33 },
-          { "name": "metallicRoughnessMap", "type": 28, "count": 1, "defines": ["USE_METALLIC_ROUGHNESS_MAP"], "shaderStages": 16, "binding": 34 },
-          { "name": "occlusionMap", "type": 28, "count": 1, "defines": ["USE_OCCLUSION_MAP"], "shaderStages": 16, "binding": 35 },
-          { "name": "emissiveMap", "type": 28, "count": 1, "defines": ["USE_EMISSIVE_MAP"], "shaderStages": 16, "binding": 36 }
+          { "name": "albedoMap", "type": 28, "count": 1, "defines": ["USE_ALBEDO_MAP"], "shaderStages": 4, "binding": 31 },
+          { "name": "normalMap", "type": 28, "count": 1, "defines": ["USE_NORMAL_MAP"], "shaderStages": 4, "binding": 32 },
+          { "name": "pbrMap", "type": 28, "count": 1, "defines": ["USE_PBR_MAP"], "shaderStages": 4, "binding": 33 },
+          { "name": "metallicRoughnessMap", "type": 28, "count": 1, "defines": ["USE_METALLIC_ROUGHNESS_MAP"], "shaderStages": 4, "binding": 34 },
+          { "name": "occlusionMap", "type": 28, "count": 1, "defines": ["USE_OCCLUSION_MAP"], "shaderStages": 4, "binding": 35 },
+          { "name": "emissiveMap", "type": 28, "count": 1, "defines": ["USE_EMISSIVE_MAP"], "shaderStages": 4, "binding": 36 }
         ],
         "attributes": [
-          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 0 },
-          { "name": "a_normal", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 1 },
-          { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "shaderStages": 1, "format": 21, "location": 2 },
-          { "name": "a_tangent", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 3 },
-          { "name": "a_vertexId", "type": 13, "count": 1, "defines": ["CC_USE_MORPH"], "shaderStages": 1, "format": 11, "location": 6 },
-          { "name": "a_joints", "type": 12, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 1, "format": 42, "location": 4 },
-          { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 1, "format": 44, "location": 5 },
-          { "name": "a_jointAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 7 },
-          { "name": "a_matWorld0", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 8 },
-          { "name": "a_matWorld1", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 9 },
-          { "name": "a_matWorld2", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 10 },
-          { "name": "a_dyn_batch_id", "type": 13, "count": 1, "defines": ["!USE_INSTANCING", "USE_BATCHING"], "shaderStages": 1, "format": 11, "location": 11 },
-          { "name": "a_color", "type": 15, "count": 1, "defines": ["USE_VERTEX_COLOR"], "shaderStages": 1, "format": 32, "location": 12 },
-          { "name": "a_texCoord1", "type": 14, "count": 1, "defines": ["HAS_SECOND_UV"], "shaderStages": 1, "format": 21, "location": 13 }
+          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 0 },
+          { "name": "a_normal", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 1 },
+          { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "shaderStages": 0, "format": 21, "location": 2 },
+          { "name": "a_tangent", "type": 16, "count": 1, "defines": [], "shaderStages": 0, "format": 43, "location": 3 },
+          { "name": "a_vertexId", "type": 13, "count": 1, "defines": ["CC_USE_MORPH"], "shaderStages": 0, "format": 11, "location": 6 },
+          { "name": "a_joints", "type": 12, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 0, "format": 41, "location": 4 },
+          { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 0, "format": 43, "location": 5 },
+          { "name": "a_jointAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "shaderStages": 0, "format": 43, "isInstanced": true, "location": 7 },
+          { "name": "a_matWorld0", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 0, "format": 43, "isInstanced": true, "location": 8 },
+          { "name": "a_matWorld1", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 0, "format": 43, "isInstanced": true, "location": 9 },
+          { "name": "a_matWorld2", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 0, "format": 43, "isInstanced": true, "location": 10 },
+          { "name": "a_dyn_batch_id", "type": 13, "count": 1, "defines": ["!USE_INSTANCING", "USE_BATCHING"], "shaderStages": 0, "format": 11, "location": 11 },
+          { "name": "a_color", "type": 15, "count": 1, "defines": ["USE_VERTEX_COLOR"], "shaderStages": 0, "format": 32, "location": 12 },
+          { "name": "a_texCoord1", "type": 14, "count": 1, "defines": ["HAS_SECOND_UV"], "shaderStages": 0, "format": 21, "location": 13 }
         ]
       }
     ]
@@ -440,23 +440,23 @@ export default [
           { "name": "LAYERS", "type": "number", "range": [0, 4] }
         ],
         "blocks": [
-          {"name": "TexCoords", "defines": [], "binding": 0, "shaderStages": 1, "members": [
+          {"name": "TexCoords", "defines": [], "binding": 0, "shaderStages": 0, "members": [
             { "name": "UVScale", "type": 16, "count": 1 },
             { "name": "lightMapUVParam", "type": 16, "count": 1 }
           ]}
         ],
         "samplers": [
-          { "name": "weightMap", "type": 28, "count": 1, "defines": [], "shaderStages": 16, "binding": 31 },
-          { "name": "detailMap0", "type": 28, "count": 1, "defines": [], "shaderStages": 16, "binding": 32 },
-          { "name": "detailMap1", "type": 28, "count": 1, "defines": [], "shaderStages": 16, "binding": 33 },
-          { "name": "detailMap2", "type": 28, "count": 1, "defines": [], "shaderStages": 16, "binding": 34 },
-          { "name": "detailMap3", "type": 28, "count": 1, "defines": [], "shaderStages": 16, "binding": 35 },
-          { "name": "lightMap", "type": 28, "count": 1, "defines": [], "shaderStages": 16, "binding": 36 }
+          { "name": "weightMap", "type": 28, "count": 1, "defines": [], "shaderStages": 4, "binding": 31 },
+          { "name": "detailMap0", "type": 28, "count": 1, "defines": [], "shaderStages": 4, "binding": 32 },
+          { "name": "detailMap1", "type": 28, "count": 1, "defines": [], "shaderStages": 4, "binding": 33 },
+          { "name": "detailMap2", "type": 28, "count": 1, "defines": [], "shaderStages": 4, "binding": 34 },
+          { "name": "detailMap3", "type": 28, "count": 1, "defines": [], "shaderStages": 4, "binding": 35 },
+          { "name": "lightMap", "type": 28, "count": 1, "defines": [], "shaderStages": 4, "binding": 36 }
         ],
         "attributes": [
-          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 0 },
-          { "name": "a_normal", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 1 },
-          { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "shaderStages": 1, "format": 21, "location": 2 }
+          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 0 },
+          { "name": "a_normal", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 1 },
+          { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "shaderStages": 0, "format": 21, "location": 2 }
         ]
       }
     ]
@@ -509,31 +509,31 @@ export default [
           { "name": "ALPHA_TEST_CHANNEL", "type": "string", "options": ["a", "r", "g", "b"] }
         ],
         "blocks": [
-          {"name": "TexCoords", "defines": ["USE_TEXTURE"], "binding": 0, "shaderStages": 1, "members": [
+          {"name": "TexCoords", "defines": ["USE_TEXTURE"], "binding": 0, "shaderStages": 0, "members": [
             { "name": "tilingOffset", "type": 16, "count": 1 }
           ]},
-          {"name": "Constant", "defines": [], "binding": 1, "shaderStages": 16, "members": [
+          {"name": "Constant", "defines": [], "binding": 1, "shaderStages": 4, "members": [
             { "name": "mainColor", "type": 16, "count": 1 },
             { "name": "colorScaleAndCutoff", "type": 16, "count": 1 }
           ]}
         ],
         "samplers": [
-          { "name": "mainTexture", "type": 28, "count": 1, "defines": ["USE_TEXTURE"], "shaderStages": 16, "binding": 31 }
+          { "name": "mainTexture", "type": 28, "count": 1, "defines": ["USE_TEXTURE"], "shaderStages": 4, "binding": 31 }
         ],
         "attributes": [
-          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 0 },
-          { "name": "a_normal", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 1 },
-          { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "shaderStages": 1, "format": 21, "location": 2 },
-          { "name": "a_tangent", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 3 },
-          { "name": "a_vertexId", "type": 13, "count": 1, "defines": ["CC_USE_MORPH"], "shaderStages": 1, "format": 11, "location": 6 },
-          { "name": "a_joints", "type": 12, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 1, "format": 42, "location": 4 },
-          { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 1, "format": 44, "location": 5 },
-          { "name": "a_jointAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 7 },
-          { "name": "a_matWorld0", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 8 },
-          { "name": "a_matWorld1", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 9 },
-          { "name": "a_matWorld2", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 10 },
-          { "name": "a_dyn_batch_id", "type": 13, "count": 1, "defines": ["!USE_INSTANCING", "USE_BATCHING"], "shaderStages": 1, "format": 11, "location": 11 },
-          { "name": "a_color", "type": 16, "count": 1, "defines": ["USE_VERTEX_COLOR"], "shaderStages": 1, "format": 44, "location": 12 }
+          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 0 },
+          { "name": "a_normal", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 1 },
+          { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "shaderStages": 0, "format": 21, "location": 2 },
+          { "name": "a_tangent", "type": 16, "count": 1, "defines": [], "shaderStages": 0, "format": 43, "location": 3 },
+          { "name": "a_vertexId", "type": 13, "count": 1, "defines": ["CC_USE_MORPH"], "shaderStages": 0, "format": 11, "location": 6 },
+          { "name": "a_joints", "type": 12, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 0, "format": 41, "location": 4 },
+          { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 0, "format": 43, "location": 5 },
+          { "name": "a_jointAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "shaderStages": 0, "format": 43, "isInstanced": true, "location": 7 },
+          { "name": "a_matWorld0", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 0, "format": 43, "isInstanced": true, "location": 8 },
+          { "name": "a_matWorld1", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 0, "format": 43, "isInstanced": true, "location": 9 },
+          { "name": "a_matWorld2", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 0, "format": 43, "isInstanced": true, "location": 10 },
+          { "name": "a_dyn_batch_id", "type": 13, "count": 1, "defines": ["!USE_INSTANCING", "USE_BATCHING"], "shaderStages": 0, "format": 11, "location": 11 },
+          { "name": "a_color", "type": 16, "count": 1, "defines": ["USE_VERTEX_COLOR"], "shaderStages": 0, "format": 43, "location": 12 }
         ]
       }
     ]
@@ -581,18 +581,18 @@ export default [
         "blocks": [],
         "samplers": [],
         "attributes": [
-          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 0 },
-          { "name": "a_normal", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 1 },
-          { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "shaderStages": 1, "format": 21, "location": 2 },
-          { "name": "a_tangent", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 3 },
-          { "name": "a_vertexId", "type": 13, "count": 1, "defines": ["CC_USE_MORPH"], "shaderStages": 1, "format": 11, "location": 6 },
-          { "name": "a_joints", "type": 12, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 1, "format": 42, "location": 4 },
-          { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 1, "format": 44, "location": 5 },
-          { "name": "a_jointAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 7 },
-          { "name": "a_matWorld0", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 8 },
-          { "name": "a_matWorld1", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 9 },
-          { "name": "a_matWorld2", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 1, "format": 44, "isInstanced": true, "location": 10 },
-          { "name": "a_dyn_batch_id", "type": 13, "count": 1, "defines": ["!USE_INSTANCING", "USE_BATCHING"], "shaderStages": 1, "format": 11, "location": 11 }
+          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 0 },
+          { "name": "a_normal", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 1 },
+          { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "shaderStages": 0, "format": 21, "location": 2 },
+          { "name": "a_tangent", "type": 16, "count": 1, "defines": [], "shaderStages": 0, "format": 43, "location": 3 },
+          { "name": "a_vertexId", "type": 13, "count": 1, "defines": ["CC_USE_MORPH"], "shaderStages": 0, "format": 11, "location": 6 },
+          { "name": "a_joints", "type": 12, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 0, "format": 41, "location": 4 },
+          { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "shaderStages": 0, "format": 43, "location": 5 },
+          { "name": "a_jointAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "shaderStages": 0, "format": 43, "isInstanced": true, "location": 7 },
+          { "name": "a_matWorld0", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 0, "format": 43, "isInstanced": true, "location": 8 },
+          { "name": "a_matWorld1", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 0, "format": 43, "isInstanced": true, "location": 9 },
+          { "name": "a_matWorld2", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "shaderStages": 0, "format": 43, "isInstanced": true, "location": 10 },
+          { "name": "a_dyn_batch_id", "type": 13, "count": 1, "defines": ["!USE_INSTANCING", "USE_BATCHING"], "shaderStages": 0, "format": 11, "location": 11 }
         ]
       }
     ]
@@ -631,10 +631,10 @@ export default [
         "blocks": [],
         "samplers": [],
         "attributes": [
-          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 0 },
-          { "name": "a_normal", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 1 },
-          { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "shaderStages": 1, "format": 21, "location": 2 },
-          { "name": "a_tangent", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 3 }
+          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 0 },
+          { "name": "a_normal", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 1 },
+          { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "shaderStages": 0, "format": 21, "location": 2 },
+          { "name": "a_tangent", "type": 16, "count": 1, "defines": [], "shaderStages": 0, "format": 43, "location": 3 }
         ]
       }
     ]
@@ -669,19 +669,19 @@ export default [
           { "name": "CC_USE_HDR", "type": "boolean" }
         ],
         "blocks": [
-          {"name": "Constants", "defines": [], "binding": 0, "shaderStages": 1, "members": [
+          {"name": "Constants", "defines": [], "binding": 0, "shaderStages": 0, "members": [
             { "name": "offset", "type": 16, "count": 1 }
           ]},
-          {"name": "PerFrameInfo", "defines": [], "binding": 1, "shaderStages": 1, "members": [
+          {"name": "PerFrameInfo", "defines": [], "binding": 1, "shaderStages": 0, "members": [
             { "name": "digits", "type": 16, "count": 20 }
           ]}
         ],
         "samplers": [
-          { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "shaderStages": 16, "binding": 31 }
+          { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "shaderStages": 4, "binding": 31 }
         ],
         "attributes": [
-          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 1, "format": 32, "location": 0 },
-          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 1, "format": 44, "location": 1 }
+          { "name": "a_position", "type": 15, "count": 1, "defines": [], "shaderStages": 0, "format": 32, "location": 0 },
+          { "name": "a_color", "type": 16, "count": 1, "defines": [], "shaderStages": 0, "format": 43, "location": 1 }
         ]
       }
     ]
@@ -714,16 +714,16 @@ export default [
         },
         "defines": [],
         "blocks": [
-          {"name": "splashFrag", "defines": [], "binding": 0, "shaderStages": 16, "members": [
+          {"name": "splashFrag", "defines": [], "binding": 0, "shaderStages": 4, "members": [
             { "name": "u_precent", "type": 13, "count": 1 }
           ]}
         ],
         "samplers": [
-          { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "shaderStages": 16, "binding": 31 }
+          { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "shaderStages": 4, "binding": 31 }
         ],
         "attributes": [
-          { "name": "a_position", "type": 14, "count": 1, "defines": [], "shaderStages": 1, "format": 21, "location": 0 },
-          { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "shaderStages": 1, "format": 21, "location": 1 }
+          { "name": "a_position", "type": 14, "count": 1, "defines": [], "shaderStages": 0, "format": 21, "location": 0 },
+          { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "shaderStages": 0, "format": 21, "location": 1 }
         ]
       }
     ]

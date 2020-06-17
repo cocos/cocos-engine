@@ -336,11 +336,6 @@ export class BaseNode extends CCObject implements ISchedulable {
     protected _eventProcessor: NodeEventProcessor = new NodeEventProcessor(this);
     protected _eventMask = 0;
 
-    // Register all related EventTargets,
-    // all event callbacks will be removed in _onPreDestroy
-    // protected __eventTargets: EventTarget[] = [];
-    protected __eventTargets: any[] = [];
-
     protected _siblingIndex: number = 0;
 
     protected _registerIfAttached = !EDITOR ? undefined : function (this: BaseNode, register) {
@@ -1149,8 +1144,8 @@ export class BaseNode extends CCObject implements ISchedulable {
      * eventTarget.emit('fire', message, emitter);
      * ```
      */
-    public emit (type: string, ...args: any[]) {
-        this._eventProcessor.emit(type, ...args);
+    public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
+        this._eventProcessor.emit(type, arg0, arg1, arg2, arg3, arg4);
     }
 
     /**
@@ -1168,10 +1163,12 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @en Checks whether the EventTarget object has any callback registered for a specific type of event.
      * @zh 检查事件目标对象是否有为特定类型的事件注册的回调。
      * @param type - The type of event.
+     * @param callback - The callback function of the event listener, if absent all event listeners for the given type will be removed
+     * @param target - The callback callee of the event listener
      * @return True if a callback of the specified type is registered; false otherwise.
      */
-    public hasEventListener (type: string) {
-        return this._eventProcessor.hasEventListener(type);
+    public hasEventListener (type: string, callback?: Function, target?: Object) {
+        return this._eventProcessor.hasEventListener(type, callback, target);
     }
 
     /**
@@ -1345,31 +1342,6 @@ export class BaseNode extends CCObject implements ISchedulable {
             this._registerIfAttached!(false);
         }
 
-        // Clear event targets
-        const eventTargets = this.__eventTargets;
-        for (let i = 0; i < eventTargets.length; ++i) {
-            const et = eventTargets[i];
-            if (et) {
-                et.targetOff(this);
-            }
-        }
-        eventTargets.length = 0;
-
-        // destroy children
-        const children = this._children;
-        for (let i = 0; i < children.length; ++i) {
-            // destroy immediate so its _onPreDestroy can be called
-            children[i]._destroyImmediate();
-        }
-
-        // destroy self components
-        const comps = this._components;
-        for (let i = 0; i < comps.length; ++i) {
-            // destroy immediate so its _onPreDestroy can be called
-            // TO DO
-            comps[i]._destroyImmediate();
-        }
-
         // remove from persist
         if (this._persistNode) {
             legacyCC.game.removePersistRootNode(this);
@@ -1389,7 +1361,27 @@ export class BaseNode extends CCObject implements ISchedulable {
             }
         }
 
+        // emit node destroy event (this should before event processor destroy)
         this.emit(SystemEventType.NODE_DESTROYED, this);
+
+        // Destroy node event processor
+        this._eventProcessor.destroy();
+
+        // destroy children
+        const children = this._children;
+        for (let i = 0; i < children.length; ++i) {
+            // destroy immediate so its _onPreDestroy can be called
+            children[i]._destroyImmediate();
+        }
+
+        // destroy self components
+        const comps = this._components;
+        for (let i = 0; i < comps.length; ++i) {
+            // destroy immediate so its _onPreDestroy can be called
+            // TO DO
+            comps[i]._destroyImmediate();
+        }
+
         return destroyByParent;
     }
 

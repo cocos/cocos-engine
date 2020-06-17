@@ -8,11 +8,11 @@ import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos,
 import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { Pool } from '../../memop';
-import { UBOLocal, UniformLightingMapSampler, INST_MAT_WORLD } from '../../pipeline/define';
+import { INST_MAT_WORLD, UBOLocal, UniformLightingMapSampler } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from './render-scene';
-import { Texture2D } from '../..';
+import { Texture2D } from '../../assets/texture-2d';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { IGFXAttribute } from '../../gfx';
 import { SubModel, IPSOCreateInfo } from './submodel';

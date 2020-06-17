@@ -499,7 +499,7 @@ export class CameraComponent extends Component {
     }
 
     public onEnable () {
-        this.node.hasChangedFlags = TransformBit.POSITION; // trigger camera matrix update
+        this.node.hasChangedFlags |= TransformBit.POSITION; // trigger camera matrix update
         if (this._camera) {
             this._attachToScene();
             return;

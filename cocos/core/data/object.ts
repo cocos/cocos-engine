@@ -328,7 +328,7 @@ class CCObject {
             this._onPreDestroy();
         }
 
-        if ((TEST ? (/* make EDITOR mockable*/ Function('return !EDITOR'))() : !EDITOR) || legacyCC.engine._isPlaying) {
+        if (!EDITOR || legacyCC.engine._isPlaying) {
             this._destruct();
         }
 

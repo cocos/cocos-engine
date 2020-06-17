@@ -204,6 +204,7 @@ export class ImageAsset extends Asset {
     public destroy () {
         if (this.data && this.data instanceof HTMLImageElement) {
             this.data.src = "";
+            this._setRawAsset("");
             legacyCC.loader.removeItem(this.data.id);
         }
         return super.destroy();
