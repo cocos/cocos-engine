@@ -200,19 +200,31 @@ export default class Color extends ValueType {
      * Converts the hexadecimal formal color into rgb formal.
      * @method fromHex
      * @typescript
-     * fromHex (out: Color, hex: number): Color
+     * fromHex (out: Color, hex: string): Color
      * @static
      */
-    static fromHex (out: Color, hex: number): Color {
-        let r = ((hex >> 24)) / 255.0;
-        let g = ((hex >> 16) & 0xff) / 255.0;
-        let b = ((hex >> 8) & 0xff) / 255.0;
-        let a = ((hex) & 0xff) / 255.0;
+    static fromHex (out: Color, hex: string): Color {
+        if (typeof hex === 'number') {
+            let r = ((hex >> 24)) / 255.0;
+            let g = ((hex >> 16) & 0xff) / 255.0;
+            let b = ((hex >> 8) & 0xff) / 255.0;
+            let a = ((hex) & 0xff) / 255.0;
 
-        out.r = r;
-        out.g = g;
-        out.b = b;
-        out.a = a;
+            out.r = r;
+            out.g = g;
+            out.b = b;
+            out.a = a;
+
+            cc.warnID(9201)
+        }
+        else {
+            hex = (hex.indexOf('#') === 0) ? hex.substring(1) : hex;
+            out.r = parseInt(hex.substr(0, 2), 16) || 0;
+            out.g = parseInt(hex.substr(2, 2), 16) || 0;
+            out.b = parseInt(hex.substr(4, 2), 16) || 0;
+            out.a = parseInt(hex.substr(6, 2), 16) || 255;
+            out._val = ((out.a << 24) >>> 0) + (out.b << 16) + (out.g << 8) + out.r;
+        }
         return out;
     }
 
