@@ -81,6 +81,7 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
     requestedFeatures2.features.textureCompressionETC2 = deviceFeatures.textureCompressionETC2;
     requestedFeatures2.features.samplerAnisotropy = deviceFeatures.samplerAnisotropy;
     requestedFeatures2.features.depthBounds = deviceFeatures.depthBounds;
+    requestedFeatures2.features.multiDrawIndirect = deviceFeatures.multiDrawIndirect;
 
     ///////////////////// Device Creation /////////////////////
 
@@ -161,6 +162,7 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
     _features[static_cast<uint>(GFXFeature::LINE_WIDTH)] = true;
     _features[static_cast<uint>(GFXFeature::STENCIL_COMPARE_MASK)] = true;
     _features[static_cast<uint>(GFXFeature::STENCIL_WRITE_MASK)] = true;
+    _multiDrawIndirectSupported = deviceFeatures2.features.multiDrawIndirect;
 
     VkFormatFeatureFlags requiredFeatures = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT;
     VkFormatProperties formatProperties;

@@ -45,8 +45,8 @@ bool CCMTLBuffer::initialize(const GFXBufferInfo &info) {
         }
     }
 
-    if (_usage & GFXBufferUsage::VERTEX ||
-        _usage & GFXBufferUsage::UNIFORM) {
+    if (_usage & GFXBufferUsageBit::VERTEX ||
+        _usage & GFXBufferUsageBit::UNIFORM) {
         //for single-use data smaller than 4 KB, use setVertexBytes:length:atIndex: instead
         //see more detail at https://developer.apple.com/documentation/metal/mtlrendercommandencoder/1515846-setvertexbytes?language=objc
         if (_size < MINIMUMR_REQUIRED_SIZE_4KB) {
@@ -56,10 +56,9 @@ bool CCMTLBuffer::initialize(const GFXBufferInfo &info) {
         } else {
             createMTLBuffer(_size, _memUsage);
         }
-    } else if (_usage & GFXBufferUsage::INDEX) {
+    } else if (_usage & GFXBufferUsageBit::INDEX ||
+               _usage & GFXBufferUsageBit::INDIRECT) {
         createMTLBuffer(_size, _memUsage);
-    } else if (_usage & GFXBufferUsageBit::INDIRECT) {
-        _indirects.resize(_count);
     } else if (_usage & GFXBufferUsageBit::TRANSFER_SRC ||
                _usage & GFXBufferUsageBit::TRANSFER_DST) {
         _transferBuffer = (uint8_t *)CC_MALLOC(_size);
@@ -124,9 +123,10 @@ void CCMTLBuffer::resize(uint size) {
     if (_size == size)
         return;
 
-    if (_usage & GFXBufferUsage::VERTEX ||
-        _usage & GFXBufferUsage::INDEX ||
-        _usage & GFXBufferUsage::UNIFORM) {
+    if (_usage & GFXBufferUsageBit::VERTEX ||
+        _usage & GFXBufferUsageBit::INDEX ||
+        _usage & GFXBufferUsageBit::UNIFORM ||
+        _usage & GFXBufferUsageBit::INDIRECT) {
         if (_useOptimizedBufferEncoder) {
             if (size < MINIMUMR_REQUIRED_SIZE_4KB)
                 resizeBuffer(&_bufferBytes, size, _size);
@@ -147,7 +147,6 @@ void CCMTLBuffer::resize(uint size) {
     _count = _size / _stride;
     resizeBuffer(&_transferBuffer, _size, oldSize);
     resizeBuffer(&_buffer, _size, oldSize);
-    _indirects.resize(_count);
     _status = GFXStatus::SUCCESS;
 }
 
@@ -178,7 +177,34 @@ void CCMTLBuffer::update(void *buffer, uint offset, uint size) {
         memcpy(_buffer + offset, buffer, size);
 
     if (_usage & GFXBufferUsageBit::INDIRECT) {
-        memcpy((uint8_t *)_indirects.data() + offset, buffer, size);
+        auto drawInfoCount = size / _stride;
+        auto *drawInfo = static_cast<GFXDrawInfo *>(buffer);
+        if (drawInfoCount > 0) {
+            if (drawInfo->indexCount) {
+                vector<MTLDrawIndexedPrimitivesIndirectArguments>::type arguments(drawInfoCount);
+                for (auto &argument : arguments) {
+                    argument.indexCount = drawInfo->indexCount;
+                    argument.instanceCount = drawInfo->instanceCount;
+                    argument.indexStart = drawInfo->firstIndex;
+                    argument.baseVertex = drawInfo->firstVertex;
+                    argument.baseInstance = drawInfo->firstInstance;
+                    drawInfo++;
+                }
+                memcpy((uint8_t *)(_mtlBuffer.contents) + offset, arguments.data(), drawInfoCount * sizeof(MTLDrawIndexedPrimitivesIndirectArguments));
+                _isDrawIndirectByIndex = true;
+            } else {
+                vector<MTLDrawPrimitivesIndirectArguments>::type arguments(drawInfoCount);
+                for (auto &argument : arguments) {
+                    argument.vertexCount = drawInfo->vertexCount;
+                    argument.instanceCount = drawInfo->instanceCount;
+                    argument.vertexStart = drawInfo->firstVertex;
+                    argument.baseInstance = drawInfo->firstInstance;
+                    drawInfo++;
+                }
+                memcpy((uint8_t *)(_mtlBuffer.contents) + offset, arguments.data(), drawInfoCount * sizeof(MTLDrawPrimitivesIndirectArguments));
+                _isDrawIndirectByIndex = false;
+            }
+        }
         return;
     }
 

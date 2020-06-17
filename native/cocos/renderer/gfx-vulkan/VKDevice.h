@@ -56,6 +56,7 @@ public:
     CC_INLINE CCVKBuffer *stagingBuffer() { return _stagingBuffer; }
     CC_INLINE const std::vector<const char *> &getLayers() const { return _layers; }
     CC_INLINE const std::vector<const char *> &getExtensions() const { return _extensions; }
+    CC_INLINE bool isMultiDrawIndirectSupported() const { return _multiDrawIndirectSupported; }
 
     CCVKTexture *nullTexView2D = nullptr;
     CCVKTexture *nullTexViewCube = nullptr;
@@ -74,6 +75,8 @@ private:
 
     std::vector<const char *> _layers;
     std::vector<const char *> _extensions;
+
+    bool _multiDrawIndirectSupported = false;
 };
 
 } // namespace gfx

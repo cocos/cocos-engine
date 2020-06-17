@@ -266,7 +266,50 @@ void CCVKCmdFuncResizeBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
 
 void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, void *buffer, uint offset, uint size) {
     if (gpuBuffer->mappedData) {
-        memcpy(gpuBuffer->mappedData + offset, buffer, size);
+        if (gpuBuffer->usage & GFXBufferUsageBit::INDIRECT) {
+            size_t drawInfoCount = size / gpuBuffer->stride;
+            GFXDrawInfo *drawInfo = static_cast<GFXDrawInfo *>(buffer);
+            if (drawInfoCount > 0) {
+                if (drawInfo->indexCount) {
+                    vector<VkDrawIndexedIndirectCommand>::type cmds(drawInfoCount);
+                    for (size_t i = 0; i < drawInfoCount; i++) {
+#if COCOS2D_DEBUG > 0
+                        if (drawInfo->indexCount == 0) {
+                            CC_LOG_ERROR("CCVKCmdFuncUpdateBuffer: all indirect draw should use VkDrawIndexedIndirectCommand, but one of them is not.");
+                            return;
+                        }
+#endif
+                        cmds[i].indexCount = drawInfo->indexCount;
+                        cmds[i].instanceCount = drawInfo->instanceCount == 0 ? 1 : drawInfo->instanceCount;
+                        cmds[i].firstIndex = drawInfo->firstIndex;
+                        cmds[i].vertexOffset = drawInfo->vertexOffset;
+                        cmds[i].firstInstance = drawInfo->firstInstance;
+                        drawInfo++;
+                    }
+                    memcpy(gpuBuffer->mappedData + offset, cmds.data(), drawInfoCount * sizeof(VkDrawIndexedIndirectCommand));
+                    gpuBuffer->isDrawIndirectByIndex = true;
+                } else {
+                    vector<VkDrawIndirectCommand>::type cmds(drawInfoCount);
+                    for (size_t i = 0; i < drawInfoCount; i++) {
+#if COCOS2D_DEBUG > 0
+                        if (drawInfo->indexCount > 0) {
+                            CC_LOG_ERROR("CCVKCmdFuncUpdateBuffer: all indirect draw should use VkDrawIndirectCommand, but one of them is not.");
+                            return;
+                        }
+#endif
+                        cmds[i].vertexCount = drawInfo->vertexCount;
+                        cmds[i].instanceCount = drawInfo->indexCount;
+                        cmds[i].firstVertex = drawInfo->firstVertex;
+                        cmds[i].firstInstance = drawInfo->firstInstance;
+                        drawInfo++;
+                    }
+                    memcpy(gpuBuffer->mappedData + offset, cmds.data(), drawInfoCount * sizeof(VkDrawIndirectCommand));
+                    gpuBuffer->isDrawIndirectByIndex = false;
+                }
+            }
+        } else {
+            memcpy(gpuBuffer->mappedData + offset, buffer, size);
+        }
     } else if (gpuBuffer->memUsage == GFXMemoryUsage::DEVICE) {
         const CCVKGPUBuffer *stagingBuffer = device->stagingBuffer()->gpuBuffer();
         if (stagingBuffer->size < size) device->stagingBuffer()->resize(nextPowerOf2(size));

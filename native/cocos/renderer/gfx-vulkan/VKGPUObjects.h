@@ -139,8 +139,7 @@ public:
     uint stride = 0;
     uint count = 0;
     void *buffer = nullptr;
-    GFXDrawInfoList indirects;
-
+    bool isDrawIndirectByIndex = false;
     VkBuffer vkBuffer = VK_NULL_HANDLE;
     VkDeviceSize startOffset = 0u;
     uint8_t *mappedData = nullptr;
