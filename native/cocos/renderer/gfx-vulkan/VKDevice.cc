@@ -270,13 +270,13 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
     _cmdAllocator = createCommandAllocator(cmdAllocInfo);
 
     for (uint i = 0u; i < gpuContext->swapchainCreateInfo.minImageCount; i++) {
-        GFXTextureInfo depthStecnilTexInfo;
-        depthStecnilTexInfo.type = GFXTextureType::TEX2D;
-        depthStecnilTexInfo.usage = GFXTextureUsageBit::DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit::SAMPLED;
-        depthStecnilTexInfo.format = _context->getDepthStencilFormat();
-        depthStecnilTexInfo.width = 1;
-        depthStecnilTexInfo.height = 1;
-        CCVKTexture *texture = (CCVKTexture *)createTexture(depthStecnilTexInfo);
+        GFXTextureInfo depthStencilTexInfo;
+        depthStencilTexInfo.type = GFXTextureType::TEX2D;
+        depthStencilTexInfo.usage = GFXTextureUsageBit::DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit::SAMPLED;
+        depthStencilTexInfo.format = _context->getDepthStencilFormat();
+        depthStencilTexInfo.width = 1;
+        depthStencilTexInfo.height = 1;
+        CCVKTexture *texture = (CCVKTexture *)createTexture(depthStencilTexInfo);
         _depthStencilTextures.push_back(texture);
     }
 

@@ -167,7 +167,7 @@ void CCVKCommandBuffer::bindInputAssembler(GFXInputAssembler *ia) {
 
         if (gpuInputAssembler->gpuIndexBuffer) {
             vkCmdBindIndexBuffer(_gpuCommandBuffer->vkCommandBuffer, gpuInputAssembler->gpuIndexBuffer->vkBuffer, 0,
-                                 gpuInputAssembler->gpuIndexBuffer->stride == 32 ? VK_INDEX_TYPE_UINT32 : VK_INDEX_TYPE_UINT16);
+                                 gpuInputAssembler->gpuIndexBuffer->stride == 4 ? VK_INDEX_TYPE_UINT32 : VK_INDEX_TYPE_UINT16);
         }
         _curGPUInputAssember = gpuInputAssembler;
     }
