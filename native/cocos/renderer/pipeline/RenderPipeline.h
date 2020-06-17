@@ -29,10 +29,10 @@ public:
     virtual ~RenderPipeline() = default;
 
     virtual void destroy() = 0;
-    virtual gfx::vector<cc::Light *>::type &getValidLights() const = 0;
-    virtual gfx::vector<float>::type &getLightIndexOffsets() const = 0;
-    virtual gfx::vector<float>::type &getLightIndices() const = 0;
-    virtual gfx::vector<gfx::GFXBuffer *>::type &getLightBuffers() const = 0;
+    virtual gfx::vector<cc::Light *> &getValidLights() const = 0;
+    virtual gfx::vector<float> &getLightIndexOffsets() const = 0;
+    virtual gfx::vector<float> &getLightIndices() const = 0;
+    virtual gfx::vector<gfx::GFXBuffer *> &getLightBuffers() const = 0;
 
     virtual bool initialize(const RenderPipelineInfo &info);
     virtual bool activate(cc::Root *root);

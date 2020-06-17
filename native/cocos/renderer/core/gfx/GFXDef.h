@@ -507,7 +507,7 @@ enum class GFXDynamicState : uint8_t {
     STENCIL_COMPARE_MASK,
 };
 
-typedef vector<GFXDynamicState>::type GFXDynamicStateList;
+typedef vector<GFXDynamicState> GFXDynamicStateList;
 
 enum class GFXStencilFace : uint8_t {
     FRONT,
@@ -611,7 +611,7 @@ struct GFXBufferTextureCopy {
     GFXExtent texExtent = {0, 0, 0};
     GFXTextureSubres texSubres;
 };
-typedef vector<GFXBufferTextureCopy>::type GFXBufferTextureCopyList;
+typedef vector<GFXBufferTextureCopy> GFXBufferTextureCopyList;
 
 struct GFXDataArray {
     std::vector<uint8_t *> datas;
@@ -701,7 +701,7 @@ struct GFXDrawInfo {
 };
 #pragma pack(pop)
 
-typedef vector<GFXDrawInfo>::type GFXDrawInfoList;
+typedef vector<GFXDrawInfo> GFXDrawInfoList;
 
 struct GFXIndirectBuffer {
     GFXDrawInfoList drawInfos;
@@ -751,7 +751,7 @@ struct GFXShaderMacro {
     String value;
 };
 
-typedef vector<GFXShaderMacro>::type GFXShaderMacroList;
+typedef vector<GFXShaderMacro> GFXShaderMacroList;
 
 struct GFXUniform {
     String name;
@@ -759,7 +759,7 @@ struct GFXUniform {
     uint count = 0;
 };
 
-typedef vector<GFXUniform>::type GFXUniformList;
+typedef vector<GFXUniform> GFXUniformList;
 
 struct GFXUniformBlock {
     GFXShaderType shaderStages = GFXShaderType::NONE;
@@ -768,7 +768,7 @@ struct GFXUniformBlock {
     GFXUniformList uniforms;
 };
 
-typedef vector<GFXUniformBlock>::type GFXUniformBlockList;
+typedef vector<GFXUniformBlock> GFXUniformBlockList;
 
 struct GFXUniformSampler {
     GFXShaderType shaderStages = GFXShaderType::NONE;
@@ -778,7 +778,7 @@ struct GFXUniformSampler {
     uint count = 0;
 };
 
-typedef vector<GFXUniformSampler>::type GFXUniformSamplerList;
+typedef vector<GFXUniformSampler> GFXUniformSamplerList;
 
 struct GFXShaderStage {
     GFXShaderType type;
@@ -786,7 +786,7 @@ struct GFXShaderStage {
     GFXShaderMacroList macros;
 };
 
-typedef vector<GFXShaderStage>::type GFXShaderStageList;
+typedef vector<GFXShaderStage> GFXShaderStageList;
 
 struct GFXAttribute {
     String name;
@@ -797,8 +797,8 @@ struct GFXAttribute {
     uint location = 0;
 };
 
-typedef vector<GFXAttribute>::type GFXAttributeList;
-typedef vector<GFXBuffer *>::type GFXBufferList;
+typedef vector<GFXAttribute> GFXAttributeList;
+typedef vector<GFXBuffer *> GFXBufferList;
 
 struct GFXShaderInfo {
     String name;
@@ -824,7 +824,7 @@ struct GFXColorAttachment {
     GFXTextureLayout endLayout = GFXTextureLayout::COLOR_ATTACHMENT_OPTIMAL;
 };
 
-typedef vector<GFXColorAttachment>::type GFXColorAttachmentList;
+typedef vector<GFXColorAttachment> GFXColorAttachmentList;
 
 struct GFXDepthStencilAttachment {
     GFXFormat format = GFXFormat::UNKNOWN;
@@ -853,7 +853,7 @@ struct GFXSubPass {
     }
 };
 
-typedef vector<GFXSubPass>::type GFXSubPassList;
+typedef vector<GFXSubPass> GFXSubPassList;
 
 struct GFXRenderPassInfo {
     GFXColorAttachmentList colorAttachments;
@@ -861,12 +861,12 @@ struct GFXRenderPassInfo {
     GFXSubPassList subPasses;
 };
 
-typedef vector<GFXTexture *>::type GFXTextureList;
+typedef vector<GFXTexture *> GFXTextureList;
 
 struct GFXFramebufferInfo {
     GFXRenderPass *renderPass = nullptr;
     GFXTextureList colorTextures;
-    vector<int>::type colorMipmapLevels;
+    vector<int> colorMipmapLevels;
     GFXTexture *depthStencilTexture = nullptr;
     int depthStencilMipmapLevel = 0;
     bool isOffscreen = true;
@@ -880,7 +880,7 @@ struct GFXBinding {
     uint count = 0;
 };
 
-typedef vector<GFXBinding>::type GFXBindingList;
+typedef vector<GFXBinding> GFXBindingList;
 
 struct GFXBindingLayoutInfo {
     GFXBindingList bindings;
@@ -897,7 +897,7 @@ struct GFXBindingUnit {
     GFXSampler *sampler = nullptr;
 };
 
-typedef vector<GFXBindingUnit>::type GFXBindingUnitList;
+typedef vector<GFXBindingUnit> GFXBindingUnitList;
 
 struct GFXPushConstantRange {
     GFXShaderType shaderType;
@@ -905,8 +905,8 @@ struct GFXPushConstantRange {
     uint count = 0;
 };
 
-typedef vector<GFXPushConstantRange>::type GFXPushConstantRangeList;
-typedef vector<GFXBindingLayout *>::type GFXBindingLayoutList;
+typedef vector<GFXPushConstantRange> GFXPushConstantRangeList;
+typedef vector<GFXBindingLayout *> GFXBindingLayoutList;
 
 struct GFXPipelineLayoutInfo {
     GFXPushConstantRangeList pushConstantsRanges;
@@ -965,7 +965,7 @@ struct GFXBlendTarget {
     GFXColorMask blendColorMask = GFXColorMask::ALL;
 };
 
-typedef vector<GFXBlendTarget>::type GFXBlendTargetList;
+typedef vector<GFXBlendTarget> GFXBlendTargetList;
 
 struct GFXBlendState {
     bool isA2C = false;

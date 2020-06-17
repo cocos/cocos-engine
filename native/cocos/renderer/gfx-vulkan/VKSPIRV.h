@@ -50,7 +50,7 @@ glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion) {
 
 bool glslangInitialized = false;
 
-const vector<unsigned int>::type GLSL2SPIRV(GFXShaderType type, const String &source, int vulkanMinorVersion = 0) {
+const vector<unsigned int> GLSL2SPIRV(GFXShaderType type, const String &source, int vulkanMinorVersion = 0) {
     if (!glslangInitialized) {
         glslang::InitializeProcess();
         glslangInitialized = true;

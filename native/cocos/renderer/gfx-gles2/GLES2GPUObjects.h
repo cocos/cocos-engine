@@ -18,7 +18,7 @@ public:
     uint8_t *buffer = nullptr;
     GFXDrawInfoList indirects;
 };
-typedef vector<GLES2GPUBuffer *>::type GLES2GPUBufferList;
+typedef vector<GLES2GPUBuffer *> GLES2GPUBufferList;
 
 class GLES2GPUTexture : public Object {
 public:
@@ -46,7 +46,7 @@ public:
     GLenum glMagFilter = 0;
 };
 
-typedef vector<GLES2GPUTexture *>::type GLES2GPUTextureList;
+typedef vector<GLES2GPUTexture *> GLES2GPUTextureList;
 
 class GLES2GPUSampler : public Object {
 public:
@@ -75,7 +75,7 @@ struct GLES2GPUInput {
     GLenum glType = 0;
     GLint glLoc = -1;
 };
-typedef vector<GLES2GPUInput>::type GLES2GPUInputList;
+typedef vector<GLES2GPUInput> GLES2GPUInputList;
 
 struct GLES2GPUUniform {
     uint binding = GFX_INVALID_BINDING;
@@ -119,7 +119,7 @@ struct GLES2GPUUniform {
         CC_SAFE_FREE(buff);
     }
 };
-typedef vector<GLES2GPUUniform>::type GLES2GPUUniformList;
+typedef vector<GLES2GPUUniform> GLES2GPUUniformList;
 
 struct GLES2GPUUniformBlock {
     uint binding = 0;
@@ -129,17 +129,17 @@ struct GLES2GPUUniformBlock {
     GLES2GPUUniformList glUniforms;
     GLES2GPUUniformList glActiveUniforms;
 };
-typedef vector<GLES2GPUUniformBlock>::type GLES2GPUUniformBlockList;
+typedef vector<GLES2GPUUniformBlock> GLES2GPUUniformBlockList;
 
 struct GLES2GPUUniformSampler {
     uint binding = 0;
     String name;
     GFXType type = GFXType::UNKNOWN;
-    vector<int>::type units;
+    vector<int> units;
     GLenum glType = 0;
     GLint glLoc = -1;
 };
-typedef vector<GLES2GPUUniformSampler>::type GLES2GPUUniformSamplerList;
+typedef vector<GLES2GPUUniformSampler> GLES2GPUUniformSamplerList;
 
 struct GLES2GPUShaderStage {
     GLES2GPUShaderStage(GFXShaderType t, String s, GFXShaderMacroList m, GLuint shader = 0)
@@ -149,7 +149,7 @@ struct GLES2GPUShaderStage {
     GFXShaderMacroList macros;
     GLuint glShader = 0;
 };
-typedef vector<GLES2GPUShaderStage>::type GLES2GPUShaderStageList;
+typedef vector<GLES2GPUShaderStage> GLES2GPUShaderStageList;
 
 class GLES2GPUShader : public Object {
 public:
@@ -175,7 +175,7 @@ struct GLES2GPUAttribute {
     bool isInstanced = false;
     uint offset = 0;
 };
-typedef vector<GLES2GPUAttribute>::type GLES2GPUAttributeList;
+typedef vector<GLES2GPUAttribute> GLES2GPUAttributeList;
 
 class GLES2GPUInputAssembler : public Object {
 public:
@@ -185,7 +185,7 @@ public:
     GLES2GPUBuffer *gpuIndirectBuffer = nullptr;
     GLES2GPUAttributeList glAttribs;
     GLenum glIndexType = 0;
-    map<GLuint, GLuint>::type glVAOs;
+    map<GLuint, GLuint> glVAOs;
 };
 
 class GLES2GPURenderPass : public Object {
@@ -227,7 +227,7 @@ struct GLES2GPUBinding {
     GLES2GPUTexture *gpuTexture = nullptr;
     GLES2GPUSampler *gpuSampler = nullptr;
 };
-typedef vector<GLES2GPUBinding>::type GLES2GPUBindingList;
+typedef vector<GLES2GPUBinding> GLES2GPUBindingList;
 
 class GLES2GPUBindingLayout : public Object {
 public:

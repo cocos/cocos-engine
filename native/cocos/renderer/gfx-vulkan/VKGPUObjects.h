@@ -19,8 +19,8 @@ public:
     VkPhysicalDeviceVulkan12Features physicalDeviceVulkan12Features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES};
     VkPhysicalDeviceProperties physicalDeviceProperties{};
     VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties{};
-    vector<VkQueueFamilyProperties>::type queueFamilyProperties;
-    vector<VkBool32>::type queueFamilyPresentables;
+    vector<VkQueueFamilyProperties> queueFamilyProperties;
+    vector<VkBool32> queueFamilyPresentables;
 
     VkSurfaceKHR vkSurface = VK_NULL_HANDLE;
 
@@ -30,8 +30,8 @@ public:
 class CCVKGPUDevice : public Object {
 public:
     VkDevice vkDevice = VK_NULL_HANDLE;
-    vector<VkLayerProperties>::type layers;
-    vector<VkExtensionProperties>::type extensions;
+    vector<VkLayerProperties> layers;
+    vector<VkExtensionProperties> extensions;
     VmaAllocator memoryAllocator = VK_NULL_HANDLE;
 };
 
@@ -41,7 +41,7 @@ public:
     GFXDepthStencilAttachment depthStencilAttachment;
     GFXSubPassList subPasses;
     VkRenderPass vkRenderPass;
-    vector<VkClearValue>::type clearValues;
+    vector<VkClearValue> clearValues;
 };
 
 class CCVKGPUTexture : public Object {
@@ -77,7 +77,7 @@ public:
     VkImageView vkImageView = VK_NULL_HANDLE;
 };
 
-typedef vector<CCVKGPUTextureView *>::type CCVKGPUTextureViewList;
+typedef vector<CCVKGPUTextureView *> CCVKGPUTextureViewList;
 
 class CCVKGPUSwapchain;
 class CCVKGPUFramebuffer : public Object {
@@ -90,20 +90,20 @@ public:
     CCVKGPUSwapchain *swapchain = nullptr;
 };
 
-typedef vector<VkFramebuffer>::type FramebufferList;
-typedef map<CCVKGPUFramebuffer *, FramebufferList>::type FramebufferListMap;
+typedef vector<VkFramebuffer> FramebufferList;
+typedef map<CCVKGPUFramebuffer *, FramebufferList> FramebufferListMap;
 typedef FramebufferListMap::iterator FramebufferListMapIter;
 
 class CCVKGPUSwapchain : public Object {
 public:
     uint curImageIndex = 0;
     VkSwapchainKHR vkSwapchain = VK_NULL_HANDLE;
-    vector<VkImageView>::type vkSwapchainImageViews;
+    vector<VkImageView> vkSwapchainImageViews;
     FramebufferListMap vkSwapchainFramebufferListMap;
     // external references
-    vector<VkImage>::type swapchainImages;
-    vector<VkImage>::type depthStencilImages;
-    vector<VkImageView>::type depthStencilImageViews;
+    vector<VkImage> swapchainImages;
+    vector<VkImage> depthStencilImages;
+    vector<VkImageView> depthStencilImageViews;
 };
 
 class CCVKGPUCommandPool : public Object {
@@ -145,7 +145,7 @@ public:
     uint8_t *mappedData = nullptr;
     VmaAllocation vmaAllocation = VK_NULL_HANDLE;
 };
-typedef vector<CCVKGPUBuffer *>::type CCVKGPUBufferList;
+typedef vector<CCVKGPUBuffer *> CCVKGPUBufferList;
 
 class CCVKGPUSampler : public Object {
 public:
@@ -173,7 +173,7 @@ struct CCVKGPUShaderStage {
     GFXShaderMacroList macros;
     VkShaderModule vkShader = VK_NULL_HANDLE;
 };
-typedef vector<CCVKGPUShaderStage>::type CCVKGPUShaderStageList;
+typedef vector<CCVKGPUShaderStage> CCVKGPUShaderStageList;
 
 class CCVKGPUShader : public Object {
 public:
@@ -190,13 +190,13 @@ public:
     CCVKGPUBufferList gpuVertexBuffers;
     CCVKGPUBuffer *gpuIndexBuffer = nullptr;
     CCVKGPUBuffer *gpuIndirectBuffer = nullptr;
-    vector<VkBuffer>::type vertexBuffers;
-    vector<VkDeviceSize>::type vertexBufferOffsets;
+    vector<VkBuffer> vertexBuffers;
+    vector<VkDeviceSize> vertexBufferOffsets;
 };
 
 class CCVKGPUBindingLayout : public Object {
 public:
-    vector<VkWriteDescriptorSet>::type bindings;
+    vector<VkWriteDescriptorSet> bindings;
     VkDescriptorSetLayout vkDescriptorSetLayout = VK_NULL_HANDLE;
     VkDescriptorPool vkDescriptorPool = VK_NULL_HANDLE;
     VkDescriptorSet vkDescriptorSet = VK_NULL_HANDLE;
@@ -205,7 +205,7 @@ public:
 class CCVKGPUPipelineLayout : public Object {
 public:
     GFXPushConstantRangeList pushConstantRanges;
-    vector<CCVKGPUBindingLayout *>::type gpuBindingLayouts;
+    vector<CCVKGPUBindingLayout *> gpuBindingLayouts;
     VkPipelineLayout vkPipelineLayout;
 };
 
@@ -268,7 +268,7 @@ public:
 private:
     CCVKGPUDevice *_device;
     uint _count = 0;
-    vector<VkSemaphore>::type _semaphores;
+    vector<VkSemaphore> _semaphores;
 };
 
 class CCVKGPUFencePool : public Object {
@@ -313,7 +313,7 @@ public:
 private:
     CCVKGPUDevice *_device;
     uint _count = 0;
-    vector<VkFence>::type _fences;
+    vector<VkFence> _fences;
 };
 
 } // namespace gfx

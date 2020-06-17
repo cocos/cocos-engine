@@ -79,10 +79,10 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
         _gpuContext = CC_NEW(CCVKGPUContext);
 
         // only enable the absolute essentials for now
-        vector<const char *>::type requestedLayers{
+        vector<const char *> requestedLayers{
 
         };
-        vector<const char *>::type requestedExtensions{
+        vector<const char *> requestedExtensions{
             VK_KHR_SURFACE_EXTENSION_NAME,
             VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
         };
@@ -95,12 +95,12 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
 
         uint availableLayerCount;
         VK_CHECK(vkEnumerateInstanceLayerProperties(&availableLayerCount, nullptr));
-        vector<VkLayerProperties>::type supportedLayers(availableLayerCount);
+        vector<VkLayerProperties> supportedLayers(availableLayerCount);
         VK_CHECK(vkEnumerateInstanceLayerProperties(&availableLayerCount, supportedLayers.data()));
 
         uint availableExtensionCount;
         VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, nullptr));
-        vector<VkExtensionProperties>::type supportedExtensions(availableExtensionCount);
+        vector<VkExtensionProperties> supportedExtensions(availableExtensionCount);
         VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, supportedExtensions.data()));
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
@@ -121,7 +121,7 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
 
 #if COCOS2D_DEBUG > 0
         // Determine the optimal validation layers to enable that are necessary for useful debugging
-        vector<vector<const char *>::type>::type validationLayerPriorityList{
+        vector<vector<const char *>> validationLayerPriorityList{
             // The preferred validation layer is "VK_LAYER_KHRONOS_validation"
             {"VK_LAYER_KHRONOS_validation"},
 
@@ -140,7 +140,7 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
             // Otherwise as a last resort we fallback to attempting to enable the LunarG core layer
             {"VK_LAYER_LUNARG_core_validation"},
         };
-        for (vector<const char *>::type &validationLayers : validationLayerPriorityList) {
+        for (vector<const char *> &validationLayers : validationLayerPriorityList) {
             bool found = true;
             for (const char *layer : validationLayers) {
                 if (!isLayerSupported(layer, supportedLayers)) {
@@ -269,10 +269,10 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
             return false;
         }
 
-        vector<VkPhysicalDevice>::type physicalDeviceHandles(physicalDeviceCount);
+        vector<VkPhysicalDevice> physicalDeviceHandles(physicalDeviceCount);
         VK_CHECK(vkEnumeratePhysicalDevices(_gpuContext->vkInstance, &physicalDeviceCount, physicalDeviceHandles.data()));
 
-        vector<VkPhysicalDeviceProperties>::type physicalDeviceProperties(physicalDeviceCount);
+        vector<VkPhysicalDeviceProperties> physicalDeviceProperties(physicalDeviceCount);
 
         uint deviceIndex;
         for (deviceIndex = 0u; deviceIndex < physicalDeviceCount; ++deviceIndex) {
@@ -322,12 +322,12 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
 
         uint surfaceFormatCount = 0u;
         VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &surfaceFormatCount, nullptr));
-        vector<VkSurfaceFormatKHR>::type surfaceFormats(surfaceFormatCount);
+        vector<VkSurfaceFormatKHR> surfaceFormats(surfaceFormatCount);
         VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &surfaceFormatCount, surfaceFormats.data()));
 
         uint presentModeCount = 0u;
         VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &presentModeCount, nullptr));
-        vector<VkPresentModeKHR>::type presentModes(presentModeCount);
+        vector<VkPresentModeKHR> presentModes(presentModeCount);
         VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &presentModeCount, presentModes.data()));
 
         VkExtent2D imageExtent{1u, 1u};
@@ -360,7 +360,7 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
             }
         }
 
-        vector<std::pair<GFXFormat, VkFormat>>::type depthFormatPriorityList = {
+        vector<std::pair<GFXFormat, VkFormat>> depthFormatPriorityList = {
             {GFXFormat::D32F_S8, VK_FORMAT_D32_SFLOAT_S8_UINT},
             {GFXFormat::D24S8, VK_FORMAT_D24_UNORM_S8_UINT},
             {GFXFormat::D16S8, VK_FORMAT_D16_UNORM_S8_UINT},
@@ -381,7 +381,7 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
 
         // Select a present mode for the swapchain
 
-        vector<VkPresentModeKHR>::type presentModePriorityList;
+        vector<VkPresentModeKHR> presentModePriorityList;
 
         switch (_vsyncMode) {
             case GFXVsyncMode::OFF: presentModePriorityList.insert(presentModePriorityList.end(), {VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_FIFO_KHR}); break;
@@ -421,7 +421,7 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
         // Find a supported composite alpha format (not all devices support alpha opaque)
         VkCompositeAlphaFlagBitsKHR compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
         // Simply select the first composite alpha format available
-        vector<VkCompositeAlphaFlagBitsKHR>::type compositeAlphaFlags = {
+        vector<VkCompositeAlphaFlagBitsKHR> compositeAlphaFlags = {
             VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
             VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR,
             VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR,

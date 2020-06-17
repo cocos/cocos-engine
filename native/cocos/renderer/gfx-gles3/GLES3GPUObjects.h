@@ -18,7 +18,7 @@ public:
     uint8_t *buffer = nullptr;
     GFXDrawInfoList indirects;
 };
-typedef vector<GLES3GPUBuffer *>::type GLES3GPUBufferList;
+typedef vector<GLES3GPUBuffer *> GLES3GPUBufferList;
 
 class GLES3GPUTexture : public Object {
 public:
@@ -46,7 +46,7 @@ public:
     GLenum glMagFilter = 0;
 };
 
-typedef vector<GLES3GPUTexture *>::type GLES3GPUTextureList;
+typedef vector<GLES3GPUTexture *> GLES3GPUTextureList;
 
 class GLES3GPUSampler : public Object {
 public:
@@ -76,7 +76,7 @@ struct GLES3GPUInput {
     GLenum glType = 0;
     GLint glLoc = -1;
 };
-typedef vector<GLES3GPUInput>::type GLES3GPUInputList;
+typedef vector<GLES3GPUInput> GLES3GPUInputList;
 
 struct GLES3GPUUniform {
     uint binding = GFX_INVALID_BINDING;
@@ -89,7 +89,7 @@ struct GLES3GPUUniform {
     GLenum glType = 0;
     GLint glLoc = -1;
 };
-typedef vector<GLES3GPUUniform>::type GLES3GPUUniformList;
+typedef vector<GLES3GPUUniform> GLES3GPUUniformList;
 
 struct GLES3GPUUniformBlock {
     uint binding = 0;
@@ -99,17 +99,17 @@ struct GLES3GPUUniformBlock {
     GLES3GPUUniformList glUniforms;
     GLES3GPUUniformList glActiveUniforms;
 };
-typedef vector<GLES3GPUUniformBlock>::type GLES3GPUUniformBlockList;
+typedef vector<GLES3GPUUniformBlock> GLES3GPUUniformBlockList;
 
 struct GLES3GPUUniformSampler {
     uint binding = 0;
     String name;
     GFXType type = GFXType::UNKNOWN;
-    vector<int>::type units;
+    vector<int> units;
     GLenum glType = 0;
     GLint glLoc = -1;
 };
-typedef vector<GLES3GPUUniformSampler>::type GLES3GPUUniformSamplerList;
+typedef vector<GLES3GPUUniformSampler> GLES3GPUUniformSamplerList;
 
 struct GLES3GPUShaderStage {
     GLES3GPUShaderStage(GFXShaderType t, String s, GFXShaderMacroList m, GLuint shader = 0)
@@ -119,7 +119,7 @@ struct GLES3GPUShaderStage {
     GFXShaderMacroList macros;
     GLuint glShader = 0;
 };
-typedef vector<GLES3GPUShaderStage>::type GLES3GPUShaderStageList;
+typedef vector<GLES3GPUShaderStage> GLES3GPUShaderStageList;
 
 class GLES3GPUShader : public Object {
 public:
@@ -145,7 +145,7 @@ struct GLES3GPUAttribute {
     bool isInstanced = false;
     uint offset = 0;
 };
-typedef vector<GLES3GPUAttribute>::type GLES3GPUAttributeList;
+typedef vector<GLES3GPUAttribute> GLES3GPUAttributeList;
 
 class GLES3GPUInputAssembler : public Object {
 public:
@@ -155,7 +155,7 @@ public:
     GLES3GPUBuffer *gpuIndirectBuffer = nullptr;
     GLES3GPUAttributeList glAttribs;
     GLenum glIndexType = 0;
-    map<GLuint, GLuint>::type glVAOs;
+    map<GLuint, GLuint> glVAOs;
 };
 
 class GLES3GPURenderPass : public Object {
@@ -172,7 +172,7 @@ public:
     bool isOffscreen = false;
     GLuint glFramebuffer = 0;
     GLint depstencilMipmapLevel = 0;
-    vector<GLint>::type colorMipmapLevels;
+    vector<GLint> colorMipmapLevels;
 };
 
 class GLES3GPUPipelineLayout : public Object {
@@ -199,7 +199,7 @@ struct GLES3GPUBinding {
     GLES3GPUTexture *gpuTexture = nullptr;
     GLES3GPUSampler *gpuSampler = nullptr;
 };
-typedef vector<GLES3GPUBinding>::type GLES3GPUBindingList;
+typedef vector<GLES3GPUBinding> GLES3GPUBindingList;
 
 class GLES3GPUBindingLayout : public Object {
 public:

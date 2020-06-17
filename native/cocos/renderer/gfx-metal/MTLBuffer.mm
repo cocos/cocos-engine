@@ -181,7 +181,7 @@ void CCMTLBuffer::update(void *buffer, uint offset, uint size) {
         auto *drawInfo = static_cast<GFXDrawInfo *>(buffer);
         if (drawInfoCount > 0) {
             if (drawInfo->indexCount) {
-                vector<MTLDrawIndexedPrimitivesIndirectArguments>::type arguments(drawInfoCount);
+                vector<MTLDrawIndexedPrimitivesIndirectArguments> arguments(drawInfoCount);
                 for (auto &argument : arguments) {
                     argument.indexCount = drawInfo->indexCount;
                     argument.instanceCount = drawInfo->instanceCount;
@@ -193,7 +193,7 @@ void CCMTLBuffer::update(void *buffer, uint offset, uint size) {
                 memcpy((uint8_t *)(_mtlBuffer.contents) + offset, arguments.data(), drawInfoCount * sizeof(MTLDrawIndexedPrimitivesIndirectArguments));
                 _isDrawIndirectByIndex = true;
             } else {
-                vector<MTLDrawPrimitivesIndirectArguments>::type arguments(drawInfoCount);
+                vector<MTLDrawPrimitivesIndirectArguments> arguments(drawInfoCount);
                 for (auto &argument : arguments) {
                     argument.vertexCount = drawInfo->vertexCount;
                     argument.instanceCount = drawInfo->instanceCount;

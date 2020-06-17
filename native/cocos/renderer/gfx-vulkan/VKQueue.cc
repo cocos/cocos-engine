@@ -36,7 +36,7 @@ void CCVKQueue::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-void CCVKQueue::submit(const vector<GFXCommandBuffer *>::type &cmdBuffs, GFXFence *fence) {
+void CCVKQueue::submit(const vector<GFXCommandBuffer *> &cmdBuffs, GFXFence *fence) {
     if (!_isAsync) {
         _gpuQueue->commandBuffers.clear();
         uint count = cmdBuffs.size();

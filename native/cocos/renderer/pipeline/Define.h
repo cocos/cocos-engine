@@ -15,7 +15,7 @@ class RenderFlow;
 struct CC_DLL RenderObject {
     //TODO
 };
-typedef gfx::vector<struct RenderObject>::type RenderObjectList;
+typedef gfx::vector<struct RenderObject> RenderObjectList;
 
 struct CC_DLL RenderPipelineInfo {
     //TODO
@@ -49,7 +49,7 @@ struct CC_DLL InstancedItem {
     uint capacity = 0;
     uint stride = 0;
 };
-typedef gfx::vector<InstancedItem>::type InstancedItemList;
+typedef gfx::vector<InstancedItem> InstancedItemList;
 
 struct BatchedItem {
     gfx::GFXBufferList vbs;
@@ -61,10 +61,10 @@ struct BatchedItem {
     gfx::GFXBuffer *ubo = nullptr;
     cc::PSOCreateInfo *psoCreatedInfo = nullptr;
 };
-typedef gfx::vector<BatchedItem>::type BatchedItemList;
+typedef gfx::vector<BatchedItem> BatchedItemList;
 
-typedef gfx::vector<RenderStage *>::type RenderStageList;
-typedef gfx::vector<RenderFlow *>::type RenderFlowList;
+typedef gfx::vector<RenderStage *> RenderStageList;
+typedef gfx::vector<RenderFlow *> RenderFlowList;
 
 //TODO
 const uint CAMERA_DEFAULT_MASK = 1;

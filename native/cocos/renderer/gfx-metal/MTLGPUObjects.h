@@ -18,7 +18,7 @@ struct CCMTLGPUUniformBlock {
     CCMTLGPUUniformBlock(uint _mtlBinding, uint _originBinding, id<MTLBuffer> _buffer)
     : mtlBinding(_mtlBinding), originBinding(_originBinding), buffer(_buffer) {}
 };
-typedef vector<CCMTLGPUUniformBlock>::type CCMTLGPUUniformBlockList;
+typedef vector<CCMTLGPUUniformBlock> CCMTLGPUUniformBlockList;
 
 struct CCMTLGPUTexture {
     uint mtlBinding = 0;
@@ -28,7 +28,7 @@ struct CCMTLGPUTexture {
     CCMTLGPUTexture(uint _mtlBinding, uint _originBinding, id<MTLTexture> _texture)
     : mtlBinding(_mtlBinding), originBinding(_originBinding), texture(_texture) {}
 };
-typedef vector<CCMTLGPUTexture>::type CCMTLGPUTextureList;
+typedef vector<CCMTLGPUTexture> CCMTLGPUTextureList;
 
 struct CCMTLGPUSamplerState {
     uint mtlBinding = 0;
@@ -38,7 +38,7 @@ struct CCMTLGPUSamplerState {
     CCMTLGPUSamplerState(uint _mtlBinding, uint _originBinding, id<MTLSamplerState> _samplerState)
     : mtlBinding(_mtlBinding), originBinding(_originBinding), samplerState(_samplerState) {}
 };
-typedef vector<CCMTLGPUSamplerState>::type CCMTLGPUSamplerStateList;
+typedef vector<CCMTLGPUSamplerState> CCMTLGPUSamplerStateList;
 
 struct CCMTLGPUPipelineState {
     MTLCullMode cullMode;

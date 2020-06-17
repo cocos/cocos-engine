@@ -4,7 +4,7 @@
 #include "MTLCommandBuffer.h"
 #include "MTLCommands.h"
 #include "MTLDevice.h"
-#include "MTLFrameBuffer.h"
+#include "MTLFramebuffer.h"
 #include "MTLGPUObjects.h"
 #include "MTLInputAssembler.h"
 #include "MTLPipelineState.h"
@@ -41,7 +41,7 @@ void CCMTLQueue::destroy() {
     _status = GFXStatus::UNREADY;
 }
 
-void CCMTLQueue::submit(const vector<GFXCommandBuffer *>::type &cmdBuffs, GFXFence *fence) {
+void CCMTLQueue::submit(const vector<GFXCommandBuffer *> &cmdBuffs, GFXFence *fence) {
     // Should remove USE_METAL aftr switch to use metal.
 #ifdef USE_METAL
     //    dispatch_semaphore_wait(_frameBoundarySemaphore, DISPATCH_TIME_FOREVER);

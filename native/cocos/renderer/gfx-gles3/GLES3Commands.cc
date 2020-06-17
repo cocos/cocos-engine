@@ -1062,11 +1062,11 @@ void GLES3CmdFuncCreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
                 gpuBlock.size = gl_block_size;
                 gpuBlock.glUniforms.resize(gl_block_uniforms);
 
-                vector<GLint>::type u_indices(gl_block_uniforms);
+                vector<GLint> u_indices(gl_block_uniforms);
                 glGetActiveUniformBlockiv(gpuShader->glProgram, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, &u_indices[0]);
-                // vector<GLint>::type u_sizes(gl_block_uniforms);
+                // vector<GLint> u_sizes(gl_block_uniforms);
                 // glGetActiveUniformsiv(gpuShader->glProgram, gl_block_uniforms, (const GLuint*)u_indices.data(), GL_UNIFORM_SIZE, &u_sizes[0]);
-                vector<GLint>::type u_offsets(gl_block_uniforms);
+                vector<GLint> u_offsets(gl_block_uniforms);
                 glGetActiveUniformsiv(gpuShader->glProgram, gl_block_uniforms, (const GLuint *)u_indices.data(), GL_UNIFORM_OFFSET, &u_offsets[0]);
 
                 for (GLint u = 0; u < gl_block_uniforms; ++u) {

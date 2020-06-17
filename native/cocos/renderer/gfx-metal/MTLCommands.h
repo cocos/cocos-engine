@@ -30,7 +30,7 @@ public:
     GFXClearFlags clearFlags = GFXClearFlags::NONE;
     CCMTLFramebuffer *frameBuffer = nullptr;
     uint numOfClearColor = 0;
-    vector<GFXColor>::type clearColors;
+    vector<GFXColor> clearColors;
     float clearDepth = 1.f;
     int clearStencil = 0;
 

@@ -17,7 +17,7 @@ public:
 
     virtual bool initialize(const GFXQueueInfo &info) override;
     virtual void destroy() override;
-    virtual void submit(const vector<GFXCommandBuffer *>::type &cmdBuffs, GFXFence *fence) override;
+    virtual void submit(const vector<GFXCommandBuffer *> &cmdBuffs, GFXFence *fence) override;
 
 private:
     CC_INLINE void executeCommands(const CCMTLCommandPackage *, id<MTLCommandBuffer> mtlCommandBuffer);

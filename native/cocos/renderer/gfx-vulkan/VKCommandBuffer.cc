@@ -89,7 +89,7 @@ void CCVKCommandBuffer::beginRenderPass(GFXFramebuffer *fbo, const GFXRect &rend
         framebuffer = _curGPUFBO->swapchain->vkSwapchainFramebufferListMap[_curGPUFBO][_curGPUFBO->swapchain->curImageIndex];
     }
 
-    vector<VkClearValue>::type &clearValues = renderPass->clearValues;
+    vector<VkClearValue> &clearValues = renderPass->clearValues;
     size_t attachmentCount = clearValues.size();
 
     if (attachmentCount) {
@@ -333,7 +333,7 @@ void CCVKCommandBuffer::execute(const std::vector<GFXCommandBuffer *> &cmdBuffs,
         return;
     }
 
-    vector<VkCommandBuffer>::type vkCmdBuffs(count);
+    vector<VkCommandBuffer> vkCmdBuffs(count);
 
     for (uint i = 0u; i < count; ++i) {
         CCVKCommandBuffer *cmdBuff = (CCVKCommandBuffer *)cmdBuffs[i];
