@@ -35,14 +35,20 @@ function downloadDomImage (url, options, onComplete) {
         img.crossOrigin = 'anonymous';
     }
 
-    img.onload = function () {
+    function loadCallback () {
+        img.removeEventListener('load', loadCallback);
+        img.removeEventListener('error', errorCallback);
         onComplete && onComplete(null, img);
-    };
-
-    img.onerror = function () {
+    }
+    
+    function errorCallback () {
+        img.removeEventListener('load', loadCallback);
+        img.removeEventListener('error', errorCallback);
         onComplete && onComplete(new Error(cc.debug.getError(4930, url)));
-    };
+    }
 
+    img.addEventListener('load', loadCallback);
+    img.addEventListener('error', errorCallback);
     img.src = url;
     return img;
 }
