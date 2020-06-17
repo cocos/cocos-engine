@@ -1851,7 +1851,7 @@ let NodeDefines = {
         }
     },
 
-    _upgrade_1x_to_2x () {
+    _initProperties () {
         if (this._is3DNode) {
             this._update3DFunction();
         }
@@ -1884,17 +1884,6 @@ let NodeDefines = {
 
         this._fromEuler();
 
-        if (this._localZOrder !== 0) {
-            this._zIndex = (this._localZOrder & 0xffff0000) >> 16;
-        }
-
-        // Upgrade from 2.0.0 preview 4 & earlier versions
-        // TODO: Remove after final version
-        if (this._color.a < 255 && this._opacity === 255) {
-            this._opacity = this._color.a;
-            this._color.a = 255;
-        }
-
         if (CC_JSB && CC_NATIVERENDERER) {
             this._renderFlag |= RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_OPACITY_COLOR;
         }
@@ -1913,7 +1902,7 @@ let NodeDefines = {
             PrefabHelper.syncWithPrefab(this);
         }
 
-        this._upgrade_1x_to_2x();
+        this._initProperties();
 
         this._updateOrderOfArrival();
 
@@ -1947,7 +1936,7 @@ let NodeDefines = {
 
     // the same as _onBatchCreated but untouch prefab
     _onBatchRestored () {
-        this._upgrade_1x_to_2x();
+        this._initProperties();
 
         // Fixed a bug where children and parent node groups were forced to synchronize, instead of only synchronizing `_cullingMask` value
         this._cullingMask = 1 << _getActualGroupIndex(this);
