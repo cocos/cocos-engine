@@ -403,7 +403,7 @@ const ray_subMesh = (function () {
     return function (ray: ray, submesh: RenderingSubMesh, options?: IRaySubMeshOptions) {
         minDis = 0;
         if (submesh.geometricInfo.positions.length == 0) return minDis;
-        const opt = options == undefined ? deOpt : options;
+        const opt = options === undefined ? deOpt : options;
         const min = submesh.geometricInfo.boundingBox.min;
         const max = submesh.geometricInfo.boundingBox.max;
         if (ray_aabb2(ray, min, max)) {
@@ -430,7 +430,7 @@ const ray_mesh = (function () {
     const deOpt: IRayMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
     return function (ray: ray, mesh: Mesh, options?: IRayMeshOptions) {
         minDis = 0;
-        const opt = options == undefined ? deOpt : options;
+        const opt = options === undefined ? deOpt : options;
         const length = mesh.renderingSubMeshes.length;
         const min = mesh.struct.minPosition;
         const max = mesh.struct.maxPosition;
@@ -454,7 +454,10 @@ const ray_mesh = (function () {
             }
         }
         if (minDis && opt.mode == ERaycastMode.CLOSEST) {
-            if (opt.result) opt.result.length = 1;
+            if (opt.result) {
+                opt.result[0].distance = minDis;
+                opt.result.length = 1;
+            }
             if (opt.subIndices) opt.subIndices.length = 1;
         }
         return minDis;
@@ -478,7 +481,7 @@ const ray_model = (function () {
     const m4 = new Mat4();
     return function (r: ray, model: Model, options?: IRayModelOptions) {
         minDis = 0;
-        const opt = options == undefined ? deOpt : options;
+        const opt = options === undefined ? deOpt : options;
         const length = model.subModelNum;
         const wb = model.worldBounds;
         if (wb && !ray_aabb(r, wb)) return minDis;
@@ -507,7 +510,10 @@ const ray_model = (function () {
             }
         }
         if (minDis && opt.mode == ERaycastMode.CLOSEST) {
-            if (opt.result) opt.result.length = 1;
+            if (opt.result) {
+                opt.result[0].distance = minDis;
+                opt.result.length = 1;
+            }
             if (opt.subIndices) opt.subIndices.length = 1;
         }
         return minDis;
