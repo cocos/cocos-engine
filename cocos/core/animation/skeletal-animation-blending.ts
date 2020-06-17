@@ -20,7 +20,7 @@ export class BlendStateBuffer {
             propertyBlendState = nodeBlendState.properties[property] = {
                 refCount: 0,
                 weight: 0,
-                value: ((property === 'position' || property === 'scale') ? new Vec3() : new Quat()) as any,
+                value: (isVec3Property(property) ? new Vec3() : new Quat()) as any,
             };
         }
         ++propertyBlendState.refCount;
@@ -48,10 +48,10 @@ export class BlendStateBuffer {
 
     public apply () {
         this._nodeBlendStates.forEach((nodeBlendState, node) => {
-            const { position, scale, rotation } = nodeBlendState.properties;
+            const { position, scale, rotation, eulerAngles } = nodeBlendState.properties;
             let t: Vec3 | undefined;
             let s: Vec3 | undefined;
-            let r: Quat | undefined;
+            let r: Quat | Vec3 | undefined;
             let anyChanged = false;
             if (position && position.weight !== 0) {
                 position.weight = 0;
@@ -63,11 +63,19 @@ export class BlendStateBuffer {
                 s = scale.value;
                 anyChanged = true;
             }
+
+            // Note: rotation and eulerAngles can not co-exist.
             if (rotation && rotation.weight !== 0) {
                 rotation.weight = 0;
                 r = rotation.value;
                 anyChanged = true;
             }
+            if (eulerAngles && eulerAngles.weight !== 0) {
+                eulerAngles.weight = 0;
+                r = eulerAngles.value;
+                anyChanged = true;
+            }
+
             if (anyChanged) {
                 node.setRTS(r, t, s);
             }
@@ -78,6 +86,7 @@ export class BlendStateBuffer {
 export type IBlendStateWriter = IValueProxyFactory & {
     initialize: () => void;
     destroy: () => void;
+    enable: (enabled: boolean) => void;
 };
 
 export function createBlendStateWriter<P extends BlendingProperty> (
@@ -91,12 +100,11 @@ export function createBlendStateWriter<P extends BlendingProperty> (
     constants: boolean,
 ): IBlendStateWriter {
     const blendFunction: BlendFunction<BlendingPropertyValue<P>> =
-        (property === 'position' || property === 'scale') ?
-            additive3D as any:
-            additiveQuat as any;
+        isVec3Property(property) ? additive3D as any: additiveQuat as any;
     let propertyBlendState: PropertyBlendState<BlendingPropertyValue<P>> | null = null;
     let isConstCacheValid = false;
     let lastWeight = -1;
+    let isEnabled = true;
     return {
         initialize () {
             if (!propertyBlendState) {
@@ -109,9 +117,21 @@ export function createBlendStateWriter<P extends BlendingProperty> (
                 propertyBlendState = null;
             }
         },
+        enable (enabled: boolean) {
+            isEnabled = enabled;
+        },
         forTarget: () => {
             return {
+                /**
+                 * Gets the node's actual property for now.
+                 */
+                get: () => {
+                    return node[property];
+                },
                 set: (value: BlendingPropertyValue<P>) => {
+                    if (!isEnabled) {
+                        return;
+                    }
                     if (!propertyBlendState) {
                         return;
                     }
@@ -139,6 +159,14 @@ export function createBlendStateWriter<P extends BlendingProperty> (
     };
 }
 
+function isQuatProperty (property: BlendingProperty) {
+    return property === 'rotation';
+}
+
+function isVec3Property (property: BlendingProperty) {
+    return !isQuatProperty(property);
+}
+
 type BlendingProperty = keyof NodeBlendState['properties'];
 
 type BlendingPropertyValue<P extends BlendingProperty> = NonNullable<NodeBlendState['properties'][P]>['value'];
@@ -157,6 +185,7 @@ interface NodeBlendState {
     properties: {
         position?: PropertyBlendState<Vec3>;
         rotation?: PropertyBlendState<Quat>;
+        eulerAngles?: PropertyBlendState<Vec3>;
         scale?: PropertyBlendState<Vec3>;
     };
 }
@@ -165,6 +194,7 @@ function isEmptyNodeBlendState (nodeBlendState: NodeBlendState) {
     // Which is equal to `Object.keys(nodeBlendState.properties).length === 0`.
     return !nodeBlendState.properties.position &&
         !nodeBlendState.properties.rotation &&
+        !nodeBlendState.properties.eulerAngles &&
         !nodeBlendState.properties.scale;
 }
 

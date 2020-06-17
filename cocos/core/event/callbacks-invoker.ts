@@ -31,6 +31,7 @@
 import { Pool } from '../memop';
 import { array, createMap } from '../utils/js';
 import { TEST } from 'internal:constants';
+import { CCObject, isValid } from '../data/object';
 import { legacyCC } from '../global-exports';
 const fastRemoveAt = array.fastRemoveAt;
 
@@ -42,16 +43,31 @@ class CallbackInfo {
     public once = false;
 
     public set (callback: Function, target?: Object, once?: boolean) {
-        this.callback = callback;
+        this.callback = callback || empty;
         this.target = target;
         this.once = !!once;
+    }
+
+    public reset () {
+        this.target = undefined;
+        this.callback = empty;
+        this.once = false;
+    }
+
+    public check () {
+        // Validation
+        if (this.target instanceof CCObject && !isValid(this.target, true)) {
+            return false;
+        }
+        else {
+            return true;
+        }
     }
 }
 
 const callbackInfoPool = new Pool(() => {
     return new CallbackInfo();
 }, 32);
-
 /**
  * @zh 事件监听器列表的简单封装。
  * @en A simple list of event callbacks
@@ -71,6 +87,7 @@ export class CallbackList {
         for (let i = 0; i < this.callbackInfos.length; ++i) {
             const info = this.callbackInfos[i];
             if (info && info.callback === cb) {
+                info.reset();
                 callbackInfoPool.free(info);
                 fastRemoveAt(this.callbackInfos, i);
                 --i;
@@ -86,6 +103,7 @@ export class CallbackList {
         for (let i = 0; i < this.callbackInfos.length; ++i) {
             const info = this.callbackInfos[i];
             if (info && info.target === target) {
+                info.reset();
                 callbackInfoPool.free(info);
                 fastRemoveAt(this.callbackInfos, i);
                 --i;
@@ -101,8 +119,14 @@ export class CallbackList {
     public cancel (index: number) {
         const info = this.callbackInfos[index];
         if (info) {
+            info.reset();
+            if (this.isInvoking) {
+                this.callbackInfos[index] = null;
+            }
+            else {
+                fastRemoveAt(this.callbackInfos, index);
+            }
             callbackInfoPool.free(info);
-            this.callbackInfos[index] = null;
         }
         this.containCanceled = true;
     }
@@ -115,6 +139,7 @@ export class CallbackList {
         for (let i = 0; i < this.callbackInfos.length; i++) {
             const info = this.callbackInfos[i];
             if (info) {
+                info.reset();
                 callbackInfoPool.free(info);
                 this.callbackInfos[i] = null;
             }
@@ -175,13 +200,16 @@ export class CallbacksInvoker {
      * @param once - Whether invoke the callback only once (and remove it)
      */
     public on (key: string, callback: Function, target?: Object, once?: boolean) {
-        let list = this._callbackTable[key];
-        if (!list) {
-            list = this._callbackTable[key] = callbackListPool.alloc();
+        if (!this.hasEventListener(key, callback, target)) {
+            let list = this._callbackTable[key];
+            if (!list) {
+                list = this._callbackTable[key] = callbackListPool.alloc();
+            }
+            const info = callbackInfoPool.alloc();
+            info.set(callback, target, once);
+            list.callbackInfos.push(info);
         }
-        const info = callbackInfoPool.alloc();
-        info.set(callback, target, once);
-        list.callbackInfos.push(info);
+        return callback;
     }
 
     /**
@@ -191,7 +219,7 @@ export class CallbacksInvoker {
      * @param callback - Callback function when event triggered
      * @param target - Callback callee
      */
-    public hasEventListener (key: string, callback?: Function, target: Object | null = null) {
+    public hasEventListener (key: string, callback?: Function, target?: Object) {
         const list = this._callbackTable[key];
         if (!list) {
             return false;
@@ -202,8 +230,8 @@ export class CallbacksInvoker {
         if (!callback) {
             // Make sure no cancelled callbacks
             if (list.isInvoking) {
-                for (const info of infos) {
-                    if (info) {
+                for (let i = 0; i < infos.length; ++i) {
+                    if (infos[i]) {
                         return true;
                     }
                 }
@@ -214,8 +242,9 @@ export class CallbacksInvoker {
             }
         }
 
-        for (const info of infos) {
-            if (info && info.callback === callback && info.target === target) {
+        for (let i = 0; i < infos.length; ++i) {
+            let info = infos[i];
+            if (info && info.check() && info.callback === callback && info.target === target) {
                 return true;
             }
         }
@@ -277,13 +306,7 @@ export class CallbacksInvoker {
                 for (let i = 0; i < infos.length; ++i) {
                     const info = infos[i];
                     if (info && info.callback === callback && info.target === target) {
-                        if (list.isInvoking) {
-                            list.cancel(i);
-                        }
-                        else {
-                            fastRemoveAt(infos, i);
-                            callbackInfoPool.free(info);
-                        }
+                        list.cancel(i);
                         break;
                     }
                 }
@@ -320,11 +343,18 @@ export class CallbacksInvoker {
                     if (info.once) {
                         this.off(key, callback, target);
                     }
-                    if (target) {
-                        callback.call(target, arg0, arg1, arg2, arg3, arg4);
+                    // Lazy check validity of callback target, 
+                    // if target is CCObject and is no longer valid, then remove the callback info directly
+                    if (!info.check()) {
+                        this.off(key, callback, target);
                     }
                     else {
-                        callback(arg0, arg1, arg2, arg3, arg4);
+                        if (target) {
+                            callback.call(target, arg0, arg1, arg2, arg3, arg4);
+                        }
+                        else {
+                            callback(arg0, arg1, arg2, arg3, arg4);
+                        }
                     }
                 }
             }
@@ -342,7 +372,14 @@ export class CallbacksInvoker {
      * 移除所有回调。
      */
     public clear () {
-        this._callbackTable = createMap(true);
+        for (let key in this._callbackTable) {
+            let list = this._callbackTable[key];
+            if (list) {
+                list.clear();
+                callbackListPool.free(list);
+                delete this._callbackTable[key];
+            }
+        }
     }
 }
 

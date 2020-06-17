@@ -526,13 +526,13 @@ export class Game extends EventTarget {
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
      */
-    public on (type: string, callback: Function, target?: object): any {
+    public on (type: string, callback: Function, target?: object, once?: boolean): any {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if (this._inited && type === Game.EVENT_ENGINE_INITED) {
             callback.call(target);
         }
         else {
-            this.eventTargetOn(type, callback, target);
+            this.eventTargetOn(type, callback, target, once);
         }
     }
 
@@ -586,7 +586,6 @@ export class Game extends EventTarget {
             legacyCC.internal.SplashScreen.instance.main(legacyCC.director.root);
         }
 
-        legacyCC.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
 
         return this._inited;
     }
@@ -597,6 +596,9 @@ export class Game extends EventTarget {
      * @param {Function} onStart - function to be executed after game initialized
      */
     public run (onStart: Function | null, legacyOnStart?: Function | null) {
+        if (!EDITOR) {
+            this._initEvents();
+        }
         if (typeof onStart !== 'function' && legacyOnStart) {
             const config: IGameConfig = this.onStart as IGameConfig;
             this.init(config);

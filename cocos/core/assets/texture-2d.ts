@@ -119,6 +119,10 @@ export class Texture2D extends SimpleTexture {
         super(true);
     }
 
+    public initialize () {
+        this.mipmaps = this._mipmaps;
+    }
+
     public onLoaded () {
         this.initialize();
     }
@@ -242,10 +246,6 @@ export class Texture2D extends SimpleTexture {
         }
     }
 
-    public initialize () {
-        this.mipmaps = this._mipmaps;
-    }
-
     protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo) {
         return Object.assign({
             type: GFXTextureType.TEX2D,
@@ -264,7 +264,7 @@ export class Texture2D extends SimpleTexture {
             }
         }
 
-        if (ready){
+        if (ready) {
             super._textureReady();
         }
     }

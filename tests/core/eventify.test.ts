@@ -36,3 +36,23 @@ test('Eventify', () => {
     derived.emit(eventName);
     expect(hookOnOff).toBeCalledTimes(2);
 });
+
+test('Overwrite Eventify.prototype.on', () => {
+    class Base {}
+    class Derived extends Eventify(Base) {
+        public on <TFunction extends Function> (type: string, callback: TFunction, thisArg?: any, once?: boolean) {
+            return super.on(type, callback, thisArg, once);
+        }
+    }
+
+    const derived = new Derived();
+
+    const eventName = 'event';
+    const onceFn = jest.fn(() => {});
+
+    derived.once(eventName, onceFn);
+    derived.emit(eventName);
+    expect(onceFn).toBeCalledTimes(1);
+    derived.emit(eventName);
+    expect(onceFn).toBeCalledTimes(1);
+});

@@ -185,8 +185,8 @@ export class ColliderComponent extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public on (type: TriggerEventType | CollisionEventType, callback: Function, target?: Object): any {
-        super.on(type, callback, target);
+    public on (type: TriggerEventType | CollisionEventType, callback: Function, target?: Object, once?: boolean): any {
+        super.on(type, callback, target, once);
     }
 
     /**
