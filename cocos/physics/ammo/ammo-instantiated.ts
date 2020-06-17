@@ -1,5 +1,7 @@
 
-import Ammo from '@cocos/ammo';
+import AmmoClosure from '@cocos/ammo';
+
+let Ammo!: typeof AmmoClosure;
 
 /**
  * `'@cocos/ammo'` exports an async namespace. Let's call it `Ammo`.
@@ -15,7 +17,7 @@ import Ammo from '@cocos/ammo';
  * when you got the export, it had been instantiated.
  * 
  */
-export default Ammo;
+export { Ammo as default }; // Note: should not use `export default Ammo` since that's only a copy but we need live binding.
 
 /**
  * With the stage 3 proposal "top level await",
@@ -33,8 +35,10 @@ export default Ammo;
  * before `'cc.physics-ammo'` can be imported;
  */
 export function waitForAmmoInstantiation () {
+    const ammoClosureThis: { Ammo: typeof import('@cocos/ammo') } = { } as any;
     return new Promise<void>((resolve, reject) => {
-        Ammo().then(() => {
+        AmmoClosure.call(ammoClosureThis).then(() => {
+            Ammo = ammoClosureThis.Ammo;
             resolve();
         });
     });
