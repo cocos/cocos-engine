@@ -176,9 +176,11 @@ var dependUtil = {
         }
         // get deps from an existing asset 
         else {
+            if (!CC_EDITOR && (out = this._depends.get(uuid)) && out.parsedFromExistAsset) return out;
             var asset = json;
             out = {
                 deps: [],
+                parsedFromExistAsset: true,
                 preventPreloadNativeObject: asset.constructor.preventPreloadNativeObject,
                 preventDeferredLoadDependents: asset.constructor.preventDeferredLoadDependents
             };
