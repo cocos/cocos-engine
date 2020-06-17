@@ -264,6 +264,7 @@ export class RichTextComponent extends UIComponent {
         if (this._font === value) {
             return;
         }
+        // TODO: Remove when Editor inspector add multi-format support
         if (value instanceof BitmapFont) {
             console.warn('RichText only accepts TTF fonts, but you are trying to use a bitmap font.');
             return;
