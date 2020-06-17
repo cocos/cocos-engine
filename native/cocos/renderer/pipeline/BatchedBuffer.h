@@ -5,10 +5,20 @@
 namespace cc {
 class Pass;
 class SubModel;
-} // namespace cc
 
-namespace cc {
 namespace pipeline {
+
+struct CC_DLL BatchedItem {
+    gfx::GFXBufferList vbs;
+    uint8_t *vbDatas = nullptr;
+    gfx::GFXBuffer *vbIdx = nullptr;
+    float *vbIdxData = nullptr;
+    uint mergCount = 0;
+    gfx::GFXInputAssembler *ia = nullptr;
+    gfx::GFXBuffer *ubo = nullptr;
+    cc::PSOCreateInfo *psoCreatedInfo = nullptr;
+};
+typedef gfx::vector<BatchedItem> BatchedItemList;
 
 class CC_DLL BatchedBuffer : public gfx::Object {
 public:

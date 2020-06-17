@@ -4,9 +4,8 @@
 
 namespace cc {
 struct PSOCreateInfo;
-}
+class SubModel;
 
-namespace cc {
 namespace pipeline {
 
 class RenderStage;
@@ -17,51 +16,25 @@ struct CC_DLL RenderObject {
 };
 typedef gfx::vector<struct RenderObject> RenderObjectList;
 
-struct CC_DLL RenderPipelineInfo {
-    //TODO
-};
-
-struct CC_DLL RenderStageInfo {
-    gfx::String name;
-    int priority = 0;
-    gfx::String framebuffer;
-    // renderQueues?: RenderQueueDesc[];
-};
-
-struct CC_DLL RenderFlowInfo {
-    //TODO
-};
-
-struct CC_DLL RenderViewInfo {
-    //TODO
-};
-
 struct CC_DLL RenderTargetInfo {
     uint width = 0;
     uint height = 0;
 };
 
-struct CC_DLL InstancedItem {
-    gfx::GFXBuffer *vb = nullptr;
-    uint8_t *data = nullptr;
-    gfx::GFXInputAssembler *ia = nullptr;
-    uint count = 0;
-    uint capacity = 0;
-    uint stride = 0;
+struct CC_DLL RenderPass {
+    uint hash = 0;
+    uint depth = 0;
+    uint shaderID = 0;
+    uint passIdx = 0;
+    SubModel *subModel = nullptr;
 };
-typedef gfx::vector<InstancedItem> InstancedItemList;
+typedef gfx::vector<RenderPass> RenderPassList;
 
-struct BatchedItem {
-    gfx::GFXBufferList vbs;
-    uint8_t *vbDatas = nullptr;
-    gfx::GFXBuffer *vbIdx = nullptr;
-    float *vbIdxData = nullptr;
-    uint mergCount = 0;
-    gfx::GFXInputAssembler *ia = nullptr;
-    gfx::GFXBuffer *ubo = nullptr;
-    cc::PSOCreateInfo *psoCreatedInfo = nullptr;
+struct RenderPassDesc {
+    // sortFunc
+    uint phase = 0;
+    bool isTransparent = false;
 };
-typedef gfx::vector<BatchedItem> BatchedItemList;
 
 typedef gfx::vector<RenderStage *> RenderStageList;
 typedef gfx::vector<RenderFlow *> RenderFlowList;

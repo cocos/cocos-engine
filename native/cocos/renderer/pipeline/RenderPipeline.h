@@ -17,12 +17,13 @@ class GFXBuffer;
 class GFXRenderPass;
 } // namespace gfx
 
-} // namespace cc
-
-namespace cc {
 namespace pipeline {
 
 class RenderView;
+
+struct CC_DLL RenderPipelineInfo {
+    //TODO
+};
 
 class CC_DLL RenderPipeline : public gfx::Object {
 public:
@@ -34,39 +35,40 @@ public:
     virtual gfx::vector<float> &getLightIndices() const = 0;
     virtual gfx::vector<gfx::GFXBuffer *> &getLightBuffers() const = 0;
 
-    virtual bool initialize(const RenderPipelineInfo &info);
     virtual bool activate(cc::Root *root);
-    virtual void render(RenderView *view);
+    virtual bool initialize(const RenderPipelineInfo &info);
     virtual void rebuild();
+    virtual void render(RenderView *view);
     virtual void resize(uint width, uint height);
-    virtual void updateUBOs(RenderView *view);
     virtual void sceneCulling();
+    virtual void updateUBOs(RenderView *view);
 
-    void swapFBOS();
     void addRenderPass(uint stage, gfx::GFXRenderPass *renderPass);
-    gfx::GFXRenderPass *getRenderPass(uint stage) const;
-    void removeRenderPass(uint stage);
     void clearRenderPasses();
     void destroyFlows();
     RenderFlow *getFlow(const gfx::String &name) const;
-    void updateMacros();
-    gfx::GFXTexture *getTexture(const gfx::String &name) const;
-    gfx::GFXTexture *getRenderTexture(const gfx::String &name) const;
     gfx::GFXBuffer *getFrameBuffer(const gfx::String &name) const;
+    gfx::GFXRenderPass *getRenderPass(uint stage) const;
+    gfx::GFXTexture *getRenderTexture(const gfx::String &name) const;
+    gfx::GFXTexture *getTexture(const gfx::String &name) const;
+    void removeRenderPass(uint stage);
+    void swapFBOS();
+    void updateMacros();
 
     //    CC_INLINE const Root* getRoot() const {  }
-    CC_INLINE gfx::GFXDevice *getDevice() const { return _device; }
-    CC_INLINE gfx::GFXTexture *getDefaultTexture() const { return _defaultTexture; }
-    CC_INLINE gfx::GFXInputAssembler *getQuadIA() const { return _quadIA; }
-    CC_INLINE const RenderFlowList &getFlows() const { return _flows; }
     CC_INLINE const RenderFlowList &getActiveFlows() const { return _activeFlows; }
-    CC_INLINE const RenderObjectList &getRenderObjects() const { return _renderObjects; }
-    CC_INLINE float getFpScale() const { return _fpScale; }
-    CC_INLINE float getFpScaleInv() const { return _fpScaleInv; }
-    CC_INLINE float getShadingScale() const { return _shadingScale; }
-    CC_INLINE float getLightMeterScale() const { return _lightMeterScale; }
+    CC_INLINE const RenderFlowList &getFlows() const { return _flows; }
     CC_INLINE const gfx::String &getCurrentShading() const { return _currIdx; }
     CC_INLINE const gfx::String &getPreviousShading() const { return _prevIdx; }
+    CC_INLINE gfx::GFXDevice *getDevice() const { return _device; }
+    CC_INLINE gfx::GFXTexture *getDefaultTexture() const { return _defaultTexture; }
+    CC_INLINE float getLightMeterScale() const { return _lightMeterScale; }
+    CC_INLINE float getFpScale() const { return _fpScale; }
+    CC_INLINE float getFpScaleInv() const { return _fpScaleInv; }
+    CC_INLINE const RenderObjectList &getRenderObjects() const { return _renderObjects; }
+    CC_INLINE float getShadingScale() const { return _shadingScale; }
+    CC_INLINE gfx::GFXInputAssembler *getQuadIA() const { return _quadIA; }
+    
     CC_INLINE const gfx::String &getName() const { return _name; }
     CC_INLINE bool isHDRSupported() const { return _isHDRSupported; }
     CC_INLINE bool isUsePostProcess() const { return _isUsePostProcess; }

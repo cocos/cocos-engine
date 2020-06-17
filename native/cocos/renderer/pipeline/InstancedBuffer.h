@@ -7,10 +7,18 @@ class Pass;
 struct InstancedAttributeBlock;
 struct PSOCreateInfo;
 class SubModel;
-} // namespace cc
 
-namespace cc {
 namespace pipeline {
+
+struct CC_DLL InstancedItem {
+    gfx::GFXBuffer *vb = nullptr;
+    uint8_t *data = nullptr;
+    gfx::GFXInputAssembler *ia = nullptr;
+    uint count = 0;
+    uint capacity = 0;
+    uint stride = 0;
+};
+typedef gfx::vector<InstancedItem> InstancedItemList;
 
 class InstancedBuffer : public gfx::Object {
 public:

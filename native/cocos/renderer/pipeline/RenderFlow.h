@@ -3,17 +3,15 @@
 #include "Define.h"
 
 namespace cc {
-
-class GFXDevice;
-
-}
-
-namespace cc {
 namespace pipeline {
 
 class RenderPipeline;
 class RenderStage;
 class RenderView;
+
+struct CC_DLL RenderFlowInfo {
+    //TODO
+};
 
 class CC_DLL RenderFlow : public gfx::Object {
 public:
@@ -30,7 +28,7 @@ public:
 
     void destroyStages();
 
-    CC_INLINE const cc::GFXDevice *getDevice() const { return _device; }
+    CC_INLINE const gfx::GFXDevice *getDevice() const { return _device; }
     CC_INLINE const RenderPipeline *getPipeline() const { return _pipeline; }
     CC_INLINE const gfx::String &getName() const { return _name; }
     CC_INLINE int getPriority() const { return _priority; }
@@ -42,7 +40,7 @@ protected:
     void activateStages();
 
 protected:
-    cc::GFXDevice *_device = nullptr;
+    gfx::GFXDevice *_device = nullptr;
     RenderPipeline *_pipeline = nullptr;
     gfx::String _name;
     int _priority = 0;

@@ -5,20 +5,24 @@
 namespace cc {
 class Camera;
 class Root;
-} // namespace cc
 
-namespace cc {
 namespace pipeline {
 
 class RenderFlow;
 
+struct CC_DLL RenderViewInfo {
+    //TODO
+};
+
 class CC_DLL RenderView : public gfx::Object {
 public:
     static void registerCreateFun(cc::Root *root);
+    
+    ~RenderView() = default;
 
-    bool initialize(const RenderViewInfo &info);
     void destroy();
     void enable(bool value);
+    bool initialize(const RenderViewInfo &info);
     void setExecuteFlows(const RenderFlowList &flows);
     void setPriority();
 
@@ -34,6 +38,7 @@ public:
     // setWindow
 
 private:
+    RenderView() = default;
     RenderView(cc::Root *root, cc::Camera *camera);
 
 private:

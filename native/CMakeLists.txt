@@ -514,6 +514,10 @@ cocos_source_files(
     cocos/renderer/pipeline/Define.h
     cocos/renderer/pipeline/InstancedBuffer.cpp
     cocos/renderer/pipeline/InstancedBuffer.h
+    cocos/renderer/pipeline/PipelineStateManager.cpp
+    cocos/renderer/pipeline/PipelineStateManager.h
+    cocos/renderer/pipeline/RenderAdditiveLightQueue.cpp
+    cocos/renderer/pipeline/RenderAdditiveLightQueue.h
     cocos/renderer/pipeline/RenderBatchedQueue.cpp
     cocos/renderer/pipeline/RenderBatchedQueue.h
     cocos/renderer/pipeline/RenderFlow.cpp
@@ -522,10 +526,14 @@ cocos_source_files(
     cocos/renderer/pipeline/RenderInstancedQueue.h
     cocos/renderer/pipeline/RenderPipeline.cpp
     cocos/renderer/pipeline/RenderPipeline.h
+    cocos/renderer/pipeline/RenderQueue.cpp
+    cocos/renderer/pipeline/RenderQueue.h
     cocos/renderer/pipeline/RenderStage.cpp
     cocos/renderer/pipeline/RenderStage.h
     cocos/renderer/pipeline/RenderView.cpp
     cocos/renderer/pipeline/RenderView.h
+    cocos/renderer/pipeline/RenderWindow.cpp
+    cocos/renderer/pipeline/RenderWindow.h
     cocos/renderer/pipeline/forward/ForwardFlow.cpp
     cocos/renderer/pipeline/forward/ForwardFlow.h
     cocos/renderer/pipeline/forward/ForwardPipeline.cpp

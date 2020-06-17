@@ -14,32 +14,39 @@ class RenderFlow;
 class RenderPipeline;
 class RenderView;
 
+struct CC_DLL RenderStageInfo {
+    gfx::String name;
+    int priority = 0;
+    gfx::String framebuffer;
+    // renderQueues?: RenderQueueDesc[];
+};
+
 class CC_DLL RenderStage : public gfx::Object {
 public:
     RenderStage() = default;
     virtual ~RenderStage() = default;
 
-    virtual bool initialize(const RenderStageInfo &info);
     virtual void activate(RenderFlow *flow);
+    virtual bool initialize(const RenderStageInfo &info);
 
     virtual void destroy() = 0;
+    virtual void rebuild() = 0;
     virtual void render(RenderView *view) = 0;
     virtual void resize(uint width, uint height) = 0;
-    virtual void rebuild() = 0;
 
+    void createBuffer();
+    void executeCommandBuffer(RenderView *view);
     void setClearColor(/*color: IGFXColor*/);
     void setClearColors(/*colors: IGFXColor[]*/);
     void setClearDepth(float depth);
     void setClearStencil(float stencil);
     void setRenderArea(size_t width, size_t height);
     void sortRenderQueue();
-    void executeCommandBuffer(RenderView *view);
-    void createBuffer();
 
     CC_INLINE RenderFlow *getFlow() const { return _flow; }
+    CC_INLINE gfx::GFXFramebuffer *getFrameBuffer() const { return _frameBuffer; }
     CC_INLINE RenderPipeline *getPipeline() const { return _pipeline; }
     CC_INLINE int getPriority() const { return _priority; }
-    CC_INLINE gfx::GFXFramebuffer *getFrameBuffer() const { return _frameBuffer; }
 
 protected:
     RenderFlow *_flow = nullptr;
