@@ -34,12 +34,17 @@ import { legacyCC } from '../global-exports';
 import { ShadowMapFlow } from './shadowMap/shadowMap-flow';
 
 const v3_1 = new Vec3();
+const vec4 = new Vec4();
+const _vec4Array = new Float32Array(4);
+const _mat4Array = new Float32Array(16);
+
 const shadowCamera_W_P = new Vec3();
 const shadowCamera_W_R = new Quat();
 const shadowCamera_W_S = new Vec3();
 const shadowCamera_W_T = new Mat4();
 const shadowCamera_M_V = new Mat4();
 const shadowCamera_M_P = new Mat4();
+const shadowCamera_M_V_P = new Mat4();
 
 // Define shadwoMapCamera
 const shadowCamera_Near = 0.1;
@@ -206,8 +211,8 @@ export abstract class RenderPipeline {
      * @zh
      * 获取阴影全局阴影UBO
      */
-    public get shadowMapUBO (): GFXBuffer {
-        return this._globalShadowMap!;
+    public get shadowMapBuffer (): GFXBuffer {
+        return this._shadowMapBuffer!;
     }
 
     /**
@@ -338,7 +343,6 @@ export abstract class RenderPipeline {
     protected _quadIA: GFXInputAssembler | null = null;
     protected _uboGlobal: UBOGlobal = new UBOGlobal();
     protected _globalBindings: Map<string, IInternalBindingInst> = new Map<string, IInternalBindingInst>();
-    protected _globalShadowMap: GFXBuffer|null =null;
     protected _defaultTex: GFXTexture | null = null;
     protected _fpScale: number = 1.0 / 1024.0;
     protected _fpScaleInv: number = 1024.0;
@@ -350,6 +354,8 @@ export abstract class RenderPipeline {
     protected _scale: Vec3 = new Vec3();
     protected _viewport: Vec2 = new Vec2();
     protected _shadowMap: GFXFramebuffer|null = null;
+    protected _shadowMapBuffer: GFXBuffer|null = null;
+    protected _uboShadowMap: UBOShadowMap = new UBOShadowMap();
 
     @property({
         type: [RenderTextureDesc],
@@ -589,10 +595,7 @@ export abstract class RenderPipeline {
     public updateShadowMapUBOs (view: RenderView) {
         const camera = view.camera;
         const scene = camera.scene!;
-        const device = this._root.device;
         const mainLight = scene.mainLight;
-        const fv = this._uboGlobal.view;
-
 
         if (this._isShadow && mainLight) {
             shadowCamera_W_P.set(mainLight.direction.negative().multiplyScalar(shadowCamera_Far));
@@ -605,7 +608,16 @@ export abstract class RenderPipeline {
 
             Mat4.perspective(shadowCamera_M_P, shadowCamera_Fov, shadowCamera_Aspect, shadowCamera_Near, shadowCamera_Far);
 
+            Mat4.multiply(shadowCamera_M_V_P, shadowCamera_M_P, shadowCamera_M_V);
+
             {
+                // cc_shadowMatViewProj
+                Mat4.toArray(_mat4Array, shadowCamera_M_V_P);
+                this._uboShadowMap.view.set(_mat4Array, UBOShadowMap.MAT_SHADOW_VIEW_PROJ_OFFSET);
+            }
+
+            {
+                // cc_shadowDepthFade
                 // shadowCamera
                 const nearClip = shadowCamera_Near;
                 const farClip = shadowCamera_Far;
@@ -618,13 +630,13 @@ export abstract class RenderPipeline {
                 const fadeStart = mainLight.fadeStart * shadowRange / viewFarClip;
                 const fadeEnd = shadowRange / viewFarClip;
                 const fadeRange = fadeEnd - fadeStart;
-                fv[UBOShadowMap.MAIN_SHADOW_DEPTH_FADE_OFFSET + 0] = q;
-                fv[UBOShadowMap.MAIN_SHADOW_DEPTH_FADE_OFFSET + 1] = r;
-                fv[UBOShadowMap.MAIN_SHADOW_DEPTH_FADE_OFFSET + 2] = fadeStart;
-                fv[UBOShadowMap.MAIN_SHADOW_DEPTH_FADE_OFFSET + 3] = 1.0 / fadeRange;
+                vec4.set(q, r, fadeStart, 1.0 / fadeRange);
+                Vec4.toArray(_vec4Array, vec4);
+                this._uboShadowMap.view.set(_vec4Array, UBOShadowMap.MAIN_SHADOW_DEPTH_FADE_OFFSET);
             }
 
             {
+                // cc_shadowIntensity
                 let intensity = mainLight.shadowIntensity;
                 const fadeStart = mainLight.shadowFadeDistance;
                 const fadeEnd = mainLight.shadowDistance;
@@ -633,35 +645,21 @@ export abstract class RenderPipeline {
                 }
                 const pcfValues = (1.0 - intensity);
                 const samples = 1.0;
-                fv[UBOShadowMap.MAIN_SHADOW_INTENSITY_OFFSET + 0] = pcfValues / samples;
-                fv[UBOShadowMap.MAIN_SHADOW_INTENSITY_OFFSET + 1] = intensity;
-                fv[UBOShadowMap.MAIN_SHADOW_INTENSITY_OFFSET + 2] = 0.0;
-                fv[UBOShadowMap.MAIN_SHADOW_INTENSITY_OFFSET + 3] = 0.0;
+                vec4.set(pcfValues / samples, intensity, 0.0, 0.0);
+                Vec4.toArray(_vec4Array, vec4);
+                this._uboShadowMap.view.set(_vec4Array, UBOShadowMap.MAIN_SHADOW_INTENSITY_OFFSET);
             }
 
             {
+                // cc_shadowLightMatrix
                 // mainlight
                 const shadowMatrix = this.calculateShadowMatrix();
-                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 0] = shadowMatrix?.m00!;
-                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 1] = shadowMatrix?.m01!;
-                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 2] = shadowMatrix?.m02!;
-                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 3] = shadowMatrix?.m03!;
-                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 4] = shadowMatrix?.m04!;
-                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 5] = shadowMatrix?.m05!;
-                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 6] = shadowMatrix?.m06!;
-                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 7] = shadowMatrix?.m07!;
-                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 8] = shadowMatrix?.m08!;
-                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 9] = shadowMatrix?.m09!;
-                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 10] = shadowMatrix?.m10!;
-                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 11] = shadowMatrix?.m11!;
-                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 12] = shadowMatrix?.m12!;
-                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 13] = shadowMatrix?.m13!;
-                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 14] = shadowMatrix?.m14!;
-                fv[UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 15] = shadowMatrix?.m15!;
+                Mat4.toArray(_mat4Array, shadowMatrix!);
+                this._uboShadowMap.view.set(_mat4Array, UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET);
             }
         }
 
-        this._globalShadowMap = this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!;
+        this._shadowMapBuffer?.update(this._uboShadowMap.view);
     }
 
     /**
@@ -818,6 +816,15 @@ export abstract class RenderPipeline {
                     }
                 }
             }
+        }
+
+        if (!this._shadowMapBuffer && this.isShadow) {
+            this._shadowMapBuffer = this._device.createBuffer({
+                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                size: UBOShadowMap.SIZE,
+                stride: UBOShadowMap.SIZE,
+            });
         }
 
         if (planarShadows.enabled) {

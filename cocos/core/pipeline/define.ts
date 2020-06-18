@@ -187,6 +187,7 @@ export class UBOShadowMap {
     };
 
     public view: Float32Array = new Float32Array(UBOGlobal.COUNT);
+    static SIZE: number;
 }
 
 /**
