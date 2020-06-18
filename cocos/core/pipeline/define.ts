@@ -45,7 +45,7 @@ export interface IRenderObject {
     depth: number;
 }
 
-/**
+/*
  * @en The render pass interface
  * @zh 渲染过程接口。
  */

@@ -21,7 +21,7 @@ export function SRGBToLinear (out: IGFXColor, gamma: IGFXColor) {
 
 /**
  * @en Convert color in linear space to SRGB space
- * @zh 线性空间转换为 SRG B颜色空间。
+ * @zh 线性空间转换为 SRGB 颜色空间。
  * @param out Output color object
  * @param linear Color value in linear space
  */
