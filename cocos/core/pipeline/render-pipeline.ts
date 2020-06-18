@@ -149,9 +149,9 @@ export abstract class RenderPipeline {
 
     /**
      * @zh
-     * Whether to open castShadow
+     * 是否开启阴影效果
      */
-    public get isShadow (): boolean {
+    public get enableCastShadow (): boolean {
         return this._isShadow;
     }
 
@@ -205,14 +205,6 @@ export abstract class RenderPipeline {
      */
     public get globalBindings (): Map<string, IInternalBindingInst> {
         return this._globalBindings;
-    }
-
-    /**
-     * @zh
-     * 获取阴影全局阴影UBO
-     */
-    public get shadowMapBuffer (): GFXBuffer {
-        return this._shadowMapBuffer!;
     }
 
     /**
@@ -297,9 +289,17 @@ export abstract class RenderPipeline {
 
     /**
      * @zh
-     * get shadowMap
+     * 获取阴影UBO
      */
-    public get shadowMap (): GFXFramebuffer {
+    public get shadowMapBuffer () : GFXBuffer {
+        return this._shadowMapBuffer!;
+    }
+
+    /**
+     * @zh
+     * 获取阴影贴图
+     */
+    public get shadowMapGFXBuffer () : GFXFramebuffer {
         return this._shadowMap!;
     }
 
@@ -411,7 +411,7 @@ export abstract class RenderPipeline {
 
         // add shadowMap-flow
         const shadowMapFlow = new ShadowMapFlow();
-        // shadowMapFlow.initialize(ShadowMapFlow.initInfo);
+        shadowMapFlow.initialize(ShadowMapFlow.initInfo);
         this._flows.push(shadowMapFlow);
     }
 
@@ -810,7 +810,7 @@ export abstract class RenderPipeline {
             }
         }
 
-        if (!this._shadowMapBuffer && this.isShadow) {
+        if (!this._shadowMapBuffer && this._isShadow) {
             this._shadowMapBuffer = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,

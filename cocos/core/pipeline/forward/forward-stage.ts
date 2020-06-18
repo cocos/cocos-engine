@@ -192,7 +192,7 @@ export class ForwardStage extends RenderStage {
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        this._additiveLightQueue.recordCommandBuffer(this.pipeline.shadowMap, device, renderPass, cmdBuff);
+        this._additiveLightQueue.recordCommandBuffer(this.pipeline.shadowMapGFXBuffer, device, renderPass, cmdBuff);
         camera.scene!.planarShadows.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
 

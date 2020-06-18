@@ -25,12 +25,6 @@ export class RenderShadowMapBatchedQueue {
 
     private _phaseID = getPhaseID('shadowMap');
 
-    private _pass:Pass|null = null;
-
-    public get pass () {
-        return this._pass;
-    }
-
     /**
      * @zh
      * clear ligth-Batched-Queue
@@ -43,17 +37,14 @@ export class RenderShadowMapBatchedQueue {
 
     public add (pass: Pass, renderObj: IRenderObject, subModelIdx: number) {
         if (pass.phase === this._phaseID) {
+            const fullPatches = myForward_ShadowMap_Patches;
+            const psoCI = pass.createPipelineStateCI(fullPatches)!;
+            renderObj.model.updateLocalBindings(psoCI, subModelIdx);
+            psoCI.bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, this._shadowMapBuffer!);
+            psoCI.bindingLayout.update();
 
-            this._pass = pass;
-
-        const fullPatches = myForward_ShadowMap_Patches;
-        const psoCI = pass.createPipelineStateCI(fullPatches)!;
-        renderObj.model.updateLocalBindings(psoCI, subModelIdx);
-        psoCI.bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, this._shadowMapBuffer!);
-        psoCI.bindingLayout.update();
-
-        this._subModelsArray.push(renderObj.model.subModels[subModelIdx]);
-        this._psoArray.push(psoCI);
+            this._subModelsArray.push(renderObj.model.subModels[subModelIdx]);
+            this._psoArray.push(psoCI);
         }
     }
 

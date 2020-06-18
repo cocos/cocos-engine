@@ -1986,7 +1986,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @zh Set translation elements.
+     * @zh 设置坐标元素
      * @param translation position
      */
     public setTranslation (translation: Vec3) {
@@ -1996,7 +1996,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @zh Set scaling elements.
+     * @zh 设置缩放元素
      * @param scale scale
      */
     public setScale (scale: Vec3) {

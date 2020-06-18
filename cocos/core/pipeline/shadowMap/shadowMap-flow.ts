@@ -23,7 +23,7 @@ export class ShadowMapFlow extends RenderFlow {
     protected _shadowMap: GFXFramebuffer[] = [];
 
     protected updateShadowMap () {
-        // 如果上一帧结果被清除，则使用copyFramebuffer
+        // If the result of the previous frame is cleared,Then use copyFramebuffer
         if (this._stages[this._frame % 2].framebuffer) {
             const shadowMap = this._stages[this._frame % 2].framebuffer!;
             this._shadowMap[this._frame % 2] = shadowMap;
@@ -33,7 +33,7 @@ export class ShadowMapFlow extends RenderFlow {
         // @ts-ignore
         this.pipeline.shadowMap = null;
         // @ts-ignore
-        director.root!.device.copyFramebufferToBuffer(this._shadowMap[(this._frame + 1) % 2], this.pipeline.shadowMap, readRegions);
+        director.root!.device.copyFramebufferToBuffer(this._shadowMap[(this._frame + 1) % 2], this.pipeline._shadowMap, readRegions);
     }
 
     public static initInfo: IRenderFlowInfo = {

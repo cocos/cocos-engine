@@ -4,7 +4,7 @@
 
 import { ccclass, boolean } from '../../data/class-decorator';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import {  IGFXColor } from '../../gfx/define';
+import { IGFXColor } from '../../gfx/define';
 import { RenderFlow } from '../render-flow';
 import { RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
@@ -16,7 +16,7 @@ const depthcolors: IGFXColor[] = [ { r: 1, g: 1, b: 1, a: 1 } ];
 
 /**
  * @zh
- * 前向渲染阶段。
+ * 阴影贴图渲染阶段。
  */
 @ccclass('ShadowMapStage')
 export class ShadowMapStage extends RenderStage {
