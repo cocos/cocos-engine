@@ -297,14 +297,6 @@ export abstract class RenderPipeline {
 
     /**
      * @zh
-     * get shadowView
-     */
-    public get shadowView (): RenderView {
-        return this._shadowView!;
-    }
-
-    /**
-     * @zh
      * get shadowMap
      */
     public get shadowMap (): GFXFramebuffer {
@@ -348,7 +340,6 @@ export abstract class RenderPipeline {
     protected _fpScaleInv: number = 1024.0;
     protected _macros: IDefineMap = {};
     protected _useDynamicBatching = false;
-    protected _shadowView: RenderView|null = null;
     protected _texAdjust: Mat4 = new Mat4();
     protected _offset: Vec3 = new Vec3();
     protected _scale: Vec3 = new Vec3();
@@ -420,7 +411,7 @@ export abstract class RenderPipeline {
 
         // add shadowMap-flow
         const shadowMapFlow = new ShadowMapFlow();
-        shadowMapFlow.initialize(ShadowMapFlow.initInfo);
+        // shadowMapFlow.initialize(ShadowMapFlow.initInfo);
         this._flows.push(shadowMapFlow);
     }
 
@@ -461,12 +452,6 @@ export abstract class RenderPipeline {
     public render (view: RenderView) {
         for (let i = 0; i < view.flows.length; i++) {
             view.flows[i].render(view);
-        }
-
-        if(this._isShadow) {
-            for (let i = 0; i < this._shadowView!.flows.length; ++i) {
-                this._shadowView!.flows[i].render(this._shadowView!);
-            }
         }
     }
 
