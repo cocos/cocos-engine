@@ -492,9 +492,7 @@ export class SpriteComponent extends UIRenderComponent {
     public __preload () {
         this.changeMaterialForDefine();
 
-        if (super.__preload) {
-            super.__preload();
-        }
+        super.__preload();
 
         if (EDITOR) {
             this._resized();
@@ -629,10 +627,10 @@ export class SpriteComponent extends UIRenderComponent {
         if (this._spriteFrame) {
             if (SizeMode.RAW === this._sizeMode) {
                 const size = this._spriteFrame.originalSize;
-                this.node.setContentSize(size);
+                this.node._uiProps.uiTransformComp!.setContentSize(size);
             } else if (SizeMode.TRIMMED === this._sizeMode) {
                 const rect = this._spriteFrame.getRect();
-                this.node.setContentSize(rect.width, rect.height);
+                this.node._uiProps.uiTransformComp!.setContentSize(rect.width, rect.height);
             }
 
             this._activateMaterial();
@@ -645,7 +643,7 @@ export class SpriteComponent extends UIRenderComponent {
         }
 
         if (this._spriteFrame) {
-            const actualSize = this.node.getContentSize();
+            const actualSize = this.node._uiProps.uiTransformComp!.contentSize;
             let expectedW = actualSize.width;
             let expectedH = actualSize.height;
             if (this._sizeMode === SizeMode.RAW) {

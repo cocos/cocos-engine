@@ -631,8 +631,9 @@ export class ButtonComponent extends Component {
     }
 
     protected _resizeNodeToTargetNode () {
-        if (EDITOR && this._target) {
-            this.node.setContentSize(this._target.getContentSize());
+        let targetTrans = this._target && this._target._uiProps.uiTransformComp;
+        if (EDITOR && targetTrans) {
+            this.node._uiProps.uiTransformComp!.setContentSize(targetTrans.contentSize);
         }
     }
 

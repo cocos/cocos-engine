@@ -36,7 +36,7 @@ import { LayoutComponent } from './layout-component';
 import { PageViewIndicatorComponent } from './page-view-indicator-component';
 import { ScrollViewComponent } from './scroll-view-component';
 import { ScrollBarComponent } from './scroll-bar-component';
-import { warnID } from '../../core/platform/debug';
+import { warnID, logID } from '../../core/platform/debug';
 import { extendsEnum } from '../../core/data/utils/extends-enum';
 import { EventType as ScrollEventType } from './scroll-view-component';
 import { Node } from '../../core';
@@ -423,6 +423,10 @@ export class PageViewComponent extends ScrollViewComponent {
         if (!page || this._pages.indexOf(page) !== -1 || !this.content) {
             return;
         }
+        if (!page._uiProps.uiTransformComp) {
+            logID(4301);
+            return;
+        }
         this.content.addChild(page);
         this._pages.push(page);
         this._updatePageView();
@@ -447,6 +451,10 @@ export class PageViewComponent extends ScrollViewComponent {
             this.addPage(page);
         }
         else {
+            if (!page._uiProps.uiTransformComp) {
+                logID(4301);
+                return;
+            }
             this._pages.splice(index, 0, page);
             this.content.insertChild(page, index);
             this._updatePageView();
@@ -570,7 +578,8 @@ export class PageViewComponent extends ScrollViewComponent {
 
     // 刷新所有页面的大小
     protected _updateAllPagesSize() {
-        if (!this.content || !this.view) {
+        let viewTrans = this.view && this.view._uiProps.uiTransformComp;
+        if (!this.content || !viewTrans) {
             return;
         }
 
@@ -578,9 +587,9 @@ export class PageViewComponent extends ScrollViewComponent {
             return;
         }
         const locPages = EDITOR ? this.content.children : this._pages;
-        const selfSize = this.view.getContentSize();
+        const selfSize = viewTrans.contentSize;
         for (let i = 0, len = locPages.length; i < len; i++) {
-            locPages[i].setContentSize(selfSize);
+            locPages[i]._uiProps.uiTransformComp!.setContentSize(selfSize);
         }
     }
 
@@ -624,20 +633,20 @@ export class PageViewComponent extends ScrollViewComponent {
     }
 
     protected _syncSizeMode() {
-        const view = this.view;
-        if (!this.content || !view) { return; }
+        const viewTrans = this.view && this.view._uiProps.uiTransformComp;
+        if (!this.content || !viewTrans) { return; }
         const layout = this.content.getComponent(LayoutComponent);
-
         if (layout) {
             if (this._sizeMode === SizeMode.Free && this._pages.length > 0) {
-                const lastPage = this._pages[this._pages.length - 1];
+                const firstPageTrans = this._pages[0]._uiProps.uiTransformComp!;
+                const lastPageTrans = this._pages[this._pages.length - 1]._uiProps.uiTransformComp!;
                 if (this.direction === Direction.Horizontal) {
-                    layout.paddingLeft = (view.width - this._pages[0].width) / 2;
-                    layout.paddingRight = (view.width - lastPage.width) / 2;
+                    layout.paddingLeft = (viewTrans.width - firstPageTrans.width) / 2;
+                    layout.paddingRight = (viewTrans.width - lastPageTrans.width) / 2;
                 }
                 else if (this.direction === Direction.Vertical) {
-                    layout.paddingTop = (view.height - this._pages[0].height) / 2;
-                    layout.paddingBottom = (view.height - lastPage.height) / 2;
+                    layout.paddingTop = (viewTrans.height - firstPageTrans.height) / 2;
+                    layout.paddingBottom = (viewTrans.height - lastPageTrans.height) / 2;
                 }
             }
             layout.updateLayout();
@@ -692,18 +701,17 @@ export class PageViewComponent extends ScrollViewComponent {
                 offset.y = this._scrollCenterOffsetY[idx];
             }
         } else {
-            const view = this.view;
-            if (!view) {
+            const viewTrans = this.view && this.view._uiProps.uiTransformComp;
+            if (!viewTrans) {
                 return offset;
             }
             if (this.direction === Direction.Horizontal) {
-                offset.x = idx * view.width;
+                offset.x = idx * viewTrans.width;
             }
             else if (this.direction === Direction.Vertical) {
-                offset.y = idx * view.height;
+                offset.y = idx * viewTrans.height;
             }
         }
-
         return offset;
     }
 
@@ -742,15 +750,15 @@ export class PageViewComponent extends ScrollViewComponent {
             }
         }
         else {
-            const view = this.view;
-            if (!view) {
+            const viewTrans = this.view && this.view._uiProps.uiTransformComp;
+            if (!viewTrans) {
                 return;
             }
             if (this.direction === Direction.Horizontal) {
-                return Math.abs(offset.x) >= view.width * this.scrollThreshold;
+                return Math.abs(offset.x) >= viewTrans.width * this.scrollThreshold;
             }
             else if (this.direction === Direction.Vertical) {
-                return Math.abs(offset.y) >= view.height * this.scrollThreshold;
+                return Math.abs(offset.y) >= viewTrans.height * this.scrollThreshold;
             }
         }
     }

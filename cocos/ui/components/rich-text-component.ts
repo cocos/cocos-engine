@@ -117,8 +117,9 @@ pool.get = function (str: string, richtext: RichTextComponent) {
 
     labelComponent = labelComponent!;
     labelNode.setPosition(0, 0, 0);
-    labelNode.setAnchorPoint(0.5, 0.5);
-    labelNode.setContentSize(128, 128);
+    let trans = labelNode._uiProps.uiTransformComp!;
+    trans.setAnchorPoint(0.5, 0.5);
+    trans.setContentSize(128, 128);
     // labelNode.skewX = 0;
 
     if (typeof str !== 'string') {
@@ -475,9 +476,9 @@ export class RichTextComponent extends UIComponent {
         });
     }
 
-    protected _createFontLabel (str: string) {
+    protected _createFontLabel (str: string): ILabelSegment {
         // @ts-ignore
-        return pool.get!(str, this);
+        return pool.get(str, this);
     }
 
     protected _onTTFLoaded () {
@@ -514,7 +515,7 @@ export class RichTextComponent extends UIComponent {
             }
             label.styleIndex = styleIndex;
             self._applyTextAttribute(label);
-            const labelSize = label.node.getContentSize();
+            const labelSize = label.node._uiProps.uiTransformComp!.contentSize;
             return labelSize.width;
         };
         if (string) {
@@ -612,7 +613,7 @@ export class RichTextComponent extends UIComponent {
 
         labelSegment.styleIndex = styleIndex;
         labelSegment.lineCount = this._lineCount;
-        labelSegment.node.setAnchorPoint(0, 0);
+        labelSegment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
         this._applyTextAttribute(labelSegment);
         // @ts-ignore
         this.node.addChild(labelSegment.node);
@@ -660,7 +661,7 @@ export class RichTextComponent extends UIComponent {
             for (let k = 0; k < fragments.length; ++k) {
                 const splitString = fragments[k];
                 labelSegment = this._addLabelSegment(splitString, styleIndex);
-                const labelSize = labelSegment.node.getContentSize();
+                const labelSize = labelSegment.node._uiProps.uiTransformComp!.contentSize;
                 this._lineOffsetX += labelSize.width;
                 if (fragments.length > 1 && k < fragments.length - 1) {
                     this._updateLineInfo();
@@ -740,7 +741,7 @@ export class RichTextComponent extends UIComponent {
         if (spriteFrame) {
             const spriteNode = new PrivateNode(RichTextChildImageName);
             const spriteComponent = spriteNode.addComponent(SpriteComponent);
-            spriteNode.setAnchorPoint(0, 0);
+            spriteNode._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
             spriteComponent!.type = SpriteComponent.Type.SLICED;
             spriteComponent!.sizeMode = SpriteComponent.SizeMode.CUSTOM;
             // @ts-ignore
@@ -789,7 +790,7 @@ export class RichTextComponent extends UIComponent {
                 }
             }
             spriteComponent!.spriteFrame = spriteFrame;
-            spriteNode.setContentSize(spriteWidth, spriteHeight);
+            spriteNode._uiProps.uiTransformComp!.setContentSize(spriteWidth, spriteHeight);
             obj.lineCount = this._lineCount;
 
             if (richTextElement.style.event) {
@@ -866,9 +867,8 @@ export class RichTextComponent extends UIComponent {
                     }
                 } else {
                     label = this._addLabelSegment(labelString, i);
-                    labelSize = label.node.getContentSize();
 
-                    this._lineOffsetX += labelSize.width;
+                    this._lineOffsetX += label.node._uiProps.uiTransformComp!.width;
                     if (this._lineOffsetX > this._labelWidth) {
                         this._labelWidth = this._lineOffsetX;
                     }
@@ -889,7 +889,7 @@ export class RichTextComponent extends UIComponent {
         this._labelHeight = (this._lineCount + BASELINE_RATIO) * this.lineHeight;
 
         // trigger "size-changed" event
-        this.node.setContentSize(this._labelWidth, this._labelHeight);
+        this.node._uiProps.uiTransformComp!.setContentSize(this._labelWidth, this._labelHeight);
 
         this._updateRichTextPosition();
         this._layoutDirty = false;
@@ -918,14 +918,17 @@ export class RichTextComponent extends UIComponent {
         let nextTokenX = 0;
         let nextLineIndex = 1;
         const totalLineCount = this._lineCount;
-        for (const label of this._labelSegments) {
+        const trans = this.node._uiProps.uiTransformComp!;
+        const anchorX = trans.anchorX;
+        const anchorY = trans.anchorY;
+        for (let i = 0; i < this._labelSegments.length; ++i) {
+            const label = this._labelSegments[i];
             const lineCount = label.lineCount;
             if (lineCount > nextLineIndex) {
                 nextTokenX = 0;
                 nextLineIndex = lineCount;
             }
 
-            const anchorX = this.node.anchorX;
             let lineOffsetX = this._labelWidth * (this.horizontalAlign * 0.5 - anchorX);
             switch (this.horizontalAlign) {
                 case HorizontalTextAlignment.LEFT:
@@ -941,14 +944,13 @@ export class RichTextComponent extends UIComponent {
             }
 
             const pos = label.node.position;
-            const anchorY = this.node.anchorY;
             label.node.setPosition(nextTokenX + lineOffsetX,
                 this.lineHeight * (totalLineCount - lineCount) - this._labelHeight * anchorY,
                 pos.z,
             );
 
             if (lineCount === nextLineIndex) {
-                nextTokenX += label.node.width;
+                nextTokenX += label.node._uiProps.uiTransformComp!.width;
             }
         }
     }

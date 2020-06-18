@@ -59,8 +59,12 @@ export function getReadonlyNodeSize (parent: Node) {
         }
 
         return visibleRect;
-    } else {
-        return parent.getContentSize();
+    }
+    else if (parent._uiProps.uiTransformComp) {
+        return parent._uiProps.uiTransformComp.contentSize;
+    }
+    else {
+        return Size.ZERO;
     }
 }
 

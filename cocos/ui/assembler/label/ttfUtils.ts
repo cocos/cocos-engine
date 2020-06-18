@@ -32,11 +32,12 @@ import { Component } from '../../../core/components/component';
 import { fragmentText, safeMeasureText, js, BASELINE_RATIO } from '../../../core/utils';
 import { Color, Size, Vec2 } from '../../../core/math';
 import { HorizontalTextAlignment, LabelComponent, LabelOutlineComponent, VerticalTextAlignment } from '../../components';
-import { CanvasPool, ISharedLabelData } from './font-utils';
+import { ISharedLabelData } from './font-utils';
 import { LetterRenderTexture } from './letter-font';
 import { loader } from '../../../core/load-pipeline';
 import { logID } from '../../../core/platform/debug';
 import { RUNTIME_BASED, MINIGAME } from 'internal:constants';
+import { UITransformComponent } from '../../../core/components/ui-base/ui-transform-component';
 
 const Overflow = LabelComponent.Overflow;
 const WHITE = Color.WHITE.clone();
@@ -50,7 +51,7 @@ let _fontDesc = '';
 let _string = '';
 let _fontSize = 0;
 let _drawFontsize = 0;
-let _splitedStrings: string[] = [];
+let _splitStrings: string[] = [];
 const _canvasSize = new Size();
 let _lineHeight = 0;
 let _hAlign = 0;
@@ -86,16 +87,17 @@ export const ttfUtils =  {
     updateRenderData (comp: LabelComponent) {
         if (!comp.renderData || !comp.renderData.vertDirty) { return; }
 
+        let trans = comp.node._uiProps.uiTransformComp!;
         this._updateFontFamily(comp);
-        this._updateProperties(comp);
+        this._updateProperties(comp, trans);
         this._calculateLabelFont();
-        this._calculateSplitedStrings();
+        this._calculateSplitStrings();
         this._updateLabelDimensions();
         this._calculateTextBaseline();
         this._updateTexture();
 
         comp.actualFontSize = _fontSize;
-        comp.node.setContentSize(_canvasSize);
+        trans.setContentSize(_canvasSize);
 
         this.updateVertexData(comp);
 
@@ -131,7 +133,7 @@ export const ttfUtils =  {
         }
     },
 
-    _updateProperties (comp: LabelComponent) {
+    _updateProperties (comp: LabelComponent, trans: UITransformComponent) {
         const assemblerData = comp.assemblerData;
         if (!assemblerData){
             return;
@@ -145,8 +147,8 @@ export const ttfUtils =  {
         _fontSize = comp.fontSize;
         _drawFontsize = _fontSize;
         _overflow = comp.overflow;
-        _canvasSize.width = comp.node.width!;
-        _canvasSize.height = comp.node.height!;
+        _canvasSize.width = trans.width;
+        _canvasSize.height = trans.height;
         _lineHeight = comp.lineHeight;
         _hAlign = comp.horizontalAlign;
         _vAlign = comp.verticalAlign;
@@ -182,7 +184,7 @@ export const ttfUtils =  {
 
     _calculateFillTextStartPosition () {
         const lineHeight = this._getLineHeight();
-        const lineCount = _splitedStrings.length;
+        const lineCount = _splitStrings.length;
         let labelX = 0;
         let firstLineLabelY = 0;
 
@@ -228,14 +230,14 @@ export const ttfUtils =  {
         let underlineStartPosition;
 
         // do real rendering
-        for (let i = 0; i < _splitedStrings.length; ++i) {
+        for (let i = 0; i < _splitStrings.length; ++i) {
             if (_isOutlined) {
                 const strokeColor = _outlineColor || WHITE;
                 _context.strokeStyle = `rgba(${strokeColor.r}, ${strokeColor.g}, ${strokeColor.b}, ${strokeColor.a / 255})`;
                 _context.lineWidth = _outlineWidth * 2;
-                _context.strokeText(_splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
+                _context.strokeText(_splitStrings[i], startPosition.x, startPosition.y + i * lineHeight);
             }
-            _context.fillText(_splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
+            _context.fillText(_splitStrings[i], startPosition.x, startPosition.y + i * lineHeight);
 
             if (_isUnderline) {
                 underlineStartPosition = this._calculateUnderlineStartPosition();
@@ -274,7 +276,7 @@ export const ttfUtils =  {
 
     _calculateUnderlineStartPosition () {
         const lineHeight = this._getLineHeight();
-        const lineCount = _splitedStrings.length;
+        const lineCount = _splitStrings.length;
         const labelX = 0 + _margin;
         let firstLineLabelY = 0;
 
@@ -299,17 +301,17 @@ export const ttfUtils =  {
         const paragraphedStrings = _string.split('\n');
 
         if (_overflow === Overflow.RESIZE_HEIGHT) {
-            _canvasSize.height = (_splitedStrings.length + BASELINE_RATIO) * this._getLineHeight();
+            _canvasSize.height = (_splitStrings.length + BASELINE_RATIO) * this._getLineHeight();
         }
         else if (_overflow === Overflow.NONE) {
-            _splitedStrings = paragraphedStrings;
+            _splitStrings = paragraphedStrings;
             let canvasSizeX = 0;
             let canvasSizeY = 0;
             for (const para of paragraphedStrings) {
                 const paraLength = safeMeasureText(_context, para);
                 canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
             }
-            canvasSizeY = (_splitedStrings.length + BASELINE_RATIO) * this._getLineHeight();
+            canvasSizeY = (_splitStrings.length + BASELINE_RATIO) * this._getLineHeight();
 
             _canvasSize.width = parseFloat(canvasSizeX.toFixed(2)) + 2 * _margin;
             _canvasSize.height = parseFloat(canvasSizeY.toFixed(2));
@@ -358,23 +360,23 @@ export const ttfUtils =  {
         }
     },
 
-    _calculateSplitedStrings () {
+    _calculateSplitStrings () {
         if (!_context){
             return;
         }
         const paragraphedStrings = _string.split('\n');
 
         if (_isWrapText) {
-            _splitedStrings = [];
+            _splitStrings = [];
             const canvasWidthNoMargin = _canvasSize.width - 2 * _margin;
             for (const para of paragraphedStrings) {
                 const allWidth = safeMeasureText(_context, para);
                 const textFragment = fragmentText(para, allWidth, canvasWidthNoMargin, this._measureText(_context!));
-                _splitedStrings = _splitedStrings.concat(textFragment);
+                _splitStrings = _splitStrings.concat(textFragment);
             }
         }
         else {
-            _splitedStrings = paragraphedStrings;
+            _splitStrings = paragraphedStrings;
         }
 
     },
@@ -433,7 +435,7 @@ export const ttfUtils =  {
             const paragraphedStrings = _string.split('\n');
             const paragraphLength = this._calculateParagraphLength(paragraphedStrings, _context);
 
-            _splitedStrings = paragraphedStrings;
+            _splitStrings = paragraphedStrings;
             let i = 0;
             let totalHeight = 0;
             let maxLength = 0;
@@ -468,7 +470,7 @@ export const ttfUtils =  {
                     _fontDesc = this._getFontDesc();
                     _context.font = _fontDesc;
 
-                    _splitedStrings = [];
+                    _splitStrings = [];
                     totalHeight = 0;
                     for (i = 0; i < paragraphedStrings.length; ++i) {
                         let j = 0;
@@ -483,7 +485,7 @@ export const ttfUtils =  {
                             totalHeight += this._getLineHeight();
                             ++j;
                         }
-                        _splitedStrings = _splitedStrings.concat(textFragment);
+                        _splitStrings = _splitStrings.concat(textFragment);
                     }
 
                     if (tryDivideByTwo) {
