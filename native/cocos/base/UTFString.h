@@ -1,6 +1,9 @@
 #ifndef CC_CORE_KERNEL_UTF_STRING_H_
 #define CC_CORE_KERNEL_UTF_STRING_H_
 
+#include "CoreDef.h"
+#include "memory/StlAlloc.h"
+
 #if (CC_COMPILER == CC_COMPILER_MSVC && (CC_COMPILER_VERSION >= 70 && CC_COMPILER_VERSION < 100))
 
     #if defined(_DLL_CPPLIB)
@@ -15,10 +18,7 @@ template class _CRTIMP2 basic_string<__wchar_t, char_traits<__wchar_t>,
 
 #endif
 
-#include "memory/StlAlloc.h"
-
 namespace cc {
-namespace gfx {
 
 /* READ THIS NOTICE BEFORE USING IN YOUR OWN APPLICATIONS
  =NOTICE=
@@ -1556,7 +1556,6 @@ inline bool operator<=(const UTFString::_const_rev_iterator &left, const UTFStri
 inline bool operator>(const UTFString::_const_rev_iterator &left, const UTFString::_const_rev_iterator &right) { return right.iter_ > left.iter_; }
 inline bool operator>=(const UTFString::_const_rev_iterator &left, const UTFString::_const_rev_iterator &right) { return right.iter_ >= left.iter_; }
 
-} // namespace gfx
 } // namespace cc
 
 #endif // CC_CORE_KERNEL_UTF_STRING_H_

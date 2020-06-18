@@ -4,9 +4,14 @@
 #include "MemDef.h"
 #include <queue>
 #include <set>
+#include <list>
+#include <map>
+#include <queue>
+#include <deque>
+#include <unordered_map>
+#include <string>
 
 namespace cc {
-namespace gfx {
 
 // Base STL allocator class.
 template <typename T>
@@ -285,7 +290,6 @@ typedef std::wstring WString;
 
 typedef vector<String> StringArray;
 
-} // namespace gfx
 } // namespace cc
 
 #endif // CC_CORE_STL_ALLOC_H_

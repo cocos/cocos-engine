@@ -1,13 +1,14 @@
 #ifndef CC_CORE_NED_POOLING_H_
 #define CC_CORE_NED_POOLING_H_
 
+#include "../CoreDef.h"
+
 #if (CC_MEMORY_ALLOCATOR == CC_MEMORY_ALLOCATOR_NEDPOOLING)
 
 namespace cc {
-namespace gfx {
 
 //Non-templated utility class just to hide nedmalloc.
-class CC_CORE_API NedPoolingImpl {
+class CC_DLL NedPoolingImpl {
 public:
     static CC_DECL_MALLOC void *AllocBytes(size_t count, const char *file, int line, const char *func);
     static CC_DECL_MALLOC void *ReallocBytes(void *ptr, size_t count, const char *file, int line, const char *func);
@@ -22,7 +23,7 @@ public:
  @par
  This allocation policy uses nedmalloc (http://nedprod.com/programs/portable/nedmalloc/index.html).
  */
-class CC_CORE_API NedPoolingAllocPolicy {
+class CC_DLL NedPoolingAllocPolicy {
 public:
     static CC_INLINE CC_DECL_MALLOC void *AllocateBytes(size_t count, const char *file = nullptr, int line = 0, const char *func = nullptr) {
         return NedPoolingImpl::AllocBytes(count, file, line, func);
@@ -50,7 +51,6 @@ private:
     NedPoolingAllocPolicy() {}
 };
 
-} // namespace gfx
 } // namespace cc
 
 #endif // end - #ifdef CC_MEMORY_ALLOCATOR_NEDPOOLING

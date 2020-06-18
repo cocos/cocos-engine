@@ -1,10 +1,12 @@
 #ifndef CC_CORE_KERNEL_UTIL_STRING_UTIL_H_
 #define CC_CORE_KERNEL_UTIL_STRING_UTIL_H_
 
-namespace cc {
-namespace gfx {
+#include "CoreDef.h"
+#include "TypeDef.h"
 
-class CC_CORE_API StringUtil {
+namespace cc {
+
+class CC_DLL StringUtil {
 public:
     static int VPrintf(char *buf, char *last, const char *fmt, va_list args);
     static int Printf(char *buf, char *last, const char *fmt, ...);
@@ -12,7 +14,6 @@ public:
     static StringArray Split(const String &str, const String &delims, uint max_splits = 0);
 };
 
-} // namespace gfx
 } // namespace cc
 
 #endif // CC_CORE_KERNEL_UTIL_STRING_UTIL_H_

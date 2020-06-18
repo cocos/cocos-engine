@@ -18,7 +18,7 @@ struct CC_DLL InstancedItem {
     uint capacity = 0;
     uint stride = 0;
 };
-typedef gfx::vector<InstancedItem> InstancedItemList;
+typedef vector<InstancedItem> InstancedItemList;
 
 class InstancedBuffer : public gfx::Object {
 public:

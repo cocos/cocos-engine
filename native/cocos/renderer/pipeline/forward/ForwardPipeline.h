@@ -16,9 +16,9 @@ public:
     virtual void rebuild() override;
     virtual void updateUBOs(RenderView *view) override;
     virtual void sceneCulling() override;
-    virtual gfx::vector<float> &getLightIndices() const override;
-    virtual gfx::vector<float> &getLightIndexOffsets() const override;
-    virtual gfx::vector<gfx::GFXBuffer *> &getLightBuffers() const override;
+    virtual vector<float> &getLightIndices() const override;
+    virtual vector<float> &getLightIndexOffsets() const override;
+    virtual vector<gfx::GFXBuffer *> &getLightBuffers() const override;
 
     CC_INLINE gfx::GFXBuffer *getLightsUBO() { return _lightsUBO; }
 

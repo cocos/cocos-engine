@@ -30,7 +30,7 @@ public:
 
     CC_INLINE const gfx::GFXDevice *getDevice() const { return _device; }
     CC_INLINE const RenderPipeline *getPipeline() const { return _pipeline; }
-    CC_INLINE const gfx::String &getName() const { return _name; }
+    CC_INLINE const String &getName() const { return _name; }
     CC_INLINE int getPriority() const { return _priority; }
     CC_INLINE const RenderStageList &getStages() const { return _stages; }
     //    CC_INLINE const Material *getMaterial() const { return _material; }
@@ -42,7 +42,7 @@ protected:
 protected:
     gfx::GFXDevice *_device = nullptr;
     RenderPipeline *_pipeline = nullptr;
-    gfx::String _name;
+    String _name;
     int _priority = 0;
     RenderStageList _stages;
     //    Material *_material = nullptr;

@@ -9,7 +9,6 @@
 #endif
 
 namespace cc {
-namespace gfx {
 
 #if defined(_WIN32)
 int StringUtil::VPrintf(char *buf, char *last, const char *fmt, va_list args) {
@@ -94,5 +93,4 @@ StringArray StringUtil::Split(const String &str, const String &delims, uint max_
     return strs;
 }
 
-} // namespace gfx
 } // namespace cc

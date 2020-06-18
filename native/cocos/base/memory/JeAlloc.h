@@ -4,7 +4,6 @@
 #if (CC_MEMORY_ALLOCATOR == CC_MEMORY_ALLOCATOR_JEMALLOC)
 
 namespace cc {
-namespace gfx {
 
 //Non-templated utility class just to hide jemalloc.
 class CC_CORE_API JeAllocImpl {
@@ -54,7 +53,6 @@ private:
     JeAllocPolicy() {}
 };
 
-} // namespace gfx
 } // namespace cc
 
 #endif // end - #ifdef COCOS_MEMORY_ALLOCATOR_JEMALLOC

@@ -15,10 +15,10 @@ public:
     void clear();
     void recordCommandBuffer(gfx::GFXDevice *, gfx::GFXRenderPass *, gfx::GFXCommandBuffer *);
 
-    CC_INLINE const gfx::set<InstancedBuffer *> &getQueue() const { return _queue; }
+    CC_INLINE const set<InstancedBuffer *> &getQueue() const { return _queue; }
 
 private:
-    gfx::set<InstancedBuffer *> _queue;
+    set<InstancedBuffer *> _queue;
 };
 
 } // namespace pipeline

@@ -8,7 +8,6 @@
 extern const char *je_malloc_conf = "narenas:4";
 
 namespace cc {
-namespace gfx {
 
     #ifdef CC_MEMORY_TRACKER
         #define MEM_CHECKTAG_SIZE 4
@@ -148,7 +147,6 @@ void JeAllocImpl::TrimAlloc() {
     je_mallctl(buf, NULL, NULL, NULL, 0);
 }
 
-} // namespace gfx
 } // namespace cc
 
 #endif // end - #ifdef CC_MEMORY_ALLOCATOR_JEMALLOC

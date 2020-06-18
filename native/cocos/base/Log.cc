@@ -1,7 +1,6 @@
-#include "CoreStd.h"
 #include "Log.h"
 #include "UTFString.h"
-#include "util/StringUtil.h"
+#include "StringUtil.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #ifndef WIN32_LEAN_AND_MEAN
@@ -22,7 +21,6 @@
 #endif
 
 namespace cc {
-namespace gfx {
 
 #define LOG_USE_TIMESTAMP
 LogLevel Log::log_level = LogLevel::DEBUG;
@@ -142,5 +140,4 @@ void Log::LogMessage(LogType type, LogLevel level, const char *formats, ...) {
 #endif
 }
 
-} // namespace gfx
 } // namespace cc

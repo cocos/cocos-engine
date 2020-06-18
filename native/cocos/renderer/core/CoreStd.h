@@ -1,7 +1,7 @@
 #ifndef CC_CORE_CORE_STD_H_
 #define CC_CORE_CORE_STD_H_
 
-#include "CoreDef.h"
+#include "base/CoreDef.h"
 
 // STD including
 #include <stdio.h>
@@ -30,13 +30,11 @@
 #include <atomic>
 #include <mutex>
 
-#include "TypeDef.h"
-#include "base/ccMacros.h"
-#include "kernel/Assertion.h"
-#include "memory/Memory.h"
+#include "base/TypeDef.h"
+#include "base/memory/Memory.h"
 #include "math/CCCoreMath.h"
-#include "kernel/Log.h"
-#include "kernel/Object.h"
+#include "base/Log.h"
+#include "base/Object.h"
 #include "gfx/GFXObject.h"
 
 #endif // CC_CORE_CORE_STD_H_

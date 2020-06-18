@@ -219,6 +219,7 @@ endif()
 cocos_source_files(
     cocos/base/base64.cpp
     cocos/base/base64.h
+    cocos/base/CachedArray.h
     cocos/base/CCAutoreleasePool.cpp
     cocos/base/CCAutoreleasePool.h
     cocos/base/ccCArray.cpp
@@ -246,16 +247,38 @@ cocos_source_files(
     cocos/base/CCValue.cpp
     cocos/base/CCValue.h
     cocos/base/CCVector.h
+    cocos/base/CoreDef.h
     cocos/base/csscolorparser.cpp
     cocos/base/csscolorparser.hpp
     cocos/base/etc1.cpp
     cocos/base/etc1.h
     cocos/base/etc2.cpp
     cocos/base/etc2.h
+    cocos/base/Log.cc
+    cocos/base/Log.h
+    cocos/base/memory/AllocatedObj.cc
+    cocos/base/memory/AllocatedObj.h
+    cocos/base/memory/JeAlloc.cc
+    cocos/base/memory/JeAlloc.h
+    cocos/base/memory/MemDef.h
+    cocos/base/memory/Memory.cc
+    cocos/base/memory/Memory.h
+    cocos/base/memory/MemTracker.cc
+    cocos/base/memory/MemTracker.h
+    cocos/base/memory/NedPooling.cc
+    cocos/base/memory/NedPooling.h
+    cocos/base/memory/StdAlloc.h
+    cocos/base/memory/StlAlloc.h
+    cocos/base/Object.h
     cocos/base/pvr.cpp
     cocos/base/pvr.h
+    cocos/base/TypeDef.h
     cocos/base/uthash.h
     cocos/base/utlist.h
+    cocos/base/StringUtil.cc
+    cocos/base/StringUtil.h
+    cocos/base/UTFString.cc
+    cocos/base/UTFString.h
     cocos/base/ZipUtils.cpp
     cocos/base/ZipUtils.h
 )
@@ -442,7 +465,6 @@ endif()
 ##### renderer
 cocos_source_files(
     cocos/renderer/core/Core.h
-    cocos/renderer/core/CoreDef.h
     cocos/renderer/core/CoreStd.cc
     cocos/renderer/core/CoreStd.h
     cocos/renderer/core/gfx/GFXObject.h
@@ -483,32 +505,8 @@ cocos_source_files(
     cocos/renderer/core/gfx/GFXTexture.h
     cocos/renderer/core/gfx/GFXFence.h
     cocos/renderer/core/gfx/GFXFence.cc
-    cocos/renderer/core/kernel/Assertion.cc
-    cocos/renderer/core/kernel/Assertion.h
-    cocos/renderer/core/kernel/CachedArray.h
-    cocos/renderer/core/kernel/Log.cc
-    cocos/renderer/core/kernel/Log.h
-    cocos/renderer/core/kernel/Object.h
-    cocos/renderer/core/kernel/UTFString.cc
-    cocos/renderer/core/kernel/UTFString.h
     cocos/renderer/core/math/CCCoreMath.cc
     cocos/renderer/core/math/CCCoreMath.h
-    cocos/renderer/core/memory/AllocatedObj.cc
-    cocos/renderer/core/memory/AllocatedObj.h
-    cocos/renderer/core/memory/JeAlloc.cc
-    cocos/renderer/core/memory/JeAlloc.h
-    cocos/renderer/core/memory/MemDef.h
-    cocos/renderer/core/memory/Memory.cc
-    cocos/renderer/core/memory/Memory.h
-    cocos/renderer/core/memory/MemTracker.cc
-    cocos/renderer/core/memory/MemTracker.h
-    cocos/renderer/core/memory/NedPooling.cc
-    cocos/renderer/core/memory/NedPooling.h
-    cocos/renderer/core/memory/StdAlloc.h
-    cocos/renderer/core/memory/StlAlloc.h
-    cocos/renderer/core/TypeDef.h
-    cocos/renderer/core/util/StringUtil.cc
-    cocos/renderer/core/util/StringUtil.h
     cocos/renderer/pipeline/BatchedBuffer.cpp
     cocos/renderer/pipeline/BatchedBuffer.h
     cocos/renderer/pipeline/Define.h

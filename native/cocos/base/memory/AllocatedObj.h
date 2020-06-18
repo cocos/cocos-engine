@@ -1,6 +1,8 @@
 #ifndef CC_CORE_ALLOCATED_OBJ_H_
 #define CC_CORE_ALLOCATED_OBJ_H_
 
+#include "../CoreDef.h"
+
 // Anything that has done a #define new <blah> will screw operator new definitions up
 // so undefine
 #ifdef new
@@ -10,10 +12,7 @@
     #undef delete
 #endif
 
-#include "core/CoreDef.h"
-
 namespace cc {
-namespace gfx {
 
 /** Superclass for all objects that wish to use custom memory allocators
  when their new / delete operators are called.
@@ -75,7 +74,6 @@ public:
     }
 };
 
-} // namespace gfx
 } // namespace cc
 
 #endif // CC_CORE_ALLOCATED_OBJ_H_

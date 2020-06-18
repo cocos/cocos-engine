@@ -1,8 +1,7 @@
-#include "CoreStd.h"
 #include "UTFString.h"
+#include "memory/Memory.h"
 
 namespace cc {
-namespace gfx {
 
 UTFString::unicode_char UTFString::_base_iterator::_getCharacter() const {
     return string_->getChar(_get_index());
@@ -567,5 +566,4 @@ void UTFString::_load_buffer_WStr() const {
 #endif
 }
 
-} // namespace gfx
 } // namespace cc

@@ -1,9 +1,7 @@
-#include "CoreStd.h"
 #include "MemDef.h"
 #include "AllocatedObj.h"
 
 namespace cc {
-namespace gfx {
 
 /*
  The problem is that operator new/delete are *implicitly* static. We have to
@@ -13,5 +11,4 @@ namespace gfx {
 
 template class AllocatedObject<GAP>;
 
-} // namespace gfx
 } // namespace cc

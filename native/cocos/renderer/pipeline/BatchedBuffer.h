@@ -18,7 +18,7 @@ struct CC_DLL BatchedItem {
     gfx::GFXBuffer *ubo = nullptr;
     cc::PSOCreateInfo *psoCreatedInfo = nullptr;
 };
-typedef gfx::vector<BatchedItem> BatchedItemList;
+typedef vector<BatchedItem> BatchedItemList;
 
 class CC_DLL BatchedBuffer : public gfx::Object {
 public:

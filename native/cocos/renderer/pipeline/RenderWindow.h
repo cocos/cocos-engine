@@ -8,7 +8,7 @@ class Root;
 namespace pipeline {
 
 struct CC_DLL RenderWindowInfo {
-    gfx::String titile;
+    String titile;
     uint left = 0;
     uint top = 0;
     uint width = 0;
@@ -38,7 +38,7 @@ private:
     RenderWindow(Root *root);
     
 private:
-    gfx::String title;
+    String title;
     gfx::GFXTextureList _colorTexs;
     gfx::GFXTexture *_depthStencilTex = nullptr;
     gfx::GFXFramebuffer *_frameBuffer = nullptr;

@@ -15,9 +15,9 @@ class RenderPipeline;
 class RenderView;
 
 struct CC_DLL RenderStageInfo {
-    gfx::String name;
+    String name;
     int priority = 0;
-    gfx::String framebuffer;
+    String framebuffer;
     // renderQueues?: RenderQueueDesc[];
 };
 

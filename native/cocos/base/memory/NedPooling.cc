@@ -14,7 +14,6 @@
     #include <nedmalloc.c>
 
 namespace cc {
-namespace gfx {
 
 namespace nedPoolingIntern {
 
@@ -198,7 +197,6 @@ void NedPoolingImpl::DeallocBytes(void *ptr) {
     nedPoolingIntern::InternalFree(ptr);
 }
 
-} // namespace gfx
 } // namespace cc
 
 #endif // end - #ifdef CC_MEMORY_ALLOCATOR_NEDPOOLING

@@ -1,6 +1,6 @@
 #include "CoreStd.h"
 #include "MemTracker.h"
-#include "util/StringUtil.h"
+#include "../StringUtil.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include <android/log.h>
@@ -30,7 +30,6 @@ extern "C" {
     #define LEAK_FILENAME "MemoryLeaks.log"
 
 namespace cc {
-namespace gfx {
 
 struct AllocHashNode {
     tommy_hashdyn_node node;
@@ -261,6 +260,5 @@ void MemTracker::DumpMemoryAllocation() {
     #endif
 }
 
-} // namespace gfx
 } // namespace cc
 #endif

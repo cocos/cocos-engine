@@ -4,7 +4,6 @@
 #ifdef CC_MEMORY_TRACKER
 
 namespace cc {
-namespace gfx {
 
 /** This class tracks the allocations and deallocations made, and
 is able to report memory statistics and leaks.
@@ -59,7 +58,6 @@ private:
     void *allocations_;
 };
 
-} // namespace gfx
 } // namespace cc
 
 #endif

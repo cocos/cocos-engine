@@ -14,7 +14,7 @@ class RenderFlow;
 struct CC_DLL RenderObject {
     //TODO
 };
-typedef gfx::vector<struct RenderObject> RenderObjectList;
+typedef vector<struct RenderObject> RenderObjectList;
 
 struct CC_DLL RenderTargetInfo {
     uint width = 0;
@@ -28,7 +28,7 @@ struct CC_DLL RenderPass {
     uint passIdx = 0;
     SubModel *subModel = nullptr;
 };
-typedef gfx::vector<RenderPass> RenderPassList;
+typedef vector<RenderPass> RenderPassList;
 
 struct RenderPassDesc {
     // sortFunc
@@ -36,8 +36,8 @@ struct RenderPassDesc {
     bool isTransparent = false;
 };
 
-typedef gfx::vector<RenderStage *> RenderStageList;
-typedef gfx::vector<RenderFlow *> RenderFlowList;
+typedef vector<RenderStage *> RenderStageList;
+typedef vector<RenderFlow *> RenderFlowList;
 
 //TODO
 const uint CAMERA_DEFAULT_MASK = 1;

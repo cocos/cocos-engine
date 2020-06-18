@@ -26,7 +26,7 @@ public:
     void setExecuteFlows(const RenderFlowList &flows);
     void setPriority();
 
-    CC_INLINE const gfx::String &getName() const { return _name; }
+    CC_INLINE const String &getName() const { return _name; }
     CC_INLINE uint getPriority() const { return _priority; }
     CC_INLINE uint getVisibility() const { return _visibility; }
     CC_INLINE void setVisibility(uint value) { _visibility = value; }
@@ -43,7 +43,7 @@ private:
 
 private:
     RenderFlowList _flows;
-    gfx::String _name;
+    String _name;
     cc::Camera *_camera = nullptr;
     cc::Root *_root = nullptr;
     uint _priority = 0;

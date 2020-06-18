@@ -132,18 +132,6 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 
 // Generic macros
 
-/// @name namespace cc
-/// @{
-#ifdef __cplusplus
-    #define NS_PP_BEGIN namespace pipeline {
-    #define NS_PP_END   }
-#else
-    #define NS_PP_BEGIN
-    #define NS_PP_END
-#endif
-//  end of namespace group
-/// @}
-
 #define CC_SAFE_DELETE(p) \
     do {                  \
         delete (p);       \

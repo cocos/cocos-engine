@@ -3,8 +3,8 @@
 
 #include "CoreStd.h"
 
-#include "kernel/CachedArray.h"
-#include "util/StringUtil.h"
+#include "base/CachedArray.h"
+#include "base/StringUtil.h"
 
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXContext.h"
