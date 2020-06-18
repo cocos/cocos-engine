@@ -85,7 +85,7 @@ export class SplashScreenWebgl {
 
 
     private setting!: ISplashSetting;
-    private ccSetting: any;
+    private orientation = '';
     private callBack: Function | null = null;
     private cancelAnimate = false;
     private handle = -1;
@@ -126,15 +126,16 @@ export class SplashScreenWebgl {
     }
 
     public main (canvas: HTMLCanvasElement) {
-        this.ccSetting = window._CCSettings;
-        if (this.ccSetting && this.ccSetting.splashScreen) {
-            this.setting = this.ccSetting.splashScreen;
+        var ccSetting = globalThis._CCSettings;
+        if (ccSetting && ccSetting.splashScreen) {
+            this.setting = ccSetting.splashScreen;
             (this.setting.totalTime as number) = this.setting.totalTime != null ? this.setting.totalTime : 3000;
             (this.setting.base64src as string) = this.setting.base64src != null ? this.setting.base64src : '';
             (this.setting.effect as SplashEffectType) = this.setting.effect != null ? this.setting.effect : 'Fade-InOut';
             (this.setting.clearColor as IGFXColor) = this.setting.clearColor != null ? this.setting.clearColor : { r: 0.88, g: 0.88, b: 0.88, a: 1.0 };
             (this.setting.displayRatio as number) = this.setting.displayRatio != null ? this.setting.displayRatio : 0.4;
             (this.setting.displayWatermark as boolean) = this.setting.displayWatermark != null ? this.setting.displayWatermark : true;
+            this.orientation = ccSetting.orientation;
         } else {
             this.setting = {
                 totalTime: 3000,
@@ -154,15 +155,15 @@ export class SplashScreenWebgl {
             return;
         } else {
             cc.view.enableRetina(true);
-            const designRes = this.ccSetting.designResolution;
+            const designRes = ccSetting.designResolution;
             if (designRes) {
                 cc.view.setDesignResolutionSize(designRes.width, designRes.height, designRes.policy);
             } else {
                 cc.view.setDesignResolutionSize(960, 640, 4);
             }
 
-            let useWebGL2 = (!!window.WebGL2RenderingContext);
-            const userAgent = window.navigator.userAgent.toLowerCase();
+            let useWebGL2 = (!!globalThis.WebGL2RenderingContext);
+            const userAgent = globalThis.navigator.userAgent.toLowerCase();
             if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
                 || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't not conform to WebGL2 standard
             ) {
@@ -233,7 +234,7 @@ export class SplashScreenWebgl {
         if (COCOSPLAY) {
             let width = globalThis.innerWidth;
             let height = globalThis.innerHeight;
-            if (this.ccSetting.orientation === 'landscape' && width < height) {
+            if (this.orientation === 'landscape' && width < height) {
                 globalThis.innerWidth = height;
                 globalThis.innerHeight = width;
             }
@@ -243,7 +244,7 @@ export class SplashScreenWebgl {
         if (COCOSPLAY || XIAOMI) {
             let width = this.gl.canvas.width;
             let height = this.gl.canvas.height;
-            if (this.ccSetting.orientation === 'landscape' && width < height) {
+            if (this.orientation === 'landscape' && width < height) {
                 this.gl.canvas.width = height;
                 this.gl.canvas.height = width;
             }
@@ -252,7 +253,7 @@ export class SplashScreenWebgl {
         // adapt for alipay, adjust the canvas size
         if (ALIPAY) {
             if (sys.os == sys.OS_IOS) {
-                if (this.ccSetting.orientation === 'landscape') {
+                if (this.orientation === 'landscape') {
                     this.gl.canvas.width = screen.height * devicePixelRatio;
                     this.gl.canvas.height = screen.width * devicePixelRatio;
                 } else {
@@ -406,7 +407,7 @@ export class SplashScreenWebgl {
         if (COCOSPLAY) {
             let width = globalThis.innerWidth;
             let height = globalThis.innerHeight;
-            if (this.ccSetting.orientation === 'landscape' && width < height) {
+            if (this.orientation === 'landscape' && width < height) {
                 globalThis.innerWidth = height;
                 globalThis.innerHeight = width;
             }
@@ -416,7 +417,7 @@ export class SplashScreenWebgl {
         if (COCOSPLAY || XIAOMI) {
             let width = this.gl.canvas.width;
             let height = this.gl.canvas.height;
-            if (this.ccSetting.orientation === 'landscape' && width < height) {
+            if (this.orientation === 'landscape' && width < height) {
                 this.gl.canvas.width = height;
                 this.gl.canvas.height = width;
             }
