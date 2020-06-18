@@ -200,7 +200,6 @@ proto.update = function (dt) {
     if (this._elapsed === -1) {
         this._elapsed = 0;
         this._timesExecuted = 0;
-        this.update(dt);
     } else {
         this._elapsed += dt;
         if (this._runForever && !this._useDelay) {//standard timer usage
