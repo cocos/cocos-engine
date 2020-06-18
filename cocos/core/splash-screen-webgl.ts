@@ -229,13 +229,23 @@ export class SplashScreenWebgl {
             }
         }
 
-        // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
+        // adapt for cocos play 1.0.11
+        if (COCOSPLAY) {
+            let width = globalThis.innerWidth;
+            let height = globalThis.innerHeight;
+            if (this.ccSetting.orientation === 'landscape' && width < height) {
+                globalThis.innerWidth = height;
+                globalThis.innerHeight = width;
+            }
+        }
+
+        // TODO: hack for COCOSPLAY & XIAOMI cause on landscape canvas value is wrong
         if (COCOSPLAY || XIAOMI) {
-            if (this.ccSetting.orientation === 'landscape' && this.gl.canvas.width < this.gl.canvas.height) {
-                let width = this.gl.canvas.height;
-                let height = this.gl.canvas.width;
-                this.gl.canvas.width = width;
-                this.gl.canvas.height = height;
+            let width = this.gl.canvas.width;
+            let height = this.gl.canvas.height;
+            if (this.ccSetting.orientation === 'landscape' && width < height) {
+                this.gl.canvas.width = height;
+                this.gl.canvas.height = width;
             }
         }
 
@@ -392,13 +402,23 @@ export class SplashScreenWebgl {
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-        // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
+        // adapt for cocos play 1.0.11
+        if (COCOSPLAY) {
+            let width = globalThis.innerWidth;
+            let height = globalThis.innerHeight;
+            if (this.ccSetting.orientation === 'landscape' && width < height) {
+                globalThis.innerWidth = height;
+                globalThis.innerHeight = width;
+            }
+        }
+
+        // TODO: hack for COCOSPLAY & XIAOMI cause on landscape canvas value is wrong
         if (COCOSPLAY || XIAOMI) {
-            if (this.ccSetting.orientation === 'landscape' && this.gl.canvas.width < this.gl.canvas.height) {
-                let width = this.gl.canvas.height;
-                let height = this.gl.canvas.width;
-                this.gl.canvas.width = width;
-                this.gl.canvas.height = height;
+            let width = this.gl.canvas.width;
+            let height = this.gl.canvas.height;
+            if (this.ccSetting.orientation === 'landscape' && width < height) {
+                this.gl.canvas.width = height;
+                this.gl.canvas.height = width;
             }
         }
 
