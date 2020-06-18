@@ -636,6 +636,13 @@ export abstract class RenderPipeline {
             }
 
             {
+                // VSM shadow Programs
+                vec4.set(0.000001, 0.9, 0.0, 0.0);
+                Vec4.toArray(_vec4Array, vec4);
+                this._uboShadowMap.view.set(_vec4Array, UBOShadowMap.MAIN_SHADOW_VSM_PRAGRAM_OFFSET);
+            }
+
+            {
                 // cc_shadowLightMatrix
                 // mainlight
                 const shadowMatrix = this.calculateShadowMatrix();

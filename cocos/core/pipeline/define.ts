@@ -175,7 +175,8 @@ export class UBOShadowMap {
     public static MAT_SHADOW_VIEW_PROJ_OFFSET: number = 0;
     public static MAIN_SHADOW_DEPTH_FADE_OFFSET: number = UBOShadowMap.MAT_SHADOW_VIEW_PROJ_OFFSET + 16;
     public static MAIN_SHADOW_INTENSITY_OFFSET: number = UBOShadowMap.MAIN_SHADOW_DEPTH_FADE_OFFSET + 4;
-    public static MAIN_SHADOW_MATRIX_OFFSET: number = UBOShadowMap.MAIN_SHADOW_INTENSITY_OFFSET + 4;
+    public static MAIN_SHADOW_VSM_PRAGRAM_OFFSET: number = UBOShadowMap.MAIN_SHADOW_INTENSITY_OFFSET + 4;
+    public static MAIN_SHADOW_MATRIX_OFFSET: number = UBOShadowMap.MAIN_SHADOW_VSM_PRAGRAM_OFFSET + 4;
     public static COUNT: number = UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 16;
     public static SIZE: number = UBOShadowMap.COUNT * 4;
 
@@ -184,6 +185,7 @@ export class UBOShadowMap {
             { name: 'cc_shadowMatViewProj', type: GFXType.MAT4, count: 1 },
             { name: 'cc_shadowIntensity', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_shadowDepthFade', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_shadowVSMProgram', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_shadowLightMatrix', type: GFXType.MAT4, count: 1 }
         ],
     };

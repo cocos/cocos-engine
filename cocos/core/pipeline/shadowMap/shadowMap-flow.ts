@@ -14,8 +14,7 @@ import { director } from '../..';
 const readRegions = [new GFXBufferTextureCopy()];
 
 /**
- * @zh
- * shadowMap flow
+ * @zh 阴影贴图绘制流程
  */
 @ccclass('ShadowMapFlow')
 export class ShadowMapFlow extends RenderFlow {
@@ -64,6 +63,9 @@ export class ShadowMapFlow extends RenderFlow {
     }
 
     public render (view: RenderView) {
+
+        // update shadowMap UBO
+        this.pipeline.updateShadowMapUBOs(view);
 
         // render One of the FBO
         this.stages[this._frame % 2].render(view);
