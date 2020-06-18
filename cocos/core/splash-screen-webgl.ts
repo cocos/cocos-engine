@@ -126,7 +126,7 @@ export class SplashScreenWebgl {
     }
 
     public main (canvas: HTMLCanvasElement) {
-        var ccSetting = globalThis._CCSettings;
+        let ccSetting = globalThis._CCSettings;
         if (ccSetting && ccSetting.splashScreen) {
             this.setting = ccSetting.splashScreen;
             (this.setting.totalTime as number) = this.setting.totalTime != null ? this.setting.totalTime : 3000;
