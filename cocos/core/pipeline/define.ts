@@ -398,7 +398,8 @@ localBindingsDesc.set(UniformNormalMorphTexture.name, {
 });
 
 /**
- * 光照图纹理采样器。
+ * @en The sampler for light map texture
+ * @zh 光照图纹理采样器。
  */
 export const UniformLightingMapSampler: Readonly<GFXUniformSampler> = {
     binding: UniformBinding.SAMPLER_LIGHTING_MAP, name: 'cc_lightingMap', type: GFXType.SAMPLER2D, count: 1,
