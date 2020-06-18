@@ -24,6 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const Node = require('../core/CCNode');
 const VideoPlayerImpl = require('./video-player-impl');
 
 /**
@@ -364,6 +365,13 @@ let VideoPlayer = cc.Class({
                 impl.setEventListener(EventType.META_LOADED, this.onMetaLoaded.bind(this));
                 impl.setEventListener(EventType.CLICKED, this.onClicked.bind(this));
                 impl.setEventListener(EventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
+                //
+                impl.setEventListener(Node.EventType.MOUSE_DOWN, this.onMouseDown.bind(this));
+                impl.setEventListener(Node.EventType.MOUSE_MOVE, this.onMouseMove.bind(this));
+                impl.setEventListener(Node.EventType.MOUSE_ENTER, this.onMouseEnter.bind(this));
+                impl.setEventListener(Node.EventType.MOUSE_LEAVE, this.onMouseLeave.bind(this));
+                impl.setEventListener(Node.EventType.MOUSE_UP, this.onMouseUp.bind(this));
+                impl.setEventListener(Node.EventType.MOUSE_WHEEL, this.onMouseWheel.bind(this));
             }
         }
     },
@@ -397,6 +405,34 @@ let VideoPlayer = cc.Class({
         if (this._impl) {
             this._impl.updateMatrix(this.node);
         }
+    },
+
+    onMouseDown () {
+        this.node.emit(Node.EventType.TOUCH_START, this);
+        this.node.emit(Node.EventType.MOUSE_DOWN, this);
+    },
+
+    onMouseMove () {
+        this.node.emit(Node.EventType.TOUCH_MOVE, this);
+        this.node.emit(Node.EventType.MOUSE_MOVE, this);
+    },
+
+    onMouseEnter () {
+        this.node.emit(Node.EventType.MOUSE_ENTER, this);
+    },
+
+    onMouseLeave () {
+        this.node.emit(Node.EventType.TOUCH_CANCEL, this);
+        this.node.emit(Node.EventType.MOUSE_LEAVE, this);
+    },
+
+    onMouseUp () {
+        this.node.emit(Node.EventType.TOUCH_END, this);
+        this.node.emit(Node.EventType.MOUSE_UP, this);
+    },
+
+    onMouseWheel () {
+        this.node.emit(Node.EventType.MOUSE_WHEEL, this);
     },
 
     onReadyToPlay () {

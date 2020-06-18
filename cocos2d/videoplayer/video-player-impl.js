@@ -26,6 +26,7 @@
 const utils = require('../core/platform/utils');
 const sys = require('../core/platform/CCSys');
 const macro = require('../core/platform/CCMacro');
+const Node = require('../core/CCNode');
 
 const READY_STATE = {
     HAVE_NOTHING: 0,
@@ -114,6 +115,30 @@ let VideoPlayerImpl = cc.Class({
         video.addEventListener("play", cbs.play);
         video.addEventListener("pause", cbs.pause);
         video.addEventListener("click", cbs.click);
+
+        video.onmousedown = function () {
+            self._dispatchEvent(Node.EventType.TOUCH_START);
+            self._dispatchEvent(Node.EventType.MOUSE_DOWN);
+        };
+        video.onmousemove = function () {
+            self._dispatchEvent(Node.EventType.TOUCH_MOVE);
+            self._dispatchEvent(Node.EventType.MOUSE_MOVE);
+        };
+        video.onmouseenter = function () {
+            self._dispatchEvent(Node.EventType.MOUSE_LEAVE);
+        };
+        video.onmouseleave = function () {
+            self._dispatchEvent(Node.EventType.TOUCH_CANCEL);
+            self._dispatchEvent(Node.EventType.MOUSE_LEAVE);
+        };
+        video.onmouseup = function () {
+            self._dispatchEvent(Node.EventType.TOUCH_END);
+            self._dispatchEvent(Node.EventType.MOUSE_UP);
+        };
+        video.onmousewheel = function () {
+            self._dispatchEvent(Node.EventType.MOUSE_WHEEL);
+        };
+
 
         function onCanPlay () {
             if (self._loaded || self._playing)
