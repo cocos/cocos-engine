@@ -1,5 +1,5 @@
 /**
- * @category pipeline.forward
+ * @category pipeline
  */
 
 import { ccclass } from '../../data/class-decorator';
@@ -18,8 +18,8 @@ const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
 
 /**
- * @zh
- * 前向渲染阶段。
+ * @en The forward render stage
+ * @zh 前向渲染阶段。
  */
 @ccclass('ForwardStage')
 export class ForwardStage extends RenderStage {
@@ -44,10 +44,6 @@ export class ForwardStage extends RenderStage {
     private _opaqueBatchedQueue: RenderBatchedQueue;
     private _opaqueInstancedQueue: RenderInstancedQueue;
 
-    /**
-     * 构造函数。
-     * @param flow 渲染阶段。
-     */
     constructor () {
         super();
         this._opaqueBatchedQueue = new RenderBatchedQueue();
@@ -59,10 +55,6 @@ export class ForwardStage extends RenderStage {
         this.createCmdBuffer();
     }
 
-    /**
-     * @zh
-     * 销毁函数。
-     */
     public destroy () {
         if (this._cmdBuff) {
             this._cmdBuff.destroy();
@@ -70,27 +62,12 @@ export class ForwardStage extends RenderStage {
         }
     }
 
-    /**
-     * @zh
-     * 重置大小。
-     * @param width 屏幕宽度。
-     * @param height 屏幕高度。
-     */
     public resize (width: number, height: number) {
     }
 
-    /**
-     * @zh
-     * 重构函数。
-     */
     public rebuild () {
     }
 
-    /**
-     * @zh
-     * 渲染函数。
-     * @param view 渲染视图。
-     */
     public render (view: RenderView) {
 
         this._opaqueInstancedQueue.clear();

@@ -10,16 +10,16 @@ import { RenderFlowType } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
 
 /**
- * @zh
- * 渲染视图优先级。
+ * @en The predefined priority of render view
+ * @zh 预设渲染视图优先级。
  */
 export enum RenderViewPriority {
     GENERAL = 100,
 }
 
 /**
- * @zh
- * 渲染视图描述信息。
+ * @en Render view information descriptor
+ * @zh 渲染视图描述信息。
  */
 export interface IRenderViewInfo {
     camera: Camera;
@@ -29,8 +29,8 @@ export interface IRenderViewInfo {
 }
 
 /**
- * @zh
- * 渲染目标描述信息。
+ * @en Render target information descriptor
+ * @zh 渲染目标描述信息。
  */
 export interface IRenderTargetInfo {
     width?: number;
@@ -38,39 +38,37 @@ export interface IRenderTargetInfo {
 }
 
 /**
- * @zh
- * 渲染视图。
+ * @en Render view represents a view from its camera, it also manages a list of [[RenderFlow]]s which will be executed for it.
+ * @zh 渲染视图代表了它的相机所拍摄的视图，它也管理一组在视图上执行的 [[RenderFlow]]。
  */
 export class RenderView {
 
     /**
-     * @zh
-     * 名称。
+     * @en Name
+     * @zh 名称。
      */
     public get name () {
         return this._name;
     }
 
     /**
-     * @zh
-     * GFX窗口。
+     * @en The GFX window
+     * @zh GFX 窗口。
      */
     public get window () {
         return this._window;
     }
-
     public set window (val) {
         this._window = val;
     }
 
     /**
-     * @zh
-     * 优先级。
+     * @en The priority among other render views, used for sorting.
+     * @zh 在所有 RenderView 中的优先级，用于排序。
      */
     public get priority () {
         return this._priority;
     }
-
     public set priority (val: number) {
         this._priority = val;
         if (cc.director.root) {
@@ -79,8 +77,8 @@ export class RenderView {
     }
 
     /**
-     * @zh
-     * 可见性。
+     * @en The visibility is a mask which allows nodes in the scene be seen by the current view if their [[Node.layer]] bit is included in this mask.
+     * @zh 可见性是一个掩码，如果场景中节点的 [[Node.layer]] 位被包含在该掩码中，则对应节点对该视图是可见的。
      */
     public set visibility (vis) {
         this._visibility = vis;
@@ -90,85 +88,53 @@ export class RenderView {
     }
 
     /**
-     * @zh
-     * 相机。
+     * @en The camera correspond to this render view
+     * @zh 该视图对应的相机。
+     * @readonly
      */
     public get camera (): Camera {
         return this._camera!;
     }
 
     /**
-     * @zh
-     * 是否启用。
+     * @en Whether the view is enabled
+     * @zh 是否启用。
+     * @readonly
      */
     public get isEnable (): boolean {
         return this._isEnable;
     }
 
     /**
-     * @zh
-     * 渲染流程列表。
+     * @en Render flow list
+     * @zh 渲染流程列表。
+     * @readonly
      */
     public get flows (): RenderFlow[] {
         return this._flows;
     }
 
+    /**
+     * Internal usage
+     */
     public static registerCreateFunc (root: Root) {
         root._createViewFun = (_root: Root, _camera: Camera): RenderView => new RenderView(_root, _camera);
     }
 
-    /**
-     * @zh
-     * Root类实例。
-     */
     private _root: Root;
-
-    /**
-     * @zh
-     * 名称。
-     */
     private _name: string = '';
-
-    /**
-     * @zh
-     * GFX窗口。
-     */
     private _window: GFXWindow | null = null;
-
-    /**
-     * @zh
-     * 优先级。
-     */
     private _priority: number = 0;
-
-    /**
-     * @zh
-     * 可见性。
-     */
     private _visibility: number = CAMERA_DEFAULT_MASK;
-
-    /**
-     * @zh
-     * 相机。
-     */
     private _camera: Camera;
-
-    /**
-     * @zh
-     * 是否启用。
-     */
     private _isEnable: boolean = false;
-
-    /**
-     * @zh
-     * 渲染流程列表。
-     */
     private _flows: RenderFlow[] = [];
 
     /**
-     * 构造函数。<br/>
-     * @param root Root类实例。
-     * @param camera 相机。
+     * @en The constructor
+     * @zh 构造函数。
+     * @param root
+     * @param camera
      */
     private constructor (root: Root, camera: Camera) {
         this._root = root;
@@ -176,9 +142,9 @@ export class RenderView {
     }
 
     /**
-     * @zh
-     * 初始化函数。
-     * @param info 渲染视图描述信息。
+     * @en Initialization function with a render view information descriptor
+     * @zh 使用一个渲染视图描述信息来初始化。
+     * @param info Render view information descriptor
      */
     public initialize (info: IRenderViewInfo): boolean {
 
@@ -190,8 +156,8 @@ export class RenderView {
     }
 
     /**
-     * @zh
-     * 销毁函数。
+     * @en The destroy function
+     * @zh 销毁函数。
      */
     public destroy () {
         this._window = null;
@@ -199,13 +165,19 @@ export class RenderView {
     }
 
     /**
-     * @zh
-     * 启用该渲染视图。
+     * @en Enable or disable this render view
+     * @zh 启用或禁用该渲染视图。
+     * @param isEnable Whether to enable or disable this view
      */
     public enable (isEnable: boolean) {
         this._isEnable = isEnable;
     }
 
+    /**
+     * @en Set the execution render flows with their names, the flows found in the pipeline will then be executed for this view in the render process
+     * @zh 使用对应的名字列表设置需要执行的渲染流程，所有在渲染管线中找到的对应渲染流程都会用来对当前视图执行渲染。
+     * @param flows The names of all [[RenderFlow]]s
+     */
     public setExecuteFlows (flows: string[] | undefined) {
         this.flows.length = 0;
         if (flows && flows.length === 1 && flows[0] === 'UIFlow') {
@@ -213,7 +185,8 @@ export class RenderView {
             return;
         }
         const pipelineFlows = cc.director.root.pipeline.activeFlows;
-        for (const f of pipelineFlows) {
+        for (let i = 0; i < pipelineFlows.length; ++i) {
+            let f = pipelineFlows[i];
             if (f.type === RenderFlowType.SCENE || (flows && flows.indexOf(f.name) !== -1)) {
                 this.flows.push(f);
             }

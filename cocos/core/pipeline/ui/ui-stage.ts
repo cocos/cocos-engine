@@ -1,5 +1,5 @@
 /**
- * @category pipeline.ui
+ * @category pipeline
  */
 
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
@@ -12,8 +12,8 @@ const bufs: GFXCommandBuffer[] = [];
 const colors: IGFXColor[] = [];
 
 /**
- * @zh
- * UI渲阶段。
+ * @en The UI render stage
+ * @zh UI渲阶段。
  */
 export class UIStage extends RenderStage {
 
@@ -27,10 +27,6 @@ export class UIStage extends RenderStage {
         }],
         framebuffer: 'window',
     };
-
-    constructor () {
-        super();
-    }
 
     public activate (flow: RenderFlow) {
         super.activate(flow);

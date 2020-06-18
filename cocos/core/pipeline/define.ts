@@ -18,8 +18,8 @@ export const PIPELINE_FLOW_SMAA: string = 'SMAAFlow';
 export const PIPELINE_FLOW_TONEMAP: string = 'ToneMapFlow';
 
 /**
- * @zh
- * 渲染过程阶段。
+ * @en The predefined render pass stage ids
+ * @zh 预设的渲染阶段。
  */
 export enum RenderPassStage {
     DEFAULT = 100,
@@ -27,8 +27,8 @@ export enum RenderPassStage {
 cc.RenderPassStage = RenderPassStage;
 
 /**
- * @zh
- * 渲染优先级。
+ * @en The predefined render priorities
+ * @zh 预设的渲染优先级。
  */
 export enum RenderPriority {
     MIN = 0,
@@ -37,17 +37,17 @@ export enum RenderPriority {
 }
 
 /**
- * @zh
- * 渲染对象。
+ * @en Render object interface
+ * @zh 渲染对象接口。
  */
 export interface IRenderObject {
     model: Model;
     depth: number;
 }
 
-/**
- * @zh
- * 渲染过程。
+/*
+ * @en The render pass interface
+ * @zh 渲染过程接口。
  */
 export interface IRenderPass {
     hash: number;
@@ -58,16 +58,16 @@ export interface IRenderPass {
 }
 
 /**
- * @zh
- * 渲染过程。
+ * @en Render batch interface
+ * @zh 渲染批次接口。
  */
 export interface IRenderBatch {
     pass: Pass;
 }
 
 /**
- * @zh
- * 渲染队列描述。
+ * @en Render queue descriptor
+ * @zh 渲染队列描述。
  */
 export interface IRenderQueueDesc {
     isTransparent: boolean;
@@ -78,8 +78,8 @@ export interface IRenderQueueDesc {
 const MAX_BINDING_SUPPORTED = 24; // from WebGL 2 spec
 
 /**
- * @zh
- * Uniform 参数绑定。
+ * @en The uniform bindings
+ * @zh Uniform 参数绑定。
  */
 export enum UniformBinding {
     // UBOs
@@ -108,12 +108,17 @@ export enum UniformBinding {
     CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 7,
 }
 
+/**
+ * @en Check whether the given uniform binding is a builtin binding
+ * @zh 检查指定的 UniformBinding 是否是引擎内置的
+ * @param binding 
+ */
 export const isBuiltinBinding = (binding: number) =>
     binding >= UniformBinding.CUSTUM_UBO_BINDING_END_POINT && binding < UniformBinding.CUSTOM_SAMPLER_BINDING_START_POINT;
 
 /**
- * @zh
- * 全局 UBO。
+ * @en The global uniform buffer object
+ * @zh 全局 UBO。
  */
 export class UBOGlobal {
 
@@ -161,8 +166,8 @@ export class UBOGlobal {
 }
 
 /**
- * @zh
- * 阴影 UBO。
+ * @en The uniform buffer object for shadow
+ * @zh 阴影 UBO。
  */
 export class UBOShadow {
     public static MAT_LIGHT_PLANE_PROJ_OFFSET: number = 0;
@@ -187,8 +192,8 @@ export const UNIFORM_ENVIRONMENT: GFXUniformSampler = {
 export const localBindingsDesc: Map<string, IInternalBindingDesc> = new Map<string, IInternalBindingDesc>();
 
 /**
- * @zh
- * 本地 UBO。
+ * @en The local uniform buffer object
+ * @zh 本地 UBO。
  */
 export class UBOLocal {
     public static MAT_WORLD_OFFSET: number = 0;
@@ -233,8 +238,8 @@ localBindingsDesc.set(UBOLocalBatched.BLOCK.name, {
 });
 
 /**
- * @zh
- * 前向灯光 UBO。
+ * @en The uniform buffer object for forward lighting
+ * @zh 前向灯光 UBO。
  */
 export class UBOForwardLight {
     public static MAX_SPHERE_LIGHTS = 2;
@@ -277,8 +282,8 @@ localBindingsDesc.set(UBOForwardLight.BLOCK.name, {
 export const JOINT_UNIFORM_CAPACITY = 30;
 
 /**
- * @zh
- * 骨骼贴图 UBO。
+ * @en The uniform buffer object for skinning texture
+ * @zh 骨骼贴图 UBO。
  */
 export class UBOSkinningTexture {
     public static JOINTS_TEXTURE_INFO_OFFSET: number = 0;
@@ -328,7 +333,8 @@ localBindingsDesc.set(UBOSkinning.BLOCK.name, {
 });
 
 /**
- * 骨骼纹理采样器。
+ * @en The sampler for joint texture
+ * @zh 骨骼纹理采样器。
  */
 export const UniformJointTexture: GFXUniformSampler = {
     binding: UniformBinding.SAMPLER_JOINTS, name: 'cc_jointTexture', type: GFXType.SAMPLER2D, count: 1,
@@ -338,6 +344,10 @@ localBindingsDesc.set(UniformJointTexture.name, {
     samplerInfo: UniformJointTexture,
 });
 
+/**
+ * @en The uniform buffer object for morph setting
+ * @zh 形变配置的 UBO
+ */
 export class UBOMorph {
     public static readonly MAX_MORPH_TARGET_COUNT = 60;
 
@@ -364,7 +374,8 @@ localBindingsDesc.set(UBOMorph.BLOCK.name, {
 });
 
 /**
- * 位置形变纹理采样器。
+ * @en The sampler for morph texture of position
+ * @zh 位置形变纹理采样器。
  */
 export const UniformPositionMorphTexture: Readonly<GFXUniformSampler> = {
     binding: UniformBinding.SAMPLER_MORPH_POSITION, name: 'cc_PositionDisplacements', type: GFXType.SAMPLER2D, count: 1,
@@ -375,7 +386,8 @@ localBindingsDesc.set(UniformPositionMorphTexture.name, {
 });
 
 /**
- * 法线形变纹理采样器。
+ * @en The sampler for morph texture of normal
+ * @zh 法线形变纹理采样器。
  */
 export const UniformNormalMorphTexture: Readonly<GFXUniformSampler> = {
     binding: UniformBinding.SAMPLER_MORPH_NORMAL, name: 'cc_NormalDisplacements', type: GFXType.SAMPLER2D, count: 1,
@@ -386,7 +398,8 @@ localBindingsDesc.set(UniformNormalMorphTexture.name, {
 });
 
 /**
- * 光照图纹理采样器。
+ * @en The sampler for light map texture
+ * @zh 光照图纹理采样器。
  */
 export const UniformLightingMapSampler: Readonly<GFXUniformSampler> = {
     binding: UniformBinding.SAMPLER_LIGHTING_MAP, name: 'cc_lightingMap', type: GFXType.SAMPLER2D, count: 1,
@@ -397,7 +410,8 @@ localBindingsDesc.set(UniformLightingMapSampler.name, {
 });
 
 /**
- * 切线形变纹理采样器。
+ * @en The sampler for morph texture of tangent
+ * @zh 切线形变纹理采样器。
  */
 export const UniformTangentMorphTexture: Readonly<GFXUniformSampler> = {
     binding: UniformBinding.SAMPLER_MORPH_TANGENT, name: 'cc_TangentDisplacements', type: GFXType.SAMPLER2D, count: 1,
