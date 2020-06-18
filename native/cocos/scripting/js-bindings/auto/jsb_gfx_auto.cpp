@@ -4195,7 +4195,7 @@ static bool js_gfx_GFXSamplerInfo_set_name(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXSamplerInfo_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cc::gfx::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXSamplerInfo_set_name : Error processing new value");
     cobj->name = arg0;
@@ -4560,7 +4560,7 @@ static bool js_gfx_GFXSamplerInfo_constructor(se::State& s)
         se::Value field;
 
         cc::gfx::GFXSamplerInfo* cobj = JSB_ALLOC(cc::gfx::GFXSamplerInfo);
-        cc::gfx::String arg0;
+        cc::String arg0;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
             arg0 = field.toStringForce().c_str();
@@ -4652,7 +4652,7 @@ static bool js_gfx_GFXSamplerInfo_constructor(se::State& s)
     else if(argc == 13)
     {
         cc::gfx::GFXSamplerInfo* cobj = JSB_ALLOC(cc::gfx::GFXSamplerInfo);
-        cc::gfx::String arg0;
+        cc::String arg0;
         if (!args[0].isUndefined()) {
             arg0 = args[0].toStringForce().c_str();
             cobj->name = arg0;
@@ -4802,7 +4802,7 @@ static bool js_gfx_GFXShaderMacro_set_macro(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderMacro_set_macro : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cc::gfx::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderMacro_set_macro : Error processing new value");
     cobj->macro = arg0;
@@ -4830,7 +4830,7 @@ static bool js_gfx_GFXShaderMacro_set_value(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderMacro_set_value : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cc::gfx::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderMacro_set_value : Error processing new value");
     cobj->value = arg0;
@@ -4859,13 +4859,13 @@ static bool js_gfx_GFXShaderMacro_constructor(se::State& s)
         se::Value field;
 
         cc::gfx::GFXShaderMacro* cobj = JSB_ALLOC(cc::gfx::GFXShaderMacro);
-        cc::gfx::String arg0;
+        cc::String arg0;
         json->getProperty("macro", &field);
         if(!field.isUndefined()) {
             arg0 = field.toStringForce().c_str();
             cobj->macro = arg0;
         }
-        cc::gfx::String arg1;
+        cc::String arg1;
         json->getProperty("value", &field);
         if(!field.isUndefined()) {
             arg1 = field.toStringForce().c_str();
@@ -4885,12 +4885,12 @@ static bool js_gfx_GFXShaderMacro_constructor(se::State& s)
     else if(argc == 2)
     {
         cc::gfx::GFXShaderMacro* cobj = JSB_ALLOC(cc::gfx::GFXShaderMacro);
-        cc::gfx::String arg0;
+        cc::String arg0;
         if (!args[0].isUndefined()) {
             arg0 = args[0].toStringForce().c_str();
             cobj->macro = arg0;
         }
-        cc::gfx::String arg1;
+        cc::String arg1;
         if (!args[1].isUndefined()) {
             arg1 = args[1].toStringForce().c_str();
             cobj->value = arg1;
@@ -4969,7 +4969,7 @@ static bool js_gfx_GFXUniform_set_name(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniform_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cc::gfx::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXUniform_set_name : Error processing new value");
     cobj->name = arg0;
@@ -5054,7 +5054,7 @@ static bool js_gfx_GFXUniform_constructor(se::State& s)
         se::Value field;
 
         cc::gfx::GFXUniform* cobj = JSB_ALLOC(cc::gfx::GFXUniform);
-        cc::gfx::String arg0;
+        cc::String arg0;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
             arg0 = field.toStringForce().c_str();
@@ -5086,7 +5086,7 @@ static bool js_gfx_GFXUniform_constructor(se::State& s)
     else if(argc == 3)
     {
         cc::gfx::GFXUniform* cobj = JSB_ALLOC(cc::gfx::GFXUniform);
-        cc::gfx::String arg0;
+        cc::String arg0;
         if (!args[0].isUndefined()) {
             arg0 = args[0].toStringForce().c_str();
             cobj->name = arg0;
@@ -5232,7 +5232,7 @@ static bool js_gfx_GFXUniformBlock_set_name(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformBlock_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cc::gfx::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXUniformBlock_set_name : Error processing new value");
     cobj->name = arg0;
@@ -5301,7 +5301,7 @@ static bool js_gfx_GFXUniformBlock_constructor(se::State& s)
             ok &= seval_to_uint32(field, (uint32_t*)&arg1);
             cobj->binding = arg1;
         }
-        cc::gfx::String arg2;
+        cc::String arg2;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
             arg2 = field.toStringForce().c_str();
@@ -5337,7 +5337,7 @@ static bool js_gfx_GFXUniformBlock_constructor(se::State& s)
             ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
             cobj->binding = arg1;
         }
-        cc::gfx::String arg2;
+        cc::String arg2;
         if (!args[2].isUndefined()) {
             arg2 = args[2].toStringForce().c_str();
             cobj->name = arg2;
@@ -5479,7 +5479,7 @@ static bool js_gfx_GFXUniformSampler_set_name(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXUniformSampler_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cc::gfx::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXUniformSampler_set_name : Error processing new value");
     cobj->name = arg0;
@@ -5576,7 +5576,7 @@ static bool js_gfx_GFXUniformSampler_constructor(se::State& s)
             ok &= seval_to_uint32(field, (uint32_t*)&arg1);
             cobj->binding = arg1;
         }
-        cc::gfx::String arg2;
+        cc::String arg2;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
             arg2 = field.toStringForce().c_str();
@@ -5618,7 +5618,7 @@ static bool js_gfx_GFXUniformSampler_constructor(se::State& s)
             ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
             cobj->binding = arg1;
         }
-        cc::gfx::String arg2;
+        cc::String arg2;
         if (!args[2].isUndefined()) {
             arg2 = args[2].toStringForce().c_str();
             cobj->name = arg2;
@@ -5738,7 +5738,7 @@ static bool js_gfx_GFXShaderStage_set_source(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderStage_set_source : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cc::gfx::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderStage_set_source : Error processing new value");
     cobj->source = arg0;
@@ -5801,7 +5801,7 @@ static bool js_gfx_GFXShaderStage_constructor(se::State& s)
             do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cc::gfx::GFXShaderType)tmp; } while(false);
             cobj->type = arg0;
         }
-        cc::gfx::String arg1;
+        cc::String arg1;
         json->getProperty("source", &field);
         if(!field.isUndefined()) {
             arg1 = field.toStringForce().c_str();
@@ -5832,7 +5832,7 @@ static bool js_gfx_GFXShaderStage_constructor(se::State& s)
             do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::GFXShaderType)tmp; } while(false);
             cobj->type = arg0;
         }
-        cc::gfx::String arg1;
+        cc::String arg1;
         if (!args[1].isUndefined()) {
             arg1 = args[1].toStringForce().c_str();
             cobj->source = arg1;
@@ -5917,7 +5917,7 @@ static bool js_gfx_GFXAttribute_set_name(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXAttribute_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cc::gfx::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXAttribute_set_name : Error processing new value");
     cobj->name = arg0;
@@ -6086,7 +6086,7 @@ static bool js_gfx_GFXAttribute_constructor(se::State& s)
         se::Value field;
 
         cc::gfx::GFXAttribute* cobj = JSB_ALLOC(cc::gfx::GFXAttribute);
-        cc::gfx::String arg0;
+        cc::String arg0;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
             arg0 = field.toStringForce().c_str();
@@ -6136,7 +6136,7 @@ static bool js_gfx_GFXAttribute_constructor(se::State& s)
     else if(argc == 6)
     {
         cc::gfx::GFXAttribute* cobj = JSB_ALLOC(cc::gfx::GFXAttribute);
-        cc::gfx::String arg0;
+        cc::String arg0;
         if (!args[0].isUndefined()) {
             arg0 = args[0].toStringForce().c_str();
             cobj->name = arg0;
@@ -6244,7 +6244,7 @@ static bool js_gfx_GFXShaderInfo_set_name(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXShaderInfo_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cc::gfx::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXShaderInfo_set_name : Error processing new value");
     cobj->name = arg0;
@@ -6385,7 +6385,7 @@ static bool js_gfx_GFXShaderInfo_constructor(se::State& s)
         se::Value field;
 
         cc::gfx::GFXShaderInfo* cobj = JSB_ALLOC(cc::gfx::GFXShaderInfo);
-        cc::gfx::String arg0;
+        cc::String arg0;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
             arg0 = field.toStringForce().c_str();
@@ -6429,7 +6429,7 @@ static bool js_gfx_GFXShaderInfo_constructor(se::State& s)
     else if(argc == 5)
     {
         cc::gfx::GFXShaderInfo* cobj = JSB_ALLOC(cc::gfx::GFXShaderInfo);
-        cc::gfx::String arg0;
+        cc::String arg0;
         if (!args[0].isUndefined()) {
             arg0 = args[0].toStringForce().c_str();
             cobj->name = arg0;
@@ -8090,7 +8090,7 @@ static bool js_gfx_GFXBinding_set_name(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBinding_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cc::gfx::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBinding_set_name : Error processing new value");
     cobj->name = arg0;
@@ -8165,7 +8165,7 @@ static bool js_gfx_GFXBinding_constructor(se::State& s)
             do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::gfx::GFXBindingType)tmp; } while(false);
             cobj->type = arg2;
         }
-        cc::gfx::String arg3;
+        cc::String arg3;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
             arg3 = field.toStringForce().c_str();
@@ -8206,7 +8206,7 @@ static bool js_gfx_GFXBinding_constructor(se::State& s)
             do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::GFXBindingType)tmp; } while(false);
             cobj->type = arg2;
         }
-        cc::gfx::String arg3;
+        cc::String arg3;
         if (!args[3].isUndefined()) {
             arg3 = args[3].toStringForce().c_str();
             cobj->name = arg3;
@@ -8481,7 +8481,7 @@ static bool js_gfx_GFXBindingUnit_set_name(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingUnit_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cc::gfx::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingUnit_set_name : Error processing new value");
     cobj->name = arg0;
@@ -8640,7 +8640,7 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
             do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::gfx::GFXBindingType)tmp; } while(false);
             cobj->type = arg2;
         }
-        cc::gfx::String arg3;
+        cc::String arg3;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
             arg3 = field.toStringForce().c_str();
@@ -8699,7 +8699,7 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
             do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::GFXBindingType)tmp; } while(false);
             cobj->type = arg2;
         }
-        cc::gfx::String arg3;
+        cc::String arg3;
         if (!args[3].isUndefined()) {
             arg3 = args[3].toStringForce().c_str();
             cobj->name = arg3;
@@ -12039,7 +12039,7 @@ static bool js_gfx_GFXFormatInfo_set_name(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXFormatInfo_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cc::gfx::String arg0;
+    cc::String arg0;
     arg0 = args[0].toStringForce().c_str();
     SE_PRECONDITION2(ok, false, "js_gfx_GFXFormatInfo_set_name : Error processing new value");
     cobj->name = arg0;
@@ -12264,7 +12264,7 @@ static bool js_gfx_GFXFormatInfo_constructor(se::State& s)
         se::Value field;
 
         cc::gfx::GFXFormatInfo* cobj = JSB_ALLOC(cc::gfx::GFXFormatInfo);
-        cc::gfx::String arg0;
+        cc::String arg0;
         json->getProperty("name", &field);
         if(!field.isUndefined()) {
             arg0 = field.toStringForce().c_str();
@@ -12326,7 +12326,7 @@ static bool js_gfx_GFXFormatInfo_constructor(se::State& s)
     else if(argc == 8)
     {
         cc::gfx::GFXFormatInfo* cobj = JSB_ALLOC(cc::gfx::GFXFormatInfo);
-        cc::gfx::String arg0;
+        cc::String arg0;
         if (!args[0].isUndefined()) {
             arg0 = args[0].toStringForce().c_str();
             cobj->name = arg0;
@@ -12780,7 +12780,7 @@ static bool js_gfx_GFXDevice_getVendor(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::gfx::String& result = cobj->getVendor();
+        const cc::String& result = cobj->getVendor();
         s.rval().setString(result);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getVendor : Error processing arguments");
         return true;
@@ -12988,7 +12988,7 @@ static bool js_gfx_GFXDevice_getRenderer(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::gfx::String& result = cobj->getRenderer();
+        const cc::String& result = cobj->getRenderer();
         s.rval().setString(result);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getRenderer : Error processing arguments");
         return true;
@@ -13024,7 +13024,7 @@ static bool js_gfx_GFXDevice_getDeviceName(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::gfx::String& result = cobj->getDeviceName();
+        const cc::String& result = cobj->getDeviceName();
         s.rval().setString(result);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getDeviceName : Error processing arguments");
         return true;
@@ -13378,8 +13378,8 @@ static bool js_gfx_GFXDevice_defineMacro(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        cc::gfx::String arg0;
-        cc::gfx::String arg1;
+        cc::String arg0;
+        cc::String arg1;
         arg0 = args[0].toStringForce().c_str();
         arg1 = args[1].toStringForce().c_str();
         SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_defineMacro : Error processing arguments");
@@ -14417,7 +14417,7 @@ static bool js_gfx_GFXSampler_getName(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::gfx::String& result = cobj->getName();
+        const cc::String& result = cobj->getName();
         s.rval().setString(result);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_getName : Error processing arguments");
         return true;
@@ -14695,7 +14695,7 @@ static bool js_gfx_GFXShader_getName(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::gfx::String& result = cobj->getName();
+        const cc::String& result = cobj->getName();
         s.rval().setString(result);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_getName : Error processing arguments");
         return true;

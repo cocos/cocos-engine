@@ -39,7 +39,7 @@ static bool js_vk_CCVKDevice_checkExtension(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cc::gfx::String arg0;
+        cc::String arg0;
         arg0 = args[0].toStringForce().c_str();
         SE_PRECONDITION2(ok, false, "js_vk_CCVKDevice_checkExtension : Error processing arguments");
         bool result = cobj->checkExtension(arg0);
