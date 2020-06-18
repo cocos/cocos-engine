@@ -299,7 +299,7 @@ export abstract class RenderPipeline {
      * @zh
      * 获取阴影贴图
      */
-    public get shadowMapGFXBuffer () : GFXFramebuffer {
+    public get shadowMapGFXFramebuffer () : GFXFramebuffer {
         return this._shadowMap!;
     }
 
