@@ -75,7 +75,7 @@ void CCVKBindingLayout::update() {
                     if (bindingUnit.texture) {
                         info->imageView = ((CCVKTexture *)bindingUnit.texture)->gpuTextureView()->vkImageView;
                     } else {
-                        info->imageView = ((CCVKDevice *)_device)->nullTexView2D->gpuTextureView()->vkImageView;
+                        info->imageView = ((CCVKDevice *)_device)->nullTexture2D->gpuTextureView()->vkImageView;
                     }
 
                     if (bindingUnit.sampler) {

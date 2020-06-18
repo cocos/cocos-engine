@@ -6,12 +6,10 @@ message(STATUS "Target: ${TARGET_NAME}...")
 
 set(INCLUDE_FILES
   ${GFX_EXTERNAL_PATH}/khronos
-  ${GFX_EXTERNAL_PATH}/glslang
+  ${COCOS_EXTERNAL_PATH}/win32/include/glslang
   ${COCOS_SRC_PATH}/renderer/core
   ${COCOS_SRC_PATH}/renderer/gfx-vulkan
 )
-
-add_subdirectory(${GFX_EXTERNAL_PATH}/glslang glslang)
 
 add_definitions("-DVK_NO_PROTOTYPES")
 

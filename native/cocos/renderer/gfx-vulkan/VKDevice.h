@@ -58,8 +58,8 @@ public:
     CC_INLINE const std::vector<const char *> &getExtensions() const { return _extensions; }
     CC_INLINE bool isMultiDrawIndirectSupported() const { return _multiDrawIndirectSupported; }
 
-    CCVKTexture *nullTexView2D = nullptr;
-    CCVKTexture *nullTexViewCube = nullptr;
+    CCVKTexture *nullTexture2D = nullptr;
+    CCVKTexture *nullTextureCube = nullptr;
 
 private:
     void buildSwapchain();

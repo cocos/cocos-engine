@@ -282,9 +282,6 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
         _depthStencilTextures.push_back(texture);
     }
 
-    _gpuSwapchain = CC_NEW(CCVKGPUSwapchain);
-    buildSwapchain();
-
     GFXTextureInfo textureInfo;
     GFXTextureViewInfo texViewInfo;
 
@@ -292,19 +289,14 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
     textureInfo.format = GFXFormat::RGBA8;
     textureInfo.width = 2;
     textureInfo.height = 2;
-    GFXTexture *nullTexture2D = createTexture(textureInfo);
-
-    texViewInfo.texture = nullTexture2D;
-    texViewInfo.format = GFXFormat::RGBA8;
-    nullTexView2D = (CCVKTexture *)createTexture(texViewInfo);
+    nullTexture2D = (CCVKTexture *)createTexture(textureInfo);
 
     textureInfo.arrayLayer = 6;
     textureInfo.flags = GFXTextureFlagBit::CUBEMAP;
-    GFXTexture *nullTextureCube = createTexture(textureInfo);
+    nullTextureCube = (CCVKTexture *)createTexture(textureInfo);
 
-    texViewInfo.texture = nullTextureCube;
-    texViewInfo.layerCount = 6;
-    nullTexViewCube = (CCVKTexture *)createTexture(texViewInfo);
+    _gpuSwapchain = CC_NEW(CCVKGPUSwapchain);
+    buildSwapchain();
 
     ///////////////////// Print Debug Info /////////////////////
 
@@ -344,17 +336,6 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
 }
 
 void CCVKDevice::destroy() {
-    CC_SAFE_DESTROY(_cmdAllocator);
-    CC_SAFE_DESTROY(_queue);
-    CC_SAFE_DESTROY(_stagingBuffer);
-    CC_SAFE_DELETE(_gpuSemaphorePool);
-    CC_SAFE_DELETE(_gpuFencePool);
-
-    for (CCVKTexture *texture : _depthStencilTextures) {
-        CC_SAFE_DESTROY(texture);
-    }
-    _depthStencilTextures.clear();
-
     if (_gpuSwapchain) {
         if (_gpuSwapchain->vkSwapchain != VK_NULL_HANDLE) {
             _gpuSwapchain->depthStencilImageViews.clear();
@@ -383,6 +364,19 @@ void CCVKDevice::destroy() {
         CC_DELETE(_gpuSwapchain);
         _gpuSwapchain = nullptr;
     }
+
+    for (CCVKTexture *texture : _depthStencilTextures) {
+        CC_SAFE_DESTROY(texture);
+    }
+    _depthStencilTextures.clear();
+
+    CC_SAFE_DESTROY(nullTexture2D);
+    CC_SAFE_DESTROY(nullTextureCube);
+    CC_SAFE_DESTROY(_stagingBuffer);
+    CC_SAFE_DESTROY(_cmdAllocator);
+    CC_SAFE_DESTROY(_queue);
+    CC_SAFE_DELETE(_gpuSemaphorePool);
+    CC_SAFE_DELETE(_gpuFencePool);
 
     if (_gpuDevice) {
         if (_gpuDevice->memoryAllocator != VK_NULL_HANDLE) {
@@ -466,12 +460,6 @@ void CCVKDevice::buildSwapchain() {
     for (uint i = 0u; i < imageCount; i++) {
         _depthStencilTextures[i]->resize(_width, _height);
         _gpuSwapchain->depthStencilImages.push_back(((CCVKTexture *)_depthStencilTextures[i])->gpuTexture()->vkImage);
-
-        GFXTextureViewInfo textureViewInfo;
-        textureViewInfo.texture = _depthStencilTextures[i];
-        textureViewInfo.type = GFXTextureType::TEX2D;
-        textureViewInfo.format = _context->getDepthStencilFormat();
-        _depthStencilTextures[i]->initialize(textureViewInfo);
         _gpuSwapchain->depthStencilImageViews.push_back(((CCVKTexture *)_depthStencilTextures[i])->gpuTextureView()->vkImageView);
 
         VkImageViewCreateInfo imageViewCreateInfo{VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};

@@ -147,6 +147,12 @@ bool CCVKTexture::createTextureView(const GFXTextureViewInfo &info) {
 }
 
 void CCVKTexture::destroy() {
+    if (_gpuTextureView) {
+        CCVKCmdFuncDestroyTextureView((CCVKDevice *)_device, _gpuTextureView);
+        CC_DELETE(_gpuTextureView);
+        _gpuTextureView = nullptr;
+    }
+
     if (_gpuTexture) {
         CCVKCmdFuncDestroyTexture((CCVKDevice *)_device, _gpuTexture);
         _device->getMemoryStatus().textureSize -= _size;
@@ -159,13 +165,6 @@ void CCVKTexture::destroy() {
         _device->getMemoryStatus().textureSize -= _size;
         _buffer = nullptr;
     }
-
-    if (_gpuTextureView) {
-        CCVKCmdFuncDestroyTextureView((CCVKDevice *)_device, _gpuTextureView);
-        CC_DELETE(_gpuTextureView);
-        _gpuTextureView = nullptr;
-    }
-
     _status = GFXStatus::UNREADY;
 }
 
