@@ -83,13 +83,13 @@ export class SplashScreenWebgl {
     private logoMat33 = new Float32Array([1, 0, 0, 0, 1, 0, 0, 0, 1]);
     private textMat33 = new Float32Array([1, 0, 0, 0, 1, 0, 0, 0, 1]);
 
-
     private setting!: ISplashSetting;
-    private orientation = '';
     private callBack: Function | null = null;
     private cancelAnimate = false;
     private handle = -1;
     private startTime = -1;
+    private orientation = '';
+    private cocosPlayVersion = 134;
 
     private _isStart = false;
     private _directCall = false;
@@ -230,18 +230,39 @@ export class SplashScreenWebgl {
             }
         }
 
-        // adapt for cocos play 1.0.11
+        // adapt for cocos play
         if (COCOSPLAY) {
-            let width = globalThis.innerWidth;
-            let height = globalThis.innerHeight;
-            if (this.orientation === 'landscape' && width < height) {
-                globalThis.innerWidth = height;
-                globalThis.innerHeight = width;
+            if (this.orientation === 'landscape') {
+                try {
+                    const res = globalThis['loadRuntime']().getSystemInfoSync();
+                    let t = res.coreVersion;
+                    this.cocosPlayVersion = parseInt(t.replace(new RegExp("\\.", "g"), ""));
+                    console.log("getSystemInfo success", res.coreVersion, this.cocosPlayVersion);
+                } catch (e) {
+                    console.log("getSystemInfo error", e);
+                }
+
+                if (this.cocosPlayVersion > 134) {
+                    let width = globalThis.innerWidth;
+                    let height = globalThis.innerHeight;
+                    if (width < height) {
+                        globalThis.innerWidth = height;
+                        globalThis.innerHeight = width;
+                    }
+                } else {
+                    // 1.0.8
+                    let width = this.gl.canvas.width;
+                    let height = this.gl.canvas.height;
+                    if (width < height) {
+                        this.gl.canvas.width = height;
+                        this.gl.canvas.height = width;
+                    }
+                }
             }
         }
 
-        // TODO: hack for COCOSPLAY & XIAOMI cause on landscape canvas value is wrong
-        if (COCOSPLAY || XIAOMI) {
+        // TODO: hack for XIAOMI cause on landscape canvas value is wrong
+        if (XIAOMI) {
             let width = this.gl.canvas.width;
             let height = this.gl.canvas.height;
             if (this.orientation === 'landscape' && width < height) {
@@ -403,18 +424,31 @@ export class SplashScreenWebgl {
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-        // adapt for cocos play 1.0.11
+        // adapt for cocos play
         if (COCOSPLAY) {
-            let width = globalThis.innerWidth;
-            let height = globalThis.innerHeight;
-            if (this.orientation === 'landscape' && width < height) {
-                globalThis.innerWidth = height;
-                globalThis.innerHeight = width;
+            if (this.orientation === 'landscape') {
+                if (this.cocosPlayVersion > 134) {
+                    // > 1.0.8
+                    let width = globalThis.innerWidth;
+                    let height = globalThis.innerHeight;
+                    if (width < height) {
+                        globalThis.innerWidth = height;
+                        globalThis.innerHeight = width;
+                    }
+                } else {
+                    // < 1.0.8
+                    let width = this.gl.canvas.width;
+                    let height = this.gl.canvas.height;
+                    if (width < height) {
+                        this.gl.canvas.width = height;
+                        this.gl.canvas.height = width;
+                    }
+                }
             }
         }
 
-        // TODO: hack for COCOSPLAY & XIAOMI cause on landscape canvas value is wrong
-        if (COCOSPLAY || XIAOMI) {
+        // TODO: hack for XIAOMI cause on landscape canvas value is wrong
+        if (XIAOMI) {
             let width = this.gl.canvas.width;
             let height = this.gl.canvas.height;
             if (this.orientation === 'landscape' && width < height) {
