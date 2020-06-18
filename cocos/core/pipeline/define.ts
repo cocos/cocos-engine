@@ -176,6 +176,8 @@ export class UBOShadowMap {
     public static MAIN_SHADOW_DEPTH_FADE_OFFSET: number = UBOShadowMap.MAT_SHADOW_VIEW_PROJ_OFFSET + 16;
     public static MAIN_SHADOW_INTENSITY_OFFSET: number = UBOShadowMap.MAIN_SHADOW_DEPTH_FADE_OFFSET + 4;
     public static MAIN_SHADOW_MATRIX_OFFSET: number = UBOShadowMap.MAIN_SHADOW_INTENSITY_OFFSET + 4;
+    public static COUNT: number = UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET + 16;
+    public static SIZE: number = UBOShadowMap.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
         shaderStages: GFXShaderType.ALL, binding: UniformBinding.UBO_GLOBAL, name: 'CCShadowMap', members: [
@@ -186,8 +188,7 @@ export class UBOShadowMap {
         ],
     };
 
-    public view: Float32Array = new Float32Array(UBOGlobal.COUNT);
-    static SIZE: number;
+    public view: Float32Array = new Float32Array(UBOShadowMap.COUNT);
 }
 
 /**

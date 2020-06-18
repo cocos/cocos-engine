@@ -64,7 +64,7 @@ export class ShadowMapStage extends RenderStage {
      */
     public render (view: RenderView) {
 
-        this._additiveShadowMapQueue.clear(this.pipeline.shadowMapUBO);
+        this._additiveShadowMapQueue.clear(this.pipeline.shadowMapBuffer);
 
         const renderObjects = this._pipeline.renderObjects;
         for (let i = 0; i < renderObjects.length; ++i) {
