@@ -35,8 +35,6 @@ import { ShadowMapFlow } from './shadowMap/shadowMap-flow';
 
 const v3_1 = new Vec3();
 const vec4 = new Vec4();
-const _vec4Array = new Float32Array(4);
-const _mat4Array = new Float32Array(16);
 
 const shadowCamera_W_P = new Vec3();
 const shadowCamera_W_R = new Quat();
@@ -597,8 +595,13 @@ export abstract class RenderPipeline {
 
             {
                 // cc_shadowMatViewProj
-                Mat4.toArray(_mat4Array, shadowCamera_M_V_P);
-                this._uboShadowMap.view.set(_mat4Array, UBOShadowMap.MAT_SHADOW_VIEW_PROJ_OFFSET);
+                Mat4.toArray(this._uboShadowMap.view, shadowCamera_M_V_P, UBOShadowMap.MAT_SHADOW_VIEW_PROJ_OFFSET);
+            }
+
+            {
+                // cc_shadowLightMatrix
+                const shadowMatrix = this.calculateShadowMatrix();
+                Mat4.toArray(this._uboShadowMap.view, shadowMatrix!, UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET);
             }
 
             {
@@ -616,8 +619,7 @@ export abstract class RenderPipeline {
                 const fadeEnd = shadowRange / viewFarClip;
                 const fadeRange = fadeEnd - fadeStart;
                 vec4.set(q, r, fadeStart, 1.0 / fadeRange);
-                Vec4.toArray(_vec4Array, vec4);
-                this._uboShadowMap.view.set(_vec4Array, UBOShadowMap.MAIN_SHADOW_DEPTH_FADE_OFFSET);
+                Vec4.toArray(this._uboShadowMap.view, vec4, UBOShadowMap.MAIN_SHADOW_DEPTH_FADE_OFFSET);
             }
 
             {
@@ -631,23 +633,13 @@ export abstract class RenderPipeline {
                 const pcfValues = (1.0 - intensity);
                 const samples = 1.0;
                 vec4.set(pcfValues / samples, intensity, 0.0, 0.0);
-                Vec4.toArray(_vec4Array, vec4);
-                this._uboShadowMap.view.set(_vec4Array, UBOShadowMap.MAIN_SHADOW_INTENSITY_OFFSET);
+                Vec4.toArray(this._uboShadowMap.view, vec4, UBOShadowMap.MAIN_SHADOW_INTENSITY_OFFSET);
             }
 
             {
                 // VSM shadow Programs
                 vec4.set(0.000001, 0.9, 0.0, 0.0);
-                Vec4.toArray(_vec4Array, vec4);
-                this._uboShadowMap.view.set(_vec4Array, UBOShadowMap.MAIN_SHADOW_VSM_PRAGRAM_OFFSET);
-            }
-
-            {
-                // cc_shadowLightMatrix
-                // mainlight
-                const shadowMatrix = this.calculateShadowMatrix();
-                Mat4.toArray(_mat4Array, shadowMatrix!);
-                this._uboShadowMap.view.set(_mat4Array, UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET);
+                Vec4.toArray(this._uboShadowMap.view, vec4, UBOShadowMap.MAIN_SHADOW_VSM_PRAGRAM_OFFSET);
             }
         }
 
