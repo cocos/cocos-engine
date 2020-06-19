@@ -114,7 +114,7 @@ SE_BIND_CTOR(js_audioengine_AudioProfile_constructor, __jsb_cc_AudioProfile_clas
 
 static bool js_cc_AudioProfile_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::AudioProfile)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::AudioProfile)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {

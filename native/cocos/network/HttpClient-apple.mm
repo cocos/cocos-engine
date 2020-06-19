@@ -303,11 +303,11 @@ void HttpClient::destroyInstance()
 {
     if (nullptr == _httpClient)
     {
-        CCLOG("HttpClient singleton is nullptr");
+        CC_LOG_DEBUG("HttpClient singleton is nullptr");
         return;
     }
 
-    CCLOG("HttpClient::destroyInstance begin");
+    CC_LOG_DEBUG("HttpClient::destroyInstance begin");
 
     auto thiz = _httpClient;
     _httpClient = nullptr;
@@ -327,7 +327,7 @@ void HttpClient::destroyInstance()
     thiz->_sleepCondition.notify_one();
     thiz->decreaseThreadCountAndMayDeleteThis();
 
-    CCLOG("HttpClient::destroyInstance() finished!");
+    CC_LOG_DEBUG("HttpClient::destroyInstance() finished!");
 }
 
 void HttpClient::enableCookies(const char* cookieFile)
@@ -366,7 +366,7 @@ HttpClient::HttpClient()
 , _cookie(nullptr)
 , _requestSentinel(new HttpRequest())
 {
-    CCLOG("In the constructor of HttpClient!");
+    CC_LOG_DEBUG("In the constructor of HttpClient!");
     memset(_responseMessage, 0, sizeof(char) * RESPONSE_BUFFER_SIZE);
     _scheduler = Application::getInstance()->getScheduler();
     increaseThreadCount();
@@ -381,7 +381,7 @@ HttpClient::~HttpClient()
         _cookie->writeFile();
         CC_SAFE_DELETE(_cookie);
     }
-    CCLOG("HttpClient destructor");
+    CC_LOG_DEBUG("HttpClient destructor");
 }
 
 //Lazy create semaphore & mutex & thread

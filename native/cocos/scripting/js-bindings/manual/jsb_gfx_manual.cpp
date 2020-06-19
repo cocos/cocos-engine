@@ -624,7 +624,7 @@ SE_BIND_CTOR(js_gfx_GFXSubPass_constructor, __jsb_cocos2d_GFXSubPass_class, js_c
 
 static bool js_cocos2d_GFXSubPass_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::GFXSubPass)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::GFXSubPass)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {

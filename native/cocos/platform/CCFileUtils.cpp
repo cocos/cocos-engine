@@ -29,7 +29,7 @@ THE SOFTWARE.
 #include <stack>
 
 #include "base/CCData.h"
-#include "base/ccMacros.h"
+#include "base/Log.h"
 #include "platform/CCSAXParser.h"
 
 #include "tinyxml2/tinyxml2.h"
@@ -496,7 +496,7 @@ static tinyxml2::XMLElement* generateElementForObject(const Value& value, tinyxm
     if (value.getType() == Value::Type::MAP)
         return generateElementForDict(value.asValueMap(), doc);
 
-    CCLOG("This type cannot appear in property list");
+    CC_LOG_DEBUG("This type cannot appear in property list");
     return nullptr;
 }
 
@@ -812,7 +812,7 @@ std::string FileUtils::fullPathForFilename(const std::string &filename) const
     }
 
     if(isPopupNotify()){
-        CCLOG("fullPathForFilename: No file found at %s. Possible missing file.", filename.c_str());
+        CC_LOG_DEBUG("fullPathForFilename: No file found at %s. Possible missing file.", filename.c_str());
     }
 
     // The file wasn't found, return empty string.
@@ -941,7 +941,7 @@ void FileUtils::setSearchPaths(const std::vector<std::string>& searchPaths)
 
     if (!existDefaultRootPath)
     {
-        //CCLOG("Default root path doesn't exist, adding it.");
+        //CC_LOG_DEBUG("Default root path doesn't exist, adding it.");
         _searchPathArray.push_back(_defaultResRootPath);
     }
 }
@@ -984,7 +984,7 @@ void FileUtils::loadFilenameLookupDictionaryFromFile(const std::string &filename
             int version = metadata["version"].asInt();
             if (version != 1)
             {
-                CCLOG("ERROR: Invalid filenameLookup dictionary version: %d. Filename: %s", version, filename.c_str());
+                CC_LOG_DEBUG("ERROR: Invalid filenameLookup dictionary version: %d. Filename: %s", version, filename.c_str());
                 return;
             }
             setFilenameLookupDictionary( dict["filenames"].asValueMap());
@@ -1378,7 +1378,7 @@ bool FileUtils::renameFile(const std::string &oldfullpath, const std::string &ne
 
     if (0 != errorCode)
     {
-        CCLOGERROR("Fail to rename file %s to %s !Error code is %d", oldfullpath.c_str(), newfullpath.c_str(), errorCode);
+        CC_LOG_ERROR("Fail to rename file %s to %s !Error code is %d", oldfullpath.c_str(), newfullpath.c_str(), errorCode);
         return false;
     }
     return true;

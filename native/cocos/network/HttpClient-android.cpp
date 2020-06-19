@@ -40,6 +40,7 @@
 #include "platform/android/jni/JniHelper.h"
 
 #include "base/ccUTF8.h"
+#include "base/Log.h"
 
 #ifndef JCLS_HTTPCLIENT
 #define JCLS_HTTPCLIENT  "org/cocos2dx/lib/Cocos2dxHttpURLConnection"
@@ -126,7 +127,7 @@ public:
         }
         else
         {
-            CCLOGERROR("HttpClient::%s failed!", __FUNCTION__);
+            CC_LOG_ERROR("HttpClient::%s failed!", __FUNCTION__);
         }
     }
     
@@ -176,7 +177,7 @@ public:
         }
         else
         {
-            CCLOGERROR("HttpClient::%s failed!", __FUNCTION__);
+            CC_LOG_ERROR("HttpClient::%s failed!", __FUNCTION__);
         }
         
         return suc;
@@ -196,7 +197,7 @@ public:
         }
         else
         {
-            CCLOGERROR("HttpClient::%s failed!", __FUNCTION__);
+            CC_LOG_ERROR("HttpClient::%s failed!", __FUNCTION__);
         }
     }
     
@@ -215,7 +216,7 @@ public:
         }
         else
         {
-            CCLOGERROR("HttpClient::%s failed!", __FUNCTION__);
+            CC_LOG_ERROR("HttpClient::%s failed!", __FUNCTION__);
         }
         
         return responseCode;
@@ -241,7 +242,7 @@ public:
         }
         else
         {
-            CCLOGERROR("HttpClient::%s failed!", __FUNCTION__);
+            CC_LOG_ERROR("HttpClient::%s failed!", __FUNCTION__);
         }
         
         return message;
@@ -267,7 +268,7 @@ public:
         }
         else
         {
-            CCLOGERROR("HttpClient::%s failed!", __FUNCTION__);
+            CC_LOG_ERROR("HttpClient::%s failed!", __FUNCTION__);
         }
     }
     
@@ -286,7 +287,7 @@ public:
         FILE* fp = fopen(_cookieFileName.c_str(), "w");
         if (nullptr == fp)
         {
-            CCLOG("can't create or open response cookie files");
+            CC_LOG_DEBUG("can't create or open response cookie files");
             return 0;
         }
         
@@ -316,7 +317,7 @@ public:
         }
         else
         {
-            CCLOGERROR("HttpClient::%s failed!", __FUNCTION__);
+            CC_LOG_ERROR("HttpClient::%s failed!", __FUNCTION__);
         }
         
         return headers;
@@ -349,7 +350,7 @@ public:
         }
         else
         {
-            CCLOGERROR("HttpClient::%s failed!", __FUNCTION__);
+            CC_LOG_ERROR("HttpClient::%s failed!", __FUNCTION__);
         }
         
         return content;
@@ -376,7 +377,7 @@ public:
         }
         else
         {
-            CCLOGERROR("HttpClient::%s failed!", __FUNCTION__);
+            CC_LOG_ERROR("HttpClient::%s failed!", __FUNCTION__);
         }
         
         return value;
@@ -399,7 +400,7 @@ public:
         }
         else
         {
-            CCLOGERROR("HttpClient::%s failed!", __FUNCTION__);
+            CC_LOG_ERROR("HttpClient::%s failed!", __FUNCTION__);
         }
         
         return contentLength;
@@ -424,7 +425,7 @@ public:
         }
         else
         {
-            CCLOGERROR("HttpClient::%s failed!", __FUNCTION__);
+            CC_LOG_ERROR("HttpClient::%s failed!", __FUNCTION__);
         }
         
         return header;
@@ -464,7 +465,7 @@ private:
         }
         else
         {
-            CCLOGERROR("HttpClient::%s failed!", __FUNCTION__);
+            CC_LOG_ERROR("HttpClient::%s failed!", __FUNCTION__);
         }
     }
 
@@ -486,7 +487,7 @@ private:
         }
         else
         {
-            CCLOGERROR("HttpClient::%s failed!", __FUNCTION__);
+            CC_LOG_ERROR("HttpClient::%s failed!", __FUNCTION__);
         }
     }
     
@@ -589,7 +590,7 @@ private:
         }
         else
         {
-            CCLOGERROR("HttpClient::%s failed!", __FUNCTION__);
+            CC_LOG_ERROR("HttpClient::%s failed!", __FUNCTION__);
         }
     }
 
@@ -614,7 +615,7 @@ private:
         }
         else
         {
-            CCLOGERROR("HttpClient::%s failed!", __FUNCTION__);
+            CC_LOG_ERROR("HttpClient::%s failed!", __FUNCTION__);
         }
     }
 
@@ -900,11 +901,11 @@ void HttpClient::destroyInstance()
 {
     if (_httpClient == nullptr)
     {
-        CCLOG("HttpClient singleton is nullptr");
+        CC_LOG_DEBUG("HttpClient singleton is nullptr");
         return;
     }
 
-    CCLOG("HttpClient::destroyInstance ...");
+    CC_LOG_DEBUG("HttpClient::destroyInstance ...");
 
     auto thiz = _httpClient;
     _httpClient = nullptr;
@@ -924,7 +925,7 @@ void HttpClient::destroyInstance()
     thiz->_sleepCondition.notify_one();
 
     thiz->decreaseThreadCountAndMayDeleteThis();
-    CCLOG("HttpClient::destroyInstance() finished!");
+    CC_LOG_DEBUG("HttpClient::destroyInstance() finished!");
 }
 
 void HttpClient::enableCookies(const char* cookieFile) 
@@ -954,14 +955,14 @@ HttpClient::HttpClient()
 , _cookie(nullptr)
 , _requestSentinel(new HttpRequest())
 {
-    CCLOG("In the constructor of HttpClient!");
+    CC_LOG_DEBUG("In the constructor of HttpClient!");
     increaseThreadCount();
     _scheduler = Application::getInstance()->getScheduler();
 }
 
 HttpClient::~HttpClient()
 {
-    CCLOG("In the destructor of HttpClient!");
+    CC_LOG_DEBUG("In the destructor of HttpClient!");
     CC_SAFE_RELEASE(_requestSentinel);
 }
 

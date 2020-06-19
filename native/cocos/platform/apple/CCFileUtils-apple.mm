@@ -35,6 +35,7 @@ THE SOFTWARE.
 
 #include "platform/CCFileUtils.h"
 #include "platform/CCSAXParser.h"
+#include "base/Log.h"
 
 namespace cc {
 
@@ -221,7 +222,7 @@ FileUtils* FileUtils::getInstance()
         {
           delete s_sharedFileUtils;
           s_sharedFileUtils = nullptr;
-          CCLOG("ERROR: Could not init CCFileUtilsApple");
+          CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsApple");
         }
     }
     return s_sharedFileUtils;
@@ -290,7 +291,7 @@ static int unlink_cb(const char *fpath, const struct stat *sb, int typeflag, str
     auto ret = remove(fpath);
     if (ret)
     {
-        log("Fail to remove: %s ",fpath);
+        CC_LOG_INFO("Fail to remove: %s ",fpath);
     }
 
     return ret;
@@ -300,7 +301,7 @@ bool FileUtilsApple::removeDirectory(const std::string& path)
 {
     if (path.empty())
     {
-        CCLOGERROR("Fail to remove directory, path is empty!");
+        CC_LOG_ERROR("Fail to remove directory, path is empty!");
         return false;
     }
 
@@ -381,7 +382,7 @@ bool FileUtilsApple::writeToFile(const ValueMap& dict, const std::string &fullPa
 bool FileUtils::writeValueMapToFile(const ValueMap& dict, const std::string& fullPath)
 {
     valueMapCompact(const_cast<ValueMap&>(dict));
-    //CCLOG("iOS||Mac Dictionary %d write to file %s", dict->_ID, fullPath.c_str());
+    //CC_LOG_DEBUG("iOS||Mac Dictionary %d write to file %s", dict->_ID, fullPath.c_str());
     NSMutableDictionary *nsDict = [NSMutableDictionary dictionary];
 
     for (auto iter = dict.begin(); iter != dict.end(); ++iter)
@@ -494,7 +495,7 @@ bool FileUtilsApple::createDirectory(const std::string& path)
     
     if(!result && error != nil)
     {
-        CCLOGERROR("Fail to create directory \"%s\": %s", path.c_str(), [error.localizedDescription UTF8String]);
+        CC_LOG_ERROR("Fail to create directory \"%s\": %s", path.c_str(), [error.localizedDescription UTF8String]);
     }
     
     return result;

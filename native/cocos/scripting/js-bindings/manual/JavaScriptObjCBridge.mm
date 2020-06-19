@@ -356,7 +356,7 @@ se::Value JavaScriptObjCBridge::CallInfo::objc_to_seval(id objcVal)
         }
         else
         {
-            CCLOGERROR("Unknown number type: %s", numberType.c_str());
+            CC_LOG_ERROR("Unknown number type: %s", numberType.c_str());
         }
     }
     else if ([objcVal isKindOfClass:[NSString class]])
@@ -366,7 +366,7 @@ se::Value JavaScriptObjCBridge::CallInfo::objc_to_seval(id objcVal)
     }
     else if ([objcVal isKindOfClass:[NSDictionary class]])
     {
-        CCLOGERROR("JavaScriptObjCBridge doesn't support to bind NSDictionary!");
+        CC_LOG_ERROR("JavaScriptObjCBridge doesn't support to bind NSDictionary!");
     }
     else
     {

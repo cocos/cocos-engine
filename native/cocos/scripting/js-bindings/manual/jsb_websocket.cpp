@@ -69,7 +69,7 @@ JSB_WebSocketDelegate::JSB_WebSocketDelegate()
 
 JSB_WebSocketDelegate::~JSB_WebSocketDelegate()
 {
-    CCLOGINFO("In the destructor of JSB_WebSocketDelegate(%p)", this);
+    CC_LOG_INFO("In the destructor of JSB_WebSocketDelegate(%p)", this);
 }
 
 void JSB_WebSocketDelegate::onOpen(WebSocket* ws)
@@ -182,7 +182,7 @@ void JSB_WebSocketDelegate::onClose(WebSocket* ws)
     {
         if (iter == se::NativePtrToObjectMap::end())
         {
-            CCLOGINFO("WebSocket js instance was destroyted, don't need to invoke onclose callback!");
+            CC_LOG_INFO("WebSocket js instance was destroyted, don't need to invoke onclose callback!");
             break;
         }
 
@@ -263,12 +263,12 @@ void JSB_WebSocketDelegate::setJSDelegate(const se::Value& jsDelegate)
 static bool WebSocket_finalize(se::State& s)
 {
     WebSocket* cobj = (WebSocket*)s.nativeThisObject();
-    CCLOGINFO("jsbindings: finalizing JS object %p (WebSocket)", cobj);
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (WebSocket)", cobj);
 
     // Manually close if web socket is not closed
     if (cobj->getReadyState() != WebSocket::State::CLOSED)
     {
-        CCLOGINFO("WebSocket (%p) isn't closed, try to close it!", cobj);
+        CC_LOG_INFO("WebSocket (%p) isn't closed, try to close it!", cobj);
         cobj->closeAsync();
     }
 
@@ -405,7 +405,7 @@ static bool WebSocket_send(se::State& s)
 //IDEA: We didn't find a way to get the JS string length in JSB2.0.
 //            if (data.empty() && len > 0)
 //            {
-//                CCLOGWARN("Text message to send is empty, but its length is greater than 0!");
+//                CC_LOG_DEBUGWARN("Text message to send is empty, but its length is greater than 0!");
 //                //IDEA: Note that this text message contains '0x00' prefix, so its length calcuted by strlen is 0.
 //                // we need to fix that if there is '0x00' in text message,
 //                // since javascript language could support '0x00' inserted at the beginning or the middle of text message

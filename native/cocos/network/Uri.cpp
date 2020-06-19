@@ -17,7 +17,7 @@
  */
 
 #include "network/Uri.h"
-#include "base/ccMacros.h" // For CCLOGERROR macro
+#include "base/Log.h" // For CC_LOG_ERROR macro
 
 #include <regex>
 #include <sstream>
@@ -179,7 +179,7 @@ bool Uri::doParse(const std::string& str)
 
     if (str.empty())
     {
-        CCLOGERROR("%s", "Empty URI is invalid!");
+        CC_LOG_ERROR("%s", "Empty URI is invalid!");
         return false;
     }
 
@@ -193,7 +193,7 @@ bool Uri::doParse(const std::string& str)
 
     std::smatch match;
     if (UNLIKELY(!std::regex_match(copied.cbegin(), copied.cend(), match, uriRegex))) {
-        CCLOGERROR("Invalid URI: %s", str.c_str());
+        CC_LOG_ERROR("Invalid URI: %s", str.c_str());
         return false;
     }
 
@@ -230,7 +230,7 @@ bool Uri::doParse(const std::string& str)
                                 authorityMatch,
                                 authorityRegex)) {
             std::string invalidAuthority(authority.first, authority.second);
-            CCLOGERROR("Invalid URI authority: %s", invalidAuthority.c_str());
+            CC_LOG_ERROR("Invalid URI authority: %s", invalidAuthority.c_str());
             return false;
         }
 

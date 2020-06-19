@@ -1,7 +1,7 @@
 #ifndef CC_CORE_KERNEL_UTF_STRING_H_
 #define CC_CORE_KERNEL_UTF_STRING_H_
 
-#include "CoreDef.h"
+#include "ccMacros.h"
 #include "memory/StlAlloc.h"
 
 #if (CC_COMPILER == CC_COMPILER_MSVC && (CC_COMPILER_VERSION >= 70 && CC_COMPILER_VERSION < 100))
@@ -107,7 +107,7 @@ namespace cc {
  - For additional information on UTF-32 encoding: http://en.wikipedia.org/wiki/UTF-32
  */
 
-class CC_CORE_API UTFString {
+class CC_DLL UTFString {
     // constants used in UTF-8 conversions
     static const unsigned char _lead1 = 0xC0;      //110xxxxx
     static const unsigned char _lead1_mask = 0x1F; //00011111
@@ -143,7 +143,7 @@ public:
     typedef std::basic_string<code_point> dstring; // data string
 #endif
     //! base iterator class for UTFString
-    class CC_CORE_API _base_iterator : public std::iterator<std::random_access_iterator_tag, value_type> {
+    class CC_DLL _base_iterator : public std::iterator<std::random_access_iterator_tag, value_type> {
         friend class UTFString;
 
     protected:
@@ -175,7 +175,7 @@ public:
     class _const_fwd_iterator; // forward declaration
 
     //! forward iterator for UTFString
-    class CC_CORE_API _fwd_iterator : public _base_iterator {
+    class CC_DLL _fwd_iterator : public _base_iterator {
         friend class _const_fwd_iterator;
 
     public:
@@ -276,7 +276,7 @@ public:
 
     //////////////////////////////////////////////////////////////////////////
     //! const forward iterator for UTFString
-    class CC_CORE_API _const_fwd_iterator : public _base_iterator {
+    class CC_DLL _const_fwd_iterator : public _base_iterator {
     public:
         _const_fwd_iterator() {}
         _const_fwd_iterator(const _const_fwd_iterator &i) { _become(i); }
@@ -392,7 +392,7 @@ public:
 
     class _const_rev_iterator; // forward declaration
     //! forward iterator for UTFString
-    class CC_CORE_API _rev_iterator : public _base_iterator {
+    class CC_DLL _rev_iterator : public _base_iterator {
         friend class _const_rev_iterator;
 
     public:
@@ -477,7 +477,7 @@ public:
     //////////////////////////////////////////////////////////////////////////
     //! const reverse iterator for UTFString
 
-    class CC_CORE_API _const_rev_iterator : public _base_iterator {
+    class CC_DLL _const_rev_iterator : public _base_iterator {
     public:
         _const_rev_iterator() {}
         _const_rev_iterator(const _const_rev_iterator &i) { _become(i); }

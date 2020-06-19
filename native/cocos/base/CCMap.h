@@ -34,7 +34,7 @@
 #include <map>
 #endif
 
-#include "base/ccMacros.h"
+#include "base/Log.h"
 #include "base/ccRandom.h"
 #include "base/CCRef.h"
 
@@ -90,7 +90,7 @@ public:
     : _data()
     {
         static_assert(std::is_convertible<V, Ref*>::value, "Invalid Type for cc::Map<K, V>!");
-        CCLOGINFO("In the default constructor of Map!");
+        CC_LOG_INFO("In the default constructor of Map!");
     }
 
     /** Constructor with capacity. */
@@ -98,7 +98,7 @@ public:
     : _data()
     {
         static_assert(std::is_convertible<V, Ref*>::value, "Invalid Type for cc::Map<K, V>!");
-        CCLOGINFO("In the constructor with capacity of Map!");
+        CC_LOG_INFO("In the constructor with capacity of Map!");
         _data.reserve(capacity);
     }
 
@@ -106,7 +106,7 @@ public:
     Map<K, V>(const Map<K, V>& other)
     {
         static_assert(std::is_convertible<V, Ref*>::value, "Invalid Type for cc::Map<K, V>!");
-        CCLOGINFO("In the copy constructor of Map!");
+        CC_LOG_INFO("In the copy constructor of Map!");
         _data = other._data;
         addRefForAllObjects();
     }
@@ -115,7 +115,7 @@ public:
     Map<K, V>(Map<K, V>&& other)
     {
         static_assert(std::is_convertible<V, Ref*>::value, "Invalid Type for cc::Map<K, V>!");
-        CCLOGINFO("In the move constructor of Map!");
+        CC_LOG_INFO("In the move constructor of Map!");
         _data = std::move(other._data);
     }
 
@@ -125,7 +125,7 @@ public:
      */
     ~Map<K, V>()
     {
-        CCLOGINFO("In the destructor of Map!");
+        CC_LOG_INFO("In the destructor of Map!");
         clear();
     }
 
@@ -357,25 +357,25 @@ public:
     // Don't uses operator since we could not decide whether it needs 'retain'/'release'.
     //    V& operator[] ( const K& key )
     //    {
-    //        CCLOG("copy: [] ref");
+    //        CC_LOG_DEBUG("copy: [] ref");
     //        return _data[key];
     //    }
     //
     //    V& operator[] ( K&& key )
     //    {
-    //        CCLOG("move [] ref");
+    //        CC_LOG_DEBUG("move [] ref");
     //        return _data[key];
     //    }
 
     //    const V& operator[] ( const K& key ) const
     //    {
-    //        CCLOG("const copy []");
+    //        CC_LOG_DEBUG("const copy []");
     //        return _data.at(key);
     //    }
     //
     //    const V& operator[] ( K&& key ) const
     //    {
-    //        CCLOG("const move []");
+    //        CC_LOG_DEBUG("const move []");
     //        return _data.at(key);
     //    }
 
@@ -383,7 +383,7 @@ public:
     Map<K, V>& operator= ( const Map<K, V>& other )
     {
         if (this != &other) {
-            CCLOGINFO("In the copy assignment operator of Map!");
+            CC_LOG_INFO("In the copy assignment operator of Map!");
             clear();
             _data = other._data;
             addRefForAllObjects();
@@ -395,7 +395,7 @@ public:
     Map<K, V>& operator= ( Map<K, V>&& other )
     {
         if (this != &other) {
-            CCLOGINFO("In the move assignment operator of Map!");
+            CC_LOG_INFO("In the move assignment operator of Map!");
             clear();
             _data = std::move(other._data);
         }

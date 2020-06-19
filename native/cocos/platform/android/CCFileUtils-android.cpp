@@ -33,6 +33,7 @@ THE SOFTWARE.
 #include "android/asset_manager.h"
 #include "android/asset_manager_jni.h"
 #include "base/ZipUtils.h"
+#include "base/Log.h"
 #include <stdlib.h>
 #include <sys/stat.h>
 
@@ -68,7 +69,7 @@ FileUtils* FileUtils::getInstance()
         {
           delete s_sharedFileUtils;
           s_sharedFileUtils = nullptr;
-          CCLOG("ERROR: Could not init CCFileUtilsAndroid");
+          CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsAndroid");
         }
     }
     return s_sharedFileUtils;
@@ -180,7 +181,7 @@ bool FileUtilsAndroid::isFileExistInternal(const std::string& strFilePath) const
                 bFound = true;
                 AAsset_close(aa);
             } else {
-                // CCLOG("[AssetManager] ... in APK %s, found = false!", strFilePath.c_str());
+                // CC_LOG_DEBUG("[AssetManager] ... in APK %s, found = false!", strFilePath.c_str());
             }
         }
     }
@@ -212,7 +213,7 @@ bool FileUtilsAndroid::isDirectoryExistInternal(const std::string& dirPath_) con
     // find absolute path in flash memory
     if (dirPath[0] == '/')
     {
-        CCLOG("find in flash memory dirPath(%s)", dirPath.c_str());
+        CC_LOG_DEBUG("find in flash memory dirPath(%s)", dirPath.c_str());
         struct stat st;
         if (stat(dirPath.c_str(), &st) == 0)
         {
@@ -223,7 +224,7 @@ bool FileUtilsAndroid::isDirectoryExistInternal(const std::string& dirPath_) con
     {
         // find it in apk's assets dir
         // Found "@assets/" at the beginning of the path and we don't want it
-        CCLOG("find in apk dirPath(%s)", dirPath.c_str());
+        CC_LOG_DEBUG("find in apk dirPath(%s)", dirPath.c_str());
         const char* s = dirPath.c_str();
         if (dirPath.find(_defaultResRootPath) == 0)
         {

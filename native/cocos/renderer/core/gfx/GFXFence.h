@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_CORE_API GFXFence : public GFXObject {
+class CC_DLL GFXFence : public GFXObject {
 public:
     GFXFence(GFXDevice *device);
     virtual ~GFXFence();

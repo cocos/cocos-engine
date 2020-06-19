@@ -25,7 +25,7 @@
 #include <cmath>
 #include "math/Quaternion.h"
 #include "math/MathUtil.h"
-#include "base/ccMacros.h"
+#include "base/Log.h"
 
 NS_CC_MATH_BEGIN
 
@@ -114,7 +114,7 @@ void Mat4::createPerspective(float fieldOfView, float aspectRatio,
     float theta = MATH_DEG_TO_RAD(fieldOfView) * 0.5f;
     if (std::abs(std::fmod(theta, MATH_PIOVER2)) < MATH_EPSILON)
     {
-        CCLOGERROR("Invalid field of view value (%f) causes attempted calculation tan(%f), which is undefined.", fieldOfView, theta);
+        CC_LOG_ERROR("Invalid field of view value (%f) causes attempted calculation tan(%f), which is undefined.", fieldOfView, theta);
         return;
     }
     float divisor = std::tan(theta);

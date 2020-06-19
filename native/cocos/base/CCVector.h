@@ -33,6 +33,7 @@ THE SOFTWARE.
 #include "base/ccMacros.h"
 #include "base/ccRandom.h"
 #include "base/CCRef.h"
+#include "base/Log.h"
 
 /**
  * @addtogroup base
@@ -123,7 +124,7 @@ public:
     : _data()
     {
         static_assert(std::is_convertible<T, Ref*>::value, "Invalid Type for cc::Vector<T>!");
-        CCLOGINFO("In the default constructor with capacity of Vector.");
+        CC_LOG_INFO("In the default constructor with capacity of Vector.");
         reserve(capacity);
     }
 
@@ -139,7 +140,7 @@ public:
     /** Destructor. */
     ~Vector<T>()
     {
-        CCLOGINFO("In the destructor of Vector.");
+        CC_LOG_INFO("In the destructor of Vector.");
         clear();
     }
 
@@ -147,7 +148,7 @@ public:
     Vector<T>(const Vector<T>& other)
     {
         static_assert(std::is_convertible<T, Ref*>::value, "Invalid Type for cc::Vector<T>!");
-        CCLOGINFO("In the copy constructor!");
+        CC_LOG_INFO("In the copy constructor!");
         _data = other._data;
         addRefForAllObjects();
     }
@@ -156,7 +157,7 @@ public:
     Vector<T>(Vector<T>&& other)
     {
         static_assert(std::is_convertible<T, Ref*>::value, "Invalid Type for cc::Vector<T>!");
-        CCLOGINFO("In the move constructor of Vector!");
+        CC_LOG_INFO("In the move constructor of Vector!");
         _data = std::move(other._data);
     }
 
@@ -164,7 +165,7 @@ public:
     Vector<T>& operator=(const Vector<T>& other)
     {
         if (this != &other) {
-            CCLOGINFO("In the copy assignment operator!");
+            CC_LOG_INFO("In the copy assignment operator!");
             clear();
             _data = other._data;
             addRefForAllObjects();
@@ -176,7 +177,7 @@ public:
     Vector<T>& operator=(Vector<T>&& other)
     {
         if (this != &other) {
-            CCLOGINFO("In the move assignment operator!");
+            CC_LOG_INFO("In the move assignment operator!");
             clear();
             _data = std::move(other._data);
         }

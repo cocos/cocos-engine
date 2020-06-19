@@ -170,7 +170,7 @@ void EditBox::show(const EditBox::ShowInfo& showInfo)
                            sizeof(buffer) / sizeof(wchar_t),
                            NULL);
             std::wstring_convert<std::codecvt_utf8<wchar_t>> convert;
-            CCLOG("Can not create editbox: %s", convert.to_bytes(buffer).c_str());
+            CC_LOG_DEBUG("Can not create editbox: %s", convert.to_bytes(buffer).c_str());
         }
     }
 

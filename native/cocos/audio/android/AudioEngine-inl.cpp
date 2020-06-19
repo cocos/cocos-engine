@@ -163,25 +163,25 @@ bool AudioEngineImpl::init()
 
         // create engine
         auto result = slCreateEngine(&_engineObject, 0, nullptr, 0, nullptr, nullptr);
-        if(SL_RESULT_SUCCESS != result){ ERRORLOG("create opensl engine fail"); break; }
+        if(SL_RESULT_SUCCESS != result){ CC_LOG_ERROR("create opensl engine fail"); break; }
 
         // realize the engine
         result = (*_engineObject)->Realize(_engineObject, SL_BOOLEAN_FALSE);
-        if(SL_RESULT_SUCCESS != result){ ERRORLOG("realize the engine fail"); break; }
+        if(SL_RESULT_SUCCESS != result){ CC_LOG_ERROR("realize the engine fail"); break; }
 
         // get the engine interface, which is needed in order to create other objects
         result = (*_engineObject)->GetInterface(_engineObject, SL_IID_ENGINE, &_engineEngine);
-        if(SL_RESULT_SUCCESS != result){ ERRORLOG("get the engine interface fail"); break; }
+        if(SL_RESULT_SUCCESS != result){ CC_LOG_ERROR("get the engine interface fail"); break; }
 
         // create output mix
         const SLInterfaceID outputMixIIDs[] = {};
         const SLboolean outputMixReqs[] = {};
         result = (*_engineEngine)->CreateOutputMix(_engineEngine, &_outputMixObject, 0, outputMixIIDs, outputMixReqs);           
-        if(SL_RESULT_SUCCESS != result){ ERRORLOG("create output mix fail"); break; }
+        if(SL_RESULT_SUCCESS != result){ CC_LOG_ERROR("create output mix fail"); break; }
 
         // realize the output mix
         result = (*_outputMixObject)->Realize(_outputMixObject, SL_BOOLEAN_FALSE);
-        if(SL_RESULT_SUCCESS != result){ ERRORLOG("realize the output mix fail"); break; }
+        if(SL_RESULT_SUCCESS != result){ CC_LOG_ERROR("realize the output mix fail"); break; }
 
         _audioPlayerProvider = new AudioPlayerProvider(_engineEngine, _outputMixObject, outputSampleRate, bufferSizeInFrames, fdGetter, &__callerThreadUtils);
 

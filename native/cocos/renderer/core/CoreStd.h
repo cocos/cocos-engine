@@ -1,7 +1,7 @@
 #ifndef CC_CORE_CORE_STD_H_
 #define CC_CORE_CORE_STD_H_
 
-#include "base/CoreDef.h"
+#include "base/ccMacros.h"
 
 // STD including
 #include <stdio.h>

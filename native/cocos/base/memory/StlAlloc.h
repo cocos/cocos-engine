@@ -141,7 +141,7 @@ inline bool operator!=(SA<T, P> const &, OtherAllocator const &) {
 }
 
 ////////////////////////////////////////////////////////////////////
-extern CC_CORE_API SA<char, STLAP> stl_char_allocator;
+extern CC_DLL SA<char, STLAP> stl_char_allocator;
 
 #if (CC_STL_MEMORY_ALLOCATOR == CC_STL_MEMORY_ALLOCATOR_CUSTOM)
     template <typename T, typename A = SA<T, STLAP>>

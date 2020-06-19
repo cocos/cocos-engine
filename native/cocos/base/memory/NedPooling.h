@@ -1,7 +1,7 @@
 #ifndef CC_CORE_NED_POOLING_H_
 #define CC_CORE_NED_POOLING_H_
 
-#include "../CoreDef.h"
+#include "base/ccMacros.h"
 
 #if (CC_MEMORY_ALLOCATOR == CC_MEMORY_ALLOCATOR_NEDPOOLING)
 

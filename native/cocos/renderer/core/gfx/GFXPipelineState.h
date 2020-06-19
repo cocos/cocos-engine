@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_CORE_API GFXPipelineState : public GFXObject {
+class CC_DLL GFXPipelineState : public GFXObject {
 public:
     GFXPipelineState(GFXDevice *device);
     virtual ~GFXPipelineState();

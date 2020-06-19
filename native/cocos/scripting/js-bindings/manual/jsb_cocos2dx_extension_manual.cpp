@@ -195,7 +195,7 @@ static bool js_cocos2dx_extension_initRemoteImage(se::State& s)
             }
             else
             {
-                CCLOGERROR("js_extension_loadRemoteImageOn: Failed to initWithImage.");
+                CC_LOG_ERROR("js_extension_loadRemoteImageOn: Failed to initWithImage.");
             }
         }
         CC_SAFE_RELEASE_NULL(image);

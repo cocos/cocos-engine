@@ -146,7 +146,7 @@ se::Object 继承于 se::RefCounter 引用计数管理类。目前抽象层中�
 ```c++
 static bool js_cocos2d_Sprite_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (cc::Sprite)", s.nativeThisObject());
+    CC_LOG_DEBUG("jsbindings: finalizing JS object %p (cc::Sprite)", s.nativeThisObject());
     cc::Sprite* cobj = (cc::Sprite*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -1113,7 +1113,7 @@ cocos2d-x 的绑定中，如果引用计数为 1 了，我们不使用 release�
 ```c++
 static bool js_cocos2d_Sprite_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (cc::Sprite)", s.nativeThisObject());
+    CC_LOG_DEBUG("jsbindings: finalizing JS object %p (cc::Sprite)", s.nativeThisObject());
     cc::Sprite* cobj = (cc::Sprite*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();

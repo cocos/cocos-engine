@@ -26,6 +26,7 @@
 
 // IDEA: hack, must be included before ziputils
 #include "base/ZipUtils.h"
+#include "base/Log.h"
 #ifdef MINIZIP_FROM_SYSTEM
 #include <minizip/unzip.h>
 #else // from our embedded sources
@@ -37,7 +38,6 @@
 #include <stdlib.h>
 
 #include "base/CCData.h"
-#include "base/ccMacros.h"
 #include "platform/CCFileUtils.h"
 #include <map>
 
@@ -192,7 +192,7 @@ int ZipUtils::inflateMemoryWithHint(unsigned char *in, ssize_t inLength, unsigne
             /* not enough memory, ouch */
             if (! *out )
             {
-                CCLOG("ZipUtils: realloc failed");
+                CC_LOG_DEBUG("ZipUtils: realloc failed");
                 inflateEnd(&d_stream);
                 return Z_MEM_ERROR;
             }
@@ -216,19 +216,19 @@ ssize_t ZipUtils::inflateMemoryWithHint(unsigned char *in, ssize_t inLength, uns
     if (err != Z_OK || *out == nullptr) {
         if (err == Z_MEM_ERROR)
         {
-            CCLOG("ZipUtils: Out of memory while decompressing map data!");
+            CC_LOG_DEBUG("ZipUtils: Out of memory while decompressing map data!");
         } else
             if (err == Z_VERSION_ERROR)
             {
-                CCLOG("ZipUtils: Incompatible zlib version!");
+                CC_LOG_DEBUG("ZipUtils: Incompatible zlib version!");
             } else
                 if (err == Z_DATA_ERROR)
                 {
-                    CCLOG("ZipUtils: Incorrect zlib compressed data!");
+                    CC_LOG_DEBUG("ZipUtils: Incorrect zlib compressed data!");
                 }
                 else
                 {
-                    CCLOG("ZipUtils: Unknown error while decompressing map data!");
+                    CC_LOG_DEBUG("ZipUtils: Unknown error while decompressing map data!");
                 }
 
         if(*out) {
@@ -257,7 +257,7 @@ int ZipUtils::inflateGZipFile(const char *path, unsigned char **out)
 
     gzFile inFile = gzopen(FileUtils::getInstance()->getSuitableFOpen(path).c_str(), "rb");
     if( inFile == nullptr ) {
-        CCLOG("ZipUtils: error open gzip file: %s", path);
+        CC_LOG_DEBUG("ZipUtils: error open gzip file: %s", path);
         return -1;
     }
 
@@ -268,7 +268,7 @@ int ZipUtils::inflateGZipFile(const char *path, unsigned char **out)
     *out = (unsigned char*)malloc( bufferSize );
     if( ! out )
     {
-        CCLOG("ZipUtils: out of memory");
+        CC_LOG_DEBUG("ZipUtils: out of memory");
         return -1;
     }
 
@@ -276,7 +276,7 @@ int ZipUtils::inflateGZipFile(const char *path, unsigned char **out)
         len = gzread(inFile, *out + offset, bufferSize);
         if (len < 0)
         {
-            CCLOG("ZipUtils: error in gzread");
+            CC_LOG_DEBUG("ZipUtils: error in gzread");
             free( *out );
             *out = nullptr;
             return -1;
@@ -300,7 +300,7 @@ int ZipUtils::inflateGZipFile(const char *path, unsigned char **out)
 
         if( ! tmp )
         {
-            CCLOG("ZipUtils: out of memory");
+            CC_LOG_DEBUG("ZipUtils: out of memory");
             free( *out );
             *out = nullptr;
             return -1;
@@ -311,7 +311,7 @@ int ZipUtils::inflateGZipFile(const char *path, unsigned char **out)
 
     if (gzclose(inFile) != Z_OK)
     {
-        CCLOG("ZipUtils: gzclose failed");
+        CC_LOG_DEBUG("ZipUtils: gzclose failed");
     }
 
     return offset;
@@ -324,7 +324,7 @@ bool ZipUtils::isCCZFile(const char *path)
 
     if (compressedData.isNull())
     {
-        CCLOG("ZipUtils: loading file failed");
+        CC_LOG_DEBUG("ZipUtils: loading file failed");
         return false;
     }
 
@@ -350,7 +350,7 @@ bool ZipUtils::isGZipFile(const char *path)
 
     if (compressedData.isNull())
     {
-        CCLOG("ZipUtils: loading file failed");
+        CC_LOG_DEBUG("ZipUtils: loading file failed");
         return false;
     }
 
@@ -379,14 +379,14 @@ int ZipUtils::inflateCCZBuffer(const unsigned char *buffer, ssize_t bufferLen, u
         unsigned int version = CC_SWAP_INT16_BIG_TO_HOST( header->version );
         if( version > 2 )
         {
-            CCLOG("Unsupported CCZ header format");
+            CC_LOG_DEBUG("Unsupported CCZ header format");
             return -1;
         }
 
         // verify compression format
         if( CC_SWAP_INT16_BIG_TO_HOST(header->compression_type) != CCZ_COMPRESSION_ZLIB )
         {
-            CCLOG("CCZ Unsupported compression method");
+            CC_LOG_DEBUG("CCZ Unsupported compression method");
             return -1;
         }
     }
@@ -399,14 +399,14 @@ int ZipUtils::inflateCCZBuffer(const unsigned char *buffer, ssize_t bufferLen, u
         unsigned int version = CC_SWAP_INT16_BIG_TO_HOST( header->version );
         if( version > 0 )
         {
-            CCLOG("Unsupported CCZ header format");
+            CC_LOG_DEBUG("Unsupported CCZ header format");
             return -1;
         }
 
         // verify compression format
         if( CC_SWAP_INT16_BIG_TO_HOST(header->compression_type) != CCZ_COMPRESSION_ZLIB )
         {
-            CCLOG("CCZ Unsupported compression method");
+            CC_LOG_DEBUG("CCZ Unsupported compression method");
             return -1;
         }
 
@@ -423,14 +423,14 @@ int ZipUtils::inflateCCZBuffer(const unsigned char *buffer, ssize_t bufferLen, u
 
         if(calculated != required)
         {
-            CCLOG("Can't decrypt image file. Is the decryption key valid?");
+            CC_LOG_DEBUG("Can't decrypt image file. Is the decryption key valid?");
             return -1;
         }
 #endif
     }
     else
     {
-        CCLOG("Invalid CCZ file");
+        CC_LOG_DEBUG("Invalid CCZ file");
         return -1;
     }
 
@@ -439,7 +439,7 @@ int ZipUtils::inflateCCZBuffer(const unsigned char *buffer, ssize_t bufferLen, u
     *out = (unsigned char*)malloc( len );
     if(! *out )
     {
-        CCLOG("CCZ: Failed to allocate memory for texture");
+        CC_LOG_DEBUG("CCZ: Failed to allocate memory for texture");
         return -1;
     }
 
@@ -449,7 +449,7 @@ int ZipUtils::inflateCCZBuffer(const unsigned char *buffer, ssize_t bufferLen, u
 
     if( ret != Z_OK )
     {
-        CCLOG("CCZ: Failed to uncompress data");
+        CC_LOG_DEBUG("CCZ: Failed to uncompress data");
         free( *out );
         *out = nullptr;
         return -1;
@@ -467,7 +467,7 @@ int ZipUtils::inflateCCZFile(const char *path, unsigned char **out)
 
     if (compressedData.isNull())
     {
-        CCLOG("Error loading CCZ compressed file");
+        CC_LOG_DEBUG("Error loading CCZ compressed file");
         return -1;
     }
 

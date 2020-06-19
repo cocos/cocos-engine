@@ -147,7 +147,7 @@ After creating a Sprite in the script layer via `var sp = new cc.Sprite("a.png")
 ```c++
 static bool js_cocos2d_Sprite_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (cc::Sprite)", s.nativeThisObject());
+    CC_LOG_DEBUG("jsbindings: finalizing JS object %p (cc::Sprite)", s.nativeThisObject());
     cc::Sprite* cobj = (cc::Sprite*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -1126,7 +1126,7 @@ In Cocos2D-X binding, if the native object's reference count is 1, we do not use
 ```c++
 static bool js_cocos2d_Sprite_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (cc::Sprite)", s.nativeThisObject());
+    CC_LOG_DEBUG("jsbindings: finalizing JS object %p (cc::Sprite)", s.nativeThisObject());
     cc::Sprite* cobj = (cc::Sprite*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();

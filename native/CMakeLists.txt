@@ -227,8 +227,6 @@ cocos_source_files(
     cocos/base/ccConfig.h
     cocos/base/CCData.cpp
     cocos/base/CCData.h
-    cocos/base/CCLog.cpp
-    cocos/base/CCLog.h
     cocos/base/ccMacros.h
     cocos/base/CCMap.h
     cocos/base/ccRandom.cpp
@@ -247,7 +245,6 @@ cocos_source_files(
     cocos/base/CCValue.cpp
     cocos/base/CCValue.h
     cocos/base/CCVector.h
-    cocos/base/CoreDef.h
     cocos/base/csscolorparser.cpp
     cocos/base/csscolorparser.hpp
     cocos/base/etc1.cpp

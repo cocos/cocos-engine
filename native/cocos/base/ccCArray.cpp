@@ -24,7 +24,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-
+#include "base/Log.h"
 #include "base/ccCArray.h"
 
 namespace cc {
@@ -71,7 +71,7 @@ void ccArrayEnsureExtraCapacity(ccArray *arr, ssize_t extra)
 {
     while (arr->max < arr->num + extra)
     {
-        CCLOGINFO("ccCArray: resizing ccArray capacity from [%d] to [%d].",
+        CC_LOG_INFO("ccCArray: resizing ccArray capacity from [%d] to [%d].",
               static_cast<int>(arr->max),
               static_cast<int>(arr->max*2));
 

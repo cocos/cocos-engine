@@ -26,7 +26,7 @@ THE SOFTWARE.
 #include "platform/win32/CCUtils-win32.h"
 #include "platform/CCStdC.h"
 #include <sstream>
-#include "base/ccMacros.h"
+#include "base/Log.h"
 
 namespace cc {
 
@@ -48,7 +48,7 @@ std::wstring StringUtf8ToWideChar(const std::string& strUtf8)
         }
         else
         {
-            CCLOG("Wrong convert to WideChar code:0x%x", GetLastError());
+            CC_LOG_DEBUG("Wrong convert to WideChar code:0x%x", GetLastError());
         }
     }
     return ret;
@@ -72,7 +72,7 @@ std::string StringWideCharToUtf8(const std::wstring& strWideChar)
         }
         else
         {
-            CCLOG("Wrong convert to Utf8 code:0x%x", GetLastError());
+            CC_LOG_DEBUG("Wrong convert to Utf8 code:0x%x", GetLastError());
         }
     }
 
@@ -98,7 +98,7 @@ std::string UTF8StringToMultiByte(const std::string& strUtf8)
         }
         else
         {
-            CCLOG("Wrong convert to Ansi code:0x%x", GetLastError());
+            CC_LOG_DEBUG("Wrong convert to Ansi code:0x%x", GetLastError());
         }
     }
 

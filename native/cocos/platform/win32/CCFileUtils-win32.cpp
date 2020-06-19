@@ -29,6 +29,7 @@ THE SOFTWARE.
 
 #include "platform/win32/CCFileUtils-win32.h"
 #include "platform/win32/CCUtils-win32.h"
+#include "base/Log.h"
 #include <Shlobj.h>
 #include <cstdlib>
 #include <regex>
@@ -86,7 +87,7 @@ FileUtils* FileUtils::getInstance()
         {
           delete s_sharedFileUtils;
           s_sharedFileUtils = nullptr;
-          CCLOG("ERROR: Could not init CCFileUtilsWin32");
+          CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsWin32");
         }
     }
     return s_sharedFileUtils;
@@ -195,7 +196,7 @@ FileUtils::Status FileUtilsWin32::getContents(const std::string& filename, Resiz
     ::CloseHandle(fileHandle);
 
     if (!successed) {
-		CCLOG("Get data from file(%s) failed, error code is %s", filename.data(), std::to_string(::GetLastError()).data());
+		CC_LOG_DEBUG("Get data from file(%s) failed, error code is %s", filename.data(), std::to_string(::GetLastError()).data());
 		buffer->resize(sizeRead);
 		return FileUtils::Status::ReadFailed;
     }
@@ -284,7 +285,7 @@ bool FileUtilsWin32::renameFile(const std::string &oldfullpath, const std::strin
     {
         if (!DeleteFile(_wNew.c_str()))
         {
-            CCLOGERROR("Fail to delete file %s !Error code is 0x%x", newfullpath.c_str(), GetLastError());
+            CC_LOG_ERROR("Fail to delete file %s !Error code is 0x%x", newfullpath.c_str(), GetLastError());
         }
     }
 
@@ -294,7 +295,7 @@ bool FileUtilsWin32::renameFile(const std::string &oldfullpath, const std::strin
     }
     else
     {
-        CCLOGERROR("Fail to rename file %s to %s !Error code is 0x%x", oldfullpath.c_str(), newfullpath.c_str(), GetLastError());
+        CC_LOG_ERROR("Fail to rename file %s to %s !Error code is 0x%x", oldfullpath.c_str(), newfullpath.c_str(), GetLastError());
         return false;
     }
 }
@@ -360,7 +361,7 @@ bool FileUtilsWin32::createDirectory(const std::string& dirPath)
                 BOOL ret = CreateDirectory(subpath.c_str(), NULL);
                 if (!ret && ERROR_ALREADY_EXISTS != GetLastError())
                 {
-                    CCLOGERROR("Fail create directory %s !Error code is 0x%x", utf8Path.c_str(), GetLastError());
+                    CC_LOG_ERROR("Fail create directory %s !Error code is 0x%x", utf8Path.c_str(), GetLastError());
                     return false;
                 }
             }
@@ -380,7 +381,7 @@ bool FileUtilsWin32::removeFile(const std::string &filepath)
     }
     else
     {
-        CCLOGERROR("Fail remove file %s !Error code is 0x%x", filepath.c_str(), GetLastError());
+        CC_LOG_ERROR("Fail remove file %s !Error code is 0x%x", filepath.c_str(), GetLastError());
         return false;
     }
 }

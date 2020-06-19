@@ -399,7 +399,7 @@ void XMLHttpRequest::getHeader(const std::string& header)
                 }
                 else 
                 {
-                    CCLOG("XMLHTTPRequest invalid response code %d", code);
+                    CC_LOG_DEBUG("XMLHTTPRequest invalid response code %d", code);
                 }
             }
         }

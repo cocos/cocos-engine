@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_CORE_API GFXFramebuffer : public GFXObject {
+class CC_DLL GFXFramebuffer : public GFXObject {
 public:
     GFXFramebuffer(GFXDevice *device);
     virtual ~GFXFramebuffer();

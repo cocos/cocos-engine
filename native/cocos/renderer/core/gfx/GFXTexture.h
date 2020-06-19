@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_CORE_API GFXTexture : public GFXObject {
+class CC_DLL GFXTexture : public GFXObject {
 public:
     GFXTexture(GFXDevice *device);
     virtual ~GFXTexture();

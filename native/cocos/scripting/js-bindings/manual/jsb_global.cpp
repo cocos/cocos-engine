@@ -445,7 +445,7 @@ SE_BIND_FUNC(jsc_garbageCollect)
 
 static bool jsc_dumpNativePtrToSeObjectMap(se::State& s)
 {
-    cc::log(">>> total: %d, Dump (native -> jsobj) map begin", (int)se::NativePtrToObjectMap::size());
+    CC_LOG_DEBUG(">>> total: %d, Dump (native -> jsobj) map begin", (int)se::NativePtrToObjectMap::size());
 
     struct NamePtrStruct
     {
@@ -480,9 +480,9 @@ static bool jsc_dumpNativePtrToSeObjectMap(se::State& s)
 
     for (const auto& e : namePtrArray)
     {
-        cc::log("%s: %p", e.name, e.ptr);
+        CC_LOG_DEBUG("%s: %p", e.name, e.ptr);
     }
-    cc::log(">>> total: %d, nonRefMap: %d, Dump (native -> jsobj) map end", (int)se::NativePtrToObjectMap::size(), (int)se::NonRefNativePtrCreatedByCtorMap::size());
+    CC_LOG_DEBUG(">>> total: %d, nonRefMap: %d, Dump (native -> jsobj) map end", (int)se::NativePtrToObjectMap::size(), (int)se::NonRefNativePtrCreatedByCtorMap::size());
     return true;
 }
 SE_BIND_FUNC(jsc_dumpNativePtrToSeObjectMap)
@@ -666,7 +666,7 @@ static bool JSB_saveByteCode(se::State& s)
     const auto& args = s.args();
     int argc = (int)args.size();
     SE_PRECONDITION2(argc == 2, false, "Invalid number of arguments");
-    bool ok = true, value = true;
+    bool ok = true;
     std::string srcfile;
     std::string dstfile;
     ok &= seval_to_std_string(args[0], &srcfile);

@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_CORE_API GFXQueue : public GFXObject {
+class CC_DLL GFXQueue : public GFXObject {
 public:
     GFXQueue(GFXDevice *device);
     virtual ~GFXQueue();

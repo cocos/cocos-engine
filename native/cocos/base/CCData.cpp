@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 #include "base/CCData.h"
+#include "base/Log.h"
 
 namespace cc {
 
@@ -34,14 +35,14 @@ Data::Data() :
 _bytes(nullptr),
 _size(0)
 {
-    CCLOGINFO("In the empty constructor of Data.");
+    CC_LOG_INFO("In the empty constructor of Data.");
 }
 
 Data::Data(Data&& other) :
 _bytes(nullptr),
 _size(0)
 {
-    CCLOGINFO("In the move constructor of Data.");
+    CC_LOG_INFO("In the move constructor of Data.");
     move(other);
 }
 
@@ -49,26 +50,26 @@ Data::Data(const Data& other) :
 _bytes(nullptr),
 _size(0)
 {
-    CCLOGINFO("In the copy constructor of Data.");
+    CC_LOG_INFO("In the copy constructor of Data.");
     copy(other._bytes, other._size);
 }
 
 Data::~Data()
 {
-    CCLOGINFO("deallocing Data: %p", this);
+    CC_LOG_INFO("deallocing Data: %p", this);
     clear();
 }
 
 Data& Data::operator= (const Data& other)
 {
-    CCLOGINFO("In the copy assignment of Data.");
+    CC_LOG_INFO("In the copy assignment of Data.");
     copy(other._bytes, other._size);
     return *this;
 }
 
 Data& Data::operator= (Data&& other)
 {
-    CCLOGINFO("In the move assignment of Data.");
+    CC_LOG_INFO("In the move assignment of Data.");
     move(other);
     return *this;
 }

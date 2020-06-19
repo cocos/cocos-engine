@@ -230,7 +230,7 @@ void Scheduler::schedule(const ccSchedulerFunc& callback, void *target, float in
 
             if (timer && key == timer->getKey())
             {
-                CCLOG("CCScheduler#scheduleSelector. Selector already scheduled. Updating interval from: %.4f to %.4f", timer->getInterval(), interval);
+                CC_LOG_DEBUG("CCScheduler#scheduleSelector. Selector already scheduled. Updating interval from: %.4f to %.4f", timer->getInterval(), interval);
                 timer->setInterval(interval);
                 return;
             }

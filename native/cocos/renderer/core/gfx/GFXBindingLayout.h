@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_CORE_API GFXBindingLayout : public GFXObject {
+class CC_DLL GFXBindingLayout : public GFXObject {
 public:
     GFXBindingLayout(GFXDevice *device);
     virtual ~GFXBindingLayout();

@@ -187,7 +187,7 @@ SE_BIND_CTOR(js_gfx_GFXOffset_constructor, __jsb_cc_gfx_GFXOffset_class, js_cc_g
 
 static bool js_cc_gfx_GFXOffset_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXOffset)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXOffset)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -433,7 +433,7 @@ SE_BIND_CTOR(js_gfx_GFXRect_constructor, __jsb_cc_gfx_GFXRect_class, js_cc_gfx_G
 
 static bool js_cc_gfx_GFXRect_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXRect)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXRect)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -641,7 +641,7 @@ SE_BIND_CTOR(js_gfx_GFXExtent_constructor, __jsb_cc_gfx_GFXExtent_class, js_cc_g
 
 static bool js_cc_gfx_GFXExtent_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXExtent)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXExtent)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -848,7 +848,7 @@ SE_BIND_CTOR(js_gfx_GFXTextureSubres_constructor, __jsb_cc_gfx_GFXTextureSubres_
 
 static bool js_cc_gfx_GFXTextureSubres_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXTextureSubres)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXTextureSubres)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -1133,7 +1133,7 @@ SE_BIND_CTOR(js_gfx_GFXTextureCopy_constructor, __jsb_cc_gfx_GFXTextureCopy_clas
 
 static bool js_cc_gfx_GFXTextureCopy_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXTextureCopy)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXTextureCopy)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -1420,7 +1420,7 @@ SE_BIND_CTOR(js_gfx_GFXBufferTextureCopy_constructor, __jsb_cc_gfx_GFXBufferText
 
 static bool js_cc_gfx_GFXBufferTextureCopy_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXBufferTextureCopy)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXBufferTextureCopy)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -1746,7 +1746,7 @@ SE_BIND_CTOR(js_gfx_GFXViewport_constructor, __jsb_cc_gfx_GFXViewport_class, js_
 
 static bool js_cc_gfx_GFXViewport_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXViewport)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXViewport)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -1995,7 +1995,7 @@ SE_BIND_CTOR(js_gfx_GFXColor_constructor, __jsb_cc_gfx_GFXColor_class, js_cc_gfx
 
 static bool js_cc_gfx_GFXColor_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXColor)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXColor)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -2320,7 +2320,7 @@ SE_BIND_CTOR(js_gfx_GFXDeviceInfo_constructor, __jsb_cc_gfx_GFXDeviceInfo_class,
 
 static bool js_cc_gfx_GFXDeviceInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXDeviceInfo)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXDeviceInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -2530,7 +2530,7 @@ SE_BIND_CTOR(js_gfx_GFXContextInfo_constructor, __jsb_cc_gfx_GFXContextInfo_clas
 
 static bool js_cc_gfx_GFXContextInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXContextInfo)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXContextInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -2815,7 +2815,7 @@ SE_BIND_CTOR(js_gfx_GFXBufferInfo_constructor, __jsb_cc_gfx_GFXBufferInfo_class,
 
 static bool js_cc_gfx_GFXBufferInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXBufferInfo)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXBufferInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -3180,7 +3180,7 @@ SE_BIND_CTOR(js_gfx_GFXDrawInfo_constructor, __jsb_cc_gfx_GFXDrawInfo_class, js_
 
 static bool js_cc_gfx_GFXDrawInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXDrawInfo)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXDrawInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -3290,7 +3290,7 @@ SE_BIND_CTOR(js_gfx_GFXIndirectBuffer_constructor, __jsb_cc_gfx_GFXIndirectBuffe
 
 static bool js_cc_gfx_GFXIndirectBuffer_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXIndirectBuffer)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXIndirectBuffer)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -3768,7 +3768,7 @@ SE_BIND_CTOR(js_gfx_GFXTextureInfo_constructor, __jsb_cc_gfx_GFXTextureInfo_clas
 
 static bool js_cc_gfx_GFXTextureInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXTextureInfo)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXTextureInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -4138,7 +4138,7 @@ SE_BIND_CTOR(js_gfx_GFXTextureViewInfo_constructor, __jsb_cc_gfx_GFXTextureViewI
 
 static bool js_cc_gfx_GFXTextureViewInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXTextureViewInfo)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXTextureViewInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -4739,7 +4739,7 @@ SE_BIND_CTOR(js_gfx_GFXSamplerInfo_constructor, __jsb_cc_gfx_GFXSamplerInfo_clas
 
 static bool js_cc_gfx_GFXSamplerInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXSamplerInfo)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXSamplerInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -4917,7 +4917,7 @@ SE_BIND_CTOR(js_gfx_GFXShaderMacro_constructor, __jsb_cc_gfx_GFXShaderMacro_clas
 
 static bool js_cc_gfx_GFXShaderMacro_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXShaderMacro)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXShaderMacro)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -5123,7 +5123,7 @@ SE_BIND_CTOR(js_gfx_GFXUniform_constructor, __jsb_cc_gfx_GFXUniform_class, js_cc
 
 static bool js_cc_gfx_GFXUniform_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXUniform)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXUniform)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -5369,7 +5369,7 @@ SE_BIND_CTOR(js_gfx_GFXUniformBlock_constructor, __jsb_cc_gfx_GFXUniformBlock_cl
 
 static bool js_cc_gfx_GFXUniformBlock_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXUniformBlock)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXUniformBlock)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -5655,7 +5655,7 @@ SE_BIND_CTOR(js_gfx_GFXUniformSampler_constructor, __jsb_cc_gfx_GFXUniformSample
 
 static bool js_cc_gfx_GFXUniformSampler_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXUniformSampler)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXUniformSampler)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -5864,7 +5864,7 @@ SE_BIND_CTOR(js_gfx_GFXShaderStage_constructor, __jsb_cc_gfx_GFXShaderStage_clas
 
 static bool js_cc_gfx_GFXShaderStage_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXShaderStage)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXShaderStage)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -6188,7 +6188,7 @@ SE_BIND_CTOR(js_gfx_GFXAttribute_constructor, __jsb_cc_gfx_GFXAttribute_class, j
 
 static bool js_cc_gfx_GFXAttribute_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXAttribute)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXAttribute)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -6476,7 +6476,7 @@ SE_BIND_CTOR(js_gfx_GFXShaderInfo_constructor, __jsb_cc_gfx_GFXShaderInfo_class,
 
 static bool js_cc_gfx_GFXShaderInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXShaderInfo)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXShaderInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -6724,7 +6724,7 @@ SE_BIND_CTOR(js_gfx_GFXInputAssemblerInfo_constructor, __jsb_cc_gfx_GFXInputAsse
 
 static bool js_cc_gfx_GFXInputAssemblerInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXInputAssemblerInfo)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXInputAssemblerInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -7049,7 +7049,7 @@ SE_BIND_CTOR(js_gfx_GFXColorAttachment_constructor, __jsb_cc_gfx_GFXColorAttachm
 
 static bool js_cc_gfx_GFXColorAttachment_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXColorAttachment)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXColorAttachment)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -7454,7 +7454,7 @@ SE_BIND_CTOR(js_gfx_GFXDepthStencilAttachment_constructor, __jsb_cc_gfx_GFXDepth
 
 static bool js_cc_gfx_GFXDepthStencilAttachment_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXDepthStencilAttachment)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXDepthStencilAttachment)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -7666,7 +7666,7 @@ SE_BIND_CTOR(js_gfx_GFXRenderPassInfo_constructor, __jsb_cc_gfx_GFXRenderPassInf
 
 static bool js_cc_gfx_GFXRenderPassInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXRenderPassInfo)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXRenderPassInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -7951,7 +7951,7 @@ SE_BIND_CTOR(js_gfx_GFXFramebufferInfo_constructor, __jsb_cc_gfx_GFXFramebufferI
 
 static bool js_cc_gfx_GFXFramebufferInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXFramebufferInfo)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXFramebufferInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -8238,7 +8238,7 @@ SE_BIND_CTOR(js_gfx_GFXBinding_constructor, __jsb_cc_gfx_GFXBinding_class, js_cc
 
 static bool js_cc_gfx_GFXBinding_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXBinding)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXBinding)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -8346,7 +8346,7 @@ SE_BIND_CTOR(js_gfx_GFXBindingLayoutInfo_constructor, __jsb_cc_gfx_GFXBindingLay
 
 static bool js_cc_gfx_GFXBindingLayoutInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXBindingLayoutInfo)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXBindingLayoutInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -8746,7 +8746,7 @@ SE_BIND_CTOR(js_gfx_GFXBindingUnit_constructor, __jsb_cc_gfx_GFXBindingUnit_clas
 
 static bool js_cc_gfx_GFXBindingUnit_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXBindingUnit)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXBindingUnit)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -8958,7 +8958,7 @@ SE_BIND_CTOR(js_gfx_GFXPushConstantRange_constructor, __jsb_cc_gfx_GFXPushConsta
 
 static bool js_cc_gfx_GFXPushConstantRange_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXPushConstantRange)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXPushConstantRange)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -9126,7 +9126,7 @@ SE_BIND_CTOR(js_gfx_GFXPipelineLayoutInfo_constructor, __jsb_cc_gfx_GFXPipelineL
 
 static bool js_cc_gfx_GFXPipelineLayoutInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXPipelineLayoutInfo)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXPipelineLayoutInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -9231,7 +9231,7 @@ SE_BIND_CTOR(js_gfx_GFXInputState_constructor, __jsb_cc_gfx_GFXInputState_class,
 
 static bool js_cc_gfx_GFXInputState_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXInputState)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXInputState)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -9787,7 +9787,7 @@ SE_BIND_CTOR(js_gfx_GFXRasterizerState_constructor, __jsb_cc_gfx_GFXRasterizerSt
 
 static bool js_cc_gfx_GFXRasterizerState_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXRasterizerState)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXRasterizerState)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -10627,7 +10627,7 @@ SE_BIND_CTOR(js_gfx_GFXDepthStencilState_constructor, __jsb_cc_gfx_GFXDepthStenc
 
 static bool js_cc_gfx_GFXDepthStencilState_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXDepthStencilState)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXDepthStencilState)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -11045,7 +11045,7 @@ SE_BIND_CTOR(js_gfx_GFXBlendTarget_constructor, __jsb_cc_gfx_GFXBlendTarget_clas
 
 static bool js_cc_gfx_GFXBlendTarget_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXBlendTarget)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXBlendTarget)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -11268,7 +11268,7 @@ SE_BIND_CTOR(js_gfx_GFXBlendState_constructor, __jsb_cc_gfx_GFXBlendState_class,
 
 static bool js_cc_gfx_GFXBlendState_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXBlendState)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXBlendState)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -11709,7 +11709,7 @@ SE_BIND_CTOR(js_gfx_GFXPipelineStateInfo_constructor, __jsb_cc_gfx_GFXPipelineSt
 
 static bool js_cc_gfx_GFXPipelineStateInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXPipelineStateInfo)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXPipelineStateInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -11883,7 +11883,7 @@ SE_BIND_CTOR(js_gfx_GFXCommandBufferInfo_constructor, __jsb_cc_gfx_GFXCommandBuf
 
 static bool js_cc_gfx_GFXCommandBufferInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXCommandBufferInfo)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXCommandBufferInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -11988,7 +11988,7 @@ SE_BIND_CTOR(js_gfx_GFXQueueInfo_constructor, __jsb_cc_gfx_GFXQueueInfo_class, j
 
 static bool js_cc_gfx_GFXQueueInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXQueueInfo)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXQueueInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -12388,7 +12388,7 @@ SE_BIND_CTOR(js_gfx_GFXFormatInfo_constructor, __jsb_cc_gfx_GFXFormatInfo_class,
 
 static bool js_cc_gfx_GFXFormatInfo_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXFormatInfo)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXFormatInfo)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -12561,7 +12561,7 @@ SE_BIND_CTOR(js_gfx_GFXMemoryStatus_constructor, __jsb_cc_gfx_GFXMemoryStatus_cl
 
 static bool js_cc_gfx_GFXMemoryStatus_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXMemoryStatus)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXMemoryStatus)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -12650,7 +12650,7 @@ SE_BIND_CTOR(js_gfx_GFXObject_constructor, __jsb_cc_gfx_GFXObject_class, js_cc_g
 
 static bool js_cc_gfx_GFXObject_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXObject)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXObject)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -13966,7 +13966,7 @@ extern se::Object* __jsb_cc_gfx_GFXObject_proto;
 
 static bool js_cc_gfx_GFXBuffer_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXBuffer)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXBuffer)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -14275,7 +14275,7 @@ extern se::Object* __jsb_cc_gfx_GFXObject_proto;
 
 static bool js_cc_gfx_GFXTexture_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXTexture)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXTexture)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -14623,7 +14623,7 @@ extern se::Object* __jsb_cc_gfx_GFXObject_proto;
 
 static bool js_cc_gfx_GFXSampler_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXSampler)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXSampler)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -14847,7 +14847,7 @@ extern se::Object* __jsb_cc_gfx_GFXObject_proto;
 
 static bool js_cc_gfx_GFXShader_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXShader)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXShader)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -15305,7 +15305,7 @@ extern se::Object* __jsb_cc_gfx_GFXObject_proto;
 
 static bool js_cc_gfx_GFXInputAssembler_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXInputAssembler)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXInputAssembler)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -15492,7 +15492,7 @@ extern se::Object* __jsb_cc_gfx_GFXObject_proto;
 
 static bool js_cc_gfx_GFXRenderPass_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXRenderPass)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXRenderPass)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -15671,7 +15671,7 @@ extern se::Object* __jsb_cc_gfx_GFXObject_proto;
 
 static bool js_cc_gfx_GFXFramebuffer_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXFramebuffer)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXFramebuffer)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -15874,7 +15874,7 @@ extern se::Object* __jsb_cc_gfx_GFXObject_proto;
 
 static bool js_cc_gfx_GFXBindingLayout_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXBindingLayout)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXBindingLayout)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -16018,7 +16018,7 @@ extern se::Object* __jsb_cc_gfx_GFXObject_proto;
 
 static bool js_cc_gfx_GFXPipelineLayout_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXPipelineLayout)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXPipelineLayout)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -16285,7 +16285,7 @@ extern se::Object* __jsb_cc_gfx_GFXObject_proto;
 
 static bool js_cc_gfx_GFXPipelineState_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXPipelineState)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXPipelineState)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -16397,7 +16397,7 @@ extern se::Object* __jsb_cc_gfx_GFXObject_proto;
 
 static bool js_cc_gfx_GFXCommandAllocator_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXCommandAllocator)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXCommandAllocator)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -16993,7 +16993,7 @@ extern se::Object* __jsb_cc_gfx_GFXObject_proto;
 
 static bool js_cc_gfx_GFXCommandBuffer_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXCommandBuffer)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXCommandBuffer)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -17131,7 +17131,7 @@ extern se::Object* __jsb_cc_gfx_GFXObject_proto;
 
 static bool js_cc_gfx_GFXFence_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXFence)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXFence)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -17288,7 +17288,7 @@ extern se::Object* __jsb_cc_gfx_GFXObject_proto;
 
 static bool js_cc_gfx_GFXQueue_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::GFXQueue)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GFXQueue)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {

@@ -1,7 +1,7 @@
 #ifndef CC_CORE_ALLOCATED_OBJ_H_
 #define CC_CORE_ALLOCATED_OBJ_H_
 
-#include "../CoreDef.h"
+#include "../ccMacros.h"
 
 // Anything that has done a #define new <blah> will screw operator new definitions up
 // so undefine
@@ -20,7 +20,7 @@ namespace cc {
  to use (e.g. see StdAllocPolicy).
  */
 template <class Alloc>
-class CC_CORE_API AllocatedObject {
+class CC_DLL AllocatedObject {
 public:
     explicit AllocatedObject() {}
     ~AllocatedObject() {}

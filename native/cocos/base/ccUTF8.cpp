@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 #include "base/ccUTF8.h"
+#include "base/Log.h"
 #include "ConvertUTF/ConvertUTF.h"
 
 #include <stdarg.h>
@@ -312,7 +313,7 @@ void StringUTF8::replace(const std::string& newStr)
 
         if (lengthString == 0)
         {
-            CCLOG("Bad utf-8 set string: %s", newStr.c_str());
+            CC_LOG_DEBUG("Bad utf-8 set string: %s", newStr.c_str());
             return;
         }
 

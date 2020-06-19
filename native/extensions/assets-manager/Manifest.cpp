@@ -27,6 +27,7 @@
 #include "Manifest.h"
 #include "json/prettywriter.h"
 #include "json/stringbuffer.h"
+#include "base/Log.h"
 
 #include <fstream>
 #include <stdio.h>
@@ -116,7 +117,7 @@ void Manifest::loadJson(const std::string& url)
         
         if (content.size() == 0)
         {
-            CCLOG("Fail to retrieve local file content: %s\n", url.c_str());
+            CC_LOG_DEBUG("Fail to retrieve local file content: %s\n", url.c_str());
         }
         else
         {
@@ -129,7 +130,7 @@ void Manifest::loadJsonFromString(const std::string& content)
 {
     if (content.size() == 0)
     {
-        CCLOG("Fail to parse empty json content.");
+        CC_LOG_DEBUG("Fail to parse empty json content.");
     }
     else
     {
@@ -141,7 +142,7 @@ void Manifest::loadJsonFromString(const std::string& content)
             if (offset > 0)
                 offset--;
             std::string errorSnippet = content.substr(offset, 10);
-            CCLOG("File parse error %d at <%s>\n", _json.GetParseError(), errorSnippet.c_str());
+            CC_LOG_DEBUG("File parse error %d at <%s>\n", _json.GetParseError(), errorSnippet.c_str());
         }
     }
 }

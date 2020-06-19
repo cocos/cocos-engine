@@ -23,6 +23,7 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "View-win32.h"
+#include "base/Log.h"
 #include <unordered_map>
 
 
@@ -134,7 +135,7 @@ bool View::init()
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
         // Display error message
-        CCLOGERROR("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+        CC_LOG_ERROR("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return false;
     }
     _inited = true;
@@ -146,7 +147,7 @@ bool View::init()
     if (_window == NULL)
     {
         // Display error message
-        CCLOGERROR("Window could not be created! SDL_Error: %s\n", SDL_GetError());
+        CC_LOG_ERROR("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return false;
     }
     return true;
@@ -262,7 +263,7 @@ bool View::pollEvent(bool * quit, bool *resume, bool *pause)
         keyboard.altKeyActive = mode & KMOD_ALT;
         keyboard.ctrlKeyActive = mode & KMOD_CTRL;
         keyboard.shiftKeyActive = mode & KMOD_SHIFT;
-        //CCLOG("==> key %d -> code %d", event.keysym.sym, keyboard.key);
+        //CC_LOG_DEBUG("==> key %d -> code %d", event.keysym.sym, keyboard.key);
         cc::EventDispatcher::dispatchKeyboardEvent(keyboard);
         break;
     }

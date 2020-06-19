@@ -34,7 +34,7 @@
 #include <sstream>
 #include <iterator>
 #include "base/ccUTF8.h"
-#include "base/ccMacros.h"
+#include "base/Log.h"
 #include "platform/CCApplication.h"
 #include "network/WebSocket.h"
 #include "network/HttpClient.h"
@@ -225,7 +225,7 @@ std::string SocketIOPacket::stringify()const
 
         outS = s.GetString();
 
-        CCLOGINFO("create args object: %s:", outS.c_str());
+        CC_LOG_INFO("create args object: %s:", outS.c_str());
     }
 
     return outS;
@@ -288,7 +288,7 @@ std::string SocketIOPacketV10x::stringify()const
 
     outS = s.GetString();
 
-    CCLOGINFO("create args object: %s:", outS.c_str());
+    CC_LOG_INFO("create args object: %s:", outS.c_str());
 
     return outS;
 
@@ -411,7 +411,7 @@ SIOClientImpl::~SIOClientImpl()
 
 void SIOClientImpl::handshake()
 {
-    CCLOGINFO("SIOClientImpl::handshake() called");
+    CC_LOG_INFO("SIOClientImpl::handshake() called");
 
     std::stringstream pre;
 
@@ -429,7 +429,7 @@ void SIOClientImpl::handshake()
     request->setResponseCallback(CC_CALLBACK_2(SIOClientImpl::handshakeResponse, this));
     request->setTag("handshake");
 
-    CCLOGINFO("SIOClientImpl::handshake() waiting");
+    CC_LOG_INFO("SIOClientImpl::handshake() waiting");
 
     if (_uri.isSecure() && !_caFilePath.empty())
     {
@@ -444,22 +444,22 @@ void SIOClientImpl::handshake()
 
 void SIOClientImpl::handshakeResponse(HttpClient* /*sender*/, HttpResponse *response)
 {
-    CCLOGINFO("SIOClientImpl::handshakeResponse() called");
+    CC_LOG_INFO("SIOClientImpl::handshakeResponse() called");
 
     if (0 != strlen(response->getHttpRequest()->getTag()))
     {
-        CCLOGINFO("%s completed", response->getHttpRequest()->getTag());
+        CC_LOG_INFO("%s completed", response->getHttpRequest()->getTag());
     }
 
     long statusCode = response->getResponseCode();
     char statusString[64] = {};
     sprintf(statusString, "HTTP Status Code: %ld, tag = %s", statusCode, response->getHttpRequest()->getTag());
-    CCLOGINFO("response code: %ld", statusCode);
+    CC_LOG_INFO("response code: %ld", statusCode);
 
     if (!response->isSucceed())
     {
-        CCLOGERROR("SIOClientImpl::handshake() failed");
-        CCLOGERROR("error buffer: %s", response->getErrorBuffer());
+        CC_LOG_ERROR("SIOClientImpl::handshake() failed");
+        CC_LOG_ERROR("error buffer: %s", response->getErrorBuffer());
 
         for (auto& client : _clients)
         {
@@ -470,7 +470,7 @@ void SIOClientImpl::handshakeResponse(HttpClient* /*sender*/, HttpResponse *resp
         return;
     }
 
-    CCLOGINFO("SIOClientImpl::handshake() succeeded");
+    CC_LOG_INFO("SIOClientImpl::handshake() succeeded");
 
     std::vector<char> *buffer = response->getResponseData();
     std::stringstream s;
@@ -481,7 +481,7 @@ void SIOClientImpl::handshakeResponse(HttpClient* /*sender*/, HttpResponse *resp
         s << iter;
     }
 
-    CCLOGINFO("SIOClientImpl::handshake() dump data: %s", s.str().c_str());
+    CC_LOG_INFO("SIOClientImpl::handshake() dump data: %s", s.str().c_str());
 
     std::string res = s.str();
     std::string sid = "";
@@ -489,7 +489,7 @@ void SIOClientImpl::handshakeResponse(HttpClient* /*sender*/, HttpResponse *resp
 
     if (res.find('}') != std::string::npos) {
 
-        CCLOGINFO("SIOClientImpl::handshake() Socket.IO 1.x detected");
+        CC_LOG_INFO("SIOClientImpl::handshake() Socket.IO 1.x detected");
         _version = SocketIOPacket::SocketIOVersion::V10x;
         // sample: 97:0{"sid":"GMkL6lzCmgMvMs9bAAAA","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":60000}
         //         96:0{"sid":"jzrjDlQusSUxLTd3AAAV","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":5000}2:40
@@ -524,12 +524,12 @@ void SIOClientImpl::handshakeResponse(HttpClient* /*sender*/, HttpResponse *resp
 
         std::string timeout_str = temp.substr(a + 1, b - a);
         timeout = atoi(timeout_str.c_str()) / 1000;
-        CCLOGINFO("done parsing 1.x");
+        CC_LOG_INFO("done parsing 1.x");
 
     }
     else {
 
-        CCLOGINFO("SIOClientImpl::handshake() Socket.IO 0.9.x detected");
+        CC_LOG_INFO("SIOClientImpl::handshake() Socket.IO 0.9.x detected");
         _version = SocketIOPacket::SocketIOVersion::V09x;
         // sample: 3GYzE9md2Ig-lm3cf8Rv:60:60:websocket,htmlfile,xhr-polling,jsonp-polling
         size_t pos = 0;
@@ -567,7 +567,7 @@ void SIOClientImpl::handshakeResponse(HttpClient* /*sender*/, HttpResponse *resp
 
 void SIOClientImpl::openSocket()
 {
-    CCLOGINFO("SIOClientImpl::openSocket() called");
+    CC_LOG_INFO("SIOClientImpl::openSocket() called");
 
     std::stringstream s;
 
@@ -597,7 +597,7 @@ void SIOClientImpl::openSocket()
 
 bool SIOClientImpl::init()
 {
-    CCLOGINFO("SIOClientImpl::init() successful");
+    CC_LOG_INFO("SIOClientImpl::init() successful");
     return true;
 }
 
@@ -667,7 +667,7 @@ void SIOClientImpl::disconnectFromEndpoint(const std::string& endpoint)
 
     if (clientCount == 1 || endpoint == "/")
     {
-        CCLOGINFO("SIOClientImpl::disconnectFromEndpoint out of endpoints, checking for disconnect");
+        CC_LOG_INFO("SIOClientImpl::disconnectFromEndpoint out of endpoints, checking for disconnect");
 
         if (_connected)
             this->disconnect();
@@ -690,7 +690,7 @@ void SIOClientImpl::heartbeat(float /*dt*/)
     this->send(packet);
     delete packet;
 
-    CCLOGINFO("Heartbeat sent");
+    CC_LOG_INFO("Heartbeat sent");
 }
 
 
@@ -719,16 +719,16 @@ void SIOClientImpl::send(SocketIOPacket *packet)
     std::string req = packet->toString();
     if (_connected)
     {
-        CCLOGINFO("-->SEND:%s", req.data());
+        CC_LOG_INFO("-->SEND:%s", req.data());
         _ws->send(req.data());
     }
     else
-        CCLOGINFO("Cant send the message (%s) because disconnected", req.c_str());
+        CC_LOG_INFO("Cant send the message (%s) because disconnected", req.c_str());
 }
 
 void SIOClientImpl::emit(const std::string& endpoint, const std::string& eventname, const std::string& args)
 {
-    CCLOGINFO("Emitting event \"%s\"", eventname.c_str());
+    CC_LOG_INFO("Emitting event \"%s\"", eventname.c_str());
     SocketIOPacket *packet = SocketIOPacket::createPacketWithType("event", _version);
     packet->setEndpoint(endpoint == "/" ? "" : endpoint);
     packet->setEvent(eventname);
@@ -756,12 +756,12 @@ void SIOClientImpl::onOpen(WebSocket* /*ws*/)
         client.second->onOpen();
     }
 
-    CCLOGINFO("SIOClientImpl::onOpen socket connected!");
+    CC_LOG_INFO("SIOClientImpl::onOpen socket connected!");
 }
 
 void SIOClientImpl::onMessage(WebSocket* /*ws*/, const WebSocket::Data& data)
 {
-    CCLOGINFO("SIOClientImpl::onMessage received: %s", data.bytes);
+    CC_LOG_INFO("SIOClientImpl::onMessage received: %s", data.bytes);
 
     std::string payload = data.bytes;
     int control = atoi(payload.substr(0, 1).c_str());
@@ -807,39 +807,39 @@ void SIOClientImpl::onMessage(WebSocket* /*ws*/, const WebSocket::Data& data)
 
             s_data = payload;
 
-            if (c == nullptr) CCLOGINFO("SIOClientImpl::onMessage client lookup returned nullptr");
+            if (c == nullptr) CC_LOG_INFO("SIOClientImpl::onMessage client lookup returned nullptr");
 
             switch (control)
             {
             case 0:
-                CCLOGINFO("Received Disconnect Signal for Endpoint: %s\n", endpoint.c_str());
+                CC_LOG_INFO("Received Disconnect Signal for Endpoint: %s\n", endpoint.c_str());
                 disconnectFromEndpoint(endpoint);
                 if (c) {
                     c->fireEvent("disconnect", payload);
                 }
                 break;
             case 1:
-                CCLOGINFO("Connected to endpoint: %s \n", endpoint.c_str());
+                CC_LOG_INFO("Connected to endpoint: %s \n", endpoint.c_str());
                 if (c) {
                     c->onConnect();
                     c->fireEvent("connect", payload);
                 }
                 break;
             case 2:
-                CCLOGINFO("Heartbeat received\n");
+                CC_LOG_INFO("Heartbeat received\n");
                 break;
             case 3:
-                CCLOGINFO("Message received: %s \n", s_data.c_str());
+                CC_LOG_INFO("Message received: %s \n", s_data.c_str());
                 if (c) c->getDelegate()->onMessage(c, s_data);
                 if (c) c->fireEvent("message", s_data);
                 break;
             case 4:
-                CCLOGINFO("JSON Message Received: %s \n", s_data.c_str());
+                CC_LOG_INFO("JSON Message Received: %s \n", s_data.c_str());
                 if (c) c->getDelegate()->onMessage(c, s_data);
                 if (c) c->fireEvent("json", s_data);
                 break;
             case 5:
-                CCLOGINFO("Event Received with data: %s \n", s_data.c_str());
+                CC_LOG_INFO("Event Received with data: %s \n", s_data.c_str());
 
                 if (c)
                 {
@@ -857,15 +857,15 @@ void SIOClientImpl::onMessage(WebSocket* /*ws*/, const WebSocket::Data& data)
 
                 break;
             case 6:
-                CCLOGINFO("Message Ack\n");
+                CC_LOG_INFO("Message Ack\n");
                 break;
             case 7:
-                CCLOGERROR("Error\n");
+                CC_LOG_ERROR("Error\n");
                 //if (c) c->getDelegate()->onError(c, s_data);
                 if (c) c->fireEvent("error", s_data);
                 break;
             case 8:
-                CCLOGINFO("Noop\n");
+                CC_LOG_INFO("Noop\n");
                 break;
             }
         }
@@ -875,29 +875,29 @@ void SIOClientImpl::onMessage(WebSocket* /*ws*/, const WebSocket::Data& data)
             switch (control)
             {
             case 0:
-                CCLOGINFO("Not supposed to receive control 0 for websocket");
-                CCLOGINFO("That's not good");
+                CC_LOG_INFO("Not supposed to receive control 0 for websocket");
+                CC_LOG_INFO("That's not good");
                 break;
             case 1:
-                CCLOGINFO("Not supposed to receive control 1 for websocket");
+                CC_LOG_INFO("Not supposed to receive control 1 for websocket");
                 break;
             case 2:
-                CCLOGINFO("Ping received, send pong");
+                CC_LOG_INFO("Ping received, send pong");
                 payload = "3" + payload;
                 _ws->send(payload);
                 break;
             case 3:
-                CCLOGINFO("Pong received");
+                CC_LOG_INFO("Pong received");
                 if (payload == "probe")
                 {
-                    CCLOGINFO("Request Update");
+                    CC_LOG_INFO("Request Update");
                     _ws->send("5");
                 }
                 break;
             case 4:
             {
                 int control2 = payload.at(0) - '0';
-                CCLOGINFO("Message code: [%i]", control2);
+                CC_LOG_INFO("Message code: [%i]", control2);
 
                 std::string endpoint = "";
 
@@ -930,20 +930,20 @@ void SIOClientImpl::onMessage(WebSocket* /*ws*/, const WebSocket::Data& data)
                 switch (control2)
                 {
                 case 0:
-                    CCLOGINFO("Socket Connected");
+                    CC_LOG_INFO("Socket Connected");
                     if (c) {
                         c->onConnect();
                         c->fireEvent("connect", payload);
                     }
                     break;
                 case 1:
-                    CCLOGINFO("Socket Disconnected");
+                    CC_LOG_INFO("Socket Disconnected");
                     disconnectFromEndpoint(endpoint);
                     c->fireEvent("disconnect", payload);
                     break;
                 case 2:
                 {
-                    CCLOGINFO("Event Received (%s)", payload.c_str());
+                    CC_LOG_INFO("Event Received (%s)", payload.c_str());
 
                     std::string::size_type payloadFirstSlashPos = payload.find("\"");
                     std::string::size_type payloadSecondSlashPos = payload.substr(payloadFirstSlashPos + 1).find("\"");
@@ -951,7 +951,7 @@ void SIOClientImpl::onMessage(WebSocket* /*ws*/, const WebSocket::Data& data)
                     std::string eventname = payload.substr(payloadFirstSlashPos + 1,
                                                            payloadSecondSlashPos - payloadFirstSlashPos + 1);
 
-                    CCLOGINFO("event name %s between %i and %i", eventname.c_str(),
+                    CC_LOG_INFO("event name %s between %i and %i", eventname.c_str(),
                               payloadFirstSlashPos, payloadSecondSlashPos);
 
                     payload = payload.substr(payloadSecondSlashPos + 4,
@@ -963,26 +963,26 @@ void SIOClientImpl::onMessage(WebSocket* /*ws*/, const WebSocket::Data& data)
                 }
                 break;
                 case 3:
-                    CCLOGINFO("Message Ack");
+                    CC_LOG_INFO("Message Ack");
                     break;
                 case 4:
-                    CCLOGERROR("Error");
+                    CC_LOG_ERROR("Error");
                     if (c) c->fireEvent("error", payload);
                     break;
                 case 5:
-                    CCLOGINFO("Binary Event");
+                    CC_LOG_INFO("Binary Event");
                     break;
                 case 6:
-                    CCLOGINFO("Binary Ack");
+                    CC_LOG_INFO("Binary Ack");
                     break;
                 }
             }
             break;
             case 5:
-                CCLOGINFO("Upgrade required");
+                CC_LOG_INFO("Upgrade required");
                 break;
             case 6:
-                CCLOGINFO("Noop\n");
+                CC_LOG_INFO("Noop\n");
                 break;
             }
         }
@@ -1014,7 +1014,7 @@ void SIOClientImpl::onClose(WebSocket* /*ws*/)
 
 void SIOClientImpl::onError(WebSocket* /*ws*/, const WebSocket::ErrorCode& error)
 {
-    CCLOGERROR("Websocket error received: %d", static_cast<int>(error));
+    CC_LOG_ERROR("Websocket error received: %d", static_cast<int>(error));
 }
 
 //begin SIOClient methods
@@ -1097,7 +1097,7 @@ void SIOClient::on(const std::string& eventName, SIOEvent e)
 
 void SIOClient::fireEvent(const std::string& eventName, const std::string& data)
 {
-    CCLOGINFO("SIOClient::fireEvent called with event name: %s and data: %s", eventName.c_str(), data.c_str());
+    CC_LOG_INFO("SIOClient::fireEvent called with event name: %s and data: %s", eventName.c_str(), data.c_str());
 
     _delegate->fireEventToScript(this, eventName, data);
 
@@ -1110,7 +1110,7 @@ void SIOClient::fireEvent(const std::string& eventName, const std::string& data)
         return;
     }
 
-    CCLOGINFO("SIOClient::fireEvent no native event with name %s found", eventName.c_str());
+    CC_LOG_INFO("SIOClient::fireEvent no native event with name %s found", eventName.c_str());
 }
 
 void SIOClient::setTag(const char* tag)
@@ -1194,10 +1194,10 @@ SIOClient* SocketIO::connect(const std::string& uri, SIODelegate& delegate, cons
         }
         else
         {
-            CCLOG("SocketIO: disconnect previous client");
+            CC_LOG_DEBUG("SocketIO: disconnect previous client");
             c->disconnect();
 
-            CCLOG("SocketIO: recreate a new socket, new client, connect");
+            CC_LOG_DEBUG("SocketIO: recreate a new socket, new client, connect");
             SIOClientImpl* newSocket = SIOClientImpl::create(uriObj, caFilePath);
             SIOClient *newC = new (std::nothrow) SIOClient(path, newSocket, delegate);
 

@@ -24,7 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 #include "base/CCAutoreleasePool.h"
-#include "base/ccMacros.h"
+#include "base/Log.h"
 
 namespace cc {
 
@@ -50,7 +50,7 @@ AutoreleasePool::AutoreleasePool(const std::string &name)
 
 AutoreleasePool::~AutoreleasePool()
 {
-    CCLOGINFO("deallocing AutoreleasePool: %p", this);
+    CC_LOG_INFO("deallocing AutoreleasePool: %p", this);
     clear();
 
     PoolManager::getInstance()->pop();
@@ -89,12 +89,12 @@ bool AutoreleasePool::contains(Ref* object) const
 
 void AutoreleasePool::dump()
 {
-    CCLOG("autorelease pool: %s, number of managed object %d\n", _name.c_str(), static_cast<int>(_managedObjectArray.size()));
-    CCLOG("%20s%20s%20s", "Object pointer", "Object id", "reference count");
+    CC_LOG_DEBUG("autorelease pool: %s, number of managed object %d\n", _name.c_str(), static_cast<int>(_managedObjectArray.size()));
+    CC_LOG_DEBUG("%20s%20s%20s", "Object pointer", "Object id", "reference count");
     for (const auto &obj : _managedObjectArray)
     {
         CC_UNUSED_PARAM(obj);
-        CCLOG("%20p%20u\n", obj, obj->getReferenceCount());
+        CC_LOG_DEBUG("%20p%20u\n", obj, obj->getReferenceCount());
     }
 }
 
@@ -131,7 +131,7 @@ PoolManager::PoolManager()
 
 PoolManager::~PoolManager()
 {
-    CCLOGINFO("deallocing PoolManager: %p", this);
+    CC_LOG_INFO("deallocing PoolManager: %p", this);
 
     while (!_releasePoolStack.empty())
     {

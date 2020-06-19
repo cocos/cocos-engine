@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_CORE_API GFXShader : public GFXObject {
+class CC_DLL GFXShader : public GFXObject {
 public:
     GFXShader(GFXDevice *device);
     virtual ~GFXShader();

@@ -101,7 +101,7 @@ SE_BIND_CTOR(js_network_Downloader_constructor, __jsb_cc_network_Downloader_clas
 
 static bool js_cc_network_Downloader_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::network::Downloader)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::network::Downloader)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {

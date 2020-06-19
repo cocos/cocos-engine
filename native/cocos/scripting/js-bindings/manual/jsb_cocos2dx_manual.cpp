@@ -131,7 +131,7 @@ std::string __JSPlistDelegator::parse(const std::string& path) {
 }
 
 __JSPlistDelegator::~__JSPlistDelegator(){
-    CCLOGINFO("deallocing __JSSAXDelegator: %p", this);
+    CC_LOG_INFO("deallocing __JSSAXDelegator: %p", this);
 }
 
 std::string __JSPlistDelegator::parseText(const std::string& text){

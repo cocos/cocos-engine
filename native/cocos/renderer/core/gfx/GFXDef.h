@@ -1016,17 +1016,17 @@ struct GFXFormatInfo {
     bool isCompressed = false;
 };
 
-extern CC_CORE_API const GFXFormatInfo GFX_FORMAT_INFOS[];
-extern CC_CORE_API const uint GFX_TYPE_SIZES[];
+extern CC_DLL const GFXFormatInfo GFX_FORMAT_INFOS[];
+extern CC_DLL const uint GFX_TYPE_SIZES[];
 
 struct GFXMemoryStatus {
     uint bufferSize = 0;
     uint textureSize = 0;
 };
 
-extern CC_CORE_API uint GFXFormatSize(GFXFormat format, uint width, uint height, uint depth);
+extern CC_DLL uint GFXFormatSize(GFXFormat format, uint width, uint height, uint depth);
 
-extern CC_CORE_API uint GFXFormatSurfaceSize(GFXFormat format, uint width, uint height, uint depth, uint mips);
+extern CC_DLL uint GFXFormatSurfaceSize(GFXFormat format, uint width, uint height, uint depth, uint mips);
 
 } // namespace gfx
 } // namespace cc

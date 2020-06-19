@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_CORE_API GFXContext : public Object {
+class CC_DLL GFXContext : public Object {
 public:
     GFXContext(GFXDevice *device);
     virtual ~GFXContext();

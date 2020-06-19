@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_CORE_API GFXPipelineLayout : public GFXObject {
+class CC_DLL GFXPipelineLayout : public GFXObject {
 public:
     GFXPipelineLayout(GFXDevice *device);
     virtual ~GFXPipelineLayout();

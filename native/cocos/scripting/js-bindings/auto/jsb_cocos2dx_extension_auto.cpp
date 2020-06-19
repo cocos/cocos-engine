@@ -271,7 +271,7 @@ SE_BIND_CTOR(js_extension_EventAssetsManagerEx_constructor, __jsb_cc_extension_E
 
 static bool js_cc_extension_EventAssetsManagerEx_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::extension::EventAssetsManagerEx)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::extension::EventAssetsManagerEx)", s.nativeThisObject());
     cc::extension::EventAssetsManagerEx* cobj = (cc::extension::EventAssetsManagerEx*)s.nativeThisObject();
     cobj->release();
     return true;
@@ -577,7 +577,7 @@ SE_BIND_CTOR(js_extension_Manifest_constructor, __jsb_cc_extension_Manifest_clas
 
 static bool js_cc_extension_Manifest_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::extension::Manifest)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::extension::Manifest)", s.nativeThisObject());
     cc::extension::Manifest* cobj = (cc::extension::Manifest*)s.nativeThisObject();
     cobj->release();
     return true;
@@ -1190,7 +1190,7 @@ SE_BIND_CTOR(js_extension_AssetsManagerEx_constructor, __jsb_cc_extension_Assets
 
 static bool js_cc_extension_AssetsManagerEx_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::extension::AssetsManagerEx)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::extension::AssetsManagerEx)", s.nativeThisObject());
     cc::extension::AssetsManagerEx* cobj = (cc::extension::AssetsManagerEx*)s.nativeThisObject();
     cobj->release();
     return true;

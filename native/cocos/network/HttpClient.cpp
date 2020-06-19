@@ -32,6 +32,7 @@
 #include "platform/CCFileUtils.h"
 #include "platform/CCApplication.h"
 #include "platform/CCStdC.h"
+#include "base/Log.h"
 
 namespace cc {
 
@@ -280,7 +281,7 @@ public:
             return false;
         CURLcode code = curl_easy_getinfo(_curl, CURLINFO_RESPONSE_CODE, responseCode);
         if (code != CURLE_OK || !(*responseCode >= 200 && *responseCode < 300)) {
-            CCLOGERROR("Curl curl_easy_getinfo failed: %s", curl_easy_strerror(code));
+            CC_LOG_ERROR("Curl curl_easy_getinfo failed: %s", curl_easy_strerror(code));
             return false;
         }
         // Get some mor data.
@@ -349,11 +350,11 @@ void HttpClient::destroyInstance()
 {
     if (nullptr == _httpClient)
     {
-        CCLOG("HttpClient singleton is nullptr");
+        CC_LOG_DEBUG("HttpClient singleton is nullptr");
         return;
     }
 
-    CCLOG("HttpClient::destroyInstance begin");
+    CC_LOG_DEBUG("HttpClient::destroyInstance begin");
     auto thiz = _httpClient;
     _httpClient = nullptr;
 
@@ -373,7 +374,7 @@ void HttpClient::destroyInstance()
     thiz->_sleepCondition.notify_one();
     thiz->decreaseThreadCountAndMayDeleteThis();
 
-    CCLOG("HttpClient::destroyInstance() finished!");
+    CC_LOG_DEBUG("HttpClient::destroyInstance() finished!");
 }
 
 void HttpClient::enableCookies(const char* cookieFile)
@@ -403,7 +404,7 @@ HttpClient::HttpClient()
 , _cookie(nullptr)
 , _requestSentinel(new HttpRequest())
 {
-    CCLOG("In the constructor of HttpClient!");
+    CC_LOG_DEBUG("In the constructor of HttpClient!");
     memset(_responseMessage, 0, RESPONSE_BUFFER_SIZE * sizeof(char));
     _scheduler = Application::getInstance()->getScheduler();
     increaseThreadCount();
@@ -412,7 +413,7 @@ HttpClient::HttpClient()
 HttpClient::~HttpClient()
 {
     CC_SAFE_RELEASE(_requestSentinel);
-    CCLOG("HttpClient destructor");
+    CC_LOG_DEBUG("HttpClient destructor");
 }
 
 //Lazy create semaphore & mutex & thread

@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_CORE_API GFXSampler : public GFXObject {
+class CC_DLL GFXSampler : public GFXObject {
 public:
     GFXSampler(GFXDevice *device);
     virtual ~GFXSampler();

@@ -1,7 +1,7 @@
 #ifndef CC_CORE_KERNEL_UTIL_STRING_UTIL_H_
 #define CC_CORE_KERNEL_UTIL_STRING_UTIL_H_
 
-#include "CoreDef.h"
+#include "ccMacros.h"
 #include "TypeDef.h"
 
 namespace cc {

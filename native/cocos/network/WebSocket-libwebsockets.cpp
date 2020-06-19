@@ -60,7 +60,7 @@ struct lws_protocols;
 struct lws_vhost;
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-// log, CCLOG aren't threadsafe, since we uses sub threads for parsing pcm data, threadsafe log output
+// log, CC_LOG_DEBUG aren't threadsafe, since we uses sub threads for parsing pcm data, threadsafe log output
 // is needed. Define the following macros (ALOGV, ALOGD, ALOGI, ALOGW, ALOGE) for threadsafe log output.
 
 //IDEA: Move _winLog, winLog to a separated file
@@ -126,7 +126,7 @@ static void wsLog(const char * format, ...)
 #define QUOTEME_(x) #x
 #define QUOTEME(x) QUOTEME_(x)
 
-// Since CCLOG isn't thread safe, we uses LOGD for multi-thread logging.
+// Since CC_LOG_DEBUG isn't thread safe, we uses LOGD for multi-thread logging.
 #ifdef ANDROID
     #if COCOS2D_DEBUG > 0
         #define LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG,__VA_ARGS__)

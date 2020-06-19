@@ -313,7 +313,7 @@ SE_BIND_CTOR(js_video_VideoPlayer_constructor, __jsb_cc_VideoPlayer_class, js_cc
 
 static bool js_cc_VideoPlayer_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::VideoPlayer)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::VideoPlayer)", s.nativeThisObject());
     cc::VideoPlayer* cobj = (cc::VideoPlayer*)s.nativeThisObject();
     cobj->release();
     return true;

@@ -69,7 +69,7 @@ extern se::Object* __jsb_cc_gfx_GFXDevice_proto;
 
 static bool js_cc_gfx_CCVKDevice_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cc::gfx::CCVKDevice)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::CCVKDevice)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {

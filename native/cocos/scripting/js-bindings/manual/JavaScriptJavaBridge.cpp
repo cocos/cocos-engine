@@ -48,7 +48,7 @@ JNIEXPORT jint JNICALL JNI_JSJAVABRIDGE(evalString)
         (JNIEnv *env, jclass cls, jstring value)
 {
     if (!se::ScriptEngine::getInstance()->isValid()) {
-        CCLOG("ScriptEngine has not been initialized");
+        CC_LOG_DEBUG("ScriptEngine has not been initialized");
         return 0;
     }
 
@@ -57,7 +57,7 @@ JNIEXPORT jint JNICALL JNI_JSJAVABRIDGE(evalString)
     std::string strValue = cc::StringUtils::getStringUTFCharsJNI(env, value, &strFlag);
     if (!strFlag)
     {
-        CCLOG("JavaScriptJavaBridge_evalString error, invalid string code");
+        CC_LOG_DEBUG("JavaScriptJavaBridge_evalString error, invalid string code");
         return 0;
     }
     se::ScriptEngine::getInstance()->evalString(strValue.c_str());

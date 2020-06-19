@@ -544,7 +544,7 @@ namespace
         //(*cinfo->err->output_message) (cinfo);
         char buffer[JMSG_LENGTH_MAX];
         (*cinfo->err->format_message) (cinfo, buffer);
-        CCLOG("jpeg error: %s", buffer);
+        CC_LOG_DEBUG("jpeg error: %s", buffer);
 
         /* Return control to the setjmp point */
         longjmp(myerr->setjmp_buffer, 1);
@@ -685,7 +685,7 @@ bool Image::initWithPngData(const unsigned char * data, ssize_t dataLen)
         png_byte bit_depth = png_get_bit_depth(png_ptr, info_ptr);
         png_uint_32 color_type = png_get_color_type(png_ptr, info_ptr);
 
-        //CCLOG("color type %u", color_type);
+        //CC_LOG_DEBUG("color type %u", color_type);
 
         // force palette images to be expanded to 24-bit RGB
         // it may include alpha channel
@@ -812,19 +812,19 @@ bool Image::initWithPVRv2Data(const unsigned char * data, ssize_t dataLen)
     bool flipped = (flags & (unsigned int)PVR2TextureFlag::VerticalFlip) ? true : false;
     if (flipped)
     {
-        CCLOG("initWithPVRv2Data: WARNING: Image is flipped. Regenerate it using PVRTexTool");
+        CC_LOG_DEBUG("initWithPVRv2Data: WARNING: Image is flipped. Regenerate it using PVRTexTool");
     }
 
     if (v2_pixel_formathash.find(formatFlags) == v2_pixel_formathash.end())
     {
-        CCLOG("initWithPVRv2Data: WARNING: Unsupported PVR Pixel Format: 0x%02X. Re-encode it with a OpenGL pixel format variant", (int)formatFlags);
+        CC_LOG_DEBUG("initWithPVRv2Data: WARNING: Unsupported PVR Pixel Format: 0x%02X. Re-encode it with a OpenGL pixel format variant", (int)formatFlags);
         return false;
     }
 
     auto it = v2_pixel_formathash.find(formatFlags);
     if (it == v2_pixel_formathash.end() )
     {
-        CCLOG("initWithPVRv2Data: WARNING: Unsupported PVR Pixel Format: 0x%02X. Re-encode it with a OpenGL pixel format variant", (int)formatFlags);
+        CC_LOG_DEBUG("initWithPVRv2Data: WARNING: Unsupported PVR Pixel Format: 0x%02X. Re-encode it with a OpenGL pixel format variant", (int)formatFlags);
         return false;
     }
 
@@ -909,7 +909,7 @@ bool Image::initWithPVRv3Data(const unsigned char * data, ssize_t dataLen)
     // validate version
     if (CC_SWAP_INT32_BIG_TO_HOST(header->version) != 0x50565203)
     {
-        CCLOG("initWithPVRv3Data: WARNING: pvr file version mismatch");
+        CC_LOG_DEBUG("initWithPVRv3Data: WARNING: pvr file version mismatch");
         return false;
     }
 
@@ -918,7 +918,7 @@ bool Image::initWithPVRv3Data(const unsigned char * data, ssize_t dataLen)
 
     if (v3_pixel_formathash.find(pixelFormat) == v3_pixel_formathash.end())
     {
-        CCLOG("initWithPVRv3Data: WARNING: Unsupported PVR Pixel Format: 0x%016llX. Re-encode it with a OpenGL pixel format variant",
+        CC_LOG_DEBUG("initWithPVRv3Data: WARNING: Unsupported PVR Pixel Format: 0x%016llX. Re-encode it with a OpenGL pixel format variant",
               static_cast<unsigned long long>(pixelFormat));
         return false;
     }
@@ -926,7 +926,7 @@ bool Image::initWithPVRv3Data(const unsigned char * data, ssize_t dataLen)
     auto it = v3_pixel_formathash.find(pixelFormat);
     if (it == v3_pixel_formathash.end() )
     {
-        CCLOG("initWithPVRv3Data: WARNING: Unsupported PVR Pixel Format: 0x%016llX. Re-encode it with a OpenGL pixel format variant",
+        CC_LOG_DEBUG("initWithPVRv3Data: WARNING: Unsupported PVR Pixel Format: 0x%016llX. Re-encode it with a OpenGL pixel format variant",
               static_cast<unsigned long long>(pixelFormat));
         return false;
     }
@@ -1153,7 +1153,7 @@ bool Image::saveToFile(const std::string& filename, bool isToRGB)
     //only support for Image::PixelFormat::RGB888 or Image::PixelFormat::RGBA8888 uncompressed data
     if (isCompressed() || (_renderFormat != gfx::GFXFormat::RGB8 && _renderFormat != gfx::GFXFormat::RGBA8))
     {
-        CCLOG("saveToFile: Image: saveToFile is only support for Image::PixelFormat::RGB888 or Image::PixelFormat::RGBA8888 uncompressed data for now");
+        CC_LOG_DEBUG("saveToFile: Image: saveToFile is only support for Image::PixelFormat::RGB888 or Image::PixelFormat::RGBA8888 uncompressed data for now");
         return false;
     }
 
@@ -1169,7 +1169,7 @@ bool Image::saveToFile(const std::string& filename, bool isToRGB)
     }
     else
     {
-        CCLOG("saveToFile: Image: saveToFile no support file extension(only .png or .jpg) for file: %s", filename.c_str());
+        CC_LOG_DEBUG("saveToFile: Image: saveToFile no support file extension(only .png or .jpg) for file: %s", filename.c_str());
         return false;
     }
 }

@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_CORE_API GFXCommandAllocator : public GFXObject {
+class CC_DLL GFXCommandAllocator : public GFXObject {
 public:
     GFXCommandAllocator(GFXDevice *device);
     virtual ~GFXCommandAllocator();

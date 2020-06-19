@@ -50,7 +50,7 @@ public:
 
     virtual ~JSB_SocketIODelegate()
     {
-        CCLOGINFO("In the destructor of JSB_SocketIODelegate(%p)", this);
+        CC_LOG_INFO("In the destructor of JSB_SocketIODelegate(%p)", this);
     }
 
     virtual void onConnect(SIOClient* client) override
@@ -63,7 +63,7 @@ public:
 
     virtual void onClose(SIOClient* client) override
     {
-        CCLOG("JSB SocketIO::SIODelegate->onClose method called from native");
+        CC_LOG_DEBUG("JSB SocketIO::SIODelegate->onClose method called from native");
         this->fireEventToScript(client, "disconnect", "");
 
         auto iter = se::NativePtrToObjectMap::find(client);
@@ -84,7 +84,7 @@ public:
 
     virtual void onError(SIOClient* client, const std::string& data) override
     {
-        CCLOG("JSB SocketIO::SIODelegate->onError method called from native with data: %s", data.c_str());
+        CC_LOG_DEBUG("JSB SocketIO::SIODelegate->onError method called from native with data: %s", data.c_str());
         this->fireEventToScript(client, "error", data);
 
         auto iter = se::NativePtrToObjectMap::find(client);
@@ -96,7 +96,7 @@ public:
 
     virtual void fireEventToScript(SIOClient* client, const std::string& eventName, const std::string& data) override
     {
-        CCLOG("JSB SocketIO::SIODelegate->fireEventToScript method called from native with name '%s' data: %s", eventName.c_str(), data.c_str());
+        CC_LOG_DEBUG("JSB SocketIO::SIODelegate->fireEventToScript method called from native with name '%s' data: %s", eventName.c_str(), data.c_str());
 
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
@@ -136,7 +136,7 @@ public:
 
         if (eventName == "disconnect")
         {
-            cc::log("disconnect ... "); //IDEA:
+            CC_LOG_DEBUG("disconnect ... "); //IDEA:
         }
     }
 
@@ -158,7 +158,7 @@ private:
 static bool SocketIO_finalize(se::State& s)
 {
     SIOClient* cobj = (SIOClient*)s.nativeThisObject();
-    CCLOGINFO("jsbindings: finalizing JS object %p (SocketIO)", cobj);
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (SocketIO)", cobj);
     cobj->disconnect();
     JSB_SocketIODelegate* delegate = static_cast<JSB_SocketIODelegate*>(cobj->getDelegate());
     if (delegate->getReferenceCount() == 1)
@@ -279,7 +279,7 @@ static bool SocketIO_on(se::State& s)
         ok = seval_to_std_string(args[0], &eventName);
         SE_PRECONDITION2(ok, false, "Converting eventName failed!");
 
-        CCLOG("JSB SocketIO eventName to: '%s'", eventName.c_str());
+        CC_LOG_DEBUG("JSB SocketIO eventName to: '%s'", eventName.c_str());
 
         ((JSB_SocketIODelegate *)cobj->getDelegate())->addEvent(eventName, args[1], se::Value(s.thisObject()));
         return true;
@@ -295,7 +295,7 @@ static bool SocketIO_connect(se::State& s)
 {
     const auto& args = s.args();
     int argc = (int)args.size();
-    CCLOG("JSB SocketIO.connect method called");
+    CC_LOG_DEBUG("JSB SocketIO.connect method called");
 
     if (argc >= 1 && argc <= 3)
     {
@@ -334,7 +334,7 @@ static bool SocketIO_connect(se::State& s)
 
         JSB_SocketIODelegate* siodelegate = new (std::nothrow) JSB_SocketIODelegate();
 
-        CCLOG("Calling native SocketIO.connect method");
+        CC_LOG_DEBUG("Calling native SocketIO.connect method");
         SIOClient* ret = SocketIO::connect(url, *siodelegate, caFilePath);
         if (ret != nullptr)
         {

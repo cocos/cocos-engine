@@ -26,6 +26,7 @@
 #include "audio/include/AudioEngine.h"
 #include "platform/CCFileUtils.h"
 #include "base/ccUtils.h"
+#include "base/Log.h"
 
 #include <condition_variable>
 #include <queue>
@@ -232,20 +233,20 @@ int AudioEngine::play2d(const std::string& filePath, bool loop, float volume, co
         }
         
         if (_audioIDInfoMap.size() >= _maxInstances) {
-            log("Fail to play %s cause by limited max instance of AudioEngine",filePath.c_str());
+            CC_LOG_INFO("Fail to play %s cause by limited max instance of AudioEngine",filePath.c_str());
             break;
         }
         if (profileHelper)
         {
              if(profileHelper->profile.maxInstances != 0 && profileHelper->audioIDs.size() >= profileHelper->profile.maxInstances){
-                 log("Fail to play %s cause by limited max instance of AudioProfile",filePath.c_str());
+                 CC_LOG_INFO("Fail to play %s cause by limited max instance of AudioProfile",filePath.c_str());
                  break;
              }
              if (profileHelper->profile.minDelay > TIME_DELAY_PRECISION) {
                  auto currTime = std::chrono::high_resolution_clock::now();
                  auto delay =(float)std::chrono::duration_cast<std::chrono::microseconds>(currTime - profileHelper->lastPlayTime).count() / 1000000.0;
                  if (profileHelper->lastPlayTime.time_since_epoch().count() != 0 && delay <= profileHelper->profile.minDelay) {
-                     log("Fail to play %s cause by limited minimum delay",filePath.c_str());
+                     CC_LOG_INFO("Fail to play %s cause by limited minimum delay",filePath.c_str());
                      break;
                  }
              }
@@ -524,7 +525,7 @@ bool AudioEngine::isLoop(int audioID)
         return tmpIterator->second.loop;
     }
     
-    log("AudioEngine::isLoop-->The audio instance %d is non-existent", audioID);
+    CC_LOG_INFO("AudioEngine::isLoop-->The audio instance %d is non-existent", audioID);
     return false;
 }
 
@@ -536,7 +537,7 @@ float AudioEngine::getVolume(int audioID)
         return tmpIterator->second.volume;
     }
 
-    log("AudioEngine::getVolume-->The audio instance %d is non-existent", audioID);
+    CC_LOG_INFO("AudioEngine::getVolume-->The audio instance %d is non-existent", audioID);
     return 0.0f;
 }
 

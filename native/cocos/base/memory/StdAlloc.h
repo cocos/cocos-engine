@@ -3,7 +3,7 @@
 
 #if (CC_MEMORY_ALLOCATOR == CC_MEMORY_ALLOCATOR_STD)
 
-#include "../CoreDef.h"
+#include "base/ccMacros.h"
 #include <limits>
 #include <stdlib.h>
 
@@ -16,7 +16,7 @@ namespace cc {
 	@par
 	This class just delegates to the global malloc/free.
 */
-class CC_CORE_API StdAllocPolicy {
+class CC_DLL StdAllocPolicy {
 public:
     static CC_INLINE CC_DECL_MALLOC void *AllocateBytes(size_t count,
     #ifdef CC_MEMORY_TRACKER
