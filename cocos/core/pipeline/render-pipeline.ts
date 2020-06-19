@@ -315,7 +315,7 @@ export abstract class RenderPipeline {
 
     protected _isHDRSupported: boolean = false;
     protected _isHDR: boolean = false;
-    protected _isShadow: boolean = false;
+    protected _isShadow: boolean = true;
     protected _lightMeterScale: number = 10000.0;
     protected _fboCount: number = 0;
     protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;
@@ -391,7 +391,7 @@ export abstract class RenderPipeline {
 
         this._usePostProcess = (info.enablePostProcess !== undefined ? info.enablePostProcess : false);
         this._isHDR = (info.enableHDR !== undefined ? info.enableHDR : false);
-        this._isShadow = (info.enableShadow !== undefined ? info.enableShadow : false);
+        this._isShadow = true;// (info.enableShadow !== undefined ? info.enableShadow : false);
 
         // Config Anti-Aliasing
         this._useSMAA = info.enableSMAA !== undefined ? info.enableSMAA : false;
@@ -408,9 +408,11 @@ export abstract class RenderPipeline {
         }
 
         // add shadowMap-flow
-        const shadowMapFlow = new ShadowMapFlow();
-        shadowMapFlow.initialize(ShadowMapFlow.initInfo);
-        this._flows.push(shadowMapFlow);
+        if (this._isShadow) {
+            const shadowMapFlow = new ShadowMapFlow();
+            shadowMapFlow.initialize(ShadowMapFlow.initInfo);
+            this._flows.push(shadowMapFlow);
+        }
     }
 
     /**
@@ -597,50 +599,6 @@ export abstract class RenderPipeline {
                 // cc_shadowMatViewProj
                 Mat4.toArray(this._uboShadowMap.view, shadowCamera_M_V_P, UBOShadowMap.MAT_SHADOW_VIEW_PROJ_OFFSET);
             }
-
-            {
-                // cc_shadowLightMatrix
-                const shadowMatrix = this.calculateShadowMatrix();
-                Mat4.toArray(this._uboShadowMap.view, shadowMatrix!, UBOShadowMap.MAIN_SHADOW_MATRIX_OFFSET);
-            }
-
-            {
-                // cc_shadowDepthFade
-                // shadowCamera
-                const nearClip = shadowCamera_Near;
-                const farClip = shadowCamera_Far;
-                const q = farClip / (farClip / nearClip);
-                const r = -q * nearClip;
-
-                // Camera
-                const viewFarClip = camera.farClip;
-                const shadowRange = mainLight.shadowRange;
-                const fadeStart = mainLight.fadeStart * shadowRange / viewFarClip;
-                const fadeEnd = shadowRange / viewFarClip;
-                const fadeRange = fadeEnd - fadeStart;
-                vec4.set(q, r, fadeStart, 1.0 / fadeRange);
-                Vec4.toArray(this._uboShadowMap.view, vec4, UBOShadowMap.MAIN_SHADOW_DEPTH_FADE_OFFSET);
-            }
-
-            {
-                // cc_shadowIntensity
-                let intensity = mainLight.shadowIntensity;
-                const fadeStart = mainLight.shadowFadeDistance;
-                const fadeEnd = mainLight.shadowDistance;
-                if (fadeStart > 0.0 && fadeEnd > 0.0 && fadeEnd > fadeStart) {
-                    intensity = lerp(intensity, 1.0, clamp((0.0 - fadeStart) / (fadeEnd - fadeStart), 0.0, 1.0));
-                }
-                const pcfValues = (1.0 - intensity);
-                const samples = 1.0;
-                vec4.set(pcfValues / samples, intensity, 0.0, 0.0);
-                Vec4.toArray(this._uboShadowMap.view, vec4, UBOShadowMap.MAIN_SHADOW_INTENSITY_OFFSET);
-            }
-
-            {
-                // VSM shadow Programs
-                vec4.set(0.000001, 0.9, 0.0, 0.0);
-                Vec4.toArray(this._uboShadowMap.view, vec4, UBOShadowMap.MAIN_SHADOW_VSM_PRAGRAM_OFFSET);
-            }
         }
 
         this._shadowMapBuffer?.update(this._uboShadowMap.view);
@@ -739,6 +697,51 @@ export abstract class RenderPipeline {
         fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET] = fog.fogTop;
         fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
         fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
+
+        // cc_shadowLightMatrix
+        const shadowMatrix = this.calculateShadowMatrix();
+        Mat4.toArray(fv, shadowMatrix!, UBOGlobal.MAIN_SHADOW_MATRIX_OFFSET);
+
+        // shadowCamera
+        const nearClip = shadowCamera_Near;
+        const farClip = shadowCamera_Far;
+        const q = farClip / (farClip / nearClip);
+        const r = -q * nearClip;
+
+        // Camera
+        if (mainLight) {
+            {
+                // cc_shadowDepthFade
+                const viewFarClip = camera.farClip;
+                const shadowRange = mainLight.shadowRange;
+                const fadeStart = mainLight.fadeStart * shadowRange / viewFarClip;
+                const fadeEnd = shadowRange / viewFarClip;
+                const fadeRange = fadeEnd - fadeStart;
+                vec4.set(q, r, fadeStart, 1.0 / fadeRange);
+                Vec4.toArray(fv, vec4, UBOGlobal.MAIN_SHADOW_DEPTH_FADE_OFFSET);
+            }
+
+            {
+                // cc_shadowIntensity
+                let intensity = mainLight.shadowIntensity;
+                const fadeStart = mainLight.shadowFadeDistance;
+                const fadeEnd = mainLight.shadowDistance;
+                if (fadeStart > 0.0 && fadeEnd > 0.0 && fadeEnd > fadeStart) {
+                    intensity = lerp(intensity, 1.0, clamp((0.0 - fadeStart) / (fadeEnd - fadeStart), 0.0, 1.0));
+                }
+                const pcfValues = (1.0 - intensity);
+                const samples = 1.0;
+                vec4.set(pcfValues / samples, intensity, 0.0, 0.0);
+                Vec4.toArray(fv, vec4, UBOGlobal.MAIN_SHADOW_INTENSITY_OFFSET);
+            }
+
+        }
+
+        {
+            // VSM shadow Programs
+            vec4.set(0.000001, 0.9, 0.0, 0.0);
+            Vec4.toArray(fv, vec4, UBOGlobal.MAIN_SHADOW_VSM_PRAGRAM_OFFSET);
+        }
 
         // update ubos
         this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._uboGlobal.view);
