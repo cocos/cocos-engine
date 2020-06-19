@@ -52,6 +52,24 @@ static bool js_vk_CCVKDevice_checkExtension(se::State& s)
 }
 SE_BIND_FUNC(js_vk_CCVKDevice_checkExtension)
 
+static bool js_vk_CCVKDevice_isSwapchainReady(se::State& s)
+{
+    cc::gfx::CCVKDevice* cobj = (cc::gfx::CCVKDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_vk_CCVKDevice_isSwapchainReady : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isSwapchainReady();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_vk_CCVKDevice_isSwapchainReady : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_vk_CCVKDevice_isSwapchainReady)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_CCVKDevice_finalize)
 
 static bool js_vk_CCVKDevice_constructor(se::State& s)
@@ -87,6 +105,7 @@ bool js_register_vk_CCVKDevice(se::Object* obj)
 
     cls->defineFunction("isMultiDrawIndirectSupported", _SE(js_vk_CCVKDevice_isMultiDrawIndirectSupported));
     cls->defineFunction("checkExtension", _SE(js_vk_CCVKDevice_checkExtension));
+    cls->defineFunction("isSwapchainReady", _SE(js_vk_CCVKDevice_isSwapchainReady));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_CCVKDevice_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::CCVKDevice>(cls);

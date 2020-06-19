@@ -10,5 +10,6 @@ bool js_register_cc_gfx_CCVKDevice(se::Object* obj);
 bool register_all_vk(se::Object* obj);
 SE_DECLARE_FUNC(js_vk_CCVKDevice_isMultiDrawIndirectSupported);
 SE_DECLARE_FUNC(js_vk_CCVKDevice_checkExtension);
+SE_DECLARE_FUNC(js_vk_CCVKDevice_isSwapchainReady);
 SE_DECLARE_FUNC(js_vk_CCVKDevice_CCVKDevice);
 

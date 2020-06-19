@@ -452,6 +452,7 @@ extern se::Class* __jsb_cc_gfx_GFXQueue_class;
 bool js_register_cc_gfx_GFXQueue(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXQueue_submit);
+SE_DECLARE_FUNC(js_gfx_GFXQueue_isAsync);
 SE_DECLARE_FUNC(js_gfx_GFXQueue_initialize);
 SE_DECLARE_FUNC(js_gfx_GFXQueue_destroy);
 SE_DECLARE_FUNC(js_gfx_GFXQueue_GFXQueue);

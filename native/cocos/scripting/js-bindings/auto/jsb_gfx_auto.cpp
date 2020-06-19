@@ -11943,6 +11943,34 @@ static bool js_gfx_GFXQueueInfo_set_type(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXQueueInfo_set_type)
 
+static bool js_gfx_GFXQueueInfo_get_forceSync(se::State& s)
+{
+    cc::gfx::GFXQueueInfo* cobj = (cc::gfx::GFXQueueInfo*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXQueueInfo_get_forceSync : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= boolean_to_seval(cobj->forceSync, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_GFXQueueInfo_get_forceSync)
+
+static bool js_gfx_GFXQueueInfo_set_forceSync(se::State& s)
+{
+    const auto& args = s.args();
+    cc::gfx::GFXQueueInfo* cobj = (cc::gfx::GFXQueueInfo*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXQueueInfo_set_forceSync : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    bool arg0;
+    ok &= seval_to_boolean(args[0], &arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GFXQueueInfo_set_forceSync : Error processing new value");
+    cobj->forceSync = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_GFXQueueInfo_set_forceSync)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_GFXQueueInfo_finalize)
 
 static bool js_gfx_GFXQueueInfo_constructor(se::State& s)
@@ -11958,13 +11986,47 @@ static bool js_gfx_GFXQueueInfo_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 1)
+    else if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+
+        cc::gfx::GFXQueueInfo* cobj = JSB_ALLOC(cc::gfx::GFXQueueInfo);
+        cc::gfx::GFXQueueType arg0;
+        json->getProperty("type", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cc::gfx::GFXQueueType)tmp; } while(false);
+            cobj->type = arg0;
+        }
+        bool arg1;
+        json->getProperty("forceSync", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg1);
+            cobj->forceSync = arg1;
+        }
+
+        if(!ok) {
+            JSB_FREE(cobj);
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+    else if(argc == 2)
     {
         cc::gfx::GFXQueueInfo* cobj = JSB_ALLOC(cc::gfx::GFXQueueInfo);
         cc::gfx::GFXQueueType arg0;
         if (!args[0].isUndefined()) {
             do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::GFXQueueType)tmp; } while(false);
             cobj->type = arg0;
+        }
+        bool arg1;
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_boolean(args[1], &arg1);
+            cobj->forceSync = arg1;
         }
 
         if(!ok) {
@@ -12005,6 +12067,7 @@ bool js_register_gfx_GFXQueueInfo(se::Object* obj)
     auto cls = se::Class::create("GFXQueueInfo", obj, nullptr, _SE(js_gfx_GFXQueueInfo_constructor));
 
     cls->defineProperty("type", _SE(js_gfx_GFXQueueInfo_get_type), _SE(js_gfx_GFXQueueInfo_set_type));
+    cls->defineProperty("forceSync", _SE(js_gfx_GFXQueueInfo_get_forceSync), _SE(js_gfx_GFXQueueInfo_set_forceSync));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_GFXQueueInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::GFXQueueInfo>(cls);
@@ -17218,6 +17281,24 @@ static bool js_gfx_GFXQueue_submit(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXQueue_submit)
 
+static bool js_gfx_GFXQueue_isAsync(se::State& s)
+{
+    cc::gfx::GFXQueue* cobj = (cc::gfx::GFXQueue*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXQueue_isAsync : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isAsync();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXQueue_isAsync : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GFXQueue_isAsync)
+
 static bool js_gfx_GFXQueue_initialize(se::State& s)
 {
     cc::gfx::GFXQueue* cobj = (cc::gfx::GFXQueue*)s.nativeThisObject();
@@ -17307,6 +17388,7 @@ bool js_register_gfx_GFXQueue(se::Object* obj)
     cls->defineProperty("device", _SE(js_gfx_GFXQueue_getDevice), nullptr);
     cls->defineProperty("type", _SE(js_gfx_GFXQueue_getType), nullptr);
     cls->defineFunction("submit", _SE(js_gfx_GFXQueue_submit));
+    cls->defineFunction("isAsync", _SE(js_gfx_GFXQueue_isAsync));
     cls->defineFunction("initialize", _SE(js_gfx_GFXQueue_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXQueue_destroy));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_GFXQueue_finalize));
