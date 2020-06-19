@@ -326,10 +326,8 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, void 
     }
 }
 
-bool CCVKCmdFuncCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
-    if (!gpuTexture->width || !gpuTexture->height) {
-        return true;
-    }
+void CCVKCmdFuncCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
+    if (!gpuTexture->size) return;
 
     VkFormat format = MapVkFormat(gpuTexture->format);
     VkFormatFeatureFlags features = MapVkFormatFeatureFlags(gpuTexture->usage);
@@ -340,7 +338,7 @@ bool CCVKCmdFuncCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
 
     if (!(formatProperties.optimalTilingFeatures & features)) {
         CC_LOG_ERROR("CCVKCmdFuncCreateTexture: %s does not support optimal tiling with specified features", GFX_FORMAT_INFOS[(uint)gpuTexture->format].name.c_str());
-        return false;
+        return;
     }
     if (gpuTexture->flags & GFXTextureFlags::GEN_MIPMAP) {
         usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
@@ -390,7 +388,6 @@ bool CCVKCmdFuncCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
 
         endOneTimeCommands(device, &cmfBuff);
     }
-    return true;
 }
 
 void CCVKCmdFuncDestroyTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
@@ -406,12 +403,9 @@ void CCVKCmdFuncResizeTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
     CCVKCmdFuncCreateTexture(device, gpuTexture);
 }
 
-void CCVKCmdFuncResizeTextureView(CCVKDevice *device, CCVKGPUTextureView *gpuTextureView) {
-    CCVKCmdFuncDestroyTextureView(device, gpuTextureView);
-    CCVKCmdFuncCreateTextureView(device, gpuTextureView);
-}
-
 void CCVKCmdFuncCreateTextureView(CCVKDevice *device, CCVKGPUTextureView *gpuTextureView) {
+    if (!gpuTextureView->gpuTexture || !gpuTextureView->gpuTexture->vkImage) return;
+
     VkImageViewCreateInfo createInfo{VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
     createInfo.image = gpuTextureView->gpuTexture->vkImage;
     createInfo.viewType = MapVkImageViewType(gpuTextureView->type);

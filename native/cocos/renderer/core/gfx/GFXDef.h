@@ -564,10 +564,10 @@ struct GFXOffset {
 };
 
 struct GFXRect {
-    int x;
-    int y;
-    uint width;
-    uint height;
+    int x = 0;
+    int y = 0;
+    uint width = 0u;
+    uint height = 0u;
 
     bool operator==(const GFXRect &rs) {
         if (x == rs.x &&
@@ -591,9 +591,9 @@ struct GFXExtent {
 };
 
 struct GFXTextureSubres {
-    uint mipLevel = 0;
-    uint baseArrayLayer = 0;
-    uint layerCount = 1;
+    uint mipLevel = 0u;
+    uint baseArrayLayer = 0u;
+    uint layerCount = 1u;
 };
 
 struct GFXTextureCopy {
@@ -601,14 +601,14 @@ struct GFXTextureCopy {
     GFXOffset srcOffset = {0, 0, 0};
     GFXTextureSubres dstSubres;
     GFXOffset dstOffset = {0, 0, 0};
-    GFXExtent extent = {0, 0, 0};
+    GFXExtent extent = {0, 0, 1};
 };
 
 struct GFXBufferTextureCopy {
     uint buffStride = 0;
     uint buffTexHeight = 0;
     GFXOffset texOffset = {0, 0, 0};
-    GFXExtent texExtent = {0, 0, 0};
+    GFXExtent texExtent = {0, 0, 1};
     GFXTextureSubres texSubres;
 };
 typedef vector<GFXBufferTextureCopy> GFXBufferTextureCopyList;
@@ -900,7 +900,7 @@ struct GFXBindingUnit {
 typedef vector<GFXBindingUnit> GFXBindingUnitList;
 
 struct GFXPushConstantRange {
-    GFXShaderType shaderType;
+    GFXShaderType shaderType = GFXShaderType::NONE;
     uint offset = 0;
     uint count = 0;
 };
@@ -979,7 +979,7 @@ struct GFXBlendState {
 };
 
 struct GFXPipelineStateInfo {
-    GFXPrimitiveMode primitive;
+    GFXPrimitiveMode primitive = GFXPrimitiveMode::TRIANGLE_LIST;
     GFXShader *shader = nullptr;
     GFXInputState inputState;
     GFXRasterizerState rasterizerState;
@@ -995,11 +995,12 @@ struct GFXCommandAllocatorInfo {
 
 struct GFXCommandBufferInfo {
     GFXCommandAllocator *allocator = nullptr;
-    GFXCommandBufferType type;
+    GFXCommandBufferType type = GFXCommandBufferType::PRIMARY;
 };
 
 struct GFXQueueInfo {
-    GFXQueueType type;
+    GFXQueueType type = GFXQueueType::GRAPHICS;
+    bool forceSync = false;
 };
 
 struct GFXFenceInfo {

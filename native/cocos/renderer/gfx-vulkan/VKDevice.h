@@ -57,6 +57,7 @@ public:
     CC_INLINE const std::vector<const char *> &getLayers() const { return _layers; }
     CC_INLINE const std::vector<const char *> &getExtensions() const { return _extensions; }
     CC_INLINE bool isMultiDrawIndirectSupported() const { return _multiDrawIndirectSupported; }
+    CC_INLINE bool isSwapchainReady() const { return _swapchainReady; }
 
     CCVKTexture *nullTexture2D = nullptr;
     CCVKTexture *nullTextureCube = nullptr;
@@ -76,6 +77,7 @@ private:
     std::vector<const char *> _layers;
     std::vector<const char *> _extensions;
 
+    bool _swapchainReady = false;
     bool _multiDrawIndirectSupported = false;
 };
 

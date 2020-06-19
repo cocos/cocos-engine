@@ -18,12 +18,10 @@ public:
     void destroy();
     void submit(const vector<GFXCommandBuffer *> &cmdBuffs, GFXFence *fence);
 
-    CC_INLINE bool isAsync() const { return _isAsync; }
     CC_INLINE CCVKGPUQueue *gpuQueue() const { return _gpuQueue; }
 
 private:
     CCVKGPUQueue *_gpuQueue;
-    bool _isAsync = false;
     uint _numDrawCalls = 0;
     uint _numInstances = 0;
     uint _numTriangles = 0;

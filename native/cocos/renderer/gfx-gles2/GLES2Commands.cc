@@ -1975,10 +1975,10 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
                             case GFXDynamicState::STENCIL_COMPARE_MASK:
                                 switch (cmd->stencilCompareMask.face) {
                                     case GFXStencilFace::FRONT:
-                                        if ((cache->dss.stencilRefFront != (int)cmd->stencilCompareMask.refrence) ||
+                                        if ((cache->dss.stencilRefFront != (uint)cmd->stencilCompareMask.refrence) ||
                                             (cache->dss.stencilReadMaskFront != cmd->stencilCompareMask.compare_mask)) {
                                             glStencilFuncSeparate(GL_FRONT,
-                                                                  GLES2_CMP_FUNCS[(int)cache->dss.stencilFuncFront],
+                                                                  GLES2_CMP_FUNCS[(uint)cache->dss.stencilFuncFront],
                                                                   cmd->stencilCompareMask.refrence,
                                                                   cmd->stencilCompareMask.compare_mask);
                                             cache->dss.stencilRefFront = cmd->stencilCompareMask.refrence;
@@ -1986,10 +1986,10 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
                                         }
                                         break;
                                     case GFXStencilFace::BACK:
-                                        if ((cache->dss.stencilRefBack != (int)cmd->stencilCompareMask.refrence) ||
+                                        if ((cache->dss.stencilRefBack != (uint)cmd->stencilCompareMask.refrence) ||
                                             (cache->dss.stencilReadMaskBack != cmd->stencilCompareMask.compare_mask)) {
                                             glStencilFuncSeparate(GL_BACK,
-                                                                  GLES2_CMP_FUNCS[(int)cache->dss.stencilFuncBack],
+                                                                  GLES2_CMP_FUNCS[(uint)cache->dss.stencilFuncBack],
                                                                   cmd->stencilCompareMask.refrence,
                                                                   cmd->stencilCompareMask.compare_mask);
                                             cache->dss.stencilRefBack = cmd->stencilCompareMask.refrence;
@@ -1997,16 +1997,16 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
                                         }
                                         break;
                                     case GFXStencilFace::ALL:
-                                        if ((cache->dss.stencilRefFront != (int)cmd->stencilCompareMask.refrence) ||
+                                        if ((cache->dss.stencilRefFront != (uint)cmd->stencilCompareMask.refrence) ||
                                             (cache->dss.stencilReadMaskFront != cmd->stencilCompareMask.compare_mask) ||
-                                            (cache->dss.stencilRefBack != (int)cmd->stencilCompareMask.refrence) ||
+                                            (cache->dss.stencilRefBack != (uint)cmd->stencilCompareMask.refrence) ||
                                             (cache->dss.stencilReadMaskBack != cmd->stencilCompareMask.compare_mask)) {
                                             glStencilFuncSeparate(GL_FRONT,
-                                                                  GLES2_CMP_FUNCS[(int)cache->dss.stencilFuncFront],
+                                                                  GLES2_CMP_FUNCS[(uint)cache->dss.stencilFuncFront],
                                                                   cmd->stencilCompareMask.refrence,
                                                                   cmd->stencilCompareMask.compare_mask);
                                             glStencilFuncSeparate(GL_BACK,
-                                                                  GLES2_CMP_FUNCS[(int)cache->dss.stencilFuncBack],
+                                                                  GLES2_CMP_FUNCS[(uint)cache->dss.stencilFuncBack],
                                                                   cmd->stencilCompareMask.refrence,
                                                                   cmd->stencilCompareMask.compare_mask);
                                             cache->dss.stencilRefFront = cmd->stencilCompareMask.refrence;

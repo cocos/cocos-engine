@@ -16,10 +16,7 @@ public:
     virtual void destroy() override;
     virtual void submit(const vector<GFXCommandBuffer *> &cmdBuffs, GFXFence *fence) override;
 
-    CC_INLINE bool isAsync() const { return _isAsync; }
-
 private:
-    bool _isAsync = false;
     uint _numDrawCalls = 0;
     uint _numInstances = 0;
     uint _numTriangles = 0;

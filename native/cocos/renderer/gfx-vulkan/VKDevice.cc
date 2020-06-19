@@ -59,9 +59,9 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
     const CCVKContext *context = (CCVKContext *)_context;
     const CCVKGPUContext *gpuContext = ((CCVKContext *)_context)->gpuContext();
     const VkPhysicalDeviceFeatures2 &deviceFeatures2 = gpuContext->physicalDeviceFeatures2;
-    const VkPhysicalDeviceVulkan11Features &deviceVulkan11Features = gpuContext->physicalDeviceVulkan11Features;
-    const VkPhysicalDeviceVulkan12Features &deviceVulkan12Features = gpuContext->physicalDeviceVulkan12Features;
     const VkPhysicalDeviceFeatures &deviceFeatures = deviceFeatures2.features;
+    //const VkPhysicalDeviceVulkan11Features &deviceVulkan11Features = gpuContext->physicalDeviceVulkan11Features;
+    //const VkPhysicalDeviceVulkan12Features &deviceVulkan12Features = gpuContext->physicalDeviceVulkan12Features;
 
     // only enable the absolute essentials for now
     std::vector<const char *> requestedValidationLayers{
@@ -413,19 +413,27 @@ void CCVKDevice::buildSwapchain() {
 
     VkSurfaceCapabilitiesKHR surfaceCapabilities;
     VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(context->physicalDevice, context->vkSurface, &surfaceCapabilities));
+    uint newWidth = surfaceCapabilities.currentExtent.width;
+    uint newHeight = surfaceCapabilities.currentExtent.height;
 
-    if (context->swapchainCreateInfo.imageExtent.width == surfaceCapabilities.currentExtent.width &&
-        context->swapchainCreateInfo.imageExtent.height == surfaceCapabilities.currentExtent.height) {
+    if (context->swapchainCreateInfo.imageExtent.width == newWidth &&
+        context->swapchainCreateInfo.imageExtent.height == newHeight) {
         return;
     }
 
-    if (surfaceCapabilities.currentExtent.width == (uint)-1) {
+    if (newWidth == (uint)-1) {
         context->swapchainCreateInfo.imageExtent.width = _width;
         context->swapchainCreateInfo.imageExtent.height = _height;
     } else {
-        _width = context->swapchainCreateInfo.imageExtent.width = surfaceCapabilities.currentExtent.width;
-        _height = context->swapchainCreateInfo.imageExtent.height = surfaceCapabilities.currentExtent.height;
+        _width = context->swapchainCreateInfo.imageExtent.width = newWidth;
+        _height = context->swapchainCreateInfo.imageExtent.height = newHeight;
     }
+
+    if (newWidth == 0 || newHeight == 0) {
+        _swapchainReady = false;
+        return;
+    }
+
     VK_CHECK(vkCreateSwapchainKHR(_gpuDevice->vkDevice, &context->swapchainCreateInfo, nullptr, &_gpuSwapchain->vkSwapchain));
 
     if (context->swapchainCreateInfo.oldSwapchain != VK_NULL_HANDLE) {
@@ -472,6 +480,7 @@ void CCVKDevice::buildSwapchain() {
 
         VK_CHECK(vkCreateImageView(_gpuDevice->vkDevice, &imageViewCreateInfo, nullptr, &_gpuSwapchain->vkSwapchainImageViews[i]));
     }
+    _swapchainReady = true;
 
     for (FramebufferListMapIter it = _gpuSwapchain->vkSwapchainFramebufferListMap.begin();
          it != _gpuSwapchain->vkSwapchainFramebufferListMap.end(); it++) {
@@ -480,6 +489,8 @@ void CCVKDevice::buildSwapchain() {
 }
 
 void CCVKDevice::acquire() {
+    if (!_swapchainReady) return;
+
     VK_CHECK(vkDeviceWaitIdle(_gpuDevice->vkDevice));
     _gpuSemaphorePool->reset();
     _gpuFencePool->reset();
@@ -499,6 +510,8 @@ void CCVKDevice::acquire() {
 }
 
 void CCVKDevice::present() {
+    if (!_swapchainReady) return;
+
     CCVKQueue *queue = (CCVKQueue *)_queue;
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;

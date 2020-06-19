@@ -19,10 +19,12 @@ public:
     CC_INLINE void submit(const vector<GFXCommandBuffer *> &cmdBuffs) { submit(cmdBuffs, nullptr); }
     CC_INLINE GFXDevice *getDevice() const { return _device; }
     CC_INLINE GFXQueueType getType() const { return _type; }
+    CC_INLINE bool isAsync() const { return _isAsync; }
 
 protected:
     GFXDevice *_device = nullptr;
     GFXQueueType _type = GFXQueueType::GRAPHICS;
+    bool _isAsync = false;
 };
 
 } // namespace gfx
