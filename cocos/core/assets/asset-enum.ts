@@ -132,6 +132,21 @@ export enum PixelFormat {
      * rgba etc2
      */
     RGBA_ETC2 = GFXFormat.ETC2_RGBA8,
+
+    RGBA_ASTC_4x4 = GFXFormat.ASTC_RGBA_4x4,
+    RGBA_ASTC_5x4 = GFXFormat.ASTC_RGBA_5x4,
+    RGBA_ASTC_5x5 = GFXFormat.ASTC_RGBA_5x5,
+    RGBA_ASTC_6x5 = GFXFormat.ASTC_RGBA_6x5,
+    RGBA_ASTC_6x6 = GFXFormat.ASTC_RGBA_6x6,
+    RGBA_ASTC_8x5 = GFXFormat.ASTC_RGBA_8x5,
+    RGBA_ASTC_8x6 = GFXFormat.ASTC_RGBA_8x6,
+    RGBA_ASTC_8x8 = GFXFormat.ASTC_RGBA_8x8,
+    RGBA_ASTC_10x5 = GFXFormat.ASTC_RGBA_10x5,
+    RGBA_ASTC_10x6 = GFXFormat.ASTC_RGBA_10x6,
+    RGBA_ASTC_10x8 = GFXFormat.ASTC_RGBA_10x8,
+    RGBA_ASTC_10x10 = GFXFormat.ASTC_RGBA_10x10,
+    RGBA_ASTC_12x10 = GFXFormat.ASTC_RGBA_12x10,
+    RGBA_ASTC_12x12 = GFXFormat.ASTC_RGBA_12x12,
 }
 
 /**

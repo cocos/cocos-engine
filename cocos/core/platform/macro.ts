@@ -32,7 +32,7 @@
 import { Vec2 } from '../math';
 import { legacyCC } from '../global-exports';
 
-const SUPPORT_TEXTURE_FORMATS = ['.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];
+const SUPPORT_TEXTURE_FORMATS = ['.astc', '.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];
 
 const KEY = {
     /**

@@ -246,6 +246,38 @@ export enum GFXFormat {
     PVRTC_RGBA4,
     PVRTC2_2BPP,
     PVRTC2_4BPP,
+
+    // ASTC (Adaptive Scalable Texture Compression)
+    ASTC_RGBA_4x4,
+    ASTC_RGBA_5x4,
+    ASTC_RGBA_5x5,
+    ASTC_RGBA_6x5,
+    ASTC_RGBA_6x6,
+    ASTC_RGBA_8x5,
+    ASTC_RGBA_8x6,
+    ASTC_RGBA_8x8,
+    ASTC_RGBA_10x5,
+    ASTC_RGBA_10x6,
+    ASTC_RGBA_10x8,
+    ASTC_RGBA_10x10,
+    ASTC_RGBA_12x10,
+    ASTC_RGBA_12x12,
+
+    // ASTC (Adaptive Scalable Texture Compression) SRGB
+    ASTC_SRGBA_4x4,
+    ASTC_SRGBA_5x4,
+    ASTC_SRGBA_5x5,
+    ASTC_SRGBA_6x5,
+    ASTC_SRGBA_6x6,
+    ASTC_SRGBA_8x5,
+    ASTC_SRGBA_8x6,
+    ASTC_SRGBA_8x8,
+    ASTC_SRGBA_10x5,
+    ASTC_SRGBA_10x6,
+    ASTC_SRGBA_10x8,
+    ASTC_SRGBA_10x10,
+    ASTC_SRGBA_12x10,
+    ASTC_SRGBA_12x12,
 }
 
 export enum GFXBufferUsageBit {
@@ -706,6 +738,36 @@ export const GFXFormatInfos: IGFXFormatInfo[] = [
     { name: 'PVRTC_RGBA4', size: 2, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
     { name: 'PVRTC2_2BPP', size: 2, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
     { name: 'PVRTC2_4BPP', size: 2, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+
+    { name: 'ASTC_RGBA_4x4', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_RGBA_5x4', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_RGBA_5x5', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_RGBA_6x5', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_RGBA_6x6', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_RGBA_8x5', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_RGBA_8x6', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_RGBA_8x8', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_RGBA_10x5', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_RGBA_10x6', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_RGBA_10x8', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_RGBA_10x10', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_RGBA_12x10', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_RGBA_12x12', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+
+    { name: 'ASTC_SRGBA_4x4', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_SRGBA_5x4', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_SRGBA_5x5', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_SRGBA_6x5', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_SRGBA_6x6', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_SRGBA_8x5', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_SRGBA_8x6', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_SRGBA_8x8', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_SRGBA_10x5', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_SRGBA_10x6', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_SRGBA_10x8', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_SRGBA_10x10', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_SRGBA_12x10', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    { name: 'ASTC_SRGBA_12x12', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
 ];
 // tslint:enable: max-line-length
 
@@ -747,11 +809,11 @@ export function GFXFormatSize (format: GFXFormat, width: number, height: number,
             case GFXFormat.ETC2_RGB8:
             case GFXFormat.ETC2_SRGB8:
             case GFXFormat.ETC2_RGB8_A1:
-            case GFXFormat.ETC2_SRGB8_A1:
             case GFXFormat.EAC_R11:
             case GFXFormat.EAC_R11SN:
                 return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
             case GFXFormat.ETC2_RGBA8:
+            case GFXFormat.ETC2_SRGB8_A1:
             case GFXFormat.EAC_RG11:
             case GFXFormat.EAC_RG11SN:
                 return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
@@ -764,6 +826,49 @@ export function GFXFormatSize (format: GFXFormat, width: number, height: number,
             case GFXFormat.PVRTC_RGBA4:
             case GFXFormat.PVRTC2_4BPP:
                 return Math.ceil(Math.max(width, 8) * Math.max(height, 8) / 2) * depth;
+
+            case GFXFormat.ASTC_RGBA_4x4:
+            case GFXFormat.ASTC_SRGBA_4x4:
+                return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
+            case GFXFormat.ASTC_RGBA_5x4:
+            case GFXFormat.ASTC_SRGBA_5x4:
+                return Math.ceil(width / 5) * Math.ceil(height / 4) * 16 * depth;
+            case GFXFormat.ASTC_RGBA_5x5:
+            case GFXFormat.ASTC_SRGBA_5x5:
+                return Math.ceil(width / 5) * Math.ceil(height / 5) * 16 * depth;
+            case GFXFormat.ASTC_RGBA_6x5:
+            case GFXFormat.ASTC_SRGBA_6x5:
+                return Math.ceil(width / 6) * Math.ceil(height / 5) * 16 * depth;
+            case GFXFormat.ASTC_RGBA_6x6:
+            case GFXFormat.ASTC_SRGBA_6x6:
+                return Math.ceil(width / 6) * Math.ceil(height / 6) * 16 * depth;
+            case GFXFormat.ASTC_RGBA_8x5:
+            case GFXFormat.ASTC_SRGBA_8x5:
+                return Math.ceil(width / 8) * Math.ceil(height / 5) * 16 * depth;
+            case GFXFormat.ASTC_RGBA_8x6:
+            case GFXFormat.ASTC_SRGBA_8x6:
+                return Math.ceil(width / 8) * Math.ceil(height / 6) * 16 * depth;
+            case GFXFormat.ASTC_RGBA_8x8:
+            case GFXFormat.ASTC_SRGBA_8x8:
+                return Math.ceil(width / 8) * Math.ceil(height / 8) * 16 * depth;
+            case GFXFormat.ASTC_RGBA_10x5:
+            case GFXFormat.ASTC_SRGBA_10x5:
+                return Math.ceil(width / 10) * Math.ceil(height / 5) * 16 * depth;
+            case GFXFormat.ASTC_RGBA_10x6:
+            case GFXFormat.ASTC_SRGBA_10x6:
+                return Math.ceil(width / 10) * Math.ceil(height / 6) * 16 * depth;
+            case GFXFormat.ASTC_RGBA_10x8:
+            case GFXFormat.ASTC_SRGBA_10x8:
+                return Math.ceil(width / 10) * Math.ceil(height / 8) * 16 * depth;
+            case GFXFormat.ASTC_RGBA_10x10:
+            case GFXFormat.ASTC_SRGBA_10x10:
+                return Math.ceil(width / 10) * Math.ceil(height / 10) * 16 * depth;
+            case GFXFormat.ASTC_RGBA_12x10:
+            case GFXFormat.ASTC_SRGBA_12x10:
+                return Math.ceil(width / 12) * Math.ceil(height / 10) * 16 * depth;
+            case GFXFormat.ASTC_RGBA_12x12:
+            case GFXFormat.ASTC_SRGBA_12x12:
+                return Math.ceil(width / 12) * Math.ceil(height / 12) * 16 * depth;
 
             default: {
                 return 0;
