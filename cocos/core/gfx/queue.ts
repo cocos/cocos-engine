@@ -9,6 +9,7 @@ import { GFXFence } from './fence';
 
 export interface IGFXQueueInfo {
     type: GFXQueueType;
+    forceSync?: boolean;
 }
 
 /**
@@ -21,13 +22,15 @@ export abstract class GFXQueue extends GFXObject {
      * @en Get current type.
      * @zh 队列类型。
      */
-    public get type (): number {
+    get type (): number {
         return this._type;
     }
 
     protected _device: GFXDevice;
 
     protected _type: GFXQueueType = GFXQueueType.GRAPHICS;
+
+    protected _isAsync = false;
 
     constructor (device: GFXDevice) {
         super(GFXObjectType.QUEUE);
@@ -37,6 +40,8 @@ export abstract class GFXQueue extends GFXObject {
     public abstract initialize (info: IGFXQueueInfo): boolean;
 
     public abstract destroy (): void;
+
+    public isAsync () { return this._isAsync; }
 
     /**
      * @en Submit command buffers.

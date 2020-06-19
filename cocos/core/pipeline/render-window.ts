@@ -165,7 +165,7 @@ export class RenderWindow {
             const format = depthStencilAttachment.format;
             this._depthStencilTex = this._root.device.createTexture({
                 type: GFXTextureType.TEX2D,
-                usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
+                usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
                 format,
                 width: this._width,
                 height: this._height,

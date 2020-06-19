@@ -192,7 +192,7 @@ export class Profiler {
 
         this._texture = this._device!.createTexture({
             type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.SAMPLED,
+            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
             format: GFXFormat.RGBA8,
             width: textureWidth,
             height: textureHeight,
