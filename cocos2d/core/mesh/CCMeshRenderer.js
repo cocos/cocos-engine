@@ -250,6 +250,7 @@ let MeshRenderer = cc.Class({
             mesh.on('init-format', this._updateMeshAttribute, this);
         }
         this._mesh = mesh;
+        this._assembler && (this._assembler._worldDatas = {});
         this._updateMeshAttribute();
     },
 
