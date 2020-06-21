@@ -1142,10 +1142,12 @@ var BaseNode = cc.Class({
                         if (myPrefabInfo.root === this) {
                             // nest prefab
                             myPrefabInfo.fileId || (myPrefabInfo.fileId = Editor.Utils.UuidUtils.uuid());
+                            PrefabUtils.checkCircularReference(myPrefabInfo.root);
                         }
                         else {
                             // change prefab
                             PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                            PrefabUtils.checkCircularReference(newPrefabRoot);
                         }
                     }
                 }
@@ -1161,6 +1163,7 @@ var BaseNode = cc.Class({
             else if (newPrefabRoot) {
                 // attach to prefab
                 PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                PrefabUtils.checkCircularReference(newPrefabRoot);
             }
 
             // conflict detection
