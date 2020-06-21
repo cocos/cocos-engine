@@ -613,10 +613,10 @@ var Texture2D = cc.Class({
 
     /**
      * !#en
-     * Intializes with a texture2d with data in Uint8Array.
-     * !#zh 使用一个存储在 Unit8Array 中的图像数据（raw data）初始化数据。
+     * Intializes with texture data in ArrayBufferView.
+     * !#zh 使用一个存储在 ArrayBufferView 中的图像数据（raw data）初始化数据。
      * @method initWithData
-     * @param {TypedArray} data
+     * @param {ArrayBufferView} data
      * @param {Number} pixelFormat
      * @param {Number} pixelsWidth
      * @param {Number} pixelsHeight
