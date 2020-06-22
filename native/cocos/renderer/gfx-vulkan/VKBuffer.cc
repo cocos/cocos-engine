@@ -86,6 +86,19 @@ void CCVKBuffer::resize(uint size) {
 }
 
 void CCVKBuffer::update(void *buffer, uint offset, uint size) {
+#if COCOS2D_DEBUG > 0
+    if (_usage & GFXBufferUsageBit::INDIRECT) {
+        GFXDrawInfo *drawInfo = static_cast<GFXDrawInfo *>(buffer);
+        const size_t drawInfoCount = size / sizeof(GFXDrawInfo);
+        const bool isIndexed = drawInfoCount > 0 && drawInfo->indexCount > 0;
+        for (size_t i = 1u; i < drawInfoCount; i++) {
+            if ((++drawInfo)->indexCount > 0 != isIndexed) {
+                CC_LOG_WARNING("Inconsistent indirect draw infos on using index buffer");
+                return;
+            }
+        }
+    }
+#endif
     if (_buffer) {
         memcpy(_buffer + offset, buffer, size);
     }

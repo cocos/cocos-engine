@@ -266,6 +266,7 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
 
     GFXQueueInfo queueInfo;
     queueInfo.type = GFXQueueType::GRAPHICS;
+    queueInfo.forceSync = true;
     _queue = createQueue(queueInfo);
 
     GFXCommandAllocatorInfo cmdAllocInfo;
