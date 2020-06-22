@@ -23,11 +23,32 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Vec3 from '../../../../../value-types/vec3';
 const Assembler3D = require('../../../../assembler-3d');
 const WebglLetterFontAssembler = require('../2d/letter');
+
+const vec3_temp_local = new Vec3();
+const vec3_temp_world = new Vec3();
 
 export default class WebglLetterFontAssembler3D extends WebglLetterFontAssembler {
 
 }
 
-cc.js.mixin(WebglLetterFontAssembler3D.prototype, Assembler3D);
+cc.js.mixin(WebglLetterFontAssembler3D.prototype, Assembler3D, {
+    updateWorldVerts (comp) {
+        let matrix = comp.node._worldMatrix;
+        let local = this._local;
+        let world = this._renderData.vDatas[0];
+
+        let floatsPerVert = this.floatsPerVert;
+        for (let offset = 0; offset < world.length; offset += floatsPerVert) {
+            Vec3.set(vec3_temp_local, local[offset], local[offset+1], 0);
+            Vec3.transformMat4(vec3_temp_world, vec3_temp_local, matrix);
+
+            world[offset] = vec3_temp_world.x;
+            world[offset+1] = vec3_temp_world.y;
+            world[offset+2] = vec3_temp_world.z;
+        }
+    }
+});
+

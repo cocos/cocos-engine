@@ -240,6 +240,20 @@ function AssetManager () {
 
     /**
      * !#en 
+     * Cache manager is a module which controls all caches downloaded from server in non-web platform.
+     * 
+     * !#zh
+     * 缓存管理器是一个模块，在非 WEB 平台上，用于管理所有从服务器上下载下来的缓存
+     * 
+     * @property cacheManager
+     * @type {cc.AssetManager.CacheManager}
+     * @typescript
+     * cacheManager: cc.AssetManager.CacheManager|null
+     */
+    this.cacheManager = null;
+
+    /**
+     * !#en 
      * The preset of options
      * 
      * !#zh
