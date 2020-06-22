@@ -146,7 +146,7 @@ export class TextureBufferPool {
 
         const texture: GFXTexture = this._device.createTexture({
             type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.SAMPLED,
+            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
             format: this._format,
             width: length,
             height: length,

@@ -11,8 +11,6 @@ export class WebGL2GFXQueue extends GFXQueue {
     public numInstances: number = 0;
     public numTris: number = 0;
 
-    private _isAsync: boolean = false;
-
     public initialize (info: IGFXQueueInfo): boolean {
 
         this._type = info.type;

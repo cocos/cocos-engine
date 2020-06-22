@@ -9,8 +9,6 @@ export class WebGLGFXQueue extends GFXQueue {
     public numInstances: number = 0;
     public numTris: number = 0;
 
-    private _isAsync: boolean = false;
-
     public initialize (info: IGFXQueueInfo): boolean {
 
         this._type = info.type;
@@ -25,8 +23,6 @@ export class WebGLGFXQueue extends GFXQueue {
     }
 
     public submit (cmdBuffs: GFXCommandBuffer[], fence?: GFXFence) {
-
-        // TODO: Async
         if (!this._isAsync) {
             const len = cmdBuffs.length;
             for (let i = 0; i < len; i++) {
