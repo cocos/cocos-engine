@@ -10,8 +10,13 @@ import { Node } from '../../scene-graph';
 import { Camera } from '../scene/camera';
 import { Model } from '../scene/model';
 import { UI } from './ui';
-import { GFXInputAssembler } from '../../gfx/input-assembler';
+import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../../gfx/input-assembler';
 import { IPSOCreateInfo } from '../scene/submodel';
+
+const _iaInfo: IGFXInputAssemblerInfo = {
+    attributes: [],
+    vertexBuffers: [],
+};
 
 export class UIDrawBatch {
     private _bufferBatch: MeshBuffer | null = null;
@@ -61,24 +66,23 @@ export class UIDrawBatch {
         return this._bufferBatch;
     }
 
-    set bufferBatch(meshBuffer : MeshBuffer | null) {
-        if (this._bufferBatch == meshBuffer) {
+    set bufferBatch (meshBuffer : MeshBuffer | null) {
+        if (this._bufferBatch === meshBuffer) {
             return;
         }
 
         this._bufferBatch = meshBuffer;
 
-        if (this.ia) {
-            this.ia.destroy();
-            this.ia = null;
-        }
-
         if (this._bufferBatch) {
-            this.ia = this._bufferBatch.batcher.device.createInputAssembler({
-                attributes: this._bufferBatch.attributes!,
-                vertexBuffers: [this._bufferBatch.vb!],
-                indexBuffer: this._bufferBatch.ib!,
-            });
+            _iaInfo.attributes = this._bufferBatch.attributes!;
+            _iaInfo.vertexBuffers[0] = this._bufferBatch.vb!;
+            _iaInfo.indexBuffer = this._bufferBatch.ib!;
+            if (this.ia) {
+                this.ia.destroy();
+                this.ia.initialize(_iaInfo);
+            } else {
+                this.ia = this._bufferBatch.batcher.device.createInputAssembler(_iaInfo);
+            }
         }
     }
 }

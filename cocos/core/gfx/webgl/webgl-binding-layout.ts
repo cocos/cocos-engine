@@ -15,29 +15,47 @@ export class WebGLGFXBindingLayout extends GFXBindingLayout {
 
     public initialize (info: IGFXBindingLayoutInfo): boolean {
 
-        this._bindingUnits = new Array<GFXBindingUnit>(info.bindings.length);
+        const blockCount = info.shader.blocks.length;
+        const samplerCount = info.shader.samplers.length;
+        const bindingCount = blockCount + samplerCount;
 
-        for (let i = 0; i < info.bindings.length; ++i) {
-            const binding = info.bindings[i];
+        this._bindingUnits = new Array<GFXBindingUnit>(bindingCount);
+        this._gpuBindingLayout = {
+            gpuBindings: new Array<WebGLGPUBinding>(bindingCount),
+        };
+
+        for (let i = 0; i < blockCount; ++i) {
+            const binding = info.shader.blocks[i];
             this._bindingUnits[i] = {
                 binding: binding.binding,
-                type: binding.bindingType,
+                type: GFXBindingType.UNIFORM_BUFFER,
                 name: binding.name,
                 buffer: null,
                 texture: null,
                 sampler: null,
             };
-        }
-
-        this._gpuBindingLayout = {
-            gpuBindings: new Array<WebGLGPUBinding>(info.bindings.length),
-        };
-
-        for (let i = 0; i < info.bindings.length; ++i) {
-            const binding = info.bindings[i];
             this._gpuBindingLayout.gpuBindings[i] = {
                 binding: binding.binding,
-                type: binding.bindingType,
+                type: GFXBindingType.UNIFORM_BUFFER,
+                name: binding.name,
+                gpuBuffer: null,
+                gpuTexture: null,
+                gpuSampler: null,
+            };
+        }
+        for (let i = 0; i < samplerCount; ++i) {
+            const binding = info.shader.samplers[i];
+            this._bindingUnits[blockCount + i] = {
+                binding: binding.binding,
+                type: GFXBindingType.SAMPLER,
+                name: binding.name,
+                buffer: null,
+                texture: null,
+                sampler: null,
+            };
+            this._gpuBindingLayout.gpuBindings[blockCount + i] = {
+                binding: binding.binding,
+                type: GFXBindingType.SAMPLER,
                 name: binding.name,
                 gpuBuffer: null,
                 gpuTexture: null,

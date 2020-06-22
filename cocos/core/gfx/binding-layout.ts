@@ -3,21 +3,14 @@
  */
 
 import { GFXBuffer } from './buffer';
-import { GFXBindingType, GFXObject, GFXObjectType, GFXShaderType } from './define';
+import { GFXBindingType, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 import { GFXSampler } from './sampler';
 import { GFXTexture } from './texture';
-
-export interface IGFXBinding {
-    binding: number;
-    bindingType: GFXBindingType;
-    shaderStages: GFXShaderType;
-    count: number;
-    name: string;
-}
+import { GFXShader } from './shader';
 
 export interface IGFXBindingLayoutInfo {
-    bindings: IGFXBinding[];
+    shader: GFXShader;
 }
 
 export class GFXBindingUnit {

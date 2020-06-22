@@ -177,7 +177,6 @@ export class WebGLGPUPipelineState {
     public dss: GFXDepthStencilState = new GFXDepthStencilState();
     public bs: GFXBlendState = new GFXBlendState();
     public dynamicStates: GFXDynamicState[] = [];
-    public gpuLayout: WebGLGPUPipelineLayout | null = null;
     public gpuRenderPass: WebGLGPURenderPass | null = null;
 }
 

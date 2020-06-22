@@ -11,7 +11,6 @@ import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFilter, GFXFormat, IG
 import { GFXFence, IGFXFenceInfo } from './fence';
 import { GFXFramebuffer, IGFXFramebufferInfo } from './framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from './input-assembler';
-import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from './pipeline-layout';
 import { GFXPipelineState, IGFXPipelineStateInfo } from './pipeline-state';
 import { GFXQueue, IGFXQueueInfo } from './queue';
 import { GFXRenderPass, IGFXRenderPassInfo } from './render-pass';
@@ -451,13 +450,6 @@ export abstract class GFXDevice {
      * @param info GFX frame buffer description info.
      */
     public abstract createFramebuffer (info: IGFXFramebufferInfo): GFXFramebuffer;
-
-    /**
-     * @en Create pipeline layout.
-     * @zh 创建管线布局。
-     * @param info GFX pipeline layout description info.
-     */
-    public abstract createPipelineLayout (info: IGFXPipelineLayoutInfo): GFXPipelineLayout;
 
     /**
      * @en Create pipeline state.

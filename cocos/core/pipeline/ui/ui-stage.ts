@@ -29,6 +29,10 @@ export class UIStage extends RenderStage {
         framebuffer: 'window',
     };
 
+    private _lastSubmit = -1;
+    private _cmdBuffIdx = 0;
+    private _backupCmdBuffs: GFXCommandBuffer[] = [];
+
     public activate (flow: RenderFlow) {
         super.activate(flow);
         this.createCmdBuffer();
@@ -100,7 +104,6 @@ export class UIStage extends RenderStage {
         if (!framebuffer.isOffscreen) {
             framebuffer = this._framebuffer!;
         }
-        const cmdBuff = this._cmdBuff!;
 
         const camera = view.camera!;
 
@@ -111,6 +114,22 @@ export class UIStage extends RenderStage {
         this._renderArea!.height = vp.height * camera.height;
 
         colors[0] = camera.clearColor;
+
+        let cmdBuff = this._cmdBuff!;
+        const device = this._device!;
+        const curFrame = legacyCC.director.getTotalFrames();
+        if (this._lastSubmit === curFrame) {
+            if (!this._backupCmdBuffs[this._cmdBuffIdx]) {
+                this._backupCmdBuffs[this._cmdBuffIdx] = device.createCommandBuffer({
+                    allocator: device.commandAllocator,
+                    type: GFXCommandBufferType.PRIMARY
+                });
+            }
+            cmdBuff = this._backupCmdBuffs[this._cmdBuffIdx++];
+        } else {
+            this._lastSubmit = curFrame;
+            this._cmdBuffIdx = 0;
+        }
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(framebuffer, this._renderArea!,

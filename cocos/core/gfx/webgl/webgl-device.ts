@@ -22,7 +22,6 @@ import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
 import { GFXFence, IGFXFenceInfo } from '../fence';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
-import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from '../pipeline-layout';
 import { GFXPipelineState, IGFXPipelineStateInfo } from '../pipeline-state';
 import { GFXQueue, IGFXQueueInfo } from '../queue';
 import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
@@ -37,7 +36,6 @@ import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersTo
 import { WebGLGFXFence } from './webgl-fence';
 import { WebGLGFXFramebuffer } from './webgl-framebuffer';
 import { WebGLGFXInputAssembler } from './webgl-input-assembler';
-import { WebGLGFXPipelineLayout } from './webgl-pipeline-layout';
 import { WebGLGFXPipelineState } from './webgl-pipeline-state';
 import { WebGLGFXPrimaryCommandBuffer } from './webgl-primary-command-buffer';
 import { WebGLGFXQueue } from './webgl-queue';
@@ -578,12 +576,6 @@ export class WebGLGFXDevice extends GFXDevice {
         const framebuffer = new WebGLGFXFramebuffer(this);
         framebuffer.initialize(info);
         return framebuffer;
-    }
-
-    public createPipelineLayout (info: IGFXPipelineLayoutInfo): GFXPipelineLayout {
-        const pipelineLayout = new WebGLGFXPipelineLayout(this);
-        pipelineLayout.initialize(info);
-        return pipelineLayout;
     }
 
     public createPipelineState (info: IGFXPipelineStateInfo): GFXPipelineState {

@@ -1,6 +1,5 @@
 import { GFXPipelineState, IGFXPipelineStateInfo } from '../pipeline-state';
 import { WebGLGPUPipelineState } from './webgl-gpu-objects';
-import { WebGLGFXPipelineLayout } from './webgl-pipeline-layout';
 import { WebGLGFXRenderPass } from './webgl-render-pass';
 import { WebGLGFXShader } from './webgl-shader';
 import { GFXStatus } from '../define';
@@ -40,7 +39,6 @@ export class WebGLGFXPipelineState extends GFXPipelineState {
         this._dynamicStates = info.dynamicStates || [];
         this._hash = info.hash;
 
-        this._layout = info.layout;
         this._renderPass = info.renderPass;
 
         this._gpuPipelineState = {
@@ -50,7 +48,6 @@ export class WebGLGFXPipelineState extends GFXPipelineState {
             dss: info.depthStencilState,
             bs: info.blendState,
             dynamicStates: (info.dynamicStates !== undefined ? info.dynamicStates : []),
-            gpuLayout: (info.layout as WebGLGFXPipelineLayout).gpuPipelineLayout,
             gpuRenderPass: (info.renderPass as WebGLGFXRenderPass).gpuRenderPass,
         };
 
