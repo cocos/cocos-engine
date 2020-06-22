@@ -596,16 +596,15 @@ function _searchComponentsInParent (node, comp) {
 
 function _checkListeners (node, events) {
     if (!(node._objFlags & Destroying)) {
-        var i = 0;
         if (node._bubblingListeners) {
-            for (; i < events.length; ++i) {
+            for (let i = 0, l = events.length; i < l; ++i) {
                 if (node._bubblingListeners.hasEventListener(events[i])) {
                     return true;
                 }
             }
         }
         if (node._capturingListeners) {
-            for (; i < events.length; ++i) {
+            for (let i = 0, l = events.length; i < l; ++i) {
                 if (node._capturingListeners.hasEventListener(events[i])) {
                     return true;
                 }

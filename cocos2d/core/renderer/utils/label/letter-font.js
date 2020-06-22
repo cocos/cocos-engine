@@ -92,8 +92,9 @@ LetterTexture.prototype = {
             width = this._canvas.width,
             height = this._canvas.height;
 
+        const fontSize = this._labelInfo.fontSize;
         let startX = width / 2;
-        let startY = height / 2 + this._labelInfo.fontSize * textUtils.MIDDLE_RATIO;
+        let startY = height / 2 +  fontSize * textUtils.MIDDLE_RATIO + fontSize * textUtils.BASELINE_OFFSET;
         let color = labelInfo.color;
 
         context.textAlign = 'center';
