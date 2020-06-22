@@ -424,39 +424,6 @@ export class SplashScreenWebgl {
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-        // adapt for cocos play
-        if (COCOSPLAY) {
-            if (this.orientation === 'landscape') {
-                if (this.cocosPlayVersion > 134) {
-                    // > 1.0.8
-                    let width = globalThis.innerWidth;
-                    let height = globalThis.innerHeight;
-                    if (width < height) {
-                        globalThis.innerWidth = height;
-                        globalThis.innerHeight = width;
-                    }
-                } else {
-                    // < 1.0.8
-                    let width = this.gl.canvas.width;
-                    let height = this.gl.canvas.height;
-                    if (width < height) {
-                        this.gl.canvas.width = height;
-                        this.gl.canvas.height = width;
-                    }
-                }
-            }
-        }
-
-        // TODO: hack for XIAOMI cause on landscape canvas value is wrong
-        if (XIAOMI) {
-            let width = this.gl.canvas.width;
-            let height = this.gl.canvas.height;
-            if (this.orientation === 'landscape' && width < height) {
-                this.gl.canvas.width = height;
-                this.gl.canvas.height = width;
-            }
-        }
-
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
         gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
