@@ -273,28 +273,26 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, void 
         GFXDrawInfo *drawInfo = static_cast<GFXDrawInfo *>(buffer);
         if (drawInfoCount > 0) {
             if (drawInfo->indexCount) {
-                vector<VkDrawIndexedIndirectCommand> cmds(drawInfoCount);
                 for (size_t i = 0; i < drawInfoCount; i++) {
-                    cmds[i].indexCount = drawInfo->indexCount;
-                    cmds[i].instanceCount = drawInfo->instanceCount == 0 ? 1 : drawInfo->instanceCount;
-                    cmds[i].firstIndex = drawInfo->firstIndex;
-                    cmds[i].vertexOffset = drawInfo->vertexOffset;
-                    cmds[i].firstInstance = drawInfo->firstInstance;
+                    gpuBuffer->indexedIndirectCmds[i].indexCount = drawInfo->indexCount;
+                    gpuBuffer->indexedIndirectCmds[i].instanceCount = std::max(drawInfo->instanceCount, 1u);
+                    gpuBuffer->indexedIndirectCmds[i].firstIndex = drawInfo->firstIndex;
+                    gpuBuffer->indexedIndirectCmds[i].vertexOffset = drawInfo->vertexOffset;
+                    gpuBuffer->indexedIndirectCmds[i].firstInstance = drawInfo->firstInstance;
                     drawInfo++;
                 }
-                dataToUpload = cmds.data();
+                dataToUpload = gpuBuffer->indexedIndirectCmds.data();
                 sizeToUpload = drawInfoCount * sizeof(VkDrawIndexedIndirectCommand);
                 gpuBuffer->isDrawIndirectByIndex = true;
             } else {
-                vector<VkDrawIndirectCommand> cmds(drawInfoCount);
                 for (size_t i = 0; i < drawInfoCount; i++) {
-                    cmds[i].vertexCount = drawInfo->vertexCount;
-                    cmds[i].instanceCount = drawInfo->indexCount;
-                    cmds[i].firstVertex = drawInfo->firstVertex;
-                    cmds[i].firstInstance = drawInfo->firstInstance;
+                    gpuBuffer->indirectCmds[i].vertexCount = drawInfo->vertexCount;
+                    gpuBuffer->indirectCmds[i].instanceCount = drawInfo->instanceCount;
+                    gpuBuffer->indirectCmds[i].firstVertex = drawInfo->firstVertex;
+                    gpuBuffer->indirectCmds[i].firstInstance = drawInfo->firstInstance;
                     drawInfo++;
                 }
-                dataToUpload = cmds.data();
+                dataToUpload = gpuBuffer->indirectCmds.data();
                 sizeToUpload = drawInfoCount * sizeof(VkDrawIndirectCommand);
                 gpuBuffer->isDrawIndirectByIndex = false;
             }
@@ -956,19 +954,14 @@ void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, uint8_t *const *buffers
                                          mipSubRange);
 
                 VkImageBlit blit{};
-
-                //Source
                 blit.srcOffsets[1] = {mipWidth, mipHeight, 1};
                 blit.srcSubresource.aspectMask = gpuTexture->aspectMask;
                 blit.srcSubresource.mipLevel = i - 1;
                 blit.srcSubresource.layerCount = gpuTexture->arrayLayer;
-
-                //Destination
                 blit.dstOffsets[1] = {mipWidth > 1 ? mipWidth >> 1 : 1, mipHeight > 1 ? mipHeight >> 1 : 1, 1};
                 blit.dstSubresource.aspectMask = gpuTexture->aspectMask;
                 blit.dstSubresource.mipLevel = i;
                 blit.dstSubresource.layerCount = gpuTexture->arrayLayer;
-
                 vkCmdBlitImage(cmdBuff.vkCommandBuffer,
                                gpuTexture->vkImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                gpuTexture->vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,

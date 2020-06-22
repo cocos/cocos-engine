@@ -33,7 +33,11 @@ bool CCVKBuffer::initialize(const GFXBufferInfo &info) {
     _gpuBuffer->stride = _stride;
     _gpuBuffer->count = _count;
 
-    if (!(_usage & GFXBufferUsageBit::INDIRECT)) {
+    if (_usage & GFXBufferUsageBit::INDIRECT) {
+        const size_t drawInfoCount = _size / sizeof(GFXDrawInfo);
+        _gpuBuffer->indexedIndirectCmds.resize(drawInfoCount);
+        _gpuBuffer->indirectCmds.resize(drawInfoCount);
+    } else {
         _gpuBuffer->buffer = _buffer;
     }
 
@@ -63,7 +67,7 @@ void CCVKBuffer::destroy() {
 
 void CCVKBuffer::resize(uint size) {
     if (_size != size) {
-        const uint old_size = _size;
+        const uint oldSize = _size;
         _size = size;
         _count = _size / _stride;
 
@@ -71,16 +75,24 @@ void CCVKBuffer::resize(uint size) {
         _gpuBuffer->size = _size;
         _gpuBuffer->count = _count;
         CCVKCmdFuncResizeBuffer((CCVKDevice *)_device, _gpuBuffer);
-        status.bufferSize -= old_size;
+        status.bufferSize -= oldSize;
         status.bufferSize += _size;
 
         if (_buffer) {
-            const uint8_t *old_buff = _buffer;
+            const uint8_t *oldBuff = _buffer;
             _buffer = (uint8_t *)CC_MALLOC(_size);
-            memcpy(_buffer, old_buff, old_size);
-            CC_FREE(_buffer);
-            status.bufferSize -= old_size;
+            memcpy(_buffer, oldBuff, oldSize);
+            CC_FREE(oldBuff);
+            status.bufferSize -= oldSize;
             status.bufferSize += _size;
+        }
+
+        if (_usage & GFXBufferUsageBit::INDIRECT) {
+            const size_t drawInfoCount = _size / sizeof(GFXDrawInfo);
+            _gpuBuffer->indexedIndirectCmds.resize(drawInfoCount);
+            _gpuBuffer->indirectCmds.resize(drawInfoCount);
+        } else {
+            _gpuBuffer->buffer = _buffer;
         }
     }
 }

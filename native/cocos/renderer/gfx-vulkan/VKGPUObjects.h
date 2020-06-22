@@ -139,7 +139,11 @@ public:
     uint stride = 0;
     uint count = 0;
     void *buffer = nullptr;
+
     bool isDrawIndirectByIndex = false;
+    vector<VkDrawIndirectCommand> indirectCmds;
+    vector<VkDrawIndexedIndirectCommand> indexedIndirectCmds;
+
     VkBuffer vkBuffer = VK_NULL_HANDLE;
     VkDeviceSize startOffset = 0u;
     uint8_t *mappedData = nullptr;
