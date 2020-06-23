@@ -315,6 +315,7 @@ var parser = {
      * parseImport (file: any, options: Record<string, any>, onComplete?: (err: Error, asset: cc.Asset) => void): void
      */
     parseImport (file, options, onComplete) {
+        if (!file) return onComplete && onComplete(new Error('Json is empty'));
         var result, err = null;
         try {
             result = deserialize(file, options);
@@ -385,22 +386,23 @@ var parser = {
      * parse(id: string, file: any, type: string, options: Record<string, any>, onComplete: (err: Error, content: any) => void): void
      */
     parse (id, file, type, options, onComplete) {
-        if (parsed.has(id)) {
-            onComplete(null, parsed.get(id));
+        let parsedAsset, parsing, parseHandler;
+        if (parsedAsset = parsed.get(id)) {
+            onComplete(null, parsedAsset);
         }
-        else if (_parsing.has(id)){
-            _parsing.get(id).push(onComplete);
+        else if (parsing = _parsing.get(id)){
+            parsing.push(onComplete);
         }
-        else if (parsers[type]){
+        else if (parseHandler = parsers[type]){
             _parsing.add(id, [onComplete]);
-            parsers[type](file, options, function (err, data) {
+            parseHandler(file, options, function (err, data) {
                 if (err) {
                     files.remove(id);
                 } 
                 else if (!isScene(data)){
                     parsed.add(id, data);
                 }
-                var callbacks = _parsing.remove(id);
+                let callbacks = _parsing.remove(id);
                 for (let i = 0, l = callbacks.length; i < l; i++) {
                     callbacks[i](err, data);
                 }

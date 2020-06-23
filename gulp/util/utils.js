@@ -98,6 +98,7 @@ exports.getUglifyOptions = function (platform, flags) {
                 // indent_level: 2,
                 ascii_only: true,
             },
+            safari10: true, // cocos-creator/engine#5144
         };
     }
     else {
@@ -150,6 +151,7 @@ exports.getUglifyOptions = function (platform, flags) {
                 indent_level: 2,
                 ascii_only: true,
             },
+            safari10: true, // cocos-creator/engine#5144
         };
     }
 };

@@ -43,6 +43,7 @@ function createAudioClip (id, data, options, onComplete) {
     out._uuid = id;
     out._nativeUrl = id;
     out._nativeAsset = data;
+    out.duration = data.duration;
     onComplete && onComplete(null, out);
 }
 

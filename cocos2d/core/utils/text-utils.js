@@ -30,7 +30,7 @@ import js from '../platform/js'
 let _BASELINE_RATIO = 0.26;
 let _BASELINE_OFFSET = 0;
 if (CC_RUNTIME) {
-    _BASELINE_OFFSET = _BASELINE_RATIO / 2;
+    _BASELINE_OFFSET = _BASELINE_RATIO * 2 / 3;
 }
 
 const MAX_CACHE_SIZE = 100;
