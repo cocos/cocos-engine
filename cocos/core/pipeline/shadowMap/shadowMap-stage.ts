@@ -69,7 +69,7 @@ export class ShadowMapStage extends RenderStage {
         const renderObjects = this._pipeline.renderObjects;
         for (let i = 0; i < renderObjects.length; ++i) {
             const ro = renderObjects[i];
-            if(ro.model.castShadow) {
+            //if(ro.model.castShadow) {
                 const subModels = ro.model.subModels;
                 for (let m = 0; m < subModels.length; ++m) {
                     const subModel = subModels[m];
@@ -80,7 +80,7 @@ export class ShadowMapStage extends RenderStage {
                         this._additiveShadowMapQueue.add(pass, ro, m);
                     }
                 }
-            }
+            //}
         }
 
         const device = this._device!;

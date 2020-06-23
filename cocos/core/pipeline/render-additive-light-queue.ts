@@ -28,6 +28,10 @@ const spotPatches = [
  */
 export class RenderAdditiveLightQueue {
 
+    public get pass () :Pass {
+        return this._pass!;
+    }
+
     private _sortedSubModelsArray: SubModel[][] = [];
     private _sortedPSOCIArray: IPSOCreateInfo[][] = [];
     private _phaseID = getPhaseID('forward-add');
@@ -59,7 +63,7 @@ export class RenderAdditiveLightQueue {
         }
     }
 
-    public add (renderObj: IRenderObject, subModelIdx: number, pass: Pass, beginIdx: number, endIdx: number) {
+    public add (shadowMap: GFXFramebuffer, renderObj: IRenderObject, subModelIdx: number, pass: Pass, beginIdx: number, endIdx: number) {
         if (pass.phase === this._phaseID) {
             this._pass = pass;
             for (let i = beginIdx; i < endIdx; i++) {
@@ -67,10 +71,10 @@ export class RenderAdditiveLightQueue {
                 const light = this._validLights[lightIdx];
                 switch (light.type) {
                     case LightType.SPHERE:
-                        this.attach(renderObj, subModelIdx, this._lightBuffers[lightIdx], lightIdx, pass, spherePatches);
+                        this.attach(shadowMap, renderObj, subModelIdx, this._lightBuffers[lightIdx], lightIdx, pass, spherePatches);
                         break;
                     case LightType.SPOT:
-                        this.attach(renderObj, subModelIdx, this._lightBuffers[lightIdx], lightIdx, pass, spotPatches);
+                        this.attach(shadowMap, renderObj, subModelIdx, this._lightBuffers[lightIdx], lightIdx, pass, spotPatches);
                         break;
                 }
             }
@@ -81,7 +85,7 @@ export class RenderAdditiveLightQueue {
      * @zh
      * 记录命令缓冲。
      */
-    public recordCommandBuffer (shadowMap: GFXFramebuffer, device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
+    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
         for (let i = 0; i < this._sortedPSOCIArray.length; ++i) {
             for (let j = 0; j < this._sortedPSOCIArray[i].length; ++j) {
                 const psoCI = this._sortedPSOCIArray[i][j];
@@ -93,18 +97,10 @@ export class RenderAdditiveLightQueue {
                 cmdBuff.draw(ia);
             }
         }
-
-        this.bindShadowMap(shadowMap);
     }
 
-    private bindShadowMap (input: GFXFramebuffer) {
-        const inputSampler = this._pass?.getBinding('shadowMap');
-        if (inputSampler) {
-            this._pass?.bindTexture(inputSampler,input.colorTextures[0]);
-        }
-    }
-
-    private attach (renderObj: IRenderObject, subModelIdx: number, lightBuffer: GFXBuffer, lightIdx: number, pass: Pass, patches: IMacroPatch[]) {
+    private attach (shadowMap: GFXFramebuffer, renderObj: IRenderObject, subModelIdx: number,
+        lightBuffer: GFXBuffer, lightIdx: number, pass: Pass, patches: IMacroPatch[]) {
         const subModelList = this._sortedSubModelsArray[lightIdx];
         const psoCIList = this._sortedPSOCIArray[lightIdx];
 
@@ -112,6 +108,9 @@ export class RenderAdditiveLightQueue {
         const fullPatches = modelPatches ? patches.concat(modelPatches) : patches;
         const psoCI = pass.createPipelineStateCI(fullPatches)!;
         renderObj.model.updateLocalBindings(psoCI, subModelIdx);
+
+        const bingding = pass.getBinding('shadowMap');
+        pass.bindTexture(bingding!, shadowMap.colorTextures[0]);
         psoCI.bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
         psoCI.bindingLayout.update();
 

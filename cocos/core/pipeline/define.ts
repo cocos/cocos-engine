@@ -94,6 +94,7 @@ export enum UniformBinding {
     UBO_UI = MAX_BINDING_SUPPORTED - 7,
     UBO_MORPH = MAX_BINDING_SUPPORTED - 8,
     UBO_BUILTIN_BINDING_END = MAX_BINDING_SUPPORTED - 9,
+    UBO_SHADOW_MAP = MAX_BINDING_SUPPORTED - 10,
 
     // samplers
     SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
@@ -185,8 +186,8 @@ export class UBOShadowMap {
     public static SIZE: number = UBOShadowMap.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        shaderStages: GFXShaderType.ALL, binding: UniformBinding.UBO_SHADOW, name: 'CCShadowMap', members: [
-            { name: 'cc_shadowMatViewProj', type: GFXType.MAT4, count: 1 }
+        shaderStages: GFXShaderType.ALL, binding: UniformBinding.UBO_SHADOW_MAP, name: 'CCShadowMap', members: [
+            { name: 'cc_shadowMatViewProj', type: GFXType.MAT4, count: 1 },
         ],
     };
 

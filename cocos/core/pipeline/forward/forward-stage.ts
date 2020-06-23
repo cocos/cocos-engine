@@ -128,7 +128,7 @@ export class ForwardStage extends RenderStage {
                             for (k = 0; k < this._renderQueues.length; k++) {
                                 this._renderQueues[k].insertRenderPass(ro, m, p);
                             }
-                            this._additiveLightQueue.add(ro, m, pass, lightIndexOffset[i], nextLightIndex);
+                            this._additiveLightQueue.add(this.pipeline.shadowMapGFXFramebuffer, ro, m, pass, lightIndexOffset[i], nextLightIndex);
                         }
                     }
                 }
@@ -139,7 +139,7 @@ export class ForwardStage extends RenderStage {
                         for (k = 0; k < this._renderQueues.length; k++) {
                             this._renderQueues[k].insertRenderPass(ro, m, p);
                         }
-                        this._additiveLightQueue.add(ro, m, pass, lightIndexOffset[i], nextLightIndex);
+                        this._additiveLightQueue.add(this.pipeline.shadowMapGFXFramebuffer, ro, m, pass, lightIndexOffset[i], nextLightIndex);
                     }
                 }
             }
@@ -192,7 +192,7 @@ export class ForwardStage extends RenderStage {
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        this._additiveLightQueue.recordCommandBuffer(this.pipeline.shadowMapGFXFramebuffer, device, renderPass, cmdBuff);
+        this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         camera.scene!.planarShadows.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
 

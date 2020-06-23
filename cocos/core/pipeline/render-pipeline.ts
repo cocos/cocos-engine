@@ -332,6 +332,7 @@ export abstract class RenderPipeline {
     protected _quadIB: GFXBuffer | null = null;
     protected _quadIA: GFXInputAssembler | null = null;
     protected _uboGlobal: UBOGlobal = new UBOGlobal();
+    protected _uboShadowMap: UBOShadowMap = new UBOShadowMap();
     protected _globalBindings: Map<string, IInternalBindingInst> = new Map<string, IInternalBindingInst>();
     protected _defaultTex: GFXTexture | null = null;
     protected _fpScale: number = 1.0 / 1024.0;
@@ -344,7 +345,6 @@ export abstract class RenderPipeline {
     protected _viewport: Vec2 = new Vec2();
     protected _shadowMap: GFXFramebuffer|null = null;
     protected _shadowMapBuffer: GFXBuffer|null = null;
-    protected _uboShadowMap: UBOShadowMap = new UBOShadowMap();
 
     @property({
         type: [RenderTextureDesc],
@@ -391,7 +391,7 @@ export abstract class RenderPipeline {
 
         this._usePostProcess = (info.enablePostProcess !== undefined ? info.enablePostProcess : false);
         this._isHDR = (info.enableHDR !== undefined ? info.enableHDR : false);
-        this._isShadow = true;// (info.enableShadow !== undefined ? info.enableShadow : false);
+        //this._isShadow = true;// (info.enableShadow !== undefined ? info.enableShadow : false);
 
         // Config Anti-Aliasing
         this._useSMAA = info.enableSMAA !== undefined ? info.enableSMAA : false;
@@ -408,11 +408,11 @@ export abstract class RenderPipeline {
         }
 
         // add shadowMap-flow
-        if (this._isShadow) {
+        //if (this._isShadow) {
             const shadowMapFlow = new ShadowMapFlow();
             shadowMapFlow.initialize(ShadowMapFlow.initInfo);
             this._flows.push(shadowMapFlow);
-        }
+        //}
     }
 
     /**
@@ -582,7 +582,7 @@ export abstract class RenderPipeline {
         const scene = camera.scene!;
         const mainLight = scene.mainLight;
 
-        if (this._isShadow && mainLight) {
+        if (/*this._isShadow && */mainLight) {
             shadowCamera_W_P.set(mainLight.direction.negative().multiplyScalar(shadowCamera_Far));
             shadowCamera_W_R.set(mainLight.node!.getWorldRotation());
             shadowCamera_W_S.set(mainLight.node!.getWorldScale());
@@ -805,7 +805,7 @@ export abstract class RenderPipeline {
             }
         }
 
-        if (!this._shadowMapBuffer && this._isShadow) {
+        if (!this._shadowMapBuffer/* && this._isShadow*/) {
             this._shadowMapBuffer = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
@@ -1147,6 +1147,20 @@ export abstract class RenderPipeline {
             });
         }
 
+        if (!this._globalBindings.get(UBOShadowMap.BLOCK.name)) {
+            const shadowMapUBO = this._root.device.createBuffer({
+                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                size: UBOShadowMap.SIZE,
+            });
+
+            this._globalBindings.set(UBOShadowMap.BLOCK.name, {
+                type: GFXBindingType.UNIFORM_BUFFER,
+                blockInfo: UBOShadowMap.BLOCK,
+                buffer: shadowMapUBO,
+            });
+        }
+
         if (!this._globalBindings.get(UBOShadow.BLOCK.name)) {
             const shadowUBO = this._root.device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
@@ -1185,6 +1199,12 @@ export abstract class RenderPipeline {
         if (shadowUBO) {
             shadowUBO.buffer!.destroy();
             this._globalBindings.delete(UBOShadow.BLOCK.name);
+        }
+
+        const shadowMapUBO = this._globalBindings.get(UBOShadowMap.BLOCK.name);
+        if (shadowMapUBO) {
+            shadowMapUBO.buffer!.destroy();
+            this._globalBindings.delete(UBOShadowMap.BLOCK.name);
         }
     }
 
@@ -1232,9 +1252,9 @@ export abstract class RenderPipeline {
     }
 
     private calculateShadowMatrix () : Mat4|undefined {
-        if (!this._isShadow) {
-            return new Mat4();
-        }
+        // if (!this._isShadow) {
+        //     return new Mat4();
+        // }
 
         const width = 2048;
         const height = 2048;
