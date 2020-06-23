@@ -7,12 +7,14 @@ import { AnimationComponent } from './animation-component';
 import { AnimationClip } from './animation-clip';
 
 // deprecated
-
-
 replaceProperty(AnimationComponent.prototype, 'AnimationComponent', [
     {
         'name': 'getAnimationState',
         'newName': 'getState'
+    },
+    {
+        'name': 'addClip',
+        'newName': 'createState'
     },
     {
         'name': 'removeClip',

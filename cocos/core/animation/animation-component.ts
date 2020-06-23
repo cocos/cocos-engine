@@ -42,55 +42,18 @@ import { CrossFade } from './cross-fade';
 import { EDITOR, TEST } from 'internal:constants';
 
 /**
- * @en The event type supported by Animation
- * @zh Animation 支持的事件类型。
- */
-export enum EventType {
-    /**
-     * @en Emit when begin playing animation
-     * @zh 开始播放时触发。
-     */
-    PLAY = 'play',
-    /**
-     * @en Emit when stop playing animation
-     * @zh 停止播放时触发。
-     */
-    STOP = 'stop',
-    /**
-     * @en Emit when pause animation
-     * @zh 暂停播放时触发。
-     */
-    PAUSE = 'pause',
-    /**
-     * @en Emit when resume animation
-     * @zh 恢复播放时触发。
-     */
-    RESUME = 'resume',
-    /**
-     * @en If animation repeat count is larger than 1, emit when animation play to the last frame
-     * @zh 假如动画循环次数大于 1，当动画播放到最后一帧时触发。
-     */
-    LASTFRAME = 'lastframe',
-    /**
-     * @en Emit when finish playing animation
-     * @zh 动画播放完成时触发。
-     */
-    FINISHED = 'finished',
-}
-ccenum(EventType);
-
-/**
  * @en
  * Animation component governs a group of animation states to control playback of the states.
  * For convenient, it stores a group of animation clips.
  * Each of those clips would have an associated animation state uniquely created.
  * Animation component is eventful, it dispatch a serials playback status events.
- * See `AnimationComponent.EventType`.
+ * See [[EventType]].
  * @zh
  * 动画组件管理一组动画状态，控制它们的播放。
  * 为了方便，动画组件还存储了一组动画剪辑。
  * 每个剪辑都会独自创建一个关联的动画状态对象。
  * 动画组件具有事件特性，它会派发一系列播放状态相关的事件。
+ * 参考 [[EventType]]
  */
 @ccclass('cc.AnimationComponent')
 @help('i18n:cc.AnimationComponent')
@@ -238,7 +201,7 @@ export class AnimationComponent extends Component implements IEventTarget {
      * Switch to play specified animation state, without fading.
      * @zh
      * 立即切换到指定动画状态。
-     * @param [name] 目标动画状态的名称；若未指定，使用默认动画剪辑的名称。
+     * @param name The name of the animation to be played, if absent, the default clip will be played
      */
     public play (name?: string) {
         this._hasBeenPlayed = true;
@@ -257,8 +220,8 @@ export class AnimationComponent extends Component implements IEventTarget {
      * Smoothly switch to play specified animation state.
      * @zn
      * 平滑地切换到指定动画状态。
-     * @param name 目标动画状态的名称。
-     * @param duration 切换周期，单位为秒。
+     * @param name The name of the animation to switch to
+     * @param duration The duration of the cross fade, default value is 0.3s
      */
     public crossFade (name: string, duration = 0.3) {
         this._hasBeenPlayed = true;
@@ -304,7 +267,7 @@ export class AnimationComponent extends Component implements IEventTarget {
      * Get specified animation state.
      * @zh
      * 获取指定的动画状态。
-     * @deprecated 将在 V1.0.0 移除，请转用 `this.getState()`。
+     * @deprecated please use [[getState]]
      */
     public getAnimationState (name: string) {
         return this.getState(name);
@@ -315,8 +278,8 @@ export class AnimationComponent extends Component implements IEventTarget {
      * Get specified animation state.
      * @zh
      * 获取指定的动画状态。
-     * @param name 动画状态的名称。
-     * @returns 不存在指定名称的动画状态时返回空，否则返回指定的动画状态。
+     * @param name The name of the animation
+     * @returns If no animation found, return null, otherwise the correspond animation state is returned
      */
     public getState (name: string) {
         const state = this._nameToState[name];
@@ -333,9 +296,9 @@ export class AnimationComponent extends Component implements IEventTarget {
      * @zh
      * 使用指定的动画剪辑创建一个动画状态。
      * 若指定名称的动画状态已存在，已存在的动画状态将先被设为停止并被覆盖。
-     * @param clip 动画剪辑。
-     * @param name 动画状态的名称，若未指定，则使用动画剪辑的名称。
-     * @returns 新创建的动画状态。
+     * @param clip The animation clip
+     * @param name The animation state name, if absent, the default clip's name will be used
+     * @returns The animation state created
      */
     public createState (clip: AnimationClip, name?: string) {
         name = name || clip.name;
@@ -349,7 +312,7 @@ export class AnimationComponent extends Component implements IEventTarget {
      * Stops and removes specified clip.
      * @zh
      * 停止并移除指定的动画状态。
-     * @param name 动画状态的名称。
+     * @param name The name of the animation state
      */
     public removeState (name: string) {
         const state = this._nameToState[name];
@@ -361,10 +324,10 @@ export class AnimationComponent extends Component implements IEventTarget {
 
     /**
      * 添加一个动画剪辑到 `this.clips`中并以此剪辑创建动画状态。
-     * @deprecated 将在 V1.0.0 移除，请转用 `this.createState()`。
-     * @param clip 动画剪辑。
-     * @param name 动画状态的名称，若未指定，则使用动画剪辑的名称。
-     * @returns 新创建的动画状态。
+     * @deprecated please use [[createState]]
+     * @param clip The animation clip
+     * @param name The animation state name, if absent, the default clip's name will be used
+     * @returns The created animation state
      */
     public addClip (clip: AnimationClip, name?: string): AnimationState {
         if (!ArrayUtils.contains(this._clips, clip)) {
@@ -382,8 +345,8 @@ export class AnimationComponent extends Component implements IEventTarget {
      * 从动画列表中移除指定的动画剪辑，<br/>
      * 如果依赖于 clip 的 AnimationState 正在播放或者 clip 是 defaultClip 的话，默认是不会删除 clip 的。<br/>
      * 但是如果 force 参数为 true，则会强制停止该动画，然后移除该动画剪辑和相关的动画。这时候如果 clip 是 defaultClip，defaultClip 将会被重置为 null。<br/>
-     * @deprecated 将在 V1.0.0 移除，请转用 `this.removeState()`。
-     * @param {Boolean} [force=false] - If force is true, then will always remove the clip and any animation states based on it.
+     * @deprecated please use [[removeState]]
+     * @param force - If force is true, then will always remove the clip and any animation states based on it.
      */
     public removeClip (clip: AnimationClip, force?: boolean) {
         let state: AnimationState | undefined;
@@ -428,11 +391,10 @@ export class AnimationComponent extends Component implements IEventTarget {
      * 注册动画事件回调。<bg>
      * 回调的事件里将会附上发送事件的 AnimationState。<bg>
      * 当播放一个动画时，会自动将事件注册到对应的 AnimationState 上，停止播放时会将事件从这个 AnimationState 上取消注册。
-     * @param type - 表示要侦听的事件类型的字符串。
-     * @param callback - 调度事件时将调用的回调。
-     *                   如果回调是重复的（回调是唯一的），则忽略回调。
-     * @param target - 调用回调的目标（此对象）可以为null
-     * @return 只返回传入的回调，以便可以更轻松地保存匿名函数。
+     * @param type The event type to listen to
+     * @param callback The callback when event triggered
+     * @param target The callee when invoke the callback, could be absent
+     * @return The registered callback
      * @example
      * ```typescript
      * onPlay: function (type, state) {
@@ -458,9 +420,9 @@ export class AnimationComponent extends Component implements IEventTarget {
      * Unregister animation event callback.
      * @zh
      * 取消注册动画事件回调。
-     * @param {String} type - 要删除的事件类型的字符串。
-     * @param {Function} callback - 要删除的回调
-     * @param {Object} target - 调用回调的目标（此对象），如果没有给出，则只删除没有目标的回调
+     * @param {String} type The event type to unregister
+     * @param {Function} callback The callback to unregister
+     * @param {Object} target The callee of the callback, could be absent
      * @example
      * ```typescript
      * // unregister event to all animation

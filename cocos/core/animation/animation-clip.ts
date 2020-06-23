@@ -85,7 +85,10 @@ export declare namespace AnimationClip {
 }
 
 /**
- * 动画剪辑。
+ * @zh 动画剪辑表示一段使用动画编辑器编辑的关键帧动画或是外部美术工具生产的骨骼动画。
+ * 它的数据主要被分为几层：轨道、关键帧和曲线。
+ * @en The animation clip represents a sequence of key frame animation created with the animation editor or skeletal animation other DCC tools.
+ * The data is divided in different levels: tracks, key frames, curves.
  */
 @ccclass('cc.AnimationClip')
 export class AnimationClip extends Asset {
@@ -288,7 +291,7 @@ export class AnimationClip extends Asset {
      * 当你修改了 `this.events` 时，必须调用 `this.updateEventDatas()` 使修改生效。
      * @en
      * Commit event data update.
-     * You should call this after you changed the event data to take effect.
+     * You should call this function after you changed the `events` data to take effect.
      * @internal
      */
     public updateEventDatas () {
