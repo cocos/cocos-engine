@@ -251,7 +251,7 @@ Bundle.prototype = {
      */
     load (paths, type, onProgress, onComplete) {
         var { type, onProgress, onComplete } = parseLoadResArgs(type, onProgress, onComplete);
-        cc.assetManager.loadAny(paths, { __requestType__: RequestType.PATH, type: type, bundle: this.name }, onProgress, onComplete);
+        cc.assetManager.loadAny(paths, { __requestType__: RequestType.PATH, type: type, bundle: this.name, __outputAsArray__: Array.isArray(paths) }, onProgress, onComplete);
     },
 
     /**
