@@ -12,6 +12,7 @@ import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { TextureBase } from './texture-base';
 import { DEV } from 'internal:constants';
+import { macro } from '../platform/macro';
 
 const _regions: GFXBufferTextureCopy[] = [{
     buffOffset: 0,
@@ -152,6 +153,10 @@ export class SimpleTexture extends TextureBase {
             }
             this.uploadData(data, level, arrayIndex);
             this._checkTextureLoaded();
+
+            if (macro.CLEANUP_IMAGE_CACHE) {
+                cc.loader.release(image);
+            }
         };
         if (image.loaded) {
             upload();

@@ -486,7 +486,7 @@ export class CameraComponent extends Component {
     }
 
     public onEnable () {
-        this.node.hasChangedFlags = TransformBit.POSITION; // trigger camera matrix update
+        this.node.hasChangedFlags |= TransformBit.POSITION; // trigger camera matrix update
         if (this._camera) {
             this._attachToScene();
             return;
@@ -648,4 +648,13 @@ export class CameraComponent extends Component {
             this._camera.setFixedSize(window!.width, window!.height);
         }
     }
+}
+
+export namespace CameraComponent {
+    export type ProjectionType = EnumAlias<typeof ProjectionType>;
+    export type FOVAxis = EnumAlias<typeof FOVAxis>;
+    export type ClearFlag = EnumAlias<typeof ClearFlag>;
+    export type Aperture = EnumAlias<typeof Aperture>;
+    export type Shutter = EnumAlias<typeof Shutter>;
+    export type ISO = EnumAlias<typeof ISO>;
 }

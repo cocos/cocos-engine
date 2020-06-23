@@ -83,12 +83,13 @@ export class SplashScreenWebgl {
     private logoMat33 = new Float32Array([1, 0, 0, 0, 1, 0, 0, 0, 1]);
     private textMat33 = new Float32Array([1, 0, 0, 0, 1, 0, 0, 0, 1]);
 
-
     private setting!: ISplashSetting;
     private callBack: Function | null = null;
     private cancelAnimate = false;
     private handle = -1;
     private startTime = -1;
+    private orientation = '';
+    private cocosPlayVersion = 134;
 
     private _isStart = false;
     private _directCall = false;
@@ -125,14 +126,16 @@ export class SplashScreenWebgl {
     }
 
     public main (canvas: HTMLCanvasElement) {
-        if (window._CCSettings && window._CCSettings.splashScreen) {
-            this.setting = window._CCSettings.splashScreen;
+        let ccSetting = globalThis._CCSettings;
+        if (ccSetting && ccSetting.splashScreen) {
+            this.setting = ccSetting.splashScreen;
             (this.setting.totalTime as number) = this.setting.totalTime != null ? this.setting.totalTime : 3000;
             (this.setting.base64src as string) = this.setting.base64src != null ? this.setting.base64src : '';
             (this.setting.effect as SplashEffectType) = this.setting.effect != null ? this.setting.effect : 'Fade-InOut';
             (this.setting.clearColor as IGFXColor) = this.setting.clearColor != null ? this.setting.clearColor : { r: 0.88, g: 0.88, b: 0.88, a: 1.0 };
             (this.setting.displayRatio as number) = this.setting.displayRatio != null ? this.setting.displayRatio : 0.4;
             (this.setting.displayWatermark as boolean) = this.setting.displayWatermark != null ? this.setting.displayWatermark : true;
+            this.orientation = ccSetting.orientation;
         } else {
             this.setting = {
                 totalTime: 3000,
@@ -152,15 +155,15 @@ export class SplashScreenWebgl {
             return;
         } else {
             cc.view.enableRetina(true);
-            const designRes = window._CCSettings.designResolution;
+            const designRes = ccSetting.designResolution;
             if (designRes) {
                 cc.view.setDesignResolutionSize(designRes.width, designRes.height, designRes.policy);
             } else {
                 cc.view.setDesignResolutionSize(960, 640, 4);
             }
 
-            let useWebGL2 = (!!window.WebGL2RenderingContext);
-            const userAgent = window.navigator.userAgent.toLowerCase();
+            let useWebGL2 = (!!globalThis.WebGL2RenderingContext);
+            const userAgent = globalThis.navigator.userAgent.toLowerCase();
             if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
                 || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't not conform to WebGL2 standard
             ) {
@@ -221,28 +224,67 @@ export class SplashScreenWebgl {
     private init () {
         // adapt for native mac & ios
         if (JSB) {
-            if (sys.os == cc.sys.OS_OSX || sys.os == cc.sys.OS_IOS) {
+            if (sys.os == sys.OS_OSX || sys.os == sys.OS_IOS) {
                 this.gl.canvas.width = screen.width * devicePixelRatio;
                 this.gl.canvas.height = screen.height * devicePixelRatio;
             }
         }
 
-        // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
-        if (COCOSPLAY || XIAOMI) {
-            if (window._CCSettings.orientation === 'landscape' && this.gl.canvas.width < this.gl.canvas.height) {
-                let width = this.gl.canvas.height;
-                let height = this.gl.canvas.width;
-                this.gl.canvas.width = width;
-                this.gl.canvas.height = height;
+        // adapt for cocos play
+        if (COCOSPLAY) {
+            if (this.orientation === 'landscape') {
+                try {
+                    const res = globalThis['loadRuntime']().getSystemInfoSync();
+                    let t = res.coreVersion;
+                    this.cocosPlayVersion = parseInt(t.replace(new RegExp("\\.", "g"), ""));
+                    console.log("getSystemInfo success", res.coreVersion, this.cocosPlayVersion);
+                } catch (e) {
+                    console.log("getSystemInfo error", e);
+                }
+
+                if (this.cocosPlayVersion > 134) {
+                    let width = globalThis.innerWidth;
+                    let height = globalThis.innerHeight;
+                    if (width < height) {
+                        globalThis.innerWidth = height;
+                        globalThis.innerHeight = width;
+                    }
+                } else {
+                    // 1.0.8
+                    let width = this.gl.canvas.width;
+                    let height = this.gl.canvas.height;
+                    if (width < height) {
+                        this.gl.canvas.width = height;
+                        this.gl.canvas.height = width;
+                    }
+                }
+            }
+        }
+
+        // TODO: hack for XIAOMI cause on landscape canvas value is wrong
+        if (XIAOMI) {
+            let width = this.gl.canvas.width;
+            let height = this.gl.canvas.height;
+            if (this.orientation === 'landscape' && width < height) {
+                this.gl.canvas.width = height;
+                this.gl.canvas.height = width;
             }
         }
 
         // adapt for alipay, adjust the canvas size
         if (ALIPAY) {
-            const w = screen.width;
-            this.gl.canvas.width = w;
-            const h = screen.height;
-            this.gl.canvas.height = h;
+            if (sys.os == sys.OS_IOS) {
+                if (this.orientation === 'landscape') {
+                    this.gl.canvas.width = screen.height * devicePixelRatio;
+                    this.gl.canvas.height = screen.width * devicePixelRatio;
+                } else {
+                    this.gl.canvas.width = screen.width * devicePixelRatio;
+                    this.gl.canvas.height = screen.height * devicePixelRatio;
+                }
+            } else {
+                this.gl.canvas.width = screen.width;
+                this.gl.canvas.height = screen.height;
+            }
         }
 
         this.initMatrix();
@@ -381,16 +423,6 @@ export class SplashScreenWebgl {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-        // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
-        if (COCOSPLAY || XIAOMI) {
-            if (window._CCSettings.orientation === 'landscape' && this.gl.canvas.width < this.gl.canvas.height) {
-                let width = this.gl.canvas.height;
-                let height = this.gl.canvas.width;
-                this.gl.canvas.width = width;
-                this.gl.canvas.height = height;
-            }
-        }
 
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 

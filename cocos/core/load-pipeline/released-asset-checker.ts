@@ -25,12 +25,12 @@
  */
 
 /**
- * @category loader
+ * @hidden
  */
 
 import {createMap, getClassName, clear} from '../utils/js';
 
-let _tmpInfo:any = null;
+let _tmpInfo: any = null;
 
 function getItemDesc (item) {
     if (item.uuid) {

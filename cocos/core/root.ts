@@ -10,7 +10,6 @@ import { RenderPipeline } from './pipeline/render-pipeline';
 import { IRenderViewInfo, RenderView } from './pipeline/render-view';
 import { Camera, Light, Model } from './renderer';
 import { DataPoolManager } from './renderer/data-pool-manager';
-import { DirectionalLight } from './renderer/scene/directional-light';
 import { LightType } from './renderer/scene/light';
 import { IRenderSceneInfo, RenderScene } from './renderer/scene/render-scene';
 import { SphereLight } from './renderer/scene/sphere-light';
@@ -188,12 +187,9 @@ export class Root {
     private _dataPoolMgr: DataPoolManager;
     private _scenes: RenderScene[] = [];
     private _views: RenderView[] = [];
-    private _modelPools: Map<Function, Pool<any>> = new Map<Function, Pool<any>>();
+    private _modelPools = new Map<Constructor<Model>, Pool<Model>>();
     private _cameraPool: Pool<Camera> | null = null;
-    private _lightPools: Map<Function, Pool<any>> = new Map<Function, Pool<any>>();
-    private _directLightPool: Pool<DirectionalLight> | null = null;
-    private _sphereLightPool: Pool<SphereLight> | null = null;
-    private _spotLightPool: Pool<SpotLight> | null = null;
+    private _lightPools = new Map<Constructor<Light>, Pool<Light>>();
     private _time: number = 0;
     private _frameTime: number = 0;
     private _fpsTime: number = 0;
@@ -484,17 +480,17 @@ export class Root {
         this._views = [];
     }
 
-    public createModel<T extends Model> (mClass: new () => T): T {
+    public createModel<T extends Model> (mClass: typeof Model): T {
         let p = this._modelPools.get(mClass);
         if (!p) {
             this._modelPools.set(mClass, new Pool(() => new mClass(), 10));
             p = this._modelPools.get(mClass)!;
         }
-        return p.alloc();
+        return p.alloc() as T;
     }
 
     public destroyModel (m: Model) {
-        const p = this._modelPools.get(m.constructor);
+        const p = this._modelPools.get(m.constructor as Constructor<Model>);
         if (p) {
             p.free(m);
             m.destroy();
@@ -525,11 +521,11 @@ export class Root {
             this._lightPools.set(lClass, new Pool(() => new lClass(), 4));
             l = this._lightPools.get(lClass)!;
         }
-        return l.alloc();
+        return l.alloc() as T;
     }
 
     public destroyLight (l: Light) {
-        const p = this._lightPools.get(l.constructor);
+        const p = this._lightPools.get(l.constructor as Constructor<Light>);
         l.destroy();
         if (p) {
             p.free(l);

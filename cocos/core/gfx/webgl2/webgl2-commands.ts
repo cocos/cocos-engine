@@ -135,7 +135,7 @@ export function GFXFormatToWebGLType (format: GFXFormat, gl: WebGL2RenderingCont
         case GFXFormat.RGB9E5: return gl.FLOAT;
 
         case GFXFormat.D16: return gl.UNSIGNED_SHORT;
-        case GFXFormat.D16S8: return gl.UNSIGNED_SHORT;
+        case GFXFormat.D16S8: return gl.UNSIGNED_INT_24_8; // no D16S8 support
         case GFXFormat.D24: return gl.UNSIGNED_INT;
         case GFXFormat.D24S8: return gl.UNSIGNED_INT_24_8;
         case GFXFormat.D32F: return gl.FLOAT;
@@ -233,7 +233,7 @@ export function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGL2Ren
         case GFXFormat.RGB10A2UI: return gl.RGB10_A2UI;
         case GFXFormat.R11G11B10F: return gl.R11F_G11F_B10F;
         case GFXFormat.D16: return gl.DEPTH_COMPONENT16;
-        case GFXFormat.D16S8: return gl.DEPTH_STENCIL;
+        case GFXFormat.D16S8: return gl.DEPTH24_STENCIL8; // no D16S8 support
         case GFXFormat.D24: return gl.DEPTH_COMPONENT24;
         case GFXFormat.D24S8: return gl.DEPTH24_STENCIL8;
         case GFXFormat.D32F: return gl.DEPTH_COMPONENT32F;
@@ -339,6 +339,16 @@ export function GFXFormatToWebGLFormat (format: GFXFormat, gl: WebGL2RenderingCo
         case GFXFormat.BC3_SRGB: return WebGLEXT.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
 
         case GFXFormat.ETC_RGB8: return WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL;
+        case GFXFormat.ETC2_RGB8: return WebGLEXT.COMPRESSED_RGB8_ETC2;
+        case GFXFormat.ETC2_SRGB8: return WebGLEXT.COMPRESSED_SRGB8_ETC2;
+        case GFXFormat.ETC2_RGB8_A1: return WebGLEXT.COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+        case GFXFormat.ETC2_SRGB8_A1: return WebGLEXT.COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+        case GFXFormat.ETC2_RGBA8: return WebGLEXT.COMPRESSED_RGBA8_ETC2_EAC;
+        case GFXFormat.ETC2_SRGB8_A8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC;
+        case GFXFormat.EAC_R11: return WebGLEXT.COMPRESSED_R11_EAC;
+        case GFXFormat.EAC_R11SN: return WebGLEXT.COMPRESSED_SIGNED_R11_EAC;
+        case GFXFormat.EAC_RG11: return WebGLEXT.COMPRESSED_RG11_EAC;
+        case GFXFormat.EAC_RG11SN: return WebGLEXT.COMPRESSED_SIGNED_RG11_EAC;
 
         case GFXFormat.PVRTC_RGB2: return WebGLEXT.COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
         case GFXFormat.PVRTC_RGBA2: return WebGLEXT.COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
@@ -813,10 +823,18 @@ export function WebGL2CmdFuncDestroyBuffer (device: WebGL2GFXDevice, gpuBuffer: 
         // can be reproduced in the static batching scene at https://github.com/cocos-creator/test-cases-3d
         switch (gpuBuffer.glTarget) {
             case gl.ARRAY_BUFFER:
+                if (device.useVAO && device.stateCache.glVAO) {
+                    gl.bindVertexArray(null);
+                    device.stateCache.glVAO = null;
+                }
                 gl.bindBuffer(gl.ARRAY_BUFFER, null);
                 device.stateCache.glArrayBuffer = null;
                 break;
             case gl.ELEMENT_ARRAY_BUFFER:
+                if (device.useVAO && device.stateCache.glVAO) {
+                    gl.bindVertexArray(null);
+                    device.stateCache.glVAO = null;
+                }
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
                 device.stateCache.glElementArrayBuffer = null;
                 break;
@@ -1031,6 +1049,9 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
                     gl.texParameteri(gpuTexture.glTarget, gl.TEXTURE_MIN_FILTER, gpuTexture.glMinFilter);
                     gl.texParameteri(gpuTexture.glTarget, gl.TEXTURE_MAG_FILTER, gpuTexture.glMagFilter);
                     */
+                }
+                else {
+                    gl.deleteTexture(glTexture);
                 }
             } else {
                 const glRenderbuffer = gl.createRenderbuffer();
@@ -1756,6 +1777,9 @@ export function WebGL2CmdFuncBeginRenderPass (
     clearColors: IGFXColor[],
     clearDepth: number,
     clearStencil: number) {
+
+    gfxStateCache.gpuInputAssembler = null;
+    gfxStateCache.gpuShader = null;
 
     const gl = device.gl;
     const cache = device.stateCache;
@@ -2596,8 +2620,6 @@ export function WebGL2CmdFuncDraw (device: WebGL2GFXDevice, drawInfo: IGFXDrawIn
 const cmdIds = new Array<number>(WebGL2Cmd.COUNT);
 export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: WebGL2CmdPackage) {
     cmdIds.fill(0);
-    gfxStateCache.gpuShader = null;
-    gfxStateCache.gpuInputAssembler = null;
 
     for (let i = 0; i < cmdPackage.cmds.length; ++i) {
         const cmd = cmdPackage.cmds.array[i];

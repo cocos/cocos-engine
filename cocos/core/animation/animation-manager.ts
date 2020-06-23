@@ -29,7 +29,11 @@ export class AnimationManager extends System {
 
     public static ID = 'animation';
     private _anims = new MutableForwardIterator<AnimationState>([]);
-    private _delayEvents: {target: Node; func: string; args: any[]}[] = [];
+    private _delayEvents: {
+        fn: Function;
+        thisArg: any;
+        args: any[];
+    }[] = [];
     private _blendStateBuffer: BlendStateBuffer = new BlendStateBuffer();
     private _crossFades: CrossFade[] = [];
     private _sockets: ISocketData[] = [];
@@ -66,7 +70,7 @@ export class AnimationManager extends System {
 
         for (let i = 0, l = _delayEvents.length; i < l; i++) {
             const event = _delayEvents[i];
-            event.target[event.func].apply(event.target, event.args);
+            event.fn.apply(event.thisArg, event.args);
         }
         _delayEvents.length = 0;
     }
@@ -91,10 +95,10 @@ export class AnimationManager extends System {
         }
     }
 
-    public pushDelayEvent (target: Node, func: string, args: any[]) {
+    public pushDelayEvent (fn: Function, thisArg: any, args: any[]) {
         this._delayEvents.push({
-            target,
-            func,
+            fn,
+            thisArg,
             args,
         });
     }

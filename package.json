@@ -1,6 +1,6 @@
 {
   "name": "cocos-creator-3d",
-  "version": "1.0.2",
+  "version": "1.1.1",
   "description": "Cocos Creator 3D is a cross-platform 3D game engine written in Javascript, licensed under MIT.",
   "homepage": "http://www.cocos.com",
   "license": "MIT",
@@ -41,18 +41,18 @@
     "jest": "^24.8.0",
     "spectorjs": "^0.9.15",
     "stats.js": "^0.17.0",
-    "tfig": "^1.2.3",
+    "tfig": "^1.2.4",
     "ts-jest": "^24.3.0",
-    "typedoc": "^0.14.2",
-    "typedoc-plugin-external-module-name": "github:cocos-creator/typedoc-plugin-external-module-name#master",
-    "typedoc-plugin-internal-external": "github:cocos-creator/typedoc-plugin-internal-external#master",
-    "typedoc-plugin-localization": "github:cocos-creator/typedoc-plugin-localization#master",
+    "typedoc": "^0.17.7",
+    "typedoc-plugin-external-module-name": "^4.0.3",
+    "@cocos/typedoc-plugin-internal-external": "^1.0.0",
+    "@cocos/typedoc-plugin-localization": "^1.0.0",
     "typescript": "^3.7.2",
     "vconsole": "^3.3.0",
     "yargs": "^12.0.5"
   },
   "dependencies": {
     "@cocos/ammo": "^1.0.6",
-    "@cocos/cannon": "^1.1.0"
+    "@cocos/cannon": "^1.1.1"
   }
 }

@@ -1,19 +1,23 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+import { builtinResMgr } from '../../3d/builtin/init';
 import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
-import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit } from '../../gfx/define';
-import { GFXDevice } from '../../gfx/device';
+import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
+import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
-import { Mat4, Vec3 } from '../../math';
+import { Mat4, Vec3, Vec4} from '../../math';
 import { Pool } from '../../memop';
-import { INST_MAT_WORLD, UBOForwardLight, UBOLocal } from '../../pipeline/define';
+import { INST_MAT_WORLD, UBOForwardLight, UBOLocal, UniformBinding, UniformLightingMapSampler } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { IMacroPatch, Pass } from '../core/pass';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
+import { Texture2D } from '../../assets/texture-2d';
+import { genSamplerHash, samplerLib} from '../../renderer/core/sampler-lib';
+import { GFXSampler } from '../../gfx';
 import { programLib } from '../core/program-lib';
 
 const m4_1 = new Mat4();
@@ -174,6 +178,55 @@ export class Model {
         }
     }
 
+    public updateLightingmap (tex: Texture2D|null, uvParam: Vec4) {
+        Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
+
+        if (tex === null) {
+            tex = builtinResMgr.get<Texture2D>('empty-texture');
+        }
+
+        const texture = tex;
+        const textureView = texture.getGFXTextureView();
+
+        if (textureView !== null) {
+            let sampler: GFXSampler;
+            if (tex.mipmaps.length > 1) {
+                const samplerHash = genSamplerHash([
+                    GFXFilter.LINEAR,
+                    GFXFilter.LINEAR,
+                    GFXFilter.LINEAR,
+                    GFXAddress.CLAMP,
+                    GFXAddress.CLAMP,
+                    GFXAddress.CLAMP,
+                ]);
+                sampler = samplerLib.getSampler(this._device, samplerHash);
+            }
+            else {
+                const samplerHash = genSamplerHash([
+                    GFXFilter.NONE,
+                    GFXFilter.NONE,
+                    GFXFilter.NONE,
+                    GFXAddress.CLAMP,
+                    GFXAddress.CLAMP,
+                    GFXAddress.CLAMP,
+                ]);
+                sampler = samplerLib.getSampler(this._device, samplerHash);
+            }
+
+            for (const sub of this._subModels) {
+                if (sub.psos === null) {
+                    continue;
+                }
+
+                for (let i = 0; i < sub.psos.length; i++) {
+                    sub.psos[i].pipelineLayout.layouts[0].bindTextureView(UniformLightingMapSampler.binding, textureView);
+                    sub.psos[i].pipelineLayout.layouts[0].bindSampler(UniformLightingMapSampler.binding, sampler);
+                    sub.psos[i].pipelineLayout.layouts[0].update();
+                }
+            }
+        }
+    }
+
     public updateUBOs (stamp: number) {
         this._matPSORecord.forEach(this._updatePass, this);
         this._updateStamp = stamp;
@@ -306,6 +359,7 @@ export class Model {
 
     // for now no submodel level instancing attributes
     protected updateInstancedAttributeList (pso: GFXPipelineState, pass: Pass) {
+        if (!pass.device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) { return; }
         const attributes = pso.inputState.attributes;
         let size = 0;
         for (let j = 0; j < attributes.length; j++) {

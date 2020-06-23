@@ -115,11 +115,11 @@ export class SystemEvent extends EventTarget {
      * @param callback - The event listener's callback
      * @param target - The event listener's target and callee
      */
-    public on (type: string, callback: Function, target?: Object) {
+    public on (type: string, callback: Function, target?: Object, once?: boolean) {
         if (EDITOR) {
             return;
         }
-        super.on(type, callback, target);
+        super.on(type, callback, target, once);
 
         // Keyboard
         if (type === SystemEventType.KEY_DOWN || type === SystemEventType.KEY_UP) {

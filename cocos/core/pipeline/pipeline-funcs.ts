@@ -5,9 +5,10 @@
 import { IGFXColor } from '../gfx/define';
 
 /**
- * @zh
- * SRGB颜色空间转换为线性空间。
- * @param gamma SRGB颜色空间下的GAMMA值。
+ * @en Convert color in SRGB space to linear space
+ * @zh SRGB 颜色空间转换为线性空间。
+ * @param out Output color object
+ * @param gamma Gamma value in SRGB space
  */
 export function SRGBToLinear (out: IGFXColor, gamma: IGFXColor) {
     // out.r = Math.pow(gamma.r, 2.2);
@@ -19,9 +20,10 @@ export function SRGBToLinear (out: IGFXColor, gamma: IGFXColor) {
 }
 
 /**
- * @zh
- * 线性空间转换为SRGB颜色空间。
- * @param linear 线性空间下的颜色值。
+ * @en Convert color in linear space to SRGB space
+ * @zh 线性空间转换为 SRGB 颜色空间。
+ * @param out Output color object
+ * @param linear Color value in linear space
  */
 export function LinearToSRGB (out: IGFXColor, linear: IGFXColor) {
     // out.r = Math.pow(linear.r, 0.454545);

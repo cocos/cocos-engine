@@ -326,4 +326,10 @@ export class TextureBase extends Asset {
     }
 }
 
+export namespace TextureBase {
+    export type PixelFormat = EnumAlias<typeof PixelFormat>;
+    export type WrapMode = EnumAlias<typeof WrapMode>;
+    export type Filter = EnumAlias<typeof Filter>;
+}
+
 cc.TextureBase = TextureBase;

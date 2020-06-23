@@ -408,4 +408,8 @@ export class AnimationClip extends Asset {
     }
 }
 
+export namespace AnimationClip {
+    export type WrapMode = EnumAlias<typeof AnimationWrapMode>;
+}
+
 cc.AnimationClip = AnimationClip;

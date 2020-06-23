@@ -280,7 +280,7 @@ export class RigidBodyComponent extends Component {
     private _allowSleep: boolean = true;
 
     @property
-    private _mass: number = 10;
+    private _mass: number = 1;
 
     @property
     private _linearDamping: number = 0.1;

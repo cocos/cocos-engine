@@ -21,7 +21,7 @@ export class ParticleUtils {
         }
         if (!this.particleSystemPool.has(prefab._uuid)) {
             this.particleSystemPool.set(prefab._uuid, new Pool<CCObject>(() => {
-                return instantiate(prefab);
+                return instantiate(prefab) || new Node();
             }, 1));
         }
         return this.particleSystemPool.get(prefab._uuid)!.alloc();

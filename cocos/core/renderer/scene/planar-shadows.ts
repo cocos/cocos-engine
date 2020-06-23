@@ -163,8 +163,8 @@ export class PlanarShadows {
     public recordCommandBuffer (cmdBuff: GFXCommandBuffer) {
         const models = this._pendingModels;
         const modelLen = models.length;
-        const buffer = this._instancingMaterial.passes[0].instancedBuffer!;
-        buffer.clear();
+        const buffer = this._instancingMaterial.passes[0].instancedBuffer;
+        if (buffer) { buffer.clear(); }
         for (let i = 0; i < modelLen; i++) {
             const { model, psos, instancedBuffer } = models[i];
             for (let j = 0; j < psos.length; j++) {
@@ -181,7 +181,7 @@ export class PlanarShadows {
                 }
             }
         }
-        if (buffer.pso) {
+        if (buffer && buffer.pso) {
             buffer.uploadBuffers();
             cmdBuff.bindPipelineState(buffer.pso!);
             cmdBuff.bindBindingLayout(buffer.pso!.pipelineLayout.layouts[0]);

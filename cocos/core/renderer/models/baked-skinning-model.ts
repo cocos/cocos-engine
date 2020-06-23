@@ -40,7 +40,7 @@ import { Node } from '../../scene-graph';
 import { Pass, IMacroPatch } from '../core/pass';
 import { samplerLib } from '../core/sampler-lib';
 import { DataPoolManager } from '../data-pool-manager';
-import { Model, ModelType } from '../scene/model';
+import { ModelType } from '../scene/model';
 import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 
@@ -130,7 +130,7 @@ export class BakedSkinningModel extends MorphModel {
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) {
             const view = this.instancedAttributes.list[idx].view;
-            view[0] = view[1] * info.data[0] + view[2];
+            view[0] = info.data[0];
         } else if (info.dirty) {
             info.buffer.update(info.data);
             info.dirty = false;
@@ -214,10 +214,9 @@ export class BakedSkinningModel extends MorphModel {
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) { // update instancing data too
             const view = this.instancedAttributes.list[idx].view;
-            const pixelsPerJoint = this._dataPoolManager.jointTexturePool.pixelsPerJoint;
-            view[1] = pixelsPerJoint * jointTextureInfo[1];
+            view[0] = animInfo.data[0];
+            view[1] = jointTextureInfo[1];
             view[2] = jointTextureInfo[2];
-            view[0] = view[1] * animInfo.data[0] + view[2];
         }
     }
 }

@@ -102,11 +102,11 @@ export function GFXFormatToWebGLType (format: GFXFormat, gl: WebGLRenderingConte
         case GFXFormat.RGB9E5: return gl.UNSIGNED_BYTE;
 
         case GFXFormat.D16: return gl.UNSIGNED_SHORT;
-        case GFXFormat.D16S8: return gl.UNSIGNED_SHORT;
+        case GFXFormat.D16S8: return WebGLEXT.UNSIGNED_INT_24_8_WEBGL; // no D16S8 support
         case GFXFormat.D24: return gl.UNSIGNED_INT;
         case GFXFormat.D24S8: return WebGLEXT.UNSIGNED_INT_24_8_WEBGL;
         case GFXFormat.D32F: return gl.FLOAT;
-        case GFXFormat.D32F_S8: return gl.FLOAT;
+        case GFXFormat.D32F_S8: return WebGLEXT.UNSIGNED_INT_24_8_WEBGL; // no D32FS8 support
 
         case GFXFormat.BC1: return gl.UNSIGNED_BYTE;
         case GFXFormat.BC1_SRGB: return gl.UNSIGNED_BYTE;
@@ -179,6 +179,16 @@ export function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGLRend
         case GFXFormat.BC3_SRGB: return WebGLEXT.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
 
         case GFXFormat.ETC_RGB8: return WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL;
+        case GFXFormat.ETC2_RGB8: return WebGLEXT.COMPRESSED_RGB8_ETC2;
+        case GFXFormat.ETC2_SRGB8: return WebGLEXT.COMPRESSED_SRGB8_ETC2;
+        case GFXFormat.ETC2_RGB8_A1: return WebGLEXT.COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+        case GFXFormat.ETC2_SRGB8_A1: return WebGLEXT.COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+        case GFXFormat.ETC2_RGBA8: return WebGLEXT.COMPRESSED_RGBA8_ETC2_EAC;
+        case GFXFormat.ETC2_SRGB8_A8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC;
+        case GFXFormat.EAC_R11: return WebGLEXT.COMPRESSED_R11_EAC;
+        case GFXFormat.EAC_R11SN: return WebGLEXT.COMPRESSED_SIGNED_R11_EAC;
+        case GFXFormat.EAC_RG11: return WebGLEXT.COMPRESSED_RG11_EAC;
+        case GFXFormat.EAC_RG11SN: return WebGLEXT.COMPRESSED_SIGNED_RG11_EAC;
 
         case GFXFormat.PVRTC_RGB2: return WebGLEXT.COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
         case GFXFormat.PVRTC_RGBA2: return WebGLEXT.COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
@@ -856,6 +866,9 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
                     gl.texParameteri(gpuTexture.glTarget, gl.TEXTURE_MIN_FILTER, gpuTexture.glMinFilter);
                     gl.texParameteri(gpuTexture.glTarget, gl.TEXTURE_MAG_FILTER, gpuTexture.glMagFilter);
                 }
+                else {
+                    gl.deleteTexture(glTexture);
+                }
             }
 
             break;
@@ -1504,6 +1517,9 @@ export function WebGLCmdFuncBeginRenderPass (
     clearColors: IGFXColor[],
     clearDepth: number,
     clearStencil: number) {
+
+    gfxStateCache.gpuInputAssembler = null;
+    gfxStateCache.gpuShader = null;
 
     const gl = device.gl;
     const cache = device.stateCache;
@@ -2570,8 +2586,6 @@ export function WebGLCmdFuncDraw (device: WebGLGFXDevice, drawInfo: IGFXDrawInfo
 const cmdIds = new Array<number>(WebGLCmd.COUNT);
 export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: WebGLCmdPackage) {
     cmdIds.fill(0);
-    gfxStateCache.gpuShader = null;
-    gfxStateCache.gpuInputAssembler = null;
 
     for (let i = 0; i < cmdPackage.cmds.length; ++i) {
         const cmd = cmdPackage.cmds.array[i];

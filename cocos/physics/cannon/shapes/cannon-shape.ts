@@ -1,5 +1,5 @@
 import CANNON from '@cocos/cannon';
-import { Vec3 } from '../../../core/math';
+import { Vec3, Quat } from '../../../core/math';
 import { getWrap, setWrap } from '../../framework/util';
 import { commitShapeUpdates } from '../cannon-util';
 import { PhysicMaterial } from '../../framework/assets/physic-material';
@@ -123,14 +123,17 @@ export class CannonShape implements IBaseShape {
 
     setGroup (v: number): void {
         this._body.collisionFilterGroup = v;
+        if (!this._body.isAwake()) this._body.wakeUp();
     }
 
     addGroup (v: number): void {
         this._body.collisionFilterGroup |= v;
+        if (!this._body.isAwake()) this._body.wakeUp();
     }
 
     removeGroup (v: number): void {
         this._body.collisionFilterGroup &= ~v;
+        if (!this._body.isAwake()) this._body.wakeUp();
     }
 
     /** mask */
@@ -140,14 +143,17 @@ export class CannonShape implements IBaseShape {
 
     setMask (v: number): void {
         this._body.collisionFilterMask = v;
+        if (!this._body.isAwake()) this._body.wakeUp();
     }
 
     addMask (v: number): void {
         this._body.collisionFilterMask |= v;
+        if (!this._body.isAwake()) this._body.wakeUp();
     }
 
     removeMask (v: number): void {
         this._body.collisionFilterMask &= ~v;
+        if (!this._body.isAwake()) this._body.wakeUp();
     }
 
     /**
@@ -163,9 +169,11 @@ export class CannonShape implements IBaseShape {
         this._index = index;
     }
 
-    setOffsetAndOrient (offset: CANNON.Vec3, Orient: CANNON.Quaternion) {
+    setOffsetAndOrient (offset: CANNON.Vec3, orient: CANNON.Quaternion) {
+        Vec3.copy(offset, this._offset);
+        Quat.copy(orient, this._orient);
         this._offset = offset;
-        this._orient = Orient;
+        this._orient = orient;
     }
 
     protected _setCenter (v: IVec3Like) {

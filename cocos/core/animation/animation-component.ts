@@ -28,16 +28,13 @@
  */
 
 import { Component } from '../components/component';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../data/class-decorator';
-import { Event, EventTarget } from '../event';
-import { CallbacksInvoker, ICallbackTable } from '../event/callbacks-invoker';
-import { applyMixins, IEventTarget } from '../event/event-target-factory';
+import { ccclass, executeInEditMode, executionOrder, help, menu, property } from '../data/class-decorator';
+import { Eventify } from '../event/eventify';
 import { warnID } from '../platform/debug';
 import * as ArrayUtils from '../utils/array';
 import { createMap } from '../utils/js-typed';
-import { ccenum } from '../value-types/enum';
 import { AnimationClip } from './animation-clip';
-import { AnimationState } from './animation-state';
+import { AnimationState, EventType } from './animation-state';
 import { CrossFade } from './cross-fade';
 import { EDITOR, TEST } from 'internal:constants';
 
@@ -60,7 +57,7 @@ import { EDITOR, TEST } from 'internal:constants';
 @executionOrder(99)
 @executeInEditMode
 @menu('Components/Animation')
-export class AnimationComponent extends Component implements IEventTarget {
+export class AnimationComponent extends Eventify(Component) {
     /**
      * @en
      * Gets or sets clips this component governs.
@@ -148,11 +145,9 @@ export class AnimationComponent extends Component implements IEventTarget {
     })
     public playOnLoad = false;
 
-    public _callbackTable: ICallbackTable = createMap(true);
-
     protected _crossFade = new CrossFade();
 
-    protected _nameToState: { [name: string]: AnimationState; } = createMap(true);
+    protected _nameToState: Record<string, AnimationState> = createMap(true);
 
     @property({ type: [AnimationClip] })
     protected _clips: (AnimationClip | null)[] = [];
@@ -317,6 +312,7 @@ export class AnimationComponent extends Component implements IEventTarget {
     public removeState (name: string) {
         const state = this._nameToState[name];
         if (state) {
+            state.allowLastFrameEvent(false);
             state.stop();
             delete this._nameToState[name];
         }
@@ -349,11 +345,12 @@ export class AnimationComponent extends Component implements IEventTarget {
      * @param force - If force is true, then will always remove the clip and any animation states based on it.
      */
     public removeClip (clip: AnimationClip, force?: boolean) {
-        let state: AnimationState | undefined;
-        for (const name of Object.keys(this._nameToState)) {
-            state = this._nameToState[name];
+        let removalState: AnimationState | undefined;
+        for (const name in this._nameToState) {
+            const state = this._nameToState[name];
             const stateClip = state.clip;
             if (stateClip === clip) {
+                removalState = state;
                 break;
             }
         }
@@ -366,8 +363,8 @@ export class AnimationComponent extends Component implements IEventTarget {
             }
         }
 
-        if (state && state.isPlaying) {
-            if (force) { state.stop(); }
+        if (removalState && removalState.isPlaying) {
+            if (force) { removalState.stop(); }
             else {
                 if (!TEST) { warnID(3903); }
                 return;
@@ -376,8 +373,8 @@ export class AnimationComponent extends Component implements IEventTarget {
 
         this._clips = this._clips.filter((item) => item !== clip);
 
-        if (state) {
-            delete this._nameToState[state.name];
+        if (removalState) {
+            delete this._nameToState[removalState.name];
         }
     }
 
@@ -405,12 +402,18 @@ export class AnimationComponent extends Component implements IEventTarget {
      * animation.on('play', this.onPlay, this);
      * ```
      */
-    public on (type: string, callback: (type: string, state: AnimationState) => void, target?: Object) {
-        const ret = EventTarget.prototype.on.call(this, type, callback, target);
-        if (type === 'lastframe') {
-            for (const stateName of Object.keys(this._nameToState)) {
-                this._nameToState[stateName]!._lastframeEventOn = true;
-            }
+    public on<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean) {
+        const ret = super.on(type, callback, thisArg, once);
+        if (type === EventType.LASTFRAME) {
+            this._syncAllowLastFrameEvent();
+        }
+        return ret;
+    }
+
+    public once<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any) {
+        const ret = super.once(type, callback, thisArg);
+        if (type === EventType.LASTFRAME) {
+            this._syncAllowLastFrameEvent();
         }
         return ret;
     }
@@ -429,32 +432,12 @@ export class AnimationComponent extends Component implements IEventTarget {
      * animation.off('play', this.onPlay, this);
      * ```
      */
-    public off (type: string, callback: Function, target?: Object) {
-        if (type === 'lastframe') {
-            const nameToState = this._nameToState;
-            for (const name of Object.keys(nameToState)) {
-                const state = nameToState[name]!;
-                state._lastframeEventOn = false;
-            }
+    public off (type: EventType, callback?: Function, thisArg?: any) {
+        super.off(type, callback, thisArg);
+        if (type === EventType.LASTFRAME) {
+            this._syncDisallowLastFrameEvent();
         }
-
-        EventTarget.prototype.off.call(this, type, callback, target);
     }
-
-    /**
-     * @en IEventTarget implementations, they will be overwrote with the same implementation in EventTarget by applyMixins
-     * @zh IEventTarget 实现，它们将被 applyMixins 在 EventTarget 中用相同的实现覆盖。
-     */
-    public targetOff (keyOrTarget?: string | Object | undefined): void {}
-    public once (type: string, callback: Function, target?: Object | undefined): Function | undefined {
-        return;
-    }
-    public dispatchEvent (event: Event): void {}
-    public hasEventListener (key: string, callback?: Function | undefined, target?: Object | undefined): boolean {
-        return false;
-    }
-    public removeAll (keyOrTarget?: string | Object | undefined): void {}
-    public emit (key: string, ...args: any[]): void {}
 
     protected _createState (clip: AnimationClip, name?: string) {
         return new AnimationState(clip, name);
@@ -463,6 +446,7 @@ export class AnimationComponent extends Component implements IEventTarget {
     protected _doCreateState (clip: AnimationClip, name: string) {
         const state = this._createState(clip, name);
         state._setEventTarget(this);
+        state.allowLastFrameEvent(this.hasEventListener(EventType.LASTFRAME));
         if (this.node) {
             state.initialize(this.node);
         }
@@ -496,14 +480,27 @@ export class AnimationComponent extends Component implements IEventTarget {
             }
         }
     }
+
+    private _syncAllowLastFrameEvent () {
+        if (this.hasEventListener(EventType.LASTFRAME)) {
+            for (const stateName in this._nameToState) {
+                this._nameToState[stateName].allowLastFrameEvent(true);
+            }
+        }
+    }
+
+    private _syncDisallowLastFrameEvent () {
+        if (!this.hasEventListener(EventType.LASTFRAME)) {
+            for (const stateName in this._nameToState) {
+                this._nameToState[stateName].allowLastFrameEvent(false);
+            }
+        }
+    }
 }
 
-// for restore on and off
-const {on, off} = AnimationComponent.prototype;
-applyMixins(AnimationComponent, [CallbacksInvoker, EventTarget]);
-// restore
-AnimationComponent.prototype.on = on;
-AnimationComponent.prototype.off = off;
+export namespace AnimationComponent {
+    export type EventType = EnumAlias<typeof EventType>;
+}
 
 cc.AnimationComponent = AnimationComponent;
 

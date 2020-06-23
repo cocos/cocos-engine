@@ -28,6 +28,9 @@ ccenum(PrimitiveType);
  */
 @ccclass('cc.Primitive')
 export class Primitive extends Mesh {
+
+    public static PrimitiveType = PrimitiveType;
+
     /**
      * @en
      * The type of the primitive mesh, set it before you call onLoaded.
@@ -60,6 +63,10 @@ export class Primitive extends Mesh {
     public onLoaded () {
         createMesh(primitives[PrimitiveType[this.type].toLowerCase()](this.info), this);
     }
+}
+
+export namespace Primitive {
+    export type PrimitiveType = EnumAlias<typeof PrimitiveType>;
 }
 
 cc.Primitive = Primitive;

@@ -377,6 +377,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         const shareMaterial = ps.sharedMaterial;
         if (shareMaterial != null) {
             const effectName = shareMaterial._effectAsset._name;
+            this._renderInfo!.mainTexture = shareMaterial.getProperty('mainTexture', 0);
             // reset material
             if (effectName.indexOf('particle') === -1 || effectName.indexOf('particle-gpu') !== -1) {
                 ps.setMaterial(null, 0);
@@ -388,6 +389,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             _matInsInfo.owner = this._particleSystem;
             _matInsInfo.subModelIdx = 0;
             this._defaultMat = new MaterialInstance(_matInsInfo);
+            if (this._renderInfo!.mainTexture !== null) {
+                this._defaultMat.setProperty('mainTexture', this._renderInfo!.mainTexture);
+            }
         }
         const mat: Material = ps.getMaterialInstance(0) || this._defaultMat;
         if (ps._simulationSpace === Space.World) {
