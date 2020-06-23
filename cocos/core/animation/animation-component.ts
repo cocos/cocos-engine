@@ -39,14 +39,18 @@ import { CrossFade } from './cross-fade';
 import { EDITOR, TEST } from 'internal:constants';
 
 /**
- * 动画组件管理动画状态来控制动画的播放。
- * 它提供了方便的接口用来预创建指定动画剪辑的动画状态，并提供了一系列事件：
- *  - play : 开始播放时
- *  - stop : 停止播放时
- *  - pause : 暂停播放时
- *  - resume : 恢复播放时
- *  - lastframe : 假如动画循环次数大于 1，当动画播放到最后一帧时
- *  - finished : 动画播放完成时
+ * @en
+ * Animation component governs a group of animation states to control playback of the states.
+ * For convenient, it stores a group of animation clips.
+ * Each of those clips would have an associated animation state uniquely created.
+ * Animation component is eventful, it dispatch a serials playback status events.
+ * See [[EventType]].
+ * @zh
+ * 动画组件管理一组动画状态，控制它们的播放。
+ * 为了方便，动画组件还存储了一组动画剪辑。
+ * 每个剪辑都会独自创建一个关联的动画状态对象。
+ * 动画组件具有事件特性，它会派发一系列播放状态相关的事件。
+ * 参考 [[EventType]]
  */
 @ccclass('cc.AnimationComponent')
 @help('i18n:cc.AnimationComponent')
@@ -55,21 +59,22 @@ import { EDITOR, TEST } from 'internal:constants';
 @menu('Components/Animation')
 export class AnimationComponent extends Eventify(Component) {
     /**
-     * 获取此动画组件的自有动画剪辑。
-     * 动画组件开始运行时会为每个自有动画剪辑创建动画状态。
+     * @en
+     * Gets or sets clips this component governs.
+     * When set, associated animation state of each existing clip will be stopped.
+     * If the existing default clip is not in the set of new clips, default clip will be reset to null.
+     * @zh
+     * 获取或设置此组件管理的剪辑。
+     * 设置时，已有剪辑关联的动画状态将被停止；若默认剪辑不在新的动画剪辑中，将被重置为空。
      */
     @property({
         type: [AnimationClip],
-        tooltip: '此动画组件的自有动画剪辑',
+        tooltip: '此动画组件管理的动画剪辑',
     })
     get clips () {
         return this._clips;
     }
 
-    /**
-     * 设置此动画组件的自有动画剪辑。
-     * 设置时将移除已有的动画剪辑，并将其动画状态设为停止；若默认动画剪辑不在新的自有动画剪辑中，将被重置为空。
-     */
     set clips (value) {
         if (this._crossFade) {
             this._crossFade.clear();
@@ -98,7 +103,11 @@ export class AnimationComponent extends Eventify(Component) {
     }
 
     /**
-     * 获取默认动画剪辑。
+     * @en
+     * Gets or sets the default clip.
+     * @en
+     * 获取或设置默认剪辑。
+     * 设置时，若指定的剪辑不在 `this.clips` 中则会被自动添加至 `this.clips`。
      * @see [[playOnLoad]]
      */
     @property({
@@ -109,9 +118,6 @@ export class AnimationComponent extends Eventify(Component) {
         return this._defaultClip;
     }
 
-    /**
-     * 设置默认动画剪辑。当指定的剪辑不在 `this.clips` 中时会被自动添加至 `this.clips`。
-     */
     set defaultClip (value) {
         this._defaultClip = value;
         if (!value) {
@@ -127,12 +133,12 @@ export class AnimationComponent extends Eventify(Component) {
     public static EventType = EventType;
 
     /**
-     * @zh
-     * 是否在动画组件开始运行时自动播放默认动画剪辑。
-     * 注意，若在组件开始运行前调用了 `crossFade` 或 `play()`，此字段将不会生效。
      * @en
      * Whether the default clip should get into playing when this components starts.
      * Note, this field takes no effect if `crossFade()` or `play()` has been called before this component starts.
+     * @zh
+     * 是否在组件开始运行时自动播放默认剪辑。
+     * 注意，若在组件开始运行前调用了 `crossFade` 或 `play()`，此字段将不会生效。
      */
     @property({
         tooltip: '是否在动画组件开始运行时自动播放默认动画剪辑',
@@ -186,8 +192,11 @@ export class AnimationComponent extends Eventify(Component) {
     }
 
     /**
+     * @en
+     * Switch to play specified animation state, without fading.
+     * @zh
      * 立即切换到指定动画状态。
-     * @param [name] 目标动画状态的名称；若未指定，使用默认动画剪辑的名称。
+     * @param name The name of the animation to be played, if absent, the default clip will be played
      */
     public play (name?: string) {
         this._hasBeenPlayed = true;
@@ -202,9 +211,12 @@ export class AnimationComponent extends Eventify(Component) {
     }
 
     /**
-     * 在指定周期内从当前动画状态平滑地切换到指定动画状态。
-     * @param name 目标动画状态的名称。
-     * @param duration 切换周期，单位为秒。
+     * @en
+     * Smoothly switch to play specified animation state.
+     * @zn
+     * 平滑地切换到指定动画状态。
+     * @param name The name of the animation to switch to
+     * @param duration The duration of the cross fade, default value is 0.3s
      */
     public crossFade (name: string, duration = 0.3) {
         this._hasBeenPlayed = true;
@@ -216,38 +228,53 @@ export class AnimationComponent extends Eventify(Component) {
     }
 
     /**
-     * 暂停所有动画状态，并暂停动画切换。
+     * @en
+     * Pause all animation states and all switching.
+     * @zh
+     * 暂停所有动画状态，并暂停所有切换。
      */
     public pause () {
         this._crossFade.pause();
     }
 
     /**
-     * 恢复所有动画状态，并继续动画切换。
+     * @en
+     * Resume all animation states and all switching.
+     * @zh
+     * 恢复所有动画状态，并恢复所有切换。
      */
     public resume () {
         this._crossFade.resume();
     }
 
     /**
-     * 停止所有动画状态，并停止动画切换。
+     * @en
+     * Stop all animation states and all switching.
+     * @zh
+     * 停止所有动画状态，并停止所有切换。
      */
     public stop () {
         this._crossFade.stop();
     }
 
     /**
+     * @en
+     * Get specified animation state.
+     * @zh
      * 获取指定的动画状态。
-     * @deprecated 将在 V1.0.0 移除，请转用 `this.getState()`。
+     * @deprecated please use [[getState]]
      */
     public getAnimationState (name: string) {
         return this.getState(name);
     }
 
     /**
+     * @en
+     * Get specified animation state.
+     * @zh
      * 获取指定的动画状态。
-     * @param name 动画状态的名称。
-     * @returns 不存在指定名称的动画状态时返回空，否则返回指定的动画状态。
+     * @param name The name of the animation
+     * @returns If no animation found, return null, otherwise the correspond animation state is returned
      */
     public getState (name: string) {
         const state = this._nameToState[name];
@@ -258,11 +285,15 @@ export class AnimationComponent extends Eventify(Component) {
     }
 
     /**
-     * 使用指定的动画剪辑创建一个动画状态，并将其命名为指定的名称。
-     * 若指定名称的动画状态已存在，已存在的动画状态将先被设为停止并被移除。
-     * @param clip 动画剪辑。
-     * @param name 动画状态的名称，若未指定，则使用动画剪辑的名称。
-     * @returns 新创建的动画状态。
+     * @en
+     * Creates a state for specified clip.
+     * If there is already a clip with same name, the existing animation state will be stopped and overridden.
+     * @zh
+     * 使用指定的动画剪辑创建一个动画状态。
+     * 若指定名称的动画状态已存在，已存在的动画状态将先被设为停止并被覆盖。
+     * @param clip The animation clip
+     * @param name The animation state name, if absent, the default clip's name will be used
+     * @returns The animation state created
      */
     public createState (clip: AnimationClip, name?: string) {
         name = name || clip.name;
@@ -272,8 +303,11 @@ export class AnimationComponent extends Eventify(Component) {
     }
 
     /**
-     * 停止并移除指定名称的动画状态。
-     * @param name 动画状态的名称。
+     * @en
+     * Stops and removes specified clip.
+     * @zh
+     * 停止并移除指定的动画状态。
+     * @param name The name of the animation state
      */
     public removeState (name: string) {
         const state = this._nameToState[name];
@@ -286,10 +320,10 @@ export class AnimationComponent extends Eventify(Component) {
 
     /**
      * 添加一个动画剪辑到 `this.clips`中并以此剪辑创建动画状态。
-     * @deprecated 将在 V1.0.0 移除，请转用 `this.createState()`。
-     * @param clip 动画剪辑。
-     * @param name 动画状态的名称，若未指定，则使用动画剪辑的名称。
-     * @returns 新创建的动画状态。
+     * @deprecated please use [[createState]]
+     * @param clip The animation clip
+     * @param name The animation state name, if absent, the default clip's name will be used
+     * @returns The created animation state
      */
     public addClip (clip: AnimationClip, name?: string): AnimationState {
         if (!ArrayUtils.contains(this._clips, clip)) {
@@ -307,8 +341,8 @@ export class AnimationComponent extends Eventify(Component) {
      * 从动画列表中移除指定的动画剪辑，<br/>
      * 如果依赖于 clip 的 AnimationState 正在播放或者 clip 是 defaultClip 的话，默认是不会删除 clip 的。<br/>
      * 但是如果 force 参数为 true，则会强制停止该动画，然后移除该动画剪辑和相关的动画。这时候如果 clip 是 defaultClip，defaultClip 将会被重置为 null。<br/>
-     * @deprecated 将在 V1.0.0 移除，请转用 `this.removeState()`。
-     * @param {Boolean} [force=false] - If force is true, then will always remove the clip and any animation states based on it.
+     * @deprecated please use [[removeState]]
+     * @param force - If force is true, then will always remove the clip and any animation states based on it.
      */
     public removeClip (clip: AnimationClip, force?: boolean) {
         let removalState: AnimationState | undefined;
@@ -354,11 +388,10 @@ export class AnimationComponent extends Eventify(Component) {
      * 注册动画事件回调。<bg>
      * 回调的事件里将会附上发送事件的 AnimationState。<bg>
      * 当播放一个动画时，会自动将事件注册到对应的 AnimationState 上，停止播放时会将事件从这个 AnimationState 上取消注册。
-     * @param type - 表示要侦听的事件类型的字符串。
-     * @param callback - 调度事件时将调用的回调。
-     *                   如果回调是重复的（回调是唯一的），则忽略回调。
-     * @param target - 调用回调的目标（此对象）可以为null
-     * @return 只返回传入的回调，以便可以更轻松地保存匿名函数。
+     * @param type The event type to listen to
+     * @param callback The callback when event triggered
+     * @param target The callee when invoke the callback, could be absent
+     * @return The registered callback
      * @example
      * ```typescript
      * onPlay: function (type, state) {
@@ -390,9 +423,9 @@ export class AnimationComponent extends Eventify(Component) {
      * Unregister animation event callback.
      * @zh
      * 取消注册动画事件回调。
-     * @param {String} type - 要删除的事件类型的字符串。
-     * @param {Function} callback - 要删除的回调
-     * @param {Object} target - 调用回调的目标（此对象），如果没有给出，则只删除没有目标的回调
+     * @param {String} type The event type to unregister
+     * @param {Function} callback The callback to unregister
+     * @param {Object} target The callee of the callback, could be absent
      * @example
      * ```typescript
      * // unregister event to all animation
