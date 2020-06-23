@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { packCustomObjData } from '../platform/deserialize-compiled';
+import { unpackJSONs, packCustomObjData } from '../platform/deserialize-compiled';
 
 const downloader = require('./downloader');
 const Cache = require('./cache');
@@ -76,9 +76,12 @@ var packManager = {
      */
     unpackJson (pack, json, options, onComplete) {
 
-        var out = Object.create(null), err = null;
+        var out = js.createMap(true), err = null;
         
         if (Array.isArray(json)) {
+
+            json = unpackJSONs(json, cc._MissingScript.safeFindClass);
+
             if (json.length !== pack.length) {
                 cc.errorID(4915);
             }

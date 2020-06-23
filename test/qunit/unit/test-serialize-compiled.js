@@ -1,13 +1,52 @@
 if (TestEditorExtends) { (function () {
-    largeModule('Serialize Compiled');
+
+    let { unpackJSONs, deserialize } = cc._Test.deserializeCompiled;
+    let _unregisterClass = cc.js.unregisterClass;
 
     const serialize = function (obj) {
         return Editor.serializeCompiled(obj, { stringify: false });
     };
 
+    largeModule('Serialize Compiled', {
+        setup: function () {
+            cc.js.unregisterClass = function () {
+                // test packed jsons
+                let classes = Array.prototype.slice.call(arguments);
+                if (classes.every(x => {
+                    // can not re-serialize missing script after deserialize-compiled
+                    let props = x.__props__;
+                    return !(props && props[props.length - 1] === '_$erialized');
+                })) {
+                    let writableJsons = JSON.parse(JSON.stringify(matchHistory.jsons));
+                    let packed = Editor.serializeCompiled.packJSONs(writableJsons);
+                    let unpacked = unpackJSONs(packed, cc._MissingScript.safeFindClass);
+
+                    for (let i = 0; i < unpacked.length; ++i) {
+                        let json = unpacked[i];
+                        // Some properties cannot be saved to JSON, so it is more accurate to execute JSON.parse once.
+                        let detail = new deserialize.Details;
+                        let deserialized = deserialize(json, detail);
+                        detail.assignAssetsBy(Editor.serialize.asAsset);
+                        // reserialize again so we can compare jsons
+                        let res = JSON.parse(JSON.stringify(serialize(deserialized)));
+                        deepEqual(res, matchHistory.jsons[i], 'Unpacked json of: ' + matchHistory.infos[i]);
+                    }
+                }
+
+                matchHistory.jsons.length = 0;
+                matchHistory.infos.length = 0;
+
+                _unregisterClass.apply(cc.js, arguments);
+            };
+        },
+        teardown: function () {
+            cc.js.unregisterClass = _unregisterClass;
+        }
+    });
+
     const {
         TraceableDict,
-        Builder,
+        // Builder,
     } = cc._Test.serialize;
     let { DataTypeID, BuiltinValueTypes } = cc._Test.deserializeCompiled;
 
@@ -82,9 +121,14 @@ if (TestEditorExtends) { (function () {
     //     strictEqual(array[1], indexObj1, 'dereferenced array correctly 2');
     // });
 
+    let matchHistory = { jsons: [], infos: [] };
     let match = function (obj, expect, info) {
-        // 有些属性无法被保存到 JSON 中，所以 JSON.parse 一次比较准确
-        deepEqual(JSON.parse(JSON.stringify(serialize(obj))), expect, info);
+        // Some properties cannot be saved to JSON, so it is more accurate to execute JSON.parse once.
+        let res = JSON.parse(JSON.stringify(serialize(obj)));
+        deepEqual(res, expect, info);
+
+        matchHistory.jsons.push(res);
+        matchHistory.infos.push(info);
     };
 
     test('Smoke test', function() {
@@ -717,5 +761,27 @@ if (TestEditorExtends) { (function () {
 
         cc.js.unregisterClass(MyAsset);
     });
+
+    function testPacked (objs, expected, info) {
+        let res = Editor.serializeCompiled.packJSONs(objs.map(serialize));
+        deepEqual(res, expected, info);
+    }
+
+    test('pack JSONs - smoke test', function () {
+        testPacked([], [1,0,0,[],0,[]], 'no data');
+        testPacked([[]], [
+            1, 0, 0, [], 0,
+            [
+                [[[]], [-1], 0, [], [], []]
+            ]
+        ], 'empty array');
+        testPacked([{}], [
+            1, 0, 0, [], 0,
+            [
+                [[{}], [-1], 0, [], [], []]
+            ]
+        ], 'empty dict');
+    });
+
 })();
 }

@@ -26,14 +26,7 @@
 
 import deserialize from './deserialize-compiled';
 
-if (CC_BUILD) {
-    cc.deserialize = deserialize;
-}
-else {
-    cc.deserialize = require('./deserialize-editor');
-}
-
-cc.deserialize.reportMissingClass = function (id) {
+deserialize.reportMissingClass = function (id) {
     if (CC_EDITOR && Editor.Utils.UuidUtils.isUuid(id)) {
         id = Editor.Utils.UuidUtils.decompressUuid(id);
         cc.warnID(5301, id);
@@ -42,3 +35,11 @@ cc.deserialize.reportMissingClass = function (id) {
         cc.warnID(5302, id);
     }
 };
+
+if (CC_BUILD) {
+    cc.deserialize = deserialize;
+}
+else {
+    cc.deserialize = require('./deserialize-editor');
+    cc.deserialize.reportMissingClass = deserialize.reportMissingClass;
+}

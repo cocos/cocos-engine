@@ -239,6 +239,14 @@ Array.from = Array.from || function (obj) {
     return array;
 };
 
+Array.prototype.fill = Array.prototype.fill || function (value) {
+    var res = new Array(this.length);
+    for (var i = 0; i < this.length; ++i) {
+        res[i] = value;
+    }
+    return res;
+};
+
 Float64Array.name = 'Float64Array';
 Float32Array.name = 'Float32Array';
 Uint32Array.name = 'Uint32Array';

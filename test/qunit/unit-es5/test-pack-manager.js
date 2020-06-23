@@ -5,12 +5,25 @@
 
     module('pack manager', {
         setup: function () {
-
+            packManager.register('.json', function (pack, json, options, onComplete) {
+                var out = {};
+                if (Array.isArray(json)) {
+                    for (var i = 0; i < pack.length; i++) {
+                        out[pack[i] + '@import'] = json[i];
+                    }
+                    onComplete && onComplete(null, out);
+                }
+                else {
+                    packManager.unpackJson.apply(packManager, arguments);
+                }
+            });
         },
         teardown: function () {
+            var packManager = cc.assetManager.packManager;
             cc.assetManager._transform = originTransform;
             cc.assetManager.downloader.download = originDownload;
-            cc.assetManager.packManager.init();
+            packManager.init();
+            packManager.register('.json', packManager.unpackJson);
             cc.assetManager._files.clear();
         }
     });
@@ -34,8 +47,16 @@
             onComplete(null, PACKS[url]);
         };
 
-        packManager.load({ id: "f10d21ed@import" , info: { packs: [{ uuid: "01532d877", packs: ["9b0754b9",
-        "f10d21ed"], ext: '.json'}] }, config: {}}, null, function (err, data) {
+        packManager.load({
+            id: "f10d21ed@import" ,
+            info: {
+                packs: [{
+                    uuid: "01532d877",
+                    packs: PACKS["01532d877"], ext: '.json'
+                }]
+            },
+            config: {}
+        }, null, function (err, data) {
             ok(data === "f10d21ed", 'simple test');
             start();
         });

@@ -16,7 +16,7 @@ asyncTest('Load', function () {
 
     loader.load(resources, function (completedCount, totalCount, item) {
         if (item.uuid === image1) {
-            ok(item.content instanceof Image, 'image url\'s result should be Image');
+            ok(item.content instanceof ImageBitmapOrImage, 'image url\'s result should be Image');
         }
         else if (item.uuid === json1) {
             strictEqual(item.content.width, 89, 'should give correct js object as result of JSON');
@@ -42,7 +42,7 @@ asyncTest('Load single file', function () {
 
     loader.load(image1, function (completedCount, totalCount, item) {
         if (item.uuid === image1) {
-            ok(item.content instanceof Image, 'image url\'s result should be Image');
+            ok(item.content instanceof ImageBitmapOrImage, 'image url\'s result should be Image');
         }
         else {
             ok(false, 'should not load an unknown url');
@@ -152,7 +152,7 @@ asyncTest('Loading font', function () {
 
     var progressCallback = new Callback(function (completedCount, totalCount, item) {
         if (item.uuid === image) {
-            ok(item.content instanceof Image, 'image url\'s result should be Image');
+            ok(item.content instanceof ImageBitmapOrImage, 'image url\'s result should be Image');
         }
         else if (item.uuid === font.url) {
             strictEqual(item.content, 'Thonburi_LABEL', 'should set family name as content for Font type');
