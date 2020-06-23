@@ -35,6 +35,7 @@ import { Pipeline, IPipe } from './pipeline';
 import {loadUuid} from './uuid-loader';
 import {loadFont} from './font-loader';
 import { legacyCC } from '../global-exports';
+import { PixelFormat } from '../assets/asset-enum';
 
 function loadNothing () {
     return null;
@@ -215,6 +216,109 @@ function loadPKMTex(item) {
     return etcAsset;
 }
 
+//===============//
+// ASTC constants //
+//===============//
+
+// struct astc_header
+// {
+// 	uint8_t magic[4];
+// 	uint8_t blockdim_x;
+// 	uint8_t blockdim_y;
+// 	uint8_t blockdim_z;
+// 	uint8_t xsize[3];			// x-size = xsize[0] + xsize[1] + xsize[2]
+// 	uint8_t ysize[3];			// x-size, y-size and z-size are given in texels;
+// 	uint8_t zsize[3];			// block count is inferred
+// };
+const ASTC_MAGIC = 0x5CA1AB13;
+
+const ASTC_HEADER_LENGTH = 16; // The header length
+const ASTC_HEADER_MAGIC = 4;
+const ASTC_HEADER_BLOCKDIM = 3;
+
+const ASTC_HEADER_SIZE_X_BEGIN = 7;
+const ASTC_HEADER_SIZE_Y_BEGIN = 10;
+const ASTC_HEADER_SIZE_Z_BEGIN = 13;
+
+function loadASTCTex (item) {
+    let buffer = item.content instanceof ArrayBuffer ? item.content : item.content.buffer;
+    const header = new Uint8Array(buffer);
+
+    const magicval = header[0] + (header[1] << 8) + (header[2] << 16) + (header[3] << 24);
+    if (magicval !== ASTC_MAGIC) {
+        return new Error('Invalid magic number in ASTC header');
+    }
+
+    const xdim = header[ASTC_HEADER_MAGIC];
+    const ydim = header[ASTC_HEADER_MAGIC + 1];
+    const zdim = header[ASTC_HEADER_MAGIC + 2];
+    if ((xdim < 3 || xdim > 6 || ydim < 3 || ydim > 6 || zdim < 3 || zdim > 6) &&
+        (xdim < 4 || xdim === 7 || xdim === 9 || xdim === 11 || xdim > 12 ||
+        ydim < 4 || ydim === 7 || ydim === 9 || ydim === 11 || ydim > 12 || zdim !== 1)) {
+        return new Error('Invalid block number in ASTC header');
+    }
+
+    const format = getASTCFormat(xdim,ydim);
+
+    const xsize = header[ASTC_HEADER_SIZE_X_BEGIN] + (header[ASTC_HEADER_SIZE_X_BEGIN + 1] << 8) + (header[ASTC_HEADER_SIZE_X_BEGIN + 2] << 16);
+    const ysize = header[ASTC_HEADER_SIZE_Y_BEGIN] + (header[ASTC_HEADER_SIZE_Y_BEGIN + 1] << 8) + (header[ASTC_HEADER_SIZE_Y_BEGIN + 2] << 16);
+    const zsize = header[ASTC_HEADER_SIZE_Z_BEGIN] + (header[ASTC_HEADER_SIZE_Z_BEGIN + 1] << 8) + (header[ASTC_HEADER_SIZE_Z_BEGIN + 2] << 16);
+
+    buffer = buffer.slice(ASTC_HEADER_LENGTH, buffer.byteLength);
+    const astcData = new Uint8Array(buffer);
+
+    const astcAsset = {
+        _data: astcData,
+        _compressed: true,
+        width: xsize,
+        height: ysize,
+        format: format
+    };
+    return astcAsset;
+}
+
+function getASTCFormat (xdim,ydim) {
+    if (xdim === 4) {
+        return PixelFormat.RGBA_ASTC_4x4;
+    } else if (xdim === 5) {
+        if (ydim === 4) {
+            return PixelFormat.RGBA_ASTC_5x4;
+        } else {
+            return PixelFormat.RGBA_ASTC_5x5;
+        }
+    } else if (xdim === 6) {
+        if (ydim === 5) {
+            return PixelFormat.RGBA_ASTC_6x5;
+        } else {
+            return PixelFormat.RGBA_ASTC_6x6;
+        }
+    } else if (xdim === 8) {
+        if (ydim === 5) {
+            return PixelFormat.RGBA_ASTC_8x5;
+        } else if (ydim === 6) {
+            return PixelFormat.RGBA_ASTC_8x6;
+        } else {
+            return PixelFormat.RGBA_ASTC_8x8;
+        }
+    } else if (xdim === 10) {
+        if (ydim === 5) {
+            return PixelFormat.RGBA_ASTC_10x5;
+        } else if (ydim === 6) {
+            return PixelFormat.RGBA_ASTC_10x6;
+        } else if (ydim === 8) {
+            return PixelFormat.RGBA_ASTC_10x8;
+        } else {
+            return PixelFormat.RGBA_ASTC_10x10;
+        }
+    } else {
+        if (ydim === 10) {
+            return PixelFormat.RGBA_ASTC_12x10;
+        } else {
+            return PixelFormat.RGBA_ASTC_12x12;
+        }
+    }
+}
+
 let defaultMap = {
     // Images
     'png' : loadImage,
@@ -228,6 +332,7 @@ let defaultMap = {
     'image' : loadImage,
     'pvr' : loadPVRTex,
     'pkm' : loadPKMTex,
+    'astc' : loadASTCTex,
 
     // Audio
     'mp3' : loadAudioAsAsset,

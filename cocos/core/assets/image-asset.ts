@@ -70,7 +70,7 @@ export class ImageAsset extends Asset {
 
     set _nativeAsset (value: ImageSource) {
         if (!(value instanceof HTMLElement)) {
-            value.format = this._format;
+            value.format = value.format || this._format;
         }
         this.reset(value);
     }
@@ -108,7 +108,7 @@ export class ImageAsset extends Asset {
      * 此图像资源是否为压缩像素格式。
      */
     get isCompressed () {
-        return this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
+        return this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_ASTC_12x12;
     }
 
     /**
@@ -133,7 +133,7 @@ export class ImageAsset extends Asset {
         return this._tex;
     }
 
-    private static extnames = ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm'];
+    private static extnames = ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm', '.astc'];
 
     private _nativeData: ImageSource;
 
@@ -262,7 +262,9 @@ export class ImageAsset extends Asset {
             if (index !== -1 && index < preferedExtensionIndex) {
                 const fmt = extFormat[1] ? parseInt(extFormat[1]) : this._format;
                 // check whether or not support compressed texture
-                if ( tmpExt === '.pvr' && (!device || !device.hasFeature(GFXFeature.FORMAT_PVRTC))) {
+                if ( tmpExt === '.astc' && (!device || !device.hasFeature(GFXFeature.FORMAT_ASTC))) {
+                    continue;
+                } else if ( tmpExt === '.pvr' && (!device || !device.hasFeature(GFXFeature.FORMAT_PVRTC))) {
                     continue;
                 } else if ((fmt === PixelFormat.RGB_ETC1 || fmt === PixelFormat.RGBA_ETC1) &&
                     (!device || !device.hasFeature(GFXFeature.FORMAT_ETC1))) {
