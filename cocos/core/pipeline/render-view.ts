@@ -2,13 +2,13 @@
  * @category pipeline
  */
 
-import { GFXWindow } from '../gfx/window';
 import { Camera } from '../renderer/scene/camera';
 import { Root } from '../root';
 import { CAMERA_DEFAULT_MASK } from './define';
 import { RenderFlowType } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
 import { legacyCC } from '../global-exports';
+import { RenderWindow } from './render-window';
 
 /**
  * @zh
@@ -134,7 +134,7 @@ export class RenderView {
      * @zh
      * GFX窗口。
      */
-    private _window: GFXWindow | null = null;
+    private _window: RenderWindow | null = null;
 
     /**
      * @zh

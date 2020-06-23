@@ -14,8 +14,6 @@
     "build:dev": "gulp build-code",
     "build:min": "gulp build-code-minified",
     "build-declaration": "gulp build-declarations",
-    "build-rollup": "echo \"[WARN]You are not required to run 'build-rollup' anymore.\"",
-    "postinstall": "npm run build-rollup",
     "build-api-json": "gulp build-api-json -i index.ts -o ./3d-api-docs/tempJson",
     "build-api": "npm run build-api-json && gulp build-3d-api -i index.ts -o ./3d-api-docs -j ./3d-api-docs/tempJson",
     "test": "gulp test"
@@ -53,6 +51,6 @@
   },
   "dependencies": {
     "@cocos/ammo": "^1.0.6",
-    "@cocos/cannon": "^1.1.0"
+    "@cocos/cannon": "^1.1.1"
   }
 }

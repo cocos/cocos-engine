@@ -526,13 +526,13 @@ export class Game extends EventTarget {
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
      */
-    public on (type: string, callback: Function, target?: object): any {
+    public on (type: string, callback: Function, target?: object, once?: boolean): any {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if (this._inited && type === Game.EVENT_ENGINE_INITED) {
             callback.call(target);
         }
         else {
-            this.eventTargetOn(type, callback, target);
+            this.eventTargetOn(type, callback, target, once);
         }
     }
 
@@ -583,7 +583,7 @@ export class Game extends EventTarget {
         }
 
         if (!JSB && !EDITOR && !PREVIEW && legacyCC.internal.SplashScreen) {
-            legacyCC.internal.SplashScreen.instance.main(this._gfxDevice);
+            legacyCC.internal.SplashScreen.instance.main(legacyCC.director.root);
         }
 
         legacyCC.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
@@ -597,6 +597,9 @@ export class Game extends EventTarget {
      * @param {Function} onStart - function to be executed after game initialized
      */
     public run (onStart: Function | null, legacyOnStart?: Function | null) {
+        if (!EDITOR) {
+            this._initEvents();
+        }
         if (typeof onStart !== 'function' && legacyOnStart) {
             const config: IGameConfig = this.onStart as IGameConfig;
             this.init(config);
@@ -738,12 +741,12 @@ export class Game extends EventTarget {
             window.rAF = window.requestAnimationFrame;
             window.cAF = window.cancelAnimationFrame;
         }
-        else {     
+        else {
             if (this._intervalId) {
                 window.cAF(this._intervalId);
                 this._intervalId = 0;
             }
-            
+
             if (frameRate !== 60 && frameRate !== 30) {
                 window.rAF = this._stTime;
                 window.cAF = this._ctTime;

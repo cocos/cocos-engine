@@ -28,10 +28,10 @@
  * @category ui
  */
 
-import { EventHandler as ComponentEventHandler } from '../../core/components';
-import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { EventHandler as ComponentEventHandler, UITransformComponent } from '../../core/components';
+import { ccclass, help, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
 import { Event } from '../../core/event';
-import { EventMouse, EventTouch, Touch } from '../../core/platform';
+import { EventMouse, EventTouch, Touch, logID } from '../../core/platform';
 import { Size, Vec2, Vec3 } from '../../core/math';
 import { LayoutComponent } from './layout-component';
 import { ScrollBarComponent } from './scroll-bar-component';
@@ -206,6 +206,7 @@ export enum EventType {
 @help('i18n:cc.ScrollViewComponent')
 @executionOrder(110)
 @menu('UI/ScrollView')
+@requireComponent(UITransformComponent)
 export class ScrollViewComponent extends ViewGroupComponent {
     public static EventType = EventType;
 
@@ -280,7 +281,13 @@ export class ScrollViewComponent extends ViewGroupComponent {
         return this._content;
     }
     set content (value) {
-        if (this._content === value){
+        if (this._content === value) {
+            return;
+        }
+        let contentTrans = value && value._uiProps.uiTransformComp;
+        let viewTrans = value && value.parent && value.parent._uiProps.uiTransformComp;
+        if (value && (!contentTrans || !viewTrans)) {
+            logID(4302);
             return;
         }
 
@@ -388,7 +395,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
     /**
      * @en
-     * Scrollview events callback.
+     * ScrollView events callback.
      *
      * @zh
      * 滚动视图的事件回调函数。
@@ -937,9 +944,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
             if (this.content) {
                 this.content.on(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
                 this.content.on(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
-                if (this.view!) {
-                    this.view!.on(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
-                    this.view!.on(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
+                if (this.view) {
+                    this.view.on(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
+                    this.view.on(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
                 }
             }
 
@@ -960,9 +967,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
             if (this.content) {
                 this.content.off(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
                 this.content.off(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
-                if (this.view!) {
-                    this.view!.off(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
-                    this.view!.off(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
+                if (this.view) {
+                    this.view.off(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
+                    this.view.off(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
                 }
             }
         }
@@ -1097,18 +1104,18 @@ export class ScrollViewComponent extends ViewGroupComponent {
             if (layout && layout.enabledInHierarchy) {
                 layout.updateLayout();
             }
-            const viewSize = this.view!._uiProps.uiTransformComp!.contentSize;
+            const viewTrans = this.view!._uiProps.uiTransformComp!;
 
-            const anchorX = viewSize.width * this.view!.anchorX;
-            const anchorY = viewSize.height * this.view!.anchorY;
+            const anchorX = viewTrans.width * viewTrans.anchorX;
+            const anchorY = viewTrans.height * viewTrans.anchorY;
 
             this._leftBoundary = -anchorX;
             this._bottomBoundary = -anchorY;
 
-            this._rightBoundary = this._leftBoundary + viewSize.width;
-            this._topBoundary = this._bottomBoundary + viewSize.height;
+            this._rightBoundary = this._leftBoundary + viewTrans.width;
+            this._topBoundary = this._bottomBoundary + viewTrans.height;
 
-            this._moveContentToTopLeft(viewSize);
+            this._moveContentToTopLeft(viewTrans.contentSize);
         }
 
     }
@@ -1261,20 +1268,24 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
     protected _getContentLeftBoundary () {
         const contentPos = this.getContentPosition();
-        return contentPos.x - this._content!.anchorX * this._content!.width;
+        const contentTrans = this._content!._uiProps.uiTransformComp!;
+        return contentPos.x - contentTrans.anchorX * contentTrans.width;
     }
 
     protected _getContentRightBoundary () {
-        return this._getContentLeftBoundary() + this._content!.width;
+        const contentTrans = this._content!._uiProps.uiTransformComp!;
+        return this._getContentLeftBoundary() + contentTrans.width;
     }
 
     protected _getContentTopBoundary () {
-        return this._getContentBottomBoundary() + this._content!.height;
+        const contentTrans = this._content!._uiProps.uiTransformComp!;
+        return this._getContentBottomBoundary() + contentTrans.height;
     }
 
     protected _getContentBottomBoundary () {
         const contentPos = this.getContentPosition();
-        return contentPos.y - this._content!.anchorY * this._content!.height;
+        const contentTrans = this._content!._uiProps.uiTransformComp!;
+        return contentPos.y - contentTrans.anchorY * contentTrans.height;
     }
 
     protected _getHowMuchOutOfBoundary (addition?: Vec3) {
@@ -1458,26 +1469,27 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
         let scrollEventType;
         const pos = this._content!.position;
+        const contentTrans = this._content!._uiProps.uiTransformComp!;
 
         if (realMove.y > 0) { // up
-            const icBottomPos = pos.y - this._content!.anchorY * this._content!.height;
+            const icBottomPos = pos.y - contentTrans.anchorY * contentTrans.height;
 
             if (icBottomPos + realMove.y >= this._bottomBoundary) {
                 scrollEventType = EventType.SCROLL_TO_BOTTOM;
             }
         } else if (realMove.y < 0) { // down
-            const icTopPos = pos.y - this._content!.anchorY * this._content!.height + this._content!.height;
+            const icTopPos = pos.y - contentTrans.anchorY * contentTrans.height + contentTrans.height;
 
             if (icTopPos + realMove.y <= this._topBoundary) {
                 scrollEventType = EventType.SCROLL_TO_TOP;
             }
         } else if (realMove.x < 0) { // left
-            const icRightPos = pos.x - this._content!.anchorX * this._content!.width + this._content!.width;
+            const icRightPos = pos.x - contentTrans.anchorX * contentTrans.width + contentTrans.width;
             if (icRightPos + realMove.x <= this._rightBoundary) {
                 scrollEventType = EventType.SCROLL_TO_RIGHT;
             }
         } else if (realMove.x > 0) { // right
-            const icLeftPos = pos.x - this._content!.anchorX * this._content!.width;
+            const icLeftPos = pos.x - contentTrans.anchorX * contentTrans.width;
             if (icLeftPos + realMove.x >= this._leftBoundary) {
                 scrollEventType = EventType.SCROLL_TO_LEFT;
             }

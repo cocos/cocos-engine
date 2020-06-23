@@ -2,10 +2,9 @@
  * @category pipeline.forward
  */
 
-import { ccclass, boolean } from '../../data/class-decorator';
+import { ccclass } from '../../data/class-decorator';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXClearFlag, GFXFilter, IGFXColor } from '../../gfx/define';
-import { Layers } from '../../scene-graph';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderFlow } from '../render-flow';
@@ -13,7 +12,6 @@ import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
-import { Light } from '../../renderer';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];

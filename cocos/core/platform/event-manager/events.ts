@@ -31,6 +31,7 @@
 import Event from '../../event/event';
 import { Vec2 } from '../../math/vec2';
 import { Touch } from './touch';
+import { Acceleration } from './input-manager';
 import { legacyCC } from '../../global-exports';
 
 let _vec2 = new Vec2();
@@ -606,13 +607,13 @@ export class EventAcceleration extends Event {
      * @en The acceleration object
      * @zh 加速度对象
      */
-    public acc: Object;
+    public acc: Acceleration;
 
     /**
      * @param acc - The acceleration
      * @param bubbles - Indicate whether the event bubbles up through the hierarchy or not.
      */
-    constructor (acc: Object, bubbles?: boolean) {
+    constructor (acc: Acceleration, bubbles?: boolean) {
         super(Event.ACCELERATION, bubbles);
         this.acc = acc;
     }

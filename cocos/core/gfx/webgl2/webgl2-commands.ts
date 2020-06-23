@@ -114,6 +114,7 @@ export function GFXFormatToWebGLType (format: GFXFormat, gl: WebGL2RenderingCont
         case GFXFormat.RGB32UI: return gl.UNSIGNED_INT;
         case GFXFormat.RGB32I: return gl.INT;
 
+        case GFXFormat.BGRA8: return gl.UNSIGNED_BYTE;
         case GFXFormat.RGBA8: return gl.UNSIGNED_BYTE;
         case GFXFormat.SRGB8_A8: return gl.UNSIGNED_BYTE;
         case GFXFormat.RGBA8SN: return gl.BYTE;
@@ -135,7 +136,7 @@ export function GFXFormatToWebGLType (format: GFXFormat, gl: WebGL2RenderingCont
         case GFXFormat.RGB9E5: return gl.FLOAT;
 
         case GFXFormat.D16: return gl.UNSIGNED_SHORT;
-        case GFXFormat.D16S8: return gl.UNSIGNED_SHORT;
+        case GFXFormat.D16S8: return gl.UNSIGNED_INT_24_8; // no D16S8 support
         case GFXFormat.D24: return gl.UNSIGNED_INT;
         case GFXFormat.D24S8: return gl.UNSIGNED_INT_24_8;
         case GFXFormat.D32F: return gl.FLOAT;
@@ -198,6 +199,7 @@ export function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGL2Ren
         case GFXFormat.RGB8SN: return gl.RGB8_SNORM;
         case GFXFormat.RGB8UI: return gl.RGB8UI;
         case GFXFormat.RGB8I: return gl.RGB8I;
+        case GFXFormat.BGRA8: return gl.RGBA8;
         case GFXFormat.RGBA8: return gl.RGBA8;
         case GFXFormat.RGBA8SN: return gl.RGBA8_SNORM;
         case GFXFormat.RGBA8UI: return gl.RGBA8UI;
@@ -233,7 +235,7 @@ export function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGL2Ren
         case GFXFormat.RGB10A2UI: return gl.RGB10_A2UI;
         case GFXFormat.R11G11B10F: return gl.R11F_G11F_B10F;
         case GFXFormat.D16: return gl.DEPTH_COMPONENT16;
-        case GFXFormat.D16S8: return gl.DEPTH_STENCIL;
+        case GFXFormat.D16S8: return gl.DEPTH24_STENCIL8; // no D16S8 support
         case GFXFormat.D24: return gl.DEPTH_COMPONENT24;
         case GFXFormat.D24S8: return gl.DEPTH24_STENCIL8;
         case GFXFormat.D32F: return gl.DEPTH_COMPONENT32F;
@@ -289,6 +291,7 @@ export function GFXFormatToWebGLFormat (format: GFXFormat, gl: WebGL2RenderingCo
         case GFXFormat.RGB8SN:
         case GFXFormat.RGB8UI:
         case GFXFormat.RGB8I: return gl.RGB;
+        case GFXFormat.BGRA8:
         case GFXFormat.RGBA8:
         case GFXFormat.RGBA8SN:
         case GFXFormat.RGBA8UI:
@@ -1048,6 +1051,9 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
                     gl.texParameteri(gpuTexture.glTarget, gl.TEXTURE_MIN_FILTER, gpuTexture.glMinFilter);
                     gl.texParameteri(gpuTexture.glTarget, gl.TEXTURE_MAG_FILTER, gpuTexture.glMagFilter);
                     */
+                }
+                else {
+                    gl.deleteTexture(glTexture);
                 }
             } else {
                 const glRenderbuffer = gl.createRenderbuffer();

@@ -29,7 +29,6 @@ import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
 import { GFXSampler, IGFXSamplerInfo } from '../sampler';
 import { GFXShader, IGFXShaderInfo } from '../shader';
 import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from '../texture';
-import { GFXWindow, IGFXWindowInfo } from '../window';
 import { WebGLGFXBindingLayout } from './webgl-binding-layout';
 import { WebGLGFXBuffer } from './webgl-buffer';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
@@ -47,7 +46,6 @@ import { WebGLGFXSampler } from './webgl-sampler';
 import { WebGLGFXShader } from './webgl-shader';
 import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLGFXTexture } from './webgl-texture';
-import { WebGLGFXWindow } from './webgl-window';
 
 export class WebGLGFXDevice extends GFXDevice {
 
@@ -356,7 +354,11 @@ export class WebGLGFXDevice extends GFXDevice {
             this._features[GFXFeature.TEXTURE_HALF_FLOAT_LINEAR] = true;
         }
 
+        this._features[GFXFeature.FORMAT_RGB8] = true;
+
         if (this._WEBGL_depth_texture) {
+            this._features[GFXFeature.FORMAT_D16] = true;
+            this._features[GFXFeature.FORMAT_D24] = true;
             this._features[GFXFeature.FORMAT_D24S8] = true;
         }
 
@@ -394,16 +396,7 @@ export class WebGLGFXDevice extends GFXDevice {
             this._features[GFXFeature.FORMAT_ASTC] = true;
             compressedFormat += 'astc ';
         }
-
-        this._features[GFXFeature.MSAA] = false;
-        this._features[GFXFeature.DEPTH_BOUNDS] = true;
-        this._features[GFXFeature.LINE_WIDTH] = true;
-        this._features[GFXFeature.STENCIL_COMPARE_MASK] = true;
-        this._features[GFXFeature.STENCIL_WRITE_MASK] = true;
-        this._features[GFXFeature.FORMAT_RGB8] = true;
-        this._features[GFXFeature.FORMAT_D16] = true;
-        this._features[GFXFeature.FORMAT_D24] = this.getExtension('OES_depth24');
-
+      
         if (this._OES_vertex_array_object) {
             if (RUNTIME_BASED) {
                 // @ts-ignore
@@ -447,15 +440,6 @@ export class WebGLGFXDevice extends GFXDevice {
 
         // create primary window
         const canvas = this._webGLRC.canvas as HTMLCanvasElement;
-        this._mainWindow = this.createWindow({
-            title: canvas.title || '',
-            left: canvas.offsetLeft || 0,
-            top: canvas.offsetTop || 0,
-            width: this._webGLRC.drawingBufferWidth,
-            height: this._webGLRC.drawingBufferHeight,
-            colorFmt: this._colorFmt,
-            depthStencilFmt: this._depthStencilFmt,
-        });
 
         this._cmdAllocator = this.createCommandAllocator({});
 
@@ -523,11 +507,6 @@ export class WebGLGFXDevice extends GFXDevice {
         if (this.nullTexCube) {
             this.nullTexCube.destroy();
             this.nullTexCube = null;
-        }
-
-        if (this._mainWindow) {
-            this._mainWindow.destroy();
-            this._mainWindow = null;
         }
 
         if (this._cmdAllocator) {
@@ -637,12 +616,6 @@ export class WebGLGFXDevice extends GFXDevice {
         const queue = new WebGLGFXQueue(this);
         queue.initialize(info);
         return queue;
-    }
-
-    public createWindow (info: IGFXWindowInfo): GFXWindow {
-        const window = new WebGLGFXWindow(this);
-        window.initialize(info);
-        return window;
     }
 
     public acquire () {}

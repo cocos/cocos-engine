@@ -770,14 +770,16 @@ class EventManager {
         const node1 = l1._getSceneGraphPriority();
         const node2 = l2._getSceneGraphPriority();
         // Event manager should only care about ui node in the current scene hierarchy
-        if (!l2 || !node2 || !node2._activeInHierarchy || !(node2 as Node)._uiProps.uiTransformComp) {
+        if (!l2 || !node2 || !node2._activeInHierarchy || !node2._uiProps.uiTransformComp) {
             return -1;
         }
-        else if (!l1 || !node1 || !node1._activeInHierarchy || !(node1 as Node)._uiProps.uiTransformComp) {
+        else if (!l1 || !node1 || !node1._activeInHierarchy || !node1._uiProps.uiTransformComp) {
             return 1;
         }
 
-        let p1 = node1; let p2 = node2; let trans1 = (node1 as Node)._uiProps.uiTransformComp!; let trans2 = (node2 as Node)._uiProps.uiTransformComp!; let ex = false;
+        let p1 = node1, p2 = node2, ex = false;
+        let trans1 = node1._uiProps.uiTransformComp;
+        let trans2 = node2._uiProps.uiTransformComp;
         if (trans1.visibility !== trans2.visibility) {
             return trans2.visibility - trans1.visibility;
         }

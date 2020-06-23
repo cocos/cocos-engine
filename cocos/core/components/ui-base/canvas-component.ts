@@ -34,7 +34,6 @@ import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, men
 import { director, Director } from '../../director';
 import { game } from '../../game';
 import { GFXClearFlag } from '../../gfx/define';
-import { GFXWindow } from '../../gfx/window';
 import { Color, Vec3, Rect } from '../../math';
 import { view } from '../../platform/view';
 import visibleRect from '../../platform/visible-rect';
@@ -45,6 +44,7 @@ import { Component } from '../component';
 import { UITransformComponent } from './ui-transform-component';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
+import { RenderWindow } from '../../pipeline';
 
 const _worldPos = new Vec3();
 
@@ -110,7 +110,7 @@ export class CanvasComponent extends Component {
     @property({
         tooltip: '清理颜色缓冲区后的颜色',
     })
-    get color() {
+    get color () {
         return this._color;
     }
 
@@ -360,12 +360,13 @@ export class CanvasComponent extends Component {
             this.node.setPosition(_worldPos);
         }
 
-        if (this.node.width !== nodeSize.width) {
-            this.node.width = nodeSize.width;
+        let trans = this.node._uiProps.uiTransformComp!;
+        if (trans.width !== nodeSize.width) {
+            trans.width = nodeSize.width;
         }
 
-        if (this.node.height !== nodeSize.height) {
-            this.node.height = nodeSize.height;
+        if (trans.height !== nodeSize.height) {
+            trans.height = nodeSize.height;
         }
 
         this.node.getWorldPosition(_worldPos);
@@ -386,7 +387,7 @@ export class CanvasComponent extends Component {
     }
 
     protected _checkTargetTextureEvent (old: RenderTexture | null) {
-        const resizeFunc = (win: GFXWindow) => {
+        const resizeFunc = (win: RenderWindow) => {
             if (this._camera) {
                 this._camera.setFixedSize(win.width, win.height);
             }

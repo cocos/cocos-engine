@@ -720,15 +720,7 @@ export abstract class RenderPipeline {
             this._colorFmt = GFXFormat.RGBA8;
         }
 
-        if (this._device.depthBits === 24) {
-            if (this._device.stencilBits === 8) {
-                this._depthStencilFmt = GFXFormat.D24S8;
-            } else {
-                this._depthStencilFmt = GFXFormat.D24;
-            }
-        } else {
-            this._depthStencilFmt = GFXFormat.D16;
-        }
+        this._depthStencilFmt = this._device.depthStencilFormat;
 
         // colorFmt = GFXFormat.RGBA16F;
 
@@ -769,7 +761,7 @@ export abstract class RenderPipeline {
                 format: this._getTextureFormat(rtd.format, rtd.usage),
                 width: rtd.width,
                 height: rtd.height,
-                //FIXME: need other args?
+                // FIXME: need other args?
             }));
         }
         for (let i = 0; i < this.renderPasses.length; i++) {
@@ -801,7 +793,7 @@ export abstract class RenderPipeline {
             this._frameBuffers.set(fbd.name, this._device.createFramebuffer({
                 renderPass: rp,
                 colorTextures: ts,
-                colorMipmapLevels: colorMipmapLevels,
+                colorMipmapLevels,
                 depthStencilTexture: dsv,
                 depStencilMipmapLevel: 0,
             }));

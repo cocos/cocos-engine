@@ -37,6 +37,7 @@ import { ISharedLabelData } from './font-utils';
 import { PixelFormat } from '../../../core/assets/asset-enum';
 import { director, Director } from '../../../core/director';
 import { loader } from '../../../core/load-pipeline';
+import { UITransformComponent } from '../../../core/components/ui-base/ui-transform-component';
 
 // const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutlineComponent, UIComponent);
 const Overflow = LabelComponent.Overflow;
@@ -409,6 +410,7 @@ export class LetterAtlas {
 const _tmpRect = new Rect();
 
 let _comp: LabelComponent | null = null;
+let _uiTrans: UITransformComponent | null = null;
 
 const _horizontalKerning: number[] = [];
 const _lettersInfo: LetterInfo[] = [];
@@ -476,6 +478,7 @@ export const letterFont = {
         }
 
         _comp = comp;
+        _uiTrans = null;
 
         this._updateFontFamily(comp);
         _labelInfo.fontFamily = _fontFamily;
@@ -486,7 +489,7 @@ export const letterFont = {
         this._updateContent();
 
         _comp.actualFontSize = _fontSize;
-        _comp.node.setContentSize(_contentSize);
+        _uiTrans!.setContentSize(_contentSize);
 
         _comp.renderData!.vertDirty = _comp.renderData!.uvDirty = false;
 
@@ -507,7 +510,7 @@ export const letterFont = {
         _string = _comp.string.toString();
         _fontSize = _comp.fontSize;
         _originFontSize = _fontSize;
-        const contentSize = _comp.node.getContentSize();
+        const contentSize = _uiTrans!.contentSize;
         _contentSize.width = contentSize.width;
         _contentSize.height = contentSize.height;
         _hAlign = _comp.horizontalAlign;
@@ -950,7 +953,7 @@ export const letterFont = {
         renderData.dataLength = renderData.vertexCount = renderData.indicesCount = 0;
 
         const contentSize = _contentSize;
-        const ap = node.getAnchorPoint();
+        const ap = _uiTrans!.anchorPoint;
         const appX = ap.x * contentSize.width;
         const appY = ap.y * contentSize.height;
 

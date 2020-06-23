@@ -81,6 +81,7 @@ export function GFXFormatToWebGLType (format: GFXFormat, gl: WebGLRenderingConte
         case GFXFormat.RGB32UI: return gl.UNSIGNED_INT;
         case GFXFormat.RGB32I: return gl.INT;
 
+        case GFXFormat.BGRA8: return gl.UNSIGNED_BYTE;
         case GFXFormat.RGBA8: return gl.UNSIGNED_BYTE;
         case GFXFormat.SRGB8_A8: return gl.UNSIGNED_BYTE;
         case GFXFormat.RGBA8SN: return gl.BYTE;
@@ -102,11 +103,11 @@ export function GFXFormatToWebGLType (format: GFXFormat, gl: WebGLRenderingConte
         case GFXFormat.RGB9E5: return gl.UNSIGNED_BYTE;
 
         case GFXFormat.D16: return gl.UNSIGNED_SHORT;
-        case GFXFormat.D16S8: return gl.UNSIGNED_SHORT;
+        case GFXFormat.D16S8: return WebGLEXT.UNSIGNED_INT_24_8_WEBGL; // not supported, fallback
         case GFXFormat.D24: return gl.UNSIGNED_INT;
         case GFXFormat.D24S8: return WebGLEXT.UNSIGNED_INT_24_8_WEBGL;
-        case GFXFormat.D32F: return gl.FLOAT;
-        case GFXFormat.D32F_S8: return gl.FLOAT;
+        case GFXFormat.D32F: return gl.UNSIGNED_INT; // not supported, fallback
+        case GFXFormat.D32F_S8: return WebGLEXT.UNSIGNED_INT_24_8_WEBGL; // not supported, fallback
 
         case GFXFormat.BC1: return gl.UNSIGNED_BYTE;
         case GFXFormat.BC1_SRGB: return gl.UNSIGNED_BYTE;
@@ -156,6 +157,7 @@ export function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGLRend
         case GFXFormat.RGB8: return gl.RGB;
         case GFXFormat.RGB16F: return gl.RGB;
         case GFXFormat.RGB32F: return gl.RGB;
+        case GFXFormat.BGRA8: return gl.RGBA;
         case GFXFormat.RGBA8: return gl.RGBA;
         case GFXFormat.RGBA16F: return gl.RGBA;
         case GFXFormat.RGBA32F: return gl.RGBA;
@@ -210,6 +212,7 @@ export function GFXFormatToWebGLFormat (format: GFXFormat, gl: WebGLRenderingCon
         case GFXFormat.RGB8: return gl.RGB;
         case GFXFormat.RGB16F: return gl.RGB;
         case GFXFormat.RGB32F: return gl.RGB;
+        case GFXFormat.BGRA8: return gl.RGBA;
         case GFXFormat.RGBA8: return gl.RGBA;
         case GFXFormat.RGBA16F: return gl.RGBA;
         case GFXFormat.RGBA32F: return gl.RGBA;
@@ -807,7 +810,7 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
                         gl.bindRenderbuffer(gl.RENDERBUFFER, gpuTexture.glRenderbuffer);
                         device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
                     }
-                    // Special treatment, refer to https://developer.mozilla.org/zh-CN/docs/Web/API/WebGLRenderingContext/renderbufferStorage
+                    // The internal format here differs from texImage2D convension
                     if (gpuTexture.glInternelFmt === gl.DEPTH_COMPONENT) {
                         gpuTexture.glInternelFmt = gl.DEPTH_COMPONENT16;
                     }
@@ -863,6 +866,9 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
                     gl.texParameteri(gpuTexture.glTarget, gl.TEXTURE_WRAP_T, gpuTexture.glWrapT);
                     gl.texParameteri(gpuTexture.glTarget, gl.TEXTURE_MIN_FILTER, gpuTexture.glMinFilter);
                     gl.texParameteri(gpuTexture.glTarget, gl.TEXTURE_MAG_FILTER, gpuTexture.glMagFilter);
+                }
+                else {
+                    gl.deleteTexture(glTexture);
                 }
             }
 

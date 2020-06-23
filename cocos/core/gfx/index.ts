@@ -27,12 +27,12 @@ export * from './framebuffer';
 export * from './input-assembler';
 export * from './pipeline-layout';
 export * from './pipeline-state';
+export * from './fence';
 export * from './queue';
 export * from './render-pass';
 export * from './sampler';
 export * from './shader';
 export * from './texture';
-export * from './window';
 
 legacyCC.GFXDevice = GFXDevice;
 legacyCC.GFXBuffer = GFXBuffer;

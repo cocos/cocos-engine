@@ -55,11 +55,11 @@ export const tilled: IAssembler = {
             return;
         }
 
-        const node = sprite.node;
-        const contentWidth = Math.abs(node.width);
-        const contentHeight = Math.abs(node.height);
-        const appX = node.anchorX * contentWidth;
-        const appY = node.anchorY * contentHeight;
+        const uiTrans = sprite.node._uiProps.uiTransformComp!;
+        const contentWidth = Math.abs(uiTrans.width);
+        const contentHeight = Math.abs(uiTrans.height);
+        const appX = uiTrans.anchorX * contentWidth;
+        const appY = uiTrans.anchorY * contentHeight;
 
         const rect = frame.getRect();
         const rectWidth = rect.width;
@@ -88,6 +88,7 @@ export const tilled: IAssembler = {
 
     fillBuffers (sprite: SpriteComponent, renderer: UI) {
         const node = sprite.node;
+        const uiTrans = sprite.node._uiProps.uiTransformComp!;
         const renderData = sprite.renderData!;
 
         // buffer
@@ -113,8 +114,8 @@ export const tilled: IAssembler = {
         const rotated = frame.isRotated();
         const uv = frame.uv;
         const rect = frame.getRect();
-        const contentWidth = Math.abs(node.width);
-        const contentHeight = Math.abs(node.height);
+        const contentWidth = Math.abs(uiTrans.width);
+        const contentHeight = Math.abs(uiTrans.height);
         const hRepeat = contentWidth / rect.width;
         const vRepeat = contentHeight / rect.height;
         const row = Math.ceil(vRepeat);

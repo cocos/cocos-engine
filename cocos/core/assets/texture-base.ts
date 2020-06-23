@@ -109,7 +109,7 @@ export class TextureBase extends Asset {
     protected _height: number = 0;
 
     private _id: string;
-    private _samplerInfo: Array<number | undefined> = [];
+    private _samplerInfo: (number | undefined)[] = [];
     private _samplerHash: number = 0;
     private _gfxSampler: GFXSampler | null = null;
     private _gfxDevice: GFXDevice | null = null;

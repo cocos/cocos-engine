@@ -1,11 +1,24 @@
-import { Material, Mesh } from '../../core/assets';
+import { Material, Mesh, Texture2D } from '../../core/assets';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { RenderMode} from '../enum';
 import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
 import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
+import { director } from '../../core/director';
+import { GFXDevice, GFXFeature } from '../../core/gfx/device';
+import { legacyCC } from '../../core/global-exports';
+
+function isSupportGPUParticle () {
+    const device: GFXDevice = director.root!.device;
+    if (device.maxVertexTextureUnits >= 8 && device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
+        return true;
+    }
+
+    legacyCC.warn("Maybe the device has restrictions on vertex textures or does not support float textures.");
+    return false;
+}
+
 @ccclass('cc.ParticleSystemRenderer')
 export default class ParticleSystemRenderer {
-
     /**
      * @zh 设定粒子生成模式。
      */
@@ -137,6 +150,17 @@ export default class ParticleSystemRenderer {
     }
 
     @property
+    private _mainTexture: Texture2D | null = null;
+
+    public get mainTexture () {
+        return this._mainTexture;
+    }
+
+    public set mainTexture (val) {
+        this._mainTexture = val;
+    }
+
+    @property
     private _useGPU: boolean = false;
 
     @property({
@@ -152,7 +176,12 @@ export default class ParticleSystemRenderer {
             return;
         }
 
-        this._useGPU = val;
+        if (!isSupportGPUParticle()) {
+            this._useGPU = false;
+        } else {
+            this._useGPU = val;
+        }
+
         this._switchProcessor();
     }
 
@@ -160,7 +189,8 @@ export default class ParticleSystemRenderer {
 
     onInit (ps: any) {
         this._particleSystem = ps;
-        this._particleSystem.processor = this._useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+        const useGPU = this._useGPU && isSupportGPUParticle();
+        this._particleSystem.processor = useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
         this._particleSystem.processor.onInit(ps);
     }
 

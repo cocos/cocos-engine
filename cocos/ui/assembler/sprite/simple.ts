@@ -152,12 +152,12 @@ export const simple: IAssembler = {
             return;
         }
 
-        const node = sprite.node;
+        const uiTrans = sprite.node._uiProps.uiTransformComp!;
         const dataList: IRenderData[] = renderData.data;
-        const cw = node.width;
-        const ch = node.height;
-        const appX = node.anchorX * cw;
-        const appY = node.anchorY * ch;
+        const cw = uiTrans.width;
+        const ch = uiTrans.height;
+        const appX = uiTrans.anchorX * cw;
+        const appY = uiTrans.anchorY * ch;
         let l = 0;
         let b = 0;
         let r = 0;

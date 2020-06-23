@@ -15,6 +15,7 @@ import { Skybox } from './skybox';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
 import { PREVIEW } from 'internal:constants';
+import { TransformBit } from '../../scene-graph/node-enum';
 import { Fog } from './fog';
 import { legacyCC } from '../../global-exports';
 
@@ -122,6 +123,7 @@ export class RenderScene {
     private _skybox: Skybox;
     private _planarShadows: PlanarShadows;
     private _models: Model[] = [];
+    private _directionalLights: DirectionalLight[] = [];
     private _sphereLights: SphereLight[] = [];
     private _spotLights: SpotLight[] = [];
     private _mainLight: DirectionalLight | null = null;
@@ -173,13 +175,36 @@ export class RenderScene {
     }
 
     public setMainLight (dl: DirectionalLight) {
-        dl.attachToScene(this);
         this._mainLight = dl;
     }
 
     public unsetMainLight (dl: DirectionalLight) {
-        dl.detachFromScene();
-        this._mainLight = null;
+        if (this._mainLight === dl) {
+            const dlList = this._directionalLights;
+            if (dlList.length) {
+                this._mainLight = dlList[dlList.length - 1];
+                if (this._mainLight.node) { // trigger update
+                    this._mainLight.node.hasChangedFlags |= TransformBit.ROTATION;
+                }
+            } else {
+                this._mainLight = null;
+            }
+        }
+    }
+
+    public addDirectionalLight (dl: DirectionalLight) {
+        dl.attachToScene(this);
+        this._directionalLights.push(dl);
+    }
+
+    public removeDirectionalLight (dl: DirectionalLight) {
+        for (let i = 0; i < this._directionalLights.length; ++i) {
+            if (this._directionalLights[i] === dl) {
+                dl.detachFromScene();
+                this._directionalLights.splice(i, 1);
+                return;
+            }
+        }
     }
 
     public addSphereLight (pl: SphereLight) {

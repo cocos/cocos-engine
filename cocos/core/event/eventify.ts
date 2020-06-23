@@ -2,20 +2,12 @@
  * @category event
  */
 
-import { fastRemove } from '../utils/array';
 import { CallbacksInvoker } from './callbacks-invoker';
 import { createMap } from '../utils/js';
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
 type EventType = string;
-
-const {
-    prototype: {
-        on: callbacksInvokerOn,
-        off: callbacksInvokerOff,
-    },
-} = CallbacksInvoker;
 
 /**
  * @zh
@@ -50,7 +42,7 @@ export interface IEventified {
      *     cc.log("fire in the hole");
      * }, node);
      */
-    on<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any): typeof callback;
+    on<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean): typeof callback;
 
     /**
      * @en
@@ -137,56 +129,13 @@ export interface IEventified {
 export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & IEventified> {
     class Eventified extends (base as unknown as any) {
         private _callbackTable = createMap(true);
-        
-        public on<Callback extends Function> (type: EventType, callback: Callback, target?: object) {
-            if (!this.hasEventListener(type, callback, target)) {
-                callbacksInvokerOn.call(this, type, callback, target);
-                if (target) {
-                    this._registerThisIntoTarget(target);
-                }
-            }
-            return callback;
-        }
 
         public once<Callback extends Function> (type: EventType, callback: Callback, target?: object) {
-            if (!this.hasEventListener(type, callback, target)) {
-                callbacksInvokerOn.call(this, type, callback, target, true);
-                if (target) {
-                    this._registerThisIntoTarget(target);
-                }
-            }
-            return callback;
-        }
-
-        public off (type: EventType, callback?: Function, target?: object) {
-            if (!callback) {
-                this.removeAll(type);
-            } else {
-                callbacksInvokerOff.call(this, type, callback, target);
-                if (target) {
-                    this._unregisterThisIntoTarget(target);
-                }
-            }
+            return this.on(type, callback, target, true);
         }
 
         public targetOff (typeOrTarget: string | object) {
             this.removeAll(typeOrTarget);
-        }
-
-        private _registerThisIntoTarget (target: ITargetImpl) {
-            if (target.__eventTargets) {
-                target.__eventTargets.push(this);
-            } else if (target.node && target.node.__eventTargets) {
-                target.node.__eventTargets.push(this);
-            }
-        }
-
-        private _unregisterThisIntoTarget (target: ITargetImpl) {
-            if (target.__eventTargets) {
-                fastRemove(target.__eventTargets, this);
-            } else if (target.node && target.node.__eventTargets) {
-                fastRemove(target.node.__eventTargets, this);
-            }
         }
     };
 
@@ -199,9 +148,4 @@ export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & 
     }
 
     return Eventified as unknown as any;
-}
-
-interface ITargetImpl extends Object {
-    __eventTargets?: any[];
-    node?: ITargetImpl;
 }

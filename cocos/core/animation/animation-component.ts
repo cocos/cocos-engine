@@ -370,8 +370,8 @@ export class AnimationComponent extends Eventify(Component) {
      * animation.on('play', this.onPlay, this);
      * ```
      */
-    public on<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any) {
-        const ret = super.on(type, callback, thisArg);
+    public on<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean) {
+        const ret = super.on(type, callback, thisArg, once);
         if (type === EventType.LASTFRAME) {
             this._syncAllowLastFrameEvent();
         }

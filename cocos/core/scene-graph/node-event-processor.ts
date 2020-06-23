@@ -28,7 +28,6 @@
  */
 
 import Event from '../event/event';
-import { EventTarget } from '../event/event-target';
 import { Vec2 } from '../math/vec2';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { EventListener } from '../platform/event-manager/event-listener';
@@ -37,8 +36,9 @@ import { EventMouse, EventTouch } from '../platform/event-manager/events';
 import { Touch } from '../platform/event-manager/touch';
 import { BaseNode } from './base-node';
 import { Node } from './node';
-import { legacyCC } from '../global-exports';
+import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { errorID } from '../platform/debug';
+import { legacyCC } from '../global-exports';
 
 const _cachedArray = new Array<BaseNode>(16);
 let _currentHovered: BaseNode | null = null;
@@ -204,7 +204,7 @@ function _mouseWheelHandler (this: EventListener, event: EventMouse) {
 
     pos = event.getUILocation();
 
-    if (node._uiProps.uiTransformComp!.isHit(pos, this)) {
+    if (node._uiProps.uiTransformComp.isHit(pos, this)) {
         event.type = SystemEventType.MOUSE_WHEEL.toString();
         event.bubbles = true;
         node.dispatchEvent(event);
@@ -289,16 +289,15 @@ function _searchMaskInParent (node: Node | null) {
 
 function _checkListeners (node: BaseNode, events: string[]) {
     if (!node._persistNode) {
-        let i = 0;
         if (node.eventProcessor.bubblingTargets) {
-            for (; i < events.length; ++i) {
+            for (let i = 0; i < events.length; ++i) {
                 if (node.eventProcessor.bubblingTargets.hasEventListener(events[i])) {
                     return true;
                 }
             }
         }
         if (node.eventProcessor.capturingTargets) {
-            for (; i < events.length; ++i) {
+            for (let i = 0; i < events.length; ++i) {
                 if (node.eventProcessor.capturingTargets.hasEventListener(events[i])) {
                     return true;
                 }
@@ -322,13 +321,13 @@ export class NodeEventProcessor {
      * @zh
      * 节点冒泡事件监听器
      */
-    public bubblingTargets: EventTarget | null = null;
+    public bubblingTargets: CallbacksInvoker | null = null;
 
     /**
      * @zh
      * 节点捕获事件监听器
      */
-    public capturingTargets: EventTarget | null = null;
+    public capturingTargets: CallbacksInvoker | null = null;
     /**
      * @zh
      * 触摸监听器
@@ -377,6 +376,9 @@ export class NodeEventProcessor {
                 this.mouseListener = null;
             }
         }
+
+        this.capturingTargets && this.capturingTargets.clear();
+        this.bubblingTargets && this.bubblingTargets.clear();
     }
 
     /**
@@ -432,7 +434,7 @@ export class NodeEventProcessor {
             //         break;
             // }
             if (!this.bubblingTargets) {
-                this.bubblingTargets = new EventTarget();
+                this.bubblingTargets = new CallbacksInvoker();
             }
             return this.bubblingTargets.on(type, callback, target);
         }
@@ -460,15 +462,18 @@ export class NodeEventProcessor {
     public once (type: string, callback: Function, target?: Object, useCapture?: Object) {
         const forDispatch = this._checknSetupSysEvent(type);
 
-        let listeners: EventTarget;
+        let listeners: CallbacksInvoker;
         if (forDispatch && useCapture) {
-            listeners = this.capturingTargets = this.capturingTargets || new EventTarget();
+            listeners = this.capturingTargets = this.capturingTargets || new CallbacksInvoker();
         }
         else {
-            listeners = this.bubblingTargets = this.bubblingTargets || new EventTarget();
+            listeners = this.bubblingTargets = this.bubblingTargets || new CallbacksInvoker();
         }
 
-        listeners.once(type, callback, target);
+        listeners.on(type, callback, target, true);
+        listeners.on(type, () => {
+            this.off(type, callback, target);
+        }, undefined, true);
     }
 
     /**
@@ -536,20 +541,20 @@ export class NodeEventProcessor {
      * 通过事件名发送自定义事件
      *
      * @param type - 一个监听事件类型的字符串。
-     * @param arg1 - 回调第一个参数。
-     * @param arg2 - 回调第二个参数。
-     * @param arg3 - 回调第三个参数。
-     * @param arg4 - 回调第四个参数。
-     * @param arg5 - 回调第五个参数。
+     * @param arg0 - 回调第一个参数。
+     * @param arg1 - 回调第二个参数。
+     * @param arg2 - 回调第三个参数。
+     * @param arg3 - 回调第四个参数。
+     * @param arg4 - 回调第五个参数。
      * @example
      * ```typescript
      * eventTarget.emit('fire', event);
      * eventTarget.emit('fire', message, emitter);
      * ```
      */
-    public emit (type: string, ...args: any[]) {
+public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
         if (this.bubblingTargets) {
-            this.bubblingTargets.emit(type, ...args);
+            this.bubblingTargets.emit(type, arg0, arg1, arg2, arg3, arg4);
         }
     }
 
@@ -569,15 +574,17 @@ export class NodeEventProcessor {
      * 是否监听过某事件。
      *
      * @param type - 一个监听事件类型的字符串。
+     * @param callback - The callback function of the event listener, if absent all event listeners for the given type will be removed
+     * @param target - The callback callee of the event listener
      * @return - 返回是否当前节点已监听该事件类型。
      */
-    public hasEventListener (type: string) {
+    public hasEventListener (type: string, callback?: Function, target?: Object) {
         let has = false;
         if (this.bubblingTargets) {
-            has = this.bubblingTargets.hasEventListener(type);
+            has = this.bubblingTargets.hasEventListener(type, callback, target);
         }
         if (!has && this.capturingTargets) {
-            has = this.capturingTargets.hasEventListener(type);
+            has = this.capturingTargets.hasEventListener(type, callback, target);
         }
         return has;
     }
@@ -590,10 +597,10 @@ export class NodeEventProcessor {
      */
     public targetOff (target: string | Object) {
         if (this.capturingTargets) {
-            this.capturingTargets.targetOff(target);
+            this.capturingTargets.removeAll(target);
         }
         if (this.bubblingTargets) {
-            this.bubblingTargets.targetOff(target);
+            this.bubblingTargets.removeAll(target);
         }
 
         if (this.touchListener && !_checkListeners(this.node, _touchEvents)) {
@@ -704,11 +711,11 @@ export class NodeEventProcessor {
             return;
         }
 
-        let listeners: EventTarget | null = null;
+        let listeners: CallbacksInvoker | null = null;
         if (useCapture) {
-            listeners = this.capturingTargets = this.capturingTargets || new EventTarget();
+            listeners = this.capturingTargets = this.capturingTargets || new CallbacksInvoker();
         } else {
-            listeners = this.bubblingTargets = this.bubblingTargets || new EventTarget();
+            listeners = this.bubblingTargets = this.bubblingTargets || new CallbacksInvoker();
         }
 
         if (!listeners.hasEventListener(type, callback, target)) {
@@ -737,7 +744,6 @@ export class NodeEventProcessor {
             if (listeners) {
                 listeners.off(type, callback, target);
             }
-
         }
     }
 }

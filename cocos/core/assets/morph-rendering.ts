@@ -27,7 +27,7 @@ const preferCpuComputing = false;
  */
 export class StdMorphRendering implements MorphRendering {
     private _mesh: Mesh;
-    private _subMeshRenderings: Array<SubMeshMorphRendering | null> = [];
+    private _subMeshRenderings: (SubMeshMorphRendering | null)[] = [];
 
     constructor (mesh: Mesh, gfxDevice: GFXDevice) {
         this._mesh = mesh;
@@ -68,7 +68,7 @@ export class StdMorphRendering implements MorphRendering {
 
     public createInstance (): MorphRenderingInstance {
         const nSubMeshes = this._mesh.struct.primitives.length;
-        const subMeshInstances: Array<SubMeshMorphRenderingInstance | null> = new Array(nSubMeshes);
+        const subMeshInstances: (SubMeshMorphRenderingInstance | null)[] = new Array(nSubMeshes);
         for (let iSubMesh = 0; iSubMesh < nSubMeshes; ++iSubMesh) {
             subMeshInstances[iSubMesh] = this._subMeshRenderings[iSubMesh]?.createInstance() ?? null;
         }
@@ -137,18 +137,18 @@ interface SubMeshMorphRenderingInstance {
     /**
      * Asks the define overrides needed to do the rendering.
      */
-    requiredPatches(): IMacroPatch[];
+    requiredPatches (): IMacroPatch[];
 
     /**
      * Adapts the pipelineState to apply the rendering.
      * @param pipelineState
      */
-    adaptPipelineState(pipelineCreateInfo: IPSOCreateInfo): void;
+    adaptPipelineState (pipelineCreateInfo: IPSOCreateInfo): void;
 
     /**
      * Destroy this instance.
      */
-    destroy(): void;
+    destroy (): void;
 }
 
 /**
@@ -163,11 +163,11 @@ class GpuComputing implements SubMeshMorphRendering {
         width: number;
         height: number;
     };
-    private _attributes: Array<{
+    private _attributes: {
         name: string;
         texture: Texture2D;
         sampler: GFXSampler;
-    }>;
+    }[];
 
     constructor (mesh: Mesh, subMeshIndex: number, morph: Morph, gfxDevice: GFXDevice) {
         this._gfxDevice = gfxDevice;
@@ -195,7 +195,6 @@ class GpuComputing implements SubMeshMorphRendering {
 
         // Creates texture for each attribute.
         this._attributes = subMeshMorph.attributes.map((attributeName, attributeIndex) => {
-            const nTargets = subMeshMorph.targets.length;
             const textureInfo = {
                 displacements: new Array<number>(),
                 targetOffsets: new Array<number>(nTargets).fill(0),
@@ -206,8 +205,8 @@ class GpuComputing implements SubMeshMorphRendering {
                 textureInfo.displacements.push(...new Float32Array(meshData, displacements.offset, displacements.count));
             });
 
-            const pixelStride = 3; // For position, normal, tangent
-            const pixelFormat = Texture2D.PixelFormat.RGB32F; // For position, normal, tangent
+            const pixelStride = 4; // For position, normal, tangent
+            const pixelFormat = Texture2D.PixelFormat.RGBA32F; // For position, normal, tangent
 
             const textureSource = new Float32Array(pixelStride * width * height);
             const headPixels = nTargets;
@@ -298,12 +297,12 @@ class GpuComputing implements SubMeshMorphRendering {
  */
 class CpuComputing implements SubMeshMorphRendering {
     private _gfxDevice: GFXDevice;
-    private _attributes: Array<{
+    private _attributes: {
         name: string;
-        targets: Array<{
+        targets: {
             displacements: Float32Array;
-        }>;
-    }> = [];
+        }[];
+    }[] = [];
 
     constructor (mesh: Mesh, subMeshIndex: number, morph: Morph, gfxDevice: GFXDevice) {
         this._gfxDevice = gfxDevice;

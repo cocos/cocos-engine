@@ -1,7 +1,6 @@
 /**
  * @category terrain
  */
-
 import { builtinResMgr } from '../core/3d/builtin';
 import { RenderableComponent } from '../core/3d/framework/renderable-component';
 import { Texture2D } from '../core/assets';
@@ -10,6 +9,7 @@ import { Material } from '../core/assets/material';
 import { RenderingSubMesh } from '../core/assets/mesh';
 import { Component } from '../core/components';
 import { ccclass, disallowMultiple, executeInEditMode, help, property } from '../core/data/class-decorator';
+import { isValid } from '../core/data/object';
 import { director } from '../core/director';
 import { GFXBuffer } from '../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../core/gfx/define';
@@ -985,7 +985,7 @@ export class Terrain extends Component {
 
         for (let i = 0; i < this._layers.length; ++i) {
             const temp = this._layers[i];
-            if (temp != null && temp.detailMap != null) {
+            if (temp && temp.detailMap && isValid(temp.detailMap)) {
                 const layer = new TerrainLayerInfo();
                 layer.slot = i;
                 layer.tileSize = temp.tileSize;

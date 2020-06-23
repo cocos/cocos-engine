@@ -50,21 +50,20 @@ const _color = new Color();
  * @enum PageViewIndicator.Direction
  */
 enum Direction {
-  /**
-   * @en The horizontal direction.
-   *
-   * @zh 水平方向
-   */
-  HORIZONTAL = 0,
+    /**
+     * @en The horizontal direction.
+     *
+     * @zh 水平方向
+     */
+    HORIZONTAL = 0,
 
-  /**
-   * @en The vertical direction.
-   *
-   * @zh 垂直方向
-   */
-  VERTICAL = 1,
+    /**
+     * @en The vertical direction.
+     *
+     * @zh 垂直方向
+     */
+    VERTICAL = 1,
 }
-
 ccenum(Direction);
 
 /**
@@ -79,199 +78,195 @@ ccenum(Direction);
 @executionOrder(110)
 @menu('UI/PageViewIndicator')
 export class PageViewIndicatorComponent extends Component {
-  /**
-   * @en
-   * The spriteFrame for each element.
-   *
-   * @zh
-   * 每个页面标记显示的图片
-   */
-  @property({
-    type: SpriteFrame,
-    tooltip:'每个页面标记显示的图片',
-  })
-  get spriteFrame () {
-    return this._spriteFrame;
-  }
-
-  set spriteFrame (value) {
-    if (this._spriteFrame === value) {
-      return;
+    /**
+     * @en
+     * The spriteFrame for each element.
+     *
+     * @zh
+     * 每个页面标记显示的图片
+     */
+    @property({
+        type: SpriteFrame,
+        tooltip:'每个页面标记显示的图片',
+    })
+    get spriteFrame () {
+        return this._spriteFrame;
     }
 
-    this._spriteFrame = value;
-  }
-
-  /**
-   * @en
-   * The location direction of PageViewIndicator.
-   *
-   * @zh
-   * 页面标记摆放方向
-   *
-   * @param direction 摆放方向
-   */
-  @property({
-    type: Direction,
-    tooltip:'页面标记摆放方向',
-  })
-  get direction () {
-    return this._direction;
-  }
-
-  set direction (value) {
-    if (this._direction === value) {
-      return;
-    }
-
-    this._direction = value;
-  }
-
-  /**
-   * @en
-   * The cellSize for each element.
-   *
-   * @zh
-   * 每个页面标记的大小
-   */
-  @property({
-    type: Size,
-    tooltip:'每个页面标记的大小',
-  })
-  get cellSize () {
-    return this._cellSize;
-  }
-
-  set cellSize (value) {
-    if (this._cellSize === value) {
-      return;
-    }
-
-    this._cellSize = value;
-  }
-
-  public static Direction = Direction;
-
-  /**
-   * @en
-   * The distance between each element.
-   *
-   * @zh
-   * 每个页面标记之间的边距
-   */
-  @property({
-    tooltip:'每个页面标记之间的边距',
-  })
-  public spacing = 0;
-  @property
-  protected _spriteFrame: SpriteFrame | null = null;
-  @property
-  protected _direction: Direction = Direction.HORIZONTAL;
-  @property
-  protected _cellSize = new Size(20, 20);
-  protected _layout: LayoutComponent | null = null;
-  protected _pageView: PageViewComponent | null = null;
-  protected _indicators: Node[] = [];
-
-  public onLoad () {
-    this._updateLayout();
-  }
-
-  /**
-   * @en
-   * Set Page View.
-   *
-   * @zh
-   * 设置页面视图
-   *
-   * @param target 页面视图对象
-   */
-  public setPageView (target: PageViewComponent) {
-    this._pageView = target;
-    this._refresh();
-  }
-
-  public _updateLayout () {
-    this._layout = this.getComponent(LayoutComponent);
-    if (!this._layout) {
-      this._layout = this.addComponent(LayoutComponent);
-    }
-
-    const layout = this._layout!;
-    if (this.direction === Direction.HORIZONTAL) {
-      layout.type = LayoutComponent.Type.HORIZONTAL;
-      layout.spacingX = this.spacing;
-    }
-    else if (this.direction === Direction.VERTICAL) {
-      layout.type = LayoutComponent.Type.VERTICAL;
-      layout.spacingY = this.spacing;
-    }
-    layout.resizeMode = LayoutComponent.ResizeMode.CONTAINER;
-  }
-
-  public _createIndicator () {
-    const node = new Node();
-    const sprite = node.addComponent(SpriteComponent);
-    sprite!.spriteFrame = this.spriteFrame;
-    node.parent = this.node as unknown as Node;
-    node.width = this.cellSize.width;
-    node.height = this.cellSize.height;
-    return node;
-  }
-
-  public _changedState () {
-    const indicators = this._indicators;
-    if (indicators.length === 0 || !this._pageView) { return; }
-    const idx = this._pageView.curPageIdx;
-    if (idx >= indicators.length) { return; }
-    for (let i = 0; i < indicators.length; ++i) {
-      const node = indicators[i];
-      if (!node._uiProps.uiComp) {
-        continue;
-      }
-
-      const uiComp = node._uiProps.uiComp as UIRenderComponent;
-      _color.set(uiComp.color);
-      _color.a = 255 / 2;
-      uiComp.color = _color;
-    }
-
-    if (indicators[idx]._uiProps.uiComp) {
-      const comp = indicators[idx]._uiProps.uiComp as UIRenderComponent;
-      _color.set(comp.color);
-      _color.a = 255;
-      comp.color = _color;
-    }
-  }
-
-  public _refresh () {
-    if (!this._pageView) { return; }
-    const indicators = this._indicators;
-    const pages = this._pageView.getPages();
-    if (pages.length === indicators.length) {
-      return;
-    }
-    let i = 0;
-    if (pages.length > indicators.length) {
-      for (i = 0; i < pages.length; ++i) {
-        if (!indicators[i]) {
-          indicators[i] = this._createIndicator();
+    set spriteFrame (value) {
+        if (this._spriteFrame === value) {
+            return;
         }
-      }
+        this._spriteFrame = value;
     }
-    else {
-      const count = indicators.length - pages.length;
-      for (i = count; i > 0; --i) {
-        const node = indicators[i - 1];
-        this.node.removeChild(node);
-        indicators.splice(i - 1, 1);
-      }
+
+    /**
+     * @en
+     * The location direction of PageViewIndicator.
+     *
+     * @zh
+     * 页面标记摆放方向
+     *
+     * @param direction 摆放方向
+     */
+    @property({
+        type: Direction,
+        tooltip:'页面标记摆放方向',
+    })
+    get direction () {
+        return this._direction;
     }
-    if (this._layout && this._layout.enabledInHierarchy) {
-      this._layout.updateLayout();
+
+    set direction (value) {
+        if (this._direction === value) {
+            return;
+        }
+        this._direction = value;
     }
-    this._changedState();
-  }
+
+    /**
+     * @en
+     * The cellSize for each element.
+     *
+     * @zh
+     * 每个页面标记的大小
+     */
+    @property({
+        type: Size,
+        tooltip:'每个页面标记的大小',
+    })
+    get cellSize () {
+        return this._cellSize;
+    }
+
+    set cellSize (value) {
+        if (this._cellSize === value) {
+            return;
+        }
+        this._cellSize = value;
+    }
+
+    public static Direction = Direction;
+
+    /**
+     * @en
+     * The distance between each element.
+     *
+     * @zh
+     * 每个页面标记之间的边距
+     */
+    @property({
+        tooltip:'每个页面标记之间的边距',
+    })
+    public spacing = 0;
+    @property
+    protected _spriteFrame: SpriteFrame | null = null;
+    @property
+    protected _direction: Direction = Direction.HORIZONTAL;
+    @property
+    protected _cellSize = new Size(20, 20);
+    protected _layout: LayoutComponent | null = null;
+    protected _pageView: PageViewComponent | null = null;
+    protected _indicators: Node[] = [];
+
+    public onLoad () {
+        this._updateLayout();
+    }
+
+    /**
+     * @en
+     * Set Page View.
+     *
+     * @zh
+     * 设置页面视图
+     *
+     * @param target 页面视图对象
+     */
+    public setPageView (target: PageViewComponent) {
+        this._pageView = target;
+        this._refresh();
+    }
+
+    public _updateLayout () {
+        this._layout = this.getComponent(LayoutComponent);
+        if (!this._layout) {
+            this._layout = this.addComponent(LayoutComponent);
+        }
+
+        const layout = this._layout!;
+        if (this.direction === Direction.HORIZONTAL) {
+            layout.type = LayoutComponent.Type.HORIZONTAL;
+            layout.spacingX = this.spacing;
+        }
+        else if (this.direction === Direction.VERTICAL) {
+            layout.type = LayoutComponent.Type.VERTICAL;
+            layout.spacingY = this.spacing;
+        }
+        layout.resizeMode = LayoutComponent.ResizeMode.CONTAINER;
+    }
+
+    public _createIndicator () {
+        const node = new Node();
+        const sprite = node.addComponent(SpriteComponent);
+        sprite!.spriteFrame = this.spriteFrame;
+        node.parent = this.node;
+        node._uiProps.uiTransformComp!.setContentSize(this._cellSize);
+        return node;
+    }
+
+    public _changedState () {
+        const indicators = this._indicators;
+        if (indicators.length === 0 || !this._pageView) { return; }
+        const idx = this._pageView.curPageIdx;
+        if (idx >= indicators.length) { return; }
+        for (let i = 0; i < indicators.length; ++i) {
+            const node = indicators[i];
+            if (!node._uiProps.uiComp) {
+                continue;
+            }
+
+            const uiComp = node._uiProps.uiComp as UIRenderComponent;
+            _color.set(uiComp.color);
+            _color.a = 255 / 2;
+            uiComp.color = _color;
+        }
+
+        if (indicators[idx]._uiProps.uiComp) {
+            const comp = indicators[idx]._uiProps.uiComp as UIRenderComponent;
+            _color.set(comp.color);
+            _color.a = 255;
+            comp.color = _color;
+        }
+    }
+
+    public _refresh () {
+        if (!this._pageView) { return; }
+        const indicators = this._indicators;
+        const pages = this._pageView.getPages();
+        if (pages.length === indicators.length) {
+            return;
+        }
+        let i = 0;
+        if (pages.length > indicators.length) {
+            for (i = 0; i < pages.length; ++i) {
+                if (!indicators[i]) {
+                    indicators[i] = this._createIndicator();
+                }
+            }
+        }
+        else {
+            const count = indicators.length - pages.length;
+            for (i = count; i > 0; --i) {
+                const node = indicators[i - 1];
+                this.node.removeChild(node);
+                indicators.splice(i - 1, 1);
+            }
+        }
+        if (this._layout && this._layout.enabledInHierarchy) {
+            this._layout.updateLayout();
+        }
+        this._changedState();
+    }
 }
 
 legacyCC.PageViewIndicatorComponent = PageViewIndicatorComponent;

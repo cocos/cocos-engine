@@ -23,8 +23,8 @@ export class GFXColorAttachment {
     public loadOp: GFXLoadOp = GFXLoadOp.CLEAR;
     public storeOp: GFXStoreOp = GFXStoreOp.STORE;
     public sampleCount: number = 1;
-    public beginLayout: GFXTextureLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
-    public endLayout: GFXTextureLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
+    public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED;
+    public endLayout: GFXTextureLayout = GFXTextureLayout.PRESENT_SRC;
 }
 
 /**
@@ -38,7 +38,7 @@ export class GFXDepthStencilAttachment {
     public stencilLoadOp: GFXLoadOp = GFXLoadOp.CLEAR;
     public stencilStoreOp: GFXStoreOp = GFXStoreOp.STORE;
     public sampleCount: number = 1;
-    public beginLayout: GFXTextureLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED;
     public endLayout: GFXTextureLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 }
 
@@ -52,9 +52,9 @@ export interface IGFXSubPassInfo {
 }
 
 export interface IGFXRenderPassInfo {
-    colorAttachments?: GFXColorAttachment[];
-    depthStencilAttachment?: GFXDepthStencilAttachment;
-    subPasses? : IGFXSubPassInfo[];
+    colorAttachments: GFXColorAttachment[];
+    depthStencilAttachment: GFXDepthStencilAttachment | null;
+    subPasses?: IGFXSubPassInfo[];
 }
 
 /**
@@ -68,9 +68,15 @@ export abstract class GFXRenderPass extends GFXObject {
     protected _colorInfos: GFXColorAttachment[] = [];
 
     protected _depthStencilInfo: GFXDepthStencilAttachment | null = null;
+
+    protected _subPasses : IGFXSubPassInfo[] = [];
+
     protected _hash: number = 0;
 
-    // protected _subPasses : GFXSubPassInfo[] = [];
+    get colorAttachments () { return this._colorInfos; }
+    get depthStencilAttachment () { return this._depthStencilInfo; }
+    get subPasses () { return this._subPasses; }
+    get hash () { return this._hash; }
 
     constructor (device: GFXDevice) {
         super(GFXObjectType.RENDER_PASS);
@@ -80,7 +86,6 @@ export abstract class GFXRenderPass extends GFXObject {
     public abstract initialize (info: IGFXRenderPassInfo): boolean;
 
     public abstract destroy (): void;
-    public get hash (): number { return this._hash; }
 
     protected computeHash (): number {
         let res = 'ca';

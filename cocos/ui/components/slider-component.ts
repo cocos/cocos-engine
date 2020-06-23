@@ -28,8 +28,8 @@
  * @category ui
  */
 
-import { Component, EventHandler } from '../../core/components';
-import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { Component, EventHandler, UITransformComponent } from '../../core/components';
+import { ccclass, help, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
 import { EventTouch, SystemEventType, Touch } from '../../core/platform';
 import { Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
@@ -78,6 +78,7 @@ ccenum(Direction);
 @help('i18n:cc.SliderComponent')
 @executionOrder(110)
 @menu('UI/Slider')
+@requireComponent(UITransformComponent)
 export class SliderComponent extends Component {
 
     /**
@@ -179,7 +180,7 @@ export class SliderComponent extends Component {
     private _offset: Vec3 = new Vec3();
     private _dragging = false;
     private _touchHandle = false;
-    private _handlelocalPos = new Vec3();
+    private _handleLocalPos = new Vec3();
     private _touchPos = new Vec3();
 
     public __preload () {
@@ -284,11 +285,12 @@ export class SliderComponent extends Component {
 
         const touchPos = touch.getUILocation();
         Vec3.set(this._touchPos, touchPos.x, touchPos.y, 0);
-        const localTouchPos = this.node._uiProps.uiTransformComp!.convertToNodeSpaceAR(this._touchPos, _tempPos);
+        const uiTrans = this.node._uiProps.uiTransformComp!;
+        const localTouchPos = uiTrans.convertToNodeSpaceAR(this._touchPos, _tempPos);
         if (this.direction === Direction.Horizontal) {
-            this.progress = clamp01(0.5 + (localTouchPos.x - this._offset.x) / this.node.width!);
+            this.progress = clamp01(0.5 + (localTouchPos.x - this._offset.x) / uiTrans.width);
         } else {
-            this.progress = clamp01(0.5 + (localTouchPos.y - this._offset.y) / this.node.height!);
+            this.progress = clamp01(0.5 + (localTouchPos.y - this._offset.y) / uiTrans.height);
         }
     }
 
@@ -296,19 +298,21 @@ export class SliderComponent extends Component {
         if (!this._handle) {
             return;
         }
-        this._handlelocalPos.set(this._handle.node.getPosition());
+        this._handleLocalPos.set(this._handle.node.getPosition());
+        const uiTrans = this.node._uiProps.uiTransformComp!;
         if (this._direction === Direction.Horizontal) {
-            this._handlelocalPos.x = -this.node.width! * this.node.anchorX! + this.progress * this.node.width!;
+            this._handleLocalPos.x = -uiTrans.width * uiTrans.anchorX + this.progress * uiTrans.width;
         } else {
-            this._handlelocalPos.y = -this.node.height! * this.node.anchorY! + this.progress * this.node.height!;
+            this._handleLocalPos.y = -uiTrans.height * uiTrans.anchorY + this.progress * uiTrans.height;
         }
 
-        this._handle.node.setPosition(this._handlelocalPos);
+        this._handle.node.setPosition(this._handleLocalPos);
     }
 
     private _changeLayout () {
-        const contentSize = this.node.getContentSize();
-        this.node.setContentSize(contentSize.height, contentSize.width);
+        const uiTrans = this.node._uiProps.uiTransformComp!;
+        const contentSize = uiTrans.contentSize;
+        uiTrans.setContentSize(contentSize.height, contentSize.width);
         if(this._handle){
             const pos = this._handle.node.position;
             if (this._direction === Direction.Horizontal) {

@@ -177,7 +177,6 @@ function getShaderBindings (
 export interface IShaderResources {
     shader: GFXShader;
     bindings: IGFXBinding[];
-    input: GFXInputState;
 }
 
 /**
@@ -338,18 +337,18 @@ class ProgramLib {
         const blocks: IBlockInfoRT[] = [];
         const samplers: ISamplerInfoRT[] = [];
         const bindings: IGFXBinding[] = [];
-        const inputState = new GFXInputState();
-        getShaderBindings(tmpl, defines, blocks, samplers, bindings, inputState.attributes);
+        const attributes: IGFXAttribute[] = [];
+        getShaderBindings(tmpl, defines, blocks, samplers, bindings, attributes);
 
         const shader = device.createShader({
             name: getShaderInstanceName(name, macroArray),
-            blocks, samplers,
+            blocks, samplers, attributes,
             stages: [
                 { type: GFXShaderType.VERTEX, source: prefix + src.vert },
                 { type: GFXShaderType.FRAGMENT, source: prefix + src.frag },
             ],
         });
-        return this._cache[key] = { shader, bindings, input: inputState };
+        return this._cache[key] = { shader, bindings };
     }
 }
 

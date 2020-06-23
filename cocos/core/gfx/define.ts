@@ -763,7 +763,7 @@ export function GFXFormatSize (format: GFXFormat, width: number, height: number,
             case GFXFormat.PVRTC_RGB4:
             case GFXFormat.PVRTC_RGBA4:
             case GFXFormat.PVRTC2_4BPP:
-                return Math.ceil(Math.max(width, 16) * Math.max(height, 8) / 2) * depth;
+                return Math.ceil(Math.max(width, 8) * Math.max(height, 8) / 2) * depth;
 
             default: {
                 return 0;

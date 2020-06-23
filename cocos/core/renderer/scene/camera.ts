@@ -1,6 +1,5 @@
 import { frustum, ray } from '../../geometry';
 import { GFXClearFlag, IGFXColor } from '../../gfx/define';
-import { GFXWindow } from '../../gfx/window';
 import { lerp, Mat4, Rect, toRadian, Vec3 } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { RenderView } from '../../pipeline/render-view';
@@ -8,6 +7,7 @@ import { Node } from '../../scene-graph';
 import { RenderScene } from './render-scene';
 import { GFXDevice } from '../../gfx';
 import { legacyCC } from '../../global-exports';
+import { RenderWindow } from '../../pipeline';
 
 export enum CameraFOVAxis {
     VERTICAL,
@@ -78,7 +78,7 @@ export interface ICameraInfo {
     node: Node;
     projection: number;
     targetDisplay?: number;
-    window?: GFXWindow | null;
+    window?: RenderWindow | null;
     priority: number;
     pipeline?: string;
     flows?: string[];
@@ -95,7 +95,6 @@ export class Camera {
 
     public isWindowSize: boolean = true;
     public screenScale: number;
-    public viewport: Rect = new Rect(0, 0, 1, 1);
     public clearStencil: number = 0;
     public clearDepth: number = 1.0;
     public clearFlag: GFXClearFlag = GFXClearFlag.NONE;
@@ -115,6 +114,7 @@ export class Camera {
     private _nearClip: number = 1.0;
     private _farClip: number = 1000.0;
     private _clearColor: IGFXColor = { r: 0.2, g: 0.2, b: 0.2, a: 1 };
+    private _viewport: Rect = new Rect(0, 0, 1, 1);
     private _isProjDirty = true;
     private _matView: Mat4 = new Mat4();
     private _matViewInv: Mat4 | null = null;
@@ -351,6 +351,19 @@ export class Camera {
         return this._clearColor;
     }
 
+    get viewport () {
+        return this._viewport;
+    }
+
+    set viewport (val) {
+        const signY = this._device.projectionSignY;
+        this._viewport.x = val.x;
+        if (signY > 0) { this._viewport.y = val.y; }
+        else { this._viewport.y = 1 - val.y - val.height; }
+        this._viewport.width = val.width;
+        this._viewport.height = val.height;
+    }
+
     get scene () {
         return this._scene;
     }
@@ -524,7 +537,7 @@ export class Camera {
         }
     }
 
-    public changeTargetWindow (window: GFXWindow | null = null) {
+    public changeTargetWindow (window: RenderWindow | null = null) {
         const win = window || legacyCC.director.root.mainWindow;
         if (win && this._view) {
             this._view.window = win;
@@ -536,13 +549,14 @@ export class Camera {
      * transform a screen position to a world space ray
      */
     public screenPointToRay (out: ray, x: number, y: number): ray {
-        const cx = this.viewport.x * this._width;
-        const cy = this.viewport.y * this._height;
-        const cw = this.viewport.width * this._width;
-        const ch = this.viewport.height * this._height;
+        const cx = this._viewport.x * this._width;
+        const cy = this._viewport.y * this._height;
+        const cw = this._viewport.width * this._width;
+        const ch = this._viewport.height * this._height;
 
         // far plane intersection
         Vec3.set(v_a, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, 1);
+        v_a.y *= this._device.projectionSignY;
         Vec3.transformMat4(v_a, v_a, this._matViewProjInv);
 
         if (this._proj === CameraProjection.PERSPECTIVE) {
@@ -551,6 +565,7 @@ export class Camera {
         } else {
             // near plane intersection
             Vec3.set(v_b, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, -1);
+            v_b.y *= this._device.projectionSignY;
             Vec3.transformMat4(v_b, v_b, this._matViewProjInv);
         }
 
@@ -561,10 +576,10 @@ export class Camera {
      * transform a screen position to world space
      */
     public screenToWorld (out: Vec3, screenPos: Vec3): Vec3 {
-        const cx = this.viewport.x * this._width;
-        const cy = this.viewport.y * this._height;
-        const cw = this.viewport.width * this._width;
-        const ch = this.viewport.height * this._height;
+        const cx = this._viewport.x * this._width;
+        const cy = this._viewport.y * this._height;
+        const cw = this._viewport.width * this._width;
+        const ch = this._viewport.height * this._height;
 
         if (this._proj === CameraProjection.PERSPECTIVE) {
             // calculate screen pos in far clip plane
@@ -599,10 +614,10 @@ export class Camera {
      * transform a world space position to screen space
      */
     public worldToScreen (out: Vec3, worldPos: Vec3): Vec3 {
-        const cx = this.viewport.x * this._width;
-        const cy = this.viewport.y * this._height;
-        const cw = this.viewport.width * this._width;
-        const ch = this.viewport.height * this._height;
+        const cx = this._viewport.x * this._width;
+        const cy = this._viewport.y * this._height;
+        const cw = this._viewport.width * this._width;
+        const ch = this._viewport.height * this._height;
 
         Vec3.transformMat4(out, worldPos, this.matViewProj);
 

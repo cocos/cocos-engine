@@ -12,8 +12,11 @@ export class WebGL2GFXRenderPass extends GFXRenderPass {
 
     public initialize (info: IGFXRenderPassInfo): boolean {
 
-        this._colorInfos = info.colorAttachments || [];
-        this._depthStencilInfo = info.depthStencilAttachment || null;
+        this._colorInfos = info.colorAttachments;
+        this._depthStencilInfo = info.depthStencilAttachment;
+        if (info.subPasses) {
+            this._subPasses = info.subPasses;
+        }
 
         this._gpuRenderPass = {
             colorAttachments: this._colorInfos,

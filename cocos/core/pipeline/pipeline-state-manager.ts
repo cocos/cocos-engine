@@ -26,10 +26,10 @@ export class PipelineStateManager {
         const newHash = hash1 ^ hash2 ^ hash3;
         let pso = this._PSOHashMap.get(newHash);
         if (!pso) {
-            this._inputState.attributes = ia.attributes;
             const pipelineLayout = device.createPipelineLayout({
                 layouts: [psoCreateInfo.bindingLayout]
             });
+            this._inputState.attributes = ia.attributes;
             pso = device.createPipelineState({
                 primitive: psoCreateInfo.primitive,
                 shader: psoCreateInfo.shader,

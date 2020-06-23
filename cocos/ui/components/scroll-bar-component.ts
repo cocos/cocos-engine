@@ -28,8 +28,8 @@
  * @category ui
  */
 
-import { Component } from '../../core/components';
-import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { Component, UITransformComponent } from '../../core/components';
+import { ccclass, help, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
 import { Color, Size, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp01 } from '../../core/math/utils';
@@ -38,12 +38,10 @@ import { SpriteComponent } from './sprite-component';
 import { Node } from '../../core';
 import { legacyCC } from '../../core/global-exports';
 
-const GETTINGSHORTERFACTOR = 20;
+const GETTING_SHORTER_FACTOR = 20;
 const ZERO = new Vec3();
 const _tempPos_1 = new Vec3();
 const _tempPos_2 = new Vec3();
-const _tempSize = new Size();
-const _tempVec2 = new Vec2();
 const defaultAnchor = new Vec2();
 const _tempColor = new Color();
 
@@ -87,6 +85,7 @@ ccenum(Direction);
 @help('i18n:cc.ScrollBarComponent')
 @executionOrder(110)
 @menu('UI/ScrollBar')
+@requireComponent(UITransformComponent)
 export class ScrollBarComponent extends Component {
 
     /**
@@ -248,9 +247,9 @@ export class ScrollBarComponent extends Component {
             return;
         }
 
-        const contentSize = content.getContentSize();
-        const scrollViewSize = this._scrollView.node.getContentSize();
-        const barSize = this.node.getContentSize();
+        const contentSize = content._uiProps.uiTransformComp!.contentSize;
+        const scrollViewSize = this._scrollView.node._uiProps.uiTransformComp!.contentSize;
+        const barSize = this.node._uiProps.uiTransformComp!.contentSize;
 
         if (this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
             return;
@@ -322,8 +321,8 @@ export class ScrollBarComponent extends Component {
         if (this._scrollView) {
             const content = this._scrollView.content;
             if (content) {
-                const contentSize = content.getContentSize();
-                const scrollViewSize = this._scrollView.node.getContentSize();
+                const contentSize = content._uiProps.uiTransformComp!.contentSize;
+                const scrollViewSize = this._scrollView.node._uiProps.uiTransformComp!.contentSize;
 
                 if (this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
                     return;
@@ -362,7 +361,7 @@ export class ScrollBarComponent extends Component {
             return ZERO;
         }
 
-        _tempPos_1.set(-content.anchorX * content.width, -content.anchorY * content.height, 0);
+        _tempPos_1.set(-contentTrans.anchorX * contentTrans.width, -contentTrans.anchorY * contentTrans.height, 0);
         contentTrans.convertToWorldSpaceAR(_tempPos_1, _tempPos_2);
         const scrollViewSpacePos = scrollTrans.convertToNodeSpaceAR(_tempPos_2);
         scrollViewSpacePos.x += scrollTrans.anchorX * scrollTrans.width;
@@ -397,9 +396,10 @@ export class ScrollBarComponent extends Component {
     }
 
     protected _fixupHandlerPosition () {
-        const barSize = this.node.getContentSize();
-        const barAnchor = this.node.getAnchorPoint();
-        const handleSize = this.handle!.node.getContentSize();
+        const uiTrans = this.node._uiProps.uiTransformComp!;
+        const barSize = uiTrans.contentSize;
+        const barAnchor = uiTrans.anchorPoint;
+        const handleSize = this.handle!.node._uiProps.uiTransformComp!.contentSize;
 
         const handleParent = this.handle!.node.parent!;
 
@@ -433,7 +433,7 @@ export class ScrollBarComponent extends Component {
     protected _calculateLength (contentMeasure: number, scrollViewMeasure: number, handleNodeMeasure: number, outOfBoundary: number) {
         let denominatorValue = contentMeasure;
         if (outOfBoundary) {
-            denominatorValue += (outOfBoundary > 0 ? outOfBoundary : -outOfBoundary) * GETTINGSHORTERFACTOR;
+            denominatorValue += (outOfBoundary > 0 ? outOfBoundary : -outOfBoundary) * GETTING_SHORTER_FACTOR;
         }
 
         const lengthRation = scrollViewMeasure / denominatorValue;
@@ -470,16 +470,17 @@ export class ScrollBarComponent extends Component {
     protected _updateLength (length: number) {
         if (this._handle) {
             const handleNode = this._handle.node;
-            const handleNodeSize = handleNode.getContentSize();
-            const anchor = handleNode.getAnchorPoint();
+            const handleTrans = handleNode._uiProps.uiTransformComp!;
+            const handleNodeSize = handleTrans.contentSize;
+            const anchor = handleTrans.anchorPoint;
             if (anchor.x !== defaultAnchor.x || anchor.y !== defaultAnchor.y){
-                handleNode.setAnchorPoint(defaultAnchor);
+                handleTrans.setAnchorPoint(defaultAnchor);
             }
 
             if (this._direction === Direction.HORIZONTAL) {
-                handleNode.setContentSize(length, handleNodeSize.height);
+                handleTrans.setContentSize(length, handleNodeSize.height);
             } else {
-                handleNode.setContentSize(handleNodeSize.width, length);
+                handleTrans.setContentSize(handleNodeSize.width, length);
             }
         }
     }

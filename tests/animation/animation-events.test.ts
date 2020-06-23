@@ -1,7 +1,7 @@
 import { Node, AnimationComponent, director, AnimationClip, math, AnimationState } from '../../cocos/core';
 
 test('Animation events(general)', () => {
-    jest.spyOn((global as any).cc.director, 'getAnimationManager').mockImplementation(() => {
+    const mockInstance = jest.spyOn((global as any).cc.director, 'getAnimationManager').mockImplementation(() => {
         return {
             addAnimation: () => { },
             removeAnimation: () => { },
@@ -100,6 +100,8 @@ test('Animation events(general)', () => {
     testMagic.clear();
     state.update(clip.duration / 2 + clip.duration / 4);
     testMagic.expectAndClear(AnimationComponent.EventType.LASTFRAME);
+
+    mockInstance.mockRestore();
 });
 
 test('Animation event(last-frame event optimization)', () => {

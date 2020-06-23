@@ -86,7 +86,7 @@ export class RenderQueue {
         const hash = (0 << 30) | pass.priority << 16 | subModel.priority << 8 | passIdx;
         const rp = this._passPool.add();
         rp.hash = hash;
-        rp.depth = renderObj.depth;
+        rp.depth = renderObj.depth || 0;
         rp.shaderId = psoCreateInfo.shader.id;
         rp.subModel = subModel;
         rp.passIdx = passIdx;
