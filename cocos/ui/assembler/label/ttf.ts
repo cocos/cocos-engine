@@ -129,17 +129,17 @@ export const ttf: IAssembler = {
             return;
         }
 
-        const node = comp.node;
-        const width = node.width!;
-        const height = node.height!;
-        const appX = node.anchorX! * width;
-        const appY = node.anchorY! * height;
+        const uiTrans = comp.node._uiProps.uiTransformComp!;
+        const width = uiTrans.width;
+        const height = uiTrans.height;
+        const appX = uiTrans.anchorX * width;
+        const appY = uiTrans.anchorY * height;
 
-        const dataList = renderData!.data;
-        dataList[0].x = -appX;
-        dataList[0].y = -appY;
-        dataList[3].x = width - appX;
-        dataList[3].y = height - appY;
+        const data = renderData.data;
+        data[0].x = -appX;
+        data[0].y = -appY;
+        data[3].x = width - appX;
+        data[3].y = height - appY;
     },
 };
 

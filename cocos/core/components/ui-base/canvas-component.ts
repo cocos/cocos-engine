@@ -360,12 +360,13 @@ export class CanvasComponent extends Component {
             this.node.setPosition(_worldPos);
         }
 
-        if (this.node.width !== nodeSize.width) {
-            this.node.width = nodeSize.width;
+        let trans = this.node._uiProps.uiTransformComp!;
+        if (trans.width !== nodeSize.width) {
+            trans.width = nodeSize.width;
         }
 
-        if (this.node.height !== nodeSize.height) {
-            this.node.height = nodeSize.height;
+        if (trans.height !== nodeSize.height) {
+            trans.height = nodeSize.height;
         }
 
         this.node.getWorldPosition(_worldPos);

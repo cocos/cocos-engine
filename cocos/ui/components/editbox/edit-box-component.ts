@@ -28,11 +28,11 @@
  * @category ui
  */
 
-import { math } from '../../../core';
+import { math, UITransformComponent } from '../../../core';
 import { SpriteFrame } from '../../../core/assets/sprite-frame';
 import { Component } from '../../../core/components/component';
 import { EventHandler as ComponentEventHandler } from '../../../core/components/component-event-handler';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
 import { Color, Size, Vec3 } from '../../../core/math';
 import { EventTouch } from '../../../core/platform';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
@@ -76,6 +76,7 @@ enum EventType {
 @help('i18n:cc.EditBoxComponent')
 @executionOrder(100)
 @menu('UI/EditBox')
+@requireComponent(UITransformComponent)
 @executeInEditMode
 export class EditBoxComponent extends Component {
 
@@ -764,11 +765,13 @@ export class EditBoxComponent extends Component {
     }
 
     protected _syncSize () {
-        const size = this.node.getContentSize();
+        let trans = this.node._uiProps.uiTransformComp!;
+        const size = trans.contentSize;
 
         if (this._background) {
-            this._background.node._uiProps.uiTransformComp!.anchorPoint = this.node._uiProps.uiTransformComp!.anchorPoint;
-            this._background.node.setContentSize(size);
+            let bgTrans = this._background.node._uiProps.uiTransformComp!;
+            bgTrans.anchorPoint = trans.anchorPoint;
+            bgTrans.setContentSize(size);
         }
 
         this._updateLabelPosition(size);
@@ -837,21 +840,21 @@ export class EditBoxComponent extends Component {
     }
 
     protected _updateLabelPosition (size: Size) {
-        const node = this.node;
-        const offX = -node.anchorX * node.width;
-        const offY = -node.anchorY * node.height;
+        let trans = this.node._uiProps.uiTransformComp!;
+        const offX = -trans.anchorX * trans.width;
+        const offY = -trans.anchorY * trans.height;
 
         const placeholderLabel = this._placeholderLabel;
         const textLabel = this._textLabel;
         if (textLabel) {
-            textLabel.node.setContentSize(size.width - LEFT_PADDING, size.height);
+            textLabel.node._uiProps.uiTransformComp!.setContentSize(size.width - LEFT_PADDING, size.height);
             textLabel.node.position = new Vec3 (offX + LEFT_PADDING, offY + size.height, textLabel.node.position.z);
             textLabel.verticalAlign = this._inputMode === InputMode.ANY ? VerticalTextAlignment.TOP : VerticalTextAlignment.CENTER;
             textLabel.enableWrapText = this._inputMode === InputMode.ANY ? true : false;
         }
 
         if (placeholderLabel) {
-            placeholderLabel.node.setContentSize(size.width - LEFT_PADDING, size.height);
+            placeholderLabel.node._uiProps.uiTransformComp!.setContentSize(size.width - LEFT_PADDING, size.height);
             placeholderLabel.lineHeight = size.height;
             placeholderLabel.node.position = new Vec3 (offX + LEFT_PADDING, offY + size.height, placeholderLabel.node.position.z);
             placeholderLabel.verticalAlign = this._inputMode === InputMode.ANY ?
@@ -861,22 +864,20 @@ export class EditBoxComponent extends Component {
     }
 
     protected _resizeChildNodes () {
+        let trans = this.node._uiProps.uiTransformComp!;
         const textLabelNode = this._textLabel && this._textLabel.node;
         if (textLabelNode) {
-            textLabelNode.position = new Vec3(-this.node.width / 2, this.node.height / 2, textLabelNode.position.z);
-            textLabelNode.width = this.node.width;
-            textLabelNode.height = this.node.height;
+            textLabelNode.position = new Vec3(-trans.width / 2, trans.height / 2, textLabelNode.position.z);
+            textLabelNode._uiProps.uiTransformComp!.setContentSize(trans.contentSize);
         }
         const placeholderLabelNode = this._placeholderLabel && this._placeholderLabel.node;
         if (placeholderLabelNode) {
-            placeholderLabelNode.position = new Vec3(-this.node.width / 2, this.node.height / 2, placeholderLabelNode.position.z);
-            placeholderLabelNode.width = this.node.width;
-            placeholderLabelNode.height = this.node.height;
+            placeholderLabelNode.position = new Vec3(-trans.width / 2, trans.height / 2, placeholderLabelNode.position.z);
+            placeholderLabelNode._uiProps.uiTransformComp!.setContentSize(trans.contentSize);
         }
         const backgroundNode = this._background && this._background.node;
         if (backgroundNode) {
-            backgroundNode.width = this.node.width;
-            backgroundNode.height = this.node.height;
+            backgroundNode._uiProps.uiTransformComp!.setContentSize(trans.contentSize);
         }
     }
 }

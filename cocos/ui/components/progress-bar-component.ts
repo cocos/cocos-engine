@@ -28,8 +28,8 @@
  * @category ui
  */
 
-import { Component} from '../../core/components';
-import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { Component, UITransformComponent} from '../../core/components';
+import { ccclass, help, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
 import { Size, Vec2, Vec3 } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { clamp01 } from '../../core/math/utils';
@@ -101,6 +101,7 @@ Enum(Mode);
 @help('i18n:cc.ProgressBarComponent')
 @executionOrder(110)
 @menu('UI/ProgressBar')
+@requireComponent(UITransformComponent)
 // @executeInEditMode
 export class ProgressBarComponent extends Component {
 
@@ -153,7 +154,7 @@ export class ProgressBarComponent extends Component {
             const entity = this._barSprite.node;
             if (!entity) { return; }
 
-            const entitySize = entity.getContentSize() as Size;
+            const entitySize = entity._uiProps.uiTransformComp!.contentSize;
             if (this._mode === Mode.HORIZONTAL) {
                 this.totalLength = entitySize.width;
             } else if (this._mode === Mode.VERTICAL) {
@@ -254,10 +255,11 @@ export class ProgressBarComponent extends Component {
             const entity = this._barSprite.node;
             if (!entity) { return; }
 
-            const nodeSize = this.node.getContentSize() as Size;
-            const nodeAnchor = this.node.getAnchorPoint() as Vec2;
+            const trans = this.node._uiProps.uiTransformComp!;
+            const nodeSize = trans.contentSize;
+            const nodeAnchor = trans.anchorPoint;
 
-            const barSpriteSize = entity.getContentSize() as Size;
+            const barSpriteSize = entity._uiProps.uiTransformComp!.contentSize;
 
             // if (entity.parent === this.node) {
             //     this.node.setContentSize(barSpriteSize);
@@ -288,8 +290,9 @@ export class ProgressBarComponent extends Component {
 
             if (!entity) { return; }
 
-            const entityAnchorPoint = entity.getAnchorPoint() as Vec2;
-            const entitySize = entity.getContentSize() as Size;
+            const entTrans = entity._uiProps.uiTransformComp!
+            const entityAnchorPoint = entTrans.anchorPoint;
+            const entitySize = entTrans.contentSize;
             const entityPosition = entity.getPosition();
 
             let anchorPoint = new Vec2(0, 0.5);
@@ -340,8 +343,8 @@ export class ProgressBarComponent extends Component {
 
                     entity.setPosition(entityPosition.x + finalPosition.x, entityPosition.y + finalPosition.y, entityPosition.z);
 
-                    entity.setAnchorPoint(anchorPoint);
-                    entity.setContentSize(finalContentSize);
+                    entTrans.setAnchorPoint(anchorPoint);
+                    entTrans.setContentSize(finalContentSize);
                 } else {
                     warn('ProgressBar non-FILLED mode only works when barSprite\'s Type is non-FILLED!');
                 }

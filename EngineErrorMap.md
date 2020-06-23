@@ -898,7 +898,15 @@ The inverted invalid in Canvas Mode.
 
 ### 4300
 
-can not found the %s page.
+Can not found the %s page.
+
+### 4301
+
+Can not add a page without UITransformComponent.
+
+### 4302
+
+Can not set the scroll view content when it hasn't UITransformComponent or its parent hasn't UITransformComponent.
 
 ### 4400
 

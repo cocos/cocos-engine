@@ -282,38 +282,6 @@ export class Node extends BaseNode {
     }
 
     // ===============================
-    // for backward-compatibility
-    // ===============================
-
-    get width () {
-        return this._uiProps.uiTransformComp!.width;
-    }
-    set width (value: number) {
-        this._uiProps.uiTransformComp!.width = value;
-    }
-
-    get height () {
-        return this._uiProps.uiTransformComp!.height;
-    }
-    set height (value: number) {
-        this._uiProps.uiTransformComp!.height = value;
-    }
-
-    get anchorX () {
-        return this._uiProps.uiTransformComp!.anchorX;
-    }
-    set anchorX (value) {
-        this._uiProps.uiTransformComp!.anchorX = value;
-    }
-
-    get anchorY () {
-        return this._uiProps.uiTransformComp!.anchorY;
-    }
-    set anchorY (value: number) {
-        this._uiProps.uiTransformComp!.anchorY = value;
-    }
-
-    // ===============================
     // hierarchy
     // ===============================
 
@@ -963,34 +931,6 @@ export class Node extends BaseNode {
         }
     }
 
-    // ===============================
-    // for backward-compatibility
-    // ===============================
-
-    public getAnchorPoint (out?: Vec2): Vec2 {
-        if (!out) {
-            out = new Vec2();
-        }
-        out.set(this._uiProps.uiTransformComp!.anchorPoint);
-        return out;
-    }
-
-    public setAnchorPoint (point: Vec2 | number, y?: number) {
-        this._uiProps.uiTransformComp!.setAnchorPoint(point, y);
-    }
-
-    public getContentSize (out?: Size): Size {
-        if (!out) {
-            out = new Size();
-        }
-
-        out.set(this._uiProps.uiTransformComp!.contentSize);
-        return out;
-    }
-
-    public setContentSize (size: Size | number, height?: number) {
-        this._uiProps.uiTransformComp!.setContentSize(size, height);
-    }
     /**
      * @en Pause all system events which is dispatched by [[SystemEvent]]
      * @zh 暂停所有 [[SystemEvent]] 派发的系统事件

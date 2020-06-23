@@ -82,11 +82,11 @@ export const sliced: IAssembler = {
     updateVertexData (sprite: SpriteComponent) {
         const renderData: RenderData | null = sprite.renderData;
         const dataList: IRenderData[] = renderData!.data;
-        const node = sprite.node;
-        const width = node.width!;
-        const height = node.height!;
-        const appX = node.anchorX! * width;
-        const appY = node.anchorY! * height;
+        const uiTrans = sprite.node._uiProps.uiTransformComp!;
+        const width = uiTrans.width!;
+        const height = uiTrans.height!;
+        const appX = uiTrans.anchorX! * width;
+        const appY = uiTrans.anchorY! * height;
 
         const frame: SpriteFrame|null = sprite.spriteFrame;
         const leftWidth = frame!.insetLeft;

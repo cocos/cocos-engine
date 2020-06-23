@@ -38,7 +38,6 @@ import { Node } from '../../core/scene-graph';
 import { ccenum } from '../../core/value-types/enum';
 import { GraphicsComponent } from './graphics-component';
 import { TransformBit } from '../../core/scene-graph/node-enum';
-import { Material } from '@cocos/cannon';
 import { Game } from '../../core';
 import { legacyCC } from '../../core/global-exports';
 
@@ -303,8 +302,8 @@ export class MaskComponent extends UIRenderComponent {
      * @param cameraPt  屏幕点转换到相机坐标系下的点。
      */
     public isHit (cameraPt: Vec2) {
-        const node = this.node;
-        const size = node.getContentSize();
+        const uiTrans = this.node._uiProps.uiTransformComp!;
+        const size = uiTrans.contentSize;
         const w = size.width;
         const h = size.height;
         const testPt = _vec2_temp;
@@ -312,7 +311,7 @@ export class MaskComponent extends UIRenderComponent {
         this.node.getWorldMatrix(_worldMatrix);
         Mat4.invert(_mat4_temp, _worldMatrix);
         Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
-        const ap = node.getAnchorPoint();
+        const ap = uiTrans.anchorPoint;
         testPt.x += ap.x * w;
         testPt.y += ap.y * h;
 
@@ -427,14 +426,14 @@ export class MaskComponent extends UIRenderComponent {
             return;
         }
 
-        const node = this.node;
+        const uiTrans = this.node._uiProps.uiTransformComp!;
         const graphics = this._graphics;
         // Share render data with graphics content
         graphics.clear();
-        const size = node.getContentSize();
+        const size = uiTrans.contentSize;
         const width = size.width;
         const height = size.height;
-        const ap = node.getAnchorPoint();
+        const ap = uiTrans.anchorPoint;
         const x = -width * ap.x;
         const y = -height * ap.y;
         if (this._type === MaskType.RECT) {

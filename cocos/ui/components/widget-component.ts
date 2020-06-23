@@ -59,8 +59,12 @@ export function getReadonlyNodeSize (parent: Node) {
         }
 
         return visibleRect;
-    } else {
-        return parent.getContentSize();
+    }
+    else if (parent._uiProps.uiTransformComp) {
+        return parent._uiProps.uiTransformComp.contentSize;
+    }
+    else {
+        return Size.ZERO;
     }
 }
 
@@ -812,7 +816,7 @@ export class WidgetComponent extends Component {
 
     public onEnable () {
         this.node.getPosition(this._lastPos);
-        this.node.getContentSize(this._lastSize);
+        this._lastSize.set(this.node._uiProps.uiTransformComp!.contentSize);
         legacyCC._widgetManager.add(this);
         this._registerEvent();
         this._registerTargetEvents();
@@ -893,7 +897,8 @@ export class WidgetComponent extends Component {
         this.setDirty();
 
         const self = this;
-        const newSize = self.node.getContentSize();
+        const trans = self.node._uiProps.uiTransformComp!;
+        const newSize = trans.contentSize;
         const oldSize = this._lastSize;
         const delta = new Vec3(newSize.width - oldSize.width, newSize.height - oldSize.height, 0);
 
@@ -913,7 +918,7 @@ export class WidgetComponent extends Component {
             Vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
         }
 
-        const anchor = self.node.getAnchorPoint();
+        const anchor = trans.anchorPoint;
 
         if (self.isAlignTop) {
             self._top -= (self._isAbsTop ? delta.y : deltaInPercent.y) * (1 - anchor.y) * inverseScale.y;
@@ -962,11 +967,12 @@ export class WidgetComponent extends Component {
 
     protected _autoChangedValue (flag: AlignFlags, isAbs: boolean) {
         const current = (this._alignFlags & flag) > 0;
-        if (!current || !this.node.parent || !this.node.parent._uiProps.uiTransformComp) {
+        const parentTrans = this.node.parent && this.node.parent._uiProps.uiTransformComp;
+        if (!current || !parentTrans) {
             return;
         }
 
-        const size = this.node.parent!.getContentSize();
+        const size = parentTrans.contentSize;
         if (this.isAlignLeft && flag === AlignFlags.LEFT) {
             this._left = isAbs ? this._left * size.width : this._left / size.width;
         } else if (this.isAlignRight && flag === AlignFlags.RIGHT) {
@@ -1022,6 +1028,7 @@ export class WidgetComponent extends Component {
             return;
         }
         const isHorizontal = (flag & LEFT_RIGHT) > 0;
+        const trans = this.node._uiProps.uiTransformComp!;
         if (isAlign) {
             this._alignFlags |= flag;
 
@@ -1029,7 +1036,7 @@ export class WidgetComponent extends Component {
                 this.isAlignHorizontalCenter = false;
                 if (this.isStretchWidth) {
                     // become stretch
-                    this._originalWidth = this.node.width!;
+                    this._originalWidth = trans.width!;
                     // test check conflict
                     if (EDITOR /*&& !cc.engine.isPlaying*/) {
                         // TODO:
@@ -1040,7 +1047,7 @@ export class WidgetComponent extends Component {
                 this.isAlignVerticalCenter = false;
                 if (this.isStretchHeight) {
                     // become stretch
-                    this._originalHeight = this.node.height!;
+                    this._originalHeight = trans.height!;
                     // test check conflict
                     if (EDITOR /*&& !cc.engine.isPlaying*/) {
                         // TODO:
@@ -1057,12 +1064,12 @@ export class WidgetComponent extends Component {
             if (isHorizontal) {
                 if (this.isStretchWidth) {
                     // will cancel stretch
-                    this.node.width = this._originalWidth;
+                    trans.width = this._originalWidth;
                 }
             } else {
                 if (this.isStretchHeight) {
                     // will cancel stretch
-                    this.node.height = this._originalHeight;
+                    trans.height = this._originalHeight;
                 }
             }
 

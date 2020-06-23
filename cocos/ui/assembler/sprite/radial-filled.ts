@@ -89,11 +89,11 @@ function _calcIntersectedPoints (left, right, bottom, top, center, angle, inters
 }
 
 function _calculateVertices (sprite: SpriteComponent) {
-    const node = sprite.node;
-    const width = node.width;
-    const height = node.height;
-    const appX = node.anchorX * width;
-    const appY = node.anchorY * height;
+    const uiTrans = sprite.node._uiProps.uiTransformComp!;
+    const width = uiTrans.width;
+    const height = uiTrans.height;
+    const appX = uiTrans.anchorX * width;
+    const appY = uiTrans.anchorY * height;
 
     const l = -appX;
     const b = -appY;

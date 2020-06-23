@@ -593,8 +593,9 @@ export class LayoutComponent extends Component {
     protected onEnable () {
         this._addEventListeners();
 
-        if (this.node.getContentSize().equals(new Size())) {
-            this.node.setContentSize(this._layoutSize);
+        let trans = this.node._uiProps.uiTransformComp!;
+        if (trans.contentSize.equals(Size.ZERO)) {
+            trans.setContentSize(this._layoutSize);
         }
 
         if (this._N$padding !== 0) {
@@ -638,7 +639,8 @@ export class LayoutComponent extends Component {
 
     protected _addChildrenEventListeners () {
         const children = this.node.children;
-        for (const child of children) {
+        for (let i = 0; i < children.length; ++i) {
+            const child = children[i];
             child.on(NodeEvent.TRANSFORM_CHANGED, this._doScaleDirty, this);
             child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
             child.on(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
@@ -649,7 +651,8 @@ export class LayoutComponent extends Component {
 
     protected _removeChildrenEventListeners () {
         const children = this.node.children;
-        for (const child of children) {
+        for (let i = 0; i < children.length; ++i) {
+            const child = children[i];
             child.off(NodeEvent.TRANSFORM_CHANGED, this._doScaleDirty, this);
             child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
             child.off(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
@@ -679,12 +682,13 @@ export class LayoutComponent extends Component {
     }
 
     protected _resized () {
-        this._layoutSize = this.node.getContentSize();
+        this._layoutSize.set(this.node._uiProps.uiTransformComp!.contentSize);
         this._doLayoutDirty();
     }
 
     protected _doLayoutHorizontally (baseWidth: number, rowBreak: boolean, fnPositionY: Function, applyChildren: boolean) {
-        const layoutAnchor = this.node.getAnchorPoint();
+        const trans = this.node._uiProps.uiTransformComp!;
+        const layoutAnchor = trans.anchorPoint;
         const children = this.node.children;
 
         let sign = 1;
@@ -706,9 +710,8 @@ export class LayoutComponent extends Component {
         let maxHeightChildAnchorY = 0;
 
         let activeChildCount = 0;
-        for (const child of children) {
-
-            if (child.activeInHierarchy) {
+        for (let i = 0; i < children.length; ++i) {
+            if (children[i].activeInHierarchy) {
                 activeChildCount++;
             }
         }
@@ -718,8 +721,10 @@ export class LayoutComponent extends Component {
             newChildWidth = (baseWidth - (this._paddingLeft + this._paddingRight) - (activeChildCount - 1) * this._spacingX) / activeChildCount;
         }
 
-        for (const child of children) {
-            if (!child.activeInHierarchy) {
+        for (let i = 0; i < children.length; ++i) {
+            const child = children[i];
+            const childTrans = child._uiProps.uiTransformComp;
+            if (!child.activeInHierarchy || !childTrans) {
                 continue;
             }
 
@@ -728,15 +733,15 @@ export class LayoutComponent extends Component {
             const childScaleY = this._getUsedScaleValue(_tempScale.y);
             // for resizing children
             if (this._resizeMode === ResizeMode.CHILDREN) {
-                child.width = newChildWidth / childScaleX;
+                childTrans.width = newChildWidth / childScaleX;
                 if (this._N$layoutType === Type.GRID) {
-                    child.height = this._cellSize.height / childScaleY;
+                    childTrans.height = this._cellSize.height / childScaleY;
                 }
             }
 
-            let anchorX = child.anchorX;
-            const childBoundingBoxWidth = child.width! * childScaleX;
-            const childBoundingBoxHeight = child.height! * childScaleY;
+            let anchorX = childTrans.anchorX;
+            const childBoundingBoxWidth = childTrans.width * childScaleX;
+            const childBoundingBoxHeight = childTrans.height * childScaleY;
 
             if (secondMaxHeight > tempMaxHeight) {
                 tempMaxHeight = secondMaxHeight;
@@ -745,14 +750,14 @@ export class LayoutComponent extends Component {
             if (childBoundingBoxHeight >= tempMaxHeight) {
                 secondMaxHeight = tempMaxHeight;
                 tempMaxHeight = childBoundingBoxHeight;
-                maxHeightChildAnchorY = child.getAnchorPoint().y;
+                maxHeightChildAnchorY = childTrans.anchorY;
             }
 
             if (this._horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
-                anchorX = 1 - child.anchorX!;
+                anchorX = 1 - childTrans.anchorX;
             }
-            nextX = nextX + sign * anchorX! * childBoundingBoxWidth + sign * this._spacingX;
-            const rightBoundaryOfChild = sign * (1 - anchorX!) * childBoundingBoxWidth;
+            nextX = nextX + sign * anchorX * childBoundingBoxWidth + sign * this._spacingX;
+            const rightBoundaryOfChild = sign * (1 - anchorX) * childBoundingBoxWidth;
 
             if (rowBreak) {
                 const rowBreakBoundary = nextX + rightBoundaryOfChild + sign * (sign > 0 ? this._paddingRight : this._paddingLeft);
@@ -779,12 +784,12 @@ export class LayoutComponent extends Component {
                         secondMaxHeight = childBoundingBoxHeight;
                         tempMaxHeight = 0;
                     }
-                    nextX = startPos + sign * (paddingX + anchorX! * childBoundingBoxWidth);
+                    nextX = startPos + sign * (paddingX + anchorX * childBoundingBoxWidth);
                     row++;
                 }
             }
 
-            const finalPositionY = fnPositionY(child, rowMaxHeight, row);
+            const finalPositionY = fnPositionY(child, childTrans, rowMaxHeight, row);
             if (baseWidth >= (childBoundingBoxWidth + this._paddingLeft + this._paddingRight)) {
                 if (applyChildren) {
                     child.getPosition(_tempPos);
@@ -797,14 +802,14 @@ export class LayoutComponent extends Component {
             const topMargin = (tempMaxHeight === 0) ? childBoundingBoxHeight : tempMaxHeight;
 
             if (this._verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
-                containerResizeBoundary = containerResizeBoundary || this.node.getContentSize().height;
+                containerResizeBoundary = containerResizeBoundary || trans.height;
                 signX = -1;
                 tempFinalPositionY = finalPositionY + signX * (topMargin * maxHeightChildAnchorY + this._paddingBottom);
                 if (tempFinalPositionY < containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionY;
                 }
             } else {
-                containerResizeBoundary = containerResizeBoundary || -this.node.getContentSize().height;
+                containerResizeBoundary = containerResizeBoundary || -trans.height;
                 tempFinalPositionY = finalPositionY + signX * (topMargin * maxHeightChildAnchorY + this._paddingTop);
                 if (tempFinalPositionY > containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionY;
@@ -823,7 +828,8 @@ export class LayoutComponent extends Component {
         fnPositionX: Function,
         applyChildren: boolean,
     ) {
-        const layoutAnchor = this.node.getAnchorPoint();
+        const trans = this.node._uiProps.uiTransformComp!;
+        const layoutAnchor = trans.anchorPoint;
         const children = this.node.children;
 
         let sign = 1;
@@ -844,8 +850,8 @@ export class LayoutComponent extends Component {
         let maxWidthChildAnchorX = 0;
 
         let activeChildCount = 0;
-        for (const child of children) {
-            if (child.activeInHierarchy) {
+        for (let i = 0; i < children.length; ++i) {
+            if (children[i].activeInHierarchy) {
                 activeChildCount++;
             }
         }
@@ -855,7 +861,8 @@ export class LayoutComponent extends Component {
             newChildHeight = (baseHeight - (this._paddingTop + this._paddingBottom) - (activeChildCount - 1) * this._spacingY) / activeChildCount;
         }
 
-        for (const child of children) {
+        for (let i = 0; i < children.length; ++i) {
+            const child = children[i];
             if (!child) {
                 continue;
             }
@@ -863,21 +870,22 @@ export class LayoutComponent extends Component {
             const scale = child.getScale();
             const childScaleX = this._getUsedScaleValue(scale.x);
             const childScaleY = this._getUsedScaleValue(scale.y);
-            if (!child.activeInHierarchy) {
+            const childTrans = child._uiProps.uiTransformComp;
+            if (!child.activeInHierarchy || !childTrans) {
                 continue;
             }
 
             // for resizing children
             if (this._resizeMode === ResizeMode.CHILDREN) {
-                child.height = newChildHeight / childScaleY;
+                childTrans.height = newChildHeight / childScaleY;
                 if (this._N$layoutType === Type.GRID) {
-                    child.width = this._cellSize.width / childScaleX;
+                    childTrans.width = this._cellSize.width / childScaleX;
                 }
             }
 
-            let anchorY = child.anchorY;
-            const childBoundingBoxWidth = child.width! * childScaleX;
-            const childBoundingBoxHeight = child.height! * childScaleY;
+            let anchorY = childTrans.anchorY;
+            const childBoundingBoxWidth = childTrans.width * childScaleX;
+            const childBoundingBoxHeight = childTrans.height * childScaleY;
 
             if (secondMaxWidth > tempMaxWidth) {
                 tempMaxWidth = secondMaxWidth;
@@ -886,14 +894,14 @@ export class LayoutComponent extends Component {
             if (childBoundingBoxWidth >= tempMaxWidth) {
                 secondMaxWidth = tempMaxWidth;
                 tempMaxWidth = childBoundingBoxWidth;
-                maxWidthChildAnchorX = child.getAnchorPoint().x;
+                maxWidthChildAnchorX = childTrans.anchorX;
             }
 
             if (this._verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
-                anchorY = 1 - child.anchorY!;
+                anchorY = 1 - childTrans.anchorY;
             }
-            nextY = nextY + sign * anchorY! * childBoundingBoxHeight + sign * this._spacingY;
-            const topBoundaryOfChild = sign * (1 - anchorY!) * childBoundingBoxHeight;
+            nextY = nextY + sign * anchorY * childBoundingBoxHeight + sign * this._spacingY;
+            const topBoundaryOfChild = sign * (1 - anchorY) * childBoundingBoxHeight;
 
             if (columnBreak) {
                 const columnBreakBoundary = nextY + topBoundaryOfChild + sign * (sign > 0 ? this._paddingTop : this._paddingBottom);
@@ -919,7 +927,7 @@ export class LayoutComponent extends Component {
                         secondMaxWidth = childBoundingBoxWidth;
                         tempMaxWidth = 0;
                     }
-                    nextY = bottomBoundaryOfLayout + sign * (paddingY + anchorY! * childBoundingBoxHeight);
+                    nextY = bottomBoundaryOfLayout + sign * (paddingY + anchorY * childBoundingBoxHeight);
                     column++;
                 }
             }
@@ -939,13 +947,13 @@ export class LayoutComponent extends Component {
 
             if (this._horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
                 signX = -1;
-                containerResizeBoundary = containerResizeBoundary || this.node.getContentSize().width;
+                containerResizeBoundary = containerResizeBoundary || trans.width;
                 tempFinalPositionX = finalPositionX + signX * (rightMargin * maxWidthChildAnchorX + this._paddingLeft);
                 if (tempFinalPositionX < containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionX;
                 }
             } else {
-                containerResizeBoundary = containerResizeBoundary || -this.node.getContentSize().width;
+                containerResizeBoundary = containerResizeBoundary || -trans.width;
                 tempFinalPositionX = finalPositionX + signX * (rightMargin * maxWidthChildAnchorX + this._paddingRight);
                 if (tempFinalPositionX > containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionX;
@@ -961,11 +969,11 @@ export class LayoutComponent extends Component {
 
     protected _doLayoutBasic () {
         const children = this.node.children;
-
         let allChildrenBoundingBox: Rect | null = null;
 
-        for (const child of children) {
-            const childTransform = child.getComponent(UITransformComponent);
+        for (let i = 0; i < children.length; ++i) {
+            const child = children[i];
+            const childTransform = child._uiProps.uiTransformComp;
             if (!childTransform) {
                 continue;
             }
@@ -1001,15 +1009,16 @@ export class LayoutComponent extends Component {
                 parseFloat((rightTopInParentSpace.y - leftBottomInParentSpace.y).toFixed(2)));
 
             this.node.getPosition(_tempPos);
+            const trans = this.node._uiProps.uiTransformComp!;
             if (newSize.width !== 0) {
                 const newAnchorX = (_tempPos.x - leftBottomInParentSpace.x) / newSize.width;
-                this.node.anchorX = parseFloat(newAnchorX.toFixed(2));
+                trans.anchorX = parseFloat(newAnchorX.toFixed(2));
             }
             if (newSize.height !== 0) {
                 const newAnchorY = (_tempPos.y - leftBottomInParentSpace.y) / newSize.height;
-                this.node.anchorY = parseFloat(newAnchorY.toFixed(2));
+                trans.anchorY = parseFloat(newAnchorY.toFixed(2));
             }
-            this.node.setContentSize(newSize);
+            trans.setContentSize(newSize);
         }
     }
 
@@ -1026,10 +1035,9 @@ export class LayoutComponent extends Component {
         }
 
         const self = this;
-
-        const fnPositionY = (child: Node, topOffset: number, row: number) => {
+        const fnPositionY = (child: Node, childTrans: UITransformComponent, topOffset: number, row: number) => {
             return bottomBoundaryOfLayout +
-                sign * (topOffset + child.anchorY * child.height * self._getUsedScaleValue(child.getScale().y) + paddingY + row * this._spacingY);
+                sign * (topOffset + childTrans.anchorY * childTrans.height * self._getUsedScaleValue(child.getScale().y) + paddingY + row * this._spacingY);
         };
 
         let newHeight = 0;
@@ -1052,7 +1060,7 @@ export class LayoutComponent extends Component {
         this._doLayoutHorizontally(baseWidth, true, fnPositionY, true);
 
         if (this._resizeMode === ResizeMode.CONTAINER) {
-            this.node.setContentSize(baseWidth, newHeight);
+            this.node._uiProps.uiTransformComp!.setContentSize(baseWidth, newHeight);
         }
     }
 
@@ -1069,9 +1077,9 @@ export class LayoutComponent extends Component {
         }
 
         const self = this;
-        const fnPositionX = (child: Node, leftOffset: number, column: number) => {
+        const fnPositionX = (child: Node, childTrans: UITransformComponent, leftOffset: number, column: number) => {
             return leftBoundaryOfLayout +
-                sign * (leftOffset + child.anchorX * child.width * self._getUsedScaleValue(child.getScale().x) + paddingX + column * this._spacingX);
+                sign * (leftOffset + childTrans.anchorX * childTrans.width * self._getUsedScaleValue(child.getScale().x) + paddingX + column * this._spacingX);
         };
 
         let newWidth = 0;
@@ -1093,13 +1101,14 @@ export class LayoutComponent extends Component {
         this._doLayoutVertically(baseHeight, true, fnPositionX, true);
 
         if (this._resizeMode === ResizeMode.CONTAINER) {
-            this.node.setContentSize(newWidth, baseHeight);
+            this.node._uiProps.uiTransformComp!.setContentSize(newWidth, baseHeight);
         }
     }
 
     protected _doLayoutGrid () {
-        const layoutAnchor = this.node.getAnchorPoint();
-        const layoutSize = this.node.getContentSize();
+        let trans = this.node._uiProps.uiTransformComp!;
+        const layoutAnchor = trans.anchorPoint;
+        const layoutSize = trans.contentSize;
 
         if (this.startAxis === AxisDirection.HORIZONTAL) {
             this._doLayoutGridAxisHorizontal(layoutAnchor, layoutSize);
@@ -1114,16 +1123,18 @@ export class LayoutComponent extends Component {
         let newWidth = 0;
         let activeChildCount = 0;
         if (this._resizeMode === ResizeMode.CONTAINER) {
-            for (const child of children) {
+            for (let i = 0; i < children.length; ++i) {
+                const child = children[i];
                 child.getScale(_tempScale);
-                if (child.activeInHierarchy) {
+                let childTrans = child._uiProps.uiTransformComp;
+                if (child.activeInHierarchy && childTrans) {
                     activeChildCount++;
-                    newWidth += child.width! * this._getUsedScaleValue(_tempScale.x);
+                    newWidth += childTrans.width * this._getUsedScaleValue(_tempScale.x);
                 }
             }
             newWidth += (activeChildCount - 1) * this._spacingX + this._paddingLeft + this._paddingRight;
         } else {
-            newWidth = this.node.getContentSize().width;
+            newWidth = this.node._uiProps.uiTransformComp!.width;
         }
         return newWidth;
     }
@@ -1132,17 +1143,19 @@ export class LayoutComponent extends Component {
         let newHeight = 0;
         let activeChildCount = 0;
         if (this._resizeMode === ResizeMode.CONTAINER) {
-            for (const child of children) {
+            for (let i = 0; i < children.length; ++i) {
+                const child = children[i];
                 child.getScale(_tempScale);
-                if (child.activeInHierarchy) {
+                let childTrans = child._uiProps.uiTransformComp;
+                if (child.activeInHierarchy && childTrans) {
                     activeChildCount++;
-                    newHeight += child.height! * this._getUsedScaleValue(_tempScale.y);
+                    newHeight += childTrans.height! * this._getUsedScaleValue(_tempScale.y);
                 }
             }
 
             newHeight += (activeChildCount - 1) * this._spacingY + this._paddingBottom + this._paddingTop;
         } else {
-            newHeight = this.node.getContentSize().height;
+            newHeight = this.node._uiProps.uiTransformComp!.height;
         }
         return newHeight;
     }
@@ -1159,7 +1172,7 @@ export class LayoutComponent extends Component {
 
             this._doLayoutHorizontally(newWidth, false, fnPositionY, true);
             this._isAlign = false;
-            this.node.width = newWidth;
+            this.node._uiProps.uiTransformComp!.width = newWidth;
         } else if (this._N$layoutType === Type.VERTICAL) {
             const newHeight = this._getVerticalBaseHeight(this.node.children);
 
@@ -1170,7 +1183,7 @@ export class LayoutComponent extends Component {
 
             this._doLayoutVertically(newHeight, false, fnPositionX, true);
             this._isAlign = false;
-            this.node.height = newHeight;
+            this.node._uiProps.uiTransformComp!.height = newHeight;
         } else if (this._N$layoutType === Type.NONE) {
             if (this._resizeMode === ResizeMode.CONTAINER) {
                 this._doLayoutBasic();

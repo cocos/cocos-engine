@@ -34,6 +34,7 @@ import { Rect, Size, Vec2 } from '../../../core/math';
 import { HorizontalTextAlignment, VerticalTextAlignment } from '../../components/label-component';
 import { LabelComponent, Overflow } from '../../components/label-component';
 import { js } from '../../../core/utils';
+import { UITransformComponent } from '../../../core/components/ui-base/ui-transform-component';
 import { legacyCC } from '../../../core/global-exports';
 
 class FontLetterDefinition {
@@ -110,6 +111,7 @@ class LetterInfo {
 const _tmpRect = new Rect();
 
 let _comp: LabelComponent | null = null;
+let _uiTrans: UITransformComponent | null = null;
 
 const _horizontalKerning: number[] = [];
 const _lettersInfo: LetterInfo[] = [];
@@ -151,12 +153,13 @@ export const bmfontUtils = {
         if (_comp === comp) { return; }
 
         _comp = comp;
+        _uiTrans = _comp.node._uiProps.uiTransformComp!;
 
         this._updateProperties();
         this._updateContent();
 
         _comp.actualFontSize = _fontSize;
-        _comp.node.setContentSize(_contentSize);
+        _uiTrans.setContentSize(_contentSize);
 
         _comp.renderData!.vertDirty = _comp.renderData!.uvDirty = false;
 
@@ -213,7 +216,7 @@ export const bmfontUtils = {
         _string = _comp.string.toString();
         _fontSize = _comp.fontSize;
         _originFontSize = _fntConfig.fontSize;
-        const contentSize = _comp.node.getContentSize();
+        const contentSize = _uiTrans!.contentSize;
         _contentSize.width = contentSize.width;
         _contentSize.height = contentSize.height;
         _hAlign = _comp.horizontalAlign;
@@ -631,11 +634,10 @@ export const bmfontUtils = {
 
         const texture = _spriteFrame;
 
-        const node = _comp.node;
         const renderData = _comp.renderData!;
         renderData.dataLength = renderData.vertexCount = renderData.indicesCount = 0;
 
-        const anchorPoint = node.getAnchorPoint();
+        const anchorPoint = _uiTrans!.anchorPoint;
         const contentSize = _contentSize;
         const appX = anchorPoint.x * contentSize.width;
         const appY = anchorPoint.y * contentSize.height;

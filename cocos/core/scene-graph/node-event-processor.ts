@@ -204,7 +204,7 @@ function _mouseWheelHandler (this: EventListener, event: EventMouse) {
 
     pos = event.getUILocation();
 
-    if (node._uiProps.uiTransformComp!.isHit(pos, this)) {
+    if (node._uiProps.uiTransformComp.isHit(pos, this)) {
         event.type = SystemEventType.MOUSE_WHEEL.toString();
         event.bubbles = true;
         node.dispatchEvent(event);
