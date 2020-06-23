@@ -18,7 +18,6 @@ import { legacyCC } from '../global-exports';
 
 export * from './binding-layout';
 export * from './buffer';
-export * from './command-allocator';
 export * from './command-buffer';
 export * from './define';
 export * from './device';

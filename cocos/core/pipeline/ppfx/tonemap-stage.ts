@@ -40,7 +40,7 @@ export class ToneMapStage extends RenderStage {
 
         super.activate(flow);
 
-        this._createCmdBuffer();
+        this.createCmdBuffer();
 
         this.rebuild();
     }
@@ -102,12 +102,5 @@ export class ToneMapStage extends RenderStage {
         this._device!.queue.submit(bufs);
 
         // this._pipeline.swapFBOs();
-    }
-
-    private _createCmdBuffer () {
-        this._cmdBuff = this._device!.createCommandBuffer({
-            allocator: this._device!.commandAllocator,
-            type: GFXCommandBufferType.PRIMARY,
-        });
     }
 }

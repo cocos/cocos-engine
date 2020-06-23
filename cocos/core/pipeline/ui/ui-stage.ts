@@ -3,11 +3,10 @@
  */
 
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXCommandBufferType, IGFXColor, GFXLoadOp, GFXStoreOp, GFXTextureLayout } from '../../gfx/define';
+import { IGFXColor, GFXLoadOp, GFXStoreOp, GFXTextureLayout } from '../../gfx/define';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
-import { legacyCC } from '../../global-exports';
 
 const bufs: GFXCommandBuffer[] = [];
 const colors: IGFXColor[] = [];
@@ -28,10 +27,6 @@ export class UIStage extends RenderStage {
         }],
         framebuffer: 'window',
     };
-
-    private _lastSubmit = -1;
-    private _cmdBuffIdx = 0;
-    private _backupCmdBuffs: GFXCommandBuffer[] = [];
 
     public activate (flow: RenderFlow) {
         super.activate(flow);
@@ -115,21 +110,7 @@ export class UIStage extends RenderStage {
 
         colors[0] = camera.clearColor;
 
-        let cmdBuff = this._cmdBuff!;
-        const device = this._device!;
-        const curFrame = legacyCC.director.getTotalFrames();
-        if (this._lastSubmit === curFrame) {
-            if (!this._backupCmdBuffs[this._cmdBuffIdx]) {
-                this._backupCmdBuffs[this._cmdBuffIdx] = device.createCommandBuffer({
-                    allocator: device.commandAllocator,
-                    type: GFXCommandBufferType.PRIMARY
-                });
-            }
-            cmdBuff = this._backupCmdBuffs[this._cmdBuffIdx++];
-        } else {
-            this._lastSubmit = curFrame;
-            this._cmdBuffIdx = 0;
-        }
+        const cmdBuff = this._cmdBuff!;
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(framebuffer, this._renderArea!,

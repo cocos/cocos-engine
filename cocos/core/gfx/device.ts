@@ -5,7 +5,6 @@
 import { ccenum } from '../value-types/enum';
 import { GFXBindingLayout, IGFXBindingLayoutInfo } from './binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from './buffer';
-import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from './command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from './command-buffer';
 import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFilter, GFXFormat, IGFXMemoryStatus, IGFXRect } from './define';
 import { GFXFence, IGFXFenceInfo } from './fence';
@@ -144,14 +143,6 @@ export abstract class GFXDevice {
      */
     get nativeHeight (): number {
         return this._nativeHeight;
-    }
-
-    /**
-     * @en Device command allocator.
-     * @zh 命令分配器。
-     */
-    get commandAllocator (): GFXCommandAllocator {
-        return this._cmdAllocator as GFXCommandAllocator;
     }
 
     /**
@@ -356,7 +347,6 @@ export abstract class GFXDevice {
     protected _height: number = 0;
     protected _nativeWidth: number = 0;
     protected _nativeHeight: number = 0;
-    protected _cmdAllocator: GFXCommandAllocator | null = null;
     protected _maxVertexAttributes: number = 0;
     protected _maxVertexUniformVectors: number = 0;
     protected _maxFragmentUniformVectors: number = 0;
@@ -394,6 +384,25 @@ export abstract class GFXDevice {
      * @param height The device height.
      */
     public abstract resize (width: number, height: number): void;
+
+    /**
+     * @en Begin current frame.
+     * @zh 开始当前帧。
+     */
+    public abstract acquire (): void;
+
+    /**
+     * @en Present current frame.
+     * @zh 呈现当前帧。
+     */
+    public abstract present (): void;
+
+    /**
+     * @en Create command buffer.
+     * @zh 创建命令缓冲。
+     * @param info GFX command buffer description info.
+     */
+    public abstract createCommandBuffer (info: IGFXCommandBufferInfo): GFXCommandBuffer;
 
     /**
      * @en Create buffer.
@@ -459,20 +468,6 @@ export abstract class GFXDevice {
     public abstract createPipelineState (info: IGFXPipelineStateInfo): GFXPipelineState;
 
     /**
-     * @en Create command allocator.
-     * @zh 创建命令分配器。
-     * @param info GFX command allocator description info.
-     */
-    public abstract createCommandAllocator (info: IGFXCommandAllocatorInfo): GFXCommandAllocator;
-
-    /**
-     * @en Create command buffer.
-     * @zh 创建命令缓冲。
-     * @param info GFX command buffer description info.
-     */
-    public abstract createCommandBuffer (info: IGFXCommandBufferInfo): GFXCommandBuffer;
-
-    /**
      * @en Create queue.
      * @zh 创建队列。
      * @param info GFX queue description info.
@@ -485,18 +480,6 @@ export abstract class GFXDevice {
      * @param info GFX fence description info.
      */
     public abstract createFence (info: IGFXFenceInfo): GFXFence;
-
-    /**
-     * @en Begin current frame.
-     * @zh 开始当前帧。
-     */
-    public abstract acquire (): void;
-
-    /**
-     * @en Present current frame.
-     * @zh 呈现当前帧。
-     */
-    public abstract present (): void;
 
     /**
      * @en Copy buffers to texture.

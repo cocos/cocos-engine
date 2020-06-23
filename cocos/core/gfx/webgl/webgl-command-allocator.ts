@@ -1,6 +1,4 @@
 import { CachedArray } from '../../memop/cached-array';
-import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
-import { GFXDevice } from '../device';
 import {
     WebGLCmdBeginRenderPass,
     WebGLCmdBindStates,
@@ -10,7 +8,6 @@ import {
     WebGLCmdPackage,
     WebGLCmdUpdateBuffer,
 } from './webgl-commands';
-import { GFXStatus } from '../define';
 
 export class WebGLGFXCommandPool<T extends WebGLCmdObject> {
 
@@ -82,7 +79,7 @@ export class WebGLGFXCommandPool<T extends WebGLCmdObject> {
     }
 }
 
-export class WebGLGFXCommandAllocator extends GFXCommandAllocator {
+export class WebGLGFXCommandAllocator {
 
     public beginRenderPassCmdPool: WebGLGFXCommandPool<WebGLCmdBeginRenderPass>;
     public bindStatesCmdPool: WebGLGFXCommandPool<WebGLCmdBindStates>;
@@ -90,22 +87,12 @@ export class WebGLGFXCommandAllocator extends GFXCommandAllocator {
     public updateBufferCmdPool: WebGLGFXCommandPool<WebGLCmdUpdateBuffer>;
     public copyBufferToTextureCmdPool: WebGLGFXCommandPool<WebGLCmdCopyBufferToTexture>;
 
-    constructor (device: GFXDevice) {
-        super(device);
+    constructor () {
         this.beginRenderPassCmdPool = new WebGLGFXCommandPool(WebGLCmdBeginRenderPass, 1);
         this.bindStatesCmdPool = new WebGLGFXCommandPool(WebGLCmdBindStates, 1);
         this.drawCmdPool = new WebGLGFXCommandPool(WebGLCmdDraw, 1);
         this.updateBufferCmdPool = new WebGLGFXCommandPool(WebGLCmdUpdateBuffer, 1);
         this.copyBufferToTextureCmdPool = new WebGLGFXCommandPool(WebGLCmdCopyBufferToTexture, 1);
-    }
-
-    public initialize (info: IGFXCommandAllocatorInfo): boolean {
-        this._status = GFXStatus.SUCCESS;
-        return true;
-    }
-
-    public destroy () {
-        this._status = GFXStatus.UNREADY;
     }
 
     public clearCmds (cmdPackage: WebGLCmdPackage) {

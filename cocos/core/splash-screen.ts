@@ -392,10 +392,9 @@ export class SplashScreen {
         this.framebuffer = this.root.mainWindow!.framebuffer;
 
         this.cmdBuff = device.createCommandBuffer({
-            allocator: device.commandAllocator,
+            queue: device.queue,
             type: GFXCommandBufferType.PRIMARY,
         });
-
     }
 
     private initIA () {
