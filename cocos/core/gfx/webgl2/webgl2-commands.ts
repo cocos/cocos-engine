@@ -176,35 +176,35 @@ export function GFXFormatToWebGLType (format: GFXFormat, gl: WebGL2RenderingCont
         case GFXFormat.PVRTC2_2BPP: return gl.UNSIGNED_BYTE;
         case GFXFormat.PVRTC2_4BPP: return gl.UNSIGNED_BYTE;
 
-        case GFXFormat.ASTC_RGBA_4x4: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_RGBA_5x4: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_RGBA_5x5: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_RGBA_6x5: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_RGBA_6x6: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_RGBA_8x5: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_RGBA_8x6: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_RGBA_8x8: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_RGBA_10x5: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_RGBA_10x6: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_RGBA_10x8: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_RGBA_10x10: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_RGBA_12x10: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_RGBA_12x12: return gl.UNSIGNED_BYTE;
-
-        case GFXFormat.ASTC_SRGBA_4x4: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_SRGBA_5x4: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_SRGBA_5x5: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_SRGBA_6x5: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_SRGBA_6x6: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_SRGBA_8x5: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_SRGBA_8x6: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_SRGBA_8x8: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_SRGBA_10x5: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_SRGBA_10x6: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_SRGBA_10x8: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_SRGBA_10x10: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_SRGBA_12x10: return gl.UNSIGNED_BYTE;
-        case GFXFormat.ASTC_SRGBA_12x12: return gl.UNSIGNED_BYTE;
+        case GFXFormat.ASTC_RGBA_4x4:
+        case GFXFormat.ASTC_RGBA_5x4:
+        case GFXFormat.ASTC_RGBA_5x5:
+        case GFXFormat.ASTC_RGBA_6x5:
+        case GFXFormat.ASTC_RGBA_6x6:
+        case GFXFormat.ASTC_RGBA_8x5:
+        case GFXFormat.ASTC_RGBA_8x6:
+        case GFXFormat.ASTC_RGBA_8x8:
+        case GFXFormat.ASTC_RGBA_10x5:
+        case GFXFormat.ASTC_RGBA_10x6:
+        case GFXFormat.ASTC_RGBA_10x8:
+        case GFXFormat.ASTC_RGBA_10x10:
+        case GFXFormat.ASTC_RGBA_12x10:
+        case GFXFormat.ASTC_RGBA_12x12:
+        case GFXFormat.ASTC_SRGBA_4x4:
+        case GFXFormat.ASTC_SRGBA_5x4:
+        case GFXFormat.ASTC_SRGBA_5x5:
+        case GFXFormat.ASTC_SRGBA_6x5:
+        case GFXFormat.ASTC_SRGBA_6x6:
+        case GFXFormat.ASTC_SRGBA_8x5:
+        case GFXFormat.ASTC_SRGBA_8x6:
+        case GFXFormat.ASTC_SRGBA_8x8:
+        case GFXFormat.ASTC_SRGBA_10x5:
+        case GFXFormat.ASTC_SRGBA_10x6:
+        case GFXFormat.ASTC_SRGBA_10x8:
+        case GFXFormat.ASTC_SRGBA_10x10:
+        case GFXFormat.ASTC_SRGBA_12x10:
+        case GFXFormat.ASTC_SRGBA_12x12:
+            return gl.UNSIGNED_BYTE;
 
         default: {
             return gl.UNSIGNED_BYTE;
