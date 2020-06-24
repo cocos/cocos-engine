@@ -295,7 +295,8 @@ export class SplashScreenWebgl {
 
         const that = this;
         const animate = (time: number) => {
-            if (this.cancelAnimate) { return; }
+            if (that.cancelAnimate) { return; }
+            if (time === undefined) { time = performance.now(); }
             that.frame(time);
             requestAnimationFrame(animate);
         }
