@@ -105,6 +105,8 @@ export class CannonShape implements IBaseShape {
 
     onDestroy () {
         this._sharedBody.reference = false;
+        this._shape.removeEventListener('cc-trigger', this.onTriggerListener);
+        delete CANNON.World['idToShapeMap'][this._shape.id];
         (this._sharedBody as any) = null;
         setWrap(this._shape, null);
         (this._offset as any) = null;
