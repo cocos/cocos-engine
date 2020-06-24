@@ -13,7 +13,6 @@ class InputAssembler;
 class RenderPass;
 class Framebuffer;
 class BindingLayout;
-class PipelineLayout;
 class PipelineState;
 class CommandAllocator;
 class CommandBuffer;
@@ -38,7 +37,6 @@ enum class ObjectType : uint8_t {
     FRAMEBUFFER,
     SAMPLER,
     SHADER,
-    PIPELINE_LAYOUT,
     PIPELINE_STATE,
     BINDING_LAYOUT,
     INPUT_ASSEMBLER,
@@ -872,18 +870,8 @@ struct FramebufferInfo {
     bool isOffscreen = true;
 };
 
-struct Binding {
-    ShaderType shaderStages = ShaderType::NONE;
-    uint binding = 0;
-    BindingType type = BindingType::UNKNOWN;
-    String name;
-    uint count = 0;
-};
-
-typedef vector<Binding> BindingList;
-
 struct BindingLayoutInfo {
-    BindingList bindings;
+    Shader *shader = nullptr;
 };
 
 struct BindingUnit {
@@ -898,20 +886,6 @@ struct BindingUnit {
 };
 
 typedef vector<BindingUnit> BindingUnitList;
-
-struct PushConstantRange {
-    ShaderType shaderType = ShaderType::NONE;
-    uint offset = 0;
-    uint count = 0;
-};
-
-typedef vector<PushConstantRange> PushConstantRangeList;
-typedef vector<BindingLayout *> BindingLayoutList;
-
-struct PipelineLayoutInfo {
-    PushConstantRangeList pushConstantsRanges;
-    BindingLayoutList layouts;
-};
 
 struct InputState {
     AttributeList attributes;
@@ -986,15 +960,11 @@ struct PipelineStateInfo {
     DepthStencilState depthStencilState;
     BlendState blendState;
     DynamicStateList dynamicStates;
-    PipelineLayout *layout = nullptr;
     RenderPass *renderPass = nullptr;
 };
 
-struct CommandAllocatorInfo {
-};
-
 struct CommandBufferInfo {
-    CommandAllocator *allocator = nullptr;
+    Queue *queue = nullptr;
     CommandBufferType type = CommandBufferType::PRIMARY;
 };
 

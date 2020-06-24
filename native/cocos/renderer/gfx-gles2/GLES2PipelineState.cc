@@ -3,7 +3,6 @@
 #include "GLES2Commands.h"
 #include "GLES2Shader.h"
 #include "GLES2RenderPass.h"
-#include "GLES2PipelineLayout.h"
 
 namespace cc {
 namespace gfx {
@@ -41,7 +40,6 @@ bool GLES2PipelineState::initialize(const PipelineStateInfo &info) {
     _depthStencilState = info.depthStencilState;
     _blendState = info.blendState;
     _dynamicStates = info.dynamicStates;
-    _layout = info.layout;
     _renderPass = info.renderPass;
 
     _gpuPipelineState = CC_NEW(GLES2GPUPipelineState);
@@ -51,7 +49,6 @@ bool GLES2PipelineState::initialize(const PipelineStateInfo &info) {
     _gpuPipelineState->dss = _depthStencilState;
     _gpuPipelineState->bs = _blendState;
     _gpuPipelineState->dynamicStates = _dynamicStates;
-    _gpuPipelineState->gpuLayout = ((GLES2PipelineLayout *)_layout)->gpuPipelineLayout();
     _gpuPipelineState->gpuRenderPass = ((GLES2RenderPass *)_renderPass)->gpuRenderPass();
 
     _status = Status::SUCCESS;

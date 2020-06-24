@@ -6,17 +6,8 @@
 namespace cc {
 namespace gfx {
 
-CCMTLCommandAllocator::CCMTLCommandAllocator(Device *device) : CommandAllocator(device) {}
-CCMTLCommandAllocator::~CCMTLCommandAllocator() { destroy(); }
-
-bool CCMTLCommandAllocator::initialize(const CommandAllocatorInfo &info) {
-    _status = Status::SUCCESS;
-    return true;
-}
-
-void CCMTLCommandAllocator::destroy() {
-    _status = Status::UNREADY;
-}
+CCMTLCommandAllocator::CCMTLCommandAllocator() {}
+CCMTLCommandAllocator::~CCMTLCommandAllocator() {}
 
 void CCMTLCommandAllocator::clearCommands(CCMTLCommandPackage *commandPackage) {
     //FIXME: it is not a good idea to use like this.

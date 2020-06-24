@@ -22,11 +22,15 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSe
                                                            VkDebugUtilsMessageTypeFlagsEXT messageType,
                                                            const VkDebugUtilsMessengerCallbackDataEXT *callbackData,
                                                            void *userData) {
+    // We handle this explicitly
+    if (!strcmp(callbackData->pMessageIdName, "VUID-VkDescriptorSetAllocateInfo-descriptorPool-00307")) {
+        return VK_FALSE;
+    }
     // TODO: handle the few frames with no command submission at start up
     if (!strcmp(callbackData->pMessageIdName, "VUID-VkPresentInfoKHR-pImageIndices-01296")) {
         return VK_FALSE;
     }
-
+    
     // Log debug messge
     if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
         CC_LOG_WARNING("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
@@ -293,11 +297,13 @@ bool CCVKContext::initialize(const ContextInfo &info) {
 
         _gpuContext->physicalDevice = physicalDeviceHandles[deviceIndex];
         _gpuContext->physicalDeviceProperties = physicalDeviceProperties[deviceIndex];
-
         vkGetPhysicalDeviceFeatures(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceFeatures);
-        _gpuContext->physicalDeviceFeatures2.pNext = &_gpuContext->physicalDeviceVulkan11Features;
-        _gpuContext->physicalDeviceVulkan11Features.pNext = &_gpuContext->physicalDeviceVulkan12Features;
+
         if (_minorVersion >= 1 || checkExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)) {
+            _gpuContext->physicalDeviceProperties2.pNext = &_gpuContext->physicalDevicePushDescriptorProperties;
+            _gpuContext->physicalDeviceFeatures2.pNext = &_gpuContext->physicalDeviceVulkan11Features;
+            _gpuContext->physicalDeviceVulkan11Features.pNext = &_gpuContext->physicalDeviceVulkan12Features;
+            vkGetPhysicalDeviceProperties2(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceProperties2);
             vkGetPhysicalDeviceFeatures2(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceFeatures2);
         }
 

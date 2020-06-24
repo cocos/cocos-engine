@@ -27,7 +27,6 @@ bool CCMTLPipelineState::initialize(const PipelineStateInfo &info) {
     _depthStencilState = info.depthStencilState;
     _blendState = info.blendState;
     _dynamicStates = info.dynamicStates;
-    _layout = info.layout;
     _renderPass = info.renderPass;
 
     if (!createGPUPipelineState()) {

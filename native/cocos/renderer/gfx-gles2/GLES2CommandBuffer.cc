@@ -1,11 +1,13 @@
 #include "GLES2Std.h"
-#include "GLES2CommandBuffer.h"
-#include "GLES2CommandAllocator.h"
-#include "GLES2Framebuffer.h"
-#include "GLES2PipelineState.h"
+
 #include "GLES2BindingLayout.h"
-#include "GLES2InputAssembler.h"
 #include "GLES2Buffer.h"
+#include "GLES2CommandAllocator.h"
+#include "GLES2CommandBuffer.h"
+#include "GLES2Device.h"
+#include "GLES2Framebuffer.h"
+#include "GLES2InputAssembler.h"
+#include "GLES2PipelineState.h"
 #include "GLES2Texture.h"
 
 namespace cc {
@@ -19,14 +21,10 @@ GLES2CommandBuffer::~GLES2CommandBuffer() {
 }
 
 bool GLES2CommandBuffer::initialize(const CommandBufferInfo &info) {
-
-    if (!info.allocator) {
-        return false;
-    }
-
-    _allocator = info.allocator;
-    _gles2Allocator = (GLES2CommandAllocator *)info.allocator;
     _type = info.type;
+    _queue = info.queue;
+
+    _gles2Allocator = ((GLES2Device *)_device)->cmdAllocator();
 
     _cmdPackage = CC_NEW(GLES2CmdPackage);
     _status = Status::SUCCESS;
@@ -39,7 +37,6 @@ void GLES2CommandBuffer::destroy() {
         _gles2Allocator->clearCmds(_cmdPackage);
         _gles2Allocator = nullptr;
     }
-    _allocator = nullptr;
     _status = Status::UNREADY;
 
     CC_SAFE_DELETE(_cmdPackage);

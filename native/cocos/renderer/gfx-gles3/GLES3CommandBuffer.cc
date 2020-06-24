@@ -1,11 +1,13 @@
 #include "GLES3Std.h"
-#include "GLES3CommandBuffer.h"
-#include "GLES3CommandAllocator.h"
-#include "GLES3Framebuffer.h"
-#include "GLES3PipelineState.h"
+
 #include "GLES3BindingLayout.h"
-#include "GLES3InputAssembler.h"
 #include "GLES3Buffer.h"
+#include "GLES3CommandAllocator.h"
+#include "GLES3CommandBuffer.h"
+#include "GLES3Device.h"
+#include "GLES3Framebuffer.h"
+#include "GLES3InputAssembler.h"
+#include "GLES3PipelineState.h"
 #include "GLES3Texture.h"
 
 namespace cc {
@@ -19,13 +21,10 @@ GLES3CommandBuffer::~GLES3CommandBuffer() {
 }
 
 bool GLES3CommandBuffer::initialize(const CommandBufferInfo &info) {
-    if (!info.allocator) {
-        return false;
-    }
-
-    _allocator = info.allocator;
-    _gles3Allocator = (GLES3CommandAllocator *)info.allocator;
     _type = info.type;
+    _queue = info.queue;
+
+    _gles3Allocator = ((GLES3Device *)_device)->cmdAllocator();
 
     _cmdPackage = CC_NEW(GLES3CmdPackage);
     _status = Status::SUCCESS;
@@ -38,7 +37,6 @@ void GLES3CommandBuffer::destroy() {
         _gles3Allocator->clearCmds(_cmdPackage);
         _gles3Allocator = nullptr;
     }
-    _allocator = nullptr;
     _status = Status::UNREADY;
 
     CC_SAFE_DELETE(_cmdPackage);

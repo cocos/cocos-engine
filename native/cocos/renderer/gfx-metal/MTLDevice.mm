@@ -9,7 +9,6 @@
 #include "MTLFence.h"
 #include "MTLFrameBuffer.h"
 #include "MTLInputAssembler.h"
-#include "MTLPipelineLayout.h"
 #include "MTLPipelineState.h"
 #include "MTLQueue.h"
 #include "MTLRenderPass.h"
@@ -38,6 +37,7 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _windowHandle = info.windowHandle;
 
     _stateCache = CC_NEW(CCMTLStateCache);
+    _cmdAllocator = CC_NEW(CCMTLCommandAllocator);
 
     _mtkView = (MTKView *)_windowHandle;
     _mtlDevice = ((MTKView *)_mtkView).device;
@@ -54,9 +54,6 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     QueueInfo queue_info;
     queue_info.type = QueueType::GRAPHICS;
     _queue = createQueue(queue_info);
-
-    CommandAllocatorInfo cmd_alloc_info;
-    _cmdAllocator = createCommandAllocator(cmd_alloc_info);
 
     _minClipZ = 0;
     _depthBits = 24;
@@ -128,7 +125,7 @@ void CCMTLDevice::destroy() {
 void CCMTLDevice::resize(uint width, uint height) {}
 
 void CCMTLDevice::present() {
-    ((CCMTLCommandAllocator *)_cmdAllocator)->releaseCmds();
+    _cmdAllocator->releaseCmds();
     CCMTLQueue *queue = (CCMTLQueue *)_queue;
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
@@ -155,15 +152,6 @@ Queue *CCMTLDevice::createQueue(const QueueInfo &info) {
         return queue;
 
     CC_SAFE_DESTROY(queue);
-    return nullptr;
-}
-
-CommandAllocator *CCMTLDevice::createCommandAllocator(const CommandAllocatorInfo &info) {
-    auto allocator = CC_NEW(CCMTLCommandAllocator(this));
-    if (allocator && allocator->initialize(info))
-        return allocator;
-
-    CC_SAFE_DESTROY(allocator);
     return nullptr;
 }
 
@@ -263,15 +251,6 @@ PipelineState *CCMTLDevice::createPipelineState(const PipelineStateInfo &info) {
         return ps;
 
     CC_SAFE_DESTROY(ps);
-    return nullptr;
-}
-
-PipelineLayout *CCMTLDevice::createPipelineLayout(const PipelineLayoutInfo &info) {
-    auto pl = CC_NEW(CCMTLPipelineLayout(this));
-    if (pl && pl->initialize(info))
-        return pl;
-
-    CC_SAFE_DESTROY(pl);
     return nullptr;
 }
 

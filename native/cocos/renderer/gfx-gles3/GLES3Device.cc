@@ -1,15 +1,14 @@
 #include "GLES3Std.h"
 
-#include "GLES3Device.h"
 #include "GLES3BindingLayout.h"
 #include "GLES3Buffer.h"
 #include "GLES3CommandAllocator.h"
 #include "GLES3CommandBuffer.h"
 #include "GLES3Context.h"
+#include "GLES3Device.h"
 #include "GLES3Fence.h"
 #include "GLES3Framebuffer.h"
 #include "GLES3InputAssembler.h"
-#include "GLES3PipelineLayout.h"
 #include "GLES3PipelineState.h"
 #include "GLES3Queue.h"
 #include "GLES3RenderPass.h"
@@ -36,14 +35,15 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     _nativeHeight = info.nativeHeight;
     _windowHandle = info.windowHandle;
 
+    _cmdAllocator = CC_NEW(GLES3CommandAllocator);
     stateCache = CC_NEW(GLES3StateCache);
 
-    ContextInfo ctx_info;
-    ctx_info.windowHandle = _windowHandle;
-    ctx_info.sharedCtx = info.sharedCtx;
+    ContextInfo ctxInfo;
+    ctxInfo.windowHandle = _windowHandle;
+    ctxInfo.sharedCtx = info.sharedCtx;
 
     _context = CC_NEW(GLES3Context(this));
-    if (!_context->initialize(ctx_info)) {
+    if (!_context->initialize(ctxInfo)) {
         destroy();
         return false;
     }
@@ -70,24 +70,24 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     if (checkExtension("texture_half_float_linear"))
         _features[(int)Feature::TEXTURE_HALF_FLOAT_LINEAR] = true;
 
-    String compressed_fmts;
+    String compressedFmts;
 
     if (checkExtension("compressed_ETC1")) {
         _features[(int)Feature::FORMAT_ETC1] = true;
-        compressed_fmts += "etc1 ";
+        compressedFmts += "etc1 ";
     }
 
     _features[(int)Feature::FORMAT_ETC2] = true;
-    compressed_fmts += "etc2 ";
+    compressedFmts += "etc2 ";
 
     if (checkExtension("texture_compression_pvrtc")) {
         _features[(int)Feature::FORMAT_PVRTC] = true;
-        compressed_fmts += "pvrtc ";
+        compressedFmts += "pvrtc ";
     }
 
     if (checkExtension("texture_compression_astc")) {
         _features[(int)Feature::FORMAT_ASTC] = true;
-        compressed_fmts += "astc ";
+        compressedFmts += "astc ";
     }
     _features[static_cast<uint>(Feature::DEPTH_BOUNDS)] = true;
     _features[static_cast<uint>(Feature::LINE_WIDTH)] = true;
@@ -110,15 +110,11 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     CC_LOG_INFO("VERSION: %s", _version.c_str());
     CC_LOG_INFO("SCREEN_SIZE: %d x %d", _width, _height);
     CC_LOG_INFO("NATIVE_SIZE: %d x %d", _nativeWidth, _nativeHeight);
-    CC_LOG_INFO("USE_VAO: %s", _useVAO ? "true" : "false");
-    CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressed_fmts.c_str());
+    CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
 
-    QueueInfo queue_info;
-    queue_info.type = QueueType::GRAPHICS;
-    _queue = createQueue(queue_info);
-
-    CommandAllocatorInfo cmd_alloc_info;
-    _cmdAllocator = createCommandAllocator(cmd_alloc_info);
+    QueueInfo queueInfo;
+    queueInfo.type = QueueType::GRAPHICS;
+    _queue = createQueue(queueInfo);
 
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)&_maxVertexAttributes);
     glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, (GLint *)&_maxVertexUniformVectors);
@@ -136,9 +132,9 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
 }
 
 void GLES3Device::destroy() {
-    CC_SAFE_DESTROY(_cmdAllocator);
     CC_SAFE_DESTROY(_queue);
     CC_SAFE_DESTROY(_context);
+    CC_SAFE_DELETE(_cmdAllocator);
     CC_SAFE_DELETE(stateCache);
 }
 
@@ -147,8 +143,11 @@ void GLES3Device::resize(uint width, uint height) {
     _height = height;
 }
 
+void GLES3Device::acquire() {
+    _cmdAllocator->releaseCmds();
+}
+
 void GLES3Device::present() {
-    ((GLES3CommandAllocator *)_cmdAllocator)->releaseCmds();
     GLES3Queue *queue = (GLES3Queue *)_queue;
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
@@ -160,6 +159,15 @@ void GLES3Device::present() {
     queue->_numDrawCalls = 0;
     queue->_numInstances = 0;
     queue->_numTriangles = 0;
+}
+
+CommandBuffer *GLES3Device::createCommandBuffer(const CommandBufferInfo &info) {
+    CommandBuffer *cmd_buff = CC_NEW(GLES3CommandBuffer(this));
+    if (cmd_buff->initialize(info))
+        return cmd_buff;
+
+    CC_SAFE_DESTROY(cmd_buff)
+    return nullptr;
 }
 
 Fence *GLES3Device::createFence(const FenceInfo &info) {
@@ -177,24 +185,6 @@ Queue *GLES3Device::createQueue(const QueueInfo &info) {
         return queue;
 
     CC_SAFE_DESTROY(queue);
-    return nullptr;
-}
-
-CommandAllocator *GLES3Device::createCommandAllocator(const CommandAllocatorInfo &info) {
-    CommandAllocator *cmdAllocator = CC_NEW(GLES3CommandAllocator(this));
-    if (cmdAllocator->initialize(info))
-        return cmdAllocator;
-
-    CC_SAFE_DESTROY(cmdAllocator);
-    return nullptr;
-}
-
-CommandBuffer *GLES3Device::createCommandBuffer(const CommandBufferInfo &info) {
-    CommandBuffer *cmd_buff = CC_NEW(GLES3CommandBuffer(this));
-    if (cmd_buff->initialize(info))
-        return cmd_buff;
-
-    CC_SAFE_DESTROY(cmd_buff)
     return nullptr;
 }
 
@@ -285,15 +275,6 @@ PipelineState *GLES3Device::createPipelineState(const PipelineStateInfo &info) {
         return pipelineState;
 
     CC_SAFE_DESTROY(pipelineState);
-    return nullptr;
-}
-
-PipelineLayout *GLES3Device::createPipelineLayout(const PipelineLayoutInfo &info) {
-    PipelineLayout *layout = CC_NEW(GLES3PipelineLayout(this));
-    if (layout->initialize(info))
-        return layout;
-
-    CC_SAFE_DESTROY(layout);
     return nullptr;
 }
 

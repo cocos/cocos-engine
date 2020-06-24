@@ -5,6 +5,8 @@
 
 #define BUFFER_OFFSET(idx) (static_cast<char *>(0) + (idx))
 
+constexpr uint USE_VAO = true;
+
 namespace cc {
 namespace gfx {
 
@@ -481,7 +483,7 @@ void GLES3CmdFuncCreateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
         gpuBuffer->glTarget = GL_ARRAY_BUFFER;
         glGenBuffers(1, &gpuBuffer->glBuffer);
         if (gpuBuffer->size) {
-            if (device->useVAO()) {
+            if (USE_VAO) {
                 if (device->stateCache->glVAO) {
                     glBindVertexArray(0);
                     device->stateCache->glVAO = 0;
@@ -500,7 +502,7 @@ void GLES3CmdFuncCreateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
         gpuBuffer->glTarget = GL_ELEMENT_ARRAY_BUFFER;
         glGenBuffers(1, &gpuBuffer->glBuffer);
         if (gpuBuffer->size) {
-            if (device->useVAO()) {
+            if (USE_VAO) {
                 if (device->stateCache->glVAO) {
                     glBindVertexArray(0);
                     device->stateCache->glVAO = 0;
@@ -577,7 +579,7 @@ void GLES3CmdFuncResizeBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
     if (gpuBuffer->usage & BufferUsageBit::VERTEX) {
         gpuBuffer->glTarget = GL_ARRAY_BUFFER;
         if (gpuBuffer->size) {
-            if (device->useVAO()) {
+            if (USE_VAO) {
                 if (device->stateCache->glVAO) {
                     glBindVertexArray(0);
                     device->stateCache->glVAO = 0;
@@ -595,7 +597,7 @@ void GLES3CmdFuncResizeBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
     } else if (gpuBuffer->usage & BufferUsageBit::INDEX) {
         gpuBuffer->glTarget = GL_ELEMENT_ARRAY_BUFFER;
         if (gpuBuffer->size) {
-            if (device->useVAO()) {
+            if (USE_VAO) {
                 if (device->stateCache->glVAO) {
                     glBindVertexArray(0);
                     device->stateCache->glVAO = 0;
@@ -1778,7 +1780,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmd_package) 
                 if (cmd->gpuInputAssembler && gpuPipelineState->gpuShader &&
                     (is_shader_changed || gpuInputAssembler != cmd->gpuInputAssembler)) {
                     gpuInputAssembler = cmd->gpuInputAssembler;
-                    if (device->useVAO()) {
+                    if (USE_VAO) {
                         GLuint glVAO = gpuInputAssembler->glVAOs[gpuPipelineState->gpuShader->glProgram];
                         if (!glVAO) {
                             glGenVertexArrays(1, &glVAO);

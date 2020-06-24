@@ -35,7 +35,7 @@ public:
     virtual void execute(const std::vector<CommandBuffer *> &cmd_buffs, uint32_t count) = 0;
 
     CC_INLINE Device *getDevice() const { return _device; }
-    CC_INLINE CommandAllocator *getAllocator() const { return _allocator; }
+    CC_INLINE Queue *getQueue() const { return _queue; }
     CC_INLINE CommandBufferType getType() const { return _type; }
     CC_INLINE uint getNumDrawCalls() const { return _numDrawCalls; }
     CC_INLINE uint getNumInstances() const { return _numInstances; }
@@ -43,8 +43,9 @@ public:
 
 protected:
     Device *_device = nullptr;
-    CommandAllocator *_allocator = nullptr;
+    Queue *_queue = nullptr;
     CommandBufferType _type = CommandBufferType::PRIMARY;
+
     uint32_t _numDrawCalls = 0;
     uint32_t _numInstances = 0;
     uint32_t _numTriangles = 0;

@@ -1,6 +1,7 @@
 #include "MTLStd.h"
 
 #include "MTLBindingLayout.h"
+#include "MTLDevice.h"
 #include "MTLBuffer.h"
 #include "MTLCommandAllocator.h"
 #include "MTLCommandBuffer.h"
@@ -19,12 +20,10 @@ CCMTLCommandBuffer::CCMTLCommandBuffer(Device *device) : CommandBuffer(device) {
 CCMTLCommandBuffer::~CCMTLCommandBuffer() { destroy(); }
 
 bool CCMTLCommandBuffer::initialize(const CommandBufferInfo &info) {
-    if (!info.allocator)
-        return false;
-
-    _allocator = info.allocator;
-    _MTLCommandAllocator = static_cast<CCMTLCommandAllocator *>(_allocator);
     _type = info.type;
+    _queue = info.queue;
+
+    _MTLCommandAllocator = ((CCMTLDevice *)_device)->cmdAllocator();
 
     _currentDepthBias = CC_NEW(CCMTLDepthBias);
     if (_currentDepthBias == nullptr) {
@@ -54,7 +53,6 @@ void CCMTLCommandBuffer::destroy() {
         _MTLCommandAllocator->clearCommands(_commandPackage);
         _MTLCommandAllocator = nullptr;
     }
-    _allocator = nullptr;
     _status = Status::UNREADY;
 
     CC_SAFE_DELETE(_commandPackage);

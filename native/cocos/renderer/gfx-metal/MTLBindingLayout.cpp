@@ -8,15 +8,30 @@ CCMTLBindingLayout::CCMTLBindingLayout(Device *device) : BindingLayout(device) {
 CCMTLBindingLayout::~CCMTLBindingLayout() { destroy(); }
 
 bool CCMTLBindingLayout::initialize(const BindingLayoutInfo &info) {
-    if (info.bindings.size()) {
-        _bindingUnits.resize(info.bindings.size());
-        for (size_t i = 0; i < _bindingUnits.size(); ++i) {
+
+    const UniformBlockList &blocks = info.shader->getBlocks();
+    const UniformSamplerList &samplers = info.shader->getSamplers();
+    const uint bindingCount = blocks.size() + samplers.size();
+
+    if (bindingCount) {
+        _bindingUnits.resize(bindingCount);
+        for (size_t i = 0u; i < blocks.size(); ++i) {
+            const UniformBlock &binding = blocks[i];
             BindingUnit &bindingUnit = _bindingUnits[i];
-            const Binding &binding = info.bindings[i];
             bindingUnit.shaderStages = binding.shaderStages;
+            bindingUnit.type = BindingType::UNIFORM_BUFFER;
             bindingUnit.binding = binding.binding;
-            bindingUnit.type = binding.type;
             bindingUnit.name = binding.name;
+            bindingUnit.count = 1;
+        }
+        for (size_t i = 0u; i < samplers.size(); ++i) {
+            const UniformSampler &binding = samplers[i];
+            BindingUnit &bindingUnit = _bindingUnits[blocks.size() + i];
+            bindingUnit.shaderStages = binding.shaderStages;
+            bindingUnit.type = BindingType::SAMPLER;
+            bindingUnit.binding = binding.binding;
+            bindingUnit.name = binding.name;
+            bindingUnit.count = binding.count;
         }
     }
 

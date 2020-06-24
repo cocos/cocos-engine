@@ -11,7 +11,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(PLATFORM_FOLDER win32)
     set(CC_PLATFORM ${CC_PLATFORM_WINDOWS})
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Android")
-    set(PLATFORM_FOLDER android)    
+    set(PLATFORM_FOLDER android)
     set(ANDROID TRUE)
     set(CC_PLATFORM ${CC_PLATFORM_ANDROID})
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -60,7 +60,7 @@ set(CC_USE_METAL OFF)
 set(CC_USE_GLES3 ON)
 set(CC_USE_GLES2 OFF)
 
-if(ANDROID OR WINDOWS) 
+if(ANDROID OR WINDOWS)
     set(CC_USE_VULKAN ON)
     set(CC_USE_GLES3 ON)
     set(CC_USE_GLES2 ON)
@@ -430,7 +430,7 @@ elseif(APPLE)
         cocos/platform/apple/CCDevice-apple.mm
         cocos/platform/apple/CCFileUtils-apple.mm
         cocos/platform/apple/CCCanvasRenderingContext2D-apple.mm
-        cocos/platform/apple/CCDevice-apple.h   
+        cocos/platform/apple/CCDevice-apple.h
     )
     #bad struct
     cocos_source_files(
@@ -471,8 +471,6 @@ cocos_source_files(
     cocos/renderer/core/gfx/GFXBuffer.cc
     cocos/renderer/core/gfx/GFXBuffer.h
     cocos/renderer/core/gfx/GFXCommand.h
-    cocos/renderer/core/gfx/GFXCommandAllocator.cc
-    cocos/renderer/core/gfx/GFXCommandAllocator.h
     cocos/renderer/core/gfx/GFXCommandBuffer.cc
     cocos/renderer/core/gfx/GFXCommandBuffer.h
     cocos/renderer/core/gfx/GFXCommandPool.h
@@ -486,8 +484,6 @@ cocos_source_files(
     cocos/renderer/core/gfx/GFXFramebuffer.h
     cocos/renderer/core/gfx/GFXInputAssembler.cc
     cocos/renderer/core/gfx/GFXInputAssembler.h
-    cocos/renderer/core/gfx/GFXPipelineLayout.cc
-    cocos/renderer/core/gfx/GFXPipelineLayout.h
     cocos/renderer/core/gfx/GFXPipelineState.cc
     cocos/renderer/core/gfx/GFXPipelineState.h
     cocos/renderer/core/gfx/GFXQueue.cc
@@ -558,8 +554,6 @@ if(CC_USE_GLES2)
         cocos/renderer/gfx-gles2/GLES2GPUObjects.h
         cocos/renderer/gfx-gles2/GLES2InputAssembler.cc
         cocos/renderer/gfx-gles2/GLES2InputAssembler.h
-        cocos/renderer/gfx-gles2/GLES2PipelineLayout.cc
-        cocos/renderer/gfx-gles2/GLES2PipelineLayout.h
         cocos/renderer/gfx-gles2/GLES2PipelineState.cc
         cocos/renderer/gfx-gles2/GLES2PipelineState.h
         cocos/renderer/gfx-gles2/GLES2Queue.cc
@@ -580,7 +574,7 @@ if(CC_USE_GLES2)
         cocos/renderer/gfx-gles2/GLES2Fence.cc
     )
 
-    if(APPLE) 
+    if(APPLE)
         cocos_source_files(
             cocos/renderer/gfx-gles2/GLES2Context.mm
             cocos/renderer/gfx-gles2/gles2w.mm
@@ -616,8 +610,6 @@ if(CC_USE_GLES3)
         cocos/renderer/gfx-gles3/GLES3GPUObjects.h
         cocos/renderer/gfx-gles3/GLES3InputAssembler.cc
         cocos/renderer/gfx-gles3/GLES3InputAssembler.h
-        cocos/renderer/gfx-gles3/GLES3PipelineLayout.cc
-        cocos/renderer/gfx-gles3/GLES3PipelineLayout.h
         cocos/renderer/gfx-gles3/GLES3PipelineState.cc
         cocos/renderer/gfx-gles3/GLES3PipelineState.h
         cocos/renderer/gfx-gles3/GLES3Queue.cc
@@ -637,7 +629,7 @@ if(CC_USE_GLES3)
         cocos/renderer/gfx-gles3/GLES3Fence.h
         cocos/renderer/gfx-gles3/GLES3Fence.cc
     )
-    if(APPLE) 
+    if(APPLE)
         cocos_source_files(
             cocos/renderer/gfx-gles3/gles3w.mm
         )
@@ -675,8 +667,6 @@ if(CC_USE_METAL)
         cocos/renderer/gfx-metal/MTLGPUObjects.h
         cocos/renderer/gfx-metal/MTLInputAssembler.h
         cocos/renderer/gfx-metal/MTLInputAssembler.mm
-        cocos/renderer/gfx-metal/MTLPipelineLayout.cpp
-        cocos/renderer/gfx-metal/MTLPipelineLayout.h
         cocos/renderer/gfx-metal/MTLPipelineState.h
         cocos/renderer/gfx-metal/MTLPipelineState.mm
         cocos/renderer/gfx-metal/MTLQueue.h
@@ -708,8 +698,6 @@ if(CC_USE_VULKAN)
         cocos/renderer/gfx-vulkan/VKBindingLayout.h
         cocos/renderer/gfx-vulkan/VKBuffer.cc
         cocos/renderer/gfx-vulkan/VKBuffer.h
-        cocos/renderer/gfx-vulkan/VKCommandAllocator.cc
-        cocos/renderer/gfx-vulkan/VKCommandAllocator.h
         cocos/renderer/gfx-vulkan/VKCommandBuffer.cc
         cocos/renderer/gfx-vulkan/VKCommandBuffer.h
         cocos/renderer/gfx-vulkan/VKCommands.cc
@@ -723,8 +711,6 @@ if(CC_USE_VULKAN)
         cocos/renderer/gfx-vulkan/VKGPUObjects.h
         cocos/renderer/gfx-vulkan/VKInputAssembler.cc
         cocos/renderer/gfx-vulkan/VKInputAssembler.h
-        cocos/renderer/gfx-vulkan/VKPipelineLayout.cc
-        cocos/renderer/gfx-vulkan/VKPipelineLayout.h
         cocos/renderer/gfx-vulkan/VKPipelineState.cc
         cocos/renderer/gfx-vulkan/VKPipelineState.h
         cocos/renderer/gfx-vulkan/VKQueue.cc
@@ -819,7 +805,7 @@ if(ANDROID)
     )
 elseif(APPLE)
     cocos_source_files(
-        cocos/scripting/js-bindings/manual/jsb_platfrom_apple.mm    
+        cocos/scripting/js-bindings/manual/jsb_platfrom_apple.mm
         cocos/scripting/js-bindings/manual/JavaScriptObjCBridge.h
         cocos/scripting/js-bindings/manual/JavaScriptObjCBridge.mm
     )
@@ -943,7 +929,7 @@ cocos_source_files(
 )
 
 cocos_source_files(
-    cocos/scripting/js-bindings/event/CustomEventTypes.h 
+    cocos/scripting/js-bindings/event/CustomEventTypes.h
     cocos/scripting/js-bindings/event/EventDispatcher.cpp
     cocos/scripting/js-bindings/event/EventDispatcher.h
 )
@@ -967,7 +953,7 @@ if(USE_EDIT_BOX)
     )
 endif()
 
-if(ANDROID OR IOS) 
+if(ANDROID OR IOS)
     if(USE_VIDEOPLAYER)
         cocos_source_files(
             cocos/ui/videoplayer/VideoPlayer.h
@@ -1032,7 +1018,7 @@ list(APPEND COCOS2D_SOURCE_LIST ${CC_EXTERNAL_SROUCES})
 add_library(cocos2d ${COCOS2D_SOURCE_LIST})
 
 # setup default flags
-target_compile_definitions(cocos2d PUBLIC 
+target_compile_definitions(cocos2d PUBLIC
     $<$<NOT:$<BOOL:${USE_VIDEO}>>:USE_VIDEO=0>
     $<$<NOT:$<BOOL:${USE_AUDIO}>>:USE_AUDIO=0>
     $<$<NOT:$<BOOL:${USE_SOCKET}>>:USE_SOCKET=0>
@@ -1063,7 +1049,7 @@ elseif(CC_USE_METAL)
 endif()
 
 target_include_directories(cocos2d
-    PUBLIC 
+    PUBLIC
         ${CC_EXTERNAL_INCLUDES}
         ${CWD}
         ${CWD}/cocos
@@ -1072,7 +1058,7 @@ target_include_directories(cocos2d
         ${CWD}/cocos/renderer/core
         ${CWD}/external/sources/khronos
         $<$<BOOL:USE_SE_JSC>:${CWD}/cocos/scripting/js-bindings/jswrapper>
-    PRIVATE 
+    PRIVATE
         ${CC_EXTERNAL_PRIVATE_INCLUDES}
 )
 
@@ -1083,7 +1069,7 @@ if(WIN32)
     )
 
     target_compile_definitions(cocos2d PUBLIC
-        CC_STATIC 
+        CC_STATIC
         WIN32
         _WIN32
         _WINDOWS
@@ -1111,9 +1097,9 @@ if(ANDROID)
     )
 endif()
 
-if(APPLE) 
+if(APPLE)
 
-    target_compile_options(cocos2d PRIVATE 
+    target_compile_options(cocos2d PRIVATE
         -Wno-objc-method-access
     )
 
@@ -1150,7 +1136,7 @@ if(APPLE)
             ${OPENGL_LIBRARY}
             ${APPKIT_LIBRARY}
         )
-        target_compile_definitions(cocos2d PUBLIC 
+        target_compile_definitions(cocos2d PUBLIC
             CC_KEYBOARD_SUPPORT
             )
     elseif(IOS)
@@ -1188,15 +1174,15 @@ source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS2D_SOURCE_LIST})
 
 
 if(MSVC)
-    file(GLOB_RECURSE WIN32_DLLS 
-        ${CWD}/external/win32/libs/*.dll 
+    file(GLOB_RECURSE WIN32_DLLS
+        ${CWD}/external/win32/libs/*.dll
         ${CWD}/external/win32/libs/Debug/*.dll
     )
     target_compile_options(cocos2d PUBLIC /MP)
 endif()
 
 if(COMMAND target_precompile_headers)
-    target_precompile_headers(cocos2d PUBLIC 
+    target_precompile_headers(cocos2d PUBLIC
         $<$<COMPILE_LANGUAGE:CXX>:${CWD}/cocos/cocos2d.h>
     )
 endif()

@@ -2,14 +2,12 @@
 
 #include "VKBindingLayout.h"
 #include "VKBuffer.h"
-#include "VKCommandAllocator.h"
 #include "VKCommandBuffer.h"
 #include "VKContext.h"
 #include "VKDevice.h"
 #include "VKFence.h"
 #include "VKFramebuffer.h"
 #include "VKInputAssembler.h"
-#include "VKPipelineLayout.h"
 #include "VKPipelineState.h"
 #include "VKQueue.h"
 #include "VKRenderPass.h"
@@ -65,10 +63,14 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
 
     // only enable the absolute essentials for now
     std::vector<const char *> requestedValidationLayers{
-        "VK_LAYER_KHRONOS_validation",
     };
+#if COCOS2D_DEBUG > 0
+    requestedValidationLayers.push_back("VK_LAYER_KHRONOS_validation");
+#endif
     std::vector<const char *> requestedExtensions{
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+        VK_KHR_DESCRIPTOR_UPDATE_TEMPLATE_EXTENSION_NAME,
+        VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME,
         VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
         VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
     };
@@ -162,7 +164,9 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     _features[static_cast<uint>(Feature::LINE_WIDTH)] = true;
     _features[static_cast<uint>(Feature::STENCIL_COMPARE_MASK)] = true;
     _features[static_cast<uint>(Feature::STENCIL_WRITE_MASK)] = true;
-    _multiDrawIndirectSupported = deviceFeatures2.features.multiDrawIndirect;
+    _multiDrawIndirectSupported = deviceFeatures.multiDrawIndirect;
+    _pushDescriptorSetSupported = checkExtension(VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME);
+    _descriptorUpdateTemplateSupported = checkExtension(VK_KHR_DESCRIPTOR_UPDATE_TEMPLATE_EXTENSION_NAME);
 
     VkFormatFeatureFlags requiredFeatures = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT;
     VkFormatProperties formatProperties;
@@ -256,6 +260,8 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
 
     _gpuSemaphorePool = CC_NEW(CCVKGPUSemaphorePool(_gpuDevice));
     _gpuFencePool = CC_NEW(CCVKGPUFencePool(_gpuDevice));
+    _gpuDescriptorSetPool = CC_NEW(CCVKGPUDescriptorSetPool(_gpuDevice));
+    _gpuCommandBufferPool = CC_NEW(CCVKGPUCommandBufferPool(_gpuDevice));
 
     BufferInfo stagingBufferInfo;
     stagingBufferInfo.usage = BufferUsage::TRANSFER_SRC;
@@ -269,9 +275,6 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     queueInfo.forceSync = true;
     _queue = createQueue(queueInfo);
 
-    CommandAllocatorInfo cmdAllocInfo;
-    _cmdAllocator = createCommandAllocator(cmdAllocInfo);
-
     for (uint i = 0u; i < gpuContext->swapchainCreateInfo.minImageCount; i++) {
         TextureInfo depthStencilTexInfo;
         depthStencilTexInfo.type = TextureType::TEX2D;
@@ -282,19 +285,6 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
         CCVKTexture *texture = (CCVKTexture *)createTexture(depthStencilTexInfo);
         _depthStencilTextures.push_back(texture);
     }
-
-    TextureInfo textureInfo;
-    TextureViewInfo texViewInfo;
-
-    textureInfo.usage = TextureUsageBit::SAMPLED;
-    textureInfo.format = Format::RGBA8;
-    textureInfo.width = 2;
-    textureInfo.height = 2;
-    nullTexture2D = (CCVKTexture *)createTexture(textureInfo);
-
-    textureInfo.arrayLayer = 6;
-    textureInfo.flags = TextureFlagBit::CUBEMAP;
-    nullTextureCube = (CCVKTexture *)createTexture(textureInfo);
 
     _gpuSwapchain = CC_NEW(CCVKGPUSwapchain);
     buildSwapchain();
@@ -371,11 +361,10 @@ void CCVKDevice::destroy() {
     }
     _depthStencilTextures.clear();
 
-    CC_SAFE_DESTROY(nullTexture2D);
-    CC_SAFE_DESTROY(nullTextureCube);
     CC_SAFE_DESTROY(_stagingBuffer);
-    CC_SAFE_DESTROY(_cmdAllocator);
     CC_SAFE_DESTROY(_queue);
+    CC_SAFE_DELETE(_gpuCommandBufferPool);
+    CC_SAFE_DELETE(_gpuDescriptorSetPool);
     CC_SAFE_DELETE(_gpuSemaphorePool);
     CC_SAFE_DELETE(_gpuFencePool);
 
@@ -495,7 +484,8 @@ void CCVKDevice::acquire() {
     VK_CHECK(vkDeviceWaitIdle(_gpuDevice->vkDevice));
     _gpuSemaphorePool->reset();
     _gpuFencePool->reset();
-    ((CCVKCommandAllocator *)_cmdAllocator)->reset();
+    _gpuDescriptorSetPool->reset();
+    _gpuCommandBufferPool->reset();
 
     VkSemaphore acquireSemaphore = _gpuSemaphorePool->alloc();
     VK_CHECK(vkAcquireNextImageKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain,
@@ -528,6 +518,15 @@ void CCVKDevice::present() {
     VK_CHECK(vkQueuePresentKHR(queue->gpuQueue()->vkQueue, &presentInfo));
 }
 
+CommandBuffer *CCVKDevice::createCommandBuffer(const CommandBufferInfo &info) {
+    CommandBuffer *cmdBuff = CC_NEW(CCVKCommandBuffer(this));
+    if (cmdBuff->initialize(info))
+        return cmdBuff;
+
+    CC_SAFE_DESTROY(cmdBuff)
+    return nullptr;
+}
+
 Fence *CCVKDevice::createFence(const FenceInfo &info) {
     Fence *fence = CC_NEW(CCVKFence(this));
     if (fence->initialize(info))
@@ -543,24 +542,6 @@ Queue *CCVKDevice::createQueue(const QueueInfo &info) {
         return queue;
 
     CC_SAFE_DESTROY(queue);
-    return nullptr;
-}
-
-CommandAllocator *CCVKDevice::createCommandAllocator(const CommandAllocatorInfo &info) {
-    CommandAllocator *cmdAllocator = CC_NEW(CCVKCommandAllocator(this));
-    if (cmdAllocator->initialize(info))
-        return cmdAllocator;
-
-    CC_SAFE_DESTROY(cmdAllocator);
-    return nullptr;
-}
-
-CommandBuffer *CCVKDevice::createCommandBuffer(const CommandBufferInfo &info) {
-    CommandBuffer *gfx_cmd_buff = CC_NEW(CCVKCommandBuffer(this));
-    if (gfx_cmd_buff->initialize(info))
-        return gfx_cmd_buff;
-
-    CC_SAFE_DESTROY(gfx_cmd_buff)
     return nullptr;
 }
 
@@ -651,15 +632,6 @@ PipelineState *CCVKDevice::createPipelineState(const PipelineStateInfo &info) {
         return pipelineState;
 
     CC_SAFE_DESTROY(pipelineState);
-    return nullptr;
-}
-
-PipelineLayout *CCVKDevice::createPipelineLayout(const PipelineLayoutInfo &info) {
-    PipelineLayout *layout = CC_NEW(CCVKPipelineLayout(this));
-    if (layout->initialize(info))
-        return layout;
-
-    CC_SAFE_DESTROY(layout);
     return nullptr;
 }
 
