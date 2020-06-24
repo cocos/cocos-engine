@@ -1,5 +1,6 @@
 #include "MTLStd.h"
 
+#include "MTLDevice.h"
 #include "MTLUtils.h"
 #include "SPIRV/GlslangToSpv.h"
 #include "StandAlone/ResourceLimits.h"
@@ -512,7 +513,7 @@ MTLSamplerMipFilter toMTLSamplerMipFilter(Filter filter) {
 
 String compileGLSLShader2Msl(const String &src,
                              ShaderType shaderType,
-                             int maxSamplerUnits,
+                             Device *device,
                              std::unordered_map<uint, uint> &samplerBindings) {
 #if USE_METAL
     String shaderSource("#version 310 es\n");
@@ -532,10 +533,14 @@ String compileGLSLShader2Msl(const String &src,
     msl.set_enabled_interface_variables(std::move(active));
 
     // Get all uniform buffers in the shader.
+    uint maxBufferBindingIndex = static_cast<CCMTLDevice *>(device)->getMaximumBufferBindingIndex();
     for (const auto &ubo : resources.uniform_buffers) {
         auto set = msl.get_decoration(ubo.id, spv::DecorationDescriptorSet);
         auto binding = msl.get_decoration(ubo.id, spv::DecorationBinding);
 
+        if (binding >= maxBufferBindingIndex) {
+            CC_LOG_ERROR("Implemention limits: %s binding at %d, should not use more than %d entries in the buffer argument table", ubo.name.c_str(), binding, maxBufferBindingIndex);
+        }
         newBinding.desc_set = set;
         newBinding.binding = binding;
         newBinding.msl_buffer = binding;
@@ -545,8 +550,8 @@ String compileGLSLShader2Msl(const String &src,
     }
 
     //TODO: coulsonwang, need to set sampler binding explicitly
-    if (resources.sampled_images.size() > maxSamplerUnits) {
-        CC_LOG_ERROR("Implemention limits: Should not use more than %d entries in the sampler state argument table", maxSamplerUnits);
+    if (resources.sampled_images.size() > static_cast<CCMTLDevice *>(device)->getMaximumSamplerUnits()) {
+        CC_LOG_ERROR("Implemention limits: Should not use more than %d entries in the sampler state argument table", static_cast<CCMTLDevice *>(device)->getMaximumSamplerUnits());
         return "";
     }
 

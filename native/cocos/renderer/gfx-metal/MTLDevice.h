@@ -39,6 +39,7 @@ public:
     CC_INLINE void *getMTLDevice() const { return _mtlDevice; }
     CC_INLINE uint getMaximumSamplerUnits() const { return _maxSamplerUnits; }
     CC_INLINE uint getMaximumColorRenderTargets() const { return _maxColorRenderTargets; }
+    CC_INLINE uint getMaximumBufferBindingIndex() const { return _maxBufferBindingIndex; }
     CC_INLINE bool isIndirectCommandBufferSupported() const { return _icbSuppored; }
 
 private:
@@ -50,6 +51,7 @@ private:
     unsigned long _mtlFeatureSet = 0;
     uint _maxSamplerUnits = 0;
     uint _maxColorRenderTargets = 0;
+    uint _maxBufferBindingIndex = 0;
     bool _icbSuppored = false;
     void *_blitedBuffer = nullptr;
 };

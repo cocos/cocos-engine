@@ -141,40 +141,35 @@ bool CCMTLPipelineState::createMTLRenderPipelineState() {
 }
 
 void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descriptor) {
-    // attributes
-
-    auto mtlAttributes = static_cast<CCMTLShader *>(_shader)->getVertMTLFunction().vertexAttributes;
-    if (mtlAttributes == nil)
-        return;
+    auto activeAttributes = static_cast<CCMTLShader *>(_shader)->getAttributes();
 
     std::vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>> layouts;
     std::unordered_map<int /**vertexBufferBindingIndex*/, std::tuple<uint /**stride*/, bool /**isInstanced*/>> map;
-    const uint DEFAULT_VERTEX_BUFFER_INDEX = 30;
     uint streamOffsets[GFX_MAX_VERTEX_ATTRIBUTES] = {0};
-    bool matched = false;
-    for (MTLVertexAttribute *attrib in mtlAttributes) {
-        auto attributeIndex = attrib.attributeIndex;
-        matched = false;
+    bool attributeFound = false;
+    for (const auto &activeAttribute : activeAttributes) {
+        attributeFound = false;
         for (const auto &inputAttrib : _inputState.attributes) {
-            if (inputAttrib.name.compare([attrib.name UTF8String]) == 0) {
-                descriptor.vertexDescriptor.attributes[attributeIndex].format = mu::toMTLVertexFormat(inputAttrib.format, inputAttrib.isNormalized);
-                descriptor.vertexDescriptor.attributes[attributeIndex].offset = streamOffsets[inputAttrib.stream];
-                //FIXME: because translated metal shader binds argument buffers from 0. So bind vertex buffer to max buffer index: 30.
-                auto bufferIndex = DEFAULT_VERTEX_BUFFER_INDEX - inputAttrib.stream;
-                descriptor.vertexDescriptor.attributes[attributeIndex].bufferIndex = bufferIndex;
+            if (inputAttrib.name == activeAttribute.name) {
+                descriptor.vertexDescriptor.attributes[activeAttribute.location].format = mu::toMTLVertexFormat(inputAttrib.format, inputAttrib.isNormalized);
+                descriptor.vertexDescriptor.attributes[activeAttribute.location].offset = streamOffsets[inputAttrib.stream];
+                auto bufferIndex = static_cast<CCMTLShader *>(_shader)->getAvailableBufferBindingIndex(ShaderType::VERTEX, inputAttrib.stream);
+                descriptor.vertexDescriptor.attributes[activeAttribute.location].bufferIndex = bufferIndex;
 
                 streamOffsets[inputAttrib.stream] += GFX_FORMAT_INFOS[(int)inputAttrib.format].size;
                 auto tuple = std::make_tuple(bufferIndex, inputAttrib.stream);
                 if (std::find(layouts.begin(), layouts.end(), tuple) == layouts.end())
                     layouts.emplace_back(tuple);
                 map[bufferIndex] = std::make_tuple(streamOffsets[inputAttrib.stream], inputAttrib.isInstanced);
-                matched = true;
+                attributeFound = true;
                 break;
             }
         }
-        if (!matched) {
-            CC_LOG_ERROR("Attribute %s is missing.", [attrib.name UTF8String]);
-            assert(false);
+        if (!attributeFound) { //handle absent attribute
+            descriptor.vertexDescriptor.attributes[activeAttribute.location].format = mu::toMTLVertexFormat(activeAttribute.format, activeAttribute.isNormalized);
+            descriptor.vertexDescriptor.attributes[activeAttribute.location].offset = 0;
+            descriptor.vertexDescriptor.attributes[activeAttribute.location].bufferIndex = static_cast<CCMTLShader *>(_shader)->getAvailableBufferBindingIndex(ShaderType::VERTEX, activeAttribute.stream);
+            CC_LOG_WARNING("Attribute %s is missing, add a dummy data for it.", activeAttribute.name.c_str());
         }
     }
 
