@@ -9,14 +9,14 @@
 namespace cc {
 namespace gfx {
 
-CCVKFramebuffer::CCVKFramebuffer(GFXDevice *device)
-: GFXFramebuffer(device) {
+CCVKFramebuffer::CCVKFramebuffer(Device *device)
+: Framebuffer(device) {
 }
 
 CCVKFramebuffer::~CCVKFramebuffer() {
 }
 
-bool CCVKFramebuffer::initialize(const GFXFramebufferInfo &info) {
+bool CCVKFramebuffer::initialize(const FramebufferInfo &info) {
     _renderPass = info.renderPass;
     _colorTextures = info.colorTextures;
     _depthStencilTexture = info.depthStencilTexture;
@@ -41,7 +41,7 @@ bool CCVKFramebuffer::initialize(const GFXFramebufferInfo &info) {
 
     CCVKCmdFuncCreateFramebuffer((CCVKDevice *)_device, _gpuFBO);
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return true;
 }
@@ -55,7 +55,7 @@ void CCVKFramebuffer::destroy() {
         _gpuFBO = nullptr;
     }
 
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 } // namespace gfx

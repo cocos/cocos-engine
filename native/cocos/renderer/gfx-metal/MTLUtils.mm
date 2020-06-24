@@ -10,16 +10,16 @@ namespace cc {
 namespace gfx {
 namespace {
 
-EShLanguage getShaderStage(GFXShaderType type) {
+EShLanguage getShaderStage(ShaderType type) {
     switch (type) {
-        case GFXShaderType::VERTEX: return EShLangVertex;
-        case GFXShaderType::CONTROL: return EShLangTessControl;
-        case GFXShaderType::EVALUATION: return EShLangTessEvaluation;
-        case GFXShaderType::GEOMETRY: return EShLangGeometry;
-        case GFXShaderType::FRAGMENT: return EShLangFragment;
-        case GFXShaderType::COMPUTE: return EShLangCompute;
+        case ShaderType::VERTEX: return EShLangVertex;
+        case ShaderType::CONTROL: return EShLangTessControl;
+        case ShaderType::EVALUATION: return EShLangTessEvaluation;
+        case ShaderType::GEOMETRY: return EShLangGeometry;
+        case ShaderType::FRAGMENT: return EShLangFragment;
+        case ShaderType::COMPUTE: return EShLangCompute;
         default: {
-            CCASSERT(false, "Unsupported GFXShaderType, convert to EShLanguage failed.");
+            CCASSERT(false, "Unsupported ShaderType, convert to EShLanguage failed.");
             return EShLangVertex;
         }
     }
@@ -49,7 +49,7 @@ glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion) {
     }
 }
 
-const std::vector<unsigned int> GLSL2SPIRV(GFXShaderType type, const String &source, int vulkanMinorVersion = 2) {
+const std::vector<unsigned int> GLSL2SPIRV(ShaderType type, const String &source, int vulkanMinorVersion = 2) {
     static bool glslangInitialized = false;
     if (!glslangInitialized) {
         glslang::InitializeProcess();
@@ -113,10 +113,10 @@ enum class GPUFamily : uint {
 }
 
 namespace mu {
-MTLResourceOptions toMTLResourseOption(GFXMemoryUsage usage) {
-    if (usage & GFXMemoryUsage::HOST && usage & GFXMemoryUsage::DEVICE)
+MTLResourceOptions toMTLResourseOption(MemoryUsage usage) {
+    if (usage & MemoryUsage::HOST && usage & MemoryUsage::DEVICE)
         return MTLResourceStorageModeShared;
-    else if (usage & GFXMemoryUsage::DEVICE)
+    else if (usage & MemoryUsage::DEVICE)
         return MTLResourceStorageModePrivate;
     else
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
@@ -126,61 +126,61 @@ MTLResourceOptions toMTLResourseOption(GFXMemoryUsage usage) {
 #endif
 }
 
-MTLLoadAction toMTLLoadAction(GFXLoadOp op) {
+MTLLoadAction toMTLLoadAction(LoadOp op) {
     switch (op) {
-        case GFXLoadOp::CLEAR: return MTLLoadActionClear;
-        case GFXLoadOp::LOAD: return MTLLoadActionLoad;
-        case GFXLoadOp::DISCARD: return MTLLoadActionDontCare;
+        case LoadOp::CLEAR: return MTLLoadActionClear;
+        case LoadOp::LOAD: return MTLLoadActionLoad;
+        case LoadOp::DISCARD: return MTLLoadActionDontCare;
         default: return MTLLoadActionDontCare;
     }
 }
 
-MTLStoreAction toMTLStoreAction(GFXStoreOp op) {
+MTLStoreAction toMTLStoreAction(StoreOp op) {
     switch (op) {
-        case GFXStoreOp::STORE: return MTLStoreActionStore;
-        case GFXStoreOp::DISCARD: return MTLStoreActionDontCare;
+        case StoreOp::STORE: return MTLStoreActionStore;
+        case StoreOp::DISCARD: return MTLStoreActionDontCare;
         default: return MTLStoreActionDontCare;
     }
 }
 
-MTLClearColor toMTLClearColor(const GFXColor &clearColor) {
+MTLClearColor toMTLClearColor(const Color &clearColor) {
     MTLClearColor mtlColor;
     mtlColor = MTLClearColorMake(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     return MTLClearColorMake(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 }
 
-MTLVertexFormat toMTLVertexFormat(GFXFormat format, bool isNormalized) {
+MTLVertexFormat toMTLVertexFormat(Format format, bool isNormalized) {
     switch (format) {
-        case GFXFormat::R32F: return MTLVertexFormatFloat;
-        case GFXFormat::R32I: return MTLVertexFormatInt;
-        case GFXFormat::R32UI: return MTLVertexFormatUInt;
-        case GFXFormat::RG8: return isNormalized ? MTLVertexFormatUChar2Normalized : MTLVertexFormatUChar2;
-        case GFXFormat::RG8I: return isNormalized ? MTLVertexFormatChar2Normalized : MTLVertexFormatChar2;
-        case GFXFormat::RG16F: return MTLVertexFormatHalf2;
-        case GFXFormat::RG16UI: return isNormalized ? MTLVertexFormatUShort2Normalized : MTLVertexFormatUShort2;
-        case GFXFormat::RG16I: return isNormalized ? MTLVertexFormatShort2Normalized : MTLVertexFormatShort2;
-        case GFXFormat::RG32I: return MTLVertexFormatInt2;
-        case GFXFormat::RG32UI: return MTLVertexFormatUInt2;
-        case GFXFormat::RG32F: return MTLVertexFormatFloat2;
-        case GFXFormat::RGB8: return isNormalized ? MTLVertexFormatUChar3Normalized : MTLVertexFormatUChar3;
-        case GFXFormat::RGB8I: return isNormalized ? MTLVertexFormatChar3Normalized : MTLVertexFormatChar3;
-        case GFXFormat::RGB16I: return isNormalized ? MTLVertexFormatShort3Normalized : MTLVertexFormatShort3;
-        case GFXFormat::RGB16UI: return isNormalized ? MTLVertexFormatUShort3Normalized : MTLVertexFormatUShort3;
-        case GFXFormat::RGB16F: return MTLVertexFormatHalf3;
-        case GFXFormat::RGB32I: return MTLVertexFormatInt3;
-        case GFXFormat::RGB32UI: return MTLVertexFormatUInt3;
-        case GFXFormat::RGB32F: return MTLVertexFormatFloat3;
-        case GFXFormat::RGBA8: return isNormalized ? MTLVertexFormatUChar4Normalized : MTLVertexFormatUChar4;
-        case GFXFormat::RGBA8I: return isNormalized ? MTLVertexFormatChar4Normalized : MTLVertexFormatChar4;
-        case GFXFormat::RGBA16I: return isNormalized ? MTLVertexFormatShort4Normalized : MTLVertexFormatShort4;
-        case GFXFormat::RGBA16UI: return isNormalized ? MTLVertexFormatUShort4Normalized : MTLVertexFormatUShort4;
-        case GFXFormat::RGBA16F: return MTLVertexFormatHalf4;
-        case GFXFormat::RGBA32I: return MTLVertexFormatInt4;
-        case GFXFormat::RGBA32UI: return MTLVertexFormatUInt4;
-        case GFXFormat::RGBA32F: return MTLVertexFormatFloat4;
-        case GFXFormat::RGB10A2: return isNormalized ? MTLVertexFormatInt1010102Normalized : MTLVertexFormatInvalid;
-        case GFXFormat::RGB10A2UI: return isNormalized ? MTLVertexFormatUInt1010102Normalized : MTLVertexFormatInvalid;
-        case GFXFormat::BGRA8: {
+        case Format::R32F: return MTLVertexFormatFloat;
+        case Format::R32I: return MTLVertexFormatInt;
+        case Format::R32UI: return MTLVertexFormatUInt;
+        case Format::RG8: return isNormalized ? MTLVertexFormatUChar2Normalized : MTLVertexFormatUChar2;
+        case Format::RG8I: return isNormalized ? MTLVertexFormatChar2Normalized : MTLVertexFormatChar2;
+        case Format::RG16F: return MTLVertexFormatHalf2;
+        case Format::RG16UI: return isNormalized ? MTLVertexFormatUShort2Normalized : MTLVertexFormatUShort2;
+        case Format::RG16I: return isNormalized ? MTLVertexFormatShort2Normalized : MTLVertexFormatShort2;
+        case Format::RG32I: return MTLVertexFormatInt2;
+        case Format::RG32UI: return MTLVertexFormatUInt2;
+        case Format::RG32F: return MTLVertexFormatFloat2;
+        case Format::RGB8: return isNormalized ? MTLVertexFormatUChar3Normalized : MTLVertexFormatUChar3;
+        case Format::RGB8I: return isNormalized ? MTLVertexFormatChar3Normalized : MTLVertexFormatChar3;
+        case Format::RGB16I: return isNormalized ? MTLVertexFormatShort3Normalized : MTLVertexFormatShort3;
+        case Format::RGB16UI: return isNormalized ? MTLVertexFormatUShort3Normalized : MTLVertexFormatUShort3;
+        case Format::RGB16F: return MTLVertexFormatHalf3;
+        case Format::RGB32I: return MTLVertexFormatInt3;
+        case Format::RGB32UI: return MTLVertexFormatUInt3;
+        case Format::RGB32F: return MTLVertexFormatFloat3;
+        case Format::RGBA8: return isNormalized ? MTLVertexFormatUChar4Normalized : MTLVertexFormatUChar4;
+        case Format::RGBA8I: return isNormalized ? MTLVertexFormatChar4Normalized : MTLVertexFormatChar4;
+        case Format::RGBA16I: return isNormalized ? MTLVertexFormatShort4Normalized : MTLVertexFormatShort4;
+        case Format::RGBA16UI: return isNormalized ? MTLVertexFormatUShort4Normalized : MTLVertexFormatUShort4;
+        case Format::RGBA16F: return MTLVertexFormatHalf4;
+        case Format::RGBA32I: return MTLVertexFormatInt4;
+        case Format::RGBA32UI: return MTLVertexFormatUInt4;
+        case Format::RGBA32F: return MTLVertexFormatFloat4;
+        case Format::RGB10A2: return isNormalized ? MTLVertexFormatInt1010102Normalized : MTLVertexFormatInvalid;
+        case Format::RGB10A2UI: return isNormalized ? MTLVertexFormatUInt1010102Normalized : MTLVertexFormatInvalid;
+        case Format::BGRA8: {
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS
             if (@available(iOS 11.0, *)) {
                 if (isNormalized) {
@@ -208,73 +208,73 @@ MTLVertexFormat toMTLVertexFormat(GFXFormat format, bool isNormalized) {
     }
 }
 
-GFXFormat convertGFXPixelFormat(GFXFormat format) {
+Format convertGFXPixelFormat(Format format) {
     switch (format) {
-        case GFXFormat::RGB8: return GFXFormat::RGBA8;
-        case GFXFormat::RGB32F: return GFXFormat::RGBA32F;
+        case Format::RGB8: return Format::RGBA8;
+        case Format::RGB32F: return Format::RGBA32F;
         default: return format;
     }
 }
 
-MTLPixelFormat toMTLPixelFormat(GFXFormat format) {
+MTLPixelFormat toMTLPixelFormat(Format format) {
     switch (format) {
-        case GFXFormat::A8: return MTLPixelFormatA8Unorm;
-        case GFXFormat::R8: return MTLPixelFormatR8Uint;
-        case GFXFormat::R8SN: return MTLPixelFormatR8Snorm;
-        case GFXFormat::R8UI: return MTLPixelFormatR8Uint;
-        case GFXFormat::R16F: return MTLPixelFormatR16Float;
-        case GFXFormat::R32F: return MTLPixelFormatR32Float;
-        case GFXFormat::R32UI: return MTLPixelFormatR32Uint;
-        case GFXFormat::R32I: return MTLPixelFormatR32Sint;
+        case Format::A8: return MTLPixelFormatA8Unorm;
+        case Format::R8: return MTLPixelFormatR8Uint;
+        case Format::R8SN: return MTLPixelFormatR8Snorm;
+        case Format::R8UI: return MTLPixelFormatR8Uint;
+        case Format::R16F: return MTLPixelFormatR16Float;
+        case Format::R32F: return MTLPixelFormatR32Float;
+        case Format::R32UI: return MTLPixelFormatR32Uint;
+        case Format::R32I: return MTLPixelFormatR32Sint;
 
-        case GFXFormat::RG8: return MTLPixelFormatRG8Unorm;
-        case GFXFormat::RG8SN: return MTLPixelFormatRG8Snorm;
-        case GFXFormat::RG8UI: return MTLPixelFormatRG8Uint;
-        case GFXFormat::RG8I: return MTLPixelFormatRG8Sint;
-        case GFXFormat::RG16F: return MTLPixelFormatRG16Float;
-        case GFXFormat::RG16UI: return MTLPixelFormatRG16Uint;
-        case GFXFormat::RG16I:
+        case Format::RG8: return MTLPixelFormatRG8Unorm;
+        case Format::RG8SN: return MTLPixelFormatRG8Snorm;
+        case Format::RG8UI: return MTLPixelFormatRG8Uint;
+        case Format::RG8I: return MTLPixelFormatRG8Sint;
+        case Format::RG16F: return MTLPixelFormatRG16Float;
+        case Format::RG16UI: return MTLPixelFormatRG16Uint;
+        case Format::RG16I:
             return MTLPixelFormatRG16Sint;
 
-            //            case GFXFormat::RGB8SN: return MTLPixelFormatRGBA8Snorm;
-            //            case GFXFormat::RGB8UI: return MTLPixelFormatRGBA8Uint;
-            //            case GFXFormat::RGB8I: return MTLPixelFormatRGBA8Sint;
-            //            case GFXFormat::RGB16F: return MTLPixelFormatRGBA16Float;
-            //            case GFXFormat::RGB16UI: return MTLPixelFormatRGBA16Uint;
-            //            case GFXFormat::RGB16I: return MTLPixelFormatRGBA16Sint;
-            //            case GFXFormat::RGB32F: return MTLPixelFormatRGBA32Float;
-            //            case GFXFormat::RGB32UI: return MTLPixelFormatRGBA32Uint;
-            //            case GFXFormat::RGB32I: return MTLPixelFormatRGBA32Sint;
+            //            case Format::RGB8SN: return MTLPixelFormatRGBA8Snorm;
+            //            case Format::RGB8UI: return MTLPixelFormatRGBA8Uint;
+            //            case Format::RGB8I: return MTLPixelFormatRGBA8Sint;
+            //            case Format::RGB16F: return MTLPixelFormatRGBA16Float;
+            //            case Format::RGB16UI: return MTLPixelFormatRGBA16Uint;
+            //            case Format::RGB16I: return MTLPixelFormatRGBA16Sint;
+            //            case Format::RGB32F: return MTLPixelFormatRGBA32Float;
+            //            case Format::RGB32UI: return MTLPixelFormatRGBA32Uint;
+            //            case Format::RGB32I: return MTLPixelFormatRGBA32Sint;
 
-        case GFXFormat::RGBA8: return MTLPixelFormatRGBA8Unorm;
-        case GFXFormat::RGBA8SN: return MTLPixelFormatRGBA8Snorm;
-        case GFXFormat::RGBA8UI: return MTLPixelFormatRGBA8Uint;
-        case GFXFormat::RGBA8I: return MTLPixelFormatRGBA8Sint;
-        case GFXFormat::RGBA16F: return MTLPixelFormatRGBA16Float;
-        case GFXFormat::RGBA16UI: return MTLPixelFormatRGBA16Uint;
-        case GFXFormat::RGBA16I: return MTLPixelFormatRGBA16Sint;
-        case GFXFormat::RGBA32F: return MTLPixelFormatRGBA32Float;
-        case GFXFormat::RGBA32UI: return MTLPixelFormatRGBA32Uint;
-        case GFXFormat::RGBA32I: return MTLPixelFormatRGBA32Sint;
-        case GFXFormat::BGRA8:
+        case Format::RGBA8: return MTLPixelFormatRGBA8Unorm;
+        case Format::RGBA8SN: return MTLPixelFormatRGBA8Snorm;
+        case Format::RGBA8UI: return MTLPixelFormatRGBA8Uint;
+        case Format::RGBA8I: return MTLPixelFormatRGBA8Sint;
+        case Format::RGBA16F: return MTLPixelFormatRGBA16Float;
+        case Format::RGBA16UI: return MTLPixelFormatRGBA16Uint;
+        case Format::RGBA16I: return MTLPixelFormatRGBA16Sint;
+        case Format::RGBA32F: return MTLPixelFormatRGBA32Float;
+        case Format::RGBA32UI: return MTLPixelFormatRGBA32Uint;
+        case Format::RGBA32I: return MTLPixelFormatRGBA32Sint;
+        case Format::BGRA8:
             return MTLPixelFormatBGRA8Unorm;
 
             // Should convert.
-            //            case GFXFormat::R5G6B5: return MTLPixelFormatB5G6R5Unorm;
-            //            case GFXFormat::RGB5A1: return MTLPixelFormatBGR5A1Unorm;
-            //            case GFXFormat::RGBA4: return MTLPixelFormatABGR4Unorm;
-            //            case GFXFormat::RGB10A2: return MTLPixelFormatBGR10A2Unorm;
-        case GFXFormat::RGB9E5: return MTLPixelFormatRGB9E5Float;
-        case GFXFormat::RGB10A2UI: return MTLPixelFormatRGB10A2Uint;
-        case GFXFormat::R11G11B10F: return MTLPixelFormatRG11B10Float;
+            //            case Format::R5G6B5: return MTLPixelFormatB5G6R5Unorm;
+            //            case Format::RGB5A1: return MTLPixelFormatBGR5A1Unorm;
+            //            case Format::RGBA4: return MTLPixelFormatABGR4Unorm;
+            //            case Format::RGB10A2: return MTLPixelFormatBGR10A2Unorm;
+        case Format::RGB9E5: return MTLPixelFormatRGB9E5Float;
+        case Format::RGB10A2UI: return MTLPixelFormatRGB10A2Uint;
+        case Format::R11G11B10F: return MTLPixelFormatRG11B10Float;
 
-        case GFXFormat::D16: return MTLPixelFormatDepth16Unorm;
-        case GFXFormat::D24S8: return MTLPixelFormatDepth24Unorm_Stencil8;
-        case GFXFormat::D32F: return MTLPixelFormatDepth32Float;
-        case GFXFormat::D32F_S8: return MTLPixelFormatDepth32Float_Stencil8;
+        case Format::D16: return MTLPixelFormatDepth16Unorm;
+        case Format::D24S8: return MTLPixelFormatDepth24Unorm_Stencil8;
+        case Format::D32F: return MTLPixelFormatDepth32Float;
+        case Format::D32F_S8: return MTLPixelFormatDepth32Float_Stencil8;
 
-        case GFXFormat::BC1_ALPHA: return MTLPixelFormatBC1_RGBA;
-        case GFXFormat::BC1_SRGB_ALPHA: return MTLPixelFormatBC1_RGBA_sRGB;
+        case Format::BC1_ALPHA: return MTLPixelFormatBC1_RGBA;
+        case Format::BC1_SRGB_ALPHA: return MTLPixelFormatBC1_RGBA_sRGB;
 
         default: {
             CC_LOG_ERROR("Invalid pixel format %u", format);
@@ -283,30 +283,30 @@ MTLPixelFormat toMTLPixelFormat(GFXFormat format) {
     }
 }
 
-MTLColorWriteMask toMTLColorWriteMask(GFXColorMask mask) {
+MTLColorWriteMask toMTLColorWriteMask(ColorMask mask) {
     switch (mask) {
-        case GFXColorMask::R: return MTLColorWriteMaskRed;
-        case GFXColorMask::G: return MTLColorWriteMaskGreen;
-        case GFXColorMask::B: return MTLColorWriteMaskBlue;
-        case GFXColorMask::A: return MTLColorWriteMaskAlpha;
-        case GFXColorMask::ALL: return MTLColorWriteMaskAll;
+        case ColorMask::R: return MTLColorWriteMaskRed;
+        case ColorMask::G: return MTLColorWriteMaskGreen;
+        case ColorMask::B: return MTLColorWriteMaskBlue;
+        case ColorMask::A: return MTLColorWriteMaskAlpha;
+        case ColorMask::ALL: return MTLColorWriteMaskAll;
         default: return MTLColorWriteMaskNone;
     }
 }
 
-MTLBlendFactor toMTLBlendFactor(GFXBlendFactor factor) {
+MTLBlendFactor toMTLBlendFactor(BlendFactor factor) {
     switch (factor) {
-        case GFXBlendFactor::ZERO: return MTLBlendFactorZero;
-        case GFXBlendFactor::ONE: return MTLBlendFactorOne;
-        case GFXBlendFactor::SRC_ALPHA: return MTLBlendFactorSourceAlpha;
-        case GFXBlendFactor::DST_ALPHA: return MTLBlendFactorDestinationAlpha;
-        case GFXBlendFactor::ONE_MINUS_SRC_ALPHA: return MTLBlendFactorOneMinusSourceAlpha;
-        case GFXBlendFactor::ONE_MINUS_DST_ALPHA: return MTLBlendFactorOneMinusDestinationAlpha;
-        case GFXBlendFactor::SRC_COLOR: return MTLBlendFactorSourceColor;
-        case GFXBlendFactor::DST_COLOR: return MTLBlendFactorDestinationColor;
-        case GFXBlendFactor::ONE_MINUS_SRC_COLOR: return MTLBlendFactorOneMinusSourceColor;
-        case GFXBlendFactor::ONE_MINUS_DST_COLOR: return MTLBlendFactorOneMinusDestinationColor;
-        case GFXBlendFactor::SRC_ALPHA_SATURATE: return MTLBlendFactorSourceAlphaSaturated;
+        case BlendFactor::ZERO: return MTLBlendFactorZero;
+        case BlendFactor::ONE: return MTLBlendFactorOne;
+        case BlendFactor::SRC_ALPHA: return MTLBlendFactorSourceAlpha;
+        case BlendFactor::DST_ALPHA: return MTLBlendFactorDestinationAlpha;
+        case BlendFactor::ONE_MINUS_SRC_ALPHA: return MTLBlendFactorOneMinusSourceAlpha;
+        case BlendFactor::ONE_MINUS_DST_ALPHA: return MTLBlendFactorOneMinusDestinationAlpha;
+        case BlendFactor::SRC_COLOR: return MTLBlendFactorSourceColor;
+        case BlendFactor::DST_COLOR: return MTLBlendFactorDestinationColor;
+        case BlendFactor::ONE_MINUS_SRC_COLOR: return MTLBlendFactorOneMinusSourceColor;
+        case BlendFactor::ONE_MINUS_DST_COLOR: return MTLBlendFactorOneMinusDestinationColor;
+        case BlendFactor::SRC_ALPHA_SATURATE: return MTLBlendFactorSourceAlphaSaturated;
         default: {
             CC_LOG_ERROR("Unsupported blend factor %u", (uint)factor);
             return MTLBlendFactorZero;
@@ -314,21 +314,21 @@ MTLBlendFactor toMTLBlendFactor(GFXBlendFactor factor) {
     }
 }
 
-MTLBlendOperation toMTLBlendOperation(GFXBlendOp op) {
+MTLBlendOperation toMTLBlendOperation(BlendOp op) {
     switch (op) {
-        case GFXBlendOp::ADD: return MTLBlendOperationAdd;
-        case GFXBlendOp::SUB: return MTLBlendOperationSubtract;
-        case GFXBlendOp::REV_SUB: return MTLBlendOperationReverseSubtract;
-        case GFXBlendOp::MIN: return MTLBlendOperationMin;
-        case GFXBlendOp::MAX: return MTLBlendOperationMax;
+        case BlendOp::ADD: return MTLBlendOperationAdd;
+        case BlendOp::SUB: return MTLBlendOperationSubtract;
+        case BlendOp::REV_SUB: return MTLBlendOperationReverseSubtract;
+        case BlendOp::MIN: return MTLBlendOperationMin;
+        case BlendOp::MAX: return MTLBlendOperationMax;
     }
 }
 
-MTLCullMode toMTLCullMode(GFXCullMode mode) {
+MTLCullMode toMTLCullMode(CullMode mode) {
     switch (mode) {
-        case GFXCullMode::FRONT: return MTLCullModeFront;
-        case GFXCullMode::BACK: return MTLCullModeBack;
-        case GFXCullMode::NONE: return MTLCullModeNone;
+        case CullMode::FRONT: return MTLCullModeFront;
+        case CullMode::BACK: return MTLCullModeBack;
+        case CullMode::NONE: return MTLCullModeNone;
     }
 }
 
@@ -339,7 +339,7 @@ MTLWinding toMTLWinding(bool isFrontFaceCCW) {
         return MTLWindingClockwise;
 }
 
-MTLViewport toMTLViewport(const GFXViewport &viewport) {
+MTLViewport toMTLViewport(const Viewport &viewport) {
     MTLViewport mtlViewport;
     mtlViewport.originX = viewport.left;
     mtlViewport.originY = viewport.top;
@@ -351,7 +351,7 @@ MTLViewport toMTLViewport(const GFXViewport &viewport) {
     return mtlViewport;
 }
 
-MTLScissorRect toMTLScissorRect(const GFXRect &rect) {
+MTLScissorRect toMTLScissorRect(const Rect &rect) {
     MTLScissorRect scissorRect;
     scissorRect.x = rect.x;
     scissorRect.y = rect.y;
@@ -361,12 +361,12 @@ MTLScissorRect toMTLScissorRect(const GFXRect &rect) {
     return scissorRect;
 }
 
-MTLTriangleFillMode toMTLTriangleFillMode(GFXPolygonMode mode) {
+MTLTriangleFillMode toMTLTriangleFillMode(PolygonMode mode) {
     switch (mode) {
-        case GFXPolygonMode::FILL: return MTLTriangleFillModeFill;
-        case GFXPolygonMode::LINE: return MTLTriangleFillModeLines;
-        case GFXPolygonMode::POINT: {
-            CC_LOG_WARNING("Metal doesn't support GFXPolygonMode::POINT, translate to GFXPolygonMode::LINE.");
+        case PolygonMode::FILL: return MTLTriangleFillModeFill;
+        case PolygonMode::LINE: return MTLTriangleFillModeLines;
+        case PolygonMode::POINT: {
+            CC_LOG_WARNING("Metal doesn't support PolygonMode::POINT, translate to PolygonMode::LINE.");
             return MTLTriangleFillModeLines;
         }
     }
@@ -379,42 +379,42 @@ MTLDepthClipMode toMTLDepthClipMode(bool isClip) {
         return MTLDepthClipModeClamp;
 }
 
-MTLCompareFunction toMTLCompareFunction(GFXComparisonFunc func) {
+MTLCompareFunction toMTLCompareFunction(ComparisonFunc func) {
     switch (func) {
-        case GFXComparisonFunc::NEVER: return MTLCompareFunctionNever;
-        case GFXComparisonFunc::LESS: return MTLCompareFunctionLess;
-        case GFXComparisonFunc::EQUAL: return MTLCompareFunctionEqual;
-        case GFXComparisonFunc::LESS_EQUAL: return MTLCompareFunctionLessEqual;
-        case GFXComparisonFunc::GREATER: return MTLCompareFunctionGreater;
-        case GFXComparisonFunc::NOT_EQUAL: return MTLCompareFunctionNotEqual;
-        case GFXComparisonFunc::GREATER_EQUAL: return MTLCompareFunctionGreaterEqual;
-        case GFXComparisonFunc::ALWAYS: return MTLCompareFunctionAlways;
+        case ComparisonFunc::NEVER: return MTLCompareFunctionNever;
+        case ComparisonFunc::LESS: return MTLCompareFunctionLess;
+        case ComparisonFunc::EQUAL: return MTLCompareFunctionEqual;
+        case ComparisonFunc::LESS_EQUAL: return MTLCompareFunctionLessEqual;
+        case ComparisonFunc::GREATER: return MTLCompareFunctionGreater;
+        case ComparisonFunc::NOT_EQUAL: return MTLCompareFunctionNotEqual;
+        case ComparisonFunc::GREATER_EQUAL: return MTLCompareFunctionGreaterEqual;
+        case ComparisonFunc::ALWAYS: return MTLCompareFunctionAlways;
     }
 }
 
-MTLStencilOperation toMTLStencilOperation(GFXStencilOp op) {
+MTLStencilOperation toMTLStencilOperation(StencilOp op) {
     switch (op) {
-        case GFXStencilOp::ZERO: return MTLStencilOperationZero;
-        case GFXStencilOp::KEEP: return MTLStencilOperationKeep;
-        case GFXStencilOp::REPLACE: return MTLStencilOperationReplace;
-        case GFXStencilOp::INCR: return MTLStencilOperationIncrementClamp;
-        case GFXStencilOp::DECR: return MTLStencilOperationDecrementClamp;
-        case GFXStencilOp::INVERT: return MTLStencilOperationInvert;
-        case GFXStencilOp::INCR_WRAP: return MTLStencilOperationIncrementWrap;
-        case GFXStencilOp::DECR_WRAP: return MTLStencilOperationDecrementWrap;
+        case StencilOp::ZERO: return MTLStencilOperationZero;
+        case StencilOp::KEEP: return MTLStencilOperationKeep;
+        case StencilOp::REPLACE: return MTLStencilOperationReplace;
+        case StencilOp::INCR: return MTLStencilOperationIncrementClamp;
+        case StencilOp::DECR: return MTLStencilOperationDecrementClamp;
+        case StencilOp::INVERT: return MTLStencilOperationInvert;
+        case StencilOp::INCR_WRAP: return MTLStencilOperationIncrementWrap;
+        case StencilOp::DECR_WRAP: return MTLStencilOperationDecrementWrap;
     }
 }
 
-MTLPrimitiveType toMTLPrimitiveType(GFXPrimitiveMode mode) {
+MTLPrimitiveType toMTLPrimitiveType(PrimitiveMode mode) {
     switch (mode) {
-        case GFXPrimitiveMode::POINT_LIST: return MTLPrimitiveTypePoint;
-        case GFXPrimitiveMode::LINE_LIST: return MTLPrimitiveTypeLine;
-        case GFXPrimitiveMode::LINE_STRIP: return MTLPrimitiveTypeLineStrip;
-        case GFXPrimitiveMode::TRIANGLE_LIST: return MTLPrimitiveTypeTriangle;
-        case GFXPrimitiveMode::TRIANGLE_STRIP: return MTLPrimitiveTypeTriangleStrip;
+        case PrimitiveMode::POINT_LIST: return MTLPrimitiveTypePoint;
+        case PrimitiveMode::LINE_LIST: return MTLPrimitiveTypeLine;
+        case PrimitiveMode::LINE_STRIP: return MTLPrimitiveTypeLineStrip;
+        case PrimitiveMode::TRIANGLE_LIST: return MTLPrimitiveTypeTriangle;
+        case PrimitiveMode::TRIANGLE_STRIP: return MTLPrimitiveTypeTriangleStrip;
 
-        case GFXPrimitiveMode::LINE_LOOP: {
-            CC_LOG_ERROR("Metal doesn't support GFXPrimitiveMode::LINE_LOOP. Translate to GFXPrimitiveMode::LINE_LIST.");
+        case PrimitiveMode::LINE_LOOP: {
+            CC_LOG_ERROR("Metal doesn't support PrimitiveMode::LINE_LOOP. Translate to PrimitiveMode::LINE_LIST.");
             return MTLPrimitiveTypeLine;
         }
         default: {
@@ -425,62 +425,62 @@ MTLPrimitiveType toMTLPrimitiveType(GFXPrimitiveMode mode) {
     }
 }
 
-MTLTextureUsage toMTLTextureUsage(GFXTextureUsage usage) {
-    if (usage == GFXTextureUsage::NONE)
+MTLTextureUsage toMTLTextureUsage(TextureUsage usage) {
+    if (usage == TextureUsage::NONE)
         return MTLTextureUsageUnknown;
 
     MTLTextureUsage ret = MTLTextureUsageUnknown;
-    if (usage & GFXTextureUsage::TRANSFER_SRC)
+    if (usage & TextureUsage::TRANSFER_SRC)
         ret |= MTLTextureUsageShaderRead;
-    if (usage & GFXTextureUsage::TRANSFER_DST)
+    if (usage & TextureUsage::TRANSFER_DST)
         ret |= MTLTextureUsageShaderWrite;
-    if (usage & GFXTextureUsage::SAMPLED)
+    if (usage & TextureUsage::SAMPLED)
         ret |= MTLTextureUsageShaderRead;
-    if (usage & GFXTextureUsage::STORAGE)
+    if (usage & TextureUsage::STORAGE)
         ret |= MTLTextureUsageShaderWrite;
-    if (usage & GFXTextureUsage::COLOR_ATTACHMENT ||
-        usage & GFXTextureUsage::DEPTH_STENCIL_ATTACHMENT ||
-        usage & GFXTextureUsage::TRANSIENT_ATTACHMENT ||
-        usage & GFXTextureUsage::INPUT_ATTACHMENT) {
+    if (usage & TextureUsage::COLOR_ATTACHMENT ||
+        usage & TextureUsage::DEPTH_STENCIL_ATTACHMENT ||
+        usage & TextureUsage::TRANSIENT_ATTACHMENT ||
+        usage & TextureUsage::INPUT_ATTACHMENT) {
         ret |= MTLTextureUsageRenderTarget;
     }
 
     return ret;
 }
 
-MTLTextureType toMTLTextureType(GFXTextureType type) {
+MTLTextureType toMTLTextureType(TextureType type) {
     switch (type) {
-        case GFXTextureType::TEX1D: return MTLTextureType1D;
-        case GFXTextureType::TEX2D: return MTLTextureType2D;
-        case GFXTextureType::TEX3D: return MTLTextureType3D;
-        case GFXTextureType::CUBE: return MTLTextureTypeCube;
-        case GFXTextureType::TEX1D_ARRAY: return MTLTextureType1DArray;
-        case GFXTextureType::TEX2D_ARRAY: return MTLTextureType2DArray;
+        case TextureType::TEX1D: return MTLTextureType1D;
+        case TextureType::TEX2D: return MTLTextureType2D;
+        case TextureType::TEX3D: return MTLTextureType3D;
+        case TextureType::CUBE: return MTLTextureTypeCube;
+        case TextureType::TEX1D_ARRAY: return MTLTextureType1DArray;
+        case TextureType::TEX2D_ARRAY: return MTLTextureType2DArray;
     }
 }
 
-NSUInteger toMTLSampleCount(GFXSampleCount count) {
+NSUInteger toMTLSampleCount(SampleCount count) {
     switch (count) {
-        case GFXSampleCount::X1: return 1;
-        case GFXSampleCount::X2: return 2;
-        case GFXSampleCount::X4: return 4;
-        case GFXSampleCount::X8: return 8;
-        case GFXSampleCount::X16: return 16;
-        case GFXSampleCount::X32: return 32;
-        case GFXSampleCount::X64: return 64;
+        case SampleCount::X1: return 1;
+        case SampleCount::X2: return 2;
+        case SampleCount::X4: return 4;
+        case SampleCount::X8: return 8;
+        case SampleCount::X16: return 16;
+        case SampleCount::X32: return 32;
+        case SampleCount::X64: return 64;
     }
 }
 
-MTLSamplerAddressMode toMTLSamplerAddressMode(GFXAddress mode) {
+MTLSamplerAddressMode toMTLSamplerAddressMode(Address mode) {
     switch (mode) {
-        case GFXAddress::WRAP: return MTLSamplerAddressModeRepeat;
-        case GFXAddress::MIRROR: return MTLSamplerAddressModeMirrorRepeat;
-        case GFXAddress::CLAMP: return MTLSamplerAddressModeClampToEdge;
-        case GFXAddress::BORDER: return MTLSamplerAddressModeClampToBorderColor;
+        case Address::WRAP: return MTLSamplerAddressModeRepeat;
+        case Address::MIRROR: return MTLSamplerAddressModeMirrorRepeat;
+        case Address::CLAMP: return MTLSamplerAddressModeClampToEdge;
+        case Address::BORDER: return MTLSamplerAddressModeClampToBorderColor;
     }
 }
 
-MTLSamplerBorderColor toMTLSamplerBorderColor(const GFXColor &color) {
+MTLSamplerBorderColor toMTLSamplerBorderColor(const Color &color) {
     float diff = color.r - 0.5f;
     if (math::IsEqualF(color.a, 0.f))
         return MTLSamplerBorderColorTransparentBlack;
@@ -490,28 +490,28 @@ MTLSamplerBorderColor toMTLSamplerBorderColor(const GFXColor &color) {
         return MTLSamplerBorderColorOpaqueWhite;
 }
 
-MTLSamplerMinMagFilter toMTLSamplerMinMagFilter(GFXFilter filter) {
+MTLSamplerMinMagFilter toMTLSamplerMinMagFilter(Filter filter) {
     switch (filter) {
-        case GFXFilter::LINEAR:
-        case GFXFilter::ANISOTROPIC:
+        case Filter::LINEAR:
+        case Filter::ANISOTROPIC:
             return MTLSamplerMinMagFilterLinear;
         default:
             return MTLSamplerMinMagFilterNearest;
     }
 }
 
-MTLSamplerMipFilter toMTLSamplerMipFilter(GFXFilter filter) {
+MTLSamplerMipFilter toMTLSamplerMipFilter(Filter filter) {
     switch (filter) {
-        case GFXFilter::NONE: return MTLSamplerMipFilterNotMipmapped;
-        case GFXFilter::LINEAR:
-        case GFXFilter::ANISOTROPIC:
+        case Filter::NONE: return MTLSamplerMipFilterNotMipmapped;
+        case Filter::LINEAR:
+        case Filter::ANISOTROPIC:
             return MTLSamplerMipFilterLinear;
-        case GFXFilter::POINT: return MTLSamplerMipFilterNearest;
+        case Filter::POINT: return MTLSamplerMipFilterNearest;
     }
 }
 
 String compileGLSLShader2Msl(const String &src,
-                             GFXShaderType shaderType,
+                             ShaderType shaderType,
                              int maxSamplerUnits,
                              std::unordered_map<uint, uint> &samplerBindings) {
 #if USE_METAL
@@ -1097,10 +1097,10 @@ bool isIndirectCommandBufferSupported(MTLFeatureSet featureSet) {
 #endif
     return false;
 }
-bool isDepthStencilFormatSupported(GFXFormat format, uint family) {
+bool isDepthStencilFormatSupported(Format format, uint family) {
     GPUFamily gpuFamily = static_cast<GPUFamily>(family);
     switch (format) {
-        case GFXFormat::D16:
+        case Format::D16:
             switch (gpuFamily) {
                 case GPUFamily::Apple1:
                 case GPUFamily::Apple2:
@@ -1114,8 +1114,8 @@ bool isDepthStencilFormatSupported(GFXFormat format, uint family) {
                 default:
                     return false;
             }
-        case GFXFormat::D32F:
-        case GFXFormat::D32F_S8:
+        case Format::D32F:
+        case Format::D32F_S8:
             switch (gpuFamily) {
                 case GPUFamily::Apple1:
                 case GPUFamily::Apple2:

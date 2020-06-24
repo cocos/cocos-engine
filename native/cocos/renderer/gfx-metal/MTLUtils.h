@@ -12,34 +12,34 @@ namespace cc {
 namespace gfx {
 
 namespace mu {
-MTLResourceOptions toMTLResourseOption(GFXMemoryUsage usage);
-MTLLoadAction toMTLLoadAction(GFXLoadOp op);
-MTLStoreAction toMTLStoreAction(GFXStoreOp op);
-MTLClearColor toMTLClearColor(const GFXColor &clearColor);
-MTLVertexFormat toMTLVertexFormat(GFXFormat, bool);
-MTLPixelFormat toMTLPixelFormat(GFXFormat);
+MTLResourceOptions toMTLResourseOption(MemoryUsage usage);
+MTLLoadAction toMTLLoadAction(LoadOp op);
+MTLStoreAction toMTLStoreAction(StoreOp op);
+MTLClearColor toMTLClearColor(const Color &clearColor);
+MTLVertexFormat toMTLVertexFormat(Format, bool);
+MTLPixelFormat toMTLPixelFormat(Format);
 // Because some pixel format is not supported on metal, so need to convert to supported pixel format.
-GFXFormat convertGFXPixelFormat(GFXFormat);
-MTLColorWriteMask toMTLColorWriteMask(GFXColorMask);
-MTLBlendFactor toMTLBlendFactor(GFXBlendFactor);
-MTLBlendOperation toMTLBlendOperation(GFXBlendOp);
-MTLCullMode toMTLCullMode(GFXCullMode);
+Format convertGFXPixelFormat(Format);
+MTLColorWriteMask toMTLColorWriteMask(ColorMask);
+MTLBlendFactor toMTLBlendFactor(BlendFactor);
+MTLBlendOperation toMTLBlendOperation(BlendOp);
+MTLCullMode toMTLCullMode(CullMode);
 MTLWinding toMTLWinding(bool isFrontFaceCCW);
-MTLViewport toMTLViewport(const GFXViewport &);
-MTLScissorRect toMTLScissorRect(const GFXRect &);
-MTLTriangleFillMode toMTLTriangleFillMode(GFXPolygonMode);
+MTLViewport toMTLViewport(const Viewport &);
+MTLScissorRect toMTLScissorRect(const Rect &);
+MTLTriangleFillMode toMTLTriangleFillMode(PolygonMode);
 MTLDepthClipMode toMTLDepthClipMode(bool isClip);
-MTLCompareFunction toMTLCompareFunction(GFXComparisonFunc);
-MTLStencilOperation toMTLStencilOperation(GFXStencilOp);
-MTLPrimitiveType toMTLPrimitiveType(GFXPrimitiveMode);
-MTLTextureUsage toMTLTextureUsage(GFXTextureUsage);
-MTLTextureType toMTLTextureType(GFXTextureType type);
-NSUInteger toMTLSampleCount(GFXSampleCount);
-MTLSamplerAddressMode toMTLSamplerAddressMode(GFXAddress);
-MTLSamplerBorderColor toMTLSamplerBorderColor(const GFXColor &);
-MTLSamplerMinMagFilter toMTLSamplerMinMagFilter(GFXFilter);
-MTLSamplerMipFilter toMTLSamplerMipFilter(GFXFilter);
-String compileGLSLShader2Msl(const String &src, GFXShaderType shaderType, int maxSamplerUnits, std::unordered_map<uint, uint> &samplerBindings);
+MTLCompareFunction toMTLCompareFunction(ComparisonFunc);
+MTLStencilOperation toMTLStencilOperation(StencilOp);
+MTLPrimitiveType toMTLPrimitiveType(PrimitiveMode);
+MTLTextureUsage toMTLTextureUsage(TextureUsage);
+MTLTextureType toMTLTextureType(TextureType type);
+NSUInteger toMTLSampleCount(SampleCount);
+MTLSamplerAddressMode toMTLSamplerAddressMode(Address);
+MTLSamplerBorderColor toMTLSamplerBorderColor(const Color &);
+MTLSamplerMinMagFilter toMTLSamplerMinMagFilter(Filter);
+MTLSamplerMipFilter toMTLSamplerMipFilter(Filter);
+String compileGLSLShader2Msl(const String &src, ShaderType shaderType, int maxSamplerUnits, std::unordered_map<uint, uint> &samplerBindings);
 uint8_t *convertRGB8ToRGBA8(uint8_t *source, uint length);
 uint8_t *convertRGB32FToRGBA32F(uint8_t *source, uint length);
 NSUInteger highestSupportedFeatureSet(id<MTLDevice> device);
@@ -59,7 +59,7 @@ bool isColorBufferFloatSupported(uint family);
 bool isColorBufferHalfFloatSupported(uint family);
 bool isLinearTextureSupported(uint family);
 bool isIndirectCommandBufferSupported(MTLFeatureSet featureSet);
-bool isDepthStencilFormatSupported(GFXFormat format, uint family);
+bool isDepthStencilFormatSupported(Format format, uint family);
 String featureSetToString(MTLFeatureSet featureSet);
 
 } // namespace mu

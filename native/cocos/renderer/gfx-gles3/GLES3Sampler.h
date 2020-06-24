@@ -6,13 +6,13 @@ namespace gfx {
 
 class GLES3GPUSampler;
 
-class CC_GLES3_API GLES3Sampler : public GFXSampler {
+class CC_GLES3_API GLES3Sampler : public Sampler {
 public:
-    GLES3Sampler(GFXDevice *device);
+    GLES3Sampler(Device *device);
     ~GLES3Sampler();
 
 public:
-    virtual bool initialize(const GFXSamplerInfo &info) override;
+    virtual bool initialize(const SamplerInfo &info) override;
     virtual void destroy() override;
 
     CC_INLINE GLES3GPUSampler *gpuSampler() const { return _gpuSampler; }

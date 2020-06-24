@@ -6,13 +6,13 @@ namespace gfx {
 
 class CCVKGPUBuffer;
 
-class CC_VULKAN_API CCVKBuffer : public GFXBuffer {
+class CC_VULKAN_API CCVKBuffer : public Buffer {
 public:
-    CCVKBuffer(GFXDevice *device);
+    CCVKBuffer(Device *device);
     ~CCVKBuffer();
 
 public:
-    bool initialize(const GFXBufferInfo &info);
+    bool initialize(const BufferInfo &info);
     void destroy();
     void resize(uint size);
     void update(void *buffer, uint offset, uint size);

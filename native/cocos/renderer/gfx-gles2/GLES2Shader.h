@@ -6,13 +6,13 @@ namespace gfx {
 
 class GLES2GPUShader;
 
-class CC_GLES2_API GLES2Shader : public GFXShader {
+class CC_GLES2_API GLES2Shader : public Shader {
 public:
-    GLES2Shader(GFXDevice *device);
+    GLES2Shader(Device *device);
     ~GLES2Shader();
 
 public:
-    virtual bool initialize(const GFXShaderInfo &info) override;
+    virtual bool initialize(const ShaderInfo &info) override;
     virtual void destroy() override;
 
     CC_INLINE GLES2GPUShader *gpuShader() const { return _gpuShader; }

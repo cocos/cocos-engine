@@ -6,13 +6,13 @@ namespace gfx {
 
 class CCVKGPUSampler;
 
-class CC_VULKAN_API CCVKSampler : public GFXSampler {
+class CC_VULKAN_API CCVKSampler : public Sampler {
 public:
-    CCVKSampler(GFXDevice *device);
+    CCVKSampler(Device *device);
     ~CCVKSampler();
 
 public:
-    bool initialize(const GFXSamplerInfo &info);
+    bool initialize(const SamplerInfo &info);
     void destroy();
 
     CC_INLINE CCVKGPUSampler *gpuSampler() const { return _gpuSampler; }

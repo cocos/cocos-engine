@@ -6,19 +6,19 @@
 namespace cc {
 namespace gfx {
 
-class CC_DLL GFXFence : public GFXObject {
+class CC_DLL Fence : public GFXObject {
 public:
-    GFXFence(GFXDevice *device);
-    virtual ~GFXFence();
+    Fence(Device *device);
+    virtual ~Fence();
 
 public:
-    virtual bool initialize(const GFXFenceInfo &info) = 0;
+    virtual bool initialize(const FenceInfo &info) = 0;
     virtual void destroy() = 0;
     virtual void wait() = 0;
     virtual void reset() = 0;
 
 protected:
-    GFXDevice *_device = nullptr;
+    Device *_device = nullptr;
 };
 
 } // namespace gfx

@@ -181,47 +181,47 @@ namespace
 
 
     // v2
-    typedef const std::map<PVR2TexturePixelFormat, gfx::GFXFormat> _pixel2_formathash;
+    typedef const std::map<PVR2TexturePixelFormat, gfx::Format> _pixel2_formathash;
 
     static const _pixel2_formathash::value_type v2_pixel_formathash_value[] =
     {
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::BGRA8888,        gfx::GFXFormat::BGRA8),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA8888,        gfx::GFXFormat::RGBA8),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA4444,        gfx::GFXFormat::RGBA4),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA5551,        gfx::GFXFormat::RGB5A1),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGB565,      gfx::GFXFormat::R5G6B5),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGB888,      gfx::GFXFormat::RGB8),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::A8,          gfx::GFXFormat::A8),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::I8,          gfx::GFXFormat::L8),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::AI88,            gfx::GFXFormat::LA8),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::BGRA8888,        gfx::Format::BGRA8),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA8888,        gfx::Format::RGBA8),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA4444,        gfx::Format::RGBA4),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA5551,        gfx::Format::RGB5A1),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGB565,      gfx::Format::R5G6B5),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGB888,      gfx::Format::RGB8),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::A8,          gfx::Format::A8),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::I8,          gfx::Format::L8),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::AI88,            gfx::Format::LA8),
 
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::PVRTC2BPP_RGBA,     gfx::GFXFormat::PVRTC_RGBA2),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::PVRTC4BPP_RGBA,      gfx::GFXFormat::PVRTC_RGBA4),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::PVRTC2BPP_RGBA,     gfx::Format::PVRTC_RGBA2),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::PVRTC4BPP_RGBA,      gfx::Format::PVRTC_RGBA4),
     };
 
     static const int PVR2_MAX_TABLE_ELEMENTS = sizeof(v2_pixel_formathash_value) / sizeof(v2_pixel_formathash_value[0]);
     static const _pixel2_formathash v2_pixel_formathash(v2_pixel_formathash_value, v2_pixel_formathash_value + PVR2_MAX_TABLE_ELEMENTS);
 
     // v3
-    typedef const std::map<PVR3TexturePixelFormat, gfx::GFXFormat> _pixel3_formathash;
+    typedef const std::map<PVR3TexturePixelFormat, gfx::Format> _pixel3_formathash;
     static _pixel3_formathash::value_type v3_pixel_formathash_value[] =
     {
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::BGRA8888,    gfx::GFXFormat::BGRA8),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA8888,    gfx::GFXFormat::RGBA8),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA4444,    gfx::GFXFormat::RGBA4),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA5551,    gfx::GFXFormat::RGB5A1),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGB565,      gfx::GFXFormat::R5G6B5),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGB888,      gfx::GFXFormat::RGB8),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::A8,          gfx::GFXFormat::A8),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::L8,          gfx::GFXFormat::L8),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::LA88,        gfx::GFXFormat::LA8),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::BGRA8888,    gfx::Format::BGRA8),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA8888,    gfx::Format::RGBA8),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA4444,    gfx::Format::RGBA4),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA5551,    gfx::Format::RGB5A1),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGB565,      gfx::Format::R5G6B5),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGB888,      gfx::Format::RGB8),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::A8,          gfx::Format::A8),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::L8,          gfx::Format::L8),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::LA88,        gfx::Format::LA8),
 
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC2BPP_RGB,       gfx::GFXFormat::PVRTC_RGB2),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC2BPP_RGBA,      gfx::GFXFormat::PVRTC_RGBA2),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC4BPP_RGB,       gfx::GFXFormat::PVRTC_RGB4),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC4BPP_RGBA,      gfx::GFXFormat::PVRTC_RGBA4),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC2BPP_RGB,       gfx::Format::PVRTC_RGB2),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC2BPP_RGBA,      gfx::Format::PVRTC_RGBA2),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC4BPP_RGB,       gfx::Format::PVRTC_RGB4),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC4BPP_RGBA,      gfx::Format::PVRTC_RGBA4),
 
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::ETC1,        gfx::GFXFormat::ETC_RGB8),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::ETC1,        gfx::Format::ETC_RGB8),
     };
 
     static const int PVR3_MAX_TABLE_ELEMENTS = sizeof(v3_pixel_formathash_value) / sizeof(v3_pixel_formathash_value[0]);
@@ -303,7 +303,7 @@ namespace
 //////////////////////////////////////////////////////////////////////////
 bool Image::PNG_PREMULTIPLIED_ALPHA_ENABLED = false;
 
-Image::Image(): _renderFormat(gfx::GFXFormat::UNKNOWN)
+Image::Image(): _renderFormat(gfx::Format::UNKNOWN)
 {
 }
 
@@ -597,10 +597,10 @@ bool Image::initWithJpgData(const unsigned char * data, ssize_t dataLen)
 
         // we only support RGB or grayscale
         if (cinfo.jpeg_color_space == JCS_GRAYSCALE)
-            _renderFormat = gfx::GFXFormat::L8;
+            _renderFormat = gfx::Format::L8;
         else {
             cinfo.out_color_space = JCS_RGB;
-            _renderFormat = gfx::GFXFormat::RGB8;
+            _renderFormat = gfx::Format::RGB8;
         }
 
         /* Start decompression jpeg here */
@@ -723,16 +723,16 @@ bool Image::initWithPngData(const unsigned char * data, ssize_t dataLen)
         switch (color_type)
         {
             case PNG_COLOR_TYPE_GRAY:
-                _renderFormat = gfx::GFXFormat::L8;
+                _renderFormat = gfx::Format::L8;
                 break;
             case PNG_COLOR_TYPE_GRAY_ALPHA:
-                _renderFormat = gfx::GFXFormat::LA8;
+                _renderFormat = gfx::Format::LA8;
                 break;
             case PNG_COLOR_TYPE_RGB:
-                _renderFormat = gfx::GFXFormat::RGB8;
+                _renderFormat = gfx::Format::RGB8;
                 break;
             case PNG_COLOR_TYPE_RGB_ALPHA:
-                _renderFormat = gfx::GFXFormat::RGBA8;
+                _renderFormat = gfx::Format::RGBA8;
                 break;
             default:
                 break;
@@ -1037,7 +1037,7 @@ bool Image::initWithETCData(const unsigned char * data, ssize_t dataLen)
         return false;
     }
 
-    _renderFormat = gfx::GFXFormat::ETC_RGB8;
+    _renderFormat = gfx::Format::ETC_RGB8;
     _dataLen = dataLen - ETC_PKM_HEADER_SIZE;
     _data = static_cast<unsigned char*>(malloc(_dataLen * sizeof(unsigned char)));
     memcpy(_data, static_cast<const unsigned char*>(data) + ETC_PKM_HEADER_SIZE, _dataLen);
@@ -1064,9 +1064,9 @@ bool Image::initWithETC2Data(const unsigned char * data, ssize_t dataLen)
         
     etc2_uint32 format = etc2_pkm_get_format(header);
     if (format == ETC2_RGB_NO_MIPMAPS)
-        _renderFormat = gfx::GFXFormat::ETC2_RGB8;
+        _renderFormat = gfx::Format::ETC2_RGB8;
     else
-        _renderFormat = gfx::GFXFormat::ETC2_RGBA8;
+        _renderFormat = gfx::Format::ETC2_RGBA8;
     
     _dataLen = dataLen - ETC2_PKM_HEADER_SIZE;
     _data = static_cast<unsigned char*>(malloc(_dataLen * sizeof(unsigned char)));
@@ -1093,7 +1093,7 @@ bool Image::initWithWebpData(const unsigned char * data, ssize_t dataLen)
         if (config.input.width == 0 || config.input.height == 0) break;
         
         config.output.colorspace = config.input.has_alpha?MODE_rgbA:MODE_RGB;
-        _renderFormat = config.input.has_alpha ? gfx::GFXFormat::RGBA8 : gfx::GFXFormat::RGB8;
+        _renderFormat = config.input.has_alpha ? gfx::Format::RGBA8 : gfx::Format::RGB8;
         _width    = config.input.width;
         _height   = config.input.height;
         
@@ -1131,7 +1131,7 @@ bool Image::initWithRawData(const unsigned char * data, ssize_t dataLen, int wid
         _height   = height;
         _width    = width;
         _hasPremultipliedAlpha = preMulti;
-        _renderFormat = gfx::GFXFormat::RGBA8;
+        _renderFormat = gfx::Format::RGBA8;
 
         // only RGBA8888 supported
         int bytesPerComponent = 4;
@@ -1151,7 +1151,7 @@ bool Image::initWithRawData(const unsigned char * data, ssize_t dataLen, int wid
 bool Image::saveToFile(const std::string& filename, bool isToRGB)
 {
     //only support for Image::PixelFormat::RGB888 or Image::PixelFormat::RGBA8888 uncompressed data
-    if (isCompressed() || (_renderFormat != gfx::GFXFormat::RGB8 && _renderFormat != gfx::GFXFormat::RGBA8))
+    if (isCompressed() || (_renderFormat != gfx::Format::RGB8 && _renderFormat != gfx::Format::RGBA8))
     {
         CC_LOG_DEBUG("saveToFile: Image: saveToFile is only support for Image::PixelFormat::RGB888 or Image::PixelFormat::RGBA8888 uncompressed data for now");
         return false;
@@ -1405,7 +1405,7 @@ bool Image::saveImageToJPG(const std::string& filePath)
 
 void Image::premultipliedAlpha()
 {
-    if (PNG_PREMULTIPLIED_ALPHA_ENABLED && _renderFormat == gfx::GFXFormat::RGBA8)
+    if (PNG_PREMULTIPLIED_ALPHA_ENABLED && _renderFormat == gfx::Format::RGBA8)
     {
         unsigned int* fourBytes = (unsigned int*)_data;
         for(int i = 0; i < _width * _height; i++)

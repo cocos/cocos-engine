@@ -9,7 +9,7 @@
 namespace cc {
 namespace gfx {
 
-bool GLES3Context::initialize(const GFXContextInfo &info)
+bool GLES3Context::initialize(const ContextInfo &info)
 {
   
     _vsyncMode = info.vsyncMode;
@@ -55,8 +55,8 @@ bool GLES3Context::initialize(const GFXContextInfo &info)
           return false;
         }
     }
-    _colorFmt = GFXFormat::RGBA8;
-    _depthStencilFmt = GFXFormat::D24S8;
+    _colorFmt = Format::RGBA8;
+    _depthStencilFmt = Format::D24S8;
 
     if (!MakeCurrent())
         return false;
@@ -176,7 +176,7 @@ void GLES3Context::destroy()
 
     _isPrimaryContex = false;
     _windowHandle = 0;
-    _vsyncMode = GFXVsyncMode::OFF;
+    _vsyncMode = VsyncMode::OFF;
     _isInitialized = false;
 }
 

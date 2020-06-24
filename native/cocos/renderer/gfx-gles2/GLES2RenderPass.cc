@@ -5,14 +5,14 @@
 namespace cc {
 namespace gfx {
 
-GLES2RenderPass::GLES2RenderPass(GFXDevice *device)
-: GFXRenderPass(device) {
+GLES2RenderPass::GLES2RenderPass(Device *device)
+: RenderPass(device) {
 }
 
 GLES2RenderPass::~GLES2RenderPass() {
 }
 
-bool GLES2RenderPass::initialize(const GFXRenderPassInfo &info) {
+bool GLES2RenderPass::initialize(const RenderPassInfo &info) {
 
     _colorAttachments = info.colorAttachments;
     _depthStencilAttachment = info.depthStencilAttachment;
@@ -22,7 +22,7 @@ bool GLES2RenderPass::initialize(const GFXRenderPassInfo &info) {
     _gpuRenderPass->depthStencilAttachment = _depthStencilAttachment;
 
     _hash = computeHash();
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return true;
 }
@@ -33,7 +33,7 @@ void GLES2RenderPass::destroy() {
         _gpuRenderPass = nullptr;
     }
 
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 } // namespace gfx

@@ -8,10 +8,10 @@
 namespace cc {
 namespace gfx {
 
-CCMTLInputAssembler::CCMTLInputAssembler(GFXDevice *device) : GFXInputAssembler(device) {}
+CCMTLInputAssembler::CCMTLInputAssembler(Device *device) : InputAssembler(device) {}
 CCMTLInputAssembler::~CCMTLInputAssembler() { destroy(); }
 
-bool CCMTLInputAssembler::initialize(const GFXInputAssemblerInfo &info) {
+bool CCMTLInputAssembler::initialize(const InputAssemblerInfo &info) {
     _attributes = info.attributes;
     _vertexBuffers = info.vertexBuffers;
     _indexBuffer = info.indexBuffer;
@@ -35,14 +35,14 @@ bool CCMTLInputAssembler::initialize(const GFXInputAssemblerInfo &info) {
         _GPUInputAssembler->mtlVertexBufers.push_back(static_cast<CCMTLBuffer *>(vertexBuffer)->getMTLBuffer());
 
     _attributesHash = computeAttributesHash();
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return true;
 }
 
 void CCMTLInputAssembler::destroy() {
     CC_SAFE_DELETE(_GPUInputAssembler);
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 void CCMTLInputAssembler::extractDrawInfo(CCMTLCmdDraw *cmd) const {

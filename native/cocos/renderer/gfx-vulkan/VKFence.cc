@@ -7,14 +7,14 @@
 namespace cc {
 namespace gfx {
 
-CCVKFence::CCVKFence(GFXDevice *device)
-: GFXFence(device) {
+CCVKFence::CCVKFence(Device *device)
+: Fence(device) {
 }
 
 CCVKFence::~CCVKFence() {
 }
 
-bool CCVKFence::initialize(const GFXFenceInfo &info) {
+bool CCVKFence::initialize(const FenceInfo &info) {
     _gpuFence = CC_NEW(CCVKGPUFence);
     if (!_gpuFence) {
         CC_LOG_ERROR("GLES2Fence: CC_NEW CCVKGPUFence failed.");
@@ -24,7 +24,7 @@ bool CCVKFence::initialize(const GFXFenceInfo &info) {
     VkFenceCreateInfo createInfo{VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
     VK_CHECK(vkCreateFence(((CCVKDevice *)_device)->gpuDevice()->vkDevice, &createInfo, nullptr, &_gpuFence->vkFence));
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
     return true;
 }
 
@@ -35,7 +35,7 @@ void CCVKFence::destroy() {
         CC_DELETE(_gpuFence);
         _gpuFence = nullptr;
     }
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 void CCVKFence::wait() {

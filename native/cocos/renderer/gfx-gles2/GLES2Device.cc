@@ -27,8 +27,8 @@ GLES2Device::GLES2Device() {
 GLES2Device::~GLES2Device() {
 }
 
-bool GLES2Device::initialize(const GFXDeviceInfo &info) {
-    _gfxAPI = GFXAPI::GLES2;
+bool GLES2Device::initialize(const DeviceInfo &info) {
+    _API = API::GLES2;
     _deviceName = "GLES2";
     _width = info.width;
     _height = info.height;
@@ -38,7 +38,7 @@ bool GLES2Device::initialize(const GFXDeviceInfo &info) {
 
     stateCache = CC_NEW(GLES2StateCache);
 
-    GFXContextInfo ctx_info;
+    ContextInfo ctx_info;
     ctx_info.windowHandle = _windowHandle;
     ctx_info.sharedCtx = info.sharedCtx;
 
@@ -51,58 +51,58 @@ bool GLES2Device::initialize(const GFXDeviceInfo &info) {
     String extStr = (const char *)glGetString(GL_EXTENSIONS);
     _extensions = StringUtil::Split(extStr, " ");
 
-    _features[(int)GFXFeature::TEXTURE_FLOAT] = true;
-    _features[(int)GFXFeature::TEXTURE_HALF_FLOAT] = true;
-    _features[(int)GFXFeature::FORMAT_R11G11B10F] = true;
-    _features[(int)GFXFeature::FORMAT_D24S8] = true;
-    _features[(int)GFXFeature::MSAA] = true;
+    _features[(int)Feature::TEXTURE_FLOAT] = true;
+    _features[(int)Feature::TEXTURE_HALF_FLOAT] = true;
+    _features[(int)Feature::FORMAT_R11G11B10F] = true;
+    _features[(int)Feature::FORMAT_D24S8] = true;
+    _features[(int)Feature::MSAA] = true;
 
     if (checkExtension("color_buffer_float"))
-        _features[(int)GFXFeature::COLOR_FLOAT] = true;
+        _features[(int)Feature::COLOR_FLOAT] = true;
 
     if (checkExtension("color_buffer_half_float"))
-        _features[(int)GFXFeature::COLOR_HALF_FLOAT] = true;
+        _features[(int)Feature::COLOR_HALF_FLOAT] = true;
 
     if (checkExtension("texture_float_linear"))
-        _features[(int)GFXFeature::TEXTURE_FLOAT_LINEAR] = true;
+        _features[(int)Feature::TEXTURE_FLOAT_LINEAR] = true;
 
     if (checkExtension("texture_half_float_linear"))
-        _features[(int)GFXFeature::TEXTURE_HALF_FLOAT_LINEAR] = true;
+        _features[(int)Feature::TEXTURE_HALF_FLOAT_LINEAR] = true;
 
     _useVAO = checkExtension("vertex_array_object");
     _useDrawInstanced = checkExtension("draw_instanced");
-    _useInstancedArrays = _features[(int)GFXFeature::INSTANCED_ARRAYS] = checkExtension("instanced_arrays");
+    _useInstancedArrays = _features[(int)Feature::INSTANCED_ARRAYS] = checkExtension("instanced_arrays");
     _useDiscardFramebuffer = checkExtension("discard_framebuffer");
 
     String compressed_fmts;
 
     if (checkExtension("compressed_ETC1")) {
-        _features[(int)GFXFeature::FORMAT_ETC1] = true;
+        _features[(int)Feature::FORMAT_ETC1] = true;
         compressed_fmts += "etc1 ";
     }
 
-    _features[(int)GFXFeature::FORMAT_ETC2] = true;
+    _features[(int)Feature::FORMAT_ETC2] = true;
     compressed_fmts += "etc2 ";
 
     if (checkExtension("texture_compression_pvrtc")) {
-        _features[(int)GFXFeature::FORMAT_PVRTC] = true;
+        _features[(int)Feature::FORMAT_PVRTC] = true;
         compressed_fmts += "pvrtc ";
     }
 
     if (checkExtension("texture_compression_astc")) {
-        _features[(int)GFXFeature::FORMAT_ASTC] = true;
+        _features[(int)Feature::FORMAT_ASTC] = true;
         compressed_fmts += "astc ";
     }
-    _features[static_cast<uint>(GFXFeature::DEPTH_BOUNDS)] = true;
-    _features[static_cast<uint>(GFXFeature::LINE_WIDTH)] = true;
-    _features[static_cast<uint>(GFXFeature::STENCIL_COMPARE_MASK)] = true;
-    _features[static_cast<uint>(GFXFeature::STENCIL_WRITE_MASK)] = true;
-    _features[static_cast<uint>(GFXFeature::FORMAT_RGB8)] = true;
+    _features[static_cast<uint>(Feature::DEPTH_BOUNDS)] = true;
+    _features[static_cast<uint>(Feature::LINE_WIDTH)] = true;
+    _features[static_cast<uint>(Feature::STENCIL_COMPARE_MASK)] = true;
+    _features[static_cast<uint>(Feature::STENCIL_WRITE_MASK)] = true;
+    _features[static_cast<uint>(Feature::FORMAT_RGB8)] = true;
 
     if (checkExtension("depth_texture")) {
-        _features[static_cast<uint>(GFXFeature::FORMAT_D16)] = true;
-        _features[static_cast<uint>(GFXFeature::FORMAT_D24)] = true;
-        _features[static_cast<uint>(GFXFeature::FORMAT_D24S8)] = checkExtension("packed_depth_stencil");
+        _features[static_cast<uint>(Feature::FORMAT_D16)] = true;
+        _features[static_cast<uint>(Feature::FORMAT_D24)] = true;
+        _features[static_cast<uint>(Feature::FORMAT_D24S8)] = checkExtension("packed_depth_stencil");
     }
 
     _renderer = (const char *)glGetString(GL_RENDERER);
@@ -118,11 +118,11 @@ bool GLES2Device::initialize(const GFXDeviceInfo &info) {
     CC_LOG_INFO("USE_VAO: %s", _useVAO ? "true" : "false");
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressed_fmts.c_str());
 
-    GFXQueueInfo queue_info;
-    queue_info.type = GFXQueueType::GRAPHICS;
+    QueueInfo queue_info;
+    queue_info.type = QueueType::GRAPHICS;
     _queue = createQueue(queue_info);
 
-    GFXCommandAllocatorInfo cmd_alloc_info;
+    CommandAllocatorInfo cmd_alloc_info;
     _cmdAllocator = createCommandAllocator(cmd_alloc_info);
 
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)&_maxVertexAttributes);
@@ -165,8 +165,8 @@ void GLES2Device::present() {
     queue->_numTriangles = 0;
 }
 
-GFXFence *GLES2Device::createFence(const GFXFenceInfo &info) {
-    GFXFence *fence = CC_NEW(GLES2Fence(this));
+Fence *GLES2Device::createFence(const FenceInfo &info) {
+    Fence *fence = CC_NEW(GLES2Fence(this));
     if (fence->initialize(info))
         return fence;
 
@@ -174,8 +174,8 @@ GFXFence *GLES2Device::createFence(const GFXFenceInfo &info) {
     return nullptr;
 }
 
-GFXQueue *GLES2Device::createQueue(const GFXQueueInfo &info) {
-    GFXQueue *queue = CC_NEW(GLES2Queue(this));
+Queue *GLES2Device::createQueue(const QueueInfo &info) {
+    Queue *queue = CC_NEW(GLES2Queue(this));
     if (queue->initialize(info))
         return queue;
 
@@ -183,8 +183,8 @@ GFXQueue *GLES2Device::createQueue(const GFXQueueInfo &info) {
     return nullptr;
 }
 
-GFXCommandAllocator *GLES2Device::createCommandAllocator(const GFXCommandAllocatorInfo &info) {
-    GFXCommandAllocator *cmdAllocator = CC_NEW(GLES2CommandAllocator(this));
+CommandAllocator *GLES2Device::createCommandAllocator(const CommandAllocatorInfo &info) {
+    CommandAllocator *cmdAllocator = CC_NEW(GLES2CommandAllocator(this));
     if (cmdAllocator->initialize(info))
         return cmdAllocator;
 
@@ -193,8 +193,8 @@ GFXCommandAllocator *GLES2Device::createCommandAllocator(const GFXCommandAllocat
     return nullptr;
 }
 
-GFXCommandBuffer *GLES2Device::createCommandBuffer(const GFXCommandBufferInfo &info) {
-    GFXCommandBuffer *cmdBuff = CC_NEW(GLES2CommandBuffer(this));
+CommandBuffer *GLES2Device::createCommandBuffer(const CommandBufferInfo &info) {
+    CommandBuffer *cmdBuff = CC_NEW(GLES2CommandBuffer(this));
     if (cmdBuff->initialize(info))
         return cmdBuff;
 
@@ -202,8 +202,8 @@ GFXCommandBuffer *GLES2Device::createCommandBuffer(const GFXCommandBufferInfo &i
     return nullptr;
 }
 
-GFXBuffer *GLES2Device::createBuffer(const GFXBufferInfo &info) {
-    GFXBuffer *buffer = CC_NEW(GLES2Buffer(this));
+Buffer *GLES2Device::createBuffer(const BufferInfo &info) {
+    Buffer *buffer = CC_NEW(GLES2Buffer(this));
     if (buffer->initialize(info))
         return buffer;
 
@@ -211,8 +211,8 @@ GFXBuffer *GLES2Device::createBuffer(const GFXBufferInfo &info) {
     return nullptr;
 }
 
-GFXTexture *GLES2Device::createTexture(const GFXTextureInfo &info) {
-    GFXTexture *texture = CC_NEW(GLES2Texture(this));
+Texture *GLES2Device::createTexture(const TextureInfo &info) {
+    Texture *texture = CC_NEW(GLES2Texture(this));
     if (texture->initialize(info))
         return texture;
 
@@ -220,8 +220,8 @@ GFXTexture *GLES2Device::createTexture(const GFXTextureInfo &info) {
     return nullptr;
 }
 
-GFXTexture *GLES2Device::createTexture(const GFXTextureViewInfo &info) {
-    GFXTexture *texture = CC_NEW(GLES2Texture(this));
+Texture *GLES2Device::createTexture(const TextureViewInfo &info) {
+    Texture *texture = CC_NEW(GLES2Texture(this));
     if (texture->initialize(info))
         return texture;
 
@@ -229,8 +229,8 @@ GFXTexture *GLES2Device::createTexture(const GFXTextureViewInfo &info) {
     return nullptr;
 }
 
-GFXSampler *GLES2Device::createSampler(const GFXSamplerInfo &info) {
-    GFXSampler *sampler = CC_NEW(GLES2Sampler(this));
+Sampler *GLES2Device::createSampler(const SamplerInfo &info) {
+    Sampler *sampler = CC_NEW(GLES2Sampler(this));
     if (sampler->initialize(info))
         return sampler;
 
@@ -238,8 +238,8 @@ GFXSampler *GLES2Device::createSampler(const GFXSamplerInfo &info) {
     return nullptr;
 }
 
-GFXShader *GLES2Device::createShader(const GFXShaderInfo &info) {
-    GFXShader *shader = CC_NEW(GLES2Shader(this));
+Shader *GLES2Device::createShader(const ShaderInfo &info) {
+    Shader *shader = CC_NEW(GLES2Shader(this));
     if (shader->initialize(info))
         return shader;
 
@@ -247,8 +247,8 @@ GFXShader *GLES2Device::createShader(const GFXShaderInfo &info) {
     return nullptr;
 }
 
-GFXInputAssembler *GLES2Device::createInputAssembler(const GFXInputAssemblerInfo &info) {
-    GFXInputAssembler *inputAssembler = CC_NEW(GLES2InputAssembler(this));
+InputAssembler *GLES2Device::createInputAssembler(const InputAssemblerInfo &info) {
+    InputAssembler *inputAssembler = CC_NEW(GLES2InputAssembler(this));
     if (inputAssembler->initialize(info))
         return inputAssembler;
 
@@ -256,8 +256,8 @@ GFXInputAssembler *GLES2Device::createInputAssembler(const GFXInputAssemblerInfo
     return nullptr;
 }
 
-GFXRenderPass *GLES2Device::createRenderPass(const GFXRenderPassInfo &info) {
-    GFXRenderPass *renderPass = CC_NEW(GLES2RenderPass(this));
+RenderPass *GLES2Device::createRenderPass(const RenderPassInfo &info) {
+    RenderPass *renderPass = CC_NEW(GLES2RenderPass(this));
     if (renderPass->initialize(info))
         return renderPass;
 
@@ -265,8 +265,8 @@ GFXRenderPass *GLES2Device::createRenderPass(const GFXRenderPassInfo &info) {
     return nullptr;
 }
 
-GFXFramebuffer *GLES2Device::createFramebuffer(const GFXFramebufferInfo &info) {
-    GFXFramebuffer *framebuffer = CC_NEW(GLES2Framebuffer(this));
+Framebuffer *GLES2Device::createFramebuffer(const FramebufferInfo &info) {
+    Framebuffer *framebuffer = CC_NEW(GLES2Framebuffer(this));
     if (framebuffer->initialize(info))
         return framebuffer;
 
@@ -274,8 +274,8 @@ GFXFramebuffer *GLES2Device::createFramebuffer(const GFXFramebufferInfo &info) {
     return nullptr;
 }
 
-GFXBindingLayout *GLES2Device::createBindingLayout(const GFXBindingLayoutInfo &info) {
-    GFXBindingLayout *bindingLayout = CC_NEW(GLES2BindingLayout(this));
+BindingLayout *GLES2Device::createBindingLayout(const BindingLayoutInfo &info) {
+    BindingLayout *bindingLayout = CC_NEW(GLES2BindingLayout(this));
     if (bindingLayout->initialize(info))
         return bindingLayout;
 
@@ -283,8 +283,8 @@ GFXBindingLayout *GLES2Device::createBindingLayout(const GFXBindingLayoutInfo &i
     return nullptr;
 }
 
-GFXPipelineState *GLES2Device::createPipelineState(const GFXPipelineStateInfo &info) {
-    GFXPipelineState *pipelineState = CC_NEW(GLES2PipelineState(this));
+PipelineState *GLES2Device::createPipelineState(const PipelineStateInfo &info) {
+    PipelineState *pipelineState = CC_NEW(GLES2PipelineState(this));
     if (pipelineState->initialize(info))
         return pipelineState;
 
@@ -292,8 +292,8 @@ GFXPipelineState *GLES2Device::createPipelineState(const GFXPipelineStateInfo &i
     return nullptr;
 }
 
-GFXPipelineLayout *GLES2Device::createPipelineLayout(const GFXPipelineLayoutInfo &info) {
-    GFXPipelineLayout *layout = CC_NEW(GLES2PipelineLayout(this));
+PipelineLayout *GLES2Device::createPipelineLayout(const PipelineLayoutInfo &info) {
+    PipelineLayout *layout = CC_NEW(GLES2PipelineLayout(this));
     if (layout->initialize(info))
         return layout;
 
@@ -301,7 +301,7 @@ GFXPipelineLayout *GLES2Device::createPipelineLayout(const GFXPipelineLayoutInfo
     return nullptr;
 }
 
-void GLES2Device::copyBuffersToTexture(const GFXDataArray &buffers, GFXTexture *dst, const GFXBufferTextureCopyList &regions) {
+void GLES2Device::copyBuffersToTexture(const DataArray &buffers, Texture *dst, const BufferTextureCopyList &regions) {
     GLES2CmdFuncCopyBuffersToTexture(this, buffers.datas.data(), ((GLES2Texture *)dst)->gpuTexture(), regions);
 }
 

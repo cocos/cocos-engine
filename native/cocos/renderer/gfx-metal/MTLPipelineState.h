@@ -9,12 +9,12 @@
 namespace cc {
 namespace gfx {
 
-class CCMTLPipelineState : public GFXPipelineState {
+class CCMTLPipelineState : public PipelineState {
 public:
-    CCMTLPipelineState(GFXDevice *device);
+    CCMTLPipelineState(Device *device);
     virtual ~CCMTLPipelineState();
 
-    virtual bool initialize(const GFXPipelineStateInfo &info) override;
+    virtual bool initialize(const PipelineStateInfo &info) override;
     virtual void destroy() override;
 
     CC_INLINE CCMTLGPUPipelineState *getGPUPipelineState() const { return _GPUPipelieState; }

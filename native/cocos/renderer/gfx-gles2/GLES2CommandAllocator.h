@@ -7,19 +7,19 @@
 namespace cc {
 namespace gfx {
 
-class CC_GLES2_API GLES2CommandAllocator : public GFXCommandAllocator {
+class CC_GLES2_API GLES2CommandAllocator : public CommandAllocator {
 public:
-    GLES2CommandAllocator(GFXDevice *device);
+    GLES2CommandAllocator(Device *device);
     ~GLES2CommandAllocator();
 
-    GFXCommandPool<GLES2CmdBeginRenderPass> beginRenderPassCmdPool;
-    GFXCommandPool<GLES2CmdBindStates> bindStatesCmdPool;
-    GFXCommandPool<GLES2CmdDraw> drawCmdPool;
-    GFXCommandPool<GLES2CmdUpdateBuffer> updateBufferCmdPool;
-    GFXCommandPool<GLES2CmdCopyBufferToTexture> copyBufferToTextureCmdPool;
+    CommandPool<GLES2CmdBeginRenderPass> beginRenderPassCmdPool;
+    CommandPool<GLES2CmdBindStates> bindStatesCmdPool;
+    CommandPool<GLES2CmdDraw> drawCmdPool;
+    CommandPool<GLES2CmdUpdateBuffer> updateBufferCmdPool;
+    CommandPool<GLES2CmdCopyBufferToTexture> copyBufferToTextureCmdPool;
 
 public:
-    virtual bool initialize(const GFXCommandAllocatorInfo &info) override;
+    virtual bool initialize(const CommandAllocatorInfo &info) override;
     virtual void destroy() override;
 
     void clearCmds(GLES2CmdPackage *cmd_package);

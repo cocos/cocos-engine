@@ -5,12 +5,12 @@
 namespace cc {
 namespace gfx {
 
-class CCMTLSampler : public GFXSampler {
+class CCMTLSampler : public Sampler {
 public:
-    CCMTLSampler(GFXDevice *device);
+    CCMTLSampler(Device *device);
     ~CCMTLSampler();
 
-    bool initialize(const GFXSamplerInfo &info) override;
+    bool initialize(const SamplerInfo &info) override;
     void destroy() override;
 
     CC_INLINE id<MTLSamplerState> getMTLSamplerState() const { return _mtlSamplerState; }

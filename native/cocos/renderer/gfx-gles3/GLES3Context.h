@@ -31,13 +31,13 @@
 namespace cc {
 namespace gfx {
 
-class CC_GLES3_API GLES3Context : public GFXContext {
+class CC_GLES3_API GLES3Context : public Context {
 public:
-    GLES3Context(GFXDevice *device);
+    GLES3Context(Device *device);
     ~GLES3Context();
 
 public:
-    virtual bool initialize(const GFXContextInfo &info) override;
+    virtual bool initialize(const ContextInfo &info) override;
     virtual void destroy() override;
     virtual void present() override;
 

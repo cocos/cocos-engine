@@ -6,13 +6,13 @@ namespace gfx {
 
 class CCVKGPUShader;
 
-class CC_VULKAN_API CCVKShader : public GFXShader {
+class CC_VULKAN_API CCVKShader : public Shader {
 public:
-    CCVKShader(GFXDevice *device);
+    CCVKShader(Device *device);
     ~CCVKShader();
 
 public:
-    bool initialize(const GFXShaderInfo &info);
+    bool initialize(const ShaderInfo &info);
     void destroy();
 
     CC_INLINE CCVKGPUShader *gpuShader() const { return _gpuShader; }

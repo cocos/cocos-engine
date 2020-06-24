@@ -4,11 +4,11 @@
 namespace cc {
 namespace gfx {
 
-GFXQueue::GFXQueue(GFXDevice *device)
-: GFXObject(GFXObjectType::QUEUE), _device(device) {
+Queue::Queue(Device *device)
+: GFXObject(ObjectType::QUEUE), _device(device) {
 }
 
-GFXQueue::~GFXQueue() {
+Queue::~Queue() {
 }
 
 } // namespace gfx

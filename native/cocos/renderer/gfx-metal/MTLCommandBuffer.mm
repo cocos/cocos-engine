@@ -15,10 +15,10 @@
 namespace cc {
 namespace gfx {
 
-CCMTLCommandBuffer::CCMTLCommandBuffer(GFXDevice *device) : GFXCommandBuffer(device) {}
+CCMTLCommandBuffer::CCMTLCommandBuffer(Device *device) : CommandBuffer(device) {}
 CCMTLCommandBuffer::~CCMTLCommandBuffer() { destroy(); }
 
-bool CCMTLCommandBuffer::initialize(const GFXCommandBufferInfo &info) {
+bool CCMTLCommandBuffer::initialize(const CommandBufferInfo &info) {
     if (!info.allocator)
         return false;
 
@@ -44,7 +44,7 @@ bool CCMTLCommandBuffer::initialize(const GFXCommandBufferInfo &info) {
         return false;
     }
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return true;
 }
@@ -55,14 +55,14 @@ void CCMTLCommandBuffer::destroy() {
         _MTLCommandAllocator = nullptr;
     }
     _allocator = nullptr;
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 
     CC_SAFE_DELETE(_commandPackage);
     CC_SAFE_DELETE(_currentDepthBias);
     CC_SAFE_DELETE(_currentDepthBounds);
 }
 
-void CCMTLCommandBuffer::begin(GFXRenderPass *renderPass, uint subpass, GFXFramebuffer *frameBuffer) {
+void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
     _MTLCommandAllocator->clearCommands(_commandPackage);
     _numTriangles = 0;
     _numDrawCalls = 0;
@@ -72,7 +72,7 @@ void CCMTLCommandBuffer::end() {
     _isInRenderPass = false;
 }
 
-void CCMTLCommandBuffer::beginRenderPass(GFXFramebuffer *fbo, const GFXRect &render_area, GFXClearFlags clear_flags, const std::vector<GFXColor> &colors, float depth, int stencil) {
+void CCMTLCommandBuffer::beginRenderPass(Framebuffer *fbo, const Rect &render_area, ClearFlags clear_flags, const std::vector<Color> &colors, float depth, int stencil) {
     _isInRenderPass = true;
 
     CCMTLCmdBeginRenderPass *cmd = _MTLCommandAllocator->_beginRenderPassCmdPool.alloc();
@@ -92,33 +92,33 @@ void CCMTLCommandBuffer::endRenderPass() {
     _commandPackage->commandTypes.push(GFXCmdType::END_RENDER_PASS);
 }
 
-void CCMTLCommandBuffer::bindPipelineState(GFXPipelineState *pso) {
+void CCMTLCommandBuffer::bindPipelineState(PipelineState *pso) {
     _isStateInValid = true;
     _currentPipelineState = static_cast<CCMTLPipelineState *>(pso);
 }
 
-void CCMTLCommandBuffer::bindBindingLayout(GFXBindingLayout *layout) {
+void CCMTLCommandBuffer::bindBindingLayout(BindingLayout *layout) {
     _currentBindingLayout = static_cast<CCMTLBindingLayout *>(layout);
     _isStateInValid = true;
 }
 
-void CCMTLCommandBuffer::bindInputAssembler(GFXInputAssembler *ia) {
+void CCMTLCommandBuffer::bindInputAssembler(InputAssembler *ia) {
     _currentInputAssembler = static_cast<CCMTLInputAssembler *>(ia);
     _isStateInValid = true;
 }
 
-void CCMTLCommandBuffer::setViewport(const GFXViewport &vp) {
+void CCMTLCommandBuffer::setViewport(const Viewport &vp) {
     if (_currentViewport != vp) {
         _currentViewport = vp;
-        _dynamicStateDirty[static_cast<uint>(GFXDynamicState::VIEWPORT)] = true;
+        _dynamicStateDirty[static_cast<uint>(DynamicState::VIEWPORT)] = true;
         _isStateInValid = true;
     }
 }
 
-void CCMTLCommandBuffer::setScissor(const GFXRect &rect) {
+void CCMTLCommandBuffer::setScissor(const Rect &rect) {
     if (_currentScissor != rect) {
         _currentScissor = rect;
-        _dynamicStateDirty[static_cast<uint>(GFXDynamicState::SCISSOR)] = true;
+        _dynamicStateDirty[static_cast<uint>(DynamicState::SCISSOR)] = true;
         _isStateInValid = true;
     }
 }
@@ -135,11 +135,11 @@ void CCMTLCommandBuffer::setDepthBias(float constant, float clamp, float slope) 
         _currentDepthBias->slopeScale = slope;
         _currentDepthBias->clamp = clamp;
         _isStateInValid = true;
-        _dynamicStateDirty[static_cast<uint>(GFXDynamicState::DEPTH_BIAS)] = true;
+        _dynamicStateDirty[static_cast<uint>(DynamicState::DEPTH_BIAS)] = true;
     }
 }
 
-void CCMTLCommandBuffer::setBlendConstants(const GFXColor &constants) {
+void CCMTLCommandBuffer::setBlendConstants(const Color &constants) {
     if (math::IsNotEqualF(constants.r, _currentBlendConstants.r) ||
         math::IsNotEqualF(constants.g, _currentBlendConstants.g) ||
         math::IsNotEqualF(constants.b, _currentBlendConstants.b) ||
@@ -149,7 +149,7 @@ void CCMTLCommandBuffer::setBlendConstants(const GFXColor &constants) {
         _currentBlendConstants.b = constants.b;
         _currentBlendConstants.a = constants.a;
         _isStateInValid = true;
-        _dynamicStateDirty[static_cast<uint>(GFXDynamicState::BLEND_CONSTANTS)] = true;
+        _dynamicStateDirty[static_cast<uint>(DynamicState::BLEND_CONSTANTS)] = true;
     }
 }
 
@@ -157,17 +157,17 @@ void CCMTLCommandBuffer::setDepthBound(float minBounds, float maxBounds) {
     CC_LOG_ERROR("Metal doesn't support setting depth bound.");
 }
 
-void CCMTLCommandBuffer::setStencilWriteMask(GFXStencilFace face, uint mask) {
+void CCMTLCommandBuffer::setStencilWriteMask(StencilFace face, uint mask) {
     CC_LOG_ERROR("Don't support change stencil write mask here.");
 }
 
-void CCMTLCommandBuffer::setStencilCompareMask(GFXStencilFace face, int ref, uint mask) {
+void CCMTLCommandBuffer::setStencilCompareMask(StencilFace face, int ref, uint mask) {
     CC_LOG_ERROR("Don't support change stencil compare mask here.");
 }
 
-void CCMTLCommandBuffer::draw(GFXInputAssembler *ia) {
-    if ((_type == GFXCommandBufferType::PRIMARY && _isInRenderPass) ||
-        _type == GFXCommandBufferType::SECONDARY) {
+void CCMTLCommandBuffer::draw(InputAssembler *ia) {
+    if ((_type == CommandBufferType::PRIMARY && _isInRenderPass) ||
+        _type == CommandBufferType::SECONDARY) {
         CCMTLCmdDraw *cmd = _MTLCommandAllocator->_drawCmdPool.alloc();
         if (!cmd)
             return;
@@ -198,9 +198,9 @@ void CCMTLCommandBuffer::draw(GFXInputAssembler *ia) {
         CC_LOG_ERROR("Command 'draw' must be recorded inside a render pass.");
 }
 
-void CCMTLCommandBuffer::updateBuffer(GFXBuffer *buff, void *data, uint size, uint offset) {
-    if ((_type == GFXCommandBufferType::PRIMARY && _isInRenderPass) ||
-        (_type == GFXCommandBufferType::SECONDARY)) {
+void CCMTLCommandBuffer::updateBuffer(Buffer *buff, void *data, uint size, uint offset) {
+    if ((_type == CommandBufferType::PRIMARY && _isInRenderPass) ||
+        (_type == CommandBufferType::SECONDARY)) {
         if (buff) {
             CCMTLCmdUpdateBuffer *cmd = _MTLCommandAllocator->_updateBufferCmdPool.alloc();
             cmd->gpuBuffer = static_cast<CCMTLBuffer *>(buff);
@@ -216,9 +216,9 @@ void CCMTLCommandBuffer::updateBuffer(GFXBuffer *buff, void *data, uint size, ui
     }
 }
 
-void CCMTLCommandBuffer::copyBufferToTexture(GFXBuffer *src, GFXTexture *dst, GFXTextureLayout layout, const GFXBufferTextureCopyList &regions) {
-    if ((_type == GFXCommandBufferType::PRIMARY && _isInRenderPass) ||
-        (_type == GFXCommandBufferType::SECONDARY)) {
+void CCMTLCommandBuffer::copyBufferToTexture(Buffer *src, Texture *dst, TextureLayout layout, const BufferTextureCopyList &regions) {
+    if ((_type == CommandBufferType::PRIMARY && _isInRenderPass) ||
+        (_type == CommandBufferType::SECONDARY)) {
         if (src && dst) {
             CCMTLCmdCopyBufferToTexture *cmd = _MTLCommandAllocator->_copyBufferToTextureCmdPool.alloc();
             cmd->gpuBuffer = static_cast<CCMTLBuffer *>(src);
@@ -235,7 +235,7 @@ void CCMTLCommandBuffer::copyBufferToTexture(GFXBuffer *src, GFXTexture *dst, GF
     }
 }
 
-void CCMTLCommandBuffer::execute(const std::vector<GFXCommandBuffer *> &commandBuffs, uint32_t count) {
+void CCMTLCommandBuffer::execute(const std::vector<CommandBuffer *> &commandBuffs, uint32_t count) {
     for (uint i = 0; i < count; ++i) {
         auto commandBuffer = static_cast<CCMTLCommandBuffer *>(commandBuffs[i]);
         for (uint j = 0; j < commandBuffer->_commandPackage->beginRenderPassCmds.size(); ++j) {

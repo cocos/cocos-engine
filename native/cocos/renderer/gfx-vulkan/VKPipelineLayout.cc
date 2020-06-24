@@ -7,14 +7,14 @@
 namespace cc {
 namespace gfx {
 
-CCVKPipelineLayout::CCVKPipelineLayout(GFXDevice *device)
-: GFXPipelineLayout(device) {
+CCVKPipelineLayout::CCVKPipelineLayout(Device *device)
+: PipelineLayout(device) {
 }
 
 CCVKPipelineLayout::~CCVKPipelineLayout() {
 }
 
-bool CCVKPipelineLayout::initialize(const GFXPipelineLayoutInfo &info) {
+bool CCVKPipelineLayout::initialize(const PipelineLayoutInfo &info) {
 
     _layouts = info.layouts;
     _pushConstantsRanges = info.pushConstantsRanges;
@@ -29,7 +29,7 @@ bool CCVKPipelineLayout::initialize(const GFXPipelineLayoutInfo &info) {
 
     CCVKCmdFuncCreatePipelineLayout((CCVKDevice *)_device, _gpuPipelineLayout);
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
     return true;
 }
 
@@ -39,7 +39,7 @@ void CCVKPipelineLayout::destroy() {
         CC_DELETE(_gpuPipelineLayout);
         _gpuPipelineLayout = nullptr;
     }
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 } // namespace gfx

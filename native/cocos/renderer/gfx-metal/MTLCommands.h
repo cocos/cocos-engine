@@ -26,11 +26,11 @@ struct CCMTLDepthBounds {
 
 class CCMTLCmdBeginRenderPass : public GFXCmd {
 public:
-    GFXRect renderArea;
-    GFXClearFlags clearFlags = GFXClearFlags::NONE;
+    Rect renderArea;
+    ClearFlags clearFlags = ClearFlags::NONE;
     CCMTLFramebuffer *frameBuffer = nullptr;
     uint numOfClearColor = 0;
-    vector<GFXColor> clearColors;
+    vector<Color> clearColors;
     float clearDepth = 1.f;
     int clearStencil = 0;
 
@@ -43,7 +43,7 @@ public:
 
 class CCMTLCmdBindStates : public GFXCmd {
 public:
-    GFXBindingLayout *bindingLayout = nullptr;
+    BindingLayout *bindingLayout = nullptr;
     CCMTLPipelineState *pipelineState = nullptr;
     CCMTLInputAssembler *inputAssembler = nullptr;
     MTLViewport viewport = {};
@@ -51,7 +51,7 @@ public:
     bool depthBiasEnabled = false;
     CCMTLDepthBias depthBias;
     CCMTLDepthBounds depthBounds;
-    GFXColor blendConstants;
+    Color blendConstants;
     const static uint DYNAMIC_STATE_SIZE = 8;
     std::array<bool, DYNAMIC_STATE_SIZE> dynamicStateDirty = {false, false, false, false, false, false, false, false};
 
@@ -62,7 +62,7 @@ public:
 
 class CCMTLCmdDraw : public GFXCmd {
 public:
-    GFXDrawInfo drawInfo;
+    DrawInfo drawInfo;
 
     CCMTLCmdDraw() : GFXCmd(GFXCmdType::DRAW) {}
     virtual void clear() override {}
@@ -72,8 +72,8 @@ class CCMTLCmdCopyBufferToTexture : public GFXCmd {
 public:
     CCMTLBuffer *gpuBuffer = nullptr;
     CCMTLTexture *gpuTexture = nullptr;
-    GFXTextureLayout dstLayout;
-    GFXBufferTextureCopyList regions;
+    TextureLayout dstLayout;
+    BufferTextureCopyList regions;
 
     CCMTLCmdCopyBufferToTexture() : GFXCmd(GFXCmdType::COPY_BUFFER_TO_TEXTURE) {}
     virtual void clear() override {

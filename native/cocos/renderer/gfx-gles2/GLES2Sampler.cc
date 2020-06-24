@@ -5,14 +5,14 @@
 namespace cc {
 namespace gfx {
 
-GLES2Sampler::GLES2Sampler(GFXDevice *device)
-: GFXSampler(device) {
+GLES2Sampler::GLES2Sampler(Device *device)
+: Sampler(device) {
 }
 
 GLES2Sampler::~GLES2Sampler() {
 }
 
-bool GLES2Sampler::initialize(const GFXSamplerInfo &info) {
+bool GLES2Sampler::initialize(const SamplerInfo &info) {
     _name = info.name;
     _minFilter = info.minFilter;
     _magFilter = info.magFilter;
@@ -37,7 +37,7 @@ bool GLES2Sampler::initialize(const GFXSamplerInfo &info) {
     _gpuSampler->minLOD = _minLOD;
     _gpuSampler->maxLOD = _maxLOD;
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     GLES2CmdFuncCreateSampler((GLES2Device *)_device, _gpuSampler);
 
@@ -50,7 +50,7 @@ void GLES2Sampler::destroy() {
         CC_DELETE(_gpuSampler);
         _gpuSampler = nullptr;
     }
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 } // namespace gfx

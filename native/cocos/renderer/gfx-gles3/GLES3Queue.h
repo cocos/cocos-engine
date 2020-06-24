@@ -4,17 +4,17 @@
 namespace cc {
 namespace gfx {
 
-class CC_GLES3_API GLES3Queue : public GFXQueue {
+class CC_GLES3_API GLES3Queue : public Queue {
 public:
-    GLES3Queue(GFXDevice *device);
+    GLES3Queue(Device *device);
     ~GLES3Queue();
 
     friend class GLES3Device;
 
 public:
-    virtual bool initialize(const GFXQueueInfo &info) override;
+    virtual bool initialize(const QueueInfo &info) override;
     virtual void destroy() override;
-    virtual void submit(const vector<GFXCommandBuffer *> &cmdBuffs, GFXFence *fence) override;
+    virtual void submit(const vector<CommandBuffer *> &cmdBuffs, Fence *fence) override;
 
 private:
     uint _numDrawCalls = 0;

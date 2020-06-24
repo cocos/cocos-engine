@@ -5,14 +5,14 @@
 namespace cc {
 namespace gfx {
 
-GLES2Buffer::GLES2Buffer(GFXDevice *device)
-: GFXBuffer(device) {
+GLES2Buffer::GLES2Buffer(Device *device)
+: Buffer(device) {
 }
 
 GLES2Buffer::~GLES2Buffer() {
 }
 
-bool GLES2Buffer::initialize(const GFXBufferInfo &info) {
+bool GLES2Buffer::initialize(const BufferInfo &info) {
 
     _usage = info.usage;
     _memUsage = info.memUsage;
@@ -21,10 +21,10 @@ bool GLES2Buffer::initialize(const GFXBufferInfo &info) {
     _count = _size / _stride;
     _flags = info.flags;
 
-    if ((_flags & GFXBufferFlagBit::BAKUP_BUFFER) && _size > 0) {
+    if ((_flags & BufferFlagBit::BAKUP_BUFFER) && _size > 0) {
         _buffer = (uint8_t *)CC_MALLOC(_size);
         if (!_buffer) {
-            _status = GFXStatus::FAILED;
+            _status = Status::FAILED;
             CC_LOG_ERROR("GLES2Buffer: CC_MALLOC backup buffer faild.");
             return false;
         }
@@ -33,7 +33,7 @@ bool GLES2Buffer::initialize(const GFXBufferInfo &info) {
 
     _gpuBuffer = CC_NEW(GLES2GPUBuffer);
     if (!_gpuBuffer) {
-        _status = GFXStatus::FAILED;
+        _status = Status::FAILED;
         CC_LOG_ERROR("GLES2Buffer: CC_NEW GLES2GPUBuffer failed.");
         return false;
     }
@@ -43,7 +43,7 @@ bool GLES2Buffer::initialize(const GFXBufferInfo &info) {
     _gpuBuffer->stride = _stride;
     _gpuBuffer->count = _count;
 
-    if (_usage & GFXBufferUsageBit::INDIRECT) {
+    if (_usage & BufferUsageBit::INDIRECT) {
         _gpuBuffer->indirects.resize(_count);
     } else {
         _gpuBuffer->buffer = _buffer;
@@ -52,7 +52,7 @@ bool GLES2Buffer::initialize(const GFXBufferInfo &info) {
     GLES2CmdFuncCreateBuffer((GLES2Device *)_device, _gpuBuffer);
     _device->getMemoryStatus().bufferSize += _size;
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return true;
 }
@@ -71,7 +71,7 @@ void GLES2Buffer::destroy() {
         _buffer = nullptr;
     }
 
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 void GLES2Buffer::resize(uint size) {
@@ -80,7 +80,7 @@ void GLES2Buffer::resize(uint size) {
         _size = size;
         _count = _size / _stride;
 
-        GFXMemoryStatus &status = _device->getMemoryStatus();
+        MemoryStatus &status = _device->getMemoryStatus();
         _gpuBuffer->size = _size;
         _gpuBuffer->count = _count;
         GLES2CmdFuncResizeBuffer((GLES2Device *)_device, _gpuBuffer);
@@ -91,7 +91,7 @@ void GLES2Buffer::resize(uint size) {
             const uint8_t *oldBuffer = _buffer;
             uint8_t *buffer = (uint8_t *)CC_MALLOC(_size);
             if (!buffer) {
-                _status = GFXStatus::FAILED;
+                _status = Status::FAILED;
                 CC_LOG_ERROR("GLES2Buffer: CC_MALLOC backup buffer failed.");
                 return;
             }
@@ -101,7 +101,7 @@ void GLES2Buffer::resize(uint size) {
             status.bufferSize -= oldSize;
             status.bufferSize += _size;
         }
-        _status = GFXStatus::SUCCESS;
+        _status = Status::SUCCESS;
     }
 }
 

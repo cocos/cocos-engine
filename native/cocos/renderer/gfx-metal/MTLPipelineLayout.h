@@ -3,12 +3,12 @@
 namespace cc {
 namespace gfx {
 
-class CCMTLPipelineLayout : public GFXPipelineLayout {
+class CCMTLPipelineLayout : public PipelineLayout {
 public:
-    CCMTLPipelineLayout(GFXDevice *device);
+    CCMTLPipelineLayout(Device *device);
     ~CCMTLPipelineLayout();
 
-    virtual bool initialize(const GFXPipelineLayoutInfo &info) override;
+    virtual bool initialize(const PipelineLayoutInfo &info) override;
     virtual void destroy() override;
 };
 

@@ -4,11 +4,11 @@
 namespace cc {
 namespace gfx {
 
-GFXShader::GFXShader(GFXDevice *device)
-: GFXObject(GFXObjectType::SHADER), _device(device) {
+Shader::Shader(Device *device)
+: GFXObject(ObjectType::SHADER), _device(device) {
 }
 
-GFXShader::~GFXShader() {
+Shader::~Shader() {
 }
 
 } // namespace gfx

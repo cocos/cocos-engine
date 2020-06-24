@@ -6,13 +6,13 @@ namespace gfx {
 
 class GLES2GPUPipelineLayout;
 
-class CC_GLES2_API GLES2PipelineLayout : public GFXPipelineLayout {
+class CC_GLES2_API GLES2PipelineLayout : public PipelineLayout {
 public:
-    GLES2PipelineLayout(GFXDevice *device);
+    GLES2PipelineLayout(Device *device);
     ~GLES2PipelineLayout();
 
 public:
-    virtual bool initialize(const GFXPipelineLayoutInfo &info) override;
+    virtual bool initialize(const PipelineLayoutInfo &info) override;
     virtual void destroy() override;
 
     CC_INLINE GLES2GPUPipelineLayout *gpuPipelineLayout() const { return _gpuPipelineLayout; }

@@ -4,11 +4,11 @@
 namespace cc {
 namespace gfx {
 
-GFXTexture::GFXTexture(GFXDevice *device)
-: GFXObject(GFXObjectType::TEXTURE), _device(device) {
+Texture::Texture(Device *device)
+: GFXObject(ObjectType::TEXTURE), _device(device) {
 }
 
-GFXTexture::~GFXTexture() {
+Texture::~Texture() {
 }
 
 } // namespace gfx

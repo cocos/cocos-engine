@@ -60,14 +60,14 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT flags,
 #endif
 } // namespace
 
-CCVKContext::CCVKContext(GFXDevice *device)
-: GFXContext(device) {
+CCVKContext::CCVKContext(Device *device)
+: Context(device) {
 }
 
 CCVKContext::~CCVKContext() {
 }
 
-bool CCVKContext::initialize(const GFXContextInfo &info) {
+bool CCVKContext::initialize(const ContextInfo &info) {
 
     _vsyncMode = info.vsyncMode;
     _windowHandle = info.windowHandle;
@@ -314,8 +314,8 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
 
         ///////////////////// Swapchain Preperation /////////////////////
 
-        _colorFmt = GFXFormat::BGRA8;
-        _depthStencilFmt = GFXFormat::D24S8;
+        _colorFmt = Format::BGRA8;
+        _depthStencilFmt = Format::D24S8;
 
         VkSurfaceCapabilitiesKHR surfaceCapabilities{};
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &surfaceCapabilities);
@@ -360,14 +360,14 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
             }
         }
 
-        vector<std::pair<GFXFormat, VkFormat>> depthFormatPriorityList = {
-            {GFXFormat::D32F_S8, VK_FORMAT_D32_SFLOAT_S8_UINT},
-            {GFXFormat::D24S8, VK_FORMAT_D24_UNORM_S8_UINT},
-            {GFXFormat::D16S8, VK_FORMAT_D16_UNORM_S8_UINT},
-            {GFXFormat::D32F, VK_FORMAT_D32_SFLOAT},
-            {GFXFormat::D16, VK_FORMAT_D16_UNORM},
+        vector<std::pair<Format, VkFormat>> depthFormatPriorityList = {
+            {Format::D32F_S8, VK_FORMAT_D32_SFLOAT_S8_UINT},
+            {Format::D24S8, VK_FORMAT_D24_UNORM_S8_UINT},
+            {Format::D16S8, VK_FORMAT_D16_UNORM_S8_UINT},
+            {Format::D32F, VK_FORMAT_D32_SFLOAT},
+            {Format::D16, VK_FORMAT_D16_UNORM},
         };
-        for (std::pair<GFXFormat, VkFormat> &format : depthFormatPriorityList) {
+        for (std::pair<Format, VkFormat> &format : depthFormatPriorityList) {
             VkFormatProperties formatProperties;
             vkGetPhysicalDeviceFormatProperties(_gpuContext->physicalDevice, format.second, &formatProperties);
             // Format must support depth stencil attachment for optimal tiling
@@ -384,11 +384,11 @@ bool CCVKContext::initialize(const GFXContextInfo &info) {
         vector<VkPresentModeKHR> presentModePriorityList;
 
         switch (_vsyncMode) {
-            case GFXVsyncMode::OFF: presentModePriorityList.insert(presentModePriorityList.end(), {VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_FIFO_KHR}); break;
-            case GFXVsyncMode::ON: presentModePriorityList.insert(presentModePriorityList.end(), {VK_PRESENT_MODE_FIFO_KHR}); break;
-            case GFXVsyncMode::RELAXED: presentModePriorityList.insert(presentModePriorityList.end(), {VK_PRESENT_MODE_FIFO_RELAXED_KHR, VK_PRESENT_MODE_FIFO_KHR}); break;
-            case GFXVsyncMode::MAILBOX: presentModePriorityList.insert(presentModePriorityList.end(), {VK_PRESENT_MODE_MAILBOX_KHR, VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_FIFO_KHR}); break;
-            case GFXVsyncMode::HALF: presentModePriorityList.insert(presentModePriorityList.end(), {VK_PRESENT_MODE_FIFO_KHR}); break; // TODO
+            case VsyncMode::OFF: presentModePriorityList.insert(presentModePriorityList.end(), {VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_FIFO_KHR}); break;
+            case VsyncMode::ON: presentModePriorityList.insert(presentModePriorityList.end(), {VK_PRESENT_MODE_FIFO_KHR}); break;
+            case VsyncMode::RELAXED: presentModePriorityList.insert(presentModePriorityList.end(), {VK_PRESENT_MODE_FIFO_RELAXED_KHR, VK_PRESENT_MODE_FIFO_KHR}); break;
+            case VsyncMode::MAILBOX: presentModePriorityList.insert(presentModePriorityList.end(), {VK_PRESENT_MODE_MAILBOX_KHR, VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_FIFO_KHR}); break;
+            case VsyncMode::HALF: presentModePriorityList.insert(presentModePriorityList.end(), {VK_PRESENT_MODE_FIFO_KHR}); break; // TODO
         }
 
         VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;

@@ -6,14 +6,14 @@
 namespace cc {
 namespace gfx {
 
-GLES3Fence::GLES3Fence(GFXDevice *device)
-: GFXFence(device) {
+GLES3Fence::GLES3Fence(Device *device)
+: Fence(device) {
 }
 
 GLES3Fence::~GLES3Fence() {
 }
 
-bool GLES3Fence::initialize(const GFXFenceInfo &info) {
+bool GLES3Fence::initialize(const FenceInfo &info) {
     _gpuFence = CC_NEW(GLES3GPUFence);
     if (!_gpuFence) {
         CC_LOG_ERROR("GLES2Fence: CC_NEW GLES3GPUFence failed.");
@@ -22,7 +22,7 @@ bool GLES3Fence::initialize(const GFXFenceInfo &info) {
 
     // TODO
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
     return true;
 }
 
@@ -33,7 +33,7 @@ void GLES3Fence::destroy() {
         CC_DELETE(_gpuFence);
         _gpuFence = nullptr;
     }
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 void GLES3Fence::wait() {

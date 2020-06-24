@@ -5,14 +5,14 @@
 namespace cc {
 namespace gfx {
 
-GLES3Shader::GLES3Shader(GFXDevice *device)
-: GFXShader(device) {
+GLES3Shader::GLES3Shader(Device *device)
+: Shader(device) {
 }
 
 GLES3Shader::~GLES3Shader() {
 }
 
-bool GLES3Shader::initialize(const GFXShaderInfo &info) {
+bool GLES3Shader::initialize(const ShaderInfo &info) {
     _name = info.name;
     _stages = info.stages;
     _attributes = info.attributes;
@@ -30,7 +30,7 @@ bool GLES3Shader::initialize(const GFXShaderInfo &info) {
 
     GLES3CmdFuncCreateShader((GLES3Device *)_device, _gpuShader);
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return true;
 }
@@ -42,7 +42,7 @@ void GLES3Shader::destroy() {
         _gpuShader = nullptr;
     }
 
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 } // namespace gfx

@@ -15,14 +15,14 @@
 namespace cc {
 namespace gfx {
 
-CCVKCommandBuffer::CCVKCommandBuffer(GFXDevice *device)
-: GFXCommandBuffer(device) {
+CCVKCommandBuffer::CCVKCommandBuffer(Device *device)
+: CommandBuffer(device) {
 }
 
 CCVKCommandBuffer::~CCVKCommandBuffer() {
 }
 
-bool CCVKCommandBuffer::initialize(const GFXCommandBufferInfo &info) {
+bool CCVKCommandBuffer::initialize(const CommandBufferInfo &info) {
     if (!info.allocator) {
         return false;
     }
@@ -35,7 +35,7 @@ bool CCVKCommandBuffer::initialize(const GFXCommandBufferInfo &info) {
     _gpuCommandBuffer->commandPool = ((CCVKCommandAllocator *)_allocator)->gpuCommandPool();
     CCVKCmdFuncAllocateCommandBuffer((CCVKDevice *)_device, _gpuCommandBuffer);
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
     return true;
 }
 
@@ -47,10 +47,10 @@ void CCVKCommandBuffer::destroy() {
     }
 
     _allocator = nullptr;
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
-void CCVKCommandBuffer::begin(GFXRenderPass *renderPass, uint subpass, GFXFramebuffer *frameBuffer) {
+void CCVKCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
     _curGPUPipelineState = nullptr;
     _curGPUBindingLayout = nullptr;
     _curGPUInputAssember = nullptr;
@@ -61,7 +61,7 @@ void CCVKCommandBuffer::begin(GFXRenderPass *renderPass, uint subpass, GFXFrameb
     VkCommandBufferBeginInfo beginInfo{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-    if (_type == GFXCommandBufferType::SECONDARY) {
+    if (_type == CommandBufferType::SECONDARY) {
         if (!renderPass) {
             CC_LOG_ERROR("RenderPass has to be specified when beginning secondary command buffers.");
             return;
@@ -80,8 +80,8 @@ void CCVKCommandBuffer::end() {
     VK_CHECK(vkEndCommandBuffer(_gpuCommandBuffer->vkCommandBuffer));
 }
 
-void CCVKCommandBuffer::beginRenderPass(GFXFramebuffer *fbo, const GFXRect &renderArea,
-                                        GFXClearFlags clearFlags, const std::vector<GFXColor> &colors, float depth, int stencil) {
+void CCVKCommandBuffer::beginRenderPass(Framebuffer *fbo, const Rect &renderArea,
+                                        ClearFlags clearFlags, const std::vector<Color> &colors, float depth, int stencil) {
     _curGPUFBO = ((CCVKFramebuffer *)fbo)->gpuFBO();
     CCVKGPURenderPass *renderPass = _curGPUFBO->gpuRenderPass;
     VkFramebuffer framebuffer = _curGPUFBO->vkFramebuffer;
@@ -123,7 +123,7 @@ void CCVKCommandBuffer::endRenderPass() {
     _curGPUFBO = nullptr;
 }
 
-void CCVKCommandBuffer::bindPipelineState(GFXPipelineState *pso) {
+void CCVKCommandBuffer::bindPipelineState(PipelineState *pso) {
     CCVKGPUPipelineState *gpuPipelineState = ((CCVKPipelineState *)pso)->gpuPipelineState();
 
     if (_curGPUPipelineState != gpuPipelineState) {
@@ -132,7 +132,7 @@ void CCVKCommandBuffer::bindPipelineState(GFXPipelineState *pso) {
     }
 }
 
-void CCVKCommandBuffer::bindBindingLayout(GFXBindingLayout *layout) {
+void CCVKCommandBuffer::bindBindingLayout(BindingLayout *layout) {
     if (!_curGPUPipelineState) {
         CC_LOG_ERROR("Command 'bindBindingLayout' must be recorded after 'bindPipelineState'.");
         return;
@@ -147,7 +147,7 @@ void CCVKCommandBuffer::bindBindingLayout(GFXBindingLayout *layout) {
     }
 }
 
-void CCVKCommandBuffer::bindInputAssembler(GFXInputAssembler *ia) {
+void CCVKCommandBuffer::bindInputAssembler(InputAssembler *ia) {
     CCVKGPUInputAssembler *gpuInputAssembler = ((CCVKInputAssembler *)ia)->gpuInputAssembler();
 
     if (_curGPUInputAssember != gpuInputAssembler) {
@@ -174,7 +174,7 @@ void CCVKCommandBuffer::bindInputAssembler(GFXInputAssembler *ia) {
     }
 }
 
-void CCVKCommandBuffer::setViewport(const GFXViewport &vp) {
+void CCVKCommandBuffer::setViewport(const Viewport &vp) {
     if (_curViewport != vp) {
         _curViewport = vp;
         VkViewport viewport{(float)vp.left, (float)vp.top, (float)vp.width, (float)vp.height, vp.minDepth, vp.maxDepth};
@@ -182,7 +182,7 @@ void CCVKCommandBuffer::setViewport(const GFXViewport &vp) {
     }
 }
 
-void CCVKCommandBuffer::setScissor(const GFXRect &rect) {
+void CCVKCommandBuffer::setScissor(const Rect &rect) {
     if (_curScissor != rect) {
         _curScissor = rect;
         VkRect2D scissor{{rect.x, rect.y}, {rect.width, rect.height}};
@@ -208,7 +208,7 @@ void CCVKCommandBuffer::setDepthBias(float constant, float clamp, float slope) {
     }
 }
 
-void CCVKCommandBuffer::setBlendConstants(const GFXColor &constants) {
+void CCVKCommandBuffer::setBlendConstants(const Color &constants) {
     if (math::IsNotEqualF(_curBlendConstants.r, constants.r) ||
         math::IsNotEqualF(_curBlendConstants.g, constants.g) ||
         math::IsNotEqualF(_curBlendConstants.b, constants.b) ||
@@ -230,17 +230,17 @@ void CCVKCommandBuffer::setDepthBound(float minBounds, float maxBounds) {
     }
 }
 
-void CCVKCommandBuffer::setStencilWriteMask(GFXStencilFace face, uint mask) {
+void CCVKCommandBuffer::setStencilWriteMask(StencilFace face, uint mask) {
     if ((_curStencilWriteMask.face != face) ||
         (_curStencilWriteMask.write_mask != mask)) {
         _curStencilWriteMask.face = face;
         _curStencilWriteMask.write_mask = mask;
         vkCmdSetStencilWriteMask(_gpuCommandBuffer->vkCommandBuffer,
-                                 face == GFXStencilFace::FRONT ? VK_STENCIL_FACE_FRONT_BIT : VK_STENCIL_FACE_BACK_BIT, mask);
+                                 face == StencilFace::FRONT ? VK_STENCIL_FACE_FRONT_BIT : VK_STENCIL_FACE_BACK_BIT, mask);
     }
 }
 
-void CCVKCommandBuffer::setStencilCompareMask(GFXStencilFace face, int reference, uint mask) {
+void CCVKCommandBuffer::setStencilCompareMask(StencilFace face, int reference, uint mask) {
     if ((_curStencilCompareMask.face != face) ||
         (_curStencilCompareMask.reference != reference) ||
         (_curStencilCompareMask.compareMask != mask)) {
@@ -248,17 +248,17 @@ void CCVKCommandBuffer::setStencilCompareMask(GFXStencilFace face, int reference
         _curStencilCompareMask.reference = reference;
         _curStencilCompareMask.compareMask = mask;
 
-        VkStencilFaceFlagBits vkFace = (face == GFXStencilFace::FRONT ? VK_STENCIL_FACE_FRONT_BIT : VK_STENCIL_FACE_BACK_BIT);
+        VkStencilFaceFlagBits vkFace = (face == StencilFace::FRONT ? VK_STENCIL_FACE_FRONT_BIT : VK_STENCIL_FACE_BACK_BIT);
         vkCmdSetStencilReference(_gpuCommandBuffer->vkCommandBuffer, vkFace, reference);
         vkCmdSetStencilCompareMask(_gpuCommandBuffer->vkCommandBuffer, vkFace, mask);
     }
 }
 
-void CCVKCommandBuffer::draw(GFXInputAssembler *ia) {
-    if ((_type == GFXCommandBufferType::PRIMARY && _curGPUFBO) ||
-        (_type == GFXCommandBufferType::SECONDARY)) {
+void CCVKCommandBuffer::draw(InputAssembler *ia) {
+    if ((_type == CommandBufferType::PRIMARY && _curGPUFBO) ||
+        (_type == CommandBufferType::SECONDARY)) {
         CCVKGPUInputAssembler *gpuInputAssembler = ((CCVKInputAssembler *)ia)->gpuInputAssembler();
-        GFXDrawInfo drawInfo;
+        DrawInfo drawInfo;
 
         if (gpuInputAssembler->gpuIndirectBuffer) {
             uint drawInfoCount = gpuInputAssembler->gpuIndirectBuffer->count;
@@ -314,11 +314,11 @@ void CCVKCommandBuffer::draw(GFXInputAssembler *ia) {
             if (_curGPUPipelineState) {
                 uint indexCount = hasIndexBuffer ? drawInfo.indexCount : drawInfo.vertexCount;
                 switch (_curGPUPipelineState->primitive) {
-                    case GFXPrimitiveMode::TRIANGLE_LIST:
+                    case PrimitiveMode::TRIANGLE_LIST:
                         _numTriangles += indexCount / 3 * instanceCount;
                         break;
-                    case GFXPrimitiveMode::TRIANGLE_STRIP:
-                    case GFXPrimitiveMode::TRIANGLE_FAN:
+                    case PrimitiveMode::TRIANGLE_STRIP:
+                    case PrimitiveMode::TRIANGLE_FAN:
                         _numTriangles += (indexCount - 2) * instanceCount;
                         break;
                 }
@@ -329,7 +329,7 @@ void CCVKCommandBuffer::draw(GFXInputAssembler *ia) {
     }
 }
 
-void CCVKCommandBuffer::execute(const std::vector<GFXCommandBuffer *> &cmdBuffs, uint count) {
+void CCVKCommandBuffer::execute(const std::vector<CommandBuffer *> &cmdBuffs, uint count) {
     if (!count) {
         return;
     }
@@ -348,18 +348,18 @@ void CCVKCommandBuffer::execute(const std::vector<GFXCommandBuffer *> &cmdBuffs,
     vkCmdExecuteCommands(_gpuCommandBuffer->vkCommandBuffer, count, vkCmdBuffs.data());
 }
 
-void CCVKCommandBuffer::updateBuffer(GFXBuffer *buff, void *data, uint size, uint offset) {
-    if ((_type == GFXCommandBufferType::PRIMARY && !_curGPUFBO) ||
-        (_type == GFXCommandBufferType::SECONDARY)) {
+void CCVKCommandBuffer::updateBuffer(Buffer *buff, void *data, uint size, uint offset) {
+    if ((_type == CommandBufferType::PRIMARY && !_curGPUFBO) ||
+        (_type == CommandBufferType::SECONDARY)) {
         CCVKCmdFuncUpdateBuffer((CCVKDevice *)_device, ((CCVKBuffer *)buff)->gpuBuffer(), data, offset, size);
     } else {
         CC_LOG_ERROR("Command 'updateBuffer' must be recorded outside a render pass.");
     }
 }
 
-void CCVKCommandBuffer::copyBufferToTexture(GFXBuffer *src, GFXTexture *dst, GFXTextureLayout layout, const GFXBufferTextureCopyList &regions) {
-    if ((_type == GFXCommandBufferType::PRIMARY && !_curGPUFBO) ||
-        (_type == GFXCommandBufferType::SECONDARY)) {
+void CCVKCommandBuffer::copyBufferToTexture(Buffer *src, Texture *dst, TextureLayout layout, const BufferTextureCopyList &regions) {
+    if ((_type == CommandBufferType::PRIMARY && !_curGPUFBO) ||
+        (_type == CommandBufferType::SECONDARY)) {
         //const CCVKGPUBuffer* gpuBuffer = ((CCVKBuffer*)src)->gpuBuffer();
         //const CCVKGPUTexture* gpuTexture = ((CCVKTexture*)dst)->gpuTexture();
         //vkCmdCopyBufferToImage(_gpuCommandBuffer->vkCommandBuffer, gpuBuffer->vkBuffer, gpuTexture->vkImage, MapVkImageLayout(layout),

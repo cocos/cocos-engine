@@ -9,14 +9,14 @@
 namespace cc {
 namespace gfx {
 
-CCVKPipelineState::CCVKPipelineState(GFXDevice *device)
-: GFXPipelineState(device) {
+CCVKPipelineState::CCVKPipelineState(Device *device)
+: PipelineState(device) {
 }
 
 CCVKPipelineState::~CCVKPipelineState() {
 }
 
-bool CCVKPipelineState::initialize(const GFXPipelineStateInfo &info) {
+bool CCVKPipelineState::initialize(const PipelineStateInfo &info) {
     _primitive = info.primitive;
     _shader = info.shader;
     _inputState = info.inputState;
@@ -40,7 +40,7 @@ bool CCVKPipelineState::initialize(const GFXPipelineStateInfo &info) {
 
     CCVKCmdFuncCreatePipelineState((CCVKDevice *)_device, _gpuPipelineState);
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return true;
 }
@@ -51,7 +51,7 @@ void CCVKPipelineState::destroy() {
         CC_DELETE(_gpuPipelineState);
         _gpuPipelineState = nullptr;
     }
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 } // namespace gfx

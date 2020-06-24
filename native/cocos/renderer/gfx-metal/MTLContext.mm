@@ -9,32 +9,32 @@ namespace cc {
 namespace gfx {
 
 namespace {
-GFXFormat toGFXFormat(MTLPixelFormat format) {
+Format toFormat(MTLPixelFormat format) {
     switch (format) {
-        case MTLPixelFormatRGBA8Unorm: return GFXFormat::RGBA8;
-        case MTLPixelFormatBGRA8Unorm: return GFXFormat::BGRA8;
-        case MTLPixelFormatDepth24Unorm_Stencil8: return GFXFormat::D24S8;
-        case MTLPixelFormatDepth32Float_Stencil8: return GFXFormat::D32F_S8;
+        case MTLPixelFormatRGBA8Unorm: return Format::RGBA8;
+        case MTLPixelFormatBGRA8Unorm: return Format::BGRA8;
+        case MTLPixelFormatDepth24Unorm_Stencil8: return Format::D24S8;
+        case MTLPixelFormatDepth32Float_Stencil8: return Format::D32F_S8;
         default:
             CC_LOG_ERROR("invalid MTLPixelFormat.");
-            return GFXFormat::UNKNOWN;
+            return Format::UNKNOWN;
     }
 }
 }
 
-CCMTLContext::CCMTLContext(GFXDevice *device)
-: GFXContext(device) {
+CCMTLContext::CCMTLContext(Device *device)
+: Context(device) {
 }
 
 CCMTLContext::~CCMTLContext() {
 }
 
-bool CCMTLContext::initialize(const GFXContextInfo &info) {
+bool CCMTLContext::initialize(const ContextInfo &info) {
     _vsyncMode = info.vsyncMode;
     _windowHandle = info.windowHandle;
     MTKView *view = (MTKView *)((CCMTLDevice *)_device)->getMTKView();
-    _colorFmt = toGFXFormat(view.colorPixelFormat);
-    _depthStencilFmt = toGFXFormat(view.depthStencilPixelFormat);
+    _colorFmt = toFormat(view.colorPixelFormat);
+    _depthStencilFmt = toFormat(view.depthStencilPixelFormat);
 
     return true;
 }

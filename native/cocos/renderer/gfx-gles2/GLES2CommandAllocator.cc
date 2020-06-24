@@ -4,20 +4,20 @@
 namespace cc {
 namespace gfx {
 
-GLES2CommandAllocator::GLES2CommandAllocator(GFXDevice *device)
-: GFXCommandAllocator(device) {
+GLES2CommandAllocator::GLES2CommandAllocator(Device *device)
+: CommandAllocator(device) {
 }
 
 GLES2CommandAllocator::~GLES2CommandAllocator() {
 }
 
-bool GLES2CommandAllocator::initialize(const GFXCommandAllocatorInfo &info) {
-    _status = GFXStatus::SUCCESS;
+bool GLES2CommandAllocator::initialize(const CommandAllocatorInfo &info) {
+    _status = Status::SUCCESS;
     return true;
 }
 
 void GLES2CommandAllocator::destroy() {
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 void GLES2CommandAllocator::clearCmds(GLES2CmdPackage *cmd_package) {

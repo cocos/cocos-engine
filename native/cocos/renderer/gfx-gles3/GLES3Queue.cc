@@ -6,25 +6,25 @@
 namespace cc {
 namespace gfx {
 
-GLES3Queue::GLES3Queue(GFXDevice *device)
-: GFXQueue(device) {
+GLES3Queue::GLES3Queue(Device *device)
+: Queue(device) {
 }
 
 GLES3Queue::~GLES3Queue() {
 }
 
-bool GLES3Queue::initialize(const GFXQueueInfo &info) {
+bool GLES3Queue::initialize(const QueueInfo &info) {
     _type = info.type;
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return true;
 }
 
 void GLES3Queue::destroy() {
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
-void GLES3Queue::submit(const vector<GFXCommandBuffer *> &cmdBuffs, GFXFence *fence) {
+void GLES3Queue::submit(const vector<CommandBuffer *> &cmdBuffs, Fence *fence) {
     if (!_isAsync) {
         uint count = static_cast<uint>(cmdBuffs.size());
         for (uint i = 0; i < count; ++i) {

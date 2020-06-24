@@ -8,10 +8,10 @@
 namespace cc {
 namespace gfx {
 
-CCMTLShader::CCMTLShader(GFXDevice *device) : GFXShader(device) {}
+CCMTLShader::CCMTLShader(Device *device) : Shader(device) {}
 CCMTLShader::~CCMTLShader() { destroy(); }
 
-bool CCMTLShader::initialize(const GFXShaderInfo &info) {
+bool CCMTLShader::initialize(const ShaderInfo &info) {
     _name = info.name;
     _stages = info.stages;
     _attributes = info.attributes;
@@ -21,12 +21,12 @@ bool CCMTLShader::initialize(const GFXShaderInfo &info) {
     for (const auto &stage : _stages) {
         if (!createMTLFunction(stage)) {
             destroy();
-            _status = GFXStatus::FAILED;
+            _status = Status::FAILED;
             return false;
         }
     }
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
     CC_LOG_INFO("%s compile succeed.", _name.c_str());
     return true;
 }
@@ -42,11 +42,11 @@ void CCMTLShader::destroy() {
         _fragmentMTLFunction = nil;
     }
 
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
-bool CCMTLShader::createMTLFunction(const GFXShaderStage &stage) {
-    bool isVertexShader = stage.type == GFXShaderType::VERTEX;
+bool CCMTLShader::createMTLFunction(const ShaderStage &stage) {
+    bool isVertexShader = stage.type == ShaderType::VERTEX;
     id<MTLDevice> mtlDevice = id<MTLDevice>(((CCMTLDevice *)_device)->getMTLDevice());
     auto mtlShader = mu::compileGLSLShader2Msl(stage.source,
                                                stage.type,
@@ -64,7 +64,7 @@ bool CCMTLShader::createMTLFunction(const GFXShaderStage &stage) {
         return false;
     }
 
-    if (stage.type == GFXShaderType::VERTEX) {
+    if (stage.type == ShaderType::VERTEX) {
         _vertexMTLFunction = [library newFunctionWithName:@"main0"];
         if (!_vertexMTLFunction) {
             [library release];

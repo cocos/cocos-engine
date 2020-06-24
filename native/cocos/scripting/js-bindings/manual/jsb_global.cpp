@@ -722,7 +722,7 @@ namespace
         uint32_t width = 0;
         uint32_t height = 0;
         uint8_t* data = nullptr;
-        cc::gfx::GFXFormat format = cc::gfx::GFXFormat::UNKNOWN;
+        cc::gfx::Format format = cc::gfx::Format::UNKNOWN;
         uint8_t bpp = 0;
         uint8_t numberOfMipmaps = 0;
         bool hasAlpha = false;
@@ -783,22 +783,22 @@ namespace
         // will create a big texture, and update its content with small pictures.
         // The big texture is RGBA888, then the small picture should be the same
         // format, or it will cause 0x502 error on OpenGL ES 2.
-        if (!imgInfo->compressed && imgInfo->format != cc::gfx::GFXFormat::RGBA8) {
+        if (!imgInfo->compressed && imgInfo->format != cc::gfx::Format::RGBA8) {
             imgInfo->length = img->getWidth() * img->getHeight() * 4;
             uint8_t* dst = nullptr;
             uint32_t length = imgInfo->length;
             uint8_t* src = imgInfo->data;
             switch(imgInfo->format) {
-                case cc::gfx::GFXFormat::A8:
-                case cc::gfx::GFXFormat::LA8:
+                case cc::gfx::Format::A8:
+                case cc::gfx::Format::LA8:
                     dst = convertIA2RGBA(length, src);
                     break;
-                case cc::gfx::GFXFormat::L8:
-                case cc::gfx::GFXFormat::R8:
-                case cc::gfx::GFXFormat::R8I:
+                case cc::gfx::Format::L8:
+                case cc::gfx::Format::R8:
+                case cc::gfx::Format::R8I:
                     dst = convertI2RGBA(length, src);
                     break;
-                case cc::gfx::GFXFormat::RGB8:
+                case cc::gfx::Format::RGB8:
                     dst = convertRGB2RGBA(length, src);
                     break;
                 default:

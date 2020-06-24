@@ -7,14 +7,14 @@ namespace gfx {
 class CCVKGPUTexture;
 class CCVKGPUTextureView;
 
-class CC_VULKAN_API CCVKTexture : public GFXTexture {
+class CC_VULKAN_API CCVKTexture : public Texture {
 public:
-    CCVKTexture(GFXDevice *device);
+    CCVKTexture(Device *device);
     ~CCVKTexture();
 
 public:
-    bool initialize(const GFXTextureInfo &info);
-    bool initialize(const GFXTextureViewInfo &info);
+    bool initialize(const TextureInfo &info);
+    bool initialize(const TextureViewInfo &info);
     void destroy();
     void resize(uint width, uint height);
 
@@ -22,7 +22,7 @@ public:
     CC_INLINE CCVKGPUTextureView *gpuTextureView() const { return _gpuTextureView; }
 
 private:
-    void createTextureView(const GFXTextureViewInfo &info);
+    void createTextureView(const TextureViewInfo &info);
 
     CCVKGPUTexture *_gpuTexture = nullptr;
     CCVKGPUTextureView *_gpuTextureView = nullptr;

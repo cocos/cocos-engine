@@ -6,13 +6,13 @@ namespace gfx {
 
 class CCVKGPUInputAssembler;
 
-class CC_VULKAN_API CCVKInputAssembler : public GFXInputAssembler {
+class CC_VULKAN_API CCVKInputAssembler : public InputAssembler {
 public:
-    CCVKInputAssembler(GFXDevice *device);
+    CCVKInputAssembler(Device *device);
     ~CCVKInputAssembler();
 
 public:
-    bool initialize(const GFXInputAssemblerInfo &info);
+    bool initialize(const InputAssemblerInfo &info);
     void destroy();
 
     CC_INLINE CCVKGPUInputAssembler *gpuInputAssembler() const { return _gpuInputAssembler; }

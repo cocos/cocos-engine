@@ -28,7 +28,7 @@ public:
 
     void destroyStages();
 
-    CC_INLINE const gfx::GFXDevice *getDevice() const { return _device; }
+    CC_INLINE const gfx::Device *getDevice() const { return _device; }
     CC_INLINE const RenderPipeline *getPipeline() const { return _pipeline; }
     CC_INLINE const String &getName() const { return _name; }
     CC_INLINE int getPriority() const { return _priority; }
@@ -40,7 +40,7 @@ protected:
     void activateStages();
 
 protected:
-    gfx::GFXDevice *_device = nullptr;
+    gfx::Device *_device = nullptr;
     RenderPipeline *_pipeline = nullptr;
     String _name;
     int _priority = 0;

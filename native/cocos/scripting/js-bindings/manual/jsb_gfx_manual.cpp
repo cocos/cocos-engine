@@ -49,15 +49,15 @@
 #define GFX_INVALID_BINDING ((uint8_t)-1)
 #define GFX_INVALID_HANDLE ((uint)-1)
 
-bool js_GFXDevice_copyBuffersToTexture(se::State& s, cc::gfx::GFXDevice* cobj)
+bool js_Device_copyBuffersToTexture(se::State& s, cc::gfx::Device* cobj)
 {
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 3) {
-        cc::gfx::GFXDataArray arg0;
-        cc::gfx::GFXTexture* arg1 = nullptr;
-        std::vector<cc::gfx::GFXBufferTextureCopy> arg2;
+        cc::gfx::DataArray arg0;
+        cc::gfx::Texture* arg1 = nullptr;
+        std::vector<cc::gfx::BufferTextureCopy> arg2;
         if (args[0].isObject())
         {
             se::Object* dataObj = args[0].toObject();
@@ -94,7 +94,7 @@ bool js_GFXDevice_copyBuffersToTexture(se::State& s, cc::gfx::GFXDevice* cobj)
         }
         ok &= seval_to_native_ptr(args[1], &arg1);
         ok &= seval_to_std_vector(args[2], &arg2);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_copyBuffersToTexture : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_copyBuffersToTexture : Error processing arguments");
         cobj->copyBuffersToTexture(arg0, arg1, arg2);
         return true;
     }
@@ -103,15 +103,15 @@ bool js_GFXDevice_copyBuffersToTexture(se::State& s, cc::gfx::GFXDevice* cobj)
     return false;
 }
 
-bool js_GFXDevice_copyTexImagesToTexture(se::State& s, cc::gfx::GFXDevice* cobj)
+bool js_Device_copyTexImagesToTexture(se::State& s, cc::gfx::Device* cobj)
 {
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 3) {
-        cc::gfx::GFXDataArray arg0;
-        cc::gfx::GFXTexture* arg1 = nullptr;
-        std::vector<cc::gfx::GFXBufferTextureCopy> arg2;
+        cc::gfx::DataArray arg0;
+        cc::gfx::Texture* arg1 = nullptr;
+        std::vector<cc::gfx::BufferTextureCopy> arg2;
         if (args[0].isObject())
         {
             se::Object* dataObj = args[0].toObject();
@@ -138,7 +138,7 @@ bool js_GFXDevice_copyTexImagesToTexture(se::State& s, cc::gfx::GFXDevice* cobj)
         }
         ok &= seval_to_native_ptr(args[1], &arg1);
         ok &= seval_to_std_vector(args[2], &arg2);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_copyBuffersToTexture : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_copyBuffersToTexture : Error processing arguments");
         cobj->copyBuffersToTexture(arg0, arg1, arg2);
         return true;
     }
@@ -146,45 +146,45 @@ bool js_GFXDevice_copyTexImagesToTexture(se::State& s, cc::gfx::GFXDevice* cobj)
     return false;
 }
 
-static bool js_gfx_GFXDevice_createTexture(se::State& s)
+static bool js_gfx_Device_createTexture(se::State& s)
 {
-    cc::gfx::GFXDevice* cobj = (cc::gfx::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2( cobj, false, "js_gfx_GFXDevice_createTexture : Invalid Native Object");
+    cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
+    SE_PRECONDITION2( cobj, false, "js_gfx_Device_createTexture : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     
     if (argc == 2) {
-        cc::gfx::GFXTexture* texture = nullptr;
+        cc::gfx::Texture* texture = nullptr;
         
         bool createTextureView = false;
         seval_to_boolean(args[1], &createTextureView);
         
         if (createTextureView)
         {
-            auto textureViewInfo = (cc::gfx::GFXTextureViewInfo*)(args[0].toObject()->getPrivateData());
+            auto textureViewInfo = (cc::gfx::TextureViewInfo*)(args[0].toObject()->getPrivateData());
             texture = cobj->createTexture(*textureViewInfo);
         }
         else
         {
-            auto textureInfo = (cc::gfx::GFXTextureInfo*)(args[0].toObject()->getPrivateData());
+            auto textureInfo = (cc::gfx::TextureInfo*)(args[0].toObject()->getPrivateData());
             texture = cobj->createTexture(*textureInfo);
         }
         
         CC_UNUSED bool ok = native_ptr_to_seval(texture, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_createTexture : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createTexture : Error processing arguments");
         return true;
     }
     
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_createTexture)
+SE_BIND_FUNC(js_gfx_Device_createTexture)
 
-static bool js_gfx_GFXTexture_initialize(se::State& s)
+static bool js_gfx_Texture_initialize(se::State& s)
 {
     CC_UNUSED bool ok = true;
-    cc::gfx::GFXTexture* cobj = (cc::gfx::GFXTexture*)s.nativeThisObject();
-    SE_PRECONDITION2( cobj, false, "js_gfx_GFXTexture_initialize : Invalid Native Object");
+    cc::gfx::Texture* cobj = (cc::gfx::Texture*)s.nativeThisObject();
+    SE_PRECONDITION2( cobj, false, "js_gfx_Texture_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     
@@ -194,31 +194,31 @@ static bool js_gfx_GFXTexture_initialize(se::State& s)
         
         if (initWithTextureViewInfo)
         {
-            auto textureViewInfo = (cc::gfx::GFXTextureViewInfo*)(args[0].toObject()->getPrivateData());
+            auto textureViewInfo = (cc::gfx::TextureViewInfo*)(args[0].toObject()->getPrivateData());
             ok &= cobj->initialize(*textureViewInfo);
         }
         else
         {
-            auto textureInfo = (cc::gfx::GFXTextureInfo*)(args[0].toObject()->getPrivateData());
+            auto textureInfo = (cc::gfx::TextureInfo*)(args[0].toObject()->getPrivateData());
             ok &= cobj->initialize(*textureInfo);
         }
         
         ok &= boolean_to_seval(ok, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTexture_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_initialize : Error processing arguments");
         return true;
     }
     
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXTexture_initialize)
+SE_BIND_FUNC(js_gfx_Texture_initialize)
 
 #ifdef USE_VULKAN
 static bool js_gfx_CCVKDevice_copyBuffersToTexture(se::State& s)
 {
     cc::gfx::CCVKDevice* cobj = (cc::gfx::CCVKDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_CCVKDevice_copyBuffersToTexture : Invalid Native Object");
-    return js_GFXDevice_copyBuffersToTexture(s, cobj);
+    return js_Device_copyBuffersToTexture(s, cobj);
 }
 SE_BIND_FUNC(js_gfx_CCVKDevice_copyBuffersToTexture)
 
@@ -226,7 +226,7 @@ static bool js_gfx_CCVKDevice_copyTexImagesToTexture(se::State& s)
 {
     cc::gfx::CCVKDevice* cobj = (cc::gfx::CCVKDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_CCVKDevice_copyTexImagesToTexture : Invalid Native Object");
-    return js_GFXDevice_copyTexImagesToTexture(s, cobj);
+    return js_Device_copyTexImagesToTexture(s, cobj);
 }
 SE_BIND_FUNC(js_gfx_CCVKDevice_copyTexImagesToTexture);
 #endif // USE_GLES3
@@ -236,7 +236,7 @@ static bool js_gfx_CCMTLDevice_copyBuffersToTexture(se::State& s)
 {
     cc::gfx::CCMTLDevice* cobj = (cc::gfx::CCMTLDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_CCMTLDevice_copyBuffersToTexture : Invalid Native Object");
-    return js_GFXDevice_copyBuffersToTexture(s, cobj);
+    return js_Device_copyBuffersToTexture(s, cobj);
 }
 SE_BIND_FUNC(js_gfx_CCMTLDevice_copyBuffersToTexture)
 
@@ -244,7 +244,7 @@ static bool js_gfx_CCMTLDevice_copyTexImagesToTexture(se::State& s)
 {
     cc::gfx::CCMTLDevice* cobj = (cc::gfx::CCMTLDevice*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_CCMTLDevice_copyTexImagesToTexture : Invalid Native Object");
-    return js_GFXDevice_copyTexImagesToTexture(s, cobj);
+    return js_Device_copyTexImagesToTexture(s, cobj);
 }
 SE_BIND_FUNC(js_gfx_CCMTLDevice_copyTexImagesToTexture);
 #endif // USE_METAL
@@ -254,7 +254,7 @@ static bool js_gfx_GLES3Device_copyBuffersToTexture(se::State& s)
 {
     cc::gfx::GLES3Device* cobj = (cc::gfx::GLES3Device*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GLES3Device_copyBuffersToTexture : Invalid Native Object");
-    return js_GFXDevice_copyBuffersToTexture(s, cobj);
+    return js_Device_copyBuffersToTexture(s, cobj);
 }
 SE_BIND_FUNC(js_gfx_GLES3Device_copyBuffersToTexture)
 
@@ -262,7 +262,7 @@ static bool js_gfx_GLES3Device_copyTexImagesToTexture(se::State& s)
 {
     cc::gfx::GLES3Device* cobj = (cc::gfx::GLES3Device*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GLES3Device_copyTexImagesToTexture : Invalid Native Object");
-    return js_GFXDevice_copyTexImagesToTexture(s, cobj);
+    return js_Device_copyTexImagesToTexture(s, cobj);
 }
 SE_BIND_FUNC(js_gfx_GLES3Device_copyTexImagesToTexture);
 #endif // USE_GLES3
@@ -272,7 +272,7 @@ static bool js_gfx_GLES2Device_copyBuffersToTexture(se::State& s)
 {
     cc::gfx::GLES2Device* cobj = (cc::gfx::GLES2Device*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_copyBuffersToTexture : Invalid Native Object");
-    return js_GFXDevice_copyBuffersToTexture(s, cobj);
+    return js_Device_copyBuffersToTexture(s, cobj);
 }
 SE_BIND_FUNC(js_gfx_GLES2Device_copyBuffersToTexture)
 
@@ -280,14 +280,14 @@ static bool js_gfx_GLES2Device_copyTexImagesToTexture(se::State& s)
 {
     cc::gfx::GLES2Device* cobj = (cc::gfx::GLES2Device*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_copyTexImagesToTexture : Invalid Native Object");
-    return js_GFXDevice_copyTexImagesToTexture(s, cobj);
+    return js_Device_copyTexImagesToTexture(s, cobj);
 }
 SE_BIND_FUNC(js_gfx_GLES2Device_copyTexImagesToTexture);
 #endif // USE_GLES2
 
 static bool js_gfx_GFXBuffer_update(se::State& s)
 {
-    cc::gfx::GFXBuffer* cobj = (cc::gfx::GFXBuffer*)s.nativeThisObject();
+    cc::gfx::Buffer* cobj = (cc::gfx::Buffer*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_update : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -337,13 +337,13 @@ static bool js_gfx_GFXBuffer_update(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXBuffer_update)
 
-se::Object* __jsb_cocos2d_GFXSubPass_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXSubPass_class = nullptr;
+se::Object* __jsb_cocos2d_SubPass_proto = nullptr;
+se::Class* __jsb_cocos2d_SubPass_class = nullptr;
 
-static bool js_gfx_GFXSubPass_get_bind_point(se::State& s)
+static bool js_gfx_SubPass_get_bind_point(se::State& s)
 {
-    cc::gfx::GFXSubPass* cobj = (cc::gfx::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_get_bind_point : Invalid Native Object");
+    cc::gfx::SubPass* cobj = (cc::gfx::SubPass*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubPass_get_bind_point : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -351,27 +351,27 @@ static bool js_gfx_GFXSubPass_get_bind_point(se::State& s)
     s.rval() = jsret;
     return true;
 }
-SE_BIND_PROP_GET(js_gfx_GFXSubPass_get_bind_point)
+SE_BIND_PROP_GET(js_gfx_SubPass_get_bind_point)
 
-static bool js_gfx_GFXSubPass_set_bind_point(se::State& s)
+static bool js_gfx_SubPass_set_bind_point(se::State& s)
 {
     const auto& args = s.args();
-    cc::gfx::GFXSubPass* cobj = (cc::gfx::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_set_bind_point : Invalid Native Object");
+    cc::gfx::SubPass* cobj = (cc::gfx::SubPass*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubPass_set_bind_point : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cc::gfx::GFXPipelineBindPoint arg0 = cc::gfx::GFXPipelineBindPoint::GRAPHICS;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::GFXPipelineBindPoint)tmp; } while(false);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_set_bind_point : Error processing new value");
+    cc::gfx::PipelineBindPoint arg0 = cc::gfx::PipelineBindPoint::GRAPHICS;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::PipelineBindPoint)tmp; } while(false);
+    SE_PRECONDITION2(ok, false, "js_gfx_SubPass_set_bind_point : Error processing new value");
     cobj->bindPoint = arg0;
     return true;
 }
-SE_BIND_PROP_SET(js_gfx_GFXSubPass_set_bind_point)
+SE_BIND_PROP_SET(js_gfx_SubPass_set_bind_point)
 
-static bool js_gfx_GFXSubPass_get_inputs(se::State& s)
+static bool js_gfx_SubPass_get_inputs(se::State& s)
 {
-    cc::gfx::GFXSubPass* cobj = (cc::gfx::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_get_inputs : Invalid Native Object");
+    cc::gfx::SubPass* cobj = (cc::gfx::SubPass*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubPass_get_inputs : Invalid Native Object");
 
     se::Value jsret;
     se::HandleObject obj(se::Object::createArrayObject(GFX_MAX_ATTACHMENTS));
@@ -382,25 +382,25 @@ static bool js_gfx_GFXSubPass_get_inputs(se::State& s)
     jsret.setObject(obj);
     return true;
 }
-SE_BIND_PROP_GET(js_gfx_GFXSubPass_get_inputs)
+SE_BIND_PROP_GET(js_gfx_SubPass_get_inputs)
 
-static bool js_gfx_GFXSubPass_set_inputs(se::State& s)
+static bool js_gfx_SubPass_set_inputs(se::State& s)
 {
     const auto& args = s.args();
-    cc::gfx::GFXSubPass* cobj = (cc::gfx::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_set_inputs : Invalid Native Object");
+    cc::gfx::SubPass* cobj = (cc::gfx::SubPass*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubPass_set_inputs : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= seval_to_Uint8Array(args[0], cobj->inputs);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_set_inputs : Error processing new value");
+    SE_PRECONDITION2(ok, false, "js_gfx_SubPass_set_inputs : Error processing new value");
     return true;
 }
-SE_BIND_PROP_SET(js_gfx_GFXSubPass_set_inputs)
+SE_BIND_PROP_SET(js_gfx_SubPass_set_inputs)
 
-static bool js_gfx_GFXSubPass_get_colors(se::State& s)
+static bool js_gfx_SubPass_get_colors(se::State& s)
 {
-    cc::gfx::GFXSubPass* cobj = (cc::gfx::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_get_colors : Invalid Native Object");
+    cc::gfx::SubPass* cobj = (cc::gfx::SubPass*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubPass_get_colors : Invalid Native Object");
 
     se::Value jsret;
     se::HandleObject obj(se::Object::createArrayObject(GFX_MAX_ATTACHMENTS));
@@ -411,25 +411,25 @@ static bool js_gfx_GFXSubPass_get_colors(se::State& s)
     jsret.setObject(obj);
     return true;
 }
-SE_BIND_PROP_GET(js_gfx_GFXSubPass_get_colors)
+SE_BIND_PROP_GET(js_gfx_SubPass_get_colors)
 
-static bool js_gfx_GFXSubPass_set_colors(se::State& s)
+static bool js_gfx_SubPass_set_colors(se::State& s)
 {
     const auto& args = s.args();
-    cc::gfx::GFXSubPass* cobj = (cc::gfx::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_set_colors : Invalid Native Object");
+    cc::gfx::SubPass* cobj = (cc::gfx::SubPass*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubPass_set_colors : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= seval_to_Uint8Array(args[0], cobj->colors);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_set_colors : Error processing new value");
+    SE_PRECONDITION2(ok, false, "js_gfx_SubPass_set_colors : Error processing new value");
     return true;
 }
-SE_BIND_PROP_SET(js_gfx_GFXSubPass_set_colors)
+SE_BIND_PROP_SET(js_gfx_SubPass_set_colors)
 
-static bool js_gfx_GFXSubPass_get_resolves(se::State& s)
+static bool js_gfx_SubPass_get_resolves(se::State& s)
 {
-    cc::gfx::GFXSubPass* cobj = (cc::gfx::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_get_resolves : Invalid Native Object");
+    cc::gfx::SubPass* cobj = (cc::gfx::SubPass*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubPass_get_resolves : Invalid Native Object");
 
     se::Value jsret;
     se::HandleObject obj(se::Object::createArrayObject(GFX_MAX_ATTACHMENTS));
@@ -440,26 +440,26 @@ static bool js_gfx_GFXSubPass_get_resolves(se::State& s)
     jsret.setObject(obj);
     return true;
 }
-SE_BIND_PROP_GET(js_gfx_GFXSubPass_get_resolves)
+SE_BIND_PROP_GET(js_gfx_SubPass_get_resolves)
 
-static bool js_gfx_GFXSubPass_set_resolves(se::State& s)
+static bool js_gfx_SubPass_set_resolves(se::State& s)
 {
     const auto& args = s.args();
-    cc::gfx::GFXSubPass* cobj = (cc::gfx::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_set_resolves : Invalid Native Object");
+    cc::gfx::SubPass* cobj = (cc::gfx::SubPass*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubPass_set_resolves : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= seval_to_Uint8Array(args[0], cobj->resolves);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_set_resolves : Error processing new value");
+    SE_PRECONDITION2(ok, false, "js_gfx_SubPass_set_resolves : Error processing new value");
 
     return true;
 }
-SE_BIND_PROP_SET(js_gfx_GFXSubPass_set_resolves)
+SE_BIND_PROP_SET(js_gfx_SubPass_set_resolves)
 
-static bool js_gfx_GFXSubPass_get_depth_stencil(se::State& s)
+static bool js_gfx_SubPass_get_depth_stencil(se::State& s)
 {
-    cc::gfx::GFXSubPass* cobj = (cc::gfx::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_get_depth_stencil : Invalid Native Object");
+    cc::gfx::SubPass* cobj = (cc::gfx::SubPass*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubPass_get_depth_stencil : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -467,27 +467,27 @@ static bool js_gfx_GFXSubPass_get_depth_stencil(se::State& s)
     s.rval() = jsret;
     return true;
 }
-SE_BIND_PROP_GET(js_gfx_GFXSubPass_get_depth_stencil)
+SE_BIND_PROP_GET(js_gfx_SubPass_get_depth_stencil)
 
-static bool js_gfx_GFXSubPass_set_depth_stencil(se::State& s)
+static bool js_gfx_SubPass_set_depth_stencil(se::State& s)
 {
     const auto& args = s.args();
-    cc::gfx::GFXSubPass* cobj = (cc::gfx::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_set_depth_stencil : Invalid Native Object");
+    cc::gfx::SubPass* cobj = (cc::gfx::SubPass*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubPass_set_depth_stencil : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     uint8_t arg0;
     ok &= seval_to_uint8(args[0], (uint8_t*)&arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_set_depth_stencil : Error processing new value");
+    SE_PRECONDITION2(ok, false, "js_gfx_SubPass_set_depth_stencil : Error processing new value");
     cobj->depthStencil = arg0;
     return true;
 }
-SE_BIND_PROP_SET(js_gfx_GFXSubPass_set_depth_stencil)
+SE_BIND_PROP_SET(js_gfx_SubPass_set_depth_stencil)
 
-static bool js_gfx_GFXSubPass_get_preserves(se::State& s)
+static bool js_gfx_SubPass_get_preserves(se::State& s)
 {
-    cc::gfx::GFXSubPass* cobj = (cc::gfx::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_get_preserves : Invalid Native Object");
+    cc::gfx::SubPass* cobj = (cc::gfx::SubPass*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubPass_get_preserves : Invalid Native Object");
 
     se::Value jsret;
     se::HandleObject obj(se::Object::createArrayObject(GFX_MAX_ATTACHMENTS));
@@ -498,25 +498,25 @@ static bool js_gfx_GFXSubPass_get_preserves(se::State& s)
     jsret.setObject(obj);
     return true;
 }
-SE_BIND_PROP_GET(js_gfx_GFXSubPass_get_preserves)
+SE_BIND_PROP_GET(js_gfx_SubPass_get_preserves)
 
-static bool js_gfx_GFXSubPass_set_preserves(se::State& s)
+static bool js_gfx_SubPass_set_preserves(se::State& s)
 {
     const auto& args = s.args();
-    cc::gfx::GFXSubPass* cobj = (cc::gfx::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_set_preserves : Invalid Native Object");
+    cc::gfx::SubPass* cobj = (cc::gfx::SubPass*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubPass_set_preserves : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= seval_to_Uint8Array(args[0], cobj->preserves);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_set_preserves : Error processing new value");
+    SE_PRECONDITION2(ok, false, "js_gfx_SubPass_set_preserves : Error processing new value");
 
     return true;
 }
-SE_BIND_PROP_SET(js_gfx_GFXSubPass_set_preserves)
+SE_BIND_PROP_SET(js_gfx_SubPass_set_preserves)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXSubPass_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_SubPass_finalize)
 
-static bool js_gfx_GFXSubPass_constructor(se::State& s)
+static bool js_gfx_SubPass_constructor(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -524,7 +524,7 @@ static bool js_gfx_GFXSubPass_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cc::gfx::GFXSubPass* cobj = new (std::nothrow) cc::gfx::GFXSubPass();
+        cc::gfx::SubPass* cobj = new (std::nothrow) cc::gfx::SubPass();
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -534,17 +534,17 @@ static bool js_gfx_GFXSubPass_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cc::gfx::GFXSubPass* cobj = new (std::nothrow) cc::gfx::GFXSubPass();
+        cc::gfx::SubPass* cobj = new (std::nothrow) cc::gfx::SubPass();
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
 
-        cc::gfx::GFXPipelineBindPoint arg0 = cc::gfx::GFXPipelineBindPoint::GRAPHICS;
+        cc::gfx::PipelineBindPoint arg0 = cc::gfx::PipelineBindPoint::GRAPHICS;
         json->getProperty("bind_point", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".bind_point\" is undefined!");
             return false;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cc::gfx::GFXPipelineBindPoint)tmp; } while(false);
+        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cc::gfx::PipelineBindPoint)tmp; } while(false);
         cobj->bindPoint = arg0;
         
         json->getProperty("inputs", &field);  
@@ -553,7 +553,7 @@ static bool js_gfx_GFXSubPass_constructor(se::State& s)
             return false;
         } 
         ok &= seval_to_Uint8Array(field, cobj->inputs);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_constructor : Error processing inputs value");
+        SE_PRECONDITION2(ok, false, "js_gfx_SubPass_constructor : Error processing inputs value");
 
         json->getProperty("colors", &field);  
         if(field.isUndefined()) {
@@ -561,7 +561,7 @@ static bool js_gfx_GFXSubPass_constructor(se::State& s)
             return false;
         }
         ok &= seval_to_Uint8Array(field, cobj->colors);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_constructor : Error processing colors value");
+        SE_PRECONDITION2(ok, false, "js_gfx_SubPass_constructor : Error processing colors value");
 
         json->getProperty("resolves", &field);  
         if(field.isUndefined()) {
@@ -569,7 +569,7 @@ static bool js_gfx_GFXSubPass_constructor(se::State& s)
             return false;
         }
         ok &= seval_to_Uint8Array(field, cobj->resolves);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_constructor : Error processing resolves value");
+        SE_PRECONDITION2(ok, false, "js_gfx_SubPass_constructor : Error processing resolves value");
 
         json->getProperty("depth_stencil", &field);  
         if(field.isUndefined()) {
@@ -577,7 +577,7 @@ static bool js_gfx_GFXSubPass_constructor(se::State& s)
             return false;
         }
         ok &= seval_to_uint8(field, (uint8_t*)&cobj->depthStencil);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_constructor : Error processing depth_stencil value");
+        SE_PRECONDITION2(ok, false, "js_gfx_SubPass_constructor : Error processing depth_stencil value");
         
         json->getProperty("preserves", &field);  
         if(field.isUndefined()) {
@@ -585,34 +585,34 @@ static bool js_gfx_GFXSubPass_constructor(se::State& s)
             return false;
         }
         ok &= seval_to_Uint8Array(field, cobj->preserves);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_constructor : Error processing preserves value");
+        SE_PRECONDITION2(ok, false, "js_gfx_SubPass_constructor : Error processing preserves value");
 
         return true;
     }
     else if(argc == 6)
     {
-        cc::gfx::GFXSubPass* cobj = new (std::nothrow) cc::gfx::GFXSubPass();
+        cc::gfx::SubPass* cobj = new (std::nothrow) cc::gfx::SubPass();
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
 
-        cc::gfx::GFXPipelineBindPoint arg0 = cc::gfx::GFXPipelineBindPoint::GRAPHICS;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::GFXPipelineBindPoint)tmp; } while(false);
+        cc::gfx::PipelineBindPoint arg0 = cc::gfx::PipelineBindPoint::GRAPHICS;
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::PipelineBindPoint)tmp; } while(false);
         cobj->bindPoint = arg0;
 
         ok &= seval_to_Uint8Array(args[1], (uint8_t*)&cobj->inputs);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_constructor : Error processing inputs value");
+        SE_PRECONDITION2(ok, false, "js_gfx_SubPass_constructor : Error processing inputs value");
 
         ok &= seval_to_Uint8Array(args[2], (uint8_t*)&cobj->colors);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_constructor : Error processing colors value");
+        SE_PRECONDITION2(ok, false, "js_gfx_SubPass_constructor : Error processing colors value");
 
         ok &= seval_to_Uint8Array(args[3], (uint8_t*)&cobj->resolves);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_constructor : Error processing resolves value");
+        SE_PRECONDITION2(ok, false, "js_gfx_SubPass_constructor : Error processing resolves value");
 
         ok &= seval_to_uint8(args[4], (uint8_t*)&cobj->depthStencil);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_constructor : Error processing depth_stencil value");
+        SE_PRECONDITION2(ok, false, "js_gfx_SubPass_constructor : Error processing depth_stencil value");
 
         ok &= seval_to_Uint8Array(args[5], (uint8_t*)&cobj->preserves);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_constructor : Error processing preserves value");
+        SE_PRECONDITION2(ok, false, "js_gfx_SubPass_constructor : Error processing preserves value");
         
         return true;
     }
@@ -620,51 +620,51 @@ static bool js_gfx_GFXSubPass_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_CTOR(js_gfx_GFXSubPass_constructor, __jsb_cocos2d_GFXSubPass_class, js_cocos2d_GFXSubPass_finalize)
+SE_BIND_CTOR(js_gfx_SubPass_constructor, __jsb_cocos2d_SubPass_class, js_cocos2d_SubPass_finalize)
 
-static bool js_cocos2d_GFXSubPass_finalize(se::State& s)
+static bool js_cocos2d_SubPass_finalize(se::State& s)
 {
-    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::GFXSubPass)", s.nativeThisObject());
+    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::SubPass)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cc::gfx::GFXSubPass* cobj = (cc::gfx::GFXSubPass*)s.nativeThisObject();
+        cc::gfx::SubPass* cobj = (cc::gfx::SubPass*)s.nativeThisObject();
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXSubPass_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_SubPass_finalize)
 
-bool js_register_gfx_GFXSubPass(se::Object* obj)
+bool js_register_gfx_SubPass(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXSubPass", obj, nullptr, _SE(js_gfx_GFXSubPass_constructor));
+    auto cls = se::Class::create("SubPass", obj, nullptr, _SE(js_gfx_SubPass_constructor));
 
-    cls->defineProperty("bindPoint", _SE(js_gfx_GFXSubPass_get_bind_point), _SE(js_gfx_GFXSubPass_set_bind_point));
-    cls->defineProperty("inputs", _SE(js_gfx_GFXSubPass_get_inputs), _SE(js_gfx_GFXSubPass_set_inputs));
-    cls->defineProperty("colors", _SE(js_gfx_GFXSubPass_get_colors), _SE(js_gfx_GFXSubPass_set_colors));
-    cls->defineProperty("resolves", _SE(js_gfx_GFXSubPass_get_resolves), _SE(js_gfx_GFXSubPass_set_resolves));
-    cls->defineProperty("depthStencil", _SE(js_gfx_GFXSubPass_get_depth_stencil), _SE(js_gfx_GFXSubPass_set_depth_stencil));
-    cls->defineProperty("preserves", _SE(js_gfx_GFXSubPass_get_preserves), _SE(js_gfx_GFXSubPass_set_preserves));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXSubPass_finalize));
+    cls->defineProperty("bindPoint", _SE(js_gfx_SubPass_get_bind_point), _SE(js_gfx_SubPass_set_bind_point));
+    cls->defineProperty("inputs", _SE(js_gfx_SubPass_get_inputs), _SE(js_gfx_SubPass_set_inputs));
+    cls->defineProperty("colors", _SE(js_gfx_SubPass_get_colors), _SE(js_gfx_SubPass_set_colors));
+    cls->defineProperty("resolves", _SE(js_gfx_SubPass_get_resolves), _SE(js_gfx_SubPass_set_resolves));
+    cls->defineProperty("depthStencil", _SE(js_gfx_SubPass_get_depth_stencil), _SE(js_gfx_SubPass_set_depth_stencil));
+    cls->defineProperty("preserves", _SE(js_gfx_SubPass_get_preserves), _SE(js_gfx_SubPass_set_preserves));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_SubPass_finalize));
     cls->install();
-    JSBClassType::registerClass<cc::gfx::GFXSubPass>(cls);
+    JSBClassType::registerClass<cc::gfx::SubPass>(cls);
 
-    __jsb_cocos2d_GFXSubPass_proto = cls->getProto();
-    __jsb_cocos2d_GFXSubPass_class = cls;
+    __jsb_cocos2d_SubPass_proto = cls->getProto();
+    __jsb_cocos2d_SubPass_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-static bool js_gfx_GFXPipelineLayout_get_layouts(se::State& s)
+static bool js_gfx_PipelineLayout_get_layouts(se::State& s)
 {
-    cc::gfx::GFXPipelineLayout* cobj = (cc::gfx::GFXPipelineLayout*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineLayout_layouts : Invalid Native Object");
+    cc::gfx::PipelineLayout* cobj = (cc::gfx::PipelineLayout*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineLayout_layouts : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
-        const std::vector<cc::gfx::GFXBindingLayout *>& result = cobj->getLayouts();
+        const std::vector<cc::gfx::BindingLayout *>& result = cobj->getLayouts();
         
         se::Value *layouts = &s.rval();
         se::HandleObject arr(se::Object::createArrayObject(result.size()));
@@ -684,17 +684,17 @@ static bool js_gfx_GFXPipelineLayout_get_layouts(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_GFXPipelineLayout_get_layouts)
+SE_BIND_PROP_GET(js_gfx_PipelineLayout_get_layouts)
 
-static bool js_gfx_GFXBlendState_get_targets(se::State& s)
+static bool js_gfx_BlendState_get_targets(se::State& s)
 {
-    cc::gfx::GFXBlendState* cobj = (cc::gfx::GFXBlendState*)s.nativeThisObject();
+    cc::gfx::BlendState* cobj = (cc::gfx::BlendState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendState_get_targets : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value *jsTargets = &s.rval();
 
-    const std::vector<cc::gfx::GFXBlendTarget>& targets = cobj->targets;
+    const std::vector<cc::gfx::BlendTarget>& targets = cobj->targets;
     se::HandleObject arr(se::Object::createArrayObject(targets.size()));
     jsTargets->setObject(arr);
     
@@ -709,32 +709,32 @@ static bool js_gfx_GFXBlendState_get_targets(se::State& s)
     }
     return true;
 }
-SE_BIND_PROP_GET(js_gfx_GFXBlendState_get_targets)
+SE_BIND_PROP_GET(js_gfx_BlendState_get_targets)
 
-static bool js_gfx_GFXBlendState_set_targets(se::State& s)
+static bool js_gfx_BlendState_set_targets(se::State& s)
 {
     const auto& args = s.args();
-    cc::gfx::GFXBlendState* cobj = (cc::gfx::GFXBlendState*)s.nativeThisObject();
+    cc::gfx::BlendState* cobj = (cc::gfx::BlendState*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendState_set_targets : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::vector<cc::gfx::GFXBlendTarget> arg0;
+    std::vector<cc::gfx::BlendTarget> arg0;
     ok &= seval_to_std_vector(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXBlendState_set_targets : Error processing new value");
     cobj->targets = arg0;
     return true;
 }
-SE_BIND_PROP_SET(js_gfx_GFXBlendState_set_targets)
+SE_BIND_PROP_SET(js_gfx_BlendState_set_targets)
 
-static bool js_gfx_GFXCommandBuffer_execute(se::State& s)
+static bool js_gfx_CommandBuffer_execute(se::State& s)
 {
-    cc::gfx::GFXCommandBuffer* cobj = (cc::gfx::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_execute : Invalid Native Object");
+    cc::gfx::CommandBuffer* cobj = (cc::gfx::CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_execute : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        std::vector<cc::gfx::GFXCommandBuffer *> cmdBufs;
+        std::vector<cc::gfx::CommandBuffer *> cmdBufs;
         unsigned int count = 0;
         ok &= seval_to_uint32(args[1], (uint32_t*)&count);
         
@@ -760,28 +760,28 @@ static bool js_gfx_GFXCommandBuffer_execute(se::State& s)
                     break;
                 }
                 
-                cc::gfx::GFXCommandBuffer *cmdBuf = (cc::gfx::GFXCommandBuffer*)tmp.toObject()->getPrivateData();
+                cc::gfx::CommandBuffer *cmdBuf = (cc::gfx::CommandBuffer*)tmp.toObject()->getPrivateData();
                 cmdBufs[i] = cmdBuf;
             }
         }
         
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_execute : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_execute : Error processing arguments");
         cobj->execute(cmdBufs, count);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_execute)
+SE_BIND_FUNC(js_gfx_CommandBuffer_execute)
 
-static bool js_gfx_GFXInputAssembler_extractDrawInfo(se::State& s)
+static bool js_gfx_InputAssembler_extractDrawInfo(se::State& s)
 {
-    cc::gfx::GFXInputAssembler* cobj = (cc::gfx::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_extractDrawInfo : Invalid Native Object");
+    cc::gfx::InputAssembler* cobj = (cc::gfx::InputAssembler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_InputAssembler_extractDrawInfo : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 1) {
-        cc::gfx::GFXDrawInfo nativeDrawInfo;
+        cc::gfx::DrawInfo nativeDrawInfo;
         cobj->extractDrawInfo(nativeDrawInfo);
         
         se::Object* drawInfo = args[0].toObject();
@@ -811,21 +811,21 @@ static bool js_gfx_GFXInputAssembler_extractDrawInfo(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_extractDrawInfo)
+SE_BIND_FUNC(js_gfx_InputAssembler_extractDrawInfo)
 
 bool register_all_gfx_manual(se::Object* obj)
 {    
-    __jsb_cc_gfx_GFXBuffer_proto->defineFunction("update", _SE(js_gfx_GFXBuffer_update));
+    __jsb_cc_gfx_Buffer_proto->defineFunction("update", _SE(js_gfx_GFXBuffer_update));
     
-    __jsb_cc_gfx_GFXPipelineLayout_proto->defineProperty("layouts", _SE(js_gfx_GFXPipelineLayout_get_layouts), nullptr);
+    __jsb_cc_gfx_PipelineLayout_proto->defineProperty("layouts", _SE(js_gfx_PipelineLayout_get_layouts), nullptr);
     
-    __jsb_cc_gfx_GFXBlendState_proto->defineProperty("targets", _SE(js_gfx_GFXBlendState_get_targets), _SE(js_gfx_GFXBlendState_set_targets));
+    __jsb_cc_gfx_BlendState_proto->defineProperty("targets", _SE(js_gfx_BlendState_get_targets), _SE(js_gfx_BlendState_set_targets));
     
-    __jsb_cc_gfx_GFXCommandBuffer_proto->defineFunction("execute", _SE(js_gfx_GFXCommandBuffer_execute));
+    __jsb_cc_gfx_CommandBuffer_proto->defineFunction("execute", _SE(js_gfx_CommandBuffer_execute));
 
-    __jsb_cc_gfx_GFXInputAssembler_proto->defineFunction("extractDrawInfo", _SE(js_gfx_GFXInputAssembler_extractDrawInfo));
+    __jsb_cc_gfx_InputAssembler_proto->defineFunction("extractDrawInfo", _SE(js_gfx_InputAssembler_extractDrawInfo));
     
-    js_register_gfx_GFXSubPass(obj);
+    js_register_gfx_SubPass(obj);
 
 #if defined USE_VULKAN
     register_all_vk(obj);
@@ -847,8 +847,8 @@ bool register_all_gfx_manual(se::Object* obj)
     __jsb_cc_gfx_CCMTLDevice_proto->defineFunction("copyBuffersToTexture", _SE(js_gfx_CCMTLDevice_copyBuffersToTexture));
     __jsb_cc_gfx_CCMTLDevice_proto->defineFunction("copyTexImagesToTexture", _SE(js_gfx_CCMTLDevice_copyTexImagesToTexture));
 #endif
-    __jsb_cc_gfx_GFXDevice_proto->defineFunction("createTexture", _SE(js_gfx_GFXDevice_createTexture));
-    __jsb_cc_gfx_GFXTexture_proto->defineFunction("initialize", _SE(js_gfx_GFXTexture_initialize));
+    __jsb_cc_gfx_Device_proto->defineFunction("createTexture", _SE(js_gfx_Device_createTexture));
+    __jsb_cc_gfx_Texture_proto->defineFunction("initialize", _SE(js_gfx_Texture_initialize));
     
     return true;
 }

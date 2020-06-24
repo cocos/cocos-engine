@@ -6,14 +6,14 @@
 namespace cc {
 namespace gfx {
 
-GLES3Texture::GLES3Texture(GFXDevice *device)
-: GFXTexture(device) {
+GLES3Texture::GLES3Texture(Device *device)
+: Texture(device) {
 }
 
 GLES3Texture::~GLES3Texture() {
 }
 
-bool GLES3Texture::initialize(const GFXTextureInfo &info) {
+bool GLES3Texture::initialize(const TextureInfo &info) {
 
     _type = info.type;
     _usage = info.usage;
@@ -25,45 +25,45 @@ bool GLES3Texture::initialize(const GFXTextureInfo &info) {
     _mipLevel = info.mipLevel;
     _samples = info.samples;
     _flags = info.flags;
-    _size = GFXFormatSize(_format, _width, _height, _depth);
+    _size = FormatSize(_format, _width, _height, _depth);
 
 #if COCOS2D_DEBUG > 0
     switch (_format) { // device feature validation
-        case GFXFormat::D16:
-            if (_device->hasFeature(GFXFeature::FORMAT_D16)) break;
+        case Format::D16:
+            if (_device->hasFeature(Feature::FORMAT_D16)) break;
             CC_LOG_ERROR("D16 texture format is not supported on this backend");
             return false;
-        case GFXFormat::D16S8:
-            if (_device->hasFeature(GFXFeature::FORMAT_D16S8)) break;
+        case Format::D16S8:
+            if (_device->hasFeature(Feature::FORMAT_D16S8)) break;
             CC_LOG_WARNING("D16S8 texture format is not supported on this backend");
             return false;
-        case GFXFormat::D24:
-            if (_device->hasFeature(GFXFeature::FORMAT_D24)) break;
+        case Format::D24:
+            if (_device->hasFeature(Feature::FORMAT_D24)) break;
             CC_LOG_WARNING("D24 texture format is not supported on this backend");
             return false;
-        case GFXFormat::D24S8:
-            if (_device->hasFeature(GFXFeature::FORMAT_D24S8)) break;
+        case Format::D24S8:
+            if (_device->hasFeature(Feature::FORMAT_D24S8)) break;
             CC_LOG_WARNING("D24S8 texture format is not supported on this backend");
             return false;
-        case GFXFormat::D32F:
-            if (_device->hasFeature(GFXFeature::FORMAT_D32F)) break;
+        case Format::D32F:
+            if (_device->hasFeature(Feature::FORMAT_D32F)) break;
             CC_LOG_WARNING("D32F texture format is not supported on this backend");
             return false;
-        case GFXFormat::D32F_S8:
-            if (_device->hasFeature(GFXFeature::FORMAT_D32FS8)) break;
+        case Format::D32F_S8:
+            if (_device->hasFeature(Feature::FORMAT_D32FS8)) break;
             CC_LOG_WARNING("D32FS8 texture format is not supported on this backend");
             return false;
-        case GFXFormat::RGB8:
-            if (_device->hasFeature(GFXFeature::FORMAT_RGB8)) break;
+        case Format::RGB8:
+            if (_device->hasFeature(Feature::FORMAT_RGB8)) break;
             CC_LOG_WARNING("RGB8 texture format is not supported on this backend");
             return false;
     }
 #endif
 
-    if (_flags & GFXTextureFlags::BAKUP_BUFFER) {
+    if (_flags & TextureFlags::BAKUP_BUFFER) {
         _buffer = (uint8_t *)CC_MALLOC(_size);
         if (!_buffer) {
-            _status = GFXStatus::FAILED;
+            _status = Status::FAILED;
             CC_LOG_ERROR("GLES3Texture: CC_MALLOC backup buffer failed.");
             return false;
         }
@@ -72,7 +72,7 @@ bool GLES3Texture::initialize(const GFXTextureInfo &info) {
 
     _gpuTexture = CC_NEW(GLES3GPUTexture);
     if (!_gpuTexture) {
-        _status = GFXStatus::FAILED;
+        _status = Status::FAILED;
         CC_LOG_ERROR("GLES3Texture: CC_NEW GLES3GPUTexture failed.");
         return false;
     }
@@ -91,14 +91,14 @@ bool GLES3Texture::initialize(const GFXTextureInfo &info) {
 
     GLES3CmdFuncCreateTexture((GLES3Device *)_device, _gpuTexture);
     _device->getMemoryStatus().textureSize += _size;
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return true;
 }
 
-bool GLES3Texture::initialize(const GFXTextureViewInfo &info) {
+bool GLES3Texture::initialize(const TextureViewInfo &info) {
     CC_LOG_ERROR("GLES3 doesn't support texture view.");
-    _status = GFXStatus::FAILED;
+    _status = Status::FAILED;
     return false;
 }
 
@@ -116,18 +116,18 @@ void GLES3Texture::destroy() {
         _buffer = nullptr;
     }
 
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 void GLES3Texture::resize(uint width, uint height) {
-    uint size = GFXFormatSize(_format, width, height, _depth);
+    uint size = FormatSize(_format, width, height, _depth);
     if (_size != size) {
         const uint oldSize = _size;
         _width = width;
         _height = height;
         _size = size;
 
-        GFXMemoryStatus &status = _device->getMemoryStatus();
+        MemoryStatus &status = _device->getMemoryStatus();
         _gpuTexture->width = _width;
         _gpuTexture->height = _height;
         _gpuTexture->size = _size;
@@ -139,7 +139,7 @@ void GLES3Texture::resize(uint width, uint height) {
             const uint8_t *oldBuffer = _buffer;
             uint8_t *buffer = (uint8_t *)CC_MALLOC(_size);
             if (!buffer) {
-                _status = GFXStatus::FAILED;
+                _status = Status::FAILED;
                 CC_LOG_ERROR("GLES3Texture: CC_MALLOC backup buffer failed when resize the texture.");
                 return;
             }
@@ -149,7 +149,7 @@ void GLES3Texture::resize(uint width, uint height) {
             status.bufferSize -= oldSize;
             status.bufferSize += _size;
         }
-        _status = GFXStatus::SUCCESS;
+        _status = Status::SUCCESS;
     }
 }
 

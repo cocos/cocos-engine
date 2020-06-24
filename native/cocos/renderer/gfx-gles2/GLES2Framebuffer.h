@@ -6,13 +6,13 @@ namespace gfx {
 
 class GLES2GPUFramebuffer;
 
-class CC_GLES2_API GLES2Framebuffer : public GFXFramebuffer {
+class CC_GLES2_API GLES2Framebuffer : public Framebuffer {
 public:
-    GLES2Framebuffer(GFXDevice *device);
+    GLES2Framebuffer(Device *device);
     ~GLES2Framebuffer();
 
 public:
-    virtual bool initialize(const GFXFramebufferInfo &info) override;
+    virtual bool initialize(const FramebufferInfo &info) override;
     virtual void destroy() override;
 
     CC_INLINE GLES2GPUFramebuffer *gpuFBO() const { return _gpuFBO; }

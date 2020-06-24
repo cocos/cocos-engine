@@ -3,12 +3,12 @@
 namespace cc {
 namespace gfx {
 
-class CCMTLFence : public GFXFence {
+class CCMTLFence : public Fence {
 public:
-    CCMTLFence(GFXDevice *device);
+    CCMTLFence(Device *device);
     ~CCMTLFence();
 
-    virtual bool initialize(const GFXFenceInfo &info) override;
+    virtual bool initialize(const FenceInfo &info) override;
     virtual void destroy() override;
     virtual void wait() override;
     virtual void reset() override;

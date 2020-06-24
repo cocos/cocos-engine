@@ -6,26 +6,26 @@
 namespace cc {
 namespace gfx {
 
-class CC_DLL GFXBindingLayout : public GFXObject {
+class CC_DLL BindingLayout : public GFXObject {
 public:
-    GFXBindingLayout(GFXDevice *device);
-    virtual ~GFXBindingLayout();
+    BindingLayout(Device *device);
+    virtual ~BindingLayout();
 
 public:
-    virtual bool initialize(const GFXBindingLayoutInfo &info) = 0;
+    virtual bool initialize(const BindingLayoutInfo &info) = 0;
     virtual void destroy() = 0;
     virtual void update() = 0;
 
-    void bindBuffer(uint binding, GFXBuffer *buffer);
-    void bindTexture(uint binding, GFXTexture *texView);
-    void bindSampler(uint binding, GFXSampler *sampler);
+    void bindBuffer(uint binding, Buffer *buffer);
+    void bindTexture(uint binding, Texture *texView);
+    void bindSampler(uint binding, Sampler *sampler);
 
-    CC_INLINE GFXDevice *getDevice() const { return _device; }
-    CC_INLINE const GFXBindingUnitList &getBindingUnits() const { return _bindingUnits; }
+    CC_INLINE Device *getDevice() const { return _device; }
+    CC_INLINE const BindingUnitList &getBindingUnits() const { return _bindingUnits; }
 
 protected:
-    GFXDevice *_device = nullptr;
-    GFXBindingUnitList _bindingUnits;
+    Device *_device = nullptr;
+    BindingUnitList _bindingUnits;
     bool _isDirty = false;
 };
 

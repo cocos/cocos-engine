@@ -21,11 +21,11 @@ public:
     bool glCurrentAttribLocs[GFX_MAX_VERTEX_ATTRIBUTES] = {false};
     GLuint glFramebuffer = 0;
     GLuint glReadFBO = 0;
-    GFXViewport viewport;
-    GFXRect scissor;
-    GFXRasterizerState rs;
-    GFXDepthStencilState dss;
-    GFXBlendState bs;
+    Viewport viewport;
+    Rect scissor;
+    RasterizerState rs;
+    DepthStencilState dss;
+    BlendState bs;
     bool isCullFaceEnabled = true;
     bool isStencilTestEnabled = false;
 

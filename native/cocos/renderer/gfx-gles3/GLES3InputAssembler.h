@@ -7,13 +7,13 @@ namespace gfx {
 class GLES3GPUInputAssembler;
 class GLES3CmdDraw;
 
-class CC_GLES3_API GLES3InputAssembler : public GFXInputAssembler {
+class CC_GLES3_API GLES3InputAssembler : public InputAssembler {
 public:
-    GLES3InputAssembler(GFXDevice *device);
+    GLES3InputAssembler(Device *device);
     ~GLES3InputAssembler();
 
 public:
-    virtual bool initialize(const GFXInputAssemblerInfo &info) override;
+    virtual bool initialize(const InputAssemblerInfo &info) override;
     virtual void destroy() override;
 
     void ExtractCmdDraw(GLES3CmdDraw *cmd);

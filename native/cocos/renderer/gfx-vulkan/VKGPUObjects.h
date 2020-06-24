@@ -37,26 +37,26 @@ public:
 
 class CCVKGPURenderPass : public Object {
 public:
-    GFXColorAttachmentList colorAttachments;
-    GFXDepthStencilAttachment depthStencilAttachment;
-    GFXSubPassList subPasses;
+    ColorAttachmentList colorAttachments;
+    DepthStencilAttachment depthStencilAttachment;
+    SubPassList subPasses;
     VkRenderPass vkRenderPass;
     vector<VkClearValue> clearValues;
 };
 
 class CCVKGPUTexture : public Object {
 public:
-    GFXTextureType type = GFXTextureType::TEX2D;
-    GFXFormat format = GFXFormat::UNKNOWN;
-    GFXTextureUsage usage = GFXTextureUsageBit::NONE;
+    TextureType type = TextureType::TEX2D;
+    Format format = Format::UNKNOWN;
+    TextureUsage usage = TextureUsageBit::NONE;
     uint width = 0;
     uint height = 0;
     uint depth = 1;
     uint size = 0;
     uint arrayLayer = 1;
     uint mipLevel = 1;
-    GFXSampleCount samples = GFXSampleCount::X1;
-    GFXTextureFlags flags = GFXTextureFlagBit::NONE;
+    SampleCount samples = SampleCount::X1;
+    TextureFlags flags = TextureFlagBit::NONE;
     bool isPowerOf2 = false;
 
     VkImage vkImage = VK_NULL_HANDLE;
@@ -70,8 +70,8 @@ public:
 class CCVKGPUTextureView : public Object {
 public:
     CCVKGPUTexture *gpuTexture = nullptr;
-    GFXTextureType type = GFXTextureType::TEX2D;
-    GFXFormat format = GFXFormat::UNKNOWN;
+    TextureType type = TextureType::TEX2D;
+    Format format = Format::UNKNOWN;
     uint baseLevel = 0;
     uint levelCount = 1;
     VkImageView vkImageView = VK_NULL_HANDLE;
@@ -115,14 +115,14 @@ public:
 
 class CCVKGPUCommandBuffer : public Object {
 public:
-    GFXCommandBufferType type;
+    CommandBufferType type;
     CCVKGPUCommandPool *commandPool = nullptr;
     VkCommandBuffer vkCommandBuffer = VK_NULL_HANDLE;
 };
 
 class CCVKGPUQueue : public Object {
 public:
-    GFXQueueType type;
+    QueueType type;
     VkQueue vkQueue;
     uint queueFamilyIndex;
     VkSemaphore nextWaitSemaphore = VK_NULL_HANDLE;
@@ -133,8 +133,8 @@ public:
 
 class CCVKGPUBuffer : public Object {
 public:
-    GFXBufferUsage usage = GFXBufferUsage::NONE;
-    GFXMemoryUsage memUsage = GFXMemoryUsage::NONE;
+    BufferUsage usage = BufferUsage::NONE;
+    MemoryUsage memUsage = MemoryUsage::NONE;
     uint size = 0;
     uint stride = 0;
     uint count = 0;
@@ -153,15 +153,15 @@ typedef vector<CCVKGPUBuffer *> CCVKGPUBufferList;
 
 class CCVKGPUSampler : public Object {
 public:
-    GFXFilter minFilter = GFXFilter::LINEAR;
-    GFXFilter magFilter = GFXFilter::LINEAR;
-    GFXFilter mipFilter = GFXFilter::NONE;
-    GFXAddress addressU = GFXAddress::WRAP;
-    GFXAddress addressV = GFXAddress::WRAP;
-    GFXAddress addressW = GFXAddress::WRAP;
+    Filter minFilter = Filter::LINEAR;
+    Filter magFilter = Filter::LINEAR;
+    Filter mipFilter = Filter::NONE;
+    Address addressU = Address::WRAP;
+    Address addressV = Address::WRAP;
+    Address addressW = Address::WRAP;
     uint maxAnisotropy = 16;
-    GFXComparisonFunc cmpFunc = GFXComparisonFunc::NEVER;
-    GFXColor borderColor;
+    ComparisonFunc cmpFunc = ComparisonFunc::NEVER;
+    Color borderColor;
     uint minLOD = 0;
     uint maxLOD = 1000;
     float mipLODBias = 0.0f;
@@ -169,12 +169,12 @@ public:
 };
 
 struct CCVKGPUShaderStage {
-    CCVKGPUShaderStage(GFXShaderType t, String s, GFXShaderMacroList m)
+    CCVKGPUShaderStage(ShaderType t, String s, ShaderMacroList m)
     : type(t), source(s), macros(m) {
     }
-    GFXShaderType type;
+    ShaderType type;
     String source;
-    GFXShaderMacroList macros;
+    ShaderMacroList macros;
     VkShaderModule vkShader = VK_NULL_HANDLE;
 };
 typedef vector<CCVKGPUShaderStage> CCVKGPUShaderStageList;
@@ -182,15 +182,15 @@ typedef vector<CCVKGPUShaderStage> CCVKGPUShaderStageList;
 class CCVKGPUShader : public Object {
 public:
     String name;
-    GFXAttributeList attributes;
-    GFXUniformBlockList blocks;
-    GFXUniformSamplerList samplers;
+    AttributeList attributes;
+    UniformBlockList blocks;
+    UniformSamplerList samplers;
     CCVKGPUShaderStageList gpuStages;
 };
 
 class CCVKGPUInputAssembler : public Object {
 public:
-    GFXAttributeList attributes;
+    AttributeList attributes;
     CCVKGPUBufferList gpuVertexBuffers;
     CCVKGPUBuffer *gpuIndexBuffer = nullptr;
     CCVKGPUBuffer *gpuIndirectBuffer = nullptr;
@@ -208,20 +208,20 @@ public:
 
 class CCVKGPUPipelineLayout : public Object {
 public:
-    GFXPushConstantRangeList pushConstantRanges;
+    PushConstantRangeList pushConstantRanges;
     vector<CCVKGPUBindingLayout *> gpuBindingLayouts;
     VkPipelineLayout vkPipelineLayout;
 };
 
 class CCVKGPUPipelineState : public Object {
 public:
-    GFXPrimitiveMode primitive = GFXPrimitiveMode::TRIANGLE_LIST;
+    PrimitiveMode primitive = PrimitiveMode::TRIANGLE_LIST;
     CCVKGPUShader *gpuShader = nullptr;
-    GFXInputState inputState;
-    GFXRasterizerState rs;
-    GFXDepthStencilState dss;
-    GFXBlendState bs;
-    GFXDynamicStateList dynamicStates;
+    InputState inputState;
+    RasterizerState rs;
+    DepthStencilState dss;
+    BlendState bs;
+    DynamicStateList dynamicStates;
     CCVKGPUPipelineLayout *gpuLayout = nullptr;
     CCVKGPURenderPass *gpuRenderPass = nullptr;
     VkPipeline vkPipeline = VK_NULL_HANDLE;

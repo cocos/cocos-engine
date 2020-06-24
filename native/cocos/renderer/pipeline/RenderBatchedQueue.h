@@ -13,7 +13,7 @@ public:
     ~RenderBatchedQueue() = default;
 
     void clear();
-    void recordCommandBuffer(gfx::GFXDevice *, gfx::GFXRenderPass *, gfx::GFXCommandBuffer *);
+    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *);
 
     CC_INLINE const set<BatchedBuffer *> &getQueue() const { return _queue; }
 

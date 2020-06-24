@@ -4,18 +4,18 @@
 namespace cc {
 namespace gfx {
 
-GFXDevice::GFXDevice() {
+Device::Device() {
     memset(_features, 0, sizeof(_features));
 }
 
-GFXDevice::~GFXDevice() {
+Device::~Device() {
 }
 
-GFXFormat GFXDevice::getColorFormat() const {
+Format Device::getColorFormat() const {
     return _context->getColorFormat();
 }
 
-GFXFormat GFXDevice::getDepthStencilFormat() const {
+Format Device::getDepthStencilFormat() const {
     return _context->getDepthStencilFormat();
 }
 

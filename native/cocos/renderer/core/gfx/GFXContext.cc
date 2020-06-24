@@ -4,11 +4,11 @@
 namespace cc {
 namespace gfx {
 
-GFXContext::GFXContext(GFXDevice *device)
+Context::Context(Device *device)
 : _device(device) {
 }
 
-GFXContext::~GFXContext() {
+Context::~Context() {
 }
 
 } // namespace gfx

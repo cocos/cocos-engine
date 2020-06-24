@@ -40,7 +40,7 @@ THE SOFTWARE.
 namespace cc {
 
 namespace gfx {
-enum class GFXFormat : unsigned int;
+enum class Format : unsigned int;
 } // namespace gfx
 
 /**
@@ -94,7 +94,7 @@ public:
         bool alpha;
     };
 
-    typedef std::map<gfx::GFXFormat, const PixelFormatInfo> PixelFormatInfoMap;
+    typedef std::map<gfx::Format, const PixelFormatInfo> PixelFormatInfoMap;
 
     /**
      * Enables or disables premultiplied alpha for PNG files.
@@ -135,7 +135,7 @@ public:
     inline unsigned char *getData() const { return _data; }
     inline ssize_t getDataLen() const { return _dataLen; }
     inline Format getFileType() const { return _fileType; }
-    inline gfx::GFXFormat getRenderFormat() const { return _renderFormat; }
+    inline gfx::Format getRenderFormat() const { return _renderFormat; }
     inline int getWidth() const { return _width; }
     inline int getHeight() const { return _height; }
     inline int getNumberOfMipmaps() const { return _numberOfMipmaps; }
@@ -183,7 +183,7 @@ protected:
     int _width = 0;
     int _height = 0;
     Format _fileType = Format::UNKNOWN;
-    gfx::GFXFormat _renderFormat;
+    gfx::Format _renderFormat;
     MipmapInfo _mipmaps[MIPMAP_MAX]; // pointer to mipmap images
     int _numberOfMipmaps = 0;
     // false if we can't auto detect the image is premultiplied or not.

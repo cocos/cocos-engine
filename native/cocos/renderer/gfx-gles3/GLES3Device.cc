@@ -27,8 +27,8 @@ GLES3Device::GLES3Device() {
 GLES3Device::~GLES3Device() {
 }
 
-bool GLES3Device::initialize(const GFXDeviceInfo &info) {
-    _gfxAPI = GFXAPI::GLES3;
+bool GLES3Device::initialize(const DeviceInfo &info) {
+    _API = API::GLES3;
     _deviceName = "GLES3";
     _width = info.width;
     _height = info.height;
@@ -38,7 +38,7 @@ bool GLES3Device::initialize(const GFXDeviceInfo &info) {
 
     stateCache = CC_NEW(GLES3StateCache);
 
-    GFXContextInfo ctx_info;
+    ContextInfo ctx_info;
     ctx_info.windowHandle = _windowHandle;
     ctx_info.sharedCtx = info.sharedCtx;
 
@@ -51,54 +51,54 @@ bool GLES3Device::initialize(const GFXDeviceInfo &info) {
     String extStr = (const char *)glGetString(GL_EXTENSIONS);
     _extensions = StringUtil::Split(extStr, " ");
 
-    _features[(int)GFXFeature::TEXTURE_FLOAT] = true;
-    _features[(int)GFXFeature::TEXTURE_HALF_FLOAT] = true;
-    _features[(int)GFXFeature::FORMAT_R11G11B10F] = true;
-    _features[(int)GFXFeature::FORMAT_D24S8] = true;
-    _features[(int)GFXFeature::MSAA] = true;
-    _features[(int)GFXFeature::INSTANCED_ARRAYS] = true;
+    _features[(int)Feature::TEXTURE_FLOAT] = true;
+    _features[(int)Feature::TEXTURE_HALF_FLOAT] = true;
+    _features[(int)Feature::FORMAT_R11G11B10F] = true;
+    _features[(int)Feature::FORMAT_D24S8] = true;
+    _features[(int)Feature::MSAA] = true;
+    _features[(int)Feature::INSTANCED_ARRAYS] = true;
 
     if (checkExtension("color_buffer_float"))
-        _features[(int)GFXFeature::COLOR_FLOAT] = true;
+        _features[(int)Feature::COLOR_FLOAT] = true;
 
     if (checkExtension("color_buffer_half_float"))
-        _features[(int)GFXFeature::COLOR_HALF_FLOAT] = true;
+        _features[(int)Feature::COLOR_HALF_FLOAT] = true;
 
     if (checkExtension("texture_float_linear"))
-        _features[(int)GFXFeature::TEXTURE_FLOAT_LINEAR] = true;
+        _features[(int)Feature::TEXTURE_FLOAT_LINEAR] = true;
 
     if (checkExtension("texture_half_float_linear"))
-        _features[(int)GFXFeature::TEXTURE_HALF_FLOAT_LINEAR] = true;
+        _features[(int)Feature::TEXTURE_HALF_FLOAT_LINEAR] = true;
 
     String compressed_fmts;
 
     if (checkExtension("compressed_ETC1")) {
-        _features[(int)GFXFeature::FORMAT_ETC1] = true;
+        _features[(int)Feature::FORMAT_ETC1] = true;
         compressed_fmts += "etc1 ";
     }
 
-    _features[(int)GFXFeature::FORMAT_ETC2] = true;
+    _features[(int)Feature::FORMAT_ETC2] = true;
     compressed_fmts += "etc2 ";
 
     if (checkExtension("texture_compression_pvrtc")) {
-        _features[(int)GFXFeature::FORMAT_PVRTC] = true;
+        _features[(int)Feature::FORMAT_PVRTC] = true;
         compressed_fmts += "pvrtc ";
     }
 
     if (checkExtension("texture_compression_astc")) {
-        _features[(int)GFXFeature::FORMAT_ASTC] = true;
+        _features[(int)Feature::FORMAT_ASTC] = true;
         compressed_fmts += "astc ";
     }
-    _features[static_cast<uint>(GFXFeature::DEPTH_BOUNDS)] = true;
-    _features[static_cast<uint>(GFXFeature::LINE_WIDTH)] = true;
-    _features[static_cast<uint>(GFXFeature::STENCIL_COMPARE_MASK)] = true;
-    _features[static_cast<uint>(GFXFeature::STENCIL_WRITE_MASK)] = true;
-    _features[static_cast<uint>(GFXFeature::FORMAT_RGB8)] = true;
-    _features[static_cast<uint>(GFXFeature::FORMAT_D16)] = true;
-    _features[static_cast<uint>(GFXFeature::FORMAT_D24)] = true;
-    _features[static_cast<uint>(GFXFeature::FORMAT_D32F)] = true;
-    _features[static_cast<uint>(GFXFeature::FORMAT_D24S8)] = true;
-    _features[static_cast<uint>(GFXFeature::FORMAT_D32FS8)] = true;
+    _features[static_cast<uint>(Feature::DEPTH_BOUNDS)] = true;
+    _features[static_cast<uint>(Feature::LINE_WIDTH)] = true;
+    _features[static_cast<uint>(Feature::STENCIL_COMPARE_MASK)] = true;
+    _features[static_cast<uint>(Feature::STENCIL_WRITE_MASK)] = true;
+    _features[static_cast<uint>(Feature::FORMAT_RGB8)] = true;
+    _features[static_cast<uint>(Feature::FORMAT_D16)] = true;
+    _features[static_cast<uint>(Feature::FORMAT_D24)] = true;
+    _features[static_cast<uint>(Feature::FORMAT_D32F)] = true;
+    _features[static_cast<uint>(Feature::FORMAT_D24S8)] = true;
+    _features[static_cast<uint>(Feature::FORMAT_D32FS8)] = true;
 
     _renderer = (const char *)glGetString(GL_RENDERER);
     _vendor = (const char *)glGetString(GL_VENDOR);
@@ -113,11 +113,11 @@ bool GLES3Device::initialize(const GFXDeviceInfo &info) {
     CC_LOG_INFO("USE_VAO: %s", _useVAO ? "true" : "false");
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressed_fmts.c_str());
 
-    GFXQueueInfo queue_info;
-    queue_info.type = GFXQueueType::GRAPHICS;
+    QueueInfo queue_info;
+    queue_info.type = QueueType::GRAPHICS;
     _queue = createQueue(queue_info);
 
-    GFXCommandAllocatorInfo cmd_alloc_info;
+    CommandAllocatorInfo cmd_alloc_info;
     _cmdAllocator = createCommandAllocator(cmd_alloc_info);
 
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)&_maxVertexAttributes);
@@ -162,8 +162,8 @@ void GLES3Device::present() {
     queue->_numTriangles = 0;
 }
 
-GFXFence *GLES3Device::createFence(const GFXFenceInfo &info) {
-    GFXFence *fence = CC_NEW(GLES3Fence(this));
+Fence *GLES3Device::createFence(const FenceInfo &info) {
+    Fence *fence = CC_NEW(GLES3Fence(this));
     if (fence->initialize(info))
         return fence;
 
@@ -171,8 +171,8 @@ GFXFence *GLES3Device::createFence(const GFXFenceInfo &info) {
     return nullptr;
 }
 
-GFXQueue *GLES3Device::createQueue(const GFXQueueInfo &info) {
-    GFXQueue *queue = CC_NEW(GLES3Queue(this));
+Queue *GLES3Device::createQueue(const QueueInfo &info) {
+    Queue *queue = CC_NEW(GLES3Queue(this));
     if (queue->initialize(info))
         return queue;
 
@@ -180,8 +180,8 @@ GFXQueue *GLES3Device::createQueue(const GFXQueueInfo &info) {
     return nullptr;
 }
 
-GFXCommandAllocator *GLES3Device::createCommandAllocator(const GFXCommandAllocatorInfo &info) {
-    GFXCommandAllocator *cmdAllocator = CC_NEW(GLES3CommandAllocator(this));
+CommandAllocator *GLES3Device::createCommandAllocator(const CommandAllocatorInfo &info) {
+    CommandAllocator *cmdAllocator = CC_NEW(GLES3CommandAllocator(this));
     if (cmdAllocator->initialize(info))
         return cmdAllocator;
 
@@ -189,8 +189,8 @@ GFXCommandAllocator *GLES3Device::createCommandAllocator(const GFXCommandAllocat
     return nullptr;
 }
 
-GFXCommandBuffer *GLES3Device::createCommandBuffer(const GFXCommandBufferInfo &info) {
-    GFXCommandBuffer *cmd_buff = CC_NEW(GLES3CommandBuffer(this));
+CommandBuffer *GLES3Device::createCommandBuffer(const CommandBufferInfo &info) {
+    CommandBuffer *cmd_buff = CC_NEW(GLES3CommandBuffer(this));
     if (cmd_buff->initialize(info))
         return cmd_buff;
 
@@ -198,8 +198,8 @@ GFXCommandBuffer *GLES3Device::createCommandBuffer(const GFXCommandBufferInfo &i
     return nullptr;
 }
 
-GFXBuffer *GLES3Device::createBuffer(const GFXBufferInfo &info) {
-    GFXBuffer *buffer = CC_NEW(GLES3Buffer(this));
+Buffer *GLES3Device::createBuffer(const BufferInfo &info) {
+    Buffer *buffer = CC_NEW(GLES3Buffer(this));
     if (buffer->initialize(info))
         return buffer;
 
@@ -207,8 +207,8 @@ GFXBuffer *GLES3Device::createBuffer(const GFXBufferInfo &info) {
     return nullptr;
 }
 
-GFXTexture *GLES3Device::createTexture(const GFXTextureInfo &info) {
-    GFXTexture *texture = CC_NEW(GLES3Texture(this));
+Texture *GLES3Device::createTexture(const TextureInfo &info) {
+    Texture *texture = CC_NEW(GLES3Texture(this));
     if (texture->initialize(info))
         return texture;
 
@@ -216,8 +216,8 @@ GFXTexture *GLES3Device::createTexture(const GFXTextureInfo &info) {
     return nullptr;
 }
 
-GFXTexture *GLES3Device::createTexture(const GFXTextureViewInfo &info) {
-    GFXTexture *texture = CC_NEW(GLES3Texture(this));
+Texture *GLES3Device::createTexture(const TextureViewInfo &info) {
+    Texture *texture = CC_NEW(GLES3Texture(this));
     if (texture->initialize(info))
         return texture;
 
@@ -225,8 +225,8 @@ GFXTexture *GLES3Device::createTexture(const GFXTextureViewInfo &info) {
     return nullptr;
 }
 
-GFXSampler *GLES3Device::createSampler(const GFXSamplerInfo &info) {
-    GFXSampler *sampler = CC_NEW(GLES3Sampler(this));
+Sampler *GLES3Device::createSampler(const SamplerInfo &info) {
+    Sampler *sampler = CC_NEW(GLES3Sampler(this));
     if (sampler->initialize(info))
         return sampler;
 
@@ -234,8 +234,8 @@ GFXSampler *GLES3Device::createSampler(const GFXSamplerInfo &info) {
     return nullptr;
 }
 
-GFXShader *GLES3Device::createShader(const GFXShaderInfo &info) {
-    GFXShader *shader = CC_NEW(GLES3Shader(this));
+Shader *GLES3Device::createShader(const ShaderInfo &info) {
+    Shader *shader = CC_NEW(GLES3Shader(this));
     if (shader->initialize(info))
         return shader;
 
@@ -243,8 +243,8 @@ GFXShader *GLES3Device::createShader(const GFXShaderInfo &info) {
     return nullptr;
 }
 
-GFXInputAssembler *GLES3Device::createInputAssembler(const GFXInputAssemblerInfo &info) {
-    GFXInputAssembler *inputAssembler = CC_NEW(GLES3InputAssembler(this));
+InputAssembler *GLES3Device::createInputAssembler(const InputAssemblerInfo &info) {
+    InputAssembler *inputAssembler = CC_NEW(GLES3InputAssembler(this));
     if (inputAssembler->initialize(info))
         return inputAssembler;
 
@@ -252,8 +252,8 @@ GFXInputAssembler *GLES3Device::createInputAssembler(const GFXInputAssemblerInfo
     return nullptr;
 }
 
-GFXRenderPass *GLES3Device::createRenderPass(const GFXRenderPassInfo &info) {
-    GFXRenderPass *renderPass = CC_NEW(GLES3RenderPass(this));
+RenderPass *GLES3Device::createRenderPass(const RenderPassInfo &info) {
+    RenderPass *renderPass = CC_NEW(GLES3RenderPass(this));
     if (renderPass->initialize(info))
         return renderPass;
 
@@ -261,8 +261,8 @@ GFXRenderPass *GLES3Device::createRenderPass(const GFXRenderPassInfo &info) {
     return nullptr;
 }
 
-GFXFramebuffer *GLES3Device::createFramebuffer(const GFXFramebufferInfo &info) {
-    GFXFramebuffer *framebuffer = CC_NEW(GLES3Framebuffer(this));
+Framebuffer *GLES3Device::createFramebuffer(const FramebufferInfo &info) {
+    Framebuffer *framebuffer = CC_NEW(GLES3Framebuffer(this));
     if (framebuffer->initialize(info))
         return framebuffer;
 
@@ -270,8 +270,8 @@ GFXFramebuffer *GLES3Device::createFramebuffer(const GFXFramebufferInfo &info) {
     return nullptr;
 }
 
-GFXBindingLayout *GLES3Device::createBindingLayout(const GFXBindingLayoutInfo &info) {
-    GFXBindingLayout *bindingLayout = CC_NEW(GLES3BindingLayout(this));
+BindingLayout *GLES3Device::createBindingLayout(const BindingLayoutInfo &info) {
+    BindingLayout *bindingLayout = CC_NEW(GLES3BindingLayout(this));
     if (bindingLayout->initialize(info))
         return bindingLayout;
 
@@ -279,8 +279,8 @@ GFXBindingLayout *GLES3Device::createBindingLayout(const GFXBindingLayoutInfo &i
     return nullptr;
 }
 
-GFXPipelineState *GLES3Device::createPipelineState(const GFXPipelineStateInfo &info) {
-    GFXPipelineState *pipelineState = CC_NEW(GLES3PipelineState(this));
+PipelineState *GLES3Device::createPipelineState(const PipelineStateInfo &info) {
+    PipelineState *pipelineState = CC_NEW(GLES3PipelineState(this));
     if (pipelineState->initialize(info))
         return pipelineState;
 
@@ -288,8 +288,8 @@ GFXPipelineState *GLES3Device::createPipelineState(const GFXPipelineStateInfo &i
     return nullptr;
 }
 
-GFXPipelineLayout *GLES3Device::createPipelineLayout(const GFXPipelineLayoutInfo &info) {
-    GFXPipelineLayout *layout = CC_NEW(GLES3PipelineLayout(this));
+PipelineLayout *GLES3Device::createPipelineLayout(const PipelineLayoutInfo &info) {
+    PipelineLayout *layout = CC_NEW(GLES3PipelineLayout(this));
     if (layout->initialize(info))
         return layout;
 
@@ -297,7 +297,7 @@ GFXPipelineLayout *GLES3Device::createPipelineLayout(const GFXPipelineLayoutInfo
     return nullptr;
 }
 
-void GLES3Device::copyBuffersToTexture(const GFXDataArray &buffers, GFXTexture *dst, const GFXBufferTextureCopyList &regions) {
+void GLES3Device::copyBuffersToTexture(const DataArray &buffers, Texture *dst, const BufferTextureCopyList &regions) {
 
     GLES3CmdFuncCopyBuffersToTexture(this, buffers.datas.data(), ((GLES3Texture *)dst)->gpuTexture(), regions);
 }

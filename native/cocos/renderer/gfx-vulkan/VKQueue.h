@@ -6,17 +6,17 @@ namespace gfx {
 
 class CCVKGPUQueue;
 
-class CC_VULKAN_API CCVKQueue : public GFXQueue {
+class CC_VULKAN_API CCVKQueue : public Queue {
 public:
-    CCVKQueue(GFXDevice *device);
+    CCVKQueue(Device *device);
     ~CCVKQueue();
 
     friend class CCVKDevice;
 
 public:
-    bool initialize(const GFXQueueInfo &info);
+    bool initialize(const QueueInfo &info);
     void destroy();
-    void submit(const vector<GFXCommandBuffer *> &cmdBuffs, GFXFence *fence);
+    void submit(const vector<CommandBuffer *> &cmdBuffs, Fence *fence);
 
     CC_INLINE CCVKGPUQueue *gpuQueue() const { return _gpuQueue; }
 

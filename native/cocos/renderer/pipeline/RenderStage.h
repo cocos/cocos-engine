@@ -5,7 +5,7 @@
 namespace cc {
 
 namespace gfx {
-class GFXFramebuffer;
+class Framebuffer;
 } // namespace gfx
 
 namespace pipeline {
@@ -36,22 +36,22 @@ public:
 
     void createBuffer();
     void executeCommandBuffer(RenderView *view);
-    void setClearColor(/*color: IGFXColor*/);
-    void setClearColors(/*colors: IGFXColor[]*/);
+    void setClearColor(/*color: IColor*/);
+    void setClearColors(/*colors: IColor[]*/);
     void setClearDepth(float depth);
     void setClearStencil(float stencil);
     void setRenderArea(size_t width, size_t height);
     void sortRenderQueue();
 
     CC_INLINE RenderFlow *getFlow() const { return _flow; }
-    CC_INLINE gfx::GFXFramebuffer *getFrameBuffer() const { return _frameBuffer; }
+    CC_INLINE gfx::Framebuffer *getFrameBuffer() const { return _frameBuffer; }
     CC_INLINE RenderPipeline *getPipeline() const { return _pipeline; }
     CC_INLINE int getPriority() const { return _priority; }
 
 protected:
     RenderFlow *_flow = nullptr;
     RenderPipeline *_pipeline = nullptr;
-    gfx::GFXFramebuffer *_frameBuffer = nullptr;
+    gfx::Framebuffer *_frameBuffer = nullptr;
     int _priority = 0;
 };
 

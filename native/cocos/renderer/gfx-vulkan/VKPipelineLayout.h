@@ -6,13 +6,13 @@ namespace gfx {
 
 class CCVKGPUPipelineLayout;
 
-class CC_VULKAN_API CCVKPipelineLayout : public GFXPipelineLayout {
+class CC_VULKAN_API CCVKPipelineLayout : public PipelineLayout {
 public:
-    CCVKPipelineLayout(GFXDevice *device);
+    CCVKPipelineLayout(Device *device);
     ~CCVKPipelineLayout();
 
 public:
-    bool initialize(const GFXPipelineLayoutInfo &info);
+    bool initialize(const PipelineLayoutInfo &info);
     void destroy();
 
     CC_INLINE CCVKGPUPipelineLayout *gpuPipelineLayout() const { return _gpuPipelineLayout; }

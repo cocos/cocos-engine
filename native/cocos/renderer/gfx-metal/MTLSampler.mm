@@ -9,10 +9,10 @@
 namespace cc {
 namespace gfx {
 
-CCMTLSampler::CCMTLSampler(GFXDevice *device) : GFXSampler(device) {}
+CCMTLSampler::CCMTLSampler(Device *device) : Sampler(device) {}
 CCMTLSampler::~CCMTLSampler() { destroy(); }
 
-bool CCMTLSampler::initialize(const GFXSamplerInfo &info) {
+bool CCMTLSampler::initialize(const SamplerInfo &info) {
     _name = info.name;
     _minFilter = info.minFilter;
     _magFilter = info.magFilter;
@@ -45,7 +45,7 @@ bool CCMTLSampler::initialize(const GFXSamplerInfo &info) {
 
     [descriptor release];
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return _mtlSamplerState != nil;
 }
@@ -56,7 +56,7 @@ void CCMTLSampler::destroy() {
         _mtlSamplerState = nil;
     }
 
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 } // namespace gfx

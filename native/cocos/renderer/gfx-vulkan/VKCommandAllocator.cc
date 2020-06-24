@@ -7,26 +7,26 @@
 namespace cc {
 namespace gfx {
 
-CCVKCommandAllocator::CCVKCommandAllocator(GFXDevice *device)
-: GFXCommandAllocator(device) {
+CCVKCommandAllocator::CCVKCommandAllocator(Device *device)
+: CommandAllocator(device) {
 }
 
 CCVKCommandAllocator::~CCVKCommandAllocator() {
 }
 
-bool CCVKCommandAllocator::initialize(const GFXCommandAllocatorInfo &info) {
+bool CCVKCommandAllocator::initialize(const CommandAllocatorInfo &info) {
     _gpuCommandPool = CC_NEW(CCVKGPUCommandPool);
 
     CCVKCmdFuncCreateCommandPool((CCVKDevice *)_device, _gpuCommandPool);
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
     return true;
 }
 
 void CCVKCommandAllocator::destroy() {
     CCVKCmdFuncDestroyCommandPool((CCVKDevice *)_device, _gpuCommandPool);
 
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 void CCVKCommandAllocator::reset() {

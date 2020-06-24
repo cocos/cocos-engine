@@ -6,13 +6,13 @@ namespace gfx {
 
 class CCVKGPUFramebuffer;
 
-class CC_VULKAN_API CCVKFramebuffer : public GFXFramebuffer {
+class CC_VULKAN_API CCVKFramebuffer : public Framebuffer {
 public:
-    CCVKFramebuffer(GFXDevice *device);
+    CCVKFramebuffer(Device *device);
     ~CCVKFramebuffer();
 
 public:
-    bool initialize(const GFXFramebufferInfo &info);
+    bool initialize(const FramebufferInfo &info);
     void destroy();
 
     CC_INLINE CCVKGPUFramebuffer *gpuFBO() const { return _gpuFBO; }

@@ -4,11 +4,11 @@
 namespace cc {
 namespace gfx {
 
-GFXFence::GFXFence(GFXDevice *device)
-: GFXObject(GFXObjectType::FENCE), _device(device) {
+Fence::Fence(Device *device)
+: GFXObject(ObjectType::FENCE), _device(device) {
 }
 
-GFXFence::~GFXFence() {
+Fence::~Fence() {
 }
 
 } // namespace gfx

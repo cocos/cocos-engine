@@ -4,8 +4,8 @@
 namespace cc {
 namespace gfx {
 
-GFXObject::GFXObject(GFXObjectType gfxType)
-: _gfxType(gfxType) {}
+GFXObject::GFXObject(ObjectType Type)
+: _Type(Type) {}
 
 } // namespace gfx
 } // namespace cc

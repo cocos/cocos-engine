@@ -4,14 +4,14 @@
 namespace cc {
 namespace gfx {
 
-GFXInputAssembler::GFXInputAssembler(GFXDevice *device)
-: GFXObject(GFXObjectType::INPUT_ASSEMBLER), _device(device) {
+InputAssembler::InputAssembler(Device *device)
+: GFXObject(ObjectType::INPUT_ASSEMBLER), _device(device) {
 }
 
-GFXInputAssembler::~GFXInputAssembler() {
+InputAssembler::~InputAssembler() {
 }
 
-void GFXInputAssembler::extractDrawInfo(GFXDrawInfo &drawInfo) const {
+void InputAssembler::extractDrawInfo(DrawInfo &drawInfo) const {
     drawInfo.vertexCount = _vertexCount;
     drawInfo.firstVertex = _firstVertex;
     drawInfo.indexCount = _indexCount;
@@ -21,9 +21,9 @@ void GFXInputAssembler::extractDrawInfo(GFXDrawInfo &drawInfo) const {
     drawInfo.firstInstance = _firstInstance;
 }
 
-uint GFXInputAssembler::computeAttributesHash() const {
+uint InputAssembler::computeAttributesHash() const {
     // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector
-    // 6: GFXAttribute has 6 elements.
+    // 6: Attribute has 6 elements.
     std::size_t seed = _attributes.size() * 6;
     for (const auto attribute : _attributes) {
         seed ^= std::hash<std::string>{}(attribute.name) + 0x9e3779b9 + (seed << 6) + (seed >> 2);

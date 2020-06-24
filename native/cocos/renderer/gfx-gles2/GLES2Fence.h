@@ -6,13 +6,13 @@ namespace gfx {
 
 class GLES2GPUFence;
 
-class CC_GLES2_API GLES2Fence : public GFXFence {
+class CC_GLES2_API GLES2Fence : public Fence {
 public:
-    GLES2Fence(GFXDevice *device);
+    GLES2Fence(Device *device);
     ~GLES2Fence();
 
 public:
-    virtual bool initialize(const GFXFenceInfo &info) override;
+    virtual bool initialize(const FenceInfo &info) override;
     virtual void destroy() override;
     virtual void wait() override;
     virtual void reset() override;

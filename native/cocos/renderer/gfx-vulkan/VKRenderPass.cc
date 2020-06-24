@@ -6,14 +6,14 @@
 namespace cc {
 namespace gfx {
 
-CCVKRenderPass::CCVKRenderPass(GFXDevice *device)
-: GFXRenderPass(device) {
+CCVKRenderPass::CCVKRenderPass(Device *device)
+: RenderPass(device) {
 }
 
 CCVKRenderPass::~CCVKRenderPass() {
 }
 
-bool CCVKRenderPass::initialize(const GFXRenderPassInfo &info) {
+bool CCVKRenderPass::initialize(const RenderPassInfo &info) {
     _colorAttachments = info.colorAttachments;
     _depthStencilAttachment = info.depthStencilAttachment;
     _subPasses = info.subPasses;
@@ -25,7 +25,7 @@ bool CCVKRenderPass::initialize(const GFXRenderPassInfo &info) {
     CCVKCmdFuncCreateRenderPass((CCVKDevice *)_device, _gpuRenderPass);
 
     _hash = computeHash();
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return true;
 }
@@ -37,7 +37,7 @@ void CCVKRenderPass::destroy() {
         _gpuRenderPass = nullptr;
     }
 
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 } // namespace gfx

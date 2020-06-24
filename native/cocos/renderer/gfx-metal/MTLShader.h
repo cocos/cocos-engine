@@ -6,12 +6,12 @@
 namespace cc {
 namespace gfx {
 
-class CCMTLShader : public GFXShader {
+class CCMTLShader : public Shader {
 public:
-    CCMTLShader(GFXDevice *device);
+    CCMTLShader(Device *device);
     ~CCMTLShader();
 
-    virtual bool initialize(const GFXShaderInfo &info) override;
+    virtual bool initialize(const ShaderInfo &info) override;
     virtual void destroy() override;
 
     CC_INLINE id<MTLFunction> getVertMTLFunction() const { return _vertexMTLFunction; }
@@ -27,7 +27,7 @@ public:
 #endif
 
 private:
-    bool createMTLFunction(const GFXShaderStage &);
+    bool createMTLFunction(const ShaderStage &);
 
 private:
     id<MTLFunction> _vertexMTLFunction = nil;

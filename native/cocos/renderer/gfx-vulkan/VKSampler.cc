@@ -6,14 +6,14 @@
 namespace cc {
 namespace gfx {
 
-CCVKSampler::CCVKSampler(GFXDevice *device)
-: GFXSampler(device) {
+CCVKSampler::CCVKSampler(Device *device)
+: Sampler(device) {
 }
 
 CCVKSampler::~CCVKSampler() {
 }
 
-bool CCVKSampler::initialize(const GFXSamplerInfo &info) {
+bool CCVKSampler::initialize(const SamplerInfo &info) {
     _name = info.name;
     _minFilter = info.minFilter;
     _magFilter = info.magFilter;
@@ -44,7 +44,7 @@ bool CCVKSampler::initialize(const GFXSamplerInfo &info) {
 
     CCVKCmdFuncCreateSampler((CCVKDevice *)_device, _gpuSampler);
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return true;
 }
@@ -55,7 +55,7 @@ void CCVKSampler::destroy() {
         CC_DELETE(_gpuSampler);
         _gpuSampler = nullptr;
     }
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 } // namespace gfx

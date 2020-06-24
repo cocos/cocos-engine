@@ -8,31 +8,31 @@ namespace gfx {
 
 class GLES2GPUBuffer : public Object {
 public:
-    GFXBufferUsage usage = GFXBufferUsage::NONE;
-    GFXMemoryUsage memUsage = GFXMemoryUsage::NONE;
+    BufferUsage usage = BufferUsage::NONE;
+    MemoryUsage memUsage = MemoryUsage::NONE;
     uint size = 0;
     uint stride = 0;
     uint count = 0;
     GLenum glTarget = 0;
     GLuint glBuffer = 0;
     uint8_t *buffer = nullptr;
-    GFXDrawInfoList indirects;
+    DrawInfoList indirects;
 };
 typedef vector<GLES2GPUBuffer *> GLES2GPUBufferList;
 
 class GLES2GPUTexture : public Object {
 public:
-    GFXTextureType type = GFXTextureType::TEX2D;
-    GFXFormat format = GFXFormat::UNKNOWN;
-    GFXTextureUsage usage = GFXTextureUsageBit::NONE;
+    TextureType type = TextureType::TEX2D;
+    Format format = Format::UNKNOWN;
+    TextureUsage usage = TextureUsageBit::NONE;
     uint width = 0;
     uint height = 0;
     uint depth = 1;
     uint size = 0;
     uint arrayLayer = 1;
     uint mipLevel = 1;
-    GFXSampleCount samples = GFXSampleCount::X1;
-    GFXTextureFlags flags = GFXTextureFlagBit::NONE;
+    SampleCount samples = SampleCount::X1;
+    TextureFlags flags = TextureFlagBit::NONE;
     bool isPowerOf2 = false;
     GLenum glTarget = 0;
     GLenum glInternelFmt = 0;
@@ -50,12 +50,12 @@ typedef vector<GLES2GPUTexture *> GLES2GPUTextureList;
 
 class GLES2GPUSampler : public Object {
 public:
-    GFXFilter minFilter = GFXFilter::NONE;
-    GFXFilter magFilter = GFXFilter::NONE;
-    GFXFilter mipFilter = GFXFilter::NONE;
-    GFXAddress addressU = GFXAddress::CLAMP;
-    GFXAddress addressV = GFXAddress::CLAMP;
-    GFXAddress addressW = GFXAddress::CLAMP;
+    Filter minFilter = Filter::NONE;
+    Filter magFilter = Filter::NONE;
+    Filter mipFilter = Filter::NONE;
+    Address addressU = Address::CLAMP;
+    Address addressV = Address::CLAMP;
+    Address addressW = Address::CLAMP;
     uint minLOD = 0;
     uint maxLOD = 1000;
     GLenum glMinFilter = 0;
@@ -68,7 +68,7 @@ public:
 struct GLES2GPUInput {
     uint binding = 0;
     String name;
-    GFXType type = GFXType::UNKNOWN;
+    Type type = Type::UNKNOWN;
     uint stride = 0;
     uint count = 0;
     uint size = 0;
@@ -80,7 +80,7 @@ typedef vector<GLES2GPUInput> GLES2GPUInputList;
 struct GLES2GPUUniform {
     uint binding = GFX_INVALID_BINDING;
     String name;
-    GFXType type = GFXType::UNKNOWN;
+    Type type = Type::UNKNOWN;
     uint stride = 0;
     uint count = 0;
     uint size = 0;
@@ -134,7 +134,7 @@ typedef vector<GLES2GPUUniformBlock> GLES2GPUUniformBlockList;
 struct GLES2GPUUniformSampler {
     uint binding = 0;
     String name;
-    GFXType type = GFXType::UNKNOWN;
+    Type type = Type::UNKNOWN;
     vector<int> units;
     GLenum glType = 0;
     GLint glLoc = -1;
@@ -142,11 +142,11 @@ struct GLES2GPUUniformSampler {
 typedef vector<GLES2GPUUniformSampler> GLES2GPUUniformSamplerList;
 
 struct GLES2GPUShaderStage {
-    GLES2GPUShaderStage(GFXShaderType t, String s, GFXShaderMacroList m, GLuint shader = 0)
+    GLES2GPUShaderStage(ShaderType t, String s, ShaderMacroList m, GLuint shader = 0)
     : type(t), source(s), macros(m), glShader(shader) {}
-    GFXShaderType type;
+    ShaderType type;
     String source;
-    GFXShaderMacroList macros;
+    ShaderMacroList macros;
     GLuint glShader = 0;
 };
 typedef vector<GLES2GPUShaderStage> GLES2GPUShaderStageList;
@@ -154,8 +154,8 @@ typedef vector<GLES2GPUShaderStage> GLES2GPUShaderStageList;
 class GLES2GPUShader : public Object {
 public:
     String name;
-    GFXUniformBlockList blocks;
-    GFXUniformSamplerList samplers;
+    UniformBlockList blocks;
+    UniformSamplerList samplers;
     GLuint glProgram = 0;
     GLES2GPUShaderStageList gpuStages;
     GLES2GPUInputList glInputs;
@@ -179,7 +179,7 @@ typedef vector<GLES2GPUAttribute> GLES2GPUAttributeList;
 
 class GLES2GPUInputAssembler : public Object {
 public:
-    GFXAttributeList attributes;
+    AttributeList attributes;
     GLES2GPUBufferList gpuVertexBuffers;
     GLES2GPUBuffer *gpuIndexBuffer = nullptr;
     GLES2GPUBuffer *gpuIndirectBuffer = nullptr;
@@ -190,8 +190,8 @@ public:
 
 class GLES2GPURenderPass : public Object {
 public:
-    GFXColorAttachmentList colorAttachments;
-    GFXDepthStencilAttachment depthStencilAttachment;
+    ColorAttachmentList colorAttachments;
+    DepthStencilAttachment depthStencilAttachment;
 };
 
 class GLES2GPUFramebuffer : public Object {
@@ -211,17 +211,17 @@ class GLES2GPUPipelineState : public Object {
 public:
     GLenum glPrimitive = GL_TRIANGLES;
     GLES2GPUShader *gpuShader = nullptr;
-    GFXRasterizerState rs;
-    GFXDepthStencilState dss;
-    GFXBlendState bs;
-    GFXDynamicStateList dynamicStates;
+    RasterizerState rs;
+    DepthStencilState dss;
+    BlendState bs;
+    DynamicStateList dynamicStates;
     GLES2GPUPipelineLayout *gpuLayout = nullptr;
     GLES2GPURenderPass *gpuRenderPass = nullptr;
 };
 
 struct GLES2GPUBinding {
     uint binding = GFX_INVALID_BINDING;
-    GFXBindingType type = GFXBindingType::UNKNOWN;
+    BindingType type = BindingType::UNKNOWN;
     String name;
     GLES2GPUBuffer *gpuBuffer = nullptr;
     GLES2GPUTexture *gpuTexture = nullptr;

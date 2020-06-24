@@ -4,15 +4,15 @@
 namespace cc {
 namespace gfx {
 
-CCMTLBindingLayout::CCMTLBindingLayout(GFXDevice *device) : GFXBindingLayout(device) {}
+CCMTLBindingLayout::CCMTLBindingLayout(Device *device) : BindingLayout(device) {}
 CCMTLBindingLayout::~CCMTLBindingLayout() { destroy(); }
 
-bool CCMTLBindingLayout::initialize(const GFXBindingLayoutInfo &info) {
+bool CCMTLBindingLayout::initialize(const BindingLayoutInfo &info) {
     if (info.bindings.size()) {
         _bindingUnits.resize(info.bindings.size());
         for (size_t i = 0; i < _bindingUnits.size(); ++i) {
-            GFXBindingUnit &bindingUnit = _bindingUnits[i];
-            const GFXBinding &binding = info.bindings[i];
+            BindingUnit &bindingUnit = _bindingUnits[i];
+            const Binding &binding = info.bindings[i];
             bindingUnit.shaderStages = binding.shaderStages;
             bindingUnit.binding = binding.binding;
             bindingUnit.type = binding.type;
@@ -20,12 +20,12 @@ bool CCMTLBindingLayout::initialize(const GFXBindingLayoutInfo &info) {
         }
     }
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
     return true;
 }
 
 void CCMTLBindingLayout::destroy() {
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 void CCMTLBindingLayout::update() {

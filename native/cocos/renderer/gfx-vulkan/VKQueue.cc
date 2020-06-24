@@ -9,14 +9,14 @@
 namespace cc {
 namespace gfx {
 
-CCVKQueue::CCVKQueue(GFXDevice *device)
-: GFXQueue(device) {
+CCVKQueue::CCVKQueue(Device *device)
+: Queue(device) {
 }
 
 CCVKQueue::~CCVKQueue() {
 }
 
-bool CCVKQueue::initialize(const GFXQueueInfo &info) {
+bool CCVKQueue::initialize(const QueueInfo &info) {
     _type = info.type;
     _isAsync = !info.forceSync;
 
@@ -24,7 +24,7 @@ bool CCVKQueue::initialize(const GFXQueueInfo &info) {
     _gpuQueue->type = _type;
     CCVKCmdFuncGetDeviceQueue((CCVKDevice *)_device, _gpuQueue);
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
     return true;
 }
 
@@ -34,10 +34,10 @@ void CCVKQueue::destroy() {
         CC_DELETE(_gpuQueue);
         _gpuQueue = nullptr;
     }
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
-void CCVKQueue::submit(const vector<GFXCommandBuffer *> &cmdBuffs, GFXFence *fence) {
+void CCVKQueue::submit(const vector<CommandBuffer *> &cmdBuffs, Fence *fence) {
     CCVKDevice *device = (CCVKDevice *)_device;
 
     _gpuQueue->commandBuffers.clear();

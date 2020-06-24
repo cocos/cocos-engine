@@ -9,13 +9,13 @@ class SubModel;
 namespace pipeline {
 
 struct CC_DLL BatchedItem {
-    gfx::GFXBufferList vbs;
+    gfx::BufferList vbs;
     uint8_t *vbDatas = nullptr;
-    gfx::GFXBuffer *vbIdx = nullptr;
+    gfx::Buffer *vbIdx = nullptr;
     float *vbIdxData = nullptr;
     uint mergCount = 0;
-    gfx::GFXInputAssembler *ia = nullptr;
-    gfx::GFXBuffer *ubo = nullptr;
+    gfx::InputAssembler *ia = nullptr;
+    gfx::Buffer *ubo = nullptr;
     cc::PSOCreateInfo *psoCreatedInfo = nullptr;
 };
 typedef vector<BatchedItem> BatchedItemList;

@@ -7,10 +7,10 @@
 namespace cc {
 namespace gfx {
 
-CCMTLFramebuffer::CCMTLFramebuffer(GFXDevice *device) : GFXFramebuffer(device) {}
+CCMTLFramebuffer::CCMTLFramebuffer(Device *device) : Framebuffer(device) {}
 CCMTLFramebuffer::~CCMTLFramebuffer() { destroy(); }
 
-bool CCMTLFramebuffer::initialize(const GFXFramebufferInfo &info) {
+bool CCMTLFramebuffer::initialize(const FramebufferInfo &info) {
     _renderPass = info.renderPass;
     _colorTextures = info.colorTextures;
     _depthStencilTexture = info.depthStencilTexture;
@@ -38,13 +38,13 @@ bool CCMTLFramebuffer::initialize(const GFXFramebufferInfo &info) {
         }
     }
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return true;
 }
 
 void CCMTLFramebuffer::destroy() {
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 } // namespace gfx

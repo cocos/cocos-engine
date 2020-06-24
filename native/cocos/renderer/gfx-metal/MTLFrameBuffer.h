@@ -3,12 +3,12 @@
 namespace cc {
 namespace gfx {
 
-class CCMTLFramebuffer : public GFXFramebuffer {
+class CCMTLFramebuffer : public Framebuffer {
 public:
-    CCMTLFramebuffer(GFXDevice *device);
+    CCMTLFramebuffer(Device *device);
     ~CCMTLFramebuffer();
 
-    virtual bool initialize(const GFXFramebufferInfo &info) override;
+    virtual bool initialize(const FramebufferInfo &info) override;
     virtual void destroy() override;
 };
 

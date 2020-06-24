@@ -22,15 +22,15 @@
 namespace cc {
 namespace gfx {
 
-CCMTLQueue::CCMTLQueue(GFXDevice *device) : GFXQueue(device) {}
+CCMTLQueue::CCMTLQueue(Device *device) : Queue(device) {}
 
 CCMTLQueue::~CCMTLQueue() {
     destroy();
 }
 
-bool CCMTLQueue::initialize(const GFXQueueInfo &info) {
+bool CCMTLQueue::initialize(const QueueInfo &info) {
     _type = info.type;
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
     _frameBoundarySemaphore = dispatch_semaphore_create(1);
     _mtkView = (MTKView *)((CCMTLDevice *)_device)->getMTKView();
 
@@ -38,10 +38,10 @@ bool CCMTLQueue::initialize(const GFXQueueInfo &info) {
 }
 
 void CCMTLQueue::destroy() {
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
-void CCMTLQueue::submit(const vector<GFXCommandBuffer *> &cmdBuffs, GFXFence *fence) {
+void CCMTLQueue::submit(const vector<CommandBuffer *> &cmdBuffs, Fence *fence) {
     // Should remove USE_METAL aftr switch to use metal.
 #ifdef USE_METAL
     //    dispatch_semaphore_wait(_frameBoundarySemaphore, DISPATCH_TIME_FOREVER);
@@ -103,7 +103,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage *commandPackage, id<M
                     mtlRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
                 }
 
-                if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::COLOR) {
+                if (cmdBeginRenderPass->clearFlags & ClearFlagBit::COLOR) {
                     auto count = isOffscreen ? cmdBeginRenderPass->clearColors.size()
                                              : 1;
                     for (size_t slot = 0; slot < count; slot++) {
@@ -118,13 +118,13 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage *commandPackage, id<M
                     }
                 }
 
-                if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::DEPTH) {
+                if (cmdBeginRenderPass->clearFlags & ClearFlagBit::DEPTH) {
                     mtlRenderPassDescriptor.depthAttachment.clearDepth = cmdBeginRenderPass->clearDepth;
                     mtlRenderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
                 } else
                     mtlRenderPassDescriptor.depthAttachment.loadAction = MTLLoadActionLoad;
 
-                if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::STENCIL) {
+                if (cmdBeginRenderPass->clearFlags & ClearFlagBit::STENCIL) {
                     mtlRenderPassDescriptor.stencilAttachment.clearStencil = cmdBeginRenderPass->clearStencil;
                     mtlRenderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionClear;
                 } else
@@ -165,7 +165,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage *commandPackage, id<M
                     if (binding.buffer)
                         static_cast<CCMTLBuffer *>(binding.buffer)->encodeBuffer(encoder, 0, binding.binding, binding.shaderStages);
 
-                    if (binding.shaderStages & GFXShaderType::VERTEX) {
+                    if (binding.shaderStages & ShaderType::VERTEX) {
                         if (binding.texture)
                             [encoder setVertexTexture:static_cast<CCMTLTexture *>(binding.texture)->getMTLTexture()
                                               atIndex:binding.binding];
@@ -175,7 +175,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage *commandPackage, id<M
                                                    atIndex:vertexSamplerBindings.at(binding.binding)];
                     }
 
-                    if (binding.shaderStages & GFXShaderType::FRAGMENT) {
+                    if (binding.shaderStages & ShaderType::FRAGMENT) {
                         if (binding.texture)
                             [encoder setFragmentTexture:static_cast<CCMTLTexture *>(binding.texture)->getMTLTexture()
                                                 atIndex:binding.binding];
@@ -195,23 +195,23 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage *commandPackage, id<M
                     for (const auto &bindingInfo : gpuPipelineState->vertexBufferBindingInfo) {
                         auto index = std::get<0>(bindingInfo);
                         auto stream = std::get<1>(bindingInfo);
-                        static_cast<CCMTLBuffer *>(inputAssembler->_vertexBuffers[stream])->encodeBuffer(encoder, 0, index, GFXShaderType::VERTEX);
+                        static_cast<CCMTLBuffer *>(inputAssembler->_vertexBuffers[stream])->encodeBuffer(encoder, 0, index, ShaderType::VERTEX);
                     }
                 }
 
-                if (cmd->dynamicStateDirty[static_cast<uint>(GFXDynamicState::VIEWPORT)])
+                if (cmd->dynamicStateDirty[static_cast<uint>(DynamicState::VIEWPORT)])
                     [encoder setViewport:cmd->viewport];
-                if (cmd->dynamicStateDirty[static_cast<uint>(GFXDynamicState::SCISSOR)])
+                if (cmd->dynamicStateDirty[static_cast<uint>(DynamicState::SCISSOR)])
                     [encoder setScissorRect:cmd->scissorRect];
                 if (cmd->depthBiasEnabled) {
-                    if (cmd->dynamicStateDirty[static_cast<uint>(GFXDynamicState::DEPTH_BIAS)])
+                    if (cmd->dynamicStateDirty[static_cast<uint>(DynamicState::DEPTH_BIAS)])
                         [encoder setDepthBias:cmd->depthBias.depthBias
                                    slopeScale:cmd->depthBias.slopeScale
                                         clamp:cmd->depthBias.clamp];
                 } else {
                     [encoder setDepthBias:0 slopeScale:0 clamp:0];
                 }
-                if (cmd->dynamicStateDirty[static_cast<uint>(GFXDynamicState::BLEND_CONSTANTS)])
+                if (cmd->dynamicStateDirty[static_cast<uint>(DynamicState::BLEND_CONSTANTS)])
                     [encoder setBlendColorRed:cmd->blendConstants.r
                                         green:cmd->blendConstants.g
                                          blue:cmd->blendConstants.b

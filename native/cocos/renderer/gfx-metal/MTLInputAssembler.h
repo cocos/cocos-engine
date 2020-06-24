@@ -6,14 +6,14 @@ namespace gfx {
 class CCMTLCmdDraw;
 class CCMTLGPUInputAssembler;
 
-class CCMTLInputAssembler : public GFXInputAssembler {
+class CCMTLInputAssembler : public InputAssembler {
     friend class CCMTLQueue;
 
 public:
-    CCMTLInputAssembler(GFXDevice *device);
+    CCMTLInputAssembler(Device *device);
     ~CCMTLInputAssembler();
 
-    virtual bool initialize(const GFXInputAssemblerInfo &info) override;
+    virtual bool initialize(const InputAssemblerInfo &info) override;
     virtual void destroy() override;
 
     void extractDrawInfo(CCMTLCmdDraw *) const;

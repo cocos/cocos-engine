@@ -5,20 +5,20 @@
 namespace cc {
 namespace gfx {
 
-GLES3PipelineLayout::GLES3PipelineLayout(GFXDevice *device)
-: GFXPipelineLayout(device) {
+GLES3PipelineLayout::GLES3PipelineLayout(Device *device)
+: PipelineLayout(device) {
 }
 
 GLES3PipelineLayout::~GLES3PipelineLayout() {
 }
 
-bool GLES3PipelineLayout::initialize(const GFXPipelineLayoutInfo &info) {
+bool GLES3PipelineLayout::initialize(const PipelineLayoutInfo &info) {
 
     _layouts = info.layouts;
     _pushConstantsRanges = info.pushConstantsRanges;
 
     _gpuPipelineLayout = CC_NEW(GLES3GPUPipelineLayout);
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
     return true;
 }
 
@@ -27,7 +27,7 @@ void GLES3PipelineLayout::destroy() {
         CC_DELETE(_gpuPipelineLayout);
         _gpuPipelineLayout = nullptr;
     }
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 } // namespace gfx

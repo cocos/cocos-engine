@@ -6,13 +6,13 @@ namespace gfx {
 
 class CCVKGPUFence;
 
-class CC_VULKAN_API CCVKFence : public GFXFence {
+class CC_VULKAN_API CCVKFence : public Fence {
 public:
-    CCVKFence(GFXDevice *device);
+    CCVKFence(Device *device);
     virtual ~CCVKFence() override;
 
 public:
-    virtual bool initialize(const GFXFenceInfo &info) override;
+    virtual bool initialize(const FenceInfo &info) override;
     virtual void destroy() override;
     virtual void wait() override;
     virtual void reset() override;

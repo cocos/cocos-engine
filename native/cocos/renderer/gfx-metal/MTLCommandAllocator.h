@@ -8,12 +8,12 @@ namespace gfx {
 
 class CCMTLCommandPackage;
 
-class CCMTLCommandAllocator : public GFXCommandAllocator {
+class CCMTLCommandAllocator : public CommandAllocator {
 public:
-    CCMTLCommandAllocator(GFXDevice *device);
+    CCMTLCommandAllocator(Device *device);
     ~CCMTLCommandAllocator();
 
-    virtual bool initialize(const GFXCommandAllocatorInfo &info) override;
+    virtual bool initialize(const CommandAllocatorInfo &info) override;
     virtual void destroy() override;
 
     void clearCommands(CCMTLCommandPackage *commandPackage);
@@ -28,11 +28,11 @@ public:
 
 private:
     friend class CCMTLCommandBuffer;
-    GFXCommandPool<CCMTLCmdBeginRenderPass> _beginRenderPassCmdPool;
-    GFXCommandPool<CCMTLCmdBindStates> _bindStatesCmdPool;
-    GFXCommandPool<CCMTLCmdDraw> _drawCmdPool;
-    GFXCommandPool<CCMTLCmdUpdateBuffer> _updateBufferCmdPool;
-    GFXCommandPool<CCMTLCmdCopyBufferToTexture> _copyBufferToTextureCmdPool;
+    CommandPool<CCMTLCmdBeginRenderPass> _beginRenderPassCmdPool;
+    CommandPool<CCMTLCmdBindStates> _bindStatesCmdPool;
+    CommandPool<CCMTLCmdDraw> _drawCmdPool;
+    CommandPool<CCMTLCmdUpdateBuffer> _updateBufferCmdPool;
+    CommandPool<CCMTLCmdCopyBufferToTexture> _copyBufferToTextureCmdPool;
 };
 
 } // namespace gfx

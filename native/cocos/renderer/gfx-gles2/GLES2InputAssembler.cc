@@ -6,14 +6,14 @@
 namespace cc {
 namespace gfx {
 
-GLES2InputAssembler::GLES2InputAssembler(GFXDevice *device)
-: GFXInputAssembler(device) {
+GLES2InputAssembler::GLES2InputAssembler(Device *device)
+: InputAssembler(device) {
 }
 
 GLES2InputAssembler::~GLES2InputAssembler() {
 }
 
-bool GLES2InputAssembler::initialize(const GFXInputAssemblerInfo &info) {
+bool GLES2InputAssembler::initialize(const InputAssemblerInfo &info) {
 
     _attributes = info.attributes;
     _vertexBuffers = info.vertexBuffers;
@@ -41,7 +41,7 @@ bool GLES2InputAssembler::initialize(const GFXInputAssemblerInfo &info) {
 
     GLES2CmdFuncCreateInputAssembler((GLES2Device *)_device, _gpuInputAssembler);
     _attributesHash = computeAttributesHash();
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return true;
 }
@@ -52,7 +52,7 @@ void GLES2InputAssembler::destroy() {
         CC_DELETE(_gpuInputAssembler);
         _gpuInputAssembler = nullptr;
     }
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 void GLES2InputAssembler::ExtractCmdDraw(GLES2CmdDraw *cmd) {

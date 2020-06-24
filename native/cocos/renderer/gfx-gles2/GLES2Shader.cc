@@ -5,14 +5,14 @@
 namespace cc {
 namespace gfx {
 
-GLES2Shader::GLES2Shader(GFXDevice *device)
-: GFXShader(device) {
+GLES2Shader::GLES2Shader(Device *device)
+: Shader(device) {
 }
 
 GLES2Shader::~GLES2Shader() {
 }
 
-bool GLES2Shader::initialize(const GFXShaderInfo &info) {
+bool GLES2Shader::initialize(const ShaderInfo &info) {
     _name = info.name;
     _stages = info.stages;
     _attributes = info.attributes;
@@ -30,7 +30,7 @@ bool GLES2Shader::initialize(const GFXShaderInfo &info) {
 
     GLES2CmdFuncCreateShader((GLES2Device *)_device, _gpuShader);
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return true;
 }
@@ -41,7 +41,7 @@ void GLES2Shader::destroy() {
         CC_DELETE(_gpuShader);
         _gpuShader = nullptr;
     }
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 } // namespace gfx

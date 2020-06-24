@@ -6,14 +6,14 @@
 namespace cc {
 namespace gfx {
 
-CCVKTexture::CCVKTexture(GFXDevice *device)
-: GFXTexture(device) {
+CCVKTexture::CCVKTexture(Device *device)
+: Texture(device) {
 }
 
 CCVKTexture::~CCVKTexture() {
 }
 
-bool CCVKTexture::initialize(const GFXTextureInfo &info) {
+bool CCVKTexture::initialize(const TextureInfo &info) {
     _type = info.type;
     _usage = info.usage;
     _format = info.format;
@@ -24,42 +24,42 @@ bool CCVKTexture::initialize(const GFXTextureInfo &info) {
     _mipLevel = info.mipLevel;
     _samples = info.samples;
     _flags = info.flags;
-    _size = GFXFormatSize(_format, _width, _height, _depth);
+    _size = FormatSize(_format, _width, _height, _depth);
 
 #if COCOS2D_DEBUG > 0
     switch (_format) { // device feature validation
-        case GFXFormat::D16:
-            if (_device->hasFeature(GFXFeature::FORMAT_D16)) break;
+        case Format::D16:
+            if (_device->hasFeature(Feature::FORMAT_D16)) break;
             CC_LOG_ERROR("D16 texture format is not supported on this backend");
             return false;
-        case GFXFormat::D16S8:
-            if (_device->hasFeature(GFXFeature::FORMAT_D16S8)) break;
+        case Format::D16S8:
+            if (_device->hasFeature(Feature::FORMAT_D16S8)) break;
             CC_LOG_WARNING("D16S8 texture format is not supported on this backend");
             return false;
-        case GFXFormat::D24:
-            if (_device->hasFeature(GFXFeature::FORMAT_D24)) break;
+        case Format::D24:
+            if (_device->hasFeature(Feature::FORMAT_D24)) break;
             CC_LOG_WARNING("D24 texture format is not supported on this backend");
             return false;
-        case GFXFormat::D24S8:
-            if (_device->hasFeature(GFXFeature::FORMAT_D24S8)) break;
+        case Format::D24S8:
+            if (_device->hasFeature(Feature::FORMAT_D24S8)) break;
             CC_LOG_WARNING("D24S8 texture format is not supported on this backend");
             return false;
-        case GFXFormat::D32F:
-            if (_device->hasFeature(GFXFeature::FORMAT_D32F)) break;
+        case Format::D32F:
+            if (_device->hasFeature(Feature::FORMAT_D32F)) break;
             CC_LOG_WARNING("D32F texture format is not supported on this backend");
             return false;
-        case GFXFormat::D32F_S8:
-            if (_device->hasFeature(GFXFeature::FORMAT_D32FS8)) break;
+        case Format::D32F_S8:
+            if (_device->hasFeature(Feature::FORMAT_D32FS8)) break;
             CC_LOG_WARNING("D32FS8 texture format is not supported on this backend");
             return false;
-        case GFXFormat::RGB8:
-            if (_device->hasFeature(GFXFeature::FORMAT_RGB8)) break;
+        case Format::RGB8:
+            if (_device->hasFeature(Feature::FORMAT_RGB8)) break;
             CC_LOG_WARNING("RGB8 texture format is not supported on this backend");
             return false;
     }
 #endif
 
-    if (_flags & GFXTextureFlags::BAKUP_BUFFER) {
+    if (_flags & TextureFlags::BAKUP_BUFFER) {
         _buffer = (uint8_t *)CC_MALLOC(_size);
         _device->getMemoryStatus().textureSize += _size;
     }
@@ -81,7 +81,7 @@ bool CCVKTexture::initialize(const GFXTextureInfo &info) {
     CCVKCmdFuncCreateTexture((CCVKDevice *)_device, _gpuTexture);
     _device->getMemoryStatus().textureSize += _size;
 
-    GFXTextureViewInfo textureViewInfo;
+    TextureViewInfo textureViewInfo;
     textureViewInfo.texture = this;
     textureViewInfo.type = _type;
     textureViewInfo.format = _format;
@@ -91,11 +91,11 @@ bool CCVKTexture::initialize(const GFXTextureInfo &info) {
     textureViewInfo.layerCount = _arrayLayer;
     createTextureView(textureViewInfo);
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
     return true;
 }
 
-bool CCVKTexture::initialize(const GFXTextureViewInfo &info) {
+bool CCVKTexture::initialize(const TextureViewInfo &info) {
     if (info.texture) {
         _type = info.texture->getType();
         _format = info.texture->getFormat();
@@ -107,16 +107,16 @@ bool CCVKTexture::initialize(const GFXTextureViewInfo &info) {
         _depth = info.texture->getDepth();
         _samples = info.texture->getSamples();
         _flags = info.texture->getFlags();
-        _size = GFXFormatSize(_format, _width, _height, _depth);
+        _size = FormatSize(_format, _width, _height, _depth);
     }
 
     createTextureView(info);
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
     return true;
 }
 
-void CCVKTexture::createTextureView(const GFXTextureViewInfo &info) {
+void CCVKTexture::createTextureView(const TextureViewInfo &info) {
     if (!_gpuTextureView) {
         _gpuTextureView = CC_NEW(CCVKGPUTextureView);
     }
@@ -147,18 +147,18 @@ void CCVKTexture::destroy() {
         _device->getMemoryStatus().textureSize -= _size;
         _buffer = nullptr;
     }
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 void CCVKTexture::resize(uint width, uint height) {
-    uint size = GFXFormatSize(_format, width, height, _depth);
+    uint size = FormatSize(_format, width, height, _depth);
     if (_size != size) {
         const uint old_size = _size;
         _width = width;
         _height = height;
         _size = size;
 
-        GFXMemoryStatus &status = _device->getMemoryStatus();
+        MemoryStatus &status = _device->getMemoryStatus();
         _gpuTexture->width = _width;
         _gpuTexture->height = _height;
         _gpuTexture->size = _size;
@@ -181,7 +181,7 @@ void CCVKTexture::resize(uint width, uint height) {
         }
     }
 
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 } // namespace gfx

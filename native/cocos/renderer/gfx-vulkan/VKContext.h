@@ -10,13 +10,13 @@ class CCVKGPUContext;
 class CCVKGPUSwapchain;
 class CCVKGPUSemaphorePool;
 
-class CC_VULKAN_API CCVKContext : public GFXContext {
+class CC_VULKAN_API CCVKContext : public Context {
 public:
-    CCVKContext(GFXDevice *device);
+    CCVKContext(Device *device);
     ~CCVKContext();
 
 public:
-    bool initialize(const GFXContextInfo &info);
+    bool initialize(const ContextInfo &info);
     void destroy();
     void present() {}
 

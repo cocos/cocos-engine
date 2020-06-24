@@ -11,14 +11,14 @@
 namespace cc {
 namespace gfx {
 
-GLES2CommandBuffer::GLES2CommandBuffer(GFXDevice *device)
-: GFXCommandBuffer(device) {
+GLES2CommandBuffer::GLES2CommandBuffer(Device *device)
+: CommandBuffer(device) {
 }
 
 GLES2CommandBuffer::~GLES2CommandBuffer() {
 }
 
-bool GLES2CommandBuffer::initialize(const GFXCommandBufferInfo &info) {
+bool GLES2CommandBuffer::initialize(const CommandBufferInfo &info) {
 
     if (!info.allocator) {
         return false;
@@ -29,7 +29,7 @@ bool GLES2CommandBuffer::initialize(const GFXCommandBufferInfo &info) {
     _type = info.type;
 
     _cmdPackage = CC_NEW(GLES2CmdPackage);
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return true;
 }
@@ -40,12 +40,12 @@ void GLES2CommandBuffer::destroy() {
         _gles2Allocator = nullptr;
     }
     _allocator = nullptr;
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 
     CC_SAFE_DELETE(_cmdPackage);
 }
 
-void GLES2CommandBuffer::begin(GFXRenderPass *renderPass, uint subpass, GFXFramebuffer *frameBuffer) {
+void GLES2CommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
     _gles2Allocator->clearCmds(_cmdPackage);
     _curGPUPipelineState = nullptr;
     _curGPUBlendLayout = nullptr;
@@ -62,7 +62,7 @@ void GLES2CommandBuffer::end() {
     _isInRenderPass = false;
 }
 
-void GLES2CommandBuffer::beginRenderPass(GFXFramebuffer *fbo, const GFXRect &render_area, GFXClearFlags clear_flags, const std::vector<GFXColor> &colors, float depth, int stencil) {
+void GLES2CommandBuffer::beginRenderPass(Framebuffer *fbo, const Rect &render_area, ClearFlags clear_flags, const std::vector<Color> &colors, float depth, int stencil) {
     _isInRenderPass = true;
 
     GLES2CmdBeginRenderPass *cmd = _gles2Allocator->beginRenderPassCmdPool.alloc();
@@ -84,22 +84,22 @@ void GLES2CommandBuffer::endRenderPass() {
     _cmdPackage->cmds.push(GFXCmdType::END_RENDER_PASS);
 }
 
-void GLES2CommandBuffer::bindPipelineState(GFXPipelineState *pso) {
+void GLES2CommandBuffer::bindPipelineState(PipelineState *pso) {
     _curGPUPipelineState = ((GLES2PipelineState *)pso)->gpuPipelineState();
     _isStateInvalid = true;
 }
 
-void GLES2CommandBuffer::bindBindingLayout(GFXBindingLayout *layout) {
+void GLES2CommandBuffer::bindBindingLayout(BindingLayout *layout) {
     _curGPUBlendLayout = ((GLES2BindingLayout *)layout)->gpuBindingLayout();
     _isStateInvalid = true;
 }
 
-void GLES2CommandBuffer::bindInputAssembler(GFXInputAssembler *ia) {
+void GLES2CommandBuffer::bindInputAssembler(InputAssembler *ia) {
     _curGPUInputAssember = ((GLES2InputAssembler *)ia)->gpuInputAssembler();
     _isStateInvalid = true;
 }
 
-void GLES2CommandBuffer::setViewport(const GFXViewport &vp) {
+void GLES2CommandBuffer::setViewport(const Viewport &vp) {
 
     if ((_curViewport.left != vp.left) ||
         (_curViewport.top != vp.top) ||
@@ -112,7 +112,7 @@ void GLES2CommandBuffer::setViewport(const GFXViewport &vp) {
     }
 }
 
-void GLES2CommandBuffer::setScissor(const GFXRect &rect) {
+void GLES2CommandBuffer::setScissor(const Rect &rect) {
     if ((_curScissor.x != rect.x) ||
         (_curScissor.y != rect.y) ||
         (_curScissor.width != rect.width) ||
@@ -140,7 +140,7 @@ void GLES2CommandBuffer::setDepthBias(float constant, float clamp, float slope) 
     }
 }
 
-void GLES2CommandBuffer::setBlendConstants(const GFXColor &constants) {
+void GLES2CommandBuffer::setBlendConstants(const Color &constants) {
     if (math::IsNotEqualF(_curBlendConstants.r, constants.r) ||
         math::IsNotEqualF(_curBlendConstants.g, constants.g) ||
         math::IsNotEqualF(_curBlendConstants.b, constants.b) ||
@@ -162,7 +162,7 @@ void GLES2CommandBuffer::setDepthBound(float min_bounds, float max_bounds) {
     }
 }
 
-void GLES2CommandBuffer::setStencilWriteMask(GFXStencilFace face, uint mask) {
+void GLES2CommandBuffer::setStencilWriteMask(StencilFace face, uint mask) {
     if ((_curStencilWriteMask.face != face) ||
         (_curStencilWriteMask.write_mask != mask)) {
         _curStencilWriteMask.face = face;
@@ -171,7 +171,7 @@ void GLES2CommandBuffer::setStencilWriteMask(GFXStencilFace face, uint mask) {
     }
 }
 
-void GLES2CommandBuffer::setStencilCompareMask(GFXStencilFace face, int ref, uint mask) {
+void GLES2CommandBuffer::setStencilCompareMask(StencilFace face, int ref, uint mask) {
     if ((_curStencilCompareMask.face != face) ||
         (_curStencilCompareMask.refrence != ref) ||
         (_curStencilCompareMask.compare_mask != mask)) {
@@ -182,9 +182,9 @@ void GLES2CommandBuffer::setStencilCompareMask(GFXStencilFace face, int ref, uin
     }
 }
 
-void GLES2CommandBuffer::draw(GFXInputAssembler *ia) {
-    if ((_type == GFXCommandBufferType::PRIMARY && _isInRenderPass) ||
-        (_type == GFXCommandBufferType::SECONDARY)) {
+void GLES2CommandBuffer::draw(InputAssembler *ia) {
+    if ((_type == CommandBufferType::PRIMARY && _isInRenderPass) ||
+        (_type == CommandBufferType::SECONDARY)) {
         if (_isStateInvalid) {
             BindStates();
         }
@@ -220,9 +220,9 @@ void GLES2CommandBuffer::draw(GFXInputAssembler *ia) {
     }
 }
 
-void GLES2CommandBuffer::updateBuffer(GFXBuffer *buff, void *data, uint size, uint offset) {
-    if ((_type == GFXCommandBufferType::PRIMARY && !_isInRenderPass) ||
-        (_type == GFXCommandBufferType::SECONDARY)) {
+void GLES2CommandBuffer::updateBuffer(Buffer *buff, void *data, uint size, uint offset) {
+    if ((_type == CommandBufferType::PRIMARY && !_isInRenderPass) ||
+        (_type == CommandBufferType::SECONDARY)) {
         GLES2GPUBuffer *gpuBuffer = ((GLES2Buffer *)buff)->gpuBuffer();
         if (gpuBuffer) {
             GLES2CmdUpdateBuffer *cmd = _gles2Allocator->updateBufferCmdPool.alloc();
@@ -239,9 +239,9 @@ void GLES2CommandBuffer::updateBuffer(GFXBuffer *buff, void *data, uint size, ui
     }
 }
 
-void GLES2CommandBuffer::copyBufferToTexture(GFXBuffer *src, GFXTexture *dst, GFXTextureLayout layout, const GFXBufferTextureCopyList &regions) {
-    if ((_type == GFXCommandBufferType::PRIMARY && !_isInRenderPass) ||
-        (_type == GFXCommandBufferType::SECONDARY)) {
+void GLES2CommandBuffer::copyBufferToTexture(Buffer *src, Texture *dst, TextureLayout layout, const BufferTextureCopyList &regions) {
+    if ((_type == CommandBufferType::PRIMARY && !_isInRenderPass) ||
+        (_type == CommandBufferType::SECONDARY)) {
         GLES2GPUBuffer *gpuBuffer = ((GLES2Buffer *)src)->gpuBuffer();
         GLES2GPUTexture *gpuTexture = ((GLES2Texture *)dst)->gpuTexture();
         if (gpuBuffer && gpuTexture) {
@@ -262,7 +262,7 @@ void GLES2CommandBuffer::copyBufferToTexture(GFXBuffer *src, GFXTexture *dst, GF
     }
 }
 
-void GLES2CommandBuffer::execute(const std::vector<GFXCommandBuffer *> &cmd_buffs, uint32_t count) {
+void GLES2CommandBuffer::execute(const std::vector<CommandBuffer *> &cmd_buffs, uint32_t count) {
     for (uint i = 0; i < count; ++i) {
         GLES2CommandBuffer *cmd_buff = (GLES2CommandBuffer *)cmd_buffs[i];
 

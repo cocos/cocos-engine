@@ -6,7 +6,7 @@ namespace gfx {
 
 class GLES2StateCache;
 
-class CC_GLES2_API GLES2Device : public GFXDevice {
+class CC_GLES2_API GLES2Device : public Device {
 public:
     GLES2Device();
     ~GLES2Device();
@@ -14,27 +14,27 @@ public:
     GLES2StateCache *stateCache = nullptr;
 
 public:
-    virtual bool initialize(const GFXDeviceInfo &info) override;
+    virtual bool initialize(const DeviceInfo &info) override;
     virtual void destroy() override;
     virtual void resize(uint width, uint height) override;
     virtual void acquire() override{};
     virtual void present() override;
-    virtual GFXFence *createFence(const GFXFenceInfo &info) override;
-    virtual GFXQueue *createQueue(const GFXQueueInfo &info) override;
-    virtual GFXCommandAllocator *createCommandAllocator(const GFXCommandAllocatorInfo &info) override;
-    virtual GFXCommandBuffer *createCommandBuffer(const GFXCommandBufferInfo &info) override;
-    virtual GFXBuffer *createBuffer(const GFXBufferInfo &info) override;
-    virtual GFXTexture *createTexture(const GFXTextureInfo &info) override;
-    virtual GFXTexture *createTexture(const GFXTextureViewInfo &info) override;
-    virtual GFXSampler *createSampler(const GFXSamplerInfo &info) override;
-    virtual GFXShader *createShader(const GFXShaderInfo &info) override;
-    virtual GFXInputAssembler *createInputAssembler(const GFXInputAssemblerInfo &info) override;
-    virtual GFXRenderPass *createRenderPass(const GFXRenderPassInfo &info) override;
-    virtual GFXFramebuffer *createFramebuffer(const GFXFramebufferInfo &info) override;
-    virtual GFXBindingLayout *createBindingLayout(const GFXBindingLayoutInfo &info) override;
-    virtual GFXPipelineState *createPipelineState(const GFXPipelineStateInfo &info) override;
-    virtual GFXPipelineLayout *createPipelineLayout(const GFXPipelineLayoutInfo &info) override;
-    virtual void copyBuffersToTexture(const GFXDataArray &buffers, GFXTexture *dst, const GFXBufferTextureCopyList &regions) override;
+    virtual Fence *createFence(const FenceInfo &info) override;
+    virtual Queue *createQueue(const QueueInfo &info) override;
+    virtual CommandAllocator *createCommandAllocator(const CommandAllocatorInfo &info) override;
+    virtual CommandBuffer *createCommandBuffer(const CommandBufferInfo &info) override;
+    virtual Buffer *createBuffer(const BufferInfo &info) override;
+    virtual Texture *createTexture(const TextureInfo &info) override;
+    virtual Texture *createTexture(const TextureViewInfo &info) override;
+    virtual Sampler *createSampler(const SamplerInfo &info) override;
+    virtual Shader *createShader(const ShaderInfo &info) override;
+    virtual InputAssembler *createInputAssembler(const InputAssemblerInfo &info) override;
+    virtual RenderPass *createRenderPass(const RenderPassInfo &info) override;
+    virtual Framebuffer *createFramebuffer(const FramebufferInfo &info) override;
+    virtual BindingLayout *createBindingLayout(const BindingLayoutInfo &info) override;
+    virtual PipelineState *createPipelineState(const PipelineStateInfo &info) override;
+    virtual PipelineLayout *createPipelineLayout(const PipelineLayoutInfo &info) override;
+    virtual void copyBuffersToTexture(const DataArray &buffers, Texture *dst, const BufferTextureCopyList &regions) override;
 
     CC_INLINE bool useVAO() const { return _useVAO; }
     CC_INLINE bool useDrawInstanced() const { return _useDrawInstanced; }

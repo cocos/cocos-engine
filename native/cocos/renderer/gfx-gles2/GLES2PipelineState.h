@@ -6,13 +6,13 @@ namespace gfx {
 
 class GLES2GPUPipelineState;
 
-class CC_GLES2_API GLES2PipelineState : public GFXPipelineState {
+class CC_GLES2_API GLES2PipelineState : public PipelineState {
 public:
-    GLES2PipelineState(GFXDevice *device);
+    GLES2PipelineState(Device *device);
     ~GLES2PipelineState();
 
 public:
-    virtual bool initialize(const GFXPipelineStateInfo &info) override;
+    virtual bool initialize(const PipelineStateInfo &info) override;
     virtual void destroy() override;
 
     CC_INLINE GLES2GPUPipelineState *gpuPipelineState() const { return _gpuPipelineState; }

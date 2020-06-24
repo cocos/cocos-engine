@@ -25,14 +25,14 @@ const GLenum GLES2Primitives[] = {
     GL_NONE,
 };
 
-GLES2PipelineState::GLES2PipelineState(GFXDevice *device)
-: GFXPipelineState(device) {
+GLES2PipelineState::GLES2PipelineState(Device *device)
+: PipelineState(device) {
 }
 
 GLES2PipelineState::~GLES2PipelineState() {
 }
 
-bool GLES2PipelineState::initialize(const GFXPipelineStateInfo &info) {
+bool GLES2PipelineState::initialize(const PipelineStateInfo &info) {
 
     _primitive = info.primitive;
     _shader = info.shader;
@@ -54,7 +54,7 @@ bool GLES2PipelineState::initialize(const GFXPipelineStateInfo &info) {
     _gpuPipelineState->gpuLayout = ((GLES2PipelineLayout *)_layout)->gpuPipelineLayout();
     _gpuPipelineState->gpuRenderPass = ((GLES2RenderPass *)_renderPass)->gpuRenderPass();
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return true;
 }
@@ -65,7 +65,7 @@ void GLES2PipelineState::destroy() {
         _gpuPipelineState = nullptr;
     }
 
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 } // namespace gfx

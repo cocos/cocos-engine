@@ -6,13 +6,13 @@ namespace gfx {
 
 class CCVKGPUCommandPool;
 
-class CC_VULKAN_API CCVKCommandAllocator : public GFXCommandAllocator {
+class CC_VULKAN_API CCVKCommandAllocator : public CommandAllocator {
 public:
-    CCVKCommandAllocator(GFXDevice *device);
+    CCVKCommandAllocator(Device *device);
     ~CCVKCommandAllocator();
 
 public:
-    bool initialize(const GFXCommandAllocatorInfo &info);
+    bool initialize(const CommandAllocatorInfo &info);
     void destroy();
 
     CC_INLINE CCVKGPUCommandPool *gpuCommandPool() { return _gpuCommandPool; }

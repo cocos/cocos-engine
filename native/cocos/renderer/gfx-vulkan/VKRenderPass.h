@@ -6,13 +6,13 @@ namespace gfx {
 
 class CCVKGPURenderPass;
 
-class CC_VULKAN_API CCVKRenderPass : public GFXRenderPass {
+class CC_VULKAN_API CCVKRenderPass : public RenderPass {
 public:
-    CCVKRenderPass(GFXDevice *device);
+    CCVKRenderPass(Device *device);
     ~CCVKRenderPass();
 
 public:
-    bool initialize(const GFXRenderPassInfo &info);
+    bool initialize(const RenderPassInfo &info);
     void destroy();
 
     CC_INLINE CCVKGPURenderPass *gpuRenderPass() const { return _gpuRenderPass; }

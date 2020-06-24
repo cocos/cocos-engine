@@ -64,8 +64,8 @@ void APIENTRY GLES3EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum se
 
 #endif
 
-GLES3Context::GLES3Context(GFXDevice *device)
-: GFXContext(device) {
+GLES3Context::GLES3Context(Device *device)
+: Context(device) {
 }
 
 GLES3Context::~GLES3Context() {
@@ -73,7 +73,7 @@ GLES3Context::~GLES3Context() {
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
 
-bool GLES3Context::initialize(const GFXContextInfo &info) {
+bool GLES3Context::initialize(const ContextInfo &info) {
 
     _vsyncMode = info.vsyncMode;
     _windowHandle = info.windowHandle;
@@ -119,8 +119,8 @@ bool GLES3Context::initialize(const GFXContextInfo &info) {
             return false;
         }
 
-        _colorFmt = GFXFormat::RGBA8;
-        _depthStencilFmt = GFXFormat::D24S8;
+        _colorFmt = Format::RGBA8;
+        _depthStencilFmt = Format::D24S8;
 
         const EGLint attribs[] = {
             EGL_SURFACE_TYPE, EGL_WINDOW_BIT | EGL_PBUFFER_BIT,
@@ -154,17 +154,17 @@ bool GLES3Context::initialize(const GFXContextInfo &info) {
         CC_LOG_INFO("Setup EGLConfig: depth [%d] stencil [%d]", depth, stencil);
 
         if (depth == 16 && stencil == 0) {
-            _depthStencilFmt = GFXFormat::D16;
+            _depthStencilFmt = Format::D16;
         } else if (depth == 16 && stencil == 8) {
-            _depthStencilFmt = GFXFormat::D16S8;
+            _depthStencilFmt = Format::D16S8;
         } else if (depth == 24 && stencil == 0) {
-            _depthStencilFmt = GFXFormat::D24;
+            _depthStencilFmt = Format::D24;
         } else if (depth == 24 && stencil == 8) {
-            _depthStencilFmt = GFXFormat::D24S8;
+            _depthStencilFmt = Format::D24S8;
         } else if (depth == 32 && stencil == 0) {
-            _depthStencilFmt = GFXFormat::D32F;
+            _depthStencilFmt = Format::D32F;
         } else if (depth == 32 && stencil == 8) {
-            _depthStencilFmt = GFXFormat::D32F_S8;
+            _depthStencilFmt = Format::D32F_S8;
         } else {
             CC_LOG_ERROR("Unknown depth stencil format.");
             return false;
@@ -363,7 +363,7 @@ void GLES3Context::destroy() {
     _isPrimaryContex = false;
     _windowHandle = 0;
     _nativeDisplay = 0;
-    _vsyncMode = GFXVsyncMode::OFF;
+    _vsyncMode = VsyncMode::OFF;
     _isInitialized = false;
 }
 
@@ -384,11 +384,11 @@ bool GLES3Context::MakeCurrent() {
             // Turn on or off the vertical sync depending on the input bool value.
             int interval = 1;
             switch (_vsyncMode) {
-                case GFXVsyncMode::OFF: interval = 0; break;
-                case GFXVsyncMode::ON: interval = 1; break;
-                case GFXVsyncMode::RELAXED: interval = -1; break;
-                case GFXVsyncMode::MAILBOX: interval = 0; break;
-                case GFXVsyncMode::HALF: interval = 2; break;
+                case VsyncMode::OFF: interval = 0; break;
+                case VsyncMode::ON: interval = 1; break;
+                case VsyncMode::RELAXED: interval = -1; break;
+                case VsyncMode::MAILBOX: interval = 0; break;
+                case VsyncMode::HALF: interval = 2; break;
                 default: break;
             }
 

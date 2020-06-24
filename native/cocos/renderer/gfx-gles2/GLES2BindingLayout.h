@@ -6,13 +6,13 @@ namespace gfx {
 
 class GLES2GPUBindingLayout;
 
-class CC_GLES2_API GLES2BindingLayout : public GFXBindingLayout {
+class CC_GLES2_API GLES2BindingLayout : public BindingLayout {
 public:
-    GLES2BindingLayout(GFXDevice *device);
+    GLES2BindingLayout(Device *device);
     ~GLES2BindingLayout();
 
 public:
-    virtual bool initialize(const GFXBindingLayoutInfo &info) override;
+    virtual bool initialize(const BindingLayoutInfo &info) override;
     virtual void destroy() override;
     virtual void update() override;
 

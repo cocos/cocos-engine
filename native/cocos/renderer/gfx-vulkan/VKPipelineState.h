@@ -6,13 +6,13 @@ namespace gfx {
 
 class CCVKGPUPipelineState;
 
-class CC_VULKAN_API CCVKPipelineState : public GFXPipelineState {
+class CC_VULKAN_API CCVKPipelineState : public PipelineState {
 public:
-    CCVKPipelineState(GFXDevice *device);
+    CCVKPipelineState(Device *device);
     ~CCVKPipelineState();
 
 public:
-    bool initialize(const GFXPipelineStateInfo &info);
+    bool initialize(const PipelineStateInfo &info);
     void destroy();
 
     CC_INLINE CCVKGPUPipelineState *gpuPipelineState() const { return _gpuPipelineState; }

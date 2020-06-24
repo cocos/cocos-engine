@@ -3,12 +3,12 @@
 namespace cc {
 namespace gfx {
 
-class CCMTLBindingLayout : public GFXBindingLayout {
+class CCMTLBindingLayout : public BindingLayout {
 public:
-    CCMTLBindingLayout(GFXDevice *device);
+    CCMTLBindingLayout(Device *device);
     virtual ~CCMTLBindingLayout();
 
-    virtual bool initialize(const GFXBindingLayoutInfo &info) override;
+    virtual bool initialize(const BindingLayoutInfo &info) override;
     virtual void destroy() override;
     virtual void update() override;
 };

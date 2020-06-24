@@ -20,12 +20,12 @@ struct CCVKDepthBounds {
 };
 
 struct CCVKStencilWriteMask {
-    GFXStencilFace face = GFXStencilFace::FRONT;
+    StencilFace face = StencilFace::FRONT;
     uint32_t write_mask = 0;
 };
 
 struct CCVKStencilCompareMask {
-    GFXStencilFace face = GFXStencilFace::FRONT;
+    StencilFace face = StencilFace::FRONT;
     int reference = 0;
     uint32_t compareMask = 0;
 };
@@ -55,14 +55,14 @@ CC_VULKAN_API void CCVKCmdFuncCreateInputAssembler(CCVKDevice *device, CCVKGPUIn
 CC_VULKAN_API void CCVKCmdFuncDestroyInputAssembler(CCVKDevice *device, CCVKGPUInputAssembler *gpuInputAssembler);
 CC_VULKAN_API void CCVKCmdFuncCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFramebuffer);
 CC_VULKAN_API void CCVKCmdFuncDestroyFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFramebuffer);
-CC_VULKAN_API void CCVKCmdFuncCreateBindingLayout(CCVKDevice *device, CCVKGPUBindingLayout *gpuBindingLayout, GFXBindingUnitList bindings);
+CC_VULKAN_API void CCVKCmdFuncCreateBindingLayout(CCVKDevice *device, CCVKGPUBindingLayout *gpuBindingLayout, BindingUnitList bindings);
 CC_VULKAN_API void CCVKCmdFuncDestroyBindingLayout(CCVKDevice *device, CCVKGPUBindingLayout *gpuBindingLayout);
 CC_VULKAN_API void CCVKCmdFuncCreatePipelineLayout(CCVKDevice *device, CCVKGPUPipelineLayout *gpuPipelineLayout);
 CC_VULKAN_API void CCVKCmdFuncDestroyPipelineLayout(CCVKDevice *device, CCVKGPUPipelineLayout *gpuPipelineLayout);
 CC_VULKAN_API void CCVKCmdFuncCreatePipelineState(CCVKDevice *device, CCVKGPUPipelineState *gpuPipelineState);
 CC_VULKAN_API void CCVKCmdFuncDestroyPipelineState(CCVKDevice *device, CCVKGPUPipelineState *gpuPipelineState);
 
-CC_VULKAN_API void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, uint8_t *const *buffers, CCVKGPUTexture *gpuTexture, const GFXBufferTextureCopyList &regions);
+CC_VULKAN_API void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, uint8_t *const *buffers, CCVKGPUTexture *gpuTexture, const BufferTextureCopyList &regions);
 
 } // namespace gfx
 } // namespace cc

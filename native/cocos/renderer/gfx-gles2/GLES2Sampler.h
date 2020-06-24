@@ -6,13 +6,13 @@ namespace gfx {
 
 class GLES2GPUSampler;
 
-class CC_GLES2_API GLES2Sampler : public GFXSampler {
+class CC_GLES2_API GLES2Sampler : public Sampler {
 public:
-    GLES2Sampler(GFXDevice *device);
+    GLES2Sampler(Device *device);
     ~GLES2Sampler();
 
 public:
-    virtual bool initialize(const GFXSamplerInfo &info) override;
+    virtual bool initialize(const SamplerInfo &info) override;
     virtual void destroy() override;
 
     CC_INLINE GLES2GPUSampler *gpuSampler() const { return _gpuSampler; }
@@ -20,15 +20,15 @@ public:
 private:
     GLES2GPUSampler *_gpuSampler = nullptr;
     String _name;
-    GFXFilter _minFilter = GFXFilter::LINEAR;
-    GFXFilter _magFilter = GFXFilter::LINEAR;
-    GFXFilter _mipFilter = GFXFilter::NONE;
-    GFXAddress _addressU = GFXAddress::WRAP;
-    GFXAddress _addressV = GFXAddress::WRAP;
-    GFXAddress _addressW = GFXAddress::WRAP;
+    Filter _minFilter = Filter::LINEAR;
+    Filter _magFilter = Filter::LINEAR;
+    Filter _mipFilter = Filter::NONE;
+    Address _addressU = Address::WRAP;
+    Address _addressV = Address::WRAP;
+    Address _addressW = Address::WRAP;
     uint _maxAnisotropy = 16;
-    GFXComparisonFunc _cmpFunc = GFXComparisonFunc::NEVER;
-    GFXColor _borderColor;
+    ComparisonFunc _cmpFunc = ComparisonFunc::NEVER;
+    Color _borderColor;
     uint _minLOD = 0;
     uint _maxLOD = 1000;
     float _mipLODBias = 0.0f;

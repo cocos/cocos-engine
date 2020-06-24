@@ -8,9 +8,9 @@ namespace gfx {
 #define INITIAL_CAPACITY 1
 
 template <typename T, typename = std::enable_if<std::is_base_of<GFXCmd, T>::value>>
-class GFXCommandPool {
+class CommandPool {
 public:
-    GFXCommandPool() : _freeCmds(INITIAL_CAPACITY) {
+    CommandPool() : _freeCmds(INITIAL_CAPACITY) {
         _frees = new T *[INITIAL_CAPACITY];
         _count = INITIAL_CAPACITY;
         _freeIdx = INITIAL_CAPACITY - 1;
@@ -19,7 +19,7 @@ public:
         }
     }
 
-    ~GFXCommandPool() {
+    ~CommandPool() {
         for (uint i = 0; i < _count; ++i) {
             CC_DELETE(_frees[i]);
         }

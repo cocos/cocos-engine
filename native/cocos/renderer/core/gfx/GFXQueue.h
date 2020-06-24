@@ -6,24 +6,24 @@
 namespace cc {
 namespace gfx {
 
-class CC_DLL GFXQueue : public GFXObject {
+class CC_DLL Queue : public GFXObject {
 public:
-    GFXQueue(GFXDevice *device);
-    virtual ~GFXQueue();
+    Queue(Device *device);
+    virtual ~Queue();
 
 public:
-    virtual bool initialize(const GFXQueueInfo &info) = 0;
+    virtual bool initialize(const QueueInfo &info) = 0;
     virtual void destroy() = 0;
-    virtual void submit(const vector<GFXCommandBuffer *> &cmdBuffs, GFXFence *fence) = 0;
+    virtual void submit(const vector<CommandBuffer *> &cmdBuffs, Fence *fence) = 0;
 
-    CC_INLINE void submit(const vector<GFXCommandBuffer *> &cmdBuffs) { submit(cmdBuffs, nullptr); }
-    CC_INLINE GFXDevice *getDevice() const { return _device; }
-    CC_INLINE GFXQueueType getType() const { return _type; }
+    CC_INLINE void submit(const vector<CommandBuffer *> &cmdBuffs) { submit(cmdBuffs, nullptr); }
+    CC_INLINE Device *getDevice() const { return _device; }
+    CC_INLINE QueueType getType() const { return _type; }
     CC_INLINE bool isAsync() const { return _isAsync; }
 
 protected:
-    GFXDevice *_device = nullptr;
-    GFXQueueType _type = GFXQueueType::GRAPHICS;
+    Device *_device = nullptr;
+    QueueType _type = QueueType::GRAPHICS;
     bool _isAsync = false;
 };
 

@@ -3,12 +3,12 @@
 namespace cc {
 namespace gfx {
 
-class CCMTLContext : public GFXContext {
+class CCMTLContext : public Context {
 public:
-    CCMTLContext(GFXDevice *device);
+    CCMTLContext(Device *device);
     ~CCMTLContext();
 
-    bool initialize(const GFXContextInfo &info) override;
+    bool initialize(const ContextInfo &info) override;
     void destroy() override{};
     void present() override{};
 };

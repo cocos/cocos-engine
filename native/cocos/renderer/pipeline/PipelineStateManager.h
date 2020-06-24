@@ -6,23 +6,23 @@ namespace cc {
 struct PSOCreateInfo;
 
 namespace gfx {
-class GFXDevice;
-class GFXInputAssembler;
-class GFXPipelineState;
-class GFXRenderPass;
+class Device;
+class InputAssembler;
+class PipelineState;
+class RenderPass;
 };
 
 namespace pipeline {
 
 class CC_DLL PipelineStateManager {
 public:
-    static gfx::GFXPipelineState *getOrCreatePipelineStage(gfx::GFXDevice *device,
+    static gfx::PipelineState *getOrCreatePipelineStage(gfx::Device *device,
                                                            const PSOCreateInfo &PSOInfo,
-                                                           gfx::GFXRenderPass *renderPass,
-                                                           gfx::GFXInputAssembler *inputAssembler);
+                                                           gfx::RenderPass *renderPass,
+                                                           gfx::InputAssembler *inputAssembler);
     
 private:
-    static map<uint, gfx::GFXPipelineState *> _PSOHashMap;
+    static map<uint, gfx::PipelineState *> _PSOHashMap;
 };
 
 } // namespace pipeline

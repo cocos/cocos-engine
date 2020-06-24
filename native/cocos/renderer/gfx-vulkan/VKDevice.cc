@@ -38,8 +38,8 @@ CCVKGPUContext *CCVKDevice::gpuContext() const {
     return ((CCVKContext *)_context)->gpuContext();
 }
 
-bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
-    _gfxAPI = GFXAPI::VULKAN;
+bool CCVKDevice::initialize(const DeviceInfo &info) {
+    _API = API::VULKAN;
     _deviceName = "Vulkan";
     _width = info.width;
     _height = info.height;
@@ -47,7 +47,7 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
     _nativeHeight = info.nativeHeight;
     _windowHandle = info.windowHandle;
 
-    GFXContextInfo contextCreateInfo;
+    ContextInfo contextCreateInfo;
     contextCreateInfo.windowHandle = _windowHandle;
     contextCreateInfo.sharedCtx = info.sharedCtx;
 
@@ -148,61 +148,61 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
 
     ///////////////////// Gather Device Properties /////////////////////
 
-    _features[(int)GFXFeature::COLOR_FLOAT] = true;
-    _features[(int)GFXFeature::COLOR_HALF_FLOAT] = true;
-    _features[(int)GFXFeature::TEXTURE_FLOAT] = true;
-    _features[(int)GFXFeature::TEXTURE_HALF_FLOAT] = true;
-    _features[(int)GFXFeature::TEXTURE_FLOAT_LINEAR] = true;
-    _features[(int)GFXFeature::TEXTURE_HALF_FLOAT_LINEAR] = true;
-    _features[(int)GFXFeature::FORMAT_R11G11B10F] = true;
-    _features[(int)GFXFeature::MSAA] = true;
-    _features[(int)GFXFeature::ELEMENT_INDEX_UINT] = true;
-    _features[(int)GFXFeature::INSTANCED_ARRAYS] = true;
-    _features[static_cast<uint>(GFXFeature::DEPTH_BOUNDS)] = deviceFeatures.depthBounds;
-    _features[static_cast<uint>(GFXFeature::LINE_WIDTH)] = true;
-    _features[static_cast<uint>(GFXFeature::STENCIL_COMPARE_MASK)] = true;
-    _features[static_cast<uint>(GFXFeature::STENCIL_WRITE_MASK)] = true;
+    _features[(int)Feature::COLOR_FLOAT] = true;
+    _features[(int)Feature::COLOR_HALF_FLOAT] = true;
+    _features[(int)Feature::TEXTURE_FLOAT] = true;
+    _features[(int)Feature::TEXTURE_HALF_FLOAT] = true;
+    _features[(int)Feature::TEXTURE_FLOAT_LINEAR] = true;
+    _features[(int)Feature::TEXTURE_HALF_FLOAT_LINEAR] = true;
+    _features[(int)Feature::FORMAT_R11G11B10F] = true;
+    _features[(int)Feature::MSAA] = true;
+    _features[(int)Feature::ELEMENT_INDEX_UINT] = true;
+    _features[(int)Feature::INSTANCED_ARRAYS] = true;
+    _features[static_cast<uint>(Feature::DEPTH_BOUNDS)] = deviceFeatures.depthBounds;
+    _features[static_cast<uint>(Feature::LINE_WIDTH)] = true;
+    _features[static_cast<uint>(Feature::STENCIL_COMPARE_MASK)] = true;
+    _features[static_cast<uint>(Feature::STENCIL_WRITE_MASK)] = true;
     _multiDrawIndirectSupported = deviceFeatures2.features.multiDrawIndirect;
 
     VkFormatFeatureFlags requiredFeatures = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT;
     VkFormatProperties formatProperties;
     vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_R8G8B8_UNORM, &formatProperties);
     if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[(int)GFXFeature::FORMAT_RGB8] = true;
+        _features[(int)Feature::FORMAT_RGB8] = true;
     }
     requiredFeatures = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
     vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D16_UNORM, &formatProperties);
     if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[(int)GFXFeature::FORMAT_D16] = true;
+        _features[(int)Feature::FORMAT_D16] = true;
     }
     vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_X8_D24_UNORM_PACK32, &formatProperties);
     if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[(int)GFXFeature::FORMAT_D24] = true;
+        _features[(int)Feature::FORMAT_D24] = true;
     }
     vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D32_SFLOAT, &formatProperties);
     if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[(int)GFXFeature::FORMAT_D32F] = true;
+        _features[(int)Feature::FORMAT_D32F] = true;
     }
     vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D16_UNORM_S8_UINT, &formatProperties);
     if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[(int)GFXFeature::FORMAT_D16S8] = true;
+        _features[(int)Feature::FORMAT_D16S8] = true;
     }
     vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D24_UNORM_S8_UINT, &formatProperties);
     if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[(int)GFXFeature::FORMAT_D24S8] = true;
+        _features[(int)Feature::FORMAT_D24S8] = true;
     }
     vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D32_SFLOAT_S8_UINT, &formatProperties);
     if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[(int)GFXFeature::FORMAT_D32FS8] = true;
+        _features[(int)Feature::FORMAT_D32FS8] = true;
     }
 
     String compressedFmts;
     if (deviceFeatures.textureCompressionETC2) {
-        _features[(int)GFXFeature::FORMAT_ETC2] = true;
+        _features[(int)Feature::FORMAT_ETC2] = true;
         compressedFmts += "etc2 ";
     }
     if (deviceFeatures.textureCompressionASTC_LDR) {
-        _features[(int)GFXFeature::FORMAT_ASTC] = true;
+        _features[(int)Feature::FORMAT_ASTC] = true;
         compressedFmts += "astc ";
     }
 
@@ -257,25 +257,25 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
     _gpuSemaphorePool = CC_NEW(CCVKGPUSemaphorePool(_gpuDevice));
     _gpuFencePool = CC_NEW(CCVKGPUFencePool(_gpuDevice));
 
-    GFXBufferInfo stagingBufferInfo;
-    stagingBufferInfo.usage = GFXBufferUsage::TRANSFER_SRC;
-    stagingBufferInfo.memUsage = GFXMemoryUsage::HOST;
+    BufferInfo stagingBufferInfo;
+    stagingBufferInfo.usage = BufferUsage::TRANSFER_SRC;
+    stagingBufferInfo.memUsage = MemoryUsage::HOST;
     stagingBufferInfo.stride = _defaultStagingBufferSize;
     stagingBufferInfo.size = _defaultStagingBufferSize;
     _stagingBuffer = (CCVKBuffer *)createBuffer(stagingBufferInfo);
 
-    GFXQueueInfo queueInfo;
-    queueInfo.type = GFXQueueType::GRAPHICS;
+    QueueInfo queueInfo;
+    queueInfo.type = QueueType::GRAPHICS;
     queueInfo.forceSync = true;
     _queue = createQueue(queueInfo);
 
-    GFXCommandAllocatorInfo cmdAllocInfo;
+    CommandAllocatorInfo cmdAllocInfo;
     _cmdAllocator = createCommandAllocator(cmdAllocInfo);
 
     for (uint i = 0u; i < gpuContext->swapchainCreateInfo.minImageCount; i++) {
-        GFXTextureInfo depthStencilTexInfo;
-        depthStencilTexInfo.type = GFXTextureType::TEX2D;
-        depthStencilTexInfo.usage = GFXTextureUsageBit::DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit::SAMPLED;
+        TextureInfo depthStencilTexInfo;
+        depthStencilTexInfo.type = TextureType::TEX2D;
+        depthStencilTexInfo.usage = TextureUsageBit::DEPTH_STENCIL_ATTACHMENT | TextureUsageBit::SAMPLED;
         depthStencilTexInfo.format = _context->getDepthStencilFormat();
         depthStencilTexInfo.width = 1;
         depthStencilTexInfo.height = 1;
@@ -283,17 +283,17 @@ bool CCVKDevice::initialize(const GFXDeviceInfo &info) {
         _depthStencilTextures.push_back(texture);
     }
 
-    GFXTextureInfo textureInfo;
-    GFXTextureViewInfo texViewInfo;
+    TextureInfo textureInfo;
+    TextureViewInfo texViewInfo;
 
-    textureInfo.usage = GFXTextureUsageBit::SAMPLED;
-    textureInfo.format = GFXFormat::RGBA8;
+    textureInfo.usage = TextureUsageBit::SAMPLED;
+    textureInfo.format = Format::RGBA8;
     textureInfo.width = 2;
     textureInfo.height = 2;
     nullTexture2D = (CCVKTexture *)createTexture(textureInfo);
 
     textureInfo.arrayLayer = 6;
-    textureInfo.flags = GFXTextureFlagBit::CUBEMAP;
+    textureInfo.flags = TextureFlagBit::CUBEMAP;
     nullTextureCube = (CCVKTexture *)createTexture(textureInfo);
 
     _gpuSwapchain = CC_NEW(CCVKGPUSwapchain);
@@ -528,8 +528,8 @@ void CCVKDevice::present() {
     VK_CHECK(vkQueuePresentKHR(queue->gpuQueue()->vkQueue, &presentInfo));
 }
 
-GFXFence *CCVKDevice::createFence(const GFXFenceInfo &info) {
-    GFXFence *fence = CC_NEW(CCVKFence(this));
+Fence *CCVKDevice::createFence(const FenceInfo &info) {
+    Fence *fence = CC_NEW(CCVKFence(this));
     if (fence->initialize(info))
         return fence;
 
@@ -537,8 +537,8 @@ GFXFence *CCVKDevice::createFence(const GFXFenceInfo &info) {
     return nullptr;
 }
 
-GFXQueue *CCVKDevice::createQueue(const GFXQueueInfo &info) {
-    GFXQueue *queue = CC_NEW(CCVKQueue(this));
+Queue *CCVKDevice::createQueue(const QueueInfo &info) {
+    Queue *queue = CC_NEW(CCVKQueue(this));
     if (queue->initialize(info))
         return queue;
 
@@ -546,8 +546,8 @@ GFXQueue *CCVKDevice::createQueue(const GFXQueueInfo &info) {
     return nullptr;
 }
 
-GFXCommandAllocator *CCVKDevice::createCommandAllocator(const GFXCommandAllocatorInfo &info) {
-    GFXCommandAllocator *cmdAllocator = CC_NEW(CCVKCommandAllocator(this));
+CommandAllocator *CCVKDevice::createCommandAllocator(const CommandAllocatorInfo &info) {
+    CommandAllocator *cmdAllocator = CC_NEW(CCVKCommandAllocator(this));
     if (cmdAllocator->initialize(info))
         return cmdAllocator;
 
@@ -555,8 +555,8 @@ GFXCommandAllocator *CCVKDevice::createCommandAllocator(const GFXCommandAllocato
     return nullptr;
 }
 
-GFXCommandBuffer *CCVKDevice::createCommandBuffer(const GFXCommandBufferInfo &info) {
-    GFXCommandBuffer *gfx_cmd_buff = CC_NEW(CCVKCommandBuffer(this));
+CommandBuffer *CCVKDevice::createCommandBuffer(const CommandBufferInfo &info) {
+    CommandBuffer *gfx_cmd_buff = CC_NEW(CCVKCommandBuffer(this));
     if (gfx_cmd_buff->initialize(info))
         return gfx_cmd_buff;
 
@@ -564,8 +564,8 @@ GFXCommandBuffer *CCVKDevice::createCommandBuffer(const GFXCommandBufferInfo &in
     return nullptr;
 }
 
-GFXBuffer *CCVKDevice::createBuffer(const GFXBufferInfo &info) {
-    GFXBuffer *buffer = CC_NEW(CCVKBuffer(this));
+Buffer *CCVKDevice::createBuffer(const BufferInfo &info) {
+    Buffer *buffer = CC_NEW(CCVKBuffer(this));
     if (buffer->initialize(info))
         return buffer;
 
@@ -573,8 +573,8 @@ GFXBuffer *CCVKDevice::createBuffer(const GFXBufferInfo &info) {
     return nullptr;
 }
 
-GFXTexture *CCVKDevice::createTexture(const GFXTextureInfo &info) {
-    GFXTexture *texture = CC_NEW(CCVKTexture(this));
+Texture *CCVKDevice::createTexture(const TextureInfo &info) {
+    Texture *texture = CC_NEW(CCVKTexture(this));
     if (texture->initialize(info))
         return texture;
 
@@ -582,8 +582,8 @@ GFXTexture *CCVKDevice::createTexture(const GFXTextureInfo &info) {
     return nullptr;
 }
 
-GFXTexture *CCVKDevice::createTexture(const GFXTextureViewInfo &info) {
-    GFXTexture *texture = CC_NEW(CCVKTexture(this));
+Texture *CCVKDevice::createTexture(const TextureViewInfo &info) {
+    Texture *texture = CC_NEW(CCVKTexture(this));
     if (texture->initialize(info))
         return texture;
 
@@ -591,8 +591,8 @@ GFXTexture *CCVKDevice::createTexture(const GFXTextureViewInfo &info) {
     return nullptr;
 }
 
-GFXSampler *CCVKDevice::createSampler(const GFXSamplerInfo &info) {
-    GFXSampler *sampler = CC_NEW(CCVKSampler(this));
+Sampler *CCVKDevice::createSampler(const SamplerInfo &info) {
+    Sampler *sampler = CC_NEW(CCVKSampler(this));
     if (sampler->initialize(info))
         return sampler;
 
@@ -600,8 +600,8 @@ GFXSampler *CCVKDevice::createSampler(const GFXSamplerInfo &info) {
     return nullptr;
 }
 
-GFXShader *CCVKDevice::createShader(const GFXShaderInfo &info) {
-    GFXShader *shader = CC_NEW(CCVKShader(this));
+Shader *CCVKDevice::createShader(const ShaderInfo &info) {
+    Shader *shader = CC_NEW(CCVKShader(this));
     if (shader->initialize(info))
         return shader;
 
@@ -609,8 +609,8 @@ GFXShader *CCVKDevice::createShader(const GFXShaderInfo &info) {
     return nullptr;
 }
 
-GFXInputAssembler *CCVKDevice::createInputAssembler(const GFXInputAssemblerInfo &info) {
-    GFXInputAssembler *inputAssembler = CC_NEW(CCVKInputAssembler(this));
+InputAssembler *CCVKDevice::createInputAssembler(const InputAssemblerInfo &info) {
+    InputAssembler *inputAssembler = CC_NEW(CCVKInputAssembler(this));
     if (inputAssembler->initialize(info))
         return inputAssembler;
 
@@ -618,8 +618,8 @@ GFXInputAssembler *CCVKDevice::createInputAssembler(const GFXInputAssemblerInfo 
     return nullptr;
 }
 
-GFXRenderPass *CCVKDevice::createRenderPass(const GFXRenderPassInfo &info) {
-    GFXRenderPass *renderPass = CC_NEW(CCVKRenderPass(this));
+RenderPass *CCVKDevice::createRenderPass(const RenderPassInfo &info) {
+    RenderPass *renderPass = CC_NEW(CCVKRenderPass(this));
     if (renderPass->initialize(info))
         return renderPass;
 
@@ -627,8 +627,8 @@ GFXRenderPass *CCVKDevice::createRenderPass(const GFXRenderPassInfo &info) {
     return nullptr;
 }
 
-GFXFramebuffer *CCVKDevice::createFramebuffer(const GFXFramebufferInfo &info) {
-    GFXFramebuffer *framebuffer = CC_NEW(CCVKFramebuffer(this));
+Framebuffer *CCVKDevice::createFramebuffer(const FramebufferInfo &info) {
+    Framebuffer *framebuffer = CC_NEW(CCVKFramebuffer(this));
     if (framebuffer->initialize(info))
         return framebuffer;
 
@@ -636,8 +636,8 @@ GFXFramebuffer *CCVKDevice::createFramebuffer(const GFXFramebufferInfo &info) {
     return nullptr;
 }
 
-GFXBindingLayout *CCVKDevice::createBindingLayout(const GFXBindingLayoutInfo &info) {
-    GFXBindingLayout *bindingLayout = CC_NEW(CCVKBindingLayout(this));
+BindingLayout *CCVKDevice::createBindingLayout(const BindingLayoutInfo &info) {
+    BindingLayout *bindingLayout = CC_NEW(CCVKBindingLayout(this));
     if (bindingLayout->initialize(info))
         return bindingLayout;
 
@@ -645,8 +645,8 @@ GFXBindingLayout *CCVKDevice::createBindingLayout(const GFXBindingLayoutInfo &in
     return nullptr;
 }
 
-GFXPipelineState *CCVKDevice::createPipelineState(const GFXPipelineStateInfo &info) {
-    GFXPipelineState *pipelineState = CC_NEW(CCVKPipelineState(this));
+PipelineState *CCVKDevice::createPipelineState(const PipelineStateInfo &info) {
+    PipelineState *pipelineState = CC_NEW(CCVKPipelineState(this));
     if (pipelineState->initialize(info))
         return pipelineState;
 
@@ -654,8 +654,8 @@ GFXPipelineState *CCVKDevice::createPipelineState(const GFXPipelineStateInfo &in
     return nullptr;
 }
 
-GFXPipelineLayout *CCVKDevice::createPipelineLayout(const GFXPipelineLayoutInfo &info) {
-    GFXPipelineLayout *layout = CC_NEW(CCVKPipelineLayout(this));
+PipelineLayout *CCVKDevice::createPipelineLayout(const PipelineLayoutInfo &info) {
+    PipelineLayout *layout = CC_NEW(CCVKPipelineLayout(this));
     if (layout->initialize(info))
         return layout;
 
@@ -663,7 +663,7 @@ GFXPipelineLayout *CCVKDevice::createPipelineLayout(const GFXPipelineLayoutInfo 
     return nullptr;
 }
 
-void CCVKDevice::copyBuffersToTexture(const GFXDataArray &buffers, GFXTexture *dst, const GFXBufferTextureCopyList &regions) {
+void CCVKDevice::copyBuffersToTexture(const DataArray &buffers, Texture *dst, const BufferTextureCopyList &regions) {
     CCVKCmdFuncCopyBuffersToTexture(this, buffers.datas.data(), ((CCVKTexture *)dst)->gpuTexture(), regions);
 }
 

@@ -6,13 +6,13 @@ namespace gfx {
 
 class GLES2GPUBuffer;
 
-class CC_GLES2_API GLES2Buffer : public GFXBuffer {
+class CC_GLES2_API GLES2Buffer : public Buffer {
 public:
-    GLES2Buffer(GFXDevice *device);
+    GLES2Buffer(Device *device);
     ~GLES2Buffer();
 
 public:
-    virtual bool initialize(const GFXBufferInfo &info) override;
+    virtual bool initialize(const BufferInfo &info) override;
     virtual void destroy() override;
     virtual void resize(uint size) override;
     virtual void update(void *buffer, uint offset, uint size) override;

@@ -7,14 +7,14 @@
 namespace cc {
 namespace gfx {
 
-CCVKInputAssembler::CCVKInputAssembler(GFXDevice *device)
-: GFXInputAssembler(device) {
+CCVKInputAssembler::CCVKInputAssembler(Device *device)
+: InputAssembler(device) {
 }
 
 CCVKInputAssembler::~CCVKInputAssembler() {
 }
 
-bool CCVKInputAssembler::initialize(const GFXInputAssemblerInfo &info) {
+bool CCVKInputAssembler::initialize(const InputAssemblerInfo &info) {
     _attributes = info.attributes;
     _vertexBuffers = info.vertexBuffers;
     _indexBuffer = info.indexBuffer;
@@ -45,7 +45,7 @@ bool CCVKInputAssembler::initialize(const GFXInputAssemblerInfo &info) {
 
     CCVKCmdFuncCreateInputAssembler((CCVKDevice *)_device, _gpuInputAssembler);
     _attributesHash = computeAttributesHash();
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return true;
 }
@@ -57,7 +57,7 @@ void CCVKInputAssembler::destroy() {
         _gpuInputAssembler = nullptr;
     }
 
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 } // namespace gfx

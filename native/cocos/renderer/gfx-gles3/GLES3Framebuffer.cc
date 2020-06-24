@@ -8,14 +8,14 @@
 namespace cc {
 namespace gfx {
 
-GLES3Framebuffer::GLES3Framebuffer(GFXDevice *device)
-: GFXFramebuffer(device) {
+GLES3Framebuffer::GLES3Framebuffer(Device *device)
+: Framebuffer(device) {
 }
 
 GLES3Framebuffer::~GLES3Framebuffer() {
 }
 
-bool GLES3Framebuffer::initialize(const GFXFramebufferInfo &info) {
+bool GLES3Framebuffer::initialize(const FramebufferInfo &info) {
 
     _renderPass = info.renderPass;
     _colorTextures = info.colorTextures;
@@ -48,7 +48,7 @@ bool GLES3Framebuffer::initialize(const GFXFramebufferInfo &info) {
     }
 #endif
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return true;
 }
@@ -60,7 +60,7 @@ void GLES3Framebuffer::destroy() {
         CC_DELETE(_gpuFBO);
         _gpuFBO = nullptr;
     }
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 } // namespace gfx

@@ -10,19 +10,19 @@
 namespace cc {
 namespace gfx {
 
-CCVKBindingLayout::CCVKBindingLayout(GFXDevice *device)
-: GFXBindingLayout(device) {
+CCVKBindingLayout::CCVKBindingLayout(Device *device)
+: BindingLayout(device) {
 }
 
 CCVKBindingLayout::~CCVKBindingLayout() {
 }
 
-bool CCVKBindingLayout::initialize(const GFXBindingLayoutInfo &info) {
+bool CCVKBindingLayout::initialize(const BindingLayoutInfo &info) {
     if (info.bindings.size()) {
         _bindingUnits.resize(info.bindings.size());
         for (size_t i = 0u; i < _bindingUnits.size(); ++i) {
-            GFXBindingUnit &bindingUnit = _bindingUnits[i];
-            const GFXBinding &binding = info.bindings[i];
+            BindingUnit &bindingUnit = _bindingUnits[i];
+            const Binding &binding = info.bindings[i];
             bindingUnit.binding = binding.binding;
             bindingUnit.type = binding.type;
             bindingUnit.name = binding.name;
@@ -34,7 +34,7 @@ bool CCVKBindingLayout::initialize(const GFXBindingLayoutInfo &info) {
     _gpuBindingLayout = CC_NEW(CCVKGPUBindingLayout);
     CCVKCmdFuncCreateBindingLayout((CCVKDevice *)_device, _gpuBindingLayout, _bindingUnits);
 
-    _status = GFXStatus::SUCCESS;
+    _status = Status::SUCCESS;
 
     return true;
 }
@@ -46,17 +46,17 @@ void CCVKBindingLayout::destroy() {
         _gpuBindingLayout = nullptr;
     }
 
-    _status = GFXStatus::UNREADY;
+    _status = Status::UNREADY;
 }
 
 void CCVKBindingLayout::update() {
     if (_isDirty && _gpuBindingLayout) {
         for (size_t i = 0u; i < _bindingUnits.size(); ++i) {
-            GFXBindingUnit &bindingUnit = _bindingUnits[i];
+            BindingUnit &bindingUnit = _bindingUnits[i];
             VkWriteDescriptorSet &binding = _gpuBindingLayout->bindings[i];
 
             switch (bindingUnit.type) {
-                case GFXBindingType::UNIFORM_BUFFER: {
+                case BindingType::UNIFORM_BUFFER: {
                     if (bindingUnit.buffer) {
                         CCVKGPUBuffer *buffer = ((CCVKBuffer *)bindingUnit.buffer)->gpuBuffer();
                         VkDescriptorBufferInfo *info = (VkDescriptorBufferInfo *)binding.pBufferInfo;
@@ -68,7 +68,7 @@ void CCVKBindingLayout::update() {
 
                     break;
                 }
-                case GFXBindingType::SAMPLER: {
+                case BindingType::SAMPLER: {
                     VkDescriptorImageInfo *info = (VkDescriptorImageInfo *)binding.pImageInfo;
                     info->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 

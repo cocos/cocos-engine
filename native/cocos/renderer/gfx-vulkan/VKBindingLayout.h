@@ -6,13 +6,13 @@ namespace gfx {
 
 class CCVKGPUBindingLayout;
 
-class CC_VULKAN_API CCVKBindingLayout : public GFXBindingLayout {
+class CC_VULKAN_API CCVKBindingLayout : public BindingLayout {
 public:
-    CCVKBindingLayout(GFXDevice *device);
+    CCVKBindingLayout(Device *device);
     ~CCVKBindingLayout();
 
 public:
-    bool initialize(const GFXBindingLayoutInfo &info);
+    bool initialize(const BindingLayoutInfo &info);
     void destroy();
     void update();
 
