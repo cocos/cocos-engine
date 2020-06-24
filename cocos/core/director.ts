@@ -301,10 +301,6 @@ export class Director extends EventTarget {
 
         this._systems = [];
 
-        cc.game.on(Game.EVENT_SHOW, () => {
-            this._lastUpdate = performance.now();
-        });
-
         cc.game.once(Game.EVENT_RENDERER_INITED, this._initOnRendererInitialized, this);
     }
 
