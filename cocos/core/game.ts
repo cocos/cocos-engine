@@ -786,7 +786,7 @@ export class Game extends EventTarget {
 
         debug.setDisplayStats(!!config.showFPS);
 
-        director._lastUpdate = performance.now();
+        director.startAnimation();
 
         callback = (time: number) => {
             if (this._paused) { return; }
