@@ -13,6 +13,24 @@
 se::Object* __jsb_cc_gfx_CCMTLDevice_proto = nullptr;
 se::Class* __jsb_cc_gfx_CCMTLDevice_class = nullptr;
 
+static bool js_mtl_CCMTLDevice_getMaximumBufferBindingIndex(se::State& s)
+{
+    cc::gfx::CCMTLDevice* cobj = (cc::gfx::CCMTLDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_mtl_CCMTLDevice_getMaximumBufferBindingIndex : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getMaximumBufferBindingIndex();
+        ok &= uint32_to_seval((unsigned int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_mtl_CCMTLDevice_getMaximumBufferBindingIndex : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_mtl_CCMTLDevice_getMaximumBufferBindingIndex)
+
 static bool js_mtl_CCMTLDevice_getMTLDevice(se::State& s)
 {
     cc::gfx::CCMTLDevice* cobj = (cc::gfx::CCMTLDevice*)s.nativeThisObject();
@@ -160,6 +178,7 @@ bool js_register_mtl_CCMTLDevice(se::Object* obj)
 {
     auto cls = se::Class::create("CCMTLDevice", obj, __jsb_cc_gfx_Device_proto, _SE(js_mtl_CCMTLDevice_constructor));
 
+    cls->defineFunction("getMaximumBufferBindingIndex", _SE(js_mtl_CCMTLDevice_getMaximumBufferBindingIndex));
     cls->defineFunction("getMTLDevice", _SE(js_mtl_CCMTLDevice_getMTLDevice));
     cls->defineFunction("getMTKView", _SE(js_mtl_CCMTLDevice_getMTKView));
     cls->defineFunction("getMaximumSamplerUnits", _SE(js_mtl_CCMTLDevice_getMaximumSamplerUnits));
