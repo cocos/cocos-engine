@@ -244,7 +244,7 @@ class ProgramLib {
             for (let i = 0; i < tmplDefs.length; i++) {
                 const tmplDef = tmplDefs[i];
                 const value = defines[tmplDef.name];
-                if (value === undefined || !tmplDef._map) {
+                if (!value || !tmplDef._map) {
                     continue;
                 }
                 const mapped = tmplDef._map(value);
@@ -257,7 +257,7 @@ class ProgramLib {
             for (let i = 0; i < tmplDefs.length; i++) {
                 const tmplDef = tmplDefs[i];
                 const value = defines[tmplDef.name];
-                if (value === undefined || !tmplDef._map) {
+                if (!value || !tmplDef._map) {
                     continue;
                 }
                 const mapped = tmplDef._map(value);
@@ -297,9 +297,8 @@ class ProgramLib {
      * @param defines 预处理宏列表
      * @param pipeline 实际渲染命令执行时所属的 [[RenderPipeline]]
      */
-    public getGFXShader (device: GFXDevice, name: string, defines: IDefineMap, pipeline: RenderPipeline) {
-        Object.assign(defines, pipeline.macros);
-        const key = this.getKey(name, defines);
+    public getGFXShader (device: GFXDevice, name: string, defines: IDefineMap, pipeline: RenderPipeline, key?: string) {
+        if (!key) key = this.getKey(name, defines);
         const res = this._cache[key];
         if (res) { return res; }
 
