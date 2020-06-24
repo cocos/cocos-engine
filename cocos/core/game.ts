@@ -786,6 +786,8 @@ export class Game extends EventTarget {
 
         debug.setDisplayStats(!!config.showFPS);
 
+        director.startAnimation();
+
         callback = (time: number) => {
             if (this._paused) { return; }
             this._intervalId = window.rAF(callback);
