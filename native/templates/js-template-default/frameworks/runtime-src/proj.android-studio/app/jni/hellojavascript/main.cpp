@@ -104,6 +104,8 @@ void android_main(struct android_app* state) {
         if (state->destroyRequested != 0)
             return;
 
+        cc::JniHelper::callStaticVoidMethod("org.cocos2dx.lib.Cocos2dxHelper", "flushTasksOnGameThread");
+
         if (savedState.animating)
             game->tick();
     }

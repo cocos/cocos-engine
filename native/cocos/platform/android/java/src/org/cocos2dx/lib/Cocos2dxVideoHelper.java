@@ -171,7 +171,12 @@ public class Cocos2dxVideoHelper {
 
         @Override
         public void onVideoEvent(int tag,int event) {
-            nativeExecuteVideoCallback(tag, event);
+            Cocos2dxHelper.runOnGameThread(new Runnable() {
+                @Override
+                public void run() {
+                    nativeExecuteVideoCallback(tag, event);
+                }
+            });
         }
     };
 
@@ -277,7 +282,12 @@ public class Cocos2dxVideoHelper {
             Cocos2dxVideoView videoView = sVideoViews.get(key);
             if (videoView != null) {
                 videoView.setFullScreenEnabled(false);
-                nativeExecuteVideoCallback(key, KeyEventBack);
+                Cocos2dxHelper.runOnGameThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        nativeExecuteVideoCallback(key, KeyEventBack);
+                    }
+                });
             }
         }
     }

@@ -62,7 +62,12 @@ public class Cocos2dxDownloader {
     private static ConcurrentHashMap<String, Boolean> _resumingSupport = new ConcurrentHashMap<>();
 
     private void onProgress(final int id, final long downloadBytes, final long downloadNow, final long downloadTotal) {
-        nativeOnProgress(_id, id, downloadBytes, downloadNow, downloadTotal);
+        Cocos2dxHelper.runOnGameThread(new Runnable() {
+            @Override
+            public void run() {
+                nativeOnProgress(_id, id, downloadBytes, downloadNow, downloadTotal);
+            }
+        });
     }
 
     private void onFinish(final int id, final int errCode, final String errStr, final byte[] data) {
@@ -70,7 +75,12 @@ public class Cocos2dxDownloader {
         if (null == task) return;
         _taskMap.remove(id);
         _runningTaskCount -= 1;
-        nativeOnFinish(_id, id, errCode, errStr, data);
+        Cocos2dxHelper.runOnGameThread(new Runnable() {
+            @Override
+            public void run() {
+                nativeOnFinish(_id, id, errCode, errStr, data);
+            }
+        });
         runNextTaskIfExists();
     }
 
@@ -272,7 +282,12 @@ public class Cocos2dxDownloader {
 
                 if (null == task) {
                     final String errStr = "Can't create DownloadTask for " + url;
-                    downloader.nativeOnFinish(downloader._id, id, 0, errStr, null);
+                    Cocos2dxHelper.runOnGameThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            downloader.nativeOnFinish(downloader._id, id, 0, errStr, null);
+                        }
+                    });
                 } else {
                     downloader._taskMap.put(id, task);
                 }

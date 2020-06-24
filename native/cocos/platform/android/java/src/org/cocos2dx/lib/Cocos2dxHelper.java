@@ -56,6 +56,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 
@@ -82,6 +85,8 @@ public class Cocos2dxHelper {
     
     // The OBB file
     private static ZipResourceFile sOBBFile = null;
+
+    private static List<Runnable> sTaskOnGameThread = Collections.synchronizedList(new ArrayList<>());
 
     /**
      * Battery receiver to getting battery level.
@@ -112,6 +117,19 @@ public class Cocos2dxHelper {
 
     static void unregisterBatteryLevelReceiver(Context context) {
         context.unregisterReceiver(sBatteryReceiver);
+    }
+
+    static void runOnGameThread(final Runnable runnable) {
+        sTaskOnGameThread.add(runnable);
+    }
+
+    static void flushTasksOnGameThread() {
+        while(sTaskOnGameThread.size() > 0) {
+            Runnable r = sTaskOnGameThread.remove(0);
+            if(r != null) {
+                r.run();
+            }
+        }
     }
 
     public static int getNetworkType() {

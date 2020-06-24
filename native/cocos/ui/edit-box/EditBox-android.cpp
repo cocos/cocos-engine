@@ -111,25 +111,19 @@ extern "C"
     JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardInputNative)(JNIEnv* env, jclass, jstring text)
     {
         auto textStr = cc::JniHelper::jstring2string(text);
-        cc::Application::getInstance()->getScheduler()->performFunctionInCocosThread([textStr]() {
             callJSFunc("input", textStr);
-        });
 
     }
 
     JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardCompleteNative)(JNIEnv* env, jclass, jstring text)
     {
         auto textStr = cc::JniHelper::jstring2string(text);
-        cc::Application::getInstance()->getScheduler()->performFunctionInCocosThread([textStr]() {
-            callJSFunc("complete", textStr);
-        });
+        callJSFunc("complete", textStr);
     }
 
     JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardConfirmNative)(JNIEnv* env, jclass, jstring text)
     {
         auto textStr = cc::JniHelper::jstring2string(text);
-        cc::Application::getInstance()->getScheduler()->performFunctionInCocosThread([textStr]() {
-            callJSFunc("confirm", textStr);
-        });
+        callJSFunc("confirm", textStr);
     }
 }

@@ -434,15 +434,30 @@ public class Cocos2dxEditBoxActivity extends Activity {
      Native functions invoked by UI.
      **************************************************************************************/
     private void onKeyboardInput(String text) {
-        Cocos2dxEditBoxActivity.onKeyboardInputNative(text);
+        Cocos2dxHelper.runOnGameThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxEditBoxActivity.onKeyboardInputNative(text);
+            }
+        });
     }
 
     private void onKeyboardComplete(String text) {
-        Cocos2dxEditBoxActivity.onKeyboardCompleteNative(text);
+        Cocos2dxHelper.runOnGameThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxEditBoxActivity.onKeyboardCompleteNative(text);
+            }
+        });
     }
 
     private void onKeyboardConfirm(String text) {
-        Cocos2dxEditBoxActivity.onKeyboardConfirmNative(text);
+        Cocos2dxHelper.runOnGameThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxEditBoxActivity.onKeyboardConfirmNative(text);
+            }
+        });
     }
 
     private static native void onKeyboardInputNative(String text);
