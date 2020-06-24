@@ -18,8 +18,7 @@ import {
     IGFXColor,
 } from './define';
 import { GFXDevice } from './device';
-import { IGFXAttribute, GFXInputAssembler } from './input-assembler';
-import { GFXPipelineLayout } from './pipeline-layout';
+import { IGFXAttribute } from './input-assembler';
 import { GFXRenderPass } from './render-pass';
 import { GFXShader } from './shader';
 
@@ -156,7 +155,6 @@ export interface IGFXPipelineStateInfo {
     depthStencilState: GFXDepthStencilState;
     blendState: GFXBlendState;
     dynamicStates?: GFXDynamicState[];
-    layout: GFXPipelineLayout;
     renderPass: GFXRenderPass;
     hash: number;
 }
@@ -224,14 +222,6 @@ export abstract class GFXPipelineState extends GFXObject {
     }
 
     /**
-     * @en Get current pipeline layout.
-     * @zh GFX 管线布局。
-     */
-    get pipelineLayout (): GFXPipelineLayout {
-        return this._layout as GFXPipelineLayout;
-    }
-
-    /**
      * @en Get current render pass.
      * @zh GFX 渲染过程。
      */
@@ -262,8 +252,6 @@ export abstract class GFXPipelineState extends GFXObject {
     protected _bs: GFXBlendState | null = null;
 
     protected _dynamicStates: GFXDynamicState[] = [];
-
-    protected _layout: GFXPipelineLayout | null = null;
 
     protected _renderPass: GFXRenderPass | null = null;
 

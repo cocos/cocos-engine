@@ -29,8 +29,6 @@
 import { UIStaticBatchComponent } from '../../../ui';
 import { Material } from '../../assets/material';
 import { CanvasComponent, UIComponent, UIRenderComponent } from '../../components/ui-base';
-import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXCommandBufferType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { GFXSampler } from '../../gfx/sampler';
@@ -85,7 +83,6 @@ export class UI {
     private _drawBatchPool: Pool<UIDrawBatch> = new Pool(() => {
         return new UIDrawBatch();
     }, 128);
-    private _cmdBuff: GFXCommandBuffer | null = null;
     private _scene: RenderScene;
     private _attributes: IGFXAttribute[] = [];
     private _meshBuffers: MeshBuffer[] = [];
@@ -128,11 +125,6 @@ export class UI {
 
         this._requireBufferBatch();
 
-        this._cmdBuff = this.device.createCommandBuffer({
-            allocator: this.device.commandAllocator,
-            type: GFXCommandBufferType.PRIMARY,
-        });
-
         return true;
     }
 
@@ -148,11 +140,6 @@ export class UI {
         this._meshBuffers.splice(0);
 
         this._destroyUIMaterials();
-
-        if (this._cmdBuff) {
-            this._cmdBuff.destroy();
-            this._cmdBuff = null;
-        }
     }
 
     public getRenderSceneGetter () {

@@ -1,5 +1,4 @@
 import { CachedArray } from '../../memop/cached-array';
-import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
 import { GFXDevice } from '../device';
 import {
     WebGL2CmdBeginRenderPass,
@@ -10,7 +9,6 @@ import {
     WebGL2CmdPackage,
     WebGL2CmdUpdateBuffer,
 } from './webgl2-commands';
-import { GFXStatus } from '../define';
 
 export class WebGL2GFXCommandPool<T extends WebGL2CmdObject> {
 
@@ -82,7 +80,7 @@ export class WebGL2GFXCommandPool<T extends WebGL2CmdObject> {
     }
 }
 
-export class WebGL2GFXCommandAllocator extends GFXCommandAllocator {
+export class WebGL2GFXCommandAllocator {
 
     public beginRenderPassCmdPool: WebGL2GFXCommandPool<WebGL2CmdBeginRenderPass>;
     public bindStatesCmdPool: WebGL2GFXCommandPool<WebGL2CmdBindStates>;
@@ -90,22 +88,12 @@ export class WebGL2GFXCommandAllocator extends GFXCommandAllocator {
     public updateBufferCmdPool: WebGL2GFXCommandPool<WebGL2CmdUpdateBuffer>;
     public copyBufferToTextureCmdPool: WebGL2GFXCommandPool<WebGL2CmdCopyBufferToTexture>;
 
-    constructor (device: GFXDevice) {
-        super(device);
+    constructor () {
         this.beginRenderPassCmdPool = new WebGL2GFXCommandPool(WebGL2CmdBeginRenderPass, 1);
         this.bindStatesCmdPool = new WebGL2GFXCommandPool(WebGL2CmdBindStates, 1);
         this.drawCmdPool = new WebGL2GFXCommandPool(WebGL2CmdDraw, 1);
         this.updateBufferCmdPool = new WebGL2GFXCommandPool(WebGL2CmdUpdateBuffer, 1);
         this.copyBufferToTextureCmdPool = new WebGL2GFXCommandPool(WebGL2CmdCopyBufferToTexture, 1);
-    }
-
-    public initialize (info: IGFXCommandAllocatorInfo): boolean {
-        this._status = GFXStatus.SUCCESS;
-        return true;
-    }
-
-    public destroy () {
-        this._status = GFXStatus.UNREADY;
     }
 
     public clearCmds (cmdPackage: WebGL2CmdPackage) {

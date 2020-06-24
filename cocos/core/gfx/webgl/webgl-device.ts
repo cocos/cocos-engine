@@ -3,7 +3,6 @@ import { macro } from '../../platform';
 import { sys } from '../../platform/sys';
 import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
-import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import {
     getTypedArrayConstructor,
@@ -22,7 +21,6 @@ import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
 import { GFXFence, IGFXFenceInfo } from '../fence';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
-import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from '../pipeline-layout';
 import { GFXPipelineState, IGFXPipelineStateInfo } from '../pipeline-state';
 import { GFXQueue, IGFXQueueInfo } from '../queue';
 import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
@@ -37,7 +35,6 @@ import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersTo
 import { WebGLGFXFence } from './webgl-fence';
 import { WebGLGFXFramebuffer } from './webgl-framebuffer';
 import { WebGLGFXInputAssembler } from './webgl-input-assembler';
-import { WebGLGFXPipelineLayout } from './webgl-pipeline-layout';
 import { WebGLGFXPipelineState } from './webgl-pipeline-state';
 import { WebGLGFXPrimaryCommandBuffer } from './webgl-primary-command-buffer';
 import { WebGLGFXQueue } from './webgl-queue';
@@ -158,6 +155,7 @@ export class WebGLGFXDevice extends GFXDevice {
     }
 
     public stateCache: WebGLStateCache = new WebGLStateCache();
+    public cmdAllocator: WebGLGFXCommandAllocator = new WebGLGFXCommandAllocator();
     public nullTex2D: WebGLGFXTexture | null = null;
     public nullTexCube: WebGLGFXTexture | null = null;
 
@@ -191,6 +189,11 @@ export class WebGLGFXDevice extends GFXDevice {
     private _OES_standard_derivatives: OES_standard_derivatives | null = null;
     private _OES_element_index_uint: OES_element_index_uint | null = null;
     private _ANGLE_instanced_arrays: ANGLE_instanced_arrays | null = null;
+
+    private _primaries: WebGLGFXPrimaryCommandBuffer[] = [];
+    private _nextPrimary = 0;
+    private _secondaries: WebGLGFXCommandBuffer[] = [];
+    private _nextSecondary = 0;
 
     constructor () {
         super();
@@ -441,8 +444,6 @@ export class WebGLGFXDevice extends GFXDevice {
         // create primary window
         const canvas = this._webGLRC.canvas as HTMLCanvasElement;
 
-        this._cmdAllocator = this.createCommandAllocator({});
-
         // create default null texture
         this.nullTex2D = new WebGLGFXTexture(this);
         this.nullTex2D.initialize({
@@ -509,10 +510,15 @@ export class WebGLGFXDevice extends GFXDevice {
             this.nullTexCube = null;
         }
 
-        if (this._cmdAllocator) {
-            this._cmdAllocator.destroy();
-            this._cmdAllocator = null;
-        }
+        // for (let i = 0; i < this._primaries.length; i++) {
+        //     this._primaries[i].destroy();
+        // }
+        // this._nextPrimary = this._primaries.length = 0;
+
+        // for (let i = 0; i < this._secondaries.length; i++) {
+        //     this._secondaries[i].destroy();
+        // }
+        // this._nextSecondary = this._secondaries.length = 0;
 
         if (this._queue) {
             this._queue.destroy();
@@ -530,6 +536,47 @@ export class WebGLGFXDevice extends GFXDevice {
             this._width = width;
             this._height = height;
         }
+    }
+
+    public acquire () {
+        this._nextPrimary = this._nextSecondary = 0;
+        this.cmdAllocator.releaseCmds();
+    }
+
+    public present () {
+        const queue = (this._queue as WebGLGFXQueue);
+        this._numDrawCalls = queue.numDrawCalls;
+        this._numInstances = queue.numInstances;
+        this._numTris = queue.numTris;
+        queue.clear();
+    }
+
+    public createCommandBuffer (info: IGFXCommandBufferInfo): GFXCommandBuffer {
+        // const ctor = WebGLGFXCommandBuffer; // opt to instant invocation
+        const ctor = info.type === GFXCommandBufferType.PRIMARY ? WebGLGFXPrimaryCommandBuffer : WebGLGFXCommandBuffer;
+        const cmdBuff = new ctor(this);
+        cmdBuff.initialize(info);
+        return cmdBuff;
+
+        // if (info.type === GFXCommandBufferType.PRIMARY) {
+        //     if (this._nextPrimary < this._primaries.length) {
+        //         return this._primaries[this._nextPrimary++];
+        //     }
+        //     const cmdBuff = new WebGLGFXPrimaryCommandBuffer(this);
+        //     cmdBuff.initialize(info);
+        //     this._primaries.push(cmdBuff);
+        //     this._nextPrimary++;
+        //     return cmdBuff;
+        // } else {
+        //     if (this._nextSecondary < this._secondaries.length) {
+        //         return this._secondaries[this._nextSecondary++];
+        //     }
+        //     const cmdBuff = new WebGLGFXCommandBuffer(this);
+        //     cmdBuff.initialize(info);
+        //     this._secondaries.push(cmdBuff);
+        //     this._nextSecondary++;
+        //     return cmdBuff;
+        // }
     }
 
     public createBuffer (info: IGFXBufferInfo): GFXBuffer {
@@ -580,30 +627,10 @@ export class WebGLGFXDevice extends GFXDevice {
         return framebuffer;
     }
 
-    public createPipelineLayout (info: IGFXPipelineLayoutInfo): GFXPipelineLayout {
-        const pipelineLayout = new WebGLGFXPipelineLayout(this);
-        pipelineLayout.initialize(info);
-        return pipelineLayout;
-    }
-
     public createPipelineState (info: IGFXPipelineStateInfo): GFXPipelineState {
         const pipelineState = new WebGLGFXPipelineState(this);
         pipelineState.initialize(info);
         return pipelineState;
-    }
-
-    public createCommandAllocator (info: IGFXCommandAllocatorInfo): GFXCommandAllocator {
-        const cmdAllocator = new WebGLGFXCommandAllocator(this);
-        cmdAllocator.initialize(info);
-        return cmdAllocator;
-    }
-
-    public createCommandBuffer (info: IGFXCommandBufferInfo): GFXCommandBuffer {
-        // const ctor = WebGLGFXCommandBuffer; // opt to instant invocation
-        const ctor = info.type === GFXCommandBufferType.PRIMARY ? WebGLGFXPrimaryCommandBuffer : WebGLGFXCommandBuffer;
-        const cmdBuff = new ctor(this);
-        cmdBuff.initialize(info);
-        return cmdBuff;
     }
 
     public createFence (info: IGFXFenceInfo): GFXFence {
@@ -616,17 +643,6 @@ export class WebGLGFXDevice extends GFXDevice {
         const queue = new WebGLGFXQueue(this);
         queue.initialize(info);
         return queue;
-    }
-
-    public acquire () {}
-
-    public present () {
-        (this._cmdAllocator as WebGLGFXCommandAllocator).releaseCmds();
-        const queue = (this._queue as WebGLGFXQueue);
-        this._numDrawCalls = queue.numDrawCalls;
-        this._numInstances = queue.numInstances;
-        this._numTris = queue.numTris;
-        queue.clear();
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {

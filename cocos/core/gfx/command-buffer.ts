@@ -4,7 +4,6 @@
 
 import { GFXBindingLayout } from './binding-layout';
 import { GFXBuffer } from './buffer';
-import { GFXCommandAllocator } from './command-allocator';
 import {
     GFXBufferTextureCopy,
     GFXClearFlag,
@@ -23,9 +22,10 @@ import { GFXInputAssembler } from './input-assembler';
 import { GFXPipelineState } from './pipeline-state';
 import { GFXTexture } from './texture';
 import { GFXRenderPass } from './render-pass';
+import { GFXQueue } from './queue';
 
 export interface IGFXCommandBufferInfo {
-    allocator: GFXCommandAllocator;
+    queue: GFXQueue;
     type: GFXCommandBufferType;
 }
 
@@ -62,15 +62,23 @@ export abstract class GFXCommandBuffer extends GFXObject {
      * @en Type of the command buffer.
      * @zh 命令缓冲类型。
      */
-    public get type (): GFXCommandBufferType {
+    get type (): GFXCommandBufferType {
         return this._type;
+    }
+
+    /**
+     * @en Type of the command buffer.
+     * @zh 命令缓冲类型。
+     */
+    get queue (): GFXQueue {
+        return this._queue!;
     }
 
     /**
      * @en Number of draw calls currently recorded.
      * @zh 绘制调用次数。
      */
-    public get numDrawCalls (): number {
+    get numDrawCalls (): number {
         return this._numDrawCalls;
     }
 
@@ -78,7 +86,7 @@ export abstract class GFXCommandBuffer extends GFXObject {
      * @en Number of instances currently recorded.
      * @zh 绘制 Instance 数量。
      */
-    public get numInstances (): number {
+    get numInstances (): number {
         return this._numInstances;
     }
 
@@ -86,13 +94,13 @@ export abstract class GFXCommandBuffer extends GFXObject {
      * @en Number of triangles currently recorded.
      * @zh 绘制三角形数量。
      */
-    public get numTris (): number {
+    get numTris (): number {
         return this._numTris;
     }
 
     protected _device: GFXDevice;
 
-    protected _allocator: GFXCommandAllocator | null = null;
+    protected _queue: GFXQueue | null = null;
 
     protected _type: GFXCommandBufferType = GFXCommandBufferType.PRIMARY;
 

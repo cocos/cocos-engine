@@ -3,11 +3,10 @@
  */
 
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXCommandBufferType, IGFXColor, GFXLoadOp, GFXStoreOp, GFXTextureLayout } from '../../gfx/define';
+import { IGFXColor, GFXLoadOp, GFXStoreOp, GFXTextureLayout } from '../../gfx/define';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
-import { legacyCC } from '../../global-exports';
 
 const bufs: GFXCommandBuffer[] = [];
 const colors: IGFXColor[] = [];
@@ -100,7 +99,6 @@ export class UIStage extends RenderStage {
         if (!framebuffer.isOffscreen) {
             framebuffer = this._framebuffer!;
         }
-        const cmdBuff = this._cmdBuff!;
 
         const camera = view.camera!;
 
@@ -111,6 +109,8 @@ export class UIStage extends RenderStage {
         this._renderArea!.height = vp.height * camera.height;
 
         colors[0] = camera.clearColor;
+
+        const cmdBuff = this._cmdBuff!;
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(framebuffer, this._renderArea!,

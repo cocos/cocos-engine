@@ -13,7 +13,6 @@ import {
     IGFXRect,
     IGFXViewport,
 } from '../define';
-import { GFXDevice } from '../device';
 import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
 import { GFXPipelineState } from '../pipeline-state';
@@ -80,10 +79,10 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
 
     public initialize (info: IGFXCommandBufferInfo): boolean {
 
-        this._allocator = info.allocator;
         this._type = info.type;
+        this._queue = info.queue;
 
-        this._webGLAllocator = this._allocator as WebGL2GFXCommandAllocator;
+        this._webGLAllocator = (this._device as WebGL2GFXDevice).cmdAllocator;
 
         this._status = GFXStatus.SUCCESS;
 
@@ -95,7 +94,6 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
             this._webGLAllocator.clearCmds(this.cmdPackage);
             this._webGLAllocator = null;
         }
-        this._allocator = null;
         this._status = GFXStatus.UNREADY;
     }
 
@@ -333,8 +331,7 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
                 this.bindStates();
             }
 
-            const cmd = (this._allocator as WebGL2GFXCommandAllocator).
-                        drawCmdPool.alloc(WebGL2CmdDraw);
+            const cmd = this._webGLAllocator!.drawCmdPool.alloc(WebGL2CmdDraw);
             // cmd.drawInfo = inputAssembler;
             cmd.drawInfo.vertexCount = inputAssembler.vertexCount;
             cmd.drawInfo.firstVertex = inputAssembler.firstVertex;

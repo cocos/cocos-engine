@@ -391,7 +391,7 @@ export abstract class RenderStage {
 
     public createCmdBuffer () {
         this._cmdBuff = this._device!.createCommandBuffer({
-            allocator: this._device!.commandAllocator,
+            queue: this._device!.queue,
             type: GFXCommandBufferType.PRIMARY,
         });
     }

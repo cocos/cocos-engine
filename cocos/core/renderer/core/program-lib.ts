@@ -28,11 +28,9 @@
  */
 
 import { IBlockInfo, IBuiltinInfo, IDefineInfo, ISamplerInfo, IShaderInfo } from '../../assets/effect-asset';
-import { IGFXBinding } from '../../gfx/binding-layout';
 import { GFXBindingType, GFXGetTypeSize, GFXShaderType } from '../../gfx/define';
 import { GFXAPI, GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
-import { GFXInputState } from '../../gfx/pipeline-state';
 import { GFXShader, GFXUniformBlock } from '../../gfx/shader';
 import { IInternalBindingDesc, localBindingsDesc } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
@@ -43,14 +41,12 @@ interface IDefineRecord extends IDefineInfo {
     _map: (value: any) => number;
     _offset: number;
 }
-interface IBlockInfoRT extends IBlockInfo, IGFXBinding {
+interface IBlockInfoRT extends IBlockInfo {
     size: number;
-}
-interface ISamplerInfoRT extends ISamplerInfo, IGFXBinding {
 }
 export interface IProgramInfo extends IShaderInfo {
     blocks: IBlockInfoRT[];
-    samplers: ISamplerInfoRT[];
+    samplers: ISamplerInfo[];
     defines: IDefineRecord[];
     handleMap: Record<string, number>;
     offsets: number[][];
@@ -152,20 +148,17 @@ function dependencyCheck (dependencies: string[], defines: IDefineMap) {
     return true;
 }
 function getShaderBindings (
-        tmpl: IProgramInfo, defines: IDefineMap, outBlocks: IBlockInfoRT[], outSamplers: ISamplerInfoRT[],
-        bindings: IGFXBinding[], outAttributes: IGFXAttribute[]) {
+        tmpl: IProgramInfo, defines: IDefineMap, outBlocks: IBlockInfoRT[], outSamplers: ISamplerInfo[], outAttributes: IGFXAttribute[]) {
     const { blocks, samplers, attributes } = tmpl;
     for (let i = 0; i < blocks.length; i++) {
         const block = blocks[i];
         if (!dependencyCheck(block.defines, defines)) { continue; }
         outBlocks.push(block);
-        bindings.push(block);
     }
     for (let i = 0; i < samplers.length; i++) {
         const sampler = samplers[i];
         if (!dependencyCheck(sampler.defines, defines)) { continue; }
         outSamplers.push(sampler);
-        bindings.push(sampler);
     }
     for (let i = 0; i < attributes.length; i++) {
         const attribute = attributes[i];
@@ -174,18 +167,13 @@ function getShaderBindings (
     }
 }
 
-export interface IShaderResources {
-    shader: GFXShader;
-    bindings: IGFXBinding[];
-}
-
 /**
  * @zh
  * 维护 shader 资源实例的全局管理器。
  */
 class ProgramLib {
     protected _templates: Record<string, IProgramInfo>;
-    protected _cache: Record<string, IShaderResources>;
+    protected _cache: Record<string, GFXShader>;
 
     constructor () {
         this._templates = {};
@@ -219,9 +207,8 @@ class ProgramLib {
         }
         if (offset > 31) { tmpl.uber = true; }
         tmpl.blocks.forEach((b) => {
-            b.bindingType = GFXBindingType.UNIFORM_BUFFER; b.size = getSize(b); b.count = 1;
+            b.size = getSize(b);
         });
-        tmpl.samplers.forEach((s) => s.bindingType = GFXBindingType.SAMPLER);
         tmpl.handleMap = genHandles(tmpl);
         if (!tmpl.localsInited) { insertBuiltinBindings(tmpl, localBindingsDesc, 'locals'); tmpl.localsInited = true; }
         // store it
@@ -293,9 +280,9 @@ class ProgramLib {
             if (typeof val === 'boolean') { val = val ? '1' : '0'; }
             return new RegExp(cur + val);
         });
-        const keys = Object.keys(this._cache).filter((k) => regexes.every((re) => re.test(this._cache[k].shader.name)));
+        const keys = Object.keys(this._cache).filter((k) => regexes.every((re) => re.test(this._cache[k].name)));
         for (const k of keys) {
-            const prog = this._cache[k].shader;
+            const prog = this._cache[k];
             console.log(`destroyed shader ${prog.name}`);
             prog.destroy();
             delete this._cache[k];
@@ -335,10 +322,9 @@ class ProgramLib {
         }
 
         const blocks: IBlockInfoRT[] = [];
-        const samplers: ISamplerInfoRT[] = [];
-        const bindings: IGFXBinding[] = [];
+        const samplers: ISamplerInfo[] = [];
         const attributes: IGFXAttribute[] = [];
-        getShaderBindings(tmpl, defines, blocks, samplers, bindings, attributes);
+        getShaderBindings(tmpl, defines, blocks, samplers, attributes);
 
         const shader = device.createShader({
             name: getShaderInstanceName(name, macroArray),
@@ -348,7 +334,7 @@ class ProgramLib {
                 { type: GFXShaderType.FRAGMENT, source: prefix + src.frag },
             ],
         });
-        return this._cache[key] = { shader, bindings };
+        return this._cache[key] = shader;
     }
 }
 

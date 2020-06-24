@@ -190,7 +190,6 @@ export class WebGL2GPUPipelineState {
     public dss: GFXDepthStencilState = new GFXDepthStencilState();
     public bs: GFXBlendState = new GFXBlendState();
     public dynamicStates: GFXDynamicState[] = [];
-    public gpuLayout: WebGL2GPUPipelineLayout | null = null;
     public gpuRenderPass: WebGL2GPURenderPass | null = null;
 }
 
