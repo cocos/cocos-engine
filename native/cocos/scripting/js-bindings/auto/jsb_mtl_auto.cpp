@@ -141,11 +141,10 @@ SE_BIND_CTOR(js_mtl_CCMTLDevice_constructor, __jsb_cc_gfx_CCMTLDevice_class, js_
 
 
 
-extern se::Object* __jsb_cc_gfx_GFXDevice_proto;
+extern se::Object* __jsb_cc_gfx_Device_proto;
 
 static bool js_cc_gfx_CCMTLDevice_finalize(se::State& s)
 {
-    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::CCMTLDevice)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -159,7 +158,7 @@ SE_BIND_FINALIZE_FUNC(js_cc_gfx_CCMTLDevice_finalize)
 
 bool js_register_mtl_CCMTLDevice(se::Object* obj)
 {
-    auto cls = se::Class::create("CCMTLDevice", obj, __jsb_cc_gfx_GFXDevice_proto, _SE(js_mtl_CCMTLDevice_constructor));
+    auto cls = se::Class::create("CCMTLDevice", obj, __jsb_cc_gfx_Device_proto, _SE(js_mtl_CCMTLDevice_constructor));
 
     cls->defineFunction("getMTLDevice", _SE(js_mtl_CCMTLDevice_getMTLDevice));
     cls->defineFunction("getMTKView", _SE(js_mtl_CCMTLDevice_getMTKView));

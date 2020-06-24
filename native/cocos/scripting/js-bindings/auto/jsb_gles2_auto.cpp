@@ -34,78 +34,6 @@ static bool js_gles2_GLES2Device_checkExtension(se::State& s)
 }
 SE_BIND_FUNC(js_gles2_GLES2Device_checkExtension)
 
-static bool js_gles2_GLES2Device_useInstancedArrays(se::State& s)
-{
-    cc::gfx::GLES2Device* cobj = (cc::gfx::GLES2Device*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gles2_GLES2Device_useInstancedArrays : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->useInstancedArrays();
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gles2_GLES2Device_useInstancedArrays : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gles2_GLES2Device_useInstancedArrays)
-
-static bool js_gles2_GLES2Device_useVAO(se::State& s)
-{
-    cc::gfx::GLES2Device* cobj = (cc::gfx::GLES2Device*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gles2_GLES2Device_useVAO : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->useVAO();
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gles2_GLES2Device_useVAO : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gles2_GLES2Device_useVAO)
-
-static bool js_gles2_GLES2Device_useDrawInstanced(se::State& s)
-{
-    cc::gfx::GLES2Device* cobj = (cc::gfx::GLES2Device*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gles2_GLES2Device_useDrawInstanced : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->useDrawInstanced();
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gles2_GLES2Device_useDrawInstanced : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gles2_GLES2Device_useDrawInstanced)
-
-static bool js_gles2_GLES2Device_useDiscardFramebuffer(se::State& s)
-{
-    cc::gfx::GLES2Device* cobj = (cc::gfx::GLES2Device*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gles2_GLES2Device_useDiscardFramebuffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->useDiscardFramebuffer();
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gles2_GLES2Device_useDiscardFramebuffer : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gles2_GLES2Device_useDiscardFramebuffer)
-
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_GLES2Device_finalize)
 
 static bool js_gles2_GLES2Device_constructor(se::State& s)
@@ -119,11 +47,10 @@ SE_BIND_CTOR(js_gles2_GLES2Device_constructor, __jsb_cc_gfx_GLES2Device_class, j
 
 
 
-extern se::Object* __jsb_cc_gfx_GFXDevice_proto;
+extern se::Object* __jsb_cc_gfx_Device_proto;
 
 static bool js_cc_gfx_GLES2Device_finalize(se::State& s)
 {
-    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::gfx::GLES2Device)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -137,13 +64,9 @@ SE_BIND_FINALIZE_FUNC(js_cc_gfx_GLES2Device_finalize)
 
 bool js_register_gles2_GLES2Device(se::Object* obj)
 {
-    auto cls = se::Class::create("GLES2Device", obj, __jsb_cc_gfx_GFXDevice_proto, _SE(js_gles2_GLES2Device_constructor));
+    auto cls = se::Class::create("GLES2Device", obj, __jsb_cc_gfx_Device_proto, _SE(js_gles2_GLES2Device_constructor));
 
     cls->defineFunction("checkExtension", _SE(js_gles2_GLES2Device_checkExtension));
-    cls->defineFunction("useInstancedArrays", _SE(js_gles2_GLES2Device_useInstancedArrays));
-    cls->defineFunction("useVAO", _SE(js_gles2_GLES2Device_useVAO));
-    cls->defineFunction("useDrawInstanced", _SE(js_gles2_GLES2Device_useDrawInstanced));
-    cls->defineFunction("useDiscardFramebuffer", _SE(js_gles2_GLES2Device_useDiscardFramebuffer));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_GLES2Device_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::GLES2Device>(cls);

@@ -3,262 +3,244 @@
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
-extern se::Object* __jsb_cc_gfx_GFXOffset_proto;
-extern se::Class* __jsb_cc_gfx_GFXOffset_class;
+extern se::Object* __jsb_cc_gfx_Offset_proto;
+extern se::Class* __jsb_cc_gfx_Offset_class;
 
-bool js_register_cc_gfx_GFXOffset(se::Object* obj);
+bool js_register_cc_gfx_Offset(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXRect_proto;
-extern se::Class* __jsb_cc_gfx_GFXRect_class;
+extern se::Object* __jsb_cc_gfx_Rect_proto;
+extern se::Class* __jsb_cc_gfx_Rect_class;
 
-bool js_register_cc_gfx_GFXRect(se::Object* obj);
+bool js_register_cc_gfx_Rect(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXExtent_proto;
-extern se::Class* __jsb_cc_gfx_GFXExtent_class;
+extern se::Object* __jsb_cc_gfx_Extent_proto;
+extern se::Class* __jsb_cc_gfx_Extent_class;
 
-bool js_register_cc_gfx_GFXExtent(se::Object* obj);
+bool js_register_cc_gfx_Extent(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXTextureSubres_proto;
-extern se::Class* __jsb_cc_gfx_GFXTextureSubres_class;
+extern se::Object* __jsb_cc_gfx_TextureSubres_proto;
+extern se::Class* __jsb_cc_gfx_TextureSubres_class;
 
-bool js_register_cc_gfx_GFXTextureSubres(se::Object* obj);
+bool js_register_cc_gfx_TextureSubres(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXTextureCopy_proto;
-extern se::Class* __jsb_cc_gfx_GFXTextureCopy_class;
+extern se::Object* __jsb_cc_gfx_TextureCopy_proto;
+extern se::Class* __jsb_cc_gfx_TextureCopy_class;
 
-bool js_register_cc_gfx_GFXTextureCopy(se::Object* obj);
+bool js_register_cc_gfx_TextureCopy(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXBufferTextureCopy_proto;
-extern se::Class* __jsb_cc_gfx_GFXBufferTextureCopy_class;
+extern se::Object* __jsb_cc_gfx_BufferTextureCopy_proto;
+extern se::Class* __jsb_cc_gfx_BufferTextureCopy_class;
 
-bool js_register_cc_gfx_GFXBufferTextureCopy(se::Object* obj);
+bool js_register_cc_gfx_BufferTextureCopy(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXViewport_proto;
-extern se::Class* __jsb_cc_gfx_GFXViewport_class;
+extern se::Object* __jsb_cc_gfx_Viewport_proto;
+extern se::Class* __jsb_cc_gfx_Viewport_class;
 
-bool js_register_cc_gfx_GFXViewport(se::Object* obj);
+bool js_register_cc_gfx_Viewport(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXColor_proto;
-extern se::Class* __jsb_cc_gfx_GFXColor_class;
+extern se::Object* __jsb_cc_gfx_Color_proto;
+extern se::Class* __jsb_cc_gfx_Color_class;
 
-bool js_register_cc_gfx_GFXColor(se::Object* obj);
+bool js_register_cc_gfx_Color(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXDeviceInfo_proto;
-extern se::Class* __jsb_cc_gfx_GFXDeviceInfo_class;
+extern se::Object* __jsb_cc_gfx_DeviceInfo_proto;
+extern se::Class* __jsb_cc_gfx_DeviceInfo_class;
 
-bool js_register_cc_gfx_GFXDeviceInfo(se::Object* obj);
+bool js_register_cc_gfx_DeviceInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXContextInfo_proto;
-extern se::Class* __jsb_cc_gfx_GFXContextInfo_class;
+extern se::Object* __jsb_cc_gfx_ContextInfo_proto;
+extern se::Class* __jsb_cc_gfx_ContextInfo_class;
 
-bool js_register_cc_gfx_GFXContextInfo(se::Object* obj);
+bool js_register_cc_gfx_ContextInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXBufferInfo_proto;
-extern se::Class* __jsb_cc_gfx_GFXBufferInfo_class;
+extern se::Object* __jsb_cc_gfx_BufferInfo_proto;
+extern se::Class* __jsb_cc_gfx_BufferInfo_class;
 
-bool js_register_cc_gfx_GFXBufferInfo(se::Object* obj);
+bool js_register_cc_gfx_BufferInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXDrawInfo_proto;
-extern se::Class* __jsb_cc_gfx_GFXDrawInfo_class;
+extern se::Object* __jsb_cc_gfx_DrawInfo_proto;
+extern se::Class* __jsb_cc_gfx_DrawInfo_class;
 
-bool js_register_cc_gfx_GFXDrawInfo(se::Object* obj);
+bool js_register_cc_gfx_DrawInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXIndirectBuffer_proto;
-extern se::Class* __jsb_cc_gfx_GFXIndirectBuffer_class;
+extern se::Object* __jsb_cc_gfx_IndirectBuffer_proto;
+extern se::Class* __jsb_cc_gfx_IndirectBuffer_class;
 
-bool js_register_cc_gfx_GFXIndirectBuffer(se::Object* obj);
+bool js_register_cc_gfx_IndirectBuffer(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXTextureInfo_proto;
-extern se::Class* __jsb_cc_gfx_GFXTextureInfo_class;
+extern se::Object* __jsb_cc_gfx_TextureInfo_proto;
+extern se::Class* __jsb_cc_gfx_TextureInfo_class;
 
-bool js_register_cc_gfx_GFXTextureInfo(se::Object* obj);
+bool js_register_cc_gfx_TextureInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXTextureViewInfo_proto;
-extern se::Class* __jsb_cc_gfx_GFXTextureViewInfo_class;
+extern se::Object* __jsb_cc_gfx_TextureViewInfo_proto;
+extern se::Class* __jsb_cc_gfx_TextureViewInfo_class;
 
-bool js_register_cc_gfx_GFXTextureViewInfo(se::Object* obj);
+bool js_register_cc_gfx_TextureViewInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXSamplerInfo_proto;
-extern se::Class* __jsb_cc_gfx_GFXSamplerInfo_class;
+extern se::Object* __jsb_cc_gfx_SamplerInfo_proto;
+extern se::Class* __jsb_cc_gfx_SamplerInfo_class;
 
-bool js_register_cc_gfx_GFXSamplerInfo(se::Object* obj);
+bool js_register_cc_gfx_SamplerInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXShaderMacro_proto;
-extern se::Class* __jsb_cc_gfx_GFXShaderMacro_class;
+extern se::Object* __jsb_cc_gfx_ShaderMacro_proto;
+extern se::Class* __jsb_cc_gfx_ShaderMacro_class;
 
-bool js_register_cc_gfx_GFXShaderMacro(se::Object* obj);
+bool js_register_cc_gfx_ShaderMacro(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXUniform_proto;
-extern se::Class* __jsb_cc_gfx_GFXUniform_class;
+extern se::Object* __jsb_cc_gfx_Uniform_proto;
+extern se::Class* __jsb_cc_gfx_Uniform_class;
 
-bool js_register_cc_gfx_GFXUniform(se::Object* obj);
+bool js_register_cc_gfx_Uniform(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXUniformBlock_proto;
-extern se::Class* __jsb_cc_gfx_GFXUniformBlock_class;
+extern se::Object* __jsb_cc_gfx_UniformBlock_proto;
+extern se::Class* __jsb_cc_gfx_UniformBlock_class;
 
-bool js_register_cc_gfx_GFXUniformBlock(se::Object* obj);
+bool js_register_cc_gfx_UniformBlock(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXUniformSampler_proto;
-extern se::Class* __jsb_cc_gfx_GFXUniformSampler_class;
+extern se::Object* __jsb_cc_gfx_UniformSampler_proto;
+extern se::Class* __jsb_cc_gfx_UniformSampler_class;
 
-bool js_register_cc_gfx_GFXUniformSampler(se::Object* obj);
+bool js_register_cc_gfx_UniformSampler(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXShaderStage_proto;
-extern se::Class* __jsb_cc_gfx_GFXShaderStage_class;
+extern se::Object* __jsb_cc_gfx_ShaderStage_proto;
+extern se::Class* __jsb_cc_gfx_ShaderStage_class;
 
-bool js_register_cc_gfx_GFXShaderStage(se::Object* obj);
+bool js_register_cc_gfx_ShaderStage(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXAttribute_proto;
-extern se::Class* __jsb_cc_gfx_GFXAttribute_class;
+extern se::Object* __jsb_cc_gfx_Attribute_proto;
+extern se::Class* __jsb_cc_gfx_Attribute_class;
 
-bool js_register_cc_gfx_GFXAttribute(se::Object* obj);
+bool js_register_cc_gfx_Attribute(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXShaderInfo_proto;
-extern se::Class* __jsb_cc_gfx_GFXShaderInfo_class;
+extern se::Object* __jsb_cc_gfx_ShaderInfo_proto;
+extern se::Class* __jsb_cc_gfx_ShaderInfo_class;
 
-bool js_register_cc_gfx_GFXShaderInfo(se::Object* obj);
+bool js_register_cc_gfx_ShaderInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXInputAssemblerInfo_proto;
-extern se::Class* __jsb_cc_gfx_GFXInputAssemblerInfo_class;
+extern se::Object* __jsb_cc_gfx_InputAssemblerInfo_proto;
+extern se::Class* __jsb_cc_gfx_InputAssemblerInfo_class;
 
-bool js_register_cc_gfx_GFXInputAssemblerInfo(se::Object* obj);
+bool js_register_cc_gfx_InputAssemblerInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXColorAttachment_proto;
-extern se::Class* __jsb_cc_gfx_GFXColorAttachment_class;
+extern se::Object* __jsb_cc_gfx_ColorAttachment_proto;
+extern se::Class* __jsb_cc_gfx_ColorAttachment_class;
 
-bool js_register_cc_gfx_GFXColorAttachment(se::Object* obj);
+bool js_register_cc_gfx_ColorAttachment(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXDepthStencilAttachment_proto;
-extern se::Class* __jsb_cc_gfx_GFXDepthStencilAttachment_class;
+extern se::Object* __jsb_cc_gfx_DepthStencilAttachment_proto;
+extern se::Class* __jsb_cc_gfx_DepthStencilAttachment_class;
 
-bool js_register_cc_gfx_GFXDepthStencilAttachment(se::Object* obj);
+bool js_register_cc_gfx_DepthStencilAttachment(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXRenderPassInfo_proto;
-extern se::Class* __jsb_cc_gfx_GFXRenderPassInfo_class;
+extern se::Object* __jsb_cc_gfx_RenderPassInfo_proto;
+extern se::Class* __jsb_cc_gfx_RenderPassInfo_class;
 
-bool js_register_cc_gfx_GFXRenderPassInfo(se::Object* obj);
+bool js_register_cc_gfx_RenderPassInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXFramebufferInfo_proto;
-extern se::Class* __jsb_cc_gfx_GFXFramebufferInfo_class;
+extern se::Object* __jsb_cc_gfx_FramebufferInfo_proto;
+extern se::Class* __jsb_cc_gfx_FramebufferInfo_class;
 
-bool js_register_cc_gfx_GFXFramebufferInfo(se::Object* obj);
+bool js_register_cc_gfx_FramebufferInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXBinding_proto;
-extern se::Class* __jsb_cc_gfx_GFXBinding_class;
+extern se::Object* __jsb_cc_gfx_BindingLayoutInfo_proto;
+extern se::Class* __jsb_cc_gfx_BindingLayoutInfo_class;
 
-bool js_register_cc_gfx_GFXBinding(se::Object* obj);
+bool js_register_cc_gfx_BindingLayoutInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXBindingLayoutInfo_proto;
-extern se::Class* __jsb_cc_gfx_GFXBindingLayoutInfo_class;
+extern se::Object* __jsb_cc_gfx_BindingUnit_proto;
+extern se::Class* __jsb_cc_gfx_BindingUnit_class;
 
-bool js_register_cc_gfx_GFXBindingLayoutInfo(se::Object* obj);
+bool js_register_cc_gfx_BindingUnit(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXBindingUnit_proto;
-extern se::Class* __jsb_cc_gfx_GFXBindingUnit_class;
+extern se::Object* __jsb_cc_gfx_InputState_proto;
+extern se::Class* __jsb_cc_gfx_InputState_class;
 
-bool js_register_cc_gfx_GFXBindingUnit(se::Object* obj);
+bool js_register_cc_gfx_InputState(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXPushConstantRange_proto;
-extern se::Class* __jsb_cc_gfx_GFXPushConstantRange_class;
+extern se::Object* __jsb_cc_gfx_RasterizerState_proto;
+extern se::Class* __jsb_cc_gfx_RasterizerState_class;
 
-bool js_register_cc_gfx_GFXPushConstantRange(se::Object* obj);
+bool js_register_cc_gfx_RasterizerState(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXPipelineLayoutInfo_proto;
-extern se::Class* __jsb_cc_gfx_GFXPipelineLayoutInfo_class;
+extern se::Object* __jsb_cc_gfx_DepthStencilState_proto;
+extern se::Class* __jsb_cc_gfx_DepthStencilState_class;
 
-bool js_register_cc_gfx_GFXPipelineLayoutInfo(se::Object* obj);
+bool js_register_cc_gfx_DepthStencilState(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXInputState_proto;
-extern se::Class* __jsb_cc_gfx_GFXInputState_class;
+extern se::Object* __jsb_cc_gfx_BlendTarget_proto;
+extern se::Class* __jsb_cc_gfx_BlendTarget_class;
 
-bool js_register_cc_gfx_GFXInputState(se::Object* obj);
+bool js_register_cc_gfx_BlendTarget(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXRasterizerState_proto;
-extern se::Class* __jsb_cc_gfx_GFXRasterizerState_class;
+extern se::Object* __jsb_cc_gfx_BlendState_proto;
+extern se::Class* __jsb_cc_gfx_BlendState_class;
 
-bool js_register_cc_gfx_GFXRasterizerState(se::Object* obj);
+bool js_register_cc_gfx_BlendState(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXDepthStencilState_proto;
-extern se::Class* __jsb_cc_gfx_GFXDepthStencilState_class;
+extern se::Object* __jsb_cc_gfx_PipelineStateInfo_proto;
+extern se::Class* __jsb_cc_gfx_PipelineStateInfo_class;
 
-bool js_register_cc_gfx_GFXDepthStencilState(se::Object* obj);
+bool js_register_cc_gfx_PipelineStateInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXBlendTarget_proto;
-extern se::Class* __jsb_cc_gfx_GFXBlendTarget_class;
+extern se::Object* __jsb_cc_gfx_CommandBufferInfo_proto;
+extern se::Class* __jsb_cc_gfx_CommandBufferInfo_class;
 
-bool js_register_cc_gfx_GFXBlendTarget(se::Object* obj);
+bool js_register_cc_gfx_CommandBufferInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXBlendState_proto;
-extern se::Class* __jsb_cc_gfx_GFXBlendState_class;
+extern se::Object* __jsb_cc_gfx_QueueInfo_proto;
+extern se::Class* __jsb_cc_gfx_QueueInfo_class;
 
-bool js_register_cc_gfx_GFXBlendState(se::Object* obj);
+bool js_register_cc_gfx_QueueInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXPipelineStateInfo_proto;
-extern se::Class* __jsb_cc_gfx_GFXPipelineStateInfo_class;
+extern se::Object* __jsb_cc_gfx_FormatInfo_proto;
+extern se::Class* __jsb_cc_gfx_FormatInfo_class;
 
-bool js_register_cc_gfx_GFXPipelineStateInfo(se::Object* obj);
+bool js_register_cc_gfx_FormatInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_GFXCommandBufferInfo_proto;
-extern se::Class* __jsb_cc_gfx_GFXCommandBufferInfo_class;
+extern se::Object* __jsb_cc_gfx_MemoryStatus_proto;
+extern se::Class* __jsb_cc_gfx_MemoryStatus_class;
 
-bool js_register_cc_gfx_GFXCommandBufferInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_GFXQueueInfo_proto;
-extern se::Class* __jsb_cc_gfx_GFXQueueInfo_class;
-
-bool js_register_cc_gfx_GFXQueueInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_GFXFormatInfo_proto;
-extern se::Class* __jsb_cc_gfx_GFXFormatInfo_class;
-
-bool js_register_cc_gfx_GFXFormatInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_GFXMemoryStatus_proto;
-extern se::Class* __jsb_cc_gfx_GFXMemoryStatus_class;
-
-bool js_register_cc_gfx_GFXMemoryStatus(se::Object* obj);
+bool js_register_cc_gfx_MemoryStatus(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 extern se::Object* __jsb_cc_gfx_GFXObject_proto;
@@ -266,194 +248,173 @@ extern se::Class* __jsb_cc_gfx_GFXObject_class;
 
 bool js_register_cc_gfx_GFXObject(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_GFXObject_getType);
+SE_DECLARE_FUNC(js_gfx_GFXObject_getStatus);
 SE_DECLARE_FUNC(js_gfx_GFXObject_GFXObject);
 
-extern se::Object* __jsb_cc_gfx_GFXDevice_proto;
-extern se::Class* __jsb_cc_gfx_GFXDevice_class;
+extern se::Object* __jsb_cc_gfx_Device_proto;
+extern se::Class* __jsb_cc_gfx_Device_class;
 
-bool js_register_cc_gfx_GFXDevice(se::Object* obj);
+bool js_register_cc_gfx_Device(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_hasFeature);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_createFence);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_createCommandAllocator);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_createPipelineState);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_createCommandBuffer);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_present);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_createFramebuffer);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_createRenderPass);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_createPipelineLayout);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_acquire);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_createShader);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_createInputAssembler);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_defineMacro);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_createSampler);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_createBuffer);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_initialize);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_resize);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_createQueue);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_createBindingLayout);
+SE_DECLARE_FUNC(js_gfx_Device_hasFeature);
+SE_DECLARE_FUNC(js_gfx_Device_createFence);
+SE_DECLARE_FUNC(js_gfx_Device_createPipelineState);
+SE_DECLARE_FUNC(js_gfx_Device_createCommandBuffer);
+SE_DECLARE_FUNC(js_gfx_Device_present);
+SE_DECLARE_FUNC(js_gfx_Device_destroy);
+SE_DECLARE_FUNC(js_gfx_Device_createFramebuffer);
+SE_DECLARE_FUNC(js_gfx_Device_createRenderPass);
+SE_DECLARE_FUNC(js_gfx_Device_acquire);
+SE_DECLARE_FUNC(js_gfx_Device_createShader);
+SE_DECLARE_FUNC(js_gfx_Device_createInputAssembler);
+SE_DECLARE_FUNC(js_gfx_Device_defineMacro);
+SE_DECLARE_FUNC(js_gfx_Device_createSampler);
+SE_DECLARE_FUNC(js_gfx_Device_createBuffer);
+SE_DECLARE_FUNC(js_gfx_Device_initialize);
+SE_DECLARE_FUNC(js_gfx_Device_resize);
+SE_DECLARE_FUNC(js_gfx_Device_createQueue);
+SE_DECLARE_FUNC(js_gfx_Device_createBindingLayout);
 
-extern se::Object* __jsb_cc_gfx_GFXBuffer_proto;
-extern se::Class* __jsb_cc_gfx_GFXBuffer_class;
+extern se::Object* __jsb_cc_gfx_Buffer_proto;
+extern se::Class* __jsb_cc_gfx_Buffer_class;
 
-bool js_register_cc_gfx_GFXBuffer(se::Object* obj);
+bool js_register_cc_gfx_Buffer(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXBuffer_initialize);
-SE_DECLARE_FUNC(js_gfx_GFXBuffer_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXBuffer_resize);
-SE_DECLARE_FUNC(js_gfx_GFXBuffer_GFXBuffer);
+SE_DECLARE_FUNC(js_gfx_Buffer_initialize);
+SE_DECLARE_FUNC(js_gfx_Buffer_destroy);
+SE_DECLARE_FUNC(js_gfx_Buffer_resize);
+SE_DECLARE_FUNC(js_gfx_Buffer_Buffer);
 
-extern se::Object* __jsb_cc_gfx_GFXTexture_proto;
-extern se::Class* __jsb_cc_gfx_GFXTexture_class;
+extern se::Object* __jsb_cc_gfx_Texture_proto;
+extern se::Class* __jsb_cc_gfx_Texture_class;
 
-bool js_register_cc_gfx_GFXTexture(se::Object* obj);
+bool js_register_cc_gfx_Texture(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXTexture_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXTexture_resize);
-SE_DECLARE_FUNC(js_gfx_GFXTexture_GFXTexture);
+SE_DECLARE_FUNC(js_gfx_Texture_destroy);
+SE_DECLARE_FUNC(js_gfx_Texture_resize);
+SE_DECLARE_FUNC(js_gfx_Texture_Texture);
 
-extern se::Object* __jsb_cc_gfx_GFXSampler_proto;
-extern se::Class* __jsb_cc_gfx_GFXSampler_class;
+extern se::Object* __jsb_cc_gfx_Sampler_proto;
+extern se::Class* __jsb_cc_gfx_Sampler_class;
 
-bool js_register_cc_gfx_GFXSampler(se::Object* obj);
+bool js_register_cc_gfx_Sampler(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXSampler_initialize);
-SE_DECLARE_FUNC(js_gfx_GFXSampler_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXSampler_GFXSampler);
+SE_DECLARE_FUNC(js_gfx_Sampler_initialize);
+SE_DECLARE_FUNC(js_gfx_Sampler_destroy);
+SE_DECLARE_FUNC(js_gfx_Sampler_Sampler);
 
-extern se::Object* __jsb_cc_gfx_GFXShader_proto;
-extern se::Class* __jsb_cc_gfx_GFXShader_class;
+extern se::Object* __jsb_cc_gfx_Shader_proto;
+extern se::Class* __jsb_cc_gfx_Shader_class;
 
-bool js_register_cc_gfx_GFXShader(se::Object* obj);
+bool js_register_cc_gfx_Shader(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXShader_initialize);
-SE_DECLARE_FUNC(js_gfx_GFXShader_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXShader_GFXShader);
+SE_DECLARE_FUNC(js_gfx_Shader_initialize);
+SE_DECLARE_FUNC(js_gfx_Shader_destroy);
+SE_DECLARE_FUNC(js_gfx_Shader_Shader);
 
-extern se::Object* __jsb_cc_gfx_GFXInputAssembler_proto;
-extern se::Class* __jsb_cc_gfx_GFXInputAssembler_class;
+extern se::Object* __jsb_cc_gfx_InputAssembler_proto;
+extern se::Class* __jsb_cc_gfx_InputAssembler_class;
 
-bool js_register_cc_gfx_GFXInputAssembler(se::Object* obj);
+bool js_register_cc_gfx_InputAssembler(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_initialize);
-SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_GFXInputAssembler);
+SE_DECLARE_FUNC(js_gfx_InputAssembler_destroy);
+SE_DECLARE_FUNC(js_gfx_InputAssembler_initialize);
+SE_DECLARE_FUNC(js_gfx_InputAssembler_InputAssembler);
 
-extern se::Object* __jsb_cc_gfx_GFXRenderPass_proto;
-extern se::Class* __jsb_cc_gfx_GFXRenderPass_class;
+extern se::Object* __jsb_cc_gfx_RenderPass_proto;
+extern se::Class* __jsb_cc_gfx_RenderPass_class;
 
-bool js_register_cc_gfx_GFXRenderPass(se::Object* obj);
+bool js_register_cc_gfx_RenderPass(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXRenderPass_initialize);
-SE_DECLARE_FUNC(js_gfx_GFXRenderPass_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXRenderPass_GFXRenderPass);
+SE_DECLARE_FUNC(js_gfx_RenderPass_initialize);
+SE_DECLARE_FUNC(js_gfx_RenderPass_destroy);
+SE_DECLARE_FUNC(js_gfx_RenderPass_RenderPass);
 
-extern se::Object* __jsb_cc_gfx_GFXFramebuffer_proto;
-extern se::Class* __jsb_cc_gfx_GFXFramebuffer_class;
+extern se::Object* __jsb_cc_gfx_Framebuffer_proto;
+extern se::Class* __jsb_cc_gfx_Framebuffer_class;
 
-bool js_register_cc_gfx_GFXFramebuffer(se::Object* obj);
+bool js_register_cc_gfx_Framebuffer(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_initialize);
-SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_GFXFramebuffer);
+SE_DECLARE_FUNC(js_gfx_Framebuffer_initialize);
+SE_DECLARE_FUNC(js_gfx_Framebuffer_destroy);
+SE_DECLARE_FUNC(js_gfx_Framebuffer_Framebuffer);
 
-extern se::Object* __jsb_cc_gfx_GFXBindingLayout_proto;
-extern se::Class* __jsb_cc_gfx_GFXBindingLayout_class;
+extern se::Object* __jsb_cc_gfx_BindingLayout_proto;
+extern se::Class* __jsb_cc_gfx_BindingLayout_class;
 
-bool js_register_cc_gfx_GFXBindingLayout(se::Object* obj);
+bool js_register_cc_gfx_BindingLayout(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_bindBuffer);
-SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_bindSampler);
-SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_update);
-SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_bindTexture);
-SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_initialize);
-SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_GFXBindingLayout);
+SE_DECLARE_FUNC(js_gfx_BindingLayout_bindBuffer);
+SE_DECLARE_FUNC(js_gfx_BindingLayout_bindSampler);
+SE_DECLARE_FUNC(js_gfx_BindingLayout_update);
+SE_DECLARE_FUNC(js_gfx_BindingLayout_bindTexture);
+SE_DECLARE_FUNC(js_gfx_BindingLayout_initialize);
+SE_DECLARE_FUNC(js_gfx_BindingLayout_destroy);
+SE_DECLARE_FUNC(js_gfx_BindingLayout_BindingLayout);
 
-extern se::Object* __jsb_cc_gfx_GFXPipelineLayout_proto;
-extern se::Class* __jsb_cc_gfx_GFXPipelineLayout_class;
+extern se::Object* __jsb_cc_gfx_PipelineState_proto;
+extern se::Class* __jsb_cc_gfx_PipelineState_class;
 
-bool js_register_cc_gfx_GFXPipelineLayout(se::Object* obj);
+bool js_register_cc_gfx_PipelineState(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_getLayouts);
-SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_initialize);
-SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_getPushConstantsRanges);
-SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_GFXPipelineLayout);
+SE_DECLARE_FUNC(js_gfx_PipelineState_initialize);
+SE_DECLARE_FUNC(js_gfx_PipelineState_destroy);
+SE_DECLARE_FUNC(js_gfx_PipelineState_getDynamicStates);
+SE_DECLARE_FUNC(js_gfx_PipelineState_PipelineState);
 
-extern se::Object* __jsb_cc_gfx_GFXPipelineState_proto;
-extern se::Class* __jsb_cc_gfx_GFXPipelineState_class;
+extern se::Object* __jsb_cc_gfx_CommandBuffer_proto;
+extern se::Class* __jsb_cc_gfx_CommandBuffer_class;
 
-bool js_register_cc_gfx_GFXPipelineState(se::Object* obj);
+bool js_register_cc_gfx_CommandBuffer(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXPipelineState_initialize);
-SE_DECLARE_FUNC(js_gfx_GFXPipelineState_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXPipelineState_getDynamicStates);
-SE_DECLARE_FUNC(js_gfx_GFXPipelineState_GFXPipelineState);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_draw);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_setBlendConstants);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_setDepthBound);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_copyBufferToTexture);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_getQueue);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_setLineWidth);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_updateBuffer);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_end);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_setStencilWriteMask);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_getNumInstances);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_setStencilCompareMask);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_bindInputAssembler);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_bindPipelineState);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_destroy);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_getDevice);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_getNumTris);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_setViewport);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_setDepthBias);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_begin);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_getType);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_bindBindingLayout);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_endRenderPass);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_initialize);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_setScissor);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_beginRenderPass);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_getNumDrawCalls);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_CommandBuffer);
 
-extern se::Object* __jsb_cc_gfx_GFXCommandAllocator_proto;
-extern se::Class* __jsb_cc_gfx_GFXCommandAllocator_class;
+extern se::Object* __jsb_cc_gfx_Fence_proto;
+extern se::Class* __jsb_cc_gfx_Fence_class;
 
-bool js_register_cc_gfx_GFXCommandAllocator(se::Object* obj);
+bool js_register_cc_gfx_Fence(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXCommandAllocator_initialize);
-SE_DECLARE_FUNC(js_gfx_GFXCommandAllocator_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXCommandAllocator_getDevice);
-SE_DECLARE_FUNC(js_gfx_GFXCommandAllocator_GFXCommandAllocator);
+SE_DECLARE_FUNC(js_gfx_Fence_initialize);
+SE_DECLARE_FUNC(js_gfx_Fence_destroy);
+SE_DECLARE_FUNC(js_gfx_Fence_wait);
+SE_DECLARE_FUNC(js_gfx_Fence_reset);
+SE_DECLARE_FUNC(js_gfx_Fence_Fence);
 
-extern se::Object* __jsb_cc_gfx_GFXCommandBuffer_proto;
-extern se::Class* __jsb_cc_gfx_GFXCommandBuffer_class;
+extern se::Object* __jsb_cc_gfx_Queue_proto;
+extern se::Class* __jsb_cc_gfx_Queue_class;
 
-bool js_register_cc_gfx_GFXCommandBuffer(se::Object* obj);
+bool js_register_cc_gfx_Queue(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_draw);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_setBlendConstants);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_setDepthBound);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_getAllocator);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_copyBufferToTexture);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_setLineWidth);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_updateBuffer);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_end);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_setStencilWriteMask);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_getNumInstances);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_setStencilCompareMask);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_bindInputAssembler);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_bindPipelineState);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_getDevice);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_getNumTris);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_setViewport);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_setDepthBias);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_begin);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_getType);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_bindBindingLayout);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_endRenderPass);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_initialize);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_setScissor);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_beginRenderPass);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_getNumDrawCalls);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_GFXCommandBuffer);
-
-extern se::Object* __jsb_cc_gfx_GFXFence_proto;
-extern se::Class* __jsb_cc_gfx_GFXFence_class;
-
-bool js_register_cc_gfx_GFXFence(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXFence_initialize);
-SE_DECLARE_FUNC(js_gfx_GFXFence_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXFence_wait);
-SE_DECLARE_FUNC(js_gfx_GFXFence_reset);
-SE_DECLARE_FUNC(js_gfx_GFXFence_GFXFence);
-
-extern se::Object* __jsb_cc_gfx_GFXQueue_proto;
-extern se::Class* __jsb_cc_gfx_GFXQueue_class;
-
-bool js_register_cc_gfx_GFXQueue(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXQueue_submit);
-SE_DECLARE_FUNC(js_gfx_GFXQueue_isAsync);
-SE_DECLARE_FUNC(js_gfx_GFXQueue_initialize);
-SE_DECLARE_FUNC(js_gfx_GFXQueue_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXQueue_GFXQueue);
+SE_DECLARE_FUNC(js_gfx_Queue_submit);
+SE_DECLARE_FUNC(js_gfx_Queue_isAsync);
+SE_DECLARE_FUNC(js_gfx_Queue_initialize);
+SE_DECLARE_FUNC(js_gfx_Queue_destroy);
+SE_DECLARE_FUNC(js_gfx_Queue_Queue);
 

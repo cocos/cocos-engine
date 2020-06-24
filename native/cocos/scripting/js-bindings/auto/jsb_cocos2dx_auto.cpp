@@ -927,7 +927,6 @@ SE_BIND_FUNC(js_engine_FileUtils_getInstance)
 
 static bool js_cc_FileUtils_finalize(se::State& s)
 {
-    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::FileUtils)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -1290,7 +1289,6 @@ SE_BIND_CTOR(js_engine_CanvasGradient_constructor, __jsb_cc_CanvasGradient_class
 
 static bool js_cc_CanvasGradient_finalize(se::State& s)
 {
-    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::CanvasGradient)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -1817,7 +1815,6 @@ SE_BIND_CTOR(js_engine_CanvasRenderingContext2D_constructor, __jsb_cc_CanvasRend
 
 static bool js_cc_CanvasRenderingContext2D_finalize(se::State& s)
 {
-    CC_LOG_INFO("jsbindings: finalizing JS object %p (cc::CanvasRenderingContext2D)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
