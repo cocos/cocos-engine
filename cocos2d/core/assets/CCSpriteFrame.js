@@ -745,7 +745,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
     // SERIALIZATION
 
-    _serialize: (CC_EDITOR || CC_TEST) && function (exporting) {
+    _serialize: (CC_EDITOR || CC_TEST) && function (exporting, ctx) {
         let rect = this._rect;
         let offset = this._offset;
         let size = this._originalSize;
@@ -762,6 +762,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
         if (uuid && exporting) {
             uuid = Editor.Utils.UuidUtils.compressUuid(uuid, true);
+            ctx.dependsOn('_textureSetter', uuid);
         }
 
         let vertices;
@@ -777,7 +778,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
         return {
             name: this._name,
-            texture: uuid || undefined,
+            texture: (!exporting && uuid) || undefined,
             atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting
             rect: rect ? [rect.x, rect.y, rect.width, rect.height] : undefined,
             offset: offset ? [offset.x, offset.y] : undefined,
@@ -821,10 +822,12 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this.vertices.nv = [];
         }
 
-        // load texture via _textureSetter
-        let textureUuid = data.texture;
-        if (textureUuid) {
-            handle.result.push(this, '_textureSetter', textureUuid);
+        if (!CC_BUILD) {
+            // manually load texture via _textureSetter
+            let textureUuid = data.texture;
+            if (textureUuid) {
+                handle.result.push(this, '_textureSetter', textureUuid);
+            }
         }
     }
 });

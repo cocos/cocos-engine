@@ -341,7 +341,8 @@ if (TestEditorExtends) { (function () {
     test('multi custom classes (not asset)', function () {
         var MyClass1 = cc.Class({
             name: 'a',
-            _serialize: function () {
+            _serialize: function (exporting, ctx) {
+                ctx.dependsOn('ref', '2333');
                 return ['aaa'];
             },
             _deserialize: function (data) {}
@@ -355,15 +356,15 @@ if (TestEditorExtends) { (function () {
         });
         var a = new MyClass1();
         var b = new MyClass2();
-        var obj = [a, b, a, b];
+        var obj = [a, b, a, b, new MyClass1()];
 
         var expect = [
-            1, 0, 0,
+            1, ['2333'], ['ref'],
             ["a", "b"],
             0,
-            [['aaa'], 'bbb', [0, 1, 0, 1], 2],
-            [0, 1, -3],
-            0, [], [], []
+            [['aaa'], 'bbb', ['aaa'], [0, 1, 0, 1, 2], 3],
+            [0, 1, 0, -3],
+            0, [0, 2], [0, 0], [0, 0]
         ];
         match(obj, expect);
 

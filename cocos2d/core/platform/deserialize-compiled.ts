@@ -1013,6 +1013,7 @@ if (CC_TEST) {
         deserializeCCObject,
         deserializeCustomCCObject,
         parseInstances,
+        parseResult,
         cacheMasks,
         File: {
             Version: File.Version,
