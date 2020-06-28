@@ -818,7 +818,7 @@ var Texture2D = cc.Class({
      * If the texture size is NPOT (non power of 2), then in can only use gl.CLAMP_TO_EDGE in gl.TEXTURE_WRAP_{S,T}.
      * !#zh 设置纹理包装模式。
      * 若纹理贴图尺寸是 NPOT（non power of 2），则只能使用 Texture2D.WrapMode.CLAMP_TO_EDGE。
-     * @method setTexParameters
+     * @method setWrapMode
      * @param {Texture2D.WrapMode} wrapS
      * @param {Texture2D.WrapMode} wrapT
      */
