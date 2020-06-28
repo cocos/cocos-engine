@@ -161,7 +161,7 @@ export class Pass {
      */
     public static getPassHash (passHashInfo: IPassHashInfo) {
         const shaderKey = programLib.getKey(passHashInfo.program, passHashInfo.defines);
-        let res = `${shaderKey},${passHashInfo.primitive}`;
+        let res = shaderKey + ',' + passHashInfo.primitive;
         res += serializeBlendState(passHashInfo.blendState);
         res += serializeDepthStencilState(passHashInfo.depthStencilState);
         res += serializeRasterizerState(passHashInfo.rasterizerState);
@@ -502,9 +502,12 @@ export class Pass {
         const pipeline = this._root.pipeline;
         if (!pipeline) { return null; }
         this._dynamicBatchingSync();
-        const shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
+        Object.assign(this._defines, pipeline.macros);
+        const key = programLib.getKey(this._programName, this._defines);
+        const shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline, key);
         if (!shader) { console.warn(`create shader ${this._programName} failed`); return false; }
         this._shader = shader;
+        this._hash = Pass.getPassHash(this);
         return true;
     }
 
@@ -592,7 +595,6 @@ export class Pass {
         const device = this._device;
         Pass.fillinPipelineInfo(this, info);
         if (info.stateOverrides) { Pass.fillinPipelineInfo(this, info.stateOverrides); }
-        this._hash = Pass.getPassHash(this);
 
         const blocks = this._shaderInfo.blocks;
         for (let i = 0; i < blocks.length; i++) {
@@ -700,8 +702,7 @@ function serializeBlendState (bs: GFXBlendState) {
 }
 
 function serializeRasterizerState (rs: GFXRasterizerState) {
-    const res = `,rs,${rs.cullMode},${rs.depthBias},${rs.isFrontFaceCCW}`;
-    return res;
+    return ',rs,' + rs.cullMode + ',' + rs.depthBias + ',' + rs.isFrontFaceCCW;
 }
 
 function serializeDepthStencilState (dss: GFXDepthStencilState) {
@@ -714,9 +715,9 @@ function serializeDepthStencilState (dss: GFXDepthStencilState) {
 }
 
 function serializeDynamicState (dynamicStates: GFXDynamicState[]) {
-    let res = `,ds`;
+    let res = ',ds';
     for (const ds in dynamicStates) {
-        res += `,${ds}`;
+        res += ',' + ds;
     }
     return res;
 }

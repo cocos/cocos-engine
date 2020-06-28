@@ -100,11 +100,11 @@ type MaterialPropertyFull = MaterialProperty | TextureBase | SpriteFrame | GFXTe
 export class Material extends Asset {
 
     public static getHash (material: Material) {
-        let str = '';
+        let hash = 0;
         for (const pass of material.passes) {
-            str += pass.hash;
+            hash ^= pass.hash;
         }
-        return murmurhash2_32_gc(str, 666);
+        return hash;
     }
 
     @property(EffectAsset)
