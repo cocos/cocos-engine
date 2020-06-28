@@ -519,7 +519,7 @@ Bundle.prototype = {
      * bundle1.get('music/hit', cc.AudioClip);
      * 
      * @typescript
-     * get (path: string, type?: typeof cc.Asset): cc.Asset
+     * get<T extends cc.Asset> (path: string, type?: typeof cc.Asset): T
      */
     get (path, type) {
         var info = this.getInfoWithPath(path, type);
