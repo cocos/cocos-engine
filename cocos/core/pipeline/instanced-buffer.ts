@@ -2,11 +2,10 @@
  * @hidden
  */
 
-import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../gfx';
+import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice } from '../gfx';
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { IInstancedAttributeBlock } from '../renderer';
-import { Pass } from '../renderer/core/pass';
 import { SubModel, IPSOCreateInfo } from '../renderer/scene/submodel';
 
 export interface IInstancedItem {
@@ -24,10 +23,10 @@ const MAX_CAPACITY = 1024;
 export class InstancedBuffer {
     public instances: IInstancedItem[] = [];
     public psoci: IPSOCreateInfo | null = null;
-    public pass: Pass;
+    private _device: GFXDevice;
 
-    constructor (pass: Pass) {
-        this.pass = pass;
+    constructor (device: GFXDevice) {
+        this._device = device;
     }
 
     public destroy () {
@@ -63,10 +62,8 @@ export class InstancedBuffer {
             return;
         }
 
-        const device = this.pass.device;
-
         // Create a new instance
-        const vb = device.createBuffer({
+        const vb = this._device.createBuffer({
             usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: stride * INITIAL_CAPACITY, stride,
@@ -90,7 +87,7 @@ export class InstancedBuffer {
         data.set(attrs.buffer);
 
         vertexBuffers.push(vb);
-        const ia = device.createInputAssembler({ attributes, vertexBuffers, indexBuffer });
+        const ia = this._device.createInputAssembler({ attributes, vertexBuffers, indexBuffer });
         this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride });
     }
 
