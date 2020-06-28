@@ -1,4 +1,4 @@
-import Ammo from '@cocos/ammo';
+import Ammo from './ammo-instantiated';
 import { AmmoShape } from './shapes/ammo-shape';
 
 export interface IAmmoBodyStruct {

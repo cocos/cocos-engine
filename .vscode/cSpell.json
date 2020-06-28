@@ -32,6 +32,7 @@
         "SNORM",
         "struct",
         "UNORM",
+        "wasm",
         "WECHAT",
         "WECHATGAME",
         "Yaji"

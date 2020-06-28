@@ -1,4 +1,4 @@
-import Ammo from '@cocos/ammo';
+import Ammo from '../ammo-instantiated';
 import { Vec3 } from "../../../core";
 import { AmmoShape } from "./ammo-shape";
 import { SphereColliderComponent } from '../../../../exports/physics-framework';

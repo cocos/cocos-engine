@@ -31,7 +31,7 @@ if (window.atob == null) {
     };
 }
 
-import Ammo from '@cocos/ammo';
+import Ammo from '../cocos/physics/ammo/ammo-instantiated';
 window.Ammo = Ammo;
 
 import '../cocos/physics/ammo/instantiate';

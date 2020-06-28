@@ -1,4 +1,4 @@
-import Ammo from '@cocos/ammo';
+import Ammo from './ammo-instantiated';
 import { IVec3Like, IQuatLike } from '../../core/math/type-define';
 
 export function cocos2AmmoVec3 (out: Ammo.btVector3, v: IVec3Like): Ammo.btVector3 {

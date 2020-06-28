@@ -1,4 +1,4 @@
-import Ammo from '@cocos/ammo';
+import Ammo from '../ammo-instantiated';
 import { AmmoShape } from "./ammo-shape";
 import { CylinderColliderComponent } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
