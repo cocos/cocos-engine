@@ -26,10 +26,10 @@ const _localBatched = new UBOLocalBatched();
 
 export class BatchedBuffer {
     public batches: IBatchedItem[] = [];
-    private device: GFXDevice;
+    private _device: GFXDevice;
 
     constructor (device: GFXDevice) {
-        this.device = device;
+        this._device = device;
     }
 
     public destroy () {
@@ -121,7 +121,7 @@ export class BatchedBuffer {
         const totalVBs: GFXBuffer[] = [];
         for (let i = 0; i < flatBuffers.length; ++i) {
             const flatBuff = flatBuffers[i];
-            const newVB = this.device.createBuffer({
+            const newVB = this._device.createBuffer({
                 usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: flatBuff.count * flatBuff.stride,
@@ -133,7 +133,7 @@ export class BatchedBuffer {
             totalVBs.push(newVB);
         }
 
-        const vbIdx = this.device.createBuffer({
+        const vbIdx = this._device.createBuffer({
             usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: vbCount * 4,
@@ -155,12 +155,12 @@ export class BatchedBuffer {
             stream: flatBuffers.length,
         };
 
-        const ia = this.device.createInputAssembler({
+        const ia = this._device.createInputAssembler({
             attributes: attrs,
             vertexBuffers: totalVBs,
         });
 
-        const ubo = this.device.createBuffer({
+        const ubo = this._device.createBuffer({
             usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: UBOLocalBatched.SIZE,
