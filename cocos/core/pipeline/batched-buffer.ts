@@ -2,11 +2,10 @@
  * @hidden
  */
 
-import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit } from '../gfx';
+import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXDevice } from '../gfx';
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { Mat4 } from '../math';
-import { Pass } from '../renderer/core/pass';
 import { SubModel, IPSOCreateInfo } from '../renderer/scene/submodel';
 import { IRenderObject, UBOLocalBatched } from './define';
 
@@ -27,10 +26,10 @@ const _localBatched = new UBOLocalBatched();
 
 export class BatchedBuffer {
     public batches: IBatchedItem[] = [];
-    public pass: Pass;
+    private _device: GFXDevice;
 
-    constructor (pass: Pass) {
-        this.pass = pass;
+    constructor (device: GFXDevice) {
+        this._device = device;
     }
 
     public destroy () {
@@ -116,15 +115,13 @@ export class BatchedBuffer {
             }
         }
 
-        const device = this.pass.device;
-
         // Create a new batch
         const vbs: GFXBuffer[] = [];
         const vbDatas: Uint8Array[] = [];
         const totalVBs: GFXBuffer[] = [];
         for (let i = 0; i < flatBuffers.length; ++i) {
             const flatBuff = flatBuffers[i];
-            const newVB = device.createBuffer({
+            const newVB = this._device.createBuffer({
                 usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: flatBuff.count * flatBuff.stride,
@@ -136,7 +133,7 @@ export class BatchedBuffer {
             totalVBs.push(newVB);
         }
 
-        const vbIdx = device.createBuffer({
+        const vbIdx = this._device.createBuffer({
             usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: vbCount * 4,
@@ -158,12 +155,12 @@ export class BatchedBuffer {
             stream: flatBuffers.length,
         };
 
-        const ia = device.createInputAssembler({
+        const ia = this._device.createInputAssembler({
             attributes: attrs,
             vertexBuffers: totalVBs,
         });
 
-        const ubo = this.pass.device.createBuffer({
+        const ubo = this._device.createBuffer({
             usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: UBOLocalBatched.SIZE,
