@@ -42,6 +42,9 @@ import {
     TEST,
     WECHAT,
     XIAOMI,
+    HUAWEI,
+    OPPO,
+    VIVO,
 } from 'internal:constants';
 
 /**
@@ -76,6 +79,9 @@ if (BUILD) {
     _global.CC_XIAOMI = XIAOMI;
     _global.CC_BAIDU = BAIDU;
     _global.CC_COCOSPLAY = COCOSPLAY;
+    _global.CC_HUAWEI = HUAWEI;
+    _global.CC_OPPO = OPPO;
+    _global.CC_VIVO = VIVO;
     _global.CC_MINIGAME = MINIGAME;
     _global.CC_RUNTIME_BASED = RUNTIME_BASED;
     _global.CC_SUPPORT_JIT = SUPPORT_JIT;

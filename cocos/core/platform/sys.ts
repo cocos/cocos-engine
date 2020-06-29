@@ -28,7 +28,7 @@
  * @category core
  */
 
-import { EDITOR, TEST, WECHAT, ALIPAY, XIAOMI, BAIDU, COCOSPLAY, JSB, MINIGAME } from 'internal:constants';
+import { EDITOR, TEST, WECHAT, ALIPAY, XIAOMI, BAIDU, COCOSPLAY, JSB, MINIGAME, HUAWEI, OPPO, VIVO } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID, log, logID } from './debug';
 
@@ -371,6 +371,24 @@ export const sys: { [x: string]: any; } = {
      * @default "cocosplay"
      */
     BROWSER_TYPE_COCOSPLAY: 'cocosplay',
+    /**
+     * @en Browser Type - huawei quick Game
+     * @zh 浏览器类型 - 华为快游戏
+     * @default "huaweiquickgame"
+     */
+    BROWSER_TYPE_HUAWEI_GAME: 'huaweiquickgame',
+        /**
+     * @en Browser Type - OPPO mini Game
+     * @zh 浏览器类型 - OPPO小游戏
+     * @default "oppogame"
+     */
+    BROWSER_TYPE_OPPO_GAME: 'oppogame',
+    /**
+    * @en Browser Type - vivo mini Game
+    * @zh 浏览器类型 - vivo小游戏
+    * @default "vivogame"
+    */
+   BROWSER_TYPE_VIVO_GAME: 'vivogame',
     /**
      * @en Browser Type - Android Browser
      * @zh 浏览器类型 - 安卓浏览器
@@ -876,6 +894,15 @@ else {
         }
         else if(COCOSPLAY) {
             browserType = sys.BROWSER_TYPE_COCOSPLAY;
+        }
+        else if(HUAWEI) {
+            browserType = sys.BROWSER_TYPE_HUAWEI_GAME;
+        }
+        else if(OPPO) {
+            browserType = sys.BROWSER_TYPE_OPPO_GAME;
+        }
+        else if(VIVO) {
+            browserType = sys.BROWSER_TYPE_VIVO_GAME;
         }
         else if (browserType === 'micromessenger') {
             browserType = sys.BROWSER_TYPE_WECHAT;

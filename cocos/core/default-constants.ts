@@ -27,6 +27,9 @@ export const ALIPAY = tryDefineGlobal('CC_ALIPAY', false);
 export const XIAOMI = tryDefineGlobal('CC_XIAOMI', false);
 export const BAIDU = tryDefineGlobal('CC_BAIDU', false);
 export const COCOSPLAY = tryDefineGlobal('CC_COCOSPLAY', false);
+export const HUAWEI = tryDefineGlobal('CC_HUAWEI', false);
+export const OPPO = tryDefineGlobal('CC_OPPO', false);
+export const VIVO = tryDefineGlobal('CC_VIVO', false);
 // @ts-ignore
 export const SUPPORT_JIT = tryDefineGlobal('CC_SUPPORT_JIT', ('function' === typeof loadRuntime));
 export const PHYSICS_BUILTIN = tryDefineGlobal('CC_PHYSICS_BUILTIN', true);
