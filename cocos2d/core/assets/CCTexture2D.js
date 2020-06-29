@@ -387,7 +387,7 @@ var Texture2D = cc.Class({
         extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm'],
 
         _parseNativeDepFromJson (json) {
-            var data = json.content;
+            var data = CC_EDITOR || CC_PREVIEW ? json.content : json;
             let fields = data.split(',');
             // decode extname
             var extIdStr = fields[0];

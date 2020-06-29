@@ -24,6 +24,7 @@
  ****************************************************************************/
 const Cache = require('./cache');
 const js = require('../platform/js');
+import { getCtorAndSerializedData } from '../platform/deserialize-compiled';
 
 /**
  * @module cc.AssetManager
@@ -152,14 +153,25 @@ var dependUtil = {
      */
     parse (uuid, json) {
         var out = null;
-        // scene or prefab
         if (Array.isArray(json)) {
 
-            if (this._depends.has(uuid)) return this._depends.get(uuid)
-            out = {
-                deps: cc.Asset._parseDepsFromJson(json),
-                asyncLoadAssets: json[0].asyncLoadAssets
-            };
+            if (this._depends.has(uuid)) return this._depends.get(uuid);
+
+            if (CC_EDITOR || CC_PREVIEW) {
+                out = {
+                    deps: cc.Asset._parseDepsFromJson(json),
+                };
+            }
+            else {
+                let { ctor, content } = getCtorAndSerializedData(json)
+                out = {
+                    preventPreloadNativeObject: ctor.preventPreloadNativeObject,
+                    preventDeferredLoadDependents: ctor.preventDeferredLoadDependents,
+                    deps: ctor._parseDepsFromJson(json),
+                    nativeDep: ctor._parseNativeDepFromJson(content)
+                };
+                out.nativeDep && (out.nativeDep.uuid = uuid);
+            }
         }
         // get deps from json
         else if (json.__type__) {

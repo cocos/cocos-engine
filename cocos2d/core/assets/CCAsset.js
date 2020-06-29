@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 var CCObject = require('../platform/CCObject');
+import { getDependUuidList } from '../platform/deserialize-compiled';
 
 /**
  * !#en
@@ -204,10 +205,29 @@ cc.Asset = cc.Class({
          */
         preventPreloadNativeObject: false,
 
-        _parseDepsFromJson (json) {
+        _parseDepsFromJson: CC_EDITOR || CC_PREVIEW ? function (json) {
             var depends = [];
+            function parseDependRecursively (data, out) {
+                if (!data || typeof data !== 'object' || data.__id__) return;
+                var uuid = data.__uuid__;
+                if (Array.isArray(data)) {
+                    for (let i = 0, l = data.length; i < l; i++) {
+                        parseDependRecursively(data[i], out);
+                    }
+                }
+                else if (uuid) { 
+                    out.push(cc.assetManager.utils.decodeUuid(uuid));
+                }
+                else {
+                    for (var prop in data) {
+                        parseDependRecursively(data[prop], out);
+                    }
+                }
+            }
             parseDependRecursively(json, depends);
             return depends;
+        } : function (json) {
+            return getDependUuidList(json).map(uuid => cc.assetManager.utils.decodeUuid(uuid));
         },
 
         _parseNativeDepFromJson (json) {
@@ -325,23 +345,5 @@ cc.Asset = cc.Class({
         return this;
     }
 });
-
-function parseDependRecursively (data, out) {
-    if (!data || typeof data !== 'object' || data.__id__) return;
-    var uuid = data.__uuid__;
-    if (Array.isArray(data)) {
-        for (let i = 0, l = data.length; i < l; i++) {
-            parseDependRecursively(data[i], out);
-        }
-    }
-    else if (uuid) { 
-        out.push(cc.assetManager.utils.decodeUuid(uuid));
-    }
-    else {
-        for (var prop in data) {
-            parseDependRecursively(data[prop], out);
-        }
-    }
-}
 
 module.exports = cc.Asset;

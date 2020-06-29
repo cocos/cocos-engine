@@ -987,6 +987,48 @@ export function packCustomObjData (type: string, data: IClassObjectData|OtherObj
     ];
 }
 
+export function findInstanceRoot (json: IFileData): ICustomObjectDataContent {
+    let instances = json[File.Instances];
+    if (typeof instances[instances.length - 1] === 'number') {
+        return instances[instances[instances.length - 1]];
+    }
+    else {
+        return instances[0];
+    }
+}
+
+export function getDependUuidList (json: IFileData): Array<string> {
+    return json[File.DependUuidIndices].map(index => json[File.SharedUuids][index]);
+}
+
+export function getCtorAndSerializedData (json: IFileData): {ctor: any, content: any} {
+    let classes = json[File.SharedClasses];
+    let root = findInstanceRoot(json);
+    let ctor: any = null;
+    let content: any = null;
+    // default deserialized object
+    if (Array.isArray(root)) {
+        let layouts = json[File.SharedMasks];
+        let layout = layouts[root[0]];
+        let classIndex = layout[0];
+        let classInfo = typeof classIndex === 'number' ? classes[classIndex] : classIndex;
+        ctor = classInfo[0];
+        let fields = classInfo[1];
+        content = {};
+        for (let i = 1, l = layout[layout.length - 1]; i < l; i++) {
+            content[fields[layout[i]]] = root[i];
+        }
+    }
+    // custom deserialized object
+    else {
+        let instanceTypeIndex = json[File.InstanceTypes][0];
+        ctor = classes[instanceTypeIndex];
+        content = root;
+    }
+    ctor = typeof ctor === 'string' ? js._getClassById(ctor) : ctor;
+    return { ctor, content };
+}
+
 if (CC_EDITOR || CC_TEST) {
     cc._deserializeCompiled = deserialize;
     deserialize.macros = {

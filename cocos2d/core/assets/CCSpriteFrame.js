@@ -26,7 +26,7 @@
  ****************************************************************************/
 
 const EventTarget = require("../event/event-target");
-const textureUtil = require('../utils/texture-util');
+import { findInstanceRoot } from '../platform/deserialize-compiled';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -161,7 +161,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
     statics: {
         _parseDepsFromJson (json) {
-            return [cc.assetManager.utils.decodeUuid(json.content.texture)];
+            return [cc.assetManager.utils.decodeUuid(CC_EDITOR || CC_PREVIEW ? json.content.texture : findInstanceRoot(json).texture)];
         }
     },
 
