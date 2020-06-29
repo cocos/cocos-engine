@@ -62,12 +62,12 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     //const VkPhysicalDeviceVulkan12Features &deviceVulkan12Features = gpuContext->physicalDeviceVulkan12Features;
 
     // only enable the absolute essentials for now
-    std::vector<const char *> requestedValidationLayers{
+    vector<const char *> requestedValidationLayers{
     };
 #if COCOS2D_DEBUG > 0
     requestedValidationLayers.push_back("VK_LAYER_KHRONOS_validation");
 #endif
-    std::vector<const char *> requestedExtensions{
+    vector<const char *> requestedExtensions{
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
         VK_KHR_DESCRIPTOR_UPDATE_TEMPLATE_EXTENSION_NAME,
         VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME,
@@ -114,8 +114,8 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
 
     // prepare the device queues
     uint queueFamilyPropertiesCount = toUint(gpuContext->queueFamilyProperties.size());
-    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos(queueFamilyPropertiesCount, {VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO});
-    std::vector<std::vector<float>> queuePriorities(queueFamilyPropertiesCount);
+    vector<VkDeviceQueueCreateInfo> queueCreateInfos(queueFamilyPropertiesCount, {VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO});
+    vector<vector<float>> queuePriorities(queueFamilyPropertiesCount);
 
     for (uint queueFamilyIndex = 0u; queueFamilyIndex < queueFamilyPropertiesCount; ++queueFamilyIndex) {
         const VkQueueFamilyProperties &queueFamilyProperty = gpuContext->queueFamilyProperties[queueFamilyIndex];

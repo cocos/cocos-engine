@@ -50,13 +50,13 @@ glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion) {
     }
 }
 
-const std::vector<unsigned int> GLSL2SPIRV(ShaderType type, const String &source, int vulkanMinorVersion = 2) {
+const vector<unsigned int> GLSL2SPIRV(ShaderType type, const String &source, int vulkanMinorVersion = 2) {
     static bool glslangInitialized = false;
     if (!glslangInitialized) {
         glslang::InitializeProcess();
         glslangInitialized = true;
     }
-    std::vector<unsigned int> spirv;
+    vector<unsigned int> spirv;
     auto stage = getShaderStage(type);
     auto string = source.c_str();
     glslang::TShader shader(stage);
@@ -514,7 +514,7 @@ MTLSamplerMipFilter toMTLSamplerMipFilter(Filter filter) {
 String compileGLSLShader2Msl(const String &src,
                              ShaderType shaderType,
                              Device *device,
-                             std::unordered_map<uint, uint> &samplerBindings) {
+                             unordered_map<uint, uint> &samplerBindings) {
 #if USE_METAL
     String shaderSource("#version 310 es\n");
     shaderSource.append(src);

@@ -82,7 +82,7 @@ const vector<unsigned int> GLSL2SPIRV(ShaderType type, const String &source, int
         CC_LOG_ERROR("GLSL Linking Failed:\n%s\n%s", program.getInfoLog(), program.getInfoDebugLog());
     }
 
-    std::vector<unsigned int> spirv;
+    vector<unsigned int> spirv;
     spv::SpvBuildLogger logger;
     glslang::SpvOptions spvOptions;
     glslang::GlslangToSpv(*program.getIntermediate(stage), spirv, &logger, &spvOptions);

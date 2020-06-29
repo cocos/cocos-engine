@@ -24,48 +24,42 @@
 #import "CCView.h"
 #include "scripting/js-bindings/event/EventDispatcher.h"
 
-namespace
-{
-    void dispatchEvents(cc::TouchEvent& touchEvent, NSSet* touches)
-    {
-        for (UITouch* touch in touches) {
-            touchEvent.touches.push_back({
-                static_cast<float>([touch locationInView: [touch view]].x),
-                static_cast<float>([touch locationInView: [touch view]].y),
-                static_cast<int>((intptr_t)touch)
-            });
-        }
-        cc::EventDispatcher::dispatchTouchEvent(touchEvent);
-        touchEvent.touches.clear();
+namespace {
+void dispatchEvents(cc::TouchEvent &touchEvent, NSSet *touches) {
+    for (UITouch *touch in touches) {
+        touchEvent.touches.push_back({static_cast<float>([touch locationInView:[touch view]].x),
+                                      static_cast<float>([touch locationInView:[touch view]].y),
+                                      static_cast<int>((intptr_t)touch)});
     }
+    cc::EventDispatcher::dispatchTouchEvent(touchEvent);
+    touchEvent.touches.clear();
+}
 }
 
-@implementation View
-{
+@implementation View {
     cc::TouchEvent _touchEvent;
 }
 
 @synthesize preventTouch;
 
-+ (Class) layerClass {
++ (Class)layerClass {
     return [CAEAGLLayer class];
 }
 
--(id) initWithFrame:(CGRect)frame {
+- (id)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame])
         self.preventTouch = false;
-    
+
     return self;
 }
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event  {
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     if (self.preventTouch)
         return;
-    
+
     _touchEvent.type = cc::TouchEvent::Type::BEGAN;
     dispatchEvents(_touchEvent, touches);
 }
-
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
     if (self.preventTouch)
@@ -91,7 +85,7 @@ namespace
     dispatchEvents(_touchEvent, touches);
 }
 
--(void) setPreventTouchEvent:(BOOL) flag {
+- (void)setPreventTouchEvent:(BOOL)flag {
     self.preventTouch = flag;
 }
 

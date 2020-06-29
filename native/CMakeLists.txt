@@ -652,8 +652,6 @@ if(CC_USE_METAL)
         cocos/renderer/gfx-metal/MTLBindingLayout.h
         cocos/renderer/gfx-metal/MTLBuffer.h
         cocos/renderer/gfx-metal/MTLBuffer.mm
-        cocos/renderer/gfx-metal/MTLCommandAllocator.h
-        cocos/renderer/gfx-metal/MTLCommandAllocator.mm
         cocos/renderer/gfx-metal/MTLCommandBuffer.h
         cocos/renderer/gfx-metal/MTLCommandBuffer.mm
         cocos/renderer/gfx-metal/MTLCommands.h

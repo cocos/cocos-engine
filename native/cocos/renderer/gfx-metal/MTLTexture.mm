@@ -3,7 +3,6 @@
 #include "MTLDevice.h"
 #include "MTLTexture.h"
 #include "MTLUtils.h"
-#include <platform/mac/CCView.h>
 
 namespace cc {
 namespace gfx {
@@ -296,8 +295,8 @@ void CCMTLTexture::update(uint8_t *const *datas, const BufferTextureCopyList &re
 }
 
 void CCMTLTexture::generateMipmaps() {
-    id<MTLCommandQueue> commandQueue = ((View *)(((CCMTLDevice *)_device)->getMTKView())).mtlCommandQueue;
-    id<MTLCommandBuffer> mtlCommandBuffer = [commandQueue commandBuffer];
+    id<MTLCommandQueue> mtlCommandQueue = id<MTLCommandQueue>(static_cast<CCMTLDevice *>(_device)->getMTLCommandQueue());
+    id<MTLCommandBuffer> mtlCommandBuffer = [mtlCommandQueue commandBuffer];
     [mtlCommandBuffer enqueue];
     id<MTLBlitCommandEncoder> commandEncoder = [mtlCommandBuffer blitCommandEncoder];
     [commandEncoder generateMipmapsForTexture:_mtlTexture];

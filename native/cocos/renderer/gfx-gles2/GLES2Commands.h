@@ -49,8 +49,8 @@ struct GLES2BufferTextureCopy {
 class GLES2CmdBeginRenderPass : public GFXCmd {
 public:
     GLES2GPUFramebuffer *gpuFBO = nullptr;
-    Rect render_area;
-    ClearFlags clear_flags = ClearFlagBit::NONE;
+    Rect renderArea;
+    ClearFlags clearFlags = ClearFlagBit::NONE;
     uint num_clear_colors = 0;
     Color clear_colors[GFX_MAX_ATTACHMENTS];
     float clear_depth = 1.0f;

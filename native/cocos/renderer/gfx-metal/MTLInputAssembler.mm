@@ -26,8 +26,9 @@ bool CCMTLInputAssembler::initialize(const InputAssemblerInfo &info) {
     if (!_GPUInputAssembler)
         return false;
 
-    if (info.indexBuffer)
+    if (info.indexBuffer) {
         _GPUInputAssembler->mtlIndexBuffer = static_cast<CCMTLBuffer *>(info.indexBuffer)->getMTLBuffer();
+    }
     if (info.indirectBuffer)
         _GPUInputAssembler->mtlIndirectBuffer = static_cast<CCMTLBuffer *>(info.indirectBuffer)->getMTLBuffer();
 
@@ -43,16 +44,6 @@ bool CCMTLInputAssembler::initialize(const InputAssemblerInfo &info) {
 void CCMTLInputAssembler::destroy() {
     CC_SAFE_DELETE(_GPUInputAssembler);
     _status = Status::UNREADY;
-}
-
-void CCMTLInputAssembler::extractDrawInfo(CCMTLCmdDraw *cmd) const {
-    cmd->drawInfo.vertexCount = _vertexCount;
-    cmd->drawInfo.firstVertex = _firstVertex;
-    cmd->drawInfo.indexCount = _indexCount;
-    cmd->drawInfo.firstIndex = _firstIndex;
-    cmd->drawInfo.vertexOffset = _vertexOffset;
-    cmd->drawInfo.instanceCount = _instanceCount;
-    cmd->drawInfo.firstInstance = _firstInstance;
 }
 
 } // namespace gfx

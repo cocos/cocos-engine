@@ -98,7 +98,7 @@ protected:
     uint _stencilBits = 0;
     bool _reverseCW = false;
     uint _shaderIdGen = 0;
-    std::unordered_map<String, String> _macros;
+    unordered_map<String, String> _macros;
     float _minClipZ = -1.0f;
     float _projectionSignY = 1.0f;
 };

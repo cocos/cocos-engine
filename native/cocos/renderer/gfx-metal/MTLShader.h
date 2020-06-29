@@ -16,16 +16,16 @@ public:
 
     CC_INLINE id<MTLFunction> getVertMTLFunction() const { return _vertexMTLFunction; }
     CC_INLINE id<MTLFunction> getFragmentMTLFunction() const { return _fragmentMTLFunction; }
-    CC_INLINE const std::unordered_map<uint, uint> &getVertexSamplerBindings() const { return _mtlVertexSamplerBindings; }
-    CC_INLINE const std::unordered_map<uint, uint> &getFragmentSamplerBindings() const { return _mtlFragmentSamplerBindings; }
+    CC_INLINE const unordered_map<uint, uint> &getVertexSamplerBindings() const { return _mtlVertexSamplerBindings; }
+    CC_INLINE const unordered_map<uint, uint> &getFragmentSamplerBindings() const { return _mtlFragmentSamplerBindings; }
 
     uint getAvailableBufferBindingIndex(ShaderType stage, uint stream);
 
 #ifdef DEBUG_SHADER
-    CC_INLINE const std::string &getVertGlslShader() const { return _vertGlslShader; }
-    CC_INLINE const std::string &getVertMtlSahder() const { return _vertMtlShader; }
-    CC_INLINE const std::string &getFragGlslShader() const { return _fragGlslShader; }
-    CC_INLINE const std::string &getFragMtlSahder() const { return _fragMtlShader; }
+    CC_INLINE const String &getVertGlslShader() const { return _vertGlslShader; }
+    CC_INLINE const String &getVertMtlSahder() const { return _vertMtlShader; }
+    CC_INLINE const String &getFragGlslShader() const { return _fragGlslShader; }
+    CC_INLINE const String &getFragMtlSahder() const { return _fragMtlShader; }
 #endif
 
 private:
@@ -42,10 +42,10 @@ private:
 
     // For debug
 #ifdef DEBUG_SHADER
-    std::string _vertGlslShader;
-    std::string _vertMtlShader;
-    std::string _fragGlslShader;
-    std::string _fragMtlShader;
+    String _vertGlslShader;
+    String _vertMtlShader;
+    String _fragGlslShader;
+    String _fragMtlShader;
 #endif
 };
 

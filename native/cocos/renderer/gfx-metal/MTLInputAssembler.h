@@ -16,8 +16,6 @@ public:
     virtual bool initialize(const InputAssemblerInfo &info) override;
     virtual void destroy() override;
 
-    void extractDrawInfo(CCMTLCmdDraw *) const;
-
     CC_INLINE CCMTLGPUInputAssembler *getGPUInputAssembler() const { return _GPUInputAssembler; }
 
 private:

@@ -16,7 +16,7 @@ public:
     virtual void destroy() = 0;
     virtual void begin(RenderPass *renderPass = nullptr, uint subpass = 0, Framebuffer *frameBuffer = nullptr) = 0;
     virtual void end() = 0;
-    virtual void beginRenderPass(Framebuffer *fbo, const Rect &render_area, ClearFlags clear_flags, const std::vector<Color> &colors, float depth, int stencil) = 0;
+    virtual void beginRenderPass(Framebuffer *fbo, const Rect &renderArea, ClearFlags clearFlags, const vector<Color> &colors, float depth, int stencil) = 0;
     virtual void endRenderPass() = 0;
     virtual void bindPipelineState(PipelineState *pso) = 0;
     virtual void bindBindingLayout(BindingLayout *layout) = 0;
@@ -32,7 +32,7 @@ public:
     virtual void draw(InputAssembler *ia) = 0;
     virtual void updateBuffer(Buffer *buff, void *data, uint size, uint offset = 0) = 0;
     virtual void copyBufferToTexture(Buffer *src, Texture *dst, TextureLayout layout, const BufferTextureCopyList &regions) = 0;
-    virtual void execute(const std::vector<CommandBuffer *> &cmd_buffs, uint32_t count) = 0;
+    virtual void execute(const vector<CommandBuffer *> &cmd_buffs, uint32_t count) = 0;
 
     CC_INLINE Device *getDevice() const { return _device; }
     CC_INLINE Queue *getQueue() const { return _queue; }

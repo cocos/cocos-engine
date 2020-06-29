@@ -1,4 +1,5 @@
 #include "GLES2Std.h"
+
 #include "GLES2Commands.h"
 #include "GLES2Device.h"
 #include "GLES2StateCache.h"
@@ -1207,26 +1208,26 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
                         cache->glFramebuffer = cmd->gpuFBO->glFramebuffer;
                     }
 
-                    if (cache->viewport.left != cmd->render_area.x ||
-                        cache->viewport.top != cmd->render_area.y ||
-                        cache->viewport.width != cmd->render_area.width ||
-                        cache->viewport.height != cmd->render_area.height) {
-                        glViewport(cmd->render_area.x, cmd->render_area.y, cmd->render_area.width, cmd->render_area.height);
-                        cache->viewport.left = cmd->render_area.x;
-                        cache->viewport.top = cmd->render_area.y;
-                        cache->viewport.width = cmd->render_area.width;
-                        cache->viewport.height = cmd->render_area.height;
+                    if (cache->viewport.left != cmd->renderArea.x ||
+                        cache->viewport.top != cmd->renderArea.y ||
+                        cache->viewport.width != cmd->renderArea.width ||
+                        cache->viewport.height != cmd->renderArea.height) {
+                        glViewport(cmd->renderArea.x, cmd->renderArea.y, cmd->renderArea.width, cmd->renderArea.height);
+                        cache->viewport.left = cmd->renderArea.x;
+                        cache->viewport.top = cmd->renderArea.y;
+                        cache->viewport.width = cmd->renderArea.width;
+                        cache->viewport.height = cmd->renderArea.height;
                     }
 
-                    if (cache->scissor.x != cmd->render_area.x ||
-                        cache->scissor.y != cmd->render_area.y ||
-                        cache->scissor.width != cmd->render_area.width ||
-                        cache->scissor.height != cmd->render_area.height) {
-                        glScissor(cmd->render_area.x, cmd->render_area.y, cmd->render_area.width, cmd->render_area.height);
-                        cache->scissor.x = cmd->render_area.x;
-                        cache->scissor.y = cmd->render_area.y;
-                        cache->scissor.width = cmd->render_area.width;
-                        cache->scissor.height = cmd->render_area.height;
+                    if (cache->scissor.x != cmd->renderArea.x ||
+                        cache->scissor.y != cmd->renderArea.y ||
+                        cache->scissor.width != cmd->renderArea.width ||
+                        cache->scissor.height != cmd->renderArea.height) {
+                        glScissor(cmd->renderArea.x, cmd->renderArea.y, cmd->renderArea.width, cmd->renderArea.height);
+                        cache->scissor.x = cmd->renderArea.x;
+                        cache->scissor.y = cmd->renderArea.y;
+                        cache->scissor.width = cmd->renderArea.width;
+                        cache->scissor.height = cmd->renderArea.height;
                     }
 
                     GLbitfield gl_clears = 0;
@@ -1239,7 +1240,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
                             switch (colorAttachment.loadOp) {
                                 case LoadOp::LOAD: break; // GL default behaviour
                                 case LoadOp::CLEAR: {
-                                    if (cmd->clear_flags & ClearFlagBit::COLOR) {
+                                    if (cmd->clearFlags & ClearFlagBit::COLOR) {
                                         if (cache->bs.targets[0].blendColorMask != ColorMask::ALL) {
                                             glColorMask(true, true, true, true);
                                         }

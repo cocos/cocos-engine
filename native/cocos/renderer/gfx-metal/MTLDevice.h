@@ -33,8 +33,7 @@ public:
     virtual void blitBuffer(void *srcBuffer, uint offset, uint size, void *dstBuffer);
 
     CC_INLINE CCMTLStateCache *getStateCache() const { return _stateCache; }
-    CC_INLINE CCMTLCommandAllocator *cmdAllocator() const { return _cmdAllocator; }
-
+    CC_INLINE void *getMTLCommandQueue() const { return _mtlCommandQueue; }
     CC_INLINE void *getMTKView() const { return _mtkView; }
     CC_INLINE void *getMTLDevice() const { return _mtlDevice; }
     CC_INLINE uint getMaximumSamplerUnits() const { return _maxSamplerUnits; }
@@ -44,8 +43,8 @@ public:
 
 private:
     CCMTLStateCache *_stateCache = nullptr;
-    CCMTLCommandAllocator *_cmdAllocator = nullptr;
 
+    void *_mtlCommandQueue = nullptr;
     void *_mtkView = nullptr;
     void *_mtlDevice = nullptr;
     unsigned long _mtlFeatureSet = 0;

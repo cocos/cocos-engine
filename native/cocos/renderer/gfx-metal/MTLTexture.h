@@ -7,7 +7,7 @@ namespace gfx {
 
 class CCMTLTexture : public Texture {
     friend class CCMTLDevice;
-    friend class CCMTLQueue;
+    friend class CCMTLCommandBuffer;
 
 public:
     CCMTLTexture(Device *device);

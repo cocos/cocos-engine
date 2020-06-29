@@ -1,47 +1,32 @@
 #include "MTLStd.h"
 
 #include "MTLBindingLayout.h"
-#include "MTLDevice.h"
 #include "MTLBuffer.h"
-#include "MTLCommandAllocator.h"
 #include "MTLCommandBuffer.h"
 #include "MTLCommands.h"
+#include "MTLDevice.h"
 #include "MTLInputAssembler.h"
 #include "MTLPipelineState.h"
+#include "MTLRenderPass.h"
+#include "MTLSampler.h"
+#include "MTLShader.h"
 #include "MTLTexture.h"
 #include "MTLUtils.h"
-
-#import <Metal/MTLRenderCommandEncoder.h>
 
 namespace cc {
 namespace gfx {
 
-CCMTLCommandBuffer::CCMTLCommandBuffer(Device *device) : CommandBuffer(device) {}
+CCMTLCommandBuffer::CCMTLCommandBuffer(Device *device)
+: CommandBuffer(device),
+  _mtkView((MTKView *)((CCMTLDevice *)_device)->getMTKView()),
+  _frameBoundarySemaphore(dispatch_semaphore_create(MAX_INFLIGHT_BUFFER)) {
+}
+
 CCMTLCommandBuffer::~CCMTLCommandBuffer() { destroy(); }
 
 bool CCMTLCommandBuffer::initialize(const CommandBufferInfo &info) {
     _type = info.type;
     _queue = info.queue;
-
-    _MTLCommandAllocator = ((CCMTLDevice *)_device)->cmdAllocator();
-
-    _currentDepthBias = CC_NEW(CCMTLDepthBias);
-    if (_currentDepthBias == nullptr) {
-        destroy();
-        return false;
-    }
-
-    _currentDepthBounds = CC_NEW(CCMTLDepthBounds);
-    if (_currentDepthBounds == nullptr) {
-        destroy();
-        return false;
-    }
-
-    _commandPackage = CC_NEW(CCMTLCommandPackage);
-    if (_commandPackage == nullptr) {
-        destroy();
-        return false;
-    }
 
     _status = Status::SUCCESS;
 
@@ -49,76 +34,152 @@ bool CCMTLCommandBuffer::initialize(const CommandBufferInfo &info) {
 }
 
 void CCMTLCommandBuffer::destroy() {
-    if (_MTLCommandAllocator) {
-        _MTLCommandAllocator->clearCommands(_commandPackage);
-        _MTLCommandAllocator = nullptr;
-    }
     _status = Status::UNREADY;
-
-    CC_SAFE_DELETE(_commandPackage);
-    CC_SAFE_DELETE(_currentDepthBias);
-    CC_SAFE_DELETE(_currentDepthBounds);
+    dispatch_semaphore_signal(_frameBoundarySemaphore);
 }
 
 void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
-    _MTLCommandAllocator->clearCommands(_commandPackage);
+    dispatch_semaphore_wait(_frameBoundarySemaphore, DISPATCH_TIME_FOREVER);
     _numTriangles = 0;
     _numDrawCalls = 0;
+    _mtlCommandBuffer = [id<MTLCommandQueue>(((CCMTLDevice *)(_device))->getMTLCommandQueue()) commandBuffer];
+    [_mtlCommandBuffer enqueue];
+    [_mtlCommandBuffer retain];
 }
 
 void CCMTLCommandBuffer::end() {
-    _isInRenderPass = false;
+    [_mtlCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
+        // GPU work is complete
+        // Signal the semaphore to start the CPU work
+        dispatch_semaphore_signal(_frameBoundarySemaphore);
+    }];
+    [_mtlCommandBuffer commit];
+    [_mtlCommandBuffer release];
 }
 
-void CCMTLCommandBuffer::beginRenderPass(Framebuffer *fbo, const Rect &render_area, ClearFlags clear_flags, const std::vector<Color> &colors, float depth, int stencil) {
-    _isInRenderPass = true;
+void CCMTLCommandBuffer::beginRenderPass(Framebuffer *fbo, const Rect &renderArea, ClearFlags clearFlags, const vector<Color> &colors, float depth, int stencil) {
 
-    CCMTLCmdBeginRenderPass *cmd = _MTLCommandAllocator->_beginRenderPassCmdPool.alloc();
-    cmd->frameBuffer = (CCMTLFramebuffer *)fbo;
-    cmd->clearFlags = clear_flags;
-    cmd->renderArea = render_area;
-    cmd->clearStencil = stencil;
-    cmd->clearDepth = depth;
-    cmd->clearColors = colors;
+    MTLRenderPassDescriptor *mtlRenderPassDescriptor;
+    auto isOffscreen = fbo->isOffscreen();
+    if (isOffscreen) {
+        mtlRenderPassDescriptor = static_cast<CCMTLRenderPass *>(fbo->getRenderPass())->getMTLRenderPassDescriptor();
+    } else {
+        mtlRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
+    }
 
-    _commandPackage->beginRenderPassCmds.push(cmd);
-    _commandPackage->commandTypes.push(GFXCmdType::BEGIN_RENDER_PASS);
+    if (clearFlags & ClearFlagBit::COLOR) {
+        auto count = isOffscreen ? colors.size() : 1;
+        for (size_t slot = 0; slot < count; slot++) {
+            mtlRenderPassDescriptor.colorAttachments[slot].clearColor = mu::toMTLClearColor(colors[slot]);
+            mtlRenderPassDescriptor.colorAttachments[slot].loadAction = MTLLoadActionClear;
+        }
+    } else {
+        auto count = isOffscreen ? static_cast<CCMTLRenderPass *>(fbo->getRenderPass())->getColorRenderTargetNums() : 1;
+        for (size_t slot = 0; slot < count; slot++) {
+            mtlRenderPassDescriptor.colorAttachments[slot].loadAction = MTLLoadActionLoad;
+        }
+    }
+
+    if (clearFlags & ClearFlagBit::DEPTH) {
+        mtlRenderPassDescriptor.depthAttachment.clearDepth = depth;
+        mtlRenderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
+    } else
+        mtlRenderPassDescriptor.depthAttachment.loadAction = MTLLoadActionLoad;
+
+    if (clearFlags & ClearFlagBit::STENCIL) {
+        mtlRenderPassDescriptor.stencilAttachment.clearStencil = stencil;
+        mtlRenderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionClear;
+    } else
+        mtlRenderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionLoad;
+
+    _mtlEncoder = [_mtlCommandBuffer renderCommandEncoderWithDescriptor:mtlRenderPassDescriptor];
 }
 
 void CCMTLCommandBuffer::endRenderPass() {
-    _isInRenderPass = false;
-    _commandPackage->commandTypes.push(GFXCmdType::END_RENDER_PASS);
+    [_mtlEncoder endEncoding];
 }
 
 void CCMTLCommandBuffer::bindPipelineState(PipelineState *pso) {
-    _isStateInValid = true;
-    _currentPipelineState = static_cast<CCMTLPipelineState *>(pso);
+    _gpuPipelineState = static_cast<CCMTLPipelineState *>(pso)->getGPUPipelineState();
+    _mtlPrimitiveType = _gpuPipelineState->primitiveType;
+    [_mtlEncoder setCullMode:_gpuPipelineState->cullMode];
+    [_mtlEncoder setFrontFacingWinding:_gpuPipelineState->winding];
+    [_mtlEncoder setDepthClipMode:_gpuPipelineState->depthClipMode];
+    [_mtlEncoder setTriangleFillMode:_gpuPipelineState->fillMode];
+    [_mtlEncoder setRenderPipelineState:_gpuPipelineState->mtlRenderPipelineState];
+
+    if (_gpuPipelineState->mtlDepthStencilState) {
+        [_mtlEncoder setStencilFrontReferenceValue:_gpuPipelineState->stencilRefFront
+                                backReferenceValue:_gpuPipelineState->stencilRefBack];
+        [_mtlEncoder setDepthStencilState:_gpuPipelineState->mtlDepthStencilState];
+    }
 }
 
 void CCMTLCommandBuffer::bindBindingLayout(BindingLayout *layout) {
-    _currentBindingLayout = static_cast<CCMTLBindingLayout *>(layout);
-    _isStateInValid = true;
+    const auto *bindingLayout = static_cast<CCMTLBindingLayout *>(layout);
+
+    for (const auto &binding : bindingLayout->getBindingUnits()) {
+        if (binding.buffer)
+            static_cast<CCMTLBuffer *>(binding.buffer)->encodeBuffer(_mtlEncoder, 0, binding.binding, binding.shaderStages);
+
+        if (binding.shaderStages & ShaderType::VERTEX) {
+            if (binding.texture)
+                [_mtlEncoder setVertexTexture:static_cast<CCMTLTexture *>(binding.texture)->getMTLTexture()
+                                      atIndex:binding.binding];
+
+            if (binding.sampler)
+                [_mtlEncoder setVertexSamplerState:static_cast<CCMTLSampler *>(binding.sampler)->getMTLSamplerState()
+                                           atIndex:_gpuPipelineState->vertexSamplerBinding.at(binding.binding)];
+        }
+
+        if (binding.shaderStages & ShaderType::FRAGMENT) {
+            if (binding.texture)
+                [_mtlEncoder setFragmentTexture:static_cast<CCMTLTexture *>(binding.texture)->getMTLTexture()
+                                        atIndex:binding.binding];
+
+            if (binding.sampler)
+                [_mtlEncoder setFragmentSamplerState:static_cast<CCMTLSampler *>(binding.sampler)->getMTLSamplerState()
+                                             atIndex:_gpuPipelineState->fragmentSamplerBinding.at(binding.binding)];
+        }
+    }
 }
 
 void CCMTLCommandBuffer::bindInputAssembler(InputAssembler *ia) {
-    _currentInputAssembler = static_cast<CCMTLInputAssembler *>(ia);
-    _isStateInValid = true;
+    if (ia) {
+        const auto mtlInputAssembler = static_cast<CCMTLInputAssembler *>(ia);
+        if (mtlInputAssembler->getIndexBuffer()) {
+            _gpuIndexBuffer.mtlBuffer = static_cast<CCMTLBuffer *>(mtlInputAssembler->getIndexBuffer())->getMTLBuffer();
+            _gpuIndexBuffer.stride = mtlInputAssembler->getIndexBuffer()->getStride();
+            _indexType = static_cast<CCMTLBuffer *>(mtlInputAssembler->getIndexBuffer())->getIndexType();
+        }
+
+        if (mtlInputAssembler->getIndirectBuffer()) {
+            _gpuIndirectBuffer.mtlBuffer = static_cast<CCMTLBuffer *>(mtlInputAssembler->getIndirectBuffer())->getMTLBuffer();
+            _gpuIndirectBuffer.count = mtlInputAssembler->getIndirectBuffer()->getCount();
+        }
+        auto &vertexBuffers = mtlInputAssembler->getVertexBuffers();
+        for (const auto &bindingInfo : _gpuPipelineState->vertexBufferBindingInfo) {
+            auto index = std::get<0>(bindingInfo);
+            auto stream = std::get<1>(bindingInfo);
+            static_cast<CCMTLBuffer *>(vertexBuffers[stream])->encodeBuffer(_mtlEncoder, 0, index, ShaderType::VERTEX);
+        }
+    }
 }
 
 void CCMTLCommandBuffer::setViewport(const Viewport &vp) {
-    if (_currentViewport != vp) {
-        _currentViewport = vp;
-        _dynamicStateDirty[static_cast<uint>(DynamicState::VIEWPORT)] = true;
-        _isStateInValid = true;
-    }
+    if (_currentViewport == vp)
+        return;
+
+    _currentViewport = vp;
+    [_mtlEncoder setViewport:mu::toMTLViewport(_currentViewport)];
 }
 
 void CCMTLCommandBuffer::setScissor(const Rect &rect) {
-    if (_currentScissor != rect) {
-        _currentScissor = rect;
-        _dynamicStateDirty[static_cast<uint>(DynamicState::SCISSOR)] = true;
-        _isStateInValid = true;
-    }
+    if (_currentScissor == rect)
+        return;
+
+    _currentScissor = rect;
+    [_mtlEncoder setScissorRect:mu::toMTLScissorRect(_currentScissor)];
 }
 
 void CCMTLCommandBuffer::setLineWidth(const float width) {
@@ -126,28 +187,31 @@ void CCMTLCommandBuffer::setLineWidth(const float width) {
 }
 
 void CCMTLCommandBuffer::setDepthBias(float constant, float clamp, float slope) {
-    if (math::IsNotEqualF(constant, _currentDepthBias->depthBias) ||
-        math::IsNotEqualF(clamp, _currentDepthBias->clamp) ||
-        math::IsNotEqualF(slope, _currentDepthBias->slopeScale)) {
-        _currentDepthBias->depthBias = constant;
-        _currentDepthBias->slopeScale = slope;
-        _currentDepthBias->clamp = clamp;
-        _isStateInValid = true;
-        _dynamicStateDirty[static_cast<uint>(DynamicState::DEPTH_BIAS)] = true;
+    if (math::IsNotEqualF(constant, _depthBias.depthBias) ||
+        math::IsNotEqualF(clamp, _depthBias.clamp) ||
+        math::IsNotEqualF(slope, _depthBias.slopeScale)) {
+        _depthBias.depthBias = constant;
+        _depthBias.slopeScale = slope;
+        _depthBias.clamp = clamp;
+        [_mtlEncoder setDepthBias:_depthBias.depthBias
+                       slopeScale:_depthBias.slopeScale
+                            clamp:_depthBias.clamp];
     }
 }
 
 void CCMTLCommandBuffer::setBlendConstants(const Color &constants) {
-    if (math::IsNotEqualF(constants.r, _currentBlendConstants.r) ||
-        math::IsNotEqualF(constants.g, _currentBlendConstants.g) ||
-        math::IsNotEqualF(constants.b, _currentBlendConstants.b) ||
-        math::IsNotEqualF(constants.a, _currentBlendConstants.a)) {
-        _currentBlendConstants.r = constants.r;
-        _currentBlendConstants.g = constants.g;
-        _currentBlendConstants.b = constants.b;
-        _currentBlendConstants.a = constants.a;
-        _isStateInValid = true;
-        _dynamicStateDirty[static_cast<uint>(DynamicState::BLEND_CONSTANTS)] = true;
+    if (math::IsNotEqualF(constants.r, _blendConstants.r) ||
+        math::IsNotEqualF(constants.g, _blendConstants.g) ||
+        math::IsNotEqualF(constants.b, _blendConstants.b) ||
+        math::IsNotEqualF(constants.a, _blendConstants.a)) {
+        _blendConstants.r = constants.r;
+        _blendConstants.g = constants.g;
+        _blendConstants.b = constants.b;
+        _blendConstants.a = constants.a;
+        [_mtlEncoder setBlendColorRed:_blendConstants.r
+                                green:_blendConstants.g
+                                 blue:_blendConstants.b
+                                alpha:_blendConstants.a];
     }
 }
 
@@ -164,131 +228,97 @@ void CCMTLCommandBuffer::setStencilCompareMask(StencilFace face, int ref, uint m
 }
 
 void CCMTLCommandBuffer::draw(InputAssembler *ia) {
-    if ((_type == CommandBufferType::PRIMARY && _isInRenderPass) ||
-        _type == CommandBufferType::SECONDARY) {
-        CCMTLCmdDraw *cmd = _MTLCommandAllocator->_drawCmdPool.alloc();
-        if (!cmd)
-            return;
-
-        if (_isStateInValid)
-            bindStates();
-
-        static_cast<CCMTLInputAssembler *>(ia)->extractDrawInfo(cmd);
-        _commandPackage->drawCmds.push(cmd);
-        _commandPackage->commandTypes.push(GFXCmdType::DRAW);
-
-        ++_numDrawCalls;
-        _numInstances += ia->getInstanceCount();
-
-        if (_currentPipelineState) {
-            switch (_currentPipelineState->getGPUPipelineState()->primitiveType) {
-                case MTLPrimitiveTypeTriangle:
-                    _numTriangles += ia->getIndexCount() / 3 * std::max(ia->getIndexCount(), 1U);
-                    break;
-                case MTLPrimitiveTypeTriangleStrip:
-                    _numTriangles += (ia->getIndexCount() - 2) * std::max(ia->getInstanceCount(), 1U);
-                    break;
-                default:
-                    break;
+    if (_type == CommandBufferType::PRIMARY) {
+        if (_gpuIndirectBuffer.count) {
+            for (size_t j = 0; j < _gpuIndirectBuffer.count; j++) {
+                if (_gpuIndexBuffer.mtlBuffer) {
+                    [_mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
+                                             indexType:_indexType
+                                           indexBuffer:_gpuIndexBuffer.mtlBuffer
+                                     indexBufferOffset:j * _gpuIndexBuffer.stride
+                                        indirectBuffer:_gpuIndirectBuffer.mtlBuffer
+                                  indirectBufferOffset:j * sizeof(MTLDrawIndexedPrimitivesIndirectArguments)];
+                } else {
+                    [_mtlEncoder drawPrimitives:_mtlPrimitiveType
+                                 indirectBuffer:_gpuIndirectBuffer.mtlBuffer
+                           indirectBufferOffset:j * sizeof(MTLDrawIndexedPrimitivesIndirectArguments)];
+                }
+            }
+        } else {
+            DrawInfo drawInfo;
+            static_cast<CCMTLInputAssembler *>(ia)->extractDrawInfo(drawInfo);
+            if (drawInfo.indexCount > 0) {
+                NSUInteger offset = 0;
+                offset += drawInfo.firstIndex * _gpuIndexBuffer.stride;
+                if (drawInfo.instanceCount == 0) {
+                    [_mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
+                                            indexCount:drawInfo.indexCount
+                                             indexType:_indexType
+                                           indexBuffer:_gpuIndexBuffer.mtlBuffer
+                                     indexBufferOffset:offset];
+                } else {
+                    [_mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
+                                            indexCount:drawInfo.indexCount
+                                             indexType:_indexType
+                                           indexBuffer:_gpuIndexBuffer.mtlBuffer
+                                     indexBufferOffset:offset
+                                         instanceCount:drawInfo.instanceCount];
+                }
+            } else {
+                if (drawInfo.instanceCount == 0) {
+                    [_mtlEncoder drawPrimitives:_mtlPrimitiveType
+                                    vertexStart:drawInfo.firstIndex
+                                    vertexCount:drawInfo.vertexCount];
+                } else {
+                    [_mtlEncoder drawPrimitives:_mtlPrimitiveType
+                                    vertexStart:drawInfo.firstIndex
+                                    vertexCount:drawInfo.vertexCount
+                                  instanceCount:drawInfo.instanceCount];
+                }
             }
         }
-    } else
+
+    } else if (_type == CommandBufferType::SECONDARY) {
+        CC_LOG_ERROR("CommandBufferType::SECONDARY not implemented.");
+    } else {
         CC_LOG_ERROR("Command 'draw' must be recorded inside a render pass.");
+    }
 }
 
 void CCMTLCommandBuffer::updateBuffer(Buffer *buff, void *data, uint size, uint offset) {
-    if ((_type == CommandBufferType::PRIMARY && _isInRenderPass) ||
+    if ((_type == CommandBufferType::PRIMARY) ||
         (_type == CommandBufferType::SECONDARY)) {
         if (buff) {
-            CCMTLCmdUpdateBuffer *cmd = _MTLCommandAllocator->_updateBufferCmdPool.alloc();
-            cmd->gpuBuffer = static_cast<CCMTLBuffer *>(buff);
-            cmd->buffer = (uint8_t *)data;
-            cmd->size = size;
-            cmd->offset = offset;
-
-            _commandPackage->updateBufferCmds.push(cmd);
-            _commandPackage->commandTypes.push(GFXCmdType::UPDATE_BUFFER);
+            buff->update(data, offset, size);
+        } else {
+            CC_LOG_ERROR("CCMTLCommandBuffer::updateBuffer: buffer is nullptr.");
         }
     } else {
-        CC_LOG_ERROR("Command 'updateBuffer' must be recorded inside a render pass.");
+        CC_LOG_ERROR("CCMTLCommandBuffer::updateBuffer: invalid command buffer type.");
     }
 }
 
 void CCMTLCommandBuffer::copyBufferToTexture(Buffer *src, Texture *dst, TextureLayout layout, const BufferTextureCopyList &regions) {
-    if ((_type == CommandBufferType::PRIMARY && _isInRenderPass) ||
+    if ((_type == CommandBufferType::PRIMARY) ||
         (_type == CommandBufferType::SECONDARY)) {
         if (src && dst) {
-            CCMTLCmdCopyBufferToTexture *cmd = _MTLCommandAllocator->_copyBufferToTextureCmdPool.alloc();
-            cmd->gpuBuffer = static_cast<CCMTLBuffer *>(src);
-            cmd->gpuTexture = static_cast<CCMTLTexture *>(dst);
-            cmd->dstLayout = layout;
-            cmd->regions.resize(regions.size());
-            std::copy(regions.begin(), regions.end(), cmd->regions.begin());
-
-            _commandPackage->copyBufferToTextureCmds.push(cmd);
-            _commandPackage->commandTypes.push(GFXCmdType::COPY_BUFFER_TO_TEXTURE);
+            auto buffer = src->getBufferView();
+            static_cast<CCMTLTexture *>(dst)->update(&buffer, regions);
+        } else {
+            CC_LOG_ERROR("CCMTLCommandBuffer::copyBufferToTexture: buffer 0x%p or texture 0x%p is nullptr", (void *)src, (void *)dst);
         }
     } else {
-        CC_LOG_ERROR("Command 'copyBufferToTexture' must be recorded inside a render pass.");
+        CC_LOG_ERROR("CCMTLCommandBuffer::copyBufferToTexture: invalid command buffer type %d.", _type);
     }
 }
 
-void CCMTLCommandBuffer::execute(const std::vector<CommandBuffer *> &commandBuffs, uint32_t count) {
+void CCMTLCommandBuffer::execute(const vector<CommandBuffer *> &commandBuffs, uint32_t count) {
     for (uint i = 0; i < count; ++i) {
         auto commandBuffer = static_cast<CCMTLCommandBuffer *>(commandBuffs[i]);
-        for (uint j = 0; j < commandBuffer->_commandPackage->beginRenderPassCmds.size(); ++j) {
-            CCMTLCmdBeginRenderPass *cmd = commandBuffer->_commandPackage->beginRenderPassCmds[j];
-            ++cmd->ref_count;
-            _commandPackage->beginRenderPassCmds.push(cmd);
-        }
-        for (uint j = 0; j < commandBuffer->_commandPackage->bindStatesCmds.size(); ++j) {
-            CCMTLCmdBindStates *cmd = commandBuffer->_commandPackage->bindStatesCmds[j];
-            ++cmd->ref_count;
-            _commandPackage->bindStatesCmds.push(cmd);
-        }
-        for (uint j = 0; j < commandBuffer->_commandPackage->drawCmds.size(); ++j) {
-            CCMTLCmdDraw *cmd = commandBuffer->_commandPackage->drawCmds[j];
-            ++cmd->ref_count;
-            _commandPackage->drawCmds.push(cmd);
-        }
-        for (uint j = 0; j < commandBuffer->_commandPackage->updateBufferCmds.size(); ++j) {
-            CCMTLCmdUpdateBuffer *cmd = commandBuffer->_commandPackage->updateBufferCmds[j];
-            ++cmd->ref_count;
-            _commandPackage->updateBufferCmds.push(cmd);
-        }
-        for (uint j = 0; j < commandBuffer->_commandPackage->copyBufferToTextureCmds.size(); ++j) {
-            CCMTLCmdCopyBufferToTexture *cmd = commandBuffer->_commandPackage->copyBufferToTextureCmds[j];
-            ++cmd->ref_count;
-            _commandPackage->copyBufferToTextureCmds.push(cmd);
-        }
-        _commandPackage->commandTypes.concat(commandBuffer->_commandPackage->commandTypes);
-
         _numDrawCalls += commandBuffer->_numDrawCalls;
         _numInstances += commandBuffer->_numInstances;
         _numTriangles += commandBuffer->_numTriangles;
     }
-}
-
-void CCMTLCommandBuffer::bindStates() {
-    auto commandBindState = _MTLCommandAllocator->_bindStatesCmdPool.alloc();
-    commandBindState->inputAssembler = _currentInputAssembler;
-
-    commandBindState->depthBias = *_currentDepthBias;
-    commandBindState->blendConstants = _currentBlendConstants;
-    commandBindState->depthBounds = *_currentDepthBounds;
-
-    commandBindState->dynamicStateDirty = _dynamicStateDirty;
-    commandBindState->viewport = mu::toMTLViewport(_currentViewport);
-    commandBindState->scissorRect = mu::toMTLScissorRect(_currentScissor);
-
-    commandBindState->pipelineState = _currentPipelineState;
-    commandBindState->bindingLayout = _currentBindingLayout;
-
-    _commandPackage->bindStatesCmds.push(commandBindState);
-    _commandPackage->commandTypes.push(GFXCmdType::BIND_STATES);
-
-    _isStateInValid = false;
-    std::fill(_dynamicStateDirty.begin(), _dynamicStateDirty.end(), false);
 }
 
 } // namespace gfx

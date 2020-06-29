@@ -20,7 +20,6 @@ public:
     CC_INLINE CCMTLGPUPipelineState *getGPUPipelineState() const { return _GPUPipelieState; }
 
 private:
-    static bool matchSamplerName(const char *argumentName, const std::string &samplerName);
     bool createMTLDepthStencilState();
     bool createGPUPipelineState();
     bool createMTLRenderPipelineState();

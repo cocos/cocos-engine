@@ -56,8 +56,8 @@ public:
     CC_INLINE CCVKGPUDescriptorSetPool *gpuDescriptorSetPool() { return _gpuDescriptorSetPool; }
     CC_INLINE CCVKGPUCommandBufferPool *gpuCommandBufferPool() { return _gpuCommandBufferPool; }
     CC_INLINE CCVKBuffer *stagingBuffer() { return _stagingBuffer; }
-    CC_INLINE const std::vector<const char *> &getLayers() const { return _layers; }
-    CC_INLINE const std::vector<const char *> &getExtensions() const { return _extensions; }
+    CC_INLINE const vector<const char *> &getLayers() const { return _layers; }
+    CC_INLINE const vector<const char *> &getExtensions() const { return _extensions; }
     CC_INLINE bool isSwapchainReady() const { return _swapchainReady; }
 
     CC_INLINE bool isDescriptorUpdateTemplateSupported() const { return _descriptorUpdateTemplateSupported; }
@@ -73,13 +73,13 @@ private:
     CCVKGPUDescriptorSetPool *_gpuDescriptorSetPool = nullptr;
     CCVKGPUCommandBufferPool *_gpuCommandBufferPool = nullptr;
     CCVKGPUSwapchain *_gpuSwapchain = nullptr;
-    std::vector<CCVKTexture *> _depthStencilTextures;
+    vector<CCVKTexture *> _depthStencilTextures;
     CCVKBuffer *_stagingBuffer = nullptr;
 
     uint32_t _defaultStagingBufferSize = 1024;
 
-    std::vector<const char *> _layers;
-    std::vector<const char *> _extensions;
+    vector<const char *> _layers;
+    vector<const char *> _extensions;
 
     bool _swapchainReady = false;
 

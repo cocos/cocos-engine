@@ -612,7 +612,7 @@ uint nextPowerOf2(uint v) {
     return ++v;
 }
 
-bool isLayerSupported(const char *required, const std::vector<VkLayerProperties> &available) {
+bool isLayerSupported(const char *required, const vector<VkLayerProperties> &available) {
     for (const VkLayerProperties &availableLayer : available) {
         if (strcmp(availableLayer.layerName, required) == 0) {
             return true;
@@ -621,7 +621,7 @@ bool isLayerSupported(const char *required, const std::vector<VkLayerProperties>
     return false;
 }
 
-bool isExtensionSupported(const char *required, const std::vector<VkExtensionProperties> &available) {
+bool isExtensionSupported(const char *required, const vector<VkExtensionProperties> &available) {
     for (const VkExtensionProperties &availableExtension : available) {
         if (strcmp(availableExtension.extensionName, required) == 0) {
             return true;

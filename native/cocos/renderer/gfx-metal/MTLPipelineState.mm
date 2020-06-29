@@ -73,6 +73,8 @@ bool CCMTLPipelineState::createGPUPipelineState() {
     _GPUPipelieState->stencilRefFront = _depthStencilState.stencilRefFront;
     _GPUPipelieState->stencilRefBack = _depthStencilState.stencilRefBack;
     _GPUPipelieState->primitiveType = mu::toMTLPrimitiveType(_primitive);
+    _GPUPipelieState->vertexSamplerBinding = static_cast<CCMTLShader *>(_shader)->getVertexSamplerBindings();
+    _GPUPipelieState->fragmentSamplerBinding = static_cast<CCMTLShader *>(_shader)->getFragmentSamplerBindings();
 
     return true;
 }
@@ -143,8 +145,8 @@ bool CCMTLPipelineState::createMTLRenderPipelineState() {
 void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descriptor) {
     auto activeAttributes = static_cast<CCMTLShader *>(_shader)->getAttributes();
 
-    std::vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>> layouts;
-    std::unordered_map<int /**vertexBufferBindingIndex*/, std::tuple<uint /**stride*/, bool /**isInstanced*/>> map;
+    vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>> layouts;
+    unordered_map<int /**vertexBufferBindingIndex*/, std::tuple<uint /**stride*/, bool /**isInstanced*/>> map;
     uint streamOffsets[GFX_MAX_VERTEX_ATTRIBUTES] = {0};
     bool attributeFound = false;
     for (const auto &activeAttribute : activeAttributes) {

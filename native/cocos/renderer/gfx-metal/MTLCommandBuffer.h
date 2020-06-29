@@ -1,16 +1,17 @@
 #pragma once
 
+#include "MTLCommands.h"
+#include "MTLGPUObjects.h"
+#import <Metal/MTLCommandQueue.h>
+#import <MetalKit/MTKView.h>
+
 namespace cc {
 namespace gfx {
 
-class CCMTLCommandPackage;
-class CCMTLCommandAllocator;
 struct CCMTLDepthBias;
 struct CCMTLDepthBounds;
 struct CCMTLGPUPipelineState;
-class CCMTLInputAssembler;
-class CCMTLPipelineState;
-class CCMTLBindingLayout;
+struct CCMTLGPUBuffer;
 
 class CCMTLCommandBuffer : public CommandBuffer {
     friend class CCMTLQueue;
@@ -23,7 +24,7 @@ public:
     virtual void destroy() override;
     virtual void begin(RenderPass *renderPass = nullptr, uint subpass = 0, Framebuffer *frameBuffer = nullptr) override;
     virtual void end() override;
-    virtual void beginRenderPass(Framebuffer *fbo, const Rect &render_area, ClearFlags clear_flags, const std::vector<Color> &colors, float depth, int stencil) override;
+    virtual void beginRenderPass(Framebuffer *fbo, const Rect &renderArea, ClearFlags clearFlags, const vector<Color> &colors, float depth, int stencil) override;
     virtual void endRenderPass() override;
     virtual void bindPipelineState(PipelineState *pso) override;
     virtual void bindBindingLayout(BindingLayout *layout) override;
@@ -39,30 +40,28 @@ public:
     virtual void draw(InputAssembler *ia) override;
     virtual void updateBuffer(Buffer *buff, void *data, uint size, uint offset = 0) override;
     virtual void copyBufferToTexture(Buffer *src, Texture *dst, TextureLayout layout, const BufferTextureCopyList &regions) override;
-    virtual void execute(const std::vector<CommandBuffer *> &cmd_buffs, uint32_t count) override;
-
-    CC_INLINE const CCMTLCommandPackage *getCommandPackage() const { return _commandPackage; }
+    virtual void execute(const vector<CommandBuffer *> &cmd_buffs, uint32_t count) override;
 
 private:
     void bindStates();
 
 private:
-    CCMTLCommandPackage *_commandPackage = nullptr;
-    CCMTLCommandAllocator *_MTLCommandAllocator = nullptr;
-    bool _isInRenderPass = false;
-    bool _isStateInValid = false;
-
-    CCMTLPipelineState *_currentPipelineState = nullptr;
-    CCMTLInputAssembler *_currentInputAssembler = nullptr;
-    CCMTLBindingLayout *_currentBindingLayout = nullptr;
+    CCMTLGPUPipelineState *_gpuPipelineState = nullptr;
     Viewport _currentViewport;
     Rect _currentScissor;
-    // Just don't want to include "Commands.h", because "Commands.h" includes Objective-C codes.
-    CCMTLDepthBias *_currentDepthBias = nullptr;
-    CCMTLDepthBounds *_currentDepthBounds = nullptr;
-    Color _currentBlendConstants;
-    const static uint DYNAMIC_STATE_SIZE = 8;
-    std::array<bool, DYNAMIC_STATE_SIZE> _dynamicStateDirty = {false, false, false, false, false, false, false, false};
+
+    CCMTLDepthBias _depthBias;
+    CCMTLDepthBounds _depthBounds;
+    Color _blendConstants;
+
+    MTKView *_mtkView = nil;
+    id<MTLCommandBuffer> _mtlCommandBuffer = nil;
+    id<MTLRenderCommandEncoder> _mtlEncoder = nil;
+    dispatch_semaphore_t _frameBoundarySemaphore;
+    CCMTLGPUBuffer _gpuIndexBuffer;
+    CCMTLGPUBuffer _gpuIndirectBuffer;
+    MTLIndexType _indexType = MTLIndexTypeUInt16;
+    MTLPrimitiveType _mtlPrimitiveType = MTLPrimitiveType::MTLPrimitiveTypeTriangle;
 };
 
 } // namespace gfx

@@ -76,7 +76,7 @@ void CCVKCommandBuffer::end() {
 }
 
 void CCVKCommandBuffer::beginRenderPass(Framebuffer *fbo, const Rect &renderArea,
-                                        ClearFlags clearFlags, const std::vector<Color> &colors, float depth, int stencil) {
+                                        ClearFlags clearFlags, const vector<Color> &colors, float depth, int stencil) {
     _curGPUFBO = ((CCVKFramebuffer *)fbo)->gpuFBO();
     CCVKGPURenderPass *renderPass = _curGPUFBO->gpuRenderPass;
     VkFramebuffer framebuffer = _curGPUFBO->vkFramebuffer;
@@ -403,7 +403,7 @@ void CCVKCommandBuffer::draw(InputAssembler *ia) {
     }
 }
 
-void CCVKCommandBuffer::execute(const std::vector<CommandBuffer *> &cmdBuffs, uint count) {
+void CCVKCommandBuffer::execute(const vector<CommandBuffer *> &cmdBuffs, uint count) {
     if (!count) {
         return;
     }

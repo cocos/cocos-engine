@@ -2,7 +2,6 @@
 
 #include "MTLBindingLayout.h"
 #include "MTLBuffer.h"
-#include "MTLCommandAllocator.h"
 #include "MTLCommandBuffer.h"
 #include "MTLContext.h"
 #include "MTLDevice.h"
@@ -37,11 +36,10 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _windowHandle = info.windowHandle;
 
     _stateCache = CC_NEW(CCMTLStateCache);
-    _cmdAllocator = CC_NEW(CCMTLCommandAllocator);
 
     _mtkView = (MTKView *)_windowHandle;
     _mtlDevice = ((MTKView *)_mtkView).device;
-
+    _mtlCommandQueue = [id<MTLDevice>(_mtlDevice) newCommandQueue];
     ContextInfo contextCreateInfo;
     contextCreateInfo.windowHandle = _windowHandle;
     contextCreateInfo.sharedCtx = info.sharedCtx;
@@ -125,7 +123,6 @@ void CCMTLDevice::destroy() {
 void CCMTLDevice::resize(uint width, uint height) {}
 
 void CCMTLDevice::present() {
-    _cmdAllocator->releaseCmds();
     CCMTLQueue *queue = (CCMTLQueue *)_queue;
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
@@ -135,6 +132,8 @@ void CCMTLDevice::present() {
     queue->_numDrawCalls = 0;
     queue->_numInstances = 0;
     queue->_numTriangles = 0;
+
+    [((MTKView *)(_mtkView)).currentDrawable present];
 }
 
 Fence *CCMTLDevice::createFence(const FenceInfo &info) {
@@ -269,7 +268,7 @@ void CCMTLDevice::blitBuffer(void *srcData, uint offset, uint size, void *dstBuf
     }
 
     // Create a command buffer for GPU work.
-    id<MTLCommandBuffer> commandBuffer = [static_cast<View *>(_mtkView).mtlCommandQueue commandBuffer];
+    id<MTLCommandBuffer> commandBuffer = [id<MTLCommandQueue>(_mtlCommandQueue) commandBuffer];
 
     // Encode a blit pass to copy data from the source buffer to the private buffer.
     id<MTLBlitCommandEncoder> blitCommandEncoder = [commandBuffer blitCommandEncoder];

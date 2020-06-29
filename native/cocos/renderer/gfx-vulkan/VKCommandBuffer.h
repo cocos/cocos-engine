@@ -19,7 +19,7 @@ public:
 
     void begin(RenderPass *renderPass = nullptr, uint subpass = 0, Framebuffer *frameBuffer = nullptr);
     void end();
-    void beginRenderPass(Framebuffer *fbo, const Rect &render_area, ClearFlags clear_flags, const std::vector<Color> &colors, float depth, int stencil);
+    void beginRenderPass(Framebuffer *fbo, const Rect &renderArea, ClearFlags clearFlags, const vector<Color> &colors, float depth, int stencil);
     void endRenderPass();
     void bindPipelineState(PipelineState *pso);
     void bindBindingLayout(BindingLayout *layout);
@@ -35,7 +35,7 @@ public:
     void draw(InputAssembler *ia);
     void updateBuffer(Buffer *buff, void *data, uint size, uint offset);
     void copyBufferToTexture(Buffer *src, Texture *dst, TextureLayout layout, const BufferTextureCopyList &regions);
-    void execute(const std::vector<CommandBuffer *> &cmd_buffs, uint count);
+    void execute(const vector<CommandBuffer *> &cmd_buffs, uint count);
 
     CCVKGPUCommandBuffer *gpuCommandBuffer() const { return _gpuCommandBuffer; }
 
