@@ -31,7 +31,7 @@ import { Component } from '../components/component';
 import { ccclass, property } from '../data/class-decorator';
 import { CCObject } from '../data/object';
 import { Event } from '../event';
-import { errorID, warnID, error, log, assertID } from '../platform/debug';
+import { errorID, warnID, error, log, assertID, getError } from '../platform/debug';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { ISchedulable } from '../scheduler';
 import IdGenerator from '../utils/id-generator';
@@ -886,28 +886,29 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @en Adds a component class to the node. You can also add component to node by passing in the name of the script.
      * @zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
      * @param classConstructor The class of the component to add
+     * @throws `TypeError` if the `classConstructor` does not specify a cc-class constructor extending the `Component`.
      * @example
      * ```
      * var sprite = node.addComponent(SpriteComponent);
      * ```
      */
-    public addComponent<T extends Component> (classConstructor: Constructor<T>): T | null;
+    public addComponent<T extends Component> (classConstructor: Constructor<T>): T;
 
     /**
      * @en Adds a component class to the node. You can also add component to node by passing in the name of the script.
      * @zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
      * @param className The class name of the component to add
+     * @throws `TypeError` if the `className` does not specify a cc-class constructor extending the `Component`.
      * @example
      * ```
      * var test = node.addComponent("Test");
      * ```
      */
-    public addComponent (className: string): Component | null;
+    public addComponent (className: string): Component;
 
     public addComponent (typeOrClassName: string | Function) {
         if (EDITOR && (this._objFlags & Destroying)) {
-            error('isDestroying');
-            return null;
+            throw Error(`isDestroying`);
         }
 
         // get component
@@ -916,16 +917,14 @@ export class BaseNode extends CCObject implements ISchedulable {
         if (typeof typeOrClassName === 'string') {
             constructor = js.getClassByName(typeOrClassName);
             if (!constructor) {
-                errorID(3807, typeOrClassName);
                 if (legacyCC._RF.peek()) {
                     errorID(3808, typeOrClassName);
                 }
-                return null;
+                throw TypeError(getError(3807, typeOrClassName));
             }
         } else {
             if (!typeOrClassName) {
-                errorID(3804);
-                return null;
+                throw TypeError(getError(3804));
             }
             constructor = typeOrClassName;
         }
@@ -933,17 +932,15 @@ export class BaseNode extends CCObject implements ISchedulable {
         // check component
 
         if (typeof constructor !== 'function') {
-            errorID(3809);
-            return null;
+            throw TypeError(getError(3809));
         }
         if (!js.isChildClassOf(constructor, legacyCC.Component)) {
-            errorID(3810);
-            return null;
+            throw TypeError(getError(3810));
         }
 
         if (EDITOR && constructor._disallowMultiple) {
             if (!this._checkMultipleComp!(constructor)) {
-                return null;
+                throw Error(`Only singleton component is allowed.`);
             }
         }
 
@@ -951,11 +948,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
         const ReqComp = constructor._requireComponent;
         if (ReqComp && !this.getComponent(ReqComp)) {
-            const depended = this.addComponent(ReqComp);
-            if (!depended) {
-                // depend conflicts
-                return null;
-            }
+            this.addComponent(ReqComp);
         }
 
         //// check conflict
