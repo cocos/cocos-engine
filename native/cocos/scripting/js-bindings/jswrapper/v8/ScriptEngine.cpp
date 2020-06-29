@@ -42,6 +42,8 @@
 #include "debugger/node.h"
 #endif
 
+#include <sstream>
+
 #define EXPOSE_GC "__jsb_gc__"
 
 uint32_t __jsbInvocationCount = 0;
@@ -304,6 +306,38 @@ namespace se {
         }
     }
 
+    void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg)
+    {
+        v8::Isolate *isolate = getInstance()->_isolate;
+        v8::HandleScope scope(isolate);
+        std::stringstream ss;
+        auto event = msg.GetEvent();
+        auto value = msg.GetValue();
+        const char *eventName = "[invalidatePromiseEvent]";
+        
+        if(event == v8::kPromiseRejectWithNoHandler) {
+            eventName = "unhandledRejectedPromise";
+        }else if(event == v8::kPromiseHandlerAddedAfterReject) {
+            eventName = "handlerAddedAfterPromiseRejected";
+        }else if(event == v8::kPromiseRejectAfterResolved) {
+            eventName = "rejectAfterPromiseResolved";
+        }else if( event == v8::kPromiseResolveAfterResolved) {
+            eventName = "resolveAfterPromiseResolved";
+        }
+        
+        if(!value.IsEmpty()) {
+            // prepend error object to stack message
+            v8::Local<v8::String> str = value->ToString(isolate->GetCurrentContext()).ToLocalChecked();
+            v8::String::Utf8Value valueUtf8(isolate, str);
+            ss << *valueUtf8 << std::endl;
+        }
+        
+        auto stackStr = getInstance()->getCurrentStackTrace();
+        ss << "stacktrace: " << std::endl;
+        ss << stackStr << std::endl;
+        getInstance()->_exceptionCallback("", eventName, ss.str().c_str());
+    }
+
     void ScriptEngine::privateDataFinalize(void* nativeObj)
     {
         internal::PrivateData* p = (internal::PrivateData*)nativeObj;
@@ -400,6 +434,7 @@ namespace se {
         _isolate->SetFatalErrorHandler(onFatalErrorCallback);
         _isolate->SetOOMErrorHandler(onOOMErrorCallback);
         _isolate->AddMessageListener(onMessageCallback);
+        _isolate->SetPromiseRejectCallback(onPromiseRejectCallback);
 
         _context.Reset(_isolate, v8::Context::New(_isolate));
         _context.Get(_isolate)->Enter();
