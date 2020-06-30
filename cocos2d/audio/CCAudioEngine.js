@@ -83,7 +83,9 @@ let getAudioFromPath = function (path) {
         if (this._finishCallback) {
             this._finishCallback();
         }
-        callback.call(this);
+        if(!this.getLoop()){
+            callback.call(this);
+        }
     }, audio);
 
     audio.on('stop', callback, audio);
