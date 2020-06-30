@@ -13,7 +13,8 @@ import {
     GFXMemoryUsageBit,
     GFXTextureLayout,
     GFXTextureUsageBit,
-    GFXLoadOp} from '../gfx/define';
+    GFXLoadOp,
+    GFXStoreOp} from '../gfx/define';
 import { GFXFeature } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
@@ -805,6 +806,8 @@ export abstract class RenderPipeline {
         let depthStencilAttachment = new GFXDepthStencilAttachment();
         colorAttachment.format = PipelineGlobal.device.colorFormat;
         depthStencilAttachment.format = PipelineGlobal.device.depthStencilFormat;
+        depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
+        depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
 
         const windowPass = PipelineGlobal.device.createRenderPass({
             colorAttachments: [colorAttachment],
@@ -815,9 +818,11 @@ export abstract class RenderPipeline {
         colorAttachment = new GFXColorAttachment();
         depthStencilAttachment = new GFXDepthStencilAttachment();
         colorAttachment.format = PipelineGlobal.device.colorFormat;
-        depthStencilAttachment.format = PipelineGlobal.device.depthStencilFormat;
         colorAttachment.loadOp = GFXLoadOp.LOAD;
         colorAttachment.beginLayout = GFXTextureLayout.PRESENT_SRC;
+        depthStencilAttachment.format = PipelineGlobal.device.depthStencilFormat;
+        depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
+        depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
 
         const uiPass = PipelineGlobal.device.createRenderPass({
             colorAttachments: [colorAttachment],

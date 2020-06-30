@@ -378,14 +378,13 @@ export abstract class RenderStage {
             _colors[0].g = camera.clearColor.g;
             _colors[0].b = camera.clearColor.b;
         }
+        const renderPass = this._pipeline.getRenderPass(RenderPassStage.DEFAULT)!;
         if (!this._framebuffer) {
-            const renderPass = this._pipeline.getRenderPass(RenderPassStage.DEFAULT)!;
             this._framebuffer = view.window!.getFramebuffer(renderPass);
         }
 
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea!,
-            camera.clearFlag, _colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(renderPass, this._framebuffer!, this._renderArea!, _colors, camera.clearDepth, camera.clearStencil);
 
         for (let i = 0; i < this._renderQueues.length; i++) {
             this._renderQueues[i].recordCommandBuffer(PipelineGlobal.device, this._framebuffer.renderPass!, cmdBuff);

@@ -84,9 +84,8 @@ export class ToneMapStage extends RenderStage {
         const framebuffer = view.window!.getFramebuffer(renderPass);
 
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(framebuffer, this._renderArea!,
-            GFXClearFlag.ALL, [{ r: 0.0, g: 0.0, b: 0.0, a: 1.0 }], 1.0, 0);
-        const pso = PipelineStateManager.getOrCreatePipelineState(PipelineGlobal.device,
+        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!, [{ r: 0.0, g: 0.0, b: 0.0, a: 1.0 }], 1.0, 0);
+        const pso =  PipelineStateManager.getOrCreatePipelineState(PipelineGlobal.device,
             this._psoCreateInfo!, framebuffer.renderPass!, this._pipeline!.quadIA);
         cmdBuff.bindPipelineState(pso);
         cmdBuff.bindBindingLayout(this._psoCreateInfo!.bindingLayout);

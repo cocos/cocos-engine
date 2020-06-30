@@ -248,8 +248,8 @@ export class SplashScreen {
         const renderArea = this.renderArea;
 
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(framebuffer, renderArea,
-            GFXClearFlag.ALL, this.clearColors, 1.0, 0);
+        cmdBuff.beginRenderPass(framebuffer.renderPass!, framebuffer, renderArea,
+            this.clearColors, 1.0, 0);
 
         const pso = PipelineStateManager.getOrCreatePipelineState(device, this.psoCreateInfo, framebuffer.renderPass!, this.assmebler);
         cmdBuff.bindPipelineState(pso);

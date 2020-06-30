@@ -12,21 +12,26 @@ import {
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGFXFramebuffer } from './webgl-framebuffer';
 import { WebGLGFXTexture } from './webgl-texture';
+import { GFXRenderPass } from '../render-pass';
+import { WebGLGFXRenderPass } from './webgl-render-pass';
 
 const _buffers: ArrayBufferView[] = [];
 
 export class WebGLGFXPrimaryCommandBuffer extends WebGLGFXCommandBuffer {
 
     public beginRenderPass (
+        renderPass: GFXRenderPass,
         framebuffer: GFXFramebuffer,
         renderArea: IGFXRect,
-        clearFlag: GFXClearFlag,
         clearColors: IGFXColor[],
         clearDepth: number,
         clearStencil: number) {
 
-        WebGLCmdFuncBeginRenderPass(this._device as WebGLGFXDevice, (framebuffer as WebGLGFXFramebuffer).gpuFramebuffer,
-            renderArea, clearFlag, clearColors, clearDepth, clearStencil);
+        WebGLCmdFuncBeginRenderPass(
+            this._device as WebGLGFXDevice,
+            (renderPass as WebGLGFXRenderPass).gpuRenderPass,
+            (framebuffer as WebGLGFXFramebuffer).gpuFramebuffer,
+            renderArea, clearColors, clearDepth, clearStencil);
         this._isInRenderPass = true;
     }
 

@@ -77,8 +77,8 @@ export class UIStage extends RenderStage {
         const cmdBuff = this._cmdBuff!;
 
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(framebuffer, this._renderArea!,
-            camera.clearFlag, [camera.clearColor], camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
+            [camera.clearColor], camera.clearDepth, camera.clearStencil);
 
         this._renderQueues[0].recordCommandBuffer(PipelineGlobal.device, this._framebuffer!.renderPass!, cmdBuff);
 

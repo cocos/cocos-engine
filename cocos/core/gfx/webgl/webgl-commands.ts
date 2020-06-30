@@ -37,7 +37,7 @@ import { WebGLEXT } from './webgl-define';
 import { WebGLGFXDevice } from './webgl-device';
 import { IWebGLGPUInputAssembler, IWebGLGPUUniform, WebGLAttrib, WebGLGPUBindingLayout,
     WebGLGPUBuffer, WebGLGPUFramebuffer, WebGLGPUInput,
-    WebGLGPUPipelineState, WebGLGPUShader, WebGLGPUTexture, WebGLGPUUniformBlock, WebGLGPUUniformSampler } from './webgl-gpu-objects';
+    WebGLGPUPipelineState, WebGLGPUShader, WebGLGPUTexture, WebGLGPUUniformBlock, WebGLGPUUniformSampler, WebGLGPURenderPass } from './webgl-gpu-objects';
 import { WECHAT } from 'internal:constants';
 
 function CmpF32NotEuqal (a: number, b: number): boolean {
@@ -512,6 +512,7 @@ export abstract class WebGLCmdObject {
 
 export class WebGLCmdBeginRenderPass extends WebGLCmdObject {
 
+    public gpuRenderPass: WebGLGPURenderPass | null = null;
     public gpuFramebuffer: WebGLGPUFramebuffer | null = null;
     public renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
     public clearFlag: GFXClearFlag = GFXClearFlag.NONE;
@@ -1153,7 +1154,7 @@ export function WebGLCmdFuncResizeTexture (device: WebGLGFXDevice, gpuTexture: W
 }
 
 export function WebGLCmdFuncCreateFramebuffer (device: WebGLGFXDevice, gpuFramebuffer: WebGLGPUFramebuffer) {
-    if (!gpuFramebuffer.gpuColorTextures.length) { return; } // onscreen fbo
+    if (!gpuFramebuffer.gpuColorTextures.length && !gpuFramebuffer.gpuDepthStencilTexture) { return; } // onscreen fbo
 
     const gl = device.gl;
     const attachments: GLenum[] = [];
@@ -1596,9 +1597,9 @@ const gfxStateCache: IWebGLGFXStateCache = {
 
 export function WebGLCmdFuncBeginRenderPass (
     device: WebGLGFXDevice,
+    gpuRenderPass: WebGLGPURenderPass | null,
     gpuFramebuffer: WebGLGPUFramebuffer | null,
     renderArea: IGFXRect,
-    clearFlag: GFXClearFlag,
     clearColors: IGFXColor[],
     clearDepth: number,
     clearStencil: number) {
@@ -1610,7 +1611,7 @@ export function WebGLCmdFuncBeginRenderPass (
     const cache = device.stateCache;
     let clears: GLbitfield = 0;
 
-    if (gpuFramebuffer) {
+    if (gpuFramebuffer && gpuRenderPass) {
         if (cache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
             gl.bindFramebuffer(gl.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
             cache.glFramebuffer = gpuFramebuffer.glFramebuffer;
@@ -1642,7 +1643,6 @@ export function WebGLCmdFuncBeginRenderPass (
             cache.scissorRect.height = renderArea.height;
         }
 
-        const curGPURenderPass = gpuFramebuffer.gpuRenderPass;
         // const invalidateAttachments: GLenum[] = [];
         let clearCount = clearColors.length;
 
@@ -1651,21 +1651,19 @@ export function WebGLCmdFuncBeginRenderPass (
         }
 
         for (let j = 0; j < clearCount; ++j) {
-            const colorAttachment = curGPURenderPass.colorAttachments[j];
+            const colorAttachment = gpuRenderPass.colorAttachments[j];
 
             if (colorAttachment.format !== GFXFormat.UNKNOWN) {
                 switch (colorAttachment.loadOp) {
                     case GFXLoadOp.LOAD: break; // GL default behavior
                     case GFXLoadOp.CLEAR: {
-                        if (clearFlag & GFXClearFlag.COLOR) {
-                            if (cache.bs.targets[0].blendColorMask !== GFXColorMask.ALL) {
-                                gl.colorMask(true, true, true, true);
-                            }
-
-                            const clearColor = clearColors[0];
-                            gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-                            clears |= gl.COLOR_BUFFER_BIT;
+                        if (cache.bs.targets[0].blendColorMask !== GFXColorMask.ALL) {
+                            gl.colorMask(true, true, true, true);
                         }
+
+                        const clearColor = clearColors[0];
+                        gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+                        clears |= gl.COLOR_BUFFER_BIT;
                         break;
                     }
                     case GFXLoadOp.DISCARD: {
@@ -1678,21 +1676,19 @@ export function WebGLCmdFuncBeginRenderPass (
             }
         } // if (curGPURenderPass)
 
-        if (curGPURenderPass.depthStencilAttachment) {
+        if (gpuRenderPass.depthStencilAttachment) {
 
-            if (curGPURenderPass.depthStencilAttachment.format !== GFXFormat.UNKNOWN) {
-                switch (curGPURenderPass.depthStencilAttachment.depthLoadOp) {
+            if (gpuRenderPass.depthStencilAttachment.format !== GFXFormat.UNKNOWN) {
+                switch (gpuRenderPass.depthStencilAttachment.depthLoadOp) {
                     case GFXLoadOp.LOAD: break; // GL default behavior
                     case GFXLoadOp.CLEAR: {
-                        if (clearFlag & GFXClearFlag.DEPTH) {
-                            if (!cache.dss.depthWrite) {
-                                gl.depthMask(true);
-                            }
-
-                            gl.clearDepth(clearDepth);
-
-                            clears |= gl.DEPTH_BUFFER_BIT;
+                        if (!cache.dss.depthWrite) {
+                            gl.depthMask(true);
                         }
+
+                        gl.clearDepth(clearDepth);
+
+                        clears |= gl.DEPTH_BUFFER_BIT;
                         break;
                     }
                     case GFXLoadOp.DISCARD: {
@@ -1703,22 +1699,20 @@ export function WebGLCmdFuncBeginRenderPass (
                     default:
                 }
 
-                if (GFXFormatInfos[curGPURenderPass.depthStencilAttachment.format].hasStencil) {
-                    switch (curGPURenderPass.depthStencilAttachment.stencilLoadOp) {
+                if (GFXFormatInfos[gpuRenderPass.depthStencilAttachment.format].hasStencil) {
+                    switch (gpuRenderPass.depthStencilAttachment.stencilLoadOp) {
                         case GFXLoadOp.LOAD: break; // GL default behavior
                         case GFXLoadOp.CLEAR: {
-                            if (clearFlag & GFXClearFlag.STENCIL) {
-                                if (!cache.dss.stencilWriteMaskFront) {
-                                    gl.stencilMaskSeparate(gl.FRONT, 0xffff);
-                                }
-
-                                if (!cache.dss.stencilWriteMaskBack) {
-                                    gl.stencilMaskSeparate(gl.BACK, 0xffff);
-                                }
-
-                                gl.clearStencil(clearStencil);
-                                clears |= gl.STENCIL_BUFFER_BIT;
+                            if (!cache.dss.stencilWriteMaskFront) {
+                                gl.stencilMaskSeparate(gl.FRONT, 0xffff);
                             }
+
+                            if (!cache.dss.stencilWriteMaskBack) {
+                                gl.stencilMaskSeparate(gl.BACK, 0xffff);
+                            }
+
+                            gl.clearStencil(clearStencil);
+                            clears |= gl.STENCIL_BUFFER_BIT;
                             break;
                         }
                         case GFXLoadOp.DISCARD: {
@@ -1730,7 +1724,7 @@ export function WebGLCmdFuncBeginRenderPass (
                     }
                 }
             }
-        } // if (curGPURenderPass.depthStencilAttachment)
+        } // if (gpuRenderPass.depthStencilAttachment)
 
         /*
         if (numInvalidAttach) {
@@ -2676,8 +2670,8 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
         switch (cmd) {
             case WebGLCmd.BEGIN_RENDER_PASS: {
                 const cmd0 = cmdPackage.beginRenderPassCmds.array[cmdId];
-                WebGLCmdFuncBeginRenderPass(device, cmd0.gpuFramebuffer, cmd0.renderArea,
-                    cmd0.clearFlag, cmd0.clearColors, cmd0.clearDepth, cmd0.clearStencil);
+                WebGLCmdFuncBeginRenderPass(device, cmd0.gpuRenderPass, cmd0.gpuFramebuffer, cmd0.renderArea,
+                    cmd0.clearColors, cmd0.clearDepth, cmd0.clearStencil);
                 break;
             }
             /*
