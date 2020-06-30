@@ -170,7 +170,7 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
                 if (fuzzyLen === 0) { fuzzyLen = 1; }
 
                 sLine = _safeSubstring(text, fuzzyLen);
-                sText = _safeSubstring(0, fuzzyLen);
+                sText = _safeSubstring(text, 0, fuzzyLen);
             }
         }
 
