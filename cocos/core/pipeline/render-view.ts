@@ -189,7 +189,7 @@ export class RenderView {
         }
         const pipelineFlows = PipelineGlobal.root.pipeline.activeFlows;
         for (let i = 0; i < pipelineFlows.length; ++i) {
-            let f = pipelineFlows[i];
+            const f = pipelineFlows[i];
             if (f.type === RenderFlowType.SCENE || (flows && flows.indexOf(f.name) !== -1)) {
                 this.flows.push(f);
             }

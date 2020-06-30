@@ -105,8 +105,8 @@ export class TextureBase extends Asset {
     @property
     protected _anisotropy = 8;
 
-    protected _width: number = 0;
-    protected _height: number = 0;
+    protected _width: number = 1;
+    protected _height: number = 1;
 
     private _id: string;
     private _samplerInfo: (number | undefined)[] = [];
@@ -274,7 +274,7 @@ export class TextureBase extends Asset {
                 errorID(9302);
             }
         }
-        return this._gfxSampler;
+        return this._gfxSampler!;
     }
 
     // SERIALIZATION

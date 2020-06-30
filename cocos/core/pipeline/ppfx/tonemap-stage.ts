@@ -6,7 +6,7 @@ import { ccclass } from '../../data/class-decorator';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXClearFlag } from '../../gfx/define';
-import { UBOGlobal } from '../define';
+import { UBOGlobal, RenderPassStage } from '../define';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
@@ -75,26 +75,27 @@ export class ToneMapStage extends RenderStage {
     public render (view: RenderView) {
 
         const camera = view.camera!;
+        const cmdBuff = this._cmdBuff!;
 
-        if (this._cmdBuff) {
+        this._renderArea!.width = camera.width;
+        this._renderArea!.height = camera.height;
 
-            this._renderArea!.width = camera.width;
-            this._renderArea!.height = camera.height;
-            const framebuffer = view.window!.framebuffer;
+        const renderPass = this._pipeline.getRenderPass(RenderPassStage.UI)!;
+        const framebuffer = view.window!.getFramebuffer(renderPass);
 
-            this._cmdBuff.begin();
-            this._cmdBuff.beginRenderPass(framebuffer, this._renderArea!,
-                GFXClearFlag.ALL, [{ r: 0.0, g: 0.0, b: 0.0, a: 1.0 }], 1.0, 0);
-            const pso =  PipelineStateManager.getOrCreatePipelineState(PipelineGlobal.device, this._psoCreateInfo!, framebuffer.renderPass!, this._pipeline!.quadIA);
-            this._cmdBuff.bindPipelineState(pso);
-            this._cmdBuff.bindBindingLayout(this._psoCreateInfo!.bindingLayout);
-            this._cmdBuff.bindInputAssembler(this._pipeline!.quadIA);
-            this._cmdBuff.draw(this._pipeline!.quadIA);
-            this._cmdBuff.endRenderPass();
-            this._cmdBuff.end();
-        }
+        cmdBuff.begin();
+        cmdBuff.beginRenderPass(framebuffer, this._renderArea!,
+            GFXClearFlag.ALL, [{ r: 0.0, g: 0.0, b: 0.0, a: 1.0 }], 1.0, 0);
+        const pso = PipelineStateManager.getOrCreatePipelineState(PipelineGlobal.device,
+            this._psoCreateInfo!, framebuffer.renderPass!, this._pipeline!.quadIA);
+        cmdBuff.bindPipelineState(pso);
+        cmdBuff.bindBindingLayout(this._psoCreateInfo!.bindingLayout);
+        cmdBuff.bindInputAssembler(this._pipeline!.quadIA);
+        cmdBuff.draw(this._pipeline!.quadIA);
+        cmdBuff.endRenderPass();
+        cmdBuff.end();
 
-        bufs[0] = this._cmdBuff!;
+        bufs[0] = cmdBuff;
         PipelineGlobal.device.queue.submit(bufs);
 
         // this._pipeline.swapFBOs();

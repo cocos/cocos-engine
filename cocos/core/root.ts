@@ -16,7 +16,6 @@ import { SpotLight } from './renderer/scene/spot-light';
 import { UI } from './renderer/ui/ui';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './pipeline/render-window';
-import { GFXColorAttachment, GFXDepthStencilAttachment } from './gfx/render-pass';
 
 /**
  * @zh
@@ -224,10 +223,7 @@ export class Root {
             title: 'rootMainWindow',
             width: this._device.width,
             height: this._device.height,
-            renderPassInfo: {
-                colorAttachments: [ new GFXColorAttachment() ],
-                depthStencilAttachment: new GFXDepthStencilAttachment(),
-            },
+            swapchainBufferIndices: -1, // always on screen
         });
         this._curWindow = this._mainWindow;
 
@@ -276,9 +272,7 @@ export class Root {
         this._mainWindow!.resize(width, height);
 
         for (const window of this._windows) {
-            if (!window.isOffscreen) {
-                window.resize(width, height);
-            }
+            window.resize(width, height);
         }
 
         if (this._pipeline) {
@@ -360,9 +354,7 @@ export class Root {
         const views = this._views;
         for (let i = 0; i < views.length; i++) {
             const view = views[i];
-            if (view.isEnable && (view.window &&
-                (view.window.isOffscreen ||
-                (!view.window.isOffscreen && (view.window === this._curWindow)))) && this._pipeline) {
+            if (view.isEnable && view.window && this._pipeline) {
                 this._pipeline.render(view);
             }
         }

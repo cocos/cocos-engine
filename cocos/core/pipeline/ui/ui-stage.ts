@@ -3,11 +3,12 @@
  */
 
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { IGFXColor, GFXLoadOp, GFXStoreOp, GFXTextureLayout } from '../../gfx/define';
+import { IGFXColor } from '../../gfx/define';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { PipelineGlobal } from '../global';
+import { RenderPassStage } from '../define';
 
 const bufs: GFXCommandBuffer[] = [];
 const colors: IGFXColor[] = [];
@@ -32,45 +33,9 @@ export class UIStage extends RenderStage {
     public activate (flow: RenderFlow) {
         super.activate(flow);
         this.createCmdBuffer();
-
-        const device = PipelineGlobal.device;
-
-        // UI uses a exclusive render pass
-        const renderPass = device.createRenderPass({
-            colorAttachments: [{
-                format: device.colorFormat,
-                loadOp: GFXLoadOp.LOAD, // shouldn't clear color attachment
-                storeOp: GFXStoreOp.STORE,
-                sampleCount: 1,
-                beginLayout: GFXTextureLayout.PRESENT_SRC,
-                endLayout: GFXTextureLayout.PRESENT_SRC,
-            }],
-            depthStencilAttachment: {
-                format : device.depthStencilFormat,
-                depthLoadOp : GFXLoadOp.CLEAR,
-                depthStoreOp : GFXStoreOp.STORE,
-                stencilLoadOp : GFXLoadOp.CLEAR,
-                stencilStoreOp : GFXStoreOp.STORE,
-                sampleCount : 1,
-                beginLayout : GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                endLayout : GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-            },
-        });
-        this._framebuffer = device.createFramebuffer({
-            renderPass,
-            colorTextures: [],
-            depthStencilTexture: null,
-            isOffscreen: false
-        });
     }
 
     public destroy () {
-
-        if (this._framebuffer) {
-            this._framebuffer.renderPass!.destroy();
-            this._framebuffer.destroy();
-        }
-
         if (this._cmdBuff) {
             this._cmdBuff.destroy();
             this._cmdBuff = null;
@@ -96,10 +61,8 @@ export class UIStage extends RenderStage {
         }
         this._renderQueues[0].sort();
 
-        let framebuffer = view.window!.framebuffer;
-        if (!framebuffer.isOffscreen) {
-            framebuffer = this._framebuffer!;
-        }
+        const renderPass = this._pipeline.getRenderPass(RenderPassStage.UI)!;
+        const framebuffer = view.window!.getFramebuffer(renderPass);
 
         const camera = view.camera!;
 

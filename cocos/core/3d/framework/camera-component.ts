@@ -657,7 +657,7 @@ export class CameraComponent extends Component {
         }
 
         if (this._targetTexture) {
-            const window = this._targetTexture.getGFXWindow();
+            const window = this._targetTexture.window;
             this._camera.changeTargetWindow(window);
             this._camera.setFixedSize(window!.width, window!.height);
         }

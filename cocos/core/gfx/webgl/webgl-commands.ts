@@ -1153,90 +1153,88 @@ export function WebGLCmdFuncResizeTexture (device: WebGLGFXDevice, gpuTexture: W
 }
 
 export function WebGLCmdFuncCreateFramebuffer (device: WebGLGFXDevice, gpuFramebuffer: WebGLGPUFramebuffer) {
+    if (!gpuFramebuffer.gpuColorTextures.length) { return; } // onscreen fbo
 
-    if (gpuFramebuffer.isOffscreen) {
+    const gl = device.gl;
+    const attachments: GLenum[] = [];
 
-        const gl = device.gl;
-        const attachments: GLenum[] = [];
+    const glFramebuffer = gl.createFramebuffer();
+    if (glFramebuffer) {
+        gpuFramebuffer.glFramebuffer = glFramebuffer;
 
-        const glFramebuffer = gl.createFramebuffer();
-        if (glFramebuffer) {
-            gpuFramebuffer.glFramebuffer = glFramebuffer;
+        if (device.stateCache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
+            device.stateCache.glFramebuffer = gpuFramebuffer.glFramebuffer;
+        }
 
-            if (device.stateCache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
-                gl.bindFramebuffer(gl.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
-                device.stateCache.glFramebuffer = gpuFramebuffer.glFramebuffer;
-            }
+        for (let i = 0; i < gpuFramebuffer.gpuColorTextures.length; ++i) {
 
-            for (let i = 0; i < gpuFramebuffer.gpuColorTextures.length; ++i) {
-
-                const gpuTexture = gpuFramebuffer.gpuColorTextures[i];
-                if (gpuTexture) {
-                    if (gpuTexture.glTexture) {
-                        gl.framebufferTexture2D(
-                            gl.FRAMEBUFFER,
-                            gl.COLOR_ATTACHMENT0 + i,
-                            gpuTexture.glTarget,
-                            gpuTexture.glTexture,
-                            0); // level must be 0
-                    } else {
-                        gl.framebufferRenderbuffer(
-                            gl.FRAMEBUFFER,
-                            gl.COLOR_ATTACHMENT0 + i,
-                            gl.RENDERBUFFER,
-                            gpuTexture.glRenderbuffer,
-                        );
-                    }
-
-                    attachments.push(gl.COLOR_ATTACHMENT0 + i);
-                }
-            }
-
-            const dst = gpuFramebuffer.gpuDepthStencilTexture;
-            if (dst) {
-                const glAttachment = GFXFormatInfos[dst.format].hasStencil ? gl.DEPTH_STENCIL_ATTACHMENT : gl.DEPTH_ATTACHMENT;
-                if (dst.glTexture) {
+            const gpuTexture = gpuFramebuffer.gpuColorTextures[i];
+            if (gpuTexture) {
+                if (gpuTexture.glTexture) {
                     gl.framebufferTexture2D(
                         gl.FRAMEBUFFER,
-                        glAttachment,
-                        dst.glTarget,
-                        dst.glTexture,
+                        gl.COLOR_ATTACHMENT0 + i,
+                        gpuTexture.glTarget,
+                        gpuTexture.glTexture,
                         0); // level must be 0
                 } else {
                     gl.framebufferRenderbuffer(
                         gl.FRAMEBUFFER,
-                        glAttachment,
+                        gl.COLOR_ATTACHMENT0 + i,
                         gl.RENDERBUFFER,
-                        dst.glRenderbuffer,
+                        gpuTexture.glRenderbuffer,
                     );
                 }
-            }
 
-            if (device.WEBGL_draw_buffers) {
-                device.WEBGL_draw_buffers.drawBuffersWEBGL(attachments);
+                attachments.push(gl.COLOR_ATTACHMENT0 + i);
             }
+        }
 
-            const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
-            if (status !== gl.FRAMEBUFFER_COMPLETE) {
-                switch (status) {
-                    case gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT: {
-                        console.error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_ATTACHMENT');
-                        break;
-                    }
-                    case gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: {
-                        console.error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT');
-                        break;
-                    }
-                    case gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS: {
-                        console.error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_DIMENSIONS');
-                        break;
-                    }
-                    case gl.FRAMEBUFFER_UNSUPPORTED: {
-                        console.error('glCheckFramebufferStatus() - FRAMEBUFFER_UNSUPPORTED');
-                        break;
-                    }
-                    default:
+        const dst = gpuFramebuffer.gpuDepthStencilTexture;
+        if (dst) {
+            const glAttachment = GFXFormatInfos[dst.format].hasStencil ? gl.DEPTH_STENCIL_ATTACHMENT : gl.DEPTH_ATTACHMENT;
+            if (dst.glTexture) {
+                gl.framebufferTexture2D(
+                    gl.FRAMEBUFFER,
+                    glAttachment,
+                    dst.glTarget,
+                    dst.glTexture,
+                    0); // level must be 0
+            } else {
+                gl.framebufferRenderbuffer(
+                    gl.FRAMEBUFFER,
+                    glAttachment,
+                    gl.RENDERBUFFER,
+                    dst.glRenderbuffer,
+                );
+            }
+        }
+
+        if (device.WEBGL_draw_buffers) {
+            device.WEBGL_draw_buffers.drawBuffersWEBGL(attachments);
+        }
+
+        const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+        if (status !== gl.FRAMEBUFFER_COMPLETE) {
+            switch (status) {
+                case gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT: {
+                    console.error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_ATTACHMENT');
+                    break;
                 }
+                case gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: {
+                    console.error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT');
+                    break;
+                }
+                case gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS: {
+                    console.error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_DIMENSIONS');
+                    break;
+                }
+                case gl.FRAMEBUFFER_UNSUPPORTED: {
+                    console.error('glCheckFramebufferStatus() - FRAMEBUFFER_UNSUPPORTED');
+                    break;
+                }
+                default:
             }
         }
     }

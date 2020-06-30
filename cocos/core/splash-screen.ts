@@ -22,6 +22,7 @@ import { IPSOCreateInfo } from './renderer';
 import { PipelineStateManager } from './pipeline/pipeline-state-manager';
 import { legacyCC } from './global-exports';
 import { Root } from './root';
+import { RenderPassStage } from './pipeline/define';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 
@@ -389,7 +390,8 @@ export class SplashScreen {
     private initCMD () {
         const device = this.device as GFXDevice;
         this.renderArea = { x: 0, y: 0, width: device.width, height: device.height };
-        this.framebuffer = this.root.mainWindow!.framebuffer;
+        const renderPass = this.root.pipeline.getRenderPass(RenderPassStage.DEFAULT)!;
+        this.framebuffer = this.root.mainWindow!.getFramebuffer(renderPass);
 
         this.cmdBuff = device.createCommandBuffer({
             queue: device.queue,

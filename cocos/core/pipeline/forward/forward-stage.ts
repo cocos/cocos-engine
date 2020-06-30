@@ -14,6 +14,7 @@ import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { PipelineGlobal } from '../global';
+import { RenderPassStage } from '../define';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -148,6 +149,8 @@ export class ForwardStage extends RenderStage {
 
         colors[0].a = camera.clearColor.a;
 
+        const renderPass = this._pipeline.getRenderPass(RenderPassStage.DEFAULT)!;
+
         if (this._pipeline.usePostProcess) {
             if (!this._pipeline.useMSAA) {
                 this._framebuffer = this._pipeline.getFrameBuffer(this._pipeline!.currShading)!;
@@ -155,11 +158,10 @@ export class ForwardStage extends RenderStage {
                 this._framebuffer = this._pipeline.getFrameBuffer('msaa')!;
             }
         } else {
-            this._framebuffer = view.window!.framebuffer;
+            this._framebuffer = view.window!.getFramebuffer(renderPass);
         }
 
         const device = PipelineGlobal.device;
-        const renderPass = this._framebuffer.renderPass!;
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(this._framebuffer, this._renderArea!,

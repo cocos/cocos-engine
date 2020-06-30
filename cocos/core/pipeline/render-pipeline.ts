@@ -11,11 +11,13 @@ import {
     GFXFormat,
     GFXFormatInfos,
     GFXMemoryUsageBit,
-    GFXTextureUsageBit } from '../gfx/define';
+    GFXTextureLayout,
+    GFXTextureUsageBit,
+    GFXLoadOp} from '../gfx/define';
 import { GFXFeature } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
-import { GFXRenderPass } from '../gfx/render-pass';
+import { GFXRenderPass, GFXColorAttachment, GFXDepthStencilAttachment } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
 import { Mat4, Vec3, Vec4 } from '../math';
 import { Camera, Model, Light } from '../renderer';
@@ -799,19 +801,29 @@ export abstract class RenderPipeline {
             return false;
         }
 
-        const mainWindow = PipelineGlobal.root.mainWindow;
-        let windowPass: GFXRenderPass | null = null;
+        let colorAttachment = new GFXColorAttachment();
+        let depthStencilAttachment = new GFXDepthStencilAttachment();
+        colorAttachment.format = PipelineGlobal.device.colorFormat;
+        depthStencilAttachment.format = PipelineGlobal.device.depthStencilFormat;
 
-        if (mainWindow) {
-            windowPass = mainWindow.renderPass;
-        }
-
-        if (!windowPass) {
-            console.error('RenderPass of main window is null.');
-            return false;
-        }
-
+        const windowPass = PipelineGlobal.device.createRenderPass({
+            colorAttachments: [colorAttachment],
+            depthStencilAttachment,
+        });
         this.addRenderPass(RenderPassStage.DEFAULT, windowPass);
+
+        colorAttachment = new GFXColorAttachment();
+        depthStencilAttachment = new GFXDepthStencilAttachment();
+        colorAttachment.format = PipelineGlobal.device.colorFormat;
+        depthStencilAttachment.format = PipelineGlobal.device.depthStencilFormat;
+        colorAttachment.loadOp = GFXLoadOp.LOAD;
+        colorAttachment.beginLayout = GFXTextureLayout.PRESENT_SRC;
+
+        const uiPass = PipelineGlobal.device.createRenderPass({
+            colorAttachments: [colorAttachment],
+            depthStencilAttachment,
+        });
+        this.addRenderPass(RenderPassStage.UI, uiPass);
 
         // update global defines when all states initialized.
         this._macros.CC_USE_HDR = (this._isHDR);

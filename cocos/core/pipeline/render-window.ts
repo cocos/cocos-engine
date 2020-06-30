@@ -1,22 +1,25 @@
 import {
-    GFXFormat,
     GFXTextureFlagBit,
     GFXTextureType,
     GFXTextureUsageBit,
 } from '../gfx/define';
-import { GFXRenderPass, GFXTexture, GFXFramebuffer, IGFXRenderPassInfo } from '../gfx';
+import { GFXRenderPass, GFXTexture, GFXFramebuffer } from '../gfx';
 import { Root } from '../root';
 import { PipelineGlobal } from './global';
+import { RenderPassStage } from './define';
 
 export interface IRenderWindowInfo {
     title?: string;
-    left?: number;
-    top?: number;
     width: number;
     height: number;
-    renderPassInfo: IGFXRenderPassInfo;
-    isOffscreen?: boolean;
-    renderPass?: GFXRenderPass; // will use this reference instead if specified
+    swapchainBufferIndices?: number;
+}
+
+interface IFramebufferResources {
+    renderPass: GFXRenderPass;
+    colorTextures: (GFXTexture | null)[];
+    depthStencilTexture: GFXTexture | null;
+    framebuffer: GFXFramebuffer;
 }
 
 export class RenderWindow {
@@ -38,43 +41,12 @@ export class RenderWindow {
     }
 
     /**
-     * @en Is this window offscreen?
-     * @zh 是否是离屏的。
-     */
-    get isOffscreen (): boolean {
-        return this._isOffscreen;
-    }
-
-    /**
-     * @en Get the render pass of this window.
-     * @zh GFX 渲染过程。
-     */
-    get renderPass (): GFXRenderPass {
-        return this._renderPass!;
-    }
-
-    /**
-     * @en Get color texture of this window.
-     * @zh 颜色纹理。
-     */
-    get colorTextures (): GFXTexture[] {
-        return this._colorTexs;
-    }
-
-    /**
-     * @en Get depth stencil texture of this window.
-     * @zh 深度模板纹理。
-     */
-    get depthStencilTexture (): GFXTexture | null {
-        return this._depthStencilTex;
-    }
-
-    /**
      * @en Get window frame buffer.
      * @zh GFX帧缓冲。
      */
     get framebuffer (): GFXFramebuffer {
-        return this._framebuffer!;
+        const renderPass = PipelineGlobal.root.pipeline.getRenderPass(RenderPassStage.DEFAULT)!;
+        return this.getFramebuffer(renderPass);
     }
 
     public static registerCreateFunc (root: Root) {
@@ -82,37 +54,23 @@ export class RenderWindow {
     }
 
     protected _title: string = '';
-    protected _left: number = 0;
-    protected _top: number = 0;
-    protected _width: number = 0;
-    protected _height: number = 0;
-    protected _nativeWidth: number = 0;
-    protected _nativeHeight: number = 0;
-    protected _isOffscreen: boolean = false;
-    protected _renderPass: GFXRenderPass | null = null;
-    protected _colorTexs: GFXTexture[] = [];
-    protected _depthStencilTex: GFXTexture | null = null;
-    protected _framebuffer: GFXFramebuffer | null = null;
+    protected _width: number = 1;
+    protected _height: number = 1;
+    protected _nativeWidth: number = 1;
+    protected _nativeHeight: number = 1;
+    protected _framebuffers = new Map<number, IFramebufferResources>();
+    protected _swapchainBufferIndices = 0;
 
     private constructor (root: Root) {
     }
 
     public initialize (info: IRenderWindowInfo): boolean {
-
         if (info.title !== undefined) {
             this._title = info.title;
         }
 
-        if (info.left !== undefined) {
-            this._left = info.left;
-        }
-
-        if (info.top !== undefined) {
-            this._top = info.top;
-        }
-
-        if (info.isOffscreen !== undefined) {
-            this._isOffscreen = info.isOffscreen;
+        if (info.swapchainBufferIndices !== undefined) {
+            this._swapchainBufferIndices = info.swapchainBufferIndices;
         }
 
         this._width = info.width;
@@ -120,93 +78,33 @@ export class RenderWindow {
         this._nativeWidth = this._width;
         this._nativeHeight = this._height;
 
-        let colorAttachments = info.renderPassInfo.colorAttachments;
-        let depthStencilAttachment = info.renderPassInfo.depthStencilAttachment;
-
-        if (info.renderPass) {
-            this._renderPass = info.renderPass;
-            colorAttachments = info.renderPass.colorAttachments;
-            depthStencilAttachment = info.renderPass.depthStencilAttachment;
-        } else {
-            for (let i = 0; i < colorAttachments.length; i++) {
-                const attachment = colorAttachments[i];
-                if (attachment.format === GFXFormat.UNKNOWN) {
-                    attachment.format = PipelineGlobal.device.colorFormat;
-                }
-            }
-            if (depthStencilAttachment) {
-                const attachment = depthStencilAttachment;
-                if (attachment.format === GFXFormat.UNKNOWN) {
-                    attachment.format = PipelineGlobal.device.depthStencilFormat;
-                }
-            }
-            this._renderPass = PipelineGlobal.device.createRenderPass(info.renderPassInfo);
-        }
-
-        let colorTexturesToCreate = colorAttachments.length;
-        if (!this._isOffscreen) { colorTexturesToCreate--; } // -1 for swapchain image
-        for (let i = 0; i < colorTexturesToCreate; i++) {
-            const format = colorAttachments[i].format;
-            const colorTex = PipelineGlobal.device.createTexture({
-                type: GFXTextureType.TEX2D,
-                usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format,
-                width: this._width,
-                height: this._height,
-                depth: 1,
-                arrayLayer: 1,
-                mipLevel: 1,
-                flags: GFXTextureFlagBit.NONE,
-            });
-            this._colorTexs.push(colorTex);
-        }
-        if (this._isOffscreen && depthStencilAttachment) {
-            const format = depthStencilAttachment.format;
-            this._depthStencilTex = PipelineGlobal.device.createTexture({
-                type: GFXTextureType.TEX2D,
-                usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format,
-                width: this._width,
-                height: this._height,
-                depth: 1,
-                arrayLayer: 1,
-                mipLevel: 1,
-                flags: GFXTextureFlagBit.NONE,
-            });
-        }
-
-        this._framebuffer = PipelineGlobal.device.createFramebuffer({
-            renderPass: this._renderPass,
-            colorTextures: this._colorTexs,
-            depthStencilTexture: this._depthStencilTex,
-            isOffscreen: this._isOffscreen,
-        });
-
         return true;
     }
 
     public destroy () {
-        if (this._depthStencilTex) {
-            this._depthStencilTex.destroy();
-            this._depthStencilTex = null;
-        }
+        const it = this._framebuffers.values();
+        let res = it.next();
+        while (!res.done) {
+            const fbResources = res.value;
 
-        for (let i = 0; i < this._colorTexs.length; i++) {
-            if (this._colorTexs[i]) {
-                this._colorTexs[i].destroy();
+            if (fbResources.depthStencilTexture) {
+                fbResources.depthStencilTexture.destroy();
             }
-        }
-        this._colorTexs.length = 0;
 
-        if (this._framebuffer) {
-            this._framebuffer.destroy();
-            this._framebuffer = null;
-        }
+            for (let i = 0; i < fbResources.colorTextures.length; i++) {
+                const colorTexture = fbResources.colorTextures[i];
+                if (colorTexture) {
+                    colorTexture.destroy();
+                }
+            }
 
-        if (this._renderPass) {
-            this._renderPass.destroy();
-            this._renderPass = null;
+            if (fbResources.framebuffer) {
+                fbResources.framebuffer.destroy();
+            }
+
+            res = it.next();
         }
+        this._framebuffers.clear();
     }
 
     /**
@@ -225,24 +123,100 @@ export class RenderWindow {
             this._nativeWidth = width;
             this._nativeHeight = height;
 
-            if (this._depthStencilTex) {
-                this._depthStencilTex.resize(width, height);
-            }
+            const it = this._framebuffers.values();
+            let res = it.next();
+            while (!res.done) {
+                const fbResources = res.value;
+                let needRebuild = false;
 
-            for (let i = 0; i < this._colorTexs.length; i++) {
-                if (this._colorTexs[i]) {
-                    this._colorTexs[i].resize(width, height);
+                if (fbResources.depthStencilTexture) {
+                    fbResources.depthStencilTexture.resize(width, height);
+                    needRebuild = true;
                 }
-            }
 
-            if (this._framebuffer && this._framebuffer.isOffscreen) {
-                this._framebuffer.destroy();
-                this._framebuffer.initialize({
-                    renderPass: this._renderPass!,
-                    colorTextures: this._colorTexs,
-                    depthStencilTexture: this._depthStencilTex!,
-                });
+                for (let i = 0; i < fbResources.colorTextures.length; i++) {
+                    const colorTex = fbResources.colorTextures[i];
+                    if (colorTex) {
+                        colorTex.resize(width, height);
+                        needRebuild = true;
+                    }
+                }
+
+                if (needRebuild) {
+                    fbResources.framebuffer.destroy();
+                    fbResources.framebuffer.initialize({
+                        renderPass: fbResources.renderPass,
+                        colorTextures: fbResources.colorTextures,
+                        depthStencilTexture: fbResources.depthStencilTexture,
+                    });
+                }
+
+                res = it.next();
             }
         }
+    }
+
+    /**
+     * Get the framebuffer for specified render pass
+     * @param renderPass Target render pass
+     * @param swapchainBufferIndices Bitwise mask specifying which attachment would use swapchain buffer.
+     */
+    public getFramebuffer (renderPass: GFXRenderPass, swapchainBufferIndices?: number) {
+        if (swapchainBufferIndices === undefined) { swapchainBufferIndices = this._swapchainBufferIndices; }
+
+        const hash = renderPass.hash ^ swapchainBufferIndices;
+        let res = this._framebuffers.get(hash);
+        if (res) { return res.framebuffer; }
+
+        const colorAttachmentCount = renderPass.colorAttachments.length;
+        const device = PipelineGlobal.root.device;
+        res = {
+            renderPass,
+            colorTextures: [],
+            depthStencilTexture: null,
+            framebuffer: null!
+        };
+
+        for (let i = 0; i < colorAttachmentCount; i++) {
+            let colorTex: GFXTexture | null = null;
+            if (!(swapchainBufferIndices & (1 << i))) {
+                colorTex = device.createTexture({
+                    type: GFXTextureType.TEX2D,
+                    usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                    format: renderPass.colorAttachments[i].format || device.colorFormat,
+                    width: this._width,
+                    height: this._height,
+                    depth: 1,
+                    arrayLayer: 1,
+                    mipLevel: 1,
+                    flags: GFXTextureFlagBit.NONE,
+                });
+            }
+            res.colorTextures.push(colorTex);
+        }
+
+        // Use the sign bit to indicate depth attachment
+        if (renderPass.depthStencilAttachment && swapchainBufferIndices >= 0) {
+            res.depthStencilTexture = device.createTexture({
+                type: GFXTextureType.TEX2D,
+                usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                format: renderPass.depthStencilAttachment.format || device.depthStencilFormat,
+                width: this._width,
+                height: this._height,
+                depth: 1,
+                arrayLayer: 1,
+                mipLevel: 1,
+                flags: GFXTextureFlagBit.NONE,
+            });
+        }
+
+        res.framebuffer = device.createFramebuffer({
+            renderPass,
+            colorTextures: res.colorTextures,
+            depthStencilTexture: res.depthStencilTexture,
+        });
+
+        this._framebuffers.set(hash, res);
+        return res.framebuffer;
     }
 }
