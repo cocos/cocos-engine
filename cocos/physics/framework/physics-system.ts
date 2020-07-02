@@ -13,7 +13,6 @@ import { ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
 import { EDITOR, PHYSICS_BUILTIN, DEBUG, PHYSICS_CANNON, PHYSICS_AMMO } from 'internal:constants';
 import { IPhysicsConfig } from './physics-config';
-import { ERigidbodyInterpolation } from './physics-enum';
 
 /**
  * @en
@@ -73,26 +72,12 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取或设置每步模拟消耗的固定时间。
      */
-    get fixedDeltaTime () {
-        return this._fixedDeltaTime;
+    get fixedTimeStep () {
+        return this._fixedTimeStep;
     }
 
-    set fixedDeltaTime (value: number) {
-        this._fixedDeltaTime = value;
-    }
-
-    /**
-     * @en
-     * Gets or sets the interpolation mode used in the step simulation.
-     * @zh
-     * 获取或设置步进模拟时使用的插值模式。
-     */
-    get interpolation () {
-        return this._interpolation;
-    }
-
-    set interpolation (value: ERigidbodyInterpolation) {
-        this._interpolation = value;
+    set fixedTimeStep (value: number) {
+        this._fixedTimeStep = value;
     }
 
     /**
@@ -177,9 +162,8 @@ export class PhysicsSystem extends System {
     private _enable = true;
     private _allowSleep = true;
     private _maxSubSteps = 1;
-    private _fixedDeltaTime = 1.0 / 60.0;
-    private _interpolation = ERigidbodyInterpolation.NONE;
-    private _timeSinceLastUpdate = 0;
+    private _fixedTimeStep = 1.0 / 60.0;
+    private _timeSinceLastCalled = 0;
     private _timeReset = true;
     private _accumulator = 0;
     private readonly _gravity = new Vec3(0, -10, 0);
@@ -201,9 +185,8 @@ export class PhysicsSystem extends System {
         if (config) {
             Vec3.copy(this._gravity, config.gravity);
             this._allowSleep = config.allowSleep;
-            this._fixedDeltaTime = config.deltaTime;
+            this._fixedTimeStep = config.deltaTime;
             this._maxSubSteps = config.maxSubSteps;
-            this._interpolation = config.interpolation;
             this._material.friction = config.defaultMaterial.friction;
             this._material.rollingFriction = config.defaultMaterial.rollingFriction;
             this._material.spinningFriction = config.defaultMaterial.spinningFriction;
@@ -247,49 +230,46 @@ export class PhysicsSystem extends System {
             return;
         }
 
-        director.emit(Director.EVENT_BEFORE_PHYSICS);
         if (this.autoSimulation) {
             if (this._timeReset) {
-                this._timeSinceLastUpdate = 0;
+                this._timeSinceLastCalled = 0;
                 this._timeReset = false;
             } else {
-                this._timeSinceLastUpdate = deltaTime;
+                this._timeSinceLastCalled = deltaTime;
             }
 
-            this.physicsWorld.emitEvents();
-            this.physicsWorld.syncSceneToPhysics();
-            switch (this._interpolation) {
-                case ERigidbodyInterpolation.INTERPOLATE:
-                    this.physicsWorld.step(this._fixedDeltaTime, this._timeSinceLastUpdate, this._maxSubSteps);
-                    break;
-                case ERigidbodyInterpolation.NONE:
-                default:
-                    this._accumulator += this._timeSinceLastUpdate;
-                    while (this._accumulator > this._fixedDeltaTime) {
-                        this.physicsWorld.step(this._fixedDeltaTime);
-                        this._accumulator -= this._fixedDeltaTime;
-                    }
-                    break;
+            director.emit(Director.EVENT_BEFORE_PHYSICS);
+            let i = 0;
+            this._accumulator += this._timeSinceLastCalled;
+            while (i < this._maxSubSteps && this._accumulator > this._fixedTimeStep) {
+                this.physicsWorld.emitEvents();
+                this.physicsWorld.syncSceneToPhysics();
+                this.physicsWorld.step(this._fixedTimeStep);
+                // TODO: nesting the dirty flag reset between the syncScenetoPhysics and the simulation to reduce calling syncScenetoPhysics.
+                this.physicsWorld.syncSceneToPhysics();
+                this._accumulator -= this._fixedTimeStep;
+                i++;
             }
-            // TODO: nesting the dirty flag reset between the syncScenetoPhysics and the simulation to reduce calling syncScenetoPhysics.            
-            this.physicsWorld.syncSceneToPhysics();
+            director.emit(Director.EVENT_AFTER_PHYSICS);
         }
-        director.emit(Director.EVENT_AFTER_PHYSICS);
+    }
+
+    /**
+     * 
+     */
+    emitEvents () {
+        this.physicsWorld.emitEvents();
     }
 
     /**
      * @en
-     * Perform simulation steps for the physical world.
+     * Perform simulation steps for the physics world.
      * @zh
      * 执行物理世界的模拟步进。
-     * @param timeSinceLastCalled
+     * @param fixedTimeStep
      */
-    simulate (timeSinceLastCalled: number) {
-        if (this._interpolation) {
-            this.physicsWorld.step(this._fixedDeltaTime);
-        } else {
-            this.physicsWorld.step(this._fixedDeltaTime, timeSinceLastCalled, this._maxSubSteps);
-        }
+    step (fixedTimeStep: number, deltaTime?: number, maxSubSteps?: number) {
+        this.physicsWorld.step(fixedTimeStep, deltaTime, maxSubSteps);
     }
 
     /**
