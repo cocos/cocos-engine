@@ -298,7 +298,7 @@ export class ColliderComponent extends Eventify(Component) {
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public getGroup (): number {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             return this._shape!.getGroup();
         }
         return 0;
@@ -338,7 +338,7 @@ export class ColliderComponent extends Eventify(Component) {
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public getMask (): number {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             return this._shape!.getMask();
         }
         return 0;

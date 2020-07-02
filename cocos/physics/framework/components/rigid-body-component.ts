@@ -636,7 +636,7 @@ export class RigidBodyComponent extends Component {
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public getMask (): number {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             return this._body!.getMask();
         }
         return 0;
