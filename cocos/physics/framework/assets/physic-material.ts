@@ -101,7 +101,7 @@ export class PhysicMaterial extends Asset {
     private static _idCounter: number = 0;
 
     @property
-    private _friction = 0.1;
+    private _friction = 0.5;
 
     @property
     private _rollingFriction = 0.1;
