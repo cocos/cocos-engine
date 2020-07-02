@@ -149,17 +149,25 @@ function serializeBuiltinValueTypes(obj: ValueType): IValueTypeData | null {
  * TYPE DECLARATIONS
  ****************************************************************************/
 
-export type SharedString = string;
-export type Empty = typeof EMPTY_PLACEHOLDER;
-export type StringIndex = number;
-export type InstanceIndex = number;
-export type RootInstanceIndex = InstanceIndex;
-
 // Includes Bitwise NOT value.
 // Both T and U have non-negative integer ranges.
 // When the value >= 0 represents T
 // When the value is < 0, it represents ~U. Use ~x to extract the value of U.
 export type Bnot<T extends number, U extends number> = T|U;
+
+// Combines a boolean and a number into one value.
+// The number must >= 0.
+// When the value >= 0, the boolean is true, the number is value.
+// When the value < 0, the boolean is false, the number is ~value.
+export type BoolAndNum<B extends boolean, N extends number> = Bnot<N, N>;
+
+export type SharedString = string;
+export type Empty = typeof EMPTY_PLACEHOLDER;
+export type StringIndex = number;
+export type InstanceIndex = number;
+export type RootInstanceIndex = InstanceIndex;
+export type NoNativeDep = boolean;  // Indicates whether the asset depends on a native asset
+export type RootInfo = BoolAndNum<NoNativeDep, RootInstanceIndex>;
 
 // When the value >= 0 represents the string index
 // When the value is < 0, it just represents non-negative integer. Use ~x to extract the value.
@@ -267,7 +275,6 @@ export type AnyData = DataTypes[keyof DataTypes];
 
 export type AdvancedData = DataTypes[Exclude<keyof DataTypes, DataTypeID.SimpleType>];
 
-// Instances will be [...IClassObjectData[], ...AdvancedObjectData[], RootInstanceIndex]
 export type OtherObjectData = ICustomObjectDataContent | Exclude<DataTypes[PrimitiveObjectTypeID], (number|string|boolean|null)>;
 
 // class Index of DataTypeID.CustomizedClass or PrimitiveObjectTypeID
@@ -432,9 +439,9 @@ export interface IFileData extends Array<any> {
 
     // Data area
 
-    // A one-dimensional array to represent object datas, layout is [...IClassObjectData[], ...AdvancedObjectData[], RootInstanceIndex]
-    // If the last element is not RootInstanceIndex, the first element will be the root object to return
-    [File.Instances]: (IClassObjectData|OtherObjectData|RootInstanceIndex)[];
+    // A one-dimensional array to represent object datas, layout is [...IClassObjectData[], ...OtherObjectData[], RootInfo]
+    // If the last element is not RootInfo(number), the first element will be the root object to return and it doesn't have native asset
+    [File.Instances]: (IClassObjectData|OtherObjectData|RootInfo)[];
     [File.InstanceTypes]: OtherObjectTypeID[] | Empty;
     // Object references infomation
     [File.Refs]: IRefs | Empty;
@@ -747,6 +754,9 @@ function parseInstances (data: IFileData): RootInstanceIndex {
         rootIndex = 0;
     }
     else {
+        if (rootIndex < 0) {
+            rootIndex = ~rootIndex;
+        }
         --normalObjectCount;
     }
 
@@ -993,6 +1003,17 @@ export function packCustomObjData (type: string, data: IClassObjectData|OtherObj
         [0],
         EMPTY_PLACEHOLDER, [], [], []
     ];
+}
+
+export function hasNativeDep (data: IFileData): boolean {
+    let instances = data[File.Instances];
+    let rootInfo = instances[instances.length - 1];
+    if (typeof rootInfo !== 'number') {
+        return false;
+    }
+    else {
+        return rootInfo < 0;
+    }
 }
 
 if (CC_PREVIEW) {
