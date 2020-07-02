@@ -35,7 +35,7 @@ test('parse asset', function () {
         "x": 0,
         "y": 0
     }); 
-    strictEqual(depend.nativeDep, null, 'should equal to null');
+    strictEqual(depend.nativeDep, undefined, 'should equal to undefined');
     strictEqual(depend.deps.length, 1, 'should equal to 1');
     strictEqual(depend.deps[0], "748321", 'should equal to 748321');
 });
