@@ -14,8 +14,7 @@ export interface IPhysicsMaterial {
 export interface IPhysicsConfig {
     gravity: IVec3Like;
     allowSleep: boolean;
-    deltaTime: number;
-    interpolation: number;
+    fixedTimeStep: number;
     maxSubSteps: number;
     collisionMatrix: ICollisionMatrix;
     defaultMaterial: IPhysicsMaterial;
