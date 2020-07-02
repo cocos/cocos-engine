@@ -39,10 +39,11 @@ Ammo['CC_CONFIG'] = {
     'rollingFriction': 0.1,
     'spinningFriction': 0.1,
     'ignoreSelfBody': true,
+    'emitStaticCollision': false,
 }
 
 Ammo['CC_CACHE'] = {
-    'BT_TRIANGLE_MESH': { 'enable': false },
+    'btTriangleMesh': { 'enable': false },
 }
 
 import '../cocos/physics/ammo/instantiate';
