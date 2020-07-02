@@ -25,13 +25,11 @@
         __born__: 1985,
         $$: 'Amoy'
     }, { stringify: false });
-    JSON1[0] = { "version": JSON1[0] };
 
     var KEY2 = 'hallelujah';
     var JSON2 = Editor.serializeCompiled([{
         text: 'hallelujah\nalujah\\alujah...\uD83D\uDE02'
     }], { stringify: false });
-    JSON2[0] = { "version": JSON2[0] };
 
     test('pack and unpack something', function () {
         var packer = new Editor.JsonPacker();
@@ -42,6 +40,8 @@
         ok(res.indices.indexOf(KEY1) !== -1 && res.indices.indexOf(KEY2) !== -1, 'should generate index data when packing');
 
         cc.assetManager.packManager.unpack(res.indices, JSON.parse(res.data), '.json', null, function (err, data) {
+            JSON1[0] = data[KEY1 + '@import'][0];
+            JSON2[0] = data[KEY2 + '@import'][0];
             deepEqual(data[KEY1 + '@import'], JSON1, 'should unpack JSON1');
             deepEqual(data[KEY2 + '@import'], JSON2, 'should unpack JSON2');
         });

@@ -421,7 +421,7 @@ export const enum File {
 // Main file structure
 export interface IFileData extends Array<any> {
     // version
-    [File.Version]: number | any;
+    [File.Version]: number | FileInfo | any;
 
     // Shared data area, the higher the number of references, the higher the position
 
@@ -921,7 +921,7 @@ export default function deserialize (data: IFileData, details: Details, options?
     let version = data[File.Version];
     let preprocessed = false;
     if (typeof version === 'object') {
-        preprocessed = true;
+        preprocessed = version.preprocessed;
         version = version.version;
     }
     if (version < SUPPORT_MIN_FORMAT_VERSION) {
@@ -956,6 +956,14 @@ export default function deserialize (data: IFileData, details: Details, options?
 
 deserialize.Details = Details;
 
+class FileInfo {
+    declare version: number;
+    preprocessed = true;
+    constructor (version: number) {
+        this.version = version;
+    }
+}
+
 export function unpackJSONs (data: IPackedFileData, classFinder?: ClassFinder): IFileData[] {
     if (data[File.Version] < SUPPORT_MIN_FORMAT_VERSION) {
         throw new Error(cc.debug.getError(5304, data[File.Version]));
@@ -963,7 +971,7 @@ export function unpackJSONs (data: IPackedFileData, classFinder?: ClassFinder): 
     lookupClasses(data, true, classFinder);
     cacheMasks(data);
 
-    let version = { version: data[File.Version] };  // use an object to marked as preprocessed
+    let version = new FileInfo(data[File.Version]);
     let sharedUuids = data[File.SharedUuids];
     let sharedStrings = data[File.SharedStrings];
     let sharedClasses = data[File.SharedClasses];
@@ -985,6 +993,19 @@ export function packCustomObjData (type: string, data: IClassObjectData|OtherObj
         [0],
         EMPTY_PLACEHOLDER, [], [], []
     ];
+}
+
+if (CC_PREVIEW) {
+    deserialize.isCompiledJson = function (json: object): boolean {
+        if (Array.isArray(json)) {
+            let version = json[0];
+            // array[0] will not be a number in the editor version
+            return typeof version === 'number' || version instanceof FileInfo;
+        }
+        else {
+            return false;
+        }
+    };
 }
 
 if (CC_EDITOR || CC_TEST) {
