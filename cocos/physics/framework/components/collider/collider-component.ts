@@ -281,19 +281,6 @@ export class ColliderComponent extends Eventify(Component) {
 
     /**
      * @en
-     * Sets the group value.
-     * @zh
-     * 设置分组值。
-     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
-     */
-    public setGroup (v: number): void {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
-            this._shape!.setGroup(v);
-        }
-    }
-
-    /**
-     * @en
      * Gets the group value.
      * @zh
      * 获取分组值。
@@ -308,14 +295,41 @@ export class ColliderComponent extends Eventify(Component) {
 
     /**
      * @en
+     * Sets the group value.
+     * @zh
+     * 设置分组值。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public setGroup (v: number): void {
+        if (this._assertOnLoadCalled) {
+            if (!this._assertUseCollisionMatrix) {
+                this._shape!.setGroup(v);
+            } else {
+                const body = this._shape!.attachedRigidBody;
+                if (body) {
+                    body.group = v;
+                }
+            }
+        }
+    }
+
+    /**
+     * @en
      * Add a grouping value to fill in the group you want to join.
      * @zh
      * 添加分组值，可填要加入的 group。
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addGroup (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
-            this._shape!.addGroup(v);
+        if (this._assertOnLoadCalled) {
+            if (!this._assertUseCollisionMatrix) {
+                this._shape!.addGroup(v);
+            } else {
+                const body = this._shape!.attachedRigidBody;
+                if (body) {
+                    body.group |= v;
+                }
+            }
         }
     }
 
@@ -327,8 +341,15 @@ export class ColliderComponent extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeGroup (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
-            this._shape!.removeGroup(v);
+        if (this._assertOnLoadCalled) {
+            if (!this._assertUseCollisionMatrix) {
+                this._shape!.removeGroup(v);
+            } else {
+                const body = this._shape!.attachedRigidBody;
+                if (body) {
+                    body.group &= ~v;
+                }
+            }
         }
     }
 
