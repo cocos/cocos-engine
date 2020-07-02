@@ -146,6 +146,8 @@ export class PhysicsSystem extends System {
      */
     static readonly ID = 'PHYSICS';
 
+    static readonly CONFIG = globalThis._CCSettings ? globalThis._CCSettings.physics : null;
+
     /**
      * @en
      * Gets the physical system instance.
@@ -180,8 +182,9 @@ export class PhysicsSystem extends System {
         return new PhysicsRayResult();
     }, 1);
 
-    private constructor (config: IPhysicsConfig) {
+    private constructor () {
         super();
+        let config = PhysicsSystem.CONFIG as IPhysicsConfig;
         if (config) {
             Vec3.copy(this._gravity, config.gravity);
             this._allowSleep = config.allowSleep;
@@ -328,8 +331,7 @@ export class PhysicsSystem extends System {
 import { legacyCC } from '../../core/global-exports';
 if (PHYSICS_BUILTIN || PHYSICS_CANNON || PHYSICS_AMMO) {
     director.on(Director.EVENT_INIT, function () {
-        const config: IPhysicsConfig = globalThis._CCSettings.physics;
-        const sys = new legacyCC.PhysicsSystem(config);
+        const sys = new legacyCC.PhysicsSystem();
         legacyCC.PhysicsSystem._instance = sys;
         director.registerSystem(PhysicsSystem.ID, sys, 0);
     });
