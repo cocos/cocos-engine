@@ -42,7 +42,8 @@ export class ColliderComponent extends Eventify(Component) {
         readonly: true,
     })
     public get attachedRigidBody (): RigidBodyComponent | null {
-        return this._attachedRigidBody;
+        return findAttachedBody(this.node);
+        // return this._attachedRigidBody;
     }
 
     /**
@@ -188,7 +189,7 @@ export class ColliderComponent extends Eventify(Component) {
     protected _isSharedMaterial: boolean = true;
     protected _needTriggerEvent: boolean = false;
     protected _needCollisionEvent: boolean = false;
-    protected _attachedRigidBody: RigidBodyComponent | null = null;
+    // protected _attachedRigidBody: RigidBodyComponent | null = null;
 
     @property({ type: PhysicMaterial })
     protected _material: PhysicMaterial | null = null;
@@ -355,15 +356,8 @@ export class ColliderComponent extends Eventify(Component) {
         if (this._shape) this._shape.removeMask(v);
     }
 
-    public updateAttachedBody () {
-        this._attachedRigidBody = findAttachedBody(this.node);
-    }
 
     /// COMPONENT LIFECYCLE ///
-
-    protected __preload () {
-        this.updateAttachedBody();
-    }
 
     protected onLoad () {
         if (!EDITOR) {
