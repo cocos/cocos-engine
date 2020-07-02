@@ -124,6 +124,10 @@ export class CannonRigidBody implements IRigidBody {
 
     onEnable () {
         this._isEnabled = true;
+        this.setGroup(this._rigidBody.group);
+        if (PhysicsSystem.instance.useCollisionMatrix) {
+            this.setMask(PhysicsSystem.instance.collisionMatrix[this._rigidBody.group]);
+        }
         this.setMass(this._rigidBody.mass);
         this.setAllowSleep(this._rigidBody.allowSleep);
         this.setLinearDamping(this._rigidBody.linearDamping);

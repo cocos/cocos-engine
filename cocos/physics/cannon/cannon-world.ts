@@ -125,6 +125,15 @@ export class CannonWorld implements IPhysicsWorld {
     removeConstraint (constraint: CannonConstraint) {
         this._world.removeConstraint(constraint.impl);
     }
+
+    updateCollisionMatrix (group: number, mask: number) {
+        for (let i = 0; i < this.bodies.length; i++) {
+            const b = this.bodies[i].body;
+            if (b.collisionFilterGroup == group) {
+                b.collisionFilterMask = mask;
+            }
+        }
+    }
 }
 
 const from = new CANNON.Vec3();

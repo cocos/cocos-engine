@@ -1,10 +1,10 @@
 import { IVec3Like } from "../../core";
 
-interface ICollisionMatrix {
+export interface ICollisionMatrix {
     [x: string]: number;
 }
 
-interface IPhysicsMaterial {
+export interface IPhysicsMaterial {
     friction: number;
     rollingFriction: number;
     spinningFriction: number;
