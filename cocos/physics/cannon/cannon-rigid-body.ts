@@ -32,7 +32,7 @@ export class CannonRigidBody implements IRigidBody {
 
     setAllowSleep (v: boolean) {
         this.impl.allowSleep = v;
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
     }
 
     setMass (value: number) {
@@ -44,7 +44,7 @@ export class CannonRigidBody implements IRigidBody {
         }
 
         this.impl.updateMassProperties();
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
     }
 
     setIsKinematic (value: boolean) {
@@ -62,7 +62,7 @@ export class CannonRigidBody implements IRigidBody {
     fixRotation (value: boolean) {
         this.impl.fixedRotation = value;
         this.impl.updateMassProperties();
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
     }
 
     setLinearDamping (value: number) {
@@ -75,17 +75,17 @@ export class CannonRigidBody implements IRigidBody {
 
     useGravity (value: boolean) {
         this.impl.useGravity = value;
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
     }
 
     setLinearFactor (value: IVec3Like) {
         Vec3.copy(this.impl.linearFactor, value);
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
     }
 
     setAngularFactor (value: IVec3Like) {
         Vec3.copy(this.impl.angularFactor, value);
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
     }
 
     get impl () {
@@ -124,6 +124,7 @@ export class CannonRigidBody implements IRigidBody {
 
     onEnable () {
         this._isEnabled = true;
+        // TODO: overwrite collider setGroup if runtime add.
         this.setGroup(this._rigidBody.group);
         if (PhysicsSystem.instance.useCollisionMatrix) {
             this.setMask(PhysicsSystem.instance.collisionMatrix[this._rigidBody.group]);
@@ -176,13 +177,22 @@ export class CannonRigidBody implements IRigidBody {
         return this.impl.sleep();
     }
 
+    setSleepThreshold (v: number) {
+        this.impl.sleepSpeedLimit = v;
+        this._wakeUpIfSleep();
+    }
+
+    getSleepThreshold () {
+        return this.impl.sleepSpeedLimit;
+    }
+
     getLinearVelocity (out: Vec3): Vec3 {
         Vec3.copy(out, this.impl.velocity);
         return out;
     }
 
     setLinearVelocity (value: Vec3): void {
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
         Vec3.copy(this.impl.velocity, value);
     }
 
@@ -192,47 +202,47 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     setAngularVelocity (value: Vec3): void {
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
         Vec3.copy(this.impl.angularVelocity, value);
     }
 
     applyForce (force: Vec3, worldPoint?: Vec3) {
         this._sharedBody.syncSceneToPhysics();
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
         if (worldPoint == null) worldPoint = Vec3.ZERO;
         this.impl.applyForce(Vec3.copy(v3_cannon0, force), Vec3.copy(v3_cannon1, worldPoint));
     }
 
     applyImpulse (impulse: Vec3, worldPoint?: Vec3) {
         this._sharedBody.syncSceneToPhysics();
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
         if (worldPoint == null) worldPoint = Vec3.ZERO;
         this.impl.applyImpulse(Vec3.copy(v3_cannon0, impulse), Vec3.copy(v3_cannon1, worldPoint));
     }
 
     applyLocalForce (force: Vec3, localPoint?: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
         if (localPoint == null) localPoint = Vec3.ZERO;
         this.impl.applyLocalForce(Vec3.copy(v3_cannon0, force), Vec3.copy(v3_cannon1, localPoint));
     }
 
     applyLocalImpulse (impulse: Vec3, localPoint?: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
         if (localPoint == null) localPoint = Vec3.ZERO;
         this.impl.applyLocalImpulse(Vec3.copy(v3_cannon0, impulse), Vec3.copy(v3_cannon1, localPoint));
     }
 
     applyTorque (torque: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
         Vec3.add(this.impl.torque, this.impl.torque, torque);
     }
 
     applyLocalTorque (torque: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
         Vec3.copy(v3_cannon0, torque);
         this.impl.vectorToWorldFrame(v3_cannon0, v3_cannon0);
         Vec3.add(this.impl.torque, this.impl.torque, v3_cannon0);
@@ -245,17 +255,17 @@ export class CannonRigidBody implements IRigidBody {
 
     setGroup (v: number): void {
         this.impl.collisionFilterGroup = v;
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
     }
 
     addGroup (v: number): void {
         this.impl.collisionFilterGroup |= v;
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
     }
 
     removeGroup (v: number): void {
         this.impl.collisionFilterGroup &= ~v;
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
     }
 
     /** mask */
@@ -265,17 +275,20 @@ export class CannonRigidBody implements IRigidBody {
 
     setMask (v: number): void {
         this.impl.collisionFilterMask = v;
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
     }
 
     addMask (v: number): void {
         this.impl.collisionFilterMask |= v;
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
     }
 
     removeMask (v: number): void {
         this.impl.collisionFilterMask &= ~v;
-        if (!this.impl.isAwake()) this.impl.wakeUp();
+        this._wakeUpIfSleep()
     }
 
+    protected _wakeUpIfSleep () {
+        if (!this.impl.isAwake) this.impl.wakeUp();
+    }
 }

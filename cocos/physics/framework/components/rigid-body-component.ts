@@ -598,11 +598,7 @@ export class RigidBodyComponent extends Component {
      */
     public setGroup (v: number): void {
         if (this._assertOnLoadCalled) {
-            if (!this._assertUseCollisionMatrix) {
-                this._body!.setGroup(v);
-            } else {
-                this.group = v;
-            }
+            this.group = v;
         }
     }
 
