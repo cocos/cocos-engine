@@ -187,7 +187,7 @@ export default class aabb {
      * @param {Vec3} minPos 最小点。
      * @param {Vec3} maxPos 最大点。
      */
-    public getBoundary (minPos: Vec3, maxPos: Vec3) {
+    public getBoundary (minPos: IVec3Like, maxPos: IVec3Like) {
         Vec3.subtract(minPos, this.center, this.halfExtents);
         Vec3.add(maxPos, this.center, this.halfExtents);
     }
