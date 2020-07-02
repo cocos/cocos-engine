@@ -114,6 +114,7 @@ export class AmmoRigidBody implements IRigidBody {
     get isEnabled () { return this._isEnabled; }
     get impl () { return this._sharedBody.body; }
     get rigidBody () { return this._rigidBody; }
+    get sharedBody () { return this._sharedBody; }
 
     private static idCounter = 0;
     readonly id: number;

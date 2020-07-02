@@ -100,6 +100,7 @@ export class AmmoSharedBody {
         if (v) {
             if (this.bodyIndex < 0) {
                 this.bodyIndex = this.wrappedWorld.bodies.length;
+                this.body.clearState();
                 this.wrappedWorld.addSharedBody(this);
                 this.syncInitialBody();
             }
