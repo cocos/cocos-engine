@@ -2,11 +2,13 @@
  * @hidden
  */
 
+import { Layers } from "../../../core";
+
 export class BuiltinObject {
 
-    public collisionFilterGroup: number = 1 << 0;
+    public collisionFilterGroup: number = Layers.Enum.DEFAULT;;
 
-    public collisionFilterMask: number = 1 << 0;
+    public collisionFilterMask: number = -1;
 
     /** group */
     public getGroup (): number {
