@@ -24,7 +24,7 @@
  ****************************************************************************/
 const Cache = require('./cache');
 const js = require('../platform/js');
-import { getCtorAndSerializedData } from '../platform/deserialize-compiled';
+import { isPrefabOrScene, getDependUuidList, isDataValid } from '../platform/deserialize-compiled';
 
 /**
  * @module cc.AssetManager
@@ -63,7 +63,8 @@ var dependUtil = {
      * getNativeDep(uuid: string): Record<string, any>
      */
     getNativeDep (uuid) {
-        if (this._depends.has(uuid)) return this._depends.get(uuid).nativeDep;
+        let depend;
+        if (depend = this._depends.get(uuid)) return depend.nativeDep && Object.assign({}, depend.nativeDep);
         return null;
     },
 
@@ -153,38 +154,30 @@ var dependUtil = {
      */
     parse (uuid, json) {
         var out = null;
-        if (Array.isArray(json)) {
+        if (Array.isArray(json) || json.__type__) {
 
             if (this._depends.has(uuid)) return this._depends.get(uuid);
 
-            if (CC_EDITOR || CC_PREVIEW) {
+            if (Array.isArray(json) && (!isDataValid(json) || isPrefabOrScene(json))) {
                 out = {
-                    deps: cc.Asset._parseDepsFromJson(json),
+                    deps: this._parseDepsFromJson(json),
                 };
             }
             else {
-                let { ctor, content } = getCtorAndSerializedData(json)
-                out = {
-                    preventPreloadNativeObject: ctor.preventPreloadNativeObject,
-                    preventDeferredLoadDependents: ctor.preventDeferredLoadDependents,
-                    deps: ctor._parseDepsFromJson(json),
-                    nativeDep: ctor._parseNativeDepFromJson(content)
-                };
-                out.nativeDep && (out.nativeDep.uuid = uuid);
+                try {
+                    var asset = cc.deserialize(json);
+                    out = {
+                        preventPreloadNativeObject: asset.constructor.preventPreloadNativeObject,
+                        preventDeferredLoadDependents: asset.constructor.preventDeferredLoadDependents,
+                        deps: this._parseDepsFromJson(json),
+                        nativeDep: asset._nativeDep
+                    };
+                    out.nativeDep && (out.nativeDep.uuid = uuid);
+                }
+                catch (e) {
+                    out = { deps: [] }
+                }
             }
-        }
-        // get deps from json
-        else if (json.__type__) {
-
-            if (this._depends.has(uuid)) return this._depends.get(uuid);
-            var ctor = js._getClassById(json.__type__);
-            out = {
-                preventPreloadNativeObject: ctor.preventPreloadNativeObject,
-                preventDeferredLoadDependents: ctor.preventDeferredLoadDependents,
-                deps: ctor._parseDepsFromJson(json),
-                nativeDep: ctor._parseNativeDepFromJson(json)
-            };
-            out.nativeDep && (out.nativeDep.uuid = uuid);
         }
         // get deps from an existing asset 
         else {
@@ -209,7 +202,35 @@ var dependUtil = {
         // cache dependency list
         this._depends.add(uuid, out);
         return out;
-    }
+    },
+
+    _parseDepsFromJson: CC_EDITOR || CC_PREVIEW ? function (json) {
+        if (isDataValid(json)) 
+            return getDependUuidList(json).map(uuid => cc.assetManager.utils.decodeUuid(uuid));
+            
+        var depends = [];
+        function parseDependRecursively (data, out) {
+            if (!data || typeof data !== 'object' || data.__id__) return;
+            var uuid = data.__uuid__;
+            if (Array.isArray(data)) {
+                for (let i = 0, l = data.length; i < l; i++) {
+                    parseDependRecursively(data[i], out);
+                }
+            }
+            else if (uuid) { 
+                out.push(cc.assetManager.utils.decodeUuid(uuid));
+            }
+            else {
+                for (var prop in data) {
+                    parseDependRecursively(data[prop], out);
+                }
+            }
+        }
+        parseDependRecursively(json, depends);
+        return depends;
+    } : function (json) {
+        return getDependUuidList(json).map(uuid => cc.assetManager.utils.decodeUuid(uuid));
+    },
 };
 
 module.exports = dependUtil;

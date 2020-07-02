@@ -23,12 +23,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 const Bundle = require('./bundle');
+const Cache = require('./cache');
+const { assets } = require('./shared');
+
+const _creating = new Cache();
 
 function createTexture (id, data, options, onComplete) {
     let out = null, err = null;
     try {
         out = new cc.Texture2D();
-        out._uuid = id;
         out._nativeUrl = id;
         out._nativeAsset = data;
     }
@@ -40,7 +43,6 @@ function createTexture (id, data, options, onComplete) {
 
 function createAudioClip (id, data, options, onComplete) {
     let out = new cc.AudioClip();
-    out._uuid = id;
     out._nativeUrl = id;
     out._nativeAsset = data;
     out.duration = data.duration;
@@ -49,21 +51,18 @@ function createAudioClip (id, data, options, onComplete) {
 
 function createJsonAsset (id, data, options, onComplete) {
     let out = new cc.JsonAsset();
-    out._uuid = id;
     out.json = data;
     onComplete && onComplete(null, out);
 }
 
 function createTextAsset (id, data, options, onComplete) {
     let out = new cc.TextAsset();
-    out._uuid = id;
     out.text = data;
     onComplete && onComplete(null, out);
 }
 
 function createFont (id, data, options, onComplete) {
     let out = new cc.TTFFont();
-    out._uuid = id;
     out._nativeUrl = id;
     out._nativeAsset = data;
     onComplete && onComplete(null, out);
@@ -71,7 +70,6 @@ function createFont (id, data, options, onComplete) {
 
 function createBufferAsset (id, data, options, onComplete) {
     let out = new cc.BufferAsset();
-    out._uuid = id;
     out._nativeUrl = id;
     out._nativeAsset = data;
     onComplete && onComplete(null, out);
@@ -79,7 +77,6 @@ function createBufferAsset (id, data, options, onComplete) {
 
 function createAsset (id, data, options, onComplete) {
     let out = new cc.Asset();
-    out._uuid = id;
     out._nativeUrl = id;
     out._nativeAsset = data;
     onComplete && onComplete(null, out);
@@ -105,7 +102,26 @@ const factory = {
 
     create (id, data, type, options, onComplete) {
         var func = producers[type] || producers['default'];
-        func(id, data, options, onComplete);
+        let asset, creating;
+        if (asset = assets.get(id)) {
+            onComplete(null, asset);
+        }
+        else if (creating = _creating.get(id)) {
+            creating.push(onComplete);
+        }
+        else {
+            _creating.add(id, [onComplete]);
+            func(id, data, options, function (err, data) {
+                if (!err && data instanceof cc.Asset) {
+                    data._uuid = id;
+                    assets.add(id, data);
+                }
+                let callbacks = _creating.remove(id);
+                for (let i = 0, l = callbacks.length; i < l; i++) {
+                    callbacks[i](err, data);
+                }
+            });
+        }
     }
 };
 

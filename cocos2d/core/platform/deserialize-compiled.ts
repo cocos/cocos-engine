@@ -987,46 +987,22 @@ export function packCustomObjData (type: string, data: IClassObjectData|OtherObj
     ];
 }
 
-export function findInstanceRoot (json: IFileData): ICustomObjectDataContent {
-    let instances = json[File.Instances];
-    if (typeof instances[instances.length - 1] === 'number') {
-        return instances[instances[instances.length - 1]];
-    }
-    else {
-        return instances[0];
-    }
-}
-
 export function getDependUuidList (json: IFileData): Array<string> {
     return json[File.DependUuidIndices].map(index => json[File.SharedUuids][index]);
 }
 
-export function getCtorAndSerializedData (json: IFileData): {ctor: any, content: any} {
-    let classes = json[File.SharedClasses];
-    let root = findInstanceRoot(json);
-    let ctor: any = null;
-    let content: any = null;
-    // default deserialized object
-    if (Array.isArray(root)) {
-        let layouts = json[File.SharedMasks];
-        let layout = layouts[root[0]];
-        let classIndex = layout[0];
-        let classInfo = typeof classIndex === 'number' ? classes[classIndex] : classIndex;
-        ctor = classInfo[0];
-        let fields = classInfo[1];
-        content = {};
-        for (let i = 1, l = layout[layout.length - 1]; i < l; i++) {
-            content[fields[layout[i]]] = root[i];
-        }
+export function isDataValid (json: any): boolean {
+    if (!Array.isArray(json)) return false;
+    let version = json[0];
+    if (typeof version === 'object') {
+        version = version.version;
     }
-    // custom deserialized object
-    else {
-        let instanceTypeIndex = json[File.InstanceTypes][0];
-        ctor = classes[instanceTypeIndex];
-        content = root;
-    }
-    ctor = typeof ctor === 'string' ? js._getClassById(ctor) : ctor;
-    return { ctor, content };
+    if (typeof version !== 'number' || version < SUPPORT_MIN_FORMAT_VERSION) return false;
+    return true;
+}
+
+export function isPrefabOrScene (json: IFileData): boolean {
+    return json[File.Instances].length > 1;
 }
 
 if (CC_EDITOR || CC_TEST) {

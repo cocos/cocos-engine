@@ -610,6 +610,10 @@ AssetManager.prototype = {
     loadRemote (url, options, onComplete) {
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
 
+        if (this.assets.has(url)) {
+            return asyncify(onComplete)(null, this.assets.get(url));
+        }
+
         options.__isNative__ = true;
         options.preset = options.preset || 'remote';
         this.loadAny({url}, options, null, function (err, data) {

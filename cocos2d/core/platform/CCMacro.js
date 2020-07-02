@@ -366,7 +366,7 @@ cc.macro = {
      * https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/createImageBitmap
      * 
      * !#en
-     * Whether to use image bitmap first. When enable it, the size of memory will increase
+     * Whether to use image bitmap first. If enabled, memory usage will increase.
      * 
      * !#zh
      * 是否优先使用 image bitmap，启用之后，内存占用会变高

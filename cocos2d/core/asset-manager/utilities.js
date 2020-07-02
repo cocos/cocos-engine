@@ -153,7 +153,7 @@ var utils = {
 
                 if (includeNative && !asyncLoadAssets && !info.preventPreloadNativeObject && info.nativeDep) {
                     config && (info.nativeDep.bundle = config.name);
-                    depends.push(info.nativeDep);
+                    depends.push(Object.assign({}, info.nativeDep));
                 }
                 
             } else {
@@ -166,7 +166,7 @@ var utils = {
                 }
                 if (includeNative && info.nativeDep) {
                     config && (info.nativeDep.bundle = config.name);
-                    depends.push(info.nativeDep);
+                    depends.push(Object.assign({}, info.nativeDep));
                 }
             }
         }
