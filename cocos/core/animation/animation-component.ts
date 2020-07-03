@@ -466,7 +466,7 @@ export class AnimationComponent extends Eventify(Component) {
     }
 }
 
-export namespace AnimationComponent {
+export declare namespace AnimationComponent {
     export type EventType = EnumAlias<typeof EventType>;
 }
 

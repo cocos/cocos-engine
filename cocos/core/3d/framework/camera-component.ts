@@ -66,7 +66,7 @@ const ClearFlag = Enum({
 });
 
 // tslint:disable: no-shadowed-variable
-export namespace CameraComponent {
+export declare namespace CameraComponent {
     export type ProjectionType = EnumAlias<typeof ProjectionType>;
     export type FOVAxis = EnumAlias<typeof FOVAxis>;
     export type ClearFlag = EnumAlias<typeof ClearFlag>;
