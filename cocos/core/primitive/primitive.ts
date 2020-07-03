@@ -66,7 +66,7 @@ export class Primitive extends Mesh {
     }
 }
 
-export namespace Primitive {
+export declare namespace Primitive {
     export type PrimitiveType = EnumAlias<typeof PrimitiveType>;
 }
 

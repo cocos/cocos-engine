@@ -98,7 +98,7 @@ const _blInfo: IGFXBindingLayoutInfo = {
 };
 
 // tslint:disable: no-shadowed-variable
-export namespace Pass {
+export declare namespace Pass {
     export type getBindingTypeFromHandle = typeof getBindingTypeFromHandle;
     export type getTypeFromHandle = typeof getTypeFromHandle;
     export type getBindingFromHandle = typeof getBindingFromHandle;

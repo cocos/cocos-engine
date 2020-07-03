@@ -1086,7 +1086,7 @@ export class WidgetComponent extends Component {
     }
 }
 
-export namespace WidgetComponent {
+export declare namespace WidgetComponent {
     export type AlignMode = EnumAlias<typeof AlignMode>;
 }
 

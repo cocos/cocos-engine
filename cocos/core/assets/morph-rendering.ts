@@ -473,7 +473,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
     }
 }
 
-namespace CpuRenderingInstance {
+declare namespace CpuRenderingInstance {
     export interface AttributeMorphResource {
         attributeName: string;
         local: Float32Array;
