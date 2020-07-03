@@ -72,7 +72,7 @@ export class CannonWorld implements IPhysicsWorld {
 
         // sync scene to physics
         for (let i = 0; i < this.bodies.length; i++) {
-            this.bodies[i].syncSceneToPhysics();
+            this.bodies[i].syncSceneToPhysics(true);
         }
 
         clearNodeTransformDirtyFlag();
