@@ -24,7 +24,7 @@
  ****************************************************************************/
 const Cache = require('./cache');
 const js = require('../platform/js');
-import { isPrefabOrScene, getDependUuidList, isDataValid } from '../platform/deserialize-compiled';
+import { hasNativeDep , getDependUuidList, isDataValid } from '../platform/deserialize-compiled';
 
 /**
  * @module cc.AssetManager
@@ -158,7 +158,7 @@ var dependUtil = {
 
             if (this._depends.has(uuid)) return this._depends.get(uuid);
 
-            if (Array.isArray(json) && (!isDataValid(json) || isPrefabOrScene(json))) {
+            if (Array.isArray(json) && (!isDataValid(json) || !hasNativeDep(json))) {
                 out = {
                     deps: this._parseDepsFromJson(json),
                 };
@@ -167,8 +167,6 @@ var dependUtil = {
                 try {
                     var asset = cc.deserialize(json);
                     out = {
-                        preventPreloadNativeObject: asset.constructor.preventPreloadNativeObject,
-                        preventDeferredLoadDependents: asset.constructor.preventDeferredLoadDependents,
                         deps: this._parseDepsFromJson(json),
                         nativeDep: asset._nativeDep
                     };
@@ -205,8 +203,12 @@ var dependUtil = {
     },
 
     _parseDepsFromJson: CC_EDITOR || CC_PREVIEW ? function (json) {
-        if (isDataValid(json)) 
-            return getDependUuidList(json).map(uuid => cc.assetManager.utils.decodeUuid(uuid));
+
+        if (isDataValid(json)) {
+            let depends = getDependUuidList(json);
+            depends.forEach(uuid, index => depends[index] = cc.assetManager.utils.decodeUuid(uuid));
+            return depends;
+        }
             
         var depends = [];
         function parseDependRecursively (data, out) {
@@ -229,8 +231,10 @@ var dependUtil = {
         parseDependRecursively(json, depends);
         return depends;
     } : function (json) {
-        return getDependUuidList(json).map(uuid => cc.assetManager.utils.decodeUuid(uuid));
-    },
+        let depends = getDependUuidList(json);
+        depends.forEach(uuid, index => depends[index] = cc.assetManager.utils.decodeUuid(uuid));
+        return depends;
+    }
 };
 
 module.exports = dependUtil;

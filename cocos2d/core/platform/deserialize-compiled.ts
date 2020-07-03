@@ -988,7 +988,8 @@ export function packCustomObjData (type: string, data: IClassObjectData|OtherObj
 }
 
 export function getDependUuidList (json: IFileData): Array<string> {
-    return json[File.DependUuidIndices].map(index => json[File.SharedUuids][index]);
+    let sharedUuids = json[File.SharedUuids];
+    return json[File.DependUuidIndices].map(index => sharedUuids[index]);
 }
 
 export function isDataValid (json: any): boolean {
@@ -999,10 +1000,6 @@ export function isDataValid (json: any): boolean {
     }
     if (typeof version !== 'number' || version < SUPPORT_MIN_FORMAT_VERSION) return false;
     return true;
-}
-
-export function isPrefabOrScene (json: IFileData): boolean {
-    return json[File.Instances].length > 1;
 }
 
 if (CC_EDITOR || CC_TEST) {
