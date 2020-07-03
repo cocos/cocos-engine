@@ -343,7 +343,7 @@ export class PhysicsSystem extends System {
     resetCollisionMatrix (mask = 0xffffffff) {
         for (let i = 0; i < 32; i++) {
             const key = 1 << i;
-            this[`${key}`] = 0xffffffff;
+            this.collisionMatrix[`${key}`] = mask;
         }
     }
 
