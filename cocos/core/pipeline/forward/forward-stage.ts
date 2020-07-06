@@ -4,7 +4,7 @@
 
 import { ccclass } from '../../data/class-decorator';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXClearFlag, GFXFilter, IGFXColor } from '../../gfx/define';
+import { GFXClearFlag, GFXFilter, IGFXColor, GFXLoadOp, GFXTextureLayout } from '../../gfx/define';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderFlow } from '../render-flow';
@@ -14,7 +14,6 @@ import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { PipelineGlobal } from '../global';
-import { RenderPassStage } from '../define';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -149,7 +148,7 @@ export class ForwardStage extends RenderStage {
 
         colors[0].a = camera.clearColor.a;
 
-        const renderPass = this._pipeline.getRenderPass(RenderPassStage.DEFAULT)!;
+        const renderPass = this._flow.getRenderPass(camera.clearFlag);
 
         if (this._pipeline.usePostProcess) {
             if (!this._pipeline.useMSAA) {

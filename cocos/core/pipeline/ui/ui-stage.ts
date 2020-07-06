@@ -8,7 +8,6 @@ import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { PipelineGlobal } from '../global';
-import { RenderPassStage } from '../define';
 
 const bufs: GFXCommandBuffer[] = [];
 const colors: IGFXColor[] = [];
@@ -61,11 +60,7 @@ export class UIStage extends RenderStage {
         }
         this._renderQueues[0].sort();
 
-        const renderPass = this._pipeline.getRenderPass(RenderPassStage.UI)!;
-        const framebuffer = view.window!.getFramebuffer(renderPass);
-
         const camera = view.camera!;
-
         const vp = camera.viewport;
         this._renderArea!.x = vp.x * camera.width;
         this._renderArea!.y = vp.y * camera.height;
@@ -75,6 +70,9 @@ export class UIStage extends RenderStage {
         colors[0] = camera.clearColor;
 
         const cmdBuff = this._cmdBuff!;
+
+        const renderPass = this._flow.getRenderPass(camera.clearFlag);
+        const framebuffer = view.window!.getFramebuffer(renderPass);
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,

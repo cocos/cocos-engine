@@ -9,6 +9,8 @@ import { RenderPipeline } from './render-pipeline';
 import { RenderStage } from './render-stage';
 import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
+import { GFXClearFlag, GFXRenderPass, GFXColorAttachment, GFXDepthStencilAttachment, GFXLoadOp, GFXTextureLayout } from '../gfx';
+import { PipelineGlobal } from './global';
 
 /**
  * @en Render flow information descriptor
@@ -115,6 +117,8 @@ export abstract class RenderFlow {
     })
     protected _stages: RenderStage[] = [];
 
+    private _renderPasses = new Map<GFXClearFlag, GFXRenderPass>();
+
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
      * @zh 初始化函数，正常情况下不会用到，仅用于程序化生成渲染管线的情况。
@@ -190,6 +194,35 @@ export abstract class RenderFlow {
             this._stages[i].destroy();
         }
         this._stages = [];
+    }
+
+    public getRenderPass (clearFlags: GFXClearFlag) {
+        let renderPass = this._renderPasses.get(clearFlags);
+        if (renderPass) { return renderPass; }
+
+        const device = PipelineGlobal.device;
+        const colorAttachment = new GFXColorAttachment();
+        const depthStencilAttachment = new GFXDepthStencilAttachment();
+        colorAttachment.format = device.colorFormat;
+        depthStencilAttachment.format = device.depthStencilFormat;
+
+        if (!(clearFlags & GFXClearFlag.COLOR)) {
+            colorAttachment.loadOp = GFXLoadOp.LOAD;
+            colorAttachment.beginLayout = GFXTextureLayout.PRESENT_SRC;
+        }
+
+        if ((clearFlags & GFXClearFlag.DEPTH_STENCIL) !== GFXClearFlag.DEPTH_STENCIL) {
+            if (!(clearFlags & GFXClearFlag.DEPTH)) depthStencilAttachment.depthLoadOp = GFXLoadOp.LOAD;
+            if (!(clearFlags & GFXClearFlag.STENCIL)) depthStencilAttachment.stencilLoadOp = GFXLoadOp.LOAD;
+            depthStencilAttachment.beginLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        }
+
+        renderPass = device.createRenderPass({
+            colorAttachments: [colorAttachment],
+            depthStencilAttachment,
+        });
+        this._renderPasses.set(clearFlags, renderPass);
+        return renderPass;
     }
 
     /**

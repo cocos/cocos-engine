@@ -5,8 +5,7 @@
 import { ccclass } from '../../data/class-decorator';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXClearFlag } from '../../gfx/define';
-import { UBOGlobal, RenderPassStage } from '../define';
+import { UBOGlobal } from '../define';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
@@ -80,7 +79,7 @@ export class ToneMapStage extends RenderStage {
         this._renderArea!.width = camera.width;
         this._renderArea!.height = camera.height;
 
-        const renderPass = this._pipeline.getRenderPass(RenderPassStage.UI)!;
+        const renderPass = this._flow.getRenderPass(camera.clearFlag);
         const framebuffer = view.window!.getFramebuffer(renderPass);
 
         cmdBuff.begin();

@@ -816,10 +816,11 @@ export abstract class RenderPipeline {
         this.addRenderPass(RenderPassStage.DEFAULT, windowPass);
 
         colorAttachment = new GFXColorAttachment();
-        depthStencilAttachment = new GFXDepthStencilAttachment();
         colorAttachment.format = PipelineGlobal.device.colorFormat;
         colorAttachment.loadOp = GFXLoadOp.LOAD;
         colorAttachment.beginLayout = GFXTextureLayout.PRESENT_SRC;
+
+        depthStencilAttachment = new GFXDepthStencilAttachment();
         depthStencilAttachment.format = PipelineGlobal.device.depthStencilFormat;
         depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
         depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
