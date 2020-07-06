@@ -1,5 +1,5 @@
 /**
- * @category pipeline.forward
+ * @category pipeline
  */
 
 import { ccclass } from '../../data/class-decorator';
@@ -11,24 +11,20 @@ import { ForwardStage } from './forward-stage';
 
 
 /**
- * @zh
- * 前向渲染流程。
+ * @en The forward flow in forward render pipeline
+ * @zh 前向渲染流程。
  */
 @ccclass('ForwardFlow')
 export class ForwardFlow extends RenderFlow {
 
+    /**
+     * @en The shared initialization information of forward render flow
+     * @zh 共享的前向渲染流程初始化参数
+     */
     public static initInfo: IRenderFlowInfo = {
         name: PIPELINE_FLOW_FORWARD,
         priority: ForwardFlowPriority.FORWARD,
     };
-
-    /**
-     * 构造函数。
-     * @param pipeline 渲染管线。
-     */
-    constructor () {
-        super();
-    }
 
     public initialize (info: IRenderFlowInfo) {
         super.initialize(info);
@@ -48,18 +44,10 @@ export class ForwardFlow extends RenderFlow {
         super.render(view);
     }
 
-    /**
-     * @zh
-     * 销毁函数。
-     */
     public destroy () {
         this.destroyStages();
     }
 
-    /**
-     * @zh
-     * 重构函数。
-     */
     public rebuild () {
     }
 }

@@ -2,11 +2,9 @@
  * @hidden
  */
 
-import { GFXAttributeName, GFXDevice, GFXPipelineState } from '../gfx';
+import { GFXAttributeName, GFXDevice } from '../gfx';
 import { Mesh } from './mesh';
 import { StdMorphRendering } from './morph-rendering';
-import { MaterialInstance } from '../renderer/core/material-instance';
-import { Material } from './material';
 import { IMacroPatch, IPSOCreateInfo } from '../renderer';
 
 export interface Morph {

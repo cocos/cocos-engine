@@ -152,7 +152,9 @@ export class CannonSharedBody {
     }
 
     private destroy () {
+        this.body.removeEventListener('cc-collide', this.onCollidedListener);
         CannonSharedBody.sharedBodesMap.delete(this.node.uuid);
+        delete CANNON.World['idToBodyMap'][this.body.id];
         (this.node as any) = null;
         (this.wrappedWorld as any) = null;
         (this.body as any) = null;

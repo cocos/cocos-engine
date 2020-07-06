@@ -86,7 +86,10 @@ export declare namespace AnimationClip {
 }
 
 /**
- * 动画剪辑。
+ * @zh 动画剪辑表示一段使用动画编辑器编辑的关键帧动画或是外部美术工具生产的骨骼动画。
+ * 它的数据主要被分为几层：轨道、关键帧和曲线。
+ * @en The animation clip represents a sequence of key frame animation created with the animation editor or skeletal animation other DCC tools.
+ * The data is divided in different levels: tracks, key frames, curves.
  */
 @ccclass('cc.AnimationClip')
 export class AnimationClip extends Asset {
@@ -135,25 +138,30 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * @zh 动画帧率，单位为帧/秒。
+     * @zh 动画帧率，单位为帧/秒。注意此属性仅用于编辑器动画编辑。
+     * @en Animation frame rate: frames per second.
+     * Note this property is only used for animation editing in Editor.
      */
     @property
     public sample = 60;
 
     /**
      * @zh 动画的播放速度。
+     * @en Animation playback speed.
      */
     @property
     public speed = 1;
 
     /**
      * @zh 动画的循环模式。
+     * @en Animation loop mode.
      */
     @property
     public wrapMode = AnimationWrapMode.Normal;
 
     /**
      * @zh 动画包含的事件数据。
+     * @en Associated event data.
      */
     @property({visible: false})
     public events: AnimationClip.IEvent[] = [];
@@ -188,6 +196,7 @@ export class AnimationClip extends Asset {
 
     /**
      * @zh 动画的周期。
+     * @en Animation duration.
      */
     get duration () {
         return this._duration;
@@ -198,7 +207,8 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * @zh 动画所有时间轴。
+     * @zh 曲线可引用的所有时间轴。
+     * @en Frame keys referenced by curves.
      */
     get keys () {
         return this._keys;
@@ -278,9 +288,12 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * @zh 提交事件数据的修改。<br/>
+     * @zh 提交事件数据的修改。
      * 当你修改了 `this.events` 时，必须调用 `this.updateEventDatas()` 使修改生效。
-     * @protected
+     * @en
+     * Commit event data update.
+     * You should call this function after you changed the `events` data to take effect.
+     * @internal
      */
     public updateEventDatas () {
         delete this._runtimeEvents;
@@ -290,7 +303,7 @@ export class AnimationClip extends Asset {
      * @en Gets the event group shall be processed at specified ratio.
      * @zh 获取事件组应按指定比例处理。
      * @param ratio The ratio.
-     * @protected
+     * @internal
      */
     public getEventGroupIndexAtRatio (ratio: number): number {
         if (!this._runtimeEvents) {
@@ -302,6 +315,7 @@ export class AnimationClip extends Asset {
 
     /**
      * @zh 返回本动画是否包含事件数据。
+     * @en Returns if this animation contains event data.
      * @protected
      */
     public hasEvents () {

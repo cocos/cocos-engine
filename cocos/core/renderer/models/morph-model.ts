@@ -2,7 +2,6 @@ import { Model } from '../scene/model';
 import { MorphRenderingInstance } from '../../assets/morph';
 import { IMacroPatch, Pass } from '../core/pass';
 import { Material } from '../../assets/material';
-import { MaterialInstance } from '../core/material-instance';
 import { RenderingSubMesh } from '../../assets/mesh';
 import { IPSOCreateInfo } from '../scene/submodel';
 

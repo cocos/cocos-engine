@@ -28,7 +28,7 @@
  * @category ui
  */
 
-import { Font, SpriteAtlas, TTFFont } from '../../core/assets';
+import { Font, SpriteAtlas, TTFFont, BitmapFont } from '../../core/assets';
 import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { EventTouch } from '../../core/platform';
 import { fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace, BASELINE_RATIO } from '../../core/utils';
@@ -256,7 +256,7 @@ export class RichTextComponent extends UIComponent {
      * 富文本定制字体。
      */
     @property({
-        type: TTFFont,
+        type: Font,
         tooltip:'富文本定制字体',
     })
     get font () {
@@ -266,7 +266,11 @@ export class RichTextComponent extends UIComponent {
         if (this._font === value) {
             return;
         }
-
+        // TODO: Remove when Editor inspector add multi-format support
+        if (value instanceof BitmapFont) {
+            console.warn('RichText only accepts TTF fonts, but you are trying to use a bitmap font.');
+            return;
+        }
         this._font = value;
         this._layoutDirty = true;
         if (this._font) {

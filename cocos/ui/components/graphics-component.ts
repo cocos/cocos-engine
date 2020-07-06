@@ -258,8 +258,6 @@ export class GraphicsComponent extends UIRenderComponent {
     public onEnable () {
         super.onEnable();
 
-        this._attachToScene();
-
         this._activateMaterial();
     }
 
@@ -535,8 +533,8 @@ export class GraphicsComponent extends UIRenderComponent {
      * 根据当前的画线样式，绘制当前或已经存在的路径。
      */
     public stroke () {
-        this._attachToScene();
         (this._assembler as IAssembler).stroke!(this);
+        this._attachToScene();
     }
 
     /**
@@ -547,8 +545,8 @@ export class GraphicsComponent extends UIRenderComponent {
      * 根据当前的画线样式，填充当前或已经存在的路径。
      */
     public fill () {
-        this._attachToScene();
         (this._assembler as IAssembler).fill!(this);
+        this._attachToScene();
     }
 
     /**

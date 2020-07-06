@@ -822,8 +822,8 @@ export class Node extends BaseNode {
         }
         const parent = this._parent;
         if (parent) {
-            this.updateWorldTransform();
-            Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, this._rot));
+            parent.updateWorldTransform();
+            Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, parent._rot));
             Mat3.multiplyMat4(m3_1, m3_1, parent._mat);
             m3_scaling.m00 = this._scale.x;
             m3_scaling.m04 = this._scale.y;
