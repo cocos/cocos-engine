@@ -46,7 +46,9 @@ export class CrossFade extends Playable {
         for (let iFading = 0; iFading < this._fadings.length; ++iFading) {
             const fading = this._fadings[iFading];
             fading.easeTime += deltaTime;
-            const relativeWeight = clamp01(fading.easeTime / fading.easeDuration);
+            // We should properly handle the case of
+            // `fading.easeTime === 0 && fading.easeDuration === 0`, which yields `NaN`.
+            const relativeWeight = fading.easeDuration === 0 ? 1 : clamp01(fading.easeTime / fading.easeDuration);
             const weight = relativeWeight * absoluteWeight;
             absoluteWeight = absoluteWeight * (1.0 - relativeWeight);
             if (fading.target.state) {

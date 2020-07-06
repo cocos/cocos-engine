@@ -87,7 +87,9 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     setAngularFactor (value: IVec3Like) {
-        this.impl.setAngularFactor(cocos2AmmoVec3(this._btVec3_0, value));
+        if (!this._rigidBody.fixedRotation) {
+            this.impl.setAngularFactor(cocos2AmmoVec3(this._btVec3_0, value));
+        }
         if (!this.isAwake) this.impl.activate();
     }
 

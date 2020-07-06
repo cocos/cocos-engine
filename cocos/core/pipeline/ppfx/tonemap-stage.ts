@@ -1,5 +1,5 @@
 /**
- * @category pipeline.ppfx
+ * @category pipeline
  */
 
 import { ccclass } from '../../data/class-decorator';
@@ -15,9 +15,8 @@ import { PipelineStateManager } from '../pipeline-state-manager';
 const bufs: GFXCommandBuffer[] = [];
 
 /**
- * @zh
- * 色调映射渲染阶段。
- *
+ * @en The tone mapping render stage
+ * @zh 色调映射渲染阶段。
  */
 @ccclass('ToneMapStage')
 export class ToneMapStage extends RenderStage {
@@ -31,10 +30,6 @@ export class ToneMapStage extends RenderStage {
     private _hTexSampler: number = 0;
     private _hBlendTexSampler: number = 0;
     private _bindingLayout: GFXBindingLayout | null = null;
-
-    constructor () {
-        super();
-    }
 
     public activate (flow: RenderFlow) {
 

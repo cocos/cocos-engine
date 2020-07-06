@@ -1,5 +1,5 @@
 /**
- * @category pipeline.ppfx
+ * @category pipeline
  */
 
 import { ccclass } from '../../data/class-decorator';
@@ -9,8 +9,8 @@ import { PIPELINE_FLOW_TONEMAP } from '../define';
 import { ForwardFlowPriority } from '../forward/enum';
 
 /**
- * @zh
- * 色调映射渲染流程。
+ * @en The tone mapping render flow
+ * @zh 色调映射渲染流程。
  */
 @ccclass('ToneMapFlow')
 export class ToneMapFlow extends RenderFlow {
@@ -19,10 +19,6 @@ export class ToneMapFlow extends RenderFlow {
         name: PIPELINE_FLOW_TONEMAP,
         priority: ForwardFlowPriority.FORWARD + 1,
     };
-
-    constructor () {
-        super();
-    }
 
     public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);

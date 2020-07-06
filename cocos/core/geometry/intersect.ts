@@ -321,9 +321,9 @@ const ray_capsule = (function () {
 
 /**
  * @en
- * ray-subMesh intersect detect.
+ * ray-subMesh intersect detect, in model space.
  * @zh
- * 射线和子三角网格的相交性检测。
+ * 在模型空间中，射线和子三角网格的相交性检测。
  * @param {ray} ray
  * @param {RenderingSubMesh} subMesh
  * @param {IRaySubMeshOptions} options
@@ -400,10 +400,10 @@ const ray_subMesh = (function () {
         }
         return minDis;
     };
-    return function (ray: ray, submesh: RenderingSubMesh, option?: IRaySubMeshOptions) {
+    return function (ray: ray, submesh: RenderingSubMesh, options?: IRaySubMeshOptions) {
         minDis = 0;
         if (submesh.geometricInfo.positions.length == 0) return minDis;
-        const opt = option == undefined ? deOpt : option;
+        const opt = options === undefined ? deOpt : options;
         const min = submesh.geometricInfo.boundingBox.min;
         const max = submesh.geometricInfo.boundingBox.max;
         if (ray_aabb2(ray, min, max)) {
@@ -417,9 +417,9 @@ const ray_subMesh = (function () {
 
 /**
  * @en
- * ray-mesh intersect detect.
+ * ray-mesh intersect detect, in model space.
  * @zh
- * 射线和三角网格资源的相交性检测。
+ * 在模型空间中，射线和三角网格资源的相交性检测。
  * @param {ray} ray 
  * @param {Mesh} mesh 
  * @param {IRayMeshOptions} options
@@ -428,9 +428,9 @@ const ray_subMesh = (function () {
 const ray_mesh = (function () {
     let minDis = 0;
     const deOpt: IRayMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
-    return function (ray: ray, mesh: Mesh, option?: IRayMeshOptions) {
+    return function (ray: ray, mesh: Mesh, options?: IRayMeshOptions) {
         minDis = 0;
-        const opt = option == undefined ? deOpt : option;
+        const opt = options === undefined ? deOpt : options;
         const length = mesh.renderingSubMeshes.length;
         const min = mesh.struct.minPosition;
         const max = mesh.struct.maxPosition;
@@ -454,7 +454,10 @@ const ray_mesh = (function () {
             }
         }
         if (minDis && opt.mode == ERaycastMode.CLOSEST) {
-            if (opt.result) opt.result.length = 1;
+            if (opt.result) {
+                opt.result[0].distance = minDis;
+                opt.result.length = 1;
+            }
             if (opt.subIndices) opt.subIndices.length = 1;
         }
         return minDis;
@@ -463,9 +466,9 @@ const ray_mesh = (function () {
 
 /**
  * @en
- * ray-model intersect detect.
+ * ray-model intersect detect, in world space.
  * @zh
- * 射线和渲染模型的相交性检测。
+ * 在世界空间中，射线和渲染模型的相交性检测。
  * @param {ray} ray
  * @param {Model} model
  * @param {IRayModelOptions} options
@@ -476,9 +479,9 @@ const ray_model = (function () {
     const deOpt: IRayModelOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
     const modelRay = new ray();
     const m4 = new Mat4();
-    return function (r: ray, model: Model, option?: IRayModelOptions) {
+    return function (r: ray, model: Model, options?: IRayModelOptions) {
         minDis = 0;
-        const opt = option == undefined ? deOpt : option;
+        const opt = options === undefined ? deOpt : options;
         const length = model.subModelNum;
         const wb = model.worldBounds;
         if (wb && !ray_aabb(r, wb)) return minDis;
@@ -486,7 +489,7 @@ const ray_model = (function () {
         if (model.node) {
             Mat4.invert(m4, model.node.getWorldMatrix(m4));
             Vec3.transformMat4(modelRay.o, r.o, m4);
-            Vec3.normalize(modelRay.d, Vec3.transformMat4Normal(modelRay.d, r.d, m4));
+            Vec3.transformMat4Normal(modelRay.d, r.d, m4);
         }
         for (let i = 0; i < length; i++) {
             const sm = model.getSubModel(i).subMeshData;
@@ -507,7 +510,10 @@ const ray_model = (function () {
             }
         }
         if (minDis && opt.mode == ERaycastMode.CLOSEST) {
-            if (opt.result) opt.result.length = 1;
+            if (opt.result) {
+                opt.result[0].distance = minDis;
+                opt.result.length = 1;
+            }
             if (opt.subIndices) opt.subIndices.length = 1;
         }
         return minDis;

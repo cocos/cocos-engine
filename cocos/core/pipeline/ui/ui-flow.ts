@@ -1,6 +1,5 @@
 /**
- * UI渲染流程模块
- * @category pipeline.ui
+ * @category pipeline
  */
 
 import { UBOGlobal } from '../define';
@@ -11,8 +10,8 @@ import { RenderView } from '../render-view';
 import { UIStage } from './ui-stage';
 
 /**
- * @zh
- * UI渲染流程。
+ * @en The UI render flow
+ * @zh UI渲染流程。
  */
 export class UIFlow extends RenderFlow {
 
@@ -21,10 +20,6 @@ export class UIFlow extends RenderFlow {
         priority: ForwardFlowPriority.UI,
         type: RenderFlowType.UI,
     };
-
-    constructor () {
-        super();
-    }
 
     public initialize (info: IRenderFlowInfo): boolean {
 

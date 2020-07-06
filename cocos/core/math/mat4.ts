@@ -1789,7 +1789,7 @@ export class Mat4 extends ValueType {
         console.warn('function changed');
         this.m12 += vec.x;
         this.m13 += vec.y;
-        this.m14 += vec.y;
+        this.m14 += vec.z;
         return this;
     }
 

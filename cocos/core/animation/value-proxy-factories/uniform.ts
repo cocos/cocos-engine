@@ -15,16 +15,37 @@ import { IValueProxy, IValueProxyFactory } from '../value-proxy';
 import { warn } from '../../platform/debug';
 import { legacyCC } from '../../global-exports';
 
+/**
+ * @en
+ * Value proxy factory for setting uniform on material target.
+ * @zh
+ * 用于设置材质目标上指定 Uniform 的曲线值代理工厂。
+ */
 @ccclass('cc.animation.UniformProxyFactory')
 export class UniformProxyFactory implements IValueProxyFactory {
+    /**
+     * @en Pass index.
+     * @zh Pass 索引。
+     */
     @property
     public passIndex: number = 0;
 
+    /**
+     * @en Uniform name.
+     * @zh Uniform 名称。
+     */
     @property
     public uniformName: string = '';
 
     /**
-     * Use when your target is a single channel of the uniform instead of who uniform.
+     * @en
+     * Specify the aimed channel of the uniform.
+     * Use this when you're aiming at a single channel of the uniform instead of who uniform.
+     * For example, only green(1) channel of a color uniform.
+     * @zh
+     * 指定目标 Uniform 的通道。
+     * 当你希望设置 Uniform 单独的通道而非整个 Uniform 时应该当使用此字段。
+     * 例如，仅设置颜色 Uniform 的红色通道。
      */
     @float
     public channelIndex: number | undefined = undefined;
