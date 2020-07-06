@@ -891,18 +891,25 @@ export class Game extends EventTarget {
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
             const ctors: Constructor<GFXDevice>[] = [];
 
-            let useWebGL2 = (!!window.WebGL2RenderingContext);
-            const userAgent = window.navigator.userAgent.toLowerCase();
-            if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
-                || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't not conform to WebGL2 standard
-            ) {
-                useWebGL2 = false;
-            }
-            if (useWebGL2 && legacyCC.WebGL2GFXDevice) {
-                ctors.push(legacyCC.WebGL2GFXDevice);
-            }
-            if (legacyCC.WebGLGFXDevice) {
-                ctors.push(legacyCC.WebGLGFXDevice);
+            if (JSB && window.gfx) {
+                if (gfx.CCVKDevice) { ctors.push(gfx.CCVKDevice); }
+                if (gfx.CCMTLDevice) { ctors.push(gfx.CCMTLDevice); }
+                if (gfx.GLES3Device) { ctors.push(gfx.GLES3Device); }
+                if (gfx.GLES2Device) { ctors.push(gfx.GLES2Device); }
+            } else {
+                let useWebGL2 = (!!window.WebGL2RenderingContext);
+                const userAgent = window.navigator.userAgent.toLowerCase();
+                if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
+                    || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't not conform to WebGL2 standard
+                ) {
+                    useWebGL2 = false;
+                }
+                if (useWebGL2 && legacyCC.WebGL2GFXDevice) {
+                    ctors.push(legacyCC.WebGL2GFXDevice);
+                }
+                if (legacyCC.WebGLGFXDevice) {
+                    ctors.push(legacyCC.WebGLGFXDevice);
+                }
             }
 
             const opts = {
