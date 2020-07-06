@@ -61,6 +61,21 @@ declare module "internal:constants" {
     export const COCOSPLAY: boolean;
 
     /**
+     * Running in the huawei's quick game.
+     */
+    export const HUAWEI: boolean;
+
+    /**
+     * Running in the oppo's mini game.
+     */
+    export const OPPO: boolean;
+
+    /**
+     * Running in the vivo's mini game.
+     */
+    export const VIVO: boolean;
+    
+    /**
      * Running in mini game.
      */
     export const MINIGAME: boolean;

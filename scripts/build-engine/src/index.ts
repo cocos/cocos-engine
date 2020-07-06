@@ -456,7 +456,7 @@ function populateBuildTimeConstants (options: build.Options) {
     result.CC_DEBUG = result.CC_DEBUG || result.CC_DEV;
     result.CC_RUNTIME_BASED = result.CC_OPPO || result.CC_VIVO || result.CC_HUAWEI || result.CC_COCOSPLAY;
     result.CC_MINIGAME = result.CC_WECHAT || result.CC_ALIPAY || result.CC_XIAOMI || result.CC_BAIDU;
-    result.CC_JSB = result.CC_NATIVE || result.CC_RUNTIME_BASED;
+    result.CC_JSB = result.CC_NATIVE;
     result.CC_SUPPORT_JIT = !(result.CC_MINIGAME || result.CC_RUNTIME_BASED);
     result.CC_PHYSICS_BUILTIN = false;
     result.CC_PHYSICS_CANNON = false;
