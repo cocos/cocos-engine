@@ -443,6 +443,9 @@ module.exports = {
         'swan_subcontext_view': {
             'fps': '开放数据域的 FPS, 该属性会覆盖开放域的帧率设置',
         },
+        'subcontext_view': {
+            'fps': '开放数据域的 FPS, 该属性会覆盖开放域的帧率设置',
+        },
         'skeleton_animation': {
             'search_animation_clips': '搜索骨骼动画',
         },

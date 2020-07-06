@@ -711,4 +711,14 @@ if (CC_DEBUG) {
         'preload',
         'setMaxWebAudioSize',
     ], 'cc.audioEngine');
+
+    // SubContextView
+    js.get(cc, 'WXSubContextView', function () {
+        cc.warnID(1400, 'cc.WXSubContextView', 'cc.SubContextView');
+        return cc.log;
+    });
+    js.get(cc, 'SwanSubContextView', function () {
+        cc.warnID(1400, 'cc.SwanSubContextView', 'cc.SubContextView');
+        return cc.log;
+    });
 }

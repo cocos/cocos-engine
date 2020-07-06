@@ -439,6 +439,9 @@ module.exports = {
         'swan_subcontext_view': {
             'interval': 'The FPS of open data context, this property will overwrite the frame rate setting in open data context',
         },
+        'subcontext_view': {
+            'interval': 'The FPS of open data context, this property will overwrite the frame rate setting in open data context',
+        },
         'skeleton_animation': {
             'search_animation_clips': 'Search Animation Clips',
         },
