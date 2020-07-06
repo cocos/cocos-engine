@@ -31,6 +31,8 @@ export interface IRigidBody extends ILifecycle, IGroupMask {
     clearState (): void;
     clearForces (): void;
     clearVelocity (): void;
+    setSleepThreshold (v: number): void;
+    getSleepThreshold (): number;
 
     getLinearVelocity (out: IVec3Like): void;
     setLinearVelocity (value: IVec3Like): void;

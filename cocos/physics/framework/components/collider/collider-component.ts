@@ -38,6 +38,7 @@ export class ColliderComponent extends Eventify(Component) {
      */
     @property({
         type: RigidBodyComponent,
+        displayName: 'Attached',
         displayOrder: -2,
         readonly: true,
     })

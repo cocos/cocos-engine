@@ -258,6 +258,25 @@ export class RigidBodyComponent extends Component {
 
     /**
      * @en
+     * Gets or sets the speed threshold for going to sleep.
+     * @zh
+     * 获取或设置进入休眠的速度临界值。
+     */
+    public get sleepThreshold (): number {
+        if (this._assertOnLoadCalled) {
+            return this._body!.getSleepThreshold();
+        }
+        return 0;
+    }
+
+    public set sleepThreshold (v: number) {
+        if (this._assertOnLoadCalled) {
+            this._body!.setSleepThreshold(v);
+        }
+    }
+
+    /**
+     * @en
      * Gets whether it is the state of awake.
      * @zh
      * 获取是否是唤醒的状态。
@@ -610,12 +629,8 @@ export class RigidBodyComponent extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addGroup (v: number) {
-        if (this._assertOnLoadCalled) {
-            if (!this._assertUseCollisionMatrix) {
-                this._body!.addGroup(v);
-            } else {
-                this.group |= v;
-            }
+        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+            this._body!.addGroup(v);
         }
     }
 
@@ -627,12 +642,8 @@ export class RigidBodyComponent extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeGroup (v: number) {
-        if (this._assertOnLoadCalled) {
-            if (!this._assertUseCollisionMatrix) {
-                this._body!.removeGroup(v);
-            } else {
-                this.group &= ~v;
-            }
+        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+            this._body!.removeGroup(v);
         }
     }
 

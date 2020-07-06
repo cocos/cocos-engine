@@ -4,7 +4,7 @@ import { ERigidBodyType } from '../framework/physics-enum';
 import { getWrap } from '../framework/util';
 import { CannonWorld } from './cannon-world';
 import { CannonShape } from './shapes/cannon-shape';
-import { ColliderComponent } from '../../../exports/physics-framework';
+import { ColliderComponent, PhysicsSystem } from '../../../exports/physics-framework';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Node, Layers } from '../../core';
 import { CollisionEventType, IContactEquation } from '../framework/physics-interface';
@@ -88,6 +88,7 @@ export class CannonSharedBody {
         this.node = node;
         this.body = new CANNON.Body();
         this.body.collisionFilterGroup = Layers.Enum.DEFAULT;
+        this.body.sleepSpeedLimit = PhysicsSystem.instance.sleepThreshold;
         this.body.material = this.wrappedWorld.impl.defaultMaterial;
         this.body.addEventListener('cc-collide', this.onCollidedListener);
     }
