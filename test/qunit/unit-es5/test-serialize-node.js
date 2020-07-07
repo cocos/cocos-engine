@@ -21,7 +21,6 @@ if (TestEditorExtends) {
 
     var compareKeys = [
         '_localZOrder',
-        '_globalZOrder',
         '_scale',
         '_position',
         '_skewX',
@@ -42,7 +41,6 @@ if (TestEditorExtends) {
         }
         return {
             '_localZOrder' : getRandomInt(),
-            '_globalZOrder' : getRandomInt(),
             '_trs' : trs,
             '_skewX' : getRandomDouble(),
             '_skewY' : getRandomDouble(),
@@ -60,7 +58,6 @@ if (TestEditorExtends) {
         var ret = new cc.Node();
 
         ret._localZOrder = getRandomInt();
-        ret._globalZOrder = getRandomInt();
         ret.quat = cc.quat(getRandomDouble(), getRandomDouble(), getRandomDouble(), 1);
         ret.scale = cc.v3(getRandomDouble(), getRandomDouble(), getRandomDouble())
         ret.position = cc.v3(getRandomDouble(), getRandomDouble(), getRandomDouble());

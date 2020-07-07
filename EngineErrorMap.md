@@ -558,7 +558,7 @@ cc.Layer.addLayer(): layer should be non-null
 
 ### 2200
 
-Resolution not valid
+Design resolution not valid
 
 ### 2201
 
@@ -1709,6 +1709,7 @@ No need to release non-cached asset.
 
 ### 4903
 
+<!-- DEPRECATED -->
 Can not get class '%s'
 
 ### 4904
@@ -1881,6 +1882,14 @@ Can not find script '%s'
 ### 5302
 
 Can not find class '%s'
+
+### 5303
+
+Failed to deserialize %s, missing _deserialize function.
+
+### 5304
+
+Unable to deserialize version %s data.
 
 ### 5400
 

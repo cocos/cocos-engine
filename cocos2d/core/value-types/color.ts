@@ -185,7 +185,7 @@ export default class Color extends ValueType {
      * Set the components of a color to the given values.
      * @method set
      * @typescript
-     * set (out: Color, r = 255, g = 255, b = 255, a = 255): Color
+     * set (out: Color, r?: number, g?: number, b?: number, a?: number): Color
      * @static
      */
     static set (out: Color, r = 255, g = 255, b = 255, a = 255): Color {
@@ -202,6 +202,7 @@ export default class Color extends ValueType {
      * @typescript
      * fromHex (out: Color, hex: number): Color
      * @static
+     * @deprecated
      */
     static fromHex (out: Color, hex: number): Color {
         let r = ((hex >> 24)) / 255.0;
@@ -213,6 +214,23 @@ export default class Color extends ValueType {
         out.g = g;
         out.b = b;
         out.a = a;
+        return out;
+    }
+
+    /**
+     * Converts the hexadecimal formal color into rgb formal.
+     * @method fromHEX
+     * @typescript
+     * fromHEX (out: Color, hex: string): Color
+     * @static
+     */
+    static fromHEX (out: Color, hexString: string): Color {
+        hexString = (hexString.indexOf('#') === 0) ? hexString.substring(1) : hexString;
+        out.r = parseInt(hexString.substr(0, 2), 16) || 0;
+        out.g = parseInt(hexString.substr(2, 2), 16) || 0;
+        out.b = parseInt(hexString.substr(4, 2), 16) || 0;
+        out.a = parseInt(hexString.substr(6, 2), 16) || 255;
+        out._val = ((out.a << 24) >>> 0) + (out.b << 16) + (out.g << 8) + out.r;
         return out;
     }
 
@@ -315,7 +333,7 @@ export default class Color extends ValueType {
      * !#en Turn an array of colors
      * @method toArray
      * @typescript
-     * toArray <Out extends IWritableArrayLike<number>> (out: Out, a: IColorLike, ofs = 0)
+     * toArray <Out extends IWritableArrayLike<number>> (out: Out, a: IColorLike, ofs?: number): Out
      * @param ofs 数组起始偏移量
      * @static
      */
@@ -333,7 +351,7 @@ export default class Color extends ValueType {
      * !#en An array of colors turn
      * @method fromArray
      * @typescript
-     * fromArray <Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs = 0)
+     * fromArray <Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs?: number): Out
      * @param ofs 数组起始偏移量
      * @static
      */
@@ -362,7 +380,7 @@ export default class Color extends ValueType {
         out.b = color.b * alpha;
 
         out._fastSetA(color.a);
-    
+
         return out;
     }
 
@@ -816,7 +834,7 @@ export default class Color extends ValueType {
      * @method set
      * @typescript
      * set (color: Color): Color
-     * @param {Color} color 
+     * @param {Color} color
      */
     set (color: Color): this {
         if (color._val) {

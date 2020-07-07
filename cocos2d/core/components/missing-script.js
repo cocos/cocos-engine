@@ -25,25 +25,10 @@
  ****************************************************************************/
 
 var js = cc.js;
-var BUILTIN_CLASSID_RE = require('../utils/misc').BUILTIN_CLASSID_RE;
 
 /*
  * A temp fallback to contain the original serialized data which can not be loaded.
- */
-var MissingClass = cc.Class({
-    name: 'cc.MissingClass',
-    properties: {
-        // the serialized data for original object
-        _$erialized: {
-            default: null,
-            visible: false,
-            editorOnly: true
-        }
-    },
-});
-
-/*
- * A temp fallback to contain the original component which can not be loaded.
+ * Deserialized as a component by default.
  */
 var MissingScript = cc.Class({
     name: 'cc.MissingScript', 
@@ -99,26 +84,14 @@ var MissingScript = cc.Class({
          * @param {string} id
          * @return {function} constructor
          */
-        safeFindClass: function (id, data) {
+        safeFindClass: function (id) {
             var cls = js._getClassById(id);
             if (cls) {
                 return cls;
             }
-            if (id) {
-                cc.deserialize.reportMissingClass(id);
-                return MissingScript.getMissingWrapper(id, data);
-            }
-            return null;
+            cc.deserialize.reportMissingClass(id);
+            return MissingScript;
         },
-        getMissingWrapper: function (id, data) {
-            if (data.node && (/^[0-9a-zA-Z+/]{23}$/.test(id) || BUILTIN_CLASSID_RE.test(id))) {
-                // is component
-                return MissingScript;
-            }
-            else {
-                return MissingClass;
-            }
-        }
     },
     onLoad: function () {
         cc.warnID(4600, this.node.name);

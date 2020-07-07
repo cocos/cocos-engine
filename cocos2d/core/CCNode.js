@@ -597,14 +597,14 @@ function _searchComponentsInParent (node, comp) {
 function _checkListeners (node, events) {
     if (!(node._objFlags & Destroying)) {
         if (node._bubblingListeners) {
-            for (let i = 0; i < events.length; ++i) {
+            for (let i = 0, l = events.length; i < l; ++i) {
                 if (node._bubblingListeners.hasEventListener(events[i])) {
                     return true;
                 }
             }
         }
         if (node._capturingListeners) {
-            for (let i = 0; i < events.length; ++i) {
+            for (let i = 0, l = events.length; i < l; ++i) {
                 if (node._capturingListeners.hasEventListener(events[i])) {
                     return true;
                 }
@@ -1686,10 +1686,6 @@ let NodeDefines = {
             _currentHovered = null;
         }
 
-        // Remove all eventTargets
-        this._bubblingListeners && this._bubblingListeners.clear();
-        this._capturingListeners && this._capturingListeners.clear();
-
         // Remove all event listeners if necessary
         if (this._touchListener || this._mouseListener) {
             eventManager.removeListeners(this);
@@ -1924,7 +1920,7 @@ let NodeDefines = {
         this._cullingMask = 1 << _getActualGroupIndex(this);
         if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy && this._proxy.updateCullingMask();
-        };
+        }
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
@@ -1956,7 +1952,7 @@ let NodeDefines = {
         this._cullingMask = 1 << _getActualGroupIndex(this);
         if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy && this._proxy.updateCullingMask();
-        };
+        }
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
@@ -2156,9 +2152,6 @@ let NodeDefines = {
         }
 
         listeners.once(type, callback, target);
-        listeners.once(type, () => {
-            this.off(type, callback, target);
-        }, undefined);
     },
 
     _onDispatch (type, callback, target, useCapture) {
@@ -2183,6 +2176,10 @@ let NodeDefines = {
 
         if ( !listeners.hasEventListener(type, callback, target) ) {
             listeners.on(type, callback, target);
+
+            if (target && target.__eventTargets) {
+                target.__eventTargets.push(this);
+            }
         }
 
         return callback;

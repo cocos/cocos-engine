@@ -295,6 +295,8 @@ function createNodes (data) {
     return nodes;
 }
 
+var ImageBitmapOrImage = window.ImageBitmap || window.Image;
+
 // output test states
 
 //QUnit.testStart = function(test) {

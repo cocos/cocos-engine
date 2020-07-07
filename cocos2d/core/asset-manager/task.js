@@ -28,7 +28,7 @@
  */
 
 var _taskId = 0;
-var MAX_DEAD_NUM = 50;
+var MAX_DEAD_NUM = 500;
 var _deadPool = [];
 
 /**
@@ -266,13 +266,14 @@ Task.prototype = {
      * recycle(): void
      */
     recycle () {
+        if (_deadPool.length === MAX_DEAD_NUM) return;
         this.onComplete = null;
         this.onProgress = null;
         this.onError = null;
         this.source = this.output = this.input = null;
         this.progress = null;
         this.options = null;
-        _deadPool.length < MAX_DEAD_NUM && _deadPool.push(this);
+        _deadPool.push(this);
     },
 
     /**

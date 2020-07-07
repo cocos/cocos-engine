@@ -74,18 +74,23 @@ exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFi
     engine = engine.pipe(Gulp.dest(Path.dirname(outputFile)));
 
     if (Fs.existsSync(sourceFileForExtends)) {
-        var engineExtends = createBundler(sourceFileForExtends,
-            {
-                sourcemaps: sourcemaps,
-                babelifyOpt: {
-                    presets: [require('@babel/preset-env')],
-                    ast: false,
-                    babelrc: false,
-                    highlightCode: false,
-                    sourceMaps: true,
-                    compact: false
-                },
-                cacheDir: cacheDir
+        var engineExtends = createBundler(sourceFileForExtends, {
+                presets: [
+                    [
+                        require('@babel/preset-env'),
+                        {
+                            loose: true,
+                            // bugfixes: true, since babel 7.9
+                            targets: 'PhantomJS 2.1',
+                        }
+                    ],
+                ],
+                plugins: [
+                    require('@babel/plugin-transform-runtime')
+                ],
+                sourcemaps,
+                cacheDir,
+                bundleExternal: true,
             })
             .bundle()
             .on('error', HandleErrors.handler)
@@ -129,7 +134,16 @@ exports.test = function (callback) {
 exports.buildTestCase = function (outDir, callback) {
     return Gulp.src('test/qunit/unit/**/*.js')
         .pipe(Babel({
-            presets: [require('@babel/preset-env')],
+            presets: [
+                [
+                    require('@babel/preset-env'),
+                    {
+                        "loose": true,
+                        // "bugfixes": true, since babel 7.9
+                        "targets": "PhantomJS 2.1"
+                    }
+                ]
+            ],
             plugins: [
                 // make sure that transform-decorators-legacy comes before transform-class-properties.
                 [

@@ -41,7 +41,7 @@ exports.getMacros = function (platform, flags) {
     return res;
 };
 
-// see https://github.com/mishoo/UglifyJS2/tree/harmony#compress-options
+// see https://github.com/terser/terser#compress-options
 exports.getUglifyOptions = function (platform, flags) {
     var global_defs = exports.getMacros(platform, flags);
     var releaseMode = !global_defs['CC_DEBUG'];
@@ -59,11 +59,16 @@ exports.getUglifyOptions = function (platform, flags) {
                 sequences: false,
                 keep_infinity: true,    // reduce jsc file size
                 typeofs: false,
-                inline: 1,              // workaround mishoo/UglifyJS2#2842
-                reduce_funcs: false,
+                inline: true,
+                reduce_funcs: false,   // keep single-use function object being cached, but not supported since 4.2.1, see terser/terser#696
+                passes: 2,              // first: remove deadcode, second: drop variables
+                keep_fargs: false,
+                unsafe_Function: true,
+                unsafe_math: true,
+                unsafe_methods: true,
             },
             output: {
-                beautify: true,         // really preserve_lines
+                beautify: true,         // enable preserve_lines for line number
                 indent_level: 0,        // reduce jsc file size
             }
         };
@@ -78,12 +83,22 @@ exports.getUglifyOptions = function (platform, flags) {
             compress: {
                 global_defs: global_defs,
                 negate_iife: false,
-                inline: 1,              // workaround mishoo/UglifyJS2#2842
-                reduce_funcs: false,    // keep single-use functions being cached
+                inline: true,
+                reduce_funcs: false,   // keep single-use function object being cached, but not supported since 4.2.1, see terser/terser#696
+                passes: 2,              // first: remove deadcode, second: reduce constant variables
+                keep_fargs: false,
+                unsafe_Function: true,
+                unsafe_math: true,
+                unsafe_methods: true,
             },
+            // mangle: false,
             output: {
+                // http://lisperator.net/uglifyjs/codegen
+                // beautify: true,
+                // indent_level: 2,
                 ascii_only: true,
-            }
+            },
+            safari10: true, // cocos-creator/engine#5144
         };
     }
     else {
@@ -136,13 +151,34 @@ exports.getUglifyOptions = function (platform, flags) {
                 indent_level: 2,
                 ascii_only: true,
             },
+            safari10: true, // cocos-creator/engine#5144
         };
     }
 };
 
 exports.uglify = function (platform, isJSB, isDebugBuild) {
-    const Composer = require('gulp-uglify/composer');
-    const Uglify = require('uglify-es');
-    const minify = Composer(Uglify);
-    return minify(exports.getUglifyOptions(platform, isJSB, isDebugBuild));
+    const options = exports.getUglifyOptions(platform, isJSB, isDebugBuild);
+    if (false) {
+        const Composer = require('gulp-uglify/composer');
+        const Uglify = require('uglify-es');
+        return Composer(Uglify)(options);
+    }
+    else {
+        const Terser = require("terser");
+        const ES = require('event-stream');
+        return ES.through(function (file) {
+            if (file.path.endsWith('.js')) {
+                var content = file.contents.toString();
+
+                var result = Terser.minify(content, options);
+                if (result.error) {
+                    return this.emit('error', result.error);
+                }
+                content = result.code;
+
+                file.contents = new Buffer(content);
+            }
+            this.emit('data', file);
+        });
+    }
 };

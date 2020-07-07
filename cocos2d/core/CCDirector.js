@@ -508,7 +508,7 @@ cc.Director.prototype = {
         scene._load();
 
         // Delay run / replace scene to the end of the frame
-        this.once(cc.Director.EVENT_AFTER_UPDATE, function () {
+        this.once(cc.Director.EVENT_AFTER_DRAW, function () {
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
         }, this);
     },
@@ -545,7 +545,6 @@ cc.Director.prototype = {
                 }
                 else {
                     self.runSceneImmediate(scene, _onUnloaded, onLaunched);
-                    return;
                 }
             });
             return true;

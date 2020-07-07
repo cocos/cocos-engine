@@ -743,7 +743,7 @@ let Label = cc.Class({
                 if (this.cacheMode !== CacheMode.CHAR) {
                     this._frame._resetDynamicAtlasFrame();
                     this._frame._refreshTexture(this._ttfTexture);
-                    if (this._srcBlendFactor === cc.macro.BlendFactor.ONE) {
+                    if (this._srcBlendFactor === cc.macro.BlendFactor.ONE && !CC_NATIVERENDERER) {
                         this._ttfTexture.setPremultiplyAlpha(true);
                     }
                 }

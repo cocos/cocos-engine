@@ -67,6 +67,8 @@ try {
     !Uint8Array.name && (Uint8Array.name = 'Uint8Array');
     !Uint16Array.name && (Uint16Array.name = 'Uint16Array');
     !Uint32Array.name && (Uint32Array.name = 'Uint32Array');
+
+    !Uint8ClampedArray.name && (Uint8ClampedArray.name = 'Uint8ClampedArray');
 }
 catch (e) {}
 
@@ -82,8 +84,10 @@ function getTypedArrayName (constructor) {
     else if (constructor === Uint8Array) { return 'Uint8Array'; }
     else if (constructor === Uint16Array) { return 'Uint16Array'; }
     else if (constructor === Uint32Array) { return 'Uint32Array'; }
+
+    else if (constructor === Uint8ClampedArray) { return 'Uint8ClampedArray'; }
     else {
-        throw new Error(`Unknown TypedArray could not be instantiated: ${constructor}`);
+        throw new Error(`Unknown TypedArray to instantiate: ${constructor}`);
     }
 }
 
@@ -185,18 +189,20 @@ function equalsToDefault (def, value) {
     if (def === value) {
         return true;
     }
-    if (def && value) {
-        if (def instanceof cc.ValueType && def.equals(value)) {
-            return true;
+    if (def && value &&
+        typeof def === 'object' && typeof value === 'object' &&
+        def.constructor === value.constructor)
+    {
+        if (def instanceof cc.ValueType) {
+            if (def.equals(value)) {
+                return true;
+            }
         }
-        if ((Array.isArray(def) && Array.isArray(value)) ||
-            (def.constructor === Object && value.constructor === Object)
-        ) {
-            try {
-                return Array.isArray(def) && Array.isArray(value) && def.length === 0 && value.length === 0;
-            }
-            catch (e) {
-            }
+        else if (Array.isArray(def)) {
+            return def.length === 0 && value.length === 0;
+        }
+        else if (def.constructor === Object) {
+            return js.isEmptyObject(def) && js.isEmptyObject(value);
         }
     }
     return false;

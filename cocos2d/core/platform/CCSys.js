@@ -635,7 +635,6 @@ function initSys () {
      */
     sys.isNative = CC_JSB || CC_RUNTIME;
 
-
     /**
      * Is web browser ?
      * @property {Boolean} isBrowser
@@ -671,6 +670,20 @@ function initSys () {
         }
         return sys._maxJointMatrixSize;
     }
+
+    /**
+     * !#en
+     * Returns the safe area of the screen. If the screen is not notched, the design resolution will be returned by default.
+     * Only supported on Android, iOS and WeChat Mini Game platform.
+     * !#zh
+     * 返回手机屏幕安全区域，如果不是异形屏将默认返回设计分辨率尺寸。目前只支持安卓、iOS 原生平台和微信小游戏平台。
+     * @method getSafeAreaRect
+     * @return {Rect}
+    */
+   sys.getSafeAreaRect = function () {
+        let visibleSize = cc.view.getVisibleSize();
+        return cc.rect(0, 0, visibleSize.width, visibleSize.height);
+    };
 
     if (_global.__globalAdapter && _global.__globalAdapter.adaptSys) {
         // init sys info in adapter
@@ -1150,7 +1163,7 @@ function initSys () {
      * 获取当前设备的网络类型, 如果网络类型无法获取，默认将返回 cc.sys.NetworkType.LAN
      *
      * @method getNetworkType
-     * @return {NetworkType}
+     * @return {sys.NetworkType}
      */
     sys.getNetworkType = function() {
         // TODO: need to implement this for mobile phones.
@@ -1185,20 +1198,6 @@ function initSys () {
      */
     sys.restartVM = function () {
         // N/A in web
-    };
-
-    /**
-     * !#en
-     * Return the safe area rect. <br/>
-     * only available on the iOS native platform, otherwise it will return a rect with design resolution size.
-     * !#zh
-     * 返回手机屏幕安全区域，目前仅在 iOS 原生平台有效。其它平台将默认返回设计分辨率尺寸。
-     * @method getSafeAreaRect
-     * @return {Rect}
-    */
-    sys.getSafeAreaRect = function () {
-        let visibleSize = cc.view.getVisibleSize();
-        return cc.rect(0, 0, visibleSize.width, visibleSize.height);
     };
 
     /**

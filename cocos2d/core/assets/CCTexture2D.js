@@ -304,7 +304,7 @@ var Texture2D = cc.Class({
                 return this._image;
             },
             set (data) {
-                if (data._data) {
+                if (data._compressed && data._data) {
                     this.initWithData(data._data, this._format, data.width, data.height);
                 }
                 else {
@@ -632,10 +632,10 @@ var Texture2D = cc.Class({
 
     /**
      * !#en
-     * Intializes with a texture2d with data in Uint8Array.
-     * !#zh 使用一个存储在 Unit8Array 中的图像数据（raw data）初始化数据。
+     * Intializes with texture data in ArrayBufferView.
+     * !#zh 使用一个存储在 ArrayBufferView 中的图像数据（raw data）初始化数据。
      * @method initWithData
-     * @param {TypedArray} data
+     * @param {ArrayBufferView} data
      * @param {Number} pixelFormat
      * @param {Number} pixelsWidth
      * @param {Number} pixelsHeight
@@ -818,7 +818,7 @@ var Texture2D = cc.Class({
      * If the texture size is NPOT (non power of 2), then in can only use gl.CLAMP_TO_EDGE in gl.TEXTURE_WRAP_{S,T}.
      * !#zh 设置纹理包装模式。
      * 若纹理贴图尺寸是 NPOT（non power of 2），则只能使用 Texture2D.WrapMode.CLAMP_TO_EDGE。
-     * @method setTexParameters
+     * @method setWrapMode
      * @param {Texture2D.WrapMode} wrapS
      * @param {Texture2D.WrapMode} wrapT
      */

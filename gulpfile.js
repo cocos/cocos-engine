@@ -35,18 +35,10 @@ const Engine = require('./gulp/tasks/engine');
 const Test = require('./gulp/tasks/test');
 const Watch = require('./gulp/tasks/watch');
 
-/////////////
-// engine //
-/////////////
-
-
-gulp.task('test-no-build', function testNoBuild(done) {
-    Test.test(done);
-});
-
 ////////////
 // global //
 ////////////
+
 gulp.task('clean-cache', function cleanCache() {
     return Del(['./bin/.cache/*', '!./bin/.cache/dev/**']);
 });
@@ -58,6 +50,14 @@ gulp.task('build-debug-infos', function buildDebugInfos(done) {
 
 gulp.task('clean', function () {
     return Del('./bin/**/*');
+});
+
+gulp.task('clean-cache-dev', function cleanCacheDev() {
+    return Del([
+        './bin/.cache/dev',
+        './cocos2d/core/platform/deserialize-compiled.js',
+        './cocos2d/core/value-types/*.js'
+    ]);
 });
 
 ////////////
@@ -76,22 +76,9 @@ gulp.task('watch-jsb-polyfill', function watchJsbPolyfill() {
 
 gulp.task('watch-dev-files', gulp.parallel('watch-preview', 'watch-jsb-polyfill'));
 
-gulp.task('test-in-ci', function testInCi(done) {
-    const { spawn } = require('child_process');
-    var gulp = process.platform === 'win32' ? 'gulp.cmd' : 'gulp';
-    var child = spawn(gulp, ['test'], {
-        stdio: [0, 'pipe', 2]
-    });
-    child.stdout.on('data', function (data) {
-        process.stdout.write(data);
-        if (data.toString().indexOf(' assertions failed ') !== -1) {
-            process.exitCode = 1;
-            process.exit();
-        }
-        done();
-    });
-});
-
+/////////////
+// engine //
+/////////////
 
 gulp.task('build-jsb-dev',  gulp.series(gulp.parallel('clean-cache', 'build-debug-infos'), function buildJsbDev(done) {
     var args = process.argv.slice(3); // strip task name
@@ -164,6 +151,26 @@ gulp.task('unit-runner', gulp.series('build-test', function unitRunner(done) {
 gulp.task('test', gulp.series(gulp.parallel('build-test', 'unit-runner'), function test(done) {
     Test.test(done);
 }));
+
+gulp.task('test-no-build', gulp.series('build-test-cases', function testNoBuild(done) {
+    Test.test(done);
+}));
+
+gulp.task('test-in-ci', function testInCi(done) {
+    const { spawn } = require('child_process');
+    var gulp = process.platform === 'win32' ? 'gulp.cmd' : 'gulp';
+    var child = spawn(gulp, ['test'], {
+        stdio: [0, 'pipe', 2]
+    });
+    child.stdout.on('data', function (data) {
+        process.stdout.write(data);
+        if (data.toString().indexOf(' assertions failed ') !== -1) {
+            process.exitCode = 1;
+            process.exit();
+        }
+        done();
+    });
+});
 
 gulp.task('visual-test', gulp.series('build-test', Shell.task([
     'sh ./test/visual-tests/run.sh'

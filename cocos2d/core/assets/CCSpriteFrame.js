@@ -745,7 +745,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
     // SERIALIZATION
 
-    _serialize: CC_EDITOR && function (exporting) {
+    _serialize: (CC_EDITOR || CC_TEST) && function (exporting) {
         let rect = this._rect;
         let offset = this._offset;
         let size = this._originalSize;

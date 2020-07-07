@@ -880,40 +880,43 @@ largeModule('Class ES6');
         deepEqual(arrayObj.int, [], 'checking array of int');
     });
 
-    // test('property', function () {
+    // test('formerlySerializedAs', function () {
     //     @ccclass
-    //     class Foo {
-    //         constructor () {
-    //             this.t = 1;
-    //         }
+    //     class MyClass0 {}
+    //     ok(!MyClass0.__FSA__, 'should not tagged as fsa on normal class');
     //
-    //         @property
-    //         bar = 'bork';
-    //
-    //         // @property({type: 'Float'})
-    //         get bbb () {
-    //             return this.bar;
-    //         }
-    //
-    //         @property
-    //         baz = () => {
-    //             return this.bar;
-    //         };
-    //
-    //         // @property(cc.Integer)
-    //         set bbb (value) {
-    //             this.bar = value;
-    //         }
-    //
-    //         @property
-    //         heihei = 11111;
-    //
-    //         @property
-    //         set Heihei (value) {
-    //             this.bar = value;
-    //         }
+    //     @ccclass
+    //     class MyClass3 {
+    //         @property({ formerlySerializedAs: 'oldProp' })
+    //         prop = '';
     //     }
-    //     expect(0);
+    //     ok(MyClass3.__FSA__, 'should tagged as fsa on MyClass3');
+    //
+    //     @ccclass
+    //     class Base {
+    //         @property({ formerlySerializedAs: 'oldProp' })
+    //         prop = '';
+    //     }
+    //     @ccclass
+    //     class Mix {}
+    //     @ccclass
+    //     @mixins([Mix])
+    //     class MyClass extends Base {}
+    //     ok(MyClass.__FSA__, 'should tagged as fsa on MyClass');
+    //
+    //     @ccclass
+    //     class Base2 {}
+    //     @ccclass
+    //     class Mix2 {
+    //         @property({ formerlySerializedAs: 'oldProp' })
+    //         prop = '';
+    //     }
+    //     @ccclass
+    //     @mixins([Mix2])
+    //     class MyClass2 extends Base2 {}
+    //     ok(MyClass.__FSA__, 'should tagged as fsa on MyClass2');
+    //
+    //     cc.js.unregisterClass(Base, Mix, MyClass, Base2, Mix2, MyClass2, MyClass0, MyClass3);
     // });
 
     if (TestEditorExtends) {

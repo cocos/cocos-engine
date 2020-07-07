@@ -67,10 +67,8 @@ const defaultKFEnd = new Keyframe(1, 1, 0, 0);
  * @class AnimationCurve
  */
 @ccclass('cc.AnimationCurve')
-
 export class AnimationCurve {
     @property({
-        default: [],
         type: [Keyframe],
     })
     keyFrames = new Array();

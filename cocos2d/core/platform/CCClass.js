@@ -36,7 +36,7 @@ require('./requiring-frame');
 
 var BUILTIN_ENTRIES = ['name', 'extends', 'mixins', 'ctor', '__ctor__', 'properties', 'statics', 'editor', '__ES6__'];
 
-var INVALID_STATICS_DEV = CC_DEV && ['name', '__ctors__', '__props__', 'arguments', 'call', 'apply', 'caller',
+var INVALID_STATICS_DEV = CC_DEV && ['name', '__ctors__', '__props__', '__values__', 'arguments', 'call', 'apply', 'caller',
                        'length', 'prototype'];
 
 function pushUnique (array, item) {
@@ -1191,6 +1191,23 @@ function parseAttributes (cls, attributes, className, propName, usedInGetter) {
             (attrs || initAttrs())[propNamePrefix + 'serializable'] = false;
         }
     }
+    
+    // if (CC_BUILD || CC_TEST) {
+    //     let fsa = attributes.formerlySerializedAs;
+    //     if (fsa) {
+    //         // js.set(cls.prototype, fsa, function (val) {
+    //         //     this[propName] = val;
+    //         // });
+    //         (attrs || initAttrs())[propNamePrefix + 'formerlySerializedAs'] = fsa;
+    //         // used by deserialize-compiled
+    //         attrs[fsa + DELIMETER + 'deserializeAs'] = propName;
+    //         cls.__FSA__ = true;     // inheritable
+    //     }
+    // }
+    // else {
+    //     parseSimpleAttr('formerlySerializedAs', 'string');
+    // }
+
     parseSimpleAttr('formerlySerializedAs', 'string');
 
     if (CC_EDITOR) {
@@ -1253,7 +1270,7 @@ module.exports = {
     getNewValueTypeCode: CC_SUPPORT_JIT && getNewValueTypeCodeJit,
     IDENTIFIER_RE,
     escapeForJS,
-    getDefault: getDefault
+    getDefault,
 };
 
 if (CC_TEST) {

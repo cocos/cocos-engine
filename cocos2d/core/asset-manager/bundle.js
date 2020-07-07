@@ -142,7 +142,9 @@ Bundle.prototype = {
      * bundle.getDirWithPath('images', cc.Texture2D, infos);
      * 
      * @typescript
-     * getDirWithPath (path: string, type?: typeof cc.Asset, out?: Array<Record<string, any>>): Array<Record<string, any>>
+     * getDirWithPath (path: string, type: typeof cc.Asset, out: Array<Record<string, any>>): Array<Record<string, any>>
+     * getDirWithPath (path: string, type: typeof cc.Asset): Array<Record<string, any>>
+     * getDirWithPath (path: string): Array<Record<string, any>>
      */
     getDirWithPath (path, type, out) {
         return this._config.getDirWithPath(path, type, out);
@@ -240,14 +242,16 @@ Bundle.prototype = {
      * bundle2.load('imgs/cocos', cc.SpriteFrame, null, (err, spriteFrame) => console.log(err));
      * 
      * @typescript
-     * load<T extends cc.Asset>(paths: string|string[], type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, assets: T|Array<T>) => void): void
-     * load<T extends cc.Asset>(paths: string|string[], onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, assets: T|Array<T>) => void): void
-     * load<T extends cc.Asset>(paths: string|string[], type?: typeof cc.Asset, onComplete?: (error: Error, assets: T|Array<T>) => void): void
-     * load<T extends cc.Asset>(paths: string|string[], onComplete?: (error: Error, assets: T|Array<T>) => void): void
+     * load<T extends cc.Asset>(paths: string|string[], type: typeof cc.Asset, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: T|Array<T>) => void): void
+     * load<T extends cc.Asset>(paths: string|string[], onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: T|Array<T>) => void): void
+     * load<T extends cc.Asset>(paths: string|string[], type: typeof cc.Asset, onComplete: (error: Error, assets: T|Array<T>) => void): void
+     * load<T extends cc.Asset>(paths: string|string[], onComplete: (error: Error, assets: T|Array<T>) => void): void
+     * load<T extends cc.Asset>(paths: string|string[], type: typeof cc.Asset): void
+     * load<T extends cc.Asset>(paths: string|string[]): void
      */
     load (paths, type, onProgress, onComplete) {
         var { type, onProgress, onComplete } = parseLoadResArgs(type, onProgress, onComplete);
-        cc.assetManager.loadAny(paths, { __requestType__: RequestType.PATH, type: type, bundle: this.name }, onProgress, onComplete);
+        cc.assetManager.loadAny(paths, { __requestType__: RequestType.PATH, type: type, bundle: this.name, __outputAsArray__: Array.isArray(paths) }, onProgress, onComplete);
     },
 
     /**
@@ -290,10 +294,12 @@ Bundle.prototype = {
      * bundle2.load('imgs/cocos', cc.SpriteFrame, (err, spriteFrame) => {});
      * 
      * @typescript
-     * preload(paths: string|string[], type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, items: RequestItem[]) => void): void
-     * preload(paths: string|string[], onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, items: RequestItem[]) => void): void
-     * preload(paths: string|string[], type?: typeof cc.Asset, onComplete?: (error: Error, items: RequestItem[]) => void): void
-     * preload(paths: string|string[], onComplete?: (error: Error, items: RequestItem[]) => void): void
+     * preload(paths: string|string[], type: typeof cc.Asset, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, items: RequestItem[]) => void): void
+     * preload(paths: string|string[], onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, items: RequestItem[]) => void): void
+     * preload(paths: string|string[], type: typeof cc.Asset, onComplete: (error: Error, items: RequestItem[]) => void): void
+     * preload(paths: string|string[], type: typeof cc.Asset): void
+     * preload(paths: string|string[], onComplete: (error: Error, items: RequestItem[]) => void): void
+     * preload(paths: string|string[]): void
      */
     preload (paths, type, onProgress, onComplete) {
         var { type, onProgress, onComplete } = parseLoadResArgs(type, onProgress, onComplete);
@@ -337,10 +343,12 @@ Bundle.prototype = {
      * bundle2.loadDir('skills', cc.SpriteFrame, null, (err, spriteFrames) => console.log(err));
      *
      * @typescript
-     * loadDir<T extends cc.Asset>(dir: string, type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, assets: Array<T>) => void): void
-     * loadDir<T extends cc.Asset>(dir: string, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, assets: Array<T>) => void): void
-     * loadDir<T extends cc.Asset>(dir: string, type?: typeof cc.Asset, onComplete?: (error: Error, assets: Array<T>) => void): void
-     * loadDir<T extends cc.Asset>(dir: string, onComplete?: (error: Error, assets: Array<T>) => void): void
+     * loadDir<T extends cc.Asset>(dir: string, type: typeof cc.Asset, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: Array<T>) => void): void
+     * loadDir<T extends cc.Asset>(dir: string, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: Array<T>) => void): void
+     * loadDir<T extends cc.Asset>(dir: string, type: typeof cc.Asset, onComplete: (error: Error, assets: Array<T>) => void): void
+     * loadDir<T extends cc.Asset>(dir: string, type: typeof cc.Asset): void
+     * loadDir<T extends cc.Asset>(dir: string, onComplete: (error: Error, assets: Array<T>) => void): void
+     * loadDir<T extends cc.Asset>(dir: string): void
      */
     loadDir (dir, type, onProgress, onComplete) {
         var { type, onProgress, onComplete } = parseLoadResArgs(type, onProgress, onComplete);
@@ -385,10 +393,12 @@ Bundle.prototype = {
      * bundle2.loadDir('skills', cc.SpriteFrame, (err, spriteFrames) => {});
      *                                             
      * @typescript
-     * preloadDir(dir: string, type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, items: RequestItem[]) => void): void
-     * preloadDir(dir: string, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, items: RequestItem[]) => void): void
-     * preloadDir(dir: string, type?: typeof cc.Asset, onComplete?: (error: Error, items: RequestItem[]) => void): void
-     * preloadDir(dir: string, onComplete?: (error: Error, items: RequestItem[]) => void): void
+     * preloadDir(dir: string, type: typeof cc.Asset, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, items: RequestItem[]) => void): void
+     * preloadDir(dir: string, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, items: RequestItem[]) => void): void
+     * preloadDir(dir: string, type: typeof cc.Asset, onComplete: (error: Error, items: RequestItem[]) => void): void
+     * preloadDir(dir: string, type: typeof cc.Asset): void
+     * preloadDir(dir: string, onComplete: (error: Error, items: RequestItem[]) => void): void
+     * preloadDir(dir: string): void
      */
     preloadDir (dir, type, onProgress, onComplete) {
         var { type, onProgress, onComplete } = parseLoadResArgs(type, onProgress, onComplete);
@@ -417,10 +427,12 @@ Bundle.prototype = {
      * bundle1.loadScene('first', (err, sceneAsset) => cc.director.runScene(sceneAsset));
      * 
      * @typescript
-     * loadScene(sceneName: string, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, sceneAsset: cc.SceneAsset) => void): void
-     * loadScene(sceneName: string, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, sceneAsset: cc.SceneAsset) => void): void
-     * loadScene(sceneName: string, options?: Record<string, any>, onComplete?: (error: Error, sceneAsset: cc.SceneAsset) => void): void
-     * loadScene(sceneName: string, onComplete?: (error: Error, sceneAsset: cc.SceneAsset) => void): void
+     * loadScene(sceneName: string, options: Record<string, any>, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, sceneAsset: cc.SceneAsset) => void): void
+     * loadScene(sceneName: string, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, sceneAsset: cc.SceneAsset) => void): void
+     * loadScene(sceneName: string, options: Record<string, any>, onComplete: (error: Error, sceneAsset: cc.SceneAsset) => void): void
+     * loadScene(sceneName: string, options: Record<string, any>): void
+     * loadScene(sceneName: string, onComplete: (error: Error, sceneAsset: cc.SceneAsset) => void): void
+     * loadScene(sceneName: string): void
      */
     loadScene (sceneName, options, onProgress, onComplete) {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
@@ -469,10 +481,12 @@ Bundle.prototype = {
      * bundle1.loadScene('first', (err, scene) => cc.director.runScene(scene));
      * 
      * @typescript
-     * preloadScene(sceneName: string, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error) => void): void
-     * preloadScene(sceneName: string, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error) => void): void
-     * preloadScene(sceneName: string, options?: Record<string, any>, onComplete?: (error: Error) => void): void
-     * preloadScene(sceneName: string, onComplete?: (error: Error) => void): void
+     * preloadScene(sceneName: string, options: Record<string, any>, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error) => void): void
+     * preloadScene(sceneName: string, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error) => void): void
+     * preloadScene(sceneName: string, options: Record<string, any>, onComplete: (error: Error) => void): void
+     * preloadScene(sceneName: string, options: Record<string, any>): void
+     * preloadScene(sceneName: string, onComplete: (error: Error) => void): void
+     * preloadScene(sceneName: string): void
      */
     preloadScene (sceneName, options, onProgress, onComplete) {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
@@ -505,7 +519,7 @@ Bundle.prototype = {
      * bundle1.get('music/hit', cc.AudioClip);
      * 
      * @typescript
-     * get (path: string, type?: typeof cc.Asset): cc.Asset
+     * get<T extends cc.Asset> (path: string, type?: typeof cc.Asset): T
      */
     get (path, type) {
         var info = this.getInfoWithPath(path, type);

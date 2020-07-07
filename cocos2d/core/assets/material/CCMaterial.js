@@ -195,7 +195,7 @@ let Material = cc.Class({
 
     /**
      * !#en Sets the Material property
-     * !#zh 是指材质的属性
+     * !#zh 设置材质的属性
      * @method setProperty
      * @param {string} name
      * @param {Object} val
@@ -236,6 +236,7 @@ let Material = cc.Class({
      * @method getProperty
      * @param {string} name 
      * @param {number} passIdx 
+     * @return {Object}
      */
     getProperty (name, passIdx) {
         if (typeof passIdx === 'string') {
