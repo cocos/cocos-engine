@@ -45,6 +45,7 @@ export class AmmoRigidBody implements IRigidBody {
             shape.calculateLocalInertia(this._rigidBody.mass, localInertia);
         }
         this.impl.setMassProps(value, localInertia);
+        if (!this.isAwake) this.impl.activate();
         this._sharedBody.updateBodyByReAdd();
     }
 
@@ -75,6 +76,7 @@ export class AmmoRigidBody implements IRigidBody {
             m_rigidBodyFlag |= AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY;
         }
         this.impl.setFlags(m_rigidBodyFlag);
+        if (!this.isAwake) this.impl.activate();
         this._sharedBody.updateBodyByReAdd();
     }
 
