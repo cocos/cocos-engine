@@ -210,7 +210,7 @@ export class PhysicsSystem extends System {
         if (config) {
             Vec3.copy(this._gravity, config.gravity);
             this._allowSleep = config.allowSleep;
-            this._fixedTimeStep = config.deltaTime;
+            this._fixedTimeStep = config.fixedTimeStep;
             this._maxSubSteps = config.maxSubSteps;
             this._material.friction = config.defaultMaterial.friction;
             this._material.rollingFriction = config.defaultMaterial.rollingFriction;
