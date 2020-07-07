@@ -189,12 +189,12 @@ export class AmmoShape implements IBaseShape {
 
     setCompound (compound: Ammo.btCompoundShape | null) {
         if (this._btCompound) {
-            this._btCompound.removeChildShapeByIndex(this._index);
+            this._btCompound.removeChildShape(this._btShape);
             this._index = -1;
         }
         if (compound) {
+            this._index = compound.getNumChildShapes();
             compound.addChildShape(this.transform, this._btShape);
-            this._index = compound.getNumChildShapes() - 1;
         }
         this._btCompound = compound;
     }
