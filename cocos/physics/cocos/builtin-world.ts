@@ -20,6 +20,7 @@ const TriggerEventObject = {
     type: 'onTriggerEnter' as unknown as TriggerEventType,
     selfCollider: null as unknown as ColliderComponent,
     otherCollider: null as unknown as ColliderComponent,
+    impl: {} as any,
 };
 
 /**

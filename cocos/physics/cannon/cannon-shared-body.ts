@@ -10,15 +10,17 @@ import { Node } from '../../core';
 import { CollisionEventType, IContactEquation } from '../framework/physics-interface';
 import { CannonRigidBody } from './cannon-rigid-body';
 import { commitShapeUpdates } from './cannon-util';
+import { CannonContactEquation } from './cannon-contact-equation';
 
 const v3_0 = new Vec3();
 const quat_0 = new Quat();
-const contactsPool = [] as any;
+const contactsPool: CannonContactEquation[] = [] as any;
 const CollisionEventObject = {
     type: 'onCollisionEnter' as CollisionEventType,
-    selfCollider: null as ColliderComponent | null,
-    otherCollider: null as ColliderComponent | null,
-    contacts: [] as IContactEquation[],
+    selfCollider: null as unknown as ColliderComponent,
+    otherCollider: null as unknown as ColliderComponent,
+    contacts: [] as CannonContactEquation[],
+    impl: null as unknown as CANNON.ICollisionEvent,
 };
 
 /**
@@ -167,27 +169,23 @@ export class CannonSharedBody {
         const self = getWrap<CannonShape>(event.selfShape);
         const other = getWrap<CannonShape>(event.otherShape);
         if (self && self.collider.needCollisionEvent) {
-            CollisionEventObject.selfCollider = self.collider;
-            CollisionEventObject.otherCollider = other ? other.collider : null;
-            let i = 0;
-            for (i = CollisionEventObject.contacts.length; i--;) {
-                contactsPool.push(CollisionEventObject.contacts.pop());
-            }
+            contactsPool.push.apply(contactsPool, CollisionEventObject.contacts as CannonContactEquation[]);
+            CollisionEventObject.contacts.length = 0;
 
+            CollisionEventObject.impl = event;
+            CollisionEventObject.selfCollider = self.collider;
+            CollisionEventObject.otherCollider = other ? other.collider : (null as any);
+
+            let i = 0;
             for (i = 0; i < event.contacts.length; i++) {
                 const cq = event.contacts[i];
                 if (contactsPool.length > 0) {
                     const c = contactsPool.pop();
-                    Vec3.copy(c.contactA, cq.ri);
-                    Vec3.copy(c.contactB, cq.rj);
-                    Vec3.copy(c.normal, cq.ni);
-                    CollisionEventObject.contacts.push(c);
+                    c!.impl = cq;
+                    CollisionEventObject.contacts.push(c!);
                 } else {
-                    const c = {
-                        contactA: Vec3.copy(new Vec3(), cq.ri),
-                        contactB: Vec3.copy(new Vec3(), cq.rj),
-                        normal: Vec3.copy(new Vec3(), cq.ni),
-                    };
+                    const c = new CannonContactEquation(CollisionEventObject);
+                    c.impl = cq;
                     CollisionEventObject.contacts.push(c);
                 }
             }

@@ -6,6 +6,7 @@ export const TriggerEventObject = {
     type: 'onTriggerEnter' as unknown as TriggerEventType,
     selfCollider: null as unknown as ColliderComponent,
     otherCollider: null as unknown as ColliderComponent,
+    impl: null,
 };
 
 export const CollisionEventObject = {
@@ -13,6 +14,7 @@ export const CollisionEventObject = {
     selfCollider: null as unknown as ColliderComponent,
     otherCollider: null as unknown as ColliderComponent,
     contacts: [] as IContactEquation[],
+    impl: null,
 };
 
 export class AmmoConstant {

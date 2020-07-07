@@ -17,6 +17,7 @@ const TriggerEventObject = {
     type: 'onTriggerEnter' as TriggerEventType,
     selfCollider: null as ColliderComponent | null,
     otherCollider: null as ColliderComponent | null,
+    impl: null as unknown as CANNON.ITriggeredEvent,
 };
 const cannonQuat_0 = new CANNON.Quaternion();
 const cannonVec3_0 = new CANNON.Vec3();
@@ -208,6 +209,7 @@ export class CannonShape implements IBaseShape {
         if (self && self.collider.needTriggerEvent) {
             TriggerEventObject.selfCollider = self.collider;
             TriggerEventObject.otherCollider = other ? other.collider : null;
+            TriggerEventObject.impl = event;
             this._collider.emit(TriggerEventObject.type, TriggerEventObject);
         }
     }
