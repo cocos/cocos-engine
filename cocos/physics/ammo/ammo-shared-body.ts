@@ -393,8 +393,8 @@ export class AmmoSharedBody {
 
         const ghostStruct = this.ghostStruct;
         Ammo.destroy(ghostStruct.worldQuat);
-        // Ammo.destroy(ghostStruct.shape);
-        // Ammo.destroy(ghostStruct.ghost);
+        Ammo.destroy(ghostStruct.shape);
+        Ammo.destroy(ghostStruct.ghost);
         ammoDeletePtr(ghostStruct.ghost, Ammo.btCollisionObject);
         ammoDeletePtr(ghostStruct.shape, Ammo.btCompoundShape);
         ammoDeletePtr(ghostStruct.shape, Ammo.btCollisionShape);
