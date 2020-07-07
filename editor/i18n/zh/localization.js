@@ -26,8 +26,7 @@ module.exports = {
             "toggleContainer": "https://docs.cocos.com/creator/manual/zh/components/toggleContainer.html",
             "slider": "https://docs.cocos.com/creator/manual/zh/components/slider.html",
             "block_input_events": "https://docs.cocos.com/creator/manual/zh/components/block-input-events.html",
-            "wx_subcontext_view": "https://docs.cocos.com/creator/manual/zh/publish/publish-wechatgame-sub-domain.html",
-            "swan_subcontext_view": "https://docs.cocos.com/creator/manual/zh/publish/publish-baidugame-sub-domain.html",
+            "subcontext_view": "https://docs.cocos.com/creator/manual/zh/publish/publish-wechatgame-sub-domain.html",
             "safe_area": "https://docs.cocos.com/creator/manual/zh/components/safearea.html",
         },
         'animation': {
@@ -436,12 +435,6 @@ module.exports = {
             'column': '指定 TiledTile 的纵向坐标，以地图块为单位',
             'gid': '指定 TiledTile 的 gid 值',
             'layer': '指定 TiledTile 属于哪一个 TiledLayer'
-        },
-        'wx_subcontext_view': {
-            'fps': '开放数据域的 FPS, 该属性会覆盖开放域的帧率设置',
-        },
-        'swan_subcontext_view': {
-            'fps': '开放数据域的 FPS, 该属性会覆盖开放域的帧率设置',
         },
         'subcontext_view': {
             'fps': '开放数据域的 FPS, 该属性会覆盖开放域的帧率设置',

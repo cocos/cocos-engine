@@ -53,6 +53,7 @@ let SubContextView = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/SubContextView',
+        help: 'i18n:COMPONENT.help_url.subcontext_view',
     },
 
     properties: {
