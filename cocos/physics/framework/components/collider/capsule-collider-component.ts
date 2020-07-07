@@ -6,15 +6,13 @@ import {
     ccclass,
     help,
     executeInEditMode,
-    executionOrder,
     menu,
     property,
 } from '../../../../core/data/class-decorator';
-import { createCapsuleShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
 import { ICapsuleShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
-import { EAxisDirection } from '../../physics-enum';
+import { EAxisDirection, EColliderType } from '../../physics-enum';
 import { absMax } from '../../../../core';
 
 /**
@@ -25,7 +23,6 @@ import { absMax } from '../../../../core';
  */
 @ccclass('cc.CapsuleColliderComponent')
 @help('i18n:cc.CapsuleColliderComponent')
-@executionOrder(98)
 @menu('Physics/CapsuleCollider')
 @executeInEditMode
 export class CapsuleColliderComponent extends ColliderComponent {
@@ -137,10 +134,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
     private _direction = EAxisDirection.Y_AXIS;
 
     constructor () {
-        super();
-        if (!EDITOR && !TEST) {
-            this._shape = createCapsuleShape();
-        }
+        super(EColliderType.CAPSULE);
     }
 
     private _getRadiusScale () {

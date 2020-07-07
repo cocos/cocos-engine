@@ -19,12 +19,10 @@ export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {
         return this._collider as BoxColliderComponent;
     }
 
-    constructor (size: Vec3) {
+    constructor () {
         super();
         this._localShape = new obb();
         this._worldShape = new obb();
-        Vec3.multiplyScalar(this.localObb.halfExtents, size, 0.5);
-        Vec3.copy(this.worldObb.halfExtents, this.localObb.halfExtents);
     }
 
     setSize (size: IVec3Like) {

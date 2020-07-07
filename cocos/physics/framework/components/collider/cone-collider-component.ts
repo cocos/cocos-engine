@@ -6,15 +6,13 @@ import {
     ccclass,
     help,
     executeInEditMode,
-    executionOrder,
     menu,
     property,
 } from '../../../../core/data/class-decorator';
-import { createConeShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
 import { IConeShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
-import { EAxisDirection } from '../../physics-enum';
+import { EAxisDirection, EColliderType } from '../../physics-enum';
 
 /**
  * @en
@@ -24,7 +22,6 @@ import { EAxisDirection } from '../../physics-enum';
  */
 @ccclass('cc.ConeColliderComponent')
 @help('i18n:cc.ConeColliderComponent')
-@executionOrder(98)
 @menu('Physics/ConeCollider(beta)')
 @executeInEditMode
 export class ConeColliderComponent extends ColliderComponent {
@@ -106,9 +103,6 @@ export class ConeColliderComponent extends ColliderComponent {
     private _direction = EAxisDirection.Y_AXIS;
 
     constructor () {
-        super();
-        if (!EDITOR && !TEST) {
-            this._shape = createConeShape();
-        }
+        super(EColliderType.CONE);
     }
 }

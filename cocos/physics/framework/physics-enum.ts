@@ -24,3 +24,16 @@ export enum ESimpleShapeType {
     TETRAHEDRON = 4,
 }
 Enum(ESimpleShapeType);
+
+export enum EColliderType {
+    BOX,
+    SPHERE,
+    CAPSULE,
+    CYLINDER,
+    CONE,
+    MESH,
+    PLANE,
+    SIMPLE,
+    TERRAIN,
+}
+Enum(EColliderType);

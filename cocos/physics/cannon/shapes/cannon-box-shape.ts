@@ -17,10 +17,9 @@ export class CannonBoxShape extends CannonShape implements IBoxShape {
     }
 
     readonly HALF_EXTENT: CANNON.Vec3;
-    constructor (size?: Vec3) {
+    constructor () {
         super();
         this.HALF_EXTENT = new CANNON.Vec3(0.5, 0.5, 0.5);
-        if (size) Vec3.multiplyScalar(this.HALF_EXTENT, size, 0.5);
         this._shape = new CANNON.Box(this.HALF_EXTENT.clone());
     }
 

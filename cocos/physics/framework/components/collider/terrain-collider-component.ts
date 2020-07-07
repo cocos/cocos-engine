@@ -6,17 +6,15 @@ import {
     ccclass,
     help,
     executeInEditMode,
-    executionOrder,
     menu,
     property,
 } from '../../../../core/data/class-decorator';
 import { ColliderComponent } from './collider-component';
-import { createTerrainShape } from '../../instance';
 import { ITerrainShape } from '../../../spec/i-physics-shape';
 import { ITerrainAsset } from '../../../spec/i-external';
 import { EDITOR, TEST } from 'internal:constants';
-import { js } from '../../../../core/utils/js';
 import { TerrainAsset } from '../../../../terrain/terrain-asset';
+import { EColliderType } from '../../physics-enum';
 
 /**
  * @en
@@ -26,7 +24,6 @@ import { TerrainAsset } from '../../../../terrain/terrain-asset';
  */
 @ccclass('cc.TerrainColliderComponent')
 @help('i18n:cc.TerrainColliderComponent')
-@executionOrder(98)
 @menu('Physics/TerrainCollider(beta)')
 @executeInEditMode
 export class TerrainColliderComponent extends ColliderComponent {
@@ -66,9 +63,6 @@ export class TerrainColliderComponent extends ColliderComponent {
     private _terrain: ITerrainAsset | null = null;
 
     constructor () {
-        super();
-        if (!EDITOR && !TEST) {
-            this._shape = createTerrainShape();
-        }
+        super(EColliderType.TERRAIN);
     }
 }

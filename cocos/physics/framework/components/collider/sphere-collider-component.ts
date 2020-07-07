@@ -6,14 +6,13 @@ import {
     ccclass,
     help,
     executeInEditMode,
-    executionOrder,
     menu,
     property,
 } from '../../../../core/data/class-decorator';
-import { createSphereShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
 import { ISphereShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
+import { EColliderType } from '../../physics-enum';
 
 /**
  * @en
@@ -23,7 +22,6 @@ import { EDITOR, TEST } from 'internal:constants';
  */
 @ccclass('cc.SphereColliderComponent')
 @help('i18n:cc.SphereColliderComponent')
-@executionOrder(98)
 @menu('Physics/SphereCollider')
 @executeInEditMode
 export class SphereColliderComponent extends ColliderComponent {
@@ -66,9 +64,6 @@ export class SphereColliderComponent extends ColliderComponent {
     private _radius: number = 0.5;
 
     constructor () {
-        super();
-        if (!EDITOR && !TEST) {
-            this._shape = createSphereShape(this._radius);
-        }
+        super(EColliderType.SPHERE);
     }
 }
