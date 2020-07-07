@@ -596,16 +596,15 @@ function _searchComponentsInParent (node, comp) {
 
 function _checkListeners (node, events) {
     if (!(node._objFlags & Destroying)) {
-        var i = 0;
         if (node._bubblingListeners) {
-            for (; i < events.length; ++i) {
+            for (let i = 0; i < events.length; ++i) {
                 if (node._bubblingListeners.hasEventListener(events[i])) {
                     return true;
                 }
             }
         }
         if (node._capturingListeners) {
-            for (; i < events.length; ++i) {
+            for (let i = 0; i < events.length; ++i) {
                 if (node._capturingListeners.hasEventListener(events[i])) {
                     return true;
                 }
@@ -1688,8 +1687,8 @@ let NodeDefines = {
         }
 
         // Remove all eventTargets
-        this._bubblingListeners && this._bubblingListeners.destroy();
-        this._capturingListeners && this._capturingListeners.destroy();
+        this._bubblingListeners && this._bubblingListeners.clear();
+        this._capturingListeners && this._capturingListeners.clear();
 
         // Remove all event listeners if necessary
         if (this._touchListener || this._mouseListener) {
@@ -2156,7 +2155,10 @@ let NodeDefines = {
             listeners = this._bubblingListeners = this._bubblingListeners || new EventTarget();
         }
 
-        listeners.once(type, callback, target, this);
+        listeners.once(type, callback, target);
+        listeners.once(type, () => {
+            this.off(type, callback, target);
+        }, undefined);
     },
 
     _onDispatch (type, callback, target, useCapture) {

@@ -32,7 +32,7 @@ function empty () {}
 function CallbackInfo () {
     this.callback = empty;
     this.target = undefined;
-    this.once = undefined;
+    this.once = false;
 }
 
 CallbackInfo.prototype.set = function (callback, target, once) {
@@ -44,7 +44,7 @@ CallbackInfo.prototype.set = function (callback, target, once) {
 let callbackInfoPool = new js.Pool(function (info) {
     info.callback = empty;
     info.target = undefined;
-    info.once = undefined;
+    info.once = false;
     return true;
 }, 32);
 
@@ -334,11 +334,7 @@ proto.emit = function (key, arg1, arg2, arg3, arg4, arg5) {
                 let target = info.target;
                 let callback = info.callback;
                 if (info.once) {
-                    if (typeof info.once === 'object') {
-                        info.once.off(key, callback, target);
-                    } else {
-                        this.off(key, callback, target);
-                    }
+                    this.off(key, callback, target);
                 }
 
                 if (target) {

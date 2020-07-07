@@ -198,8 +198,8 @@ proto.targetOff = function (target) {
  *     cc.log("this is the callback and will be invoked only once");
  * }, node);
  */
-proto.once = function (type, callback, target, owner) {
-    this.on(type, callback, target, owner || true);
+proto.once = function (type, callback, target) {
+    this.on(type, callback, target, true);
 };
 
 /**
@@ -221,9 +221,9 @@ proto.dispatchEvent = function (event) {
  * !#zh
  * 销毁记录的事件
  *
- * @method destroy
+ * @method clear
  */
-proto.destroy = function () {
+proto.clear = function () {
     // remove all callback
     for (const key in this._callbackTable) {
         const list = this._callbackTable[key];
