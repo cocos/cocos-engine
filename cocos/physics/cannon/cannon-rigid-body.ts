@@ -289,6 +289,6 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     protected _wakeUpIfSleep () {
-        if (!this.impl.isAwake) this.impl.wakeUp();
+        if (!this.impl.isAwake()) this.impl.wakeUp();
     }
 }
