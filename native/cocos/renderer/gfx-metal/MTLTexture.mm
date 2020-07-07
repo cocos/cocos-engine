@@ -63,6 +63,8 @@ bool CCMTLTexture::initialize(const TextureInfo &info) {
             if (_device->hasFeature(Feature::FORMAT_RGB8)) break;
             CC_LOG_WARNING("RGB8 texture format is not supported on this backend");
             return false;
+        default:
+            break;
     }
 #endif
 

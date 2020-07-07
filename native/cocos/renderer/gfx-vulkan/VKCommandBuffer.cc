@@ -75,16 +75,16 @@ void CCVKCommandBuffer::end() {
     VK_CHECK(vkEndCommandBuffer(_gpuCommandBuffer->vkCommandBuffer));
 }
 
-void CCVKCommandBuffer::beginRenderPass(Framebuffer *fbo, const Rect &renderArea,
-                                        ClearFlags clearFlags, const vector<Color> &colors, float depth, int stencil) {
+void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea,
+                                        const vector<Color> &colors, float depth, int stencil) {
     _curGPUFBO = ((CCVKFramebuffer *)fbo)->gpuFBO();
-    CCVKGPURenderPass *renderPass = _curGPUFBO->gpuRenderPass;
+    CCVKGPURenderPass *gpuRenderPass = ((CCVKRenderPass*)renderPass)->gpuRenderPass();
     VkFramebuffer framebuffer = _curGPUFBO->vkFramebuffer;
     if (!_curGPUFBO->isOffscreen) {
         framebuffer = _curGPUFBO->swapchain->vkSwapchainFramebufferListMap[_curGPUFBO][_curGPUFBO->swapchain->curImageIndex];
     }
 
-    vector<VkClearValue> &clearValues = renderPass->clearValues;
+    vector<VkClearValue> &clearValues = gpuRenderPass->clearValues;
     size_t attachmentCount = clearValues.size();
 
     if (attachmentCount) {
@@ -95,7 +95,7 @@ void CCVKCommandBuffer::beginRenderPass(Framebuffer *fbo, const Rect &renderArea
     }
 
     VkRenderPassBeginInfo passBeginInfo{VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
-    passBeginInfo.renderPass = renderPass->vkRenderPass;
+    passBeginInfo.renderPass = gpuRenderPass->vkRenderPass;
     passBeginInfo.framebuffer = framebuffer;
     passBeginInfo.renderArea.offset.x = renderArea.x;
     passBeginInfo.renderArea.offset.y = renderArea.y;

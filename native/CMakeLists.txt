@@ -1071,6 +1071,7 @@ if(WIN32)
         WIN32
         _WIN32
         _WINDOWS
+        NOMINMAX
         UNICODE
         _UNICODE
         _CRT_SECURE_NO_WARNINGS

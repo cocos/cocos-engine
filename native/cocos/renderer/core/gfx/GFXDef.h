@@ -818,8 +818,8 @@ struct ColorAttachment {
     LoadOp loadOp = LoadOp::CLEAR;
     StoreOp storeOp = StoreOp::STORE;
     uint sampleCount = 1;
-    TextureLayout beginLayout = TextureLayout::COLOR_ATTACHMENT_OPTIMAL;
-    TextureLayout endLayout = TextureLayout::COLOR_ATTACHMENT_OPTIMAL;
+    TextureLayout beginLayout = TextureLayout::UNDEFINED;
+    TextureLayout endLayout = TextureLayout::PRESENT_SRC;
 };
 
 typedef vector<ColorAttachment> ColorAttachmentList;
@@ -831,7 +831,7 @@ struct DepthStencilAttachment {
     LoadOp stencilLoadOp = LoadOp::CLEAR;
     StoreOp stencilStoreOp = StoreOp::STORE;
     uint sampleCount = 1;
-    TextureLayout beginLayout = TextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    TextureLayout beginLayout = TextureLayout::UNDEFINED;
     TextureLayout endLayout = TextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 };
 
@@ -867,7 +867,6 @@ struct FramebufferInfo {
     vector<int> colorMipmapLevels;
     Texture *depthStencilTexture = nullptr;
     int depthStencilMipmapLevel = 0;
-    bool isOffscreen = true;
 };
 
 struct BindingLayoutInfo {

@@ -8,6 +8,7 @@
 #include "GLES3Framebuffer.h"
 #include "GLES3InputAssembler.h"
 #include "GLES3PipelineState.h"
+#include "GLES3RenderPass.h"
 #include "GLES3Texture.h"
 
 namespace cc {
@@ -59,19 +60,19 @@ void GLES3CommandBuffer::end() {
     _isInRenderPass = false;
 }
 
-void GLES3CommandBuffer::beginRenderPass(Framebuffer *fbo, const Rect &renderArea, ClearFlags clearFlags, const vector<Color> &colors, float depth, int stencil) {
+void GLES3CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const vector<Color> &colors, float depth, int stencil) {
     _isInRenderPass = true;
 
     GLES3CmdBeginRenderPass *cmd = _gles3Allocator->beginRenderPassCmdPool.alloc();
+    cmd->gpuRenderPass = ((GLES3RenderPass *)renderPass)->gpuRenderPass();
     cmd->gpuFBO = ((GLES3Framebuffer *)fbo)->gpuFBO();
     cmd->renderArea = renderArea;
-    cmd->clearFlags = clearFlags;
-    cmd->num_clear_colors = (uint32_t)colors.size();
+    cmd->numClearColors = (uint32_t)colors.size();
     for (uint i = 0; i < colors.size(); ++i) {
-        cmd->clear_colors[i] = colors[i];
+        cmd->clearColors[i] = colors[i];
     }
-    cmd->clear_depth = depth;
-    cmd->clear_stencil = stencil;
+    cmd->clearDepth = depth;
+    cmd->clearStencil = stencil;
     _cmdPackage->beginRenderPassCmds.push(cmd);
     _cmdPackage->cmds.push(GFXCmdType::BEGIN_RENDER_PASS);
 }

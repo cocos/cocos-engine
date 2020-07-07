@@ -3,7 +3,7 @@
 #include "GLES2Commands.h"
 #include "GLES2Device.h"
 #include "GLES2StateCache.h"
-#include "GLES2Texture.h"
+#include "GLES2Context.h"
 
 #define BUFFER_OFFSET(idx) (static_cast<char *>(0) + (idx))
 
@@ -1110,6 +1110,19 @@ void GLES2CmdFuncDestroyInputAssembler(GLES2Device *device, GLES2GPUInputAssembl
 }
 
 void GLES2CmdFuncCreateFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpuFBO) {
+    uint colorViewCount = gpuFBO->gpuColorTextures.size();
+    uint swapchainImageIndices = 0;
+    for (size_t i = 0; i < colorViewCount; ++i) {
+        if (!gpuFBO->gpuColorTextures[i]) {
+            swapchainImageIndices |= (1 << i);
+        }
+    }
+    bool hasDepth = gpuFBO->gpuRenderPass->depthStencilAttachment.format == device->getDepthStencilFormat();
+    if (hasDepth && !gpuFBO->gpuDepthStencilTexture) {
+        swapchainImageIndices |= (1 << colorViewCount);
+    }
+    gpuFBO->isOffscreen = !swapchainImageIndices;
+
     if (gpuFBO->isOffscreen) {
         glGenFramebuffers(1, &gpuFBO->glFramebuffer);
         if (device->stateCache->glFramebuffer != gpuFBO->glFramebuffer) {
@@ -1163,29 +1176,35 @@ void GLES2CmdFuncCreateFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpu
                 default:;
             }
         }
+    } else {
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+        gpuFBO->glFramebuffer = static_cast<GLES2Context *>(device->getContext())->getDefaultFramebuffer();
+#endif
     }
 }
 
 void GLES2CmdFuncDestroyFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpuFBO) {
-    if (gpuFBO->glFramebuffer) {
-        if (device->stateCache->glFramebuffer == gpuFBO->glFramebuffer) {
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            device->stateCache->glFramebuffer = 0;
+    if (gpuFBO->isOffscreen) {
+        if (gpuFBO->glFramebuffer) {
+            if (device->stateCache->glFramebuffer == gpuFBO->glFramebuffer) {
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                device->stateCache->glFramebuffer = 0;
+            }
+            glDeleteFramebuffers(1, &gpuFBO->glFramebuffer);
+            gpuFBO->glFramebuffer = 0;
         }
-        glDeleteFramebuffers(1, &gpuFBO->glFramebuffer);
-        gpuFBO->glFramebuffer = 0;
     }
 }
 
-void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) {
-    static uint cmd_indices[(int)GFXCmdType::COUNT] = {0};
-    static GLenum gl_attachments[GFX_MAX_ATTACHMENTS] = {0};
+void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
+    static uint cmdIndices[(int)GFXCmdType::COUNT] = {0};
+    static GLenum glAttachments[GFX_MAX_ATTACHMENTS] = {0};
 
-    memset(cmd_indices, 0, sizeof(cmd_indices));
+    memset(cmdIndices, 0, sizeof(cmdIndices));
 
     GLES2StateCache *cache = device->stateCache;
     GLES2GPURenderPass *gpuRenderPass = nullptr;
-    bool is_shader_changed = false;
+    bool isShaderChanged = false;
     GLES2GPUPipelineState *gpuPipelineState = nullptr;
     GLenum glPrimitive = 0;
     GLES2GPUInputAssembler *gpuInputAssembler = nullptr;
@@ -1194,15 +1213,15 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
     GLenum glWrapT;
     GLenum glMinFilter;
 
-    for (uint i = 0; i < cmd_package->cmds.size(); ++i) {
-        GFXCmdType cmd_type = cmd_package->cmds[i];
-        uint &cmd_idx = cmd_indices[(int)cmd_type];
+    for (uint i = 0; i < cmdPackage->cmds.size(); ++i) {
+        GFXCmdType cmdType = cmdPackage->cmds[i];
+        uint &cmdIdx = cmdIndices[(int)cmdType];
 
-        switch (cmd_type) {
+        switch (cmdType) {
             case GFXCmdType::BEGIN_RENDER_PASS: {
-                GLES2CmdBeginRenderPass *cmd = cmd_package->beginRenderPassCmds[cmd_idx];
+                GLES2CmdBeginRenderPass *cmd = cmdPackage->beginRenderPassCmds[cmdIdx];
                 cmdBeginRenderPass = cmd;
-                if (cmd->gpuFBO) {
+                if (cmd->gpuFBO && cmd->gpuRenderPass) {
                     if (cache->glFramebuffer != cmd->gpuFBO->glFramebuffer) {
                         glBindFramebuffer(GL_FRAMEBUFFER, cmd->gpuFBO->glFramebuffer);
                         cache->glFramebuffer = cmd->gpuFBO->glFramebuffer;
@@ -1230,30 +1249,28 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
                         cache->scissor.height = cmd->renderArea.height;
                     }
 
-                    GLbitfield gl_clears = 0;
+                    GLbitfield glClears = 0;
                     uint num_attachments = 0;
 
-                    gpuRenderPass = cmd->gpuFBO->gpuRenderPass;
-                    for (uint j = 0; j < cmd->num_clear_colors; ++j) {
+                    gpuRenderPass = cmd->gpuRenderPass;
+                    for (uint j = 0; j < cmd->numClearColors; ++j) {
                         const ColorAttachment &colorAttachment = gpuRenderPass->colorAttachments[j];
                         if (colorAttachment.format != Format::UNKNOWN) {
                             switch (colorAttachment.loadOp) {
                                 case LoadOp::LOAD: break; // GL default behaviour
                                 case LoadOp::CLEAR: {
-                                    if (cmd->clearFlags & ClearFlagBit::COLOR) {
-                                        if (cache->bs.targets[0].blendColorMask != ColorMask::ALL) {
-                                            glColorMask(true, true, true, true);
-                                        }
-
-                                        const Color &color = cmd->clear_colors[j];
-                                        glClearColor(color.r, color.g, color.b, color.a);
-                                        gl_clears |= GL_COLOR_BUFFER_BIT;
+                                    if (cache->bs.targets[0].blendColorMask != ColorMask::ALL) {
+                                        glColorMask(true, true, true, true);
                                     }
+
+                                    const Color &color = cmd->clearColors[j];
+                                    glClearColor(color.r, color.g, color.b, color.a);
+                                    glClears |= GL_COLOR_BUFFER_BIT;
                                     break;
                                 }
                                 case LoadOp::DISCARD: {
                                     // invalidate fbo
-                                    gl_attachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_COLOR_ATTACHMENT0 + j : GL_COLOR_EXT);
+                                    glAttachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_COLOR_ATTACHMENT0 + j : GL_COLOR_EXT);
                                     break;
                                 }
                                 default:;
@@ -1269,13 +1286,13 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
                                 case LoadOp::CLEAR: {
                                     glDepthMask(true);
                                     cache->dss.depthWrite = true;
-                                    glClearDepthf(cmd->clear_depth);
-                                    gl_clears |= GL_DEPTH_BUFFER_BIT;
+                                    glClearDepthf(cmd->clearDepth);
+                                    glClears |= GL_DEPTH_BUFFER_BIT;
                                     break;
                                 }
                                 case LoadOp::DISCARD: {
                                     // invalidate fbo
-                                    gl_attachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_DEPTH_ATTACHMENT : GL_DEPTH_EXT);
+                                    glAttachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_DEPTH_ATTACHMENT : GL_DEPTH_EXT);
                                     break;
                                 }
                                 default:;
@@ -1292,13 +1309,13 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
                                     if (!cache->dss.stencilWriteMaskBack) {
                                         glStencilMaskSeparate(GL_BACK, 0xffffffff);
                                     }
-                                    glClearStencil(cmd->clear_stencil);
-                                    gl_clears |= GL_STENCIL_BUFFER_BIT;
+                                    glClearStencil(cmd->clearStencil);
+                                    glClears |= GL_STENCIL_BUFFER_BIT;
                                     break;
                                 }
                                 case LoadOp::DISCARD: {
                                     // invalidate fbo
-                                    gl_attachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_STENCIL_ATTACHMENT : GL_STENCIL_EXT);
+                                    glAttachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_STENCIL_ATTACHMENT : GL_STENCIL_EXT);
                                     break;
                                 }
                                 default:;
@@ -1307,15 +1324,15 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
                     }     // if
 
                     if (num_attachments && device->useDiscardFramebuffer()) {
-                        glDiscardFramebufferEXT(GL_FRAMEBUFFER, num_attachments, gl_attachments);
+                        glDiscardFramebufferEXT(GL_FRAMEBUFFER, num_attachments, glAttachments);
                     }
 
-                    if (gl_clears) {
-                        glClear(gl_clears);
+                    if (glClears) {
+                        glClear(glClears);
                     }
 
                     // restore states
-                    if (gl_clears & GL_COLOR_BUFFER_BIT) {
+                    if (glClears & GL_COLOR_BUFFER_BIT) {
                         ColorMask color_mask = cache->bs.targets[0].blendColorMask;
                         if (color_mask != ColorMask::ALL) {
                             glColorMask((GLboolean)(color_mask & ColorMask::R),
@@ -1325,11 +1342,11 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
                         }
                     }
 
-                    if ((gl_clears & GL_COLOR_BUFFER_BIT) && !cache->dss.depthWrite) {
+                    if ((glClears & GL_COLOR_BUFFER_BIT) && !cache->dss.depthWrite) {
                         glDepthMask(false);
                     }
 
-                    if (gl_clears & GL_STENCIL_BUFFER_BIT) {
+                    if (glClears & GL_STENCIL_BUFFER_BIT) {
                         if (!cache->dss.stencilWriteMaskFront) {
                             glStencilMaskSeparate(GL_FRONT, 0);
                         }
@@ -1343,7 +1360,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
             case GFXCmdType::END_RENDER_PASS: {
                 GLES2CmdBeginRenderPass *cmd = cmdBeginRenderPass;
                 uint num_attachments = 0;
-                for (uint j = 0; j < cmd->num_clear_colors; ++j) {
+                for (uint j = 0; j < cmd->numClearColors; ++j) {
                     const ColorAttachment &colorAttachment = gpuRenderPass->colorAttachments[j];
                     if (colorAttachment.format != Format::UNKNOWN) {
                         switch (colorAttachment.loadOp) {
@@ -1351,7 +1368,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
                             case LoadOp::CLEAR: break;
                             case LoadOp::DISCARD: {
                                 // invalidate fbo
-                                gl_attachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_COLOR_ATTACHMENT0 + j : GL_COLOR_EXT);
+                                glAttachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_COLOR_ATTACHMENT0 + j : GL_COLOR_EXT);
                                 break;
                             }
                             default:;
@@ -1367,7 +1384,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
                             case LoadOp::CLEAR: break;
                             case LoadOp::DISCARD: {
                                 // invalidate fbo
-                                gl_attachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_DEPTH_ATTACHMENT : GL_DEPTH_EXT);
+                                glAttachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_DEPTH_ATTACHMENT : GL_DEPTH_EXT);
                                 break;
                             }
                             default:;
@@ -1380,7 +1397,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
                             case LoadOp::CLEAR: break;
                             case LoadOp::DISCARD: {
                                 // invalidate fbo
-                                gl_attachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_STENCIL_ATTACHMENT : GL_STENCIL_EXT);
+                                glAttachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_STENCIL_ATTACHMENT : GL_STENCIL_EXT);
                                 break;
                             }
                             default:;
@@ -1389,13 +1406,13 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
                 }     // if
 
                 if (num_attachments && device->useDiscardFramebuffer()) {
-                    glDiscardFramebufferEXT(GL_FRAMEBUFFER, num_attachments, gl_attachments);
+                    glDiscardFramebufferEXT(GL_FRAMEBUFFER, num_attachments, glAttachments);
                 }
                 break;
             }
             case GFXCmdType::BIND_STATES: {
-                GLES2CmdBindStates *cmd = cmd_package->bindStatesCmds[cmd_idx];
-                is_shader_changed = false;
+                GLES2CmdBindStates *cmd = cmdPackage->bindStatesCmds[cmdIdx];
+                isShaderChanged = false;
 
                 if (cmd->gpuPipelineState) {
                     gpuPipelineState = cmd->gpuPipelineState;
@@ -1405,7 +1422,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
                         if (cache->glProgram != gpuPipelineState->gpuShader->glProgram) {
                             glUseProgram(gpuPipelineState->gpuShader->glProgram);
                             cache->glProgram = gpuPipelineState->gpuShader->glProgram;
-                            is_shader_changed = true;
+                            isShaderChanged = true;
                         }
                     }
 
@@ -1801,7 +1818,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
 
                 // bind vao
                 if (cmd->gpuInputAssembler && gpuPipelineState->gpuShader &&
-                    (is_shader_changed || gpuInputAssembler != cmd->gpuInputAssembler)) {
+                    (isShaderChanged || gpuInputAssembler != cmd->gpuInputAssembler)) {
                     gpuInputAssembler = cmd->gpuInputAssembler;
                     if (device->useVAO()) {
                         GLuint glVAO = gpuInputAssembler->glVAOs[gpuPipelineState->gpuShader->glProgram];
@@ -2027,7 +2044,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
                 break;
             } // case BIND_STATES
             case GFXCmdType::DRAW: {
-                GLES2CmdDraw *cmd = cmd_package->drawCmds[cmd_idx];
+                GLES2CmdDraw *cmd = cmdPackage->drawCmds[cmdIdx];
                 if (gpuInputAssembler && gpuPipelineState) {
                     if (!gpuInputAssembler->gpuIndirectBuffer) {
 
@@ -2078,19 +2095,19 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package) 
                 break;
             }
             case GFXCmdType::UPDATE_BUFFER: {
-                GLES2CmdUpdateBuffer *cmd = cmd_package->updateBufferCmds[cmd_idx];
+                GLES2CmdUpdateBuffer *cmd = cmdPackage->updateBufferCmds[cmdIdx];
                 GLES2CmdFuncUpdateBuffer(device, cmd->gpuBuffer, cmd->buffer, cmd->offset, cmd->size);
                 break;
             }
             case GFXCmdType::COPY_BUFFER_TO_TEXTURE: {
-                GLES2CmdCopyBufferToTexture *cmd = cmd_package->copyBufferToTextureCmds[cmd_idx];
+                GLES2CmdCopyBufferToTexture *cmd = cmdPackage->copyBufferToTextureCmds[cmdIdx];
                 GLES2CmdFuncCopyBuffersToTexture(device, &cmd->gpuBuffer->buffer, cmd->gpuTexture, cmd->regions);
                 break;
             }
             default:
                 break;
         }
-        cmd_idx++;
+        cmdIdx++;
     }
 }
 

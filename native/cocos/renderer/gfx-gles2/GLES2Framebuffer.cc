@@ -2,7 +2,6 @@
 #include "GLES2Framebuffer.h"
 #include "GLES2RenderPass.h"
 #include "GLES2Commands.h"
-#include "GLES2Context.h"
 #include "GLES2Texture.h"
 
 namespace cc {
@@ -20,7 +19,6 @@ bool GLES2Framebuffer::initialize(const FramebufferInfo &info) {
     _renderPass = info.renderPass;
     _colorTextures = info.colorTextures;
     _depthStencilTexture = info.depthStencilTexture;
-    _isOffscreen = info.isOffscreen;
 
     if (info.depthStencilMipmapLevel != 0) {
         CC_LOG_WARNING("Mipmap level of depth stencil attachment should be 0 in GLES2. Convert to 0.");
@@ -38,34 +36,27 @@ bool GLES2Framebuffer::initialize(const FramebufferInfo &info) {
     _gpuFBO = CC_NEW(GLES2GPUFramebuffer);
     _gpuFBO->gpuRenderPass = ((GLES2RenderPass *)_renderPass)->gpuRenderPass();
 
-    if (_isOffscreen) {
-        _gpuFBO->gpuColorTextures.resize(_colorTextures.size());
-        for (size_t i = 0; i < _colorTextures.size(); ++i) {
-            GLES2Texture *colorTexture = (GLES2Texture *)_colorTextures[i];
+    _gpuFBO->gpuColorTextures.resize(_colorTextures.size());
+    for (size_t i = 0; i < _colorTextures.size(); ++i) {
+        GLES2Texture *colorTexture = (GLES2Texture *)_colorTextures[i];
+        if (colorTexture) {
             _gpuFBO->gpuColorTextures[i] = colorTexture->gpuTexture();
         }
-
-        if (_depthStencilTexture) {
-            _gpuFBO->gpuDepthStencilTexture = ((GLES2Texture *)_depthStencilTexture)->gpuTexture();
-        }
-
-        _gpuFBO->isOffscreen = _isOffscreen;
-
-        GLES2CmdFuncCreateFramebuffer((GLES2Device *)_device, _gpuFBO);
     }
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    else {
-        _gpuFBO->glFramebuffer = static_cast<GLES2Context *>(_device->getContext())->getDefaultFramebuffer();
+
+    if (_depthStencilTexture) {
+        _gpuFBO->gpuDepthStencilTexture = ((GLES2Texture *)_depthStencilTexture)->gpuTexture();
     }
-#endif
+
+    GLES2CmdFuncCreateFramebuffer((GLES2Device *)_device, _gpuFBO);
+
     _status = Status::SUCCESS;
     return true;
 }
 
 void GLES2Framebuffer::destroy() {
     if (_gpuFBO) {
-        if (isOffscreen())
-            GLES2CmdFuncDestroyFramebuffer((GLES2Device *)_device, _gpuFBO);
+        GLES2CmdFuncDestroyFramebuffer((GLES2Device *)_device, _gpuFBO);
         CC_DELETE(_gpuFBO);
         _gpuFBO = nullptr;
     }

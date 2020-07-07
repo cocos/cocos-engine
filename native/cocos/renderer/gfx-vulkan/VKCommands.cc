@@ -38,7 +38,7 @@ void insertVkDynamicStates(vector<VkDynamicState> &out, const vector<DynamicStat
 
 void beginOneTimeCommands(CCVKDevice *device, CCVKGPUCommandBuffer *cmdBuff) {
     cmdBuff->level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    cmdBuff->queueFamilyIndex = ((CCVKQueue*)device->getQueue())->gpuQueue()->queueFamilyIndex;
+    cmdBuff->queueFamilyIndex = ((CCVKQueue *)device->getQueue())->gpuQueue()->queueFamilyIndex;
     device->gpuCommandBufferPool()->request(cmdBuff);
 
     VkCommandBufferBeginInfo beginInfo{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
@@ -226,6 +226,8 @@ void CCVKCmdFuncResizeBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
 }
 
 void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, void *buffer, uint offset, uint size) {
+    if (!gpuBuffer) return;
+
     const void *dataToUpload = nullptr;
     size_t sizeToUpload = 0u;
 
@@ -537,14 +539,24 @@ void CCVKCmdFuncDestroyInputAssembler(CCVKDevice *device, CCVKGPUInputAssembler 
 
 void CCVKCmdFuncCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFramebuffer) {
     size_t colorViewCount = gpuFramebuffer->gpuColorViews.size();
-    size_t userAttachmentCount = colorViewCount + (gpuFramebuffer->gpuDepthStencilView ? 1 : 0);
-    vector<VkImageView> attachments(userAttachmentCount);
+    bool depthSpecified = gpuFramebuffer->gpuDepthStencilView;
+    bool hasDepth = gpuFramebuffer->gpuRenderPass->depthStencilAttachment.format == device->getDepthStencilFormat();
+    vector<VkImageView> attachments(colorViewCount + (depthSpecified || hasDepth ? 1 : 0));
+    uint swapchainImageIndices = 0;
     for (size_t i = 0u; i < colorViewCount; i++) {
-        attachments[i] = gpuFramebuffer->gpuColorViews[i]->vkImageView;
+        CCVKGPUTextureView *texView = gpuFramebuffer->gpuColorViews[i];
+        if (texView) {
+            attachments[i] = gpuFramebuffer->gpuColorViews[i]->vkImageView;
+        } else {
+            swapchainImageIndices |= (1 << i);
+        }
     }
-    if (gpuFramebuffer->gpuDepthStencilView) {
+    if (depthSpecified) {
         attachments[colorViewCount] = gpuFramebuffer->gpuDepthStencilView->vkImageView;
+    } else if (hasDepth) {
+        swapchainImageIndices |= (1 << colorViewCount);
     }
+    gpuFramebuffer->isOffscreen = !swapchainImageIndices;
 
     if (gpuFramebuffer->isOffscreen) {
         VkFramebufferCreateInfo createInfo{VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO};
@@ -571,7 +583,6 @@ void CCVKCmdFuncCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
         } else {
             fboListMap[gpuFramebuffer] = FramebufferList(swapchainImageCount);
         }
-        attachments.resize(userAttachmentCount + 2);
         VkFramebufferCreateInfo createInfo{VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO};
         createInfo.renderPass = gpuFramebuffer->gpuRenderPass->vkRenderPass;
         createInfo.attachmentCount = attachments.size();
@@ -580,8 +591,14 @@ void CCVKCmdFuncCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
         createInfo.height = device->getHeight();
         createInfo.layers = 1;
         for (size_t i = 0u; i < swapchainImageCount; i++) {
-            attachments[userAttachmentCount] = gpuFramebuffer->swapchain->vkSwapchainImageViews[i];
-            attachments[userAttachmentCount + 1] = gpuFramebuffer->swapchain->depthStencilImageViews[i];
+            for (size_t j = 0u; j < colorViewCount; j++) {
+                if (swapchainImageIndices & (1 << j)) {
+                    attachments[j] = gpuFramebuffer->swapchain->vkSwapchainImageViews[i];
+                }
+            }
+            if (swapchainImageIndices & (1 << colorViewCount)) {
+                attachments[colorViewCount] = gpuFramebuffer->swapchain->depthStencilImageViews[i];
+            }
             VK_CHECK(vkCreateFramebuffer(device->gpuDevice()->vkDevice, &createInfo, nullptr, &fboListMap[gpuFramebuffer][i]));
         }
     }

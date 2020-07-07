@@ -5,6 +5,7 @@
 #include "MTLCommandBuffer.h"
 #include "MTLCommands.h"
 #include "MTLDevice.h"
+#include "MTLFramebuffer.h"
 #include "MTLInputAssembler.h"
 #include "MTLPipelineState.h"
 #include "MTLRenderPass.h"
@@ -57,40 +58,21 @@ void CCMTLCommandBuffer::end() {
     [_mtlCommandBuffer release];
 }
 
-void CCMTLCommandBuffer::beginRenderPass(Framebuffer *fbo, const Rect &renderArea, ClearFlags clearFlags, const vector<Color> &colors, float depth, int stencil) {
+void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const vector<Color> &colors, float depth, int stencil) {
 
-    MTLRenderPassDescriptor *mtlRenderPassDescriptor;
-    auto isOffscreen = fbo->isOffscreen();
-    if (isOffscreen) {
-        mtlRenderPassDescriptor = static_cast<CCMTLRenderPass *>(fbo->getRenderPass())->getMTLRenderPassDescriptor();
-    } else {
-        mtlRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
+    auto isOffscreen = static_cast<CCMTLFramebuffer *>(fbo)->isOffscreen();
+    if (!isOffscreen) {
+        static_cast<CCMTLRenderPass *>(renderPass)->setColorAttachment(0, ((MTKView *)_mtkView).currentDrawable.texture, 0);
+        static_cast<CCMTLRenderPass *>(renderPass)->setDepthStencilAttachment(((MTKView *)_mtkView).depthStencilTexture, 0);
+    }
+    MTLRenderPassDescriptor *mtlRenderPassDescriptor = static_cast<CCMTLRenderPass *>(renderPass)->getMTLRenderPassDescriptor();
+
+    for (size_t slot = 0; slot < colors.size(); slot++) {
+        mtlRenderPassDescriptor.colorAttachments[slot].clearColor = mu::toMTLClearColor(colors[slot]);
     }
 
-    if (clearFlags & ClearFlagBit::COLOR) {
-        auto count = isOffscreen ? colors.size() : 1;
-        for (size_t slot = 0; slot < count; slot++) {
-            mtlRenderPassDescriptor.colorAttachments[slot].clearColor = mu::toMTLClearColor(colors[slot]);
-            mtlRenderPassDescriptor.colorAttachments[slot].loadAction = MTLLoadActionClear;
-        }
-    } else {
-        auto count = isOffscreen ? static_cast<CCMTLRenderPass *>(fbo->getRenderPass())->getColorRenderTargetNums() : 1;
-        for (size_t slot = 0; slot < count; slot++) {
-            mtlRenderPassDescriptor.colorAttachments[slot].loadAction = MTLLoadActionLoad;
-        }
-    }
-
-    if (clearFlags & ClearFlagBit::DEPTH) {
-        mtlRenderPassDescriptor.depthAttachment.clearDepth = depth;
-        mtlRenderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
-    } else
-        mtlRenderPassDescriptor.depthAttachment.loadAction = MTLLoadActionLoad;
-
-    if (clearFlags & ClearFlagBit::STENCIL) {
-        mtlRenderPassDescriptor.stencilAttachment.clearStencil = stencil;
-        mtlRenderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionClear;
-    } else
-        mtlRenderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionLoad;
+    mtlRenderPassDescriptor.depthAttachment.clearDepth = depth;
+    mtlRenderPassDescriptor.stencilAttachment.clearStencil = stencil;
 
     _mtlEncoder = [_mtlCommandBuffer renderCommandEncoderWithDescriptor:mtlRenderPassDescriptor];
 }

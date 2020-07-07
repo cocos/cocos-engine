@@ -48,19 +48,19 @@ struct GLES3BufferTextureCopy {
 
 class GLES3CmdBeginRenderPass : public GFXCmd {
 public:
+    GLES3GPURenderPass *gpuRenderPass = nullptr;
     GLES3GPUFramebuffer *gpuFBO = nullptr;
     Rect renderArea;
-    ClearFlags clearFlags = ClearFlagBit::NONE;
-    uint num_clear_colors = 0;
-    Color clear_colors[GFX_MAX_ATTACHMENTS];
-    float clear_depth = 1.0f;
-    int clear_stencil = 0;
+    uint numClearColors = 0;
+    Color clearColors[GFX_MAX_ATTACHMENTS];
+    float clearDepth = 1.0f;
+    int clearStencil = 0;
 
     GLES3CmdBeginRenderPass() : GFXCmd(GFXCmdType::BEGIN_RENDER_PASS) {}
 
     virtual void clear() override {
         gpuFBO = nullptr;
-        num_clear_colors = 0;
+        numClearColors = 0;
     }
 };
 

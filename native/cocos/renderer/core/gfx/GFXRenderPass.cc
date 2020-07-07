@@ -11,28 +11,38 @@ RenderPass::RenderPass(Device *device)
 RenderPass::~RenderPass() {
 }
 
+// Based on render pass compatibility
 uint RenderPass::computeHash() const {
     // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector
-    // 6: ColorAttament has 6 elements.
-    // 8: DepthStencilAttachment has 8 elements.
-    uint seed = _colorAttachments.size() * 6 + 8;
-    for (const auto &colorAttachment : _colorAttachments) {
-        seed ^= (uint)(colorAttachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= (uint)(colorAttachment.loadOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= (uint)(colorAttachment.storeOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= colorAttachment.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= (uint)(colorAttachment.beginLayout) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= (uint)(colorAttachment.endLayout) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    uint seed = _colorAttachments.size() * 2 + 2;
+    if (_subPasses.size()) {
+        for (const auto subPass : _subPasses) {
+            for (const auto &iaIndex : subPass.inputs) {
+                if (iaIndex >= _colorAttachments.size()) break;
+                const auto ia = _colorAttachments[iaIndex];
+                seed ^= (uint)(ia.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= ia.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            }
+            for (const auto &caIndex : subPass.colors) {
+                if (caIndex >= _colorAttachments.size()) break;
+                const auto ca = _colorAttachments[caIndex];
+                seed ^= (uint)(ca.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= ca.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            }
+            if (subPass.depthStencil < _colorAttachments.size()) {
+                const auto ds = _colorAttachments[subPass.depthStencil];
+                seed ^= (uint)(ds.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= ds.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            }
+        }
+    } else {
+        for (const auto &colorAttachment : _colorAttachments) {
+            seed ^= (uint)(colorAttachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= colorAttachment.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        }
+        seed ^= (uint)(_depthStencilAttachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= _depthStencilAttachment.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
-
-    seed ^= (uint)(_depthStencilAttachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)(_depthStencilAttachment.depthLoadOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)(_depthStencilAttachment.depthStoreOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)(_depthStencilAttachment.stencilLoadOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)(_depthStencilAttachment.depthStoreOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= _depthStencilAttachment.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)(_depthStencilAttachment.beginLayout) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)(_depthStencilAttachment.endLayout) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 
     return seed;
 }

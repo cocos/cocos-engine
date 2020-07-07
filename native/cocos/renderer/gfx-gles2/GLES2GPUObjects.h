@@ -199,8 +199,8 @@ public:
     GLES2GPURenderPass *gpuRenderPass = nullptr;
     GLES2GPUTextureList gpuColorTextures;
     GLES2GPUTexture *gpuDepthStencilTexture = nullptr;
-    bool isOffscreen = false;
     GLuint glFramebuffer = 0;
+    bool isOffscreen = false;
 };
 
 class GLES2GPUPipelineLayout : public Object {

@@ -19,7 +19,7 @@ public:
 
     void begin(RenderPass *renderPass = nullptr, uint subpass = 0, Framebuffer *frameBuffer = nullptr);
     void end();
-    void beginRenderPass(Framebuffer *fbo, const Rect &renderArea, ClearFlags clearFlags, const vector<Color> &colors, float depth, int stencil);
+    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const vector<Color> &colors, float depth, int stencil);
     void endRenderPass();
     void bindPipelineState(PipelineState *pso);
     void bindBindingLayout(BindingLayout *layout);

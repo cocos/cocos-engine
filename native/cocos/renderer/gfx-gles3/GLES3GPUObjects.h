@@ -168,11 +168,11 @@ class GLES3GPUFramebuffer : public Object {
 public:
     GLES3GPURenderPass *gpuRenderPass = nullptr;
     GLES3GPUTextureList gpuColorTextures;
-    GLES3GPUTexture *gpuDepthStencilTexture = nullptr;
-    bool isOffscreen = false;
-    GLuint glFramebuffer = 0;
-    GLint depstencilMipmapLevel = 0;
     vector<GLint> colorMipmapLevels;
+    GLES3GPUTexture *gpuDepthStencilTexture = nullptr;
+    GLint depthStencilMipmapLevel = 0;
+    GLuint glFramebuffer = 0;
+    bool isOffscreen = false;
 };
 
 class GLES3GPUPipelineLayout : public Object {

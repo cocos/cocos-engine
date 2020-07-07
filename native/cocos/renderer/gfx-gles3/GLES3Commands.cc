@@ -1,7 +1,9 @@
 #include "GLES3Std.h"
+
 #include "GLES3Commands.h"
 #include "GLES3Device.h"
 #include "GLES3StateCache.h"
+#include "GLES3Context.h"
 
 #define BUFFER_OFFSET(idx) (static_cast<char *>(0) + (idx))
 
@@ -1228,6 +1230,19 @@ void GLES3CmdFuncDestroyInputAssembler(GLES3Device *device, GLES3GPUInputAssembl
 }
 
 void GLES3CmdFuncCreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO) {
+    uint colorViewCount = gpuFBO->gpuColorTextures.size();
+    uint swapchainImageIndices = 0;
+    for (size_t i = 0; i < colorViewCount; ++i) {
+        if (!gpuFBO->gpuColorTextures[i]) {
+            swapchainImageIndices |= (1 << i);
+        }
+    }
+    bool hasDepth = gpuFBO->gpuRenderPass->depthStencilAttachment.format == device->getDepthStencilFormat();
+    if (hasDepth && !gpuFBO->gpuDepthStencilTexture) {
+        swapchainImageIndices |= (1 << colorViewCount);
+    }
+    gpuFBO->isOffscreen = !swapchainImageIndices;
+
     if (gpuFBO->isOffscreen) {
         glGenFramebuffers(1, &gpuFBO->glFramebuffer);
         if (device->stateCache->glFramebuffer != gpuFBO->glFramebuffer) {
@@ -1243,7 +1258,7 @@ void GLES3CmdFuncCreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
             GLES3GPUTexture *gpuColorTexture = gpuFBO->gpuColorTextures[i];
             if (gpuColorTexture) {
                 GLint mipmapLevel = 0;
-                if (colorMipmapLevelCount >= i) {
+                if (i < colorMipmapLevelCount) {
                     mipmapLevel = gpuFBO->colorMipmapLevels[i];
                 }
                 glFramebufferTexture2D(GL_FRAMEBUFFER, (GLenum)(GL_COLOR_ATTACHMENT0 + i), gpuColorTexture->glTarget, gpuColorTexture->glTexture, mipmapLevel);
@@ -1255,7 +1270,7 @@ void GLES3CmdFuncCreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
         if (gpuFBO->gpuDepthStencilTexture) {
             GLES3GPUTexture *gpuDepthStencilTexture = gpuFBO->gpuDepthStencilTexture;
             const GLenum gl_attachment = GFX_FORMAT_INFOS[(int)gpuDepthStencilTexture->format].hasStencil ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
-            glFramebufferTexture2D(GL_FRAMEBUFFER, gl_attachment, gpuDepthStencilTexture->glTarget, gpuDepthStencilTexture->glTexture, gpuFBO->depstencilMipmapLevel);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, gl_attachment, gpuDepthStencilTexture->glTarget, gpuDepthStencilTexture->glTexture, gpuFBO->depthStencilMipmapLevel);
         }
 
         glDrawBuffers(attachment_count, attachments);
@@ -1282,43 +1297,49 @@ void GLES3CmdFuncCreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
                 default:;
             }
         }
+    } else {
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+        gpuFBO->glFramebuffer = static_cast<GLES3Context *>(device->getContext())->getDefaultFramebuffer();
+#endif
     }
 }
 
 void GLES3CmdFuncDestroyFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO) {
-    if (gpuFBO->glFramebuffer) {
-        if (device->stateCache->glFramebuffer == gpuFBO->glFramebuffer) {
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            device->stateCache->glFramebuffer = 0;
+    if (gpuFBO->isOffscreen) {
+        if (gpuFBO->glFramebuffer) {
+            if (device->stateCache->glFramebuffer == gpuFBO->glFramebuffer) {
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                device->stateCache->glFramebuffer = 0;
+            }
+            glDeleteFramebuffers(1, &gpuFBO->glFramebuffer);
+            gpuFBO->glFramebuffer = 0;
         }
-        glDeleteFramebuffers(1, &gpuFBO->glFramebuffer);
-        gpuFBO->glFramebuffer = 0;
     }
 }
 
-void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmd_package) {
-    static uint cmd_indices[(int)GFXCmdType::COUNT] = {0};
-    static GLenum gl_attachments[GFX_MAX_ATTACHMENTS] = {0};
+void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
+    static uint cmdIndices[(int)GFXCmdType::COUNT] = {0};
+    static GLenum glAttachments[GFX_MAX_ATTACHMENTS] = {0};
 
-    memset(cmd_indices, 0, sizeof(cmd_indices));
+    memset(cmdIndices, 0, sizeof(cmdIndices));
 
     GLES3StateCache *cache = device->stateCache;
     GLES3GPURenderPass *gpuRenderPass = nullptr;
-    bool is_shader_changed = false;
+    bool isShaderChanged = false;
     GLES3GPUPipelineState *gpuPipelineState = nullptr;
     GLenum glPrimitive = 0;
     GLES3GPUInputAssembler *gpuInputAssembler = nullptr;
     GLES3CmdBeginRenderPass *cmdBeginRenderPass = nullptr;
 
-    for (uint i = 0; i < cmd_package->cmds.size(); ++i) {
-        GFXCmdType cmd_type = cmd_package->cmds[i];
-        uint &cmd_idx = cmd_indices[(int)cmd_type];
+    for (uint i = 0; i < cmdPackage->cmds.size(); ++i) {
+        GFXCmdType cmdType = cmdPackage->cmds[i];
+        uint &cmdIdx = cmdIndices[(int)cmdType];
 
-        switch (cmd_type) {
+        switch (cmdType) {
             case GFXCmdType::BEGIN_RENDER_PASS: {
-                GLES3CmdBeginRenderPass *cmd = cmd_package->beginRenderPassCmds[cmd_idx];
+                GLES3CmdBeginRenderPass *cmd = cmdPackage->beginRenderPassCmds[cmdIdx];
                 cmdBeginRenderPass = cmd;
-                if (cmd->gpuFBO) {
+                if (cmd->gpuFBO && cmd->gpuRenderPass) {
                     if (cache->glFramebuffer != cmd->gpuFBO->glFramebuffer) {
                         glBindFramebuffer(GL_FRAMEBUFFER, cmd->gpuFBO->glFramebuffer);
                         cache->glFramebuffer = cmd->gpuFBO->glFramebuffer;
@@ -1349,36 +1370,34 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmd_package) 
                     GLbitfield gl_clears = 0;
                     uint num_attachments = 0;
 
-                    gpuRenderPass = cmd->gpuFBO->gpuRenderPass;
-                    for (uint j = 0; j < cmd->num_clear_colors; ++j) {
+                    gpuRenderPass = cmd->gpuRenderPass;
+                    for (uint j = 0; j < cmd->numClearColors; ++j) {
                         const ColorAttachment &colorAttachment = gpuRenderPass->colorAttachments[j];
                         if (colorAttachment.format != Format::UNKNOWN) {
                             switch (colorAttachment.loadOp) {
                                 case LoadOp::LOAD: break; // GL default behaviour
                                 case LoadOp::CLEAR: {
-                                    if (cmd->clearFlags & ClearFlagBit::COLOR) {
-                                        if (cache->bs.targets[0].blendColorMask != ColorMask::ALL) {
-                                            glColorMask(true, true, true, true);
-                                        }
+                                    if (cache->bs.targets[0].blendColorMask != ColorMask::ALL) {
+                                        glColorMask(true, true, true, true);
+                                    }
 
-                                        if (cmd->gpuFBO->isOffscreen) {
-                                            static float f_colors[4];
-                                            f_colors[0] = cmd->clear_colors[j].r;
-                                            f_colors[1] = cmd->clear_colors[j].g;
-                                            f_colors[2] = cmd->clear_colors[j].b;
-                                            f_colors[3] = cmd->clear_colors[j].a;
-                                            glClearBufferfv(GL_COLOR, j, f_colors);
-                                        } else {
-                                            const Color &color = cmd->clear_colors[j];
-                                            glClearColor(color.r, color.g, color.b, color.a);
-                                            gl_clears |= GL_COLOR_BUFFER_BIT;
-                                        }
+                                    if (cmd->gpuFBO->isOffscreen) {
+                                        static float f_colors[4];
+                                        f_colors[0] = cmd->clearColors[j].r;
+                                        f_colors[1] = cmd->clearColors[j].g;
+                                        f_colors[2] = cmd->clearColors[j].b;
+                                        f_colors[3] = cmd->clearColors[j].a;
+                                        glClearBufferfv(GL_COLOR, j, f_colors);
+                                    } else {
+                                        const Color &color = cmd->clearColors[j];
+                                        glClearColor(color.r, color.g, color.b, color.a);
+                                        gl_clears |= GL_COLOR_BUFFER_BIT;
                                     }
                                     break;
                                 }
                                 case LoadOp::DISCARD: {
                                     // invalidate fbo
-                                    gl_attachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_COLOR_ATTACHMENT0 + j : GL_COLOR);
+                                    glAttachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_COLOR_ATTACHMENT0 + j : GL_COLOR);
                                     break;
                                 }
                                 default:;
@@ -1394,13 +1413,13 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmd_package) 
                                 case LoadOp::CLEAR: {
                                     glDepthMask(true);
                                     cache->dss.depthWrite = true;
-                                    glClearDepthf(cmd->clear_depth);
+                                    glClearDepthf(cmd->clearDepth);
                                     gl_clears |= GL_DEPTH_BUFFER_BIT;
                                     break;
                                 }
                                 case LoadOp::DISCARD: {
                                     // invalidate fbo
-                                    gl_attachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_DEPTH_ATTACHMENT : GL_DEPTH);
+                                    glAttachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_DEPTH_ATTACHMENT : GL_DEPTH);
                                     break;
                                 }
                                 default:;
@@ -1417,13 +1436,13 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmd_package) 
                                     if (!cache->dss.stencilWriteMaskBack) {
                                         glStencilMaskSeparate(GL_BACK, 0xffffffff);
                                     }
-                                    glClearStencil(cmd->clear_stencil);
+                                    glClearStencil(cmd->clearStencil);
                                     gl_clears |= GL_STENCIL_BUFFER_BIT;
                                     break;
                                 }
                                 case LoadOp::DISCARD: {
                                     // invalidate fbo
-                                    gl_attachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_STENCIL_ATTACHMENT : GL_STENCIL);
+                                    glAttachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_STENCIL_ATTACHMENT : GL_STENCIL);
                                     break;
                                 }
                                 default:;
@@ -1432,7 +1451,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmd_package) 
                     }     // if
 
                     if (num_attachments) {
-                        glInvalidateFramebuffer(GL_FRAMEBUFFER, num_attachments, gl_attachments);
+                        glInvalidateFramebuffer(GL_FRAMEBUFFER, num_attachments, glAttachments);
                     }
 
                     if (gl_clears) {
@@ -1468,7 +1487,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmd_package) 
             case GFXCmdType::END_RENDER_PASS: {
                 GLES3CmdBeginRenderPass *cmd = cmdBeginRenderPass;
                 uint num_attachments = 0;
-                for (uint j = 0; j < cmd->num_clear_colors; ++j) {
+                for (uint j = 0; j < cmd->numClearColors; ++j) {
                     const ColorAttachment &colorAttachment = gpuRenderPass->colorAttachments[j];
                     if (colorAttachment.format != Format::UNKNOWN) {
                         switch (colorAttachment.loadOp) {
@@ -1476,7 +1495,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmd_package) 
                             case LoadOp::CLEAR: break;
                             case LoadOp::DISCARD: {
                                 // invalidate fbo
-                                gl_attachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_COLOR_ATTACHMENT0 + j : GL_COLOR);
+                                glAttachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_COLOR_ATTACHMENT0 + j : GL_COLOR);
                                 break;
                             }
                             default:;
@@ -1492,7 +1511,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmd_package) 
                             case LoadOp::CLEAR: break;
                             case LoadOp::DISCARD: {
                                 // invalidate fbo
-                                gl_attachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_DEPTH_ATTACHMENT : GL_DEPTH);
+                                glAttachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_DEPTH_ATTACHMENT : GL_DEPTH);
                                 break;
                             }
                             default:;
@@ -1505,7 +1524,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmd_package) 
                             case LoadOp::CLEAR: break;
                             case LoadOp::DISCARD: {
                                 // invalidate fbo
-                                gl_attachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_STENCIL_ATTACHMENT : GL_STENCIL);
+                                glAttachments[num_attachments++] = (cmd->gpuFBO->isOffscreen ? GL_STENCIL_ATTACHMENT : GL_STENCIL);
                                 break;
                             }
                             default:;
@@ -1514,13 +1533,13 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmd_package) 
                 }     // if
 
                 if (num_attachments) {
-                    glInvalidateFramebuffer(GL_FRAMEBUFFER, num_attachments, gl_attachments);
+                    glInvalidateFramebuffer(GL_FRAMEBUFFER, num_attachments, glAttachments);
                 }
                 break;
             }
             case GFXCmdType::BIND_STATES: {
-                GLES3CmdBindStates *cmd = cmd_package->bindStatesCmds[cmd_idx];
-                is_shader_changed = false;
+                GLES3CmdBindStates *cmd = cmdPackage->bindStatesCmds[cmdIdx];
+                isShaderChanged = false;
 
                 if (cmd->gpuPipelineState) {
                     gpuPipelineState = cmd->gpuPipelineState;
@@ -1530,7 +1549,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmd_package) 
                         if (cache->glProgram != gpuPipelineState->gpuShader->glProgram) {
                             glUseProgram(gpuPipelineState->gpuShader->glProgram);
                             cache->glProgram = gpuPipelineState->gpuShader->glProgram;
-                            is_shader_changed = true;
+                            isShaderChanged = true;
                         }
                     }
 
@@ -1778,7 +1797,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmd_package) 
 
                 // bind vao
                 if (cmd->gpuInputAssembler && gpuPipelineState->gpuShader &&
-                    (is_shader_changed || gpuInputAssembler != cmd->gpuInputAssembler)) {
+                    (isShaderChanged || gpuInputAssembler != cmd->gpuInputAssembler)) {
                     gpuInputAssembler = cmd->gpuInputAssembler;
                     if (USE_VAO) {
                         GLuint glVAO = gpuInputAssembler->glVAOs[gpuPipelineState->gpuShader->glProgram];
@@ -1998,7 +2017,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmd_package) 
                 break;
             } // case BIND_STATES
             case GFXCmdType::DRAW: {
-                GLES3CmdDraw *cmd = cmd_package->drawCmds[cmd_idx];
+                GLES3CmdDraw *cmd = cmdPackage->drawCmds[cmdIdx];
                 if (gpuInputAssembler && gpuPipelineState) {
                     if (!gpuInputAssembler->gpuIndirectBuffer) {
                         if (gpuInputAssembler->gpuIndexBuffer && cmd->draw_info.indexCount >= 0) {
@@ -2040,19 +2059,19 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmd_package) 
                 break;
             }
             case GFXCmdType::UPDATE_BUFFER: {
-                GLES3CmdUpdateBuffer *cmd = cmd_package->updateBufferCmds[cmd_idx];
+                GLES3CmdUpdateBuffer *cmd = cmdPackage->updateBufferCmds[cmdIdx];
                 GLES3CmdFuncUpdateBuffer(device, cmd->gpuBuffer, cmd->buffer, cmd->offset, cmd->size);
                 break;
             }
             case GFXCmdType::COPY_BUFFER_TO_TEXTURE: {
-                GLES3CmdCopyBufferToTexture *cmd = cmd_package->copyBufferToTextureCmds[cmd_idx];
+                GLES3CmdCopyBufferToTexture *cmd = cmdPackage->copyBufferToTextureCmds[cmdIdx];
                 GLES3CmdFuncCopyBuffersToTexture(device, &(cmd->gpuBuffer->buffer), cmd->gpuTexture, cmd->regions);
                 break;
             }
             default:
                 break;
         }
-        cmd_idx++;
+        cmdIdx++;
     }
 }
 

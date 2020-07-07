@@ -10,6 +10,11 @@ public:
 
     virtual bool initialize(const FramebufferInfo &info) override;
     virtual void destroy() override;
+
+    CC_INLINE bool isOffscreen() const { return _isOffscreen; }
+
+private:
+    bool _isOffscreen = false;
 };
 
 } // namespace gfx

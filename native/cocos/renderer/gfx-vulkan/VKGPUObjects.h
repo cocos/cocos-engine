@@ -88,8 +88,8 @@ public:
     CCVKGPUTextureViewList gpuColorViews;
     CCVKGPUTextureView *gpuDepthStencilView = nullptr;
     VkFramebuffer vkFramebuffer = VK_NULL_HANDLE;
-    bool isOffscreen = false;
     CCVKGPUSwapchain *swapchain = nullptr;
+    bool isOffscreen = true;
 };
 
 typedef vector<VkFramebuffer> FramebufferList;

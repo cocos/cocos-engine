@@ -7784,34 +7784,6 @@ static bool js_gfx_FramebufferInfo_set_depthStencilMipmapLevel(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_FramebufferInfo_set_depthStencilMipmapLevel)
 
-static bool js_gfx_FramebufferInfo_get_isOffscreen(se::State& s)
-{
-    cc::gfx::FramebufferInfo* cobj = (cc::gfx::FramebufferInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_FramebufferInfo_get_isOffscreen : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= boolean_to_seval(cobj->isOffscreen, &jsret);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_FramebufferInfo_get_isOffscreen)
-
-static bool js_gfx_FramebufferInfo_set_isOffscreen(se::State& s)
-{
-    const auto& args = s.args();
-    cc::gfx::FramebufferInfo* cobj = (cc::gfx::FramebufferInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_FramebufferInfo_set_isOffscreen : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    bool arg0;
-    ok &= seval_to_boolean(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_FramebufferInfo_set_isOffscreen : Error processing new value");
-    cobj->isOffscreen = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_FramebufferInfo_set_isOffscreen)
-
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_FramebufferInfo_finalize)
 
 static bool js_gfx_FramebufferInfo_constructor(se::State& s)
@@ -7857,12 +7829,6 @@ static bool js_gfx_FramebufferInfo_constructor(se::State& s)
             do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (int)tmp; } while(false);
             cobj->depthStencilMipmapLevel = arg3;
         }
-        bool arg4;
-        json->getProperty("isOffscreen", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_boolean(field, &arg4);
-            cobj->isOffscreen = arg4;
-        }
 
         if(!ok) {
             JSB_FREE(cobj);
@@ -7874,7 +7840,7 @@ static bool js_gfx_FramebufferInfo_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 5)
+    else if(argc == 4)
     {
         cc::gfx::FramebufferInfo* cobj = JSB_ALLOC(cc::gfx::FramebufferInfo);
         cc::gfx::RenderPass* arg0 = nullptr;
@@ -7896,11 +7862,6 @@ static bool js_gfx_FramebufferInfo_constructor(se::State& s)
         if (!args[3].isUndefined()) {
             do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (int)tmp; } while(false);
             cobj->depthStencilMipmapLevel = arg3;
-        }
-        bool arg4;
-        if (!args[4].isUndefined()) {
-            ok &= seval_to_boolean(args[4], &arg4);
-            cobj->isOffscreen = arg4;
         }
 
         if(!ok) {
@@ -7943,7 +7904,6 @@ bool js_register_gfx_FramebufferInfo(se::Object* obj)
     cls->defineProperty("colorTextures", _SE(js_gfx_FramebufferInfo_get_colorTextures), _SE(js_gfx_FramebufferInfo_set_colorTextures));
     cls->defineProperty("depthStencilTexture", _SE(js_gfx_FramebufferInfo_get_depthStencilTexture), _SE(js_gfx_FramebufferInfo_set_depthStencilTexture));
     cls->defineProperty("depthStencilMipmapLevel", _SE(js_gfx_FramebufferInfo_get_depthStencilMipmapLevel), _SE(js_gfx_FramebufferInfo_set_depthStencilMipmapLevel));
-    cls->defineProperty("isOffscreen", _SE(js_gfx_FramebufferInfo_get_isOffscreen), _SE(js_gfx_FramebufferInfo_set_isOffscreen));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_FramebufferInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::FramebufferInfo>(cls);
@@ -14817,24 +14777,6 @@ static bool js_gfx_Framebuffer_getDepthStencilTexture(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_Framebuffer_getDepthStencilTexture)
 
-static bool js_gfx_Framebuffer_isOffscreen(se::State& s)
-{
-    cc::gfx::Framebuffer* cobj = (cc::gfx::Framebuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_Framebuffer_isOffscreen : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->isOffscreen();
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_Framebuffer_isOffscreen : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Framebuffer_isOffscreen)
-
 static bool js_gfx_Framebuffer_initialize(se::State& s)
 {
     cc::gfx::Framebuffer* cobj = (cc::gfx::Framebuffer*)s.nativeThisObject();
@@ -14942,7 +14884,6 @@ bool js_register_gfx_Framebuffer(se::Object* obj)
     cls->defineProperty("renderPass", _SE(js_gfx_Framebuffer_getRenderPass), nullptr);
     cls->defineProperty("colorTextures", _SE(js_gfx_Framebuffer_getColorTextures), nullptr);
     cls->defineProperty("depthStencilTexture", _SE(js_gfx_Framebuffer_getDepthStencilTexture), nullptr);
-    cls->defineProperty("isOffscreen", _SE(js_gfx_Framebuffer_isOffscreen), nullptr);
     cls->defineFunction("initialize", _SE(js_gfx_Framebuffer_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_Framebuffer_destroy));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_Framebuffer_finalize));
@@ -15924,20 +15865,20 @@ static bool js_gfx_CommandBuffer_beginRenderPass(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 6) {
-        cc::gfx::Framebuffer* arg0 = nullptr;
-        cc::gfx::Rect* arg1 = nullptr;
-        cc::gfx::ClearFlagBit arg2;
+        cc::gfx::RenderPass* arg0 = nullptr;
+        cc::gfx::Framebuffer* arg1 = nullptr;
+        cc::gfx::Rect* arg2 = nullptr;
         std::vector<cc::gfx::Color> arg3;
         float arg4 = 0;
         int arg5 = 0;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_reference(args[1], &arg1);
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::ClearFlagBit)tmp; } while(false);
+        ok &= seval_to_native_ptr(args[1], &arg1);
+        ok &= seval_to_reference(args[2], &arg2);
         ok &= seval_to_std_vector(args[3], &arg3);
         ok &= seval_to_float(args[4], &arg4);
         do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (int)tmp; } while(false);
         SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_beginRenderPass : Error processing arguments");
-        cobj->beginRenderPass(arg0, *arg1, arg2, arg3, arg4, arg5);
+        cobj->beginRenderPass(arg0, arg1, *arg2, arg3, arg4, arg5);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);

@@ -1,6 +1,6 @@
 #include "MTLStd.h"
 
-#include "MTLFrameBuffer.h"
+#include "MTLFramebuffer.h"
 #include "MTLRenderPass.h"
 #include "MTLTexture.h"
 
@@ -14,28 +14,30 @@ bool CCMTLFramebuffer::initialize(const FramebufferInfo &info) {
     _renderPass = info.renderPass;
     _colorTextures = info.colorTextures;
     _depthStencilTexture = info.depthStencilTexture;
-    _isOffscreen = info.isOffscreen;
 
-    if (_isOffscreen) {
-        auto *mtlRenderPass = static_cast<CCMTLRenderPass *>(_renderPass);
-        size_t slot = 0;
-        size_t levelCount = info.colorMipmapLevels.size();
-        int i = 0;
-        for (const auto &colorTexture : info.colorTextures) {
-            int level = 0;
-            if (levelCount > i) {
-                level = info.colorMipmapLevels[i];
-            }
-            id<MTLTexture> texture = static_cast<CCMTLTexture *>(colorTexture)->getMTLTexture();
-            mtlRenderPass->setColorAttachment(slot, texture, level);
-
-            ++i;
+    auto *mtlRenderPass = static_cast<CCMTLRenderPass *>(_renderPass);
+    size_t slot = 0;
+    size_t levelCount = info.colorMipmapLevels.size();
+    int i = 0;
+    size_t attachmentIndices = 0;
+    for (const auto &colorTexture : info.colorTextures) {
+        int level = 0;
+        if (levelCount > i) {
+            level = info.colorMipmapLevels[i];
         }
-
-        if (_depthStencilTexture) {
-            id<MTLTexture> texture = static_cast<CCMTLTexture *>(_depthStencilTexture)->getMTLTexture();
-            mtlRenderPass->setDepthStencilAttachment(texture, info.depthStencilMipmapLevel);
+        const auto *texture = static_cast<CCMTLTexture *>(colorTexture);
+        if (texture) {
+            attachmentIndices |= (1 << i);
+            mtlRenderPass->setColorAttachment(slot++, texture->getMTLTexture(), level);
         }
+        ++i;
+    }
+
+    _isOffscreen = (attachmentIndices != 0);
+
+    if (_depthStencilTexture) {
+        id<MTLTexture> texture = static_cast<CCMTLTexture *>(_depthStencilTexture)->getMTLTexture();
+        mtlRenderPass->setDepthStencilAttachment(texture, info.depthStencilMipmapLevel);
     }
 
     _status = Status::SUCCESS;
