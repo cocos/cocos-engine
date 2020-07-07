@@ -302,13 +302,16 @@ export class ColliderComponent extends Eventify(Component) {
      */
     public setGroup (v: number): void {
         if (this._assertOnLoadCalled) {
-            if (!this._assertUseCollisionMatrix) {
-                this._shape!.setGroup(v);
-            } else {
+            if (PhysicsSystem.instance.useCollisionMatrix) {
                 const body = this._shape!.attachedRigidBody;
                 if (body) {
                     body.group = v;
+                } else {
+                    this._shape!.setGroup(v);
+                    this._updateMask();
                 }
+            } else {
+                this._shape!.setGroup(v);
             }
         }
     }
@@ -328,6 +331,9 @@ export class ColliderComponent extends Eventify(Component) {
                 const body = this._shape!.attachedRigidBody;
                 if (body) {
                     body.group |= v;
+                } else {
+                    this._shape!.addGroup(v);
+                    this._updateMask();
                 }
             }
         }
@@ -348,6 +354,9 @@ export class ColliderComponent extends Eventify(Component) {
                 const body = this._shape!.attachedRigidBody;
                 if (body) {
                     body.group &= ~v;
+                } else {
+                    this._shape!.removeGroup(v);
+                    this._updateMask();
                 }
             }
         }
@@ -461,6 +470,10 @@ export class ColliderComponent extends Eventify(Component) {
                 }
             }
         }
+    }
+
+    private _updateMask () {
+        this._shape!.setMask(PhysicsSystem.instance.collisionMatrix[this._shape!.getGroup()]);
     }
 }
 

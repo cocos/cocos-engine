@@ -8,17 +8,19 @@ import { createPhysicsWorld, checkPhysicsModule } from './instance';
 import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
 import { PhysicMaterial } from './assets/physic-material';
-import { Layers, RecyclePool } from '../../core';
+import { Layers, RecyclePool, error } from '../../core';
 import { ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
 import { EDITOR, PHYSICS_BUILTIN, DEBUG, PHYSICS_CANNON, PHYSICS_AMMO } from 'internal:constants';
 import { IPhysicsConfig, ICollisionMatrix } from './physics-config';
 
 class CollisionMatrix {
+
     updateArray: number[] = [];
+
     constructor () {
         for (let i = 0; i < 32; i++) {
-            let key = 1 << i;
+            const key = 1 << i;
             this[`_${key}`] = 0xffffffff;
             Object.defineProperty(this, key, {
                 'get': function () { return this[`_${key}`] },
@@ -168,7 +170,8 @@ export class PhysicsSystem extends System {
      */
     static readonly ID = 'PHYSICS';
 
-    static readonly CONFIG = globalThis._CCSettings ? globalThis._CCSettings.physics : null;
+    // static readonly CONFIG = globalThis._CCSettings ? globalThis._CCSettings.physics : null;
+    static readonly CONFIG = globalThis.__PHYSICS__;
 
     /**
      * @en
@@ -212,15 +215,21 @@ export class PhysicsSystem extends System {
             this._allowSleep = config.allowSleep;
             this._fixedTimeStep = config.fixedTimeStep;
             this._maxSubSteps = config.maxSubSteps;
-            this._material.friction = config.defaultMaterial.friction;
-            this._material.rollingFriction = config.defaultMaterial.rollingFriction;
-            this._material.spinningFriction = config.defaultMaterial.spinningFriction;
-            this._material.restitution = config.defaultMaterial.restitution;
             this.autoSimulation = config.autoSimulation;
             this.useNodeChains = config.useNodeChains;
             this.useCollisionMatrix = config.useCollsionMatrix;
-            for (const key in config.collisionMatrix) {
-                this.collisionMatrix[`_${key}`] = config.collisionMatrix[key];
+
+            if (config.defaultMaterial) {
+                this._material.friction = config.defaultMaterial.friction;
+                this._material.rollingFriction = config.defaultMaterial.rollingFriction;
+                this._material.spinningFriction = config.defaultMaterial.spinningFriction;
+                this._material.restitution = config.defaultMaterial.restitution;
+            }
+
+            if (config.collisionMatrix) {
+                for (const key in config.collisionMatrix) {
+                    this.collisionMatrix[`_${key}`] = config.collisionMatrix[key];
+                }
             }
         } else {
             this.useCollisionMatrix = true;
@@ -310,16 +319,74 @@ export class PhysicsSystem extends System {
     /**
      * @en
      * Updates the mask corresponding to the collision matrix for the lowLevel rigid-body instance.
+     * Automatic execution during automatic simulation.
      * @zh
-     * 更新底层实例对应于碰撞矩阵的掩码。
+     * 更新底层实例对应于碰撞矩阵的掩码，自动模拟时会自动更新。
      */
     updateCollisionMatrix () {
         if (this.useCollisionMatrix) {
             const ua = (this.collisionMatrix as unknown as CollisionMatrix).updateArray;
             while (ua.length > 0) {
-                let group = ua.pop()!;
-                this.physicsWorld.updateCollisionMatrix(group, ua[group]);
+                const group = ua.pop()!;
+                const mask = this.collisionMatrix[group];
+                this.physicsWorld.updateCollisionMatrix(group, mask);
             }
+        }
+    }
+
+    /**
+     * @en
+     * Reset the mask corresponding to all groups of the collision matrix to the given value, the default given value is' 0xffffffff '.
+     * @zh
+     * 重置碰撞矩阵所有分组对应掩码为给定值，默认给定值为`0xffffffff`。
+     */
+    resetCollisionMatrix (mask = 0xffffffff) {
+        for (let i = 0; i < 32; i++) {
+            const key = 1 << i;
+            this[`${key}`] = 0xffffffff;
+        }
+    }
+
+    /**
+     * @en
+     * Are collisions between `group1` and `group2`?
+     * @zh
+     * 两分组是否会产生碰撞？
+     */
+    isCollisionGroup (group1: number, group2: number) {
+        const cm = this.collisionMatrix;
+        const mask1 = cm[group1];
+        const mask2 = cm[group2];
+        if (DEBUG) {
+            if (mask1 == undefined || mask2 == undefined) {
+                error("[PHYSICS]: 'isCollisionGroup', the group do not exist in the collision matrix.");
+                return false;
+            }
+        }
+        return (group1 & mask2) && (group2 & mask1);
+    }
+
+    /**
+     * @en
+     * Sets whether collisions occur between `group1` and `group2`.
+     * @zh
+     * 设置两分组间是否产生碰撞。
+     * @param collision is collision occurs?
+     */
+    setCollisionGroup (group1: number, group2: number, collision: boolean = true) {
+        const cm = this.collisionMatrix;
+        if (DEBUG) {
+            if (cm[group1] == undefined || cm[group2] == undefined) {
+                error("[PHYSICS]: 'setCollisionGroup', the group do not exist in the collision matrix.");
+                return;
+            }
+        }
+        if (collision) {
+            cm[group1] |= group2;
+            cm[group2] |= group1;
+        } else {
+            cm[group1] &= ~group2;
+            cm[group2] &= ~group1;
         }
     }
 
