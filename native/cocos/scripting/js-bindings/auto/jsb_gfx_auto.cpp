@@ -11891,7 +11891,7 @@ static bool js_gfx_GFXObject_getType(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXObject_getType)
+SE_BIND_PROP_GET(js_gfx_GFXObject_getType)
 
 static bool js_gfx_GFXObject_getStatus(se::State& s)
 {
@@ -11909,7 +11909,7 @@ static bool js_gfx_GFXObject_getStatus(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXObject_getStatus)
+SE_BIND_PROP_GET(js_gfx_GFXObject_getStatus)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_GFXObject_finalize)
 
@@ -11947,8 +11947,8 @@ bool js_register_gfx_GFXObject(se::Object* obj)
 {
     auto cls = se::Class::create("GFXObject", obj, nullptr, _SE(js_gfx_GFXObject_constructor));
 
-    cls->defineFunction("getType", _SE(js_gfx_GFXObject_getType));
-    cls->defineFunction("getStatus", _SE(js_gfx_GFXObject_getStatus));
+    cls->defineProperty("status", _SE(js_gfx_GFXObject_getStatus), nullptr);
+    cls->defineProperty("gfxType", _SE(js_gfx_GFXObject_getType), nullptr);
     cls->defineFinalizeFunction(_SE(js_cc_gfx_GFXObject_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::GFXObject>(cls);

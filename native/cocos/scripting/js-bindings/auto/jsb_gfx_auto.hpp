@@ -248,8 +248,6 @@ extern se::Class* __jsb_cc_gfx_GFXObject_class;
 
 bool js_register_cc_gfx_GFXObject(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXObject_getType);
-SE_DECLARE_FUNC(js_gfx_GFXObject_getStatus);
 SE_DECLARE_FUNC(js_gfx_GFXObject_GFXObject);
 
 extern se::Object* __jsb_cc_gfx_Device_proto;
