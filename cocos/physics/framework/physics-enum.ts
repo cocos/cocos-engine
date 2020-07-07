@@ -37,3 +37,9 @@ export enum EColliderType {
     TERRAIN,
 }
 Enum(EColliderType);
+
+export enum ERigidbodyInterpolation {
+    NONE,
+    INTERPOLATE,
+}
+Enum(ERigidbodyInterpolation);

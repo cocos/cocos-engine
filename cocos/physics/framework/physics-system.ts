@@ -12,6 +12,8 @@ import { Layers, RecyclePool } from '../../core';
 import { ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
 import { EDITOR, PHYSICS_BUILTIN, DEBUG, PHYSICS_CANNON, PHYSICS_AMMO } from 'internal:constants';
+import { IPhysicsConfig } from './physics-config';
+import { ERigidbodyInterpolation } from './physics-enum';
 
 /**
  * @en
@@ -57,40 +59,40 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取或设置每帧模拟的最大子步数。
      */
-    get maxSubStep () {
-        return this._maxSubStep;
+    get maxSubSteps () {
+        return this._maxSubSteps;
     }
 
-    set maxSubStep (value: number) {
-        this._maxSubStep = value;
+    set maxSubSteps (value: number) {
+        this._maxSubSteps = value;
     }
 
     /**
      * @en
-     * Gets or sets the fixed time consumed by each simulation step.
+     * Gets or sets the fixed delta time consumed by each simulation step.
      * @zh
      * 获取或设置每步模拟消耗的固定时间。
      */
-    get deltaTime () {
-        return this._deltaTime;
+    get fixedDeltaTime () {
+        return this._fixedDeltaTime;
     }
 
-    set deltaTime (value: number) {
-        this._deltaTime = value;
+    set fixedDeltaTime (value: number) {
+        this._fixedDeltaTime = value;
     }
 
     /**
      * @en
-     * Gets or sets whether to simulate with a fixed time step, which defaults to true.
+     * Gets or sets the interpolation mode used in the step simulation.
      * @zh
-     * 获取或设置是否使用固定的时间步长进行模拟，默认为 true。
+     * 获取或设置步进模拟时使用的插值模式。
      */
-    get useFixedTime () {
-        return this._useFixedTime;
+    get interpolation () {
+        return this._interpolation;
     }
 
-    set useFixedTime (value: boolean) {
-        this._useFixedTime = value;
+    set interpolation (value: ERigidbodyInterpolation) {
+        this._interpolation = value;
     }
 
     /**
@@ -143,6 +145,14 @@ export class PhysicsSystem extends System {
      */
     readonly raycastResults: PhysicsRayResult[] = [];
 
+    readonly collisionMatrix: { [x: string]: number };
+
+    readonly autoSimulation: boolean;
+
+    readonly useCollisionMatrix: boolean;
+
+    readonly useNodeChains: boolean;
+
     /**
      * @en
      * Gets the ID of the system.
@@ -166,13 +176,14 @@ export class PhysicsSystem extends System {
 
     private _enable = true;
     private _allowSleep = true;
-    private readonly _gravity = new Vec3(0, -10, 0);
-    private _maxSubStep = 1;
-    private _deltaTime = 1.0 / 60.0;
-    private _useFixedTime = true;
+    private _maxSubSteps = 1;
+    private _fixedDeltaTime = 1.0 / 60.0;
+    private _interpolation = ERigidbodyInterpolation.NONE;
     private _timeSinceLastUpdate = 0;
     private _timeReset = true;
-    private readonly _material!: PhysicMaterial;
+    private _accumulator = 0;
+    private readonly _gravity = new Vec3(0, -10, 0);
+    private readonly _material = new PhysicMaterial();
 
     private readonly raycastOptions: IRaycastOptions = {
         'group': -1,
@@ -185,24 +196,46 @@ export class PhysicsSystem extends System {
         return new PhysicsRayResult();
     }, 1);
 
-    private constructor () {
+    private constructor (config: IPhysicsConfig) {
         super();
-        this.physicsWorld = createPhysicsWorld();
-        this.gravity = this._gravity;
-        this.allowSleep = this._allowSleep;
-        this._material = new PhysicMaterial();
-        this._material.friction = 0.5;
-        this._material.restitution = 0.1;
+        if (config) {
+            Vec3.copy(this._gravity, config.gravity);
+            this._allowSleep = config.allowSleep;
+            this._fixedDeltaTime = config.deltaTime;
+            this._maxSubSteps = config.maxSubSteps;
+            this._interpolation = config.interpolation;
+            this._material.friction = config.defaultMaterial.friction;
+            this._material.rollingFriction = config.defaultMaterial.rollingFriction;
+            this._material.spinningFriction = config.defaultMaterial.spinningFriction;
+            this._material.restitution = config.defaultMaterial.restitution;
+            this.autoSimulation = config.autoSimulation;
+            this.collisionMatrix = config.collisionMatrix;
+            this.useNodeChains = config.useNodeChains;
+            this.useCollisionMatrix = config.useCollsionMatrix;
+        } else {
+            this.useCollisionMatrix = true;
+            this.useNodeChains = true;
+            this.autoSimulation = true;
+            const all = 0xffffffff;
+            this.collisionMatrix = {};
+            for (let i = 0; i < 32; i++) {
+                this.collisionMatrix[1 << i] = all;
+            }
+        }
         this._material.on('physics_material_update', this._updateMaterial, this);
+
+        this.physicsWorld = createPhysicsWorld();
+        this.physicsWorld.setGravity(this._gravity);
+        this.physicsWorld.setAllowSleep(this._allowSleep);
         this.physicsWorld.setDefaultMaterial(this._material);
     }
 
     /**
      * @en
-     * Perform a simulation of the physics system, which will now be performed automatically on each frame.
+     * The lifecycle function is automatically executed after all components `update` and `lateUpadte` are executed.
      * @zh
-     * 执行一次物理系统的模拟，目前将在每帧自动执行一次。
-     * @param deltaTime 与上一次执行相差的时间，目前为每帧消耗时间
+     * 生命周期函数，在所有组件的`update`和`lateUpadte`执行完成后自动执行。
+     * @param deltaTime the time since last frame.
      */
     postUpdate (deltaTime: number) {
         if (EDITOR && !this._executeInEditMode) {
@@ -214,23 +247,58 @@ export class PhysicsSystem extends System {
             return;
         }
 
-        if (this._timeReset) {
-            this._timeSinceLastUpdate = 0;
-            this._timeReset = false;
-        } else {
-            this._timeSinceLastUpdate = deltaTime;
-        }
-
-        this.physicsWorld.emitEvents();
         director.emit(Director.EVENT_BEFORE_PHYSICS);
-        this.physicsWorld.syncSceneToPhysics();
-        if (this._useFixedTime) {
-            this.physicsWorld.step(this._deltaTime);
-        } else {
-            this.physicsWorld.step(this._deltaTime, this._timeSinceLastUpdate, this._maxSubStep);
+        if (this.autoSimulation) {
+            if (this._timeReset) {
+                this._timeSinceLastUpdate = 0;
+                this._timeReset = false;
+            } else {
+                this._timeSinceLastUpdate = deltaTime;
+            }
+
+            this.physicsWorld.emitEvents();
+            this.physicsWorld.syncSceneToPhysics();
+            switch (this._interpolation) {
+                case ERigidbodyInterpolation.INTERPOLATE:
+                    this.physicsWorld.step(this._fixedDeltaTime, this._timeSinceLastUpdate, this._maxSubSteps);
+                    break;
+                case ERigidbodyInterpolation.NONE:
+                default:
+                    this._accumulator += this._timeSinceLastUpdate;
+                    while (this._accumulator > this._fixedDeltaTime) {
+                        this.physicsWorld.step(this._fixedDeltaTime);
+                        this._accumulator -= this._fixedDeltaTime;
+                    }
+                    break;
+            }
+            // TODO: nesting the dirty flag reset between the syncScenetoPhysics and the simulation to reduce calling syncScenetoPhysics.            
+            this.physicsWorld.syncSceneToPhysics();
         }
         director.emit(Director.EVENT_AFTER_PHYSICS);
-        // TODO: nesting the dirty flag reset between the syncScenetoPhysics and the simulation to reduce calling syncScenetoPhysics.
+    }
+
+    /**
+     * @en
+     * Perform simulation steps for the physical world.
+     * @zh
+     * 执行物理世界的模拟步进。
+     * @param timeSinceLastCalled
+     */
+    simulate (timeSinceLastCalled: number) {
+        if (this._interpolation) {
+            this.physicsWorld.step(this._fixedDeltaTime);
+        } else {
+            this.physicsWorld.step(this._fixedDeltaTime, timeSinceLastCalled, this._maxSubSteps);
+        }
+    }
+
+    /**
+     * @en
+     * Sync the scene world transform changes to the physics world.
+     * @zh
+     * 同步场景世界的变化信息到物理世界中。
+     */
+    syncSceneToPhysics () {
         this.physicsWorld.syncSceneToPhysics();
     }
 
@@ -279,7 +347,8 @@ export class PhysicsSystem extends System {
 
 if (PHYSICS_BUILTIN || PHYSICS_CANNON || PHYSICS_AMMO) {
     director.on(Director.EVENT_INIT, function () {
-        const sys = new cc.PhysicsSystem();
+        const config: IPhysicsConfig = globalThis._CCSettings.physics;
+        const sys = new cc.PhysicsSystem(config);
         cc.PhysicsSystem._instance = sys;
         director.registerSystem(PhysicsSystem.ID, sys, 0);
     });
