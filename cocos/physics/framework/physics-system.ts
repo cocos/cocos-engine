@@ -267,8 +267,8 @@ export class PhysicsSystem extends System {
                 }
             }
         } else {
-            this.useCollisionMatrix = true;
-            this.useNodeChains = true;
+            this.useCollisionMatrix = false;
+            this.useNodeChains = false;
         }
         this._material.on('physics_material_update', this._updateMaterial, this);
 
