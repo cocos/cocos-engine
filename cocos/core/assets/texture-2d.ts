@@ -115,8 +115,8 @@ export class Texture2D extends SimpleTexture {
     @property([ImageAsset])
     public _mipmaps: ImageAsset[] = [];
 
-    constructor () {
-        super(true);
+    constructor (noFlipY = false) {
+        super(noFlipY);
     }
 
     public initialize () {

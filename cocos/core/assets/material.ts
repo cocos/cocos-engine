@@ -272,7 +272,7 @@ export class Material extends Asset {
             for (let i = 0; i < len; i++) {
                 const pass = passes[i];
                 if (this._uploadProperty(pass, name, val)) {
-                    this._props[i][name] = val;
+                    this._props[pass.propertyIndex][name] = val;
                     success = true;
                 }
             }
@@ -280,7 +280,7 @@ export class Material extends Asset {
             if (passIdx >= this._passes.length) { console.warn(`illegal pass index: ${passIdx}.`); return; }
             const pass = this._passes[passIdx];
             if (this._uploadProperty(pass, name, val)) {
-                this._props[passIdx][name] = val;
+                this._props[pass.propertyIndex][name] = val;
                 success = true;
             }
         }
@@ -314,7 +314,7 @@ export class Material extends Asset {
             }
         } else {
             if (passIdx >= this._props.length) { console.warn(`illegal pass index: ${passIdx}.`); return null; }
-            const props = this._props[passIdx];
+            const props = this._props[this._passes[passIdx].propertyIndex];
             for (const p in props) {
                 if (p === name) { return props[p]; }
             }
@@ -362,10 +362,11 @@ export class Material extends Asset {
         const passes: Pass[] = [];
         for (let k = 0; k < passNum; ++k) {
             const passInfo = tech.passes[k] as IPassInfoFull;
-            const defs = passInfo.defines = this._defines.length > k ? this._defines[k] : {};
+            let propIdx = passInfo.passIndex = k;
+            if (passInfo.propertyIndex !== undefined) { propIdx = passInfo.propertyIndex; }
+            const defs = passInfo.defines = this._defines.length > propIdx ? this._defines[propIdx] : {};
             if (passInfo.switch && !defs[passInfo.switch]) { continue; }
-            passInfo.stateOverrides = this._states.length > k ? this._states[k] : {};
-            passInfo.idxInTech = passInfo.phase === 'forward-add' ? 0 : k;
+            passInfo.stateOverrides = this._states.length > propIdx ? this._states[propIdx] : {};
             const pass = new Pass(legacyCC.director.root);
             pass.initialize(passInfo);
             passes.push(pass);
@@ -386,8 +387,9 @@ export class Material extends Asset {
             this._props.length = totalPasses;
             if (keepProps) {
                 this._passes.forEach((pass, i) => {
-                    let props = this._props[pass.idxInTech];
+                    let props = this._props[i];
                     if (!props) { props = this._props[i] = {}; }
+                    props = this._props[pass.propertyIndex];
                     for (const p in props) {
                         this._uploadProperty(pass, p, props[p]);
                     }

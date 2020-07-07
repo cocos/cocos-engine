@@ -54,7 +54,7 @@ import { IPSOCreateInfo } from '../scene/submodel';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
-    idxInTech: number;
+    passIndex: number;
     defines: IDefineMap;
     stateOverrides?: PassOverrides;
 }
@@ -177,7 +177,8 @@ export class Pass {
     protected _textures: Record<number, GFXTexture> = {};
     // internal data
     protected _phase = getPhaseID('default');
-    protected _idxInTech = 0;
+    protected _passIndex = 0;
+    protected _propertyIndex = 0;
     protected _programName = '';
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _primitive: GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
@@ -586,7 +587,8 @@ export class Pass {
     public endChangeStatesSilently () {}
 
     protected _doInit (info: IPassInfoFull, copyDefines = false) {
-        this._idxInTech = info.idxInTech;
+        this._passIndex = info.passIndex;
+        this._propertyIndex = info.propertyIndex !== undefined ? info.propertyIndex : info.passIndex;
         this._programName = info.program;
         this._defines = copyDefines ? Object.assign({}, info.defines) : info.defines;
         this._shaderInfo = programLib.getTemplate(info.program);
@@ -682,7 +684,8 @@ export class Pass {
     get program () { return this._programName; }
     get properties () { return this._properties; }
     get defines () { return this._defines; }
-    get idxInTech () { return this._idxInTech; }
+    get passIndex () { return this._passIndex; }
+    get propertyIndex () { return this._propertyIndex; }
     // resources
     get shader () { return this._shader!; }
     get dynamics () { return this._dynamics; }

@@ -148,21 +148,20 @@ export class ForwardStage extends RenderStage {
 
         colors[0].a = camera.clearColor.a;
 
+        let framebuffer = view.window.framebuffer;
         if (this._pipeline.usePostProcess) {
             if (!this._pipeline.useMSAA) {
-                this._framebuffer = this._pipeline.getFrameBuffer(this._pipeline!.currShading)!;
+                framebuffer = this._pipeline.getFrameBuffer(this._pipeline!.currShading)!;
             } else {
-                this._framebuffer = this._pipeline.getFrameBuffer('msaa')!;
+                framebuffer = this._pipeline.getFrameBuffer('msaa')!;
             }
-        } else {
-            this._framebuffer = view.window.framebuffer;
         }
 
         const device = PipelineGlobal.device;
-        const renderPass = this._framebuffer.renderPass;
+        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : this._flow.getRenderPass(camera.clearFlag);
 
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(renderPass, this._framebuffer, this._renderArea!,
+        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
             colors, camera.clearDepth, camera.clearStencil);
 
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);

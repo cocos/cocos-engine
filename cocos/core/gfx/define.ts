@@ -458,6 +458,7 @@ export enum GFXTextureFlagBit {
     GEN_MIPMAP = 0x1,
     CUBEMAP = 0x2,
     BAKUP_BUFFER = 0x4,
+    NO_FLIP_Y = 0x8,
 }
 
 export type GFXTextureFlags = GFXTextureFlagBit;

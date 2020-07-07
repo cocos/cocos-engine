@@ -719,7 +719,7 @@ export class WebGLGFXDevice extends GFXDevice {
         gl.activeTexture(gl.TEXTURE0);
         gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); // to keep consistent with framebuffer attachments
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 

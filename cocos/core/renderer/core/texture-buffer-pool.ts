@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXFormat, GFXFormatInfos, GFXTextureType, GFXTextureUsageBit } from '../../gfx/define';
+import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXFormat, GFXFormatInfos, GFXTextureType, GFXTextureUsageBit, GFXTextureFlagBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXTexture } from '../../gfx/texture';
 
@@ -151,6 +151,7 @@ export class TextureBufferPool {
             width: length,
             height: length,
             mipLevel: 1,
+            flags: GFXTextureFlagBit.NO_FLIP_Y,
         });
 
         const chunk: ITextureBuffer = {

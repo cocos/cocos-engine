@@ -2723,6 +2723,10 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
     let n = 0;
     let f = 0;
 
+    if (gpuTexture.flags & GFXTextureFlagBit.NO_FLIP_Y) {
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+    }
+
     switch (gpuTexture.glTarget) {
         case gl.TEXTURE_2D: {
             for (let i = 0; i < regions.length; i++) {
@@ -2756,6 +2760,10 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
         gpuTexture.isPowerOf2) {
         gl.generateMipmap(gpuTexture.glTarget);
     }
+
+    if (gpuTexture.flags & GFXTextureFlagBit.NO_FLIP_Y) {
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+    }
 }
 
 export function WebGLCmdFuncCopyBuffersToTexture (
@@ -2775,6 +2783,10 @@ export function WebGLCmdFuncCopyBuffersToTexture (
     let w = 1;
     let h = 1;
     let f = 0;
+
+    if (gpuTexture.flags & GFXTextureFlagBit.NO_FLIP_Y) {
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+    }
 
     const fmtInfo: IGFXFormatInfo = GFXFormatInfos[gpuTexture.format];
     const isCompressed = fmtInfo.isCompressed;
@@ -2852,5 +2864,9 @@ export function WebGLCmdFuncCopyBuffersToTexture (
 
     if (gpuTexture.flags & GFXTextureFlagBit.GEN_MIPMAP) {
         gl.generateMipmap(gpuTexture.glTarget);
+    }
+
+    if (gpuTexture.flags & GFXTextureFlagBit.NO_FLIP_Y) {
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
     }
 }

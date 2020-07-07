@@ -82,7 +82,7 @@ export class TextureBase extends Asset {
     protected _premultiplyAlpha = false;
 
     @property
-    protected _flipY = false;
+    protected _noFlipY = false;
 
     @property
     protected _minFilter: number = Filter.LINEAR;
@@ -114,10 +114,10 @@ export class TextureBase extends Asset {
     private _gfxSampler: GFXSampler | null = null;
     private _gfxDevice: GFXDevice | null = null;
 
-    constructor (flipY: boolean = false) {
+    constructor (noFlipY = false) {
         super();
 
-        this._flipY = flipY;
+        this._noFlipY = noFlipY;
 
         // Id for generate hash in material
         this._id = idGenerator.getNewId();
@@ -217,7 +217,7 @@ export class TextureBase extends Asset {
      * @param flipY 翻转则为 `true`，否则为 `false`。
      */
     public setFlipY (flipY: boolean) {
-        this._flipY = flipY;
+        this._noFlipY = flipY;
     }
 
     /**
@@ -287,7 +287,7 @@ export class TextureBase extends Asset {
             this._wrapS + ',' + this._wrapT + ',' +
             (this._premultiplyAlpha ? 1 : 0) + ',' +
             this._mipFilter + ',' + this._anisotropy + ',' +
-            (this._flipY ? 1 : 0);
+            (this._noFlipY ? 1 : 0);
     }
 
     /**
@@ -311,7 +311,7 @@ export class TextureBase extends Asset {
             this.setAnisotropy(parseInt(fields[7]));
         }
         if (fields.length >= 9) {
-            this._flipY = fields[8].charCodeAt(0) === CHAR_CODE_1;
+            this._noFlipY = fields[8].charCodeAt(0) === CHAR_CODE_1;
         }
     }
 

@@ -205,8 +205,8 @@ class GpuComputing implements SubMeshMorphRendering {
                 textureInfo.displacements.push(...new Float32Array(meshData, displacements.offset, displacements.count));
             });
 
-            const pixelStride = 4; // For position, normal, tangent
-            const pixelFormat = Texture2D.PixelFormat.RGBA32F; // For position, normal, tangent
+            const pixelStride = 3; // For position, normal, tangent
+            const pixelFormat = Texture2D.PixelFormat.RGB32F; // For position, normal, tangent
 
             const textureSource = new Float32Array(pixelStride * width * height);
             const headPixels = nTargets;
@@ -226,7 +226,7 @@ class GpuComputing implements SubMeshMorphRendering {
                 _compressed: false,
                 format: pixelFormat,
             });
-            const textureAsset = new Texture2D();
+            const textureAsset = new Texture2D(true);
             textureAsset.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
             textureAsset.setMipFilter(Texture2D.Filter.NONE);
             textureAsset.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE);
@@ -364,7 +364,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
                 _compressed: false,
                 format: Texture2D.PixelFormat.RGB32F,
             });
-            const textureAsset = new Texture2D();
+            const textureAsset = new Texture2D(true); // no y-flipping
             textureAsset.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
             textureAsset.setMipFilter(Texture2D.Filter.NONE);
             textureAsset.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE);
