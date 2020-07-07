@@ -206,6 +206,9 @@ export class AmmoWorld implements IPhysicsWorld {
             const body0 = manifold.getBody0();
             const body1 = manifold.getBody1();
 
+            if (!Ammo['CC_CONFIG']['emitStaticCollision'] && body0.isStaticObject() && body1.isStaticObject())
+                continue;
+
             //TODO: SUPPORT CHARACTER EVENT
             if (body0['useCharacter'] || body1['useCharacter'])
                 continue;

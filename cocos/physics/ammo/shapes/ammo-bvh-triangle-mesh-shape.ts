@@ -72,13 +72,13 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
 
     private _getBtTriangleMesh (mesh: Mesh): Ammo.btTriangleMesh {
         var btTriangleMesh: Ammo.btTriangleMesh;
-        if (Ammo['CC_CACHE']['BT_TRIANGLE_MESH'].enable) {
-            if (Ammo['CC_CACHE']['BT_TRIANGLE_MESH'][mesh._uuid] == null) {
+        if (Ammo['CC_CACHE']['btTriangleMesh'].enable) {
+            if (Ammo['CC_CACHE']['btTriangleMesh'][mesh._uuid] == null) {
                 var btm = new Ammo.btTriangleMesh();
-                Ammo['CC_CACHE']['BT_TRIANGLE_MESH'][mesh._uuid] = btm;
+                Ammo['CC_CACHE']['btTriangleMesh'][mesh._uuid] = btm;
                 cocos2AmmoTriMesh(btm, mesh);
             }
-            btTriangleMesh = Ammo['CC_CACHE']['BT_TRIANGLE_MESH'][mesh._uuid];
+            btTriangleMesh = Ammo['CC_CACHE']['btTriangleMesh'][mesh._uuid];
         } else {
             this.refBtTriangleMesh = btTriangleMesh = new Ammo.btTriangleMesh();
             cocos2AmmoTriMesh(btTriangleMesh, mesh);
