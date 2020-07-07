@@ -204,7 +204,7 @@ export class PhysicsSystem extends System {
     static readonly ID = 'PHYSICS';
 
     // static readonly CONFIG = globalThis._CCSettings ? globalThis._CCSettings.physics : null;
-    static readonly CONFIG = globalThis.__PHYSICS__;
+    static readonly CONFIG = null;//globalThis.__PHYSICS__;
 
     /**
      * @en
@@ -243,7 +243,7 @@ export class PhysicsSystem extends System {
 
     private constructor () {
         super();
-        let config = PhysicsSystem.CONFIG as IPhysicsConfig;
+        let config = PhysicsSystem.CONFIG as unknown as IPhysicsConfig;
         if (config) {
             Vec3.copy(this._gravity, config.gravity);
             this._allowSleep = config.allowSleep;
