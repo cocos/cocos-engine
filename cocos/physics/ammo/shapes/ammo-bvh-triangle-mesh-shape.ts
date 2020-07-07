@@ -54,8 +54,8 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
     }
 
     onDestroy () {
-        super.onDestroy();
         if (this.refBtTriangleMesh) { Ammo.destroy(this.refBtTriangleMesh); }
+        super.onDestroy();
     }
 
     setCompound (compound: Ammo.btCompoundShape | null) {

@@ -137,10 +137,10 @@ export class AmmoShape implements IBaseShape {
         (this._collider as any) = null;
         const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
         shape['wrapped'] = null;
-        Ammo.destroy(this.transform);
         Ammo.destroy(this.pos);
         Ammo.destroy(this.quat);
         Ammo.destroy(this.scale);
+        Ammo.destroy(this.transform);
         Ammo.destroy(this._btShape);
         ammoDeletePtr(this.pos, Ammo.btVector3);
         ammoDeletePtr(this.quat, Ammo.btQuaternion);

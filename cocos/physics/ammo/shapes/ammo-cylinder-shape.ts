@@ -5,6 +5,7 @@ import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ICylinderShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { absMax } from '../../../core';
+import { ammoDeletePtr } from '../ammo-util';
 
 export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
 
@@ -54,6 +55,12 @@ export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
     onLoad () {
         super.onLoad();
         this.setRadius(this.collider.radius);
+    }
+
+    onDestroy () {
+        Ammo.destroy(this.halfExtents);
+        ammoDeletePtr(this.halfExtents, Ammo.btVector3);
+        super.onDestroy();
     }
 
     setScale () {

@@ -2,7 +2,7 @@ import Ammo from '@cocos/ammo';
 import { AmmoShape } from "./ammo-shape";
 import { Vec3 } from "../../../core";
 import { BoxColliderComponent } from '../../../../exports/physics-framework';
-import { cocos2AmmoVec3 } from '../ammo-util';
+import { cocos2AmmoVec3, ammoDeletePtr } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { IBoxShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
@@ -41,9 +41,10 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
     }
 
     onDestroy () {
-        super.onDestroy();
         Ammo.destroy(this.halfExt);
+        ammoDeletePtr(this.halfExt, Ammo.btVector3);
         (this.halfExt as any) = null;
+        super.onDestroy();
     }
 
     setScale () {

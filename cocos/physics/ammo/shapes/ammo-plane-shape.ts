@@ -1,7 +1,7 @@
 import Ammo from '@cocos/ammo';
 import { AmmoShape } from "./ammo-shape";
 import { PlaneColliderComponent } from '../../../../exports/physics-framework';
-import { cocos2AmmoVec3 } from '../ammo-util';
+import { cocos2AmmoVec3, ammoDeletePtr } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { IPlaneShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
@@ -50,6 +50,7 @@ export class AmmoPlaneShape extends AmmoShape implements IPlaneShape {
     onDestroy () {
         super.onDestroy();
         Ammo.destroy(this.NORMAL);
+        ammoDeletePtr(this.NORMAL, Ammo.btVector3);
         (this.NORMAL as any) = null;
     }
 

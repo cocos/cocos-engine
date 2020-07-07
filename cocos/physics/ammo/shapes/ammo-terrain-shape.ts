@@ -81,6 +81,11 @@ export class AmmoTerrainShape extends AmmoShape implements ITerrainShape {
         this.setTerrain(this.collider.terrain);
     }
 
+    onDestroy () {
+        if (this._buffPtr) Ammo['_free'](this._buffPtr);
+        super.onDestroy();
+    }
+
     setCompound (compound: Ammo.btCompoundShape | null) {
         super.setCompound(compound);
         this.impl.setUserIndex(this._index);
