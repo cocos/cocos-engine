@@ -248,7 +248,7 @@ export class SplashScreen {
         const renderArea = this.renderArea;
 
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(framebuffer.renderPass!, framebuffer, renderArea,
+        cmdBuff.beginRenderPass(framebuffer.renderPass, framebuffer, renderArea,
             this.clearColors, 1.0, 0);
 
         const pso = PipelineStateManager.getOrCreatePipelineState(device, this.psoCreateInfo, framebuffer.renderPass!, this.assmebler);
@@ -390,8 +390,7 @@ export class SplashScreen {
     private initCMD () {
         const device = this.device as GFXDevice;
         this.renderArea = { x: 0, y: 0, width: device.width, height: device.height };
-        const renderPass = this.root.pipeline.getRenderPass(RenderPassStage.DEFAULT)!;
-        this.framebuffer = this.root.mainWindow!.getFramebuffer(renderPass);
+        this.framebuffer = this.root.mainWindow!.framebuffer;
 
         this.cmdBuff = device.createCommandBuffer({
             queue: device.queue,

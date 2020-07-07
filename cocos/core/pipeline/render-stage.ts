@@ -251,8 +251,7 @@ export abstract class RenderStage {
         }
 
         if (this.frameBuffer === 'window') {
-            const renderPass = this._pipeline.getRenderPass(RenderPassStage.DEFAULT)!;
-            this._framebuffer = PipelineGlobal.root.mainWindow!.getFramebuffer(renderPass);
+            this._framebuffer = PipelineGlobal.root.mainWindow!.framebuffer;
         } else {
             this._framebuffer = this._flow.pipeline.getFrameBuffer(this.frameBuffer)!;
         }
@@ -378,10 +377,10 @@ export abstract class RenderStage {
             _colors[0].g = camera.clearColor.g;
             _colors[0].b = camera.clearColor.b;
         }
-        const renderPass = this._pipeline.getRenderPass(RenderPassStage.DEFAULT)!;
         if (!this._framebuffer) {
-            this._framebuffer = view.window!.getFramebuffer(renderPass);
+            this._framebuffer = view.window.framebuffer;
         }
+        const renderPass = this._framebuffer.renderPass;
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, this._framebuffer!, this._renderArea!, _colors, camera.clearDepth, camera.clearStencil);

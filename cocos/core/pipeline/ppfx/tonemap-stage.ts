@@ -79,8 +79,8 @@ export class ToneMapStage extends RenderStage {
         this._renderArea!.width = camera.width;
         this._renderArea!.height = camera.height;
 
-        const renderPass = this._flow.getRenderPass(camera.clearFlag);
-        const framebuffer = view.window!.getFramebuffer(renderPass);
+        const framebuffer = view.window.framebuffer;
+        const renderPass = framebuffer.renderPass;
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!, [{ r: 0.0, g: 0.0, b: 0.0, a: 1.0 }], 1.0, 0);

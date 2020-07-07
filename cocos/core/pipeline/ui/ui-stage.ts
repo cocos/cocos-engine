@@ -71,8 +71,8 @@ export class UIStage extends RenderStage {
 
         const cmdBuff = this._cmdBuff!;
 
-        const renderPass = this._flow.getRenderPass(camera.clearFlag);
-        const framebuffer = view.window!.getFramebuffer(renderPass);
+        const framebuffer = view.window.framebuffer;
+        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : this._flow.getRenderPass(camera.clearFlag);
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,

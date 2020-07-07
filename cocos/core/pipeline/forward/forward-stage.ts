@@ -148,8 +148,6 @@ export class ForwardStage extends RenderStage {
 
         colors[0].a = camera.clearColor.a;
 
-        const renderPass = this._flow.getRenderPass(camera.clearFlag);
-
         if (this._pipeline.usePostProcess) {
             if (!this._pipeline.useMSAA) {
                 this._framebuffer = this._pipeline.getFrameBuffer(this._pipeline!.currShading)!;
@@ -157,10 +155,11 @@ export class ForwardStage extends RenderStage {
                 this._framebuffer = this._pipeline.getFrameBuffer('msaa')!;
             }
         } else {
-            this._framebuffer = view.window!.getFramebuffer(renderPass);
+            this._framebuffer = view.window.framebuffer;
         }
 
         const device = PipelineGlobal.device;
+        const renderPass = this._framebuffer.renderPass;
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, this._framebuffer, this._renderArea!,

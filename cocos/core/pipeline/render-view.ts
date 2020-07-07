@@ -58,7 +58,7 @@ export class RenderView {
      * @zh GFX 窗口。
      */
     public get window () {
-        return this._window;
+        return this._window!;
     }
     public set window (val) {
         this._window = val;

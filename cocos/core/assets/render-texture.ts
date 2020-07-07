@@ -28,13 +28,12 @@
  */
 
 import { ccclass, property } from '../data/class-decorator';
-import { GFXTexture, GFXSampler } from '../gfx';
+import { GFXTexture, GFXSampler, GFXColorAttachment, GFXDepthStencilAttachment, GFXTextureLayout } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { RenderWindow } from '../pipeline';
 import { IRenderWindowInfo } from '../pipeline/render-window';
 import { Root } from '../root';
 import { Asset } from './asset';
-import { RenderPassStage } from '../pipeline/define';
 import { samplerLib, defaultSamplerHash } from '../renderer/core/sampler-lib';
 
 export interface IRenderTextureCreateInfo {
@@ -43,9 +42,16 @@ export interface IRenderTextureCreateInfo {
     height: number;
 }
 
+const _colorAttachment = new GFXColorAttachment();
+_colorAttachment.endLayout = GFXTextureLayout.SHADER_READONLY_OPTIMAL;
+const _depthStencilAttachment = new GFXDepthStencilAttachment();
 const _windowInfo: IRenderWindowInfo = {
     width: 1,
     height: 1,
+    renderPassInfo: {
+        colorAttachments: [_colorAttachment],
+        depthStencilAttachment: _depthStencilAttachment,
+    }
 };
 
 @ccclass('cc.RenderTexture')
@@ -110,11 +116,7 @@ export class RenderTexture extends Asset {
 
     // To be compatible with material property interface
     public getGFXTexture (): GFXTexture | null {
-        const root = legacyCC.director.root as Root;
-        const renderPass = root.pipeline.getRenderPass(RenderPassStage.DEFAULT);
-        if (!renderPass) { return null; }
-
-        return this._window!.getFramebuffer(renderPass).colorTextures[0];
+        return this._window && this._window.framebuffer.colorTextures[0];
     }
     public getGFXSampler (): GFXSampler {
         const root = legacyCC.director.root as Root;

@@ -16,6 +16,7 @@ import { SpotLight } from './renderer/scene/spot-light';
 import { UI } from './renderer/ui/ui';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './pipeline/render-window';
+import { GFXColorAttachment, GFXDepthStencilAttachment, GFXStoreOp } from './gfx';
 
 /**
  * @zh
@@ -218,11 +219,18 @@ export class Root {
      * @param info Root描述信息
      */
     public initialize (info: IRootInfo): boolean {
-
+        const colorAttachment = new GFXColorAttachment();
+        const depthStencilAttachment = new GFXDepthStencilAttachment();
+        depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
+        depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
         this._mainWindow = this.createWindow({
             title: 'rootMainWindow',
             width: this._device.width,
             height: this._device.height,
+            renderPassInfo: {
+                colorAttachments: [colorAttachment],
+                depthStencilAttachment,
+            },
             swapchainBufferIndices: -1, // always on screen
         });
         this._curWindow = this._mainWindow;
@@ -272,7 +280,9 @@ export class Root {
         this._mainWindow!.resize(width, height);
 
         for (const window of this._windows) {
-            window.resize(width, height);
+            if (window.shouldSyncSizeWithSwapchain) {
+                window.resize(width, height);
+            }
         }
 
         if (this._pipeline) {

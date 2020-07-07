@@ -20,9 +20,9 @@ import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
  */
 export class GFXColorAttachment {
     public format: GFXFormat = GFXFormat.UNKNOWN;
+    public sampleCount: number = 1;
     public loadOp: GFXLoadOp = GFXLoadOp.CLEAR;
     public storeOp: GFXStoreOp = GFXStoreOp.STORE;
-    public sampleCount: number = 1;
     public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED;
     public endLayout: GFXTextureLayout = GFXTextureLayout.PRESENT_SRC;
 }
@@ -33,11 +33,11 @@ export class GFXColorAttachment {
  */
 export class GFXDepthStencilAttachment {
     public format: GFXFormat = GFXFormat.UNKNOWN;
+    public sampleCount: number = 1;
     public depthLoadOp: GFXLoadOp = GFXLoadOp.CLEAR;
     public depthStoreOp: GFXStoreOp = GFXStoreOp.STORE;
     public stencilLoadOp: GFXLoadOp = GFXLoadOp.CLEAR;
     public stencilStoreOp: GFXStoreOp = GFXStoreOp.STORE;
-    public sampleCount: number = 1;
     public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED;
     public endLayout: GFXTextureLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 }

@@ -25,8 +25,8 @@ export abstract class GFXFramebuffer extends GFXObject {
      * @en Get current render pass.
      * @zh GFX 渲染过程。
      */
-    public get renderPass (): GFXRenderPass | null {
-        return this._renderPass;
+    public get renderPass (): GFXRenderPass {
+        return this._renderPass!;
     }
 
     /**
