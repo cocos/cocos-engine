@@ -24,15 +24,15 @@ export class BuiltinRigidBody implements IRigidBody {
     }
 
     onEnable () {
-        this.setGroup(this._rigidBody.group);
+        this._sharedBody.setGroup(this._rigidBody.group);
         if (PhysicsSystem.instance.useCollisionMatrix) {
             this._sharedBody.setMask(PhysicsSystem.instance.collisionMatrix[this._rigidBody.group]);
         }
-        // this._sharedBody.enabled = true;
+        this._sharedBody.enabled = true;
     }
 
     onDisable () {
-        // this._sharedBody.enabled = false;
+        this._sharedBody.enabled = false;
     }
 
     onDestroy () {
@@ -55,6 +55,8 @@ export class BuiltinRigidBody implements IRigidBody {
     clearState (): void { }
     clearForces (): void { }
     clearVelocity (): void { }
+    setSleepThreshold (v: number): void { }
+    getSleepThreshold (): number { return 0 }
     getLinearVelocity (out: IVec3Like): void { }
     setLinearVelocity (value: IVec3Like): void { }
     getAngularVelocity (out: IVec3Like): void { }

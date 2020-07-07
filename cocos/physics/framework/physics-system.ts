@@ -113,11 +113,26 @@ export class PhysicsSystem extends System {
     get gravity (): Vec3 {
         return this._gravity;
     }
+
     set gravity (gravity: Vec3) {
         this._gravity.set(gravity);
         if (!EDITOR) {
             this.physicsWorld.setGravity(gravity);
         }
+    }
+
+    /**
+     * @en
+     * Gets or sets the default speed threshold for going to sleep.
+     * @zh
+     * 获取或设置进入休眠的默认速度临界值。
+     */
+    get sleepThreshold (): number {
+        return this._sleepThreshold;
+    }
+
+    set sleepThreshold (v: number) {
+        this._sleepThreshold = v;
     }
 
     /**
@@ -154,10 +169,28 @@ export class PhysicsSystem extends System {
      */
     readonly raycastResults: PhysicsRayResult[] = [];
 
+    /**
+     * @en
+     * Gets the collision matrix。
+     * @zh
+     * 获取碰撞矩阵。
+     */
     readonly collisionMatrix: ICollisionMatrix = new CollisionMatrix() as unknown as ICollisionMatrix;
 
+    /**
+     * @en
+     * Turn on or off the automatic simulation.
+     * @zh
+     * 获取或设置是否自动模拟。
+     */
     autoSimulation: boolean = true;
 
+    /**
+     * @en
+     * Gets or sets whether to use a collision matrix.
+     * @zh
+     * 获取或设置是否开启碰撞矩阵。
+     */
     readonly useCollisionMatrix: boolean;
 
     readonly useNodeChains: boolean;
@@ -193,6 +226,7 @@ export class PhysicsSystem extends System {
     private _timeSinceLastCalled = 0;
     private _timeReset = true;
     private _accumulator = 0;
+    private _sleepThreshold = 0.1;
     private readonly _gravity = new Vec3(0, -10, 0);
     private readonly _material = new PhysicMaterial();
 
@@ -215,6 +249,7 @@ export class PhysicsSystem extends System {
             this._allowSleep = config.allowSleep;
             this._fixedTimeStep = config.fixedTimeStep;
             this._maxSubSteps = config.maxSubSteps;
+            this._sleepThreshold = config.sleepThreshold;
             this.autoSimulation = config.autoSimulation;
             this.useNodeChains = config.useNodeChains;
             this.useCollisionMatrix = config.useCollsionMatrix;

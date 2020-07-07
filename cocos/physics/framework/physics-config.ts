@@ -16,6 +16,7 @@ export interface IPhysicsConfig {
     allowSleep: boolean;
     fixedTimeStep: number;
     maxSubSteps: number;
+    sleepThreshold: number;
     collisionMatrix: ICollisionMatrix;
     defaultMaterial: IPhysicsMaterial;
     autoSimulation: boolean;

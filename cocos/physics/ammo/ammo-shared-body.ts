@@ -9,6 +9,7 @@ import { AmmoCollisionFlags, AmmoCollisionObjectStates, EAmmoSharedBodyDirty } f
 import { AmmoInstance } from './ammo-instance';
 import { IAmmoBodyStruct, IAmmoGhostStruct } from './ammo-interface';
 import { CC_V3_0, CC_QUAT_0, AmmoConstant } from './ammo-const';
+import { PhysicsSystem } from '../framework';
 
 const v3_0 = CC_V3_0;
 const quat_0 = CC_QUAT_0;
@@ -173,8 +174,8 @@ export class AmmoSharedBody {
         const bodyShape = new Ammo.btCompoundShape();
         const rbInfo = new Ammo.btRigidBodyConstructionInfo(0, motionState, AmmoConstant.instance.EMPTY_SHAPE, localInertia);
         const body = new Ammo.btRigidBody(rbInfo);
-        body.setRollingFriction(Ammo['CC_CONFIG'].rollingFriction);
-        body.setSpinningFriction(Ammo['CC_CONFIG'].spinningFriction);
+        const sleepTd = PhysicsSystem.instance.sleepThreshold;
+        body.setSleepingThresholds(sleepTd, sleepTd);
         this._bodyStruct = {
             'id': sharedIDCounter++,
             'body': body,
@@ -280,8 +281,8 @@ export class AmmoSharedBody {
 
     updateDirty () {
         if (this.dirty) {
-            if (this.dirty & EAmmoSharedBodyDirty.BODY_RE_ADD) this.updateBodyByReAdd();
-            if (this.dirty & EAmmoSharedBodyDirty.GHOST_RE_ADD) this.updateGhostByReAdd();
+            if (this.bodyIndex >= 0 && this.dirty & EAmmoSharedBodyDirty.BODY_RE_ADD) this.updateBodyByReAdd();
+            if (this.ghostIndex >= 0 && this.dirty & EAmmoSharedBodyDirty.GHOST_RE_ADD) this.updateGhostByReAdd();
             this.dirty = 0;
         }
     }

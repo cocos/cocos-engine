@@ -45,7 +45,7 @@ export class AmmoRigidBody implements IRigidBody {
             shape.calculateLocalInertia(this._rigidBody.mass, localInertia);
         }
         this.impl.setMassProps(value, localInertia);
-        if (!this.isAwake) this.impl.activate();
+        this._wakeUpIfSleep();
         this._sharedBody.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
     }
 
@@ -76,7 +76,7 @@ export class AmmoRigidBody implements IRigidBody {
             m_rigidBodyFlag |= AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY;
         }
         this.impl.setFlags(m_rigidBodyFlag);
-        if (!this.isAwake) this.impl.activate();
+        this._wakeUpIfSleep();
         this._sharedBody.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
     }
 
@@ -87,19 +87,19 @@ export class AmmoRigidBody implements IRigidBody {
         } else {
             this.impl.setAngularFactor(cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, this._rigidBody.angularFactor));
         }
-        if (!this.isAwake) this.impl.activate();
+        this._wakeUpIfSleep();
     }
 
     setLinearFactor (value: IVec3Like) {
         this.impl.setLinearFactor(cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, value));
-        if (!this.isAwake) this.impl.activate();
+        this._wakeUpIfSleep();
     }
 
     setAngularFactor (value: IVec3Like) {
         if (!this._rigidBody.fixedRotation) {
             this.impl.setAngularFactor(cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, value));
         }
-        if (!this.isAwake) this.impl.activate();
+        this._wakeUpIfSleep();
     }
 
     setAllowSleep (v: boolean) {
@@ -108,7 +108,7 @@ export class AmmoRigidBody implements IRigidBody {
         } else {
             this.impl.forceActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
         }
-        if (!this.isAwake) this.impl.activate();
+        this._wakeUpIfSleep();
     }
 
     get isEnabled () { return this._isEnabled; }
@@ -179,12 +179,21 @@ export class AmmoRigidBody implements IRigidBody {
 
     /** INTERFACE */
 
-    wakeUp (force?: boolean): void {
+    wakeUp (force = true): void {
         this.impl.activate(force);
     }
 
     sleep (): void {
         return this.impl.wantsSleeping() as any;
+    }
+
+    setSleepThreshold (v: number): void {
+        this._wakeUpIfSleep();
+        this.impl.setSleepingThresholds(v, v);
+    }
+
+    getSleepThreshold (): number {
+        return this.impl['getLinearSleepingThreshold']();
     }
 
     /** type */
@@ -208,7 +217,7 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     setLinearVelocity (value: Vec3): void {
-        if (!this.isAwake) this.impl.activate();
+        this._wakeUpIfSleep();
         cocos2AmmoVec3(this.impl.getLinearVelocity(), value);
     }
 
@@ -217,7 +226,7 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     setAngularVelocity (value: Vec3): void {
-        if (!this.isAwake) this.impl.activate();
+        this._wakeUpIfSleep();
         cocos2AmmoVec3(this.impl.getAngularVelocity(), value);
     }
 
@@ -225,7 +234,7 @@ export class AmmoRigidBody implements IRigidBody {
 
     applyLocalForce (force: Vec3, rel_pos?: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
-        if (!this.isAwake) this.impl.activate();
+        this._wakeUpIfSleep();
         const quat = this._sharedBody.node.worldRotation;
         const v = Vec3.transformQuat(v3_0, force, quat);
         const rp = rel_pos ? Vec3.transformQuat(v3_1, rel_pos, quat) : Vec3.ZERO;
@@ -237,14 +246,14 @@ export class AmmoRigidBody implements IRigidBody {
 
     applyLocalTorque (torque: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
-        if (!this.isAwake) this.impl.activate();
+        this._wakeUpIfSleep();
         Vec3.transformQuat(v3_0, torque, this._sharedBody.node.worldRotation);
         this.impl.applyTorque(cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, v3_0));
     }
 
     applyLocalImpulse (impulse: Vec3, rel_pos?: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
-        if (!this.isAwake) this.impl.activate();
+        this._wakeUpIfSleep();
         const quat = this._sharedBody.node.worldRotation;
         const v = Vec3.transformQuat(v3_0, impulse, quat);
         const rp = rel_pos ? Vec3.transformQuat(v3_1, rel_pos, quat) : Vec3.ZERO;
@@ -256,7 +265,7 @@ export class AmmoRigidBody implements IRigidBody {
 
     applyForce (force: Vec3, rel_pos?: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
-        if (!this.isAwake) this.impl.activate();
+        this._wakeUpIfSleep();
         const rp = rel_pos ? rel_pos : Vec3.ZERO;
         this.impl.applyForce(
             cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, force),
@@ -266,13 +275,13 @@ export class AmmoRigidBody implements IRigidBody {
 
     applyTorque (torque: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
-        if (!this.isAwake) this.impl.activate();
+        this._wakeUpIfSleep();
         this.impl.applyTorque(cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, torque));
     }
 
     applyImpulse (impulse: Vec3, rel_pos?: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
-        if (!this.isAwake) this.impl.activate();
+        this._wakeUpIfSleep();
         const rp = rel_pos ? rel_pos : Vec3.ZERO;
         this.impl.applyImpulse(
             cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, impulse),
@@ -313,4 +322,7 @@ export class AmmoRigidBody implements IRigidBody {
         this._sharedBody.collisionFilterMask &= ~v;
     }
 
+    protected _wakeUpIfSleep () {
+        if (!this.isAwake) this.impl.activate(true);
+    }
 }
