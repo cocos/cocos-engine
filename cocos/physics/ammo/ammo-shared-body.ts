@@ -5,7 +5,7 @@ import { AmmoWorld } from './ammo-world';
 import { AmmoRigidBody } from './ammo-rigid-body';
 import { AmmoShape } from './shapes/ammo-shape';
 import { cocos2AmmoVec3, cocos2AmmoQuat, ammo2CocosVec3, ammo2CocosQuat, ammoDeletePtr } from './ammo-util';
-import { AmmoCollisionFlags, AmmoCollisionObjectStates } from './ammo-enum';
+import { AmmoCollisionFlags, AmmoCollisionObjectStates, EAmmoSharedBodyDirty } from './ammo-enum';
 import { AmmoInstance } from './ammo-instance';
 import { IAmmoBodyStruct, IAmmoGhostStruct } from './ammo-interface';
 import { CC_V3_0, CC_QUAT_0, AmmoConstant } from './ammo-const';
@@ -61,8 +61,8 @@ export class AmmoSharedBody {
     set collisionFilterGroup (v: number) {
         if (v != this._collisionFilterGroup) {
             this._collisionFilterGroup = v;
-            this.updateBodyByReAdd();
-            this.updateGhostByReAdd();
+            this.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
+            this.dirty |= EAmmoSharedBodyDirty.GHOST_RE_ADD;
         }
     }
 
@@ -70,8 +70,8 @@ export class AmmoSharedBody {
     set collisionFilterMask (v: number) {
         if (v != this._collisionFilterMask) {
             this._collisionFilterMask = v;
-            this.updateBodyByReAdd();
-            this.updateGhostByReAdd();
+            this.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
+            this.dirty |= EAmmoSharedBodyDirty.GHOST_RE_ADD;
         }
     }
 
@@ -80,6 +80,8 @@ export class AmmoSharedBody {
     readonly wrappedWorld: AmmoWorld;
     readonly bodyStruct: IAmmoBodyStruct;
     readonly ghostStruct: IAmmoGhostStruct;
+
+    dirty: EAmmoSharedBodyDirty = 0;
 
     private _collisionFilterGroup: number = 1;
     private _collisionFilterMask: number = -1;
@@ -201,7 +203,7 @@ export class AmmoSharedBody {
 
         function switchShape (that: AmmoSharedBody, shape: Ammo.btCollisionShape) {
             that.body.setCollisionShape(shape);
-            that.updateBodyByReAdd();
+            that.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
             if (that._wrappedBody && that._wrappedBody.isEnabled) {
                 that._wrappedBody.setMass(that._wrappedBody.rigidBody.mass)
             }
@@ -222,8 +224,7 @@ export class AmmoSharedBody {
                     v.setCompound(this.bodyCompoundShape);
                 } else {
                     const l = this.bodyStruct.wrappedShapes.length;
-                    if (!Ammo['CC_CONFIG']['forceUseCompound'] && l == 1 && !v.needCompound()) {
-                        // TODO: fix weird behave at simple-hole
+                    if (l == 1 && !v.needCompound()) {
                         switchShape(this, v.impl);
                     } else {
                         this.bodyStruct.useCompound = true;
@@ -256,10 +257,18 @@ export class AmmoSharedBody {
                     this.body.setCollisionShape(AmmoConstant.instance.EMPTY_SHAPE);
                 }
                 this.body.activate(true);
-                this.updateBodyByReAdd();
+                this.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
                 this.bodyStruct.wrappedShapes.splice(index, 1);
                 this.bodyEnabled = false;
             }
+        }
+    }
+
+    updateDirty () {
+        if (this.dirty) {
+            if (this.dirty & EAmmoSharedBodyDirty.BODY_RE_ADD) this.updateBodyByReAdd();
+            if (this.dirty & EAmmoSharedBodyDirty.GHOST_RE_ADD) this.updateGhostByReAdd();
+            this.dirty = 0;
         }
     }
 

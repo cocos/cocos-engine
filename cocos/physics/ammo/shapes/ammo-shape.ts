@@ -2,7 +2,7 @@ import Ammo from '@cocos/ammo';
 import { Vec3, Quat } from "../../../core/math";
 import { ColliderComponent, RigidBodyComponent, PhysicMaterial, PhysicsSystem } from "../../../../exports/physics-framework";
 import { AmmoWorld } from '../ammo-world';
-import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
+import { AmmoBroadphaseNativeTypes, EAmmoSharedBodyDirty } from '../ammo-enum';
 import { cocos2AmmoVec3, ammoDeletePtr, cocos2AmmoQuat } from '../ammo-util';
 import { Node } from '../../../core';
 import { IBaseShape } from '../../spec/i-physics-shape';
@@ -213,7 +213,7 @@ export class AmmoShape implements IBaseShape {
             this._btCompound.updateChildTransform(this.index, this.transform, true);
         } else if (this._isEnabled && !this._isTrigger) {
             if (this._sharedBody && !this._sharedBody.bodyStruct.useCompound) {
-                this._sharedBody.updateBodyByReAdd();
+                this._sharedBody.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
             }
         }
     }

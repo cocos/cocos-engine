@@ -1,5 +1,10 @@
 import Ammo from '@cocos/ammo';
 
+export enum EAmmoSharedBodyDirty {
+    BODY_RE_ADD = 1,
+    GHOST_RE_ADD = 2,
+}
+
 export enum AmmoCollisionFlags {
     CF_STATIC_OBJECT = 1,
     CF_KINEMATIC_OBJECT = 2,
