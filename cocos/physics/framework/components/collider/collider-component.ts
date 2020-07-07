@@ -9,11 +9,11 @@ import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventTyp
 import { RigidBodyComponent } from '../rigid-body-component';
 import { PhysicMaterial } from '../../assets/physic-material';
 import { PhysicsSystem } from '../../physics-system';
-import { Component, error } from '../../../../core';
+import { Component, error, Node } from '../../../../core';
 import { IBaseShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
 import { aabb, sphere } from '../../../../core/geometry';
-import { EColliderType } from '../../physics-enum';
+import { EColliderType, EAxisDirection } from '../../physics-enum';
 import { createShape } from '../../instance';
 
 /**
@@ -24,6 +24,9 @@ import { createShape } from '../../instance';
  */
 @ccclass('cc.ColliderComponent')
 export class ColliderComponent extends Eventify(Component) {
+
+    static readonly EColliderType = EColliderType;
+    static readonly EAxisDirection = EAxisDirection;
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -403,3 +406,9 @@ export class ColliderComponent extends Eventify(Component) {
         }
     }
 }
+
+export namespace ColliderComponent {
+    export type EColliderType = EnumAlias<typeof EColliderType>;
+    export type EAxisDirection = EnumAlias<typeof EAxisDirection>;
+}
+

@@ -53,7 +53,7 @@ cc.PhysicsRayResult = PhysicsRayResult;
 cc.ConstantForce = ConstantForce;
 
 export * from './physics-interface';
-export * from './physics-enum';
+export { EAxisDirection, ERigidBodyType } from './physics-enum';
 
 import './deprecated';
 

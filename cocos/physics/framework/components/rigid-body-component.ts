@@ -16,6 +16,7 @@ import { Component, error } from '../../../core';
 import { IRigidBody } from '../../spec/i-rigid-body';
 import { createRigidBody } from '../instance';
 import { EDITOR, TEST } from 'internal:constants';
+import { ERigidBodyType } from '../physics-enum';
 
 /**
  * @en
@@ -29,6 +30,8 @@ import { EDITOR, TEST } from 'internal:constants';
 @executeInEditMode
 @disallowMultiple
 export class RigidBodyComponent extends Component {
+
+    static readonly ERigidBodyType = ERigidBodyType;
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -636,4 +639,8 @@ export class RigidBodyComponent extends Component {
         }
     }
 
+}
+
+export namespace RigidBodyComponent {
+    export type ERigidBodyType = EnumAlias<typeof ERigidBodyType>;
 }

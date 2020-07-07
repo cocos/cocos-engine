@@ -1,6 +1,6 @@
 import Ammo from '@cocos/ammo';
 import { AmmoShape } from "./ammo-shape";
-import { SimpleColliderComponent, ESimpleShapeType } from '../../../../exports/physics-framework';
+import { SimpleColliderComponent } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ISimpleShape } from '../../spec/i-physics-shape';
@@ -8,7 +8,7 @@ import { IVec3Like } from '../../../core/math/type-define';
 
 export class AmmoSimpleShape extends AmmoShape implements ISimpleShape {
 
-    setShapeType (v: ESimpleShapeType) {
+    setShapeType (v: SimpleColliderComponent.ESimpleShapeType) {
         if (this._isBinding) {
             //TODO: 
         }

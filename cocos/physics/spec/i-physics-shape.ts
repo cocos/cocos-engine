@@ -5,7 +5,7 @@
 import { ILifecycle } from './i-lifecycle'
 import { IGroupMask } from './i-group-mask'
 import { IVec3Like } from '../../core/math/type-define';
-import { ColliderComponent, RigidBodyComponent, PhysicMaterial, ESimpleShapeType } from '../../../exports/physics-framework';
+import { ColliderComponent, RigidBodyComponent, PhysicMaterial, SimpleColliderComponent } from '../../../exports/physics-framework';
 import { Mesh } from '../../core';
 import { ITerrainAsset } from './i-external';
 import { aabb, sphere } from '../../core/geometry';
@@ -43,7 +43,7 @@ export interface ICylinderShape extends IBaseShape {
 }
 
 export interface ISimpleShape extends IBaseShape {
-    setShapeType: (v: ESimpleShapeType) => void;
+    setShapeType: (v: SimpleColliderComponent.ESimpleShapeType) => void;
     setVertices: (v: IVec3Like[]) => void;
 }
 
