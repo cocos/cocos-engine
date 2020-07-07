@@ -26,8 +26,7 @@ module.exports = {
             "toggleContainer": "https://docs.cocos.com/creator/manual/en/components/toggleContainer.html",
             "slider": "https://docs.cocos.com/creator/manual/en/components/slider.html",
             "block_input_events": "https://docs.cocos.com/creator/manual/en/components/block-input-events.html",
-            "wx_subcontext_view": "https://docs.cocos.com/creator/manual/en/publish/publish-wechatgame-sub-domain.html",
-            "swan_subcontext_view": "https://docs.cocos.com/creator/manual/en/publish/publish-baidugame-sub-domain.html",
+            "subcontext_view": "https://docs.cocos.com/creator/manual/en/publish/publish-wechatgame-sub-domain.html",
             "safe_area": "https://docs.cocos.com/creator/manual/en/components/safearea.html"
         },
         "animation": {
@@ -433,11 +432,8 @@ module.exports = {
             'gid': 'Specify the TiledTile gid.',
             'layer': 'Specify which TiledLayer the TiledTile belong to.'
         },
-        'wx_subcontext_view': {
-            'interval': 'The FPS of open data context, this property will overwrite the frame rate setting in open data context',
-        },
-        'swan_subcontext_view': {
-            'interval': 'The FPS of open data context, this property will overwrite the frame rate setting in open data context',
+        'subcontext_view': {
+            'fps': 'The FPS of open data context, this property will overwrite the frame rate setting in open data context',
         },
         'skeleton_animation': {
             'search_animation_clips': 'Search Animation Clips',
