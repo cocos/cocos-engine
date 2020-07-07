@@ -142,10 +142,6 @@ export class AmmoShape implements IBaseShape {
         Ammo.destroy(this.scale);
         Ammo.destroy(this.transform);
         Ammo.destroy(this._btShape);
-        ammoDeletePtr(this.pos, Ammo.btVector3);
-        ammoDeletePtr(this.quat, Ammo.btQuaternion);
-        ammoDeletePtr(this.scale, Ammo.btVector3);
-        ammoDeletePtr(this.transform, Ammo.btTransform);
         ammoDeletePtr(this._btShape, Ammo.btCollisionShape);
         (this._btShape as any) = null;
         (this.transform as any) = null;

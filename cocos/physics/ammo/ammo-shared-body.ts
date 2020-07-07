@@ -75,12 +75,19 @@ export class AmmoSharedBody {
         }
     }
 
+    get bodyStruct () {
+        this._instantiateBodyStruct();
+        return this._bodyStruct;
+    }
+
+    get ghostStruct () {
+        this._instantiateGhostStruct();
+        return this._ghostStruct;
+    }
+
     readonly id: number;
     readonly node: Node;
     readonly wrappedWorld: AmmoWorld;
-    readonly bodyStruct: IAmmoBodyStruct;
-    readonly ghostStruct: IAmmoGhostStruct;
-
     dirty: EAmmoSharedBodyDirty = 0;
 
     private _collisionFilterGroup: number = 1;
@@ -89,6 +96,8 @@ export class AmmoSharedBody {
     private ref: number = 0;
     private bodyIndex: number = -1;
     private ghostIndex: number = -1;
+    private _bodyStruct!: IAmmoBodyStruct;
+    private _ghostStruct!: IAmmoGhostStruct;
     private _wrappedBody: AmmoRigidBody | null = null;
 
     /**
@@ -115,7 +124,6 @@ export class AmmoSharedBody {
                     this.bodyIndex = -1;
                     this.wrappedWorld.removeSharedBody(this);
                 }
-
             }
         }
     }
@@ -146,10 +154,13 @@ export class AmmoSharedBody {
     }
 
     private constructor (node: Node, wrappedWorld: AmmoWorld) {
+        this.id = AmmoSharedBody.idCounter++;
         this.wrappedWorld = wrappedWorld;
         this.node = node;
-        this.id = AmmoSharedBody.idCounter++;
+    }
 
+    private _instantiateBodyStruct () {
+        if (this._bodyStruct) return;
         /** body struct */
         const st = new Ammo.btTransform();
         st.setIdentity();
@@ -164,7 +175,7 @@ export class AmmoSharedBody {
         const body = new Ammo.btRigidBody(rbInfo);
         body.setRollingFriction(Ammo['CC_CONFIG'].rollingFriction);
         body.setSpinningFriction(Ammo['CC_CONFIG'].spinningFriction);
-        this.bodyStruct = {
+        this._bodyStruct = {
             'id': sharedIDCounter++,
             'body': body,
             'localInertia': localInertia,
@@ -176,28 +187,30 @@ export class AmmoSharedBody {
             'wrappedShapes': [],
             'useCompound': false,
         }
-        AmmoInstance.bodyStructs['KEY' + this.bodyStruct.id] = this.bodyStruct;
-        this.body.setUserIndex(this.bodyStruct.id);
+        AmmoInstance.bodyStructs['KEY' + this._bodyStruct.id] = this._bodyStruct;
+        this.body.setUserIndex(this._bodyStruct.id);
+        this.body.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+        if (Ammo['CC_CONFIG']['ignoreSelfBody'] && this._ghostStruct) this.ghost.setIgnoreCollisionCheck(this.body, true);
+    }
 
+    private _instantiateGhostStruct () {
+        if (this._ghostStruct) return;
         /** ghost struct */
         const ghost = new Ammo.btCollisionObject();
         const ghostShape = new Ammo.btCompoundShape();
         ghost.setCollisionShape(ghostShape);
         ghost.setCollisionFlags(AmmoCollisionFlags.CF_NO_CONTACT_RESPONSE);
-        this.ghostStruct = {
+        this._ghostStruct = {
             'id': sharedIDCounter++,
             'ghost': ghost,
             'shape': ghostShape,
             'worldQuat': new Ammo.btQuaternion(),
             'wrappedShapes': []
         }
-        AmmoInstance.ghostStructs['KEY' + this.ghostStruct.id] = this.ghostStruct;
-        this.ghost.setUserIndex(this.ghostStruct.id);
-
-        if (Ammo['CC_CONFIG']['ignoreSelfBody']) this.ghost.setIgnoreCollisionCheck(this.body, true);
-
-        this.body.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+        AmmoInstance.ghostStructs['KEY' + this._ghostStruct.id] = this._ghostStruct;
+        this.ghost.setUserIndex(this._ghostStruct.id);
         this.ghost.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+        if (Ammo['CC_CONFIG']['ignoreSelfBody'] && this._bodyStruct) this.ghost.setIgnoreCollisionCheck(this.body, true);
     }
 
     addShape (v: AmmoShape, isTrigger: boolean) {
@@ -371,40 +384,35 @@ export class AmmoSharedBody {
         AmmoSharedBody.sharedBodesMap.delete(this.node.uuid);
         (this.node as any) = null;
         (this.wrappedWorld as any) = null;
+        if (this._bodyStruct) {
+            const bodyStruct = this._bodyStruct;
+            Ammo.destroy(bodyStruct.localInertia);
+            Ammo.destroy(bodyStruct.worldQuat);
+            Ammo.destroy(bodyStruct.startTransform);
+            Ammo.destroy(bodyStruct.motionState);
+            Ammo.destroy(bodyStruct.rbInfo);
+            Ammo.destroy(bodyStruct.shape);
+            ammoDeletePtr(bodyStruct.shape, Ammo.btCollisionShape);
+            const body = Ammo.castObject(bodyStruct.body, Ammo.btRigidBody);
+            body['wrapped'] = null;
+            // Ammo.destroy(bodyStruct.body);
+            ammoDeletePtr(bodyStruct.body, Ammo.btRigidBody);
+            ammoDeletePtr(bodyStruct.body, Ammo.btCollisionObject);
+            const key0 = 'KEY' + bodyStruct.id;
+            delete AmmoInstance.bodyStructs[key0];
+            (this._bodyStruct as any) = null;
+        }
 
-        const bodyStruct = this.bodyStruct;
-        Ammo.destroy(bodyStruct.localInertia);
-        Ammo.destroy(bodyStruct.worldQuat);
-        Ammo.destroy(bodyStruct.startTransform);
-        // Ammo.destroy(bodyStruct.motionState);
-        // Ammo.destroy(bodyStruct.rbInfo);
-        // Ammo.destroy(bodyStruct.shape);
-        // Ammo.destroy(bodyStruct.body);
-        ammoDeletePtr(bodyStruct.motionState, Ammo.btDefaultMotionState);
-        ammoDeletePtr(bodyStruct.rbInfo, Ammo.btRigidBodyConstructionInfo);
-        ammoDeletePtr(bodyStruct.body, Ammo.btRigidBody);
-        ammoDeletePtr(bodyStruct.body, Ammo.btCollisionObject);
-        ammoDeletePtr(bodyStruct.shape, Ammo.btCompoundShape);
-        ammoDeletePtr(bodyStruct.shape, Ammo.btCollisionShape);
-        ammoDeletePtr(bodyStruct.startTransform, Ammo.btTransform);
-        ammoDeletePtr(bodyStruct.localInertia, Ammo.btVector3);
-        ammoDeletePtr(bodyStruct.worldQuat, Ammo.btQuaternion);
-        const key0 = 'KEY' + bodyStruct.id;
-        delete AmmoInstance.bodyStructs[key0];
-
-        const ghostStruct = this.ghostStruct;
-        Ammo.destroy(ghostStruct.worldQuat);
-        Ammo.destroy(ghostStruct.shape);
-        Ammo.destroy(ghostStruct.ghost);
-        ammoDeletePtr(ghostStruct.ghost, Ammo.btCollisionObject);
-        ammoDeletePtr(ghostStruct.shape, Ammo.btCompoundShape);
-        ammoDeletePtr(ghostStruct.shape, Ammo.btCollisionShape);
-        ammoDeletePtr(ghostStruct.worldQuat, Ammo.btQuaternion);
-        const key1 = 'KEY' + ghostStruct.id;
-        delete AmmoInstance.bodyStructs[key1];
-
-        (this.bodyStruct as any) = null;
-        (this.ghostStruct as any) = null;
+        if (this._ghostStruct) {
+            const ghostStruct = this._ghostStruct;
+            Ammo.destroy(ghostStruct.worldQuat);
+            Ammo.destroy(ghostStruct.shape);
+            ammoDeletePtr(ghostStruct.shape, Ammo.btCollisionShape);
+            Ammo.destroy(ghostStruct.ghost);
+            const key1 = 'KEY' + ghostStruct.id;
+            delete AmmoInstance.bodyStructs[key1];
+            (this._ghostStruct as any) = null;
+        }
     }
 
     private isBodySleeping () {
