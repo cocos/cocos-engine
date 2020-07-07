@@ -10,7 +10,7 @@ import { CannonWorld } from '../cannon-world';
 import { Node } from '../../../core';
 import { TriggerEventType } from '../../framework/physics-interface';
 import { PhysicsSystem } from '../../framework/physics-system';
-import { ColliderComponent } from '../../framework';
+import { ColliderComponent, RigidBodyComponent } from '../../framework';
 import { aabb, sphere } from '../../../core/geometry';
 
 const TriggerEventObject = {
@@ -65,6 +65,26 @@ export class CannonShape implements IBaseShape {
         }
     }
 
+    setAttachedBody (v: RigidBodyComponent | null) {
+        if (v) {
+            if (this._sharedBody) {
+                if (this._sharedBody.wrappedBody == v.body) return;
+
+                this._sharedBody.reference = false;
+            }
+
+            this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(v.node);
+            this._sharedBody.reference = true;
+        } else {
+            if (this._sharedBody) {
+                this._sharedBody.reference = false;
+            }
+
+            this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._collider.node);
+            this._sharedBody.reference = true;
+        }
+    }
+
     getAABB (v: aabb) {
         Quat.copy(cannonQuat_0, this._collider.node.worldRotation);
         // TODO: typing
@@ -86,7 +106,7 @@ export class CannonShape implements IBaseShape {
     protected _index: number = -1;
     protected _sharedBody!: CannonSharedBody;
     protected get _body (): CANNON.Body { return this._sharedBody.body; }
-    protected onTriggerListener = this.onTrigger.bind(this);
+    protected onTriggerListener = this._onTrigger.bind(this);
     protected _isBinding = false;
 
     /** LIFECYCLE */
@@ -97,7 +117,7 @@ export class CannonShape implements IBaseShape {
         this.onComponentSet();
         setWrap(this._shape, this);
         this._shape.addEventListener('cc-trigger', this.onTriggerListener);
-        this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._collider.node as Node);
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._collider.node);
         this._sharedBody.reference = true;
     }
 
@@ -197,11 +217,12 @@ export class CannonShape implements IBaseShape {
 
     protected _setCenter (v: IVec3Like) {
         const lpos = this._offset as IVec3Like;
-        Vec3.copy(lpos, v);
+        Vec3.subtract(lpos, this._sharedBody.node.worldPosition, this._collider.node.worldPosition);
+        Vec3.add(lpos, lpos, v);
         Vec3.multiply(lpos, lpos, this._collider.node.worldScale);
     }
 
-    private onTrigger (event: CANNON.ITriggeredEvent) {
+    protected _onTrigger (event: CANNON.ITriggeredEvent) {
         TriggerEventObject.type = event.event;
         const self = getWrap<CannonShape>(event.selfShape);
         const other = getWrap<CannonShape>(event.otherShape);

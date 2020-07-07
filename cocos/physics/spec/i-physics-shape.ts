@@ -18,6 +18,7 @@ export interface IBaseShape extends ILifecycle, IGroupMask {
     setMaterial: (v: PhysicMaterial | null) => void;
     setAsTrigger: (v: boolean) => void;
     setCenter: (v: IVec3Like) => void;
+    // setAttachedBody: (body: RigidBodyComponent | null) => void;
     getAABB: (v: aabb) => void;
     getBoundingSphere: (v: sphere) => void;
 }
