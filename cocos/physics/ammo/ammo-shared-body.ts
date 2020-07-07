@@ -198,6 +198,15 @@ export class AmmoSharedBody {
     }
 
     addShape (v: AmmoShape, isTrigger: boolean) {
+
+        function switchShape (that: AmmoSharedBody, shape: Ammo.btCollisionShape) {
+            that.body.setCollisionShape(shape);
+            that.updateBodyByReAdd();
+            if (that._wrappedBody && that._wrappedBody.isEnabled) {
+                that._wrappedBody.setMass(that._wrappedBody.rigidBody.mass)
+            }
+        }
+
         if (isTrigger) {
             const index = this.ghostStruct.wrappedShapes.indexOf(v);
             if (index < 0) {
@@ -214,18 +223,14 @@ export class AmmoSharedBody {
                 } else {
                     const l = this.bodyStruct.wrappedShapes.length;
                     if (l == 1 && !v.needCompound()) {
-                        this.body.setCollisionShape(v.impl);
-                        if (this._wrappedBody) { this._wrappedBody.setMass(this._wrappedBody.rigidBody.mass) }
-                        this.updateBodyByReAdd();
+                        switchShape(this, v.impl);
                     } else {
                         this.bodyStruct.useCompound = true;
                         for (let i = 0; i < l; i++) {
                             const childShape = this.bodyStruct.wrappedShapes[i];
                             childShape.setCompound(this.bodyCompoundShape);
                         }
-                        this.body.setCollisionShape(this.bodyStruct.shape);
-                        if (this._wrappedBody) { this._wrappedBody.setMass(this._wrappedBody.rigidBody.mass) }
-                        this.updateBodyByReAdd();
+                        switchShape(this, this.bodyStruct.shape);
                     }
                 }
                 this.bodyEnabled = true;
@@ -332,16 +337,16 @@ export class AmmoSharedBody {
     updateBodyByReAdd () {
         if (this.bodyIndex >= 0) {
             this.wrappedWorld.removeSharedBody(this);
-            this.wrappedWorld.addSharedBody(this);
             this.bodyIndex = this.wrappedWorld.bodies.length;
+            this.wrappedWorld.addSharedBody(this);
         }
     }
 
     updateGhostByReAdd () {
         if (this.ghostIndex >= 0) {
             this.wrappedWorld.removeGhostObject(this);
-            this.wrappedWorld.addGhostObject(this);
             this.ghostIndex = this.wrappedWorld.ghosts.length;
+            this.wrappedWorld.addGhostObject(this);
         }
     }
 
