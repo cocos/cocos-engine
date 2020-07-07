@@ -341,9 +341,7 @@
   {
     "name": "SubContext",
     "entries": [
-      "./cocos2d/core/components/SubContextView.js",
-      "./cocos2d/core/components/WXSubContextView.js",
-      "./cocos2d/core/components/SwanSubContextView.js"
+      "./cocos2d/core/components/SubContextView.js"
     ],
     "hide": true
   },
