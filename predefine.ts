@@ -169,16 +169,3 @@ const engineVersion = '1.1.1';
 _global.CocosEngine = cc.ENGINE_VERSION = engineVersion;
 
 export default cc;
-
-/**
- * deprecated
- */
-// TODO: ALIPAY and runtime will redefine
-if (!(RUNTIME_BASED || ALIPAY)) {
-    Object.defineProperty(_global, 'CC_PHYSICS_BUILT_IN', {
-        get: () => {
-            console.warn('CC_PHYSICS_BUILT_IN is deprecated, please using CC_PHYSICS_BUILTIN instead.');
-            return _global.CC_PHYSICS_BUILTIN;
-        },
-    });
-}
