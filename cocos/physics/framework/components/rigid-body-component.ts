@@ -17,6 +17,7 @@ import { IRigidBody } from '../../spec/i-rigid-body';
 import { createRigidBody } from '../instance';
 import { EDITOR, TEST } from 'internal:constants';
 import { ERigidBodyType } from '../physics-enum';
+import { PhysicsSystem } from '..';
 
 /**
  * @en
@@ -262,8 +263,8 @@ export class RigidBodyComponent extends Component {
      * 获取是否是唤醒的状态。
      */
     public get isAwake (): boolean {
-        if (this._assertOnload) {
-            return this._body.isAwake;
+        if (this._assertOnLoadCalled) {
+            return this._body!.isAwake;
         }
         return false;
     }
@@ -275,8 +276,8 @@ export class RigidBodyComponent extends Component {
      * 获取是否是可进入休眠的状态。
      */
     public get isSleepy (): boolean {
-        if (this._assertOnload) {
-            return this._body.isSleepy;
+        if (this._assertOnLoadCalled) {
+            return this._body!.isSleepy;
         }
         return false;
     }
@@ -288,8 +289,8 @@ export class RigidBodyComponent extends Component {
      * 获取是否是正在休眠的状态。
      */
     public get isSleeping (): boolean {
-        if (this._assertOnload) {
-            return this._body.isSleeping;
+        if (this._assertOnLoadCalled) {
+            return this._body!.isSleeping;
         }
         return false;
     }
@@ -304,7 +305,7 @@ export class RigidBodyComponent extends Component {
         return this._body;
     }
 
-    private _body!: IRigidBody;
+    private _body: IRigidBody | null = null;
 
     /// PRIVATE PROPERTY ///
 
@@ -338,10 +339,17 @@ export class RigidBodyComponent extends Component {
     @property
     private _angularFactor: Vec3 = new Vec3(1, 1, 1);
 
-    protected get _assertOnload (): boolean {
+    protected get _assertOnLoadCalled (): boolean {
         const r = this._isOnLoadCalled == 0;
         if (r) { error('[Physics]: Please make sure that the node has been added to the scene'); }
         return !r;
+    }
+
+    protected get _assertUseCollisionMatrix (): boolean {
+        if (PhysicsSystem.instance.useCollisionMatrix) {
+            error('[Physics]: useCollisionMatrix is turn on, using collision matrix instead please.');
+        }
+        return PhysicsSystem.instance.useCollisionMatrix;
     }
 
     /// COMPONENT LIFECYCLE ///
@@ -382,8 +390,8 @@ export class RigidBodyComponent extends Component {
      * @param relativePoint - 作用点，相对于刚体的质心
      */
     public applyForce (force: Vec3, relativePoint?: Vec3) {
-        if (this._assertOnload) {
-            this._body.applyForce(force, relativePoint);
+        if (this._assertOnLoadCalled) {
+            this._body!.applyForce(force, relativePoint);
         }
     }
 
@@ -396,8 +404,8 @@ export class RigidBodyComponent extends Component {
      * @param localPoint - 作用点
      */
     public applyLocalForce (force: Vec3, localPoint?: Vec3) {
-        if (this._assertOnload) {
-            this._body.applyLocalForce(force, localPoint);
+        if (this._assertOnLoadCalled) {
+            this._body!.applyLocalForce(force, localPoint);
         }
     }
 
@@ -410,8 +418,8 @@ export class RigidBodyComponent extends Component {
      * @param relativePoint - 作用点，相对于刚体的中心点
      */
     public applyImpulse (impulse: Vec3, relativePoint?: Vec3) {
-        if (this._assertOnload) {
-            this._body.applyImpulse(impulse, relativePoint);
+        if (this._assertOnLoadCalled) {
+            this._body!.applyImpulse(impulse, relativePoint);
         }
     }
 
@@ -424,8 +432,8 @@ export class RigidBodyComponent extends Component {
      * @param localPoint - 作用点
      */
     public applyLocalImpulse (impulse: Vec3, localPoint?: Vec3) {
-        if (this._assertOnload) {
-            this._body.applyLocalImpulse(impulse, localPoint);
+        if (this._assertOnLoadCalled) {
+            this._body!.applyLocalImpulse(impulse, localPoint);
         }
     }
 
@@ -437,8 +445,8 @@ export class RigidBodyComponent extends Component {
      * @param torque - 扭矩
      */
     public applyTorque (torque: Vec3) {
-        if (this._assertOnload) {
-            this._body.applyTorque(torque);
+        if (this._assertOnLoadCalled) {
+            this._body!.applyTorque(torque);
         }
     }
 
@@ -448,8 +456,8 @@ export class RigidBodyComponent extends Component {
      * @param torque - 扭矩
      */
     public applyLocalTorque (torque: Vec3) {
-        if (this._assertOnload) {
-            this._body.applyLocalTorque(torque);
+        if (this._assertOnLoadCalled) {
+            this._body!.applyLocalTorque(torque);
         }
     }
 
@@ -460,8 +468,8 @@ export class RigidBodyComponent extends Component {
      * 唤醒刚体。
      */
     public wakeUp () {
-        if (this._assertOnload) {
-            this._body.wakeUp();
+        if (this._assertOnLoadCalled) {
+            this._body!.wakeUp();
         }
     }
 
@@ -472,8 +480,8 @@ export class RigidBodyComponent extends Component {
      * 休眠刚体。
      */
     public sleep () {
-        if (this._assertOnload) {
-            this._body.sleep();
+        if (this._assertOnLoadCalled) {
+            this._body!.sleep();
         }
     }
 
@@ -484,8 +492,8 @@ export class RigidBodyComponent extends Component {
      * 清除刚体受到的力和速度。
      */
     public clearState () {
-        if (this._assertOnload) {
-            this._body.clearState();
+        if (this._assertOnLoadCalled) {
+            this._body!.clearState();
         }
     }
 
@@ -496,8 +504,8 @@ export class RigidBodyComponent extends Component {
      * 清除刚体受到的力。
      */
     public clearForces () {
-        if (this._assertOnload) {
-            this._body.clearForces();
+        if (this._assertOnLoadCalled) {
+            this._body!.clearForces();
         }
     }
 
@@ -508,8 +516,8 @@ export class RigidBodyComponent extends Component {
      * 清除刚体的速度。
      */
     public clearVelocity () {
-        if (this._assertOnload) {
-            this._body.clearVelocity();
+        if (this._assertOnLoadCalled) {
+            this._body!.clearVelocity();
         }
     }
 
@@ -521,8 +529,8 @@ export class RigidBodyComponent extends Component {
      * @param out 速度 Vec3
      */
     public getLinearVelocity (out: Vec3) {
-        if (this._assertOnload) {
-            this._body.getLinearVelocity(out);
+        if (this._assertOnLoadCalled) {
+            this._body!.getLinearVelocity(out);
         }
     }
 
@@ -534,8 +542,8 @@ export class RigidBodyComponent extends Component {
      * @param value 速度 Vec3
      */
     public setLinearVelocity (value: Vec3): void {
-        if (this._assertOnload) {
-            this._body.setLinearVelocity(value);
+        if (this._assertOnLoadCalled) {
+            this._body!.setLinearVelocity(value);
         }
     }
 
@@ -547,8 +555,8 @@ export class RigidBodyComponent extends Component {
      * @param out 速度 Vec3
      */
     public getAngularVelocity (out: Vec3) {
-        if (this._assertOnload) {
-            this._body.getAngularVelocity(out);
+        if (this._assertOnLoadCalled) {
+            this._body!.getAngularVelocity(out);
         }
     }
 
@@ -560,8 +568,8 @@ export class RigidBodyComponent extends Component {
      * @param value 速度 Vec3
      */
     public setAngularVelocity (value: Vec3): void {
-        if (this._assertOnload) {
-            this._body.setAngularVelocity(value);
+        if (this._assertOnLoadCalled) {
+            this._body!.setAngularVelocity(value);
         }
     }
 
@@ -575,7 +583,7 @@ export class RigidBodyComponent extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setGroup (v: number): void {
-        if (this._assertOnload) {
+        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
             this._body!.setGroup(v);
         }
     }
@@ -588,8 +596,8 @@ export class RigidBodyComponent extends Component {
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public getGroup (): number {
-        if (this._assertOnload) {
-            return this._body.getGroup();
+        if (this._assertOnLoadCalled) {
+            return this._body!.getGroup();
         }
         return 0;
     }
@@ -602,8 +610,8 @@ export class RigidBodyComponent extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addGroup (v: number) {
-        if (this._assertOnload) {
-            this._body.addGroup(v);
+        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+            this._body!.addGroup(v);
         }
     }
 
@@ -615,8 +623,8 @@ export class RigidBodyComponent extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeGroup (v: number) {
-        if (this._assertOnload) {
-            this._body.removeGroup(v);
+        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+            this._body!.removeGroup(v);
         }
     }
 
@@ -628,8 +636,8 @@ export class RigidBodyComponent extends Component {
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public getMask (): number {
-        if (this._assertOnload) {
-            return this._body.getMask();
+        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+            return this._body!.getMask();
         }
         return 0;
     }
@@ -642,8 +650,8 @@ export class RigidBodyComponent extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setMask (v: number) {
-        if (this._assertOnload) {
-            this._body.setMask(v);
+        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+            this._body!.setMask(v);
         }
     }
 
@@ -655,8 +663,8 @@ export class RigidBodyComponent extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addMask (v: number) {
-        if (this._assertOnload) {
-            this._body.addMask(v);
+        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+            this._body!.addMask(v);
         }
     }
 
@@ -668,8 +676,8 @@ export class RigidBodyComponent extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeMask (v: number) {
-        if (this._assertOnload) {
-            this._body.removeMask(v);
+        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+            this._body!.removeMask(v);
         }
     }
 

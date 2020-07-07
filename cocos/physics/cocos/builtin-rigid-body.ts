@@ -10,17 +10,24 @@ export class BuiltinRigidBody implements IRigidBody {
     get isSleepy () { return false; }
     get isSleeping () { return false; }
 
-    rigidBody!: RigidBodyComponent;
+    get rigidBody () { return this._rigidBody; }
+    get sharedBody () { return this._sharedBody; }
+
+    private _rigidBody!: RigidBodyComponent;
     protected _sharedBody!: BuiltinSharedBody;
 
     initialize (com: RigidBodyComponent): void {
-        this.rigidBody = com;
-        this._sharedBody = (PhysicsSystem.instance.physicsWorld as BuiltInWorld).getSharedBody(this.rigidBody.node);
+        this._rigidBody = com;
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as BuiltInWorld).getSharedBody(this._rigidBody.node);
         this._sharedBody.reference = true;
         this._sharedBody.wrappedBody = this;
     }
 
     onEnable () {
+        this.setGroup(this._rigidBody.group);
+        if (PhysicsSystem.instance.useCollisionMatrix) {
+            this._sharedBody.setMask(PhysicsSystem.instance.collisionMatrix[this._rigidBody.group]);
+        }
         // this._sharedBody.enabled = true;
     }
 
@@ -30,7 +37,7 @@ export class BuiltinRigidBody implements IRigidBody {
 
     onDestroy () {
         this._sharedBody.reference = false;
-        (this.rigidBody as any) = null;
+        (this._rigidBody as any) = null;
         (this._sharedBody as any) = null;
     }
 

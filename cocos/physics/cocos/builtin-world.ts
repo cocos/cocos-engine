@@ -138,6 +138,15 @@ export class BuiltInWorld implements IPhysicsWorld {
         }
     }
 
+    updateCollisionMatrix (group: number, mask: number) {
+        for (let i = 0; i < this.bodies.length; i++) {
+            const b = this.bodies[i];
+            if (b.collisionFilterGroup == group) {
+                b.collisionFilterMask = mask;
+            }
+        }
+    }
+
     private emitTriggerEvent () {
         let shapeA: BuiltinShape;
         let shapeB: BuiltinShape;

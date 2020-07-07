@@ -12,7 +12,29 @@ import { Layers, RecyclePool } from '../../core';
 import { ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
 import { EDITOR, PHYSICS_BUILTIN, DEBUG, PHYSICS_CANNON, PHYSICS_AMMO } from 'internal:constants';
-import { IPhysicsConfig } from './physics-config';
+import { IPhysicsConfig, ICollisionMatrix } from './physics-config';
+
+class CollisionMatrix {
+    updateArray: number[] = [];
+    constructor () {
+        for (let i = 0; i < 32; i++) {
+            let key = 1 << i;
+            this[`_${key}`] = 0xffffffff;
+            Object.defineProperty(this, key, {
+                'get': function () { return this[`_${key}`] },
+                'set': function (v: number) {
+                    const self = this as CollisionMatrix;
+                    if (self[`_${key}`] != v) {
+                        self[`_${key}`] = v;
+                        if (self.updateArray.indexOf(key) < 0) {
+                            self.updateArray.push(key);
+                        }
+                    }
+                }
+            })
+        }
+    }
+}
 
 /**
  * @en
@@ -130,9 +152,9 @@ export class PhysicsSystem extends System {
      */
     readonly raycastResults: PhysicsRayResult[] = [];
 
-    readonly collisionMatrix: { [x: string]: number };
+    readonly collisionMatrix: ICollisionMatrix = new CollisionMatrix() as unknown as ICollisionMatrix;
 
-    readonly autoSimulation: boolean;
+    autoSimulation: boolean = true;
 
     readonly useCollisionMatrix: boolean;
 
@@ -195,18 +217,14 @@ export class PhysicsSystem extends System {
             this._material.spinningFriction = config.defaultMaterial.spinningFriction;
             this._material.restitution = config.defaultMaterial.restitution;
             this.autoSimulation = config.autoSimulation;
-            this.collisionMatrix = config.collisionMatrix;
             this.useNodeChains = config.useNodeChains;
             this.useCollisionMatrix = config.useCollsionMatrix;
+            for (const key in config.collisionMatrix) {
+                this.collisionMatrix[`_${key}`] = config.collisionMatrix[key];
+            }
         } else {
             this.useCollisionMatrix = true;
             this.useNodeChains = true;
-            this.autoSimulation = true;
-            const all = 0xffffffff;
-            this.collisionMatrix = {};
-            for (let i = 0; i < 32; i++) {
-                this.collisionMatrix[1 << i] = all;
-            }
         }
         this._material.on('physics_material_update', this._updateMaterial, this);
 
@@ -246,6 +264,7 @@ export class PhysicsSystem extends System {
             this._accumulator += this._timeSinceLastCalled;
             while (i < this._maxSubSteps && this._accumulator > this._fixedTimeStep) {
                 this.physicsWorld.emitEvents();
+                this.updateCollisionMatrix();
                 this.physicsWorld.syncSceneToPhysics();
                 this.physicsWorld.step(this._fixedTimeStep);
                 // TODO: nesting the dirty flag reset between the syncScenetoPhysics and the simulation to reduce calling syncScenetoPhysics.
@@ -255,13 +274,6 @@ export class PhysicsSystem extends System {
             }
             director.emit(Director.EVENT_AFTER_PHYSICS);
         }
-    }
-
-    /**
-     * 
-     */
-    emitEvents () {
-        this.physicsWorld.emitEvents();
     }
 
     /**
@@ -283,6 +295,32 @@ export class PhysicsSystem extends System {
      */
     syncSceneToPhysics () {
         this.physicsWorld.syncSceneToPhysics();
+    }
+
+    /**
+     * @en
+     * Emit trigger and collision events.
+     * @zh
+     * 触发`trigger`和`collision`事件。
+     */
+    emitEvents () {
+        this.physicsWorld.emitEvents();
+    }
+
+    /**
+     * @en
+     * Updates the mask corresponding to the collision matrix for the lowLevel rigid-body instance.
+     * @zh
+     * 更新底层实例对应于碰撞矩阵的掩码。
+     */
+    updateCollisionMatrix () {
+        if (this.useCollisionMatrix) {
+            const ua = (this.collisionMatrix as unknown as CollisionMatrix).updateArray;
+            while (ua.length > 0) {
+                let group = ua.pop()!;
+                this.physicsWorld.updateCollisionMatrix(group, ua[group]);
+            }
+        }
     }
 
     /**

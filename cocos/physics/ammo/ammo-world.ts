@@ -199,6 +199,21 @@ export class AmmoWorld implements IPhysicsWorld {
         }
     }
 
+    updateCollisionMatrix (group: number, mask: number) {
+        for (let i = 0; i < this.ghosts.length; i++) {
+            const g = this.ghosts[i];
+            if (g.collisionFilterGroup == group) {
+                g.collisionFilterMask = mask;
+            }
+        }
+        for (let i = 0; i < this.bodies.length; i++) {
+            const b = this.bodies[i];
+            if (b.collisionFilterGroup == group) {
+                b.collisionFilterMask = mask;
+            }
+        }
+    }
+
     emitEvents () {
         const numManifolds = this._btDispatcher.getNumManifolds();
         for (let i = 0; i < numManifolds; i++) {
