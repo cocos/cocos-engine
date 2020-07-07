@@ -41,11 +41,13 @@ void CCMTLCommandBuffer::destroy() {
 
 void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
     dispatch_semaphore_wait(_frameBoundarySemaphore, DISPATCH_TIME_FOREVER);
-    _numTriangles = 0;
-    _numDrawCalls = 0;
     _mtlCommandBuffer = [id<MTLCommandQueue>(((CCMTLDevice *)(_device))->getMTLCommandQueue()) commandBuffer];
     [_mtlCommandBuffer enqueue];
     [_mtlCommandBuffer retain];
+    _numTriangles = 0;
+    _numDrawCalls = 0;
+    _gpuIndexBuffer = {0, 0, 0};
+    _gpuIndirectBuffer = {0, 0, 0};
 }
 
 void CCMTLCommandBuffer::end() {
@@ -115,13 +117,19 @@ void CCMTLCommandBuffer::bindBindingLayout(BindingLayout *layout) {
         }
 
         if (binding.shaderStages & ShaderType::FRAGMENT) {
-            if (binding.texture)
+            if (binding.sampler && binding.texture) {
+#if COCOS2D_DEBUG > 0
+                if (_gpuPipelineState->fragmentSamplerBinding.find(binding.binding) == _gpuPipelineState->fragmentSamplerBinding.end()) {
+                    CC_LOG_WARNING("%s(binding = %d) not used in shader.", binding.name.c_str(), binding.binding);
+                    continue;
+                }
+#endif
                 [_mtlEncoder setFragmentTexture:static_cast<CCMTLTexture *>(binding.texture)->getMTLTexture()
                                         atIndex:binding.binding];
 
-            if (binding.sampler)
                 [_mtlEncoder setFragmentSamplerState:static_cast<CCMTLSampler *>(binding.sampler)->getMTLSamplerState()
                                              atIndex:_gpuPipelineState->fragmentSamplerBinding.at(binding.binding)];
+            }
         }
     }
 }

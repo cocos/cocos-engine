@@ -168,7 +168,7 @@ void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descri
             }
         }
         if (!attributeFound) { //handle absent attribute
-            descriptor.vertexDescriptor.attributes[activeAttribute.location].format = mu::toMTLVertexFormat(activeAttribute.format, activeAttribute.isNormalized);
+            descriptor.vertexDescriptor.attributes[activeAttribute.location].format = MTLVertexFormatFloat;
             descriptor.vertexDescriptor.attributes[activeAttribute.location].offset = 0;
             descriptor.vertexDescriptor.attributes[activeAttribute.location].bufferIndex = static_cast<CCMTLShader *>(_shader)->getAvailableBufferBindingIndex(ShaderType::VERTEX, activeAttribute.stream);
             CC_LOG_WARNING("Attribute %s is missing, add a dummy data for it.", activeAttribute.name.c_str());
