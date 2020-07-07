@@ -4,6 +4,7 @@
 
 import { Mat3, Mat4, Quat, Vec3 } from '../../core/math';
 import enums from './enums';
+import { IVec3Like } from '../math/type-define';
 
 const _v3_tmp = new Vec3();
 const _v3_tmp2 = new Vec3();
@@ -84,7 +85,7 @@ export default class aabb {
      * @param maxPos - aabb 的最大点。
      * @returns {aabb} out 接受操作的 aabb。
      */
-    public static fromPoints (out: aabb, minPos: Vec3, maxPos: Vec3): aabb {
+    public static fromPoints (out: aabb, minPos: IVec3Like, maxPos: IVec3Like): aabb {
         Vec3.add(_v3_tmp, maxPos, minPos);
         Vec3.subtract(_v3_tmp2, maxPos, minPos);
         Vec3.multiplyScalar(out.center, _v3_tmp, 0.5);

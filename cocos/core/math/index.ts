@@ -45,5 +45,6 @@ export { Size, size } from './size';
 export { Rect, rect } from './rect';
 export { Color, color } from './color';
 export * from './utils';
+export * from './type-define';
 
 import './deprecated';

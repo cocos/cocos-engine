@@ -1,16 +1,19 @@
 import CANNON from '@cocos/cannon';
-import { Vec3, absMax } from '../../../core/math';
+import { Vec3 } from '../../../core/math';
 import { CannonShape } from './cannon-shape';
-import { ICylinderShape } from '../../spec/i-physics-shape';
-import { CylinderColliderComponent } from '../../../../exports/physics-framework';
+import { IConeShape } from '../../spec/i-physics-shape';
+import { ConeColliderComponent } from '../../../../exports/physics-framework';
 import { EAxisDirection } from '../../framework/physics-enum';
 import { IVec3Like } from '../../../core/math/type-define';
 import { commitShapeUpdates } from '../cannon-util';
 
-export class CannonCylinderShape extends CannonShape implements ICylinderShape {
+const v3_0 = new Vec3();
+const v3_1 = new Vec3();
+
+export class CannonConeShape extends CannonShape implements IConeShape {
 
     get collider () {
-        return this._collider as CylinderColliderComponent;
+        return this._collider as ConeColliderComponent;
     }
 
     get impl () {
@@ -21,7 +24,7 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
-            CANNON['CC_CONFIG']['numSegmentsCylinder'],
+            CANNON['CC_CONFIG']['numSegmentsCone'],
             this.collider.direction,
             this.collider.node.worldScale
         );
@@ -33,7 +36,7 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
-            CANNON['CC_CONFIG']['numSegmentsCylinder'],
+            CANNON['CC_CONFIG']['numSegmentsCone'],
             this.collider.direction,
             this.collider.node.worldScale
         );
@@ -45,7 +48,7 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
-            CANNON['CC_CONFIG']['numSegmentsCylinder'],
+            CANNON['CC_CONFIG']['numSegmentsCone'],
             this.collider.direction,
             this.collider.node.worldScale
         );
@@ -53,9 +56,9 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
         if (this._index != -1) commitShapeUpdates(this._body);
     }
 
-    constructor (radius = 0.5, height = 2, direction = EAxisDirection.Y_AXIS) {
+    constructor (radius = 0.5, height = 1, direction = EAxisDirection.Y_AXIS) {
         super();
-        this._shape = new CANNON.Cylinder(radius, radius, height, CANNON['CC_CONFIG']['numSegmentsCylinder'], direction == EAxisDirection.Y_AXIS);
+        this._shape = new CANNON.Cylinder(0, radius, height, CANNON['CC_CONFIG']['numSegmentsCone'], direction == EAxisDirection.Y_AXIS);
     }
 
     onLoad () {
@@ -92,89 +95,80 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
         const axes: CANNON.Vec3[] = [];
         const theta = Math.PI * 2 / N;
         if (direction == 1) {
-            const bf = [1];
-            const tf = [0];
+            const bf: number[] = [];
+            indices.push(bf);
+            vertices.push(new CANNON.Vec3(0, hH, 0));
             for (var i = 0; i < N; i++) {
                 const x = wr * cos(theta * i);
                 const z = wr * sin(theta * i);
-                vertices.push(new CANNON.Vec3(x, hH, z));
                 vertices.push(new CANNON.Vec3(x, -hH, z));
-
+            }
+            for (var i = 0; i < N; i++) {
+                if (i != 0) bf.push(i);
+                var face: number[];
                 if (i < N - 1) {
-                    indices.push([2 * i + 2, 2 * i + 3, 2 * i + 1, 2 * i]);
-                    tf.push(2 * i + 2);
-                    bf.push(2 * i + 3);
+                    face = [0, i + 2, i + 1];
                 } else {
-                    indices.push([0, 1, 2 * i + 1, 2 * i]);
+                    face = [0, 1, i + 1];
                 }
-
-                if (N % 2 === 1 || i < N / 2) {
-                    axes.push(new CANNON.Vec3(cos(theta * (i + 0.5)), 0, sin(theta * (i + 0.5))));
-                }
+                indices.push(face);
+                Vec3.subtract(v3_0, vertices[0], vertices[face[1]]);
+                Vec3.subtract(v3_1, vertices[face[2]], vertices[face[1]]);
+                Vec3.cross(v3_0, v3_1, v3_0);
+                v3_0.normalize();
+                axes.push(new CANNON.Vec3(v3_0.x, v3_0.y, v3_0.z));
             }
-            indices.push(bf);
-            var temp: number[] = [];
-            for (var i = 0; i < tf.length; i++) {
-                temp.push(tf[tf.length - i - 1]);
-            }
-            indices.push(temp);
-            axes.push(new CANNON.Vec3(0, 1, 0));
+            axes.push(new CANNON.Vec3(0, -1, 0));
         } else if (direction == 2) {
-            const bf = [0];
-            const tf = [1];
+            const bf: number[] = [];
+            indices.push(bf);
+            vertices.push(new CANNON.Vec3(0, 0, hH));
             for (var i = 0; i < N; i++) {
                 const x = wr * cos(theta * i);
                 const y = wr * sin(theta * i);
-                vertices.push(new CANNON.Vec3(x, y, hH));
                 vertices.push(new CANNON.Vec3(x, y, -hH));
-
+            }
+            for (var i = 0; i < N; i++) {
+                if (i != 0) bf.push(N - i);
+                var face: number[];
                 if (i < N - 1) {
-                    indices.push([2 * i, 2 * i + 1, 2 * i + 3, 2 * i + 2]);
-                    bf.push(2 * i + 2);
-                    tf.push(2 * i + 3);
+                    face = [0, i + 1, i + 2];
                 } else {
-                    indices.push([2 * i, 2 * i + 1, 0, 1]);
+                    face = [0, i + 1, 1];
                 }
-
-                if (N % 2 === 1 || i < N / 2) {
-                    axes.push(new CANNON.Vec3(cos(theta * (i + 0.5)), sin(theta * (i + 0.5)), 0));
-                }
+                indices.push(face);
+                Vec3.subtract(v3_0, vertices[0], vertices[face[1]]);
+                Vec3.subtract(v3_1, vertices[face[2]], vertices[face[1]]);
+                Vec3.cross(v3_0, v3_0, v3_1);
+                v3_0.normalize();
+                axes.push(new CANNON.Vec3(v3_0.x, v3_0.y, v3_0.z));
             }
-            indices.push(bf);
-            var temp: number[] = [];
-            for (var i = 0; i < tf.length; i++) {
-                temp.push(tf[tf.length - i - 1]);
-            }
-            indices.push(temp);
-            axes.push(new CANNON.Vec3(0, 0, 1));
+            axes.push(new CANNON.Vec3(0, 0, -1));
         } else {
-            const bf = [0];
-            const tf = [1];
+            const bf: number[] = [];
+            indices.push(bf);
+            vertices.push(new CANNON.Vec3(hH, 0, 0));
             for (var i = 0; i < N; i++) {
                 const y = wr * cos(theta * i);
                 const z = wr * sin(theta * i);
-                vertices.push(new CANNON.Vec3(hH, y, z));
                 vertices.push(new CANNON.Vec3(-hH, y, z));
-
+            }
+            for (var i = 0; i < N; i++) {
+                if (i != 0) bf.push(N - i);
+                var face: number[];
                 if (i < N - 1) {
-                    indices.push([2 * i, 2 * i + 1, 2 * i + 3, 2 * i + 2]);
-                    bf.push(2 * i + 2);
-                    tf.push(2 * i + 3);
+                    face = [0, i + 1, i + 2];
                 } else {
-                    indices.push([2 * i, 2 * i + 1, 0, 1]);
+                    face = [0, i + 1, 1];
                 }
-
-                if (N % 2 === 1 || i < N / 2) {
-                    axes.push(new CANNON.Vec3(0, cos(theta * (i + 0.5)), sin(theta * (i + 0.5))));
-                }
+                indices.push(face);
+                Vec3.subtract(v3_0, vertices[0], vertices[face[1]]);
+                Vec3.subtract(v3_1, vertices[face[2]], vertices[face[1]]);
+                Vec3.cross(v3_0, v3_0, v3_1);
+                v3_0.normalize();
+                axes.push(new CANNON.Vec3(v3_0.x, v3_0.y, v3_0.z));
             }
-            indices.push(bf);
-            var temp: number[] = [];
-            for (var i = 0; i < tf.length; i++) {
-                temp.push(tf[tf.length - i - 1]);
-            }
-            indices.push(temp);
-            axes.push(new CANNON.Vec3(1, 0, 0));
+            axes.push(new CANNON.Vec3(-1, 0, 0));
         }
 
         this.impl.vertices = vertices;

@@ -46,6 +46,42 @@ export class PhysicMaterial extends Asset {
 
     /**
      * @en
+     * Rolling friction for this material.
+     * @zh
+     * 此材质的滚动摩擦系数。
+     */
+    @property
+    get rollingFriction () {
+        return this._rollingFriction;
+    }
+
+    set rollingFriction (value) {
+        if (!math.equals(this._rollingFriction, value)) {
+            this._rollingFriction = value;
+            this.emit('physics_material_update');
+        }
+    }
+
+    /**
+     * @en
+     * Spinning friction for this material.
+     * @zh
+     * 此材质的自旋摩擦系数。
+     */
+    @property
+    get spinningFriction () {
+        return this._spinningFriction;
+    }
+
+    set spinningFriction (value) {
+        if (!math.equals(this._spinningFriction, value)) {
+            this._spinningFriction = value;
+            this.emit('physics_material_update');
+        }
+    }
+
+    /**
+     * @en
      * Restitution for this material.
      * @zh
      * 此材质的回弹系数。
@@ -68,6 +104,12 @@ export class PhysicMaterial extends Asset {
     private _friction = 0.1;
 
     @property
+    private _rollingFriction = 0.1;
+
+    @property
+    private _spinningFriction = 0.1;
+
+    @property
     private _restitution = 0.1;
 
     constructor () {
@@ -88,6 +130,8 @@ export class PhysicMaterial extends Asset {
         let c = new PhysicMaterial();
         c._friction = this._friction;
         c._restitution = this._restitution;
+        c._rollingFriction = this._rollingFriction;
+        c._spinningFriction = this._spinningFriction;
         return c;
     }
 

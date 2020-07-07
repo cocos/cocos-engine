@@ -88,9 +88,11 @@ export class BuiltinSharedBody extends BuiltinObject {
             const shapeA = this.shapes[i];
             for (let j = 0; j < body.shapes.length; j++) {
                 const shapeB = body.shapes[j];
-                if (intersect.resolve(shapeA.worldShape, shapeB.worldShape)) {
-                    this.world.shapeArr.push(shapeA);
-                    this.world.shapeArr.push(shapeB);
+                if (shapeA.collider.needTriggerEvent || shapeB.collider.needTriggerEvent) {
+                    if (intersect.resolve(shapeA.worldShape, shapeB.worldShape)) {
+                        this.world.shapeArr.push(shapeA);
+                        this.world.shapeArr.push(shapeB);
+                    }
                 }
             }
         }

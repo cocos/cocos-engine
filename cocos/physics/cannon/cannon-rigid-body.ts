@@ -149,6 +149,21 @@ export class CannonRigidBody implements IRigidBody {
 
     /** INTERFACE */
 
+    clearVelocity (): void {
+        this.impl.velocity.setZero();
+        this.impl.angularVelocity.setZero();
+    }
+
+    clearForces (): void {
+        this.impl.force.setZero();
+        this.impl.torque.setZero();
+    }
+
+    clearState (): void {
+        this.clearVelocity();
+        this.clearForces();
+    }
+
     wakeUp (): void {
         return this.impl.wakeUp();
     }

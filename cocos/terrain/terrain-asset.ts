@@ -4,6 +4,19 @@
 import { Asset } from '../core/assets';
 import { ccclass } from '../core/data/class-decorator';
 
+export const TERRAIN_MAX_LEVELS = 4;
+export const TERRAIN_MAX_BLEND_LAYERS = 4;
+export const TERRAIN_MAX_LAYER_COUNT = 256;
+export const TERRAIN_BLOCK_TILE_COMPLEXITY = 32;
+export const TERRAIN_BLOCK_VERTEX_COMPLEXITY = 33;
+export const TERRAIN_BLOCK_VERTEX_SIZE = 8; // position + normal + uv
+export const TERRAIN_HEIGHT_BASE = 32768;
+export const TERRAIN_HEIGHT_FACTORY = 1.0 / 512.0;
+export const TERRAIN_NORTH_INDEX = 0;
+export const TERRAIN_SOUTH_INDEX = 1;
+export const TERRAIN_WEST_INDEX = 2;
+export const TERRAIN_EAST_INDEX = 3;
+
 export const TERRAIN_DATA_VERSION = 0x01010001;
 export const TERRAIN_DATA_VERSION2 = 0x01010002;
 export const TERRAIN_DATA_VERSION3 = 0x01010003;
@@ -317,6 +330,21 @@ export class TerrainAsset extends Asset {
         return -1;
     }
 
+    public getHeight (i: number, j: number) {
+        const vertexCountX = this._blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY + 1;
+        return (this._heights[j * vertexCountX + i] - TERRAIN_HEIGHT_BASE) * TERRAIN_HEIGHT_FACTORY;
+    }
+
+    public getVertexCountI () {
+        if (this._blockCount.length < 1) return 0;
+        return this._blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY + 1;
+    }
+
+    public getVertexCountJ () {
+        if (this._blockCount.length < 2) return 0;
+        return this._blockCount[1] * TERRAIN_BLOCK_TILE_COMPLEXITY + 1;
+    }
+
     public _setNativeData (_nativeData: Uint8Array) {
         this._data = _nativeData;
     }
@@ -428,4 +456,4 @@ export class TerrainAsset extends Asset {
         return stream.buffer;
 
     }
- }
+}
