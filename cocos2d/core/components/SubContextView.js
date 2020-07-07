@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -234,3 +234,21 @@ let SubContextView = cc.Class({
 });
 
 cc.SubContextView = module.exports = SubContextView;
+
+/**
+ * !#en WXSubContextView is deprecated since v2.4.1, please use SubContextView instead.
+ * !#zh 自 v2.4.1 起，WXSubContextView 已经废弃，请使用 SubContextView
+ * @class WXSubContextView
+ * @extends Component
+ * @deprecated since v2.4.1
+ */
+cc.WXSubContextView = SubContextView;
+
+/**
+ * !#en SwanSubContextView is deprecated since v2.4.1, please use SubContextView instead.
+ * !#zh 自 v2.4.1 起，SwanSubContextView 已经废弃，请使用 SubContextView
+ * @class SwanSubContextView
+ * @extends Component
+ * @deprecated since v2.4.1
+ */
+cc.SwanSubContextView = SubContextView;
