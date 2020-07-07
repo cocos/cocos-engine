@@ -12,7 +12,7 @@ import {
     property,
 } from '../../../core/data/class-decorator';
 import { Vec3 } from '../../../core/math';
-import { Component, error } from '../../../core';
+import { Component, error, Layers } from '../../../core';
 import { IRigidBody } from '../../spec/i-rigid-body';
 import { createRigidBody } from '../instance';
 import { EDITOR, TEST } from 'internal:constants';
@@ -37,22 +37,23 @@ export class RigidBodyComponent extends Component {
 
     /**
      * @en
-     * Gets or sets whether hibernation is allowed.
+     * Gets or sets the group of the rigid body.
      * @zh
-     * 获取或设置是否允许休眠。
+     * 获取或设置分组。
      */
     @property({
-        displayOrder: -1,
-        tooltip: '是否允许休眠',
+        type: Layers.Enum,
+        displayOrder: -2,
+        tooltip: '设置分组',
     })
-    public get allowSleep (): boolean {
-        return this._allowSleep;
+    public get group (): number {
+        return this._group;
     }
 
-    public set allowSleep (v: boolean) {
-        this._allowSleep = v;
+    public set group (v: number) {
+        this._group = v;
         if (this._body) {
-            this._body.setAllowSleep(v);
+            this._body.setGroup(v);
         }
     }
 
@@ -71,9 +72,32 @@ export class RigidBodyComponent extends Component {
     }
 
     public set mass (value) {
+        value = value < 0 ? 0 : value;
         this._mass = value;
         if (this._body) {
             this._body.setMass(value);
+        }
+    }
+
+    /**
+     * @en
+     * Gets or sets whether hibernation is allowed.
+     * @zh
+     * 获取或设置是否允许休眠。
+     */
+    @property({
+        displayOrder: 0.5,
+        tooltip: '是否允许休眠',
+        visible: function (this: RigidBodyComponent) { return this._mass != 0; },
+    })
+    public get allowSleep (): boolean {
+        return this._allowSleep;
+    }
+
+    public set allowSleep (v: boolean) {
+        this._allowSleep = v;
+        if (this._body) {
+            this._body.setAllowSleep(v);
         }
     }
 
@@ -86,6 +110,7 @@ export class RigidBodyComponent extends Component {
     @property({
         displayOrder: 1,
         tooltip: '线性阻尼',
+        visible: function (this: RigidBodyComponent) { return this._mass != 0; },
     })
     public get linearDamping () {
         return this._linearDamping;
@@ -107,6 +132,7 @@ export class RigidBodyComponent extends Component {
     @property({
         displayOrder: 2,
         tooltip: '旋转阻尼',
+        visible: function (this: RigidBodyComponent) { return this._mass != 0; },
     })
     public get angularDamping () {
         return this._angularDamping;
@@ -128,6 +154,7 @@ export class RigidBodyComponent extends Component {
     @property({
         displayOrder: 3,
         tooltip: '刚体是否由物理系统控制运动',
+        visible: function (this: RigidBodyComponent) { return this._mass != 0; },
     })
     public get isKinematic () {
         return this._isKinematic;
@@ -149,6 +176,7 @@ export class RigidBodyComponent extends Component {
     @property({
         displayOrder: 4,
         tooltip: '刚体是否使用重力',
+        visible: function (this: RigidBodyComponent) { return this._mass != 0; },
     })
     public get useGravity () {
         return this._useGravity;
@@ -170,6 +198,7 @@ export class RigidBodyComponent extends Component {
     @property({
         displayOrder: 5,
         tooltip: '刚体是否固定旋转',
+        visible: function (this: RigidBodyComponent) { return this._mass != 0; },
     })
     public get fixedRotation () {
         return this._fixedRotation;
@@ -191,6 +220,7 @@ export class RigidBodyComponent extends Component {
     @property({
         displayOrder: 6,
         tooltip: '线性速度的因子，可以用来控制每个轴方向上的速度的缩放',
+        visible: function (this: RigidBodyComponent) { return this._mass != 0; },
     })
     public get linearFactor () {
         return this._linearFactor;
@@ -212,6 +242,7 @@ export class RigidBodyComponent extends Component {
     @property({
         displayOrder: 7,
         tooltip: '旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放',
+        visible: function (this: RigidBodyComponent) { return this._mass != 0; },
     })
     public get angularFactor () {
         return this._angularFactor;
@@ -278,10 +309,13 @@ export class RigidBodyComponent extends Component {
     /// PRIVATE PROPERTY ///
 
     @property
-    private _allowSleep: boolean = true;
+    private _group: number = Layers.Enum.DEFAULT;
 
     @property
     private _mass: number = 1;
+
+    @property
+    private _allowSleep: boolean = true;
 
     @property
     private _linearDamping: number = 0.1;
