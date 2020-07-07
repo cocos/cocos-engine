@@ -20,7 +20,7 @@ export interface IPhysicsWorld {
     setGravity: (v: IVec3Like) => void;
     setAllowSleep: (v: boolean) => void;
     setDefaultMaterial: (v: PhysicMaterial) => void;
-    step (deltaTime: number, timeSinceLastCalled?: number, maxSubSteps?: number): void;
+    step (fixedTimeStep: number, timeSinceLastCalled?: number, maxSubSteps?: number): void;
     raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean
     raycastClosest (worldRay: ray, options: IRaycastOptions, out: PhysicsRayResult): boolean;
     emitEvents (): void;
