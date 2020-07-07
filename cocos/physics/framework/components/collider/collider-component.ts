@@ -287,7 +287,9 @@ export class ColliderComponent extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setGroup (v: number): void {
-        if (this._shape) this._shape.setGroup(v);
+        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+            this._shape!.setGroup(v);
+        }
     }
 
     /**

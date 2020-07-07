@@ -6,7 +6,7 @@ import { CannonWorld } from './cannon-world';
 import { CannonShape } from './shapes/cannon-shape';
 import { ColliderComponent } from '../../../exports/physics-framework';
 import { TransformBit } from '../../core/scene-graph/node-enum';
-import { Node } from '../../core';
+import { Node, Layers } from '../../core';
 import { CollisionEventType, IContactEquation } from '../framework/physics-interface';
 import { CannonRigidBody } from './cannon-rigid-body';
 import { commitShapeUpdates } from './cannon-util';
@@ -87,6 +87,7 @@ export class CannonSharedBody {
         this.wrappedWorld = wrappedWorld;
         this.node = node;
         this.body = new CANNON.Body();
+        this.body.collisionFilterGroup = Layers.Enum.DEFAULT;
         this.body.material = this.wrappedWorld.impl.defaultMaterial;
         this.body.addEventListener('cc-collide', this.onCollidedListener);
     }
