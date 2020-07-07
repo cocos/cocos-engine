@@ -222,7 +222,9 @@ export class AmmoWorld implements IPhysicsWorld {
                     let shape1: AmmoShape;
                     if (isUseCCD) {
                         if (body0['useCCD']) {
-                            shape0 = (body0.getCollisionShape() as any).wrapped;
+                            const asb = (body0['wrapped'] as AmmoRigidBody).sharedBody;
+                            if (!asb) continue;
+                            shape0 = asb.bodyStruct.wrappedShapes[0];
                         } else {
                             const btShape0 = body0.getCollisionShape();
                             if (btShape0.isCompound()) {
@@ -234,7 +236,9 @@ export class AmmoWorld implements IPhysicsWorld {
                         }
 
                         if (body1['useCCD']) {
-                            shape1 = (body1.getCollisionShape() as any).wrapped;
+                            const asb = (body1['wrapped'] as AmmoRigidBody).sharedBody;
+                            if (!asb) continue;
+                            shape1 = asb.bodyStruct.wrappedShapes[0];
                         } else {
                             const btShape1 = body1.getCollisionShape();
                             if (btShape1.isCompound()) {
