@@ -1,7 +1,6 @@
 import Ammo from '@cocos/ammo';
 import { AmmoShape } from "./ammo-shape";
 import { CylinderColliderComponent } from '../../../../exports/physics-framework';
-import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ICylinderShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';

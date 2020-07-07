@@ -5,8 +5,9 @@ import { SphereColliderComponent } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ISphereShape } from '../../spec/i-physics-shape';
+import { CC_V3_0 } from '../ammo-const';
 
-const v3_0 = new Vec3();
+const v3_0 = CC_V3_0;
 
 export class AmmoSphereShape extends AmmoShape implements ISphereShape {
 

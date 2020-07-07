@@ -5,7 +5,7 @@ import { AmmoRigidBody } from "./ammo-rigid-body";
 import { AmmoShape } from './shapes/ammo-shape';
 import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
-import { TriggerEventObject, CollisionEventObject } from './ammo-const';
+import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1 } from './ammo-const';
 import { ammo2CocosVec3, cocos2AmmoVec3, cocos2AmmoQuat } from './ammo-util';
 import { ray } from '../../core/geometry';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
@@ -16,8 +16,8 @@ import { AmmoCollisionFilterGroups, AmmoDispatcherFlags } from './ammo-enum';
 import { IVec3Like } from '../../core/math/type-define';
 
 const contactsPool = [] as any;
-const v3_0 = new Vec3();
-const v3_1 = new Vec3();
+const v3_0 = CC_V3_0;
+const v3_1 = CC_V3_1;
 
 export class AmmoWorld implements IPhysicsWorld {
 

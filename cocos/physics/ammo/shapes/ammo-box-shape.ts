@@ -6,8 +6,9 @@ import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { IBoxShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
+import { CC_V3_0 } from '../ammo-const';
 
-const v3_0 = new Vec3();
+const v3_0 = CC_V3_0;
 
 export class AmmoBoxShape extends AmmoShape implements IBoxShape {
 

@@ -1,5 +1,4 @@
 import Ammo from '@cocos/ammo';
-import { Quat, Vec3 } from '../../core/math';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Node } from '../../core';
 import { AmmoWorld } from './ammo-world';
@@ -9,9 +8,10 @@ import { cocos2AmmoVec3, cocos2AmmoQuat, ammo2CocosVec3, ammo2CocosQuat, ammoDel
 import { AmmoCollisionFlags, AmmoCollisionObjectStates } from './ammo-enum';
 import { AmmoInstance } from './ammo-instance';
 import { IAmmoBodyStruct, IAmmoGhostStruct } from './ammo-interface';
+import { CC_V3_0, CC_QUAT_0 } from './ammo-const';
 
-const v3_0 = new Vec3();
-const quat_0 = new Quat();
+const v3_0 = CC_V3_0;
+const quat_0 = CC_QUAT_0;
 let sharedIDCounter = 0;
 
 /**

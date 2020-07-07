@@ -1,8 +1,7 @@
 import Ammo from '@cocos/ammo';
-import { Vec3, absMax } from "../../../core";
+import { absMax } from "../../../core";
 import { AmmoShape } from "./ammo-shape";
 import { CapsuleColliderComponent } from '../../../../exports/physics-framework';
-import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ICapsuleShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';

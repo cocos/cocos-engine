@@ -51,6 +51,7 @@ export function cocos2AmmoTriMesh (out: Ammo.btTriangleMesh, mesh: Mesh): Ammo.b
                     const v1 = new Ammo.btVector3(vb[i1], vb[i1 + 1], vb[i1 + 2]);
                     const v2 = new Ammo.btVector3(vb[i2], vb[i2 + 1], vb[i2 + 2]);
                     out.addTriangle(v0, v1, v2);
+                    Ammo.destroy(v0); Ammo.destroy(v1); Ammo.destroy(v2);
                 }
             } else if (primitiveMode == GFXPrimitiveMode.TRIANGLE_STRIP) {
                 const cnt = ib.length - 2;
@@ -63,6 +64,7 @@ export function cocos2AmmoTriMesh (out: Ammo.btTriangleMesh, mesh: Mesh): Ammo.b
                     const v1 = new Ammo.btVector3(vb[i1], vb[i1 + 1], vb[i1 + 2]);
                     const v2 = new Ammo.btVector3(vb[i2], vb[i2 + 1], vb[i2 + 2]);
                     out.addTriangle(v0, v1, v2);
+                    Ammo.destroy(v0); Ammo.destroy(v1); Ammo.destroy(v2);
                 }
 
             } else if (primitiveMode == GFXPrimitiveMode.TRIANGLE_FAN) {
@@ -75,6 +77,7 @@ export function cocos2AmmoTriMesh (out: Ammo.btTriangleMesh, mesh: Mesh): Ammo.b
                     const v1 = new Ammo.btVector3(vb[i1], vb[i1 + 1], vb[i1 + 2]);
                     const v2 = new Ammo.btVector3(vb[i2], vb[i2 + 1], vb[i2 + 2]);
                     out.addTriangle(v0, v1, v2);
+                    Ammo.destroy(v0); Ammo.destroy(v1); Ammo.destroy(v2);
                 }
 
             }
