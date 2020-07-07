@@ -433,7 +433,7 @@ module.exports = {
             'layer': 'Specify which TiledLayer the TiledTile belong to.'
         },
         'subcontext_view': {
-            'interval': 'The FPS of open data context, this property will overwrite the frame rate setting in open data context',
+            'fps': 'The FPS of open data context, this property will overwrite the frame rate setting in open data context',
         },
         'skeleton_animation': {
             'search_animation_clips': 'Search Animation Clips',
