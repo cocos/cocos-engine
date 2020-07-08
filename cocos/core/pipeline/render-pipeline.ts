@@ -555,7 +555,6 @@ export abstract class RenderPipeline {
 
         const camera = view.camera;
         const scene = camera.scene!;
-        const device = this._root.device;
 
         const mainLight = scene.mainLight;
         const ambient = scene.ambient;
@@ -567,8 +566,8 @@ export abstract class RenderPipeline {
         fv[UBOGlobal.TIME_OFFSET + 1] = this._root.frameTime;
         fv[UBOGlobal.TIME_OFFSET + 2] = legacyCC.director.getTotalFrames();
 
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET] = device.width;
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = device.height;
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET] = this._device.width;
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = this._device.height;
         fv[UBOGlobal.SCREEN_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.SCREEN_SIZE_OFFSET];
         fv[UBOGlobal.SCREEN_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1];
 
@@ -590,7 +589,7 @@ export abstract class RenderPipeline {
         Mat4.toArray(fv, camera.matViewProj, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
         Mat4.toArray(fv, camera.matViewProjInv, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
         Vec3.toArray(fv, camera.position, UBOGlobal.CAMERA_POS_OFFSET);
-        fv[UBOGlobal.CAMERA_POS_OFFSET + 3] = device.projectionSignY;
+        fv[UBOGlobal.CAMERA_POS_OFFSET + 3] = this._device.projectionSignY;
 
         const exposure = camera.exposure;
         fv[UBOGlobal.EXPOSURE_OFFSET] = exposure;
@@ -1021,7 +1020,7 @@ export abstract class RenderPipeline {
      */
     protected createUBOs (): boolean {
         if (!this._globalBindings.get(UBOGlobal.BLOCK.name)) {
-            const globalUBO = this._root.device.createBuffer({
+            const globalUBO = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: UBOGlobal.SIZE,
@@ -1035,7 +1034,7 @@ export abstract class RenderPipeline {
         }
 
         if (!this._globalBindings.get(UBOShadow.BLOCK.name)) {
-            const shadowUBO = this._root.device.createBuffer({
+            const shadowUBO = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: UBOShadow.SIZE,
