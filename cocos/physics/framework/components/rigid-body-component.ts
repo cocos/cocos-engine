@@ -17,7 +17,7 @@ import { IRigidBody } from '../../spec/i-rigid-body';
 import { createRigidBody } from '../instance';
 import { EDITOR, TEST } from 'internal:constants';
 import { ERigidBodyType } from '../physics-enum';
-import { PhysicsSystem } from '..';
+import { PhysicsSystem } from '../physics-system';
 
 /**
  * @en
