@@ -547,19 +547,6 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @en Update the macros
-     * @zh 更新宏定义。
-     */
-    public updateMacros () {
-        programLib.destroyShaderByDefines(this._macros);
-        this._macros.CC_USE_HDR = (this._isHDR);
-        this._macros.CC_SUPPORT_FLOAT_TEXTURE = this.device.hasFeature(GFXFeature.TEXTURE_FLOAT);
-        for (let i = 0; i < this._root.scenes.length; i++) {
-            this._root.scenes[i].onGlobalPipelineStateChanged();
-        }
-    }
-
-    /**
      * @en Update all UBOs for the given render view
      * @zh 为指定的渲染视图更新所有 UBO。
      * @param view The render view
@@ -861,7 +848,8 @@ export abstract class RenderPipeline {
         this.addRenderPass(RenderPassStage.DEFAULT, windowPass);
 
         // update global defines when all states initialized.
-        this.updateMacros();
+        this._macros.CC_USE_HDR = (this._isHDR);
+        this._macros.CC_SUPPORT_FLOAT_TEXTURE = this.device.hasFeature(GFXFeature.TEXTURE_FLOAT);
 
         return true;
     }
