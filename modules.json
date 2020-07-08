@@ -339,9 +339,16 @@
     "dependencies": ["3D"]
   },
   {
-    "name": "SubContext",
+    "name": "WechatSubContext",
     "entries": [
-      "./cocos2d/core/components/SubContextView.js"
+      "./cocos2d/core/components/WXSubContextView.js"
+    ],
+    "hide": true
+  },
+  {
+    "name": "SwanSubContext",
+    "entries": [
+      "./cocos2d/core/components/SwanSubContextView.js"
     ],
     "hide": true
   },
