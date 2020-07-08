@@ -262,7 +262,8 @@ export class PhysicsSystem extends System {
             }
 
             if (config.collisionMatrix) {
-                for (const key in config.collisionMatrix) {
+                for (const i in config.collisionMatrix) {
+                    const key = 1 << parseInt(i);
                     this.collisionMatrix[`_${key}`] = config.collisionMatrix[key];
                 }
             }
