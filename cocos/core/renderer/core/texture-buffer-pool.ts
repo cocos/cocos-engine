@@ -151,7 +151,6 @@ export class TextureBufferPool {
             width: length,
             height: length,
             mipLevel: 1,
-            flags: GFXTextureFlagBit.NO_FLIP_Y,
         });
 
         const chunk: ITextureBuffer = {

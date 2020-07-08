@@ -226,7 +226,7 @@ class GpuComputing implements SubMeshMorphRendering {
                 _compressed: false,
                 format: pixelFormat,
             });
-            const textureAsset = new Texture2D(true);
+            const textureAsset = new Texture2D();
             textureAsset.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
             textureAsset.setMipFilter(Texture2D.Filter.NONE);
             textureAsset.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE);
@@ -364,7 +364,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
                 _compressed: false,
                 format: Texture2D.PixelFormat.RGB32F,
             });
-            const textureAsset = new Texture2D(true); // no y-flipping
+            const textureAsset = new Texture2D();
             textureAsset.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
             textureAsset.setMipFilter(Texture2D.Filter.NONE);
             textureAsset.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE);

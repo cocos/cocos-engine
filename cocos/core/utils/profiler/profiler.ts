@@ -301,7 +301,7 @@ export class Profiler {
         }
 
         // device NDC correction
-        const ySign = this._device!.projectionSignY;
+        const ySign = this._device!.screenSpaceSignY;
         for (let i = 1; i < vertexPos.length; i += 3) {
             vertexPos[i] *= ySign;
         }

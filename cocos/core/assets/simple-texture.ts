@@ -208,7 +208,6 @@ export class SimpleTexture extends TextureBase {
             this._mipmapLevel = getMipLevel(this._width, this._height);
             flags = GFXTextureFlagBit.GEN_MIPMAP;
         }
-        if (this._noFlipY) { flags |= GFXTextureFlagBit.NO_FLIP_Y; }
 
         const textureCreateInfo = this._getGfxTextureCreateInfo({
             usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,

@@ -1851,11 +1851,13 @@ interface IWebGL2GFXStateCache {
     gpuInputAssembler: IWebGL2GPUInputAssembler | null;
     gpuShader: WebGL2GPUShader | null;
     glPrimitive: number;
+    reverseCW: boolean;
 }
 const gfxStateCache: IWebGL2GFXStateCache = {
     gpuInputAssembler: null,
     gpuShader: null,
     glPrimitive: 0,
+    reverseCW: false,
 };
 
 export function WebGL2CmdFuncBeginRenderPass (
@@ -1879,6 +1881,8 @@ export function WebGL2CmdFuncBeginRenderPass (
         if (cache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
             gl.bindFramebuffer(gl.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
             cache.glFramebuffer = gpuFramebuffer.glFramebuffer;
+            // render targets are drawn with flipped-Y
+            gfxStateCache.reverseCW = !!gpuFramebuffer.glFramebuffer;
         }
 
         if (cache.viewport.left !== renderArea.x ||
@@ -2092,7 +2096,7 @@ export function WebGL2CmdFuncBindStates (
                 device.stateCache.rs.cullMode = rs.cullMode;
             }
 
-            const isFrontFaceCCW = device.reverseCW ? !rs.isFrontFaceCCW : rs.isFrontFaceCCW;
+            const isFrontFaceCCW = gfxStateCache.reverseCW ? !rs.isFrontFaceCCW : rs.isFrontFaceCCW;
             if (device.stateCache.rs.isFrontFaceCCW !== isFrontFaceCCW) {
                 gl.frontFace(isFrontFaceCCW ? gl.CCW : gl.CW);
                 device.stateCache.rs.isFrontFaceCCW = isFrontFaceCCW;
@@ -2760,10 +2764,6 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
     let n = 0;
     let f = 0;
 
-    if (gpuTexture.flags & GFXTextureFlagBit.NO_FLIP_Y) {
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
-    }
-
     switch (gpuTexture.glTarget) {
         case gl.TEXTURE_2D: {
             for (let k = 0; k < regions.length; k++) {
@@ -2794,10 +2794,6 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
     if (gpuTexture.flags & GFXTextureFlagBit.GEN_MIPMAP) {
         gl.generateMipmap(gpuTexture.glTarget);
     }
-
-    if (gpuTexture.flags & GFXTextureFlagBit.NO_FLIP_Y) {
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
-    }
 }
 
 export function WebGL2CmdFuncCopyBuffersToTexture (
@@ -2819,10 +2815,6 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
     let f = 0;
     const fmtInfo: IGFXFormatInfo = GFXFormatInfos[gpuTexture.format];
     const isCompressed = fmtInfo.isCompressed;
-
-    if (gpuTexture.flags & GFXTextureFlagBit.NO_FLIP_Y) {
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
-    }
 
     switch (gpuTexture.glTarget) {
         case gl.TEXTURE_2D: {
@@ -2883,10 +2875,6 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
 
     if (gpuTexture.flags & GFXTextureFlagBit.GEN_MIPMAP) {
         gl.generateMipmap(gpuTexture.glTarget);
-    }
-
-    if (gpuTexture.flags & GFXTextureFlagBit.NO_FLIP_Y) {
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
     }
 }
 

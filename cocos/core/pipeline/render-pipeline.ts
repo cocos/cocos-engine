@@ -563,7 +563,7 @@ export abstract class RenderPipeline {
         Mat4.toArray(fv, camera.matViewProj, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
         Mat4.toArray(fv, camera.matViewProjInv, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
         Vec3.toArray(fv, camera.position, UBOGlobal.CAMERA_POS_OFFSET);
-        fv[UBOGlobal.CAMERA_POS_OFFSET + 3] = PipelineGlobal.device.projectionSignY;
+        fv[UBOGlobal.CAMERA_POS_OFFSET + 3] = PipelineGlobal.device.screenSpaceSignY;
 
         const exposure = camera.exposure;
         fv[UBOGlobal.EXPOSURE_OFFSET] = exposure;

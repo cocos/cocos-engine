@@ -49,7 +49,7 @@ export class RenderView {
      * @en Name
      * @zh 名称。
      */
-    public get name () {
+    get name () {
         return this._name;
     }
 
@@ -57,10 +57,11 @@ export class RenderView {
      * @en The GFX window
      * @zh GFX 窗口。
      */
-    public get window () {
+    get window () {
         return this._window!;
     }
-    public set window (val) {
+
+    set window (val) {
         this._window = val;
     }
 
@@ -68,10 +69,11 @@ export class RenderView {
      * @en The priority among other render views, used for sorting.
      * @zh 在所有 RenderView 中的优先级，用于排序。
      */
-    public get priority () {
+    get priority () {
         return this._priority;
     }
-    public set priority (val: number) {
+
+    set priority (val) {
         this._priority = val;
         if (legacyCC.director.root) {
             legacyCC.director.root.sortViews();
@@ -82,10 +84,10 @@ export class RenderView {
      * @en The visibility is a mask which allows nodes in the scene be seen by the current view if their [[Node.layer]] bit is included in this mask.
      * @zh 可见性是一个掩码，如果场景中节点的 [[Node.layer]] 位被包含在该掩码中，则对应节点对该视图是可见的。
      */
-    public set visibility (vis) {
+    set visibility (vis) {
         this._visibility = vis;
     }
-    public get visibility () {
+    get visibility () {
         return this._visibility;
     }
 
@@ -94,7 +96,7 @@ export class RenderView {
      * @zh 该视图对应的相机。
      * @readonly
      */
-    public get camera (): Camera {
+    get camera (): Camera {
         return this._camera!;
     }
 
@@ -103,7 +105,7 @@ export class RenderView {
      * @zh 是否启用。
      * @readonly
      */
-    public get isEnable (): boolean {
+    get isEnable (): boolean {
         return this._isEnable;
     }
 
@@ -112,7 +114,7 @@ export class RenderView {
      * @zh 渲染流程列表。
      * @readonly
      */
-    public get flows (): RenderFlow[] {
+    get flows (): RenderFlow[] {
         return this._flows;
     }
 

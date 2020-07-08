@@ -351,7 +351,7 @@ export class SplashScreen {
         }
 
         // transform to clipspace
-        const ySign = this.device.projectionSignY;
+        const ySign = this.device.screenSpaceSignY;
         for (let i = 0; i < verts.length; i += 4) {
             verts[i] = verts[i] / this.screenWidth * 2 - 1;
             verts[i + 1] = (verts[i + 1] / this.screenHeight * 2 - 1) * ySign;
@@ -434,7 +434,7 @@ export class SplashScreen {
         }
 
         // transform to clipspace
-        const ySign = device.projectionSignY;
+        const ySign = device.screenSpaceSignY;
         for (let i = 0; i < verts.length; i += 4) {
             verts[i] = verts[i] / this.screenWidth * 2 - 1;
             verts[i + 1] = (verts[i + 1] / this.screenHeight * 2 - 1) * ySign;

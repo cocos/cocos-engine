@@ -47,6 +47,14 @@ export class RenderWindow {
         return this._shouldSyncSizeWithSwapchain;
     }
 
+    get hasOnScreenAttachments () {
+        return this._hasOnScreenAttachments;
+    }
+
+    get hasOffScreenAttachments () {
+        return this._hasOffScreenAttachments;
+    }
+
     public static registerCreateFunc (root: Root) {
         root._createWindowFun = (_root: Root): RenderWindow => new RenderWindow(_root);
     }
@@ -62,6 +70,8 @@ export class RenderWindow {
     protected _framebuffer: GFXFramebuffer | null = null;
     protected _swapchainBufferIndices = 0;
     protected _shouldSyncSizeWithSwapchain = false;
+    protected _hasOnScreenAttachments = false;
+    protected _hasOffScreenAttachments = false;
 
     private constructor (root: Root) {
     }
@@ -84,7 +94,7 @@ export class RenderWindow {
         this._nativeWidth = this._width;
         this._nativeHeight = this._height;
 
-        const device = PipelineGlobal.root.device;
+        const device = PipelineGlobal.device;
         const { colorAttachments, depthStencilAttachment } = info.renderPassInfo;
         for (let i = 0; i < colorAttachments.length; i++) {
             if (colorAttachments[i].format === GFXFormat.UNKNOWN) {
@@ -107,19 +117,27 @@ export class RenderWindow {
                     width: this._width,
                     height: this._height,
                 });
+                this._hasOffScreenAttachments = true;
+            } else {
+                this._hasOnScreenAttachments = true;
             }
             this._colorTextures.push(colorTex);
         }
 
         // Use the sign bit to indicate depth attachment
-        if (depthStencilAttachment && this._swapchainBufferIndices >= 0) {
-            this._depthStencilTexture = device.createTexture({
-                type: GFXTextureType.TEX2D,
-                usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format: depthStencilAttachment.format,
-                width: this._width,
-                height: this._height,
-            });
+        if (depthStencilAttachment) {
+            if (this._swapchainBufferIndices >= 0) {
+                this._depthStencilTexture = device.createTexture({
+                    type: GFXTextureType.TEX2D,
+                    usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                    format: depthStencilAttachment.format,
+                    width: this._width,
+                    height: this._height,
+                });
+                this._hasOffScreenAttachments = true;
+            } else {
+                this._hasOnScreenAttachments = true;
+            }
         }
 
         this._framebuffer = device.createFramebuffer({

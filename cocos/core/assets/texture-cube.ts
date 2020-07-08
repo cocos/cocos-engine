@@ -154,10 +154,6 @@ export class TextureCube extends SimpleTexture {
     @property
     public _mipmaps: ITextureCubeMipmap[] = [];
 
-    constructor () {
-        super(true); // cubemaps shouldn't flip y at all
-    }
-
     public onLoaded () {
         this.mipmaps = this._mipmaps;
         this.loaded = true;
