@@ -38,7 +38,7 @@ function CallbackInfo () {
 CallbackInfo.prototype.set = function (callback, target, once) {
     this.callback = callback;
     this.target = target;
-    this.once = once;
+    this.once = !!once;
 };
 
 let callbackInfoPool = new js.Pool(function (info) {
