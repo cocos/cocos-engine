@@ -138,13 +138,6 @@ export class ForwardPipeline extends RenderPipeline {
         this._destroy();
     }
 
-    public rebuild () {
-        super.rebuild();
-        for (let i = 0; i < this._flows.length; i++) {
-            this._flows[i].rebuild();
-        }
-    }
-
     public updateUBOs (view: RenderView) {
         super.updateUBOs(view);
 
