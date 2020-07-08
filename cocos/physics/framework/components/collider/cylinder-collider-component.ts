@@ -6,15 +6,13 @@ import {
     ccclass,
     help,
     executeInEditMode,
-    executionOrder,
     menu,
     property,
 } from '../../../../core/data/class-decorator';
-import { createCylinderShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
 import { ICylinderShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
-import { EAxisDirection } from '../../physics-enum';
+import { EAxisDirection, EColliderType } from '../../physics-enum';
 
 /**
  * @en
@@ -24,8 +22,7 @@ import { EAxisDirection } from '../../physics-enum';
  */
 @ccclass('cc.CylinderColliderComponent')
 @help('i18n:cc.CylinderColliderComponent')
-@executionOrder(98)
-@menu('Physics/CylinderCollider(beta)')
+@menu('Physics/CylinderCollider')
 @executeInEditMode
 export class CylinderColliderComponent extends ColliderComponent {
     /// PUBLIC PROPERTY GETTER\SETTER ///
@@ -106,9 +103,7 @@ export class CylinderColliderComponent extends ColliderComponent {
     private _direction = EAxisDirection.Y_AXIS;
 
     constructor () {
-        super();
-        if (!EDITOR && !TEST) {
-            this._shape = createCylinderShape();
-        }
+        super(EColliderType.CYLINDER);
     }
+
 }

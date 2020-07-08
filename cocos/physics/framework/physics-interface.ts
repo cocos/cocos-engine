@@ -2,7 +2,7 @@
  * @category physics
  */
 
-import { Vec3 } from '../../core/math';
+import { IVec3Like } from '../../core/math';
 import { ColliderComponent } from './components/collider/collider-component';
 
 /**
@@ -35,6 +35,14 @@ export interface ITriggerEvent {
      * 触发事件中的另一个碰撞器
      */
     readonly otherCollider: ColliderComponent;
+
+    /**
+     * @en
+     * Gets the lowLevel object, through which all the exposed properties can be accessed.
+     * @zh
+     * 获取实现对象，通过它可以访问到底层暴露的所有属性。
+     */
+    readonly impl: any
 }
 
 /**
@@ -62,27 +70,73 @@ export type TriggerCallback = (event?: ITriggerEvent) => void;
 export interface IContactEquation {
     /**
      * @en
-     * Point A in the collision contact equation.
+     * Gets the lowLevel object, through which all the exposed properties can be accessed.
      * @zh
-     * 碰撞信息中的碰撞点A。
+     * 获取实现对象，通过它可以访问到底层暴露的所有属性。
      */
-    readonly contactA: Vec3;
+    readonly impl: any;
 
     /**
      * @en
-     * Point A in the collision contact equation.
+     * Gets whether the rigid body bound to the selfCollider is A.
      * @zh
-     * 碰撞信息中的碰撞点B。
+     * 获取`selfCollider`所绑定的刚体是否为 A 。
      */
-    readonly contactB: Vec3;
+    readonly isBodyA: boolean;
 
     /**
      * @en
-     * Normal in collision contact contact.
+     * Gets the contact point relative to the rigid body A in the local coordinate system.
      * @zh
-     * 碰撞信息中的法线。
+     * 获取本地坐标系中相对于刚体 A 的碰撞点。
+     * @param out used to storage the output.
      */
-    readonly normal: Vec3;
+    getLocalPointOnA (out: IVec3Like): void;
+
+    /**
+     * @en
+     * Gets the contact point relative to the rigid body B in the local coordinate system.
+     * @zh
+     * 获取本地坐标系中相对于刚体 B 的碰撞点。
+     * @param out used to storage the output.
+     */
+    getLocalPointOnB (out: IVec3Like): void;
+
+    /**
+     * @en
+     * Gets the contact point relative to the rigid body A in the world coordinate system.
+     * @zh
+     * 获取世界坐标系中相对于刚体 A 的碰撞点。
+     * @param out used to storage the output.
+     */
+    getWorldPointOnA (out: IVec3Like): void;
+
+    /**
+     * @en
+     * Gets the contact point relative to the rigid body B in the world coordinate system.
+     * @zh
+     * 获取世界坐标系中相对于刚体 B 的碰撞点。
+     * @param out used to storage the output.
+     */
+    getWorldPointOnB (out: IVec3Like): void;
+
+    /**
+     * @en
+     * Gets the contact normal relative to the rigid body B in the local coordinate system.
+     * @zh
+     * 获取本地坐标系中相对于刚体 B 的碰撞法线。
+     * @param out used to storage the output.
+     */
+    getLocalNormalOnB (out: IVec3Like): void;
+
+    /**
+     * @en
+     * Gets the contact normal relative to the rigid body B in the world coordinate system.
+     * @zh
+     * 获取世界坐标系中相对于刚体 B 的碰撞法线。
+     * @param out used to storage the output.
+     */
+    getWorldNormalOnB (out: IVec3Like): void;
 }
 
 /**
@@ -116,7 +170,6 @@ export interface ICollisionEvent {
      */
     readonly otherCollider: ColliderComponent;
 
-    // TODO: Provide interface to dynamic instantiate instead static data
     /**
      * @en
      * Information about all points of impact in a collision event.
@@ -125,6 +178,13 @@ export interface ICollisionEvent {
      */
     readonly contacts: IContactEquation[];
 
+    /**
+     * @en
+     * Gets the lowLevel object, through which all the exposed properties can be accessed.
+     * @zh
+     * 获取实现对象，通过它可以访问到底层暴露的所有属性。
+     */
+    readonly impl: any;
 }
 
 /**

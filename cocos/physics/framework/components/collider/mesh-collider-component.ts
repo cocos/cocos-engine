@@ -6,15 +6,14 @@ import {
     ccclass,
     help,
     executeInEditMode,
-    executionOrder,
     menu,
     property,
 } from '../../../../core/data/class-decorator';
 import { ColliderComponent } from './collider-component';
-import { createTrimeshShape } from '../../instance';
 import { Mesh } from '../../../../core';
 import { ITrimeshShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
+import { EColliderType } from '../../physics-enum';
 
 /**
  * @en
@@ -24,7 +23,6 @@ import { EDITOR, TEST } from 'internal:constants';
  */
 @ccclass('cc.MeshColliderComponent')
 @help('i18n:cc.MeshColliderComponent')
-@executionOrder(98)
 @menu('Physics/MeshCollider')
 @executeInEditMode
 export class MeshColliderComponent extends ColliderComponent {
@@ -49,14 +47,20 @@ export class MeshColliderComponent extends ColliderComponent {
         if (!EDITOR && !TEST) this.shape.setMesh(this._mesh);
     }
 
-    // @property
-    // get convex () {
-    //     return this._convex;
-    // }
+    /**
+     * @en
+     * Gets or sets whether the collider replaces the mesh with a convex shape.
+     * @zh
+     * 获取或设置此碰撞体是否用凸形状代替网格.
+     */
+    @property
+    get convex () {
+        return this._convex;
+    }
 
-    // set convex (value) {
-    //     this._convex = value;
-    // }
+    set convex (value) {
+        this._convex = value;
+    }
 
     /**
      * @en
@@ -73,13 +77,10 @@ export class MeshColliderComponent extends ColliderComponent {
     @property
     private _mesh: Mesh | null = null;
 
-    // @property
-    // private _convex: boolean = false;
+    @property
+    private _convex: boolean = false;
 
     constructor () {
-        super();
-        if (!EDITOR && !TEST) {
-            this._shape = createTrimeshShape();
-        }
+        super(EColliderType.MESH);
     }
 }

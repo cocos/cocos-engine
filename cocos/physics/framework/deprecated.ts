@@ -3,7 +3,7 @@
  */
 
 import { PhysicsSystem } from "./physics-system";
-import { replaceProperty } from "../../core";
+import { replaceProperty, removeProperty } from "../../core";
 import { BoxColliderComponent } from "./components/collider/box-collider-component";
 import { SphereColliderComponent } from "./components/collider/sphere-collider-component";
 import { CapsuleColliderComponent } from "./components/collider/capsule-collider-component";
@@ -14,6 +14,23 @@ replaceProperty(PhysicsSystem, 'PhysicsSystem', [
     {
         "name": "ins",
         "newName": "instance"
+    }
+]);
+
+replaceProperty(PhysicsSystem.prototype, 'PhysicsSystem', [
+    {
+        "name": "deltaTime",
+        "newName": "fixedTimeStep"
+    },
+    {
+        "name": "maxSubStep",
+        "newName": "maxSubSteps"
+    }
+]);
+
+removeProperty(PhysicsSystem.prototype, 'PhysicsSystem', [
+    {
+        "name": "useFixedTime"
     }
 ]);
 

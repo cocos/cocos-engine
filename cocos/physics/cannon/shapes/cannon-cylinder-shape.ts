@@ -21,7 +21,7 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
-            18,
+            CANNON['CC_CONFIG']['numSegmentsCylinder'],
             this.collider.direction,
             this.collider.node.worldScale
         );
@@ -33,7 +33,7 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
-            18,
+            CANNON['CC_CONFIG']['numSegmentsCylinder'],
             this.collider.direction,
             this.collider.node.worldScale
         );
@@ -45,7 +45,7 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
-            18,
+            CANNON['CC_CONFIG']['numSegmentsCylinder'],
             this.collider.direction,
             this.collider.node.worldScale
         );
@@ -55,7 +55,7 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
 
     constructor (radius = 0.5, height = 2, direction = EAxisDirection.Y_AXIS) {
         super();
-        this._shape = new CANNON.Cylinder(radius, radius, height, 18, direction == EAxisDirection.Y_AXIS);
+        this._shape = new CANNON.Cylinder(radius, radius, height, CANNON['CC_CONFIG']['numSegmentsCylinder'], direction == EAxisDirection.Y_AXIS);
     }
 
     onLoad () {

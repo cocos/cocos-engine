@@ -9,9 +9,12 @@ import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventTyp
 import { RigidBodyComponent } from '../rigid-body-component';
 import { PhysicMaterial } from '../../assets/physic-material';
 import { PhysicsSystem } from '../../physics-system';
-import { Component, error } from '../../../../core';
+import { Component, error, Node } from '../../../../core';
 import { IBaseShape } from '../../../spec/i-physics-shape';
-import { EDITOR, PHYSICS_BUILTIN } from 'internal:constants';
+import { EDITOR, TEST } from 'internal:constants';
+import { aabb, sphere } from '../../../../core/geometry';
+import { EColliderType, EAxisDirection } from '../../physics-enum';
+import { createShape } from '../../instance';
 
 /**
  * @en
@@ -22,7 +25,27 @@ import { EDITOR, PHYSICS_BUILTIN } from 'internal:constants';
 @ccclass('cc.ColliderComponent')
 export class ColliderComponent extends Eventify(Component) {
 
+    static readonly EColliderType = EColliderType;
+    static readonly EAxisDirection = EAxisDirection;
+
     /// PUBLIC PROPERTY GETTER\SETTER ///
+
+    /**
+     * @en
+     * Gets the collider attached rigid-body, this may be null.
+     * @zh
+     * 获取碰撞器所绑定的刚体组件，可能为 null 。
+     */
+    @property({
+        type: RigidBodyComponent,
+        displayName: 'Attached',
+        displayOrder: -2,
+        readonly: true,
+    })
+    public get attachedRigidBody (): RigidBodyComponent | null {
+        return findAttachedBody(this.node);
+        // return this._attachedRigidBody;
+    }
 
     /**
      * @en
@@ -55,38 +78,32 @@ export class ColliderComponent extends Eventify(Component) {
      * 获取或设置此碰撞器的物理材质，共享状态下获取将会生成新的实例。
      */
     public get material () {
-        if (!PHYSICS_BUILTIN) {
-            if (this._isSharedMaterial && this._material != null) {
-                this._material.off('physics_material_update', this._updateMaterial, this);
-                this._material = this._material.clone();
-                this._material.on('physics_material_update', this._updateMaterial, this);
-                this._isSharedMaterial = false;
-            }
+        if (this._isSharedMaterial && this._material != null) {
+            this._material.off('physics_material_update', this._updateMaterial, this);
+            this._material = this._material.clone();
+            this._material.on('physics_material_update', this._updateMaterial, this);
+            this._isSharedMaterial = false;
         }
         return this._material;
     }
 
     public set material (value) {
-        if (!EDITOR) {
-            if (!PHYSICS_BUILTIN) {
-                if (value != null && this._material != null) {
-                    if (this._material._uuid != value._uuid) {
-                        this._material.off('physics_material_update', this._updateMaterial, this);
-                        value.on('physics_material_update', this._updateMaterial, this);
-                        this._isSharedMaterial = false;
-                        this._material = value;
-                    }
-                } else if (value != null && this._material == null) {
+        if (this._shape) {
+            if (value != null && this._material != null) {
+                if (this._material._uuid != value._uuid) {
+                    this._material.off('physics_material_update', this._updateMaterial, this);
                     value.on('physics_material_update', this._updateMaterial, this);
-                    this._material = value;
-                } else if (value == null && this._material != null) {
-                    this._material!.off('physics_material_update', this._updateMaterial, this);
+                    this._isSharedMaterial = false;
                     this._material = value;
                 }
-                this._updateMaterial();
-            } else {
+            } else if (value != null && this._material == null) {
+                value.on('physics_material_update', this._updateMaterial, this);
+                this._material = value;
+            } else if (value == null && this._material != null) {
+                this._material!.off('physics_material_update', this._updateMaterial, this);
                 this._material = value;
             }
+            this._updateMaterial();
         }
     }
 
@@ -106,7 +123,7 @@ export class ColliderComponent extends Eventify(Component) {
 
     public set isTrigger (value) {
         this._isTrigger = value;
-        if (!EDITOR) {
+        if (this._shape) {
             this._shape.setAsTrigger(this._isTrigger);
         }
     }
@@ -128,19 +145,9 @@ export class ColliderComponent extends Eventify(Component) {
 
     public set center (value: Vec3) {
         Vec3.copy(this._center, value);
-        if (!EDITOR) {
+        if (this._shape) {
             this._shape.setCenter(this._center);
         }
-    }
-
-    /**
-     * @en
-     * Gets the collider attached rigid-body, this may be null
-     * @zh
-     * 获取碰撞器所绑定的刚体组件，可能为 null
-     */
-    public get attachedRigidBody (): RigidBodyComponent | null {
-        return this.shape.attachedRigidBody;
     }
 
     /**
@@ -153,11 +160,37 @@ export class ColliderComponent extends Eventify(Component) {
         return this._shape;
     }
 
-    /// PRIVATE PROPERTY ///
+    public get worldBounds (): Readonly<aabb> {
+        if (this._aabb == null) this._aabb = new aabb();
+        if (this._shape) this._shape.getAABB(this._aabb);
+        return this._aabb;
+    }
 
-    protected _shape!: IBaseShape;
+    public get boundingSphere (): Readonly<sphere> {
+        if (this._boundingSphere == null) this._boundingSphere = new sphere();
+        if (this._shape) this._shape.getBoundingSphere(this._boundingSphere);
+        return this._boundingSphere;
+    }
 
+    public get needTriggerEvent () {
+        return this._needTriggerEvent;
+    }
+
+    public get needCollisionEvent () {
+        return this._needCollisionEvent;
+    }
+
+    readonly TYPE: EColliderType;
+
+    /// PROTECTED PROPERTY ///
+
+    protected _shape: IBaseShape | null = null;
+    protected _aabb: aabb | null = null;
+    protected _boundingSphere: sphere | null = null;
     protected _isSharedMaterial: boolean = true;
+    protected _needTriggerEvent: boolean = false;
+    protected _needCollisionEvent: boolean = false;
+    // protected _attachedRigidBody: RigidBodyComponent | null = null;
 
     @property({ type: PhysicMaterial })
     protected _material: PhysicMaterial | null = null;
@@ -168,13 +201,25 @@ export class ColliderComponent extends Eventify(Component) {
     @property
     protected readonly _center: Vec3 = new Vec3();
 
-    protected get _assertOnload (): boolean {
+    protected get _assertOnLoadCalled (): boolean {
         const r = this._isOnLoadCalled == 0;
-        if (r) { error('Physics Error: Please make sure that the node has been added to the scene'); }
+        if (r) { error('[Physics]: Please make sure that the node has been added to the scene'); }
         return !r;
     }
 
-    constructor () { super() }
+    protected get _assertUseCollisionMatrix (): boolean {
+        if (PhysicsSystem.instance.useCollisionMatrix) {
+            error('[Physics]: useCollisionMatrix is turn on, using collision matrix instead please.');
+        }
+        return PhysicsSystem.instance.useCollisionMatrix;
+    }
+
+    constructor (type: EColliderType) {
+        super();
+        this.TYPE = type;
+    }
+
+    /// EVENT INTERFACE ///
 
     /**
      * @en
@@ -186,7 +231,9 @@ export class ColliderComponent extends Eventify(Component) {
      * @param target - The event callback target.
      */
     public on (type: TriggerEventType | CollisionEventType, callback: Function, target?: Object, once?: boolean): any {
-        super.on(type, callback, target, once);
+        const ret = super.on(type, callback, target, once);
+        this._updateNeedEvent(type);
+        return ret;
     }
 
     /**
@@ -200,6 +247,7 @@ export class ColliderComponent extends Eventify(Component) {
      */
     public off (type: TriggerEventType | CollisionEventType, callback?: Function, target?: Object) {
         super.off(type, callback, target);
+        this._updateNeedEvent();
     }
 
     /**
@@ -212,21 +260,25 @@ export class ColliderComponent extends Eventify(Component) {
      * @param target - The event callback target.
      */
     public once (type: TriggerEventType | CollisionEventType, callback: Function, target?: Object): any {
-        super.once(type, callback, target);
+        //TODO: callback invoker now is a entity, after `once` will not calling the upper `off`.
+        const ret = super.once(type, callback, target);
+        this._updateNeedEvent(type);
+        return ret;
     }
-
-    /// GROUP MASK ///
 
     /**
      * @en
-     * Sets the group value.
+     * Removes all registered events of the specified target or type.
      * @zh
-     * 设置分组值。
-     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     * 移除所有指定目标或类型的注册事件。
+     * @param typeOrTarget - The event type or target.
      */
-    public setGroup (v: number): void {
-        this._shape!.setGroup(v);
+    public removeAll (typeOrTarget: TriggerEventType | CollisionEventType | {}) {
+        super.removeAll(typeOrTarget);
+        this._updateNeedEvent();
     }
+
+    /// GROUP MASK ///
 
     /**
      * @en
@@ -236,7 +288,33 @@ export class ColliderComponent extends Eventify(Component) {
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public getGroup (): number {
-        return this._shape.getGroup();
+        if (this._assertOnLoadCalled) {
+            return this._shape!.getGroup();
+        }
+        return 0;
+    }
+
+    /**
+     * @en
+     * Sets the group value.
+     * @zh
+     * 设置分组值。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public setGroup (v: number): void {
+        if (this._assertOnLoadCalled) {
+            if (PhysicsSystem.instance.useCollisionMatrix) {
+                const body = this._shape!.attachedRigidBody;
+                if (body) {
+                    body.group = v;
+                } else {
+                    this._shape!.setGroup(v);
+                    this._updateMask();
+                }
+            } else {
+                this._shape!.setGroup(v);
+            }
+        }
     }
 
     /**
@@ -247,7 +325,19 @@ export class ColliderComponent extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addGroup (v: number) {
-        this._shape.addGroup(v);
+        if (this._assertOnLoadCalled) {
+            if (!this._assertUseCollisionMatrix) {
+                this._shape!.addGroup(v);
+            } else {
+                const body = this._shape!.attachedRigidBody;
+                if (body) {
+                    body.group |= v;
+                } else {
+                    this._shape!.addGroup(v);
+                    this._updateMask();
+                }
+            }
+        }
     }
 
     /**
@@ -258,7 +348,19 @@ export class ColliderComponent extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeGroup (v: number) {
-        this._shape.removeGroup(v);
+        if (this._assertOnLoadCalled) {
+            if (!this._assertUseCollisionMatrix) {
+                this._shape!.removeGroup(v);
+            } else {
+                const body = this._shape!.attachedRigidBody;
+                if (body) {
+                    body.group &= ~v;
+                } else {
+                    this._shape!.removeGroup(v);
+                    this._updateMask();
+                }
+            }
+        }
     }
 
     /**
@@ -269,7 +371,10 @@ export class ColliderComponent extends Eventify(Component) {
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public getMask (): number {
-        return this._shape.getMask();
+        if (this._assertOnLoadCalled) {
+            return this._shape!.getMask();
+        }
+        return 0;
     }
 
     /**
@@ -280,7 +385,9 @@ export class ColliderComponent extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setMask (v: number) {
-        this._shape.setMask(v);
+        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+            this._shape!.setMask(v);
+        }
     }
 
     /**
@@ -291,7 +398,9 @@ export class ColliderComponent extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addMask (v: number) {
-        this._shape.addMask(v);
+        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+            this._shape!.addMask(v);
+        }
     }
 
     /**
@@ -302,41 +411,37 @@ export class ColliderComponent extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeMask (v: number) {
-        this._shape.removeMask(v);
+        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+            this._shape!.removeMask(v);
+        }
     }
+
 
     /// COMPONENT LIFECYCLE ///
 
-    protected __preload () {
-        if (!EDITOR) {
-            this._shape.initialize(this);
-        }
-    }
-
     protected onLoad () {
         if (!EDITOR) {
-            if (!PHYSICS_BUILTIN) {
-                this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
-            }
+            this._shape = createShape(this.TYPE);
+            this._shape.initialize(this);
+            this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
             this._shape.onLoad!();
         }
-
     }
 
     protected onEnable () {
-        if (!EDITOR) {
+        if (this._shape) {
             this._shape.onEnable!();
         }
     }
 
     protected onDisable () {
-        if (!EDITOR) {
+        if (this._shape) {
             this._shape.onDisable!();
         }
     }
 
     protected onDestroy () {
-        if (!EDITOR) {
+        if (this._shape) {
             if (this._material) {
                 this._material.off('physics_material_update', this._updateMaterial, this);
             }
@@ -345,9 +450,45 @@ export class ColliderComponent extends Eventify(Component) {
     }
 
     private _updateMaterial () {
-        if (!EDITOR) {
+        if (this._shape) {
             this._shape.setMaterial(this._material);
         }
     }
 
+    private _updateNeedEvent (type?: string) {
+        if (this.isValid) {
+            if (type !== undefined) {
+                if (type == 'onCollisionEnter' || type == 'onCollisionStay' || type == 'onCollisionExit') {
+                    this._needCollisionEvent = true;
+                } else if (type == 'onTriggerEnter' || type == 'onTriggerStay' || type == 'onTriggerExit') {
+                    this._needTriggerEvent = true;
+                }
+            } else {
+                if (!(this.hasEventListener('onTriggerEnter') || this.hasEventListener('onTriggerStay') || this.hasEventListener('onTriggerExit'))) {
+                    this._needTriggerEvent = false;
+                } else if (!(this.hasEventListener('onCollisionEnter') || this.hasEventListener('onCollisionStay') || this.hasEventListener('onCollisionExit'))) {
+                    this._needCollisionEvent = false;
+                }
+            }
+        }
+    }
+
+    private _updateMask () {
+        this._shape!.setMask(PhysicsSystem.instance.collisionMatrix[this._shape!.getGroup()]);
+    }
+}
+
+export namespace ColliderComponent {
+    export type EColliderType = EnumAlias<typeof EColliderType>;
+    export type EAxisDirection = EnumAlias<typeof EAxisDirection>;
+}
+
+function findAttachedBody (node: Node): RigidBodyComponent | null {
+    const rb = node.getComponent(RigidBodyComponent);
+    if (rb && rb.isValid) {
+        return rb;
+    } else {
+        if (node.parent == null || node.parent == node.scene) return null;
+        return findAttachedBody(node.parent);
+    }
 }

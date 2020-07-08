@@ -2,25 +2,28 @@ import Ammo from '@cocos/ammo';
 import { Vec3, Quat } from "../../../core/math";
 import { ColliderComponent, RigidBodyComponent, PhysicMaterial, PhysicsSystem } from "../../../../exports/physics-framework";
 import { AmmoWorld } from '../ammo-world';
-import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
-import { cocos2AmmoVec3, ammoDeletePtr } from '../ammo-util';
+import { AmmoBroadphaseNativeTypes, EAmmoSharedBodyDirty } from '../ammo-enum';
+import { cocos2AmmoVec3, ammoDeletePtr, cocos2AmmoQuat } from '../ammo-util';
 import { Node } from '../../../core';
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { AmmoSharedBody } from '../ammo-shared-body';
+import { aabb, sphere } from '../../../core/geometry';
+import { AmmoConstant, CC_V3_0 } from '../ammo-const';
 
-const v3_0 = new Vec3();
+const v3_0 = CC_V3_0;
 
 export class AmmoShape implements IBaseShape {
 
     setMaterial (v: PhysicMaterial | null) {
         if (!this._isTrigger && this._isEnabled && v) {
             if (this._btCompound) {
-                const rollingFriction = 0.1;
-                this._btCompound.setMaterial(this._index, v.friction, v.restitution, rollingFriction);
+                this._btCompound.setMaterial(this._index, v.friction, v.restitution, v.rollingFriction, v.spinningFriction);
             } else {
                 this._sharedBody.body.setFriction(v.friction);
                 this._sharedBody.body.setRestitution(v.restitution);
+                this._sharedBody.body.setRollingFriction(v.rollingFriction);
+                this._sharedBody.body.setSpinningFriction(v.spinningFriction);
             }
         }
     }
@@ -29,9 +32,7 @@ export class AmmoShape implements IBaseShape {
         Vec3.copy(v3_0, v);
         v3_0.multiply(this._collider.node.worldScale);
         cocos2AmmoVec3(this.transform.getOrigin(), v3_0);
-        if (this._btCompound) {
-            this._btCompound.updateChildTransform(this._index, this.transform);
-        }
+        this.updateCompoundTransform();
     }
 
     setAsTrigger (v: boolean) {
@@ -68,21 +69,37 @@ export class AmmoShape implements IBaseShape {
     protected _btCompound: Ammo.btCompoundShape | null = null;
     protected _collider!: ColliderComponent;
 
-    readonly transform: Ammo.btTransform;
-    readonly pos: Ammo.btVector3;
-    readonly quat: Ammo.btQuaternion;
-    readonly scale: Ammo.btVector3;
+    protected readonly transform: Ammo.btTransform;
+    protected readonly pos: Ammo.btVector3;
+    protected readonly quat: Ammo.btQuaternion;
+    protected readonly scale: Ammo.btVector3;
 
     constructor (type: AmmoBroadphaseNativeTypes) {
         this.type = type;
         this.id = AmmoShape.idCounter++;
 
-        this.pos = new Ammo.btVector3(0, 0, 0);
+        this.pos = new Ammo.btVector3();
         this.quat = new Ammo.btQuaternion();
         this.transform = new Ammo.btTransform(this.quat, this.pos);
         this.transform.setIdentity();
 
         this.scale = new Ammo.btVector3(1, 1, 1);
+    }
+
+    getAABB (v: aabb) {
+        const TRANS = AmmoConstant.instance.TRANSFORM;
+        TRANS.setIdentity();
+        TRANS.setRotation(cocos2AmmoQuat(AmmoConstant.instance.QUAT_0, this._collider.node.worldRotation));
+        const MIN = AmmoConstant.instance.VECTOR3_0;
+        const MAX = AmmoConstant.instance.VECTOR3_1;
+        this._btShape.getAabb(TRANS, MIN, MAX);
+        v.halfExtents.set((MAX.x() - MIN.x()) / 2, (MAX.y() - MIN.y()) / 2, (MAX.z() - MIN.z()) / 2);
+        Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
+    }
+
+    getBoundingSphere (v: sphere) {
+        v.radius = this._btShape.getLocalBoundingSphere();
+        Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
 
     initialize (com: ColliderComponent) {
@@ -95,7 +112,7 @@ export class AmmoShape implements IBaseShape {
     }
 
     // virtual
-    onComponentSet () { }
+    protected onComponentSet () { }
 
     onLoad () {
         this.setCenter(this._collider.center);
@@ -120,15 +137,11 @@ export class AmmoShape implements IBaseShape {
         (this._collider as any) = null;
         const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
         shape['wrapped'] = null;
-        Ammo.destroy(this.transform);
         Ammo.destroy(this.pos);
         Ammo.destroy(this.quat);
         Ammo.destroy(this.scale);
+        Ammo.destroy(this.transform);
         Ammo.destroy(this._btShape);
-        ammoDeletePtr(this.pos, Ammo.btVector3);
-        ammoDeletePtr(this.quat, Ammo.btQuaternion);
-        ammoDeletePtr(this.scale, Ammo.btVector3);
-        ammoDeletePtr(this.transform, Ammo.btTransform);
         ammoDeletePtr(this._btShape, Ammo.btCollisionShape);
         (this._btShape as any) = null;
         (this.transform as any) = null;
@@ -172,12 +185,12 @@ export class AmmoShape implements IBaseShape {
 
     setCompound (compound: Ammo.btCompoundShape | null) {
         if (this._btCompound) {
-            this._btCompound.removeChildShapeByIndex(this._index);
+            this._btCompound.removeChildShape(this._btShape);
             this._index = -1;
         }
         if (compound) {
+            this._index = compound.getNumChildShapes();
             compound.addChildShape(this.transform, this._btShape);
-            this._index = compound.getNumChildShapes() - 1;
         }
         this._btCompound = compound;
     }
@@ -189,6 +202,26 @@ export class AmmoShape implements IBaseShape {
 
     setScale () {
         this.setCenter(this._collider.center);
+    }
+
+    updateCompoundTransform () {
+        if (this._btCompound) {
+            this._btCompound.updateChildTransform(this.index, this.transform, true);
+        } else if (this._isEnabled && !this._isTrigger) {
+            if (this._sharedBody && !this._sharedBody.bodyStruct.useCompound) {
+                this._sharedBody.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
+            }
+        }
+    }
+
+    needCompound () {
+        if (this.type == AmmoBroadphaseNativeTypes.TERRAIN_SHAPE_PROXYTYPE)
+            return true;
+
+        if (this._collider.center.equals(Vec3.ZERO))
+            return false;
+
+        return true;
     }
 
     /**DEBUG */

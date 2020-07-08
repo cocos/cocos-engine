@@ -16,3 +16,24 @@ export enum EAxisDirection {
     Z_AXIS,
 }
 Enum(EAxisDirection);
+
+export enum ESimpleShapeType {
+    VERTEX = 1,
+    LINE = 2,
+    TRIANGLE = 3,
+    TETRAHEDRON = 4,
+}
+Enum(ESimpleShapeType);
+
+export enum EColliderType {
+    BOX,
+    SPHERE,
+    CAPSULE,
+    CYLINDER,
+    CONE,
+    MESH,
+    PLANE,
+    SIMPLE,
+    TERRAIN,
+}
+Enum(EColliderType);

@@ -8,10 +8,35 @@ import { createPhysicsWorld, checkPhysicsModule } from './instance';
 import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
 import { PhysicMaterial } from './assets/physic-material';
-import { Layers, RecyclePool } from '../../core';
+import { Layers, RecyclePool, error } from '../../core';
 import { ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
 import { EDITOR, PHYSICS_BUILTIN, DEBUG, PHYSICS_CANNON, PHYSICS_AMMO } from 'internal:constants';
+import { IPhysicsConfig, ICollisionMatrix } from './physics-config';
+
+class CollisionMatrix {
+
+    updateArray: number[] = [];
+
+    constructor () {
+        for (let i = 0; i < 32; i++) {
+            const key = 1 << i;
+            this[`_${key}`] = 0xffffffff;
+            Object.defineProperty(this, key, {
+                'get': function () { return this[`_${key}`] },
+                'set': function (v: number) {
+                    const self = this as CollisionMatrix;
+                    if (self[`_${key}`] != v) {
+                        self[`_${key}`] = v;
+                        if (self.updateArray.indexOf(key) < 0) {
+                            self.updateArray.push(key);
+                        }
+                    }
+                }
+            })
+        }
+    }
+}
 
 /**
  * @en
@@ -46,7 +71,7 @@ export class PhysicsSystem extends System {
     }
     set allowSleep (v: boolean) {
         this._allowSleep = v;
-        if (!EDITOR && !PHYSICS_BUILTIN) {
+        if (!EDITOR) {
             this.physicsWorld.setAllowSleep(v);
         }
     }
@@ -57,40 +82,26 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取或设置每帧模拟的最大子步数。
      */
-    get maxSubStep () {
-        return this._maxSubStep;
+    get maxSubSteps () {
+        return this._maxSubSteps;
     }
 
-    set maxSubStep (value: number) {
-        this._maxSubStep = value;
+    set maxSubSteps (value: number) {
+        this._maxSubSteps = value;
     }
 
     /**
      * @en
-     * Gets or sets the fixed time consumed by each simulation step.
+     * Gets or sets the fixed delta time consumed by each simulation step.
      * @zh
      * 获取或设置每步模拟消耗的固定时间。
      */
-    get deltaTime () {
-        return this._deltaTime;
+    get fixedTimeStep () {
+        return this._fixedTimeStep;
     }
 
-    set deltaTime (value: number) {
-        this._deltaTime = value;
-    }
-
-    /**
-     * @en
-     * Gets or sets whether to simulate with a fixed time step, which defaults to true.
-     * @zh
-     * 获取或设置是否使用固定的时间步长进行模拟，默认为 true。
-     */
-    get useFixedTime () {
-        return this._useFixedTime;
-    }
-
-    set useFixedTime (value: boolean) {
-        this._useFixedTime = value;
+    set fixedTimeStep (value: number) {
+        this._fixedTimeStep = value;
     }
 
     /**
@@ -102,11 +113,26 @@ export class PhysicsSystem extends System {
     get gravity (): Vec3 {
         return this._gravity;
     }
+
     set gravity (gravity: Vec3) {
         this._gravity.set(gravity);
-        if (!EDITOR && !PHYSICS_BUILTIN) {
+        if (!EDITOR) {
             this.physicsWorld.setGravity(gravity);
         }
+    }
+
+    /**
+     * @en
+     * Gets or sets the default speed threshold for going to sleep.
+     * @zh
+     * 获取或设置进入休眠的默认速度临界值。
+     */
+    get sleepThreshold (): number {
+        return this._sleepThreshold;
+    }
+
+    set sleepThreshold (v: number) {
+        this._sleepThreshold = v;
     }
 
     /**
@@ -145,11 +171,40 @@ export class PhysicsSystem extends System {
 
     /**
      * @en
+     * Gets the collision matrix。
+     * @zh
+     * 获取碰撞矩阵。
+     */
+    readonly collisionMatrix: ICollisionMatrix = new CollisionMatrix() as unknown as ICollisionMatrix;
+
+    /**
+     * @en
+     * Turn on or off the automatic simulation.
+     * @zh
+     * 获取或设置是否自动模拟。
+     */
+    autoSimulation: boolean = true;
+
+    /**
+     * @en
+     * Gets or sets whether to use a collision matrix.
+     * @zh
+     * 获取或设置是否开启碰撞矩阵。
+     */
+    readonly useCollisionMatrix: boolean;
+
+    readonly useNodeChains: boolean;
+
+    /**
+     * @en
      * Gets the ID of the system.
      * @zh
      * 获取此系统的ID。
      */
     static readonly ID = 'PHYSICS';
+
+    // static readonly CONFIG = globalThis._CCSettings ? globalThis._CCSettings.physics : null;
+    static readonly CONFIG = null;//globalThis.__PHYSICS__;
 
     /**
      * @en
@@ -166,13 +221,14 @@ export class PhysicsSystem extends System {
 
     private _enable = true;
     private _allowSleep = true;
-    private readonly _gravity = new Vec3(0, -10, 0);
-    private _maxSubStep = 1;
-    private _deltaTime = 1.0 / 60.0;
-    private _useFixedTime = true;
-    private _timeSinceLastUpdate = 0;
+    private _maxSubSteps = 1;
+    private _fixedTimeStep = 1.0 / 60.0;
+    private _timeSinceLastCalled = 0;
     private _timeReset = true;
-    private readonly _material!: PhysicMaterial;
+    private _accumulator = 0;
+    private _sleepThreshold = 0.1;
+    private readonly _gravity = new Vec3(0, -10, 0);
+    private readonly _material = new PhysicMaterial();
 
     private readonly raycastOptions: IRaycastOptions = {
         'group': -1,
@@ -187,22 +243,47 @@ export class PhysicsSystem extends System {
 
     private constructor () {
         super();
-        this.physicsWorld = createPhysicsWorld();
-        this.gravity = this._gravity;
-        this.allowSleep = this._allowSleep;
-        this._material = new PhysicMaterial();
-        this._material.friction = 0.5;
-        this._material.restitution = 0.1;
+        let config = PhysicsSystem.CONFIG as unknown as IPhysicsConfig;
+        if (config) {
+            Vec3.copy(this._gravity, config.gravity);
+            this._allowSleep = config.allowSleep;
+            this._fixedTimeStep = config.fixedTimeStep;
+            this._maxSubSteps = config.maxSubSteps;
+            this._sleepThreshold = config.sleepThreshold;
+            this.autoSimulation = config.autoSimulation;
+            this.useNodeChains = config.useNodeChains;
+            this.useCollisionMatrix = config.useCollsionMatrix;
+
+            if (config.defaultMaterial) {
+                this._material.friction = config.defaultMaterial.friction;
+                this._material.rollingFriction = config.defaultMaterial.rollingFriction;
+                this._material.spinningFriction = config.defaultMaterial.spinningFriction;
+                this._material.restitution = config.defaultMaterial.restitution;
+            }
+
+            if (config.collisionMatrix) {
+                for (const key in config.collisionMatrix) {
+                    this.collisionMatrix[`_${key}`] = config.collisionMatrix[key];
+                }
+            }
+        } else {
+            this.useCollisionMatrix = false;
+            this.useNodeChains = false;
+        }
         this._material.on('physics_material_update', this._updateMaterial, this);
+
+        this.physicsWorld = createPhysicsWorld();
+        this.physicsWorld.setGravity(this._gravity);
+        this.physicsWorld.setAllowSleep(this._allowSleep);
         this.physicsWorld.setDefaultMaterial(this._material);
     }
 
     /**
      * @en
-     * Perform a simulation of the physics system, which will now be performed automatically on each frame.
+     * The lifecycle function is automatically executed after all components `update` and `lateUpadte` are executed.
      * @zh
-     * 执行一次物理系统的模拟，目前将在每帧自动执行一次。
-     * @param deltaTime 与上一次执行相差的时间，目前为每帧消耗时间
+     * 生命周期函数，在所有组件的`update`和`lateUpadte`执行完成后自动执行。
+     * @param deltaTime the time since last frame.
      */
     postUpdate (deltaTime: number) {
         if (EDITOR && !this._executeInEditMode) {
@@ -214,24 +295,134 @@ export class PhysicsSystem extends System {
             return;
         }
 
-        if (this._timeReset) {
-            this._timeSinceLastUpdate = 0;
-            this._timeReset = false;
-        } else {
-            this._timeSinceLastUpdate = deltaTime;
-        }
+        if (this.autoSimulation) {
+            if (this._timeReset) {
+                this._timeSinceLastCalled = 0;
+                this._timeReset = false;
+            } else {
+                this._timeSinceLastCalled = deltaTime;
+            }
 
-        this.physicsWorld.emitEvents();
-        director.emit(Director.EVENT_BEFORE_PHYSICS);
-        this.physicsWorld.syncSceneToPhysics();
-        if (this._useFixedTime) {
-            this.physicsWorld.step(this._deltaTime);
-        } else {
-            this.physicsWorld.step(this._deltaTime, this._timeSinceLastUpdate, this._maxSubStep);
+            director.emit(Director.EVENT_BEFORE_PHYSICS);
+            let i = 0;
+            this._accumulator += this._timeSinceLastCalled;
+            while (i < this._maxSubSteps && this._accumulator > this._fixedTimeStep) {
+                this.physicsWorld.emitEvents();
+                this.updateCollisionMatrix();
+                this.physicsWorld.syncSceneToPhysics();
+                this.physicsWorld.step(this._fixedTimeStep);
+                // TODO: nesting the dirty flag reset between the syncScenetoPhysics and the simulation to reduce calling syncScenetoPhysics.
+                this.physicsWorld.syncSceneToPhysics();
+                this._accumulator -= this._fixedTimeStep;
+                i++;
+            }
+            director.emit(Director.EVENT_AFTER_PHYSICS);
         }
-        // TODO: nesting the dirty flag reset between the syncScenetoPhysics and the simulation to reduce calling syncScenetoPhysics.
+    }
+
+    /**
+     * @en
+     * Perform simulation steps for the physics world.
+     * @zh
+     * 执行物理世界的模拟步进。
+     * @param fixedTimeStep
+     */
+    step (fixedTimeStep: number, deltaTime?: number, maxSubSteps?: number) {
+        this.physicsWorld.step(fixedTimeStep, deltaTime, maxSubSteps);
+    }
+
+    /**
+     * @en
+     * Sync the scene world transform changes to the physics world.
+     * @zh
+     * 同步场景世界的变化信息到物理世界中。
+     */
+    syncSceneToPhysics () {
         this.physicsWorld.syncSceneToPhysics();
-        director.emit(Director.EVENT_AFTER_PHYSICS);
+    }
+
+    /**
+     * @en
+     * Emit trigger and collision events.
+     * @zh
+     * 触发`trigger`和`collision`事件。
+     */
+    emitEvents () {
+        this.physicsWorld.emitEvents();
+    }
+
+    /**
+     * @en
+     * Updates the mask corresponding to the collision matrix for the lowLevel rigid-body instance.
+     * Automatic execution during automatic simulation.
+     * @zh
+     * 更新底层实例对应于碰撞矩阵的掩码，自动模拟时会自动更新。
+     */
+    updateCollisionMatrix () {
+        if (this.useCollisionMatrix) {
+            const ua = (this.collisionMatrix as unknown as CollisionMatrix).updateArray;
+            while (ua.length > 0) {
+                const group = ua.pop()!;
+                const mask = this.collisionMatrix[group];
+                this.physicsWorld.updateCollisionMatrix(group, mask);
+            }
+        }
+    }
+
+    /**
+     * @en
+     * Reset the mask corresponding to all groups of the collision matrix to the given value, the default given value is' 0xffffffff '.
+     * @zh
+     * 重置碰撞矩阵所有分组对应掩码为给定值，默认给定值为`0xffffffff`。
+     */
+    resetCollisionMatrix (mask = 0xffffffff) {
+        for (let i = 0; i < 32; i++) {
+            const key = 1 << i;
+            this.collisionMatrix[`${key}`] = mask;
+        }
+    }
+
+    /**
+     * @en
+     * Are collisions between `group1` and `group2`?
+     * @zh
+     * 两分组是否会产生碰撞？
+     */
+    isCollisionGroup (group1: number, group2: number) {
+        const cm = this.collisionMatrix;
+        const mask1 = cm[group1];
+        const mask2 = cm[group2];
+        if (DEBUG) {
+            if (mask1 == undefined || mask2 == undefined) {
+                error("[PHYSICS]: 'isCollisionGroup', the group do not exist in the collision matrix.");
+                return false;
+            }
+        }
+        return (group1 & mask2) && (group2 & mask1);
+    }
+
+    /**
+     * @en
+     * Sets whether collisions occur between `group1` and `group2`.
+     * @zh
+     * 设置两分组间是否产生碰撞。
+     * @param collision is collision occurs?
+     */
+    setCollisionGroup (group1: number, group2: number, collision: boolean = true) {
+        const cm = this.collisionMatrix;
+        if (DEBUG) {
+            if (cm[group1] == undefined || cm[group2] == undefined) {
+                error("[PHYSICS]: 'setCollisionGroup', the group do not exist in the collision matrix.");
+                return;
+            }
+        }
+        if (collision) {
+            cm[group1] |= group2;
+            cm[group2] |= group1;
+        } else {
+            cm[group1] &= ~group2;
+            cm[group2] &= ~group1;
+        }
     }
 
     /**
@@ -273,9 +464,7 @@ export class PhysicsSystem extends System {
     }
 
     private _updateMaterial () {
-        if (!PHYSICS_BUILTIN) {
-            this.physicsWorld.setDefaultMaterial(this._material);
-        }
+        this.physicsWorld.setDefaultMaterial(this._material);
     }
 }
 

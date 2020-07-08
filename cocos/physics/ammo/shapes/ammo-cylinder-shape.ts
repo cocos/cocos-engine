@@ -1,11 +1,11 @@
 import Ammo from '@cocos/ammo';
 import { AmmoShape } from "./ammo-shape";
 import { CylinderColliderComponent } from '../../../../exports/physics-framework';
-import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ICylinderShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { absMax } from '../../../core';
+import { ammoDeletePtr } from '../ammo-util';
 
 export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
 
@@ -16,9 +16,6 @@ export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
             this.collider.direction,
             this._collider.node.worldScale
         );
-        if (this._btCompound) {
-            this._btCompound.updateChildTransform(this.index, this.transform, true);
-        }
     }
 
     setDirection (v: number) {
@@ -28,9 +25,6 @@ export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
             this.collider.direction,
             this._collider.node.worldScale
         );
-        if (this._btCompound) {
-            this._btCompound.updateChildTransform(this.index, this.transform, true);
-        }
     }
 
     setRadius (v: number) {
@@ -40,9 +34,6 @@ export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
             this.collider.direction,
             this._collider.node.worldScale
         );
-        if (this._btCompound) {
-            this._btCompound.updateChildTransform(this.index, this.transform, true);
-        }
     }
 
     get impl () {
@@ -64,6 +55,12 @@ export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
     onLoad () {
         super.onLoad();
         this.setRadius(this.collider.radius);
+    }
+
+    onDestroy () {
+        Ammo.destroy(this.halfExtents);
+        ammoDeletePtr(this.halfExtents, Ammo.btVector3);
+        super.onDestroy();
     }
 
     setScale () {
@@ -90,6 +87,7 @@ export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
             const halfH = wh / 2;
             this.impl.updateProp(wr, halfH, upAxis);
         }
+        this.updateCompoundTransform();
     }
 
 }

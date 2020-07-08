@@ -2,23 +2,21 @@ import Ammo from '@cocos/ammo';
 import { AmmoShape } from "./ammo-shape";
 import { Vec3 } from "../../../core";
 import { BoxColliderComponent } from '../../../../exports/physics-framework';
-import { cocos2AmmoVec3 } from '../ammo-util';
+import { cocos2AmmoVec3, ammoDeletePtr } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { IBoxShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
+import { CC_V3_0 } from '../ammo-const';
 
-const v3_0 = new Vec3();
+const v3_0 = CC_V3_0;
 
 export class AmmoBoxShape extends AmmoShape implements IBoxShape {
 
     setSize (size: IVec3Like) {
-        Vec3.copy(v3_0, size);
-        Vec3.multiply(v3_0, v3_0, this._collider.node.worldScale);
-        cocos2AmmoVec3(this.scale, v3_0);
-        this._btShape.setLocalScaling(this.scale);
-        if (this._btCompound) {
-            this._btCompound.updateChildTransform(this.index, this.transform, true);
-        }
+        Vec3.multiplyScalar(v3_0, size, 0.5);
+        cocos2AmmoVec3(this.halfExt, v3_0);
+        this.impl.setUnscaledHalfExtents(this.halfExt);
+        this.updateCompoundTransform();
     }
 
     get impl () {
@@ -37,20 +35,23 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
         this._btShape = new Ammo.btBoxShape(this.halfExt);
     }
 
-    onLoad () {
-        super.onLoad();
+    onComponentSet () {
         this.setSize(this.collider.size);
+        this.setScale();
     }
 
     onDestroy () {
-        super.onDestroy();
         Ammo.destroy(this.halfExt);
+        ammoDeletePtr(this.halfExt, Ammo.btVector3);
         (this.halfExt as any) = null;
+        super.onDestroy();
     }
 
     setScale () {
         super.setScale();
-        this.setSize(this.collider.size);
+        cocos2AmmoVec3(this.scale, this._collider.node.worldScale);
+        this._btShape.setLocalScaling(this.scale);
+        this.updateCompoundTransform();
     }
 
 }

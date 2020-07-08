@@ -10,14 +10,18 @@ import { CannonWorld } from '../cannon-world';
 import { Node } from '../../../core';
 import { TriggerEventType } from '../../framework/physics-interface';
 import { PhysicsSystem } from '../../framework/physics-system';
-import { ColliderComponent } from '../../framework';
+import { ColliderComponent, RigidBodyComponent } from '../../framework';
+import { aabb, sphere } from '../../../core/geometry';
 
 const TriggerEventObject = {
     type: 'onTriggerEnter' as TriggerEventType,
     selfCollider: null as ColliderComponent | null,
     otherCollider: null as ColliderComponent | null,
+    impl: null as unknown as CANNON.ITriggeredEvent,
 };
-
+const cannonQuat_0 = new CANNON.Quaternion();
+const cannonVec3_0 = new CANNON.Vec3();
+const cannonVec3_1 = new CANNON.Vec3();
 export class CannonShape implements IBaseShape {
 
     static readonly idToMaterial = {};
@@ -61,15 +65,48 @@ export class CannonShape implements IBaseShape {
         }
     }
 
-    _collider!: ColliderComponent;
+    setAttachedBody (v: RigidBodyComponent | null) {
+        if (v) {
+            if (this._sharedBody) {
+                if (this._sharedBody.wrappedBody == v.body) return;
 
+                this._sharedBody.reference = false;
+            }
+
+            this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(v.node);
+            this._sharedBody.reference = true;
+        } else {
+            if (this._sharedBody) {
+                this._sharedBody.reference = false;
+            }
+
+            this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._collider.node);
+            this._sharedBody.reference = true;
+        }
+    }
+
+    getAABB (v: aabb) {
+        Quat.copy(cannonQuat_0, this._collider.node.worldRotation);
+        // TODO: typing
+        (this._shape as any).calculateWorldAABB(CANNON.Vec3.ZERO, cannonQuat_0, cannonVec3_0, cannonVec3_1);
+        Vec3.subtract(v.halfExtents, cannonVec3_1, cannonVec3_0);
+        Vec3.multiplyScalar(v.halfExtents, v.halfExtents, 0.5);
+        Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
+    }
+
+    getBoundingSphere (v: sphere) {
+        v.radius = this._shape.boundingSphereRadius;
+        Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
+    }
+
+    protected _collider!: ColliderComponent;
     protected _shape!: CANNON.Shape;
     protected _offset = new CANNON.Vec3();
     protected _orient = new CANNON.Quaternion();
     protected _index: number = -1;
     protected _sharedBody!: CannonSharedBody;
     protected get _body (): CANNON.Body { return this._sharedBody.body; }
-    protected onTriggerListener = this.onTrigger.bind(this);
+    protected onTriggerListener = this._onTrigger.bind(this);
     protected _isBinding = false;
 
     /** LIFECYCLE */
@@ -80,7 +117,7 @@ export class CannonShape implements IBaseShape {
         this.onComponentSet();
         setWrap(this._shape, this);
         this._shape.addEventListener('cc-trigger', this.onTriggerListener);
-        this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._collider.node as Node);
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._collider.node);
         this._sharedBody.reference = true;
     }
 
@@ -180,18 +217,20 @@ export class CannonShape implements IBaseShape {
 
     protected _setCenter (v: IVec3Like) {
         const lpos = this._offset as IVec3Like;
-        Vec3.copy(lpos, v);
+        Vec3.subtract(lpos, this._sharedBody.node.worldPosition, this._collider.node.worldPosition);
+        Vec3.add(lpos, lpos, v);
         Vec3.multiply(lpos, lpos, this._collider.node.worldScale);
     }
 
-    private onTrigger (event: CANNON.ITriggeredEvent) {
+    protected _onTrigger (event: CANNON.ITriggeredEvent) {
         TriggerEventObject.type = event.event;
         const self = getWrap<CannonShape>(event.selfShape);
         const other = getWrap<CannonShape>(event.otherShape);
 
-        if (self) {
+        if (self && self.collider.needTriggerEvent) {
             TriggerEventObject.selfCollider = self.collider;
             TriggerEventObject.otherCollider = other ? other.collider : null;
+            TriggerEventObject.impl = event;
             this._collider.emit(TriggerEventObject.type, TriggerEventObject);
         }
     }

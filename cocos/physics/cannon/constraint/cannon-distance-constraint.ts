@@ -1,9 +1,8 @@
 import CANNON from '@cocos/cannon';
-import { IDistanceConstraintOptions } from '../../api';
 import { CannonConstraint } from './cannon-constraint';
 
 export class CannonDistanceConstraint extends CannonConstraint {
-    constructor (first: any, second: any, distance?: number, options?: IDistanceConstraintOptions) {
+    constructor (first: any, second: any, distance?: number, options?: any) {
         super(new CANNON.DistanceConstraint(
             first.impl,
             second.impl,
