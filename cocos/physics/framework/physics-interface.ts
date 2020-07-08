@@ -3,7 +3,7 @@
  */
 
 import { IVec3Like } from '../../core/math';
-import { ColliderComponent } from './components/collider/collider-component';
+import { ColliderComponent } from './components/colliders/collider-component';
 
 /**
  * @en
