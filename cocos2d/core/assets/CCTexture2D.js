@@ -304,7 +304,7 @@ var Texture2D = cc.Class({
                 return this._image;
             },
             set (data) {
-                if (data._data) {
+                if (data._compressed && data._data) {
                     this.initWithData(data._data, this._format, data.width, data.height);
                 }
                 else {

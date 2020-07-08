@@ -1686,6 +1686,9 @@ let NodeDefines = {
             _currentHovered = null;
         }
 
+        this._bubblingListeners && this._bubblingListeners.clear();
+        this._capturingListeners && this._capturingListeners.clear();
+
         // Remove all event listeners if necessary
         if (this._touchListener || this._mouseListener) {
             eventManager.removeListeners(this);
@@ -1920,7 +1923,7 @@ let NodeDefines = {
         this._cullingMask = 1 << _getActualGroupIndex(this);
         if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy && this._proxy.updateCullingMask();
-        };
+        }
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
@@ -1952,7 +1955,7 @@ let NodeDefines = {
         this._cullingMask = 1 << _getActualGroupIndex(this);
         if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy && this._proxy.updateCullingMask();
-        };
+        }
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
@@ -2152,6 +2155,9 @@ let NodeDefines = {
         }
 
         listeners.once(type, callback, target);
+        listeners.once(type, () => {
+            this.off(type, callback, target);
+        }, undefined);
     },
 
     _onDispatch (type, callback, target, useCapture) {

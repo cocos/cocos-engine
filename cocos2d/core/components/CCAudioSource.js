@@ -213,11 +213,6 @@ var AudioSource = cc.Class({
         this._pausedFlag = false;
     },
 
-    onLoad: function () {
-        this.audio.setVolume(this._mute ? 0 : this._volume);
-        this.audio.setLoop(this._loop);
-    },
-
     onEnable: function () {
         if (this.preload) {
             this.audio.src = this._clip;
@@ -254,6 +249,8 @@ var AudioSource = cc.Class({
             audio.stop();
         }
         this._ensureDataLoaded();
+        audio.setVolume(this._mute ? 0 : this._volume);
+        audio.setLoop(this._loop);
         audio.setCurrentTime(0);
         audio.play();
     },

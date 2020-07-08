@@ -52,6 +52,14 @@ gulp.task('clean', function () {
     return Del('./bin/**/*');
 });
 
+gulp.task('clean-cache-dev', function cleanCacheDev() {
+    return Del([
+        './bin/.cache/dev',
+        './cocos2d/core/platform/deserialize-compiled.js',
+        './cocos2d/core/value-types/*.js'
+    ]);
+});
+
 ////////////
 // watch //
 ////////////

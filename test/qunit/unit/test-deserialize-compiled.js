@@ -373,7 +373,7 @@ test('dereference', function () {
 }
 
 test('deserializeCustomCCObject', function () {
-    let { File, DataTypeID, parseInstances, deserialize: deserializeCompiled, cacheMasks } = cc._Test.deserializeCompiled;
+    let { File, DataTypeID, parseInstances, parseResult, deserialize: deserializeCompiled, cacheMasks } = cc._Test.deserializeCompiled;
 
     var MyClass = cc.Class({
         name: 'a a b b',
@@ -393,9 +393,11 @@ test('deserializeCustomCCObject', function () {
     let Ctor = function () {
     };
 
-    let details = new cc.deserialize.Details();
+    let details = new cc._deserializeCompiled.Details();
     let data = {
         [File.Context]: { result: details },
+        [File.SharedUuids]: ['outer-uuid-233'],
+        [File.SharedStrings]: ['ref'],
         [File.SharedClasses]: [[
             Ctor,
             ['obj'],
@@ -406,22 +408,25 @@ test('deserializeCustomCCObject', function () {
         [File.Instances]: [
             [0, [1, ['inner prop1', 'inner-uuid-123']]], [23333, 'outer-uuid-123'], 0
         ],
-        [File.InstanceTypes]: [
-            1,
-        ]
+        [File.InstanceTypes]: [1],
+        [File.DependObjs]: [1],
+        [File.DependKeys]: [0],
+        [File.DependUuidIndices]: [0],
     };
+    details.init(data);
 
     cacheMasks(data);
     parseInstances(data);
+    parseResult(data);
     let instances = data[File.Instances];
     ok(instances[0].obj instanceof MyClass, 'embedded custom class should be created');
     strictEqual(instances[0].obj.prop1, 'inner prop1', 'embedded custom class should be deserialized correctly');
     ok(instances[1] instanceof MyClass, 'indexed custom class should be created');
     strictEqual(instances[1].prop1, 23333, 'indexed custom class should be deserialized correctly');
 
-    deepEqual(details.uuidObjList, [instances[0].obj, instances[1]], 'uuid objects should be deserialized correctly');
-    deepEqual(details.uuidPropList, ['asset', 'asset'], 'uuid keys should be deserialized correctly');
-    deepEqual(details.uuidList, ['inner-uuid-123', 'outer-uuid-123'], 'uuids should be deserialized correctly');
+    deepEqual(details.uuidObjList, [instances[1], instances[0].obj, instances[1]], 'uuid objects should be deserialized correctly');
+    deepEqual(details.uuidPropList, ['ref', 'asset', 'asset'], 'uuid keys should be deserialized correctly');
+    deepEqual(details.uuidList, ['outer-uuid-233', 'inner-uuid-123', 'outer-uuid-123'], 'uuids should be deserialized correctly');
 
     cc.js.unregisterClass(MyClass);
 });
