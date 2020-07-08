@@ -294,7 +294,7 @@ export class Root {
 
     public setRenderPipeline (rppl: RenderPipeline): boolean {
         this._pipeline = rppl;
-        if (!this._pipeline.activate(this)) {
+        if (!this._pipeline.activate()) {
             return false;
         }
         for (let i = 0; i < this.scenes.length; i++) {

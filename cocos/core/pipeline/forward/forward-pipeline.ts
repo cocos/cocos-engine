@@ -11,7 +11,6 @@ import { DirectionalLight } from '../../renderer/scene/directional-light';
 import { LightType } from '../../renderer/scene/light';
 import { SphereLight } from '../../renderer/scene/sphere-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
-import { Root } from '../../root';
 import { cullDirectionalLight, cullSphereLight, cullSpotLight } from '../culling';
 import { UBOForwardLight } from '../define';
 import { IRenderPipelineInfo, RenderPipeline } from '../render-pipeline';
@@ -20,6 +19,7 @@ import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
+import { PipelineGlobal } from '../global';
 
 const _vec4Array = new Float32Array(4);
 const _sphere = sphere.create(0, 0, 0, 1);
@@ -106,8 +106,8 @@ export class ForwardPipeline extends RenderPipeline {
         this._flows.push(forwardFlow);
     }
 
-    public activate (root: Root): boolean {
-        if (!super.activate(root)) {
+    public activate (): boolean {
+        if (!super.activate()) {
             return false;
         }
 
@@ -234,7 +234,7 @@ export class ForwardPipeline extends RenderPipeline {
 
         if (this._validLights.length > this._lightBuffers.length) {
             for (let l = this._lightBuffers.length; l < this._validLights.length; ++l) {
-                const lightBuffer: GFXBuffer = this._device.createBuffer({
+                const lightBuffer: GFXBuffer = PipelineGlobal.device.createBuffer({
                     usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                     memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                     size: UBOForwardLight.SIZE,

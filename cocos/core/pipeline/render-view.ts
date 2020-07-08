@@ -9,6 +9,7 @@ import { RenderFlowType } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
 import { legacyCC } from '../global-exports';
 import { RenderWindow } from './render-window';
+import { PipelineGlobal } from './global';
 
 /**
  * @en The predefined priority of render view
@@ -119,10 +120,9 @@ export class RenderView {
      * Internal usage
      */
     public static registerCreateFunc (root: Root) {
-        root._createViewFun = (_root: Root, _camera: Camera): RenderView => new RenderView(_root, _camera);
+        root._createViewFun = (_root: Root, _camera: Camera): RenderView => new RenderView(_camera);
     }
 
-    private _root: Root;
     private _name: string = '';
     private _window: RenderWindow | null = null;
     private _priority: number = 0;
@@ -137,8 +137,7 @@ export class RenderView {
      * @param root
      * @param camera
      */
-    private constructor (root: Root, camera: Camera) {
-        this._root = root;
+    private constructor (camera: Camera) {
         this._camera = camera;
     }
 
@@ -182,10 +181,13 @@ export class RenderView {
     public setExecuteFlows (flows: string[] | undefined) {
         this.flows.length = 0;
         if (flows && flows.length === 1 && flows[0] === 'UIFlow') {
-            this._flows.push(legacyCC.director.root.pipeline.getFlow('UIFlow'));
+            const flow = PipelineGlobal.root.pipeline.getFlow('UIFlow');
+            if (flow) {
+                this._flows.push(flow);
+            }
             return;
         }
-        const pipelineFlows = legacyCC.director.root.pipeline.activeFlows;
+        const pipelineFlows = PipelineGlobal.root.pipeline.activeFlows;
         for (let i = 0; i < pipelineFlows.length; ++i) {
             let f = pipelineFlows[i];
             if (f.type === RenderFlowType.SCENE || (flows && flows.indexOf(f.name) !== -1)) {

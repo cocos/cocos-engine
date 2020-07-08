@@ -6,6 +6,7 @@ import {
 } from '../gfx/define';
 import { GFXRenderPass, GFXTexture, GFXFramebuffer, IGFXRenderPassInfo } from '../gfx';
 import { Root } from '../root';
+import { PipelineGlobal } from './global';
 
 export interface IRenderWindowInfo {
     title?: string;
@@ -80,7 +81,6 @@ export class RenderWindow {
         root._createWindowFun = (_root: Root): RenderWindow => new RenderWindow(_root);
     }
 
-    protected _root: Root;
     protected _title: string = '';
     protected _left: number = 0;
     protected _top: number = 0;
@@ -95,7 +95,6 @@ export class RenderWindow {
     protected _framebuffer: GFXFramebuffer | null = null;
 
     private constructor (root: Root) {
-        this._root = root;
     }
 
     public initialize (info: IRenderWindowInfo): boolean {
@@ -132,23 +131,23 @@ export class RenderWindow {
             for (let i = 0; i < colorAttachments.length; i++) {
                 const attachment = colorAttachments[i];
                 if (attachment.format === GFXFormat.UNKNOWN) {
-                    attachment.format = this._root.device.colorFormat;
+                    attachment.format = PipelineGlobal.device.colorFormat;
                 }
             }
             if (depthStencilAttachment) {
                 const attachment = depthStencilAttachment;
                 if (attachment.format === GFXFormat.UNKNOWN) {
-                    attachment.format = this._root.device.depthStencilFormat;
+                    attachment.format = PipelineGlobal.device.depthStencilFormat;
                 }
             }
-            this._renderPass = this._root.device.createRenderPass(info.renderPassInfo);
+            this._renderPass = PipelineGlobal.device.createRenderPass(info.renderPassInfo);
         }
 
         let colorTexturesToCreate = colorAttachments.length;
         if (!this._isOffscreen) { colorTexturesToCreate--; } // -1 for swapchain image
         for (let i = 0; i < colorTexturesToCreate; i++) {
             const format = colorAttachments[i].format;
-            const colorTex = this._root.device.createTexture({
+            const colorTex = PipelineGlobal.device.createTexture({
                 type: GFXTextureType.TEX2D,
                 usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
                 format,
@@ -163,7 +162,7 @@ export class RenderWindow {
         }
         if (this._isOffscreen && depthStencilAttachment) {
             const format = depthStencilAttachment.format;
-            this._depthStencilTex = this._root.device.createTexture({
+            this._depthStencilTex = PipelineGlobal.device.createTexture({
                 type: GFXTextureType.TEX2D,
                 usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
                 format,
@@ -176,7 +175,7 @@ export class RenderWindow {
             });
         }
 
-        this._framebuffer = this._root.device.createFramebuffer({
+        this._framebuffer = PipelineGlobal.device.createFramebuffer({
             renderPass: this._renderPass,
             colorTextures: this._colorTexs,
             depthStencilTexture: this._depthStencilTex,

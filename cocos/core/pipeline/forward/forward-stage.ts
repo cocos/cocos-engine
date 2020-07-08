@@ -13,6 +13,7 @@ import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-st
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
+import { PipelineGlobal } from '../global';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -157,7 +158,7 @@ export class ForwardStage extends RenderStage {
             this._framebuffer = view.window!.framebuffer;
         }
 
-        const device = this._device!;
+        const device = PipelineGlobal.device;
         const renderPass = this._framebuffer.renderPass!;
 
         cmdBuff.begin();
@@ -175,10 +176,10 @@ export class ForwardStage extends RenderStage {
         cmdBuff.end();
 
         bufs[0] = cmdBuff;
-        this._device!.queue.submit(bufs);
+        device.queue.submit(bufs);
 
         if (this._pipeline.useMSAA) {
-            this._device!.blitFramebuffer(
+            device.blitFramebuffer(
                 this._framebuffer!,
                 this._pipeline.getFrameBuffer(this._pipeline.currShading)!,
                 this._renderArea!,

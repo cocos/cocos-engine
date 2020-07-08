@@ -6,7 +6,6 @@ import { CCString } from '../data';
 import { ccclass, property } from '../data/class-decorator';
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { GFXClearFlag, GFXCommandBufferType, IGFXColor, IGFXRect } from '../gfx/define';
-import { GFXDevice } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { Pass } from '../renderer/core/pass';
 import { ccenum } from '../value-types/enum';
@@ -18,7 +17,7 @@ import { opaqueCompareFn, RenderQueue, transparentCompareFn } from './render-que
 import { RenderView } from './render-view';
 import { IPSOCreateInfo } from '../renderer';
 import { legacyCC } from '../global-exports';
-import { Global } from './global';
+import { PipelineGlobal } from './global';
 
 const _colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -147,12 +146,6 @@ export abstract class RenderStage {
 
     protected _pipeline: RenderPipeline = null!;
 
-    /**
-     * @en Rendering backend level GFX device object.
-     * @zh 渲染后端层 GFX 设备对象。
-     */
-    protected _device: GFXDevice | null = null;
-
     protected _framebuffer: GFXFramebuffer | null = null;
 
     /**
@@ -228,9 +221,8 @@ export abstract class RenderStage {
     public activate (flow: RenderFlow) {
         this._flow = flow;
         this._pipeline = flow.pipeline;
-        this._device = flow.device;
 
-        if (!Global.device) {
+        if (!PipelineGlobal.device) {
             throw new Error('');
         }
 
@@ -259,7 +251,7 @@ export abstract class RenderStage {
         }
 
         if (this.frameBuffer === 'window') {
-            this._framebuffer = Global.root!.mainWindow!.framebuffer!;
+            this._framebuffer = PipelineGlobal.root.mainWindow!.framebuffer!;
         } else {
             this._framebuffer = this._flow.pipeline.getFrameBuffer(this.frameBuffer)!;
         }
@@ -394,13 +386,13 @@ export abstract class RenderStage {
             camera.clearFlag, _colors, camera.clearDepth, camera.clearStencil);
 
         for (let i = 0; i < this._renderQueues.length; i++) {
-            this._renderQueues[i].recordCommandBuffer(this._device!, this._framebuffer.renderPass!, cmdBuff);
+            this._renderQueues[i].recordCommandBuffer(PipelineGlobal.device, this._framebuffer.renderPass!, cmdBuff);
         }
 
         cmdBuff.endRenderPass();
         cmdBuff.end();
         bufs[0] = cmdBuff;
-        this._device!.queue.submit(bufs);
+        PipelineGlobal.device.queue.submit(bufs);
     }
 
     /**
@@ -408,8 +400,8 @@ export abstract class RenderStage {
      * @zh 创建该阶段的主命令缓冲
      */
     public createCmdBuffer () {
-        this._cmdBuff = this._device!.createCommandBuffer({
-            queue: this._device!.queue,
+        this._cmdBuff = PipelineGlobal.device.createCommandBuffer({
+            queue: PipelineGlobal.device.queue,
             type: GFXCommandBufferType.PRIMARY,
         });
     }
