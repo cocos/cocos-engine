@@ -848,19 +848,10 @@ export abstract class RenderPipeline {
         this.addRenderPass(RenderPassStage.DEFAULT, windowPass);
 
         // update global defines when all states initialized.
-        this.updateMacros();
-
-        return true;
-    }
-
-    /**
-     * @en Update the macros
-     * @zh 更新宏定义。
-     */
-    protected updateMacros () {
-        programLib.destroyShaderByDefines(this._macros);
         this._macros.CC_USE_HDR = (this._isHDR);
         this._macros.CC_SUPPORT_FLOAT_TEXTURE = this.device.hasFeature(GFXFeature.TEXTURE_FLOAT);
+
+        return true;
     }
 
     /**
