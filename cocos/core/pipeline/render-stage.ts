@@ -18,6 +18,7 @@ import { opaqueCompareFn, RenderQueue, transparentCompareFn } from './render-que
 import { RenderView } from './render-view';
 import { IPSOCreateInfo } from '../renderer';
 import { legacyCC } from '../global-exports';
+import { Global } from './global';
 
 const _colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -229,7 +230,7 @@ export abstract class RenderStage {
         this._pipeline = flow.pipeline;
         this._device = flow.device;
 
-        if (!this._flow.pipeline.root.device) {
+        if (!Global.device) {
             throw new Error('');
         }
 
@@ -258,7 +259,7 @@ export abstract class RenderStage {
         }
 
         if (this.frameBuffer === 'window') {
-            this._framebuffer = this._flow.pipeline.root.mainWindow!.framebuffer!;
+            this._framebuffer = Global.root!.mainWindow!.framebuffer!;
         } else {
             this._framebuffer = this._flow.pipeline.getFrameBuffer(this.frameBuffer)!;
         }

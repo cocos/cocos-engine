@@ -17,10 +17,9 @@ import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
-import { Mat4, Vec3, Vec4, color } from '../math';
+import { Mat4, Vec3, Vec4 } from '../math';
 import { Camera, Model, Light } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass-utils';
-import { programLib } from '../renderer/core/program-lib';
 import { SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Root } from '../root';
 import { Layers } from '../scene-graph';
@@ -31,6 +30,7 @@ import { FrameBufferDesc, RenderFlowType, RenderPassDesc, RenderTextureDesc } fr
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
+import { Global } from './global';
 
 const v3_1 = new Vec3();
 
@@ -63,15 +63,6 @@ export interface IRenderPipelineDesc {
  */
 @ccclass('RenderPipeline')
 export abstract class RenderPipeline {
-
-    /**
-     * @en Rendering backend level GFX device object.
-     * @zh 渲染后端层 GFX 设备对象。
-     * @readonly
-     */
-    public get device (): GFXDevice {
-        return this._device;
-    }
 
     /**
      * @en Name of the render pipeline.
@@ -403,6 +394,8 @@ export abstract class RenderPipeline {
     public activate (root: Root): boolean {
         this._root = root;
         this._device = root.device;
+        Global.root = root;
+        Global.device = root.device;
 
         if (!this._initRenderResource()) {
             console.error('RenderPipeline:' + this.name + ' startup failed!');
@@ -707,7 +700,7 @@ export abstract class RenderPipeline {
             this._fboCount = 1;
 
             if (this._useMSAA) {
-                this._useMSAA = this.device.hasFeature(GFXFeature.MSAA);
+                this._useMSAA = this._device.hasFeature(GFXFeature.MSAA);
             }
         }
 
@@ -839,7 +832,7 @@ export abstract class RenderPipeline {
 
         // update global defines when all states initialized.
         this._macros.CC_USE_HDR = (this._isHDR);
-        this._macros.CC_SUPPORT_FLOAT_TEXTURE = this.device.hasFeature(GFXFeature.TEXTURE_FLOAT);
+        this._macros.CC_SUPPORT_FLOAT_TEXTURE = this._device.hasFeature(GFXFeature.TEXTURE_FLOAT);
 
         return true;
     }

@@ -10,6 +10,7 @@ import { RenderPipeline } from './render-pipeline';
 import { RenderStage } from './render-stage';
 import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
+import { Global } from './global';
 
 /**
  * @en Render flow information descriptor
@@ -158,7 +159,7 @@ export abstract class RenderFlow {
      * @param pipeline The render pipeline to activate this render flow
      */
     public activate (pipeline: RenderPipeline) {
-        this._device = pipeline.device;
+        this._device = Global.device;
         this._pipeline = pipeline;
         this._activateStages();
     }
