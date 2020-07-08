@@ -5,13 +5,13 @@
 import { Vec3, IVec3Like } from '../../core/math';
 import { IRigidBody } from '../spec/i-rigid-body';
 import { BoxShape, PhysicsWorld, RigidBody, SphereShape, CapsuleShape, TrimeshShape, CylinderShape, ConeShape, TerrainShape, SimpleShape, PlaneShape } from './physics-selector';
-import { IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape, IConeShape, ITerrainShape, ISimpleShape, IPlaneShape, IBaseShape } from '../spec/i-physics-shape';
+import { IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape, IConeShape, ITerrainShape, ISimplexShape, IPlaneShape, IBaseShape } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { errorID, warnID, warn } from '../../core';
 import { EDITOR, DEBUG, PHYSICS_BUILTIN, PHYSICS_AMMO, TEST, PHYSICS_CANNON } from 'internal:constants';
 import { EColliderType } from './physics-enum';
 
-interface IEntireShape extends IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape, IConeShape, ITerrainShape, ISimpleShape, IPlaneShape { }
+interface IEntireShape extends IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape, IConeShape, ITerrainShape, ISimplexShape, IPlaneShape { }
 const FUNC = (...v: any) => { return 0 as any; };
 const ENTIRE_SHAPE: IEntireShape = {
     impl: null,
@@ -131,10 +131,10 @@ CREATE_COLLIDER_PROXY[EColliderType.TERRAIN] = function createTerrainShape (): I
     }
 }
 
-CREATE_COLLIDER_PROXY[EColliderType.SIMPLE] = function createSimpleShape (): ISimpleShape {
+CREATE_COLLIDER_PROXY[EColliderType.SIMPLE] = function createSimpleShape (): ISimplexShape {
     if (PHYSICS_CANNON || PHYSICS_AMMO) {
         if (DEBUG && checkPhysicsModule(SimpleShape)) { return null as any; }
-        return new SimpleShape() as ISimpleShape;
+        return new SimpleShape() as ISimplexShape;
     } else {
         warn("[Physics]: builtin physics system doesn't support simple collider");
         return ENTIRE_SHAPE;

@@ -15,7 +15,7 @@ import { MeshColliderComponent } from './components/collider/mesh-collider-compo
 import { RigidBodyComponent } from './components/rigid-body-component';
 import { ConstantForce } from './components/constant-force';
 import { TerrainColliderComponent } from './components/collider/terrain-collider-component';
-import { SimpleColliderComponent } from './components/collider/simple-collider-component';
+import { SimplexColliderComponent } from './components/collider/simplex-collider-component';
 import { PlaneColliderComponent } from './components/collider/plane-collider-component';
 
 export {
@@ -30,7 +30,7 @@ export {
     CylinderColliderComponent,
     ConeColliderComponent,
     TerrainColliderComponent,
-    SimpleColliderComponent,
+    SimplexColliderComponent,
     PlaneColliderComponent,
 
     RigidBodyComponent,

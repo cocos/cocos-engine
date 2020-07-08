@@ -2,15 +2,13 @@ import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../../core/math';
 import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
-import { ISimpleShape } from '../../spec/i-physics-shape';
+import { ISimplexShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
-import { SimpleColliderComponent } from '../../../../exports/physics-framework';
-declare type ESimpleShapeType = SimpleColliderComponent.ESimpleShapeType;
-const ESimpleShapeType = SimpleColliderComponent.ESimpleShapeType;
+import { SimplexColliderComponent } from '../../../../exports/physics-framework';
 
-export class CannonSimpleShape extends CannonShape implements ISimpleShape {
+export class CannonSimplexShape extends CannonShape implements ISimplexShape {
 
-    setShapeType (v: ESimpleShapeType) {
+    setShapeType (v: SimplexColliderComponent.ESimplexType) {
         if (this._isBinding) {
             //TODO: change the type after init
         }
@@ -37,7 +35,7 @@ export class CannonSimpleShape extends CannonShape implements ISimpleShape {
     }
 
     get collider () {
-        return this._collider as SimpleColliderComponent;
+        return this._collider as SimplexColliderComponent;
     }
 
     get impl () {
@@ -48,13 +46,13 @@ export class CannonSimpleShape extends CannonShape implements ISimpleShape {
 
     protected onComponentSet () {
         const type = this.collider.shapeType;
-        if (type == ESimpleShapeType.TETRAHEDRON) {
+        if (type == SimplexColliderComponent.ESimplexType.TETRAHEDRON) {
             for (let i = 0; i < 4; i++) {
                 this.VERTICES[i] = new CANNON.Vec3(0, 0, 0);
             }
             this._shape = createTetra(this.VERTICES);
         } else {
-            if (type != ESimpleShapeType.VERTEX) {
+            if (type != SimplexColliderComponent.ESimplexType.VERTEX) {
                 // WARN
             }
             this._shape = new CANNON.Particle();

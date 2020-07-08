@@ -11,29 +11,29 @@ import {
 } from '../../../../core/data/class-decorator';
 import { Vec3 } from '../../../../core/math';
 import { ColliderComponent } from './collider-component';
-import { ISimpleShape } from '../../../spec/i-physics-shape';
+import { ISimplexShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
-import { ESimpleShapeType, EColliderType } from '../../physics-enum';
+import { ESimplexType, EColliderType } from '../../physics-enum';
 import { IVec3Like } from '../../../../core/math/type-define';
 
 /**
  * @en
- * Simple collider component, such as vertex, line, triangle, tetrahedron.
+ * Simplex collider, support point, line, triangle, tetrahedron.
  * @zh
- * 简单形状碰撞器，点、线、三角形、四面体。
+ * 单纯形碰撞器，支持点、线、三角形、四面体。
  */
-@ccclass('cc.SimpleColliderComponent')
-@help('i18n:cc.SimpleColliderComponent')
-@menu('Physics/SimpleCollider(beta)')
+@ccclass('cc.SimplexColliderComponent')
+@help('i18n:cc.SimplexColliderComponent')
+@menu('Physics/SimplexCollider')
 @executeInEditMode
-export class SimpleColliderComponent extends ColliderComponent {
+export class SimplexColliderComponent extends ColliderComponent {
 
-    static readonly ESimpleShapeType = ESimpleShapeType;
+    static readonly ESimplexType = ESimplexType;
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
     @property({
-        type: ESimpleShapeType
+        type: ESimplexType
     })
     get shapeType () {
         return this._shapeType;
@@ -57,7 +57,7 @@ export class SimpleColliderComponent extends ColliderComponent {
     }
 
     @property({
-        visible: function (this: SimpleColliderComponent) {
+        visible: function (this: SimplexColliderComponent) {
             return this._shapeType > 1;
         }
     })
@@ -71,7 +71,7 @@ export class SimpleColliderComponent extends ColliderComponent {
     }
 
     @property({
-        visible: function (this: SimpleColliderComponent) {
+        visible: function (this: SimplexColliderComponent) {
             return this._shapeType > 2;
         }
     })
@@ -85,7 +85,7 @@ export class SimpleColliderComponent extends ColliderComponent {
     }
 
     @property({
-        visible: function (this: SimpleColliderComponent) {
+        visible: function (this: SimplexColliderComponent) {
             return this._shapeType > 3;
         }
     })
@@ -105,7 +105,7 @@ export class SimpleColliderComponent extends ColliderComponent {
      * 获取封装对象，通过此对象可以访问到底层实例。
      */
     public get shape () {
-        return this._shape as ISimpleShape;
+        return this._shape as ISimplexShape;
     }
 
     get vertices () {
@@ -115,7 +115,7 @@ export class SimpleColliderComponent extends ColliderComponent {
     /// PRIVATE PROPERTY ///
 
     @property
-    private _shapeType: ESimpleShapeType = ESimpleShapeType.TETRAHEDRON;
+    private _shapeType: ESimplexType = ESimplexType.TETRAHEDRON;
 
     @property
     private _vertices: IVec3Like[] = [
@@ -137,6 +137,6 @@ export class SimpleColliderComponent extends ColliderComponent {
 
 }
 
-export namespace SimpleColliderComponent {
-    export type ESimpleShapeType = EnumAlias<typeof ESimpleShapeType>;
+export namespace SimplexColliderComponent {
+    export type ESimplexType = EnumAlias<typeof ESimplexType>;
 }

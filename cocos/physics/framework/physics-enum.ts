@@ -17,13 +17,13 @@ export enum EAxisDirection {
 }
 Enum(EAxisDirection);
 
-export enum ESimpleShapeType {
+export enum ESimplexType {
     VERTEX = 1,
     LINE = 2,
     TRIANGLE = 3,
     TETRAHEDRON = 4,
 }
-Enum(ESimpleShapeType);
+Enum(ESimplexType);
 
 export enum EColliderType {
     BOX,
