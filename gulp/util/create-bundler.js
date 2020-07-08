@@ -89,7 +89,24 @@ module.exports = function createBundler(entryFiles, options) {
                 // "bugfixes": true, since babel 7.9
             }
         ],
-        require('@babel/preset-typescript'),
+        {
+            plugins: [
+                [
+                    require('@babel/plugin-proposal-decorators'),
+                    { legacy: true },
+                ],
+                [
+                    require('@babel/plugin-proposal-class-properties'),
+                    { loose: true },
+                ],
+            ]
+        },
+        [
+            require('@babel/preset-typescript'),
+            {
+                allowDeclareFields: true,
+            }
+        ],
     ];
 
     var plugins = [
@@ -98,14 +115,6 @@ module.exports = function createBundler(entryFiles, options) {
         [
             require('babel-plugin-const-enum'),
             { transform: "constObject" },
-        ],
-        [
-            require('@babel/plugin-proposal-decorators'),
-            { legacy: true },
-        ],
-        [
-            require('@babel/plugin-proposal-class-properties'),
-            { loose: true },
         ],
         [
             require('babel-plugin-add-module-exports'),

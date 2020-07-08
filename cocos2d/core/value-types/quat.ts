@@ -396,6 +396,7 @@ export default class Quat extends ValueType {
     /**
      * !#zh 四元数球面插值
      * !#en Spherical quaternion interpolation
+     * @method slerp
      * @typescript
      * slerp<Out extends IQuatLike, QuatLike_1 extends IQuatLike, QuatLike_2 extends IQuatLike>(out: Out, a: QuatLike_1, b: QuatLike_2, t: number): Out
      * @static
