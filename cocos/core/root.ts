@@ -297,6 +297,10 @@ export class Root {
         if (!this._pipeline.activate(this)) {
             return false;
         }
+        for (let i = 0; i < this.scenes.length; i++) {
+            this.scenes[i].onGlobalPipelineStateChanged();
+        }
+
         this._ui = new UI(this);
         if (!this._ui.initialize()) {
             this.destroy();
