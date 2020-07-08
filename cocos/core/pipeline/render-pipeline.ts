@@ -65,15 +65,6 @@ export interface IRenderPipelineDesc {
 export abstract class RenderPipeline {
 
     /**
-     * @en Render scene's root object.
-     * @zh 渲染场景的根对象。
-     * @readonly
-     */
-    public get root (): Root {
-        return this._root;
-    }
-
-    /**
      * @en Rendering backend level GFX device object.
      * @zh 渲染后端层 GFX 设备对象。
      * @readonly
