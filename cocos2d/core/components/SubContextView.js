@@ -91,7 +91,7 @@ let SubContextView = cc.Class({
             this._updateInterval = 1000 / this._fps;
             this._context = __globalAdapter.getOpenDataContext();
             this.reset();
-
+            let sharedCanvas = this._context.canvas;
             this._tex.setPremultiplyAlpha(true);
             this._tex.initWithElement(sharedCanvas);
 
