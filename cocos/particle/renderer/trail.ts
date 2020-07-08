@@ -352,11 +352,14 @@ export default class TrailModule {
         this._particleSystem = ps;
         this.minParticleDistance = this._minParticleDistance;
         let burstCount = 0;
-        for (const b of this._particleSystem.bursts) {
-            burstCount += b.getMaxCount(this._particleSystem);
+        const psTime = ps.startLifetime.getMax();
+        const psRate = ps.rateOverTime.getMax();
+        const duration = ps.duration;
+        for (const b of ps.bursts) {
+            burstCount += b.getMaxCount(ps) * Math.ceil(psTime / duration);
         }
-        this._trailNum = Math.ceil(this._particleSystem.startLifetime.getMax() * this.lifeTime.getMax() * 60 * (this._particleSystem.rateOverTime.getMax() * this._particleSystem.duration + burstCount));
-        this._trailSegments = new Pool(() => new TrailSegment(10), Math.ceil(this._particleSystem.rateOverTime.getMax() * this._particleSystem.duration));
+        this._trailNum = Math.ceil(psTime * this.lifeTime.getMax() * 60 * (psRate * duration + burstCount));
+        this._trailSegments = new Pool(() => new TrailSegment(10), Math.ceil(psRate * duration));
         if (this._enable) {
             this.enable = this._enable;
             this._updateMaterial();
