@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -26,7 +26,7 @@
 const Component = require('./CCComponent');
 
 /**
- * !#en SubContextView is a view component which controls open data context viewport in minigame platform.<br/>
+ * !#en SwanSubContextView is a view component which controls open data context viewport in WeChat game platform.<br/>
  * The component's node size decide the viewport of the sub context content in main context, 
  * the entire sub context texture will be scaled to the node's bounding box area.<br/>
  * This component provides multiple important features:<br/>
@@ -36,7 +36,8 @@ const Component = require('./CCComponent');
  * 4. User touch input is transformed to the correct viewport.<br/>
  * 5. Texture update is handled by this component. User don't need to worry.<br/>
  * One important thing to be noted, whenever the node's bounding box change, 
- * !#zh SubContextView 可以用来控制小游戏平台开放数据域在主域中的视窗的位置。<br/>
+ * you need to manually reset the viewport of sub context using updateSubContextViewport.
+ * !#zh SwanSubContextView 可以用来控制百度小游戏平台开放数据域在主域中的视窗的位置。<br/>
  * 这个组件的节点尺寸决定了开放数据域内容在主域中的尺寸，整个开放数据域会被缩放到节点的包围盒范围内。<br/>
  * 在这个组件的控制下，用户可以更自由得控制开放数据域：<br/>
  * 1. 子域中可以使用独立的设计分辨率和适配模式<br/>
@@ -44,21 +45,21 @@ const Component = require('./CCComponent');
  * 3. 子域的分辨率也可以被放大，以便获得更清晰的显示效果<br/>
  * 4. 用户输入坐标会被自动转换到正确的子域视窗中<br/>
  * 5. 子域内容贴图的更新由组件负责，用户不需要处理<br/>
- * @class SubContextView
+ * 唯一需要注意的是，当子域节点的包围盒发生改变时，开发者需要使用 `updateSubContextViewport` 来手动更新子域视窗。
+ * @class SwanSubContextView
  * @extends Component
  */
-let SubContextView = cc.Class({
-    name: 'cc.SubContextView',
+
+let SwanSubContextView = cc.Class({
+    name: 'cc.SwanSubContextView',
     extends: Component,
 
     editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.others/SubContextView',
-        help: 'i18n:COMPONENT.help_url.subcontext_view',
+        menu: 'i18n:MAIN_MENU.component.others/SwanSubContextView',
+        help: 'i18n:COMPONENT.help_url.swan_subcontext_view'
     },
 
     properties: {
-        _firstlyEnabled: true,
-        
         _fps: 60,
 
         fps: {
@@ -73,7 +74,7 @@ let SubContextView = cc.Class({
                 this._updateInterval = 1 / value;
                 this._updateSubContextFrameRate();
             },
-            tooltip: CC_DEV && 'i18n:COMPONENT.subcontext_view.fps'
+            tooltip: CC_DEV && 'i18n:COMPONENT.swan_subcontext_view.fps'
         }
     },
 
@@ -87,11 +88,14 @@ let SubContextView = cc.Class({
 
     onLoad () {
         // Setup subcontext canvas size
-        if (window.__globalAdapter && __globalAdapter.getOpenDataContext) {
+        if (swan.getOpenDataContext) {
             this._updateInterval = 1000 / this._fps;
-            this._context = __globalAdapter.getOpenDataContext();
-            this.reset();
-
+            this._context = swan.getOpenDataContext();
+            let sharedCanvas = this._context.canvas;
+            if (sharedCanvas) {
+                sharedCanvas.width = this.node.width;
+                sharedCanvas.height = this.node.height;
+            }
             this._tex.setPremultiplyAlpha(true);
             this._tex.initWithElement(sharedCanvas);
 
@@ -107,33 +111,8 @@ let SubContextView = cc.Class({
         }
     },
 
-    /**
-     * !#en Reset open data context size and viewport
-     * !#zh 重置开放数据域的尺寸和视窗
-     * @method reset
-     */
-    reset () {
-        if (this._context) {
-            this.updateSubContextViewport();
-            let sharedCanvas = this._context.canvas;
-            if (sharedCanvas) {
-                sharedCanvas.width = this.node.width;
-                sharedCanvas.height = this.node.height;
-            }
-        }
-    },
-
     onEnable () {
-        if (this._firstlyEnabled && this._context) {
-            this._context.postMessage({
-                fromEngine: true,
-                event: 'boot',
-            });
-            this._firstlyEnabled = false;
-        }
-        else {
-            this._runSubContextMainLoop();
-        }
+        this._runSubContextMainLoop();
         this._registerNodeEvent();
         this._updateSubContextFrameRate();
         this.updateSubContextViewport();
@@ -151,7 +130,7 @@ let SubContextView = cc.Class({
                 fromEngine: true,
                 event: 'step',
             });
-            this._updateSubContextTexture();
+            this._updateSubContextTexture();             
             return;
         }
         let now = performance.now();
@@ -234,22 +213,4 @@ let SubContextView = cc.Class({
     },
 });
 
-cc.SubContextView = module.exports = SubContextView;
-
-/**
- * !#en WXSubContextView is deprecated since v2.4.1, please use SubContextView instead.
- * !#zh 自 v2.4.1 起，WXSubContextView 已经废弃，请使用 SubContextView
- * @class WXSubContextView
- * @extends Component
- * @deprecated since v2.4.1
- */
-cc.WXSubContextView = SubContextView;
-
-/**
- * !#en SwanSubContextView is deprecated since v2.4.1, please use SubContextView instead.
- * !#zh 自 v2.4.1 起，SwanSubContextView 已经废弃，请使用 SubContextView
- * @class SwanSubContextView
- * @extends Component
- * @deprecated since v2.4.1
- */
-cc.SwanSubContextView = SubContextView;
+cc.SwanSubContextView = module.exports = SwanSubContextView;
