@@ -446,14 +446,6 @@ export abstract class RenderPipeline {
     }
 
     /**
-     * @en Rebuild the render pipeline.
-     * @zh 重新构建管线函数。
-     */
-    public rebuild () {
-        this.updateMacros();
-    }
-
-    /**
      * @en Reset the size of the render target
      * @zh 重置渲染目标的尺寸。
      * @param width The screen width
