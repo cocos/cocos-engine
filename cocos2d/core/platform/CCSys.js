@@ -850,7 +850,7 @@ function initSys () {
 
         /**
          * Indicate the running browser type
-         * @property {String} browserType
+         * @property {String | null} browserType
          */
         sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
         /* Determine the browser type */
@@ -881,7 +881,7 @@ function initSys () {
 
         /**
          * Indicate the running browser version
-         * @property {String} browserVersion
+         * @property {String | null} browserVersion
          */
         sys.browserVersion = "";
         /* Determine the browser version number */
