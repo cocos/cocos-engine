@@ -29,21 +29,13 @@ require('./CCComponentEventHandler');
 require('./missing-script');
 
 // In case subContextView modules are excluded
-let WXSubContextView = require('./WXSubContextView');
-let SwanSubContextView = require('./SwanSubContextView');
-
-if (!WXSubContextView) {
-    WXSubContextView = cc.Class({
-        name: 'cc.WXSubContextView',
+let SubContextView = require('./SubContextView');
+if (!SubContextView) {
+    SubContextView = cc.Class({
+        name: 'cc.SubContextView',
         extends: cc.Component,
     });
-}
-
-if (!SwanSubContextView) {
-    SwanSubContextView = cc.Class({
-        name: 'cc.SwanSubContextView',
-        extends: cc.Component,
-    });
+    cc.SubContextView = cc.WXSubContextView = cc.SwanSubContextView = SubContextView;
 }
 
 var components = [
@@ -72,8 +64,7 @@ var components = [
     require('./CCBlockInputEvents'),
     require('./CCMotionStreak'),
     require('./CCSafeArea'),
-    WXSubContextView,
-    SwanSubContextView,
+    SubContextView,
 ];
 
 module.exports = components;
