@@ -119,6 +119,9 @@ export class Model {
 
     private _instMatWorldIdx = -1;
 
+    private _lightmap: Texture2D | null = null;
+    private _lightmapUVParam: Vec4 = new Vec4();
+
     /**
      * Setup a default empty model
      */
@@ -180,6 +183,9 @@ export class Model {
 
     public updateLightingmap (tex: Texture2D|null, uvParam: Vec4) {
         Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
+
+        this._lightmap = tex;
+        this._lightmapUVParam = uvParam;
 
         if (tex === null) {
             tex = builtinResMgr.get<Texture2D>('empty-texture');
@@ -321,6 +327,8 @@ export class Model {
         for (let i = 0; i < subModels.length; i++) {
             subModels[i].updateCommandBuffer();
         }
+
+        this.updateLightingmap(this._lightmap, this._lightmapUVParam);
     }
 
     public insertImplantPSO (pso: GFXPipelineState) {
