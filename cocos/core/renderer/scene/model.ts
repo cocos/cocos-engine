@@ -129,6 +129,9 @@ export class Model {
 
     private _instMatWorldIdx = -1;
 
+    private _lightmap: Texture2D | null = null;
+    private _lightmapUVParam: Vec4 = new Vec4();
+
     /**
      * Setup a default empty model
      */
@@ -184,6 +187,9 @@ export class Model {
 
     public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
         Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
+
+        this._lightmap = texture;
+        this._lightmapUVParam = uvParam;
 
         if (texture === null) {
             texture = builtinResMgr.get<Texture2D>('empty-texture');
@@ -268,6 +274,8 @@ export class Model {
             subModels[i].onPipelineStateChanged();
             this.updateAttributesAndBinding(i);
         }
+
+        this.updateLightingmap(this._lightmap, this._lightmapUVParam);
     }
 
     public insertImplantPSOCI (psoci: IPSOCreateInfo, submodelIdx: number) {
