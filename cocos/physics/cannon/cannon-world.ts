@@ -1,7 +1,7 @@
 import CANNON from '@cocos/cannon';
 import { Vec3, Quat } from '../../core/math';
 import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
-import { CannonConstraint } from './constraint/cannon-constraint';
+import { CannonConstraint } from './constraints/cannon-constraint';
 import { CannonShape } from './shapes/cannon-shape';
 import { ray } from '../../core/geometry';
 import { RecyclePool, Node } from '../../core';
@@ -36,6 +36,7 @@ export class CannonWorld implements IPhysicsWorld {
     // }
 
     readonly bodies: CannonSharedBody[] = [];
+    readonly constraints: CannonConstraint[] = [];
 
     private _world: CANNON.World;
     private _raycastResult = new CANNON.RaycastResult();
@@ -119,11 +120,19 @@ export class CannonWorld implements IPhysicsWorld {
     // }
 
     addConstraint (constraint: CannonConstraint) {
-        this._world.addConstraint(constraint.impl);
+        const i = this.constraints.indexOf(constraint);
+        if (i < 0) {
+            this.constraints.push(constraint);
+            this._world.addConstraint(constraint.impl);
+        }
     }
 
     removeConstraint (constraint: CannonConstraint) {
-        this._world.removeConstraint(constraint.impl);
+        const i = this.constraints.indexOf(constraint);
+        if (i >= 0) {
+            this.constraints.splice(i, 1);
+            this._world.removeConstraint(constraint.impl);
+        }
     }
 
     updateCollisionMatrix (group: number, mask: number) {

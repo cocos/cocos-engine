@@ -13,11 +13,11 @@ import { PHYSICS_BUILTIN } from 'internal:constants';
 if (PHYSICS_BUILTIN) {
     instantiate(
         {
-            body: BuiltinRigidBody,
-            box: BuiltinBoxShape,
-            sphere: BuiltinSphereShape,
-            world: BuiltInWorld,
-            capsule: BuiltinCapsuleShape
+            RigidBody: BuiltinRigidBody,
+            BoxShape: BuiltinBoxShape,
+            SphereShape: BuiltinSphereShape,
+            PhysicsWorld: BuiltInWorld,
+            CapsuleShape: BuiltinCapsuleShape
         }
     );
 }

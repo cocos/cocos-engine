@@ -10,6 +10,7 @@ import {
     executeInEditMode,
     menu,
     property,
+    executionOrder,
 } from '../../../core/data/class-decorator';
 import { Vec3 } from '../../../core/math';
 import { Component, error, Layers } from '../../../core';
@@ -30,6 +31,7 @@ import { PhysicsSystem } from '../physics-system';
 @menu('Physics/RigidBody')
 @executeInEditMode
 @disallowMultiple
+@executionOrder(-1)
 export class RigidBodyComponent extends Component {
 
     static readonly ERigidBodyType = ERigidBodyType;

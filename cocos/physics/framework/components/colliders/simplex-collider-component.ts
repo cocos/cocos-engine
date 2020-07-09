@@ -126,7 +126,7 @@ export class SimplexColliderComponent extends ColliderComponent {
     ];
 
     constructor () {
-        super(EColliderType.SIMPLE);
+        super(EColliderType.SIMPLEX);
     }
 
     updateVertices () {

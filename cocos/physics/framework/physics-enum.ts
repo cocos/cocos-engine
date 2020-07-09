@@ -33,7 +33,14 @@ export enum EColliderType {
     CONE,
     MESH,
     PLANE,
-    SIMPLE,
+    SIMPLEX,
     TERRAIN,
 }
 Enum(EColliderType);
+
+export enum EConstraintType {
+    POINT_TO_POINT,
+    HINGE,
+    CONE_TWIST
+}
+Enum(EConstraintType);

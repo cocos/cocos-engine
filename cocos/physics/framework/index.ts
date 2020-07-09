@@ -18,6 +18,11 @@ import { TerrainColliderComponent } from './components/colliders/terrain-collide
 import { SimplexColliderComponent } from './components/colliders/simplex-collider-component';
 import { PlaneColliderComponent } from './components/colliders/plane-collider-component';
 
+// constraints
+import { ConstraintComponent } from './components/constraints/constraint-component';
+import { HingeConstraintComponent } from './components/constraints/hinge-constraint-component';
+import { PointToPointConstraintComponent } from './components/constraints/point-to-point-constraint-component';
+
 export {
     PhysicsSystem,
     PhysicsRayResult,
@@ -32,6 +37,10 @@ export {
     TerrainColliderComponent,
     SimplexColliderComponent,
     PlaneColliderComponent,
+
+    ConstraintComponent,
+    HingeConstraintComponent,
+    PointToPointConstraintComponent,
 
     RigidBodyComponent,
 

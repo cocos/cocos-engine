@@ -14,17 +14,17 @@ import { AmmoPlaneShape } from "../ammo/shapes/ammo-plane-shape";
 
 if (PHYSICS_AMMO) {
     instantiate({
-        box: AmmoBoxShape,
-        sphere: AmmoSphereShape,
-        body: AmmoRigidBody,
-        world: AmmoWorld,
-        capsule: AmmoCapsuleShape,
-        trimesh: AmmoBvhTriangleMeshShape,
-        cylinder: AmmoCylinderShape,
-        cone: AmmoConeShape,
-        terrain: AmmoTerrainShape,
-        simple: AmmoSimplexShape,
-        plane: AmmoPlaneShape,
+        BoxShape: AmmoBoxShape,
+        SphereShape: AmmoSphereShape,
+        RigidBody: AmmoRigidBody,
+        PhysicsWorld: AmmoWorld,
+        CapsuleShape: AmmoCapsuleShape,
+        TrimeshShape: AmmoBvhTriangleMeshShape,
+        CylinderShape: AmmoCylinderShape,
+        ConeShape: AmmoConeShape,
+        TerrainShape: AmmoTerrainShape,
+        SimplexShape: AmmoSimplexShape,
+        PlaneShape: AmmoPlaneShape,
     });
 }
 
