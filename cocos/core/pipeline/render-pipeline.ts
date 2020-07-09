@@ -12,17 +12,15 @@ import {
     GFXFormatInfos,
     GFXMemoryUsageBit,
     GFXTextureUsageBit } from '../gfx/define';
-import { GFXDevice, GFXFeature } from '../gfx/device';
+import { GFXFeature } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
-import { Mat4, Vec3, Vec4, color } from '../math';
+import { Mat4, Vec3, Vec4 } from '../math';
 import { Camera, Model, Light } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass-utils';
-import { programLib } from '../renderer/core/program-lib';
 import { SKYBOX_FLAG } from '../renderer/scene/camera';
-import { Root } from '../root';
 import { Layers } from '../scene-graph';
 import { js } from '../utils/js';
 import { IInternalBindingInst } from './define';
@@ -31,6 +29,7 @@ import { FrameBufferDesc, RenderFlowType, RenderPassDesc, RenderTextureDesc } fr
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
+import { PipelineGlobal } from './global';
 
 const v3_1 = new Vec3();
 
@@ -49,10 +48,6 @@ export interface IRenderPipelineInfo {
     renderPasses?: RenderPassDesc[];
 }
 
-export interface IRenderPipelineDesc {
-    root: Root;
-}
-
 /**
  * @en Render pipeline describes how we handle the rendering process for all render objects in the related render scene root.
  * It contains some general pipeline configurations, necessary rendering resources and some [[RenderFlow]]s.
@@ -63,24 +58,6 @@ export interface IRenderPipelineDesc {
  */
 @ccclass('RenderPipeline')
 export abstract class RenderPipeline {
-
-    /**
-     * @en Render scene's root object.
-     * @zh 渲染场景的根对象。
-     * @readonly
-     */
-    public get root (): Root {
-        return this._root;
-    }
-
-    /**
-     * @en Rendering backend level GFX device object.
-     * @zh 渲染后端层 GFX 设备对象。
-     * @readonly
-     */
-    public get device (): GFXDevice {
-        return this._device;
-    }
 
     /**
      * @en Name of the render pipeline.
@@ -298,8 +275,6 @@ export abstract class RenderPipeline {
      */
     public abstract get lightBuffers () : GFXBuffer[];
 
-    protected _root: Root = null!;
-    protected _device: GFXDevice = null!;
     protected _renderObjects: IRenderObject[] = [];
 
     @property({
@@ -407,12 +382,8 @@ export abstract class RenderPipeline {
     /**
      * @en Activate the render pipeline after loaded, it mainly activate the flows
      * @zh 当渲染管线资源加载完成后，启用管线，主要是启用管线内的 flow
-     * @param root The render scene root which will use this render pipeline
      */
-    public activate (root: Root): boolean {
-        this._root = root;
-        this._device = root.device;
-
+    public activate (): boolean {
         if (!this._initRenderResource()) {
             console.error('RenderPipeline:' + this.name + ' startup failed!');
             return false;
@@ -555,7 +526,6 @@ export abstract class RenderPipeline {
 
         const camera = view.camera;
         const scene = camera.scene!;
-        const device = this._root.device;
 
         const mainLight = scene.mainLight;
         const ambient = scene.ambient;
@@ -563,12 +533,12 @@ export abstract class RenderPipeline {
         const fv = this._uboGlobal.view;
 
         // update UBOGlobal
-        fv[UBOGlobal.TIME_OFFSET] = this._root.cumulativeTime;
-        fv[UBOGlobal.TIME_OFFSET + 1] = this._root.frameTime;
+        fv[UBOGlobal.TIME_OFFSET] = PipelineGlobal.root.cumulativeTime;
+        fv[UBOGlobal.TIME_OFFSET + 1] = PipelineGlobal.root.frameTime;
         fv[UBOGlobal.TIME_OFFSET + 2] = legacyCC.director.getTotalFrames();
 
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET] = device.width;
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = device.height;
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET] = PipelineGlobal.device.width;
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = PipelineGlobal.device.height;
         fv[UBOGlobal.SCREEN_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.SCREEN_SIZE_OFFSET];
         fv[UBOGlobal.SCREEN_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1];
 
@@ -590,7 +560,7 @@ export abstract class RenderPipeline {
         Mat4.toArray(fv, camera.matViewProj, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
         Mat4.toArray(fv, camera.matViewProjInv, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
         Vec3.toArray(fv, camera.position, UBOGlobal.CAMERA_POS_OFFSET);
-        fv[UBOGlobal.CAMERA_POS_OFFSET + 3] = device.projectionSignY;
+        fv[UBOGlobal.CAMERA_POS_OFFSET + 3] = PipelineGlobal.device.projectionSignY;
 
         const exposure = camera.exposure;
         fv[UBOGlobal.EXPOSURE_OFFSET] = exposure;
@@ -708,33 +678,33 @@ export abstract class RenderPipeline {
     protected _initRenderResource () {
 
         if (this._usePostProcess) {
-            if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F) ||
-                this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT) ||
-                this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
+            if (PipelineGlobal.device.hasFeature(GFXFeature.FORMAT_R11G11B10F) ||
+                PipelineGlobal.device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT) ||
+                PipelineGlobal.device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
                 this._isHDRSupported = true;
             }
 
             this._fboCount = 1;
 
             if (this._useMSAA) {
-                this._useMSAA = this.device.hasFeature(GFXFeature.MSAA);
+                this._useMSAA = PipelineGlobal.device.hasFeature(GFXFeature.MSAA);
             }
         }
 
         if (this._isHDR && this._isHDRSupported) {
             // Try to use HDR format
-            if (this._device.hasFeature(GFXFeature.COLOR_HALF_FLOAT) &&
-                this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT_LINEAR)) {
-                if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F)) {
+            if (PipelineGlobal.device.hasFeature(GFXFeature.COLOR_HALF_FLOAT) &&
+                PipelineGlobal.device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT_LINEAR)) {
+                if (PipelineGlobal.device.hasFeature(GFXFeature.FORMAT_R11G11B10F)) {
                     this._colorFmt = GFXFormat.R11G11B10F;
                     this._isHDR = true;
-                } else if (this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT)) {
+                } else if (PipelineGlobal.device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT)) {
                     this._colorFmt = GFXFormat.RGBA16F;
                     this._isHDR = true;
                 }
-            } else if (this._device!.hasFeature(GFXFeature.COLOR_FLOAT) &&
-                this._device!.hasFeature(GFXFeature.TEXTURE_FLOAT_LINEAR)) {
-                if (this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
+            } else if (PipelineGlobal.device.hasFeature(GFXFeature.COLOR_FLOAT) &&
+                       PipelineGlobal.device.hasFeature(GFXFeature.TEXTURE_FLOAT_LINEAR)) {
+                if (PipelineGlobal.device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
                     this._colorFmt = GFXFormat.RGBA32F;
                     this._isHDR = true;
                 }
@@ -746,14 +716,10 @@ export abstract class RenderPipeline {
             this._colorFmt = GFXFormat.RGBA8;
         }
 
-        this._depthStencilFmt = this._device.depthStencilFormat;
-
-        // colorFmt = GFXFormat.RGBA16F;
-
-        // this._shadingScale = this._device.devicePixelRatio;
+        this._depthStencilFmt = PipelineGlobal.device.depthStencilFormat;
         this._shadingScale = 1.0;
-        this._shadingWidth = Math.floor(this._device.width);
-        this._shadingHeight = Math.floor(this._device.height);
+        this._shadingWidth = Math.floor(PipelineGlobal.device.width);
+        this._shadingHeight = Math.floor(PipelineGlobal.device.height);
 
         console.info('USE_POST_PROCESS: ' + this._usePostProcess);
         if (this._usePostProcess) {
@@ -768,7 +734,7 @@ export abstract class RenderPipeline {
 
         for (let i = 0; i < this.renderTextures.length; i++) {
             const rtd = this.renderTextures[i];
-            this._renderTextures.set(rtd.name, this._device.createTexture({
+            this._renderTextures.set(rtd.name, PipelineGlobal.device.createTexture({
                 type: rtd.type,
                 usage: rtd.usage,
                 format: this._getTextureFormat(rtd.format, rtd.usage),
@@ -781,7 +747,7 @@ export abstract class RenderPipeline {
                 return false;
             }
 
-            this._textures.set(rtd.name, this._device.createTexture({
+            this._textures.set(rtd.name, PipelineGlobal.device.createTexture({
                 type: rtd.type,
                 usage: rtd.usage,
                 format: this._getTextureFormat(rtd.format, rtd.usage),
@@ -792,7 +758,7 @@ export abstract class RenderPipeline {
         }
         for (let i = 0; i < this.renderPasses.length; i++) {
             const rpd = this.renderPasses[i];
-            this._renderPasses.set(rpd.index, this._device.createRenderPass({
+            this._renderPasses.set(rpd.index, PipelineGlobal.device.createRenderPass({
                 colorAttachments: rpd.colorAttachments,
                 depthStencilAttachment: rpd.depthStencilAttachment,
             }));
@@ -816,7 +782,7 @@ export abstract class RenderPipeline {
             }
             const dsv = this._textures.get(fbd.depthStencilTexture) as GFXTexture | null;
             const colorMipmapLevels: number[] = [];
-            this._frameBuffers.set(fbd.name, this._device.createFramebuffer({
+            this._frameBuffers.set(fbd.name, PipelineGlobal.device.createFramebuffer({
                 renderPass: rp,
                 colorTextures: ts,
                 colorMipmapLevels,
@@ -833,7 +799,7 @@ export abstract class RenderPipeline {
             return false;
         }
 
-        const mainWindow = this._root.mainWindow;
+        const mainWindow = PipelineGlobal.root.mainWindow;
         let windowPass: GFXRenderPass | null = null;
 
         if (mainWindow) {
@@ -849,7 +815,7 @@ export abstract class RenderPipeline {
 
         // update global defines when all states initialized.
         this._macros.CC_USE_HDR = (this._isHDR);
-        this._macros.CC_SUPPORT_FLOAT_TEXTURE = this.device.hasFeature(GFXFeature.TEXTURE_FLOAT);
+        this._macros.CC_SUPPORT_FLOAT_TEXTURE =PipelineGlobal.device.hasFeature(GFXFeature.TEXTURE_FLOAT);
 
         return true;
     }
@@ -937,7 +903,7 @@ export abstract class RenderPipeline {
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
         const vbSize = vbStride * 4;
 
-        this._quadVB = this._device.createBuffer({
+        this._quadVB = PipelineGlobal.device.createBuffer({
             usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: vbSize,
@@ -961,7 +927,7 @@ export abstract class RenderPipeline {
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
         const ibSize = ibStride * 6;
 
-        this._quadIB = this._device.createBuffer({
+        this._quadIB = PipelineGlobal.device.createBuffer({
             usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: ibSize,
@@ -985,7 +951,7 @@ export abstract class RenderPipeline {
             { name: 'a_texCoord', format: GFXFormat.RG32F },
         ];
 
-        this._quadIA = this._device.createInputAssembler({
+        this._quadIA = PipelineGlobal.device.createInputAssembler({
             attributes,
             vertexBuffers: [this._quadVB],
             indexBuffer: this._quadIB,
@@ -1021,7 +987,7 @@ export abstract class RenderPipeline {
      */
     protected createUBOs (): boolean {
         if (!this._globalBindings.get(UBOGlobal.BLOCK.name)) {
-            const globalUBO = this._root.device.createBuffer({
+            const globalUBO = PipelineGlobal.device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: UBOGlobal.SIZE,
@@ -1035,7 +1001,7 @@ export abstract class RenderPipeline {
         }
 
         if (!this._globalBindings.get(UBOShadow.BLOCK.name)) {
-            const shadowUBO = this._root.device.createBuffer({
+            const shadowUBO = PipelineGlobal.device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: UBOShadow.SIZE,

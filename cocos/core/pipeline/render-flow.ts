@@ -4,7 +4,6 @@
 
 import { Material } from '../assets/material';
 import { ccclass, property } from '../data/class-decorator';
-import { GFXDevice } from '../gfx/device';
 import { RenderFlowType } from './pipeline-serialization';
 import { RenderPipeline } from './render-pipeline';
 import { RenderStage } from './render-stage';
@@ -28,14 +27,6 @@ export interface IRenderFlowInfo {
  */
 @ccclass('RenderFlow')
 export abstract class RenderFlow {
-
-    /**
-     * @en The device information
-     * @zh 当前设备信息
-     */
-    public get device (): GFXDevice {
-        return this._device!;
-    }
 
     /**
      * @en The pipeline that the current render flow belongs to.
@@ -84,13 +75,6 @@ export abstract class RenderFlow {
     public get type (): RenderFlowType {
         return this._type;
     }
-
-    /**
-     * @en Rendering backend level GFX device object.
-     * @zh 渲染后端层 GFX 设备对象。
-     * @readonly
-     */
-    protected _device: GFXDevice | null = null;
 
     /**
      * @en The render pipeline which the current flow belongs to
@@ -158,7 +142,6 @@ export abstract class RenderFlow {
      * @param pipeline The render pipeline to activate this render flow
      */
     public activate (pipeline: RenderPipeline) {
-        this._device = pipeline.device;
         this._pipeline = pipeline;
         this._activateStages();
     }

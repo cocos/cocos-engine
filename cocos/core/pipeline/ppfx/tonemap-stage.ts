@@ -5,12 +5,13 @@
 import { ccclass } from '../../data/class-decorator';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXClearFlag, GFXCommandBufferType } from '../../gfx/define';
+import { GFXClearFlag } from '../../gfx/define';
 import { UBOGlobal } from '../define';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { PipelineStateManager } from '../pipeline-state-manager';
+import { PipelineGlobal } from '../global';
 
 const bufs: GFXCommandBuffer[] = [];
 
@@ -84,7 +85,7 @@ export class ToneMapStage extends RenderStage {
             this._cmdBuff.begin();
             this._cmdBuff.beginRenderPass(framebuffer, this._renderArea!,
                 GFXClearFlag.ALL, [{ r: 0.0, g: 0.0, b: 0.0, a: 1.0 }], 1.0, 0);
-            const pso =  PipelineStateManager.getOrCreatePipelineState(this._device!, this._psoCreateInfo!, framebuffer.renderPass!, this._pipeline!.quadIA);
+            const pso =  PipelineStateManager.getOrCreatePipelineState(PipelineGlobal.device, this._psoCreateInfo!, framebuffer.renderPass!, this._pipeline!.quadIA);
             this._cmdBuff.bindPipelineState(pso);
             this._cmdBuff.bindBindingLayout(this._psoCreateInfo!.bindingLayout);
             this._cmdBuff.bindInputAssembler(this._pipeline!.quadIA);
@@ -94,7 +95,7 @@ export class ToneMapStage extends RenderStage {
         }
 
         bufs[0] = this._cmdBuff!;
-        this._device!.queue.submit(bufs);
+        PipelineGlobal.device.queue.submit(bufs);
 
         // this._pipeline.swapFBOs();
     }

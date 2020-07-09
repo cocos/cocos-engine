@@ -7,6 +7,7 @@ import { IGFXColor, GFXLoadOp, GFXStoreOp, GFXTextureLayout } from '../../gfx/de
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
+import { PipelineGlobal } from '../global';
 
 const bufs: GFXCommandBuffer[] = [];
 const colors: IGFXColor[] = [];
@@ -32,7 +33,7 @@ export class UIStage extends RenderStage {
         super.activate(flow);
         this.createCmdBuffer();
 
-        const device = this._device!;
+        const device = PipelineGlobal.device;
 
         // UI uses a exclusive render pass
         const renderPass = device.createRenderPass({
@@ -116,12 +117,12 @@ export class UIStage extends RenderStage {
         cmdBuff.beginRenderPass(framebuffer, this._renderArea!,
             camera.clearFlag, [camera.clearColor], camera.clearDepth, camera.clearStencil);
 
-        this._renderQueues[0].recordCommandBuffer(this._device!, this._framebuffer!.renderPass!, cmdBuff);
+        this._renderQueues[0].recordCommandBuffer(PipelineGlobal.device, this._framebuffer!.renderPass!, cmdBuff);
 
         cmdBuff.endRenderPass();
         cmdBuff.end();
 
         bufs[0] = cmdBuff;
-        this._device!.queue.submit(bufs);
+        PipelineGlobal.device.queue.submit(bufs);
     }
 }
