@@ -62,8 +62,6 @@ public:
     Format getDepthStencilFormat() const;
     CC_INLINE bool hasFeature(Feature feature) const { return _features[static_cast<uint8_t>(feature)]; }
     CC_INLINE void defineMacro(const String &macro, const String &value) { _macros[macro] = value; }
-    CC_INLINE void setReverseCW(bool reverseCW) { _reverseCW = reverseCW; }
-    CC_INLINE bool getReverseCW() const { return _reverseCW; }
     CC_INLINE float getClipSpaceMinZ() const { return _clipSpaceMinZ; }
     CC_INLINE float getClipSpaceSignY() const { return _clipSpaceSignY; }
     CC_INLINE float getUVSpaceSignY() const { return _UVSpaceSignY; }
@@ -97,7 +95,6 @@ protected:
     uint _maxCubeMapTextureSize = 0;
     uint _depthBits = 0;
     uint _stencilBits = 0;
-    bool _reverseCW = false;
     uint _shaderIdGen = 0;
     unordered_map<String, String> _macros;
     float _clipSpaceMinZ = -1.0f;

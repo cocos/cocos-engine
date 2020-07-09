@@ -1330,6 +1330,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
     GLenum glPrimitive = 0;
     GLES3GPUInputAssembler *gpuInputAssembler = nullptr;
     GLES3CmdBeginRenderPass *cmdBeginRenderPass = nullptr;
+    bool reverseCW = false;
 
     for (uint i = 0; i < cmdPackage->cmds.size(); ++i) {
         GFXCmdType cmdType = cmdPackage->cmds[i];
@@ -1344,7 +1345,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
                         glBindFramebuffer(GL_FRAMEBUFFER, cmd->gpuFBO->glFramebuffer);
                         cache->glFramebuffer = cmd->gpuFBO->glFramebuffer;
                         // render targets are drawn with flipped-Y
-                        device->setReverseCW(!!cmd->gpuFBO->glFramebuffer);
+                        reverseCW = !!cmd->gpuFBO->glFramebuffer;
                     }
 
                     if (cache->viewport.left != cmd->renderArea.x ||
@@ -1585,7 +1586,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
                     }
                 }
                 bool isFrontFaceCCW = gpuPipelineState->rs.isFrontFaceCCW;
-                if (device->getReverseCW()) isFrontFaceCCW = !isFrontFaceCCW;
+                if (reverseCW) isFrontFaceCCW = !isFrontFaceCCW;
                 if (cache->rs.isFrontFaceCCW != isFrontFaceCCW) {
                     glFrontFace(isFrontFaceCCW ? GL_CCW : GL_CW);
                     cache->rs.isFrontFaceCCW = isFrontFaceCCW;

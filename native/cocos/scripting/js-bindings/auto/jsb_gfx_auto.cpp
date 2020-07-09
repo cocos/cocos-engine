@@ -12113,25 +12113,6 @@ static bool js_gfx_Device_getWidth(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_Device_getWidth)
 
-static bool js_gfx_Device_setReverseCW(se::State& s)
-{
-    cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_setReverseCW : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        bool arg0;
-        ok &= seval_to_boolean(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_setReverseCW : Error processing arguments");
-        cobj->setReverseCW(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_PROP_SET(js_gfx_Device_setReverseCW)
-
 static bool js_gfx_Device_getQueue(se::State& s)
 {
     cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
@@ -12807,23 +12788,23 @@ static bool js_gfx_Device_getMaxTextureUnits(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_Device_getMaxTextureUnits)
 
-static bool js_gfx_Device_getReverseCW(se::State& s)
+static bool js_gfx_Device_getClipSpaceMinZ(se::State& s)
 {
     cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getReverseCW : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getClipSpaceMinZ : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        bool result = cobj->getReverseCW();
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getReverseCW : Error processing arguments");
+        float result = cobj->getClipSpaceMinZ();
+        ok &= float_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getClipSpaceMinZ : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getReverseCW)
+SE_BIND_PROP_GET(js_gfx_Device_getClipSpaceMinZ)
 
 static bool js_gfx_Device_getClipSpaceMinZ(se::State& s)
 {
@@ -12936,7 +12917,6 @@ bool js_register_gfx_Device(se::Object* obj)
     cls->defineProperty("UVSpaceSignY", _SE(js_gfx_Device_getUVSpaceSignY), nullptr);
     cls->defineProperty("vendor", _SE(js_gfx_Device_getVendor), nullptr);
     cls->defineProperty("depthBits", _SE(js_gfx_Device_getDepthBits), nullptr);
-    cls->defineProperty("reverseCW", _SE(js_gfx_Device_getReverseCW), _SE(js_gfx_Device_setReverseCW));
     cls->defineProperty("maxFragmentUniformVectors", _SE(js_gfx_Device_getMaxFragmentUniformVectors), nullptr);
     cls->defineProperty("maxVertexAttributes", _SE(js_gfx_Device_getMaxVertexAttributes), nullptr);
     cls->defineProperty("width", _SE(js_gfx_Device_getWidth), nullptr);
