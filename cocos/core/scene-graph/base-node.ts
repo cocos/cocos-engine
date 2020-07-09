@@ -424,16 +424,6 @@ export class BaseNode extends CCObject implements ISchedulable {
             this.emit(SystemEventType.PARENT_CHANGED, oldParent);
         }
 
-        if (newParent) {
-            if (DEBUG && (newParent._objFlags & Deactivating)) {
-                errorID(3821);
-            }
-            newParent._children.push(this);
-            this._siblingIndex = newParent._children.length - 1;
-            if (newParent.emit) {
-                newParent.emit(SystemEventType.CHILD_ADDED, this);
-            }
-        }
         if (oldParent) {
             if (!(oldParent._objFlags & Destroying)) {
                 const removeAt = oldParent._children.indexOf(this);
@@ -447,8 +437,19 @@ export class BaseNode extends CCObject implements ISchedulable {
                 }
             }
         }
-        this._onHierarchyChanged(oldParent);
 
+        if (newParent) {
+            if (DEBUG && (newParent._objFlags & Deactivating)) {
+                errorID(3821);
+            }
+            newParent._children.push(this);
+            this._siblingIndex = newParent._children.length - 1;
+            if (newParent.emit) {
+                newParent.emit(SystemEventType.CHILD_ADDED, this);
+            }
+        }
+
+        this._onHierarchyChanged(oldParent);
     }
 
     /**
