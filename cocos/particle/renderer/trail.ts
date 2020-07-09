@@ -354,7 +354,8 @@ export default class TrailModule {
         const psTime = ps.startLifetime.getMax();
         const psRate = ps.rateOverTime.getMax();
         const duration = ps.duration;
-        for (const b of ps.bursts) {
+        for (const k in ps.bursts) {
+            const b = ps.bursts[k];
             burstCount += b.getMaxCount(ps) * Math.ceil(psTime / duration);
         }
         this._trailNum = Math.ceil(psTime * this.lifeTime.getMax() * 60 * (psRate * duration + burstCount));
