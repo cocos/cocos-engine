@@ -15,6 +15,7 @@ import { log2, nextPow2 } from '../math/bits';
 import { IMacroPatch, IPSOCreateInfo } from '../renderer';
 import { legacyCC } from '../global-exports';
 import { PixelFormat } from './asset-enum';
+import { DEV } from 'internal:constants';
 
 /**
  * True if force to use cpu computing based sub-mesh rendering.
@@ -198,6 +199,11 @@ class GpuComputing implements SubMeshMorphRendering {
         this._attributes = subMeshMorph.attributes.map((attributeName, attributeIndex) => {
             const vec4Tex = vec4TextureFactory.create();
             const valueView = vec4Tex.valueView;
+            // if (DEV) { // Make it easy to view texture in profilers...
+            //     for (let i = 0; i < valueView.length / 4; ++i) {
+            //         valueView[i * 4 + 3] = 1.0;
+            //     }
+            // }
             {
                 let pHead = 0;
                 let nVec4s = subMeshMorph.targets.length;
