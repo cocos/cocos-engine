@@ -939,9 +939,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         }
 
         if (EDITOR && constructor._disallowMultiple) {
-            if (!this._checkMultipleComp!(constructor)) {
-                throw Error(`Only singleton component is allowed.`);
-            }
+            this._checkMultipleComp!(constructor);
         }
 
         // check requirement
@@ -1399,7 +1397,12 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     protected _onSiblingIndexChanged? (siblingIndex: number): void;
 
-    protected _checkMultipleComp? (constructor: Function): boolean;
+    /**
+     * Ensures that this node has already had the specified component(s). If not, this method throws.
+     * @param constructor Constructor of the component.
+     * @throws If one or more component of same type have been existed in this node.
+     */
+    protected _checkMultipleComp? (constructor: Function): void;
 }
 
 baseNodePolyfill(BaseNode);
