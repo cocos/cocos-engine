@@ -2,7 +2,6 @@
  * @category model
  */
 
-// @ts-check
 import { EDITOR } from 'internal:constants';
 import { Material } from '../../assets/material';
 import { Component } from '../../components/component';
@@ -82,7 +81,7 @@ export class RenderableComponent extends Component {
             }
         }
         for (let i = 0; i < this._materialInstances.length; i++) {
-            // tslint:disable-next-line: triple-equals
+            // tslint:disable-next-line: triple-equals // both of them may be undefined or null
             if (this._materialInstances[i] != val[i]) {
                 this.setMaterialInstance(i, val[i]);
             }
@@ -149,7 +148,7 @@ export class RenderableComponent extends Component {
         if (!mat) {
             return null;
         }
-        if (this._materialInstances[idx] == null) {
+        if (!this._materialInstances[idx]) {
             _matInsInfo.parent = this._materials[idx]!;
             _matInsInfo.owner = this;
             _matInsInfo.subModelIdx = idx;

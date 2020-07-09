@@ -177,10 +177,11 @@ export class Pass {
      */
     public static getPSOHash (psoInfo: IPSOHashInfo) {
         const shaderKey = programLib.getKey(psoInfo.program, psoInfo.defines);
-        let res = `${shaderKey},${psoInfo.stage},${psoInfo.primitive}`;
+        let res = shaderKey + ',' + psoInfo.primitive;
         res += serializeBlendState(psoInfo.blendState);
         res += serializeDepthStencilState(psoInfo.depthStencilState);
         res += serializeRasterizerState(psoInfo.rasterizerState);
+        res += serializeDynamicState(psoInfo.dynamicStates);
         return murmurhash2_32_gc(res, 666);
     }
 
@@ -516,13 +517,16 @@ export class Pass {
      */
     public tryCompile () {
         const pipeline = (cc.director.root as Root).pipeline;
-        if (!pipeline) { return null; }
+        if (!pipeline) { this._hash = Pass.getPSOHash(this); return null; }
         this._dynamicBatchingSync();
         this._renderPass = pipeline.getRenderPass(this._stage);
         if (!this._renderPass) { console.warn(`illegal pass stage.`); return false; }
-        const res = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
+        Object.assign(this._defines, pipeline.macros);
+        const key = programLib.getKey(this._programName, this._defines);
+        const res = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline, key);
         if (!res.shader) { console.warn(`create shader ${this._programName} failed`); return false; }
         this._shader = res.shader; this._bindings = res.bindings; this._inputState = res.inputState;
+        this._hash = Pass.getPSOHash(this);
         return true;
     }
 
@@ -611,7 +615,6 @@ export class Pass {
         const device = this._device;
         Pass.fillinPipelineInfo(this, info);
         if (info.stateOverrides) { Pass.fillinPipelineInfo(this, info.stateOverrides); }
-        this._hash = Pass.getPSOHash(this);
 
         const blocks = this._shaderInfo.blocks;
         for (let i = 0; i < blocks.length; i++) {
@@ -721,8 +724,7 @@ function serializeBlendState (bs: GFXBlendState) {
 }
 
 function serializeRasterizerState (rs: GFXRasterizerState) {
-    const res = `,rs,${rs.cullMode},${rs.depthBias},${rs.isFrontFaceCCW}`;
-    return res;
+    return ',rs,' + rs.cullMode + ',' + rs.depthBias + ',' + rs.isFrontFaceCCW;
 }
 
 function serializeDepthStencilState (dss: GFXDepthStencilState) {
@@ -731,5 +733,13 @@ function serializeDepthStencilState (dss: GFXDepthStencilState) {
     res += `,${dss.stencilFailOpFront},${dss.stencilZFailOpFront},${dss.stencilPassOpFront},${dss.stencilWriteMaskFront}`;
     res += `,${dss.stencilTestBack},${dss.stencilFuncBack},${dss.stencilRefBack},${dss.stencilReadMaskBack}`;
     res += `,${dss.stencilFailOpBack},${dss.stencilZFailOpBack},${dss.stencilPassOpBack},${dss.stencilWriteMaskBack}`;
+    return res;
+}
+
+function serializeDynamicState (dynamicStates: GFXDynamicState[]) {
+    let res = ',ds';
+    for (const ds in dynamicStates) {
+        res += ',' + ds;
+    }
     return res;
 }
