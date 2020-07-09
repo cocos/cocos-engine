@@ -354,8 +354,8 @@ export default class TrailModule {
         const psTime = ps.startLifetime.getMax();
         const psRate = ps.rateOverTime.getMax();
         const duration = ps.duration;
-        for (const k in ps.bursts) {
-            const b = ps.bursts[k];
+        for (let i = 0, len = ps.bursts.length; i < len; i++) {
+            const b = ps.bursts[i];
             burstCount += b.getMaxCount(ps) * Math.ceil(psTime / duration);
         }
         this._trailNum = Math.ceil(psTime * this.lifeTime.getMax() * 60 * (psRate * duration + burstCount));
@@ -393,7 +393,7 @@ export default class TrailModule {
     public destroy () {
         this.destroySubMeshData();
         if (this._trailModel) {
-            cc.director.root.destroyModel(this._trailModel);
+            director.root!.destroyModel(this._trailModel);
             this._trailModel = null;
         }
         if (this._trailSegments) {
@@ -624,7 +624,7 @@ export default class TrailModule {
         this._subMeshData.indexBuffer = indexBuffer;
         this._subMeshData.indirectBuffer = this._iaInfoBuffer;
 
-        this._trailModel = cc.director.root.createModel(Model);
+        this._trailModel = director.root!.createModel(Model);
         this._trailModel!.initialize(this._particleSystem.node);
         this._trailModel!.visFlags = this._particleSystem.visibility;
         this._trailModel!.setSubModelMesh(0, this._subMeshData);
