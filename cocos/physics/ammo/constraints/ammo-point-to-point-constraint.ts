@@ -1,10 +1,10 @@
+import Ammo from '@cocos/ammo';
 import { AmmoConstraint } from "./ammo-constraint";
 import { IPointToPointConstraint } from "../../spec/i-physics-constraint";
 import { IVec3Like } from "../../../core";
 import { PointToPointConstraintComponent } from "../../framework";
 import { AmmoRigidBody } from "../ammo-rigid-body";
 import { cocos2AmmoVec3 } from "../ammo-util";
-
 
 export class AmmoPointToPointConstraint extends AmmoConstraint implements IPointToPointConstraint {
 

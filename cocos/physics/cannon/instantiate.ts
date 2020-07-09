@@ -15,6 +15,7 @@ import { CannonSimplexShape } from './shapes/cannon-simplex-shape';
 import { CannonPlaneShape } from './shapes/cannon-plane-shape';
 
 import { CannonPointToPointConstraint } from './constraints/cannon-point-to-point-constraint';
+import { CannonHingeConstraint } from './constraints/cannon-hinge-constraint';
 
 if (PHYSICS_CANNON) {
     instantiate({
@@ -31,6 +32,7 @@ if (PHYSICS_CANNON) {
         PlaneShape: CannonPlaneShape,
 
         PointToPointConstraint: CannonPointToPointConstraint,
+        HingeConstraint: CannonHingeConstraint,
     });
 }
 
