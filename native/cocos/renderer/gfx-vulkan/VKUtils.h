@@ -288,13 +288,6 @@ VkImageUsageFlagBits MapVkImageUsageFlagBits(TextureUsage usage) {
 
 VkImageLayout MapVkImageLayout(TextureUsage usage, Format format) {
     const FormatInfo &info = GFX_FORMAT_INFOS[(uint)format];
-    if (usage & TextureUsage::COLOR_ATTACHMENT) return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    if (usage & TextureUsage::DEPTH_STENCIL_ATTACHMENT) {
-        if (info.hasStencil)
-            return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        else
-            return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
-    }
     if (usage & TextureUsage::SAMPLED) {
         if (info.hasDepth && info.hasStencil)
             return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
@@ -302,6 +295,13 @@ VkImageLayout MapVkImageLayout(TextureUsage usage, Format format) {
             return VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL;
         else
             return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    }
+    if (usage & TextureUsage::COLOR_ATTACHMENT) return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    if (usage & TextureUsage::DEPTH_STENCIL_ATTACHMENT) {
+        if (info.hasStencil)
+            return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        else
+            return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
     }
     if (usage & TextureUsage::TRANSFER_SRC) return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
     if (usage & TextureUsage::TRANSFER_DST) return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;

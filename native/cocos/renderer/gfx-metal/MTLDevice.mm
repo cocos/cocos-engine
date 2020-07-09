@@ -23,7 +23,12 @@
 namespace cc {
 namespace gfx {
 
-CCMTLDevice::CCMTLDevice() {}
+CCMTLDevice::CCMTLDevice() {
+    _clipSpaceMinZ = 0.0f;
+    _clipSpaceSignY = 1.0f;
+    _UVSpaceSignY = 1.0f;
+}
+
 CCMTLDevice::~CCMTLDevice() {}
 
 bool CCMTLDevice::initialize(const DeviceInfo &info) {
@@ -53,7 +58,6 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     queue_info.type = QueueType::GRAPHICS;
     _queue = createQueue(queue_info);
 
-    _minClipZ = 0;
     _depthBits = 24;
     _stencilBits = 8;
 

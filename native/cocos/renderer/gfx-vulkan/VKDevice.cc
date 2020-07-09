@@ -25,8 +25,9 @@ namespace cc {
 namespace gfx {
 
 CCVKDevice::CCVKDevice() {
-    _minClipZ = 0.0f;
-    _projectionSignY = -1.0f;
+    _clipSpaceMinZ = 0.0f;
+    _clipSpaceSignY = -1.0f;
+    _UVSpaceSignY = 1.0f;
 }
 
 CCVKDevice::~CCVKDevice() {

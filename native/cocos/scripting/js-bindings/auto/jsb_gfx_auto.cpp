@@ -11981,24 +11981,6 @@ static bool js_gfx_Device_getMaxVertexTextureUnits(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_Device_getMaxVertexTextureUnits)
 
-static bool js_gfx_Device_getProjectionSignY(se::State& s)
-{
-    cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getProjectionSignY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        float result = cobj->getProjectionSignY();
-        ok &= float_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getProjectionSignY : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getProjectionSignY)
-
 static bool js_gfx_Device_getMaxVertexUniformVectors(se::State& s)
 {
     cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
@@ -12771,24 +12753,6 @@ static bool js_gfx_Device_getDepthBits(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_Device_getDepthBits)
 
-static bool js_gfx_Device_getMinClipZ(se::State& s)
-{
-    cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMinClipZ : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        float result = cobj->getMinClipZ();
-        ok &= float_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMinClipZ : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getMinClipZ)
-
 static bool js_gfx_Device_getMemoryStatus(se::State& s)
 {
     cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
@@ -12806,6 +12770,24 @@ static bool js_gfx_Device_getMemoryStatus(se::State& s)
     return false;
 }
 SE_BIND_PROP_GET(js_gfx_Device_getMemoryStatus)
+
+static bool js_gfx_Device_getClipSpaceSignY(se::State& s)
+{
+    cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getClipSpaceSignY : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getClipSpaceSignY();
+        ok &= float_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getClipSpaceSignY : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getClipSpaceSignY)
 
 static bool js_gfx_Device_getMaxTextureUnits(se::State& s)
 {
@@ -12843,6 +12825,24 @@ static bool js_gfx_Device_getReverseCW(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_Device_getReverseCW)
 
+static bool js_gfx_Device_getClipSpaceMinZ(se::State& s)
+{
+    cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getClipSpaceMinZ : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getClipSpaceMinZ();
+        ok &= float_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getClipSpaceMinZ : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getClipSpaceMinZ)
+
 static bool js_gfx_Device_getNumDrawCalls(se::State& s)
 {
     cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
@@ -12860,6 +12860,24 @@ static bool js_gfx_Device_getNumDrawCalls(se::State& s)
     return false;
 }
 SE_BIND_PROP_GET(js_gfx_Device_getNumDrawCalls)
+
+static bool js_gfx_Device_getUVSpaceSignY(se::State& s)
+{
+    cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getUVSpaceSignY : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getUVSpaceSignY();
+        ok &= float_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getUVSpaceSignY : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getUVSpaceSignY)
 
 static bool js_gfx_Device_getNativeWidth(se::State& s)
 {
@@ -12908,13 +12926,14 @@ bool js_register_gfx_Device(se::Object* obj)
     auto cls = se::Class::create("GFXDevice", obj, nullptr, nullptr);
 
     cls->defineProperty("deviceName", _SE(js_gfx_Device_getDeviceName), nullptr);
+    cls->defineProperty("clipSpaceMinZ", _SE(js_gfx_Device_getClipSpaceMinZ), nullptr);
     cls->defineProperty("numInstances", _SE(js_gfx_Device_getNumInstances), nullptr);
     cls->defineProperty("maxTextureUnits", _SE(js_gfx_Device_getMaxTextureUnits), nullptr);
-    cls->defineProperty("projectionSignY", _SE(js_gfx_Device_getProjectionSignY), nullptr);
     cls->defineProperty("height", _SE(js_gfx_Device_getHeight), nullptr);
     cls->defineProperty("shaderIdGen", _SE(js_gfx_Device_getShaderIdGen), nullptr);
     cls->defineProperty("renderer", _SE(js_gfx_Device_getRenderer), nullptr);
     cls->defineProperty("maxUniformBufferBindings", _SE(js_gfx_Device_getMaxUniformBufferBindings), nullptr);
+    cls->defineProperty("UVSpaceSignY", _SE(js_gfx_Device_getUVSpaceSignY), nullptr);
     cls->defineProperty("vendor", _SE(js_gfx_Device_getVendor), nullptr);
     cls->defineProperty("depthBits", _SE(js_gfx_Device_getDepthBits), nullptr);
     cls->defineProperty("reverseCW", _SE(js_gfx_Device_getReverseCW), _SE(js_gfx_Device_setReverseCW));
@@ -12929,9 +12948,9 @@ bool js_register_gfx_Device(se::Object* obj)
     cls->defineProperty("memoryStatus", _SE(js_gfx_Device_getMemoryStatus), nullptr);
     cls->defineProperty("gfxAPI", _SE(js_gfx_Device_getGfxAPI), nullptr);
     cls->defineProperty("maxUniformBlockSize", _SE(js_gfx_Device_getMaxUniformBlockSize), nullptr);
-    cls->defineProperty("minClipZ", _SE(js_gfx_Device_getMinClipZ), nullptr);
     cls->defineProperty("maxTextureSize", _SE(js_gfx_Device_getMaxTextureSize), nullptr);
     cls->defineProperty("nativeHeight", _SE(js_gfx_Device_getNativeHeight), nullptr);
+    cls->defineProperty("clipSpaceSignY", _SE(js_gfx_Device_getClipSpaceSignY), nullptr);
     cls->defineProperty("depthStencilFormat", _SE(js_gfx_Device_getDepthStencilFormat), nullptr);
     cls->defineProperty("numTris", _SE(js_gfx_Device_getNumTris), nullptr);
     cls->defineProperty("stencilBits", _SE(js_gfx_Device_getStencilBits), nullptr);

@@ -1343,6 +1343,8 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
                     if (cache->glFramebuffer != cmd->gpuFBO->glFramebuffer) {
                         glBindFramebuffer(GL_FRAMEBUFFER, cmd->gpuFBO->glFramebuffer);
                         cache->glFramebuffer = cmd->gpuFBO->glFramebuffer;
+                        // render targets are drawn with flipped-Y
+                        device->setReverseCW(!!cmd->gpuFBO->glFramebuffer);
                     }
 
                     if (cache->viewport.left != cmd->renderArea.x ||
@@ -1582,9 +1584,11 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
                         cache->rs.cullMode = gpuPipelineState->rs.cullMode;
                     }
                 }
-                if (cache->rs.isFrontFaceCCW != gpuPipelineState->rs.isFrontFaceCCW) {
-                    glFrontFace(gpuPipelineState->rs.isFrontFaceCCW ? GL_CCW : GL_CW);
-                    cache->rs.isFrontFaceCCW = gpuPipelineState->rs.isFrontFaceCCW;
+                bool isFrontFaceCCW = gpuPipelineState->rs.isFrontFaceCCW;
+                if (device->getReverseCW()) isFrontFaceCCW = !isFrontFaceCCW;
+                if (cache->rs.isFrontFaceCCW != isFrontFaceCCW) {
+                    glFrontFace(isFrontFaceCCW ? GL_CCW : GL_CW);
+                    cache->rs.isFrontFaceCCW = isFrontFaceCCW;
                 }
                 if ((cache->rs.depthBias != gpuPipelineState->rs.depthBias) ||
                     (cache->rs.depthBiasSlop != gpuPipelineState->rs.depthBiasSlop)) {

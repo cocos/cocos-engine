@@ -58,14 +58,15 @@ public:
     CC_INLINE int getDepthBits() const { return _depthBits; }
     CC_INLINE int getStencilBits() const { return _stencilBits; }
     CC_INLINE uint getShaderIdGen() { return _shaderIdGen++; }
-    CC_INLINE bool getReverseCW() const { return _reverseCW; }
     Format getColorFormat() const;
     Format getDepthStencilFormat() const;
     CC_INLINE bool hasFeature(Feature feature) const { return _features[static_cast<uint8_t>(feature)]; }
     CC_INLINE void defineMacro(const String &macro, const String &value) { _macros[macro] = value; }
     CC_INLINE void setReverseCW(bool reverseCW) { _reverseCW = reverseCW; }
-    CC_INLINE float getMinClipZ() const { return _minClipZ; }
-    CC_INLINE float getProjectionSignY() const { return _projectionSignY; }
+    CC_INLINE bool getReverseCW() const { return _reverseCW; }
+    CC_INLINE float getClipSpaceMinZ() const { return _clipSpaceMinZ; }
+    CC_INLINE float getClipSpaceSignY() const { return _clipSpaceSignY; }
+    CC_INLINE float getUVSpaceSignY() const { return _UVSpaceSignY; }
 
 protected:
     API _API = API::UNKNOWN;
@@ -99,9 +100,10 @@ protected:
     bool _reverseCW = false;
     uint _shaderIdGen = 0;
     unordered_map<String, String> _macros;
-    float _minClipZ = -1.0f;
-    float _projectionSignY = 1.0f;
-};
+    float _clipSpaceMinZ = -1.0f;
+    float _clipSpaceSignY = 1.0f;
+    float _UVSpaceSignY = -1.0f;
+}; // namespace gfx
 
 } // namespace gfx
 } // namespace cc
