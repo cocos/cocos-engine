@@ -36,6 +36,9 @@ export class ConstraintComponent extends Eventify(Component) {
 
     set connectedBody (v: RigidBodyComponent | null) {
         this._connectedBody = v;
+        if (!EDITOR) {
+            if (this._constraint) this._constraint.setConnectedBody(v);
+        }
     }
 
     @property({
@@ -47,6 +50,9 @@ export class ConstraintComponent extends Eventify(Component) {
 
     set collideConnected (v) {
         this._collideConnected = v;
+        if (!EDITOR) {
+            if (this._constraint) this._constraint.setCollideConnected(v);
+        }
     }
 
     readonly TYPE: EConstraintType;

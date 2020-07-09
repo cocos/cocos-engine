@@ -15,6 +15,7 @@ import { AmmoInstance } from './ammo-instance';
 import { AmmoCollisionFilterGroups, AmmoDispatcherFlags } from './ammo-enum';
 import { IVec3Like } from '../../core/math/type-define';
 import { AmmoContactEquation } from './ammo-contact-equation';
+import { AmmoConstraint } from './constraints/ammo-constraint';
 
 const contactsPool: AmmoContactEquation[] = [];
 const v3_0 = CC_V3_0;
@@ -42,6 +43,7 @@ export class AmmoWorld implements IPhysicsWorld {
 
     readonly bodies: AmmoSharedBody[] = [];
     readonly ghosts: AmmoSharedBody[] = [];
+    readonly constraints: AmmoConstraint[] = [];
     readonly triggerArrayMat = new ArrayCollisionMatrix();
     readonly collisionArrayMat = new ArrayCollisionMatrix();
     readonly contactsDic = new TupleDictionary();
@@ -196,6 +198,24 @@ export class AmmoWorld implements IPhysicsWorld {
         if (i >= 0) {
             this.ghosts.splice(i, 1);
             this._btWorld.removeCollisionObject(sharedBody.ghost);
+        }
+    }
+
+    addConstraint (constraint: AmmoConstraint) {
+        const i = this.constraints.indexOf(constraint);
+        if (i < 0) {
+            this.constraints.push(constraint);
+            this._btWorld.addConstraint(constraint.impl, !constraint.constraint.collideConnected);
+            constraint.index = i;
+        }
+    }
+
+    removeConstraint (constraint: AmmoConstraint) {
+        const i = this.constraints.indexOf(constraint);
+        if (i >= 0) {
+            this.constraints.splice(i, 1);
+            this._btWorld.removeConstraint(constraint.impl);
+            constraint.index = -1;
         }
     }
 

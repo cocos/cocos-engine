@@ -12,12 +12,16 @@ import { AmmoTerrainShape } from "../ammo/shapes/ammo-terrain-shape";
 import { AmmoSimplexShape } from "./shapes/ammo-simplex-shape";
 import { AmmoPlaneShape } from "../ammo/shapes/ammo-plane-shape";
 
+import { AmmoPointToPointConstraint } from './constraints/ammo-point-to-point-constraint';
+import { AmmoHingeConstraint } from './constraints/ammo-hinge-constraint';
+
 if (PHYSICS_AMMO) {
     instantiate({
+        PhysicsWorld: AmmoWorld,
+        RigidBody: AmmoRigidBody,
+
         BoxShape: AmmoBoxShape,
         SphereShape: AmmoSphereShape,
-        RigidBody: AmmoRigidBody,
-        PhysicsWorld: AmmoWorld,
         CapsuleShape: AmmoCapsuleShape,
         TrimeshShape: AmmoBvhTriangleMeshShape,
         CylinderShape: AmmoCylinderShape,
@@ -25,6 +29,9 @@ if (PHYSICS_AMMO) {
         TerrainShape: AmmoTerrainShape,
         SimplexShape: AmmoSimplexShape,
         PlaneShape: AmmoPlaneShape,
+
+        PointToPointConstraint: AmmoPointToPointConstraint,
+        HingeConstraint: AmmoHingeConstraint,
     });
 }
 

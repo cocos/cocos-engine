@@ -12,12 +12,6 @@ import { EDITOR, DEBUG, PHYSICS_BUILTIN, PHYSICS_AMMO, TEST, PHYSICS_CANNON } fr
 import { EColliderType, EConstraintType } from './physics-enum';
 import { IBaseConstraint, IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint } from '../spec/i-physics-constraint';
 
-const {
-    PhysicsWorld, RigidBody,
-    BoxShape, SphereShape, CapsuleShape, TrimeshShape, CylinderShape, ConeShape, TerrainShape, SimplexShape, PlaneShape,
-} = WRAPPER;
-
-
 export function checkPhysicsModule (obj: any) {
     if (DEBUG && !TEST && !EDITOR && obj == null) {
         errorID(9600);
@@ -27,13 +21,13 @@ export function checkPhysicsModule (obj: any) {
 }
 
 export function createPhysicsWorld (): IPhysicsWorld {
-    if (DEBUG && checkPhysicsModule(PhysicsWorld)) { return null as any; }
-    return new PhysicsWorld() as IPhysicsWorld;
+    if (DEBUG && checkPhysicsModule(WRAPPER.PhysicsWorld)) { return null as any; }
+    return new WRAPPER.PhysicsWorld() as IPhysicsWorld;
 }
 
 export function createRigidBody (): IRigidBody {
-    if (DEBUG && checkPhysicsModule(RigidBody)) { return null as any; }
-    return new RigidBody() as IRigidBody;
+    if (DEBUG && checkPhysicsModule(WRAPPER.RigidBody)) { return null as any; }
+    return new WRAPPER.RigidBody() as IRigidBody;
 }
 
 const FUNC = (...v: any) => { return 0 as any; };
@@ -79,19 +73,19 @@ export function createShape (type: EColliderType): IBaseShape {
 }
 
 CREATE_COLLIDER_PROXY[EColliderType.BOX] = function createBoxShape (size: IVec3Like): IBoxShape {
-    if (DEBUG && checkPhysicsModule(BoxShape)) { return ENTIRE_SHAPE; }
-    return new BoxShape(size) as IBoxShape;
+    if (DEBUG && checkPhysicsModule(WRAPPER.BoxShape)) { return ENTIRE_SHAPE; }
+    return new WRAPPER.BoxShape(size) as IBoxShape;
 }
 
 CREATE_COLLIDER_PROXY[EColliderType.SPHERE] = function createSphereShape (radius: number): ISphereShape {
-    if (DEBUG && checkPhysicsModule(SphereShape)) { return ENTIRE_SHAPE; }
-    return new SphereShape(radius) as ISphereShape;
+    if (DEBUG && checkPhysicsModule(WRAPPER.SphereShape)) { return ENTIRE_SHAPE; }
+    return new WRAPPER.SphereShape(radius) as ISphereShape;
 }
 
 CREATE_COLLIDER_PROXY[EColliderType.CAPSULE] = function createCapsuleShape (radius = 0.5, height = 2, dir = 1): ICapsuleShape {
     if (PHYSICS_BUILTIN || PHYSICS_AMMO) {
-        if (DEBUG && checkPhysicsModule(CapsuleShape)) { return ENTIRE_SHAPE; }
-        return new CapsuleShape(radius, height, dir) as ICapsuleShape;
+        if (DEBUG && checkPhysicsModule(WRAPPER.CapsuleShape)) { return ENTIRE_SHAPE; }
+        return new WRAPPER.CapsuleShape(radius, height, dir) as ICapsuleShape;
     } else {
         warnID(9610);
         return ENTIRE_SHAPE;
@@ -100,8 +94,8 @@ CREATE_COLLIDER_PROXY[EColliderType.CAPSULE] = function createCapsuleShape (radi
 
 CREATE_COLLIDER_PROXY[EColliderType.CYLINDER] = function createCylinderShape (radius = 0.5, height = 2, dir = 1): ICylinderShape {
     if (PHYSICS_CANNON || PHYSICS_AMMO) {
-        if (DEBUG && checkPhysicsModule(CylinderShape)) { return ENTIRE_SHAPE; }
-        return new CylinderShape(radius, height, dir) as ICylinderShape;
+        if (DEBUG && checkPhysicsModule(WRAPPER.CylinderShape)) { return ENTIRE_SHAPE; }
+        return new WRAPPER.CylinderShape(radius, height, dir) as ICylinderShape;
     } else {
         warnID(9612);
         return ENTIRE_SHAPE;
@@ -110,8 +104,8 @@ CREATE_COLLIDER_PROXY[EColliderType.CYLINDER] = function createCylinderShape (ra
 
 CREATE_COLLIDER_PROXY[EColliderType.CONE] = function createConeShape (radius = 0.5, height = 1, dir = 1): IConeShape {
     if (PHYSICS_CANNON || PHYSICS_AMMO) {
-        if (DEBUG && checkPhysicsModule(ConeShape)) { return ENTIRE_SHAPE; }
-        return new ConeShape(radius, height, dir) as IConeShape;
+        if (DEBUG && checkPhysicsModule(WRAPPER.ConeShape)) { return ENTIRE_SHAPE; }
+        return new WRAPPER.ConeShape(radius, height, dir) as IConeShape;
     } else {
         warnID(9612);
         return ENTIRE_SHAPE;
@@ -120,8 +114,8 @@ CREATE_COLLIDER_PROXY[EColliderType.CONE] = function createConeShape (radius = 0
 
 CREATE_COLLIDER_PROXY[EColliderType.MESH] = function createTrimeshShape (): ITrimeshShape {
     if (PHYSICS_CANNON || PHYSICS_AMMO) {
-        if (DEBUG && checkPhysicsModule(TrimeshShape)) { return ENTIRE_SHAPE; }
-        return new TrimeshShape() as ITrimeshShape;
+        if (DEBUG && checkPhysicsModule(WRAPPER.TrimeshShape)) { return ENTIRE_SHAPE; }
+        return new WRAPPER.TrimeshShape() as ITrimeshShape;
     } else {
         warnID(9611);
         return ENTIRE_SHAPE;
@@ -130,8 +124,8 @@ CREATE_COLLIDER_PROXY[EColliderType.MESH] = function createTrimeshShape (): ITri
 
 CREATE_COLLIDER_PROXY[EColliderType.TERRAIN] = function createTerrainShape (): ITerrainShape {
     if (PHYSICS_CANNON || PHYSICS_AMMO) {
-        if (DEBUG && checkPhysicsModule(TerrainShape)) { return ENTIRE_SHAPE; }
-        return new TerrainShape() as ITerrainShape;
+        if (DEBUG && checkPhysicsModule(WRAPPER.TerrainShape)) { return ENTIRE_SHAPE; }
+        return new WRAPPER.TerrainShape() as ITerrainShape;
     } else {
         warn("[Physics]: builtin physics system doesn't support cylinder collider");
         return ENTIRE_SHAPE;
@@ -140,8 +134,8 @@ CREATE_COLLIDER_PROXY[EColliderType.TERRAIN] = function createTerrainShape (): I
 
 CREATE_COLLIDER_PROXY[EColliderType.SIMPLEX] = function createSimplexShape (): ISimplexShape {
     if (PHYSICS_CANNON || PHYSICS_AMMO) {
-        if (DEBUG && checkPhysicsModule(SimplexShape)) { return ENTIRE_SHAPE; }
-        return new SimplexShape() as ISimplexShape;
+        if (DEBUG && checkPhysicsModule(WRAPPER.SimplexShape)) { return ENTIRE_SHAPE; }
+        return new WRAPPER.SimplexShape() as ISimplexShape;
     } else {
         warn("[Physics]: builtin physics system doesn't support simple collider");
         return ENTIRE_SHAPE;
@@ -150,8 +144,8 @@ CREATE_COLLIDER_PROXY[EColliderType.SIMPLEX] = function createSimplexShape (): I
 
 CREATE_COLLIDER_PROXY[EColliderType.PLANE] = function createPlaneShape (): IPlaneShape {
     if (PHYSICS_CANNON || PHYSICS_AMMO) {
-        if (DEBUG && checkPhysicsModule(PlaneShape)) { return ENTIRE_SHAPE; }
-        return new PlaneShape() as IPlaneShape;
+        if (DEBUG && checkPhysicsModule(WRAPPER.PlaneShape)) { return ENTIRE_SHAPE; }
+        return new WRAPPER.PlaneShape() as IPlaneShape;
     } else {
         warn("[Physics]: builtin physics system doesn't support plane collider");
         return ENTIRE_SHAPE;

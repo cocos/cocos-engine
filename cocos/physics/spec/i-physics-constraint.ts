@@ -9,7 +9,7 @@ import { IVec3Like } from '../../core';
 export interface IBaseConstraint extends ILifecycle {
     readonly impl: any;
     initialize (v: ConstraintComponent): void;
-    setConnectedBody (v: RigidBodyComponent): void;
+    setConnectedBody (v: RigidBodyComponent | null): void;
     setCollideConnected (v: boolean): void;
 }
 
