@@ -123,8 +123,8 @@ export class ShadowStage extends RenderStage {
         const renderPass = this._shadowFrameBuffer!.renderPass;
 
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(this._shadowFrameBuffer!, this._renderArea!,
-            camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer!, this._renderArea!,
+            colors, camera.clearDepth, camera.clearStencil);
 
         this._additiveShadowQueue.recordCommandBuffer(device, renderPass!, cmdBuff);
 

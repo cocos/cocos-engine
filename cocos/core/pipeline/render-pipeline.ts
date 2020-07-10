@@ -17,7 +17,8 @@ import {
     GFXStoreOp,
     GFXCommandBufferType} from '../gfx/define';
     GFXFilter,
-    GFXAddress} from '../gfx/define';
+    GFXAddress,
+    GFXStoreOp} from '../gfx/define';
 import { GFXFeature } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';

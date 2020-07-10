@@ -43,7 +43,7 @@ export class ForwardFlow extends RenderFlow {
 
         const shadowmapUniform = this._pipeline.globalBindings.get(UNIFORM_SHADOWMAP.name);
         if (shadowmapUniform) {
-            shadowmapUniform.texture = this._pipeline.shadowFrameBuffer?.colorTextures[0];
+            shadowmapUniform.texture = this._pipeline.shadowFrameBuffer?.colorTextures[0]!;
         }
 
         super.render(view);
