@@ -50,7 +50,6 @@ export class StdMorphRendering implements MorphRendering {
                 continue;
             }
 
-            const hasFeatureTextureFloat = gfxDevice.hasFeature(GFXFeature.TEXTURE_FLOAT);
             if (preferCpuComputing) {
                 this._subMeshRenderings[iSubMesh] = new CpuComputing(
                     this._mesh,
@@ -574,7 +573,8 @@ function createVec4TextureFactory (gfxDevice: GFXDevice, vec4Capacity: number) {
                  */
                 destroy () {
                     textureAsset.destroy();
-                    // TODO: Should we free sampler?
+                    // Samplers allocated from `samplerLib` are not required and
+                    // should not be destroyed.
                     // this._sampler.destroy();
                 },
 
