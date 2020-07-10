@@ -410,7 +410,7 @@ function define (className, baseClass, mixins, options) {
         // cc-class is defined by `cc.Class({/* ... */})`.
         // In such case, `options.ctor` may be `undefined`.
         // So we can not use `options.ctor`. Instead we should use `cls` which is the "real" registered cc-class.
-        EditorExtends.emit('class-registered', cls, frame);
+        EditorExtends.emit('class-registered', cls, frame, className);
     }
 
     if (frame) {
@@ -420,9 +420,6 @@ function define (className, baseClass, mixins, options) {
             if (uuid) {
                 js._setClassId(uuid, cls);
                 if (EDITOR) {
-                    // @ts-ignore
-                    // tslint:disable-next-line:no-unused-expression
-                    EditorExtends.Component.addMenu(cls, 'i18n:menu.custom_script/' + className, -1);
                     cls.prototype.__scriptUuid = EditorExtends.UuidUtils.decompressUuid(uuid);
                 }
             }

@@ -746,6 +746,7 @@ value(Component, '_registerEditorProps', function (cls, props) {
                         menu = 'i18n:menu.custom_script/' + menu;
                     }
 
+                    EDITOR && EditorExtends.Component.removeMenu(cls);
                     EDITOR && EditorExtends.Component.addMenu(cls, menu, props.menuPriority);
                     break;
 
