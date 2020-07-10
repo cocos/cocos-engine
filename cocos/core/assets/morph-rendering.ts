@@ -183,7 +183,7 @@ class GpuComputing implements SubMeshMorphRendering {
 
         const nVertices = mesh.struct.vertexBundles[mesh.struct.primitives[subMeshIndex].vertexBundelIndices[0]].view.count;
         const nTargets = subMeshMorph.targets.length;
-        // Head includes N vector 4, where vector 4 is number of targets.
+        // Head includes N vector 4, where N is number of targets.
         // Every r channel of the pixel denotes the index of the data pixel of corresponding target.
         // [ (target1_data_offset), (target2_data_offset), .... ] target_data
         const vec4Required = nTargets + nVertices * nTargets;
