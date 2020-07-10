@@ -44,11 +44,7 @@ const labelAssembler: IAssemblerManager = {
         if (comp.font instanceof BitmapFont) {
             assembler = bmfont;
         }else if (comp.cacheMode === LabelComponent.CacheMode.CHAR){
-            if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME_SUB){
-                warn('sorry, subdomain does not support CHAR mode currently!');
-            } else {
-                assembler = letter;
-            }
+            assembler = letter;
         }
 
         return assembler;
