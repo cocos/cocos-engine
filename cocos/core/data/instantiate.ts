@@ -32,71 +32,79 @@ import { isDomNode } from '../utils/misc';
 import { ValueType } from '../value-types';
 import { CCObject } from './object';
 import { js } from '../utils';
-import { errorID, warn } from '../platform/debug';
+import { errorID, getError, warn } from '../platform/debug';
 import { DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import Prefab from '../assets/prefab';
 import { Node } from '../scene-graph/node';
 
-// @ts-ignore
 const Destroyed = CCObject.Flags.Destroyed;
-// @ts-ignore
 const PersistentMask = CCObject.Flags.PersistentMask;
 
 const objsToClearTmpVar: any = [];   // used to reset _iN$t variable
 
 /**
- * @en Clones the object `original` and returns the clone, or instantiate a node from the Prefab.
- * @zh 克隆指定的任意类型的对象，或者从 Prefab 实例化出新节点。
- * （Instantiate 时，function 和 dom 等非可序列化对象会直接保留原有引用，Asset 会直接进行浅拷贝，可序列化类型会进行深拷贝。）
- * @param original - An existing object that you want to make a copy of.
- * @return {} the newly instantiated object
+ * Invoke _instantiate method if supplied.
+ * The _instantiate callback will be called only on the root object, its associated object will not be called.
+ * @param instantiated If supplied, _instantiate just need to initialize the instantiated object, no need to create new object by itself.
+ * @returns The instantiated object.
+ */
+type CustomInstantiation = <T>(this: T, instantiated?: T) => T;
+
+/**
+ * @zh 从 Prefab 实例化出新节点。
+ * @en Instantiate a node from the Prefab.
+ * @param prefab The prefab.
+ * @returns The instantiated node.
  * @example
- * ```typescript
- * // instantiate node from prefab
- * var scene = cc.director.getScene();
- * var node = cc.instantiate(prefabAsset);
- * node.parent = scene;
- * // clone node
- * var scene = cc.director.getScene();
- * var node = cc.instantiate(targetNode);
- * node.parent = scene;
+ * ```ts
+ * import { instantiate, director } from 'cc';
+ * // Instantiate node from prefab.
+ * const node = instantiate(prefabAsset);
+ * node.parent = director.getScene();
  * ```
  */
-function instantiate (original: Prefab|Node|Object, internal_force?: Node|Object): Node | null {
-    if (!internal_force) {
-        if (typeof original !== 'object' || Array.isArray(original)) {
-            if (DEV) {
-                errorID(6900);
+function instantiate (prefab: Prefab): Node;
+
+/**
+ * @en Clones the object `original.
+ * @zh 克隆指定的任意类型的对象。
+ * @param original An existing object that you want to make a copy of.
+ * It can be any JavaScript object(`typeof original === 'object'`) but:
+ * - it shall not be array or null;
+ * - it shall not be object of `Asset`;
+ * - if it's an object of `CCObject`, it should not have been destroyed.
+ * @returns The newly instantiated object.
+ * @example
+ * ```ts
+ * import { instantiate, director } from 'cc';
+ * // Clone a node.
+ * const node = instantiate(targetNode);
+ * node.parent = director.getScene();
+ * ```
+ */
+function instantiate<T> (original: T): T;
+
+function instantiate (original: any, internalForce?: boolean) {
+    if (!internalForce) {
+        if (DEV) {
+            if (typeof original !== 'object' || Array.isArray(original)) {
+                throw new TypeError(getError(6900));
             }
-            return null;
-        }
-        if (!original) {
-            if (DEV) {
-                errorID(6901);
+            if (!original) {
+                throw new TypeError(getError(6901));
             }
-            return null;
-        }
-        if (!legacyCC.isValid(original)) {
-            if (DEV) {
-                errorID(6902);
+            if (!legacyCC.isValid(original)) {
+                throw new TypeError(getError(6901));
             }
-            return null;
-        }
-        if (DEV && original instanceof legacyCC.Component) {
-            warn('Should not instantiate a single cc.Component directly, you must instantiate the entire node.');
+            if (original instanceof legacyCC.Component) {
+                warn('Should not instantiate a single cc.Component directly, you must instantiate the entire node.');
+            }
         }
     }
 
     let clone;
     if (original instanceof CCObject) {
-        original = original as CCObject;
-        // Invoke _instantiate method if supplied.
-        // The _instantiate callback will be called only on the root object, its associated object will not be called.
-        // @callback associated
-        // @param {Object} [instantiated] - If supplied, _instantiate just need to initialize the instantiated object,
-        //                                  no need to create new object by itself.
-        // @returns {Object} - the instantiated object
         // @ts-ignore
         if (original._instantiate) {
             legacyCC.game._isCloning = true;
@@ -106,11 +114,7 @@ function instantiate (original: Prefab|Node|Object, internal_force?: Node|Object
             return clone;
         }
         else if (original instanceof legacyCC.Asset) {
-            // 不允许用通用方案实例化资源
-            if (DEV) {
-                errorID(6903);
-            }
-            return null;
+            throw new TypeError(getError(6903));
         }
     }
 
@@ -133,17 +137,13 @@ function instantiate (original: Prefab|Node|Object, internal_force?: Node|Object
  * @private
  */
 function doInstantiate (obj, parent?) {
-    if (Array.isArray(obj)) {
-        if (DEV) {
-            errorID(6904);
+    if (DEV) {
+        if (Array.isArray(obj)) {
+            throw new TypeError(getError(6904));
         }
-        return null;
-    }
-    if (isDomNode && isDomNode(obj)) {
-        if (DEV) {
-            errorID(6905);
+        if (isDomNode && isDomNode(obj)) {
+            throw new TypeError(getError(6905));
         }
-        return null;
     }
 
     let clone;
