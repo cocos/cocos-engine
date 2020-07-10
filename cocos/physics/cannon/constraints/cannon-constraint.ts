@@ -16,7 +16,7 @@ export class CannonConstraint implements IBaseConstraint {
         }
     }
 
-    setCollideConnected (v: boolean): void {
+    setEnableCollision (v: boolean): void {
         this._impl.collideConnected = v;
     }
 
@@ -31,7 +31,7 @@ export class CannonConstraint implements IBaseConstraint {
         this._com = v;
         this._rigidBody = v.attachedBody;
         this.onComponentSet();
-        this.setCollideConnected(v.collideConnected);
+        this.setEnableCollision(v.enableCollision);
         CANNON.World['idToConstraintMap'][this._impl.id] = this._impl;
     }
 

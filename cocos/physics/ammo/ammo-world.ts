@@ -205,7 +205,7 @@ export class AmmoWorld implements IPhysicsWorld {
         const i = this.constraints.indexOf(constraint);
         if (i < 0) {
             this.constraints.push(constraint);
-            this._btWorld.addConstraint(constraint.impl, !constraint.constraint.collideConnected);
+            this._btWorld.addConstraint(constraint.impl, !constraint.constraint.enableCollision);
             constraint.index = i;
         }
     }

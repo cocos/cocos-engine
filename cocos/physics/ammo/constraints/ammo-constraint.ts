@@ -9,7 +9,7 @@ export class AmmoConstraint implements IBaseConstraint {
         // TODO: support dynamic change connected body
     }
 
-    setCollideConnected (v: boolean): void {
+    setEnableCollision (v: boolean): void {
         if (this._collided != v) {
             this._collided = v;
             this.updateByReAdd();
@@ -43,7 +43,7 @@ export class AmmoConstraint implements IBaseConstraint {
     initialize (v: ConstraintComponent): void {
         this._com = v;
         this._rigidBody = v.attachedBody;
-        this._collided = v.collideConnected;
+        this._collided = v.enableCollision;
         this.onComponentSet();
     }
 

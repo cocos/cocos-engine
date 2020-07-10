@@ -7,6 +7,7 @@ import { CannonRigidBody } from '../cannon-rigid-body';
 import { IVec3Like, Vec3 } from '../../../core';
 
 const v3_0 = new Vec3();
+const v3_1 = new Vec3();
 
 export class CannonHingeConstraint extends CannonConstraint implements IHingeConstraint {
 
@@ -28,6 +29,10 @@ export class CannonHingeConstraint extends CannonConstraint implements IHingeCon
         const cb = this.constraint.connectedBody;
         if (cb) {
             Vec3.multiply(v3_0, v3_0, cb.node.worldScale);
+        } else {
+            Vec3.add(v3_0, v3_0, this._com.node.worldPosition);
+            Vec3.multiply(v3_1, this.constraint.pivotA, this._com.node.worldScale);
+            Vec3.add(v3_0, v3_0, v3_1);
         }
         Vec3.copy(this.impl.pivotB, v3_0);
     }

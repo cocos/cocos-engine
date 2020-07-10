@@ -44,14 +44,14 @@ export class ConstraintComponent extends Eventify(Component) {
     @property({
         displayOrder: 0,
     })
-    get collideConnected () {
-        return this._collideConnected;
+    get enableCollision () {
+        return this._enableCollision;
     }
 
-    set collideConnected (v) {
-        this._collideConnected = v;
+    set enableCollision (v) {
+        this._enableCollision = v;
         if (!EDITOR) {
-            if (this._constraint) this._constraint.setCollideConnected(v);
+            if (this._constraint) this._constraint.setEnableCollision(v);
         }
     }
 
@@ -60,7 +60,7 @@ export class ConstraintComponent extends Eventify(Component) {
     /// PROTECTED PROPERTY ///
 
     @property
-    protected _collideConnected = true;
+    protected _enableCollision = true;
 
     @property({ type: RigidBodyComponent })
     protected _connectedBody: RigidBodyComponent | null = null;

@@ -164,7 +164,7 @@ const ENTIRE_CONSTRAINT: IEntireConstraint = {
     'onEnable': FUNC,
     'onDisable': FUNC,
     'onDestroy': FUNC,
-    'setCollideConnected': FUNC,
+    'setEnableCollision': FUNC,
     'setConnectedBody': FUNC,
     'setPivotA': FUNC,
     'setPivotB': FUNC,
