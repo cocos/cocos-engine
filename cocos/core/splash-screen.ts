@@ -22,6 +22,7 @@ import { IPSOCreateInfo } from './renderer';
 import { PipelineStateManager } from './pipeline/pipeline-state-manager';
 import { legacyCC } from './global-exports';
 import { Root } from './root';
+import { RenderPassStage } from './pipeline/define';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 
@@ -247,8 +248,8 @@ export class SplashScreen {
         const renderArea = this.renderArea;
 
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(framebuffer, renderArea,
-            GFXClearFlag.ALL, this.clearColors, 1.0, 0);
+        cmdBuff.beginRenderPass(framebuffer.renderPass, framebuffer, renderArea,
+            this.clearColors, 1.0, 0);
 
         const pso = PipelineStateManager.getOrCreatePipelineState(device, this.psoCreateInfo, framebuffer.renderPass!, this.assmebler);
         cmdBuff.bindPipelineState(pso);
@@ -350,7 +351,7 @@ export class SplashScreen {
         }
 
         // transform to clipspace
-        const ySign = this.device.projectionSignY;
+        const ySign = this.device.screenSpaceSignY;
         for (let i = 0; i < verts.length; i += 4) {
             verts[i] = verts[i] / this.screenWidth * 2 - 1;
             verts[i + 1] = (verts[i + 1] / this.screenHeight * 2 - 1) * ySign;
@@ -433,7 +434,7 @@ export class SplashScreen {
         }
 
         // transform to clipspace
-        const ySign = device.projectionSignY;
+        const ySign = device.screenSpaceSignY;
         for (let i = 0; i < verts.length; i += 4) {
             verts[i] = verts[i] / this.screenWidth * 2 - 1;
             verts[i + 1] = (verts[i + 1] / this.screenHeight * 2 - 1) * ySign;

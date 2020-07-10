@@ -306,31 +306,27 @@ export abstract class GFXDevice {
     }
 
     /**
-     * @en Is the front face winding order reversed?
-     * @zh 是否倒置三角面缠绕顺序？
-     */
-    get reverseCW (): boolean {
-        return this._reverseCW;
-    }
-
-    set reverseCW (val: boolean) {
-        this._reverseCW = val;
-    }
-
-    /**
      * @en The minimum Z value in clip space for the device.
-     * @zh 当前设备剪裁空间的最小 z 值。
+     * @zh 裁剪空间的最小 z 值。
      */
-    get minClipZ () {
-        return this._minClipZ;
+    get clipSpaceMinZ () {
+        return this._clipSpaceMinZ;
     }
 
     /**
-     * @en The sign to apply to the Y axis of projection matrices, positive value for pointing upwards.
-     * @zh 投影矩阵的 y 轴符号，正值为向上。
+     * @en The sign of the screen space Y axis, positive if origin at lower-left.
+     * @zh 屏幕空间的 y 轴符号，原点在左下角时为正。
      */
-    get projectionSignY () {
-        return this._projectionSignY;
+    get screenSpaceSignY () {
+        return this._screenSpaceSignY;
+    }
+
+    /**
+     * @en The sign of the UV space Y axis, positive if origin at upper-left.
+     * @zh UV 空间的 y 轴符号，原点在左上角时为正。
+     */
+    get UVSpaceSignY () {
+        return this._UVSpaceSignY;
     }
 
     protected _canvas: HTMLCanvasElement | null = null;
@@ -360,7 +356,6 @@ export abstract class GFXDevice {
     protected _stencilBits: number = 0;
     protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;
     protected _depthStencilFmt: GFXFormat = GFXFormat.UNKNOWN;
-    protected _reverseCW: boolean = false;
     protected _shaderIdGen: number = 0;
     protected _macros: Map<string, string> = new Map();
     protected _numDrawCalls: number = 0;
@@ -370,8 +365,9 @@ export abstract class GFXDevice {
         bufferSize: 0,
         textureSize: 0,
     };
-    protected _minClipZ = -1;
-    protected _projectionSignY = 1;
+    protected _clipSpaceMinZ = -1;
+    protected _screenSpaceSignY = 1;
+    protected _UVSpaceSignY = -1;
 
     public abstract initialize (info: IGFXDeviceInfo): boolean;
 

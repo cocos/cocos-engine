@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXFormat, GFXFormatInfos, GFXTextureType, GFXTextureUsageBit } from '../../gfx/define';
+import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXFormat, GFXFormatInfos, GFXTextureType, GFXTextureUsageBit, GFXTextureFlagBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXTexture } from '../../gfx/texture';
 

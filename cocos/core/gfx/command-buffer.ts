@@ -144,7 +144,7 @@ export abstract class GFXCommandBuffer extends GFXObject {
      * @param clearDepth The clearing depth.
      * @param clearStencil The clearing stencil.
      */
-    public abstract beginRenderPass (framebuffer: GFXFramebuffer, renderArea: IGFXRect, clearFlag: GFXClearFlag, clearColors: IGFXColor[], clearDepth: number, clearStencil: number): void;
+    public abstract beginRenderPass (renderPass: GFXRenderPass, framebuffer: GFXFramebuffer, renderArea: IGFXRect, clearColors: IGFXColor[], clearDepth: number, clearStencil: number): void;
 
     /**
      * @en End render pass.

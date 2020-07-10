@@ -317,7 +317,7 @@ class ProgramLib {
             case GFXAPI.WEBGL2: src = tmpl.glsl3; break;
             case GFXAPI.VULKAN:
             case GFXAPI.METAL: src = tmpl.glsl4; break;
-            default:  console.error('Invalid GFX API!'); break;
+            default: console.error('Invalid GFX API!'); break;
         }
 
         const blocks: IBlockInfoRT[] = [];

@@ -205,8 +205,8 @@ class GpuComputing implements SubMeshMorphRendering {
                 textureInfo.displacements.push(...new Float32Array(meshData, displacements.offset, displacements.count));
             });
 
-            const pixelStride = 4; // For position, normal, tangent
-            const pixelFormat = Texture2D.PixelFormat.RGBA32F; // For position, normal, tangent
+            const pixelStride = 3; // For position, normal, tangent
+            const pixelFormat = Texture2D.PixelFormat.RGB32F; // For position, normal, tangent
 
             const textureSource = new Float32Array(pixelStride * width * height);
             const headPixels = nTargets;

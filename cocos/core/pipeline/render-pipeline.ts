@@ -11,11 +11,14 @@ import {
     GFXFormat,
     GFXFormatInfos,
     GFXMemoryUsageBit,
-    GFXTextureUsageBit } from '../gfx/define';
+    GFXTextureLayout,
+    GFXTextureUsageBit,
+    GFXLoadOp,
+    GFXStoreOp} from '../gfx/define';
 import { GFXFeature } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
-import { GFXRenderPass } from '../gfx/render-pass';
+import { GFXRenderPass, GFXColorAttachment, GFXDepthStencilAttachment } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
 import { Mat4, Vec3, Vec4 } from '../math';
 import { Camera, Model, Light } from '../renderer';
@@ -560,7 +563,7 @@ export abstract class RenderPipeline {
         Mat4.toArray(fv, camera.matViewProj, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
         Mat4.toArray(fv, camera.matViewProjInv, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
         Vec3.toArray(fv, camera.position, UBOGlobal.CAMERA_POS_OFFSET);
-        fv[UBOGlobal.CAMERA_POS_OFFSET + 3] = PipelineGlobal.device.projectionSignY;
+        fv[UBOGlobal.CAMERA_POS_OFFSET + 3] = PipelineGlobal.device.screenSpaceSignY;
 
         const exposure = camera.exposure;
         fv[UBOGlobal.EXPOSURE_OFFSET] = exposure;
@@ -799,19 +802,34 @@ export abstract class RenderPipeline {
             return false;
         }
 
-        const mainWindow = PipelineGlobal.root.mainWindow;
-        let windowPass: GFXRenderPass | null = null;
+        let colorAttachment = new GFXColorAttachment();
+        let depthStencilAttachment = new GFXDepthStencilAttachment();
+        colorAttachment.format = PipelineGlobal.device.colorFormat;
+        depthStencilAttachment.format = PipelineGlobal.device.depthStencilFormat;
+        depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
+        depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
 
-        if (mainWindow) {
-            windowPass = mainWindow.renderPass;
-        }
-
-        if (!windowPass) {
-            console.error('RenderPass of main window is null.');
-            return false;
-        }
-
+        const windowPass = PipelineGlobal.device.createRenderPass({
+            colorAttachments: [colorAttachment],
+            depthStencilAttachment,
+        });
         this.addRenderPass(RenderPassStage.DEFAULT, windowPass);
+
+        colorAttachment = new GFXColorAttachment();
+        colorAttachment.format = PipelineGlobal.device.colorFormat;
+        colorAttachment.loadOp = GFXLoadOp.LOAD;
+        colorAttachment.beginLayout = GFXTextureLayout.PRESENT_SRC;
+
+        depthStencilAttachment = new GFXDepthStencilAttachment();
+        depthStencilAttachment.format = PipelineGlobal.device.depthStencilFormat;
+        depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
+        depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
+
+        const uiPass = PipelineGlobal.device.createRenderPass({
+            colorAttachments: [colorAttachment],
+            depthStencilAttachment,
+        });
+        this.addRenderPass(RenderPassStage.UI, uiPass);
 
         // update global defines when all states initialized.
         this._macros.CC_USE_HDR = (this._isHDR);

@@ -4,7 +4,7 @@
 
 import { ccclass } from '../../data/class-decorator';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXClearFlag, GFXFilter, IGFXColor } from '../../gfx/define';
+import { GFXClearFlag, GFXFilter, IGFXColor, GFXLoadOp, GFXTextureLayout } from '../../gfx/define';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderFlow } from '../render-flow';
@@ -148,22 +148,21 @@ export class ForwardStage extends RenderStage {
 
         colors[0].a = camera.clearColor.a;
 
+        let framebuffer = view.window.framebuffer;
         if (this._pipeline.usePostProcess) {
             if (!this._pipeline.useMSAA) {
-                this._framebuffer = this._pipeline.getFrameBuffer(this._pipeline!.currShading)!;
+                framebuffer = this._pipeline.getFrameBuffer(this._pipeline!.currShading)!;
             } else {
-                this._framebuffer = this._pipeline.getFrameBuffer('msaa')!;
+                framebuffer = this._pipeline.getFrameBuffer('msaa')!;
             }
-        } else {
-            this._framebuffer = view.window!.framebuffer;
         }
 
         const device = PipelineGlobal.device;
-        const renderPass = this._framebuffer.renderPass!;
+        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : this._flow.getRenderPass(camera.clearFlag);
 
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(this._framebuffer, this._renderArea!,
-            camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
+            colors, camera.clearDepth, camera.clearStencil);
 
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);

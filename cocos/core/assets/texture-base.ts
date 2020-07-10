@@ -40,8 +40,6 @@ import { GFXSampler } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
 
-const CHAR_CODE_1 = 49;    // '1'
-
 const idGenerator = new IDGenerator('Tex');
 /**
  * 贴图资源基类。它定义了所有贴图共用的概念。
@@ -79,12 +77,6 @@ export class TextureBase extends Asset {
     protected _format: number = PixelFormat.RGBA8888;
 
     @property
-    protected _premultiplyAlpha = false;
-
-    @property
-    protected _flipY = false;
-
-    @property
     protected _minFilter: number = Filter.LINEAR;
 
     @property
@@ -105,8 +97,8 @@ export class TextureBase extends Asset {
     @property
     protected _anisotropy = 8;
 
-    protected _width: number = 0;
-    protected _height: number = 0;
+    protected _width: number = 1;
+    protected _height: number = 1;
 
     private _id: string;
     private _samplerInfo: (number | undefined)[] = [];
@@ -114,10 +106,8 @@ export class TextureBase extends Asset {
     private _gfxSampler: GFXSampler | null = null;
     private _gfxDevice: GFXDevice | null = null;
 
-    constructor (flipY: boolean = false) {
+    constructor () {
         super();
-
-        this._flipY = flipY;
 
         // Id for generate hash in material
         this._id = idGenerator.getNewId();
@@ -140,14 +130,6 @@ export class TextureBase extends Asset {
      */
     public getPixelFormat () {
         return this._format;
-    }
-
-    /**
-     * 返回是否开启了预乘透明通道功能。
-     * @returns 此贴图是否开启了预乘透明通道功能。
-     */
-    public hasPremultipliedAlpha () {
-        return this._premultiplyAlpha || false;
     }
 
     /**
@@ -213,22 +195,6 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * 设置渲染时是否运行将此贴图进行翻转。
-     * @param flipY 翻转则为 `true`，否则为 `false`。
-     */
-    public setFlipY (flipY: boolean) {
-        this._flipY = flipY;
-    }
-
-    /**
-     * 设置此贴图是否预乘透明通道。
-     * @param premultiply
-     */
-    public setPremultiplyAlpha (premultiply: boolean) {
-        this._premultiplyAlpha = premultiply;
-    }
-
-    /**
      * 设置此贴图的各向异性。
      * @param anisotropy 各向异性。
      */
@@ -274,7 +240,7 @@ export class TextureBase extends Asset {
                 errorID(9302);
             }
         }
-        return this._gfxSampler;
+        return this._gfxSampler!;
     }
 
     // SERIALIZATION
@@ -285,9 +251,7 @@ export class TextureBase extends Asset {
     public _serialize (exporting?: any): any {
         return this._minFilter + ',' + this._magFilter + ',' +
             this._wrapS + ',' + this._wrapT + ',' +
-            (this._premultiplyAlpha ? 1 : 0) + ',' +
-            this._mipFilter + ',' + this._anisotropy + ',' +
-            (this._flipY ? 1 : 0);
+            this._mipFilter + ',' + this._anisotropy;
     }
 
     /**
@@ -298,20 +262,15 @@ export class TextureBase extends Asset {
         const data = serializedData as string;
         const fields = data.split(',');
         fields.unshift('');
-        if (fields.length >= 6) {
+        if (fields.length >= 5) {
             // decode filters
             this.setFilters(parseInt(fields[1]), parseInt(fields[2]));
             // decode wraps
             this.setWrapMode(parseInt(fields[3]), parseInt(fields[4]));
-            // decode premultiply alpha
-            this._premultiplyAlpha = fields[5].charCodeAt(0) === CHAR_CODE_1;
         }
-        if (fields.length >= 8) {
-            this.setMipFilter(parseInt(fields[6]));
-            this.setAnisotropy(parseInt(fields[7]));
-        }
-        if (fields.length >= 9) {
-            this._flipY = fields[8].charCodeAt(0) === CHAR_CODE_1;
+        if (fields.length >= 7) {
+            this.setMipFilter(parseInt(fields[5]));
+            this.setAnisotropy(parseInt(fields[6]));
         }
     }
 

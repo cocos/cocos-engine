@@ -36,6 +36,7 @@ import { WebGLGFXInputAssembler } from './webgl-input-assembler';
 import { WebGLGFXPipelineState } from './webgl-pipeline-state';
 import { WebGLGFXTexture } from './webgl-texture';
 import { GFXRenderPass } from '../render-pass';
+import { WebGLGFXRenderPass } from './webgl-render-pass';
 
 export interface IWebGLDepthBias {
     constantFactor: number;
@@ -124,16 +125,16 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
     }
 
     public beginRenderPass (
+        renderPass: GFXRenderPass,
         framebuffer: GFXFramebuffer,
         renderArea: IGFXRect,
-        clearFlag: GFXClearFlag,
         clearColors: IGFXColor[],
         clearDepth: number,
         clearStencil: number) {
         const cmd = this._webGLAllocator!.beginRenderPassCmdPool.alloc(WebGLCmdBeginRenderPass);
-        cmd.gpuFramebuffer = ( framebuffer as WebGLGFXFramebuffer).gpuFramebuffer;
+        cmd.gpuRenderPass = (renderPass as WebGLGFXRenderPass).gpuRenderPass;
+        cmd.gpuFramebuffer = (framebuffer as WebGLGFXFramebuffer).gpuFramebuffer;
         cmd.renderArea = renderArea;
-        cmd.clearFlag = clearFlag;
         cmd.clearColors.length = clearColors.length;
         for (let i = 0; i < clearColors.length; ++i) {
             cmd.clearColors[i] = clearColors[i];

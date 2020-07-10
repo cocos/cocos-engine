@@ -9,7 +9,7 @@ import { GFXClearFlag, GFXCommandBufferType, IGFXColor, IGFXRect } from '../gfx/
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { Pass } from '../renderer/core/pass';
 import { ccenum } from '../value-types/enum';
-import { IRenderPass } from './define';
+import { IRenderPass, RenderPassStage } from './define';
 import { getPhaseID } from './pass-phase';
 import { RenderFlow } from './render-flow';
 import { RenderPipeline } from './render-pipeline';
@@ -71,7 +71,7 @@ class RenderQueueDesc {
 
 /**
  * @en The render stage actually renders render objects to the output window or other [[GFXFrameBuffer]].
- * Typically, a render stage collects render objects it's responsible for, clear the camera, 
+ * Typically, a render stage collects render objects it's responsible for, clear the camera,
  * record and execute command buffer, and at last present the render result.
  * @zh 渲染阶段是实质上的渲染执行者，它负责收集渲染数据并执行渲染将渲染结果输出到屏幕或其他 [[GFXFrameBuffer]] 中。
  * 典型的渲染阶段会收集它所管理的渲染对象，按照 [[Camera]] 的清除标记进行清屏，记录并执行渲染指令缓存，并最终呈现渲染结果。
@@ -251,7 +251,7 @@ export abstract class RenderStage {
         }
 
         if (this.frameBuffer === 'window') {
-            this._framebuffer = PipelineGlobal.root.mainWindow!.framebuffer!;
+            this._framebuffer = PipelineGlobal.root.mainWindow!.framebuffer;
         } else {
             this._framebuffer = this._flow.pipeline.getFrameBuffer(this.frameBuffer)!;
         }
@@ -378,12 +378,12 @@ export abstract class RenderStage {
             _colors[0].b = camera.clearColor.b;
         }
         if (!this._framebuffer) {
-            this._framebuffer = view.window!.framebuffer;
+            this._framebuffer = view.window.framebuffer;
         }
+        const renderPass = this._framebuffer.renderPass;
 
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea!,
-            camera.clearFlag, _colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(renderPass, this._framebuffer!, this._renderArea!, _colors, camera.clearDepth, camera.clearStencil);
 
         for (let i = 0; i < this._renderQueues.length; i++) {
             this._renderQueues[i].recordCommandBuffer(PipelineGlobal.device, this._framebuffer.renderPass!, cmdBuff);

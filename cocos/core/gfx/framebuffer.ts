@@ -9,11 +9,10 @@ import { GFXTexture } from './texture';
 
 export interface IGFXFramebufferInfo {
     renderPass: GFXRenderPass;
-    colorTextures: GFXTexture[];
+    colorTextures: (GFXTexture | null)[]; // pass null to use swapchain buffers
     depthStencilTexture: GFXTexture | null;
     colorMipmapLevels?: number[];
     depStencilMipmapLevel?: number;
-    isOffscreen?: boolean;
 }
 
 /**
@@ -26,15 +25,15 @@ export abstract class GFXFramebuffer extends GFXObject {
      * @en Get current render pass.
      * @zh GFX 渲染过程。
      */
-    public get renderPass (): GFXRenderPass | null {
-        return this._renderPass;
+    public get renderPass (): GFXRenderPass {
+        return this._renderPass!;
     }
 
     /**
      * @en Get current color views.
      * @zh 颜色纹理视图数组。
      */
-    public get colorTextures (): GFXTexture[] {
+    public get colorTextures (): (GFXTexture | null)[] {
         return this._colorTextures;
     }
 
@@ -46,23 +45,13 @@ export abstract class GFXFramebuffer extends GFXObject {
         return this._depthStencilTexture;
     }
 
-    /**
-     * @en Is this frame buffer offscreen?
-     * @zh 是否是离屏的。
-     */
-    public get isOffscreen (): boolean {
-        return this._isOffscreen;
-    }
-
     protected _device: GFXDevice;
 
     protected _renderPass: GFXRenderPass | null = null;
 
-    protected _colorTextures: GFXTexture[] = [];
+    protected _colorTextures: (GFXTexture | null)[] = [];
 
     protected _depthStencilTexture: GFXTexture | null = null;
-
-    protected _isOffscreen: boolean = true;
 
     constructor (device: GFXDevice) {
         super(GFXObjectType.FRAMEBUFFER);

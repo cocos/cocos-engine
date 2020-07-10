@@ -52,7 +52,7 @@ const tInverseScale = new Vec3(1, 1, 1);
 // align to borders by adjusting node's position and size (ignore rotation)
 function align (node: Node, widget: WidgetComponent) {
     const hasTarget = widget.target;
-    let target: any;
+    let target: Node | Scene;
     const inverseTranslate = tInverseTranslate;
     const inverseScale = tInverseScale;
     if (hasTarget) {
@@ -61,14 +61,14 @@ function align (node: Node, widget: WidgetComponent) {
         // inverseScale = tInverseScale;
         computeInverseTransForTarget(node, target, inverseTranslate, inverseScale);
     } else {
-        target = node.parent;
+        target = node.parent!;
     }
-    if (!target.getComponent (UITransformComponent)) {
+    if (!target.getComponent(UITransformComponent)) {
         return;
     }
     const targetSize = getReadonlyNodeSize(target);
     const isScene = target instanceof Scene;
-    const targetAnchor = isScene ? _defaultAnchor : target.getAnchorPoint();
+    const targetAnchor = isScene ? _defaultAnchor : target.getComponent(UITransformComponent)!.anchorPoint;
 
     // @ts-ignore
     const isRoot = !EDITOR && isScene;
@@ -119,7 +119,7 @@ function align (node: Node, widget: WidgetComponent) {
             width = uiTrans.width * scaleX;
             if (widget.isAlignHorizontalCenter) {
                 let localHorizontalCenter = widget.isAbsoluteHorizontalCenter ?
-                widget.horizontalCenter : widget.horizontalCenter * targetWidth;
+                    widget.horizontalCenter : widget.horizontalCenter * targetWidth;
                 let targetCenter = (0.5 - targetAnchor.x) * targetSize.width;
                 if (hasTarget) {
                     localHorizontalCenter *= inverseScale.x;
@@ -179,7 +179,7 @@ function align (node: Node, widget: WidgetComponent) {
             height = uiTrans.height * scaleY;
             if (widget.isAlignVerticalCenter) {
                 let localVerticalCenter = widget.isAbsoluteVerticalCenter ?
-                widget.verticalCenter : widget.verticalCenter * targetHeight;
+                    widget.verticalCenter : widget.verticalCenter * targetHeight;
                 let targetMiddle = (0.5 - targetAnchor.y) * targetSize.height;
                 if (hasTarget) {
                     localVerticalCenter *= inverseScale.y;
@@ -240,35 +240,35 @@ function visitNode (node: any) {
 function refreshScene () {
     // check animation editor
     // if (EDITOR && !Editor.isBuilder) {
-        // var AnimUtils = Editor.require('scene://utils/animation');
-        // var EditMode = Editor.require('scene://edit-mode');
-        // if (AnimUtils && EditMode) {
-        //     var nowPreviewing = (EditMode.curMode().name === 'animation' && !!AnimUtils.Cache.animation);
-        //     if (nowPreviewing !== animationState.previewing) {
-        //         animationState.previewing = nowPreviewing;
-        //         if (nowPreviewing) {
-        //             animationState.animatedSinceLastFrame = true;
-        //             let component = cc.engine.getInstanceById(AnimUtils.Cache.component);
-        //             if (component) {
-        //                 let animation = component.getAnimationState(AnimUtils.Cache.animation);
-        //                 animationState.time = animation.time;
-        //             }
-        //         }
-        //         else {
-        //             animationState.animatedSinceLastFrame = false;
-        //         }
-        //     }
-        //     else if (nowPreviewing) {
-        //         let component = cc.engine.getInstanceById(AnimUtils.Cache.component);
-        //         if (component) {
-        //             let animation = component.getAnimationState(AnimUtils.Cache.animation);
-        //             if (animationState.time !== animation.time) {
-        //                 animationState.animatedSinceLastFrame = true;
-        //                 animationState.time = AnimUtils.Cache.animation.time;
-        //             }
-        //         }
-        //     }
-        // }
+    // var AnimUtils = Editor.require('scene://utils/animation');
+    // var EditMode = Editor.require('scene://edit-mode');
+    // if (AnimUtils && EditMode) {
+    //     var nowPreviewing = (EditMode.curMode().name === 'animation' && !!AnimUtils.Cache.animation);
+    //     if (nowPreviewing !== animationState.previewing) {
+    //         animationState.previewing = nowPreviewing;
+    //         if (nowPreviewing) {
+    //             animationState.animatedSinceLastFrame = true;
+    //             let component = cc.engine.getInstanceById(AnimUtils.Cache.component);
+    //             if (component) {
+    //                 let animation = component.getAnimationState(AnimUtils.Cache.animation);
+    //                 animationState.time = animation.time;
+    //             }
+    //         }
+    //         else {
+    //             animationState.animatedSinceLastFrame = false;
+    //         }
+    //     }
+    //     else if (nowPreviewing) {
+    //         let component = cc.engine.getInstanceById(AnimUtils.Cache.component);
+    //         if (component) {
+    //             let animation = component.getAnimationState(AnimUtils.Cache.animation);
+    //             if (animationState.time !== animation.time) {
+    //                 animationState.animatedSinceLastFrame = true;
+    //                 animationState.time = AnimUtils.Cache.animation.time;
+    //             }
+    //         }
+    //     }
+    // }
     // }
 
     const scene = director.getScene();
@@ -306,8 +306,8 @@ function refreshScene () {
             //     }
             // }
             // else {
-                // loop reversely will not help to prevent out of sync
-                // because user may remove more than one item during a step.
+            // loop reversely will not help to prevent out of sync
+            // because user may remove more than one item during a step.
             for (iterator.i = 0; iterator.i < activeWidgets.length; ++iterator.i) {
                 widget = activeWidgets[iterator.i];
                 if (widget._dirty) {
@@ -355,7 +355,7 @@ export const widgetManager = legacyCC._widgetManager = {
         animatedSinceLastFrame: false,
     } : null,
 
-    init (director) {
+    init () {
         director.on(Director.EVENT_AFTER_UPDATE, refreshScene);
 
         if (EDITOR /*&& cc.engine*/) {
@@ -388,7 +388,7 @@ export const widgetManager = legacyCC._widgetManager = {
         }
     },
     refreshWidgetOnResized (node: Node) {
-        if (Node.isNode(node)){
+        if (Node.isNode(node)) {
             const widget = node.getComponent(WidgetComponent);
             if (widget && widget.alignMode === AlignMode.ON_WINDOW_RESIZE) {
                 widget.enabled = true;
@@ -463,7 +463,7 @@ export const widgetManager = legacyCC._widgetManager = {
                 let t = (1 - parentAP.y) * matchSize.height;
                 t += zero.y;
                 temp = (t *= one.y) - (pos.y + (1 - myAP.y) * trans.height! * widgetNodeScale.y);
-                if (!widget.isAbsoluteTop){
+                if (!widget.isAbsoluteTop) {
                     temp /= matchSize.height;
                 }
 
@@ -476,7 +476,7 @@ export const widgetManager = legacyCC._widgetManager = {
                 b += zero.y;
                 b *= one.y;
                 temp = pos.y - myAP.y * trans.height! * widgetNodeScale.y - b;
-                if (!widget.isAbsoluteBottom){
+                if (!widget.isAbsoluteBottom) {
                     temp /= matchSize.height;
                 }
 
@@ -491,5 +491,5 @@ export const widgetManager = legacyCC._widgetManager = {
 };
 
 director.on(Director.EVENT_INIT, () => {
-    widgetManager.init(director);
+    widgetManager.init();
 });
