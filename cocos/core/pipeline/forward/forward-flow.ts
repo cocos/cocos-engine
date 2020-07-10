@@ -3,7 +3,7 @@
  */
 
 import { ccclass } from '../../data/class-decorator';
-import { PIPELINE_FLOW_FORWARD } from '../define';
+import { PIPELINE_FLOW_FORWARD, UNIFORM_SHADOWMAP } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { ForwardFlowPriority } from './enum';
@@ -40,6 +40,11 @@ export class ForwardFlow extends RenderFlow {
         this.pipeline.sceneCulling(view);
 
         this.pipeline.updateUBOs(view);
+
+        const shadowmapUniform = this._pipeline.globalBindings.get(UNIFORM_SHADOWMAP.name);
+        if (shadowmapUniform) {
+            shadowmapUniform.texture = this._pipeline.shadowFrameBuffer?.colorTextures[0];
+        }
 
         super.render(view);
     }

@@ -14,6 +14,7 @@ import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { PipelineGlobal } from '../global';
+import { UNIFORM_SHADOWMAP } from '../define';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -98,6 +99,11 @@ export class ForwardStage extends RenderStage {
                         } else {
                             for (k = 0; k < this._renderQueues.length; k++) {
                                 this._renderQueues[k].insertRenderPass(ro, m, p);
+                                const shadowmapUniform = this.pipeline.globalBindings.get(UNIFORM_SHADOWMAP.name);
+                                const texture = shadowmapUniform?.texture;
+                                const sampler = shadowmapUniform?.sampler;
+                                pass.bindTexture(UNIFORM_SHADOWMAP.binding, texture!);
+                                pass.bindSampler(UNIFORM_SHADOWMAP.binding, sampler!);
                             }
                             this._additiveLightQueue.add(ro, m, pass, lightIndexOffset[i], nextLightIndex);
                         }
@@ -109,6 +115,11 @@ export class ForwardStage extends RenderStage {
                         const pass = ro.model.getSubModel(m).passes[p];
                         for (k = 0; k < this._renderQueues.length; k++) {
                             this._renderQueues[k].insertRenderPass(ro, m, p);
+                            const shadowmapUniform = this.pipeline.globalBindings.get(UNIFORM_SHADOWMAP.name);
+                            const texture = shadowmapUniform?.texture;
+                            const sampler = shadowmapUniform?.sampler;
+                            pass.bindTexture(UNIFORM_SHADOWMAP.binding, texture!);
+                            pass.bindSampler(UNIFORM_SHADOWMAP.binding, sampler!);
                         }
                         this._additiveLightQueue.add(ro, m, pass, lightIndexOffset[i], nextLightIndex);
                     }

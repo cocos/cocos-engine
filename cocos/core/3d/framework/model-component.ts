@@ -81,7 +81,7 @@ class ModelLightmapSettings {
     @property({
         formerlySerializedAs: '_recieveShadow',
     })
-    protected _receiveShadow: boolean = false;
+    protected _receiveShadow: boolean = true;
     @property
     protected _lightmapSize: number = 64;
 
@@ -159,6 +159,8 @@ export class ModelComponent extends RenderableComponent {
 
     @property
     protected _shadowCastingMode = ModelShadowCastingMode.OFF;
+
+    protected _receiveShadows = true;
 
     /**
      * @en Shadow projection mode.
@@ -241,6 +243,7 @@ export class ModelComponent extends RenderableComponent {
         this._watchMorphInMesh();
         this._updateModels();
         this._updateCastShadow();
+        this._updateReceiveShadows();
     }
 
     // Redo, Undo, Prefab restore, etc.
@@ -419,6 +422,19 @@ export class ModelComponent extends RenderableComponent {
                 `ShadowCastingMode ${this._shadowCastingMode} is not supported.`,
             );
             this._model.castShadow = true;
+        }
+    }
+
+    protected _updateReceiveShadows () {
+        if (!this._model) { return; }
+        if (this._shadowCastingMode === ModelShadowCastingMode.OFF) {
+            this._model.receiveShadow = true;
+        } else {
+            assertIsTrue(
+                this._shadowCastingMode === ModelShadowCastingMode.ON,
+                `ShadowCastingMode ${this._shadowCastingMode} is not supported.`,
+            );
+            this._model.receiveShadow = true;
         }
     }
 

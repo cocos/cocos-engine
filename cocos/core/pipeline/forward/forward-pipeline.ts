@@ -5,14 +5,14 @@
 import { ccclass } from '../../data/class-decorator';
 import { intersect, sphere } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
-import { Vec3 } from '../../math';
+import { Vec3, Mat4 } from '../../math';
 import { Light, Model } from '../../renderer';
 import { DirectionalLight } from '../../renderer/scene/directional-light';
 import { LightType } from '../../renderer/scene/light';
 import { SphereLight } from '../../renderer/scene/sphere-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
 import { cullDirectionalLight, cullSphereLight, cullSpotLight } from '../culling';
-import { UBOForwardLight } from '../define';
+import { UBOForwardLight, UBOShadow, UBOPCFShadow } from '../define';
 import { IRenderPipelineInfo, RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { UIFlow } from '../ui/ui-flow';
@@ -20,6 +20,7 @@ import { ForwardFlow } from './forward-flow';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { PipelineGlobal } from '../global';
+import { ShadowFlow } from '../shadow/shadow-flow';
 
 const _vec4Array = new Float32Array(4);
 const _sphere = sphere.create(0, 0, 0, 1);
@@ -75,6 +76,14 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     /**
+     * @zh
+     * 获取阴影UBO。
+     */
+    public  get shadowUBOBuffer (){
+        return this._globalBindings.get(UBOShadow.BLOCK.name)!.buffer!;
+    }
+
+    /**
      * @en The ubo layout for all forward lights 
      * @zh 全部前向光源的 UBO 结构描述。
      */
@@ -91,6 +100,8 @@ export class ForwardPipeline extends RenderPipeline {
     private _lightIndices: number[];
     private _lightBuffers: GFXBuffer[] = [];
 
+    private _uboShadow: UBOShadow = new UBOShadow();
+
     constructor () {
         super();
         this._validLights = [];
@@ -101,6 +112,11 @@ export class ForwardPipeline extends RenderPipeline {
 
     public initialize (info: IRenderPipelineInfo) {
         super.initialize(info);
+
+        const shadowFlow = new ShadowFlow();
+        shadowFlow.initialize(ShadowFlow.initInfo);
+        this._flows.push(shadowFlow);
+
         const forwardFlow = new ForwardFlow();
         forwardFlow.initialize(ForwardFlow.initInfo);
         this._flows.push(forwardFlow);
@@ -206,6 +222,10 @@ export class ForwardPipeline extends RenderPipeline {
             }
             // update lightBuffer
             this._lightBuffers[l].update(this._uboLight.view);
+
+            // cc_shadowMatViewProj
+            Mat4.toArray(this._uboShadow.view, this.shadowCameraViewProj, UBOPCFShadow.MAT_SHADOW_VIEW_PROJ_OFFSET);
+            this._globalBindings.get(UBOShadow.BLOCK.name)!.buffer!.update(this._uboShadow.view);
         }
     }
 

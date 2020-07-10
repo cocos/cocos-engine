@@ -16,19 +16,21 @@ import {
     GFXLoadOp,
     GFXStoreOp,
     GFXCommandBufferType} from '../gfx/define';
+    GFXFilter,
+    GFXAddress} from '../gfx/define';
 import { GFXFeature } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass, GFXColorAttachment, GFXDepthStencilAttachment } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
-import { Mat4, Vec3, Vec4 } from '../math';
-import { Camera, Model, Light } from '../renderer';
+import { Mat4, Vec3, Vec4, Quat, Vec2 } from '../math';
+import { Camera, Model, Light, genSamplerHash, samplerLib } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass-utils';
 import { SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Layers } from '../scene-graph';
 import { js } from '../utils/js';
-import { IInternalBindingInst } from './define';
-import { IRenderObject, RenderPassStage, UBOGlobal, UBOShadow, UNIFORM_ENVIRONMENT } from './define';
+import { IInternalBindingInst, UNIFORM_SHADOWMAP } from './define';
+import { IRenderObject, RenderPassStage, UBOGlobal, UBOShadow, UBOPCFShadow, UNIFORM_ENVIRONMENT } from './define';
 import { FrameBufferDesc, RenderFlowType, RenderPassDesc, RenderTextureDesc } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
@@ -37,6 +39,21 @@ import { PipelineGlobal } from './global';
 import { GFXCommandBuffer } from '../gfx';
 
 const v3_1 = new Vec3();
+
+const shadowCamera_W_P = new Vec3();
+const shadowCamera_W_R = new Quat();
+const shadowCamera_W_S = new Vec3();
+const shadowCamera_W_T = new Mat4();
+
+const shadowCamera_M_V = new Mat4();
+const shadowCamera_M_P = new Mat4();
+const shadowCamera_M_V_P = new Mat4();
+
+// Define shadwoMapCamera
+const shadowCamera_Near = 0.1;
+const shadowCamera_Far = 1000.0;
+const shadowCamera_Fov = 45.0;
+const shadowCamera_Aspect = 1.0;
 
 /**
  * @en Render pipeline information descriptor
@@ -289,6 +306,46 @@ export abstract class RenderPipeline {
      */
     public abstract get lightBuffers () : GFXBuffer[];
 
+    /**
+     * @zh
+     * 获取阴影UBO。
+     */
+    public abstract get shadowUBOBuffer () : GFXBuffer;
+
+    /**
+     * @zh
+     * 获取阴影的FBO
+     */
+    public get shadowFrameBuffer () {
+        return this._shadowFrameBuffer;
+    }
+
+    /**
+     * @zh
+     * 获取阴影相机的ViewProj
+     */
+    public get shadowCameraViewProj () {
+        return this._shadowCameraViewProj;
+    }
+
+    /**
+     * @zh
+     * 获取阴影贴图分辨率
+     */
+    public get shadowMapSize () {
+        return this._shadowMapSize;
+    }
+
+    /**
+     * @zh
+     * 设置阴影贴图分辨率
+     */
+    public setShadowMapSize (x: number, y: number) {
+        if (x > 0 && y > 0) {
+            this._shadowMapSize.set(x, y);
+        }
+    }
+
     protected _renderObjects: IRenderObject[] = [];
 
     @property({
@@ -324,6 +381,10 @@ export abstract class RenderPipeline {
     protected _macros: IDefineMap = {};
     protected _useDynamicBatching = false;
     protected _commandBuffers: GFXCommandBuffer[] = [];
+    protected _shadowMapBuffer: GFXBuffer|null = null;
+    protected _shadowFrameBuffer: GFXFramebuffer|null = null;
+    protected _shadowCameraViewProj: Mat4 = new Mat4();
+    protected _shadowMapSize: Vec2 = new Vec2(512, 512);
 
     @property({
         type: [RenderTextureDesc],
@@ -598,6 +659,23 @@ export abstract class RenderPipeline {
             } else {
                 fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
             }
+
+            shadowCamera_W_P.set(mainLight!.node!.getWorldPosition());
+            shadowCamera_W_R.set(mainLight!.node!.getWorldRotation());
+            shadowCamera_W_S.set(mainLight!.node!.getWorldScale());
+
+            // world Transfrom
+            Mat4.fromRTS(shadowCamera_W_T, shadowCamera_W_R, shadowCamera_W_P, shadowCamera_W_S);
+
+            // camera view
+            Mat4.invert(shadowCamera_M_V, shadowCamera_W_T);
+
+            // camera proj
+            Mat4.perspective(shadowCamera_M_P, shadowCamera_Fov, shadowCamera_Aspect, shadowCamera_Near, shadowCamera_Far);
+
+            // camera viewProj
+            Mat4.multiply(shadowCamera_M_V_P, shadowCamera_M_P, shadowCamera_M_V);
+            this._shadowCameraViewProj = shadowCamera_M_V_P;
         } else {
             Vec3.toArray(fv, Vec3.UNIT_Z, UBOGlobal.MAIN_LIT_DIR_OFFSET);
             Vec4.toArray(fv, Vec4.ZERO, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
@@ -622,6 +700,9 @@ export abstract class RenderPipeline {
         fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET] = fog.fogTop;
         fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
         fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
+
+        // cc_LightMatrix
+        Mat4.toArray(fv, shadowCamera_M_V_P, UBOGlobal.MAIN_SHADOW_MATRIX_OFFSET);
 
         // update ubos
         this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._uboGlobal.view);
@@ -1056,6 +1137,38 @@ export abstract class RenderPipeline {
             });
         }
 
+        if (!this._globalBindings.get(UBOPCFShadow.BLOCK.name)) {
+            const shadowPCFUBO = PipelineGlobal.device.createBuffer({
+                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                size: UBOPCFShadow.SIZE,
+            });
+
+            this._globalBindings.set(UBOPCFShadow.BLOCK.name, {
+                type: GFXBindingType.UNIFORM_BUFFER,
+                blockInfo: UBOPCFShadow.BLOCK,
+                buffer: shadowPCFUBO,
+            });
+        }
+
+        if (!this._globalBindings.get(UNIFORM_SHADOWMAP.name)) {
+            this._globalBindings.set(UNIFORM_SHADOWMAP.name, {
+                type: GFXBindingType.SAMPLER,
+                samplerInfo: UNIFORM_SHADOWMAP,
+            });
+            const shadowMapSamplerHash = genSamplerHash([
+                GFXFilter.LINEAR,
+                GFXFilter.LINEAR,
+                GFXFilter.NONE,
+                GFXAddress.CLAMP,
+                GFXAddress.CLAMP,
+                GFXAddress.CLAMP,
+            ]);
+            const shadowmapUniform = this.globalBindings.get(UNIFORM_SHADOWMAP.name);
+            const sampler = samplerLib.getSampler(PipelineGlobal.device, shadowMapSamplerHash);
+            shadowmapUniform!.sampler = sampler;
+        }
+
         return true;
     }
 
@@ -1073,6 +1186,11 @@ export abstract class RenderPipeline {
         if (shadowUBO) {
             shadowUBO.buffer!.destroy();
             this._globalBindings.delete(UBOShadow.BLOCK.name);
+        }
+        const shadowPCFUBO = this._globalBindings.get(UBOPCFShadow.BLOCK.name);
+        if (shadowPCFUBO) {
+            shadowPCFUBO.buffer!.destroy();
+            this._globalBindings.delete(UBOPCFShadow.BLOCK.name);
         }
     }
 
