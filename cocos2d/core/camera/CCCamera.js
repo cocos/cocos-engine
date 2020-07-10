@@ -470,14 +470,21 @@ let Camera = cc.Class({
          * @static
          */
         findCamera (node) {
+            let camera;
             for (let i = 0, l = _cameras.length; i < l; i++) {
-                let camera = _cameras[i];
+                 camera = _cameras[i];
                 if (camera.containsNode(node)) {
                     return camera;
                 }
             }
-
-            return null;
+                if(!camera){
+                    if(_cameras.length>0) camera=_cameras[0]; 
+                    /// return the first camera instead of returning null. EditBox raises error if no camera found , 
+                        ///this may also prevent some other bugs in some other cases. Generally, gamedev would not want to check if the camera is null.. 
+                    /// return the first camera to precalculate even not active objects, thus preventing exceptions. ...
+                     
+                }
+            return camera;
         },
 
         _findRendererCamera (node) {
