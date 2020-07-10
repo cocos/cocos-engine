@@ -772,10 +772,6 @@ namespace
         imgInfo->width = img->getWidth();
         imgInfo->height = img->getHeight();
         imgInfo->data = img->getData();
-        imgInfo->numberOfMipmaps = img->getNumberOfMipmaps();
-        imgInfo->hasAlpha = img->hasAlpha();
-        imgInfo->hasPremultipliedAlpha = img->hasPremultipliedAlpha();
-        imgInfo->compressed = img->isCompressed();
         imgInfo->format = img->getRenderFormat();
 
         // Convert to RGBA888 because standard web api will return only RGBA888.
@@ -862,24 +858,6 @@ bool jsb_global_load_image(const std::string& path, const se::Value& callbackVal
                     retObj->setProperty("data", dataVal);
                     retObj->setProperty("width", se::Value(imgInfo->width));
                     retObj->setProperty("height", se::Value(imgInfo->height));
-                    retObj->setProperty("premultiplyAlpha", se::Value(imgInfo->hasPremultipliedAlpha));
-                    retObj->setProperty("bpp", se::Value(imgInfo->bpp));
-                    retObj->setProperty("hasAlpha", se::Value(imgInfo->hasAlpha));
-                    retObj->setProperty("compressed", se::Value(imgInfo->compressed));
-                    retObj->setProperty("numberOfMipmaps", se::Value(imgInfo->numberOfMipmaps));
-                    if (imgInfo->numberOfMipmaps > 0)
-                    {
-                        se::HandleObject mipmapArray(se::Object::createArrayObject(imgInfo->numberOfMipmaps));
-                        retObj->setProperty("mipmaps", se::Value(mipmapArray));
-                        auto mipmapInfo = img->getMipmaps();
-                        for (int i = 0; i < imgInfo->numberOfMipmaps; ++i)
-                        {
-                            se::HandleObject info(se::Object::createPlainObject());
-                            info->setProperty("offset", se::Value(mipmapInfo[i].offset));
-                            info->setProperty("length", se::Value(mipmapInfo[i].len));
-                            mipmapArray->setArrayElement(i, se::Value(info));
-                        }
-                    }
 
                     seArgs.push_back(se::Value(retObj));
 
@@ -954,73 +932,6 @@ static bool js_loadImage(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_loadImage)
-
-//pixels(RGBA), width, height, fullFilePath(*.png/*.jpg)
-static bool js_saveImageData(se::State& s)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 4) {
-        cc::Data data;
-        ok &= seval_to_Data(args[0], &data);
-
-        uint32_t width, height;
-        ok &= seval_to_uint32(args[1], &width);
-        ok &= seval_to_uint32(args[2], &height);
-
-        std::string filePath;
-        ok &= seval_to_std_string(args[3], &filePath);
-        SE_PRECONDITION2(ok, false, "js_saveImageData : Error processing arguments");
-
-        Image* img = new Image();
-        img->initWithRawData(data.getBytes(), data.getSize(), width, height, 8);
-        // isToRGB = false, to keep alpha channel
-        bool ret = img->saveToFile(filePath, false);
-        s.rval().setBoolean(ret);
-
-        img->release();
-        return ret;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_saveImageData)
-
-//static bool js_setDebugViewText(se::State& s)
-//{
-//    const auto& args = s.args();
-//    size_t argc = args.size();
-//    CC_UNUSED bool ok = true;
-//    if (argc == 2) {
-//        int32_t index;
-//        ok = seval_to_int32(args[0], &index);
-//        SE_PRECONDITION2(ok, false, "Convert arg0 index failed!");
-//
-//        std::string text;
-//        ok = seval_to_std_string(args[1], &text);
-//        SE_PRECONDITION2(ok, false, "Convert arg1 text failed!");
-//
-//
-//#if CC_PLATFORM == CC_PLATFORM_ANDROID
-//        setGameInfoDebugViewTextJNI(index, text);
-//#endif
-//        return true;
-//    }
-//
-//    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-//    return false;
-//}
-//SE_BIND_FUNC(js_setDebugViewText)
-
-//static bool js_openDebugView(se::State& s)
-//{
-//#if CC_PLATFORM == CC_PLATFORM_ANDROID
-//    openDebugViewJNI();
-//#endif
-//    return true;
-//}
-//SE_BIND_FUNC(js_openDebugView)
 
 static bool JSB_openURL(se::State& s)
 {
@@ -1185,17 +1096,10 @@ bool jsb_register_global_variables(se::Object* global)
     auto glContextCls = se::Class::create("WebGLRenderingContext", global, nullptr, nullptr);
     glContextCls->install();
 
-    SAFE_DEC_REF(__glObj);
-    __glObj = se::Object::createObjectWithClass(glContextCls);
-    global->setProperty("__gl", se::Value(__glObj));
-
     __jsbObj->defineFunction("garbageCollect", _SE(jsc_garbageCollect));
     __jsbObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jsc_dumpNativePtrToSeObjectMap));
 
     __jsbObj->defineFunction("loadImage", _SE(js_loadImage));
-    __jsbObj->defineFunction("saveImageData", _SE(js_saveImageData));
-//    __jsbObj->defineFunction("setDebugViewText", _SE(js_setDebugViewText));
-//    __jsbObj->defineFunction("openDebugView", _SE(js_openDebugView));
     __jsbObj->defineFunction("openURL", _SE(JSB_openURL));
     __jsbObj->defineFunction("copyTextToClipboard", _SE(JSB_copyTextToClipboard));
     __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));

@@ -30,63 +30,9 @@ typedef unsigned int etc1_uint32;
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-// Encode a block of pixels.
-//
-// pIn is a pointer to a ETC_DECODED_BLOCK_SIZE array of bytes that represent a
-// 4 x 4 square of 3-byte pixels in form R, G, B. Byte (3 * (x + 4 * y) is the R
-// value of pixel (x, y).
-//
-// validPixelMask is a 16-bit mask where bit (1 << (x + y * 4)) indicates whether
-// the corresponding (x,y) pixel is valid. Invalid pixel color values are ignored when compressing.
-//
-// pOut is an ETC1 compressed version of the data.
-
-void etc1_encode_block(const etc1_byte* pIn, etc1_uint32 validPixelMask, etc1_byte* pOut);
-
-// Decode a block of pixels.
-//
-// pIn is an ETC1 compressed version of the data.
-//
-// pOut is a pointer to a ETC_DECODED_BLOCK_SIZE array of bytes that represent a
-// 4 x 4 square of 3-byte pixels in form R, G, B. Byte (3 * (x + 4 * y) is the R
-// value of pixel (x, y).
-
-void etc1_decode_block(const etc1_byte* pIn, etc1_byte* pOut);
-
-// Return the size of the encoded image data (does not include size of PKM header).
-
-etc1_uint32 etc1_get_encoded_data_size(etc1_uint32 width, etc1_uint32 height);
-
-// Encode an entire image.
-// pIn - pointer to the image data. Formatted such that
-//       pixel (x,y) is at pIn + pixelSize * x + stride * y;
-// pOut - pointer to encoded data. Must be large enough to store entire encoded image.
-// pixelSize can be 2 or 3. 2 is an GL_UNSIGNED_SHORT_5_6_5 image, 3 is a GL_BYTE RGB image.
-// returns non-zero if there is an error.
-
-int etc1_encode_image(const etc1_byte* pIn, etc1_uint32 width, etc1_uint32 height,
-        etc1_uint32 pixelSize, etc1_uint32 stride, etc1_byte* pOut);
-
-// Decode an entire image.
-// pIn - pointer to encoded data.
-// pOut - pointer to the image data. Will be written such that
-//        pixel (x,y) is at pIn + pixelSize * x + stride * y. Must be
-//        large enough to store entire image.
-// pixelSize can be 2 or 3. 2 is an GL_UNSIGNED_SHORT_5_6_5 image, 3 is a GL_BYTE RGB image.
-// returns non-zero if there is an error.
-
-int etc1_decode_image(const etc1_byte* pIn, etc1_byte* pOut,
-        etc1_uint32 width, etc1_uint32 height,
-        etc1_uint32 pixelSize, etc1_uint32 stride);
-
 // Size of a PKM header, in bytes.
 
 #define ETC_PKM_HEADER_SIZE 16
-
-// Format a PKM header
-
-void etc1_pkm_format_header(etc1_byte* pHeader, etc1_uint32 width, etc1_uint32 height);
 
 // Check if a PKM header is correctly formatted.
 

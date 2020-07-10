@@ -23,19 +23,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 #pragma once
-/// @cond DO_NOT_SHOW
 
 #include "base/CCRef.h"
 #include <string>
 #include <map>
-
-// premultiply alpha, or the effect will wrong when want to use other pixel format in Texture2D,
-// such as RGB888, RGB5A1
-#define CC_RGB_PREMULTIPLY_ALPHA(vr, vg, vb, va)                                          \
-    (unsigned)(((unsigned)((unsigned char)(vr) * ((unsigned char)(va) + 1)) >> 8) |       \
-               ((unsigned)((unsigned char)(vg) * ((unsigned char)(va) + 1) >> 8) << 8) |  \
-               ((unsigned)((unsigned char)(vb) * ((unsigned char)(va) + 1) >> 8) << 16) | \
-               ((unsigned)(unsigned char)(va) << 24))
 
 namespace cc {
 
@@ -43,25 +34,8 @@ namespace gfx {
 enum class Format : unsigned int;
 } // namespace gfx
 
-/**
- * @addtogroup platform
- * @{
- */
-
-/**
- @brief Structure which can tell where mipmap begins and how long is it
- */
-typedef struct _MipmapInfo {
-    unsigned char *address = nullptr;
-    int offset = 0;
-    int len = 0;
-} MipmapInfo;
-
 class Image : public Ref {
 public:
-    /**
-     * @js ctor
-     */
     Image();
 
     /** Supported formats for Image */
@@ -84,48 +58,8 @@ public:
         UNKNOWN
     };
 
-    struct PixelFormatInfo {
 
-        PixelFormatInfo(int aBpp, bool aCompressed, bool anAlpha)
-        : bpp(aBpp), compressed(aCompressed), alpha(anAlpha) {}
-
-        int bpp;
-        bool compressed;
-        bool alpha;
-    };
-
-    typedef std::map<gfx::Format, const PixelFormatInfo> PixelFormatInfoMap;
-
-    /**
-     * Enables or disables premultiplied alpha for PNG files.
-     *
-     *  @param enabled (default: true)
-     */
-    static void setPNGPremultipliedAlphaEnabled(bool enabled) { PNG_PREMULTIPLIED_ALPHA_ENABLED = enabled; }
-
-    /** treats (or not) PVR files as if they have alpha premultiplied.
-     Since it is impossible to know at runtime if the PVR images have the alpha channel premultiplied, it is
-     possible load them as if they have (or not) the alpha channel premultiplied.
-
-     By default it is disabled.
-     */
-    static void setPVRImagesHavePremultipliedAlpha(bool haveAlphaPremultiplied);
-
-    /**
-    @brief Load the image from the specified path.
-    @param path   the absolute file path.
-    @return true if loaded correctly.
-    */
     bool initWithImageFile(const std::string &path);
-
-    /**
-    @brief Load image from stream buffer.
-    @param data  stream buffer which holds the image data.
-    @param dataLen  data length expressed in (number of) bytes.
-    @return true if loaded correctly.
-    * @js NA
-    * @lua NA
-    */
     bool initWithImageData(const unsigned char *data, ssize_t dataLen);
 
     // @warning kFmtRawData only support RGBA8888
@@ -138,20 +72,7 @@ public:
     inline gfx::Format getRenderFormat() const { return _renderFormat; }
     inline int getWidth() const { return _width; }
     inline int getHeight() const { return _height; }
-    inline int getNumberOfMipmaps() const { return _numberOfMipmaps; }
-    inline const MipmapInfo *getMipmaps() const { return _mipmaps; }
-    inline bool hasPremultipliedAlpha() const { return _hasPremultipliedAlpha; }
     inline std::string getFilePath() const { return _filePath; }
-
-    bool hasAlpha() const;
-    bool isCompressed() const;
-
-    /**
-     @brief    Save Image data to the specified file, with specified format.
-     @param    filename        the file's absolute path, including file suffix.
-     @param    isToRGB        whether the image is saved as RGB format.
-     */
-    bool saveToFile(const std::string &filename, bool isToRGB = true);
 
 protected:
     bool initWithJpgData(const unsigned char *data, ssize_t dataLen);
@@ -163,31 +84,13 @@ protected:
     bool initWithETCData(const unsigned char *data, ssize_t dataLen);
     bool initWithETC2Data(const unsigned char *data, ssize_t dataLen);
 
-    bool saveImageToPNG(const std::string &filePath, bool isToRGB = true);
-    bool saveImageToJPG(const std::string &filePath);
-
-    void premultipliedAlpha();
-
 protected:
-    /**
-     @brief Determine how many mipmaps can we have.
-     It's same as define but it respects namespaces
-     */
-    static const int MIPMAP_MAX = 16;
-    /**
-     @brief Determine whether we premultiply alpha for png files.
-     */
-    static bool PNG_PREMULTIPLIED_ALPHA_ENABLED;
     unsigned char *_data = nullptr;
     ssize_t _dataLen = 0;
     int _width = 0;
     int _height = 0;
     Format _fileType = Format::UNKNOWN;
     gfx::Format _renderFormat;
-    MipmapInfo _mipmaps[MIPMAP_MAX]; // pointer to mipmap images
-    int _numberOfMipmaps = 0;
-    // false if we can't auto detect the image is premultiplied or not.
-    bool _hasPremultipliedAlpha = false;
     std::string _filePath;
 
 protected:
@@ -198,11 +101,7 @@ protected:
     // nonmoveable
     Image(Image &&) = delete;
     Image &operator=(Image &&) = delete;
-
-    /**
-     * @js NA
-     * @lua NA
-     */
+    
     virtual ~Image();
 
     Format detectFormat(const unsigned char *data, ssize_t dataLen);
@@ -214,9 +113,4 @@ protected:
     bool isEtc2(const unsigned char *data, ssize_t dataLen);
 };
 
-// end of platform group
-/// @}
-
-} // namespace cc
-
-/// @endcond
+} //namespace cc

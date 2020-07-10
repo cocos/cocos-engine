@@ -267,8 +267,6 @@ cocos_source_files(
     cocos/base/memory/StdAlloc.h
     cocos/base/memory/StlAlloc.h
     cocos/base/Object.h
-    cocos/base/pvr.cpp
-    cocos/base/pvr.h
     cocos/base/TypeDef.h
     cocos/base/uthash.h
     cocos/base/utlist.h
@@ -454,7 +452,6 @@ elseif(APPLE)
             cocos/platform/ios/CCApplication-ios.mm
             cocos/platform/ios/cocos2d-prefix.pch
             cocos/platform/ios/CCDevice-ios.mm
-            cocos/platform/ios/CCImage-ios.mm
         )
     endif()
 endif()

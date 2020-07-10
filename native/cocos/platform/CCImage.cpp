@@ -39,32 +39,9 @@ THE SOFTWARE.
 
 extern "C"
 {
-    // To resolve link error when building 32bits with Xcode 6.
-    // More information please refer to the discussion in https://github.com/cocos2d/cocos2d-x/pull/6986
-#if defined (__unix) || (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-#ifndef __ENABLE_COMPATIBILITY_WITH_UNIX_2003__
-#define __ENABLE_COMPATIBILITY_WITH_UNIX_2003__
-#include <stdio.h>
-    FILE *fopen$UNIX2003( const char *filename, const char *mode )
-    {
-        return fopen(filename, mode);
-    }
-    size_t fwrite$UNIX2003( const void *a, size_t b, size_t c, FILE *d )
-    {
-        return fwrite(a, b, c, d);
-    }
-    char *strerror$UNIX2003( int errnum )
-    {
-        return strerror(errnum);
-    }
-#endif
-#endif
-
 #if CC_USE_PNG
 #include "png/png.h"
 #endif //CC_USE_PNG
-
-
 
 #include "base/etc1.h"
 #include "base/etc2.h"
@@ -74,7 +51,6 @@ extern "C"
 #include "webp/decode.h"
 #endif // CC_USE_WEBP
 
-#include "base/pvr.h"
 #include "platform/CCFileUtils.h"
 #include "base/ZipUtils.h"
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
@@ -92,8 +68,6 @@ namespace
 {
     static const int PVR_TEXTURE_FLAG_TYPE_MASK = 0xff;
 
-    static bool _PVRHaveAlphaPremultiplied = false;
-
     // Values taken from PVRTexture.h from http://www.imgtec.com
     enum class PVR2TextureFlag
     {
@@ -106,11 +80,6 @@ namespace
         Volume         = (1<<14),       // is this a volume texture
         Alpha          = (1<<15),       // v2.1 is there transparency info in the texture
         VerticalFlip   = (1<<16),       // v2.1 is the texture vertically flipped
-    };
-
-    enum class PVR3TextureFlag
-    {
-        PremultipliedAlpha  = (1<<1)    // has premultiplied alpha
     };
 
     static const char gPVRTexIdentifier[5] = "PVR!";
@@ -301,7 +270,6 @@ namespace
 //////////////////////////////////////////////////////////////////////////
 // Implement Image
 //////////////////////////////////////////////////////////////////////////
-bool Image::PNG_PREMULTIPLIED_ALPHA_ENABLED = false;
 
 Image::Image(): _renderFormat(gfx::Format::UNKNOWN)
 {
@@ -483,16 +451,6 @@ Image::Format Image::detectFormat(const unsigned char * data, ssize_t dataLen)
     }
 }
 
-bool Image::hasAlpha() const
-{
-    return gfx::GFX_FORMAT_INFOS[static_cast<int>(_renderFormat)].hasAlpha;
-}
-
-bool Image::isCompressed() const
-{
-    return gfx::GFX_FORMAT_INFOS[static_cast<int>(_renderFormat)].isCompressed;
-}
-
 namespace
 {
     /*
@@ -609,8 +567,6 @@ bool Image::initWithJpgData(const unsigned char * data, ssize_t dataLen)
         /* init image info */
         _width  = cinfo.output_width;
         _height = cinfo.output_height;
-        _hasPremultipliedAlpha = false;
-
         _dataLen = cinfo.output_width*cinfo.output_height*cinfo.output_components;
         _data = static_cast<unsigned char*>(malloc(_dataLen * sizeof(unsigned char)));
         CC_BREAK_IF(! _data);
@@ -760,18 +716,7 @@ bool Image::initWithPngData(const unsigned char * data, ssize_t dataLen)
             row_pointers[i] = _data + i*rowbytes;
         }
         png_read_image(png_ptr, row_pointers);
-
         png_read_end(png_ptr, nullptr);
-
-        // premultiplied alpha for RGBA8888
-        if (PNG_PREMULTIPLIED_ALPHA_ENABLED && color_type == PNG_COLOR_TYPE_RGB_ALPHA)
-        {
-            premultipliedAlpha();
-        }
-        else
-        {
-            _hasPremultipliedAlpha = false;
-        }
 
         if (row_pointers != nullptr)
         {
@@ -791,8 +736,6 @@ bool Image::initWithPngData(const unsigned char * data, ssize_t dataLen)
 
 bool Image::initWithPVRv2Data(const unsigned char * data, ssize_t dataLen)
 {
-    int dataLength = 0, dataOffset = 0, dataSize = 0;
-    int blockSize = 0, widthBlocks = 0, heightBlocks = 0;
     int width = 0, height = 0;
 
     //Cast first sizeof(PVRTexHeader) bytes of data stream as PVRTexHeader
@@ -803,9 +746,6 @@ bool Image::initWithPVRv2Data(const unsigned char * data, ssize_t dataLen)
     {
         return false;
     }
-
-    //can not detect the premultiplied alpha from pvr file, use _PVRHaveAlphaPremultiplied instead.
-    _hasPremultipliedAlpha = _PVRHaveAlphaPremultiplied;
 
     unsigned int flags = CC_SWAP_INT32_LITTLE_TO_HOST(header->flags);
     PVR2TexturePixelFormat formatFlags = static_cast<PVR2TexturePixelFormat>(flags & PVR_TEXTURE_FLAG_TYPE_MASK);
@@ -829,71 +769,16 @@ bool Image::initWithPVRv2Data(const unsigned char * data, ssize_t dataLen)
     }
 
     _renderFormat = it->second;
-    int bpp = gfx::GFX_FORMAT_INFOS[static_cast<int>(_renderFormat)].size;
-
-    //Reset num of mipmaps
-    _numberOfMipmaps = 0;
 
     //Get size of mipmap
     _width = width = CC_SWAP_INT32_LITTLE_TO_HOST(header->width);
     _height = height = CC_SWAP_INT32_LITTLE_TO_HOST(header->height);
 
-    //Get ptr to where data starts..
-    dataLength = CC_SWAP_INT32_LITTLE_TO_HOST(header->dataLength);
-
     //Move by size of header
     _dataLen = dataLen - sizeof(PVRv2TexHeader);
     _data = static_cast<unsigned char*>(malloc(_dataLen * sizeof(unsigned char)));
     memcpy(_data, (unsigned char*)data + sizeof(PVRv2TexHeader), _dataLen);
-
-    // Calculate the data size for each texture level and respect the minimum number of blocks
-    while (dataOffset < dataLength)
-    {
-        switch (formatFlags) {
-            case PVR2TexturePixelFormat::PVRTC2BPP_RGBA:
-                blockSize = 8 * 4; // Pixel by pixel block size for 2bpp
-                widthBlocks = width / 8;
-                heightBlocks = height / 4;
-                break;
-            case PVR2TexturePixelFormat::PVRTC4BPP_RGBA:
-                blockSize = 4 * 4; // Pixel by pixel block size for 4bpp
-                widthBlocks = width / 4;
-                heightBlocks = height / 4;
-                break;
-            default:
-                blockSize = 1;
-                widthBlocks = width;
-                heightBlocks = height;
-                break;
-        }
-
-        // Clamp to minimum number of blocks
-        if (widthBlocks < 2)
-        {
-            widthBlocks = 2;
-        }
-        if (heightBlocks < 2)
-        {
-            heightBlocks = 2;
-        }
-
-        dataSize = widthBlocks * heightBlocks * ((blockSize  * bpp) / 8);
-        int packetLength = (dataLength - dataOffset);
-        packetLength = packetLength > dataSize ? dataSize : packetLength;
-
-        //Make record to the mipmaps array and increment counter
-        _mipmaps[_numberOfMipmaps].address = _data + dataOffset;
-        _mipmaps[_numberOfMipmaps].offset = dataOffset;
-        _mipmaps[_numberOfMipmaps].len = packetLength;
-        _numberOfMipmaps++;
-
-        dataOffset += packetLength;
-
-        //Update width and height to the next lower power of two
-        width = std::max(width >> 1, 1);
-        height = std::max(height >> 1, 1);
-    }
-
+    
     return true;
 }
 
@@ -932,89 +817,14 @@ bool Image::initWithPVRv3Data(const unsigned char * data, ssize_t dataLen)
     }
 
     _renderFormat = it->second;
-    int bpp = gfx::GFX_FORMAT_INFOS[static_cast<int>(_renderFormat)].size;;
-
-    // flags
-    int flags = CC_SWAP_INT32_LITTLE_TO_HOST(header->flags);
-
-    // PVRv3 specifies premultiply alpha in a flag -- should always respect this in PVRv3 files
-    if (flags & (unsigned int)PVR3TextureFlag::PremultipliedAlpha)
-    {
-        _hasPremultipliedAlpha = true;
-    }
-    else
-    {
-        _hasPremultipliedAlpha = false;
-    }
 
     // sizing
-    int width = CC_SWAP_INT32_LITTLE_TO_HOST(header->width);
-    int height = CC_SWAP_INT32_LITTLE_TO_HOST(header->height);
-    _width = width;
-    _height = height;
-    int dataOffset = 0, dataSize = 0;
-    int blockSize = 0, widthBlocks = 0, heightBlocks = 0;
+    _width = CC_SWAP_INT32_LITTLE_TO_HOST(header->width);
+    _height = CC_SWAP_INT32_LITTLE_TO_HOST(header->height);
 
     _dataLen = dataLen - (sizeof(PVRv3TexHeader) + header->metadataLength);
     _data = static_cast<unsigned char*>(malloc(_dataLen * sizeof(unsigned char)));
     memcpy(_data, static_cast<const unsigned char*>(data) + sizeof(PVRv3TexHeader) + header->metadataLength, _dataLen);
-
-    _numberOfMipmaps = header->numberOfMipmaps;
-    CCASSERT(_numberOfMipmaps < MIPMAP_MAX, "Image: Maximum number of mimpaps reached. Increase the CC_MIPMAP_MAX value");
-
-    for (int i = 0; i < _numberOfMipmaps; i++)
-    {
-        switch ((PVR3TexturePixelFormat)pixelFormat)
-        {
-            case PVR3TexturePixelFormat::PVRTC2BPP_RGB :
-            case PVR3TexturePixelFormat::PVRTC2BPP_RGBA :
-                blockSize = 8 * 4; // Pixel by pixel block size for 2bpp
-                widthBlocks = width / 8;
-                heightBlocks = height / 4;
-                break;
-            case PVR3TexturePixelFormat::PVRTC4BPP_RGB :
-            case PVR3TexturePixelFormat::PVRTC4BPP_RGBA :
-                blockSize = 4 * 4; // Pixel by pixel block size for 4bpp
-                widthBlocks = width / 4;
-                heightBlocks = height / 4;
-                break;
-            case PVR3TexturePixelFormat::ETC1:
-                blockSize = 4 * 4; // Pixel by pixel block size for 4bpp
-                widthBlocks = width / 4;
-                heightBlocks = height / 4;
-                break;
-            default:
-                blockSize = 1;
-                widthBlocks = width;
-                heightBlocks = height;
-                break;
-        }
-
-        // Clamp to minimum number of blocks
-        if (widthBlocks < 2)
-        {
-            widthBlocks = 2;
-        }
-        if (heightBlocks < 2)
-        {
-            heightBlocks = 2;
-        }
-
-        dataSize = widthBlocks * heightBlocks * ((blockSize  * bpp) / 8);
-        auto packetLength = _dataLen - dataOffset;
-        packetLength = packetLength > dataSize ? dataSize : packetLength;
-
-        _mipmaps[i].address = _data + dataOffset;
-        _mipmaps[i].offset = dataOffset;
-        _mipmaps[i].len = static_cast<int>(packetLength);
-
-        dataOffset += packetLength;
-        CCASSERT(dataOffset <= _dataLen, "Image: Invalid length");
-
-
-        width = std::max(width >> 1, 1);
-        height = std::max(height >> 1, 1);
-    }
 
     return true;
 }
@@ -1097,8 +907,6 @@ bool Image::initWithWebpData(const unsigned char * data, ssize_t dataLen)
         _width    = config.input.width;
         _height   = config.input.height;
         
-        //we ask webp to give data with premultiplied alpha
-        _hasPremultipliedAlpha = (config.input.has_alpha != 0);
         
         _dataLen = _width * _height * (config.input.has_alpha?4:3);
         _data = static_cast<unsigned char*>(malloc(_dataLen * sizeof(unsigned char)));
@@ -1130,7 +938,6 @@ bool Image::initWithRawData(const unsigned char * data, ssize_t dataLen, int wid
 
         _height   = height;
         _width    = width;
-        _hasPremultipliedAlpha = preMulti;
         _renderFormat = gfx::Format::RGBA8;
 
         // only RGBA8888 supported
@@ -1144,289 +951,6 @@ bool Image::initWithRawData(const unsigned char * data, ssize_t dataLen, int wid
     } while (0);
 
     return ret;
-}
-
-
-#if (CC_PLATFORM != CC_PLATFORM_MAC_IOS)
-bool Image::saveToFile(const std::string& filename, bool isToRGB)
-{
-    //only support for Image::PixelFormat::RGB888 or Image::PixelFormat::RGBA8888 uncompressed data
-    if (isCompressed() || (_renderFormat != gfx::Format::RGB8 && _renderFormat != gfx::Format::RGBA8))
-    {
-        CC_LOG_DEBUG("saveToFile: Image: saveToFile is only support for Image::PixelFormat::RGB888 or Image::PixelFormat::RGBA8888 uncompressed data for now");
-        return false;
-    }
-
-    std::string fileExtension = FileUtils::getInstance()->getFileExtension(filename);
-
-    if (fileExtension == ".png")
-    {
-        return saveImageToPNG(filename, isToRGB);
-    }
-    else if (fileExtension == ".jpg")
-    {
-        return saveImageToJPG(filename);
-    }
-    else
-    {
-        CC_LOG_DEBUG("saveToFile: Image: saveToFile no support file extension(only .png or .jpg) for file: %s", filename.c_str());
-        return false;
-    }
-}
-#endif // (CC_PLATFORM != CC_PLATFORM_MAC_IOS)
-
-bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
-{
-#if CC_USE_PNG
-    bool ret = false;
-    do
-    {
-        FILE *fp;
-        png_structp png_ptr;
-        png_infop info_ptr;
-        png_colorp palette;
-        png_bytep *row_pointers;
-
-        fp = fopen(FileUtils::getInstance()->getSuitableFOpen(filePath).c_str(), "wb");
-        CC_BREAK_IF(nullptr == fp);
-
-        png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-
-        if (nullptr == png_ptr)
-        {
-            fclose(fp);
-            break;
-        }
-
-        info_ptr = png_create_info_struct(png_ptr);
-        if (nullptr == info_ptr)
-        {
-            fclose(fp);
-            png_destroy_write_struct(&png_ptr, nullptr);
-            break;
-        }
-        if (setjmp(png_jmpbuf(png_ptr)))
-        {
-            fclose(fp);
-            png_destroy_write_struct(&png_ptr, &info_ptr);
-            break;
-        }
-        png_init_io(png_ptr, fp);
-
-        if (!isToRGB && hasAlpha())
-        {
-            png_set_IHDR(png_ptr, info_ptr, _width, _height, 8, PNG_COLOR_TYPE_RGB_ALPHA,
-                PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-        }
-        else
-        {
-            png_set_IHDR(png_ptr, info_ptr, _width, _height, 8, PNG_COLOR_TYPE_RGB,
-                PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-        }
-
-        palette = (png_colorp)png_malloc(png_ptr, PNG_MAX_PALETTE_LENGTH * sizeof (png_color));
-        png_set_PLTE(png_ptr, info_ptr, palette, PNG_MAX_PALETTE_LENGTH);
-
-        png_write_info(png_ptr, info_ptr);
-
-        png_set_packing(png_ptr);
-
-        row_pointers = (png_bytep *)malloc(_height * sizeof(png_bytep));
-        if(row_pointers == nullptr)
-        {
-            fclose(fp);
-            png_destroy_write_struct(&png_ptr, &info_ptr);
-            break;
-        }
-
-        if (!hasAlpha())
-        {
-            for (int i = 0; i < (int)_height; i++)
-            {
-                row_pointers[i] = (png_bytep)_data + i * _width * 3;
-            }
-
-            png_write_image(png_ptr, row_pointers);
-
-            free(row_pointers);
-            row_pointers = nullptr;
-        }
-        else
-        {
-            if (isToRGB)
-            {
-                unsigned char *tempData = static_cast<unsigned char*>(malloc(_width * _height * 3 * sizeof(unsigned char)));
-                if (nullptr == tempData)
-                {
-                    fclose(fp);
-                    png_destroy_write_struct(&png_ptr, &info_ptr);
-
-                    free(row_pointers);
-                    row_pointers = nullptr;
-                    break;
-                }
-
-                for (int i = 0; i < _height; ++i)
-                {
-                    for (int j = 0; j < _width; ++j)
-                    {
-                        tempData[(i * _width + j) * 3] = _data[(i * _width + j) * 4];
-                        tempData[(i * _width + j) * 3 + 1] = _data[(i * _width + j) * 4 + 1];
-                        tempData[(i * _width + j) * 3 + 2] = _data[(i * _width + j) * 4 + 2];
-                    }
-                }
-
-                for (int i = 0; i < (int)_height; i++)
-                {
-                    row_pointers[i] = (png_bytep)tempData + i * _width * 3;
-                }
-
-                png_write_image(png_ptr, row_pointers);
-
-                free(row_pointers);
-                row_pointers = nullptr;
-
-                if (tempData != nullptr)
-                {
-                    free(tempData);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < (int)_height; i++)
-                {
-                    row_pointers[i] = (png_bytep)_data + i * _width * 4;
-                }
-
-                png_write_image(png_ptr, row_pointers);
-
-                free(row_pointers);
-                row_pointers = nullptr;
-            }
-        }
-
-        png_write_end(png_ptr, info_ptr);
-
-        png_free(png_ptr, palette);
-        palette = nullptr;
-
-        png_destroy_write_struct(&png_ptr, &info_ptr);
-
-        fclose(fp);
-
-        ret = true;
-    } while (0);
-    return ret;
-#endif // CC_USE_PNG
-}
-
-bool Image::saveImageToJPG(const std::string& filePath)
-{
-#if CC_USE_JPEG
-    bool ret = false;
-    do
-    {
-        struct jpeg_compress_struct cinfo;
-        struct jpeg_error_mgr jerr;
-        FILE * outfile;                 /* target file */
-        JSAMPROW row_pointer[1];        /* pointer to JSAMPLE row[s] */
-        int     row_stride;          /* physical row width in image buffer */
-
-        cinfo.err = jpeg_std_error(&jerr);
-        /* Now we can initialize the JPEG compression object. */
-        jpeg_create_compress(&cinfo);
-
-        CC_BREAK_IF((outfile = fopen(FileUtils::getInstance()->getSuitableFOpen(filePath).c_str(), "wb")) == nullptr);
-
-        jpeg_stdio_dest(&cinfo, outfile);
-
-        cinfo.image_width = _width;    /* image width and height, in pixels */
-        cinfo.image_height = _height;
-        cinfo.input_components = 3;       /* # of color components per pixel */
-        cinfo.in_color_space = JCS_RGB;       /* colorspace of input image */
-
-        jpeg_set_defaults(&cinfo);
-        jpeg_set_quality(&cinfo, 90, TRUE);
-
-        jpeg_start_compress(&cinfo, TRUE);
-
-        row_stride = _width * 3; /* JSAMPLEs per row in image_buffer */
-
-        if (hasAlpha())
-        {
-            unsigned char *tempData = static_cast<unsigned char*>(malloc(_width * _height * 3 * sizeof(unsigned char)));
-            if (nullptr == tempData)
-            {
-                jpeg_finish_compress(&cinfo);
-                jpeg_destroy_compress(&cinfo);
-                fclose(outfile);
-                break;
-            }
-
-            for (int i = 0; i < _height; ++i)
-            {
-                for (int j = 0; j < _width; ++j)
-
-                {
-                    tempData[(i * _width + j) * 3] = _data[(i * _width + j) * 4];
-                    tempData[(i * _width + j) * 3 + 1] = _data[(i * _width + j) * 4 + 1];
-                    tempData[(i * _width + j) * 3 + 2] = _data[(i * _width + j) * 4 + 2];
-                }
-            }
-
-            while (cinfo.next_scanline < cinfo.image_height)
-            {
-                row_pointer[0] = & tempData[cinfo.next_scanline * row_stride];
-                (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
-            }
-
-            if (tempData != nullptr)
-            {
-                free(tempData);
-            }
-        }
-        else
-        {
-            while (cinfo.next_scanline < cinfo.image_height) {
-                row_pointer[0] = & _data[cinfo.next_scanline * row_stride];
-                (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
-            }
-        }
-
-        jpeg_finish_compress(&cinfo);
-        fclose(outfile);
-        jpeg_destroy_compress(&cinfo);
-
-        ret = true;
-    } while (0);
-    return ret;
-#endif // CC_USE_JPEG
-}
-
-void Image::premultipliedAlpha()
-{
-    if (PNG_PREMULTIPLIED_ALPHA_ENABLED && _renderFormat == gfx::Format::RGBA8)
-    {
-        unsigned int* fourBytes = (unsigned int*)_data;
-        for(int i = 0; i < _width * _height; i++)
-        {
-            unsigned char* p = _data + i * 4;
-            fourBytes[i] = CC_RGB_PREMULTIPLY_ALPHA(p[0], p[1], p[2], p[3]);
-        }
-
-        _hasPremultipliedAlpha = true;
-    }
-    else
-    {
-        _hasPremultipliedAlpha = false;
-        return;
-    }
-}
-
-
-void Image::setPVRImagesHavePremultipliedAlpha(bool haveAlphaPremultiplied)
-{
-    _PVRHaveAlphaPremultiplied = haveAlphaPremultiplied;
 }
 
 }
