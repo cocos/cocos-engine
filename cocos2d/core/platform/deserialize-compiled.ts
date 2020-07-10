@@ -1034,16 +1034,6 @@ export function getDependUuidList (json: IFileData): Array<string> {
     return json[File.DependUuidIndices].map(index => sharedUuids[index]);
 }
 
-export function isDataValid (json: any): boolean {
-    if (!Array.isArray(json)) return false;
-    let version = json[0];
-    if (typeof version === 'object') {
-        version = version.version;
-    }
-    if (typeof version !== 'number' || version < SUPPORT_MIN_FORMAT_VERSION) return false;
-    return true;
-}
-
 if (CC_EDITOR || CC_TEST) {
     cc._deserializeCompiled = deserialize;
     deserialize.macros = {
