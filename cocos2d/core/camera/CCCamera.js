@@ -470,7 +470,7 @@ let Camera = cc.Class({
          * @static
          */
         findCamera (node) {
-            let camera;
+            let camera=null;
             for (let i = 0, l = _cameras.length; i < l; i++) {
                  camera = _cameras[i];
                 if (camera.containsNode(node)) {
