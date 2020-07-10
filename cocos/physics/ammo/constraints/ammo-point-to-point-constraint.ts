@@ -5,7 +5,7 @@ import { IVec3Like, Vec3 } from "../../../core";
 import { PointToPointConstraintComponent } from "../../framework";
 import { AmmoRigidBody } from "../ammo-rigid-body";
 import { cocos2AmmoVec3 } from "../ammo-util";
-import { CC_V3_0 } from '../ammo-const';
+import { CC_V3_0, CC_V3_1 } from '../ammo-const';
 
 export class AmmoPointToPointConstraint extends AmmoConstraint implements IPointToPointConstraint {
 
@@ -22,6 +22,10 @@ export class AmmoPointToPointConstraint extends AmmoConstraint implements IPoint
         const cb = this._com.connectedBody;
         if (cb) {
             Vec3.multiply(CC_V3_0, v, cb.node.worldScale);
+        } else {
+            Vec3.add(CC_V3_0, CC_V3_0, this._com.node.worldPosition);
+            Vec3.multiply(CC_V3_1, this.constraint.pivotA, this._com.node.worldScale);
+            Vec3.add(CC_V3_0, CC_V3_0, CC_V3_1);
         }
         cocos2AmmoVec3(this._pivotB, CC_V3_0);
         this.impl.setPivotB(this._pivotB);
@@ -48,13 +52,13 @@ export class AmmoPointToPointConstraint extends AmmoConstraint implements IPoint
             }
             this._pivotA = new Ammo.btVector3();
             this._pivotB = new Ammo.btVector3();
-            cocos2AmmoVec3(this._pivotA, this.constraint.pivotA);
-            cocos2AmmoVec3(this._pivotB, this.constraint.pivotB);
             if (bodyB) {
                 this._impl = new Ammo.btPoint2PointConstraint(bodyA, bodyB, this._pivotA, this._pivotB);
             } else {
                 this._impl = new Ammo.btPoint2PointConstraint(bodyA, this._pivotA);
             }
+            this.setPivotA(this.constraint.pivotA);
+            this.setPivotB(this.constraint.pivotB);
         }
     }
 }
