@@ -12806,24 +12806,6 @@ static bool js_gfx_Device_getClipSpaceMinZ(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_Device_getClipSpaceMinZ)
 
-static bool js_gfx_Device_getClipSpaceMinZ(se::State& s)
-{
-    cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getClipSpaceMinZ : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        float result = cobj->getClipSpaceMinZ();
-        ok &= float_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getClipSpaceMinZ : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getClipSpaceMinZ)
-
 static bool js_gfx_Device_getNumDrawCalls(se::State& s)
 {
     cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
