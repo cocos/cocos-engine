@@ -822,7 +822,7 @@ export class LabelComponent extends UIRenderComponent {
                 }
             }
         } else {
-            if (this.cacheMode === CacheMode.CHAR && sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+            if (this.cacheMode === CacheMode.CHAR) {
                 this._letterTexture = this._assembler!.getAssemblerData();
                 this._texture = this._letterTexture;
             } else if (!this._ttfSpriteFrame) {

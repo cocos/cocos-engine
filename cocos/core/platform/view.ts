@@ -78,38 +78,27 @@ if (cc.sys.os === cc.sys.OS_IOS) { // All browsers are WebView
 }
 
 if (WECHAT) {
-    __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_WECHAT_GAME;
+    __BrowserGetter.availWidth = () => {
+        return window.innerWidth;
+    };
+    __BrowserGetter.availHeight = () => {
+        return window.innerHeight;
+    };
 }
-
-switch (__BrowserGetter.adaptationType) {
-    case cc.sys.BROWSER_TYPE_SAFARI:
-        __BrowserGetter.meta['minimal-ui'] = 'true';
-    case cc.sys.BROWSER_TYPE_SOUGOU:
-    case cc.sys.BROWSER_TYPE_UC:
-        __BrowserGetter.availWidth = (frame) => {
-            return frame.clientWidth;
-        };
-        __BrowserGetter.availHeight = (frame) => {
-            return frame.clientHeight;
-        };
-        break;
-    case cc.sys.BROWSER_TYPE_WECHAT_GAME:
-        __BrowserGetter.availWidth = () => {
-            return window.innerWidth;
-        };
-        __BrowserGetter.availHeight = () => {
-            return window.innerHeight;
-        };
-        break;
-    case cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB:
-        const sharedCanvas = window.sharedCanvas || wx.getSharedCanvas();
-        __BrowserGetter.availWidth = () => {
-            return sharedCanvas.width;
-        };
-        __BrowserGetter.availHeight = () => {
-            return sharedCanvas.height;
-        };
-        break;
+else {
+    switch (__BrowserGetter.adaptationType) {
+        case cc.sys.BROWSER_TYPE_SAFARI:
+            __BrowserGetter.meta['minimal-ui'] = 'true';
+        case cc.sys.BROWSER_TYPE_SOUGOU:
+        case cc.sys.BROWSER_TYPE_UC:
+            __BrowserGetter.availWidth = (frame) => {
+                return frame.clientWidth;
+            };
+            __BrowserGetter.availHeight = (frame) => {
+                return frame.clientHeight;
+            };
+            break;
+    }
 }
 
 /**
