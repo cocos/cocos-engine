@@ -449,11 +449,6 @@ export class Director extends EventTarget {
 
         this.stopAnimation();
 
-        if (this._root != null) {
-            this._root.destroy();
-        }
-        this._root = null;
-
         // Clear all caches
         cc.loader.releaseAll();
     }
@@ -570,7 +565,7 @@ export class Director extends EventTarget {
         if (this._root) {
             this._root.resetCumulativeTime();
         }
-        this.startAnimation();
+        cc.game.resume();
 
         if (onLaunched) {
             onLaunched(null, scene);
