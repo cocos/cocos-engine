@@ -94,8 +94,8 @@ export enum UniformBinding {
     UBO_SKINNING_TEXTURE = MAX_BINDING_SUPPORTED - 6,
     UBO_UI = MAX_BINDING_SUPPORTED - 7,
     UBO_MORPH = MAX_BINDING_SUPPORTED - 8,
-    UBO_BUILTIN_BINDING_END = MAX_BINDING_SUPPORTED - 9,
-    UBO_PCF_SHADOW = MAX_BINDING_SUPPORTED -10,
+    UBO_PCF_SHADOW = MAX_BINDING_SUPPORTED - 9,
+    UBO_BUILTIN_BINDING_END = MAX_BINDING_SUPPORTED - 10,
 
     // samplers
     SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
@@ -109,7 +109,7 @@ export enum UniformBinding {
     // rooms left for custom bindings
     // effect importer prepares bindings according to this
     CUSTUM_UBO_BINDING_END_POINT = UniformBinding.UBO_BUILTIN_BINDING_END,
-    CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 7,
+    CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 8,
 }
 
 /**
@@ -191,7 +191,7 @@ export class UBOPCFShadow {
         ],
     };
 
-    public view: Float32Array = new Float32Array(UBOShadow.COUNT);
+    public view: Float32Array = new Float32Array(UBOPCFShadow.COUNT);
 }
 
 export const UNIFORM_SHADOWMAP: GFXUniformSampler = {

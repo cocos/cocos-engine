@@ -61,6 +61,23 @@ const ModelShadowCastingMode = Enum({
 });
 
 /**
+ * @en Shadow receive mode.
+ * @zh 阴影接收方式。
+ */
+export const ModelShadowReceivingMode = Enum({
+    /**
+     * @zh Disable shadow projection.
+     * @zh 不接收阴影。
+     */
+    OFF: 0,
+    /**
+     * @zh Enable shadow projection.
+     * @zh 开启阴影投射。
+     */
+    ON: 1,
+});
+
+/**
  * @en model light map settings.
  * @zh 模型光照图设置
  */
@@ -81,6 +98,7 @@ class ModelLightmapSettings {
     @property({
         formerlySerializedAs: '_recieveShadow',
     })
+    @property
     protected _receiveShadow: boolean = true;
     @property
     protected _lightmapSize: number = 64;
@@ -160,7 +178,8 @@ export class ModelComponent extends RenderableComponent {
     @property
     protected _shadowCastingMode = ModelShadowCastingMode.OFF;
 
-    protected _receiveShadows = true;
+    @property
+    protected _receiveShadows = ModelShadowReceivingMode.ON;
 
     /**
      * @en Shadow projection mode.
@@ -428,7 +447,7 @@ export class ModelComponent extends RenderableComponent {
     protected _updateReceiveShadows () {
         if (!this._model) { return; }
         if (this._shadowCastingMode === ModelShadowCastingMode.OFF) {
-            this._model.receiveShadow = true;
+            this._model.receiveShadow = false;
         } else {
             assertIsTrue(
                 this._shadowCastingMode === ModelShadowCastingMode.ON,

@@ -17,21 +17,20 @@ import {
     GFXStoreOp,
     GFXCommandBufferType} from '../gfx/define';
     GFXFilter,
-    GFXAddress,
-    GFXStoreOp} from '../gfx/define';
+    GFXAddress} from '../gfx/define';
 import { GFXFeature } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass, GFXColorAttachment, GFXDepthStencilAttachment } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
-import { Mat4, Vec3, Vec4, Quat, Vec2 } from '../math';
+import { Mat4, Vec3, Vec4, Vec2, Quat } from '../math';
 import { Camera, Model, Light, genSamplerHash, samplerLib } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass-utils';
 import { SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Layers } from '../scene-graph';
 import { js } from '../utils/js';
-import { IInternalBindingInst, UNIFORM_SHADOWMAP } from './define';
-import { IRenderObject, RenderPassStage, UBOGlobal, UBOShadow, UBOPCFShadow, UNIFORM_ENVIRONMENT } from './define';
+import { IInternalBindingInst, UBOPCFShadow, UNIFORM_SHADOWMAP } from './define';
+import { IRenderObject, RenderPassStage, UBOGlobal, UBOShadow, UNIFORM_ENVIRONMENT } from './define';
 import { FrameBufferDesc, RenderFlowType, RenderPassDesc, RenderTextureDesc } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';

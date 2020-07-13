@@ -12,7 +12,7 @@ import { LightType } from '../../renderer/scene/light';
 import { SphereLight } from '../../renderer/scene/sphere-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
 import { cullDirectionalLight, cullSphereLight, cullSpotLight } from '../culling';
-import { UBOForwardLight, UBOShadow, UBOPCFShadow } from '../define';
+import { UBOForwardLight, UBOPCFShadow } from '../define';
 import { IRenderPipelineInfo, RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { UIFlow } from '../ui/ui-flow';
@@ -80,11 +80,11 @@ export class ForwardPipeline extends RenderPipeline {
      * 获取阴影UBO。
      */
     public  get shadowUBOBuffer (){
-        return this._globalBindings.get(UBOShadow.BLOCK.name)!.buffer!;
+        return this._globalBindings.get(UBOPCFShadow.BLOCK.name)!.buffer!;
     }
 
     /**
-     * @en The ubo layout for all forward lights 
+     * @en The ubo layout for all forward lights
      * @zh 全部前向光源的 UBO 结构描述。
      */
     protected _uboLight: UBOForwardLight = new UBOForwardLight();
@@ -99,8 +99,7 @@ export class ForwardPipeline extends RenderPipeline {
     private _lightIndexOffset: number[];
     private _lightIndices: number[];
     private _lightBuffers: GFXBuffer[] = [];
-
-    private _uboShadow: UBOShadow = new UBOShadow();
+    private _uboPCFShadow: UBOPCFShadow = new UBOPCFShadow();
 
     constructor () {
         super();
@@ -158,6 +157,11 @@ export class ForwardPipeline extends RenderPipeline {
         super.updateUBOs(view);
 
         const exposure = view.camera.exposure;
+
+        // Fill Shadow UBO
+        // Fill cc_shadowMatViewProj
+        Mat4.toArray(this._uboPCFShadow.view, this.shadowCameraViewProj, UBOPCFShadow.MAT_SHADOW_VIEW_PROJ_OFFSET);
+        this._globalBindings.get(UBOPCFShadow.BLOCK.name)!.buffer!.update(this._uboPCFShadow.view);
 
         // Fill UBOForwardLight, And update LightGFXBuffer[light_index]
         for(let l = 0; l < this._validLights.length; ++l) {
@@ -222,10 +226,6 @@ export class ForwardPipeline extends RenderPipeline {
             }
             // update lightBuffer
             this._lightBuffers[l].update(this._uboLight.view);
-
-            // cc_shadowMatViewProj
-            Mat4.toArray(this._uboShadow.view, this.shadowCameraViewProj, UBOPCFShadow.MAT_SHADOW_VIEW_PROJ_OFFSET);
-            this._globalBindings.get(UBOShadow.BLOCK.name)!.buffer!.update(this._uboShadow.view);
         }
     }
 

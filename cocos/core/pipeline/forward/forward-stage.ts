@@ -4,7 +4,7 @@
 
 import { ccclass } from '../../data/class-decorator';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXClearFlag, GFXFilter, IGFXColor, GFXLoadOp, GFXTextureLayout } from '../../gfx/define';
+import { GFXClearFlag, GFXFilter, IGFXColor } from '../../gfx/define';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderFlow } from '../render-flow';

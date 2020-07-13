@@ -24,7 +24,7 @@ const bufs: GFXCommandBuffer[] = [];
 export class ShadowStage extends RenderStage {
     public static initInfo: IRenderStageInfo = {
         name: 'ShadowStage',
-        priority: ForwardStagePriority.SHADOW,
+        priority: ForwardStagePriority.FORWARD - 1,
         renderQueues: [
             {
                 isTransparent: true,
