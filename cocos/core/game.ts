@@ -893,7 +893,7 @@ export class Game extends EventTarget {
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
             const ctors: Constructor<GFXDevice>[] = [];
 
-            if (JSB && window.gfx) {
+            if (JSB && window.gfx && !RUNTIME_BASED) {
                 if (gfx.CCVKDevice) { ctors.push(gfx.CCVKDevice); }
                 if (gfx.CCMTLDevice) { ctors.push(gfx.CCMTLDevice); }
                 if (gfx.GLES3Device) { ctors.push(gfx.GLES3Device); }
