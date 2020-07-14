@@ -62,8 +62,8 @@ var dependUtil = {
      * getNativeDep(uuid: string): Record<string, any>
      */
     getNativeDep (uuid) {
-        if (this._depends.has(uuid)) return this._depends.get(uuid).nativeDep;
-        return null;
+        let depend = this._depends.get(uuid);
+        if (depend) return depend.nativeDep && Object.assign({}, depend.nativeDep);
     },
 
     /**

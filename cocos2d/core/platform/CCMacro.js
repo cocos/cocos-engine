@@ -366,15 +366,15 @@ cc.macro = {
      * https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/createImageBitmap
      * 
      * !#en
-     * Whether to use image bitmap first.
+     * Whether to use image bitmap first. If enabled, memory usage will increase.
      * 
      * !#zh
-     * 是否优先使用 image bitmap
+     * 是否优先使用 image bitmap，启用之后，内存占用会变高
      * 
      * @property {Boolean} ALLOW_IMAGE_BITMAP
      * @default true
      */
-    ALLOW_IMAGE_BITMAP: true
+    ALLOW_IMAGE_BITMAP: !cc.sys.isMobile
 };
 
 Object.defineProperty(cc.macro, 'ROTATE_ACTION_CCW', {
