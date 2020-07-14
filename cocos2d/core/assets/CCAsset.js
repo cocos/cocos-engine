@@ -202,18 +202,7 @@ cc.Asset = cc.Class({
          * @default false
          * @static
          */
-        preventPreloadNativeObject: false,
-
-        _parseDepsFromJson (json) {
-            var depends = [];
-            parseDependRecursively(json, depends);
-            return depends;
-        },
-
-        _parseNativeDepFromJson (json) {
-            if (json._native) return { __isNative__: true, ext: json._native};
-            return null;
-        }
+        preventPreloadNativeObject: false
 
     },
 
@@ -325,23 +314,5 @@ cc.Asset = cc.Class({
         return this;
     }
 });
-
-function parseDependRecursively (data, out) {
-    if (!data || typeof data !== 'object' || data.__id__) return;
-    var uuid = data.__uuid__;
-    if (Array.isArray(data)) {
-        for (let i = 0, l = data.length; i < l; i++) {
-            parseDependRecursively(data[i], out);
-        }
-    }
-    else if (uuid) { 
-        out.push(cc.assetManager.utils.decodeUuid(uuid));
-    }
-    else {
-        for (var prop in data) {
-            parseDependRecursively(data[prop], out);
-        }
-    }
-}
 
 module.exports = cc.Asset;

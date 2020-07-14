@@ -26,7 +26,6 @@
  ****************************************************************************/
 
 const EventTarget = require("../event/event-target");
-const textureUtil = require('../utils/texture-util');
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -157,12 +156,6 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                 }
             }
         },
-    },
-
-    statics: {
-        _parseDepsFromJson (json) {
-            return [cc.assetManager.utils.decodeUuid(json.content.texture)];
-        }
     },
 
     /**

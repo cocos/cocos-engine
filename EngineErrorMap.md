@@ -1092,7 +1092,7 @@ Lazy init texture with image element failed due to image loading failure: %s
 
 ### 3120
 
-Loading texture from '%s' with unsupported type: '%s'. Add '%s' into 'cc.macro.SUPPORT_TEXTURE_FORMATS' please.
+Loading texture with unsupported type: '%s'. Add '%s' into 'cc.macro.SUPPORT_TEXTURE_FORMATS' please.
 
 ### 3200
 

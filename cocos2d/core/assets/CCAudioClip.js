@@ -108,14 +108,6 @@ var AudioClip = cc.Class({
             else {
                 callback(null, audioClip);
             }
-        },
-
-        _parseDepsFromJson () {
-            return [];
-        },
-
-        _parseNativeDepFromJson (json) {
-            return { audioLoadMode: json.loadMode,  ext: cc.path.extname(json._native), __isNative__: true };
         }
     },
 

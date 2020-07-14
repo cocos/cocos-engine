@@ -1029,6 +1029,11 @@ if (CC_PREVIEW) {
     };
 }
 
+export function getDependUuidList (json: IFileData): Array<string> {
+    let sharedUuids = json[File.SharedUuids];
+    return json[File.DependUuidIndices].map(index => sharedUuids[index]);
+}
+
 if (CC_EDITOR || CC_TEST) {
     cc._deserializeCompiled = deserialize;
     deserialize.macros = {

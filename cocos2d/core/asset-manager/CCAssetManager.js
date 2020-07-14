@@ -475,10 +475,10 @@ AssetManager.prototype = {
      * 
      * @typescript
      * loadAny(requests: string | string[] | Record<string, any> | Record<string, any>[], options: Record<string, any>, onProgress: (finished: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete: (err: Error, data: any) => void): void
-     * loadAny(requests: string | string[] | Record<string, any> | Record<string, any>[], options: Record<string, any>, onComplete: (err: Error, data: any) => void): void
-     * loadAny(requests: string | string[] | Record<string, any> | Record<string, any>[], options: Record<string, any>): void
      * loadAny(requests: string | string[] | Record<string, any> | Record<string, any>[], onProgress: (finished: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete: (err: Error, data: any) => void): void
+     * loadAny(requests: string | string[] | Record<string, any> | Record<string, any>[], options: Record<string, any>, onComplete: (err: Error, data: any) => void): void
      * loadAny(requests: string | string[] | Record<string, any> | Record<string, any>[], onComplete: (err: Error, data: any) => void): void
+     * loadAny(requests: string | string[] | Record<string, any> | Record<string, any>[], options: Record<string, any>): void
      * loadAny(requests: string | string[] | Record<string, any> | Record<string, any>[]): void
      */
     loadAny (requests, options, onProgress, onComplete) {
@@ -515,8 +515,8 @@ AssetManager.prototype = {
      * 
      * @typescript
      * preloadAny(requests: string | string[] | Record<string, any> | Record<string, any>[], options: Record<string, any>, onProgress: (finished: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete: (err: Error, items: cc.AssetManager.RequestItem[]) => void): void
-     * preloadAny(requests: string | string[] | Record<string, any> | Record<string, any>[], options: Record<string, any>, onComplete: (err: Error, items: cc.AssetManager.RequestItem[]) => void): void
      * preloadAny(requests: string | string[] | Record<string, any> | Record<string, any>[], onProgress: (finished: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete: (err: Error, items: cc.AssetManager.RequestItem[]) => void): void
+     * preloadAny(requests: string | string[] | Record<string, any> | Record<string, any>[], options: Record<string, any>, onComplete: (err: Error, items: cc.AssetManager.RequestItem[]) => void): void
      * preloadAny(requests: string | string[] | Record<string, any> | Record<string, any>[], onComplete: (err: Error, items: cc.AssetManager.RequestItem[]) => void): void
      * preloadAny(requests: string | string[] | Record<string, any> | Record<string, any>[], options: Record<string, any>): void
      * preloadAny(requests: string | string[] | Record<string, any> | Record<string, any>[]): void
@@ -547,8 +547,8 @@ AssetManager.prototype = {
      * 
      * @typescript
      * postLoadNative(asset: cc.Asset, options: Record<string, any>, onComplete: (err: Error) => void): void
-     * postLoadNative(asset: cc.Asset, options: Record<string, any>): void
      * postLoadNative(asset: cc.Asset, onComplete: (err: Error) => void): void
+     * postLoadNative(asset: cc.Asset, options: Record<string, any>): void
      * postLoadNative(asset: cc.Asset): void
      */
     postLoadNative (asset, options, onComplete) {
@@ -603,12 +603,16 @@ AssetManager.prototype = {
      * 
      * @typescript
      * loadRemote<T extends cc.Asset>(url: string, options: Record<string, any>, onComplete: (err: Error, asset: T) => void): void
-     * loadRemote<T extends cc.Asset>(url: string, options: Record<string, any>): void
      * loadRemote<T extends cc.Asset>(url: string, onComplete: (err: Error, asset: T) => void): void
+     * loadRemote<T extends cc.Asset>(url: string, options: Record<string, any>): void
      * loadRemote<T extends cc.Asset>(url: string): void
      */
     loadRemote (url, options, onComplete) {
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
+
+        if (this.assets.has(url)) {
+            return asyncify(onComplete)(null, this.assets.get(url));
+        }
 
         options.__isNative__ = true;
         options.preset = options.preset || 'remote';
@@ -642,8 +646,8 @@ AssetManager.prototype = {
      * 
      * @typescript
      * loadScript(url: string|string[], options: Record<string, any>, onComplete: (err: Error) => void): void;
-     * loadScript(url: string|string[], options: Record<string, any>): void;
      * loadScript(url: string|string[], onComplete: (err: Error) => void): void;
+     * loadScript(url: string|string[], options: Record<string, any>): void;
      * loadScript(url: string|string[]): void;
      */
     loadScript (url, options, onComplete) {
@@ -673,8 +677,8 @@ AssetManager.prototype = {
      * 
      * @typescript
      * loadBundle(nameOrUrl: string, options: Record<string, any>, onComplete: (err: Error, bundle: cc.AssetManager.Bundle) => void): void
-     * loadBundle(nameOrUrl: string, options: Record<string, any>): void
      * loadBundle(nameOrUrl: string, onComplete: (err: Error, bundle: cc.AssetManager.Bundle) => void): void
+     * loadBundle(nameOrUrl: string, options: Record<string, any>): void
      * loadBundle(nameOrUrl: string): void
      */
     loadBundle (nameOrUrl, options, onComplete) {

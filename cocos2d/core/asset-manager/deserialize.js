@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../platform/js');
 const helper = require('./helper');
 const MissingClass = CC_EDITOR && Editor.require('app://editor/page/scene-utils/missing-class-reporter').MissingClass;
 require('../platform/deserialize');
