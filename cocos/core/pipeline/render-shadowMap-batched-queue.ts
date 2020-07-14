@@ -6,7 +6,7 @@ import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { Pass, IMacroPatch } from '../renderer';
 import { SubModel, IPSOCreateInfo } from '../renderer/scene/submodel';
 import { IRenderObject, UBOShadow } from './define';
-import { GFXDevice, GFXRenderPass, GFXBuffer } from '../gfx';
+import { GFXDevice, GFXRenderPass, GFXBuffer, GFXPipelineState } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 
@@ -20,7 +20,8 @@ const myForward_ShadowMap_Patches: IMacroPatch[]= [
  */
 export class RenderShadowMapBatchedQueue {
     private _subModelsArray: SubModel[] = [];
-    private _psoArray: IPSOCreateInfo[] = [];
+    private _psoCIArray: IPSOCreateInfo[] = [];
+    private _psoArray: GFXPipelineState[] = [];
     private _shadowMapBuffer: GFXBuffer|null = null;
 
     private _phaseID = getPhaseID('shadow-add');
@@ -31,7 +32,7 @@ export class RenderShadowMapBatchedQueue {
      */
     public clear (shadowMapBuffer: GFXBuffer) {
         this._subModelsArray.length = 0;
-        this._psoArray.length = 0;
+        this._psoCIArray.length = 0;
         this._shadowMapBuffer = shadowMapBuffer;
     }
 
@@ -45,7 +46,7 @@ export class RenderShadowMapBatchedQueue {
             psoCI.bindingLayout.update();
 
             this._subModelsArray.push(renderObj.model.subModels[subModelIdx]);
-            this._psoArray.push(psoCI);
+            this._psoCIArray.push(psoCI);
         }
     }
 
@@ -54,11 +55,13 @@ export class RenderShadowMapBatchedQueue {
      * record CommandBuffer
      */
     public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
-        for (let i = 0; i < this._psoArray.length; ++i) {
-            const psoCI = this._psoArray[i];
+        for (let i = 0; i < this._psoCIArray.length; ++i) {
+            const psoCI = this._psoCIArray[i];
             const ia = this._subModelsArray[i].inputAssembler!;
-            const pso = PipelineStateManager.getOrCreatePipelineState(device, psoCI, renderPass, ia);
-            cmdBuff.bindPipelineState(pso);
+            if (!this._psoArray[i]) {
+                this._psoArray[i] = PipelineStateManager.getOrCreatePipelineState(device, psoCI, renderPass, ia);
+            }
+            cmdBuff.bindPipelineState(this._psoArray[i]);
             cmdBuff.bindBindingLayout(psoCI.bindingLayout);
             cmdBuff.bindInputAssembler(ia);
             cmdBuff.draw(ia);
