@@ -2,18 +2,20 @@
  * @hidden
  */
 
-import { GFXAttributeName, GFXDevice, GFXSampler, GFXBuffer, GFXBufferUsageBit, GFXMemoryUsageBit, GFXPipelineState } from '../gfx';
+import { GFXAttributeName, GFXBuffer, GFXBufferUsageBit, GFXDevice, GFXFeature, GFXMemoryUsageBit } from '../gfx';
 import { Mesh } from './mesh';
 import { Texture2D } from './texture-2d';
 import { ImageAsset } from './image-asset';
 import { samplerLib } from '../renderer/core/sampler-lib';
-import { UBOMorph, UniformPositionMorphTexture, UniformNormalMorphTexture, UniformTangentMorphTexture } from '../pipeline/define';
+import { UBOMorph, UniformNormalMorphTexture, UniformPositionMorphTexture, UniformTangentMorphTexture } from '../pipeline/define';
 import { warn, warnID } from '../platform/debug';
-import { MorphRendering, SubMeshMorph, Morph, MorphRenderingInstance } from './morph';
+import { Morph, MorphRendering, MorphRenderingInstance, SubMeshMorph } from './morph';
 import { assertIsNonNullable, assertIsTrue } from '../data/utils/asserts';
-import { nextPow2 } from '../math/bits';
+import { log2, nextPow2 } from '../math/bits';
 import { IMacroPatch, IPSOCreateInfo } from '../renderer';
 import { legacyCC } from '../global-exports';
+import { PixelFormat } from './asset-enum';
+import { DEV } from 'internal:constants';
 
 /**
  * True if force to use cpu computing based sub-mesh rendering.
@@ -78,7 +80,8 @@ export class StdMorphRendering implements MorphRendering {
             },
 
             requiredPatches: (subMeshIndex: number) => {
-                const subMeshMorph = this._mesh.struct.morph!.subMeshMorphs[subMeshIndex];
+                assertIsNonNullable(this._mesh.struct.morph);
+                const subMeshMorph = this._mesh.struct.morph.subMeshMorphs[subMeshIndex];
                 const subMeshRenderingInstance = subMeshInstances[subMeshIndex];
                 if (subMeshRenderingInstance === null) {
                     return;
@@ -165,13 +168,13 @@ class GpuComputing implements SubMeshMorphRendering {
     };
     private _attributes: {
         name: string;
-        texture: Texture2D;
-        sampler: GFXSampler;
+        morphTexture: MorphTexture;
     }[];
 
     constructor (mesh: Mesh, subMeshIndex: number, morph: Morph, gfxDevice: GFXDevice) {
+        assertIsNonNullable(mesh.data);
         this._gfxDevice = gfxDevice;
-        const meshData = mesh.data!.buffer;
+        const meshData = mesh.data.buffer;
         const subMeshMorph = morph.subMeshMorphs[subMeshIndex];
         assertIsNonNullable(subMeshMorph);
         this._subMeshMorph = subMeshMorph;
@@ -180,72 +183,55 @@ class GpuComputing implements SubMeshMorphRendering {
 
         const nVertices = mesh.struct.vertexBundles[mesh.struct.primitives[subMeshIndex].vertexBundelIndices[0]].view.count;
         const nTargets = subMeshMorph.targets.length;
-        // Head includes N pixels, where N is number of targets.
+        // Head includes N vector 4, where N is number of targets.
         // Every r channel of the pixel denotes the index of the data pixel of corresponding target.
         // [ (target1_data_offset), (target2_data_offset), .... ] target_data
-        const pixelsRequired = nTargets + nVertices * nTargets;
-        const textureExtents = nearestSqrtPowerOf2LargeThan(pixelsRequired);
-        const width = textureExtents;
-        const height = textureExtents;
-        assertIsTrue(width * height > pixelsRequired);
+        const vec4Required = nTargets + nVertices * nTargets;
+
+        const vec4TextureFactory = createVec4TextureFactory(gfxDevice, vec4Required);
         this._textureInfo = {
-            width,
-            height,
+            width: vec4TextureFactory.width,
+            height: vec4TextureFactory.height,
         };
 
         // Creates texture for each attribute.
         this._attributes = subMeshMorph.attributes.map((attributeName, attributeIndex) => {
-            const textureInfo = {
-                displacements: new Array<number>(),
-                targetOffsets: new Array<number>(nTargets).fill(0),
-            };
-            subMeshMorph.targets.forEach((morphTarget, morphTargetIndex) => {
-                const displacements = morphTarget.displacements[attributeIndex];
-                textureInfo.targetOffsets[morphTargetIndex] = textureInfo.displacements.length;
-                textureInfo.displacements.push(...new Float32Array(meshData, displacements.offset, displacements.count));
-            });
-
-            const pixelStride = 3; // For position, normal, tangent
-            const pixelFormat = Texture2D.PixelFormat.RGB32F; // For position, normal, tangent
-
-            const textureSource = new Float32Array(pixelStride * width * height);
-            const headPixels = nTargets;
-            const headElements = pixelStride * headPixels;
-            for (let iTarget = 0; iTarget < nTargets; ++iTarget) {
-                textureSource[pixelStride * iTarget] =
-                    headPixels +
-                    textureInfo.targetOffsets[iTarget] / pixelStride;
+            const vec4Tex = vec4TextureFactory.create();
+            const valueView = vec4Tex.valueView;
+            // if (DEV) { // Make it easy to view texture in profilers...
+            //     for (let i = 0; i < valueView.length / 4; ++i) {
+            //         valueView[i * 4 + 3] = 1.0;
+            //     }
+            // }
+            {
+                let pHead = 0;
+                let nVec4s = subMeshMorph.targets.length;
+                subMeshMorph.targets.forEach((morphTarget) => {
+                    const displacementsView = morphTarget.displacements[attributeIndex];
+                    const displacements = new Float32Array(meshData, displacementsView.offset, displacementsView.count);
+                    const nVec3s = displacements.length / 3;
+                    valueView[pHead] = nVec4s;
+                    const displacementsOffset = nVec4s * 4;
+                    for (let iVec3 = 0; iVec3 < nVec3s; ++iVec3) {
+                        valueView[displacementsOffset + 4 * iVec3 + 0] = displacements[3 * iVec3 + 0];
+                        valueView[displacementsOffset + 4 * iVec3 + 1] = displacements[3 * iVec3 + 1];
+                        valueView[displacementsOffset + 4 * iVec3 + 2] = displacements[3 * iVec3 + 2];
+                    }
+                    pHead += 4;
+                    nVec4s += nVec3s;
+                });
             }
-            for (let iData = 0; iData < textureInfo.displacements.length; ++iData) {
-                textureSource[headElements + iData] = textureInfo.displacements[iData];
-            }
-            const image = new ImageAsset({
-                width,
-                height,
-                _data: textureSource,
-                _compressed: false,
-                format: pixelFormat,
-            });
-            const textureAsset = new Texture2D();
-            textureAsset.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
-            textureAsset.setMipFilter(Texture2D.Filter.NONE);
-            textureAsset.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE);
-            textureAsset.image = image;
-
-            const sampler = samplerLib.getSampler(gfxDevice, textureAsset.getSamplerHash());
-
+            vec4Tex.updatePixels();
             return {
                 name: attributeName,
-                texture: textureAsset,
-                sampler,
+                morphTexture: vec4Tex,
             };
         });
     }
 
     public destroy () {
         for (const attribute of this._attributes) {
-            attribute.texture.destroy();
-            attribute.sampler.destroy();
+            attribute.morphTexture.destroy();
         }
     }
 
@@ -275,8 +261,8 @@ class GpuComputing implements SubMeshMorphRendering {
                             warn(`Unexpected attribute!`); break;
                     }
                     if (binding !== undefined) {
-                        bindingLayout.bindSampler(binding, attribute.sampler);
-                        bindingLayout.bindTexture(binding, attribute.texture.getGFXTexture()!);
+                        bindingLayout.bindSampler(binding, attribute.morphTexture.sampler);
+                        bindingLayout.bindTexture(binding, attribute.morphTexture.texture);
                     }
                 }
                 bindingLayout.bindBuffer(UBOMorph.BLOCK.binding, morphUniforms.buffer);
@@ -306,7 +292,8 @@ class CpuComputing implements SubMeshMorphRendering {
 
     constructor (mesh: Mesh, subMeshIndex: number, morph: Morph, gfxDevice: GFXDevice) {
         this._gfxDevice = gfxDevice;
-        const meshData = mesh.data!.buffer;
+        assertIsNonNullable(mesh.data);
+        const meshData = mesh.data.buffer;
         const subMeshMorph = morph.subMeshMorphs[subMeshIndex];
         assertIsNonNullable(subMeshMorph);
         enableVertexId(mesh, subMeshIndex, gfxDevice);
@@ -339,7 +326,10 @@ class CpuComputing implements SubMeshMorphRendering {
     }
 }
 class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
-    private _attributes: CpuRenderingInstance.AttributeMorphResource[];
+    private _attributes: {
+        attributeName: string;
+        morphTexture: MorphTexture;
+    }[];
     private _owner: CpuComputing;
     private _morphUniforms: MorphUniforms;
 
@@ -347,37 +337,15 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
         this._owner = owner;
         this._morphUniforms = new MorphUniforms(gfxDevice, 0 /* TODO? */ );
 
-        const pixelRequired = nVertices;
-        const textureExtents = nearestSqrtPowerOf2LargeThan(pixelRequired);
-        const width = textureExtents;
-        const height = textureExtents;
-        this._morphUniforms.setMorphTextureInfo(width, height);
+        const vec4TextureFactory = createVec4TextureFactory(gfxDevice, nVertices);
+        this._morphUniforms.setMorphTextureInfo(vec4TextureFactory.width, vec4TextureFactory.height);
         this._morphUniforms.commit();
 
         this._attributes = this._owner.data.map((attributeMorph, attributeIndex) => {
-            const nElements = 3;
-            const local = new Float32Array(nElements * width * height);
-            const image = new ImageAsset({
-                width,
-                height,
-                _data: local,
-                _compressed: false,
-                format: Texture2D.PixelFormat.RGB32F,
-            });
-            const textureAsset = new Texture2D();
-            textureAsset.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
-            textureAsset.setMipFilter(Texture2D.Filter.NONE);
-            textureAsset.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE);
-            textureAsset.image = image;
-            if (!textureAsset.getGFXTexture()) {
-                warn(`Unexpected: failed to create morph texture?`);
-            }
-            const sampler = samplerLib.getSampler(gfxDevice, textureAsset.getSamplerHash());
+            const morphTexture = vec4TextureFactory.create();
             return {
                 attributeName: attributeMorph.name,
-                local,
-                texture: textureAsset,
-                sampler,
+                morphTexture,
             };
         });
     }
@@ -385,18 +353,24 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
     public setWeights (weights: number[]) {
         for (let iAttribute = 0; iAttribute < this._attributes.length; ++iAttribute) {
             const myAttribute = this._attributes[iAttribute];
+            const valueView = myAttribute.morphTexture.valueView;
             const attributeMorph = this._owner.data[iAttribute];
             assertIsTrue(weights.length === attributeMorph.targets.length);
             for (let iTarget = 0; iTarget < attributeMorph.targets.length; ++iTarget) {
                 const targetDisplacements = attributeMorph.targets[iTarget].displacements;
                 const weight = weights[iTarget];
+                const nVertices = targetDisplacements.length / 3;
                 if (iTarget === 0) {
-                    for (let i = 0; i < targetDisplacements.length; ++i) {
-                        myAttribute.local[i] = targetDisplacements[i] * weight;
+                    for (let iVertex = 0; iVertex < nVertices; ++iVertex) {
+                        valueView[4 * iVertex + 0] = targetDisplacements[3 * iVertex + 0] * weight;
+                        valueView[4 * iVertex + 1] = targetDisplacements[3 * iVertex + 1] * weight;
+                        valueView[4 * iVertex + 2] = targetDisplacements[3 * iVertex + 2] * weight;
                     }
                 } else {
-                    for (let i = 0; i < targetDisplacements.length; ++i) {
-                        myAttribute.local[i] += targetDisplacements[i] * weight;
+                    for (let iVertex = 0; iVertex < nVertices; ++iVertex) {
+                        valueView[4 * iVertex + 0] += targetDisplacements[3 * iVertex + 0] * weight;
+                        valueView[4 * iVertex + 1] += targetDisplacements[3 * iVertex + 1] * weight;
+                        valueView[4 * iVertex + 2] += targetDisplacements[3 * iVertex + 2] * weight;
                     }
                 }
             }
@@ -408,30 +382,32 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
                     let min = Number.POSITIVE_INFINITY;
                     let max = Number.NEGATIVE_INFINITY;
                     for (let i = 0; i < n; ++i) {
-                        const x = myAttribute.local[i * 3 + c];
+                        const x = valueView[i * 3 + c];
                         max = Math.max(x, max);
                         min = Math.min(x, min);
                     }
                     const d = max - min;
-                    for (let i = 0; i < n; ++i) {
-                        const x = myAttribute.local[i * 3 + c];
-                        myAttribute.local[i * 3 + c] = (x - min) / d;
+                    if (d !== 0) {
+                        for (let i = 0; i < n; ++i) {
+                            const x = valueView[i * 3 + c];
+                            valueView[i * 3 + c] = (x - min) / d;
+                        }
                     }
                 }
             }
 
             // Randomize displacements.
             if (false) {
-                for (let i = 0; i <myAttribute.local.length; ++i) {
+                for (let i = 0; i < valueView.length; ++i) {
                     if (i % 3 === 1) {
-                        myAttribute.local[i] = (legacyCC.director.getTotalFrames() % 500) * 0.001;
+                        valueView[i] = (legacyCC.director.getTotalFrames() % 500) * 0.001;
                     } else {
-                        myAttribute.local[i] = 0;
+                        valueView[i] = 0;
                     }
                 }
             }
 
-            myAttribute.texture.uploadData(myAttribute.local);
+            myAttribute.morphTexture.updatePixels();
         }
     }
 
@@ -455,8 +431,8 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
                     warn(`Unexpected attribute!`); break;
             }
             if (binding !== undefined) {
-                bindingLayout.bindSampler(binding, attribute.sampler);
-                bindingLayout.bindTexture(binding, attribute.texture.getGFXTexture()!);
+                bindingLayout.bindSampler(binding, attribute.morphTexture.sampler);
+                bindingLayout.bindTexture(binding, attribute.morphTexture.texture);
             }
         }
         bindingLayout.bindBuffer(UBOMorph.BLOCK.binding, this._morphUniforms.buffer);
@@ -467,18 +443,8 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
         this._morphUniforms.destroy();
         for (let iAttribute = 0; iAttribute < this._attributes.length; ++iAttribute) {
             const myAttribute = this._attributes[iAttribute];
-            // TODO: Should we free sampler?
-            myAttribute.texture.destroy();
+            myAttribute.morphTexture.destroy();
         }
-    }
-}
-
-declare namespace CpuRenderingInstance {
-    export interface AttributeMorphResource {
-        attributeName: string;
-        local: Float32Array;
-        texture: Texture2D;
-        sampler: GFXSampler;
     }
 }
 
@@ -531,6 +497,101 @@ class MorphUniforms {
 }
 
 /**
+ * 
+ * @param gfxDevice 
+ * @param vec4Capacity Capacity of vec4.
+ */
+function createVec4TextureFactory (gfxDevice: GFXDevice, vec4Capacity: number) {
+    const hasFeatureFloatTexture = gfxDevice.hasFeature(GFXFeature.TEXTURE_FLOAT);
+
+    let pixelRequired: number;
+    let pixelFormat: PixelFormat;
+    let pixelBytes: number;
+    let updateViewConstructor: typeof Float32Array | typeof Uint8Array;
+    if (hasFeatureFloatTexture) {
+        pixelRequired = vec4Capacity;
+        pixelBytes = 16;
+        pixelFormat = Texture2D.PixelFormat.RGBA32F;
+        updateViewConstructor = Float32Array;
+    } else {
+        pixelRequired = 4 * vec4Capacity;
+        pixelBytes = 4;
+        pixelFormat = Texture2D.PixelFormat.RGBA8888;
+        updateViewConstructor = Uint8Array;
+    }
+
+    const { width, height } = bestSizeToHavePixels(pixelRequired);
+    assertIsTrue(width * height > pixelRequired);
+
+    return {
+        width,
+        height,
+        create: () => {
+            const arrayBuffer = new ArrayBuffer(width * height * pixelBytes);
+            const valueView = new Float32Array(arrayBuffer);
+            const updateView = updateViewConstructor === Float32Array ? valueView : new updateViewConstructor(arrayBuffer);
+            const image = new ImageAsset({
+                width,
+                height,
+                _data: updateView,
+                _compressed: false,
+                format: pixelFormat,
+            });
+            const textureAsset = new Texture2D();
+            textureAsset.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
+            textureAsset.setMipFilter(Texture2D.Filter.NONE);
+            textureAsset.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE);
+            textureAsset.image = image;
+            if (!textureAsset.getGFXTexture()) {
+                warn(`Unexpected: failed to create morph texture?`);
+            }
+            const sampler = samplerLib.getSampler(gfxDevice, textureAsset.getSamplerHash());
+            return {
+                /**
+                 * Gets the GFX texture.
+                 */
+                get texture () {
+                    return textureAsset.getGFXTexture()!;
+                },
+
+                /**
+                 * Gets the GFX sampler.
+                 */
+                get sampler () {
+                    return sampler;
+                },
+
+                /**
+                 * Value view.
+                 */
+                get valueView () {
+                    return valueView;
+                },
+
+                /**
+                 * Destroy the texture. Release its GPU resources.
+                 */
+                destroy () {
+                    textureAsset.destroy();
+                    // Samplers allocated from `samplerLib` are not required and
+                    // should not be destroyed.
+                    // this._sampler.destroy();
+                },
+
+                /**
+                 * Update the pixels content to `valueView`.
+                 */
+                updatePixels () {
+                    textureAsset.uploadData(updateView);
+                },
+            };
+        },
+    };
+}
+
+type MorphTexture = ReturnType<ReturnType<typeof createVec4TextureFactory>['create']>;
+
+/**
  * When use vertex-texture-fetch technique, we do need
  * `gl_vertexId` when we sample per-vertex data.
  * WebGL 1.0 does not have `gl_vertexId`; WebGL 2.0, however, does.
@@ -542,6 +603,24 @@ function enableVertexId (mesh: Mesh, subMeshIndex: number, gfxDevice: GFXDevice)
     mesh.renderingSubMeshes[subMeshIndex].enableVertexIdChannel(gfxDevice);
 }
 
-function nearestSqrtPowerOf2LargeThan (value: number) {
-    return nextPow2(Math.ceil(Math.sqrt(value)));
+/**
+ * Decides a best texture size to have the specified pixel capacity at least.
+ * The decided width and height has the following characteristics:
+ * - the width and height are both power of 2;
+ * - if the width and height are different, the width would be set to the larger once;
+ * - the width is ensured to be multiple of 4.
+ * @param nPixels Least pixel capacity.
+ */
+function bestSizeToHavePixels (nPixels: number) {
+    if (nPixels < 5) {
+        nPixels = 5;
+    }
+    const aligned = nextPow2(nPixels);
+    const epxSum = log2(aligned);
+    const h = epxSum >> 1;
+    const w = (epxSum & 1) ? (h + 1) : h;
+    return {
+        width: 1 << w,
+        height: 1 << h,
+    };
 }
