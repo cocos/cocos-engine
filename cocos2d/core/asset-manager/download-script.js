@@ -41,7 +41,7 @@ function downloadScript (url, options, onComplete) {
         s.crossOrigin = 'anonymous';
     }
 
-    options.async !== undefined && (s.async = options.async);
+    s.async = options.async;
     s.src = url;
     function loadHandler () {
         s.parentNode.removeChild(s);
