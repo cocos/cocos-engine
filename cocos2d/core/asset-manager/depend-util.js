@@ -64,6 +64,7 @@ var dependUtil = {
     getNativeDep (uuid) {
         let depend = this._depends.get(uuid);
         if (depend) return depend.nativeDep && Object.assign({}, depend.nativeDep);
+        return null;
     },
 
     /**
