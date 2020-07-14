@@ -19,7 +19,6 @@ export class WebGL2GFXFramebuffer extends GFXFramebuffer {
         this._renderPass = info.renderPass;
         this._colorTextures = info.colorTextures || [];
         this._depthStencilTexture = info.depthStencilTexture || null;
-        this._isOffscreen = info.isOffscreen !== undefined ? info.isOffscreen : true;
 
         if (info.depStencilMipmapLevel && info.depStencilMipmapLevel !== 0) {
             console.warn('The mipmap level of th texture image to be attached of depth stencil attachment should be 0. Convert to 0.');
@@ -32,38 +31,28 @@ export class WebGL2GFXFramebuffer extends GFXFramebuffer {
             }
         }
 
-        if (this._isOffscreen) {
-
-            const gpuColorTextures: WebGL2GPUTexture[] = [];
-            if (info.colorTextures !== undefined) {
-                for (const colorTexture of info.colorTextures) {
+        const gpuColorTextures: WebGL2GPUTexture[] = [];
+        if (info.colorTextures !== undefined) {
+            for (const colorTexture of info.colorTextures) {
+                if (colorTexture) {
                     gpuColorTextures.push((colorTexture as WebGL2GFXTexture).gpuTexture);
                 }
             }
-
-            let gpuDepthStencilTexture: WebGL2GPUTexture | null = null;
-            if (info.depthStencilTexture) {
-                gpuDepthStencilTexture = (info.depthStencilTexture as WebGL2GFXTexture).gpuTexture;
-            }
-
-            this._gpuFramebuffer = {
-                gpuRenderPass: (info.renderPass as WebGL2GFXRenderPass).gpuRenderPass,
-                gpuColorTextures,
-                gpuDepthStencilTexture,
-                isOffscreen: this._isOffscreen,
-                glFramebuffer: null,
-            };
-
-            WebGL2CmdFuncCreateFramebuffer(this._device as WebGL2GFXDevice, this._gpuFramebuffer);
-        } else {
-            this._gpuFramebuffer = {
-                gpuRenderPass: (info.renderPass as WebGL2GFXRenderPass).gpuRenderPass,
-                gpuColorTextures: [],
-                gpuDepthStencilTexture: null,
-                isOffscreen: info.isOffscreen,
-                glFramebuffer: null,
-            };
         }
+
+        let gpuDepthStencilTexture: WebGL2GPUTexture | null = null;
+        if (info.depthStencilTexture) {
+            gpuDepthStencilTexture = (info.depthStencilTexture as WebGL2GFXTexture).gpuTexture;
+        }
+
+        this._gpuFramebuffer = {
+            gpuRenderPass: (info.renderPass as WebGL2GFXRenderPass).gpuRenderPass,
+            gpuColorTextures,
+            gpuDepthStencilTexture,
+            glFramebuffer: null,
+        };
+
+        WebGL2CmdFuncCreateFramebuffer(this._device as WebGL2GFXDevice, this._gpuFramebuffer);
 
         this._status = GFXStatus.SUCCESS;
 
@@ -71,10 +60,10 @@ export class WebGL2GFXFramebuffer extends GFXFramebuffer {
     }
 
     public destroy () {
-        if (this._isOffscreen && this._gpuFramebuffer) {
+        if (this._gpuFramebuffer) {
             WebGL2CmdFuncDestroyFramebuffer(this._device as WebGL2GFXDevice, this._gpuFramebuffer);
+            this._gpuFramebuffer = null;
         }
-        this._gpuFramebuffer = null;
         this._status = GFXStatus.UNREADY;
     }
 }

@@ -29,12 +29,13 @@
 
 import { ccclass, property } from '../data/class-decorator';
 import { Mat4, Quat, Vec3 } from '../math';
-import { warnID, assert } from '../platform/debug';
+import { warnID, assert, getError } from '../platform/debug';
 import { RenderScene } from '../renderer/scene/render-scene';
 import { BaseNode } from './base-node';
 import { SceneGlobals } from './scene-globals';
 import { EDITOR, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { Component } from '../components/component';
 
 /**
  * @en
@@ -109,9 +110,8 @@ export class Scene extends BaseNode {
      * @en Only for compatibility purpose, user should not add any component to the scene
      * @zh 仅为兼容性保留，用户不应该在场景上直接添加任何组件
      */
-    public addComponent (typeOrClassName: string | Function) {
-        warnID(3822);
-        return null;
+    public addComponent (typeOrClassName: string | Function): Component {
+        throw new Error(getError(3822));
     }
 
     public _onHierarchyChanged () { }

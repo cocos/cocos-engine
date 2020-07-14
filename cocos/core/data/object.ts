@@ -412,99 +412,124 @@ CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });
  * @private
  */
 js.value(CCObject, 'Flags', {
-
     Destroyed,
-    // ToDestroy: ToDestroy,
-
-    /**
-     * @en The object will not be saved.
-     * @zh 该对象将不会被保存。
-     */
     DontSave,
-
-    /**
-     * @en The object will not be saved when building a player.
-     * @zh 构建项目时，该对象将不会被保存。
-     */
     EditorOnly,
-
     Dirty,
-
-    /**
-     * @en Dont destroy automatically when loading a new scene.
-     * @zh 加载一个新场景时，不自动删除该对象
-     * @property DontDestroy
-     * @private
-     */
     DontDestroy,
-
     PersistentMask,
-
-    // FLAGS FOR ENGINE
-
     Destroying,
-
-    /**
-     * @en The node is deactivating.
-     * @zh 节点正在反激活的过程中。
-     * @private
-     */
     Deactivating,
-
-    /**
-     * @en The lock node, when the node is locked, cannot be clicked in the scene.
-     * @zh 锁定节点，锁定后场景内不能点击
-     * @private
-     */
     LockedInEditor,
-
-    /// **
-    // * @en
-    // * Hide in game and hierarchy.
-    // * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
-    // * @zh
-    // * 在游戏和层级中隐藏该对象。<br/>
-    // * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
-    // * @property {Number} HideInGame
-    // */
-    // HideInGame: HideInGame,
-
-    // FLAGS FOR EDITOR
-
-    /// **
-    // * @en This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
-    // * @zh 该标记只读，它只能被用作 scene.addEntity()的一个参数。
-    // */
     HideInHierarchy,
-
-    /// **
-    // * @en
-    // * Hide in game view, hierarchy, and scene view... etc.
-    // * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
-    // * @zh
-    // * 在游戏视图，层级，场景视图等等...中隐藏该对象。
-    // * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
-    // */
-    // Hide: Hide,
-
-    //// UUID Registered in editor
-    // RegisteredInEditor: RegisteredInEditor,
-
-    // FLAGS FOR COMPONENT
-
     IsPreloadStarted,
     IsOnLoadStarted,
     IsOnLoadCalled,
     IsOnEnableCalled,
     IsStartCalled,
     IsEditorOnEnableCalled,
-
     IsPositionLocked,
     IsRotationLocked,
     IsScaleLocked,
     IsAnchorLocked,
     IsSizeLocked,
 });
+
+declare namespace CCObject {
+    export enum Flags {
+        Destroyed,
+        // ToDestroy: ToDestroy,
+
+        /**
+         * @en The object will not be saved.
+         * @zh 该对象将不会被保存。
+         */
+        DontSave,
+
+        /**
+         * @en The object will not be saved when building a player.
+         * @zh 构建项目时，该对象将不会被保存。
+         */
+        EditorOnly,
+
+        Dirty,
+
+        /**
+         * @en Dont destroy automatically when loading a new scene.
+         * @zh 加载一个新场景时，不自动删除该对象
+         * @property DontDestroy
+         * @private
+         */
+        DontDestroy,
+
+        PersistentMask,
+
+        // FLAGS FOR ENGINE
+
+        Destroying,
+
+        /**
+         * @en The node is deactivating.
+         * @zh 节点正在反激活的过程中。
+         * @private
+         */
+        Deactivating,
+
+        /**
+         * @en The lock node, when the node is locked, cannot be clicked in the scene.
+         * @zh 锁定节点，锁定后场景内不能点击
+         * @private
+         */
+        LockedInEditor,
+
+        /// **
+        // * @en
+        // * Hide in game and hierarchy.
+        // * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
+        // * @zh
+        // * 在游戏和层级中隐藏该对象。<br/>
+        // * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
+        // * @property {Number} HideInGame
+        // */
+        // HideInGame: HideInGame,
+
+        // FLAGS FOR EDITOR
+
+        /// **
+        // * @en This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
+        // * @zh 该标记只读，它只能被用作 scene.addEntity()的一个参数。
+        // */
+        HideInHierarchy,
+
+        /// **
+        // * @en
+        // * Hide in game view, hierarchy, and scene view... etc.
+        // * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
+        // * @zh
+        // * 在游戏视图，层级，场景视图等等...中隐藏该对象。
+        // * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
+        // */
+        // Hide: Hide,
+
+        //// UUID Registered in editor
+        // RegisteredInEditor: RegisteredInEditor,
+
+        // FLAGS FOR COMPONENT
+
+        IsPreloadStarted,
+        IsOnLoadStarted,
+        IsOnLoadCalled,
+        IsOnEnableCalled,
+        IsStartCalled,
+        IsEditorOnEnableCalled,
+
+        IsPositionLocked,
+        IsRotationLocked,
+        IsScaleLocked,
+        IsAnchorLocked,
+        IsSizeLocked,
+    }
+}
 
 /*
  * @en

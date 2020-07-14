@@ -31,9 +31,8 @@ import { CCObject } from '../data/object';
 import * as js from '../utils/js';
 import { EDITOR, DEV, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
-import { error, errorID } from '../platform/debug';
+import { error, errorID, getError } from '../platform/debug';
 
-// @ts-ignore
 const Destroying = CCObject.Flags.Destroying;
 
 export function baseNodePolyfill (BaseNode) {
@@ -42,13 +41,11 @@ export function baseNodePolyfill (BaseNode) {
             const existing = this.getComponent(ctor._disallowMultiple);
             if (existing) {
                 if (existing.constructor === ctor) {
-                    errorID(3805, js.getClassName(ctor), this._name);
+                    throw Error(getError(3805, js.getClassName(ctor), this._name));
                 } else {
-                    errorID(3806, js.getClassName(ctor), this._name, js.getClassName(existing));
+                    throw Error(getError(3806, js.getClassName(ctor), this._name, js.getClassName(existing)));
                 }
-                return false;
             }
-            return true;
         };
 
         /**

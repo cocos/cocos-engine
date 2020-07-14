@@ -1,22 +1,20 @@
 import {
-    GFXFormat,
-    GFXTextureFlagBit,
     GFXTextureType,
     GFXTextureUsageBit,
+    GFXFormat,
 } from '../gfx/define';
 import { GFXRenderPass, GFXTexture, GFXFramebuffer, IGFXRenderPassInfo } from '../gfx';
 import { Root } from '../root';
 import { PipelineGlobal } from './global';
+import { RenderPassStage } from './define';
 
 export interface IRenderWindowInfo {
     title?: string;
-    left?: number;
-    top?: number;
     width: number;
     height: number;
     renderPassInfo: IGFXRenderPassInfo;
-    isOffscreen?: boolean;
-    renderPass?: GFXRenderPass; // will use this reference instead if specified
+    swapchainBufferIndices?: number;
+    shouldSyncSizeWithSwapchain?: boolean;
 }
 
 export class RenderWindow {
@@ -38,38 +36,6 @@ export class RenderWindow {
     }
 
     /**
-     * @en Is this window offscreen?
-     * @zh 是否是离屏的。
-     */
-    get isOffscreen (): boolean {
-        return this._isOffscreen;
-    }
-
-    /**
-     * @en Get the render pass of this window.
-     * @zh GFX 渲染过程。
-     */
-    get renderPass (): GFXRenderPass {
-        return this._renderPass!;
-    }
-
-    /**
-     * @en Get color texture of this window.
-     * @zh 颜色纹理。
-     */
-    get colorTextures (): GFXTexture[] {
-        return this._colorTexs;
-    }
-
-    /**
-     * @en Get depth stencil texture of this window.
-     * @zh 深度模板纹理。
-     */
-    get depthStencilTexture (): GFXTexture | null {
-        return this._depthStencilTex;
-    }
-
-    /**
      * @en Get window frame buffer.
      * @zh GFX帧缓冲。
      */
@@ -77,42 +43,50 @@ export class RenderWindow {
         return this._framebuffer!;
     }
 
+    get shouldSyncSizeWithSwapchain () {
+        return this._shouldSyncSizeWithSwapchain;
+    }
+
+    get hasOnScreenAttachments () {
+        return this._hasOnScreenAttachments;
+    }
+
+    get hasOffScreenAttachments () {
+        return this._hasOffScreenAttachments;
+    }
+
     public static registerCreateFunc (root: Root) {
         root._createWindowFun = (_root: Root): RenderWindow => new RenderWindow(_root);
     }
 
     protected _title: string = '';
-    protected _left: number = 0;
-    protected _top: number = 0;
-    protected _width: number = 0;
-    protected _height: number = 0;
-    protected _nativeWidth: number = 0;
-    protected _nativeHeight: number = 0;
-    protected _isOffscreen: boolean = false;
+    protected _width: number = 1;
+    protected _height: number = 1;
+    protected _nativeWidth: number = 1;
+    protected _nativeHeight: number = 1;
     protected _renderPass: GFXRenderPass | null = null;
-    protected _colorTexs: GFXTexture[] = [];
-    protected _depthStencilTex: GFXTexture | null = null;
+    protected _colorTextures: (GFXTexture | null)[] = [];
+    protected _depthStencilTexture: GFXTexture | null = null;
     protected _framebuffer: GFXFramebuffer | null = null;
+    protected _swapchainBufferIndices = 0;
+    protected _shouldSyncSizeWithSwapchain = false;
+    protected _hasOnScreenAttachments = false;
+    protected _hasOffScreenAttachments = false;
 
     private constructor (root: Root) {
     }
 
     public initialize (info: IRenderWindowInfo): boolean {
-
         if (info.title !== undefined) {
             this._title = info.title;
         }
 
-        if (info.left !== undefined) {
-            this._left = info.left;
+        if (info.swapchainBufferIndices !== undefined) {
+            this._swapchainBufferIndices = info.swapchainBufferIndices;
         }
 
-        if (info.top !== undefined) {
-            this._top = info.top;
-        }
-
-        if (info.isOffscreen !== undefined) {
-            this._isOffscreen = info.isOffscreen;
+        if (info.shouldSyncSizeWithSwapchain !== undefined) {
+            this._shouldSyncSizeWithSwapchain = info.shouldSyncSizeWithSwapchain;
         }
 
         this._width = info.width;
@@ -120,92 +94,78 @@ export class RenderWindow {
         this._nativeWidth = this._width;
         this._nativeHeight = this._height;
 
-        let colorAttachments = info.renderPassInfo.colorAttachments;
-        let depthStencilAttachment = info.renderPassInfo.depthStencilAttachment;
-
-        if (info.renderPass) {
-            this._renderPass = info.renderPass;
-            colorAttachments = info.renderPass.colorAttachments;
-            depthStencilAttachment = info.renderPass.depthStencilAttachment;
-        } else {
-            for (let i = 0; i < colorAttachments.length; i++) {
-                const attachment = colorAttachments[i];
-                if (attachment.format === GFXFormat.UNKNOWN) {
-                    attachment.format = PipelineGlobal.device.colorFormat;
-                }
+        const device = PipelineGlobal.device;
+        const { colorAttachments, depthStencilAttachment } = info.renderPassInfo;
+        for (let i = 0; i < colorAttachments.length; i++) {
+            if (colorAttachments[i].format === GFXFormat.UNKNOWN) {
+                colorAttachments[i].format = device.colorFormat;
             }
-            if (depthStencilAttachment) {
-                const attachment = depthStencilAttachment;
-                if (attachment.format === GFXFormat.UNKNOWN) {
-                    attachment.format = PipelineGlobal.device.depthStencilFormat;
-                }
+        }
+        if (depthStencilAttachment && depthStencilAttachment.format === GFXFormat.UNKNOWN) {
+            depthStencilAttachment.format = device.depthStencilFormat;
+        }
+
+        this._renderPass = device.createRenderPass(info.renderPassInfo);
+
+        for (let i = 0; i < colorAttachments.length; i++) {
+            let colorTex: GFXTexture | null = null;
+            if (!(this._swapchainBufferIndices & (1 << i))) {
+                colorTex = device.createTexture({
+                    type: GFXTextureType.TEX2D,
+                    usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                    format: colorAttachments[i].format,
+                    width: this._width,
+                    height: this._height,
+                });
+                this._hasOffScreenAttachments = true;
+            } else {
+                this._hasOnScreenAttachments = true;
             }
-            this._renderPass = PipelineGlobal.device.createRenderPass(info.renderPassInfo);
+            this._colorTextures.push(colorTex);
         }
 
-        let colorTexturesToCreate = colorAttachments.length;
-        if (!this._isOffscreen) { colorTexturesToCreate--; } // -1 for swapchain image
-        for (let i = 0; i < colorTexturesToCreate; i++) {
-            const format = colorAttachments[i].format;
-            const colorTex = PipelineGlobal.device.createTexture({
-                type: GFXTextureType.TEX2D,
-                usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format,
-                width: this._width,
-                height: this._height,
-                depth: 1,
-                arrayLayer: 1,
-                mipLevel: 1,
-                flags: GFXTextureFlagBit.NONE,
-            });
-            this._colorTexs.push(colorTex);
-        }
-        if (this._isOffscreen && depthStencilAttachment) {
-            const format = depthStencilAttachment.format;
-            this._depthStencilTex = PipelineGlobal.device.createTexture({
-                type: GFXTextureType.TEX2D,
-                usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format,
-                width: this._width,
-                height: this._height,
-                depth: 1,
-                arrayLayer: 1,
-                mipLevel: 1,
-                flags: GFXTextureFlagBit.NONE,
-            });
+        // Use the sign bit to indicate depth attachment
+        if (depthStencilAttachment) {
+            if (this._swapchainBufferIndices >= 0) {
+                this._depthStencilTexture = device.createTexture({
+                    type: GFXTextureType.TEX2D,
+                    usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                    format: depthStencilAttachment.format,
+                    width: this._width,
+                    height: this._height,
+                });
+                this._hasOffScreenAttachments = true;
+            } else {
+                this._hasOnScreenAttachments = true;
+            }
         }
 
-        this._framebuffer = PipelineGlobal.device.createFramebuffer({
+        this._framebuffer = device.createFramebuffer({
             renderPass: this._renderPass,
-            colorTextures: this._colorTexs,
-            depthStencilTexture: this._depthStencilTex,
-            isOffscreen: this._isOffscreen,
+            colorTextures: this._colorTextures,
+            depthStencilTexture: this._depthStencilTexture,
         });
 
         return true;
     }
 
     public destroy () {
-        if (this._depthStencilTex) {
-            this._depthStencilTex.destroy();
-            this._depthStencilTex = null;
+        if (this._depthStencilTexture) {
+            this._depthStencilTexture.destroy();
+            this._depthStencilTexture = null;
         }
 
-        for (let i = 0; i < this._colorTexs.length; i++) {
-            if (this._colorTexs[i]) {
-                this._colorTexs[i].destroy();
+        for (let i = 0; i < this._colorTextures.length; i++) {
+            const colorTexture = this._colorTextures[i];
+            if (colorTexture) {
+                colorTexture.destroy();
             }
         }
-        this._colorTexs.length = 0;
+        this._colorTextures.length = 0;
 
         if (this._framebuffer) {
             this._framebuffer.destroy();
             this._framebuffer = null;
-        }
-
-        if (this._renderPass) {
-            this._renderPass.destroy();
-            this._renderPass = null;
         }
     }
 
@@ -225,22 +185,27 @@ export class RenderWindow {
             this._nativeWidth = width;
             this._nativeHeight = height;
 
-            if (this._depthStencilTex) {
-                this._depthStencilTex.resize(width, height);
+            let needRebuild = false;
+
+            if (this._depthStencilTexture) {
+                this._depthStencilTexture.resize(width, height);
+                needRebuild = true;
             }
 
-            for (let i = 0; i < this._colorTexs.length; i++) {
-                if (this._colorTexs[i]) {
-                    this._colorTexs[i].resize(width, height);
+            for (let i = 0; i < this._colorTextures.length; i++) {
+                const colorTex = this._colorTextures[i];
+                if (colorTex) {
+                    colorTex.resize(width, height);
+                    needRebuild = true;
                 }
             }
 
-            if (this._framebuffer && this._framebuffer.isOffscreen) {
+            if (needRebuild && this._framebuffer) {
                 this._framebuffer.destroy();
                 this._framebuffer.initialize({
                     renderPass: this._renderPass!,
-                    colorTextures: this._colorTexs,
-                    depthStencilTexture: this._depthStencilTex!,
+                    colorTextures: this._colorTextures,
+                    depthStencilTexture: this._depthStencilTexture,
                 });
             }
         }

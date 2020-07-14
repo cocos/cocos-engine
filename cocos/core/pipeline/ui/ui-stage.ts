@@ -3,7 +3,7 @@
  */
 
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { IGFXColor, GFXLoadOp, GFXStoreOp, GFXTextureLayout } from '../../gfx/define';
+import { IGFXColor } from '../../gfx/define';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
@@ -32,45 +32,9 @@ export class UIStage extends RenderStage {
     public activate (flow: RenderFlow) {
         super.activate(flow);
         this.createCmdBuffer();
-
-        const device = PipelineGlobal.device;
-
-        // UI uses a exclusive render pass
-        const renderPass = device.createRenderPass({
-            colorAttachments: [{
-                format: device.colorFormat,
-                loadOp: GFXLoadOp.LOAD, // shouldn't clear color attachment
-                storeOp: GFXStoreOp.STORE,
-                sampleCount: 1,
-                beginLayout: GFXTextureLayout.PRESENT_SRC,
-                endLayout: GFXTextureLayout.PRESENT_SRC,
-            }],
-            depthStencilAttachment: {
-                format : device.depthStencilFormat,
-                depthLoadOp : GFXLoadOp.CLEAR,
-                depthStoreOp : GFXStoreOp.STORE,
-                stencilLoadOp : GFXLoadOp.CLEAR,
-                stencilStoreOp : GFXStoreOp.STORE,
-                sampleCount : 1,
-                beginLayout : GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                endLayout : GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-            },
-        });
-        this._framebuffer = device.createFramebuffer({
-            renderPass,
-            colorTextures: [],
-            depthStencilTexture: null,
-            isOffscreen: false
-        });
     }
 
     public destroy () {
-
-        if (this._framebuffer) {
-            this._framebuffer.renderPass!.destroy();
-            this._framebuffer.destroy();
-        }
-
         if (this._cmdBuff) {
             this._cmdBuff.destroy();
             this._cmdBuff = null;
@@ -96,13 +60,7 @@ export class UIStage extends RenderStage {
         }
         this._renderQueues[0].sort();
 
-        let framebuffer = view.window!.framebuffer;
-        if (!framebuffer.isOffscreen) {
-            framebuffer = this._framebuffer!;
-        }
-
         const camera = view.camera!;
-
         const vp = camera.viewport;
         this._renderArea!.x = vp.x * camera.width;
         this._renderArea!.y = vp.y * camera.height;
@@ -113,9 +71,12 @@ export class UIStage extends RenderStage {
 
         const cmdBuff = this._cmdBuff!;
 
+        const framebuffer = view.window.framebuffer;
+        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : this._flow.getRenderPass(camera.clearFlag);
+
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(framebuffer, this._renderArea!,
-            camera.clearFlag, [camera.clearColor], camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
+            [camera.clearColor], camera.clearDepth, camera.clearStencil);
 
         this._renderQueues[0].recordCommandBuffer(PipelineGlobal.device, this._framebuffer!.renderPass!, cmdBuff);
 

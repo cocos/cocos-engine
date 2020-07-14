@@ -1,169 +1,146 @@
+/*
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 /**
  * @category asset
  */
 
 import { ccclass, property } from '../data/class-decorator';
-import { GFXFormat, GFXTexture, GFXColorAttachment, GFXDepthStencilAttachment, GFXTextureLayout } from '../gfx';
-import { GFXDevice } from '../gfx/device';
-import { ccenum } from '../value-types/enum';
-import { DepthStencilFormat, PixelFormat } from './asset-enum';
-import { TextureBase } from './texture-base';
+import { GFXTexture, GFXSampler, GFXColorAttachment, GFXDepthStencilAttachment, GFXTextureLayout } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { RenderWindow } from '../pipeline';
 import { IRenderWindowInfo } from '../pipeline/render-window';
+import { Root } from '../root';
+import { Asset } from './asset';
+import { samplerLib, defaultSamplerHash } from '../renderer/core/sampler-lib';
 
 export interface IRenderTextureCreateInfo {
     name?: string;
     width: number;
     height: number;
-    colorFormat: PixelFormat;
-    depthStencilFormat: DepthStencilFormat;
 }
 
-ccenum(DepthStencilFormat);
+const _colorAttachment = new GFXColorAttachment();
+_colorAttachment.endLayout = GFXTextureLayout.SHADER_READONLY_OPTIMAL;
+const _depthStencilAttachment = new GFXDepthStencilAttachment();
+const _windowInfo: IRenderWindowInfo = {
+    width: 1,
+    height: 1,
+    renderPassInfo: {
+        colorAttachments: [_colorAttachment],
+        depthStencilAttachment: _depthStencilAttachment,
+    }
+};
 
 @ccclass('cc.RenderTexture')
-export class RenderTexture extends TextureBase {
-    public static DepthStencilFormat = DepthStencilFormat;
+export class RenderTexture extends Asset {
+
+    @property({
+        min: 1,
+        max: 2048,
+        visible: true,
+    })
+    private _width = 1;
+
+    @property({
+        min: 1,
+        max: 2048,
+        visible: true,
+    })
+    private _height = 1;
+
     private _window: RenderWindow | null = null;
 
-    @property
-    private _depthStencilFormat: DepthStencilFormat = DepthStencilFormat.NONE;
-
-    @property
     get width () {
         return this._width;
     }
 
-    set width (value) {
-        this._width = value;
-        this.reset();
-    }
-
-    @property
     get height () {
         return this._height;
     }
 
-    set height (value) {
-        this._height = value;
-        this.reset();
-    }
-
-    @property({
-        type: DepthStencilFormat,
-    })
-    get depthStencilFormat () {
-        return this._depthStencilFormat;
-    }
-
-    set depthStencilFormat (value) {
-        this._depthStencilFormat = value;
-        this.reset();
-    }
-
-    public getGFXWindow () {
+    get window () {
         return this._window;
     }
 
-    public getGFXTexture (): GFXTexture | null {
-        return this._window ? this._window.colorTextures[0] : null;
+    public initialize (info: IRenderTextureCreateInfo) {
+        this._name = info.name || '';
+        this._width = info.width;
+        this._height = info.height;
+        this._initWindow();
     }
-
-    public getGFXStencilTexture (): GFXTexture | null {
-        return this._window ? this._window.depthStencilTexture : null;
-    }
-
-    public reset (info?: IRenderTextureCreateInfo) {
-        if (info) {
-            this._width = info.width;
-            this._height = info.height;
-            if (info.colorFormat){
-                this._format = info.colorFormat;
-            }
-
-            if (info.depthStencilFormat){
-                this._depthStencilFormat = info.depthStencilFormat;
-            }
-
-            this._tryResetWindow();
-            this.emit('resize', this);
-        }
+    public reset (info: IRenderTextureCreateInfo) { // to be consistent with other assets
+        this.initialize(info);
     }
 
     public destroy () {
         if (this._window) {
-            legacyCC.director.root!.destroyWindow(this._window);
+            const root = legacyCC.director.root as Root;
+            root.destroyWindow(this._window);
             this._window = null;
         }
 
         return super.destroy();
     }
 
-    public onLoaded (){
-        this._tryResetWindow();
-    }
-
-    public _serialize (exporting?: any): any {
-        return {
-            base: super._serialize(),
-            name: this._name,
-            width: this._width,
-            height: this._height,
-            colorFormat: this._format,
-            depthStencilFormat: this._depthStencilFormat,
-        };
-    }
-
-    public _deserialize (serializeData: any, handle: any) {
-        super._deserialize(serializeData.base, handle);
-        const data = serializeData as IRenderTextureCreateInfo;
-        this.name = data.name || '';
-        this._width = data.width;
-        this._height = data.height;
-        this._format = data.colorFormat;
-        this._depthStencilFormat = data.depthStencilFormat;
-    }
-
-    protected _tryResetWindow () {
-        const device = this._getGFXDevice();
-        if (!device) {
-            return;
+    public resize (width: number, height: number) {
+        this._width = width;
+        this._height = height;
+        if (this._window) {
+            this._window.resize(width, height);
         }
+        this.emit('resize', this._window);
+    }
+
+    // To be compatible with material property interface
+    public getGFXTexture (): GFXTexture | null {
+        return this._window && this._window.framebuffer.colorTextures[0];
+    }
+    public getGFXSampler (): GFXSampler {
+        const root = legacyCC.director.root as Root;
+        return samplerLib.getSampler(root.device, defaultSamplerHash);
+    }
+
+    public onLoaded () {
+        this._initWindow();
+        this.loaded = true;
+        this.emit('load');
+    }
+
+    protected _initWindow () {
+        const root = legacyCC.director.root as Root;
+        _windowInfo.title = this._name;
+        _windowInfo.width = this._width;
+        _windowInfo.height = this._height;
 
         if (this._window) {
             this._window.destroy();
+            this._window.initialize(_windowInfo);
+        } else {
+            this._window = root.createWindow(_windowInfo);
         }
-
-        this._createWindow(device);
-    }
-
-    protected _createWindow (device: GFXDevice) {
-        const colorAttachment = new GFXColorAttachment();
-        colorAttachment.format = this._format;
-        colorAttachment.endLayout = GFXTextureLayout.SHADER_READONLY_OPTIMAL;
-        const depthStencilAttachment = new GFXDepthStencilAttachment();
-        depthStencilAttachment.format = this._depthStencilFormat as unknown as GFXFormat;
-
-        const config: IRenderWindowInfo = {
-            title: this.name,
-            isOffscreen: true,
-            width: this._width,
-            height: this._height,
-            renderPassInfo: {
-                colorAttachments: [colorAttachment],
-                depthStencilAttachment,
-            }
-        };
-
-        if (this._window) {
-            this._window.initialize(config);
-            return this._window;
-        }
-
-        this._window = legacyCC.director.root!.createWindow(config);
-        this.loaded = true;
-        this.emit('load');
     }
 }
 

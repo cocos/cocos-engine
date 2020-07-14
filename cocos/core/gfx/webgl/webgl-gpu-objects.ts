@@ -81,8 +81,6 @@ export class WebGLGPUFramebuffer {
     public gpuRenderPass: WebGLGPURenderPass;
     public gpuColorTextures: WebGLGPUTexture[] = [];
     public gpuDepthStencilTexture: WebGLGPUTexture | null = null;
-    public isOffscreen?: boolean = false;
-
     public glFramebuffer: WebGLFramebuffer | null = null;
 
     constructor (gpuRenderPass: WebGLGPURenderPass) {

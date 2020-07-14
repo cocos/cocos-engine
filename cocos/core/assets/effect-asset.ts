@@ -60,6 +60,7 @@ export interface IPassStates {
 }
 export interface IPassInfo extends IPassStates {
     program: string; // auto-generated from 'vert' and 'frag'
+    propertyIndex?: number;
     switch?: string;
     properties?: Record<string, IPropertyInfo>;
 }

@@ -58,7 +58,7 @@ const defaultInfo = [
   GFXComparisonFunc.NEVER,
   0, 0, 0,
 ];
-const defaultHash = genSamplerHash(defaultInfo);
+export const defaultSamplerHash = genSamplerHash(defaultInfo);
 
 const borderColor = { r: 0, g: 0, b: 0, a: 0 };
 
@@ -101,7 +101,7 @@ class SamplerLib {
      * @param info 目标 sampler 属性
      */
     public getSampler (device: GFXDevice, hash: number) {
-        if (hash === 0) { hash = defaultHash; }
+        if (hash === 0) { hash = defaultSamplerHash; }
         const cache = this._cache[hash];
         if (cache) { return cache; }
 
