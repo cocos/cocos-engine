@@ -963,7 +963,7 @@ var Texture2D = cc.Class({
         return asset;
     },
 
-    _deserialize: function (data, handle) {
+    _deserialize: function (data) {
         let fields = data.split(',');
         // decode extname
         let extIdStr = fields[0];
