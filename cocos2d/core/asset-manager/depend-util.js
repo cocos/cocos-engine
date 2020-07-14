@@ -65,8 +65,8 @@ var dependUtil = {
      * getNativeDep(uuid: string): Record<string, any>
      */
     getNativeDep (uuid) {
-        let depend;
-        if (depend = this._depends.get(uuid)) return depend.nativeDep && Object.assign({}, depend.nativeDep);
+        let depend = this._depends.get(uuid);
+        if (depend) return depend.nativeDep && Object.assign({}, depend.nativeDep);
         return null;
     },
 
@@ -174,7 +174,7 @@ var dependUtil = {
                 }
                 catch (e) {
                     files.remove(uuid + '@import');
-                    out = { deps: [] }
+                    out = { deps: [] };
                 }
             }
         }
