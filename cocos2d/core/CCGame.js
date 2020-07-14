@@ -726,11 +726,9 @@ var game = {
 
                 //it is already a canvas, we wrap it around with a div
                 this.canvas = localCanvas = element;
-
                 this.container = localContainer = document.createElement("DIV");
                 if (localCanvas.parentNode)
                     localCanvas.parentNode.insertBefore(localContainer, localCanvas);
-                
             } else {
                 //we must make a new canvas and place into this element
                 if (element.tagName !== "DIV") {
@@ -742,6 +740,7 @@ var game = {
                 this.container = localContainer = document.createElement("DIV");
                 element.appendChild(localContainer);
             }
+            localContainer.setAttribute('id', 'Cocos2dGameContainer');
             localContainer.appendChild(localCanvas);
             this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
 
