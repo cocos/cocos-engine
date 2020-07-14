@@ -976,7 +976,7 @@ var Texture2D = cc.Class({
             }
             else {
                 this._setRawAsset(result.defaultExt);
-                cc.warnID(3120, handle.customEnv.url, result.defaultExt, result.defaultExt);
+                cc.warnID(3120, result.defaultExt, result.defaultExt);
             }
         }
         if (fields.length === 8) {
