@@ -149,12 +149,6 @@ export abstract class RenderStage {
     protected _framebuffer: GFXFramebuffer | null = null;
 
     /**
-     * @en The command buffer
-     * @zh 命令缓冲。
-     */
-    protected _cmdBuff: GFXCommandBuffer | null = null;
-
-    /**
      * @en The list of clear colors
      * @zh 清空颜色数组。
      */
@@ -363,7 +357,7 @@ export abstract class RenderStage {
     public executeCommandBuffer (view: RenderView) {
         const camera = view.camera;
 
-        const cmdBuff = this._cmdBuff!;
+        const cmdBuff = this._pipeline.commandBuffers[0];
 
         const vp = camera.viewport;
         this._renderArea!.x = vp.x * camera.width;
@@ -391,19 +385,8 @@ export abstract class RenderStage {
 
         cmdBuff.endRenderPass();
         cmdBuff.end();
-        bufs[0] = cmdBuff;
-        PipelineGlobal.device.queue.submit(bufs);
-    }
 
-    /**
-     * @en Create the main command buffer of this stage
-     * @zh 创建该阶段的主命令缓冲
-     */
-    public createCmdBuffer () {
-        this._cmdBuff = PipelineGlobal.device.createCommandBuffer({
-            queue: PipelineGlobal.device.queue,
-            type: GFXCommandBufferType.PRIMARY,
-        });
+        PipelineGlobal.device.queue.submit(this._pipeline.commandBuffers);
     }
 
     /**

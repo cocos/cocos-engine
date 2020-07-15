@@ -31,14 +31,9 @@ export class UIStage extends RenderStage {
 
     public activate (flow: RenderFlow) {
         super.activate(flow);
-        this.createCmdBuffer();
     }
 
     public destroy () {
-        if (this._cmdBuff) {
-            this._cmdBuff.destroy();
-            this._cmdBuff = null;
-        }
     }
 
     public resize (width: number, height: number) {
@@ -69,7 +64,7 @@ export class UIStage extends RenderStage {
 
         colors[0] = camera.clearColor;
 
-        const cmdBuff = this._cmdBuff!;
+        const cmdBuff = this._pipeline.commandBuffers[0];
 
         const framebuffer = view.window.framebuffer;
         const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : this._flow.getRenderPass(camera.clearFlag);
@@ -83,7 +78,6 @@ export class UIStage extends RenderStage {
         cmdBuff.endRenderPass();
         cmdBuff.end();
 
-        bufs[0] = cmdBuff;
-        PipelineGlobal.device.queue.submit(bufs);
+        PipelineGlobal.device.queue.submit(this._pipeline.commandBuffers);
     }
 }

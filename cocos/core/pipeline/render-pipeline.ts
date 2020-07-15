@@ -14,7 +14,8 @@ import {
     GFXTextureLayout,
     GFXTextureUsageBit,
     GFXLoadOp,
-    GFXStoreOp} from '../gfx/define';
+    GFXStoreOp,
+    GFXCommandBufferType} from '../gfx/define';
 import { GFXFeature } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
@@ -33,6 +34,7 @@ import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
 import { PipelineGlobal } from './global';
+import { GFXCommandBuffer } from '../gfx';
 
 const v3_1 = new Vec3();
 
@@ -246,6 +248,15 @@ export abstract class RenderPipeline {
     }
 
     /**
+     * @en The primary command buffer this pipeline uses
+     * @zh 当前管线使用的一级命令缓冲
+     * @readonly
+     */
+    get commandBuffers () {
+        return this._commandBuffers;
+    }
+
+    /**
      * @en Whether use dynamic batching in this pipeline
      * @zh 是否启用动态合批。
      * @readonly
@@ -312,6 +323,7 @@ export abstract class RenderPipeline {
     protected _fpScaleInv: number = 1024.0;
     protected _macros: IDefineMap = {};
     protected _useDynamicBatching = false;
+    protected _commandBuffers: GFXCommandBuffer[] = [];
 
     @property({
         type: [RenderTextureDesc],
@@ -830,6 +842,11 @@ export abstract class RenderPipeline {
             depthStencilAttachment,
         });
         this.addRenderPass(RenderPassStage.UI, uiPass);
+
+        this._commandBuffers[0] = PipelineGlobal.device.createCommandBuffer({
+            type: GFXCommandBufferType.PRIMARY,
+            queue: PipelineGlobal.device.queue,
+        });
 
         // update global defines when all states initialized.
         this._macros.CC_USE_HDR = (this._isHDR);
