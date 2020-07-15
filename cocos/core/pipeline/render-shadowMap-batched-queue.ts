@@ -32,7 +32,6 @@ export class RenderShadowMapBatchedQueue {
      */
     public clear (shadowMapBuffer: GFXBuffer) {
         this._subModelsArray.length = 0;
-        this._psoCIArray.length = 0;
         this._shadowMapBuffer = shadowMapBuffer;
     }
 
@@ -40,13 +39,13 @@ export class RenderShadowMapBatchedQueue {
         if (pass.phase === this._phaseID) {
             const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
             const fullPatches = modelPatches ? myForward_ShadowMap_Patches.concat(modelPatches) : myForward_ShadowMap_Patches;
-            const psoCI = pass.createPipelineStateCI(fullPatches)!;
-            renderObj.model.updateLocalBindings(psoCI, subModelIdx);
-            psoCI.bindingLayout.bindBuffer(UBOShadow.BLOCK.binding, this._shadowMapBuffer!);
-            psoCI.bindingLayout.update();
-
             this._subModelsArray.push(renderObj.model.subModels[subModelIdx]);
-            this._psoCIArray.push(psoCI);
+            if (!this._psoCIArray[this._subModelsArray.length - 1]) {
+                this._psoCIArray[this._subModelsArray.length - 1] = pass.createPipelineStateCI(fullPatches)!;
+            }
+            renderObj.model.updateLocalBindings(this._psoCIArray[this._subModelsArray.length - 1], subModelIdx);
+            this._psoCIArray[this._subModelsArray.length - 1].bindingLayout.bindBuffer(UBOShadow.BLOCK.binding, this._shadowMapBuffer!);
+            this._psoCIArray[this._subModelsArray.length - 1].bindingLayout.update();
         }
     }
 
