@@ -1,5 +1,4 @@
 module.exports = {
-  preset: 'ts-jest/presets/js-with-ts',
   testEnvironment: 'jsdom',
   testRegex: '/tests/.*\\.(test|spec)?\\.(ts|tsx)$',
   setupFiles: [
@@ -10,8 +9,5 @@ module.exports = {
     CC_DEV: true,
     CC_TEST: true,
     CC_PHYSICS_BUILTIN: true,
-    'ts-jest': {
-        diagnostics: false
-    }
   }
 };
