@@ -25,6 +25,7 @@ export const MINIGAME = tryDefineGlobal('CC_MINIGAME', false);
 export const RUNTIME_BASED = tryDefineGlobal('CC_RUNTIME_BASED', false);
 export const ALIPAY = tryDefineGlobal('CC_ALIPAY', false);
 export const XIAOMI = tryDefineGlobal('CC_XIAOMI', false);
+export const BYTEDANCE = tryDefineGlobal('CC_BYTEDANCE', false);
 export const BAIDU = tryDefineGlobal('CC_BAIDU', false);
 export const COCOSPLAY = tryDefineGlobal('CC_COCOSPLAY', false);
 // @ts-ignore
