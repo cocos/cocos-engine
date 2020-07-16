@@ -773,8 +773,10 @@ let Label = cc.Class({
         BlendFunc.prototype._updateMaterial.call(this);
     },
 
+    _forceUseCanvas: false,
+
     _nativeTTF() {
-        return !!this._assembler && !!this._assembler._updateTTFMaterial
+        return  !this._forceUseCanvas && !!this._assembler && !!this._assembler._updateTTFMaterial;
     },
 
     _forceUpdateRenderData () {
