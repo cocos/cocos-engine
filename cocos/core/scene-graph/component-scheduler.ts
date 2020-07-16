@@ -212,7 +212,9 @@ class ReusableInvoker extends LifeCycleInvoker {
 function enableInEditor (comp) {
     if (!(comp._objFlags & IsEditorOnEnableCalled)) {
         legacyCC.engine.emit('component-enabled', comp.uuid);
-        comp._objFlags |= IsEditorOnEnableCalled;
+        if(!legacyCC.engine.isPlaying) {
+            comp._objFlags |= IsEditorOnEnableCalled;
+        }
     }
 }
 

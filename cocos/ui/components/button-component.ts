@@ -560,7 +560,7 @@ export class ButtonComponent extends Component {
     public onEnable () {
         // check sprite frames
         //
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.engine._isPlaying) {
             this._registerEvent();
         } else {
             this.node.on(SpriteComponent.EventType.SPRITE_FRAME_CHANGED, (comp: SpriteComponent) => {
@@ -580,7 +580,7 @@ export class ButtonComponent extends Component {
     public onDisable () {
         this._resetState();
 
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.engine._isPlaying) {
             this.node.off(SystemEventType.TOUCH_START, this._onTouchBegan, this);
             this.node.off(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
             this.node.off(SystemEventType.TOUCH_END, this._onTouchEnded, this);

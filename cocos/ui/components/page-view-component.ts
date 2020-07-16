@@ -349,14 +349,14 @@ export class PageViewComponent extends ScrollViewComponent {
 
     public onEnable() {
         super.onEnable();
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.engine.isPlaying) {
             this.node.on(PageViewComponent.EventType.SCROLL_ENG_WITH_THRESHOLD, this._dispatchPageTurningEvent, this);
         }
     }
 
     public onDisable() {
         super.onDisable();
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.engine.isPlaying) {
             this.node.off(PageViewComponent.EventType.SCROLL_ENG_WITH_THRESHOLD, this._dispatchPageTurningEvent, this);
         }
     }
@@ -586,7 +586,7 @@ export class PageViewComponent extends ScrollViewComponent {
         if (this._sizeMode !== SizeMode.Unified) {
             return;
         }
-        const locPages = EDITOR ? this.content.children : this._pages;
+        const locPages = (EDITOR && !legacyCC.engine.isPlaying) ? this.content.children : this._pages;
         const selfSize = viewTrans.contentSize;
         for (let i = 0, len = locPages.length; i < len; i++) {
             locPages[i]._uiProps.uiTransformComp!.setContentSize(selfSize);
