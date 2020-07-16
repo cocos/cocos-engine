@@ -1013,7 +1013,7 @@ var ParticleSystem = cc.Class({
                     self._initWithDictionary(file._nativeAsset);
                 }
 
-                if (!self._spriteFrame) {
+                if (!self._spriteFrame || self._spriteFrame !== file.spriteFrame) {
                     if (file.spriteFrame) {
                         self.spriteFrame = file.spriteFrame;
                     }
