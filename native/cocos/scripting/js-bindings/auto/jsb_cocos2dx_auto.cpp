@@ -36,27 +36,6 @@ static bool js_engine_FileUtils_writeDataToFile(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_writeDataToFile)
 
-static bool js_engine_FileUtils_fullPathForFilename(se::State& s)
-{
-    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_fullPathForFilename : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        std::string arg0;
-        ok &= seval_to_std_string(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_fullPathForFilename : Error processing arguments");
-        std::string result = cobj->fullPathForFilename(arg0);
-        ok &= std_string_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_fullPathForFilename : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_engine_FileUtils_fullPathForFilename)
-
 static bool js_engine_FileUtils_getStringFromFile(se::State& s)
 {
     cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
@@ -225,42 +204,28 @@ static bool js_engine_FileUtils_getDefaultResourceRootPath(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_getDefaultResourceRootPath)
 
-static bool js_engine_FileUtils_loadFilenameLookupDictionaryFromFile(se::State& s)
+static bool js_engine_FileUtils_getValueMapFromData(se::State& s)
 {
     cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_loadFilenameLookupDictionaryFromFile : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getValueMapFromData : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        std::string arg0;
-        ok &= seval_to_std_string(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_loadFilenameLookupDictionaryFromFile : Error processing arguments");
-        cobj->loadFilenameLookupDictionaryFromFile(arg0);
+    if (argc == 2) {
+        const char* arg0 = nullptr;
+        int arg1 = 0;
+        std::string arg0_tmp; ok &= seval_to_std_string(args[0], &arg0_tmp); arg0 = arg0_tmp.c_str();
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (int)tmp; } while(false);
+        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getValueMapFromData : Error processing arguments");
+        cc::ValueMap result = cobj->getValueMapFromData(arg0, arg1);
+        ok &= ccvaluemap_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getValueMapFromData : Error processing arguments");
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
-SE_BIND_FUNC(js_engine_FileUtils_loadFilenameLookupDictionaryFromFile)
-
-static bool js_engine_FileUtils_isPopupNotify(se::State& s)
-{
-    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_isPopupNotify : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->isPopupNotify();
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_isPopupNotify : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_engine_FileUtils_isPopupNotify)
+SE_BIND_FUNC(js_engine_FileUtils_getValueMapFromData)
 
 static bool js_engine_FileUtils_getValueVectorFromFile(se::State& s)
 {
@@ -300,27 +265,6 @@ static bool js_engine_FileUtils_getSearchPaths(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_engine_FileUtils_getSearchPaths)
-
-static bool js_engine_FileUtils_getFileDir(se::State& s)
-{
-    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getFileDir : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        std::string arg0;
-        ok &= seval_to_std_string(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getFileDir : Error processing arguments");
-        std::string result = cobj->getFileDir(arg0);
-        ok &= std_string_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getFileDir : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_engine_FileUtils_getFileDir)
 
 static bool js_engine_FileUtils_writeToFile(se::State& s)
 {
@@ -426,28 +370,26 @@ static bool js_engine_FileUtils_getFileSize(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_getFileSize)
 
-static bool js_engine_FileUtils_getValueMapFromData(se::State& s)
+static bool js_engine_FileUtils_getFileDir(se::State& s)
 {
     cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getValueMapFromData : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getFileDir : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        const char* arg0 = nullptr;
-        int arg1 = 0;
-        std::string arg0_tmp; ok &= seval_to_std_string(args[0], &arg0_tmp); arg0 = arg0_tmp.c_str();
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (int)tmp; } while(false);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getValueMapFromData : Error processing arguments");
-        cc::ValueMap result = cobj->getValueMapFromData(arg0, arg1);
-        ok &= ccvaluemap_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getValueMapFromData : Error processing arguments");
+    if (argc == 1) {
+        std::string arg0;
+        ok &= seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getFileDir : Error processing arguments");
+        std::string result = cobj->getFileDir(arg0);
+        ok &= std_string_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getFileDir : Error processing arguments");
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_engine_FileUtils_getValueMapFromData)
+SE_BIND_FUNC(js_engine_FileUtils_getFileDir)
 
 static bool js_engine_FileUtils_removeDirectory(se::State& s)
 {
@@ -512,52 +454,26 @@ static bool js_engine_FileUtils_writeStringToFile(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_writeStringToFile)
 
-static bool js_engine_FileUtils_setSearchResolutionsOrder(se::State& s)
+static bool js_engine_FileUtils_fullPathForFilename(se::State& s)
 {
     cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_setSearchResolutionsOrder : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_fullPathForFilename : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        std::vector<std::string> arg0;
-        ok &= seval_to_std_vector(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_setSearchResolutionsOrder : Error processing arguments");
-        cobj->setSearchResolutionsOrder(arg0);
+        std::string arg0;
+        ok &= seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_fullPathForFilename : Error processing arguments");
+        std::string result = cobj->fullPathForFilename(arg0);
+        ok &= std_string_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_fullPathForFilename : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_engine_FileUtils_setSearchResolutionsOrder)
-
-static bool js_engine_FileUtils_addSearchResolutionsOrder(se::State& s)
-{
-    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_addSearchResolutionsOrder : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        std::string arg0;
-        ok &= seval_to_std_string(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_addSearchResolutionsOrder : Error processing arguments");
-        cobj->addSearchResolutionsOrder(arg0);
-        return true;
-    }
-    if (argc == 2) {
-        std::string arg0;
-        bool arg1;
-        ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_boolean(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_addSearchResolutionsOrder : Error processing arguments");
-        cobj->addSearchResolutionsOrder(arg0, arg1);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_engine_FileUtils_addSearchResolutionsOrder)
+SE_BIND_FUNC(js_engine_FileUtils_fullPathForFilename)
 
 static bool js_engine_FileUtils_addSearchPath(se::State& s)
 {
@@ -753,25 +669,6 @@ static bool js_engine_FileUtils_setWritablePath(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_setWritablePath)
 
-static bool js_engine_FileUtils_setPopupNotify(se::State& s)
-{
-    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_setPopupNotify : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        bool arg0;
-        ok &= seval_to_boolean(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_setPopupNotify : Error processing arguments");
-        cobj->setPopupNotify(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_engine_FileUtils_setPopupNotify)
-
 static bool js_engine_FileUtils_isDirectoryExist(se::State& s)
 {
     cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
@@ -811,24 +708,6 @@ static bool js_engine_FileUtils_setDefaultResourceRootPath(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_engine_FileUtils_setDefaultResourceRootPath)
-
-static bool js_engine_FileUtils_getSearchResolutionsOrder(se::State& s)
-{
-    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getSearchResolutionsOrder : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<std::string>& result = cobj->getSearchResolutionsOrder();
-        ok &= std_vector_string_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getSearchResolutionsOrder : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_engine_FileUtils_getSearchResolutionsOrder)
 
 static bool js_engine_FileUtils_createDirectory(se::State& s)
 {
@@ -943,7 +822,6 @@ bool js_register_engine_FileUtils(se::Object* obj)
     auto cls = se::Class::create("FileUtils", obj, nullptr, nullptr);
 
     cls->defineFunction("writeDataToFile", _SE(js_engine_FileUtils_writeDataToFile));
-    cls->defineFunction("fullPathForFilename", _SE(js_engine_FileUtils_fullPathForFilename));
     cls->defineFunction("getStringFromFile", _SE(js_engine_FileUtils_getStringFromFile));
     cls->defineFunction("removeFile", _SE(js_engine_FileUtils_removeFile));
     cls->defineFunction("getDataFromFile", _SE(js_engine_FileUtils_getDataFromFile));
@@ -951,22 +829,19 @@ bool js_register_engine_FileUtils(se::Object* obj)
     cls->defineFunction("renameFile", _SE(js_engine_FileUtils_renameFile));
     cls->defineFunction("normalizePath", _SE(js_engine_FileUtils_normalizePath));
     cls->defineFunction("getDefaultResourceRootPath", _SE(js_engine_FileUtils_getDefaultResourceRootPath));
-    cls->defineFunction("loadFilenameLookup", _SE(js_engine_FileUtils_loadFilenameLookupDictionaryFromFile));
-    cls->defineFunction("isPopupNotify", _SE(js_engine_FileUtils_isPopupNotify));
+    cls->defineFunction("getValueMapFromData", _SE(js_engine_FileUtils_getValueMapFromData));
     cls->defineFunction("getValueVectorFromFile", _SE(js_engine_FileUtils_getValueVectorFromFile));
     cls->defineFunction("getSearchPaths", _SE(js_engine_FileUtils_getSearchPaths));
-    cls->defineFunction("getFileDir", _SE(js_engine_FileUtils_getFileDir));
     cls->defineFunction("writeToFile", _SE(js_engine_FileUtils_writeToFile));
     cls->defineFunction("getOriginalSearchPaths", _SE(js_engine_FileUtils_getOriginalSearchPaths));
     cls->defineFunction("listFiles", _SE(js_engine_FileUtils_listFiles));
     cls->defineFunction("getValueMapFromFile", _SE(js_engine_FileUtils_getValueMapFromFile));
     cls->defineFunction("getFileSize", _SE(js_engine_FileUtils_getFileSize));
-    cls->defineFunction("getValueMapFromData", _SE(js_engine_FileUtils_getValueMapFromData));
+    cls->defineFunction("getFileDir", _SE(js_engine_FileUtils_getFileDir));
     cls->defineFunction("removeDirectory", _SE(js_engine_FileUtils_removeDirectory));
     cls->defineFunction("setSearchPaths", _SE(js_engine_FileUtils_setSearchPaths));
     cls->defineFunction("writeStringToFile", _SE(js_engine_FileUtils_writeStringToFile));
-    cls->defineFunction("setSearchResolutionsOrder", _SE(js_engine_FileUtils_setSearchResolutionsOrder));
-    cls->defineFunction("addSearchResolutionsOrder", _SE(js_engine_FileUtils_addSearchResolutionsOrder));
+    cls->defineFunction("fullPathForFilename", _SE(js_engine_FileUtils_fullPathForFilename));
     cls->defineFunction("addSearchPath", _SE(js_engine_FileUtils_addSearchPath));
     cls->defineFunction("writeValueVectorToFile", _SE(js_engine_FileUtils_writeValueVectorToFile));
     cls->defineFunction("isFileExist", _SE(js_engine_FileUtils_isFileExist));
@@ -976,10 +851,8 @@ bool js_register_engine_FileUtils(se::Object* obj)
     cls->defineFunction("writeValueMapToFile", _SE(js_engine_FileUtils_writeValueMapToFile));
     cls->defineFunction("getFileExtension", _SE(js_engine_FileUtils_getFileExtension));
     cls->defineFunction("setWritablePath", _SE(js_engine_FileUtils_setWritablePath));
-    cls->defineFunction("setPopupNotify", _SE(js_engine_FileUtils_setPopupNotify));
     cls->defineFunction("isDirectoryExist", _SE(js_engine_FileUtils_isDirectoryExist));
     cls->defineFunction("setDefaultResourceRootPath", _SE(js_engine_FileUtils_setDefaultResourceRootPath));
-    cls->defineFunction("getSearchResolutionsOrder", _SE(js_engine_FileUtils_getSearchResolutionsOrder));
     cls->defineFunction("createDirectory", _SE(js_engine_FileUtils_createDirectory));
     cls->defineFunction("listFilesRecursively", _SE(js_engine_FileUtils_listFilesRecursively));
     cls->defineFunction("getWritablePath", _SE(js_engine_FileUtils_getWritablePath));
