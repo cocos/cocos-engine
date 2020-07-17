@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-
+const Intersection = require("./CCIntersection");
 /**
  * !#en Defines a Box Collider .
  * !#zh 用来定义包围盒碰撞体
@@ -59,7 +59,7 @@ cc.Collider.Box = cc.Class({
          * @type {Size}
          */
         size: {
-            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.size',            
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.size',
             get: function () {
                 return this._size;
             },
@@ -80,6 +80,10 @@ cc.Collider.Box = cc.Class({
                 this.offset.y = (0.5 - this.node.anchorY) * size.height;
             }
         }
+    },
+
+    checkPoint(point){
+        return Intersection.pointInPolygon(point, this.world.points);
     }
 });
 

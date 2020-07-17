@@ -112,7 +112,7 @@ function obbApplyMatrix (rect, mat4, out_bl, out_tl, out_tr, out_br) {
 
 /**
  * !#en
- * A simple collision manager class. 
+ * A simple collision manager class.
  * It will calculate whether the collider collides other colliders, if collides then call the callbacks.
  * !#zh
  * 一个简单的碰撞组件管理类，用于处理节点之间的碰撞组件是否产生了碰撞，并调用相应回调函数。
@@ -133,7 +133,7 @@ function obbApplyMatrix (rect, mat4, out_bl, out_tl, out_tr, out_br) {
  * // Enabled draw collider bounding box
  * manager.enabledDrawBoundingBox = true;
  *
- * 
+ *
  * // Collision callback
  * onCollisionEnter: function (other, self) {
  *     this.node.color = cc.Color.RED;
@@ -151,11 +151,11 @@ function obbApplyMatrix (rect, mat4, out_bl, out_tl, out_tr, out_br) {
  *     // for box collider and polygon collider
  *     // let ps = world.points;
  * },
- *   
+ *
  * onCollisionStay: function (other, self) {
  *     console.log('on collision stay');
  * },
- *   
+ *
  * onCollisionExit: function (other, self) {
  *     this.touchingNumber --;
  *     if (this.touchingNumber === 0) {
@@ -190,10 +190,11 @@ let CollisionManager = cc.Class({
         this._colliders = [];
         this._debugDrawer = null;
         this._enabledDebugDraw = false;
-        
+
         cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
     },
 
+    // eslint-disable-next-line no-unused-vars
     update: function (dt) {
         if (!this.enabled) {
             return;
@@ -210,7 +211,7 @@ let CollisionManager = cc.Class({
         // do collide
         let contacts = this._contacts;
         let results = [];
-        
+
         for (i = 0, l = contacts.length; i < l; i++) {
             let collisionType = contacts[i].updateState();
             if (collisionType === CollisionType.None) {
@@ -264,7 +265,7 @@ let CollisionManager = cc.Class({
                 comp[contactFunc](collider1, collider2);
             }
         }
-    }, 
+    },
 
     shouldCollide: function (c1, c2) {
         let node1 = c1.node, node2 = c2.node;
@@ -377,9 +378,9 @@ let CollisionManager = cc.Class({
 
                 _vec2.x = points[i].x + offset.x;
                 _vec2.y = points[i].y + offset.y;
-                
+
                 Vec2.transformMat4(_vec2, _vec2, m);
-                
+
                 let x = _vec2.x;
                 let y = _vec2.y;
 
@@ -471,7 +472,7 @@ let CollisionManager = cc.Class({
         for (let i = 0, l = colliders.length; i < l; i++) {
             let collider = colliders[i];
 
-            debugDrawer.strokeColor = cc.Color.WHITE;
+            debugDrawer.strokeColor = collider.color != null ? collider.color : cc.Color.WHITE;
             if (collider instanceof cc.BoxCollider || collider instanceof cc.PolygonCollider) {
                 let ps = collider.world.points;
                 if (ps.length > 0) {
@@ -490,9 +491,9 @@ let CollisionManager = cc.Class({
 
             if (this.enabledDrawBoundingBox) {
                 let aabb = collider.world.aabb;
-                
-                debugDrawer.strokeColor = cc.Color.BLUE;
-                
+
+                debugDrawer.strokeColor = collider.color != null ? collider.color : cc.Color.BLUE;
+
                 debugDrawer.moveTo(aabb.xMin, aabb.yMin);
                 debugDrawer.lineTo(aabb.xMin, aabb.yMax);
                 debugDrawer.lineTo(aabb.xMax, aabb.yMax);
@@ -521,7 +522,7 @@ let CollisionManager = cc.Class({
  * @property {Boolean} enabledDebugDraw
  * @default false
  */
-cc.js.getset(CollisionManager.prototype, 'enabledDebugDraw', 
+cc.js.getset(CollisionManager.prototype, 'enabledDebugDraw',
     function () {
         return this._enabledDebugDraw;
     },

@@ -76,6 +76,11 @@ cc.Collider.Circle = cc.Class({
                 this.radius = radius;
             }
         }
+    },
+
+    checkPoint(point){
+        let magSqr = point.subSelf(this.world.position).magSqr();
+        return (magSqr <= (this.world.radius * this.world.radius));
     }
 });
 

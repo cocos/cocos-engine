@@ -23,7 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+const helpPoint = cc.v2();
 /**
  * !#en Collider component base class.
  * !#zh 碰撞组件基类
@@ -41,6 +41,19 @@ var Collider = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.collider.editing'
         },
 
+        color: {
+            type:cc.Color,
+            default:cc.Color.WHITE,
+            serializable: true,
+            tooltip: CC_DEV && 'i18n:COMPONENT.collider.color'
+        },
+
+        world: {
+            type:Object,
+            default: null,
+            serializable: false,
+            visible: false
+        },
         /**
          * !#en Tag. If a node has several collider components, you can judge which type of collider is collided according to the tag.
          * !#zh 标签。当一个节点上有多个碰撞组件时，在发生碰撞后，可以使用此标签来判断是节点上的哪个碰撞组件被碰撞了。
@@ -49,7 +62,7 @@ var Collider = cc.Class({
          * @default 0
          */
         tag: {
-            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.tag',            
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.tag',
             default: 0,
             range: [0, 10e6],
             type: cc.Integer
@@ -62,6 +75,35 @@ var Collider = cc.Class({
 
     onEnable: function () {
         cc.director.getCollisionManager().addCollider(this);
+    },
+
+    /**
+     * - Check whether a specific point is inside a custom bounding box in the Collider.
+     * The coordinate system of the point is the inner coordinate system of the world.
+     * @param x - The horizontal coordinate of the point.
+     * @param y - The vertical coordinate of the point.
+     * @version DragonBones 5.0
+     * @language en_US
+     */
+    /**
+     * - 检查特定点是否在碰撞体的自定义边界框内。
+     * 点的坐标系为世界坐标系。
+     * @param px - 点的水平坐标。
+     * @param py - 点的垂直坐标。
+     * @language zh_CN
+     */
+    containsPoint(px, py) {
+        if(!this.world){
+            return false;
+        }
+        helpPoint.x = px, helpPoint.y = py;
+        return this.checkPoint(helpPoint);
+    },
+
+    /// protected. subject implenments
+    // eslint-disable-next-line no-unused-vars
+    checkPoint(point){
+        return false;
     }
 });
 

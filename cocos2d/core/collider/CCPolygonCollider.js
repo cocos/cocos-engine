@@ -23,7 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+const Intersection = require("./CCIntersection");
 /**
  * !#en Defines a Polygon Collider .
  * !#zh 用来定义多边形碰撞体
@@ -71,8 +71,13 @@ cc.Collider.Polygon = cc.Class({
     },
 
     resetPointsByContour: CC_EDITOR && function () {
+        // eslint-disable-next-line no-undef
         var PhysicsUtils = Editor.require('scene://utils/physics');
         PhysicsUtils.resetPoints(this, {threshold: this.threshold});
+    },
+
+    checkPoint(point){
+        return Intersection.pointInPolygon(point, this.world.points);
     }
 });
 
