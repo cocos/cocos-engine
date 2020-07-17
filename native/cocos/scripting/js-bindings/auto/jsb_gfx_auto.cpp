@@ -3476,10 +3476,10 @@ static bool js_gfx_TextureInfo_set_depth(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_TextureInfo_set_depth)
 
-static bool js_gfx_TextureInfo_get_arrayLayer(se::State& s)
+static bool js_gfx_TextureInfo_get_layerCount(se::State& s)
 {
     cc::gfx::TextureInfo* cobj = (cc::gfx::TextureInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_get_arrayLayer : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_get_layerCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -3487,27 +3487,27 @@ static bool js_gfx_TextureInfo_get_arrayLayer(se::State& s)
     s.rval() = jsret;
     return true;
 }
-SE_BIND_PROP_GET(js_gfx_TextureInfo_get_arrayLayer)
+SE_BIND_PROP_GET(js_gfx_TextureInfo_get_layerCount)
 
-static bool js_gfx_TextureInfo_set_arrayLayer(se::State& s)
+static bool js_gfx_TextureInfo_set_layerCount(se::State& s)
 {
     const auto& args = s.args();
     cc::gfx::TextureInfo* cobj = (cc::gfx::TextureInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_set_arrayLayer : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_set_layerCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     unsigned int arg0 = 0;
     ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureInfo_set_arrayLayer : Error processing new value");
+    SE_PRECONDITION2(ok, false, "js_gfx_TextureInfo_set_layerCount : Error processing new value");
     cobj->layerCount = arg0;
     return true;
 }
-SE_BIND_PROP_SET(js_gfx_TextureInfo_set_arrayLayer)
+SE_BIND_PROP_SET(js_gfx_TextureInfo_set_layerCount)
 
-static bool js_gfx_TextureInfo_get_mipLevel(se::State& s)
+static bool js_gfx_TextureInfo_get_levelCount(se::State& s)
 {
     cc::gfx::TextureInfo* cobj = (cc::gfx::TextureInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_get_mipLevel : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_get_levelCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -3515,22 +3515,22 @@ static bool js_gfx_TextureInfo_get_mipLevel(se::State& s)
     s.rval() = jsret;
     return true;
 }
-SE_BIND_PROP_GET(js_gfx_TextureInfo_get_mipLevel)
+SE_BIND_PROP_GET(js_gfx_TextureInfo_get_levelCount)
 
-static bool js_gfx_TextureInfo_set_mipLevel(se::State& s)
+static bool js_gfx_TextureInfo_set_levelCount(se::State& s)
 {
     const auto& args = s.args();
     cc::gfx::TextureInfo* cobj = (cc::gfx::TextureInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_set_mipLevel : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_set_levelCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     unsigned int arg0 = 0;
     ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureInfo_set_mipLevel : Error processing new value");
+    SE_PRECONDITION2(ok, false, "js_gfx_TextureInfo_set_levelCount : Error processing new value");
     cobj->levelCount = arg0;
     return true;
 }
-SE_BIND_PROP_SET(js_gfx_TextureInfo_set_mipLevel)
+SE_BIND_PROP_SET(js_gfx_TextureInfo_set_levelCount)
 
 static bool js_gfx_TextureInfo_get_samples(se::State& s)
 {
@@ -3646,13 +3646,13 @@ static bool js_gfx_TextureInfo_constructor(se::State& s)
             cobj->depth = arg5;
         }
         unsigned int arg6 = 0;
-        json->getProperty("arrayLayer", &field);
+        json->getProperty("layerCount", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_uint32(field, (uint32_t*)&arg6);
             cobj->layerCount = arg6;
         }
         unsigned int arg7 = 0;
-        json->getProperty("mipLevel", &field);
+        json->getProperty("levelCount", &field);
         if(!field.isUndefined()) {
             ok &= seval_to_uint32(field, (uint32_t*)&arg7);
             cobj->levelCount = arg7;
@@ -3776,8 +3776,8 @@ bool js_register_gfx_TextureInfo(se::Object* obj)
     cls->defineProperty("width", _SE(js_gfx_TextureInfo_get_width), _SE(js_gfx_TextureInfo_set_width));
     cls->defineProperty("height", _SE(js_gfx_TextureInfo_get_height), _SE(js_gfx_TextureInfo_set_height));
     cls->defineProperty("depth", _SE(js_gfx_TextureInfo_get_depth), _SE(js_gfx_TextureInfo_set_depth));
-    cls->defineProperty("arrayLayer", _SE(js_gfx_TextureInfo_get_arrayLayer), _SE(js_gfx_TextureInfo_set_arrayLayer));
-    cls->defineProperty("mipLevel", _SE(js_gfx_TextureInfo_get_mipLevel), _SE(js_gfx_TextureInfo_set_mipLevel));
+    cls->defineProperty("layerCount", _SE(js_gfx_TextureInfo_get_layerCount), _SE(js_gfx_TextureInfo_set_layerCount));
+    cls->defineProperty("levelCount", _SE(js_gfx_TextureInfo_get_levelCount), _SE(js_gfx_TextureInfo_set_levelCount));
     cls->defineProperty("samples", _SE(js_gfx_TextureInfo_get_samples), _SE(js_gfx_TextureInfo_set_samples));
     cls->defineProperty("flags", _SE(js_gfx_TextureInfo_get_flags), _SE(js_gfx_TextureInfo_set_flags));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_TextureInfo_finalize));
@@ -13178,6 +13178,24 @@ static bool js_gfx_Texture_getDepth(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_Texture_getDepth)
 
+static bool js_gfx_Texture_getFlags(se::State& s)
+{
+    cc::gfx::Texture* cobj = (cc::gfx::Texture*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getFlags : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = (int)cobj->getFlags();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getFlags : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Texture_getFlags)
+
 static bool js_gfx_Texture_getType(se::State& s)
 {
     cc::gfx::Texture* cobj = (cc::gfx::Texture*)s.nativeThisObject();
@@ -13250,41 +13268,23 @@ static bool js_gfx_Texture_getWidth(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_Texture_getWidth)
 
-static bool js_gfx_Texture_getMipLevel(se::State& s)
+static bool js_gfx_Texture_getLevelCount(se::State& s)
 {
     cc::gfx::Texture* cobj = (cc::gfx::Texture*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getMipLevel : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getLevelCount : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         unsigned int result = cobj->getLevelCount();
         ok &= uint32_to_seval((unsigned int)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getMipLevel : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getLevelCount : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Texture_getMipLevel)
-
-static bool js_gfx_Texture_getArrayLayer(se::State& s)
-{
-    cc::gfx::Texture* cobj = (cc::gfx::Texture*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getArrayLayer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getLayerCount();
-        ok &= uint32_to_seval((unsigned int)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getArrayLayer : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Texture_getArrayLayer)
+SE_BIND_PROP_GET(js_gfx_Texture_getLevelCount)
 
 static bool js_gfx_Texture_getUsage(se::State& s)
 {
@@ -13355,23 +13355,23 @@ static bool js_gfx_Texture_getFormat(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_Texture_getFormat)
 
-static bool js_gfx_Texture_getFlags(se::State& s)
+static bool js_gfx_Texture_getLayerCount(se::State& s)
 {
     cc::gfx::Texture* cobj = (cc::gfx::Texture*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getFlags : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getLayerCount : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->getFlags();
-        ok &= int32_to_seval((int)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getFlags : Error processing arguments");
+        unsigned int result = cobj->getLayerCount();
+        ok &= uint32_to_seval((unsigned int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getLayerCount : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Texture_getFlags)
+SE_BIND_PROP_GET(js_gfx_Texture_getLayerCount)
 
 static bool js_gfx_Texture_resize(se::State& s)
 {
@@ -13425,15 +13425,15 @@ bool js_register_gfx_Texture(se::Object* obj)
 {
     auto cls = se::Class::create("Texture", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Texture_constructor));
 
-    cls->defineProperty("arrayLayer", _SE(js_gfx_Texture_getArrayLayer), nullptr);
+    cls->defineProperty("samples", _SE(js_gfx_Texture_getSamples), nullptr);
     cls->defineProperty("format", _SE(js_gfx_Texture_getFormat), nullptr);
     cls->defineProperty("buffer", _SE(js_gfx_Texture_getBuffer), nullptr);
-    cls->defineProperty("mipLevel", _SE(js_gfx_Texture_getMipLevel), nullptr);
+    cls->defineProperty("levelCount", _SE(js_gfx_Texture_getLevelCount), nullptr);
     cls->defineProperty("height", _SE(js_gfx_Texture_getHeight), nullptr);
     cls->defineProperty("width", _SE(js_gfx_Texture_getWidth), nullptr);
     cls->defineProperty("depth", _SE(js_gfx_Texture_getDepth), nullptr);
     cls->defineProperty("flags", _SE(js_gfx_Texture_getFlags), nullptr);
-    cls->defineProperty("samples", _SE(js_gfx_Texture_getSamples), nullptr);
+    cls->defineProperty("layerCount", _SE(js_gfx_Texture_getLayerCount), nullptr);
     cls->defineProperty("usage", _SE(js_gfx_Texture_getUsage), nullptr);
     cls->defineProperty("type", _SE(js_gfx_Texture_getType), nullptr);
     cls->defineProperty("size", _SE(js_gfx_Texture_getSize), nullptr);
