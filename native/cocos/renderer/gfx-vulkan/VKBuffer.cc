@@ -1,6 +1,7 @@
 #include "VKStd.h"
 
 #include "VKBuffer.h"
+#include "VKDevice.h"
 #include "VKCommands.h"
 
 namespace cc {
@@ -50,7 +51,7 @@ bool CCVKBuffer::initialize(const BufferInfo &info) {
 
 void CCVKBuffer::destroy() {
     if (_gpuBuffer) {
-        CCVKCmdFuncDestroyBuffer((CCVKDevice *)_device, _gpuBuffer);
+        ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuBuffer);
         _device->getMemoryStatus().bufferSize -= _size;
         CC_DELETE(_gpuBuffer);
         _gpuBuffer = nullptr;
@@ -74,7 +75,8 @@ void CCVKBuffer::resize(uint size) {
         MemoryStatus &status = _device->getMemoryStatus();
         _gpuBuffer->size = _size;
         _gpuBuffer->count = _count;
-        CCVKCmdFuncResizeBuffer((CCVKDevice *)_device, _gpuBuffer);
+        ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuBuffer);
+        CCVKCmdFuncCreateBuffer((CCVKDevice *)_device, _gpuBuffer);
         status.bufferSize -= oldSize;
         status.bufferSize += _size;
 

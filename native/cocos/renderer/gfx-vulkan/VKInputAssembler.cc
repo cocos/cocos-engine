@@ -1,6 +1,7 @@
 #include "VKStd.h"
 
 #include "VKBuffer.h"
+#include "VKDevice.h"
 #include "VKCommands.h"
 #include "VKInputAssembler.h"
 
@@ -19,18 +20,19 @@ bool CCVKInputAssembler::initialize(const InputAssemblerInfo &info) {
     _vertexBuffers = info.vertexBuffers;
     _indexBuffer = info.indexBuffer;
     _indirectBuffer = info.indirectBuffer;
+    size_t vbCount = _vertexBuffers.size();
 
     if (_indexBuffer) {
         _indexCount = _indexBuffer->getCount();
-    } else if (_vertexBuffers.size()) {
+    } else if (vbCount) {
         _vertexCount = _vertexBuffers[0]->getCount();
     }
 
     _gpuInputAssembler = CC_NEW(CCVKGPUInputAssembler);
     _gpuInputAssembler->attributes = _attributes;
-    _gpuInputAssembler->gpuVertexBuffers.resize(_vertexBuffers.size());
+    _gpuInputAssembler->gpuVertexBuffers.resize(vbCount);
 
-    for (size_t i = 0u; i < _gpuInputAssembler->gpuVertexBuffers.size(); ++i) {
+    for (size_t i = 0u; i < vbCount; ++i) {
         CCVKBuffer *vb = (CCVKBuffer *)_vertexBuffers[i];
         _gpuInputAssembler->gpuVertexBuffers[i] = vb->gpuBuffer();
     }
@@ -43,7 +45,14 @@ bool CCVKInputAssembler::initialize(const InputAssemblerInfo &info) {
         _gpuInputAssembler->gpuIndirectBuffer = static_cast<CCVKBuffer *>(info.indirectBuffer)->gpuBuffer();
     }
 
-    CCVKCmdFuncCreateInputAssembler((CCVKDevice *)_device, _gpuInputAssembler);
+    _gpuInputAssembler->vertexBuffers.resize(vbCount);
+    _gpuInputAssembler->vertexBufferOffsets.resize(vbCount);
+
+    for (size_t i = 0u; i < vbCount; i++) {
+        _gpuInputAssembler->vertexBuffers[i] = _gpuInputAssembler->gpuVertexBuffers[i]->vkBuffer;
+        _gpuInputAssembler->vertexBufferOffsets[i] = _gpuInputAssembler->gpuVertexBuffers[i]->startOffset;
+    }
+
     _attributesHash = computeAttributesHash();
     _status = Status::SUCCESS;
 
@@ -52,7 +61,8 @@ bool CCVKInputAssembler::initialize(const InputAssemblerInfo &info) {
 
 void CCVKInputAssembler::destroy() {
     if (_gpuInputAssembler) {
-        CCVKCmdFuncDestroyInputAssembler((CCVKDevice *)_device, _gpuInputAssembler);
+        _gpuInputAssembler->vertexBuffers.clear();
+        _gpuInputAssembler->vertexBufferOffsets.clear();
         CC_DELETE(_gpuInputAssembler);
         _gpuInputAssembler = nullptr;
     }

@@ -31,30 +31,26 @@ struct CCVKStencilCompareMask {
 };
 
 CC_VULKAN_API void CCVKCmdFuncGetDeviceQueue(CCVKDevice *device, CCVKGPUQueue *gpuQueue);
-CC_VULKAN_API void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRenderPass);
-CC_VULKAN_API void CCVKCmdFuncDestroyRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRenderPass);
 
 CC_VULKAN_API void CCVKCmdFuncCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer);
-CC_VULKAN_API void CCVKCmdFuncDestroyBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer);
-CC_VULKAN_API void CCVKCmdFuncResizeBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer);
-CC_VULKAN_API void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, void *buffer, uint offset, uint size);
 CC_VULKAN_API void CCVKCmdFuncCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture);
-CC_VULKAN_API void CCVKCmdFuncDestroyTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture);
 CC_VULKAN_API void CCVKCmdFuncCreateTextureView(CCVKDevice *device, CCVKGPUTextureView *gpuTextureView);
-CC_VULKAN_API void CCVKCmdFuncDestroyTextureView(CCVKDevice *device, CCVKGPUTextureView *gpuTextureView);
-CC_VULKAN_API void CCVKCmdFuncResizeTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture);
+CC_VULKAN_API void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRenderPass);
 CC_VULKAN_API void CCVKCmdFuncCreateSampler(CCVKDevice *device, CCVKGPUSampler *gpuSampler);
-CC_VULKAN_API void CCVKCmdFuncDestroySampler(CCVKDevice *device, CCVKGPUSampler *gpuSampler);
 CC_VULKAN_API void CCVKCmdFuncCreateShader(CCVKDevice *device, CCVKGPUShader *gpuShader);
-CC_VULKAN_API void CCVKCmdFuncDestroyShader(CCVKDevice *device, CCVKGPUShader *gpuShader);
-CC_VULKAN_API void CCVKCmdFuncCreateInputAssembler(CCVKDevice *device, CCVKGPUInputAssembler *gpuInputAssembler);
-CC_VULKAN_API void CCVKCmdFuncDestroyInputAssembler(CCVKDevice *device, CCVKGPUInputAssembler *gpuInputAssembler);
 CC_VULKAN_API void CCVKCmdFuncCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFramebuffer);
-CC_VULKAN_API void CCVKCmdFuncDestroyFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFramebuffer);
 CC_VULKAN_API void CCVKCmdFuncCreatePipelineState(CCVKDevice *device, CCVKGPUPipelineState *gpuPipelineState);
-CC_VULKAN_API void CCVKCmdFuncDestroyPipelineState(CCVKDevice *device, CCVKGPUPipelineState *gpuPipelineState);
+CC_VULKAN_API void CCVKCmdFuncCreateFence(CCVKDevice *device, CCVKGPUFence *gpuFence);
 
-CC_VULKAN_API void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, uint8_t *const *buffers, CCVKGPUTexture *gpuTexture, const BufferTextureCopyList &regions);
+CC_VULKAN_API void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, void *buffer, uint offset, uint size);
+CC_VULKAN_API void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, const BufferDataList &buffers, CCVKGPUTexture *gpuTexture, const BufferTextureCopyList &regions);
+
+CC_VULKAN_API void CCVKCmdFuncDestroyRenderPass(CCVKGPUDevice *device, CCVKGPURenderPass *gpuRenderPass);
+CC_VULKAN_API void CCVKCmdFuncDestroySampler(CCVKGPUDevice *device, CCVKGPUSampler *gpuSampler);
+CC_VULKAN_API void CCVKCmdFuncDestroyShader(CCVKGPUDevice *device, CCVKGPUShader *gpuShader);
+CC_VULKAN_API void CCVKCmdFuncDestroyFramebuffer(CCVKGPUDevice *device, CCVKGPUFramebuffer *gpuFramebuffer);
+CC_VULKAN_API void CCVKCmdFuncDestroyPipelineState(CCVKGPUDevice *device, CCVKGPUPipelineState *gpuPipelineState);
+CC_VULKAN_API void CCVKCmdFuncDestroyFence(CCVKGPUDevice *device, CCVKGPUFence *gpuFence);
 
 } // namespace gfx
 } // namespace cc

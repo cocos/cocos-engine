@@ -55,14 +55,15 @@ public:
     uint height = 0u;
     uint depth = 1u;
     uint size = 0u;
-    uint arrayLayer = 1u;
-    uint mipLevel = 1u;
+    uint arrayLayers = 1u;
+    uint mipLevels = 1u;
     SampleCount samples = SampleCount::X1;
     TextureFlags flags = TextureFlagBit::NONE;
     bool isPowerOf2 = false;
 
     VkImage vkImage = VK_NULL_HANDLE;
     VmaAllocation vmaAllocation = VK_NULL_HANDLE;
+    VkImageLayout layout = VK_IMAGE_LAYOUT_UNDEFINED;
     VkImageLayout currentLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     VkAccessFlags accessMask = VK_ACCESS_SHADER_READ_BIT;
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -76,6 +77,8 @@ public:
     Format format = Format::UNKNOWN;
     uint baseLevel = 0u;
     uint levelCount = 1u;
+    uint baseLayer = 0u;
+    uint layerCount = 1u;
     VkImageView vkImageView = VK_NULL_HANDLE;
 };
 
@@ -124,6 +127,7 @@ public:
     VkSemaphore nextSignalSemaphore = VK_NULL_HANDLE;
     VkPipelineStageFlags submitStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
     CachedArray<VkCommandBuffer> commandBuffers;
+    VkFence lastAutoFence = VK_NULL_HANDLE;
 };
 
 class CCVKGPUBuffer : public Object {
@@ -239,48 +243,6 @@ public:
     VkFence vkFence;
 };
 
-class CCVKGPUSemaphorePool : public Object {
-public:
-    CCVKGPUSemaphorePool(CCVKGPUDevice *device)
-    : _device(device) {
-    }
-
-    ~CCVKGPUSemaphorePool() {
-        for (VkSemaphore semaphore : _semaphores) {
-            vkDestroySemaphore(_device->vkDevice, semaphore, nullptr);
-        }
-        _semaphores.clear();
-        _count = 0;
-    }
-
-    VkSemaphore alloc() {
-        if (_count < _semaphores.size()) {
-            return _semaphores[_count++];
-        }
-
-        VkSemaphore semaphore = VK_NULL_HANDLE;
-        VkSemaphoreCreateInfo createInfo{VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
-        VK_CHECK(vkCreateSemaphore(_device->vkDevice, &createInfo, nullptr, &semaphore));
-        _semaphores.push_back(semaphore);
-        _count++;
-
-        return semaphore;
-    }
-
-    void reset() {
-        _count = 0;
-    }
-
-    uint size() {
-        return _count;
-    }
-
-private:
-    CCVKGPUDevice *_device;
-    uint _count = 0;
-    vector<VkSemaphore> _semaphores;
-};
-
 class CCVKGPUFencePool : public Object {
 public:
     CCVKGPUFencePool(CCVKGPUDevice *device)
@@ -322,8 +284,50 @@ public:
 
 private:
     CCVKGPUDevice *_device;
-    uint _count = 0;
+    uint _count = 0u;
     vector<VkFence> _fences;
+};
+
+class CCVKGPUSemaphorePool : public Object {
+public:
+    CCVKGPUSemaphorePool(CCVKGPUDevice *device)
+    : _device(device) {
+    }
+
+    ~CCVKGPUSemaphorePool() {
+        for (VkSemaphore semaphore : _semaphores) {
+            vkDestroySemaphore(_device->vkDevice, semaphore, nullptr);
+        }
+        _semaphores.clear();
+        _count = 0;
+    }
+
+    VkSemaphore alloc() {
+        if (_count < _semaphores.size()) {
+            return _semaphores[_count++];
+        }
+
+        VkSemaphore semaphore = VK_NULL_HANDLE;
+        VkSemaphoreCreateInfo createInfo{VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
+        VK_CHECK(vkCreateSemaphore(_device->vkDevice, &createInfo, nullptr, &semaphore));
+        _semaphores.push_back(semaphore);
+        _count++;
+
+        return semaphore;
+    }
+
+    void reset() {
+        _count = 0;
+    }
+
+    uint size() {
+        return _count;
+    }
+
+private:
+    CCVKGPUDevice *_device;
+    uint _count = 0u;
+    vector<VkSemaphore> _semaphores;
 };
 
 class CCVKGPUDescriptorSetPool : public Object {
@@ -395,12 +399,6 @@ private:
 
 class CCVKGPUCommandBufferPool : public Object {
 public:
-    struct CommandBufferPool {
-        VkCommandPool vkCommandPool = VK_NULL_HANDLE;
-        CachedArray<VkCommandBuffer> commandBuffers[2];
-        CachedArray<VkCommandBuffer> usedCommandBuffers[2];
-    };
-
     CCVKGPUCommandBufferPool(CCVKGPUDevice *device)
     : _device(device) {
     }
@@ -465,9 +463,227 @@ public:
     }
 
 private:
+    struct CommandBufferPool {
+        VkCommandPool vkCommandPool = VK_NULL_HANDLE;
+        CachedArray<VkCommandBuffer> commandBuffers[2];
+        CachedArray<VkCommandBuffer> usedCommandBuffers[2];
+    };
+
     CCVKGPUDevice *_device = nullptr;
     map<uint, CommandBufferPool> _pools;
     vector<uint> _counts;
+};
+
+class CCVKGPUStagingBufferPool : public Object {
+public:
+    CCVKGPUStagingBufferPool(CCVKGPUDevice *device)
+    : _device(device) {
+    }
+
+    ~CCVKGPUStagingBufferPool() {
+        for (Buffer &buffer : _pool) {
+            vmaDestroyBuffer(_device->memoryAllocator, buffer.vkBuffer, buffer.vmaAllocation);
+        }
+        _pool.clear();
+    }
+
+    void alloc(CCVKGPUBuffer *gpuBuffer) {
+        size_t bufferCount = _pool.size();
+        Buffer *buffer = nullptr;
+        for (size_t idx = 0u; idx < bufferCount; idx++) {
+            Buffer *cur = &_pool[idx];
+            if (cur->size - cur->curOffset > gpuBuffer->size) {
+                buffer = cur;
+                break;
+            }
+        }
+        if (!buffer) {
+            _pool.resize(bufferCount + 1);
+            buffer = &_pool.back();
+            VkBufferCreateInfo bufferInfo{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
+            bufferInfo.size = buffer->size;
+            bufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+            VmaAllocationCreateInfo allocInfo{};
+            allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
+            allocInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
+            VmaAllocationInfo res;
+            VK_CHECK(vmaCreateBuffer(_device->memoryAllocator, &bufferInfo, &allocInfo, &buffer->vkBuffer, &buffer->vmaAllocation, &res));
+            buffer->mappedData = (uint8_t *)res.pMappedData;
+        }
+        gpuBuffer->vkBuffer = buffer->vkBuffer;
+        gpuBuffer->startOffset = buffer->curOffset;
+        gpuBuffer->mappedData = buffer->mappedData + buffer->curOffset;
+        buffer->curOffset += gpuBuffer->size;
+    }
+
+    void reset() {
+        for (Buffer &buffer : _pool) {
+            buffer.curOffset = 0u;
+        }
+    }
+
+private:
+    struct Buffer {
+        VkBuffer vkBuffer = VK_NULL_HANDLE;
+        VkDeviceSize size = 16 * 1024 * 1024; // 16M per block by default
+        uint8_t *mappedData = nullptr;
+        VmaAllocation vmaAllocation = VK_NULL_HANDLE;
+
+        VkDeviceSize curOffset = 0u;
+    };
+
+    CCVKGPUDevice *_device = nullptr;
+    vector<Buffer> _pool;
+};
+
+class CCVKGPURecycleBin : public Object {
+public:
+    CCVKGPURecycleBin(CCVKGPUDevice *device)
+    : _device(device) {
+        _resources.resize(16);
+    }
+
+#define DEFINE_COLLECT_FN(_type, typeValue, expr) \
+    void collect(_type *gpuRes) {                 \
+        if (_resources.size() <= _count) {        \
+            _resources.resize(_count * 2);        \
+        }                                         \
+        Resource &res = _resources[_count++];     \
+        res.type = typeValue;                     \
+        expr;                                     \
+    }
+    DEFINE_COLLECT_FN(CCVKGPUBuffer, ObjectType::BUFFER, (res.buffer = {gpuRes->vkBuffer, gpuRes->vmaAllocation}))
+    DEFINE_COLLECT_FN(CCVKGPUTexture, ObjectType::TEXTURE, (res.image = {gpuRes->vkImage, gpuRes->vmaAllocation}))
+    DEFINE_COLLECT_FN(CCVKGPUTextureView, ObjectType::TEXTURE_VIEW, res.vkImageView = gpuRes->vkImageView)
+    DEFINE_COLLECT_FN(CCVKGPURenderPass, ObjectType::RENDER_PASS, res.gpuRenderPass = gpuRes)
+    DEFINE_COLLECT_FN(CCVKGPUFramebuffer, ObjectType::FRAMEBUFFER, res.gpuFramebuffer = gpuRes)
+    DEFINE_COLLECT_FN(CCVKGPUSampler, ObjectType::SAMPLER, res.gpuSampler = gpuRes)
+    DEFINE_COLLECT_FN(CCVKGPUShader, ObjectType::SHADER, res.gpuShader = gpuRes)
+    DEFINE_COLLECT_FN(CCVKGPUPipelineState, ObjectType::PIPELINE_STATE, res.gpuPipelineState = gpuRes)
+    DEFINE_COLLECT_FN(CCVKGPUFence, ObjectType::FENCE, res.gpuFence = gpuRes)
+
+    void clear();
+
+private:
+    struct Buffer {
+        VkBuffer vkBuffer;
+        VmaAllocation vmaAllocation;
+    };
+    struct Image {
+        VkImage vkImage;
+        VmaAllocation vmaAllocation;
+    };
+    struct Resource {
+        ObjectType type = ObjectType::UNKNOWN;
+        union {
+            // resizable resources, cannot take over directly
+            // or descriptor sets won't work
+            Buffer buffer;
+            Image image;
+            VkImageView vkImageView;
+
+            CCVKGPURenderPass *gpuRenderPass;
+            CCVKGPUFramebuffer *gpuFramebuffer;
+            CCVKGPUSampler *gpuSampler;
+            CCVKGPUShader *gpuShader;
+            CCVKGPUPipelineState *gpuPipelineState;
+            CCVKGPUFence *gpuFence;
+        };
+    };
+    CCVKGPUDevice *_device = nullptr;
+    vector<Resource> _resources;
+    uint _count = 0u;
+};
+
+#define ASYNC_SUBMISSION
+class CCVKGPUTransportHub : public Object {
+public:
+    CCVKGPUTransportHub(CCVKGPUDevice *device)
+    : _device(device) {
+        _transfers.resize(16);
+    }
+
+    void link(CCVKGPUQueue *queue, CCVKGPUFencePool *fencePool, CCVKGPUCommandBufferPool *commandBufferPool) {
+        _queue = queue;
+        _fencePool = fencePool;
+        _commandBufferPool = commandBufferPool;
+
+        _cmdBuff.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        _cmdBuff.queueFamilyIndex = _queue->queueFamilyIndex;
+    }
+
+    CC_INLINE bool empty() {
+        return !_cmdBuff.vkCommandBuffer && !_count;
+    }
+
+    void checkIn(void *dst, const void *src, size_t size) {
+        if (_transfers.size() <= _count) {
+            _transfers.resize(_count * 2);
+        }
+        Transfer &transfer = _transfers[_count++];
+        transfer.dst = dst;
+        transfer.src = src;
+        transfer.size = size;
+    }
+
+    template <typename TFunc>
+    void checkIn(const TFunc &record) {
+        if (!_cmdBuff.vkCommandBuffer) {
+            _commandBufferPool->request(&_cmdBuff);
+            VkCommandBufferBeginInfo beginInfo{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
+            beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+            VK_CHECK(vkBeginCommandBuffer(_cmdBuff.vkCommandBuffer, &beginInfo));
+        }
+
+        record(_cmdBuff.vkCommandBuffer);
+
+#ifndef ASYNC_SUBMISSION
+        VK_CHECK(vkEndCommandBuffer(_cmdBuff.vkCommandBuffer));
+        VkFence fence = _fencePool->alloc();
+        VkSubmitInfo submitInfo{VK_STRUCTURE_TYPE_SUBMIT_INFO};
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &_cmdBuff.vkCommandBuffer;
+        VK_CHECK(vkQueueSubmit(_queue->vkQueue, 1, &submitInfo, fence));
+        VK_CHECK(vkWaitForFences(_device->vkDevice, 1, &fence, VK_TRUE, DEFAULT_FENCE_TIMEOUT));
+        _commandBufferPool->yield(&_cmdBuff);
+#endif // ASYNC_SUBMISSION
+    }
+
+    void depart() {
+        if (_cmdBuff.vkCommandBuffer) {
+            VK_CHECK(vkEndCommandBuffer(_cmdBuff.vkCommandBuffer));
+            _queue->commandBuffers.push(_cmdBuff.vkCommandBuffer);
+            _commandBufferPool->yield(&_cmdBuff);
+        }
+
+        if (_count) {
+            if (_queue->lastAutoFence) {
+                vkWaitForFences(_device->vkDevice, 1, &_queue->lastAutoFence, VK_TRUE, DEFAULT_FENCE_TIMEOUT);
+                _queue->lastAutoFence = VK_NULL_HANDLE;
+            }
+            for (const Transfer &transfer : _transfers) {
+                memcpy(transfer.dst, transfer.src, transfer.size);
+            }
+            _count = 0u;
+        }
+    }
+
+private:
+    struct Transfer {
+        void *dst = nullptr;
+        const void *src = nullptr;
+        size_t size = 0u;
+    };
+
+    CCVKGPUDevice *_device = nullptr;
+
+    CCVKGPUQueue *_queue = nullptr;
+    CCVKGPUFencePool *_fencePool = nullptr;
+    CCVKGPUCommandBufferPool *_commandBufferPool = nullptr;
+
+    CCVKGPUCommandBuffer _cmdBuff;
+    vector<Transfer> _transfers;
+    uint _count = 0u;
 };
 
 } // namespace gfx

@@ -26,7 +26,7 @@ namespace gfx {
 
 CCVKDevice::CCVKDevice() {
     _clipSpaceMinZ = 0.0f;
-    _clipSpaceSignY = -1.0f;
+    _screenSpaceSignY = -1.0f;
     _UVSpaceSignY = 1.0f;
 }
 
@@ -63,8 +63,7 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     //const VkPhysicalDeviceVulkan12Features &deviceVulkan12Features = gpuContext->physicalDeviceVulkan12Features;
 
     // only enable the absolute essentials for now
-    vector<const char *> requestedValidationLayers{
-    };
+    vector<const char *> requestedValidationLayers{};
 #if COCOS2D_DEBUG > 0
     requestedValidationLayers.push_back("VK_LAYER_KHRONOS_validation");
 #endif
@@ -259,30 +258,28 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
 
     VK_CHECK(vmaCreateAllocator(&allocatorInfo, &_gpuDevice->memoryAllocator));
 
-    _gpuSemaphorePool = CC_NEW(CCVKGPUSemaphorePool(_gpuDevice));
-    _gpuFencePool = CC_NEW(CCVKGPUFencePool(_gpuDevice));
-    _gpuDescriptorSetPool = CC_NEW(CCVKGPUDescriptorSetPool(_gpuDevice));
-    _gpuCommandBufferPool = CC_NEW(CCVKGPUCommandBufferPool(_gpuDevice));
-
-    BufferInfo stagingBufferInfo;
-    stagingBufferInfo.usage = BufferUsage::TRANSFER_SRC;
-    stagingBufferInfo.memUsage = MemoryUsage::HOST;
-    stagingBufferInfo.stride = _defaultStagingBufferSize;
-    stagingBufferInfo.size = _defaultStagingBufferSize;
-    _stagingBuffer = (CCVKBuffer *)createBuffer(stagingBufferInfo);
-
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
-    queueInfo.forceSync = true;
+    //queueInfo.forceSync = true;
     _queue = createQueue(queueInfo);
+
+    _gpuFencePool = CC_NEW(CCVKGPUFencePool(_gpuDevice));
+    _gpuRecycleBin = CC_NEW(CCVKGPURecycleBin(_gpuDevice));
+    _gpuTransportHub = CC_NEW(CCVKGPUTransportHub(_gpuDevice));
+    _gpuSemaphorePool = CC_NEW(CCVKGPUSemaphorePool(_gpuDevice));
+    _gpuDescriptorSetPool = CC_NEW(CCVKGPUDescriptorSetPool(_gpuDevice));
+    _gpuCommandBufferPool = CC_NEW(CCVKGPUCommandBufferPool(_gpuDevice));
+    _gpuStagingBufferPool = CC_NEW(CCVKGPUStagingBufferPool(_gpuDevice));
+
+    _gpuTransportHub->link(((CCVKQueue *)_queue)->gpuQueue(), _gpuFencePool, _gpuCommandBufferPool);
 
     for (uint i = 0u; i < gpuContext->swapchainCreateInfo.minImageCount; i++) {
         TextureInfo depthStencilTexInfo;
         depthStencilTexInfo.type = TextureType::TEX2D;
         depthStencilTexInfo.usage = TextureUsageBit::DEPTH_STENCIL_ATTACHMENT | TextureUsageBit::SAMPLED;
         depthStencilTexInfo.format = _context->getDepthStencilFormat();
-        depthStencilTexInfo.width = 1;
-        depthStencilTexInfo.height = 1;
+        depthStencilTexInfo.width = _width;
+        depthStencilTexInfo.height = _height;
         CCVKTexture *texture = (CCVKTexture *)createTexture(depthStencilTexInfo);
         _depthStencilTextures.push_back(texture);
     }
@@ -328,6 +325,8 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
 }
 
 void CCVKDevice::destroy() {
+    VK_CHECK(vkDeviceWaitIdle(_gpuDevice->vkDevice));
+
     if (_gpuSwapchain) {
         if (_gpuSwapchain->vkSwapchain != VK_NULL_HANDLE) {
             _gpuSwapchain->depthStencilImageViews.clear();
@@ -352,21 +351,22 @@ void CCVKDevice::destroy() {
             vkDestroySwapchainKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, nullptr);
             _gpuSwapchain->vkSwapchain = VK_NULL_HANDLE;
         }
-
-        CC_DELETE(_gpuSwapchain);
-        _gpuSwapchain = nullptr;
     }
 
     for (CCVKTexture *texture : _depthStencilTextures) {
         CC_SAFE_DESTROY(texture);
     }
     _depthStencilTextures.clear();
+    _gpuRecycleBin->clear();
 
-    CC_SAFE_DESTROY(_stagingBuffer);
     CC_SAFE_DESTROY(_queue);
+    CC_SAFE_DELETE(_gpuSwapchain);
+    CC_SAFE_DELETE(_gpuStagingBufferPool);
     CC_SAFE_DELETE(_gpuCommandBufferPool);
     CC_SAFE_DELETE(_gpuDescriptorSetPool);
     CC_SAFE_DELETE(_gpuSemaphorePool);
+    CC_SAFE_DELETE(_gpuTransportHub);
+    CC_SAFE_DELETE(_gpuRecycleBin);
     CC_SAFE_DELETE(_gpuFencePool);
 
     if (_gpuDevice) {
@@ -482,18 +482,13 @@ void CCVKDevice::buildSwapchain() {
 void CCVKDevice::acquire() {
     if (!_swapchainReady) return;
 
-    VK_CHECK(vkDeviceWaitIdle(_gpuDevice->vkDevice));
     _gpuSemaphorePool->reset();
-    _gpuFencePool->reset();
-    _gpuDescriptorSetPool->reset();
-    _gpuCommandBufferPool->reset();
-
     VkSemaphore acquireSemaphore = _gpuSemaphorePool->alloc();
     VK_CHECK(vkAcquireNextImageKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain,
                                    ~0ull, acquireSemaphore, VK_NULL_HANDLE, &_gpuSwapchain->curImageIndex));
 
-    // Clear queue stats
     CCVKQueue *queue = (CCVKQueue *)_queue;
+    // Clear queue stats
     queue->_numDrawCalls = 0;
     queue->_numInstances = 0;
     queue->_numTriangles = 0;
@@ -517,6 +512,21 @@ void CCVKDevice::present() {
     presentInfo.pImageIndices = &_gpuSwapchain->curImageIndex;
 
     VK_CHECK(vkQueuePresentKHR(queue->gpuQueue()->vkQueue, &presentInfo));
+
+    // TODO: these can be moved to acquire-time after pipeline refactoring,
+    // which should guarantee that no transfer operation will be issued before acquiring
+
+    VK_CHECK(vkDeviceWaitIdle(_gpuDevice->vkDevice));
+
+    queue->gpuQueue()->lastAutoFence = VK_NULL_HANDLE;
+    // reset everything only when no pending commands
+    if (_gpuTransportHub->empty()) {
+        _gpuFencePool->reset();
+        _gpuRecycleBin->clear();
+        _gpuDescriptorSetPool->reset();
+        _gpuCommandBufferPool->reset();
+        _gpuStagingBufferPool->reset();
+    }
 }
 
 CommandBuffer *CCVKDevice::createCommandBuffer(const CommandBufferInfo &info) {
@@ -636,8 +646,8 @@ PipelineState *CCVKDevice::createPipelineState(const PipelineStateInfo &info) {
     return nullptr;
 }
 
-void CCVKDevice::copyBuffersToTexture(const DataArray &buffers, Texture *dst, const BufferTextureCopyList &regions) {
-    CCVKCmdFuncCopyBuffersToTexture(this, buffers.datas.data(), ((CCVKTexture *)dst)->gpuTexture(), regions);
+void CCVKDevice::copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions) {
+    CCVKCmdFuncCopyBuffersToTexture(this, buffers, ((CCVKTexture *)dst)->gpuTexture(), regions);
 }
 
 } // namespace gfx

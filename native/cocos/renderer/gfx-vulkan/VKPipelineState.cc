@@ -1,6 +1,7 @@
 #include "VKStd.h"
 
 #include "VKCommands.h"
+#include "VKDevice.h"
 #include "VKPipelineState.h"
 #include "VKRenderPass.h"
 #include "VKShader.h"
@@ -44,8 +45,7 @@ bool CCVKPipelineState::initialize(const PipelineStateInfo &info) {
 
 void CCVKPipelineState::destroy() {
     if (_gpuPipelineState) {
-        CCVKCmdFuncDestroyPipelineState((CCVKDevice *)_device, _gpuPipelineState);
-        CC_DELETE(_gpuPipelineState);
+        ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuPipelineState);
         _gpuPipelineState = nullptr;
     }
     _status = Status::UNREADY;

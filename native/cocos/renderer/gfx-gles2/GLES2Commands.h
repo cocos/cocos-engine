@@ -15,8 +15,8 @@ struct GLES2DepthBias {
 };
 
 struct GLES2DepthBounds {
-    float min_bounds = 0.0f;
-    float max_bounds = 0.0f;
+    float minBounds = 0.0f;
+    float maxBounds = 0.0f;
 };
 
 struct GLES2StencilWriteMask {
@@ -27,7 +27,7 @@ struct GLES2StencilWriteMask {
 struct GLES2StencilCompareMask {
     StencilFace face = StencilFace::FRONT;
     int refrence = 0;
-    uint compare_mask = 0;
+    uint compareMask = 0;
 };
 
 struct GLES2TextureSubres {
@@ -81,7 +81,7 @@ public:
     GLES2GPUPipelineState *gpuPipelineState = nullptr;
     GLES2GPUBindingLayout *gpuBindingLayout = nullptr;
     GLES2GPUInputAssembler *gpuInputAssembler = nullptr;
-    uint8_t state_flags[(int)GLES2State::COUNT] = {0};
+    uint8_t stateFlags[(int)GLES2State::COUNT] = {0};
     Viewport viewport;
     Rect scissor;
     float lineWidth = 1.0f;
@@ -98,13 +98,13 @@ public:
         gpuPipelineState = nullptr;
         gpuBindingLayout = nullptr;
         gpuInputAssembler = nullptr;
-        memset(state_flags, 0, sizeof(state_flags));
+        memset(stateFlags, 0, sizeof(stateFlags));
     }
 };
 
 class GLES2CmdDraw : public GFXCmd {
 public:
-    DrawInfo draw_info;
+    DrawInfo drawInfo;
 
     GLES2CmdDraw() : GFXCmd(GFXCmdType::DRAW) {}
     virtual void clear() override {}
@@ -127,16 +127,15 @@ public:
 
 class GLES2CmdCopyBufferToTexture : public GFXCmd {
 public:
-    GLES2GPUBuffer *gpuBuffer = nullptr;
     GLES2GPUTexture *gpuTexture = nullptr;
-    TextureLayout dst_layout;
+    BufferDataList buffers;
     BufferTextureCopyList regions;
 
     GLES2CmdCopyBufferToTexture() : GFXCmd(GFXCmdType::COPY_BUFFER_TO_TEXTURE) {}
 
     virtual void clear() override {
-        gpuBuffer = nullptr;
         gpuTexture = nullptr;
+        buffers.clear();
         regions.clear();
     }
 };
@@ -167,7 +166,7 @@ CC_GLES2_API void GLES2CmdFuncDestroyInputAssembler(GLES2Device *device, GLES2GP
 CC_GLES2_API void GLES2CmdFuncCreateFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpuFBO);
 CC_GLES2_API void GLES2CmdFuncDestroyFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpuFBO);
 CC_GLES2_API void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmd_package);
-CC_GLES2_API void GLES2CmdFuncCopyBuffersToTexture(GLES2Device *device, uint8_t *const *buffers, GLES2GPUTexture *gpuTexture, const BufferTextureCopyList &regions);
+CC_GLES2_API void GLES2CmdFuncCopyBuffersToTexture(GLES2Device *device, const BufferDataList &buffers, GLES2GPUTexture *gpuTexture, const BufferTextureCopyList &regions);
 
 } // namespace gfx
 } // namespace cc

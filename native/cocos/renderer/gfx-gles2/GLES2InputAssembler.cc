@@ -56,13 +56,13 @@ void GLES2InputAssembler::destroy() {
 }
 
 void GLES2InputAssembler::ExtractCmdDraw(GLES2CmdDraw *cmd) {
-    cmd->draw_info.vertexCount = _vertexCount;
-    cmd->draw_info.firstVertex = _firstVertex;
-    cmd->draw_info.indexCount = _indexCount;
-    cmd->draw_info.firstIndex = _firstIndex;
-    cmd->draw_info.vertexOffset = _vertexOffset;
-    cmd->draw_info.instanceCount = _instanceCount;
-    cmd->draw_info.firstInstance = _firstInstance;
+    cmd->drawInfo.vertexCount = _vertexCount;
+    cmd->drawInfo.firstVertex = _firstVertex;
+    cmd->drawInfo.indexCount = _indexCount;
+    cmd->drawInfo.firstIndex = _firstIndex;
+    cmd->drawInfo.vertexOffset = _vertexOffset;
+    cmd->drawInfo.instanceCount = _instanceCount;
+    cmd->drawInfo.firstInstance = _firstInstance;
 }
 
 } // namespace gfx

@@ -591,7 +591,7 @@ String compileGLSLShader2Msl(const String &src,
 #endif
 }
 
-uint8_t *convertRGB8ToRGBA8(uint8_t *source, uint length) {
+const uint8_t *convertRGB8ToRGBA8(const uint8_t *source, uint length) {
     uint finalLength = length * 4;
     uint8 *out = (uint8 *)CC_MALLOC(finalLength);
     if (!out) {
@@ -599,7 +599,7 @@ uint8_t *convertRGB8ToRGBA8(uint8_t *source, uint length) {
         return source;
     }
 
-    uint8_t *src = source;
+    const uint8_t *src = source;
     uint8_t *dst = out;
     for (uint i = 0; i < length; ++i) {
         *dst++ = *src++;
@@ -611,7 +611,7 @@ uint8_t *convertRGB8ToRGBA8(uint8_t *source, uint length) {
     return out;
 }
 
-uint8_t *convertRGB32FToRGBA32F(uint8_t *source, uint length) {
+const uint8_t *convertRGB32FToRGBA32F(const uint8_t *source, uint length) {
     uint finalLength = length * sizeof(float) * 4;
     uint8 *out = (uint8 *)CC_MALLOC(finalLength);
     if (!out) {
@@ -619,7 +619,7 @@ uint8_t *convertRGB32FToRGBA32F(uint8_t *source, uint length) {
         return source;
     }
 
-    float *src = reinterpret_cast<float *>(source);
+    const float *src = reinterpret_cast<const float *>(source);
     float *dst = reinterpret_cast<float *>(out);
     for (uint i = 0; i < length; ++i) {
         *dst++ = *src++;

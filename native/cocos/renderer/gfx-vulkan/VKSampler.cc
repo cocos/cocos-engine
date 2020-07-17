@@ -1,6 +1,7 @@
 #include "VKStd.h"
 
 #include "VKCommands.h"
+#include "VKDevice.h"
 #include "VKSampler.h"
 
 namespace cc {
@@ -51,8 +52,7 @@ bool CCVKSampler::initialize(const SamplerInfo &info) {
 
 void CCVKSampler::destroy() {
     if (_gpuSampler) {
-        CCVKCmdFuncDestroySampler((CCVKDevice *)_device, _gpuSampler);
-        CC_DELETE(_gpuSampler);
+        ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuSampler);
         _gpuSampler = nullptr;
     }
     _status = Status::UNREADY;

@@ -369,7 +369,6 @@ bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_draw);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setBlendConstants);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setDepthBound);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_copyBufferToTexture);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_getQueue);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setLineWidth);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_updateBuffer);

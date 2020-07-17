@@ -22,7 +22,7 @@ public:
     CC_INLINE Format getConvertedFormat() const { return _convertedFormat; }
 
 private:
-    void update(uint8_t *const *datas, const BufferTextureCopyList &regions);
+    void update(const uint8_t *const *datas, const BufferTextureCopyList &regions);
     bool createMTLTexture();
     void generateMipmaps();
 

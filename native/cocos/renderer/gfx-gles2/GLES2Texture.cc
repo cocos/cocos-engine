@@ -21,8 +21,8 @@ bool GLES2Texture::initialize(const TextureInfo &info) {
     _width = info.width;
     _height = info.height;
     _depth = info.depth;
-    _arrayLayer = info.arrayLayer;
-    _mipLevel = info.mipLevel;
+    _layerCount = info.layerCount;
+    _levelCount = info.levelCount;
     _samples = info.samples;
     _flags = info.flags;
     _size = FormatSize(_format, _width, _height, _depth);
@@ -83,8 +83,8 @@ bool GLES2Texture::initialize(const TextureInfo &info) {
     _gpuTexture->height = _height;
     _gpuTexture->depth = _depth;
     _gpuTexture->size = _size;
-    _gpuTexture->arrayLayer = _arrayLayer;
-    _gpuTexture->mipLevel = _mipLevel;
+    _gpuTexture->arrayLayer = _layerCount;
+    _gpuTexture->mipLevel = _levelCount;
     _gpuTexture->samples = _samples;
     _gpuTexture->flags = _flags;
     _gpuTexture->isPowerOf2 = math::IsPowerOfTwo(_width) && math::IsPowerOfTwo(_height);

@@ -22,7 +22,7 @@ public:
     CC_INLINE CCVKGPUTextureView *gpuTextureView() const { return _gpuTextureView; }
 
 private:
-    void createTextureView(const TextureViewInfo &info);
+    void createTextureView();
 
     CCVKGPUTexture *_gpuTexture = nullptr;
     CCVKGPUTextureView *_gpuTextureView = nullptr;

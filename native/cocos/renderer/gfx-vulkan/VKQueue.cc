@@ -18,7 +18,7 @@ CCVKQueue::~CCVKQueue() {
 
 bool CCVKQueue::initialize(const QueueInfo &info) {
     _type = info.type;
-    _isAsync = !info.forceSync;
+    _isAsync = true;
 
     _gpuQueue = CC_NEW(CCVKGPUQueue);
     _gpuQueue->type = _type;
@@ -39,8 +39,9 @@ void CCVKQueue::destroy() {
 
 void CCVKQueue::submit(const vector<CommandBuffer *> &cmdBuffs, Fence *fence) {
     CCVKDevice *device = (CCVKDevice *)_device;
-
     _gpuQueue->commandBuffers.clear();
+    device->gpuTransportHub()->depart();
+
     uint count = cmdBuffs.size();
     for (uint i = 0u; i < count; ++i) {
         CCVKCommandBuffer *cmdBuffer = (CCVKCommandBuffer *)cmdBuffs[i];
@@ -54,22 +55,23 @@ void CCVKQueue::submit(const vector<CommandBuffer *> &cmdBuffs, Fence *fence) {
     }
 
     VkSubmitInfo submitInfo{VK_STRUCTURE_TYPE_SUBMIT_INFO};
-    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.waitSemaphoreCount = _gpuQueue->nextWaitSemaphore ? 1 : 0;
     submitInfo.pWaitSemaphores = &_gpuQueue->nextWaitSemaphore;
     submitInfo.pWaitDstStageMask = &_gpuQueue->submitStageMask;
-    submitInfo.commandBufferCount = count;
+    submitInfo.commandBufferCount = _gpuQueue->commandBuffers.size();
     submitInfo.pCommandBuffers = &_gpuQueue->commandBuffers[0];
-    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.signalSemaphoreCount = _gpuQueue->nextSignalSemaphore ? 1 : 0;
     submitInfo.pSignalSemaphores = &_gpuQueue->nextSignalSemaphore;
 
-    if (_isAsync) {
-        VkFence vkFence = fence ? ((CCVKFence *)fence)->gpuFence()->vkFence : VK_NULL_HANDLE;
-        VK_CHECK(vkQueueSubmit(_gpuQueue->vkQueue, 1, &submitInfo, vkFence));
+    VkFence vkFence = VK_NULL_HANDLE;
+    if (fence) {
+        vkFence = ((CCVKFence *)fence)->gpuFence()->vkFence;
     } else {
-        VkFence vkFence = fence ? ((CCVKFence *)fence)->gpuFence()->vkFence : device->gpuFencePool()->alloc();
-        VK_CHECK(vkQueueSubmit(_gpuQueue->vkQueue, 1, &submitInfo, vkFence));
-        VK_CHECK(vkWaitForFences(device->gpuDevice()->vkDevice, 1, &vkFence, VK_TRUE, DEFAULT_FENCE_TIMEOUT));
+        vkFence = device->gpuFencePool()->alloc();
+        _gpuQueue->lastAutoFence = vkFence;
     }
+
+    VK_CHECK(vkQueueSubmit(_gpuQueue->vkQueue, 1, &submitInfo, vkFence));
 
     _gpuQueue->nextWaitSemaphore = _gpuQueue->nextSignalSemaphore;
     _gpuQueue->nextSignalSemaphore = device->gpuSemaphorePool()->alloc();

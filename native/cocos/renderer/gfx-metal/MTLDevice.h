@@ -29,7 +29,7 @@ public:
     virtual Framebuffer *createFramebuffer(const FramebufferInfo &info) override;
     virtual BindingLayout *createBindingLayout(const BindingLayoutInfo &info) override;
     virtual PipelineState *createPipelineState(const PipelineStateInfo &info) override;
-    virtual void copyBuffersToTexture(const DataArray &buffers, Texture *dst, const BufferTextureCopyList &regions) override;
+    virtual void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions) override;
     virtual void blitBuffer(void *srcBuffer, uint offset, uint size, void *dstBuffer);
 
     CC_INLINE CCMTLStateCache *getStateCache() const { return _stateCache; }

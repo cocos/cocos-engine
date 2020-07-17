@@ -403,7 +403,7 @@ void CCVKCommandBuffer::draw(InputAssembler *ia) {
     }
 }
 
-void CCVKCommandBuffer::execute(const vector<CommandBuffer *> &cmdBuffs, uint count) {
+void CCVKCommandBuffer::execute(const CommandBufferList &cmdBuffs, uint count) {
     if (!count) {
         return;
     }
@@ -431,7 +431,7 @@ void CCVKCommandBuffer::updateBuffer(Buffer *buff, void *data, uint size, uint o
     }
 }
 
-void CCVKCommandBuffer::copyBufferToTexture(Buffer *src, Texture *dst, TextureLayout layout, const BufferTextureCopyList &regions) {
+void CCVKCommandBuffer::copyBuffersToTexture(const BufferDataList &buffers, Texture *texture, const BufferTextureCopyList &regions) {
     if ((_type == CommandBufferType::PRIMARY && !_curGPUFBO) ||
         (_type == CommandBufferType::SECONDARY)) {
         //const CCVKGPUBuffer* gpuBuffer = ((CCVKBuffer*)src)->gpuBuffer();
@@ -439,7 +439,7 @@ void CCVKCommandBuffer::copyBufferToTexture(Buffer *src, Texture *dst, TextureLa
         //vkCmdCopyBufferToImage(_gpuCommandBuffer->vkCommandBuffer, gpuBuffer->vkBuffer, gpuTexture->vkImage, MapVkImageLayout(layout),
         //    regions.size(), regions.data());
     } else {
-        CC_LOG_ERROR("Command 'copyBufferToTexture' must be recorded outside a render pass.");
+        CC_LOG_ERROR("Command 'copyBuffersToTexture' must be recorded outside a render pass.");
     }
 }
 

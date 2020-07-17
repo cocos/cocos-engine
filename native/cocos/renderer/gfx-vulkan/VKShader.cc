@@ -1,6 +1,7 @@
 #include "VKStd.h"
 
 #include "VKCommands.h"
+#include "VKDevice.h"
 #include "VKShader.h"
 
 namespace cc {
@@ -38,8 +39,7 @@ bool CCVKShader::initialize(const ShaderInfo &info) {
 
 void CCVKShader::destroy() {
     if (_gpuShader) {
-        CCVKCmdFuncDestroyShader((CCVKDevice *)_device, _gpuShader);
-        CC_DELETE(_gpuShader);
+        ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuShader);
         _gpuShader = nullptr;
     }
 

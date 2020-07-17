@@ -30,7 +30,7 @@ public:
     virtual Framebuffer *createFramebuffer(const FramebufferInfo &info) = 0;
     virtual BindingLayout *createBindingLayout(const BindingLayoutInfo &info) = 0;
     virtual PipelineState *createPipelineState(const PipelineStateInfo &info) = 0;
-    virtual void copyBuffersToTexture(const DataArray &buffers, Texture *dst, const BufferTextureCopyList &regions) = 0;
+    virtual void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions) = 0;
 
     CC_INLINE API getGfxAPI() const { return _API; }
     CC_INLINE const String &getDeviceName() const { return _deviceName; }
@@ -63,7 +63,7 @@ public:
     CC_INLINE bool hasFeature(Feature feature) const { return _features[static_cast<uint8_t>(feature)]; }
     CC_INLINE void defineMacro(const String &macro, const String &value) { _macros[macro] = value; }
     CC_INLINE float getClipSpaceMinZ() const { return _clipSpaceMinZ; }
-    CC_INLINE float getClipSpaceSignY() const { return _clipSpaceSignY; }
+    CC_INLINE float getScreenSpaceSignY() const { return _screenSpaceSignY; }
     CC_INLINE float getUVSpaceSignY() const { return _UVSpaceSignY; }
 
 protected:
@@ -98,7 +98,7 @@ protected:
     uint _shaderIdGen = 0;
     unordered_map<String, String> _macros;
     float _clipSpaceMinZ = -1.0f;
-    float _clipSpaceSignY = 1.0f;
+    float _screenSpaceSignY = 1.0f;
     float _UVSpaceSignY = -1.0f;
 }; // namespace gfx
 

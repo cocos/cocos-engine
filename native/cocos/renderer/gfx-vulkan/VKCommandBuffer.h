@@ -34,8 +34,8 @@ public:
     void setStencilCompareMask(StencilFace face, int reference, uint mask);
     void draw(InputAssembler *ia);
     void updateBuffer(Buffer *buff, void *data, uint size, uint offset);
-    void copyBufferToTexture(Buffer *src, Texture *dst, TextureLayout layout, const BufferTextureCopyList &regions);
-    void execute(const vector<CommandBuffer *> &cmd_buffs, uint count);
+    void copyBuffersToTexture(const BufferDataList &buffers, Texture *texture, const BufferTextureCopyList &regions);
+    void execute(const CommandBufferList &cmd_buffs, uint count);
 
     CCVKGPUCommandBuffer *gpuCommandBuffer() const { return _gpuCommandBuffer; }
 

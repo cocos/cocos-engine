@@ -23,8 +23,8 @@ public:
     CC_INLINE uint getWidth() const { return _width; }
     CC_INLINE uint getHeight() const { return _height; }
     CC_INLINE uint getDepth() const { return _depth; }
-    CC_INLINE uint getArrayLayer() const { return _arrayLayer; }
-    CC_INLINE uint getMipLevel() const { return _mipLevel; }
+    CC_INLINE uint getLayerCount() const { return _layerCount; }
+    CC_INLINE uint getLevelCount() const { return _levelCount; }
     CC_INLINE uint getSize() const { return _size; }
     CC_INLINE SampleCount getSamples() const { return _samples; }
     CC_INLINE TextureFlags getFlags() const { return _flags; }
@@ -35,12 +35,14 @@ protected:
     TextureType _type = TextureType::TEX2D;
     TextureUsage _usage = TextureUsageBit::NONE;
     Format _format = Format::UNKNOWN;
-    uint _width = 0;
-    uint _height = 0;
-    uint _depth = 1;
-    uint _arrayLayer = 1;
-    uint _mipLevel = 1;
-    uint _size = 0;
+    uint _width = 0u;
+    uint _height = 0u;
+    uint _depth = 1u;
+    uint _baseLevel = 0u;
+    uint _levelCount = 1u;
+    uint _baseLayer = 0u;
+    uint _layerCount = 1u;
+    uint _size = 0u;
     SampleCount _samples = SampleCount::X1;
     TextureFlags _flags = TextureFlagBit::NONE;
     uint8_t *_buffer = nullptr;

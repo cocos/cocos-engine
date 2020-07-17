@@ -33,7 +33,7 @@ public:
     virtual Framebuffer *createFramebuffer(const FramebufferInfo &info) override;
     virtual BindingLayout *createBindingLayout(const BindingLayoutInfo &info) override;
     virtual PipelineState *createPipelineState(const PipelineStateInfo &info) override;
-    virtual void copyBuffersToTexture(const DataArray &buffers, Texture *dst, const BufferTextureCopyList &regions) override;
+    virtual void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions) override;
 
     CC_INLINE bool useVAO() const { return _useVAO; }
     CC_INLINE bool useDrawInstanced() const { return _useDrawInstanced; }

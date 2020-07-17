@@ -45,8 +45,7 @@ bool CCVKFramebuffer::initialize(const FramebufferInfo &info) {
 
 void CCVKFramebuffer::destroy() {
     if (_gpuFBO) {
-        CCVKCmdFuncDestroyFramebuffer((CCVKDevice *)_device, _gpuFBO);
-        CC_DELETE(_gpuFBO);
+        ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuFBO);
         _gpuFBO = nullptr;
     }
 

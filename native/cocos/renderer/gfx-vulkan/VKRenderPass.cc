@@ -1,6 +1,7 @@
 #include "VKStd.h"
 
 #include "VKCommands.h"
+#include "VKDevice.h"
 #include "VKRenderPass.h"
 
 namespace cc {
@@ -32,8 +33,7 @@ bool CCVKRenderPass::initialize(const RenderPassInfo &info) {
 
 void CCVKRenderPass::destroy() {
     if (_gpuRenderPass) {
-        CCVKCmdFuncDestroyRenderPass((CCVKDevice *)_device, _gpuRenderPass);
-        CC_DELETE(_gpuRenderPass);
+        ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuRenderPass);
         _gpuRenderPass = nullptr;
     }
 

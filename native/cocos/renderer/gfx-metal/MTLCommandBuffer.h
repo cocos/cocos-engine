@@ -39,8 +39,8 @@ public:
     virtual void setStencilCompareMask(StencilFace face, int ref, uint mask) override;
     virtual void draw(InputAssembler *ia) override;
     virtual void updateBuffer(Buffer *buff, void *data, uint size, uint offset = 0) override;
-    virtual void copyBufferToTexture(Buffer *src, Texture *dst, TextureLayout layout, const BufferTextureCopyList &regions) override;
-    virtual void execute(const vector<CommandBuffer *> &cmd_buffs, uint32_t count) override;
+    virtual void copyBuffersToTexture(const BufferDataList &buffers, Texture *texture, const BufferTextureCopyList &regions) override;
+    virtual void execute(const CommandBufferList &cmd_buffs, uint32_t count) override;
 
 private:
     void bindStates();

@@ -156,11 +156,11 @@ void GLES3CommandBuffer::setBlendConstants(const Color &constants) {
 }
 
 void GLES3CommandBuffer::setDepthBound(float min_bounds, float max_bounds) {
-    if (math::IsNotEqualF(_curDepthBounds.min_bounds, min_bounds) ||
-        math::IsNotEqualF(_curDepthBounds.max_bounds, max_bounds)) {
+    if (math::IsNotEqualF(_curDepthBounds.minBounds, min_bounds) ||
+        math::IsNotEqualF(_curDepthBounds.maxBounds, max_bounds)) {
 
-        _curDepthBounds.min_bounds = min_bounds;
-        _curDepthBounds.max_bounds = max_bounds;
+        _curDepthBounds.minBounds = min_bounds;
+        _curDepthBounds.maxBounds = max_bounds;
         _isStateInvalid = true;
     }
 }
@@ -178,11 +178,11 @@ void GLES3CommandBuffer::setStencilWriteMask(StencilFace face, uint mask) {
 void GLES3CommandBuffer::setStencilCompareMask(StencilFace face, int ref, uint mask) {
     if ((_curStencilCompareMask.face != face) ||
         (_curStencilCompareMask.refrence != ref) ||
-        (_curStencilCompareMask.compare_mask != mask)) {
+        (_curStencilCompareMask.compareMask != mask)) {
 
         _curStencilCompareMask.face = face;
         _curStencilCompareMask.refrence = ref;
-        _curStencilCompareMask.compare_mask = mask;
+        _curStencilCompareMask.compareMask = mask;
         _isStateInvalid = true;
     }
 }
@@ -242,19 +242,18 @@ void GLES3CommandBuffer::updateBuffer(Buffer *buff, void *data, uint size, uint 
     }
 }
 
-void GLES3CommandBuffer::copyBufferToTexture(Buffer *src, Texture *dst, TextureLayout layout, const BufferTextureCopyList &regions) {
+void GLES3CommandBuffer::copyBuffersToTexture(const BufferDataList &buffers, Texture *texture, const BufferTextureCopyList &regions) {
     if ((_type == CommandBufferType::PRIMARY && !_isInRenderPass) ||
         (_type == CommandBufferType::SECONDARY)) {
 
-        GLES3GPUBuffer *gpuBuffer = ((GLES3Buffer *)src)->gpuBuffer();
-        GLES3GPUTexture *gpuTexture = ((GLES3Texture *)dst)->gpuTexture();
-        if (gpuBuffer && gpuTexture) {
+        GLES3GPUTexture *gpuTexture = ((GLES3Texture *)texture)->gpuTexture();
+        if (gpuTexture) {
             GLES3CmdCopyBufferToTexture *cmd = _gles3Allocator->copyBufferToTextureCmdPool.alloc();
-            cmd->gpuBuffer = gpuBuffer;
             cmd->gpuTexture = gpuTexture;
-            cmd->dst_layout = layout;
+            cmd->buffers.resize(buffers.size());
             cmd->regions.resize(regions.size());
             for (uint i = 0; i < static_cast<uint>(regions.size()); ++i) {
+                cmd->buffers[i] = buffers[i];
                 cmd->regions[i] = regions[i];
             }
 
@@ -262,11 +261,11 @@ void GLES3CommandBuffer::copyBufferToTexture(Buffer *src, Texture *dst, TextureL
             _cmdPackage->cmds.push(GFXCmdType::COPY_BUFFER_TO_TEXTURE);
         }
     } else {
-        CC_LOG_ERROR("Command 'copyBufferToTexture' must be recorded outside a render pass.");
+        CC_LOG_ERROR("Command 'copyBuffersToTexture' must be recorded outside a render pass.");
     }
 }
 
-void GLES3CommandBuffer::execute(const vector<CommandBuffer *> &cmd_buffs, uint32_t count) {
+void GLES3CommandBuffer::execute(const CommandBufferList &cmd_buffs, uint32_t count) {
     for (uint i = 0; i < count; ++i) {
         GLES3CommandBuffer *cmd_buff = (GLES3CommandBuffer *)cmd_buffs[i];
 

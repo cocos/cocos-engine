@@ -8,7 +8,7 @@ namespace cc {
 namespace gfx {
 
 namespace {
-uint8_t *convertData(uint8_t *source, uint length, Format type) {
+const uint8_t *convertData(const uint8_t *source, uint length, Format type) {
     switch (type) {
         case Format::RGB8: return mu::convertRGB8ToRGBA8(source, length);
         case Format::RGB32F: return mu::convertRGB32FToRGBA32F(source, length);
@@ -27,8 +27,8 @@ bool CCMTLTexture::initialize(const TextureInfo &info) {
     _width = info.width;
     _height = info.height;
     _depth = info.depth;
-    _arrayLayer = info.arrayLayer;
-    _mipLevel = info.mipLevel;
+    _layerCount = info.layerCount;
+    _levelCount = info.levelCount;
     _samples = info.samples;
     _flags = info.flags;
     _size = FormatSize(_format, _width, _height, _depth);
@@ -101,8 +101,8 @@ bool CCMTLTexture::initialize(const TextureViewInfo &info) {
     _width = info.texture->getWidth();
     _height = info.texture->getHeight();
     _depth = info.texture->getDepth();
-    _arrayLayer = info.texture->getArrayLayer();
-    _mipLevel = info.texture->getMipLevel();
+    _layerCount = info.texture->getLayerCount();
+    _levelCount = info.texture->getLevelCount();
     _samples = info.texture->getSamples();
     _flags = info.texture->getFlags();
     _size = info.texture->getSize();
@@ -138,7 +138,7 @@ bool CCMTLTexture::createMTLTexture() {
     switch (mtlTextureType) {
         case MTLTextureType2D:
         case MTLTextureType2DArray:
-            //No need to set mipmapped flag since mipmapLevelCount was explicty set via `_mipLevel`.
+            //No need to set mipmapped flag since mipmapLevelCount was explicty set via `_levelCount`.
             descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:mtlFormat
                                                                             width:_width
                                                                            height:_height
@@ -160,8 +160,8 @@ bool CCMTLTexture::createMTLTexture() {
     descriptor.usage = mu::toMTLTextureUsage(_usage);
     descriptor.textureType = mu::toMTLTextureType(_type);
     descriptor.sampleCount = mu::toMTLSampleCount(_samples);
-    descriptor.mipmapLevelCount = _mipLevel;
-    descriptor.arrayLength = _flags & TextureFlagBit::CUBEMAP ? 1 : _arrayLayer;
+    descriptor.mipmapLevelCount = _levelCount;
+    descriptor.arrayLength = _flags & TextureFlagBit::CUBEMAP ? 1 : _layerCount;
 
     //FIXME: should change to MTLStorageModeManaged if texture usage is TextureFlags::BAKUP_BUFFER?
     if (_usage & TextureUsage::COLOR_ATTACHMENT ||
@@ -237,7 +237,7 @@ void CCMTLTexture::resize(uint width, uint height) {
     _status = Status::SUCCESS;
 }
 
-void CCMTLTexture::update(uint8_t *const *datas, const BufferTextureCopyList &regions) {
+void CCMTLTexture::update(const uint8_t *const *datas, const BufferTextureCopyList &regions) {
     if (!_mtlTexture)
         return;
 
@@ -252,8 +252,8 @@ void CCMTLTexture::update(uint8_t *const *datas, const BufferTextureCopyList &re
                 w = region.texExtent.width;
                 h = region.texExtent.height;
 
-                uint8_t *buffer = datas[n];
-                uint8_t *convertedData = convertData(buffer, w * h, _format);
+                const uint8_t *buffer = datas[n];
+                const uint8_t *convertedData = convertData(buffer, w * h, _format);
                 MTLRegion mtlRegion = {{(uint)region.texOffset.x, (uint)region.texOffset.y, (uint)region.texOffset.z}, {w, h, 1}};
                 [_mtlTexture replaceRegion:mtlRegion
                                mipmapLevel:region.texSubres.mipLevel
@@ -274,8 +274,8 @@ void CCMTLTexture::update(uint8_t *const *datas, const BufferTextureCopyList &re
                 for (; layer < layerCount; layer++) {
                     w = region.texExtent.width;
                     h = region.texExtent.height;
-                    uint8_t *buffer = datas[n];
-                    uint8_t *convertedData = convertData(buffer, w * h, _format);
+                    const uint8_t *buffer = datas[n];
+                    const uint8_t *convertedData = convertData(buffer, w * h, _format);
                     MTLRegion mtlRegion = {{(uint)region.texOffset.x, (uint)region.texOffset.y, (uint)region.texOffset.z}, {w, h, 1}};
                     [_mtlTexture replaceRegion:mtlRegion
                                    mipmapLevel:region.texSubres.mipLevel

@@ -1,9 +1,9 @@
 #include "GLES3Std.h"
 
 #include "GLES3Commands.h"
+#include "GLES3Context.h"
 #include "GLES3Device.h"
 #include "GLES3StateCache.h"
-#include "GLES3Context.h"
 
 #define BUFFER_OFFSET(idx) (static_cast<char *>(0) + (idx))
 
@@ -1972,43 +1972,43 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
                                 switch (cmd->stencilCompareMask.face) {
                                     case StencilFace::FRONT:
                                         if ((cache->dss.stencilRefFront != (uint)cmd->stencilCompareMask.refrence) ||
-                                            (cache->dss.stencilReadMaskFront != cmd->stencilCompareMask.compare_mask)) {
+                                            (cache->dss.stencilReadMaskFront != cmd->stencilCompareMask.compareMask)) {
                                             glStencilFuncSeparate(GL_FRONT,
                                                                   GLES3_CMP_FUNCS[(int)cache->dss.stencilFuncFront],
                                                                   cmd->stencilCompareMask.refrence,
-                                                                  cmd->stencilCompareMask.compare_mask);
+                                                                  cmd->stencilCompareMask.compareMask);
                                             cache->dss.stencilRefFront = cmd->stencilCompareMask.refrence;
-                                            cache->dss.stencilReadMaskFront = cmd->stencilCompareMask.compare_mask;
+                                            cache->dss.stencilReadMaskFront = cmd->stencilCompareMask.compareMask;
                                         }
                                         break;
                                     case StencilFace::BACK:
                                         if ((cache->dss.stencilRefBack != (uint)cmd->stencilCompareMask.refrence) ||
-                                            (cache->dss.stencilReadMaskBack != cmd->stencilCompareMask.compare_mask)) {
+                                            (cache->dss.stencilReadMaskBack != cmd->stencilCompareMask.compareMask)) {
                                             glStencilFuncSeparate(GL_BACK,
                                                                   GLES3_CMP_FUNCS[(int)cache->dss.stencilFuncBack],
                                                                   cmd->stencilCompareMask.refrence,
-                                                                  cmd->stencilCompareMask.compare_mask);
+                                                                  cmd->stencilCompareMask.compareMask);
                                             cache->dss.stencilRefBack = cmd->stencilCompareMask.refrence;
-                                            cache->dss.stencilReadMaskBack = cmd->stencilCompareMask.compare_mask;
+                                            cache->dss.stencilReadMaskBack = cmd->stencilCompareMask.compareMask;
                                         }
                                         break;
                                     case StencilFace::ALL:
                                         if ((cache->dss.stencilRefFront != (uint)cmd->stencilCompareMask.refrence) ||
-                                            (cache->dss.stencilReadMaskFront != cmd->stencilCompareMask.compare_mask) ||
+                                            (cache->dss.stencilReadMaskFront != cmd->stencilCompareMask.compareMask) ||
                                             (cache->dss.stencilRefBack != (uint)cmd->stencilCompareMask.refrence) ||
-                                            (cache->dss.stencilReadMaskBack != cmd->stencilCompareMask.compare_mask)) {
+                                            (cache->dss.stencilReadMaskBack != cmd->stencilCompareMask.compareMask)) {
                                             glStencilFuncSeparate(GL_FRONT,
                                                                   GLES3_CMP_FUNCS[(int)cache->dss.stencilFuncFront],
                                                                   cmd->stencilCompareMask.refrence,
-                                                                  cmd->stencilCompareMask.compare_mask);
+                                                                  cmd->stencilCompareMask.compareMask);
                                             glStencilFuncSeparate(GL_BACK,
                                                                   GLES3_CMP_FUNCS[(int)cache->dss.stencilFuncBack],
                                                                   cmd->stencilCompareMask.refrence,
-                                                                  cmd->stencilCompareMask.compare_mask);
+                                                                  cmd->stencilCompareMask.compareMask);
                                             cache->dss.stencilRefFront = cmd->stencilCompareMask.refrence;
-                                            cache->dss.stencilReadMaskFront = cmd->stencilCompareMask.compare_mask;
+                                            cache->dss.stencilReadMaskFront = cmd->stencilCompareMask.compareMask;
                                             cache->dss.stencilRefBack = cmd->stencilCompareMask.refrence;
-                                            cache->dss.stencilReadMaskBack = cmd->stencilCompareMask.compare_mask;
+                                            cache->dss.stencilReadMaskBack = cmd->stencilCompareMask.compareMask;
                                         }
                                         break;
                                 }
@@ -2025,19 +2025,19 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
                 GLES3CmdDraw *cmd = cmdPackage->drawCmds[cmdIdx];
                 if (gpuInputAssembler && gpuPipelineState) {
                     if (!gpuInputAssembler->gpuIndirectBuffer) {
-                        if (gpuInputAssembler->gpuIndexBuffer && cmd->draw_info.indexCount >= 0) {
+                        if (gpuInputAssembler->gpuIndexBuffer && cmd->drawInfo.indexCount >= 0) {
                             uint8_t *offset = 0;
-                            offset += cmd->draw_info.firstIndex * gpuInputAssembler->gpuIndexBuffer->stride;
-                            if (cmd->draw_info.instanceCount == 0) {
-                                glDrawElements(glPrimitive, cmd->draw_info.indexCount, gpuInputAssembler->glIndexType, offset);
+                            offset += cmd->drawInfo.firstIndex * gpuInputAssembler->gpuIndexBuffer->stride;
+                            if (cmd->drawInfo.instanceCount == 0) {
+                                glDrawElements(glPrimitive, cmd->drawInfo.indexCount, gpuInputAssembler->glIndexType, offset);
                             } else {
-                                glDrawElementsInstanced(glPrimitive, cmd->draw_info.indexCount, gpuInputAssembler->glIndexType, offset, cmd->draw_info.instanceCount);
+                                glDrawElementsInstanced(glPrimitive, cmd->drawInfo.indexCount, gpuInputAssembler->glIndexType, offset, cmd->drawInfo.instanceCount);
                             }
                         } else {
-                            if (cmd->draw_info.instanceCount == 0) {
-                                glDrawArrays(glPrimitive, cmd->draw_info.firstIndex, cmd->draw_info.vertexCount);
+                            if (cmd->drawInfo.instanceCount == 0) {
+                                glDrawArrays(glPrimitive, cmd->drawInfo.firstIndex, cmd->drawInfo.vertexCount);
                             } else {
-                                glDrawArraysInstanced(glPrimitive, cmd->draw_info.firstIndex, cmd->draw_info.vertexCount, cmd->draw_info.instanceCount);
+                                glDrawArraysInstanced(glPrimitive, cmd->drawInfo.firstIndex, cmd->drawInfo.vertexCount, cmd->drawInfo.instanceCount);
                             }
                         }
                     } else {
@@ -2070,7 +2070,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
             }
             case GFXCmdType::COPY_BUFFER_TO_TEXTURE: {
                 GLES3CmdCopyBufferToTexture *cmd = cmdPackage->copyBufferToTextureCmds[cmdIdx];
-                GLES3CmdFuncCopyBuffersToTexture(device, &(cmd->gpuBuffer->buffer), cmd->gpuTexture, cmd->regions);
+                GLES3CmdFuncCopyBuffersToTexture(device, cmd->buffers, cmd->gpuTexture, cmd->regions);
                 break;
             }
             default:
@@ -2080,7 +2080,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
     }
 }
 
-void GLES3CmdFuncCopyBuffersToTexture(GLES3Device *device, uint8_t *const *buffers, GLES3GPUTexture *gpuTexture, const BufferTextureCopyList &regions) {
+void GLES3CmdFuncCopyBuffersToTexture(GLES3Device *device, const BufferDataList &buffers, GLES3GPUTexture *gpuTexture, const BufferTextureCopyList &regions) {
     GLuint &glTexture = device->stateCache->glTextures[device->stateCache->texUint];
     if (glTexture != gpuTexture->glTexture) {
         glBindTexture(gpuTexture->glTarget, gpuTexture->glTexture);
@@ -2098,7 +2098,7 @@ void GLES3CmdFuncCopyBuffersToTexture(GLES3Device *device, uint8_t *const *buffe
                 const BufferTextureCopy &region = regions[i];
                 w = region.texExtent.width;
                 h = region.texExtent.height;
-                uint8_t *buff = buffers[n++];
+                const uint8_t *buff = buffers[n++];
                 if (isCompressed) {
                     GLsizei memSize = (GLsizei)FormatSize(gpuTexture->format, w, h, 1);
                     glCompressedTexSubImage2D(GL_TEXTURE_2D,
@@ -2133,7 +2133,7 @@ void GLES3CmdFuncCopyBuffersToTexture(GLES3Device *device, uint8_t *const *buffe
                 for (uint z = region.texSubres.baseArrayLayer; z < layerCount; ++z) {
                     w = region.texExtent.width;
                     h = region.texExtent.height;
-                    uint8_t *buff = buffers[n++];
+                    const uint8_t *buff = buffers[n++];
                     if (isCompressed) {
                         GLsizei memSize = (GLsizei)FormatSize(gpuTexture->format, w, h, 1);
                         glCompressedTexSubImage3D(GL_TEXTURE_2D_ARRAY,
@@ -2169,7 +2169,7 @@ void GLES3CmdFuncCopyBuffersToTexture(GLES3Device *device, uint8_t *const *buffe
                 w = region.texExtent.width;
                 h = region.texExtent.height;
                 d = region.texExtent.depth;
-                uint8_t *buff = buffers[n++];
+                const uint8_t *buff = buffers[n++];
                 if (isCompressed) {
                     GLsizei memSize = (GLsizei)FormatSize(gpuTexture->format, w, h, 1);
                     glCompressedTexSubImage3D(GL_TEXTURE_3D,
@@ -2205,7 +2205,7 @@ void GLES3CmdFuncCopyBuffersToTexture(GLES3Device *device, uint8_t *const *buffe
                 for (f = region.texSubres.baseArrayLayer; f < face_count; ++f) {
                     w = region.texExtent.width;
                     h = region.texExtent.height;
-                    uint8_t *buff = buffers[n++];
+                    const uint8_t *buff = buffers[n++];
                     if (isCompressed) {
                         GLsizei memSize = (GLsizei)FormatSize(gpuTexture->format, w, h, 1);
                         glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f,

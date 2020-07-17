@@ -40,11 +40,9 @@ enum class ObjectType : uint8_t {
     PIPELINE_STATE,
     BINDING_LAYOUT,
     INPUT_ASSEMBLER,
-    COMMAND_ALLOCATOR,
     COMMAND_BUFFER,
     FENCE,
     QUEUE,
-    WINDOW,
 };
 
 enum class Status : uint8_t {
@@ -610,10 +608,7 @@ struct BufferTextureCopy {
     TextureSubres texSubres;
 };
 typedef vector<BufferTextureCopy> BufferTextureCopyList;
-
-struct DataArray {
-    vector<uint8_t *> datas;
-};
+typedef vector<const uint8_t *> BufferDataList;
 
 struct Viewport {
     int left = 0;
@@ -709,11 +704,11 @@ struct TextureInfo {
     TextureType type = TextureType::TEX2D;
     TextureUsage usage = TextureUsageBit::NONE;
     Format format = Format::UNKNOWN;
-    uint width = 0;
-    uint height = 0;
-    uint depth = 1;
-    uint arrayLayer = 1;
-    uint mipLevel = 1;
+    uint width = 0u;
+    uint height = 0u;
+    uint depth = 1u;
+    uint layerCount = 1u;
+    uint levelCount = 1u;
     SampleCount samples = SampleCount::X1;
     TextureFlags flags = TextureFlagBit::NONE;
 };
@@ -722,10 +717,10 @@ struct TextureViewInfo {
     Texture *texture = nullptr;
     TextureType type = TextureType::TEX2D;
     Format format = Format::UNKNOWN;
-    uint baseLevel = 0;
-    uint levelCount = 1;
-    uint baseLayer = 0;
-    uint layerCount = 1;
+    uint baseLevel = 0u;
+    uint levelCount = 1u;
+    uint baseLayer = 0u;
+    uint layerCount = 1u;
 };
 
 struct SamplerInfo {
@@ -966,10 +961,10 @@ struct CommandBufferInfo {
     Queue *queue = nullptr;
     CommandBufferType type = CommandBufferType::PRIMARY;
 };
+typedef vector<CommandBuffer *> CommandBufferList;
 
 struct QueueInfo {
     QueueType type = QueueType::GRAPHICS;
-    bool forceSync = false;
 };
 
 struct FenceInfo {
