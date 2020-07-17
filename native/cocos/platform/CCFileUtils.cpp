@@ -611,7 +611,6 @@ bool FileUtils::writeDataToFile(const Data& data, const std::string& fullPath)
 bool FileUtils::init()
 {
     _searchPathArray.push_back(_defaultResRootPath);
-    _searchResolutionsOrderArray.push_back("");
     return true;
 }
 
@@ -674,20 +673,6 @@ FileUtils::Status FileUtils::getContents(const std::string& filename, ResizableB
     return Status::OK;
 }
 
-unsigned char* FileUtils::getFileData(const std::string& filename, const char* mode, ssize_t *size)
-{
-    CCASSERT(!filename.empty() && size != nullptr && mode != nullptr, "Invalid parameters.");
-    (void)(mode); // mode is unused, as we do not support text mode any more...
-
-    Data d;
-    if (getContents(filename, &d) != Status::OK) {
-        *size = 0;
-        return nullptr;
-    }
-
-    return d.takeBuffer(size);
-}
-
 unsigned char* FileUtils::getFileDataFromZip(const std::string& zipFilePath, const std::string& filename, ssize_t *size)
 {
     unsigned char * buffer = nullptr;
@@ -733,25 +718,7 @@ unsigned char* FileUtils::getFileDataFromZip(const std::string& zipFilePath, con
     return buffer;
 }
 
-std::string FileUtils::getNewFilename(const std::string &filename) const
-{
-    std::string newFileName;
-
-    // in Lookup Filename dictionary ?
-    auto iter = _filenameLookupDict.find(filename);
-
-    if (iter == _filenameLookupDict.end())
-    {
-        newFileName = filename;
-    }
-    else
-    {
-        newFileName = iter->second.asString();
-    }
-    return newFileName;
-}
-
-std::string FileUtils::getPathForFilename(const std::string& filename, const std::string& resolutionDirectory, const std::string& searchPath) const
+std::string FileUtils::getPathForFilename(const std::string& filename, const std::string& searchPath) const
 {
     std::string file = filename;
     std::string file_path = "";
@@ -762,10 +729,9 @@ std::string FileUtils::getPathForFilename(const std::string& filename, const std
         file = filename.substr(pos+1);
     }
 
-    // searchPath + file_path + resourceDirectory
+    // searchPath + file_path
     std::string path = searchPath;
     path += file_path;
-    path += resolutionDirectory;
 
     path = getFullPathForDirectoryAndFilename(path, file);
 
@@ -791,28 +757,18 @@ std::string FileUtils::fullPathForFilename(const std::string &filename) const
         return cacheIter->second;
     }
 
-    // Get the new file name.
-    const std::string newFilename( getNewFilename(filename) );
-
     std::string fullpath;
 
     for (const auto& searchIt : _searchPathArray)
     {
-        for (const auto& resolutionIt : _searchResolutionsOrderArray)
+        fullpath = this->getPathForFilename(filename, searchIt);
+        
+        if (!fullpath.empty())
         {
-            fullpath = this->getPathForFilename(newFilename, resolutionIt, searchIt);
-
-            if (!fullpath.empty())
-            {
-                // Using the filename passed in as key.
-                _fullPathCache.insert(std::make_pair(filename, fullpath));
-                return fullpath;
-            }
+            // Using the filename passed in as key.
+            _fullPathCache.insert(std::make_pair(filename, fullpath));
+            return fullpath;
         }
-    }
-
-    if(isPopupNotify()){
-        CC_LOG_DEBUG("fullPathForFilename: No file found at %s. Possible missing file.", filename.c_str());
     }
 
     // The file wasn't found, return empty string.
@@ -821,57 +777,7 @@ std::string FileUtils::fullPathForFilename(const std::string &filename) const
 
 std::string FileUtils::fullPathFromRelativeFile(const std::string &filename, const std::string &relativeFile)
 {
-    return relativeFile.substr(0, relativeFile.rfind('/')+1) + getNewFilename(filename);
-}
-
-void FileUtils::setSearchResolutionsOrder(const std::vector<std::string>& searchResolutionsOrder)
-{
-    if (_searchResolutionsOrderArray == searchResolutionsOrder)
-    {
-        return;
-    }
-
-    bool existDefault = false;
-    _fullPathCache.clear();
-    _searchResolutionsOrderArray.clear();
-    for(const auto& iter : searchResolutionsOrder)
-    {
-        std::string resolutionDirectory = iter;
-        if (!existDefault && resolutionDirectory == "")
-        {
-            existDefault = true;
-        }
-
-        if (resolutionDirectory.length() > 0 && resolutionDirectory[resolutionDirectory.length()-1] != '/')
-        {
-            resolutionDirectory += "/";
-        }
-
-        _searchResolutionsOrderArray.push_back(resolutionDirectory);
-    }
-
-    if (!existDefault)
-    {
-        _searchResolutionsOrderArray.push_back("");
-    }
-}
-
-void FileUtils::addSearchResolutionsOrder(const std::string &order,const bool front)
-{
-    std::string resOrder = order;
-    if (!resOrder.empty() && resOrder[resOrder.length()-1] != '/')
-        resOrder.append("/");
-
-    if (front) {
-        _searchResolutionsOrderArray.insert(_searchResolutionsOrderArray.begin(), resOrder);
-    } else {
-        _searchResolutionsOrderArray.push_back(resOrder);
-    }
-}
-
-const std::vector<std::string>& FileUtils::getSearchResolutionsOrder() const
-{
-    return _searchResolutionsOrderArray;
+    return relativeFile.substr(0, relativeFile.rfind('/')+1) + filename;
 }
 
 const std::vector<std::string>& FileUtils::getSearchPaths() const
@@ -966,32 +872,6 @@ void FileUtils::addSearchPath(const std::string &searchpath,const bool front)
     }
 }
 
-void FileUtils::setFilenameLookupDictionary(const ValueMap& filenameLookupDict)
-{
-    _fullPathCache.clear();
-    _filenameLookupDict = filenameLookupDict;
-}
-
-void FileUtils::loadFilenameLookupDictionaryFromFile(const std::string &filename)
-{
-    const std::string fullPath = fullPathForFilename(filename);
-    if (!fullPath.empty())
-    {
-        ValueMap dict = FileUtils::getInstance()->getValueMapFromFile(fullPath);
-        if (!dict.empty())
-        {
-            ValueMap& metadata =  dict["metadata"].asValueMap();
-            int version = metadata["version"].asInt();
-            if (version != 1)
-            {
-                CC_LOG_DEBUG("ERROR: Invalid filenameLookup dictionary version: %d. Filename: %s", version, filename.c_str());
-                return;
-            }
-            setFilenameLookupDictionary( dict["filenames"].asValueMap());
-        }
-    }
-}
-
 std::string FileUtils::getFullPathForDirectoryAndFilename(const std::string& directory, const std::string& filename) const
 {
     // get directory+filename, safely adding '/' as necessary
@@ -1049,15 +929,12 @@ bool FileUtils::isDirectoryExist(const std::string& dirPath) const
     std::string fullpath;
     for (const auto& searchIt : _searchPathArray)
     {
-        for (const auto& resolutionIt : _searchResolutionsOrderArray)
+        // searchPath + file_path
+        fullpath = fullPathForFilename(searchIt + dirPath);
+        if (isDirectoryExistInternal(fullpath))
         {
-            // searchPath + file_path + resourceDirectory
-            fullpath = fullPathForFilename(searchIt + dirPath + resolutionIt);
-            if (isDirectoryExistInternal(fullpath))
-            {
-                _fullPathCache.insert(std::make_pair(dirPath, fullpath));
-                return true;
-            }
+            _fullPathCache.insert(std::make_pair(dirPath, fullpath));
+            return true;
         }
     }
     return false;
@@ -1427,23 +1304,6 @@ long FileUtils::getFileSize(const std::string &filepath)
     }
 }
 #endif
-
-//////////////////////////////////////////////////////////////////////////
-// Notification support when getFileData from invalid file path.
-//////////////////////////////////////////////////////////////////////////
-
-/* Default to false, enable it by setPopupNotify if needed */
-static bool s_popupNotify = false;
-
-void FileUtils::setPopupNotify(bool notify)
-{
-    s_popupNotify = notify;
-}
-
-bool FileUtils::isPopupNotify() const
-{
-    return s_popupNotify;
-}
 
 std::string FileUtils::getFileExtension(const std::string& filePath) const
 {

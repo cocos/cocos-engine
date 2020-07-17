@@ -203,13 +203,12 @@ FileUtils::Status FileUtilsWin32::getContents(const std::string& filename, Resiz
     return FileUtils::Status::OK;
 }
 
-std::string FileUtilsWin32::getPathForFilename(const std::string& filename, const std::string& resolutionDirectory, const std::string& searchPath) const
+std::string FileUtilsWin32::getPathForFilename(const std::string& filename, const std::string& searchPath) const
 {
     std::string unixFileName = convertPathFormatToUnixStyle(filename);
-    std::string unixResolutionDirectory = convertPathFormatToUnixStyle(resolutionDirectory);
     std::string unixSearchPath = convertPathFormatToUnixStyle(searchPath);
 
-    return FileUtils::getPathForFilename(unixFileName, unixResolutionDirectory, unixSearchPath);
+    return FileUtils::getPathForFilename(unixFileName, unixSearchPath);
 }
 
 std::string FileUtilsWin32::getFullPathForDirectoryAndFilename(const std::string& strDirectory, const std::string& strFilename) const

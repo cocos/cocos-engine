@@ -246,17 +246,6 @@ public:
     virtual Status getContents(const std::string& filename, ResizableBuffer* buffer);
 
     /**
-     *  Gets resource file data
-     *
-     *  @param[in]  filename The resource file name which contains the path.
-     *  @param[in]  mode The read mode of the file.
-     *  @param[out] size If the file read operation succeeds, it will be the data size, otherwise 0.
-     *  @return Upon success, a pointer to the data is returned, otherwise NULL.
-     *  @warning Recall: you are responsible for calling free() on any Non-NULL pointer returned.
-     */
-    CC_DEPRECATED_ATTRIBUTE virtual unsigned char* getFileData(const std::string& filename, const char* mode, ssize_t *size);
-
-    /**
      *  Gets resource file data from a zip file.
      *
      *  @param[in]  filename The resource file name which contains the relative path of the zip file.
@@ -315,49 +304,6 @@ public:
     virtual std::string fullPathForFilename(const std::string &filename) const;
 
     /**
-     * Loads the filenameLookup dictionary from the contents of a filename.
-     *
-     * @note The plist file name should follow the format below:
-     *
-     * @code
-     * <?xml version="1.0" encoding="UTF-8"?>
-     * <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-     * <plist version="1.0">
-     * <dict>
-     *     <key>filenames</key>
-     *     <dict>
-     *         <key>sounds/click.wav</key>
-     *         <string>sounds/click.caf</string>
-     *         <key>sounds/endgame.wav</key>
-     *         <string>sounds/endgame.caf</string>
-     *         <key>sounds/gem-0.wav</key>
-     *         <string>sounds/gem-0.caf</string>
-     *     </dict>
-     *     <key>metadata</key>
-     *     <dict>
-     *         <key>version</key>
-     *         <integer>1</integer>
-     *     </dict>
-     * </dict>
-     * </plist>
-     * @endcode
-     * @param filename The plist file name.
-     *
-     @since v2.1
-     * @js loadFilenameLookup
-     * @lua loadFilenameLookup
-     */
-    virtual void loadFilenameLookupDictionaryFromFile(const std::string &filename);
-
-    /**
-     *  Sets the filenameLookup dictionary.
-     *
-     *  @param filenameLookupDict The dictionary for replacing filename.
-     *  @since v2.1
-     */
-    virtual void setFilenameLookupDictionary(const ValueMap& filenameLookupDict);
-
-    /**
      *  Gets full path from a file name and the path of the relative file.
      *  @param filename The file name.
      *  @param relativeFile The path of the relative file.
@@ -367,34 +313,6 @@ public:
      *
      */
     virtual std::string fullPathFromRelativeFile(const std::string &filename, const std::string &relativeFile);
-
-    /**
-     *  Sets the array that contains the search order of the resources.
-     *
-     *  @param searchResolutionsOrder The source array that contains the search order of the resources.
-     *  @see getSearchResolutionsOrder(), fullPathForFilename(const char*).
-     *  @since v2.1
-     *  In js:var setSearchResolutionsOrder(var jsval)
-     *  @lua NA
-     */
-    virtual void setSearchResolutionsOrder(const std::vector<std::string>& searchResolutionsOrder);
-
-    /**
-      * Append search order of the resources.
-      *
-      * @see setSearchResolutionsOrder(), fullPathForFilename().
-      * @since v2.1
-      */
-    virtual void addSearchResolutionsOrder(const std::string &order,const bool front=false);
-
-    /**
-     *  Gets the array that contains the search order of the resources.
-     *
-     *  @see setSearchResolutionsOrder(const std::vector<std::string>&), fullPathForFilename(const char*).
-     *  @since v2.1
-     *  @lua NA
-     */
-    virtual const std::vector<std::string>& getSearchResolutionsOrder() const;
 
     /**
      *  Sets the array of search paths.
@@ -462,16 +380,6 @@ public:
      *  Sets writable path.
      */
     virtual void setWritablePath(const std::string& writablePath);
-
-    /**
-     *  Sets whether to pop-up a message box when failed to load an image.
-     */
-    virtual void setPopupNotify(bool notify);
-
-    /** Checks whether to pop up a message box when failed to load an image.
-     *  @return True if pop up a message box when failed to load an image, false if not.
-     */
-    virtual bool isPopupNotify() const;
 
     /**
      *  Converts the contents of a file to a ValueMap.
@@ -673,15 +581,6 @@ protected:
     virtual bool init();
 
     /**
-     *  Gets the new filename from the filename lookup dictionary.
-     *  It is possible to have a override names.
-     *  @param filename The original filename.
-     *  @return The new filename after searching in the filename lookup dictionary.
-     *          If the original filename wasn't in the dictionary, it will return the original filename.
-     */
-    virtual std::string getNewFilename(const std::string &filename) const;
-
-    /**
      *  Checks whether a file exists without considering search paths and resolution orders.
      *  @param filename The file (with absolute path) to look up for
      *  @return Returns true if the file found at the given absolute path, otherwise returns false
@@ -699,11 +598,10 @@ protected:
      *  Gets full path for filename, resolution directory and search path.
      *
      *  @param filename The file name.
-     *  @param resolutionDirectory The resolution directory.
      *  @param searchPath The search path.
      *  @return The full path of the file. It will return an empty string if the full path of the file doesn't exist.
      */
-    virtual std::string getPathForFilename(const std::string& filename, const std::string& resolutionDirectory, const std::string& searchPath) const;
+    virtual std::string getPathForFilename(const std::string& filename, const std::string& searchPath) const;
 
     /**
      *  Gets full path for the directory and the filename.
@@ -716,21 +614,6 @@ protected:
      *  @return The full path of the file, if the file can't be found, it will return an empty string.
      */
     virtual std::string getFullPathForDirectoryAndFilename(const std::string& directory, const std::string& filename) const;
-
-    /** Dictionary used to lookup filenames based on a key.
-     *  It is used internally by the following methods:
-     *
-     *  std::string fullPathForFilename(const char*);
-     *
-     *  @since v2.1
-     */
-    ValueMap _filenameLookupDict;
-
-    /**
-     *  The vector contains resolution folders.
-     *  The lower index of the element in this vector, the higher priority for this resolution directory.
-     */
-    std::vector<std::string> _searchResolutionsOrderArray;
 
     /**
      * The vector contains search paths.
