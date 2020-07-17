@@ -1012,8 +1012,9 @@ var ParticleSystem = cc.Class({
                 if (!self._custom) {
                     self._initWithDictionary(file._nativeAsset);
                 }
-
-                if (!self._spriteFrame || self._spriteFrame !== file.spriteFrame) {
+                var isNotSameFile = self._plistFile !== file.nativeUrl;
+                var isNotSameFrame = self._spriteFrame !== file.spriteFrame;
+                if (!self._spriteFrame || isNotSameFile || isNotSameFrame) {
                     if (file.spriteFrame) {
                         self.spriteFrame = file.spriteFrame;
                     }
