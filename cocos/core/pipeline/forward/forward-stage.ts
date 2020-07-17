@@ -99,11 +99,6 @@ export class ForwardStage extends RenderStage {
                         } else {
                             for (k = 0; k < this._renderQueues.length; k++) {
                                 this._renderQueues[k].insertRenderPass(ro, m, p);
-                                const shadowmapUniform = this.pipeline.globalBindings.get(UNIFORM_SHADOWMAP.name);
-                                const texture = shadowmapUniform?.texture;
-                                const sampler = shadowmapUniform?.sampler;
-                                pass.bindTexture(UNIFORM_SHADOWMAP.binding, texture!);
-                                pass.bindSampler(UNIFORM_SHADOWMAP.binding, sampler!);
                             }
                             this._additiveLightQueue.add(ro, m, pass, lightIndexOffset[i], nextLightIndex);
                         }
@@ -115,11 +110,6 @@ export class ForwardStage extends RenderStage {
                         const pass = ro.model.getSubModel(m).passes[p];
                         for (k = 0; k < this._renderQueues.length; k++) {
                             this._renderQueues[k].insertRenderPass(ro, m, p);
-                            const shadowmapUniform = this.pipeline.globalBindings.get(UNIFORM_SHADOWMAP.name);
-                            const texture = shadowmapUniform?.texture;
-                            const sampler = shadowmapUniform?.sampler;
-                            pass.bindTexture(UNIFORM_SHADOWMAP.binding, texture!);
-                            pass.bindSampler(UNIFORM_SHADOWMAP.binding, sampler!);
                         }
                         this._additiveLightQueue.add(ro, m, pass, lightIndexOffset[i], nextLightIndex);
                     }

@@ -14,6 +14,9 @@ const myForward_ShadowMap_Patches: IMacroPatch[]= [
     { name: 'CC_VSM_SHADOW', value: true },
 ];
 
+let psoCI: IPSOCreateInfo|null = null;
+let pso:GFXPipelineState|null = null;
+
 /**
  * @zh
  * shadowMap-batched-queue
@@ -41,12 +44,14 @@ export class RenderShadowMapBatchedQueue {
             const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
             const fullPatches = modelPatches ? myForward_ShadowMap_Patches.concat(modelPatches) : myForward_ShadowMap_Patches;
             this._subModelsArray.push(renderObj.model.subModels[subModelIdx]);
-            if (!this._psoCIArray[this._subModelsArray.length - 1]) {
-                this._psoCIArray[this._subModelsArray.length - 1] = pass.createPipelineStateCI(fullPatches)!;
+            // psoCIArray index
+            const index = this._subModelsArray.length - 1;
+            if (!this._psoCIArray[index]) {
+                psoCI = this._psoCIArray[index] = pass.createPipelineStateCI(fullPatches)!;
             }
             renderObj.model.updateLocalBindings(this._psoCIArray[this._subModelsArray.length - 1], subModelIdx);
-            this._psoCIArray[this._subModelsArray.length - 1].bindingLayout.bindBuffer(UBOShadow.BLOCK.binding, this._shadowMapBuffer!);
-            this._psoCIArray[this._subModelsArray.length - 1].bindingLayout.update();
+            psoCI!.bindingLayout.bindBuffer(UBOShadow.BLOCK.binding, this._shadowMapBuffer!);
+            psoCI!.bindingLayout.update();
         }
     }
 
@@ -56,12 +61,13 @@ export class RenderShadowMapBatchedQueue {
      */
     public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
         for (let i = 0; i < this._psoCIArray.length; ++i) {
-            const psoCI = this._psoCIArray[i];
+            psoCI = this._psoCIArray[i];
             const ia = this._subModelsArray[i].inputAssembler!;
-            if (!this._psoArray[i]) {
-                this._psoArray[i] = PipelineStateManager.getOrCreatePipelineState(device, psoCI, renderPass, ia);
+            pso = this._psoArray[i];
+            if (!pso) {
+                pso = this._psoArray[i] = PipelineStateManager.getOrCreatePipelineState(device, psoCI, renderPass, ia);
             }
-            cmdBuff.bindPipelineState(this._psoArray[i]);
+            cmdBuff.bindPipelineState(pso);
             cmdBuff.bindBindingLayout(psoCI.bindingLayout);
             cmdBuff.bindInputAssembler(ia);
             cmdBuff.draw(ia);

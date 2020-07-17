@@ -11,7 +11,7 @@ import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
     GFXStoreOp, GFXTextureLayout, GFXFormat, GFXTexture,
     GFXTextureType, GFXTextureUsageBit } from '../../gfx';
 import { RenderFlowType } from '../pipeline-serialization';
-import { RenderView } from '../..';
+import { RenderView, RenderPipeline } from '../..';
 import { PipelineGlobal } from '../global';
 
 const colorMipmapLevels: number[] = [];
@@ -63,12 +63,31 @@ export class ShadowFlow extends RenderFlow {
     }
 
     public render (view: RenderView) {
+        view.camera.update();
+
+        this.pipeline.sceneCulling(view);
+
+        this.pipeline.updateUBOs(view);
+
+        super.render(view);
+    }
+
+    /**
+     * @zh
+     * 重构函数。
+     */
+    public rebuild () {
+    }
+
+    public activate(pipeline: RenderPipeline) {
+        super.activate(pipeline);
+
         const device = PipelineGlobal.device;
         if(!this._shadowRenderPass) {
             this._shadowRenderPass = device.createRenderPass({
                 colorAttachments: [{
                     format: GFXFormat.RGBA8,
-                    loadOp: GFXLoadOp.CLEAR, // shouldn't clear color attachment
+                    loadOp: GFXLoadOp.CLEAR, // should clear color attachment
                     storeOp: GFXStoreOp.STORE,
                     sampleCount: 1,
                     beginLayout: GFXTextureLayout.UNDEFINED,
@@ -123,20 +142,5 @@ export class ShadowFlow extends RenderFlow {
         for (let i = 0; i < this.stages.length; ++i) {
             (this.stages[i] as ShadowStage).setShadowFrameBuffer(this._shadowFrameBuffer);
         }
-
-        view.camera.update();
-
-        this.pipeline.sceneCulling(view);
-
-        this.pipeline.updateUBOs(view);
-
-        super.render(view);
-    }
-
-    /**
-     * @zh
-     * 重构函数。
-     */
-    public rebuild () {
     }
 }

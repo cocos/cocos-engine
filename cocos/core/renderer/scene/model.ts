@@ -29,6 +29,9 @@ const shadowMap_Patches: IMacroPatch[]= [
     { name: 'CC_SHADOW', value: true },
 ];
 
+const none_Patches: IMacroPatch[]= [
+];
+
 export interface IInstancedAttribute {
     name: string;
     format: GFXFormat;
@@ -314,7 +317,9 @@ export class Model {
     }
 
     public getMacroPatches (subModelIndex: number) : IMacroPatch[] | undefined {
-        return shadowMap_Patches;
+        if (this.receiveShadow)
+            return shadowMap_Patches;
+        return undefined;
     }
 
     // for now no submodel level instancing attributes
