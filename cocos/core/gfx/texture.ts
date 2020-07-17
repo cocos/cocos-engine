@@ -100,16 +100,16 @@ export abstract class GFXTexture extends GFXObject {
      * @en Get texture array layer.
      * @zh 纹理数组层数。
      */
-    get arrayLayer (): number {
-        return this._arrayLayer;
+    get layerCount (): number {
+        return this._layerCount;
     }
 
     /**
      * @en Get texture mip level.
      * @zh 纹理 mip 层级数。
      */
-    get mipLevel (): number {
-        return this._mipLevel;
+    get levelCount (): number {
+        return this._levelCount;
     }
 
     /**
@@ -158,9 +158,9 @@ export abstract class GFXTexture extends GFXObject {
 
     protected _depth: number = 1;
 
-    protected _arrayLayer: number = 1;
+    protected _layerCount: number = 1;
 
-    protected _mipLevel: number = 1;
+    protected _levelCount: number = 1;
 
     protected _samples: GFXSampleCount = GFXSampleCount.X1;
 

@@ -11,6 +11,7 @@ import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
 import { GFXClearFlag, GFXRenderPass, GFXColorAttachment, GFXDepthStencilAttachment, GFXLoadOp, GFXTextureLayout } from '../gfx';
 import { PipelineGlobal } from './global';
+import { SKYBOX_FLAG } from '../renderer';
 
 /**
  * @en Render flow information descriptor
@@ -97,7 +98,7 @@ export abstract class RenderFlow {
     protected _priority: number = 0;
 
     @property({
-        type: legacyCC.Material,
+        type: Material,
         displayOrder: 2,
         visible: true,
     })
@@ -207,8 +208,12 @@ export abstract class RenderFlow {
         depthStencilAttachment.format = device.depthStencilFormat;
 
         if (!(clearFlags & GFXClearFlag.COLOR)) {
-            colorAttachment.loadOp = GFXLoadOp.LOAD;
-            colorAttachment.beginLayout = GFXTextureLayout.PRESENT_SRC;
+            if (clearFlags & SKYBOX_FLAG) {
+                colorAttachment.loadOp = GFXLoadOp.DISCARD;
+            } else {
+                colorAttachment.loadOp = GFXLoadOp.LOAD;
+                colorAttachment.beginLayout = GFXTextureLayout.PRESENT_SRC;
+            }
         }
 
         if ((clearFlags & GFXClearFlag.DEPTH_STENCIL) !== GFXClearFlag.DEPTH_STENCIL) {

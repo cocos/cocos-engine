@@ -55,14 +55,9 @@ export class ForwardStage extends RenderStage {
 
     public activate (flow: RenderFlow) {
         super.activate(flow);
-        this.createCmdBuffer();
     }
 
     public destroy () {
-        if (this._cmdBuff) {
-            this._cmdBuff.destroy();
-            this._cmdBuff = null;
-        }
     }
 
     public resize (width: number, height: number) {
@@ -124,7 +119,7 @@ export class ForwardStage extends RenderStage {
 
         const camera = view.camera;
 
-        const cmdBuff = this._cmdBuff!;
+        const cmdBuff = this._pipeline.commandBuffers[0];
 
         const vp = camera.viewport;
         this._renderArea!.x = vp.x * camera.width;
@@ -174,8 +169,7 @@ export class ForwardStage extends RenderStage {
         cmdBuff.endRenderPass();
         cmdBuff.end();
 
-        bufs[0] = cmdBuff;
-        device.queue.submit(bufs);
+        device.queue.submit(this._pipeline.commandBuffers);
 
         if (this._pipeline.useMSAA) {
             device.blitFramebuffer(

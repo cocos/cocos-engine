@@ -15,8 +15,6 @@ import { WebGLGFXTexture } from './webgl-texture';
 import { GFXRenderPass } from '../render-pass';
 import { WebGLGFXRenderPass } from './webgl-render-pass';
 
-const _buffers: ArrayBufferView[] = [];
-
 export class WebGLGFXPrimaryCommandBuffer extends WebGLGFXCommandBuffer {
 
     public beginRenderPass (
@@ -87,18 +85,12 @@ export class WebGLGFXPrimaryCommandBuffer extends WebGLGFXCommandBuffer {
         }
     }
 
-    public copyBufferToTexture (
-        srcBuff: GFXBuffer,
-        dstTex: GFXTexture,
-        dstLayout: GFXTextureLayout,
-        regions: GFXBufferTextureCopy[]) {
+    public copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
 
         if (!this._isInRenderPass) {
-            const gpuBuffer = (srcBuff as WebGLGFXBuffer).gpuBuffer;
-            const gpuTexture = (dstTex as WebGLGFXTexture).gpuTexture;
-            if (gpuBuffer && gpuTexture) {
-                _buffers[0] = gpuBuffer.buffer!;
-                WebGLCmdFuncCopyBuffersToTexture(this._device as WebGLGFXDevice, _buffers, gpuTexture, regions);
+            const gpuTexture = (texture as WebGLGFXTexture).gpuTexture;
+            if (gpuTexture) {
+                WebGLCmdFuncCopyBuffersToTexture(this._device as WebGLGFXDevice, buffers, gpuTexture, regions);
             }
         } else {
             console.error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');

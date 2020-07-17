@@ -618,9 +618,8 @@ export class WebGLGFXBufferTextureCopy {
 
 export class WebGLCmdCopyBufferToTexture extends WebGLCmdObject {
 
-    public gpuBuffer: WebGLGPUBuffer | null = null;
     public gpuTexture: WebGLGPUTexture | null = null;
-    public dstLayout: GFXTextureLayout | null = null;
+    public buffers: ArrayBufferView[] = [];
     public regions: GFXBufferTextureCopy[] = [];
 
     constructor () {
@@ -628,9 +627,8 @@ export class WebGLCmdCopyBufferToTexture extends WebGLCmdObject {
     }
 
     public clear () {
-        this.gpuBuffer = null;
         this.gpuTexture = null;
-        this.dstLayout = null;
+        this.buffers.length = 0;
         this.regions.length = 0;
     }
 }
@@ -2704,7 +2702,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
             }
             case WebGLCmd.COPY_BUFFER_TO_TEXTURE: {
                 const cmd5 = cmdPackage.copyBufferToTextureCmds.array[cmdId];
-                WebGLCmdFuncCopyBuffersToTexture(device, [(cmd5.gpuBuffer as WebGLGPUBuffer).buffer!], cmd5.gpuTexture as WebGLGPUTexture, cmd5.regions);
+                WebGLCmdFuncCopyBuffersToTexture(device, cmd5.buffers, cmd5.gpuTexture as WebGLGPUTexture, cmd5.regions);
                 break;
             }
         } // switch

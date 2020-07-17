@@ -35,16 +35,10 @@ export class ToneMapStage extends RenderStage {
 
         super.activate(flow);
 
-        this.createCmdBuffer();
-
         this.rebuild();
     }
 
     public destroy () {
-        if (this._cmdBuff) {
-            this._cmdBuff.destroy();
-            this._cmdBuff = null;
-        }
     }
 
     public resize (width: number, height: number) {
@@ -74,7 +68,7 @@ export class ToneMapStage extends RenderStage {
     public render (view: RenderView) {
 
         const camera = view.camera!;
-        const cmdBuff = this._cmdBuff!;
+        const cmdBuff = this._pipeline.commandBuffers[0];
 
         this._renderArea!.width = camera.width;
         this._renderArea!.height = camera.height;
@@ -82,7 +76,6 @@ export class ToneMapStage extends RenderStage {
         const framebuffer = view.window.framebuffer;
         const renderPass = framebuffer.renderPass;
 
-        cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!, [{ r: 0.0, g: 0.0, b: 0.0, a: 1.0 }], 1.0, 0);
         const pso =  PipelineStateManager.getOrCreatePipelineState(PipelineGlobal.device,
             this._psoCreateInfo!, framebuffer.renderPass!, this._pipeline!.quadIA);
@@ -91,10 +84,6 @@ export class ToneMapStage extends RenderStage {
         cmdBuff.bindInputAssembler(this._pipeline!.quadIA);
         cmdBuff.draw(this._pipeline!.quadIA);
         cmdBuff.endRenderPass();
-        cmdBuff.end();
-
-        bufs[0] = cmdBuff;
-        PipelineGlobal.device.queue.submit(bufs);
 
         // this._pipeline.swapFBOs();
     }
