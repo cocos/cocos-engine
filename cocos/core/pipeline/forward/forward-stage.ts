@@ -14,7 +14,6 @@ import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { PipelineGlobal } from '../global';
-import { UNIFORM_SHADOWMAP } from '../define';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];

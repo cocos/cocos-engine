@@ -86,7 +86,7 @@ export class ShadowFlow extends RenderFlow {
         if(!this._shadowRenderPass) {
             this._shadowRenderPass = device.createRenderPass({
                 colorAttachments: [{
-                    format: GFXFormat.RGBA8,
+                    format: GFXFormat.RGBA16F,
                     loadOp: GFXLoadOp.CLEAR, // should clear color attachment
                     storeOp: GFXStoreOp.STORE,
                     sampleCount: 1,

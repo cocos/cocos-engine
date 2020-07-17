@@ -54,6 +54,7 @@ const shadowCamera_Near = 0.1;
 const shadowCamera_Far = 1000.0;
 const shadowCamera_Fov = 45.0;
 const shadowCamera_Aspect = 1.0;
+const shadowCamera_OrthoSize = 20.0;
 
 /**
  * @en Render pipeline information descriptor
@@ -671,11 +672,11 @@ export abstract class RenderPipeline {
             Mat4.invert(shadowCamera_M_V, shadowCamera_W_T);
 
             // camera proj
-            Mat4.perspective(shadowCamera_M_P, shadowCamera_Fov, shadowCamera_Aspect, shadowCamera_Near, shadowCamera_Far);
-            // const x = shadowCamera_OrthoSize * shadowCamera_Aspect;
-            // const y = shadowCamera_OrthoSize;
-            // Mat4.ortho(shadowCamera_M_P, -x, x, -y, y, shadowCamera_Near, shadowCamera_Far,
-            //     PipelineGlobal.device.clipSpaceMinZ, PipelineGlobal.device.screenSpaceSignY);
+            // Mat4.perspective(shadowCamera_M_P, shadowCamera_Fov, shadowCamera_Aspect, shadowCamera_Near, shadowCamera_Far);
+             const x = shadowCamera_OrthoSize * shadowCamera_Aspect;
+             const y = shadowCamera_OrthoSize;
+             Mat4.ortho(shadowCamera_M_P, -x, x, -y, y, shadowCamera_Near, shadowCamera_Far,
+                 PipelineGlobal.device.clipSpaceMinZ, PipelineGlobal.device.screenSpaceSignY);
 
             // camera viewProj
             Mat4.multiply(shadowCamera_M_V_P, shadowCamera_M_P, shadowCamera_M_V);
