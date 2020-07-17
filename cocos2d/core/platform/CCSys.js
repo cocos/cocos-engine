@@ -33,6 +33,7 @@ const isOppoGame = (settingPlatform === 'quickgame');
 const isHuaweiGame = (settingPlatform === 'huawei');
 const isJKWGame = (settingPlatform === 'jkw-game');
 const isQttGame = (settingPlatform === 'qtt-game');
+const isLinkSure = (settingPlatform === 'link-sure');
 
 const _global = typeof window === 'undefined' ? global : window;
  
@@ -438,6 +439,12 @@ function initSys () {
      */
     sys.BYTEDANCE_GAME_SUB = 118;
     /**
+     * @property {Number} LINKSURE
+     * @readOnly
+     * @default 119
+     */
+    sys.LINKSURE = 119;
+    /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
      * @readOnly
@@ -686,6 +693,8 @@ function initSys () {
             platform = sys.JKW_GAME;
         } else if (isQttGame) {
             platform = sys.QTT_GAME;
+        } else if (isLinkSure) {
+            platform = sys.LINKSURE;
         }
         else {
             platform = __getPlatform();
