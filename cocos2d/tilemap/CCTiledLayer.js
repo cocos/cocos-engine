@@ -624,7 +624,7 @@ let TiledLayer = cc.Class({
      * !#zh
      * 返回 tiles 数据. 由GID构成的一个数组. <br />
      * @method getTiles
-     * @return {[Number]}
+     * @return {Number[]}
      */
     getTiles() {
         return this._tiles;
