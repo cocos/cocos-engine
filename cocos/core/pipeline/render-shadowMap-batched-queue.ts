@@ -32,6 +32,7 @@ export class RenderShadowMapBatchedQueue {
      */
     public clear (shadowMapBuffer: GFXBuffer) {
         this._subModelsArray.length = 0;
+        this._psoCIArray.length = 0;
         this._shadowMapBuffer = shadowMapBuffer;
     }
 

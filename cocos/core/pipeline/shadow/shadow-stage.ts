@@ -97,7 +97,7 @@ export class ShadowStage extends RenderStage {
 
         const renderObjects = this._pipeline.renderObjects;
         let m = 0; let p = 0;
-        for (let i = 1; i < renderObjects.length; ++i) {
+        for (let i = 0; i < renderObjects.length; ++i) {
             const ro = renderObjects[i];
             if (ro.model.castShadow) {
                 for (m = 0; m < ro.model.subModelNum; m++) {
