@@ -7,6 +7,8 @@ import { RenderStage } from './render-stage';
 import { RenderView } from './render-view';
 import { RenderContext } from './render-context';
 import { legacyCC } from '../global-exports';
+import { GFXClearFlag, GFXRenderPass, GFXColorAttachment, GFXDepthStencilAttachment, GFXLoadOp, GFXTextureLayout } from '../gfx';
+import { SKYBOX_FLAG } from '../renderer';
 
 /**
  * @en Render flow information descriptor
@@ -83,6 +85,7 @@ export abstract class RenderFlow {
     protected _stages: RenderStage[] = [];
 
     protected _activeStages: RenderStage[] = [];
+
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
      * @zh 初始化函数，正常情况下不会用到，仅用于程序化生成渲染管线的情况。

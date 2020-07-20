@@ -36,6 +36,7 @@ import { WebGLGFXInputAssembler } from './webgl-input-assembler';
 import { WebGLGFXPipelineState } from './webgl-pipeline-state';
 import { WebGLGFXTexture } from './webgl-texture';
 import { GFXRenderPass } from '../render-pass';
+import { WebGLGFXRenderPass } from './webgl-render-pass';
 
 export interface IWebGLDepthBias {
     constantFactor: number;
@@ -124,16 +125,16 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
     }
 
     public beginRenderPass (
+        renderPass: GFXRenderPass,
         framebuffer: GFXFramebuffer,
         renderArea: IGFXRect,
-        clearFlag: GFXClearFlag,
         clearColors: IGFXColor[],
         clearDepth: number,
         clearStencil: number) {
         const cmd = this._webGLAllocator!.beginRenderPassCmdPool.alloc(WebGLCmdBeginRenderPass);
-        cmd.gpuFramebuffer = ( framebuffer as WebGLGFXFramebuffer).gpuFramebuffer;
+        cmd.gpuRenderPass = (renderPass as WebGLGFXRenderPass).gpuRenderPass;
+        cmd.gpuFramebuffer = (framebuffer as WebGLGFXFramebuffer).gpuFramebuffer;
         cmd.renderArea = renderArea;
-        cmd.clearFlag = clearFlag;
         cmd.clearColors.length = clearColors.length;
         for (let i = 0; i < clearColors.length; ++i) {
             cmd.clearColors[i] = clearColors[i];
@@ -400,23 +401,17 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public copyBufferToTexture (
-        srcBuff: GFXBuffer,
-        dstTex: GFXTexture,
-        dstLayout: GFXTextureLayout,
-        regions: GFXBufferTextureCopy[]) {
+    public copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
 
         if (this._type === GFXCommandBufferType.PRIMARY && !this._isInRenderPass ||
             this._type === GFXCommandBufferType.SECONDARY) {
-            const gpuBuffer = ( srcBuff as WebGLGFXBuffer).gpuBuffer;
-            const gpuTexture = ( dstTex as WebGLGFXTexture).gpuTexture;
-            if (gpuBuffer && gpuTexture) {
+            const gpuTexture = (texture as WebGLGFXTexture).gpuTexture;
+            if (gpuTexture) {
                 const cmd = this._webGLAllocator!.copyBufferToTextureCmdPool.alloc(WebGLCmdCopyBufferToTexture);
                 if (cmd) {
-                    cmd.gpuBuffer = gpuBuffer;
                     cmd.gpuTexture = gpuTexture;
-                    cmd.dstLayout = dstLayout;
                     cmd.regions = regions;
+                    cmd.buffers = buffers;
                     this.cmdPackage.copyBufferToTextureCmds.push(cmd);
 
                     this.cmdPackage.cmds.push(WebGLCmd.COPY_BUFFER_TO_TEXTURE);

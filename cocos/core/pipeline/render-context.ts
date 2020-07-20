@@ -3,12 +3,16 @@ import { Root } from '../root';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { RenderPipeline } from './render-pipeline';
 import { IRenderObject, UBOGlobal, IInternalBindingInst, UBOShadow, UNIFORM_ENVIRONMENT, UBOForwardLight} from './define';
-import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit, GFXFormat, GFXFormatInfos, GFXTextureUsageBit} from '../gfx/define';
+import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit, GFXFormat,
+    GFXFormatInfos, GFXTextureUsageBit, GFXCommandBufferType, GFXClearFlag } from '../gfx/define';
 import { GFXBuffer } from '../gfx/buffer';
+import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { RenderTextureConfig, MaterialConfig } from './pipeline-serialization';
 import { RenderTexture } from '../assets/render-texture';
 import { Material } from '..';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
+import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout } from '../gfx';
+import { SKYBOX_FLAG } from '../renderer';
 
 @ccclass('RenderContext')
 export class RenderContext {
@@ -199,6 +203,8 @@ export class RenderContext {
     public renderObjects: IRenderObject[] = [];
     public uboGlobal: UBOGlobal = new UBOGlobal();
     public globalBindings: Map<string, IInternalBindingInst> = new Map<string, IInternalBindingInst>();
+    public commandBuffers: GFXCommandBuffer[] = [];
+    private _renderPasses = new Map<GFXClearFlag, GFXRenderPass>();
 
     constructor (root: Root, device: GFXDevice, ppl: RenderPipeline) {
         this.root = root;
@@ -226,6 +232,39 @@ export class RenderContext {
 
     public getFrameBuffer (name: string) {
         return this.pipeline.getFrameBuffer(name)!;
+    }
+    public getRenderPass (clearFlags: GFXClearFlag): GFXRenderPass {
+        let renderPass = this._renderPasses.get(clearFlags);
+        if (renderPass) { return renderPass; }
+
+        const device = this.device;
+        const colorAttachment = new GFXColorAttachment();
+        const depthStencilAttachment = new GFXDepthStencilAttachment();
+        colorAttachment.format = device.colorFormat;
+        depthStencilAttachment.format = device.depthStencilFormat;
+
+        if (!(clearFlags & GFXClearFlag.COLOR)) {
+            if (clearFlags & SKYBOX_FLAG) {
+                colorAttachment.loadOp = GFXLoadOp.DISCARD;
+            } else {
+                colorAttachment.loadOp = GFXLoadOp.LOAD;
+                colorAttachment.beginLayout = GFXTextureLayout.PRESENT_SRC;
+            }
+        }
+
+        if ((clearFlags & GFXClearFlag.DEPTH_STENCIL) !== GFXClearFlag.DEPTH_STENCIL) {
+            if (!(clearFlags & GFXClearFlag.DEPTH)) depthStencilAttachment.depthLoadOp = GFXLoadOp.LOAD;
+            if (!(clearFlags & GFXClearFlag.STENCIL)) depthStencilAttachment.stencilLoadOp = GFXLoadOp.LOAD;
+            depthStencilAttachment.beginLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        }
+
+        renderPass = device.createRenderPass({
+            colorAttachments: [colorAttachment],
+            depthStencilAttachment,
+        });
+        this._renderPasses.set(clearFlags, renderPass!);
+
+        return renderPass;
     }
 
     public getMaterial (name: string) {
@@ -314,6 +353,11 @@ export class RenderContext {
         console.info('SHADING_SCALE: ' + this._shadingScale.toFixed(4));
         console.info('SHADING_COLOR_FORMAT: ' + GFXFormatInfos[this._colorFmt].name);
         console.info('SHADING_DEPTH_FORMAT: ' + GFXFormatInfos[this._depthStencilFmt].name);
+
+        this.commandBuffers[0] = device.createCommandBuffer({
+            type: GFXCommandBufferType.PRIMARY,
+            queue: device.queue,
+        });
     }
 
     /**

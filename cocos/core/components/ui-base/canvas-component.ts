@@ -197,7 +197,7 @@ export class CanvasComponent extends Component {
     }
 
     set targetTexture (value) {
-        if (this._targetTexture === value){
+        if (this._targetTexture === value) {
             return;
         }
 
@@ -274,7 +274,7 @@ export class CanvasComponent extends Component {
             this.color = this._color;
 
             if (this._targetTexture) {
-                const win = this._targetTexture.getGFXWindow();
+                const win = this._targetTexture.window;
                 this._camera.changeTargetWindow(win);
             }
         }
@@ -360,7 +360,7 @@ export class CanvasComponent extends Component {
             this.node.setPosition(_worldPos);
         }
 
-        let trans = this.node._uiProps.uiTransformComp!;
+        const trans = this.node._uiProps.uiTransformComp!;
         if (trans.width !== nodeSize.width) {
             trans.width = nodeSize.width;
         }
@@ -413,7 +413,7 @@ export class CanvasComponent extends Component {
             camera.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
             camera.isWindowSize = true;
         } else {
-            const win = this._targetTexture.getGFXWindow();
+            const win = this._targetTexture.window;
             camera.changeTargetWindow(win);
             camera.orthoHeight = visibleRect.height / 2;
             camera.isWindowSize = false;

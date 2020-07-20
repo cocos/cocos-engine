@@ -12,21 +12,24 @@ import {
 import { WebGL2GFXDevice } from './webgl2-device';
 import { WebGL2GFXFramebuffer } from './webgl2-framebuffer';
 import { WebGL2GFXTexture } from './webgl2-texture';
-
-const _buffers: ArrayBufferView[] = [];
+import { GFXRenderPass } from '../render-pass';
+import { WebGL2GFXRenderPass } from './webgl2-render-pass';
 
 export class WebGL2GFXPrimaryCommandBuffer extends WebGL2GFXCommandBuffer {
 
     public beginRenderPass (
+        renderPass: GFXRenderPass,
         framebuffer: GFXFramebuffer,
         renderArea: IGFXRect,
-        clearFlag: GFXClearFlag,
         clearColors: IGFXColor[],
         clearDepth: number,
         clearStencil: number) {
 
-        WebGL2CmdFuncBeginRenderPass(this._device as WebGL2GFXDevice, (framebuffer as WebGL2GFXFramebuffer).gpuFramebuffer,
-            renderArea, clearFlag, clearColors, clearDepth, clearStencil);
+        WebGL2CmdFuncBeginRenderPass(
+            this._device as WebGL2GFXDevice,
+            (renderPass as WebGL2GFXRenderPass).gpuRenderPass,
+            (framebuffer as WebGL2GFXFramebuffer).gpuFramebuffer,
+            renderArea, clearColors, clearDepth, clearStencil);
         this._isInRenderPass = true;
     }
 
@@ -82,18 +85,11 @@ export class WebGL2GFXPrimaryCommandBuffer extends WebGL2GFXCommandBuffer {
         }
     }
 
-    public copyBufferToTexture (
-        srcBuff: GFXBuffer,
-        dstTex: GFXTexture,
-        dstLayout: GFXTextureLayout,
-        regions: GFXBufferTextureCopy[]) {
-
+    public copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
         if (!this._isInRenderPass) {
-            const gpuBuffer = (srcBuff as WebGL2GFXBuffer).gpuBuffer;
-            const gpuTexture = (dstTex as WebGL2GFXTexture).gpuTexture;
-            if (gpuBuffer && gpuTexture) {
-                _buffers[0] = gpuBuffer.buffer!;
-                WebGL2CmdFuncCopyBuffersToTexture(this._device as WebGL2GFXDevice, _buffers, gpuTexture, regions);
+            const gpuTexture = (texture as WebGL2GFXTexture).gpuTexture;
+            if (gpuTexture) {
+                WebGL2CmdFuncCopyBuffersToTexture(this._device as WebGL2GFXDevice, buffers, gpuTexture, regions);
             }
         } else {
             console.error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');

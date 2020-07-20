@@ -5,7 +5,6 @@
 import { ccclass } from '../../data/class-decorator';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXClearFlag } from '../../gfx/define';
 import { UBOGlobal } from '../define';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
@@ -31,19 +30,11 @@ export class ToneMapStage extends RenderStage {
     private _hBlendTexSampler: number = 0;
     private _bindingLayout: GFXBindingLayout | null = null;
     public activate (rctx: RenderContext, flow: RenderFlow) {
-
         super.activate(rctx, flow);
-
-        this.createCmdBuffer(rctx);
-
         this.rebuild(rctx);
     }
 
     public destroy () {
-        if (this._cmdBuff) {
-            this._cmdBuff.destroy();
-            this._cmdBuff = null;
-        }
     }
 
     public resize (width: number, height: number) {
@@ -71,30 +62,23 @@ export class ToneMapStage extends RenderStage {
     }
 
     public render (rctx: RenderContext, view: RenderView) {
-
-        const camera = view.camera!;
         const device = rctx.device;
+        const camera = view.camera!;
+        const cmdBuff = rctx.commandBuffers[0];
 
-        if (this._cmdBuff) {
-            this._renderArea!.width = camera.width;
-            this._renderArea!.height = camera.height;
-            const framebuffer = view.window!.framebuffer;
+        this._renderArea!.width = camera.width;
+        this._renderArea!.height = camera.height;
 
-            this._cmdBuff.begin();
-            this._cmdBuff.beginRenderPass(framebuffer, this._renderArea!,
-                GFXClearFlag.ALL, [{ r: 0.0, g: 0.0, b: 0.0, a: 1.0 }], 1.0, 0);
-            const pso =  PipelineStateManager.getOrCreatePipelineState(device, this._psoCreateInfo!, framebuffer.renderPass!, rctx.quadIA);
-            this._cmdBuff.bindPipelineState(pso);
-            this._cmdBuff.bindBindingLayout(this._psoCreateInfo!.bindingLayout);
-            this._cmdBuff.bindInputAssembler(rctx.quadIA);
-            this._cmdBuff.draw(rctx.quadIA);
-            this._cmdBuff.endRenderPass();
-            this._cmdBuff.end();
-        }
+        const framebuffer = view.window.framebuffer;
+        const renderPass = framebuffer.renderPass;
 
-        bufs[0] = this._cmdBuff!;
-        device.queue.submit(bufs);
-
-        // rctx.swapFBOs();
+        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!, [{ r: 0.0, g: 0.0, b: 0.0, a: 1.0 }], 1.0, 0);
+        const pso =  PipelineStateManager.getOrCreatePipelineState(device,
+            this._psoCreateInfo!, framebuffer.renderPass!, rctx.quadIA);
+        cmdBuff.bindPipelineState(pso);
+        cmdBuff.bindBindingLayout(this._psoCreateInfo!.bindingLayout);
+        cmdBuff.bindInputAssembler(rctx.quadIA);
+        cmdBuff.draw(rctx.quadIA);
+        cmdBuff.endRenderPass();
     }
 }

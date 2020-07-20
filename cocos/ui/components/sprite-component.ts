@@ -39,6 +39,7 @@ import { UIRenderComponent, InstanceMaterialType } from '../../core/components/u
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';
+import { TextureBase } from '../../core/assets/texture-base';
 
 /**
  * @en
@@ -562,8 +563,12 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     public changeMaterialForDefine () {
-        const format = this._spriteFrame!.texture.getPixelFormat();
-        const value = (format === PixelFormat.RGBA_ETC1 || format === PixelFormat.RGB_A_PVRTC_4BPPV1 || format === PixelFormat.RGB_A_PVRTC_2BPPV1);
+        const texture = this._spriteFrame!.texture;
+        let value = false;
+        if (texture instanceof TextureBase) {
+            const format = texture.getPixelFormat();
+            value = (format === PixelFormat.RGBA_ETC1 || format === PixelFormat.RGB_A_PVRTC_4BPPV1 || format === PixelFormat.RGB_A_PVRTC_2BPPV1);
+        }
 
         if (value && this.grayscale) {
             this._instanceMaterialType = InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY;

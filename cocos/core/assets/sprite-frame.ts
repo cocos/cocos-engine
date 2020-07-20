@@ -86,7 +86,7 @@ interface ISpriteFrameInitInfo {
     /**
      * @zh Texture 对象资源。
      */
-    texture?: TextureBase;
+    texture?: TextureBase | RenderTexture;
     /**
      * @zh 精灵帧原始尺寸。
      */
@@ -439,7 +439,7 @@ export class SpriteFrame extends Asset {
 
     protected _atlasUuid: string = '';
     // @ts-ignore
-    protected _texture: TextureBase;
+    protected _texture: TextureBase | RenderTexture;
 
     protected _flipUv = false;
 
@@ -651,11 +651,6 @@ export class SpriteFrame extends Asset {
             if (info.isFlipUv !== undefined) {
                 this._flipUv = !!info.isFlipUv;
             }
-            // hack
-            if (this._texture instanceof RenderTexture) {
-                // no need to flip render target texcoord on metal and vulkan.
-                this._flipUv = legacyCC.director.root.device.projectionSignY < 0 ? false : true;
-            }
 
             calUV = true;
         }
@@ -671,7 +666,7 @@ export class SpriteFrame extends Asset {
      *
      * @param texture
      */
-    public checkRect (texture: TextureBase) {
+    public checkRect (texture: TextureBase | RenderTexture) {
         const rect = this._rect;
         let maxX = rect.x;
         let maxY = rect.y;
@@ -964,7 +959,7 @@ export class SpriteFrame extends Asset {
         }
     }
 
-    protected _refreshTexture (texture: TextureBase) {
+    protected _refreshTexture (texture: TextureBase | RenderTexture) {
         this._texture = texture;
         if (texture.loaded) {
             this._textureLoaded();

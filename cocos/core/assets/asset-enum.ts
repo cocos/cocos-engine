@@ -209,19 +209,3 @@ export enum Filter {
      */
     NEAREST = GFXFilter.POINT,
 }
-
-export enum DepthStencilFormat {
-    NONE = GFXFormat.UNKNOWN,
-
-    DEPTH_16 = GFXFormat.D16,
-
-    DEPTH_24 = GFXFormat.D24,
-
-    DEPTH_32 = GFXFormat.D32F,
-
-    DEPTH_16_STENCIL_8 = GFXFormat.D16S8,
-
-    DEPTH_24_STENCIL_8 = GFXFormat.D24S8,
-
-    DEPTH_32_STENCIL_8 = GFXFormat.D32F_S8,
-}

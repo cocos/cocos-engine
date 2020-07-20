@@ -23,6 +23,7 @@ export const PIPELINE_FLOW_TONEMAP: string = 'ToneMapFlow';
  */
 export enum RenderPassStage {
     DEFAULT = 100,
+    UI = 200,
 }
 legacyCC.RenderPassStage = RenderPassStage;
 

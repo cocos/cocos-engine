@@ -30,11 +30,11 @@ export class WebGL2GFXTexture extends GFXTexture {
         }
 
         if (info.arrayLayer !== undefined) {
-            this._arrayLayer = info.arrayLayer;
+            this._layerCount = info.arrayLayer;
         }
 
         if (info.mipLevel !== undefined) {
-            this._mipLevel = info.mipLevel;
+            this._levelCount = info.mipLevel;
         }
 
         if (info.samples !== undefined) {
@@ -48,7 +48,7 @@ export class WebGL2GFXTexture extends GFXTexture {
         this._isPowerOf2 = IsPowerOf2(this._width) && IsPowerOf2(this._height);
 
         this._size = GFXFormatSurfaceSize(this._format, this.width, this.height,
-            this.depth, this.mipLevel) * this._arrayLayer;
+            this.depth, this._levelCount) * this._layerCount;
 
         if (this._flags & GFXTextureFlagBit.BAKUP_BUFFER) {
             this._buffer = new ArrayBuffer(this._size);
@@ -62,8 +62,8 @@ export class WebGL2GFXTexture extends GFXTexture {
             height: this._height,
             depth: this._depth,
             size: this._size,
-            arrayLayer: this._arrayLayer,
-            mipLevel: this._mipLevel,
+            arrayLayer: this._layerCount,
+            mipLevel: this._levelCount,
             samples: this._samples,
             flags: this._flags,
             isPowerOf2: this._isPowerOf2,
@@ -105,7 +105,7 @@ export class WebGL2GFXTexture extends GFXTexture {
         this._width = width;
         this._height = height;
         this._size = GFXFormatSurfaceSize(this._format, this.width, this.height,
-            this.depth, this.mipLevel) * this._arrayLayer;
+            this.depth, this._levelCount) * this._layerCount;
 
         if (this._gpuTexture) {
             this._gpuTexture.width = width;

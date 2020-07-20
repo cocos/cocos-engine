@@ -1117,19 +1117,22 @@ export class Mesh extends Asset {
     public readAttribute (primitiveIndex: number, attributeName: GFXAttributeName): Storage | null {
         let result: TypedArray | null = null;
         this._accessAttribute(primitiveIndex, attributeName, (vertexBundle, iAttribute) => {
+            const vertexCount = vertexBundle.view.count;
             const format = vertexBundle.attributes[iAttribute].format;
+            const storageConstructor = getTypedArrayConstructor(GFXFormatInfos[format]);
+            if (vertexCount === 0) {
+                return new storageConstructor();
+            }
 
             const inputView = new DataView(
                 this._data!.buffer,
                 vertexBundle.view.offset + getOffset(vertexBundle.attributes, iAttribute));
 
             const formatInfo = GFXFormatInfos[format];
-            const storageConstructor = getTypedArrayConstructor(GFXFormatInfos[format]);
             const reader = getReader(inputView, format);
             if (!storageConstructor || !reader) {
                 return;
             }
-            const vertexCount = vertexBundle.view.count;
             const componentCount = formatInfo.count;
             const storage = new storageConstructor(vertexCount * componentCount);
             const inputStride = vertexBundle.view.stride;
@@ -1156,6 +1159,11 @@ export class Mesh extends Asset {
     public copyAttribute (primitiveIndex: number, attributeName: GFXAttributeName, buffer: ArrayBuffer, stride: number, offset: number) {
         let written = false;
         this._accessAttribute(primitiveIndex, attributeName, (vertexBundle, iAttribute) => {
+            const vertexCount = vertexBundle.view.count;
+            if (vertexCount === 0) {
+                written = true;
+                return;
+            }
             const format = vertexBundle.attributes[iAttribute].format;
 
             const inputView = new DataView(
@@ -1172,7 +1180,6 @@ export class Mesh extends Asset {
                 return;
             }
 
-            const vertexCount = vertexBundle.view.count;
             const componentCount = formatInfo.count;
 
             const inputStride = vertexBundle.view.stride;

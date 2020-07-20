@@ -3,10 +3,10 @@
  */
 
 import { ccclass, property } from '../data/class-decorator';
-import { GFXFormat } from '../gfx/define';
+import {GFXFormat, GFXTextureLayout, GFXLoadOp, GFXStoreOp, GFXCommandBufferType} from '../gfx/define';
 import { GFXFeature } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
-import { GFXRenderPass } from '../gfx/render-pass';
+import { GFXRenderPass, GFXColorAttachment, GFXDepthStencilAttachment } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
 import { IDefineMap } from '../renderer/core/pass-utils';
 import { js } from '../utils/js';
@@ -17,6 +17,7 @@ import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
 import { RenderContext } from './render-context';
+import { GFXCommandBuffer } from '../gfx';
 
 
 /**
@@ -185,7 +186,7 @@ export abstract class RenderPipeline {
     public activate (rctx: RenderContext): boolean {
         this._renderContext = rctx;
         this._renderContext.activate();
-        if (!this._initRenderResource()) {
+        if (!this._initRenderResource(rctx)) {
             console.error('RenderPipeline:' + this.name + ' startup failed!');
             return false;
         }
@@ -317,9 +318,8 @@ export abstract class RenderPipeline {
 
         return null;
     }
-    protected _initRenderResource () {
-        const device = this._renderContext!.device;
-        const rctx = this._renderContext!;
+    protected _initRenderResource (rctx: RenderContext) {
+        const device = rctx.device;
 
         for (let i = 0; i < this.renderTextures.length; i++) {
             const rtd = this.renderTextures[i];
@@ -389,19 +389,34 @@ export abstract class RenderPipeline {
         }
 
         const mainWindow = rctx.mainWindow;
-        let windowPass: GFXRenderPass | null = null;
+        let colorAttachment = new GFXColorAttachment();
+        let depthStencilAttachment = new GFXDepthStencilAttachment();
+        colorAttachment.format = device.colorFormat;
+        depthStencilAttachment.format = device.depthStencilFormat;
+        depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
+        depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
 
-        if (mainWindow) {
-            windowPass = mainWindow.renderPass;
-        }
-
-        if (!windowPass) {
-            console.error('RenderPass of main window is null.');
-            return false;
-        }
-
+        const windowPass = device.createRenderPass({
+            colorAttachments: [colorAttachment],
+            depthStencilAttachment,
+        });
         this.addRenderPass(RenderPassStage.DEFAULT, windowPass);
 
+        colorAttachment = new GFXColorAttachment();
+        colorAttachment.format = device.colorFormat;
+        colorAttachment.loadOp = GFXLoadOp.LOAD;
+        colorAttachment.beginLayout = GFXTextureLayout.PRESENT_SRC;
+
+        depthStencilAttachment = new GFXDepthStencilAttachment();
+        depthStencilAttachment.format = device.depthStencilFormat;
+        depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
+        depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
+
+        const uiPass = device.createRenderPass({
+            colorAttachments: [colorAttachment],
+            depthStencilAttachment,
+        });
+        this.addRenderPass(RenderPassStage.UI, uiPass);
         // update global defines when all states initialized.
         this._macros.CC_USE_HDR = (rctx.isHDR);
         this._macros.CC_SUPPORT_FLOAT_TEXTURE = device.hasFeature(GFXFeature.TEXTURE_FLOAT);

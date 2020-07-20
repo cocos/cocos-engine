@@ -17,8 +17,8 @@ import { SpotLight } from './renderer/scene/spot-light';
 import { UI } from './renderer/ui/ui';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './pipeline/render-window';
-import { GFXColorAttachment, GFXDepthStencilAttachment } from './gfx/render-pass';
 import { ForwardPipeline } from './pipeline/forward/forward-pipeline';
+import { GFXColorAttachment, GFXDepthStencilAttachment, GFXStoreOp } from './gfx';
 
 /**
  * @zh
@@ -221,15 +221,19 @@ export class Root {
      * @param info Root描述信息
      */
     public initialize (info: IRootInfo): boolean {
-
+        const colorAttachment = new GFXColorAttachment();
+        const depthStencilAttachment = new GFXDepthStencilAttachment();
+        depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
+        depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
         this._mainWindow = this.createWindow({
             title: 'rootMainWindow',
             width: this._device.width,
             height: this._device.height,
             renderPassInfo: {
-                colorAttachments: [ new GFXColorAttachment() ],
-                depthStencilAttachment: new GFXDepthStencilAttachment(),
+                colorAttachments: [colorAttachment],
+                depthStencilAttachment,
             },
+            swapchainBufferIndices: -1, // always on screen
         });
         this._curWindow = this._mainWindow;
 
@@ -278,7 +282,7 @@ export class Root {
         this._mainWindow!.resize(width, height);
 
         for (const window of this._windows) {
-            if (!window.isOffscreen) {
+            if (window.shouldSyncSizeWithSwapchain) {
                 window.resize(width, height);
             }
         }
@@ -362,19 +366,19 @@ export class Root {
             this._fpsTime = 0.0;
         }
 
-        this._device.acquire();
+        if (this._pipeline) {
+            this._device.acquire();
 
-        const views = this._views;
-        for (let i = 0; i < views.length; i++) {
-            const view = views[i];
-            if (view.isEnable && (view.window &&
-                (view.window.isOffscreen ||
-                (!view.window.isOffscreen && (view.window === this._curWindow)))) && this._pipeline) {
-                this._pipeline.render(view);
+            const views = this._views;
+            for (let i = 0; i < views.length; i++) {
+                const view = views[i];
+                if (view.isEnable && view.window) {
+                    this._pipeline.render(view);
+                }
             }
-        }
 
-        this._device.present();
+            this._device.present();
+        }
     }
 
     /**

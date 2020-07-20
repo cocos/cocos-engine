@@ -84,7 +84,7 @@ export class MaterialInstance extends Material {
             for (let i = 0; i < this._passes.length; i++) {
                 const pass = this._passes[i];
                 this._states[i] = overrides;
-                pass.overridePipelineStates(passInfos[pass.idxInTech], overrides);
+                pass.overridePipelineStates(passInfos[pass.passIndex], overrides);
             }
         } else {
             this._states[passIdx] = overrides;

@@ -4,7 +4,7 @@
 
 import { ccclass } from '../../data/class-decorator';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXClearFlag, GFXFilter, IGFXColor } from '../../gfx/define';
+import { GFXClearFlag, GFXFilter, IGFXColor, GFXLoadOp, GFXTextureLayout } from '../../gfx/define';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderFlow } from '../render-flow';
@@ -56,20 +56,15 @@ export class ForwardStage extends RenderStage {
 
     public activate (rctx: RenderContext, flow: RenderFlow) {
         super.activate(rctx, flow);
-        this.createCmdBuffer(rctx);
     }
 
     public destroy () {
-        if (this._cmdBuff) {
-            this._cmdBuff.destroy();
-            this._cmdBuff = null;
-        }
     }
 
     public resize (width: number, height: number) {
     }
 
-    public rebuild () {
+    public rebuild (rctx: RenderContext) {
     }
 
     public render (rctx: RenderContext, view: RenderView) {
@@ -125,7 +120,7 @@ export class ForwardStage extends RenderStage {
 
         const camera = view.camera;
 
-        const cmdBuff = this._cmdBuff!;
+        const cmdBuff = ctx.commandBuffers[0];
 
         const vp = camera.viewport;
         this._renderArea!.x = vp.x * camera.width;
@@ -149,22 +144,21 @@ export class ForwardStage extends RenderStage {
 
         colors[0].a = camera.clearColor.a;
 
+        let framebuffer = view.window.framebuffer;
         if (ctx.usePostProcess) {
             if (!ctx.useMSAA) {
-                this._framebuffer = ctx.getFrameBuffer(ctx.currShading)!;
+                framebuffer = ctx.getFrameBuffer(ctx.currShading)!;
             } else {
-                this._framebuffer = ctx.getFrameBuffer('msaa')!;
+                framebuffer = ctx.getFrameBuffer('msaa')!;
             }
-        } else {
-            this._framebuffer = view.window!.framebuffer;
         }
 
         const device = ctx.device;
-        const renderPass = this._framebuffer.renderPass!;
+        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : ctx.getRenderPass(camera.clearFlag);
 
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(this._framebuffer, this._renderArea!,
-            camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
+            colors, camera.clearDepth, camera.clearStencil);
 
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
@@ -176,8 +170,7 @@ export class ForwardStage extends RenderStage {
         cmdBuff.endRenderPass();
         cmdBuff.end();
 
-        bufs[0] = cmdBuff;
-        device.queue.submit(bufs);
+        device.queue.submit(ctx.commandBuffers);
 
         if (ctx.useMSAA) {
             device.blitFramebuffer(

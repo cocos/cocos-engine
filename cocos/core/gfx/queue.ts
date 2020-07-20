@@ -9,7 +9,6 @@ import { GFXFence } from './fence';
 
 export interface IGFXQueueInfo {
     type: GFXQueueType;
-    forceSync?: boolean;
 }
 
 /**

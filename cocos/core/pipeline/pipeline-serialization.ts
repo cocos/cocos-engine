@@ -84,9 +84,9 @@ export class ColorDesc {
     @property
     public sampleCount: number = 1;
     @property({ type: GFXTextureLayout })
-    public beginLayout: GFXTextureLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
+    public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED;
     @property({ type: GFXTextureLayout })
-    public endLayout: GFXTextureLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
+    public endLayout: GFXTextureLayout = GFXTextureLayout.PRESENT_SRC;
 }
 
 @ccclass('DepthStencilDesc')
@@ -104,9 +104,9 @@ export class DepthStencilDesc {
     @property
     public sampleCount: number = 1;
     @property({ type: GFXTextureLayout })
-    public beginLayout: GFXTextureLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
+    public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED;
     @property({ type: GFXTextureLayout })
-    public endLayout: GFXTextureLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
+    public endLayout: GFXTextureLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 }
 
 @ccclass('RenderPassDesc')
