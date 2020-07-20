@@ -15,7 +15,7 @@ import {
     GFXTextureUsageBit,
     GFXLoadOp,
     GFXStoreOp,
-    GFXCommandBufferType} from '../gfx/define';
+    GFXCommandBufferType,
     GFXFilter,
     GFXAddress} from '../gfx/define';
 import { GFXFeature } from '../gfx/device';
