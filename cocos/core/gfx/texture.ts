@@ -22,8 +22,8 @@ export interface IGFXTextureInfo {
     width: number;
     height: number;
     depth?: number;
-    arrayLayer?: number;
-    mipLevel?: number;
+    layerCount?: number;
+    levelCount?: number;
     samples?: GFXSampleCount;
     flags?: GFXTextureFlags;
 }

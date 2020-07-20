@@ -352,7 +352,7 @@ export class WebGL2GFXDevice extends GFXDevice {
             format: GFXFormat.RGBA8,
             width: 2,
             height: 2,
-            arrayLayer: 6,
+            layerCount: 6,
             flags: GFXTextureFlagBit.CUBEMAP |  GFXTextureFlagBit.GEN_MIPMAP,
         });
 

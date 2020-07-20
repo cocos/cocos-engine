@@ -34,7 +34,7 @@ const _regions: GFXBufferTextureCopy[] = [{
     },
 }];
 
-export type PresumedGFXTextureInfo = Pick<IGFXTextureInfo, 'usage' | 'flags' | 'format' | 'mipLevel'>;
+export type PresumedGFXTextureInfo = Pick<IGFXTextureInfo, 'usage' | 'flags' | 'format' | 'levelCount'>;
 
 function getMipLevel (width: number, height: number) {
     let size = Math.max(width, height);
@@ -212,7 +212,7 @@ export class SimpleTexture extends TextureBase {
         const textureCreateInfo = this._getGfxTextureCreateInfo({
             usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
             format: this._getGFXFormat(),
-            mipLevel: this._mipmapLevel,
+            levelCount: this._mipmapLevel,
             flags,
         });
         if (!textureCreateInfo) {
