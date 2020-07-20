@@ -495,8 +495,6 @@ export class Game extends EventTarget {
 
             cc.director.reset();
 
-            game.pause();
-            cc.game.once(cc.Game.EVENT_RESTART, cc.game.resume, this);
             cc.game.onStart();
             cc.game._safeEmit(cc.Game.EVENT_RESTART);
         });
