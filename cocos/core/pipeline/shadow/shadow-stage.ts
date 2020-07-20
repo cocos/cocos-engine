@@ -57,7 +57,6 @@ export class ShadowStage extends RenderStage {
 
     public activate (flow: RenderFlow) {
         super.activate(flow);
-        this.createCmdBuffer();
     }
 
     /**
@@ -65,10 +64,6 @@ export class ShadowStage extends RenderStage {
      * 销毁函数。
      */
     public destroy () {
-        if (this._cmdBuff) {
-            this._cmdBuff.destroy();
-            this._cmdBuff = null;
-        }
     }
 
     /**
@@ -111,7 +106,7 @@ export class ShadowStage extends RenderStage {
 
         const camera = view.camera;
 
-        const cmdBuff = this._cmdBuff!;
+        const cmdBuff = this._pipeline.commandBuffers[0];
 
         const vp = camera.viewport;
         this._renderArea!.x = vp.x * this.pipeline.shadowMapSize.x;
