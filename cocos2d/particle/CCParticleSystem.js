@@ -243,9 +243,7 @@ var properties = {
                 this._spriteFrame = value;
             }
 
-            if ((lastSprite && lastSprite.getTexture()) !== (value && value.getTexture())) {
-                this._applySpriteFrame(lastSprite);
-            }
+            this._applySpriteFrame(lastSprite);
             if (CC_EDITOR) {
                 this.node.emit('spriteframe-changed', this);
             }
