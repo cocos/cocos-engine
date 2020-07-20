@@ -8,6 +8,7 @@ import {
     executeInEditMode,
     menu,
     property,
+    tooltip,
 } from '../../../../core/data/class-decorator';
 import { ColliderComponent } from './collider-component';
 import { ICapsuleShape } from '../../../spec/i-physics-shape';
@@ -34,7 +35,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
      * @zh
      * 获取或设置胶囊体在本地坐标系下的球半径。
      */
-    @property({ tooltip: '本地坐标系下胶囊体上的球的半径' })
+    @tooltip('本地坐标系下胶囊体上的球的半径')
     public get radius () {
         return this._radius;
     }
@@ -53,7 +54,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
      * @zh
      * 获取或设置在本地坐标系下的胶囊体上圆柱体的高度。
      */
-    @property({ tooltip: '本地坐标系下胶囊体上的圆柱体的高度' })
+    @tooltip('本地坐标系下胶囊体上的圆柱体的高度')
     public get cylinderHeight () {
         return this._cylinderHeight;
     }
@@ -72,7 +73,8 @@ export class CapsuleColliderComponent extends ColliderComponent {
      * @zh
      * 获取或设置在本地坐标系下胶囊体的方向。
      */
-    @property({ type: EAxisDirection, tooltip: "本地坐标系下胶囊体的朝向" })
+    @property({ type: EAxisDirection })
+    @tooltip("本地坐标系下胶囊体的朝向")
     public get direction () {
         return this._direction;
     }

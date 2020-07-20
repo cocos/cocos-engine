@@ -8,6 +8,7 @@ import {
     executeInEditMode,
     menu,
     property,
+    tooltip,
 } from '../../../../core/data/class-decorator';
 import { ColliderComponent } from './collider-component';
 import { ICylinderShape } from '../../../spec/i-physics-shape';
@@ -33,7 +34,7 @@ export class CylinderColliderComponent extends ColliderComponent {
      * @zh
      * 获取或设置圆柱体上圆面半径。
      */
-    @property({ tooltip: '圆柱体上圆面的半径' })
+    @tooltip('圆柱体上圆面的半径')
     public get radius () {
         return this._radius;
     }
@@ -53,7 +54,7 @@ export class CylinderColliderComponent extends ColliderComponent {
      * @zh
      * 获取或设置圆柱体在相应轴向的高度。
      */
-    @property({ tooltip: '圆柱体在相应轴向的高度' })
+    @tooltip('圆柱体在相应轴向的高度')
     public get height () {
         return this._height;
     }

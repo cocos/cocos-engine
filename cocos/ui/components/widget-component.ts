@@ -30,7 +30,7 @@
 
 import { Component } from '../../core/components';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent, tooltip } from '../../core/data/class-decorator';
 import { Size, Vec3 } from '../../core/math';
 import { errorID, warnID } from '../../core/platform/debug';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
@@ -221,8 +221,8 @@ export class WidgetComponent extends Component {
      */
     @property({
         type: Node,
-        tooltip:'对齐目标',
     })
+    @tooltip('对齐目标')
     get target () {
         return this._target;
     }
@@ -252,9 +252,7 @@ export class WidgetComponent extends Component {
      * @zh
      * 是否对齐上边。
      */
-    @property({
-        tooltip:'是否对齐上边',
-    })
+    @tooltip('是否对齐上边')
     get isAlignTop () {
         return (this._alignFlags & AlignFlags.TOP) > 0;
     }
@@ -270,9 +268,7 @@ export class WidgetComponent extends Component {
      * @zh
      * 是否对齐下边。
      */
-    @property({
-        tooltip:'是否对齐下边',
-    })
+    @tooltip('是否对齐下边')
     get isAlignBottom () {
         return (this._alignFlags & AlignFlags.BOT) > 0;
     }
@@ -288,9 +284,7 @@ export class WidgetComponent extends Component {
      * @zh
      * 是否对齐左边。
      */
-    @property({
-        tooltip:'是否对齐左边',
-    })
+    @tooltip('是否对齐左边')
     get isAlignLeft () {
         return (this._alignFlags & AlignFlags.LEFT) > 0;
     }
@@ -306,9 +300,7 @@ export class WidgetComponent extends Component {
      * @zh
      * 是否对齐右边。
      */
-    @property({
-        tooltip:'是否对齐右边',
-    })
+    @tooltip('是否对齐右边')
     get isAlignRight () {
         return (this._alignFlags & AlignFlags.RIGHT) > 0;
     }
@@ -324,9 +316,7 @@ export class WidgetComponent extends Component {
      * @zh
      * 是否垂直方向对齐中点，开启此项会将垂直方向其他对齐选项取消。
      */
-    @property({
-        tooltip:'是否垂直方向对齐中点，开启此项会将垂直方向其他对齐选项取消',
-    })
+    @tooltip('是否垂直方向对齐中点，开启此项会将垂直方向其他对齐选项取消')
     get isAlignVerticalCenter () {
         return (this._alignFlags & AlignFlags.MID) > 0;
     }
@@ -349,9 +339,7 @@ export class WidgetComponent extends Component {
      * @zh
      * 是否水平方向对齐中点，开启此选项会将水平方向其他对齐选项取消。
      */
-    @property({
-        tooltip:'是否水平方向对齐中点，开启此选项会将水平方向其他对齐选项取消',
-    })
+    @tooltip('是否水平方向对齐中点，开启此选项会将水平方向其他对齐选项取消')
     get isAlignHorizontalCenter () {
         return (this._alignFlags & AlignFlags.CENTER) > 0;
     }
@@ -700,8 +688,8 @@ export class WidgetComponent extends Component {
      */
     @property({
         type: AlignMode,
-        tooltip:'指定 widget 的对齐方式，用于决定运行时 widget 应何时更新',
     })
+    @tooltip('指定 widget 的对齐方式，用于决定运行时 widget 应何时更新')
     get alignMode () {
         return this._alignMode;
     }

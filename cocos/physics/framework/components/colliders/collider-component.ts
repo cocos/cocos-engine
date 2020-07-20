@@ -2,7 +2,7 @@
  * @category physics
  */
 
-import { ccclass, property } from '../../../../core/data/class-decorator';
+import { ccclass, property, tooltip } from '../../../../core/data/class-decorator';
 import { Eventify } from '../../../../core/event';
 import { Vec3 } from '../../../../core/math';
 import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../physics-interface';
@@ -57,8 +57,8 @@ export class ColliderComponent extends Eventify(Component) {
         type: PhysicMaterial,
         displayName: 'Material',
         displayOrder: -1,
-        tooltip: '源材质',
     })
+    @tooltip('源材质')
     public get sharedMaterial () {
         return this._material;
     }
@@ -115,8 +115,8 @@ export class ColliderComponent extends Eventify(Component) {
      */
     @property({
         displayOrder: 0,
-        tooltip: '是否与其它碰撞器产生碰撞，并产生物理行为',
     })
+    @tooltip('是否与其它碰撞器产生碰撞，并产生物理行为')
     public get isTrigger () {
         return this._isTrigger;
     }
@@ -137,8 +137,8 @@ export class ColliderComponent extends Eventify(Component) {
     @property({
         type: Vec3,
         displayOrder: 1,
-        tooltip: '形状的中心点（与所在 Node 中心点的相对位置）',
     })
+    @tooltip('形状的中心点（与所在 Node 中心点的相对位置）')
     public get center () {
         return this._center;
     }

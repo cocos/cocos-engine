@@ -31,7 +31,7 @@
  */
 
 import { Script } from '../assets/scripts';
-import { ccclass, property } from '../data/class-decorator';
+import { ccclass, property, tooltip } from '../data/class-decorator';
 import { CCObject } from '../data/object';
 import IDGenerator from '../utils/id-generator';
 import { getClassName, value } from '../utils/js';
@@ -107,8 +107,8 @@ class Component extends CCObject {
     @property({
         displayName: 'Script',
         type: Script,
-        tooltip: DEV ? 'i18n:INSPECTOR.component.script' : undefined,
     })
+    @tooltip('i18n:INSPECTOR.component.script')
     get __scriptAsset () { return null; }
 
     /**

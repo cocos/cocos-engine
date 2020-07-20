@@ -7,7 +7,7 @@ import { builtinResMgr } from '../core/3d/builtin';
 import { createMesh } from '../core/3d/misc/utils';
 import { Material, Mesh, Texture2D } from '../core/assets';
 import { Component } from '../core/components/component';
-import { ccclass, help, executeInEditMode, menu, property } from '../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, property, tooltip } from '../core/data/class-decorator';
 import { GFXAttributeName, GFXFormat, GFXPrimitiveMode } from '../core/gfx';
 import { Color, toDegree, toRadian, Vec4 } from '../core/math';
 import { Model } from '../core/renderer/scene/model';
@@ -29,8 +29,8 @@ export class BillboardComponent extends Component {
      */
     @property({
         type: Texture2D,
-        tooltip: 'billboard显示的贴图',
     })
+    @tooltip('billboard显示的贴图')
     get texture () {
         return this._texture;
     }
@@ -49,8 +49,9 @@ export class BillboardComponent extends Component {
      * @zh 高度。
      */
     @property({
-        tooltip: 'billboard的高度',
+        
     })
+    @tooltip('billboard的高度')
     get height () {
         return this._height;
     }
@@ -70,8 +71,9 @@ export class BillboardComponent extends Component {
      * @zh 宽度。
      */
     @property({
-        tooltip: 'billboard的宽度',
+        
     })
+    @tooltip('billboard的宽度')
     public get width () {
         return this._width;
     }
@@ -91,8 +93,9 @@ export class BillboardComponent extends Component {
      * @zh 角度。
      */
     @property({
-        tooltip: 'billboard绕中心点旋转的角度',
+        
     })
+    @tooltip('billboard绕中心点旋转的角度')
     public get rotation () {
         return Math.round(toDegree(this._rotation) * 100) / 100;
     }

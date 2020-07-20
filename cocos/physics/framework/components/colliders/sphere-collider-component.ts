@@ -8,6 +8,7 @@ import {
     executeInEditMode,
     menu,
     property,
+    tooltip,
 } from '../../../../core/data/class-decorator';
 import { ColliderComponent } from './collider-component';
 import { ISphereShape } from '../../../spec/i-physics-shape';
@@ -34,9 +35,7 @@ export class SphereColliderComponent extends ColliderComponent {
      * @zh
      * 获取或设置球的半径。
      */
-    @property({
-        tooltip: '球的半径',
-    })
+    @tooltip('球的半径')
     public get radius () {
         return this._radius;
     }

@@ -3,7 +3,7 @@
  * @category particle
  */
 
-import { ccclass, property } from '../../core/data/class-decorator';
+import { ccclass, property, tooltip } from '../../core/data/class-decorator';
 import { pseudoRandom } from '../../core/math';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
@@ -41,8 +41,8 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
      */
     @property({
         displayOrder: 1,
-        tooltip:'是否三个轴分开设定旋转（暂不支持）',
     })
+    @tooltip('是否三个轴分开设定旋转（暂不支持）')
     get separateAxes () {
         return this._separateAxes;
     }
@@ -59,8 +59,8 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
         range: [-1, 1],
         radian: true,
         displayOrder: 2,
-        tooltip:'绕 X 轴设定旋转',
     })
+    @tooltip('绕 X 轴设定旋转')
     public x = new CurveRange();
 
     /**
@@ -71,8 +71,8 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
         range: [-1, 1],
         radian: true,
         displayOrder: 3,
-        tooltip:'绕 Y 轴设定旋转',
     })
+    @tooltip('绕 Y 轴设定旋转')
     public y = new CurveRange();
 
     /**
@@ -83,8 +83,8 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
         range: [-1, 1],
         radian: true,
         displayOrder: 4,
-        tooltip:'绕 Z 轴设定旋转',
     })
+    @tooltip('绕 Z 轴设定旋转')
     public z = new CurveRange();
 
     public name = PARTICLE_MODULE_NAME.ROTATION;
