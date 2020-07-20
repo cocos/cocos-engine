@@ -7,8 +7,6 @@ import { RenderStage } from './render-stage';
 import { RenderView } from './render-view';
 import { RenderContext } from './render-context';
 import { legacyCC } from '../global-exports';
-import { GFXClearFlag, GFXRenderPass, GFXColorAttachment, GFXDepthStencilAttachment, GFXLoadOp, GFXTextureLayout } from '../gfx';
-import { SKYBOX_FLAG } from '../renderer';
 
 /**
  * @en Render flow information descriptor

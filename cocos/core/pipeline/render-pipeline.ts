@@ -3,7 +3,7 @@
  */
 
 import { ccclass, property } from '../data/class-decorator';
-import {GFXFormat, GFXTextureLayout, GFXLoadOp, GFXStoreOp, GFXCommandBufferType} from '../gfx/define';
+import {GFXFormat, GFXTextureLayout, GFXLoadOp, GFXStoreOp} from '../gfx/define';
 import { GFXFeature } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXRenderPass, GFXColorAttachment, GFXDepthStencilAttachment } from '../gfx/render-pass';
@@ -17,8 +17,6 @@ import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
 import { RenderContext } from './render-context';
-import { GFXCommandBuffer } from '../gfx';
-
 
 /**
  * @en Render pipeline information descriptor
