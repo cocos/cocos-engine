@@ -29,6 +29,7 @@ const RenderComponent = require('./CCRenderComponent');
 const Material = require('../assets/material/CCMaterial');
 const LabelFrame = require('../renderer/utils/label/label-frame');
 const BlendFunc = require('../utils/blend-func');
+const deleteFromDynamicAtlas = require('../renderer/utils/utils').deleteFromDynamicAtlas;
 
 /**
  * !#en Enum for text alignment.
@@ -690,8 +691,15 @@ let Label = cc.Class({
     },
 
     _resetAssembler () {
-        this._frame = null;
+        this._resetFrame();
         RenderComponent.prototype._resetAssembler.call(this);
+    },
+
+    _resetFrame () {
+        if (this._frame) {
+            deleteFromDynamicAtlas(this, this._frame);
+            this._frame = null;
+        }
     },
 
     _checkStringEmpty () {
