@@ -139,6 +139,7 @@ export class Profiler {
                 this._rootNode.active = false;
             }
 
+            cc.game.off(cc.Game.EVENT_RESTART, this.generateNode, this);
             cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
             cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
             cc.director.off(cc.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
@@ -155,6 +156,7 @@ export class Profiler {
             this.generateCanvas();
             this.generateStats();
             cc.game.once(cc.Game.EVENT_ENGINE_INITED, this.generateNode, this);
+            cc.game.on(cc.Game.EVENT_RESTART, this.generateNode, this);
 
             if (this._rootNode) {
                 this._rootNode.active = true;

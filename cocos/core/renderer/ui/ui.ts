@@ -137,12 +137,12 @@ export class UI {
 
     public destroy () {
 
-        for (const batch of this._batches.array) {
-            batch.destroy(this);
+        for (let i = 0; i < this._batches.array.length; i++ ) {
+            this._batches.array[i].destroy(this);
         }
 
-        for (const buffBatch of this._meshBuffers) {
-            buffBatch.destroy();
+        for (let i = 0; i < this._meshBuffers.length; i++) {
+            this._meshBuffers[i].destroy();
         }
         this._meshBuffers.splice(0);
 
