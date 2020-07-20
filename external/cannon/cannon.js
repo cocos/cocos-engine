@@ -26,7 +26,7 @@
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.CANNON=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 module.exports={
   "name": "@cocos/cannon",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A lightweight 3D physics engine written in JavaScript.",
   "homepage": "https://github.com/cocos-creator/cannon.js",
   "author": "Stefan Hedman <schteppe@gmail.com> (http://steffe.se), JayceLai",
@@ -14351,7 +14351,36 @@ World.prototype.internalStep = function (dt) {
 
     var ncontacts = contacts.length;
     for (i = 0; i !== ncontacts; i++) {
-        solver.addEquation(contacts[i]);
+        var c = contacts[i];
+        var bi = c.bi, bj = c.bj;
+
+        solver.addEquation(c);
+
+        if (bi.allowSleep &&
+            bi.type === Body.DYNAMIC &&
+            bi.sleepState === Body.SLEEPING &&
+            bj.sleepState === Body.AWAKE &&
+            bj.type !== Body.STATIC
+        ) {
+            var speedSquaredB = bj.velocity.norm2() + bj.angularVelocity.norm2();
+            var speedLimitSquaredB = Math.pow(bj.sleepSpeedLimit, 2);
+            if (speedSquaredB >= speedLimitSquaredB * 2) {
+                bi._wakeUpAfterNarrowphase = true;
+            }
+        }
+
+        if (bj.allowSleep &&
+            bj.type === Body.DYNAMIC &&
+            bj.sleepState === Body.SLEEPING &&
+            bi.sleepState === Body.AWAKE &&
+            bi.type !== Body.STATIC
+        ) {
+            var speedSquaredA = bi.velocity.norm2() + bi.angularVelocity.norm2();
+            var speedLimitSquaredA = Math.pow(bi.sleepSpeedLimit, 2);
+            if (speedSquaredA >= speedLimitSquaredA * 2) {
+                bj._wakeUpAfterNarrowphase = true;
+            }
+        }
     }
 
     if (doProfiling) {
@@ -14359,6 +14388,14 @@ World.prototype.internalStep = function (dt) {
         profilingStart = performance.now();
     }
 
+    // // Wake up bodies
+    for(i=0; i!==N; i++){
+        var bi = bodies[i];
+        if(bi._wakeUpAfterNarrowphase){
+            bi.wakeUp();
+            bi._wakeUpAfterNarrowphase = false;
+        }
+    }
 
     // Add user-added constraints
     var Nconstraints = constraints.length;
@@ -14558,34 +14595,6 @@ World.prototype.emitCollisionEvents = function () {
         var bj = data[0].bj;
         var si = data[0].si;
         var sj = data[0].sj;
-
-        if (bi.allowSleep &&
-            bi.type === Body.DYNAMIC &&
-            bi.sleepState === Body.SLEEPING &&
-            bj.sleepState === Body.AWAKE &&
-            bj.type !== Body.STATIC
-        ) {
-            var speedSquaredB = bj.velocity.norm2() + bj.angularVelocity.norm2();
-            var speedLimitSquaredB = Math.pow(bj.sleepSpeedLimit, 2);
-            if (speedSquaredB >= speedLimitSquaredB * 2) {
-                // bi._wakeUpAfterNarrowphase = true;
-                bi.wakeUp();
-            }
-        }
-
-        if (bj.allowSleep &&
-            bj.type === Body.DYNAMIC &&
-            bj.sleepState === Body.SLEEPING &&
-            bi.sleepState === Body.AWAKE &&
-            bi.type !== Body.STATIC
-        ) {
-            var speedSquaredA = bi.velocity.norm2() + bi.angularVelocity.norm2();
-            var speedLimitSquaredA = Math.pow(bi.sleepSpeedLimit, 2);
-            if (speedSquaredA >= speedLimitSquaredA * 2) {
-                // bj._wakeUpAfterNarrowphase = true;
-                bj.wakeUp();
-            }
-        }
 
         // Now we know that i and j are in contact. Set collision matrix state		
         if (this.collisionMatrix.get(bi, bj)) {
