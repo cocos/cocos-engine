@@ -11,7 +11,7 @@ import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { PipelineStateManager } from '../pipeline-state-manager';
-import { PipelineGlobal } from '../global';
+import { RenderContext } from '../render-context';
 
 const bufs: GFXCommandBuffer[] = [];
 
@@ -27,18 +27,16 @@ export class ToneMapStage extends RenderStage {
         priority: 0,
         framebuffer: 'window',
     };
-
     private _hTexSampler: number = 0;
     private _hBlendTexSampler: number = 0;
     private _bindingLayout: GFXBindingLayout | null = null;
+    public activate (rctx: RenderContext, flow: RenderFlow) {
 
-    public activate (flow: RenderFlow) {
+        super.activate(rctx, flow);
 
-        super.activate(flow);
+        this.createCmdBuffer(rctx);
 
-        this.createCmdBuffer();
-
-        this.rebuild();
+        this.rebuild(rctx);
     }
 
     public destroy () {
@@ -51,33 +49,33 @@ export class ToneMapStage extends RenderStage {
     public resize (width: number, height: number) {
     }
 
-    public rebuild () {
-        this._pass = this._flow!.material!.passes[0];
-        this._hTexSampler = this._pass.getBinding('u_texSampler')!;
+    public rebuild (rctx: RenderContext) {
+        const pass = rctx.getMaterial(this._name)!.passes[0];
+        this._hTexSampler = pass.getBinding('u_texSampler')!;
 
-        const globalUBO = this._pipeline!.globalBindings.get(UBOGlobal.BLOCK.name);
+        const globalUBO = rctx.globalBindings.get(UBOGlobal.BLOCK.name);
 
-        this._psoCreateInfo = this._pass.createPipelineStateCI();
+        this._psoCreateInfo = pass.createPipelineStateCI();
         this._bindingLayout =  this._psoCreateInfo!.bindingLayout;
 
-        this._pass.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO!.buffer!);
-        this._pass.bindTexture(this._hTexSampler, this._pipeline!.getTexture(this._pipeline!.currShading)!);
+        pass.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO!.buffer!);
+        pass.bindTexture(this._hTexSampler, rctx.getTexture(rctx.currShading)!);
 
-        if (this._pipeline!.useSMAA) {
-            this._hBlendTexSampler = this._pass.getBinding('u_blendTexSampler')!;
-            this._pass.bindTexture(this._hBlendTexSampler, this._pipeline!.getTexture('smaaBlend')!);
+        if (rctx.useSMAA) {
+            this._hBlendTexSampler = pass.getBinding('u_blendTexSampler')!;
+            pass.bindTexture(this._hBlendTexSampler, rctx.getTexture('smaaBlend')!);
         }
 
-        this._pass.update();
+        pass.update();
         this._bindingLayout.update();
     }
 
-    public render (view: RenderView) {
+    public render (rctx: RenderContext, view: RenderView) {
 
         const camera = view.camera!;
+        const device = rctx.device;
 
         if (this._cmdBuff) {
-
             this._renderArea!.width = camera.width;
             this._renderArea!.height = camera.height;
             const framebuffer = view.window!.framebuffer;
@@ -85,18 +83,18 @@ export class ToneMapStage extends RenderStage {
             this._cmdBuff.begin();
             this._cmdBuff.beginRenderPass(framebuffer, this._renderArea!,
                 GFXClearFlag.ALL, [{ r: 0.0, g: 0.0, b: 0.0, a: 1.0 }], 1.0, 0);
-            const pso =  PipelineStateManager.getOrCreatePipelineState(PipelineGlobal.device, this._psoCreateInfo!, framebuffer.renderPass!, this._pipeline!.quadIA);
+            const pso =  PipelineStateManager.getOrCreatePipelineState(device, this._psoCreateInfo!, framebuffer.renderPass!, rctx.quadIA);
             this._cmdBuff.bindPipelineState(pso);
             this._cmdBuff.bindBindingLayout(this._psoCreateInfo!.bindingLayout);
-            this._cmdBuff.bindInputAssembler(this._pipeline!.quadIA);
-            this._cmdBuff.draw(this._pipeline!.quadIA);
+            this._cmdBuff.bindInputAssembler(rctx.quadIA);
+            this._cmdBuff.draw(rctx.quadIA);
             this._cmdBuff.endRenderPass();
             this._cmdBuff.end();
         }
 
         bufs[0] = this._cmdBuff!;
-        PipelineGlobal.device.queue.submit(bufs);
+        device.queue.submit(bufs);
 
-        // this._pipeline.swapFBOs();
+        // rctx.swapFBOs();
     }
 }

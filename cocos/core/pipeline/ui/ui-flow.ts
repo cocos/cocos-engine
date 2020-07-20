@@ -2,12 +2,14 @@
  * @category pipeline
  */
 
-import { UBOGlobal } from '../define';
 import { ForwardFlowPriority } from '../forward/enum';
 import { RenderFlowType } from '../pipeline-serialization';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { UIStage } from './ui-stage';
+import { RenderContext } from '../render-context';
+import { ForwardUBOStage } from '../forward/forward-ubo-stage';
+import { ForwardCullingStage } from '../forward/forward-culling-stage';
 
 /**
  * @en The UI render flow
@@ -25,6 +27,14 @@ export class UIFlow extends RenderFlow {
 
         super.initialize(info);
 
+        const forwardCullingStage = new ForwardCullingStage();
+        forwardCullingStage.initialize(ForwardCullingStage.initInfo);
+        this._stages.push(forwardCullingStage);
+
+        const forwardUBOStage = new ForwardUBOStage();
+        forwardUBOStage.initialize(ForwardUBOStage.initInfo);
+        this._stages.push(forwardUBOStage);
+
         const uiStage = new UIStage();
         uiStage.initialize(UIStage.initInfo);
         this._stages.push(uiStage);
@@ -36,24 +46,11 @@ export class UIFlow extends RenderFlow {
         this.destroyStages();
     }
 
-    public rebuild () {
+    public rebuild (rctx: RenderContext) {
     }
 
-    public render (view: RenderView) {
-
+    public render (rctx: RenderContext, view: RenderView) {
         view.camera.update();
-
-        this.pipeline.sceneCulling(view);
-
-        this.pipeline.updateUBOs(view);
-
-        const isHDR = this.pipeline.defaultGlobalUBOData[UBOGlobal.EXPOSURE_OFFSET + 2];
-        this.pipeline.defaultGlobalUBOData[UBOGlobal.EXPOSURE_OFFSET + 2] = 0;
-        const globalUBOBuffer = this.pipeline.globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!;
-        globalUBOBuffer.update(this.pipeline.defaultGlobalUBOData);
-        super.render(view);
-        this.pipeline.defaultGlobalUBOData[UBOGlobal.EXPOSURE_OFFSET + 2] = isHDR;
-        this.pipeline.globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this.pipeline.defaultGlobalUBOData);
+        super.render(rctx, view);
     }
-
 }

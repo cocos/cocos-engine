@@ -7,12 +7,15 @@
  * @en The priority of stage in forward rendering
  */
 export enum ForwardStagePriority {
-    FORWARD = 0,
+    CULLING = 1,
+    UBO = 10,
+    FORWARD = 20,
+    UI = 30
 }
 
 /**
  * @zh 前向渲染流程优先级。
- * @en The priority of flows in forward rendering 
+ * @en The priority of flows in forward rendering
  */
 export enum ForwardFlowPriority {
     FORWARD = 0,

@@ -7,6 +7,7 @@ import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ToneMapStage } from './tonemap-stage';
 import { PIPELINE_FLOW_TONEMAP } from '../define';
 import { ForwardFlowPriority } from '../forward/enum';
+import { RenderContext } from '../render-context';
 
 /**
  * @en The tone mapping render flow
@@ -23,11 +24,6 @@ export class ToneMapFlow extends RenderFlow {
     public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
 
-        const material = this._material;
-        material!.recompileShaders({
-            CC_USE_SMAA: this._pipeline!.useSMAA
-        });
-
         const toneStage = new ToneMapStage();
         toneStage.initialize(ToneMapStage.initInfo);
         this._stages.push(toneStage);
@@ -36,21 +32,12 @@ export class ToneMapFlow extends RenderFlow {
     }
 
     public destroy () {
-        if (this._material) {
-            this._material.destroy();
-        }
         this.destroyStages();
     }
 
-    public rebuild () {
-        if (this._material) {
-            this._material.recompileShaders({
-                CC_USE_SMAA: this._pipeline!.useSMAA
-            });
-        }
-
+    public rebuild (rctx: RenderContext) {
         for (const stage of this._stages) {
-            stage.rebuild();
+            stage.rebuild(rctx);
         }
     }
 }

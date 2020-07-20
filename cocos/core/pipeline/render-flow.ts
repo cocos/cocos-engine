@@ -1,13 +1,11 @@
 /**
  * @category pipeline
  */
-
-import { Material } from '../assets/material';
 import { ccclass, property } from '../data/class-decorator';
 import { RenderFlowType } from './pipeline-serialization';
-import { RenderPipeline } from './render-pipeline';
 import { RenderStage } from './render-stage';
 import { RenderView } from './render-view';
+import { RenderContext } from './render-context';
 import { legacyCC } from '../global-exports';
 
 /**
@@ -17,7 +15,6 @@ import { legacyCC } from '../global-exports';
 export interface IRenderFlowInfo {
     name?: string;
     priority: number;
-    material?: Material;
     type?: RenderFlowType;
 }
 
@@ -27,15 +24,6 @@ export interface IRenderFlowInfo {
  */
 @ccclass('RenderFlow')
 export abstract class RenderFlow {
-
-    /**
-     * @en The pipeline that the current render flow belongs to.
-     * @zh 当前渲染流程归属的渲染管线
-     */
-    public get pipeline (): RenderPipeline {
-        return this._pipeline;
-    }
-
     /**
      * @en The name of the render flow
      * @zh 渲染流程的名字
@@ -61,26 +49,12 @@ export abstract class RenderFlow {
     }
 
     /**
-     * @en The material of the current flow
-     * @zh 渲染流程使用的材质
-     */
-    public get material (): Material | null {
-        return this._material;
-    }
-
-    /**
      * @en The type of the current flow
      * @zh 当前渲染流程的类型
      */
     public get type (): RenderFlowType {
         return this._type;
     }
-
-    /**
-     * @en The render pipeline which the current flow belongs to
-     * @zh 当前渲染流程所属的渲染管线。
-     */
-    protected _pipeline: RenderPipeline = null!;
 
     @property({
         displayOrder: 0,
@@ -93,13 +67,6 @@ export abstract class RenderFlow {
         visible: true,
     })
     protected _priority: number = 0;
-
-    @property({
-        type: legacyCC.Material,
-        displayOrder: 2,
-        visible: true,
-    })
-    protected _material: Material | null = null;
 
     @property({
         type: RenderFlowType,
@@ -115,6 +82,7 @@ export abstract class RenderFlow {
     })
     protected _stages: RenderStage[] = [];
 
+    protected _activeStages: RenderStage[] = [];
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
      * @zh 初始化函数，正常情况下不会用到，仅用于程序化生成渲染管线的情况。
@@ -127,10 +95,6 @@ export abstract class RenderFlow {
 
         this._priority = info.priority;
 
-        if (info.material) {
-            this._material = info.material;
-        }
-
         if (info.type) {
             this._type = info.type;
         }
@@ -141,9 +105,8 @@ export abstract class RenderFlow {
      * @zh 为指定的渲染管线开启当前渲染流程
      * @param pipeline The render pipeline to activate this render flow
      */
-    public activate (pipeline: RenderPipeline) {
-        this._pipeline = pipeline;
-        this._activateStages();
+    public activate (rctx: RenderContext) {
+        this._activateStages(rctx);
     }
 
     /**
@@ -156,7 +119,7 @@ export abstract class RenderFlow {
      * @en Rebuild function.
      * @zh 重构函数。
      */
-    public abstract rebuild ();
+    public abstract rebuild (rctx: RenderContext);
 
     /**
      * @en Reset the size.
@@ -175,9 +138,9 @@ export abstract class RenderFlow {
      * @zh 渲染函数，对指定的渲染视图按顺序执行所有渲染阶段。
      * @param view Render view。
      */
-    public render (view: RenderView) {
-        for (let i = 0; i < this._stages.length; i++) {
-            this._stages[i].render(view);
+    public render (rctx: RenderContext, view: RenderView) {
+        for (let i = 0, len = this._activeStages.length; i < len; i++) {
+            this._activeStages[i].render(rctx, view);
         }
     }
 
@@ -186,21 +149,48 @@ export abstract class RenderFlow {
      * @zh 销毁全部渲染阶段。
      */
     public destroyStages () {
-        for (let i = 0; i < this._stages.length; i++) {
+        for (let i = 0, len = this._stages.length; i < len; i++) {
             this._stages[i].destroy();
         }
-        this._stages = [];
+        this._stages.length = 0;
+        this._activeStages.length = 0;
+    }
+
+    public addStage (stage: RenderStage) {
+        for (let i = 0, len = this._stages.length; i < len; i++) {
+            if (this._stages[i].name === stage.name) {
+                return
+            }
+        }
+
+        this._stages.push(stage);
+    }
+
+    public activateStage (stage: RenderStage) {
+        let mStage;
+        for (let i = 0, len = this._stages.length; i < len; i++) {
+            mStage = this._stages[i];
+            if (mStage.name === stage.name) {
+                this._activeStages.push(stage);
+                return
+            }
+        }
+
+        this._activeStages.sort((a, b) => {
+            return a.priority - b.priority;
+        });
     }
 
     /**
      * @en Activate all render stages
      * @zh 启用所有渲染阶段
      */
-    protected _activateStages () {
-        for (let i = 0; i < this._stages.length; i++) {
-            this._stages[i].activate(this);
+    protected _activateStages (rctx: RenderContext) {
+        for (let i = 0, len = this._stages.length; i < len; i++) {
+            this._stages[i].activate(rctx, this);
+            this._activeStages.push(this._stages[i]);
         }
-        this._stages.sort((a, b) => {
+        this._activeStages.sort((a, b) => {
             return a.priority - b.priority;
         });
     }

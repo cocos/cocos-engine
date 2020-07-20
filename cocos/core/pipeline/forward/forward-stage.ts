@@ -13,7 +13,8 @@ import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-st
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
-import { PipelineGlobal } from '../global';
+import { RenderContext } from '../render-context';
+import { ForwardRenderContext } from './forward-render-context';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -53,9 +54,9 @@ export class ForwardStage extends RenderStage {
         this._additiveLightQueue = new RenderAdditiveLightQueue();
     }
 
-    public activate (flow: RenderFlow) {
-        super.activate(flow);
-        this.createCmdBuffer();
+    public activate (rctx: RenderContext, flow: RenderFlow) {
+        super.activate(rctx, flow);
+        this.createCmdBuffer(rctx);
     }
 
     public destroy () {
@@ -71,18 +72,18 @@ export class ForwardStage extends RenderStage {
     public rebuild () {
     }
 
-    public render (view: RenderView) {
-
+    public render (rctx: RenderContext, view: RenderView) {
         this._instancedQueue.clear();
         this._batchedQueue.clear();
-        const validLights = this.pipeline.validLights;
-        const lightBuffers = this.pipeline.lightBuffers;
-        const lightIndices = this.pipeline.lightIndices;
+        const ctx = rctx as ForwardRenderContext;
+        const validLights = ctx.validLights;
+        const lightBuffers = ctx.lightBuffers;
+        const lightIndices = ctx.lightIndices;
         this._additiveLightQueue.clear(validLights, lightBuffers, lightIndices);
         this._renderQueues.forEach(this.renderQueueClearFunc);
 
-        const renderObjects = this._pipeline.renderObjects;
-        const lightIndexOffset = this.pipeline.lightIndexOffsets;
+        const renderObjects = ctx.renderObjects;
+        const lightIndexOffset = ctx.lightIndexOffsets;
         let m = 0; let p = 0; let k = 0;
         for (let i = 0; i < renderObjects.length; ++i) {
             const nextLightIndex = i + 1 < renderObjects.length ? lightIndexOffset[i + 1] : lightIndices.length;
@@ -129,13 +130,13 @@ export class ForwardStage extends RenderStage {
         const vp = camera.viewport;
         this._renderArea!.x = vp.x * camera.width;
         this._renderArea!.y = vp.y * camera.height;
-        this._renderArea!.width = vp.width * camera.width * this.pipeline!.shadingScale;
-        this._renderArea!.height = vp.height * camera.height * this.pipeline!.shadingScale;
+        this._renderArea!.width = vp.width * camera.width * ctx.shadingScale;
+        this._renderArea!.height = vp.height * camera.height * ctx.shadingScale;
 
         if (camera.clearFlag & GFXClearFlag.COLOR) {
-            if (this._pipeline.isHDR) {
+            if (ctx.isHDR) {
                 SRGBToLinear(colors[0], camera.clearColor);
-                const scale = this._pipeline.fpScale / camera.exposure;
+                const scale = ctx.fpScale / camera.exposure;
                 colors[0].r *= scale;
                 colors[0].g *= scale;
                 colors[0].b *= scale;
@@ -148,17 +149,17 @@ export class ForwardStage extends RenderStage {
 
         colors[0].a = camera.clearColor.a;
 
-        if (this._pipeline.usePostProcess) {
-            if (!this._pipeline.useMSAA) {
-                this._framebuffer = this._pipeline.getFrameBuffer(this._pipeline!.currShading)!;
+        if (ctx.usePostProcess) {
+            if (!ctx.useMSAA) {
+                this._framebuffer = ctx.getFrameBuffer(ctx.currShading)!;
             } else {
-                this._framebuffer = this._pipeline.getFrameBuffer('msaa')!;
+                this._framebuffer = ctx.getFrameBuffer('msaa')!;
             }
         } else {
             this._framebuffer = view.window!.framebuffer;
         }
 
-        const device = PipelineGlobal.device;
+        const device = ctx.device;
         const renderPass = this._framebuffer.renderPass!;
 
         cmdBuff.begin();
@@ -178,10 +179,10 @@ export class ForwardStage extends RenderStage {
         bufs[0] = cmdBuff;
         device.queue.submit(bufs);
 
-        if (this._pipeline.useMSAA) {
+        if (ctx.useMSAA) {
             device.blitFramebuffer(
                 this._framebuffer!,
-                this._pipeline.getFrameBuffer(this._pipeline.currShading)!,
+                ctx.getFrameBuffer(ctx.currShading)!,
                 this._renderArea!,
                 this._renderArea!,
                 GFXFilter.POINT);

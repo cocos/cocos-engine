@@ -6,6 +6,7 @@ import { builtinResMgr } from './3d/builtin';
 import { GFXDevice } from './gfx/device';
 import { Pool } from './memop';
 import { RenderPipeline } from './pipeline/render-pipeline';
+import { ForwardRenderContext } from './pipeline/forward/forward-render-context';
 import { IRenderViewInfo, RenderView } from './pipeline/render-view';
 import { Camera, Light, Model } from './renderer';
 import { DataPoolManager } from './renderer/data-pool-manager';
@@ -17,6 +18,7 @@ import { UI } from './renderer/ui/ui';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './pipeline/render-window';
 import { GFXColorAttachment, GFXDepthStencilAttachment } from './gfx/render-pass';
+import { ForwardPipeline } from './pipeline/forward/forward-pipeline';
 
 /**
  * @zh
@@ -293,8 +295,13 @@ export class Root {
     }
 
     public setRenderPipeline (rppl: RenderPipeline): boolean {
+        if (!rppl) {
+            rppl = new ForwardPipeline();
+            rppl.initialize(ForwardPipeline.initInfo);
+        }
         this._pipeline = rppl;
-        if (!this._pipeline.activate()) {
+        const rctx = new ForwardRenderContext(this, this._device, this._pipeline);
+        if (!this._pipeline.activate(rctx)) {
             return false;
         }
         for (let i = 0; i < this.scenes.length; i++) {
@@ -377,7 +384,7 @@ export class Root {
      */
     public createWindow (info: IRenderWindowInfo): RenderWindow | null {
         const window = this._createWindowFun(this);
-        window.initialize(info);
+        window.initialize(this.device, info);
         this._windows.push(window);
         return window;
     }

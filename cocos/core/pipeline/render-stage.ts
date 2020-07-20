@@ -5,19 +5,18 @@
 import { CCString } from '../data';
 import { ccclass, property } from '../data/class-decorator';
 import { GFXCommandBuffer } from '../gfx/command-buffer';
-import { GFXClearFlag, GFXCommandBufferType, IGFXColor, IGFXRect } from '../gfx/define';
+import { GFXCommandBufferType, IGFXColor, IGFXRect } from '../gfx/define';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { Pass } from '../renderer/core/pass';
 import { ccenum } from '../value-types/enum';
 import { IRenderPass } from './define';
 import { getPhaseID } from './pass-phase';
 import { RenderFlow } from './render-flow';
-import { RenderPipeline } from './render-pipeline';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from './render-queue';
 import { RenderView } from './render-view';
 import { IPSOCreateInfo } from '../renderer';
 import { legacyCC } from '../global-exports';
-import { PipelineGlobal } from './global';
+import { RenderContext } from './render-context';
 
 const _colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -78,23 +77,6 @@ class RenderQueueDesc {
  */
 @ccclass('RenderStage')
 export abstract class RenderStage {
-
-    /**
-     * @en The render flow the current stage belongs to
-     * @zh 当前渲染阶段所归属的渲染流程。
-     */
-    public get flow (): RenderFlow {
-        return this._flow;
-    }
-
-    /**
-     * @en The render pipeline the current stage belongs to
-     * @zh 当前渲染阶段所归属的渲染管线。
-     */
-    public get pipeline (): RenderPipeline {
-        return this._pipeline;
-    }
-
     /**
      * @en Priority of the current stage
      * @zh 当前渲染阶段的优先级。
@@ -109,6 +91,9 @@ export abstract class RenderStage {
      */
     public get framebuffer (): GFXFramebuffer | null {
         return this._framebuffer;
+    }
+    public get name (): string {
+        return this._name;
     }
 
     /**
@@ -142,10 +127,6 @@ export abstract class RenderStage {
 
     protected _renderQueues: RenderQueue[] = [];
 
-    protected _flow: RenderFlow = null!;
-
-    protected _pipeline: RenderPipeline = null!;
-
     protected _framebuffer: GFXFramebuffer | null = null;
 
     /**
@@ -177,12 +158,6 @@ export abstract class RenderStage {
      * @zh 渲染区域。
      */
     protected _renderArea: IGFXRect | null = null;
-
-    /**
-     * @en The render pass of this stage
-     * @zh 着色过程。
-     */
-    protected _pass: Pass | null = null;
 
     /**
      * @en The pipeline state object.
@@ -218,11 +193,8 @@ export abstract class RenderStage {
      * @zh 为指定的渲染流程开启当前渲染阶段
      * @param flow The render flow to activate this render stage
      */
-    public activate (flow: RenderFlow) {
-        this._flow = flow;
-        this._pipeline = flow.pipeline;
-
-        if (!PipelineGlobal.device) {
+    public activate (rctx: RenderContext, flow: RenderFlow) {
+        if (!rctx.device) {
             throw new Error('');
         }
 
@@ -251,9 +223,9 @@ export abstract class RenderStage {
         }
 
         if (this.frameBuffer === 'window') {
-            this._framebuffer = PipelineGlobal.root.mainWindow!.framebuffer!;
+            this._framebuffer = rctx.mainWindow!.framebuffer!;
         } else {
-            this._framebuffer = this._flow.pipeline.getFrameBuffer(this.frameBuffer)!;
+            this._framebuffer = rctx.getFrameBuffer(this.frameBuffer)!;
         }
     }
 
@@ -268,7 +240,7 @@ export abstract class RenderStage {
      * @zh 渲染函数。
      * @param view The render view
      */
-    public abstract render (view: RenderView);
+    public abstract render (rctx: RenderContext, view: RenderView);
 
     /**
      * @en Reset the size.
@@ -282,7 +254,7 @@ export abstract class RenderStage {
      * @en Rebuild function.
      * @zh 重构函数。
      */
-    public abstract rebuild ();
+    public abstract rebuild (rctx: RenderContext);
 
     /**
      * @en Set the clear color
@@ -336,72 +308,12 @@ export abstract class RenderStage {
     }
 
     /**
-     * @en Sort all render queues
-     * @zh 对所有渲染队列进行排序
-     */
-    public sortRenderQueue () {
-        this._renderQueues.forEach(this.renderQueueClearFunc);
-        const renderObjects = this._pipeline.renderObjects;
-        for (let i = 0; i < renderObjects.length; ++i) {
-            const ro = renderObjects[i];
-            for (let l = 0; l < ro.model.subModelNum; l++) {
-                for (let j = 0; j < ro.model.getSubModel(l).passes.length; j++) {
-                    for (let k = 0; k < this._renderQueues.length; k++) {
-                        this._renderQueues[k].insertRenderPass(ro, l, j);
-                    }
-                }
-            }
-        }
-        this._renderQueues.forEach(this.renderQueueSortFunc);
-    }
-
-    /**
-     * @en Execute the command buffers collected in all render queue for the given render view and submit.
-     * @zh 基于指定的渲染视图执行所有渲染队列中收集的命令缓冲并提交渲染
-     * @param view The render view
-     */
-    public executeCommandBuffer (view: RenderView) {
-        const camera = view.camera;
-
-        const cmdBuff = this._cmdBuff!;
-
-        const vp = camera.viewport;
-        this._renderArea!.x = vp.x * camera.width;
-        this._renderArea!.y = vp.y * camera.height;
-        this._renderArea!.width = vp.width * camera.width * this.pipeline!.shadingScale;
-        this._renderArea!.height = vp.height * camera.height * this.pipeline!.shadingScale;
-
-        if (camera.clearFlag & GFXClearFlag.COLOR) {
-            _colors[0].a = camera.clearColor.a;
-            _colors[0].r = camera.clearColor.r;
-            _colors[0].g = camera.clearColor.g;
-            _colors[0].b = camera.clearColor.b;
-        }
-        if (!this._framebuffer) {
-            this._framebuffer = view.window!.framebuffer;
-        }
-
-        cmdBuff.begin();
-        cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea!,
-            camera.clearFlag, _colors, camera.clearDepth, camera.clearStencil);
-
-        for (let i = 0; i < this._renderQueues.length; i++) {
-            this._renderQueues[i].recordCommandBuffer(PipelineGlobal.device, this._framebuffer.renderPass!, cmdBuff);
-        }
-
-        cmdBuff.endRenderPass();
-        cmdBuff.end();
-        bufs[0] = cmdBuff;
-        PipelineGlobal.device.queue.submit(bufs);
-    }
-
-    /**
      * @en Create the main command buffer of this stage
      * @zh 创建该阶段的主命令缓冲
      */
-    public createCmdBuffer () {
-        this._cmdBuff = PipelineGlobal.device.createCommandBuffer({
-            queue: PipelineGlobal.device.queue,
+    public createCmdBuffer (rctx: RenderContext) {
+        this._cmdBuff = rctx.device.createCommandBuffer({
+            queue: rctx.device.queue,
             type: GFXCommandBufferType.PRIMARY,
         });
     }

@@ -6,6 +6,8 @@ import { CCString } from '../data';
 import { ccclass, property } from '../data/class-decorator';
 import { GFXFormat, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXTextureType, GFXTextureUsageBit} from '../gfx/define';
 import { ccenum } from '../value-types/enum';
+import { RenderTexture } from './../assets/render-texture';
+import { Material } from '../assets/Material';
 
 ccenum(GFXTextureType);
 ccenum(GFXTextureUsageBit);
@@ -41,6 +43,22 @@ export class RenderTextureDesc {
     public height: number = -1;
 }
 
+@ccclass('RenderTextureConfig')
+export class RenderTextureConfig {
+    @property
+    public name: string = '';
+    @property({ type: RenderTexture })
+    public texture: RenderTexture | null = null;
+}
+
+@ccclass('MaterialConfig')
+export class MaterialConfig {
+    @property
+    public name: string = '';
+    @property({ type: Material })
+    public material: Material | null = null;
+}
+
 @ccclass('FrameBufferDesc')
 export class FrameBufferDesc {
     @property
@@ -51,6 +69,8 @@ export class FrameBufferDesc {
     public colorTextures: string[] = [];
     @property
     public depthStencilTexture: string = '';
+    @property({ type: RenderTexture })
+    public texture: RenderTexture | null = null;
 }
 
 @ccclass('ColorDesc')

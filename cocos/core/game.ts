@@ -1018,10 +1018,6 @@ export class Game extends EventTarget {
     }
 
     private setRenderPipeline (rppl?: RenderPipeline) {
-        if (!rppl) {
-            rppl = new ForwardPipeline();
-            rppl.initialize(ForwardPipeline.initInfo);
-        }
         if (!legacyCC.director.root.setRenderPipeline(rppl)) {
             this.setRenderPipeline();
         }

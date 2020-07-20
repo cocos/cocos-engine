@@ -157,7 +157,7 @@ export class RenderTexture extends TextureBase {
         };
 
         if (this._window) {
-            this._window.initialize(config);
+            this._window.initialize(device, config);
             return this._window;
         }
 
