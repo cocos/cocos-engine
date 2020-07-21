@@ -104,7 +104,7 @@ Audio.State = {
     proto._onLoaded = function () {
         this._createElement();
         this._state = Audio.State.INITIALZING;
-        this.setVolume(1);
+        this.setVolume(this.volume == null ? 1 : this.volume);
         this.setLoop(false);
     };
 
@@ -214,6 +214,7 @@ Audio.State = {
 
     proto.setVolume = function (num) {
         let self = this;
+        this.volume = num;
         this._src && this._src._ensureLoaded(function () {
             self._element.volume = num;
         });
