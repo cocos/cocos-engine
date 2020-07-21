@@ -16,6 +16,7 @@ export const BUILD = tryDefineGlobal('CC_BUILD', false);
 export const TEST = tryDefineGlobal('CC_TEST', defined('tap') || defined('QUnit'));
 export const EDITOR = tryDefineGlobal('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
 export const PREVIEW = tryDefineGlobal('CC_PREVIEW', !EDITOR);
+export const GAME_VIEW = tryDefineGlobal('CC_GAME_VIEW', false);
 export const DEV = tryDefineGlobal('CC_DEV', true); // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
 export const DEBUG = tryDefineGlobal('CC_DEBUG', true); // CC_DEV || Debug Build
 export const JSB = tryDefineGlobal('CC_JSB', defined('jsb'));

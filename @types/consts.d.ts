@@ -21,6 +21,11 @@ declare module "internal:constants" {
     export const PREVIEW: boolean;
 
     /**
+     * Running in game view.
+     */
+    export const GAME_VIEW: boolean;
+
+    /**
      * Running in the editor or preview.
      */
     export const DEV: boolean;
