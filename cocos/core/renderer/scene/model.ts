@@ -25,6 +25,10 @@ const _subMeshPool = new Pool(() => {
     return new SubModel();
 }, 32);
 
+const shadowMap_Patches: IMacroPatch[]= [
+    { name: 'CC_SHADOW', value: true },
+];
+
 export interface IInstancedAttribute {
     name: string;
     format: GFXFormat;
@@ -113,6 +117,7 @@ export class Model {
     public enabled: boolean = true;
     public visFlags = Layers.Enum.NONE;
     public castShadow = false;
+    public receiveShadow = true;
     public isDynamicBatching = false;
     public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, list: [] };
 
@@ -309,6 +314,8 @@ export class Model {
     }
 
     public getMacroPatches (subModelIndex: number) : IMacroPatch[] | undefined {
+        if (this.receiveShadow)
+            return shadowMap_Patches;
         return undefined;
     }
 

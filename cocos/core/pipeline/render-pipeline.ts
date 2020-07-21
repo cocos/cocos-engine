@@ -15,19 +15,21 @@ import {
     GFXTextureUsageBit,
     GFXLoadOp,
     GFXStoreOp,
-    GFXCommandBufferType} from '../gfx/define';
+    GFXCommandBufferType,
+    GFXFilter,
+    GFXAddress} from '../gfx/define';
 import { GFXFeature } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass, GFXColorAttachment, GFXDepthStencilAttachment } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
-import { Mat4, Vec3, Vec4 } from '../math';
-import { Camera, Model, Light } from '../renderer';
+import { Mat4, Vec3, Vec4, Vec2, Quat } from '../math';
+import { Camera, Model, Light, genSamplerHash, samplerLib } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass-utils';
 import { SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Layers } from '../scene-graph';
 import { js } from '../utils/js';
-import { IInternalBindingInst } from './define';
+import { IInternalBindingInst, UBOPCFShadow, UNIFORM_SHADOWMAP } from './define';
 import { IRenderObject, RenderPassStage, UBOGlobal, UBOShadow, UNIFORM_ENVIRONMENT } from './define';
 import { FrameBufferDesc, RenderFlowType, RenderPassDesc, RenderTextureDesc } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
@@ -37,6 +39,7 @@ import { PipelineGlobal } from './global';
 import { GFXCommandBuffer } from '../gfx';
 
 const v3_1 = new Vec3();
+const mat4 = new Mat4();
 
 /**
  * @en Render pipeline information descriptor
@@ -288,6 +291,24 @@ export abstract class RenderPipeline {
      * 灯光GFXbuffer数组。
      */
     public abstract get lightBuffers () : GFXBuffer[];
+
+    /**
+     * @zh
+     * 获取阴影UBO。
+     */
+    public abstract get shadowUBOBuffer () : GFXBuffer;
+
+    /**
+     * @zh
+     * 获取阴影贴图分辨率
+     */
+    public abstract get shadowMapSize () : Vec2;
+
+    /**
+     * @zh
+     * 设置阴影贴图分辨率
+     */
+    public abstract setShadowMapSize (x: number, y: number);
 
     protected _renderObjects: IRenderObject[] = [];
 
@@ -622,6 +643,9 @@ export abstract class RenderPipeline {
         fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET] = fog.fogTop;
         fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
         fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
+
+        // cc_LightMatrix
+        Mat4.toArray(fv, mat4, UBOGlobal.MAIN_SHADOW_MATRIX_OFFSET);
 
         // update ubos
         this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._uboGlobal.view);
@@ -1056,6 +1080,38 @@ export abstract class RenderPipeline {
             });
         }
 
+        if (!this._globalBindings.get(UBOPCFShadow.BLOCK.name)) {
+            const shadowPCFUBO = PipelineGlobal.device.createBuffer({
+                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                size: UBOPCFShadow.SIZE,
+            });
+
+            this._globalBindings.set(UBOPCFShadow.BLOCK.name, {
+                type: GFXBindingType.UNIFORM_BUFFER,
+                blockInfo: UBOPCFShadow.BLOCK,
+                buffer: shadowPCFUBO,
+            });
+        }
+
+        if (!this._globalBindings.get(UNIFORM_SHADOWMAP.name)) {
+            this._globalBindings.set(UNIFORM_SHADOWMAP.name, {
+                type: GFXBindingType.SAMPLER,
+                samplerInfo: UNIFORM_SHADOWMAP,
+            });
+            const shadowMapSamplerHash = genSamplerHash([
+                GFXFilter.LINEAR,
+                GFXFilter.LINEAR,
+                GFXFilter.NONE,
+                GFXAddress.CLAMP,
+                GFXAddress.CLAMP,
+                GFXAddress.CLAMP,
+            ]);
+            const shadowmapUniform = this.globalBindings.get(UNIFORM_SHADOWMAP.name);
+            const sampler = samplerLib.getSampler(PipelineGlobal.device, shadowMapSamplerHash);
+            shadowmapUniform!.sampler = sampler;
+        }
+
         return true;
     }
 
@@ -1073,6 +1129,11 @@ export abstract class RenderPipeline {
         if (shadowUBO) {
             shadowUBO.buffer!.destroy();
             this._globalBindings.delete(UBOShadow.BLOCK.name);
+        }
+        const shadowPCFUBO = this._globalBindings.get(UBOPCFShadow.BLOCK.name);
+        if (shadowPCFUBO) {
+            shadowPCFUBO.buffer!.destroy();
+            this._globalBindings.delete(UBOPCFShadow.BLOCK.name);
         }
     }
 

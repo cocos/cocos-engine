@@ -12,9 +12,10 @@ export enum ForwardStagePriority {
 
 /**
  * @zh 前向渲染流程优先级。
- * @en The priority of flows in forward rendering 
+ * @en The priority of flows in forward rendering
  */
 export enum ForwardFlowPriority {
-    FORWARD = 0,
+    SHADOW = 0,
+    FORWARD = 1,
     UI = 10,
 }
