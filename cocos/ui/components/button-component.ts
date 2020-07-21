@@ -580,7 +580,7 @@ export class ButtonComponent extends Component {
     public onDisable () {
         this._resetState();
 
-        if (!EDITOR || legacyCC.engine._isPlaying) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this.node.off(SystemEventType.TOUCH_START, this._onTouchBegan, this);
             this.node.off(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
             this.node.off(SystemEventType.TOUCH_END, this._onTouchEnded, this);

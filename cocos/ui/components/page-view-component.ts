@@ -586,7 +586,7 @@ export class PageViewComponent extends ScrollViewComponent {
         if (this._sizeMode !== SizeMode.Unified) {
             return;
         }
-        const locPages = (EDITOR && !legacyCC.engine.isPlaying) ? this.content.children : this._pages;
+        const locPages = (EDITOR && !legacyCC.GAME_VIEW) ? this.content.children : this._pages;
         const selfSize = viewTrans.contentSize;
         for (let i = 0, len = locPages.length; i < len; i++) {
             locPages[i]._uiProps.uiTransformComp!.setContentSize(selfSize);
