@@ -328,7 +328,7 @@ class CCObject {
             this._onPreDestroy();
         }
 
-        if (!EDITOR || legacyCC.engine._isPlaying) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this._destruct();
         }
 

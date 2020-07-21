@@ -939,7 +939,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 
     public onEnable () {
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this._registerEvent();
             if (this.content) {
                 this.content.on(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
@@ -962,7 +962,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 
     public onDisable () {
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this._unregisterEvent();
             if (this.content) {
                 this.content.off(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);

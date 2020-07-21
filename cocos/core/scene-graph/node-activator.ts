@@ -142,7 +142,7 @@ function _componentCorrupted (node, comp, index) {
 }
 
 function _onLoadInEditor (comp) {
-    if (comp.onLoad && !legacyCC.engine._isPlaying) {
+    if (comp.onLoad && !legacyCC.GAME_VIEW) {
         // @ts-ignore
         const focused = Editor.Selection.getLastSelected('node') === comp.node.uuid;
         if (focused) {
@@ -359,7 +359,7 @@ export default class NodeActivator {
 
 if (EDITOR) {
     NodeActivator.prototype.activateComp = (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) => {
-        if (legacyCC.engine._isPlaying || comp.constructor._executeInEditMode) {
+        if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
             if (!(comp._objFlags & IsPreloadStarted)) {
                 comp._objFlags |= IsPreloadStarted;
                 if (comp.__preload) {
@@ -401,7 +401,7 @@ if (EDITOR) {
         legacyCC.director._compScheduler.disableComp(comp);
 
         if (comp.onDestroy && (comp._objFlags & IsOnLoadCalled)) {
-            if (legacyCC.engine._isPlaying || comp.constructor._executeInEditMode) {
+            if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
                 callOnDestroyInTryCatch && callOnDestroyInTryCatch(comp);
             }
         }

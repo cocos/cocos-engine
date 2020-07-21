@@ -212,7 +212,9 @@ class ReusableInvoker extends LifeCycleInvoker {
 function enableInEditor (comp) {
     if (!(comp._objFlags & IsEditorOnEnableCalled)) {
         legacyCC.engine.emit('component-enabled', comp.uuid);
-        comp._objFlags |= IsEditorOnEnableCalled;
+        if(!legacyCC.GAME_VIEW) {
+            comp._objFlags |= IsEditorOnEnableCalled;
+        }
     }
 }
 
@@ -539,7 +541,7 @@ export class ComponentScheduler {
 
 if (EDITOR) {
     ComponentScheduler.prototype.enableComp = function (comp, invoker) {
-        if (legacyCC.engine.isPlaying || comp.constructor._executeInEditMode) {
+        if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
             if (!(comp._objFlags & IsOnEnableCalled)) {
                 if (comp.onEnable) {
                     if (invoker) {
@@ -563,7 +565,7 @@ if (EDITOR) {
     };
 
     ComponentScheduler.prototype.disableComp = function (comp) {
-        if (legacyCC.engine.isPlaying || comp.constructor._executeInEditMode) {
+        if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
             if (comp._objFlags & IsOnEnableCalled) {
                 if (comp.onDisable) {
                     callOnDisableInTryCatch(comp);
