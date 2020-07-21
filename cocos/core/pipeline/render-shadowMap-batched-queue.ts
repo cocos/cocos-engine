@@ -25,8 +25,6 @@ export class RenderShadowMapBatchedQueue {
 
     // psoCI cache
     private _psoCICache: Map<SubModel, IPSOCreateInfo> = new Map();
-    // pso cache
-    private _psoCache: Map<SubModel, GFXPipelineState> = new Map();
 
     private _phaseID = getPhaseID('shadow-add');
 
@@ -65,7 +63,6 @@ export class RenderShadowMapBatchedQueue {
                 this._subModelsArray.length = 0;
                 this._psoCIArray.length = 0;
                 this._psoCICache.clear();
-                this._psoCache.clear();
             }
         }
     }
