@@ -180,7 +180,7 @@ sp.Skeleton = cc.Class({
                 var skinName = skinsEnum[value];
                 if (skinName !== undefined) {
                     this.defaultSkin = skinName;
-                    if (CC_EDITOR && !cc.engine.isPlaying) {
+                    if (CC_EDITOR && !CC_GAME_VIEW) {
                         this._refreshInspector();
                     }
                 }
@@ -197,7 +197,7 @@ sp.Skeleton = cc.Class({
         // value of 0 represents no animation
         _animationIndex: {
             get () {
-                var animationName = (!CC_EDITOR || cc.engine.isPlaying) ? this.animation : this.defaultAnimation;
+                var animationName = (!CC_EDITOR || CC_GAME_VIEW) ? this.animation : this.defaultAnimation;
                 if (this.skeletonData && animationName) {
                     var animsEnum = this.skeletonData.getAnimsEnum();
                     if (animsEnum) {
@@ -624,7 +624,7 @@ sp.Skeleton = cc.Class({
                 return null;
             }
             var res = this._state.setAnimationWith(trackIndex, animation, loop);
-            if (CC_EDITOR && !cc.engine.isPlaying) {
+            if (CC_EDITOR && !CC_GAME_VIEW) {
                 this._state.update(0);
                 this._state.apply(this._skeleton);
             }
@@ -708,7 +708,7 @@ sp.Skeleton = cc.Class({
     clearTrack (trackIndex) {
         if (this._state) {
             this._state.clearTrack(trackIndex);
-            if (CC_EDITOR && !cc.engine.isPlaying) {
+            if (CC_EDITOR && !CC_GAME_VIEW) {
                 this._state.update(0);
             }
         }

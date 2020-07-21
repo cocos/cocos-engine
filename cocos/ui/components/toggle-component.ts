@@ -35,7 +35,7 @@ import { SpriteComponent } from './sprite-component';
 import { ToggleContainerComponent } from './toggle-container-component';
 import { extendsEnum } from '../../core/data/utils/extends-enum';
 import { EventType as ButtonEventType } from './button-component';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, GAME_VIEW } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 
 enum EventType {
@@ -175,7 +175,7 @@ export class ToggleComponent extends ButtonComponent {
 
     public onEnable () {
         super.onEnable();
-        if (!EDITOR || legacyCC.engine.isPlaying) {
+        if (!EDITOR || GAME_VIEW) {
             this._registerToggleEvent();
         }
 
@@ -186,7 +186,7 @@ export class ToggleComponent extends ButtonComponent {
 
     public onDisable () {
         super.onDisable();
-        if (!EDITOR || legacyCC.engine.isPlaying) {
+        if (!EDITOR || GAME_VIEW) {
             this._unregisterToggleEvent();
         }
         if (this._toggleGroup && this._toggleGroup.enabled) {

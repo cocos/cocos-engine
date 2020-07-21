@@ -40,7 +40,7 @@ import { warnID, logID } from '../../core/platform/debug';
 import { extendsEnum } from '../../core/data/utils/extends-enum';
 import { EventType as ScrollEventType } from './scroll-view-component';
 import { Node } from '../../core';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, GAME_VIEW } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 
 const _temp_vec2 = new Vec2();
@@ -349,14 +349,14 @@ export class PageViewComponent extends ScrollViewComponent {
 
     public onEnable() {
         super.onEnable();
-        if (!EDITOR || legacyCC.engine.isPlaying) {
+        if (!EDITOR || GAME_VIEW) {
             this.node.on(PageViewComponent.EventType.SCROLL_ENG_WITH_THRESHOLD, this._dispatchPageTurningEvent, this);
         }
     }
 
     public onDisable() {
         super.onDisable();
-        if (!EDITOR || legacyCC.engine.isPlaying) {
+        if (!EDITOR || GAME_VIEW) {
             this.node.off(PageViewComponent.EventType.SCROLL_ENG_WITH_THRESHOLD, this._dispatchPageTurningEvent, this);
         }
     }

@@ -30,7 +30,7 @@
 import * as js from '../utils/js';
 import CCClass from './class';
 import { errorID, warnID } from '../platform/debug';
-import { SUPPORT_JIT, EDITOR, TEST } from 'internal:constants';
+import { SUPPORT_JIT, EDITOR, TEST, GAME_VIEW } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 
 // definitions for CCObject.Flags
@@ -328,7 +328,7 @@ class CCObject {
             this._onPreDestroy();
         }
 
-        if (!EDITOR || legacyCC.engine._isPlaying) {
+        if (!EDITOR || GAME_VIEW) {
             this._destruct();
         }
 

@@ -35,7 +35,7 @@ import { EventListener } from './event-listener';
 import eventManager from './event-manager';
 import inputManager from './input-manager';
 import { Touch } from './touch';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, GAME_VIEW } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 
 let keyboardListener: EventListener | null = null;
@@ -117,7 +117,7 @@ export class SystemEvent extends EventTarget {
      * @param target - The event listener's target and callee
      */
     public on (type: string, callback: Function, target?: Object, once?: boolean) {
-        if (EDITOR && !legacyCC.engine.isPlaying) {
+        if (EDITOR && !GAME_VIEW) {
             return;
         }
         super.on(type, callback, target, once);
@@ -230,7 +230,7 @@ export class SystemEvent extends EventTarget {
      * @param target - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      */
     public off (type: string, callback?: Function, target?: Object) {
-        if (EDITOR && !legacyCC.engine.isPlaying) {
+        if (EDITOR && !GAME_VIEW) {
             return;
         }
         super.off(type, callback, target);

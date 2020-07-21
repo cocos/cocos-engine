@@ -37,7 +37,7 @@ import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { director, Director } from '../../core/director';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Node } from '../../core';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, GAME_VIEW } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 const NodeEvent = SystemEventType;
 /**
@@ -293,7 +293,7 @@ export class LayoutComponent extends Component {
             return;
         }
 
-        if (EDITOR && this._resizeMode === ResizeMode.CONTAINER && !legacyCC.engine.isPlaying) {
+        if (EDITOR && this._resizeMode === ResizeMode.CONTAINER && !GAME_VIEW) {
             // const reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
             // if (reLayouted) {
             //     return;
