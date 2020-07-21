@@ -140,10 +140,17 @@ export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & 
     };
 
     // Mixin with `CallbacksInvokers`'s prototype
-    const propertyDescriptors = Object.getOwnPropertyDescriptors(CallbacksInvoker.prototype);
-    for (const propertyName in propertyDescriptors) {
-        if (!(propertyName in Eventified.prototype)) {
-            Object.defineProperty(Eventified.prototype, propertyName, propertyDescriptors[propertyName]);
+    const callbacksInvokerPrototype = CallbacksInvoker.prototype;
+    const propertyKeys: (string | symbol)[] =
+        (Object.getOwnPropertyNames(callbacksInvokerPrototype) as (string | symbol)[]).concat(
+            Object.getOwnPropertySymbols(callbacksInvokerPrototype));
+    for (let iPropertyKey = 0; iPropertyKey < propertyKeys.length; ++iPropertyKey) {
+        const propertyKey = propertyKeys[iPropertyKey];
+        const propertyDescriptor = Object.getOwnPropertyDescriptor(callbacksInvokerPrototype, propertyKey);
+        if (propertyDescriptor) {
+            if (!(propertyKey in Eventified.prototype)) {
+                Object.defineProperty(Eventified.prototype, propertyKey, propertyDescriptor);
+            }
         }
     }
 
