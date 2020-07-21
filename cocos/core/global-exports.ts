@@ -31,7 +31,6 @@ import {
     DEBUG,
     DEV,
     EDITOR,
-    GAME_VIEW,
     JSB,
     MINIGAME,
     PHYSICS_AMMO,
@@ -71,7 +70,6 @@ if (BUILD) {
     _global.CC_BUILD = BUILD;
     _global.CC_TEST = TEST;
     _global.CC_EDITOR = EDITOR;
-    _global.CC_GAME_VIEW = GAME_VIEW;
     _global.CC_PREVIEW = PREVIEW;
     _global.CC_DEV = DEV;
     _global.CC_DEBUG = DEBUG;

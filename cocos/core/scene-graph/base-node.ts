@@ -38,7 +38,7 @@ import IdGenerator from '../utils/id-generator';
 import * as js from '../utils/js';
 import { baseNodePolyfill } from './base-node-dev';
 import { NodeEventProcessor } from './node-event-processor';
-import { DEV, DEBUG, EDITOR, GAME_VIEW } from 'internal:constants';
+import { DEV, DEBUG, EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Node } from './node';
 import { Scene } from './scene';
@@ -1281,7 +1281,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             // if (thisPrefabInfo._synced) {
             //    return clone;
             // }
-        } else if (EDITOR && GAME_VIEW) {
+        } else if (EDITOR && legacyCC.GAME_VIEW) {
             cloned._name += ' (Clone)';
         }
 

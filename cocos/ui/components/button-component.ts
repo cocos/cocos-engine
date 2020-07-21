@@ -39,7 +39,7 @@ import { lerp } from '../../core/math/utils';
 import { Node } from '../../core/scene-graph/node';
 import { SpriteComponent } from './sprite-component';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-import { EDITOR, GAME_VIEW } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 
 const _tempColor = new Color();
@@ -560,7 +560,7 @@ export class ButtonComponent extends Component {
     public onEnable () {
         // check sprite frames
         //
-        if (!EDITOR || GAME_VIEW) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this._registerEvent();
         } else {
             this.node.on(SpriteComponent.EventType.SPRITE_FRAME_CHANGED, (comp: SpriteComponent) => {

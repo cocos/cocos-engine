@@ -31,7 +31,7 @@ import { CCObject } from '../data/object';
 import { array, Pool } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
-import { EDITOR, DEV, TEST, SUPPORT_JIT, GAME_VIEW } from 'internal:constants';
+import { EDITOR, DEV, TEST, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { assert, errorID } from '../platform/debug';
 
@@ -142,7 +142,7 @@ function _componentCorrupted (node, comp, index) {
 }
 
 function _onLoadInEditor (comp) {
-    if (comp.onLoad && !GAME_VIEW) {
+    if (comp.onLoad && !legacyCC.GAME_VIEW) {
         // @ts-ignore
         const focused = Editor.Selection.getLastSelected('node') === comp.node.uuid;
         if (focused) {
@@ -359,7 +359,7 @@ export default class NodeActivator {
 
 if (EDITOR) {
     NodeActivator.prototype.activateComp = (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) => {
-        if (GAME_VIEW || comp.constructor._executeInEditMode) {
+        if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
             if (!(comp._objFlags & IsPreloadStarted)) {
                 comp._objFlags |= IsPreloadStarted;
                 if (comp.__preload) {
@@ -401,7 +401,7 @@ if (EDITOR) {
         legacyCC.director._compScheduler.disableComp(comp);
 
         if (comp.onDestroy && (comp._objFlags & IsOnLoadCalled)) {
-            if (GAME_VIEW || comp.constructor._executeInEditMode) {
+            if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
                 callOnDestroyInTryCatch && callOnDestroyInTryCatch(comp);
             }
         }

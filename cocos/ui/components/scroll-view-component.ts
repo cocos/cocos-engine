@@ -39,7 +39,7 @@ import { ViewGroupComponent } from './view-group-component';
 import { Node } from '../../core/scene-graph/node';
 import { director, Director } from '../../core/director';
 import { TransformBit } from '../../core/scene-graph/node-enum';
-import { EDITOR, GAME_VIEW } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 
 const NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED = 5;
@@ -939,7 +939,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 
     public onEnable () {
-        if (!EDITOR || GAME_VIEW) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this._registerEvent();
             if (this.content) {
                 this.content.on(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
@@ -962,7 +962,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 
     public onDisable () {
-        if (!EDITOR || GAME_VIEW) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this._unregisterEvent();
             if (this.content) {
                 this.content.off(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);

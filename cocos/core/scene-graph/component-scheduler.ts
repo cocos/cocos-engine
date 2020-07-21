@@ -31,7 +31,7 @@ import { CCObject } from '../data/object';
 import { MutableForwardIterator } from '../utils/array';
 import { array } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
-import { EDITOR, SUPPORT_JIT, DEV, TEST, GAME_VIEW } from 'internal:constants';
+import { EDITOR, SUPPORT_JIT, DEV, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { error, assert } from '../platform/debug';
 const fastRemoveAt = array.fastRemoveAt;
@@ -212,7 +212,7 @@ class ReusableInvoker extends LifeCycleInvoker {
 function enableInEditor (comp) {
     if (!(comp._objFlags & IsEditorOnEnableCalled)) {
         legacyCC.engine.emit('component-enabled', comp.uuid);
-        if(!GAME_VIEW) {
+        if(!legacyCC.GAME_VIEW) {
             comp._objFlags |= IsEditorOnEnableCalled;
         }
     }
@@ -541,7 +541,7 @@ export class ComponentScheduler {
 
 if (EDITOR) {
     ComponentScheduler.prototype.enableComp = function (comp, invoker) {
-        if (GAME_VIEW || comp.constructor._executeInEditMode) {
+        if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
             if (!(comp._objFlags & IsOnEnableCalled)) {
                 if (comp.onEnable) {
                     if (invoker) {
@@ -565,7 +565,7 @@ if (EDITOR) {
     };
 
     ComponentScheduler.prototype.disableComp = function (comp) {
-        if (GAME_VIEW || comp.constructor._executeInEditMode) {
+        if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
             if (comp._objFlags & IsOnEnableCalled) {
                 if (comp.onDisable) {
                     callOnDisableInTryCatch(comp);
