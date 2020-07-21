@@ -245,12 +245,12 @@ export class Profiler {
         legacyCC.game.addPersistRootNode(this._rootNode);
 
         const cameraNode = new Node('Profiler_Camera');
-        cameraNode.setPosition(0, 0, 1);
+        cameraNode.setPosition(0, 0, 1.5);
         cameraNode.parent = this._rootNode;
         const camera = cameraNode.addComponent('cc.CameraComponent') as CameraComponent;
         camera.projection = CameraComponent.ProjectionType.ORTHO;
-        camera.near = 0;
-        camera.far = 0;
+        camera.near = 1;
+        camera.far = 2;
         camera.orthoHeight = this._device!.height;
         camera.visibility = Layers.BitMask.PROFILER;
         camera.clearFlags = GFXClearFlag.NONE;

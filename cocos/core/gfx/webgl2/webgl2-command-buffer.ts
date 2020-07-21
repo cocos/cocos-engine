@@ -397,21 +397,15 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public copyBufferToTexture (
-        srcBuff: GFXBuffer,
-        dstTex: GFXTexture,
-        dstLayout: GFXTextureLayout,
-        regions: GFXBufferTextureCopy[]) {
+    public copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
 
         if (this._type === GFXCommandBufferType.PRIMARY && !this._isInRenderPass ||
             this._type === GFXCommandBufferType.SECONDARY) {
-            const gpuBuffer = ( srcBuff as WebGL2GFXBuffer).gpuBuffer;
-            const gpuTexture = ( dstTex as WebGL2GFXTexture).gpuTexture;
-            if (gpuBuffer && gpuTexture) {
+            const gpuTexture = (texture as WebGL2GFXTexture).gpuTexture;
+            if (gpuTexture) {
                 const cmd = this._webGLAllocator!.copyBufferToTextureCmdPool.alloc(WebGL2CmdCopyBufferToTexture);
-                cmd.gpuBuffer = gpuBuffer;
                 cmd.gpuTexture = gpuTexture;
-                cmd.dstLayout = dstLayout;
+                cmd.buffers = buffers;
                 cmd.regions = regions;
                 this.cmdPackage.copyBufferToTextureCmds.push(cmd);
 

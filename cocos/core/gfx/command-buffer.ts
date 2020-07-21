@@ -259,7 +259,7 @@ export abstract class GFXCommandBuffer extends GFXObject {
      * @param dstLayout The target texture layout.
      * @param regions The region descriptions.
      */
-    public abstract copyBufferToTexture (srcBuff: GFXBuffer, dstTex: GFXTexture, dstLayout: GFXTextureLayout, regions: GFXBufferTextureCopy[]): void;
+    public abstract copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]): void;
 
     /**
      * @en Execute specified command buffers.
