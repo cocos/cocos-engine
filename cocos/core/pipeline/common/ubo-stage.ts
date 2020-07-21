@@ -13,8 +13,8 @@ import { legacyCC } from '../../global-exports';
 import { Mat4, Vec3, Vec4 } from '../../math';
 
 /**
- * @en The forward render stage
- * @zh 前向渲染阶段。
+ * @en The ubo stage
+ * @zh UBO 处理阶段。
  */
 @ccclass('UBOStage')
 export class UBOStage extends RenderStage {

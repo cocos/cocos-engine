@@ -26,4 +26,5 @@ export class ForwardRenderContext extends RenderContext{
      * @zh 灯光索引数组。
      */
     public lightIndices: number[] = [];
+
 };

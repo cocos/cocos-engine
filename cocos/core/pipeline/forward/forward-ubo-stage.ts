@@ -19,8 +19,8 @@ import { ForwardRenderContext } from './forward-render-context';
 const _vec4Array = new Float32Array(4);
 
 /**
- * @en The forward render stage
- * @zh 前向渲染阶段。
+ * @en The forward ubo stage
+ * @zh 前向渲染的 ubo 处理阶段。
  */
 @ccclass('ForwardUBOStage')
 export class ForwardUBOStage extends UBOStage {

@@ -18,8 +18,8 @@ import { Camera, Model } from '../../renderer';
 const v3_1 = new Vec3();
 
 /**
- * @en The forward render stage
- * @zh 前向渲染阶段。
+ * @en The culling stage
+ * @zh 裁剪阶段。
  */
 @ccclass('CullingStage')
 export class CullingStage extends RenderStage {
