@@ -7,14 +7,16 @@
  * @en The priority of stage in forward rendering
  */
 export enum ForwardStagePriority {
+    SHADOW = 0,
     FORWARD = 1,
 }
 
 /**
  * @zh 前向渲染流程优先级。
- * @en The priority of flows in forward rendering 
+ * @en The priority of flows in forward rendering
  */
 export enum ForwardFlowPriority {
+    SHADOW = 0,
     FORWARD = 1,
     UI = 10,
 }

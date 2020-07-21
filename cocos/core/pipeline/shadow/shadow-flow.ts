@@ -3,7 +3,7 @@
  */
 
 import { ccclass } from '../../data/class-decorator';
-import { PIPELINE_FLOW_SHADOW } from '../define';
+import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
@@ -28,7 +28,7 @@ export class ShadowFlow extends RenderFlow {
 
     public static initInfo: IRenderFlowInfo = {
         name: PIPELINE_FLOW_SHADOW,
-        priority: ForwardFlowPriority.FORWARD - 1,
+        priority: ForwardFlowPriority.SHADOW,
         type: RenderFlowType.SCENE,
     };
 
@@ -36,14 +36,6 @@ export class ShadowFlow extends RenderFlow {
     private _shadowRenderTargets: GFXTexture[] = [];
     private _shadowFrameBuffer: GFXFramebuffer|null = null;
     private _depth: GFXTexture|null = null;
-
-    /**
-     * 构造函数。
-     * @param pipeline 渲染管线。
-     */
-    constructor () {
-        super();
-    }
 
     public initialize (info: IRenderFlowInfo) {
         super.initialize(info);
@@ -70,6 +62,11 @@ export class ShadowFlow extends RenderFlow {
         this.pipeline.updateUBOs(view);
 
         super.render(view);
+
+        const shadowmapUniform = this._pipeline.globalBindings.get(UNIFORM_SHADOWMAP.name);
+        if (shadowmapUniform) {
+            shadowmapUniform.texture = this._pipeline.shadowFrameBuffer?.colorTextures[0]!;
+        }
     }
 
     /**
@@ -79,7 +76,7 @@ export class ShadowFlow extends RenderFlow {
     public rebuild () {
     }
 
-    public activate(pipeline: RenderPipeline) {
+    public activate (pipeline: RenderPipeline) {
         super.activate(pipeline);
 
         const device = PipelineGlobal.device;
@@ -136,11 +133,12 @@ export class ShadowFlow extends RenderFlow {
             });
 
             // @ts-ignore
-            this.pipeline._shadowFrameBuffer = this.shadowFrameBuffer;
+            this.pipeline.setShadowFrameBuffer(this.shadowFrameBuffer);
         }
 
         for (let i = 0; i < this.stages.length; ++i) {
             (this.stages[i] as ShadowStage).setShadowFrameBuffer(this._shadowFrameBuffer);
         }
     }
+
 }

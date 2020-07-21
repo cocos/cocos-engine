@@ -49,12 +49,12 @@ import { assertIsTrue } from '../../data/utils/asserts';
  */
 const ModelShadowCastingMode = Enum({
     /**
-     * @zh Disable shadow projection.
+     * @en Disable shadow projection.
      * @zh 不投射阴影。
      */
     OFF: 0,
     /**
-     * @zh Enable shadow projection.
+     * @en Enable shadow projection.
      * @zh 开启阴影投射。
      */
     ON: 1,
@@ -64,14 +64,14 @@ const ModelShadowCastingMode = Enum({
  * @en Shadow receive mode.
  * @zh 阴影接收方式。
  */
-export const ModelShadowReceivingMode = Enum({
+const ModelShadowReceivingMode = Enum({
     /**
-     * @zh Disable shadow projection.
+     * @en Disable shadow projection.
      * @zh 不接收阴影。
      */
     OFF: 0,
     /**
-     * @zh Enable shadow projection.
+     * @en Enable shadow projection.
      * @zh 开启阴影投射。
      */
     ON: 1,
@@ -95,11 +95,6 @@ class ModelLightmapSettings {
     protected _bakeable: boolean = false;
     @property
     protected _castShadow: boolean = false;
-    @property({
-        formerlySerializedAs: '_recieveShadow',
-    })
-    @property
-    protected _receiveShadow: boolean = true;
     @property
     protected _lightmapSize: number = 64;
 
@@ -130,19 +125,6 @@ class ModelLightmapSettings {
     }
 
     /**
-     * @en receive shadow.
-     * @zh 是否接受阴影。
-     */
-    @property
-    get receiveShadow () {
-        return this._receiveShadow;
-    }
-
-    set receiveShadow (val) {
-        this._receiveShadow = val;
-    }
-
-    /**
      * @en lightmap size.
      * @zh 光照图大小
      */
@@ -168,6 +150,7 @@ class ModelLightmapSettings {
 export class ModelComponent extends RenderableComponent {
 
     public static ShadowCastingMode = ModelShadowCastingMode;
+    public static ShadowReceivingMode = ModelShadowReceivingMode;
 
     @property
     public lightmapSettings = new ModelLightmapSettings();
@@ -179,7 +162,7 @@ export class ModelComponent extends RenderableComponent {
     protected _shadowCastingMode = ModelShadowCastingMode.OFF;
 
     @property
-    protected _receiveShadows = ModelShadowReceivingMode.ON;
+    protected _shadowReceivingMode = ModelShadowReceivingMode.ON;
 
     /**
      * @en Shadow projection mode.
@@ -196,6 +179,23 @@ export class ModelComponent extends RenderableComponent {
     set shadowCastingMode (val) {
         this._shadowCastingMode = val;
         this._updateCastShadow();
+    }
+
+    /**
+     * @en receive shadow.
+     * @zh 是否接受阴影。
+     */
+    @property({
+        type: ModelShadowReceivingMode,
+        tooltip: 'i18n:model.shadow_receiving_model',
+    })
+    get receiveShadow () {
+        return this._shadowReceivingMode;
+    }
+
+    set receiveShadow (val) {
+        this._shadowReceivingMode = val;
+        this._updateReceiveShadow();
     }
 
     /**
@@ -262,7 +262,7 @@ export class ModelComponent extends RenderableComponent {
         this._watchMorphInMesh();
         this._updateModels();
         this._updateCastShadow();
-        this._updateReceiveShadows();
+        this._updateReceiveShadow();
     }
 
     // Redo, Undo, Prefab restore, etc.
@@ -444,14 +444,14 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
-    protected _updateReceiveShadows () {
+    protected _updateReceiveShadow () {
         if (!this._model) { return; }
-        if (this._shadowCastingMode === ModelShadowCastingMode.OFF) {
+        if (this._shadowReceivingMode === ModelShadowReceivingMode.OFF) {
             this._model.receiveShadow = false;
         } else {
             assertIsTrue(
-                this._shadowCastingMode === ModelShadowCastingMode.ON,
-                `ShadowCastingMode ${this._shadowCastingMode} is not supported.`,
+                this._shadowReceivingMode === ModelShadowReceivingMode.ON,
+                `ShadowReceivingMode ${this._shadowReceivingMode} is not supported.`,
             );
             this._model.receiveShadow = true;
         }
@@ -519,4 +519,8 @@ export class ModelComponent extends RenderableComponent {
 
 export declare namespace ModelComponent {
     export type ShadowCastingMode = EnumAlias<typeof ModelShadowCastingMode>;
+}
+
+export declare namespace ModelComponent {
+    export type ShadowReceivingMode = EnumAlias<typeof ModelShadowReceivingMode>;
 }

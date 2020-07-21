@@ -39,22 +39,7 @@ import { PipelineGlobal } from './global';
 import { GFXCommandBuffer } from '../gfx';
 
 const v3_1 = new Vec3();
-
-const shadowCamera_W_P = new Vec3();
-const shadowCamera_W_R = new Quat();
-const shadowCamera_W_S = new Vec3();
-const shadowCamera_W_T = new Mat4();
-
-const shadowCamera_M_V = new Mat4();
-const shadowCamera_M_P = new Mat4();
-const shadowCamera_M_V_P = new Mat4();
-
-// Define shadwoMapCamera
-const shadowCamera_Near = 0.1;
-const shadowCamera_Far = 1000.0;
-const shadowCamera_Fov = 45.0;
-const shadowCamera_Aspect = 1.0;
-const shadowCamera_OrthoSize = 20.0;
+const mat4 = new Mat4();
 
 /**
  * @en Render pipeline information descriptor
@@ -317,35 +302,25 @@ export abstract class RenderPipeline {
      * @zh
      * 获取阴影的FBO
      */
-    public get shadowFrameBuffer () {
-        return this._shadowFrameBuffer;
-    }
+    public abstract get shadowFrameBuffer () : GFXFramebuffer;
 
     /**
      * @zh
-     * 获取阴影相机的ViewProj
+     * 设置阴影的FBO
      */
-    public get shadowCameraViewProj () {
-        return this._shadowCameraViewProj;
-    }
+    public abstract setShadowFrameBuffer (val: GFXFramebuffer);
 
     /**
      * @zh
      * 获取阴影贴图分辨率
      */
-    public get shadowMapSize () {
-        return this._shadowMapSize;
-    }
+    public abstract get shadowMapSize () : Vec2;
 
     /**
      * @zh
      * 设置阴影贴图分辨率
      */
-    public setShadowMapSize (x: number, y: number) {
-        if (x > 0 && y > 0) {
-            this._shadowMapSize.set(x, y);
-        }
-    }
+    public abstract setShadowMapSize (x: number, y: number);
 
     protected _renderObjects: IRenderObject[] = [];
 
@@ -382,10 +357,6 @@ export abstract class RenderPipeline {
     protected _macros: IDefineMap = {};
     protected _useDynamicBatching = false;
     protected _commandBuffers: GFXCommandBuffer[] = [];
-    protected _shadowMapBuffer: GFXBuffer|null = null;
-    protected _shadowFrameBuffer: GFXFramebuffer|null = null;
-    protected _shadowCameraViewProj: Mat4 = new Mat4();
-    protected _shadowMapSize: Vec2 = new Vec2(512, 512);
 
     @property({
         type: [RenderTextureDesc],
@@ -660,27 +631,6 @@ export abstract class RenderPipeline {
             } else {
                 fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
             }
-
-            shadowCamera_W_P.set(mainLight!.node!.getWorldPosition());
-            shadowCamera_W_R.set(mainLight!.node!.getWorldRotation());
-            shadowCamera_W_S.set(mainLight!.node!.getWorldScale());
-
-            // world Transfrom
-            Mat4.fromRTS(shadowCamera_W_T, shadowCamera_W_R, shadowCamera_W_P, shadowCamera_W_S);
-
-            // camera view
-            Mat4.invert(shadowCamera_M_V, shadowCamera_W_T);
-
-            // camera proj
-            // Mat4.perspective(shadowCamera_M_P, shadowCamera_Fov, shadowCamera_Aspect, shadowCamera_Near, shadowCamera_Far);
-             const x = shadowCamera_OrthoSize * shadowCamera_Aspect;
-             const y = shadowCamera_OrthoSize;
-             Mat4.ortho(shadowCamera_M_P, -x, x, -y, y, shadowCamera_Near, shadowCamera_Far,
-                 PipelineGlobal.device.clipSpaceMinZ, PipelineGlobal.device.screenSpaceSignY);
-
-            // camera viewProj
-            Mat4.multiply(shadowCamera_M_V_P, shadowCamera_M_P, shadowCamera_M_V);
-            this._shadowCameraViewProj = shadowCamera_M_V_P;
         } else {
             Vec3.toArray(fv, Vec3.UNIT_Z, UBOGlobal.MAIN_LIT_DIR_OFFSET);
             Vec4.toArray(fv, Vec4.ZERO, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
@@ -707,7 +657,7 @@ export abstract class RenderPipeline {
         fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
 
         // cc_LightMatrix
-        Mat4.toArray(fv, shadowCamera_M_V_P, UBOGlobal.MAIN_SHADOW_MATRIX_OFFSET);
+        Mat4.toArray(fv, mat4, UBOGlobal.MAIN_SHADOW_MATRIX_OFFSET);
 
         // update ubos
         this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._uboGlobal.view);

@@ -5,7 +5,6 @@
 import { ccclass } from '../../data/class-decorator';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXFilter, IGFXColor } from '../../gfx/define';
-import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from '../forward/enum';
@@ -24,7 +23,7 @@ const bufs: GFXCommandBuffer[] = [];
 export class ShadowStage extends RenderStage {
     public static initInfo: IRenderStageInfo = {
         name: 'ShadowStage',
-        priority: ForwardStagePriority.FORWARD - 1,
+        priority: ForwardStagePriority.SHADOW,
         renderQueues: [
             {
                 isTransparent: true,
@@ -53,10 +52,6 @@ export class ShadowStage extends RenderStage {
     constructor () {
         super();
         this._additiveShadowQueue = new RenderShadowMapBatchedQueue();
-    }
-
-    public activate (flow: RenderFlow) {
-        super.activate(flow);
     }
 
     /**
@@ -96,7 +91,8 @@ export class ShadowStage extends RenderStage {
             const ro = renderObjects[i];
             if (ro.model.castShadow) {
                 for (m = 0; m < ro.model.subModelNum; m++) {
-                    for (p = 0; p < ro.model.getSubModel(m).passes.length; p++) {
+                    const passes = ro.model.getSubModel(m).passes;
+                    for (p = 0; p < passes.length; p++) {
                         const pass = ro.model.getSubModel(m).passes[p];
                         this._additiveShadowQueue.add(pass, ro, m);
                     }
@@ -109,10 +105,11 @@ export class ShadowStage extends RenderStage {
         const cmdBuff = this._pipeline.commandBuffers[0];
 
         const vp = camera.viewport;
-        this._renderArea!.x = vp.x * this.pipeline.shadowMapSize.x;
-        this._renderArea!.y = vp.y * this.pipeline.shadowMapSize.y;
-        this._renderArea!.width =  vp.width * this.pipeline.shadowMapSize.x * this.pipeline!.shadingScale;
-        this._renderArea!.height = vp.height * this.pipeline.shadowMapSize.y * this.pipeline!.shadingScale;
+        const shadowMapSize = this.pipeline.shadowMapSize;
+        this._renderArea!.x = vp.x * shadowMapSize.x;
+        this._renderArea!.y = vp.y * shadowMapSize.y;
+        this._renderArea!.width =  vp.width * shadowMapSize.x * this.pipeline!.shadingScale;
+        this._renderArea!.height = vp.height * shadowMapSize.y * this.pipeline!.shadingScale;
 
         const device = PipelineGlobal.device;
         const renderPass = this._shadowFrameBuffer!.renderPass;
@@ -128,14 +125,6 @@ export class ShadowStage extends RenderStage {
 
         bufs[0] = cmdBuff;
         device.queue.submit(bufs);
-
-        if (this._pipeline.useMSAA) {
-            device.blitFramebuffer(
-                this._framebuffer!,
-                this._pipeline.getFrameBuffer(this._pipeline.currShading)!,
-                this._renderArea!,
-                this._renderArea!,
-                GFXFilter.POINT);
-        }
     }
+
 }

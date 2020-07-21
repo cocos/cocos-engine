@@ -16,7 +16,7 @@ export class DirectionalLight extends Light {
         return this._shadowRange;
     }
 
-    public set shadoshadowIntensitywRange (shadowIntensity: number) {
+    public set shadowIntensitywRange (shadowIntensity: number) {
         this._shadowIntensity = shadowIntensity;
     }
 
