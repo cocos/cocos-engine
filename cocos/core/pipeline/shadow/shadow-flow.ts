@@ -65,7 +65,7 @@ export class ShadowFlow extends RenderFlow {
 
         const shadowmapUniform = this._pipeline.globalBindings.get(UNIFORM_SHADOWMAP.name);
         if (shadowmapUniform) {
-            shadowmapUniform.texture = this._pipeline.shadowFrameBuffer?.colorTextures[0]!;
+            shadowmapUniform.texture = this._shadowFrameBuffer?.colorTextures[0]!;
         }
     }
 
@@ -131,14 +131,10 @@ export class ShadowFlow extends RenderFlow {
                 depthStencilTexture: this._depth,
                 depStencilMipmapLevel: 0,
             });
-
-            // @ts-ignore
-            this.pipeline.setShadowFrameBuffer(this.shadowFrameBuffer);
         }
 
         for (let i = 0; i < this.stages.length; ++i) {
             (this.stages[i] as ShadowStage).setShadowFrameBuffer(this._shadowFrameBuffer);
         }
     }
-
 }

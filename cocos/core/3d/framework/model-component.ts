@@ -95,6 +95,10 @@ class ModelLightmapSettings {
     protected _bakeable: boolean = false;
     @property
     protected _castShadow: boolean = false;
+    @property({
+        formerlySerializedAs: '_recieveShadow',
+    })
+    protected _receiveShadow: boolean = false;
     @property
     protected _lightmapSize: number = 64;
 
@@ -122,6 +126,19 @@ class ModelLightmapSettings {
 
     set castShadow (val) {
         this._castShadow = val;
+    }
+
+    /**
+     * @en receive shadow.
+     * @zh 是否接受阴影。
+     */
+    @property
+    get receiveShadow () {
+        return this._receiveShadow;
+    }
+
+    set receiveShadow (val) {
+        this._receiveShadow = val;
     }
 
     /**
@@ -449,10 +466,6 @@ export class ModelComponent extends RenderableComponent {
         if (this._shadowReceivingMode === ModelShadowReceivingMode.OFF) {
             this._model.receiveShadow = false;
         } else {
-            assertIsTrue(
-                this._shadowReceivingMode === ModelShadowReceivingMode.ON,
-                `ShadowReceivingMode ${this._shadowReceivingMode} is not supported.`,
-            );
             this._model.receiveShadow = true;
         }
     }

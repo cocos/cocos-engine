@@ -5,7 +5,7 @@
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { Pass, IMacroPatch } from '../renderer';
 import { SubModel, IPSOCreateInfo } from '../renderer/scene/submodel';
-import { IRenderObject, UBOShadow } from './define';
+import { IRenderObject, UBOPCFShadow } from './define';
 import { GFXDevice, GFXRenderPass, GFXBuffer, GFXPipelineState } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
@@ -16,7 +16,7 @@ const forwardShadowMapPatches: IMacroPatch[] = [
 
 /**
  * @zh
- * shadowMap-batched-queue
+ * 阴影渲染队列
  */
 export class RenderShadowMapBatchedQueue {
     private _subModelsArray: SubModel[] = [];
@@ -24,7 +24,7 @@ export class RenderShadowMapBatchedQueue {
     private _shadowMapBuffer: GFXBuffer|null = null;
 
     // psoCI cache
-    private _psoCICache: Map<IRenderObject, IPSOCreateInfo> = new Map();
+    private _psoCICache: Map<SubModel, IPSOCreateInfo> = new Map();
     // pso cache
     private _psoCache: Map<SubModel, GFXPipelineState> = new Map();
 
@@ -37,9 +37,6 @@ export class RenderShadowMapBatchedQueue {
     public clear (shadowMapBuffer: GFXBuffer) {
         this._subModelsArray.length = 0;
         this._psoCIArray.length = 0;
-        // Put it in the destruction event ↓↓↓
-        // this._psoCICache.clear();
-        // this._psoCache.clear();
         this._shadowMapBuffer = shadowMapBuffer;
     }
 
@@ -50,18 +47,18 @@ export class RenderShadowMapBatchedQueue {
             const fullPatches = modelPatches ? forwardShadowMapPatches.concat(modelPatches) : forwardShadowMapPatches;
 
             let psoCI: IPSOCreateInfo;
-            if (this._psoCICache.has(renderObj)) {
-                psoCI = this._psoCICache.get(renderObj)!;
+            if (this._psoCICache.has(subModel)) {
+                psoCI = this._psoCICache.get(subModel)!;
             } else {
                 psoCI = pass.createPipelineStateCI(fullPatches)!;
-                this._psoCICache.set(renderObj, psoCI);
+                this._psoCICache.set(subModel, psoCI);
+
+                renderObj.model.updateLocalBindings(psoCI, subModelIdx);
+                psoCI.bindingLayout.bindBuffer(UBOPCFShadow.BLOCK.binding, this._shadowMapBuffer!);
+                psoCI.bindingLayout.update();
             }
 
-            renderObj.model.updateLocalBindings(psoCI, subModelIdx);
             if (this._shadowMapBuffer) {
-                psoCI.bindingLayout.bindBuffer(UBOShadow.BLOCK.binding, this._shadowMapBuffer);
-                psoCI.bindingLayout.update();
-
                 this._subModelsArray.push(subModel);
                 this._psoCIArray.push(psoCI);
             } else {
@@ -82,14 +79,7 @@ export class RenderShadowMapBatchedQueue {
             const subModel = this._subModelsArray[i];
             const psoCI = this._psoCIArray[i];
             const ia = subModel.inputAssembler!;
-
-            let pso: GFXPipelineState;
-            if (this._psoCache.has(subModel)) {
-                pso = this._psoCache.get(subModel)!;
-            } else {
-                pso = PipelineStateManager.getOrCreatePipelineState(device, psoCI, renderPass, ia);
-                this._psoCache.set(subModel, pso);
-            }
+            const pso = PipelineStateManager.getOrCreatePipelineState(device, psoCI, renderPass, ia);
 
             cmdBuff.bindPipelineState(pso);
             cmdBuff.bindBindingLayout(psoCI.bindingLayout);
@@ -97,5 +87,4 @@ export class RenderShadowMapBatchedQueue {
             cmdBuff.draw(ia);
         }
     }
-
 }

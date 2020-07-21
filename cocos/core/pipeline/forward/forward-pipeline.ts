@@ -102,22 +102,6 @@ export class ForwardPipeline extends RenderPipeline {
 
     /**
      * @zh
-     * 获取阴影的FBO
-     */
-    public get shadowFrameBuffer () {
-        return this._shadowFrameBuffer!;
-    }
-
-    /**
-     * @zh
-     * 设置阴影的FBO
-     */
-    public setShadowFrameBuffer (val: GFXFramebuffer) {
-        this._shadowFrameBuffer = val;
-    }
-
-    /**
-     * @zh
      * 获取阴影贴图分辨率
      */
     public get shadowMapSize () {

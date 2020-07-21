@@ -23,7 +23,7 @@ const bufs: GFXCommandBuffer[] = [];
 export class ShadowStage extends RenderStage {
     public static initInfo: IRenderStageInfo = {
         name: 'ShadowStage',
-        priority: ForwardStagePriority.SHADOW,
+        priority: ForwardStagePriority.FORWARD,
         renderQueues: [
             {
                 isTransparent: true,
@@ -93,8 +93,7 @@ export class ShadowStage extends RenderStage {
                 for (m = 0; m < ro.model.subModelNum; m++) {
                     const passes = ro.model.getSubModel(m).passes;
                     for (p = 0; p < passes.length; p++) {
-                        const pass = ro.model.getSubModel(m).passes[p];
-                        this._additiveShadowQueue.add(pass, ro, m);
+                        this._additiveShadowQueue.add(passes[p], ro, m);
                     }
                 }
             }
@@ -126,5 +125,4 @@ export class ShadowStage extends RenderStage {
         bufs[0] = cmdBuff;
         device.queue.submit(bufs);
     }
-
 }

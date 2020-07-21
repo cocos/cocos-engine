@@ -300,18 +300,6 @@ export abstract class RenderPipeline {
 
     /**
      * @zh
-     * 获取阴影的FBO
-     */
-    public abstract get shadowFrameBuffer () : GFXFramebuffer;
-
-    /**
-     * @zh
-     * 设置阴影的FBO
-     */
-    public abstract setShadowFrameBuffer (val: GFXFramebuffer);
-
-    /**
-     * @zh
      * 获取阴影贴图分辨率
      */
     public abstract get shadowMapSize () : Vec2;
