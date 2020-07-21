@@ -61,10 +61,15 @@ export class RenderShadowMapBatchedQueue {
             if (this._shadowMapBuffer) {
                 psoCI.bindingLayout.bindBuffer(UBOShadow.BLOCK.binding, this._shadowMapBuffer);
                 psoCI.bindingLayout.update();
-            }
 
-            this._subModelsArray.push(subModel);
-            this._psoCIArray.push(psoCI);
+                this._subModelsArray.push(subModel);
+                this._psoCIArray.push(psoCI);
+            } else {
+                this._subModelsArray.length = 0;
+                this._psoCIArray.length = 0;
+                this._psoCICache.clear();
+                this._psoCache.clear();
+            }
         }
     }
 
