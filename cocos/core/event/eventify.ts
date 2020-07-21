@@ -146,9 +146,9 @@ export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & 
             Object.getOwnPropertySymbols(callbacksInvokerPrototype));
     for (let iPropertyKey = 0; iPropertyKey < propertyKeys.length; ++iPropertyKey) {
         const propertyKey = propertyKeys[iPropertyKey];
-        const propertyDescriptor = Object.getOwnPropertyDescriptor(callbacksInvokerPrototype, propertyKey);
-        if (propertyDescriptor) {
-            if (!(propertyKey in Eventified.prototype)) {
+        if (!(propertyKey in Eventified.prototype)) {
+            const propertyDescriptor = Object.getOwnPropertyDescriptor(callbacksInvokerPrototype, propertyKey);
+            if (propertyDescriptor) {
                 Object.defineProperty(Eventified.prototype, propertyKey, propertyDescriptor);
             }
         }
