@@ -29,9 +29,6 @@ const shadowMap_Patches: IMacroPatch[]= [
     { name: 'CC_SHADOW', value: true },
 ];
 
-const none_Patches: IMacroPatch[]= [
-];
-
 export interface IInstancedAttribute {
     name: string;
     format: GFXFormat;
