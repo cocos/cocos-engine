@@ -96,6 +96,7 @@ pool.get = function (string, richtext) {
     labelComponent.string = "";
     labelComponent.horizontalAlign = HorizontalAlign.LEFT;
     labelComponent.verticalAlign = VerticalAlign.CENTER;
+    labelComponent._forceUseCanvas = true;
 
     return labelNode;
 };

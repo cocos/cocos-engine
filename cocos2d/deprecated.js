@@ -284,6 +284,12 @@ if (CC_DEBUG) {
     markAsRemovedInObject(cc.sys, [
         'dumpRoot',
         'cleanScript',
+        'BROWSER_TYPE_WECHAT_GAME',
+        'BROWSER_TYPE_WECHAT_GAME_SUB',
+        'BROWSER_TYPE_BAIDU_GAME',
+        'BROWSER_TYPE_BAIDU_GAME_SUB',
+        'BROWSER_TYPE_XIAOMI_GAME',
+        'BROWSER_TYPE_ALIPAY_GAME',
     ], 'cc.sys');
 
     // cc.Director

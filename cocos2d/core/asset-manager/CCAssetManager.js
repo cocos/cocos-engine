@@ -572,7 +572,7 @@ AssetManager.prototype = {
             
             this.loadAny(depend, options, function (err, native) {
                 if (!err) {
-                    asset._nativeAsset = native;
+                    !asset._nativeAsset && (asset._nativeAsset = native);
                 }
                 else {
                     cc.error(err.message, err.stack);
