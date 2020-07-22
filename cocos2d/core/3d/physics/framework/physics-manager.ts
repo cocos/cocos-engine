@@ -164,6 +164,8 @@ export class Physics3DManager {
     @property
     private _useFixedTime = true;
 
+    useAccumulator = false;
+    private _accumulator = 0;
     private readonly _material: cc.PhysicsMaterial | null = null;
 
     private readonly raycastOptions: IRaycastOptions = {
@@ -208,10 +210,24 @@ export class Physics3DManager {
 
         cc.director.emit(cc.Director.EVENT_BEFORE_PHYSICS);
 
-        if (this._useFixedTime) {
+        if (CC_PHYSICS_BUILTIN) {
             this.physicsWorld.step(this._deltaTime);
         } else {
-            this.physicsWorld.step(this._deltaTime, deltaTime, this._maxSubStep);
+            if (this._useFixedTime) {
+                this.physicsWorld.step(this._deltaTime);
+            } else {
+                if (this.useAccumulator) {
+                    let i = 0;
+                    this._accumulator += deltaTime;
+                    while (i < this._maxSubStep && this._accumulator > this._deltaTime) {
+                        this.physicsWorld.step(this._deltaTime);
+                        this._accumulator -= this._deltaTime;
+                        i++;
+                    }
+                } else {
+                    this.physicsWorld.step(this._deltaTime, deltaTime, this._maxSubStep);
+                }
+            }
         }
 
         cc.director.emit(cc.Director.EVENT_AFTER_PHYSICS);

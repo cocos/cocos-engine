@@ -62,7 +62,7 @@ export function fillRaycastResult (result: PhysicsRayResult, cannonResult: CANNO
 }
 
 export function commitShapeUpdates (body: CANNON.Body) {
+    body.aabbNeedsUpdate = true;
     body.updateMassProperties();
     body.updateBoundingRadius();
-    body.aabbNeedsUpdate = true;
 }
