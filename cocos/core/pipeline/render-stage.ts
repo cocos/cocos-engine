@@ -307,17 +307,6 @@ export abstract class RenderStage {
     }
 
     /**
-     * @en Create the main command buffer of this stage
-     * @zh 创建该阶段的主命令缓冲
-     */
-    public createCmdBuffer (rctx: RenderContext) {
-        this._cmdBuff = rctx.device.createCommandBuffer({
-            queue: rctx.device.queue,
-            type: GFXCommandBufferType.PRIMARY,
-        });
-    }
-
-    /**
      * @en Clear the given render queue
      * @zh 清空指定的渲染队列
      * @param rq The render queue

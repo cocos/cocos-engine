@@ -26,7 +26,7 @@ export class ToneMapFlow extends RenderFlow {
 
         const toneStage = new ToneMapStage();
         toneStage.initialize(ToneMapStage.initInfo);
-        this._stages.push(toneStage);
+        this.addStage(toneStage);
 
         return true;
     }

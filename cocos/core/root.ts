@@ -301,11 +301,10 @@ export class Root {
     public setRenderPipeline (rppl: RenderPipeline): boolean {
         if (!rppl) {
             rppl = new ForwardPipeline();
-            rppl.initialize(ForwardPipeline.initInfo);
+            rppl.initialize();
         }
         this._pipeline = rppl;
-        const rctx = new ForwardRenderContext(this, this._device, this._pipeline);
-        if (!this._pipeline.activate(rctx)) {
+        if (!this._pipeline.activate(this)) {
             return false;
         }
         for (let i = 0; i < this.scenes.length; i++) {

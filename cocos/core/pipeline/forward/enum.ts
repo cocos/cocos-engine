@@ -7,10 +7,8 @@
  * @en The priority of stage in forward rendering
  */
 export enum ForwardStagePriority {
-    CULLING = 1,
-    UBO = 10,
-    FORWARD = 20,
-    UI = 30
+    FORWARD = 10,
+    UI = 20
 }
 
 /**

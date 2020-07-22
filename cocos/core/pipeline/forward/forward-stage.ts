@@ -153,7 +153,7 @@ export class ForwardStage extends RenderStage {
             }
         }
 
-        const device = ctx.device;
+        const device = ctx.device!;
         const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : ctx.getRenderPass(camera.clearFlag);
 
         cmdBuff.begin();

@@ -3,11 +3,11 @@
  */
 
 import { ccclass } from '../../data/class-decorator';
-import { IRenderPipelineInfo, RenderPipeline } from '../render-pipeline';
+import { RenderPipeline } from '../render-pipeline';
 import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';
-import { RenderContext } from '../render-context';
+import { Root } from '../../root';
 
 /**
  * @en The forward render pipeline
@@ -15,31 +15,30 @@ import { RenderContext } from '../render-context';
  */
 @ccclass('ForwardPipeline')
 export class ForwardPipeline extends RenderPipeline {
-    public static initInfo: IRenderPipelineInfo = {
-    };
-
-    public initialize (info: IRenderPipelineInfo) {
-        super.initialize(info);
+    public initialize () {
+        super.initialize();
         const forwardFlow = new ForwardFlow();
         forwardFlow.initialize(ForwardFlow.initInfo);
-        this._flows.push(forwardFlow);
+        this.addFlow(forwardFlow);
     }
 
-    public activate (rctx: RenderContext): boolean {
-        if (!super.activate(rctx)) {
+    public activate (root: Root): boolean {
+        if (!super.activate(root)) {
             return false;
         }
+
+        const rctx = this._renderContext;
 
         if (rctx.usePostProcess) {
             const tonemapFlow = new ToneMapFlow();
             tonemapFlow.initialize(ForwardFlow.initInfo);
-            this._flows.push(tonemapFlow);
+            this.addFlow(tonemapFlow);
             tonemapFlow.activate(rctx);
         }
 
         const uiFlow = new UIFlow();
         uiFlow.initialize(UIFlow.initInfo);
-        this._flows.push(uiFlow);
+        this.addFlow(uiFlow);
         uiFlow.activate(rctx);
 
         return true;

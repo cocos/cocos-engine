@@ -62,7 +62,7 @@ export class ToneMapStage extends RenderStage {
     }
 
     public render (rctx: RenderContext, view: RenderView) {
-        const device = rctx.device;
+        const device = rctx.device!;
         const camera = view.camera!;
         const cmdBuff = rctx.commandBuffers[0];
 

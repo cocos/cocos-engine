@@ -8,8 +8,6 @@ import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { UIStage } from './ui-stage';
 import { RenderContext } from '../render-context';
-import { ForwardUBOStage } from '../forward/forward-ubo-stage';
-import { ForwardCullingStage } from '../forward/forward-culling-stage';
 
 /**
  * @en The UI render flow
@@ -27,17 +25,9 @@ export class UIFlow extends RenderFlow {
 
         super.initialize(info);
 
-        const forwardCullingStage = new ForwardCullingStage();
-        forwardCullingStage.initialize(ForwardCullingStage.initInfo);
-        this._stages.push(forwardCullingStage);
-
-        const forwardUBOStage = new ForwardUBOStage();
-        forwardUBOStage.initialize(ForwardUBOStage.initInfo);
-        this._stages.push(forwardUBOStage);
-
         const uiStage = new UIStage();
         uiStage.initialize(UIStage.initInfo);
-        this._stages.push(uiStage);
+        this.addStage(uiStage);
 
         return true;
     }
@@ -51,6 +41,8 @@ export class UIFlow extends RenderFlow {
 
     public render (rctx: RenderContext, view: RenderView) {
         view.camera.update();
+        rctx.sceneCulling(view);
+        rctx.updateUBO(view);
         super.render(rctx, view);
     }
 }
