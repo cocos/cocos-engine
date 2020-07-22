@@ -24,13 +24,13 @@
  ****************************************************************************/
 #pragma once
 
-#include "../config.hpp"
+#include "../config.h"
 
-#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
 
 #include "Base.h"
-#include "../Value.hpp"
-#include "ObjectWrap.h"
+
+#include "../Value.h"
 
 namespace se {
     
@@ -39,23 +39,27 @@ namespace se {
         struct PrivateData
         {
             void* data;
-            Object* seObj;
+            JSObjectFinalizeCallback finalizeCb;
         };
+        
+        void setContext(JSContextRef cx);
 
-        void jsToSeArgs(const v8::FunctionCallbackInfo<v8::Value>& _v8args, ValueArray* outArr);
-        void jsToSeValue(v8::Isolate* isolate, v8::Local<v8::Value> jsval, Value* v);
-        void seToJsArgs(v8::Isolate* isolate, const ValueArray& args, std::vector<v8::Local<v8::Value>>* outArr);
-        void seToJsValue(v8::Isolate* isolate, const Value& v, v8::Local<v8::Value>* outJsVal);
+        bool defineProperty(Object* obj, const char* name, JSObjectCallAsFunctionCallback jsGetter, JSObjectCallAsFunctionCallback jsSetter);
 
-        void setReturnValue(const Value& data, const v8::FunctionCallbackInfo<v8::Value>& argv);
-        void setReturnValue(const Value& data, const v8::PropertyCallbackInfo<v8::Value>& argv);
+        void jsToSeArgs(JSContextRef cx, unsigned short argc, const JSValueRef* argv, ValueArray* outArr);
+        void seToJsArgs(JSContextRef cx, const ValueArray& args, JSValueRef* outArr);
+        void jsToSeValue(JSContextRef cx, JSValueRef jsval, Value* v);
+        void seToJsValue(JSContextRef cx, const Value& v, JSValueRef* jsval);
 
-        bool hasPrivate(v8::Isolate* isolate, v8::Local<v8::Value> value);
-        void setPrivate(v8::Isolate* isolate, ObjectWrap& wrap, void* data, PrivateData** outInternalData);
-        void* getPrivate(v8::Isolate* isolate, v8::Local<v8::Value> value);
-        void clearPrivate(v8::Isolate* isolate, ObjectWrap& wrap);
+        void forceConvertJsValueToStdString(JSContextRef cx, JSValueRef jsval, std::string* ret, bool ignoreException = false);
+        void jsStringToStdString(JSContextRef cx, JSStringRef jsStr, std::string* ret);
+
+        bool hasPrivate(JSObjectRef obj);
+        void setPrivate(JSObjectRef obj, void* data, JSObjectFinalizeCallback finalizeCb);
+        void* getPrivate(JSObjectRef obj);
+        void clearPrivate(JSObjectRef obj);
 
     } // namespace internal {
 } // namespace se {
 
-#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC

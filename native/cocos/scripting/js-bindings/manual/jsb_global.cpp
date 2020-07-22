@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 #include "jsb_global.h"
-#include "jsb_conversions.hpp"
+#include "jsb_conversions.h"
 #include "xxtea/xxtea.h"
 
 #include "base/CCScheduler.h"

@@ -22,15 +22,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#include "Class.hpp"
+#include "Class.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
 
-#include "Object.hpp"
-#include "Utils.hpp"
-#include "State.hpp"
-#include "ScriptEngine.hpp"
-#include "../HandleObject.hpp"
+#include "Object.h"
+#include "Utils.h"
+#include "State.h"
+#include "ScriptEngine.h"
+#include "../HandleObject.h"
 
 namespace se {
 

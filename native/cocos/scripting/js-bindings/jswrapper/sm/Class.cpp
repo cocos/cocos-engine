@@ -22,10 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#include "Class.hpp"
-#include "Object.hpp"
-#include "Utils.hpp"
-#include "ScriptEngine.hpp"
+#include "Class.h"
+#include "Object.h"
+#include "Utils.h"
+#include "ScriptEngine.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
 

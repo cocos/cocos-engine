@@ -1,5 +1,5 @@
-#include "scripting/js-bindings/auto/jsb_vk_auto.hpp"
-#include "scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "scripting/js-bindings/auto/jsb_vk_auto.h"
+#include "scripting/js-bindings/manual/jsb_conversions.h"
 #include "scripting/js-bindings/manual/jsb_global.h"
 #include "renderer/gfx-vulkan/GFXVulkan.h"
 

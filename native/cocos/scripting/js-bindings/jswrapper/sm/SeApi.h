@@ -24,10 +24,10 @@
  ****************************************************************************/
 #pragma once
 
-#include "ScriptEngine.hpp"
-#include "Class.hpp"
-#include "Object.hpp"
-#include "../Value.hpp"
-#include "../State.hpp"
+#include "ScriptEngine.h"
+#include "Class.h"
+#include "Object.h"
+#include "../Value.h"
+#include "../State.h"
 #include "HelperMacros.h"
-#include "Utils.hpp"
+#include "Utils.h"

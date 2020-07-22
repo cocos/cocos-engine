@@ -24,7 +24,7 @@
  ****************************************************************************/
 #pragma once
 
-#include "config.hpp"
+#include "config.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
 #include "sm/SeApi.h"
@@ -42,8 +42,8 @@
 #include "chakracore/SeApi.h"
 #endif
 
-#include "Value.hpp"
-#include "Object.hpp"
-#include "State.hpp"
-#include "HandleObject.hpp"
-#include "MappingUtils.hpp"
+#include "Value.h"
+#include "Object.h"
+#include "State.h"
+#include "HandleObject.h"
+#include "MappingUtils.h"

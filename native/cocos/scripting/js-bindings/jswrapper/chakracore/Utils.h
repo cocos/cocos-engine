@@ -24,42 +24,40 @@
  ****************************************************************************/
 #pragma once
 
-#include "../config.hpp"
+#include "../config.h"
 
-#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
 
 #include "Base.h"
 
-#include "../Value.hpp"
+#include "../Value.h"
 
 namespace se {
-    
+
     namespace internal {
 
         struct PrivateData
         {
             void* data;
-            JSObjectFinalizeCallback finalizeCb;
+            JsFinalizeCallback finalizeCb;
         };
-        
-        void setContext(JSContextRef cx);
 
-        bool defineProperty(Object* obj, const char* name, JSObjectCallAsFunctionCallback jsGetter, JSObjectCallAsFunctionCallback jsSetter);
+        bool defineProperty(JsValueRef obj, const char* name, JsNativeFunction getter, JsNativeFunction setter, bool enumerable, bool configurable);
 
-        void jsToSeArgs(JSContextRef cx, unsigned short argc, const JSValueRef* argv, ValueArray* outArr);
-        void seToJsArgs(JSContextRef cx, const ValueArray& args, JSValueRef* outArr);
-        void jsToSeValue(JSContextRef cx, JSValueRef jsval, Value* v);
-        void seToJsValue(JSContextRef cx, const Value& v, JSValueRef* jsval);
+        void jsToSeArgs(int argc, const JsValueRef* argv, ValueArray* outArr);
+        void seToJsArgs(const ValueArray& args, JsValueRef* outArr);
+        void jsToSeValue(JsValueRef jsval, Value* v);
+        void seToJsValue(const Value& v, JsValueRef* jsval);
 
-        void forceConvertJsValueToStdString(JSContextRef cx, JSValueRef jsval, std::string* ret, bool ignoreException = false);
-        void jsStringToStdString(JSContextRef cx, JSStringRef jsStr, std::string* ret);
+        void forceConvertJsValueToStdString(JsValueRef jsval, std::string* ret);
+        void jsStringToStdString(JsValueRef jsStr, std::string* ret);
 
-        bool hasPrivate(JSObjectRef obj);
-        void setPrivate(JSObjectRef obj, void* data, JSObjectFinalizeCallback finalizeCb);
-        void* getPrivate(JSObjectRef obj);
-        void clearPrivate(JSObjectRef obj);
+        bool hasPrivate(JsValueRef obj);
+        void setPrivate(JsValueRef obj, void* data, JsFinalizeCallback finalizeCb);
+        void* getPrivate(JsValueRef obj);
+        void clearPrivate(JsValueRef obj);
 
     } // namespace internal {
 } // namespace se {
 
-#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE

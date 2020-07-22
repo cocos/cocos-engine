@@ -24,9 +24,9 @@
  ****************************************************************************/
 #pragma once
 
-#include "../config.hpp"
+#include "../config.h"
 
-#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
 
 #include "Base.h"
 
@@ -50,7 +50,7 @@ namespace se {
         AutoHandleScope();
         ~AutoHandleScope();
     };
-
+    
     /**
      * ScriptEngine is a sington which represents a context of JavaScript VM.
      */
@@ -96,7 +96,7 @@ namespace se {
          *  @note This method will create JavaScript context and global object.
          */
         bool init();
-
+        
         /**
          *  @brief Adds a hook function before initializing script engine.
          *  @param[in] hook A hook function to be invoked before initializing script engine.
@@ -142,17 +142,6 @@ namespace se {
         bool evalString(const char* scriptStr, ssize_t length = -1, Value* rval = nullptr, const char* fileName = nullptr);
 
         /**
-         *  @brief Compile script file into bytecode.
-         *  @param[in] scriptPath The path of script file.
-         *  @param[in] outputPath The location where bytecode file should be written to. The path should be ends with ".bc", which indicates a bytecode file.
-         *  @return true if succeed, otherwise false.
-         */
-        bool saveByteCodeToFile(const std::string& scriptPath, const std::string& outputPath) {
-            //not implemented for JavaScriptCore
-            return false;
-        }
-
-        /**
          *  Delegate class for file operation
          */
         class FileOperationDelegate
@@ -165,14 +154,11 @@ namespace se {
             , onGetFullPath(nullptr)
             {}
 
-            /**
-             *  @brief Tests whether delegate is valid.
-             */
             bool isValid() const {
                 return onGetDataFromFile != nullptr
-                && onGetStringFromFile != nullptr
-                && onCheckFileExist != nullptr
-                && onGetFullPath != nullptr; }
+                    && onGetStringFromFile != nullptr
+                    && onCheckFileExist != nullptr
+                    && onGetFullPath != nullptr; }
 
             // path, buffer, buffer size
             std::function<void(const std::string&, const std::function<void(const uint8_t*, size_t)>& )> onGetDataFromFile;
@@ -213,7 +199,7 @@ namespace se {
         /**
          *  @brief Performs a JavaScript garbage collection.
          */
-        void garbageCollect();
+        void garbageCollect() { JS_GC( _cx );  }
 
         /**
          *  @brief Tests whether script engine is being cleaned up.
@@ -271,49 +257,43 @@ namespace se {
         uint32_t getVMId() const { return _vmId; }
 
         // Private API used in wrapper
-        void _clearException(JSValueRef exception);
-        JSContextRef _getContext() const { return _cx; }
+        JSContext* _getContext() { return _cx; }
         void _setGarbageCollecting(bool isGarbageCollecting);
+        void _debugProcessInput(const std::string& str);
         //
     private:
-
         ScriptEngine();
         ~ScriptEngine();
 
-        struct ExceptionInfo
-        {
-            std::string location;
-            std::string message;
-            std::string stack;
+        static void onWeakPointerCompartmentCallback(JSContext* cx, JSCompartment* comp, void* data);
+        static void onWeakPointerZoneGroupCallback(JSContext* cx, void* data);
 
-            // For compatibility
-            std::string filePath;
-            uint32_t lineno;
+        bool getScript(const std::string& path, JS::MutableHandleScript script);
+        bool compileScript(const std::string& path, JS::MutableHandleScript script);
 
-            ExceptionInfo()
-            : lineno(0)
-            {}
+        JSContext* _cx;
+        JSCompartment* _oldCompartment;
 
-            bool isValid() const
-            {
-                return !message.empty();
-            }
-        };
-        ExceptionInfo _formatException(JSValueRef exception);
+        Object* _globalObj;
+        Object* _debugGlobalObj;
 
-        std::chrono::steady_clock::time_point _startTime;
+        FileOperationDelegate _fileOperationDelegate;
+
         std::vector<RegisterCallback> _registerCallbackArray;
+        std::chrono::steady_clock::time_point _startTime;
+
         std::vector<std::function<void()>> _beforeInitHookArray;
         std::vector<std::function<void()>> _afterInitHookArray;
 
         std::vector<std::function<void()>> _beforeCleanupHookArray;
         std::vector<std::function<void()>> _afterCleanupHookArray;
 
-        JSGlobalContextRef _cx;
-
-        Object* _globalObj;
-        FileOperationDelegate _fileOperationDelegate;
         ExceptionCallback _exceptionCallback;
+        // name ~> JSScript map
+        std::unordered_map<std::string, JS::PersistentRootedScript*> _filenameScriptMap;
+
+        std::string _debuggerServerAddr;
+        uint32_t _debuggerServerPort;
 
         uint32_t _vmId;
 
@@ -321,11 +301,10 @@ namespace se {
         bool _isValid;
         bool _isInCleanup;
         bool _isErrorHandleWorking;
-        bool _isDebuggerEnabled;
     };
 
  } // namespace se {
 
-#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
 
 

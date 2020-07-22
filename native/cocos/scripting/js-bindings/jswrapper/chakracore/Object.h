@@ -24,13 +24,13 @@
  ****************************************************************************/
 #pragma once
 
-#include "../config.hpp"
+#include "../config.h"
 
-#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
 
 #include "Base.h"
-#include "../Value.hpp"
-#include "../RefCounter.hpp"
+#include "../Value.h"
+#include "../RefCounter.h"
 
 namespace se {
 
@@ -63,7 +63,6 @@ namespace se {
          *  @param[in] byteLength The number of bytes pointed to by the parameter bytes.
          *  @return A JavaScript Typed Array Object whose backing store is the same as the one pointed data, or nullptr if there is an error.
          *  @note The return value (non-null) has to be released manually.
-         *  @deprecated This method is deprecated, please use `se::Object::createTypedArray` instead.
          */
         SE_DEPRECATED_ATTRIBUTE static Object* createUint8TypedArray(uint8_t* bytes, size_t byteLength);
 
@@ -148,7 +147,7 @@ namespace se {
          *  @param[in] setter The native callback for setter.
          *  @return true if succeed, otherwise false.
          */
-        bool defineProperty(const char *name, JSObjectCallAsFunctionCallback getter, JSObjectCallAsFunctionCallback setter);
+        bool defineProperty(const char *name, JsNativeFunction getter, JsNativeFunction setter);
 
         /**
          *  @brief Defines a function with a native callback for an object.
@@ -156,7 +155,7 @@ namespace se {
          *  @param[in] func The native callback triggered by JavaScript code.
          *  @return true if succeed, otherwise false.
          */
-        bool defineFunction(const char *funcName, JSObjectCallAsFunctionCallback func);
+        bool defineFunction(const char *funcName, JsNativeFunction func);
 
         /**
          *  @brief Tests whether an object can be called as a function.
@@ -286,7 +285,7 @@ namespace se {
          *  @param[in] o The object to be tested with this object.
          *  @return true if the two values are strict equal, otherwise false.
          */
-        bool strictEquals(Object* o) const;
+        bool strictEquals(Object* obj) const;
 
         /**
          *  @brief Attaches an object to current object.
@@ -355,63 +354,33 @@ namespace se {
         std::string toString() const;
 
         // Private API used in wrapper
-        static Object* _createJSObject(Class* cls, JSObjectRef obj);
-        JSObjectRef _getJSObject() const;
+        static Object* _createJSObject(Class* cls, JsValueRef obj);
+        JsValueRef _getJSObject() const;
         Class* _getClass() const;
-        void _setFinalizeCallback(JSObjectFinalizeCallback finalizeCb);
-
         void _cleanup(void* nativeObject = nullptr);
+        void _setFinalizeCallback(JsFinalizeCallback finalizeCb);
         bool _isNativeFunction() const;
         //
-
     private:
-        static void setContext(JSContextRef cx);
         static void cleanup();
 
         Object();
         virtual ~Object();
-
-        bool init(Class* cls, JSObjectRef obj);
-
-        enum class Type : char
-        {
-            UNKNOWN,
-            PLAIN,
-            ARRAY,
-            ARRAY_BUFFER,
-            TYPED_ARRAY_INT8,
-            TYPED_ARRAY_INT16,
-            TYPED_ARRAY_INT32,
-            TYPED_ARRAY_UINT8,
-            TYPED_ARRAY_UINT8_CLAMPED,
-            TYPED_ARRAY_UINT16,
-            TYPED_ARRAY_UINT32,
-            TYPED_ARRAY_FLOAT32,
-            TYPED_ARRAY_FLOAT64,
-            FUNCTION
-        };
+        bool init(JsValueRef obj);
 
         Class* _cls;
-        JSObjectRef _obj;
+        JsValueRef _obj;
         void* _privateData;
-        JSObjectFinalizeCallback _finalizeCb;
+        JsFinalizeCallback _finalizeCb;
 
         uint32_t _rootCount;
         uint32_t _currentVMId;
-#if SE_DEBUG > 0
-    public:
-        uint32_t _id;
-    private:
-#endif
         bool _isCleanup;
 
-        mutable Type _type;
-
         friend class ScriptEngine;
-        friend class AutoHandleScope;
     };
 
 } // namespace se {
 
-#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
 

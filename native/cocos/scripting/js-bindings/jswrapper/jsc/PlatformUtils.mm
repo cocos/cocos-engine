@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 #include "PlatformUtils.h"
-#include "../config.hpp"
+#include "../config.h"
 
 #if defined(__APPLE__)
 #include <TargetConditionals.h>

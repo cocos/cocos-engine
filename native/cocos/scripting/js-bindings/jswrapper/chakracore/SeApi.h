@@ -24,8 +24,8 @@
  ****************************************************************************/
 #pragma once
 
-#include "ScriptEngine.hpp"
-#include "Class.hpp"
-#include "Object.hpp"
+#include "ScriptEngine.h"
+#include "Class.h"
+#include "Object.h"
 #include "HelperMacros.h"
-#include "Utils.hpp"
+#include "Utils.h"

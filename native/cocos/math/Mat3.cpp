@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "math/Mat3.hpp"
+#include "math/Mat3.h"
 
 #include <cmath>
 #include "math/Quaternion.h"

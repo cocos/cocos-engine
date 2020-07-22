@@ -22,8 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#include "Value.hpp"
-#include "Object.hpp"
+#include "Value.h"
+#include "Object.h"
 
 namespace se {
 

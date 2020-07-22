@@ -743,7 +743,7 @@ setCallback(nullptr)
 
 ### How to Use The Helper Functions in Cocos2D-X Binding for Easiler Native<->JS Type Conversions 
 
-The helper functions for native<->JS type conversions are located in `cocos/scripting/js-bindings/manual/jsb_conversions.hpp/.cpp`, it includes:
+The helper functions for native<->JS type conversions are located in `cocos/scripting/js-bindings/manual/jsb_conversions.h/.cpp`, it includes:
 
 #### Convert se::Value to CPP Type
 
@@ -1014,7 +1014,7 @@ classes_owned_by_cpp =
 
 ## Remote Debugging and Profile
 
-The remote debugging and profile are valid in debug mode, if you need to enable in release mode, you need to manually modify the macro in `cocos/scripting/js-bindings/jswrapper/config.hpp`.
+The remote debugging and profile are valid in debug mode, if you need to enable in release mode, you need to manually modify the macro in `cocos/scripting/js-bindings/jswrapper/config.h`.
 
 ```c++
 #if defined(COCOS2D_DEBUG) && COCOS2D_DEBUG > 0

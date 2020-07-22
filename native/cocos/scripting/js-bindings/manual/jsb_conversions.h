@@ -26,7 +26,7 @@
 #pragma once
 
 #include "scripting/js-bindings/jswrapper/SeApi.h"
-#include "scripting/js-bindings/manual/jsb_classtype.hpp"
+#include "scripting/js-bindings/manual/jsb_classtype.h"
 
 #include "cocos2d.h"
 #include "extensions/cocos-ext.h"

@@ -25,32 +25,32 @@
 
 #include "cocos2d.h"
 
-#include "cocos/scripting/js-bindings/manual/jsb_module_register.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_module_register.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
-#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
+#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.h"
 
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
-#include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_conversions.h"
 #include "cocos/scripting/js-bindings/manual/jsb_platform.h"
-#include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.hpp"
-#include "cocos/scripting/js-bindings/manual/jsb_xmlhttprequest.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.h"
+#include "cocos/scripting/js-bindings/manual/jsb_xmlhttprequest.h"
 #include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_network_manual.h"
-#include "cocos/scripting/js-bindings/manual/jsb_gfx_manual.hpp"
-#include "cocos/scripting/js-bindings/auto/jsb_gfx_auto.hpp"
-#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.hpp"
-#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_gfx_manual.h"
+#include "cocos/scripting/js-bindings/auto/jsb_gfx_auto.h"
+#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.h"
+#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.h"
 
 #if USE_GFX_RENDERER
 #endif
 
 #if USE_SOCKET
-#include "cocos/scripting/js-bindings/manual/jsb_websocket.hpp"
-#include "cocos/scripting/js-bindings/manual/jsb_socketio.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_websocket.h"
+#include "cocos/scripting/js-bindings/manual/jsb_socketio.h"
 #endif // USE_SOCKET
 
 #if USE_AUDIO
-#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.hpp"
+#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.h"
 #endif
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
@@ -64,7 +64,7 @@
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
 #if USE_VIDEO
-#include "cocos/scripting/js-bindings/auto/jsb_video_auto.hpp"
+#include "cocos/scripting/js-bindings/auto/jsb_video_auto.h"
 #endif
 
 #endif // (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)

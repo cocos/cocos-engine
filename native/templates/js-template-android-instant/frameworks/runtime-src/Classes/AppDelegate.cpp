@@ -27,12 +27,12 @@
 
 #include "cocos2d.h"
 
-#include "cocos/scripting/js-bindings/manual/jsb_module_register.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_module_register.h"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/event/EventDispatcher.h"
 #include "cocos/scripting/js-bindings/event/CustomEventTypes.h"
-#include "cocos/scripting/js-bindings/manual/jsb_classtype.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_classtype.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS) && PACKAGE_AS
 #include "SDKManager.h"

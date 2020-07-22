@@ -1,5 +1,5 @@
-#include "scripting/js-bindings/auto/jsb_gles2_auto.hpp"
-#include "scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "scripting/js-bindings/auto/jsb_gles2_auto.h"
+#include "scripting/js-bindings/manual/jsb_conversions.h"
 #include "scripting/js-bindings/manual/jsb_global.h"
 #include "renderer/gfx-gles2/GFXGLES2.h"
 

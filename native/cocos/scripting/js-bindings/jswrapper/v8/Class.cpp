@@ -22,13 +22,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#include "Class.hpp"
+#include "Class.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
-#include "Object.hpp"
-#include "Utils.hpp"
-#include "ScriptEngine.hpp"
+#include "Object.h"
+#include "Utils.h"
+#include "ScriptEngine.h"
 
 namespace se {
 // ------------------------------------------------------- Object

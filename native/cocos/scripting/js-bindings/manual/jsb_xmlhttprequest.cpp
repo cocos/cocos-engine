@@ -31,7 +31,7 @@
 //
 //
 #include "base/ccConfig.h"
-#include "jsb_xmlhttprequest.hpp"
+#include "jsb_xmlhttprequest.h"
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #include <unordered_map>
 #include <string>
@@ -39,7 +39,7 @@
 #include <algorithm>
 #include <sstream>
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
-#include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_conversions.h"
 #include "cocos/network/HttpClient.h"
 #include "cocos/base/CCData.h"
 #include "platform/CCApplication.h"

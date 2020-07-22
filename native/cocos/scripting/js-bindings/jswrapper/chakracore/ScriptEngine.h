@@ -24,9 +24,9 @@
  ****************************************************************************/
 #pragma once
 
-#include "../config.hpp"
+#include "../config.h"
 
-#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
 
 #include "Base.h"
 
@@ -47,8 +47,8 @@ namespace se {
     class AutoHandleScope
     {
     public:
-        AutoHandleScope();
-        ~AutoHandleScope();
+        AutoHandleScope() {}
+        ~AutoHandleScope() {}
     };
     
     /**
@@ -96,7 +96,7 @@ namespace se {
          *  @note This method will create JavaScript context and global object.
          */
         bool init();
-        
+
         /**
          *  @brief Adds a hook function before initializing script engine.
          *  @param[in] hook A hook function to be invoked before initializing script engine.
@@ -154,11 +154,14 @@ namespace se {
             , onGetFullPath(nullptr)
             {}
 
+            /**
+             *  @brief Tests whether delegate is valid.
+             */
             bool isValid() const {
                 return onGetDataFromFile != nullptr
-                    && onGetStringFromFile != nullptr
-                    && onCheckFileExist != nullptr
-                    && onGetFullPath != nullptr; }
+                && onGetStringFromFile != nullptr
+                && onCheckFileExist != nullptr
+                && onGetFullPath != nullptr; }
 
             // path, buffer, buffer size
             std::function<void(const std::string&, const std::function<void(const uint8_t*, size_t)>& )> onGetDataFromFile;
@@ -199,7 +202,7 @@ namespace se {
         /**
          *  @brief Performs a JavaScript garbage collection.
          */
-        void garbageCollect() { JS_GC( _cx );  }
+        void garbageCollect();
 
         /**
          *  @brief Tests whether script engine is being cleaned up.
@@ -257,54 +260,52 @@ namespace se {
         uint32_t getVMId() const { return _vmId; }
 
         // Private API used in wrapper
-        JSContext* _getContext() { return _cx; }
         void _setGarbageCollecting(bool isGarbageCollecting);
-        void _debugProcessInput(const std::string& str);
+        void _retainScriptObject(void* owner, void* target);
+        void _releaseScriptObject(void* owner, void* target);
         //
     private:
         ScriptEngine();
         ~ScriptEngine();
 
-        static void onWeakPointerCompartmentCallback(JSContext* cx, JSCompartment* comp, void* data);
-        static void onWeakPointerZoneGroupCallback(JSContext* cx, void* data);
+        struct ExceptionInfo
+        {
+            std::string location;
+            std::string message;
+            std::string stack;
 
-        bool getScript(const std::string& path, JS::MutableHandleScript script);
-        bool compileScript(const std::string& path, JS::MutableHandleScript script);
+            bool isValid() const
+            {
+                return !message.empty();
+            }
+        };
+        ExceptionInfo formatException(JsValueRef exception);
 
-        JSContext* _cx;
-        JSCompartment* _oldCompartment;
-
-        Object* _globalObj;
-        Object* _debugGlobalObj;
-
-        FileOperationDelegate _fileOperationDelegate;
-
-        std::vector<RegisterCallback> _registerCallbackArray;
         std::chrono::steady_clock::time_point _startTime;
-
+        std::vector<RegisterCallback> _registerCallbackArray;
         std::vector<std::function<void()>> _beforeInitHookArray;
         std::vector<std::function<void()>> _afterInitHookArray;
-
         std::vector<std::function<void()>> _beforeCleanupHookArray;
         std::vector<std::function<void()>> _afterCleanupHookArray;
 
+        JsRuntimeHandle _rt;
+        JsContextRef _cx;
+        Object* _globalObj;
+
+        FileOperationDelegate _fileOperationDelegate;
         ExceptionCallback _exceptionCallback;
-        // name ~> JSScript map
-        std::unordered_map<std::string, JS::PersistentRootedScript*> _filenameScriptMap;
 
-        std::string _debuggerServerAddr;
-        uint32_t _debuggerServerPort;
-
+        uint32_t _currentSourceContext;
         uint32_t _vmId;
 
-        bool _isGarbageCollecting;
         bool _isValid;
         bool _isInCleanup;
+        bool _isGarbageCollecting;
         bool _isErrorHandleWorking;
     };
 
  } // namespace se {
 
-#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
 
 

@@ -22,15 +22,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#include "Object.hpp"
+#include "Object.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
 
-#include "Utils.hpp"
-#include "Class.hpp"
-#include "ScriptEngine.hpp"
+#include "Utils.h"
+#include "Class.h"
+#include "ScriptEngine.h"
 #include "PlatformUtils.h"
-#include "../MappingUtils.hpp"
+#include "../MappingUtils.h"
 
 #include "EJConvertTypedArray.h"
 

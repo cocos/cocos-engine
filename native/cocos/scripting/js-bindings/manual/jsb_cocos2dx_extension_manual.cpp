@@ -23,11 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "jsb_cocos2dx_extension_manual.hpp"
+#include "jsb_cocos2dx_extension_manual.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
-#include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_conversions.h"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
-#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.hpp"
+#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.h"
 #include "cocos/base/CCThreadPool.h"
 
 #include "cocos2d.h"

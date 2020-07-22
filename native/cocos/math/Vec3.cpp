@@ -21,7 +21,7 @@
  */
 
 #include "math/Vec3.h"
-#include "math/Mat3.hpp"
+#include "math/Mat3.h"
 #include "math/MathUtil.h"
 #include "base/ccMacros.h"
 #include "math/Quaternion.h"

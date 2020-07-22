@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "jsb_helper.hpp"
+#include "jsb_helper.h"
 
 /* static */
 void CleanupTask::pushTaskToAutoReleasePool(const std::function<void()>& cb)

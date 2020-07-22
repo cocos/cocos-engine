@@ -22,15 +22,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#include "ScriptEngine.hpp"
+#include "ScriptEngine.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
 
-#include "Object.hpp"
-#include "Class.hpp"
-#include "Utils.hpp"
-#include "../MappingUtils.hpp"
-#include "../State.hpp"
+#include "Object.h"
+#include "Class.h"
+#include "Utils.h"
+#include "../MappingUtils.h"
+#include "../State.h"
 
 // for debug socket
 #ifdef _WIN32

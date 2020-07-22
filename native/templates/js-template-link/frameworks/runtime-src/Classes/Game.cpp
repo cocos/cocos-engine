@@ -25,11 +25,11 @@
 #include "Game.h"
 #include "cocos/scripting/js-bindings/event/CustomEventTypes.h"
 #include "cocos/scripting/js-bindings/event/EventDispatcher.h"
-#include "cocos/scripting/js-bindings/manual/jsb_module_register.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_module_register.h"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/event/EventDispatcher.h"
-#include "cocos/scripting/js-bindings/manual/jsb_classtype.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_classtype.h"
 
 Game::Game(int width, int height) : cc::Application(width, height) {}
 

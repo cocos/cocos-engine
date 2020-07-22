@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "jsb_classtype.hpp"
+#include "jsb_classtype.h"
 
 JSBClassType::Map* JSBClassType::__jsbClassTypeMap = nullptr;
 

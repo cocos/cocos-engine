@@ -24,24 +24,17 @@
  ****************************************************************************/
 #pragma once
 
-#include "../config.hpp"
+#include "../config.h"
 
-#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
 
 #include "Base.h"
-#include "../RefCounter.hpp"
-#include "../Value.hpp"
-#include "ObjectWrap.h"
-
-#include <memory>
+#include "../Value.h"
+#include "../RefCounter.h"
 
 namespace se {
 
     class Class;
-
-    namespace internal {
-        struct PrivateData;
-    }
 
     /**
      * se::Object represents JavaScript Object.
@@ -138,7 +131,7 @@ namespace se {
          *  @param[out] value The property's value if object has the property, otherwise the undefined value.
          *  @return true if object has the property, otherwise false.
          */
-        bool getProperty(const char *name, Value* value);
+        bool getProperty(const char* name, Value* value);
 
         /**
          *  @brief Sets a property to an object.
@@ -146,7 +139,7 @@ namespace se {
          *  @param[in] value A value to be used as the property's value.
          *  @return true if the property is set successfully, otherwise false.
          */
-        bool setProperty(const char *name, const Value& value);
+        bool setProperty(const char* name, const Value& value);
 
         /**
          *  @brief Defines a property with native accessor callbacks for an object.
@@ -155,7 +148,7 @@ namespace se {
          *  @param[in] setter The native callback for setter.
          *  @return true if succeed, otherwise false.
          */
-        bool defineProperty(const char *name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter);
+        bool defineProperty(const char *name, JSObjectCallAsFunctionCallback getter, JSObjectCallAsFunctionCallback setter);
 
         /**
          *  @brief Defines a function with a native callback for an object.
@@ -163,7 +156,7 @@ namespace se {
          *  @param[in] func The native callback triggered by JavaScript code.
          *  @return true if succeed, otherwise false.
          */
-        bool defineFunction(const char *funcName, v8::FunctionCallback func);
+        bool defineFunction(const char *funcName, JSObjectCallAsFunctionCallback func);
 
         /**
          *  @brief Tests whether an object can be called as a function.
@@ -362,39 +355,63 @@ namespace se {
         std::string toString() const;
 
         // Private API used in wrapper
-        static Object* _createJSObject(Class* cls, v8::Local<v8::Object> obj);
-        v8::Local<v8::Object> _getJSObject() const;
-        ObjectWrap& _getWrap();
+        static Object* _createJSObject(Class* cls, JSObjectRef obj);
+        JSObjectRef _getJSObject() const;
         Class* _getClass() const;
+        void _setFinalizeCallback(JSObjectFinalizeCallback finalizeCb);
 
-        void _setFinalizeCallback(V8FinalizeFunc finalizeCb);
+        void _cleanup(void* nativeObject = nullptr);
         bool _isNativeFunction() const;
         //
 
     private:
-        static void nativeObjectFinalizeHook(void* nativeObj);
-        static void setIsolate(v8::Isolate* isolate);
+        static void setContext(JSContextRef cx);
         static void cleanup();
-        static void setup();
 
         Object();
         virtual ~Object();
 
-        bool init(Class* cls, v8::Local<v8::Object> obj);
+        bool init(Class* cls, JSObjectRef obj);
+
+        enum class Type : char
+        {
+            UNKNOWN,
+            PLAIN,
+            ARRAY,
+            ARRAY_BUFFER,
+            TYPED_ARRAY_INT8,
+            TYPED_ARRAY_INT16,
+            TYPED_ARRAY_INT32,
+            TYPED_ARRAY_UINT8,
+            TYPED_ARRAY_UINT8_CLAMPED,
+            TYPED_ARRAY_UINT16,
+            TYPED_ARRAY_UINT32,
+            TYPED_ARRAY_FLOAT32,
+            TYPED_ARRAY_FLOAT64,
+            FUNCTION
+        };
 
         Class* _cls;
-        ObjectWrap _obj;
-        uint32_t _rootCount;
-
+        JSObjectRef _obj;
         void* _privateData;
-        V8FinalizeFunc _finalizeCb;
-        internal::PrivateData* _internalData;
+        JSObjectFinalizeCallback _finalizeCb;
+
+        uint32_t _rootCount;
+        uint32_t _currentVMId;
+#if SE_DEBUG > 0
+    public:
+        uint32_t _id;
+    private:
+#endif
+        bool _isCleanup;
+
+        mutable Type _type;
 
         friend class ScriptEngine;
+        friend class AutoHandleScope;
     };
-
-    extern std::unique_ptr<std::unordered_map<Object*, void*>> __objectMap; // Currently, the value `void*` is always nullptr
 
 } // namespace se {
 
-#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
+

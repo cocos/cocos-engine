@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "jsb_conversions.hpp"
+#include "jsb_conversions.h"
 #include <sstream>
 #include <regex>
 

@@ -24,11 +24,23 @@
  ****************************************************************************/
 #pragma once
 
-#include "../config.hpp"
+#include "../config.h"
 
-#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
 #include "Base.h"
+#include "../Value.h"
+
+#if SE_ENABLE_INSPECTOR
+namespace node {
+    namespace inspector {
+        class Agent;
+    }
+
+    class Environment;
+    class IsolateData;
+}
+#endif
 
 namespace se {
 
@@ -47,10 +59,17 @@ namespace se {
     class AutoHandleScope
     {
     public:
-        AutoHandleScope() {}
-        ~AutoHandleScope() {}
+        AutoHandleScope()
+        : _handleScope(v8::Isolate::GetCurrent())
+        {
+        }
+        ~AutoHandleScope()
+        {
+        }
+    private:
+        v8::HandleScope _handleScope;
     };
-    
+
     /**
      * ScriptEngine is a sington which represents a context of JavaScript VM.
      */
@@ -72,7 +91,7 @@ namespace se {
          *  @brief Gets the global object of JavaScript VM.
          *  @return The se::Object stores the global JavaScript object.
          */
-        Object* getGlobalObject();
+        Object* getGlobalObject() const;
 
         typedef bool (*RegisterCallback)(Object*);
 
@@ -140,6 +159,20 @@ namespace se {
          *  @return true if succeed, otherwise false.
          */
         bool evalString(const char* scriptStr, ssize_t length = -1, Value* rval = nullptr, const char* fileName = nullptr);
+
+        /**
+         *  @brief Compile script file into v8::ScriptCompiler::CachedData and save to file.
+         *  @param[in] scriptPath The path of script file.
+         *  @param[in] outputPath The location where bytecode file should be written to. The path should be ends with ".bc", which indicates a bytecode file.
+         *  @return true if succeed, otherwise false.
+         */
+        bool saveByteCodeToFile(const std::string& scriptPath, const std::string& outputPath);
+
+        /**
+         * @brief Grab a snapshot of the current JavaScript execution stack.
+         * @return current stack trace string
+         */
+        std::string getCurrentStackTrace();
 
         /**
          *  Delegate class for file operation
@@ -214,7 +247,7 @@ namespace se {
          *  @brief Tests whether script engine is valid.
          *  @return true if it's valid, otherwise false.
          */
-        bool isValid() { return _isValid; }
+        bool isValid() const;
 
         /**
          *  @brief Clears all exceptions.
@@ -238,7 +271,6 @@ namespace se {
         /**
          *  @brief Enables JavaScript debugger
          *  @param[in] serverAddr The address of debugger server.
-         *  @param[in] port The port of debugger server will use.
          *  @param[in] isWait Whether wait debugger attach when loading.
          */
         void enableDebugger(const std::string& serverAddr, uint32_t port, bool isWait = false);
@@ -260,26 +292,29 @@ namespace se {
         uint32_t getVMId() const { return _vmId; }
 
         // Private API used in wrapper
-        void _setGarbageCollecting(bool isGarbageCollecting);
         void _retainScriptObject(void* owner, void* target);
         void _releaseScriptObject(void* owner, void* target);
+        v8::Local<v8::Context> _getContext() const;
+        void _setGarbageCollecting(bool isGarbageCollecting);
         //
     private:
         ScriptEngine();
         ~ScriptEngine();
+        static void privateDataFinalize(void* nativeObj);
 
-        struct ExceptionInfo
-        {
-            std::string location;
-            std::string message;
-            std::string stack;
+        static void onFatalErrorCallback(const char* location, const char* message);
+        static void onOOMErrorCallback(const char* location, bool is_heap_oom);
+        static void onMessageCallback(v8::Local<v8::Message> message, v8::Local<v8::Value> data);
+        static void onPromiseRejectCallback(v8::PromiseRejectMessage msg);
 
-            bool isValid() const
-            {
-                return !message.empty();
-            }
-        };
-        ExceptionInfo formatException(JsValueRef exception);
+
+        /**
+         *  @brief Load the bytecode file and set the return value
+         *  @param[in] path_bc The path of bytecode file.
+         *  @param[in] ret The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
+         *  @return true if succeed, otherwise false.
+         */
+        bool runByteCodeFile(const std::string &path_bc, Value* ret/* = nullptr */);
 
         std::chrono::steady_clock::time_point _startTime;
         std::vector<RegisterCallback> _registerCallbackArray;
@@ -288,24 +323,35 @@ namespace se {
         std::vector<std::function<void()>> _beforeCleanupHookArray;
         std::vector<std::function<void()>> _afterCleanupHookArray;
 
-        JsRuntimeHandle _rt;
-        JsContextRef _cx;
+        v8::Persistent<v8::Context> _context;
+
+        v8::Platform* _platform;
+        v8::Isolate* _isolate;
+        v8::HandleScope* _handleScope;
         Object* _globalObj;
+        Value _gcFuncValue;
+        Object *_gcFunc = nullptr;
 
         FileOperationDelegate _fileOperationDelegate;
         ExceptionCallback _exceptionCallback;
 
-        uint32_t _currentSourceContext;
+#if SE_ENABLE_INSPECTOR
+        node::Environment* _env;
+        node::IsolateData* _isolateData;
+#endif
+
+        std::string _debuggerServerAddr;
+        uint32_t _debuggerServerPort;
+        bool _isWaitForConnect;
+
         uint32_t _vmId;
 
         bool _isValid;
-        bool _isInCleanup;
         bool _isGarbageCollecting;
+        bool _isInCleanup;
         bool _isErrorHandleWorking;
     };
 
- } // namespace se {
+} // namespace se {
 
-#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
-
-
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8

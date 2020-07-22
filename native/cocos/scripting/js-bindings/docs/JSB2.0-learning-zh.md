@@ -732,7 +732,7 @@ setCallback(nullptr)
 
 ### 如何使用 cocos2d-x bindings 这层的类型转换辅助函数？
 
-类型转换辅助函数位于`cocos/scripting/js-bindings/manual/jsb_conversions.hpp/.cpp`中，其包含：
+类型转换辅助函数位于`cocos/scripting/js-bindings/manual/jsb_conversions.h/.cpp`中，其包含：
 
 #### se::Value 转换为 C++ 类型
 ```
@@ -1002,7 +1002,7 @@ classes_owned_by_cpp =
 
 ## 远程调试与 Profile
 
-默认远程调试和 Profile 是在 debug 模式中生效的，如果需要在 release 模式下也启用，需要手动修改 cocos/scripting/js-bindings/jswrapper/config.hpp 中的宏开关。
+默认远程调试和 Profile 是在 debug 模式中生效的，如果需要在 release 模式下也启用，需要手动修改 cocos/scripting/js-bindings/jswrapper/config.h 中的宏开关。
 
 ```c++
 #if defined(COCOS2D_DEBUG) && COCOS2D_DEBUG > 0

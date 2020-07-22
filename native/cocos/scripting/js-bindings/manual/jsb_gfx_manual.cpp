@@ -1,7 +1,7 @@
-#include "jsb_gfx_manual.hpp"
-#include "scripting/js-bindings/auto/jsb_gfx_auto.hpp"
+#include "jsb_gfx_manual.h"
+#include "scripting/js-bindings/auto/jsb_gfx_auto.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
-#include "scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "scripting/js-bindings/manual/jsb_conversions.h"
 #include "scripting/js-bindings/manual/jsb_global.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS)
@@ -20,22 +20,22 @@
 
 #ifdef USE_VULKAN
     #include "renderer/gfx-vulkan/GFXVulkan.h"
-    #include "scripting/js-bindings/auto/jsb_vk_auto.hpp"
+    #include "scripting/js-bindings/auto/jsb_vk_auto.h"
 #endif
 
 #ifdef USE_METAL
     #include "renderer/gfx-metal/GFXMTL.h"
-    #include "scripting/js-bindings/auto/jsb_mtl_auto.hpp"
+    #include "scripting/js-bindings/auto/jsb_mtl_auto.h"
 #endif
 
 #ifdef USE_GLES3
     #include "renderer/gfx-gles3/GFXGLES3.h"
-    #include "scripting/js-bindings/auto/jsb_gles3_auto.hpp"
+    #include "scripting/js-bindings/auto/jsb_gles3_auto.h"
 #endif
 
 #ifdef USE_GLES2
     #include "renderer/gfx-gles2/GFXGLES2.h"
-    #include "scripting/js-bindings/auto/jsb_gles2_auto.hpp"
+    #include "scripting/js-bindings/auto/jsb_gles2_auto.h"
 #endif
 
 #include <fstream>

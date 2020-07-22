@@ -1,5 +1,5 @@
 #include "platform/CCCanvasRenderingContext2D.h"
-#include "base/csscolorparser.hpp"
+#include "base/csscolorparser.h"
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "platform/android/jni/JniHelper.h"

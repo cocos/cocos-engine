@@ -22,7 +22,7 @@
 #ifndef SRC_NODE_OBJECT_WRAP_H_
 #define SRC_NODE_OBJECT_WRAP_H_
 
-#include "../config.hpp"
+#include "../config.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 

@@ -24,13 +24,13 @@
  ****************************************************************************/
 #pragma once
 
-#include "../config.hpp"
+#include "../config.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
 
 #include "Base.h"
-#include "../Value.hpp"
-#include "../RefCounter.hpp"
+#include "../Value.h"
+#include "../RefCounter.h"
 
 namespace se {
 

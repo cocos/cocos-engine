@@ -26,7 +26,7 @@
 #include "jsb_platform.h"
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
-#include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_conversions.h"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include "cocos/platform/CCFileUtils.h"
 

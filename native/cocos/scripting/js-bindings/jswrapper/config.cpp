@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "config.hpp"
+#include "config.h"
 #include <stdio.h>
 #include <algorithm>
 

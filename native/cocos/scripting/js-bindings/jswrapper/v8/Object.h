@@ -24,17 +24,24 @@
  ****************************************************************************/
 #pragma once
 
-#include "../config.hpp"
+#include "../config.h"
 
-#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
 #include "Base.h"
-#include "../Value.hpp"
-#include "../RefCounter.hpp"
+#include "../RefCounter.h"
+#include "../Value.h"
+#include "ObjectWrap.h"
+
+#include <memory>
 
 namespace se {
 
     class Class;
+
+    namespace internal {
+        struct PrivateData;
+    }
 
     /**
      * se::Object represents JavaScript Object.
@@ -63,6 +70,7 @@ namespace se {
          *  @param[in] byteLength The number of bytes pointed to by the parameter bytes.
          *  @return A JavaScript Typed Array Object whose backing store is the same as the one pointed data, or nullptr if there is an error.
          *  @note The return value (non-null) has to be released manually.
+         *  @deprecated This method is deprecated, please use `se::Object::createTypedArray` instead.
          */
         SE_DEPRECATED_ATTRIBUTE static Object* createUint8TypedArray(uint8_t* bytes, size_t byteLength);
 
@@ -130,7 +138,7 @@ namespace se {
          *  @param[out] value The property's value if object has the property, otherwise the undefined value.
          *  @return true if object has the property, otherwise false.
          */
-        bool getProperty(const char* name, Value* value);
+        bool getProperty(const char *name, Value* value);
 
         /**
          *  @brief Sets a property to an object.
@@ -138,7 +146,7 @@ namespace se {
          *  @param[in] value A value to be used as the property's value.
          *  @return true if the property is set successfully, otherwise false.
          */
-        bool setProperty(const char* name, const Value& value);
+        bool setProperty(const char *name, const Value& value);
 
         /**
          *  @brief Defines a property with native accessor callbacks for an object.
@@ -147,7 +155,7 @@ namespace se {
          *  @param[in] setter The native callback for setter.
          *  @return true if succeed, otherwise false.
          */
-        bool defineProperty(const char *name, JsNativeFunction getter, JsNativeFunction setter);
+        bool defineProperty(const char *name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter);
 
         /**
          *  @brief Defines a function with a native callback for an object.
@@ -155,7 +163,7 @@ namespace se {
          *  @param[in] func The native callback triggered by JavaScript code.
          *  @return true if succeed, otherwise false.
          */
-        bool defineFunction(const char *funcName, JsNativeFunction func);
+        bool defineFunction(const char *funcName, v8::FunctionCallback func);
 
         /**
          *  @brief Tests whether an object can be called as a function.
@@ -285,7 +293,7 @@ namespace se {
          *  @param[in] o The object to be tested with this object.
          *  @return true if the two values are strict equal, otherwise false.
          */
-        bool strictEquals(Object* obj) const;
+        bool strictEquals(Object* o) const;
 
         /**
          *  @brief Attaches an object to current object.
@@ -354,33 +362,39 @@ namespace se {
         std::string toString() const;
 
         // Private API used in wrapper
-        static Object* _createJSObject(Class* cls, JsValueRef obj);
-        JsValueRef _getJSObject() const;
+        static Object* _createJSObject(Class* cls, v8::Local<v8::Object> obj);
+        v8::Local<v8::Object> _getJSObject() const;
+        ObjectWrap& _getWrap();
         Class* _getClass() const;
-        void _cleanup(void* nativeObject = nullptr);
-        void _setFinalizeCallback(JsFinalizeCallback finalizeCb);
+
+        void _setFinalizeCallback(V8FinalizeFunc finalizeCb);
         bool _isNativeFunction() const;
         //
+
     private:
+        static void nativeObjectFinalizeHook(void* nativeObj);
+        static void setIsolate(v8::Isolate* isolate);
         static void cleanup();
+        static void setup();
 
         Object();
         virtual ~Object();
-        bool init(JsValueRef obj);
+
+        bool init(Class* cls, v8::Local<v8::Object> obj);
 
         Class* _cls;
-        JsValueRef _obj;
-        void* _privateData;
-        JsFinalizeCallback _finalizeCb;
-
+        ObjectWrap _obj;
         uint32_t _rootCount;
-        uint32_t _currentVMId;
-        bool _isCleanup;
+
+        void* _privateData;
+        V8FinalizeFunc _finalizeCb;
+        internal::PrivateData* _internalData;
 
         friend class ScriptEngine;
     };
 
+    extern std::unique_ptr<std::unordered_map<Object*, void*>> __objectMap; // Currently, the value `void*` is always nullptr
+
 } // namespace se {
 
-#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
-
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8

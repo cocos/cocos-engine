@@ -24,40 +24,21 @@
  ****************************************************************************/
 #pragma once
 
-#include "../config.hpp"
+#include "config.h"
+
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
+#include "sm/Object.h"
+#endif
+
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
+#include "v8/Object.h"
+#endif
+
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
+#include "jsc/Object.h"
+#endif
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
+#include "chakracore/Object.h"
+#endif
 
-#include "Base.h"
-
-#include "../Value.hpp"
-
-namespace se {
-
-    namespace internal {
-
-        struct PrivateData
-        {
-            void* data;
-            JsFinalizeCallback finalizeCb;
-        };
-
-        bool defineProperty(JsValueRef obj, const char* name, JsNativeFunction getter, JsNativeFunction setter, bool enumerable, bool configurable);
-
-        void jsToSeArgs(int argc, const JsValueRef* argv, ValueArray* outArr);
-        void seToJsArgs(const ValueArray& args, JsValueRef* outArr);
-        void jsToSeValue(JsValueRef jsval, Value* v);
-        void seToJsValue(const Value& v, JsValueRef* jsval);
-
-        void forceConvertJsValueToStdString(JsValueRef jsval, std::string* ret);
-        void jsStringToStdString(JsValueRef jsStr, std::string* ret);
-
-        bool hasPrivate(JsValueRef obj);
-        void setPrivate(JsValueRef obj, void* data, JsFinalizeCallback finalizeCb);
-        void* getPrivate(JsValueRef obj);
-        void clearPrivate(JsValueRef obj);
-
-    } // namespace internal {
-} // namespace se {
-
-#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE

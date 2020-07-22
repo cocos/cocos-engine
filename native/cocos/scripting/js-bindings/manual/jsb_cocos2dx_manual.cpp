@@ -23,12 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "jsb_cocos2dx_manual.hpp"
+#include "jsb_cocos2dx_manual.h"
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
-#include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_conversions.h"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
-#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
+#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.h"
 
 #include "storage/local-storage/LocalStorage.h"
 #include "cocos2d.h"

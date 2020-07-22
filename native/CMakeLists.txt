@@ -246,23 +246,23 @@ cocos_source_files(
     cocos/base/CCValue.h
     cocos/base/CCVector.h
     cocos/base/csscolorparser.cpp
-    cocos/base/csscolorparser.hpp
+    cocos/base/csscolorparser.h
     cocos/base/etc1.cpp
     cocos/base/etc1.h
     cocos/base/etc2.cpp
     cocos/base/etc2.h
-    cocos/base/Log.cc
+    cocos/base/Log.cpp
     cocos/base/Log.h
-    cocos/base/memory/AllocatedObj.cc
+    cocos/base/memory/AllocatedObj.cpp
     cocos/base/memory/AllocatedObj.h
-    cocos/base/memory/JeAlloc.cc
+    cocos/base/memory/JeAlloc.cpp
     cocos/base/memory/JeAlloc.h
     cocos/base/memory/MemDef.h
-    cocos/base/memory/Memory.cc
+    cocos/base/memory/Memory.cpp
     cocos/base/memory/Memory.h
-    cocos/base/memory/MemTracker.cc
+    cocos/base/memory/MemTracker.cpp
     cocos/base/memory/MemTracker.h
-    cocos/base/memory/NedPooling.cc
+    cocos/base/memory/NedPooling.cpp
     cocos/base/memory/NedPooling.h
     cocos/base/memory/StdAlloc.h
     cocos/base/memory/StlAlloc.h
@@ -270,9 +270,9 @@ cocos_source_files(
     cocos/base/TypeDef.h
     cocos/base/uthash.h
     cocos/base/utlist.h
-    cocos/base/StringUtil.cc
+    cocos/base/StringUtil.cpp
     cocos/base/StringUtil.h
-    cocos/base/UTFString.cc
+    cocos/base/UTFString.cpp
     cocos/base/UTFString.h
     cocos/base/ZipUtils.cpp
     cocos/base/ZipUtils.h
@@ -287,7 +287,7 @@ cocos_source_files(
     cocos/math/CCVertex.cpp
     cocos/math/CCVertex.h
     cocos/math/Mat3.cpp
-    cocos/math/Mat3.hpp
+    cocos/math/Mat3.h
     cocos/math/Mat4.cpp
     cocos/math/Mat4.h
     cocos/math/Mat4.inl
@@ -733,61 +733,61 @@ endif()
 ######## auto
 cocos_source_files(
     cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.cpp
-    cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp
+    cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.h
     cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.cpp
-    cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.hpp
+    cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.h
     cocos/scripting/js-bindings/auto/jsb_gfx_auto.cpp
-    cocos/scripting/js-bindings/auto/jsb_gfx_auto.hpp
+    cocos/scripting/js-bindings/auto/jsb_gfx_auto.h
     cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.cpp
-    cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.hpp
+    cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.h
 
 )
 
 if(USE_AUDIO)
     cocos_source_files(
         cocos/scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.cpp
-        cocos/scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.hpp
+        cocos/scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.h
     )
 endif()
 
 if(USE_VIDEOPLAYER)
     cocos_source_files(
         cocos/scripting/js-bindings/auto/jsb_video_auto.cpp
-        cocos/scripting/js-bindings/auto/jsb_video_auto.hpp
+        cocos/scripting/js-bindings/auto/jsb_video_auto.h
     )
 endif()
 
 ######## manual
 cocos_source_files(
     cocos/scripting/js-bindings/manual/jsb_classtype.cpp
-    cocos/scripting/js-bindings/manual/jsb_classtype.hpp
+    cocos/scripting/js-bindings/manual/jsb_classtype.h
     #cocos/scripting/js-bindings/manual/jsb_cocos2dx_extension_manual.cpp
-    #cocos/scripting/js-bindings/manual/jsb_cocos2dx_extension_manual.hpp
+    #cocos/scripting/js-bindings/manual/jsb_cocos2dx_extension_manual.h
     cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.cpp
-    cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.hpp
+    cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.h
     cocos/scripting/js-bindings/manual/jsb_conversions.cpp
-    cocos/scripting/js-bindings/manual/jsb_conversions.hpp
+    cocos/scripting/js-bindings/manual/jsb_conversions.h
     cocos/scripting/js-bindings/manual/jsb_gfx_manual.cpp
-    cocos/scripting/js-bindings/manual/jsb_gfx_manual.hpp
+    cocos/scripting/js-bindings/manual/jsb_gfx_manual.h
     cocos/scripting/js-bindings/manual/jsb_global.cpp
     cocos/scripting/js-bindings/manual/jsb_global.h
     cocos/scripting/js-bindings/manual/jsb_helper.cpp
-    cocos/scripting/js-bindings/manual/jsb_helper.hpp
+    cocos/scripting/js-bindings/manual/jsb_helper.h
     # cocos/scripting/js-bindings/manual/jsb_module_register.cpp
-    cocos/scripting/js-bindings/manual/jsb_module_register.hpp
+    cocos/scripting/js-bindings/manual/jsb_module_register.h
     cocos/scripting/js-bindings/manual/jsb_platform.h
     cocos/scripting/js-bindings/manual/jsb_cocos2dx_network_manual.cpp
     cocos/scripting/js-bindings/manual/jsb_cocos2dx_network_manual.h
     cocos/scripting/js-bindings/manual/jsb_xmlhttprequest.cpp
-    cocos/scripting/js-bindings/manual/jsb_xmlhttprequest.hpp
+    cocos/scripting/js-bindings/manual/jsb_xmlhttprequest.h
 )
 
 if(USE_SOCKET)
     cocos_source_files(
         cocos/scripting/js-bindings/manual/jsb_socketio.cpp
-        cocos/scripting/js-bindings/manual/jsb_socketio.hpp
+        cocos/scripting/js-bindings/manual/jsb_socketio.h
         cocos/scripting/js-bindings/manual/jsb_websocket.cpp
-        cocos/scripting/js-bindings/manual/jsb_websocket.hpp
+        cocos/scripting/js-bindings/manual/jsb_websocket.h
     )
 endif()
 
@@ -812,28 +812,28 @@ endif()
 
 if(CC_USE_GLES2)
     cocos_source_files(
-        cocos/scripting/js-bindings/auto/jsb_gles2_auto.hpp
+        cocos/scripting/js-bindings/auto/jsb_gles2_auto.h
         cocos/scripting/js-bindings/auto/jsb_gles2_auto.cpp
     )
 endif()
 
 if(CC_USE_GLES3)
     cocos_source_files(
-        cocos/scripting/js-bindings/auto/jsb_gles3_auto.hpp
+        cocos/scripting/js-bindings/auto/jsb_gles3_auto.h
         cocos/scripting/js-bindings/auto/jsb_gles3_auto.cpp
     )
 endif()
 
 if(CC_USE_METAL)
     cocos_source_files(
-        cocos/scripting/js-bindings/auto/jsb_mtl_auto.hpp
+        cocos/scripting/js-bindings/auto/jsb_mtl_auto.h
         cocos/scripting/js-bindings/auto/jsb_mtl_auto.cpp
     )
 endif()
 
 if(CC_USE_VULKAN)
     cocos_source_files(
-        cocos/scripting/js-bindings/auto/jsb_vk_auto.hpp
+        cocos/scripting/js-bindings/auto/jsb_vk_auto.h
         cocos/scripting/js-bindings/auto/jsb_vk_auto.cpp
     )
 endif()
@@ -842,42 +842,42 @@ if(USE_SE_V8)
     cocos_source_files(
         cocos/scripting/js-bindings/jswrapper/v8/Base.h
         cocos/scripting/js-bindings/jswrapper/v8/Class.cpp
-        cocos/scripting/js-bindings/jswrapper/v8/Class.hpp
+        cocos/scripting/js-bindings/jswrapper/v8/Class.h
         cocos/scripting/js-bindings/jswrapper/v8/HelperMacros.h
         cocos/scripting/js-bindings/jswrapper/v8/Object.cpp
-        cocos/scripting/js-bindings/jswrapper/v8/Object.hpp
+        cocos/scripting/js-bindings/jswrapper/v8/Object.h
         cocos/scripting/js-bindings/jswrapper/v8/ObjectWrap.cpp
         cocos/scripting/js-bindings/jswrapper/v8/ObjectWrap.h
         cocos/scripting/js-bindings/jswrapper/v8/ScriptEngine.cpp
-        cocos/scripting/js-bindings/jswrapper/v8/ScriptEngine.hpp
+        cocos/scripting/js-bindings/jswrapper/v8/ScriptEngine.h
         cocos/scripting/js-bindings/jswrapper/v8/SeApi.h
         cocos/scripting/js-bindings/jswrapper/v8/Utils.cpp
-        cocos/scripting/js-bindings/jswrapper/v8/Utils.hpp
+        cocos/scripting/js-bindings/jswrapper/v8/Utils.h
     )
     if(USE_V8_DEBUGGER)
     cocos_source_files(
         cocos/scripting/js-bindings/jswrapper/v8/debugger/base64.h
-        cocos/scripting/js-bindings/jswrapper/v8/debugger/env.cc
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/env.cpp
         cocos/scripting/js-bindings/jswrapper/v8/debugger/env.h
         cocos/scripting/js-bindings/jswrapper/v8/debugger/http_parser.c
         cocos/scripting/js-bindings/jswrapper/v8/debugger/http_parser.h
-        cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_agent.cc
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_agent.cpp
         cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_agent.h
-        cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_io.cc
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_io.cpp
         cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_io.h
-        cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_socket.cc
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_socket.cpp
         cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_socket.h
-        cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_socket_server.cc
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_socket_server.cpp
         cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_socket_server.h
-        cocos/scripting/js-bindings/jswrapper/v8/debugger/node.cc
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/node.cpp
         cocos/scripting/js-bindings/jswrapper/v8/debugger/node.h
-        cocos/scripting/js-bindings/jswrapper/v8/debugger/node_debug_options.cc
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/node_debug_options.cpp
         cocos/scripting/js-bindings/jswrapper/v8/debugger/node_debug_options.h
         cocos/scripting/js-bindings/jswrapper/v8/debugger/node_mutex.h
         cocos/scripting/js-bindings/jswrapper/v8/debugger/SHA1.cpp
         cocos/scripting/js-bindings/jswrapper/v8/debugger/SHA1.h
         cocos/scripting/js-bindings/jswrapper/v8/debugger/util-inl.h
-        cocos/scripting/js-bindings/jswrapper/v8/debugger/util.cc
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/util.cpp
         cocos/scripting/js-bindings/jswrapper/v8/debugger/util.h
         cocos/scripting/js-bindings/jswrapper/v8/debugger/v8_inspector_protocol_json.h
     )
@@ -886,7 +886,7 @@ endif()
 
 if(USE_SE_JSC)
     cocos_source_files(
-        cocos/scripting/js-bindings/jswrapper/jsc/Class.hpp
+        cocos/scripting/js-bindings/jswrapper/jsc/Class.h
         cocos/scripting/js-bindings/jswrapper/jsc/EJConvert.h
         cocos/scripting/js-bindings/jswrapper/jsc/HelperMacros.h
         cocos/scripting/js-bindings/jswrapper/jsc/Utils.cpp
@@ -894,33 +894,33 @@ if(USE_SE_JSC)
         cocos/scripting/js-bindings/jswrapper/jsc/PlatformUtils.h
         cocos/scripting/js-bindings/jswrapper/jsc/EJConvertTypedArray.m
         cocos/scripting/js-bindings/jswrapper/jsc/EJConvert.m
-        cocos/scripting/js-bindings/jswrapper/jsc/Object.hpp
+        cocos/scripting/js-bindings/jswrapper/jsc/Object.h
         cocos/scripting/js-bindings/jswrapper/jsc/Object.mm
-        cocos/scripting/js-bindings/jswrapper/jsc/ScriptEngine.hpp
+        cocos/scripting/js-bindings/jswrapper/jsc/ScriptEngine.h
         cocos/scripting/js-bindings/jswrapper/jsc/ScriptEngine.mm
         cocos/scripting/js-bindings/jswrapper/jsc/PlatformUtils.mm
         cocos/scripting/js-bindings/jswrapper/jsc/SeApi.h
         cocos/scripting/js-bindings/jswrapper/jsc/Class.cpp
-        cocos/scripting/js-bindings/jswrapper/jsc/Utils.hpp
+        cocos/scripting/js-bindings/jswrapper/jsc/Utils.h
         cocos/scripting/js-bindings/jswrapper/jsc/Base.h
     )
 endif()
 
 cocos_source_files(
     cocos/scripting/js-bindings/jswrapper/config.cpp
-    cocos/scripting/js-bindings/jswrapper/config.hpp
+    cocos/scripting/js-bindings/jswrapper/config.h
     cocos/scripting/js-bindings/jswrapper/HandleObject.cpp
-    cocos/scripting/js-bindings/jswrapper/HandleObject.hpp
+    cocos/scripting/js-bindings/jswrapper/HandleObject.h
     cocos/scripting/js-bindings/jswrapper/MappingUtils.cpp
-    cocos/scripting/js-bindings/jswrapper/MappingUtils.hpp
-    cocos/scripting/js-bindings/jswrapper/Object.hpp
+    cocos/scripting/js-bindings/jswrapper/MappingUtils.h
+    cocos/scripting/js-bindings/jswrapper/Object.h
     cocos/scripting/js-bindings/jswrapper/RefCounter.cpp
-    cocos/scripting/js-bindings/jswrapper/RefCounter.hpp
+    cocos/scripting/js-bindings/jswrapper/RefCounter.h
     cocos/scripting/js-bindings/jswrapper/SeApi.h
     cocos/scripting/js-bindings/jswrapper/State.cpp
-    cocos/scripting/js-bindings/jswrapper/State.hpp
+    cocos/scripting/js-bindings/jswrapper/State.h
     cocos/scripting/js-bindings/jswrapper/Value.cpp
-    cocos/scripting/js-bindings/jswrapper/Value.hpp
+    cocos/scripting/js-bindings/jswrapper/Value.h
 )
 
 cocos_source_files(

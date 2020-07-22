@@ -24,21 +24,38 @@
  ****************************************************************************/
 #pragma once
 
-#include "config.hpp"
-
-#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
-#include "sm/Object.hpp"
-#endif
+#include "../config.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
-#include "v8/Object.hpp"
-#endif
 
-#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
-#include "jsc/Object.hpp"
-#endif
+#include "Base.h"
+#include "../Value.h"
+#include "ObjectWrap.h"
 
-#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
-#include "chakracore/Object.hpp"
-#endif
+namespace se {
+    
+    namespace internal {
 
+        struct PrivateData
+        {
+            void* data;
+            Object* seObj;
+        };
+
+        void jsToSeArgs(const v8::FunctionCallbackInfo<v8::Value>& _v8args, ValueArray* outArr);
+        void jsToSeValue(v8::Isolate* isolate, v8::Local<v8::Value> jsval, Value* v);
+        void seToJsArgs(v8::Isolate* isolate, const ValueArray& args, std::vector<v8::Local<v8::Value>>* outArr);
+        void seToJsValue(v8::Isolate* isolate, const Value& v, v8::Local<v8::Value>* outJsVal);
+
+        void setReturnValue(const Value& data, const v8::FunctionCallbackInfo<v8::Value>& argv);
+        void setReturnValue(const Value& data, const v8::PropertyCallbackInfo<v8::Value>& argv);
+
+        bool hasPrivate(v8::Isolate* isolate, v8::Local<v8::Value> value);
+        void setPrivate(v8::Isolate* isolate, ObjectWrap& wrap, void* data, PrivateData** outInternalData);
+        void* getPrivate(v8::Isolate* isolate, v8::Local<v8::Value> value);
+        void clearPrivate(v8::Isolate* isolate, ObjectWrap& wrap);
+
+    } // namespace internal {
+} // namespace se {
+
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
