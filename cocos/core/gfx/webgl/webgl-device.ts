@@ -72,6 +72,10 @@ export class WebGLGFXDevice extends GFXDevice {
         return this._useVAO;
     }
 
+    public get destroyShadersImmediately (): boolean {
+        return this._destroyShadersImmediately;
+    }
+
     public get EXT_texture_filter_anisotropic (): EXT_texture_filter_anisotropic | null {
         return this._EXT_texture_filter_anisotropic;
     }
@@ -168,6 +172,7 @@ export class WebGLGFXDevice extends GFXDevice {
     private _isAntialias: boolean = true;
     private _isPremultipliedAlpha: boolean = true;
     private _useVAO: boolean = false;
+    private _destroyShadersImmediately: boolean = true;
     private _extensions: string[] | null = null;
     private _EXT_texture_filter_anisotropic: EXT_texture_filter_anisotropic | null = null;
     private _EXT_frag_depth: EXT_frag_depth | null = null;
@@ -402,6 +407,10 @@ export class WebGLGFXDevice extends GFXDevice {
                     this._useVAO = true;
                 }
             } else { this._useVAO = true; }
+        }
+
+        if (sys.os === sys.OS_IOS) { // some earlier version of iOS (10-) implement gl.detachShader incorrectly
+            this._destroyShadersImmediately = false;
         }
 
         if ((sys.platform === sys.WECHAT_GAME && sys.os === sys.OS_ANDROID)) {

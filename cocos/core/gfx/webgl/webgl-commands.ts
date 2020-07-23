@@ -1228,12 +1228,14 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
     gl.linkProgram(gpuShader.glProgram);
 
     // detach & delete immediately
-    for (let k = 0; k < gpuShader.gpuStages.length; k++) {
-        const gpuStage = gpuShader.gpuStages[k];
-        if (gpuStage.glShader) {
-            gl.detachShader(gpuShader.glProgram, gpuStage.glShader);
-            gl.deleteShader(gpuStage.glShader);
-            gpuStage.glShader = null;
+    if (device.destroyShadersImmediately) {
+        for (let k = 0; k < gpuShader.gpuStages.length; k++) {
+            const gpuStage = gpuShader.gpuStages[k];
+            if (gpuStage.glShader) {
+                gl.detachShader(gpuShader.glProgram, gpuStage.glShader);
+                gl.deleteShader(gpuStage.glShader);
+                gpuStage.glShader = null;
+            }
         }
     }
 
@@ -1447,8 +1449,19 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
 }
 
 export function WebGLCmdFuncDestroyShader (device: WebGLGFXDevice, gpuShader: WebGLGPUShader) {
+    const gl = device.gl;
     if (gpuShader.glProgram) {
-        device.gl.deleteProgram(gpuShader.glProgram);
+        if (!device.destroyShadersImmediately) {
+            for (let k = 0; k < gpuShader.gpuStages.length; k++) {
+                const gpuStage = gpuShader.gpuStages[k];
+                if (gpuStage.glShader) {
+                    gl.detachShader(gpuShader.glProgram, gpuStage.glShader);
+                    gl.deleteShader(gpuStage.glShader);
+                    gpuStage.glShader = null;
+                }
+            }
+        }
+        gl.deleteProgram(gpuShader.glProgram);
         gpuShader.glProgram = null;
     }
 }
