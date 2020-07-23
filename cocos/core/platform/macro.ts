@@ -897,7 +897,7 @@ const macro = {
      * </p>
      * Currently not useful in 3D engine
      */
-    FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX: true,
+    // FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX: true,
 
     /**
      * @en
@@ -910,13 +910,6 @@ const macro = {
      * @default true
      */
     ENABLE_TILEDMAP_CULLING: true,
-
-    /**
-     * @en Position of the FPS (Default: 0,0 (bottom-left corner))<br/>
-     * Currently not useful in 3D engine
-     * @zh 在 3D 引擎中暂时无效。
-     */
-    DIRECTOR_STATS_POSITION: new Vec2(0, 0),
 
     /**
      * @en
