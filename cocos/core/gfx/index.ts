@@ -16,7 +16,7 @@ import { GFXShader } from './shader';
 import { GFXTexture } from './texture';
 import { legacyCC } from '../global-exports';
 
-export * from './binding-layout';
+export * from './descriptor-sets';
 export * from './buffer';
 export * from './command-buffer';
 export * from './define';

@@ -17,7 +17,7 @@ export enum GFXObjectType {
     SAMPLER,
     SHADER,
     PIPELINE_STATE,
-    BINDING_LAYOUT,
+    DESCRIPTOR_SETS,
     INPUT_ASSEMBLER,
     COMMAND_BUFFER,
     FENCE,
@@ -473,7 +473,7 @@ export enum GFXShaderType {
     ALL = 0x3f,
 }
 
-export enum GFXBindingType {
+export enum GFXDescriptorType {
     UNKNOWN,
     UNIFORM_BUFFER,
     SAMPLER,

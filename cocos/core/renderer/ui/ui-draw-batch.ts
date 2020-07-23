@@ -5,7 +5,7 @@
 import { MeshBuffer } from '../../../ui';
 import { Material } from '../../assets/material';
 import { GFXTexture, GFXSampler } from '../../gfx';
-import { GFXBindingLayout } from '../../gfx/binding-layout';
+import { GFXDescriptorSets } from '../../gfx/descriptor-sets';
 import { Node } from '../../scene-graph';
 import { Camera } from '../scene/camera';
 import { Model } from '../scene/model';
@@ -27,7 +27,7 @@ export class UIDrawBatch {
     public texture: GFXTexture | null = null;
     public sampler: GFXSampler | null = null;
     public psoCreateInfo = 0;
-    public bindingLayout: GFXBindingLayout | null = null;
+    public descriptorSets: GFXDescriptorSets | null = null;
     public useLocalData: Node | null = null;
     public isStatic = false;
 
@@ -37,8 +37,8 @@ export class UIDrawBatch {
             this.psoCreateInfo = 0;
         }
 
-        if (this.bindingLayout) {
-            this.bindingLayout = null;
+        if (this.descriptorSets) {
+            this.descriptorSets = null;
         }
 
         if (this.ia) {

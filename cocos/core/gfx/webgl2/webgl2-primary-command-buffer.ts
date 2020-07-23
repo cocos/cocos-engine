@@ -109,7 +109,7 @@ export class WebGL2GFXPrimaryCommandBuffer extends WebGL2GFXCommandBuffer {
 
     protected bindStates () {
         WebGL2CmdFuncBindStates(this._device as WebGL2GFXDevice,
-            this._curGPUPipelineState, this._curGPUBindingLayout, this._curGPUInputAssembler,
+            this._curGPUPipelineState, this._curGPUDescriptorSets, this._curGPUInputAssembler,
             this._curViewport, this._curScissor, this._curLineWidth, this._curDepthBias, this._curBlendConstants,
             this._curDepthBounds, this._curStencilWriteMask, this._curStencilCompareMask);
         this._isStateInvalied = false;

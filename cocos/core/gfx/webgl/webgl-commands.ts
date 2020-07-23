@@ -1,48 +1,16 @@
+import { WECHAT } from 'internal:constants';
 import { CachedArray } from '../../memop/cached-array';
 import { error, errorID } from '../../platform/debug';
 import { GFXBufferSource, IGFXDrawInfo, IGFXIndirectBuffer } from '../buffer';
-import {
-    GFXBindingType,
-    GFXBufferTextureCopy,
-    GFXBufferUsageBit,
-    GFXClearFlag,
-    GFXColorMask,
-    GFXCullMode,
-    GFXFormat,
-    GFXFormatInfos,
-    GFXFormatSize,
-    GFXLoadOp,
-    GFXMemoryUsageBit,
-    GFXSampleCount,
-    GFXShaderType,
-    GFXStencilFace,
-    GFXTextureFlagBit,
-    GFXTextureType,
-    GFXType,
-    IGFXColor,
-    IGFXFormatInfo,
-    IGFXRect,
-    IGFXViewport,
-    GFXDynamicStateFlagBit,
-} from '../define';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
-import {
-    IWebGLDepthBias,
-    IWebGLDepthBounds,
-    IWebGLStencilCompareMask,
-    IWebGLStencilWriteMask,
-} from './webgl-command-buffer';
+import { IWebGLDepthBias, IWebGLDepthBounds, IWebGLStencilCompareMask, IWebGLStencilWriteMask } from './webgl-command-buffer';
 import { WebGLEXT } from './webgl-define';
 import { WebGLGFXDevice } from './webgl-device';
-import { IWebGLGPUInputAssembler, IWebGLGPUUniform, WebGLAttrib, WebGLGPUBindingLayout,
-    WebGLGPUBuffer, WebGLGPUFramebuffer, WebGLGPUInput,
+import { IWebGLGPUInputAssembler, IWebGLGPUUniform, WebGLAttrib, WebGLGPUDescriptorSets, WebGLGPUBuffer, WebGLGPUFramebuffer, WebGLGPUInput,
     WebGLGPUPipelineState, WebGLGPUShader, WebGLGPUTexture, WebGLGPUUniformBlock, WebGLGPUUniformSampler, WebGLGPURenderPass } from './webgl-gpu-objects';
-import { WECHAT } from 'internal:constants';
-
-function CmpF32NotEuqal (a: number, b: number): boolean {
-    const c = a - b;
-    return (c > 0.000001 || c < -0.000001);
-}
+import { GFXDescriptorType, GFXBufferTextureCopy, GFXBufferUsageBit, GFXClearFlag, GFXColorMask, GFXCullMode, GFXFormat,
+    GFXFormatInfos, GFXFormatSize, GFXLoadOp, GFXMemoryUsageBit, GFXSampleCount, GFXShaderType, GFXStencilFace,
+    GFXTextureFlagBit, GFXTextureType, GFXType, IGFXColor, IGFXFormatInfo, IGFXRect, IGFXViewport, GFXDynamicStateFlagBit } from '../define';
 
 export function GFXFormatToWebGLType (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
     switch (format) {
@@ -532,7 +500,7 @@ export class WebGLCmdBeginRenderPass extends WebGLCmdObject {
 export class WebGLCmdBindStates extends WebGLCmdObject {
 
     public gpuPipelineState: WebGLGPUPipelineState | null = null;
-    public gpuBindingLayout: WebGLGPUBindingLayout | null = null;
+    public gpuDescriptorSets: WebGLGPUDescriptorSets | null = null;
     public gpuInputAssembler: IWebGLGPUInputAssembler | null = null;
     public viewport: IGFXViewport | null = null;
     public scissor: IGFXRect | null = null;
@@ -549,7 +517,7 @@ export class WebGLCmdBindStates extends WebGLCmdObject {
 
     public clear () {
         this.gpuPipelineState = null;
-        this.gpuBindingLayout = null;
+        this.gpuDescriptorSets = null;
         this.gpuInputAssembler = null;
         this.viewport = null;
         this.scissor = null;
@@ -1770,7 +1738,7 @@ export function WebGLCmdFuncBeginRenderPass (
 export function WebGLCmdFuncBindStates (
     device: WebGLGFXDevice,
     gpuPipelineState: WebGLGPUPipelineState | null,
-    gpuBindingLayout: WebGLGPUBindingLayout | null,
+    gpuDescriptorSets: WebGLGPUDescriptorSets | null,
     gpuInputAssembler: IWebGLGPUInputAssembler | null,
     viewport: IGFXViewport | null,
     scissor: IGFXRect | null,
@@ -2033,27 +2001,29 @@ export function WebGLCmdFuncBindStates (
         } // blend state
     } // bind pso
 
-    if (gpuBindingLayout && gpuShader) {
-        const bindingLen = gpuBindingLayout.gpuBindings.length;
-        for (let j = 0; j < bindingLen; j++) {
-            const gpuBinding = gpuBindingLayout.gpuBindings[j];
-            switch (gpuBinding.type) {
-                case GFXBindingType.UNIFORM_BUFFER: {
+    if (gpuDescriptorSets && gpuShader) {
+        const descriptorCount = gpuDescriptorSets.gpuDescriptors.length;
+        for (let j = 0; j < descriptorCount; j++) {
+            const gpuDescriptor = gpuDescriptorSets.gpuDescriptors[j];
+            if (!gpuDescriptor) { continue; }
 
-                    if (gpuBinding.gpuBuffer && gpuBinding.gpuBuffer.buffer) {
+            switch (gpuDescriptor.type) {
+                case GFXDescriptorType.UNIFORM_BUFFER: {
+
+                    if (gpuDescriptor.gpuBuffer && gpuDescriptor.gpuBuffer.buffer) {
 
                         let glBlock: WebGLGPUUniformBlock | null = null;
 
                         const blockLen = gpuShader.glBlocks.length;
                         for (let k = 0; k < blockLen; k++) {
                             const block = gpuShader.glBlocks[k];
-                            if (block.binding === gpuBinding.binding) {
+                            if (block.binding === j) {
                                 glBlock = block;
                                 break;
                             }
                         }
 
-                        if (glBlock && gpuBinding.gpuBuffer.vf32) {
+                        if (glBlock && gpuDescriptor.gpuBuffer.vf32) {
                             const uniformLen = glBlock.glActiveUniforms.length;
                             for (let k = 0; k < uniformLen; k++) {
                                 const glUniform = glBlock.glActiveUniforms[k];
@@ -2062,9 +2032,9 @@ export function WebGLCmdFuncBindStates (
                                     case gl.INT: {
                                         for (let u = 0; u < glUniform.array.length; ++u) {
                                             const idx = glUniform.begin + u;
-                                            if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
+                                            if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
                                                 for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                                    glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
+                                                    glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
                                                 }
                                                 gl.uniform1iv(glUniform.glLoc, glUniform.array);
                                                 break;
@@ -2076,9 +2046,9 @@ export function WebGLCmdFuncBindStates (
                                     case gl.INT_VEC2: {
                                         for (let u = 0; u < glUniform.array.length; ++u) {
                                             const idx = glUniform.begin + u;
-                                            if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
+                                            if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
                                                 for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                                    glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
+                                                    glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
                                                 }
                                                 gl.uniform2iv(glUniform.glLoc, glUniform.array);
                                                 break;
@@ -2090,9 +2060,9 @@ export function WebGLCmdFuncBindStates (
                                     case gl.INT_VEC3: {
                                         for (let u = 0; u < glUniform.array.length; ++u) {
                                             const idx = glUniform.begin + u;
-                                            if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
+                                            if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
                                                 for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                                    glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
+                                                    glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
                                                 }
                                                 gl.uniform3iv(glUniform.glLoc, glUniform.array);
                                                 break;
@@ -2104,9 +2074,9 @@ export function WebGLCmdFuncBindStates (
                                     case gl.INT_VEC4: {
                                         for (let u = 0; u < glUniform.array.length; ++u) {
                                             const idx = glUniform.begin + u;
-                                            if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
+                                            if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
                                                 for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                                    glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
+                                                    glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
                                                 }
                                                 gl.uniform4iv(glUniform.glLoc, glUniform.array);
                                                 break;
@@ -2117,9 +2087,9 @@ export function WebGLCmdFuncBindStates (
                                     case gl.FLOAT: {
                                         for (let u = 0; u < glUniform.array.length; ++u) {
                                             const idx = glUniform.begin + u;
-                                            if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
+                                            if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
                                                 for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                                    glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
+                                                    glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
                                                 }
                                                 gl.uniform1fv(glUniform.glLoc, glUniform.array);
                                                 break;
@@ -2130,9 +2100,9 @@ export function WebGLCmdFuncBindStates (
                                     case gl.FLOAT_VEC2: {
                                         for (let u = 0; u < glUniform.array.length; ++u) {
                                             const idx = glUniform.begin + u;
-                                            if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
+                                            if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
                                                 for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                                    glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
+                                                    glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
                                                 }
                                                 gl.uniform2fv(glUniform.glLoc, glUniform.array);
                                                 break;
@@ -2143,9 +2113,9 @@ export function WebGLCmdFuncBindStates (
                                     case gl.FLOAT_VEC3: {
                                         for (let u = 0; u < glUniform.array.length; ++u) {
                                             const idx = glUniform.begin + u;
-                                            if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
+                                            if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
                                                 for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                                    glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
+                                                    glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
                                                 }
                                                 gl.uniform3fv(glUniform.glLoc, glUniform.array);
                                                 break;
@@ -2156,9 +2126,9 @@ export function WebGLCmdFuncBindStates (
                                     case gl.FLOAT_VEC4: {
                                         for (let u = 0; u < glUniform.array.length; ++u) {
                                             const idx = glUniform.begin + u;
-                                            if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
+                                            if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
                                                 for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                                    glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
+                                                    glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
                                                 }
                                                 gl.uniform4fv(glUniform.glLoc, glUniform.array);
                                                 break;
@@ -2169,9 +2139,9 @@ export function WebGLCmdFuncBindStates (
                                     case gl.FLOAT_MAT2: {
                                         for (let u = 0; u < glUniform.array.length; ++u) {
                                             const idx = glUniform.begin + u;
-                                            if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
+                                            if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
                                                 for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                                    glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
+                                                    glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
                                                 }
                                                 gl.uniformMatrix2fv(glUniform.glLoc, false, glUniform.array);
                                                 break;
@@ -2182,9 +2152,9 @@ export function WebGLCmdFuncBindStates (
                                     case gl.FLOAT_MAT3: {
                                         for (let u = 0; u < glUniform.array.length; ++u) {
                                             const idx = glUniform.begin + u;
-                                            if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
+                                            if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
                                                 for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                                    glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
+                                                    glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
                                                 }
                                                 gl.uniformMatrix3fv(glUniform.glLoc, false, glUniform.array);
                                                 break;
@@ -2195,9 +2165,9 @@ export function WebGLCmdFuncBindStates (
                                     case gl.FLOAT_MAT4: {
                                         for (let u = 0; u < glUniform.array.length; ++u) {
                                             const idx = glUniform.begin + u;
-                                            if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
+                                            if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
                                                 for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                                    glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
+                                                    glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
                                                 }
                                                 gl.uniformMatrix4fv(glUniform.glLoc, false, glUniform.array);
                                                 break;
@@ -2213,10 +2183,10 @@ export function WebGLCmdFuncBindStates (
 
                     break;
                 }
-                case GFXBindingType.SAMPLER: {
+                case GFXDescriptorType.SAMPLER: {
 
-                    if (!gpuBinding.gpuSampler) {
-                        error(`Sampler binding point ${gpuBinding.binding} '${gpuBinding.name}' is not bounded`);
+                    if (!gpuDescriptor.gpuSampler) {
+                        error(`Sampler binding point ${j} '${gpuDescriptor.name}' is not bounded`);
                     }
                     else {
                         let glSampler: WebGLGPUUniformSampler | null = null;
@@ -2224,7 +2194,7 @@ export function WebGLCmdFuncBindStates (
                         const samplerLen = gpuShader.glSamplers.length;
                         for (let k = 0; k < samplerLen; k++) {
                             const sampler = gpuShader.glSamplers[k];
-                            if (sampler.binding === gpuBinding.binding) {
+                            if (sampler.binding === j) {
                                 glSampler = sampler;
                                 break;
                             }
@@ -2235,10 +2205,10 @@ export function WebGLCmdFuncBindStates (
                             for (let k = 0; k < texUnitLen; k++) {
                                 const texUnit = glSampler.units[k];
 
-                                if (gpuBinding.gpuTexture &&
-                                    gpuBinding.gpuTexture.size > 0) {
+                                if (gpuDescriptor.gpuTexture &&
+                                    gpuDescriptor.gpuTexture.size > 0) {
 
-                                    const gpuTexture = gpuBinding.gpuTexture;
+                                    const gpuTexture = gpuDescriptor.gpuTexture;
                                     const glTexUnit = cache.glTexUnits[texUnit];
 
                                     if (glTexUnit.glTexture !== gpuTexture.glTexture) {
@@ -2254,7 +2224,7 @@ export function WebGLCmdFuncBindStates (
                                         glTexUnit.glTexture = gpuTexture.glTexture;
                                     }
 
-                                    const gpuSampler = gpuBinding.gpuSampler;
+                                    const gpuSampler = gpuDescriptor.gpuSampler;
                                     if (gpuTexture.isPowerOf2) {
                                         glWrapS = gpuSampler.glWrapS;
                                         glWrapT = gpuSampler.glWrapT;
@@ -2324,7 +2294,7 @@ export function WebGLCmdFuncBindStates (
                 }
             }
         }
-    } // bind binding layout
+    } // bind descriptor sets
 
     if (gpuInputAssembler && gpuShader &&
         (isShaderChanged || gfxStateCache.gpuInputAssembler !== gpuInputAssembler)) {
@@ -2689,7 +2659,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
             */
             case WebGLCmd.BIND_STATES: {
                 const cmd2 = cmdPackage.bindStatesCmds.array[cmdId];
-                WebGLCmdFuncBindStates(device, cmd2.gpuPipelineState, cmd2.gpuBindingLayout, cmd2.gpuInputAssembler,
+                WebGLCmdFuncBindStates(device, cmd2.gpuPipelineState, cmd2.gpuDescriptorSets, cmd2.gpuInputAssembler,
                     cmd2.viewport, cmd2.scissor, cmd2.lineWidth, cmd2.depthBias, cmd2.blendConstants,
                     cmd2.depthBounds, cmd2.stencilWriteMask, cmd2.stencilCompareMask);
                 break;

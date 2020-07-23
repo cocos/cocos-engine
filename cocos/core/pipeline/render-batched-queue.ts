@@ -11,7 +11,7 @@ import { GFXRenderPass } from '../gfx';
 import { IRenderObject, UBOForwardLight } from './define';
 import { LightType, Light } from '../renderer/scene/light';
 import { IMacroPatch, Pass } from '../renderer/core/pass';
-import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../renderer/core/memory-pools';
+import { DescriptorSetsPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
 
 const spherePatches: IMacroPatch[] = [
     { name: 'CC_FORWARD_ADD', value: true },
@@ -98,7 +98,7 @@ export class RenderBatchedQueue {
                     cmdBuff.bindPipelineState(pso);
                     boundPSO = true;
                 }
-                cmdBuff.bindBindingLayout(BindingLayoutPool.get(PSOCIPool.get(batch.psoCI, PSOCIView.BINDING_LAYOUT)));
+                cmdBuff.bindDescriptorSets(DescriptorSetsPool.get(PSOCIPool.get(batch.psoCI, PSOCIView.DESCRIPTOR_SETS)));
                 cmdBuff.bindInputAssembler(batch.ia);
                 cmdBuff.draw(batch.ia);
             }

@@ -30,17 +30,16 @@
 import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
 import AssetLibrary from './assets/asset-library';
 import { EventTarget } from './event/event-target';
-import { WebGLGFXDevice } from './gfx/webgl/webgl-device';
-import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
-import { ForwardPipeline, RenderPipeline } from './pipeline';
+import { RenderPipeline } from './pipeline';
 import * as debug from './platform/debug';
 import inputManager from './platform/event-manager/input-manager';
-import { GFXDevice } from './gfx';
+import { GFXDevice, IGFXDeviceInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from './renderer';
 import { legacyCC } from './global-exports';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
+import { maxPerSetBufferCount, maxPerSetSamplerCount } from './pipeline/define';
 
 /**
  * @zh
@@ -921,13 +920,15 @@ export class Game extends EventTarget {
                 }
             }
 
-            const opts = {
+            const opts: IGFXDeviceInfo = {
                 canvasElm: this.canvas as HTMLCanvasElement,
                 debug: true,
                 isAntialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
                 devicePixelRatio: window.devicePixelRatio,
                 nativeWidth: Math.floor(screen.width * window.devicePixelRatio),
                 nativeHeight: Math.floor(screen.height * window.devicePixelRatio),
+                maxPerSetBufferCount,
+                maxPerSetSamplerCount,
             };
             for (let i = 0; i < ctors.length; i++) {
                 this._gfxDevice = new ctors[i]();

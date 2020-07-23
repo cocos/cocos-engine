@@ -208,7 +208,7 @@ export default class ParticleBatchModel extends Model {
     }
 
     public setSubModelMaterial (idx: number, mat: Material | null) {
-        this.initLocalBindings(mat);
+        this.initLocalDescriptors(mat);
         super.setSubModelMaterial(idx, mat);
     }
 

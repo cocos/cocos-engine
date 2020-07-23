@@ -50,14 +50,14 @@ export class PassInstance extends Pass {
         this._doInit(this._parent, true); // defines may change now
         this.endChangeStatesSilently();
         for (const u of this._shaderInfo.blocks) {
-            if (isBuiltinBinding(u.binding)) { continue; }
+            if (isBuiltinBinding(u.set)) { continue; }
             const block = this._blocks[u.binding];
             const parentBlock = this._parent.blocks[u.binding];
             block.view.set(parentBlock.view);
             block.dirty = true;
         }
         for (const u of this._shaderInfo.samplers) {
-            if (isBuiltinBinding(u.binding)) { continue; }
+            if (isBuiltinBinding(u.set)) { continue; }
             this._textures[u.binding] = (this._parent as PassInstance)._textures[u.binding];
             this._samplers[u.binding] = (this._parent as PassInstance)._samplers[u.binding];
         }

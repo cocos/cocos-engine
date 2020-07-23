@@ -1,42 +1,25 @@
-import { GFXBindingLayout } from '../binding-layout';
+import { GFXDescriptorSets } from '../descriptor-sets';
 import { GFXBuffer, GFXBufferSource } from '../buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
-import {
-    GFXBufferTextureCopy,
-    GFXBufferUsageBit,
-    GFXClearFlag,
-    GFXCommandBufferType,
-    GFXStatus,
-    GFXStencilFace,
-    GFXTextureLayout,
-    IGFXColor,
-    IGFXRect,
-    IGFXViewport,
-} from '../define';
 import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
 import { GFXPipelineState } from '../pipeline-state';
 import { GFXTexture } from '../texture';
-import { WebGLGFXBindingLayout } from './webgl-binding-layout';
+import { WebGLGFXDescriptorSets } from './webgl-descriptor-sets';
 import { WebGLGFXBuffer } from './webgl-buffer';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
-import {
-    WebGLCmd,
-    WebGLCmdBeginRenderPass,
-    WebGLCmdBindStates,
-    WebGLCmdCopyBufferToTexture,
-    WebGLCmdDraw,
-    WebGLCmdPackage,
-    WebGLCmdUpdateBuffer,
-} from './webgl-commands';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGFXFramebuffer } from './webgl-framebuffer';
-import { IWebGLGPUInputAssembler, WebGLGPUBindingLayout, WebGLGPUPipelineState } from './webgl-gpu-objects';
+import { IWebGLGPUInputAssembler, WebGLGPUDescriptorSets, WebGLGPUPipelineState } from './webgl-gpu-objects';
 import { WebGLGFXInputAssembler } from './webgl-input-assembler';
 import { WebGLGFXPipelineState } from './webgl-pipeline-state';
 import { WebGLGFXTexture } from './webgl-texture';
 import { GFXRenderPass } from '../render-pass';
 import { WebGLGFXRenderPass } from './webgl-render-pass';
+import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXCommandBufferType, GFXStatus,
+    GFXStencilFace, IGFXColor, IGFXRect, IGFXViewport } from '../define';
+import { WebGLCmd, WebGLCmdBeginRenderPass, WebGLCmdBindStates, WebGLCmdCopyBufferToTexture,
+    WebGLCmdDraw, WebGLCmdPackage, WebGLCmdUpdateBuffer } from './webgl-commands';
 
 export interface IWebGLDepthBias {
     constantFactor: number;
@@ -66,7 +49,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
     protected _webGLAllocator: WebGLGFXCommandAllocator | null = null;
     protected _isInRenderPass: boolean = false;
     protected _curGPUPipelineState: WebGLGPUPipelineState | null = null;
-    protected _curGPUBindingLayout: WebGLGPUBindingLayout | null = null;
+    protected _curGPUDescriptorSets: WebGLGPUDescriptorSets | null = null;
     protected _curGPUInputAssembler: IWebGLGPUInputAssembler | null = null;
     protected _curViewport: IGFXViewport | null = null;
     protected _curScissor: IGFXRect | null = null;
@@ -101,7 +84,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
     public begin (renderPass?: GFXRenderPass, subpass = 0, frameBuffer?: GFXFramebuffer) {
         this._webGLAllocator!.clearCmds(this.cmdPackage);
         this._curGPUPipelineState = null;
-        this._curGPUBindingLayout = null;
+        this._curGPUDescriptorSets = null;
         this._curGPUInputAssembler = null;
         this._curViewport = null;
         this._curScissor = null;
@@ -160,9 +143,9 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public bindBindingLayout (bindingLayout: GFXBindingLayout) {
-        const gpuBindingLayout = (bindingLayout as WebGLGFXBindingLayout).gpuBindingLayout;
-        this._curGPUBindingLayout = gpuBindingLayout;
+    public bindDescriptorSets (descriptorSets: GFXDescriptorSets) {
+        const gpuDescriptorSets = (descriptorSets as WebGLGFXDescriptorSets).gpuDescriptorSets;
+        this._curGPUDescriptorSets = gpuDescriptorSets;
         this._isStateInvalied = true;
     }
 
@@ -475,7 +458,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
 
         if (bindStatesCmd) {
             bindStatesCmd.gpuPipelineState = this._curGPUPipelineState;
-            bindStatesCmd.gpuBindingLayout = this._curGPUBindingLayout;
+            bindStatesCmd.gpuDescriptorSets = this._curGPUDescriptorSets;
             bindStatesCmd.gpuInputAssembler = this._curGPUInputAssembler;
             bindStatesCmd.viewport = this._curViewport;
             bindStatesCmd.scissor = this._curScissor;

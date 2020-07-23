@@ -20,7 +20,7 @@ import { Pass, IMacroPatch } from '../core/pass';
 import { legacyCC } from '../../global-exports';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { BatchingSchemes } from '../core/pass';
-import { BindingLayoutPool, ShaderPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
+import { DescriptorSetsPool, ShaderPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
 
 const m4_1 = new Mat4();
 
@@ -208,10 +208,10 @@ export class Model {
             const sampler = samplerLib.getSampler(this._device, texture.mipmaps.length > 1 ? lightmapSamplerWithMipHash : lightmapSamplerHash);
             for (const sub of this._subModels) {
                 for (let i = 0; i < sub.psoInfos.length; i++) {
-                    const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(sub.psoInfos[i], PSOCIView.BINDING_LAYOUT));
-                    bindingLayout.bindTexture(UniformLightingMapSampler.binding, gfxTexture);
-                    bindingLayout.bindSampler(UniformLightingMapSampler.binding, sampler);
-                    bindingLayout.update();
+                    const descriptorSets = DescriptorSetsPool.get(PSOCIPool.get(sub.psoInfos[i], PSOCIView.DESCRIPTOR_SETS));
+                    descriptorSets.bindTexture(UniformLightingMapSampler.binding, gfxTexture);
+                    descriptorSets.bindSampler(UniformLightingMapSampler.binding, sampler);
+                    descriptorSets.update();
                 }
             }
         }
@@ -248,7 +248,7 @@ export class Model {
     }
 
     public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
-        this.initLocalBindings(mat);
+        this.initLocalDescriptors(mat);
         if (this._subModels[idx] == null) {
             this._subModels[idx] = _subModelPool.alloc();
         } else {
@@ -267,7 +267,7 @@ export class Model {
     }
 
     public setSubModelMaterial (idx: number, mat: Material | null) {
-        this.initLocalBindings(mat);
+        this.initLocalDescriptors(mat);
         if (!this._subModels[idx]) { return; }
         this._subModels[idx].material = mat;
 
@@ -299,8 +299,8 @@ export class Model {
 
     public updateLocalBindings (psoci: number, submodelIdx: number) {
         if (this._localBuffer) {
-            const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoci, PSOCIView.BINDING_LAYOUT));
-            bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer);
+            const descriptorSets = DescriptorSetsPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SETS));
+            descriptorSets.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer);
         }
     }
 
@@ -358,7 +358,7 @@ export class Model {
         return -1;
     }
 
-    protected initLocalBindings (mat: Material | null) {
+    protected initLocalDescriptors (mat: Material | null) {
         if (!this._localBuffer) {
             this._localBuffer = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,

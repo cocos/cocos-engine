@@ -151,4 +151,3 @@ export abstract class RenderPipeline extends Asset {
 }
 
 legacyCC.RenderPipeline = RenderPipeline;
-

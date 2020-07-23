@@ -28,7 +28,7 @@
  */
 
 import { DEBUG } from 'internal:constants';
-import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXBindingLayoutInfo, GFXDevice, GFXBindingLayout, IGFXShaderInfo, GFXShader } from '../../gfx';
+import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXDescriptorSetsInfo, GFXDevice, GFXDescriptorSets, IGFXShaderInfo, GFXShader } from '../../gfx';
 import { NativeBufferPool, NativeObjectPool } from './native-pools';
 
 interface TypedArrayConstructor<T> {
@@ -191,7 +191,7 @@ enum PoolDataType {
     RASTERIZER_STATE,
     DEPTH_STENCIL_STATE,
     BLEND_STATE,
-    BINDING_LAYOUT,
+    DESCRIPTOR_SETS,
     SHADER,
     // buffers
     PASS_INFO,
@@ -203,9 +203,9 @@ export const RasterizerStatePool = new ObjectPool(PoolDataType.RASTERIZER_STATE,
 export const DepthStencilStatePool = new ObjectPool(PoolDataType.DEPTH_STENCIL_STATE, (_: any) => new GFXDepthStencilState());
 export const BlendStatePool = new ObjectPool(PoolDataType.BLEND_STATE, (_: any) => new GFXBlendState());
 
-export const BindingLayoutPool = new ObjectPool(PoolDataType.BINDING_LAYOUT,
-    (args: [GFXDevice, IGFXBindingLayoutInfo], obj?: GFXBindingLayout) => obj ? (obj.initialize(args[1]), obj) : args[0].createBindingLayout(args[1]),
-    (bindingLayout: GFXBindingLayout) => bindingLayout && bindingLayout.destroy(),
+export const DescriptorSetsPool = new ObjectPool(PoolDataType.DESCRIPTOR_SETS,
+    (args: [GFXDevice, IGFXDescriptorSetsInfo], obj?: GFXDescriptorSets) => obj ? (obj.initialize(args[1]), obj) : args[0].createDescriptorSets(args[1]),
+    (descriptorSets: GFXDescriptorSets) => descriptorSets && descriptorSets.destroy(),
 );
 export const ShaderPool = new ObjectPool(PoolDataType.SHADER,
     (args: [GFXDevice, IGFXShaderInfo], obj?: GFXShader) => obj ? (obj.initialize(args[1]), obj) : args[0].createShader(args[1]),
@@ -229,7 +229,7 @@ export const PassInfoPool = new BufferPool(PoolDataType.PASS_INFO, Uint32Array, 
 
 export enum PSOCIView {
     PASS_INFO,      // index into type-specific pool
-    BINDING_LAYOUT, // index into type-specific pool
+    DESCRIPTOR_SETS, // index into type-specific pool
     SHADER,        // index into type-specific pool
     COUNT,
 }

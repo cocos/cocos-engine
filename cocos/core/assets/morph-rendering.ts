@@ -15,7 +15,7 @@ import { log2, nextPow2 } from '../math/bits';
 import { IMacroPatch } from '../renderer';
 import { legacyCC } from '../global-exports';
 import { PixelFormat } from './asset-enum';
-import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
+import { DescriptorSetsPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
 
 /**
  * True if force to use cpu computing based sub-mesh rendering.
@@ -250,7 +250,7 @@ class GpuComputing implements SubMeshMorphRendering {
             },
 
             adaptPipelineState: (pipelineCreateInfo: number) => {
-                const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(pipelineCreateInfo, PSOCIView.BINDING_LAYOUT));
+                const descriptorSets = DescriptorSetsPool.get(PSOCIPool.get(pipelineCreateInfo, PSOCIView.DESCRIPTOR_SETS));
                 for (const attribute of this._attributes) {
                     let binding: number | undefined;
                     switch (attribute.name) {
@@ -261,12 +261,12 @@ class GpuComputing implements SubMeshMorphRendering {
                             warn(`Unexpected attribute!`); break;
                     }
                     if (binding !== undefined) {
-                        bindingLayout.bindSampler(binding, attribute.morphTexture.sampler);
-                        bindingLayout.bindTexture(binding, attribute.morphTexture.texture);
+                        descriptorSets.bindSampler(binding, attribute.morphTexture.sampler);
+                        descriptorSets.bindTexture(binding, attribute.morphTexture.texture);
                     }
                 }
-                bindingLayout.bindBuffer(UBOMorph.BLOCK.binding, morphUniforms.buffer);
-                bindingLayout.update();
+                descriptorSets.bindBuffer(UBOMorph.BLOCK.binding, morphUniforms.buffer);
+                descriptorSets.update();
             },
 
             destroy: () => {
@@ -419,7 +419,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
     }
 
     public adaptPipelineState (pipelineCreateInfo: number) {
-        const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(pipelineCreateInfo, PSOCIView.BINDING_LAYOUT));
+        const descriptorSets = DescriptorSetsPool.get(PSOCIPool.get(pipelineCreateInfo, PSOCIView.DESCRIPTOR_SETS));
         for (const attribute of this._attributes) {
             const attributeName = attribute.attributeName;
             let binding: number | undefined;
@@ -431,12 +431,12 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
                     warn(`Unexpected attribute!`); break;
             }
             if (binding !== undefined) {
-                bindingLayout.bindSampler(binding, attribute.morphTexture.sampler);
-                bindingLayout.bindTexture(binding, attribute.morphTexture.texture);
+                descriptorSets.bindSampler(binding, attribute.morphTexture.sampler);
+                descriptorSets.bindTexture(binding, attribute.morphTexture.texture);
             }
         }
-        bindingLayout.bindBuffer(UBOMorph.BLOCK.binding, this._morphUniforms.buffer);
-        bindingLayout.update();
+        descriptorSets.bindBuffer(UBOMorph.BLOCK.binding, this._morphUniforms.buffer);
+        descriptorSets.update();
     }
 
     public destroy () {

@@ -31,7 +31,7 @@
 import { ccclass, property } from '../../core/data/class-decorator';
 import { builtinResMgr } from '../3d/builtin/init';
 import { RenderableComponent } from '../3d/framework/renderable-component';
-import { GFXBindingType } from '../gfx/define';
+import { GFXDescriptorType } from '../gfx/define';
 import { GFXTexture } from '../gfx/texture';
 import { IDefineMap, MaterialProperty } from '../renderer';
 import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
@@ -406,8 +406,8 @@ export class Material extends Asset {
     protected _uploadProperty (pass: Pass, name: string, val: MaterialPropertyFull | MaterialPropertyFull[]) {
         const handle = pass.getHandle(name);
         if (handle === undefined) { return false; }
-        const bindingType = Pass.getBindingTypeFromHandle(handle);
-        if (bindingType === GFXBindingType.UNIFORM_BUFFER) {
+        const descriptorType = Pass.getDescriptorTypeFromHandle(handle);
+        if (descriptorType === GFXDescriptorType.UNIFORM_BUFFER) {
             if (Array.isArray(val)) {
                 pass.setUniformArray(handle, val as MaterialProperty[]);
             } else if (val !== null) {
@@ -415,7 +415,7 @@ export class Material extends Asset {
             } else {
                 pass.resetUniform(name);
             }
-        } else if (bindingType === GFXBindingType.SAMPLER) {
+        } else if (descriptorType === GFXDescriptorType.SAMPLER) {
             const binding = Pass.getBindingFromHandle(handle);
             if (val instanceof GFXTexture) {
                 pass.bindTexture(binding, val);

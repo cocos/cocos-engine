@@ -31,23 +31,22 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../3d/builtin/init';
 import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { TextureBase } from '../../assets/texture-base';
-import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../../gfx/binding-layout';
+import { GFXDescriptorSets, IGFXDescriptorSetsInfo } from '../../gfx/descriptor-sets';
 import { GFXBuffer, IGFXBufferInfo } from '../../gfx/buffer';
-import { GFXBindingType, GFXBufferUsageBit, GFXDynamicStateFlags,
-    GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode, GFXType } from '../../gfx/define';
+import { GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode, GFXType, GFXDescriptorType, GFXDynamicStateFlags } from '../../gfx/define';
 import { GFXFeature, GFXDevice } from '../../gfx/device';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXTexture } from '../../gfx/texture';
-import { isBuiltinBinding, RenderPassStage, RenderPriority } from '../../pipeline/define';
+import { isBuiltinBinding, RenderPassStage, RenderPriority, DescriptorSetIndices } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
-import { customizeType, getBindingFromHandle, getBindingTypeFromHandle,
+import { customizeType, getBindingFromHandle, getDescriptorTypeFromHandle,
     getDefaultFromType, getOffsetFromHandle, getTypeFromHandle, IDefineMap, MaterialProperty, type2reader, type2writer } from './pass-utils';
 import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
-import { PassInfoView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool, PassInfoPool, BindingLayoutPool, ShaderPool, PSOCIPool, PSOCIView } from './memory-pools';
+import { PassInfoView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool, PassInfoPool, DescriptorSetsPool, ShaderPool, PSOCIPool, PSOCIView } from './memory-pools';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -90,7 +89,7 @@ const _bfInfo: IGFXBufferInfo = {
     usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
 };
 
-const _blInfo: IGFXBindingLayoutInfo = {
+const _blInfo: IGFXDescriptorSetsInfo = {
     shader: null!,
 };
 
@@ -101,7 +100,7 @@ export enum BatchingSchemes {
 
 // tslint:disable: no-shadowed-variable
 export declare namespace Pass {
-    export type getBindingTypeFromHandle = typeof getBindingTypeFromHandle;
+    export type getDescriptorTypeFromHandle = typeof getDescriptorTypeFromHandle;
     export type getTypeFromHandle = typeof getTypeFromHandle;
     export type getBindingFromHandle = typeof getBindingFromHandle;
     export type fillinPipelineInfo = typeof Pass.fillinPipelineInfo;
@@ -119,7 +118,7 @@ export class Pass {
      * @zh
      * 根据 handle 获取 unform 的绑定类型（UBO 或贴图等）。
      */
-    public static getBindingTypeFromHandle = getBindingTypeFromHandle;
+    public static getDescriptorTypeFromHandle = getDescriptorTypeFromHandle;
     /**
      * @zh
      * 根据 handle 获取 UBO member 的具体类型。
@@ -173,7 +172,7 @@ export class Pass {
     // internal resources
     protected _buffers: Record<number, GFXBuffer> = {};
     protected _samplers: Record<number, GFXSampler> = {};
-    protected _resources: GFXBindingLayout[] = [];
+    protected _resources: GFXDescriptorSets[] = [];
     protected _textures: Record<number, GFXTexture> = {};
     // internal data
     protected _passIndex = 0;
@@ -298,13 +297,13 @@ export class Pass {
      * @param binding 目标 UBO 的 binding。
      * @param value 目标 buffer。
      */
-    public bindBuffer (binding: number, value: GFXBuffer) {
+    public bindBuffer (binding: number, value: GFXBuffer, set = DescriptorSetIndices.MATERIAL_SPECIFIC) {
         if (this._buffers[binding] === value) { return; }
         this._buffers[binding] = value;
         const len = this._resources.length;
         for (let i = 0; i < len; i++) {
             const res = this._resources[i];
-            res.bindBuffer(binding, value);
+            res.bindBuffer(set, binding, value);
         }
     }
 
@@ -314,13 +313,13 @@ export class Pass {
      * @param binding 目标贴图类 uniform 的 binding。
      * @param value 目标 texture
      */
-    public bindTexture (binding: number, value: GFXTexture) {
+    public bindTexture (binding: number, value: GFXTexture, set = DescriptorSetIndices.MATERIAL_SPECIFIC) {
         if (this._textures[binding] === value) { return; }
         this._textures[binding] = value;
         const len = this._resources.length;
         for (let i = 0; i < len; i++) {
             const res = this._resources[i];
-            res.bindTexture(binding, value);
+            res.bindTexture(set, binding, value);
         }
     }
 
@@ -330,13 +329,13 @@ export class Pass {
      * @param binding 目标贴图类 uniform 的 binding。
      * @param value 目标 sampler。
      */
-    public bindSampler (binding: number, value: GFXSampler) {
+    public bindSampler (binding: number, value: GFXSampler, set = DescriptorSetIndices.MATERIAL_SPECIFIC) {
         if (this._samplers[binding] === value) { return; }
         this._samplers[binding] = value;
         const len = this._resources.length;
         for (let i = 0; i < len; i++) {
             const res = this._resources[i];
-            res.bindSampler(binding, value);
+            res.bindSampler(set, binding, value);
         }
     }
 
@@ -392,7 +391,7 @@ export class Pass {
      */
     public destroy () {
         for (const u of this._shaderInfo.blocks) {
-            if (isBuiltinBinding(u.binding)) { continue; }
+            if (isBuiltinBinding(u.set)) { continue; }
             this._buffers[u.binding].destroy();
         }
         this._buffers = {};
@@ -454,7 +453,7 @@ export class Pass {
      */
     public resetUBOs () {
         for (const u of this._shaderInfo.blocks) {
-            if (isBuiltinBinding(u.binding)) { continue; }
+            if (isBuiltinBinding(u.set)) { continue; }
             const block: IBlock = this._blocks[u.binding];
             if (!block) { continue; }
             let ofs = 0;
@@ -477,7 +476,7 @@ export class Pass {
      */
     public resetTextures () {
         for (const u of this._shaderInfo.samplers) {
-            if (isBuiltinBinding(u.binding)) { continue; }
+            if (isBuiltinBinding(u.set)) { continue; }
             this.resetTexture(u.name);
         }
     }
@@ -515,35 +514,35 @@ export class Pass {
         const shaderHandle = res || this._defaultShaderHandle;
         _blInfo.shader = ShaderPool.get(shaderHandle);
         // bind resources
-        const bindingLayoutHandle = BindingLayoutPool.alloc(this._device, _blInfo);
-        const bindingLayout = BindingLayoutPool.get(bindingLayoutHandle);
+        const descriptorSetsHandle = DescriptorSetsPool.alloc(this._device, _blInfo);
+        const descriptorSets = DescriptorSetsPool.get(descriptorSetsHandle);
         for (const b in this._buffers) {
-            bindingLayout.bindBuffer(parseInt(b), this._buffers[b]);
+            descriptorSets.bindBuffer(parseInt(b), this._buffers[b]);
         }
         for (const s in this._samplers) {
-            bindingLayout.bindSampler(parseInt(s), this._samplers[s]);
+            descriptorSets.bindSampler(parseInt(s), this._samplers[s]);
         }
         for (const t in this._textures) {
-            bindingLayout.bindTexture(parseInt(t), this._textures[t]);
+            descriptorSets.bindTexture(parseInt(t), this._textures[t]);
         }
         // bind pipeline builtins
         const source = this._root.pipeline.globalBindings;
         const target = this._shaderInfo.builtins.globals;
         for (const b of target.blocks) {
             const info = source.get(b.name);
-            if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b.name}' not available!`); continue; }
-            bindingLayout.bindBuffer(info.blockInfo!.binding, info.buffer!);
+            if (!info || info.type !== GFXDescriptorType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b.name}' not available!`); continue; }
+            descriptorSets.bindBuffer(info.blockInfo!.binding, info.buffer!);
         }
         for (const s of target.samplers) {
             const info = source.get(s.name);
-            if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`builtin texture '${s.name}' not available!`); continue; }
-            if (info.sampler) { bindingLayout.bindSampler(info.samplerInfo!.binding, info.sampler); }
-            bindingLayout.bindTexture(info.samplerInfo!.binding, info.texture!);
+            if (!info || info.type !== GFXDescriptorType.SAMPLER) { console.warn(`builtin texture '${s.name}' not available!`); continue; }
+            if (info.sampler) { descriptorSets.bindSampler(info.samplerInfo!.binding, info.sampler); }
+            descriptorSets.bindTexture(info.samplerInfo!.binding, info.texture!);
         }
-        this._resources.push(bindingLayout);
+        this._resources.push(descriptorSets);
         const psociHandle = PSOCIPool.alloc();
         PSOCIPool.set(psociHandle, PSOCIView.PASS_INFO, this._infoHandle);
-        PSOCIPool.set(psociHandle, PSOCIView.BINDING_LAYOUT, bindingLayoutHandle);
+        PSOCIPool.set(psociHandle, PSOCIView.DESCRIPTOR_SETS, descriptorSetsHandle);
         PSOCIPool.set(psociHandle, PSOCIView.SHADER, shaderHandle);
         return psociHandle;
     }
@@ -556,11 +555,11 @@ export class Pass {
      * @param psoci the PSO create info created by this pass
      */
     public destroyPipelineStateCI (psociHandle: number) {
-        const bindingLayoutHandle = PSOCIPool.get(psociHandle, PSOCIView.BINDING_LAYOUT);
-        const bindingLayout = BindingLayoutPool.get(bindingLayoutHandle);
+        const descriptorSetsHandle = PSOCIPool.get(psociHandle, PSOCIView.DESCRIPTOR_SETS);
+        const descriptorSets = DescriptorSetsPool.get(descriptorSetsHandle);
         for (let i = 0; i < this._resources.length; i++) {
-            if (this._resources[i] === bindingLayout) {
-                BindingLayoutPool.free(bindingLayoutHandle);
+            if (this._resources[i] === descriptorSets) {
+                DescriptorSetsPool.free(descriptorSetsHandle);
                 this._resources.splice(i, 1);
                 break;
             }
@@ -595,8 +594,8 @@ export class Pass {
 
         const blocks = this._shaderInfo.blocks;
         for (let i = 0; i < blocks.length; i++) {
-            const { size, binding } = blocks[i];
-            if (isBuiltinBinding(binding)) { continue; }
+            const { size, set, binding } = blocks[i];
+            if (isBuiltinBinding(set)) { continue; }
             // create gfx buffer resource
             _bfInfo.size = Math.ceil(size / 16) * 16; // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
             this._buffers[binding] = device.createBuffer(_bfInfo);

@@ -1,6 +1,6 @@
 import { GFXBuffer, GFXBufferSource } from '../buffer';
 import { GFXCommandBuffer } from '../command-buffer';
-import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXClearFlag, GFXTextureLayout, IGFXColor, IGFXRect } from '../define';
+import { GFXBufferTextureCopy, GFXBufferUsageBit, IGFXColor, IGFXRect } from '../define';
 import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
 import { GFXTexture } from '../texture';
@@ -110,7 +110,7 @@ export class WebGLGFXPrimaryCommandBuffer extends WebGLGFXCommandBuffer {
 
     protected bindStates () {
         WebGLCmdFuncBindStates(this._device as WebGLGFXDevice,
-            this._curGPUPipelineState, this._curGPUBindingLayout, this._curGPUInputAssembler,
+            this._curGPUPipelineState, this._curGPUDescriptorSets, this._curGPUInputAssembler,
             this._curViewport, this._curScissor, this._curLineWidth, this._curDepthBias, this._curBlendConstants,
             this._curDepthBounds, this._curStencilWriteMask, this._curStencilCompareMask);
         this._isStateInvalied = false;

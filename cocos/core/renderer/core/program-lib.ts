@@ -28,7 +28,7 @@
  */
 
 import { IBlockInfo, IBuiltinInfo, IDefineInfo, ISamplerInfo, IShaderInfo } from '../../assets/effect-asset';
-import { GFXBindingType, GFXGetTypeSize, GFXShaderType } from '../../gfx/define';
+import { GFXDescriptorType, GFXGetTypeSize, GFXShaderType } from '../../gfx/define';
 import { GFXAPI, GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { GFXUniformBlock } from '../../gfx/shader';
@@ -96,11 +96,10 @@ function insertBuiltinBindings (tmpl: IProgramInfo, source: Map<string, IInterna
     const blocks = tmpl.blocks;
     for (const b of target.blocks) {
         const info = source.get(b.name);
-        if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b.name}' not available!`); continue; }
+        if (!info || info.type !== GFXDescriptorType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b.name}' not available!`); continue; }
         const builtin: IBlockInfoRT = Object.assign({
             defines: b.defines,
             size: getSize(info.blockInfo!),
-            bindingType: GFXBindingType.UNIFORM_BUFFER,
             defaultValue: info.defaultValue as ArrayBuffer,
             count: 1,
         }, info.blockInfo!);
@@ -109,8 +108,11 @@ function insertBuiltinBindings (tmpl: IProgramInfo, source: Map<string, IInterna
     const samplers = tmpl.samplers;
     for (const s of target.samplers) {
         const info = source.get(s.name);
-        if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`builtin sampler '${s.name}' not available!`); continue; }
-        const builtin = Object.assign({ defines: s.defines, bindingType: GFXBindingType.SAMPLER, defaultValue: info.defaultValue as string }, info.samplerInfo);
+        if (!info || info.type !== GFXDescriptorType.SAMPLER) { console.warn(`builtin sampler '${s.name}' not available!`); continue; }
+        const builtin = Object.assign({
+            defines: s.defines,
+            defaultValue: info.defaultValue as string,
+        }, info.samplerInfo);
         samplers.push(builtin);
     }
 }
@@ -128,14 +130,14 @@ function genHandles (tmpl: IProgramInfo) {
         let offset = 0;
         for (let j = 0; j < members.length; j++) {
             const uniform = members[j];
-            handleMap[uniform.name] = genHandle(GFXBindingType.UNIFORM_BUFFER, block.binding, uniform.type, offset);
+            handleMap[uniform.name] = genHandle(GFXDescriptorType.UNIFORM_BUFFER, block.set, block.binding, uniform.type, offset);
             offset += (GFXGetTypeSize(uniform.type) >> 2) * uniform.count;
         }
     }
     // sampler handles
     for (let i = 0; i < tmpl.samplers.length; i++) {
         const sampler = tmpl.samplers[i];
-        handleMap[sampler.name] = genHandle(GFXBindingType.SAMPLER, sampler.binding, sampler.type);
+        handleMap[sampler.name] = genHandle(GFXDescriptorType.SAMPLER, sampler.set, sampler.binding, sampler.type);
     }
     return handleMap;
 }

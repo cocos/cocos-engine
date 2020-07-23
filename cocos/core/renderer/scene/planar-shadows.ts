@@ -11,7 +11,7 @@ import { SphereLight } from './sphere-light';
 import { GFXCommandBuffer, GFXDevice, GFXRenderPass } from '../../gfx';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
-import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
+import { DescriptorSetsPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -179,9 +179,9 @@ export class PlanarShadows {
                 } else {
                     const ia = submodel.inputAssembler!;
                     const pso = PipelineStateManager.getOrCreatePipelineState(device, psoci, renderPass, ia);
-                    const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoci, PSOCIView.BINDING_LAYOUT));
+                    const descriptorSets = DescriptorSetsPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SETS));
                     cmdBuff.bindPipelineState(pso);
-                    cmdBuff.bindBindingLayout(bindingLayout);
+                    cmdBuff.bindDescriptorSets(descriptorSets);
                     cmdBuff.bindInputAssembler(ia);
                     cmdBuff.draw(ia);
                 }
@@ -196,7 +196,7 @@ export class PlanarShadows {
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, buffer.psoci, renderPass, instance.ia);
                 if (lastPSO !== pso) {
                     cmdBuff.bindPipelineState(pso);
-                    cmdBuff.bindBindingLayout(BindingLayoutPool.get(PSOCIPool.get(buffer.psoci, PSOCIView.BINDING_LAYOUT)));
+                    cmdBuff.bindDescriptorSets(DescriptorSetsPool.get(PSOCIPool.get(buffer.psoci, PSOCIView.DESCRIPTOR_SETS)));
                     lastPSO = pso;
                 }
                 cmdBuff.bindInputAssembler(instance.ia);
@@ -211,8 +211,8 @@ export class PlanarShadows {
         for (let i = 0; i < model.subModelNum; i++) {
             const psoCI = material.passes[0].createPipelineStateCI(model.getMacroPatches(i));
             if (psoCI) {
-                model.insertImplantPSOCI(psoCI, i); // add back to model to sync binding layouts
-                BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT)).update();
+                model.insertImplantPSOCI(psoCI, i); // add back to model to sync descriptor sets
+                DescriptorSetsPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SETS)).update();
                 psoCIs.push(psoCI);
             }
         }

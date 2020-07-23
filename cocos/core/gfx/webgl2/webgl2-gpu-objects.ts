@@ -1,7 +1,7 @@
 import { IGFXDrawInfo } from '../buffer';
 import {
     GFXAddress,
-    GFXBindingType,
+    GFXDescriptorType,
     GFXBufferUsage,
     GFXBufferUsageBit,
     GFXFilter,
@@ -111,7 +111,6 @@ export class WebGL2GPUSampler {
 }
 
 export class WebGL2GPUInput {
-    public binding: number = -1;
     public name: string = '';
     public type: GFXType = GFXType.UNKNOWN;
     public stride: number = 0;
@@ -178,10 +177,6 @@ export class WebGL2GPUShader {
     public glSamplers: WebGL2GPUUniformSampler[] = [];
 }
 
-export class WebGL2GPUPipelineLayout {
-
-}
-
 export class WebGL2GPUPipelineState {
 
     public glPrimitive: GLenum = 0x0004; // WebGLRenderingContext.TRIANGLES
@@ -193,18 +188,17 @@ export class WebGL2GPUPipelineState {
     public gpuRenderPass: WebGL2GPURenderPass | null = null;
 }
 
-export class WebGL2GPUBinding {
+export class WebGL2GPUDescriptor {
     public binding: number = 0;
-    public type: GFXBindingType = GFXBindingType.UNKNOWN;
+    public type: GFXDescriptorType = GFXDescriptorType.UNKNOWN;
     public name: string = '';
     public gpuBuffer: WebGL2GPUBuffer | null = null;
     public gpuTexture: WebGL2GPUTexture | null = null;
     public gpuSampler: WebGL2GPUSampler | null = null;
 }
 
-export class WebGL2GPUBindingLayout {
-
-    public gpuBindings: WebGL2GPUBinding[] = [];
+export class WebGL2GPUDescriptorSets {
+    public gpuDescriptors: WebGL2GPUDescriptor[] = [];
 }
 
 export class WebGL2Attrib {

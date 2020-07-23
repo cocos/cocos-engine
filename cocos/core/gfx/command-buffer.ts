@@ -2,7 +2,7 @@
  * @category gfx
  */
 
-import { GFXBindingLayout } from './binding-layout';
+import { GFXDescriptorSets } from './descriptor-sets';
 import { GFXBuffer } from './buffer';
 import {
     GFXBufferTextureCopy,
@@ -160,11 +160,11 @@ export abstract class GFXCommandBuffer extends GFXObject {
     public abstract bindPipelineState (pipelineState: GFXPipelineState): void;
 
     /**
-     * @en Bind binding layout.
-     * @zh 绑定 GFX 绑定布局。
-     * @param bindingLayout The binding layout to be bound.
+     * @en Bind descriptor sets.
+     * @zh 绑定 GFX 描述符集组。
+     * @param descriptorSets The descriptor sets to be bound.
      */
-    public abstract bindBindingLayout (bindingLayout: GFXBindingLayout): void;
+    public abstract bindDescriptorSets (descriptorSets: GFXDescriptorSets): void;
 
     /**
      * @en Bind input assembler.

@@ -1,22 +1,9 @@
-import { ALIPAY, RUNTIME_BASED } from 'internal:constants';
+import { ALIPAY, RUNTIME_BASED, DEBUG } from 'internal:constants';
 import { macro } from '../../platform';
 import { sys } from '../../platform/sys';
-import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../binding-layout';
+import { GFXDescriptorSets, IGFXDescriptorSetsInfo } from '../descriptor-sets';
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
-import {
-    getTypedArrayConstructor,
-    GFXBufferTextureCopy,
-    GFXCommandBufferType,
-    GFXFilter,
-    GFXFormat,
-    GFXFormatInfos,
-    GFXQueueType,
-    GFXTextureFlagBit,
-    GFXTextureType,
-    GFXTextureUsageBit,
-    IGFXRect,
-} from '../define';
 import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
 import { GFXFence, IGFXFenceInfo } from '../fence';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
@@ -27,11 +14,10 @@ import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
 import { GFXSampler, IGFXSamplerInfo } from '../sampler';
 import { GFXShader, IGFXShaderInfo } from '../shader';
 import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from '../texture';
-import { WebGLGFXBindingLayout } from './webgl-binding-layout';
+import { WebGLGFXDescriptorSets } from './webgl-descriptor-sets';
 import { WebGLGFXBuffer } from './webgl-buffer';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
 import { WebGLGFXCommandBuffer } from './webgl-command-buffer';
-import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture, WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
 import { WebGLGFXFence } from './webgl-fence';
 import { WebGLGFXFramebuffer } from './webgl-framebuffer';
 import { WebGLGFXInputAssembler } from './webgl-input-assembler';
@@ -43,114 +29,122 @@ import { WebGLGFXSampler } from './webgl-sampler';
 import { WebGLGFXShader } from './webgl-shader';
 import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLGFXTexture } from './webgl-texture';
+import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXCommandBufferType, GFXFilter, GFXFormat, GFXFormatInfos,
+    GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, IGFXRect } from '../define';
+import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture,
+    WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
 
 export class WebGLGFXDevice extends GFXDevice {
 
-    public get gl (): WebGLRenderingContext {
+    get gl () {
         return this._webGLRC as WebGLRenderingContext;
     }
 
-    public get webGLQueue (): WebGLGFXQueue {
+    get webGLQueue () {
         return this._queue as WebGLGFXQueue;
     }
 
-    public get isAntialias (): boolean {
+    get isAntialias () {
         return this._isAntialias;
     }
 
-    public get isPremultipliedAlpha (): boolean {
+    get isPremultipliedAlpha () {
         return this._isPremultipliedAlpha;
     }
 
-    public get useVAO (): boolean {
+    get useVAO () {
         return this._useVAO;
     }
 
-    public get EXT_texture_filter_anisotropic (): EXT_texture_filter_anisotropic | null {
+    get perSetBindingOffsets () {
+        return this._perSetBindingOffsets;
+    }
+
+    get EXT_texture_filter_anisotropic () {
         return this._EXT_texture_filter_anisotropic;
     }
 
-    public get EXT_frag_depth (): EXT_frag_depth | null {
+    get EXT_frag_depth () {
         return this._EXT_frag_depth;
     }
 
-    public get EXT_shader_texture_lod (): EXT_shader_texture_lod | null {
+    get EXT_shader_texture_lod () {
         return this._EXT_shader_texture_lod;
     }
 
-    public get EXT_sRGB (): EXT_sRGB | null {
+    get EXT_sRGB () {
         return this._EXT_sRGB;
     }
 
-    public get OES_vertex_array_object (): OES_vertex_array_object | null {
+    get OES_vertex_array_object () {
         return this._OES_vertex_array_object;
     }
 
-    public get WEBGL_color_buffer_float (): WEBGL_color_buffer_float | null {
+    get WEBGL_color_buffer_float () {
         return this._WEBGL_color_buffer_float;
     }
 
-    public get WEBGL_compressed_texture_etc1 (): WEBGL_compressed_texture_etc1 | null {
+    get WEBGL_compressed_texture_etc1 () {
         return this._WEBGL_compressed_texture_etc1;
     }
 
-    public get WEBGL_compressed_texture_pvrtc (): WEBGL_compressed_texture_pvrtc | null {
+    get WEBGL_compressed_texture_pvrtc () {
         return this._WEBGL_compressed_texture_pvrtc;
     }
 
-    public get WEBGL_compressed_texture_astc (): WEBGL_compressed_texture_astc | null {
+    get WEBGL_compressed_texture_astc () {
         return this._WEBGL_compressed_texture_astc;
     }
 
-    public get WEBGL_compressed_texture_s3tc (): WEBGL_compressed_texture_s3tc | null {
+    get WEBGL_compressed_texture_s3tc () {
         return this._WEBGL_compressed_texture_s3tc;
     }
 
-    public get WEBGL_compressed_texture_s3tc_srgb (): WEBGL_compressed_texture_s3tc_srgb | null {
+    get WEBGL_compressed_texture_s3tc_srgb () {
         return this._WEBGL_compressed_texture_s3tc_srgb;
     }
 
-    public get WEBGL_debug_shaders (): WEBGL_debug_shaders | null {
+    get WEBGL_debug_shaders () {
         return this._WEBGL_debug_shaders;
     }
 
-    public get WEBGL_draw_buffers (): WEBGL_draw_buffers | null {
+    get WEBGL_draw_buffers () {
         return this._WEBGL_draw_buffers;
     }
 
-    public get WEBGL_lose_context (): WEBGL_lose_context | null {
+    get WEBGL_lose_context () {
         return this._WEBGL_lose_context;
     }
 
-    public get WEBGL_depth_texture (): WEBGL_depth_texture | null {
+    get WEBGL_depth_texture () {
         return this._WEBGL_depth_texture;
     }
 
-    public get WEBGL_debug_renderer_info (): WEBGL_debug_renderer_info | null {
+    get WEBGL_debug_renderer_info () {
         return this._WEBGL_debug_renderer_info;
     }
 
-    public get OES_texture_half_float (): OES_texture_half_float | null {
+    get OES_texture_half_float () {
         return this._OES_texture_half_float;
     }
 
-    public get OES_texture_half_float_linear (): OES_texture_half_float_linear | null {
+    get OES_texture_half_float_linear () {
         return this._OES_texture_half_float_linear;
     }
 
-    public get OES_texture_float (): OES_texture_float | null {
+    get OES_texture_float () {
         return this._OES_texture_float;
     }
 
-    public get OES_standard_derivatives (): OES_standard_derivatives | null {
+    get OES_standard_derivatives () {
         return this._OES_standard_derivatives;
     }
 
-    public get OES_element_index_uint (): OES_element_index_uint | null {
+    get OES_element_index_uint () {
         return this._OES_element_index_uint;
     }
 
-    public get ANGLE_instanced_arrays (): ANGLE_instanced_arrays | null {
+    get ANGLE_instanced_arrays () {
         return this._ANGLE_instanced_arrays;
     }
 
@@ -163,6 +157,7 @@ export class WebGLGFXDevice extends GFXDevice {
     private _isAntialias: boolean = true;
     private _isPremultipliedAlpha: boolean = true;
     private _useVAO: boolean = false;
+    private _perSetBindingOffsets: number[] = [0];
     private _extensions: string[] | null = null;
     private _EXT_texture_filter_anisotropic: EXT_texture_filter_anisotropic | null = null;
     private _EXT_frag_depth: EXT_frag_depth | null = null;
@@ -190,20 +185,17 @@ export class WebGLGFXDevice extends GFXDevice {
     private _OES_element_index_uint: OES_element_index_uint | null = null;
     private _ANGLE_instanced_arrays: ANGLE_instanced_arrays | null = null;
 
-    private _primaries: WebGLGFXPrimaryCommandBuffer[] = [];
-    private _nextPrimary = 0;
-    private _secondaries: WebGLGFXCommandBuffer[] = [];
-    private _nextSecondary = 0;
-
-    constructor () {
-        super();
-    }
-
     public initialize (info: IGFXDeviceInfo): boolean {
 
         this._canvas = info.canvasElm as HTMLCanvasElement;
-        this._isAntialias = info.isAntialias !== undefined ? info.isAntialias : true;
-        this._isPremultipliedAlpha = info.isPremultipliedAlpha !== undefined ? info.isPremultipliedAlpha : true;
+
+        if (info.isAntialias !== undefined) {
+            this._isAntialias = info.isAntialias;
+        }
+
+        if (info.isPremultipliedAlpha !== undefined) {
+            this._isPremultipliedAlpha = info.isPremultipliedAlpha;
+        }
 
         try {
             const webGLCtxAttribs: WebGLContextAttributes = {
@@ -261,6 +253,33 @@ export class WebGLGFXDevice extends GFXDevice {
         this._maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
         this._depthBits = gl.getParameter(gl.DEPTH_BITS);
         this._stencilBits = gl.getParameter(gl.STENCIL_BITS);
+
+        if (info.maxPerSetBufferCount && info.maxPerSetSamplerCount) {
+            const offsets = this._perSetBindingOffsets;
+            for (let i = 0; i < info.maxPerSetBufferCount.length - 1; i++) {
+                const count = info.maxPerSetBufferCount[i] + info.maxPerSetSamplerCount[i];
+                if (count < 0) {
+                    let remainingCount = 0;
+                    for (let j = i + 1; j < info.maxPerSetBufferCount.length; j++) {
+                        // not counting samplers for now, this assumes there is at most one set after the unlimited set
+                        remainingCount += info.maxPerSetBufferCount[j];
+                    }
+                    offsets.push(this._maxUniformBufferBindings - remainingCount);
+                } else {
+                    offsets.push(offsets[offsets.length - 1] + count);
+                }
+            }
+            if (DEBUG) {
+                let unlimitSets = 0; let lastOffset = 0;
+                for (let i = 0; i < info.maxPerSetBufferCount.length; i++) {
+                    const offset = offsets[i + 1];
+                    if (lastOffset >= offset) { console.error('not enough available bindings!'); }
+                    if (info.maxPerSetBufferCount[i] < 0) { unlimitSets++; }
+                    lastOffset = offset;
+                }
+                if (unlimitSets > 1) { console.error('more than one unlimited descriptor set specified!'); }
+            }
+        }
 
         if (ALIPAY) {
             this._depthBits = 24;
@@ -510,20 +529,13 @@ export class WebGLGFXDevice extends GFXDevice {
             this.nullTexCube = null;
         }
 
-        // for (let i = 0; i < this._primaries.length; i++) {
-        //     this._primaries[i].destroy();
-        // }
-        // this._nextPrimary = this._primaries.length = 0;
-
-        // for (let i = 0; i < this._secondaries.length; i++) {
-        //     this._secondaries[i].destroy();
-        // }
-        // this._nextSecondary = this._secondaries.length = 0;
-
         if (this._queue) {
             this._queue.destroy();
             this._queue = null;
         }
+
+        this._perSetBindingOffsets.length = 1;
+        this._extensions = null;
 
         this._webGLRC = null;
     }
@@ -539,7 +551,6 @@ export class WebGLGFXDevice extends GFXDevice {
     }
 
     public acquire () {
-        this._nextPrimary = this._nextSecondary = 0;
         this.cmdAllocator.releaseCmds();
     }
 
@@ -557,26 +568,6 @@ export class WebGLGFXDevice extends GFXDevice {
         const cmdBuff = new ctor(this);
         cmdBuff.initialize(info);
         return cmdBuff;
-
-        // if (info.type === GFXCommandBufferType.PRIMARY) {
-        //     if (this._nextPrimary < this._primaries.length) {
-        //         return this._primaries[this._nextPrimary++];
-        //     }
-        //     const cmdBuff = new WebGLGFXPrimaryCommandBuffer(this);
-        //     cmdBuff.initialize(info);
-        //     this._primaries.push(cmdBuff);
-        //     this._nextPrimary++;
-        //     return cmdBuff;
-        // } else {
-        //     if (this._nextSecondary < this._secondaries.length) {
-        //         return this._secondaries[this._nextSecondary++];
-        //     }
-        //     const cmdBuff = new WebGLGFXCommandBuffer(this);
-        //     cmdBuff.initialize(info);
-        //     this._secondaries.push(cmdBuff);
-        //     this._nextSecondary++;
-        //     return cmdBuff;
-        // }
     }
 
     public createBuffer (info: IGFXBufferInfo): GFXBuffer {
@@ -597,10 +588,10 @@ export class WebGLGFXDevice extends GFXDevice {
         return sampler;
     }
 
-    public createBindingLayout (info: IGFXBindingLayoutInfo): GFXBindingLayout {
-        const bindingLayout = new WebGLGFXBindingLayout(this);
-        bindingLayout.initialize(info);
-        return bindingLayout;
+    public createDescriptorSets (info: IGFXDescriptorSetsInfo): GFXDescriptorSets {
+        const descriptorSets = new WebGLGFXDescriptorSets(this);
+        descriptorSets.initialize(info);
+        return descriptorSets;
     }
 
     public createShader (info: IGFXShaderInfo): GFXShader {
@@ -670,7 +661,7 @@ export class WebGLGFXDevice extends GFXDevice {
         dstBuffer: ArrayBuffer,
         regions: GFXBufferTextureCopy[]) {
 
-        const gl = this._webGLRC!;
+        const gl = this._webGLRC as WebGLRenderingContext;
         const gpuFramebuffer = (srcFramebuffer as WebGLGFXFramebuffer).gpuFramebuffer;
         const format = gpuFramebuffer.gpuColorTextures[0].format;
         const glFormat = GFXFormatToWebGLFormat(format, gl);
@@ -706,7 +697,7 @@ export class WebGLGFXDevice extends GFXDevice {
     private getExtension (ext: string): any {
         const prefixes = ['', 'WEBKIT_', 'MOZ_'];
         for (let i = 0; i < prefixes.length; ++i) {
-            const _ext = this._webGLRC!.getExtension(prefixes[i] + ext);
+            const _ext = this.gl.getExtension(prefixes[i] + ext);
             if (_ext) {
                 return _ext;
             }

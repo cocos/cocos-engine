@@ -21,7 +21,7 @@ import { GFXSampler } from './gfx';
 import { PipelineStateManager } from './pipeline/pipeline-state-manager';
 import { legacyCC } from './global-exports';
 import { Root } from './root';
-import { BindingLayoutPool, PSOCIView, PSOCIPool } from './renderer/core/memory-pools';
+import { DescriptorSetsPool, PSOCIView, PSOCIPool } from './renderer/core/memory-pools';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 
@@ -252,14 +252,14 @@ export class SplashScreen {
 
         const pso = PipelineStateManager.getOrCreatePipelineState(device, this.psoCreateInfo, framebuffer.renderPass!, this.assmebler);
         cmdBuff.bindPipelineState(pso);
-        cmdBuff.bindBindingLayout(BindingLayoutPool.get(PSOCIPool.get(this.psoCreateInfo, PSOCIView.BINDING_LAYOUT)));
+        cmdBuff.bindDescriptorSets(DescriptorSetsPool.get(PSOCIPool.get(this.psoCreateInfo, PSOCIView.DESCRIPTOR_SETS)));
         cmdBuff.bindInputAssembler(this.assmebler);
         cmdBuff.draw(this.assmebler);
 
         if (this.setting.displayWatermark && this.textPSOCreateInfo && this.textAssmebler) {
             const psoWatermark = PipelineStateManager.getOrCreatePipelineState(device, this.textPSOCreateInfo, framebuffer.renderPass!, this.textAssmebler);
             cmdBuff.bindPipelineState(psoWatermark);
-            cmdBuff.bindBindingLayout(BindingLayoutPool.get(PSOCIPool.get(this.textPSOCreateInfo, PSOCIView.BINDING_LAYOUT)));
+            cmdBuff.bindDescriptorSets(DescriptorSetsPool.get(PSOCIPool.get(this.textPSOCreateInfo, PSOCIView.DESCRIPTOR_SETS)));
             cmdBuff.bindInputAssembler(this.textAssmebler);
             cmdBuff.draw(this.textAssmebler);
         }
@@ -313,7 +313,7 @@ export class SplashScreen {
         pass.bindTexture(binding!, this.textTexture!);
 
         this.textPSOCreateInfo = pass.createPipelineStateCI();
-        BindingLayoutPool.get(PSOCIPool.get(this.textPSOCreateInfo, PSOCIView.BINDING_LAYOUT)).update();
+        DescriptorSetsPool.get(PSOCIPool.get(this.textPSOCreateInfo, PSOCIView.DESCRIPTOR_SETS)).update();
 
         /** Assembler */
         // create vertex buffer
@@ -493,9 +493,9 @@ export class SplashScreen {
         pass.bindTexture(binding!, this.texture!);
 
         this.psoCreateInfo = pass.createPipelineStateCI();
-        const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(this.psoCreateInfo, PSOCIView.BINDING_LAYOUT));
-        bindingLayout.bindSampler(binding!, this.sampler);
-        bindingLayout.update();
+        const descriptorSets = DescriptorSetsPool.get(PSOCIPool.get(this.psoCreateInfo, PSOCIView.DESCRIPTOR_SETS));
+        descriptorSets.bindSampler(binding!, this.sampler);
+        descriptorSets.update();
 
         this.region = new GFXBufferTextureCopy();
         this.region.texExtent.width = this.image.width;
