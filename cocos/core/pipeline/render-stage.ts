@@ -159,12 +159,6 @@ export abstract class RenderStage {
     protected _psoCreateInfo: IPSOCreateInfo | null = null;
 
     /**
-     * @en The command buffer
-     * @zh 命令缓冲。
-     */
-    protected _cmdBuff: GFXCommandBuffer | null = null;
-
-    /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
      * @zh 初始化函数，正常情况下不会用到，仅用于程序化生成渲染管线的情况。
      * @param info The render stage information
