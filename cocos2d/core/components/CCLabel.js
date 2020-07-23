@@ -620,6 +620,7 @@ let Label = cc.Class({
         // Keep track of Node size
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._nodeSizeChanged, this);
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this.setVertsDirty, this);
+        this.node.on(cc.Node.EventType.COLOR_CHANGED, this._nodeColorChanged, this);
 
         this._forceUpdateRenderData();
     },
@@ -628,6 +629,7 @@ let Label = cc.Class({
         this._super();
         this.node.off(cc.Node.EventType.SIZE_CHANGED, this._nodeSizeChanged, this);
         this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this.setVertsDirty, this);
+        this.node.off(cc.Node.EventType.COLOR_CHANGED, this._nodeColorChanged, this);
     },
 
     onDestroy () {
@@ -649,20 +651,17 @@ let Label = cc.Class({
         }
     },
 
+    _nodeColorChanged () {
+        if (!(this.font instanceof cc.BitmapFont)) {
+            this.setVertsDirty();
+        }
+    },
+
     setVertsDirty() {
         if(CC_JSB && this._nativeTTF()) {
             this._assembler && this._assembler.updateRenderData(this)
         }
         this._super();
-    },
-
-    _updateColor () {
-        if (!(this.font instanceof cc.BitmapFont)) {
-            if (!(this._srcBlendFactor === cc.macro.BlendFactor.SRC_ALPHA && this.node._renderFlag & cc.RenderFlow.FLAG_OPACITY)) {
-                this.setVertsDirty();
-            }
-        }
-        RenderComponent.prototype._updateColor.call(this);
     },
 
     _validateRender () {
