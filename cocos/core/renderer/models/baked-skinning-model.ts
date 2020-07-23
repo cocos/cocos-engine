@@ -44,7 +44,7 @@ import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from './skele
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../global-exports';
 import { IGFXAttribute } from '../../gfx';
-import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../core/memory-pools';
+import { DescriptorSetsPool, PSOCIView, PSOCIPool } from '../core/memory-pools';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;
@@ -179,15 +179,15 @@ export class BakedSkinningModel extends MorphModel {
         for (let i = 0; i < this._subModels.length; ++i) {
             const psoCreateInfos = this._subModels[i].psoInfos;
             for (let j = 0; j < psoCreateInfos.length; ++j) {
-                const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoCreateInfos[j], PSOCIView.BINDING_LAYOUT));
-                bindingLayout.bindTexture(UniformJointTexture.binding, tex);
+                const descriptorSets = DescriptorSetsPool.get(PSOCIPool.get(psoCreateInfos[j], PSOCIView.DESCRIPTOR_SETS));
+                descriptorSets.bindTexture(UniformJointTexture.binding, tex);
             }
         }
 
         for (let i = 0; i < this._implantPSOCIs.length; i++) {
-            const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(this._implantPSOCIs[i], PSOCIView.BINDING_LAYOUT));
-            bindingLayout.bindTexture(UniformJointTexture.binding, tex);
-            bindingLayout.update();
+            const descriptorSets = DescriptorSetsPool.get(PSOCIPool.get(this._implantPSOCIs[i], PSOCIView.DESCRIPTOR_SETS));
+            descriptorSets.bindTexture(UniformJointTexture.binding, tex);
+            descriptorSets.update();
         }
     }
 
@@ -198,13 +198,13 @@ export class BakedSkinningModel extends MorphModel {
     public updateLocalBindings (psoci: number, submodelIdx: number) {
         super.updateLocalBindings(psoci, submodelIdx);
         const { buffer, texture, animInfo } = this._jointsMedium;
-        const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoci, PSOCIView.BINDING_LAYOUT));
-        bindingLayout.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
-        bindingLayout.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
+        const descriptorSets = DescriptorSetsPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SETS));
+        descriptorSets.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
+        descriptorSets.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
         const sampler = samplerLib.getSampler(this._device, jointTextureSamplerHash);
         if (texture) {
-            bindingLayout.bindTexture(UniformJointTexture.binding, texture.handle.texture);
-            bindingLayout.bindSampler(UniformJointTexture.binding, sampler);
+            descriptorSets.bindTexture(UniformJointTexture.binding, texture.handle.texture);
+            descriptorSets.bindSampler(UniformJointTexture.binding, sampler);
         }
     }
 

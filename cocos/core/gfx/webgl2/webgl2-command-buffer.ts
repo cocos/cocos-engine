@@ -1,14 +1,12 @@
-import { GFXBindingLayout } from '../binding-layout';
+import { GFXDescriptorSets } from '../descriptor-sets';
 import { GFXBuffer, GFXBufferSource } from '../buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import {
     GFXBufferTextureCopy,
     GFXBufferUsageBit,
-    GFXClearFlag,
     GFXCommandBufferType,
     GFXStatus,
     GFXStencilFace,
-    GFXTextureLayout,
     IGFXColor,
     IGFXRect,
     IGFXViewport,
@@ -17,7 +15,7 @@ import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
 import { GFXPipelineState } from '../pipeline-state';
 import { GFXTexture } from '../texture';
-import { WebGL2GFXBindingLayout } from './webgl2-binding-layout';
+import { WebGL2GFXDescriptorSets } from './webgl2-descriptor-sets';
 import { WebGL2GFXBuffer } from './webgl2-buffer';
 import { WebGL2GFXCommandAllocator } from './webgl2-command-allocator';
 import {
@@ -31,7 +29,7 @@ import {
 } from './webgl2-commands';
 import { WebGL2GFXDevice } from './webgl2-device';
 import { WebGL2GFXFramebuffer } from './webgl2-framebuffer';
-import { IWebGL2GPUInputAssembler, WebGL2GPUBindingLayout, WebGL2GPUPipelineState } from './webgl2-gpu-objects';
+import { IWebGL2GPUInputAssembler, WebGL2GPUDescriptorSets, WebGL2GPUPipelineState } from './webgl2-gpu-objects';
 import { WebGL2GFXInputAssembler } from './webgl2-input-assembler';
 import { WebGL2GFXPipelineState } from './webgl2-pipeline-state';
 import { WebGL2GFXTexture } from './webgl2-texture';
@@ -66,7 +64,7 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
     protected _webGLAllocator: WebGL2GFXCommandAllocator | null = null;
     protected _isInRenderPass: boolean = false;
     protected _curGPUPipelineState: WebGL2GPUPipelineState | null = null;
-    protected _curGPUBindingLayout: WebGL2GPUBindingLayout | null = null;
+    protected _curGPUDescriptorSets: WebGL2GPUDescriptorSets | null = null;
     protected _curGPUInputAssembler: IWebGL2GPUInputAssembler | null = null;
     protected _curViewport: IGFXViewport | null = null;
     protected _curScissor: IGFXRect | null = null;
@@ -101,7 +99,7 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
     public begin (renderPass?: GFXRenderPass, subpass = 0, frameBuffer?: GFXFramebuffer) {
         this._webGLAllocator!.clearCmds(this.cmdPackage);
         this._curGPUPipelineState = null;
-        this._curGPUBindingLayout = null;
+        this._curGPUDescriptorSets = null;
         this._curGPUInputAssembler = null;
         this._curViewport = null;
         this._curScissor = null;
@@ -159,9 +157,9 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public bindBindingLayout (bindingLayout: GFXBindingLayout) {
-        const gpuBindingLayout = (bindingLayout as WebGL2GFXBindingLayout).gpuBindingLayout;
-        this._curGPUBindingLayout = gpuBindingLayout;
+    public bindDescriptorSets (descriptorSets: GFXDescriptorSets) {
+        const gpuDescriptorSets = (descriptorSets as WebGL2GFXDescriptorSets).gpuDescriptorSets;
+        this._curGPUDescriptorSets = gpuDescriptorSets;
         this._isStateInvalied = true;
     }
 
@@ -466,7 +464,7 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
     protected bindStates () {
         const bindStatesCmd = this._webGLAllocator!.bindStatesCmdPool.alloc(WebGL2CmdBindStates);
         bindStatesCmd.gpuPipelineState = this._curGPUPipelineState;
-        bindStatesCmd.gpuBindingLayout = this._curGPUBindingLayout;
+        bindStatesCmd.gpuDescriptorSets = this._curGPUDescriptorSets;
         bindStatesCmd.gpuInputAssembler = this._curGPUInputAssembler;
         bindStatesCmd.viewport = this._curViewport;
         bindStatesCmd.scissor = this._curScissor;

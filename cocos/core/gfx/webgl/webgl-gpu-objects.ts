@@ -1,6 +1,6 @@
 import { IGFXDrawInfo } from '../buffer';
 import {
-    GFXBindingType,
+    GFXDescriptorType,
     GFXBufferUsage,
     GFXBufferUsageBit,
     GFXDynamicStateFlags,
@@ -179,18 +179,16 @@ export class WebGLGPUPipelineState {
     public gpuRenderPass: WebGLGPURenderPass | null = null;
 }
 
-export class WebGLGPUBinding {
-    public binding: number = 0;
-    public type: GFXBindingType = GFXBindingType.UNKNOWN;
+export class WebGLGPUDescriptor {
+    public type: GFXDescriptorType = GFXDescriptorType.UNKNOWN;
     public name: string = '';
     public gpuBuffer: WebGLGPUBuffer | null = null;
     public gpuTexture: WebGLGPUTexture | null = null;
     public gpuSampler: WebGLGPUSampler | null = null;
 }
 
-export class WebGLGPUBindingLayout {
-
-    public gpuBindings: WebGLGPUBinding[] = [];
+export class WebGLGPUDescriptorSets {
+    public gpuDescriptors: WebGLGPUDescriptor[] = [];
 }
 
 export class WebGLAttrib {

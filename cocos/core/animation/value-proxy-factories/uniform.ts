@@ -7,7 +7,7 @@ import { Material } from '../../assets/material';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { TextureBase } from '../../assets/texture-base';
 import { ccclass, float, property } from '../../data/class-decorator';
-import { GFXBindingType, GFXType } from '../../gfx/define';
+import { GFXDescriptorType, GFXType } from '../../gfx/define';
 import { Pass } from '../../renderer/core/pass';
 import { getDefaultFromType } from '../../renderer/core/pass-utils';
 import { samplerLib } from '../../renderer/core/sampler-lib';
@@ -61,8 +61,8 @@ export class UniformProxyFactory implements IValueProxyFactory {
         if (handle === undefined) {
             throw new Error(`Material "${target.name}" has no uniform "${this.uniformName}"`);
         }
-        const bindingType = Pass.getBindingTypeFromHandle(handle);
-        if (bindingType === GFXBindingType.UNIFORM_BUFFER) {
+        const descriptorType = Pass.getDescriptorTypeFromHandle(handle);
+        if (descriptorType === GFXDescriptorType.UNIFORM_BUFFER) {
             const realHandle = this.channelIndex === undefined ? handle : pass.getHandle(this.uniformName, this.channelIndex, GFXType.FLOAT);
             if (realHandle === undefined) {
                 throw new Error(`Uniform "${this.uniformName} (in material ${target.name}) has no channel ${this.channelIndex}"`);
@@ -80,7 +80,7 @@ export class UniformProxyFactory implements IValueProxyFactory {
                     },
                 };
             }
-        } else if (bindingType === GFXBindingType.SAMPLER) {
+        } else if (descriptorType === GFXDescriptorType.SAMPLER) {
             const binding = Pass.getBindingFromHandle(handle);
             const prop = pass.properties[this.uniformName];
             const texName = prop && prop.value ? prop.value + '-texture' : getDefaultFromType(prop.type) as string;
@@ -101,7 +101,7 @@ export class UniformProxyFactory implements IValueProxyFactory {
                 },
             };
         } else {
-            throw new Error(`Animations are not available for uniforms with binding type ${bindingType}.`);
+            throw new Error(`Animations are not available for uniforms with descriptor type ${descriptorType}.`);
         }
     }
 }

@@ -33,6 +33,7 @@ export class GFXUniform {
  */
 export class GFXUniformBlock {
     public shaderStages: GFXShaderType = GFXShaderType.NONE;
+    public set: number = -1;
     public binding: number = -1;
     public name: string = '';
     public members: GFXUniform[] = [];
@@ -44,6 +45,7 @@ export class GFXUniformBlock {
  */
 export class GFXUniformSampler {
     public shaderStages: GFXShaderType = GFXShaderType.NONE;
+    public set: number = -1;
     public binding: number = -1;
     public name: string = '';
     public type: GFXType = GFXType.UNKNOWN;

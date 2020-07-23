@@ -9,7 +9,7 @@ import { Mat4 } from '../math';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOLocalBatched } from './define';
 import { Pass } from '../renderer';
-import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../renderer/core/memory-pools';
+import { DescriptorSetsPool, PSOCIPool, PSOCIView } from '../renderer/core/memory-pools';
 
 export interface IBatchedItem {
     vbs: GFXBuffer[];
@@ -66,10 +66,8 @@ export class BatchedBuffer {
         let vbSize = 0;
         let vbIdxSize = 0;
         const vbCount = flatBuffers[0].count;
-        if (!psoCI) {
-            psoCI = subModel.psoInfos[passIndx];
-        }
-        const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT));
+        const psoCI = subModel.psoInfos[passIndx];
+        const descriptorSets = DescriptorSetsPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SETS));
         let isBatchExist = false;
         for (let i = 0; i < this.batches.length; ++i) {
             const batch = this.batches[i];
@@ -118,8 +116,8 @@ export class BatchedBuffer {
                     // update world matrix
                     Mat4.toArray(batch.uboData.view, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
                     if (!batch.mergeCount && batch.psoCI !== psoCI) {
-                        bindingLayout.bindBuffer(UBOLocalBatched.BLOCK.binding, batch.ubo);
-                        bindingLayout.update();
+                        descriptorSets.bindBuffer(UBOLocalBatched.BLOCK.binding, batch.ubo);
+                        descriptorSets.update();
                         batch.psoCI = psoCI;
                     }
 
@@ -183,8 +181,8 @@ export class BatchedBuffer {
             size: UBOLocalBatched.SIZE,
         });
 
-        bindingLayout.bindBuffer(UBOLocalBatched.BLOCK.binding, ubo);
-        bindingLayout.update();
+        descriptorSets.bindBuffer(UBOLocalBatched.BLOCK.binding, ubo);
+        descriptorSets.update();
 
         const uboData = new UBOLocalBatched();
         Mat4.toArray(uboData.view, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET);

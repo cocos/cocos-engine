@@ -2,7 +2,7 @@ import { CachedArray } from '../../memop/cached-array';
 import { error, errorID } from '../../platform';
 import { GFXBufferSource, IGFXDrawInfo, IGFXIndirectBuffer } from '../buffer';
 import {
-    GFXBindingType,
+    GFXDescriptorType,
     GFXBufferTextureCopy,
     GFXBufferUsageBit,
     GFXColorMask,
@@ -38,7 +38,7 @@ import {
     IWebGL2GPUInputAssembler,
     IWebGL2GPUUniform,
     WebGL2Attrib,
-    WebGL2GPUBindingLayout,
+    WebGL2GPUDescriptorSets,
     WebGL2GPUBuffer,
     WebGL2GPUFramebuffer,
     WebGL2GPUInput,
@@ -683,7 +683,7 @@ export class WebGL2CmdBeginRenderPass extends WebGL2CmdObject {
 export class WebGL2CmdBindStates extends WebGL2CmdObject {
 
     public gpuPipelineState: WebGL2GPUPipelineState | null = null;
-    public gpuBindingLayout: WebGL2GPUBindingLayout | null = null;
+    public gpuDescriptorSets: WebGL2GPUDescriptorSets | null = null;
     public gpuInputAssembler: IWebGL2GPUInputAssembler | null = null;
     public viewport: IGFXViewport | null = null;
     public scissor: IGFXRect | null = null;
@@ -700,7 +700,7 @@ export class WebGL2CmdBindStates extends WebGL2CmdObject {
 
     public clear () {
         this.gpuPipelineState = null;
-        this.gpuBindingLayout = null;
+        this.gpuDescriptorSets = null;
         this.gpuInputAssembler = null;
         this.viewport = null;
         this.scissor = null;
@@ -1603,7 +1603,6 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
             const stride = WebGLGetTypeSize(attribInfo.type, gl);
 
             gpuShader.glInputs[i] = {
-                binding: glLoc,
                 name: varName,
                 type,
                 stride,
@@ -2034,7 +2033,7 @@ export function WebGL2CmdFuncBeginRenderPass (
 export function WebGL2CmdFuncBindStates (
     device: WebGL2GFXDevice,
     gpuPipelineState: WebGL2GPUPipelineState | null,
-    gpuBindingLayout: WebGL2GPUBindingLayout | null,
+    gpuDescriptorSets: WebGL2GPUDescriptorSets | null,
     gpuInputAssembler: IWebGL2GPUInputAssembler | null,
     viewport: IGFXViewport | null,
     scissor: IGFXRect | null,
@@ -2295,40 +2294,38 @@ export function WebGL2CmdFuncBindStates (
         } // blend state
     } // bind pso
 
-    if (gpuBindingLayout && gpuShader) {
-        const gpuBindings = gpuBindingLayout.gpuBindings;
-        for (let j = 0; j < gpuBindings.length; j++) {
-            const gpuBinding = gpuBindings[j];
+    if (gpuDescriptorSets && gpuShader) {
+        const gpuDescriptors = gpuDescriptorSets.gpuDescriptors;
+        for (let j = 0; j < gpuDescriptors.length; j++) {
+            const gpuDescriptor = gpuDescriptors[j];
+            const binding = gpuDescriptor.binding;
 
-            switch (gpuBinding.type) {
-                case GFXBindingType.UNIFORM_BUFFER: {
+            switch (gpuDescriptor.type) {
+                case GFXDescriptorType.UNIFORM_BUFFER: {
 
-                    if (gpuBinding.gpuBuffer) {
+                    if (gpuDescriptor.gpuBuffer && cache.glBindUBOs[binding] !== gpuDescriptor.gpuBuffer.glBuffer) {
                         for (let k = 0; k < gpuShader.glBlocks.length; k++) {
                             const glBlock = gpuShader.glBlocks[k];
-                            if (glBlock.binding === gpuBinding.binding) {
-                                if (cache.glBindUBOs[glBlock.binding] !== gpuBinding.gpuBuffer.glBuffer) {
-                                    gl.bindBufferBase(gl.UNIFORM_BUFFER, glBlock.binding, gpuBinding.gpuBuffer.glBuffer);
-                                    // gl.bindBufferRange(gl.UNIFORM_BUFFER, glBlock.binding, gpuBinding.gpuBuffer.glBuffer, 0, gpuBinding.gpuBuffer.size);
-                                    cache.glBindUBOs[glBlock.binding] = gpuBinding.gpuBuffer.glBuffer;
-                                    cache.glUniformBuffer = gpuBinding.gpuBuffer.glBuffer;
-                                }
-
-                                break;
+                            if (glBlock.binding === binding) {
+                                gl.bindBufferBase(gl.UNIFORM_BUFFER, binding, gpuDescriptor.gpuBuffer.glBuffer);
+                                // gl.bindBufferRange(gl.UNIFORM_BUFFER, binding, gpuBinding.gpuBuffer.glBuffer, 0, gpuBinding.gpuBuffer.size);
+                                cache.glBindUBOs[binding] = gpuDescriptor.gpuBuffer.glBuffer;
+                                cache.glUniformBuffer = gpuDescriptor.gpuBuffer.glBuffer;
                             }
+                            break;
                         }
                     } // if
                     break;
                 }
-                case GFXBindingType.SAMPLER: {
-                    if (!gpuBinding.gpuSampler) {
-                        error(`Sampler binding point ${gpuBinding.binding} '${gpuBinding.name}' is not bounded`);
+                case GFXDescriptorType.SAMPLER: {
+                    if (!gpuDescriptor.gpuSampler) {
+                        error(`Sampler binding point ${binding} '${gpuDescriptor.name}' is not bounded`);
                     } else {
                         let glSampler: WebGL2GPUUniformSampler | null = null;
 
                         for (let k = 0; k < gpuShader.glSamplers.length; k++) {
                             const sampler = gpuShader.glSamplers[k];
-                            if (sampler.binding === gpuBinding.binding) {
+                            if (sampler.binding === binding) {
                                 glSampler = sampler;
                                 break;
                             }
@@ -2340,10 +2337,10 @@ export function WebGL2CmdFuncBindStates (
 
                                 const glTexUnit = cache.glTexUnits[texUnit];
 
-                                if (gpuBinding.gpuTexture &&
-                                    gpuBinding.gpuTexture.size > 0) {
+                                if (gpuDescriptor.gpuTexture &&
+                                    gpuDescriptor.gpuTexture.size > 0) {
 
-                                    const gpuTexture = gpuBinding.gpuTexture;
+                                    const gpuTexture = gpuDescriptor.gpuTexture;
                                     if (glTexUnit.glTexture !== gpuTexture.glTexture) {
                                         if (cache.texUnit !== texUnit) {
                                             gl.activeTexture(gl.TEXTURE0 + texUnit);
@@ -2357,7 +2354,7 @@ export function WebGL2CmdFuncBindStates (
                                         glTexUnit.glTexture = gpuTexture.glTexture;
                                     }
 
-                                    const gpuSampler = gpuBinding.gpuSampler;
+                                    const gpuSampler = gpuDescriptor.gpuSampler;
                                     if (cache.glSamplerUnits[texUnit] !== gpuSampler.glSampler) {
                                         gl.bindSampler(texUnit, gpuSampler.glSampler);
                                         cache.glSamplerUnits[texUnit] = gpuSampler.glSampler;
@@ -2370,7 +2367,7 @@ export function WebGL2CmdFuncBindStates (
                 }
             }
         }
-    } // bind binding layout
+    } // bind descriptor sets
 
     if (gpuInputAssembler && gpuShader &&
         (isShaderChanged || gfxStateCache.gpuInputAssembler !== gpuInputAssembler)) {
@@ -2725,7 +2722,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
             */
             case WebGL2Cmd.BIND_STATES: {
                 const cmd2 = cmdPackage.bindStatesCmds.array[cmdId];
-                WebGL2CmdFuncBindStates(device, cmd2.gpuPipelineState, cmd2.gpuBindingLayout, cmd2.gpuInputAssembler,
+                WebGL2CmdFuncBindStates(device, cmd2.gpuPipelineState, cmd2.gpuDescriptorSets, cmd2.gpuInputAssembler,
                     cmd2.viewport, cmd2.scissor, cmd2.lineWidth, cmd2.depthBias, cmd2.blendConstants,
                     cmd2.depthBounds, cmd2.stencilWriteMask, cmd2.stencilCompareMask);
                 break;

@@ -27,18 +27,20 @@
  * @category material
  */
 
-import { GFXBindingType, GFXType } from '../../gfx/define';
+import { GFXDescriptorType, GFXType } from '../../gfx/define';
 import { Color, Mat3, Mat4, Vec2, Vec3, Vec4, Quat } from '../../math';
 
-const btMask      = 0xf0000000; //  4 bits => 16 binding types
+const dtMask      = 0xf0000000; //  4 bits => 16 descriptor types
 const typeMask    = 0x0fc00000; //  6 bits => 64 types
-const bindingMask = 0x003fc000; //  8 bits => 256 bindings
+const setMask     = 0x00300000; //  2 bits => 4 sets
+const bindingMask = 0x000fc000; //  6 bits => 64 bindings
 const offsetMask  = 0x00003fff; // 14 bits => 4096 vectors
 
-export const genHandle = (bt: GFXBindingType, binding: number, type: GFXType, offset: number = 0) =>
-    ((bt << 28) & btMask) | ((type << 22) & typeMask) | ((binding << 14) & bindingMask) | (offset & offsetMask);
-export const getBindingTypeFromHandle = (handle: number) => (handle & btMask) >>> 28;
+export const genHandle = (dt: GFXDescriptorType, set: number, binding: number, type: GFXType, offset: number = 0) =>
+    ((dt << 28) & dtMask) | ((type << 22) & typeMask) | ((set << 20) & setMask) | ((binding << 14) & bindingMask) | (offset & offsetMask);
+export const getDescriptorTypeFromHandle = (handle: number) => (handle & dtMask) >>> 28;
 export const getTypeFromHandle = (handle: number) => (handle & typeMask) >>> 22;
+export const getSetIndexFromHandle = (handle: number) => (handle & setMask) >>> 20;
 export const getBindingFromHandle = (handle: number) => (handle & bindingMask) >>> 14;
 export const getOffsetFromHandle = (handle: number) => (handle & offsetMask);
 export const customizeType = (handle: number, type: GFXType) => (handle & ~typeMask) | ((type << 22) & typeMask);

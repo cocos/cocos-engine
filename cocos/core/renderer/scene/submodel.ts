@@ -5,8 +5,8 @@ import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { RenderPriority } from '../../pipeline/define';
 import { IMacroPatch } from '../core/pass';
+import { DescriptorSetsPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
 import { legacyCC } from '../../global-exports';
-import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
 
 export class SubModel {
 
@@ -85,7 +85,7 @@ export class SubModel {
         for (let i = 0; i < this._psociHandles.length; ++i) {
             const psociHandle = this._psociHandles[i];
             if (psociHandle) {
-                BindingLayoutPool.get(PSOCIPool.get(psociHandle, PSOCIView.BINDING_LAYOUT)).update();
+                DescriptorSetsPool.get(PSOCIPool.get(psociHandle, PSOCIView.DESCRIPTOR_SETS)).update();
             }
         }
     }

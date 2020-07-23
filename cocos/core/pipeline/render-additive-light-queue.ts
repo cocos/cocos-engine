@@ -12,7 +12,7 @@ import { LightType } from '../renderer/scene/light';
 import { GFXDevice, GFXRenderPass, GFXBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../renderer/core/memory-pools';
+import { DescriptorSetsPool, PSOCIPool, PSOCIView } from '../renderer/core/memory-pools';
 
 const spherePatches = [
     { name: 'CC_FORWARD_ADD', value: true },
@@ -84,7 +84,7 @@ export class RenderAdditiveLightQueue {
                 const ia = this._sortedSubModelsArray[i][j].inputAssembler!;
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, psoCI, renderPass, ia);
                 cmdBuff.bindPipelineState(pso);
-                cmdBuff.bindBindingLayout(BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT)));
+                cmdBuff.bindDescriptorSets(DescriptorSetsPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SETS)));
                 cmdBuff.bindInputAssembler(ia);
                 cmdBuff.draw(ia);
             }
@@ -99,9 +99,9 @@ export class RenderAdditiveLightQueue {
         const fullPatches = modelPatches ? patches.concat(modelPatches) : patches;
         const psoCI = pass.createPipelineStateCI(fullPatches)!;
         renderObj.model.updateLocalBindings(psoCI, subModelIdx);
-        const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT));
-        bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
-        bindingLayout.update();
+        const descriptorSets = DescriptorSetsPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SETS));
+        descriptorSets.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
+        descriptorSets.update();
 
         subModelList.push(renderObj.model.subModels[subModelIdx]);
         psoCIList.push(psoCI);
