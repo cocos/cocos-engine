@@ -88,9 +88,7 @@ export abstract class RenderPipeline {
      * @zh 初始化函数，正常情况下不会用到，仅用于程序化生成渲染管线的情况。
      * @param info The render pipeline information
      */
-    public initialize () {
-        // Config Anti-Aliasin
-    }
+    public initialize () {}
 
     /**
      * @en Activate the render pipeline after loaded, it mainly activate the flows
@@ -150,7 +148,7 @@ export abstract class RenderPipeline {
         }
     }
 
-    public addFlow (flow: RenderFlow) {
+    protected addFlow (flow: RenderFlow) {
         for (let i = 0, len = this._flows.length; i < len; i++) {
             if (this._flows[i].name === flow.name) {
                 return
@@ -164,7 +162,7 @@ export abstract class RenderPipeline {
      * @en Destroy all render flows
      * @zh 销毁全部渲染流程。
      */
-    public destroyFlows () {
+    protected destroyFlows () {
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].destroy();
         }

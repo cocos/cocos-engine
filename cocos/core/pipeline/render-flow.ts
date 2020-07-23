@@ -117,12 +117,6 @@ export abstract class RenderFlow {
     public abstract destroy ();
 
     /**
-     * @en Rebuild function.
-     * @zh 重构函数。
-     */
-    public abstract rebuild (rctx: RenderContext);
-
-    /**
      * @en Reset the size.
      * @zh 重置大小。
      * @param width The screen width
@@ -149,7 +143,7 @@ export abstract class RenderFlow {
      * @en Destroy all render stages
      * @zh 销毁全部渲染阶段。
      */
-    public destroyStages () {
+    protected destroyStages () {
         for (let i = 0, len = this._stages.length; i < len; i++) {
             this._stages[i].destroy();
         }
@@ -157,7 +151,7 @@ export abstract class RenderFlow {
         this._activeStages.length = 0;
     }
 
-    public addStage (stage: RenderStage) {
+    protected addStage (stage: RenderStage) {
         for (let i = 0, len = this._stages.length; i < len; i++) {
             if (this._stages[i].name === stage.name) {
                 return
@@ -167,7 +161,7 @@ export abstract class RenderFlow {
         this._stages.push(stage);
     }
 
-    public activateStage (stage: RenderStage) {
+    protected activateStage (stage: RenderStage) {
         let mStage;
         for (let i = 0, len = this._stages.length; i < len; i++) {
             mStage = this._stages[i];

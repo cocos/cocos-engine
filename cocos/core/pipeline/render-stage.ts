@@ -135,18 +135,6 @@ export abstract class RenderStage {
     protected _clearColors: IGFXColor[] | null = null;
 
     /**
-     * @en The clear depth
-     * @zh 清空深度。
-     */
-    protected _clearDepth: number = 1.0;
-
-    /**
-     * @en The clear stencil mask
-     * @zh 清空模板。
-     */
-    protected _clearStencil: number = 0;
-
-    /**
      * @en The render area rect
      * @zh 渲染区域。
      */
@@ -242,63 +230,6 @@ export abstract class RenderStage {
      * @param height The screen height
      */
     public abstract resize (width: number, height: number);
-
-    /**
-     * @en Rebuild function.
-     * @zh 重构函数。
-     */
-    public abstract rebuild (rctx: RenderContext);
-
-    /**
-     * @en Set the clear color
-     * @zh 设置清空颜色。
-     * @param color The clear color
-     */
-    public setClearColor (color: IGFXColor) {
-        if (this._clearColors!.length > 0) {
-            this._clearColors![0] = color;
-        } else {
-            this._clearColors!.push(color);
-        }
-    }
-
-    /**
-     * @en The the entire list of clear colors
-     * @zh 设置清空颜色数组。
-     * @param colors The clear colors
-     */
-    public setClearColors (colors: IGFXColor[]) {
-        this._clearColors = colors;
-    }
-
-    /**
-     * @en Set clear depth
-     * @zh 设置清空深度。
-     * @param depth The clear depth
-     */
-    public setClearDepth (depth: number) {
-        this._clearDepth = depth;
-    }
-
-    /**
-     * @en Set clear stencil mask
-     * @zh 设置清空模板。
-     * @param stencil The clear stencil mask
-     */
-    public setClearStencil (stencil: number) {
-        this._clearStencil = stencil;
-    }
-
-    /**
-     * @en Set the render area rect size
-     * @zh 设置渲染区域。
-     * @param width The render area width
-     * @param height The render area height
-     */
-    public setRenderArea (width: number, height: number) {
-        this._renderArea!.width = width;
-        this._renderArea!.height = height;
-    }
 
     /**
      * @en Clear the given render queue
