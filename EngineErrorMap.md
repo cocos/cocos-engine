@@ -2181,15 +2181,15 @@ Unkown error
 
 ### 6030
 
-cc.ParticleSystem: error decoding or ungzipping textureImageData
+cc.ParticleSystem: error decoding or ungzipping textureImageData, The plist is '%s'
 
 ### 6031
 
-cc.ParticleSystem: unknown image format with Data
+cc.ParticleSystem: unknown image format with Data, The plist is %s
 
 ### 6032
 
-cc.ParticleSystem.initWithDictionary() : error loading the texture
+cc.ParticleSystem.initWithDictionary() : error loading the texture, The plist is '%s'
 
 ### 6100
 
