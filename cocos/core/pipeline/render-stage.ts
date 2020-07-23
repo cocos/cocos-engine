@@ -91,6 +91,7 @@ export abstract class RenderStage {
     public get framebuffer (): GFXFramebuffer | null {
         return this._framebuffer;
     }
+
     public get name (): string {
         return this._name;
     }
