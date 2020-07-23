@@ -279,6 +279,7 @@
         "cc.UIReorderComponent",
         "cc.PageViewIndicatorComponent",
         "cc.PageViewComponent",
+        "cc.SafeAreaComponent",
         "cc._widgetManager",
         "cc.FontAtlas",
         "cc.UI"
