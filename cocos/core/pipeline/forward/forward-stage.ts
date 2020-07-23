@@ -3,7 +3,6 @@
  */
 
 import { ccclass } from '../../data/class-decorator';
-import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXClearFlag, GFXFilter, IGFXColor } from '../../gfx/define';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
@@ -14,9 +13,11 @@ import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { PipelineGlobal } from '../global';
+import { InstancedBuffer } from '../instanced-buffer';
+import { BatchedBuffer } from '../batched-buffer';
+import { BatchingSchemes } from '../../renderer/core/pass';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
-const bufs: GFXCommandBuffer[] = [];
 
 /**
  * @en The forward render stage
@@ -89,12 +90,14 @@ export class ForwardStage extends RenderStage {
                     const passes = subModel.passes;
                     for (p = 0; p < passes.length; ++p) {
                         const pass = passes[p];
-                        if (pass.instancedBuffer) {
-                            pass.instancedBuffer.merge(subModel, ro.model.instancedAttributes, subModel.psoInfos[p]);
-                            this._instancedQueue.queue.add(pass.instancedBuffer);
-                        } else if (pass.batchedBuffer) {
-                            pass.batchedBuffer.merge(subModel, p, ro);
-                            this._batchedQueue.queue.add(pass.batchedBuffer);
+                        if (pass.batchingScheme === BatchingSchemes.INSTANCING) {
+                            const instancedBuffer = InstancedBuffer.get(pass);
+                            instancedBuffer.merge(subModel, ro.model.instancedAttributes, subModel.psoInfos[p]);
+                            this._instancedQueue.queue.add(instancedBuffer);
+                        } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) {
+                            const batchedBuffer = BatchedBuffer.get(pass);
+                            batchedBuffer.merge(subModel, p, ro);
+                            this._batchedQueue.queue.add(batchedBuffer);
                         } else {
                             for (k = 0; k < this._renderQueues.length; k++) {
                                 this._renderQueues[k].insertRenderPass(ro, m, p);
