@@ -8,6 +8,7 @@ import { easing } from "./animation";
 import { macro } from "./platform";
 import { sys } from "./platform/sys";
 import { COCOSPLAY, XIAOMI, JSB, ALIPAY } from 'internal:constants';
+import { game } from "./game";
 
 type SplashEffectType = 'none' | 'Fade-InOut';
 
@@ -467,6 +468,15 @@ export class SplashScreenWebgl {
         this.gl.deleteBuffer(this.texcoordBuffer);
         this.gl.deleteTexture(this.textureLogo);
         this.gl.deleteTexture(this.textureText);
+
+        /** HACK: reset gfx texture unit cache */
+        const device = game._gfxDevice;
+        if (device && device.stateCache) {
+            const glTexUnits = device.stateCache.glTexUnits;
+            for (let i = 0; i < glTexUnits.length; i++) {
+                if (glTexUnits[i] != null) glTexUnits[i].glTexture = null;
+            }
+        }
     }
 
     private static _ins: SplashScreenWebgl;
