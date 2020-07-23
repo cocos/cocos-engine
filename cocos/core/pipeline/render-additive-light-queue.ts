@@ -30,6 +30,9 @@ export class RenderAdditiveLightQueue {
     private _sortedPSOCIArray: IPSOCreateInfo[][] = [];
     private _phaseID = getPhaseID('forward-add');
 
+    // psoCI cache
+    private _psoCICache: Map<SubModel, IPSOCreateInfo> = new Map();
+
     // references
     private _validLights: Light[] = [];
     private _lightBuffers: GFXBuffer[] = [];
@@ -91,15 +94,22 @@ export class RenderAdditiveLightQueue {
     }
 
     private attach (renderObj: IRenderObject, subModelIdx: number, lightBuffer: GFXBuffer, lightIdx: number, pass: Pass, patches: IMacroPatch[]) {
+        const subModel = renderObj.model.subModels[subModelIdx];
         const subModelList = this._sortedSubModelsArray[lightIdx];
         const psoCIList = this._sortedPSOCIArray[lightIdx];
-
         const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
         const fullPatches = modelPatches ? patches.concat(modelPatches) : patches;
-        const psoCI = pass.createPipelineStateCI(fullPatches)!;
-        renderObj.model.updateLocalBindings(psoCI, subModelIdx);
-        psoCI.bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
-        psoCI.bindingLayout.update();
+
+        let psoCI: IPSOCreateInfo;
+        if (this._psoCICache.has(subModel)) {
+            psoCI = this._psoCICache.get(subModel)!;
+        } else {
+            psoCI = pass.createPipelineStateCI(fullPatches)!;
+            this._psoCICache.set(subModel, psoCI);
+            renderObj.model.updateLocalBindings(psoCI, subModelIdx);
+            psoCI.bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
+            psoCI.bindingLayout.update();
+        }
 
         subModelList.push(renderObj.model.subModels[subModelIdx]);
         psoCIList.push(psoCI);
