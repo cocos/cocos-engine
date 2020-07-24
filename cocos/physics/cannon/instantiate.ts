@@ -26,3 +26,5 @@ if (PHYSICS_CANNON) {
         plane: CannonPlaneShape,
     });
 }
+
+import './deprecated';

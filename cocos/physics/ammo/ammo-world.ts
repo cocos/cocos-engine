@@ -14,8 +14,9 @@ import { Node, RecyclePool } from '../../core';
 import { AmmoInstance } from './ammo-instance';
 import { AmmoCollisionFilterGroups, AmmoDispatcherFlags } from './ammo-enum';
 import { IVec3Like } from '../../core/math/type-define';
+import { AmmoContactEquation } from './ammo-contact-equation';
 
-const contactsPool = [] as any;
+const contactsPool: AmmoContactEquation[] = [];
 const v3_0 = CC_V3_0;
 const v3_1 = CC_V3_1;
 
@@ -269,7 +270,8 @@ export class AmmoWorld implements IPhysicsWorld {
                                 {
                                     shape0: shape0,
                                     shape1: shape1,
-                                    contacts: []
+                                    contacts: [],
+                                    impl: manifold
                                 }
                             );
                         }
@@ -282,9 +284,8 @@ export class AmmoWorld implements IPhysicsWorld {
         // is enter or stay
         let dicL = this.contactsDic.getLength();
         while (dicL--) {
-            for (let j = CollisionEventObject.contacts.length; j--;) {
-                contactsPool.push(CollisionEventObject.contacts.pop());
-            }
+            contactsPool.push.apply(contactsPool, CollisionEventObject.contacts as AmmoContactEquation[]);
+            CollisionEventObject.contacts.length = 0;
 
             const key = this.contactsDic.getKeyByIndex(dicL);
             const data = this.contactsDic.getDataByKey(key) as any;
@@ -302,6 +303,7 @@ export class AmmoWorld implements IPhysicsWorld {
                         TriggerEventObject.type = 'onTriggerEnter';
                         this.triggerArrayMat.set(shape0.id, shape1.id, true);
                     }
+                    TriggerEventObject.impl = data.impl;
                     TriggerEventObject.selfCollider = collider0;
                     TriggerEventObject.otherCollider = collider1;
                     collider0.emit(TriggerEventObject.type, TriggerEventObject);
@@ -330,20 +332,15 @@ export class AmmoWorld implements IPhysicsWorld {
                         const cq = data.contacts[i] as Ammo.btManifoldPoint;
                         if (contactsPool.length > 0) {
                             const c = contactsPool.pop();
-                            ammo2CocosVec3(c.contactA, cq.m_localPointA);
-                            ammo2CocosVec3(c.contactB, cq.m_localPointB);
-                            ammo2CocosVec3(c.normal, cq.m_normalWorldOnB);
-                            CollisionEventObject.contacts.push(c);
+                            c!.impl = cq;
+                            CollisionEventObject.contacts.push(c!);
                         } else {
-                            const c = {
-                                contactA: ammo2CocosVec3(new Vec3(), cq.m_localPointA),
-                                contactB: ammo2CocosVec3(new Vec3(), cq.m_localPointB),
-                                normal: ammo2CocosVec3(new Vec3(), cq.m_normalWorldOnB),
-                            };
+                            const c = new AmmoContactEquation(CollisionEventObject);
+                            c.impl = cq;
                             CollisionEventObject.contacts.push(c);
                         }
                     }
-
+                    CollisionEventObject.impl = data.impl;
                     CollisionEventObject.selfCollider = collider0;
                     CollisionEventObject.otherCollider = collider1;
                     collider0.emit(CollisionEventObject.type, CollisionEventObject);
@@ -387,24 +384,18 @@ export class AmmoWorld implements IPhysicsWorld {
                         }
                     } else {
                         if (this.collisionArrayMat.get(shape0.id, shape1.id)) {
-                            for (let j = CollisionEventObject.contacts.length; j--;) {
-                                contactsPool.push(CollisionEventObject.contacts.pop());
-                            }
+                            contactsPool.push.apply(contactsPool, CollisionEventObject.contacts as AmmoContactEquation[]);
+                            CollisionEventObject.contacts.length = 0;
 
                             for (let i = 0; i < data.contacts.length; i++) {
                                 const cq = data.contacts[i] as Ammo.btManifoldPoint;
                                 if (contactsPool.length > 0) {
                                     const c = contactsPool.pop();
-                                    ammo2CocosVec3(c.contactA, cq.m_localPointA);
-                                    ammo2CocosVec3(c.contactB, cq.m_localPointB);
-                                    ammo2CocosVec3(c.normal, cq.m_normalWorldOnB);
-                                    CollisionEventObject.contacts.push(c);
+                                    c!.impl = cq;
+                                    CollisionEventObject.contacts.push(c!);
                                 } else {
-                                    const c = {
-                                        contactA: ammo2CocosVec3(new Vec3(), cq.m_localPointA),
-                                        contactB: ammo2CocosVec3(new Vec3(), cq.m_localPointB),
-                                        normal: ammo2CocosVec3(new Vec3(), cq.m_normalWorldOnB),
-                                    };
+                                    const c = new AmmoContactEquation(CollisionEventObject);
+                                    c.impl = cq;
                                     CollisionEventObject.contacts.push(c);
                                 }
                             }
