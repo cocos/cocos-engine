@@ -28,6 +28,8 @@ import { IVec3Like } from '../../../../core/math/type-define';
 @executeInEditMode
 export class SimpleColliderComponent extends ColliderComponent {
 
+    static readonly ESimpleShapeType = ESimpleShapeType;
+
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
     @property({
@@ -133,4 +135,8 @@ export class SimpleColliderComponent extends ColliderComponent {
         }
     }
 
+}
+
+export namespace SimpleColliderComponent {
+    export type ESimpleShapeType = EnumAlias<typeof ESimpleShapeType>;
 }

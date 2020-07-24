@@ -4,7 +4,9 @@ import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { ISimpleShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
-import { SimpleColliderComponent, ESimpleShapeType } from '../../../../exports/physics-framework';
+import { SimpleColliderComponent } from '../../../../exports/physics-framework';
+declare type ESimpleShapeType = SimpleColliderComponent.ESimpleShapeType;
+const ESimpleShapeType = SimpleColliderComponent.ESimpleShapeType;
 
 export class CannonSimpleShape extends CannonShape implements ISimpleShape {
 
