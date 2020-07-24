@@ -22,4 +22,5 @@ export interface IPhysicsConfig {
     autoSimulation: boolean;
     useCollsionMatrix: boolean;
     useNodeChains: boolean;
+    physicsEngine: 'builtin' | 'cannon.js' | 'ammo.js' | string;
 }

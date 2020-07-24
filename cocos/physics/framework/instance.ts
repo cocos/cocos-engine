@@ -8,9 +8,13 @@ import { WRAPPER } from './physics-selector';
 import { IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape, IConeShape, ITerrainShape, ISimplexShape, IPlaneShape, IBaseShape } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { errorID, warnID, warn } from '../../core';
-import { EDITOR, DEBUG, PHYSICS_BUILTIN, PHYSICS_AMMO, TEST, PHYSICS_CANNON } from 'internal:constants';
+import { EDITOR, DEBUG, TEST } from 'internal:constants';
 import { EColliderType, EConstraintType } from './physics-enum';
 import { IBaseConstraint, IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint } from '../spec/i-physics-constraint';
+
+const PHYSICS_BUILTIN = globalThis['CC_PHYSICS_BUILTIN'];
+const PHYSICS_CANNON = globalThis['CC_PHYSICS_CANNON'];
+const PHYSICS_AMMO = globalThis['CC_PHYSICS_AMMO'];
 
 export function checkPhysicsModule (obj: any) {
     if (DEBUG && !TEST && !EDITOR && obj == null) {

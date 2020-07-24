@@ -11,7 +11,7 @@ import { PhysicMaterial } from './assets/physic-material';
 import { Layers, RecyclePool, error, game } from '../../core';
 import { ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
-import { EDITOR, PHYSICS_BUILTIN, DEBUG, PHYSICS_CANNON, PHYSICS_AMMO } from 'internal:constants';
+import { EDITOR, DEBUG } from 'internal:constants';
 import { IPhysicsConfig, ICollisionMatrix } from './physics-config';
 
 class CollisionMatrix {
@@ -194,6 +194,24 @@ export class PhysicsSystem extends System {
     readonly useCollisionMatrix: boolean;
 
     readonly useNodeChains: boolean;
+
+    static readonly physicsEngine: string;
+
+    static get PHYSICS_NONE () {
+        return !this.physicsEngine;
+    }
+
+    static get PHYSICS_BUILTIN () {
+        return globalThis['CC_PHYSICS_BUILTIN'];
+    }
+
+    static get PHYSICS_CANNON () {
+        return globalThis['CC_PHYSICS_CANNON'];
+    }
+
+    static get PHYSICS_AMMO () {
+        return globalThis['CC_PHYSICS_AMMO'];
+    }
 
     /**
      * @en
@@ -467,7 +485,13 @@ export class PhysicsSystem extends System {
 }
 
 import { legacyCC } from '../../core/global-exports';
-if (PHYSICS_BUILTIN || PHYSICS_CANNON || PHYSICS_AMMO) {
+
+if (globalThis && globalThis['_CCSettings']) {
+    const physics: IPhysicsConfig = globalThis['_CCSettings'].physics;
+    (PhysicsSystem['physicsEngine'] as any) = physics.physicsEngine;
+}
+
+if (!PhysicsSystem.PHYSICS_NONE) {
     director.on(Director.EVENT_INIT, function () {
         const sys = new legacyCC.PhysicsSystem();
         legacyCC.PhysicsSystem._instance = sys;

@@ -1,4 +1,3 @@
-import { PHYSICS_AMMO } from 'internal:constants';
 import { instantiate } from '../framework/physics-selector';
 import { AmmoRigidBody } from './ammo-rigid-body';
 import { AmmoWorld } from '../ammo/ammo-world';
@@ -15,7 +14,9 @@ import { AmmoPlaneShape } from "../ammo/shapes/ammo-plane-shape";
 import { AmmoPointToPointConstraint } from './constraints/ammo-point-to-point-constraint';
 import { AmmoHingeConstraint } from './constraints/ammo-hinge-constraint';
 
-if (PHYSICS_AMMO) {
+import { PhysicsSystem } from '../framework';
+
+if (PhysicsSystem.PHYSICS_AMMO) {
     instantiate({
         PhysicsWorld: AmmoWorld,
         RigidBody: AmmoRigidBody,

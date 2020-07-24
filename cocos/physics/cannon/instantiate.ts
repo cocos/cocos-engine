@@ -1,5 +1,4 @@
 
-import { PHYSICS_CANNON } from 'internal:constants';
 import { instantiate } from '../framework/physics-selector';
 
 import { CannonRigidBody } from './cannon-rigid-body';
@@ -17,7 +16,9 @@ import { CannonPlaneShape } from './shapes/cannon-plane-shape';
 import { CannonPointToPointConstraint } from './constraints/cannon-point-to-point-constraint';
 import { CannonHingeConstraint } from './constraints/cannon-hinge-constraint';
 
-if (PHYSICS_CANNON) {
+import { PhysicsSystem } from '../framework';
+
+if (PhysicsSystem.PHYSICS_CANNON) {
     instantiate({
         PhysicsWorld: CannonWorld,
         RigidBody: CannonRigidBody,
