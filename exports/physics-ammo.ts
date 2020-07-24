@@ -39,7 +39,6 @@ Ammo['CC_CONFIG'] = {
     'rollingFriction': 0.1,
     'spinningFriction': 0.1,
     'ignoreSelfBody': true,
-    'forceUseCompound': true,
 }
 
 Ammo['CC_CACHE'] = {

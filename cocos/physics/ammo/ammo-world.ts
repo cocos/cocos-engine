@@ -73,10 +73,12 @@ export class AmmoWorld implements IPhysicsWorld {
 
     syncSceneToPhysics (): void {
         for (let i = 0; i < this.ghosts.length; i++) {
+            this.ghosts[i].updateDirty();
             this.ghosts[i].syncSceneToGhost();
         }
 
         for (let i = 0; i < this.bodies.length; i++) {
+            this.bodies[i].updateDirty();
             this.bodies[i].syncSceneToPhysics();
         }
     }

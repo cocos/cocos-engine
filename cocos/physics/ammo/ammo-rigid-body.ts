@@ -3,7 +3,7 @@ import { Vec3, Node } from "../../core";
 import { AmmoWorld } from "./ammo-world";
 import { cocos2AmmoVec3, ammo2CocosVec3 } from "./ammo-util";
 import { RigidBodyComponent, PhysicsSystem } from '../../../exports/physics-framework';
-import { AmmoCollisionFlags, AmmoRigidBodyFlags, AmmoCollisionObjectStates } from './ammo-enum';
+import { AmmoCollisionFlags, AmmoRigidBodyFlags, AmmoCollisionObjectStates, EAmmoSharedBodyDirty } from './ammo-enum';
 import { IRigidBody } from '../spec/i-rigid-body';
 import { ERigidBodyType } from '../framework/physics-enum';
 import { AmmoSharedBody } from './ammo-shared-body';
@@ -46,7 +46,7 @@ export class AmmoRigidBody implements IRigidBody {
         }
         this.impl.setMassProps(value, localInertia);
         if (!this.isAwake) this.impl.activate();
-        this._sharedBody.updateBodyByReAdd();
+        this._sharedBody.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
     }
 
     setLinearDamping (value: number) {
@@ -77,7 +77,7 @@ export class AmmoRigidBody implements IRigidBody {
         }
         this.impl.setFlags(m_rigidBodyFlag);
         if (!this.isAwake) this.impl.activate();
-        this._sharedBody.updateBodyByReAdd();
+        this._sharedBody.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
     }
 
     fixRotation (value: boolean) {
