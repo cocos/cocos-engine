@@ -47,7 +47,7 @@ export class PhysicsSystem extends System {
     }
     set allowSleep (v: boolean) {
         this._allowSleep = v;
-        if (!EDITOR && !PHYSICS_BUILTIN) {
+        if (!EDITOR) {
             this.physicsWorld.setAllowSleep(v);
         }
     }
@@ -105,7 +105,7 @@ export class PhysicsSystem extends System {
     }
     set gravity (gravity: Vec3) {
         this._gravity.set(gravity);
-        if (!EDITOR && !PHYSICS_BUILTIN) {
+        if (!EDITOR) {
             this.physicsWorld.setGravity(gravity);
         }
     }
@@ -274,9 +274,7 @@ export class PhysicsSystem extends System {
     }
 
     private _updateMaterial () {
-        if (!PHYSICS_BUILTIN) {
-            this.physicsWorld.setDefaultMaterial(this._material);
-        }
+        this.physicsWorld.setDefaultMaterial(this._material);
     }
 }
 

@@ -33,11 +33,11 @@ export function instantiate (obj: IPhysicsWrapperObject) {
     SphereShape = obj.sphere;
     RigidBody = obj.body;
     PhysicsWorld = obj.world;
-    if (obj.capsule) { CapsuleShape = obj.capsule; }
-    if (obj.trimesh) { TrimeshShape = obj.trimesh; }
-    if (obj.cylinder) { CylinderShape = obj.cylinder; }
-    if (obj.cone) { ConeShape = obj.cone; }
-    if (obj.terrain) { TerrainShape = obj.terrain; }
-    if (obj.simple) { SimpleShape = obj.simple; }
-    if (obj.plane) { PlaneShape = obj.plane; }
+    CapsuleShape = obj.capsule;
+    TrimeshShape = obj.trimesh;
+    CylinderShape = obj.cylinder;
+    ConeShape = obj.cone;
+    TerrainShape = obj.terrain;
+    SimpleShape = obj.simple;
+    PlaneShape = obj.plane;
 }
