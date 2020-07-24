@@ -110,6 +110,7 @@ export class RenderAdditiveLightQueue {
         } else {
             psoCI = pass.createPipelineStateCI(fullPatches)!;
             this._psoCICache.set(patcheHash, psoCI);
+            this._psoCISubModelCache.set(patcheHash, subModel);
             renderObj.model.updateLocalBindings(psoCI, subModelIdx);
             psoCI.bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
             psoCI.bindingLayout.update();
