@@ -35,6 +35,10 @@ public:
     vector<VkLayerProperties> layers;
     vector<VkExtensionProperties> extensions;
     VmaAllocator memoryAllocator = VK_NULL_HANDLE;
+
+    bool useDescriptorUpdateTemplate = false;
+    bool usePushDescriptorSet = false;
+    bool useMultiDrawIndirect = false;
 };
 
 class CCVKGPURenderPass : public Object {
@@ -79,10 +83,52 @@ public:
     uint levelCount = 1u;
     uint baseLayer = 0u;
     uint layerCount = 1u;
+
+    // descriptor infos
     VkImageView vkImageView = VK_NULL_HANDLE;
 };
-
 typedef vector<CCVKGPUTextureView *> CCVKGPUTextureViewList;
+
+class CCVKGPUSampler : public Object {
+public:
+    Filter minFilter = Filter::LINEAR;
+    Filter magFilter = Filter::LINEAR;
+    Filter mipFilter = Filter::NONE;
+    Address addressU = Address::WRAP;
+    Address addressV = Address::WRAP;
+    Address addressW = Address::WRAP;
+    uint maxAnisotropy = 16u;
+    ComparisonFunc cmpFunc = ComparisonFunc::NEVER;
+    Color borderColor;
+    uint minLOD = 0u;
+    uint maxLOD = 1000u;
+    float mipLODBias = 0.0f;
+
+    // descriptor infos
+    VkSampler vkSampler;
+};
+
+class CCVKGPUBuffer : public Object {
+public:
+    BufferUsage usage = BufferUsage::NONE;
+    MemoryUsage memUsage = MemoryUsage::NONE;
+    uint stride = 0u;
+    uint count = 0u;
+    void *buffer = nullptr;
+
+    bool isDrawIndirectByIndex = false;
+    vector<VkDrawIndirectCommand> indirectCmds;
+    vector<VkDrawIndexedIndirectCommand> indexedIndirectCmds;
+
+    uint8_t *mappedData = nullptr;
+    VmaAllocation vmaAllocation = VK_NULL_HANDLE;
+
+    // descriptor infos
+    VkBuffer vkBuffer = VK_NULL_HANDLE;
+    VkDeviceSize startOffset = 0u;
+    VkDeviceSize size = 0u;
+};
+typedef vector<CCVKGPUBuffer *> CCVKGPUBufferList;
 
 class CCVKGPUSwapchain;
 class CCVKGPUFramebuffer : public Object {
@@ -130,45 +176,6 @@ public:
     VkFence lastAutoFence = VK_NULL_HANDLE;
 };
 
-class CCVKGPUBuffer : public Object {
-public:
-    BufferUsage usage = BufferUsage::NONE;
-    MemoryUsage memUsage = MemoryUsage::NONE;
-    uint stride = 0u;
-    uint count = 0u;
-    void *buffer = nullptr;
-
-    bool isDrawIndirectByIndex = false;
-    vector<VkDrawIndirectCommand> indirectCmds;
-    vector<VkDrawIndexedIndirectCommand> indexedIndirectCmds;
-
-    // VkDescriptorBufferInfo
-    VkBuffer vkBuffer = VK_NULL_HANDLE;
-    VkDeviceSize startOffset = 0u;
-    VkDeviceSize size = 0u;
-
-    uint8_t *mappedData = nullptr;
-    VmaAllocation vmaAllocation = VK_NULL_HANDLE;
-};
-typedef vector<CCVKGPUBuffer *> CCVKGPUBufferList;
-
-class CCVKGPUSampler : public Object {
-public:
-    Filter minFilter = Filter::LINEAR;
-    Filter magFilter = Filter::LINEAR;
-    Filter mipFilter = Filter::NONE;
-    Address addressU = Address::WRAP;
-    Address addressV = Address::WRAP;
-    Address addressW = Address::WRAP;
-    uint maxAnisotropy = 16u;
-    ComparisonFunc cmpFunc = ComparisonFunc::NEVER;
-    Color borderColor;
-    uint minLOD = 0u;
-    uint maxLOD = 1000u;
-    float mipLODBias = 0.0f;
-    VkSampler vkSampler;
-};
-
 struct CCVKGPUShaderStage {
     CCVKGPUShaderStage(ShaderType t, String s, ShaderMacroList m)
     : type(t), source(s), macros(m) {
@@ -180,6 +187,13 @@ struct CCVKGPUShaderStage {
 };
 typedef vector<CCVKGPUShaderStage> CCVKGPUShaderStageList;
 
+struct CCVKGPUPipelineLayout {
+    vector<VkDescriptorSetLayout> vkDescriptorSetLayouts;
+    vector<VkDescriptorUpdateTemplate> vkDescriptorUpdateTemplates;
+    VkPipelineLayout vkPipelineLayout = VK_NULL_HANDLE;
+    vector<vector<uint>> descriptorIndices;
+    vector<uint> descriptorCounts;
+};
 class CCVKGPUShader : public Object {
 public:
     String name;
@@ -187,11 +201,7 @@ public:
     UniformBlockList blocks;
     UniformSamplerList samplers;
     CCVKGPUShaderStageList gpuStages;
-
-    vector<VkDescriptorSetLayout> vkDescriptorSetLayouts;
-    vector<VkDescriptorUpdateTemplate> vkDescriptorUpdateTemplates;
-    vector<vector<VkWriteDescriptorSet>> manualDescriptorUpdateTemplates;
-    VkPipelineLayout vkPipelineLayout = VK_NULL_HANDLE;
+    CCVKGPUPipelineLayout *pipelineLayout = nullptr;
 };
 
 class CCVKGPUInputAssembler : public Object {
@@ -204,12 +214,10 @@ public:
     vector<VkDeviceSize> vertexBufferOffsets;
 };
 
-struct CCVKDescriptorInfo {
-    union {
-        VkDescriptorImageInfo image;
-        VkDescriptorBufferInfo buffer;
-        VkBufferView texelBufferView;
-    };
+union CCVKGPUDescriptorInfo {
+    VkDescriptorImageInfo image;
+    VkDescriptorBufferInfo buffer;
+    VkBufferView texelBufferView;
 };
 class CCVKGPUBinding : public Object {
 public:
@@ -220,8 +228,14 @@ public:
 class CCVKGPUBindingLayout : public Object {
 public:
     vector<vector<CCVKGPUBinding>> gpuBindings;
-    vector<vector<CCVKDescriptorInfo>> descriptorInfos;
+    // contiguous across different sets
+    vector<CCVKGPUDescriptorInfo> descriptorInfos;
+    vector<VkWriteDescriptorSet> descriptorUpdateEntries;
+
     vector<VkDescriptorSet> descriptorSets;
+
+    // external references
+    const vector<vector<uint>> *descriptorIndices = nullptr;
 };
 
 class CCVKGPUPipelineState : public Object {
@@ -418,9 +432,7 @@ public:
 
     void request(CCVKGPUCommandBuffer *gpuCommandBuffer) {
         if (!_pools.count(gpuCommandBuffer->queueFamilyIndex)) {
-            _pools.emplace(std::piecewise_construct,
-                           std::forward_as_tuple(gpuCommandBuffer->queueFamilyIndex),
-                           std::forward_as_tuple());
+            _pools.emplace(std::piecewise_construct, std::forward_as_tuple(gpuCommandBuffer->queueFamilyIndex), std::forward_as_tuple());
             VkCommandPoolCreateInfo createInfo{VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO};
             createInfo.queueFamilyIndex = gpuCommandBuffer->queueFamilyIndex;
             createInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
@@ -487,12 +499,15 @@ public:
         _pool.clear();
     }
 
-    void alloc(CCVKGPUBuffer *gpuBuffer) {
+    void alloc(CCVKGPUBuffer *gpuBuffer) { alloc(gpuBuffer, 1u); }
+    void alloc(CCVKGPUBuffer *gpuBuffer, uint alignment) {
         size_t bufferCount = _pool.size();
         Buffer *buffer = nullptr;
+        VkDeviceSize offset = 0u;
         for (size_t idx = 0u; idx < bufferCount; idx++) {
             Buffer *cur = &_pool[idx];
-            if (cur->size - cur->curOffset > gpuBuffer->size) {
+            offset = roundUp(cur->curOffset, alignment);
+            if (cur->size - offset > gpuBuffer->size) {
                 buffer = cur;
                 break;
             }
@@ -509,11 +524,12 @@ public:
             VmaAllocationInfo res;
             VK_CHECK(vmaCreateBuffer(_device->memoryAllocator, &bufferInfo, &allocInfo, &buffer->vkBuffer, &buffer->vmaAllocation, &res));
             buffer->mappedData = (uint8_t *)res.pMappedData;
+            offset = 0u;
         }
         gpuBuffer->vkBuffer = buffer->vkBuffer;
-        gpuBuffer->startOffset = buffer->curOffset;
-        gpuBuffer->mappedData = buffer->mappedData + buffer->curOffset;
-        buffer->curOffset += gpuBuffer->size;
+        gpuBuffer->startOffset = offset;
+        gpuBuffer->mappedData = buffer->mappedData + offset;
+        buffer->curOffset = offset + gpuBuffer->size;
     }
 
     void reset() {
@@ -536,6 +552,127 @@ private:
     vector<Buffer> _pool;
 };
 
+class CCVKGPUPipelineLayoutPool : public Object {
+public:
+    CCVKGPUPipelineLayoutPool(CCVKGPUDevice *device)
+    : _device(device) {
+    }
+
+    ~CCVKGPUPipelineLayoutPool() {
+        for (PipelineLayoutPool::iterator it = _pool.begin(); it != _pool.end(); it++) {
+            CCVKGPUPipelineLayout &pipelineLayout = it->second;
+            for (uint i = 0u; i < pipelineLayout.vkDescriptorUpdateTemplates.size(); i++) {
+                if (pipelineLayout.vkDescriptorUpdateTemplates[i] != VK_NULL_HANDLE) {
+                    vkDestroyDescriptorUpdateTemplateKHR(_device->vkDevice, pipelineLayout.vkDescriptorUpdateTemplates[i], nullptr);
+                }
+            }
+            pipelineLayout.vkDescriptorUpdateTemplates.clear();
+
+            if (pipelineLayout.vkPipelineLayout != VK_NULL_HANDLE) {
+                vkDestroyPipelineLayout(_device->vkDevice, pipelineLayout.vkPipelineLayout, nullptr);
+                pipelineLayout.vkPipelineLayout = VK_NULL_HANDLE;
+            }
+
+            for (uint i = 0u; i < pipelineLayout.vkDescriptorSetLayouts.size(); i++) {
+                if (pipelineLayout.vkDescriptorSetLayouts[i] != VK_NULL_HANDLE) {
+                    vkDestroyDescriptorSetLayout(_device->vkDevice, pipelineLayout.vkDescriptorSetLayouts[i], nullptr);
+                }
+            }
+            pipelineLayout.vkDescriptorSetLayouts.clear();
+        }
+        _pool.clear();
+    }
+
+    void request(CCVKGPUShader *gpuShader);
+
+private:
+    typedef map<uint, CCVKGPUPipelineLayout> PipelineLayoutPool;
+    typedef PipelineLayoutPool::iterator PipelineLayoutPoolIt;
+
+    CCVKGPUDevice *_device;
+    PipelineLayoutPool _pool;
+};
+
+class CCVKGPUDescriptorHub : public Object {
+public:
+    CCVKGPUDescriptorHub(CCVKGPUDevice *device)
+    : _device(device) {
+    }
+
+#define DEFINE_DESCRIPTOR_HUB_FN(name)                                                                                            \
+    CC_INLINE void name(CCVKGPUBuffer *buffer) { name(_buffers, buffer, (VkDescriptorBufferInfo *)nullptr); }                     \
+    CC_INLINE void name(CCVKGPUBuffer *buffer, VkDescriptorBufferInfo *descriptor) { name(_buffers, buffer, descriptor); }        \
+    CC_INLINE void name(CCVKGPUTextureView *texture) { name(_textures, texture, (VkDescriptorImageInfo *)nullptr); }              \
+    CC_INLINE void name(CCVKGPUTextureView *texture, VkDescriptorImageInfo *descriptor) { name(_textures, texture, descriptor); } \
+    CC_INLINE void name(CCVKGPUSampler *sampler) { name(_samplers, sampler, (VkDescriptorImageInfo *)nullptr); }                  \
+    CC_INLINE void name(CCVKGPUSampler *sampler, VkDescriptorImageInfo *descriptor) { name(_samplers, sampler, descriptor); }
+
+    DEFINE_DESCRIPTOR_HUB_FN(connect)
+    DEFINE_DESCRIPTOR_HUB_FN(update)
+    DEFINE_DESCRIPTOR_HUB_FN(disengage)
+
+private:
+    template <typename M, typename K, typename V>
+    void connect(M &map, K *name, V *descriptor) {
+        if (!map.count(name)) {
+            map.emplace(std::piecewise_construct,
+                        std::forward_as_tuple(name),
+                        std::forward_as_tuple());
+        }
+        map[name].push(descriptor);
+    }
+
+    CC_INLINE void _doUpdate(const CCVKGPUBuffer *buffer, VkDescriptorBufferInfo *descriptor) {
+        descriptor->buffer = buffer->vkBuffer;
+        descriptor->offset = buffer->startOffset;
+        descriptor->range = buffer->size;
+    }
+
+    CC_INLINE void _doUpdate(const CCVKGPUTextureView *texture, VkDescriptorImageInfo *descriptor) {
+        descriptor->imageView = texture->vkImageView;
+    }
+
+    CC_INLINE void _doUpdate(const CCVKGPUSampler *sampler, VkDescriptorImageInfo *descriptor) {
+        descriptor->sampler = sampler->vkSampler;
+    }
+
+    template <typename M, typename K, typename V>
+    void update(M &map, K *name, V *descriptor) {
+        auto it = map.find(name);
+        if (it == map.end()) return;
+        auto &descriptors = it->second;
+        if (!descriptor) {
+            for (uint i = 0u; i < descriptors.size(); i++) {
+                _doUpdate(name, descriptors[i]);
+            }
+        } else {
+            for (uint i = 0u; i < descriptors.size(); i++) {
+                if (descriptors[i] == descriptor) {
+                    _doUpdate(name, descriptor);
+                    break;
+                }
+            }
+        }
+    }
+
+    template <typename M, typename K, typename V>
+    void disengage(M &map, K *name, V *descriptor) {
+        auto it = map.find(name);
+        if (it == map.end()) return;
+        if (!descriptor) {
+            map.erase(it);
+        } else {
+            auto &descriptors = it->second;
+            descriptors.fastRemove(descriptors.indexOf(descriptor));
+        }
+    }
+
+    CCVKGPUDevice *_device = nullptr;
+    map<CCVKGPUBuffer *, CachedArray<VkDescriptorBufferInfo *>> _buffers;
+    map<CCVKGPUTextureView *, CachedArray<VkDescriptorImageInfo *>> _textures;
+    map<CCVKGPUSampler *, CachedArray<VkDescriptorImageInfo *>> _samplers;
+}; // namespace gfx
+
 class CCVKGPURecycleBin : public Object {
 public:
     CCVKGPURecycleBin(CCVKGPUDevice *device)
@@ -543,24 +680,24 @@ public:
         _resources.resize(16);
     }
 
-#define DEFINE_COLLECT_FN(_type, typeValue, expr) \
-    void collect(_type *gpuRes) {                 \
-        if (_resources.size() <= _count) {        \
-            _resources.resize(_count * 2);        \
-        }                                         \
-        Resource &res = _resources[_count++];     \
-        res.type = typeValue;                     \
-        expr;                                     \
+#define DEFINE_RECYCLE_BIN_COLLECT_FN(_type, typeValue, expr) \
+    void collect(_type *gpuRes) {                             \
+        if (_resources.size() <= _count) {                    \
+            _resources.resize(_count * 2);                    \
+        }                                                     \
+        Resource &res = _resources[_count++];                 \
+        res.type = typeValue;                                 \
+        expr;                                                 \
     }
-    DEFINE_COLLECT_FN(CCVKGPUBuffer, ObjectType::BUFFER, (res.buffer = {gpuRes->vkBuffer, gpuRes->vmaAllocation}))
-    DEFINE_COLLECT_FN(CCVKGPUTexture, ObjectType::TEXTURE, (res.image = {gpuRes->vkImage, gpuRes->vmaAllocation}))
-    DEFINE_COLLECT_FN(CCVKGPUTextureView, ObjectType::TEXTURE_VIEW, res.vkImageView = gpuRes->vkImageView)
-    DEFINE_COLLECT_FN(CCVKGPURenderPass, ObjectType::RENDER_PASS, res.gpuRenderPass = gpuRes)
-    DEFINE_COLLECT_FN(CCVKGPUFramebuffer, ObjectType::FRAMEBUFFER, res.gpuFramebuffer = gpuRes)
-    DEFINE_COLLECT_FN(CCVKGPUSampler, ObjectType::SAMPLER, res.gpuSampler = gpuRes)
-    DEFINE_COLLECT_FN(CCVKGPUShader, ObjectType::SHADER, res.gpuShader = gpuRes)
-    DEFINE_COLLECT_FN(CCVKGPUPipelineState, ObjectType::PIPELINE_STATE, res.gpuPipelineState = gpuRes)
-    DEFINE_COLLECT_FN(CCVKGPUFence, ObjectType::FENCE, res.gpuFence = gpuRes)
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUBuffer, ObjectType::BUFFER, (res.buffer = {gpuRes->vkBuffer, gpuRes->vmaAllocation}))
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUTexture, ObjectType::TEXTURE, (res.image = {gpuRes->vkImage, gpuRes->vmaAllocation}))
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUTextureView, ObjectType::TEXTURE_VIEW, res.vkImageView = gpuRes->vkImageView)
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPURenderPass, ObjectType::RENDER_PASS, res.gpuRenderPass = gpuRes)
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUFramebuffer, ObjectType::FRAMEBUFFER, res.gpuFramebuffer = gpuRes)
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUSampler, ObjectType::SAMPLER, res.gpuSampler = gpuRes)
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUShader, ObjectType::SHADER, res.gpuShader = gpuRes)
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUPipelineState, ObjectType::PIPELINE_STATE, res.gpuPipelineState = gpuRes)
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUFence, ObjectType::FENCE, res.gpuFence = gpuRes)
 
     void clear();
 
@@ -613,7 +750,7 @@ public:
     }
 
     CC_INLINE bool empty() {
-        return !_cmdBuff.vkCommandBuffer && !_count;
+        return !_cmdBuff.vkCommandBuffer;
     }
 
     void checkIn(void *dst, const void *src, size_t size) {
@@ -661,7 +798,8 @@ public:
                 vkWaitForFences(_device->vkDevice, 1, &_queue->lastAutoFence, VK_TRUE, DEFAULT_FENCE_TIMEOUT);
                 _queue->lastAutoFence = VK_NULL_HANDLE;
             }
-            for (const Transfer &transfer : _transfers) {
+            for (uint i = 0u; i < _count; i++) {
+                const Transfer &transfer = _transfers[i];
                 memcpy(transfer.dst, transfer.src, transfer.size);
             }
             _count = 0u;

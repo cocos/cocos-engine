@@ -602,6 +602,10 @@ uint toUint(T value) {
     return static_cast<uint>(value);
 }
 
+CC_INLINE VkDeviceSize roundUp(VkDeviceSize numToRound, uint multiple) {
+    return ((numToRound + multiple - 1) / multiple) * multiple;
+}
+
 uint nextPowerOf2(uint v) {
     v--;
     v |= v >> 1;

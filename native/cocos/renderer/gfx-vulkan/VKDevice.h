@@ -15,10 +15,12 @@ class CCVKGPUSwapchain;
 class CCVKGPUFencePool;
 class CCVKGPURecycleBin;
 class CCVKGPUTransportHub;
+class CCVKGPUDescriptorHub;
 class CCVKGPUSemaphorePool;
 class CCVKGPUDescriptorSetPool;
 class CCVKGPUCommandBufferPool;
 class CCVKGPUStagingBufferPool;
+class CCVKGPUPipelineLayoutPool;
 
 class CC_VULKAN_API CCVKDevice : public Device {
 public:
@@ -56,43 +58,38 @@ public:
     CCVKGPUContext *gpuContext() const;
     CC_INLINE CCVKGPUDevice *gpuDevice() const { return _gpuDevice; }
     CC_INLINE CCVKGPUSwapchain *gpuSwapchain() { return _gpuSwapchain; }
+
     CC_INLINE CCVKGPUFencePool *gpuFencePool() { return _gpuFencePool; }
     CC_INLINE CCVKGPURecycleBin *gpuRecycleBin() { return _gpuRecycleBin; }
     CC_INLINE CCVKGPUTransportHub *gpuTransportHub() { return _gpuTransportHub; }
+    CC_INLINE CCVKGPUDescriptorHub *gpuDescriptorHub() { return _gpuDescriptorHub; }
     CC_INLINE CCVKGPUSemaphorePool *gpuSemaphorePool() { return _gpuSemaphorePool; }
     CC_INLINE CCVKGPUDescriptorSetPool *gpuDescriptorSetPool() { return _gpuDescriptorSetPool; }
     CC_INLINE CCVKGPUCommandBufferPool *gpuCommandBufferPool() { return _gpuCommandBufferPool; }
     CC_INLINE CCVKGPUStagingBufferPool *gpuStagingBufferPool() { return _gpuStagingBufferPool; }
-    CC_INLINE const vector<const char *> &getLayers() const { return _layers; }
-    CC_INLINE const vector<const char *> &getExtensions() const { return _extensions; }
-    CC_INLINE bool isSwapchainReady() const { return _swapchainReady; }
-
-    CC_INLINE bool isDescriptorUpdateTemplateSupported() const { return _descriptorUpdateTemplateSupported; }
-    CC_INLINE bool isPushDescriptorSetSupported() const { return _pushDescriptorSetSupported; }
-    CC_INLINE bool isMultiDrawIndirectSupported() const { return _multiDrawIndirectSupported; }
+    CC_INLINE CCVKGPUPipelineLayoutPool *gpuPipelineLayoutPool() { return _gpuPipelineLayoutPool; }
 
 private:
     void buildSwapchain();
 
     CCVKGPUDevice *_gpuDevice = nullptr;
+    CCVKGPUSwapchain *_gpuSwapchain = nullptr;
+    vector<CCVKTexture *> _depthStencilTextures;
+
     CCVKGPUFencePool *_gpuFencePool = nullptr;
     CCVKGPURecycleBin *_gpuRecycleBin = nullptr;
     CCVKGPUTransportHub *_gpuTransportHub = nullptr;
+    CCVKGPUDescriptorHub *_gpuDescriptorHub = nullptr;
     CCVKGPUSemaphorePool *_gpuSemaphorePool = nullptr;
     CCVKGPUDescriptorSetPool *_gpuDescriptorSetPool = nullptr;
     CCVKGPUCommandBufferPool *_gpuCommandBufferPool = nullptr;
     CCVKGPUStagingBufferPool *_gpuStagingBufferPool = nullptr;
-    CCVKGPUSwapchain *_gpuSwapchain = nullptr;
-    vector<CCVKTexture *> _depthStencilTextures;
+    CCVKGPUPipelineLayoutPool *_gpuPipelineLayoutPool = nullptr;
 
     vector<const char *> _layers;
     vector<const char *> _extensions;
 
     bool _swapchainReady = false;
-
-    bool _descriptorUpdateTemplateSupported = false;
-    bool _pushDescriptorSetSupported = false;
-    bool _multiDrawIndirectSupported = false;
 };
 
 } // namespace gfx

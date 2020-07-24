@@ -130,6 +130,7 @@ void CCVKTexture::createTextureView() {
 
 void CCVKTexture::destroy() {
     if (_gpuTextureView) {
+        ((CCVKDevice *)_device)->gpuDescriptorHub()->disengage(_gpuTextureView);
         ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuTextureView);
         CC_DELETE(_gpuTextureView);
         _gpuTextureView = nullptr;

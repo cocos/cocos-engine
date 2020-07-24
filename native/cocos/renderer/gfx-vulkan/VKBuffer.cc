@@ -51,7 +51,9 @@ bool CCVKBuffer::initialize(const BufferInfo &info) {
 
 void CCVKBuffer::destroy() {
     if (_gpuBuffer) {
+        ((CCVKDevice *)_device)->gpuDescriptorHub()->disengage(_gpuBuffer);
         ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuBuffer);
+
         _device->getMemoryStatus().bufferSize -= _size;
         CC_DELETE(_gpuBuffer);
         _gpuBuffer = nullptr;

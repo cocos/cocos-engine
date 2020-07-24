@@ -164,9 +164,10 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     _features[static_cast<uint>(Feature::LINE_WIDTH)] = true;
     _features[static_cast<uint>(Feature::STENCIL_COMPARE_MASK)] = true;
     _features[static_cast<uint>(Feature::STENCIL_WRITE_MASK)] = true;
-    _multiDrawIndirectSupported = deviceFeatures.multiDrawIndirect;
-    _pushDescriptorSetSupported = checkExtension(VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME);
-    _descriptorUpdateTemplateSupported = checkExtension(VK_KHR_DESCRIPTOR_UPDATE_TEMPLATE_EXTENSION_NAME);
+
+    _gpuDevice->useMultiDrawIndirect = deviceFeatures.multiDrawIndirect;
+    _gpuDevice->usePushDescriptorSet = checkExtension(VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME);
+    _gpuDevice->useDescriptorUpdateTemplate = checkExtension(VK_KHR_DESCRIPTOR_UPDATE_TEMPLATE_EXTENSION_NAME);
 
     VkFormatFeatureFlags requiredFeatures = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT;
     VkFormatProperties formatProperties;
@@ -266,10 +267,12 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     _gpuFencePool = CC_NEW(CCVKGPUFencePool(_gpuDevice));
     _gpuRecycleBin = CC_NEW(CCVKGPURecycleBin(_gpuDevice));
     _gpuTransportHub = CC_NEW(CCVKGPUTransportHub(_gpuDevice));
+    _gpuDescriptorHub = CC_NEW(CCVKGPUDescriptorHub(_gpuDevice));
     _gpuSemaphorePool = CC_NEW(CCVKGPUSemaphorePool(_gpuDevice));
     _gpuDescriptorSetPool = CC_NEW(CCVKGPUDescriptorSetPool(_gpuDevice));
     _gpuCommandBufferPool = CC_NEW(CCVKGPUCommandBufferPool(_gpuDevice));
     _gpuStagingBufferPool = CC_NEW(CCVKGPUStagingBufferPool(_gpuDevice));
+    _gpuPipelineLayoutPool = CC_NEW(CCVKGPUPipelineLayoutPool(_gpuDevice));
 
     _gpuTransportHub->link(((CCVKQueue *)_queue)->gpuQueue(), _gpuFencePool, _gpuCommandBufferPool);
 
@@ -365,6 +368,7 @@ void CCVKDevice::destroy() {
     CC_SAFE_DELETE(_gpuCommandBufferPool);
     CC_SAFE_DELETE(_gpuDescriptorSetPool);
     CC_SAFE_DELETE(_gpuSemaphorePool);
+    CC_SAFE_DELETE(_gpuDescriptorHub);
     CC_SAFE_DELETE(_gpuTransportHub);
     CC_SAFE_DELETE(_gpuRecycleBin);
     CC_SAFE_DELETE(_gpuFencePool);

@@ -52,6 +52,7 @@ bool CCVKSampler::initialize(const SamplerInfo &info) {
 
 void CCVKSampler::destroy() {
     if (_gpuSampler) {
+        ((CCVKDevice *)_device)->gpuDescriptorHub()->disengage(_gpuSampler);
         ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuSampler);
         _gpuSampler = nullptr;
     }

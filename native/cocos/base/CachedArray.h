@@ -96,6 +96,22 @@ public:
         }
     }
 
+    void fastRemove(uint idx) {
+        if (idx >= _size) {
+            return;
+        }
+        _array[idx] = _array[--_size];
+    }
+
+    uint indexOf(T item) {
+        for (uint i = 0; i < _size; ++i) {
+            if (_array[i] == item) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
 private:
     uint _size = 0;
     uint _capacity = 0;
