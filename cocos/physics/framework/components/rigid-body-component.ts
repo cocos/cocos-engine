@@ -41,9 +41,10 @@ export class RigidBodyComponent extends Component {
      * @zh
      * 获取或设置是否允许休眠。
      */
-    // @property({
-    //     displayOrder: -1,
-    // })
+    @property({
+        displayOrder: -1,
+        tooltip: '是否允许休眠',
+    })
     public get allowSleep (): boolean {
         return this._allowSleep;
     }
@@ -276,7 +277,7 @@ export class RigidBodyComponent extends Component {
 
     /// PRIVATE PROPERTY ///
 
-    // @property
+    @property
     private _allowSleep: boolean = true;
 
     @property
@@ -445,6 +446,42 @@ export class RigidBodyComponent extends Component {
     public sleep () {
         if (!PHYSICS_BUILTIN && this._assertOnload) {
             this._body.sleep();
+        }
+    }
+
+    /**
+     * @en
+     * Clear the forces and velocity of the rigid body.
+     * @zh
+     * 清除刚体受到的力和速度。
+     */
+    public clearState () {
+        if (!PHYSICS_BUILTIN && this._assertOnload) {
+            this._body.clearState();
+        }
+    }
+
+    /**
+     * @en
+     * Clear the forces of the rigid body.
+     * @zh
+     * 清除刚体受到的力。
+     */
+    public clearForces () {
+        if (!PHYSICS_BUILTIN && this._assertOnload) {
+            this._body.clearForces();
+        }
+    }
+
+    /**
+     * @en
+     * Clear velocity of the rigid body.
+     * @zh
+     * 清除刚体的速度。
+     */
+    public clearVelocity () {
+        if (!PHYSICS_BUILTIN && this._assertOnload) {
+            this._body.clearVelocity();
         }
     }
 

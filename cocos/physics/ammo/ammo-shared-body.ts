@@ -61,7 +61,8 @@ export class AmmoSharedBody {
     set collisionFilterGroup (v: number) {
         if (v != this._collisionFilterGroup) {
             this._collisionFilterGroup = v;
-            this.updateByReAdd();
+            this.updateBodyByReAdd();
+            this.updateGhostByReAdd();
         }
     }
 
@@ -69,7 +70,8 @@ export class AmmoSharedBody {
     set collisionFilterMask (v: number) {
         if (v != this._collisionFilterMask) {
             this._collisionFilterMask = v;
-            this.updateByReAdd();
+            this.updateBodyByReAdd();
+            this.updateGhostByReAdd();
         }
     }
 
@@ -157,6 +159,8 @@ export class AmmoSharedBody {
         const bodyShape = new Ammo.btCompoundShape();
         const rbInfo = new Ammo.btRigidBodyConstructionInfo(0, motionState, bodyShape, localInertia);
         const body = new Ammo.btRigidBody(rbInfo);
+        body.setRollingFriction(Ammo['CC_CONFIG'].rollingFriction);
+        body.setSpinningFriction(Ammo['CC_CONFIG'].spinningFriction);
         this.bodyStruct = {
             'id': sharedIDCounter++,
             'body': body,
@@ -166,7 +170,8 @@ export class AmmoSharedBody {
             'shape': bodyShape,
             'rbInfo': rbInfo,
             'worldQuat': bodyQuat,
-            'wrappedShapes': []
+            'wrappedShapes': [],
+            'useCompound': false,
         }
         AmmoInstance.bodyStructs['KEY' + this.bodyStruct.id] = this.bodyStruct;
         this.body.setUserIndex(this.bodyStruct.id);
@@ -186,7 +191,8 @@ export class AmmoSharedBody {
         AmmoInstance.ghostStructs['KEY' + this.ghostStruct.id] = this.ghostStruct;
         this.ghost.setUserIndex(this.ghostStruct.id);
 
-        /** DEBUG */
+        if (Ammo['CC_CONFIG']['ignoreSelfBody']) this.ghost.setIgnoreCollisionCheck(this.body, true);
+
         this.body.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
         this.ghost.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
     }
@@ -203,7 +209,25 @@ export class AmmoSharedBody {
             const index = this.bodyStruct.wrappedShapes.indexOf(v);
             if (index < 0) {
                 this.bodyStruct.wrappedShapes.push(v);
-                v.setCompound(this.bodyCompoundShape);
+                if (this.bodyStruct.useCompound) {
+                    v.setCompound(this.bodyCompoundShape);
+                } else {
+                    const l = this.bodyStruct.wrappedShapes.length;
+                    if (l == 1 && !v.needCompound()) {
+                        this.body.setCollisionShape(v.impl);
+                        if (this._wrappedBody) { this._wrappedBody.setMass(this._wrappedBody.rigidBody.mass) }
+                        this.updateBodyByReAdd();
+                    } else {
+                        this.bodyStruct.useCompound = true;
+                        for (let i = 0; i < l; i++) {
+                            const childShape = this.bodyStruct.wrappedShapes[i];
+                            childShape.setCompound(this.bodyCompoundShape);
+                        }
+                        this.body.setCollisionShape(this.bodyStruct.shape);
+                        if (this._wrappedBody) { this._wrappedBody.setMass(this._wrappedBody.rigidBody.mass) }
+                        this.updateBodyByReAdd();
+                    }
+                }
                 this.bodyEnabled = true;
             }
         }
@@ -302,15 +326,18 @@ export class AmmoSharedBody {
         this.ghost.activate();
     }
 
-    updateByReAdd () {
-        /**
-         * see: https://pybullet.org/Bullet/phpBB3/viewtopic.php?f=9&t=5312&p=19094&hilit=how+to+change+group+mask#p19097
-         */
+    /**
+     * see: https://pybullet.org/Bullet/phpBB3/viewtopic.php?f=9&t=5312&p=19094&hilit=how+to+change+group+mask#p19097
+     */
+    updateBodyByReAdd () {
         if (this.bodyIndex >= 0) {
             this.wrappedWorld.removeSharedBody(this);
             this.wrappedWorld.addSharedBody(this);
             this.bodyIndex = this.wrappedWorld.bodies.length;
         }
+    }
+
+    updateGhostByReAdd () {
         if (this.ghostIndex >= 0) {
             this.wrappedWorld.removeGhostObject(this);
             this.wrappedWorld.addGhostObject(this);

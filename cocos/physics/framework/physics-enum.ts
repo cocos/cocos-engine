@@ -16,3 +16,11 @@ export enum EAxisDirection {
     Z_AXIS,
 }
 Enum(EAxisDirection);
+
+export enum ESimpleShapeType {
+    VERTEX = 1,
+    LINE = 2,
+    TRIANGLE = 3,
+    TETRAHEDRON = 4,
+}
+Enum(ESimpleShapeType);

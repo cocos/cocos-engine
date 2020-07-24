@@ -117,3 +117,10 @@ export enum AmmoCollisionFilterGroups {
     AllFilter = -1 //all bits sets: DefaultFilter | StaticFilter | KinematicFilter | DebrisFilter | SensorTrigger
 };
 (Ammo as any).AmmoCollisionFilterGroups = AmmoCollisionFilterGroups;
+
+export enum AmmoDispatcherFlags {
+    CD_STATIC_STATIC_REPORTED = 1,
+    CD_USE_RELATIVE_CONTACT_BREAKING_THRESHOLD = 2,
+    CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION = 4
+};
+(Ammo as any).AmmoDispatcherFlags = AmmoDispatcherFlags;

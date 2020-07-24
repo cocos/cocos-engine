@@ -63,7 +63,7 @@ export class SphereColliderComponent extends ColliderComponent {
     /// PRIVATE PROPERTY ///
 
     @property
-    private _radius: number = 1;
+    private _radius: number = 0.5;
 
     constructor () {
         super();

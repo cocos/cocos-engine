@@ -10,10 +10,13 @@ import { ColliderComponent } from './components/collider/collider-component';
 import { SphereColliderComponent } from './components/collider/sphere-collider-component';
 import { CapsuleColliderComponent } from './components/collider/capsule-collider-component';
 import { CylinderColliderComponent } from './components/collider/cylinder-collider-component';
+import { ConeColliderComponent } from './components/collider/cone-collider-component';
 import { MeshColliderComponent } from './components/collider/mesh-collider-component';
 import { RigidBodyComponent } from './components/rigid-body-component';
 import { ConstantForce } from './components/constant-force';
-import { legacyCC } from '../../core/global-exports';
+import { TerrainColliderComponent } from './components/collider/terrain-collider-component';
+import { SimpleColliderComponent } from './components/collider/simple-collider-component';
+import { PlaneColliderComponent } from './components/collider/plane-collider-component';
 
 export {
     PhysicsSystem,
@@ -25,6 +28,10 @@ export {
     CapsuleColliderComponent,
     MeshColliderComponent,
     CylinderColliderComponent,
+    ConeColliderComponent,
+    TerrainColliderComponent,
+    SimpleColliderComponent,
+    PlaneColliderComponent,
 
     RigidBodyComponent,
 
@@ -33,6 +40,7 @@ export {
     ConstantForce
 };
 
+import { legacyCC } from '../../core/global-exports';
 legacyCC.PhysicsSystem = PhysicsSystem;
 
 legacyCC.ColliderComponent = ColliderComponent;
