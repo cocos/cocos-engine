@@ -49,7 +49,7 @@ export class RenderShadowMapBatchedQueue {
 
             let psoCI: IPSOCreateInfo;
             const patchHash = this.getHash(fullPatches);
-            if (this._psoCICache.has(subModel) && this._psoCISubModelCache.get(patcheHash) === subModel) {
+            if (this._psoCICache.has(subModel) && this._psoCISubModelCache.get(patchHash) === subModel) {
                 psoCI = this._psoCICache.get(subModel)!;
             } else {
                 psoCI = pass.createPipelineStateCI(fullPatches)!;
