@@ -9,6 +9,7 @@ import { IRenderObject, UBOPCFShadow } from './define';
 import { GFXDevice, GFXRenderPass, GFXBuffer, GFXPipelineState } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
+import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 
 const forwardShadowMapPatches: IMacroPatch[] = [
     { name: 'CC_VSM_SHADOW', value: true },
@@ -25,6 +26,8 @@ export class RenderShadowMapBatchedQueue {
 
     // psoCI cache
     private _psoCICache: Map<SubModel, IPSOCreateInfo> = new Map();
+    // psoCI + subModel cache
+    private _psoCISubModelCache: Map<number, SubModel> = new Map();
 
     private _phaseID = getPhaseID('shadow-add');
 
@@ -45,12 +48,13 @@ export class RenderShadowMapBatchedQueue {
             const fullPatches = modelPatches ? forwardShadowMapPatches.concat(modelPatches) : forwardShadowMapPatches;
 
             let psoCI: IPSOCreateInfo;
-            if (this._psoCICache.has(subModel)) {
+            const patcheHash = this.getHash(fullPatches);
+            if (this._psoCICache.has(subModel) && this._psoCISubModelCache.get(patcheHash) === subModel) {
                 psoCI = this._psoCICache.get(subModel)!;
             } else {
                 psoCI = pass.createPipelineStateCI(fullPatches)!;
                 this._psoCICache.set(subModel, psoCI);
-
+                this._psoCISubModelCache.set(patcheHash, subModel);
                 renderObj.model.updateLocalBindings(psoCI, subModelIdx);
                 psoCI.bindingLayout.bindBuffer(UBOPCFShadow.BLOCK.binding, this._shadowMapBuffer!);
                 psoCI.bindingLayout.update();
@@ -83,5 +87,14 @@ export class RenderShadowMapBatchedQueue {
             cmdBuff.bindInputAssembler(ia);
             cmdBuff.draw(ia);
         }
+    }
+
+    private getHash (patch: IMacroPatch[]) {
+        let res;
+        for (let i = 0; i < patch.length; ++i) {
+            res += patch[i].name
+        }
+
+        return murmurhash2_32_gc(res, 666);
     }
 }
