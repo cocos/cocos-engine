@@ -102,6 +102,7 @@ export class CannonSharedBody {
             const offset = this.body.shapeOffsets[index];
             const orient = this.body.shapeOrientations[index];
             v.setOffsetAndOrient(offset, orient);
+            if (this.body.isSleeping()) this.body.wakeUp();
         }
     }
 
@@ -110,8 +111,8 @@ export class CannonSharedBody {
         if (index >= 0) {
             this.shapes.splice(index, 1);
             this.body.removeShape(v.impl);
-
             v.setIndex(-1);
+            if (this.body.isSleeping()) this.body.wakeUp();
         }
     }
 

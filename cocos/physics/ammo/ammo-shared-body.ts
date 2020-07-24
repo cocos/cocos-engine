@@ -8,7 +8,7 @@ import { cocos2AmmoVec3, cocos2AmmoQuat, ammo2CocosVec3, ammo2CocosQuat, ammoDel
 import { AmmoCollisionFlags, AmmoCollisionObjectStates } from './ammo-enum';
 import { AmmoInstance } from './ammo-instance';
 import { IAmmoBodyStruct, IAmmoGhostStruct } from './ammo-interface';
-import { CC_V3_0, CC_QUAT_0 } from './ammo-const';
+import { CC_V3_0, CC_QUAT_0, AmmoConstant } from './ammo-const';
 
 const v3_0 = CC_V3_0;
 const quat_0 = CC_QUAT_0;
@@ -157,7 +157,7 @@ export class AmmoSharedBody {
         const motionState = new Ammo.btDefaultMotionState(st);
         const localInertia = new Ammo.btVector3(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
         const bodyShape = new Ammo.btCompoundShape();
-        const rbInfo = new Ammo.btRigidBodyConstructionInfo(0, motionState, bodyShape, localInertia);
+        const rbInfo = new Ammo.btRigidBodyConstructionInfo(0, motionState, AmmoConstant.instance.EMPTY_SHAPE, localInertia);
         const body = new Ammo.btRigidBody(rbInfo);
         body.setRollingFriction(Ammo['CC_CONFIG'].rollingFriction);
         body.setSpinningFriction(Ammo['CC_CONFIG'].spinningFriction);
@@ -222,7 +222,8 @@ export class AmmoSharedBody {
                     v.setCompound(this.bodyCompoundShape);
                 } else {
                     const l = this.bodyStruct.wrappedShapes.length;
-                    if (l == 1 && !v.needCompound()) {
+                    if (!Ammo['CC_CONFIG']['forceUseCompound'] && l == 1 && !v.needCompound()) {
+                        // TODO: fix weird behave at simple-hole
                         switchShape(this, v.impl);
                     } else {
                         this.bodyStruct.useCompound = true;
@@ -249,8 +250,14 @@ export class AmmoSharedBody {
         } else {
             const index = this.bodyStruct.wrappedShapes.indexOf(v);
             if (index >= 0) {
+                if (this.bodyStruct.useCompound) {
+                    v.setCompound(null);
+                } else {
+                    this.body.setCollisionShape(AmmoConstant.instance.EMPTY_SHAPE);
+                }
+                this.body.activate(true);
+                this.updateBodyByReAdd();
                 this.bodyStruct.wrappedShapes.splice(index, 1);
-                v.setCompound(null);
                 this.bodyEnabled = false;
             }
         }
