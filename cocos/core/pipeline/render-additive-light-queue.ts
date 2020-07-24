@@ -12,6 +12,7 @@ import { LightType } from '../renderer/scene/light';
 import { GFXDevice, GFXRenderPass, GFXBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
+import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 
 const spherePatches = [
     { name: 'CC_FORWARD_ADD', value: true },
@@ -31,7 +32,9 @@ export class RenderAdditiveLightQueue {
     private _phaseID = getPhaseID('forward-add');
 
     // psoCI cache
-    private _psoCICache: Map<SubModel, IPSOCreateInfo> = new Map();
+    private _psoCICache: Map<number, IPSOCreateInfo> = new Map();
+    // psoCI + subModel cache
+    private _psoCISubModelCache: Map<number, SubModel> = new Map();
 
     // references
     private _validLights: Light[] = [];
@@ -101,11 +104,12 @@ export class RenderAdditiveLightQueue {
         const fullPatches = modelPatches ? patches.concat(modelPatches) : patches;
 
         let psoCI: IPSOCreateInfo;
-        if (this._psoCICache.has(subModel)) {
-            psoCI = this._psoCICache.get(subModel)!;
+        const patcheHash = this.getHash(fullPatches);
+        if (this._psoCICache.has(patcheHash) && this._psoCISubModelCache.get(patcheHash) === subModel) {
+            psoCI = this._psoCICache.get(patcheHash)!;
         } else {
             psoCI = pass.createPipelineStateCI(fullPatches)!;
-            this._psoCICache.set(subModel, psoCI);
+            this._psoCICache.set(patcheHash, psoCI);
             renderObj.model.updateLocalBindings(psoCI, subModelIdx);
             psoCI.bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
             psoCI.bindingLayout.update();
@@ -113,5 +117,14 @@ export class RenderAdditiveLightQueue {
 
         subModelList.push(renderObj.model.subModels[subModelIdx]);
         psoCIList.push(psoCI);
+    }
+
+    private getHash (patch: IMacroPatch[]) {
+        let res;
+        for (let i = 0; i < patch.length; ++i) {
+            res += patch[i].name
+        }
+
+        return murmurhash2_32_gc(res, 666);
     }
 }
