@@ -9,7 +9,6 @@ import { ITerrainAsset } from '../../spec/i-external';
 import { CC_V3_0, AmmoConstant } from '../ammo-const';
 import { IVec3Like } from '../../../core/math/type-define';
 
-
 export class AmmoTerrainShape extends AmmoShape implements ITerrainShape {
 
     public get collider () {

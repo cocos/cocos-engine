@@ -9,9 +9,9 @@ import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { AmmoSharedBody } from '../ammo-shared-body';
 import { aabb, sphere } from '../../../core/geometry';
-import { AmmoConstant } from '../ammo-const';
+import { AmmoConstant, CC_V3_0 } from '../ammo-const';
 
-const v3_0 = new Vec3();
+const v3_0 = CC_V3_0;
 
 export class AmmoShape implements IBaseShape {
 
@@ -69,10 +69,10 @@ export class AmmoShape implements IBaseShape {
     protected _btCompound: Ammo.btCompoundShape | null = null;
     protected _collider!: ColliderComponent;
 
-    readonly transform: Ammo.btTransform;
-    readonly pos: Ammo.btVector3;
-    readonly quat: Ammo.btQuaternion;
-    readonly scale: Ammo.btVector3;
+    protected readonly transform: Ammo.btTransform;
+    protected readonly pos: Ammo.btVector3;
+    protected readonly quat: Ammo.btQuaternion;
+    protected readonly scale: Ammo.btVector3;
 
     constructor (type: AmmoBroadphaseNativeTypes) {
         this.type = type;
