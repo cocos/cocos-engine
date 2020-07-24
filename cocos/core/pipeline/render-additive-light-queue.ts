@@ -121,9 +121,9 @@ export class RenderAdditiveLightQueue {
     }
 
     private getHash (patch: IMacroPatch[]) {
-        let res;
+        let res: string = '';
         for (let i = 0; i < patch.length; ++i) {
-            res += patch[i].name
+            res += patch[i].name;
         }
 
         return murmurhash2_32_gc(res, 666);
