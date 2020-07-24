@@ -101,19 +101,23 @@ export class AmmoWorld implements IPhysicsWorld {
         this._btWorld.rayTest(from, to, this.allHitsCB);
         if (this.allHitsCB.hasHit()) {
             for (let i = 0, n = this.allHitsCB.m_collisionObjects.size(); i < n; i++) {
-                const shapeIndex = this.allHitsCB.m_shapeParts.at(i);
                 const btObj = this.allHitsCB.m_collisionObjects.at(i);
-                const index = btObj.getUserIndex();
-                const shared = AmmoInstance.bodyAndGhosts['KEY' + index];
-                // if (shared.wrappedShapes.length > shapeIndex) {
-                const shape = shared.wrappedShapes[shapeIndex];
+                const btCs = btObj.getCollisionShape();
+                let shape: AmmoShape;
+                if (btCs.isCompound()) {
+                    const shapeIndex = this.allHitsCB.m_shapeParts.at(i);
+                    const index = btObj.getUserIndex();
+                    const shared = AmmoInstance.bodyAndGhosts['KEY' + index];
+                    shape = shared.wrappedShapes[shapeIndex];
+                } else {
+                    shape = btCs['wrapped'];
+                }
                 ammo2CocosVec3(v3_0, hp.at(i));
                 ammo2CocosVec3(v3_1, hn.at(i));
                 const distance = Vec3.distance(worldRay.o, v3_0);
                 const r = pool.add();
                 r._assign(v3_0, distance, shape.collider, v3_1);
                 results.push(r);
-                // }
             }
             return true;
         }
@@ -137,10 +141,16 @@ export class AmmoWorld implements IPhysicsWorld {
         this._btWorld.rayTest(from, to, this.closeHitCB);
         if (this.closeHitCB.hasHit()) {
             const btObj = this.closeHitCB.m_collisionObject;
-            const index = btObj.getUserIndex();
-            const shared = AmmoInstance.bodyAndGhosts['KEY' + index];
-            const shapeIndex = this.closeHitCB.m_shapePart;
-            const shape = shared.wrappedShapes[shapeIndex];
+            const btCs = btObj.getCollisionShape();
+            let shape: AmmoShape;
+            if (btCs.isCompound()) {
+                const index = btObj.getUserIndex();
+                const shared = AmmoInstance.bodyAndGhosts['KEY' + index];
+                const shapeIndex = this.closeHitCB.m_shapePart;
+                shape = shared.wrappedShapes[shapeIndex];
+            } else {
+                shape = btCs['wrapped'];
+            }
             ammo2CocosVec3(v3_0, this.closeHitCB.m_hitPointWorld);
             ammo2CocosVec3(v3_1, this.closeHitCB.m_hitNormalWorld);
             const distance = Vec3.distance(worldRay.o, v3_0);

@@ -60,12 +60,12 @@ export class AmmoSimpleShape extends AmmoShape implements ISimpleShape {
     }
 
     onDestroy () {
-        super.onDestroy();
         const length = this.VERTICES.length;
         for (let i = 0; i < length; i++) {
             Ammo.destroy(this.VERTICES[i]);
         }
         (this.VERTICES as any) = null;
+        super.onDestroy();
     }
 
     setScale () {

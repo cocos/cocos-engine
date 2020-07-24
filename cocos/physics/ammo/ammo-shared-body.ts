@@ -351,18 +351,19 @@ export class AmmoSharedBody {
         (this.wrappedWorld as any) = null;
 
         const bodyStruct = this.bodyStruct;
-        // Ammo.destroy(bodyStruct.body);
         Ammo.destroy(bodyStruct.localInertia);
+        Ammo.destroy(bodyStruct.worldQuat);
+        Ammo.destroy(bodyStruct.startTransform);
         // Ammo.destroy(bodyStruct.motionState);
         // Ammo.destroy(bodyStruct.rbInfo);
         // Ammo.destroy(bodyStruct.shape);
-        // Ammo.destroy(bodyStruct.startTransform);
-        Ammo.destroy(bodyStruct.worldQuat);
+        // Ammo.destroy(bodyStruct.body);
         ammoDeletePtr(bodyStruct.motionState, Ammo.btDefaultMotionState);
         ammoDeletePtr(bodyStruct.rbInfo, Ammo.btRigidBodyConstructionInfo);
         ammoDeletePtr(bodyStruct.body, Ammo.btRigidBody);
         ammoDeletePtr(bodyStruct.body, Ammo.btCollisionObject);
         ammoDeletePtr(bodyStruct.shape, Ammo.btCompoundShape);
+        ammoDeletePtr(bodyStruct.shape, Ammo.btCollisionShape);
         ammoDeletePtr(bodyStruct.startTransform, Ammo.btTransform);
         ammoDeletePtr(bodyStruct.localInertia, Ammo.btVector3);
         ammoDeletePtr(bodyStruct.worldQuat, Ammo.btQuaternion);
@@ -370,11 +371,12 @@ export class AmmoSharedBody {
         delete AmmoInstance.bodyStructs[key0];
 
         const ghostStruct = this.ghostStruct;
-        // Ammo.destroy(ghostStruct.ghost);
-        // Ammo.destroy(ghostStruct.shape);
         Ammo.destroy(ghostStruct.worldQuat);
+        // Ammo.destroy(ghostStruct.shape);
+        // Ammo.destroy(ghostStruct.ghost);
         ammoDeletePtr(ghostStruct.ghost, Ammo.btCollisionObject);
         ammoDeletePtr(ghostStruct.shape, Ammo.btCompoundShape);
+        ammoDeletePtr(ghostStruct.shape, Ammo.btCollisionShape);
         ammoDeletePtr(ghostStruct.worldQuat, Ammo.btQuaternion);
         const key1 = 'KEY' + ghostStruct.id;
         delete AmmoInstance.bodyStructs[key1];
