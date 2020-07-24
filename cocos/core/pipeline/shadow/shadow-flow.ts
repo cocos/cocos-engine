@@ -106,7 +106,7 @@ export class ShadowFlow extends RenderFlow {
         if(this._shadowRenderTargets.length < 1) {
             this._shadowRenderTargets.push(device.createTexture({
                 type: GFXTextureType.TEX2D,
-                usage: GFXTextureUsageBit.SAMPLED,
+                usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
                 format: GFXFormat.RGBA16F,
                 width:this.pipeline.shadowMapSize.x,
                 height:this.pipeline.shadowMapSize.y,
