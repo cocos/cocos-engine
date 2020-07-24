@@ -8,6 +8,7 @@ import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { Mat4 } from '../math';
 import { SubModel, IPSOCreateInfo } from '../renderer/scene/submodel';
 import { IRenderObject, UBOLocalBatched } from './define';
+import { Pass } from '../renderer';
 
 export interface IBatchedItem {
     vbs: GFXBuffer[];
@@ -25,6 +26,16 @@ export interface IBatchedItem {
 const _localBatched = new UBOLocalBatched();
 
 export class BatchedBuffer {
+
+    private static _buffers = new Map<Pass, BatchedBuffer>();
+
+    public static get (pass: Pass) {
+        if (!BatchedBuffer._buffers.has(pass)) {
+            BatchedBuffer._buffers.set(pass, new BatchedBuffer(pass.device));
+        }
+        return BatchedBuffer._buffers.get(pass)!;
+    }
+
     public batches: IBatchedItem[] = [];
     private _device: GFXDevice;
 

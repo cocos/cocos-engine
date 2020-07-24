@@ -165,7 +165,7 @@ export class PlanarShadows {
     public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
         const models = this._pendingModels;
         const modelLen = models.length;
-        const buffer = this._instancingMaterial.passes[0].instancedBuffer;
+        const buffer = InstancedBuffer.get(this._instancingMaterial.passes[0]);
         if (buffer) { buffer.clear(); }
         for (let i = 0; i < modelLen; i++) {
             const { model, psoCIs: psocis, instancedBuffer } = models[i];
@@ -213,7 +213,7 @@ export class PlanarShadows {
                 psoCIs.push(psoCI);
             }
         }
-        return { model, psoCIs, instancedBuffer: material.passes[0].instancedBuffer };
+        return { model, psoCIs, instancedBuffer: InstancedBuffer.get(material.passes[0]) };
     }
 
     public destroyShadowData (model: Model) {

@@ -476,7 +476,7 @@ export class ModelComponent extends RenderableComponent {
             if (!mat) { continue; }
             for (let p = 0; p < mat.passes.length; ++p) {
                 const pass = mat.passes[p];
-                if (pass.instancedBuffer || pass.batchedBuffer) { return true; }
+                if (pass.batchingScheme) { return true; }
             }
         }
         return false;

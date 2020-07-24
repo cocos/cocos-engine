@@ -40,9 +40,7 @@ import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState, GFXRasterizerState
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTexture } from '../../gfx/texture';
-import { BatchedBuffer } from '../../pipeline/batched-buffer';
 import { isBuiltinBinding, RenderPassStage, RenderPriority } from '../../pipeline/define';
-import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
@@ -97,6 +95,11 @@ const _blInfo: IGFXBindingLayoutInfo = {
     shader: null!,
 };
 
+export enum BatchingSchemes {
+    INSTANCING = 1,
+    VB_MERGING = 2,
+};
+
 // tslint:disable: no-shadowed-variable
 export declare namespace Pass {
     export type getBindingTypeFromHandle = typeof getBindingTypeFromHandle;
@@ -134,7 +137,6 @@ export class Pass {
         if (info.primitive !== undefined) { target._primitive = info.primitive; }
         if (info.stage !== undefined) { target._stage = info.stage; }
         if (info.dynamicStates !== undefined) { target._dynamicStates = info.dynamicStates as GFXDynamicState[]; }
-        if (info.customizations) { target._customizations = info.customizations as string[]; }
         if (info.phase) { target._phase = getPhaseID(info.phase); }
 
         const bs = target._bs;
@@ -180,6 +182,7 @@ export class Pass {
     protected _passIndex = 0;
     protected _propertyIndex = 0;
     protected _programName = '';
+    protected _batchingScheme = 0;
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _primitive: GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
@@ -188,7 +191,6 @@ export class Pass {
     protected _rs: GFXRasterizerState = new GFXRasterizerState();
     protected _dynamicStates: GFXDynamicState[] = [];
     protected _dynamics: IPassDynamics = {};
-    protected _customizations: string[] = [];
     protected _handleMap: Record<string, number> = {};
     protected _blocks: IBlock[] = [];
     protected _shaderInfo: IProgramInfo = null!;
@@ -199,9 +201,6 @@ export class Pass {
     protected _root: Root;
     protected _device: GFXDevice;
     protected _shader: GFXShader | null = null;
-    // for dynamic batching
-    protected _batchedBuffer: BatchedBuffer | null = null;
-    protected _instancedBuffer: InstancedBuffer | null = null;
 
     constructor (root: Root) {
         this._root = root;
@@ -410,14 +409,6 @@ export class Pass {
         // textures are reused
         this._samplers = {};
         this._textures = {};
-        if (this._instancedBuffer) {
-            this._instancedBuffer.destroy();
-            this._instancedBuffer = null;
-        }
-        if (this._batchedBuffer) {
-            this._batchedBuffer.destroy();
-            this._batchedBuffer = null;
-        }
     }
 
     /**
@@ -623,24 +614,10 @@ export class Pass {
     }
 
     protected _dynamicBatchingSync () {
-        if (this._defines.USE_INSTANCING) {
-            if (!this._device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) {
-                this._defines.USE_INSTANCING = false;
-            } else if (!this._instancedBuffer) {
-                this._instancedBuffer = new InstancedBuffer(this.device);
-            }
+        if (this._device.hasFeature(GFXFeature.INSTANCED_ARRAYS) && this._defines.USE_INSTANCING) {
+            this._batchingScheme = BatchingSchemes.INSTANCING;
         } else if (this._defines.USE_BATCHING) {
-            if (!this._batchedBuffer) {
-                this._batchedBuffer = new BatchedBuffer(this.device);
-            }
-        }
-        if (!this._defines.USE_INSTANCING && this._instancedBuffer) {
-            this._instancedBuffer.destroy();
-            this._instancedBuffer = null;
-        }
-        if (!this._defines.USE_BATCHING && this._batchedBuffer) {
-            this._batchedBuffer.destroy();
-            this._batchedBuffer = null;
+            this._batchingScheme = BatchingSchemes.VB_MERGING;
         }
     }
 
@@ -671,12 +648,11 @@ export class Pass {
     get priority () { return this._priority; }
     get primitive () { return this._primitive; }
     get stage () { return this._stage; }
+    get phase () { return this._phase; }
     get rasterizerState () { return this._rs; }
     get depthStencilState () { return this._dss; }
     get blendState () { return this._bs; }
     get dynamicStates () { return this._dynamicStates; }
-    get customizations () { return this._customizations; }
-    get phase () { return this._phase; }
     // infos
     get root () { return this._root; }
     get device () { return this._device; }
@@ -686,11 +662,10 @@ export class Pass {
     get defines () { return this._defines; }
     get passIndex () { return this._passIndex; }
     get propertyIndex () { return this._propertyIndex; }
+    get batchingScheme () { return this._batchingScheme; }
     // resources
     get shader () { return this._shader!; }
     get dynamics () { return this._dynamics; }
-    get batchedBuffer () { return this._batchedBuffer; }
-    get instancedBuffer () { return this._instancedBuffer; }
     get blocks () { return this._blocks; }
     get hash () { return this._hash; }
 }

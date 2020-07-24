@@ -18,6 +18,8 @@ import { IGFXAttribute } from '../../gfx';
 import { SubModel, IPSOCreateInfo } from './submodel';
 import { Pass, IMacroPatch } from '../core/pass';
 import { legacyCC } from '../../global-exports';
+import { InstancedBuffer } from '../../pipeline/instanced-buffer';
+import { BatchingSchemes } from '../core/pass';
 
 const m4_1 = new Mat4();
 
@@ -340,7 +342,7 @@ export class Model {
             const isNormalized = attribute.isNormalized;
             offset += info.size; attrs.list.push({ name: attribute.name, format, isNormalized, view });
         }
-        if (pass.instancedBuffer) { pass.instancedBuffer.destroy(); } // instancing IA changed
+        if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass).destroy(); } // instancing IA changed
         this._instMatWorldIdx = this.getInstancedAttributeIndex(INST_MAT_WORLD);
         this._transformUpdated = true;
     }

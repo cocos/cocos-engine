@@ -29,12 +29,12 @@ export class WebGL2GFXTexture extends GFXTexture {
             this._depth = info.depth;
         }
 
-        if (info.arrayLayer !== undefined) {
-            this._layerCount = info.arrayLayer;
+        if (info.layerCount !== undefined) {
+            this._layerCount = info.layerCount;
         }
 
-        if (info.mipLevel !== undefined) {
-            this._levelCount = info.mipLevel;
+        if (info.levelCount !== undefined) {
+            this._levelCount = info.levelCount;
         }
 
         if (info.samples !== undefined) {
