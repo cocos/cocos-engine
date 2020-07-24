@@ -8,7 +8,7 @@ import { createPhysicsWorld, checkPhysicsModule } from './instance';
 import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
 import { PhysicMaterial } from './assets/physic-material';
-import { Layers, RecyclePool, error } from '../../core';
+import { Layers, RecyclePool, error, game } from '../../core';
 import { ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
 import { EDITOR, PHYSICS_BUILTIN, DEBUG, PHYSICS_CANNON, PHYSICS_AMMO } from 'internal:constants';
@@ -203,9 +203,6 @@ export class PhysicsSystem extends System {
      */
     static readonly ID = 'PHYSICS';
 
-    // static readonly CONFIG = globalThis._CCSettings ? globalThis._CCSettings.physics : null;
-    static readonly CONFIG = globalThis.__PHYSICS__;
-
     /**
      * @en
      * Gets the physical system instance.
@@ -243,7 +240,7 @@ export class PhysicsSystem extends System {
 
     private constructor () {
         super();
-        let config = PhysicsSystem.CONFIG as IPhysicsConfig;
+        const config = game.config ? game.config.physics as IPhysicsConfig : null;
         if (config) {
             Vec3.copy(this._gravity, config.gravity);
             this._allowSleep = config.allowSleep;
