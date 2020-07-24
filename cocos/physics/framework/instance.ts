@@ -2,13 +2,14 @@
  * @hidden
  */
 
-import { Vec3 } from '../../core/math';
+import { Vec3, IVec3Like } from '../../core/math';
 import { IRigidBody } from '../spec/i-rigid-body';
 import { BoxShape, PhysicsWorld, RigidBody, SphereShape, CapsuleShape, TrimeshShape, CylinderShape, ConeShape, TerrainShape, SimpleShape, PlaneShape } from './physics-selector';
-import { IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape, IConeShape, ITerrainShape, ISimpleShape, IPlaneShape } from '../spec/i-physics-shape';
+import { IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape, IConeShape, ITerrainShape, ISimpleShape, IPlaneShape, IBaseShape } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { errorID, warnID, warn } from '../../core';
 import { EDITOR, DEBUG, PHYSICS_BUILTIN, PHYSICS_AMMO, TEST, PHYSICS_CANNON } from 'internal:constants';
+import { EColliderType } from './physics-enum';
 
 interface IEntireShape extends IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape, IConeShape, ITerrainShape, ISimpleShape, IPlaneShape { }
 const FUNC = (...v: any) => { return 0 as any; };
@@ -46,6 +47,7 @@ const ENTIRE_SHAPE: IEntireShape = {
     setNormal: FUNC,
     setConstant: FUNC,
 }
+const CREATE_COLLIDER_PROXY = {};
 
 export function checkPhysicsModule (obj: any) {
     if (DEBUG && !TEST && !EDITOR && obj == null) {
@@ -65,17 +67,21 @@ export function createRigidBody (): IRigidBody {
     return new RigidBody() as IRigidBody;
 }
 
-export function createBoxShape (size: Vec3): IBoxShape {
+export function createShape (type: EColliderType): IBaseShape {
+    return CREATE_COLLIDER_PROXY[type]();
+}
+
+CREATE_COLLIDER_PROXY[EColliderType.BOX] = function createBoxShape (size: IVec3Like): IBoxShape {
     if (DEBUG && checkPhysicsModule(BoxShape)) { return null as any; }
     return new BoxShape(size) as IBoxShape;
 }
 
-export function createSphereShape (radius: number): ISphereShape {
+CREATE_COLLIDER_PROXY[EColliderType.SPHERE] = function createSphereShape (radius: number): ISphereShape {
     if (DEBUG && checkPhysicsModule(SphereShape)) { return null as any; }
     return new SphereShape(radius) as ISphereShape;
 }
 
-export function createCapsuleShape (radius = 0.5, height = 2, dir = 1): ICapsuleShape {
+CREATE_COLLIDER_PROXY[EColliderType.CAPSULE] = function createCapsuleShape (radius = 0.5, height = 2, dir = 1): ICapsuleShape {
     if (PHYSICS_BUILTIN || PHYSICS_AMMO) {
         if (DEBUG && checkPhysicsModule(CapsuleShape)) { return null as any; }
         return new CapsuleShape(radius, height, dir) as ICapsuleShape;
@@ -85,7 +91,7 @@ export function createCapsuleShape (radius = 0.5, height = 2, dir = 1): ICapsule
     }
 }
 
-export function createCylinderShape (radius = 0.5, height = 2, dir = 1): ICylinderShape {
+CREATE_COLLIDER_PROXY[EColliderType.CYLINDER] = function createCylinderShape (radius = 0.5, height = 2, dir = 1): ICylinderShape {
     if (PHYSICS_CANNON || PHYSICS_AMMO) {
         if (DEBUG && checkPhysicsModule(CylinderShape)) { return null as any; }
         return new CylinderShape(radius, height, dir) as ICylinderShape;
@@ -95,7 +101,7 @@ export function createCylinderShape (radius = 0.5, height = 2, dir = 1): ICylind
     }
 }
 
-export function createConeShape (radius = 0.5, height = 1, dir = 1): IConeShape {
+CREATE_COLLIDER_PROXY[EColliderType.CONE] = function createConeShape (radius = 0.5, height = 1, dir = 1): IConeShape {
     if (PHYSICS_CANNON || PHYSICS_AMMO) {
         if (DEBUG && checkPhysicsModule(ConeShape)) { return null as any; }
         return new ConeShape(radius, height, dir) as IConeShape;
@@ -105,7 +111,7 @@ export function createConeShape (radius = 0.5, height = 1, dir = 1): IConeShape 
     }
 }
 
-export function createTrimeshShape (): ITrimeshShape {
+CREATE_COLLIDER_PROXY[EColliderType.MESH] = function createTrimeshShape (): ITrimeshShape {
     if (PHYSICS_CANNON || PHYSICS_AMMO) {
         if (DEBUG && checkPhysicsModule(TrimeshShape)) { return null as any; }
         return new TrimeshShape() as ITrimeshShape;
@@ -115,7 +121,7 @@ export function createTrimeshShape (): ITrimeshShape {
     }
 }
 
-export function createTerrainShape (): ITerrainShape {
+CREATE_COLLIDER_PROXY[EColliderType.TERRAIN] = function createTerrainShape (): ITerrainShape {
     if (PHYSICS_CANNON || PHYSICS_AMMO) {
         if (DEBUG && checkPhysicsModule(TerrainShape)) { return null as any; }
         return new TerrainShape() as ITerrainShape;
@@ -125,7 +131,7 @@ export function createTerrainShape (): ITerrainShape {
     }
 }
 
-export function createSimpleShape (): ISimpleShape {
+CREATE_COLLIDER_PROXY[EColliderType.SIMPLE] = function createSimpleShape (): ISimpleShape {
     if (PHYSICS_CANNON || PHYSICS_AMMO) {
         if (DEBUG && checkPhysicsModule(SimpleShape)) { return null as any; }
         return new SimpleShape() as ISimpleShape;
@@ -135,7 +141,7 @@ export function createSimpleShape (): ISimpleShape {
     }
 }
 
-export function createPlaneShape (): IPlaneShape {
+CREATE_COLLIDER_PROXY[EColliderType.PLANE] = function createPlaneShape (): IPlaneShape {
     if (PHYSICS_CANNON || PHYSICS_AMMO) {
         if (DEBUG && checkPhysicsModule(PlaneShape)) { return null as any; }
         return new PlaneShape() as IPlaneShape;

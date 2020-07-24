@@ -6,15 +6,14 @@ import {
     ccclass,
     help,
     executeInEditMode,
-    executionOrder,
     menu,
     property,
 } from '../../../../core/data/class-decorator';
 import { Vec3 } from '../../../../core/math';
-import { createPlaneShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
 import { IPlaneShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
+import { EColliderType } from '../../physics-enum';
 
 /**
  * @en
@@ -24,7 +23,6 @@ import { EDITOR, TEST } from 'internal:constants';
  */
 @ccclass('cc.PlaneColliderComponent')
 @help('i18n:cc.PlaneColliderComponent')
-@executionOrder(98)
 @menu('Physics/PlaneCollider(beta)')
 @executeInEditMode
 export class PlaneColliderComponent extends ColliderComponent {
@@ -89,10 +87,7 @@ export class PlaneColliderComponent extends ColliderComponent {
     private _constant = 0;
 
     constructor () {
-        super();
-        if (!EDITOR && !TEST) {
-            this._shape = createPlaneShape();
-        }
+        super(EColliderType.PLANE);
     }
 
 }

@@ -33,7 +33,8 @@ export class AmmoRigidBody implements IRigidBody {
 
     setMass (value: number) {
         // See https://studiofreya.com/game-maker/bullet-physics/bullet-physics-how-to-change-body-mass/
-        const localInertia = AmmoConstant.instance.VECTOR3_0;
+        // const localInertia = AmmoConstant.instance.VECTOR3_0;
+        const localInertia = this._sharedBody.bodyStruct.localInertia;
         localInertia.setValue(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
         const shape = this.impl.getCollisionShape();
         if (shape.isCompound()) {

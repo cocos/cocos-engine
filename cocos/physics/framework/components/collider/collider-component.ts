@@ -11,8 +11,10 @@ import { PhysicMaterial } from '../../assets/physic-material';
 import { PhysicsSystem } from '../../physics-system';
 import { Component, error } from '../../../../core';
 import { IBaseShape } from '../../../spec/i-physics-shape';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, TEST } from 'internal:constants';
 import { aabb, sphere } from '../../../../core/geometry';
+import { EColliderType } from '../../physics-enum';
+import { createShape } from '../../instance';
 
 /**
  * @en
@@ -66,7 +68,7 @@ export class ColliderComponent extends Eventify(Component) {
     }
 
     public set material (value) {
-        if (!EDITOR) {
+        if (this._shape) {
             if (value != null && this._material != null) {
                 if (this._material._uuid != value._uuid) {
                     this._material.off('physics_material_update', this._updateMaterial, this);
@@ -101,7 +103,7 @@ export class ColliderComponent extends Eventify(Component) {
 
     public set isTrigger (value) {
         this._isTrigger = value;
-        if (!EDITOR) {
+        if (this._shape) {
             this._shape.setAsTrigger(this._isTrigger);
         }
     }
@@ -123,7 +125,7 @@ export class ColliderComponent extends Eventify(Component) {
 
     public set center (value: Vec3) {
         Vec3.copy(this._center, value);
-        if (!EDITOR) {
+        if (this._shape) {
             this._shape.setCenter(this._center);
         }
     }
@@ -135,7 +137,8 @@ export class ColliderComponent extends Eventify(Component) {
      * 获取碰撞器所绑定的刚体组件，可能为 null
      */
     public get attachedRigidBody (): RigidBodyComponent | null {
-        return this.shape.attachedRigidBody;
+        if (this._shape) return this._shape.attachedRigidBody;
+        return null;
     }
 
     /**
@@ -150,13 +153,13 @@ export class ColliderComponent extends Eventify(Component) {
 
     public get worldBounds (): Readonly<aabb> {
         if (this._aabb == null) this._aabb = new aabb();
-        this._shape.getAABB(this._aabb);
+        if (this._shape) this._shape.getAABB(this._aabb);
         return this._aabb;
     }
 
     public get boundingSphere (): Readonly<sphere> {
         if (this._boundingSphere == null) this._boundingSphere = new sphere();
-        this._shape.getBoundingSphere(this._boundingSphere);
+        if (this._shape) this._shape.getBoundingSphere(this._boundingSphere);
         return this._boundingSphere;
     }
 
@@ -168,9 +171,11 @@ export class ColliderComponent extends Eventify(Component) {
         return this._needCollisionEvent;
     }
 
+    readonly TYPE: EColliderType;
+
     /// PRIVATE PROPERTY ///
 
-    protected _shape!: IBaseShape;
+    protected _shape: IBaseShape | null = null;
     protected _aabb: aabb | null = null;
     protected _boundingSphere: sphere | null = null;
     protected _isSharedMaterial: boolean = true;
@@ -185,6 +190,11 @@ export class ColliderComponent extends Eventify(Component) {
 
     @property
     protected readonly _center: Vec3 = new Vec3();
+
+    constructor (type: EColliderType) {
+        super();
+        this.TYPE = type;
+    }
 
     /// EVENT INTERFACE ///
 
@@ -255,7 +265,7 @@ export class ColliderComponent extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setGroup (v: number): void {
-        this._shape!.setGroup(v);
+        if (this._shape) this._shape.setGroup(v);
     }
 
     /**
@@ -266,7 +276,8 @@ export class ColliderComponent extends Eventify(Component) {
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public getGroup (): number {
-        return this._shape.getGroup();
+        if (this._shape) return this._shape.getGroup();
+        return 0;
     }
 
     /**
@@ -277,7 +288,7 @@ export class ColliderComponent extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addGroup (v: number) {
-        this._shape.addGroup(v);
+        if (this._shape) this._shape.addGroup(v);
     }
 
     /**
@@ -288,7 +299,7 @@ export class ColliderComponent extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeGroup (v: number) {
-        this._shape.removeGroup(v);
+        if (this._shape) this._shape.removeGroup(v);
     }
 
     /**
@@ -299,7 +310,8 @@ export class ColliderComponent extends Eventify(Component) {
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public getMask (): number {
-        return this._shape.getMask();
+        if (this._shape) return this._shape.getMask();
+        return 0;
     }
 
     /**
@@ -310,7 +322,7 @@ export class ColliderComponent extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setMask (v: number) {
-        this._shape.setMask(v);
+        if (this._shape) this._shape.setMask(v);
     }
 
     /**
@@ -321,7 +333,7 @@ export class ColliderComponent extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addMask (v: number) {
-        this._shape.addMask(v);
+        if (this._shape) this._shape.addMask(v);
     }
 
     /**
@@ -332,39 +344,34 @@ export class ColliderComponent extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeMask (v: number) {
-        this._shape.removeMask(v);
+        if (this._shape) this._shape.removeMask(v);
     }
 
     /// COMPONENT LIFECYCLE ///
 
-    protected __preload () {
-        if (!EDITOR) {
-            this._shape.initialize(this);
-        }
-    }
-
     protected onLoad () {
         if (!EDITOR) {
+            this._shape = createShape(this.TYPE);
+            this._shape.initialize(this);
             this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
             this._shape.onLoad!();
         }
-
     }
 
     protected onEnable () {
-        if (!EDITOR) {
+        if (this._shape) {
             this._shape.onEnable!();
         }
     }
 
     protected onDisable () {
-        if (!EDITOR) {
+        if (this._shape) {
             this._shape.onDisable!();
         }
     }
 
     protected onDestroy () {
-        if (!EDITOR) {
+        if (this._shape) {
             if (this._material) {
                 this._material.off('physics_material_update', this._updateMaterial, this);
             }
@@ -373,7 +380,7 @@ export class ColliderComponent extends Eventify(Component) {
     }
 
     private _updateMaterial () {
-        if (!EDITOR) {
+        if (this._shape) {
             this._shape.setMaterial(this._material);
         }
     }

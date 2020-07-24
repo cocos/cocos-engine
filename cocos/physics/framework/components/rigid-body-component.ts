@@ -8,7 +8,6 @@ import {
     help,
     disallowMultiple,
     executeInEditMode,
-    executionOrder,
     menu,
     property,
 } from '../../../core/data/class-decorator';
@@ -16,7 +15,7 @@ import { Vec3 } from '../../../core/math';
 import { Component, error } from '../../../core';
 import { IRigidBody } from '../../spec/i-rigid-body';
 import { createRigidBody } from '../instance';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, TEST } from 'internal:constants';
 
 /**
  * @en
@@ -26,7 +25,6 @@ import { EDITOR } from 'internal:constants';
  */
 @ccclass('cc.RigidBodyComponent')
 @help('i18n:cc.RigidBodyComponent')
-@executionOrder(99)
 @menu('Physics/RigidBody')
 @executeInEditMode
 @disallowMultiple
@@ -50,7 +48,7 @@ export class RigidBodyComponent extends Component {
 
     public set allowSleep (v: boolean) {
         this._allowSleep = v;
-        if (!EDITOR) {
+        if (this._body) {
             this._body.setAllowSleep(v);
         }
     }
@@ -71,7 +69,7 @@ export class RigidBodyComponent extends Component {
 
     public set mass (value) {
         this._mass = value;
-        if (!EDITOR) {
+        if (this._body) {
             this._body.setMass(value);
         }
     }
@@ -92,7 +90,7 @@ export class RigidBodyComponent extends Component {
 
     public set linearDamping (value) {
         this._linearDamping = value;
-        if (!EDITOR) {
+        if (this._body) {
             this._body.setLinearDamping(value);
         }
     }
@@ -113,7 +111,7 @@ export class RigidBodyComponent extends Component {
 
     public set angularDamping (value) {
         this._angularDamping = value;
-        if (!EDITOR) {
+        if (this._body) {
             this._body.setAngularDamping(value);
         }
     }
@@ -134,7 +132,7 @@ export class RigidBodyComponent extends Component {
 
     public set isKinematic (value) {
         this._isKinematic = value;
-        if (!EDITOR) {
+        if (this._body) {
             this._body.setIsKinematic(value);
         }
     }
@@ -155,7 +153,7 @@ export class RigidBodyComponent extends Component {
 
     public set useGravity (value) {
         this._useGravity = value;
-        if (!EDITOR) {
+        if (this._body) {
             this._body.useGravity(value);
         }
     }
@@ -176,7 +174,7 @@ export class RigidBodyComponent extends Component {
 
     public set fixedRotation (value) {
         this._fixedRotation = value;
-        if (!EDITOR) {
+        if (this._body) {
             this._body.fixRotation(value);
         }
     }
@@ -197,7 +195,7 @@ export class RigidBodyComponent extends Component {
 
     public set linearFactor (value: Vec3) {
         Vec3.copy(this._linearFactor, value);
-        if (!EDITOR) {
+        if (this._body) {
             this._body.setLinearFactor(this._linearFactor);
         }
     }
@@ -218,7 +216,7 @@ export class RigidBodyComponent extends Component {
 
     public set angularFactor (value: Vec3) {
         Vec3.copy(this._angularFactor, value);
-        if (!EDITOR) {
+        if (this._body) {
             this._body.setAngularFactor(this._angularFactor);
         }
     }
@@ -309,35 +307,29 @@ export class RigidBodyComponent extends Component {
         return !r;
     }
 
-    constructor () {
-        super();
-        if (!EDITOR) {
-            this._body = createRigidBody();
-        }
-    }
-
     /// COMPONENT LIFECYCLE ///
 
-    protected __preload () {
+    protected onLoad () {
         if (!EDITOR) {
+            this._body = createRigidBody();
             this._body.initialize(this);
         }
     }
 
     protected onEnable () {
-        if (!EDITOR) {
+        if (this._body) {
             this._body.onEnable!();
         }
     }
 
     protected onDisable () {
-        if (!EDITOR) {
+        if (this._body) {
             this._body.onDisable!();
         }
     }
 
     protected onDestroy () {
-        if (!EDITOR) {
+        if (this._body) {
             this._body.onDestroy!();
         }
     }

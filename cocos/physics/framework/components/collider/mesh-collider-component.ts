@@ -6,15 +6,14 @@ import {
     ccclass,
     help,
     executeInEditMode,
-    executionOrder,
     menu,
     property,
 } from '../../../../core/data/class-decorator';
 import { ColliderComponent } from './collider-component';
-import { createTrimeshShape } from '../../instance';
 import { Mesh } from '../../../../core';
 import { ITrimeshShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
+import { EColliderType } from '../../physics-enum';
 
 /**
  * @en
@@ -24,7 +23,6 @@ import { EDITOR, TEST } from 'internal:constants';
  */
 @ccclass('cc.MeshColliderComponent')
 @help('i18n:cc.MeshColliderComponent')
-@executionOrder(98)
 @menu('Physics/MeshCollider')
 @executeInEditMode
 export class MeshColliderComponent extends ColliderComponent {
@@ -83,9 +81,6 @@ export class MeshColliderComponent extends ColliderComponent {
     private _convex: boolean = false;
 
     constructor () {
-        super();
-        if (!EDITOR && !TEST) {
-            this._shape = createTrimeshShape();
-        }
+        super(EColliderType.MESH);
     }
 }

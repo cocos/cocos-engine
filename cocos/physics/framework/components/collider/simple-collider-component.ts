@@ -6,16 +6,14 @@ import {
     ccclass,
     help,
     executeInEditMode,
-    executionOrder,
     menu,
     property,
 } from '../../../../core/data/class-decorator';
 import { Vec3 } from '../../../../core/math';
-import { createSimpleShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
 import { ISimpleShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
-import { ESimpleShapeType } from '../../physics-enum';
+import { ESimpleShapeType, EColliderType } from '../../physics-enum';
 import { IVec3Like } from '../../../../core/math/type-define';
 
 /**
@@ -26,7 +24,6 @@ import { IVec3Like } from '../../../../core/math/type-define';
  */
 @ccclass('cc.SimpleColliderComponent')
 @help('i18n:cc.SimpleColliderComponent')
-@executionOrder(98)
 @menu('Physics/SimpleCollider(beta)')
 @executeInEditMode
 export class SimpleColliderComponent extends ColliderComponent {
@@ -127,10 +124,7 @@ export class SimpleColliderComponent extends ColliderComponent {
     ];
 
     constructor () {
-        super();
-        if (!EDITOR && !TEST) {
-            this._shape = createSimpleShape();
-        }
+        super(EColliderType.SIMPLE);
     }
 
     updateVertices () {

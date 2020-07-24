@@ -6,7 +6,6 @@ import {
     ccclass,
     help,
     executeInEditMode,
-    executionOrder,
     menu,
     property,
     requireComponent,
@@ -24,7 +23,6 @@ import { Vec3 } from '../../../core/math/vec3';
  */
 @ccclass('cc.ConstantForce')
 @help('i18n:cc.ConstantForce')
-@executionOrder(98)
 @requireComponent(RigidBodyComponent)
 @menu('Physics/ConstantForce')
 @disallowMultiple
