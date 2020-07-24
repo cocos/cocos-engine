@@ -32,6 +32,21 @@ export class ColliderComponent extends Eventify(Component) {
 
     /**
      * @en
+     * Gets the collider attached rigid-body, this may be null.
+     * @zh
+     * 获取碰撞器所绑定的刚体组件，可能为 null 。
+     */
+    @property({
+        type: RigidBodyComponent,
+        displayOrder: -2,
+        readonly: true,
+    })
+    public get attachedRigidBody (): RigidBodyComponent | null {
+        return this._attachedRigidBody;
+    }
+
+    /**
+     * @en
      * Gets or sets the physical material for this collider.
      * @zh
      * 获取或设置此碰撞器的物理材质。
@@ -135,17 +150,6 @@ export class ColliderComponent extends Eventify(Component) {
 
     /**
      * @en
-     * Gets the collider attached rigid-body, this may be null
-     * @zh
-     * 获取碰撞器所绑定的刚体组件，可能为 null
-     */
-    public get attachedRigidBody (): RigidBodyComponent | null {
-        if (this._shape) return this._shape.attachedRigidBody;
-        return null;
-    }
-
-    /**
-     * @en
      * Gets the wrapper object, through which the lowLevel instance can be accessed.
      * @zh
      * 获取封装对象，通过此对象可以访问到底层实例。
@@ -176,7 +180,7 @@ export class ColliderComponent extends Eventify(Component) {
 
     readonly TYPE: EColliderType;
 
-    /// PRIVATE PROPERTY ///
+    /// PROTECTED PROPERTY ///
 
     protected _shape: IBaseShape | null = null;
     protected _aabb: aabb | null = null;
@@ -184,6 +188,7 @@ export class ColliderComponent extends Eventify(Component) {
     protected _isSharedMaterial: boolean = true;
     protected _needTriggerEvent: boolean = false;
     protected _needCollisionEvent: boolean = false;
+    protected _attachedRigidBody: RigidBodyComponent | null = null;
 
     @property({ type: PhysicMaterial })
     protected _material: PhysicMaterial | null = null;
@@ -350,7 +355,15 @@ export class ColliderComponent extends Eventify(Component) {
         if (this._shape) this._shape.removeMask(v);
     }
 
+    public updateAttachedBody () {
+        this._attachedRigidBody = findAttachedBody(this.node);
+    }
+
     /// COMPONENT LIFECYCLE ///
+
+    protected __preload () {
+        this.updateAttachedBody();
+    }
 
     protected onLoad () {
         if (!EDITOR) {
@@ -412,3 +425,12 @@ export namespace ColliderComponent {
     export type EAxisDirection = EnumAlias<typeof EAxisDirection>;
 }
 
+function findAttachedBody (node: Node): RigidBodyComponent | null {
+    const rb = node.getComponent(RigidBodyComponent);
+    if (rb && rb.isValid) {
+        return rb;
+    } else {
+        if (node.parent == null || node.parent == node.scene) return null;
+        return findAttachedBody(node.parent);
+    }
+}
