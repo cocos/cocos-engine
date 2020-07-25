@@ -773,7 +773,7 @@ var game = {
             
             // Enable dynamic atlas manager by default
             if (!cc.macro.CLEANUP_IMAGE_CACHE && dynamicAtlasManager) {
-                dynamicAtlasManager.enabled = true;
+                dynamicAtlasManager.enabled = dynamicAtlasManager.enabled === false ? false : true;
             }
         }
         if (!this._renderContext) {
