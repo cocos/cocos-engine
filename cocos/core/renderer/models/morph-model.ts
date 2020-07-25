@@ -1,15 +1,13 @@
 import { Model } from '../scene/model';
 import { MorphRenderingInstance } from '../../assets/morph';
-import { IMacroPatch, Pass } from '../core/pass';
 import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
-import { IPSOCreateInfo } from '../scene/submodel';
 
 export class MorphModel extends Model {
     private _morphRenderingInstance: MorphRenderingInstance | null = null;
     private _usedMaterials = new Set<Material>();
 
-    public getMacroPatches(subModelIndex: number) : any {
+    public getMacroPatches (subModelIndex: number) : any {
         if (this._morphRenderingInstance) {
             return this._morphRenderingInstance.requiredPatches(subModelIndex);
         } else {
@@ -17,7 +15,7 @@ export class MorphModel extends Model {
         }
     }
 
-    public updateLocalBindings (psoci: IPSOCreateInfo, submodelIdx: number) {
+    public updateLocalBindings (psoci: number, submodelIdx: number) {
         super.updateLocalBindings(psoci, submodelIdx);
 
         if (this._morphRenderingInstance) {

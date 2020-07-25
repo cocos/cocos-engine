@@ -27,7 +27,6 @@
  * @hidden
  */
 
-import { EDITOR } from 'internal:constants';
 import { Material } from '../../assets/material';
 import { Mesh, RenderingSubMesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
@@ -37,11 +36,10 @@ import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
 import { UBOSkinning } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
-import { Pass, IMacroPatch } from '../core/pass';
 import { ModelType } from '../scene/model';
 import { uploadJointData } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
-import { IPSOCreateInfo } from '../scene/submodel';
+import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../core/native-pools';
 
 export interface IJointTransform {
     node: Node;
@@ -255,9 +253,9 @@ export class SkinningModel extends MorphModel {
         }
     }
 
-    public updateLocalBindings (psoci: IPSOCreateInfo, submodelIdx: number) {
+    public updateLocalBindings (psoci: number, submodelIdx: number) {
         super.updateLocalBindings(psoci, submodelIdx);
-        const bindingLayout = psoci.bindingLayout;
+        const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoci, PSOCIView.BINDING_LAYOUT));
         const buffer = this._buffers[this._bufferIndices![submodelIdx]];
         if (buffer) { bindingLayout.bindBuffer(UBOSkinning.BLOCK.binding, buffer); }
     }

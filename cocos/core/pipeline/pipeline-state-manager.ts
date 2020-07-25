@@ -3,40 +3,36 @@
  */
 
 import { GFXPipelineState, GFXInputState } from '../gfx/pipeline-state';
-import { IPSOCreateInfo } from '../renderer/scene/submodel';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXInputAssembler } from '../gfx/input-assembler';
 import { GFXDevice } from '../gfx/device';
+import { PassInfoPool, PassInfoView, ShaderPool, RasterizerStatePool, BlendStatePool, DepthStencilStatePool, PSOCIPool, PSOCIView } from '../renderer/core/native-pools';
+import { GFXDynamicStateFlags } from '../gfx';
 
 export class PipelineStateManager {
     private static _PSOHashMap: Map<number, GFXPipelineState> = new Map<number, GFXPipelineState>();
-    private static _inputState: GFXInputState = new GFXInputState();
 
-    static getOrCreatePipelineState (
-        device: GFXDevice,
-        psoCreateInfo: IPSOCreateInfo,
-        renderPass: GFXRenderPass,
-        ia: GFXInputAssembler
-        ): GFXPipelineState {
+    static getOrCreatePipelineState (device: GFXDevice, psoci: number, renderPass: GFXRenderPass, ia: GFXInputAssembler) {
 
-        const hash1 = psoCreateInfo.hash;
+        const pass = PSOCIPool.get(psoci, PSOCIView.PASS_INFO);
+        const hash1 = PassInfoPool.get(pass, PassInfoView.HASH);
         const hash2 = renderPass.hash;
         const hash3 = ia.attributesHash;
 
         const newHash = hash1 ^ hash2 ^ hash3;
         let pso = this._PSOHashMap.get(newHash);
         if (!pso) {
-            this._inputState.attributes = ia.attributes;
+            const inputState = new GFXInputState();
+            inputState.attributes = ia.attributes;
             pso = device.createPipelineState({
-                primitive: psoCreateInfo.primitive,
-                shader: psoCreateInfo.shader,
-                inputState: this._inputState,
-                rasterizerState: psoCreateInfo.rasterizerState,
-                depthStencilState: psoCreateInfo.depthStencilState,
-                blendState: psoCreateInfo.blendState,
-                dynamicStates: psoCreateInfo.dynamicStates,
+                primitive: PassInfoPool.get(pass, PassInfoView.PRIMITIVE),
+                shader: ShaderPool.get(PSOCIPool.get(psoci, PSOCIView.SHADER)),
+                rasterizerState: RasterizerStatePool.get(PassInfoPool.get(pass, PassInfoView.RASTERIZER_STATE)),
+                depthStencilState: DepthStencilStatePool.get(PassInfoPool.get(pass, PassInfoView.DEPTH_STENCIL_STATE)),
+                blendState: BlendStatePool.get(PassInfoPool.get(pass, PassInfoView.BLEND_STATE)),
+                dynamicStates: PassInfoPool.get(pass, PassInfoView.DYNAMIC_STATES) as GFXDynamicStateFlags,
+                inputState,
                 renderPass,
-                hash: newHash,
             });
             this._PSOHashMap.set(newHash, pso);
         }

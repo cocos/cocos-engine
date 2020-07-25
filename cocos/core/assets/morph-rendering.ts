@@ -12,10 +12,10 @@ import { warn, warnID } from '../platform/debug';
 import { Morph, MorphRendering, MorphRenderingInstance, SubMeshMorph } from './morph';
 import { assertIsNonNullable, assertIsTrue } from '../data/utils/asserts';
 import { log2, nextPow2 } from '../math/bits';
-import { IMacroPatch, IPSOCreateInfo } from '../renderer';
+import { IMacroPatch } from '../renderer';
 import { legacyCC } from '../global-exports';
 import { PixelFormat } from './asset-enum';
-import { DEV } from 'internal:constants';
+import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../renderer/core/native-pools';
 
 /**
  * True if force to use cpu computing based sub-mesh rendering.
@@ -104,7 +104,7 @@ export class StdMorphRendering implements MorphRendering {
                 return patches;
             },
 
-            adaptPipelineState: (subMeshIndex: number, pipelineCreateInfo: IPSOCreateInfo) => {
+            adaptPipelineState: (subMeshIndex: number, pipelineCreateInfo: number) => {
                 subMeshInstances[subMeshIndex]?.adaptPipelineState(pipelineCreateInfo);
             },
 
@@ -146,7 +146,7 @@ interface SubMeshMorphRenderingInstance {
      * Adapts the pipelineState to apply the rendering.
      * @param pipelineState
      */
-    adaptPipelineState (pipelineCreateInfo: IPSOCreateInfo): void;
+    adaptPipelineState (pipelineCreateInfo: number): void;
 
     /**
      * Destroy this instance.
@@ -249,8 +249,8 @@ class GpuComputing implements SubMeshMorphRendering {
                 return [{ name: 'CC_MORPH_TARGET_USE_TEXTURE', value: true, }];
             },
 
-            adaptPipelineState: (pipelineCreateInfo: IPSOCreateInfo) => {
-                const bindingLayout = pipelineCreateInfo.bindingLayout;
+            adaptPipelineState: (pipelineCreateInfo: number) => {
+                const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(pipelineCreateInfo, PSOCIView.BINDING_LAYOUT));
                 for (const attribute of this._attributes) {
                     let binding: number | undefined;
                     switch (attribute.name) {
@@ -418,8 +418,8 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
         ];
     }
 
-    public adaptPipelineState (pipelineCreateInfo: IPSOCreateInfo) {
-        const bindingLayout = pipelineCreateInfo.bindingLayout;
+    public adaptPipelineState (pipelineCreateInfo: number) {
+        const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(pipelineCreateInfo, PSOCIView.BINDING_LAYOUT));
         for (const attribute of this._attributes) {
             const attributeName = attribute.attributeName;
             let binding: number | undefined;
@@ -497,8 +497,8 @@ class MorphUniforms {
 }
 
 /**
- * 
- * @param gfxDevice 
+ *
+ * @param gfxDevice
  * @param vec4Capacity Capacity of vec4.
  */
 function createVec4TextureFactory (gfxDevice: GFXDevice, vec4Capacity: number) {

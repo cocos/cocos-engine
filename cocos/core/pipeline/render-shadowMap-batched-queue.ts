@@ -4,11 +4,12 @@
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { Pass, IMacroPatch } from '../renderer';
-import { SubModel, IPSOCreateInfo } from '../renderer/scene/submodel';
+import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOPCFShadow } from './define';
-import { GFXDevice, GFXRenderPass, GFXBuffer, GFXPipelineState } from '../gfx';
+import { GFXDevice, GFXRenderPass, GFXBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
+import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../renderer/core/native-pools';
 
 const forwardShadowMapPatches: IMacroPatch[] = [
     { name: 'CC_VSM_SHADOW', value: true },
@@ -20,11 +21,11 @@ const forwardShadowMapPatches: IMacroPatch[] = [
  */
 export class RenderShadowMapBatchedQueue {
     private _subModelsArray: SubModel[] = [];
-    private _psoCIArray: IPSOCreateInfo[] = [];
+    private _psoCIArray: number[] = [];
     private _shadowMapBuffer: GFXBuffer|null = null;
 
     // psoCI cache
-    private _psoCICache: Map<SubModel, IPSOCreateInfo> = new Map();
+    private _psoCICache: Map<SubModel, number> = new Map();
 
     private _phaseID = getPhaseID('shadow-add');
 
@@ -44,7 +45,7 @@ export class RenderShadowMapBatchedQueue {
             const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
             const fullPatches = modelPatches ? forwardShadowMapPatches.concat(modelPatches) : forwardShadowMapPatches;
 
-            let psoCI: IPSOCreateInfo;
+            let psoCI: number;
             if (this._psoCICache.has(subModel)) {
                 psoCI = this._psoCICache.get(subModel)!;
             } else {
@@ -52,8 +53,9 @@ export class RenderShadowMapBatchedQueue {
                 this._psoCICache.set(subModel, psoCI);
 
                 renderObj.model.updateLocalBindings(psoCI, subModelIdx);
-                psoCI.bindingLayout.bindBuffer(UBOPCFShadow.BLOCK.binding, this._shadowMapBuffer!);
-                psoCI.bindingLayout.update();
+                const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT));
+                bindingLayout.bindBuffer(UBOPCFShadow.BLOCK.binding, this._shadowMapBuffer!);
+                bindingLayout.update();
             }
 
             if (this._shadowMapBuffer) {
@@ -77,9 +79,10 @@ export class RenderShadowMapBatchedQueue {
             const psoCI = this._psoCIArray[i];
             const ia = subModel.inputAssembler!;
             const pso = PipelineStateManager.getOrCreatePipelineState(device, psoCI, renderPass, ia);
+            const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT));
 
             cmdBuff.bindPipelineState(pso);
-            cmdBuff.bindBindingLayout(psoCI.bindingLayout);
+            cmdBuff.bindBindingLayout(bindingLayout);
             cmdBuff.bindInputAssembler(ia);
             cmdBuff.draw(ia);
         }

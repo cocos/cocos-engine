@@ -28,11 +28,11 @@
  */
 
 import { IPassInfo } from '../../assets/effect-asset';
-import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
 import { isBuiltinBinding } from '../../pipeline/define';
 import { MaterialInstance } from './material-instance';
 import { Pass, PassOverrides } from './pass';
 import { assignDefines, IDefineMap } from './pass-utils';
+import { PassInfoView, RasterizerStatePool, DepthStencilStatePool, BlendStatePool, PassInfoPool } from './native-pools';
 
 export class PassInstance extends Pass {
 
@@ -64,11 +64,15 @@ export class PassInstance extends Pass {
     }
 
     public overridePipelineStates (original: IPassInfo, overrides: PassOverrides): void {
-        this._bs = new GFXBlendState();
-        this._dss = new GFXDepthStencilState();
-        this._rs = new GFXRasterizerState();
-        Pass.fillinPipelineInfo(this, original);
-        Pass.fillinPipelineInfo(this, overrides);
+        BlendStatePool.free(PassInfoPool.get(this._infoHandle, PassInfoView.BLEND_STATE));
+        RasterizerStatePool.free(PassInfoPool.get(this._infoHandle, PassInfoView.RASTERIZER_STATE));
+        DepthStencilStatePool.free(PassInfoPool.get(this._infoHandle, PassInfoView.DEPTH_STENCIL_STATE));
+        PassInfoPool.set(this._infoHandle, PassInfoView.BLEND_STATE, BlendStatePool.alloc());
+        PassInfoPool.set(this._infoHandle, PassInfoView.RASTERIZER_STATE, RasterizerStatePool.alloc());
+        PassInfoPool.set(this._infoHandle, PassInfoView.DEPTH_STENCIL_STATE, DepthStencilStatePool.alloc());
+
+        Pass.fillinPipelineInfo(this._infoHandle, original);
+        Pass.fillinPipelineInfo(this._infoHandle, overrides);
         this._onStateChange();
     }
 
@@ -91,12 +95,12 @@ export class PassInstance extends Pass {
         this._dontNotify = false;
     }
 
-    protected _dynamicBatchingSync () {
+    protected _syncBatchingScheme () {
         this._defines.USE_BATCHING = this._defines.USE_INSTANCING = false;
     }
 
     protected _onStateChange () {
-        this._hash = Pass.getPassHash(this);
+        PassInfoPool.set(this._infoHandle, PassInfoView.HASH, Pass.getPassHash(this._infoHandle, this._defaultShaderHandle));
         this._owner.onPassStateChange(this._dontNotify);
     }
 }

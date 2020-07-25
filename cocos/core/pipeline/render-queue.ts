@@ -10,6 +10,7 @@ import { GFXInputAssembler } from '../gfx/input-assembler';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { GFXDevice } from '../gfx/device';
 import { GFXRenderPass } from '../gfx';
+import { BlendStatePool, PassInfoPool, PassInfoView, ShaderPool, BindingLayoutPool, PSOCIPool, PSOCIView } from '../renderer/core/native-pools';
 
 /**
  * @en Comparison sorting function. Opaque objects are sorted by priority -> depth front to back -> shader ID.
@@ -78,17 +79,17 @@ export class RenderQueue {
      */
     public insertRenderPass (renderObj: IRenderObject, subModelIdx: number, passIdx: number): boolean {
         const subModel = renderObj.model.getSubModel(subModelIdx);
-        const pass = subModel.passes[passIdx];
-        const psoCreateInfo = subModel.psoInfos[passIdx];
-        const isTransparent = psoCreateInfo.blendState.targets[0].blend;
-        if (isTransparent !== this._passDesc.isTransparent || !(pass.phase & this._passDesc.phases)) {
+        const psoci = subModel.psoInfos[passIdx];
+        const pass = PSOCIPool.get(psoci, PSOCIView.PASS_INFO);
+        const isTransparent = BlendStatePool.get(PassInfoPool.get(pass, PassInfoView.BLEND_STATE)).targets[0].blend;
+        if (isTransparent !== this._passDesc.isTransparent || !(PassInfoPool.get(pass, PassInfoView.PHASE) & this._passDesc.phases)) {
             return false;
         }
-        const hash = (0 << 30) | pass.priority << 16 | subModel.priority << 8 | passIdx;
+        const hash = (0 << 30) | PassInfoPool.get(pass, PassInfoView.PRIORITY) << 16 | subModel.priority << 8 | passIdx;
         const rp = this._passPool.add();
         rp.hash = hash;
         rp.depth = renderObj.depth || 0;
-        rp.shaderId = psoCreateInfo.shader.id;
+        rp.shaderId = PSOCIPool.get(psoci, PSOCIView.SHADER);
         rp.subModel = subModel;
         rp.passIdx = passIdx;
         this.queue.push(rp);
@@ -108,10 +109,10 @@ export class RenderQueue {
             const subModel = this.queue.array[i].subModel;
             const passIdx = this.queue.array[i].passIdx;
             const ia = subModel.inputAssembler as GFXInputAssembler;
-            const psoCreateInfo = subModel.psoInfos[passIdx];
-            const pso = PipelineStateManager.getOrCreatePipelineState(device, psoCreateInfo, renderPass, ia);
+            const psoci = subModel.psoInfos[passIdx];
+            const pso = PipelineStateManager.getOrCreatePipelineState(device, psoci, renderPass, ia);
             cmdBuff.bindPipelineState(pso);
-            cmdBuff.bindBindingLayout(psoCreateInfo.bindingLayout);
+            cmdBuff.bindBindingLayout(BindingLayoutPool.get(PSOCIPool.get(psoci, PSOCIView.BINDING_LAYOUT)));
             cmdBuff.bindInputAssembler(ia);
             cmdBuff.draw(ia);
         }

@@ -42,9 +42,9 @@ import { DataPoolManager } from '../data-pool-manager';
 import { ModelType } from '../scene/model';
 import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
-import { IPSOCreateInfo } from '../scene/submodel';
 import { legacyCC } from '../../global-exports';
 import { IGFXAttribute } from '../../gfx';
+import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../core/native-pools';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;
@@ -179,13 +179,13 @@ export class BakedSkinningModel extends MorphModel {
         for (let i = 0; i < this._subModels.length; ++i) {
             const psoCreateInfos = this._subModels[i].psoInfos;
             for (let j = 0; j < psoCreateInfos.length; ++j) {
-                const bindingLayout = psoCreateInfos[j].bindingLayout;
+                const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoCreateInfos[j], PSOCIView.BINDING_LAYOUT));
                 bindingLayout.bindTexture(UniformJointTexture.binding, tex);
             }
         }
 
         for (let i = 0; i < this._implantPSOCIs.length; i++) {
-            const bindingLayout = this._implantPSOCIs[i].bindingLayout;
+            const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(this._implantPSOCIs[i], PSOCIView.BINDING_LAYOUT));
             bindingLayout.bindTexture(UniformJointTexture.binding, tex);
             bindingLayout.update();
         }
@@ -195,10 +195,10 @@ export class BakedSkinningModel extends MorphModel {
         return myPatches;
     }
 
-    public updateLocalBindings (psoci: IPSOCreateInfo, submodelIdx: number) {
+    public updateLocalBindings (psoci: number, submodelIdx: number) {
         super.updateLocalBindings(psoci, submodelIdx);
         const { buffer, texture, animInfo } = this._jointsMedium;
-        const bindingLayout = psoci.bindingLayout;
+        const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoci, PSOCIView.BINDING_LAYOUT));
         bindingLayout.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
         bindingLayout.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
         const sampler = samplerLib.getSampler(this._device, jointTextureSamplerHash);

@@ -29,7 +29,7 @@
 
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Root } from '../../core/root';
-import { GFXDynamicState, GFXPrimitiveMode, GFXShaderType } from '../gfx/define';
+import { GFXDynamicStateFlags, GFXPrimitiveMode, GFXShaderType } from '../gfx/define';
 import { IGFXAttribute } from '../gfx/input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../gfx/pipeline-state';
 import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
@@ -54,8 +54,7 @@ export interface IPassStates {
     rasterizerState?: GFXRasterizerState;
     depthStencilState?: GFXDepthStencilState;
     blendState?: GFXBlendState;
-    dynamicStates?: GFXDynamicState[];
-    customizations?: string[];
+    dynamicStates?: GFXDynamicStateFlags;
     phase?: string | number;
 }
 export interface IPassInfo extends IPassStates {

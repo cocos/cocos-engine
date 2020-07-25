@@ -29,7 +29,6 @@
 import { Material } from '../../assets/material';
 import { Pool } from '../../memop';
 import { Pass } from '../../renderer/core/pass';
-import { IPSOCreateInfo } from '../scene/submodel';
 
 export interface IUIMaterialInfo {
     material: Material;
@@ -47,11 +46,11 @@ export class UIMaterial {
 
     protected _material: Material | null = null;
     protected _pass: Pass | null = null;
-    private _psoCreateInfo: Pool<IPSOCreateInfo> | null;
+    private _psoCreateInfos: Pool<number> | null;
     private _refCount: number = 0;
 
     constructor () {
-        this._psoCreateInfo = null;
+        this._psoCreateInfos = null;
     }
 
     public initialize (info: IUIMaterialInfo): boolean {
@@ -64,12 +63,12 @@ export class UIMaterial {
 
         this._material.copy(info.material);
 
-        this._pass = info.material.passes[0];
+        this._pass = this._material.passes[0];
         this._pass.update();
 
-        this._psoCreateInfo = new Pool(() => {
-            const pso = this._pass!.createPipelineStateCI()!;
-            return pso;
+        this._psoCreateInfos = new Pool(() => {
+            const psoci = this._pass!.createPipelineStateCI()!;
+            return psoci;
         }, 1);
 
         return true;
@@ -88,18 +87,18 @@ export class UIMaterial {
         return this._refCount;
     }
 
-    public getPipelineCreateInfo (): IPSOCreateInfo {
-        return this._psoCreateInfo!.alloc();
+    public getPipelineCreateInfo (): number {
+        return this._psoCreateInfos!.alloc();
     }
 
-    public revertPipelineCreateInfo (psoCeateInfo: IPSOCreateInfo) {
-        this._psoCreateInfo!.free(psoCeateInfo);
+    public revertPipelineCreateInfo (psoCeateInfo: number) {
+        this._psoCreateInfos!.free(psoCeateInfo);
     }
 
     public destroy () {
-        if (this._psoCreateInfo) {
-            this._psoCreateInfo.clear((obj: IPSOCreateInfo) => {
-                obj.bindingLayout.destroy();
+        if (this._psoCreateInfos) {
+            this._psoCreateInfos.clear((psoci: number) => {
+                this._pass!.destroyPipelineStateCI(psoci);
             });
         }
         if (this._material) {

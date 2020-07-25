@@ -1,4 +1,3 @@
-import { EDITOR } from 'internal:constants';
 import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
@@ -6,27 +5,13 @@ import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { RenderPriority } from '../../pipeline/define';
 import { IMacroPatch } from '../core/pass';
-import { GFXShader } from '../../gfx/shader';
-import { GFXDynamicState, GFXPrimitiveMode } from '../../gfx/define';
-import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
-import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { legacyCC } from '../../global-exports';
-
-export interface IPSOCreateInfo {
-    shader: GFXShader;
-    primitive: GFXPrimitiveMode;
-    rasterizerState: GFXRasterizerState;
-    depthStencilState: GFXDepthStencilState;
-    blendState: GFXBlendState;
-    dynamicStates: GFXDynamicState[];
-    bindingLayout: GFXBindingLayout;
-    hash: number;
-}
+import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../core/native-pools';
 
 export class SubModel {
 
     public priority: RenderPriority = RenderPriority.DEFAULT;
-    protected _psoCreateInfos: IPSOCreateInfo[] = [];
+    protected _psociHandles: number[] = [];
     protected _subMeshObject: RenderingSubMesh | null = null;
     protected _material: Material | null = null;
     protected _inputAssembler: GFXInputAssembler | null = null;
@@ -34,7 +19,7 @@ export class SubModel {
     protected _patches? : IMacroPatch[];
 
     get psoInfos () {
-        return this._psoCreateInfos;
+        return this._psociHandles;
     }
 
     set subMeshData (sm) {
@@ -91,17 +76,16 @@ export class SubModel {
         for (let i = 0; i < this.passes.length; ++i) {
             const pass = this.passes[i];
             pass.update();
-            this._psoCreateInfos[i].hash = pass.hash;
         }
 
         this.updateLayout();
     }
 
     public updateLayout () {
-        for (let i = 0; i < this._psoCreateInfos.length; ++i) {
-            const psoCreateInfo = this._psoCreateInfos[i];
-            if (psoCreateInfo) {
-                psoCreateInfo.bindingLayout.update();
+        for (let i = 0; i < this._psociHandles.length; ++i) {
+            const psociHandle = this._psociHandles[i];
+            if (psociHandle) {
+                BindingLayoutPool.get(PSOCIPool.get(psociHandle, PSOCIView.BINDING_LAYOUT)).update();
             }
         }
     }
@@ -119,7 +103,7 @@ export class SubModel {
             pass.tryCompile(); // force update shaders
             pass.endChangeStatesSilently();
         }
-        this._psoCreateInfos.length = 0;
+        this._psociHandles.length = 0;
 
         this.getPipelineCreateInfo();
     }
@@ -130,9 +114,9 @@ export class SubModel {
         }
         const passes = this._material.passes;
         for (let i = 0; i < passes.length; ++i) {
-            const psoCreateInfo = passes[i].createPipelineStateCI(this._patches);
-            if (psoCreateInfo) {
-                this._psoCreateInfos[i] = psoCreateInfo;
+            const psociHandle = passes[i].createPipelineStateCI(this._patches);
+            if (psociHandle) {
+                this._psociHandles[i] = psociHandle;
             }
         }
     }
@@ -143,10 +127,10 @@ export class SubModel {
         }
         const passes = this._material.passes;
         for (let i = 0; i < passes.length; ++i) {
-            if (this._psoCreateInfos[i]) {
-                passes[i].destroyPipelineStateCI(this._psoCreateInfos[i]);
+            if (this._psociHandles[i]) {
+                passes[i].destroyPipelineStateCI(this._psociHandles[i]);
             }
         }
-        this._psoCreateInfos.length = 0;
+        this._psociHandles.length = 0;
     }
 }

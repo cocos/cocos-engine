@@ -8,7 +8,6 @@ import {
     GFXClearFlag,
     GFXColorMask,
     GFXCullMode,
-    GFXDynamicState,
     GFXFormat,
     GFXFormatInfos,
     GFXFormatSize,
@@ -18,13 +17,13 @@ import {
     GFXShaderType,
     GFXStencilFace,
     GFXTextureFlagBit,
-    GFXTextureLayout,
     GFXTextureType,
     GFXType,
     IGFXColor,
     IGFXFormatInfo,
     IGFXRect,
     IGFXViewport,
+    GFXDynamicStateFlagBit,
 } from '../define';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
 import {
@@ -2344,6 +2343,8 @@ export function WebGLCmdFuncBindStates (
                 vao.bindVertexArrayOES(glVAO);
                 gl.bindBuffer(gl.ARRAY_BUFFER, null);
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+                cache.glArrayBuffer = null;
+                cache.glElementArrayBuffer = null;
 
                 let glAttrib: WebGLAttrib | null;
                 const inputLen = gpuShader.glInputs.length;
@@ -2361,7 +2362,10 @@ export function WebGLCmdFuncBindStates (
                     }
 
                     if (glAttrib) {
-                        gl.bindBuffer(gl.ARRAY_BUFFER, glAttrib.glBuffer);
+                        if (cache.glArrayBuffer !== glAttrib.glBuffer) {
+                            gl.bindBuffer(gl.ARRAY_BUFFER, glAttrib.glBuffer);
+                            cache.glArrayBuffer = glAttrib.glBuffer;
+                        }
 
                         for (let c = 0; c < glAttrib.componentCount; ++c) {
                             const glLoc = glInput.glLoc + c;
@@ -2455,7 +2459,7 @@ export function WebGLCmdFuncBindStates (
         for (let j = 0; j < dsLen; j++) {
             const dynamicState = gpuPipelineState.dynamicStates[j];
             switch (dynamicState) {
-                case GFXDynamicState.VIEWPORT: {
+                case GFXDynamicStateFlagBit.VIEWPORT: {
                     if (viewport) {
                         if (cache.viewport.left !== viewport.left ||
                             cache.viewport.top !== viewport.top ||
@@ -2472,7 +2476,7 @@ export function WebGLCmdFuncBindStates (
                     }
                     break;
                 }
-                case GFXDynamicState.SCISSOR: {
+                case GFXDynamicStateFlagBit.SCISSOR: {
                     if (scissor) {
                         if (cache.scissorRect.x !== scissor.x ||
                             cache.scissorRect.y !== scissor.y ||
@@ -2489,7 +2493,7 @@ export function WebGLCmdFuncBindStates (
                     }
                     break;
                 }
-                case GFXDynamicState.LINE_WIDTH: {
+                case GFXDynamicStateFlagBit.LINE_WIDTH: {
                     if (lineWidth) {
                         if (cache.rs.lineWidth !== lineWidth) {
                             gl.lineWidth(lineWidth);
@@ -2498,7 +2502,7 @@ export function WebGLCmdFuncBindStates (
                     }
                     break;
                 }
-                case GFXDynamicState.DEPTH_BIAS: {
+                case GFXDynamicStateFlagBit.DEPTH_BIAS: {
                     if (depthBias) {
 
                         if ((cache.rs.depthBias !== depthBias.constantFactor) ||
@@ -2510,7 +2514,7 @@ export function WebGLCmdFuncBindStates (
                     }
                     break;
                 }
-                case GFXDynamicState.BLEND_CONSTANTS: {
+                case GFXDynamicStateFlagBit.BLEND_CONSTANTS: {
                     if (blendConstants) {
                         if ((cache.bs.blendColor.r !== blendConstants[0]) ||
                             (cache.bs.blendColor.g !== blendConstants[1]) ||
@@ -2527,7 +2531,7 @@ export function WebGLCmdFuncBindStates (
                     }
                     break;
                 }
-                case GFXDynamicState.STENCIL_WRITE_MASK: {
+                case GFXDynamicStateFlagBit.STENCIL_WRITE_MASK: {
                     if (stencilWriteMask) {
                         switch (stencilWriteMask.face) {
                             case GFXStencilFace.FRONT: {
@@ -2557,7 +2561,7 @@ export function WebGLCmdFuncBindStates (
                     }
                     break;
                 }
-                case GFXDynamicState.STENCIL_COMPARE_MASK: {
+                case GFXDynamicStateFlagBit.STENCIL_COMPARE_MASK: {
                     if (stencilCompareMask) {
                         switch (stencilCompareMask.face) {
                             case GFXStencilFace.FRONT: {
