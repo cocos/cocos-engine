@@ -438,8 +438,11 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @method clone
      * @return {SpriteFrame}
      */
-    clone: function () {
-        return new SpriteFrame(this._texture, this._rect, this._rotated, this._offset, this._originalSize);
+    clone: function() {
+        let rect = this._rect ? this.getRect() : null;
+        let offset = this._offset ? this.getOffset() : null;
+        let originalSize = this._originalSize ? this.getOriginalSize() : null;
+        return new SpriteFrame(this._texture, rect, this._rotated, offset, originalSize);
     },
 
     /**
