@@ -125,8 +125,6 @@ let TiledObjectGroup = cc.Class({
         const FLAG_HORIZONTAL = TileFlag.HORIZONTAL;
         const FLAG_VERTICAL = TileFlag.VERTICAL;
 
-        this._texGrids = texGrids;
-
         this._groupName = groupInfo.name;
         this._positionOffset = groupInfo.offset;
         this._mapInfo = mapInfo;
@@ -134,6 +132,7 @@ let TiledObjectGroup = cc.Class({
         this._offset = cc.v2(groupInfo.offset.x, -groupInfo.offset.y);
         this._opacity = groupInfo._opacity;
 
+        this._texGrids = texGrids;
         this._animations = mapInfo.getTileAnimations();
         this.aniObjects = [];
         this._hasAniObj = false;
@@ -145,7 +144,7 @@ let TiledObjectGroup = cc.Class({
 
         const iso = Orientation.ISO === mapInfo.orientation;
 
-        if (Orientation.HEX === mapInfo.orientation) {
+        if (mapInfo.orientation === Orientation.HEX) {
             if (mapInfo.getStaggerAxis() === StaggerAxis.STAGGERAXIS_X) {
                 height = tileSize.height * (mapSize.height + 0.5);
                 width = (tileSize.width + mapInfo.getHexSideLength()) * Math.floor(mapSize.width / 2) + tileSize.width * (mapSize.width % 2);
@@ -233,6 +232,8 @@ let TiledObjectGroup = cc.Class({
                 let imgName = "img" + object.id;
                 aliveNodes[imgName] = true;
                 let imgNode = this.node.getChildByName(imgName);
+                object.width = object.width || grid.width;
+                object.height = object.height || grid.height;
 
                 // Delete image nodes implemented as private nodes
                 // Use cc.Node to implement node-level requirements
@@ -245,9 +246,6 @@ let TiledObjectGroup = cc.Class({
                 if (!imgNode) {
                     imgNode = new cc.Node();
                 }
-
-                object.width = object.width || grid.width;
-                object.height = object.height || grid.height;
 
                 if (this._animations[gridGID]) {
                     this.aniObjects.push({
@@ -357,7 +355,15 @@ let TiledObjectGroup = cc.Class({
             sp.spriteFrame = spf;
             sp.setVertsDirty();
         }
+    },
+
+    onDestroy () {
+        this._texGrids = null;
+        this._animations = null;
+        this.aniObjects = null;
+        this._hasAniObj = false;
     }
+
 });
 
 cc.TiledObjectGroup = module.exports = TiledObjectGroup;
