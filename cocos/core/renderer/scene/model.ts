@@ -18,7 +18,6 @@ import { IGFXAttribute } from '../../gfx';
 import { SubModel, IPSOCreateInfo } from './submodel';
 import { Pass, IMacroPatch } from '../core/pass';
 import { legacyCC } from '../../global-exports';
-import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 
 const m4_1 = new Mat4();
 
@@ -29,6 +28,11 @@ const _subMeshPool = new Pool(() => {
 const shadowMap_Patches: IMacroPatch[]= [
     { name: 'CC_SHADOW', value: true },
 ];
+
+export enum SubModelPatchMask {
+    None = 0,               // none
+    Shadow = 1 << 0,        // shadow
+}
 
 export interface IInstancedAttribute {
     name: string;
@@ -111,8 +115,8 @@ export class Model {
         return this._instMatWorldIdx >= 0;
     }
 
-    get subModelPatchHash () {
-        return this._subModelPatchHash;
+    get subModelPatchMask () {
+        return this._subModelPatchMask;
     }
 
     public type = ModelType.DEFAULT;
@@ -136,7 +140,7 @@ export class Model {
     protected _inited = false;
     protected _updateStamp = -1;
     protected _transformUpdated = true;
-    protected _subModelPatchHash: number = 0;
+    protected _subModelPatchMask: number = 0;
 
     private _instMatWorldIdx = -1;
 
@@ -321,15 +325,11 @@ export class Model {
 
     public getMacroPatches (subModelIndex: number) : IMacroPatch[] | undefined {
         if (this.receiveShadow) {
-            let res: string = '';
-            for (let i = 0; i < shadowMap_Patches.length; ++i) {
-                res += shadowMap_Patches[i];
-            }
-            this._subModelPatchHash = murmurhash2_32_gc(res, 666);
+            this._subModelPatchMask = SubModelPatchMask.Shadow;
             return shadowMap_Patches;
         }
 
-        this._subModelPatchHash = 0;
+        this._subModelPatchMask = SubModelPatchMask.None;
         return undefined;
     }
 
