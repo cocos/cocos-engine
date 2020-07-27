@@ -66,3 +66,12 @@ export function commitShapeUpdates (body: CANNON.Body) {
     body.updateMassProperties();
     body.updateBoundingRadius();
 }
+
+export const deprecatedEventMap = {
+    'onCollisionEnter': 'collision-enter',
+    'onCollisionStay': 'collision-stay',
+    'onCollisionExit': 'collision-exit',
+    'onTriggerEnter': 'trigger-enter',
+    'onTriggerStay': 'trigger-stay',
+    'onTriggerExit': 'trigger-exit',
+};

@@ -31,7 +31,7 @@ import { CannonShape } from './shapes/cannon-shape';
 import { Collider3D } from '../exports/physics-framework';
 import { CollisionEventType } from '../framework/physics-interface';
 import { CannonRigidBody } from './cannon-rigid-body';
-import { commitShapeUpdates, groupIndexToBitMask } from './cannon-util'
+import { commitShapeUpdates, groupIndexToBitMask, deprecatedEventMap } from './cannon-util'
 import { updateWorldTransform, updateWorldRT } from "../framework/util"
 
 const LocalDirtyFlag = cc.Node._LocalDirtyFlag;
@@ -165,7 +165,7 @@ export class CannonSharedBody {
             }
             commitShapeUpdates(this.body);
         }
-        
+
         if (this.body.isSleeping()) {
             this.body.wakeUp();
         }
@@ -226,6 +226,7 @@ export class CannonSharedBody {
 
             for (i = 0; i < this.shapes.length; i++) {
                 const shape = this.shapes[i];
+                shape.collider.emit(deprecatedEventMap[CollisionEventObject.type], CollisionEventObject);
                 shape.collider.emit(CollisionEventObject.type, CollisionEventObject);
             }
         }
