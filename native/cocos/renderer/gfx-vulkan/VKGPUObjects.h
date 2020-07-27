@@ -600,12 +600,12 @@ public:
     }
 
 #define DEFINE_DESCRIPTOR_HUB_FN(name)                                                                                            \
-    CC_INLINE void name(CCVKGPUBuffer *buffer) { name(_buffers, buffer, (VkDescriptorBufferInfo *)nullptr); }                     \
-    CC_INLINE void name(CCVKGPUBuffer *buffer, VkDescriptorBufferInfo *descriptor) { name(_buffers, buffer, descriptor); }        \
-    CC_INLINE void name(CCVKGPUTextureView *texture) { name(_textures, texture, (VkDescriptorImageInfo *)nullptr); }              \
-    CC_INLINE void name(CCVKGPUTextureView *texture, VkDescriptorImageInfo *descriptor) { name(_textures, texture, descriptor); } \
-    CC_INLINE void name(CCVKGPUSampler *sampler) { name(_samplers, sampler, (VkDescriptorImageInfo *)nullptr); }                  \
-    CC_INLINE void name(CCVKGPUSampler *sampler, VkDescriptorImageInfo *descriptor) { name(_samplers, sampler, descriptor); }
+    CC_INLINE void name(const CCVKGPUBuffer *buffer) { name(_buffers, buffer, (VkDescriptorBufferInfo *)nullptr); }                     \
+    CC_INLINE void name(const CCVKGPUBuffer *buffer, VkDescriptorBufferInfo *descriptor) { name(_buffers, buffer, descriptor); }        \
+    CC_INLINE void name(const CCVKGPUTextureView *texture) { name(_textures, texture, (VkDescriptorImageInfo *)nullptr); }              \
+    CC_INLINE void name(const CCVKGPUTextureView *texture, VkDescriptorImageInfo *descriptor) { name(_textures, texture, descriptor); } \
+    CC_INLINE void name(const CCVKGPUSampler *sampler) { name(_samplers, sampler, (VkDescriptorImageInfo *)nullptr); }                  \
+    CC_INLINE void name(const CCVKGPUSampler *sampler, VkDescriptorImageInfo *descriptor) { name(_samplers, sampler, descriptor); }
 
     DEFINE_DESCRIPTOR_HUB_FN(connect)
     DEFINE_DESCRIPTOR_HUB_FN(update)
@@ -613,12 +613,7 @@ public:
 
 private:
     template <typename M, typename K, typename V>
-    void connect(M &map, K *name, V *descriptor) {
-        if (!map.count(name)) {
-            map.emplace(std::piecewise_construct,
-                        std::forward_as_tuple(name),
-                        std::forward_as_tuple());
-        }
+    void connect(M &map, const K *name, V *descriptor) {
         map[name].push(descriptor);
     }
 
@@ -637,7 +632,7 @@ private:
     }
 
     template <typename M, typename K, typename V>
-    void update(M &map, K *name, V *descriptor) {
+    void update(M &map, const K *name, V *descriptor) {
         auto it = map.find(name);
         if (it == map.end()) return;
         auto &descriptors = it->second;
@@ -656,7 +651,7 @@ private:
     }
 
     template <typename M, typename K, typename V>
-    void disengage(M &map, K *name, V *descriptor) {
+    void disengage(M &map, const K *name, V *descriptor) {
         auto it = map.find(name);
         if (it == map.end()) return;
         if (!descriptor) {
@@ -668,9 +663,9 @@ private:
     }
 
     CCVKGPUDevice *_device = nullptr;
-    map<CCVKGPUBuffer *, CachedArray<VkDescriptorBufferInfo *>> _buffers;
-    map<CCVKGPUTextureView *, CachedArray<VkDescriptorImageInfo *>> _textures;
-    map<CCVKGPUSampler *, CachedArray<VkDescriptorImageInfo *>> _samplers;
+    map<const CCVKGPUBuffer *, CachedArray<VkDescriptorBufferInfo *>> _buffers;
+    map<const CCVKGPUTextureView *, CachedArray<VkDescriptorImageInfo *>> _textures;
+    map<const CCVKGPUSampler *, CachedArray<VkDescriptorImageInfo *>> _samplers;
 }; // namespace gfx
 
 class CCVKGPURecycleBin : public Object {
@@ -732,7 +727,8 @@ private:
     uint _count = 0u;
 };
 
-#define ASYNC_SUBMISSION
+//#define ASYNC_BUFFER_UPDATE
+#define ASYNC_COMMAND_SUBMISSION
 class CCVKGPUTransportHub : public Object {
 public:
     CCVKGPUTransportHub(CCVKGPUDevice *device)
@@ -740,10 +736,11 @@ public:
         _transfers.resize(16);
     }
 
-    void link(CCVKGPUQueue *queue, CCVKGPUFencePool *fencePool, CCVKGPUCommandBufferPool *commandBufferPool) {
+    void link(CCVKGPUQueue *queue, CCVKGPUFencePool *fencePool, CCVKGPUCommandBufferPool *commandBufferPool, CCVKGPUStagingBufferPool *stagingBufferPool) {
         _queue = queue;
         _fencePool = fencePool;
         _commandBufferPool = commandBufferPool;
+        _stagingBufferPool = stagingBufferPool;
 
         _cmdBuff.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         _cmdBuff.queueFamilyIndex = _queue->queueFamilyIndex;
@@ -754,13 +751,22 @@ public:
     }
 
     void checkIn(void *dst, const void *src, size_t size) {
+#ifdef ASYNC_BUFFER_UPDATE
+        CCVKGPUBuffer stagingBuffer;
+        stagingBuffer.size = size;
+        _stagingBufferPool->alloc(&stagingBuffer);
+        memcpy(stagingBuffer.mappedData, src, size);
+
         if (_transfers.size() <= _count) {
             _transfers.resize(_count * 2);
         }
         Transfer &transfer = _transfers[_count++];
         transfer.dst = dst;
-        transfer.src = src;
+        transfer.src = stagingBuffer.mappedData;
         transfer.size = size;
+#else
+        memcpy(dst, src, size);
+#endif // ASYNC_BUFFER_UPDATE
     }
 
     template <typename TFunc>
@@ -774,7 +780,7 @@ public:
 
         record(_cmdBuff.vkCommandBuffer);
 
-#ifndef ASYNC_SUBMISSION
+#ifndef ASYNC_COMMAND_SUBMISSION
         VK_CHECK(vkEndCommandBuffer(_cmdBuff.vkCommandBuffer));
         VkFence fence = _fencePool->alloc();
         VkSubmitInfo submitInfo{VK_STRUCTURE_TYPE_SUBMIT_INFO};
@@ -783,7 +789,7 @@ public:
         VK_CHECK(vkQueueSubmit(_queue->vkQueue, 1, &submitInfo, fence));
         VK_CHECK(vkWaitForFences(_device->vkDevice, 1, &fence, VK_TRUE, DEFAULT_FENCE_TIMEOUT));
         _commandBufferPool->yield(&_cmdBuff);
-#endif // ASYNC_SUBMISSION
+#endif // ASYNC_COMMAND_SUBMISSION
     }
 
     void depart() {
@@ -818,6 +824,7 @@ private:
     CCVKGPUQueue *_queue = nullptr;
     CCVKGPUFencePool *_fencePool = nullptr;
     CCVKGPUCommandBufferPool *_commandBufferPool = nullptr;
+    CCVKGPUStagingBufferPool *_stagingBufferPool = nullptr;
 
     CCVKGPUCommandBuffer _cmdBuff;
     vector<Transfer> _transfers;

@@ -90,6 +90,8 @@ bool CCVKTexture::initialize(const TextureInfo &info) {
 }
 
 bool CCVKTexture::initialize(const TextureViewInfo &info) {
+    _Type = ObjectType::TEXTURE_VIEW;
+
     if (!info.texture) {
         _status = Status::FAILED;
         return false;
