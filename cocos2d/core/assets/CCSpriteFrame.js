@@ -337,7 +337,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         if (this._texture)
             this._calculateUV();
     },
-    
+
     /**
      * !#en Returns the original size of the trimmed image.
      * !#zh 获取修剪前的原始大小
@@ -446,10 +446,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {SpriteFrame}
      */
     clone: function() {
-        let rect = this._rect ? this.getRect() : null;
-        let offset = this._offset ? this.getOffset() : null;
-        let originalSize = this._originalSize ? this.getOriginalSize() : null;
-        return new SpriteFrame(this._texture, rect, this._rotated, offset, originalSize);
+        return new SpriteFrame(this._texture, this.getRect(), this._rotated, this.getOffset(), this.getOriginalSize());
     },
 
     /**
@@ -645,7 +642,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             _x : this._rect.x,
             _y : this._rect.y
         }
-        
+
         this._texture = frame.texture;
         this._rect.x = frame.x;
         this._rect.y = frame.y;
