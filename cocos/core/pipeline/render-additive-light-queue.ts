@@ -40,6 +40,28 @@ export class RenderAdditiveLightQueue {
     private _validLights: Light[] = [];
     private _lightBuffers: GFXBuffer[] = [];
     private _lightIndices: number[] = [];
+    private _lightSpherePatchHash: number = 0;
+    private _lightSportPatchHash: number = 0;
+
+    /**
+     * @en The constructor
+     * @zh 构造函数。
+     * @param root
+     * @param camera
+     */
+    private constructor () {
+        let res: string = '';
+        for (let i = 0; i < spherePatches.length; ++i) {
+            res += spherePatches[i];
+        }
+        this._lightSpherePatchHash = murmurhash2_32_gc(res, 666);
+
+        res = '';
+        for (let i = 0; i < spotPatches.length; ++i) {
+            res += spotPatches[i];
+        }
+        this._lightSportPatchHash = murmurhash2_32_gc(res, 666);
+    }
 
     /**
      * @zh
@@ -68,10 +90,10 @@ export class RenderAdditiveLightQueue {
                 const light = this._validLights[lightIdx];
                 switch (light.type) {
                     case LightType.SPHERE:
-                        this.attach(renderObj, subModelIdx, this._lightBuffers[lightIdx], lightIdx, pass, spherePatches);
+                        this.attach(renderObj, subModelIdx, this._lightBuffers[lightIdx], lightIdx, pass, spherePatches, 0);
                         break;
                     case LightType.SPOT:
-                        this.attach(renderObj, subModelIdx, this._lightBuffers[lightIdx], lightIdx, pass, spotPatches);
+                        this.attach(renderObj, subModelIdx, this._lightBuffers[lightIdx], lightIdx, pass, spotPatches, 1);
                         break;
                 }
             }
@@ -96,7 +118,9 @@ export class RenderAdditiveLightQueue {
         }
     }
 
-    private attach (renderObj: IRenderObject, subModelIdx: number, lightBuffer: GFXBuffer, lightIdx: number, pass: Pass, patches: IMacroPatch[]) {
+    private attach (renderObj: IRenderObject, subModelIdx: number, lightBuffer: GFXBuffer, lightIdx: number,
+        pass: Pass, patches: IMacroPatch[], pathchIndex: number) {
+        const subModelPatchHash = renderObj.model.subModelPatchHash;
         const subModel = renderObj.model.subModels[subModelIdx];
         const subModelList = this._sortedSubModelsArray[lightIdx];
         const psoCIList = this._sortedPSOCIArray[lightIdx];
@@ -104,7 +128,7 @@ export class RenderAdditiveLightQueue {
         const fullPatches = modelPatches ? patches.concat(modelPatches) : patches;
 
         let psoCI: IPSOCreateInfo;
-        const patcheHash = this.getHash(fullPatches);
+        const patcheHash = subModelPatchHash + pathchIndex < 1 ? this._lightSpherePatchHash : this._lightSportPatchHash;
         if (this._psoCICache.has(patcheHash) && this._psoCISubModelCache.get(patcheHash) === subModel) {
             psoCI = this._psoCICache.get(patcheHash)!;
         } else {
@@ -118,14 +142,5 @@ export class RenderAdditiveLightQueue {
 
         subModelList.push(renderObj.model.subModels[subModelIdx]);
         psoCIList.push(psoCI);
-    }
-
-    private getHash (patch: IMacroPatch[]) {
-        let res: string = '';
-        for (let i = 0; i < patch.length; ++i) {
-            res += patch[i].name;
-        }
-
-        return murmurhash2_32_gc(res, 666);
     }
 }
