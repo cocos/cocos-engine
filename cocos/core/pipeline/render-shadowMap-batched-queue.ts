@@ -30,6 +30,20 @@ export class RenderShadowMapBatchedQueue {
     private _psoCISubModelCache: Map<number, SubModel> = new Map();
 
     private _phaseID = getPhaseID('shadow-add');
+    private _shadowPatchHash: number = 0;
+
+    /**
+     * @en The constructor
+     * @zh 构造函数。
+     * @param root
+     */
+    private constructor () {
+        let res: string = '';
+        for (let i = 0; i < forwardShadowMapPatches.length; ++i) {
+            res += forwardShadowMapPatches[i];
+        }
+        this._shadowPatchHash = murmurhash2_32_gc(res, 666);
+    }
 
     /**
      * @zh
@@ -43,12 +57,13 @@ export class RenderShadowMapBatchedQueue {
 
     public add (pass: Pass, renderObj: IRenderObject, subModelIdx: number) {
         if (pass.phase === this._phaseID) {
+            const subModelPatchHash = renderObj.model.subModelPatchHash;
             const subModel = renderObj.model.subModels[subModelIdx];
             const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
             const fullPatches = modelPatches ? forwardShadowMapPatches.concat(modelPatches) : forwardShadowMapPatches;
 
             let psoCI: IPSOCreateInfo;
-            const patchHash = this.getHash(fullPatches);
+            const patchHash = subModelPatchHash + this._shadowPatchHash;
             if (this._psoCICache.has(subModel) && this._psoCISubModelCache.get(patchHash) === subModel) {
                 psoCI = this._psoCICache.get(subModel)!;
             } else {
@@ -87,14 +102,5 @@ export class RenderShadowMapBatchedQueue {
             cmdBuff.bindInputAssembler(ia);
             cmdBuff.draw(ia);
         }
-    }
-
-    private getHash (patch: IMacroPatch[]) {
-        let res: string = '';
-        for (let i = 0; i < patch.length; ++i) {
-            res += patch[i].name;
-        }
-
-        return murmurhash2_32_gc(res, 666);
     }
 }
