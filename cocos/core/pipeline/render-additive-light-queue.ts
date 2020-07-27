@@ -47,7 +47,6 @@ export class RenderAdditiveLightQueue {
      * @en The constructor
      * @zh 构造函数。
      * @param root
-     * @param camera
      */
     private constructor () {
         let res: string = '';
