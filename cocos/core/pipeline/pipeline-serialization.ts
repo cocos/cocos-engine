@@ -7,7 +7,7 @@ import { ccclass, property } from '../data/class-decorator';
 import { GFXFormat, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXTextureType, GFXTextureUsageBit} from '../gfx/define';
 import { ccenum } from '../value-types/enum';
 import { RenderTexture } from './../assets/render-texture';
-import { Material } from '../assets/Material';
+import { Material } from '../assets/material';
 
 ccenum(GFXTextureType);
 ccenum(GFXTextureUsageBit);
