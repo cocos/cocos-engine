@@ -2,18 +2,18 @@
  * @category pipeline
  */
 import { ccclass, property } from '../data/class-decorator';
-import { RenderFlowType } from './pipeline-serialization';
 import { RenderStage } from './render-stage';
 import { RenderView } from './render-view';
 import { RenderContext } from './render-context';
 import { legacyCC } from '../global-exports';
+import { RenderFlowType } from './pipeline-serialization';
 
 /**
  * @en Render flow information descriptor
  * @zh 渲染流程描述信息。
  */
 export interface IRenderFlowInfo {
-    name?: string;
+    name: string;
     priority: number;
     type?: RenderFlowType;
 }
@@ -33,25 +33,13 @@ export abstract class RenderFlow {
     }
 
     /**
-     * @en The priority of the render flow
-     * @zh 渲染流程的优先级
+     * @en Priority of the current flow
+     * @zh 当前渲染流程的优先级。
      */
     public get priority (): number {
         return this._priority;
     }
 
-    /**
-     * @en All render stages of the current flow
-     * @zh 渲染流程中的所有渲染阶段
-     */
-    public get stages (): RenderStage[] {
-        return this._stages!;
-    }
-
-    /**
-     * @en The type of the current flow
-     * @zh 当前渲染流程的类型
-     */
     public get type (): RenderFlowType {
         return this._type;
     }
@@ -70,19 +58,17 @@ export abstract class RenderFlow {
 
     @property({
         type: RenderFlowType,
-        displayOrder: 3,
+        displayOrder: 2,
         visible: true,
     })
     protected _type: RenderFlowType = RenderFlowType.SCENE;
 
     @property({
         type: [RenderStage],
-        displayOrder: 4,
+        displayOrder: 3,
         visible: true,
     })
     protected _stages: RenderStage[] = [];
-
-    protected _activeStages: RenderStage[] = [];
 
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
@@ -90,10 +76,7 @@ export abstract class RenderFlow {
      * @param info The render flow information
      */
     public initialize (info: IRenderFlowInfo) {
-        if (info.name !== undefined) {
-            this._name = info.name;
-        }
-
+        this._name = info.name;
         this._priority = info.priority;
 
         if (info.type) {
@@ -107,24 +90,12 @@ export abstract class RenderFlow {
      * @param pipeline The render pipeline to activate this render flow
      */
     public activate (rctx: RenderContext) {
-        this._activateStages(rctx);
-    }
+        this._stages.sort((a, b) => {
+            return a.priority - b.priority;
+        });
 
-    /**
-     * @en Destroy function.
-     * @zh 销毁函数。
-     */
-    public abstract destroy ();
-
-    /**
-     * @en Reset the size.
-     * @zh 重置大小。
-     * @param width The screen width
-     * @param height The screen height
-     */
-    public resize (width: number, height: number) {
-        for (let i = 0; i < this._stages.length; i++) {
-            this._stages[i].resize(width, height);
+        for (let i = 0, len = this._stages.length; i < len; i++) {
+            this._stages[i].activate(rctx);
         }
     }
 
@@ -134,60 +105,21 @@ export abstract class RenderFlow {
      * @param view Render view。
      */
     public render (rctx: RenderContext, view: RenderView) {
-        for (let i = 0, len = this._activeStages.length; i < len; i++) {
-            this._activeStages[i].render(rctx, view);
+        for (let i = 0, len = this._stages.length; i < len; i++) {
+            this._stages[i].render(rctx, view);
         }
     }
 
     /**
-     * @en Destroy all render stages
-     * @zh 销毁全部渲染阶段。
+     * @en Destroy function.
+     * @zh 销毁函数。
      */
-    protected destroyStages () {
+    public destroy () {
         for (let i = 0, len = this._stages.length; i < len; i++) {
             this._stages[i].destroy();
         }
+
         this._stages.length = 0;
-        this._activeStages.length = 0;
-    }
-
-    protected addStage (stage: RenderStage) {
-        for (let i = 0, len = this._stages.length; i < len; i++) {
-            if (this._stages[i].name === stage.name) {
-                return
-            }
-        }
-
-        this._stages.push(stage);
-    }
-
-    protected activateStage (stage: RenderStage) {
-        let mStage;
-        for (let i = 0, len = this._stages.length; i < len; i++) {
-            mStage = this._stages[i];
-            if (mStage.name === stage.name) {
-                this._activeStages.push(stage);
-                return
-            }
-        }
-
-        this._activeStages.sort((a, b) => {
-            return a.priority - b.priority;
-        });
-    }
-
-    /**
-     * @en Activate all render stages
-     * @zh 启用所有渲染阶段
-     */
-    protected _activateStages (rctx: RenderContext) {
-        for (let i = 0, len = this._stages.length; i < len; i++) {
-            this._stages[i].activate(rctx, this);
-            this._activeStages.push(this._stages[i]);
-        }
-        this._activeStages.sort((a, b) => {
-            return a.priority - b.priority;
-        });
     }
 }
 

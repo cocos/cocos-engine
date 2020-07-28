@@ -3,21 +3,18 @@
  */
 
 import { ccclass } from '../../data/class-decorator';
-import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXClearFlag, GFXFilter, IGFXColor } from '../../gfx/define';
+import { GFXClearFlag, IGFXColor, IGFXRect } from '../../gfx/define';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
-import { RenderFlow } from '../render-flow';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
-import { RenderContext } from '../render-context';
 import { ForwardRenderContext } from './forward-render-context';
+import { RenderQueue } from '../render-queue';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
-const bufs: GFXCommandBuffer[] = [];
 
 /**
  * @en The forward render stage
@@ -43,6 +40,7 @@ export class ForwardStage extends RenderStage {
         ],
     };
 
+    private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _additiveLightQueue: RenderAdditiveLightQueue;
@@ -54,31 +52,24 @@ export class ForwardStage extends RenderStage {
         this._additiveLightQueue = new RenderAdditiveLightQueue();
     }
 
-    public activate (rctx: RenderContext, flow: RenderFlow) {
-        super.activate(rctx, flow);
+    public activate (rctx: ForwardRenderContext) {
+        super.activate(rctx);
     }
 
     public destroy () {
     }
 
-    public resize (width: number, height: number) {
-    }
-
-    public rebuild (rctx: RenderContext) {
-    }
-
-    public render (rctx: RenderContext, view: RenderView) {
+    public render (rctx: ForwardRenderContext, view: RenderView) {
         this._instancedQueue.clear();
         this._batchedQueue.clear();
-        const ctx = rctx as ForwardRenderContext;
-        const validLights = ctx.validLights;
-        const lightBuffers = ctx.lightBuffers;
-        const lightIndices = ctx.lightIndices;
+        const validLights = rctx.validLights;
+        const lightBuffers = rctx.lightBuffers;
+        const lightIndices = rctx.lightIndices;
         this._additiveLightQueue.clear(validLights, lightBuffers, lightIndices);
         this._renderQueues.forEach(this.renderQueueClearFunc);
 
-        const renderObjects = ctx.renderObjects;
-        const lightIndexOffset = ctx.lightIndexOffsets;
+        const renderObjects = rctx.renderObjects;
+        const lightIndexOffset = rctx.lightIndexOffsets;
         let m = 0; let p = 0; let k = 0;
         for (let i = 0; i < renderObjects.length; ++i) {
             const nextLightIndex = i + 1 < renderObjects.length ? lightIndexOffset[i + 1] : lightIndices.length;
@@ -120,18 +111,18 @@ export class ForwardStage extends RenderStage {
 
         const camera = view.camera;
 
-        const cmdBuff = ctx.commandBuffers[0];
+        const cmdBuff = rctx.commandBuffers[0];
 
         const vp = camera.viewport;
         this._renderArea!.x = vp.x * camera.width;
         this._renderArea!.y = vp.y * camera.height;
-        this._renderArea!.width = vp.width * camera.width * ctx.shadingScale;
-        this._renderArea!.height = vp.height * camera.height * ctx.shadingScale;
+        this._renderArea!.width = vp.width * camera.width * rctx.shadingScale;
+        this._renderArea!.height = vp.height * camera.height * rctx.shadingScale;
 
         if (camera.clearFlag & GFXClearFlag.COLOR) {
-            if (ctx.isHDR) {
+            if (rctx.isHDR) {
                 SRGBToLinear(colors[0], camera.clearColor);
-                const scale = ctx.fpScale / camera.exposure;
+                const scale = rctx.fpScale / camera.exposure;
                 colors[0].r *= scale;
                 colors[0].g *= scale;
                 colors[0].b *= scale;
@@ -144,17 +135,9 @@ export class ForwardStage extends RenderStage {
 
         colors[0].a = camera.clearColor.a;
 
-        let framebuffer = view.window.framebuffer;
-        if (ctx.usePostProcess) {
-            if (!ctx.useMSAA) {
-                framebuffer = ctx.getFrameBuffer(ctx.currShading)!;
-            } else {
-                framebuffer = ctx.getFrameBuffer('msaa')!;
-            }
-        }
-
-        const device = ctx.device!;
-        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : ctx.getRenderPass(camera.clearFlag);
+        const framebuffer = view.window.framebuffer;
+        const device = rctx.device;
+        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : rctx.getRenderPass(camera.clearFlag);
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
@@ -170,15 +153,24 @@ export class ForwardStage extends RenderStage {
         cmdBuff.endRenderPass();
         cmdBuff.end();
 
-        device.queue.submit(ctx.commandBuffers);
+        device.queue.submit(rctx.commandBuffers);
+    }
 
-        if (ctx.useMSAA) {
-            device.blitFramebuffer(
-                this._framebuffer!,
-                ctx.getFrameBuffer(ctx.currShading)!,
-                this._renderArea!,
-                this._renderArea!,
-                GFXFilter.POINT);
-        }
+    /**
+     * @en Clear the given render queue
+     * @zh 清空指定的渲染队列
+     * @param rq The render queue
+     */
+    protected renderQueueClearFunc (rq: RenderQueue) {
+        rq.clear();
+    }
+
+    /**
+     * @en Sort the given render queue
+     * @zh 对指定的渲染队列执行排序
+     * @param rq The render queue
+     */
+    protected renderQueueSortFunc (rq: RenderQueue) {
+        rq.sort();
     }
 }

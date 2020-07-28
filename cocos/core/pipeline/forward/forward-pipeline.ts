@@ -2,12 +2,13 @@
  * @category pipeline
  */
 
-import { ccclass } from '../../data/class-decorator';
+import { ccclass, property } from '../../data/class-decorator';
 import { RenderPipeline } from '../render-pipeline';
 import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
-import { ToneMapFlow } from '../ppfx/tonemap-flow';
 import { Root } from '../../root';
+import { ForwardRenderContext } from './forward-render-context';
+import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 
 /**
  * @en The forward render pipeline
@@ -15,11 +16,20 @@ import { Root } from '../../root';
  */
 @ccclass('ForwardPipeline')
 export class ForwardPipeline extends RenderPipeline {
+    @property({
+        type: [RenderTextureConfig],
+    })
+    public renderTextures: RenderTextureConfig[] = [];
+    @property({
+        type: [MaterialConfig],
+    })
+    public materials: MaterialConfig[] = [];
+
     public initialize () {
         super.initialize();
         const forwardFlow = new ForwardFlow();
         forwardFlow.initialize(ForwardFlow.initInfo);
-        this.addFlow(forwardFlow);
+        this._flows.push(forwardFlow);
     }
 
     public activate (root: Root): boolean {
@@ -27,24 +37,24 @@ export class ForwardPipeline extends RenderPipeline {
             return false;
         }
 
-        const rctx = this._renderContext;
-
-        if (rctx.usePostProcess) {
-            const tonemapFlow = new ToneMapFlow();
-            tonemapFlow.initialize(ForwardFlow.initInfo);
-            this.addFlow(tonemapFlow);
-            tonemapFlow.activate(rctx);
+        if (!this._renderContext.initialize(this)) {
+            console.error('ForwardPipeline startup failed!');
+            return false;
         }
 
         const uiFlow = new UIFlow();
         uiFlow.initialize(UIFlow.initInfo);
-        this.addFlow(uiFlow);
-        uiFlow.activate(rctx);
+        this._flows.push(uiFlow);
+        uiFlow.activate(this._renderContext);
 
         return true;
     }
 
     public destroy () {
-        this._destroy();
+        super.destroy();
+    }
+
+    protected getRenderContext () {
+        return new ForwardRenderContext();
     }
 }

@@ -3,11 +3,12 @@
  */
 
 import { ForwardFlowPriority } from '../forward/enum';
-import { RenderFlowType } from '../pipeline-serialization';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { UIStage } from './ui-stage';
-import { RenderContext } from '../render-context';
+import { ForwardRenderContext } from '../forward/forward-render-context';
+import { RenderFlowType } from '../pipeline-serialization';
+import { sceneCulling } from '../forward/scene-culling';
 
 /**
  * @en The UI render flow
@@ -27,22 +28,19 @@ export class UIFlow extends RenderFlow {
 
         const uiStage = new UIStage();
         uiStage.initialize(UIStage.initInfo);
-        this.addStage(uiStage);
+        this._stages.push(uiStage);
 
         return true;
     }
 
     public destroy () {
-        this.destroyStages();
+        super.destroy();
     }
 
-    public rebuild (rctx: RenderContext) {
-    }
-
-    public render (rctx: RenderContext, view: RenderView) {
+    public render (rctx: ForwardRenderContext, view: RenderView) {
         view.camera.update();
-        rctx.sceneCulling(view);
-        rctx.updateUBO(view);
+        sceneCulling(rctx, view);
+        rctx.updateUBOs(view);
         super.render(rctx, view);
     }
 }

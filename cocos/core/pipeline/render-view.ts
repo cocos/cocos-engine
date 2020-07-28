@@ -182,14 +182,16 @@ export class RenderView {
     public setExecuteFlows (flows: string[] | undefined) {
         this.flows.length = 0;
         const pipeline = legacyCC.director.root.pipeline;
+        const pipelineFlows = pipeline.flows;
         if (flows && flows.length === 1 && flows[0] === 'UIFlow') {
-            const flow = pipeline.getFlow('UIFlow');
-            if (flow) {
-                this._flows.push(flow);
+            for (let i = 0; i < pipelineFlows.length; i++) {
+                if (pipelineFlows[i].name === 'UIFlow') {
+                    this.flows.push(pipelineFlows[i]);
+                    break
+                }
             }
             return;
         }
-        const pipelineFlows = pipeline.activeFlows;
         for (let i = 0; i < pipelineFlows.length; ++i) {
             const f = pipelineFlows[i];
             if (f.type === RenderFlowType.SCENE || (flows && flows.indexOf(f.name) !== -1)) {

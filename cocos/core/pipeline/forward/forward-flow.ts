@@ -8,7 +8,9 @@ import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { ForwardFlowPriority } from './enum';
 import { ForwardStage } from './forward-stage';
-import { RenderContext } from '../render-context';
+import { ForwardRenderContext } from './forward-render-context';
+import { sceneCulling } from './scene-culling';
+
 /**
  * @en The forward flow in forward render pipeline
  * @zh 前向渲染流程。
@@ -30,20 +32,17 @@ export class ForwardFlow extends RenderFlow {
 
         const forwardStage = new ForwardStage();
         forwardStage.initialize(ForwardStage.initInfo);
-        this.addStage(forwardStage);
+        this._stages.push(forwardStage);
     }
 
-    public render (rctx: RenderContext, view: RenderView) {
+    public render (rctx: ForwardRenderContext, view: RenderView) {
         view.camera.update();
-        rctx.sceneCulling(view);
-        rctx.updateUBO(view);
+        sceneCulling(rctx, view);
+        rctx.updateUBOs(view);
         super.render(rctx, view);
     }
 
     public destroy () {
-        this.destroyStages();
-    }
-
-    public rebuild (rctx: RenderContext) {
+        super.destroy();
     }
 }

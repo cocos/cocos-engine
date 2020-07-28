@@ -4,21 +4,13 @@
 
 import { CCString } from '../data';
 import { ccclass, property } from '../data/class-decorator';
-import { GFXCommandBuffer } from '../gfx/command-buffer';
-import { GFXCommandBufferType, IGFXColor, IGFXRect } from '../gfx/define';
-import { GFXFramebuffer } from '../gfx/framebuffer';
 import { ccenum } from '../value-types/enum';
 import { IRenderPass } from './define';
 import { getPhaseID } from './pass-phase';
-import { RenderFlow } from './render-flow';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from './render-queue';
 import { RenderView } from './render-view';
-import { IPSOCreateInfo } from '../renderer';
 import { legacyCC } from '../global-exports';
 import { RenderContext } from './render-context';
-
-const _colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
-const bufs: GFXCommandBuffer[] = [];
 
 export enum RenderQueueSortMode {
     FRONT_TO_BACK,
@@ -32,10 +24,9 @@ ccenum(RenderQueueSortMode);
  * @zh 渲染阶段描述信息。
  */
 export interface IRenderStageInfo {
-    name?: string;
+    name: string;
     priority: number;
     renderQueues?: RenderQueueDesc[];
-    framebuffer?: string;
 }
 
 /**
@@ -85,18 +76,6 @@ export abstract class RenderStage {
     }
 
     /**
-     * @en The frame buffer used by the current stage
-     * @zh 当前渲染阶段所使用的帧缓冲
-     */
-    public get framebuffer (): GFXFramebuffer | null {
-        return this._framebuffer;
-    }
-
-    public get name (): string {
-        return this._name;
-    }
-
-    /**
      * @en Name
      * @zh 名称。
      */
@@ -113,39 +92,13 @@ export abstract class RenderStage {
     protected _priority: number = 0;
 
     @property({
-        displayOrder: 2,
-        visible: true,
-    })
-    protected frameBuffer: string = '';
-
-    @property({
         type: [RenderQueueDesc],
-        displayOrder: 3,
+        displayOrder: 2,
         visible: true,
     })
     protected renderQueues: RenderQueueDesc[] = [];
 
     protected _renderQueues: RenderQueue[] = [];
-
-    protected _framebuffer: GFXFramebuffer | null = null;
-
-    /**
-     * @en The list of clear colors
-     * @zh 清空颜色数组。
-     */
-    protected _clearColors: IGFXColor[] | null = null;
-
-    /**
-     * @en The render area rect
-     * @zh 渲染区域。
-     */
-    protected _renderArea: IGFXRect | null = null;
-
-    /**
-     * @en The pipeline state object.
-     * @zh GFX管线状态。
-     */
-    protected _psoCreateInfo: IPSOCreateInfo | null = null;
 
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
@@ -159,10 +112,6 @@ export abstract class RenderStage {
 
         this._priority = info.priority;
 
-        if (info.framebuffer) {
-            this.frameBuffer = info.framebuffer;
-        }
-
         if (info.renderQueues) {
             this.renderQueues = info.renderQueues;
         }
@@ -175,13 +124,10 @@ export abstract class RenderStage {
      * @zh 为指定的渲染流程开启当前渲染阶段
      * @param flow The render flow to activate this render stage
      */
-    public activate (rctx: RenderContext, flow: RenderFlow) {
+    public activate (rctx: RenderContext) {
         if (!rctx.device) {
             throw new Error('');
         }
-
-        this._clearColors = [{ r: 0.3, g: 0.6, b: 0.9, a: 1.0 }];
-        this._renderArea = { x: 0, y: 0, width: 0, height: 0 };
 
         for (let i = 0; i < this.renderQueues.length; i++) {
             let phase = 0;
@@ -197,17 +143,12 @@ export abstract class RenderStage {
                     sortFunc = opaqueCompareFn;
                     break;
             }
+
             this._renderQueues[i] = new RenderQueue({
                 isTransparent: this.renderQueues[i].isTransparent,
                 phases: phase,
                 sortFunc,
             });
-        }
-
-        if (this.frameBuffer === 'window') {
-            this._framebuffer = rctx.mainWindow!.framebuffer!;
-        } else {
-            this._framebuffer = rctx.getFrameBuffer(this.frameBuffer)!;
         }
     }
 
@@ -223,32 +164,6 @@ export abstract class RenderStage {
      * @param view The render view
      */
     public abstract render (rctx: RenderContext, view: RenderView);
-
-    /**
-     * @en Reset the size.
-     * @zh 重置大小。
-     * @param width The screen width
-     * @param height The screen height
-     */
-    public abstract resize (width: number, height: number);
-
-    /**
-     * @en Clear the given render queue
-     * @zh 清空指定的渲染队列
-     * @param rq The render queue
-     */
-    protected renderQueueClearFunc (rq: RenderQueue) {
-        rq.clear();
-    }
-
-    /**
-     * @en Sort the given render queue
-     * @zh 对指定的渲染队列执行排序
-     * @param rq The render queue
-     */
-    protected renderQueueSortFunc (rq: RenderQueue) {
-        rq.sort();
-    }
 }
 
 legacyCC.RenderStage = RenderStage;

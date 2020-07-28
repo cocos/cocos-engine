@@ -2,15 +2,12 @@
  * @category pipeline
  */
 
-import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { IGFXColor } from '../../gfx/define';
-import { RenderFlow } from '../render-flow';
+import { IGFXColor, IGFXRect } from '../../gfx/define';
 import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
-import { RenderContext } from '../render-context';
+import { ForwardRenderContext } from '../forward/forward-render-context';
 import { ForwardStagePriority } from '../forward/enum';
 
-const bufs: GFXCommandBuffer[] = [];
 const colors: IGFXColor[] = [];
 
 /**
@@ -18,7 +15,6 @@ const colors: IGFXColor[] = [];
  * @zh UI渲阶段。
  */
 export class UIStage extends RenderStage {
-
     public static initInfo: IRenderStageInfo = {
         name: 'UIStage',
         priority: ForwardStagePriority.UI,
@@ -27,27 +23,22 @@ export class UIStage extends RenderStage {
             stages: ['default'],
             sortMode: RenderQueueSortMode.BACK_TO_FRONT,
         }],
-        framebuffer: 'window',
     };
 
-    public activate (rctx: RenderContext, flow: RenderFlow) {
-        super.activate(rctx, flow);
+    private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
+
+    public activate (rctx: ForwardRenderContext) {
+        super.activate(rctx);
     }
 
     public destroy () {
     }
 
-    public resize (width: number, height: number) {
-    }
-
-    public rebuild () {
-    }
-
-    public render (rctx: RenderContext, view: RenderView) {
+    public render (rctx: ForwardRenderContext, view: RenderView) {
         const isHDR = rctx.isHDR;
         rctx.isHDR = false;
 
-        const device = rctx.device;
+        const device = rctx.device!;
         this._renderQueues[0].clear();
 
         for (const ro of rctx.renderObjects) {
@@ -77,7 +68,7 @@ export class UIStage extends RenderStage {
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
             [camera.clearColor], camera.clearDepth, camera.clearStencil);
 
-        this._renderQueues[0].recordCommandBuffer(device, this._framebuffer!.renderPass!, cmdBuff);
+        this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();
         cmdBuff.end();
