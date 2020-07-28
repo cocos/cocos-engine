@@ -3,7 +3,6 @@
  */
 
 import { Camera } from '../renderer/scene/camera';
-import { Root } from '../root';
 import { CAMERA_DEFAULT_MASK } from './define';
 import { RenderFlowType } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
@@ -118,13 +117,6 @@ export class RenderView {
         return this._flows;
     }
 
-    /**
-     * Internal usage
-     */
-    public static registerCreateFunc (root: Root) {
-        root._createViewFun = (_root: Root, _camera: Camera): RenderView => new RenderView(_camera);
-    }
-
     private _name: string = '';
     private _window: RenderWindow | null = null;
     private _priority: number = 0;
@@ -136,10 +128,9 @@ export class RenderView {
     /**
      * @en The constructor
      * @zh 构造函数。
-     * @param root
      * @param camera
      */
-    private constructor (camera: Camera) {
+    public constructor (camera: Camera) {
         this._camera = camera;
     }
 

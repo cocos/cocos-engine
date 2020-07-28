@@ -174,7 +174,6 @@ export class Root {
     }
 
     public _createSceneFun: (root: Root) => RenderScene = null!;
-    public _createViewFun: (root: Root, camera: Camera) => RenderView = null!;
     public _createWindowFun: (root: Root) => RenderWindow = null!;
 
     private _device: GFXDevice;
@@ -207,7 +206,6 @@ export class Root {
         this._dataPoolMgr = new DataPoolManager(device);
 
         RenderScene.registerCreateFunc(this);
-        RenderView.registerCreateFunc(this);
         RenderWindow.registerCreateFunc(this);
 
         this._cameraPool = new Pool(() => new Camera(this._device), 4);
@@ -456,7 +454,7 @@ export class Root {
      * @param info 渲染视图描述信息
      */
     public createView (info: IRenderViewInfo): RenderView {
-        const view: RenderView = this._createViewFun(this, info.camera);
+        const view: RenderView = new RenderView(info.camera);
         view.initialize(info);
         // view.camera.resize(cc.game.canvas.width, cc.game.canvas.height);
         this._views.push(view);
