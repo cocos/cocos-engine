@@ -1,4 +1,4 @@
-import { instantiate } from '../framework/physics-selector';
+import { registerSelectorCB } from '../framework/physics-selector';
 import { AmmoRigidBody } from './ammo-rigid-body';
 import { AmmoWorld } from '../ammo/ammo-world';
 import { AmmoBoxShape } from '../ammo/shapes/ammo-box-shape';
@@ -16,24 +16,27 @@ import { AmmoHingeConstraint } from './constraints/ammo-hinge-constraint';
 
 import { PhysicsSystem } from '../framework';
 
-if (PhysicsSystem.PHYSICS_AMMO) {
-    instantiate({
-        PhysicsWorld: AmmoWorld,
-        RigidBody: AmmoRigidBody,
+registerSelectorCB(() => {
+    if (PhysicsSystem.PHYSICS_AMMO) {
+        return {
+            PhysicsWorld: AmmoWorld,
+            RigidBody: AmmoRigidBody,
 
-        BoxShape: AmmoBoxShape,
-        SphereShape: AmmoSphereShape,
-        CapsuleShape: AmmoCapsuleShape,
-        TrimeshShape: AmmoBvhTriangleMeshShape,
-        CylinderShape: AmmoCylinderShape,
-        ConeShape: AmmoConeShape,
-        TerrainShape: AmmoTerrainShape,
-        SimplexShape: AmmoSimplexShape,
-        PlaneShape: AmmoPlaneShape,
+            BoxShape: AmmoBoxShape,
+            SphereShape: AmmoSphereShape,
+            CapsuleShape: AmmoCapsuleShape,
+            TrimeshShape: AmmoBvhTriangleMeshShape,
+            CylinderShape: AmmoCylinderShape,
+            ConeShape: AmmoConeShape,
+            TerrainShape: AmmoTerrainShape,
+            SimplexShape: AmmoSimplexShape,
+            PlaneShape: AmmoPlaneShape,
 
-        PointToPointConstraint: AmmoPointToPointConstraint,
-        HingeConstraint: AmmoHingeConstraint,
-    });
-}
+            PointToPointConstraint: AmmoPointToPointConstraint,
+            HingeConstraint: AmmoHingeConstraint,
+        }
+    }
+    return null;
+});
 
 import './deprecated';

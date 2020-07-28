@@ -485,16 +485,33 @@ export class PhysicsSystem extends System {
 }
 
 import { legacyCC } from '../../core/global-exports';
+import { initPhysicsSelector } from './physics-selector';
 
-if (globalThis && globalThis['_CCSettings']) {
-    const physics: IPhysicsConfig = globalThis['_CCSettings'].physics;
-    (PhysicsSystem['physicsEngine'] as any) = physics.physicsEngine;
+director.once(Director.EVENT_INIT, function () {
+    initPhysicsMacro();
+    initPhysicsSelector();
+    initPhysicsSystem();
+});
+
+function initPhysicsMacro () {
+    let PHYSICS_ENGINE = PhysicsSystem.physicsEngine;
+    if (globalThis && globalThis['_CCSettings']) {
+        const physics: { physicsEngine: string } = globalThis['_CCSettings'].physics;
+        if (physics) PHYSICS_ENGINE = physics.physicsEngine;
+    } else if (game.config && game.config.physics) {
+        const physics: { physicsEngine: string } = game.config.physics;
+        if (physics) PHYSICS_ENGINE = physics.physicsEngine;
+    }
+    globalThis['CC_PHYSICS_BUILTIN'] = PHYSICS_ENGINE == "physics-builtin";
+    globalThis['CC_PHYSICS_CANNON'] = PHYSICS_ENGINE == "physics-cannon";
+    globalThis['CC_PHYSICS_AMMO'] = PHYSICS_ENGINE == "physics-ammo";
+    (PhysicsSystem.physicsEngine as any) = PHYSICS_ENGINE;
 }
 
-if (!PhysicsSystem.PHYSICS_NONE) {
-    director.on(Director.EVENT_INIT, function () {
+function initPhysicsSystem () {
+    if (!PhysicsSystem.PHYSICS_NONE) {
         const sys = new legacyCC.PhysicsSystem();
         legacyCC.PhysicsSystem._instance = sys;
         director.registerSystem(PhysicsSystem.ID, sys, 0);
-    });
+    }
 }

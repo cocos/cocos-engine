@@ -1,5 +1,5 @@
 
-import { instantiate } from '../framework/physics-selector';
+import { registerSelectorCB } from '../framework/physics-selector';
 
 import { CannonRigidBody } from './cannon-rigid-body';
 import { CannonWorld } from './cannon-world';
@@ -18,23 +18,26 @@ import { CannonHingeConstraint } from './constraints/cannon-hinge-constraint';
 
 import { PhysicsSystem } from '../framework';
 
-if (PhysicsSystem.PHYSICS_CANNON) {
-    instantiate({
-        PhysicsWorld: CannonWorld,
-        RigidBody: CannonRigidBody,
+registerSelectorCB(() => {
+    if (PhysicsSystem.PHYSICS_CANNON) {
+        return {
+            PhysicsWorld: CannonWorld,
+            RigidBody: CannonRigidBody,
 
-        BoxShape: CannonBoxShape,
-        SphereShape: CannonSphereShape,
-        TrimeshShape: CannonTrimeshShape,
-        CylinderShape: CannonCylinderShape,
-        ConeShape: CannonConeShape,
-        TerrainShape: CannonTerrainShape,
-        SimplexShape: CannonSimplexShape,
-        PlaneShape: CannonPlaneShape,
+            BoxShape: CannonBoxShape,
+            SphereShape: CannonSphereShape,
+            TrimeshShape: CannonTrimeshShape,
+            CylinderShape: CannonCylinderShape,
+            ConeShape: CannonConeShape,
+            TerrainShape: CannonTerrainShape,
+            SimplexShape: CannonSimplexShape,
+            PlaneShape: CannonPlaneShape,
 
-        PointToPointConstraint: CannonPointToPointConstraint,
-        HingeConstraint: CannonHingeConstraint,
-    });
-}
+            PointToPointConstraint: CannonPointToPointConstraint,
+            HingeConstraint: CannonHingeConstraint,
+        }
+    }
+    return null;
+});
 
 import './deprecated';

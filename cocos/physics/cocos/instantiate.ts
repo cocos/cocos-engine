@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { instantiate } from '../framework/physics-selector';
+import { registerSelectorCB } from '../framework/physics-selector';
 import { BuiltInWorld } from './builtin-world';
 import { BuiltinRigidBody } from './builtin-rigid-body';
 import { BuiltinBoxShape } from './shapes/builtin-box-shape';
@@ -11,16 +11,17 @@ import { BuiltinCapsuleShape } from './shapes/builtin-capsule-shape';
 
 import { PhysicsSystem } from '../framework';
 
-if (PhysicsSystem.PHYSICS_BUILTIN) {
-    instantiate(
-        {
+registerSelectorCB(() => {
+    if (PhysicsSystem.PHYSICS_BUILTIN) {
+        return {
             RigidBody: BuiltinRigidBody,
             BoxShape: BuiltinBoxShape,
             SphereShape: BuiltinSphereShape,
             PhysicsWorld: BuiltInWorld,
             CapsuleShape: BuiltinCapsuleShape
         }
-    );
-}
+    }
+    return null;
+});
 
 import './deprecated';
