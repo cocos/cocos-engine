@@ -175,7 +175,7 @@ export class ToggleComponent extends ButtonComponent {
 
     public onEnable () {
         super.onEnable();
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this._registerToggleEvent();
         }
 
@@ -186,7 +186,7 @@ export class ToggleComponent extends ButtonComponent {
 
     public onDisable () {
         super.onDisable();
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this._unregisterToggleEvent();
         }
         if (this._toggleGroup && this._toggleGroup.enabled) {

@@ -1,24 +1,41 @@
 import { RenderContext } from '../render-context';
-import { Light } from '../../renderer';
+import { Light, genSamplerHash, samplerLib } from '../../renderer';
 import { GFXBuffer } from '../../gfx/buffer';
 import { LightType } from '../../renderer/scene/light';
 import { SphereLight } from '../../renderer/scene/sphere-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
 import { ForwardPipeline } from './forward-pipeline';
-import { IRenderObject, UBOGlobal, UBOShadow,
-    UNIFORM_ENVIRONMENT, UBOForwardLight, RenderPassStage} from '../define';
-import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit, GFXStoreOp, GFXCommandBufferType, GFXClearFlag } from '../../gfx/define';
+import { IRenderObject, UBOGlobal, UBOShadow, UBOPCFShadow,
+    UNIFORM_ENVIRONMENT, UBOForwardLight, RenderPassStage, UNIFORM_SHADOWMAP} from '../define';
+import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit,
+    GFXStoreOp, GFXCommandBufferType, GFXClearFlag, GFXFilter, GFXAddress } from '../../gfx/define';
 import { RenderTexture } from '../../assets/render-texture';
 import { Material } from '../../assets/material';
 import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
-import { Mat4, Vec3, Vec4 } from '../../math';
+import { Mat4, Vec3, Vec2, Quat, Vec4 } from '../../math';
 import { Root } from '../../root';
 import { GFXFeature } from '../../gfx/device';
+import { GFXFramebuffer } from '../../gfx/framebuffer';
 
 const _vec4Array = new Float32Array(4);
+const shadowCamera_W_P = new Vec3();
+const shadowCamera_W_R = new Quat();
+const shadowCamera_W_S = new Vec3();
+const shadowCamera_W_T = new Mat4();
+
+const shadowCamera_M_V = new Mat4();
+const shadowCamera_M_P = new Mat4();
+const shadowCamera_M_V_P = new Mat4();
+
+// Define shadwoMapCamera
+const shadowCamera_Near = 0.1;
+const shadowCamera_Far = 1000.0;
+const shadowCamera_Fov = 45.0;
+const shadowCamera_Aspect = 1.0;
+const shadowCamera_OrthoSize = 20.0;
 
 export class ForwardRenderContext extends RenderContext {
     /**
@@ -76,6 +93,23 @@ export class ForwardRenderContext extends RenderContext {
     public get fpScale (): number {
         return this._fpScale;
     }
+
+    /**
+     * @zh
+     * 获取阴影UBO。
+     */
+    public  get shadowUBOBuffer (){
+        return this.globalBindings.get(UBOPCFShadow.BLOCK.name)!.buffer!;
+    }
+
+    /**
+     * @zh
+     * 获取阴影贴图分辨率
+     */
+    public get shadowMapSize () {
+        return this._shadowMapSize;
+    }
+
     /**
      * @en The list for render objects, only available after the scene culling of the current frame.
      * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
@@ -96,6 +130,9 @@ export class ForwardRenderContext extends RenderContext {
     protected _fpScale: number = 1.0 / 1024.0;
     protected _renderPasses = new Map<GFXClearFlag, GFXRenderPass>();
     protected _root: Root | null = null;
+    protected _uboPCFShadow: UBOPCFShadow = new UBOPCFShadow();
+    protected _shadowFrameBuffer: GFXFramebuffer|null = null;
+    protected _shadowMapSize: Vec2 = new Vec2(512, 512);
 
     /**
      * @en Add a render pass.
@@ -221,6 +258,39 @@ export class ForwardRenderContext extends RenderContext {
         this._updateUBO(view);
         const exposure = view.camera.exposure;
         const lightMeterScale = this._lightMeterScale;
+        const mainLight = view.camera.scene!.mainLight;
+        const device = this.device;
+
+        if (mainLight) {
+            shadowCamera_W_P.set(mainLight!.node!.getWorldPosition());
+            shadowCamera_W_R.set(mainLight!.node!.getWorldRotation());
+            shadowCamera_W_S.set(mainLight!.node!.getWorldScale());
+
+            // world Transfrom
+            Mat4.fromRTS(shadowCamera_W_T, shadowCamera_W_R, shadowCamera_W_P, shadowCamera_W_S);
+
+            // camera view
+            Mat4.invert(shadowCamera_M_V, shadowCamera_W_T);
+
+            // camera proj
+            // Mat4.perspective(shadowCamera_M_P, shadowCamera_Fov, shadowCamera_Aspect, shadowCamera_Near, shadowCamera_Far);
+            const x = shadowCamera_OrthoSize * shadowCamera_Aspect;
+            const y = shadowCamera_OrthoSize;
+            Mat4.ortho(shadowCamera_M_P, -x, x, -y, y, shadowCamera_Near, shadowCamera_Far,
+                 device.clipSpaceMinZ, device.screenSpaceSignY);
+
+            // camera viewProj
+            Mat4.multiply(shadowCamera_M_V_P, shadowCamera_M_P, shadowCamera_M_V);
+
+            Mat4.toArray(this._uboGlobal.view, shadowCamera_M_V_P, UBOGlobal.MAIN_SHADOW_MATRIX_OFFSET);
+            // update ubos
+            this.globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._uboGlobal.view);
+        }
+
+        // Fill Shadow UBO
+        // Fill cc_shadowMatViewProj
+        Mat4.toArray(this._uboPCFShadow.view, shadowCamera_M_V_P, UBOPCFShadow.MAT_SHADOW_VIEW_PROJ_OFFSET);
+        this.globalBindings.get(UBOPCFShadow.BLOCK.name)!.buffer!.update(this._uboPCFShadow.view);
 
         // Fill UBOForwardLight, And update LightGFXBuffer[light_index]
         for(let l = 0; l < this.validLights.length; ++l) {
@@ -290,39 +360,72 @@ export class ForwardRenderContext extends RenderContext {
 
     private _createUBOs (): boolean {
         const device = this.device!;
-        if (!this.globalBindings.get(UBOGlobal.BLOCK.name)) {
+        const globalBindings = this.globalBindings;
+        if (!globalBindings.get(UBOGlobal.BLOCK.name)) {
             const globalUBO = device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: UBOGlobal.SIZE,
             });
 
-            this.globalBindings.set(UBOGlobal.BLOCK.name, {
+            globalBindings.set(UBOGlobal.BLOCK.name, {
                 type: GFXBindingType.UNIFORM_BUFFER,
                 blockInfo: UBOGlobal.BLOCK,
                 buffer: globalUBO,
             });
         }
 
-        if (!this.globalBindings.get(UBOShadow.BLOCK.name)) {
+        if (!globalBindings.get(UBOShadow.BLOCK.name)) {
             const shadowUBO = device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: UBOShadow.SIZE,
             });
 
-            this.globalBindings.set(UBOShadow.BLOCK.name, {
+            globalBindings.set(UBOShadow.BLOCK.name, {
                 type: GFXBindingType.UNIFORM_BUFFER,
                 blockInfo: UBOShadow.BLOCK,
                 buffer: shadowUBO,
             });
         }
 
-        if (!this.globalBindings.get(UNIFORM_ENVIRONMENT.name)) {
-            this.globalBindings.set(UNIFORM_ENVIRONMENT.name, {
+        if (!globalBindings.get(UNIFORM_ENVIRONMENT.name)) {
+            globalBindings.set(UNIFORM_ENVIRONMENT.name, {
                 type: GFXBindingType.SAMPLER,
                 samplerInfo: UNIFORM_ENVIRONMENT,
             });
+        }
+
+        if (!globalBindings.get(UBOPCFShadow.BLOCK.name)) {
+            const shadowPCFUBO = device.createBuffer({
+                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                size: UBOPCFShadow.SIZE,
+            });
+
+            globalBindings.set(UBOPCFShadow.BLOCK.name, {
+                type: GFXBindingType.UNIFORM_BUFFER,
+                blockInfo: UBOPCFShadow.BLOCK,
+                buffer: shadowPCFUBO,
+            });
+        }
+
+        if (!globalBindings.get(UNIFORM_SHADOWMAP.name)) {
+            globalBindings.set(UNIFORM_SHADOWMAP.name, {
+                type: GFXBindingType.SAMPLER,
+                samplerInfo: UNIFORM_SHADOWMAP,
+            });
+            const shadowMapSamplerHash = genSamplerHash([
+                GFXFilter.LINEAR,
+                GFXFilter.LINEAR,
+                GFXFilter.NONE,
+                GFXAddress.CLAMP,
+                GFXAddress.CLAMP,
+                GFXAddress.CLAMP,
+            ]);
+            const shadowmapUniform = globalBindings.get(UNIFORM_SHADOWMAP.name);
+            const sampler = samplerLib.getSampler(device, shadowMapSamplerHash);
+            shadowmapUniform!.sampler = sampler;
         }
 
         return true;

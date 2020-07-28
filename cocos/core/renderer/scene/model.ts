@@ -18,12 +18,18 @@ import { IGFXAttribute } from '../../gfx';
 import { SubModel, IPSOCreateInfo } from './submodel';
 import { Pass, IMacroPatch } from '../core/pass';
 import { legacyCC } from '../../global-exports';
+import { InstancedBuffer } from '../../pipeline/instanced-buffer';
+import { BatchingSchemes } from '../core/pass';
 
 const m4_1 = new Mat4();
 
 const _subMeshPool = new Pool(() => {
     return new SubModel();
 }, 32);
+
+const shadowMap_Patches: IMacroPatch[]= [
+    { name: 'CC_SHADOW', value: true },
+];
 
 export interface IInstancedAttribute {
     name: string;
@@ -113,6 +119,7 @@ export class Model {
     public enabled: boolean = true;
     public visFlags = Layers.Enum.NONE;
     public castShadow = false;
+    public receiveShadow = true;
     public isDynamicBatching = false;
     public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, list: [] };
 
@@ -309,6 +316,8 @@ export class Model {
     }
 
     public getMacroPatches (subModelIndex: number) : IMacroPatch[] | undefined {
+        if (this.receiveShadow)
+            return shadowMap_Patches;
         return undefined;
     }
 
@@ -333,7 +342,7 @@ export class Model {
             const isNormalized = attribute.isNormalized;
             offset += info.size; attrs.list.push({ name: attribute.name, format, isNormalized, view });
         }
-        if (pass.instancedBuffer) { pass.instancedBuffer.destroy(); } // instancing IA changed
+        if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass).destroy(); } // instancing IA changed
         this._instMatWorldIdx = this.getInstancedAttributeIndex(INST_MAT_WORLD);
         this._transformUpdated = true;
     }

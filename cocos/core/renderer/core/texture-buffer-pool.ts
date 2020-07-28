@@ -150,7 +150,7 @@ export class TextureBufferPool {
             format: this._format,
             width: length,
             height: length,
-            mipLevel: 1,
+            levelCount: 1,
         });
 
         const chunk: ITextureBuffer = {

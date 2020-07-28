@@ -3,7 +3,7 @@
  */
 
 import { ccclass } from '../../data/class-decorator';
-import { PIPELINE_FLOW_FORWARD } from '../define';
+import { PIPELINE_FLOW_FORWARD, UNIFORM_SHADOWMAP } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { ForwardFlowPriority } from './enum';

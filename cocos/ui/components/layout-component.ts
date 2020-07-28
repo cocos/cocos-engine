@@ -293,7 +293,7 @@ export class LayoutComponent extends Component {
             return;
         }
 
-        if (EDITOR && this._resizeMode === ResizeMode.CONTAINER && !legacyCC.engine.isPlaying) {
+        if (EDITOR && this._resizeMode === ResizeMode.CONTAINER && !legacyCC.GAME_VIEW) {
             // const reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
             // if (reLayouted) {
             //     return;

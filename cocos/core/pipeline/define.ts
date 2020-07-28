@@ -14,6 +14,7 @@ import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
 
 export const PIPELINE_FLOW_FORWARD: string = 'ForwardFlow';
+export const PIPELINE_FLOW_SHADOW: string = 'ShadowFlow';
 export const PIPELINE_FLOW_SMAA: string = 'SMAAFlow';
 export const PIPELINE_FLOW_TONEMAP: string = 'ToneMapFlow';
 
@@ -93,7 +94,8 @@ export enum UniformBinding {
     UBO_SKINNING_TEXTURE = MAX_BINDING_SUPPORTED - 6,
     UBO_UI = MAX_BINDING_SUPPORTED - 7,
     UBO_MORPH = MAX_BINDING_SUPPORTED - 8,
-    UBO_BUILTIN_BINDING_END = MAX_BINDING_SUPPORTED - 9,
+    UBO_PCF_SHADOW = MAX_BINDING_SUPPORTED - 9,
+    UBO_BUILTIN_BINDING_END = MAX_BINDING_SUPPORTED - 10,
 
     // samplers
     SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
@@ -102,17 +104,18 @@ export enum UniformBinding {
     SAMPLER_MORPH_NORMAL = MAX_BINDING_SUPPORTED + 4,
     SAMPLER_MORPH_TANGENT = MAX_BINDING_SUPPORTED + 5,
     SAMPLER_LIGHTING_MAP = MAX_BINDING_SUPPORTED + 6,
+    SAMPLER_SHADOWMAP = MAX_BINDING_SUPPORTED + 7,
 
     // rooms left for custom bindings
     // effect importer prepares bindings according to this
     CUSTUM_UBO_BINDING_END_POINT = UniformBinding.UBO_BUILTIN_BINDING_END,
-    CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 7,
+    CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 8,
 }
 
 /**
  * @en Check whether the given uniform binding is a builtin binding
  * @zh 检查指定的 UniformBinding 是否是引擎内置的
- * @param binding 
+ * @param binding
  */
 export const isBuiltinBinding = (binding: number) =>
     binding >= UniformBinding.CUSTUM_UBO_BINDING_END_POINT && binding < UniformBinding.CUSTOM_SAMPLER_BINDING_START_POINT;
@@ -137,7 +140,8 @@ export class UBOGlobal {
     public static EXPOSURE_OFFSET: number = UBOGlobal.CAMERA_POS_OFFSET + 4;
     public static MAIN_LIT_DIR_OFFSET: number = UBOGlobal.EXPOSURE_OFFSET + 4;
     public static MAIN_LIT_COLOR_OFFSET: number = UBOGlobal.MAIN_LIT_DIR_OFFSET + 4;
-    public static AMBIENT_SKY_OFFSET: number = UBOGlobal.MAIN_LIT_COLOR_OFFSET + 4;
+    public static MAIN_SHADOW_MATRIX_OFFSET: number = UBOGlobal.MAIN_LIT_COLOR_OFFSET + 4;
+    public static AMBIENT_SKY_OFFSET: number = UBOGlobal.MAIN_SHADOW_MATRIX_OFFSET + 16;
     public static AMBIENT_GROUND_OFFSET: number = UBOGlobal.AMBIENT_SKY_OFFSET + 4;
     public static GLOBAL_FOG_COLOR_OFFSET: number = UBOGlobal.AMBIENT_GROUND_OFFSET + 4;
     public static GLOBAL_FOG_BASE_OFFSET: number = UBOGlobal.GLOBAL_FOG_COLOR_OFFSET + 4;
@@ -161,16 +165,38 @@ export class UBOGlobal {
             { name: 'cc_exposure', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_mainLitDir', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_mainLitColor', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_shadowLightMatrix', type: GFXType.MAT4, count: 1 },
             { name: 'cc_ambientSky', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_ambientGround', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_fogColor', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_fogBase', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_fogAdd', type: GFXType.FLOAT4, count: 1 }
+            { name: 'cc_fogAdd', type: GFXType.FLOAT4, count: 1 },
         ],
     };
 
     public view: Float32Array = new Float32Array(UBOGlobal.COUNT);
 }
+
+/**
+ * The uniform buffer object for PCFshadow
+ */
+export class UBOPCFShadow {
+    public static MAT_SHADOW_VIEW_PROJ_OFFSET: number = 0;
+    public static COUNT: number = UBOPCFShadow.MAT_SHADOW_VIEW_PROJ_OFFSET + 16;
+    public static SIZE: number = UBOPCFShadow.COUNT * 4;
+
+    public static BLOCK: GFXUniformBlock = {
+        shaderStages: GFXShaderType.ALL, binding: UniformBinding.UBO_PCF_SHADOW, name: 'CCPCFShadow', members: [
+            { name: 'cc_shadowMatViewProj', type: GFXType.MAT4, count: 1 },
+        ],
+    };
+
+    public view: Float32Array = new Float32Array(UBOPCFShadow.COUNT);
+}
+
+export const UNIFORM_SHADOWMAP: GFXUniformSampler = {
+    shaderStages: GFXShaderType.FRAGMENT, binding: UniformBinding.SAMPLER_SHADOWMAP, name: 'cc_shadowMap', type: GFXType.SAMPLER2D, count: 1,
+};
 
 /**
  * @en The uniform buffer object for shadow

@@ -196,7 +196,6 @@ export class Profiler {
             format: GFXFormat.RGBA8,
             width: textureWidth,
             height: textureHeight,
-            mipLevel: 1,
         });
 
         this._region.texExtent.width = textureWidth;

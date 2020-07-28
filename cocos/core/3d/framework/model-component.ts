@@ -49,12 +49,29 @@ import { assertIsTrue } from '../../data/utils/asserts';
  */
 const ModelShadowCastingMode = Enum({
     /**
-     * @zh Disable shadow projection.
+     * @en Disable shadow projection.
      * @zh 不投射阴影。
      */
     OFF: 0,
     /**
-     * @zh Enable shadow projection.
+     * @en Enable shadow projection.
+     * @zh 开启阴影投射。
+     */
+    ON: 1,
+});
+
+/**
+ * @en Shadow receive mode.
+ * @zh 阴影接收方式。
+ */
+const ModelShadowReceivingMode = Enum({
+    /**
+     * @en Disable shadow projection.
+     * @zh 不接收阴影。
+     */
+    OFF: 0,
+    /**
+     * @en Enable shadow projection.
      * @zh 开启阴影投射。
      */
     ON: 1,
@@ -150,6 +167,7 @@ class ModelLightmapSettings {
 export class ModelComponent extends RenderableComponent {
 
     public static ShadowCastingMode = ModelShadowCastingMode;
+    public static ShadowReceivingMode = ModelShadowReceivingMode;
 
     @property
     public lightmapSettings = new ModelLightmapSettings();
@@ -159,6 +177,9 @@ export class ModelComponent extends RenderableComponent {
 
     @property
     protected _shadowCastingMode = ModelShadowCastingMode.OFF;
+
+    @property
+    protected _shadowReceivingMode = ModelShadowReceivingMode.ON;
 
     /**
      * @en Shadow projection mode.
@@ -175,6 +196,23 @@ export class ModelComponent extends RenderableComponent {
     set shadowCastingMode (val) {
         this._shadowCastingMode = val;
         this._updateCastShadow();
+    }
+
+    /**
+     * @en receive shadow.
+     * @zh 是否接受阴影。
+     */
+    @property({
+        type: ModelShadowReceivingMode,
+        tooltip: 'i18n:model.shadow_receiving_model',
+    })
+    get receiveShadow () {
+        return this._shadowReceivingMode;
+    }
+
+    set receiveShadow (val) {
+        this._shadowReceivingMode = val;
+        this._updateReceiveShadow();
     }
 
     /**
@@ -241,6 +279,7 @@ export class ModelComponent extends RenderableComponent {
         this._watchMorphInMesh();
         this._updateModels();
         this._updateCastShadow();
+        this._updateReceiveShadow();
     }
 
     // Redo, Undo, Prefab restore, etc.
@@ -422,13 +461,22 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
+    protected _updateReceiveShadow () {
+        if (!this._model) { return; }
+        if (this._shadowReceivingMode === ModelShadowReceivingMode.OFF) {
+            this._model.receiveShadow = false;
+        } else {
+            this._model.receiveShadow = true;
+        }
+    }
+
     protected _isBatchingEnabled () {
         for (let i = 0; i < this._materials.length; ++i) {
             const mat = this._materials[i];
             if (!mat) { continue; }
             for (let p = 0; p < mat.passes.length; ++p) {
                 const pass = mat.passes[p];
-                if (pass.instancedBuffer || pass.batchedBuffer) { return true; }
+                if (pass.batchingScheme) { return true; }
             }
         }
         return false;
@@ -484,4 +532,8 @@ export class ModelComponent extends RenderableComponent {
 
 export declare namespace ModelComponent {
     export type ShadowCastingMode = EnumAlias<typeof ModelShadowCastingMode>;
+}
+
+export declare namespace ModelComponent {
+    export type ShadowReceivingMode = EnumAlias<typeof ModelShadowReceivingMode>;
 }

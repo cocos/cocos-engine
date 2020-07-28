@@ -9,6 +9,7 @@ import { ForwardFlow } from './forward-flow';
 import { Root } from '../../root';
 import { ForwardRenderContext } from './forward-render-context';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
+import { ShadowFlow } from '../shadow/shadow-flow';
 
 /**
  * @en The forward render pipeline
@@ -27,6 +28,11 @@ export class ForwardPipeline extends RenderPipeline {
 
     public initialize () {
         super.initialize();
+
+        const shadowFlow = new ShadowFlow();
+        shadowFlow.initialize(ShadowFlow.initInfo);
+        this._flows.push(shadowFlow);
+
         const forwardFlow = new ForwardFlow();
         forwardFlow.initialize(ForwardFlow.initInfo);
         this._flows.push(forwardFlow);

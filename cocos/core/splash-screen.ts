@@ -299,7 +299,6 @@ export class SplashScreen {
             format: GFXFormat.RGBA8,
             width: this.textImg.width,
             height: this.textImg.height,
-            mipLevel: 1,
         });
 
         this.device.copyTexImagesToTexture([this.textImg], this.textTexture, [this.textRegion]);
@@ -487,7 +486,6 @@ export class SplashScreen {
             format: GFXFormat.RGBA8,
             width: this.image.width,
             height: this.image.height,
-            mipLevel: 1,
         });
 
         const pass = this.material.passes[0];

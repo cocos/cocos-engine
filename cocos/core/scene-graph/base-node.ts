@@ -1281,7 +1281,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             // if (thisPrefabInfo._synced) {
             //    return clone;
             // }
-        } else if (EDITOR && legacyCC.engine._isPlaying) {
+        } else if (EDITOR && legacyCC.GAME_VIEW) {
             cloned._name += ' (Clone)';
         }
 
