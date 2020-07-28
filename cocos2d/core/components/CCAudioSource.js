@@ -187,6 +187,13 @@ var AudioSource = cc.Class({
             animatable: false
         },
 
+        /**
+         * !#en If set to true and AudioClip is a deferred load resource, the component will preload AudioClip in the onLoad phase.
+         * !#zh 如果设置为 true 且 AudioClip 为延迟加载资源，组件将在 onLoad 阶段预加载 AudioClip。
+         * @property preload
+         * @type {Boolean}
+         * @default false
+         */
         preload: {
             default: false,
             animatable: false
