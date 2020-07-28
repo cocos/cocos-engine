@@ -102,8 +102,9 @@ var AudioSource = cc.Class({
                 }
                 this._clip = value;
                 this.audio.stop();
+                this.audio.src = this._clip;
                 if (this.preload) {
-                    this.audio.src = this._clip;
+                    this._clip._ensureLoaded();
                 }
             },
             type: AudioClip,
@@ -192,12 +193,6 @@ var AudioSource = cc.Class({
         }
     },
 
-    _ensureDataLoaded () {
-        if (this.audio.src !== this._clip) {
-            this.audio.src = this._clip;
-        }
-    },
-
     _pausedCallback: function () {
         var state = this.audio.getState();
         if (state === cc._Audio.State.PLAYING) {
@@ -213,13 +208,17 @@ var AudioSource = cc.Class({
         this._pausedFlag = false;
     },
 
-    onEnable: function () {
+    onLoad: function () {
+        this.audio.src = this._clip;
         if (this.preload) {
-            this.audio.src = this._clip;
+            this._clip._ensureLoaded();
         }
         if (this.playOnLoad) {
             this.play();
         }
+    },
+
+    onEnable: function () {
         cc.game.on(cc.game.EVENT_HIDE, this._pausedCallback, this);
         cc.game.on(cc.game.EVENT_SHOW, this._restoreCallback, this);
     },
@@ -248,7 +247,6 @@ var AudioSource = cc.Class({
         if (this._clip.loaded) {
             audio.stop();
         }
-        this._ensureDataLoaded();
         audio.setVolume(this._mute ? 0 : this._volume);
         audio.setLoop(this._loop);
         audio.setCurrentTime(0);
@@ -279,7 +277,6 @@ var AudioSource = cc.Class({
      * @method resume
      */
     resume: function () {
-        this._ensureDataLoaded();
         this.audio.resume();
     },
 

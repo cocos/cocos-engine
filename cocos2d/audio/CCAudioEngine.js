@@ -150,6 +150,7 @@ var audioEngine = {
         let path = clip.nativeUrl;
         let audio = getAudioFromPath(path);
         audio.src = clip;
+        clip._ensureLoaded();
         audio._shouldRecycleOnEnded = true;
         audio.setLoop(loop || false);
         volume = handleVolume(volume);
