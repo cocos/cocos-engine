@@ -272,12 +272,14 @@ Audio.State = {
             this._unbindEnded();
             if (clip) {
                 this._src = clip;
-                clip.off('load');
                 if (!clip.loaded) {
                     let self = this;
                     // need to call clip._ensureLoaded mannually to start loading
                     clip.once('load', function () {
-                        self._onLoaded();
+                        // In case set a new src when the old one hasn't finished loading
+                        if (clip === self._src) {
+                            self._onLoaded();
+                        }
                     });
                 }
                 else {
