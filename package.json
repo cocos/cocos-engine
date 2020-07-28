@@ -52,6 +52,6 @@
   },
   "dependencies": {
     "@cocos/ammo": "^1.0.7-beta.4",
-    "@cocos/cannon": "^1.1.1"
+    "@cocos/cannon": "^1.1.1-exp.4"
   }
 }
