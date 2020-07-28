@@ -55,10 +55,10 @@ declare namespace cc.AssetManager {
 
         /**
          * !#en 
-         * The interval between caching resources, this property only works on mini-game platforms
+         * The interval between caching resources, this property only works on mini-game platforms, unit: ms
          * 
          * !#zh
-         * 缓存资源的间隔时间，此属性只在小游戏平台有效
+         * 缓存资源的间隔时间，此属性只在小游戏平台有效，单位：ms
          * 
          * @property cacheInterval
          * @type {Number}
@@ -68,10 +68,10 @@ declare namespace cc.AssetManager {
 
         /**
          * !#en 
-         * The interval between deleting resources, when you use `cleanLRU`, the resources will be deleted as this interval
+         * The interval between deleting resources, when you use `cleanLRU`, the resources will be deleted as this interval, unit: ms
          * 
          * !#zh
-         * 清理资源的间隔时间，当你使用 `cleanLRU` 时，资源将以此间隔被删除
+         * 清理资源的间隔时间，当你使用 `cleanLRU` 时，资源将以此间隔被删除，单位：ms
          * 
          * @property deleteInterval
          * @type {Number}
