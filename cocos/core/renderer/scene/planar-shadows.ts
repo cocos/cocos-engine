@@ -173,7 +173,7 @@ export class PlanarShadows {
                 const submodel = model.getSubModel(j);
                 const psoci = psocis[j];
                 if (instancedBuffer) {
-                    instancedBuffer.merge(submodel, model.instancedAttributes, psoci);
+                    instancedBuffer.attach(submodel, model.instancedAttributes, psoci);
                 } else {
                     const ia = submodel.inputAssembler!;
                     const pso = PipelineStateManager.getOrCreatePipelineState(device, psoci, renderPass, ia);

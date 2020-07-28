@@ -5,8 +5,9 @@
 import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice } from '../gfx';
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
-import { IInstancedAttributeBlock, Pass } from '../renderer';
+import { IInstancedAttributeBlock, Pass, Light, LightType, IMacroPatch } from '../renderer';
 import { SubModel, IPSOCreateInfo } from '../renderer/scene/submodel';
+import { IRenderObject, UBOForwardLight } from './define';
 
 export interface IInstancedItem {
     count: number;
@@ -20,15 +21,35 @@ export interface IInstancedItem {
 const INITIAL_CAPACITY = 32;
 const MAX_CAPACITY = 1024;
 
+const spherePatches: IMacroPatch[] = [
+    { name: 'CC_FORWARD_ADD', value: true },
+];
+const spotPatches: IMacroPatch[] = [
+    { name: 'CC_FORWARD_ADD', value: true },
+    { name: 'CC_SPOTLIGHT', value: true },
+];
+
 export class InstancedBuffer {
 
     private static _buffers = new Map<Pass, InstancedBuffer>();
+    private static _lightBuffers = new Map<number, InstancedBuffer>();
+
+    // references
+    private _validLights: Light[] = [];
+    private _lightBuffers: GFXBuffer[] = [];
 
     public static get (pass: Pass) {
         if (!InstancedBuffer._buffers.has(pass)) {
             InstancedBuffer._buffers.set(pass, new InstancedBuffer(pass.device));
         }
         return InstancedBuffer._buffers.get(pass)!;
+    }
+
+    public static getLightInstanced (pass: Pass, index: number) {
+        if (!InstancedBuffer._lightBuffers.has(index)) {
+            InstancedBuffer._lightBuffers.set(index, new InstancedBuffer(pass.device));
+        }
+        return InstancedBuffer._lightBuffers.get(index)!;
     }
 
     public instances: IInstancedItem[] = [];
@@ -48,7 +69,36 @@ export class InstancedBuffer {
         this.instances.length = 0;
     }
 
-    public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, psoci: IPSOCreateInfo) {
+    public merge (renderObj: IRenderObject, subModelIdx: number, attrs: IInstancedAttributeBlock, pass: Pass, lightIdx: number) {
+        const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
+        const subModel = renderObj.model.subModelNum[subModelIdx];
+        const light = this._validLights[lightIdx];
+        const lightBuffer = this._lightBuffers[lightIdx];
+        let fullPatches: IMacroPatch[];
+        switch (light.type) {
+            case LightType.SPHERE:
+                fullPatches = modelPatches ? spherePatches.concat(modelPatches) : spherePatches;
+                if (!this.psoci) {
+                    this.psoci = pass.createPipelineStateCI(fullPatches)!;
+                    renderObj.model.updateLocalBindings(this.psoci, subModelIdx);
+                    this.psoci.bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
+                    this.psoci.bindingLayout.update();
+                }
+                break;
+            case LightType.SPOT:
+                fullPatches = modelPatches ? spotPatches.concat(modelPatches) : spotPatches;
+                if (!this.psoci) {
+                    this.psoci = pass.createPipelineStateCI(fullPatches)!;
+                    renderObj.model.updateLocalBindings(this.psoci, subModelIdx);
+                    this.psoci.bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
+                    this.psoci.bindingLayout.update();
+                }
+                break;
+        }
+        this.attach(subModel, attrs, this.psoci!);
+    }
+
+    public attach (subModel: SubModel, attrs: IInstancedAttributeBlock, psoci: IPSOCreateInfo) {
         const stride = attrs.buffer.length;
         if (!stride) { return; } // we assume per-instance attributes are always present
         if (!this.psoci) { this.psoci = psoci; }
@@ -108,6 +158,12 @@ export class InstancedBuffer {
             instance.ia.instanceCount = instance.count;
             instance.vb.update(instance.data);
         }
+    }
+
+    public clearLightInstanced (validLights: Light[], lightBuffers: GFXBuffer[]) {
+        this._validLights = validLights;
+        this._lightBuffers = lightBuffers;
+        this.clear();
     }
 
     public clear () {

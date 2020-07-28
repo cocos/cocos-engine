@@ -4,8 +4,9 @@
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { InstancedBuffer } from './instanced-buffer';
-import { GFXDevice, GFXRenderPass, GFXPipelineState } from '../gfx';
+import { GFXDevice, GFXRenderPass, GFXPipelineState, GFXBuffer } from '../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
+import { Light } from '../renderer/scene/light';
 
 /**
  * @en Render queue for instanced batching
@@ -23,10 +24,10 @@ export class RenderInstancedQueue {
      * @en Clear the render queue
      * @zh 清空渲染队列。
      */
-    public clear () {
+    public clear (validLights: Light[], lightBuffers: GFXBuffer[]) {
         const it = this.queue.values(); let res = it.next();
         while (!res.done) {
-            res.value.clear();
+            res.value.clearLightInstanced(validLights, lightBuffers);
             res = it.next();
         }
         this.queue.clear();
