@@ -1,4 +1,4 @@
-import Ammo from '@cocos/ammo';
+import Ammo from '../ammo-instantiated';
 import { IBaseConstraint } from "../../spec/i-physics-constraint";
 import { ConstraintComponent, RigidBodyComponent } from "../../framework";
 import { AmmoRigidBody } from '../ammo-rigid-body';

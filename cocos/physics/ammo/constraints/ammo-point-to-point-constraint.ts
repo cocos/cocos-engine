@@ -1,4 +1,4 @@
-import Ammo from '@cocos/ammo';
+import Ammo from '../ammo-instantiated';
 import { AmmoConstraint } from "./ammo-constraint";
 import { IPointToPointConstraint } from "../../spec/i-physics-constraint";
 import { IVec3Like, Vec3 } from "../../../core";

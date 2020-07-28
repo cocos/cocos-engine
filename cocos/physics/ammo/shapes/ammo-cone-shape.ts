@@ -1,4 +1,4 @@
-import Ammo from '@cocos/ammo';
+import Ammo from '../ammo-instantiated';
 import { AmmoShape } from "./ammo-shape";
 import { ConeColliderComponent } from '../../../../exports/physics-framework';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
