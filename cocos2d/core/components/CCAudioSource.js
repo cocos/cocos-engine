@@ -61,6 +61,7 @@ var AudioSource = cc.Class({
             default: false,
             serializable: false
         },
+        _firstlyEnabled: true,
 
         /**
          * !#en
@@ -220,12 +221,13 @@ var AudioSource = cc.Class({
         if (this.preload) {
             this._clip._ensureLoaded();
         }
-        if (this.playOnLoad) {
-            this.play();
-        }
     },
 
     onEnable: function () {
+        if (this.playOnLoad && this._firstlyEnabled) {
+            this._firstlyEnabled = false;
+            this.play();
+        }
         cc.game.on(cc.game.EVENT_HIDE, this._pausedCallback, this);
         cc.game.on(cc.game.EVENT_SHOW, this._restoreCallback, this);
     },
