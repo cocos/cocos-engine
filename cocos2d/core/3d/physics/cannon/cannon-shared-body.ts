@@ -174,6 +174,21 @@ export class CannonSharedBody {
     syncPhysicsToScene () {
         if (this.body.type != ERigidBodyType.STATIC) {
             if (!this.body.isSleeping()) {
+                if (this.body.isSleepy()) {
+                    const p3d = cc.director.getPhysics3DManager();
+                    if (p3d.useFixedDigit) {
+                        this.isSleeping = true;
+                        const posDigit = p3d.fixDigits.position;
+                        this.body.position.x = parseFloat(this.body.position.x.toFixed(posDigit));
+                        this.body.position.y = parseFloat(this.body.position.y.toFixed(posDigit));
+                        this.body.position.z = parseFloat(this.body.position.z.toFixed(posDigit));
+                        const rotDigit = p3d.fixDigits.rotation;
+                        this.body.quaternion.x = parseFloat(this.body.quaternion.x.toFixed(rotDigit));
+                        this.body.quaternion.y = parseFloat(this.body.quaternion.y.toFixed(rotDigit));
+                        this.body.quaternion.z = parseFloat(this.body.quaternion.z.toFixed(rotDigit));
+                        this.body.quaternion.w = parseFloat(this.body.quaternion.w.toFixed(rotDigit));
+                    }
+                }
                 Vec3.copy(v3_0, this.body.position);
                 Quat.copy(quat_0, this.body.quaternion);
                 updateWorldRT(this.node, v3_0, quat_0);

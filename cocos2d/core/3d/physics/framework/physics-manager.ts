@@ -166,6 +166,14 @@ export class Physics3DManager {
 
     useAccumulator = false;
     private _accumulator = 0;
+
+    useFixedDigit = false;
+
+    readonly fixDigits = {
+        position : 6,
+        rotation : 14,
+    }
+
     private readonly _material: cc.PhysicsMaterial | null = null;
 
     private readonly raycastOptions: IRaycastOptions = {
