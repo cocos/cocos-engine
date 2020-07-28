@@ -84,7 +84,7 @@ dragonBones.CCSlot = cc.Class({
     },
 
     _updateVisible () {
-        this._visible = this.parent._visible;
+        this._visible = this.parent._visible && this._indices.length > 0;
     },
 
     // just for adapt to dragonbones api,no need to do any thing
@@ -122,7 +122,14 @@ dragonBones.CCSlot = cc.Class({
         let indexOffset = 0, vfOffset = 0;
 
         let currentTextureData = this._textureData;
-        if (!this._display || this._displayIndex < 0 || !currentTextureData || !currentTextureData.spriteFrame) return;
+        if (!this._display || this._displayIndex < 0 || !currentTextureData || !currentTextureData.spriteFrame) {
+            this._visibleDirty = true;
+            if (!this._display) {
+                this._updateVisible();
+                this._visibleDirty = false;
+            }
+            return;
+        }
 
         let texture = currentTextureData.spriteFrame.getTexture();
         let textureAtlasWidth = texture.width;
@@ -130,7 +137,7 @@ dragonBones.CCSlot = cc.Class({
         let region = currentTextureData.region;
 
         const currentVerticesData = (this._deformVertices !== null && this._display === this._meshDisplay) ? this._deformVertices.verticesData : null;
-        
+
         if (currentVerticesData) {
             const data = currentVerticesData.data;
             const intArray = data.intArray;
@@ -140,7 +147,7 @@ dragonBones.CCSlot = cc.Class({
             let vertexOffset = intArray[currentVerticesData.offset + BinaryOffset.MeshFloatOffset];
 
             if (vertexOffset < 0) {
-                vertexOffset += 65536; // Fixed out of bouds bug. 
+                vertexOffset += 65536; // Fixed out of bouds bug.
             }
 
             const uvOffset = vertexOffset + vertexCount * 2;
@@ -148,7 +155,7 @@ dragonBones.CCSlot = cc.Class({
 
             for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
                 localVertices[vfOffset++] = floatArray[vertexOffset + i] * scale;
-                localVertices[vfOffset++] = -floatArray[vertexOffset + i + 1] * scale;  
+                localVertices[vfOffset++] = -floatArray[vertexOffset + i + 1] * scale;
 
                 if (currentVerticesData.rotated) {
                     localVertices[vfOffset++] = (region.x + (1.0 - floatArray[uvOffset + i]) * region.width) / textureAtlasWidth;
@@ -230,7 +237,7 @@ dragonBones.CCSlot = cc.Class({
             let weightFloatOffset = intArray[weightData.offset + BinaryOffset.WeigthFloatOffset];
 
             if (weightFloatOffset < 0) {
-                weightFloatOffset += 65536; // Fixed out of bouds bug. 
+                weightFloatOffset += 65536; // Fixed out of bouds bug.
             }
 
             for (
@@ -274,7 +281,7 @@ dragonBones.CCSlot = cc.Class({
             let vertexOffset = intArray[verticesData.offset + BinaryOffset.MeshFloatOffset];
 
             if (vertexOffset < 0) {
-                vertexOffset += 65536; // Fixed out of bouds bug. 
+                vertexOffset += 65536; // Fixed out of bouds bug.
             }
 
             for (let i = 0, l = vertexCount, lvi = 0; i < l; i ++, lvi += 4) {
