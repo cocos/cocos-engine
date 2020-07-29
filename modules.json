@@ -356,19 +356,24 @@
     "name": "3D Physics/cannon.js",
     "since": "2.3.0",
     "entries": [
-      "./cocos2d/core/3d/physics/exports/physics-cannon.ts",
-      "./cocos2d/core/3d/physics/exports/physics-framework.ts"
+      "./cocos2d/core/3d/physics/exports/physics-cannon.ts"
     ],
-    "dependencies": ["3D"]
+    "dependencies": ["3D", "3D Physics Framework"]
   },
   {
     "name": "3D Physics/Builtin",
     "since": "2.3.0",
     "entries": [
-      "./cocos2d/core/3d/physics/exports/physics-builtin.ts",
+      "./cocos2d/core/3d/physics/exports/physics-builtin.ts"
+    ],
+    "dependencies": ["3D", "3D Physics Framework"]
+  },
+  {
+    "name": "3D Physics Framework",
+    "entries": [
       "./cocos2d/core/3d/physics/exports/physics-framework.ts"
     ],
-    "dependencies": ["3D"]
+    "hide": true
   },
   {
     "name": "3D Particle",

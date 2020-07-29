@@ -67,23 +67,29 @@ export class CannonWorld implements IPhysicsWorld {
     }
 
     step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep?: number) {
+        this.syncSceneToPhysics();
+        this._world.step(deltaTime, timeSinceLastCalled, maxSubStep);
+        this.syncPhysicsToScene();
+        this.emitEvents();
+    }
 
+    syncSceneToPhysics () {
         clearNodeTransformRecord();
-
         // sync scene to physics
         for (let i = 0; i < this.bodies.length; i++) {
             this.bodies[i].syncSceneToPhysics();
         }
-
         clearNodeTransformDirtyFlag();
+    }
 
-        this._world.step(deltaTime, timeSinceLastCalled, maxSubStep);
-
+    syncPhysicsToScene () {
         // sync physics to scene
         for (let i = 0; i < this.bodies.length; i++) {
             this.bodies[i].syncPhysicsToScene();
         }
+    }
 
+    emitEvents () {
         this._world.emitTriggeredEvents();
         this._world.emitCollisionEvents();
     }

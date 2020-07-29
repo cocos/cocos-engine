@@ -31,7 +31,7 @@ import { CannonShape } from './shapes/cannon-shape';
 import { Collider3D } from '../exports/physics-framework';
 import { CollisionEventType } from '../framework/physics-interface';
 import { CannonRigidBody } from './cannon-rigid-body';
-import { groupIndexToBitMask } from './cannon-util'
+import { commitShapeUpdates, groupIndexToBitMask, deprecatedEventMap } from './cannon-util'
 import { updateWorldTransform, updateWorldRT } from "../framework/util"
 
 const LocalDirtyFlag = cc.Node._LocalDirtyFlag;
@@ -114,7 +114,7 @@ export class CannonSharedBody {
         this.wrappedWorld = wrappedWorld;
         this.node = node;
         this.body.material = this.wrappedWorld.world.defaultMaterial;
-        this.body.addEventListener('collide', this.onCollidedListener);
+        this.body.addEventListener('cc-collide', this.onCollidedListener);
         this._updateGroup();
         this.node.on(cc.Node.EventType.GROUP_CHANGED, this._updateGroup, this);
     }
@@ -152,6 +152,8 @@ export class CannonSharedBody {
         if (!force && !needUpdateTransform) {
             return;
         }
+        // body world aabb need to be recalculated
+        this.body.aabbNeedsUpdate = true;
 
         Vec3.copy(this.body.position, node.__wpos);
         Quat.copy(this.body.quaternion, node.__wrot);
@@ -161,27 +163,44 @@ export class CannonSharedBody {
             for (let i = 0; i < this.shapes.length; i++) {
                 this.shapes[i].setScale(wscale);
             }
+            commitShapeUpdates(this.body);
         }
-        
+
         if (this.body.isSleeping()) {
             this.body.wakeUp();
         }
-
-        // body world aabb need to be recalculated
-        this.body.aabbNeedsUpdate = true;
     }
 
     syncPhysicsToScene () {
         if (this.body.type != ERigidBodyType.STATIC) {
-            Vec3.copy(v3_0, this.body.position);
-            Quat.copy(quat_0, this.body.quaternion);
-            updateWorldRT(this.node, v3_0, quat_0);
+            if (!this.body.isSleeping()) {
+                if (this.body.isSleepy()) {
+                    const p3d = cc.director.getPhysics3DManager();
+                    if (p3d.useFixedDigit) {
+                        this.isSleeping = true;
+                        const posDigit = p3d.fixDigits.position;
+                        this.body.position.x = parseFloat(this.body.position.x.toFixed(posDigit));
+                        this.body.position.y = parseFloat(this.body.position.y.toFixed(posDigit));
+                        this.body.position.z = parseFloat(this.body.position.z.toFixed(posDigit));
+                        const rotDigit = p3d.fixDigits.rotation;
+                        this.body.quaternion.x = parseFloat(this.body.quaternion.x.toFixed(rotDigit));
+                        this.body.quaternion.y = parseFloat(this.body.quaternion.y.toFixed(rotDigit));
+                        this.body.quaternion.z = parseFloat(this.body.quaternion.z.toFixed(rotDigit));
+                        this.body.quaternion.w = parseFloat(this.body.quaternion.w.toFixed(rotDigit));
+                    }
+                }
+                Vec3.copy(v3_0, this.body.position);
+                Quat.copy(quat_0, this.body.quaternion);
+                updateWorldRT(this.node, v3_0, quat_0);
+            }
         }
     }
 
     private destroy () {
+        this.body.removeEventListener('cc-collide', this.onCollidedListener);
         this.node.off(cc.Node.EventType.GROUP_CHANGED, this._updateGroup, this);
         CannonSharedBody.sharedBodiesMap.delete(this.node._id);
+        delete CANNON.World['idToBodyMap'][this.body.id];
         (this.node as any) = null;
         (this.wrappedWorld as any) = null;
         (this.body as any) = null;
@@ -222,6 +241,7 @@ export class CannonSharedBody {
 
             for (i = 0; i < this.shapes.length; i++) {
                 const shape = this.shapes[i];
+                shape.collider.emit(deprecatedEventMap[CollisionEventObject.type], CollisionEventObject);
                 shape.collider.emit(CollisionEventObject.type, CollisionEventObject);
             }
         }
