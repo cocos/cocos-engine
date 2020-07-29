@@ -16,6 +16,7 @@ import { IInternalBindingInst } from './define';
  */
 export interface IRenderPipelineInfo {
     flows: RenderFlow[];
+    type?: number;
 }
 
 /**
@@ -51,11 +52,37 @@ export abstract class RenderPipeline {
      * @zh 管线的渲染流程列表。
      * @readonly
      */
-    public get flows () {
+    public get flows (): RenderFlow[] {
         return this._flows;
     }
 
+    /**
+     * @en The type of pipeline.
+     * @zh 管线的类型。
+     * @readonly
+     */
+    public get type (): number {
+        return this._type;
+    }
+
+    /**
+     * @en Type
+     * @zh 类型
+     * @readonly
+     */
     @property({
+        displayOrder: 0,
+        visible: true,
+    })
+    protected _type: number = 0;
+
+    /**
+     * @en Flows
+     * @zh 渲染流程列表
+     * @readonly
+     */
+    @property({
+        displayOrder: 1,
         type: [RenderFlow],
         visible: true,
     })
@@ -73,6 +100,10 @@ export abstract class RenderPipeline {
         if (info) {
             for (let i = 0; i < info.flows.length; i++) {
                 this._flows[i] = info.flows[i];
+            }
+
+            if (info.type) {
+                this._type = info.type;
             }
         }
     }
