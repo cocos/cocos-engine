@@ -61,6 +61,7 @@ var AudioSource = cc.Class({
             default: false,
             serializable: false
         },
+        _firstlyEnabled: true,
 
         /**
          * !#en
@@ -102,8 +103,9 @@ var AudioSource = cc.Class({
                 }
                 this._clip = value;
                 this.audio.stop();
+                this.audio.src = this._clip;
                 if (this.preload) {
-                    this.audio.src = this._clip;
+                    this._clip._ensureLoaded();
                 }
             },
             type: AudioClip,
@@ -186,15 +188,16 @@ var AudioSource = cc.Class({
             animatable: false
         },
 
+        /**
+         * !#en If set to true and AudioClip is a deferred load resource, the component will preload AudioClip in the onLoad phase.
+         * !#zh 如果设置为 true 且 AudioClip 为延迟加载资源，组件将在 onLoad 阶段预加载 AudioClip。
+         * @property preload
+         * @type {Boolean}
+         * @default false
+         */
         preload: {
             default: false,
             animatable: false
-        }
-    },
-
-    _ensureDataLoaded () {
-        if (this.audio.src !== this._clip) {
-            this.audio.src = this._clip;
         }
     },
 
@@ -213,11 +216,16 @@ var AudioSource = cc.Class({
         this._pausedFlag = false;
     },
 
-    onEnable: function () {
+    onLoad: function () {
+        this.audio.src = this._clip;
         if (this.preload) {
-            this.audio.src = this._clip;
+            this._clip._ensureLoaded();
         }
-        if (this.playOnLoad) {
+    },
+
+    onEnable: function () {
+        if (this.playOnLoad && this._firstlyEnabled) {
+            this._firstlyEnabled = false;
             this.play();
         }
         cc.game.on(cc.game.EVENT_HIDE, this._pausedCallback, this);
@@ -248,7 +256,6 @@ var AudioSource = cc.Class({
         if (this._clip.loaded) {
             audio.stop();
         }
-        this._ensureDataLoaded();
         audio.setVolume(this._mute ? 0 : this._volume);
         audio.setLoop(this._loop);
         audio.setCurrentTime(0);
@@ -279,7 +286,6 @@ var AudioSource = cc.Class({
      * @method resume
      */
     resume: function () {
-        this._ensureDataLoaded();
         this.audio.resume();
     },
 
