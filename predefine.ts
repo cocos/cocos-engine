@@ -46,6 +46,7 @@ import {
     TEST,
     WECHAT,
     XIAOMI,
+    BYTEDANCE,
 } from 'internal:constants';
 
 /**
@@ -143,6 +144,7 @@ if (BUILD) {
     _global.CC_ALIPAY = ALIPAY;
     _global.CC_XIAOMI = XIAOMI;
     _global.CC_BAIDU = BAIDU;
+    _global.CC_BYTEDANCE = BYTEDANCE;
     _global.CC_COCOSPLAY = COCOSPLAY;
     _global.CC_MINIGAME = MINIGAME;
     _global.CC_RUNTIME_BASED = RUNTIME_BASED;
