@@ -224,7 +224,11 @@ export class WebGLGFXDevice extends GFXDevice {
             }
             */
 
-            this._webGLRC = this._canvas.getContext('webgl', webGLCtxAttribs);
+            //@ts-ignore
+            this._webGLRC = this._canvas.getContext('webgl', webGLCtxAttribs) ||
+                            this._canvas.getContext('experimental-webgl', webGLCtxAttribs) ||
+                            this._canvas.getContext('webkit-3d', webGLCtxAttribs) ||
+                            this._canvas.getContext('moz-webgl', webGLCtxAttribs);
         } catch (err) {
             console.error(err);
             return false;
