@@ -93,10 +93,10 @@ export class Physics3DManager {
      * @property {number} deltaTime
      */
     get deltaTime (): number {
-        return this._deltaTime;
+        return this._fixedTime;
     }
     set deltaTime (value: number) {
-        this._deltaTime = value;
+        this._fixedTime = value;
     }
 
     /**
@@ -159,7 +159,7 @@ export class Physics3DManager {
     private _maxSubStep = 1;
 
     @property
-    private _deltaTime = 1.0 / 60.0;
+    private _fixedTime = 1.0 / 60.0;
 
     @property
     private _useFixedTime = true;
@@ -170,10 +170,11 @@ export class Physics3DManager {
     useFixedDigit = false;
 
     readonly fixDigits = {
-        position : 6,
-        rotation : 14,
+        position : 3,
+        rotation : 12,
     }
-
+    private _deltaTime = 0;
+    private _lastTime = 0;
     private readonly _material: cc.PhysicsMaterial | null = null;
 
     private readonly raycastOptions: IRaycastOptions = {
@@ -189,6 +190,7 @@ export class Physics3DManager {
     private constructor () {
         cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
         this.physicsWorld = createPhysicsWorld();
+        this._lastTime = performance.now();
         if (!CC_PHYSICS_BUILTIN) {
             this.gravity = this._gravity;
             this.allowSleep = this._allowSleep;
@@ -219,26 +221,30 @@ export class Physics3DManager {
         cc.director.emit(cc.Director.EVENT_BEFORE_PHYSICS);
 
         if (CC_PHYSICS_BUILTIN) {
-            this.physicsWorld.step(this._deltaTime);
+            this.physicsWorld.step(this._fixedTime);
         } else {
             if (this._useFixedTime) {
-                this.physicsWorld.step(this._deltaTime);
+                this.physicsWorld.step(this._fixedTime);
             } else {
                 if (this.useAccumulator) {
                     let i = 0;
-                    this._accumulator += deltaTime;
-                    while (i < this._maxSubStep && this._accumulator > this._deltaTime) {
-                        this.physicsWorld.step(this._deltaTime);
-                        this._accumulator -= this._deltaTime;
+                    this._accumulator += this._deltaTime;
+                    while (i < this._maxSubStep && this._accumulator > this._fixedTime) {
+                        this.physicsWorld.step(this._fixedTime);
+                        this._accumulator -= this._fixedTime;
                         i++;
                     }
                 } else {
-                    this.physicsWorld.step(this._deltaTime, deltaTime, this._maxSubStep);
+                    this.physicsWorld.step(this._fixedTime, this._deltaTime, this._maxSubStep);
                 }
             }
         }
 
         cc.director.emit(cc.Director.EVENT_AFTER_PHYSICS);
+        
+        var now = performance.now();
+        this._deltaTime = now > this._lastTime ? (now - this._lastTime) / 1000 : 0;
+        this._lastTime = now;
     }
 
     /**

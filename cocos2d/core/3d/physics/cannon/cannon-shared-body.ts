@@ -88,7 +88,33 @@ export class CannonSharedBody {
             if (this.index < 0) {
                 this.index = this.wrappedWorld.bodies.length;
                 this.wrappedWorld.addSharedBody(this);
-                this.syncSceneToPhysics(true);
+
+                var node = this.node;
+                // body world aabb need to be recalculated
+                this.body.aabbNeedsUpdate = true;
+                node.getWorldPosition(v3_0);
+                node.getWorldRotation(quat_0);
+                var pos = this.body.position;
+                pos.x = parseFloat(v3_0.x.toFixed(3));
+                pos.y = parseFloat(v3_0.y.toFixed(3));
+                pos.z = parseFloat(v3_0.z.toFixed(3));
+                var rot = this.body.quaternion;
+                rot.x = parseFloat(quat_0.x.toFixed(12));
+                rot.y = parseFloat(quat_0.y.toFixed(12));
+                rot.z = parseFloat(quat_0.z.toFixed(12));
+                rot.w = parseFloat(quat_0.w.toFixed(12));
+
+                if (node._localMatDirty & PHYSICS_SCALE) {
+                    var wscale = node.__wscale;
+                    for (var i = 0; i < this.shapes.length; i++) {
+                        this.shapes[i].setScale(wscale);
+                    }
+                    commitShapeUpdates(this.body);
+                }
+
+                if (this.body.isSleeping()) {
+                    this.body.wakeUp();
+                }
             }
         } else {
             if (this.index >= 0) {
@@ -147,52 +173,35 @@ export class CannonSharedBody {
     }
 
     syncSceneToPhysics (force: boolean = false) {
-        let node = this.node;
-        let needUpdateTransform = updateWorldTransform(node, force);
-        if (!force && !needUpdateTransform) {
-            return;
-        }
-        // body world aabb need to be recalculated
-        this.body.aabbNeedsUpdate = true;
+        // let node = this.node;
+        // let needUpdateTransform = updateWorldTransform(node, force);
+        // if (!force && !needUpdateTransform) {
+        //     return;
+        // }
+        // // body world aabb need to be recalculated
+        // this.body.aabbNeedsUpdate = true;
 
-        Vec3.copy(this.body.position, node.__wpos);
-        Quat.copy(this.body.quaternion, node.__wrot);
+        // Vec3.copy(this.body.position, node.__wpos);
+        // Quat.copy(this.body.quaternion, node.__wrot);
 
-        if (node._localMatDirty & PHYSICS_SCALE) {
-            let wscale = node.__wscale;
-            for (let i = 0; i < this.shapes.length; i++) {
-                this.shapes[i].setScale(wscale);
-            }
-            commitShapeUpdates(this.body);
-        }
+        // if (node._localMatDirty & PHYSICS_SCALE) {
+        //     let wscale = node.__wscale;
+        //     for (let i = 0; i < this.shapes.length; i++) {
+        //         this.shapes[i].setScale(wscale);
+        //     }
+        //     commitShapeUpdates(this.body);
+        // }
 
-        if (this.body.isSleeping()) {
-            this.body.wakeUp();
-        }
+        // if (this.body.isSleeping()) {
+        //     this.body.wakeUp();
+        // }
     }
 
     syncPhysicsToScene () {
-        if (this.body.type != ERigidBodyType.STATIC) {
-            if (!this.body.isSleeping()) {
-                if (this.body.isSleepy()) {
-                    const p3d = cc.director.getPhysics3DManager();
-                    if (p3d.useFixedDigit) {
-                        this.isSleeping = true;
-                        const posDigit = p3d.fixDigits.position;
-                        this.body.position.x = parseFloat(this.body.position.x.toFixed(posDigit));
-                        this.body.position.y = parseFloat(this.body.position.y.toFixed(posDigit));
-                        this.body.position.z = parseFloat(this.body.position.z.toFixed(posDigit));
-                        const rotDigit = p3d.fixDigits.rotation;
-                        this.body.quaternion.x = parseFloat(this.body.quaternion.x.toFixed(rotDigit));
-                        this.body.quaternion.y = parseFloat(this.body.quaternion.y.toFixed(rotDigit));
-                        this.body.quaternion.z = parseFloat(this.body.quaternion.z.toFixed(rotDigit));
-                        this.body.quaternion.w = parseFloat(this.body.quaternion.w.toFixed(rotDigit));
-                    }
-                }
-                Vec3.copy(v3_0, this.body.position);
-                Quat.copy(quat_0, this.body.quaternion);
-                updateWorldRT(this.node, v3_0, quat_0);
-            }
+        if (this.body.type != ERigidBodyType.STATIC && !this.body.isSleeping()) {
+            Vec3.copy(v3_0, this.body.position);
+            Quat.copy(quat_0, this.body.quaternion);
+            updateWorldRT(this.node, v3_0, quat_0);
         }
     }
 

@@ -5997,6 +5997,7 @@ Body.wakeupEvent = {
  * @method wakeUp
  */
 Body.prototype.wakeUp = function(){
+    World.SLEEPING = false;
     var s = this.sleepState;
     this.sleepState = 0;
     this._wakeUpAfterNarrowphase = false;
@@ -14461,6 +14462,9 @@ World.prototype.internalStep = function(dt){
         frictionEquationPool
     );
 
+    if(contacts.length == 0 && World.SLEEPING)
+        return;
+
     if(doProfiling){
         profile.narrowphase = performance.now() - profilingStart;
     }
@@ -14719,7 +14723,18 @@ World.prototype.internalStep = function(dt){
         for(i=0; i!==N; i++){
             bodies[i].sleepTick(this.time);
         }
+
+        World.SLEEPING = true;
+        for(i=0; i!==N; i++){            
+            var bi = bodies[i];
+            if (bi.type != Body.STATIC && !bi.isSleeping()) {
+                World.SLEEPING = false;
+            }
+        }
+    }else{
+        World.SLEEPING = false;
     }
+
 };
 
 World.prototype.emitContactEvents = (function(){
