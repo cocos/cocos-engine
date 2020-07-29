@@ -295,9 +295,7 @@ export class ModelComponent extends RenderableComponent {
         this.lightmapSettings.uvParam.z = uScale;
         this.lightmapSettings.uvParam.w = vScale;
 
-        if (this.model !== null) {
-            this.model.updateLightingmap(this.lightmapSettings.texture, this.lightmapSettings.uvParam);
-        }
+        this._onUpdateLightingmap();
     }
 
     protected _updateModels () {
@@ -313,10 +311,7 @@ export class ModelComponent extends RenderableComponent {
         }
 
         this._updateModelParams();
-
-        if (this.model != null) {
-            this.model.updateLightingmap(this.lightmapSettings.texture, this.lightmapSettings.uvParam);
-        }
+        this._onUpdateLightingmap();
     }
 
     protected _createModel () {
@@ -376,6 +371,18 @@ export class ModelComponent extends RenderableComponent {
         this._model.enabled = true;
     }
 
+    protected _onUpdateLightingmap () {
+        if (this.model !== null) {
+            this.model.updateLightingmap(this.lightmapSettings.texture, this.lightmapSettings.uvParam);
+        }
+
+        this.setInstancedAttribute('a_lightingMapUVParam', [
+            this.lightmapSettings.uvParam.x,
+            this.lightmapSettings.uvParam.y,
+            this.lightmapSettings.uvParam.z,
+            this.lightmapSettings.uvParam.w]);
+    }
+
     protected _onMaterialModified (idx: number, material: Material | null) {
         if (!this._model || !this._model.inited) { return; }
         this._onRebuildPSO(idx, material || this._getBuiltinMaterial());
@@ -385,7 +392,7 @@ export class ModelComponent extends RenderableComponent {
         if (!this._model || !this._model.inited) { return; }
         this._model.isDynamicBatching = this._isBatchingEnabled();
         this._model.setSubModelMaterial(idx, material);
-        this._model.updateLightingmap(this.lightmapSettings.texture, this.lightmapSettings.uvParam);
+        this._onUpdateLightingmap();
     }
 
     protected _onMeshChanged (old: Mesh | null) {

@@ -8,8 +8,10 @@ import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { GFXPipelineState } from '../gfx/pipeline-state';
 import { IInstancedAttributeBlock, Pass } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
+import { UniformLightingMapSampler } from './define';
 
 export interface IInstancedItem {
+    pso: GFXPipelineState;
     count: number;
     capacity: number;
     vb: GFXBuffer;
@@ -23,7 +25,6 @@ const MAX_CAPACITY = 1024;
 
 export class InstancedBuffer {
     public instances: IInstancedItem[] = [];
-    public pso: GFXPipelineState | null = null;
     public pass: Pass;
 
     constructor (pass: Pass) {
@@ -42,11 +43,21 @@ export class InstancedBuffer {
     public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, pso: GFXPipelineState) {
         const stride = attrs.buffer.length;
         if (!stride) { return; } // we assume per-instance attributes are always present
-        if (!this.pso) { this.pso = pso; }
         const sourceIA = subModel.inputAssembler!;
+
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             if (instance.ia.indexBuffer !== sourceIA.indexBuffer || instance.count >= MAX_CAPACITY) { continue; }
+
+            // check same binding
+            if (instance.pso !== pso) {
+                const binding1 = instance.pso.pipelineLayout.layouts[0].getBindingUnit(UniformLightingMapSampler.binding);
+                const binding2 = pso.pipelineLayout.layouts[0].getBindingUnit(UniformLightingMapSampler.binding);
+                if (binding1?.texView !== binding2?.texView) {
+                    continue;
+                }
+            }
+
             if (instance.stride !== stride) {
                 // console.error(`instanced buffer stride mismatch! ${stride}/${instance.stride}`);
                 return;
@@ -91,7 +102,7 @@ export class InstancedBuffer {
 
         vertexBuffers.push(vb);
         const ia = device.createInputAssembler({ attributes, vertexBuffers, indexBuffer });
-        this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride });
+        this.instances.push({ pso, count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride });
     }
 
     public uploadBuffers () {
@@ -108,6 +119,5 @@ export class InstancedBuffer {
             const instance = this.instances[i];
             instance.count = 0;
         }
-        this.pso = null;
     }
 }
