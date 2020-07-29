@@ -5,9 +5,11 @@
 import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice } from '../gfx';
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
-import { IInstancedAttributeBlock, Pass, Light, LightType, IMacroPatch } from '../renderer';
+import { IInstancedAttributeBlock, Pass, Light } from '../renderer';
 import { SubModel, IPSOCreateInfo } from '../renderer/scene/submodel';
 import { IRenderObject, UBOForwardLight } from './define';
+import { LightType } from '../renderer/scene/light';
+import { IMacroPatch } from '../renderer/core/pass'
 
 export interface IInstancedItem {
     count: number;
@@ -69,7 +71,7 @@ export class InstancedBuffer {
         this.instances.length = 0;
     }
 
-    public merge (renderObj: IRenderObject, subModelIdx: number, attrs: IInstancedAttributeBlock, pass: Pass, lightIdx: number) {
+    public attach (renderObj: IRenderObject, subModelIdx: number, attrs: IInstancedAttributeBlock, pass: Pass, lightIdx: number) {
         const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
         const subModel = renderObj.model.subModelNum[subModelIdx];
         const light = this._validLights[lightIdx];
@@ -95,10 +97,10 @@ export class InstancedBuffer {
                 }
                 break;
         }
-        this.attach(subModel, attrs, this.psoci!);
+        this.merge(subModel, attrs, this.psoci!);
     }
 
-    public attach (subModel: SubModel, attrs: IInstancedAttributeBlock, psoci: IPSOCreateInfo) {
+    public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, psoci: IPSOCreateInfo) {
         const stride = attrs.buffer.length;
         if (!stride) { return; } // we assume per-instance attributes are always present
         if (!this.psoci) { this.psoci = psoci; }
@@ -160,17 +162,17 @@ export class InstancedBuffer {
         }
     }
 
-    public clearLightInstanced (validLights: Light[], lightBuffers: GFXBuffer[]) {
-        this._validLights = validLights;
-        this._lightBuffers = lightBuffers;
-        this.clear();
-    }
-
     public clear () {
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             instance.count = 0;
         }
         this.psoci = null;
+    }
+
+    public clearLightInstanced (validLights: Light[], lightBuffers: GFXBuffer[]) {
+        this._validLights = validLights;
+        this._lightBuffers = lightBuffers;
+        this.clear();
     }
 }

@@ -128,7 +128,7 @@ export class ForwardStage extends RenderStage {
                             for (let l = lightIndexOffset[i]; l < nextLightIndex; ++l) {
                                 const lightIndex = lightIndices[l];
                                 const instancedBuffer = InstancedBuffer.getLightInstanced(pass, lightIndex);
-                                instancedBuffer.merge(ro, m, ro.model.instancedAttributes, pass, lightIndex);
+                                instancedBuffer.attach(ro, m, ro.model.instancedAttributes, pass, lightIndex);
                                 this._instancedQueue.queue.add(instancedBuffer);
                             }
                         } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) {

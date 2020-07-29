@@ -24,7 +24,20 @@ export class RenderInstancedQueue {
      * @en Clear the render queue
      * @zh 清空渲染队列。
      */
-    public clear (validLights: Light[], lightBuffers: GFXBuffer[]) {
+    public clear () {
+        const it = this.queue.values(); let res = it.next();
+        while (!res.done) {
+            res.value.clear();
+            res = it.next();
+        }
+        this.queue.clear();
+    }
+
+    /**
+     * @en Clear the render queue
+     * @zh 清空渲染队列。
+     */
+    public clearLightInstanced (validLights: Light[], lightBuffers: GFXBuffer[]) {
         const it = this.queue.values(); let res = it.next();
         while (!res.done) {
             res.value.clearLightInstanced(validLights, lightBuffers);
