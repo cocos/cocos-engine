@@ -5,7 +5,7 @@
 import { ccclass } from '../../data/class-decorator';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { IGFXColor, IGFXRect } from '../../gfx/define';
-import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
+import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from '../forward/enum';
 import { RenderShadowMapBatchedQueue } from '../render-shadowMap-batched-queue';
@@ -24,18 +24,6 @@ export class ShadowStage extends RenderStage {
     public static initInfo: IRenderStageInfo = {
         name: 'ShadowStage',
         priority: ForwardStagePriority.FORWARD,
-        renderQueues: [
-            {
-                isTransparent: true,
-                sortMode: RenderQueueSortMode.FRONT_TO_BACK,
-                stages: ['default'],
-            },
-            {
-                isTransparent: false,
-                sortMode: RenderQueueSortMode.BACK_TO_FRONT,
-                stages: ['default'],
-            },
-        ],
     };
 
     public setShadowFrameBuffer (shadowFrameBuffer: GFXFramebuffer) {

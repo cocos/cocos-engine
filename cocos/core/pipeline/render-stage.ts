@@ -2,23 +2,11 @@
  * @category pipeline
  */
 
-import { CCString } from '../data';
 import { ccclass, property } from '../data/class-decorator';
-import { ccenum } from '../value-types/enum';
-import { IRenderPass } from './define';
-import { getPhaseID } from './pass-phase';
-import { opaqueCompareFn, RenderQueue, transparentCompareFn } from './render-queue';
 import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
 import { RenderPipeline } from './render-pipeline';
 import { RenderFlow } from '..';
-
-export enum RenderQueueSortMode {
-    FRONT_TO_BACK,
-    BACK_TO_FRONT,
-}
-
-ccenum(RenderQueueSortMode);
 
 /**
  * @en The render stage information descriptor
@@ -27,36 +15,7 @@ ccenum(RenderQueueSortMode);
 export interface IRenderStageInfo {
     name: string;
     priority: number;
-    renderQueues?: RenderQueueDesc[];
-}
-
-/**
- * @en The render queue descriptor
- * @zh 渲染队列描述信息
- */
-@ccclass('RenderQueueDesc')
-class RenderQueueDesc {
-
-    /**
-     * @en Whether the render queue is a transparent queue
-     * @zh 当前队列是否是半透明队列
-     */
-    @property
-    public isTransparent: boolean = false;
-
-    /**
-     * @en The sort mode of the render queue
-     * @zh 渲染队列的排序模式
-     */
-    @property({ type: RenderQueueSortMode })
-    public sortMode: RenderQueueSortMode = RenderQueueSortMode.FRONT_TO_BACK;
-
-    /**
-     * @en The stages using this queue
-     * @zh 使用当前渲染队列的阶段列表
-     */
-    @property({ type: [CCString] })
-    public stages: string[] = [];
+    type?: number;
 }
 
 /**
@@ -69,11 +28,27 @@ class RenderQueueDesc {
 @ccclass('RenderStage')
 export abstract class RenderStage {
     /**
+     * @en Name of the current stage
+     * @zh 当前渲染阶段的名字。
+     */
+    public get name (): string {
+        return this._name;
+    }
+
+    /**
      * @en Priority of the current stage
      * @zh 当前渲染阶段的优先级。
      */
     public get priority (): number {
         return this._priority;
+    }
+
+    /**
+     * @en Type of the current stage
+     * @zh 当前渲染阶段的类型。
+     */
+    public get type (): number {
+        return this._type;
     }
 
     /**
@@ -86,20 +61,25 @@ export abstract class RenderStage {
     })
     protected _name: string = '';
 
+    /**
+     * @en Priority
+     * @zh 优先级。
+     */
     @property({
         displayOrder: 1,
         visible: true,
     })
     protected _priority: number = 0;
 
+    /**
+     * @en Type
+     * @zh 类型。
+     */
     @property({
-        type: [RenderQueueDesc],
         displayOrder: 2,
         visible: true,
     })
-    protected renderQueues: RenderQueueDesc[] = [];
-
-    protected _renderQueues: RenderQueue[] = [];
+    protected _type: number = 0;
     protected _pipeline!: RenderPipeline;
     protected _flow!: RenderFlow;
 
@@ -109,14 +89,11 @@ export abstract class RenderStage {
      * @param info The render stage information
      */
     public initialize (info: IRenderStageInfo): boolean {
-        if (info.name !== undefined) {
-            this._name = info.name;
-        }
-
+        this._name = info.name;
         this._priority = info.priority;
 
-        if (info.renderQueues) {
-            this.renderQueues = info.renderQueues;
+        if (info.type) {
+            this._type = info.type;
         }
 
         return true;
@@ -130,32 +107,6 @@ export abstract class RenderStage {
     public activate (pipeline: RenderPipeline, flow: RenderFlow) {
         this._pipeline = pipeline;
         this._flow = flow;
-
-        if (!this._pipeline.device) {
-            throw new Error('');
-        }
-
-        for (let i = 0; i < this.renderQueues.length; i++) {
-            let phase = 0;
-            for (let j = 0; j < this.renderQueues[i].stages.length; j++) {
-                phase |= getPhaseID(this.renderQueues[i].stages[j]);
-            }
-            let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
-            switch (this.renderQueues[i].sortMode) {
-                case RenderQueueSortMode.BACK_TO_FRONT:
-                    sortFunc = transparentCompareFn;
-                    break;
-                case RenderQueueSortMode.FRONT_TO_BACK:
-                    sortFunc = opaqueCompareFn;
-                    break;
-            }
-
-            this._renderQueues[i] = new RenderQueue({
-                isTransparent: this.renderQueues[i].isTransparent,
-                phases: phase,
-                sortFunc,
-            });
-        }
     }
 
     /**

@@ -118,3 +118,39 @@ export class RenderPassDesc {
     @property({ type: DepthStencilDesc })
     public depthStencilAttachment: DepthStencilDesc = new DepthStencilDesc();
 }
+
+export enum RenderQueueSortMode {
+    FRONT_TO_BACK,
+    BACK_TO_FRONT,
+}
+
+ccenum(RenderQueueSortMode);
+
+/**
+ * @en The render queue descriptor
+ * @zh 渲染队列描述信息
+ */
+@ccclass('RenderQueueDesc')
+export class RenderQueueDesc {
+
+    /**
+     * @en Whether the render queue is a transparent queue
+     * @zh 当前队列是否是半透明队列
+     */
+    @property
+    public isTransparent: boolean = false;
+
+    /**
+     * @en The sort mode of the render queue
+     * @zh 渲染队列的排序模式
+     */
+    @property({ type: RenderQueueSortMode })
+    public sortMode: RenderQueueSortMode = RenderQueueSortMode.FRONT_TO_BACK;
+
+    /**
+     * @en The stages using this queue
+     * @zh 使用当前渲染队列的阶段列表
+     */
+    @property({ type: [CCString] })
+    public stages: string[] = [];
+}

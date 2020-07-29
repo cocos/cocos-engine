@@ -15,7 +15,7 @@ import { RenderFlowType } from './pipeline-serialization';
 export interface IRenderFlowInfo {
     name: string;
     priority: number;
-    type?: RenderFlowType;
+    type?: number;
 }
 
 /**
@@ -40,7 +40,11 @@ export abstract class RenderFlow {
         return this._priority;
     }
 
-    public get type (): RenderFlowType {
+    /**
+     * @en Type of the current flow
+     * @zh 当前渲染流程的类型。
+     */
+    public get type (): number {
         return this._type;
     }
 
@@ -57,11 +61,10 @@ export abstract class RenderFlow {
     protected _priority: number = 0;
 
     @property({
-        type: RenderFlowType,
         displayOrder: 2,
         visible: true,
     })
-    protected _type: RenderFlowType = RenderFlowType.SCENE;
+    protected _type: number = 0;
 
     @property({
         type: [RenderStage],
@@ -70,6 +73,7 @@ export abstract class RenderFlow {
     })
     protected _stages: RenderStage[] = [];
     protected _pipeline!: RenderPipeline;
+
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
      * @zh 初始化函数，正常情况下不会用到，仅用于程序化生成渲染管线的情况。

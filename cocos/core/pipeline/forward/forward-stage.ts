@@ -2,21 +2,24 @@
  * @category pipeline
  */
 
-import { ccclass } from '../../data/class-decorator';
+import { ccclass, property } from '../../data/class-decorator';
+import { IRenderPass } from '../define';
+import { getPhaseID } from '../pass-phase';
+import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { GFXClearFlag, IGFXColor, IGFXRect } from '../../gfx/define';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
-import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
+import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
-import { RenderQueue } from '../render-queue';
 import { InstancedBuffer } from '../instanced-buffer';
 import { BatchedBuffer } from '../batched-buffer';
 import { BatchingSchemes } from '../../renderer/core/pass';
 import { ForwardFlow } from './forward-flow';
 import { ForwardPipeline } from './forward-pipeline';
+import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 
@@ -30,19 +33,15 @@ export class ForwardStage extends RenderStage {
     public static initInfo: IRenderStageInfo = {
         name: 'ForwardStage',
         priority: ForwardStagePriority.FORWARD,
-        renderQueues: [
-            {
-                isTransparent: false,
-                sortMode: RenderQueueSortMode.FRONT_TO_BACK,
-                stages: ['default'],
-            },
-            {
-                isTransparent: true,
-                sortMode: RenderQueueSortMode.BACK_TO_FRONT,
-                stages: ['default', 'planarShadow'],
-            },
-        ],
     };
+
+    @property({
+        type: [RenderQueueDesc],
+        displayOrder: 2,
+        visible: true,
+    })
+    protected renderQueues: RenderQueueDesc[] = [];
+    protected _renderQueues: RenderQueue[] = [];
 
     private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
     private _batchedQueue: RenderBatchedQueue;
@@ -56,8 +55,47 @@ export class ForwardStage extends RenderStage {
         this._additiveLightQueue = new RenderAdditiveLightQueue();
     }
 
+    public initialize (info: IRenderStageInfo) {
+        super.initialize(info);
+        this.renderQueues = [
+            {
+                isTransparent: false,
+                sortMode: RenderQueueSortMode.FRONT_TO_BACK,
+                stages: ['default'],
+            },
+            {
+                isTransparent: true,
+                sortMode: RenderQueueSortMode.BACK_TO_FRONT,
+                stages: ['default', 'planarShadow'],
+            },
+        ]
+
+        return true;
+    }
+
     public activate (pipeline: ForwardPipeline, flow: ForwardFlow) {
         super.activate(pipeline, flow);
+        for (let i = 0; i < this.renderQueues.length; i++) {
+            let phase = 0;
+            for (let j = 0; j < this.renderQueues[i].stages.length; j++) {
+                phase |= getPhaseID(this.renderQueues[i].stages[j]);
+            }
+            let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
+            switch (this.renderQueues[i].sortMode) {
+                case RenderQueueSortMode.BACK_TO_FRONT:
+                    sortFunc = transparentCompareFn;
+                    break;
+                case RenderQueueSortMode.FRONT_TO_BACK:
+                    sortFunc = opaqueCompareFn;
+                    break;
+            }
+
+            this._renderQueues[i] = new RenderQueue({
+                isTransparent: this.renderQueues[i].isTransparent,
+                phases: phase,
+                sortFunc,
+            });
+        }
     }
 
     public destroy () {
