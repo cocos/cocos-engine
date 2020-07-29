@@ -727,7 +727,7 @@ private:
     uint _count = 0u;
 };
 
-//#define ASYNC_BUFFER_UPDATE
+#define ASYNC_BUFFER_UPDATE
 #define ASYNC_COMMAND_SUBMISSION
 class CCVKGPUTransportHub : public Object {
 public:
@@ -801,7 +801,7 @@ public:
 
         if (_count) {
             if (_queue->lastAutoFence) {
-                vkWaitForFences(_device->vkDevice, 1, &_queue->lastAutoFence, VK_TRUE, DEFAULT_FENCE_TIMEOUT);
+                VK_CHECK(vkWaitForFences(_device->vkDevice, 1, &_queue->lastAutoFence, VK_TRUE, DEFAULT_FENCE_TIMEOUT));
                 _queue->lastAutoFence = VK_NULL_HANDLE;
             }
             for (uint i = 0u; i < _count; i++) {

@@ -48,8 +48,13 @@ bool GLES2PipelineState::initialize(const PipelineStateInfo &info) {
     _gpuPipelineState->rs = _rasterizerState;
     _gpuPipelineState->dss = _depthStencilState;
     _gpuPipelineState->bs = _blendState;
-    _gpuPipelineState->dynamicStates = _dynamicStates;
     _gpuPipelineState->gpuRenderPass = ((GLES2RenderPass *)_renderPass)->gpuRenderPass();
+
+    for (uint i = 0; i < 31; i++) {
+        if ((uint)_dynamicStates & (1 << i)) {
+            _gpuPipelineState->dynamicStates.push_back((DynamicStateFlagBit)(1 << i));
+        }
+    }
 
     _status = Status::SUCCESS;
 

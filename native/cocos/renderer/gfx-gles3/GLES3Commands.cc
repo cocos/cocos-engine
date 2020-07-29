@@ -1896,27 +1896,27 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
                 }
 
                 if (gpuPipelineState) {
-                    for (auto dynamicState : gpuPipelineState->dynamicStates) {
+                    for (DynamicStateFlagBit dynamicState : gpuPipelineState->dynamicStates) {
                         switch (dynamicState) {
-                            case DynamicState::VIEWPORT:
+                            case DynamicStateFlagBit::VIEWPORT:
                                 if (cache->viewport != cmd->viewport) {
                                     glViewport(cmd->viewport.left, cmd->viewport.top, cmd->viewport.width, cmd->viewport.height);
                                     cache->viewport = cmd->viewport;
                                 }
                                 break;
-                            case DynamicState::SCISSOR:
+                            case DynamicStateFlagBit::SCISSOR:
                                 if (cache->scissor != cmd->scissor) {
                                     glScissor(cmd->scissor.x, cmd->scissor.y, cmd->scissor.width, cmd->scissor.height);
                                     cache->scissor = cmd->scissor;
                                 }
                                 break;
-                            case DynamicState::LINE_WIDTH:
+                            case DynamicStateFlagBit::LINE_WIDTH:
                                 if (cache->rs.lineWidth != cmd->lineWidth) {
                                     glLineWidth(cmd->lineWidth);
                                     cache->rs.lineWidth = cmd->lineWidth;
                                 }
                                 break;
-                            case DynamicState::DEPTH_BIAS:
+                            case DynamicStateFlagBit::DEPTH_BIAS:
                                 if (cache->rs.depthBiasEnabled != cmd->depthBiasEnabled) {
                                     if (cmd->depthBiasEnabled)
                                         glEnable(GL_POLYGON_OFFSET_FILL);
@@ -1932,7 +1932,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
                                     cache->rs.depthBiasSlop = cmd->depthBias.slope;
                                 }
                                 break;
-                            case DynamicState::BLEND_CONSTANTS:
+                            case DynamicStateFlagBit::BLEND_CONSTANTS:
                                 if ((cache->bs.blendColor.r != gpuPipelineState->bs.blendColor.r) ||
                                     (cache->bs.blendColor.g != gpuPipelineState->bs.blendColor.g) ||
                                     (cache->bs.blendColor.b != gpuPipelineState->bs.blendColor.b) ||
@@ -1944,7 +1944,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
                                     cache->bs.blendColor = gpuPipelineState->bs.blendColor;
                                 }
                                 break;
-                            case DynamicState::STENCIL_WRITE_MASK:
+                            case DynamicStateFlagBit::STENCIL_WRITE_MASK:
                                 switch (cmd->stencilWriteMask.face) {
                                     case StencilFace::FRONT:
                                         if (cache->dss.stencilWriteMaskFront != cmd->stencilWriteMask.write_mask) {
@@ -1968,7 +1968,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
                                         break;
                                 }
                                 break;
-                            case DynamicState::STENCIL_COMPARE_MASK:
+                            case DynamicStateFlagBit::STENCIL_COMPARE_MASK:
                                 switch (cmd->stencilCompareMask.face) {
                                     case StencilFace::FRONT:
                                         if ((cache->dss.stencilRefFront != (uint)cmd->stencilCompareMask.refrence) ||

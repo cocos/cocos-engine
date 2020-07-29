@@ -33,8 +33,13 @@ bool CCVKPipelineState::initialize(const PipelineStateInfo &info) {
     _gpuPipelineState->rs = _rasterizerState;
     _gpuPipelineState->dss = _depthStencilState;
     _gpuPipelineState->bs = _blendState;
-    _gpuPipelineState->dynamicStates = _dynamicStates;
     _gpuPipelineState->gpuRenderPass = ((CCVKRenderPass *)_renderPass)->gpuRenderPass();
+
+    for (uint i = 0; i < 31; i++) {
+        if ((uint)_dynamicStates & (1 << i)) {
+            _gpuPipelineState->dynamicStates.push_back((DynamicStateFlagBit)(1 << i));
+        }
+    }
 
     CCVKCmdFuncCreatePipelineState((CCVKDevice *)_device, _gpuPipelineState);
 

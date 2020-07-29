@@ -10740,7 +10740,7 @@ static bool js_gfx_PipelineStateInfo_get_dynamicStates(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= std_vector_to_seval(cobj->dynamicStates, &jsret);
+    ok &= int32_to_seval((int)cobj->dynamicStates, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -10753,8 +10753,8 @@ static bool js_gfx_PipelineStateInfo_set_dynamicStates(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_set_dynamicStates : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::vector<cc::gfx::DynamicState> arg0;
-    ok &= seval_to_std_vector(args[0], &arg0);
+    cc::gfx::DynamicStateFlagBit arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::DynamicStateFlagBit)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_PipelineStateInfo_set_dynamicStates : Error processing new value");
     cobj->dynamicStates = arg0;
     return true;
@@ -10846,10 +10846,10 @@ static bool js_gfx_PipelineStateInfo_constructor(se::State& s)
             ok &= seval_to_reference(field, &arg5);
             cobj->blendState = *arg5;
         }
-        std::vector<cc::gfx::DynamicState> arg6;
+        cc::gfx::DynamicStateFlagBit arg6;
         json->getProperty("dynamicStates", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_std_vector(field, &arg6);
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg6 = (cc::gfx::DynamicStateFlagBit)tmp; } while(false);
             cobj->dynamicStates = arg6;
         }
         cc::gfx::RenderPass* arg7 = nullptr;
@@ -10902,9 +10902,9 @@ static bool js_gfx_PipelineStateInfo_constructor(se::State& s)
             ok &= seval_to_reference(args[5], &arg5);
             cobj->blendState = *arg5;
         }
-        std::vector<cc::gfx::DynamicState> arg6;
+        cc::gfx::DynamicStateFlagBit arg6;
         if (!args[6].isUndefined()) {
-            ok &= seval_to_std_vector(args[6], &arg6);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cc::gfx::DynamicStateFlagBit)tmp; } while(false);
             cobj->dynamicStates = arg6;
         }
         cc::gfx::RenderPass* arg7 = nullptr;
@@ -15209,8 +15209,8 @@ static bool js_gfx_PipelineState_getDynamicStates(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const std::vector<cc::gfx::DynamicState>& result = cobj->getDynamicStates();
-        ok &= std_vector_to_seval(result, &s.rval());
+        int result = (int)cobj->getDynamicStates();
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_PipelineState_getDynamicStates : Error processing arguments");
         return true;
     }

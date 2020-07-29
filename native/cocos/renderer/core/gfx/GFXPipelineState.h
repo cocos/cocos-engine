@@ -18,22 +18,22 @@ public:
     CC_INLINE Device *getDevice() const { return _device; }
     CC_INLINE Shader *getShader() const { return _shader; }
     CC_INLINE PrimitiveMode getPrimitive() const { return _primitive; }
+    CC_INLINE DynamicStateFlags getDynamicStates() const { return _dynamicStates; }
     CC_INLINE const InputState &getInputState() const { return _inputState; }
     CC_INLINE const RasterizerState &getRasterizerState() const { return _rasterizerState; }
     CC_INLINE const DepthStencilState &getDepthStencilState() const { return _depthStencilState; }
     CC_INLINE const BlendState &getBlendState() const { return _blendState; }
-    CC_INLINE const DynamicStateList &getDynamicStates() const { return _dynamicStates; }
     CC_INLINE const RenderPass *getRenderPass() const { return _renderPass; }
 
 protected:
     Device *_device = nullptr;
     Shader *_shader = nullptr;
     PrimitiveMode _primitive = PrimitiveMode::TRIANGLE_LIST;
+    DynamicStateFlags _dynamicStates = DynamicStateFlags::NONE;
     InputState _inputState;
     RasterizerState _rasterizerState;
     DepthStencilState _depthStencilState;
     BlendState _blendState;
-    DynamicStateList _dynamicStates;
     RenderPass *_renderPass = nullptr;
 };
 

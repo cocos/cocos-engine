@@ -492,18 +492,20 @@ enum class CullMode : uint8_t {
     BACK,
 };
 
-enum class DynamicState : uint8_t {
-    VIEWPORT,
-    SCISSOR,
-    LINE_WIDTH,
-    DEPTH_BIAS,
-    BLEND_CONSTANTS,
-    DEPTH_BOUNDS,
-    STENCIL_WRITE_MASK,
-    STENCIL_COMPARE_MASK,
+enum class DynamicStateFlagBit : uint8_t {
+    NONE = 0x0,
+    VIEWPORT = 0x1,
+    SCISSOR = 0x2,
+    LINE_WIDTH = 0x4,
+    DEPTH_BIAS = 0x8,
+    BLEND_CONSTANTS = 0x10,
+    DEPTH_BOUNDS = 0x20,
+    STENCIL_WRITE_MASK = 0x40,
+    STENCIL_COMPARE_MASK = 0x80,
 };
+typedef DynamicStateFlagBit DynamicStateFlags;
 
-typedef vector<DynamicState> DynamicStateList;
+typedef vector<DynamicStateFlagBit> DynamicStateList;
 
 enum class StencilFace : uint8_t {
     FRONT,
@@ -953,7 +955,7 @@ struct PipelineStateInfo {
     RasterizerState rasterizerState;
     DepthStencilState depthStencilState;
     BlendState blendState;
-    DynamicStateList dynamicStates;
+    DynamicStateFlags dynamicStates;
     RenderPass *renderPass = nullptr;
 };
 
