@@ -248,54 +248,6 @@ export class ForwardPipeline extends RenderPipeline {
         return renderPass;
     }
 
-    public _activeRenderer () {
-        const device = this.device;
-
-        this.commandBuffers[0] = device.createCommandBuffer({
-            type: GFXCommandBufferType.PRIMARY,
-            queue: device.queue,
-        });
-
-        let colorAttachment = new GFXColorAttachment();
-        let depthStencilAttachment = new GFXDepthStencilAttachment();
-        colorAttachment.format = device.colorFormat;
-        depthStencilAttachment.format = device.depthStencilFormat;
-        depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
-        depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
-
-        const windowPass = device.createRenderPass({
-            colorAttachments: [colorAttachment],
-            depthStencilAttachment,
-        });
-        this.addRenderPass(RenderPassStage.DEFAULT, windowPass);
-
-        colorAttachment = new GFXColorAttachment();
-        colorAttachment.format = device.colorFormat;
-        colorAttachment.loadOp = GFXLoadOp.LOAD;
-        colorAttachment.beginLayout = GFXTextureLayout.PRESENT_SRC;
-
-        depthStencilAttachment = new GFXDepthStencilAttachment();
-        depthStencilAttachment.format = device.depthStencilFormat;
-        depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
-        depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
-
-        const uiPass = device.createRenderPass({
-            colorAttachments: [colorAttachment],
-            depthStencilAttachment,
-        });
-        this.addRenderPass(RenderPassStage.UI, uiPass);
-
-        if (!this._createUBOs()) {
-            return false;
-        }
-
-        // update global defines when all states initialized.
-        this.macros.CC_USE_HDR = this._isHDR;
-        this.macros.CC_SUPPORT_FLOAT_TEXTURE = this.device.hasFeature(GFXFeature.TEXTURE_FLOAT);
-
-        return true;
-    }
-
     /**
      * @en Update all UBOs
      * @zh 更新全部 UBO。
@@ -402,6 +354,54 @@ export class ForwardPipeline extends RenderPipeline {
             // update lightBuffer
             this._lightBuffers[l].update(this._uboLight.view);
         }
+    }
+
+    private _activeRenderer () {
+        const device = this.device;
+
+        this.commandBuffers[0] = device.createCommandBuffer({
+            type: GFXCommandBufferType.PRIMARY,
+            queue: device.queue,
+        });
+
+        let colorAttachment = new GFXColorAttachment();
+        let depthStencilAttachment = new GFXDepthStencilAttachment();
+        colorAttachment.format = device.colorFormat;
+        depthStencilAttachment.format = device.depthStencilFormat;
+        depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
+        depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
+
+        const windowPass = device.createRenderPass({
+            colorAttachments: [colorAttachment],
+            depthStencilAttachment,
+        });
+        this.addRenderPass(RenderPassStage.DEFAULT, windowPass);
+
+        colorAttachment = new GFXColorAttachment();
+        colorAttachment.format = device.colorFormat;
+        colorAttachment.loadOp = GFXLoadOp.LOAD;
+        colorAttachment.beginLayout = GFXTextureLayout.PRESENT_SRC;
+
+        depthStencilAttachment = new GFXDepthStencilAttachment();
+        depthStencilAttachment.format = device.depthStencilFormat;
+        depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
+        depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
+
+        const uiPass = device.createRenderPass({
+            colorAttachments: [colorAttachment],
+            depthStencilAttachment,
+        });
+        this.addRenderPass(RenderPassStage.UI, uiPass);
+
+        if (!this._createUBOs()) {
+            return false;
+        }
+
+        // update global defines when all states initialized.
+        this.macros.CC_USE_HDR = this._isHDR;
+        this.macros.CC_SUPPORT_FLOAT_TEXTURE = this.device.hasFeature(GFXFeature.TEXTURE_FLOAT);
+
+        return true;
     }
 
     private _createUBOs (): boolean {
