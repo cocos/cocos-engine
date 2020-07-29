@@ -10,7 +10,7 @@ import { SphereLight } from '../../renderer/scene/sphere-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
 import { UBOForwardLight } from '../define';
 import { legacyCC } from '../../global-exports';
-import { ForwardRenderContext } from './forward-render-context';
+import { ForwardPipeline } from './forward-pipeline';
 import { RenderView } from '../render-view';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXBuffer } from '../../gfx/buffer';
@@ -18,21 +18,21 @@ import { GFXBuffer } from '../../gfx/buffer';
 const _tempVec3 = new Vec3();
 const _sphere = sphere.create(0, 0, 0, 1);
 
-function addVisibleModel (rctx: ForwardRenderContext, model: Model, camera: Camera) {
+function addVisibleModel (pipeline: ForwardPipeline, model: Model, camera: Camera) {
     let depth = 0;
     if (model.node) {
         Vec3.subtract(_tempVec3, model.node.worldPosition, camera.position);
         depth = Vec3.dot(_tempVec3, camera.forward);
     }
-    rctx.renderObjects.push({
+    pipeline.renderObjects.push({
         model,
         depth,
     });
 }
 
-function cullLightPerModel (rctx: ForwardRenderContext, model: Model) {
-    const validLights = rctx.validLights;
-    const lightIndices = rctx.lightIndices;
+function cullLightPerModel (pipeline: ForwardPipeline, model: Model) {
+    const validLights = pipeline.validLights;
+    const lightIndices = pipeline.lightIndices;
 
     if (model.node) {
         model.node.getWorldPosition(_tempVec3);
@@ -58,11 +58,11 @@ function cullLightPerModel (rctx: ForwardRenderContext, model: Model) {
     }
 }
 
-export function sceneCulling (rctx: ForwardRenderContext, view: RenderView) {
+export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     const camera = view.camera;
     const scene = camera.scene!;
-    const device = rctx.device;
-    const renderObjects = rctx.renderObjects;
+    const device = pipeline.device;
+    const renderObjects = pipeline.renderObjects;
     renderObjects.length = 0;
 
     const mainLight = scene.mainLight;
@@ -75,7 +75,7 @@ export function sceneCulling (rctx: ForwardRenderContext, view: RenderView) {
     }
 
     if (scene.skybox.enabled && (camera.clearFlag & SKYBOX_FLAG)) {
-        addVisibleModel(rctx, scene.skybox, camera);
+        addVisibleModel(pipeline, scene.skybox, camera);
     }
 
     const models = scene.models;
@@ -92,7 +92,7 @@ export function sceneCulling (rctx: ForwardRenderContext, view: RenderView) {
                     view.visibility === model.visFlags) {
                     model.updateTransform(stamp);
                     model.updateUBOs(stamp);
-                    addVisibleModel(rctx, model, camera);
+                    addVisibleModel(pipeline, model, camera);
                 }
             } else {
                 if (model.node && ((view.visibility & model.node.layer) === model.node.layer) ||
@@ -105,7 +105,7 @@ export function sceneCulling (rctx: ForwardRenderContext, view: RenderView) {
                     }
 
                     model.updateUBOs(stamp);
-                    addVisibleModel(rctx, model, camera);
+                    addVisibleModel(pipeline, model, camera);
                 }
             }
         }
@@ -115,10 +115,10 @@ export function sceneCulling (rctx: ForwardRenderContext, view: RenderView) {
         planarShadows.updateShadowList(camera.frustum, stamp, (camera.visibility & Layers.BitMask.DEFAULT) !== 0);
     }
 
-    const validLights = rctx.validLights;
-    const lightBuffers = rctx.lightBuffers;
-    const lightIndexOffsets = rctx.lightIndexOffsets;
-    const lightIndices = rctx.lightIndices;
+    const validLights = pipeline.validLights;
+    const lightBuffers = pipeline.lightBuffers;
+    const lightIndexOffsets = pipeline.lightIndexOffsets;
+    const lightIndices = pipeline.lightIndices;
     validLights.length = lightIndexOffsets.length = lightIndices.length = 0;
     const sphereLights = view.camera.scene!.sphereLights;
 
@@ -155,7 +155,7 @@ export function sceneCulling (rctx: ForwardRenderContext, view: RenderView) {
     if (validLights.length > 0) {
         for (let i = 0; i < renderObjects.length; i++) {
             lightIndexOffsets[i] = lightIndices.length;
-            cullLightPerModel(rctx, renderObjects[i].model);
+            cullLightPerModel(pipeline, renderObjects[i].model);
         }
     }
 }

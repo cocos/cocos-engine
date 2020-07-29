@@ -6,9 +6,9 @@ import { ccclass, property } from '../data/class-decorator';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
-import { RenderContext } from './render-context';
-import { Root } from '../root';
 import { IDefineMap } from '../renderer/core/pass-utils';
+import { GFXDevice } from '../gfx/device';
+import { IInternalBindingInst } from './define';
 
 /**
  * @en Render pipeline information descriptor
@@ -34,7 +34,7 @@ export abstract class RenderPipeline {
      * @readonly
      */
     public get globalBindings () {
-        return this._renderContext.globalBindings;
+        return this._globalBindings;
     }
 
     /**
@@ -43,7 +43,7 @@ export abstract class RenderPipeline {
      * @readonly
      */
     public get macros (): IDefineMap {
-        return this._renderContext.macros;
+        return this._macros;
     }
 
     /**
@@ -60,7 +60,9 @@ export abstract class RenderPipeline {
         visible: true,
     })
     protected _flows: RenderFlow[] = [];
-    protected _renderContext!: RenderContext;
+    protected _globalBindings: Map<string, IInternalBindingInst> = new Map<string, IInternalBindingInst>();
+    protected _macros: IDefineMap = {};
+    public device!: GFXDevice;
 
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
@@ -79,17 +81,11 @@ export abstract class RenderPipeline {
      * @en Activate the render pipeline after loaded, it mainly activate the flows
      * @zh 当渲染管线资源加载完成后，启用管线，主要是启用管线内的 flow
      */
-    public activate (root: Root): boolean {
-        if (!this._renderContext) {
-            this._renderContext = this.getRenderContext();
-            this._renderContext.initialize(this);
-        }
-
-        const rctx = this._renderContext;
-        rctx.activate(root);
+    public activate (): boolean {
+        this.device = legacyCC.director.root.device;
 
         for (let i = 0; i < this._flows.length; i++) {
-            this._flows[i].activate(rctx);
+            this._flows[i].activate(this);
         }
 
         return true;
@@ -102,7 +98,7 @@ export abstract class RenderPipeline {
      */
     public render (view: RenderView) {
         for (let i = 0; i < view.flows.length; i++) {
-            view.flows[i].render(this._renderContext, view);
+            view.flows[i].render(view);
         }
     }
 
@@ -115,14 +111,6 @@ export abstract class RenderPipeline {
             this._flows[i].destroy();
         }
         this._flows.length = 0;
-
-        if (this._renderContext) {
-            this._renderContext.destroy();
-        }
-    }
-
-    protected getRenderContext () {
-        return new RenderContext();
     }
 }
 

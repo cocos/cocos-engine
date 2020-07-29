@@ -11,11 +11,12 @@ import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-st
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
-import { ForwardRenderContext } from './forward-render-context';
 import { RenderQueue } from '../render-queue';
 import { InstancedBuffer } from '../instanced-buffer';
 import { BatchedBuffer } from '../batched-buffer';
 import { BatchingSchemes } from '../../renderer/core/pass';
+import { ForwardFlow } from './forward-flow';
+import { ForwardPipeline } from './forward-pipeline';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 
@@ -55,24 +56,25 @@ export class ForwardStage extends RenderStage {
         this._additiveLightQueue = new RenderAdditiveLightQueue();
     }
 
-    public activate (rctx: ForwardRenderContext) {
-        super.activate(rctx);
+    public activate (pipeline: ForwardPipeline, flow: ForwardFlow) {
+        super.activate(pipeline, flow);
     }
 
     public destroy () {
     }
 
-    public render (rctx: ForwardRenderContext, view: RenderView) {
+    public render (view: RenderView) {
         this._instancedQueue.clear();
         this._batchedQueue.clear();
-        const validLights = rctx.validLights;
-        const lightBuffers = rctx.lightBuffers;
-        const lightIndices = rctx.lightIndices;
+        const pipeline = this._pipeline as ForwardPipeline;
+        const validLights = pipeline.validLights;
+        const lightBuffers = pipeline.lightBuffers;
+        const lightIndices = pipeline.lightIndices;
         this._additiveLightQueue.clear(validLights, lightBuffers, lightIndices);
         this._renderQueues.forEach(this.renderQueueClearFunc);
 
-        const renderObjects = rctx.renderObjects;
-        const lightIndexOffset = rctx.lightIndexOffsets;
+        const renderObjects = pipeline.renderObjects;
+        const lightIndexOffset = pipeline.lightIndexOffsets;
         let m = 0; let p = 0; let k = 0;
         for (let i = 0; i < renderObjects.length; ++i) {
             const nextLightIndex = i + 1 < renderObjects.length ? lightIndexOffset[i + 1] : lightIndices.length;
@@ -116,18 +118,18 @@ export class ForwardStage extends RenderStage {
 
         const camera = view.camera;
 
-        const cmdBuff = rctx.commandBuffers[0];
+        const cmdBuff = pipeline.commandBuffers[0];
 
         const vp = camera.viewport;
         this._renderArea!.x = vp.x * camera.width;
         this._renderArea!.y = vp.y * camera.height;
-        this._renderArea!.width = vp.width * camera.width * rctx.shadingScale;
-        this._renderArea!.height = vp.height * camera.height * rctx.shadingScale;
+        this._renderArea!.width = vp.width * camera.width * pipeline.shadingScale;
+        this._renderArea!.height = vp.height * camera.height * pipeline.shadingScale;
 
         if (camera.clearFlag & GFXClearFlag.COLOR) {
-            if (rctx.isHDR) {
+            if (pipeline.isHDR) {
                 SRGBToLinear(colors[0], camera.clearColor);
-                const scale = rctx.fpScale / camera.exposure;
+                const scale = pipeline.fpScale / camera.exposure;
                 colors[0].r *= scale;
                 colors[0].g *= scale;
                 colors[0].b *= scale;
@@ -141,8 +143,8 @@ export class ForwardStage extends RenderStage {
         colors[0].a = camera.clearColor.a;
 
         const framebuffer = view.window.framebuffer;
-        const device = rctx.device;
-        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : rctx.getRenderPass(camera.clearFlag);
+        const device = pipeline.device;
+        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
@@ -158,7 +160,7 @@ export class ForwardStage extends RenderStage {
         cmdBuff.endRenderPass();
         cmdBuff.end();
 
-        device.queue.submit(rctx.commandBuffers);
+        device.queue.submit(pipeline.commandBuffers);
     }
 
     /**

@@ -4,7 +4,7 @@
 import { ccclass, property } from '../data/class-decorator';
 import { RenderStage } from './render-stage';
 import { RenderView } from './render-view';
-import { RenderContext } from './render-context';
+import { RenderPipeline } from './render-pipeline';
 import { legacyCC } from '../global-exports';
 import { RenderFlowType } from './pipeline-serialization';
 
@@ -69,7 +69,7 @@ export abstract class RenderFlow {
         visible: true,
     })
     protected _stages: RenderStage[] = [];
-
+    protected _pipeline!: RenderPipeline;
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
      * @zh 初始化函数，正常情况下不会用到，仅用于程序化生成渲染管线的情况。
@@ -89,13 +89,14 @@ export abstract class RenderFlow {
      * @zh 为指定的渲染管线开启当前渲染流程
      * @param pipeline The render pipeline to activate this render flow
      */
-    public activate (rctx: RenderContext) {
+    public activate (pipeline: RenderPipeline) {
+        this._pipeline = pipeline;
         this._stages.sort((a, b) => {
             return a.priority - b.priority;
         });
 
         for (let i = 0, len = this._stages.length; i < len; i++) {
-            this._stages[i].activate(rctx);
+            this._stages[i].activate(pipeline, this);
         }
     }
 
@@ -104,9 +105,9 @@ export abstract class RenderFlow {
      * @zh 渲染函数，对指定的渲染视图按顺序执行所有渲染阶段。
      * @param view Render view。
      */
-    public render (rctx: RenderContext, view: RenderView) {
+    public render (view: RenderView) {
         for (let i = 0, len = this._stages.length; i < len; i++) {
-            this._stages[i].render(rctx, view);
+            this._stages[i].render(view);
         }
     }
 

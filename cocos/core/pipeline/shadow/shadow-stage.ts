@@ -10,7 +10,7 @@ import { RenderView } from '../render-view';
 import { ForwardStagePriority } from '../forward/enum';
 import { RenderShadowMapBatchedQueue } from '../render-shadowMap-batched-queue';
 import { GFXFramebuffer } from '../../gfx/framebuffer';
-import { ForwardRenderContext } from '../forward/forward-render-context';
+import { ForwardPipeline } from '../forward/forward-pipeline';
 
 const colors: IGFXColor[] = [ { r: 1, g: 1, b: 1, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -67,10 +67,11 @@ export class ShadowStage extends RenderStage {
      * 渲染函数。
      * @param view 渲染视图。
      */
-    public render (rctx: ForwardRenderContext, view: RenderView) {
-        this._additiveShadowQueue.clear(rctx.shadowUBOBuffer);
+    public render (view: RenderView) {
+        const pipeline = this._pipeline as ForwardPipeline;
+        this._additiveShadowQueue.clear(pipeline.shadowUBOBuffer);
 
-        const renderObjects = rctx.renderObjects;
+        const renderObjects = pipeline.renderObjects;
         let m = 0; let p = 0;
         for (let i = 0; i < renderObjects.length; ++i) {
             const ro = renderObjects[i];
@@ -86,16 +87,16 @@ export class ShadowStage extends RenderStage {
 
         const camera = view.camera;
 
-        const cmdBuff = rctx.commandBuffers[0];
+        const cmdBuff = pipeline.commandBuffers[0];
 
         const vp = camera.viewport;
-        const shadowMapSize = rctx.shadowMapSize;
+        const shadowMapSize = pipeline.shadowMapSize;
         this._renderArea!.x = vp.x * shadowMapSize.x;
         this._renderArea!.y = vp.y * shadowMapSize.y;
-        this._renderArea!.width =  vp.width * shadowMapSize.x * rctx.shadingScale;
-        this._renderArea!.height = vp.height * shadowMapSize.y * rctx.shadingScale;
+        this._renderArea!.width =  vp.width * shadowMapSize.x * pipeline.shadingScale;
+        this._renderArea!.height = vp.height * shadowMapSize.y * pipeline.shadingScale;
 
-        const device = rctx.device;
+        const device = pipeline.device;
         const renderPass = this._shadowFrameBuffer!.renderPass;
 
         cmdBuff.begin();

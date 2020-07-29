@@ -6,9 +6,9 @@ import { ForwardFlowPriority } from '../forward/enum';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { UIStage } from './ui-stage';
-import { ForwardRenderContext } from '../forward/forward-render-context';
 import { RenderFlowType } from '../pipeline-serialization';
 import { sceneCulling } from '../forward/scene-culling';
+import { ForwardPipeline } from '../forward/forward-pipeline';
 
 /**
  * @en The UI render flow
@@ -37,10 +37,11 @@ export class UIFlow extends RenderFlow {
         super.destroy();
     }
 
-    public render (rctx: ForwardRenderContext, view: RenderView) {
+    public render (view: RenderView) {
+        const pipeline = this._pipeline as ForwardPipeline;
         view.camera.update();
-        sceneCulling(rctx, view);
-        rctx.updateUBOs(view);
-        super.render(rctx, view);
+        sceneCulling(pipeline, view);
+        pipeline.updateUBOs(view);
+        super.render(view);
     }
 }

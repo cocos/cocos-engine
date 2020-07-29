@@ -6,7 +6,6 @@ import { builtinResMgr } from './3d/builtin';
 import { GFXDevice } from './gfx/device';
 import { Pool } from './memop';
 import { RenderPipeline } from './pipeline/render-pipeline';
-import { ForwardRenderContext } from './pipeline/forward/forward-render-context';
 import { IRenderViewInfo, RenderView } from './pipeline/render-view';
 import { Camera, Light, Model } from './renderer';
 import { DataPoolManager } from './renderer/data-pool-manager';
@@ -300,7 +299,7 @@ export class Root {
             rppl.initialize();
         }
         this._pipeline = rppl;
-        if (!this._pipeline.activate(this)) {
+        if (!this._pipeline.activate()) {
             return false;
         }
         for (let i = 0; i < this.scenes.length; i++) {

@@ -3,14 +3,13 @@
  */
 
 import { ccclass } from '../../data/class-decorator';
-import { PIPELINE_FLOW_FORWARD, UNIFORM_SHADOWMAP } from '../define';
+import { PIPELINE_FLOW_FORWARD } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { ForwardFlowPriority } from './enum';
 import { ForwardStage } from './forward-stage';
-import { ForwardRenderContext } from './forward-render-context';
 import { sceneCulling } from './scene-culling';
-
+import { ForwardPipeline } from './forward-pipeline';
 /**
  * @en The forward flow in forward render pipeline
  * @zh 前向渲染流程。
@@ -35,11 +34,12 @@ export class ForwardFlow extends RenderFlow {
         this._stages.push(forwardStage);
     }
 
-    public render (rctx: ForwardRenderContext, view: RenderView) {
+    public render (view: RenderView) {
+        const pipeline = this._pipeline as ForwardPipeline;
         view.camera.update();
-        sceneCulling(rctx, view);
-        rctx.updateUBOs(view);
-        super.render(rctx, view);
+        sceneCulling(pipeline, view);
+        pipeline.updateUBOs(view);
+        super.render(view);
     }
 
     public destroy () {

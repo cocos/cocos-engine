@@ -11,8 +11,7 @@ import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
     GFXStoreOp, GFXTextureLayout, GFXFormat, GFXTexture,
     GFXTextureType, GFXTextureUsageBit } from '../../gfx';
 import { RenderFlowType } from '../pipeline-serialization';
-import { RenderView } from '../..';
-import { ForwardRenderContext } from '../forward/forward-render-context';
+import { RenderView, ForwardPipeline } from '../..';
 import { sceneCulling } from '../forward/scene-culling';
 
 const colorMipmapLevels: number[] = [];
@@ -55,16 +54,13 @@ export class ShadowFlow extends RenderFlow {
         super.destroy();
     }
 
-    public render (rctx: ForwardRenderContext, view: RenderView) {
+    public render (view: RenderView) {
+        const pipeline = this._pipeline as ForwardPipeline;
         view.camera.update();
-
-        sceneCulling(rctx, view);
-
-        rctx.updateUBOs(view);
-
-        super.render(rctx, view);
-
-        const shadowmapUniform = rctx.globalBindings.get(UNIFORM_SHADOWMAP.name);
+        sceneCulling(pipeline, view);
+        pipeline.updateUBOs(view);
+        super.render(view);
+        const shadowmapUniform = pipeline.globalBindings.get(UNIFORM_SHADOWMAP.name);
         if (shadowmapUniform) {
             shadowmapUniform.texture = this._shadowFrameBuffer?.colorTextures[0]!;
         }
@@ -77,11 +73,11 @@ export class ShadowFlow extends RenderFlow {
     public rebuild () {
     }
 
-    public activate (rctx: ForwardRenderContext) {
-        super.activate(rctx);
+    public activate (pipeline: ForwardPipeline) {
+        super.activate(pipeline);
 
-        const device = rctx.device;
-        const shadowMapSize = rctx.shadowMapSize;
+        const device = pipeline.device;
+        const shadowMapSize = pipeline.shadowMapSize;
 
         if(!this._shadowRenderPass) {
             this._shadowRenderPass = device.createRenderPass({

@@ -5,8 +5,9 @@
 import { IGFXColor, IGFXRect } from '../../gfx/define';
 import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
-import { ForwardRenderContext } from '../forward/forward-render-context';
 import { ForwardStagePriority } from '../forward/enum';
+import { UIFlow } from './ui-flow';
+import { ForwardPipeline } from '../forward/forward-pipeline';
 
 const colors: IGFXColor[] = [];
 
@@ -27,21 +28,22 @@ export class UIStage extends RenderStage {
 
     private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
 
-    public activate (rctx: ForwardRenderContext) {
-        super.activate(rctx);
+    public activate (pipeline: ForwardPipeline, flow: UIFlow) {
+        super.activate(pipeline, flow);
     }
 
     public destroy () {
     }
 
-    public render (rctx: ForwardRenderContext, view: RenderView) {
-        const isHDR = rctx.isHDR;
-        rctx.isHDR = false;
+    public render (view: RenderView) {
+        const pipeline = this._pipeline as ForwardPipeline;
+        const isHDR = pipeline.isHDR;
+        pipeline.isHDR = false;
 
-        const device = rctx.device!;
+        const device = pipeline.device;
         this._renderQueues[0].clear();
 
-        for (const ro of rctx.renderObjects) {
+        for (const ro of pipeline.renderObjects) {
             for (let i = 0; i < ro.model.subModelNum; i++) {
                 for (let j = 0; j < ro.model.getSubModel(i).passes.length; j++) {
                     this._renderQueues[0].insertRenderPass(ro, i, j);
@@ -59,10 +61,10 @@ export class UIStage extends RenderStage {
 
         colors[0] = camera.clearColor;
 
-        const cmdBuff = rctx.commandBuffers[0];
+        const cmdBuff = pipeline.commandBuffers[0];
 
         const framebuffer = view.window.framebuffer;
-        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : rctx.getRenderPass(camera.clearFlag);
+        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
@@ -73,7 +75,7 @@ export class UIStage extends RenderStage {
         cmdBuff.endRenderPass();
         cmdBuff.end();
 
-        device.queue.submit(rctx.commandBuffers);
-        rctx.isHDR = isHDR;
+        device.queue.submit(pipeline.commandBuffers);
+        pipeline.isHDR = isHDR;
     }
 }

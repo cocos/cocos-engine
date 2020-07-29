@@ -10,7 +10,8 @@ import { getPhaseID } from './pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from './render-queue';
 import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
-import { RenderContext } from './render-context';
+import { RenderPipeline } from './render-pipeline';
+import { RenderFlow } from '..';
 
 export enum RenderQueueSortMode {
     FRONT_TO_BACK,
@@ -99,6 +100,8 @@ export abstract class RenderStage {
     protected renderQueues: RenderQueueDesc[] = [];
 
     protected _renderQueues: RenderQueue[] = [];
+    protected _pipeline!: RenderPipeline;
+    protected _flow!: RenderFlow;
 
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
@@ -124,8 +127,11 @@ export abstract class RenderStage {
      * @zh 为指定的渲染流程开启当前渲染阶段
      * @param flow The render flow to activate this render stage
      */
-    public activate (rctx: RenderContext) {
-        if (!rctx.device) {
+    public activate (pipeline: RenderPipeline, flow: RenderFlow) {
+        this._pipeline = pipeline;
+        this._flow = flow;
+
+        if (!this._pipeline.device) {
             throw new Error('');
         }
 
@@ -163,7 +169,7 @@ export abstract class RenderStage {
      * @zh 渲染函数。
      * @param view The render view
      */
-    public abstract render (rctx: RenderContext, view: RenderView);
+    public abstract render (view: RenderView);
 }
 
 legacyCC.RenderStage = RenderStage;
