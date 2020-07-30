@@ -191,7 +191,6 @@ export class Root {
     private _modelPools = new Map<Constructor<Model>, Pool<Model>>();
     private _cameraPool: Pool<Camera> | null = null;
     private _lightPools = new Map<Constructor<Light>, Pool<Light>>();
-    private _time: number = 0;
     private _fpsTime: number = 0;
     private _frameCount: number = 0;
     private _fps: number = 0;
@@ -351,7 +350,7 @@ export class Root {
         */
 
         ++this._frameCount;
-        this._time += this.pipeline.frameTime;
+        this.pipeline.cumulativeTime += this.pipeline.frameTime;
         this._fpsTime += this.pipeline.frameTime;
         if (this._fpsTime > 1.0) {
             this._fps = this._frameCount;
