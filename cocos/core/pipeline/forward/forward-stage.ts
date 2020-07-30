@@ -20,6 +20,7 @@ import { BatchingSchemes } from '../../renderer/core/pass';
 import { ForwardFlow } from './forward-flow';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
+import { getPhaseID } from '../pass-phase';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 
@@ -47,6 +48,7 @@ export class ForwardStage extends RenderStage {
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _additiveLightQueue: RenderAdditiveLightQueue;
+    private _phaseID = getPhaseID('forward-add');
 
     constructor () {
         super();
@@ -125,12 +127,18 @@ export class ForwardStage extends RenderStage {
                     for (p = 0; p < passes.length; ++p) {
                         const pass = passes[p];
                         if (pass.batchingScheme === BatchingSchemes.INSTANCING) {
-                            for (let l = lightIndexOffset[i]; l < nextLightIndex; ++l) {
-                                const lightIndex = lightIndices[l];
-                                const instancedBuffer = InstancedBuffer.getLightInstanced(pass, lightIndex);
-                                instancedBuffer.attach(ro, m, ro.model.instancedAttributes, pass, lightIndex);
-                                this._instancedQueue.queue.add(instancedBuffer);
+                            let instancedBuffer: InstancedBuffer;
+                            if (pass.phase === this._phaseID) {
+                                for (let l = lightIndexOffset[i]; l < nextLightIndex; ++l) {
+                                    const lightIndex = lightIndices[l];
+                                    instancedBuffer = InstancedBuffer.getLightInstanced(pass, lightIndex);
+                                    instancedBuffer.attach(ro, m, ro.model.instancedAttributes, pass, lightIndex);
+                                }
+                            } else {
+                                instancedBuffer = InstancedBuffer.get(pass);
+                                instancedBuffer.merge(subModel, ro.model.instancedAttributes, subModel.psoInfos[p]);
                             }
+                            this._instancedQueue.queue.add(instancedBuffer!);
                         } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) {
                             const batchedBuffer = BatchedBuffer.get(pass);
                             batchedBuffer.merge(subModel, p, ro);

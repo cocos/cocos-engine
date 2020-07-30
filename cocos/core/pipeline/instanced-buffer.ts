@@ -9,7 +9,7 @@ import { IInstancedAttributeBlock, Pass, Light } from '../renderer';
 import { SubModel, IPSOCreateInfo } from '../renderer/scene/submodel';
 import { IRenderObject, UBOForwardLight } from './define';
 import { LightType } from '../renderer/scene/light';
-import { IMacroPatch } from '../renderer/core/pass'
+import { IMacroPatch } from '../renderer/core/pass';
 
 export interface IInstancedItem {
     count: number;
@@ -38,7 +38,7 @@ export class InstancedBuffer {
 
     // references
     private _validLights: Light[] = [];
-    private _lightBuffers: GFXBuffer[] = [];
+    private _lightGFXBuffers: GFXBuffer[] = [];
 
     public static get (pass: Pass) {
         if (!InstancedBuffer._buffers.has(pass)) {
@@ -72,22 +72,23 @@ export class InstancedBuffer {
     }
 
     public attach (renderObj: IRenderObject, subModelIdx: number, attrs: IInstancedAttributeBlock, pass: Pass, lightIdx: number) {
-        const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
         const subModel = renderObj.model.subModelNum[subModelIdx];
-        const light = this._validLights[lightIdx];
-        const lightBuffer = this._lightBuffers[lightIdx];
 
         let fullPatches: IMacroPatch[] = [];
-        switch (light.type) {
-            case LightType.SPHERE:
-                fullPatches = modelPatches ? spherePatches.concat(modelPatches) : spherePatches;
-                break;
-            case LightType.SPOT:
-                fullPatches = modelPatches ? spotPatches.concat(modelPatches) : spotPatches;
-                break;
-        }
-
         if (!this.psoci) {
+            const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
+            const light = this._validLights[lightIdx];
+            const lightBuffer = this._lightGFXBuffers[lightIdx];
+
+            switch (light.type) {
+                case LightType.SPHERE:
+                    fullPatches = modelPatches ? spherePatches.concat(modelPatches) : spherePatches;
+                    break;
+                case LightType.SPOT:
+                    fullPatches = modelPatches ? spotPatches.concat(modelPatches) : spotPatches;
+                    break;
+            }
+
             this.psoci = pass.createPipelineStateCI(fullPatches)!;
             renderObj.model.updateLocalBindings(this.psoci, subModelIdx);
             this.psoci.bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
@@ -169,7 +170,7 @@ export class InstancedBuffer {
 
     public clearLightInstanced (validLights: Light[], lightBuffers: GFXBuffer[]) {
         this._validLights = validLights;
-        this._lightBuffers = lightBuffers;
+        this._lightGFXBuffers = lightBuffers;
         this.clear();
     }
 }
