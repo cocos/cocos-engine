@@ -74,12 +74,12 @@ export class InstancedBuffer {
     public attach (renderObj: IRenderObject, subModelIdx: number, attrs: IInstancedAttributeBlock, pass: Pass, lightIdx: number) {
         const subModel = renderObj.model.subModelNum[subModelIdx];
 
-        let fullPatches: IMacroPatch[] = [];
         if (!this.psoci) {
             const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
             const light = this._validLights[lightIdx];
             const lightBuffer = this._lightGFXBuffers[lightIdx];
 
+            let fullPatches: IMacroPatch[] = [];
             switch (light.type) {
                 case LightType.SPHERE:
                     fullPatches = modelPatches ? spherePatches.concat(modelPatches) : spherePatches;
