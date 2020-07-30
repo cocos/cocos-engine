@@ -39,7 +39,7 @@ import { Node } from '../../scene-graph/node';
 import { ModelType } from '../scene/model';
 import { uploadJointData } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
-import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../core/native-pools';
+import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
 
 export interface IJointTransform {
     node: Node;

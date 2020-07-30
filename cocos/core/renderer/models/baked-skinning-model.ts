@@ -44,7 +44,7 @@ import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from './skele
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../global-exports';
 import { IGFXAttribute } from '../../gfx';
-import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../core/native-pools';
+import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../core/memory-pools';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;

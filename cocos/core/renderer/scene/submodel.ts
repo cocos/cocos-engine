@@ -6,7 +6,7 @@ import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { RenderPriority } from '../../pipeline/define';
 import { IMacroPatch } from '../core/pass';
 import { legacyCC } from '../../global-exports';
-import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../core/native-pools';
+import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
 
 export class SubModel {
 

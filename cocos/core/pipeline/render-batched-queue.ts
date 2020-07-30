@@ -7,7 +7,7 @@ import { BatchedBuffer } from './batched-buffer';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { GFXDevice } from '../gfx/device';
 import { GFXRenderPass } from '../gfx';
-import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../renderer/core/native-pools';
+import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
 
 /**
  * @en The render queue for dynamic batching

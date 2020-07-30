@@ -12,7 +12,7 @@ import { LightType } from '../renderer/scene/light';
 import { GFXDevice, GFXRenderPass, GFXBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../renderer/core/native-pools';
+import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../renderer/core/memory-pools';
 
 const spherePatches = [
     { name: 'CC_FORWARD_ADD', value: true },

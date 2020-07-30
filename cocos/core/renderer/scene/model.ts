@@ -20,7 +20,7 @@ import { Pass, IMacroPatch } from '../core/pass';
 import { legacyCC } from '../../global-exports';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { BatchingSchemes } from '../core/pass';
-import { BindingLayoutPool, ShaderPool, PSOCIPool, PSOCIView } from '../core/native-pools';
+import { BindingLayoutPool, ShaderPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
 
 const m4_1 = new Mat4();
 

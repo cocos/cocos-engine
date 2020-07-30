@@ -117,7 +117,7 @@
         "cc.GFXStoreOp",
         "cc.GFXTextureLayout",
         "cc.GFXPipelineBindPoint",
-        "cc.GFXDynamicState",
+        "cc.GFXDynamicStateFlagBit",
         "cc.GFXStencilFace",
         "cc.GFXQueueType",
         "cc.GFXClearFlag",

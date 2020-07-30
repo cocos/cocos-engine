@@ -47,7 +47,7 @@ import { customizeType, getBindingFromHandle, getBindingTypeFromHandle,
     getDefaultFromType, getOffsetFromHandle, getTypeFromHandle, IDefineMap, MaterialProperty, type2reader, type2writer } from './pass-utils';
 import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
-import { PassInfoView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool, PassInfoPool, BindingLayoutPool, ShaderPool, PSOCIPool, PSOCIView } from './native-pools';
+import { PassInfoView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool, PassInfoPool, BindingLayoutPool, ShaderPool, PSOCIPool, PSOCIView } from './memory-pools';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part

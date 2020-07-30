@@ -9,7 +9,7 @@ import { Mat4 } from '../math';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOLocalBatched } from './define';
 import { Pass } from '../renderer';
-import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../renderer/core/native-pools';
+import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../renderer/core/memory-pools';
 
 export interface IBatchedItem {
     vbs: GFXBuffer[];

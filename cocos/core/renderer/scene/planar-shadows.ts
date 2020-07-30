@@ -11,7 +11,7 @@ import { SphereLight } from './sphere-light';
 import { GFXCommandBuffer, GFXDevice, GFXRenderPass } from '../../gfx';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
-import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../core/native-pools';
+import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();

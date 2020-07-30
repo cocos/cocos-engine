@@ -6,7 +6,7 @@ import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { InstancedBuffer } from './instanced-buffer';
 import { GFXDevice, GFXRenderPass, GFXPipelineState } from '../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../renderer/core/native-pools';
+import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
 
 /**
  * @en Render queue for instanced batching

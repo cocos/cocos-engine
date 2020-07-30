@@ -21,7 +21,7 @@ import { GFXSampler } from './gfx';
 import { PipelineStateManager } from './pipeline/pipeline-state-manager';
 import { legacyCC } from './global-exports';
 import { Root } from './root';
-import { BindingLayoutPool, PSOCIView, PSOCIPool } from './renderer/core/native-pools';
+import { BindingLayoutPool, PSOCIView, PSOCIPool } from './renderer/core/memory-pools';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 

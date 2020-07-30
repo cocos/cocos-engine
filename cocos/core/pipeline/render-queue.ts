@@ -10,7 +10,7 @@ import { GFXInputAssembler } from '../gfx/input-assembler';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { GFXDevice } from '../gfx/device';
 import { GFXRenderPass } from '../gfx';
-import { BlendStatePool, PassInfoPool, PassInfoView, ShaderPool, BindingLayoutPool, PSOCIPool, PSOCIView } from '../renderer/core/native-pools';
+import { BlendStatePool, PassInfoPool, PassInfoView, ShaderPool, BindingLayoutPool, PSOCIPool, PSOCIView } from '../renderer/core/memory-pools';
 
 /**
  * @en Comparison sorting function. Opaque objects are sorted by priority -> depth front to back -> shader ID.

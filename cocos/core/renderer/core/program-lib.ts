@@ -36,7 +36,7 @@ import { IInternalBindingDesc, localBindingsDesc } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { genHandle, IDefineMap } from './pass-utils';
 import { legacyCC } from '../../global-exports';
-import { ShaderPool } from './native-pools';
+import { ShaderPool } from './memory-pools';
 
 interface IDefineRecord extends IDefineInfo {
     _map: (value: any) => number;

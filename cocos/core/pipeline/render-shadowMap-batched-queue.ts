@@ -9,7 +9,7 @@ import { IRenderObject, UBOPCFShadow } from './define';
 import { GFXDevice, GFXRenderPass, GFXBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../renderer/core/native-pools';
+import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
 
 const forwardShadowMapPatches: IMacroPatch[] = [
     { name: 'CC_VSM_SHADOW', value: true },

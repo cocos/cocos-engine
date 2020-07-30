@@ -48,7 +48,7 @@ import { UIDrawBatch } from './ui-draw-batch';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
 import { legacyCC } from '../../global-exports';
-import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../core/native-pools';
+import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
 
 /**
  * @zh

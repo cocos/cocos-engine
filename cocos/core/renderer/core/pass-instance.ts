@@ -32,7 +32,7 @@ import { isBuiltinBinding } from '../../pipeline/define';
 import { MaterialInstance } from './material-instance';
 import { Pass, PassOverrides } from './pass';
 import { assignDefines, IDefineMap } from './pass-utils';
-import { PassInfoView, RasterizerStatePool, DepthStencilStatePool, BlendStatePool, PassInfoPool } from './native-pools';
+import { PassInfoView, RasterizerStatePool, DepthStencilStatePool, BlendStatePool, PassInfoPool } from './memory-pools';
 
 export class PassInstance extends Pass {
 

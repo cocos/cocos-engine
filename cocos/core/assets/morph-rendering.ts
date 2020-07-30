@@ -15,7 +15,7 @@ import { log2, nextPow2 } from '../math/bits';
 import { IMacroPatch } from '../renderer';
 import { legacyCC } from '../global-exports';
 import { PixelFormat } from './asset-enum';
-import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../renderer/core/native-pools';
+import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
 
 /**
  * True if force to use cpu computing based sub-mesh rendering.

@@ -6,7 +6,7 @@ import { GFXPipelineState, GFXInputState } from '../gfx/pipeline-state';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXInputAssembler } from '../gfx/input-assembler';
 import { GFXDevice } from '../gfx/device';
-import { PassInfoPool, PassInfoView, ShaderPool, RasterizerStatePool, BlendStatePool, DepthStencilStatePool, PSOCIPool, PSOCIView } from '../renderer/core/native-pools';
+import { PassInfoPool, PassInfoView, ShaderPool, RasterizerStatePool, BlendStatePool, DepthStencilStatePool, PSOCIPool, PSOCIView } from '../renderer/core/memory-pools';
 import { GFXDynamicStateFlags } from '../gfx';
 
 export class PipelineStateManager {
