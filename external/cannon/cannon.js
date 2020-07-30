@@ -14729,12 +14729,12 @@ World.prototype.internalStep = function(dt){
             var bi = bodies[i];
             if (bi.type != Body.STATIC && !bi.isSleeping()) {
                 World.SLEEPING = false;
+                break;
             }
         }
     }else{
         World.SLEEPING = false;
     }
-
 };
 
 World.prototype.emitContactEvents = (function(){

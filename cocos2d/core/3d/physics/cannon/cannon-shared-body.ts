@@ -172,7 +172,7 @@ export class CannonSharedBody {
         }
     }
 
-    syncSceneToPhysics (force: boolean = false) {
+    syncSceneToPhysics (/*force: boolean = false*/) {
         // let node = this.node;
         // let needUpdateTransform = updateWorldTransform(node, force);
         // if (!force && !needUpdateTransform) {
