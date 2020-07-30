@@ -15,7 +15,7 @@ import { RenderFlow } from '..';
 export interface IRenderStageInfo {
     name: string;
     priority: number;
-    type?: number;
+    tag?: number;
 }
 
 /**
@@ -44,11 +44,11 @@ export abstract class RenderStage {
     }
 
     /**
-     * @en Type of the current stage
-     * @zh 当前渲染阶段的类型。
+     * @en Tag of the current stage
+     * @zh 当前渲染阶段的标签。
      */
-    public get type (): number {
-        return this._type;
+    public get tag (): number {
+        return this._tag;
     }
 
     /**
@@ -79,7 +79,7 @@ export abstract class RenderStage {
         displayOrder: 2,
         visible: true,
     })
-    protected _type: number = 0;
+    protected _tag: number = 0;
     protected _pipeline!: RenderPipeline;
     protected _flow!: RenderFlow;
 
@@ -92,8 +92,8 @@ export abstract class RenderStage {
         this._name = info.name;
         this._priority = info.priority;
 
-        if (info.type) {
-            this._type = info.type;
+        if (info.tag) {
+            this._tag = info.tag;
         }
 
         return true;

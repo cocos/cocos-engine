@@ -6,7 +6,7 @@ import { ForwardFlowPriority } from '../forward/enum';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { UIStage } from './ui-stage';
-import { RenderFlowType } from '../pipeline-serialization';
+import { RenderFlowTag } from '../pipeline-serialization';
 import { sceneCulling } from '../forward/scene-culling';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 
@@ -19,7 +19,7 @@ export class UIFlow extends RenderFlow {
     public static initInfo: IRenderFlowInfo = {
         name: 'UIFlow',
         priority: ForwardFlowPriority.UI,
-        type: RenderFlowType.UI,
+        tag: RenderFlowTag.UI,
     };
 
     public initialize (info: IRenderFlowInfo): boolean {

@@ -5,7 +5,7 @@
 import { Camera } from '../renderer/scene/camera';
 import { Root } from '../root';
 import { CAMERA_DEFAULT_MASK } from './define';
-import { RenderFlowType } from './pipeline-serialization';
+import { RenderFlowTag } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
 import { legacyCC } from '../global-exports';
 import { RenderWindow } from './render-window';
@@ -194,7 +194,7 @@ export class RenderView {
         }
         for (let i = 0; i < pipelineFlows.length; ++i) {
             const f = pipelineFlows[i];
-            if (f.type === RenderFlowType.SCENE || (flows && flows.indexOf(f.name) !== -1)) {
+            if (f.tag === RenderFlowTag.SCENE || (flows && flows.indexOf(f.name) !== -1)) {
                 this.flows.push(f);
             }
         }

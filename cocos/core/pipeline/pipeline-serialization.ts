@@ -16,16 +16,16 @@ ccenum(GFXLoadOp);
 ccenum(GFXTextureLayout);
 
 /**
- * @en The type of the render flow, including SCENE, POSTPROCESS and UI.
- * @zh 渲染流程的种类，包含：常规场景（SCENE），后处理（POSTPROCESS），UI 界面（UI）
+ * @en The tag of the render flow, including SCENE, POSTPROCESS and UI.
+ * @zh 渲染流程的标签，包含：常规场景（SCENE），后处理（POSTPROCESS），UI 界面（UI）
  */
-export enum RenderFlowType {
+export enum RenderFlowTag {
     SCENE,
     POSTPROCESS,
     UI,
 }
 
-ccenum(RenderFlowType);
+ccenum(RenderFlowTag);
 
 @ccclass('RenderTextureDesc')
 export class RenderTextureDesc {

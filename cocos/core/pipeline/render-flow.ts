@@ -6,7 +6,6 @@ import { RenderStage } from './render-stage';
 import { RenderView } from './render-view';
 import { RenderPipeline } from './render-pipeline';
 import { legacyCC } from '../global-exports';
-import { RenderFlowType } from './pipeline-serialization';
 
 /**
  * @en Render flow information descriptor
@@ -15,7 +14,7 @@ import { RenderFlowType } from './pipeline-serialization';
 export interface IRenderFlowInfo {
     name: string;
     priority: number;
-    type?: number;
+    tag?: number;
 }
 
 /**
@@ -41,11 +40,11 @@ export abstract class RenderFlow {
     }
 
     /**
-     * @en Type of the current flow
-     * @zh 当前渲染流程的类型。
+     * @en Tag of the current flow
+     * @zh 当前渲染流程的标签。
      */
-    public get type (): number {
-        return this._type;
+    public get tag (): number {
+        return this._tag;
     }
 
     @property({
@@ -64,7 +63,7 @@ export abstract class RenderFlow {
         displayOrder: 2,
         visible: true,
     })
-    protected _type: number = 0;
+    protected _tag: number = 0;
 
     @property({
         type: [RenderStage],
@@ -83,8 +82,8 @@ export abstract class RenderFlow {
         this._name = info.name;
         this._priority = info.priority;
 
-        if (info.type) {
-            this._type = info.type;
+        if (info.tag) {
+            this._tag = info.tag;
         }
     }
 

@@ -10,7 +10,7 @@ import { ShadowStage } from './shadow-stage';
 import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
     GFXStoreOp, GFXTextureLayout, GFXFormat, GFXTexture,
     GFXTextureType, GFXTextureUsageBit } from '../../gfx';
-import { RenderFlowType } from '../pipeline-serialization';
+import { RenderFlowTag } from '../pipeline-serialization';
 import { RenderView, ForwardPipeline } from '../..';
 import { sceneCulling } from '../forward/scene-culling';
 
@@ -29,7 +29,7 @@ export class ShadowFlow extends RenderFlow {
     public static initInfo: IRenderFlowInfo = {
         name: PIPELINE_FLOW_SHADOW,
         priority: ForwardFlowPriority.SHADOW,
-        type: RenderFlowType.SCENE,
+        tag: RenderFlowTag.SCENE,
     };
 
     private _shadowRenderPass: GFXRenderPass|null = null;
