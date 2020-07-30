@@ -137,7 +137,7 @@ ccenum(Overflow);
  *
  * @zh 文本图集缓存类型。
  */
-enum CacheMode {
+export enum CacheMode {
     /**
      * @en Do not do any caching.
      *

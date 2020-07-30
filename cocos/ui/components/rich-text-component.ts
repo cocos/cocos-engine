@@ -28,50 +28,25 @@
  * @category ui
  */
 
-import { Font, SpriteAtlas, TTFFont, BitmapFont } from '../../core/assets';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
-import { EventTouch } from '../../core/platform';
-import { fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace, BASELINE_RATIO } from '../../core/utils';
+import { Font, SpriteAtlas, TTFFont } from '../../core/assets';
+import { ccclass, executeInEditMode, executionOrder, help, menu, property } from '../../core/data/class-decorator';
+import { assert, EventTouch, warnID } from '../../core/platform';
+import { BASELINE_RATIO, fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace } from '../../core/utils';
 import Pool from '../../core/utils/pool';
 import { Color, Vec2 } from '../../core/math';
-import { PrivateNode, Node } from '../../core/scene-graph';
-import { HorizontalTextAlignment, LabelComponent, VerticalTextAlignment } from './label-component';
+import { Node, PrivateNode } from '../../core/scene-graph';
+import { CacheMode, HorizontalTextAlignment, LabelComponent, VerticalTextAlignment } from './label-component';
 import { LabelOutlineComponent } from './label-outline-component';
 import { SpriteComponent } from './sprite-component';
-import { UIComponent } from '../../core/components/ui-base/ui-component';
-import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
-import { assert, warnID } from '../../core/platform/debug';
+import { UIComponent, UIRenderComponent, UITransformComponent } from '../../core/components/ui-base';
 import { loader } from '../../core/load-pipeline';
-import { EDITOR, DEV } from 'internal:constants';
+import { DEV, EDITOR } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
+import { Component } from "../../core/components";
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
 const RichTextChildImageName = 'RICHTEXT_Image_CHILD';
-
-/**
- * @zh
- * 返回一个可延时调用函数。只要不被调用就不会触发。选择 ‘immediate’ 则在触发时不会延迟而是立马回调。
- *
- * @param func - 延时调用函数。
- * @param wait - 延时时间。
- * @param immediate - 是否立马执行回调。
- */
-function debounce (func: Function, wait: number, immediate?: boolean) {
-    let timeout;
-    return function (this: any, ...args: any[]) {
-        const context = this;
-        const later = () => {
-            timeout = null;
-            if (!immediate) { func.apply(context, args); }
-        };
-        const callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) { func.apply(context, args); }
-    };
-}
 
 /**
  * 富文本池。<br/>
@@ -86,8 +61,11 @@ const pool = new Pool((labelSeg: ILabelSegment) => {
     if (!legacyCC.isValid(labelSeg.node)) {
         return false;
     }
-    else if (labelSeg.node.getComponent(LabelOutlineComponent)) {
-        return false;
+    else {
+        let outline = labelSeg.node.getComponent(LabelOutlineComponent);
+        if (outline) {
+            outline.width = 0;
+        }
     }
     return true;
 }, 20);
@@ -101,54 +79,36 @@ pool.get = function (str: string, richtext: RichTextComponent) {
             comp: null,
             lineCount: 0,
             styleIndex: 0,
+            imageOffset: '',
+            clickParam: '',
             clickHandler: '',
         };
     }
 
-    let labelNode = labelSeg.node;
-    if (!labelNode) {
-        labelNode = new PrivateNode(RichTextChildName);
-    }
+    let labelNode = labelSeg.node || new PrivateNode(RichTextChildName);
 
-    let labelComponent = labelNode.getComponent(LabelComponent);
-    if (!labelComponent) {
-        labelComponent = labelNode.addComponent(LabelComponent);
-    }
-
+    let labelComponent = labelNode.getComponent(LabelComponent) || labelNode.addComponent(LabelComponent);
     labelComponent = labelComponent!;
-    labelNode.setPosition(0, 0, 0);
-    let trans = labelNode._uiProps.uiTransformComp!;
-    trans.setAnchorPoint(0.5, 0.5);
-    trans.setContentSize(128, 128);
-    // labelNode.skewX = 0;
-
-    if (typeof str !== 'string') {
-        str = '' + str;
-    }
-    const isAsset = richtext.font instanceof Font;
-    if (isAsset) {
-        labelComponent.font = richtext.font;
-    } else {
-        labelComponent.fontFamily = 'Arial';
-    }
 
     labelComponent.string = str;
     labelComponent.horizontalAlign = HorizontalTextAlignment.LEFT;
     labelComponent.verticalAlign = VerticalTextAlignment.TOP;
-    labelComponent.fontSize = richtext.fontSize || 40;
-    labelComponent.overflow = 0;
-    labelComponent.enableWrapText = true;
-    labelComponent.lineHeight = 40;
-    labelComponent.isBold = false;
-    labelComponent.isItalic = false;
-    labelComponent.isUnderline = false;
+    // labelComponent._forceUseCanvas = true;
+
+    labelNode.setPosition(0, 0, 0);
+    // This order cannot be changed, you must add rendering components before you will have uiTransformComp
+    // NOTE: important!
+    let trans = labelNode._uiProps.uiTransformComp!;
+    trans.setAnchorPoint(0.5, 0.5);
 
     const labelObj: ILabelSegment = {
         node: labelNode,
         comp: labelComponent,
         lineCount: 0,
-        clickHandler: '',
         styleIndex: 0,
+        imageOffset: '',
+        clickParam: '',
+        clickHandler: '',
     };
 
     return labelObj;
@@ -157,9 +117,11 @@ pool.get = function (str: string, richtext: RichTextComponent) {
 interface ILabelSegment {
     node: PrivateNode;
     comp: UIRenderComponent | null;
-    clickHandler: '';
-    styleIndex: number;
     lineCount: number;
+    styleIndex: number;
+    imageOffset: string;
+    clickParam: string;
+    clickHandler: string;
 }
 
 /**
@@ -250,6 +212,26 @@ export class RichTextComponent extends UIComponent {
 
     /**
      * @en
+     * Custom System font of RichText
+     *
+     * @zh
+     * 富文本定制系统字体
+     */
+    @property({
+        tooltip:'富文本定制系统字体',
+    })
+    get fontFamily () {
+        return this._fontFamily;
+    }
+    set fontFamily (value: string) {
+        if (this._fontFamily === value) return;
+        this._fontFamily = value;
+        this._layoutDirty = true;
+        this._updateRichTextStatus();
+    }
+
+    /**
+     * @en
      * Custom System font of RichText.
      *
      * @zh
@@ -266,16 +248,73 @@ export class RichTextComponent extends UIComponent {
         if (this._font === value) {
             return;
         }
-        // TODO: Remove when Editor inspector add multi-format support
-        if (value instanceof BitmapFont) {
-            console.warn('RichText only accepts TTF fonts, but you are trying to use a bitmap font.');
-            return;
-        }
         this._font = value;
         this._layoutDirty = true;
         if (this._font) {
+            if (EDITOR) {
+                this._userDefinedFont = this._font;
+            }
+            this.useSystemFont = false;
             this._onTTFLoaded();
         }
+        else {
+            this.useSystemFont = true;
+        }
+        this._updateRichTextStatus();
+    }
+
+    /**
+     * @en
+     * Whether use system font name or not.
+     *
+     * @zh
+     * 是否使用系统字体。
+     */
+    @property({
+        tooltip:'是否使用系统字体',
+    })
+    get useSystemFont () {
+        return this._isSystemFontUsed;
+    }
+    set useSystemFont (value: boolean) {
+        if (this._isSystemFontUsed === value) {
+            return;
+        }
+        this._isSystemFontUsed = value;
+
+        if (EDITOR) {
+            if (value) {
+                this._font = null;
+            }
+            else if (this._userDefinedFont) {
+                this._font = this._userDefinedFont;
+                return;
+            }
+        }
+
+        this._layoutDirty = true;
+        this._updateRichTextStatus();
+    }
+
+    /**
+     * @en
+     * The cache mode of label. This mode only supports system fonts.
+     *
+     * @zh
+     * 文本缓存模式, 该模式只支持系统字体。
+     */
+    @property({
+        type: CacheMode,
+        tooltip:'文本缓存模式, 该模式只支持系统字体。',
+    })
+    get cacheMode () {
+        return this._cacheMode;
+    }
+    set cacheMode (value: CacheMode) {
+        if (this._cacheMode === value) {
+            return;
+        }
+        this._cacheMode = value;
         this._updateRichTextStatus();
     }
 
@@ -383,7 +422,7 @@ export class RichTextComponent extends UIComponent {
     @property
     protected _lineHeight = 40;
     @property
-    protected _string = '<color=#00ff00>Rich</c><color=#0fffff>Text</color>';
+    protected _string = '<color=#00ff00>Rich</color><color=#0fffff>Text</color>';
     // protected _updateRichTextStatus =
     @property
     protected _horizontalAlign = HorizontalTextAlignment.LEFT;
@@ -392,7 +431,15 @@ export class RichTextComponent extends UIComponent {
     @property
     protected _maxWidth = 0;
     @property
+    protected _fontFamily: string = 'Arial';
+    @property
     protected _font: TTFFont | null = null;
+    @property
+    protected _isSystemFontUsed: boolean = true;
+    @property
+    protected _userDefinedFont: TTFFont | null = null;
+    @property
+    protected _cacheMode: CacheMode = CacheMode.NONE;
     @property
     protected _imageAtlas: SpriteAtlas | null = null;
     @property
@@ -412,11 +459,9 @@ export class RichTextComponent extends UIComponent {
     constructor () {
         super();
         if (EDITOR) {
-            this._updateRichTextStatus = debounce(this._updateRichText, 200);
+            this._userDefinedFont = null;
         }
-        else {
-            this._updateRichTextStatus = this._updateRichText;
-        }
+        this._updateRichTextStatus = this._updateRichText;
     }
 
     public onEnable () {
@@ -438,7 +483,7 @@ export class RichTextComponent extends UIComponent {
 
     public start () {
         this._onTTFLoaded();
-        this.node.on(Node.EventType.ANCHOR_CHANGED, this._anchorChanged, this);
+        this.node.on(Node.EventType.TRANSFORM_CHANGED, this._onTransformChanged, this);
     }
 
     public onRestore () {
@@ -463,7 +508,7 @@ export class RichTextComponent extends UIComponent {
             pool.put(seg);
         }
 
-        this.node.off(Node.EventType.ANCHOR_CHANGED, this._anchorChanged);
+        this.node.off(Node.EventType.TRANSFORM_CHANGED, this._onTransformChanged);
     }
 
     protected _addEventListeners () {
@@ -531,16 +576,17 @@ export class RichTextComponent extends UIComponent {
     }
 
     protected _onTouchEnded (event: EventTouch) {
-        const components = this.node.getComponents(UIComponent);
+        const components = this.node.getComponents(Component);
 
         const self = this;
         for (const seg of this._labelSegments) {
             const clickHandler = seg.clickHandler;
+            const clickParam = seg.clickParam;
             if (clickHandler && this._containsTouchLocation(seg, event.touch!.getUILocation())) {
                 components.forEach((component) => {
                     const func = component[clickHandler] as Function;
                     if (component.enabledInHierarchy && func) {
-                        func.call(self, event);
+                        func.call(component, event, clickParam);
                     }
                 });
                 event.propagationStopped = true;
@@ -549,7 +595,7 @@ export class RichTextComponent extends UIComponent {
     }
 
     protected _containsTouchLocation (label: ILabelSegment, point: Vec2) {
-        const comp = label.node.getComponent(UITransformComponent);
+        const comp = label.node.getComponent(UITransformComponent)!;
         if (!comp) {
             return false;
         }
@@ -630,17 +676,15 @@ export class RichTextComponent extends UIComponent {
         let fragmentWidth = labelWidth;
         let labelSegment: ILabelSegment;
 
-        if (this._lineOffsetX > 0 && fragmentWidth + this._lineOffsetX > this.maxWidth) {
+        if (this._lineOffsetX > 0 && fragmentWidth + this._lineOffsetX > this._maxWidth) {
             // concat previous line
             let checkStartIndex = 0;
-            while (this._lineOffsetX <= this.maxWidth) {
-                const checkEndIndex = this._getFirstWordLen(labelString,
-                    checkStartIndex,
-                    labelString.length);
+            while (this._lineOffsetX <= this._maxWidth) {
+                const checkEndIndex = this._getFirstWordLen(labelString, checkStartIndex, labelString.length);
                 const checkString = labelString.substr(checkStartIndex, checkEndIndex);
                 const checkStringWidth = this._measureText(styleIndex, checkString) as number;
 
-                if (this._lineOffsetX + checkStringWidth <= this.maxWidth) {
+                if (this._lineOffsetX + checkStringWidth <= this._maxWidth) {
                     this._lineOffsetX += checkStringWidth;
                     checkStartIndex += checkEndIndex;
                 }
@@ -657,11 +701,8 @@ export class RichTextComponent extends UIComponent {
                 }
             }
         }
-        if (fragmentWidth > this.maxWidth) {
-            const fragments = fragmentText(labelString,
-                fragmentWidth,
-                this.maxWidth,
-                this._measureText(styleIndex) as (s: string) => number);
+        if (fragmentWidth > this._maxWidth) {
+            const fragments = fragmentText(labelString, fragmentWidth, this._maxWidth, this._measureText(styleIndex) as (s: string) => number);
             for (let k = 0; k < fragments.length; ++k) {
                 const splitString = fragments[k];
                 labelSegment = this._addLabelSegment(splitString, styleIndex);
@@ -703,29 +744,32 @@ export class RichTextComponent extends UIComponent {
             if (oldItem.text !== newItem.text) {
                 return true;
             } else {
-                if (oldItem.style) {
-                    if (newItem.style) {
-                        if (!!newItem.style.outline !== !!oldItem.style.outline) {
+                let oldStyle = oldItem.style, newStyle = newItem.style;
+                if (oldStyle) {
+                    if (newStyle) {
+                        if (!!newStyle.outline !== !!oldStyle.outline) {
                             return true;
                         }
-                        if (oldItem.style.size !== newItem.style.size
-                            || oldItem.style.italic !== newItem.style.italic
-                            || oldItem.style.isImage !== newItem.style.isImage) {
+                        if (oldStyle.size !== newStyle.size ||
+                            oldStyle.italic !== newStyle.italic ||
+                            oldStyle.isImage !== newStyle.isImage) {
                             return true;
                         }
-                        if (oldItem.style.isImage === newItem.style.isImage) {
-                            if (oldItem.style.src !== newItem.style.src) {
-                                return true;
-                            }
+                        if (oldStyle.src !== newStyle.src ||
+                            oldStyle.imageAlign !== newStyle.imageAlign ||
+                            oldStyle.imageHeight !== newStyle.imageHeight ||
+                            oldStyle.imageWidth !== newStyle.imageWidth ||
+                            oldStyle.imageOffset !== newStyle.imageOffset) {
+                            return true;
                         }
                     } else {
-                        if (oldItem.style.size || oldItem.style.italic || oldItem.style.isImage || oldItem.style.outline) {
+                        if (oldStyle.size || oldStyle.italic || oldStyle.isImage || oldStyle.outline) {
                             return true;
                         }
                     }
                 } else {
-                    if (newItem.style) {
-                        if (newItem.style.size || newItem.style.italic || newItem.style.isImage || newItem.style.outline) {
+                    if (newStyle) {
+                        if (newStyle.size || newStyle.italic || newStyle.isImage || newStyle.outline) {
                             return true;
                         }
                     }
@@ -740,49 +784,67 @@ export class RichTextComponent extends UIComponent {
             return;
         }
 
-        const spriteFrameName = richTextElement.style.src;
+        const style = richTextElement.style;
+        const spriteFrameName = style.src;
         const spriteFrame = this._imageAtlas && spriteFrameName && this._imageAtlas.getSpriteFrame(spriteFrameName);
-        if (spriteFrame) {
+        if (!spriteFrame) {
+            warnID(4400);
+        } else {
             const spriteNode = new PrivateNode(RichTextChildImageName);
             const spriteComponent = spriteNode.addComponent(SpriteComponent);
-            spriteNode._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
+            switch (style.imageAlign) {
+                case 'top':
+                    spriteNode._uiProps.uiTransformComp!.setAnchorPoint(0, 1);
+                    break;
+                case 'center':
+                    spriteNode._uiProps.uiTransformComp!.setAnchorPoint(0, 0.5);
+                    break;
+                default:
+                    spriteNode._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
+                    break;
+            }
             spriteComponent!.type = SpriteComponent.Type.SLICED;
             spriteComponent!.sizeMode = SpriteComponent.SizeMode.CUSTOM;
+
+            // Why need to set spriteFrame before can add child ??
+            spriteComponent!.spriteFrame = spriteFrame;
             // @ts-ignore
             this.node.addChild(spriteNode);
             const obj: ILabelSegment = {
                 node: spriteNode,
                 comp: spriteComponent,
                 lineCount: 0,
-                clickHandler: '',
                 styleIndex: 0,
+                imageOffset: style.imageOffset || '',
+                clickParam: '',
+                clickHandler: '',
             };
             this._labelSegments.push(obj);
 
-            const spriteRect = spriteFrame.getRect();
+
+            const spriteRect = spriteFrame.rect.clone();
             let scaleFactor = 1;
             let spriteWidth = spriteRect.width;
             let spriteHeight = spriteRect.height;
-            const expectWidth = richTextElement.style.imageWidth;
-            const expectHeight = richTextElement.style.imageHeight;
+            const expectWidth = style.imageWidth || 0;
+            const expectHeight = style.imageHeight || 0;
 
-            // follow the original rule, expectHeight must less then lineHeight
-            if (expectHeight !== undefined && expectHeight > 0 && expectHeight < this.lineHeight) {
+            if (expectHeight > 0) {
                 scaleFactor = expectHeight / spriteHeight;
                 spriteWidth = spriteWidth * scaleFactor;
                 spriteHeight = spriteHeight * scaleFactor;
             } else {
-                scaleFactor = this.lineHeight / spriteHeight;
+                scaleFactor = this._lineHeight / spriteHeight;
                 spriteWidth = spriteWidth * scaleFactor;
                 spriteHeight = spriteHeight * scaleFactor;
             }
 
-            if (expectWidth !== undefined && expectWidth > 0) {
+            if (expectWidth > 0) {
                 spriteWidth = expectWidth;
             }
 
-            if (this.maxWidth > 0) {
-                if (this._lineOffsetX + spriteWidth > this.maxWidth) {
+            if (this._maxWidth > 0) {
+                if (this._lineOffsetX + spriteWidth > this._maxWidth) {
                     this._updateLineInfo();
                 }
                 this._lineOffsetX += spriteWidth;
@@ -793,24 +855,21 @@ export class RichTextComponent extends UIComponent {
                     this._labelWidth = this._lineOffsetX;
                 }
             }
-            spriteComponent!.spriteFrame = spriteFrame;
             spriteNode._uiProps.uiTransformComp!.setContentSize(spriteWidth, spriteHeight);
             obj.lineCount = this._lineCount;
 
-            if (richTextElement.style.event) {
-                const c = 'click';
-                if (richTextElement.style.event[c]) {
-                    obj.clickHandler = richTextElement.style.event[c];
-                }
+            obj.clickHandler = '';
+            obj.clickParam = '';
+            let event = style.event;
+            if (event) {
+                obj.clickHandler = event['click'];
+                obj.clickParam = event['param'];
             }
-        }
-        else {
-            warnID(4400);
         }
     }
 
     protected _updateRichText () {
-        if (!this.enabled) {
+        if (!this.enabledInHierarchy) {
             return;
         }
 
@@ -841,7 +900,7 @@ export class RichTextComponent extends UIComponent {
                     this._updateLineInfo();
                     continue;
                 }
-                if (richTextElement.style && richTextElement.style.isImage && this.imageAtlas) {
+                if (richTextElement.style && richTextElement.style.isImage && this._imageAtlas) {
                     this._addRichTextImageElement(richTextElement);
                     continue;
                 }
@@ -852,8 +911,7 @@ export class RichTextComponent extends UIComponent {
                 const labelString = multilineTexts[j];
                 if (labelString === '') {
                     // for continues \n
-                    if (this._isLastComponentCR(text)
-                        && j === multilineTexts.length - 1) {
+                    if (this._isLastComponentCR(text) && j === multilineTexts.length - 1) {
                         continue;
                     }
                     this._updateLineInfo();
@@ -862,7 +920,7 @@ export class RichTextComponent extends UIComponent {
                 }
                 lastEmptyLine = false;
 
-                if (this.maxWidth > 0) {
+                if (this._maxWidth > 0) {
                     const labelWidth = this._measureText(i, labelString) as number;
                     this._updateRichTextWithMaxWidth(labelString, labelWidth, i);
 
@@ -887,10 +945,10 @@ export class RichTextComponent extends UIComponent {
             this._linesWidth.push(this._lineOffsetX);
         }
 
-        if (this.maxWidth > 0) {
-            this._labelWidth = this.maxWidth;
+        if (this._maxWidth > 0) {
+            this._labelWidth = this._maxWidth;
         }
-        this._labelHeight = (this._lineCount + BASELINE_RATIO) * this.lineHeight;
+        this._labelHeight = (this._lineCount + BASELINE_RATIO) * this._lineHeight;
 
         // trigger "size-changed" event
         this.node._uiProps.uiTransformComp!.setContentSize(this._labelWidth, this._labelHeight);
@@ -933,8 +991,8 @@ export class RichTextComponent extends UIComponent {
                 nextLineIndex = lineCount;
             }
 
-            let lineOffsetX = this._labelWidth * (this.horizontalAlign * 0.5 - anchorX);
-            switch (this.horizontalAlign) {
+            let lineOffsetX = this._labelWidth * (this._horizontalAlign * 0.5 - anchorX);
+            switch (this._horizontalAlign) {
                 case HorizontalTextAlignment.LEFT:
                     break;
                 case HorizontalTextAlignment.CENTER:
@@ -949,12 +1007,54 @@ export class RichTextComponent extends UIComponent {
 
             const pos = label.node.position;
             label.node.setPosition(nextTokenX + lineOffsetX,
-                this.lineHeight * (totalLineCount - lineCount) - this._labelHeight * anchorY,
+                this._lineHeight * (totalLineCount - lineCount) - this._labelHeight * anchorY,
                 pos.z,
             );
 
             if (lineCount === nextLineIndex) {
                 nextTokenX += label.node._uiProps.uiTransformComp!.width;
+            }
+
+            let sprite = label.node.getComponent(SpriteComponent);
+            if (sprite) {
+                let position = label.node.position.clone();
+                // adjust img align (from <img align=top|center|bottom>)
+                let lineHeightSet = this._lineHeight;
+                let lineHeightReal = this._lineHeight * (1 + BASELINE_RATIO); //single line node height
+                switch (label.node._uiProps.uiTransformComp!.anchorY) {
+                    case 1:
+                        position.y += (lineHeightSet + ((lineHeightReal - lineHeightSet) / 2));
+                        break;
+                    case 0.5:
+                        position.y += (lineHeightReal / 2);
+                        break;
+                    default:
+                        position.y += ((lineHeightReal - lineHeightSet) / 2);
+                        break;
+                }
+                // adjust img offset (from <img offset=12|12,34>)
+                if (label.imageOffset) {
+                    let offsets = label.imageOffset.split(',');
+                    if (offsets.length === 1 && offsets[0]) {
+                        let offsetY = parseFloat(offsets[0]);
+                        if (Number.isInteger(offsetY)) position.y += offsetY;
+                    }
+                    else if (offsets.length === 2) {
+                        let offsetX = parseFloat(offsets[0]);
+                        let offsetY = parseFloat(offsets[1]);
+                        if (Number.isInteger(offsetX)) position.x += offsetX;
+                        if (Number.isInteger(offsetY)) position.y += offsetY;
+                    }
+                }
+                label.node.position = position;
+            }
+
+            //adjust y for label with outline
+            let outline = label.node.getComponent(LabelOutlineComponent)!;
+            if (outline) {
+                let position = label.node.position.clone();
+                position.y = position.y - outline.width;
+                label.node.position = position;
             }
         }
     }
@@ -971,68 +1071,69 @@ export class RichTextComponent extends UIComponent {
     }
 
     protected _applyTextAttribute (labelSeg: ILabelSegment) {
-        const labelComponent = labelSeg.node.getComponent(LabelComponent);
+        const labelComponent = labelSeg.node.getComponent(LabelComponent)!;
         if (!labelComponent) {
             return;
         }
 
         const index = labelSeg.styleIndex;
-        labelComponent.lineHeight = this.lineHeight;
-        labelComponent.horizontalAlign = HorizontalTextAlignment.LEFT;
-        labelComponent.verticalAlign = VerticalTextAlignment.CENTER;
 
         let textStyle: IHtmlTextParserStack | undefined;
         if (this._textArray[index]) {
             textStyle = this._textArray[index].style;
         }
 
-        const labelComp = labelSeg.node.getComponent(LabelComponent);
-        if (labelComp) {
-            if (textStyle && textStyle.color) {
-                labelComp.color = this._convertLiteralColorValue(textStyle.color);
-            } else {
-                labelComp.color = this._convertLiteralColorValue('white');
-            }
-        }
+        if (textStyle) {
+            labelComponent.color = this._convertLiteralColorValue(textStyle.color || 'white');
+            labelComponent.isBold = !!textStyle.bold;
+            labelComponent.isItalic = !!textStyle.italic;
+            // TODO: temporary implementation, the italic effect should be implemented in the internal of label-assembler.
+            // if (textStyle.italic) {
+            //     labelNode.skewX = 12;
+            // }
 
-        labelComponent.isBold = !!(textStyle && textStyle.bold);
+            labelComponent.isUnderline = !!textStyle.underline;
+            if (textStyle.outline) {
+                let labelOutlineComponent = labelSeg.node.getComponent(LabelOutlineComponent);
+                if (!labelOutlineComponent) {
+                    labelOutlineComponent = labelSeg.node.addComponent(LabelOutlineComponent);
+                }
 
-        labelComponent.isItalic = !!(textStyle && textStyle.italic);
-        // TODO: temporary implementation, the italic effect should be implemented in the internal of label-assembler.
-        // if (textStyle && textStyle.italic) {
-        //     labelNode.skewX = 12;
-        // }
-
-        labelComponent.isUnderline = !!(textStyle && textStyle.underline);
-
-        if (textStyle && textStyle.outline) {
-            let labelOutlineComponent = labelSeg.node.getComponent(LabelOutlineComponent);
-            if (!labelOutlineComponent) {
-                labelOutlineComponent = labelSeg.node.addComponent(LabelOutlineComponent);
+                labelOutlineComponent!.color = this._convertLiteralColorValue(textStyle.outline.color);
+                labelOutlineComponent!.width = textStyle.outline.width;
             }
 
-            labelOutlineComponent!.color = this._convertLiteralColorValue(textStyle.outline.color);
-            labelOutlineComponent!.width = textStyle.outline.width;
-        }
+            if (textStyle.size) {
+                labelComponent.fontSize = textStyle.size;
+            }
 
-        if (textStyle && textStyle.size) {
-            labelComponent.fontSize = textStyle.size;
+            labelSeg.clickHandler = '';
+            labelSeg.clickParam = '';
+            let event = textStyle.event;
+            if (event) {
+                labelSeg.clickHandler = event['click'] || '';
+                labelSeg.clickParam = event['param'] || '';
+            }
         }
         else {
             labelComponent.fontSize = this._fontSize;
         }
 
-        labelComponent.updateRenderData(true);
+        labelComponent.cacheMode = this._cacheMode;
 
-        if (textStyle && textStyle.event) {
-            const c = 'click';
-            if (textStyle.event[c]) {
-                labelSeg.clickHandler = textStyle.event[c];
-            }
+        let isAsset = this._font instanceof Font;
+        if (isAsset && !this._isSystemFontUsed) {
+            labelComponent.font = this._font;
+        } else {
+            labelComponent.fontFamily = this._fontFamily;
         }
+        labelComponent.useSystemFont = this._isSystemFontUsed;
+        labelComponent.lineHeight = this._lineHeight;
+
+        labelComponent.updateRenderData(true);
     }
 
-    private _anchorChanged () {
+    private _onTransformChanged () {
         this._updateRichTextPosition();
     }
 }
