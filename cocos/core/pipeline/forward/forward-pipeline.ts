@@ -6,6 +6,7 @@ import { ccclass, property } from '../../data/class-decorator';
 import { RenderPipeline } from '../render-pipeline';
 import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
+import { Root } from '../../root';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { Light, genSamplerHash, samplerLib } from '../../renderer';
@@ -150,6 +151,7 @@ export class ForwardPipeline extends RenderPipeline {
     protected _shadingScale: number = 1.0;
     protected _fpScale: number = 1.0 / 1024.0;
     protected _renderPasses = new Map<GFXClearFlag, GFXRenderPass>();
+    protected _root: Root | null = null;
     protected _uboPCFShadow: UBOPCFShadow = new UBOPCFShadow();
     protected _shadowMapSize: Vec2 = new Vec2(512, 512);
     public initialize () {
@@ -184,6 +186,8 @@ export class ForwardPipeline extends RenderPipeline {
         if (!super.activate()) {
             return false;
         }
+
+        this._root = legacyCC.director.root;
 
         if (!this._activeRenderer()) {
             console.error('ForwardPipeline startup failed!');
@@ -488,8 +492,8 @@ export class ForwardPipeline extends RenderPipeline {
         const shadingHeight = Math.floor(device.height);
 
         // update UBOGlobal
-        fv[UBOGlobal.TIME_OFFSET] = this.cumulativeTime;
-        fv[UBOGlobal.TIME_OFFSET + 1] = this.frameTime;
+        fv[UBOGlobal.TIME_OFFSET] = this._root!.cumulativeTime;
+        fv[UBOGlobal.TIME_OFFSET + 1] = this._root!.frameTime;
         fv[UBOGlobal.TIME_OFFSET + 2] = legacyCC.director.getTotalFrames();
 
         fv[UBOGlobal.SCREEN_SIZE_OFFSET] = device.width;
