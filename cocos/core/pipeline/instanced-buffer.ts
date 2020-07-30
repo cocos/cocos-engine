@@ -76,27 +76,24 @@ export class InstancedBuffer {
         const subModel = renderObj.model.subModelNum[subModelIdx];
         const light = this._validLights[lightIdx];
         const lightBuffer = this._lightBuffers[lightIdx];
-        let fullPatches: IMacroPatch[];
+
+        let fullPatches: IMacroPatch[] = [];
         switch (light.type) {
             case LightType.SPHERE:
                 fullPatches = modelPatches ? spherePatches.concat(modelPatches) : spherePatches;
-                if (!this.psoci) {
-                    this.psoci = pass.createPipelineStateCI(fullPatches)!;
-                    renderObj.model.updateLocalBindings(this.psoci, subModelIdx);
-                    this.psoci.bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
-                    this.psoci.bindingLayout.update();
-                }
                 break;
             case LightType.SPOT:
                 fullPatches = modelPatches ? spotPatches.concat(modelPatches) : spotPatches;
-                if (!this.psoci) {
-                    this.psoci = pass.createPipelineStateCI(fullPatches)!;
-                    renderObj.model.updateLocalBindings(this.psoci, subModelIdx);
-                    this.psoci.bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
-                    this.psoci.bindingLayout.update();
-                }
                 break;
         }
+
+        if (!this.psoci) {
+            this.psoci = pass.createPipelineStateCI(fullPatches)!;
+            renderObj.model.updateLocalBindings(this.psoci, subModelIdx);
+            this.psoci.bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
+            this.psoci.bindingLayout.update();
+        }
+
         this.merge(subModel, attrs, this.psoci!);
     }
 
