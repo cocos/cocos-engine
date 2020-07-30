@@ -126,7 +126,7 @@ export class Root {
      * 累计时间（秒）
      */
     public get cumulativeTime (): number {
-        return this._time;
+        return this.pipeline.cumulativeTime;
     }
 
     /**
@@ -134,7 +134,7 @@ export class Root {
      * 帧时间（秒）
      */
     public get frameTime (): number {
-        return this._frameTime;
+        return this.pipeline.frameTime;
     }
 
     /**
@@ -192,7 +192,6 @@ export class Root {
     private _cameraPool: Pool<Camera> | null = null;
     private _lightPools = new Map<Constructor<Light>, Pool<Light>>();
     private _time: number = 0;
-    private _frameTime: number = 0;
     private _fpsTime: number = 0;
     private _frameCount: number = 0;
     private _fps: number = 0;
@@ -328,7 +327,7 @@ export class Root {
      * 重置累计时间
      */
     public resetCumulativeTime () {
-        this._time = 0;
+        this.pipeline.cumulativeTime = 0;
     }
 
     /**
@@ -338,12 +337,12 @@ export class Root {
      */
     public frameMove (deltaTime: number) {
 
-        this._frameTime = deltaTime;
+        this.pipeline.frameTime = deltaTime;
 
         /*
         if (this._fixedFPSFrameTime > 0) {
 
-            const elapsed = this._frameTime * 1000.0;
+            const elapsed = this.pipeline.frameTime * 1000.0;
             if (this._fixedFPSFrameTime > elapsed) {
                 // tslint:disable-next-line: only-arrow-functions
                 setTimeout(function () {}, this._fixedFPSFrameTime - elapsed);
@@ -352,8 +351,8 @@ export class Root {
         */
 
         ++this._frameCount;
-        this._time += this._frameTime;
-        this._fpsTime += this._frameTime;
+        this._time += this.pipeline.frameTime;
+        this._fpsTime += this.pipeline.frameTime;
         if (this._fpsTime > 1.0) {
             this._fps = this._frameCount;
             this._frameCount = 0;

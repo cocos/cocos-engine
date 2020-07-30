@@ -89,6 +89,8 @@ export abstract class RenderPipeline {
     protected _flows: RenderFlow[] = [];
     protected _globalBindings: Map<string, IInternalBindingInst> = new Map<string, IInternalBindingInst>();
     protected _macros: IDefineMap = {};
+    public frameTime: number = 0;
+    public cumulativeTime: number = 0;
     public device!: GFXDevice;
 
     /**
