@@ -834,6 +834,15 @@ export class View extends EventTarget {
         }
     }
 
+    // hack
+    private _adjustSizeKeepCanvasSize () {
+        const designWidth = this._originalDesignResolutionSize.width;
+        const designHeight = this._originalDesignResolutionSize.height;
+        if (designWidth > 0) {
+            this.setDesignResolutionSize(designWidth, designHeight, this._resolutionPolicy);
+        }
+    }
+
     private _setViewportMeta (metas, overwrite) {
         let vp = document.getElementById('cocosMetaElement');
         if (vp && overwrite) {
@@ -1382,4 +1391,4 @@ export const view = View.instance = legacyCC.view = new View();
  * @en winSize is the alias object for the size of the current game window.
  * @zh winSize 为当前的游戏窗口的大小。
  */
-legacyCC.winSize = new Size();
+legacyCC.winSize = new Vec2();
