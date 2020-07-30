@@ -117,7 +117,7 @@ var _Deserializer = (function () {
         this.deserializedList = [];
         this.deserializedData = null;
         this._classFinder = classFinder;
-        if (CC_DEV) {
+        if (!CC_BUILD) {
             this._ignoreEditorOnly = ignoreEditorOnly;
         }
         this._idList = [];
@@ -683,7 +683,7 @@ var _Deserializer = (function () {
             cache.result = result;
             cache.customEnv = customEnv;
             cache._classFinder = classFinder;
-            if (CC_DEV) {
+            if (!CC_BUILD) {
                 cache._ignoreEditorOnly = ignoreEditorOnly;
             }
             return cache;
