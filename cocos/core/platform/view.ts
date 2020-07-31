@@ -834,6 +834,15 @@ export class View extends EventTarget {
         }
     }
 
+    // hack
+    private _adjustSizeKeepCanvasSize () {
+        const designWidth = this._originalDesignResolutionSize.width;
+        const designHeight = this._originalDesignResolutionSize.height;
+        if (designWidth > 0) {
+            this.setDesignResolutionSize(designWidth, designHeight, this._resolutionPolicy);
+        }
+    }
+
     private _setViewportMeta (metas, overwrite) {
         let vp = document.getElementById('cocosMetaElement');
         if (vp && overwrite) {
