@@ -17,7 +17,7 @@ struct CC_DLL RenderWindowInfo {
     bool isOffscreen = false;
 };
 
-class CC_DLL RenderWindow : public gfx::Object {
+class CC_DLL RenderWindow : public Object {
 public:
     static void registerCreateFunc(Root *root);
     

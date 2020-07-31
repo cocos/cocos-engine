@@ -8,6 +8,8 @@ namespace gfx {
 
 class CC_DLL Device : public Object {
 public:
+    static Device *getInstance();
+
     Device();
     virtual ~Device();
 
@@ -100,7 +102,10 @@ protected:
     float _clipSpaceMinZ = -1.0f;
     float _screenSpaceSignY = 1.0f;
     float _UVSpaceSignY = -1.0f;
-}; // namespace gfx
+
+private:
+    static Device *_instance;
+};
 
 } // namespace gfx
 } // namespace cc

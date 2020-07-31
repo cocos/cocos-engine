@@ -10,20 +10,14 @@ public:
     ForwardPipeline();
     ~ForwardPipeline();
 
-    virtual bool initialize(const RenderPipelineInfo &info) override;
+    virtual bool initialize(const RenderPipelineInfo *info) override;
     virtual void destroy() override;
-    virtual bool activate(cc::Root *root) override;
-    virtual void rebuild() override;
-    virtual void updateUBOs(RenderView *view) override;
-    virtual void sceneCulling() override;
-    virtual vector<float> &getLightIndices() const override;
-    virtual vector<float> &getLightIndexOffsets() const override;
-    virtual vector<gfx::Buffer *> &getLightBuffers() const override;
+    virtual bool activate() override;
 
     CC_INLINE gfx::Buffer *getLightsUBO() { return _lightsUBO; }
 
 private:
-    void cullLightPerModel(cc::Model *model);
+//    void cullLightPerModel(cc::Model *model);
 
 private:
     gfx::Buffer *_lightsUBO = nullptr;

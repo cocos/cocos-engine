@@ -15,7 +15,6 @@ public:
     virtual bool initialize(const RenderFlowInfo &info) override;
     virtual void destroy() override;
     virtual void render(RenderView *view) override;
-    virtual void rebuild() override;
 };
 
 } // namespace pipeline

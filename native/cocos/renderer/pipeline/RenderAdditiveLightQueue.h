@@ -12,7 +12,7 @@ struct MacroPatch;
 
 namespace pipeline {
 
-class RenderAdditiveLightQueue : public gfx::Object {
+class RenderAdditiveLightQueue : public Object {
 public:
     RenderAdditiveLightQueue() = default;
     ~RenderAdditiveLightQueue() = default;

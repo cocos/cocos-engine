@@ -14,7 +14,7 @@ struct CC_DLL RenderViewInfo {
     //TODO
 };
 
-class CC_DLL RenderView : public gfx::Object {
+class CC_DLL RenderView : public Object {
 public:
     static void registerCreateFun(cc::Root *root);
     

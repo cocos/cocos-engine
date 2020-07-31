@@ -2,7 +2,6 @@
 #define CC_CORE_KERNEL_CACHED_ARRAY_H_
 
 namespace cc {
-namespace gfx {
 
 template <typename T>
 class CachedArray : public Object {
@@ -118,7 +117,6 @@ private:
     T *_array = nullptr;
 };
 
-} // namespace gfx
 } // namespace cc
 
 #endif // CC_CORE_KERNEL_CACHED_ARRAY_H_

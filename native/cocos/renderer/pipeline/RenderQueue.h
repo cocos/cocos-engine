@@ -5,7 +5,7 @@
 namespace cc {
 namespace pipeline {
 
-class CC_DLL RenderQueue : public gfx::Object {
+class CC_DLL RenderQueue : public Object {
 public:
     RenderQueue(const RenderPassDesc &desc);
     

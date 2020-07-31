@@ -1,11 +1,9 @@
 #pragma once
 
 #include "core/CoreStd.h"
+#include "base/CCValue.h"
 
 namespace cc {
-struct PSOCreateInfo;
-class SubModel;
-
 namespace pipeline {
 
 class RenderStage;
@@ -25,19 +23,67 @@ struct CC_DLL RenderPass {
     uint hash = 0;
     uint depth = 0;
     uint shaderID = 0;
-    uint passIdx = 0;
-    SubModel *subModel = nullptr;
+    uint index = 0;
+    //    SubModel *subModel = nullptr;
 };
 typedef vector<RenderPass> RenderPassList;
 
-struct RenderPassDesc {
-    // sortFunc
-    uint phase = 0;
-    bool isTransparent = false;
+typedef gfx::ColorAttachment ColorDesc;
+typedef vector<ColorDesc> ColorDescList;
+
+typedef gfx::DepthStencilAttachment DepthStencilDesc;
+
+struct CC_DLL RenderPassDesc {
+    uint index = 0;
+    ColorDescList colorAttachments;
+    DepthStencilDesc depthStencilAttachment;
+};
+typedef vector<RenderPassDesc> RenderPassDescList;
+
+struct CC_DLL RenderTextureDesc {
+    String name;
+    gfx::TextureType type = gfx::TextureType::TEX2D;
+    gfx::TextureUsage usage = gfx::TextureUsage::COLOR_ATTACHMENT;
+    gfx::Format format = gfx::Format::UNKNOWN;
+    int width = -1;
+    int height = -1;
+};
+typedef vector<RenderTextureDesc> RenderTextureDescList;
+
+struct CC_DLL FrameBufferDesc {
+    String name;
+    uint renderPass = 0;
+    vector<String> colorTextures;
+    String depthStencilTexture;
+};
+typedef vector<FrameBufferDesc> FrameBufferDescList;
+
+enum class RenderFlowType : uint8_t {
+    SCENE,
+    POSTPROCESS,
+    UI,
 };
 
 typedef vector<RenderStage *> RenderStageList;
 typedef vector<RenderFlow *> RenderFlowList;
+
+enum class CC_DLL RenderPassStage {
+    DEFAULT = 100,
+    UI = 200,
+};
+
+struct CC_DLL InternalBindingDesc {
+    gfx::BindingType type;
+    gfx::UniformBlock blockInfo;
+    gfx::UniformSampler samplerInfo;
+    Value defaultValue;
+};
+
+struct CC_DLL InternalBindingInst : public InternalBindingDesc {
+    gfx::Buffer *buffer = nullptr;
+    gfx::Sampler *sampler = nullptr;
+    gfx::Texture *texture = nullptr;
+};
 
 //TODO
 const uint CAMERA_DEFAULT_MASK = 1;

@@ -16,43 +16,31 @@ class RenderView;
 
 struct CC_DLL RenderStageInfo {
     String name;
-    int priority = 0;
-    String framebuffer;
-    // renderQueues?: RenderQueueDesc[];
+    uint priority = 0;
+    uint tag = 0;
 };
 
-class CC_DLL RenderStage : public gfx::Object {
+class CC_DLL RenderStage : public Object {
 public:
     RenderStage() = default;
     virtual ~RenderStage() = default;
 
-    virtual void activate(RenderFlow *flow);
+    virtual void activate(RenderPipeline *pipeline, RenderFlow *flow);
     virtual bool initialize(const RenderStageInfo &info);
 
     virtual void destroy() = 0;
-    virtual void rebuild() = 0;
     virtual void render(RenderView *view) = 0;
-    virtual void resize(uint width, uint height) = 0;
 
-    void createBuffer();
-    void executeCommandBuffer(RenderView *view);
-    void setClearColor(/*color: IColor*/);
-    void setClearColors(/*colors: IColor[]*/);
-    void setClearDepth(float depth);
-    void setClearStencil(float stencil);
-    void setRenderArea(size_t width, size_t height);
-    void sortRenderQueue();
-
-    CC_INLINE RenderFlow *getFlow() const { return _flow; }
-    CC_INLINE gfx::Framebuffer *getFrameBuffer() const { return _frameBuffer; }
-    CC_INLINE RenderPipeline *getPipeline() const { return _pipeline; }
-    CC_INLINE int getPriority() const { return _priority; }
+    CC_INLINE const String& getName() const { return _name; }
+    CC_INLINE uint getPriority() const { return _priority; }
+    CC_INLINE uint getTag() const { return _tag; }
 
 protected:
-    RenderFlow *_flow = nullptr;
     RenderPipeline *_pipeline = nullptr;
-    gfx::Framebuffer *_frameBuffer = nullptr;
-    int _priority = 0;
+    RenderFlow *_flow = nullptr;
+    String _name;
+    uint _priority = 0;
+    uint _tag = 0;
 };
 
 } // namespace pipeline

@@ -7,7 +7,7 @@ namespace pipeline {
 
 class InstancedBuffer;
 
-class CC_DLL RenderInstancedQueue : public gfx::Object {
+class CC_DLL RenderInstancedQueue : public Object {
 public:
     RenderInstancedQueue() = default;
     ~RenderInstancedQueue() = default;

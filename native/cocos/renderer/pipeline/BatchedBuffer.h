@@ -16,11 +16,11 @@ struct CC_DLL BatchedItem {
     uint mergCount = 0;
     gfx::InputAssembler *ia = nullptr;
     gfx::Buffer *ubo = nullptr;
-    cc::PSOCreateInfo *psoCreatedInfo = nullptr;
+//    cc::PSOCreateInfo *psoCreatedInfo = nullptr;
 };
 typedef vector<BatchedItem> BatchedItemList;
 
-class CC_DLL BatchedBuffer : public gfx::Object {
+class CC_DLL BatchedBuffer : public Object {
 public:
     BatchedBuffer(cc::Pass *pass);
     ~BatchedBuffer() = default;

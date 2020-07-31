@@ -7,7 +7,7 @@ namespace pipeline {
 
 class BatchedBuffer;
 
-class CC_DLL RenderBatchedQueue : public gfx::Object {
+class CC_DLL RenderBatchedQueue : public Object {
 public:
     RenderBatchedQueue() = default;
     ~RenderBatchedQueue() = default;

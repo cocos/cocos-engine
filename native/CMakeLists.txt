@@ -440,7 +440,6 @@ elseif(APPLE)
             cocos/platform/mac/CCView.h
             cocos/platform/mac/CCKeyCodeHelper.h
             cocos/platform/mac/CCView.mm
-            cocos/platform/mac/cocos2d-prefix.pch
             cocos/platform/mac/CCDevice-mac.mm
             cocos/platform/mac/CCApplication-mac.mm
             cocos/platform/mac/CCKeyCodeHelper.cpp
@@ -450,7 +449,6 @@ elseif(APPLE)
             cocos/platform/ios/CCView.h
             cocos/platform/ios/CCView.mm
             cocos/platform/ios/CCApplication-ios.mm
-            cocos/platform/ios/cocos2d-prefix.pch
             cocos/platform/ios/CCDevice-ios.mm
         )
     endif()
@@ -528,6 +526,8 @@ cocos_source_files(
     cocos/renderer/pipeline/forward/ForwardPipeline.h
     cocos/renderer/pipeline/forward/ForwardStage.cpp
     cocos/renderer/pipeline/forward/ForwardStage.h
+    cocos/renderer/pipeline/helper/DefineMap.h
+    cocos/renderer/pipeline/helper/DefineMap.cpp
 )
 
 if(CC_USE_GLES2)

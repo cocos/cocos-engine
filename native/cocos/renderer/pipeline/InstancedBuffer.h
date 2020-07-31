@@ -20,7 +20,7 @@ struct CC_DLL InstancedItem {
 };
 typedef vector<InstancedItem> InstancedItemList;
 
-class InstancedBuffer : public gfx::Object {
+class InstancedBuffer : public Object {
 public:
     static const uint INITIAL_CAPACITY = 32;
     static const uint MAX_CAPACITY = 1024;
