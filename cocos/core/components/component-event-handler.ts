@@ -50,7 +50,6 @@ import { legacyCC } from '../global-exports';
 @ccclass('cc.ClickEvent')
 export class EventHandler {
 
-    @property
     get _componentName () {
         this._genCompIdIfNeeded();
 
