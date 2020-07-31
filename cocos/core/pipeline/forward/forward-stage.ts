@@ -16,6 +16,7 @@ import { PipelineGlobal } from '../global';
 import { InstancedBuffer } from '../instanced-buffer';
 import { BatchedBuffer } from '../batched-buffer';
 import { BatchingSchemes } from '../../renderer/core/pass';
+import { getPhaseID } from '../pass-phase';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 
@@ -46,6 +47,7 @@ export class ForwardStage extends RenderStage {
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _additiveLightQueue: RenderAdditiveLightQueue;
+    private _phaseID = getPhaseID('forward-add');
 
     constructor () {
         super();
@@ -69,11 +71,11 @@ export class ForwardStage extends RenderStage {
 
     public render (view: RenderView) {
 
-        this._instancedQueue.clear();
-        this._batchedQueue.clear();
         const validLights = this.pipeline.validLights;
         const lightBuffers = this.pipeline.lightBuffers;
         const lightIndices = this.pipeline.lightIndices;
+        this._instancedQueue.clear();
+        this._batchedQueue.clearLightBatched(validLights, lightBuffers);
         this._additiveLightQueue.clear(validLights, lightBuffers, lightIndices);
         this._renderQueues.forEach(this.renderQueueClearFunc);
 
@@ -95,9 +97,18 @@ export class ForwardStage extends RenderStage {
                             instancedBuffer.merge(subModel, ro.model.instancedAttributes, subModel.psoInfos[p]);
                             this._instancedQueue.queue.add(instancedBuffer);
                         } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) {
-                            const batchedBuffer = BatchedBuffer.get(pass);
-                            batchedBuffer.merge(subModel, p, ro);
-                            this._batchedQueue.queue.add(batchedBuffer);
+                            let batchedBuffer: BatchedBuffer;
+                            if (pass.phase === this._phaseID) {
+                                for (let l = lightIndexOffset[i]; l < nextLightIndex; ++l) {
+                                    const lightIndex = lightIndices[l];
+                                    batchedBuffer = BatchedBuffer.getLightBatched(pass, lightIndex);
+                                    batchedBuffer.attach(ro, m, p, lightIndex);
+                                }
+                            } else {
+                                batchedBuffer = BatchedBuffer.get(pass);
+                                batchedBuffer.merge(subModel, p, ro, false);
+                            }
+                            this._batchedQueue.queue.add(batchedBuffer!);
                         } else {
                             for (k = 0; k < this._renderQueues.length; k++) {
                                 this._renderQueues[k].insertRenderPass(ro, m, p);

@@ -3,10 +3,12 @@
  */
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
+import { GFXBuffer } from '../gfx/buffer';
 import { BatchedBuffer } from './batched-buffer';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { GFXDevice } from '../gfx/device';
 import { GFXRenderPass } from '../gfx';
+import { Light } from '../renderer/scene/light';
 
 /**
  * @en The render queue for dynamic batching
@@ -28,6 +30,19 @@ export class RenderBatchedQueue {
         const it = this.queue.values(); let res = it.next();
         while (!res.done) {
             res.value.clear();
+            res = it.next();
+        }
+        this.queue.clear();
+    }
+
+    /**
+     * @en Clear the render queue
+     * @zh 清空渲染队列。
+     */
+    public clearLightBatched (validLights: Light[], lightBuffers: GFXBuffer[]) {
+        const it = this.queue.values(); let res = it.next();
+        while (!res.done) {
+            res.value.clearLightBatched(validLights, lightBuffers);
             res = it.next();
         }
         this.queue.clear();

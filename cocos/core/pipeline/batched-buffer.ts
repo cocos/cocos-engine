@@ -7,8 +7,10 @@ import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { Mat4 } from '../math';
 import { SubModel, IPSOCreateInfo } from '../renderer/scene/submodel';
-import { IRenderObject, UBOLocalBatched } from './define';
+import { IRenderObject, UBOLocalBatched, UBOForwardLight } from './define';
 import { Pass } from '../renderer';
+import { LightType, Light } from '../renderer/scene/light';
+import { IMacroPatch } from '../renderer/core/pass';
 
 export interface IBatchedItem {
     vbs: GFXBuffer[];
@@ -25,9 +27,22 @@ export interface IBatchedItem {
 
 const _localBatched = new UBOLocalBatched();
 
+const spherePatches: IMacroPatch[] = [
+    { name: 'CC_FORWARD_ADD', value: true },
+];
+const spotPatches: IMacroPatch[] = [
+    { name: 'CC_FORWARD_ADD', value: true },
+    { name: 'CC_SPOTLIGHT', value: true },
+];
+
 export class BatchedBuffer {
 
     private static _buffers = new Map<Pass, BatchedBuffer>();
+    private static _lightBuffers = new Map<number, BatchedBuffer>();
+
+    // references
+    private _validLights: Light[] = [];
+    private _lightGFXBuffers: GFXBuffer[] = [];
 
     public static get (pass: Pass) {
         if (!BatchedBuffer._buffers.has(pass)) {
@@ -36,8 +51,16 @@ export class BatchedBuffer {
         return BatchedBuffer._buffers.get(pass)!;
     }
 
+    public static getLightBatched (pass: Pass, index: number) {
+        if (!BatchedBuffer._lightBuffers.has(index)) {
+            BatchedBuffer._lightBuffers.set(index, new BatchedBuffer(pass.device));
+        }
+        return BatchedBuffer._lightBuffers.get(index)!;
+    }
+
     public batches: IBatchedItem[] = [];
     private _device: GFXDevice;
+    public psoci: IPSOCreateInfo | null = null;
 
     constructor (device: GFXDevice) {
         this._device = device;
@@ -56,13 +79,46 @@ export class BatchedBuffer {
         this.batches.length = 0;
     }
 
-    public merge (subModel: SubModel, passIndx: number, ro: IRenderObject) {
+    public attach (renderObj: IRenderObject, subModelIdx: number, passIndx: number, lightIdx: number) {
+        const subModel = renderObj.model.subModelNum[subModelIdx];
+
+        if(!this.psoci) {
+            const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
+            const pass = subModel.passes[passIndx];
+            const light = this._validLights[lightIdx];
+            const lightBuffer = this._lightGFXBuffers[lightIdx];
+
+            let fullPatches: IMacroPatch[] = [];
+            switch (light.type) {
+                case LightType.SPHERE:
+                    fullPatches = modelPatches ? spherePatches.concat(modelPatches) : spherePatches;
+                    break;
+                case LightType.SPOT:
+                    fullPatches = modelPatches ? spotPatches.concat(modelPatches) : spotPatches;
+                    break;
+            }
+
+            this.psoci = pass.createPipelineStateCI(fullPatches);
+            renderObj.model.updateLocalBindings(this.psoci!, subModelIdx);
+            this.psoci!.bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
+            this.psoci!.bindingLayout.update();
+        }
+
+        this.merge(subModel, passIndx, renderObj, true);
+    }
+
+    public merge (subModel: SubModel, passIndx: number, ro: IRenderObject, isLightBatched: boolean) {
         const flatBuffers = subModel.subMeshData.flatBuffers;
         if (flatBuffers.length === 0) { return; }
         let vbSize = 0;
         let vbIdxSize = 0;
         const vbCount = flatBuffers[0].count;
-        const psoCreateInfo = subModel.psoInfos[passIndx];
+        let psoCreateInfo: IPSOCreateInfo;
+        if (this.psoci && isLightBatched) {
+            psoCreateInfo = this.psoci;
+        } else {
+            psoCreateInfo = subModel.psoInfos[passIndx];
+        }
         const bindingLayout = psoCreateInfo.bindingLayout;
         let isBatchExist = false;
         for (let i = 0; i < this.batches.length; ++i) {
@@ -111,7 +167,7 @@ export class BatchedBuffer {
 
                     // update world matrix
                     Mat4.toArray(batch.uboData.view, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
-                    if (!batch.mergeCount && batch.psoCreateInfo !== psoCreateInfo) {
+                    if (!batch.mergeCount && batch.psoCreateInfo !== psoCreateInfo && !isLightBatched) {
                         bindingLayout.bindBuffer(UBOLocalBatched.BLOCK.binding, batch.ubo);
                         bindingLayout.update();
                         batch.psoCreateInfo = psoCreateInfo;
@@ -177,8 +233,10 @@ export class BatchedBuffer {
             size: UBOLocalBatched.SIZE,
         });
 
-        bindingLayout.bindBuffer(UBOLocalBatched.BLOCK.binding, ubo);
-        bindingLayout.update();
+        if (!isLightBatched) {
+            bindingLayout.bindBuffer(UBOLocalBatched.BLOCK.binding, ubo);
+            bindingLayout.update();
+        }
 
         const uboData = new UBOLocalBatched();
         Mat4.toArray(uboData.view, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET);
@@ -196,6 +254,12 @@ export class BatchedBuffer {
             batch.mergeCount = 0;
             batch.ia.vertexCount = 0;
         }
+    }
+
+    public clearLightBatched (validLights: Light[], lightBuffers: GFXBuffer[]) {
+        this._validLights = validLights;
+        this._lightGFXBuffers = lightBuffers;
+        this.clear();
     }
 
     public clearUBO () {
