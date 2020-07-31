@@ -102,7 +102,7 @@ export class RenderAdditiveLightQueue {
 
     private attach (renderObj: IRenderObject, subModelIdx: number, lightBuffer: GFXBuffer, lightIdx: number,
         pass: Pass, patches: IMacroPatch[], shadowPathchMask: number) {
-        const subModelPatchHash = renderObj.model.subModelPatchMask;
+        const subModelPatchMask = renderObj.model.subModelPatchMask;
         const subModel = renderObj.model.subModels[subModelIdx];
         const subModelList = this._sortedSubModelsArray[lightIdx];
         const psoCIList = this._sortedPSOCIArray[lightIdx];
@@ -110,7 +110,7 @@ export class RenderAdditiveLightQueue {
         const fullPatches = modelPatches ? patches.concat(modelPatches) : patches;
 
         let psoCI: IPSOCreateInfo;
-        const patcheMask = subModelPatchHash + shadowPathchMask;
+        const patcheMask = subModelPatchMask + shadowPathchMask;
         if (this._psoCICache.has(subModel) && this._psoCISubModelCache.get(subModel) === patcheMask) {
             psoCI = this._psoCICache.get(subModel)!;
         } else {
