@@ -364,7 +364,9 @@ export const widgetManager = legacyCC._widgetManager = {
             // cc.engine.on('design-resolution-changed', this.onResized.bind(this));
         } else {
             if (sys.isMobile) {
-                window.addEventListener('resize', this.onResized.bind(this));
+                let thisOnResized = this.onResized.bind(this);
+                window.addEventListener('resize', thisOnResized);
+                window.addEventListener('orientationchange', thisOnResized);
             } else {
                 View.instance.on('design-resolution-changed', this.onResized, this);
             }
