@@ -6,17 +6,13 @@ import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { Pass, IMacroPatch } from '../renderer';
 import { SubModel, IPSOCreateInfo } from '../renderer/scene/submodel';
 import { IRenderObject, UBOPCFShadow } from './define';
-import { GFXDevice, GFXRenderPass, GFXBuffer, GFXPipelineState } from '../gfx';
+import { GFXDevice, GFXRenderPass, GFXBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 
 const forwardShadowMapPatches: IMacroPatch[] = [
     { name: 'CC_VSM_SHADOW', value: true },
 ];
-
-export enum ShadowPatchMask {
-    Shadow = 1 << 2,        // shadow
-}
 
 /**
  * @zh
@@ -33,7 +29,6 @@ export class RenderShadowMapBatchedQueue {
     private _psoCISubModelCache: Map<SubModel, number> = new Map();
 
     private _phaseID = getPhaseID('shadow-add');
-    private _shadowPatchMask: number = 0;
 
     /**
      * @en The constructor
@@ -41,7 +36,6 @@ export class RenderShadowMapBatchedQueue {
      * @param root
      */
     private constructor () {
-        this._shadowPatchMask = ShadowPatchMask.Shadow;
     }
 
     /**
@@ -62,7 +56,7 @@ export class RenderShadowMapBatchedQueue {
             const fullPatches = modelPatches ? forwardShadowMapPatches.concat(modelPatches) : forwardShadowMapPatches;
 
             let psoCI: IPSOCreateInfo;
-            const patchMask = subModelPatchMask + this._shadowPatchMask;
+            const patchMask = subModelPatchMask;
             if (this._psoCICache.has(subModel) && this._psoCISubModelCache.get(subModel) === patchMask) {
                 psoCI = this._psoCICache.get(subModel)!;
             } else {

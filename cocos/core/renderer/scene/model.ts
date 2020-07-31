@@ -20,7 +20,6 @@ import { Pass, IMacroPatch } from '../core/pass';
 import { legacyCC } from '../../global-exports';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { BatchingSchemes } from '../core/pass';
-import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 
 const m4_1 = new Mat4();
 
