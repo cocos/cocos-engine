@@ -80,7 +80,7 @@ export class BatchedBuffer {
     }
 
     public attach (renderObj: IRenderObject, subModelIdx: number, passIndx: number, lightIdx: number) {
-        const subModel = renderObj.model.subModelNum[subModelIdx];
+        const subModel = renderObj.model.subModels[subModelIdx];
 
         if(!this.psoci) {
             const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
