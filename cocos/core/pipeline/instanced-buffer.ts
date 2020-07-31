@@ -72,7 +72,7 @@ export class InstancedBuffer {
     }
 
     public attach (renderObj: IRenderObject, subModelIdx: number, attrs: IInstancedAttributeBlock, pass: Pass, lightIdx: number) {
-        const subModel = renderObj.model.subModelNum[subModelIdx];
+        const subModel = renderObj.model.subModels[subModelIdx];
 
         if (!this.psoci) {
             const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
