@@ -13869,6 +13869,7 @@ function World(options){
      * @type {Number}
      */
     this.time = 0.0;
+    this.timeFixed = 0.0;
 
     /**
      * Number of timesteps taken since start
@@ -14705,6 +14706,7 @@ World.prototype.internalStep = function(dt){
 
     // Update world time
     this.time += dt;
+    this.timeFixed += dt;
     this.stepnumber += 1;
 
     this.dispatchEvent(World_step_postStepEvent);

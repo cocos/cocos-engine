@@ -168,10 +168,12 @@ export class Physics3DManager {
     private _accumulator = 0;
 
     useFixedDigit = false;
+    useInternalTime = false;
 
     readonly fixDigits = {
-        position : 3,
-        rotation : 12,
+        position: 5,
+        rotation: 12,
+        timeNow: 3,
     }
     private _deltaTime = 0;
     private _lastTime = 0;
@@ -218,6 +220,14 @@ export class Physics3DManager {
             return;
         }
 
+        if (this.useInternalTime) {
+            var now = parseFloat(performance.now().toFixed(this.fixDigits.timeNow));
+            this._deltaTime = now > this._lastTime ? (now - this._lastTime) / 1000 : 0;
+            this._lastTime = now;
+        } else {
+            this._deltaTime = deltaTime;
+        }
+
         cc.director.emit(cc.Director.EVENT_BEFORE_PHYSICS);
 
         if (CC_PHYSICS_BUILTIN) {
@@ -241,10 +251,6 @@ export class Physics3DManager {
         }
 
         cc.director.emit(cc.Director.EVENT_AFTER_PHYSICS);
-        
-        var now = performance.now();
-        this._deltaTime = now > this._lastTime ? (now - this._lastTime) / 1000 : 0;
-        this._lastTime = now;
     }
 
     /**
@@ -257,7 +263,7 @@ export class Physics3DManager {
      * @param {boolean} queryTrigger Detect trigger or not
      * @return {PhysicsRayResult[] | null} Detected result
      */
-    raycast (worldRay: cc.geomUtils.Ray, groupIndexOrName: number|string = 0, maxDistance = Infinity, queryTrigger = true): PhysicsRayResult[] | null {
+    raycast (worldRay: cc.geomUtils.Ray, groupIndexOrName: number | string = 0, maxDistance = Infinity, queryTrigger = true): PhysicsRayResult[] | null {
         this.raycastResultPool.reset();
         this.raycastResults.length = 0;
         if (typeof groupIndexOrName == "string") {
@@ -284,7 +290,7 @@ export class Physics3DManager {
      * @param {boolean} queryTrigger Detect trigger or not
      * @return {PhysicsRayResult|null} Detected result
      */
-    raycastClosest (worldRay: cc.geomUtils.Ray, groupIndexOrName: number|string = 0, maxDistance = Infinity, queryTrigger = true): PhysicsRayResult|null {
+    raycastClosest (worldRay: cc.geomUtils.Ray, groupIndexOrName: number | string = 0, maxDistance = Infinity, queryTrigger = true): PhysicsRayResult | null {
         if (typeof groupIndexOrName == "string") {
             let groupIndex = cc.game.groupList.indexOf(groupIndexOrName);
             if (groupIndex == -1) groupIndex = 0;
