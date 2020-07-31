@@ -492,7 +492,7 @@ var widgetManager = cc._widgetManager = module.exports = {
         }
     },
     refreshWidgetOnResized (node) {
-        var widget = cc.Node.isNode(node) && node._widget;
+        var widget = cc.Node.isNode(node) && node.getComponent(cc.Widget);
         if (widget && widget.enabled && widget.alignMode === AlignMode.ON_WINDOW_RESIZE) {
             this.add(widget);
         }
