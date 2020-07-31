@@ -365,6 +365,17 @@ export class Node extends BaseNode {
         this.eulerAngles; // make sure we save the correct eulerAngles
     }
 
+    public _onPostActivated (active: boolean) {
+        if (active) { // activated
+            eventManager.resumeTarget(this);
+            this.eventProcessor.reattach();
+            // in case transform updated during deactivated period
+            this.invalidateChildren(TransformBit.TRS);
+        } else { // deactivated
+            eventManager.pauseTarget(this);
+        }
+    }
+
     // ===============================
     // transform helper, convenient but not the most efficient
     // ===============================
@@ -1009,18 +1020,6 @@ export class Node extends BaseNode {
         // @ts-ignore
         eventManager.resumeTarget(this, recursive);
     }
-
-    public _onPostActivated (active) {
-        if (active) {
-            eventManager.resumeTarget(this);
-            this.eventProcessor.reattach();
-        }
-        else {
-            // deactivate
-            eventManager.pauseTarget(this);
-        }
-    }
-
 }
 
 cc.Node = Node;
