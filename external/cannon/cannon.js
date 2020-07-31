@@ -14081,6 +14081,7 @@ World.prototype.collisionMatrixTick = function(){
  * @deprecated Use .addBody instead
  */
 World.prototype.add = World.prototype.addBody = function(body){
+    World.SLEEPING = false;
     if(this.bodies.indexOf(body) !== -1){
         return;
     }
@@ -14107,6 +14108,7 @@ World.prototype.add = World.prototype.addBody = function(body){
  * @param {Constraint} c
  */
 World.prototype.addConstraint = function(c){
+    World.SLEEPING = false;
     this.constraints.push(c);
 };
 
@@ -14116,6 +14118,7 @@ World.prototype.addConstraint = function(c){
  * @param {Constraint} c
  */
 World.prototype.removeConstraint = function(c){
+    World.SLEEPING = false;
     var idx = this.constraints.indexOf(c);
     if(idx!==-1){
         this.constraints.splice(idx,1);
@@ -14214,6 +14217,7 @@ World.prototype.raycastClosest = function(from, to, options, result){
  * @deprecated Use .removeBody instead
  */
 World.prototype.remove = function(body){
+    World.SLEEPING = false;
     body.world = null;
     var n = this.bodies.length - 1,
         bodies = this.bodies,
