@@ -77,7 +77,7 @@ Assembler.register(cc.Label, {
             ctor = is3DNode ? Bmfont3D : Bmfont;
         } else if (label.cacheMode === Label.CacheMode.CHAR) {
 
-            if(CC_JSB && !is3DNode && !!jsb.LabelRenderer && label.font instanceof cc.TTFFont && !label._forceUseCanvas){
+            if(CC_JSB && !is3DNode && !!jsb.LabelRenderer && label.font instanceof cc.TTFFont && label._useNativeRenderer()){
                 ctor = NativeTTF;
             } else if (cc.sys.platform === cc.sys.WECHAT_GAME_SUB) {
                 cc.warn('sorry, subdomain does not support CHAR mode currently!');
