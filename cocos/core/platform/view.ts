@@ -793,6 +793,17 @@ export class View extends EventTarget {
     private _orientationChange () {
         legacyCC.view._orientationChanging = true;
         legacyCC.view._resizeEvent();
+
+        // HACK: show nav bar on iOS safari
+        // safari will enter fullscreen when rotate to landscape
+        // need to exit fullscreen when rotate back to portrait, scrollTo(0, 1) works.
+        if (legacyCC.sys.browserType === legacyCC.sys.BROWSER_TYPE_SAFARI && cc.sys.isMobile) {
+            setTimeout(() => {
+                if (window.innerHeight > window.innerWidth) {
+                    window.scrollTo(0, 1);
+                }
+            }, 500);
+        }
     }
 
     private _initFrameSize () {
