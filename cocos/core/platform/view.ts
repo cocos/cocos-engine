@@ -784,6 +784,7 @@ export class View extends EventTarget {
         }
         _view._resizing = false;
 
+        _view.emit('canvas-resize');
         if (_view._resizeCallback) {
             _view._resizeCallback.call();
         }
@@ -1015,6 +1016,14 @@ class ContainerStrategy {
         document.body.scrollTop = 0;
     }
 }
+
+/**
+ * @en
+ * Emit when canvas resize.
+ * @zh
+ * 当画布大小改变时发送。
+ * @event canvas-resize
+ */
 
 /**
  * ContentStrategy class is the root strategy class of content's scale strategy,

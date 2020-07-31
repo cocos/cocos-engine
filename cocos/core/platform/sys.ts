@@ -730,6 +730,20 @@ export const sys: { [x: string]: any; } = {
     cleanScript (jsfile) {
         // N/A in web
     },
+
+    /**
+     * @en
+     * Returns the safe area of the screen. If the screen is not notched, the design resolution will be returned by default.
+     * Only supported on Android, iOS and WeChat Mini Game platform.
+     * @zh
+     * 返回手机屏幕安全区域，如果不是异形屏将默认返回设计分辨率尺寸。目前只支持安卓、iOS 原生平台和微信小游戏平台。
+     * @method getSafeAreaRect
+     * @return {Rect}
+     */
+    getSafeAreaRect () {
+        let visibleSize = legacyCC.view.getVisibleSize();
+        return legacyCC.rect(0, 0, visibleSize.width, visibleSize.height);
+    }
 };
 
 // ============= Platform Adaptation ==============

@@ -25,5 +25,6 @@ export { PageViewComponent } from './page-view-component';
 export { PageViewIndicatorComponent } from './page-view-indicator-component';
 export { UIStaticBatchComponent } from './ui-static-batch-component';
 export { UIOpacityComponent } from './ui-opacity-component';
+export { SafeAreaComponent } from './safe-area-component';
 
 export { widgetManager } from './widget-manager';
