@@ -37,7 +37,7 @@ export class UIStage extends RenderStage {
 
     private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
 
-    public initialize (info: IRenderStageInfo) {
+    public initialize (info: IRenderStageInfo): boolean {
         super.initialize(info);
         this.renderQueues = [{
             isTransparent: true,

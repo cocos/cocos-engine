@@ -26,12 +26,14 @@ export class ForwardFlow extends RenderFlow {
         priority: ForwardFlowPriority.FORWARD,
     };
 
-    public initialize (info: IRenderFlowInfo) {
+    public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
 
         const forwardStage = new ForwardStage();
         forwardStage.initialize(ForwardStage.initInfo);
         this._stages.push(forwardStage);
+
+        return true;
     }
 
     public render (view: RenderView) {

@@ -55,7 +55,7 @@ export class ForwardStage extends RenderStage {
         this._additiveLightQueue = new RenderAdditiveLightQueue();
     }
 
-    public initialize (info: IRenderStageInfo) {
+    public initialize (info: IRenderStageInfo): boolean {
         super.initialize(info);
         this.renderQueues = [
             {

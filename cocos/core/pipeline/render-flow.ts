@@ -78,13 +78,15 @@ export abstract class RenderFlow {
      * @zh 初始化函数，正常情况下不会用到，仅用于程序化生成渲染管线的情况。
      * @param info The render flow information
      */
-    public initialize (info: IRenderFlowInfo) {
+    public initialize (info: IRenderFlowInfo): boolean{
         this._name = info.name;
         this._priority = info.priority;
 
         if (info.tag) {
             this._tag = info.tag;
         }
+
+        return true;
     }
 
     /**

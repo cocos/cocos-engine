@@ -96,7 +96,7 @@ export abstract class RenderPipeline {
      * @zh 初始化函数，正常情况下不会用到，仅用于程序化生成渲染管线的情况。
      * @param info The render pipeline information
      */
-    public initialize (info?: IRenderPipelineInfo) {
+    public initialize (info?: IRenderPipelineInfo): boolean {
         if (info) {
             for (let i = 0; i < info.flows.length; i++) {
                 this._flows[i] = info.flows[i];
@@ -106,6 +106,8 @@ export abstract class RenderPipeline {
                 this._tag = info.tag;
             }
         }
+
+        return true;
     }
 
     /**

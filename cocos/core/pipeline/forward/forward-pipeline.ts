@@ -154,7 +154,7 @@ export class ForwardPipeline extends RenderPipeline {
     protected _root: Root | null = null;
     protected _uboPCFShadow: UBOPCFShadow = new UBOPCFShadow();
     protected _shadowMapSize: Vec2 = new Vec2(512, 512);
-    public initialize () {
+    public initialize (): boolean {
         super.initialize();
 
         const shadowFlow = new ShadowFlow();
@@ -180,6 +180,8 @@ export class ForwardPipeline extends RenderPipeline {
                 this._materials.set(mats.name, mats.material);
             }
         }
+
+        return true;
     }
 
     public activate (): boolean {

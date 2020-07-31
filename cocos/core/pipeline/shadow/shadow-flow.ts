@@ -37,13 +37,15 @@ export class ShadowFlow extends RenderFlow {
     private _shadowFrameBuffer: GFXFramebuffer|null = null;
     private _depth: GFXTexture|null = null;
 
-    public initialize (info: IRenderFlowInfo) {
+    public initialize (info: IRenderFlowInfo): boolean{
         super.initialize(info);
 
         // add shadowMap-stages
         const shadowMapStage = new ShadowStage();
         shadowMapStage.initialize(ShadowStage.initInfo);
         this._stages.push(shadowMapStage);
+
+        return true;
     }
 
     /**
