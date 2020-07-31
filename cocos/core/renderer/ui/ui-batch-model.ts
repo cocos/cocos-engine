@@ -47,11 +47,24 @@ export class UIBatchModel extends Model {
     public updateTransform () {}
     public updateUBOs () { return false; }
 
+    public updateUBOs () {
+        this._subModels.forEach(this._updatePass, this);
+        //this._subModels[0].update();
+        // return false;
     public directInitialize (batch: UIDrawBatch) {
         this._subModel.directInitialize(batch.material!.passes, batch.hIA, batch.hDescriptorSet!);
     }
 
-    public destroy () { this._subModel.destroy(); }
+    public directInitialize (ia: GFXInputAssembler, batch: UIDrawBatch) {
+        this._subModel.directInitialize(ia, batch.material!, batch.psoCreateInfo!);
+        this._subModels[0] = this._subModel;
+    }
+    public destroy () {
+        this._subModel.destroy();
+    }
+    private _updatePass (subModel: SubModel) {
+        subModel.update();
+    }
 }
 
 class UISubModel extends SubModel {
