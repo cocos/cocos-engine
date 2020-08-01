@@ -60,7 +60,7 @@ export class WebGLGPUTexture {
     public isPowerOf2: boolean = false;
 
     public glTarget: GLenum = 0;
-    public glInternelFmt: GLenum = 0;
+    public glInternalFmt: GLenum = 0;
     public glFormat: GLenum = 0;
     public glType: GLenum = 0;
     public glUsage: GLenum = 0;
