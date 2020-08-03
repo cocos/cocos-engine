@@ -9,7 +9,7 @@ import { Model } from './model';
 import { RenderScene } from './render-scene';
 import { SphereLight } from './sphere-light';
 import { GFXCommandBuffer, GFXDevice, GFXRenderPass } from '../../gfx';
-import { InstancedBuffer } from '../../pipeline/instanced-buffer';
+import { PassInstancedBuffer } from '../../pipeline/pass-instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
 import { IPSOCreateInfo } from './submodel';
 
@@ -165,7 +165,7 @@ export class PlanarShadows {
     public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
         const models = this._pendingModels;
         const modelLen = models.length;
-        const buffer = InstancedBuffer.get(this._instancingMaterial.passes[0]);
+        const buffer = PassInstancedBuffer.get(this._instancingMaterial.passes[0]);
         if (buffer) { buffer.clear(); }
         for (let i = 0; i < modelLen; i++) {
             const { model, psoCIs: psocis, instancedBuffer } = models[i];
@@ -213,7 +213,7 @@ export class PlanarShadows {
                 psoCIs.push(psoCI);
             }
         }
-        return { model, psoCIs, instancedBuffer: InstancedBuffer.get(material.passes[0]) };
+        return { model, psoCIs, instancedBuffer: PassInstancedBuffer.get(material.passes[0]) };
     }
 
     public destroyShadowData (model: Model) {

@@ -5,11 +5,8 @@
 import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice } from '../gfx';
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
-import { IInstancedAttributeBlock, Pass, Light } from '../renderer';
+import { IInstancedAttributeBlock } from '../renderer';
 import { SubModel, IPSOCreateInfo } from '../renderer/scene/submodel';
-import { IRenderObject, UBOForwardLight } from './define';
-import { LightType } from '../renderer/scene/light';
-import { IMacroPatch } from '../renderer/core/pass';
 
 export interface IInstancedItem {
     count: number;
@@ -23,36 +20,7 @@ export interface IInstancedItem {
 const INITIAL_CAPACITY = 32;
 const MAX_CAPACITY = 1024;
 
-const spherePatches: IMacroPatch[] = [
-    { name: 'CC_FORWARD_ADD', value: true },
-];
-const spotPatches: IMacroPatch[] = [
-    { name: 'CC_FORWARD_ADD', value: true },
-    { name: 'CC_SPOTLIGHT', value: true },
-];
-
 export class InstancedBuffer {
-
-    private static _buffers = new Map<Pass, InstancedBuffer>();
-    private static _lightBuffers = new Map<number, InstancedBuffer>();
-
-    // references
-    private _validLights: Light[] = [];
-    private _lightGFXBuffers: GFXBuffer[] = [];
-
-    public static get (pass: Pass) {
-        if (!InstancedBuffer._buffers.has(pass)) {
-            InstancedBuffer._buffers.set(pass, new InstancedBuffer(pass.device));
-        }
-        return InstancedBuffer._buffers.get(pass)!;
-    }
-
-    public static getLightInstanced (pass: Pass, index: number) {
-        if (!InstancedBuffer._lightBuffers.has(index)) {
-            InstancedBuffer._lightBuffers.set(index, new InstancedBuffer(pass.device));
-        }
-        return InstancedBuffer._lightBuffers.get(index)!;
-    }
 
     public instances: IInstancedItem[] = [];
     public psoci: IPSOCreateInfo | null = null;
@@ -69,33 +37,6 @@ export class InstancedBuffer {
             instance.ia.destroy();
         }
         this.instances.length = 0;
-    }
-
-    public attach (renderObj: IRenderObject, subModelIdx: number, attrs: IInstancedAttributeBlock, pass: Pass, lightIdx: number) {
-        const subModel = renderObj.model.subModels[subModelIdx];
-
-        if (!this.psoci) {
-            const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
-            const light = this._validLights[lightIdx];
-            const lightBuffer = this._lightGFXBuffers[lightIdx];
-
-            let fullPatches: IMacroPatch[] = [];
-            switch (light.type) {
-                case LightType.SPHERE:
-                    fullPatches = modelPatches ? spherePatches.concat(modelPatches) : spherePatches;
-                    break;
-                case LightType.SPOT:
-                    fullPatches = modelPatches ? spotPatches.concat(modelPatches) : spotPatches;
-                    break;
-            }
-
-            this.psoci = pass.createPipelineStateCI(fullPatches)!;
-            renderObj.model.updateLocalBindings(this.psoci, subModelIdx);
-            this.psoci.bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
-            this.psoci.bindingLayout.update();
-        }
-
-        this.merge(subModel, attrs, this.psoci!);
     }
 
     public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, psoci: IPSOCreateInfo) {
@@ -166,11 +107,5 @@ export class InstancedBuffer {
             instance.count = 0;
         }
         this.psoci = null;
-    }
-
-    public clearLightInstanced (validLights: Light[], lightBuffers: GFXBuffer[]) {
-        this._validLights = validLights;
-        this._lightGFXBuffers = lightBuffers;
-        this.clear();
     }
 }

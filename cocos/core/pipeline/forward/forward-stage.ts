@@ -15,6 +15,8 @@ import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { InstancedBuffer } from '../instanced-buffer';
+import { LightInstancedBuffer } from '../light-instanced-buffer';
+import { PassInstancedBuffer } from '../pass-instanced-buffer';
 import { BatchedBuffer } from '../batched-buffer';
 import { BatchingSchemes } from '../../renderer/core/pass';
 import { ForwardFlow } from './forward-flow';
@@ -131,11 +133,13 @@ export class ForwardStage extends RenderStage {
                             if (pass.phase === this._phaseID) {
                                 for (let l = lightIndexOffset[i]; l < nextLightIndex; ++l) {
                                     const lightIndex = lightIndices[l];
-                                    instancedBuffer = InstancedBuffer.getLightInstanced(pass, lightIndex);
-                                    instancedBuffer.attach(ro, m, ro.model.instancedAttributes, pass, lightIndex);
+                                    const psoCI = RenderInstancedQueue.getLightPipelineCreateInfo(ro, m, pass,
+                                        validLights, lightBuffers, lightIndex);
+                                    instancedBuffer = LightInstancedBuffer.get(pass, lightIndex);
+                                    instancedBuffer.merge(subModel, ro.model.instancedAttributes, psoCI);
                                 }
                             } else {
-                                instancedBuffer = InstancedBuffer.get(pass);
+                                instancedBuffer = PassInstancedBuffer.get(pass);
                                 instancedBuffer.merge(subModel, ro.model.instancedAttributes, subModel.psoInfos[p]);
                             }
                             this._instancedQueue.queue.add(instancedBuffer!);
