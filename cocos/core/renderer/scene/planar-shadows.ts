@@ -21,7 +21,7 @@ const _qt = new Quat();
 interface IShadowRenderData {
     model: Model;
     psoCIs: IPSOCreateInfo[];
-    instancedBuffer: InstancedBuffer | null;
+    instancedBuffer: PassInstancedBuffer | null;
 }
 
 export class PlanarShadows {
