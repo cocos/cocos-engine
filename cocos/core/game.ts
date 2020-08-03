@@ -640,7 +640,7 @@ export class Game extends EventTarget {
                     console.warn(err);
                 }
                 else {
-                    //this.setRenderPipeline(asset);
+                    this.setRenderPipeline(asset);
                 }
                 this._safeEmit(Game.EVENT_GAME_INITED);
                 if (useSplash) {

@@ -118,9 +118,6 @@ export class Asset extends Eventify(RawAsset) {
      * @type {String}
      * @readOnly
      */
-    @property({
-        visible: false,
-    })
     get nativeUrl () {
         if (this._native) {
             const name = this._native;
