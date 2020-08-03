@@ -28,7 +28,7 @@
  */
 
 import { ccclass, property } from '../data/class-decorator';
-import { GFXTexture, GFXSampler, GFXColorAttachment, GFXDepthStencilAttachment, GFXTextureLayout } from '../gfx';
+import { GFXTexture, GFXSampler, GFXColorAttachment, GFXDepthStencilAttachment, GFXTextureLayout, IGFXRenderPassInfo } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { RenderWindow } from '../pipeline';
 import { IRenderWindowInfo } from '../pipeline/render-window';
@@ -40,18 +40,21 @@ export interface IRenderTextureCreateInfo {
     name?: string;
     width: number;
     height: number;
+    passInfo?: IGFXRenderPassInfo;
 }
 
 const _colorAttachment = new GFXColorAttachment();
 _colorAttachment.endLayout = GFXTextureLayout.SHADER_READONLY_OPTIMAL;
 const _depthStencilAttachment = new GFXDepthStencilAttachment();
+const passInfo = {
+    colorAttachments: [_colorAttachment],
+    depthStencilAttachment: _depthStencilAttachment,
+};
+
 const _windowInfo: IRenderWindowInfo = {
     width: 1,
     height: 1,
-    renderPassInfo: {
-        colorAttachments: [_colorAttachment],
-        depthStencilAttachment: _depthStencilAttachment,
-    }
+    renderPassInfo: passInfo,
 };
 
 @ccclass('cc.RenderTexture')
@@ -89,7 +92,7 @@ export class RenderTexture extends Asset {
         this._name = info.name || '';
         this._width = info.width;
         this._height = info.height;
-        this._initWindow();
+        this._initWindow(info);
     }
     public reset (info: IRenderTextureCreateInfo) { // to be consistent with other assets
         this.initialize(info);
@@ -129,15 +132,17 @@ export class RenderTexture extends Asset {
         this.emit('load');
     }
 
-    protected _initWindow () {
+    protected _initWindow (info?: IRenderTextureCreateInfo) {
         const root = legacyCC.director.root as Root;
+
         _windowInfo.title = this._name;
         _windowInfo.width = this._width;
         _windowInfo.height = this._height;
+        _windowInfo.renderPassInfo = info && info.passInfo ? info.passInfo : passInfo;
 
         if (this._window) {
             this._window.destroy();
-            this._window.initialize(_windowInfo);
+            this._window.initialize(root.device, _windowInfo);
         } else {
             this._window = root.createWindow(_windowInfo);
         }

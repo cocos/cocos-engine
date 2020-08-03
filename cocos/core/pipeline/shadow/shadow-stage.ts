@@ -4,13 +4,13 @@
 
 import { ccclass } from '../../data/class-decorator';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXFilter, IGFXColor } from '../../gfx/define';
-import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
+import { IGFXColor, IGFXRect } from '../../gfx/define';
+import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from '../forward/enum';
 import { RenderShadowMapBatchedQueue } from '../render-shadowMap-batched-queue';
 import { GFXFramebuffer } from '../../gfx/framebuffer';
-import { PipelineGlobal } from '../global';
+import { ForwardPipeline } from '../forward/forward-pipeline';
 
 const colors: IGFXColor[] = [ { r: 1, g: 1, b: 1, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -24,18 +24,6 @@ export class ShadowStage extends RenderStage {
     public static initInfo: IRenderStageInfo = {
         name: 'ShadowStage',
         priority: ForwardStagePriority.FORWARD,
-        renderQueues: [
-            {
-                isTransparent: true,
-                sortMode: RenderQueueSortMode.FRONT_TO_BACK,
-                stages: ['default'],
-            },
-            {
-                isTransparent: false,
-                sortMode: RenderQueueSortMode.BACK_TO_FRONT,
-                stages: ['default'],
-            },
-        ],
     };
 
     public setShadowFrameBuffer (shadowFrameBuffer: GFXFramebuffer) {
@@ -44,6 +32,7 @@ export class ShadowStage extends RenderStage {
 
     private _additiveShadowQueue: RenderShadowMapBatchedQueue;
     private _shadowFrameBuffer: GFXFramebuffer|null = null;
+    private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
 
     /**
      * 构造函数。
@@ -63,29 +52,14 @@ export class ShadowStage extends RenderStage {
 
     /**
      * @zh
-     * 重置大小。
-     * @param width 屏幕宽度。
-     * @param height 屏幕高度。
-     */
-    public resize (width: number, height: number) {
-    }
-
-    /**
-     * @zh
-     * 重构函数。
-     */
-    public rebuild () {
-    }
-
-    /**
-     * @zh
      * 渲染函数。
      * @param view 渲染视图。
      */
     public render (view: RenderView) {
-        this._additiveShadowQueue.clear(this.pipeline.shadowUBOBuffer);
+        const pipeline = this._pipeline as ForwardPipeline;
+        this._additiveShadowQueue.clear(pipeline.shadowUBOBuffer);
 
-        const renderObjects = this._pipeline.renderObjects;
+        const renderObjects = pipeline.renderObjects;
         let m = 0; let p = 0;
         for (let i = 0; i < renderObjects.length; ++i) {
             const ro = renderObjects[i];
@@ -101,16 +75,16 @@ export class ShadowStage extends RenderStage {
 
         const camera = view.camera;
 
-        const cmdBuff = this._pipeline.commandBuffers[0];
+        const cmdBuff = pipeline.commandBuffers[0];
 
         const vp = camera.viewport;
-        const shadowMapSize = this.pipeline.shadowMapSize;
+        const shadowMapSize = pipeline.shadowMapSize;
         this._renderArea!.x = vp.x * shadowMapSize.x;
         this._renderArea!.y = vp.y * shadowMapSize.y;
-        this._renderArea!.width =  vp.width * shadowMapSize.x * this.pipeline!.shadingScale;
-        this._renderArea!.height = vp.height * shadowMapSize.y * this.pipeline!.shadingScale;
+        this._renderArea!.width =  vp.width * shadowMapSize.x * pipeline.shadingScale;
+        this._renderArea!.height = vp.height * shadowMapSize.y * pipeline.shadingScale;
 
-        const device = PipelineGlobal.device;
+        const device = pipeline.device;
         const renderPass = this._shadowFrameBuffer!.renderPass;
 
         cmdBuff.begin();

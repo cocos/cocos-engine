@@ -16,6 +16,7 @@ import { SpotLight } from './renderer/scene/spot-light';
 import { UI } from './renderer/ui/ui';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './pipeline/render-window';
+import { ForwardPipeline } from './pipeline/forward/forward-pipeline';
 import { GFXColorAttachment, GFXDepthStencilAttachment, GFXStoreOp } from './gfx';
 
 /**
@@ -285,10 +286,6 @@ export class Root {
             }
         }
 
-        if (this._pipeline) {
-            this._pipeline.resize(width, height);
-        }
-
         for (const view of this._views) {
             if (view.camera.isWindowSize) {
                 view.camera.resize(width, height);
@@ -297,6 +294,10 @@ export class Root {
     }
 
     public setRenderPipeline (rppl: RenderPipeline): boolean {
+        if (!rppl) {
+            rppl = new ForwardPipeline();
+            rppl.initialize();
+        }
         this._pipeline = rppl;
         if (!this._pipeline.activate()) {
             return false;
@@ -381,7 +382,7 @@ export class Root {
      */
     public createWindow (info: IRenderWindowInfo): RenderWindow | null {
         const window = this._createWindowFun(this);
-        window.initialize(info);
+        window.initialize(this.device, info);
         this._windows.push(window);
         return window;
     }

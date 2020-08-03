@@ -5,11 +5,10 @@
 import { Camera } from '../renderer/scene/camera';
 import { Root } from '../root';
 import { CAMERA_DEFAULT_MASK } from './define';
-import { RenderFlowType } from './pipeline-serialization';
+import { RenderFlowTag } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
 import { legacyCC } from '../global-exports';
 import { RenderWindow } from './render-window';
-import { PipelineGlobal } from './global';
 
 /**
  * @en The predefined priority of render view
@@ -182,17 +181,20 @@ export class RenderView {
      */
     public setExecuteFlows (flows: string[] | undefined) {
         this.flows.length = 0;
+        const pipeline = legacyCC.director.root.pipeline;
+        const pipelineFlows = pipeline.flows;
         if (flows && flows.length === 1 && flows[0] === 'UIFlow') {
-            const flow = PipelineGlobal.root.pipeline.getFlow('UIFlow');
-            if (flow) {
-                this._flows.push(flow);
+            for (let i = 0; i < pipelineFlows.length; i++) {
+                if (pipelineFlows[i].name === 'UIFlow') {
+                    this.flows.push(pipelineFlows[i]);
+                    break
+                }
             }
             return;
         }
-        const pipelineFlows = PipelineGlobal.root.pipeline.activeFlows;
         for (let i = 0; i < pipelineFlows.length; ++i) {
             const f = pipelineFlows[i];
-            if (f.type === RenderFlowType.SCENE || (flows && flows.indexOf(f.name) !== -1)) {
+            if (f.tag === RenderFlowTag.SCENE || (flows && flows.indexOf(f.name) !== -1)) {
                 this.flows.push(f);
             }
         }

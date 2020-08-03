@@ -2,20 +2,24 @@
  * @category pipeline
  */
 
-import { ccclass } from '../../data/class-decorator';
-import { GFXClearFlag, GFXFilter, IGFXColor } from '../../gfx/define';
+import { ccclass, property } from '../../data/class-decorator';
+import { IRenderPass } from '../define';
+import { getPhaseID } from '../pass-phase';
+import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
+import { GFXClearFlag, IGFXColor, IGFXRect } from '../../gfx/define';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
-import { RenderFlow } from '../render-flow';
 import { RenderInstancedQueue } from '../render-instanced-queue';
-import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
+import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
-import { PipelineGlobal } from '../global';
 import { InstancedBuffer } from '../instanced-buffer';
 import { BatchedBuffer } from '../batched-buffer';
 import { BatchingSchemes } from '../../renderer/core/pass';
+import { ForwardFlow } from './forward-flow';
+import { ForwardPipeline } from './forward-pipeline';
+import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 
@@ -29,20 +33,17 @@ export class ForwardStage extends RenderStage {
     public static initInfo: IRenderStageInfo = {
         name: 'ForwardStage',
         priority: ForwardStagePriority.FORWARD,
-        renderQueues: [
-            {
-                isTransparent: false,
-                sortMode: RenderQueueSortMode.FRONT_TO_BACK,
-                stages: ['default'],
-            },
-            {
-                isTransparent: true,
-                sortMode: RenderQueueSortMode.BACK_TO_FRONT,
-                stages: ['default', 'planarShadow'],
-            },
-        ],
     };
 
+    @property({
+        type: [RenderQueueDesc],
+        displayOrder: 2,
+        visible: true,
+    })
+    protected renderQueues: RenderQueueDesc[] = [];
+    protected _renderQueues: RenderQueue[] = [];
+
+    private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _additiveLightQueue: RenderAdditiveLightQueue;
@@ -54,31 +55,64 @@ export class ForwardStage extends RenderStage {
         this._additiveLightQueue = new RenderAdditiveLightQueue();
     }
 
-    public activate (flow: RenderFlow) {
-        super.activate(flow);
+    public initialize (info: IRenderStageInfo): boolean {
+        super.initialize(info);
+        this.renderQueues = [
+            {
+                isTransparent: false,
+                sortMode: RenderQueueSortMode.FRONT_TO_BACK,
+                stages: ['default'],
+            },
+            {
+                isTransparent: true,
+                sortMode: RenderQueueSortMode.BACK_TO_FRONT,
+                stages: ['default', 'planarShadow'],
+            },
+        ]
+
+        return true;
+    }
+
+    public activate (pipeline: ForwardPipeline, flow: ForwardFlow) {
+        super.activate(pipeline, flow);
+        for (let i = 0; i < this.renderQueues.length; i++) {
+            let phase = 0;
+            for (let j = 0; j < this.renderQueues[i].stages.length; j++) {
+                phase |= getPhaseID(this.renderQueues[i].stages[j]);
+            }
+            let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
+            switch (this.renderQueues[i].sortMode) {
+                case RenderQueueSortMode.BACK_TO_FRONT:
+                    sortFunc = transparentCompareFn;
+                    break;
+                case RenderQueueSortMode.FRONT_TO_BACK:
+                    sortFunc = opaqueCompareFn;
+                    break;
+            }
+
+            this._renderQueues[i] = new RenderQueue({
+                isTransparent: this.renderQueues[i].isTransparent,
+                phases: phase,
+                sortFunc,
+            });
+        }
     }
 
     public destroy () {
     }
 
-    public resize (width: number, height: number) {
-    }
-
-    public rebuild () {
-    }
-
     public render (view: RenderView) {
-
         this._instancedQueue.clear();
         this._batchedQueue.clear();
-        const validLights = this.pipeline.validLights;
-        const lightBuffers = this.pipeline.lightBuffers;
-        const lightIndices = this.pipeline.lightIndices;
+        const pipeline = this._pipeline as ForwardPipeline;
+        const validLights = pipeline.validLights;
+        const lightBuffers = pipeline.lightBuffers;
+        const lightIndices = pipeline.lightIndices;
         this._additiveLightQueue.clear(validLights, lightBuffers, lightIndices);
         this._renderQueues.forEach(this.renderQueueClearFunc);
 
-        const renderObjects = this._pipeline.renderObjects;
-        const lightIndexOffset = this.pipeline.lightIndexOffsets;
+        const renderObjects = pipeline.renderObjects;
+        const lightIndexOffset = pipeline.lightIndexOffsets;
         let m = 0; let p = 0; let k = 0;
         for (let i = 0; i < renderObjects.length; ++i) {
             const nextLightIndex = i + 1 < renderObjects.length ? lightIndexOffset[i + 1] : lightIndices.length;
@@ -122,18 +156,18 @@ export class ForwardStage extends RenderStage {
 
         const camera = view.camera;
 
-        const cmdBuff = this._pipeline.commandBuffers[0];
+        const cmdBuff = pipeline.commandBuffers[0];
 
         const vp = camera.viewport;
         this._renderArea!.x = vp.x * camera.width;
         this._renderArea!.y = vp.y * camera.height;
-        this._renderArea!.width = vp.width * camera.width * this.pipeline!.shadingScale;
-        this._renderArea!.height = vp.height * camera.height * this.pipeline!.shadingScale;
+        this._renderArea!.width = vp.width * camera.width * pipeline.shadingScale;
+        this._renderArea!.height = vp.height * camera.height * pipeline.shadingScale;
 
         if (camera.clearFlag & GFXClearFlag.COLOR) {
-            if (this._pipeline.isHDR) {
+            if (pipeline.isHDR) {
                 SRGBToLinear(colors[0], camera.clearColor);
-                const scale = this._pipeline.fpScale / camera.exposure;
+                const scale = pipeline.fpScale / camera.exposure;
                 colors[0].r *= scale;
                 colors[0].g *= scale;
                 colors[0].b *= scale;
@@ -146,17 +180,9 @@ export class ForwardStage extends RenderStage {
 
         colors[0].a = camera.clearColor.a;
 
-        let framebuffer = view.window.framebuffer;
-        if (this._pipeline.usePostProcess) {
-            if (!this._pipeline.useMSAA) {
-                framebuffer = this._pipeline.getFrameBuffer(this._pipeline!.currShading)!;
-            } else {
-                framebuffer = this._pipeline.getFrameBuffer('msaa')!;
-            }
-        }
-
-        const device = PipelineGlobal.device;
-        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : this._flow.getRenderPass(camera.clearFlag);
+        const framebuffer = view.window.framebuffer;
+        const device = pipeline.device;
+        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
@@ -172,15 +198,24 @@ export class ForwardStage extends RenderStage {
         cmdBuff.endRenderPass();
         cmdBuff.end();
 
-        device.queue.submit(this._pipeline.commandBuffers);
+        device.queue.submit(pipeline.commandBuffers);
+    }
 
-        if (this._pipeline.useMSAA) {
-            device.blitFramebuffer(
-                this._framebuffer!,
-                this._pipeline.getFrameBuffer(this._pipeline.currShading)!,
-                this._renderArea!,
-                this._renderArea!,
-                GFXFilter.POINT);
-        }
+    /**
+     * @en Clear the given render queue
+     * @zh 清空指定的渲染队列
+     * @param rq The render queue
+     */
+    protected renderQueueClearFunc (rq: RenderQueue) {
+        rq.clear();
+    }
+
+    /**
+     * @en Sort the given render queue
+     * @zh 对指定的渲染队列执行排序
+     * @param rq The render queue
+     */
+    protected renderQueueSortFunc (rq: RenderQueue) {
+        rq.sort();
     }
 }

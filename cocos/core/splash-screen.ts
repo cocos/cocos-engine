@@ -22,7 +22,6 @@ import { IPSOCreateInfo } from './renderer';
 import { PipelineStateManager } from './pipeline/pipeline-state-manager';
 import { legacyCC } from './global-exports';
 import { Root } from './root';
-import { RenderPassStage } from './pipeline/define';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 

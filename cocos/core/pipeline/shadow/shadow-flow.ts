@@ -10,9 +10,9 @@ import { ShadowStage } from './shadow-stage';
 import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
     GFXStoreOp, GFXTextureLayout, GFXFormat, GFXTexture,
     GFXTextureType, GFXTextureUsageBit } from '../../gfx';
-import { RenderFlowType } from '../pipeline-serialization';
-import { RenderView, RenderPipeline } from '../..';
-import { PipelineGlobal } from '../global';
+import { RenderFlowTag } from '../pipeline-serialization';
+import { RenderView, ForwardPipeline } from '../..';
+import { sceneCulling } from '../forward/scene-culling';
 
 const colorMipmapLevels: number[] = [];
 
@@ -29,7 +29,7 @@ export class ShadowFlow extends RenderFlow {
     public static initInfo: IRenderFlowInfo = {
         name: PIPELINE_FLOW_SHADOW,
         priority: ForwardFlowPriority.SHADOW,
-        type: RenderFlowType.SCENE,
+        tag: RenderFlowTag.SCENE,
     };
 
     private _shadowRenderPass: GFXRenderPass|null = null;
@@ -37,13 +37,15 @@ export class ShadowFlow extends RenderFlow {
     private _shadowFrameBuffer: GFXFramebuffer|null = null;
     private _depth: GFXTexture|null = null;
 
-    public initialize (info: IRenderFlowInfo) {
+    public initialize (info: IRenderFlowInfo): boolean{
         super.initialize(info);
 
         // add shadowMap-stages
         const shadowMapStage = new ShadowStage();
         shadowMapStage.initialize(ShadowStage.initInfo);
         this._stages.push(shadowMapStage);
+
+        return true;
     }
 
     /**
@@ -51,19 +53,16 @@ export class ShadowFlow extends RenderFlow {
      * 销毁函数。
      */
     public destroy () {
-        this.destroyStages();
+        super.destroy();
     }
 
     public render (view: RenderView) {
+        const pipeline = this._pipeline as ForwardPipeline;
         view.camera.update();
-
-        this.pipeline.sceneCulling(view);
-
-        this.pipeline.updateUBOs(view);
-
+        sceneCulling(pipeline, view);
+        pipeline.updateUBOs(view);
         super.render(view);
-
-        const shadowmapUniform = this._pipeline.globalBindings.get(UNIFORM_SHADOWMAP.name);
+        const shadowmapUniform = pipeline.globalBindings.get(UNIFORM_SHADOWMAP.name);
         if (shadowmapUniform) {
             shadowmapUniform.texture = this._shadowFrameBuffer?.colorTextures[0]!;
         }
@@ -76,10 +75,12 @@ export class ShadowFlow extends RenderFlow {
     public rebuild () {
     }
 
-    public activate (pipeline: RenderPipeline) {
+    public activate (pipeline: ForwardPipeline) {
         super.activate(pipeline);
 
-        const device = PipelineGlobal.device;
+        const device = pipeline.device;
+        const shadowMapSize = pipeline.shadowMapSize;
+
         if(!this._shadowRenderPass) {
             this._shadowRenderPass = device.createRenderPass({
                 colorAttachments: [{
@@ -108,8 +109,8 @@ export class ShadowFlow extends RenderFlow {
                 type: GFXTextureType.TEX2D,
                 usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
                 format: GFXFormat.RGBA16F,
-                width:this.pipeline.shadowMapSize.x,
-                height:this.pipeline.shadowMapSize.y,
+                width: shadowMapSize.x,
+                height: shadowMapSize.y,
             }));
         }
 
@@ -118,8 +119,8 @@ export class ShadowFlow extends RenderFlow {
                 type: GFXTextureType.TEX2D,
                 usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
                 format: GFXFormat.D24S8,
-                width:this.pipeline.shadowMapSize.x,
-                height:this.pipeline.shadowMapSize.y,
+                width: shadowMapSize.x,
+                height: shadowMapSize.y,
             });
         }
 
@@ -133,8 +134,8 @@ export class ShadowFlow extends RenderFlow {
             });
         }
 
-        for (let i = 0; i < this.stages.length; ++i) {
-            (this.stages[i] as ShadowStage).setShadowFrameBuffer(this._shadowFrameBuffer);
+        for (let i = 0; i < this._stages.length; ++i) {
+            (this._stages[i] as ShadowStage).setShadowFrameBuffer(this._shadowFrameBuffer);
         }
     }
 }
