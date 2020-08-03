@@ -40,6 +40,7 @@ import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from './renderer';
 import { legacyCC } from './global-exports';
+import { IPhysicsConfig } from '../physics/framework/physics-config';
 
 /**
  * @zh
@@ -219,6 +220,11 @@ export interface IGameConfig {
      * GPU instancing options
      */
     customJointTextureLayouts?: ICustomJointTextureLayout[];
+
+    /**
+     * Physics system config
+     */
+    physics?: IPhysicsConfig;
 }
 
 /**

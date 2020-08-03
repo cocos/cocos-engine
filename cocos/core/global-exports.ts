@@ -33,9 +33,6 @@ import {
     EDITOR,
     JSB,
     MINIGAME,
-    PHYSICS_AMMO,
-    PHYSICS_BUILTIN,
-    PHYSICS_CANNON,
     PREVIEW,
     RUNTIME_BASED,
     SUPPORT_JIT,
@@ -85,9 +82,6 @@ if (BUILD) {
     _global.CC_MINIGAME = MINIGAME;
     _global.CC_RUNTIME_BASED = RUNTIME_BASED;
     _global.CC_SUPPORT_JIT = SUPPORT_JIT;
-    _global.CC_PHYSICS_BUILTIN = PHYSICS_BUILTIN;
-    _global.CC_PHYSICS_CANNON = PHYSICS_CANNON;
-    _global.CC_PHYSICS_AMMO = PHYSICS_AMMO;
 }
 
 if (DEV) {
@@ -96,19 +90,6 @@ if (DEV) {
      * @expose
      */
     legacyCC._Test = {};
-}
-
-/**
- * deprecated
- */
-// TODO: ALIPAY and runtime will redefine
-if (!(RUNTIME_BASED || ALIPAY)) {
-    Object.defineProperty(_global, 'CC_PHYSICS_BUILT_IN', {
-        get: () => {
-            console.warn('CC_PHYSICS_BUILT_IN is deprecated, please using CC_PHYSICS_BUILTIN instead.');
-            return _global.CC_PHYSICS_BUILTIN;
-        },
-    });
 }
 
 /**

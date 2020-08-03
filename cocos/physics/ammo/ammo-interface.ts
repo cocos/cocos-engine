@@ -11,6 +11,7 @@ export interface IAmmoBodyStruct {
     readonly startTransform: Ammo.btTransform;
     readonly motionState: Ammo.btDefaultMotionState;
     readonly wrappedShapes: AmmoShape[];
+    useCompound: boolean;
 }
 
 export interface IAmmoGhostStruct {

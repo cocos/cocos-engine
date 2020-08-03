@@ -24,7 +24,7 @@ export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
         return this._collider as SphereColliderComponent;
     }
 
-    constructor (radius: number) {
+    constructor (radius = 0.5) {
         super();
         this._localShape = new sphere(0, 0, 0, radius);
         this._worldShape = new sphere(0, 0, 0, radius);

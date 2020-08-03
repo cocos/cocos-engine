@@ -1,10 +1,12 @@
 import Ammo from './ammo-instantiated';
 import { ColliderComponent, TriggerEventType, CollisionEventType, IContactEquation } from '../../../exports/physics-framework';
+import { Vec3, Quat } from '../../core';
 
 export const TriggerEventObject = {
     type: 'onTriggerEnter' as unknown as TriggerEventType,
     selfCollider: null as unknown as ColliderComponent,
     otherCollider: null as unknown as ColliderComponent,
+    impl: null,
 };
 
 export const CollisionEventObject = {
@@ -12,6 +14,7 @@ export const CollisionEventObject = {
     selfCollider: null as unknown as ColliderComponent,
     otherCollider: null as unknown as ColliderComponent,
     contacts: [] as IContactEquation[],
+    impl: null,
 };
 
 export class AmmoConstant {
@@ -21,4 +24,12 @@ export class AmmoConstant {
         return AmmoConstant._instance;
     }
     readonly EMPTY_SHAPE = new Ammo.btEmptyShape();
+    readonly TRANSFORM = new Ammo.btTransform();
+    readonly VECTOR3_0 = new Ammo.btVector3();
+    readonly VECTOR3_1 = new Ammo.btVector3();
+    readonly QUAT_0 = new Ammo.btQuaternion();
 }
+
+export const CC_V3_0 = new Vec3();
+export const CC_V3_1 = new Vec3();
+export const CC_QUAT_0 = new Quat();
