@@ -106,55 +106,6 @@ export class EditBoxComponent extends Component {
 
     /**
      * @en
-     * Font size of the input text.
-     *
-     * @zh
-     * 输入框文本的字体大小。该属性会在将来的版本中移除，请使用 editBox.textLabel.fontSize。
-     */
-    @property({
-        tooltip: '输入框文本的字体大小',
-        displayOrder: 2,
-    })
-    get fontSize () {
-        if (!this._textLabel) {
-            return 20;
-        }
-        return this._textLabel!.fontSize;
-    }
-
-    set fontSize (value) {
-        if (this._textLabel) {
-            this._textLabel.fontSize = value;
-        }
-    }
-
-    /**
-     * @en
-     * Font color of the input text.
-     *
-     * @zh
-     * 输入框文本的颜色。该属性会在将来的版本中移除，请使用 editBox.textLabel.color
-     */
-    @property({
-        type: Color,
-        tooltip: '输入框文本的颜色',
-        displayOrder: 3,
-    })
-    get fontColor () {
-        if (!this._textLabel) {
-            return math.Color.WHITE.clone();
-        }
-        return this._textLabel!.color;
-    }
-
-    set fontColor (value) {
-        if (this._textLabel) {
-            this._textLabel.color = value;
-        }
-    }
-
-    /**
-     * @en
      * Set the input flags that are to be applied to the EditBox.
      *
      * @zh
@@ -241,29 +192,6 @@ export class EditBoxComponent extends Component {
     }
     set maxLength (value: number) {
         this._maxLength = value;
-    }
-
-    /**
-     * @en
-     * Change the lineHeight of displayed text.
-     *
-     * @zh
-     * 输入框文本的行高。
-     */
-    @property({
-        tooltip: '输入框文本的行高',
-        displayOrder: 8,
-    })
-    get lineHeight () {
-        if (!this._textLabel) {
-            return 40;
-        }
-        return this._textLabel!.lineHeight;
-    }
-    set lineHeight (value: number) {
-        if (this._textLabel) {
-            this._textLabel.lineHeight = value;
-        }
     }
 
     /**
@@ -364,75 +292,6 @@ export class EditBoxComponent extends Component {
         if (this._placeholderLabel) {
             this._placeholderLabel.string = value;
         }
-    }
-
-    /**
-     * @en
-     * The font size of placeholder.
-     *
-     * @zh
-     * 输入框占位符的字体大小。该属性会在将来的版本中移除，请使用 editBox.placeholderLabel.fontSize
-     */
-    @property({
-        tooltip: '输入框占位符的字体大小',
-        displayOrder: 14,
-    })
-    get placeholderFontSize () {
-        if (!this._placeholderLabel){
-            return 20;
-        }
-        return this._placeholderLabel!.fontSize;
-    }
-    set placeholderFontSize (value) {
-        if (this._placeholderLabel) {
-            this._placeholderLabel.fontSize = value;
-        }
-    }
-
-    /**
-     * @en
-     * The font color of placeholder.
-     *
-     * @zh
-     * 输入框占位符的字体颜色。该属性会在将来的版本中移除，请使用 editBox.placeholderLabel.color
-     */
-    @property({
-        tooltip: '输入框占位符的字体颜色',
-        displayOrder: 15,
-    })
-    get placeholderFontColor () {
-        if (!this._placeholderLabel) {
-            return math.Color.GRAY.clone();
-        }
-        return this._placeholderLabel!.color;
-    }
-
-    set placeholderFontColor (value) {
-        if (this._placeholderLabel) {
-            this._placeholderLabel.color = value;
-        }
-    }
-
-    /**
-     * @en
-     * The input is always visible and be on top of the game view (only useful on Web).
-     *
-     * @zh
-     * 输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义）
-     * Note: only available on Web at the moment.
-     *
-     * @deprecated
-     */
-    @property({
-        tooltip: '输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义）',
-        displayOrder: 21,
-    })
-    get stayOnTop () {
-        return;
-    }
-
-    set stayOnTop (value) {
-        console.warn('stayOnTop is removed.');
     }
 
     /**
