@@ -106,6 +106,107 @@ export class EditBoxComponent extends Component {
 
     /**
      * @en
+     * The display text of placeholder.
+     *
+     * @zh
+     * 输入框占位符的文本内容。
+     */
+    @property({
+        tooltip: '输入框占位符的文本内容',
+        displayOrder: 2,
+    })
+    get placeholder () {
+        if (!this._placeholderLabel) {
+            return '';
+        }
+        return this._placeholderLabel.string;
+    }
+
+    set placeholder (value) {
+        if (this._placeholderLabel) {
+            this._placeholderLabel.string = value;
+        }
+    }
+
+    /**
+     * @en
+     * The Label component attached to the node for EditBox's input text label
+     *
+     * @zh
+     * 输入框输入文本节点上挂载的 Label 组件对象
+     */
+    @property({
+        tooltip: '输入框输入文本节点上挂载的 Label 组件对象',
+        type: LabelComponent,
+        displayOrder: 3,
+    })
+    get textLabel () {
+        return this._textLabel;
+    }
+
+    set textLabel (oldValue) {
+        if (this._textLabel !== oldValue) {
+            this._textLabel = oldValue;
+            if (this._textLabel) {
+                this._updateTextLabel();
+                this._updateLabels();
+            }
+        }
+    }
+    
+    /**
+     * @en
+     * The Label component attached to the node for EditBox's placeholder text label.
+     *
+     * @zh
+     * 输入框占位符节点上挂载的 Label 组件对象。
+     */
+    @property({
+        tooltip: '输入框占位符节点上挂载的 Label 组件对象',
+        type: LabelComponent,
+        displayOrder: 4,
+    })
+    get placeholderLabel () {
+        return this._placeholderLabel;
+    }
+
+    set placeholderLabel (oldValue) {
+        if (this._placeholderLabel !== oldValue) {
+            this._placeholderLabel = oldValue;
+            if (this._placeholderLabel) {
+                this._updatePlaceholderLabel();
+                this._updateLabels();
+            }
+        }
+    }
+
+    /**
+     * @en
+     * The background image of EditBox.
+     *
+     * @zh
+     * 输入框的背景图片。
+     */
+    @property({
+        type: SpriteFrame,
+        tooltip: '输入框的背景图片',
+        displayOrder: 5,
+    })
+    get backgroundImage () {
+        return this._backgroundImage;
+    }
+
+    set backgroundImage (value: SpriteFrame | null) {
+        if (this._backgroundImage === value) {
+            return;
+        }
+
+        this._backgroundImage = value;
+        this._createBackgroundSprite();
+    }
+
+    /**
+     * @en
      * Set the input flags that are to be applied to the EditBox.
      *
      * @zh
@@ -114,7 +215,7 @@ export class EditBoxComponent extends Component {
     @property({
         type: InputFlag,
         tooltip: '指定输入标志位，可以指定输入方式为密码或者单词首字母大写',
-        displayOrder: 4,
+        displayOrder: 6,
     })
     get inputFlag () {
         return this._inputFlag;
@@ -136,7 +237,7 @@ export class EditBoxComponent extends Component {
     @property({
         type: InputMode,
         tooltip: '指定输入模式: ANY 表示多行输入，其它都是单行输入，移动平台上还可以指定键盘样式',
-        displayOrder: 5,
+        displayOrder: 7,
     })
     get inputMode () {
         return this._inputMode;
@@ -162,7 +263,7 @@ export class EditBoxComponent extends Component {
     @property({
         type: KeyboardReturnType,
         tooltip: '指定移动设备上面回车按钮的样式',
-        displayOrder: 6,
+        displayOrder: 8,
     })
     get returnType () {
         return this._returnType;
@@ -185,113 +286,13 @@ export class EditBoxComponent extends Component {
      */
     @property({
         tooltip: '输入框最大允许输入的字符个数',
-        displayOrder: 7,
+        displayOrder: 9,
     })
     get maxLength () {
         return this._maxLength;
     }
     set maxLength (value: number) {
         this._maxLength = value;
-    }
-
-    /**
-     * @en
-     * The background image of EditBox.
-     *
-     * @zh
-     * 输入框的背景图片。
-     */
-    @property({
-        type: SpriteFrame,
-        tooltip: '输入框的背景图片',
-        displayOrder: 10,
-    })
-    get backgroundImage () {
-        return this._backgroundImage;
-    }
-
-    set backgroundImage (value: SpriteFrame | null) {
-        if (this._backgroundImage === value) {
-            return;
-        }
-
-        this._backgroundImage = value;
-        this._createBackgroundSprite();
-    }
-
-    /**
-     * @en
-     * The Label component attached to the node for EditBox's input text label
-     *
-     * @zh
-     * 输入框输入文本节点上挂载的 Label 组件对象
-     */
-    @property({
-        tooltip: '输入框输入文本节点上挂载的 Label 组件对象',
-        type: LabelComponent,
-        displayOrder: 11,
-    })
-    get textLabel () {
-        return this._textLabel;
-    }
-
-    set textLabel (oldValue) {
-        if (this._textLabel !== oldValue) {
-            this._textLabel = oldValue;
-            if (this._textLabel) {
-                this._updateTextLabel();
-                this._updateLabels();
-            }
-        }
-    }
-    /**
-     * @en
-     * The Label component attached to the node for EditBox's placeholder text label.
-     *
-     * @zh
-     * 输入框占位符节点上挂载的 Label 组件对象。
-     */
-    @property({
-        tooltip: '输入框占位符节点上挂载的 Label 组件对象',
-        type: LabelComponent,
-        displayOrder: 12,
-    })
-    get placeholderLabel () {
-        return this._placeholderLabel;
-    }
-
-    set placeholderLabel (oldValue) {
-        if (this._placeholderLabel !== oldValue) {
-            this._placeholderLabel = oldValue;
-            if (this._placeholderLabel) {
-                this._updatePlaceholderLabel();
-                this._updateLabels();
-            }
-        }
-    }
-
-    /**
-     * @en
-     * The display text of placeholder.
-     *
-     * @zh
-     * 输入框占位符的文本内容。
-     */
-    @property({
-        tooltip: '输入框占位符的文本内容',
-        displayOrder: 13,
-    })
-    get placeholder () {
-        if (!this._placeholderLabel) {
-            return '';
-        }
-        return this._placeholderLabel.string;
-    }
-
-    set placeholder (value) {
-        if (this._placeholderLabel) {
-            this._placeholderLabel.string = value;
-        }
     }
 
     /**
@@ -303,7 +304,7 @@ export class EditBoxComponent extends Component {
      */
     @property({
         tooltip: '修改 DOM 输入元素的 tabIndex（这个属性只有在 Web 上面修改有意义）',
-        displayOrder: 22,
+        displayOrder: 10,
     })
     get tabIndex () {
         return this._tabIndex;
@@ -333,7 +334,7 @@ export class EditBoxComponent extends Component {
     @property({
         type: [ComponentEventHandler],
         tooltip: '该事件在用户点击输入框获取焦点的时候被触发',
-        displayOrder: 31,
+        displayOrder: 11,
     })
     public editingDidBegan: ComponentEventHandler[] = [];
 
@@ -347,7 +348,7 @@ export class EditBoxComponent extends Component {
     @property({
         type: [ComponentEventHandler],
         tooltip: '编辑文本输入框时触发的事件回调',
-        displayOrder: 32,
+        displayOrder: 12,
     })
     public textChanged: ComponentEventHandler[] = [];
 
@@ -361,7 +362,7 @@ export class EditBoxComponent extends Component {
     @property({
         type: [ComponentEventHandler],
         tooltip: '在单行模式下面，一般是在用户按下回车或者点击屏幕输入框以外的地方调用该函数。 如果是多行输入，一般是在用户点击屏幕输入框以外的地方调用该函数',
-        displayOrder: 33,
+        displayOrder: 13,
     })
     public editingDidEnded: ComponentEventHandler[] = [];
 
@@ -375,7 +376,7 @@ export class EditBoxComponent extends Component {
     @property({
         type: [ComponentEventHandler],
         tooltip: '该事件在用户按下回车键的时候被触发, 如果是单行输入框，按回车键还会使输入框失去焦点',
-        displayOrder: 34,
+        displayOrder: 14,
     })
     public editingReturn: ComponentEventHandler[] = [];
 
