@@ -671,7 +671,7 @@ export class PageViewComponent extends ScrollViewComponent {
     protected _dispatchPageTurningEvent() {
         if (this._lastPageIdx === this._curPageIdx) { return; }
         this._lastPageIdx = this._curPageIdx;
-        ComponentEventHandler.emitEvents(this.pageEvents, this);
+        ComponentEventHandler.emitEvents(this.pageEvents, this, EventType.PAGE_TURNING);
         this.node.emit(EventType.PAGE_TURNING, this);
     }
 
@@ -765,26 +765,23 @@ export class PageViewComponent extends ScrollViewComponent {
 
     protected _autoScrollToPage() {
         const bounceBackStarted = this._startBounceBackIfNeeded();
-        // Note:
-        const moveOffset = new Vec3();
-        Vec3.subtract(moveOffset, this._touchBeganPosition, this._touchEndPosition);
-        // this._touchBeganPosition.subtract(this._touchEndPosition);
         if (bounceBackStarted) {
-            const dragDirection = this._getDragDirection(moveOffset);
-            if (dragDirection === 0) {
-                return;
+            let bounceBackAmount = this._getHowMuchOutOfBoundary();
+            bounceBackAmount = this._clampDelta(bounceBackAmount);
+            if (bounceBackAmount.x > 0 || bounceBackAmount.y < 0) {
+                this._curPageIdx = this._pages.length === 0 ? 0 : this._pages.length - 1;
             }
-            if (dragDirection > 0) {
-                this._curPageIdx = this._pages.length - 1;
+            if (bounceBackAmount.x < 0 || bounceBackAmount.y > 0) {
+                this._curPageIdx = 0
             }
-            else {
-                this._curPageIdx = 0;
-            }
+
             if (this.indicator) {
                 this.indicator._changedState();
             }
         }
         else {
+            const moveOffset = new Vec3();
+            Vec3.subtract(moveOffset, this._touchBeganPosition, this._touchEndPosition);
             const index = this._curPageIdx;
             const nextIndex = index + this._getDragDirection(moveOffset);
             const timeInSecond = this.pageTurningSpeed * Math.abs(index - nextIndex);

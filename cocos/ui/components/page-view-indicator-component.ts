@@ -209,6 +209,7 @@ export class PageViewIndicatorComponent extends Component {
         const node = new Node();
         const sprite = node.addComponent(SpriteComponent);
         sprite!.spriteFrame = this.spriteFrame;
+        sprite!.sizeMode = SpriteComponent.SizeMode.CUSTOM;
         node.parent = this.node;
         node._uiProps.uiTransformComp!.setContentSize(this._cellSize);
         return node;
