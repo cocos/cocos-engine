@@ -244,13 +244,14 @@ export class EditBoxImpl extends EditBoxImplBase {
 
     private _hideDomOnMobile () {
         if (sys.os === sys.OS_ANDROID) {
+            if (this.__autoResize) {
+                view.resizeWithBrowserSize(true);
+            }
+            // In case enter full screen when soft keyboard still showing
             setTimeout(() => {
                 if (!_currentEditBoxImpl) {
                     if (this.__fullscreen) {
                         view.enableAutoFullScreen(true);
-                    }
-                    if (this.__autoResize) {
-                        view.resizeWithBrowserSize(true);
                     }
                 }
             }, DELAY_TIME);
