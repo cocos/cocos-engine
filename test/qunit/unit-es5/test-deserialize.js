@@ -170,9 +170,12 @@ if (TestEditorExtends) {
          */
 
         var serializedAsset = Editor.serialize(asset);
-        var deserializedAsset = cc.deserialize(serializedAsset);
+        var details = new cc.deserialize.Details();
+        var deserializedAsset = cc.deserialize(serializedAsset, details);
 
         ok(deserializedAsset.refSelf === deserializedAsset, 'should ref to self');
+        strictEqual(details.uuidList.length, 0, 'should not depends on self');
+
         //deepEqual(Editor.serialize(deserializedAsset), serializedAsset, 'test deserialize');
     });
 
