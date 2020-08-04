@@ -45,6 +45,7 @@ import { sys } from '../../../core/platform/sys';
 import visibleRect from '../../../core/platform/visible-rect';
 import { Node } from '../../../core';
 import { EditBoxImplBase } from './edit-box-impl-base';
+import { legacyCC } from '../../../core/global-exports';
 
 // https://segmentfault.com/q/1010000002914610
 const SCROLLY = 40;
@@ -617,6 +618,13 @@ export class EditBoxImpl extends EditBoxImplBase {
                 text-align: ${horizontalAlign};
             }
         `;
+        // EDGE_BUG_FIX: hide clear button, because clearing input box in Edge does not emit input event 
+        // issue refference: https://github.com/angular/angular/issues/26307
+        if (legacyCC.sys.browserType === legacyCC.sys.BROWSER_TYPE_EDGE) {
+            styleEl!.innerHTML += `#${this._domId}::-ms-clear{
+                display: none;
+            }`;
+        }
     }
 
     private _registerEventListeners () {
