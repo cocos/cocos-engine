@@ -381,7 +381,7 @@ cc.macro = {
      * Whether to use native TTF renderer which is faster but layout slightly different.
      * 
      * !#zh
-     * 是先使用原生的文本渲染机制, 布局和编辑器有差异.
+     * 是否使用原生的文本渲染机制, 布局和编辑器有差异.
      * 
      * @property {Boolean} ENABLE_NATIVE_TTF_RENDERER
      * @default true
