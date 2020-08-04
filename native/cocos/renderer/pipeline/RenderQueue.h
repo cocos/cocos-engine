@@ -7,16 +7,16 @@ namespace pipeline {
 
 class CC_DLL RenderQueue : public Object {
 public:
-    RenderQueue(const RenderPassDesc &desc);
-    
+    RenderQueue(const RenderQueueCreateInfo &desc);
+
     void clear();
-    bool insertRenderPass(RenderObject *renderObj, uint subModelIdx, uint passIdx);
+    bool insertRenderPass(const RenderObject &renderObj, uint subModelIdx, uint passIdx);
     void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff);
     void sort();
-    
+
 private:
     RenderPassList _queue;
-    RenderPassDesc _passDesc;
+    RenderQueueCreateInfo _passDesc;
 };
 
 } // namespace pipeline

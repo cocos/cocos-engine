@@ -957,6 +957,7 @@ struct PipelineStateInfo {
     BlendState blendState;
     DynamicStateFlags dynamicStates = DynamicStateFlagBit::NONE;
     RenderPass *renderPass = nullptr;
+    BindingLayout *bindingLayout = nullptr;
 };
 
 struct CommandBufferInfo {

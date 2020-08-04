@@ -1,16 +1,20 @@
 #pragma once
 
-#include "core/CoreStd.h"
 #include "base/CCValue.h"
+#include "core/CoreStd.h"
 
 namespace cc {
 namespace pipeline {
 
 class RenderStage;
 class RenderFlow;
+struct SubModel;
+struct Light;
+struct Model;
 
 struct CC_DLL RenderObject {
-    //TODO
+    uint depth = 0;
+    Model *modle = nullptr;
 };
 typedef vector<struct RenderObject> RenderObjectList;
 
@@ -23,8 +27,8 @@ struct CC_DLL RenderPass {
     uint hash = 0;
     uint depth = 0;
     uint shaderID = 0;
-    uint index = 0;
-    //    SubModel *subModel = nullptr;
+    uint passIndex = 0;
+    SubModel *subModel = nullptr;
 };
 typedef vector<RenderPass> RenderPassList;
 
@@ -89,6 +93,18 @@ struct CC_DLL InternalBindingInst : public InternalBindingDesc {
 const uint CAMERA_DEFAULT_MASK = 1;
 //constexpr CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
 //                                                           Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
+
+struct CC_DLL RenderQueueCreateInfo {
+    bool isTransparent = false;
+    uint phases = 0;
+    std::function<int(const RenderPass &a, const RenderPass &b)> sortFunc;
+};
+
+enum class CC_DLL RenderPriority {
+    MIN = 0,
+    MAX = 0xff,
+    DEFAULT = 0x80,
+};
 
 } // namespace pipeline
 } // namespace cc
