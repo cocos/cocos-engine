@@ -905,23 +905,23 @@ struct RasterizerState {
 struct DepthStencilState {
     bool depthTest = true;
     bool depthWrite = true;
-    ComparisonFunc depthFunc = ComparisonFunc::LESS;
     bool stencilTestFront = false;
+    bool stencilTestBack = false;
     ComparisonFunc stencilFuncFront = ComparisonFunc::ALWAYS;
-    uint stencilReadMaskFront = 0xffffffff;
-    uint stencilWriteMaskFront = 0xffffffff;
     StencilOp stencilFailOpFront = StencilOp::KEEP;
     StencilOp stencilZFailOpFront = StencilOp::KEEP;
     StencilOp stencilPassOpFront = StencilOp::KEEP;
-    uint stencilRefFront = 1;
-    bool stencilTestBack = false;
     ComparisonFunc stencilFuncBack = ComparisonFunc::ALWAYS;
-    uint stencilReadMaskBack = 0xffffffff;
-    uint stencilWriteMaskBack = 0xffffffff;
     StencilOp stencilFailOpBack = StencilOp::KEEP;
     StencilOp stencilZFailOpBack = StencilOp::KEEP;
     StencilOp stencilPassOpBack = StencilOp::KEEP;
-    uint stencilRefBack = 1;
+    uint32_t stencilRefFront = 1;
+    uint32_t stencilReadMaskFront = 0xffffffff;
+    uint32_t stencilWriteMaskFront = 0xffffffff;
+    uint32_t stencilRefBack = 1;
+    uint32_t stencilReadMaskBack = 0xffffffff;
+    uint32_t stencilWriteMaskBack = 0xffffffff;
+    ComparisonFunc depthFunc = ComparisonFunc::LESS;
 };
 
 struct BlendTarget {
