@@ -454,6 +454,8 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {Boolean}
      */
     setTexture: function (texture, rect, rotated, offset, originalSize) {
+        if (arguments.length === 1 && texture === this._texture) return;
+
         if (rect) {
             this._rect = rect;
         }
@@ -481,7 +483,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             cc.errorID(3401);
             return;
         }
-        if (texture instanceof cc.Texture2D && this._texture !== texture) {
+        if (texture instanceof cc.Texture2D) {
             this._refreshTexture(texture);
         }
 
