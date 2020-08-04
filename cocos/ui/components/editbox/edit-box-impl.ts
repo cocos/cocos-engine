@@ -602,7 +602,13 @@ export class EditBoxImpl extends EditBoxImplBase {
             if (inputLock) {
                 return;
             }
-            impl._delegate!._editBoxTextChanged(elem!.value);
+            let delegate = impl._delegate;
+            // input of number type doesn't support maxLength attribute
+            let maxLength = delegate!.maxLength;
+            if (maxLength >= 0) {
+                elem.value = elem.value.slice(0, maxLength);
+            }
+            delegate!._editBoxTextChanged(elem!.value);
         };
 
         cbs.onClick = () => {
