@@ -596,7 +596,7 @@ let Camera = cc.Class({
         this.beforeDraw();
     },
 
-    onLoad () {
+    __preload () {
         this._init();
     },
 
