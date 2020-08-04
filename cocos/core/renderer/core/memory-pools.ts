@@ -61,7 +61,6 @@ export class BufferPool<T extends TypedArray> {
         this._viewCtor = viewCtor;
         this._elementCount = elementCount;
         this._entryBits = entryBits;
-        this._nativePool = new NativeBufferPool(dataType);
 
         const bytesPerElement = viewCtor.BYTES_PER_ELEMENT || 1;
         this._stride = bytesPerElement * elementCount;
@@ -69,6 +68,7 @@ export class BufferPool<T extends TypedArray> {
         this._entryMask = this._entriesPerChunk - 1;
         this._poolFlag = 1 << 30;
         this._chunkMask = ~(this._entryMask | this._poolFlag);
+        this._nativePool = new NativeBufferPool(dataType, entryBits, this._stride);
     }
 
     public alloc () {
@@ -81,7 +81,7 @@ export class BufferPool<T extends TypedArray> {
             }
         }
         // add a new chunk
-        const buffer = this._nativePool.getChunkArrayBuffer(this._stride * this._entriesPerChunk);
+        const buffer = this._nativePool.allocateNewChunk();
         const bufferViews: T[] = [];
         const freelist: number[] = [];
         for (let j = 0; j < this._entriesPerChunk; j++) {

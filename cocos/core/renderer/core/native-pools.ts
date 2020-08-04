@@ -29,8 +29,11 @@
 
 export class NativeBufferPool {
     private _arrayBuffers: ArrayBuffer[] = [];
-    constructor (dataType: number) {}
-    public getChunkArrayBuffer (size: number) { return new ArrayBuffer(size); }
+    private _chunkSize: number;
+    constructor (dataType: number, entryBits: number, stride: number) {
+        this._chunkSize = stride * (1 << entryBits);
+    }
+    public allocateNewChunk () { return new ArrayBuffer(this._chunkSize); }
 }
 
 export class NativeObjectPool<T> {
