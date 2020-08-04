@@ -92,11 +92,11 @@ export class EditBoxImpl extends EditBoxImplBase {
     private _isTextArea = false;
 
     private _textLabelFont = null;
-    private _textLabelFontSize = null;
+    private _textLabelFontSize: number | null = null;
     private _textLabelFontColor = null;
     private _textLabelAlign = null;
     private _placeholderLabelFont = null;
-    private _placeholderLabelFontSize = null;
+    private _placeholderLabelFontSize: number | null = null;
     private _placeholderLabelFontColor = null;
     private _placeholderLabelAlign = null;
     private _placeholderLineHeight = null;
@@ -513,15 +513,17 @@ export class EditBoxImpl extends EditBoxImplBase {
             font = textLabel.fontFamily;
         }
 
+        let fontSize = textLabel.fontSize * textLabel.node.scaleY;
+
         if (this._textLabelFont === font
-            && this._textLabelFontSize === textLabel.fontSize
+            && this._textLabelFontSize === fontSize
             && this._textLabelFontColor === textLabel.fontColor
             && this._textLabelAlign === textLabel.horizontalAlign) {
                 return;
         }
 
         this._textLabelFont = font;
-        this._textLabelFontSize = textLabel.fontSize;
+        this._textLabelFontSize = fontSize;
         this._textLabelFontColor = textLabel.fontColor;
         this._textLabelAlign = textLabel.horizontalAlign;
 
@@ -530,7 +532,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
 
         const elem = this._edTxt;
-        elem.style.fontSize = `${textLabel.fontSize}px`;
+        elem.style.fontSize = `${fontSize}px`;
         elem.style.color = textLabel.color.toCSS('rgba');
         elem.style.fontFamily = font;
 
@@ -560,8 +562,11 @@ export class EditBoxImpl extends EditBoxImplBase {
             font = placeholderLabel.fontFamily;
         }
 
+
+        let fontSize = placeholderLabel.fontSize * placeholderLabel.node.scaleY;
+
         if (this._placeholderLabelFont === font
-            && this._placeholderLabelFontSize === placeholderLabel.fontSize
+            && this._placeholderLabelFontSize === fontSize
             && this._placeholderLabelFontColor === placeholderLabel.fontColor
             && this._placeholderLabelAlign === placeholderLabel.horizontalAlign
             && this._placeholderLineHeight === placeholderLabel.fontSize) {
@@ -569,13 +574,12 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
 
         this._placeholderLabelFont = font;
-        this._placeholderLabelFontSize = placeholderLabel.fontSize;
+        this._placeholderLabelFontSize = fontSize;
         this._placeholderLabelFontColor = placeholderLabel.fontColor;
         this._placeholderLabelAlign = placeholderLabel.horizontalAlign;
         this._placeholderLineHeight = placeholderLabel.fontSize;
 
         const styleEl = this._placeholderStyleSheet;
-        const fontSize = placeholderLabel.fontSize;
         const fontColor = placeholderLabel.color.toCSS('rgba');
         const lineHeight = placeholderLabel.fontSize;
 
