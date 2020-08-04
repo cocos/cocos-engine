@@ -208,7 +208,7 @@ export class LabelComponent extends UIRenderComponent {
         return this._string;
     }
     set string (value) {
-        value = value.toString();
+        value = value + '';
         if (this._string === value) {
             return;
         }
