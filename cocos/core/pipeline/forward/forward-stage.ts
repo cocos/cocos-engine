@@ -15,6 +15,8 @@ import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { PipelineGlobal } from '../global';
 import { InstancedBuffer } from '../instanced-buffer';
 import { BatchedBuffer } from '../batched-buffer';
+import { PassBatchedBuffer } from '../pass-batched-buffer';
+import { LightBatchedBuffer } from '../light-batched-buffer';
 import { BatchingSchemes } from '../../renderer/core/pass';
 import { getPhaseID } from '../pass-phase';
 
@@ -75,7 +77,7 @@ export class ForwardStage extends RenderStage {
         const lightBuffers = this.pipeline.lightBuffers;
         const lightIndices = this.pipeline.lightIndices;
         this._instancedQueue.clear();
-        this._batchedQueue.clearLightBatched(validLights, lightBuffers);
+        this._batchedQueue.clear();
         this._additiveLightQueue.clear(validLights, lightBuffers, lightIndices);
         this._renderQueues.forEach(this.renderQueueClearFunc);
 
@@ -101,12 +103,14 @@ export class ForwardStage extends RenderStage {
                             if (pass.phase === this._phaseID) {
                                 for (let l = lightIndexOffset[i]; l < nextLightIndex; ++l) {
                                     const lightIndex = lightIndices[l];
-                                    batchedBuffer = BatchedBuffer.getLightBatched(pass, lightIndex);
-                                    batchedBuffer.attach(ro, m, p, lightIndex);
+                                    const psoCI = RenderBatchedQueue.getLightPipelineCreateInfo(ro, m, pass,
+                                        validLights, lightBuffers, lightIndex);
+                                    batchedBuffer = LightBatchedBuffer.get(pass, lightIndex);
+                                    batchedBuffer.mergeLight(subModel, ro, psoCI);
                                 }
                             } else {
-                                batchedBuffer = BatchedBuffer.get(pass);
-                                batchedBuffer.merge(subModel, p, ro, false);
+                                batchedBuffer = PassBatchedBuffer.get(pass);
+                                batchedBuffer.merge(subModel, p, ro);
                             }
                             this._batchedQueue.queue.add(batchedBuffer!);
                         } else {
