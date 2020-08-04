@@ -402,6 +402,12 @@ export const sys: { [x: string]: any; } = {
      */
     BROWSER_TYPE_IE: 'ie',
     /**
+     * @en Browser Type - Microsoft Edge
+     * @zh 浏览器类型 - 微软 Edge
+     * @default "edge"
+     */
+    BROWSER_TYPE_EDGE: "edge",
+    /**
      * @en Browser Type - QQ Browser
      * @zh 浏览器类型 - QQ 浏览器
      * @default "qqbrowser"
@@ -887,7 +893,7 @@ else {
     /* Determine the browser type */
     (function () {
         const typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
-        const typeReg2 = /qqbrowser|ucbrowser/i;
+        const typeReg2 = /qqbrowser|ucbrowser|edge/i;
         const typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
         let browserTypes = typeReg1.exec(ua);
         if (!browserTypes) { browserTypes = typeReg2.exec(ua); }
@@ -929,6 +935,9 @@ else {
         }
         else if (browserType === 'trident') {
             browserType = sys.BROWSER_TYPE_IE;
+        }
+        else if (browserType === 'edge') {
+            browserType === sys.BROWSER_TYPE_EDGE;
         }
         else if (browserType === '360 aphone') {
             browserType = sys.BROWSER_TYPE_360;
