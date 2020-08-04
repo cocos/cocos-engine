@@ -181,13 +181,13 @@ export class PlanarShadows {
                 }
             }
         }
-        if (buffer && buffer.pso) {
+        if (buffer && buffer.instances.length > 0) {
             buffer.uploadBuffers();
-            cmdBuff.bindPipelineState(buffer.pso!);
-            cmdBuff.bindBindingLayout(buffer.pso!.pipelineLayout.layouts[0]);
             for (let b = 0; b < buffer.instances.length; ++b) {
                 const instance = buffer.instances[b];
                 if (!instance.count) { continue; }
+                cmdBuff.bindPipelineState(instance.pso);
+                cmdBuff.bindBindingLayout(instance.pso.pipelineLayout.layouts[0]);
                 cmdBuff.bindInputAssembler(instance.ia);
                 cmdBuff.draw(instance.ia);
             }
