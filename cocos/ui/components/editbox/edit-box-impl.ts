@@ -76,11 +76,9 @@ export class EditBoxImpl extends EditBoxImplBase {
     public _inputMode = InputMode.ANY;
     public _inputFlag = InputFlag.DEFAULT;
     public _returnType = KeyboardReturnType.DEFAULT;
-    public _maxLength = 50;
     public _placeholderText = '';
     public _size: Size = new Size();
     public _node: Node | null = null;
-    public _editing = false;
     public __eventListeners: any = {};
     public __fullscreen = false;
     public __autoResize = false;
@@ -125,16 +123,6 @@ export class EditBoxImpl extends EditBoxImplBase {
         this.__autoResize = view._resizeWithBrowserSize;
     }
 
-    public onEnable () {
-        // Do nothing
-    }
-
-    public onDisable () {
-        if (this._editing && this._edTxt) {
-            this._edTxt.blur();
-        }
-    }
-
     public clear () {
         this._removeEventListeners();
         this._removeDomFromGameContainer();
@@ -167,19 +155,6 @@ export class EditBoxImpl extends EditBoxImplBase {
 
     }
 
-    public setFocus (value: boolean) {
-        if (value){
-            this.beginEditing();
-        }
-        else {
-            this._edTxt!.blur();
-        }
-    }
-
-    public isFocused () {
-        return this._editing;
-    }
-
     public beginEditing () {
         if (_currentEditBoxImpl && _currentEditBoxImpl !== this) {
             _currentEditBoxImpl.setFocus(false);
@@ -193,7 +168,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     public endEditing () {
-        // Do nothing, handle endEditing on blur callback
+        this._edTxt!.blur();
     }
 
     private _createInput () {
