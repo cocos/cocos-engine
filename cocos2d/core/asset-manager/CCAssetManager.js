@@ -292,6 +292,8 @@ function AssetManager () {
         },
 
         'script': {
+            maxConcurrency: 64,
+            maxRequestsPerFrame: 64,
             priority: 2
         }
     }
