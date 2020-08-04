@@ -794,7 +794,7 @@ let Label = cc.Class({
     /**
      * !#en Disable native TTF renderer.
      * !#zh 禁用原生布局/模式渲染.
-     * @param {Boolean} enabled enable native TTF renderer
+     * @method disableNativeRenderer
      */
     disableNativeRenderer() {
         if(!this._disabledNativeRenderer) {
@@ -805,6 +805,7 @@ let Label = cc.Class({
     /**
      * !#en Enable native TTF renderer which is faster but layout slightly different.
      * !#zh 启用原生布局/模式渲染, 效果略有差异.
+     * @method enableNativeRenderer
      */
     enableNativeRenderer() {
         if(!!this._disabledNativeRenderer) {
