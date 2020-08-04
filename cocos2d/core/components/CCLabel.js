@@ -790,9 +790,13 @@ let Label = cc.Class({
     },
 
     _forceUseCanvas: false,
+ 
+    _useNativeTTF() {
+        return cc.macro.ENABLE_NATIVE_TTF_RENDERER && !this._forceUseCanvas;
+    }, 
 
     _nativeTTF() {
-        return  !this._forceUseCanvas && !!this._assembler && !!this._assembler._updateTTFMaterial;
+        return this._useNativeTTF() && !!this._assembler && !!this._assembler._updateTTFMaterial;
     },
 
     _forceUpdateRenderData () {

@@ -374,7 +374,20 @@ cc.macro = {
      * @property {Boolean} ALLOW_IMAGE_BITMAP
      * @default true
      */
-    ALLOW_IMAGE_BITMAP: !cc.sys.isMobile
+    ALLOW_IMAGE_BITMAP: !cc.sys.isMobile,
+
+    /**
+     * !#en
+     * Whether to use native TTF renderer which is faster but layout slightly different.
+     * 
+     * !#zh
+     * 是否使用原生的文本渲染机制, 布局和编辑器有差异.
+     * 
+     * @property {Boolean} ENABLE_NATIVE_TTF_RENDERER
+     * @default true
+     */
+    ENABLE_NATIVE_TTF_RENDERER: true
+
 };
 
 Object.defineProperty(cc.macro, 'ROTATE_ACTION_CCW', {
