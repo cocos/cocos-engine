@@ -22,7 +22,6 @@ import { BatchingSchemes } from '../../renderer/core/pass';
 import { ForwardFlow } from './forward-flow';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
-import { getPhaseID } from '../pass-phase';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 
