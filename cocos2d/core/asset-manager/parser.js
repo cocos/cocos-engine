@@ -47,7 +47,7 @@ var _parsing = new Cache();
  * @class Parser
  */
 var parser = {
-    /**
+    /*
      * !#en
      * Parse image file
      * 
@@ -87,7 +87,7 @@ var parser = {
         }
     },
 
-    /**
+    /*
      * !#en
      * Parse audio file
      * 
@@ -122,7 +122,7 @@ var parser = {
         }
     },
 
-    /**
+    /*
      * !#en
      * Parse pvr file 
      * 
@@ -193,7 +193,7 @@ var parser = {
         };
     })(),
 
-    /**
+    /*
      * !#en
      * Parse pkm file
      * 
@@ -263,7 +263,7 @@ var parser = {
         }
     })(),
 
-    /**
+    /*
      * !#en
      * Parse plist file
      * 
@@ -292,7 +292,7 @@ var parser = {
         onComplete && onComplete(err, result);
     },
 
-    /**
+    /*
      * !#en
      * Deserialize asset file
      * 
