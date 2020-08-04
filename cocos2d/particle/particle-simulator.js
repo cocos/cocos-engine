@@ -427,9 +427,9 @@ Simulator.prototype.step = function (dt) {
         }
     }
 
+    psys._assembler._ia._count = particles.length * 6;
     if (particles.length > 0) {
         buffer.uploadData();
-        psys._assembler._ia._count = particles.length * 6;
     }
     else if (!this.active && !this.readyToPlay) {
         this.finished = true;
