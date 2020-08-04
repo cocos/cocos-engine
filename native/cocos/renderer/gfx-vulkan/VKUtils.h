@@ -28,6 +28,7 @@ VkFormat MapVkFormat(Format format) {
         case Format::RGB8I: return VK_FORMAT_R8G8B8_SINT;
         case Format::RGBA8: return VK_FORMAT_R8G8B8A8_UNORM;
         case Format::BGRA8: return VK_FORMAT_B8G8R8A8_UNORM;
+        case Format::SRGB8_A8: return VK_FORMAT_R8G8B8A8_SRGB;
         case Format::RGBA8SN: return VK_FORMAT_R8G8B8A8_SNORM;
         case Format::RGBA8UI: return VK_FORMAT_R8G8B8A8_UINT;
         case Format::RGBA8I: return VK_FORMAT_R8G8B8A8_SINT;
@@ -343,6 +344,7 @@ VkImageCreateFlags MapVkImageCreateFlags(TextureType type) {
     switch (type) {
         case TextureType::CUBE: res |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT; break;
         case TextureType::TEX2D_ARRAY: res |= VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT; break;
+        default: break;
     }
     return (VkImageCreateFlags)res;
 }
@@ -459,6 +461,7 @@ void MapDepthStencilBits(Format format, uint &depthBits, uint &stencilBits) {
             depthBits = 32;
             stencilBits = 8;
             break;
+        default: break;
     }
 }
 

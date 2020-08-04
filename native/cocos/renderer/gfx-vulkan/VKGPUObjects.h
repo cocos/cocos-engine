@@ -257,6 +257,9 @@ public:
     VkFence vkFence;
 };
 
+/**
+ * A simple pool for reusing fences.
+ */
 class CCVKGPUFencePool : public Object {
 public:
     CCVKGPUFencePool(CCVKGPUDevice *device)
@@ -302,6 +305,9 @@ private:
     vector<VkFence> _fences;
 };
 
+/**
+ * A simple pool for reusing semaphores.
+ */
 class CCVKGPUSemaphorePool : public Object {
 public:
     CCVKGPUSemaphorePool(CCVKGPUDevice *device)
@@ -344,6 +350,9 @@ private:
     vector<VkSemaphore> _semaphores;
 };
 
+/**
+ * Unlimited descriptor set pool, based on multiple fix-sized VkDescriptorPools.
+ */
 class CCVKGPUDescriptorSetPool : public Object {
 public:
     CCVKGPUDescriptorSetPool(CCVKGPUDevice *device)
@@ -411,6 +420,9 @@ private:
     vector<uint> _counts;
 };
 
+/**
+ * Command buffer pool based on VkCommandPools, always try to resue previous allocations first.
+ */
 class CCVKGPUCommandBufferPool : public Object {
 public:
     CCVKGPUCommandBufferPool(CCVKGPUDevice *device)
@@ -486,6 +498,9 @@ private:
     vector<uint> _counts;
 };
 
+/**
+ * Staging buffer pool, based on multiple fix-sized VkBuffer blocks.
+ */
 class CCVKGPUStagingBufferPool : public Object {
 public:
     CCVKGPUStagingBufferPool(CCVKGPUDevice *device)
@@ -499,7 +514,7 @@ public:
         _pool.clear();
     }
 
-    void alloc(CCVKGPUBuffer *gpuBuffer) { alloc(gpuBuffer, 1u); }
+    CC_INLINE void alloc(CCVKGPUBuffer *gpuBuffer) { alloc(gpuBuffer, 1u); }
     void alloc(CCVKGPUBuffer *gpuBuffer, uint alignment) {
         size_t bufferCount = _pool.size();
         Buffer *buffer = nullptr;
@@ -552,6 +567,10 @@ private:
     vector<Buffer> _pool;
 };
 
+/**
+ * Pipeline layout pool, reuse if the hash matches.
+ * Is more useful when compiling lots of shader variants with the same descriptor set layouts.
+ */
 class CCVKGPUPipelineLayoutPool : public Object {
 public:
     CCVKGPUPipelineLayoutPool(CCVKGPUDevice *device)
@@ -593,13 +612,17 @@ private:
     PipelineLayoutPool _pool;
 };
 
+/**
+ * Descriptor data maintenance hub, events like buffer/texture resizing,
+ * descriptor set binding change, etc. should all request an update operation here.
+ */
 class CCVKGPUDescriptorHub : public Object {
 public:
     CCVKGPUDescriptorHub(CCVKGPUDevice *device)
     : _device(device) {
     }
 
-#define DEFINE_DESCRIPTOR_HUB_FN(name)                                                                                            \
+#define DEFINE_DESCRIPTOR_HUB_FN(name)                                                                                                  \
     CC_INLINE void name(const CCVKGPUBuffer *buffer) { name(_buffers, buffer, (VkDescriptorBufferInfo *)nullptr); }                     \
     CC_INLINE void name(const CCVKGPUBuffer *buffer, VkDescriptorBufferInfo *descriptor) { name(_buffers, buffer, descriptor); }        \
     CC_INLINE void name(const CCVKGPUTextureView *texture) { name(_textures, texture, (VkDescriptorImageInfo *)nullptr); }              \
@@ -668,6 +691,10 @@ private:
     map<const CCVKGPUSampler *, CachedArray<VkDescriptorImageInfo *>> _samplers;
 }; // namespace gfx
 
+/**
+ * Recycle bin for GPU resources, clears after vkDeviceWaitIdle every frame.
+ * All the destroy events will be postponed to that time.
+ */
 class CCVKGPURecycleBin : public Object {
 public:
     CCVKGPURecycleBin(CCVKGPUDevice *device)
@@ -727,6 +754,10 @@ private:
     uint _count = 0u;
 };
 
+/**
+ * Transport hub for data traveling between host and devices.
+ * Record all transfer requests until batched submission.
+ */
 #define ASYNC_BUFFER_UPDATE
 #define ASYNC_COMMAND_SUBMISSION
 class CCVKGPUTransportHub : public Object {

@@ -955,7 +955,7 @@ struct PipelineStateInfo {
     RasterizerState rasterizerState;
     DepthStencilState depthStencilState;
     BlendState blendState;
-    DynamicStateFlags dynamicStates;
+    DynamicStateFlags dynamicStates = DynamicStateFlagBit::NONE;
     RenderPass *renderPass = nullptr;
 };
 

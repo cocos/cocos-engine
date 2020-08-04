@@ -301,10 +301,11 @@ bool CCVKContext::initialize(const ContextInfo &info) {
 
         if (_minorVersion >= 1 || checkExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)) {
             _gpuContext->physicalDeviceProperties2.pNext = &_gpuContext->physicalDevicePushDescriptorProperties;
+            vkGetPhysicalDeviceProperties2KHR(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceProperties2);
+
             _gpuContext->physicalDeviceFeatures2.pNext = &_gpuContext->physicalDeviceVulkan11Features;
             _gpuContext->physicalDeviceVulkan11Features.pNext = &_gpuContext->physicalDeviceVulkan12Features;
-            vkGetPhysicalDeviceProperties2(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceProperties2);
-            vkGetPhysicalDeviceFeatures2(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceFeatures2);
+            vkGetPhysicalDeviceFeatures2KHR(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceFeatures2);
         }
 
         vkGetPhysicalDeviceMemoryProperties(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceMemoryProperties);
@@ -363,6 +364,12 @@ bool CCVKContext::initialize(const ContextInfo &info) {
             if (!imageFormatFound) {
                 colorFormat = surfaceFormats[0].format;
                 colorSpace = surfaceFormats[0].colorSpace;
+                switch (colorFormat) {
+                    case VK_FORMAT_R8G8B8A8_UNORM: _colorFmt = Format::RGBA8; break;
+                    case VK_FORMAT_R8G8B8A8_SRGB: _colorFmt = Format::SRGB8_A8; break;
+                    case VK_FORMAT_R5G6B5_UNORM_PACK16: _colorFmt = Format::R5G6B5; break;
+                    default: CCASSERT(0, "assumption broken: new default surface format"); break;
+                }
             }
         }
 

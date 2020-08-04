@@ -142,8 +142,10 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
         deviceCreateInfo.pEnabledFeatures = &requestedFeatures2.features;
     } else {
         deviceCreateInfo.pNext = &requestedFeatures2;
-        if (context->minorVersion() >= 1) requestedFeatures2.pNext = &requestedVulkan11Features;
-        if (context->minorVersion() >= 2) requestedVulkan11Features.pNext = &requestedVulkan12Features;
+        if (context->minorVersion() >= 2) {
+            requestedFeatures2.pNext = &requestedVulkan11Features;
+            requestedVulkan11Features.pNext = &requestedVulkan12Features;
+        }
     }
 
     VK_CHECK(vkCreateDevice(gpuContext->physicalDevice, &deviceCreateInfo, nullptr, &_gpuDevice->vkDevice));

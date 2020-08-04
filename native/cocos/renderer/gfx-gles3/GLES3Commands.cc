@@ -774,6 +774,8 @@ void GLES3CmdFuncDestroyTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture
                     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
                     break;
                 }
+                default: // no supported
+                    break;
             }
             glTexture = 0;
         }
@@ -2016,9 +2018,9 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
                             default:
                                 CC_LOG_ERROR("Invalid dynamic states.");
                                 break;
-                        } // switch dynamicState
-                    }     // for each dynamicState
-                }         // if gpuPipelineState
+                        } // switch
+                    } // for
+                } // if
                 break;
             } // case BIND_STATES
             case GFXCmdType::DRAW: {

@@ -89,6 +89,7 @@ bool CCVKBindingLayout::initialize(const BindingLayoutInfo &info) {
                     case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
                         entries[j].pTexelBufferView = &_gpuBindingLayout->descriptorInfos[j].texelBufferView;
                         break;
+                    default: break;
                 }
             }
         }
@@ -185,6 +186,7 @@ void CCVKBindingLayout::update() {
                     }
                     break;
                 }
+                default: break;
             }
         }
 

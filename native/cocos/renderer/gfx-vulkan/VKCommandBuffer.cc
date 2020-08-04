@@ -349,6 +349,7 @@ void CCVKCommandBuffer::draw(InputAssembler *ia) {
                     case PrimitiveMode::TRIANGLE_FAN:
                         _numTriangles += (indexCount - 2) * instanceCount;
                         break;
+                    default: break;
                 }
             }
         }

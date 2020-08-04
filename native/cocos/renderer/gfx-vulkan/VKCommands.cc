@@ -125,6 +125,7 @@ void CCVKCmdFuncCreateTextureView(CCVKDevice *device, CCVKGPUTextureView *gpuTex
 
 void CCVKCmdFuncCreateSampler(CCVKDevice *device, CCVKGPUSampler *gpuSampler) {
     VkSamplerCreateInfo createInfo{VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
+    CCVKGPUContext *context = device->gpuContext();
 
     createInfo.magFilter = VK_FILTERS[(uint)gpuSampler->magFilter];
     createInfo.minFilter = VK_FILTERS[(uint)gpuSampler->minFilter];
@@ -133,8 +134,8 @@ void CCVKCmdFuncCreateSampler(CCVKDevice *device, CCVKGPUSampler *gpuSampler) {
     createInfo.addressModeV = VK_SAMPLER_ADDRESS_MODES[(uint)gpuSampler->addressV];
     createInfo.addressModeW = VK_SAMPLER_ADDRESS_MODES[(uint)gpuSampler->addressW];
     createInfo.mipLodBias = gpuSampler->mipLODBias;
-    createInfo.anisotropyEnable = VK_TRUE;
-    createInfo.maxAnisotropy = (float)gpuSampler->maxAnisotropy;
+    createInfo.anisotropyEnable = context->physicalDeviceFeatures.samplerAnisotropy;
+    createInfo.maxAnisotropy = std::min(context->physicalDeviceProperties.limits.maxSamplerAnisotropy, (float)gpuSampler->maxAnisotropy);
     createInfo.compareEnable = VK_TRUE;
     createInfo.compareOp = VK_CMP_FUNCS[(uint)gpuSampler->cmpFunc];
     createInfo.minLod = (float)gpuSampler->minLOD;
@@ -932,6 +933,7 @@ void CCVKGPURecycleBin::clear() {
                     res.gpuFence = nullptr;
                 }
                 break;
+            default: break;
         }
         res.type = ObjectType::UNKNOWN;
     }
