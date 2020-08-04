@@ -790,32 +790,9 @@ let Label = cc.Class({
     },
 
     _forceUseCanvas: false,
-    _disabledNativeRenderer: false,
-    /**
-     * !#en Disable native TTF renderer.
-     * !#zh 禁用原生布局/模式渲染.
-     * @method disableNativeRenderer
-     */
-    disableNativeRenderer() {
-        if(!this._disabledNativeRenderer) {
-            this._disabledNativeRenderer = true;
-            this._forceUpdateRenderData();
-        }
-    },
-    /**
-     * !#en Enable native TTF renderer which is faster but layout slightly different.
-     * !#zh 启用原生布局/模式渲染, 效果略有差异.
-     * @method enableNativeRenderer
-     */
-    enableNativeRenderer() {
-        if(!!this._disabledNativeRenderer) {
-            this._disabledNativeRenderer = false;
-            this._forceUpdateRenderData();
-        }
-    },
-
+ 
     _useNativeRenderer() {
-        return !this._forceUseCanvas && !this._disabledNativeRenderer;
+        return cc.macro.ENABLE_NATIVE_TTF_RENDERER && !this._forceUseCanvas;
     }, 
 
     _nativeTTF() {
