@@ -630,6 +630,10 @@ export class EditBoxImpl extends EditBoxImplBase {
         };
 
         cbs.onBlur = () => {
+            // on mobile, sometimes input element doesn't fire compositionend event
+            if (sys.isMobile && inputLock) {
+                cbs.compositionEnd();
+            }
             impl._editing = false;
             _currentEditBoxImpl = null;
             impl._hideDom();
