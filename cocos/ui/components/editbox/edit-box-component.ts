@@ -95,7 +95,7 @@ export class EditBoxComponent extends Component {
         return this._string;
     }
 
-    set string (value) {
+    set string (value: string) {
         if (this._maxLength >= 0 && value.length >= this._maxLength) {
             value = value.slice(0, this._maxLength);
         }
@@ -122,7 +122,7 @@ export class EditBoxComponent extends Component {
         return this._placeholderLabel.string;
     }
 
-    set placeholder (value) {
+    set placeholder (value: string) {
         if (this._placeholderLabel) {
             this._placeholderLabel.string = value;
         }
@@ -144,7 +144,7 @@ export class EditBoxComponent extends Component {
         return this._textLabel;
     }
 
-    set textLabel (oldValue) {
+    set textLabel (oldValue: LabelComponent | null) {
         if (this._textLabel !== oldValue) {
             this._textLabel = oldValue;
             if (this._textLabel) {
@@ -170,7 +170,7 @@ export class EditBoxComponent extends Component {
         return this._placeholderLabel;
     }
 
-    set placeholderLabel (oldValue) {
+    set placeholderLabel (oldValue: LabelComponent | null) {
         if (this._placeholderLabel !== oldValue) {
             this._placeholderLabel = oldValue;
             if (this._placeholderLabel) {
@@ -221,7 +221,7 @@ export class EditBoxComponent extends Component {
         return this._inputFlag;
     }
 
-    set inputFlag (value) {
+    set inputFlag (value: InputFlag) {
         this._inputFlag = value;
         this._updateString(this._string);
     }
@@ -243,7 +243,7 @@ export class EditBoxComponent extends Component {
         return this._inputMode;
     }
 
-    set inputMode (oldValue) {
+    set inputMode (oldValue: InputMode) {
         if (this._inputMode !== oldValue) {
             this._inputMode = oldValue;
             this._updateTextLabel();
@@ -310,7 +310,7 @@ export class EditBoxComponent extends Component {
         return this._tabIndex;
     }
 
-    set tabIndex (value) {
+    set tabIndex (value: number) {
         if (this._tabIndex !== value) {
             this._tabIndex = value;
             if (this._impl) {
