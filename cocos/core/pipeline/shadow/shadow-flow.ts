@@ -14,8 +14,6 @@ import { RenderFlowTag } from '../pipeline-serialization';
 import { RenderView, ForwardPipeline } from '../..';
 import { sceneCulling } from '../forward/scene-culling';
 
-const colorMipmapLevels: number[] = [];
-
 /**
  * @zh 阴影贴图绘制流程
  */
@@ -98,7 +96,7 @@ export class ShadowFlow extends RenderFlow {
                     stencilLoadOp : GFXLoadOp.CLEAR,
                     stencilStoreOp : GFXStoreOp.STORE,
                     sampleCount : 1,
-                    beginLayout : GFXTextureLayout.DEPTH_STENCIL_READONLY_OPTIMAL,
+                    beginLayout : GFXTextureLayout.UNDEFINED,
                     endLayout : GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                 },
             });
@@ -118,7 +116,7 @@ export class ShadowFlow extends RenderFlow {
             this._depth = device.createTexture({
                 type: GFXTextureType.TEX2D,
                 usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
-                format: GFXFormat.D24S8,
+                format: device.depthStencilFormat,
                 width: shadowMapSize.x,
                 height: shadowMapSize.y,
             });
@@ -128,9 +126,7 @@ export class ShadowFlow extends RenderFlow {
             this._shadowFrameBuffer = device.createFramebuffer({
                 renderPass: this._shadowRenderPass,
                 colorTextures: this._shadowRenderTargets,
-                colorMipmapLevels,
                 depthStencilTexture: this._depth,
-                depStencilMipmapLevel: 0,
             });
         }
 

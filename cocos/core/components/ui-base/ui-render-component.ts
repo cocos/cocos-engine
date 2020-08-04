@@ -236,7 +236,7 @@ export class UIRenderComponent extends UIComponent {
     }
 
     get material () {
-        if (!this._material){
+        if (!this._material) {
             if (this._instanceMaterial) {
                 this._instanceMaterial();
             }
@@ -285,11 +285,9 @@ export class UIRenderComponent extends UIComponent {
                 },
             ],
         },
-        depthStencilState: {},
-        rasterizerState: {},
     };
 
-    public __preload (){
+    public __preload () {
         super.__preload();
         this._instanceMaterial();
         if (this._flushAssembler){
@@ -393,11 +391,11 @@ export class UIRenderComponent extends UIComponent {
         }
     }
 
-    protected _render (render: UI) { }
+    protected _render (render: UI) {}
 
-    protected _postRender (render: UI) { }
+    protected _postRender (render: UI) {}
 
-    protected _checkAndUpdateRenderData (){
+    protected _checkAndUpdateRenderData () {
         if (this._renderDataFlag) {
             this._assembler!.updateRenderData!(this);
             this._renderDataFlag = false;
@@ -408,7 +406,7 @@ export class UIRenderComponent extends UIComponent {
         return this.material !== null && this.enabled && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy);
     }
 
-    protected _postCanRender (){}
+    protected _postCanRender () {}
 
     protected _updateColor () {
         if (this._assembler && this._assembler.updateColor) {
@@ -431,14 +429,12 @@ export class UIRenderComponent extends UIComponent {
         if (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor) {
             target.blendDst = this._dstBlendFactor;
             target.blendSrc = this._srcBlendFactor;
-            this._blendTemplate.depthStencilState = this._material.passes[0].depthStencilState;
-            this._blendTemplate.rasterizerState = this._material.passes[0].rasterizerState;
-            this._material.overridePipelineStates(this._blendTemplate, 0);
+            this._material.overridePipelineStates(this._blendTemplate);
         }
     }
 
     // pos, rot, scale changed
-    protected _nodeStateChange (type: TransformBit){
+    protected _nodeStateChange (type: TransformBit) {
         if (this._renderData) {
             this.markForUpdateRenderData();
         }

@@ -11,7 +11,7 @@ import { SphereLight } from './sphere-light';
 import { GFXCommandBuffer, GFXDevice, GFXRenderPass } from '../../gfx';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
-import { IPSOCreateInfo } from './submodel';
+import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -20,7 +20,7 @@ const _qt = new Quat();
 
 interface IShadowRenderData {
     model: Model;
-    psoCIs: IPSOCreateInfo[];
+    psoCIs: number[];
     instancedBuffer: InstancedBuffer | null;
 }
 
@@ -177,8 +177,9 @@ export class PlanarShadows {
                 } else {
                     const ia = submodel.inputAssembler!;
                     const pso = PipelineStateManager.getOrCreatePipelineState(device, psoci, renderPass, ia);
+                    const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoci, PSOCIView.BINDING_LAYOUT));
                     cmdBuff.bindPipelineState(pso);
-                    cmdBuff.bindBindingLayout(psoci.bindingLayout);
+                    cmdBuff.bindBindingLayout(bindingLayout);
                     cmdBuff.bindInputAssembler(ia);
                     cmdBuff.draw(ia);
                 }
@@ -193,7 +194,7 @@ export class PlanarShadows {
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, buffer.psoci, renderPass, instance.ia);
                 if (lastPSO !== pso) {
                     cmdBuff.bindPipelineState(pso);
-                    cmdBuff.bindBindingLayout(buffer.psoci.bindingLayout);
+                    cmdBuff.bindBindingLayout(BindingLayoutPool.get(PSOCIPool.get(buffer.psoci, PSOCIView.BINDING_LAYOUT)));
                     lastPSO = pso;
                 }
                 cmdBuff.bindInputAssembler(instance.ia);
@@ -203,13 +204,13 @@ export class PlanarShadows {
     }
 
     public createShadowData (model: Model): IShadowRenderData {
-        const psoCIs: IPSOCreateInfo[] = [];
+        const psoCIs: number[] = [];
         const material = model.isInstancingEnabled ? this._instancingMaterial : this._material;
         for (let i = 0; i < model.subModelNum; i++) {
             const psoCI = material.passes[0].createPipelineStateCI(model.getMacroPatches(i));
             if (psoCI) {
                 model.insertImplantPSOCI(psoCI, i); // add back to model to sync binding layouts
-                psoCI.bindingLayout.update();
+                BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT)).update();
                 psoCIs.push(psoCI);
             }
         }

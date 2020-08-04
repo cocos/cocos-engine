@@ -5,10 +5,9 @@ import {
     GFXBindingType,
     GFXBufferTextureCopy,
     GFXBufferUsageBit,
-    GFXClearFlag,
     GFXColorMask,
     GFXCullMode,
-    GFXDynamicState,
+    GFXDynamicStateFlagBit,
     GFXFilter,
     GFXFormat,
     GFXFormatInfos,
@@ -19,7 +18,6 @@ import {
     GFXShaderType,
     GFXStencilFace,
     GFXTextureFlagBit,
-    GFXTextureLayout,
     GFXTextureType,
     GFXType,
     IGFXColor,
@@ -2388,6 +2386,8 @@ export function WebGL2CmdFuncBindStates (
                 gl.bindVertexArray(glVAO);
                 gl.bindBuffer(gl.ARRAY_BUFFER, null);
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+                cache.glArrayBuffer = null;
+                cache.glElementArrayBuffer = null;
 
                 let glAttrib: WebGL2Attrib | null;
                 for (let j = 0; j < gpuShader.glInputs.length; j++) {
@@ -2403,7 +2403,10 @@ export function WebGL2CmdFuncBindStates (
                     }
 
                     if (glAttrib) {
-                        gl.bindBuffer(gl.ARRAY_BUFFER, glAttrib.glBuffer);
+                        if (cache.glArrayBuffer !== glAttrib.glBuffer) {
+                            gl.bindBuffer(gl.ARRAY_BUFFER, glAttrib.glBuffer);
+                            cache.glArrayBuffer = glAttrib.glBuffer;
+                        }
 
                         for (let c = 0; c < glAttrib.componentCount; ++c) {
                             const glLoc = glInput.glLoc + c;
@@ -2494,7 +2497,7 @@ export function WebGL2CmdFuncBindStates (
         for (let k = 0; k < gpuPipelineState.dynamicStates.length; k++) {
             const dynamicState = gpuPipelineState.dynamicStates[k];
             switch (dynamicState) {
-                case GFXDynamicState.VIEWPORT: {
+                case GFXDynamicStateFlagBit.VIEWPORT: {
                     if (viewport) {
                         if (cache.viewport.left !== viewport.left ||
                             cache.viewport.top !== viewport.top ||
@@ -2511,7 +2514,7 @@ export function WebGL2CmdFuncBindStates (
                     }
                     break;
                 }
-                case GFXDynamicState.SCISSOR: {
+                case GFXDynamicStateFlagBit.SCISSOR: {
                     if (scissor) {
                         if (cache.scissorRect.x !== scissor.x ||
                             cache.scissorRect.y !== scissor.y ||
@@ -2528,7 +2531,7 @@ export function WebGL2CmdFuncBindStates (
                     }
                     break;
                 }
-                case GFXDynamicState.LINE_WIDTH: {
+                case GFXDynamicStateFlagBit.LINE_WIDTH: {
                     if (lineWidth) {
                         if (cache.rs.lineWidth !== lineWidth) {
                             gl.lineWidth(lineWidth);
@@ -2537,7 +2540,7 @@ export function WebGL2CmdFuncBindStates (
                     }
                     break;
                 }
-                case GFXDynamicState.DEPTH_BIAS: {
+                case GFXDynamicStateFlagBit.DEPTH_BIAS: {
                     if (depthBias) {
 
                         if ((cache.rs.depthBias !== depthBias.constantFactor) ||
@@ -2549,7 +2552,7 @@ export function WebGL2CmdFuncBindStates (
                     }
                     break;
                 }
-                case GFXDynamicState.BLEND_CONSTANTS: {
+                case GFXDynamicStateFlagBit.BLEND_CONSTANTS: {
                     if (blendConstants) {
                         if ((cache.bs.blendColor.r !== blendConstants[0]) ||
                             (cache.bs.blendColor.g !== blendConstants[1]) ||
@@ -2566,7 +2569,7 @@ export function WebGL2CmdFuncBindStates (
                     }
                     break;
                 }
-                case GFXDynamicState.STENCIL_WRITE_MASK: {
+                case GFXDynamicStateFlagBit.STENCIL_WRITE_MASK: {
                     if (stencilWriteMask) {
                         switch (stencilWriteMask.face) {
                             case GFXStencilFace.FRONT: {
@@ -2596,7 +2599,7 @@ export function WebGL2CmdFuncBindStates (
                     }
                     break;
                 }
-                case GFXDynamicState.STENCIL_COMPARE_MASK: {
+                case GFXDynamicStateFlagBit.STENCIL_COMPARE_MASK: {
                     if (stencilCompareMask) {
                         switch (stencilCompareMask.face) {
                             case GFXStencilFace.FRONT: {

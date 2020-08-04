@@ -15,15 +15,16 @@ import { RenderScene } from './render-scene';
 import { Texture2D } from '../../assets/texture-2d';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { IGFXAttribute } from '../../gfx';
-import { SubModel, IPSOCreateInfo } from './submodel';
+import { SubModel } from './submodel';
 import { Pass, IMacroPatch } from '../core/pass';
 import { legacyCC } from '../../global-exports';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { BatchingSchemes } from '../core/pass';
+import { BindingLayoutPool, ShaderPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
 
 const m4_1 = new Mat4();
 
-const _subMeshPool = new Pool(() => {
+const _subModelPool = new Pool(() => {
     return new SubModel();
 }, 32);
 
@@ -127,7 +128,7 @@ export class Model {
     protected _worldBounds: aabb | null = null;
     protected _modelBounds: aabb | null = null;
     protected _subModels: SubModel[] = [];
-    protected _implantPSOCIs: IPSOCreateInfo[] = [];
+    protected _implantPSOCIs: number[] = [];
     protected _localData = new Float32Array(UBOLocal.COUNT);
     protected _localBuffer: GFXBuffer | null = null;
     protected _inited = false;
@@ -153,7 +154,7 @@ export class Model {
     public destroy () {
         for (const subModel of this._subModels) {
             subModel.destroy();
-            _subMeshPool.free(subModel);
+            _subModelPool.free(subModel);
         }
         if (this._localBuffer) {
             this._localBuffer.destroy();
@@ -207,9 +208,10 @@ export class Model {
             const sampler = samplerLib.getSampler(this._device, texture.mipmaps.length > 1 ? lightmapSamplerWithMipHash : lightmapSamplerHash);
             for (const sub of this._subModels) {
                 for (let i = 0; i < sub.psoInfos.length; i++) {
-                    sub.psoInfos[i].bindingLayout.bindTexture(UniformLightingMapSampler.binding, gfxTexture);
-                    sub.psoInfos[i].bindingLayout.bindSampler(UniformLightingMapSampler.binding, sampler);
-                    sub.psoInfos[i].bindingLayout.update();
+                    const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(sub.psoInfos[i], PSOCIView.BINDING_LAYOUT));
+                    bindingLayout.bindTexture(UniformLightingMapSampler.binding, gfxTexture);
+                    bindingLayout.bindSampler(UniformLightingMapSampler.binding, sampler);
+                    bindingLayout.update();
                 }
             }
         }
@@ -248,7 +250,7 @@ export class Model {
     public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
         this.initLocalBindings(mat);
         if (this._subModels[idx] == null) {
-            this._subModels[idx] = _subMeshPool.alloc();
+            this._subModels[idx] = _subModelPool.alloc();
         } else {
             this._subModels[idx].destroy();
         }
@@ -259,7 +261,7 @@ export class Model {
 
     public setSubModelMesh (idx: number, subMeshData: RenderingSubMesh) {
         if (this._subModels[idx] == null) {
-            this._subModels[idx] = _subMeshPool.alloc();
+            this._subModels[idx] = _subModelPool.alloc();
         }
         this._subModels[idx].subMeshData = subMeshData;
     }
@@ -285,19 +287,20 @@ export class Model {
         this.updateLightingmap(this._lightmap, this._lightmapUVParam);
     }
 
-    public insertImplantPSOCI (psoci: IPSOCreateInfo, submodelIdx: number) {
+    public insertImplantPSOCI (psoci: number, submodelIdx: number) {
         this.updateLocalBindings(psoci, submodelIdx);
         this._implantPSOCIs.push(psoci);
     }
 
-    public removeImplantPSOCI (psoci: IPSOCreateInfo) {
+    public removeImplantPSOCI (psoci: number) {
         const idx = this._implantPSOCIs.indexOf(psoci);
         if (idx >= 0) { this._implantPSOCIs.splice(idx, 1); }
     }
 
-    public updateLocalBindings (psoci: IPSOCreateInfo, submodelIdx: number) {
+    public updateLocalBindings (psoci: number, submodelIdx: number) {
         if (this._localBuffer) {
-            psoci.bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer);
+            const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoci, PSOCIView.BINDING_LAYOUT));
+            bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer);
         }
     }
 
@@ -312,12 +315,12 @@ export class Model {
             this.updateLocalBindings(psoCreateInfos[i], subModelIndex);
         }
 
-        this.updateInstancedAttributeList(psoCreateInfos[0].shader.attributes, subModel.passes[0]);
+        const shader = ShaderPool.get(PSOCIPool.get(psoCreateInfos[0], PSOCIView.SHADER));
+        this.updateInstancedAttributeList(shader.attributes, subModel.passes[0]);
     }
 
     public getMacroPatches (subModelIndex: number) : IMacroPatch[] | undefined {
-        if (this.receiveShadow)
-            return shadowMap_Patches;
+        if (this.receiveShadow) return shadowMap_Patches;
         return undefined;
     }
 

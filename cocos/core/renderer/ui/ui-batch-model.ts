@@ -29,7 +29,7 @@
 import { Material } from '../../assets/material';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { Model, ModelType } from '../scene/model';
-import { SubModel, IPSOCreateInfo } from '../scene/submodel';
+import { SubModel } from '../scene/submodel';
 import { UIDrawBatch } from './ui-draw-batch';
 
 export class UIBatchModel extends Model {
@@ -60,9 +60,9 @@ export class UIBatchModel extends Model {
 }
 
 class UISubModel extends SubModel {
-    public directInitialize (ia: GFXInputAssembler, mat: Material, psoCreateInfo: IPSOCreateInfo) {
+    public directInitialize (ia: GFXInputAssembler, mat: Material, psoCreateInfo: number) {
         this._inputAssembler = ia;
-        this._psoCreateInfos[0] = psoCreateInfo;
+        this._psociHandles[0] = psoCreateInfo;
         // Should not use this.material = mat, or _psoCreateInfos[0] will be overrided.
         this._material = mat;
     }

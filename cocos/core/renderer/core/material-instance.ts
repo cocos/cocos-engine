@@ -31,6 +31,7 @@ import { RenderableComponent } from '../../3d/framework/renderable-component';
 import { Material } from '../../assets/material';
 import { PassInstance } from './pass-instance';
 import { IDefineMap } from './pass-utils';
+import { PassOverrides } from './pass';
 
 export interface IMaterialInstanceInfo {
     parent: Material;
@@ -77,18 +78,20 @@ export class MaterialInstance extends Material {
         }
     }
 
-    public overridePipelineStates (overrides: any, passIdx?: number): void {
+    public overridePipelineStates (overrides: PassOverrides, passIdx?: number): void {
         if (!this._passes || !this.effectAsset) { return; }
         const passInfos = this.effectAsset.techniques[this.technique].passes;
         if (passIdx === undefined) {
             for (let i = 0; i < this._passes.length; i++) {
                 const pass = this._passes[i];
-                this._states[i] = overrides;
-                pass.overridePipelineStates(passInfos[pass.passIndex], overrides);
+                const state = this._states[i] || (this._states[i] = {});
+                for (const key in overrides) { state[key] = overrides[key]; }
+                pass.overridePipelineStates(passInfos[pass.passIndex], state);
             }
         } else {
-            this._states[passIdx] = overrides;
-            this._passes[passIdx].overridePipelineStates(passInfos[passIdx], overrides);
+            const state = this._states[passIdx] || (this._states[passIdx] = {});
+            for (const key in overrides) { state[key] = overrides[key]; }
+            this._passes[passIdx].overridePipelineStates(passInfos[passIdx], state);
         }
     }
 
