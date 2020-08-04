@@ -187,11 +187,9 @@ export class EditBoxImpl extends EditBoxImplBase {
 
         this._editing = true;
         _currentEditBoxImpl = this;
+        this._delegate!._editBoxEditingDidBegan();
         this._showDom();
-        if (this._edTxt && this._delegate){
-            this._edTxt.focus();
-            this._delegate._editBoxEditingDidBegan();
-        }
+        this._edTxt!.focus();
     }
 
     public endEditing () {
