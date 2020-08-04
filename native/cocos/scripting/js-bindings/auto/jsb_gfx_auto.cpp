@@ -9152,34 +9152,6 @@ static bool js_gfx_DepthStencilState_set_depthWrite(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_depthWrite)
 
-static bool js_gfx_DepthStencilState_get_depthFunc(se::State& s)
-{
-    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_get_depthFunc : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= int32_to_seval((int)cobj->depthFunc, &jsret);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_DepthStencilState_get_depthFunc)
-
-static bool js_gfx_DepthStencilState_set_depthFunc(se::State& s)
-{
-    const auto& args = s.args();
-    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_set_depthFunc : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    cc::gfx::ComparisonFunc arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::ComparisonFunc)tmp; } while(false);
-    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilState_set_depthFunc : Error processing new value");
-    cobj->depthFunc = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_depthFunc)
-
 static bool js_gfx_DepthStencilState_get_stencilTestFront(se::State& s)
 {
     cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
@@ -9208,6 +9180,34 @@ static bool js_gfx_DepthStencilState_set_stencilTestFront(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_stencilTestFront)
 
+static bool js_gfx_DepthStencilState_get_stencilTestBack(se::State& s)
+{
+    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_get_stencilTestBack : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= boolean_to_seval(cobj->stencilTestBack, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_DepthStencilState_get_stencilTestBack)
+
+static bool js_gfx_DepthStencilState_set_stencilTestBack(se::State& s)
+{
+    const auto& args = s.args();
+    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_set_stencilTestBack : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    bool arg0;
+    ok &= seval_to_boolean(args[0], &arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilState_set_stencilTestBack : Error processing new value");
+    cobj->stencilTestBack = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_stencilTestBack)
+
 static bool js_gfx_DepthStencilState_get_stencilFuncFront(se::State& s)
 {
     cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
@@ -9235,62 +9235,6 @@ static bool js_gfx_DepthStencilState_set_stencilFuncFront(se::State& s)
     return true;
 }
 SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_stencilFuncFront)
-
-static bool js_gfx_DepthStencilState_get_stencilReadMaskFront(se::State& s)
-{
-    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_get_stencilReadMaskFront : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= uint32_to_seval((unsigned int)cobj->stencilReadMaskFront, &jsret);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_DepthStencilState_get_stencilReadMaskFront)
-
-static bool js_gfx_DepthStencilState_set_stencilReadMaskFront(se::State& s)
-{
-    const auto& args = s.args();
-    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_set_stencilReadMaskFront : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    unsigned int arg0 = 0;
-    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilState_set_stencilReadMaskFront : Error processing new value");
-    cobj->stencilReadMaskFront = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_stencilReadMaskFront)
-
-static bool js_gfx_DepthStencilState_get_stencilWriteMaskFront(se::State& s)
-{
-    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_get_stencilWriteMaskFront : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= uint32_to_seval((unsigned int)cobj->stencilWriteMaskFront, &jsret);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_DepthStencilState_get_stencilWriteMaskFront)
-
-static bool js_gfx_DepthStencilState_set_stencilWriteMaskFront(se::State& s)
-{
-    const auto& args = s.args();
-    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_set_stencilWriteMaskFront : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    unsigned int arg0 = 0;
-    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilState_set_stencilWriteMaskFront : Error processing new value");
-    cobj->stencilWriteMaskFront = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_stencilWriteMaskFront)
 
 static bool js_gfx_DepthStencilState_get_stencilFailOpFront(se::State& s)
 {
@@ -9376,62 +9320,6 @@ static bool js_gfx_DepthStencilState_set_stencilPassOpFront(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_stencilPassOpFront)
 
-static bool js_gfx_DepthStencilState_get_stencilRefFront(se::State& s)
-{
-    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_get_stencilRefFront : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= uint32_to_seval((unsigned int)cobj->stencilRefFront, &jsret);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_DepthStencilState_get_stencilRefFront)
-
-static bool js_gfx_DepthStencilState_set_stencilRefFront(se::State& s)
-{
-    const auto& args = s.args();
-    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_set_stencilRefFront : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    unsigned int arg0 = 0;
-    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilState_set_stencilRefFront : Error processing new value");
-    cobj->stencilRefFront = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_stencilRefFront)
-
-static bool js_gfx_DepthStencilState_get_stencilTestBack(se::State& s)
-{
-    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_get_stencilTestBack : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= boolean_to_seval(cobj->stencilTestBack, &jsret);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_DepthStencilState_get_stencilTestBack)
-
-static bool js_gfx_DepthStencilState_set_stencilTestBack(se::State& s)
-{
-    const auto& args = s.args();
-    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_set_stencilTestBack : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    bool arg0;
-    ok &= seval_to_boolean(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilState_set_stencilTestBack : Error processing new value");
-    cobj->stencilTestBack = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_stencilTestBack)
-
 static bool js_gfx_DepthStencilState_get_stencilFuncBack(se::State& s)
 {
     cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
@@ -9459,62 +9347,6 @@ static bool js_gfx_DepthStencilState_set_stencilFuncBack(se::State& s)
     return true;
 }
 SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_stencilFuncBack)
-
-static bool js_gfx_DepthStencilState_get_stencilReadMaskBack(se::State& s)
-{
-    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_get_stencilReadMaskBack : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= uint32_to_seval((unsigned int)cobj->stencilReadMaskBack, &jsret);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_DepthStencilState_get_stencilReadMaskBack)
-
-static bool js_gfx_DepthStencilState_set_stencilReadMaskBack(se::State& s)
-{
-    const auto& args = s.args();
-    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_set_stencilReadMaskBack : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    unsigned int arg0 = 0;
-    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilState_set_stencilReadMaskBack : Error processing new value");
-    cobj->stencilReadMaskBack = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_stencilReadMaskBack)
-
-static bool js_gfx_DepthStencilState_get_stencilWriteMaskBack(se::State& s)
-{
-    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_get_stencilWriteMaskBack : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= uint32_to_seval((unsigned int)cobj->stencilWriteMaskBack, &jsret);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_DepthStencilState_get_stencilWriteMaskBack)
-
-static bool js_gfx_DepthStencilState_set_stencilWriteMaskBack(se::State& s)
-{
-    const auto& args = s.args();
-    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_set_stencilWriteMaskBack : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    unsigned int arg0 = 0;
-    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilState_set_stencilWriteMaskBack : Error processing new value");
-    cobj->stencilWriteMaskBack = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_stencilWriteMaskBack)
 
 static bool js_gfx_DepthStencilState_get_stencilFailOpBack(se::State& s)
 {
@@ -9600,6 +9432,90 @@ static bool js_gfx_DepthStencilState_set_stencilPassOpBack(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_stencilPassOpBack)
 
+static bool js_gfx_DepthStencilState_get_stencilRefFront(se::State& s)
+{
+    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_get_stencilRefFront : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= uint32_to_seval((unsigned int)cobj->stencilRefFront, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_DepthStencilState_get_stencilRefFront)
+
+static bool js_gfx_DepthStencilState_set_stencilRefFront(se::State& s)
+{
+    const auto& args = s.args();
+    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_set_stencilRefFront : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    unsigned int arg0 = 0;
+    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilState_set_stencilRefFront : Error processing new value");
+    cobj->stencilRefFront = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_stencilRefFront)
+
+static bool js_gfx_DepthStencilState_get_stencilReadMaskFront(se::State& s)
+{
+    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_get_stencilReadMaskFront : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= uint32_to_seval((unsigned int)cobj->stencilReadMaskFront, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_DepthStencilState_get_stencilReadMaskFront)
+
+static bool js_gfx_DepthStencilState_set_stencilReadMaskFront(se::State& s)
+{
+    const auto& args = s.args();
+    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_set_stencilReadMaskFront : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    unsigned int arg0 = 0;
+    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilState_set_stencilReadMaskFront : Error processing new value");
+    cobj->stencilReadMaskFront = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_stencilReadMaskFront)
+
+static bool js_gfx_DepthStencilState_get_stencilWriteMaskFront(se::State& s)
+{
+    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_get_stencilWriteMaskFront : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= uint32_to_seval((unsigned int)cobj->stencilWriteMaskFront, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_DepthStencilState_get_stencilWriteMaskFront)
+
+static bool js_gfx_DepthStencilState_set_stencilWriteMaskFront(se::State& s)
+{
+    const auto& args = s.args();
+    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_set_stencilWriteMaskFront : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    unsigned int arg0 = 0;
+    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilState_set_stencilWriteMaskFront : Error processing new value");
+    cobj->stencilWriteMaskFront = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_stencilWriteMaskFront)
+
 static bool js_gfx_DepthStencilState_get_stencilRefBack(se::State& s)
 {
     cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
@@ -9627,6 +9543,90 @@ static bool js_gfx_DepthStencilState_set_stencilRefBack(se::State& s)
     return true;
 }
 SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_stencilRefBack)
+
+static bool js_gfx_DepthStencilState_get_stencilReadMaskBack(se::State& s)
+{
+    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_get_stencilReadMaskBack : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= uint32_to_seval((unsigned int)cobj->stencilReadMaskBack, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_DepthStencilState_get_stencilReadMaskBack)
+
+static bool js_gfx_DepthStencilState_set_stencilReadMaskBack(se::State& s)
+{
+    const auto& args = s.args();
+    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_set_stencilReadMaskBack : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    unsigned int arg0 = 0;
+    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilState_set_stencilReadMaskBack : Error processing new value");
+    cobj->stencilReadMaskBack = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_stencilReadMaskBack)
+
+static bool js_gfx_DepthStencilState_get_stencilWriteMaskBack(se::State& s)
+{
+    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_get_stencilWriteMaskBack : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= uint32_to_seval((unsigned int)cobj->stencilWriteMaskBack, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_DepthStencilState_get_stencilWriteMaskBack)
+
+static bool js_gfx_DepthStencilState_set_stencilWriteMaskBack(se::State& s)
+{
+    const auto& args = s.args();
+    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_set_stencilWriteMaskBack : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    unsigned int arg0 = 0;
+    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilState_set_stencilWriteMaskBack : Error processing new value");
+    cobj->stencilWriteMaskBack = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_stencilWriteMaskBack)
+
+static bool js_gfx_DepthStencilState_get_depthFunc(se::State& s)
+{
+    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_get_depthFunc : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= int32_to_seval((int)cobj->depthFunc, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_DepthStencilState_get_depthFunc)
+
+static bool js_gfx_DepthStencilState_set_depthFunc(se::State& s)
+{
+    const auto& args = s.args();
+    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_set_depthFunc : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    cc::gfx::ComparisonFunc arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::ComparisonFunc)tmp; } while(false);
+    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilState_set_depthFunc : Error processing new value");
+    cobj->depthFunc = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_DepthStencilState_set_depthFunc)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_DepthStencilState_finalize)
 
@@ -9661,17 +9661,17 @@ static bool js_gfx_DepthStencilState_constructor(se::State& s)
             ok &= seval_to_boolean(field, &arg1);
             cobj->depthWrite = arg1;
         }
-        cc::gfx::ComparisonFunc arg2;
-        json->getProperty("depthFunc", &field);
-        if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::gfx::ComparisonFunc)tmp; } while(false);
-            cobj->depthFunc = arg2;
-        }
-        bool arg3;
+        bool arg2;
         json->getProperty("stencilTestFront", &field);
         if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg2);
+            cobj->stencilTestFront = arg2;
+        }
+        bool arg3;
+        json->getProperty("stencilTestBack", &field);
+        if(!field.isUndefined()) {
             ok &= seval_to_boolean(field, &arg3);
-            cobj->stencilTestFront = arg3;
+            cobj->stencilTestBack = arg3;
         }
         cc::gfx::ComparisonFunc arg4;
         json->getProperty("stencilFuncFront", &field);
@@ -9679,89 +9679,89 @@ static bool js_gfx_DepthStencilState_constructor(se::State& s)
             do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cc::gfx::ComparisonFunc)tmp; } while(false);
             cobj->stencilFuncFront = arg4;
         }
-        unsigned int arg5 = 0;
-        json->getProperty("stencilReadMaskFront", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg5);
-            cobj->stencilReadMaskFront = arg5;
-        }
-        unsigned int arg6 = 0;
-        json->getProperty("stencilWriteMaskFront", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg6);
-            cobj->stencilWriteMaskFront = arg6;
-        }
-        cc::gfx::StencilOp arg7;
+        cc::gfx::StencilOp arg5;
         json->getProperty("stencilFailOpFront", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg7 = (cc::gfx::StencilOp)tmp; } while(false);
-            cobj->stencilFailOpFront = arg7;
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg5 = (cc::gfx::StencilOp)tmp; } while(false);
+            cobj->stencilFailOpFront = arg5;
         }
-        cc::gfx::StencilOp arg8;
+        cc::gfx::StencilOp arg6;
         json->getProperty("stencilZFailOpFront", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg8 = (cc::gfx::StencilOp)tmp; } while(false);
-            cobj->stencilZFailOpFront = arg8;
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg6 = (cc::gfx::StencilOp)tmp; } while(false);
+            cobj->stencilZFailOpFront = arg6;
         }
-        cc::gfx::StencilOp arg9;
+        cc::gfx::StencilOp arg7;
         json->getProperty("stencilPassOpFront", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg9 = (cc::gfx::StencilOp)tmp; } while(false);
-            cobj->stencilPassOpFront = arg9;
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg7 = (cc::gfx::StencilOp)tmp; } while(false);
+            cobj->stencilPassOpFront = arg7;
         }
-        unsigned int arg10 = 0;
-        json->getProperty("stencilRefFront", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg10);
-            cobj->stencilRefFront = arg10;
-        }
-        bool arg11;
-        json->getProperty("stencilTestBack", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_boolean(field, &arg11);
-            cobj->stencilTestBack = arg11;
-        }
-        cc::gfx::ComparisonFunc arg12;
+        cc::gfx::ComparisonFunc arg8;
         json->getProperty("stencilFuncBack", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg12 = (cc::gfx::ComparisonFunc)tmp; } while(false);
-            cobj->stencilFuncBack = arg12;
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg8 = (cc::gfx::ComparisonFunc)tmp; } while(false);
+            cobj->stencilFuncBack = arg8;
         }
-        unsigned int arg13 = 0;
-        json->getProperty("stencilReadMaskBack", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg13);
-            cobj->stencilReadMaskBack = arg13;
-        }
-        unsigned int arg14 = 0;
-        json->getProperty("stencilWriteMaskBack", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg14);
-            cobj->stencilWriteMaskBack = arg14;
-        }
-        cc::gfx::StencilOp arg15;
+        cc::gfx::StencilOp arg9;
         json->getProperty("stencilFailOpBack", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg15 = (cc::gfx::StencilOp)tmp; } while(false);
-            cobj->stencilFailOpBack = arg15;
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg9 = (cc::gfx::StencilOp)tmp; } while(false);
+            cobj->stencilFailOpBack = arg9;
         }
-        cc::gfx::StencilOp arg16;
+        cc::gfx::StencilOp arg10;
         json->getProperty("stencilZFailOpBack", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg16 = (cc::gfx::StencilOp)tmp; } while(false);
-            cobj->stencilZFailOpBack = arg16;
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg10 = (cc::gfx::StencilOp)tmp; } while(false);
+            cobj->stencilZFailOpBack = arg10;
         }
-        cc::gfx::StencilOp arg17;
+        cc::gfx::StencilOp arg11;
         json->getProperty("stencilPassOpBack", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg17 = (cc::gfx::StencilOp)tmp; } while(false);
-            cobj->stencilPassOpBack = arg17;
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg11 = (cc::gfx::StencilOp)tmp; } while(false);
+            cobj->stencilPassOpBack = arg11;
         }
-        unsigned int arg18 = 0;
+        unsigned int arg12 = 0;
+        json->getProperty("stencilRefFront", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg12);
+            cobj->stencilRefFront = arg12;
+        }
+        unsigned int arg13 = 0;
+        json->getProperty("stencilReadMaskFront", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg13);
+            cobj->stencilReadMaskFront = arg13;
+        }
+        unsigned int arg14 = 0;
+        json->getProperty("stencilWriteMaskFront", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg14);
+            cobj->stencilWriteMaskFront = arg14;
+        }
+        unsigned int arg15 = 0;
         json->getProperty("stencilRefBack", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg18);
-            cobj->stencilRefBack = arg18;
+            ok &= seval_to_uint32(field, (uint32_t*)&arg15);
+            cobj->stencilRefBack = arg15;
+        }
+        unsigned int arg16 = 0;
+        json->getProperty("stencilReadMaskBack", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg16);
+            cobj->stencilReadMaskBack = arg16;
+        }
+        unsigned int arg17 = 0;
+        json->getProperty("stencilWriteMaskBack", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg17);
+            cobj->stencilWriteMaskBack = arg17;
+        }
+        cc::gfx::ComparisonFunc arg18;
+        json->getProperty("depthFunc", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg18 = (cc::gfx::ComparisonFunc)tmp; } while(false);
+            cobj->depthFunc = arg18;
         }
 
         if(!ok) {
@@ -9787,90 +9787,90 @@ static bool js_gfx_DepthStencilState_constructor(se::State& s)
             ok &= seval_to_boolean(args[1], &arg1);
             cobj->depthWrite = arg1;
         }
-        cc::gfx::ComparisonFunc arg2;
+        bool arg2;
         if (!args[2].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::ComparisonFunc)tmp; } while(false);
-            cobj->depthFunc = arg2;
+            ok &= seval_to_boolean(args[2], &arg2);
+            cobj->stencilTestFront = arg2;
         }
         bool arg3;
         if (!args[3].isUndefined()) {
             ok &= seval_to_boolean(args[3], &arg3);
-            cobj->stencilTestFront = arg3;
+            cobj->stencilTestBack = arg3;
         }
         cc::gfx::ComparisonFunc arg4;
         if (!args[4].isUndefined()) {
             do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::gfx::ComparisonFunc)tmp; } while(false);
             cobj->stencilFuncFront = arg4;
         }
-        unsigned int arg5 = 0;
+        cc::gfx::StencilOp arg5;
         if (!args[5].isUndefined()) {
-            ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
-            cobj->stencilReadMaskFront = arg5;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cc::gfx::StencilOp)tmp; } while(false);
+            cobj->stencilFailOpFront = arg5;
         }
-        unsigned int arg6 = 0;
+        cc::gfx::StencilOp arg6;
         if (!args[6].isUndefined()) {
-            ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
-            cobj->stencilWriteMaskFront = arg6;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cc::gfx::StencilOp)tmp; } while(false);
+            cobj->stencilZFailOpFront = arg6;
         }
         cc::gfx::StencilOp arg7;
         if (!args[7].isUndefined()) {
             do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cc::gfx::StencilOp)tmp; } while(false);
-            cobj->stencilFailOpFront = arg7;
+            cobj->stencilPassOpFront = arg7;
         }
-        cc::gfx::StencilOp arg8;
+        cc::gfx::ComparisonFunc arg8;
         if (!args[8].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cc::gfx::StencilOp)tmp; } while(false);
-            cobj->stencilZFailOpFront = arg8;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cc::gfx::ComparisonFunc)tmp; } while(false);
+            cobj->stencilFuncBack = arg8;
         }
         cc::gfx::StencilOp arg9;
         if (!args[9].isUndefined()) {
             do { int32_t tmp = 0; ok &= seval_to_int32(args[9], &tmp); arg9 = (cc::gfx::StencilOp)tmp; } while(false);
-            cobj->stencilPassOpFront = arg9;
+            cobj->stencilFailOpBack = arg9;
         }
-        unsigned int arg10 = 0;
+        cc::gfx::StencilOp arg10;
         if (!args[10].isUndefined()) {
-            ok &= seval_to_uint32(args[10], (uint32_t*)&arg10);
-            cobj->stencilRefFront = arg10;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[10], &tmp); arg10 = (cc::gfx::StencilOp)tmp; } while(false);
+            cobj->stencilZFailOpBack = arg10;
         }
-        bool arg11;
+        cc::gfx::StencilOp arg11;
         if (!args[11].isUndefined()) {
-            ok &= seval_to_boolean(args[11], &arg11);
-            cobj->stencilTestBack = arg11;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[11], &tmp); arg11 = (cc::gfx::StencilOp)tmp; } while(false);
+            cobj->stencilPassOpBack = arg11;
         }
-        cc::gfx::ComparisonFunc arg12;
+        unsigned int arg12 = 0;
         if (!args[12].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[12], &tmp); arg12 = (cc::gfx::ComparisonFunc)tmp; } while(false);
-            cobj->stencilFuncBack = arg12;
+            ok &= seval_to_uint32(args[12], (uint32_t*)&arg12);
+            cobj->stencilRefFront = arg12;
         }
         unsigned int arg13 = 0;
         if (!args[13].isUndefined()) {
             ok &= seval_to_uint32(args[13], (uint32_t*)&arg13);
-            cobj->stencilReadMaskBack = arg13;
+            cobj->stencilReadMaskFront = arg13;
         }
         unsigned int arg14 = 0;
         if (!args[14].isUndefined()) {
             ok &= seval_to_uint32(args[14], (uint32_t*)&arg14);
-            cobj->stencilWriteMaskBack = arg14;
+            cobj->stencilWriteMaskFront = arg14;
         }
-        cc::gfx::StencilOp arg15;
+        unsigned int arg15 = 0;
         if (!args[15].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[15], &tmp); arg15 = (cc::gfx::StencilOp)tmp; } while(false);
-            cobj->stencilFailOpBack = arg15;
+            ok &= seval_to_uint32(args[15], (uint32_t*)&arg15);
+            cobj->stencilRefBack = arg15;
         }
-        cc::gfx::StencilOp arg16;
+        unsigned int arg16 = 0;
         if (!args[16].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[16], &tmp); arg16 = (cc::gfx::StencilOp)tmp; } while(false);
-            cobj->stencilZFailOpBack = arg16;
+            ok &= seval_to_uint32(args[16], (uint32_t*)&arg16);
+            cobj->stencilReadMaskBack = arg16;
         }
-        cc::gfx::StencilOp arg17;
+        unsigned int arg17 = 0;
         if (!args[17].isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[17], &tmp); arg17 = (cc::gfx::StencilOp)tmp; } while(false);
-            cobj->stencilPassOpBack = arg17;
+            ok &= seval_to_uint32(args[17], (uint32_t*)&arg17);
+            cobj->stencilWriteMaskBack = arg17;
         }
-        unsigned int arg18 = 0;
+        cc::gfx::ComparisonFunc arg18;
         if (!args[18].isUndefined()) {
-            ok &= seval_to_uint32(args[18], (uint32_t*)&arg18);
-            cobj->stencilRefBack = arg18;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[18], &tmp); arg18 = (cc::gfx::ComparisonFunc)tmp; } while(false);
+            cobj->depthFunc = arg18;
         }
 
         if(!ok) {
@@ -9911,23 +9911,23 @@ bool js_register_gfx_DepthStencilState(se::Object* obj)
 
     cls->defineProperty("depthTest", _SE(js_gfx_DepthStencilState_get_depthTest), _SE(js_gfx_DepthStencilState_set_depthTest));
     cls->defineProperty("depthWrite", _SE(js_gfx_DepthStencilState_get_depthWrite), _SE(js_gfx_DepthStencilState_set_depthWrite));
-    cls->defineProperty("depthFunc", _SE(js_gfx_DepthStencilState_get_depthFunc), _SE(js_gfx_DepthStencilState_set_depthFunc));
     cls->defineProperty("stencilTestFront", _SE(js_gfx_DepthStencilState_get_stencilTestFront), _SE(js_gfx_DepthStencilState_set_stencilTestFront));
+    cls->defineProperty("stencilTestBack", _SE(js_gfx_DepthStencilState_get_stencilTestBack), _SE(js_gfx_DepthStencilState_set_stencilTestBack));
     cls->defineProperty("stencilFuncFront", _SE(js_gfx_DepthStencilState_get_stencilFuncFront), _SE(js_gfx_DepthStencilState_set_stencilFuncFront));
-    cls->defineProperty("stencilReadMaskFront", _SE(js_gfx_DepthStencilState_get_stencilReadMaskFront), _SE(js_gfx_DepthStencilState_set_stencilReadMaskFront));
-    cls->defineProperty("stencilWriteMaskFront", _SE(js_gfx_DepthStencilState_get_stencilWriteMaskFront), _SE(js_gfx_DepthStencilState_set_stencilWriteMaskFront));
     cls->defineProperty("stencilFailOpFront", _SE(js_gfx_DepthStencilState_get_stencilFailOpFront), _SE(js_gfx_DepthStencilState_set_stencilFailOpFront));
     cls->defineProperty("stencilZFailOpFront", _SE(js_gfx_DepthStencilState_get_stencilZFailOpFront), _SE(js_gfx_DepthStencilState_set_stencilZFailOpFront));
     cls->defineProperty("stencilPassOpFront", _SE(js_gfx_DepthStencilState_get_stencilPassOpFront), _SE(js_gfx_DepthStencilState_set_stencilPassOpFront));
-    cls->defineProperty("stencilRefFront", _SE(js_gfx_DepthStencilState_get_stencilRefFront), _SE(js_gfx_DepthStencilState_set_stencilRefFront));
-    cls->defineProperty("stencilTestBack", _SE(js_gfx_DepthStencilState_get_stencilTestBack), _SE(js_gfx_DepthStencilState_set_stencilTestBack));
     cls->defineProperty("stencilFuncBack", _SE(js_gfx_DepthStencilState_get_stencilFuncBack), _SE(js_gfx_DepthStencilState_set_stencilFuncBack));
-    cls->defineProperty("stencilReadMaskBack", _SE(js_gfx_DepthStencilState_get_stencilReadMaskBack), _SE(js_gfx_DepthStencilState_set_stencilReadMaskBack));
-    cls->defineProperty("stencilWriteMaskBack", _SE(js_gfx_DepthStencilState_get_stencilWriteMaskBack), _SE(js_gfx_DepthStencilState_set_stencilWriteMaskBack));
     cls->defineProperty("stencilFailOpBack", _SE(js_gfx_DepthStencilState_get_stencilFailOpBack), _SE(js_gfx_DepthStencilState_set_stencilFailOpBack));
     cls->defineProperty("stencilZFailOpBack", _SE(js_gfx_DepthStencilState_get_stencilZFailOpBack), _SE(js_gfx_DepthStencilState_set_stencilZFailOpBack));
     cls->defineProperty("stencilPassOpBack", _SE(js_gfx_DepthStencilState_get_stencilPassOpBack), _SE(js_gfx_DepthStencilState_set_stencilPassOpBack));
+    cls->defineProperty("stencilRefFront", _SE(js_gfx_DepthStencilState_get_stencilRefFront), _SE(js_gfx_DepthStencilState_set_stencilRefFront));
+    cls->defineProperty("stencilReadMaskFront", _SE(js_gfx_DepthStencilState_get_stencilReadMaskFront), _SE(js_gfx_DepthStencilState_set_stencilReadMaskFront));
+    cls->defineProperty("stencilWriteMaskFront", _SE(js_gfx_DepthStencilState_get_stencilWriteMaskFront), _SE(js_gfx_DepthStencilState_set_stencilWriteMaskFront));
     cls->defineProperty("stencilRefBack", _SE(js_gfx_DepthStencilState_get_stencilRefBack), _SE(js_gfx_DepthStencilState_set_stencilRefBack));
+    cls->defineProperty("stencilReadMaskBack", _SE(js_gfx_DepthStencilState_get_stencilReadMaskBack), _SE(js_gfx_DepthStencilState_set_stencilReadMaskBack));
+    cls->defineProperty("stencilWriteMaskBack", _SE(js_gfx_DepthStencilState_get_stencilWriteMaskBack), _SE(js_gfx_DepthStencilState_set_stencilWriteMaskBack));
+    cls->defineProperty("depthFunc", _SE(js_gfx_DepthStencilState_get_depthFunc), _SE(js_gfx_DepthStencilState_set_depthFunc));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_DepthStencilState_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::DepthStencilState>(cls);
@@ -10789,6 +10789,34 @@ static bool js_gfx_PipelineStateInfo_set_renderPass(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_PipelineStateInfo_set_renderPass)
 
+static bool js_gfx_PipelineStateInfo_get_bindingLayout(se::State& s)
+{
+    cc::gfx::PipelineStateInfo* cobj = (cc::gfx::PipelineStateInfo*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_get_bindingLayout : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= native_ptr_to_seval(cobj->bindingLayout, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_PipelineStateInfo_get_bindingLayout)
+
+static bool js_gfx_PipelineStateInfo_set_bindingLayout(se::State& s)
+{
+    const auto& args = s.args();
+    cc::gfx::PipelineStateInfo* cobj = (cc::gfx::PipelineStateInfo*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_set_bindingLayout : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    cc::gfx::BindingLayout* arg0 = nullptr;
+    ok &= seval_to_native_ptr(args[0], &arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_PipelineStateInfo_set_bindingLayout : Error processing new value");
+    cobj->bindingLayout = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_PipelineStateInfo_set_bindingLayout)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_PipelineStateInfo_finalize)
 
 static bool js_gfx_PipelineStateInfo_constructor(se::State& s)
@@ -10858,6 +10886,12 @@ static bool js_gfx_PipelineStateInfo_constructor(se::State& s)
             ok &= seval_to_native_ptr(field, &arg7);
             cobj->renderPass = arg7;
         }
+        cc::gfx::BindingLayout* arg8 = nullptr;
+        json->getProperty("bindingLayout", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_native_ptr(field, &arg8);
+            cobj->bindingLayout = arg8;
+        }
 
         if(!ok) {
             JSB_FREE(cobj);
@@ -10869,7 +10903,7 @@ static bool js_gfx_PipelineStateInfo_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 8)
+    else if(argc == 9)
     {
         cc::gfx::PipelineStateInfo* cobj = JSB_ALLOC(cc::gfx::PipelineStateInfo);
         cc::gfx::PrimitiveMode arg0;
@@ -10911,6 +10945,11 @@ static bool js_gfx_PipelineStateInfo_constructor(se::State& s)
         if (!args[7].isUndefined()) {
             ok &= seval_to_native_ptr(args[7], &arg7);
             cobj->renderPass = arg7;
+        }
+        cc::gfx::BindingLayout* arg8 = nullptr;
+        if (!args[8].isUndefined()) {
+            ok &= seval_to_native_ptr(args[8], &arg8);
+            cobj->bindingLayout = arg8;
         }
 
         if(!ok) {
@@ -10957,6 +10996,7 @@ bool js_register_gfx_PipelineStateInfo(se::Object* obj)
     cls->defineProperty("blendState", _SE(js_gfx_PipelineStateInfo_get_blendState), _SE(js_gfx_PipelineStateInfo_set_blendState));
     cls->defineProperty("dynamicStates", _SE(js_gfx_PipelineStateInfo_get_dynamicStates), _SE(js_gfx_PipelineStateInfo_set_dynamicStates));
     cls->defineProperty("renderPass", _SE(js_gfx_PipelineStateInfo_get_renderPass), _SE(js_gfx_PipelineStateInfo_set_renderPass));
+    cls->defineProperty("bindingLayout", _SE(js_gfx_PipelineStateInfo_get_bindingLayout), _SE(js_gfx_PipelineStateInfo_set_bindingLayout));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_PipelineStateInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::PipelineStateInfo>(cls);
