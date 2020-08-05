@@ -30,7 +30,7 @@
 
 import { SpriteFrame } from '../../core/assets';
 import { Component } from '../../core/components';
-import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property, tooltip } from '../../core/data/class-decorator';
 import { Color, Size } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { Node } from '../../core/scene-graph';
@@ -87,8 +87,8 @@ export class PageViewIndicatorComponent extends Component {
      */
     @property({
         type: SpriteFrame,
-        tooltip:'每个页面标记显示的图片',
     })
+    @tooltip('每个页面标记显示的图片')
     get spriteFrame () {
         return this._spriteFrame;
     }
@@ -111,8 +111,8 @@ export class PageViewIndicatorComponent extends Component {
      */
     @property({
         type: Direction,
-        tooltip:'页面标记摆放方向',
     })
+    @tooltip('页面标记摆放方向')
     get direction () {
         return this._direction;
     }
@@ -133,8 +133,8 @@ export class PageViewIndicatorComponent extends Component {
      */
     @property({
         type: Size,
-        tooltip:'每个页面标记的大小',
     })
+    @tooltip('每个页面标记的大小')
     get cellSize () {
         return this._cellSize;
     }
@@ -155,9 +155,7 @@ export class PageViewIndicatorComponent extends Component {
      * @zh
      * 每个页面标记之间的边距
      */
-    @property({
-        tooltip:'每个页面标记之间的边距',
-    })
+    @tooltip('每个页面标记之间的边距')
     public spacing = 0;
     @property
     protected _spriteFrame: SpriteFrame | null = null;

@@ -29,7 +29,7 @@
  */
 
 import { Component, EventHandler, UITransformComponent } from '../../core/components';
-import { ccclass, help, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property, requireComponent, tooltip } from '../../core/data/class-decorator';
 import { EventTouch, SystemEventType, Touch } from '../../core/platform';
 import { Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
@@ -90,8 +90,8 @@ export class SliderComponent extends Component {
      */
     @property({
         type: SpriteComponent,
-        tooltip:'滑块按钮部件',
     })
+    @tooltip('滑块按钮部件')
     get handle () {
         return this._handle;
     }
@@ -116,8 +116,8 @@ export class SliderComponent extends Component {
      */
     @property({
         type: Direction,
-        tooltip:'滑动方向',
     })
+    @tooltip('滑动方向')
     get direction () {
         return this._direction;
     }
@@ -141,8 +141,8 @@ export class SliderComponent extends Component {
     @property({
         slide: true,
         range: [0, 1, 0.01],
-        tooltip:'当前进度值，该数值的区间是 0 - 1 之间。',
     })
+    @tooltip('当前进度值，该数值的区间是 0 - 1 之间。')
     get progress () {
         return this._progress;
     }
@@ -167,8 +167,8 @@ export class SliderComponent extends Component {
      */
     @property({
         type: EventHandler,
-        tooltip:'滑动器组件事件回调函数',
     })
+    @tooltip('滑动器组件事件回调函数')
     public slideEvents: EventHandler[] = [];
     @property
     private _handle: SpriteComponent | null = null;

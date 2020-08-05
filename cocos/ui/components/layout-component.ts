@@ -29,7 +29,7 @@
  */
 
 import { Component } from '../../core/components/component';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent, tooltip } from '../../core/data/class-decorator';
 import { Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
@@ -200,8 +200,8 @@ export class LayoutComponent extends Component {
      */
     @property({
         type: Type,
-        tooltip:'自动布局模式，包括：\n 1. NONE，不会对子节点进行自动布局 \n 2. HORIZONTAL，横向自动排布子物体 \n 3. VERTICAL，垂直自动排布子物体\n 4. GRID, 采用网格方式对子物体自动进行布局',
     })
+    @tooltip('自动布局模式，包括：\n 1. NONE，不会对子节点进行自动布局 \n 2. HORIZONTAL，横向自动排布子物体 \n 3. VERTICAL，垂直自动排布子物体\n 4. GRID, 采用网格方式对子物体自动进行布局')
     get type () {
         return this._N$layoutType;
     }
@@ -228,8 +228,8 @@ export class LayoutComponent extends Component {
      */
     @property({
         type: ResizeMode,
-        tooltip:'缩放模式，包括：\n 1. NONE，不会对子节点和容器进行大小缩放 \n 2. CONTAINER, 对容器的大小进行缩放 \n 3. CHILDREN, 对子节点的大小进行缩放',
     })
+    @tooltip('缩放模式，包括：\n 1. NONE，不会对子节点和容器进行大小缩放 \n 2. CONTAINER, 对容器的大小进行缩放 \n 3. CHILDREN, 对子节点的大小进行缩放')
     get resizeMode () {
         return this._resizeMode;
     }
@@ -255,9 +255,7 @@ export class LayoutComponent extends Component {
      * @zh
      * 每个格子的大小，只有布局类型为 GRID 的时候才有效。
      */
-    @property({
-        tooltip: '每个格子的大小，只有布局类型为 GRID 的时候才有效',
-    })
+    @tooltip('每个格子的大小，只有布局类型为 GRID 的时候才有效')
     // @constget
     get cellSize (): Readonly<Size> {
         return this._cellSize;
@@ -282,8 +280,8 @@ export class LayoutComponent extends Component {
      */
     @property({
         type: AxisDirection,
-        tooltip: '起始轴方向类型，可进行水平和垂直布局排列，只有布局类型为 GRID 的时候才有效',
     })
+    @tooltip('起始轴方向类型，可进行水平和垂直布局排列，只有布局类型为 GRID 的时候才有效')
     get startAxis () {
         return this._startAxis;
     }
@@ -310,9 +308,7 @@ export class LayoutComponent extends Component {
      * @zh
      * 容器内左边距，只会在一个布局方向上生效。
      */
-    @property({
-        tooltip: '容器内左边距，只会在一个布局方向上生效',
-    })
+    @tooltip('容器内左边距，只会在一个布局方向上生效')
     get paddingLeft () {
         return this._paddingLeft;
     }
@@ -332,9 +328,7 @@ export class LayoutComponent extends Component {
      * @zh
      * 容器内右边距，只会在一个布局方向上生效。
      */
-    @property({
-        tooltip: '容器内右边距，只会在一个布局方向上生效',
-    })
+    @tooltip('容器内右边距，只会在一个布局方向上生效')
     get paddingRight () {
         return this._paddingRight;
     }
@@ -354,9 +348,7 @@ export class LayoutComponent extends Component {
      * @zh
      * 容器内上边距，只会在一个布局方向上生效。
      */
-    @property({
-        tooltip: '容器内上边距，只会在一个布局方向上生效',
-    })
+    @tooltip('容器内上边距，只会在一个布局方向上生效')
     get paddingTop () {
         return this._paddingTop;
     }
@@ -376,9 +368,7 @@ export class LayoutComponent extends Component {
      * @zh
      * 容器内下边距，只会在一个布局方向上生效。
      */
-    @property({
-        tooltip: '容器内下边距，只会在一个布局方向上生效',
-    })
+    @tooltip('容器内下边距，只会在一个布局方向上生效')
     get paddingBottom () {
         return this._paddingBottom;
     }
@@ -398,9 +388,7 @@ export class LayoutComponent extends Component {
      * @zh
      * 子节点之间的水平间距。
      */
-    @property({
-        tooltip: '子节点之间的水平间距',
-    })
+    @tooltip('子节点之间的水平间距')
     get spacingX () {
         return this._spacingX;
     }
@@ -421,9 +409,7 @@ export class LayoutComponent extends Component {
      * @zh
      * 子节点之间的垂直间距。
      */
-    @property({
-        tooltip: '子节点之间的垂直间距',
-    })
+    @tooltip('子节点之间的垂直间距')
     get spacingY () {
         return this._spacingY;
     }
@@ -447,8 +433,8 @@ export class LayoutComponent extends Component {
      */
     @property({
         type: VerticalDirection,
-        tooltip: '垂直排列子节点的方向',
     })
+    @tooltip('垂直排列子节点的方向')
     get verticalDirection () {
         return this._verticalDirection;
     }
@@ -472,8 +458,8 @@ export class LayoutComponent extends Component {
      */
     @property({
         type: HorizontalDirection,
-        tooltip: '水平排列子节点的方向',
     })
+    @tooltip('水平排列子节点的方向')
     get horizontalDirection () {
         return this._horizontalDirection;
     }
@@ -494,9 +480,7 @@ export class LayoutComponent extends Component {
      * @zh
      * 容器内边距，该属性会在四个布局方向上生效。
      */
-    @property({
-        tooltip: '容器内边距，该属性会在四个布局方向上生效',
-    })
+    @tooltip('容器内边距，该属性会在四个布局方向上生效')
     get padding () {
         return this._paddingLeft;
     }
@@ -515,9 +499,7 @@ export class LayoutComponent extends Component {
      * @zh
      * 子节点缩放比例是否影响布局。
      */
-    @property({
-        tooltip: '子节点缩放比例是否影响布局',
-    })
+    @tooltip('子节点缩放比例是否影响布局')
     get affectedByScale () {
         return this._affectedByScale;
     }

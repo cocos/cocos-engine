@@ -8,6 +8,7 @@ import {
     executeInEditMode,
     menu,
     property,
+    tooltip,
 } from '../../../../core/data/class-decorator';
 import { Vec3 } from '../../../../core/math';
 import { ColliderComponent } from './collider-component';
@@ -37,8 +38,8 @@ export class PlaneColliderComponent extends ColliderComponent {
      */
     @property({
         type: Vec3,
-        tooltip: '平面的法线'
     })
+    @tooltip('平面的法线')
     public get normal () {
         return this._normal;
     }

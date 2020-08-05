@@ -28,7 +28,7 @@
  */
 
 import { RenderableComponent } from '../../../core/3d/framework/renderable-component';
-import { ccclass, property } from '../../../core/data/class-decorator';
+import { ccclass, property, tooltip } from '../../../core/data/class-decorator';
 import { Color } from '../../../core/math';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { ccenum } from '../../../core/value-types/enum';
@@ -134,8 +134,8 @@ export class UIRenderComponent extends UIComponent {
     @property({
         type: GFXBlendFactor,
         displayOrder: 0,
-        tooltip: '原图混合模式',
     })
+    @tooltip('原图混合模式')
     get srcBlendFactor () {
         return this._srcBlendFactor;
     }
@@ -165,8 +165,8 @@ export class UIRenderComponent extends UIComponent {
     @property({
         type: GFXBlendFactor,
         displayOrder: 1,
-        tooltip: '目标混合模式',
     })
+    @tooltip('目标混合模式')
     get dstBlendFactor () {
         return this._dstBlendFactor;
     }
@@ -191,8 +191,8 @@ export class UIRenderComponent extends UIComponent {
      */
     @property({
         displayOrder: 2,
-        tooltip: '渲染颜色',
     })
+    @tooltip('渲染颜色')
     // @constget
     get color (): Readonly<Color> {
         return this._color;
@@ -217,9 +217,9 @@ export class UIRenderComponent extends UIComponent {
     @property({
         type: Material,
         displayOrder: 3,
-        tooltip: '源材质',
         visible: false,
     })
+    @tooltip('源材质')
     get sharedMaterial () {
         return this._sharedMaterial;
     }

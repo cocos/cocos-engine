@@ -26,7 +26,7 @@
  * @category component/light
  */
 
-import { ccclass, help, executeInEditMode, menu, property } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, property, tooltip } from '../../data/class-decorator';
 import { LightType, nt2lm } from '../../renderer/scene/light';
 import { SphereLight } from '../../renderer/scene/sphere-light';
 import { LightComponent, PhotometricTerm } from './light-component';
@@ -55,8 +55,8 @@ export class SphereLightComponent extends LightComponent {
      */
     @property({
         unit: 'lm',
-        tooltip: 'i18n:lights.luminous_power',
     })
+    @tooltip('i18n:lights.luminous_power')
     get luminousPower () {
         return this._luminance * nt2lm(this._size);
     }
@@ -71,8 +71,8 @@ export class SphereLightComponent extends LightComponent {
      */
     @property({
         unit: 'cd/m²',
-        tooltip: 'i18n:lights.luminance',
     })
+    @tooltip('i18n:lights.luminance')
     get luminance () {
         return this._luminance;
     }
@@ -87,8 +87,8 @@ export class SphereLightComponent extends LightComponent {
      */
     @property({
         type: PhotometricTerm,
-        tooltip: 'i18n:lights.term',
     })
+    @tooltip('i18n:lights.term')
     get term () {
         return this._term;
     }
@@ -102,9 +102,7 @@ export class SphereLightComponent extends LightComponent {
      * @zh
      * 光源大小。
      */
-    @property({
-        tooltip: 'i18n:lights.size',
-    })
+    @tooltip('i18n:lights.size')
     get size () {
         return this._size;
     }
@@ -119,9 +117,7 @@ export class SphereLightComponent extends LightComponent {
      * @zh
      * 光源范围。
      */
-    @property({
-        tooltip: 'i18n:lights.range',
-    })
+    @tooltip('i18n:lights.range')
     get range () {
         return this._range;
     }

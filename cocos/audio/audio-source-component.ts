@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../core/components/component';
-import { ccclass, help, menu, property } from '../core/data/class-decorator';
+import { ccclass, help, menu, property, tooltip } from '../core/data/class-decorator';
 import { clamp } from '../core/math';
 import { AudioClip } from './assets/clip';
 
@@ -62,8 +62,8 @@ export class AudioSourceComponent extends Component {
      */
     @property({
         type: AudioClip,
-        tooltip: 'i18n:audio.clip',
     })
+    @tooltip('i18n:audio.clip')
     set clip (val) {
         this._clip = val;
         this._syncStates();
@@ -78,9 +78,7 @@ export class AudioSourceComponent extends Component {
      * @zh
      * 是否循环播放音频？
      */
-    @property({
-        tooltip: 'i18n:audio.loop',
-    })
+    @tooltip('i18n:audio.loop')
     set loop (val) {
         this._loop = val;
         if (this._clip) { this._clip.setLoop(val); }
@@ -100,9 +98,7 @@ export class AudioSourceComponent extends Component {
      * 请注意，根据最新的自动播放策略，现在对大多数平台，自动播放只会在第一次收到用户输入后生效。 <br>
      * 参考：https://www.chromium.org/audio-video/autoplay
      */
-    @property({
-        tooltip: 'i18n:audio.playOnAwake',
-    })
+    @tooltip('i18n:audio.playOnAwake')
     set playOnAwake (val) {
         this._playOnAwake = val;
     }
@@ -120,8 +116,8 @@ export class AudioSourceComponent extends Component {
      */
     @property({
         range: [0.0, 1.0],
-        tooltip: 'i18n:audio.volume',
     })
+    @tooltip('i18n:audio.volume')
     set volume (val) {
         if (isNaN(val)) { console.warn('illegal audio volume!'); return; }
         val = clamp(val, 0, 1);

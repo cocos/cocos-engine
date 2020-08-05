@@ -8,6 +8,7 @@ import {
     executeInEditMode,
     menu,
     property,
+    tooltip,
 } from '../../../../core/data/class-decorator';
 import { Vec3 } from '../../../../core/math';
 import { ColliderComponent } from './collider-component';
@@ -36,8 +37,8 @@ export class BoxColliderComponent extends ColliderComponent {
      */
     @property({
         type: Vec3,
-        tooltip: '盒的大小，即长、宽、高'
     })
+    @tooltip('盒的大小，即长、宽、高')
     public get size () {
         return this._size;
     }
