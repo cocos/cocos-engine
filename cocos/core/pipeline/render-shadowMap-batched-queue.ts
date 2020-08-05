@@ -26,8 +26,6 @@ export class RenderShadowMapBatchedQueue {
 
     // psoCI cache
     private _psoCICache: Map<SubModel, number> = new Map();
-    // psoCI + subModel cache
-    private _psoCISubModelCache: Map<SubModel, number> = new Map();
 
     private _phaseID = getPhaseID('shadow-add');
 
@@ -51,19 +49,16 @@ export class RenderShadowMapBatchedQueue {
 
     public add (pass: Pass, renderObj: IRenderObject, subModelIdx: number) {
         if (pass.phase === this._phaseID) {
-            const subModelPatchMask = renderObj.model.subModelPatchMask;
             const subModel = renderObj.model.subModels[subModelIdx];
             const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
             const fullPatches = modelPatches ? forwardShadowMapPatches.concat(modelPatches) : forwardShadowMapPatches;
 
             let psoCI: number;
-            const patchMask = subModelPatchMask;
-            if (this._psoCICache.has(subModel) && this._psoCISubModelCache.get(subModel) === patchMask) {
+            if (this._psoCICache.has(subModel)) {
                 psoCI = this._psoCICache.get(subModel)!;
             } else {
                 psoCI = pass.createPipelineStateCI(fullPatches)!;
                 this._psoCICache.set(subModel, psoCI);
-                this._psoCISubModelCache.set(subModel, patchMask);
                 renderObj.model.updateLocalBindings(psoCI, subModelIdx);
                 const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT));
                 bindingLayout.bindBuffer(UBOPCFShadow.BLOCK.binding, this._shadowMapBuffer!);
