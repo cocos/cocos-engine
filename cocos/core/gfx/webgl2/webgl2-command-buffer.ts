@@ -1,4 +1,4 @@
-import { GFXDescriptorSets } from '../descriptor-sets';
+import { GFXDescriptorSet } from '../descriptor-set';
 import { GFXBuffer, GFXBufferSource } from '../buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import {
@@ -15,7 +15,7 @@ import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
 import { GFXPipelineState } from '../pipeline-state';
 import { GFXTexture } from '../texture';
-import { WebGL2GFXDescriptorSets } from './webgl2-descriptor-sets';
+import { WebGL2GFXDescriptorSet } from './webgl2-descriptor-set';
 import { WebGL2GFXBuffer } from './webgl2-buffer';
 import { WebGL2GFXCommandAllocator } from './webgl2-command-allocator';
 import {
@@ -29,7 +29,7 @@ import {
 } from './webgl2-commands';
 import { WebGL2GFXDevice } from './webgl2-device';
 import { WebGL2GFXFramebuffer } from './webgl2-framebuffer';
-import { IWebGL2GPUInputAssembler, WebGL2GPUDescriptorSets, WebGL2GPUPipelineState } from './webgl2-gpu-objects';
+import { IWebGL2GPUInputAssembler, WebGL2GPUDescriptorSet, WebGL2GPUPipelineState } from './webgl2-gpu-objects';
 import { WebGL2GFXInputAssembler } from './webgl2-input-assembler';
 import { WebGL2GFXPipelineState } from './webgl2-pipeline-state';
 import { WebGL2GFXTexture } from './webgl2-texture';
@@ -64,7 +64,7 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
     protected _webGLAllocator: WebGL2GFXCommandAllocator | null = null;
     protected _isInRenderPass: boolean = false;
     protected _curGPUPipelineState: WebGL2GPUPipelineState | null = null;
-    protected _curGPUDescriptorSets: WebGL2GPUDescriptorSets | null = null;
+    protected _curGPUDescriptorSets: WebGL2GPUDescriptorSet[] | null = null;
     protected _curGPUInputAssembler: IWebGL2GPUInputAssembler | null = null;
     protected _curViewport: IGFXViewport | null = null;
     protected _curScissor: IGFXRect | null = null;
@@ -157,8 +157,8 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public bindDescriptorSets (descriptorSets: GFXDescriptorSets) {
-        const gpuDescriptorSets = (descriptorSets as WebGL2GFXDescriptorSets).gpuDescriptorSets;
+    public bindDescriptorSets (descriptorSets: GFXDescriptorSet[]) {
+        const gpuDescriptorSets = (descriptorSets as WebGL2GFXDescriptorSet).gpuDescriptorSet;
         this._curGPUDescriptorSets = gpuDescriptorSets;
         this._isStateInvalied = true;
     }

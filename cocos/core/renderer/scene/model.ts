@@ -20,7 +20,7 @@ import { Pass, IMacroPatch } from '../core/pass';
 import { legacyCC } from '../../global-exports';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { BatchingSchemes } from '../core/pass';
-import { DescriptorSetsPool, ShaderPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
+import { DescriptorSetPool, ShaderPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
 
 const m4_1 = new Mat4();
 
@@ -208,10 +208,10 @@ export class Model {
             const sampler = samplerLib.getSampler(this._device, texture.mipmaps.length > 1 ? lightmapSamplerWithMipHash : lightmapSamplerHash);
             for (const sub of this._subModels) {
                 for (let i = 0; i < sub.psoInfos.length; i++) {
-                    const descriptorSets = DescriptorSetsPool.get(PSOCIPool.get(sub.psoInfos[i], PSOCIView.DESCRIPTOR_SETS));
-                    descriptorSets.bindTexture(UniformLightingMapSampler.binding, gfxTexture);
-                    descriptorSets.bindSampler(UniformLightingMapSampler.binding, sampler);
-                    descriptorSets.update();
+                    const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(sub.psoInfos[i], PSOCIView.DESCRIPTOR_SETS));
+                    descriptorSet.bindTexture(UniformLightingMapSampler.binding, gfxTexture);
+                    descriptorSet.bindSampler(UniformLightingMapSampler.binding, sampler);
+                    descriptorSet.update();
                 }
             }
         }
@@ -299,8 +299,8 @@ export class Model {
 
     public updateLocalBindings (psoci: number, submodelIdx: number) {
         if (this._localBuffer) {
-            const descriptorSets = DescriptorSetsPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SETS));
-            descriptorSets.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer);
+            const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SETS));
+            descriptorSet.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer);
         }
     }
 

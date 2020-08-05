@@ -1,7 +1,7 @@
-import { ALIPAY, RUNTIME_BASED, DEBUG } from 'internal:constants';
+import { ALIPAY, RUNTIME_BASED } from 'internal:constants';
 import { macro } from '../../platform';
 import { sys } from '../../platform/sys';
-import { GFXDescriptorSets, IGFXDescriptorSetsInfo } from '../descriptor-sets';
+import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../descriptor-set';
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
@@ -14,7 +14,7 @@ import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
 import { GFXSampler, IGFXSamplerInfo } from '../sampler';
 import { GFXShader, IGFXShaderInfo } from '../shader';
 import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from '../texture';
-import { WebGLGFXDescriptorSets } from './webgl-descriptor-sets';
+import { WebGLGFXDescriptorSet } from './webgl-descriptor-set';
 import { WebGLGFXBuffer } from './webgl-buffer';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
 import { WebGLGFXCommandBuffer } from './webgl-command-buffer';
@@ -54,10 +54,6 @@ export class WebGLGFXDevice extends GFXDevice {
 
     get useVAO () {
         return this._useVAO;
-    }
-
-    get perSetBindingOffsets () {
-        return this._perSetBindingOffsets;
     }
 
     get EXT_texture_filter_anisotropic () {
@@ -157,7 +153,6 @@ export class WebGLGFXDevice extends GFXDevice {
     private _isAntialias: boolean = true;
     private _isPremultipliedAlpha: boolean = true;
     private _useVAO: boolean = false;
-    private _perSetBindingOffsets: number[] = [0];
     private _extensions: string[] | null = null;
     private _EXT_texture_filter_anisotropic: EXT_texture_filter_anisotropic | null = null;
     private _EXT_frag_depth: EXT_frag_depth | null = null;
@@ -253,33 +248,6 @@ export class WebGLGFXDevice extends GFXDevice {
         this._maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
         this._depthBits = gl.getParameter(gl.DEPTH_BITS);
         this._stencilBits = gl.getParameter(gl.STENCIL_BITS);
-
-        if (info.maxPerSetBufferCount && info.maxPerSetSamplerCount) {
-            const offsets = this._perSetBindingOffsets;
-            for (let i = 0; i < info.maxPerSetBufferCount.length - 1; i++) {
-                const count = info.maxPerSetBufferCount[i] + info.maxPerSetSamplerCount[i];
-                if (count < 0) {
-                    let remainingCount = 0;
-                    for (let j = i + 1; j < info.maxPerSetBufferCount.length; j++) {
-                        // not counting samplers for now, this assumes there is at most one set after the unlimited set
-                        remainingCount += info.maxPerSetBufferCount[j];
-                    }
-                    offsets.push(this._maxUniformBufferBindings - remainingCount);
-                } else {
-                    offsets.push(offsets[offsets.length - 1] + count);
-                }
-            }
-            if (DEBUG) {
-                let unlimitSets = 0; let lastOffset = 0;
-                for (let i = 0; i < info.maxPerSetBufferCount.length; i++) {
-                    const offset = offsets[i + 1];
-                    if (lastOffset >= offset) { console.error('not enough available bindings!'); }
-                    if (info.maxPerSetBufferCount[i] < 0) { unlimitSets++; }
-                    lastOffset = offset;
-                }
-                if (unlimitSets > 1) { console.error('more than one unlimited descriptor set specified!'); }
-            }
-        }
 
         if (ALIPAY) {
             this._depthBits = 24;
@@ -534,7 +502,6 @@ export class WebGLGFXDevice extends GFXDevice {
             this._queue = null;
         }
 
-        this._perSetBindingOffsets.length = 1;
         this._extensions = null;
 
         this._webGLRC = null;
@@ -588,10 +555,10 @@ export class WebGLGFXDevice extends GFXDevice {
         return sampler;
     }
 
-    public createDescriptorSets (info: IGFXDescriptorSetsInfo): GFXDescriptorSets {
-        const descriptorSets = new WebGLGFXDescriptorSets(this);
-        descriptorSets.initialize(info);
-        return descriptorSets;
+    public createDescriptorSet (info: IGFXDescriptorSetInfo): GFXDescriptorSet {
+        const descriptorSet = new WebGLGFXDescriptorSet(this);
+        descriptorSet.initialize(info);
+        return descriptorSet;
     }
 
     public createShader (info: IGFXShaderInfo): GFXShader {

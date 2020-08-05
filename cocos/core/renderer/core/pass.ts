@@ -31,7 +31,7 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../3d/builtin/init';
 import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { TextureBase } from '../../assets/texture-base';
-import { GFXDescriptorSets, IGFXDescriptorSetsInfo } from '../../gfx/descriptor-sets';
+import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../../gfx/descriptor-set';
 import { GFXBuffer, IGFXBufferInfo } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode, GFXType, GFXDescriptorType, GFXDynamicStateFlags } from '../../gfx/define';
 import { GFXFeature, GFXDevice } from '../../gfx/device';
@@ -46,7 +46,7 @@ import { customizeType, getBindingFromHandle, getDescriptorTypeFromHandle,
     getDefaultFromType, getOffsetFromHandle, getTypeFromHandle, IDefineMap, MaterialProperty, type2reader, type2writer } from './pass-utils';
 import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
-import { PassInfoView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool, PassInfoPool, DescriptorSetsPool, ShaderPool, PSOCIPool, PSOCIView } from './memory-pools';
+import { PassInfoView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool, PassInfoPool, DescriptorSetPool, ShaderPool, PSOCIPool, PSOCIView } from './memory-pools';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -89,7 +89,7 @@ const _bfInfo: IGFXBufferInfo = {
     usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
 };
 
-const _blInfo: IGFXDescriptorSetsInfo = {
+const _blInfo: IGFXDescriptorSetInfo = {
     shader: null!,
 };
 
@@ -172,7 +172,7 @@ export class Pass {
     // internal resources
     protected _buffers: Record<number, GFXBuffer> = {};
     protected _samplers: Record<number, GFXSampler> = {};
-    protected _resources: GFXDescriptorSets[] = [];
+    protected _resources: GFXDescriptorSet[] = [];
     protected _textures: Record<number, GFXTexture> = {};
     // internal data
     protected _passIndex = 0;
@@ -514,16 +514,16 @@ export class Pass {
         const shaderHandle = res || this._defaultShaderHandle;
         _blInfo.shader = ShaderPool.get(shaderHandle);
         // bind resources
-        const descriptorSetsHandle = DescriptorSetsPool.alloc(this._device, _blInfo);
-        const descriptorSets = DescriptorSetsPool.get(descriptorSetsHandle);
+        const descriptorSetHandle = DescriptorSetPool.alloc(this._device, _blInfo);
+        const descriptorSet = DescriptorSetPool.get(descriptorSetHandle);
         for (const b in this._buffers) {
-            descriptorSets.bindBuffer(parseInt(b), this._buffers[b]);
+            descriptorSet.bindBuffer(parseInt(b), this._buffers[b]);
         }
         for (const s in this._samplers) {
-            descriptorSets.bindSampler(parseInt(s), this._samplers[s]);
+            descriptorSet.bindSampler(parseInt(s), this._samplers[s]);
         }
         for (const t in this._textures) {
-            descriptorSets.bindTexture(parseInt(t), this._textures[t]);
+            descriptorSet.bindTexture(parseInt(t), this._textures[t]);
         }
         // bind pipeline builtins
         const source = this._root.pipeline.globalBindings;
@@ -531,18 +531,18 @@ export class Pass {
         for (const b of target.blocks) {
             const info = source.get(b.name);
             if (!info || info.type !== GFXDescriptorType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b.name}' not available!`); continue; }
-            descriptorSets.bindBuffer(info.blockInfo!.binding, info.buffer!);
+            descriptorSet.bindBuffer(info.blockInfo!.binding, info.buffer!);
         }
         for (const s of target.samplers) {
             const info = source.get(s.name);
             if (!info || info.type !== GFXDescriptorType.SAMPLER) { console.warn(`builtin texture '${s.name}' not available!`); continue; }
-            if (info.sampler) { descriptorSets.bindSampler(info.samplerInfo!.binding, info.sampler); }
-            descriptorSets.bindTexture(info.samplerInfo!.binding, info.texture!);
+            if (info.sampler) { descriptorSet.bindSampler(info.samplerInfo!.binding, info.sampler); }
+            descriptorSet.bindTexture(info.samplerInfo!.binding, info.texture!);
         }
-        this._resources.push(descriptorSets);
+        this._resources.push(descriptorSet);
         const psociHandle = PSOCIPool.alloc();
         PSOCIPool.set(psociHandle, PSOCIView.PASS_INFO, this._infoHandle);
-        PSOCIPool.set(psociHandle, PSOCIView.DESCRIPTOR_SETS, descriptorSetsHandle);
+        PSOCIPool.set(psociHandle, PSOCIView.DESCRIPTOR_SETS, descriptorSetHandle);
         PSOCIPool.set(psociHandle, PSOCIView.SHADER, shaderHandle);
         return psociHandle;
     }
@@ -555,11 +555,11 @@ export class Pass {
      * @param psoci the PSO create info created by this pass
      */
     public destroyPipelineStateCI (psociHandle: number) {
-        const descriptorSetsHandle = PSOCIPool.get(psociHandle, PSOCIView.DESCRIPTOR_SETS);
-        const descriptorSets = DescriptorSetsPool.get(descriptorSetsHandle);
+        const descriptorSetHandle = PSOCIPool.get(psociHandle, PSOCIView.DESCRIPTOR_SETS);
+        const descriptorSet = DescriptorSetPool.get(descriptorSetHandle);
         for (let i = 0; i < this._resources.length; i++) {
-            if (this._resources[i] === descriptorSets) {
-                DescriptorSetsPool.free(descriptorSetsHandle);
+            if (this._resources[i] === descriptorSet) {
+                DescriptorSetPool.free(descriptorSetHandle);
                 this._resources.splice(i, 1);
                 break;
             }

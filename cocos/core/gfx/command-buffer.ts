@@ -2,7 +2,7 @@
  * @category gfx
  */
 
-import { GFXDescriptorSets } from './descriptor-sets';
+import { GFXDescriptorSet } from './descriptor-set';
 import { GFXBuffer } from './buffer';
 import {
     GFXBufferTextureCopy,
@@ -164,7 +164,7 @@ export abstract class GFXCommandBuffer extends GFXObject {
      * @zh 绑定 GFX 描述符集组。
      * @param descriptorSets The descriptor sets to be bound.
      */
-    public abstract bindDescriptorSets (descriptorSets: GFXDescriptorSets): void;
+    public abstract bindDescriptorSets (descriptorSets: GFXDescriptorSet[]): void;
 
     /**
      * @en Bind input assembler.

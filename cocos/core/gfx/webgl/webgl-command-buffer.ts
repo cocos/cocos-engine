@@ -1,16 +1,16 @@
-import { GFXDescriptorSets } from '../descriptor-sets';
+import { GFXDescriptorSet } from '../descriptor-set';
 import { GFXBuffer, GFXBufferSource } from '../buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
 import { GFXPipelineState } from '../pipeline-state';
 import { GFXTexture } from '../texture';
-import { WebGLGFXDescriptorSets } from './webgl-descriptor-sets';
+import { WebGLGFXDescriptorSet } from './webgl-descriptor-set';
 import { WebGLGFXBuffer } from './webgl-buffer';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGFXFramebuffer } from './webgl-framebuffer';
-import { IWebGLGPUInputAssembler, WebGLGPUDescriptorSets, WebGLGPUPipelineState } from './webgl-gpu-objects';
+import { IWebGLGPUInputAssembler, WebGLGPUDescriptorSet, WebGLGPUPipelineState } from './webgl-gpu-objects';
 import { WebGLGFXInputAssembler } from './webgl-input-assembler';
 import { WebGLGFXPipelineState } from './webgl-pipeline-state';
 import { WebGLGFXTexture } from './webgl-texture';
@@ -49,7 +49,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
     protected _webGLAllocator: WebGLGFXCommandAllocator | null = null;
     protected _isInRenderPass: boolean = false;
     protected _curGPUPipelineState: WebGLGPUPipelineState | null = null;
-    protected _curGPUDescriptorSets: WebGLGPUDescriptorSets | null = null;
+    protected _curGPUDescriptorSets: WebGLGPUDescriptorSet[] | null = null;
     protected _curGPUInputAssembler: IWebGLGPUInputAssembler | null = null;
     protected _curViewport: IGFXViewport | null = null;
     protected _curScissor: IGFXRect | null = null;
@@ -143,8 +143,8 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public bindDescriptorSets (descriptorSets: GFXDescriptorSets) {
-        const gpuDescriptorSets = (descriptorSets as WebGLGFXDescriptorSets).gpuDescriptorSets;
+    public bindDescriptorSets (descriptorSets: GFXDescriptorSet[]) {
+        const gpuDescriptorSets = (descriptorSets as WebGLGFXDescriptorSet).gpuDescriptorSet;
         this._curGPUDescriptorSets = gpuDescriptorSets;
         this._isStateInvalied = true;
     }

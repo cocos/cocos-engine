@@ -9,7 +9,7 @@ import { PipelineStateManager } from './pipeline-state-manager';
 import { IRenderObject, UBOForwardLight } from './define';
 import { LightType, Light } from '../renderer/scene/light';
 import { IMacroPatch, Pass } from '../renderer/core/pass';
-import { DescriptorSetsPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
+import { DescriptorSetPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
 
 const spherePatches: IMacroPatch[] = [
     { name: 'CC_FORWARD_ADD', value: true },
@@ -92,7 +92,7 @@ export class RenderInstancedQueue {
                     const pso = PipelineStateManager.getOrCreatePipelineState(device, psoci, renderPass, instance.ia);
                     if (lastPSO !== pso) {
                         cmdBuff.bindPipelineState(pso);
-                        cmdBuff.bindDescriptorSets(DescriptorSetsPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SETS)));
+                        cmdBuff.bindDescriptorSets(DescriptorSetPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SETS)));
                         lastPSO = pso;
                     }
                     cmdBuff.bindInputAssembler(instance.ia);

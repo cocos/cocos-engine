@@ -38,7 +38,7 @@ import {
     IWebGL2GPUInputAssembler,
     IWebGL2GPUUniform,
     WebGL2Attrib,
-    WebGL2GPUDescriptorSets,
+    WebGL2GPUDescriptorSet,
     WebGL2GPUBuffer,
     WebGL2GPUFramebuffer,
     WebGL2GPUInput,
@@ -683,7 +683,7 @@ export class WebGL2CmdBeginRenderPass extends WebGL2CmdObject {
 export class WebGL2CmdBindStates extends WebGL2CmdObject {
 
     public gpuPipelineState: WebGL2GPUPipelineState | null = null;
-    public gpuDescriptorSets: WebGL2GPUDescriptorSets | null = null;
+    public gpuDescriptorSets: WebGL2GPUDescriptorSet[] | null = null;
     public gpuInputAssembler: IWebGL2GPUInputAssembler | null = null;
     public viewport: IGFXViewport | null = null;
     public scissor: IGFXRect | null = null;
@@ -1647,7 +1647,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
             for (let k = 0; k < gpuShader.blocks.length; k++) {
                 const block = gpuShader.blocks[k];
                 if (block.name === blockName) {
-                    blockBinding = block.binding;
+                    blockBinding = block.gpuBinding;
                     break;
                 }
             }
@@ -1721,7 +1721,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
         for (let i = 0; i < gpuShader.samplers.length; ++i) {
             const sampler = gpuShader.samplers[i];
             gpuShader.glSamplers[i] = {
-                binding: sampler.binding,
+                binding: sampler.gpuBinding,
                 name: sampler.name,
                 type: sampler.type,
                 units: [],
@@ -2033,7 +2033,7 @@ export function WebGL2CmdFuncBeginRenderPass (
 export function WebGL2CmdFuncBindStates (
     device: WebGL2GFXDevice,
     gpuPipelineState: WebGL2GPUPipelineState | null,
-    gpuDescriptorSets: WebGL2GPUDescriptorSets | null,
+    gpuDescriptorSets: WebGL2GPUDescriptorSet[] | null,
     gpuInputAssembler: IWebGL2GPUInputAssembler | null,
     viewport: IGFXViewport | null,
     scissor: IGFXRect | null,
@@ -2295,75 +2295,77 @@ export function WebGL2CmdFuncBindStates (
     } // bind pso
 
     if (gpuDescriptorSets && gpuShader) {
-        const gpuDescriptors = gpuDescriptorSets.gpuDescriptors;
-        for (let j = 0; j < gpuDescriptors.length; j++) {
-            const gpuDescriptor = gpuDescriptors[j];
-            const binding = gpuDescriptor.binding;
+        for (let j = 0; j < gpuDescriptorSets.length; j++) {
+            const gpuDescriptors = gpuDescriptorSets[j].gpuDescriptors;
+            for (let k = 0; k < gpuDescriptors.length; k++) {
+                const gpuDescriptor = gpuDescriptors[k];
+                const binding = gpuDescriptor.binding;
 
-            switch (gpuDescriptor.type) {
-                case GFXDescriptorType.UNIFORM_BUFFER: {
+                switch (gpuDescriptor.type) {
+                    case GFXDescriptorType.UNIFORM_BUFFER: {
 
-                    if (gpuDescriptor.gpuBuffer && cache.glBindUBOs[binding] !== gpuDescriptor.gpuBuffer.glBuffer) {
-                        for (let k = 0; k < gpuShader.glBlocks.length; k++) {
-                            const glBlock = gpuShader.glBlocks[k];
-                            if (glBlock.binding === binding) {
-                                gl.bindBufferBase(gl.UNIFORM_BUFFER, binding, gpuDescriptor.gpuBuffer.glBuffer);
-                                // gl.bindBufferRange(gl.UNIFORM_BUFFER, binding, gpuBinding.gpuBuffer.glBuffer, 0, gpuBinding.gpuBuffer.size);
-                                cache.glBindUBOs[binding] = gpuDescriptor.gpuBuffer.glBuffer;
-                                cache.glUniformBuffer = gpuDescriptor.gpuBuffer.glBuffer;
-                            }
-                            break;
-                        }
-                    } // if
-                    break;
-                }
-                case GFXDescriptorType.SAMPLER: {
-                    if (!gpuDescriptor.gpuSampler) {
-                        error(`Sampler binding point ${binding} '${gpuDescriptor.name}' is not bounded`);
-                    } else {
-                        let glSampler: WebGL2GPUUniformSampler | null = null;
-
-                        for (let k = 0; k < gpuShader.glSamplers.length; k++) {
-                            const sampler = gpuShader.glSamplers[k];
-                            if (sampler.binding === binding) {
-                                glSampler = sampler;
+                        if (gpuDescriptor.gpuBuffer && cache.glBindUBOs[binding] !== gpuDescriptor.gpuBuffer.glBuffer) {
+                            for (let l = 0; l < gpuShader.glBlocks.length; l++) {
+                                const glBlock = gpuShader.glBlocks[l];
+                                if (glBlock.binding === binding) {
+                                    gl.bindBufferBase(gl.UNIFORM_BUFFER, binding, gpuDescriptor.gpuBuffer.glBuffer);
+                                    // gl.bindBufferRange(gl.UNIFORM_BUFFER, binding, gpuBinding.gpuBuffer.glBuffer, 0, gpuBinding.gpuBuffer.size);
+                                    cache.glBindUBOs[binding] = gpuDescriptor.gpuBuffer.glBuffer;
+                                    cache.glUniformBuffer = gpuDescriptor.gpuBuffer.glBuffer;
+                                }
                                 break;
                             }
-                        }
+                        } // if
+                        break;
+                    }
+                    case GFXDescriptorType.SAMPLER: {
+                        if (!gpuDescriptor.gpuSampler) {
+                            error(`Sampler binding point ${binding} '${gpuDescriptor.name}' is not bounded`);
+                        } else {
+                            let glSampler: WebGL2GPUUniformSampler | null = null;
 
-                        if (glSampler) {
-                            for (let k = 0; k < glSampler.units.length; k++) {
-                                const texUnit = glSampler.units[k];
-
-                                const glTexUnit = cache.glTexUnits[texUnit];
-
-                                if (gpuDescriptor.gpuTexture &&
-                                    gpuDescriptor.gpuTexture.size > 0) {
-
-                                    const gpuTexture = gpuDescriptor.gpuTexture;
-                                    if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                                        if (cache.texUnit !== texUnit) {
-                                            gl.activeTexture(gl.TEXTURE0 + texUnit);
-                                            cache.texUnit = texUnit;
-                                        }
-                                        if (gpuTexture.glTexture) {
-                                            gl.bindTexture(gpuTexture.glTarget, gpuTexture.glTexture);
-                                        } else {
-                                            gl.bindTexture(gpuTexture.glTarget, device.nullTex2D!.gpuTexture.glTexture);
-                                        }
-                                        glTexUnit.glTexture = gpuTexture.glTexture;
-                                    }
-
-                                    const gpuSampler = gpuDescriptor.gpuSampler;
-                                    if (cache.glSamplerUnits[texUnit] !== gpuSampler.glSampler) {
-                                        gl.bindSampler(texUnit, gpuSampler.glSampler);
-                                        cache.glSamplerUnits[texUnit] = gpuSampler.glSampler;
-                                    }
+                            for (let l = 0; l < gpuShader.glSamplers.length; l++) {
+                                const sampler = gpuShader.glSamplers[l];
+                                if (sampler.binding === binding) {
+                                    glSampler = sampler;
+                                    break;
                                 }
                             }
-                        } // if
+
+                            if (glSampler) {
+                                for (let l = 0; l < glSampler.units.length; l++) {
+                                    const texUnit = glSampler.units[l];
+
+                                    const glTexUnit = cache.glTexUnits[texUnit];
+
+                                    if (gpuDescriptor.gpuTexture &&
+                                        gpuDescriptor.gpuTexture.size > 0) {
+
+                                        const gpuTexture = gpuDescriptor.gpuTexture;
+                                        if (glTexUnit.glTexture !== gpuTexture.glTexture) {
+                                            if (cache.texUnit !== texUnit) {
+                                                gl.activeTexture(gl.TEXTURE0 + texUnit);
+                                                cache.texUnit = texUnit;
+                                            }
+                                            if (gpuTexture.glTexture) {
+                                                gl.bindTexture(gpuTexture.glTarget, gpuTexture.glTexture);
+                                            } else {
+                                                gl.bindTexture(gpuTexture.glTarget, device.nullTex2D!.gpuTexture.glTexture);
+                                            }
+                                            glTexUnit.glTexture = gpuTexture.glTexture;
+                                        }
+
+                                        const gpuSampler = gpuDescriptor.gpuSampler;
+                                        if (cache.glSamplerUnits[texUnit] !== gpuSampler.glSampler) {
+                                            gl.bindSampler(texUnit, gpuSampler.glSampler);
+                                            cache.glSamplerUnits[texUnit] = gpuSampler.glSampler;
+                                        }
+                                    }
+                                }
+                            } // if
+                        }
+                        break;
                     }
-                    break;
                 }
             }
         }
