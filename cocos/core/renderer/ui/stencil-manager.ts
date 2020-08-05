@@ -30,8 +30,6 @@ import { Material } from '../../assets/material';
 import { GFXComparisonFunc, GFXStencilOp } from '../../gfx/define';
 import { Pass } from '../core/pass';
 
-// import { GFXStencilOp } from '../../gfx/define';
-
 // Stage types
 export enum Stage {
     // Stencil disabled
@@ -128,27 +126,26 @@ export class StencilManager {
         const pass = mat.passes[0];
         if (this._changed(pass)){
             const state = this._stencilPattern;
-            this._defaultPipelineState.depthStencilState = {
-                stencilTestFront: state.stencilTest,
-                stencilFuncFront: state.func,
-                stencilReadMaskFront: state.stencilMask,
-                stencilWriteMaskFront: state.writeMask,
-                stencilFailOpFront: state.failOp,
-                stencilZFailOpFront: state.zFailOp,
-                stencilPassOpFront: state.passOp,
-                stencilRefFront: state.ref,
-                stencilTestBack: state.stencilTest,
-                stencilFuncBack: state.func,
-                stencilReadMaskBack: state.stencilMask,
-                stencilWriteMaskBack: state.writeMask,
-                stencilFailOpBack: state.failOp,
-                stencilZFailOpBack: state.zFailOp,
-                stencilPassOpBack: state.passOp,
-                stencilRefBack: state.ref,
-            };
-            this._defaultPipelineState.blendState = pass.blendState;
-            this._defaultPipelineState.rasterizerState = pass.rasterizerState;
-            mat.overridePipelineStates(this._defaultPipelineState);
+            mat.overridePipelineStates({
+                depthStencilState: {
+                    stencilTestFront: state.stencilTest,
+                    stencilFuncFront: state.func,
+                    stencilReadMaskFront: state.stencilMask,
+                    stencilWriteMaskFront: state.writeMask,
+                    stencilFailOpFront: state.failOp,
+                    stencilZFailOpFront: state.zFailOp,
+                    stencilPassOpFront: state.passOp,
+                    stencilRefFront: state.ref,
+                    stencilTestBack: state.stencilTest,
+                    stencilFuncBack: state.func,
+                    stencilReadMaskBack: state.stencilMask,
+                    stencilWriteMaskBack: state.writeMask,
+                    stencilFailOpBack: state.failOp,
+                    stencilZFailOpBack: state.zFailOp,
+                    stencilPassOpBack: state.passOp,
+                    stencilRefBack: state.ref,
+                },
+            });
             return true;
         }
 

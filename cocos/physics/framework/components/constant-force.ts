@@ -10,6 +10,7 @@ import {
     property,
     requireComponent,
     disallowMultiple,
+    tooltip,
 } from '../../../core/data/class-decorator';
 import { Component } from '../../../core/components/component';
 import { RigidBodyComponent } from './rigid-body-component';
@@ -53,8 +54,8 @@ export class ConstantForce extends Component {
      */
     @property({
         displayOrder: 0,
-        tooltip: '世界坐标系下的力',
     })
+    @tooltip('世界坐标系下的力')
     public get force () {
         return this._force;
     }
@@ -72,8 +73,8 @@ export class ConstantForce extends Component {
      */
     @property({
         displayOrder: 1,
-        tooltip: '本地坐标系下的力',
     })
+    @tooltip('本地坐标系下的力')
     public get localForce () {
         return this._localForce;
     }
@@ -91,8 +92,8 @@ export class ConstantForce extends Component {
      */
     @property({
         displayOrder: 2,
-        tooltip: '世界坐标系下的扭转力',
     })
+    @tooltip('世界坐标系下的扭转力')
     public get torque () {
         return this._torque;
     }
@@ -110,8 +111,8 @@ export class ConstantForce extends Component {
      */
     @property({
         displayOrder: 3,
-        tooltip: '本地坐标系下的扭转力',
     })
+    @tooltip('本地坐标系下的扭转力')
     public get localTorque () {
         return this._localTorque;
     }

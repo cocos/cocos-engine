@@ -2,7 +2,7 @@ import { GFXPipelineState, IGFXPipelineStateInfo } from '../pipeline-state';
 import { WebGL2GPUPipelineState } from './webgl2-gpu-objects';
 import { WebGL2GFXRenderPass } from './webgl2-render-pass';
 import { WebGL2GFXShader } from './webgl2-shader';
-import { GFXStatus } from '../define';
+import { GFXStatus, GFXDynamicStateFlagBit } from '../define';
 
 const WebGLPrimitives: GLenum[] = [
     0x0000, // WebGLRenderingContext.POINTS,
@@ -36,10 +36,19 @@ export class WebGL2GFXPipelineState extends GFXPipelineState {
         this._rs = info.rasterizerState;
         this._dss = info.depthStencilState;
         this._bs = info.blendState;
-        this._dynamicStates = info.dynamicStates || [];
-        this._hash = info.hash;
-
+        this._is = info.inputState;
         this._renderPass = info.renderPass;
+
+        if (info.dynamicStates !== undefined) {
+            this._dynamicStates = info.dynamicStates;
+        }
+
+        const dynamicStates: GFXDynamicStateFlagBit[] = [];
+        for (let i = 0; i < 31; i++) {
+            if (this._dynamicStates & (1 << i)) {
+                dynamicStates.push(1 << i);
+            }
+        }
 
         this._gpuPipelineState = {
             glPrimitive: WebGLPrimitives[info.primitive],
@@ -47,8 +56,8 @@ export class WebGL2GFXPipelineState extends GFXPipelineState {
             rs: info.rasterizerState,
             dss: info.depthStencilState,
             bs: info.blendState,
-            dynamicStates: (info.dynamicStates !== undefined ? info.dynamicStates : []),
             gpuRenderPass: (info.renderPass as WebGL2GFXRenderPass).gpuRenderPass,
+            dynamicStates,
         };
 
         this._status = GFXStatus.SUCCESS;

@@ -29,7 +29,7 @@
  */
 
 import { Font, SpriteAtlas, TTFFont, BitmapFont } from '../../core/assets';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property, tooltip } from '../../core/data/class-decorator';
 import { EventTouch } from '../../core/platform';
 import { fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace, BASELINE_RATIO } from '../../core/utils';
 import Pool from '../../core/utils/pool';
@@ -185,8 +185,8 @@ export class RichTextComponent extends UIComponent {
      */
     @property({
         multiline: true,
-        tooltip:'富文本显示的文本内容',
     })
+    @tooltip('富文本显示的文本内容')
     get string () {
         return this._string;
     }
@@ -208,8 +208,8 @@ export class RichTextComponent extends UIComponent {
      */
     @property({
         type: HorizontalTextAlignment,
-        tooltip:'文本内容的水平对齐方式',
     })
+    @tooltip('文本内容的水平对齐方式')
     get horizontalAlign () {
         return this._horizontalAlign;
     }
@@ -231,9 +231,7 @@ export class RichTextComponent extends UIComponent {
      * @zh
      * 富文本字体大小。
      */
-    @property({
-        tooltip:'富文本字体大小',
-    })
+    @tooltip('富文本字体大小')
     get fontSize () {
         return this._fontSize;
     }
@@ -257,8 +255,8 @@ export class RichTextComponent extends UIComponent {
      */
     @property({
         type: Font,
-        tooltip:'富文本定制字体',
     })
+    @tooltip('富文本定制字体')
     get font () {
         return this._font;
     }
@@ -286,9 +284,7 @@ export class RichTextComponent extends UIComponent {
      * @zh
      * 富文本的最大宽度。
      */
-    @property({
-        tooltip:'富文本的最大宽度',
-    })
+    @tooltip('富文本的最大宽度')
     get maxWidth () {
         return this._maxWidth;
     }
@@ -310,9 +306,7 @@ export class RichTextComponent extends UIComponent {
      * @zh
      * 富文本行高。
      */
-    @property({
-        tooltip:'富文本行高',
-    })
+    @tooltip('富文本行高')
     get lineHeight () {
         return this._lineHeight;
     }
@@ -336,8 +330,8 @@ export class RichTextComponent extends UIComponent {
      */
     @property({
         type: SpriteAtlas,
-        tooltip:'对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效',
     })
+    @tooltip('对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效')
     get imageAtlas () {
         return this._imageAtlas;
     }
@@ -360,9 +354,7 @@ export class RichTextComponent extends UIComponent {
      * @zh
      * 选中此选项后，RichText 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点。
      */
-    @property({
-        tooltip:'选中此选项后，RichText 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点',
-    })
+    @tooltip('选中此选项后，RichText 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点')
     get handleTouchEvent () {
         return this._handleTouchEvent;
     }

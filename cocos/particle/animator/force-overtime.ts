@@ -3,7 +3,7 @@
  * @category particle
  */
 
-import { ccclass, property } from '../../core/data/class-decorator';
+import { ccclass, property, tooltip } from '../../core/data/class-decorator';
 import { pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { calculateTransform } from '../particle-general-function';
@@ -44,8 +44,8 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 2,
-        tooltip:'X 轴方向上的加速度分量',
     })
+    @tooltip('X 轴方向上的加速度分量')
     public x = new CurveRange();
 
     /**
@@ -55,8 +55,8 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 3,
-        tooltip:'Y 轴方向上的加速度分量',
     })
+    @tooltip('Y 轴方向上的加速度分量')
     public y = new CurveRange();
 
     /**
@@ -66,8 +66,8 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 4,
-        tooltip:'Z 轴方向上的加速度分量',
     })
+    @tooltip('Z 轴方向上的加速度分量')
     public z = new CurveRange();
 
     /**
@@ -76,8 +76,8 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
     @property({
         type: Space,
         displayOrder: 1,
-        tooltip:'加速度计算时采用的坐标',
     })
+    @tooltip('加速度计算时采用的坐标')
     public space = Space.Local;
 
     // TODO:currently not supported

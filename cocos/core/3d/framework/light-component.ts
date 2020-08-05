@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../../components/component';
-import { ccclass, property } from '../../data/class-decorator';
+import { ccclass, property, tooltip } from '../../data/class-decorator';
 import { Color } from '../../math';
 import { Enum } from '../../value-types';
 
@@ -127,9 +127,7 @@ export class LightComponent extends Component {
      * @zh
      * 光源颜色。
      */
-    @property({
-        tooltip: 'i18n:lights.color',
-    })
+    @tooltip('i18n:lights.color')
     // @constget
     get color (): Readonly<Color> {
         return this._color;
@@ -149,9 +147,7 @@ export class LightComponent extends Component {
      * @zh
      * 是否启用光源色温。
      */
-    @property({
-        tooltip: 'i18n:lights.use_color_temperature',
-    })
+    @tooltip('i18n:lights.use_color_temperature')
     get useColorTemperature () {
         return this._useColorTemperature;
     }
@@ -169,8 +165,8 @@ export class LightComponent extends Component {
     @property({
         slide: true,
         range: [1000, 15000, 1],
-        tooltip: 'i18n:lights.color_temperature',
     })
+    @tooltip('i18n:lights.color_temperature')
     get colorTemperature () {
         return this._colorTemperature;
     }

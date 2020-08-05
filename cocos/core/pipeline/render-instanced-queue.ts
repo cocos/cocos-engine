@@ -6,6 +6,7 @@ import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { InstancedBuffer } from './instanced-buffer';
 import { GFXDevice, GFXRenderPass, GFXPipelineState, GFXBuffer } from '../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
+import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
 import { IPSOCreateInfo } from '../renderer';
 import { IRenderObject, UBOForwardLight } from './define';
 import { LightType, Light } from '../renderer/scene/light';
@@ -91,7 +92,7 @@ export class RenderInstancedQueue {
                     const pso = PipelineStateManager.getOrCreatePipelineState(device, psoci, renderPass, instance.ia);
                     if (lastPSO !== pso) {
                         cmdBuff.bindPipelineState(pso);
-                        cmdBuff.bindBindingLayout(psoci.bindingLayout);
+                        cmdBuff.bindBindingLayout(BindingLayoutPool.get(PSOCIPool.get(psoci, PSOCIView.BINDING_LAYOUT)));
                         lastPSO = pso;
                     }
                     cmdBuff.bindInputAssembler(instance.ia);

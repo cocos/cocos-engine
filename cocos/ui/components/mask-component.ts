@@ -29,7 +29,7 @@
  */
 
 import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property, tooltip } from '../../core/data/class-decorator';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { view, warnID } from '../../core/platform';
 import visibleRect from '../../core/platform/visible-rect';
@@ -114,8 +114,8 @@ export class MaskComponent extends UIRenderComponent {
     @property({
         type: MaskType,
         displayOrder: 4,
-        tooltip: '遮罩类型',
     })
+    @tooltip('遮罩类型')
     get type () {
         return this._type;
     }
@@ -140,9 +140,7 @@ export class MaskComponent extends UIRenderComponent {
      * @zh
      * 反向遮罩（不支持 Canvas 模式）。
      */
-    @property({
-        tooltip: '反向遮罩',
-    })
+    @tooltip('反向遮罩')
     get inverted () {
         return this._inverted;
     }

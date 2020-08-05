@@ -29,7 +29,7 @@
  */
 
 import { EventHandler as ComponentEventHandler, UITransformComponent } from '../../core/components';
-import { ccclass, help, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property, requireComponent, tooltip } from '../../core/data/class-decorator';
 import { Event } from '../../core/event';
 import { EventMouse, EventTouch, Touch, logID } from '../../core/platform';
 import { Size, Vec2, Vec3 } from '../../core/math';
@@ -219,9 +219,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         range: [0, 10],
-        tooltip: '回弹持续的时间，0 表示将立即反弹',
         displayOrder: 0,
     })
+    @tooltip('回弹持续的时间，0 表示将立即反弹')
     public bounceDuration = 1;
 
     /**
@@ -234,9 +234,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         range: [0, 1, 0.1],
-        tooltip: '开启惯性后，在用户停止触摸后滚动多快停止，0 表示永不停止，1 表示立刻停止',
         displayOrder: 1,
     })
+    @tooltip('开启惯性后，在用户停止触摸后滚动多快停止，0 表示永不停止，1 表示立刻停止')
     public brake = 0.5;
 
     /**
@@ -247,9 +247,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * 是否允许滚动内容超过边界，并在停止触摸后回弹。
      */
     @property({
-        tooltip: '是否允许滚动内容超过边界，并在停止触摸后回弹',
         displayOrder: 2,
     })
+    @tooltip('是否允许滚动内容超过边界，并在停止触摸后回弹')
     public elastic = true;
 
     /**
@@ -260,9 +260,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * 是否开启滚动惯性。
      */
     @property({
-        tooltip: '是否开启滚动惯性',
         displayOrder: 3,
     })
+    @tooltip('是否开启滚动惯性')
     public inertia = true;
 
     /**
@@ -274,9 +274,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         type: Node,
-        tooltip: '可滚动展示内容的节点',
         displayOrder: 4,
     })
+    @tooltip('可滚动展示内容的节点')
     get content () {
         return this._content;
     }
@@ -303,9 +303,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * 是否开启水平滚动。
      */
     @property({
-        tooltip: '是否开启水平滚动',
         displayOrder: 5,
     })
+    @tooltip('是否开启水平滚动')
     public horizontal = true;
 
     /**
@@ -316,9 +316,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         type: ScrollBarComponent,
-        tooltip: '水平滚动的 ScrollBar',
         displayOrder: 6,
     })
+    @tooltip('水平滚动的 ScrollBar')
     get horizontalScrollBar () {
         return this._horizontalScrollBar;
     }
@@ -344,9 +344,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * 是否开启垂直滚动。
      */
     @property({
-        tooltip: '是否开启垂直滚动',
         displayOrder: 7,
     })
+    @tooltip('是否开启垂直滚动')
     public vertical = true;
 
     /**
@@ -358,9 +358,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         type: ScrollBarComponent,
-        tooltip: '垂直滚动的 ScrollBar',
         displayOrder: 8,
     })
+    @tooltip('垂直滚动的 ScrollBar')
     get verticalScrollBar () {
         return this._verticalScrollBar;
     }
@@ -388,9 +388,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * 注意，子节点上的 touchstart 事件仍然会触发，触点移动距离非常短的情况下 touchmove 和 touchend 也不会受影响。
      */
     @property({
-        tooltip: '滚动行为是否会取消子节点上注册的触摸事件',
         displayOrder: 9,
     })
+    @tooltip('滚动行为是否会取消子节点上注册的触摸事件')
     public cancelInnerEvents = true;
 
     /**
@@ -402,9 +402,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         type: [ComponentEventHandler],
-        tooltip: '滚动视图的事件回调函数',
         displayOrder: 10,
     })
+    @tooltip('滚动视图的事件回调函数')
     public scrollEvents: ComponentEventHandler[] = [];
 
     get view () {

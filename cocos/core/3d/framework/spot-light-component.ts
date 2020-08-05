@@ -27,7 +27,7 @@
  * @category component/light
  */
 
-import { ccclass, help, executeInEditMode, menu, property } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, property, tooltip } from '../../data/class-decorator';
 import { toRadian } from '../../math';
 import { LightType, nt2lm } from '../../renderer/scene/light';
 import { SpotLight } from '../../renderer/scene/spot-light';
@@ -59,8 +59,8 @@ export class SpotLightComponent extends LightComponent {
      */
     @property({
         unit: 'lm',
-        tooltip: 'i18n:lights.luminous_power',
     })
+    @tooltip('i18n:lights.luminous_power')
     get luminousPower () {
         return this._luminance * nt2lm(this._size);
     }
@@ -75,8 +75,8 @@ export class SpotLightComponent extends LightComponent {
      */
     @property({
         unit: 'cd/m²',
-        tooltip: 'i18n:lights.luminance',
     })
+    @tooltip('i18n:lights.luminance')
     get luminance () {
         return this._luminance;
     }
@@ -91,8 +91,8 @@ export class SpotLightComponent extends LightComponent {
      */
     @property({
         type: PhotometricTerm,
-        tooltip: 'i18n:lights.term',
     })
+    @tooltip('i18n:lights.term')
     get term () {
         return this._term;
     }
@@ -106,9 +106,7 @@ export class SpotLightComponent extends LightComponent {
      * @zh
      * 光源大小。
      */
-    @property({
-        tooltip: 'i18n:lights.size',
-    })
+    @tooltip('i18n:lights.size')
     get size () {
         return this._size;
     }
@@ -123,9 +121,7 @@ export class SpotLightComponent extends LightComponent {
      * @zh
      * 光源范围。
      */
-    @property({
-        tooltip: 'i18n:lights.range',
-    })
+    @tooltip('i18n:lights.range')
     get range () {
         return this._range;
     }
@@ -143,8 +139,8 @@ export class SpotLightComponent extends LightComponent {
     @property({
         slide: true,
         range: [2, 180, 1],
-        tooltip: 'The spot light cone angle',
     })
+    @tooltip('The spot light cone angle')
     get spotAngle () {
         return this._spotAngle;
     }

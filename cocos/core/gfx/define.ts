@@ -515,16 +515,19 @@ export enum GFXPipelineBindPoint {
     RAY_TRACING,
 }
 
-export enum GFXDynamicState {
-    VIEWPORT,
-    SCISSOR,
-    LINE_WIDTH,
-    DEPTH_BIAS,
-    BLEND_CONSTANTS,
-    DEPTH_BOUNDS,
-    STENCIL_WRITE_MASK,
-    STENCIL_COMPARE_MASK,
+export enum GFXDynamicStateFlagBit {
+    NONE = 0x0,
+    VIEWPORT = 0x1,
+    SCISSOR = 0x2,
+    LINE_WIDTH = 0x4,
+    DEPTH_BIAS = 0x8,
+    BLEND_CONSTANTS = 0x10,
+    DEPTH_BOUNDS = 0x20,
+    STENCIL_WRITE_MASK = 0x40,
+    STENCIL_COMPARE_MASK = 0x80,
 }
+
+export type GFXDynamicStateFlags = GFXDynamicStateFlagBit;
 
 export enum GFXStencilFace {
     FRONT,

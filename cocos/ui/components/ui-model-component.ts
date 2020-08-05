@@ -77,14 +77,14 @@ export class UIModelComponent extends UIComponent {
         this._models = this._modelComponent._collectModels();
     }
 
-    public onEnable() {
+    public onEnable () {
         super.onEnable();
         if (this._modelComponent) {
             (this._modelComponent as any)._attachToScene();
         }
     }
 
-    public onDisable() {
+    public onDisable () {
         super.onDisable();
         if (this._modelComponent) {
             (this._modelComponent as any)._detachFromScene();
@@ -120,17 +120,6 @@ export class UIModelComponent extends UIComponent {
         this._fitUIRenderQueue();
     }
 
-    /**
-     * TODO: refactor using Pass.createPipelineState(null, overriddenPass)
-     * ```
-     * const overriddenPass = new Pass(); // global scope
-     * // when creating PSO
-     * Pass.fillinPipelineInfo(overriddenPass, passes[j]);
-     * Pass.fillinPipelineInfo(overriddenPass, { priority: RenderPriority.MAX - 11, blendState: { targets: [ { blend: true } ] } });
-     * const pso = passes[j].createPipelineState(null, overriddenPass);
-     * // ...
-     * ```
-     */
     private _fitUIRenderQueue () {
         if (!this._modelComponent) {
             return;
@@ -142,26 +131,14 @@ export class UIModelComponent extends UIComponent {
                 continue;
             }
             const passes = material.passes;
-            const ea = material.effectAsset!;
-            const techIdx = material.technique;
             const passNum = passes.length;
             for (let j = 0; j < passNum; j++) {
-                if (!passes[j].blendState.targets[0].blend) {
-                    const bs = passes[j].blendState.targets[0];
-                    bs.blend = true;
-                    passes[j].overridePipelineStates(ea.techniques[techIdx].passes[j], { blendState: passes[j].blendState });
+                const pass = passes[j];
+                // @ts-ignore
+                pass._priority = RenderPriority.MAX - 11;
+                if (!pass.blendState.targets[0].blend) {
+                    material.overridePipelineStates({ blendState: { targets: [ { blend: true } ] } }, j);
                 }
-            }
-        }
-
-        for (let i = 0; i < matNum; i++) {
-            const material = this._modelComponent.getMaterialInstance(i);
-            if (material == null) {
-                continue;
-            }
-            const passes = material.passes;
-            for (const p of passes as any[]) {
-                p._priority = RenderPriority.MAX - 11;
             }
         }
     }

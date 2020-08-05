@@ -5,13 +5,13 @@
 import { GFXAttributeName, GFXDevice } from '../gfx';
 import { Mesh } from './mesh';
 import { StdMorphRendering } from './morph-rendering';
-import { IMacroPatch, IPSOCreateInfo } from '../renderer';
+import { IMacroPatch } from '../renderer';
 
 export interface Morph {
     /**
      * Morph data of each sub-mesh.
      */
-    subMeshMorphs: Array<SubMeshMorph | null>;
+    subMeshMorphs: (SubMeshMorph | null)[];
 
     /**
      * Common initial weights of each sub-mesh.
@@ -60,22 +60,22 @@ export interface MorphRendering {
 export interface MorphRenderingInstance {
     /**
      * Sets weights of targets of specified sub mesh.
-     * @param subMeshIndex 
-     * @param weights 
+     * @param subMeshIndex
+     * @param weights
      */
     setWeights (subMeshIndex: number, weights: number[]): void;
 
     /**
      * Adapts pipeline state to do the rendering.
-     * @param subMeshIndex 
-     * @param pipelineState 
+     * @param subMeshIndex
+     * @param pipelineState
      */
-    adaptPipelineState(subMeshIndex: number, pipelineCreateInfo: IPSOCreateInfo): void;
+    adaptPipelineState (subMeshIndex: number, pipelineCreateInfo: number): void;
 
-    requiredPatches(subMeshIndex: number): IMacroPatch[] | undefined;
+    requiredPatches (subMeshIndex: number): IMacroPatch[] | undefined;
 
     /**
      * Destroy the rendering instance.
      */
-    destroy(): void;
+    destroy (): void;
 }

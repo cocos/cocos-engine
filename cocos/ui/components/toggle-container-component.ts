@@ -29,7 +29,7 @@
  */
 
 import { Component, EventHandler as ComponentEventHandler } from '../../core/components';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property, tooltip } from '../../core/data/class-decorator';
 import { ToggleComponent} from './toggle-component';
 import { legacyCC } from '../../core/global-exports';
 
@@ -59,8 +59,8 @@ export class ToggleContainerComponent extends Component {
      */
     @property({
         type: [ComponentEventHandler],
-        tooltip:'选中事件。列表类型，默认为空，用户添加的每一个事件由节点引用，组件名称和一个响应函数组成。',
     })
+    @tooltip('选中事件。列表类型，默认为空，用户添加的每一个事件由节点引用，组件名称和一个响应函数组成。')
     public checkEvents: ComponentEventHandler[] = [];
     @property
     protected _allowSwitchOff: boolean = false;
@@ -75,9 +75,7 @@ export class ToggleContainerComponent extends Component {
      * @zh
      * 如果这个设置为 true，那么 toggle 按钮在被点击的时候可以反复地被选中和未选中。
      */
-    @property({
-        tooltip:'如果这个设置为 true， 那么 toggle 按钮在被点击的时候可以反复地被选中和未选中。',
-    })
+    @tooltip('如果这个设置为 true， 那么 toggle 按钮在被点击的时候可以反复地被选中和未选中。')
     get allowSwitchOff () {
         return this._allowSwitchOff;
     }
