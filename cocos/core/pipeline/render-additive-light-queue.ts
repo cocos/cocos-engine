@@ -22,11 +22,6 @@ const spotPatches = [
     { name: 'CC_SPOTLIGHT', value: true },
 ];
 
-export enum ShadowPatchMask {
-    Sphere = 1 << 2,        // sphere light
-    Spot = 1 << 3,          // spot light
-}
-
 /**
  * @zh 叠加光照队列。
  */
@@ -37,9 +32,7 @@ export class RenderAdditiveLightQueue {
     private _phaseID = getPhaseID('forward-add');
 
     // psoCI cache
-    private _psoCICache: Map<SubModel, IPSOCreateInfo> = new Map();
-    // psoCI + subModel cache
-    private _psoCISubModelCache: Map<SubModel, number> = new Map();
+    private _psoCICache: Map<SubModel, number> = new Map();
 
     // references
     private _validLights: Light[] = [];
@@ -73,10 +66,10 @@ export class RenderAdditiveLightQueue {
                 const light = this._validLights[lightIdx];
                 switch (light.type) {
                     case LightType.SPHERE:
-                        this.attach(renderObj, subModelIdx, this._lightBuffers[lightIdx], lightIdx, pass, spherePatches, ShadowPatchMask.Sphere);
+                        this.attach(renderObj, subModelIdx, this._lightBuffers[lightIdx], lightIdx, pass, spherePatches);
                         break;
                     case LightType.SPOT:
-                        this.attach(renderObj, subModelIdx, this._lightBuffers[lightIdx], lightIdx, pass, spotPatches, ShadowPatchMask.Spot);
+                        this.attach(renderObj, subModelIdx, this._lightBuffers[lightIdx], lightIdx, pass, spotPatches);
                         break;
                 }
             }
@@ -102,24 +95,24 @@ export class RenderAdditiveLightQueue {
     }
 
     private attach (renderObj: IRenderObject, subModelIdx: number, lightBuffer: GFXBuffer, lightIdx: number,
-        pass: Pass, patches: IMacroPatch[], shadowPathchMask: number) {
-        const subModelPatchMask = renderObj.model.subModelPatchMask;
+        pass: Pass, patches: IMacroPatch[]) {
         const subModel = renderObj.model.subModels[subModelIdx];
         const subModelList = this._sortedSubModelsArray[lightIdx];
         const psoCIList = this._sortedPSOCIArray[lightIdx];
         const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
         const fullPatches = modelPatches ? patches.concat(modelPatches) : patches;
-        let psoCI: IPSOCreateInfo;
-        if (this._psoCICache.has(subModel) && this._psoCISubModelCache.get(subModel) === patcheMask) {
+
+        let psoCI: number;
+        if (this._psoCICache.has(subModel)) {
             psoCI = this._psoCICache.get(subModel)!;
         } else {
-        const psoCI = pass.createPipelineStateCI(fullPatches)!;
+            psoCI = pass.createPipelineStateCI(fullPatches)!;
             this._psoCICache.set(subModel, psoCI);
-            this._psoCISubModelCache.set(subModel, patcheMask);
-        renderObj.model.updateLocalBindings(psoCI, subModelIdx);
-        const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT));
-        bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
-        bindingLayout.update();
+            renderObj.model.updateLocalBindings(psoCI, subModelIdx);
+            const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT));
+            bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
+            bindingLayout.update();
+        }
 
         subModelList.push(renderObj.model.subModels[subModelIdx]);
         psoCIList.push(psoCI);

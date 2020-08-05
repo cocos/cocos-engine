@@ -32,11 +32,6 @@ const shadowMap_Patches: IMacroPatch[]= [
     { name: 'CC_SHADOW', value: true },
 ];
 
-export enum SubModelPatchMask {
-    None = 0,               // none
-    Shadow = 1 << 0,        // shadow
-}
-
 export interface IInstancedAttribute {
     name: string;
     format: GFXFormat;
@@ -118,10 +113,6 @@ export class Model {
         return this._instMatWorldIdx >= 0;
     }
 
-    get subModelPatchMask () {
-        return this._subModelPatchMask;
-    }
-
     public type = ModelType.DEFAULT;
     public scene: RenderScene | null = null;
     public node: Node = null!;
@@ -143,7 +134,6 @@ export class Model {
     protected _inited = false;
     protected _updateStamp = -1;
     protected _transformUpdated = true;
-    protected _subModelPatchMask: number = 0;
 
     private _instMatWorldIdx = -1;
 
@@ -331,11 +321,8 @@ export class Model {
 
     public getMacroPatches (subModelIndex: number) : IMacroPatch[] | undefined {
         if (this.receiveShadow) {
-            this._subModelPatchMask = SubModelPatchMask.Shadow;
             return shadowMap_Patches;
         }
-
-        this._subModelPatchMask = SubModelPatchMask.None;
         return undefined;
     }
 
