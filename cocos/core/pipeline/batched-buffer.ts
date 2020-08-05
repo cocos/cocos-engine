@@ -28,13 +28,16 @@ const _localBatched = new UBOLocalBatched();
 
 export class BatchedBuffer {
 
-    private static _buffers = new Map<Pass, BatchedBuffer>();
+    private static _buffers = new Map<Pass | number, BatchedBuffer>();
 
-    public static get (pass: Pass) {
-        if (!BatchedBuffer._buffers.has(pass)) {
-            BatchedBuffer._buffers.set(pass, new BatchedBuffer(pass.device));
+    public static get (key: Pass | number, device: GFXDevice) {
+        const buffers = BatchedBuffer._buffers;
+        if (!buffers.has(key)) {
+            const buffer = new BatchedBuffer(device);
+            buffers.set(key, buffer);
+            return buffer;
         }
-        return BatchedBuffer._buffers.get(pass)!;
+        return buffers.get(key)!;
     }
 
     public batches: IBatchedItem[] = [];
@@ -57,13 +60,15 @@ export class BatchedBuffer {
         this.batches.length = 0;
     }
 
-    public merge (subModel: SubModel, passIndx: number, ro: IRenderObject) {
+    public merge (subModel: SubModel, passIndx: number, ro: IRenderObject, psoCI: number) {
         const flatBuffers = subModel.subMeshData.flatBuffers;
         if (flatBuffers.length === 0) { return; }
         let vbSize = 0;
         let vbIdxSize = 0;
         const vbCount = flatBuffers[0].count;
-        const psoCI = subModel.psoInfos[passIndx];
+        if (!psoCI) {
+            psoCI = subModel.psoInfos[passIndx];
+        }
         const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT));
         let isBatchExist = false;
         for (let i = 0; i < this.batches.length; ++i) {

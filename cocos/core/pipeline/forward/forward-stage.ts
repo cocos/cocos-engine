@@ -103,6 +103,7 @@ export class ForwardStage extends RenderStage {
     }
 
     public render (view: RenderView) {
+
         this._instancedQueue.clear();
         this._batchedQueue.clear();
         const pipeline = this._pipeline as ForwardPipeline;
@@ -142,9 +143,20 @@ export class ForwardStage extends RenderStage {
                             }
                             this._instancedQueue.queue.add(instancedBuffer!);
                         } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) {
-                            const batchedBuffer = BatchedBuffer.get(pass);
-                            batchedBuffer.merge(subModel, p, ro);
-                            this._batchedQueue.queue.add(batchedBuffer);
+                            let batchedBuffer: BatchedBuffer;
+                            if (pass.phase === this._lightPhaseID) {
+                                for (let l = lightIndexOffset[i]; l < nextLightIndex; ++l) {
+                                    const lightIndex = lightIndices[l];
+                                    const psoCI = RenderBatchedQueue.getLightPipelineCreateInfo(ro, m, pass,
+                                        validLights, lightBuffers, lightIndex);
+                                    batchedBuffer = BatchedBuffer.get(lightIndex, device);
+                                    batchedBuffer.merge(subModel, p, ro, psoCI);
+                                }
+                            } else {
+                                batchedBuffer = BatchedBuffer.get(pass, device);
+                                batchedBuffer.merge(subModel, p, ro, subModel.psoInfos[p]);
+                            }
+                            this._batchedQueue.queue.add(batchedBuffer!);
                         } else {
                             for (k = 0; k < this._renderQueues.length; k++) {
                                 this._renderQueues[k].insertRenderPass(ro, m, p);
