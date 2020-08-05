@@ -1050,7 +1050,7 @@ export class RichTextComponent extends UIComponent {
             }
 
             //adjust y for label with outline
-            let outline = label.node.getComponent(LabelOutlineComponent)!;
+            let outline = label.node.getComponent(LabelOutlineComponent);
             if (outline) {
                 let position = label.node.position.clone();
                 position.y = position.y - outline.width;
@@ -1071,7 +1071,7 @@ export class RichTextComponent extends UIComponent {
     }
 
     protected _applyTextAttribute (labelSeg: ILabelSegment) {
-        const labelComponent = labelSeg.node.getComponent(LabelComponent)!;
+        const labelComponent = labelSeg.node.getComponent(LabelComponent);
         if (!labelComponent) {
             return;
         }
