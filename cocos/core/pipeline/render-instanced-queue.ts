@@ -31,13 +31,13 @@ export class RenderInstancedQueue {
      */
     public queue = new Set<InstancedBuffer>();
 
-    private static _lightPsoCreateInfos: number[] = [];
+    private static _lightPsoCreateInfos: Map<Light, number> = new Map();
 
     public static getLightPipelineCreateInfo (renderObj: IRenderObject, subModelIdx: number, pass: Pass,
         validLights: Light[], lightGFXBuffers: GFXBuffer[], lightIdx: number): number {
-        if (!this._lightPsoCreateInfos[lightIdx]) {
+        const light = validLights[lightIdx];
+        if (!this._lightPsoCreateInfos.has(light)) {
             const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
-            const light = validLights[lightIdx];
             const lightBuffer = lightGFXBuffers[lightIdx];
 
             let fullPatches: IMacroPatch[] = [];
@@ -51,14 +51,14 @@ export class RenderInstancedQueue {
             }
 
             const psoci = pass.createPipelineStateCI(fullPatches)!;
-            this._lightPsoCreateInfos[lightIdx] = psoci;
+            this._lightPsoCreateInfos.set(light, psoci);
             renderObj.model.updateLocalBindings(psoci, subModelIdx);
             const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoci, PSOCIView.BINDING_LAYOUT));
             bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
             bindingLayout.update();
         }
 
-        return this._lightPsoCreateInfos[lightIdx];
+        return this._lightPsoCreateInfos.get(light)!;
     }
 
     /**

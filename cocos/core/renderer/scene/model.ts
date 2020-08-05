@@ -18,7 +18,7 @@ import { IGFXAttribute } from '../../gfx';
 import { SubModel } from './submodel';
 import { Pass, IMacroPatch } from '../core/pass';
 import { legacyCC } from '../../global-exports';
-import { PassInstancedBuffer } from '../../pipeline/pass-instanced-buffer';
+import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { BatchingSchemes } from '../core/pass';
 import { BindingLayoutPool, ShaderPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
 
@@ -345,7 +345,7 @@ export class Model {
             const isNormalized = attribute.isNormalized;
             offset += info.size; attrs.list.push({ name: attribute.name, format, isNormalized, view });
         }
-        if (pass.batchingScheme === BatchingSchemes.INSTANCING) { PassInstancedBuffer.get(pass).destroy(); } // instancing IA changed
+        if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass, this._device).destroy(); } // instancing IA changed
         this._instMatWorldIdx = this.getInstancedAttributeIndex(INST_MAT_WORLD);
         this._transformUpdated = true;
     }

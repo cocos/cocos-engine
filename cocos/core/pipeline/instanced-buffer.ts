@@ -24,6 +24,19 @@ export class InstancedBuffer {
 
     public instances: IInstancedItem[] = [];
     public psoci: number = 0;
+
+    private static _buffers = new Map<Pass|number, InstancedBuffer>();
+
+    public static get (key: Pass | number, device: GFXDevice) {
+        const buffers = InstancedBuffer._buffers;
+        if (!buffers.has(key)) {
+            const buffer = new InstancedBuffer(device);
+            buffers.set(key, buffer);
+            return buffer;
+        }
+        return buffers.get(key)!;
+    }
+
     private _device: GFXDevice;
 
     constructor (device: GFXDevice) {

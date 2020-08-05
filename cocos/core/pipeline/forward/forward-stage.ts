@@ -15,8 +15,6 @@ import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { InstancedBuffer } from '../instanced-buffer';
-import { LightInstancedBuffer } from '../light-instanced-buffer';
-import { PassInstancedBuffer } from '../pass-instanced-buffer';
 import { BatchedBuffer } from '../batched-buffer';
 import { BatchingSchemes } from '../../renderer/core/pass';
 import { ForwardFlow } from './forward-flow';
@@ -111,6 +109,7 @@ export class ForwardStage extends RenderStage {
         const validLights = pipeline.validLights;
         const lightBuffers = pipeline.lightBuffers;
         const lightIndices = pipeline.lightIndices;
+        const device = pipeline.device;
         this._additiveLightQueue.clear(validLights, lightBuffers, lightIndices);
         this._renderQueues.forEach(this.renderQueueClearFunc);
 
@@ -134,11 +133,11 @@ export class ForwardStage extends RenderStage {
                                     const lightIndex = lightIndices[l];
                                     const psoCI = RenderInstancedQueue.getLightPipelineCreateInfo(ro, m, pass,
                                         validLights, lightBuffers, lightIndex);
-                                    instancedBuffer = LightInstancedBuffer.get(pass, lightIndex);
+                                    instancedBuffer = InstancedBuffer.get(lightIndex, device);
                                     instancedBuffer.merge(subModel, ro.model.instancedAttributes, psoCI);
                                 }
                             } else {
-                                instancedBuffer = PassInstancedBuffer.get(pass);
+                                instancedBuffer = InstancedBuffer.get(pass, device);
                                 instancedBuffer.merge(subModel, ro.model.instancedAttributes, subModel.psoInfos[p]);
                             }
                             this._instancedQueue.queue.add(instancedBuffer!);
@@ -195,7 +194,6 @@ export class ForwardStage extends RenderStage {
         colors[0].a = camera.clearColor.a;
 
         const framebuffer = view.window.framebuffer;
-        const device = pipeline.device;
         const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
 
         cmdBuff.begin();

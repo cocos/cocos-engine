@@ -9,7 +9,7 @@ import { Model } from './model';
 import { RenderScene } from './render-scene';
 import { SphereLight } from './sphere-light';
 import { GFXCommandBuffer, GFXDevice, GFXRenderPass } from '../../gfx';
-import { PassInstancedBuffer } from '../../pipeline/pass-instanced-buffer';
+import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
 import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
 
@@ -21,7 +21,7 @@ const _qt = new Quat();
 interface IShadowRenderData {
     model: Model;
     psoCIs: number[];
-    instancedBuffer: PassInstancedBuffer | null;
+    instancedBuffer: InstancedBuffer | null;
 }
 
 export class PlanarShadows {
@@ -78,6 +78,7 @@ export class PlanarShadows {
     protected _pendingModels: IShadowRenderData[] = [];
     protected _material: Material;
     protected _instancingMaterial: Material;
+    protected _device: GFXDevice|null = null;
 
     constructor (scene: RenderScene) {
         this._scene = scene;
@@ -163,9 +164,10 @@ export class PlanarShadows {
     }
 
     public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
+        this._device = device;
         const models = this._pendingModels;
         const modelLen = models.length;
-        const buffer = PassInstancedBuffer.get(this._instancingMaterial.passes[0]);
+        const buffer = InstancedBuffer.get(this._instancingMaterial.passes[0], device);
         if (buffer) { buffer.clear(); }
         for (let i = 0; i < modelLen; i++) {
             const { model, psoCIs: psocis, instancedBuffer } = models[i];
@@ -214,7 +216,7 @@ export class PlanarShadows {
                 psoCIs.push(psoCI);
             }
         }
-        return { model, psoCIs, instancedBuffer: PassInstancedBuffer.get(material.passes[0]) };
+        return { model, psoCIs, instancedBuffer: InstancedBuffer.get(material.passes[0], this._device!) };
     }
 
     public destroyShadowData (model: Model) {
