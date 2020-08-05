@@ -595,7 +595,7 @@ export class RichTextComponent extends UIComponent {
     }
 
     protected _containsTouchLocation (label: ILabelSegment, point: Vec2) {
-        const comp = label.node.getComponent(UITransformComponent)!;
+        const comp = label.node.getComponent(UITransformComponent);
         if (!comp) {
             return false;
         }
