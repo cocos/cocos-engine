@@ -8,10 +8,10 @@ import { BatchedBuffer } from './batched-buffer';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { GFXDevice } from '../gfx/device';
 import { GFXRenderPass } from '../gfx';
-import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
 import { IRenderObject, UBOForwardLight } from './define';
 import { LightType, Light } from '../renderer/scene/light';
 import { IMacroPatch, Pass } from '../renderer/core/pass';
+import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../renderer/core/memory-pools';
 
 const spherePatches: IMacroPatch[] = [
     { name: 'CC_FORWARD_ADD', value: true },
@@ -33,13 +33,13 @@ export class RenderBatchedQueue {
      */
     public queue = new Set<BatchedBuffer>();
 
-    private static _lightPsoCreateInfos: IPSOCreateInfo[] = [];
+    private static _lightPsoCreateInfos: Map<Light, number> = new Map();
 
     public static getLightPipelineCreateInfo (renderObj: IRenderObject, subModelIdx: number, pass: Pass,
-        validLights: Light[], lightGFXBuffers: GFXBuffer[], lightIdx: number): IPSOCreateInfo {
-        if (!this._lightPsoCreateInfos[lightIdx]) {
-            const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
+        validLights: Light[], lightGFXBuffers: GFXBuffer[], lightIdx: number): number {
             const light = validLights[lightIdx];
+        if (!this._lightPsoCreateInfos.has(light)) {
+            const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
             const lightBuffer = lightGFXBuffers[lightIdx];
 
             let fullPatches: IMacroPatch[] = [];
@@ -53,13 +53,13 @@ export class RenderBatchedQueue {
             }
 
             const psoci = pass.createPipelineStateCI(fullPatches)!;
-            this._lightPsoCreateInfos[lightIdx] = psoci;
+            this._lightPsoCreateInfos.set(light, psoci);
             renderObj.model.updateLocalBindings(psoci, subModelIdx);
             psoci.bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
             psoci.bindingLayout.update();
         }
 
-        return this._lightPsoCreateInfos[lightIdx];
+        return this._lightPsoCreateInfos.get(light)!;
     }
 
     /**
