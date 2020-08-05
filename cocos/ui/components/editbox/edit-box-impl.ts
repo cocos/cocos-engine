@@ -487,7 +487,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             font = textLabel.fontFamily;
         }
 
-        let fontSize = textLabel.fontSize * textLabel.node.scaleY;
+        let fontSize = textLabel.fontSize * textLabel.node._scale.y;
 
         if (this._textLabelFont === font
             && this._textLabelFontSize === fontSize
@@ -537,7 +537,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
 
 
-        let fontSize = placeholderLabel.fontSize * placeholderLabel.node.scaleY;
+        let fontSize = placeholderLabel.fontSize * placeholderLabel.node._scale.y;
 
         if (this._placeholderLabelFont === font
             && this._placeholderLabelFontSize === fontSize
@@ -570,8 +570,9 @@ export class EditBoxImpl extends EditBoxImplBase {
                 break;
         }
 
-        styleEl!.innerHTML = `#${this._domId}::-webkit-input-placeholder,#${this._domId}::-moz-placeholder,#${this._domId}:-ms-input-placeholder` +
-            `{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}`;
+        styleEl!.innerHTML = `#${this._domId}::-webkit-input-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}` +
+                            `#${this._domId}::-moz-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}` + 
+                            `#${this._domId}::-ms-input-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}`;
         // EDGE_BUG_FIX: hide clear button, because clearing input box in Edge does not emit input event 
         // issue refference: https://github.com/angular/angular/issues/26307
         if (legacyCC.sys.browserType === legacyCC.sys.BROWSER_TYPE_EDGE) {
