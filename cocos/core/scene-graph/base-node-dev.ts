@@ -46,6 +46,7 @@ export function baseNodePolyfill (BaseNode) {
                     throw Error(getError(3806, js.getClassName(ctor), this._name, js.getClassName(existing)));
                 }
             }
+            return true;
         };
 
         /**
