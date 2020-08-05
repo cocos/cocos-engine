@@ -373,8 +373,8 @@ export class BaseNode extends CCObject implements ISchedulable {
     /**
      * @en
      * Properties configuration function.
-     * All properties in attrs will be set to the node, 
-     * when the setter of the node is available, 
+     * All properties in attrs will be set to the node,
+     * when the setter of the node is available,
      * the property will be set via setter function.
      * @zh 属性配置函数。在 attrs 的所有属性将被设置为节点属性。
      * @param attrs - Properties to be set to node
@@ -699,7 +699,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     /**
      * @en
-     * Remove itself from its parent node. 
+     * Remove itself from its parent node.
      * If the node have no parent, then nothing happens.
      * @zh
      * 从父节点中删除该节点。
@@ -760,7 +760,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     /**
      * @en
-     * Returns the component of supplied type if the node has one attached, null if it doesn't. 
+     * Returns the component of supplied type if the node has one attached, null if it doesn't.
      * You can also get component in the node by passing in the name of the script.
      * @zh
      * 获取节点上指定类型的组件，如果节点有附加指定类型的组件，则返回，如果没有则为空。
@@ -940,7 +940,9 @@ export class BaseNode extends CCObject implements ISchedulable {
         }
 
         if (EDITOR && constructor._disallowMultiple) {
-            this._checkMultipleComp!(constructor);
+            if (!this._checkMultipleComp!(constructor)){
+                return;
+            }
         }
 
         // check requirement
@@ -1403,7 +1405,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @param constructor Constructor of the component.
      * @throws If one or more component of same type have been existed in this node.
      */
-    protected _checkMultipleComp? (constructor: Function): void;
+    protected _checkMultipleComp? (constructor: Function): boolean;
 }
 
 baseNodePolyfill(BaseNode);

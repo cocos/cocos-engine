@@ -32,6 +32,7 @@ import * as js from '../utils/js';
 import { EDITOR, DEV, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { error, errorID, getError } from '../platform/debug';
+import { dialogWarn } from '../platform/dialog';
 
 const Destroying = CCObject.Flags.Destroying;
 
@@ -41,11 +42,14 @@ export function baseNodePolyfill (BaseNode) {
             const existing = this.getComponent(ctor._disallowMultiple);
             if (existing) {
                 if (existing.constructor === ctor) {
-                    throw Error(getError(3805, js.getClassName(ctor), this._name));
+                    dialogWarn(getError(3805, js.getClassName(ctor), this._name));
+                    return false;
                 } else {
-                    throw Error(getError(3806, js.getClassName(ctor), this._name, js.getClassName(existing)));
+                    dialogWarn(getError(3803, js.getClassName(ctor), this._name, js.getClassName(existing)));
+                    return false;
                 }
             }
+
             return true;
         };
 

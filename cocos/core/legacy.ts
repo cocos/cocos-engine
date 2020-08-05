@@ -3,6 +3,7 @@
  */
 
 import * as debug from './platform/debug';
+import * as dialog from './platform/dialog';
 import { _normalize, basename, changeBasename, changeExtname, dirname, extname, getSeperator, join, mainFileName, stripSep } from './utils/path';
 import { legacyCC } from './global-exports';
 // import Pipeline from './load-pipeline/pipeline';
@@ -23,6 +24,12 @@ legacyCC.warnID = debug.warnID;
 legacyCC.errorID = debug.errorID;
 legacyCC.assertID = debug.assertID;
 legacyCC.debug = debug;
+legacyCC.dialogInfo = dialog.dialogInfo;
+legacyCC.dialogWarn = dialog.dialogWarn;
+legacyCC.dialogError = dialog.dialogError;
+legacyCC.dialogInfoID = dialog.dialogInfoID;
+legacyCC.dialogWarnID = dialog.dialogWarnID;
+legacyCC.dialogErrorID = dialog.dialogErrorID;
 
 // path.js
 legacyCC.path = {

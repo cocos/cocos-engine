@@ -59,11 +59,26 @@ interface EditorExtendsUuid {
     uuid(): string;
 }
 
+interface MessageDialogOptions {
+    title?: string;
+    detail?: string;
+    default?: number;
+    cancel?: number;
+    buttons?: string[];
+}
+
+interface EditorExtendsDialog {
+    info(message: string, options?: MessageDialogOptions): any;
+    warn(message: string, options?: MessageDialogOptions): any;
+    error(message: string, options?: MessageDialogOptions): any;
+}
+
 declare namespace EditorExtends {
     const Script: EditorExtendsScript;
     const Node: EditorExtendsNode;
     const Component: EditorExtendsComponent;
     const Asset: EditorExtendsAsset;
+    const Dialog: EditorExtendsDialog;
     const UuidUtils: EditorExtendsUuid;
 
     const MissingReporter: {
