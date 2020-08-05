@@ -55,8 +55,9 @@ export class RenderBatchedQueue {
             const psoci = pass.createPipelineStateCI(fullPatches)!;
             this._lightPsoCreateInfos.set(light, psoci);
             renderObj.model.updateLocalBindings(psoci, subModelIdx);
-            psoci.bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
-            psoci.bindingLayout.update();
+            const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoci, PSOCIView.BINDING_LAYOUT));
+            bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
+            bindingLayout.update();
         }
 
         return this._lightPsoCreateInfos.get(light)!;
