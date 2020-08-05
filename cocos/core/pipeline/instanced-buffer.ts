@@ -22,17 +22,21 @@ const MAX_CAPACITY = 1024;
 
 export class InstancedBuffer {
 
-    private static _buffers = new Map<Pass, InstancedBuffer>();
-
-    public static get (pass: Pass) {
-        if (!InstancedBuffer._buffers.has(pass)) {
-            InstancedBuffer._buffers.set(pass, new InstancedBuffer(pass.device));
-        }
-        return InstancedBuffer._buffers.get(pass)!;
-    }
-
     public instances: IInstancedItem[] = [];
     public psoci: number = 0;
+
+    private static _buffers = new Map<Pass | number, InstancedBuffer>();
+
+    public static get (key: Pass | number, device: GFXDevice) {
+        const buffers = InstancedBuffer._buffers;
+        if (!buffers.has(key)) {
+            const buffer = new InstancedBuffer(device);
+            buffers.set(key, buffer);
+            return buffer;
+        }
+        return buffers.get(key)!;
+    }
+
     private _device: GFXDevice;
 
     constructor (device: GFXDevice) {

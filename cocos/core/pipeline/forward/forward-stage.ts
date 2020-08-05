@@ -47,6 +47,7 @@ export class ForwardStage extends RenderStage {
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _additiveLightQueue: RenderAdditiveLightQueue;
+    private _lightPhaseID = getPhaseID('forward-add');
 
     constructor () {
         super();
@@ -108,6 +109,7 @@ export class ForwardStage extends RenderStage {
         const validLights = pipeline.validLights;
         const lightBuffers = pipeline.lightBuffers;
         const lightIndices = pipeline.lightIndices;
+        const device = pipeline.device;
         this._additiveLightQueue.clear(validLights, lightBuffers, lightIndices);
         this._renderQueues.forEach(this.renderQueueClearFunc);
 
@@ -125,9 +127,20 @@ export class ForwardStage extends RenderStage {
                     for (p = 0; p < passes.length; ++p) {
                         const pass = passes[p];
                         if (pass.batchingScheme === BatchingSchemes.INSTANCING) {
-                            const instancedBuffer = InstancedBuffer.get(pass);
-                            instancedBuffer.merge(subModel, ro.model.instancedAttributes, subModel.psoInfos[p]);
-                            this._instancedQueue.queue.add(instancedBuffer);
+                            let instancedBuffer: InstancedBuffer;
+                            if (pass.phase === this._lightPhaseID) {
+                                for (let l = lightIndexOffset[i]; l < nextLightIndex; ++l) {
+                                    const lightIndex = lightIndices[l];
+                                    const psoCI = RenderInstancedQueue.getLightPipelineCreateInfo(ro, m, pass,
+                                        validLights, lightBuffers, lightIndex);
+                                    instancedBuffer = InstancedBuffer.get(lightIndex, device);
+                                    instancedBuffer.merge(subModel, ro.model.instancedAttributes, psoCI);
+                                }
+                            } else {
+                                instancedBuffer = InstancedBuffer.get(pass, device);
+                                instancedBuffer.merge(subModel, ro.model.instancedAttributes, subModel.psoInfos[p]);
+                            }
+                            this._instancedQueue.queue.add(instancedBuffer!);
                         } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) {
                             const batchedBuffer = BatchedBuffer.get(pass);
                             batchedBuffer.merge(subModel, p, ro);
@@ -181,7 +194,6 @@ export class ForwardStage extends RenderStage {
         colors[0].a = camera.clearColor.a;
 
         const framebuffer = view.window.framebuffer;
-        const device = pipeline.device;
         const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
 
         cmdBuff.begin();

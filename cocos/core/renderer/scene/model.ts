@@ -345,7 +345,7 @@ export class Model {
             const isNormalized = attribute.isNormalized;
             offset += info.size; attrs.list.push({ name: attribute.name, format, isNormalized, view });
         }
-        if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass).destroy(); } // instancing IA changed
+        if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass, this._device).destroy(); } // instancing IA changed
         this._instMatWorldIdx = this.getInstancedAttributeIndex(INST_MAT_WORLD);
         this._transformUpdated = true;
     }
