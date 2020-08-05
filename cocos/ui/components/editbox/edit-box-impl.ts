@@ -60,33 +60,16 @@ let _currentEditBoxImpl: EditBoxImpl | null = null;
 
 let _domCount = 0;
 
-// polyfill
-const polyfill = {
-    zoomInvalid: false,
-};
-
-if (sys.OS_ANDROID === sys.os &&
-    (sys.browserType === sys.BROWSER_TYPE_SOUGOU ||
-        sys.browserType === sys.BROWSER_TYPE_360)) {
-    polyfill.zoomInvalid = true;
-}
-
 export class EditBoxImpl extends EditBoxImplBase {
     public _delegate: EditBoxComponent | null = null;
     public _inputMode = InputMode.ANY;
     public _inputFlag = InputFlag.DEFAULT;
     public _returnType = KeyboardReturnType.DEFAULT;
-    public _placeholderText = '';
-    public _size: Size = new Size();
-    public _node: Node | null = null;
     public __eventListeners: any = {};
     public __fullscreen = false;
     public __autoResize = false;
-    public __rotateScreen = false;
     public __orientationChanged: any;
     public _edTxt: HTMLInputElement | HTMLTextAreaElement | null = null;
-    public _textColor: Color = Color.WHITE.clone();
-    public _edFontSize = 14;
     private _isTextArea = false;
 
     private _textLabelFont = null;
@@ -336,12 +319,6 @@ export class EditBoxImpl extends EditBoxImplBase {
         const tx = _matrix_temp.m12 * scaleX + offsetX;
         const ty = _matrix_temp.m13 * scaleY + offsetY;
 
-        if (polyfill.zoomInvalid) {
-            this.setSize(this._size.width * a, this._size.height * d);
-            a = 1;
-            d = 1;
-        }
-
         const matrix = 'matrix(' + a + ',' + -b + ',' + -c + ',' + d + ',' + tx + ',' + -ty + ')';
         this._edTxt.style.transform = matrix;
         this._edTxt.style['-webkit-transform'] = matrix;
@@ -431,7 +408,6 @@ export class EditBoxImpl extends EditBoxImplBase {
             return;
         }
         let elem = this._edTxt;
-        elem.style.fontSize = this._edFontSize + 'px';
         elem.style.color = '#000000';
         elem.style.border = '0px';
         elem.style.background = 'transparent';
@@ -456,7 +432,6 @@ export class EditBoxImpl extends EditBoxImplBase {
         else {
             elem.style.resize = 'none';
             elem.style.overflowY = 'scroll';
-
         }
 
         this._placeholderStyleSheet = document.createElement('style');
