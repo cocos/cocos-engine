@@ -29,7 +29,7 @@
  */
 
 import { Component } from '../../core/components/component';
-import { ccclass, help, executionOrder, menu, property, tooltip } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property, tooltip, requireComponent, executeInEditMode } from '../../core/data/class-decorator';
 import { Color } from '../../core/math';
 import { LabelComponent } from './label-component';
 import { legacyCC } from '../../core/global-exports';
@@ -55,11 +55,13 @@ import { legacyCC } from '../../core/global-exports';
 @help('i18n:cc.LabelOutlineComponent')
 @executionOrder(110)
 @menu('UI/LabelOutline')
+@requireComponent(LabelComponent)
+@executeInEditMode
 export class LabelOutlineComponent extends Component {
     @property
-    protected _color = new Color(255, 255, 255, 255);
+    protected _color = new Color(0, 0, 0, 255);
     @property
-    protected _width = 1;
+    protected _width = 2;
 
     /**
      * @en
@@ -111,6 +113,14 @@ export class LabelOutlineComponent extends Component {
         }
 
         this._width = value;
+        this._updateRenderData();
+    }
+
+    public onEnable () {
+        this._updateRenderData();
+    }
+
+    public onDisable () {
         this._updateRenderData();
     }
 
