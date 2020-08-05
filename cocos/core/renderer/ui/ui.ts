@@ -365,11 +365,14 @@ export class UI {
         const texture = frame;
         const samp = sampler;
 
-        if (this._currMaterial !== renderComp.getRenderMaterial(0) ||
+        let mat = renderComp.getRenderMaterial(0);
+        if (!mat) { mat = renderComp._instanceMaterial(mat); }
+
+        if (this._currMaterial !== mat ||
             this._currTexture !== texture || this._currSampler !== samp
         ) {
             this.autoMergeBatches();
-            this._currMaterial = renderComp.getRenderMaterial(0)!;
+            this._currMaterial = mat;
             this._currTexture = texture;
             this._currSampler = samp;
         }

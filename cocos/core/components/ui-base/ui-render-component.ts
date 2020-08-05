@@ -308,9 +308,6 @@ export class UIRenderComponent extends RenderableComponent {
 
     protected _lastParent: Node | null = null;
 
-    protected _builtinSpriteUniformData = new Int8Array([0, 1, 0, 0]);
-    protected _builtinSpriteUniformBuffer : GFXBuffer | null = null;
-
     public __preload (){
         this.node._uiProps.uiComp = this;
         if (this._flushAssembler){
@@ -426,7 +423,8 @@ export class UIRenderComponent extends RenderableComponent {
     }
 
     protected _canRender () {
-        return this.getMaterial(0) !== null && this.enabled && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy);
+        return this.enabled && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy);
+        // this.getMaterial(0) !== null &&
     }
 
     protected _postCanRender () {}
@@ -474,7 +472,7 @@ export class UIRenderComponent extends RenderableComponent {
         }
     }
 
-    protected _instanceMaterial (mat: Material | null) : Material {
+    public _instanceMaterial (mat: Material | null) : Material {
         if (mat && this._useCustomerMaterial) {
             return mat;
         } else {
