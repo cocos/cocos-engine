@@ -19,7 +19,6 @@ import { BatchedBuffer } from '../batched-buffer';
 import { PassBatchedBuffer } from '../pass-batched-buffer';
 import { LightBatchedBuffer } from '../light-batched-buffer';
 import { BatchingSchemes } from '../../renderer/core/pass';
-import { getPhaseID } from '../pass-phase';
 import { ForwardFlow } from './forward-flow';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
@@ -50,7 +49,7 @@ export class ForwardStage extends RenderStage {
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _additiveLightQueue: RenderAdditiveLightQueue;
-    private _phaseID = getPhaseID('forward-add');
+    private _lightPhaseID = getPhaseID('forward-add');
 
     constructor () {
         super();
@@ -107,11 +106,12 @@ export class ForwardStage extends RenderStage {
 
     public render (view: RenderView) {
 
-        const validLights = this.pipeline.validLights;
-        const lightBuffers = this.pipeline.lightBuffers;
-        const lightIndices = this.pipeline.lightIndices;
         this._instancedQueue.clear();
         this._batchedQueue.clear();
+        const pipeline = this._pipeline as ForwardPipeline;
+        const validLights = pipeline.validLights;
+        const lightBuffers = pipeline.lightBuffers;
+        const lightIndices = pipeline.lightIndices;
         this._additiveLightQueue.clear(validLights, lightBuffers, lightIndices);
         this._renderQueues.forEach(this.renderQueueClearFunc);
 
@@ -134,7 +134,7 @@ export class ForwardStage extends RenderStage {
                             this._instancedQueue.queue.add(instancedBuffer);
                         } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) {
                             let batchedBuffer: BatchedBuffer;
-                            if (pass.phase === this._phaseID) {
+                            if (pass.phase === this._lightPhaseID) {
                                 for (let l = lightIndexOffset[i]; l < nextLightIndex; ++l) {
                                     const lightIndex = lightIndices[l];
                                     const psoCI = RenderBatchedQueue.getLightPipelineCreateInfo(ro, m, pass,

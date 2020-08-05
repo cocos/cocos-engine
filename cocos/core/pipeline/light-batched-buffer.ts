@@ -7,7 +7,7 @@ import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit } from '../gfx';
 import { GFXBuffer } from '../gfx/buffer';
 import { IGFXAttribute } from '../gfx/input-assembler';
 import { Mat4 } from '../math';
-import { SubModel, IPSOCreateInfo } from '../renderer/scene/submodel';
+import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOLocalBatched } from './define';
 import { Pass } from '../renderer';
 
@@ -21,13 +21,13 @@ export class LightBatchedBuffer extends BatchedBuffer {
         return LightBatchedBuffer._buffers.get(index)!;
     }
 
-    public mergeLight (subModel: SubModel, ro: IRenderObject, lightPsoCI: IPSOCreateInfo) {
+    public mergeLight (subModel: SubModel, ro: IRenderObject, lightPsoCI: number) {
         const flatBuffers = subModel.subMeshData.flatBuffers;
         if (flatBuffers.length === 0) { return; }
         let vbSize = 0;
         let vbIdxSize = 0;
         const vbCount = flatBuffers[0].count;
-        const psoCreateInfo = lightPsoCI;
+        const psoCI = lightPsoCI;
         let isBatchExist = false;
         for (let i = 0; i < this.batches.length; ++i) {
             const batch = this.batches[i];
@@ -73,7 +73,7 @@ export class LightBatchedBuffer extends BatchedBuffer {
                         }
                     }
 
-                    batch.psoCreateInfo = psoCreateInfo;
+                    batch.psoCI = psoCI;
 
                     ++batch.mergeCount;
                     batch.vbCount += vbCount;
@@ -140,7 +140,7 @@ export class LightBatchedBuffer extends BatchedBuffer {
 
         this.batches.push({
             mergeCount: 1,
-            vbs, vbDatas, vbIdx, vbIdxData, vbCount, ia, ubo, uboData, psoCreateInfo,
+            vbs, vbDatas, vbIdx, vbIdxData, vbCount, ia, ubo, uboData, psoCI,
         });
     }
 }
