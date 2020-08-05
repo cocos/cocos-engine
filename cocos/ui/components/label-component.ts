@@ -793,13 +793,15 @@ export class LabelComponent extends UIRenderComponent {
         if (!this._renderData) {
             if (this._assembler && this._assembler.createData){
                 this._renderData = this._assembler.createData(this);
-                this._renderData!.material = this._material;
+                this._renderData!.material = this.material;
             }
         }
     }
 
     protected _flushMaterial () {
-        this._updateMaterial(this._material);
+        // this._updateMaterial(this._material);
+        this.sharedMaterials = this.sharedMaterials;
+
     }
 
     protected _applyFontTexture () {

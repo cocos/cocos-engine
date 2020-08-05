@@ -28,7 +28,7 @@
  */
 
 import { RenderableComponent } from '../../../core/3d/framework/renderable-component';
-import { ccclass, property, tooltip } from '../../../core/data/class-decorator';
+import { ccclass, property, executeInEditMode } from '../../../core/data/class-decorator';
 import { Color } from '../../../core/math';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { ccenum } from '../../../core/value-types/enum';
@@ -44,6 +44,7 @@ import { Node } from '../../scene-graph';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { UIComponent } from './ui-component';
 import { legacyCC } from '../../global-exports';
+import { GFXBuffer } from '../../gfx/buffer';
 
 // hack
 ccenum(GFXBlendFactor);
@@ -116,6 +117,7 @@ const _matInsInfo: IMaterialInstanceInfo = {
  * 所有支持渲染的 UI 组件的基类。
  */
 @ccclass('cc.UIRenderComponent')
+@executeInEditMode
 export class UIRenderComponent extends RenderableComponent {
 
     /**
@@ -243,7 +245,7 @@ export class UIRenderComponent extends RenderableComponent {
     //     return this._material;
     // }
 
-    private _useCustomerMaterial = false;
+    protected _useCustomerMaterial = false;
 
     @property({
         type: Material,
@@ -256,12 +258,9 @@ export class UIRenderComponent extends RenderableComponent {
     }
 
     set sharedMaterials (val) {
-        if (val[0] == null || val[0].effectName === 'builtin-sprite') {
-            this._useCustomerMaterial = false;
-        } else {
-            this._useCustomerMaterial = true;
-        }
-        val[0] = this._instanceMaterial(val[0]);
+        // 使用uniform的话，此处不必再选择不同pass的材质
+        this._useCustomerMaterial = !!val[0] && val[0].effectName !== 'builtin-sprite';
+        // val[0] = this._instanceMaterial(val[0]);
         super.sharedMaterials = val;
     }
 
@@ -309,6 +308,9 @@ export class UIRenderComponent extends RenderableComponent {
 
     protected _lastParent: Node | null = null;
 
+    protected _builtinSpriteUniformData = new Int8Array([0, 1, 0, 0]);
+    protected _builtinSpriteUniformBuffer : GFXBuffer | null = null;
+
     public __preload (){
         this.node._uiProps.uiComp = this;
         if (this._flushAssembler){
@@ -339,7 +341,7 @@ export class UIRenderComponent extends RenderableComponent {
             }
         }
 
-        this._updateMaterial(null);
+        // this._updateMaterial(null);
         this._renderData = null;
     }
 
@@ -424,7 +426,7 @@ export class UIRenderComponent extends RenderableComponent {
     }
 
     protected _canRender () {
-        return this.material !== null && this.enabled && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy);
+        return this.getMaterial(0) !== null && this.enabled && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy);
     }
 
     protected _postCanRender () {}
@@ -442,17 +444,19 @@ export class UIRenderComponent extends RenderableComponent {
     // }
 
     protected _updateBlendFunc () {
-        if (!this.material) {
+        let mat = this.getMaterial(0);
+        if (!mat) {
             return;
         }
 
         const target = this._blendTemplate.blendState.targets[0];
         if (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor) {
+            mat = this.material;
             target.blendDst = this._dstBlendFactor;
             target.blendSrc = this._srcBlendFactor;
-            this._blendTemplate.depthStencilState = this.material.passes[0].depthStencilState;
-            this._blendTemplate.rasterizerState = this.material.passes[0].rasterizerState;
-            this.material.overridePipelineStates(this._blendTemplate, 0);
+            this._blendTemplate.depthStencilState = mat!.passes[0].depthStencilState;
+            this._blendTemplate.rasterizerState = mat!.passes[0].rasterizerState;
+            mat!.overridePipelineStates(this._blendTemplate, 0);
         }
     }
 
@@ -471,33 +475,27 @@ export class UIRenderComponent extends RenderableComponent {
     }
 
     protected _instanceMaterial (mat: Material | null) : Material {
-        _matInsInfo.owner = this;
         if (mat && this._useCustomerMaterial) {
-            _matInsInfo.parent = mat;
+            return mat;
         } else {
             switch (this._instanceMaterialType) {
                 case InstanceMaterialType.ADD_COLOR:
-                    _matInsInfo.parent = builtinResMgr.get('ui-base-material');
-                    break;
+                    return builtinResMgr.get('ui-base-material');
                 case InstanceMaterialType.ADD_COLOR_AND_TEXTURE:
-                    _matInsInfo.parent = builtinResMgr.get('ui-sprite-material');
-                    break;
+                    return builtinResMgr.get('ui-sprite-material');
                 case InstanceMaterialType.GRAYSCALE:
-                    _matInsInfo.parent = builtinResMgr.get('ui-sprite-gray-material');
-                    break;
+                    return builtinResMgr.get('ui-sprite-gray-material');
                 case InstanceMaterialType.USE_ALPHA_SEPARATED:
-                    _matInsInfo.parent = builtinResMgr.get('ui-sprite-alpha-sep-material');
-                    break;
+                    return builtinResMgr.get('ui-sprite-alpha-sep-material');
                 case InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY:
-                    _matInsInfo.parent = builtinResMgr.get('ui-sprite-gray-alpha-sep-material');
-                    break;
+                    return builtinResMgr.get('ui-sprite-gray-alpha-sep-material');
+                default:
+                    return builtinResMgr.get('ui-sprite-material');
             }
         }
-        return _matInsInfo.parent;
-        //this._updateMaterial(_matInsInfo.parent);
     }
 
-    protected _onMaterialModified (index: number, material: Material | null) {
+    protected _onMaterialModified (index: number, material: Material) {
         this._updateBlendFunc();
     }
 

@@ -140,7 +140,7 @@ export class UI {
         }
         this._meshBuffers.splice(0);
 
-        this._destroyUIMaterials();
+        // this._destroyUIMaterials();
     }
 
     public getRenderSceneGetter () {
@@ -336,7 +336,7 @@ export class UI {
                     if (batch.camera) {
                         uiModel.visFlags = batch.camera.view.visibility;
                         if (this._canvasMaterials.get(batch.camera.view.visibility)!.get(batch.material!.hash) == null) {
-                            this._uiMaterials.get(batch.material!.hash)!.increase();
+                            // this._uiMaterials.get(batch.material!.hash)!.increase();
                             this._canvasMaterials.get(batch.camera.view.visibility)!.set(batch.material!.hash, 1);
                         }
                     }
@@ -365,11 +365,11 @@ export class UI {
         const texture = frame;
         const samp = sampler;
 
-        if (this._currMaterial.hash !== renderComp.material!.hash ||
+        if (this._currMaterial !== renderComp.getRenderMaterial(0) ||
             this._currTexture !== texture || this._currSampler !== samp
         ) {
             this.autoMergeBatches();
-            this._currMaterial = renderComp.material!;
+            this._currMaterial = renderComp.getRenderMaterial(0)!;
             this._currTexture = texture;
             this._currSampler = samp;
         }
@@ -393,7 +393,7 @@ export class UI {
      * @param model - 提交渲染的 model 数据。
      * @param mat - 提交渲染的材质。
      */
-    public commitModel (comp: UIComponent, model: Model | null, mat: Material | null) {
+    public commitModel (comp: UIComponent | UIRenderComponent, model: Model | null, mat: Material | null) {
         // if the last comp is spriteComp, previous comps should be batched.
         if (this._currMaterial !== this._emptyMaterial) {
             this.autoMergeBatches();
@@ -470,8 +470,10 @@ export class UI {
         curDrawBatch.ia!.firstIndex = indicsStart;
         curDrawBatch.ia!.indexCount = vCount;
 
-        this._getUIMaterial(mat);
+        // curDrawBatch.psoCreateInfo = this._getUIMaterial(mat).getPipelineCreateInfo();
+        curDrawBatch.bindingLayout = curDrawBatch.psoCreateInfo!.bindingLayout;
         curDrawBatch.hDescriptorSet = PassPool.get(mat.passes[0].handle, PassView.DESCRIPTOR_SET);
+        curDrawBatch.psoCreateInfo = mat.passes[0].createPipelineStateCI();
 
         this._batches.push(curDrawBatch);
 

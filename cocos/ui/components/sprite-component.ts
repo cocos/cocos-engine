@@ -425,11 +425,14 @@ export class SpriteComponent extends UIRenderComponent {
         }
         this._useGrayscale = value;
         if (value === true) {
-            this._instanceMaterialType = InstanceMaterialType.GRAYSCALE; }
-        else {
-            this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
+            // this._instanceMaterialType = InstanceMaterialType.GRAYSCALE;
+            this._builtinSpriteUniformData[3] = 1;
+        } else {
+            // this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
+            this._builtinSpriteUniformData[3] = 1;
         }
-        this._instanceMaterial();
+        // this._instanceMaterial();
+        // this.sharedMaterials = this.sharedMaterials;
     }
 
     /**
@@ -572,14 +575,18 @@ export class SpriteComponent extends UIRenderComponent {
             value = (format === PixelFormat.RGBA_ETC1 || format === PixelFormat.RGB_A_PVRTC_4BPPV1 || format === PixelFormat.RGB_A_PVRTC_2BPPV1);
         }
 
-        if (value && this.grayscale) {
-            this._instanceMaterialType = InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY;
-        } else if (value) {
-            this._instanceMaterialType = InstanceMaterialType.USE_ALPHA_SEPARATED;
-        } else if (this.grayscale) {
-            this._instanceMaterialType = InstanceMaterialType.GRAYSCALE;
-        } else {
-            this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
+        // if (value && this.grayscale) {
+        //     this._instanceMaterialType = InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY;
+        // } else if (value) {
+        //     this._instanceMaterialType = InstanceMaterialType.USE_ALPHA_SEPARATED;
+        // } else if (this.grayscale) {
+        //     this._instanceMaterialType = InstanceMaterialType.GRAYSCALE;
+        // } else {
+        //     this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
+        // }
+
+        if (value) {
+            this._builtinSpriteUniformData[2] = 1;
         }
     }
 
@@ -623,7 +630,7 @@ export class SpriteComponent extends UIRenderComponent {
         if (!this._renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
-                this._renderData!.material = this._material;
+                this._renderData!.material = this.getRenderMaterial(0);
                 this.markForUpdateRenderData();
                 this._updateColor();
             }
@@ -672,7 +679,7 @@ export class SpriteComponent extends UIRenderComponent {
 
     private _activateMaterial () {
         const spriteFrame = this._spriteFrame;
-        const material = this._material;
+        const material = this.getRenderMaterial(0);
         // WebGL
         if (legacyCC.game.renderType !== legacyCC.game.RENDER_TYPE_CANVAS) {
             // if (!material) {
@@ -731,7 +738,8 @@ export class SpriteComponent extends UIRenderComponent {
         }
 
         this.changeMaterialForDefine();
-        this._instanceMaterial();
+        // this._instanceMaterial();
+        this.sharedMaterials = this.sharedMaterials;
         this._applySpriteSize();
     }
 

@@ -109,26 +109,26 @@ export class UIStaticBatchComponent extends UIRenderComponent {
         this.markForUpdateRenderData();
     }
 
-    @property({
-        type: Material,
-        displayOrder: 3,
-        visible: false,
-        override: true,
-    })
-    get sharedMaterial () {
-        return this._sharedMaterial;
-    }
+    // @property({
+    //     type: Material,
+    //     displayOrder: 3,
+    //     visible: false,
+    //     override: true,
+    // })
+    // get sharedMaterial () {
+    //     return this._sharedMaterial;
+    // }
 
-    set sharedMaterial (value) {
-        if (this._sharedMaterial === value) {
-            return;
-        }
+    // set sharedMaterial (value) {
+    //     if (this._sharedMaterial === value) {
+    //         return;
+    //     }
 
-        this._sharedMaterial = value;
-        if (this._instanceMaterial) {
-            this._instanceMaterial();
-        }
-    }
+    //     this._sharedMaterial = value;
+    //     if (this._instanceMaterial) {
+    //         this._instanceMaterial();
+    //     }
+    // }
 
     get drawBatchList () {
         return this._uiDrawBatchList;

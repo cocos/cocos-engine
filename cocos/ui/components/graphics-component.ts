@@ -226,7 +226,8 @@ export class GraphicsComponent extends UIRenderComponent {
 
     constructor (){
         super();
-        this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
+        // this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
+        this._builtinSpriteUniformData[1] = 0;
     }
 
     public onRestore () {
@@ -278,11 +279,12 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     public _activateMaterial () {
-        if (!this._material) {
+        if (!this.sharedMaterials) {
             return;
         }
 
-        this._updateMaterial(this._material);
+        // this._updateMaterial(this._material);
+        this.sharedMaterials = this.sharedMaterials;
     }
 
     /**
@@ -553,8 +555,8 @@ export class GraphicsComponent extends UIRenderComponent {
     public helpInstanceMaterial () {
         let mat: MaterialInstance | null = null;
         _matInsInfo.owner = new RenderableComponent();
-        if (this._sharedMaterial) {
-            _matInsInfo.parent = this._sharedMaterial;
+        if (this.sharedMaterial) {
+            _matInsInfo.parent = this.sharedMaterial[0];
             mat = new MaterialInstance(_matInsInfo);
         } else {
             _matInsInfo.parent = builtinResMgr.get('ui-base-material');
@@ -562,7 +564,8 @@ export class GraphicsComponent extends UIRenderComponent {
             mat.recompileShaders({ USE_LOCAL: true });
         }
 
-        this._updateMaterial(mat);
+        // this._updateMaterial(mat);
+        this.sharedMaterials = this.sharedMaterials;
         if (!this.impl){
             this._flushAssembler();
             this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
@@ -570,12 +573,12 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     protected _render (render: UI) {
-        render.commitModel(this, this.model, this._material);
+        render.commitModel(this, this.model, this.material);
     }
 
-    protected _instanceMaterial (){
-        this.helpInstanceMaterial();
-    }
+    // protected _instanceMaterial (){
+    //     this.helpInstanceMaterial();
+    // }
 
     protected _flushAssembler (){
         const assembler = GraphicsComponent.Assembler!.getAssembler(this);

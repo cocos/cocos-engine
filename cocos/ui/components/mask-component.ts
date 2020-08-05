@@ -252,7 +252,8 @@ export class MaskComponent extends UIRenderComponent {
 
     constructor () {
         super();
-        this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
+        // this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
+        this._builtinSpriteUniformData[1] = 0;
     }
 
     public onLoad () {
