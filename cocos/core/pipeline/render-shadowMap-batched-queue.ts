@@ -36,7 +36,7 @@ export class RenderShadowMapBatchedQueue {
      * @zh 构造函数。
      * @param root
      */
-    private constructor () {
+    constructor () {
     }
 
     /**
