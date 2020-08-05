@@ -28,9 +28,10 @@
  */
 
 import { AnimationClip } from '../../animation/animation-clip';
+import { BatchingSchemes } from '../../renderer/core/pass';
 import { Material } from '../../assets';
 import { Skeleton } from '../../assets/skeleton';
-import { ccclass, executeInEditMode, executionOrder, help, menu, property } from '../../data/class-decorator';
+import { ccclass, executeInEditMode, executionOrder, help, menu, property, tooltip } from '../../data/class-decorator';
 import { BakedSkinningModel } from '../../renderer/models/baked-skinning-model';
 import { SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
@@ -80,8 +81,8 @@ export class SkinningModelComponent extends ModelComponent {
      */
     @property({
         type: Node,
-        tooltip: 'i18n:model.skinning_root',
     })
+    @tooltip('i18n:model.skinning_root')
     get skinningRoot () {
         return this._skinningRoot;
     }
@@ -136,7 +137,7 @@ export class SkinningModelComponent extends ModelComponent {
         } else { // or assign the original material back if instancing is enabled
             for (let i = 0; i < meshCount; ++i) {
                 const cur = this.getRenderMaterial(i);
-                if (cur && cur.parent && cur.parent.passes[0].instancedBuffer) {
+                if (cur && cur.parent && cur.parent.passes[0].batchingScheme === BatchingSchemes.INSTANCING) {
                     this._materialInstances[i]!.destroy();
                     this._materialInstances[i] = null;
                 }

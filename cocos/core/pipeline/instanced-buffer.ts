@@ -5,8 +5,8 @@
 import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice } from '../gfx';
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
-import { IInstancedAttributeBlock } from '../renderer';
-import { SubModel, IPSOCreateInfo } from '../renderer/scene/submodel';
+import { IInstancedAttributeBlock, Pass } from '../renderer';
+import { SubModel } from '../renderer/scene/submodel';
 
 export interface IInstancedItem {
     count: number;
@@ -21,8 +21,18 @@ const INITIAL_CAPACITY = 32;
 const MAX_CAPACITY = 1024;
 
 export class InstancedBuffer {
+
+    private static _buffers = new Map<Pass, InstancedBuffer>();
+
+    public static get (pass: Pass) {
+        if (!InstancedBuffer._buffers.has(pass)) {
+            InstancedBuffer._buffers.set(pass, new InstancedBuffer(pass.device));
+        }
+        return InstancedBuffer._buffers.get(pass)!;
+    }
+
     public instances: IInstancedItem[] = [];
-    public psoci: IPSOCreateInfo | null = null;
+    public psoci: number = 0;
     private _device: GFXDevice;
 
     constructor (device: GFXDevice) {
@@ -38,7 +48,7 @@ export class InstancedBuffer {
         this.instances.length = 0;
     }
 
-    public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, psoci: IPSOCreateInfo) {
+    public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, psoci: number) {
         const stride = attrs.buffer.length;
         if (!stride) { return; } // we assume per-instance attributes are always present
         if (!this.psoci) { this.psoci = psoci; }
@@ -105,6 +115,6 @@ export class InstancedBuffer {
             const instance = this.instances[i];
             instance.count = 0;
         }
-        this.psoci = null;
+        this.psoci = 0;
     }
 }

@@ -32,6 +32,3 @@ export const OPPO = tryDefineGlobal('CC_OPPO', false);
 export const VIVO = tryDefineGlobal('CC_VIVO', false);
 // @ts-ignore
 export const SUPPORT_JIT = tryDefineGlobal('CC_SUPPORT_JIT', ('function' === typeof loadRuntime));
-export const PHYSICS_BUILTIN = tryDefineGlobal('CC_PHYSICS_BUILTIN', true);
-export const PHYSICS_CANNON = tryDefineGlobal('CC_PHYSICS_CANNON', false);
-export const PHYSICS_AMMO = tryDefineGlobal('CC_PHYSICS_AMMO', false);

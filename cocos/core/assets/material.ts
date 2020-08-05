@@ -41,7 +41,6 @@ import { EffectAsset } from './effect-asset';
 import { SpriteFrame } from './sprite-frame';
 import { TextureBase } from './texture-base';
 import { RenderTexture } from './render-texture';
-import { RenderPassStage } from '../pipeline/define';
 
 /**
  * @en

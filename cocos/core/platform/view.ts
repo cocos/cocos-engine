@@ -36,7 +36,7 @@ import { Rect, Size, Vec2 } from '../math';
 import visibleRect from './visible-rect';
 import { EDITOR, MINIGAME, WECHAT, JSB } from 'internal:constants';
 import { legacyCC } from '../global-exports';
-import { logID } from './debug';
+import { logID, errorID } from './debug';
 
 class BrowserGetter {
 
@@ -577,7 +577,7 @@ export class View extends EventTarget {
     public setDesignResolutionSize (width: number, height: number, resolutionPolicy: ResolutionPolicy|number) {
         // Defensive code
         if ( !(width > 0 || height > 0) ){
-            logID(2200);
+            errorID(2200);
             return;
         }
 
@@ -784,6 +784,7 @@ export class View extends EventTarget {
         }
         _view._resizing = false;
 
+        _view.emit('canvas-resize');
         if (_view._resizeCallback) {
             _view._resizeCallback.call();
         }
@@ -1015,6 +1016,14 @@ class ContainerStrategy {
         document.body.scrollTop = 0;
     }
 }
+
+/**
+ * @en
+ * Emit when canvas resize.
+ * @zh
+ * 当画布大小改变时发送。
+ * @event canvas-resize
+ */
 
 /**
  * ContentStrategy class is the root strategy class of content's scale strategy,
@@ -1391,4 +1400,4 @@ export const view = View.instance = legacyCC.view = new View();
  * @en winSize is the alias object for the size of the current game window.
  * @zh winSize 为当前的游戏窗口的大小。
  */
-legacyCC.winSize = new Vec2();
+legacyCC.winSize = new Size();

@@ -31,7 +31,7 @@ import { EDITOR } from 'internal:constants';
 import { RenderTexture } from '../../assets/render-texture';
 import { UITransformComponent } from '../../components';
 import { Component } from '../../components/component';
-import { ccclass, help, executeInEditMode, menu, property } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, property, tooltip } from '../../data/class-decorator';
 import { ray } from '../../geometry';
 import { GFXClearFlag } from '../../gfx/define';
 import { Color, Rect, toRadian, Vec3 } from '../../math';
@@ -142,9 +142,9 @@ export class CameraComponent extends Component {
      * @zh 相机的渲染优先级，值越小越优先渲染。
      */
     @property({
-        tooltip: 'i18n:camera.priority',
         displayOrder: 0,
     })
+    @tooltip('i18n:camera.priority')
     get priority () {
         return this._priority;
     }
@@ -162,9 +162,9 @@ export class CameraComponent extends Component {
      */
     @property({
         type: Layers.BitMask,
-        tooltip: 'i18n:camera.visibility',
         displayOrder: 1,
     })
+    @tooltip('i18n:camera.visibility')
     get visibility () {
         return this._visibility;
     }
@@ -182,9 +182,9 @@ export class CameraComponent extends Component {
      */
     @property({
         type: ClearFlag,
-        tooltip: 'i18n:camera.clear_flags',
         displayOrder: 2,
     })
+    @tooltip('i18n:camera.clear_flags')
     get clearFlags () {
         return this._clearFlags;
     }
@@ -199,9 +199,9 @@ export class CameraComponent extends Component {
      * @zh 相机的颜色缓冲默认值。
      */
     @property({
-        tooltip: 'i18n:camera.color',
         displayOrder: 3,
     })
+    @tooltip('i18n:camera.color')
     // @constget
     get clearColor (): Readonly<Color> {
         return this._color;
@@ -222,9 +222,9 @@ export class CameraComponent extends Component {
      * @zh 相机的深度缓冲默认值。
      */
     @property({
-        tooltip: 'i18n:camera.depth',
         displayOrder: 4,
     })
+    @tooltip('i18n:camera.depth')
     get clearDepth () {
         return this._depth;
     }
@@ -239,9 +239,9 @@ export class CameraComponent extends Component {
      * @zh 相机的模板缓冲默认值。
      */
     @property({
-        tooltip: 'i18n:camera.stencil',
         displayOrder: 5,
     })
+    @tooltip('i18n:camera.stencil')
     get clearStencil () {
         return this._stencil;
     }
@@ -257,9 +257,9 @@ export class CameraComponent extends Component {
      */
     @property({
         type: ProjectionType,
-        tooltip: 'i18n:camera.projection',
         displayOrder: 6,
     })
+    @tooltip('i18n:camera.projection')
     get projection () {
         return this._projection;
     }
@@ -275,9 +275,9 @@ export class CameraComponent extends Component {
      */
     @property({
         type: FOVAxis,
-        tooltip: 'i18n:camera.fov_axis',
         displayOrder: 7,
     })
+    @tooltip('i18n:camera.fov_axis')
     get fovAxis () {
         return this._fovAxis;
     }
@@ -297,9 +297,9 @@ export class CameraComponent extends Component {
      * @zh 相机的视角大小。
      */
     @property({
-        tooltip: 'i18n:camera.fov',
         displayOrder: 8,
     })
+    @tooltip('i18n:camera.fov')
     get fov () {
         return this._fov;
     }
@@ -314,9 +314,9 @@ export class CameraComponent extends Component {
      * @zh 正交模式下的相机视角高度。
      */
     @property({
-        tooltip: 'i18n:camera.ortho_height',
         displayOrder: 9,
     })
+    @tooltip('i18n:camera.ortho_height')
     get orthoHeight () {
         return this._orthoHeight;
     }
@@ -331,9 +331,9 @@ export class CameraComponent extends Component {
      * @zh 相机的近裁剪距离，应在可接受范围内尽量取最大。
      */
     @property({
-        tooltip: 'i18n:camera.near',
         displayOrder: 10,
     })
+    @tooltip('i18n:camera.near')
     get near () {
         return this._near;
     }
@@ -348,9 +348,9 @@ export class CameraComponent extends Component {
      * @zh 相机的远裁剪距离，应在可接受范围内尽量取最小。
      */
     @property({
-        tooltip: 'i18n:camera.far',
         displayOrder: 11,
     })
+    @tooltip('i18n:camera.far')
     get far () {
         return this._far;
     }
@@ -366,9 +366,9 @@ export class CameraComponent extends Component {
      */
     @property({
         type: Aperture,
-        tooltip: 'i18n:camera.aperture',
         displayOrder: 12,
     })
+    @tooltip('i18n:camera.aperture')
     get aperture () {
         return this._aperture;
     }
@@ -384,9 +384,9 @@ export class CameraComponent extends Component {
      */
     @property({
         type: Shutter,
-        tooltip: 'i18n:camera.shutter',
         displayOrder: 13,
     })
+    @tooltip('i18n:camera.shutter')
     get shutter () {
         return this._shutter;
     }
@@ -402,9 +402,9 @@ export class CameraComponent extends Component {
      */
     @property({
         type: ISO,
-        tooltip: 'i18n:camera.ISO',
         displayOrder: 14,
     })
+    @tooltip('i18n:camera.ISO')
     get iso () {
         return this._iso;
     }
@@ -419,9 +419,9 @@ export class CameraComponent extends Component {
      * @zh 此相机最终渲染到屏幕上的视口位置和大小。
      */
     @property({
-        tooltip: 'i18n:camera.rect',
         displayOrder: 15,
     })
+    @tooltip('i18n:camera.rect')
     get rect () {
         return this._rect;
     }
@@ -437,9 +437,9 @@ export class CameraComponent extends Component {
      */
     @property({
         type: RenderTexture,
-        tooltip: 'i18n:camera.target_texture',
         displayOrder: 16,
     })
+    @tooltip('i18n:camera.target_texture')
     get targetTexture () {
         return this._targetTexture;
     }

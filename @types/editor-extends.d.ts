@@ -79,7 +79,7 @@ declare namespace EditorExtends {
          * Called when a cc-class is registered.
          * @param classConstructor Registering class.
          */
-        'class-registered'(classConstructor: Function, metadata?: Readonly<any>):  void;
+        'class-registered'(classConstructor: Function, metadata: Readonly<any> | undefined, className: string):  void;
     }
 
     type EventArgs<EventName extends keyof EventMap> = Parameters<EventMap[EventName]>;

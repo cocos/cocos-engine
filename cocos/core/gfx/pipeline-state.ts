@@ -8,7 +8,7 @@ import {
     GFXColorMask,
     GFXComparisonFunc,
     GFXCullMode,
-    GFXDynamicState,
+    GFXDynamicStateFlags,
     GFXObject,
     GFXObjectType,
     GFXPolygonMode,
@@ -16,6 +16,7 @@ import {
     GFXShadeModel,
     GFXStencilOp,
     IGFXColor,
+    GFXDynamicStateFlagBit,
 } from './define';
 import { GFXDevice } from './device';
 import { IGFXAttribute } from './input-assembler';
@@ -154,9 +155,8 @@ export interface IGFXPipelineStateInfo {
     rasterizerState: GFXRasterizerState;
     depthStencilState: GFXDepthStencilState;
     blendState: GFXBlendState;
-    dynamicStates?: GFXDynamicState[];
+    dynamicStates?: GFXDynamicStateFlags;
     renderPass: GFXRenderPass;
-    hash: number;
 }
 
 /**
@@ -217,7 +217,7 @@ export abstract class GFXPipelineState extends GFXObject {
      * @en Get current dynamic states.
      * @zh GFX 动态状态数组。
      */
-    get dynamicStates (): GFXDynamicState[] {
+    get dynamicStates (): GFXDynamicStateFlags {
         return this._dynamicStates;
     }
 
@@ -227,14 +227,6 @@ export abstract class GFXPipelineState extends GFXObject {
      */
     get renderPass (): GFXRenderPass {
         return this._renderPass as GFXRenderPass;
-    }
-
-    /**
-     * @en Get current hash.
-     * @zh 此管线状态的 hash。
-     */
-    get hash (): number {
-        return this._hash;
     }
 
     protected _device: GFXDevice;
@@ -251,11 +243,9 @@ export abstract class GFXPipelineState extends GFXObject {
 
     protected _bs: GFXBlendState | null = null;
 
-    protected _dynamicStates: GFXDynamicState[] = [];
+    protected _dynamicStates: GFXDynamicStateFlags = GFXDynamicStateFlagBit.NONE;
 
     protected _renderPass: GFXRenderPass | null = null;
-
-    protected _hash: number = 0;
 
     constructor (device: GFXDevice) {
         super(GFXObjectType.PIPELINE_STATE);

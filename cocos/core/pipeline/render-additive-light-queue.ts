@@ -4,7 +4,7 @@
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { Pass } from '../renderer';
-import { SubModel, IPSOCreateInfo } from '../renderer/scene/submodel';
+import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOForwardLight } from './define';
 import { IMacroPatch } from '../renderer/core/pass'
 import { Light } from '../renderer';
@@ -12,6 +12,7 @@ import { LightType } from '../renderer/scene/light';
 import { GFXDevice, GFXRenderPass, GFXBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
+import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../renderer/core/memory-pools';
 
 const spherePatches = [
     { name: 'CC_FORWARD_ADD', value: true },
@@ -32,7 +33,7 @@ export enum ShadowPatchMask {
 export class RenderAdditiveLightQueue {
 
     private _sortedSubModelsArray: SubModel[][] = [];
-    private _sortedPSOCIArray: IPSOCreateInfo[][] = [];
+    private _sortedPSOCIArray: number[][] = [];
     private _phaseID = getPhaseID('forward-add');
 
     // psoCI cache
@@ -93,7 +94,7 @@ export class RenderAdditiveLightQueue {
                 const ia = this._sortedSubModelsArray[i][j].inputAssembler!;
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, psoCI, renderPass, ia);
                 cmdBuff.bindPipelineState(pso);
-                cmdBuff.bindBindingLayout(psoCI.bindingLayout);
+                cmdBuff.bindBindingLayout(BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT)));
                 cmdBuff.bindInputAssembler(ia);
                 cmdBuff.draw(ia);
             }
@@ -108,19 +109,17 @@ export class RenderAdditiveLightQueue {
         const psoCIList = this._sortedPSOCIArray[lightIdx];
         const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
         const fullPatches = modelPatches ? patches.concat(modelPatches) : patches;
-
         let psoCI: IPSOCreateInfo;
-        const patcheMask = subModelPatchMask + shadowPathchMask;
         if (this._psoCICache.has(subModel) && this._psoCISubModelCache.get(subModel) === patcheMask) {
             psoCI = this._psoCICache.get(subModel)!;
         } else {
-            psoCI = pass.createPipelineStateCI(fullPatches)!;
+        const psoCI = pass.createPipelineStateCI(fullPatches)!;
             this._psoCICache.set(subModel, psoCI);
             this._psoCISubModelCache.set(subModel, patcheMask);
-            renderObj.model.updateLocalBindings(psoCI, subModelIdx);
-            psoCI.bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
-            psoCI.bindingLayout.update();
-        }
+        renderObj.model.updateLocalBindings(psoCI, subModelIdx);
+        const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT));
+        bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
+        bindingLayout.update();
 
         subModelList.push(renderObj.model.subModels[subModelIdx]);
         psoCIList.push(psoCI);

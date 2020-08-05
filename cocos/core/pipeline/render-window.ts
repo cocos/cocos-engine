@@ -3,10 +3,8 @@ import {
     GFXTextureUsageBit,
     GFXFormat,
 } from '../gfx/define';
-import { GFXRenderPass, GFXTexture, GFXFramebuffer, IGFXRenderPassInfo } from '../gfx';
+import { GFXRenderPass, GFXTexture, GFXFramebuffer, IGFXRenderPassInfo, GFXDevice } from '../gfx';
 import { Root } from '../root';
-import { PipelineGlobal } from './global';
-import { RenderPassStage } from './define';
 
 export interface IRenderWindowInfo {
     title?: string;
@@ -76,7 +74,7 @@ export class RenderWindow {
     private constructor (root: Root) {
     }
 
-    public initialize (info: IRenderWindowInfo): boolean {
+    public initialize (device: GFXDevice, info: IRenderWindowInfo): boolean {
         if (info.title !== undefined) {
             this._title = info.title;
         }
@@ -94,7 +92,6 @@ export class RenderWindow {
         this._nativeWidth = this._width;
         this._nativeHeight = this._height;
 
-        const device = PipelineGlobal.device;
         const { colorAttachments, depthStencilAttachment } = info.renderPassInfo;
         for (let i = 0; i < colorAttachments.length; i++) {
             if (colorAttachments[i].format === GFXFormat.UNKNOWN) {

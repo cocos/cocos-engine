@@ -34,4 +34,14 @@ if (window.atob == null) {
 import Ammo from '../cocos/physics/ammo/ammo-instantiated';
 window.Ammo = Ammo;
 
+//polyfill config
+Ammo['CC_CONFIG'] = {
+    'ignoreSelfBody': true,
+    'emitStaticCollision': false,
+}
+
+Ammo['CC_CACHE'] = {
+    'btTriangleMesh': { 'enable': false },
+}
+
 import '../cocos/physics/ammo/instantiate';

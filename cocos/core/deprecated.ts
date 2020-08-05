@@ -206,3 +206,10 @@ replaceProperty(EventTouch.prototype, 'EventTouch.prototype', [
         targetName: 'EventTouch'
     }
 ]);
+
+replaceProperty(legacyCC, 'cc', [
+    {
+        name: 'GFXDynamicState',
+        newName: 'GFXDynamicStateFlagBit'
+    }
+]);

@@ -6,8 +6,10 @@ import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXDevice } from '../g
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { Mat4 } from '../math';
-import { SubModel, IPSOCreateInfo } from '../renderer/scene/submodel';
+import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOLocalBatched } from './define';
+import { Pass } from '../renderer';
+import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../renderer/core/memory-pools';
 
 export interface IBatchedItem {
     vbs: GFXBuffer[];
@@ -19,12 +21,22 @@ export interface IBatchedItem {
     ia: GFXInputAssembler;
     ubo: GFXBuffer;
     uboData: UBOLocalBatched;
-    psoCreateInfo: IPSOCreateInfo;
+    psoCI: number;
 }
 
 const _localBatched = new UBOLocalBatched();
 
 export class BatchedBuffer {
+
+    private static _buffers = new Map<Pass, BatchedBuffer>();
+
+    public static get (pass: Pass) {
+        if (!BatchedBuffer._buffers.has(pass)) {
+            BatchedBuffer._buffers.set(pass, new BatchedBuffer(pass.device));
+        }
+        return BatchedBuffer._buffers.get(pass)!;
+    }
+
     public batches: IBatchedItem[] = [];
     private _device: GFXDevice;
 
@@ -51,8 +63,8 @@ export class BatchedBuffer {
         let vbSize = 0;
         let vbIdxSize = 0;
         const vbCount = flatBuffers[0].count;
-        const psoCreateInfo = subModel.psoInfos[passIndx];
-        const bindingLayout = psoCreateInfo.bindingLayout;
+        const psoCI = subModel.psoInfos[passIndx];
+        const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT));
         let isBatchExist = false;
         for (let i = 0; i < this.batches.length; ++i) {
             const batch = this.batches[i];
@@ -100,10 +112,10 @@ export class BatchedBuffer {
 
                     // update world matrix
                     Mat4.toArray(batch.uboData.view, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
-                    if (!batch.mergeCount && batch.psoCreateInfo !== psoCreateInfo) {
+                    if (!batch.mergeCount && batch.psoCI !== psoCI) {
                         bindingLayout.bindBuffer(UBOLocalBatched.BLOCK.binding, batch.ubo);
                         bindingLayout.update();
-                        batch.psoCreateInfo = psoCreateInfo;
+                        batch.psoCI = psoCI;
                     }
 
                     ++batch.mergeCount;
@@ -174,7 +186,7 @@ export class BatchedBuffer {
 
         this.batches.push({
             mergeCount: 1,
-            vbs, vbDatas, vbIdx, vbIdxData, vbCount, ia, ubo, uboData, psoCreateInfo,
+            vbs, vbDatas, vbIdx, vbIdxData, vbCount, ia, ubo, uboData, psoCI,
         });
     }
 

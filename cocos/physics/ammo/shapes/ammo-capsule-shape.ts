@@ -1,8 +1,7 @@
 import Ammo from '../ammo-instantiated';
-import { Vec3, absMax } from "../../../core";
+import { absMax } from "../../../core";
 import { AmmoShape } from "./ammo-shape";
 import { CapsuleColliderComponent } from '../../../../exports/physics-framework';
-import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ICapsuleShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
@@ -16,9 +15,6 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
             this.collider.direction,
             this._collider.node.worldScale
         );
-        if (this._btCompound) {
-            this._btCompound.updateChildTransform(this.index, this.transform, true);
-        }
     }
 
     setDirection (v: number) {
@@ -28,9 +24,6 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
             this.collider.direction,
             this._collider.node.worldScale
         );
-        if (this._btCompound) {
-            this._btCompound.updateChildTransform(this.index, this.transform, true);
-        }
     }
 
     setRadius (v: number) {
@@ -40,9 +33,6 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
             this.collider.direction,
             this._collider.node.worldScale
         );
-        if (this._btCompound) {
-            this._btCompound.updateChildTransform(this.index, this.transform, true);
-        }
     }
 
     get impl () {
@@ -84,5 +74,6 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
             const halfH = height / 2 * Math.abs(ws.z);
             this.impl.updateProp(wr, halfH, upAxis);
         }
+        this.updateCompoundTransform();
     }
 }

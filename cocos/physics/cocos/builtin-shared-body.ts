@@ -8,6 +8,7 @@ import { BuiltInWorld } from './builtin-world';
 import { BuiltinObject } from './object/builtin-object';
 import { BuiltinShape } from './shapes/builtin-shape';
 import { Node } from '../../core';
+import { BuiltinRigidBody } from './builtin-rigid-body';
 // tslint:disable: prefer-for-of
 
 const m4_0 = new Mat4();
@@ -75,6 +76,7 @@ export class BuiltinSharedBody extends BuiltinObject {
     readonly node: Node;
     readonly world: BuiltInWorld;
     readonly shapes: BuiltinShape[] = [];
+    wrappedBody: BuiltinRigidBody | null = null;
 
     private constructor (node: Node, world: BuiltInWorld) {
         super();
@@ -88,9 +90,11 @@ export class BuiltinSharedBody extends BuiltinObject {
             const shapeA = this.shapes[i];
             for (let j = 0; j < body.shapes.length; j++) {
                 const shapeB = body.shapes[j];
-                if (intersect.resolve(shapeA.worldShape, shapeB.worldShape)) {
-                    this.world.shapeArr.push(shapeA);
-                    this.world.shapeArr.push(shapeB);
+                if (shapeA.collider.needTriggerEvent || shapeB.collider.needTriggerEvent) {
+                    if (intersect.resolve(shapeA.worldShape, shapeB.worldShape)) {
+                        this.world.shapeArr.push(shapeA);
+                        this.world.shapeArr.push(shapeB);
+                    }
                 }
             }
         }

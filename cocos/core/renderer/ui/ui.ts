@@ -48,6 +48,7 @@ import { UIDrawBatch } from './ui-draw-batch';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
 import { legacyCC } from '../../global-exports';
+import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
 
 /**
  * @zh
@@ -412,7 +413,7 @@ export class UI {
         curDrawBatch.texture = null;
         curDrawBatch.sampler = null;
 
-        curDrawBatch.psoCreateInfo = null;
+        curDrawBatch.psoCreateInfo = 0;
         curDrawBatch.bindingLayout = null;
 
         // reset current render state to null
@@ -467,7 +468,7 @@ export class UI {
         curDrawBatch.ia!.indexCount = vCount;
 
         curDrawBatch.psoCreateInfo = this._getUIMaterial(mat).getPipelineCreateInfo();
-        curDrawBatch.bindingLayout = curDrawBatch.psoCreateInfo!.bindingLayout;
+        curDrawBatch.bindingLayout = BindingLayoutPool.get(PSOCIPool.get(curDrawBatch.psoCreateInfo!, PSOCIView.BINDING_LAYOUT));
 
         this._batches.push(curDrawBatch);
 

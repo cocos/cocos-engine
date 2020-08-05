@@ -11,7 +11,6 @@ import { Camera } from '../scene/camera';
 import { Model } from '../scene/model';
 import { UI } from './ui';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../../gfx/input-assembler';
-import { IPSOCreateInfo } from '../scene/submodel';
 
 const _iaInfo: IGFXInputAssemblerInfo = {
     attributes: [],
@@ -27,7 +26,7 @@ export class UIDrawBatch {
     public material: Material | null = null;
     public texture: GFXTexture | null = null;
     public sampler: GFXSampler | null = null;
-    public psoCreateInfo: IPSOCreateInfo | null = null;
+    public psoCreateInfo = 0;
     public bindingLayout: GFXBindingLayout | null = null;
     public useLocalData: Node | null = null;
     public isStatic = false;
@@ -35,7 +34,7 @@ export class UIDrawBatch {
     public destroy (ui: UI) {
         if (this.psoCreateInfo) {
             ui._getUIMaterial(this.material!).revertPipelineCreateInfo(this.psoCreateInfo);
-            this.psoCreateInfo = null;
+            this.psoCreateInfo = 0;
         }
 
         if (this.bindingLayout) {
@@ -51,7 +50,7 @@ export class UIDrawBatch {
     public clear (ui: UI) {
         if (this.psoCreateInfo) {
             ui._getUIMaterial(this.material!).revertPipelineCreateInfo(this.psoCreateInfo);
-            this.psoCreateInfo = null;
+            this.psoCreateInfo = 0;
         }
         this.camera = null;
         this._bufferBatch = null;
