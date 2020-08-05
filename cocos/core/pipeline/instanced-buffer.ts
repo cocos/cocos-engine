@@ -6,7 +6,7 @@ import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice } from '../gfx';
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { IInstancedAttributeBlock, Pass } from '../renderer';
-import { SubModel, IPSOCreateInfo } from '../renderer/scene/submodel';
+import { SubModel } from '../renderer/scene/submodel';
 
 export interface IInstancedItem {
     count: number;

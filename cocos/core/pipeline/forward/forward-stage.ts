@@ -49,7 +49,7 @@ export class ForwardStage extends RenderStage {
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _additiveLightQueue: RenderAdditiveLightQueue;
-    private _phaseID = getPhaseID('forward-add');
+    private _lightPhaseID = getPhaseID('forward-add');
 
     constructor () {
         super();
@@ -129,7 +129,7 @@ export class ForwardStage extends RenderStage {
                         const pass = passes[p];
                         if (pass.batchingScheme === BatchingSchemes.INSTANCING) {
                             let instancedBuffer: InstancedBuffer;
-                            if (pass.phase === this._phaseID) {
+                            if (pass.phase === this._lightPhaseID) {
                                 for (let l = lightIndexOffset[i]; l < nextLightIndex; ++l) {
                                     const lightIndex = lightIndices[l];
                                     const psoCI = RenderInstancedQueue.getLightPipelineCreateInfo(ro, m, pass,

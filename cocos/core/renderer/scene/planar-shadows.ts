@@ -20,7 +20,7 @@ const _qt = new Quat();
 
 interface IShadowRenderData {
     model: Model;
-    psoCIs: IPSOCreateInfo[];
+    psoCIs: number[];
     instancedBuffer: PassInstancedBuffer | null;
 }
 

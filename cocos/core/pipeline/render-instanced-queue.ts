@@ -7,7 +7,6 @@ import { InstancedBuffer } from './instanced-buffer';
 import { GFXDevice, GFXRenderPass, GFXPipelineState, GFXBuffer } from '../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
-import { IPSOCreateInfo } from '../renderer';
 import { IRenderObject, UBOForwardLight } from './define';
 import { LightType, Light } from '../renderer/scene/light';
 import { IMacroPatch, Pass } from '../renderer/core/pass';
@@ -32,10 +31,10 @@ export class RenderInstancedQueue {
      */
     public queue = new Set<InstancedBuffer>();
 
-    private static _lightPsoCreateInfos: IPSOCreateInfo[] = [];
+    private static _lightPsoCreateInfos: number[] = [];
 
     public static getLightPipelineCreateInfo (renderObj: IRenderObject, subModelIdx: number, pass: Pass,
-        validLights: Light[], lightGFXBuffers: GFXBuffer[], lightIdx: number): IPSOCreateInfo {
+        validLights: Light[], lightGFXBuffers: GFXBuffer[], lightIdx: number): number {
         if (!this._lightPsoCreateInfos[lightIdx]) {
             const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
             const light = validLights[lightIdx];
@@ -54,8 +53,9 @@ export class RenderInstancedQueue {
             const psoci = pass.createPipelineStateCI(fullPatches)!;
             this._lightPsoCreateInfos[lightIdx] = psoci;
             renderObj.model.updateLocalBindings(psoci, subModelIdx);
-            psoci.bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
-            psoci.bindingLayout.update();
+            const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoci, PSOCIView.BINDING_LAYOUT));
+            bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
+            bindingLayout.update();
         }
 
         return this._lightPsoCreateInfos[lightIdx];
