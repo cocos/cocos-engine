@@ -30,14 +30,6 @@ export class RenderShadowMapBatchedQueue {
     private _phaseID = getPhaseID('shadow-add');
 
     /**
-     * @en The constructor
-     * @zh 构造函数。
-     * @param root
-     */
-    constructor () {
-    }
-
-    /**
      * @zh
      * clear ligth-Batched-Queue
      */
