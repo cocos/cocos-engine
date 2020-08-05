@@ -3,7 +3,7 @@ import {
     GFXBindingType,
     GFXBufferUsage,
     GFXBufferUsageBit,
-    GFXDynamicState,
+    GFXDynamicStateFlags,
     GFXFormat,
     GFXMemoryUsage,
     GFXMemoryUsageBit,
@@ -15,6 +15,7 @@ import {
     GFXTextureUsage,
     GFXTextureUsageBit,
     GFXType,
+    GFXDynamicStateFlagBit,
 } from '../define';
 import { IGFXAttribute } from '../input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
@@ -174,7 +175,7 @@ export class WebGLGPUPipelineState {
     public rs: GFXRasterizerState = new GFXRasterizerState();
     public dss: GFXDepthStencilState = new GFXDepthStencilState();
     public bs: GFXBlendState = new GFXBlendState();
-    public dynamicStates: GFXDynamicState[] = [];
+    public dynamicStates: GFXDynamicStateFlagBit[] = [];
     public gpuRenderPass: WebGLGPURenderPass | null = null;
 }
 

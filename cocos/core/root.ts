@@ -16,6 +16,7 @@ import { SpotLight } from './renderer/scene/spot-light';
 import { UI } from './renderer/ui/ui';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './pipeline/render-window';
+import { ForwardPipeline } from './pipeline/forward/forward-pipeline';
 import { GFXColorAttachment, GFXDepthStencilAttachment, GFXStoreOp } from './gfx';
 
 /**
@@ -174,7 +175,6 @@ export class Root {
     }
 
     public _createSceneFun: (root: Root) => RenderScene = null!;
-    public _createViewFun: (root: Root, camera: Camera) => RenderView = null!;
     public _createWindowFun: (root: Root) => RenderWindow = null!;
 
     private _device: GFXDevice;
@@ -207,7 +207,6 @@ export class Root {
         this._dataPoolMgr = new DataPoolManager(device);
 
         RenderScene.registerCreateFunc(this);
-        RenderView.registerCreateFunc(this);
         RenderWindow.registerCreateFunc(this);
 
         this._cameraPool = new Pool(() => new Camera(this._device), 4);
@@ -285,10 +284,6 @@ export class Root {
             }
         }
 
-        if (this._pipeline) {
-            this._pipeline.resize(width, height);
-        }
-
         for (const view of this._views) {
             if (view.camera.isWindowSize) {
                 view.camera.resize(width, height);
@@ -297,6 +292,10 @@ export class Root {
     }
 
     public setRenderPipeline (rppl: RenderPipeline): boolean {
+        if (!rppl) {
+            rppl = new ForwardPipeline();
+            rppl.initialize();
+        }
         this._pipeline = rppl;
         if (!this._pipeline.activate()) {
             return false;
@@ -381,7 +380,7 @@ export class Root {
      */
     public createWindow (info: IRenderWindowInfo): RenderWindow | null {
         const window = this._createWindowFun(this);
-        window.initialize(info);
+        window.initialize(this.device, info);
         this._windows.push(window);
         return window;
     }
@@ -456,7 +455,7 @@ export class Root {
      * @param info 渲染视图描述信息
      */
     public createView (info: IRenderViewInfo): RenderView {
-        const view: RenderView = this._createViewFun(this, info.camera);
+        const view: RenderView = new RenderView(info.camera);
         view.initialize(info);
         // view.camera.resize(cc.game.canvas.width, cc.game.canvas.height);
         this._views.push(view);

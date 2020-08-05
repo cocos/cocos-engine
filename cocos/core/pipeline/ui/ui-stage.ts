@@ -2,51 +2,89 @@
  * @category pipeline
  */
 
-import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { IGFXColor } from '../../gfx/define';
-import { RenderFlow } from '../render-flow';
-import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
+import { ccclass, property } from '../../data/class-decorator';
+import { IGFXColor, IGFXRect } from '../../gfx/define';
+import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
-import { PipelineGlobal } from '../global';
+import { ForwardStagePriority } from '../forward/enum';
+import { UIFlow } from './ui-flow';
+import { ForwardPipeline } from '../forward/forward-pipeline';
+import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
+import { getPhaseID } from '../pass-phase';
+import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
+import { IRenderPass } from '../define';
 
-const bufs: GFXCommandBuffer[] = [];
 const colors: IGFXColor[] = [];
 
 /**
  * @en The UI render stage
  * @zh UI渲阶段。
  */
+@ccclass('UIStage')
 export class UIStage extends RenderStage {
-
     public static initInfo: IRenderStageInfo = {
         name: 'UIStage',
-        priority: 0,
-        renderQueues: [{
+        priority: ForwardStagePriority.UI,
+    };
+
+    @property({
+        type: [RenderQueueDesc],
+        displayOrder: 2,
+        visible: true,
+    })
+    protected renderQueues: RenderQueueDesc[] = [];
+    protected _renderQueues: RenderQueue[] = [];
+
+    private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
+
+    public initialize (info: IRenderStageInfo): boolean {
+        super.initialize(info);
+        this.renderQueues = [{
             isTransparent: true,
             stages: ['default'],
             sortMode: RenderQueueSortMode.BACK_TO_FRONT,
-        }],
-        framebuffer: 'window',
-    };
+        }]
 
-    public activate (flow: RenderFlow) {
-        super.activate(flow);
+        return true;
+    }
+
+    public activate (pipeline: ForwardPipeline, flow: UIFlow) {
+        super.activate(pipeline, flow);
+        for (let i = 0; i < this.renderQueues.length; i++) {
+            let phase = 0;
+            for (let j = 0; j < this.renderQueues[i].stages.length; j++) {
+                phase |= getPhaseID(this.renderQueues[i].stages[j]);
+            }
+            let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
+            switch (this.renderQueues[i].sortMode) {
+                case RenderQueueSortMode.BACK_TO_FRONT:
+                    sortFunc = transparentCompareFn;
+                    break;
+                case RenderQueueSortMode.FRONT_TO_BACK:
+                    sortFunc = opaqueCompareFn;
+                    break;
+            }
+
+            this._renderQueues[i] = new RenderQueue({
+                isTransparent: this.renderQueues[i].isTransparent,
+                phases: phase,
+                sortFunc,
+            });
+        }
     }
 
     public destroy () {
     }
 
-    public resize (width: number, height: number) {
-    }
-
-    public rebuild () {
-    }
-
     public render (view: RenderView) {
+        const pipeline = this._pipeline as ForwardPipeline;
+        const isHDR = pipeline.isHDR;
+        pipeline.isHDR = false;
 
+        const device = pipeline.device;
         this._renderQueues[0].clear();
 
-        for (const ro of this._pipeline!.renderObjects) {
+        for (const ro of pipeline.renderObjects) {
             for (let i = 0; i < ro.model.subModelNum; i++) {
                 for (let j = 0; j < ro.model.getSubModel(i).passes.length; j++) {
                     this._renderQueues[0].insertRenderPass(ro, i, j);
@@ -64,20 +102,21 @@ export class UIStage extends RenderStage {
 
         colors[0] = camera.clearColor;
 
-        const cmdBuff = this._pipeline.commandBuffers[0];
+        const cmdBuff = pipeline.commandBuffers[0];
 
         const framebuffer = view.window.framebuffer;
-        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : this._flow.getRenderPass(camera.clearFlag);
+        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
             [camera.clearColor], camera.clearDepth, camera.clearStencil);
 
-        this._renderQueues[0].recordCommandBuffer(PipelineGlobal.device, this._framebuffer!.renderPass!, cmdBuff);
+        this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();
         cmdBuff.end();
 
-        PipelineGlobal.device.queue.submit(this._pipeline.commandBuffers);
+        device.queue.submit(pipeline.commandBuffers);
+        pipeline.isHDR = isHDR;
     }
 }

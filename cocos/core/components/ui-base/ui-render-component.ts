@@ -28,7 +28,7 @@
  */
 
 import { RenderableComponent } from '../../../core/3d/framework/renderable-component';
-import { ccclass, property } from '../../../core/data/class-decorator';
+import { ccclass, property, tooltip } from '../../../core/data/class-decorator';
 import { Color } from '../../../core/math';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { ccenum } from '../../../core/value-types/enum';
@@ -134,8 +134,8 @@ export class UIRenderComponent extends UIComponent {
     @property({
         type: GFXBlendFactor,
         displayOrder: 0,
-        tooltip: '原图混合模式',
     })
+    @tooltip('原图混合模式')
     get srcBlendFactor () {
         return this._srcBlendFactor;
     }
@@ -165,8 +165,8 @@ export class UIRenderComponent extends UIComponent {
     @property({
         type: GFXBlendFactor,
         displayOrder: 1,
-        tooltip: '目标混合模式',
     })
+    @tooltip('目标混合模式')
     get dstBlendFactor () {
         return this._dstBlendFactor;
     }
@@ -191,8 +191,8 @@ export class UIRenderComponent extends UIComponent {
      */
     @property({
         displayOrder: 2,
-        tooltip: '渲染颜色',
     })
+    @tooltip('渲染颜色')
     // @constget
     get color (): Readonly<Color> {
         return this._color;
@@ -217,9 +217,9 @@ export class UIRenderComponent extends UIComponent {
     @property({
         type: Material,
         displayOrder: 3,
-        tooltip: '源材质',
         visible: false,
     })
+    @tooltip('源材质')
     get sharedMaterial () {
         return this._sharedMaterial;
     }
@@ -236,7 +236,7 @@ export class UIRenderComponent extends UIComponent {
     }
 
     get material () {
-        if (!this._material){
+        if (!this._material) {
             if (this._instanceMaterial) {
                 this._instanceMaterial();
             }
@@ -285,11 +285,9 @@ export class UIRenderComponent extends UIComponent {
                 },
             ],
         },
-        depthStencilState: {},
-        rasterizerState: {},
     };
 
-    public __preload (){
+    public __preload () {
         super.__preload();
         this._instanceMaterial();
         if (this._flushAssembler){
@@ -393,11 +391,11 @@ export class UIRenderComponent extends UIComponent {
         }
     }
 
-    protected _render (render: UI) { }
+    protected _render (render: UI) {}
 
-    protected _postRender (render: UI) { }
+    protected _postRender (render: UI) {}
 
-    protected _checkAndUpdateRenderData (){
+    protected _checkAndUpdateRenderData () {
         if (this._renderDataFlag) {
             this._assembler!.updateRenderData!(this);
             this._renderDataFlag = false;
@@ -408,7 +406,7 @@ export class UIRenderComponent extends UIComponent {
         return this.material !== null && this.enabled && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy);
     }
 
-    protected _postCanRender (){}
+    protected _postCanRender () {}
 
     protected _updateColor () {
         if (this._assembler && this._assembler.updateColor) {
@@ -431,14 +429,12 @@ export class UIRenderComponent extends UIComponent {
         if (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor) {
             target.blendDst = this._dstBlendFactor;
             target.blendSrc = this._srcBlendFactor;
-            this._blendTemplate.depthStencilState = this._material.passes[0].depthStencilState;
-            this._blendTemplate.rasterizerState = this._material.passes[0].rasterizerState;
-            this._material.overridePipelineStates(this._blendTemplate, 0);
+            this._material.overridePipelineStates(this._blendTemplate);
         }
     }
 
     // pos, rot, scale changed
-    protected _nodeStateChange (type: TransformBit){
+    protected _nodeStateChange (type: TransformBit) {
         if (this._renderData) {
             this.markForUpdateRenderData();
         }

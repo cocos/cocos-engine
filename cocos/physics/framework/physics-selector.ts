@@ -1,31 +1,41 @@
 /**
  * @hidden
  */
-export let PhysicsWorld: any;
-export let RigidBody: any;
+interface IPhysicsWrapperObject {
+    PhysicsWorld: any,
+    RigidBody?: any,
 
-export let BoxShape: any;
-export let SphereShape: any;
-export let CapsuleShape: any;
-export let TrimeshShape: any;
-export let CylinderShape: any;
+    BoxShape: any,
+    SphereShape: any,
+    CapsuleShape?: any,
+    TrimeshShape?: any,
+    CylinderShape?: any,
+    ConeShape?: any,
+    TerrainShape?: any,
+    SimplexShape?: any,
+    PlaneShape?: any,
 
-export interface IPhysicsWrapperObject {
-    world: any,
-    body?: any,
-    box: any,
-    sphere: any,
-    capsule?: any,
-    trimesh?: any,
-    cylinder?: any,
+    PointToPointConstraint?: any,
+    HingeConstraint?: any,
+    ConeTwistConstraint?: any,
 }
 
-export function instantiate (obj: IPhysicsWrapperObject) {
-    BoxShape = obj.box;
-    SphereShape = obj.sphere;
-    RigidBody = obj.body;
-    PhysicsWorld = obj.world;
-    if (obj.capsule) { CapsuleShape = obj.capsule; }
-    if (obj.trimesh) { TrimeshShape = obj.trimesh; }
-    if (obj.cylinder) { CylinderShape = obj.cylinder; }
+export let WRAPPER: IPhysicsWrapperObject;
+type WrapperCallBack = () => IPhysicsWrapperObject | null;
+let callback: WrapperCallBack[] = [];
+export function registerSelectorCB (cb: WrapperCallBack) {
+    const index = callback.indexOf(cb);
+    if (index < 0) {
+        callback.push(cb);
+    }
+}
+
+export function initPhysicsSelector () {
+    for (let i = 0; i < callback.length; i++) {
+        const obj = callback[i]();
+        if (obj) {
+            WRAPPER = obj;
+            return;
+        }
+    }
 }

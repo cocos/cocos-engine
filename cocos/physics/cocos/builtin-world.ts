@@ -20,6 +20,7 @@ const TriggerEventObject = {
     type: 'onTriggerEnter' as unknown as TriggerEventType,
     selfCollider: null as unknown as ColliderComponent,
     otherCollider: null as unknown as ColliderComponent,
+    impl: {} as any,
 };
 
 /**
@@ -134,6 +135,15 @@ export class BuiltInWorld implements IPhysicsWorld {
         const index = this.bodies.indexOf(body);
         if (index >= 0) {
             this.bodies.splice(index, 1);
+        }
+    }
+
+    updateCollisionMatrix (group: number, mask: number) {
+        for (let i = 0; i < this.bodies.length; i++) {
+            const b = this.bodies[i];
+            if (b.collisionFilterGroup == group) {
+                b.collisionFilterMask = mask;
+            }
         }
     }
 

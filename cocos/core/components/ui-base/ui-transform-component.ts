@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../component';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property, tooltip } from '../../data/class-decorator';
 import { SystemEventType } from '../../platform/event-manager/event-enum';
 import { EventListener, IListenerMask } from '../../platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../math';
@@ -69,8 +69,8 @@ export class UITransformComponent extends Component {
      */
     @property({
         displayOrder: 0,
-        tooltip:'内容尺寸',
     })
+    @tooltip('内容尺寸')
     // @constget
     get contentSize (): Readonly<Size> {
         return this._contentSize;
@@ -151,8 +151,8 @@ export class UITransformComponent extends Component {
      */
     @property({
         displayOrder: 1,
-        tooltip:'锚点位置',
     })
+    @tooltip('锚点位置')
     // @constget
     get anchorPoint (): Readonly<Vec2> {
         return this._anchorPoint;
@@ -201,9 +201,7 @@ export class UITransformComponent extends Component {
      * @zh
      * 渲染先后顺序，按照广度渲染排列，按同级节点下进行一次排列。
      */
-    @property({
-        tooltip: '渲染排序优先级'
-    })
+    @tooltip('渲染排序优先级')
     get priority() {
         return this._priority;
     }

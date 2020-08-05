@@ -1,14 +1,16 @@
 import { Mat4, Quat, Vec3 } from '../../../core/math';
 import { BuiltinSharedBody } from '../builtin-shared-body';
 import { IBuiltinShape } from '../builtin-interface';
-import { BuiltinObject } from '../object/builtin-object';
 import { ColliderComponent, RigidBodyComponent, PhysicMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { BuiltInWorld } from '../builtin-world';
 import { Node } from '../../../core';
+import { aabb, sphere } from '../../../core/geometry';
 
 export class BuiltinShape implements IBaseShape {
+    getAABB (v: aabb) { }
+    getBoundingSphere (v: sphere) { }
     setMaterial (v: PhysicMaterial | null) { }
     setAsTrigger (v: boolean) { }
     get attachedRigidBody (): RigidBodyComponent | null { return null; }

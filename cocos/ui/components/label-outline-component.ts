@@ -29,7 +29,7 @@
  */
 
 import { Component } from '../../core/components/component';
-import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property, tooltip } from '../../core/data/class-decorator';
 import { Color } from '../../core/math';
 import { LabelComponent } from './label-component';
 import { legacyCC } from '../../core/global-exports';
@@ -73,9 +73,7 @@ export class LabelOutlineComponent extends Component {
      * outline.color = cc.color(0.5, 0.3, 0.7, 1.0);
      * ```
      */
-    @property({
-        tooltip:'描边的颜色',
-    })
+    @tooltip('描边的颜色')
     // @constget
     get color (): Readonly<Color> {
         return this._color;
@@ -102,9 +100,7 @@ export class LabelOutlineComponent extends Component {
      * outline.width = 3;
      * ```
      */
-    @property({
-        tooltip:'描边的宽度',
-    })
+    @tooltip('描边的宽度')
     get width () {
         return this._width;
     }

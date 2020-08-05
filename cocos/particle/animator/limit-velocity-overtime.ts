@@ -3,7 +3,7 @@
  * @category particle
  */
 
-import { ccclass, property } from '../../core/data/class-decorator';
+import { ccclass, property, tooltip } from '../../core/data/class-decorator';
 import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core/math';
 import { Space, ModuleRandSeed } from '../enum';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
@@ -45,8 +45,8 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 4,
-        tooltip:'X 轴方向上的速度下限',
     })
+    @tooltip('X 轴方向上的速度下限')
     public limitX = new CurveRange();
 
     /**
@@ -56,8 +56,8 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 5,
-        tooltip:'Y 轴方向上的速度下限',
     })
+    @tooltip('Y 轴方向上的速度下限')
     public limitY = new CurveRange();
 
     /**
@@ -67,8 +67,8 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 6,
-        tooltip:'Z 轴方向上的速度下限',
     })
+    @tooltip('Z 轴方向上的速度下限')
     public limitZ = new CurveRange();
 
     /**
@@ -78,8 +78,8 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 3,
-        tooltip:'速度下限',
     })
+    @tooltip('速度下限')
     public limit = new CurveRange();
 
     /**
@@ -87,8 +87,8 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
      */
     @property({
         displayOrder: 7,
-        tooltip:'当前速度与速度下限的插值',
     })
+    @tooltip('当前速度与速度下限的插值')
     public dampen = 3;
 
     /**
@@ -96,8 +96,8 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
      */
     @property({
         displayOrder: 2,
-        tooltip:'是否三个轴分开限制',
     })
+    @tooltip('是否三个轴分开限制')
     public separateAxes = false;
 
     /**
@@ -106,8 +106,8 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @property({
         type: Space,
         displayOrder: 1,
-        tooltip:'计算速度下限时采用的坐标系',
     })
+    @tooltip('计算速度下限时采用的坐标系')
     public space = Space.Local;
 
     // TODO:functions related to drag are temporarily not supported

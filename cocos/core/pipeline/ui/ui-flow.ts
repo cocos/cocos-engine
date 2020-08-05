@@ -2,12 +2,13 @@
  * @category pipeline
  */
 
-import { UBOGlobal } from '../define';
 import { ForwardFlowPriority } from '../forward/enum';
-import { RenderFlowType } from '../pipeline-serialization';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { UIStage } from './ui-stage';
+import { RenderFlowTag } from '../pipeline-serialization';
+import { sceneCulling } from '../forward/scene-culling';
+import { ForwardPipeline } from '../forward/forward-pipeline';
 
 /**
  * @en The UI render flow
@@ -18,7 +19,7 @@ export class UIFlow extends RenderFlow {
     public static initInfo: IRenderFlowInfo = {
         name: 'UIFlow',
         priority: ForwardFlowPriority.UI,
-        type: RenderFlowType.UI,
+        tag: RenderFlowTag.UI,
     };
 
     public initialize (info: IRenderFlowInfo): boolean {
@@ -33,27 +34,14 @@ export class UIFlow extends RenderFlow {
     }
 
     public destroy () {
-        this.destroyStages();
-    }
-
-    public rebuild () {
+        super.destroy();
     }
 
     public render (view: RenderView) {
-
+        const pipeline = this._pipeline as ForwardPipeline;
         view.camera.update();
-
-        this.pipeline.sceneCulling(view);
-
-        this.pipeline.updateUBOs(view);
-
-        const isHDR = this.pipeline.defaultGlobalUBOData[UBOGlobal.EXPOSURE_OFFSET + 2];
-        this.pipeline.defaultGlobalUBOData[UBOGlobal.EXPOSURE_OFFSET + 2] = 0;
-        const globalUBOBuffer = this.pipeline.globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!;
-        globalUBOBuffer.update(this.pipeline.defaultGlobalUBOData);
+        sceneCulling(pipeline, view);
+        pipeline.updateUBOs(view);
         super.render(view);
-        this.pipeline.defaultGlobalUBOData[UBOGlobal.EXPOSURE_OFFSET + 2] = isHDR;
-        this.pipeline.globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this.pipeline.defaultGlobalUBOData);
     }
-
 }

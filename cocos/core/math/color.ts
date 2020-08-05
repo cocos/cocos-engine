@@ -413,30 +413,34 @@ export class Color extends ValueType {
      * @example
      * ```
      * const color = new Color(255, 14, 0, 255);
-     * color.toHex("rrggbbaa"); // "FF0E00FF"
-     * color.toHex("rrggbb"); // "FF0E00"
+     * color.toHEX("#rgb");      // "f00";
+     * color.toHEX("#rrggbbaa"); // "ff0e00"
+     * color.toHEX("#rrggbb");   // "ff0e00ff"
      * ```
      */
-    public toHEX (fmt: '#rrggbb' | '#rrggbbaa') {
+    public toHEX (fmt: '#rgb' | '#rrggbb' | '#rrggbbaa') {
+        let prefix = '0';
         const hex = [
-            (this.r | 0).toString(16),
-            (this.g | 0).toString(16),
-            (this.b | 0).toString(16),
+            (this.r < 16 ? prefix : '') + (this.r | 0).toString(16),
+            (this.g < 16 ? prefix : '') + (this.g | 0).toString(16),
+            (this.b < 16 ? prefix : '') + (this.b | 0).toString(16),
         ];
         let i = -1;
-        if (fmt === '#rrggbb') {
+        if ( fmt === '#rgb' ) {
+            for ( i = 0; i < hex.length; ++i ) {
+                if ( hex[i].length > 1 ) {
+                    hex[i] = hex[i][0];
+                }
+            }
+        }
+        else if (fmt === '#rrggbb') {
             for (i = 0; i < hex.length; ++i) {
                 if (hex[i].length === 1) {
                     hex[i] = '0' + hex[i];
                 }
             }
         } else if (fmt === '#rrggbbaa') {
-            hex.push((this.a | 0).toString(16));
-            for (i = 0; i < hex.length; ++i) {
-                if (hex[i].length === 1) {
-                    hex[i] = '0' + hex[i];
-                }
-            }
+            hex.push((this.a < 16 ? prefix : '') + (this.a | 0).toString(16));
         }
         return hex.join('');
     }

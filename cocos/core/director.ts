@@ -48,7 +48,6 @@ import { js } from './utils';
 import { DEBUG, EDITOR, BUILD } from 'internal:constants';
 import { legacyCC } from './global-exports';
 import { errorID, error, logID, assertID } from './platform/debug';
-import { PipelineGlobal } from './pipeline/global';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -508,7 +507,6 @@ export class Director extends EventTarget {
         const persistNodeList = Object.keys(legacyCC.game._persistRootNodes).map((x) => {
             return legacyCC.game._persistRootNodes[x];
         });
-        // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < persistNodeList.length; i++) {
             const node = persistNodeList[i];
             node.emit(legacyCC.Node.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
@@ -716,12 +714,12 @@ export class Director extends EventTarget {
             this.emit(legacyCC.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             legacyCC.loader.load({ uuid: info.uuid, type: 'uuid' },
                 onProgress,
-                (error: null | Error, asset: SceneAsset) => {
-                    if (error) {
-                        errorID(1210, sceneName, error.message);
+                (err: null | Error, asset: SceneAsset) => {
+                    if (err) {
+                        errorID(1210, sceneName, err.message);
                     }
                     if (onLoaded) {
-                        onLoaded(error, asset);
+                        onLoaded(err, asset);
                     }
                 });
         }
@@ -1080,8 +1078,6 @@ export class Director extends EventTarget {
     private _init () {
         legacyCC.loader.init(this);
         this._root = new Root(legacyCC.game._gfxDevice);
-        PipelineGlobal.root = this._root;
-        PipelineGlobal.device = this.root!.device;
         const rootInfo = {};
         if (!this._root.initialize(rootInfo)) {
             errorID(1217);

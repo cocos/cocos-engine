@@ -117,7 +117,7 @@
         "cc.GFXStoreOp",
         "cc.GFXTextureLayout",
         "cc.GFXPipelineBindPoint",
-        "cc.GFXDynamicState",
+        "cc.GFXDynamicStateFlagBit",
         "cc.GFXStencilFace",
         "cc.GFXQueueType",
         "cc.GFXClearFlag",
@@ -279,6 +279,7 @@
         "cc.UIReorderComponent",
         "cc.PageViewIndicatorComponent",
         "cc.PageViewComponent",
+        "cc.SafeAreaComponent",
         "cc._widgetManager",
         "cc.FontAtlas",
         "cc.UI"

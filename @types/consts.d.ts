@@ -87,7 +87,4 @@ declare module "internal:constants" {
 
 
     export const SUPPORT_JIT: boolean;
-    export const PHYSICS_BUILTIN: boolean;
-    export const PHYSICS_CANNON: boolean;
-    export const PHYSICS_AMMO: boolean;
 }
