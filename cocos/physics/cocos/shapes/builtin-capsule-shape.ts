@@ -1,9 +1,8 @@
 
 import { BuiltinShape } from './builtin-shape';
 import { ICapsuleShape } from '../../spec/i-physics-shape';
-import { CapsuleColliderComponent } from '../../framework/components/collider/capsule-collider-component';
 import { capsule } from '../../../core/geometry';
-import { EAxisDirection } from '../../framework';
+import { EAxisDirection, CapsuleColliderComponent } from '../../framework';
 
 export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
 

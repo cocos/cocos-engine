@@ -30,7 +30,7 @@
 
 import { CameraComponent } from '../../3d/framework/camera-component';
 import { RenderTexture } from '../../assets/render-texture';
-import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../data/class-decorator';
+import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu, property, requireComponent, tooltip } from '../../data/class-decorator';
 import { director, Director } from '../../director';
 import { game } from '../../game';
 import { GFXClearFlag } from '../../gfx/define';
@@ -87,8 +87,8 @@ export class CanvasComponent extends Component {
      */
     @property({
         type: CanvasClearFlag,
-        tooltip: '清理屏幕缓冲标记',
     })
+    @tooltip('清理屏幕缓冲标记')
     get clearFlag () {
         return this._clearFlag;
     }
@@ -107,9 +107,7 @@ export class CanvasComponent extends Component {
      * @zh
      * 内置相机的颜色缓冲默认值。
      */
-    @property({
-        tooltip: '清理颜色缓冲区后的颜色',
-    })
+    @property('清理颜色缓冲区后的颜色')
     get color () {
         return this._color;
     }
@@ -139,8 +137,8 @@ export class CanvasComponent extends Component {
      */
     @property({
         type: RenderMode,
-        tooltip: 'Canvas 渲染模式，intersperse 下可以指定 Canvas 与场景中的相机的渲染顺序，overlay 下 Canvas 会在所有场景相机渲染完成后渲染。\n注意：注意：场景里的相机（包括 Canvas 内置的相机）必须有一个的 ClearFlag 选择 SOLID_COLOR，否则在移动端可能会出现闪屏',
     })
+    @tooltip('Canvas 渲染模式，intersperse 下可以指定 Canvas 与场景中的相机的渲染顺序，overlay 下 Canvas 会在所有场景相机渲染完成后渲染。\n注意：注意：场景里的相机（包括 Canvas 内置的相机）必须有一个的 ClearFlag 选择 SOLID_COLOR，否则在移动端可能会出现闪屏')
     get renderMode () {
         return this._renderMode;
     }
@@ -163,9 +161,7 @@ export class CanvasComponent extends Component {
      *
      * @param value - 渲染优先级。
      */
-    @property({
-        tooltip: '相机排序优先级。当 RenderMode 为 intersperse 时，指定与其它相机的渲染顺序，当 RenderMode 为 overlay 时，指定跟其余 Canvas 做排序使用。需要对多 Canvas 设定 priority 以免出现不同平台下的闪屏问题。',
-    })
+    @tooltip('相机排序优先级。当 RenderMode 为 intersperse 时，指定与其它相机的渲染顺序，当 RenderMode 为 overlay 时，指定跟其余 Canvas 做排序使用。需要对多 Canvas 设定 priority 以免出现不同平台下的闪屏问题。')
     get priority () {
         return this._priority;
     }
@@ -190,8 +186,8 @@ export class CanvasComponent extends Component {
      */
     @property({
         type: RenderTexture,
-        tooltip: '目标渲染纹理',
     })
+    @tooltip('目标渲染纹理')
     get targetTexture (){
         return this._targetTexture;
     }

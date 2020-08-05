@@ -28,7 +28,7 @@
  */
 
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
-import { ccclass, executeInEditMode, executionOrder, help, menu, property } from '../data/class-decorator';
+import { ccclass, executeInEditMode, executionOrder, help, menu, property, tooltip } from '../data/class-decorator';
 import { Mat4 } from '../math';
 import { DataPoolManager } from '../renderer/data-pool-manager';
 import { Node } from '../scene-graph/node';
@@ -106,8 +106,8 @@ export class SkeletalAnimationComponent extends AnimationComponent {
      */
     @property({
         type: [Socket],
-        tooltip: 'i18n:animation.sockets',
     })
+    @tooltip('i18n:animation.sockets')
     get sockets () {
         return this._sockets;
     }
@@ -130,9 +130,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
      * 是否使用预烘焙动画，默认启用，可以大幅提高运行效时率，但所有动画效果会被彻底固定，不支持任何形式的编辑和混合。<br>
      * 运行时动态修改此选项会在播放下一条动画片段时生效。
      */
-    @property({
-        tooltip: 'i18n:animation.use_baked_animation',
-    })
+    @tooltip('i18n:animation.use_baked_animation')
     get useBakedAnimation () {
         return this._useBakedAnimation;
     }

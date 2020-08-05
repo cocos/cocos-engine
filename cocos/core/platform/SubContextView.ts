@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../components/component';
-import { property, ccclass, help, menu, executionOrder, requireComponent } from '../data/class-decorator';
+import { property, ccclass, help, menu, executionOrder, requireComponent, tooltip } from '../data/class-decorator';
 import { view } from './view';
 import { SpriteComponent } from '../../ui/components/sprite-component';
 import { Node } from '../scene-graph';
@@ -65,9 +65,7 @@ import { legacyCC } from '../global-exports';
 @requireComponent(UITransformComponent)
 @menu('Components/SubContextView')
 export class SubContextView extends Component {
-    @property({
-        tooltip:'帧数',
-    })
+    @tooltip('帧数')
     get fps (){
         return this._fps;
     }

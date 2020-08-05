@@ -361,6 +361,18 @@ export function property (ctorProtoOrOptions?, propName?, desc?) {
 
 // Editor Decorators
 
+/**
+ * A class decorator which does nothing.
+ */
+const emptyClassDecorator: ClassDecorator | PropertyDecorator = () => {};
+
+/**
+ * Ignoring all arguments and return the `emptyClassDecorator`.
+ */
+const ignoringArgsClassDecorator = () => emptyClassDecorator;
+
+const ignoringArgsPropertyDecorator = () => emptyClassDecorator as PropertyDecorator;
+
 function createEditorDecorator (argCheckFunc, editorPropName, staticValue?) {
     return argCheckFunc(function (ctor, decoratedValue) {
         const cache = getClassCache(ctor, editorPropName);
@@ -429,7 +441,7 @@ export const requireComponent: (requiredComponent: Function) => Function = creat
  * }
  * ```
  */
-export const menu: (path: string) => Function = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'menu');
+export const menu: (path: string) => ClassDecorator = DEV ? createEditorDecorator(checkStringArgument, 'menu') : ignoringArgsClassDecorator;
 
 /**
  * @en Set the component priority, it decides at which order the life cycle functions of components will be invoked. Smaller priority get invoked before larger priority.
@@ -447,7 +459,7 @@ export const menu: (path: string) => Function = (DEV ? createEditorDecorator : c
  * }
  * ```
  */
-export const executionOrder: (priority: number) => Function = createEditorDecorator(checkNumberArgument, 'executionOrder');
+export const executionOrder: (priority: number) => ClassDecorator = createEditorDecorator(checkNumberArgument, 'executionOrder');
 
 /**
  * @en Forbid add multiple instances of the component to the same node.
@@ -497,7 +509,7 @@ export const playOnFocus = (DEV ? createEditorDecorator : createDummyDecorator)(
  * }
  * ```
  */
-export const inspector: (url: string) => Function = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'inspector');
+export const inspector: (url: string) => ClassDecorator = DEV ? createEditorDecorator(checkStringArgument, 'inspector') : ignoringArgsClassDecorator;
 
 /**
  * @en Define the icon of the component.
@@ -515,7 +527,7 @@ export const inspector: (url: string) => Function = (DEV ? createEditorDecorator
  * }
  * ```
  */
-export const icon: (url: string) => Function = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'icon');
+export const icon: (url: string) => ClassDecorator = DEV ? createEditorDecorator(checkStringArgument, 'icon') : ignoringArgsClassDecorator;
 
 /**
  * @en Define the help documentation url, if given, the component section in the **inspector** will have a help documentation icon reference to the web page given. 
@@ -532,7 +544,7 @@ export const icon: (url: string) => Function = (DEV ? createEditorDecorator : cr
  * }
  * ```
  */
-export const help: (url: string) => Function = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'help');
+export const help: (url: string) => ClassDecorator = DEV ? createEditorDecorator(checkStringArgument, 'help') : ignoringArgsClassDecorator;
 
 // Other Decorators
 
@@ -578,3 +590,17 @@ export function type<T> (type: PrimitiveType<T> | Function | [PrimitiveType<T>] 
         type,
     });
 }
+
+/**
+ * @en
+ * Set the editor tooltip content of the property.
+ * @zh
+ * 设置该属性在编辑器中的工具提示内容。
+ * @param text 工具提示。
+ */
+export const tooltip: (text: string) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (text: string): PropertyDecorator => {
+        return property({
+            tooltip: text,
+        });
+    };

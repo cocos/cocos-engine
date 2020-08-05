@@ -31,11 +31,12 @@ import { IBlockInfo, IBuiltinInfo, IDefineInfo, ISamplerInfo, IShaderInfo } from
 import { GFXBindingType, GFXGetTypeSize, GFXShaderType } from '../../gfx/define';
 import { GFXAPI, GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
-import { GFXShader, GFXUniformBlock } from '../../gfx/shader';
+import { GFXUniformBlock } from '../../gfx/shader';
 import { IInternalBindingDesc, localBindingsDesc } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { genHandle, IDefineMap } from './pass-utils';
 import { legacyCC } from '../../global-exports';
+import { ShaderPool } from './memory-pools';
 
 interface IDefineRecord extends IDefineInfo {
     _map: (value: any) => number;
@@ -173,7 +174,7 @@ function getShaderBindings (
  */
 class ProgramLib {
     protected _templates: Record<string, IProgramInfo>;
-    protected _cache: Record<string, GFXShader>;
+    protected _cache: Record<string, number>;
 
     constructor () {
         this._templates = {};
@@ -280,9 +281,9 @@ class ProgramLib {
             if (typeof val === 'boolean') { val = val ? '1' : '0'; }
             return new RegExp(cur + val);
         });
-        const keys = Object.keys(this._cache).filter((k) => regexes.every((re) => re.test(this._cache[k].name)));
+        const keys = Object.keys(this._cache).filter((k) => regexes.every((re) => re.test(ShaderPool.get(this._cache[k]).name)));
         for (const k of keys) {
-            const prog = this._cache[k];
+            const prog = ShaderPool.get(this._cache[k]);
             console.log(`destroyed shader ${prog.name}`);
             prog.destroy();
             delete this._cache[k];
@@ -325,7 +326,7 @@ class ProgramLib {
         const attributes: IGFXAttribute[] = [];
         getShaderBindings(tmpl, defines, blocks, samplers, attributes);
 
-        const shader = device.createShader({
+        return this._cache[key] = ShaderPool.alloc(device, {
             name: getShaderInstanceName(name, macroArray),
             blocks, samplers, attributes,
             stages: [
@@ -333,7 +334,6 @@ class ProgramLib {
                 { type: GFXShaderType.FRAGMENT, source: prefix + src.frag },
             ],
         });
-        return this._cache[key] = shader;
     }
 }
 

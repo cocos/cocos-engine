@@ -33,7 +33,7 @@ import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { Texture2D } from '../../assets/texture-2d';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property, tooltip } from '../../data/class-decorator';
 import { CCString } from '../../data/utils/attribute';
 import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
 import { GFXFormat, GFXType } from '../../gfx/define';
@@ -140,9 +140,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
      * @en Size of the generated texture atlas.
      * @zh 合图生成的最终图集的边长。
      */
-    @property({
-        tooltip: 'i18n:batched_skinning_model.atlas_size',
-    })
+    @tooltip('i18n:batched_skinning_model.atlas_size')
     public atlasSize: number = 1024;
 
     /**
@@ -154,8 +152,8 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
      */
     @property({
         type: [CCString],
-        tooltip: 'i18n:batched_skinning_model.batchable_texture_names',
     })
+    @tooltip('i18n:batched_skinning_model.batchable_texture_names')
     public batchableTextureNames: string[] = [];
 
     /**
@@ -164,8 +162,8 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
      */
     @property({
         type: [SkinningModelUnit],
-        tooltip: 'i18n:batched_skinning_model.units',
     })
+    @tooltip('i18n:batched_skinning_model.units')
     public units: SkinningModelUnit[] = [];
 
     private _textures: Record<string, Texture2D> = {};

@@ -32,7 +32,7 @@ import { math, UITransformComponent } from '../../../core';
 import { SpriteFrame } from '../../../core/assets/sprite-frame';
 import { Component } from '../../../core/components/component';
 import { EventHandler as ComponentEventHandler } from '../../../core/components/component-event-handler';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent, tooltip } from '../../../core/data/class-decorator';
 import { Color, Size, Vec3 } from '../../../core/math';
 import { EventTouch } from '../../../core/platform';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
@@ -88,9 +88,9 @@ export class EditBoxComponent extends Component {
      * 输入框的初始输入内容，如果为空则会显示占位符的文本。
      */
     @property({
-        tooltip: '输入框的初始输入内容，如果为空则会显示占位符的文本',
         displayOrder: 1,
     })
+    @tooltip('输入框的初始输入内容，如果为空则会显示占位符的文本')
     get string () {
         return this._string;
     }
@@ -106,51 +106,103 @@ export class EditBoxComponent extends Component {
 
     /**
      * @en
-     * Font size of the input text.
+     * The display text of placeholder.
      *
      * @zh
-     * 输入框文本的字体大小。该属性会在将来的版本中移除，请使用 editBox.textLabel.fontSize。
+     * 输入框占位符的文本内容。
      */
     @property({
-        tooltip: '输入框文本的字体大小',
         displayOrder: 2,
     })
-    get fontSize () {
-        if (!this._textLabel) {
-            return 20;
+    @tooltip('输入框占位符的文本内容')
+    get placeholder () {
+        if (!this._placeholderLabel) {
+            return '';
         }
-        return this._textLabel!.fontSize;
+        return this._placeholderLabel.string;
     }
 
-    set fontSize (value) {
-        if (this._textLabel) {
-            this._textLabel.fontSize = value;
+    set placeholder (value) {
+        if (this._placeholderLabel) {
+            this._placeholderLabel.string = value;
         }
     }
 
     /**
      * @en
-     * Font color of the input text.
+     * The Label component attached to the node for EditBox's input text label
      *
      * @zh
-     * 输入框文本的颜色。该属性会在将来的版本中移除，请使用 editBox.textLabel.color
+     * 输入框输入文本节点上挂载的 Label 组件对象
      */
     @property({
-        type: Color,
-        tooltip: '输入框文本的颜色',
+        type: LabelComponent,
         displayOrder: 3,
     })
-    get fontColor () {
-        if (!this._textLabel) {
-            return math.Color.WHITE.clone();
-        }
-        return this._textLabel!.color;
+    @tooltip('输入框输入文本节点上挂载的 Label 组件对象')
+    get textLabel () {
+        return this._textLabel;
     }
 
-    set fontColor (value) {
-        if (this._textLabel) {
-            this._textLabel.color = value;
+    set textLabel (oldValue) {
+        if (this._textLabel !== oldValue) {
+            this._textLabel = oldValue;
+            if (this._textLabel) {
+                this._updateTextLabel();
+                this._updateLabels();
+            }
         }
+    }
+    
+    /**
+     * @en
+     * The Label component attached to the node for EditBox's placeholder text label.
+     *
+     * @zh
+     * 输入框占位符节点上挂载的 Label 组件对象。
+     */
+    @property({
+        type: LabelComponent,
+        displayOrder: 4,
+    })
+    @tooltip('输入框占位符节点上挂载的 Label 组件对象')
+    get placeholderLabel () {
+        return this._placeholderLabel;
+    }
+
+    set placeholderLabel (oldValue) {
+        if (this._placeholderLabel !== oldValue) {
+            this._placeholderLabel = oldValue;
+            if (this._placeholderLabel) {
+                this._updatePlaceholderLabel();
+                this._updateLabels();
+            }
+        }
+    }
+
+    /**
+     * @en
+     * The background image of EditBox.
+     *
+     * @zh
+     * 输入框的背景图片。
+     */
+    @property({
+        type: SpriteFrame,
+        displayOrder: 5,
+    })
+    @tooltip('输入框的背景图片')
+    get backgroundImage () {
+        return this._backgroundImage;
+    }
+
+    set backgroundImage (value: SpriteFrame | null) {
+        if (this._backgroundImage === value) {
+            return;
+        }
+
+        this._backgroundImage = value;
+        this._createBackgroundSprite();
     }
 
     /**
@@ -162,9 +214,9 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: InputFlag,
-        tooltip: '指定输入标志位，可以指定输入方式为密码或者单词首字母大写',
-        displayOrder: 4,
+        displayOrder: 6,
     })
+    @tooltip('指定输入标志位，可以指定输入方式为密码或者单词首字母大写')
     get inputFlag () {
         return this._inputFlag;
     }
@@ -184,9 +236,9 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: InputMode,
-        tooltip: '指定输入模式: ANY 表示多行输入，其它都是单行输入，移动平台上还可以指定键盘样式',
-        displayOrder: 5,
+        displayOrder: 7,
     })
+    @tooltip('指定输入模式: ANY 表示多行输入，其它都是单行输入，移动平台上还可以指定键盘样式')
     get inputMode () {
         return this._inputMode;
     }
@@ -210,9 +262,9 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: KeyboardReturnType,
-        tooltip: '指定移动设备上面回车按钮的样式',
-        displayOrder: 6,
+        displayOrder: 8,
     })
+    @tooltip('指定移动设备上面回车按钮的样式')
     get returnType () {
         return this._returnType;
     }
@@ -233,206 +285,14 @@ export class EditBoxComponent extends Component {
      * - 如果值为 0，则不允许用户进行任何输入。
      */
     @property({
-        tooltip: '输入框最大允许输入的字符个数',
-        displayOrder: 7,
+        displayOrder: 9,
     })
+    @tooltip('输入框最大允许输入的字符个数')
     get maxLength () {
         return this._maxLength;
     }
     set maxLength (value: number) {
         this._maxLength = value;
-    }
-
-    /**
-     * @en
-     * Change the lineHeight of displayed text.
-     *
-     * @zh
-     * 输入框文本的行高。
-     */
-    @property({
-        tooltip: '输入框文本的行高',
-        displayOrder: 8,
-    })
-    get lineHeight () {
-        if (!this._textLabel) {
-            return 40;
-        }
-        return this._textLabel!.lineHeight;
-    }
-    set lineHeight (value: number) {
-        if (this._textLabel) {
-            this._textLabel.lineHeight = value;
-        }
-    }
-
-    /**
-     * @en
-     * The background image of EditBox.
-     *
-     * @zh
-     * 输入框的背景图片。
-     */
-    @property({
-        type: SpriteFrame,
-        tooltip: '输入框的背景图片',
-        displayOrder: 10,
-    })
-    get backgroundImage () {
-        return this._backgroundImage;
-    }
-
-    set backgroundImage (value: SpriteFrame | null) {
-        if (this._backgroundImage === value) {
-            return;
-        }
-
-        this._backgroundImage = value;
-        this._createBackgroundSprite();
-    }
-
-    /**
-     * @en
-     * The Label component attached to the node for EditBox's input text label
-     *
-     * @zh
-     * 输入框输入文本节点上挂载的 Label 组件对象
-     */
-    @property({
-        tooltip: '输入框输入文本节点上挂载的 Label 组件对象',
-        type: LabelComponent,
-        displayOrder: 11,
-    })
-    get textLabel () {
-        return this._textLabel;
-    }
-
-    set textLabel (oldValue) {
-        if (this._textLabel !== oldValue) {
-            this._textLabel = oldValue;
-            if (this._textLabel) {
-                this._updateTextLabel();
-                this._updateLabels();
-            }
-        }
-    }
-    /**
-     * @en
-     * The Label component attached to the node for EditBox's placeholder text label.
-     *
-     * @zh
-     * 输入框占位符节点上挂载的 Label 组件对象。
-     */
-    @property({
-        tooltip: '输入框占位符节点上挂载的 Label 组件对象',
-        type: LabelComponent,
-        displayOrder: 12,
-    })
-    get placeholderLabel () {
-        return this._placeholderLabel;
-    }
-
-    set placeholderLabel (oldValue) {
-        if (this._placeholderLabel !== oldValue) {
-            this._placeholderLabel = oldValue;
-            if (this._placeholderLabel) {
-                this._updatePlaceholderLabel();
-                this._updateLabels();
-            }
-        }
-    }
-
-    /**
-     * @en
-     * The display text of placeholder.
-     *
-     * @zh
-     * 输入框占位符的文本内容。
-     */
-    @property({
-        tooltip: '输入框占位符的文本内容',
-        displayOrder: 13,
-    })
-    get placeholder () {
-        if (!this._placeholderLabel) {
-            return '';
-        }
-        return this._placeholderLabel.string;
-    }
-
-    set placeholder (value) {
-        if (this._placeholderLabel) {
-            this._placeholderLabel.string = value;
-        }
-    }
-
-    /**
-     * @en
-     * The font size of placeholder.
-     *
-     * @zh
-     * 输入框占位符的字体大小。该属性会在将来的版本中移除，请使用 editBox.placeholderLabel.fontSize
-     */
-    @property({
-        tooltip: '输入框占位符的字体大小',
-        displayOrder: 14,
-    })
-    get placeholderFontSize () {
-        if (!this._placeholderLabel){
-            return 20;
-        }
-        return this._placeholderLabel!.fontSize;
-    }
-    set placeholderFontSize (value) {
-        if (this._placeholderLabel) {
-            this._placeholderLabel.fontSize = value;
-        }
-    }
-
-    /**
-     * @en
-     * The font color of placeholder.
-     *
-     * @zh
-     * 输入框占位符的字体颜色。该属性会在将来的版本中移除，请使用 editBox.placeholderLabel.color
-     */
-    @property({
-        tooltip: '输入框占位符的字体颜色',
-        displayOrder: 15,
-    })
-    get placeholderFontColor () {
-        if (!this._placeholderLabel) {
-            return math.Color.GRAY.clone();
-        }
-        return this._placeholderLabel!.color;
-    }
-
-    set placeholderFontColor (value) {
-        if (this._placeholderLabel) {
-            this._placeholderLabel.color = value;
-        }
-    }
-
-    /**
-     * @en
-     * The input is always visible and be on top of the game view (only useful on Web).
-     *
-     * @zh
-     * 输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义）
-     * Note: only available on Web at the moment.
-     *
-     * @deprecated
-     */
-    @property({
-        tooltip: '输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义）',
-        displayOrder: 21,
-    })
-    get stayOnTop () {
-        return;
-    }
-
-    set stayOnTop (value) {
-        console.warn('stayOnTop is removed.');
     }
 
     /**
@@ -443,9 +303,9 @@ export class EditBoxComponent extends Component {
      * 修改 DOM 输入元素的 tabIndex（这个属性只有在 Web 上面修改有意义）。
      */
     @property({
-        tooltip: '修改 DOM 输入元素的 tabIndex（这个属性只有在 Web 上面修改有意义）',
-        displayOrder: 22,
+        displayOrder: 10,
     })
+    @tooltip('修改 DOM 输入元素的 tabIndex（这个属性只有在 Web 上面修改有意义）')
     get tabIndex () {
         return this._tabIndex;
     }
@@ -473,9 +333,9 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: [ComponentEventHandler],
-        tooltip: '该事件在用户点击输入框获取焦点的时候被触发',
-        displayOrder: 31,
+        displayOrder: 11,
     })
+    @tooltip('该事件在用户点击输入框获取焦点的时候被触发')
     public editingDidBegan: ComponentEventHandler[] = [];
 
     /**
@@ -487,9 +347,9 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: [ComponentEventHandler],
-        tooltip: '编辑文本输入框时触发的事件回调',
-        displayOrder: 32,
+        displayOrder: 12,
     })
+    @tooltip('编辑文本输入框时触发的事件回调')
     public textChanged: ComponentEventHandler[] = [];
 
     /**
@@ -501,9 +361,9 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: [ComponentEventHandler],
-        tooltip: '在单行模式下面，一般是在用户按下回车或者点击屏幕输入框以外的地方调用该函数。 如果是多行输入，一般是在用户点击屏幕输入框以外的地方调用该函数',
-        displayOrder: 33,
+        displayOrder: 13,
     })
+    @tooltip('在单行模式下面，一般是在用户按下回车或者点击屏幕输入框以外的地方调用该函数。 如果是多行输入，一般是在用户点击屏幕输入框以外的地方调用该函数')
     public editingDidEnded: ComponentEventHandler[] = [];
 
     /**
@@ -515,9 +375,9 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: [ComponentEventHandler],
-        tooltip: '该事件在用户按下回车键的时候被触发, 如果是单行输入框，按回车键还会使输入框失去焦点',
-        displayOrder: 34,
+        displayOrder: 14,
     })
+    @tooltip('该事件在用户按下回车键的时候被触发, 如果是单行输入框，按回车键还会使输入框失去焦点')
     public editingReturn: ComponentEventHandler[] = [];
 
     public _impl: EditBoxImplBase | null = null;

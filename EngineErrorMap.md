@@ -278,7 +278,7 @@ Invalid parameter.
 
 ### 2200
 
-Resolution not valid
+Design resolution not valid
 
 ### 2201
 

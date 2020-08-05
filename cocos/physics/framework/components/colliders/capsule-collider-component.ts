@@ -6,15 +6,14 @@ import {
     ccclass,
     help,
     executeInEditMode,
-    executionOrder,
     menu,
     property,
+    tooltip,
 } from '../../../../core/data/class-decorator';
-import { createCapsuleShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
 import { ICapsuleShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
-import { EAxisDirection } from '../../physics-enum';
+import { EAxisDirection, EColliderType } from '../../physics-enum';
 import { absMax } from '../../../../core';
 
 /**
@@ -25,7 +24,6 @@ import { absMax } from '../../../../core';
  */
 @ccclass('cc.CapsuleColliderComponent')
 @help('i18n:cc.CapsuleColliderComponent')
-@executionOrder(98)
 @menu('Physics/CapsuleCollider')
 @executeInEditMode
 export class CapsuleColliderComponent extends ColliderComponent {
@@ -37,7 +35,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
      * @zh
      * 获取或设置胶囊体在本地坐标系下的球半径。
      */
-    @property({ tooltip: '本地坐标系下胶囊体上的球的半径' })
+    @tooltip('本地坐标系下胶囊体上的球的半径')
     public get radius () {
         return this._radius;
     }
@@ -56,7 +54,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
      * @zh
      * 获取或设置在本地坐标系下的胶囊体上圆柱体的高度。
      */
-    @property({ tooltip: '本地坐标系下胶囊体上的圆柱体的高度' })
+    @tooltip('本地坐标系下胶囊体上的圆柱体的高度')
     public get cylinderHeight () {
         return this._cylinderHeight;
     }
@@ -75,7 +73,8 @@ export class CapsuleColliderComponent extends ColliderComponent {
      * @zh
      * 获取或设置在本地坐标系下胶囊体的方向。
      */
-    @property({ type: EAxisDirection, tooltip: "本地坐标系下胶囊体的朝向" })
+    @property({ type: EAxisDirection })
+    @tooltip("本地坐标系下胶囊体的朝向")
     public get direction () {
         return this._direction;
     }
@@ -137,10 +136,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
     private _direction = EAxisDirection.Y_AXIS;
 
     constructor () {
-        super();
-        if (!EDITOR && !TEST) {
-            this._shape = createCapsuleShape();
-        }
+        super(EColliderType.CAPSULE);
     }
 
     private _getRadiusScale () {

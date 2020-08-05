@@ -6,14 +6,14 @@ import {
     ccclass,
     help,
     executeInEditMode,
-    executionOrder,
     menu,
     property,
+    tooltip,
 } from '../../../../core/data/class-decorator';
-import { createSphereShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
 import { ISphereShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
+import { EColliderType } from '../../physics-enum';
 
 /**
  * @en
@@ -23,7 +23,6 @@ import { EDITOR, TEST } from 'internal:constants';
  */
 @ccclass('cc.SphereColliderComponent')
 @help('i18n:cc.SphereColliderComponent')
-@executionOrder(98)
 @menu('Physics/SphereCollider')
 @executeInEditMode
 export class SphereColliderComponent extends ColliderComponent {
@@ -36,9 +35,7 @@ export class SphereColliderComponent extends ColliderComponent {
      * @zh
      * 获取或设置球的半径。
      */
-    @property({
-        tooltip: '球的半径',
-    })
+    @tooltip('球的半径')
     public get radius () {
         return this._radius;
     }
@@ -63,12 +60,9 @@ export class SphereColliderComponent extends ColliderComponent {
     /// PRIVATE PROPERTY ///
 
     @property
-    private _radius: number = 1;
+    private _radius: number = 0.5;
 
     constructor () {
-        super();
-        if (!EDITOR && !TEST) {
-            this._shape = createSphereShape(this._radius);
-        }
+        super(EColliderType.SPHERE);
     }
 }

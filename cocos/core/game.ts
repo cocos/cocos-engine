@@ -40,6 +40,7 @@ import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from './renderer';
 import { legacyCC } from './global-exports';
+import { IPhysicsConfig } from '../physics/framework/physics-config';
 
 /**
  * @zh
@@ -219,6 +220,11 @@ export interface IGameConfig {
      * GPU instancing options
      */
     customJointTextureLayouts?: ICustomJointTextureLayout[];
+
+    /**
+     * Physics system config
+     */
+    physics?: IPhysicsConfig;
 }
 
 /**
@@ -634,7 +640,7 @@ export class Game extends EventTarget {
                     console.warn(err);
                 }
                 else {
-                    this.setRenderPipeline(asset);
+                    //this.setRenderPipeline(asset);
                 }
                 this._safeEmit(Game.EVENT_GAME_INITED);
                 if (useSplash) {
@@ -1018,10 +1024,6 @@ export class Game extends EventTarget {
     }
 
     private setRenderPipeline (rppl?: RenderPipeline) {
-        if (!rppl) {
-            rppl = new ForwardPipeline();
-            rppl.initialize(ForwardPipeline.initInfo);
-        }
         if (!legacyCC.director.root.setRenderPipeline(rppl)) {
             this.setRenderPipeline();
         }

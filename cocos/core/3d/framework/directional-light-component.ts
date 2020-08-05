@@ -27,7 +27,7 @@
  * @category component/light
  */
 
-import { ccclass, help, executeInEditMode, menu, property } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, property, tooltip } from '../../data/class-decorator';
 import { DirectionalLight } from '../../renderer/scene/directional-light';
 import { LightType } from '../../renderer/scene/light';
 import { LightComponent } from './light-component';
@@ -52,8 +52,8 @@ export class DirectionalLightComponent extends LightComponent {
      */
     @property({
         unit: 'lx',
-        tooltip: 'i18n:lights.illuminance',
     })
+    @tooltip('i18n:lights.illuminance')
     get illuminance () {
         return this._illuminance;
     }

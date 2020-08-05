@@ -77,7 +77,6 @@ export class EditBoxImpl extends EditBoxImplBase {
     public _returnType = KeyboardReturnType.DEFAULT;
     public _maxLength = 50;
     public _placeholderText = '';
-    public _alwaysOnTop = false;
     public _size: Size = new Size();
     public _node: Node | null = null;
     public _editing = false;

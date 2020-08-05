@@ -30,7 +30,7 @@
 import { Texture2D } from '../../assets';
 import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property, tooltip } from '../../data/class-decorator';
 import { Vec4 } from '../../math';
 import { Model } from '../../renderer/scene/model';
 import { MorphModel } from '../../renderer/models/morph-model';
@@ -187,8 +187,8 @@ export class ModelComponent extends RenderableComponent {
      */
     @property({
         type: ModelShadowCastingMode,
-        tooltip: 'i18n:model.shadow_casting_model',
     })
+    @tooltip('i18n:model.shadow_casting_model')
     get shadowCastingMode () {
         return this._shadowCastingMode;
     }
@@ -204,8 +204,8 @@ export class ModelComponent extends RenderableComponent {
      */
     @property({
         type: ModelShadowReceivingMode,
-        tooltip: 'i18n:model.shadow_receiving_model',
     })
+    @tooltip('i18n:model.shadow_receiving_model')
     get receiveShadow () {
         return this._shadowReceivingMode;
     }
@@ -221,8 +221,8 @@ export class ModelComponent extends RenderableComponent {
      */
     @property({
         type: Mesh,
-        tooltip: 'i18n:model.mesh',
     })
+    @tooltip('i18n:model.mesh')
     get mesh () {
         return this._mesh;
     }
@@ -532,8 +532,5 @@ export class ModelComponent extends RenderableComponent {
 
 export declare namespace ModelComponent {
     export type ShadowCastingMode = EnumAlias<typeof ModelShadowCastingMode>;
-}
-
-export declare namespace ModelComponent {
     export type ShadowReceivingMode = EnumAlias<typeof ModelShadowReceivingMode>;
 }

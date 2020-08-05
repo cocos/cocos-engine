@@ -8,7 +8,7 @@ import { BatchedBuffer } from './batched-buffer';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { GFXDevice } from '../gfx/device';
 import { GFXRenderPass } from '../gfx';
-import { IPSOCreateInfo } from '../renderer';
+import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
 import { IRenderObject, UBOForwardLight } from './define';
 import { LightType, Light } from '../renderer/scene/light';
 import { IMacroPatch, Pass } from '../renderer/core/pass';
@@ -92,12 +92,12 @@ export class RenderBatchedQueue {
                 }
                 batch.vbIdx.update(batch.vbIdxData.buffer);
                 batch.ubo.update(batch.uboData.view);
-                const pso = PipelineStateManager.getOrCreatePipelineState(device, batch.psoCreateInfo, renderPass, batch.ia);
+                const pso = PipelineStateManager.getOrCreatePipelineState(device, batch.psoCI, renderPass, batch.ia);
                 if (!boundPSO) {
                     cmdBuff.bindPipelineState(pso);
                     boundPSO = true;
                 }
-                cmdBuff.bindBindingLayout(batch.psoCreateInfo.bindingLayout);
+                cmdBuff.bindBindingLayout(BindingLayoutPool.get(PSOCIPool.get(batch.psoCI, PSOCIView.BINDING_LAYOUT)));
                 cmdBuff.bindInputAssembler(batch.ia);
                 cmdBuff.draw(batch.ia);
             }
