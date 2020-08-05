@@ -6,15 +6,9 @@ import { GFXObject, GFXObjectType, GFXShaderType, GFXType } from './define';
 import { GFXDevice } from './device';
 import { IGFXAttribute } from './input-assembler';
 
-export interface IGFXShaderMacro {
-    macro: string;
-    value: string;
-}
-
 export interface IGFXShaderStage {
     type: GFXShaderType;
     source: string;
-    macros?: IGFXShaderMacro[];
 }
 
 /**
@@ -52,6 +46,16 @@ export class GFXUniformSampler {
     public count: number = 1;
 }
 
+export interface IBindingMappingElement {
+    offsets: number[];
+    counts: number[];
+}
+
+export interface IBindingMappingInfo {
+    buffer: IBindingMappingElement;
+    sampler: IBindingMappingElement;
+}
+
 export interface IGFXShaderInfo {
     name: string;
     stages: IGFXShaderStage[];
@@ -59,6 +63,13 @@ export interface IGFXShaderInfo {
     attributes: IGFXAttribute[];
     blocks: GFXUniformBlock[];
     samplers: GFXUniformSampler[];
+
+    /**
+     * An agreed-upon binding mapping for each descriptor set index that
+     * will be used in non-vulkan backends.
+     * Omitting this means only one descriptor set will be used per draw.
+     */
+    bindingMappingInfo?: IBindingMappingInfo;
 }
 
 /**

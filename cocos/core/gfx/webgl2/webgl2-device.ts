@@ -1,5 +1,5 @@
 import { macro } from '../../platform';
-import { GFXDescriptorSets, IGFXDescriptorSetsInfo } from '../descriptor-sets';
+import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../descriptor-set';
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
@@ -12,7 +12,7 @@ import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
 import { GFXSampler, IGFXSamplerInfo } from '../sampler';
 import { GFXShader, IGFXShaderInfo } from '../shader';
 import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from '../texture';
-import { WebGL2GFXDescriptorSets } from './webgl2-descriptor-sets';
+import { WebGL2GFXDescriptorSet } from './webgl2-descriptor-set';
 import { WebGL2GFXBuffer } from './webgl2-buffer';
 import { WebGL2GFXCommandAllocator } from './webgl2-command-allocator';
 import { WebGL2GFXCommandBuffer } from './webgl2-command-buffer';
@@ -31,7 +31,6 @@ import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXCommandBufferType, G
     GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, IGFXRect } from '../define';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer,
     WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
-import { DEBUG } from 'internal:constants';
 
 export class WebGL2GFXDevice extends GFXDevice {
 
@@ -49,14 +48,6 @@ export class WebGL2GFXDevice extends GFXDevice {
 
     get useVAO () {
         return this._useVAO;
-    }
-
-    get perSetBindingOffsets () {
-        return this._perSetBindingOffsets;
-    }
-
-    get perSetBufferRollbacks () {
-        return this._perSetBufferRollbacks;
     }
 
     get EXT_texture_filter_anisotropic () {
@@ -116,8 +107,6 @@ export class WebGL2GFXDevice extends GFXDevice {
     private _isAntialias: boolean = true;
     private _isPremultipliedAlpha: boolean = true;
     private _useVAO: boolean = true;
-    private _perSetBindingOffsets: number[] = [0];
-    private _perSetBufferRollbacks: number[] = [0];
 
     private _extensions: string[] | null = null;
     private _EXT_texture_filter_anisotropic: EXT_texture_filter_anisotropic | null = null;
@@ -203,38 +192,6 @@ export class WebGL2GFXDevice extends GFXDevice {
         // let maxVertexUniformBlocks = gl.getParameter(gl.MAX_VERTEX_UNIFORM_BLOCKS);
         // let maxFragmentUniformBlocks = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_BLOCKS);
         // let uboOffsetAlignment = gl.getParameter(gl.UNIFORM_BUFFER_OFFSET_ALIGNMENT);
-
-        if (info.maxPerSetBufferCount && info.maxPerSetSamplerCount) {
-            const offsets = this._perSetBindingOffsets;
-            const rollbacks = this._perSetBufferRollbacks;
-            for (let i = 0; i < info.maxPerSetBufferCount.length - 1; i++) {
-                const bcount = info.maxPerSetBufferCount[i];
-                const scount = info.maxPerSetSamplerCount[i];
-                const count = bcount + scount;
-                if (count < 0) {
-                    let remainingCount = 0;
-                    for (let j = i + 1; j < info.maxPerSetBufferCount.length; j++) {
-                        // not counting samplers for now, this assumes there is at most one set after the unlimited set
-                        remainingCount += info.maxPerSetBufferCount[j];
-                    }
-                    offsets.push(this._maxUniformBufferBindings - remainingCount);
-                    rollbacks.push(rollbacks[rollbacks.length - 1]);
-                } else {
-                    offsets.push(offsets[offsets.length - 1] + count);
-                    rollbacks.push(scount);
-                }
-            }
-            if (DEBUG) {
-                let unlimitedSetCount = 0; let lastOffset = 0;
-                for (let i = 0; i < info.maxPerSetBufferCount.length; i++) {
-                    const offset = offsets[i + 1];
-                    if (lastOffset >= offset) { console.error('not enough available bindings!'); }
-                    if (info.maxPerSetBufferCount[i] < 0) { unlimitedSetCount++; }
-                    lastOffset = offset;
-                }
-                if (unlimitedSetCount > 1) { console.error('more than one unlimited descriptor set specified!'); }
-            }
-        }
 
         this._devicePixelRatio = info.devicePixelRatio || 1.0;
         this._width = this._canvas.width;
@@ -454,7 +411,6 @@ export class WebGL2GFXDevice extends GFXDevice {
             this._queue = null;
         }
 
-        this._perSetBindingOffsets.length = 1;
         this._extensions = null;
 
         this._webGL2RC = null;
@@ -508,10 +464,10 @@ export class WebGL2GFXDevice extends GFXDevice {
         return sampler;
     }
 
-    public createDescriptorSets (info: IGFXDescriptorSetsInfo): GFXDescriptorSets {
-        const descriptorSets = new WebGL2GFXDescriptorSets(this);
-        descriptorSets.initialize(info);
-        return descriptorSets;
+    public createDescriptorSet (info: IGFXDescriptorSetInfo): GFXDescriptorSet {
+        const descriptorSet = new WebGL2GFXDescriptorSet(this);
+        descriptorSet.initialize(info);
+        return descriptorSet;
     }
 
     public createShader (info: IGFXShaderInfo): GFXShader {

@@ -1,7 +1,7 @@
 import { GFXShader, IGFXShaderInfo } from '../shader';
 import { WebGLCmdFuncCreateShader, WebGLCmdFuncDestroyShader } from './webgl-commands';
 import { WebGLGFXDevice } from './webgl-device';
-import { WebGLGPUShader, WebGLGPUShaderStage } from './webgl-gpu-objects';
+import { WebGLGPUShader, WebGLGPUShaderStage, IWebGLUniformBlock, IWebGLUniformSampler } from './webgl-gpu-objects';
 import { GFXStatus } from '../define';
 
 export class WebGLGFXShader extends GFXShader {
@@ -20,10 +20,40 @@ export class WebGLGFXShader extends GFXShader {
         this._blocks = info.blocks;
         this._samplers = info.samplers;
 
+        const bindingMapping = info.bindingMappingInfo;
+        const blocks = (info.blocks !== undefined ? info.blocks : []) as IWebGLUniformBlock[];
+        const samplers = (info.samplers !== undefined ? info.samplers : []) as IWebGLUniformSampler[];
+
+        if (bindingMapping) {
+            const bcounts = bindingMapping.buffer.counts;
+            const boffsets = bindingMapping.buffer.offsets;
+            const soffsets = bindingMapping.sampler.offsets;
+            const activeBlockCounts = Array(bcounts.length).fill(0);
+            for (let i = 0; i < blocks.length; i++) {
+                const block = blocks[i]; // buffer bindings starts at 0 and grows upward
+                activeBlockCounts[block.set]++;
+                block.gpuBinding = block.binding + boffsets[block.set];
+            }
+            for (let i = 0; i < samplers.length; i++) {
+                const sampler = samplers[i]; // sampler bindings starts at -1 and grows downward
+                const bcount = bcounts[sampler.set] || activeBlockCounts[sampler.set];
+                sampler.gpuBinding = bcount - sampler.binding + soffsets[sampler.set];
+            }
+        } else {
+            for (let i = 0; i < blocks.length; i++) {
+                const block = blocks[i];
+                block.gpuBinding = block.binding;
+            }
+            for (let i = 0; i < samplers.length; i++) {
+                const sampler = samplers[i];
+                sampler.gpuBinding = sampler.binding;
+            }
+        }
+
         this._gpuShader = {
             name: info.name ? info.name : '',
-            blocks: (info.blocks !== undefined ? info.blocks : []),
-            samplers: (info.samplers !== undefined ? info.samplers : []),
+            blocks,
+            samplers,
 
             gpuStages: new Array<WebGLGPUShaderStage>(info.stages.length),
             glProgram: null,
@@ -38,7 +68,6 @@ export class WebGLGFXShader extends GFXShader {
             this._gpuShader.gpuStages[i] = {
                 type: stage.type,
                 source: stage.source,
-                macros: stage.macros ? stage.macros : [],
                 glShader: null,
             };
         }

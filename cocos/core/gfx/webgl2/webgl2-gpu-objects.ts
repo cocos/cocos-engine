@@ -21,7 +21,7 @@ import {
 import { IGFXAttribute } from '../input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
 import { GFXColorAttachment, GFXDepthStencilAttachment } from '../render-pass';
-import { GFXUniformBlock, GFXUniformSampler, IGFXShaderMacro } from '../shader';
+import { GFXUniformBlock, GFXUniformSampler } from '../shader';
 
 export interface IWebGL2GPUUniformInfo {
     name: string;
@@ -160,14 +160,21 @@ export class WebGL2GPUUniformSampler {
 export class WebGL2GPUShaderStage {
     public type: GFXShaderType = GFXShaderType.VERTEX;
     public source: string = '';
-    public macros: IGFXShaderMacro[] = [];
     public glShader: WebGLShader | null = null;
+}
+
+export interface IWebGL2UniformBlock extends GFXUniformBlock {
+    gpuBinding: number;
+}
+
+export interface IWebGL2UniformSampler extends GFXUniformSampler {
+    gpuBinding: number;
 }
 
 export class WebGL2GPUShader {
     public name: string = '';
-    public blocks: GFXUniformBlock[] = [];
-    public samplers: GFXUniformSampler[] = [];
+    public blocks: IWebGL2UniformBlock[] = [];
+    public samplers: IWebGL2UniformSampler[] = [];
 
     public gpuStages: WebGL2GPUShaderStage[] = [];
     public glProgram: WebGLProgram | null = null;
@@ -197,7 +204,7 @@ export class WebGL2GPUDescriptor {
     public gpuSampler: WebGL2GPUSampler | null = null;
 }
 
-export class WebGL2GPUDescriptorSets {
+export class WebGL2GPUDescriptorSet {
     public gpuDescriptors: WebGL2GPUDescriptor[] = [];
 }
 

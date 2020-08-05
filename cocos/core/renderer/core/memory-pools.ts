@@ -28,7 +28,7 @@
  */
 
 import { DEBUG } from 'internal:constants';
-import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXDescriptorSetsInfo, GFXDevice, GFXDescriptorSets, IGFXShaderInfo, GFXShader } from '../../gfx';
+import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXDescriptorSetInfo, GFXDevice, GFXDescriptorSet, IGFXShaderInfo, GFXShader } from '../../gfx';
 import { NativeBufferPool, NativeObjectPool } from './native-pools';
 
 interface TypedArrayConstructor<T> {
@@ -203,9 +203,9 @@ export const RasterizerStatePool = new ObjectPool(PoolDataType.RASTERIZER_STATE,
 export const DepthStencilStatePool = new ObjectPool(PoolDataType.DEPTH_STENCIL_STATE, (_: any) => new GFXDepthStencilState());
 export const BlendStatePool = new ObjectPool(PoolDataType.BLEND_STATE, (_: any) => new GFXBlendState());
 
-export const DescriptorSetsPool = new ObjectPool(PoolDataType.DESCRIPTOR_SETS,
-    (args: [GFXDevice, IGFXDescriptorSetsInfo], obj?: GFXDescriptorSets) => obj ? (obj.initialize(args[1]), obj) : args[0].createDescriptorSets(args[1]),
-    (descriptorSets: GFXDescriptorSets) => descriptorSets && descriptorSets.destroy(),
+export const DescriptorSetPool = new ObjectPool(PoolDataType.DESCRIPTOR_SETS,
+    (args: [GFXDevice, IGFXDescriptorSetInfo], obj?: GFXDescriptorSet) => obj ? (obj.initialize(args[1]), obj) : args[0].createDescriptorSet(args[1]),
+    (descriptorSet: GFXDescriptorSet) => descriptorSet && descriptorSet.destroy(),
 );
 export const ShaderPool = new ObjectPool(PoolDataType.SHADER,
     (args: [GFXDevice, IGFXShaderInfo], obj?: GFXShader) => obj ? (obj.initialize(args[1]), obj) : args[0].createShader(args[1]),

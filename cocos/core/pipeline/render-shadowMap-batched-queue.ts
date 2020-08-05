@@ -9,7 +9,7 @@ import { IRenderObject, UBOPCFShadow } from './define';
 import { GFXDevice, GFXRenderPass, GFXBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { DescriptorSetsPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
+import { DescriptorSetPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
 
 const forwardShadowMapPatches: IMacroPatch[] = [
     { name: 'CC_VSM_SHADOW', value: true },
@@ -53,9 +53,9 @@ export class RenderShadowMapBatchedQueue {
                 this._psoCICache.set(subModel, psoCI);
 
                 renderObj.model.updateLocalBindings(psoCI, subModelIdx);
-                const descriptorSets = DescriptorSetsPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SETS));
-                descriptorSets.bindBuffer(UBOPCFShadow.BLOCK.binding, this._shadowMapBuffer!);
-                descriptorSets.update();
+                const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SETS));
+                descriptorSet.bindBuffer(UBOPCFShadow.BLOCK.binding, this._shadowMapBuffer!);
+                descriptorSet.update();
             }
 
             if (this._shadowMapBuffer) {
@@ -79,10 +79,10 @@ export class RenderShadowMapBatchedQueue {
             const psoCI = this._psoCIArray[i];
             const ia = subModel.inputAssembler!;
             const pso = PipelineStateManager.getOrCreatePipelineState(device, psoCI, renderPass, ia);
-            const descriptorSets = DescriptorSetsPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SETS));
+            const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SETS));
 
             cmdBuff.bindPipelineState(pso);
-            cmdBuff.bindDescriptorSets(descriptorSets);
+            cmdBuff.bindDescriptorSets(descriptorSet);
             cmdBuff.bindInputAssembler(ia);
             cmdBuff.draw(ia);
         }

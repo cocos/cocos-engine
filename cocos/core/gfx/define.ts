@@ -17,7 +17,7 @@ export enum GFXObjectType {
     SAMPLER,
     SHADER,
     PIPELINE_STATE,
-    DESCRIPTOR_SETS,
+    DESCRIPTOR_SET,
     INPUT_ASSEMBLER,
     COMMAND_BUFFER,
     FENCE,

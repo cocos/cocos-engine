@@ -144,17 +144,24 @@ export class WebGLGPUUniformSampler {
     public glLoc: WebGLUniformLocation = -1;
 }
 
+export interface IWebGLUniformBlock extends GFXUniformBlock {
+    gpuBinding: number;
+}
+
+export interface IWebGLUniformSampler extends GFXUniformSampler {
+    gpuBinding: number;
+}
+
 export class WebGLGPUShaderStage {
     public type: GFXShaderType = GFXShaderType.VERTEX;
     public source: string = '';
-    public macros: IGFXShaderMacro[] = [];
     public glShader: WebGLShader | null = null;
 }
 
 export class WebGLGPUShader {
     public name: string = '';
-    public blocks: GFXUniformBlock[] = [];
-    public samplers: GFXUniformSampler[] = [];
+    public blocks: IWebGLUniformBlock[] = [];
+    public samplers: IWebGLUniformSampler[] = [];
 
     public gpuStages: WebGLGPUShaderStage[] = [];
     public glProgram: WebGLProgram | null = null;
@@ -180,6 +187,7 @@ export class WebGLGPUPipelineState {
 }
 
 export class WebGLGPUDescriptor {
+    public binding: number = 0;
     public type: GFXDescriptorType = GFXDescriptorType.UNKNOWN;
     public name: string = '';
     public gpuBuffer: WebGLGPUBuffer | null = null;
@@ -187,7 +195,7 @@ export class WebGLGPUDescriptor {
     public gpuSampler: WebGLGPUSampler | null = null;
 }
 
-export class WebGLGPUDescriptorSets {
+export class WebGLGPUDescriptorSet {
     public gpuDescriptors: WebGLGPUDescriptor[] = [];
 }
 

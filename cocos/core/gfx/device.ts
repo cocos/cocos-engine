@@ -3,7 +3,7 @@
  */
 
 import { ccenum } from '../value-types/enum';
-import { GFXDescriptorSets, IGFXDescriptorSetsInfo } from './descriptor-sets';
+import { GFXDescriptorSet, IGFXDescriptorSetInfo } from './descriptor-set';
 import { GFXBuffer, IGFXBufferInfo } from './buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from './command-buffer';
 import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFilter, GFXFormat, IGFXMemoryStatus, IGFXRect } from './define';
@@ -65,27 +65,6 @@ export interface IGFXDeviceInfo {
     devicePixelRatio?: number;
     nativeWidth?: number;
     nativeHeight?: number;
-    /**
-     * An agreed-upon maximum binding limit for each descriptor set index that
-     * will be used. This will serve as the basis for mapping bindings in
-     * different sets to non-vulkan backends.
-     *
-     * By default only one descriptor set will be used per draw.
-     * Pass -1 if need the set capacity to be as large as possible (for at most
-     * one set).
-     * Bindings bound to undeclared set indices will lead to undefined behavior.
-     *
-     * For example, the builtin render pipeline catagorizes the uniforms into 3
-     * types: *pipeline-globals*, *material-specifics* and *model-locals* (the
-     * ordering should be always based on their update frequency). So it always
-     * uses no more than 3 descriptor sets for each draw, with the first set
-     * have no more than, say `x` bindings, the second set as large as posible
-     * (giving as much room as possible for material authors), and the third
-     * set no more than `y` bindings. Then the appropriate parameters for this
-     * should be [x_buffer, -1, y_buffer] and [x_sampler, -1, y_sampler].
-     */
-    maxPerSetBufferCount?: number[];
-    maxPerSetSamplerCount?: number[];
 }
 
 /**
@@ -447,7 +426,7 @@ export abstract class GFXDevice {
      * @zh 创建描述符集组。
      * @param info GFX descriptor sets description info.
      */
-    public abstract createDescriptorSets (info: IGFXDescriptorSetsInfo): GFXDescriptorSets;
+    public abstract createDescriptorSet (info: IGFXDescriptorSetInfo): GFXDescriptorSet;
 
     /**
      * @en Create shader.

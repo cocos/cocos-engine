@@ -48,7 +48,7 @@ import { UIDrawBatch } from './ui-draw-batch';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
 import { legacyCC } from '../../global-exports';
-import { DescriptorSetsPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
+import { DescriptorSetPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
 
 /**
  * @zh
@@ -319,11 +319,11 @@ export class UI {
                         batch.model.getSubModel(j).priority = batchPriority++;
                     }
                 } else {
-                    const descriptorSets = batch.descriptorSets!;
+                    const descriptorSet = batch.descriptorSet!;
                     // assumes sprite materials has only one sampler
-                    descriptorSets.bindTexture(UniformBinding.CUSTOM_SAMPLER_BINDING_START_POINT, batch.texture!);
-                    descriptorSets.bindSampler(UniformBinding.CUSTOM_SAMPLER_BINDING_START_POINT, batch.sampler!);
-                    descriptorSets.update();
+                    descriptorSet.bindTexture(UniformBinding.CUSTOM_SAMPLER_BINDING_START_POINT, batch.texture!);
+                    descriptorSet.bindSampler(UniformBinding.CUSTOM_SAMPLER_BINDING_START_POINT, batch.sampler!);
+                    descriptorSet.update();
 
                     const uiModel = this._uiModelPool!.alloc();
                     uiModel.directInitialize(batch.ia!, batch);
@@ -414,7 +414,7 @@ export class UI {
         curDrawBatch.sampler = null;
 
         curDrawBatch.psoCreateInfo = 0;
-        curDrawBatch.descriptorSets = null;
+        curDrawBatch.descriptorSet = null;
 
         // reset current render state to null
         this._currMaterial = this._emptyMaterial;
@@ -468,7 +468,7 @@ export class UI {
         curDrawBatch.ia!.indexCount = vCount;
 
         curDrawBatch.psoCreateInfo = this._getUIMaterial(mat).getPipelineCreateInfo();
-        curDrawBatch.descriptorSets = DescriptorSetsPool.get(PSOCIPool.get(curDrawBatch.psoCreateInfo!, PSOCIView.DESCRIPTOR_SETS));
+        curDrawBatch.descriptorSet = DescriptorSetPool.get(PSOCIPool.get(curDrawBatch.psoCreateInfo!, PSOCIView.DESCRIPTOR_SETS));
 
         this._batches.push(curDrawBatch);
 

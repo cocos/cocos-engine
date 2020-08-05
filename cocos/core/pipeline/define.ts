@@ -5,7 +5,7 @@
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXDescriptorType, GFXType, GFXShaderType } from '../gfx/define';
 import { GFXSampler } from '../gfx/sampler';
-import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
+import { GFXUniformBlock, GFXUniformSampler, IBindingMappingInfo } from '../gfx/shader';
 import { GFXTexture } from '../gfx/texture';
 import { Pass } from '../renderer/core/pass';
 import { Model } from '../renderer/scene/model';
@@ -121,9 +121,17 @@ export enum DescriptorSetIndices {
     MATERIAL_SPECIFIC,
     MODEL_LOCAL,
 }
-// parameters passed to GFXDevice
-export const maxPerSetBufferCount = [3, -1, 6];
-export const maxPerSetSamplerCount = [2, -1, 5];
+// parameters passed to GFXShader
+export const bindingMappingInfo: IBindingMappingInfo = {
+    buffer: {
+        counts: [3, 0, 6],
+        offsets: [0, 9, 3],
+    },
+    sampler: {
+        counts: [2, 0, 5],
+        offsets: [-1, -8, -3],
+    }
+};
 
 /**
  * @en The global uniform buffer object
