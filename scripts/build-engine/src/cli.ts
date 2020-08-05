@@ -3,11 +3,9 @@ import * as ps from 'path';
 import yargs from 'yargs';
 import {
     build,
-    enumeratePhysicsReps,
     enumerateBuildModeReps,
     enumeratePlatformReps,
     BuildFlags,
-    parsePhysics,
     parseBuildMode,
     enumerateModuleOptionReps,
     parseModuleOption,
@@ -24,8 +22,8 @@ async function main() {
         type: 'string',
         alias: 'b',
         description: 'Target buildmode.',
-        demandOption: true,
         choices: enumerateBuildModeReps(),
+        default: 'universal',
     });
     yargs.option('platform', {
         type: 'string',
@@ -43,11 +41,18 @@ async function main() {
         choices: enumerateModuleOptionReps(),
         description: 'Output module format. If not specified, IIFE will be used.',
     });
+    yargs.option('ammojs-wasm', {
+        choices: [true, 'fallback'],
+    });
     yargs.option('destination', {
         type: 'string',
         alias: 'd',
+        description: '(Removal) Output path. Note, this argument has been removal since V3.0.',
+    });
+    yargs.option('out', {
+        type: 'string',
+        alias: 'o',
         demandOption: true,
-        description: 'Output path.',
     });
     yargs.option('excludes', {
         type: 'array',
@@ -65,6 +70,11 @@ async function main() {
         type: 'boolean',
         description: 'Whether to compress compiled engine.',
     });
+    yargs.option('split', {
+        type: 'boolean',
+        default: false,
+        description: 'Whether to generate modular engine.',
+    });
     yargs.option('progress', {
         type: 'boolean',
         default: false,
@@ -73,6 +83,19 @@ async function main() {
     yargs.option('watch-files', {
         type: 'string',
         description: '(INTERNAL/EXPERIMENTAL) Write built file list as a record with file path as key and mtime as value, into specified file, in JSON format.',
+    });
+    yargs.option('visualize', {
+        type: 'boolean',
+        default: false,
+        description: 'Visualize build result. Dev-mode is needed.',
+    });
+    yargs.option('visualize-file', {
+        type: 'string',
+        description: 'Visualizing file. This options implies --visualize.',
+    });
+    yargs.option('meta-file', {
+        type: 'string',
+        description: 'Meta out file.',
     });
 
     const flags: BuildFlags = {};
@@ -85,13 +108,15 @@ async function main() {
 
     const options: build.Options = {
         engine: yargs.argv.engine as string,
+        split: yargs.argv.split as boolean,
         moduleEntries: yargs.argv._ as (string[] | undefined),
         compress: yargs.argv.compress as (boolean | undefined),
-        outputPath: yargs.argv.destination as string,
+        out: yargs.argv.out as string,
         sourceMap,
         flags,
         progress: yargs.argv.progress as (boolean | undefined),
         incremental: yargs.argv['watch-files'] as (string | undefined),
+        ammoJsWasm: yargs.argv['ammojs-wasm'] as (boolean | undefined | 'fallback'),
     };
     if (yargs.argv.module) {
         options.moduleFormat = parseModuleOption(yargs.argv['module'] as unknown as string);
@@ -103,7 +128,23 @@ async function main() {
         options.platform = parsePlatform(yargs.argv.platform as unknown as string);
     }
 
-    await build(options);
+    if (yargs.argv.visualize) {
+        options.visualize = true;
+    }
+    if (yargs.argv['visualize-file']) {
+        if (typeof options.visualize !== 'object') {
+            options.visualize = {};
+        }
+        options.visualize.file = yargs.argv['visualize-file'] as string;
+    }
+
+    await fs.ensureDir(options.out);
+    const result = await build(options);
+    const metaFile = yargs.argv['meta-file'] as string | undefined;
+    if (metaFile) {
+        await fs.ensureDir(ps.dirname(metaFile));
+        await fs.writeJson(metaFile, result, { spaces: 2 });
+    }
 }
 
 (async () => {
