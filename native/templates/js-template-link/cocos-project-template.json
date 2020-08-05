@@ -1,50 +1,62 @@
 {
     "do_default": {
         "exclude_from_template": [
-            "frameworks/runtime-src"
+            "cocos-project-template.json",
+            "platforms",
+            "common"
         ]
     },
     "do_add_native_support": {
-        "append_from_template": {
-            "from": "frameworks/runtime-src",
-            "to": "frameworks/runtime-src",
-            "exclude": [
-                "proj.win32/Debug.win32",
-                "proj.win32/Release.win32",
-                "proj.win32/HelloJavascript.sdf"
-            ]
-        },
         "append_file": [{
             "from": "cocos/scripting/js-bindings/manual/jsb_module_register.cpp",
-            "to": "frameworks/runtime-src/Classes/jsb_module_register.cpp"
+            "to": "${COMMON_DIR}/Classes/jsb_module_register.cpp"
         }],
         "project_replace_project_name": {
             "src_project_name": "HelloJavascript",
             "files": [
-                "frameworks/runtime-src/proj.win32/main.cpp",
-                "frameworks/runtime-src/proj.android-studio/settings.gradle",
-                "frameworks/runtime-src/proj.android-studio/app/res/values/strings.xml",
-                "frameworks/runtime-src/proj.ios_mac/ios/main.m",
-                "frameworks/runtime-src/CMakeLists.txt"
+                "proj/main.cpp",
+                "proj/settings.gradle",
+                "proj/app/res/values/strings.xml",
+                "proj/main.m",
+                "${COMMON_DIR}/CMakeLists.txt"
             ]
+        },
+        "append_x_engine": {
+            "from": ".",
+            "to": "${COMMON_DIR}/cocos2d-x"
         },
         "project_replace_package_name": {
             "src_package_name": "org.cocos2dx.hellojavascript",
             "files": [
-                "frameworks/runtime-src/proj.android-studio/app/build.gradle",
-                "frameworks/runtime-src/proj.android-studio/app/AndroidManifest.xml"
+                "proj/app/build.gradle",
+                "proj/app/AndroidManifest.xml"
             ]
         },
         "project_replace_mac_bundleid": {
             "src_bundle_id": "org.cocos2dx.hellojavascript.mac",
             "files": [
-                "frameworks/runtime-src/CMakeLists.txt"
+                "${COMMON_DIR}/CMakeLists.txt"
             ]
         },
         "project_replace_ios_bundleid": {
             "src_bundle_id": "org.cocos2dx.hellojavascript.ios",
             "files": [
-                "frameworks/runtime-src/CMakeLists.txt"
+                "${COMMON_DIR}/CMakeLists.txt"
+            ]
+        },
+        "project_replace_cocos_x_root": {
+            "pattern":"\\$\\{COCOS_X_ROOT\\}",
+            "files": [
+                {"file": "${COMMON_DIR}/CMakeLists.txt", "default":"${CMAKE_CURRENT_LIST_DIR}/cocos2d-x", "needFix":true},
+                {"file": "proj/settings.gradle", "default":"${COMMON_DIR}/cocos2d-x", "needFix":true},
+                {"file": "proj/app/build.gradle", "default":"${COMMON_DIR}/cocos2d-x", "needFix":true},
+                "proj/build-cfg.json"
+            ]
+        },
+        "project_replace_projec_common" : {
+            "pattern":"\\$\\{COCOS_PROJ_COMMON\\}",
+            "files":[
+                "proj/app/build.gradle"
             ]
         }
     }

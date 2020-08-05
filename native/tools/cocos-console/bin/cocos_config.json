@@ -1,0 +1,59 @@
+{
+    "languages": [
+        "js"
+    ],
+    "platforms": [
+        "ios",
+        "mac",
+        "win32",
+        "android",
+        "ios-simulator"
+    ],
+    "support_templates":["link", "default"],
+    "default": {
+        "project_name": "MyGame"
+    },
+    "availableTargetPlatforms": {
+        "mac": [
+            "mac",
+            "ios",
+            "android"
+        ],
+        "win32": [
+            "win32",
+            "android"
+        ]
+    },
+    "defaultGeneratePlatforms": {
+        "mac":["mac", "ios-simulator"],
+        "win32":["win32"]
+    },
+    "cmake": {
+        "win32": {
+            "generators": [
+                {
+                    "G": "Visual Studio 16 2019",
+                    "A": "win32"
+                },
+                {
+                    "G": "Visual Studio 15 2017"
+                },
+                {
+                    "G": "Visual Studio 14 2015"
+                },
+                {
+                    "G": "Visual Studio 12 2013"
+                },
+                {
+                    "G": "Visual Studio 11 2012"
+                },
+                {
+                    "G": "Visual Studio 10 2010"
+                },
+                {
+                    "G": "Visual Studio 9 2008"
+                }
+            ]
+        }
+    }
+}

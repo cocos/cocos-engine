@@ -1,6 +1,5 @@
 {
     "common": [
-        ".browserslistrc", 
         ".clang-format", 
         "CMakeLists.txt", 
         "cocos/audio/AudioEngine.cpp", 
@@ -1333,7 +1332,6 @@
         "external/android/x86/v8/libv8_monolith.a", 
         "external/cmake/CocosExternalConfig.cmake", 
         "external/cmake/scripts/sync_folder.py", 
-        "external/config.json", 
         "external/ios/CMakeLists.txt", 
         "external/ios/include/freetype/config/ftconfig.h", 
         "external/ios/include/freetype/config/ftheader.h", 

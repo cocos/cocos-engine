@@ -3,6 +3,7 @@ set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 COCOS2DX_ROOT="$DIR"/../..
+COCOS_CLI=$COCOS2DX_ROOT/tools/cocos-console/bin/cocos_cli.js
 
 if [ -z "$NDK_ROOT" ]; then
     export NDK_ROOT=$HOME/bin/android-ndk
@@ -46,10 +47,11 @@ function setup_linux_andorid_sdk()
 function build_android()
 {
     echo "Compiling Android ... "
-    cd $COCOS2DX_ROOT/templates/js-template-link/frameworks/runtime-src/proj.android-studio
+    cd $COCOS2DX_ROOT/templates/js-template-link/platforms/android
     sed -i "s@\${COCOS_X_ROOT}@$COCOS2DX_ROOT@g" app/build.gradle
+    sed -i "s@\${COCOS_X_ROOT}@$COCOS2DX_ROOT@g" ../../common/CMakeLists.txt
     sed -i "s@\${COCOS_X_ROOT}@$COCOS2DX_ROOT@g" settings.gradle
-    sed -i "s@PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a:arm64-v8a:x86@" gradle.properties
+    sed -i "s@\${COCOS_PROJ_COMMON}@$COCOS2DX_ROOT/templates/js-template-link/common@g" app/build.gradle
     sed -i "s/^RELEASE_/#RELEASE_/g" gradle.properties
 
     #echo "Compile Android - ndk-build ..."
@@ -95,10 +97,10 @@ function build_macosx()
     NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
 
     echo "Compiling MacOSX ... "
-    cd  $COCOS2DX_ROOT/templates/js-template-link/frameworks/runtime-src
+    cd  $COCOS2DX_ROOT/templates/js-template-link/platforms/mac
     mkdir build-mac 
     cd build-mac
-    cmake .. -GXcode -DCOCOS_X_ROOT=$COCOS2DX_ROOT
+    cmake ../../../common -GXcode -DCOCOS_X_ROOT=$COCOS2DX_ROOT
     cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES
     echo "Compile MacOSX Debug Done!"
     cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES
@@ -110,12 +112,12 @@ function build_ios()
     NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
 
     echo "Compiling iOS ... "
-    cd  $COCOS2DX_ROOT/templates/js-template-link/frameworks/runtime-src
+    cd  $COCOS2DX_ROOT/templates/js-template-link/platforms/ios
     mkdir build-ios 
     cd build-ios
-    cmake .. -GXcode -DCOCOS_X_ROOT=$COCOS2DX_ROOT -DCMAKE_SYSTEM_NAME=iOS \
+    cmake ../../../common -GXcode -DCOCOS_X_ROOT=$COCOS2DX_ROOT -DCMAKE_SYSTEM_NAME=iOS \
         -DCMAKE_OSX_SYSROOT=iphonesimulator \
-        -DUSE_SE_JSC=ON
+        -DCMAKE_OSX_ARCHITECTURES=x86_64 
     cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES
     echo "Compile iOS Done!"
 }
@@ -123,10 +125,10 @@ function build_ios()
 function build_windows()
 {
     echo "Compiling Win32 ... "
-    cd  $COCOS2DX_ROOT/templates/js-template-link/frameworks/runtime-src
+    cd  $COCOS2DX_ROOT/templates/js-template-link/platforms/win32
     mkdir build-win32 
     cd build-win32
-    cmake .. -G"Visual Studio 15 2017" -DCOCOS_X_ROOT=$COCOS2DX_ROOT 
+    cmake ../../../common -G"Visual Studio 15 2017" -DCOCOS_X_ROOT=$COCOS2DX_ROOT 
     cmake --build . --config Debug 
     echo "Compile Win32 Debug Done!"
     cmake --build . --config Release

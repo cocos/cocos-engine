@@ -11,13 +11,17 @@ set -x
 function download_external()
 {
     pushd $COCOS2DX_ROOT
-    node ./utils/download-deps.js
+    #python download-deps.py -r=yes
+    cd $COCOS2DX_ROOT/external
+    external_version=`grep version config.json  |awk -F'"' '{print $4}'`
+    external_repo_name=`grep name config.json  |awk -F'"' '{print $4}'`
+    external_repo_parent=`grep owner config.json  |awk -F'"' '{print $4}'`
+    rm *
+    git clone --branch $external_version --depth 1 https://github.com/$external_repo_parent/$external_repo_name .
+    #git checkout $external_version
+    git log --oneline -1
     popd
 }
-
-pushd $COCOS2DX_ROOT
-npm install
-popd
 
 download_external
 
@@ -43,6 +47,11 @@ function install_android_ndk()
     mv android-ndk-r16b android-ndk
 }
 
+function install_python_win32()
+{
+    choco install --forcex86 -y python2
+    export PATH="/c/Python27":$PATH
+}
 
 function install_python_module()
 {
@@ -51,6 +60,7 @@ function install_python_module()
     pip install PyYAML
     pip install Cheetah
   elif [ "$TRAVIS_OS_NAME" == "windows" ]; then
+    install_python_win32
     python -m easy_install pip 
     python -m pip install PyYAML
     python -m pip install Cheetah
