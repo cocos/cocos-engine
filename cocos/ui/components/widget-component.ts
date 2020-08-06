@@ -683,7 +683,8 @@ export class WidgetComponent extends Component {
      *
      * @example
      * ```
-     * widget.alignMode = cc.Widget.AlignMode.ON_WINDOW_RESIZE;
+     * import { Widget } from 'cc';
+     * widget.alignMode = Widget.AlignMode.ON_WINDOW_RESIZE;
      * ```
      */
     @property({

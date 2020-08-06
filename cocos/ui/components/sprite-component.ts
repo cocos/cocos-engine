@@ -441,7 +441,8 @@ export class SpriteComponent extends UIRenderComponent {
      *
      * @example
      * ```ts
-     * sprite.sizeMode = cc.SpriteComponent.SizeMode.CUSTOM;
+     * import { SpriteComponent } from 'cc';
+     * sprite.sizeMode = SpriteComponent.SizeMode.CUSTOM;
      * ```
      */
     @property({

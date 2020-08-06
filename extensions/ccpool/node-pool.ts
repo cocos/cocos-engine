@@ -55,7 +55,7 @@ interface IPoolHandlerComponent extends Component {
  * @zh
  * `NodePool` 是用于管理节点对象的对象缓存池。<br/>
  * 它可以帮助您提高游戏性能，适用于优化对象的反复创建和销毁<br/>
- * 以前 cocos2d-x 中的 cc.pool 和新的节点事件注册系统不兼容，因此请使用 `NodePool` 来代替。
+ * 以前 cocos2d-x 中的 pool 和新的节点事件注册系统不兼容，因此请使用 `NodePool` 来代替。
  *
  * 新的 NodePool 需要实例化之后才能使用，每种不同的节点对象池需要一个不同的对象池实例，这里的种类对应于游戏中的节点设计，一个 prefab 相当于一个种类的节点。<br/>
  * 在创建缓冲池时，可以传入一个包含 unuse, reuse 函数的组件类型用于节点的回收和复用逻辑。<br/>
@@ -82,12 +82,13 @@ export class NodePool {
      * 使用构造函数来创建一个节点专用的对象池，您可以传递一个组件类型或名称，用于处理节点回收和复用时的事件逻辑。
      * @param poolHandlerComp @en The constructor or the class name of the component to control the unuse/reuse logic. @zh 处理节点回收和复用事件逻辑的组件类型或名称。
      * @example
+     * import { NodePool, Prefab } from 'cc';
      *  properties: {
-     *      template: cc.Prefab
+     *      template: Prefab
      *     },
      *     onLoad () {
      *       // MyTemplateHandler is a component with 'unuse' and 'reuse' to handle events when node is reused or recycled.
-     *       this.myPool = new cc.NodePool('MyTemplateHandler');
+     *       this.myPool = new NodePool('MyTemplateHandler');
      *     }
      *  }
      */
@@ -124,8 +125,9 @@ export class NodePool {
      * 这个函数会自动将目标节点从父节点上移除，但是不会进行 cleanup 操作。
      * 这个函数会调用 poolHandlerComp 的 unuse 函数，如果组件和函数都存在的话。
      * @example
-     *   let myNode = cc.instantiate(this.template);
-     *   this.myPool.put(myNode);
+     * import { instantiate } from 'cc';
+     * const myNode = instantiate(this.template);
+     * this.myPool.put(myNode);
      */
     public put (obj: Node) {
         if (obj && this._pool.indexOf(obj) === -1) {
