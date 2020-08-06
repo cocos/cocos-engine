@@ -66,7 +66,7 @@ void InstancedBuffer::merge(const SubModel *subModel, const InstancedAttributeBl
         stride * INITIAL_CAPACITY,
         stride,
     });
-    size_t dataSize = stride * INITIAL_CAPACITY;
+    auto dataSize = stride * INITIAL_CAPACITY;
     std::shared_ptr<uint8_t> data((uint8_t *)CC_MALLOC(dataSize), [&](uint8_t *ptr) { CC_FREE(ptr); });
     auto vertexBuffers = sourceIA->getVertexBuffers();
     auto attributes = sourceIA->getAttributes();

@@ -3,13 +3,12 @@
 #include "core/CoreStd.h"
 
 namespace cc {
-struct MacroPatch;
-
 namespace pipeline {
 struct SubModel;
 struct Light;
 struct RenderObject;
 struct Pass;
+class DefineMap;
 
 class RenderAdditiveLightQueue : public Object {
 public:
@@ -24,7 +23,7 @@ public:
     
 private:
     void attach(RenderObject *renderObj, uint subModelIdx, gfx::Buffer *lightBuffer,
-                uint lightIdx, Pass *pass, vector<MacroPatch> patches);
+                uint lightIdx, Pass *pass, const vector<DefineMap> &patches);
 
 private:
     vector<vector<SubModel *>> _sortedSubModelsArray;

@@ -1,4 +1,5 @@
 #include "RenderAdditiveLightQueue.h"
+#include "helper/DefineMap.h"
 
 namespace cc {
 namespace pipeline {
@@ -34,7 +35,7 @@ void RenderAdditiveLightQueue::attach(RenderObject *renderObj,
                                       gfx::Buffer *lightBuffer,
                                       uint lightIdx,
                                       Pass *pass,
-                                      vector<MacroPatch> patches) {
+                                      const vector<DefineMap> &patches) {
     
 }
 

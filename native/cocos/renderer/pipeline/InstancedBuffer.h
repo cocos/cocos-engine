@@ -15,7 +15,7 @@ struct CC_DLL InstancedItem {
     uint capacity = 0;
     gfx::Buffer *vb = nullptr;
     std::shared_ptr<uint8_t> data;
-    size_t size = 0;
+    uint size = 0;
     gfx::InputAssembler *ia = nullptr;
     uint stride = 0;
 };
