@@ -1,0 +1,53 @@
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: sky-vs:vert
+      frag: sky-fs:frag
+      priority: max - 10
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+}%
+
+CCProgram sky-vs %{
+  precision highp float;
+  #include <cc-global>
+  #include <decode>
+
+  out mediump vec4 viewDir;
+
+  vec4 vert () {
+    CCDecode(viewDir);
+
+    mat4 matViewRotOnly = mat4(mat3(cc_matView));
+    vec4 pos = matViewRotOnly * viewDir;
+    // use ~90 degree FOV when in orthographic projection
+    // stretch x by 2 to remedy perspective effect
+    vec2 f = cc_matProj[3][3] > 0.0 ? vec2(4.8, 2.4) : vec2(cc_matProj[1][1]);
+    pos.xy *= vec2(cc_screenSize.y * cc_screenSize.z * cc_cameraPos.w, 1.0) * f;
+    pos.zw = vec2(-0.99999 * pos.z, -pos.z);
+    return pos;
+  }
+}%
+
+CCProgram sky-fs %{
+  precision mediump float;
+  #include <cc-global>
+  #include <cc-environment>
+  #include <unpack>
+  #include <gamma>
+  #include <output-standard>
+
+  in mediump vec4 viewDir;
+
+  vec4 frag () {
+    #if USE_RGBE_CUBEMAP
+      vec3 c = unpackRGBE(texture(cc_environment, viewDir.xyz));
+    #else
+      vec3 c = SRGBToLinear(texture(cc_environment, viewDir.xyz).rgb);
+    #endif
+    return CCFragOutput(vec4(c * cc_ambientSky.w, 1.0));
+  }
+}%

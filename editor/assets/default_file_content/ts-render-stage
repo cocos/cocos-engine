@@ -1,0 +1,26 @@
+import { _decorator, Component, Node, RenderStage } from "cc";
+const { ccclass, property } = _decorator;
+
+@ccclass("<%Name%>")
+export class <%Name%> extends RenderStage {
+
+    /* use `property` decorator if your want the member to be serializable */
+    // @property
+    // serializableDummy = 0;
+
+    resize () {
+        
+    }
+
+    render () {
+        
+    }
+
+    rebuild () {
+        
+    }
+
+    destroy () {
+        
+    }
+}

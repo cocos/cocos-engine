@@ -1,0 +1,131 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: terrain-vs:vert
+      frag: terrain-fs:frag
+      properties:
+        UVScale:      { value: [1, 1, 1, 1] }
+        lightMapUVParam: { value: [0, 0, 0, 0] }
+        weightMap:    { value: black }
+        detailMap0:   { value: grey }
+        detailMap1:   { value: grey }
+        detailMap2:   { value: grey }
+        detailMap3:   { value: grey }
+        lightMap:     { value: grey }
+}%
+
+CCProgram terrain-vs %{
+  precision mediump float;
+  #include <cc-global>
+  #include <cc-local>
+  #include <cc-fog>
+
+  in vec3 a_position;
+  in vec3 a_normal;
+  in vec2 a_texCoord;
+
+  out vec2 uvw;
+  out vec2 uv0;
+  out vec2 uv1;
+  out vec2 uv2;
+  out vec2 uv3;
+  out vec2 luv;
+  out vec3 diffuse;
+  out float factor_fog;
+  uniform TexCoords {
+    vec4 UVScale;
+    vec4 lightMapUVParam;
+  };
+
+  vec4 vert () {
+    vec3 worldPos;
+    worldPos.x = cc_matWorld[3][0] + a_position.x;
+    worldPos.y = cc_matWorld[3][1] + a_position.y;
+    worldPos.z = cc_matWorld[3][2] + a_position.z;
+
+    vec4 pos = vec4(worldPos, 1);
+    pos = cc_matViewProj * pos;
+
+    uvw = a_texCoord;
+    uv0 = a_position.xz * UVScale.x;
+    uv1 = a_position.xz * UVScale.y;
+    uv2 = a_position.xz * UVScale.z;
+    uv3 = a_position.xz * UVScale.w;
+
+    float fAmb = dot(a_normal, vec3(0.0, -1.0, 0.0)) * 0.5 + 0.5;
+    vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb) * cc_ambientSky.w;
+
+#if LIGHT_MAP == 0
+    vec3 L = normalize(-cc_mainLitDir.xyz);
+    vec3 N = a_normal;
+
+    diffuse = ambDiff + vec3(dot(N, L)) * cc_mainLitColor.rgb;
+#else
+    diffuse = ambDiff;
+    luv = lightMapUVParam.xy + a_texCoord * lightMapUVParam.zw;
+#endif
+    factor_fog = CC_TRANSFER_FOG(vec4(worldPos, 1));
+    return pos;
+  }
+}%
+
+CCProgram terrain-fs %{
+  precision mediump float;
+  #include <output>
+  #include <cc-fog>
+  #pragma define LAYERS range([0, 4])
+
+    in vec2 uvw;
+    in vec2 uv0;
+    in vec2 uv1;
+    in vec2 uv2;
+    in vec2 uv3;
+    in vec3 diffuse;
+    in vec2 luv;
+
+    uniform sampler2D weightMap;
+    uniform sampler2D detailMap0;
+    uniform sampler2D detailMap1;
+    uniform sampler2D detailMap2;
+    uniform sampler2D detailMap3;
+    uniform sampler2D lightMap;
+    in float factor_fog;
+  vec4 frag () {
+    vec4 color = vec4(0, 0, 0, 0);
+
+    #if LAYERS == 1
+      color = texture(detailMap0, uv0);
+    #elif LAYERS == 2
+      vec4 w = texture(weightMap, uvw);
+
+      color += texture(detailMap0, uv0) * w.r;
+      color += texture(detailMap1, uv1) * w.g;
+    #elif LAYERS == 3
+      vec4 w = texture(weightMap, uvw);
+
+      color += texture(detailMap0, uv0) * w.r;
+      color += texture(detailMap1, uv1) * w.g;
+      color += texture(detailMap2, uv2) * w.b;
+    #elif LAYERS == 4
+      vec4 w = texture(weightMap, uvw);
+
+      color += texture(detailMap0, uv0) * w.r;
+      color += texture(detailMap1, uv1) * w.g;
+      color += texture(detailMap2, uv2) * w.b;
+      color += texture(detailMap3, uv3) * w.a;
+    #else
+      color = texture(detailMap0, uv0);
+    #endif
+
+    vec3 lighting = diffuse;
+    #if LIGHT_MAP == 1
+      lighting += texture(lightMap, luv).rgb;
+    #endif
+
+    color.rgb *= lighting;
+    color = CC_APPLY_FOG(color, factor_fog);
+    return CCFragOutput(color);
+  }
+}%

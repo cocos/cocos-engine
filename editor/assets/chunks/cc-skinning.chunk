@@ -1,0 +1,61 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#pragma extension([GL_EXT_shader_explicit_arithmetic_types_int16, __VERSION__ > 310])
+
+#if __VERSION__ > 310
+layout(location = 4) in u16vec4 a_joints;
+#else
+#pragma format(RGBA16UI)
+layout(location = 4) in vec4 a_joints;
+#endif
+layout(location = 5) in vec4 a_weights;
+
+#if CC_USE_BAKED_ANIMATION
+  #if USE_INSTANCING
+    in highp vec4 a_jointAnimInfo; // frameID, totalJoints, offset
+  #endif
+  #pragma builtin(local)
+  layout(binding = 18) uniform CCSkinningTexture {
+    highp vec4 cc_jointTextureInfo; // length, totalJoints, offset, invLength
+  };
+  #pragma builtin(local)
+  layout(binding = 19) uniform CCSkinningAnimation {
+    highp vec4 cc_jointAnimInfo; // frameID
+  };
+  #pragma builtin(local)
+  layout(binding = 25) uniform highp sampler2D cc_jointTexture;
+  /**
+   * Although tempting, don't opt the offset arithmetics out to CPU (could
+   * be reduced to a single MAD). The enlarged numerical range could require
+   * more precision than what's actually provided on some devices.
+   */
+  #define CCGetJointTextureCoords(pixelsPerJoint, jointIdx, temp, x, y, invSize) \
+    #if USE_INSTANCING                                                           \
+      highp float temp = pixelsPerJoint * (a_jointAnimInfo.x * a_jointAnimInfo.y + jointIdx) + a_jointAnimInfo.z; \
+    #else                                                                        \
+      highp float temp = pixelsPerJoint * (cc_jointAnimInfo.x * cc_jointTextureInfo.y + jointIdx) + cc_jointTextureInfo.z; \
+    #endif                                                                       \
+    highp float invSize = cc_jointTextureInfo.w;                                 \
+    highp float y = floor(temp * invSize);                                       \
+    highp float x = temp - y * cc_jointTextureInfo.x;                            \
+    y = (y + 0.5) * invSize;                                                     \
+  #pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
+  #if !CC_SUPPORT_FLOAT_TEXTURE
+    highp float decode32 (highp vec4 rgba) {
+      rgba = rgba * 255.0; // TODO: check if wzyx shuffle is needed on big endian devices
+      highp float Sign = 1.0 - step(128.0, rgba[3]) * 2.0;
+      highp float Exponent = 2.0 * mod(rgba[3], 128.0) + step(128.0, rgba[2]) - 127.0;
+      highp float Mantissa = mod(rgba[2], 128.0) * 65536.0 + rgba[1] * 256.0 + rgba[0] + 8388608.0;
+      return Sign * exp2(Exponent - 23.0) * Mantissa;
+    }
+  #endif
+#else
+  #define JOINT_UNIFORM_CAPACITY 30
+  #pragma builtin(local)
+  layout(binding = 18) uniform CCSkinning {
+    highp vec4 cc_joints[JOINT_UNIFORM_CAPACITY * 3];
+  };
+#endif
+
+#include <skinning-lbs>
+// #include <skinning-dqs>
