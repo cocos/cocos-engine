@@ -226,8 +226,7 @@ export class GraphicsComponent extends UIRenderComponent {
 
     constructor (){
         super();
-        // this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
-        this._builtinSpriteUniformData[1] = 0;
+        this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
     }
 
     public onRestore () {

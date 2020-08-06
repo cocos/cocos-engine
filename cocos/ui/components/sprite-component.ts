@@ -573,19 +573,16 @@ export class SpriteComponent extends UIRenderComponent {
             value = (format === PixelFormat.RGBA_ETC1 || format === PixelFormat.RGB_A_PVRTC_4BPPV1 || format === PixelFormat.RGB_A_PVRTC_2BPPV1);
         }
 
-        // if (value && this.grayscale) {
-        //     this._instanceMaterialType = InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY;
-        // } else if (value) {
-        //     this._instanceMaterialType = InstanceMaterialType.USE_ALPHA_SEPARATED;
-        // } else if (this.grayscale) {
-        //     this._instanceMaterialType = InstanceMaterialType.GRAYSCALE;
-        // } else {
-        //     this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
-        // }
-
-        if (value) {
-            this._builtinSpriteUniformData[2] = 1;
+        if (value && this.grayscale) {
+            this._instanceMaterialType = InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY;
+        } else if (value) {
+            this._instanceMaterialType = InstanceMaterialType.USE_ALPHA_SEPARATED;
+        } else if (this.grayscale) {
+            this._instanceMaterialType = InstanceMaterialType.GRAYSCALE;
+        } else {
+            this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
+
     }
 
     protected _render (render: UI) {
