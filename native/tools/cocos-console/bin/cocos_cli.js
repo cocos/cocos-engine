@@ -311,6 +311,7 @@ class CCPlugin {
     run_cmake(args) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
+                console.log(`run cmake with ${args.join(" ")}`);
                 let cp = child_process.spawn(this.get_cmake_path(), args, {
                     stdio: ["pipe", "pipe", "pipe"],
                     env: process.env,

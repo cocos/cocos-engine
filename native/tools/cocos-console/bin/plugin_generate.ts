@@ -109,6 +109,10 @@ abstract class PlatformGenerateCmd {
     get project_src_dir():string {
         return cchelper.join(this.plugin.project_dir!, "..", `common-${this.plugin.args.get_string("template_name")}`);
     }
+
+    append_cmake_res_dir_args(args:string[]) {
+        args.push(`-DRES_DIR="${this.plugin.project_dir!}"`);
+    }
 }
 
 class IOSGenerateCMD extends PlatformGenerateCmd {
@@ -136,6 +140,8 @@ class IOSGenerateCMD extends PlatformGenerateCmd {
         if(teamid) {
             ext.push(`-DDEVELOPMENT_TEAM=${teamid}`);
         }
+
+        this.append_cmake_res_dir_args(ext);
 
         const do_build = false;
         if(do_build) {
@@ -165,7 +171,10 @@ class MacGenerateCMD extends PlatformGenerateCmd {
             cchelper.make_directory_recursive(build_dir);
         }
 
-        await this.plugin.run_cmake(["-S", `${this.project_src_dir}`, "-GXcode", `-B${build_dir}`, "-DCMAKE_SYSTEM_NAME=Darwin"])
+        let cmake_args = ["-S", `${this.project_src_dir}`, "-GXcode", `-B${build_dir}`, "-DCMAKE_SYSTEM_NAME=Darwin"];
+        this.append_cmake_res_dir_args(cmake_args);
+        
+        await this.plugin.run_cmake(cmake_args);
         return true;
     }
 }
@@ -272,6 +281,7 @@ class Win32GenerateCMD extends PlatformGenerateCmd {
         } else {
             generate_args = generate_args.concat(await this.win32_select_cmake_generator_args());
         }
+        this.append_cmake_res_dir_args(generate_args);
         await this.plugin.run_cmake([`-S"${cchelper.fix_path(this.project_src_dir)}"`, `-B"${cchelper.fix_path(build_dir)}"`].concat(generate_args));
         return true;
     }

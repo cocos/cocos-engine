@@ -17,6 +17,7 @@ option(USE_WEBVIEW      "Enable WebView Component"          OFF)
 option(USE_DRAGONBONES  "Enable Dragonbones"                OFF)
 option(USE_SPINE        "Enable Spine"                      OFF)
 
+
 if(USE_SE_JSC AND APPLE)
     set(USE_SE_V8 OFF)
     set(USE_V8_DEBUGGER OFF)
@@ -29,12 +30,15 @@ if(CMAKE_OSX_SYSROOT STREQUAL "iphonesimulator")
 else()
     set(TARGET_IOS_VERSION "8.0")
 endif()
+set(TARGET_OSX_VERSION "10.10")
 
 set(cocosdir "${COCOS_X_ROOT}")
 if(NOT cocosdir)
     message(FATAL_ERROR "COCOS_X_ROOT is not set!")
 endif()
 include(${cocosdir}/CMakeLists.txt)
+
+set(RES_DIR "" CACHE STRING          "Resource path")
 
 if(ANDROID)
     set(LIB_NAME cocos2djs)
@@ -64,6 +68,11 @@ else()
 endif()
 set(GAME_RES_ROOT ${CMAKE_CURRENT_LIST_DIR}/../${PLATFORM_DIR_NAME})
 
+if(RES_DIR)
+    set(GAME_RES_ROOT ${RES_DIR})
+    set(PROJ_SRC_DIR ${RES_DIR}/proj)
+    message(STATUS "Use resource diretory ${RES_DIR}")
+endif()
 
 set(GAME_RES_FILES
     ${GAME_RES_ROOT}/application.js
@@ -192,10 +201,11 @@ if(APPLE)
     set(EXECUTABLE_NAME ${LIB_NAME}) # referenced in Info.plist
     set(PRODUCT_NAME ${APP_NAME})
     if(MACOSX)
+        set(CMAKE_OSX_DEPLOYMENT_TARGET ${TARGET_OSX_VERSION})
         set(MACOSX_BUNDLE_GUI_IDENTIFIER org.cocos2dx.hellojavascript.mac)
         set_target_properties(${LIB_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${PROJ_SRC_DIR}/Info.plist")
         set_target_properties(${LIB_NAME} PROPERTIES
-            MACOSX_DEPLOYMENT_TARGET 10.10
+            MACOSX_DEPLOYMENT_TARGET ${TARGET_OSX_VERSION}
         )
         get_property(gles2_loc TARGET GLESv2 PROPERTY IMPORTED_LOCATION)
         get_property(egl_loc TARGET EGL PROPERTY IMPORTED_LOCATION)

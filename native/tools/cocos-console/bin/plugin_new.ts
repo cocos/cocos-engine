@@ -210,22 +210,30 @@ export class TemplateCreator {
 
         let shared_dir = this.plugin.shared_dir!;
 
-        await ccutils.copy_files_with_config(
-            {
-                from: ccutils.join(this.tp_dir!, "common"),
-                to: ccutils.join(shared_dir, this.plugin.common_dir),
-            }, this.tp_dir!, this.project_dir!);
+        {
+            let dir = ccutils.join(shared_dir, this.plugin.common_dir);
+            if(!fs.existsSync(dir)) {
+                await ccutils.copy_files_with_config(
+                    {
+                        from: ccutils.join(this.tp_dir!, "common"),
+                        to: dir,
+                    }, this.tp_dir!, this.project_dir!);
+            }
+        }
 
         ccutils.copy_file_sync(this.tp_dir!, "project.json", this.project_dir!, "project.json");
 
         // copy by platform
         let plat = this.plugin.args.get_string("platform");
-        if (plat) {
-            await ccutils.copy_files_with_config(
-                {
-                    from: ccutils.join(this.tp_dir!, "platforms", plat),
-                    to: ccutils.join(this.project_dir!, "proj"),
-                }, this.tp_dir!, this.project_dir!);
+        {
+            let dir = ccutils.join(this.project_dir!, "proj");
+            if (plat && !fs.existsSync(dir)) {
+                await ccutils.copy_files_with_config(
+                    {
+                        from: ccutils.join(this.tp_dir!, "platforms", plat),
+                        to: dir,
+                    }, this.tp_dir!, this.project_dir!);
+            }
         }
 
         delete this.template_info!.do_default;

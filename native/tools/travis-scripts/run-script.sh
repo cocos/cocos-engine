@@ -47,11 +47,11 @@ function setup_linux_andorid_sdk()
 function build_android()
 {
     echo "Compiling Android ... "
-    cd $COCOS2DX_ROOT/templates/js-template-link/platforms/android
+    cd $COCOS2DX_ROOT/templates/template-link/platforms/android
     sed -i "s@\${COCOS_X_ROOT}@$COCOS2DX_ROOT@g" app/build.gradle
     sed -i "s@\${COCOS_X_ROOT}@$COCOS2DX_ROOT@g" ../../common/CMakeLists.txt
     sed -i "s@\${COCOS_X_ROOT}@$COCOS2DX_ROOT@g" settings.gradle
-    sed -i "s@\${COCOS_PROJ_COMMON}@$COCOS2DX_ROOT/templates/js-template-link/common@g" app/build.gradle
+    sed -i "s@\${COCOS_PROJ_COMMON}@$COCOS2DX_ROOT/templates/template-link/common@g" app/build.gradle
     sed -i "s/^RELEASE_/#RELEASE_/g" gradle.properties
 
     #echo "Compile Android - ndk-build ..."
@@ -97,7 +97,7 @@ function build_macosx()
     NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
 
     echo "Compiling MacOSX ... "
-    cd  $COCOS2DX_ROOT/templates/js-template-link/platforms/mac
+    cd  $COCOS2DX_ROOT/templates/template-link/platforms/mac
     mkdir build-mac 
     cd build-mac
     cmake ../../../common -GXcode -DCOCOS_X_ROOT=$COCOS2DX_ROOT
@@ -112,7 +112,7 @@ function build_ios()
     NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
 
     echo "Compiling iOS ... "
-    cd  $COCOS2DX_ROOT/templates/js-template-link/platforms/ios
+    cd  $COCOS2DX_ROOT/templates/template-link/platforms/ios
     mkdir build-ios 
     cd build-ios
     cmake ../../../common -GXcode -DCOCOS_X_ROOT=$COCOS2DX_ROOT -DCMAKE_SYSTEM_NAME=iOS \
@@ -125,7 +125,7 @@ function build_ios()
 function build_windows()
 {
     echo "Compiling Win32 ... "
-    cd  $COCOS2DX_ROOT/templates/js-template-link/platforms/win32
+    cd  $COCOS2DX_ROOT/templates/template-link/platforms/win32
     mkdir build-win32 
     cd build-win32
     cmake ../../../common -G"Visual Studio 15 2017" -DCOCOS_X_ROOT=$COCOS2DX_ROOT 

@@ -180,18 +180,26 @@ class TemplateCreator {
     run() {
         return __awaiter(this, void 0, void 0, function* () {
             let shared_dir = this.plugin.shared_dir;
-            yield cocos_cli_1.cchelper.copy_files_with_config({
-                from: cocos_cli_1.cchelper.join(this.tp_dir, "common"),
-                to: cocos_cli_1.cchelper.join(shared_dir, this.plugin.common_dir),
-            }, this.tp_dir, this.project_dir);
+            {
+                let dir = cocos_cli_1.cchelper.join(shared_dir, this.plugin.common_dir);
+                if (!fs.existsSync(dir)) {
+                    yield cocos_cli_1.cchelper.copy_files_with_config({
+                        from: cocos_cli_1.cchelper.join(this.tp_dir, "common"),
+                        to: dir,
+                    }, this.tp_dir, this.project_dir);
+                }
+            }
             cocos_cli_1.cchelper.copy_file_sync(this.tp_dir, "project.json", this.project_dir, "project.json");
             // copy by platform
             let plat = this.plugin.args.get_string("platform");
-            if (plat) {
-                yield cocos_cli_1.cchelper.copy_files_with_config({
-                    from: cocos_cli_1.cchelper.join(this.tp_dir, "platforms", plat),
-                    to: cocos_cli_1.cchelper.join(this.project_dir, "proj"),
-                }, this.tp_dir, this.project_dir);
+            {
+                let dir = cocos_cli_1.cchelper.join(this.project_dir, "proj");
+                if (plat && !fs.existsSync(dir)) {
+                    yield cocos_cli_1.cchelper.copy_files_with_config({
+                        from: cocos_cli_1.cchelper.join(this.tp_dir, "platforms", plat),
+                        to: dir,
+                    }, this.tp_dir, this.project_dir);
+                }
             }
             delete this.template_info.do_default;
             for (let key in this.template_info) {
