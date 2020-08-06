@@ -9,7 +9,7 @@ import { IRenderObject, UBOForwardLight } from './define';
 import { IMacroPatch } from '../renderer/core/pass'
 import { Light } from '../renderer';
 import { LightType } from '../renderer/scene/light';
-import { GFXDevice, GFXRenderPass, GFXBuffer } from '../gfx';
+import { GFXDevice, GFXRenderPass, GFXBuffer, GFXInputAssembler } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../renderer/core/memory-pools';
@@ -32,7 +32,7 @@ export class RenderAdditiveLightQueue {
     private _phaseID = getPhaseID('forward-add');
 
     // psoCI cache
-    private _psoCICache: Map<SubModel, number> = new Map();
+    private _psoCICache: Map<GFXInputAssembler, number> = new Map();
 
     // references
     private _validLights: Light[] = [];
@@ -97,17 +97,18 @@ export class RenderAdditiveLightQueue {
     private attach (renderObj: IRenderObject, subModelIdx: number, lightBuffer: GFXBuffer, lightIdx: number,
         pass: Pass, patches: IMacroPatch[]) {
         const subModel = renderObj.model.subModels[subModelIdx];
+        const inputAssembler = subModel.inputAssembler!;
         const subModelList = this._sortedSubModelsArray[lightIdx];
         const psoCIList = this._sortedPSOCIArray[lightIdx];
         const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
         const fullPatches = modelPatches ? patches.concat(modelPatches) : patches;
 
         let psoCI: number;
-        if (this._psoCICache.has(subModel)) {
-            psoCI = this._psoCICache.get(subModel)!;
+        if (this._psoCICache.has(inputAssembler)) {
+            psoCI = this._psoCICache.get(inputAssembler)!;
         } else {
             psoCI = pass.createPipelineStateCI(fullPatches)!;
-            this._psoCICache.set(subModel, psoCI);
+            this._psoCICache.set(inputAssembler, psoCI);
             renderObj.model.updateLocalBindings(psoCI, subModelIdx);
             const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT));
             bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
