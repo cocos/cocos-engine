@@ -348,7 +348,7 @@ export class WebGLGFXDevice extends GFXDevice {
             // earlier runtime VAO implementations doesn't work
             if (RUNTIME_BASED) {
                 // @ts-ignore
-                if (typeof loadRuntime !== 'function' || typeof loadRuntime().getFeature !== 'function' || loadRuntime()
+                if (typeof loadRuntime !== 'function' || !loadRuntime() || typeof loadRuntime().getFeature !== 'function' || loadRuntime()
                     .getFeature('webgl.extensions.oes_vertex_array_object.revision') <= 0) {
                     this._OES_vertex_array_object = null;
                 }
