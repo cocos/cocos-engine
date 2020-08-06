@@ -96,7 +96,7 @@ var helper = {
      * @param {string} uuid - The uuid of asset
      * @param {Object} [options] - Some optional parameters
      * @param {Boolean} [options.isNative] - Indicates whether the path you want is a native resource path
-     * @param {Boolean} [options.ext] - Extension of the resource path, it is required when isNative is true
+     * @param {string} [options.ext] - Extension of the resource path, it is required when isNative is true
      * @returns {string} url
      * 
      * @example
