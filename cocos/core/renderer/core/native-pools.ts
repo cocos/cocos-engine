@@ -27,7 +27,9 @@
  * @hidden
  */
 
-export class NativeBufferPool {
+import { JSB } from 'internal:constants';
+
+export class NativeBuffer {
     private _arrayBuffers: ArrayBuffer[] = [];
     private _chunkSize: number;
     constructor (dataType: number, entryBits: number, stride: number) {
@@ -39,3 +41,5 @@ export class NativeBufferPool {
 export class NativeObjectPool<T> {
     constructor (dataType: number, array: T[]) {}
 }
+ 
+export let NativeBufferPool = JSB ?  jsb.NativeBufferPool : NativeBuffer;
