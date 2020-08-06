@@ -445,6 +445,12 @@ cc.js.mixin(View.prototype, {
         if (CC_EDITOR) {
             return false;
         }
+        // HACK: iOS 14 can't release page memory 
+        // so need to disable retina
+        let ua = window.navigator.userAgent;
+        if (/iPhone OS 14_0/.test(ua)) {
+            return false;
+        }
         return this._retinaEnabled;
     },
 
