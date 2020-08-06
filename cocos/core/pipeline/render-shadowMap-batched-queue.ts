@@ -6,7 +6,7 @@ import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { Pass, IMacroPatch } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOPCFShadow } from './define';
-import { GFXDevice, GFXRenderPass, GFXBuffer } from '../gfx';
+import { GFXDevice, GFXRenderPass, GFXBuffer, GFXInputAssembler } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
@@ -25,7 +25,7 @@ export class RenderShadowMapBatchedQueue {
     private _shadowMapBuffer: GFXBuffer|null = null;
 
     // psoCI cache
-    private _psoCICache: Map<SubModel, number> = new Map();
+    private _psoCICache: Map<GFXInputAssembler, number> = new Map();
 
     private _phaseID = getPhaseID('shadow-add');
 
@@ -42,15 +42,16 @@ export class RenderShadowMapBatchedQueue {
     public add (pass: Pass, renderObj: IRenderObject, subModelIdx: number) {
         if (pass.phase === this._phaseID) {
             const subModel = renderObj.model.subModels[subModelIdx];
+            const inputAssembler = subModel.inputAssembler!;
             const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
             const fullPatches = modelPatches ? forwardShadowMapPatches.concat(modelPatches) : forwardShadowMapPatches;
 
             let psoCI: number;
-            if (this._psoCICache.has(subModel)) {
-                psoCI = this._psoCICache.get(subModel)!;
+            if (this._psoCICache.has(inputAssembler)) {
+                psoCI = this._psoCICache.get(inputAssembler)!;
             } else {
                 psoCI = pass.createPipelineStateCI(fullPatches)!;
-                this._psoCICache.set(subModel, psoCI);
+                this._psoCICache.set(inputAssembler, psoCI);
                 renderObj.model.updateLocalBindings(psoCI, subModelIdx);
                 const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT));
                 bindingLayout.bindBuffer(UBOPCFShadow.BLOCK.binding, this._shadowMapBuffer!);
