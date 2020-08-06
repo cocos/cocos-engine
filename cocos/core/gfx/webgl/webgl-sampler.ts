@@ -1,6 +1,6 @@
 import { GFXFilter, GFXStatus } from '../define';
 import { GFXSampler, IGFXSamplerInfo } from '../sampler';
-import { WebGLGPUSampler } from './webgl-gpu-objects';
+import { IWebGLGPUSampler } from './webgl-gpu-objects';
 
 const WebGLWraps: GLenum[] = [
     0x2901, // WebGLRenderingContext.REPEAT,
@@ -9,13 +9,13 @@ const WebGLWraps: GLenum[] = [
     0x812F, // WebGLRenderingContext.CLAMP_TO_EDGE,
 ];
 
-export class WebGLGFXSampler extends GFXSampler {
+export class WebGLSampler extends GFXSampler {
 
-    public get gpuSampler (): WebGLGPUSampler {
+    public get gpuSampler (): IWebGLGPUSampler {
         return  this._gpuSampler!;
     }
 
-    private _gpuSampler: WebGLGPUSampler | null = null;
+    private _gpuSampler: IWebGLGPUSampler | null = null;
 
     public initialize (info: IGFXSamplerInfo): boolean {
 

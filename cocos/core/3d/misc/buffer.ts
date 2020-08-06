@@ -1,4 +1,4 @@
-import { GFXFormat, GFXFormatInfos, GFXFormatType, IGFXFormatInfo } from '../../gfx/define';
+import { GFXFormat, GFXFormatInfos, GFXFormatType, GFXFormatInfo } from '../../gfx/define';
 import { sys } from '../../platform/sys';
 
 const _typeMap = {
@@ -10,7 +10,7 @@ const _typeMap = {
     [GFXFormatType.FLOAT]: 'Float',
     default: 'Uint',
 };
-function _getDataViewType (info: IGFXFormatInfo) {
+function _getDataViewType (info: GFXFormatInfo) {
     const type = _typeMap[info.type] || _typeMap.default;
     const bytes = info.size / info.count * 8;
     return type + bytes;

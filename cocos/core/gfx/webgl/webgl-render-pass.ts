@@ -1,14 +1,14 @@
 import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
-import { WebGLGPURenderPass } from './webgl-gpu-objects';
+import { IWebGLGPURenderPass } from './webgl-gpu-objects';
 import { GFXStatus } from '../define';
 
-export class WebGLGFXRenderPass extends GFXRenderPass {
+export class WebGLRenderPass extends GFXRenderPass {
 
-    public get gpuRenderPass (): WebGLGPURenderPass {
+    public get gpuRenderPass (): IWebGLGPURenderPass {
         return  this._gpuRenderPass!;
     }
 
-    private _gpuRenderPass: WebGLGPURenderPass | null = null;
+    private _gpuRenderPass: IWebGLGPURenderPass | null = null;
 
     public initialize (info: IGFXRenderPassInfo): boolean {
 

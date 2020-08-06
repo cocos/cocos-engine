@@ -92,7 +92,7 @@ export class RenderInstancedQueue {
                     const pso = PipelineStateManager.getOrCreatePipelineState(device, psoci, renderPass, instance.ia);
                     if (lastPSO !== pso) {
                         cmdBuff.bindPipelineState(pso);
-                        cmdBuff.bindDescriptorSets(DescriptorSetPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SETS)));
+                        cmdBuff.bindDescriptorSets(DescriptorSetPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SET)));
                         lastPSO = pso;
                     }
                     cmdBuff.bindInputAssembler(instance.ia);

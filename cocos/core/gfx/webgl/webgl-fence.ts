@@ -1,7 +1,7 @@
 import { GFXFence, IGFXFenceInfo } from '../fence';
 import { GFXStatus } from '../define';
 
-export class WebGLGFXFence extends GFXFence {
+export class WebGLFence extends GFXFence {
 
     public initialize (info: IGFXFenceInfo): boolean {
         this._status = GFXStatus.SUCCESS;

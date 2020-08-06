@@ -250,7 +250,7 @@ class GpuComputing implements SubMeshMorphRendering {
             },
 
             adaptPipelineState: (pipelineCreateInfo: number) => {
-                const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(pipelineCreateInfo, PSOCIView.DESCRIPTOR_SETS));
+                const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(pipelineCreateInfo, PSOCIView.DESCRIPTOR_SET));
                 for (const attribute of this._attributes) {
                     let binding: number | undefined;
                     switch (attribute.name) {
@@ -419,7 +419,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
     }
 
     public adaptPipelineState (pipelineCreateInfo: number) {
-        const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(pipelineCreateInfo, PSOCIView.DESCRIPTOR_SETS));
+        const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(pipelineCreateInfo, PSOCIView.DESCRIPTOR_SET));
         for (const attribute of this._attributes) {
             const attributeName = attribute.attributeName;
             let binding: number | undefined;

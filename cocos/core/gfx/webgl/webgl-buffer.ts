@@ -6,16 +6,16 @@ import {
     WebGLCmdFuncResizeBuffer,
     WebGLCmdFuncUpdateBuffer,
 } from './webgl-commands';
-import { WebGLGFXDevice } from './webgl-device';
-import { WebGLGPUBuffer } from './webgl-gpu-objects';
+import { WebGLDevice } from './webgl-device';
+import { IWebGLGPUBuffer } from './webgl-gpu-objects';
 
-export class WebGLGFXBuffer extends GFXBuffer {
+export class WebGLBuffer extends GFXBuffer {
 
-    get gpuBuffer (): WebGLGPUBuffer {
+    get gpuBuffer (): IWebGLGPUBuffer {
         return  this._gpuBuffer!;
     }
 
-    private _gpuBuffer: WebGLGPUBuffer | null = null;
+    private _gpuBuffer: IWebGLGPUBuffer | null = null;
     private _uniformBuffer: Uint8Array | null = null;
 
     public initialize (info: IGFXBufferInfo): boolean {
@@ -60,7 +60,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
             this._gpuBuffer.buffer = this._uniformBuffer;
         }
 
-        WebGLCmdFuncCreateBuffer(this._device as WebGLGFXDevice, this._gpuBuffer);
+        WebGLCmdFuncCreateBuffer(this._device as WebGLDevice, this._gpuBuffer);
 
         this._device.memoryStatus.bufferSize += this._size;
         this._status = GFXStatus.SUCCESS;
@@ -70,7 +70,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
 
     public destroy () {
         if (this._gpuBuffer) {
-            WebGLCmdFuncDestroyBuffer(this._device as WebGLGFXDevice, this._gpuBuffer);
+            WebGLCmdFuncDestroyBuffer(this._device as WebGLDevice, this._gpuBuffer);
             this._device.memoryStatus.bufferSize -= this._size;
             this._gpuBuffer = null;
         }
@@ -107,7 +107,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
 
             this._gpuBuffer.size = size;
             if (size > 0) {
-                WebGLCmdFuncResizeBuffer(this._device as WebGLGFXDevice, this._gpuBuffer);
+                WebGLCmdFuncResizeBuffer(this._device as WebGLDevice, this._gpuBuffer);
                 this._device.memoryStatus.bufferSize -= oldSize;
                 this._device.memoryStatus.bufferSize += size;
             }
@@ -130,7 +130,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
         }
 
         WebGLCmdFuncUpdateBuffer(
-            this._device as WebGLGFXDevice,
+            this._device as WebGLDevice,
             this._gpuBuffer!,
             buffer,
             offset || 0,

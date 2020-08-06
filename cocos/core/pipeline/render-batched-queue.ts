@@ -98,7 +98,7 @@ export class RenderBatchedQueue {
                     cmdBuff.bindPipelineState(pso);
                     boundPSO = true;
                 }
-                cmdBuff.bindDescriptorSets(DescriptorSetPool.get(PSOCIPool.get(batch.psoCI, PSOCIView.DESCRIPTOR_SETS)));
+                cmdBuff.bindDescriptorSets(DescriptorSetPool.get(PSOCIPool.get(batch.psoCI, PSOCIView.DESCRIPTOR_SET)));
                 cmdBuff.bindInputAssembler(batch.ia);
                 cmdBuff.draw(batch.ia);
             }

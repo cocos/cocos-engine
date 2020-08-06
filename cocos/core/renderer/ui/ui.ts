@@ -35,7 +35,6 @@ import { GFXSampler } from '../../gfx/sampler';
 import { GFXTexture } from '../../gfx/texture';
 import { Pool, RecyclePool } from '../../memop';
 import { CachedArray } from '../../memop/cached-array';
-import { UniformBinding } from '../../pipeline/define';
 import { Camera } from '../../renderer/scene/camera';
 import { Model } from '../../renderer/scene/model';
 import { RenderScene } from '../../renderer/scene/render-scene';
@@ -320,9 +319,12 @@ export class UI {
                     }
                 } else {
                     const descriptorSet = batch.descriptorSet!;
-                    // assumes sprite materials has only one sampler
-                    descriptorSet.bindTexture(UniformBinding.CUSTOM_SAMPLER_BINDING_START_POINT, batch.texture!);
-                    descriptorSet.bindSampler(UniformBinding.CUSTOM_SAMPLER_BINDING_START_POINT, batch.sampler!);
+
+                    // [HACK] remove this after UI refactoring
+                    const binding = batch.material?.effectAsset?.shaders[0].blocks.length || 0;
+
+                    descriptorSet.bindTexture(binding, batch.texture!);
+                    descriptorSet.bindSampler(binding, batch.sampler!);
                     descriptorSet.update();
 
                     const uiModel = this._uiModelPool!.alloc();
@@ -468,7 +470,7 @@ export class UI {
         curDrawBatch.ia!.indexCount = vCount;
 
         curDrawBatch.psoCreateInfo = this._getUIMaterial(mat).getPipelineCreateInfo();
-        curDrawBatch.descriptorSet = DescriptorSetPool.get(PSOCIPool.get(curDrawBatch.psoCreateInfo!, PSOCIView.DESCRIPTOR_SETS));
+        curDrawBatch.descriptorSet = DescriptorSetPool.get(PSOCIPool.get(curDrawBatch.psoCreateInfo!, PSOCIView.DESCRIPTOR_SET));
 
         this._batches.push(curDrawBatch);
 

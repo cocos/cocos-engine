@@ -8,7 +8,7 @@ import { GFXBuffer } from './gfx/buffer';
 import { GFXCommandBuffer } from './gfx/command-buffer';
 import {
     GFXBufferTextureCopy, GFXBufferUsageBit, GFXCommandBufferType, GFXFormat,
-    GFXMemoryUsageBit, GFXTextureType, GFXTextureUsageBit, IGFXRect, IGFXColor, GFXAddress
+    GFXMemoryUsageBit, GFXTextureType, GFXTextureUsageBit, GFXRect, GFXColor, GFXAddress
 } from './gfx/define';
 import { GFXDevice } from './gfx/device';
 import { GFXFramebuffer } from './gfx/framebuffer';
@@ -17,11 +17,12 @@ import { GFXTexture } from './gfx/texture';
 import { clamp01 } from './math/utils';
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import { sys } from './platform/sys';
-import { GFXSampler } from './gfx';
+import { GFXSampler, GFXDescriptorSet } from './gfx';
 import { PipelineStateManager } from './pipeline/pipeline-state-manager';
 import { legacyCC } from './global-exports';
 import { Root } from './root';
-import { DescriptorSetPool, PSOCIView, PSOCIPool } from './renderer/core/memory-pools';
+import { DescriptorSetPool, PSOCIView, PSOCIPool, ShaderPool } from './renderer/core/memory-pools';
+import { DescriptorSetIndices } from './pipeline/define';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 
@@ -29,7 +30,7 @@ export interface ISplashSetting {
     readonly totalTime: number;
     readonly base64src: string;
     readonly effect: SplashEffectType;
-    readonly clearColor: IGFXColor;
+    readonly clearColor: GFXColor;
     readonly displayRatio: number;
     readonly displayWatermark: boolean;
 }
@@ -59,11 +60,12 @@ export class SplashScreen {
     private indicesBuffers!: GFXBuffer;
     private psoCreateInfo!: number;
     private framebuffer!: GFXFramebuffer;
-    private renderArea!: IGFXRect;
+    private renderArea!: GFXRect;
     private region!: GFXBufferTextureCopy;
     private material!: Material;
     private texture!: GFXTexture;
-    private clearColors!: IGFXColor[];
+    private clearColors!: GFXColor[];
+    private descriptorSets: GFXDescriptorSet[] = [];
 
     private _splashFinish: boolean = false;
     private _loadFinish: boolean = false;
@@ -90,7 +92,7 @@ export class SplashScreen {
             (this.setting.totalTime as number) = this.setting.totalTime != null ? this.setting.totalTime : 3000;
             (this.setting.base64src as string) = this.setting.base64src || '';
             (this.setting.effect as SplashEffectType) = this.setting.effect || 'FADE-INOUT';
-            (this.setting.clearColor as IGFXColor) = this.setting.clearColor || { r: 0.88, g: 0.88, b: 0.88, a: 1.0 };
+            (this.setting.clearColor as GFXColor) = this.setting.clearColor || { r: 0.88, g: 0.88, b: 0.88, a: 1.0 };
             (this.setting.displayRatio as number) = this.setting.displayRatio != null ? this.setting.displayRatio : 0.4;
             (this.setting.displayWatermark as boolean) = this.setting.displayWatermark != null ? this.setting.displayWatermark : true;
         } else {
@@ -251,15 +253,18 @@ export class SplashScreen {
             this.clearColors, 1.0, 0);
 
         const pso = PipelineStateManager.getOrCreatePipelineState(device, this.psoCreateInfo, framebuffer.renderPass!, this.assmebler);
+        this.descriptorSets[DescriptorSetIndices.MATERIAL_SPECIFIC] = DescriptorSetPool.get(PSOCIPool.get(this.psoCreateInfo, PSOCIView.DESCRIPTOR_SET));
         cmdBuff.bindPipelineState(pso);
-        cmdBuff.bindDescriptorSets(DescriptorSetPool.get(PSOCIPool.get(this.psoCreateInfo, PSOCIView.DESCRIPTOR_SETS)));
+        cmdBuff.bindDescriptorSets(this.descriptorSets);
         cmdBuff.bindInputAssembler(this.assmebler);
         cmdBuff.draw(this.assmebler);
 
         if (this.setting.displayWatermark && this.textPSOCreateInfo && this.textAssmebler) {
             const psoWatermark = PipelineStateManager.getOrCreatePipelineState(device, this.textPSOCreateInfo, framebuffer.renderPass!, this.textAssmebler);
+            this.descriptorSets[DescriptorSetIndices.MATERIAL_SPECIFIC] =
+                DescriptorSetPool.get(PSOCIPool.get(this.textPSOCreateInfo, PSOCIView.DESCRIPTOR_SET));
             cmdBuff.bindPipelineState(psoWatermark);
-            cmdBuff.bindDescriptorSets(DescriptorSetPool.get(PSOCIPool.get(this.textPSOCreateInfo, PSOCIView.DESCRIPTOR_SETS)));
+            cmdBuff.bindDescriptorSets(this.descriptorSets);
             cmdBuff.bindInputAssembler(this.textAssmebler);
             cmdBuff.draw(this.textAssmebler);
         }
@@ -313,7 +318,7 @@ export class SplashScreen {
         pass.bindTexture(binding!, this.textTexture!);
 
         this.textPSOCreateInfo = pass.createPipelineStateCI();
-        DescriptorSetPool.get(PSOCIPool.get(this.textPSOCreateInfo, PSOCIView.DESCRIPTOR_SETS)).update();
+        DescriptorSetPool.get(PSOCIPool.get(this.textPSOCreateInfo, PSOCIView.DESCRIPTOR_SET)).update();
 
         /** Assembler */
         // create vertex buffer
@@ -493,9 +498,12 @@ export class SplashScreen {
         pass.bindTexture(binding!, this.texture!);
 
         this.psoCreateInfo = pass.createPipelineStateCI();
-        const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(this.psoCreateInfo, PSOCIView.DESCRIPTOR_SETS));
+        const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(this.psoCreateInfo, PSOCIView.DESCRIPTOR_SET));
         descriptorSet.bindSampler(binding!, this.sampler);
         descriptorSet.update();
+
+        const shader = ShaderPool.get(PSOCIPool.get(this.psoCreateInfo, PSOCIView.SHADER));
+        this.descriptorSets[DescriptorSetIndices.PIPELINE_GLOBAL] = this.device.createDescriptorSet({ shader, set: DescriptorSetIndices.PIPELINE_GLOBAL });
 
         this.region = new GFXBufferTextureCopy();
         this.region.texExtent.width = this.image.width;
@@ -515,6 +523,9 @@ export class SplashScreen {
 
         this.cmdBuff.destroy();
         this.cmdBuff = null!;
+
+        this.descriptorSets[DescriptorSetIndices.PIPELINE_GLOBAL].destroy();
+        this.descriptorSets.length = 0;
 
         this.material.passes[0].destroyPipelineStateCI(this.psoCreateInfo);
         this.psoCreateInfo = 0;

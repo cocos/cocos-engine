@@ -16,7 +16,7 @@ import { SphereLight } from '../../renderer/scene/sphere-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
 import { IRenderObject, UBOGlobal, UBOShadow, UBOPCFShadow,
     UNIFORM_ENVIRONMENT, UBOForwardLight, RenderPassStage, UNIFORM_SHADOWMAP} from '../define';
-import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit,
+import { GFXDescriptorType, GFXBufferUsageBit, GFXMemoryUsageBit,
     GFXStoreOp, GFXCommandBufferType, GFXClearFlag, GFXFilter, GFXAddress } from '../../gfx/define';
 import { RenderTexture } from '../../assets/render-texture';
 import { Material } from '../../assets/material';
@@ -417,7 +417,7 @@ export class ForwardPipeline extends RenderPipeline {
             });
 
             globalBindings.set(UBOGlobal.BLOCK.name, {
-                type: GFXBindingType.UNIFORM_BUFFER,
+                type: GFXDescriptorType.UNIFORM_BUFFER,
                 blockInfo: UBOGlobal.BLOCK,
                 buffer: globalUBO,
             });
@@ -431,7 +431,7 @@ export class ForwardPipeline extends RenderPipeline {
             });
 
             globalBindings.set(UBOShadow.BLOCK.name, {
-                type: GFXBindingType.UNIFORM_BUFFER,
+                type: GFXDescriptorType.UNIFORM_BUFFER,
                 blockInfo: UBOShadow.BLOCK,
                 buffer: shadowUBO,
             });
@@ -439,7 +439,7 @@ export class ForwardPipeline extends RenderPipeline {
 
         if (!globalBindings.get(UNIFORM_ENVIRONMENT.name)) {
             globalBindings.set(UNIFORM_ENVIRONMENT.name, {
-                type: GFXBindingType.SAMPLER,
+                type: GFXDescriptorType.SAMPLER,
                 samplerInfo: UNIFORM_ENVIRONMENT,
             });
         }
@@ -452,7 +452,7 @@ export class ForwardPipeline extends RenderPipeline {
             });
 
             globalBindings.set(UBOPCFShadow.BLOCK.name, {
-                type: GFXBindingType.UNIFORM_BUFFER,
+                type: GFXDescriptorType.UNIFORM_BUFFER,
                 blockInfo: UBOPCFShadow.BLOCK,
                 buffer: shadowPCFUBO,
             });
@@ -460,7 +460,7 @@ export class ForwardPipeline extends RenderPipeline {
 
         if (!globalBindings.get(UNIFORM_SHADOWMAP.name)) {
             globalBindings.set(UNIFORM_SHADOWMAP.name, {
-                type: GFXBindingType.SAMPLER,
+                type: GFXDescriptorType.SAMPLER,
                 samplerInfo: UNIFORM_SHADOWMAP,
             });
             const shadowMapSamplerHash = genSamplerHash([

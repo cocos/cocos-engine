@@ -15,12 +15,6 @@ import {
 } from './define';
 import { GFXDevice } from './device';
 
-export interface IGFXUniformInfo {
-    name: string;
-    type: GFXType;
-    count: number;
-}
-
 export interface IGFXDrawInfo {
     vertexCount: number;
     firstVertex: number;

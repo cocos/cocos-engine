@@ -3,7 +3,7 @@
  */
 
 import { ccclass, property } from '../../data/class-decorator';
-import { IGFXColor, IGFXRect } from '../../gfx/define';
+import { GFXColor, GFXRect } from '../../gfx/define';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from '../forward/enum';
@@ -14,7 +14,7 @@ import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { IRenderPass } from '../define';
 
-const colors: IGFXColor[] = [];
+const colors: GFXColor[] = [];
 
 /**
  * @en The UI render stage
@@ -35,7 +35,7 @@ export class UIStage extends RenderStage {
     protected renderQueues: RenderQueueDesc[] = [];
     protected _renderQueues: RenderQueue[] = [];
 
-    private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
+    private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
 
     public initialize (info: IRenderStageInfo): boolean {
         super.initialize(info);

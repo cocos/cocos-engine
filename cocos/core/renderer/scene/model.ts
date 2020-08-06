@@ -208,7 +208,7 @@ export class Model {
             const sampler = samplerLib.getSampler(this._device, texture.mipmaps.length > 1 ? lightmapSamplerWithMipHash : lightmapSamplerHash);
             for (const sub of this._subModels) {
                 for (let i = 0; i < sub.psoInfos.length; i++) {
-                    const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(sub.psoInfos[i], PSOCIView.DESCRIPTOR_SETS));
+                    const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(sub.psoInfos[i], PSOCIView.DESCRIPTOR_SET));
                     descriptorSet.bindTexture(UniformLightingMapSampler.binding, gfxTexture);
                     descriptorSet.bindSampler(UniformLightingMapSampler.binding, sampler);
                     descriptorSet.update();
@@ -299,7 +299,7 @@ export class Model {
 
     public updateLocalBindings (psoci: number, submodelIdx: number) {
         if (this._localBuffer) {
-            const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SETS));
+            const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SET));
             descriptorSet.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer);
         }
     }

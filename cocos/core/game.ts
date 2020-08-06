@@ -39,7 +39,6 @@ import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from './renderer';
 import { legacyCC } from './global-exports';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
-import { bufferBindingOffsets, samplerBindingOffsets } from './pipeline/define';
 
 /**
  * @zh
@@ -912,11 +911,11 @@ export class Game extends EventTarget {
                 ) {
                     useWebGL2 = false;
                 }
-                if (useWebGL2 && legacyCC.WebGL2GFXDevice) {
-                    ctors.push(legacyCC.WebGL2GFXDevice);
+                if (useWebGL2 && legacyCC.WebGL2Device) {
+                    ctors.push(legacyCC.WebGL2Device);
                 }
-                if (legacyCC.WebGLGFXDevice) {
-                    ctors.push(legacyCC.WebGLGFXDevice);
+                if (legacyCC.WebGLDevice) {
+                    ctors.push(legacyCC.WebGLDevice);
                 }
             }
 
@@ -927,8 +926,6 @@ export class Game extends EventTarget {
                 devicePixelRatio: window.devicePixelRatio,
                 nativeWidth: Math.floor(screen.width * window.devicePixelRatio),
                 nativeHeight: Math.floor(screen.height * window.devicePixelRatio),
-                bufferBindingOffsets,
-                samplerBindingOffsets,
             };
             for (let i = 0; i < ctors.length; i++) {
                 this._gfxDevice = new ctors[i]();

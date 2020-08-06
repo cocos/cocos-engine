@@ -179,13 +179,13 @@ export class BakedSkinningModel extends MorphModel {
         for (let i = 0; i < this._subModels.length; ++i) {
             const psoCreateInfos = this._subModels[i].psoInfos;
             for (let j = 0; j < psoCreateInfos.length; ++j) {
-                const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoCreateInfos[j], PSOCIView.DESCRIPTOR_SETS));
+                const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoCreateInfos[j], PSOCIView.DESCRIPTOR_SET));
                 descriptorSet.bindTexture(UniformJointTexture.binding, tex);
             }
         }
 
         for (let i = 0; i < this._implantPSOCIs.length; i++) {
-            const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(this._implantPSOCIs[i], PSOCIView.DESCRIPTOR_SETS));
+            const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(this._implantPSOCIs[i], PSOCIView.DESCRIPTOR_SET));
             descriptorSet.bindTexture(UniformJointTexture.binding, tex);
             descriptorSet.update();
         }
@@ -198,7 +198,7 @@ export class BakedSkinningModel extends MorphModel {
     public updateLocalBindings (psoci: number, submodelIdx: number) {
         super.updateLocalBindings(psoci, submodelIdx);
         const { buffer, texture, animInfo } = this._jointsMedium;
-        const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SETS));
+        const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SET));
         descriptorSet.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
         descriptorSet.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
         const sampler = samplerLib.getSampler(this._device, jointTextureSamplerHash);

@@ -1,18 +1,18 @@
-import { GFXShader, IGFXShaderInfo } from '../shader';
+import { GFXShader, GFXShaderInfo } from '../shader';
 import { WebGL2CmdFuncCreateShader, WebGL2CmdFuncDestroyShader } from './webgl2-commands';
-import { WebGL2GFXDevice } from './webgl2-device';
-import { WebGL2GPUShader, WebGL2GPUShaderStage, IWebGL2UniformBlock, IWebGL2UniformSampler } from './webgl2-gpu-objects';
+import { WebGL2Device } from './webgl2-device';
+import { IWebGL2GPUShader, IWebGL2GPUShaderStage, IWebGL2UniformBlock, IWebGL2UniformSampler } from './webgl2-gpu-objects';
 import { GFXStatus } from '../define';
 
-export class WebGL2GFXShader extends GFXShader {
+export class WebGL2Shader extends GFXShader {
 
-    get gpuShader (): WebGL2GPUShader {
+    get gpuShader (): IWebGL2GPUShader {
         return  this._gpuShader!;
     }
 
-    private _gpuShader: WebGL2GPUShader | null = null;
+    private _gpuShader: IWebGL2GPUShader | null = null;
 
-    public initialize (info: IGFXShaderInfo): boolean {
+    public initialize (info: GFXShaderInfo): boolean {
 
         this._name = info.name;
         this._stages = info.stages;
@@ -25,19 +25,15 @@ export class WebGL2GFXShader extends GFXShader {
         const samplers = (info.samplers !== undefined ? info.samplers : []) as IWebGL2UniformSampler[];
 
         if (bindingMapping) {
-            const bcounts = bindingMapping.buffer.counts;
-            const boffsets = bindingMapping.buffer.offsets;
-            const soffsets = bindingMapping.sampler.offsets;
-            const activeBlockCounts = Array(bcounts.length).fill(0);
+            const boffsets = bindingMapping.bufferOffsets;
+            const soffsets = bindingMapping.samplerOffsets;
             for (let i = 0; i < blocks.length; i++) {
                 const block = blocks[i]; // buffer bindings starts at 0 and grows upward
-                activeBlockCounts[block.set]++;
                 block.gpuBinding = block.binding + boffsets[block.set];
             }
             for (let i = 0; i < samplers.length; i++) {
                 const sampler = samplers[i]; // sampler bindings starts at -1 and grows downward
-                const bcount = bcounts[sampler.set] || activeBlockCounts[sampler.set];
-                sampler.gpuBinding = bcount - sampler.binding + soffsets[sampler.set];
+                sampler.gpuBinding = -(sampler.binding - soffsets[sampler.set]) - 1;
             }
         } else {
             for (let i = 0; i < blocks.length; i++) {
@@ -55,7 +51,7 @@ export class WebGL2GFXShader extends GFXShader {
             blocks,
             samplers,
 
-            gpuStages: new Array<WebGL2GPUShaderStage>(info.stages.length),
+            gpuStages: new Array<IWebGL2GPUShaderStage>(info.stages.length),
             glProgram: null,
             glInputs: [],
             glUniforms: [],
@@ -72,7 +68,7 @@ export class WebGL2GFXShader extends GFXShader {
             };
         }
 
-        WebGL2CmdFuncCreateShader(this._device as WebGL2GFXDevice, this._gpuShader);
+        WebGL2CmdFuncCreateShader(this._device as WebGL2Device, this._gpuShader);
 
         this._status = GFXStatus.SUCCESS;
 
@@ -81,7 +77,7 @@ export class WebGL2GFXShader extends GFXShader {
 
     public destroy () {
         if (this._gpuShader) {
-            WebGL2CmdFuncDestroyShader(this._device as WebGL2GFXDevice, this._gpuShader);
+            WebGL2CmdFuncDestroyShader(this._device as WebGL2Device, this._gpuShader);
             this._gpuShader = null;
         }
         this._status = GFXStatus.UNREADY;

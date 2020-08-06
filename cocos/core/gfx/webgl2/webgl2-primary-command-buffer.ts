@@ -1,34 +1,34 @@
 import { GFXBuffer, GFXBufferSource } from '../buffer';
 import { GFXCommandBuffer } from '../command-buffer';
-import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXClearFlag, GFXTextureLayout, IGFXColor, IGFXRect } from '../define';
+import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXClearFlag, GFXTextureLayout, GFXColor, GFXRect } from '../define';
 import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
 import { GFXTexture } from '../texture';
-import { WebGL2GFXBuffer } from './webgl2-buffer';
-import { WebGL2GFXCommandBuffer } from './webgl2-command-buffer';
+import { WebGL2Buffer } from './webgl2-buffer';
+import { WebGL2CommandBuffer } from './webgl2-command-buffer';
 import {
     WebGL2CmdFuncBeginRenderPass, WebGL2CmdFuncBindStates, WebGL2CmdFuncCopyBuffersToTexture,
     WebGL2CmdFuncDraw, WebGL2CmdFuncExecuteCmds, WebGL2CmdFuncUpdateBuffer } from './webgl2-commands';
-import { WebGL2GFXDevice } from './webgl2-device';
-import { WebGL2GFXFramebuffer } from './webgl2-framebuffer';
-import { WebGL2GFXTexture } from './webgl2-texture';
+import { WebGL2Device } from './webgl2-device';
+import { WebGL2Framebuffer } from './webgl2-framebuffer';
+import { WebGL2Texture } from './webgl2-texture';
 import { GFXRenderPass } from '../render-pass';
-import { WebGL2GFXRenderPass } from './webgl2-render-pass';
+import { WebGL2RenderPass } from './webgl2-render-pass';
 
-export class WebGL2GFXPrimaryCommandBuffer extends WebGL2GFXCommandBuffer {
+export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
 
     public beginRenderPass (
         renderPass: GFXRenderPass,
         framebuffer: GFXFramebuffer,
-        renderArea: IGFXRect,
-        clearColors: IGFXColor[],
+        renderArea: GFXRect,
+        clearColors: GFXColor[],
         clearDepth: number,
         clearStencil: number) {
 
         WebGL2CmdFuncBeginRenderPass(
-            this._device as WebGL2GFXDevice,
-            (renderPass as WebGL2GFXRenderPass).gpuRenderPass,
-            (framebuffer as WebGL2GFXFramebuffer).gpuFramebuffer,
+            this._device as WebGL2Device,
+            (renderPass as WebGL2RenderPass).gpuRenderPass,
+            (framebuffer as WebGL2Framebuffer).gpuFramebuffer,
             renderArea, clearColors, clearDepth, clearStencil);
         this._isInRenderPass = true;
     }
@@ -39,7 +39,7 @@ export class WebGL2GFXPrimaryCommandBuffer extends WebGL2GFXCommandBuffer {
                 this.bindStates();
             }
 
-            WebGL2CmdFuncDraw(this._device as WebGL2GFXDevice, inputAssembler);
+            WebGL2CmdFuncDraw(this._device as WebGL2Device, inputAssembler);
 
             ++this._numDrawCalls;
             this._numInstances += inputAssembler.instanceCount;
@@ -65,7 +65,7 @@ export class WebGL2GFXPrimaryCommandBuffer extends WebGL2GFXCommandBuffer {
 
     public updateBuffer (buffer: GFXBuffer, data: GFXBufferSource, offset?: number, size?: number) {
         if (!this._isInRenderPass) {
-            const gpuBuffer = (buffer as WebGL2GFXBuffer).gpuBuffer;
+            const gpuBuffer = (buffer as WebGL2Buffer).gpuBuffer;
             if (gpuBuffer) {
                 if (offset === undefined) { offset = 0; }
 
@@ -78,7 +78,7 @@ export class WebGL2GFXPrimaryCommandBuffer extends WebGL2GFXCommandBuffer {
                     buffSize = (data as ArrayBuffer).byteLength;
                 }
 
-                WebGL2CmdFuncUpdateBuffer(this._device as WebGL2GFXDevice, gpuBuffer, data as ArrayBuffer, offset, buffSize);
+                WebGL2CmdFuncUpdateBuffer(this._device as WebGL2Device, gpuBuffer, data as ArrayBuffer, offset, buffSize);
             }
         } else {
             console.error('Command \'updateBuffer\' must be recorded outside a render pass.');
@@ -87,9 +87,9 @@ export class WebGL2GFXPrimaryCommandBuffer extends WebGL2GFXCommandBuffer {
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
         if (!this._isInRenderPass) {
-            const gpuTexture = (texture as WebGL2GFXTexture).gpuTexture;
+            const gpuTexture = (texture as WebGL2Texture).gpuTexture;
             if (gpuTexture) {
-                WebGL2CmdFuncCopyBuffersToTexture(this._device as WebGL2GFXDevice, buffers, gpuTexture, regions);
+                WebGL2CmdFuncCopyBuffersToTexture(this._device as WebGL2Device, buffers, gpuTexture, regions);
             }
         } else {
             console.error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');
@@ -99,8 +99,8 @@ export class WebGL2GFXPrimaryCommandBuffer extends WebGL2GFXCommandBuffer {
     public execute (cmdBuffs: GFXCommandBuffer[], count: number) {
         for (let i = 0; i < count; ++i) {
             // actually they are secondary buffers, the cast here is only for type checking
-            const webGL2CmdBuff = cmdBuffs[i] as WebGL2GFXPrimaryCommandBuffer;
-            WebGL2CmdFuncExecuteCmds(this._device as WebGL2GFXDevice, webGL2CmdBuff.cmdPackage);
+            const webGL2CmdBuff = cmdBuffs[i] as WebGL2PrimaryCommandBuffer;
+            WebGL2CmdFuncExecuteCmds(this._device as WebGL2Device, webGL2CmdBuff.cmdPackage);
             this._numDrawCalls += webGL2CmdBuff._numDrawCalls;
             this._numInstances += webGL2CmdBuff._numInstances;
             this._numTris += webGL2CmdBuff._numTris;
@@ -108,7 +108,7 @@ export class WebGL2GFXPrimaryCommandBuffer extends WebGL2GFXCommandBuffer {
     }
 
     protected bindStates () {
-        WebGL2CmdFuncBindStates(this._device as WebGL2GFXDevice,
+        WebGL2CmdFuncBindStates(this._device as WebGL2Device,
             this._curGPUPipelineState, this._curGPUDescriptorSets, this._curGPUInputAssembler,
             this._curViewport, this._curScissor, this._curLineWidth, this._curDepthBias, this._curBlendConstants,
             this._curDepthBounds, this._curStencilWriteMask, this._curStencilCompareMask);

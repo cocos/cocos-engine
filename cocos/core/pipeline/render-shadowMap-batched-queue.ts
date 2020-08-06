@@ -53,7 +53,7 @@ export class RenderShadowMapBatchedQueue {
                 this._psoCICache.set(subModel, psoCI);
 
                 renderObj.model.updateLocalBindings(psoCI, subModelIdx);
-                const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SETS));
+                const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SET));
                 descriptorSet.bindBuffer(UBOPCFShadow.BLOCK.binding, this._shadowMapBuffer!);
                 descriptorSet.update();
             }
@@ -79,7 +79,7 @@ export class RenderShadowMapBatchedQueue {
             const psoCI = this._psoCIArray[i];
             const ia = subModel.inputAssembler!;
             const pso = PipelineStateManager.getOrCreatePipelineState(device, psoCI, renderPass, ia);
-            const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SETS));
+            const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SET));
 
             cmdBuff.bindPipelineState(pso);
             cmdBuff.bindDescriptorSets(descriptorSet);

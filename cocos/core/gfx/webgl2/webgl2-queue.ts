@@ -1,11 +1,11 @@
 import { GFXCommandBuffer } from '../command-buffer';
 import { GFXQueue, IGFXQueueInfo } from '../queue';
-import { WebGL2GFXCommandBuffer } from './webgl2-command-buffer';
+import { WebGL2CommandBuffer } from './webgl2-command-buffer';
 import { GFXStatus } from '../define';
 import { GFXFence } from '../fence';
-import { WebGL2GFXFence } from './webgl2-fence';
+import { WebGL2Fence } from './webgl2-fence';
 
-export class WebGL2GFXQueue extends GFXQueue {
+export class WebGL2Queue extends GFXQueue {
 
     public numDrawCalls: number = 0;
     public numInstances: number = 0;
@@ -28,15 +28,15 @@ export class WebGL2GFXQueue extends GFXQueue {
         // TODO: Async
         if (!this._isAsync) {
             for (let i = 0; i < cmdBuffs.length; i++) {
-                const cmdBuff = cmdBuffs[i] as WebGL2GFXCommandBuffer;
-                // WebGL2CmdFuncExecuteCmds(this._device as WebGL2GFXDevice, cmdBuff.cmdPackage); // opted out
+                const cmdBuff = cmdBuffs[i] as WebGL2CommandBuffer;
+                // WebGL2CmdFuncExecuteCmds(this._device as WebGL2Device, cmdBuff.cmdPackage); // opted out
                 this.numDrawCalls += cmdBuff.numDrawCalls;
                 this.numInstances += cmdBuff.numInstances;
                 this.numTris += cmdBuff.numTris;
             }
         }
         if (fence) {
-            (fence as WebGL2GFXFence).insert();
+            (fence as WebGL2Fence).insert();
         }
     }
 

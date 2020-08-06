@@ -3,7 +3,7 @@ import { GFXQueue, IGFXQueueInfo } from '../queue';
 import { GFXStatus } from '../define';
 import { GFXFence } from '../fence';
 
-export class WebGLGFXQueue extends GFXQueue {
+export class WebGLQueue extends GFXQueue {
 
     public numDrawCalls: number = 0;
     public numInstances: number = 0;
@@ -27,7 +27,7 @@ export class WebGLGFXQueue extends GFXQueue {
             const len = cmdBuffs.length;
             for (let i = 0; i < len; i++) {
                 const cmdBuff = cmdBuffs[i];
-                // WebGLCmdFuncExecuteCmds( this._device as WebGLGFXDevice, (cmdBuff as WebGLGFXCommandBuffer).cmdPackage); // opted out
+                // WebGLCmdFuncExecuteCmds( this._device as WebGLDevice, (cmdBuff as WebGLCommandBuffer).cmdPackage); // opted out
                 this.numDrawCalls += cmdBuff.numDrawCalls;
                 this.numInstances += cmdBuff.numInstances;
                 this.numTris += cmdBuff.numTris;

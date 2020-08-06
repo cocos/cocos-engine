@@ -4,7 +4,7 @@
 
 import { ccclass } from '../../data/class-decorator';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { IGFXColor, IGFXRect } from '../../gfx/define';
+import { GFXColor, GFXRect } from '../../gfx/define';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from '../forward/enum';
@@ -12,7 +12,7 @@ import { RenderShadowMapBatchedQueue } from '../render-shadowMap-batched-queue';
 import { GFXFramebuffer } from '../../gfx/framebuffer';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 
-const colors: IGFXColor[] = [ { r: 1, g: 1, b: 1, a: 1 } ];
+const colors: GFXColor[] = [ { r: 1, g: 1, b: 1, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
 
 /**
@@ -32,7 +32,7 @@ export class ShadowStage extends RenderStage {
 
     private _additiveShadowQueue: RenderShadowMapBatchedQueue;
     private _shadowFrameBuffer: GFXFramebuffer|null = null;
-    private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
+    private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
 
     /**
      * 构造函数。

@@ -91,6 +91,7 @@ const _bfInfo: IGFXBufferInfo = {
 
 const _blInfo: IGFXDescriptorSetInfo = {
     shader: null!,
+    set: DescriptorSetIndices.MATERIAL_SPECIFIC,
 };
 
 export enum BatchingSchemes {
@@ -297,13 +298,13 @@ export class Pass {
      * @param binding 目标 UBO 的 binding。
      * @param value 目标 buffer。
      */
-    public bindBuffer (binding: number, value: GFXBuffer, set = DescriptorSetIndices.MATERIAL_SPECIFIC) {
+    public bindBuffer (binding: number, value: GFXBuffer) {
         if (this._buffers[binding] === value) { return; }
         this._buffers[binding] = value;
         const len = this._resources.length;
         for (let i = 0; i < len; i++) {
             const res = this._resources[i];
-            res.bindBuffer(set, binding, value);
+            res.bindBuffer(binding, value);
         }
     }
 
@@ -313,13 +314,13 @@ export class Pass {
      * @param binding 目标贴图类 uniform 的 binding。
      * @param value 目标 texture
      */
-    public bindTexture (binding: number, value: GFXTexture, set = DescriptorSetIndices.MATERIAL_SPECIFIC) {
+    public bindTexture (binding: number, value: GFXTexture) {
         if (this._textures[binding] === value) { return; }
         this._textures[binding] = value;
         const len = this._resources.length;
         for (let i = 0; i < len; i++) {
             const res = this._resources[i];
-            res.bindTexture(set, binding, value);
+            res.bindTexture(binding, value);
         }
     }
 
@@ -329,13 +330,13 @@ export class Pass {
      * @param binding 目标贴图类 uniform 的 binding。
      * @param value 目标 sampler。
      */
-    public bindSampler (binding: number, value: GFXSampler, set = DescriptorSetIndices.MATERIAL_SPECIFIC) {
+    public bindSampler (binding: number, value: GFXSampler) {
         if (this._samplers[binding] === value) { return; }
         this._samplers[binding] = value;
         const len = this._resources.length;
         for (let i = 0; i < len; i++) {
             const res = this._resources[i];
-            res.bindSampler(set, binding, value);
+            res.bindSampler(binding, value);
         }
     }
 
@@ -526,23 +527,23 @@ export class Pass {
             descriptorSet.bindTexture(parseInt(t), this._textures[t]);
         }
         // bind pipeline builtins
-        const source = this._root.pipeline.globalBindings;
-        const target = this._shaderInfo.builtins.globals;
-        for (const b of target.blocks) {
-            const info = source.get(b.name);
-            if (!info || info.type !== GFXDescriptorType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b.name}' not available!`); continue; }
-            descriptorSet.bindBuffer(info.blockInfo!.binding, info.buffer!);
-        }
-        for (const s of target.samplers) {
-            const info = source.get(s.name);
-            if (!info || info.type !== GFXDescriptorType.SAMPLER) { console.warn(`builtin texture '${s.name}' not available!`); continue; }
-            if (info.sampler) { descriptorSet.bindSampler(info.samplerInfo!.binding, info.sampler); }
-            descriptorSet.bindTexture(info.samplerInfo!.binding, info.texture!);
-        }
+        // const source = this._root.pipeline.globalBindings;
+        // const target = this._shaderInfo.builtins.globals;
+        // for (const b of target.blocks) {
+        //     const info = source.get(b.name);
+        //     if (!info || info.type !== GFXDescriptorType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b.name}' not available!`); continue; }
+        //     descriptorSet.bindBuffer(info.blockInfo!.binding, info.buffer!);
+        // }
+        // for (const s of target.samplers) {
+        //     const info = source.get(s.name);
+        //     if (!info || info.type !== GFXDescriptorType.SAMPLER) { console.warn(`builtin texture '${s.name}' not available!`); continue; }
+        //     if (info.sampler) { descriptorSet.bindSampler(info.samplerInfo!.binding, info.sampler); }
+        //     descriptorSet.bindTexture(info.samplerInfo!.binding, info.texture!);
+        // }
         this._resources.push(descriptorSet);
         const psociHandle = PSOCIPool.alloc();
         PSOCIPool.set(psociHandle, PSOCIView.PASS_INFO, this._infoHandle);
-        PSOCIPool.set(psociHandle, PSOCIView.DESCRIPTOR_SETS, descriptorSetHandle);
+        PSOCIPool.set(psociHandle, PSOCIView.DESCRIPTOR_SET, descriptorSetHandle);
         PSOCIPool.set(psociHandle, PSOCIView.SHADER, shaderHandle);
         return psociHandle;
     }
@@ -555,7 +556,7 @@ export class Pass {
      * @param psoci the PSO create info created by this pass
      */
     public destroyPipelineStateCI (psociHandle: number) {
-        const descriptorSetHandle = PSOCIPool.get(psociHandle, PSOCIView.DESCRIPTOR_SETS);
+        const descriptorSetHandle = PSOCIPool.get(psociHandle, PSOCIView.DESCRIPTOR_SET);
         const descriptorSet = DescriptorSetPool.get(descriptorSetHandle);
         for (let i = 0; i < this._resources.length; i++) {
             if (this._resources[i] === descriptorSet) {
