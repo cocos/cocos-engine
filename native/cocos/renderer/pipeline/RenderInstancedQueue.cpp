@@ -2,7 +2,7 @@
 #include "InstancedBuffer.h"
 #include "PipelineStateManager.h"
 #include "gfx/GFXCommandBuffer.h"
-#include "helper/Pass.h"
+#include "helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {

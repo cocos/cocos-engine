@@ -8,11 +8,7 @@
 #include "../RenderQueue.h"
 #include "../RenderView.h"
 #include "../RenderWindow.h"
-#include "../helper/Camera.h"
-#include "../helper/Model.h"
-#include "../helper/Pass.h"
-#include "../helper/SharedMemoryPool.h"
-#include "../helper/SubModel.h"
+#include "../helper/SharedMemory.h"
 #include "ForwardPipeline.h"
 #include "gfx/GFXCommandBuffer.h"
 #include "gfx/GFXDevice.h"
@@ -50,8 +46,7 @@ bool ForwardStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
     _renderQueueDescriptors = {
         {false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},
-        {true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}
-    };
+        {true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}};
 
     return true;
 }
@@ -119,11 +114,11 @@ void ForwardStage::render(RenderView *view) {
                 for (p = 0; p < subModel->passesCount; ++p) {
                     auto pass = GET_PASS(subModel->materialID, p);
                     if (static_cast<BatchingSchemes>(pass->batchingScheme) == BatchingSchemes::INSTANCING) {
-                        auto instancedBuffer = InstancedBuffer::get(pass);
+                        auto &instancedBuffer = InstancedBuffer::get(pass);
                         instancedBuffer->merge(subModel, model->instancedAttributeBlock, GET_PSOCI(subModel->psociID, p));
                         _instancedQueue->getQueue().emplace(instancedBuffer);
                     } else if (static_cast<BatchingSchemes>(pass->batchingScheme) == BatchingSchemes::VB_MERGING) {
-                        auto batchedBuffer = BatchedBuffer::get(pass);
+                        auto &batchedBuffer = BatchedBuffer::get(pass);
                         batchedBuffer->merge(subModel, p, &ro);
                         _batchedQueue->getQueue().emplace(batchedBuffer);
                     } else {

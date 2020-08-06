@@ -2,18 +2,16 @@
 #include "gfx/GFXBuffer.h"
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXInputAssembler.h"
-#include "helper/Model.h"
-#include "helper/SharedMemoryPool.h"
-#include "helper/SubModel.h"
+#include "helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {
 map<const Pass *, std::shared_ptr<InstancedBuffer>> InstancedBuffer::_buffers;
-InstancedBuffer *InstancedBuffer::get(const Pass *pass) {
+std::shared_ptr<InstancedBuffer> &InstancedBuffer::get(const Pass *pass) {
     if (_buffers.find(pass) == _buffers.end()) {
-        _buffers[pass] = std::shared_ptr<InstancedBuffer>(CC_NEW(InstancedBuffer(pass)), [](InstancedBuffer *ptr){ CC_SAFE_DELETE(ptr);});
+        _buffers[pass] = std::shared_ptr<InstancedBuffer>(CC_NEW(InstancedBuffer(pass)), [](InstancedBuffer *ptr) { CC_SAFE_DELETE(ptr); });
     }
-    return _buffers[pass].get();
+    return _buffers[pass];
 }
 
 InstancedBuffer::InstancedBuffer(const Pass *pass) {
@@ -24,14 +22,19 @@ InstancedBuffer::~InstancedBuffer() {
 }
 
 void InstancedBuffer::destroy() {
+    for (auto &instance : _instancedItems) {
+        instance.vb->destroy();
+        instance.ia->destroy();
+    }
+    _instancedItems.clear();
 }
 
-void InstancedBuffer::merge(const SubModel *subModel, const InstancedAttributeBlock &attrs, const PipelineStateInfo *psoci) {
-    const auto stride = attrs.bufferSize;
+void InstancedBuffer::merge(const SubModel *subModel, const InstancedAttributeBlock &attrs, const PSOInfo *psoci) {
+    const auto stride = attrs.bufferViewSize;
     if (!stride) {
         return;
     } // we assume per-instance attributes are always present
-    
+
     _psoci = psoci;
 
     const auto *sourceIA = GET_IA(subModel->iaID);
@@ -54,7 +57,7 @@ void InstancedBuffer::merge(const SubModel *subModel, const InstancedAttributeBl
             instance.size = newSize;
             instance.vb->resize(newSize);
         }
-        memcpy(instance.data.get() + instance.stride * instance.count++, GET_BUFFERVIEW(attrs.bufferID), attrs.bufferSize);
+        memcpy(instance.data.get() + instance.stride * instance.count++, GET_BUFFERVIEW(attrs.bufferViewID)->data, attrs.bufferViewSize);
         return;
     }
 
@@ -83,7 +86,7 @@ void InstancedBuffer::merge(const SubModel *subModel, const InstancedAttributeBl
             true};
         attributes.emplace_back(newAttr);
     }
-    memcpy(data.get(), GET_BUFFERVIEW(attrs.bufferID), attrs.bufferSize);
+    memcpy(data.get(), GET_BUFFERVIEW(attrs.bufferViewID)->data, attrs.bufferViewSize);
     vertexBuffers.emplace_back(vb);
 
     auto ia = device->createInputAssembler({attributes, vertexBuffers, indexBuffer});
@@ -99,9 +102,19 @@ void InstancedBuffer::merge(const SubModel *subModel, const InstancedAttributeBl
 }
 
 void InstancedBuffer::uploadBuffers() {
+    for (auto &instance : _instancedItems) {
+        if (!instance.count) continue;
+
+        instance.vb->update(instance.data.get(), 0, instance.vb->getSize());
+        instance.ia->setInstanceCount(instance.count);
+    }
 }
 
 void InstancedBuffer::clear() {
+    for (auto &instance : _instancedItems) {
+        instance.count = 0;
+    }
+    _psoci = nullptr;
 }
 
 } // namespace pipeline

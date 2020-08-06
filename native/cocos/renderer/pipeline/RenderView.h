@@ -16,7 +16,7 @@ class CC_DLL RenderView : public Object {
 public:
     RenderView(Camera *camera);
     ~RenderView() = default;
-    
+
     void destroy();
     void enable(bool value);
     bool initialize(const RenderViewInfo &info);

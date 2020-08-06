@@ -10,12 +10,12 @@ class RenderPass;
 }; // namespace gfx
 
 namespace pipeline {
-struct PipelineStateInfo;
+struct PSOInfo;
 struct Pass;
 
 class CC_DLL PipelineStateManager {
 public:
-    static gfx::PipelineState *getOrCreatePipelineStage(const PipelineStateInfo *psoci,
+    static gfx::PipelineState *getOrCreatePipelineStage(const PSOInfo *psoci,
                                                         const Pass *pass,
                                                         const gfx::InputAssembler *inputAssembler,
                                                         gfx::RenderPass *renderPass);

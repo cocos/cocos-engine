@@ -1,6 +1,6 @@
 #include "ForwardPipeline.h"
 #include "gfx/GFXDevice.h"
-#include "../helper/Camera.h"
+#include "../helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {

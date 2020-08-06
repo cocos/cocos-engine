@@ -8,7 +8,7 @@ namespace pipeline {
 struct SubModel;
 struct Pass;
 struct InstancedAttributeBlock;
-struct PipelineStateInfo;
+struct PSOInfo;
 
 struct CC_DLL InstancedItem {
     uint count = 0;
@@ -25,25 +25,25 @@ class InstancedBuffer : public Object {
 public:
     static const uint INITIAL_CAPACITY = 32;
     static const uint MAX_CAPACITY = 1024;
-    static InstancedBuffer *get(const Pass *pass);
+    static std::shared_ptr<InstancedBuffer> &get(const Pass *pass);
 
     InstancedBuffer(const Pass *pass);
     virtual ~InstancedBuffer();
 
     void destroy();
-    void merge(const SubModel *, const InstancedAttributeBlock &, const PipelineStateInfo *);
+    void merge(const SubModel *, const InstancedAttributeBlock &, const PSOInfo *);
     void uploadBuffers();
     void clear();
 
     CC_INLINE const InstancedItemList &getInstances() const { return _instancedItems; }
-    CC_INLINE const PipelineStateInfo *getPSOCI() const { return _psoci; }
+    CC_INLINE const PSOInfo *getPSOCI() const { return _psoci; }
     CC_INLINE const Pass *getPass() const { return _pass; }
 
 private:
     static map<const Pass *, std::shared_ptr<InstancedBuffer>> _buffers;
     InstancedItemList _instancedItems;
     const Pass *_pass = nullptr;
-    const PipelineStateInfo *_psoci = nullptr;
+    const PSOInfo *_psoci = nullptr;
 };
 
 } // namespace pipeline

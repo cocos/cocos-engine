@@ -123,7 +123,7 @@ typedef vector<RenderQueueDesc> RenderQueueDescList;
 class CC_DLL PassPhase {
 public:
     static uint getPhaseID(const String &phaseName) {
-        if(phases.find(phaseName) == phases.end()) {
+        if (phases.find(phaseName) == phases.end()) {
             phases[phaseName] = 1 << phaseNum++;
         }
         return phases[phaseName];
@@ -140,9 +140,55 @@ CC_INLINE int opaqueCompareFn(const RenderPass &a, const RenderPass &b) {
     return (a.hash - b.hash) || (a.depth - b.depth) || (a.shaderID - b.shaderID);
 }
 
-CC_INLINE int transparentCompareFn(const RenderPass& a, const RenderPass& b) {
+CC_INLINE int transparentCompareFn(const RenderPass &a, const RenderPass &b) {
     return (a.hash - b.hash) || (b.depth - a.depth) || (a.shaderID - b.shaderID);
 }
+
+#define MAX_BINDING_SUPPORTED (24)
+enum class CC_DLL UniformBinding : uint8_t {
+    // UBOs
+    UBO_GLOBAL = MAX_BINDING_SUPPORTED - 1,
+    UBO_SHADOW = MAX_BINDING_SUPPORTED - 2,
+
+    UBO_LOCAL = MAX_BINDING_SUPPORTED - 3,
+    UBO_FORWARD_LIGHTS = MAX_BINDING_SUPPORTED - 4,
+    UBO_SKINNING_ANIMATION = MAX_BINDING_SUPPORTED - 5,
+    UBO_SKINNING_TEXTURE = MAX_BINDING_SUPPORTED - 6,
+    UBO_UI = MAX_BINDING_SUPPORTED - 7,
+    UBO_MORPH = MAX_BINDING_SUPPORTED - 8,
+    UBO_PCF_SHADOW = MAX_BINDING_SUPPORTED - 9,
+    UBO_BUILTIN_BINDING_END = MAX_BINDING_SUPPORTED - 10,
+
+    // samplers
+    SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
+    SAMPLER_ENVIRONMENT = MAX_BINDING_SUPPORTED + 2,
+    SAMPLER_MORPH_POSITION = MAX_BINDING_SUPPORTED + 3,
+    SAMPLER_MORPH_NORMAL = MAX_BINDING_SUPPORTED + 4,
+    SAMPLER_MORPH_TANGENT = MAX_BINDING_SUPPORTED + 5,
+    SAMPLER_LIGHTING_MAP = MAX_BINDING_SUPPORTED + 6,
+    SAMPLER_SHADOWMAP = MAX_BINDING_SUPPORTED + 7,
+
+    // rooms left for custom bindings
+    // effect importer prepares bindings according to this
+    CUSTUM_UBO_BINDING_END_POINT = UBO_BUILTIN_BINDING_END,
+    CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 8,
+};
+
+class CC_DLL UBOLocalBatched {
+public:
+    static const uint BATCHING_COUNT = 10;
+    static const uint MAT_WORLDS_OFFSET = 0;
+    static const uint COUNT = 16 * BATCHING_COUNT;
+    static const uint SIZE = COUNT * 4;
+
+    static gfx::UniformBlock BLOCK;
+    std::array<float, COUNT> view;
+};
+gfx::UniformBlock UBOLocalBatched::BLOCK = {
+    gfx::ShaderType::VERTEX,
+    static_cast<uint>(UniformBinding::UBO_LOCAL),
+    "CCLocalBatched",
+    {{"cc_matWorlds", gfx::Type::MAT4, (uint)UBOLocalBatched::BATCHING_COUNT}}};
 
 } // namespace pipeline
 } // namespace cc

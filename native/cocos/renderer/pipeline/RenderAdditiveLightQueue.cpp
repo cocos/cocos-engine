@@ -4,7 +4,6 @@
 namespace cc {
 namespace pipeline {
 void RenderAdditiveLightQueue::add(const RenderObject *renderObj, uint subModelIdx, Pass *pass, uint beginIdx, uint endIdx) {
-    
 }
 
 void RenderAdditiveLightQueue::clear(const vector<Light *> &validLights,
@@ -16,19 +15,16 @@ void RenderAdditiveLightQueue::clear(const vector<Light *> &validLights,
     const auto validLightCount = validLights.size();
     _sortedSubModelsArray.resize(validLightCount);
     _sortedPSOCIArray.resize(validLightCount);
-    for(size_t i = 0; i < validLightCount; ++i) {
+    for (size_t i = 0; i < validLightCount; ++i) {
         if (_sortedPSOCIArray[i].size()) {
             _sortedSubModelsArray[i].clear();
             _sortedPSOCIArray[i].clear();
         }
     }
-
 }
 
 void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff) {
-    
 }
-    
 
 void RenderAdditiveLightQueue::attach(RenderObject *renderObj,
                                       uint subModelIdx,
@@ -36,9 +32,7 @@ void RenderAdditiveLightQueue::attach(RenderObject *renderObj,
                                       uint lightIdx,
                                       Pass *pass,
                                       const vector<DefineMap> &patches) {
-    
 }
 
 } // namespace pipeline
 } // namespace cc
-
