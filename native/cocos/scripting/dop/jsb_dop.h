@@ -24,10 +24,8 @@ THE SOFTWARE.
 
 #pragma once
 
-#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+namespace se {
+class Object;
+}
 
-extern se::Object* jsb_BufferPool_proto;
-extern se::Class* jsb_BufferPool_class;
-
-extern se::Object* jsb_ObjectPool_proto;
-extern se::Class* jsb_ObjectPool_class;
+bool register_all_dop_bindings(se::Object *obj);

@@ -2,7 +2,7 @@
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXInputAssembler.h"
 #include "gfx/GFXRenderPass.h"
-#include "helper/SharedMemoryPool.h"
+#include "helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {

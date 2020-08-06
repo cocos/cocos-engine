@@ -28,32 +28,43 @@ THE SOFTWARE.
 #include "cocos/base/memory/StlAlloc.h"
 #include "cocos/scripting/js-bindings/jswrapper/Object.h"
 #include "cocos/base/ccMacros.h"
+#include "cocos/base/TypeDef.h"
+#include "PoolType.h"
 
 namespace se {
 
-class CC_DLL BufferPool : public cc::Object {
+class CC_DLL BufferPool final : public cc::Object {
 public:
-    using Chunk = uint8_t*;
-    
-    BufferPool(size_t bytesPerEntry, uint32_t entryBits);
+    using Chunk = uint8_t *;
+
+    CC_INLINE static const cc::map<PoolType, BufferPool *> &getPoolMap() { return BufferPool::_poolMap; }
+
+    BufferPool(PoolType type, uint entryBits, uint bytesPerEntry);
     ~BufferPool();
-    void *getData(uint32_t id);
-    template<class Type>
-    Type *getTypedObject(uint32_t id);
-    
+
+    template <class T>
+    T *getTypedObject(uint id) {
+        uint chunk = (_chunkMask & id) >> _entryBits;
+        uint entry = _entryMask & id;
+        CCASSERT(chunk < _chunks.size() && entry < _entriesPerChunk, "BufferPool: Invalid buffer pool entry id");
+        return reinterpret_cast<T *>(_chunks[chunk][entry]);
+    }
+
     Object *allocateNewChunk();
-    Object *getChunkArrayBuffer(uint32_t chunkId);
-protected:
+
+private:
+    static cc::map<PoolType, BufferPool *> _poolMap;
+
     cc::vector<Chunk> _chunks;
-    cc::vector<Object*> _jsObjs;
-    cc::vector<size_t> _sizes;
-    uint32_t _poolFlag = 1 << 30;
-    uint32_t _entryBits = 1 << 8;
-    uint32_t _chunkMask = 0;
-    uint32_t _entryMask = 0;
-    size_t _bytesPerChunk = 0;
-    size_t _entiesPerChunk = 0;
-    size_t _bytesPerEntry = 0;
+    cc::map<Chunk, Object *> _jsObjs;
+    const uint _poolFlag = 1 << 30;
+    uint _entryBits = 1 << 8;
+    uint _chunkMask = 0;
+    uint _entryMask = 0;
+    uint _bytesPerChunk = 0;
+    uint _entriesPerChunk = 0;
+    uint _bytesPerEntry = 0;
+    PoolType _type = PoolType::RASTERIZER_STATE;
 };
 
-} // namespace se {
+} // namespace se

@@ -63,6 +63,22 @@ bool seval_to_uint32(const se::Value& v, uint32_t* ret)
     return false;
 }
 
+bool seval_to_uint(const se::Value &v, unsigned int *ret) {
+    assert(ret != nullptr);
+    if (v.isNumber())
+    {
+        *ret = v.toUint();
+        return true;
+    }
+    else if (v.isBoolean())
+    {
+        *ret = v.toBoolean() ? 1 : 0;
+        return true;
+    }
+    *ret = 0;
+    return false;
+}
+
 bool seval_to_int8(const se::Value& v, int8_t* ret)
 {
     assert(ret != nullptr);

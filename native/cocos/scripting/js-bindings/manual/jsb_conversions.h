@@ -79,6 +79,7 @@
 // se value -> native value
 bool seval_to_int32(const se::Value &v, int32_t *ret);
 bool seval_to_uint32(const se::Value &v, uint32_t *ret);
+bool seval_to_uint(const se::Value &v, unsigned int *ret);
 bool seval_to_int8(const se::Value &v, int8_t *ret);
 bool seval_to_uint8(const se::Value &v, uint8_t *ret);
 bool seval_to_int16(const se::Value &v, int16_t *ret);

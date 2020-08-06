@@ -2,10 +2,7 @@
 #include "PipelineStateManager.h"
 #include "gfx/GFXCommandBuffer.h"
 #include "gfx/GFXShader.h"
-#include "helper/Model.h"
-#include "helper/Pass.h"
-#include "helper/SharedMemoryPool.h"
-#include "helper/SubModel.h"
+#include "helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {

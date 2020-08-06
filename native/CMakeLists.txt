@@ -528,10 +528,7 @@ cocos_source_files(
     cocos/renderer/pipeline/forward/ForwardStage.h
     cocos/renderer/pipeline/helper/DefineMap.h
     cocos/renderer/pipeline/helper/DefineMap.cpp
-    cocos/renderer/pipeline/helper/Model.h
-    cocos/renderer/pipeline/helper/SubModel.h
-    cocos/renderer/pipeline/helper/Pass.h
-    cocos/renderer/pipeline/helper/SharedMemoryPool.h
+    cocos/renderer/pipeline/helper/SharedMemory.h
 )
 
 if(CC_USE_GLES2)

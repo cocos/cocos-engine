@@ -28,65 +28,39 @@ THE SOFTWARE.
 
 using namespace se;
 
-BufferPool::BufferPool(size_t bytesPerEntry, uint32_t entryBits)
-: _entryBits(entryBits)
-, _bytesPerEntry(bytesPerEntry)
-{
-    _entiesPerChunk = 1 << entryBits;
-    _entryMask = _entiesPerChunk - 1;
+cc::map<PoolType, BufferPool *> BufferPool::_poolMap;
+
+BufferPool::BufferPool(PoolType type, uint entryBits, uint bytesPerEntry)
+: _entryBits(entryBits), _bytesPerEntry(bytesPerEntry) {
+    CCASSERT(BufferPool::_poolMap.count(type) == 0, "The type of pool is already exist");
+
+    _entriesPerChunk = 1 << entryBits;
+    _entryMask = _entriesPerChunk - 1;
     _chunkMask = 0xffffffff & ~(_entryMask | _poolFlag);
-    
-    _bytesPerChunk = _bytesPerEntry * _entiesPerChunk;
-    allocateNewChunk();
+
+    _bytesPerChunk = _bytesPerEntry * _entriesPerChunk;
+
+    BufferPool::_poolMap[type] = this;
 }
 
-BufferPool::~BufferPool()
-{
+BufferPool::~BufferPool() {
     CCASSERT(_chunks.size() == _jsObjs.size(), "BufferPool: Page count doesn't match the number of javascript array buffer objects.");
-    for (size_t i = 0; i < _chunks.size(); ++i) {
-        CC_FREE(_chunks.at(i));
-        Object *jsObj = _jsObjs.at(i);
-        jsObj->setPrivateData(nullptr);
-        jsObj->decRef();
-        jsObj->unroot();
-        _jsObjs[i] = nullptr;
+    for (auto element : _jsObjs) {
+        CC_FREE(element.first);
+        element.second->decRef();
+        element.second->unroot();
     }
+
+    BufferPool::_poolMap.erase(_type);
 }
 
-void *BufferPool::getData(uint32_t id)
-{
-    size_t chunk = (_chunkMask & id) >> _entryBits;
-    size_t entry = _entryMask & id;
-    CCASSERT(chunk < _chunks.size() && entry < _entiesPerChunk, "BufferPool: Invalid buffer pool entry id");
-    size_t offset = entry * _bytesPerEntry;
-    return &_chunks[chunk][offset];
-}
-
-template<class Type>
-Type *BufferPool::getTypedObject(uint32_t id)
-{
-    size_t chunk = (_chunkMask & id) >> _entryBits;
-    size_t entry = _entryMask & id;
-    CCASSERT(chunk < _chunks.size() && entry < _entiesPerChunk, "BufferPool: Invalid buffer pool entry id");
-    Type *object = ((Type*)_chunks[chunk])[entry];
-    return object;
-}
-
-Object *BufferPool::allocateNewChunk()
-{
+Object *BufferPool::allocateNewChunk() {
     Chunk chunk = (uint8_t *)CC_MALLOC(_bytesPerChunk);
     _chunks.push_back(chunk);
-    _sizes.push_back(0);
 
     Object *jsObj = Object::createArrayBufferObject(chunk, _bytesPerChunk);
     jsObj->root();
     jsObj->incRef();
-    jsObj->setPrivateData(this);
-    _jsObjs.push_back(jsObj);
+    _jsObjs.emplace(chunk, jsObj);
     return jsObj;
-}
-
-Object *BufferPool::getChunkArrayBuffer(uint32_t chunkId)
-{
-    return _jsObjs[chunkId];
 }

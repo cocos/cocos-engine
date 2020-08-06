@@ -37,6 +37,7 @@
 #include "cocos/scripting/js-bindings/manual/jsb_xmlhttprequest.h"
 #include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_network_manual.h"
 #include "cocos/scripting/js-bindings/manual/jsb_gfx_manual.h"
+#include "cocos/scripting/dop/jsb_dop.h"
 #include "cocos/scripting/js-bindings/auto/jsb_gfx_auto.h"
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.h"
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.h"
@@ -98,6 +99,7 @@ bool jsb_register_all_modules()
     se->addRegisterCallback(register_all_xmlhttprequest);
     // extension depend on network
     se->addRegisterCallback(register_all_extension);
+    se->addRegisterCallback(register_all_dop_bindings);
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     se->addRegisterCallback(register_javascript_objc_bridge);
