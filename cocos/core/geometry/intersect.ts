@@ -19,8 +19,7 @@ import { GFXPrimitiveMode } from '../gfx';
 import { IBArray, RenderingSubMesh, Mesh } from '../assets/mesh';
 import { IRaySubMeshOptions, ERaycastMode, IRaySubMeshResult, IRayMeshOptions, IRayModelOptions } from './spec';
 import { IVec3Like } from '../math/type-define';
-import { Model } from '../renderer';
-import { float } from '../data/class-decorator';
+import { Model } from '../renderer';;
 import { abs } from '../math/bits';
 
 // tslint:disable:only-arrow-functions
