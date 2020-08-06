@@ -20,11 +20,17 @@ import { IBArray, RenderingSubMesh, Mesh } from '../assets/mesh';
 import { IRaySubMeshOptions, ERaycastMode, IRaySubMeshResult, IRayMeshOptions, IRayModelOptions } from './spec';
 import { IVec3Like } from '../math/type-define';
 import { Model } from '../renderer';
+import { float } from '../data/class-decorator';
+import { abs } from '../math/bits';
 
 // tslint:disable:only-arrow-functions
 // tslint:disable:one-variable-per-declaration
 // tslint:disable:prefer-for-of
 // tslint:disable:no-shadowed-variable
+const vec3_min = new Vec3();
+const vec3_max = new Vec3();
+const edge = new Vec3();
+const abs_Normal = new Vec3();
 
 /**
  * @en
@@ -837,19 +843,27 @@ const aabb_plane = function (aabb: aabb, plane: plane): number {
  * @en
  * aabb-frustum intersect detect, faster but has false positive corner cases.
  * @zh
- * 轴对齐包围盒和锥台相交性检测，速度快，但有错误情况。
+ * 轴对齐包围盒和锥台相交性检测，速度快。
  * @param {aabb} aabb 轴对齐包围盒
  * @param {frustum} frustum 锥台
  * @return {number} 0 或 非0
  */
 const aabb_frustum = function (aabb: aabb, frustum: frustum): number {
+    const center = aabb.center;
+    aabb.getBoundary(vec3_min, vec3_max);
+    Vec3.subtract(edge, center, vec3_min);
     for (let i = 0; i < frustum.planes.length; i++) {
-        // frustum plane normal points to the inside
-        if (aabb_plane(aabb, frustum.planes[i]) === -1) {
-            return 0;
+        const plane = frustum.planes[i];
+        const dist = Vec3.dot(plane.n, center) + plane.d;
+        abs_Normal.set(abs(plane.n.x), abs(plane.n.x), abs(plane.n.x));
+        const absDist = Vec3.dot(abs_Normal, edge);
+        if (dist < -absDist) {
+            // outside
+            return 1;
         }
-    } // completely outside
-    return 1;
+    }
+    // inside
+    return 0;
 };
 
 // https://cesium.com/blog/2017/02/02/tighter-frustum-culling-and-why-you-may-want-to-disregard-it/
