@@ -85,7 +85,7 @@ export class SubModel {
         for (let i = 0; i < this._psociHandles.length; ++i) {
             const psociHandle = this._psociHandles[i];
             if (psociHandle) {
-                DescriptorSetPool.get(PSOCIPool.get(psociHandle, PSOCIView.DESCRIPTOR_SETS)).update();
+                DescriptorSetPool.get(PSOCIPool.get(psociHandle, PSOCIView.DESCRIPTOR_SET)).update();
             }
         }
     }

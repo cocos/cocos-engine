@@ -6,9 +6,9 @@ import { GFXObject, GFXObjectType, GFXShaderType, GFXType } from './define';
 import { GFXDevice } from './device';
 import { IGFXAttribute } from './input-assembler';
 
-export interface IGFXShaderStage {
-    type: GFXShaderType;
-    source: string;
+export class GFXShaderStage {
+    public type: GFXShaderType = GFXShaderType.NONE;
+    public source: string = '';
 }
 
 /**
@@ -46,30 +46,19 @@ export class GFXUniformSampler {
     public count: number = 1;
 }
 
-export interface IBindingMappingElement {
-    offsets: number[];
-    counts: number[];
+export class GFXBindingMappingInfo {
+    public bufferOffsets: number[] = [];
+    public samplerOffsets: number[] = [];
 }
 
-export interface IBindingMappingInfo {
-    buffer: IBindingMappingElement;
-    sampler: IBindingMappingElement;
-}
+export class GFXShaderInfo {
+    public name: string = '';
+    public stages: GFXShaderStage[] = [];
 
-export interface IGFXShaderInfo {
-    name: string;
-    stages: IGFXShaderStage[];
-
-    attributes: IGFXAttribute[];
-    blocks: GFXUniformBlock[];
-    samplers: GFXUniformSampler[];
-
-    /**
-     * An agreed-upon binding mapping for each descriptor set index that
-     * will be used in non-vulkan backends.
-     * Omitting this means only one descriptor set will be used per draw.
-     */
-    bindingMappingInfo?: IBindingMappingInfo;
+    public attributes: IGFXAttribute[] = [];
+    public blocks: GFXUniformBlock[] = [];
+    public samplers: GFXUniformSampler[] = [];
+    public bindingMappingInfo: GFXBindingMappingInfo | null = null;
 }
 
 /**
@@ -112,7 +101,7 @@ export abstract class GFXShader extends GFXObject {
 
     protected _name: string = '';
 
-    protected _stages: IGFXShaderStage[] = [];
+    protected _stages: GFXShaderStage[] = [];
 
     protected _attributes: IGFXAttribute[] = [];
 
@@ -126,7 +115,7 @@ export abstract class GFXShader extends GFXObject {
         this._id = device.genShaderId();
     }
 
-    public abstract initialize (info: IGFXShaderInfo): boolean;
+    public abstract initialize (info: GFXShaderInfo): boolean;
 
     public abstract destroy (): void;
 }

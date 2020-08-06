@@ -1,5 +1,5 @@
 import { frustum, ray } from '../../geometry';
-import { GFXClearFlag, IGFXColor } from '../../gfx/define';
+import { GFXClearFlag, GFXColor } from '../../gfx/define';
 import { lerp, Mat4, Rect, toRadian, Vec3 } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { RenderView } from '../../pipeline/render-view';
@@ -113,7 +113,7 @@ export class Camera {
     private _fov: number = toRadian(45);
     private _nearClip: number = 1.0;
     private _farClip: number = 1000.0;
-    private _clearColor: IGFXColor = { r: 0.2, g: 0.2, b: 0.2, a: 1 };
+    private _clearColor: GFXColor = { r: 0.2, g: 0.2, b: 0.2, a: 1 };
     private _viewport: Rect = new Rect(0, 0, 1, 1);
     private _isProjDirty = true;
     private _matView: Mat4 = new Mat4();

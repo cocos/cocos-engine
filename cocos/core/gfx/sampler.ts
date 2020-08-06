@@ -2,7 +2,7 @@
  * @category gfx
  */
 
-import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXObject, GFXObjectType, IGFXColor } from './define';
+import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXObject, GFXObjectType, GFXColor } from './define';
 import { GFXDevice } from './device';
 
 export interface IGFXSamplerInfo {
@@ -15,7 +15,7 @@ export interface IGFXSamplerInfo {
     addressW?: GFXAddress;
     maxAnisotropy?: number;
     cmpFunc?: GFXComparisonFunc;
-    borderColor?: IGFXColor;
+    borderColor?: GFXColor;
     minLOD?: number;
     maxLOD?: number;
     mipLODBias?: number;
@@ -36,7 +36,7 @@ export class GFXSamplerState {
     public addressW: GFXAddress = GFXAddress.WRAP;
     public maxAnisotropy: number = 16;
     public cmpFunc: GFXComparisonFunc = GFXComparisonFunc.NEVER;
-    public borderColor: IGFXColor = { r: 0, g: 0, b: 0, a: 0 };
+    public borderColor: GFXColor = { r: 0, g: 0, b: 0, a: 0 };
     public minLOD: number = 0;
     public maxLOD: number = 0;
     public mipLODBias: number = 0.0;

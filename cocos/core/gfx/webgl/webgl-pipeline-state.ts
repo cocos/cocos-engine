@@ -1,7 +1,7 @@
 import { GFXPipelineState, IGFXPipelineStateInfo } from '../pipeline-state';
-import { WebGLGPUPipelineState } from './webgl-gpu-objects';
-import { WebGLGFXRenderPass } from './webgl-render-pass';
-import { WebGLGFXShader } from './webgl-shader';
+import { IWebGLGPUPipelineState } from './webgl-gpu-objects';
+import { WebGLRenderPass } from './webgl-render-pass';
+import { WebGLShader } from './webgl-shader';
 import { GFXStatus, GFXDynamicStateFlagBit } from '../define';
 
 const WebGLPrimitives: GLenum[] = [
@@ -21,13 +21,13 @@ const WebGLPrimitives: GLenum[] = [
     0x0000, // WebGLRenderingContext.NONE,
 ];
 
-export class WebGLGFXPipelineState extends GFXPipelineState {
+export class WebGLPipelineState extends GFXPipelineState {
 
-    get gpuPipelineState (): WebGLGPUPipelineState {
+    get gpuPipelineState (): IWebGLGPUPipelineState {
         return  this._gpuPipelineState!;
     }
 
-    private _gpuPipelineState: WebGLGPUPipelineState | null = null;
+    private _gpuPipelineState: IWebGLGPUPipelineState | null = null;
 
     public initialize (info: IGFXPipelineStateInfo): boolean {
 
@@ -48,11 +48,11 @@ export class WebGLGFXPipelineState extends GFXPipelineState {
 
         this._gpuPipelineState = {
             glPrimitive: WebGLPrimitives[info.primitive],
-            gpuShader: (info.shader as WebGLGFXShader).gpuShader,
+            gpuShader: (info.shader as WebGLShader).gpuShader,
             rs: info.rasterizerState,
             dss: info.depthStencilState,
             bs: info.blendState,
-            gpuRenderPass: (info.renderPass as WebGLGFXRenderPass).gpuRenderPass,
+            gpuRenderPass: (info.renderPass as WebGLRenderPass).gpuRenderPass,
             dynamicStates,
         };
 

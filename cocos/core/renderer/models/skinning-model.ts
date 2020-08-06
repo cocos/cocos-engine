@@ -255,7 +255,7 @@ export class SkinningModel extends MorphModel {
 
     public updateLocalBindings (psoci: number, submodelIdx: number) {
         super.updateLocalBindings(psoci, submodelIdx);
-        const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SETS));
+        const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SET));
         const buffer = this._buffers[this._bufferIndices![submodelIdx]];
         if (buffer) { descriptorSet.bindBuffer(UBOSkinning.BLOCK.binding, buffer); }
     }

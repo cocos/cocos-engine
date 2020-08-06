@@ -1,18 +1,18 @@
 import { GFXStatus } from '../define';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { WebGL2CmdFuncCreateFramebuffer, WebGL2CmdFuncDestroyFramebuffer } from './webgl2-commands';
-import { WebGL2GFXDevice } from './webgl2-device';
-import { WebGL2GPUFramebuffer, WebGL2GPUTexture } from './webgl2-gpu-objects';
-import { WebGL2GFXRenderPass } from './webgl2-render-pass';
-import { WebGL2GFXTexture } from './webgl2-texture';
+import { WebGL2Device } from './webgl2-device';
+import { IWebGL2GPUFramebuffer, IWebGL2GPUTexture } from './webgl2-gpu-objects';
+import { WebGL2RenderPass } from './webgl2-render-pass';
+import { WebGL2Texture } from './webgl2-texture';
 
-export class WebGL2GFXFramebuffer extends GFXFramebuffer {
+export class WebGL2Framebuffer extends GFXFramebuffer {
 
-    get gpuFramebuffer (): WebGL2GPUFramebuffer {
+    get gpuFramebuffer (): IWebGL2GPUFramebuffer {
         return  this._gpuFramebuffer!;
     }
 
-    private _gpuFramebuffer: WebGL2GPUFramebuffer | null = null;
+    private _gpuFramebuffer: IWebGL2GPUFramebuffer | null = null;
 
     public initialize (info: IGFXFramebufferInfo): boolean {
 
@@ -31,28 +31,28 @@ export class WebGL2GFXFramebuffer extends GFXFramebuffer {
             }
         }
 
-        const gpuColorTextures: WebGL2GPUTexture[] = [];
+        const gpuColorTextures: IWebGL2GPUTexture[] = [];
         if (info.colorTextures !== undefined) {
             for (const colorTexture of info.colorTextures) {
                 if (colorTexture) {
-                    gpuColorTextures.push((colorTexture as WebGL2GFXTexture).gpuTexture);
+                    gpuColorTextures.push((colorTexture as WebGL2Texture).gpuTexture);
                 }
             }
         }
 
-        let gpuDepthStencilTexture: WebGL2GPUTexture | null = null;
+        let gpuDepthStencilTexture: IWebGL2GPUTexture | null = null;
         if (info.depthStencilTexture) {
-            gpuDepthStencilTexture = (info.depthStencilTexture as WebGL2GFXTexture).gpuTexture;
+            gpuDepthStencilTexture = (info.depthStencilTexture as WebGL2Texture).gpuTexture;
         }
 
         this._gpuFramebuffer = {
-            gpuRenderPass: (info.renderPass as WebGL2GFXRenderPass).gpuRenderPass,
+            gpuRenderPass: (info.renderPass as WebGL2RenderPass).gpuRenderPass,
             gpuColorTextures,
             gpuDepthStencilTexture,
             glFramebuffer: null,
         };
 
-        WebGL2CmdFuncCreateFramebuffer(this._device as WebGL2GFXDevice, this._gpuFramebuffer);
+        WebGL2CmdFuncCreateFramebuffer(this._device as WebGL2Device, this._gpuFramebuffer);
 
         this._status = GFXStatus.SUCCESS;
 
@@ -61,7 +61,7 @@ export class WebGL2GFXFramebuffer extends GFXFramebuffer {
 
     public destroy () {
         if (this._gpuFramebuffer) {
-            WebGL2CmdFuncDestroyFramebuffer(this._device as WebGL2GFXDevice, this._gpuFramebuffer);
+            WebGL2CmdFuncDestroyFramebuffer(this._device as WebGL2Device, this._gpuFramebuffer);
             this._gpuFramebuffer = null;
         }
         this._status = GFXStatus.UNREADY;

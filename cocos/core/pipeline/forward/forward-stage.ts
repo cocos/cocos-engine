@@ -6,7 +6,7 @@ import { ccclass, property } from '../../data/class-decorator';
 import { IRenderPass } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
-import { GFXClearFlag, IGFXColor, IGFXRect } from '../../gfx/define';
+import { GFXClearFlag, GFXColor, GFXRect } from '../../gfx/define';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
@@ -21,7 +21,7 @@ import { ForwardFlow } from './forward-flow';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 
-const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
+const colors: GFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 
 /**
  * @en The forward render stage
@@ -43,7 +43,7 @@ export class ForwardStage extends RenderStage {
     protected renderQueues: RenderQueueDesc[] = [];
     protected _renderQueues: RenderQueue[] = [];
 
-    private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
+    private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _additiveLightQueue: RenderAdditiveLightQueue;

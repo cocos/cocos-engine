@@ -67,7 +67,7 @@ export class BatchedBuffer {
         let vbIdxSize = 0;
         const vbCount = flatBuffers[0].count;
         const psoCI = subModel.psoInfos[passIndx];
-        const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SETS));
+        const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SET));
         let isBatchExist = false;
         for (let i = 0; i < this.batches.length; ++i) {
             const batch = this.batches[i];

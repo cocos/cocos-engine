@@ -5,7 +5,7 @@
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXDescriptorType, GFXType, GFXShaderType } from '../gfx/define';
 import { GFXSampler } from '../gfx/sampler';
-import { GFXUniformBlock, GFXUniformSampler, IBindingMappingInfo } from '../gfx/shader';
+import { GFXUniformBlock, GFXUniformSampler, GFXBindingMappingInfo } from '../gfx/shader';
 import { GFXTexture } from '../gfx/texture';
 import { Pass } from '../renderer/core/pass';
 import { Model } from '../renderer/scene/model';
@@ -77,29 +77,28 @@ export interface IRenderQueueDesc {
     sortFunc: (a: IRenderPass, b: IRenderPass) => number;
 }
 
-const MAX_BINDING_SUPPORTED = 24; // from WebGL 2 spec
-
 /**
  * @en The uniform bindings
  * @zh Uniform 参数绑定。
  */
 export enum PipelineGlobalBindings {
-    // UBOs
     UBO_GLOBAL,
     UBO_SHADOW,
     UBO_PCF_SHADOW,
 
-    // samplers
     SAMPLER_ENVIRONMENT,
     SAMPLER_SHADOWMAP,
+
+    COUNT,
 }
+const GLOBAL_UBO_COUNT = PipelineGlobalBindings.SAMPLER_ENVIRONMENT;
+const GLOBAL_SAMPLER_COUNT = PipelineGlobalBindings.COUNT - GLOBAL_UBO_COUNT;
 
 export enum ModelLocalBindings {
     UBO_LOCAL,
     UBO_FORWARD_LIGHTS,
     UBO_SKINNING_ANIMATION,
     UBO_SKINNING_TEXTURE,
-    UBO_UI,
     UBO_MORPH,
 
     SAMPLER_JOINTS,
@@ -107,7 +106,11 @@ export enum ModelLocalBindings {
     SAMPLER_MORPH_NORMAL,
     SAMPLER_MORPH_TANGENT,
     SAMPLER_LIGHTING_MAP,
+
+    COUNT,
 }
+const LOCAL_UBO_COUNT = ModelLocalBindings.SAMPLER_JOINTS;
+const LOCAL_SAMPLER_COUNT = ModelLocalBindings.COUNT - LOCAL_UBO_COUNT;
 
 /**
  * @en Check whether the given uniform binding is a builtin binding
@@ -122,16 +125,10 @@ export enum DescriptorSetIndices {
     MODEL_LOCAL,
 }
 // parameters passed to GFXShader
-export const bindingMappingInfo: IBindingMappingInfo = {
-    buffer: {
-        counts: [3, 0, 6],
-        offsets: [0, 9, 3],
-    },
-    sampler: {
-        counts: [2, 0, 5],
-        offsets: [-1, -8, -3],
-    }
-};
+export const materialSpecificSamplerBaseOffset = GLOBAL_SAMPLER_COUNT + LOCAL_SAMPLER_COUNT;
+export const bindingMappingInfo = new GFXBindingMappingInfo();
+bindingMappingInfo.bufferOffsets = [0, GLOBAL_UBO_COUNT + LOCAL_UBO_COUNT, GLOBAL_UBO_COUNT];
+bindingMappingInfo.samplerOffsets = [0, materialSpecificSamplerBaseOffset, GLOBAL_SAMPLER_COUNT];
 
 /**
  * @en The global uniform buffer object
@@ -164,7 +161,7 @@ export class UBOGlobal {
 
     public static BLOCK: GFXUniformBlock = {
         shaderStages: GFXShaderType.ALL, set: DescriptorSetIndices.PIPELINE_GLOBAL,
-        binding: UniformBinding.UBO_GLOBAL, name: 'CCGlobal', members: [
+        binding: PipelineGlobalBindings.UBO_GLOBAL, name: 'CCGlobal', members: [
             { name: 'cc_time', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_screenSize', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_screenScale', type: GFXType.FLOAT4, count: 1 },
@@ -192,29 +189,6 @@ export class UBOGlobal {
 }
 
 /**
- * The uniform buffer object for PCFshadow
- */
-export class UBOPCFShadow {
-    public static MAT_SHADOW_VIEW_PROJ_OFFSET: number = 0;
-    public static COUNT: number = UBOPCFShadow.MAT_SHADOW_VIEW_PROJ_OFFSET + 16;
-    public static SIZE: number = UBOPCFShadow.COUNT * 4;
-
-    public static BLOCK: GFXUniformBlock = {
-        shaderStages: GFXShaderType.ALL, set: DescriptorSetIndices.PIPELINE_GLOBAL,
-        binding: UniformBinding.UBO_PCF_SHADOW, name: 'CCPCFShadow', members: [
-            { name: 'cc_shadowMatViewProj', type: GFXType.MAT4, count: 1 },
-        ],
-    };
-
-    public view: Float32Array = new Float32Array(UBOPCFShadow.COUNT);
-}
-
-export const UNIFORM_SHADOWMAP: GFXUniformSampler = {
-    shaderStages: GFXShaderType.FRAGMENT, set: DescriptorSetIndices.PIPELINE_GLOBAL,
-    binding: UniformBinding.SAMPLER_SHADOWMAP, name: 'cc_shadowMap', type: GFXType.SAMPLER2D, count: 1,
-};
-
-/**
  * @en The uniform buffer object for shadow
  * @zh 阴影 UBO。
  */
@@ -226,7 +200,7 @@ export class UBOShadow {
 
     public static BLOCK: GFXUniformBlock = {
         shaderStages: GFXShaderType.ALL, set: DescriptorSetIndices.PIPELINE_GLOBAL,
-        binding: UniformBinding.UBO_SHADOW, name: 'CCShadow', members: [
+        binding: PipelineGlobalBindings.UBO_SHADOW, name: 'CCShadow', members: [
             { name: 'cc_matLightPlaneProj', type: GFXType.MAT4, count: 1 },
             { name: 'cc_shadowColor', type: GFXType.FLOAT4, count: 1 },
         ],
@@ -235,9 +209,32 @@ export class UBOShadow {
     public view: Float32Array = new Float32Array(UBOShadow.COUNT);
 }
 
+/**
+ * The uniform buffer object for PCFshadow
+ */
+export class UBOPCFShadow {
+    public static MAT_SHADOW_VIEW_PROJ_OFFSET: number = 0;
+    public static COUNT: number = UBOPCFShadow.MAT_SHADOW_VIEW_PROJ_OFFSET + 16;
+    public static SIZE: number = UBOPCFShadow.COUNT * 4;
+
+    public static BLOCK: GFXUniformBlock = {
+        shaderStages: GFXShaderType.ALL, set: DescriptorSetIndices.PIPELINE_GLOBAL,
+        binding: PipelineGlobalBindings.UBO_PCF_SHADOW, name: 'CCPCFShadow', members: [
+            { name: 'cc_shadowMatViewProj', type: GFXType.MAT4, count: 1 },
+        ],
+    };
+
+    public view: Float32Array = new Float32Array(UBOPCFShadow.COUNT);
+}
+
+export const UNIFORM_SHADOWMAP: GFXUniformSampler = {
+    shaderStages: GFXShaderType.FRAGMENT, set: DescriptorSetIndices.PIPELINE_GLOBAL,
+    binding: PipelineGlobalBindings.SAMPLER_SHADOWMAP, name: 'cc_shadowMap', type: GFXType.SAMPLER2D, count: 1,
+};
+
 export const UNIFORM_ENVIRONMENT: GFXUniformSampler = {
     shaderStages: GFXShaderType.FRAGMENT, set: DescriptorSetIndices.PIPELINE_GLOBAL,
-    binding: UniformBinding.SAMPLER_ENVIRONMENT, name: 'cc_environment', type: GFXType.SAMPLER_CUBE, count: 1,
+    binding: PipelineGlobalBindings.SAMPLER_ENVIRONMENT, name: 'cc_environment', type: GFXType.SAMPLER_CUBE, count: 1,
 };
 
 export const localBindingsDesc: Map<string, IInternalBindingDesc> = new Map<string, IInternalBindingDesc>();
@@ -255,7 +252,7 @@ export class UBOLocal {
 
     public static BLOCK: GFXUniformBlock = {
         shaderStages: GFXShaderType.VERTEX, set: DescriptorSetIndices.MODEL_LOCAL,
-        binding: UniformBinding.UBO_LOCAL, name: 'CCLocal', members: [
+        binding: ModelLocalBindings.UBO_LOCAL, name: 'CCLocal', members: [
             { name: 'cc_matWorld', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matWorldIT', type: GFXType.MAT4, count: 1 },
             { name: 'cc_lightingMapUVParam', type: GFXType.FLOAT4, count: 1 },
@@ -278,7 +275,7 @@ export class UBOLocalBatched {
 
     public static BLOCK: GFXUniformBlock = {
         shaderStages: GFXShaderType.VERTEX, set: DescriptorSetIndices.MODEL_LOCAL,
-        binding: UniformBinding.UBO_LOCAL, name: 'CCLocalBatched', members: [
+        binding: ModelLocalBindings.UBO_LOCAL, name: 'CCLocalBatched', members: [
             { name: 'cc_matWorlds', type: GFXType.MAT4, count: UBOLocalBatched.BATCHING_COUNT },
         ],
     };
@@ -306,7 +303,7 @@ export class UBOForwardLight {
 
     public static BLOCK: GFXUniformBlock = {
         shaderStages: GFXShaderType.FRAGMENT, set: DescriptorSetIndices.MODEL_LOCAL,
-        binding: UniformBinding.UBO_FORWARD_LIGHTS, name: 'CCForwardLight', members: [
+        binding: ModelLocalBindings.UBO_FORWARD_LIGHTS, name: 'CCForwardLight', members: [
             { name: 'cc_lightPos', type: GFXType.FLOAT4, count: UBOForwardLight.LIGHTS_PER_PASS },
             { name: 'cc_lightColor', type: GFXType.FLOAT4, count: UBOForwardLight.LIGHTS_PER_PASS },
             { name: 'cc_lightSizeRangeAngle', type: GFXType.FLOAT4, count: UBOForwardLight.LIGHTS_PER_PASS },
@@ -339,7 +336,7 @@ export class UBOSkinningTexture {
 
     public static BLOCK: GFXUniformBlock = {
         shaderStages: GFXShaderType.VERTEX, set: DescriptorSetIndices.MODEL_LOCAL,
-        binding: UniformBinding.UBO_SKINNING_TEXTURE, name: 'CCSkinningTexture', members: [
+        binding: ModelLocalBindings.UBO_SKINNING_TEXTURE, name: 'CCSkinningTexture', members: [
             { name: 'cc_jointTextureInfo', type: GFXType.FLOAT4, count: 1 },
         ],
     };
@@ -355,7 +352,7 @@ export class UBOSkinningAnimation {
 
     public static BLOCK: GFXUniformBlock = {
         shaderStages: GFXShaderType.VERTEX, set: DescriptorSetIndices.MODEL_LOCAL,
-        binding: UniformBinding.UBO_SKINNING_ANIMATION, name: 'CCSkinningAnimation', members: [
+        binding: ModelLocalBindings.UBO_SKINNING_ANIMATION, name: 'CCSkinningAnimation', members: [
             { name: 'cc_jointAnimInfo', type: GFXType.FLOAT4, count: 1 },
         ],
     };
@@ -372,7 +369,7 @@ export class UBOSkinning {
 
     public static BLOCK: GFXUniformBlock = {
         shaderStages: GFXShaderType.VERTEX, set: DescriptorSetIndices.MODEL_LOCAL,
-        binding: UniformBinding.UBO_SKINNING_TEXTURE, name: 'CCSkinning', members: [
+        binding: ModelLocalBindings.UBO_SKINNING_TEXTURE, name: 'CCSkinning', members: [
             { name: 'cc_joints', type: GFXType.FLOAT4, count: JOINT_UNIFORM_CAPACITY * 3 },
         ],
     };
@@ -388,7 +385,7 @@ localBindingsDesc.set(UBOSkinning.BLOCK.name, {
  */
 export const UniformJointTexture: GFXUniformSampler = {
     shaderStages: GFXShaderType.VERTEX, set: DescriptorSetIndices.MODEL_LOCAL,
-    binding: UniformBinding.SAMPLER_JOINTS, name: 'cc_jointTexture', type: GFXType.SAMPLER2D, count: 1,
+    binding: ModelLocalBindings.SAMPLER_JOINTS, name: 'cc_jointTexture', type: GFXType.SAMPLER2D, count: 1,
 };
 localBindingsDesc.set(UniformJointTexture.name, {
     type: GFXDescriptorType.SAMPLER,
@@ -414,7 +411,7 @@ export class UBOMorph {
 
     public static readonly BLOCK: GFXUniformBlock = {
         shaderStages: GFXShaderType.VERTEX, set: DescriptorSetIndices.MODEL_LOCAL,
-        binding: UniformBinding.UBO_MORPH, name: 'CCMorph', members: [
+        binding: ModelLocalBindings.UBO_MORPH, name: 'CCMorph', members: [
             { name: 'cc_displacementWeights', type: GFXType.FLOAT4, count: UBOMorph.MAX_MORPH_TARGET_COUNT / 4, },
             { name: 'cc_displacementTextureInfo', type: GFXType.FLOAT4, count: 1, },
         ],
@@ -431,7 +428,7 @@ localBindingsDesc.set(UBOMorph.BLOCK.name, {
  */
 export const UniformPositionMorphTexture: Readonly<GFXUniformSampler> = {
     shaderStages: GFXShaderType.VERTEX, set: DescriptorSetIndices.MODEL_LOCAL,
-    binding: UniformBinding.SAMPLER_MORPH_POSITION, name: 'cc_PositionDisplacements', type: GFXType.SAMPLER2D, count: 1,
+    binding: ModelLocalBindings.SAMPLER_MORPH_POSITION, name: 'cc_PositionDisplacements', type: GFXType.SAMPLER2D, count: 1,
 };
 localBindingsDesc.set(UniformPositionMorphTexture.name, {
     type: GFXDescriptorType.SAMPLER,
@@ -444,7 +441,7 @@ localBindingsDesc.set(UniformPositionMorphTexture.name, {
  */
 export const UniformNormalMorphTexture: Readonly<GFXUniformSampler> = {
     shaderStages: GFXShaderType.VERTEX, set: DescriptorSetIndices.MODEL_LOCAL,
-    binding: UniformBinding.SAMPLER_MORPH_NORMAL, name: 'cc_NormalDisplacements', type: GFXType.SAMPLER2D, count: 1,
+    binding: ModelLocalBindings.SAMPLER_MORPH_NORMAL, name: 'cc_NormalDisplacements', type: GFXType.SAMPLER2D, count: 1,
 };
 localBindingsDesc.set(UniformNormalMorphTexture.name, {
     type: GFXDescriptorType.SAMPLER,
@@ -457,7 +454,7 @@ localBindingsDesc.set(UniformNormalMorphTexture.name, {
  */
 export const UniformLightingMapSampler: Readonly<GFXUniformSampler> = {
     shaderStages: GFXShaderType.FRAGMENT, set: DescriptorSetIndices.MODEL_LOCAL,
-    binding: UniformBinding.SAMPLER_LIGHTING_MAP, name: 'cc_lightingMap', type: GFXType.SAMPLER2D, count: 1,
+    binding: ModelLocalBindings.SAMPLER_LIGHTING_MAP, name: 'cc_lightingMap', type: GFXType.SAMPLER2D, count: 1,
 };
 localBindingsDesc.set(UniformLightingMapSampler.name, {
     type: GFXDescriptorType.SAMPLER,
@@ -470,7 +467,7 @@ localBindingsDesc.set(UniformLightingMapSampler.name, {
  */
 export const UniformTangentMorphTexture: Readonly<GFXUniformSampler> = {
     shaderStages: GFXShaderType.VERTEX, set: DescriptorSetIndices.MODEL_LOCAL,
-    binding: UniformBinding.SAMPLER_MORPH_TANGENT, name: 'cc_TangentDisplacements', type: GFXType.SAMPLER2D, count: 1,
+    binding: ModelLocalBindings.SAMPLER_MORPH_TANGENT, name: 'cc_TangentDisplacements', type: GFXType.SAMPLER2D, count: 1,
 };
 localBindingsDesc.set(UniformTangentMorphTexture.name, {
     type: GFXDescriptorType.SAMPLER,

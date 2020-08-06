@@ -10,29 +10,29 @@ import { GFXPipelineState, IGFXPipelineStateInfo } from '../pipeline-state';
 import { GFXQueue, IGFXQueueInfo } from '../queue';
 import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
 import { GFXSampler, IGFXSamplerInfo } from '../sampler';
-import { GFXShader, IGFXShaderInfo } from '../shader';
+import { GFXShader, GFXShaderInfo } from '../shader';
 import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from '../texture';
-import { WebGL2GFXDescriptorSet } from './webgl2-descriptor-set';
-import { WebGL2GFXBuffer } from './webgl2-buffer';
-import { WebGL2GFXCommandAllocator } from './webgl2-command-allocator';
-import { WebGL2GFXCommandBuffer } from './webgl2-command-buffer';
-import { WebGL2GFXFence } from './webgl2-fence';
-import { WebGL2GFXFramebuffer } from './webgl2-framebuffer';
-import { WebGL2GFXInputAssembler } from './webgl2-input-assembler';
-import { WebGL2GFXPipelineState } from './webgl2-pipeline-state';
-import { WebGL2GFXPrimaryCommandBuffer } from './webgl2-primary-command-buffer';
-import { WebGL2GFXQueue } from './webgl2-queue';
-import { WebGL2GFXRenderPass } from './webgl2-render-pass';
-import { WebGL2GFXSampler } from './webgl2-sampler';
-import { WebGL2GFXShader } from './webgl2-shader';
+import { WebGL2DescriptorSet } from './webgl2-descriptor-set';
+import { WebGL2Buffer } from './webgl2-buffer';
+import { WebGL2CommandAllocator } from './webgl2-command-allocator';
+import { WebGL2CommandBuffer } from './webgl2-command-buffer';
+import { WebGL2Fence } from './webgl2-fence';
+import { WebGL2Framebuffer } from './webgl2-framebuffer';
+import { WebGL2InputAssembler } from './webgl2-input-assembler';
+import { WebGL2PipelineState } from './webgl2-pipeline-state';
+import { WebGL2PrimaryCommandBuffer } from './webgl2-primary-command-buffer';
+import { WebGL2Queue } from './webgl2-queue';
+import { WebGL2RenderPass } from './webgl2-render-pass';
+import { WebGL2Sampler } from './webgl2-sampler';
+import { WebGL2Shader } from './webgl2-shader';
 import { WebGL2StateCache } from './webgl2-state-cache';
-import { WebGL2GFXTexture } from './webgl2-texture';
+import { WebGL2Texture } from './webgl2-texture';
 import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXCommandBufferType, GFXFilter, GFXFormat, GFXFormatInfos,
-    GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, IGFXRect } from '../define';
+    GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXRect } from '../define';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer,
     WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
 
-export class WebGL2GFXDevice extends GFXDevice {
+export class WebGL2Device extends GFXDevice {
 
     get gl () {
         return this._webGL2RC as WebGL2RenderingContext;
@@ -99,9 +99,9 @@ export class WebGL2GFXDevice extends GFXDevice {
     }
 
     public stateCache: WebGL2StateCache = new WebGL2StateCache();
-    public cmdAllocator: WebGL2GFXCommandAllocator = new WebGL2GFXCommandAllocator();
-    public nullTex2D: WebGL2GFXTexture | null = null;
-    public nullTexCube: WebGL2GFXTexture | null = null;
+    public cmdAllocator: WebGL2CommandAllocator = new WebGL2CommandAllocator();
+    public nullTex2D: WebGL2Texture | null = null;
+    public nullTexCube: WebGL2Texture | null = null;
 
     private _webGL2RC: WebGL2RenderingContext | null = null;
     private _isAntialias: boolean = true;
@@ -331,7 +331,7 @@ export class WebGL2GFXDevice extends GFXDevice {
         this._queue = this.createQueue({ type: GFXQueueType.GRAPHICS });
 
         // create default null texture
-        this.nullTex2D = new WebGL2GFXTexture(this);
+        this.nullTex2D = new WebGL2Texture(this);
         this.nullTex2D.initialize({
             type: GFXTextureType.TEX2D,
             usage: GFXTextureUsageBit.SAMPLED,
@@ -341,7 +341,7 @@ export class WebGL2GFXDevice extends GFXDevice {
             flags: GFXTextureFlagBit.GEN_MIPMAP,
         });
 
-        this.nullTexCube = new WebGL2GFXTexture(this);
+        this.nullTexCube = new WebGL2Texture(this);
         this.nullTexCube.initialize({
             type: GFXTextureType.TEX2D,
             usage: GFXTextureUsageBit.SAMPLED,
@@ -431,7 +431,7 @@ export class WebGL2GFXDevice extends GFXDevice {
     }
 
     public present () {
-        const queue = (this._queue as WebGL2GFXQueue);
+        const queue = (this._queue as WebGL2Queue);
         this._numDrawCalls = queue.numDrawCalls;
         this._numInstances = queue.numInstances;
         this._numTris = queue.numTris;
@@ -439,75 +439,75 @@ export class WebGL2GFXDevice extends GFXDevice {
     }
 
     public createCommandBuffer (info: IGFXCommandBufferInfo): GFXCommandBuffer {
-        // const ctor = WebGLGFXCommandBuffer; // opt to instant invocation
-        const ctor = info.type === GFXCommandBufferType.PRIMARY ? WebGL2GFXPrimaryCommandBuffer : WebGL2GFXCommandBuffer;
+        // const ctor = WebGLCommandBuffer; // opt to instant invocation
+        const ctor = info.type === GFXCommandBufferType.PRIMARY ? WebGL2PrimaryCommandBuffer : WebGL2CommandBuffer;
         const cmdBuff = new ctor(this);
         cmdBuff.initialize(info);
         return cmdBuff;
     }
 
     public createBuffer (info: IGFXBufferInfo): GFXBuffer {
-        const buffer = new WebGL2GFXBuffer(this);
+        const buffer = new WebGL2Buffer(this);
         buffer.initialize(info);
         return buffer;
     }
 
     public createTexture (info: IGFXTextureInfo | IGFXTextureViewInfo): GFXTexture {
-        const texture = new WebGL2GFXTexture(this);
+        const texture = new WebGL2Texture(this);
         texture.initialize(info);
         return texture;
     }
 
     public createSampler (info: IGFXSamplerInfo): GFXSampler {
-        const sampler = new WebGL2GFXSampler(this);
+        const sampler = new WebGL2Sampler(this);
         sampler.initialize(info);
         return sampler;
     }
 
     public createDescriptorSet (info: IGFXDescriptorSetInfo): GFXDescriptorSet {
-        const descriptorSet = new WebGL2GFXDescriptorSet(this);
+        const descriptorSet = new WebGL2DescriptorSet(this);
         descriptorSet.initialize(info);
         return descriptorSet;
     }
 
-    public createShader (info: IGFXShaderInfo): GFXShader {
-        const shader = new WebGL2GFXShader(this);
+    public createShader (info: GFXShaderInfo): GFXShader {
+        const shader = new WebGL2Shader(this);
         shader.initialize(info);
         return shader;
     }
 
     public createInputAssembler (info: IGFXInputAssemblerInfo): GFXInputAssembler {
-        const inputAssembler = new WebGL2GFXInputAssembler(this);
+        const inputAssembler = new WebGL2InputAssembler(this);
         inputAssembler.initialize(info);
         return inputAssembler;
     }
 
     public createRenderPass (info: IGFXRenderPassInfo): GFXRenderPass {
-        const renderPass = new WebGL2GFXRenderPass(this);
+        const renderPass = new WebGL2RenderPass(this);
         renderPass.initialize(info);
         return renderPass;
     }
 
     public createFramebuffer (info: IGFXFramebufferInfo): GFXFramebuffer {
-        const framebuffer = new WebGL2GFXFramebuffer(this);
+        const framebuffer = new WebGL2Framebuffer(this);
         framebuffer.initialize(info);
         return framebuffer;
     }
 
     public createPipelineState (info: IGFXPipelineStateInfo): GFXPipelineState {
-        const pipelineState = new WebGL2GFXPipelineState(this);
+        const pipelineState = new WebGL2PipelineState(this);
         pipelineState.initialize(info);
         return pipelineState;
     }
 
     public createFence (info: IGFXFenceInfo): GFXFence {
-        const fence = new WebGL2GFXFence(this);
+        const fence = new WebGL2Fence(this);
         fence.initialize(info);
         return fence;
     }
 
     public createQueue (info: IGFXQueueInfo): GFXQueue {
-        const queue = new WebGL2GFXQueue(this);
+        const queue = new WebGL2Queue(this);
         queue.initialize(info);
         return queue;
     }
@@ -516,7 +516,7 @@ export class WebGL2GFXDevice extends GFXDevice {
         WebGL2CmdFuncCopyBuffersToTexture(
             this,
             buffers,
-            (texture as WebGL2GFXTexture).gpuTexture,
+            (texture as WebGL2Texture).gpuTexture,
             regions);
     }
 
@@ -528,7 +528,7 @@ export class WebGL2GFXDevice extends GFXDevice {
         WebGL2CmdFuncCopyTexImagesToTexture(
             this,
             texImages,
-            (texture as WebGL2GFXTexture).gpuTexture,
+            (texture as WebGL2Texture).gpuTexture,
             regions);
     }
 
@@ -538,7 +538,7 @@ export class WebGL2GFXDevice extends GFXDevice {
         regions: GFXBufferTextureCopy[]) {
 
         const gl = this._webGL2RC as WebGL2RenderingContext;
-        const gpuFramebuffer = (srcFramebuffer as WebGL2GFXFramebuffer).gpuFramebuffer;
+        const gpuFramebuffer = (srcFramebuffer as WebGL2Framebuffer).gpuFramebuffer;
         const format = gpuFramebuffer.gpuColorTextures[0].format;
         const glFormat = GFXFormatToWebGLFormat(format, gl);
         const glType = GFXFormatToWebGLType(format, gl);
@@ -567,9 +567,9 @@ export class WebGL2GFXDevice extends GFXDevice {
         }
     }
 
-    public blitFramebuffer (src: GFXFramebuffer, dst: GFXFramebuffer, srcRect: IGFXRect, dstRect: IGFXRect, filter: GFXFilter) {
-        const srcFBO = (src as WebGL2GFXFramebuffer).gpuFramebuffer;
-        const dstFBO = (dst as WebGL2GFXFramebuffer).gpuFramebuffer;
+    public blitFramebuffer (src: GFXFramebuffer, dst: GFXFramebuffer, srcRect: GFXRect, dstRect: GFXRect, filter: GFXFilter) {
+        const srcFBO = (src as WebGL2Framebuffer).gpuFramebuffer;
+        const dstFBO = (dst as WebGL2Framebuffer).gpuFramebuffer;
 
         WebGL2CmdFuncBlitFramebuffer(
             this,

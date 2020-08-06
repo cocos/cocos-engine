@@ -11,7 +11,7 @@ import { GFXShader } from './shader';
 
 export interface IGFXDescriptorSetInfo {
     shader: GFXShader;
-    setIndex: number;
+    set: number;
 }
 
 export class GFXDescriptor {
@@ -33,7 +33,7 @@ export abstract class GFXDescriptorSet extends GFXObject {
 
     protected _descriptors: GFXDescriptor[] = [];
 
-    protected _setIndex: number = 0;
+    protected _set: number = 0;
 
     protected _isDirty = false;
 
@@ -69,6 +69,7 @@ export abstract class GFXDescriptorSet extends GFXObject {
                 return;
             }
         }
+        console.error('Setting binding is not GFXDescriptorType.UNIFORM_BUFFER.');
     }
 
     /**
@@ -92,6 +93,7 @@ export abstract class GFXDescriptorSet extends GFXObject {
                 return;
             }
         }
+        console.error('Setting binding is not GFXDescriptorType.SAMPLER.');
     }
 
     /**
@@ -115,6 +117,7 @@ export abstract class GFXDescriptorSet extends GFXObject {
                 return;
             }
         }
+        console.error('Setting binding is not GFXDescriptorType.SAMPLER.');
     }
 
     /**

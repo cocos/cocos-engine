@@ -10,7 +10,7 @@ import { GFXInputAssembler } from '../gfx/input-assembler';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { GFXDevice } from '../gfx/device';
 import { GFXRenderPass } from '../gfx';
-import { BlendStatePool, PassInfoPool, PassInfoView, ShaderPool, DescriptorSetPool, PSOCIPool, PSOCIView } from '../renderer/core/memory-pools';
+import { BlendStatePool, PassInfoPool, PassInfoView, DescriptorSetPool, PSOCIPool, PSOCIView } from '../renderer/core/memory-pools';
 
 /**
  * @en Comparison sorting function. Opaque objects are sorted by priority -> depth front to back -> shader ID.
@@ -112,7 +112,7 @@ export class RenderQueue {
             const psoci = subModel.psoInfos[passIdx];
             const pso = PipelineStateManager.getOrCreatePipelineState(device, psoci, renderPass, ia);
             cmdBuff.bindPipelineState(pso);
-            cmdBuff.bindDescriptorSets(DescriptorSetPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SETS)));
+            cmdBuff.bindDescriptorSets(DescriptorSetPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SET)));
             cmdBuff.bindInputAssembler(ia);
             cmdBuff.draw(ia);
         }

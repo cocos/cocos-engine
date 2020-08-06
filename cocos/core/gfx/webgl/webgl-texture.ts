@@ -1,16 +1,16 @@
-import { GFXTextureFlagBit, GFXTextureType, GFXStatus, GFXFormatSurfaceSize } from '../define';
+import { GFXTextureFlagBit, GFXStatus, GFXFormatSurfaceSize } from '../define';
 import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo, IsPowerOf2 } from '../texture';
 import { WebGLCmdFuncCreateTexture, WebGLCmdFuncDestroyTexture, WebGLCmdFuncResizeTexture } from './webgl-commands';
-import { WebGLGFXDevice } from './webgl-device';
-import { WebGLGPUTexture } from './webgl-gpu-objects';
+import { WebGLDevice } from './webgl-device';
+import { IWebGLGPUTexture } from './webgl-gpu-objects';
 
-export class WebGLGFXTexture extends GFXTexture {
+export class WebGLTexture extends GFXTexture {
 
-    get gpuTexture (): WebGLGPUTexture {
+    get gpuTexture (): IWebGLGPUTexture {
         return  this._gpuTexture!;
     }
 
-    private _gpuTexture: WebGLGPUTexture | null = null;
+    private _gpuTexture: IWebGLGPUTexture | null = null;
 
     public initialize (info: IGFXTextureInfo | IGFXTextureViewInfo): boolean {
         if ('texture' in info) {
@@ -81,7 +81,7 @@ export class WebGLGFXTexture extends GFXTexture {
             glMagFilter: 0,
         };
 
-        WebGLCmdFuncCreateTexture(this._device as WebGLGFXDevice, this._gpuTexture);
+        WebGLCmdFuncCreateTexture(this._device as WebGLDevice, this._gpuTexture);
 
         this._device.memoryStatus.textureSize += this._size;
         this._status = GFXStatus.SUCCESS;
@@ -91,7 +91,7 @@ export class WebGLGFXTexture extends GFXTexture {
 
     public destroy () {
         if (this._gpuTexture) {
-            WebGLCmdFuncDestroyTexture(this._device as WebGLGFXDevice, this._gpuTexture);
+            WebGLCmdFuncDestroyTexture(this._device as WebGLDevice, this._gpuTexture);
             this._device.memoryStatus.textureSize -= this._size;
             this._gpuTexture = null;
         }
@@ -111,7 +111,7 @@ export class WebGLGFXTexture extends GFXTexture {
             this._gpuTexture.width = width;
             this._gpuTexture.height = height;
             this._gpuTexture.size = this._size;
-            WebGLCmdFuncResizeTexture(this._device as WebGLGFXDevice, this._gpuTexture);
+            WebGLCmdFuncResizeTexture(this._device as WebGLDevice, this._gpuTexture);
             this._device.memoryStatus.textureSize -= oldSize;
             this._device.memoryStatus.textureSize += this._size;
         }

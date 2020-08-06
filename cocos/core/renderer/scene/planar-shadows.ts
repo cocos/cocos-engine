@@ -179,7 +179,7 @@ export class PlanarShadows {
                 } else {
                     const ia = submodel.inputAssembler!;
                     const pso = PipelineStateManager.getOrCreatePipelineState(device, psoci, renderPass, ia);
-                    const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SETS));
+                    const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SET));
                     cmdBuff.bindPipelineState(pso);
                     cmdBuff.bindDescriptorSets(descriptorSet);
                     cmdBuff.bindInputAssembler(ia);
@@ -196,7 +196,7 @@ export class PlanarShadows {
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, buffer.psoci, renderPass, instance.ia);
                 if (lastPSO !== pso) {
                     cmdBuff.bindPipelineState(pso);
-                    cmdBuff.bindDescriptorSets(DescriptorSetPool.get(PSOCIPool.get(buffer.psoci, PSOCIView.DESCRIPTOR_SETS)));
+                    cmdBuff.bindDescriptorSets(DescriptorSetPool.get(PSOCIPool.get(buffer.psoci, PSOCIView.DESCRIPTOR_SET)));
                     lastPSO = pso;
                 }
                 cmdBuff.bindInputAssembler(instance.ia);
@@ -212,7 +212,7 @@ export class PlanarShadows {
             const psoCI = material.passes[0].createPipelineStateCI(model.getMacroPatches(i));
             if (psoCI) {
                 model.insertImplantPSOCI(psoCI, i); // add back to model to sync descriptor sets
-                DescriptorSetPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SETS)).update();
+                DescriptorSetPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SET)).update();
                 psoCIs.push(psoCI);
             }
         }

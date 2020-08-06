@@ -541,27 +541,50 @@ export enum GFXQueueType {
     TRANSFER,
 }
 
-export interface IGFXRect {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
+export class GFXRect {
+    public x: number;
+    public y: number;
+    public width: number;
+    public height: number;
+
+    constructor (x = 0, y = 0, width = 1, height = 1) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
 }
 
-export interface IGFXViewport {
-    left: number;
-    top: number;
-    width: number;
-    height: number;
-    minDepth: number;
-    maxDepth: number;
+export class GFXViewport {
+    public left: number;
+    public top: number;
+    public width: number;
+    public height: number;
+    public minDepth: number;
+    public maxDepth: number;
+
+    constructor (left = 0, top = 0, width = 0, height = 0, minDepth = 0, maxDepth = 1) {
+        this.left = left;
+        this.top = top;
+        this.width = width;
+        this.height = height;
+        this.minDepth = minDepth;
+        this.maxDepth = maxDepth;
+    }
 }
 
-export interface IGFXColor {
-    r: number;
-    g: number;
-    b: number;
-    a: number;
+export class GFXColor {
+    public r: number;
+    public g: number;
+    public b: number;
+    public a: number;
+
+    constructor (r = 0, g = 0, b = 0, a = 0) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
+    }
 }
 
 export enum GFXClearFlag {
@@ -573,38 +596,74 @@ export enum GFXClearFlag {
     ALL = COLOR | DEPTH | STENCIL,
 }
 
-export interface IGFXOffset {
-    x: number;
-    y: number;
-    z: number;
+export class GFXOffset {
+    public x: number;
+    public y: number;
+    public z: number;
+
+    constructor (x = 0, y = 0, z = 0) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
 }
 
-export interface IGFXExtent {
-    width: number;
-    height: number;
-    depth: number;
+export class GFXExtent {
+    public width: number;
+    public height: number;
+    public depth: number;
+
+    constructor (width = 0, height = 0, depth = 1) {
+        this.width = width;
+        this.height = height;
+        this.depth = depth;
+    }
 }
 
 export class GFXTextureSubres {
-    public mipLevel: number = 0;
-    public baseArrayLayer: number = 0;
-    public layerCount: number = 1;
+    public mipLevel: number;
+    public baseArrayLayer: number;
+    public layerCount: number;
+
+    constructor (mipLevel = 0, baseArrayLayer = 0, layerCount = 1) {
+        this.mipLevel = mipLevel;
+        this.baseArrayLayer = baseArrayLayer;
+        this.layerCount = layerCount;
+    }
 }
 
 export class GFXTextureCopy {
-    public srcSubres: GFXTextureSubres = new GFXTextureSubres();
-    public srcOffset: IGFXOffset = { x: 0, y: 0, z: 0 };
-    public dstSubres: GFXTextureSubres = new GFXTextureSubres();
-    public dstOffset: IGFXOffset = { x: 0, y: 0, z: 0 };
-    public extent: IGFXExtent = { width: 0, height: 0, depth: 1 };
+    public srcSubres: GFXTextureSubres;
+    public srcOffset: GFXOffset;
+    public dstSubres: GFXTextureSubres;
+    public dstOffset: GFXOffset;
+    public extent: GFXExtent;
+
+    constructor (srcSubres = new GFXTextureSubres(), srcOffset = new GFXOffset(),
+                 dstSubres = new GFXTextureSubres(), dstOffset = new GFXOffset(), extent = new GFXExtent()) {
+        this.srcSubres = srcSubres;
+        this.srcOffset = srcOffset;
+        this.dstSubres = dstSubres;
+        this.dstOffset = dstOffset;
+        this.extent = extent;
+    }
 }
 
 export class GFXBufferTextureCopy {
-    public buffStride: number = 0;
-    public buffTexHeight: number = 0;
-    public texOffset: IGFXOffset = { x: 0, y: 0, z: 0 };
-    public texExtent: IGFXExtent = { width: 0, height: 0, depth: 1 };
-    public texSubres: GFXTextureSubres = new GFXTextureSubres();
+    public buffStride: number;
+    public buffTexHeight: number;
+    public texOffset: GFXOffset;
+    public texExtent: GFXExtent;
+    public texSubres: GFXTextureSubres;
+
+    constructor (buffStride = 0, buffTexHeight = 0,
+                 texOffset = new GFXOffset(), texExtent = new GFXExtent(), texSubres = new GFXTextureSubres()) {
+        this.buffStride = buffStride;
+        this.buffTexHeight = buffTexHeight;
+        this.texOffset = texOffset;
+        this.texExtent = texExtent;
+        this.texSubres = texSubres;
+    }
 }
 
 export enum GFXFormatType {
@@ -617,160 +676,170 @@ export enum GFXFormatType {
     FLOAT,
 }
 
-export interface IGFXFormatInfo {
-    readonly name: string;
-    readonly size: number;
-    readonly count: number;
-    readonly type: GFXFormatType;
-    readonly hasAlpha: boolean;
-    readonly hasDepth: boolean;
-    readonly hasStencil: boolean;
-    readonly isCompressed: boolean;
+export class GFXFormatInfo {
+    public readonly name: string;
+    public readonly size: number;
+    public readonly count: number;
+    public readonly type: GFXFormatType;
+    public readonly hasAlpha: boolean;
+    public readonly hasDepth: boolean;
+    public readonly hasStencil: boolean;
+    public readonly isCompressed: boolean;
+
+    constructor (name: string, size: number, count: number, type: GFXFormatType,
+                 hasAlpha: boolean, hasDepth: boolean, hasStencil: boolean, isCompressed: boolean) {
+        this.name = name;
+        this.size = size;
+        this.count = count;
+        this.type = type;
+        this.hasAlpha = hasAlpha;
+        this.hasDepth = hasDepth;
+        this.hasStencil = hasStencil;
+        this.isCompressed = isCompressed;
+    }
 }
 
-export interface IGFXMemoryStatus {
-    bufferSize: number;
-    textureSize: number;
+export class GFXMemoryStatus {
+    public bufferSize: number = 0;
+    public textureSize: number = 0;
 }
 
-// tslint:disable: max-line-length
-export const GFXFormatInfos: IGFXFormatInfo[] = [
+export const GFXFormatInfos = Object.freeze([
 
-    { name: 'UNKNOWN', size: 0, count: 0, type: GFXFormatType.NONE, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
+    new GFXFormatInfo('UNKNOWN', 0, 0, GFXFormatType.NONE, false, false, false, false),
 
-    { name: 'A8', size: 1, count: 1, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'L8', size: 1, count: 1, type: GFXFormatType.UNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'LA8', size: 1, count: 2, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
+    new GFXFormatInfo('A8', 1, 1, GFXFormatType.UNORM, true, false, false, false),
+    new GFXFormatInfo('L8', 1, 1, GFXFormatType.UNORM, false, false, false, false),
+    new GFXFormatInfo('LA8', 1, 2, GFXFormatType.UNORM, true, false, false, false),
 
-    { name: 'R8', size: 1, count: 1, type: GFXFormatType.UNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'R8SN', size: 1, count: 1, type: GFXFormatType.SNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'R8UI', size: 1, count: 1, type: GFXFormatType.UINT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'R8I', size: 1, count: 1, type: GFXFormatType.INT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'R16F', size: 2, count: 1, type: GFXFormatType.FLOAT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'R16UI', size: 2, count: 1, type: GFXFormatType.UINT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'R16I', size: 2, count: 1, type: GFXFormatType.INT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'R32F', size: 4, count: 1, type: GFXFormatType.FLOAT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'R32UI', size: 4, count: 1, type: GFXFormatType.UINT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'R32I', size: 4, count: 1, type: GFXFormatType.INT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
+    new GFXFormatInfo('R8', 1, 1, GFXFormatType.UNORM, false, false, false, false),
+    new GFXFormatInfo('R8SN', 1, 1, GFXFormatType.SNORM, false, false, false, false),
+    new GFXFormatInfo('R8UI', 1, 1, GFXFormatType.UINT, false, false, false, false),
+    new GFXFormatInfo('R8I', 1, 1, GFXFormatType.INT, false, false, false, false),
+    new GFXFormatInfo('R16F', 2, 1, GFXFormatType.FLOAT, false, false, false, false),
+    new GFXFormatInfo('R16UI', 2, 1, GFXFormatType.UINT, false, false, false, false),
+    new GFXFormatInfo('R16I', 2, 1, GFXFormatType.INT, false, false, false, false),
+    new GFXFormatInfo('R32F', 4, 1, GFXFormatType.FLOAT, false, false, false, false),
+    new GFXFormatInfo('R32UI', 4, 1, GFXFormatType.UINT, false, false, false, false),
+    new GFXFormatInfo('R32I', 4, 1, GFXFormatType.INT, false, false, false, false),
 
-    { name: 'RG8', size: 2, count: 2, type: GFXFormatType.UNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RG8SN', size: 2, count: 2, type: GFXFormatType.SNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RG8UI', size: 2, count: 2, type: GFXFormatType.UINT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RG8I', size: 2, count: 2, type: GFXFormatType.INT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RG16F', size: 4, count: 2, type: GFXFormatType.FLOAT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RG16UI', size: 4, count: 2, type: GFXFormatType.UINT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RG16I', size: 4, count: 2, type: GFXFormatType.INT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RG32F', size: 8, count: 2, type: GFXFormatType.FLOAT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RG32UI', size: 8, count: 2, type: GFXFormatType.UINT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RG32I', size: 8, count: 2, type: GFXFormatType.INT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
+    new GFXFormatInfo('RG8', 2, 2, GFXFormatType.UNORM, false, false, false, false),
+    new GFXFormatInfo('RG8SN', 2, 2, GFXFormatType.SNORM, false, false, false, false),
+    new GFXFormatInfo('RG8UI', 2, 2, GFXFormatType.UINT, false, false, false, false),
+    new GFXFormatInfo('RG8I', 2, 2, GFXFormatType.INT, false, false, false, false),
+    new GFXFormatInfo('RG16F', 4, 2, GFXFormatType.FLOAT, false, false, false, false),
+    new GFXFormatInfo('RG16UI', 4, 2, GFXFormatType.UINT, false, false, false, false),
+    new GFXFormatInfo('RG16I', 4, 2, GFXFormatType.INT, false, false, false, false),
+    new GFXFormatInfo('RG32F', 8, 2, GFXFormatType.FLOAT, false, false, false, false),
+    new GFXFormatInfo('RG32UI', 8, 2, GFXFormatType.UINT, false, false, false, false),
+    new GFXFormatInfo('RG32I', 8, 2, GFXFormatType.INT, false, false, false, false),
 
-    { name: 'RGB8', size: 3, count: 3, type: GFXFormatType.UNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'SRGB8', size: 3, count: 3, type: GFXFormatType.UNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGB8SN', size: 3, count: 3, type: GFXFormatType.SNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGB8UI', size: 3, count: 3, type: GFXFormatType.UINT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGB8I', size: 3, count: 3, type: GFXFormatType.INT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGB16F', size: 6, count: 3, type: GFXFormatType.FLOAT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGB16UI', size: 6, count: 3, type: GFXFormatType.UINT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGB16I', size: 6, count: 3, type: GFXFormatType.INT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGB32F', size: 12, count: 3, type: GFXFormatType.FLOAT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGB32UI', size: 12, count: 3, type: GFXFormatType.UINT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGB32I', size: 12, count: 3, type: GFXFormatType.INT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
+    new GFXFormatInfo('RGB8', 3, 3, GFXFormatType.UNORM, false, false, false, false),
+    new GFXFormatInfo('SRGB8', 3, 3, GFXFormatType.UNORM, false, false, false, false),
+    new GFXFormatInfo('RGB8SN', 3, 3, GFXFormatType.SNORM, false, false, false, false),
+    new GFXFormatInfo('RGB8UI', 3, 3, GFXFormatType.UINT, false, false, false, false),
+    new GFXFormatInfo('RGB8I', 3, 3, GFXFormatType.INT, false, false, false, false),
+    new GFXFormatInfo('RGB16F', 6, 3, GFXFormatType.FLOAT, false, false, false, false),
+    new GFXFormatInfo('RGB16UI', 6, 3, GFXFormatType.UINT, false, false, false, false),
+    new GFXFormatInfo('RGB16I', 6, 3, GFXFormatType.INT, false, false, false, false),
+    new GFXFormatInfo('RGB32F', 12, 3, GFXFormatType.FLOAT, false, false, false, false),
+    new GFXFormatInfo('RGB32UI', 12, 3, GFXFormatType.UINT, false, false, false, false),
+    new GFXFormatInfo('RGB32I', 12, 3, GFXFormatType.INT, false, false, false, false),
 
-    { name: 'RGBA8', size: 4, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'BGRA8', size: 4, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'SRGB8_A8', size: 4, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGBA8SN', size: 4, count: 4, type: GFXFormatType.SNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGBA8UI', size: 4, count: 4, type: GFXFormatType.UINT, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGBA8I', size: 4, count: 4, type: GFXFormatType.INT, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGBA16F', size: 8, count: 4, type: GFXFormatType.FLOAT, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGBA16UI', size: 8, count: 4, type: GFXFormatType.UINT, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGBA16I', size: 8, count: 4, type: GFXFormatType.INT, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGBA32F', size: 16, count: 4, type: GFXFormatType.FLOAT, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGBA32UI', size: 16, count: 4, type: GFXFormatType.UINT, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGBA32I', size: 16, count: 4, type: GFXFormatType.INT, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
+    new GFXFormatInfo('RGBA8', 4, 4, GFXFormatType.UNORM, true, false, false, false),
+    new GFXFormatInfo('BGRA8', 4, 4, GFXFormatType.UNORM, true, false, false, false),
+    new GFXFormatInfo('SRGB8_A8', 4, 4, GFXFormatType.UNORM, true, false, false, false),
+    new GFXFormatInfo('RGBA8SN', 4, 4, GFXFormatType.SNORM, true, false, false, false),
+    new GFXFormatInfo('RGBA8UI', 4, 4, GFXFormatType.UINT, true, false, false, false),
+    new GFXFormatInfo('RGBA8I', 4, 4, GFXFormatType.INT, true, false, false, false),
+    new GFXFormatInfo('RGBA16F', 8, 4, GFXFormatType.FLOAT, true, false, false, false),
+    new GFXFormatInfo('RGBA16UI', 8, 4, GFXFormatType.UINT, true, false, false, false),
+    new GFXFormatInfo('RGBA16I', 8, 4, GFXFormatType.INT, true, false, false, false),
+    new GFXFormatInfo('RGBA32F', 16, 4, GFXFormatType.FLOAT, true, false, false, false),
+    new GFXFormatInfo('RGBA32UI', 16, 4, GFXFormatType.UINT, true, false, false, false),
+    new GFXFormatInfo('RGBA32I', 16, 4, GFXFormatType.INT, true, false, false, false),
 
-    { name: 'R5G6B5', size: 2, count: 3, type: GFXFormatType.UNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'R11G11B10F', size: 4, count: 3, type: GFXFormatType.FLOAT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGB5A1', size: 2, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGBA4', size: 2, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGB10A2', size: 2, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGB10A2UI', size: 2, count: 4, type: GFXFormatType.UINT, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'RGB9E5', size: 2, count: 4, type: GFXFormatType.FLOAT, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
+    new GFXFormatInfo('R5G6B5', 2, 3, GFXFormatType.UNORM, false, false, false, false),
+    new GFXFormatInfo('R11G11B10F', 4, 3, GFXFormatType.FLOAT, false, false, false, false),
+    new GFXFormatInfo('RGB5A1', 2, 4, GFXFormatType.UNORM, true, false, false, false),
+    new GFXFormatInfo('RGBA4', 2, 4, GFXFormatType.UNORM, true, false, false, false),
+    new GFXFormatInfo('RGB10A2', 2, 4, GFXFormatType.UNORM, true, false, false, false),
+    new GFXFormatInfo('RGB10A2UI', 2, 4, GFXFormatType.UINT, true, false, false, false),
+    new GFXFormatInfo('RGB9E5', 2, 4, GFXFormatType.FLOAT, true, false, false, false),
 
-    { name: 'D16', size: 2, count: 1, type: GFXFormatType.UINT, hasAlpha: false, hasDepth: true, hasStencil: false, isCompressed: false },
-    { name: 'D16S8', size: 3, count: 2, type: GFXFormatType.UINT, hasAlpha: false, hasDepth: true, hasStencil: true, isCompressed: false },
-    { name: 'D24', size: 3, count: 1, type: GFXFormatType.UINT, hasAlpha: false, hasDepth: true, hasStencil: false, isCompressed: false },
-    { name: 'D24S8', size: 4, count: 2, type: GFXFormatType.UINT, hasAlpha: false, hasDepth: true, hasStencil: true, isCompressed: false },
-    { name: 'D32F', size: 4, count: 1, type: GFXFormatType.FLOAT, hasAlpha: false, hasDepth: true, hasStencil: false, isCompressed: false },
-    { name: 'D32FS8', size: 5, count: 2, type: GFXFormatType.FLOAT, hasAlpha: false, hasDepth: true, hasStencil: true, isCompressed: false },
+    new GFXFormatInfo('D16', 2, 1, GFXFormatType.UINT, false, true, false, false),
+    new GFXFormatInfo('D16S8', 3, 2, GFXFormatType.UINT, false, true, true, false),
+    new GFXFormatInfo('D24', 3, 1, GFXFormatType.UINT, false, true, false, false),
+    new GFXFormatInfo('D24S8', 4, 2, GFXFormatType.UINT, false, true, true, false),
+    new GFXFormatInfo('D32F', 4, 1, GFXFormatType.FLOAT, false, true, false, false),
+    new GFXFormatInfo('D32FS8', 5, 2, GFXFormatType.FLOAT, false, true, true, false),
 
-    { name: 'BC1', size: 1, count: 3, type: GFXFormatType.UNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'BC1_ALPHA', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'BC1_SRGB', size: 1, count: 3, type: GFXFormatType.UNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'BC1_SRGB_ALPHA', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'BC2', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'BC2_SRGB', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'BC3', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'BC3_SRGB', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'BC4', size: 1, count: 1, type: GFXFormatType.UNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'BC4_SNORM', size: 1, count: 1, type: GFXFormatType.SNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'BC5', size: 1, count: 2, type: GFXFormatType.UNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'BC5_SNORM', size: 1, count: 2, type: GFXFormatType.SNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'BC6H_UF16', size: 1, count: 3, type: GFXFormatType.UFLOAT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'BC6H_SF16', size: 1, count: 3, type: GFXFormatType.FLOAT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'BC7', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'BC7_SRGB', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    new GFXFormatInfo('BC1', 1, 3, GFXFormatType.UNORM, false, false, false, true),
+    new GFXFormatInfo('BC1_ALPHA', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('BC1_SRGB', 1, 3, GFXFormatType.UNORM, false, false, false, true),
+    new GFXFormatInfo('BC1_SRGB_ALPHA', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('BC2', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('BC2_SRGB', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('BC3', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('BC3_SRGB', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('BC4', 1, 1, GFXFormatType.UNORM, false, false, false, true),
+    new GFXFormatInfo('BC4_SNORM', 1, 1, GFXFormatType.SNORM, false, false, false, true),
+    new GFXFormatInfo('BC5', 1, 2, GFXFormatType.UNORM, false, false, false, true),
+    new GFXFormatInfo('BC5_SNORM', 1, 2, GFXFormatType.SNORM, false, false, false, true),
+    new GFXFormatInfo('BC6H_UF16', 1, 3, GFXFormatType.UFLOAT, false, false, false, true),
+    new GFXFormatInfo('BC6H_SF16', 1, 3, GFXFormatType.FLOAT, false, false, false, true),
+    new GFXFormatInfo('BC7', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('BC7_SRGB', 1, 4, GFXFormatType.UNORM, true, false, false, true),
 
-    { name: 'ETC_RGB8', size: 1, count: 3, type: GFXFormatType.UNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ETC2_RGB8', size: 1, count: 3, type: GFXFormatType.UNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ETC2_SRGB8', size: 1, count: 3, type: GFXFormatType.UNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ETC2_RGB8_A1', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ETC2_SRGB8_A1', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ETC2_RGBA8', size: 2, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ETC2_SRGB8_A8', size: 2, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'EAC_R11', size: 1, count: 1, type: GFXFormatType.UNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'EAC_R11SN', size: 1, count: 1, type: GFXFormatType.SNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'EAC_RG11', size: 2, count: 2, type: GFXFormatType.UNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'EAC_RG11SN', size: 2, count: 2, type: GFXFormatType.SNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: true },
+    new GFXFormatInfo('ETC_RGB8', 1, 3, GFXFormatType.UNORM, false, false, false, true),
+    new GFXFormatInfo('ETC2_RGB8', 1, 3, GFXFormatType.UNORM, false, false, false, true),
+    new GFXFormatInfo('ETC2_SRGB8', 1, 3, GFXFormatType.UNORM, false, false, false, true),
+    new GFXFormatInfo('ETC2_RGB8_A1', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ETC2_SRGB8_A1', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ETC2_RGBA8', 2, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ETC2_SRGB8_A8', 2, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('EAC_R11', 1, 1, GFXFormatType.UNORM, false, false, false, true),
+    new GFXFormatInfo('EAC_R11SN', 1, 1, GFXFormatType.SNORM, false, false, false, true),
+    new GFXFormatInfo('EAC_RG11', 2, 2, GFXFormatType.UNORM, false, false, false, true),
+    new GFXFormatInfo('EAC_RG11SN', 2, 2, GFXFormatType.SNORM, false, false, false, true),
 
-    { name: 'PVRTC_RGB2', size: 2, count: 3, type: GFXFormatType.UNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'PVRTC_RGBA2', size: 2, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'PVRTC_RGB4', size: 2, count: 3, type: GFXFormatType.UNORM, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'PVRTC_RGBA4', size: 2, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'PVRTC2_2BPP', size: 2, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'PVRTC2_4BPP', size: 2, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    new GFXFormatInfo('PVRTC_RGB2', 2, 3, GFXFormatType.UNORM, false, false, false, true),
+    new GFXFormatInfo('PVRTC_RGBA2', 2, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('PVRTC_RGB4', 2, 3, GFXFormatType.UNORM, false, false, false, true),
+    new GFXFormatInfo('PVRTC_RGBA4', 2, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('PVRTC2_2BPP', 2, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('PVRTC2_4BPP', 2, 4, GFXFormatType.UNORM, true, false, false, true),
 
-    { name: 'ASTC_RGBA_4x4', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_RGBA_5x4', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_RGBA_5x5', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_RGBA_6x5', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_RGBA_6x6', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_RGBA_8x5', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_RGBA_8x6', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_RGBA_8x8', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_RGBA_10x5', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_RGBA_10x6', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_RGBA_10x8', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_RGBA_10x10', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_RGBA_12x10', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_RGBA_12x12', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
+    new GFXFormatInfo('ASTC_RGBA_4x4', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_RGBA_5x4', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_RGBA_5x5', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_RGBA_6x5', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_RGBA_6x6', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_RGBA_8x5', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_RGBA_8x6', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_RGBA_8x8', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_RGBA_10x5', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_RGBA_10x6', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_RGBA_10x8', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_RGBA_10x10', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_RGBA_12x10', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_RGBA_12x12', 1, 4, GFXFormatType.UNORM, true, false, false, true),
 
-    { name: 'ASTC_SRGBA_4x4', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_SRGBA_5x4', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_SRGBA_5x5', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_SRGBA_6x5', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_SRGBA_6x6', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_SRGBA_8x5', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_SRGBA_8x6', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_SRGBA_8x8', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_SRGBA_10x5', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_SRGBA_10x6', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_SRGBA_10x8', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_SRGBA_10x10', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_SRGBA_12x10', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-    { name: 'ASTC_SRGBA_12x12', size: 1, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
-];
-// tslint:enable: max-line-length
+    new GFXFormatInfo('ASTC_SRGBA_4x4', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_SRGBA_5x4', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_SRGBA_5x5', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_SRGBA_6x5', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_SRGBA_6x6', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_SRGBA_8x5', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_SRGBA_8x6', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_SRGBA_8x8', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_SRGBA_10x5', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_SRGBA_10x6', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_SRGBA_10x8', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_SRGBA_10x10', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_SRGBA_12x10', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new GFXFormatInfo('ASTC_SRGBA_12x12', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+]);
 
 /**
  * @en Get memory size of the specified fomat.
@@ -946,7 +1015,7 @@ export function GFXGetTypeSize (type: GFXType): number {
     return _type2size[type] || 0;
 }
 
-export function getTypedArrayConstructor (info: IGFXFormatInfo): TypedArrayConstructor {
+export function getTypedArrayConstructor (info: GFXFormatInfo): TypedArrayConstructor {
     const stride = info.size / info.count;
     switch (info.type) {
         case GFXFormatType.UNORM:

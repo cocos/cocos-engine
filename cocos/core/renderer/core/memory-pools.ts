@@ -28,7 +28,7 @@
  */
 
 import { DEBUG } from 'internal:constants';
-import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXDescriptorSetInfo, GFXDevice, GFXDescriptorSet, IGFXShaderInfo, GFXShader } from '../../gfx';
+import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXDescriptorSetInfo, GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader } from '../../gfx';
 import { NativeBufferPool, NativeObjectPool } from './native-pools';
 
 interface TypedArrayConstructor<T> {
@@ -208,7 +208,7 @@ export const DescriptorSetPool = new ObjectPool(PoolDataType.DESCRIPTOR_SETS,
     (descriptorSet: GFXDescriptorSet) => descriptorSet && descriptorSet.destroy(),
 );
 export const ShaderPool = new ObjectPool(PoolDataType.SHADER,
-    (args: [GFXDevice, IGFXShaderInfo], obj?: GFXShader) => obj ? (obj.initialize(args[1]), obj) : args[0].createShader(args[1]),
+    (args: [GFXDevice, GFXShaderInfo], obj?: GFXShader) => obj ? (obj.initialize(args[1]), obj) : args[0].createShader(args[1]),
     (shader: GFXShader) => shader && shader.destroy(),
 );
 
@@ -229,7 +229,7 @@ export const PassInfoPool = new BufferPool(PoolDataType.PASS_INFO, Uint32Array, 
 
 export enum PSOCIView {
     PASS_INFO,      // index into type-specific pool
-    DESCRIPTOR_SETS, // index into type-specific pool
+    DESCRIPTOR_SET, // index into type-specific pool
     SHADER,        // index into type-specific pool
     COUNT,
 }

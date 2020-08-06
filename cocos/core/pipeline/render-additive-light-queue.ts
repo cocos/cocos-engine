@@ -84,7 +84,7 @@ export class RenderAdditiveLightQueue {
                 const ia = this._sortedSubModelsArray[i][j].inputAssembler!;
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, psoCI, renderPass, ia);
                 cmdBuff.bindPipelineState(pso);
-                cmdBuff.bindDescriptorSets(DescriptorSetPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SETS)));
+                cmdBuff.bindDescriptorSets(DescriptorSetPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SET)));
                 cmdBuff.bindInputAssembler(ia);
                 cmdBuff.draw(ia);
             }
@@ -99,7 +99,7 @@ export class RenderAdditiveLightQueue {
         const fullPatches = modelPatches ? patches.concat(modelPatches) : patches;
         const psoCI = pass.createPipelineStateCI(fullPatches)!;
         renderObj.model.updateLocalBindings(psoCI, subModelIdx);
-        const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SETS));
+        const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SET));
         descriptorSet.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
         descriptorSet.update();
 

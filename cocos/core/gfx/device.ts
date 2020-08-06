@@ -6,7 +6,7 @@ import { ccenum } from '../value-types/enum';
 import { GFXDescriptorSet, IGFXDescriptorSetInfo } from './descriptor-set';
 import { GFXBuffer, IGFXBufferInfo } from './buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from './command-buffer';
-import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFilter, GFXFormat, IGFXMemoryStatus, IGFXRect } from './define';
+import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFilter, GFXFormat, GFXMemoryStatus, GFXRect } from './define';
 import { GFXFence, IGFXFenceInfo } from './fence';
 import { GFXFramebuffer, IGFXFramebufferInfo } from './framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from './input-assembler';
@@ -14,7 +14,7 @@ import { GFXPipelineState, IGFXPipelineStateInfo } from './pipeline-state';
 import { GFXQueue, IGFXQueueInfo } from './queue';
 import { GFXRenderPass, IGFXRenderPassInfo } from './render-pass';
 import { GFXSampler, IGFXSamplerInfo } from './sampler';
-import { GFXShader, IGFXShaderInfo } from './shader';
+import { GFXShader, GFXShaderInfo } from './shader';
 import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from './texture';
 
 ccenum(GFXFormat);
@@ -301,7 +301,7 @@ export abstract class GFXDevice {
      * @en Total memory size currently allocated.
      * @zh 内存状态。
      */
-    get memoryStatus (): IGFXMemoryStatus {
+    get memoryStatus (): GFXMemoryStatus {
         return this._memoryStatus;
     }
 
@@ -361,7 +361,7 @@ export abstract class GFXDevice {
     protected _numDrawCalls: number = 0;
     protected _numInstances: number = 0;
     protected _numTris: number = 0;
-    protected _memoryStatus: IGFXMemoryStatus = {
+    protected _memoryStatus: GFXMemoryStatus = {
         bufferSize: 0,
         textureSize: 0,
     };
@@ -433,7 +433,7 @@ export abstract class GFXDevice {
      * @zh 创建着色器。
      * @param info GFX shader description info.
      */
-    public abstract createShader (info: IGFXShaderInfo): GFXShader;
+    public abstract createShader (info: GFXShaderInfo): GFXShader;
 
     /**
      * @en Create input assembler.
@@ -513,7 +513,7 @@ export abstract class GFXDevice {
      * @param dstRect The target region.
      * @param filter Filtering mode for the process.
      */
-    public abstract blitFramebuffer (src: GFXFramebuffer, dst: GFXFramebuffer, srcRect: IGFXRect, dstRect: IGFXRect, filter: GFXFilter): void;
+    public abstract blitFramebuffer (src: GFXFramebuffer, dst: GFXFramebuffer, srcRect: GFXRect, dstRect: GFXRect, filter: GFXFilter): void;
 
     /**
      * @en Whether the device has specific feature.

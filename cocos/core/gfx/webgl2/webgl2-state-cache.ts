@@ -1,4 +1,4 @@
-import { GFX_MAX_BUFFER_BINDINGS, GFX_MAX_TEXTURE_UNITS, GFX_MAX_VERTEX_ATTRIBUTES, IGFXRect, IGFXViewport } from '../define';
+import { GFX_MAX_BUFFER_BINDINGS, GFX_MAX_TEXTURE_UNITS, GFX_MAX_VERTEX_ATTRIBUTES, GFXRect, GFXViewport } from '../define';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
 
 export interface IWebGL2TexUnit {
@@ -17,8 +17,8 @@ export class WebGL2StateCache {
     public glRenderbuffer: WebGLRenderbuffer | null = null;
     public glFramebuffer: WebGLFramebuffer | null = null;
     public glReadFramebuffer: WebGLFramebuffer | null = null;
-    public viewport: IGFXViewport;
-    public scissorRect: IGFXRect;
+    public viewport: GFXViewport;
+    public scissorRect: GFXRect;
     public rs: GFXRasterizerState;
     public dss: GFXDepthStencilState;
     public bs: GFXBlendState;

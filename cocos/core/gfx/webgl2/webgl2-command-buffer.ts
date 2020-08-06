@@ -7,17 +7,17 @@ import {
     GFXCommandBufferType,
     GFXStatus,
     GFXStencilFace,
-    IGFXColor,
-    IGFXRect,
-    IGFXViewport,
+    GFXColor,
+    GFXRect,
+    GFXViewport,
 } from '../define';
 import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
 import { GFXPipelineState } from '../pipeline-state';
 import { GFXTexture } from '../texture';
-import { WebGL2GFXDescriptorSet } from './webgl2-descriptor-set';
-import { WebGL2GFXBuffer } from './webgl2-buffer';
-import { WebGL2GFXCommandAllocator } from './webgl2-command-allocator';
+import { WebGL2DescriptorSet } from './webgl2-descriptor-set';
+import { WebGL2Buffer } from './webgl2-buffer';
+import { WebGL2CommandAllocator } from './webgl2-command-allocator';
 import {
     WebGL2Cmd,
     WebGL2CmdBeginRenderPass,
@@ -27,14 +27,14 @@ import {
     WebGL2CmdPackage,
     WebGL2CmdUpdateBuffer,
 } from './webgl2-commands';
-import { WebGL2GFXDevice } from './webgl2-device';
-import { WebGL2GFXFramebuffer } from './webgl2-framebuffer';
-import { IWebGL2GPUInputAssembler, WebGL2GPUDescriptorSet, WebGL2GPUPipelineState } from './webgl2-gpu-objects';
-import { WebGL2GFXInputAssembler } from './webgl2-input-assembler';
-import { WebGL2GFXPipelineState } from './webgl2-pipeline-state';
-import { WebGL2GFXTexture } from './webgl2-texture';
+import { WebGL2Device } from './webgl2-device';
+import { WebGL2Framebuffer } from './webgl2-framebuffer';
+import { IWebGL2GPUInputAssembler, IWebGL2GPUDescriptorSet, IWebGL2GPUPipelineState } from './webgl2-gpu-objects';
+import { WebGL2InputAssembler } from './webgl2-input-assembler';
+import { WebGL2PipelineState } from './webgl2-pipeline-state';
+import { WebGL2Texture } from './webgl2-texture';
 import { GFXRenderPass } from '../render-pass';
-import { WebGL2GFXRenderPass } from './webgl2-render-pass';
+import { WebGL2RenderPass } from './webgl2-render-pass';
 
 export interface IWebGL2DepthBias {
     constantFactor: number;
@@ -58,16 +58,16 @@ export interface IWebGL2StencilCompareMask {
     compareMask: number;
 }
 
-export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
+export class WebGL2CommandBuffer extends GFXCommandBuffer {
 
     public cmdPackage: WebGL2CmdPackage = new WebGL2CmdPackage();
-    protected _webGLAllocator: WebGL2GFXCommandAllocator | null = null;
+    protected _webGLAllocator: WebGL2CommandAllocator | null = null;
     protected _isInRenderPass: boolean = false;
-    protected _curGPUPipelineState: WebGL2GPUPipelineState | null = null;
-    protected _curGPUDescriptorSets: WebGL2GPUDescriptorSet[] | null = null;
+    protected _curGPUPipelineState: IWebGL2GPUPipelineState | null = null;
+    protected _curGPUDescriptorSets: IWebGL2GPUDescriptorSet[] = [];
     protected _curGPUInputAssembler: IWebGL2GPUInputAssembler | null = null;
-    protected _curViewport: IGFXViewport | null = null;
-    protected _curScissor: IGFXRect | null = null;
+    protected _curViewport: GFXViewport | null = null;
+    protected _curScissor: GFXRect | null = null;
     protected _curLineWidth: number | null = null;
     protected _curDepthBias: IWebGL2DepthBias | null = null;
     protected _curBlendConstants: number[] = [];
@@ -81,7 +81,7 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
         this._type = info.type;
         this._queue = info.queue;
 
-        this._webGLAllocator = (this._device as WebGL2GFXDevice).cmdAllocator;
+        this._webGLAllocator = (this._device as WebGL2Device).cmdAllocator;
 
         this._status = GFXStatus.SUCCESS;
 
@@ -99,13 +99,13 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
     public begin (renderPass?: GFXRenderPass, subpass = 0, frameBuffer?: GFXFramebuffer) {
         this._webGLAllocator!.clearCmds(this.cmdPackage);
         this._curGPUPipelineState = null;
-        this._curGPUDescriptorSets = null;
+        this._curGPUDescriptorSets.length = 0;
         this._curGPUInputAssembler = null;
         this._curViewport = null;
         this._curScissor = null;
         this._curLineWidth = null;
         this._curDepthBias = null;
-        this._curBlendConstants = [];
+        this._curBlendConstants.length = 0;
         this._curDepthBounds = null;
         this._curStencilWriteMask = null;
         this._curStencilCompareMask = null;
@@ -125,13 +125,13 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
     public beginRenderPass (
         renderPass: GFXRenderPass,
         framebuffer: GFXFramebuffer,
-        renderArea: IGFXRect,
-        clearColors: IGFXColor[],
+        renderArea: GFXRect,
+        clearColors: GFXColor[],
         clearDepth: number,
         clearStencil: number) {
         const cmd = this._webGLAllocator!.beginRenderPassCmdPool.alloc(WebGL2CmdBeginRenderPass);
-        cmd.gpuRenderPass = (renderPass as WebGL2GFXRenderPass).gpuRenderPass;
-        cmd.gpuFramebuffer = (framebuffer as WebGL2GFXFramebuffer).gpuFramebuffer;
+        cmd.gpuRenderPass = (renderPass as WebGL2RenderPass).gpuRenderPass;
+        cmd.gpuFramebuffer = (framebuffer as WebGL2Framebuffer).gpuFramebuffer;
         cmd.renderArea = renderArea;
         for (let i = 0; i < clearColors.length; ++i) {
             cmd.clearColors[i] = clearColors[i];
@@ -150,7 +150,7 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
     }
 
     public bindPipelineState (pipelineState: GFXPipelineState) {
-        const gpuPipelineState = (pipelineState as WebGL2GFXPipelineState).gpuPipelineState;
+        const gpuPipelineState = (pipelineState as WebGL2PipelineState).gpuPipelineState;
         if (gpuPipelineState !== this._curGPUPipelineState) {
             this._curGPUPipelineState = gpuPipelineState;
             this._isStateInvalied = true;
@@ -158,18 +158,21 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
     }
 
     public bindDescriptorSets (descriptorSets: GFXDescriptorSet[]) {
-        const gpuDescriptorSets = (descriptorSets as WebGL2GFXDescriptorSet).gpuDescriptorSet;
-        this._curGPUDescriptorSets = gpuDescriptorSets;
+        for (let i = 0; i < descriptorSets.length; i++) {
+            const gpuDescriptorSets = (descriptorSets[i] as WebGL2DescriptorSet).gpuDescriptorSet;
+            this._curGPUDescriptorSets[i] = gpuDescriptorSets;
+        }
+        this._curGPUDescriptorSets.length = descriptorSets.length;
         this._isStateInvalied = true;
     }
 
     public bindInputAssembler (inputAssembler: GFXInputAssembler) {
-        const gpuInputAssembler = (inputAssembler as WebGL2GFXInputAssembler).gpuInputAssembler;
+        const gpuInputAssembler = (inputAssembler as WebGL2InputAssembler).gpuInputAssembler;
         this._curGPUInputAssembler = gpuInputAssembler;
         this._isStateInvalied = true;
     }
 
-    public setViewport (viewport: IGFXViewport) {
+    public setViewport (viewport: GFXViewport) {
         if (!this._curViewport) {
             this._curViewport = {
                 left: viewport.left,
@@ -198,7 +201,7 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public setScissor (scissor: IGFXRect) {
+    public setScissor (scissor: GFXRect) {
         if (!this._curScissor) {
             this._curScissor = {
                 x: scissor.x,
@@ -249,19 +252,14 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
     }
 
     public setBlendConstants (blendConstants: number[]) {
-        if (!this._curBlendConstants &&
-            blendConstants.length === 4) {
-            this._curBlendConstants = [blendConstants[0], blendConstants[1], blendConstants[2], blendConstants[3]];
+        if (blendConstants.length === 4 && (
+            this._curBlendConstants[0] !== blendConstants[0] ||
+            this._curBlendConstants[1] !== blendConstants[1] ||
+            this._curBlendConstants[2] !== blendConstants[2] ||
+            this._curBlendConstants[3] !== blendConstants[3])) {
+            this._curBlendConstants.length = 0;
+            Array.prototype.push.apply(this._curBlendConstants, blendConstants);
             this._isStateInvalied = true;
-        } else {
-            if (blendConstants.length === 4 && (
-                this._curBlendConstants[0] !== blendConstants[0] ||
-                this._curBlendConstants[1] !== blendConstants[1] ||
-                this._curBlendConstants[2] !== blendConstants[2] ||
-                this._curBlendConstants[3] !== blendConstants[3])) {
-                this._curBlendConstants = [blendConstants[0], blendConstants[1], blendConstants[2], blendConstants[3]];
-                this._isStateInvalied = true;
-            }
         }
     }
 
@@ -368,7 +366,7 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
     public updateBuffer (buffer: GFXBuffer, data: GFXBufferSource, offset?: number, size?: number) {
         if (this._type === GFXCommandBufferType.PRIMARY && !this._isInRenderPass ||
             this._type === GFXCommandBufferType.SECONDARY) {
-            const gpuBuffer = (buffer as WebGL2GFXBuffer).gpuBuffer;
+            const gpuBuffer = (buffer as WebGL2Buffer).gpuBuffer;
             if (gpuBuffer) {
                 const cmd = this._webGLAllocator!.updateBufferCmdPool.alloc(WebGL2CmdUpdateBuffer);
                 let buffSize;
@@ -399,7 +397,7 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
 
         if (this._type === GFXCommandBufferType.PRIMARY && !this._isInRenderPass ||
             this._type === GFXCommandBufferType.SECONDARY) {
-            const gpuTexture = (texture as WebGL2GFXTexture).gpuTexture;
+            const gpuTexture = (texture as WebGL2Texture).gpuTexture;
             if (gpuTexture) {
                 const cmd = this._webGLAllocator!.copyBufferToTextureCmdPool.alloc(WebGL2CmdCopyBufferToTexture);
                 cmd.gpuTexture = gpuTexture;
@@ -417,7 +415,7 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
     public execute (cmdBuffs: GFXCommandBuffer[], count: number) {
 
         for (let i = 0; i < count; ++i) {
-            const webGL2CmdBuff = cmdBuffs[i] as WebGL2GFXCommandBuffer;
+            const webGL2CmdBuff = cmdBuffs[i] as WebGL2CommandBuffer;
 
             for (let c = 0; c < webGL2CmdBuff.cmdPackage.beginRenderPassCmds.length; ++c) {
                 const cmd = webGL2CmdBuff.cmdPackage.beginRenderPassCmds.array[c];
@@ -457,20 +455,20 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public get webGLDevice (): WebGL2GFXDevice {
-        return this._device as WebGL2GFXDevice;
+    public get webGLDevice (): WebGL2Device {
+        return this._device as WebGL2Device;
     }
 
     protected bindStates () {
         const bindStatesCmd = this._webGLAllocator!.bindStatesCmdPool.alloc(WebGL2CmdBindStates);
         bindStatesCmd.gpuPipelineState = this._curGPUPipelineState;
-        bindStatesCmd.gpuDescriptorSets = this._curGPUDescriptorSets;
+        Array.prototype.push.apply(bindStatesCmd.gpuDescriptorSets, this._curGPUDescriptorSets);
         bindStatesCmd.gpuInputAssembler = this._curGPUInputAssembler;
         bindStatesCmd.viewport = this._curViewport;
         bindStatesCmd.scissor = this._curScissor;
         bindStatesCmd.lineWidth = this._curLineWidth;
         bindStatesCmd.depthBias = this._curDepthBias;
-        bindStatesCmd.blendConstants = this._curBlendConstants;
+        Array.prototype.push.apply(bindStatesCmd.blendConstants, this._curBlendConstants);
         bindStatesCmd.depthBounds = this._curDepthBounds;
         bindStatesCmd.stencilWriteMask = this._curStencilWriteMask;
         bindStatesCmd.stencilCompareMask = this._curStencilCompareMask;
