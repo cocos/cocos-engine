@@ -70,6 +70,8 @@ enum class RenderFlowType : uint8_t {
 
 typedef vector<RenderStage *> RenderStageList;
 typedef vector<RenderFlow *> RenderFlowList;
+typedef vector<Light *> LightList;
+typedef vector<uint> UintList;
 
 enum class CC_DLL RenderPassStage {
     DEFAULT = 100,
@@ -105,6 +107,42 @@ enum class CC_DLL RenderPriority {
     MAX = 0xff,
     DEFAULT = 0x80,
 };
+
+enum class CC_DLL RenderQueueSortMode {
+    FRONT_TO_BACK,
+    BACK_TO_FRONT,
+};
+
+struct CC_DLL RenderQueueDesc {
+    bool isTransparent = false;
+    RenderQueueSortMode sortMode = RenderQueueSortMode::FRONT_TO_BACK;
+    vector<String> stages;
+};
+typedef vector<RenderQueueDesc> RenderQueueDescList;
+
+class CC_DLL PassPhase {
+public:
+    static uint getPhaseID(const String &phaseName) {
+        if(phases.find(phaseName) == phases.end()) {
+            phases[phaseName] = 1 << phaseNum++;
+        }
+        return phases[phaseName];
+    }
+
+private:
+    static map<String, uint> phases;
+    static uint phaseNum;
+};
+map<String, uint> PassPhase::phases;
+uint PassPhase::phaseNum = 0;
+
+CC_INLINE int opaqueCompareFn(const RenderPass &a, const RenderPass &b) {
+    return (a.hash - b.hash) || (a.depth - b.depth) || (a.shaderID - b.shaderID);
+}
+
+CC_INLINE int transparentCompareFn(const RenderPass& a, const RenderPass& b) {
+    return (a.hash - b.hash) || (b.depth - a.depth) || (a.shaderID - b.shaderID);
+}
 
 } // namespace pipeline
 } // namespace cc

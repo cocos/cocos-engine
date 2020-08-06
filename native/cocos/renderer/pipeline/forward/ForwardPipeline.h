@@ -4,6 +4,7 @@
 
 namespace cc {
 namespace pipeline {
+struct Light;
 
 class CC_DLL ForwardPipeline : public RenderPipeline {
 public:
@@ -13,14 +14,36 @@ public:
     virtual bool initialize(const RenderPipelineInfo *info) override;
     virtual void destroy() override;
     virtual bool activate() override;
+    
+    gfx::RenderPass *getOrCreateRenderPass(gfx::ClearFlags clearFlags);
 
-    CC_INLINE gfx::Buffer *getLightsUBO() { return _lightsUBO; }
+    CC_INLINE gfx::Buffer *getLightsUBO() const { return _lightsUBO; }
+    CC_INLINE const LightList &getValidLights() const { return _validLights; }
+    CC_INLINE const gfx::BufferList &getLightBuffers() const { return _lightBuffers; }
+    CC_INLINE const UintList &getLightIndexOffsets() const { return _lightIndexOffsets; }
+    CC_INLINE const UintList &getLightIndices() const { return _lightIndices; }
+    CC_INLINE const RenderObjectList &getRenderObjects() const { return _renderObjects; }
+    CC_INLINE const gfx::CommandBufferList &getCommandBuffers() const { return _commandBuffers; }
+    CC_INLINE float getShadingScale() const { return _shadingScale; }
+    CC_INLINE float getFpScale() const { return _fpScale; }
+    CC_INLINE bool isHDR() const { return _isHDR; }
 
 private:
 //    void cullLightPerModel(cc::Model *model);
 
 private:
     gfx::Buffer *_lightsUBO = nullptr;
+    LightList _validLights;
+    gfx::BufferList _lightBuffers;
+    UintList _lightIndexOffsets;
+    UintList _lightIndices;
+    RenderObjectList _renderObjects;
+    gfx::CommandBufferList _commandBuffers;
+    map<gfx::ClearFlags, gfx::RenderPass*> _renderPasses;
+    
+    float _shadingScale = 1.0f;
+    bool _isHDR = false;
+    float _fpScale = 1.0f / 1024.0f;
 };
 
 } // namespace pipeline

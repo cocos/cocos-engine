@@ -3,10 +3,9 @@
 #include "Define.h"
 
 namespace cc {
-class Pass;
-class SubModel;
-
 namespace pipeline {
+struct Pass;
+struct SubModel;
 
 struct CC_DLL BatchedItem {
     gfx::BufferList vbs;
@@ -22,21 +21,24 @@ typedef vector<BatchedItem> BatchedItemList;
 
 class CC_DLL BatchedBuffer : public Object {
 public:
-    BatchedBuffer(cc::Pass *pass);
-    ~BatchedBuffer() = default;
+    static BatchedBuffer *get(const Pass *pass);
+
+    BatchedBuffer(const Pass *pass);
+    virtual ~BatchedBuffer();
 
     void destroy();
-    void merge(cc::SubModel *, uint passIdx, RenderObject *);
+    void merge(const SubModel *, uint passIdx, const RenderObject *);
     void clear();
     void clearUBO();
 
     CC_INLINE const BatchedItemList &getBaches() const { return _batchedItems; }
-    CC_INLINE cc::Pass *getPass() const { return _pass; }
+    CC_INLINE Pass *getPass() const { return _pass; }
 
 private:
+    static map<const Pass*, std::shared_ptr<BatchedBuffer>> _buffers;
     //    const _localBatched = new UBOLocalBatched();
     BatchedItemList _batchedItems;
-    cc::Pass *_pass = nullptr;
+    Pass *_pass = nullptr;
 };
 
 } // namespace pipeline

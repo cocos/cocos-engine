@@ -3,19 +3,20 @@
 #include "Define.h"
 
 namespace cc {
-class Pass;
-struct InstancedAttributeBlock;
-struct PSOCreateInfo;
-class SubModel;
 
 namespace pipeline {
+struct SubModel;
+struct Pass;
+struct InstancedAttributeBlock;
+struct PipelineStateInfo;
 
 struct CC_DLL InstancedItem {
-    gfx::Buffer *vb = nullptr;
-    uint8_t *data = nullptr;
-    gfx::InputAssembler *ia = nullptr;
     uint count = 0;
     uint capacity = 0;
+    gfx::Buffer *vb = nullptr;
+    std::shared_ptr<uint8_t> data;
+    size_t size = 0;
+    gfx::InputAssembler *ia = nullptr;
     uint stride = 0;
 };
 typedef vector<InstancedItem> InstancedItemList;
@@ -24,23 +25,25 @@ class InstancedBuffer : public Object {
 public:
     static const uint INITIAL_CAPACITY = 32;
     static const uint MAX_CAPACITY = 1024;
+    static InstancedBuffer *get(const Pass *pass);
 
-    InstancedBuffer(cc::Pass *pass);
-    ~InstancedBuffer() = default;
+    InstancedBuffer(const Pass *pass);
+    virtual ~InstancedBuffer();
 
     void destroy();
-    void merge(cc::SubModel *, const cc::InstancedAttributeBlock &, const cc::PSOCreateInfo &);
+    void merge(const SubModel *, const InstancedAttributeBlock &, const PipelineStateInfo *);
     void uploadBuffers();
     void clear();
 
     CC_INLINE const InstancedItemList &getInstances() const { return _instancedItems; }
-    //    CC_INLINE const cc::PSOCreateInfo &getPSOCreateInfo() const { return _PSOCreateInfo; }
-    CC_INLINE cc::Pass *getPass() const { return _pass; }
+    CC_INLINE const PipelineStateInfo *getPSOCI() const { return _psoci; }
+    CC_INLINE Pass *getPass() const { return _pass; }
 
 private:
+    static map<const Pass *, std::shared_ptr<InstancedBuffer>> _buffers;
     InstancedItemList _instancedItems;
-    //    cc::PSOCreateInfo _PSOCreateInfo;
-    cc::Pass *_pass = nullptr;
+    Pass *_pass = nullptr;
+    const PipelineStateInfo *_psoci = nullptr;
 };
 
 } // namespace pipeline

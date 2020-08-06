@@ -14,9 +14,9 @@ namespace pipeline {
 
 class CC_DLL PipelineStateManager {
 public:
-    static gfx::PipelineState *getOrCreatePipelineStage(const gfx::PipelineStateInfo *psoci,
+    static gfx::PipelineState *getOrCreatePipelineStage(uint psociID,
+                                                        uint passID,
                                                         const gfx::InputAssembler *inputAssembler,
-                                                        size_t passHash,
                                                         gfx::RenderPass *renderPass);
 
 private:

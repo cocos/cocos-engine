@@ -7,31 +7,33 @@
 namespace cc {
 namespace pipeline {
 map<uint, gfx::PipelineState *> PipelineStateManager::_PSOHashMap;
-gfx::PipelineState *PipelineStateManager::getOrCreatePipelineStage(const gfx::PipelineStateInfo *psoci,
+gfx::PipelineState *PipelineStateManager::getOrCreatePipelineStage(uint psociID,
+                                                                   uint passID,
                                                                    const gfx::InputAssembler *inputAssembler,
-                                                                   size_t passHash,
                                                                    gfx::RenderPass *renderPass) {
-    const auto renderPassHash = renderPass->getHash();
-    const auto iaHash = inputAssembler->getAttributesHash();
-    const auto hash = passHash ^ renderPassHash ^ iaHash;
+   const auto *psoci = GET_PSOCI(psociID, 0);
+   const auto *pass = GET_PASS(psoci->passID, 0);
+   const auto passHash = pass->hash;
+   const auto iaHash = inputAssembler->getAttributesHash();
+   const auto hash = passHash ^ passHash ^ iaHash;
 
-    auto pso = _PSOHashMap[hash];
-    if (!pso) {
-        gfx::PipelineStateInfo info = {
-            psoci->primitive,
-            psoci->shader,
-            {inputAssembler->getAttributes()},
-            psoci->rasterizerState,
-            psoci->depthStencilState,
-            psoci->blendState,
-            psoci->dynamicStates,
-            renderPass};
+   auto pso = _PSOHashMap[hash];
+   if (!pso) {
+      gfx::PipelineStateInfo info = {
+          static_cast<gfx::PrimitiveMode>(pass->primitive),
+          GET_SHADER(psoci->shaderID),
+          {inputAssembler->getAttributes()},
+          *(GET_RASTERIZER_STATE(pass->rasterizerStateID)),
+          *(GET_DEPTH_STENCIL_STATE(pass->depthStencilStateID)),
+          *(GET_BLEND_STATE(pass->blendStateID)),
+          static_cast<gfx::DynamicStateFlags>(pass->dynamicState),
+          renderPass};
 
-        pso = gfx::Device::getInstance()->createPipelineState(std::move(info));
-        _PSOHashMap[hash] = pso;
-    }
+      pso = gfx::Device::getInstance()->createPipelineState(std::move(info));
+       _PSOHashMap[hash] = pso;
+   }
 
-    return pso;
+   return pso;
 }
 
 } // namespace pipeline
