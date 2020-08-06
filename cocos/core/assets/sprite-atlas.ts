@@ -49,7 +49,6 @@ interface ISpriteFrameList {
  *
  * @zh
  * 精灵图集资源类。
- * 可通过 cc.SpriteAtlas 获取该组件。
  */
 @ccclass('cc.SpriteAtlas')
 export class SpriteAtlas extends Asset {

@@ -595,12 +595,13 @@ export class CCLoader extends Pipeline {
      *                                                     If nothing to load, assets will be an empty array.
      * @example
      * ```ts
+     * import { loader, error, SpriteFrame } from 'cc';
      * // load the SpriteFrames from resources folder
      * let spriteFrames;
      * let urls = ['misc/characters/character_01', 'misc/weapons/weapons_01'];
-     * loader.loadResArray(urls, cc.SpriteFrame, function (err, assets) {
+     * loader.loadResArray(urls, SpriteFrame, function (err, assets) {
      *     if (err) {
-     *         cc.error(err);
+     *         error(err);
      *         return;
      *     }
      *     spriteFrames = assets;
@@ -692,6 +693,7 @@ export class CCLoader extends Pipeline {
      * 下面是一些示例代码：
      * @example
      * ```ts
+     * import { loader, Texture2D } from 'cc';
      * // Release all dependencies of a loaded prefab
      * let deps = loader.getDependsRecursively(prefab);
      * loader.release(deps);
@@ -700,7 +702,7 @@ export class CCLoader extends Pipeline {
      * let textures = [];
      * for (let i = 0; i < deps.length; ++i) {
      *     let item = loader.getRes(deps[i]);
-     *     if (item instanceof cc.Texture2D) {
+     *     if (item instanceof Texture2D) {
      *         textures.push(item);
      *     }
      * }

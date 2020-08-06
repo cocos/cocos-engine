@@ -981,8 +981,8 @@ export class Director extends EventTarget {
     }
 
     /**
-     * @en Returns the cc.AnimationManager associated with this director. Please use getSystem(AnimationManager.ID)
-     * @zh 获取和 director 相关联的 cc.AnimationManager（动画管理器）。请使用 getSystem(AnimationManager.ID) 来替代
+     * @en Returns the `AnimationManager` associated with this director. Please use getSystem(AnimationManager.ID)
+     * @zh 获取和 director 相关联的 `AnimationManager`（动画管理器）。请使用 getSystem(AnimationManager.ID) 来替代
      * @deprecated
      */
     public getAnimationManager (): any {

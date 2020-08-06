@@ -278,7 +278,8 @@ export class UITransformComponent extends Component {
      * @param height - 节点内容未变换的高度。
      * @example
      * ```ts
-     * node.setContentSize(cc.size(100, 100));
+     * import { Size } from 'cc';
+     * node.setContentSize(new Size(100, 100));
      * node.setContentSize(100, 100);
      * ```
      */
@@ -339,7 +340,8 @@ export class UITransformComponent extends Component {
      * @param y - 节点 y 轴锚。
      * @example
      * ```ts
-     * node.setAnchorPoint(cc.v2(1, 1));
+     * import { Vec2 } from 'cc';
+     * node.setAnchorPoint(new Vec2(1, 1));
      * node.setAnchorPoint(1, 1);
      * ```
      */

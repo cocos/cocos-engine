@@ -35,12 +35,11 @@ import { legacyCC } from '../global-exports';
 /**
  * @zh
  * “EventHandler” 类用来设置场景中的事件回调，该类允许用户设置回调目标节点，目标组件名，组件方法名，并可通过 emit 方法调用目标函数。
- * 可通过 cc.Component.EventHandler 获得该事件。
  *
  * @example
  * ```ts
- *
- * var eventHandler = new cc.Component.EventHandler();
+ * import { Component } from 'cc';
+ * const eventHandler = new Component.EventHandler();
  * eventHandler.target = newTarget;
  * eventHandler.component = "MainMenu";
  * eventHandler.handler = "OnClick";
@@ -114,7 +113,8 @@ export class EventHandler {
      * @param params - 派发参数数组。
      * @example
      * ```ts
-     * var eventHandler = new cc.Component.EventHandler();
+     * import { Component } from 'cc';
+     * const eventHandler = new Component.EventHandler();
      * eventHandler.target = newTarget;
      * eventHandler.component = "MainMenu";
      * eventHandler.handler = "OnClick"

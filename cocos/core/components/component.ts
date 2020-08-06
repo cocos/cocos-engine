@@ -230,7 +230,8 @@ class Component extends CCObject {
      * @zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
      * @example
      * ```ts
-     * var sprite = node.addComponent(cc.SpriteComponent);
+     * import { SpriteComponent } from 'cc';
+     * const sprite = node.addComponent(SpriteComponent);
      * ```
      */
     public addComponent<T extends Component> (classConstructor: Constructor<T>): T | null;
@@ -240,7 +241,7 @@ class Component extends CCObject {
      * @zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
      * @example
      * ```ts
-     * var test = node.addComponent("Test");
+     * const test = node.addComponent("Test");
      * ```
      */
     public addComponent (className: string): Component | null;
@@ -258,8 +259,9 @@ class Component extends CCObject {
      * 传入参数也可以是脚本的名称。
      * @example
      * ```ts
+     * import { SpriteComponent } from 'cc';
      * // get sprite component.
-     * var sprite = node.getComponent(cc.SpriteComponent);
+     * const sprite = node.getComponent(SpriteComponent);
      * ```
      */
     public getComponent<T extends Component> (classConstructor: Constructor<T>): T | null;
@@ -288,7 +290,8 @@ class Component extends CCObject {
      * @zh 返回节点上指定类型的所有组件。
      * @example
      * ```ts
-     * var sprites = node.getComponents(cc.SpriteComponent);
+     * import { SpriteComponent } from 'cc';
+     * const sprites = node.getComponents(SpriteComponent);
      * ```
      */
     public getComponents<T extends Component> (classConstructor: Constructor<T>): T[];
@@ -298,7 +301,7 @@ class Component extends CCObject {
      * @zh 返回节点上指定类型的所有组件。
      * @example
      * ```ts
-     * var tests = node.getComponents("Test");
+     * const tests = node.getComponents("Test");
      * ```
      */
     public getComponents (className: string): Component[];
@@ -312,7 +315,8 @@ class Component extends CCObject {
      * @zh 递归查找所有子节点中第一个匹配指定类型的组件。
      * @example
      * ```ts
-     * var sprite = node.getComponentInChildren(cc.SpriteComponent);
+     * import { SpriteComponent } from 'cc';
+     * const sprite = node.getComponentInChildren(SpriteComponent);
      * ```
      */
     public getComponentInChildren<T extends Component> (classConstructor: Constructor<T>): T | null;
@@ -336,7 +340,8 @@ class Component extends CCObject {
      * @zh 递归查找自身或所有子节点中指定类型的组件。
      * @example
      * ```ts
-     * var sprites = node.getComponentsInChildren(cc.SpriteComponent);
+     * import { SpriteComponent } from 'cc';
+     * const sprites = node.getComponentsInChildren(SpriteComponent);
      * ```
      */
     public getComponentsInChildren<T extends Component> (classConstructor: Constructor<T>): T[];
@@ -346,7 +351,7 @@ class Component extends CCObject {
      * @zh 递归查找自身或所有子节点中指定类型的组件。
      * @example
      * ```ts
-     * var tests = node.getComponentsInChildren("Test");
+     * const tests = node.getComponentsInChildren("Test");
      * ```
      */
     public getComponentsInChildren (className: string): Component[];

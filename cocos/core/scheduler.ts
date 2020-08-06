@@ -333,7 +333,7 @@ class CallbackTimer {
  * and consumes less memory to use the 'update callback'. *
  * @zh
  * Scheduler 是负责触发回调函数的类。<br>
- * 通常情况下，建议使用 cc.director.getScheduler() 来获取系统定时器。<br>
+ * 通常情况下，建议使用 `director.getScheduler()` 来获取系统定时器。<br>
  * 有两种不同类型的定时器：<br>
  *     - update 定时器：每一帧都会触发。您可以自定义优先级。<br>
  *     - 自定义定时器：自定义定时器可以每一帧或者自定义的时间间隔触发。<br>
