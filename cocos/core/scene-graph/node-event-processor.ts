@@ -405,10 +405,11 @@ export class NodeEventProcessor {
      * @return - 返回监听回调函数自身。
      *
      * @example
-     * ```typescript
-     * this.node.on(cc.Node.EventType.TOUCH_START, this.memberFunction, this);  // if "this" is component and the "memberFunction" declared in CCClass.
-     * this.node.on(cc.Node.EventType.TOUCH_START, callback, this);
-     * this.node.on(cc.Node.EventType.ANCHOR_CHANGED, callback);
+     * ```ts
+     * import { Node } from 'cc';
+     * this.node.on(Node.EventType.TOUCH_START, this.memberFunction, this);  // if "this" is component and the "memberFunction" declared in CCClass.
+     * this.node.on(Node.EventType.TOUCH_START, callback, this);
+     * this.node.on(Node.EventType.ANCHOR_CHANGED, callback);
      * ```
      */
     public on (type: string, callback: Function, target?: Object, useCapture?: Object) {
@@ -455,8 +456,9 @@ export class NodeEventProcessor {
      * @param useCapture - 当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
      *
      * @example
-     * ```typescript
-     * node.once(cc.Node.EventType.ANCHOR_CHANGED, callback);
+     * ```ts
+     * import { Node } from 'cc';
+     * node.once(Node.EventType.ANCHOR_CHANGED, callback);
      * ```
      */
     public once (type: string, callback: Function, target?: Object, useCapture?: Object) {
@@ -486,10 +488,11 @@ export class NodeEventProcessor {
      * @param useCapture - 当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
      *
      * @example
-     * ```typescript
-     * this.node.off(cc.Node.EventType.TOUCH_START, this.memberFunction, this);
-     * node.off(cc.Node.EventType.TOUCH_START, callback, this.node);
-     * node.off(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
+     * ```ts
+     * import { Node } from 'cc';
+     * this.node.off(Node.EventType.TOUCH_START, this.memberFunction, this);
+     * node.off(Node.EventType.TOUCH_START, callback, this.node);
+     * node.off(Node.EventType.ANCHOR_CHANGED, callback, this);
      * ```
      */
     public off (type: string, callback?: Function, target?: Object, useCapture?: Object) {
@@ -547,7 +550,7 @@ export class NodeEventProcessor {
      * @param arg3 - 回调第四个参数。
      * @param arg4 - 回调第五个参数。
      * @example
-     * ```typescript
+     * ```ts
      * eventTarget.emit('fire', event);
      * eventTarget.emit('fire', message, emitter);
      * ```

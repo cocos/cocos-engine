@@ -39,7 +39,7 @@ const WHITE = new Color(255, 255, 255, 255);
 
 /**
  * letter 组装器
- * 可通过 cc.UI.letter 获取该组装器。
+ * 可通过 `UI.letter` 获取该组装器。
  */
 export const letter = {
     createData (comp: LabelComponent) {

@@ -263,11 +263,11 @@ export class View extends EventTarget {
 
     /**
      * @en
-     * Sets the callback function for cc.view's resize action,<br/>
+     * Sets the callback function for `view`'s resize action,<br/>
      * this callback will be invoked before applying resolution policy, <br/>
      * so you can do any additional modifications within the callback.<br/>
      * Useful only on web.
-     * @zh 设置 cc.view 调整视窗尺寸行为的回调函数，
+     * @zh 设置 `view` 调整视窗尺寸行为的回调函数，
      * 这个回调函数会在应用适配模式之前被调用，
      * 因此你可以在这个回调函数内添加任意附加改变，
      * 仅在 Web 平台下有效。
@@ -283,12 +283,12 @@ export class View extends EventTarget {
      * @en
      * Sets the orientation of the game, it can be landscape, portrait or auto.
      * When set it to landscape or portrait, and screen w/h ratio doesn't fit,
-     * cc.view will automatically rotate the game canvas using CSS.
+     * `view` will automatically rotate the game canvas using CSS.
      * Note that this function doesn't have any effect in native,
      * in native, you need to set the application orientation in native project settings
      * @zh 设置游戏屏幕朝向，它能够是横版，竖版或自动。
      * 当设置为横版或竖版，并且屏幕的宽高比例不匹配时，
-     * cc.view 会自动用 CSS 旋转游戏场景的 canvas，
+     * `view` 会自动用 CSS 旋转游戏场景的 canvas，
      * 这个方法不会对 native 部分产生任何影响，对于 native 而言，你需要在应用设置中的设置排版。
      * @param orientation - Possible values: macro.ORIENTATION_LANDSCAPE | macro.ORIENTATION_PORTRAIT | macro.ORIENTATION_AUTO
      */

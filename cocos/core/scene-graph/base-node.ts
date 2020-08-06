@@ -1001,7 +1001,8 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @deprecated please destroy the component to remove it.
      * @example
      * ```
-     * const sprite = node.getComponent(CC.Sprite);
+     * import { SpriteComponent } from 'cc';
+     * const sprite = node.getComponent(SpriteComponent);
      * if (sprite) {
      *     node.removeComponent(sprite);
      * }
@@ -1038,7 +1039,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * 3. Bubbling phase: dispatch in bubble targets (`_getBubblingTargets`), e.g. parents in node tree, from the real target to root
      * In any moment of the dispatching process, it can be stopped via `event.stopPropagation()` or `event.stopPropagationImmidiate()`.
      * It's the recommended way to register touch/mouse event for Node,
-     * please do not use cc.eventManager directly for Node.
+     * please do not use `eventManager` directly for Node.
      * You can also register custom event and use `emit` to trigger custom event on Node.
      * For such events, there won't be capturing and bubbling phase, your event will be dispatched directly to its listeners registered on the same node.
      * You can also pass event callback parameters with `emit` by passing parameters after `type`.
@@ -1058,7 +1059,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @param useCapture - When set to true, the listener will be triggered at capturing phase which is ahead of the final target emit, otherwise it will be triggered during bubbling phase.
      * @return - Just returns the incoming callback so you can save the anonymous function easier.
      * @example
-     * ```typescript
+     * ```ts
      * this.node.on(SystemEventType.TOUCH_START, this.memberFunction, this);  // if "this" is component and the "memberFunction" declared in CCClass.
      * node.on(SystemEventType.TOUCH_START, callback, this);
      * node.on(SystemEventType.TOUCH_MOVE, callback, this);
@@ -1084,7 +1085,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @param target - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      * @param useCapture - When set to true, the listener will be triggered at capturing phase which is ahead of the final target emit, otherwise it will be triggered during bubbling phase.
      * @example
-     * ```typescript
+     * ```ts
      * this.node.off(SystemEventType.TOUCH_START, this.memberFunction, this);
      * node.off(SystemEventType.TOUCH_START, callback, this.node);
      * ```
@@ -1131,7 +1132,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @param arg4 - Fourth argument in callback
      * @param arg5 - Fifth argument in callback
      * @example
-     * ```typescript
+     * ```ts
      * eventTarget.emit('fire', event);
      * eventTarget.emit('fire', message, emitter);
      * ```

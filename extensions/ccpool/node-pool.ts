@@ -41,10 +41,10 @@ interface IPoolHandlerComponent extends Component {
 
 /**
  * @en
- *  cc.NodePool is the cache pool designed for node type.<br/>
+ *  `NodePool` is the cache pool designed for node type.<br/>
  *  It can helps you to improve your game performance for objects which need frequent release and recreate operations<br/>
  *
- * It's recommended to create cc.NodePool instances by node type, the type corresponds to node type in game design, not the class,
+ * It's recommended to create `NodePool` instances by node type, the type corresponds to node type in game design, not the class,
  * for example, a prefab is a specific node type. <br/>
  * When you create a node pool, you can pass a Component which contains `unuse`, `reuse` functions to control the content of node.<br/>
  *
@@ -53,9 +53,9 @@ interface IPoolHandlerComponent extends Component {
  *      2. Blocks in candy crash (massive creation and recreation)<br/>
  *      etc...
  * @zh
- * cc.NodePool 是用于管理节点对象的对象缓存池。<br/>
+ * `NodePool` 是用于管理节点对象的对象缓存池。<br/>
  * 它可以帮助您提高游戏性能，适用于优化对象的反复创建和销毁<br/>
- * 以前 cocos2d-x 中的 cc.pool 和新的节点事件注册系统不兼容，因此请使用 cc.NodePool 来代替。
+ * 以前 cocos2d-x 中的 cc.pool 和新的节点事件注册系统不兼容，因此请使用 `NodePool` 来代替。
  *
  * 新的 NodePool 需要实例化之后才能使用，每种不同的节点对象池需要一个不同的对象池实例，这里的种类对应于游戏中的节点设计，一个 prefab 相当于一个种类的节点。<br/>
  * 在创建缓冲池时，可以传入一个包含 unuse, reuse 函数的组件类型用于节点的回收和复用逻辑。<br/>

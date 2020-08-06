@@ -217,12 +217,13 @@ export class Pass {
      * @param targetType Target type of the handle, i.e. the type of data when read/write to it.
      * @example
      * ```
+     * import { Vec3, GFXType } from 'cc';
      * // say 'pbrParams' is a uniform vec4
      * const hParams = pass.getHandle('pbrParams'); // get the default handle
-     * pass.setUniform(hAlbedo, cc.v3(1, 0, 0)); // wrong! pbrParams.w is NaN now
+     * pass.setUniform(hAlbedo, new Vec3(1, 0, 0)); // wrong! pbrParams.w is NaN now
      *
      * // say 'albedoScale' is a uniform vec4, and we only want to modify the w component in the form of a single float
-     * const hThreshold = pass.getHandle('albedoScale', 3, cc.GFXType.FLOAT);
+     * const hThreshold = pass.getHandle('albedoScale', 3, GFXType.FLOAT);
      * pass.setUniform(hThreshold, 0.5); // now, albedoScale.w = 0.5
      * ```
      */

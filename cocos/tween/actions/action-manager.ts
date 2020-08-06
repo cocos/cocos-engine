@@ -53,7 +53,7 @@ class HashElement {
 
 /**
  * !#en
- * cc.ActionManager is a class that can manage actions.<br/>
+ * `ActionManager` is a class that can manage actions.<br/>
  * Normally you won't need to use this class directly. 99% of the cases you will use the CCNode interface,
  * which uses this class's singleton object.
  * But there are some cases where you might need to use this class. <br/>
@@ -61,7 +61,7 @@ class HashElement {
  * - When you want to run an action where the target is different from a CCNode.<br/>
  * - When you want to pause / resume the actions<br/>
  * !#zh
- * cc.ActionManager 是可以管理动作的单例类。<br/>
+ * `ActionManager` 是可以管理动作的单例类。<br/>
  * 通常你并不需要直接使用这个类，99%的情况您将使用 CCNode 的接口。<br/>
  * 但也有一些情况下，您可能需要使用这个类。 <br/>
  * 例如：

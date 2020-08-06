@@ -39,7 +39,7 @@ const matrix = new Mat4();
 
 /**
  * sliced 组装器
- * 可通过 cc.UI.sliced 获取该组装器。
+ * 可通过 `UI.sliced` 获取该组装器。
  */
 export const sliced: IAssembler = {
     useModel: false,

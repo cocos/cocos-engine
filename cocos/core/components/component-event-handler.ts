@@ -38,7 +38,7 @@ import { legacyCC } from '../global-exports';
  * 可通过 cc.Component.EventHandler 获得该事件。
  *
  * @example
- * ```typescript
+ * ```ts
  *
  * var eventHandler = new cc.Component.EventHandler();
  * eventHandler.target = newTarget;
@@ -113,7 +113,7 @@ export class EventHandler {
      *
      * @param params - 派发参数数组。
      * @example
-     * ```typescript
+     * ```ts
      * var eventHandler = new cc.Component.EventHandler();
      * eventHandler.target = newTarget;
      * eventHandler.component = "MainMenu";

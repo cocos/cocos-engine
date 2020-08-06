@@ -38,8 +38,9 @@ export interface IEventified {
      * @param thisArg - The target (this object) to invoke the callback, can be null
      * @return - Just returns the incoming callback so you can save the anonymous function easier.
      * @example
+     * import { log } from 'cc';
      * eventTarget.on('fire', function () {
-     *     cc.log("fire in the hole");
+     *     log("fire in the hole");
      * }, node);
      */
     on<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean): typeof callback;
@@ -56,8 +57,9 @@ export interface IEventified {
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param target - The target (this object) to invoke the callback, can be null
      * @example
+     * import { log } from 'cc';
      * eventTarget.once('fire', function () {
-     *     cc.log("this is the callback and will be invoked only once");
+     *     log("this is the callback and will be invoked only once");
      * }, node);
      */
     once<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any): typeof callback;
@@ -73,9 +75,10 @@ export interface IEventified {
      * @param callback - The callback to remove.
      * @param target - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      * @example
+     * import { log } from 'cc';
      * // register fire eventListener
      * var callback = eventTarget.on('fire', function () {
-     *     cc.log("fire in the hole");
+     *     log("fire in the hole");
      * }, target);
      * // remove fire event listener
      * eventTarget.off('fire', callback, target);

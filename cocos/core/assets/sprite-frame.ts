@@ -129,8 +129,8 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
 
 /**
  * @en
- * A cc.SpriteFrame has:<br/>
- *  - texture: A cc.Texture2D that will be used by render components<br/>
+ * A `SpriteFrame` has:<br/>
+ *  - texture: A `Texture2D` that will be used by render components<br/>
  *  - rectangle: A rectangle of the texture
  *
  * @zh
@@ -138,13 +138,14 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  * 一个 SpriteFrame 包含：<br/>
  *  - 纹理：会被渲染组件使用的 Texture2D 对象。<br/>
  *  - 矩形：在纹理中的矩形区域。
- * 可通过 cc.SpriteFrame 获取该组件。
+ * 可通过 `SpriteFrame` 获取该组件。
  *
  * @example
- * ```typescript
+ * ```ts
+ * import { loader } from 'cc';
  * // First way to use a SpriteFrame
  * const url = "assets/PurpleMonster/icon/spriteFrame";
- * cc.loader.loadRes(url, (err, spriteFrame) => {
+ * loader.loadRes(url, (err, spriteFrame) => {
  *   const node = new Node("New Sprite");
  *   const sprite = node.addComponent(SpriteComponent);
  *   sprite.spriteFrame = spriteFrame;
@@ -154,7 +155,7 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  * // Second way to use a SpriteFrame
  * const self = this;
  * const url = "test_assets/PurpleMonster";
- * cc.loader.loadRes(url, (err, imageAsset) => {
+ * loader.loadRes(url, (err, imageAsset) => {
  *  if(err){
  *    return;
  *  }

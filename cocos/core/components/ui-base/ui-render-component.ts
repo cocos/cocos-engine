@@ -127,7 +127,7 @@ export class UIRenderComponent extends UIComponent {
      *
      * @param value 原图混合模式。
      * @example
-     * ```typescript
+     * ```ts
      * sprite.srcBlendFactor = GFXBlendFactor.ONE;
      * ```
      */
@@ -158,7 +158,7 @@ export class UIRenderComponent extends UIComponent {
      *
      * @param value 目标混合模式。
      * @example
-     * ```typescript
+     * ```ts
      * sprite.dstBlendFactor = GFXBlendFactor.ONE;
      * ```
      */
