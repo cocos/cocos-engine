@@ -1,0 +1,82 @@
+{
+  "ver": "1.0.21",
+  "importer": "image",
+  "imported": true,
+  "uuid": "b730527c-3233-41c2-aaf7-7cdab58f9749",
+  "files": [
+    ".png",
+    ".json"
+  ],
+  "subMetas": {
+    "6c48a": {
+      "ver": "1.0.20",
+      "importer": "texture",
+      "uuid": "b730527c-3233-41c2-aaf7-7cdab58f9749@6c48a",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {},
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "premultiplyAlpha": false,
+        "anisotropy": 1,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "b730527c-3233-41c2-aaf7-7cdab58f9749"
+      },
+      "displayName": "default_panel",
+      "id": "6c48a",
+      "name": "texture"
+    },
+    "f9941": {
+      "ver": "1.0.8",
+      "importer": "sprite-frame",
+      "uuid": "b730527c-3233-41c2-aaf7-7cdab58f9749@f9941",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {},
+      "userData": {
+        "wrapModeS": "clamp-to-edge",
+        "wrapModeT": "clamp-to-edge",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "premultiplyAlpha": false,
+        "generateMipmap": false,
+        "anisotropy": 1,
+        "trimType": "auto",
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 0,
+        "offsetY": 0,
+        "trimX": 0,
+        "trimY": 0,
+        "width": 20,
+        "height": 20,
+        "rawWidth": 20,
+        "rawHeight": 20,
+        "borderTop": 8,
+        "borderBottom": 8,
+        "borderLeft": 8,
+        "borderRight": 8,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "b730527c-3233-41c2-aaf7-7cdab58f9749@6c48a",
+        "atlasUuid": "",
+        "mipfilter": "none"
+      },
+      "displayName": "default_panel",
+      "id": "f9941",
+      "name": "spriteFrame"
+    }
+  },
+  "userData": {
+    "type": "sprite-frame",
+    "redirect": "b730527c-3233-41c2-aaf7-7cdab58f9749@f9941",
+    "hasAlpha": true
+  }
+}

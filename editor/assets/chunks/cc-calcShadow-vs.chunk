@@ -1,0 +1,7 @@
+#include <cc-global>
+
+out vec4 v_shadowPos;
+
+void CCGetDirLightShadowPos (vec4 worldPos) {
+    v_shadowPos = cc_shadowLightMatrix * worldPos;
+}

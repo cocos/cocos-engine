@@ -1,0 +1,6 @@
+out vec2 v_luv;
+
+void CCLightingMapCaclUV()
+{
+	v_luv = cc_lightingMapUVParam.xy + a_texCoord1 * cc_lightingMapUVParam.zw;
+}

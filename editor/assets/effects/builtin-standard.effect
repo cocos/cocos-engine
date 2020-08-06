@@ -1,0 +1,354 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: standard-vs:vert
+      frag: standard-fs:frag
+      properties: &props
+        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
+        albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
+        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
+        occlusion:      { value: 1.0, target: pbrParams.x }
+        roughness:      { value: 0.8, target: pbrParams.y }
+        metallic:       { value: 0.6, target: pbrParams.z }
+        normalStrenth:  { value: 1.0, target: pbrParams.w, editor: { parent: USE_NORMAL_MAP } }
+        emissive:       { value: [0.0, 0.0, 0.0, 1.0], editor: { type: color } }
+        emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
+        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        normalMap:      { value: normal       }
+        pbrMap:         { value: grey         }
+        metallicRoughnessMap: { value: grey   }
+        occlusionMap:   { value: white        }
+        emissiveMap:    { value: grey         }
+      migrations: &migs # existing material data migration
+        properties:
+          mainColor:      { formerlySerializedAs: albedo }
+          alphaThreshold: { formerlySerializedAs: albedoScale.w }
+          normalStrenth:  { formerlySerializedAs: pbrScale.w }
+          mainTexture:    { formerlySerializedAs: albedoMap }
+    - vert: standard-vs:vert
+      frag: standard-fs:frag
+      phase: forward-add
+      propertyIndex: 0
+      depthStencilState:
+        depthFunc: equal
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one
+          blendSrcAlpha: zero
+          blendDstAlpha: one
+      properties: *props
+    - vert: shadowMap-vs:vert
+      frag: shadowMap-fs:frag
+      phase: shadow-add
+      depthStencilState:
+        depthFunc: less_equal
+        depthTest: true
+        depthWrite: false
+  - name: transparent
+    passes:
+    - vert: standard-vs:vert
+      frag: standard-fs:frag
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+      migrations: *migs
+    - vert: standard-vs:vert
+      frag: standard-fs:frag
+      phase: forward-add
+      propertyIndex: 0
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one
+      properties: *props
+    - vert: shadowMap-vs:vert
+      frag: shadowMap-fs:frag
+      phase: shadow-add
+      depthStencilState:
+        depthFunc: less_equal
+        depthTest: true
+        depthWrite: false
+}%
+
+CCProgram shared-ubos %{
+  uniform Constants {
+    vec4 tilingOffset;
+    vec4 albedo;
+    vec4 albedoScaleAndCutoff;
+    vec4 pbrParams;
+    vec4 emissive;
+    vec4 emissiveScaleParam;
+  };
+}%
+
+CCProgram standard-vs %{
+  precision highp float;
+  #include <input-standard>
+  #include <cc-global>
+  #include <cc-local-batch>
+  #include <shared-ubos>
+  #include <cc-fog>
+  #include <cc-calcShadow-vs>
+
+  #if USE_VERTEX_COLOR
+    in vec3 a_color;
+    out vec3 v_color;
+  #endif
+
+  out vec3 v_position;
+  out vec3 v_normal;
+  out vec2 v_uv;
+  out vec2 v_uv1;
+  out float factor_fog;
+
+  #if USE_NORMAL_MAP
+    out vec3 v_tangent;
+    out vec3 v_bitangent;
+  #endif
+
+  #if HAS_SECOND_UV || USE_LIGHTMAP
+    in vec2 a_texCoord1;
+  #endif
+
+  #if USE_LIGHTMAP && !USE_BATCHING && !USE_INSTANCING
+    #include <lightingmap-vs>
+  #endif
+
+  vec4 vert () {
+    StandardVertInput In;
+    CCVertInput(In);
+
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+
+    vec4 pos = matWorld * In.position;
+
+    v_position = pos.xyz;
+    v_normal = normalize((matWorldIT * vec4(In.normal, 0.0)).xyz);
+    #if USE_NORMAL_MAP
+      v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
+      v_bitangent = cross(v_normal, v_tangent) * In.tangent.w; // note the cross order
+    #endif
+
+    v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
+    #if HAS_SECOND_UV
+      v_uv1 = a_texCoord1 * tilingOffset.xy + tilingOffset.zw;
+    #endif
+
+    #if USE_VERTEX_COLOR
+      v_color = a_color;
+    #endif
+    factor_fog = CC_TRANSFER_FOG(matWorld * In.position);
+
+    #if USE_LIGHTMAP && HAS_SECOND_UV && !USE_BATCHING && !USE_INSTANCING
+      CCLightingMapCaclUV();
+    #endif
+
+    CCGetDirLightShadowPos(pos);
+
+    return cc_matProj * (cc_matView * matWorld) * In.position;
+  }
+}%
+
+CCProgram standard-fs %{
+  precision highp float;
+  #include <cc-global>
+  #include <shading-standard>
+  #include <output-standard>
+  #include <gamma>
+  #include <shared-ubos>
+  #include <cc-fog>
+
+  in vec3 v_position;
+  in vec2 v_uv;
+  in vec2 v_uv1;
+  in vec3 v_normal;
+
+  #if USE_VERTEX_COLOR
+    in vec3 v_color;
+  #endif
+
+  #if USE_ALBEDO_MAP
+    uniform sampler2D albedoMap;
+    #pragma define ALBEDO_UV options([v_uv, v_uv1])
+  #endif
+  #if USE_NORMAL_MAP
+    in vec3 v_tangent;
+    in vec3 v_bitangent;
+    uniform sampler2D normalMap;
+    #pragma define NORMAL_UV options([v_uv, v_uv1])
+  #endif
+  #if USE_PBR_MAP
+    uniform sampler2D pbrMap;
+    #pragma define PBR_UV options([v_uv, v_uv1])
+  #endif
+  #if USE_METALLIC_ROUGHNESS_MAP
+    uniform sampler2D metallicRoughnessMap;
+    #pragma define METALLIC_ROUGHNESS_UV options([v_uv, v_uv1])
+  #endif
+  #if USE_OCCLUSION_MAP
+    uniform sampler2D occlusionMap;
+    #pragma define OCCLUSION_UV options([v_uv, v_uv1])
+  #endif
+  #if USE_EMISSIVE_MAP
+    uniform sampler2D emissiveMap;
+    #pragma define EMISSIVE_UV options([v_uv, v_uv1])
+  #endif
+
+  #pragma define OCCLUSION_CHANNEL options([r, g, b])
+  #pragma define ROUGHNESS_CHANNEL options([g, b, r])
+  #pragma define METALLIC_CHANNEL  options([b, r, g])
+  #if USE_ALPHA_TEST
+    #pragma define ALPHA_TEST_CHANNEL options([a, r])
+  #endif
+  in float factor_fog;
+  void surf (out StandardSurface s) {
+    vec4 baseColor = albedo;
+    #if USE_VERTEX_COLOR
+      baseColor.rgb *= v_color;
+    #endif
+    #if USE_ALBEDO_MAP
+      vec4 texColor = texture(albedoMap, ALBEDO_UV);
+      texColor.rgb = SRGBToLinear(texColor.rgb);
+      baseColor *= texColor;
+    #endif
+    s.albedo = baseColor;
+    s.albedo.rgb *= albedoScaleAndCutoff.xyz;
+
+    #if USE_ALPHA_TEST
+      if (s.albedo.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
+    #endif
+
+    s.normal = v_normal;
+    #if USE_NORMAL_MAP
+      vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
+      s.normal =
+        (nmmp.x * pbrParams.w) * normalize(v_tangent) +
+        (nmmp.y * pbrParams.w) * normalize(v_bitangent) +
+        nmmp.z * normalize(s.normal);
+    #endif
+
+    s.position = v_position;
+
+    vec4 pbr = pbrParams;
+    #if USE_PBR_MAP
+      vec4 res = texture(pbrMap, PBR_UV);
+      pbr.x *= res.OCCLUSION_CHANNEL;
+      pbr.y *= res.ROUGHNESS_CHANNEL;
+      pbr.z *= res.METALLIC_CHANNEL;
+    #endif
+    #if USE_METALLIC_ROUGHNESS_MAP
+      vec4 metallicRoughness = texture(metallicRoughnessMap, METALLIC_ROUGHNESS_UV);
+      pbr.z *= metallicRoughness.METALLIC_CHANNEL;
+      pbr.y *= metallicRoughness.ROUGHNESS_CHANNEL;
+    #endif
+    #if USE_OCCLUSION_MAP
+      pbr.x *= texture(occlusionMap, OCCLUSION_UV).OCCLUSION_CHANNEL;
+    #endif
+    s.occlusion = clamp(pbr.x, 0.0, 0.96);
+    s.roughness = clamp(pbr.y, 0.04, 1.0);
+    s.metallic = pbr.z;
+
+    s.emissive = emissive.rgb * emissiveScaleParam.xyz;
+    #if USE_EMISSIVE_MAP
+      s.emissive *= SRGBToLinear(texture(emissiveMap, EMISSIVE_UV).rgb);
+    #endif
+  }
+
+  vec4 frag () {
+    StandardSurface s; surf(s);
+    vec4 color = CCStandardShading(s);
+    color = CC_APPLY_FOG(color, factor_fog);
+    return CCFragOutput(color);
+  }
+}%
+
+CCProgram shadowMap-vs %{
+  precision highp float;
+  #include <input-standard>
+  #include <cc-global>
+  #include <cc-pcf-shadow>
+  #include <cc-local-batch>
+
+  #if CC_VSM_SHADOW
+    out vec4 vTexCoord;
+  #else
+    out vec2 vTexCoord;
+  #endif
+
+  vec4 vert () {
+    StandardVertInput In;
+    CCVertInput(In);
+
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+
+    vec4 worldPos = matWorld * In.position;
+    vec4 clipPos = cc_shadowMatViewProj * worldPos;
+
+  #if CC_VSM_SHADOW
+    vTexCoord = vec4(a_texCoord, clipPos.z, clipPos.w);
+  #else
+    vTexCoord = a_texCoord;
+  #endif
+
+  return clipPos;
+  }
+}%
+
+CCProgram shadowMap-fs %{
+  precision highp float;
+  #include <cc-global>
+  #include <output-standard>
+  #include <shading-standard>
+
+  #if CC_VSM_SHADOW
+    in vec4 vTexCoord;
+  #else
+    in vec2 vTexCoord;
+  #endif
+
+  #if USE_ALBEDO_MAP
+    uniform sampler2D albedoMap;
+    #pragma define ALBEDO_UV options([v_uv, v_uv1])
+  #endif
+
+  vec4 frag () {
+    vec4 color = vec4(1.0);
+
+    #if ALPHAMASK
+      #if USE_ALBEDO_MAP
+        float alpha = texture(albedoMap, vTexCoord.xy).a;
+        if (alpha < 0.5)
+            discard;
+      #endif
+    #endif
+
+    #if CC_VSM_SHADOW
+        float depth = vTexCoord.z / vTexCoord.w * 0.5 + 0.5;
+        color = vec4(depth, depth, depth, 1.0);
+        return color;
+    #else
+        return color;
+    #endif
+  }
+}%

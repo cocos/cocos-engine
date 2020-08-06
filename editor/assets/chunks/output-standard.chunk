@@ -1,0 +1,10 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+#include <aces>
+#include <gamma>
+
+vec4 CCFragOutput (vec4 color) {
+  #if !CC_USE_HDR
+    color.rgb = LinearToSRGB(ACESToneMap(color.rgb));
+  #endif
+  return color;
+}
