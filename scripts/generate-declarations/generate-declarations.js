@@ -3,12 +3,28 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 const { join, extname, basename, dirname, isAbsolute } = require('path');
-const { copyFileSync, existsSync, readFileSync, unlinkSync, writeFileSync, ensureDirSync } = require('fs-extra');
+const { copyFileSync, existsSync, readFileSync, unlinkSync, writeFileSync, ensureDirSync, readdir } = require('fs-extra');
 const ts = require('typescript');
 const gift = require('tfig');
 
 const tsConfigDir = join(__dirname, '..', '..');
 const tsConfigPath = join(tsConfigDir, 'tsconfig.json');
+
+async function getEngineEntries (engine) {
+    const result = {};
+    const entryRootDir = join(engine, 'exports');
+    const entryFileNames = await readdir(entryRootDir);
+    for (const entryFileName of entryFileNames) {
+        const entryExtName = extname(entryFileName);
+        if (!entryExtName.toLowerCase().endsWith('.ts')) {
+            continue;
+        }
+        const entryBaseNameNoExt = basename(entryFileName, entryExtName);
+        const entryName = `cc.${entryBaseNameNoExt}`;
+        result[entryName] = `exports/${entryBaseNameNoExt}`;
+    }
+    return result;
+}
 
 async function generate (options) {
     console.log(`Typescript version: ${ts.version}`);
@@ -107,6 +123,8 @@ async function generate (options) {
         copyFileSync(file, destPath);
     });
 
+    const entries = await getEngineEntries(join(__dirname, '..', '..'));
+
     console.log(`Bundling...`);
     const giftInputPath = tscOutputDtsFile;
     const giftOutputPath = join(dirName,'cc.d.ts' );
@@ -115,6 +133,7 @@ async function generate (options) {
         output: giftOutputPath,
         name: 'cc',
         rootModule: 'index',
+        entries,
     });
     if (giftResult.error !== gift.GiftErrors.Ok) {
         console.error(`Failed to bundle declaration files because of gift error: ${gift.GiftErrors[giftResult.error]}.`);
