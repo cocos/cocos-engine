@@ -31,6 +31,8 @@ export const TERRAIN_BLOCK_VERTEX_COMPLEXITY = 33;
 export const TERRAIN_BLOCK_VERTEX_SIZE = 8; // position + normal + uv
 export const TERRAIN_HEIGHT_BASE = 32768;
 export const TERRAIN_HEIGHT_FACTORY = 1.0 / 512.0;
+export const TERRAIN_HEIGHT_FMIN = (-TERRAIN_HEIGHT_BASE) * TERRAIN_HEIGHT_FACTORY;
+export const TERRAIN_HEIGHT_FMAX = (65535 - TERRAIN_HEIGHT_BASE) * TERRAIN_HEIGHT_FACTORY;
 export const TERRAIN_NORTH_INDEX = 0;
 export const TERRAIN_SOUTH_INDEX = 1;
 export const TERRAIN_WEST_INDEX = 2;
@@ -1131,6 +1133,7 @@ export class Terrain extends Component {
      * @zh 设置地形上的高度
      */
     public setHeight (i: number, j: number, h: number) {
+        h = clamp(h, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX);
         this._heights[j * this.vertexCount[0] + i] = TERRAIN_HEIGHT_BASE + h / TERRAIN_HEIGHT_FACTORY;
     }
 
