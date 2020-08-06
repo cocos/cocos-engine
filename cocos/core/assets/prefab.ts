@@ -91,7 +91,8 @@ export default class Prefab extends Asset {
      * @since 1.10.0
      * @example
      * ```ts
-     * prefab.optimizationPolicy = cc.Prefab.OptimizationPolicy.MULTI_INSTANCE;
+     * import { Prefab } from 'cc';
+     * prefab.optimizationPolicy = Prefab.OptimizationPolicy.MULTI_INSTANCE;
      * ```
      */
     @property
