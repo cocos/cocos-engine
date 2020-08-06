@@ -632,15 +632,6 @@ function populateBuildTimeConstants (options: build.Options) {
     result.CC_JSB = result.CC_NATIVE;
     result.CC_SUPPORT_JIT = !(result.CC_MINIGAME || result.CC_RUNTIME_BASED);
 
-    for (const moduleEntry of options.moduleEntries!) {
-        if (moduleEntry in moduleInfoTable) {
-            for (const flag of moduleInfoTable[moduleEntry].requiredFlags) {
-                // @ts-ignore
-                result[flag] = true;
-            }
-        }
-    }
-
     return result;
 }
 
