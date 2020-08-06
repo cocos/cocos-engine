@@ -7,12 +7,10 @@
 namespace cc {
 namespace pipeline {
 map<uint, gfx::PipelineState *> PipelineStateManager::_PSOHashMap;
-gfx::PipelineState *PipelineStateManager::getOrCreatePipelineStage(uint psociID,
-                                                                   uint passID,
+gfx::PipelineState *PipelineStateManager::getOrCreatePipelineStage(const PipelineStateInfo *psoci,
+                                                                   const Pass *pass,
                                                                    const gfx::InputAssembler *inputAssembler,
                                                                    gfx::RenderPass *renderPass) {
-   const auto *psoci = GET_PSOCI(psociID, 0);
-   const auto *pass = GET_PASS(psoci->passID, 0);
    const auto passHash = pass->hash;
    const auto iaHash = inputAssembler->getAttributesHash();
    const auto hash = passHash ^ passHash ^ iaHash;

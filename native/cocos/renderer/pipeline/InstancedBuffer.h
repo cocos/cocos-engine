@@ -37,12 +37,12 @@ public:
 
     CC_INLINE const InstancedItemList &getInstances() const { return _instancedItems; }
     CC_INLINE const PipelineStateInfo *getPSOCI() const { return _psoci; }
-    CC_INLINE Pass *getPass() const { return _pass; }
+    CC_INLINE const Pass *getPass() const { return _pass; }
 
 private:
     static map<const Pass *, std::shared_ptr<InstancedBuffer>> _buffers;
     InstancedItemList _instancedItems;
-    Pass *_pass = nullptr;
+    const Pass *_pass = nullptr;
     const PipelineStateInfo *_psoci = nullptr;
 };
 

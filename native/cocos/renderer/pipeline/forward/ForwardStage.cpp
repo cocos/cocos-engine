@@ -34,6 +34,7 @@ void LinearToSRGB(gfx::Color &out, const gfx::Color &linear) {
     out.b = std::sqrt(linear.b);
 }
 } // namespace
+
 ForwardStage::ForwardStage() : RenderStage() {
     _batchedQueue = CC_NEW(RenderBatchedQueue);
     _instancedQueue = CC_NEW(RenderInstancedQueue);
@@ -49,7 +50,8 @@ bool ForwardStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
     _renderQueueDescriptors = {
         {false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},
-        {true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}};
+        {true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}
+    };
 
     return true;
 }

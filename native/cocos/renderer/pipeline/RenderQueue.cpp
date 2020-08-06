@@ -42,7 +42,7 @@ void RenderQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *rend
         const auto iaPtr = GET_IA(subModelPtr->iaID);
         const auto psoCIPtr = GET_PSOCI(subModelPtr->psociID, passIdx);
         const auto passPtr = GET_PASS(subModelPtr->materialID, passIdx);
-        auto *pso = PipelineStateManager::getOrCreatePipelineStage(subModelPtr->psociID, passIdx, iaPtr, renderPass);
+        auto *pso = PipelineStateManager::getOrCreatePipelineStage(psoCIPtr, passPtr, iaPtr, renderPass);
         cmdBuff->bindPipelineState(pso);
         cmdBuff->bindBindingLayout(GET_BINDING_LAYOUT(psoCIPtr->bindingLayoutID));
         cmdBuff->bindInputAssembler(iaPtr);
