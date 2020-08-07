@@ -105,14 +105,18 @@ SE_DECLARE_FINALIZE_FUNC(jsb_ObjectPool_finalize)
 static bool jsb_ObjectPool_constructor(se::State &s) {
     const auto &args = s.args();
     size_t argc = args.size();
-    if (argc == 1) {
-        if (!args[0].isObject()) {
-            SE_REPORT_ERROR("argument convertion error");
+    if (argc == 2) {
+        uint poolType = 0;
+        bool ok = true;
+        ok &= seval_to_uint(args[0], &poolType);
+        
+        if (!args[1].isObject()) {
+            SE_REPORT_ERROR("jsb_ObjectPool_constructor: parameter 2 wants a JSArray");
             return false;
         }
-        se::Object *jsArr = args[0].toObject();
+        se::Object *jsArr = args[1].toObject();
 
-        se::ObjectPool *pool = JSB_ALLOC(se::ObjectPool, jsArr);
+        se::ObjectPool *pool = JSB_ALLOC(se::ObjectPool, (se::PoolType)(poolType), jsArr);
         s.thisObject()->setPrivateData(pool);
         se::NonRefNativePtrCreatedByCtorMap::emplace(pool);
         return true;
@@ -135,7 +139,7 @@ static bool jsb_ObjectPool_finalize(se::State &s) {
 SE_BIND_FINALIZE_FUNC(jsb_ObjectPool_finalize)
 
 bool js_register_se_ObjectPool(se::Object *obj) {
-    se::Class *cls = se::Class::create("ObjectPool", obj, nullptr, _SE(jsb_ObjectPool_constructor));
+    se::Class *cls = se::Class::create("NativeObjectPool", obj, nullptr, _SE(jsb_ObjectPool_constructor));
     cls->install();
     JSBClassType::registerClass<se::ObjectPool>(cls);
     se::Object *proto = cls->getProto();
