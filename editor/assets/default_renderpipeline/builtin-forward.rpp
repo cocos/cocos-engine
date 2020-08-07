@@ -1,6 +1,7 @@
 [
   {
     "__type__": "ForwardPipeline",
+    "_tag": 0,
     "_flows": [
       {
         "__id__": 1
@@ -10,15 +11,13 @@
       }
     ],
     "renderTextures": [],
-    "framebuffers": [],
-    "renderPasses": []
+    "materials": []
   },
   {
     "__type__": "ForwardFlow",
     "_name": "ForwardFlow",
     "_priority": 1,
-    "_material": null,
-    "_type": 0,
+    "_tag": 0,
     "_stages": [
       {
         "__id__": 2
@@ -29,7 +28,7 @@
     "__type__": "ForwardStage",
     "_name": "ForwardStage",
     "_priority": 0,
-    "frameBuffer": "",
+    "_tag": 0,
     "renderQueues": [
       {
         "__id__": 3
@@ -59,8 +58,7 @@
     "__type__": "ShadowFlow",
     "_name": "ShadowFlow",
     "_priority": 0,
-    "_material": null,
-    "_type": 0,
+    "_tag": 0,
     "_stages": [
       {
         "__id__": 6
@@ -71,30 +69,6 @@
     "__type__": "ShadowStage",
     "_name": "ShadowStage",
     "_priority": 0,
-    "frameBuffer": "",
-    "renderQueues": [
-      {
-        "__id__": 7
-      },
-      {
-        "__id__": 8
-      }
-    ]
-  },
-  {
-    "__type__": "RenderQueueDesc",
-    "isTransparent": false,
-    "sortMode": 0,
-    "stages": [
-      "default"
-    ]
-  },
-  {
-    "__type__": "RenderQueueDesc",
-    "isTransparent": true,
-    "sortMode": 1,
-    "stages": [
-      "default"
-    ]
+    "_tag": 0
   }
 ]
