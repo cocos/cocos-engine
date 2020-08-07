@@ -10,11 +10,12 @@ struct PSOInfo;
 
 struct CC_DLL BatchedItem {
     gfx::BufferList vbs;
-    vector<uint8_t *> vbDatas;
+    vector<std::shared_ptr<uint8_t>> vbDatas;
+
     gfx::Buffer *vbIdx = nullptr;
-    float *vbIdxData = nullptr;
+    std::shared_ptr<float> vbIndexData;
     uint vbCount = 0;
-    uint mergCount = 0;
+    uint mergeCount = 0;
     gfx::InputAssembler *ia = nullptr;
     gfx::Buffer *ubo = nullptr;
     float *uboData = nullptr;

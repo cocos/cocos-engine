@@ -14,6 +14,7 @@ class BindingLayout;
 
 namespace pipeline {
 struct RenderingSubMesh;
+struct FlatBuffer;
 
 enum class CC_DLL BatchingSchemes {
     INSTANCING = 1,
@@ -65,11 +66,19 @@ struct CC_DLL InstancedAttribute {
     const static se::PoolType type = se::PoolType::INSTANCED_ATTRIBUTE_INFO;
 };
 
+struct CC_DLL Node {
+    uint32_t matViewID = 0;
+
+    const static se::PoolType type = se::PoolType::NODE_INFO;
+};
+
 struct CC_DLL Model {
     uint32_t isDynamicBatching = 0;
 
     uint32_t subModelsCount = 0;
     uint32_t subModelsID = 0;
+
+    uint32_t transformID = 0;
 
     InstancedAttributeBlock instancedAttributeBlock;
 
@@ -104,12 +113,42 @@ struct CC_DLL BufferView {
     const static se::PoolType type = se::PoolType::BUFFER_VIEW;
 };
 
-#define GET_SUBMODLE(index, offset)           (SharedMemory::get<SubModel>(index) + offset)
+struct CC_DLL FlatBuffer {
+    uint32_t stride = 0;
+    uint32_t count = 0;
+    uint32_t bufferViewID = 0;
+    uint32_t bufferViewSize = 0;
+
+    const static se::PoolType type = se::PoolType::FLAT_BUFFER_INFO;
+};
+
+struct CC_DLL RenderingSubMesh {
+    uint32_t vertexBuffersID = 0;
+    uint32_t vertexBuffersCount = 0;
+
+    uint32_t attributesID = 0;
+    uint32_t attributesCount = 0;
+
+    uint32_t flatBuffersID = 0;
+    uint32_t flatBuffersCount = 0;
+
+    uint32_t primitiveMode = 0;
+    uint32_t indexBufferID = 0;
+    uint32_t indirectBufferID = 0;
+    uint32_t meshID = 0;
+    uint32_t subMeshIndex = 0;
+
+    const static se::PoolType type = se::PoolType::RENDER_SUBMESH_INFO;
+};
+
+#define GET_SUBMODEL(index, offset)           (SharedMemory::get<SubModel>(index) + offset)
 #define GET_PASS(index, offset)               (SharedMemory::get<Pass>(index) + offset) //get pass from material
 #define GET_PSOCI(index, offset)              (SharedMemory::get<PSOInfo>(index) + offset)
 #define GET_INSTANCE_ATTRIBUTE(index, offset) (SharedMemory::get<InstancedAttribute>(index) + offset)
 #define GET_RENDER_SUBMESH(index)             (SharedMemory::get<RenderingSubMesh>(index))
+#define GET_FLAT_BUFFER(index, offset)        (SharedMemory::get<FlatBuffer>(index) + offset)
 #define GET_BUFFERVIEW(index)                 (SharedMemory::get<BufferView>(index))
+#define GET_NODE(index)                       (SharedMemory::get<Node>(index))
 
 //TODO
 #define GET_NAME(index) (String(0))

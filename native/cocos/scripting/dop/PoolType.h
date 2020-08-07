@@ -19,5 +19,7 @@ enum class PoolType {
     CAMERA_INFO,
     RENDER_SUBMESH_INFO,
     BUFFER_VIEW,
+    FLAT_BUFFER_INFO,
+    NODE_INFO,
 };
 }

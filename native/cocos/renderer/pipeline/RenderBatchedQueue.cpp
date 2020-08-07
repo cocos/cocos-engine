@@ -21,13 +21,13 @@ void RenderBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPas
         const auto pass = batchedBuffer->getPass();
         const auto &batches = batchedBuffer->getBaches();
         for (const auto &batch : batches) {
-            if (!batch.mergCount) continue;
+            if (!batch.mergeCount) continue;
 
             for (size_t i = 0; i < batch.vbs.size(); i++) {
                 auto buffer = batch.vbs[i];
-                buffer->update(batch.vbDatas[i], 0, buffer->getSize());
+                buffer->update(batch.vbDatas[i].get(), 0, buffer->getSize());
             }
-            batch.vbIdx->update(batch.vbIdxData, 0, batch.vbIdx->getSize());
+            batch.vbIdx->update(batch.vbIndexData.get(), 0, batch.vbIdx->getSize());
             batch.ubo->update(batch.uboData, 0, batch.ubo->getSize());
 
             auto pso = PipelineStateManager::getOrCreatePipelineStage(batch.psoci, pass, batch.ia, renderPass);

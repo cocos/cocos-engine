@@ -14,7 +14,7 @@ struct Model;
 
 struct CC_DLL RenderObject {
     uint depth = 0;
-    Model *modle = nullptr;
+    Model *model = nullptr;
 };
 typedef vector<struct RenderObject> RenderObjectList;
 

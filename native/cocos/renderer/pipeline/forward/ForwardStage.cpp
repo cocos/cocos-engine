@@ -106,11 +106,11 @@ void ForwardStage::render(RenderView *view) {
     for (size_t i = 0; i < renderObjects.size(); ++i) {
         auto nextLightIndex = i + 1 < renderObjects.size() ? lightIndexOffset[i + 1] : lightIndices.size();
         const auto &ro = renderObjects[i];
-        auto model = ro.modle;
+        auto model = ro.model;
 
         if (model && model->isDynamicBatching) {
             for (m = 0; m < model->subModelsCount; ++m) {
-                auto subModel = GET_SUBMODLE(model->subModelsID, m);
+                auto subModel = GET_SUBMODEL(model->subModelsID, m);
                 for (p = 0; p < subModel->passesCount; ++p) {
                     auto pass = GET_PASS(subModel->materialID, p);
                     if (static_cast<BatchingSchemes>(pass->batchingScheme) == BatchingSchemes::INSTANCING) {
@@ -131,7 +131,7 @@ void ForwardStage::render(RenderView *view) {
             }
         } else {
             for (m = 0; m < model->subModelsCount; m++) {
-                auto subModel = GET_SUBMODLE(model->subModelsID, m);
+                auto subModel = GET_SUBMODEL(model->subModelsID, m);
                 for (p = 0; p < subModel->passesCount; p++) {
                     auto pass = GET_PASS(subModel->passesID, p);
                     for (k = 0; k < _renderQueues.size(); k++) {

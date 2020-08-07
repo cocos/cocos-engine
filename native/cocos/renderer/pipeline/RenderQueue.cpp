@@ -16,7 +16,7 @@ void RenderQueue::clear() {
 }
 
 bool RenderQueue::insertRenderPass(const RenderObject &renderObj, uint subModelIdx, uint passIdx) {
-    const auto subModelPtr = GET_SUBMODLE(renderObj.modle->subModelsID, subModelIdx);
+    const auto subModelPtr = GET_SUBMODEL(renderObj.model->subModelsID, subModelIdx);
     const auto passPtr = GET_PASS(subModelPtr->materialID, passIdx);
     const auto psoCIPtr = GET_PSOCI(subModelPtr->psociID, passIdx);
     bool isTransparent = static_cast<bool>(GET_BLEND_STATE(passPtr->blendStateID));
