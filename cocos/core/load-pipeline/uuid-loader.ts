@@ -32,6 +32,7 @@ import * as js from '../utils/js';
 import {_getClassById} from '../utils/js';
 import { getError, warnID } from '../platform/debug';
 import { LoadingItems } from './loading-items';
+import { getDependsRecursively } from './auto-release-utils';
 import { decompressJson } from './utils';
 import { EDITOR, DEBUG, JSB } from 'internal:constants';
 import { legacyCC } from '../global-exports';
@@ -173,6 +174,16 @@ function loadDepends (pipeline, item, asset, depends, callback) {
                     queue.addListener(dependSrc, loadCallback, loadCallbackCtx);
                 }
             }
+        }
+
+        if (asset instanceof legacyCC.SceneAsset && asset.scene) {
+            const dependAssets = dependKeys.concat();
+            for (const dependUuid of dependKeys) {
+                getDependsRecursively(dependUuid).forEach((x) => {
+                    if (!dependAssets.includes(x)) { dependAssets.push(x); }
+                });
+            }
+            asset.scene.dependAssets = dependAssets;
         }
         // Emit dependency errors in runtime, but not in editor,
         // because editor need to open the scene / prefab to let user fix missing asset issues
