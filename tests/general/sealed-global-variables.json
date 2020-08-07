@@ -178,7 +178,6 @@
         "cc.RenderStage",
         "cc.RenderFlow",
         "cc.RenderPipeline",
-        "cc.RenderPipelineAsset",
         "cc.macro",
         "cc.visibleRect",
         "cc.Game",

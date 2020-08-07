@@ -9,6 +9,7 @@ import { legacyCC } from '../global-exports';
 import { IDefineMap } from '../renderer/core/pass-utils';
 import { GFXDevice } from '../gfx/device';
 import { IInternalBindingInst } from './define';
+import { Asset } from '../assets/asset';
 
 /**
  * @en Render pipeline information descriptor
@@ -27,8 +28,8 @@ export interface IRenderPipelineInfo {
  * 这个类主要包含一些通用的管线配置，必要的渲染资源和一些 [[RenderFlow]]。
  * 渲染流程函数 [[render]] 会由 [[Root]] 发起调用并对所有 [[RenderView]] 执行预设的渲染流程。
  */
-@ccclass('RenderPipeline')
-export abstract class RenderPipeline {
+@ccclass('cc.RenderPipeline')
+export abstract class RenderPipeline extends Asset {
     /**
      * @en The default global bindings.
      * @zh 默认的全局绑定表。
@@ -139,11 +140,13 @@ export abstract class RenderPipeline {
      * @en Internal destroy function
      * @zh 内部销毁函数。
      */
-    public destroy () {
+    public destroy (): boolean {
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].destroy();
         }
         this._flows.length = 0;
+
+        return super.destroy();
     }
 }
 

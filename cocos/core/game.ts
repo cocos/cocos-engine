@@ -636,11 +636,12 @@ export class Game extends EventTarget {
             legacyCC.loader.load({ uuid: renderPipeline }, (err, asset) => {
                 // failed load renderPipeline
                 if (err || !(asset instanceof RenderPipeline)) {
-                    console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, all process stopped`);
+                    console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
                     console.warn(err);
+                    this.setRenderPipeline();
                 }
                 else {
-                    //this.setRenderPipeline(asset);
+                    this.setRenderPipeline(asset);
                 }
                 this._safeEmit(Game.EVENT_GAME_INITED);
                 if (useSplash) {
@@ -652,6 +653,7 @@ export class Game extends EventTarget {
             });
         }
         else {
+            this.setRenderPipeline();
             this._safeEmit(Game.EVENT_GAME_INITED);
             if (useSplash) {
                 splashScreen.loadFinish = true;
@@ -726,7 +728,6 @@ export class Game extends EventTarget {
     private _initEngine () {
         this._initDevice();
         legacyCC.director._init();
-        this.setRenderPipeline();
 
         // Log engine version
         console.log('Cocos Creator 3D v' + legacyCC.ENGINE_VERSION);

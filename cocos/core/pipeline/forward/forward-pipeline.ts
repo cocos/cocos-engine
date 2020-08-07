@@ -591,8 +591,6 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     public destroy () {
-        super.destroy();
-
         this.destroyUBOs();
 
         const rtIter = this._renderTextures.values();
@@ -608,5 +606,7 @@ export class ForwardPipeline extends RenderPipeline {
             rpRes.value.destroy();
             rpRes = rpIter.next();
         }
+
+        return super.destroy();
     }
 }

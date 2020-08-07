@@ -47,6 +47,15 @@ export abstract class RenderFlow {
         return this._tag;
     }
 
+    /**
+     * @en The stages of flow.
+     * @zh 渲染流程 stage 列表。
+     * @readonly
+     */
+    public get stages (): RenderStage[] {
+        return this._stages;
+    }
+
     @property({
         displayOrder: 0,
         visible: true,
