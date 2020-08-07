@@ -82,8 +82,8 @@ function generateNode () {
     rightLabel.fontSize = _fontSize;
     rightLabel.lineHeight = _fontSize;
     right.parent = _rootNode;
-    if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_BAIDU_GAME_SUB &&
-        cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+    if (cc.sys.platform !== cc.sys.BAIDU_GAME_SUB &&
+        cc.sys.platform !== cc.sys.WECHAT_GAME_SUB) {
         leftLabel.cacheMode = cc.Label.CacheMode.CHAR;
         rightLabel.cacheMode = cc.Label.CacheMode.CHAR;
     }

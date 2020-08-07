@@ -44,7 +44,7 @@ let TiledObjectGroup = cc.Class({
      * @example
      * let offset = tMXObjectGroup.getPositionOffset();
      */
-    getPositionOffset() {
+    getPositionOffset () {
         return this._positionOffset;
     },
 
@@ -56,7 +56,7 @@ let TiledObjectGroup = cc.Class({
      * @example
      * let offset = tMXObjectGroup.getProperties();
      */
-    getProperties() {
+    getProperties () {
         this._properties;
     },
 
@@ -68,7 +68,7 @@ let TiledObjectGroup = cc.Class({
      * @example
      * let groupName = tMXObjectGroup.getGroupName;
      */
-    getGroupName() {
+    getGroupName () {
         return this._groupName;
     },
 
@@ -77,7 +77,7 @@ let TiledObjectGroup = cc.Class({
      * @param {String} propertyName
      * @return {Object}
      */
-    getProperty(propertyName) {
+    getProperty (propertyName) {
         return this._properties[propertyName.toString()];
     },
 
@@ -92,7 +92,7 @@ let TiledObjectGroup = cc.Class({
      * @example
      * let object = tMXObjectGroup.getObject("Group");
      */
-    getObject(objectName) {
+    getObject (objectName) {
         for (let i = 0, len = this._objects.length; i < len; i++) {
             let obj = this._objects[i];
             if (obj && obj.name === objectName) {
@@ -111,11 +111,11 @@ let TiledObjectGroup = cc.Class({
      * @example
      * let objects = tMXObjectGroup.getObjects();
      */
-    getObjects() {
+    getObjects () {
         return this._objects;
     },
 
-    _init(groupInfo, mapInfo, texGrids) {
+    _init (groupInfo, mapInfo, texGrids) {
         const TiledMap = cc.TiledMap;
         const TMXObjectType = TiledMap.TMXObjectType;
         const Orientation = TiledMap.Orientation;

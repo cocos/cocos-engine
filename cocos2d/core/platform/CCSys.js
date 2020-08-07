@@ -33,6 +33,7 @@ const isOppoGame = (settingPlatform === 'quickgame');
 const isHuaweiGame = (settingPlatform === 'huawei');
 const isJKWGame = (settingPlatform === 'jkw-game');
 const isQttGame = (settingPlatform === 'qtt-game');
+const isLinkSure = (settingPlatform === 'link-sure');
 
 const _global = typeof window === 'undefined' ? global : window;
  
@@ -426,61 +427,30 @@ function initSys () {
      */
     sys.QTT_GAME = 116;
     /**
+     * @property {Number} BYTEDANCE_GAME
+     * @readOnly
+     * @default 117
+     */
+    sys.BYTEDANCE_GAME = 117
+    /**
+     * @property {Number} BYTEDANCE_GAME_SUB
+     * @readOnly
+     * @default 118
+     */
+    sys.BYTEDANCE_GAME_SUB = 118;
+    /**
+     * @property {Number} LINKSURE
+     * @readOnly
+     * @default 119
+     */
+    sys.LINKSURE = 119;
+    /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
      * @readOnly
      * @default "wechat"
      */
     sys.BROWSER_TYPE_WECHAT = "wechat";
-    /**
-     * BROWSER_TYPE_WECHAT_GAME
-     * @property {String} BROWSER_TYPE_WECHAT_GAME
-     * @readOnly
-     * @default "wechatgame"
-     */
-    sys.BROWSER_TYPE_WECHAT_GAME = "wechatgame";
-    /**
-     * BROWSER_TYPE_WECHAT_GAME_SUB
-     * @property {String} BROWSER_TYPE_WECHAT_GAME_SUB
-     * @readOnly
-     * @default "wechatgamesub"
-     */
-    sys.BROWSER_TYPE_WECHAT_GAME_SUB = "wechatgamesub";
-    /**
-     * BROWSER_TYPE_BAIDU_GAME
-     * @property {String} BROWSER_TYPE_BAIDU_GAME
-     * @readOnly
-     * @default "baidugame"
-     */
-    sys.BROWSER_TYPE_BAIDU_GAME = "baidugame";
-    /**
-     * BROWSER_TYPE_BAIDU_GAME_SUB
-     * @property {String} BROWSER_TYPE_BAIDU_GAME_SUB
-     * @readOnly
-     * @default "baidugamesub"
-     */
-    sys.BROWSER_TYPE_BAIDU_GAME_SUB = "baidugamesub";
-    /**
-     * BROWSER_TYPE_XIAOMI_GAME
-     * @property {String} BROWSER_TYPE_XIAOMI_GAME
-     * @readOnly
-     * @default "xiaomigame"
-     */
-    sys.BROWSER_TYPE_XIAOMI_GAME = "xiaomigame";
-    /**
-     * BROWSER_TYPE_ALIPAY_GAME
-     * @property {String} BROWSER_TYPE_ALIPAY_GAME
-     * @readOnly
-     * @default "alipaygame"
-     */
-    sys.BROWSER_TYPE_ALIPAY_GAME = "alipaygame";
-    /**
-     * BROWSER_TYPE_QQ_PLAY
-     * @property {String} BROWSER_TYPE_QQ_PLAY
-     * @readOnly
-     * @default "qqplay"
-     */
-    sys.BROWSER_TYPE_QQ_PLAY = "qqplay";
     /**
      *
      * @property {String} BROWSER_TYPE_ANDROID
@@ -723,6 +693,8 @@ function initSys () {
             platform = sys.JKW_GAME;
         } else if (isQttGame) {
             platform = sys.QTT_GAME;
+        } else if (isLinkSure) {
+            platform = sys.LINKSURE;
         }
         else {
             platform = __getPlatform();
@@ -887,7 +859,7 @@ function initSys () {
 
         /**
          * Indicate the running browser type
-         * @property {String} browserType
+         * @property {String | null} browserType
          */
         sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
         /* Determine the browser type */
@@ -918,7 +890,7 @@ function initSys () {
 
         /**
          * Indicate the running browser version
-         * @property {String} browserVersion
+         * @property {String | null} browserVersion
          */
         sys.browserVersion = "";
         /* Determine the browser version number */

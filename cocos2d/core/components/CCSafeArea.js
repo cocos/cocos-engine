@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 const Widget = require('./CCWidget');
+const WidgetManager = require('../base-ui/CCWidgetManager');
 
 /**
  * !#en
@@ -104,7 +105,7 @@ var SafeArea = cc.Class({
         let anchorY = lastAnchorPoint.y - (curPos.y - lastPos.y) / this.node.height;
         this.node.setAnchorPoint(anchorX, anchorY);
         // IMPORTANT: restore to lastPos even if widget is not ALWAYS
-        widget.enabled = true;
+        WidgetManager.add(widget);
     }
 });
 
