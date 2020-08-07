@@ -1,5 +1,5 @@
 {
-  "__type__": "cc.RenderStageAsset",
+  "__type__": "RenderStage",
   "_name": "",
   "_objFlags": 0,
   "_native": "",
