@@ -1320,8 +1320,8 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
             const block = gpuShader.blocks[i];
 
             const glBlock: IWebGLGPUUniformBlock = {
-                sourceSet: block.set,
-                binding: block.gpuBinding,
+                set: block.set,
+                binding: block.binding,
                 name: block.name,
                 size: 0,
                 glUniforms: new Array<IWebGLGPUUniform>(block.members.length),
@@ -1393,8 +1393,8 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
         for (let i = 0; i < gpuShader.samplers.length; ++i) {
             const sampler = gpuShader.samplers[i];
             gpuShader.glSamplers[i] = {
-                sourceSet: sampler.set,
-                binding: sampler.gpuBinding,
+                set: sampler.set,
+                binding: sampler.binding,
                 name: sampler.name,
                 type: sampler.type,
                 units: [],
@@ -2010,9 +2010,10 @@ export function WebGLCmdFuncBindStates (
         const blockLen = gpuShader.glBlocks.length;
         for (let j = 0; j < blockLen; j++) {
             const glBlock = gpuShader.glBlocks[j];
-            const gpuDescriptor = gpuDescriptorSets[glBlock.sourceSet].gpuDescriptors[glBlock.binding];
+            const gpuDescriptorSet = gpuDescriptorSets[glBlock.set];
+            const gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[glBlock.binding];
 
-            if (gpuDescriptor.gpuBuffer && gpuDescriptor.gpuBuffer.vf32) {
+            if (gpuDescriptor && gpuDescriptor.gpuBuffer && gpuDescriptor.gpuBuffer.vf32) {
                 const uniformLen = glBlock.glActiveUniforms.length;
                 for (let l = 0; l < uniformLen; l++) {
                     const glUniform = glBlock.glActiveUniforms[l];
@@ -2173,10 +2174,11 @@ export function WebGLCmdFuncBindStates (
         const samplerLen = gpuShader.glSamplers.length;
         for (let i = 0; i < samplerLen; i++) {
             const glSampler = gpuShader.glSamplers[i];
-            const gpuDescriptor = gpuDescriptorSets[glSampler.sourceSet].gpuDescriptors[glSampler.binding];
+            const gpuDescriptorSet = gpuDescriptorSets[glSampler.set];
+            const gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[glSampler.binding];
 
-            if (!gpuDescriptor.gpuSampler) {
-                error(`Sampler binding '${gpuDescriptor.name}' is not bounded`);
+            if (!gpuDescriptor || !gpuDescriptor.gpuSampler) {
+                error(`Sampler binding '${glSampler.name}' is not bounded`);
                 continue;
             }
 

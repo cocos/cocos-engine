@@ -27,7 +27,6 @@
  * @hidden
  */
 
-import { Material } from '../../core/assets/material';
 import { RenderingSubMesh, Mesh } from '../../core/assets/mesh';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormatInfos,
@@ -207,11 +206,6 @@ export default class ParticleBatchModel extends Model {
         return vBuffer;
     }
 
-    public setSubModelMaterial (idx: number, mat: Material | null) {
-        this.initLocalDescriptors(mat);
-        super.setSubModelMaterial(idx, mat);
-    }
-
     public addParticleVertexData (index: number, pvdata: any[]) {
         if (!this._mesh) {
             let offset: number = index * this._vertAttrsFloatCount;
@@ -324,7 +318,7 @@ export default class ParticleBatchModel extends Model {
     }
 
     public updateIA (count: number) {
-        const ia = this.getSubModel(0).inputAssembler!;
+        const ia = this._subModels[0].inputAssembler;
         ia.vertexBuffers[0].update(this._vdataF32!);
         ia.indexCount = this._indexCount * count;
         this._iaInfo.drawInfos[0] = ia;
@@ -332,7 +326,7 @@ export default class ParticleBatchModel extends Model {
     }
 
     public clear () {
-        this.getSubModel(0).inputAssembler!.indexCount = 0;
+        this._subModels[0].inputAssembler.indexCount = 0;
     }
 
     public destroy () {

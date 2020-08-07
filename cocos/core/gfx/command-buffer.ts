@@ -160,11 +160,11 @@ export abstract class GFXCommandBuffer extends GFXObject {
     public abstract bindPipelineState (pipelineState: GFXPipelineState): void;
 
     /**
-     * @en Bind descriptor sets.
-     * @zh 绑定 GFX 描述符集组。
-     * @param descriptorSets The descriptor sets to be bound.
+     * @en Bind descriptor set.
+     * @zh 绑定 GFX 描述符集。
+     * @param descriptorSet The descriptor set to be bound.
      */
-    public abstract bindDescriptorSets (descriptorSets: GFXDescriptorSet[]): void;
+    public abstract bindDescriptorSet (set: number, descriptorSets: GFXDescriptorSet): void;
 
     /**
      * @en Bind input assembler.

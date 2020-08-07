@@ -5,14 +5,14 @@
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { Pass } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
-import { IRenderObject, UBOForwardLight } from './define';
+import { IRenderObject, UBOForwardLight, DescriptorSetIndices } from './define';
 import { IMacroPatch } from '../renderer/core/pass'
 import { Light } from '../renderer';
 import { LightType } from '../renderer/scene/light';
-import { GFXDevice, GFXRenderPass, GFXBuffer } from '../gfx';
+import { GFXDevice, GFXRenderPass, GFXBuffer, GFXDescriptorSet, IGFXDescriptorSetInfo, GFXDescriptorType, GFXShader } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { DescriptorSetPool, PSOCIPool, PSOCIView } from '../renderer/core/memory-pools';
+import { DescriptorSetPool, ShaderPool, PassHandle, PassView, PassPool } from '../renderer/core/memory-pools';
 
 const spherePatches = [
     { name: 'CC_FORWARD_ADD', value: true },
@@ -22,13 +22,38 @@ const spotPatches = [
     { name: 'CC_SPOTLIGHT', value: true },
 ];
 
+const _dsInfo: IGFXDescriptorSetInfo = { layout: null! };
+
+function cloneDescriptorSet (device: GFXDevice, src: GFXDescriptorSet) {
+    _dsInfo.layout = src.layout;
+    const ds = device.createDescriptorSet(_dsInfo);
+    for (let i = 0; i < _dsInfo.layout.length; i++) {
+        switch (_dsInfo.layout[i]) {
+            case GFXDescriptorType.UNIFORM_BUFFER:
+                ds.bindBuffer(i, src.getBuffer(i));
+                break;
+            case GFXDescriptorType.UNIFORM_BUFFER:
+                ds.bindSampler(i, src.getSampler(i));
+                ds.bindTexture(i, src.getTexture(i));
+                break;
+        }
+    }
+    return ds;
+}
+
+interface ILightPSOCI {
+    shader: GFXShader;
+    descriptorSet: GFXDescriptorSet;
+    hPass: PassHandle;
+}
+
 /**
  * @zh 叠加光照队列。
  */
 export class RenderAdditiveLightQueue {
 
     private _sortedSubModelsArray: SubModel[][] = [];
-    private _sortedPSOCIArray: number[][] = [];
+    private _sortedPSOCIArray: ILightPSOCI[][] = [];
     private _phaseID = getPhaseID('forward-add');
 
     // references
@@ -82,9 +107,10 @@ export class RenderAdditiveLightQueue {
             for (let j = 0; j < this._sortedPSOCIArray[i].length; ++j) {
                 const psoCI = this._sortedPSOCIArray[i][j];
                 const ia = this._sortedSubModelsArray[i][j].inputAssembler!;
-                const pso = PipelineStateManager.getOrCreatePipelineState(device, psoCI, renderPass, ia);
+                const pso = PipelineStateManager.getOrCreatePipelineState(device, psoCI.hPass, psoCI.shader, renderPass, ia);
                 cmdBuff.bindPipelineState(pso);
-                cmdBuff.bindDescriptorSets(DescriptorSetPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SET)));
+                cmdBuff.bindDescriptorSet(DescriptorSetIndices.MATERIAL_SPECIFIC, DescriptorSetPool.get(PassPool.get(psoCI.hPass, PassView.DESCRIPTOR_SET)));
+                cmdBuff.bindDescriptorSet(DescriptorSetIndices.MODEL_LOCAL, psoCI.descriptorSet);
                 cmdBuff.bindInputAssembler(ia);
                 cmdBuff.draw(ia);
             }
@@ -97,13 +123,15 @@ export class RenderAdditiveLightQueue {
 
         const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
         const fullPatches = modelPatches ? patches.concat(modelPatches) : patches;
-        const psoCI = pass.createPipelineStateCI(fullPatches)!;
-        renderObj.model.updateLocalBindings(psoCI, subModelIdx);
-        const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoCI, PSOCIView.DESCRIPTOR_SET));
+        const hPass = pass.handle;
+        const shader = ShaderPool.get(pass.getShaderVariant(fullPatches));
+
+        // TODO: cache & reuse
+        const descriptorSet = cloneDescriptorSet(pass.device, renderObj.model.subModels[subModelIdx].descriptorSet);
         descriptorSet.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
         descriptorSet.update();
 
         subModelList.push(renderObj.model.subModels[subModelIdx]);
-        psoCIList.push(psoCI);
+        psoCIList.push({ hPass, shader, descriptorSet });
     }
 }

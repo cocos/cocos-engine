@@ -114,7 +114,7 @@ export interface IWebGLGPUUniform {
 }
 
 export interface IWebGLGPUUniformBlock {
-    sourceSet: number;
+    set: number;
     binding: number;
     name: string;
     size: number;
@@ -123,7 +123,7 @@ export interface IWebGLGPUUniformBlock {
 }
 
 export interface IWebGLGPUUniformSampler {
-    sourceSet: number;
+    set: number;
     binding: number;
     name: string;
     type: GFXType;
@@ -131,14 +131,6 @@ export interface IWebGLGPUUniformSampler {
 
     glType: GLenum;
     glLoc: WebGLUniformLocation;
-}
-
-export interface IWebGLUniformBlock extends GFXUniformBlock {
-    gpuBinding: number;
-}
-
-export interface IWebGLUniformSampler extends GFXUniformSampler {
-    gpuBinding: number;
 }
 
 export interface IWebGLGPUShaderStage {
@@ -149,8 +141,8 @@ export interface IWebGLGPUShaderStage {
 
 export interface IWebGLGPUShader {
     name: string;
-    blocks: IWebGLUniformBlock[];
-    samplers: IWebGLUniformSampler[];
+    blocks: GFXUniformBlock[];
+    samplers: GFXUniformSampler[];
 
     gpuStages: IWebGLGPUShaderStage[];
     glProgram: WebGLProgram | null;
@@ -172,16 +164,13 @@ export interface IWebGLGPUPipelineState {
 
 export interface IWebGLGPUDescriptor {
     type: GFXDescriptorType;
-    name: string;
     gpuBuffer: IWebGLGPUBuffer | null;
     gpuTexture: IWebGLGPUTexture | null;
     gpuSampler: IWebGLGPUSampler | null;
 }
 
 export interface IWebGLGPUDescriptorSet {
-    // these two are just different groupings of the same set of descriptors
-    gpuDescriptors: Record<number, IWebGLGPUDescriptor>; // for execute state binding commands
-    gpuDescriptorArray: IWebGLGPUDescriptor[]; // for updating descriptors
+    gpuDescriptors: IWebGLGPUDescriptor[];
 }
 
 export interface IWebGLAttrib {

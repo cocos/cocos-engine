@@ -203,7 +203,7 @@ export class LineModel extends Model {
     }
 
     public updateIA (count: number) {
-        const ia = this.getSubModel(0).inputAssembler!;
+        const ia = this._subModels[0].inputAssembler;
         ia.vertexBuffers[0].update(this._vdataF32!);
         ia.indexCount = this._indexCount * count;
         this._iaInfo.drawInfos[0] = ia;

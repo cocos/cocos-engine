@@ -572,8 +572,9 @@ export default class TrailModule {
     }
 
     public updateIA (count: number) {
-        if (this._trailModel && this._trailModel.subModelNum > 0) {
-            const subModel = this._trailModel.getSubModel(0);
+        const subModels = this._trailModel && this._trailModel.subModels;
+        if (subModels && subModels.length > 0) {
+            const subModel = subModels[0];
             subModel.inputAssembler!.vertexBuffers[0].update(this._vbF32!);
             subModel.inputAssembler!.indexBuffer!.update(this._iBuffer!);
             subModel.inputAssembler!.indexCount = count;

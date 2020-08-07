@@ -28,15 +28,23 @@
  */
 
 import { DEBUG } from 'internal:constants';
-import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXDescriptorSetInfo, GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader } from '../../gfx';
 import { NativeBufferPool, NativeObjectPool } from './native-pools';
+import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXDescriptorSetInfo,
+    GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader, IGFXInputAssemblerInfo, GFXInputAssembler } from '../../gfx';
 
 interface TypedArrayConstructor<T> {
     new(buffer: ArrayBufferLike, byteOffset: number, length?: number): T;
     readonly BYTES_PER_ELEMENT: number;
 }
 
-export class BufferPool<T extends TypedArray> {
+interface ElementEnum {
+    COUNT: number;
+}
+
+// a little hacky, but works (different specializations should not be assignable to each other)
+export class Handle<T extends PoolType> extends Number { m?: T; }
+
+export class BufferPool<T extends TypedArray, E extends ElementEnum, P extends PoolType> {
 
     // naming convension:
     // this._bufferViews[chunk][entry][element]
@@ -57,13 +65,13 @@ export class BufferPool<T extends TypedArray> {
 
     private _nativePool: NativeBufferPool;
 
-    constructor (dataType: PoolDataType, viewCtor: TypedArrayConstructor<T>, elementCount: number, entryBits = 8) {
+    constructor (dataType: P, viewCtor: TypedArrayConstructor<T>, enumType: E, entryBits = 8) {
         this._viewCtor = viewCtor;
-        this._elementCount = elementCount;
+        this._elementCount = enumType.COUNT;
         this._entryBits = entryBits;
 
         const bytesPerElement = viewCtor.BYTES_PER_ELEMENT || 1;
-        this._stride = bytesPerElement * elementCount;
+        this._stride = bytesPerElement * this._elementCount;
         this._entriesPerChunk = 1 << entryBits;
         this._entryMask = this._entriesPerChunk - 1;
         this._poolFlag = 1 << 30;
@@ -71,7 +79,7 @@ export class BufferPool<T extends TypedArray> {
         this._nativePool = new NativeBufferPool(dataType, entryBits, this._stride);
     }
 
-    public alloc () {
+    public alloc (): Handle<P> {
         let i = 0;
         for (; i < this._freelists.length; i++) {
             const list = this._freelists[i];
@@ -94,31 +102,31 @@ export class BufferPool<T extends TypedArray> {
         return (i << this._entryBits) + this._poolFlag; // guarantees the handle is always not zero
     }
 
-    public get (handle: number, element: number) {
-        const chunk = (this._chunkMask & handle) >> this._entryBits;
-        const entry = this._entryMask & handle;
+    public get (handle: Handle<P>, element: E[keyof E]) {
+        const chunk = (this._chunkMask & handle as number) >> this._entryBits;
+        const entry = this._entryMask & handle as number;
         if (DEBUG && (!handle || chunk < 0 || chunk >= this._bufferViews.length ||
             entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
             console.warn('invalid native buffer pool handle');
             return 0;
         }
-        return this._bufferViews[chunk][entry][element];
+        return this._bufferViews[chunk][entry][element as unknown as number];
     }
 
-    public set (handle: number, element: number, value: number) {
-        const chunk = (this._chunkMask & handle) >> this._entryBits;
-        const entry = this._entryMask & handle;
+    public set (handle: Handle<P>, element: E[keyof E], value: number | Handle<any>) {
+        const chunk = (this._chunkMask & handle as number) >> this._entryBits;
+        const entry = this._entryMask & handle as number;
         if (DEBUG && (!handle || chunk < 0 || chunk >= this._bufferViews.length ||
             entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
             console.warn('invalid native buffer pool handle');
             return;
         }
-        this._bufferViews[chunk][entry][element] = value;
+        this._bufferViews[chunk][entry][element as unknown as number] = value as number;
     }
 
-    public free (handle: number) {
-        const chunk = (this._chunkMask & handle) >> this._entryBits;
-        const entry = this._entryMask & handle;
+    public free (handle: Handle<P>) {
+        const chunk = (this._chunkMask & handle as number) >> this._entryBits;
+        const entry = this._entryMask & handle as number;
         if (DEBUG && (!handle || chunk < 0 || chunk >= this._freelists.length ||
             entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
             console.warn('invalid native buffer pool handle');
@@ -129,7 +137,7 @@ export class BufferPool<T extends TypedArray> {
     }
 }
 
-export class ObjectPool<T> {
+export class ObjectPool<T, P extends PoolType> {
 
     private _ctor: (args: any, obj?: T) => T;
     private _dtor?: (obj: T) => void;
@@ -141,7 +149,8 @@ export class ObjectPool<T> {
 
     private _nativePool: NativeObjectPool<T>;
 
-    constructor (dataType: PoolDataType, ctor: (args: any, obj?: T) => T, dtor?: (obj: T) => void) {
+
+    constructor (dataType: P, ctor: (args: any, obj?: T) => T, dtor?: (obj: T) => void) {
         this._ctor = ctor;
         if (dtor) { this._dtor = dtor; }
         this._poolFlag = 1 << 29;
@@ -149,7 +158,7 @@ export class ObjectPool<T> {
         this._nativePool = new NativeObjectPool(dataType, this._array);
     }
 
-    public alloc (...args: any[]) {
+    public alloc (...args: any[]): Handle<P> {
         const freelist = this._freelist;
         let i = -1;
         if (freelist.length) {
@@ -166,8 +175,8 @@ export class ObjectPool<T> {
         return i + this._poolFlag; // guarantees the handle is always not zero
     }
 
-    public get (handle: number) {
-        const index = this._indexMask & handle;
+    public get (handle: Handle<P>) {
+        const index = this._indexMask & handle as number;
         if (DEBUG && (!handle || index < 0 || index >= this._array.length || this._freelist.find((n) => n === index))) {
             console.warn('invalid native object pool handle');
             return null!;
@@ -175,8 +184,8 @@ export class ObjectPool<T> {
         return this._array[index];
     }
 
-    public free (handle: number) {
-        const index = this._indexMask & handle;
+    public free (handle: Handle<P>) {
+        const index = this._indexMask & handle as number;
         if (DEBUG && (!handle || index < 0 || index >= this._array.length || this._freelist.find((n) => n === index))) {
             console.warn('invalid native object pool handle');
             return;
@@ -186,33 +195,46 @@ export class ObjectPool<T> {
     }
 }
 
-enum PoolDataType {
+enum PoolType {
     // objects
     RASTERIZER_STATE,
     DEPTH_STENCIL_STATE,
     BLEND_STATE,
     DESCRIPTOR_SETS,
     SHADER,
+    INPUT_ASSEMBLER,
     // buffers
-    PASS_INFO,
-    PSOCI,
+    PASS,
+    SUB_MODEL,
 }
+export type RasterizerStateHandle = Handle<PoolType.RASTERIZER_STATE>;
+export type DepthStencilStateHandle = Handle<PoolType.DEPTH_STENCIL_STATE>;
+export type BlendStateHandle = Handle<PoolType.BLEND_STATE>;
+export type DescriptorSetHandle = Handle<PoolType.DESCRIPTOR_SETS>;
+export type ShaderHandle = Handle<PoolType.SHADER>;
+export type IAHandle = Handle<PoolType.INPUT_ASSEMBLER>;
+export type PassHandle = Handle<PoolType.PASS>;
+export type SubModelHandle = Handle<PoolType.SUB_MODEL>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
-export const RasterizerStatePool = new ObjectPool(PoolDataType.RASTERIZER_STATE, (_: any) => new GFXRasterizerState());
-export const DepthStencilStatePool = new ObjectPool(PoolDataType.DEPTH_STENCIL_STATE, (_: any) => new GFXDepthStencilState());
-export const BlendStatePool = new ObjectPool(PoolDataType.BLEND_STATE, (_: any) => new GFXBlendState());
+export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, (_: any) => new GFXRasterizerState());
+export const DepthStencilStatePool = new ObjectPool(PoolType.DEPTH_STENCIL_STATE, (_: any) => new GFXDepthStencilState());
+export const BlendStatePool = new ObjectPool(PoolType.BLEND_STATE, (_: any) => new GFXBlendState());
 
-export const DescriptorSetPool = new ObjectPool(PoolDataType.DESCRIPTOR_SETS,
+export const DescriptorSetPool = new ObjectPool(PoolType.DESCRIPTOR_SETS,
     (args: [GFXDevice, IGFXDescriptorSetInfo], obj?: GFXDescriptorSet) => obj ? (obj.initialize(args[1]), obj) : args[0].createDescriptorSet(args[1]),
-    (descriptorSet: GFXDescriptorSet) => descriptorSet && descriptorSet.destroy(),
+    (obj: GFXDescriptorSet) => obj && obj.destroy(),
 );
-export const ShaderPool = new ObjectPool(PoolDataType.SHADER,
+export const ShaderPool = new ObjectPool(PoolType.SHADER,
     (args: [GFXDevice, GFXShaderInfo], obj?: GFXShader) => obj ? (obj.initialize(args[1]), obj) : args[0].createShader(args[1]),
-    (shader: GFXShader) => shader && shader.destroy(),
+    (obj: GFXShader) => obj && obj.destroy(),
+);
+export const IAPool = new ObjectPool(PoolType.INPUT_ASSEMBLER,
+    (args: [GFXDevice, IGFXInputAssemblerInfo], obj?: GFXInputAssembler) => obj ? (obj.initialize(args[1]), obj) : args[0].createInputAssembler(args[1]),
+    (obj: GFXInputAssembler) => obj && obj.destroy(),
 );
 
-export enum PassInfoView {
+export enum PassView {
     PRIORITY,
     STAGE,
     PHASE,
@@ -220,17 +242,27 @@ export enum PassInfoView {
     PRIMITIVE,
     DYNAMIC_STATES,
     HASH,
-    RASTERIZER_STATE,   // index into type-specific pool
-    DEPTH_STENCIL_STATE, // index into type-specific pool
-    BLEND_STATE,        // index into type-specific pool
+    RASTERIZER_STATE,    // handle
+    DEPTH_STENCIL_STATE, // handle
+    BLEND_STATE,         // handle
+    DESCRIPTOR_SET,      // handle
     COUNT,
 }
-export const PassInfoPool = new BufferPool(PoolDataType.PASS_INFO, Uint32Array, PassInfoView.COUNT);
+export const PassPool = new BufferPool(PoolType.PASS, Uint32Array, PassView);
 
-export enum PSOCIView {
-    PASS_INFO,      // index into type-specific pool
-    DESCRIPTOR_SET, // index into type-specific pool
-    SHADER,        // index into type-specific pool
+export enum SubModelView {
+    PRIORITY,
+    PASS_COUNT,
+    PASS_0,          // handle
+    PASS_1,          // handle
+    PASS_2,          // handle
+    PASS_3,          // handle
+    SHADER_0,        // handle
+    SHADER_1,        // handle
+    SHADER_2,        // handle
+    SHADER_3,        // handle
+    DESCRIPTOR_SET,  // handle
+    INPUT_ASSEMBLER, // handle
     COUNT,
 }
-export const PSOCIPool = new BufferPool(PoolDataType.PSOCI, Uint32Array, PSOCIView.COUNT);
+export const SubModelPool = new BufferPool(PoolType.SUB_MODEL, Uint32Array, SubModelView);

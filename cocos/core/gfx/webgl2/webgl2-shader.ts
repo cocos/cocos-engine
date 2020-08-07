@@ -1,7 +1,7 @@
 import { GFXShader, GFXShaderInfo } from '../shader';
 import { WebGL2CmdFuncCreateShader, WebGL2CmdFuncDestroyShader } from './webgl2-commands';
 import { WebGL2Device } from './webgl2-device';
-import { IWebGL2GPUShader, IWebGL2GPUShaderStage, IWebGL2UniformBlock, IWebGL2UniformSampler } from './webgl2-gpu-objects';
+import { IWebGL2GPUShader, IWebGL2GPUShaderStage } from './webgl2-gpu-objects';
 import { GFXStatus } from '../define';
 
 export class WebGL2Shader extends GFXShader {
@@ -20,36 +20,10 @@ export class WebGL2Shader extends GFXShader {
         this._blocks = info.blocks;
         this._samplers = info.samplers;
 
-        const bindingMapping = info.bindingMappingInfo;
-        const blocks = (info.blocks !== undefined ? info.blocks : []) as IWebGL2UniformBlock[];
-        const samplers = (info.samplers !== undefined ? info.samplers : []) as IWebGL2UniformSampler[];
-
-        if (bindingMapping) {
-            const boffsets = bindingMapping.bufferOffsets;
-            const soffsets = bindingMapping.samplerOffsets;
-            for (let i = 0; i < blocks.length; i++) {
-                const block = blocks[i]; // buffer bindings starts at 0 and grows upward
-                block.gpuBinding = block.binding + boffsets[block.set];
-            }
-            for (let i = 0; i < samplers.length; i++) {
-                const sampler = samplers[i]; // sampler bindings starts at -1 and grows downward
-                sampler.gpuBinding = -(sampler.binding - soffsets[sampler.set]) - 1;
-            }
-        } else {
-            for (let i = 0; i < blocks.length; i++) {
-                const block = blocks[i];
-                block.gpuBinding = block.binding;
-            }
-            for (let i = 0; i < samplers.length; i++) {
-                const sampler = samplers[i];
-                sampler.gpuBinding = sampler.binding;
-            }
-        }
-
         this._gpuShader = {
             name: info.name ? info.name : '',
-            blocks,
-            samplers,
+            blocks: info.blocks !== undefined ? info.blocks : [],
+            samplers: info.samplers !== undefined ? info.samplers : [],
 
             gpuStages: new Array<IWebGL2GPUShaderStage>(info.stages.length),
             glProgram: null,
@@ -68,7 +42,7 @@ export class WebGL2Shader extends GFXShader {
             };
         }
 
-        WebGL2CmdFuncCreateShader(this._device as WebGL2Device, this._gpuShader);
+        WebGL2CmdFuncCreateShader(this._device as WebGL2Device, this._gpuShader, info.bindingMappingInfo);
 
         this._status = GFXStatus.SUCCESS;
 

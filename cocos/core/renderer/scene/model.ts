@@ -14,21 +14,19 @@ import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from './render-scene';
 import { Texture2D } from '../../assets/texture-2d';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { IGFXAttribute } from '../../gfx';
+import { IGFXAttribute, GFXDescriptorSet } from '../../gfx';
 import { SubModel } from './submodel';
 import { Pass, IMacroPatch } from '../core/pass';
 import { legacyCC } from '../../global-exports';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { BatchingSchemes } from '../core/pass';
-import { DescriptorSetPool, ShaderPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
+import { ShaderPool, SubModelPool, SubModelView } from '../core/memory-pools';
 
 const m4_1 = new Mat4();
 
-const _subModelPool = new Pool(() => {
-    return new SubModel();
-}, 32);
+const _subModelPool = new Pool(() => new SubModel(), 32);
 
-const shadowMap_Patches: IMacroPatch[]= [
+const shadowMapPatches: IMacroPatch[] = [
     { name: 'CC_SHADOW', value: true },
 ];
 
@@ -85,10 +83,6 @@ export class Model {
         return this._subModels;
     }
 
-    get subModelNum () {
-        return this._subModels.length;
-    }
-
     get inited (): boolean {
         return this._inited;
     }
@@ -124,19 +118,19 @@ export class Model {
     public isDynamicBatching = false;
     public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, list: [] };
 
-    protected _device: GFXDevice;
     protected _worldBounds: aabb | null = null;
     protected _modelBounds: aabb | null = null;
     protected _subModels: SubModel[] = [];
-    protected _implantPSOCIs: number[] = [];
-    protected _localData = new Float32Array(UBOLocal.COUNT);
-    protected _localBuffer: GFXBuffer | null = null;
+
+    protected _device: GFXDevice;
     protected _inited = false;
+    protected _descriptorSetCount = 1;
     protected _updateStamp = -1;
     protected _transformUpdated = true;
 
+    private _localData = new Float32Array(UBOLocal.COUNT);
+    private _localBuffer: GFXBuffer | null = null;
     private _instMatWorldIdx = -1;
-
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
 
@@ -144,7 +138,7 @@ export class Model {
      * Setup a default empty model
      */
     constructor () {
-        this._device = legacyCC.director.root!.device;
+        this._device = legacyCC.director.root.device;
     }
 
     public initialize (node: Node) {
@@ -152,7 +146,9 @@ export class Model {
     }
 
     public destroy () {
-        for (const subModel of this._subModels) {
+        const subModels = this._subModels;
+        for (let i = 0; i < subModels.length; i++) {
+            const subModel = this._subModels[i];
             subModel.destroy();
             _subModelPool.free(subModel);
         }
@@ -176,10 +172,6 @@ export class Model {
         this.scene = null;
     }
 
-    public getSubModel (idx: number) {
-        return this._subModels[idx];
-    }
-
     public updateTransform (stamp: number) {
         const node = this.transform!;
         // @ts-ignore TS2445
@@ -193,35 +185,16 @@ export class Model {
         }
     }
 
-    public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
-        Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
-
-        this._lightmap = texture;
-        this._lightmapUVParam = uvParam;
-
-        if (texture === null) {
-            texture = builtinResMgr.get<Texture2D>('empty-texture');
-        }
-
-        const gfxTexture = texture.getGFXTexture();
-        if (gfxTexture !== null) {
-            const sampler = samplerLib.getSampler(this._device, texture.mipmaps.length > 1 ? lightmapSamplerWithMipHash : lightmapSamplerHash);
-            for (const sub of this._subModels) {
-                for (let i = 0; i < sub.psoInfos.length; i++) {
-                    const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(sub.psoInfos[i], PSOCIView.DESCRIPTOR_SET));
-                    descriptorSet.bindTexture(UniformLightingMapSampler.binding, gfxTexture);
-                    descriptorSet.bindSampler(UniformLightingMapSampler.binding, sampler);
-                    descriptorSet.update();
-                }
-            }
-        }
-    }
-
     public updateUBOs (stamp: number) {
-        this._subModels.forEach(this._updatePass, this);
+        const subModels = this._subModels;
+        for (let i = 0; i < subModels.length; i++) {
+            subModels[i].update();
+        }
         this._updateStamp = stamp;
+
         if (!this._transformUpdated) { return; }
         this._transformUpdated = false;
+
         // @ts-ignore
         const worldMatrix = this.transform._mat;
         const idx = this._instMatWorldIdx;
@@ -248,14 +221,13 @@ export class Model {
     }
 
     public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
-        this.initLocalDescriptors(mat);
         if (this._subModels[idx] == null) {
             this._subModels[idx] = _subModelPool.alloc();
         } else {
             this._subModels[idx].destroy();
         }
-        this._subModels[idx].initialize(subMeshData, mat, this.getMacroPatches(idx));
-        this.updateAttributesAndBinding(idx);
+        this._subModels[idx].initialize(subMeshData, mat.passes, this.getMacroPatches(idx));
+        this._updateAttributesAndBinding(idx);
         this._inited = true;
     }
 
@@ -263,69 +235,80 @@ export class Model {
         if (this._subModels[idx] == null) {
             this._subModels[idx] = _subModelPool.alloc();
         }
-        this._subModels[idx].subMeshData = subMeshData;
+        this._subModels[idx].subMesh = subMeshData;
     }
 
-    public setSubModelMaterial (idx: number, mat: Material | null) {
-        this.initLocalDescriptors(mat);
+    public setSubModelMaterial (idx: number, mat: Material) {
         if (!this._subModels[idx]) { return; }
-        this._subModels[idx].material = mat;
-
-        if (mat) {
-            this.updateAttributesAndBinding(idx);
-        }
+        this._subModels[idx].passes = mat.passes;
+        this._updateAttributesAndBinding(idx);
     }
 
     public onGlobalPipelineStateChanged () {
         const subModels = this._subModels;
-
-        for (let i = 0; i < subModels.length; ++i) {
+        for (let i = 0; i < subModels.length; i++) {
             subModels[i].onPipelineStateChanged();
-            this.updateAttributesAndBinding(i);
-        }
-
-        this.updateLightingmap(this._lightmap, this._lightmapUVParam);
-    }
-
-    public insertImplantPSOCI (psoci: number, submodelIdx: number) {
-        this.updateLocalBindings(psoci, submodelIdx);
-        this._implantPSOCIs.push(psoci);
-    }
-
-    public removeImplantPSOCI (psoci: number) {
-        const idx = this._implantPSOCIs.indexOf(psoci);
-        if (idx >= 0) { this._implantPSOCIs.splice(idx, 1); }
-    }
-
-    public updateLocalBindings (psoci: number, submodelIdx: number) {
-        if (this._localBuffer) {
-            const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SET));
-            descriptorSet.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer);
         }
     }
 
-    protected updateAttributesAndBinding (subModelIndex: number) {
+    public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
+        Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
+
+        this._lightmap = texture;
+        this._lightmapUVParam = uvParam;
+
+        if (texture === null) {
+            texture = builtinResMgr.get<Texture2D>('empty-texture');
+        }
+
+        const gfxTexture = texture.getGFXTexture();
+        if (gfxTexture !== null) {
+            const sampler = samplerLib.getSampler(this._device, texture.mipmaps.length > 1 ? lightmapSamplerWithMipHash : lightmapSamplerHash);
+            const subModels = this._subModels;
+            for (let i = 0; i < subModels.length; i++) {
+                const descriptorSet = subModels[i].descriptorSet;
+                descriptorSet.bindTexture(UniformLightingMapSampler.binding, gfxTexture);
+                descriptorSet.bindSampler(UniformLightingMapSampler.binding, sampler);
+                descriptorSet.update();
+            }
+        }
+    }
+
+    // public insertImplantPSOCI (psoci: number, submodelIdx: number) {
+    //     this.updateLocalBindings(psoci, submodelIdx);
+    //     this._implantPSOCIs.push(psoci);
+    // }
+
+    // public removeImplantPSOCI (psoci: number) {
+    //     const idx = this._implantPSOCIs.indexOf(psoci);
+    //     if (idx >= 0) { this._implantPSOCIs.splice(idx, 1); }
+    // }
+
+    public getMacroPatches (subModelIndex: number) {
+        return this.receiveShadow ? shadowMapPatches : null;
+    }
+
+    protected _updateAttributesAndBinding (subModelIndex: number) {
         const subModel = this._subModels[subModelIndex];
-        if (!subModel) {
-            return;
+        if (!subModel) { return; }
+
+        this._initLocalDescriptors(subModelIndex);
+        const subModels = this._subModels;
+        for (let i = 0; i < subModels.length; i++) {
+            const ds = subModels[i].descriptorSet;
+            this._updateLocalDescriptors(i, ds);
         }
 
-        const psoCreateInfos = subModel.psoInfos;
-        for (let i = 0; i < psoCreateInfos.length; ++i) {
-            this.updateLocalBindings(psoCreateInfos[i], subModelIndex);
-        }
-
-        const shader = ShaderPool.get(PSOCIPool.get(psoCreateInfos[0], PSOCIView.SHADER));
-        this.updateInstancedAttributeList(shader.attributes, subModel.passes[0]);
+        const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0));
+        this._updateInstancedAttributes(shader.attributes, subModel.passes[0]);
     }
 
-    public getMacroPatches (subModelIndex: number) : IMacroPatch[] | undefined {
-        if (this.receiveShadow) return shadowMap_Patches;
-        return undefined;
+    protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
+        descriptorSet.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer!);
     }
 
     // for now no submodel level instancing attributes
-    protected updateInstancedAttributeList (attributes: IGFXAttribute[], pass: Pass) {
+    protected _updateInstancedAttributes (attributes: IGFXAttribute[], pass: Pass) {
         if (!pass.device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) { return; }
         let size = 0;
         for (let j = 0; j < attributes.length; j++) {
@@ -345,12 +328,12 @@ export class Model {
             const isNormalized = attribute.isNormalized;
             offset += info.size; attrs.list.push({ name: attribute.name, format, isNormalized, view });
         }
-        if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass, this._device).destroy(); } // instancing IA changed
-        this._instMatWorldIdx = this.getInstancedAttributeIndex(INST_MAT_WORLD);
+        if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass).destroy(); } // instancing IA changed
+        this._instMatWorldIdx = this._getInstancedAttributeIndex(INST_MAT_WORLD);
         this._transformUpdated = true;
     }
 
-    protected getInstancedAttributeIndex (name: string) {
+    protected _getInstancedAttributeIndex (name: string) {
         const list = this.instancedAttributes.list;
         for (let i = 0; i < list.length; i++) {
             if (list[i].name === name) { return i; }
@@ -358,7 +341,7 @@ export class Model {
         return -1;
     }
 
-    protected initLocalDescriptors (mat: Material | null) {
+    protected _initLocalDescriptors (subModelIndex: number) {
         if (!this._localBuffer) {
             this._localBuffer = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
@@ -367,9 +350,5 @@ export class Model {
                 stride: UBOLocal.SIZE,
             });
         }
-    }
-
-    private _updatePass (subModel: SubModel) {
-        subModel.update();
     }
 }

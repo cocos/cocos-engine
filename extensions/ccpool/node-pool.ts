@@ -36,7 +36,7 @@ type Constructor<T = {}> = new(...args: any[]) => T;
 interface IPoolHandlerComponent extends Component {
     unuse (): void;
 
-    reuse (...args: any[]): void;
+    reuse (args: any): void;
 }
 
 /**
@@ -166,7 +166,7 @@ export class NodePool {
             // @ts-ignore
             const handler = this.poolHandlerComp ? obj.getComponent(this.poolHandlerComp) : null;
             if (handler && handler.reuse) {
-                handler.reuse.apply(handler, ...args);
+                handler.reuse(arguments);
             }
             return obj;
         }

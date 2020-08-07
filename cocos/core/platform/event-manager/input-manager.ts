@@ -319,9 +319,7 @@ class InputManager {
         return touch;
     }
 
-    public getMouseEvent (
-        location: { x: number; y: number; }, pos: IHTMLElementPosition, eventType: number): EventMouse 
-    {
+    public getMouseEvent (location: { x: number; y: number; }, pos: IHTMLElementPosition, eventType: number): EventMouse {
         const locPreMouse = this._prevMousePoint;
         const mouseEvent = new EventMouse(eventType, false, locPreMouse);
         locPreMouse.x = location.x;
@@ -678,6 +676,7 @@ class InputManager {
 
         // @ts-ignore
         listenDOMMouseEvent('mousewheel', EventMouse.SCROLL, (event, mouseEvent, location, pos) => {
+            // @ts-ignore
             mouseEvent.setScrollData(0, event.wheelDelta);
         });
 

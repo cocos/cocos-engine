@@ -46,33 +46,6 @@ export class ShadowFlow extends RenderFlow {
         return true;
     }
 
-    /**
-     * @zh
-     * 销毁函数。
-     */
-    public destroy () {
-        super.destroy();
-    }
-
-    public render (view: RenderView) {
-        const pipeline = this._pipeline as ForwardPipeline;
-        view.camera.update();
-        sceneCulling(pipeline, view);
-        pipeline.updateUBOs(view);
-        super.render(view);
-        const shadowmapUniform = pipeline.globalBindings.get(UNIFORM_SHADOWMAP.name);
-        if (shadowmapUniform) {
-            shadowmapUniform.texture = this._shadowFrameBuffer?.colorTextures[0]!;
-        }
-    }
-
-    /**
-     * @zh
-     * 重构函数。
-     */
-    public rebuild () {
-    }
-
     public activate (pipeline: ForwardPipeline) {
         super.activate(pipeline);
 
@@ -133,5 +106,14 @@ export class ShadowFlow extends RenderFlow {
         for (let i = 0; i < this._stages.length; ++i) {
             (this._stages[i] as ShadowStage).setShadowFrameBuffer(this._shadowFrameBuffer);
         }
+    }
+
+    public render (view: RenderView) {
+        const pipeline = this._pipeline as ForwardPipeline;
+        view.camera.update();
+        sceneCulling(pipeline, view);
+        pipeline.updateUBOs(view);
+        super.render(view);
+        pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this._shadowFrameBuffer!.colorTextures[0]!);
     }
 }

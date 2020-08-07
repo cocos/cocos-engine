@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { GFXAttributeName, GFXBuffer, GFXBufferUsageBit, GFXDevice, GFXFeature, GFXMemoryUsageBit } from '../gfx';
+import { GFXAttributeName, GFXBuffer, GFXBufferUsageBit, GFXDevice, GFXFeature, GFXMemoryUsageBit, GFXDescriptorSet } from '../gfx';
 import { Mesh } from './mesh';
 import { Texture2D } from './texture-2d';
 import { ImageAsset } from './image-asset';
@@ -15,7 +15,7 @@ import { log2, nextPow2 } from '../math/bits';
 import { IMacroPatch } from '../renderer';
 import { legacyCC } from '../global-exports';
 import { PixelFormat } from './asset-enum';
-import { DescriptorSetPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
+import { DescriptorSetPool } from '../renderer/core/memory-pools';
 
 /**
  * True if force to use cpu computing based sub-mesh rendering.
@@ -104,8 +104,8 @@ export class StdMorphRendering implements MorphRendering {
                 return patches;
             },
 
-            adaptPipelineState: (subMeshIndex: number, pipelineCreateInfo: number) => {
-                subMeshInstances[subMeshIndex]?.adaptPipelineState(pipelineCreateInfo);
+            adaptPipelineState: (subMeshIndex: number, descriptorSet: GFXDescriptorSet) => {
+                subMeshInstances[subMeshIndex]?.adaptPipelineState(descriptorSet);
             },
 
             destroy: () => {
@@ -146,7 +146,7 @@ interface SubMeshMorphRenderingInstance {
      * Adapts the pipelineState to apply the rendering.
      * @param pipelineState
      */
-    adaptPipelineState (pipelineCreateInfo: number): void;
+    adaptPipelineState (descriptorSet: GFXDescriptorSet): void;
 
     /**
      * Destroy this instance.
@@ -249,8 +249,7 @@ class GpuComputing implements SubMeshMorphRendering {
                 return [{ name: 'CC_MORPH_TARGET_USE_TEXTURE', value: true, }];
             },
 
-            adaptPipelineState: (pipelineCreateInfo: number) => {
-                const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(pipelineCreateInfo, PSOCIView.DESCRIPTOR_SET));
+            adaptPipelineState: (descriptorSet: GFXDescriptorSet) => {
                 for (const attribute of this._attributes) {
                     let binding: number | undefined;
                     switch (attribute.name) {
@@ -418,8 +417,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
         ];
     }
 
-    public adaptPipelineState (pipelineCreateInfo: number) {
-        const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(pipelineCreateInfo, PSOCIView.DESCRIPTOR_SET));
+    public adaptPipelineState (descriptorSet: GFXDescriptorSet) {
         for (const attribute of this._attributes) {
             const attributeName = attribute.attributeName;
             let binding: number | undefined;

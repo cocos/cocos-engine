@@ -84,10 +84,14 @@ export class UIStage extends RenderStage {
         const device = pipeline.device;
         this._renderQueues[0].clear();
 
-        for (const ro of pipeline.renderObjects) {
-            for (let i = 0; i < ro.model.subModelNum; i++) {
-                for (let j = 0; j < ro.model.getSubModel(i).passes.length; j++) {
-                    this._renderQueues[0].insertRenderPass(ro, i, j);
+        const renderObjects = pipeline.renderObjects;
+        for (let i = 0; i < renderObjects.length; i++) {
+            const ro = renderObjects[i];
+            const subModels = ro.model.subModels;
+            for (let j = 0; j < subModels.length; j++) {
+                const passes = subModels[j].passes;
+                for (let k = 0; k < passes.length; k++) {
+                    this._renderQueues[0].insertRenderPass(ro, j, k);
                 }
             }
         }

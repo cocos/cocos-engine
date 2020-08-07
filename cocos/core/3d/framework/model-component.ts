@@ -433,7 +433,8 @@ export class ModelComponent extends RenderableComponent {
 
     protected _clearMaterials () {
         if (!this._model) { return; }
-        for (let i = 0; i < this._model.subModelNum; ++i) {
+        const subModels = this._model.subModels;
+        for (let i = 0; i < subModels.length; ++i) {
             this._onMaterialModified(i, null);
         }
     }

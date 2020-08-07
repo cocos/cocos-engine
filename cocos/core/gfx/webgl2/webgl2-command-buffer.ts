@@ -157,13 +157,12 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public bindDescriptorSets (descriptorSets: GFXDescriptorSet[]) {
-        for (let i = 0; i < descriptorSets.length; i++) {
-            const gpuDescriptorSets = (descriptorSets[i] as WebGL2DescriptorSet).gpuDescriptorSet;
-            this._curGPUDescriptorSets[i] = gpuDescriptorSets;
+    public bindDescriptorSet (set: number, descriptorSet: GFXDescriptorSet) {
+        const gpuDescriptorSets = (descriptorSet as WebGL2DescriptorSet).gpuDescriptorSet;
+        if (gpuDescriptorSets !== this._curGPUDescriptorSets[set]) {
+            this._curGPUDescriptorSets[set] = gpuDescriptorSets;
+            this._isStateInvalied = true;
         }
-        this._curGPUDescriptorSets.length = descriptorSets.length;
-        this._isStateInvalied = true;
     }
 
     public bindInputAssembler (inputAssembler: GFXInputAssembler) {

@@ -130,7 +130,7 @@ export class UIStaticBatchComponent extends UIRenderComponent {
         }
     }
 
-    get drawBatchList (){
+    get drawBatchList () {
         return this._uiDrawBatchList;
     }
 
@@ -140,7 +140,7 @@ export class UIStaticBatchComponent extends UIRenderComponent {
     private _lastMeshBuffer: MeshBuffer | null = null;
     private _uiDrawBatchList: UIDrawBatch[] = [];
 
-    public onLoad() {
+    public onLoad () {
         const ui = this._getUI();
         if (!ui) {
             return;
@@ -152,7 +152,7 @@ export class UIStaticBatchComponent extends UIRenderComponent {
         this._meshBuffer = buffer;
     }
 
-    public onDestroy (){
+    public onDestroy () {
         super.onDestroy();
 
         this._clearData();
@@ -200,7 +200,7 @@ export class UIStaticBatchComponent extends UIRenderComponent {
      * 重新采集数据标记，会在当前帧的渲染阶段重新采集渲染数据，下一帧开始将会使用固定数据进行渲染。
      * 注意：尽量不要频繁调用此接口，因为会清空原先存储的 ia 数据重新采集，会有一定内存损耗。
      */
-    public markAsDirty() {
+    public markAsDirty () {
         if (!this._getUI()) {
             return;
         }
@@ -212,14 +212,14 @@ export class UIStaticBatchComponent extends UIRenderComponent {
         this._clearData();
     }
 
-    public _requireDrawBatch() {
+    public _requireDrawBatch () {
         const batch = new UIDrawBatch();
         batch.isStatic = true;
         this._uiDrawBatchList.push(batch);
         return batch;
     }
 
-    protected _clearData(){
+    protected _clearData () {
         if (this._meshBuffer) {
             this._meshBuffer!.reset();
 
@@ -235,7 +235,7 @@ export class UIStaticBatchComponent extends UIRenderComponent {
     }
 
     protected _getUI (){
-        if(director.root && director.root.ui){
+        if(director.root && director.root.ui) {
             return director.root.ui;
         }
 

@@ -7,6 +7,7 @@ import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { IInstancedAttributeBlock, Pass } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
+import { SubModelView, SubModelPool, ShaderHandle, DescriptorSetHandle, PassHandle } from '../renderer/core/memory-pools';
 
 export interface IInstancedItem {
     count: number;
@@ -15,6 +16,8 @@ export interface IInstancedItem {
     data: Uint8Array;
     ia: GFXInputAssembler;
     stride: number;
+    hShader: ShaderHandle;
+    hDescriptorSet: DescriptorSetHandle;
 }
 
 const INITIAL_CAPACITY = 32;
@@ -22,25 +25,26 @@ const MAX_CAPACITY = 1024;
 
 export class InstancedBuffer {
 
-    public instances: IInstancedItem[] = [];
-    public psoci: number = 0;
-
     private static _buffers = new Map<Pass | number, InstancedBuffer>();
 
-    public static get (key: Pass | number, device: GFXDevice) {
+    public static get (pass: Pass, key?: number) {
         const buffers = InstancedBuffer._buffers;
-        if (!buffers.has(key)) {
-            const buffer = new InstancedBuffer(device);
-            buffers.set(key, buffer);
+        const hash = key || pass;
+        if (!buffers.has(hash)) {
+            const buffer = new InstancedBuffer(pass);
+            buffers.set(hash, buffer);
             return buffer;
         }
-        return buffers.get(key)!;
+        return buffers.get(hash)!;
     }
 
+    public instances: IInstancedItem[] = [];
+    public hPass: PassHandle = 0;
     private _device: GFXDevice;
 
-    constructor (device: GFXDevice) {
-        this._device = device;
+    constructor (pass: Pass) {
+        this._device = pass.device;
+        this.hPass = pass.handle;
     }
 
     public destroy () {
@@ -52,11 +56,12 @@ export class InstancedBuffer {
         this.instances.length = 0;
     }
 
-    public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, psoci: number) {
+    public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, passIdx: number) {
         const stride = attrs.buffer.length;
         if (!stride) { return; } // we assume per-instance attributes are always present
-        if (!this.psoci) { this.psoci = psoci; }
-        const sourceIA = subModel.inputAssembler!;
+        const sourceIA = subModel.inputAssembler;
+        const hShader = SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx);
+        const hDescriptorSet = SubModelPool.get(subModel.handle, SubModelView.DESCRIPTOR_SET);
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             if (instance.ia.indexBuffer !== sourceIA.indexBuffer || instance.count >= MAX_CAPACITY) { continue; }
@@ -72,6 +77,8 @@ export class InstancedBuffer {
                 instance.data.set(oldData);
                 instance.vb.resize(newSize);
             }
+            if (instance.hShader !== hShader) { instance.hShader = hShader; }
+            if (instance.hDescriptorSet !== hDescriptorSet) { instance.hDescriptorSet = hDescriptorSet; }
             instance.data.set(attrs.buffer, instance.stride * instance.count++);
             return;
         }
@@ -102,7 +109,7 @@ export class InstancedBuffer {
 
         vertexBuffers.push(vb);
         const ia = this._device.createInputAssembler({ attributes, vertexBuffers, indexBuffer });
-        this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride });
+        this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride, hShader, hDescriptorSet });
     }
 
     public uploadBuffers () {
@@ -119,6 +126,5 @@ export class InstancedBuffer {
             const instance = this.instances[i];
             instance.count = 0;
         }
-        this.psoci = 0;
     }
 }

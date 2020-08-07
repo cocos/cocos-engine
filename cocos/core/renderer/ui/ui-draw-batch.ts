@@ -26,20 +26,12 @@ export class UIDrawBatch {
     public material: Material | null = null;
     public texture: GFXTexture | null = null;
     public sampler: GFXSampler | null = null;
-    public psoCreateInfo = 0;
     public descriptorSet: GFXDescriptorSet | null = null;
     public useLocalData: Node | null = null;
     public isStatic = false;
 
     public destroy (ui: UI) {
-        if (this.psoCreateInfo) {
-            ui._getUIMaterial(this.material!).revertPipelineCreateInfo(this.psoCreateInfo);
-            this.psoCreateInfo = 0;
-        }
-
-        if (this.descriptorSet) {
-            this.descriptorSet = null;
-        }
+        this.descriptorSet = null;
 
         if (this.ia) {
             this.ia.destroy();
@@ -47,13 +39,10 @@ export class UIDrawBatch {
         }
     }
 
-    public clear (ui: UI) {
-        if (this.psoCreateInfo) {
-            ui._getUIMaterial(this.material!).revertPipelineCreateInfo(this.psoCreateInfo);
-            this.psoCreateInfo = 0;
-        }
-        this.camera = null;
+    public clear () {
         this._bufferBatch = null;
+        this.camera = null;
+        this.descriptorSet = null;
         this.material = null;
         this.texture = null;
         this.sampler = null;
