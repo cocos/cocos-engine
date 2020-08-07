@@ -1,5 +1,5 @@
-/*
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+/****************************************************************************
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,20 +21,38 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-*/
+ ****************************************************************************/
 
 /**
- * @category core/data
+ * @category asset
  */
 
-import * as _decorator from './class-decorator';
+import {ccclass, property} from '../data/class-decorator';
 import { legacyCC } from '../global-exports';
-legacyCC._decorator = _decorator;
-export { _decorator };
-export { default as CCClass } from './class';
-export { CCObject, isValid } from './object';
-export { default as deserialize } from './deserialize';
-export { Details } from './deserialize';
-export { default as instantiate } from './instantiate';
-export { CCInteger, CCFloat, CCBoolean, CCString} from './utils/attribute';
-export { CompactValueTypeArray } from './utils/compact-value-type-array';
+import { Asset } from './asset';
+
+@ccclass('cc.BufferAsset')
+export class BufferAsset extends Asset {
+
+    private _buffer: ArrayBuffer | null = null;
+
+    @property({override: true})
+    get _nativeAsset () {
+        return this._buffer as ArrayBuffer;
+    }
+
+    set _nativeAsset (bin: ArrayBufferView | ArrayBuffer) {
+        if (bin instanceof ArrayBuffer) {
+            this._buffer = bin;
+        }
+        else {
+            this._buffer = bin.buffer;
+        }
+    }
+
+    public buffer () {
+        return this._buffer;
+    }
+}
+
+legacyCC.BufferAsset = BufferAsset;

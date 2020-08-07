@@ -47,9 +47,9 @@ import { legacyCC } from '../global-exports';
  * @class Details
  *
  */
-class Details {
+export class Details {
 
-    public static pool: js.Pool<{}>;
+    public static pool: js.Pool<Details>;
 
     public assignAssetsBy!: Function;
     public uuidList: string[];
@@ -854,7 +854,7 @@ function deserialize (data, details, options) {
     const target = (EDITOR || TEST) && options.target;
     const customEnv = options.customEnv;
     const ignoreEditorOnly = options.ignoreEditorOnly;
-    
+
     if (typeof data === 'string') {
         data = JSON.parse(data);
     }

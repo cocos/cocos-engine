@@ -939,6 +939,7 @@ const macro = {
      * @zh
      * 下载任务的最大并发数限制，在安卓平台部分机型或版本上可能需要限制在较低的水平
      * @default 64
+     * @deprecated macro.DOWNLOAD_MAX_CONCURRENT is deprecated now, please use assetManager.downloader.maxConcurrency instead
      */
     DOWNLOAD_MAX_CONCURRENT: 64,
 
@@ -1006,6 +1007,8 @@ const macro = {
       * @default true
       */
     ENABLE_MULTI_TOUCH: true,
+
+    ALLOW_IMAGE_BITMAP: false,
 };
 
 legacyCC.macro = macro;

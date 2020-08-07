@@ -81,7 +81,7 @@ export function basename (path: string, extName?: string) {
     const reg = /(\/|\\)([^\/\\]+)$/g;
     const result = reg.exec(path.replace(/(\/|\\)$/, ''));
     if (!result) {
-        return '';
+        return path;
     }
     const baseName = result[2];
     if (extName && path.substring(path.length - extName.length).toLowerCase() === extName.toLowerCase()) {

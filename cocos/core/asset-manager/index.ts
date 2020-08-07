@@ -1,7 +1,8 @@
-/*
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+/*
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,20 +22,24 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-*/
-
-/**
- * @category core/data
  */
 
-import * as _decorator from './class-decorator';
-import { legacyCC } from '../global-exports';
-legacyCC._decorator = _decorator;
-export { _decorator };
-export { default as CCClass } from './class';
-export { CCObject, isValid } from './object';
-export { default as deserialize } from './deserialize';
-export { Details } from './deserialize';
-export { default as instantiate } from './instantiate';
-export { CCInteger, CCFloat, CCBoolean, CCString} from './utils/attribute';
-export { CompactValueTypeArray } from './utils/compact-value-type-array';
+import Bundle, { resources } from './bundle';
+import Cache from './cache';
+import { Pipeline } from './pipeline';
+import RequestItem from './request-item';
+import { BuiltinBundleName } from './shared';
+import Task from './task';
+
+export declare module AssetManager {
+    export { Pipeline };
+    export { Task };
+    export { Cache };
+    export { RequestItem };
+    export { Bundle };
+    export { BuiltinBundleName };
+}
+
+export * from './deprecated';
+export { resources };
+export { default as assetManager } from './asset-manager';

@@ -1,7 +1,8 @@
-/*
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+/*
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,20 +22,33 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-*/
-
-/**
- * @category core/data
  */
 
-import * as _decorator from './class-decorator';
-import { legacyCC } from '../global-exports';
-legacyCC._decorator = _decorator;
-export { _decorator };
-export { default as CCClass } from './class';
-export { CCObject, isValid } from './object';
-export { default as deserialize } from './deserialize';
-export { Details } from './deserialize';
-export { default as instantiate } from './instantiate';
-export { CCInteger, CCFloat, CCBoolean, CCString} from './utils/attribute';
-export { CompactValueTypeArray } from './utils/compact-value-type-array';
+import { getError } from '../platform/debug';
+import { CompleteCallback, Options } from './shared';
+
+export default function downloadDomImage (url: string, options: Options, onComplete: CompleteCallback<HTMLImageElement>): HTMLImageElement {
+
+    const img = new Image();
+
+    if (window.location.protocol !== 'file:') {
+        img.crossOrigin = 'anonymous';
+    }
+
+    function loadCallback () {
+        img.removeEventListener('load', loadCallback);
+        img.removeEventListener('error', errorCallback);
+        if (onComplete) { onComplete(null, img); }
+    }
+
+    function errorCallback () {
+        img.removeEventListener('load', loadCallback);
+        img.removeEventListener('error', errorCallback);
+        if (onComplete) { onComplete(new Error(getError(4930, url))); }
+    }
+
+    img.addEventListener('load', loadCallback);
+    img.addEventListener('error', errorCallback);
+    img.src = url;
+    return img;
+}

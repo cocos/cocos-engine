@@ -106,8 +106,10 @@ export class Asset extends Eventify(RawAsset) {
      */
     @property
     public _native: string = '';
+    public _nativeUrl: string = '';
 
     private _file: any = null;
+    private _ref: number = 0;
 
     /**
      * @en
@@ -230,6 +232,58 @@ export class Asset extends Eventify(RawAsset) {
      * 如果这类资源没有相应的节点类型，该方法应该是空的。
      */
     public createNode? (callback: CreateNodeCallback): void;
+
+    public get _nativeDep () {
+        if (this._native) {
+            return { __isNative__: true, uuid: this._uuid, ext: this._native };
+        }
+    }
+
+    /**
+     * @en
+     * The number of reference
+     *
+     * @zh
+     * 引用的数量
+     */
+    public get refCount (): number {
+        return this._ref;
+    }
+
+    /**
+     * @en
+     * Add references of asset
+     *
+     * @zh
+     * 增加资源的引用
+     *
+     * @return itself
+     *
+     */
+    public addRef (): Asset {
+        this._ref++;
+        return this;
+    }
+
+    /**
+     * @en
+     * Reduce references of asset and it will be auto released when refCount equals 0.
+     *
+     * @zh
+     * 减少资源的引用并尝试进行自动释放。
+     *
+     * @return itself
+     *
+     */
+    public decRef (autoRelease: boolean = true): Asset {
+        this._ref--;
+        if (autoRelease) {
+            legacyCC.assetManager._releaseManager.tryRelease(this);
+        }
+        return this;
+    }
+
+    public onLoaded () {}
 }
 
 /**
