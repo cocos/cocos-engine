@@ -33,7 +33,7 @@ import { SystemEventType } from '../../platform/event-manager/event-enum';
 import { EventListener, IListenerMask } from '../../platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../math';
 import { aabb } from '../../geometry';
-import { Canvas } from './canvas-component';
+import { Canvas } from './canvas';
 import { Node } from '../../scene-graph';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';

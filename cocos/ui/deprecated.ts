@@ -1,4 +1,4 @@
-import { UIRenderable } from '../core/components/ui-base/ui-render-component';
+import { UIRenderable } from '../core/components/ui-base/ui-renderable';
 import { warnID } from '../core';
 
 export class RenderComponent extends UIRenderable {

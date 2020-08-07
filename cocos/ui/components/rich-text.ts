@@ -35,9 +35,9 @@ import { BASELINE_RATIO, fragmentText, HtmlTextParser, IHtmlTextParserResultObj,
 import Pool from '../../core/utils/pool';
 import { Color, Vec2 } from '../../core/math';
 import { Node, PrivateNode } from '../../core/scene-graph';
-import { CacheMode, HorizontalTextAlignment, Label, VerticalTextAlignment } from './label-component';
-import { LabelOutline } from './label-outline-component';
-import { Sprite } from './sprite-component';
+import { CacheMode, HorizontalTextAlignment, Label, VerticalTextAlignment } from './label';
+import { LabelOutline } from './label-outline';
+import { Sprite } from './sprite';
 import { UIComponent, UIRenderable, UITransform } from '../../core/components/ui-base';
 import { loader } from '../../core/load-pipeline';
 import { DEV, EDITOR } from 'internal:constants';

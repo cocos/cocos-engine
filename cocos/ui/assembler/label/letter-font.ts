@@ -37,7 +37,7 @@ import { ISharedLabelData } from './font-utils';
 import { PixelFormat } from '../../../core/assets/asset-enum';
 import { director, Director } from '../../../core/director';
 import { loader } from '../../../core/load-pipeline';
-import { UITransform } from '../../../core/components/ui-base/ui-transform-component';
+import { UITransform } from '../../../core/components/ui-base/ui-transform';
 
 // const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutline, UIComponent);
 const Overflow = Label.Overflow;

@@ -31,7 +31,7 @@
 import { Component } from '../../core/components/component';
 import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
 import { Color } from '../../core/math';
-import { Label } from './label-component';
+import { Label } from './label';
 import { legacyCC } from '../../core/global-exports';
 
 /**

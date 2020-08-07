@@ -30,7 +30,7 @@
 
 import { Component, EventHandler as ComponentEventHandler } from '../../core/components';
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
-import { Toggle } from './toggle-component';
+import { Toggle } from './toggle';
 import { legacyCC } from '../../core/global-exports';
 
 /**

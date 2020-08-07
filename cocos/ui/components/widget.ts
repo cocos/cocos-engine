@@ -29,7 +29,7 @@
  */
 
 import { Component } from '../../core/components';
-import { UITransform } from '../../core/components/ui-base/ui-transform-component';
+import { UITransform } from '../../core/components/ui-base/ui-transform';
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, editorOnly, editable, serializable } from 'cc.decorator';
 import { Size, Vec3 } from '../../core/math';
 import { errorID, warnID } from '../../core/platform/debug';

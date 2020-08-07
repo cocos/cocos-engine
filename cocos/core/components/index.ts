@@ -31,5 +31,5 @@ export { default as System } from './system';
 export { default as MissingScript } from './missing-script';
 export { EventHandler } from './component-event-handler';
 export { Component } from './component';
-export * from './block-input-events-component';
-export * from '../../ui/components/ui-coodinate-tracker-component';
+export * from './block-input-events';
+export * from '../../ui/components/ui-coodinate-tracker';

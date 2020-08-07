@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { UIRenderable } from '../../../../core/components/ui-base/ui-render-component';
+import { UIRenderable } from '../../../../core/components/ui-base/ui-renderable';
 import { IAssemblerManager } from '../../../../core/renderer/ui/base';
 import { Graphics } from '../../../components';
 import { graphicsAssembler as graphics } from './graphics-assembler';

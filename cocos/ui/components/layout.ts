@@ -32,7 +32,7 @@ import { Component } from '../../core/components/component';
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, serializable } from 'cc.decorator';
 import { Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
-import { UITransform } from '../../core/components/ui-base/ui-transform-component';
+import { UITransform } from '../../core/components/ui-base/ui-transform';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { director, Director } from '../../core/director';
 import { TransformBit } from '../../core/scene-graph/node-enum';

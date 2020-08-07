@@ -34,10 +34,10 @@ import { ccclass, help, executionOrder, menu, tooltip, type, serializable } from
 import { Color, Size } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { Node } from '../../core/scene-graph';
-import { Layout } from './layout-component';
-import { PageView } from './page-view-component';
-import { Sprite } from './sprite-component';
-import { UIRenderable } from '../../core/components/ui-base/ui-render-component';
+import { Layout } from './layout';
+import { PageView } from './page-view';
+import { Sprite } from './sprite';
+import { UIRenderable } from '../../core/components/ui-base/ui-renderable';
 import { legacyCC } from '../../core/global-exports';
 
 const _color = new Color();

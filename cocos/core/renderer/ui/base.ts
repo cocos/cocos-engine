@@ -29,7 +29,7 @@
  */
 
 
-import { UIRenderable } from '../../components/ui-base/ui-render-component';
+import { UIRenderable } from '../../components/ui-base/ui-renderable';
 
 export interface IAssembler {
     [key: string]: any;

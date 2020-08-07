@@ -27,7 +27,7 @@
  * @hidden
  */
 
-import { UIRenderable } from '../../../core/components/ui-base/ui-render-component';
+import { UIRenderable } from '../../../core/components/ui-base/ui-renderable';
 import { IAssemblerManager } from '../../../core/renderer/ui/base';
 import { Sprite } from '../../components';
 import { barFilled } from './bar-filled';

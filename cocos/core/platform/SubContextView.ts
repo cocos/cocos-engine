@@ -30,9 +30,9 @@
 import { Component } from '../components/component';
 import { ccclass, help, menu, executionOrder, requireComponent, tooltip, serializable } from 'cc.decorator';
 import { view } from './view';
-import { Sprite } from '../../ui/components/sprite-component';
+import { Sprite } from '../../ui/components/sprite';
 import { Node } from '../scene-graph';
-import { UITransform } from '../components/ui-base/ui-transform-component';
+import { UITransform } from '../components/ui-base/ui-transform';
 import { SpriteFrame, ImageAsset } from '../assets';
 import { Rect } from '../math';
 import { legacyCC } from '../global-exports';

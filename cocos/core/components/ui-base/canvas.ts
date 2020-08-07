@@ -41,7 +41,7 @@ import { Camera } from '../../renderer';
 import { Node } from '../../scene-graph/node';
 import { Enum } from '../../value-types';
 import { Component } from '../component';
-import { UITransform } from './ui-transform-component';
+import { UITransform } from './ui-transform';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../../pipeline';

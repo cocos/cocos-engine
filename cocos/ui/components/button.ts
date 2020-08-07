@@ -38,7 +38,7 @@ import { Color, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { lerp } from '../../core/math/utils';
 import { Node } from '../../core/scene-graph/node';
-import { Sprite } from './sprite-component';
+import { Sprite } from './sprite';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 

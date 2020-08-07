@@ -27,7 +27,7 @@
  * @category ui
  */
 
-import { UIRenderable } from '../../core/components/ui-base/ui-render-component';
+import { UIRenderable } from '../../core/components/ui-base/ui-renderable';
 import { UI } from '../../core/renderer/ui/ui';
 import { MeshBuffer } from '../../core/renderer/ui/mesh-buffer';
 import { ccclass, help, menu, executionOrder, visible, type, displayName, override } from 'cc.decorator';

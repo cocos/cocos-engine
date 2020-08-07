@@ -35,7 +35,7 @@ import { UI } from '../../core/renderer/ui/ui';
 import { FontAtlas } from '../assembler/label/bmfontUtils';
 import { CanvasPool, ISharedLabelData } from '../assembler/label/font-utils';
 import { LetterRenderTexture } from '../assembler/label/letter-font';
-import { UIRenderable } from '../../core/components/ui-base/ui-render-component';
+import { UIRenderable } from '../../core/components/ui-base/ui-renderable';
 import { warnID } from '../../core/platform/debug';
 import { sys } from '../../core/platform/sys';
 import { EDITOR } from 'internal:constants';

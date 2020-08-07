@@ -31,7 +31,7 @@ import { ccclass, help, executionOrder, menu, executeInEditMode, requireComponen
 import { Component } from '../../core/components';
 import { UITransform } from '../../core/components/ui-base';
 import { view } from '../../core/platform';
-import { Widget } from './widget-component';
+import { Widget } from './widget';
 import { legacyCC } from "../../core/global-exports";
 
 // @ts-ignore

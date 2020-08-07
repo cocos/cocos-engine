@@ -35,7 +35,7 @@ import { Vec2 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp } from '../../core/math/utils';
 import { UI } from '../../core/renderer/ui/ui';
-import { UIRenderable, InstanceMaterialType } from '../../core/components/ui-base/ui-render-component';
+import { UIRenderable, InstanceMaterialType } from '../../core/components/ui-base/ui-renderable';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';

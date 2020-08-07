@@ -31,11 +31,11 @@
 import { EventHandler as ComponentEventHandler } from '../../core/components/component-event-handler';
 import { UITransform } from '../../core/components/ui-base';
 import { ccclass, help, requireComponent, executionOrder, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
-import { Button } from './button-component';
-import { Sprite } from './sprite-component';
-import { ToggleContainer } from './toggle-container-component';
+import { Button } from './button';
+import { Sprite } from './sprite';
+import { ToggleContainer } from './toggle-container';
 import { extendsEnum } from '../../core/data/utils/extends-enum';
-import { EventType as ButtonEventType } from './button-component';
+import { EventType as ButtonEventType } from './button';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 

@@ -37,7 +37,7 @@ import { LetterRenderTexture } from './letter-font';
 import { loader } from '../../../core/load-pipeline';
 import { logID } from '../../../core/platform/debug';
 import { RUNTIME_BASED, MINIGAME } from 'internal:constants';
-import { UITransform } from '../../../core/components/ui-base/ui-transform-component';
+import { UITransform } from '../../../core/components/ui-base/ui-transform';
 
 const Overflow = Label.Overflow;
 const WHITE = Color.WHITE.clone();

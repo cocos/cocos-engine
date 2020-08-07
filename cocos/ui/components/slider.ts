@@ -35,7 +35,7 @@ import { EventTouch, SystemEventType, Touch } from '../../core/platform';
 import { Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp01 } from '../../core/math/utils';
-import { Sprite } from './sprite-component';
+import { Sprite } from './sprite';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 

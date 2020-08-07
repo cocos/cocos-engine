@@ -30,7 +30,7 @@
 
 import { builtinResMgr } from '../../core/3d/builtin';
 import { RenderableComponent } from '../../core/3d/framework/renderable-component';
-import { InstanceMaterialType, UIRenderable } from '../../core/components/ui-base/ui-render-component';
+import { InstanceMaterialType, UIRenderable } from '../../core/components/ui-base/ui-renderable';
 import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
 import { director } from '../../core/director';
 import { Color } from '../../core/math';

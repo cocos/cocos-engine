@@ -32,13 +32,13 @@ import { ccclass, help, executionOrder, menu, tooltip, type, slide, range, visib
 import { EventTouch, SystemEventType } from '../../core/platform';
 import { Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
-import { Layout } from './layout-component';
-import { PageViewIndicator } from './page-view-indicator-component';
-import { ScrollView } from './scroll-view-component';
-import { ScrollBar } from './scroll-bar-component';
+import { Layout } from './layout';
+import { PageViewIndicator } from './page-view-indicator';
+import { ScrollView } from './scroll-view';
+import { ScrollBar } from './scroll-bar';
 import { warnID, logID } from '../../core/platform/debug';
 import { extendsEnum } from '../../core/data/utils/extends-enum';
-import { EventType as ScrollEventType } from './scroll-view-component';
+import { EventType as ScrollEventType } from './scroll-view';
 import { Node } from '../../core';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';

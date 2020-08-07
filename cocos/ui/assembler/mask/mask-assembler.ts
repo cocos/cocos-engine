@@ -29,7 +29,7 @@
 
 import { IRenderData, RenderData } from '../../../core/renderer/ui/render-data';
 import { UI } from '../../../core/renderer/ui/ui';
-import { Mask } from '../../components/mask-component';
+import { Mask } from '../../components/mask';
 import { IAssembler, IAssemblerManager } from '../../../core/renderer/ui/base';
 import { StencilManager } from '../../../core/renderer/ui/stencil-manager';
 

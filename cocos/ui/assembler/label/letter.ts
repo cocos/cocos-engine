@@ -29,7 +29,7 @@
 
 import { addon } from '../../../core/utils/js';
 import { UI } from '../../../core/renderer/ui/ui';
-import { Label } from '../../components/label-component';
+import { Label } from '../../components/label';
 import { fillMeshVertices3D } from '../utils';
 import { bmfont } from './bmfont';
 import { letterFont} from './letter-font';

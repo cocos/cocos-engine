@@ -30,7 +30,7 @@
 import { ccclass, disallowMultiple, executeInEditMode, executionOrder, requireComponent } from 'cc.decorator';
 import { UI } from '../../renderer/ui/ui';
 import { Component } from '../component';
-import { UITransform } from './ui-transform-component';
+import { UITransform } from './ui-transform';
 import { Node } from '../../scene-graph';
 
 /**

@@ -2,29 +2,29 @@
  * @hidden
  */
 
-export { Button } from './button-component';
+export { Button } from './button';
 export { EditBox } from './editbox/edit-box-component';
-export * from './label-component';
-export { Layout } from './layout-component';
-export { Mask } from './mask-component';
-export { ProgressBar } from './progress-bar-component';
-export { RichText } from './rich-text-component';
-export { ScrollBar } from './scroll-bar-component';
-export { ScrollView } from './scroll-view-component';
-export { Slider } from './slider-component';
-export { Sprite } from './sprite-component';
-export { Toggle } from './toggle-component';
-export { ToggleContainer } from './toggle-container-component';
-export { UIModel } from './ui-model-component';
-export { ViewGroup } from './view-group-component';
-export { Widget } from './widget-component';
-export { LabelOutline } from './label-outline-component';
-export { Graphics } from './graphics-component';
-export { UIReorder } from './ui-reorder-component';
-export { PageView } from './page-view-component';
-export { PageViewIndicator } from './page-view-indicator-component';
-export { UIStaticBatch } from './ui-static-batch-component';
-export { UIOpacity } from './ui-opacity-component';
-export { SafeArea } from './safe-area-component';
+export * from './label';
+export { Layout } from './layout';
+export { Mask } from './mask';
+export { ProgressBar } from './progress-bar';
+export { RichText } from './rich-text';
+export { ScrollBar } from './scroll-bar';
+export { ScrollView } from './scroll-view';
+export { Slider } from './slider';
+export { Sprite } from './sprite';
+export { Toggle } from './toggle';
+export { ToggleContainer } from './toggle-container';
+export { UIModel } from './ui-model';
+export { ViewGroup } from './view-group';
+export { Widget } from './widget';
+export { LabelOutline } from './label-outline';
+export { Graphics } from './graphics';
+export { UIReorder } from './ui-reorder';
+export { PageView } from './page-view';
+export { PageViewIndicator } from './page-view-indicator';
+export { UIStaticBatch } from './ui-static-batch';
+export { UIOpacity } from './ui-opacity';
+export { SafeArea } from './safe-area';
 
 export { widgetManager } from './widget-manager';

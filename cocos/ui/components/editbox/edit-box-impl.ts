@@ -37,7 +37,7 @@ import { Color, Mat4, Size, Vec3 } from '../../../core/math';
 import { screen, view } from '../../../core/platform';
 import { macro } from '../../../core/platform/macro';
 import { contains } from '../../../core/utils/misc';
-import { Label } from '../label-component';
+import { Label } from '../label';
 import { EditBox } from './edit-box-component';
 import { tabIndexUtil } from './tabIndexUtil';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';

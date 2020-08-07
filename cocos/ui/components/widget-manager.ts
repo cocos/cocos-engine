@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { Canvas } from '../../core/components/ui-base/canvas-component';
+import { Canvas } from '../../core/components/ui-base/canvas';
 import { Director, director } from '../../core/director';
 import { Vec2, Vec3 } from '../../core/math';
 import { sys } from '../../core/platform/sys';
@@ -37,7 +37,7 @@ import visibleRect from '../../core/platform/visible-rect';
 import { Scene } from '../../core/scene-graph';
 import { Node } from '../../core/scene-graph/node';
 import { array } from '../../core/utils/js';
-import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget-component';
+import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget';
 import { UITransform } from '../../core/components/ui-base';
 import { EDITOR, DEV } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';

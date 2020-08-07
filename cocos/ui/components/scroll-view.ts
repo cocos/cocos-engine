@@ -34,9 +34,9 @@ import { ccclass, help, executionOrder, menu, requireComponent, tooltip, display
 import { Event } from '../../core/event';
 import { EventMouse, EventTouch, Touch, logID } from '../../core/platform';
 import { Size, Vec2, Vec3 } from '../../core/math';
-import { Layout } from './layout-component';
-import { ScrollBar } from './scroll-bar-component';
-import { ViewGroup } from './view-group-component';
+import { Layout } from './layout';
+import { ScrollBar } from './scroll-bar';
+import { ViewGroup } from './view-group';
 import { Node } from '../../core/scene-graph/node';
 import { director, Director } from '../../core/director';
 import { TransformBit } from '../../core/scene-graph/node-enum';

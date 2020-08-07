@@ -34,8 +34,8 @@ import { ccclass, help, executionOrder, menu, requireComponent, tooltip, display
 import { Color, Size, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp01 } from '../../core/math/utils';
-import { ScrollView } from './scroll-view-component';
-import { Sprite } from './sprite-component';
+import { ScrollView } from './scroll-view';
+import { Sprite } from './sprite';
 import { Node } from '../../core';
 import { legacyCC } from '../../core/global-exports';
 

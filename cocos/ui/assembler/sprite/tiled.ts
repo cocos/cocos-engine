@@ -30,8 +30,8 @@
 import { Mat4, Vec3, Color } from '../../../core/math';
 import { RenderData, IRenderData } from '../../../core/renderer/ui/render-data';
 import { UI } from '../../../core/renderer/ui/ui';
-import { Sprite } from '../../components/sprite-component';
-import { UIRenderable } from '../../../core/components/ui-base/ui-render-component';
+import { Sprite } from '../../components/sprite';
+import { UIRenderable } from '../../../core/components/ui-base/ui-renderable';
 import { IAssembler } from '../../../core/renderer/ui/base';
 
 const vec3_temps: Vec3[] = [];

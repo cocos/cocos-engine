@@ -31,10 +31,10 @@ import { BitmapFont, IConfig } from '../../../core/assets/bitmap-font';
 import { SpriteFrame } from '../../../core/assets/sprite-frame';
 import { isUnicodeCJK, isUnicodeSpace } from '../../../core/utils/text-utils';
 import { Rect, Size, Vec2 } from '../../../core/math';
-import { HorizontalTextAlignment, VerticalTextAlignment } from '../../components/label-component';
-import { Label, Overflow } from '../../components/label-component';
+import { HorizontalTextAlignment, VerticalTextAlignment } from '../../components/label';
+import { Label, Overflow } from '../../components/label';
 import { js } from '../../../core/utils';
-import { UITransform } from '../../../core/components/ui-base/ui-transform-component';
+import { UITransform } from '../../../core/components/ui-base/ui-transform';
 import { legacyCC } from '../../../core/global-exports';
 
 class FontLetterDefinition {
