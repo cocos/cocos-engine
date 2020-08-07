@@ -2,6 +2,7 @@ import { Model } from '../scene/model';
 import { MorphRenderingInstance } from '../../assets/morph';
 import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
+import { GFXDescriptorSet } from '../../gfx';
 
 export class MorphModel extends Model {
     private _morphRenderingInstance: MorphRenderingInstance | null = null;
@@ -15,14 +16,6 @@ export class MorphModel extends Model {
         }
     }
 
-    public updateLocalBindings (psoci: number, submodelIdx: number) {
-        super.updateLocalBindings(psoci, submodelIdx);
-
-        if (this._morphRenderingInstance) {
-            this._morphRenderingInstance.adaptPipelineState(submodelIdx, psoci);
-        }
-    }
-
     public initSubModel (subModelIndex: number, subMeshData: RenderingSubMesh, material: Material) {
         return super.initSubModel(
             subModelIndex,
@@ -31,11 +24,16 @@ export class MorphModel extends Model {
         );
     }
 
-    public setSubModelMaterial (subModelIndex: number, material: Material | null) {
-        return super.setSubModelMaterial(
-            subModelIndex,
-            material ? this._launderMaterial(material) : material,
-        );
+    public setSubModelMaterial (subModelIndex: number, material: Material) {
+        return super.setSubModelMaterial(subModelIndex, this._launderMaterial(material));
+    }
+
+    protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
+        super._updateLocalDescriptors(submodelIdx, descriptorSet);
+
+        if (this._morphRenderingInstance) {
+            this._morphRenderingInstance.adaptPipelineState(submodelIdx, descriptorSet);
+        }
     }
 
     private _launderMaterial (material: Material) {

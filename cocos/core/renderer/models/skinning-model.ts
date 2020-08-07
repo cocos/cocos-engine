@@ -39,7 +39,7 @@ import { Node } from '../../scene-graph/node';
 import { ModelType } from '../scene/model';
 import { uploadJointData } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
-import { DescriptorSetPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
+import { GFXDescriptorSet } from '../../gfx';
 
 export interface IJointTransform {
     node: Node;
@@ -253,9 +253,8 @@ export class SkinningModel extends MorphModel {
         }
     }
 
-    public updateLocalBindings (psoci: number, submodelIdx: number) {
-        super.updateLocalBindings(psoci, submodelIdx);
-        const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SET));
+    public _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
+        super._updateLocalDescriptors(submodelIdx, descriptorSet);
         const buffer = this._buffers[this._bufferIndices![submodelIdx]];
         if (buffer) { descriptorSet.bindBuffer(UBOSkinning.BLOCK.binding, buffer); }
     }

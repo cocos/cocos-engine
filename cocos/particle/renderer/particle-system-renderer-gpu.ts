@@ -131,12 +131,12 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
     public onDestroy () {
         super.onDestroy();
-        this._forceTexture && this._forceTexture.destroy();
-        this._velocityTexture && this._velocityTexture.destroy();
-        this._colorTexture && this._colorTexture.destroy();
-        this._sizeTexture && this._sizeTexture.destroy();
-        this._rotationTexture && this._rotationTexture.destroy();
-        this._animTexture && this._animTexture.destroy();
+        if (this._forceTexture) this._forceTexture.destroy();
+        if (this._velocityTexture) this._velocityTexture.destroy();
+        if (this._colorTexture) this._colorTexture.destroy();
+        if (this._sizeTexture) this._sizeTexture.destroy();
+        if (this._rotationTexture) this._rotationTexture.destroy();
+        if (this._animTexture) this._animTexture.destroy();
     }
 
     public enableModule (name: string, val: Boolean, pm: IParticleModule) {
@@ -224,7 +224,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         enable = forceModule && forceModule.enable;
         this._defines[FORCE_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
-            this._forceTexture && this._forceTexture.destroy();
+            if (this._forceTexture) this._forceTexture.destroy();
             this._forceTexture = packCurveRangeXYZ(_sample_num, forceModule.x, forceModule.y, forceModule.z);
             const handle = pass.getHandle('force_over_time_tex0');
             const binding = Pass.getBindingFromHandle(handle!);
@@ -241,7 +241,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         enable = velocityModule && velocityModule.enable;
         this._defines[VELOCITY_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
-            this._velocityTexture && this._velocityTexture.destroy();
+            if (this._velocityTexture) this._velocityTexture.destroy();
             this._velocityTexture = packCurveRangeXYZW(_sample_num, velocityModule.x, velocityModule.y, velocityModule.z, velocityModule.speedModifier);
             const handle = pass.getHandle('velocity_over_time_tex0');
             const binding = Pass.getBindingFromHandle(handle!);
@@ -258,7 +258,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         enable = colorModule && colorModule.enable;
         this._defines[COLOR_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
-            this._colorTexture && this._colorTexture.destroy();
+            if (this._colorTexture) this._colorTexture.destroy();
             this._colorTexture = packGradientRange(_sample_num, colorModule.color);
             const handle = pass.getHandle('color_over_time_tex0');
             const binding = Pass.getBindingFromHandle(handle!);
@@ -273,7 +273,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         enable = roationModule && roationModule.enable;
         this._defines[ROTATION_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
-            this._rotationTexture && this._rotationTexture.destroy();
+            if (this._rotationTexture) this._rotationTexture.destroy();
             if (roationModule.separateAxes) {
                 this._rotationTexture = packCurveRangeXYZ(_sample_num, roationModule.x, roationModule.y, roationModule.z);
             } else {
@@ -292,7 +292,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         enable = sizeModule && sizeModule.enable;
         this._defines[SIZE_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
-            this._sizeTexture && this._sizeTexture.destroy();
+            if (this._sizeTexture) this._sizeTexture.destroy();
             if (sizeModule.separateAxes) {
                 this._sizeTexture = packCurveRangeXYZ(_sample_num, sizeModule.x, sizeModule.y, sizeModule.z, true);
             } else {
@@ -311,7 +311,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         enable = textureModule && textureModule.enable;
         this._defines[TEXTURE_ANIMATION_MODULE_ENABLE] = enable;
         if (enable) {
-            this._animTexture && this._animTexture.destroy();
+            if (this._animTexture) this._animTexture.destroy();
             this._animTexture = packCurveRangeXY(_sample_num, textureModule.startFrame, textureModule.frameOverTime);
             const handle = pass.getHandle('texture_animation_tex0');
             const binding = Pass.getBindingFromHandle(handle!);
@@ -421,7 +421,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         mat!.recompileShaders(this._defines);
 
         if (this._model) {
-            this._model.setSubModelMaterial(0, mat);
+            this._model.setSubModelMaterial(0, mat!);
         }
     }
 }

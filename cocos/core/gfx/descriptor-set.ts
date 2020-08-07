@@ -7,20 +7,11 @@ import { GFXDescriptorType, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 import { GFXSampler } from './sampler';
 import { GFXTexture } from './texture';
-import { GFXShader } from './shader';
 
 export interface IGFXDescriptorSetInfo {
-    shader: GFXShader;
-    set: number;
-}
-
-export class GFXDescriptor {
-    public binding: number = 0;
-    public type: GFXDescriptorType = GFXDescriptorType.UNKNOWN;
-    public name: string = '';
-    public buffer: GFXBuffer | null = null;
-    public texture: GFXTexture | null = null;
-    public sampler: GFXSampler | null = null;
+    // array index is used as the binding numbers,
+    // i.e. they should be strictly consecutive and start from 0
+    layout: GFXDescriptorType[];
 }
 
 /**
@@ -29,11 +20,16 @@ export class GFXDescriptor {
  */
 export abstract class GFXDescriptorSet extends GFXObject {
 
+    get layout () {
+        return this._layout;
+    }
+
     protected _device: GFXDevice;
 
-    protected _descriptors: GFXDescriptor[] = [];
-
-    protected _set: number = 0;
+    protected _layout: GFXDescriptorType[] = [];
+    protected _buffers: GFXBuffer[] = [];
+    protected _textures: GFXTexture[] = [];
+    protected _samplers: GFXSampler[] = [];
 
     protected _isDirty = false;
 
@@ -51,87 +47,81 @@ export abstract class GFXDescriptorSet extends GFXObject {
     /**
      * @en Bind buffer to the specified descriptor.
      * @zh 在指定的描述符位置上绑定缓冲。
-     * @param set The target set.
      * @param binding The target binding.
      * @param buffer The buffer to be bound.
      */
-    public bindBuffer (binding: number, buffer: GFXBuffer) {
-        for (const descriptor of this._descriptors) {
-            if (descriptor.binding === binding) {
-                if (descriptor.type === GFXDescriptorType.UNIFORM_BUFFER) {
-                    if (descriptor.buffer !== buffer) {
-                        descriptor.buffer = buffer;
-                        this._isDirty = true;
-                    }
-                } else {
-                    console.error('Setting binding is not GFXDescriptorType.UNIFORM_BUFFER.');
-                }
-                return;
+    public bindBuffer (binding: number, buffer: GFXBuffer | null) {
+        const descriptor = this._layout[binding];
+        if (descriptor && descriptor === GFXDescriptorType.UNIFORM_BUFFER) {
+            if (this._buffers[binding] !== buffer) {
+                this._buffers[binding] = buffer!;
+                this._isDirty = true;
             }
+        } else {
+            console.error('Setting binding is not GFXDescriptorType.UNIFORM_BUFFER.');
         }
-        console.error('Setting binding is not GFXDescriptorType.UNIFORM_BUFFER.');
     }
 
     /**
      * @en Bind sampler to the specified descriptor.
      * @zh 在指定的描述符位置上绑定采样器。
-     * @param set The target set.
      * @param binding The target binding.
      * @param sampler The sampler to be bound.
      */
-    public bindSampler (binding: number, sampler: GFXSampler) {
-        for (const descriptor of this._descriptors) {
-            if (descriptor.binding === binding) {
-                if (descriptor.type === GFXDescriptorType.SAMPLER) {
-                    if (descriptor.sampler !== sampler) {
-                        descriptor.sampler = sampler;
-                        this._isDirty = true;
-                    }
-                } else {
-                    console.error('Setting binding is not GFXDescriptorType.SAMPLER.');
-                }
-                return;
+    public bindSampler (binding: number, sampler: GFXSampler | null) {
+        const descriptor = this._layout[binding];
+        if (descriptor && descriptor === GFXDescriptorType.SAMPLER) {
+            if (this._samplers[binding] !== sampler) {
+                this._samplers[binding] = sampler!;
+                this._isDirty = true;
             }
+        } else {
+            console.error('Setting binding is not GFXDescriptorType.SAMPLER.');
         }
-        console.error('Setting binding is not GFXDescriptorType.SAMPLER.');
     }
 
     /**
      * @en Bind texture to the specified descriptor.
      * @zh 在指定的描述符位置上绑定纹理。
-     * @param set The target set.
      * @param binding The target binding.
      * @param texture The texture to be bound.
      */
-    public bindTexture (binding: number, texture: GFXTexture) {
-        for (const descriptor of this._descriptors) {
-            if (descriptor.binding === binding) {
-                if (descriptor.type === GFXDescriptorType.SAMPLER) {
-                    if (descriptor.texture !== texture) {
-                        descriptor.texture = texture;
-                        this._isDirty = true;
-                    }
-                } else {
-                    console.error('Setting binding is not GFXDescriptorType.SAMPLER.');
-                }
-                return;
+    public bindTexture (binding: number, texture: GFXTexture | null) {
+        const descriptor = this._layout[binding];
+        if (descriptor && descriptor === GFXDescriptorType.SAMPLER) {
+            if (this._textures[binding] !== texture) {
+                this._textures[binding] = texture!;
+                this._isDirty = true;
             }
+        } else {
+            console.error('Setting binding is not GFXDescriptorType.SAMPLER.');
         }
-        console.error('Setting binding is not GFXDescriptorType.SAMPLER.');
     }
 
     /**
-     * @en Get the specified descriptor.
-     * @zh 得到指定位置的描述符。
-     * @param set The target set.
+     * @en Get buffer from the specified binding location.
+     * @zh 获取当前指定绑定位置上的缓冲。
      * @param binding The target binding.
      */
-    public getDescriptor (binding: number) {
-        for (const descriptor of this._descriptors) {
-            if (descriptor.binding === binding) {
-                return descriptor;
-            }
-        }
-        return null;
+    public getBuffer (binding: number) {
+        return this._buffers[binding];
+    }
+
+    /**
+     * @en Get sampler from the specified binding location.
+     * @zh 获取当前指定绑定位置上的采样器。
+     * @param binding The target binding.
+     */
+    public getSampler (binding: number) {
+        return this._samplers[binding];
+    }
+
+    /**
+     * @en Get texture from the specified binding location.
+     * @zh 获取当前指定绑定位置上的贴图。
+     * @param binding The target binding.
+     */
+    public getTexture (binding: number) {
+        return this._textures[binding];
     }
 }

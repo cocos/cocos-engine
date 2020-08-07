@@ -9,7 +9,8 @@ import { PipelineStateManager } from './pipeline-state-manager';
 import { IRenderObject, UBOForwardLight } from './define';
 import { LightType, Light } from '../renderer/scene/light';
 import { IMacroPatch, Pass } from '../renderer/core/pass';
-import { DescriptorSetPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
+import { DescriptorSetPool, ShaderPool, PassPool, PassView } from '../renderer/core/memory-pools';
+import { DescriptorSetIndices } from './define';
 
 const spherePatches: IMacroPatch[] = [
     { name: 'CC_FORWARD_ADD', value: true },
@@ -30,36 +31,6 @@ export class RenderInstancedQueue {
      * @zh Instance 合批缓存集合。
      */
     public queue = new Set<InstancedBuffer>();
-
-    private static _lightPsoCreateInfos: Map<Light, number> = new Map();
-
-    public static getLightPipelineCreateInfo (renderObj: IRenderObject, subModelIdx: number, pass: Pass,
-        validLights: Light[], lightGFXBuffers: GFXBuffer[], lightIdx: number): number {
-        const light = validLights[lightIdx];
-        if (!this._lightPsoCreateInfos.has(light)) {
-            const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
-            const lightBuffer = lightGFXBuffers[lightIdx];
-
-            let fullPatches: IMacroPatch[] = [];
-            switch (light.type) {
-                case LightType.SPHERE:
-                    fullPatches = modelPatches ? spherePatches.concat(modelPatches) : spherePatches;
-                    break;
-                case LightType.SPOT:
-                    fullPatches = modelPatches ? spotPatches.concat(modelPatches) : spotPatches;
-                    break;
-            }
-
-            const psoci = pass.createPipelineStateCI(fullPatches)!;
-            this._lightPsoCreateInfos.set(light, psoci);
-            renderObj.model.updateLocalBindings(psoci, subModelIdx);
-            const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoci, PSOCIView.BINDING_LAYOUT));
-            bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
-            bindingLayout.update();
-        }
-
-        return this._lightPsoCreateInfos.get(light)!;
-    }
 
     /**
      * @en Clear the render queue
@@ -82,22 +53,22 @@ export class RenderInstancedQueue {
     public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
         const it = this.queue.values(); let res = it.next();
         while (!res.done) {
-            const { instances, psoci } = res.value;
-            if (psoci) {
-                res.value.uploadBuffers();
-                let lastPSO: GFXPipelineState | null = null;
-                for (let b = 0; b < instances.length; ++b) {
-                    const instance = instances[b];
-                    if (!instance.count) { continue; }
-                    const pso = PipelineStateManager.getOrCreatePipelineState(device, psoci, renderPass, instance.ia);
-                    if (lastPSO !== pso) {
-                        cmdBuff.bindPipelineState(pso);
-                        cmdBuff.bindDescriptorSets(DescriptorSetPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SET)));
-                        lastPSO = pso;
-                    }
-                    cmdBuff.bindInputAssembler(instance.ia);
-                    cmdBuff.draw(instance.ia);
+            const { instances, hPass } = res.value;
+            res.value.uploadBuffers();
+            cmdBuff.bindDescriptorSet(DescriptorSetIndices.MATERIAL_SPECIFIC, DescriptorSetPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET)));
+            let lastPSO: GFXPipelineState | null = null;
+            for (let b = 0; b < instances.length; ++b) {
+                const instance = instances[b];
+                if (!instance.count) { continue; }
+                const shader = ShaderPool.get(instance.hShader);
+                const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, instance.ia);
+                if (lastPSO !== pso) {
+                    cmdBuff.bindPipelineState(pso);
+                    lastPSO = pso;
                 }
+                cmdBuff.bindDescriptorSet(DescriptorSetIndices.MODEL_LOCAL, DescriptorSetPool.get(instance.hDescriptorSet));
+                cmdBuff.bindInputAssembler(instance.ia);
+                cmdBuff.draw(instance.ia);
             }
             res = it.next();
         }

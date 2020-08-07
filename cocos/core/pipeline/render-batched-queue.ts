@@ -11,7 +11,8 @@ import { GFXRenderPass } from '../gfx';
 import { IRenderObject, UBOForwardLight } from './define';
 import { LightType, Light } from '../renderer/scene/light';
 import { IMacroPatch, Pass } from '../renderer/core/pass';
-import { DescriptorSetPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
+import { DescriptorSetPool, ShaderPool, PassPool, PassView } from '../renderer/core/memory-pools';
+import { DescriptorSetIndices } from './define';
 
 const spherePatches: IMacroPatch[] = [
     { name: 'CC_FORWARD_ADD', value: true },
@@ -32,36 +33,6 @@ export class RenderBatchedQueue {
      * @zh 动态合批缓存集合。
      */
     public queue = new Set<BatchedBuffer>();
-
-    private static _lightPsoCreateInfos: Map<Light, number> = new Map();
-
-    public static getLightPipelineCreateInfo (renderObj: IRenderObject, subModelIdx: number, pass: Pass,
-        validLights: Light[], lightGFXBuffers: GFXBuffer[], lightIdx: number): number {
-            const light = validLights[lightIdx];
-        if (!this._lightPsoCreateInfos.has(light)) {
-            const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
-            const lightBuffer = lightGFXBuffers[lightIdx];
-
-            let fullPatches: IMacroPatch[] = [];
-            switch (light.type) {
-                case LightType.SPHERE:
-                    fullPatches = modelPatches ? spherePatches.concat(modelPatches) : spherePatches;
-                    break;
-                case LightType.SPOT:
-                    fullPatches = modelPatches ? spotPatches.concat(modelPatches) : spotPatches;
-                    break;
-            }
-
-            const psoci = pass.createPipelineStateCI(fullPatches)!;
-            this._lightPsoCreateInfos.set(light, psoci);
-            renderObj.model.updateLocalBindings(psoci, subModelIdx);
-            const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoci, PSOCIView.BINDING_LAYOUT));
-            bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightBuffer);
-            bindingLayout.update();
-        }
-
-        return this._lightPsoCreateInfos.get(light)!;
-    }
 
     /**
      * @en Clear the render queue
@@ -93,12 +64,11 @@ export class RenderBatchedQueue {
                 }
                 batch.vbIdx.update(batch.vbIdxData.buffer);
                 batch.ubo.update(batch.uboData.view);
-                const pso = PipelineStateManager.getOrCreatePipelineState(device, batch.psoCI, renderPass, batch.ia);
-                if (!boundPSO) {
-                    cmdBuff.bindPipelineState(pso);
-                    boundPSO = true;
-                }
-                cmdBuff.bindDescriptorSets(DescriptorSetPool.get(PSOCIPool.get(batch.psoCI, PSOCIView.DESCRIPTOR_SET)));
+                const shader = ShaderPool.get(batch.hShader);
+                const pso = PipelineStateManager.getOrCreatePipelineState(device, batch.hPass, shader, renderPass, batch.ia);
+                if (!boundPSO) { cmdBuff.bindPipelineState(pso); boundPSO = true; }
+                cmdBuff.bindDescriptorSet(DescriptorSetIndices.MATERIAL_SPECIFIC, DescriptorSetPool.get(PassPool.get(batch.hPass, PassView.DESCRIPTOR_SET)));
+                cmdBuff.bindDescriptorSet(DescriptorSetIndices.MODEL_LOCAL, batch.descriptorSet);
                 cmdBuff.bindInputAssembler(batch.ia);
                 cmdBuff.draw(batch.ia);
             }

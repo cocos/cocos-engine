@@ -132,14 +132,12 @@ export class ForwardStage extends RenderStage {
                             if (pass.phase === this._lightPhaseID) {
                                 for (let l = lightIndexOffset[i]; l < nextLightIndex; ++l) {
                                     const lightIndex = lightIndices[l];
-                                    const psoCI = RenderInstancedQueue.getLightPipelineCreateInfo(ro, m, pass,
-                                        validLights, lightBuffers, lightIndex);
-                                    instancedBuffer = InstancedBuffer.get(lightIndex, device);
-                                    instancedBuffer.merge(subModel, ro.model.instancedAttributes, psoCI);
+                                    instancedBuffer = InstancedBuffer.get(pass, lightIndex);
+                                    instancedBuffer.merge(subModel, ro.model.instancedAttributes, p);
                                 }
                             } else {
-                                instancedBuffer = InstancedBuffer.get(pass, device);
-                                instancedBuffer.merge(subModel, ro.model.instancedAttributes, subModel.psoInfos[p]);
+                                instancedBuffer = InstancedBuffer.get(pass);
+                                instancedBuffer.merge(subModel, ro.model.instancedAttributes, p);
                             }
                             this._instancedQueue.queue.add(instancedBuffer!);
                         } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) {
@@ -147,14 +145,12 @@ export class ForwardStage extends RenderStage {
                             if (pass.phase === this._lightPhaseID) {
                                 for (let l = lightIndexOffset[i]; l < nextLightIndex; ++l) {
                                     const lightIndex = lightIndices[l];
-                                    const psoCI = RenderBatchedQueue.getLightPipelineCreateInfo(ro, m, pass,
-                                        validLights, lightBuffers, lightIndex);
                                     batchedBuffer = BatchedBuffer.get(lightIndex, device);
-                                    batchedBuffer.merge(subModel, p, ro, psoCI);
+                                    batchedBuffer.merge(subModel, p, ro);
                                 }
                             } else {
                                 batchedBuffer = BatchedBuffer.get(pass, device);
-                                batchedBuffer.merge(subModel, p, ro, subModel.psoInfos[p]);
+                                batchedBuffer.merge(subModel, p, ro);
                             }
                             this._batchedQueue.queue.add(batchedBuffer!);
                         } else {
@@ -166,9 +162,11 @@ export class ForwardStage extends RenderStage {
                     }
                 }
             } else {
-                for (m = 0; m < ro.model.subModelNum; m++) {
-                    for (p = 0; p < ro.model.getSubModel(m).passes.length; p++) {
-                        const pass = ro.model.getSubModel(m).passes[p];
+                const subModels = ro.model.subModels;
+                for (m = 0; m < subModels.length; m++) {
+                    const subModel = subModels[m];
+                    for (p = 0; p < subModel.passes.length; p++) {
+                        const pass = subModel.passes[p];
                         for (k = 0; k < this._renderQueues.length; k++) {
                             this._renderQueues[k].insertRenderPass(ro, m, p);
                         }

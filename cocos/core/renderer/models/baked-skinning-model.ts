@@ -43,8 +43,8 @@ import { ModelType } from '../scene/model';
 import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../global-exports';
-import { IGFXAttribute } from '../../gfx';
-import { DescriptorSetPool, PSOCIView, PSOCIPool } from '../core/memory-pools';
+import { IGFXAttribute, GFXDescriptorSet } from '../../gfx';
+import { DescriptorSetPool } from '../core/memory-pools';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;
@@ -177,28 +177,19 @@ export class BakedSkinningModel extends MorphModel {
         const tex = texture.handle.texture;
 
         for (let i = 0; i < this._subModels.length; ++i) {
-            const psoCreateInfos = this._subModels[i].psoInfos;
-            for (let j = 0; j < psoCreateInfos.length; ++j) {
-                const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoCreateInfos[j], PSOCIView.DESCRIPTOR_SET));
-                descriptorSet.bindTexture(UniformJointTexture.binding, tex);
-            }
-        }
-
-        for (let i = 0; i < this._implantPSOCIs.length; i++) {
-            const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(this._implantPSOCIs[i], PSOCIView.DESCRIPTOR_SET));
+            const descriptorSet = this._subModels[i].descriptorSet;
             descriptorSet.bindTexture(UniformJointTexture.binding, tex);
-            descriptorSet.update();
         }
     }
 
-    public getMacroPatches (subModelIndex: number) : any {
-        return myPatches;
+    public getMacroPatches (subModelIndex: number) {
+        const patches = super.getMacroPatches(subModelIndex);
+        return patches ? patches.concat(myPatches) : myPatches;
     }
 
-    public updateLocalBindings (psoci: number, submodelIdx: number) {
-        super.updateLocalBindings(psoci, submodelIdx);
+    protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
+        super._updateLocalDescriptors(submodelIdx, descriptorSet);
         const { buffer, texture, animInfo } = this._jointsMedium;
-        const descriptorSet = DescriptorSetPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SET));
         descriptorSet.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
         descriptorSet.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
         const sampler = samplerLib.getSampler(this._device, jointTextureSamplerHash);
@@ -208,9 +199,9 @@ export class BakedSkinningModel extends MorphModel {
         }
     }
 
-    protected updateInstancedAttributeList (attributes: IGFXAttribute[], pass: Pass) {
-        super.updateInstancedAttributeList(attributes, pass);
-        this._instAnimInfoIdx = this.getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
+    protected _updateInstancedAttributes (attributes: IGFXAttribute[], pass: Pass) {
+        super._updateInstancedAttributes(attributes, pass);
+        this._instAnimInfoIdx = this._getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
         this.updateInstancedJointTextureInfo();
     }
 

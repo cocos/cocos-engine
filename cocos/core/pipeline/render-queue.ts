@@ -5,12 +5,11 @@
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { RecyclePool } from '../memop';
 import { CachedArray } from '../memop/cached-array';
-import { IRenderObject, IRenderPass, IRenderQueueDesc } from './define';
-import { GFXInputAssembler } from '../gfx/input-assembler';
+import { IRenderObject, IRenderPass, IRenderQueueDesc, DescriptorSetIndices } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { GFXDevice } from '../gfx/device';
-import { GFXRenderPass } from '../gfx';
-import { BlendStatePool, PassInfoPool, PassInfoView, DescriptorSetPool, PSOCIPool, PSOCIView } from '../renderer/core/memory-pools';
+import { GFXRenderPass, GFXDescriptorSet } from '../gfx';
+import { BlendStatePool, PassPool, PassView, DescriptorSetPool, SubModelView, SubModelPool, ShaderPool } from '../renderer/core/memory-pools';
 
 /**
  * @en Comparison sorting function. Opaque objects are sorted by priority -> depth front to back -> shader ID.
@@ -78,18 +77,17 @@ export class RenderQueue {
      * @returns Whether the new render pass is successfully added
      */
     public insertRenderPass (renderObj: IRenderObject, subModelIdx: number, passIdx: number): boolean {
-        const subModel = renderObj.model.getSubModel(subModelIdx);
-        const psoci = subModel.psoInfos[passIdx];
-        const pass = PSOCIPool.get(psoci, PSOCIView.PASS_INFO);
-        const isTransparent = BlendStatePool.get(PassInfoPool.get(pass, PassInfoView.BLEND_STATE)).targets[0].blend;
-        if (isTransparent !== this._passDesc.isTransparent || !(PassInfoPool.get(pass, PassInfoView.PHASE) & this._passDesc.phases)) {
+        const subModel = renderObj.model.subModels[subModelIdx];
+        const pass = SubModelPool.get(subModel.handle, SubModelView.PASS_0 + passIdx);
+        const isTransparent = BlendStatePool.get(PassPool.get(pass, PassView.BLEND_STATE)).targets[0].blend;
+        if (isTransparent !== this._passDesc.isTransparent || !(PassPool.get(pass, PassView.PHASE) & this._passDesc.phases)) {
             return false;
         }
-        const hash = (0 << 30) | PassInfoPool.get(pass, PassInfoView.PRIORITY) << 16 | subModel.priority << 8 | passIdx;
+        const hash = (0 << 30) | PassPool.get(pass, PassView.PRIORITY) << 16 | subModel.priority << 8 | passIdx;
         const rp = this._passPool.add();
         rp.hash = hash;
         rp.depth = renderObj.depth || 0;
-        rp.shaderId = PSOCIPool.get(psoci, PSOCIView.SHADER);
+        rp.shaderId = SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx);
         rp.subModel = subModel;
         rp.passIdx = passIdx;
         this.queue.push(rp);
@@ -106,15 +104,16 @@ export class RenderQueue {
 
     public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
         for (let i = 0; i < this.queue.length; ++i) {
-            const subModel = this.queue.array[i].subModel;
-            const passIdx = this.queue.array[i].passIdx;
-            const ia = subModel.inputAssembler as GFXInputAssembler;
-            const psoci = subModel.psoInfos[passIdx];
-            const pso = PipelineStateManager.getOrCreatePipelineState(device, psoci, renderPass, ia);
+            const { subModel, passIdx } = this.queue.array[i];
+            const { inputAssembler, handle: hSubModel } = subModel;
+            const hPass = SubModelPool.get(hSubModel, SubModelView.PASS_0 + passIdx);
+            const shader = ShaderPool.get(SubModelPool.get(hSubModel, SubModelView.SHADER_0 + passIdx));
+            const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, inputAssembler);
             cmdBuff.bindPipelineState(pso);
-            cmdBuff.bindDescriptorSets(DescriptorSetPool.get(PSOCIPool.get(psoci, PSOCIView.DESCRIPTOR_SET)));
-            cmdBuff.bindInputAssembler(ia);
-            cmdBuff.draw(ia);
+            cmdBuff.bindDescriptorSet(DescriptorSetIndices.MATERIAL_SPECIFIC, DescriptorSetPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET)));
+            cmdBuff.bindDescriptorSet(DescriptorSetIndices.MODEL_LOCAL, DescriptorSetPool.get(SubModelPool.get(hSubModel, SubModelView.DESCRIPTOR_SET)));
+            cmdBuff.bindInputAssembler(inputAssembler);
+            cmdBuff.draw(inputAssembler);
         }
     }
 }

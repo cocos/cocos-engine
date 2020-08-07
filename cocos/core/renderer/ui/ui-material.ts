@@ -29,6 +29,8 @@
 import { Material } from '../../assets/material';
 import { Pool } from '../../memop';
 import { Pass } from '../../renderer/core/pass';
+import { DescriptorSetPool, PassView, PassPool } from '../core/memory-pools';
+import { GFXDescriptorSet } from '../../gfx';
 
 export interface IUIMaterialInfo {
     material: Material;
@@ -36,21 +38,22 @@ export interface IUIMaterialInfo {
 
 export class UIMaterial {
 
-    public get material (): Material {
+    protected _material: Material | null = null;
+    protected _pass: Pass | null = null;
+    protected _descriptorSet: GFXDescriptorSet | null = null;
+
+    private _refCount: number = 0;
+
+    get material () {
         return this._material!;
     }
 
-    public get pass (): Pass {
+    get pass () {
         return this._pass!;
     }
 
-    protected _material: Material | null = null;
-    protected _pass: Pass | null = null;
-    private _psoCreateInfos: Pool<number> | null;
-    private _refCount: number = 0;
-
-    constructor () {
-        this._psoCreateInfos = null;
+    get descriptorSet () {
+        return this._descriptorSet!;
     }
 
     public initialize (info: IUIMaterialInfo): boolean {
@@ -66,10 +69,7 @@ export class UIMaterial {
         this._pass = this._material.passes[0];
         this._pass.update();
 
-        this._psoCreateInfos = new Pool(() => {
-            const psoci = this._pass!.createPipelineStateCI()!;
-            return psoci;
-        }, 1);
+        this._descriptorSet = DescriptorSetPool.get(PassPool.get(this._pass!.handle, PassView.DESCRIPTOR_SET));
 
         return true;
     }
@@ -87,20 +87,7 @@ export class UIMaterial {
         return this._refCount;
     }
 
-    public getPipelineCreateInfo (): number {
-        return this._psoCreateInfos!.alloc();
-    }
-
-    public revertPipelineCreateInfo (psoCeateInfo: number) {
-        this._psoCreateInfos!.free(psoCeateInfo);
-    }
-
     public destroy () {
-        if (this._psoCreateInfos) {
-            this._psoCreateInfos.clear((psoci: number) => {
-                this._pass!.destroyPipelineStateCI(psoci);
-            });
-        }
         if (this._material) {
             this._material.destroy();
             this._material = null;

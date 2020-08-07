@@ -26,11 +26,12 @@
  * @hidden
  */
 
-import { Material } from '../../assets/material';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { Model, ModelType } from '../scene/model';
 import { SubModel } from '../scene/submodel';
 import { UIDrawBatch } from './ui-draw-batch';
+import { Pass } from '../core/pass';
+import { GFXDescriptorSet } from '../../gfx';
 
 export class UIBatchModel extends Model {
 
@@ -40,34 +41,23 @@ export class UIBatchModel extends Model {
         super();
         this.type = ModelType.UI_BATCH;
         this._subModel = new UISubModel();
-    }
-
-    public updateTransform () {
-    }
-
-    public updateUBOs () {
-        return false;
-    }
-
-    public directInitialize (ia: GFXInputAssembler, batch: UIDrawBatch) {
-        this._subModel.directInitialize(ia, batch.material!, batch.psoCreateInfo!);
         this._subModels[0] = this._subModel;
     }
 
-    public destroy () {
-        this._subModel.destroy();
+    public updateTransform () {}
+    public updateUBOs () { return false; }
+
+    public directInitialize (ia: GFXInputAssembler, batch: UIDrawBatch) {
+        this._subModel.directInitialize(ia, batch.material!.passes, batch.descriptorSet!);
     }
+
+    public destroy () { this._subModel.destroy(); }
 }
 
 class UISubModel extends SubModel {
-    public directInitialize (ia: GFXInputAssembler, mat: Material, psoCreateInfo: number) {
-        this._inputAssembler = ia;
-        this._psociHandles[0] = psoCreateInfo;
-        // Should not use this.material = mat, or _psoCreateInfos[0] will be overrided.
-        this._material = mat;
-    }
-
-    public destroy () {
-        super.destroy();
+    public directInitialize (inputAssembler: GFXInputAssembler, passes: Pass[], descriptorSet: GFXDescriptorSet) {
+        this._inputAssembler = inputAssembler;
+        this._passes = passes;
+        this._descriptorSet = descriptorSet;
     }
 }

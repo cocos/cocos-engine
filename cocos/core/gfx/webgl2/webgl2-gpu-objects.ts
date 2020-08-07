@@ -127,19 +127,19 @@ export interface IWebGL2GPUUniform {
 }
 
 export interface IWebGL2GPUUniformBlock {
-    sourceSet: number;
+    set: number;
     binding: number;
     idx: number;
     name: string;
     size: number;
+
+    glBinding: number;
     glUniforms: IWebGL2GPUUniform[];
     glActiveUniforms: IWebGL2GPUUniform[];
-
-    isUniformPackage: boolean;
 }
 
 export interface IWebGL2GPUUniformSampler {
-    sourceSet: number;
+    set: number;
     binding: number;
     name: string;
     type: GFXType;
@@ -155,18 +155,10 @@ export interface IWebGL2GPUShaderStage {
     glShader: WebGLShader | null;
 }
 
-export interface IWebGL2UniformBlock extends GFXUniformBlock {
-    gpuBinding: number;
-}
-
-export interface IWebGL2UniformSampler extends GFXUniformSampler {
-    gpuBinding: number;
-}
-
 export interface IWebGL2GPUShader {
     name: string;
-    blocks: IWebGL2UniformBlock[];
-    samplers: IWebGL2UniformSampler[];
+    blocks: GFXUniformBlock[];
+    samplers: GFXUniformSampler[];
 
     gpuStages: IWebGL2GPUShaderStage[];
     glProgram: WebGLProgram | null;
@@ -188,16 +180,13 @@ export interface IWebGL2GPUPipelineState {
 
 export interface IWebGL2GPUDescriptor {
     type: GFXDescriptorType;
-    name: string;
     gpuBuffer: IWebGL2GPUBuffer | null;
     gpuTexture: IWebGL2GPUTexture | null;
     gpuSampler: IWebGL2GPUSampler | null;
 }
 
 export interface IWebGL2GPUDescriptorSet {
-    // these two are just different groupings of the same set of descriptors
-    gpuDescriptors: Record<number, IWebGL2GPUDescriptor>;
-    gpuDescriptorArray: IWebGL2GPUDescriptor[];
+    gpuDescriptors: IWebGL2GPUDescriptor[];
 }
 
 export interface IWebGL2Attrib {

@@ -11,6 +11,7 @@ import { ForwardStagePriority } from '../forward/enum';
 import { RenderShadowMapBatchedQueue } from '../render-shadowMap-batched-queue';
 import { GFXFramebuffer } from '../../gfx/framebuffer';
 import { ForwardPipeline } from '../forward/forward-pipeline';
+import { UBOPCFShadow } from '../define';
 
 const colors: GFXColor[] = [ { r: 1, g: 1, b: 1, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -31,7 +32,7 @@ export class ShadowStage extends RenderStage {
     }
 
     private _additiveShadowQueue: RenderShadowMapBatchedQueue;
-    private _shadowFrameBuffer: GFXFramebuffer|null = null;
+    private _shadowFrameBuffer: GFXFramebuffer | null = null;
     private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
 
     /**
@@ -57,15 +58,16 @@ export class ShadowStage extends RenderStage {
      */
     public render (view: RenderView) {
         const pipeline = this._pipeline as ForwardPipeline;
-        this._additiveShadowQueue.clear(pipeline.shadowUBOBuffer);
+        this._additiveShadowQueue.clear(pipeline.descriptorSet.getBuffer(UBOPCFShadow.BLOCK.binding));
 
         const renderObjects = pipeline.renderObjects;
         let m = 0; let p = 0;
         for (let i = 0; i < renderObjects.length; ++i) {
             const ro = renderObjects[i];
             if (ro.model.castShadow) {
-                for (m = 0; m < ro.model.subModelNum; m++) {
-                    const passes = ro.model.getSubModel(m).passes;
+                const subModels = ro.model.subModels;
+                for (m = 0; m < subModels.length; m++) {
+                    const passes = subModels[m].passes;
                     for (p = 0; p < passes.length; p++) {
                         this._additiveShadowQueue.add(passes[p], ro, m);
                     }

@@ -32,7 +32,7 @@ import { isBuiltinBinding } from '../../pipeline/define';
 import { MaterialInstance } from './material-instance';
 import { Pass, PassOverrides } from './pass';
 import { assignDefines, IDefineMap } from './pass-utils';
-import { PassInfoView, RasterizerStatePool, DepthStencilStatePool, BlendStatePool, PassInfoPool } from './memory-pools';
+import { PassView, RasterizerStatePool, DepthStencilStatePool, BlendStatePool, PassPool } from './memory-pools';
 
 export class PassInstance extends Pass {
 
@@ -46,9 +46,7 @@ export class PassInstance extends Pass {
         super(parent.root);
         this._parent = parent;
         this._owner = owner;
-        this.beginChangeStatesSilently();
         this._doInit(this._parent, true); // defines may change now
-        this.endChangeStatesSilently();
         for (const u of this._shaderInfo.blocks) {
             if (isBuiltinBinding(u.set)) { continue; }
             const block = this._blocks[u.binding];
@@ -61,18 +59,19 @@ export class PassInstance extends Pass {
             this._textures[u.binding] = (this._parent as PassInstance)._textures[u.binding];
             this._samplers[u.binding] = (this._parent as PassInstance)._samplers[u.binding];
         }
+        super.tryCompile();
     }
 
     public overridePipelineStates (original: IPassInfo, overrides: PassOverrides): void {
-        BlendStatePool.free(PassInfoPool.get(this._infoHandle, PassInfoView.BLEND_STATE));
-        RasterizerStatePool.free(PassInfoPool.get(this._infoHandle, PassInfoView.RASTERIZER_STATE));
-        DepthStencilStatePool.free(PassInfoPool.get(this._infoHandle, PassInfoView.DEPTH_STENCIL_STATE));
-        PassInfoPool.set(this._infoHandle, PassInfoView.BLEND_STATE, BlendStatePool.alloc());
-        PassInfoPool.set(this._infoHandle, PassInfoView.RASTERIZER_STATE, RasterizerStatePool.alloc());
-        PassInfoPool.set(this._infoHandle, PassInfoView.DEPTH_STENCIL_STATE, DepthStencilStatePool.alloc());
+        BlendStatePool.free(PassPool.get(this._handle, PassView.BLEND_STATE));
+        RasterizerStatePool.free(PassPool.get(this._handle, PassView.RASTERIZER_STATE));
+        DepthStencilStatePool.free(PassPool.get(this._handle, PassView.DEPTH_STENCIL_STATE));
+        PassPool.set(this._handle, PassView.BLEND_STATE, BlendStatePool.alloc());
+        PassPool.set(this._handle, PassView.RASTERIZER_STATE, RasterizerStatePool.alloc());
+        PassPool.set(this._handle, PassView.DEPTH_STENCIL_STATE, DepthStencilStatePool.alloc());
 
-        Pass.fillinPipelineInfo(this._infoHandle, original);
-        Pass.fillinPipelineInfo(this._infoHandle, overrides);
+        Pass.fillPipelineInfo(this._handle, original);
+        Pass.fillPipelineInfo(this._handle, overrides);
         this._onStateChange();
     }
 
@@ -100,7 +99,7 @@ export class PassInstance extends Pass {
     }
 
     protected _onStateChange () {
-        PassInfoPool.set(this._infoHandle, PassInfoView.HASH, Pass.getPassHash(this._infoHandle, this._defaultShaderHandle));
+        PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this._handle, this._hShaderDefault));
         this._owner.onPassStateChange(this._dontNotify);
     }
 }

@@ -47,7 +47,7 @@ import { UIDrawBatch } from './ui-draw-batch';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
 import { legacyCC } from '../../global-exports';
-import { DescriptorSetPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
+import { DescriptorSetPool } from '../core/memory-pools';
 
 /**
  * @zh
@@ -314,8 +314,9 @@ export class UI {
                         batch.model.visFlags = visFlags;
                         batch.model.node.layer = visFlags;
                     }
-                    for (let j = 0; j < batch.model.subModelNum; j++) {
-                        batch.model.getSubModel(j).priority = batchPriority++;
+                    const subModels = batch.model.subModels;
+                    for (let j = 0; j < subModels.length; j++) {
+                        subModels[j].priority = batchPriority++;
                     }
                 } else {
                     const descriptorSet = batch.descriptorSet!;
@@ -330,7 +331,7 @@ export class UI {
                     const uiModel = this._uiModelPool!.alloc();
                     uiModel.directInitialize(batch.ia!, batch);
                     this._scene.addModel(uiModel);
-                    uiModel.getSubModel(0).priority = batchPriority++;
+                    uiModel.subModels[0].priority = batchPriority++;
                     if (batch.camera) {
                         uiModel.visFlags = batch.camera.view.visibility;
                         if (this._canvasMaterials.get(batch.camera.view.visibility)!.get(batch.material!.hash) == null) {
@@ -400,7 +401,7 @@ export class UI {
         if (mat) {
             const rebuild = StencilManager.sharedManager!.handleMaterial(mat);
             if (rebuild && model) {
-                for (let i = 0; i < model.subModelNum; i++) {
+                for (let i = 0; i < model.subModels.length; i++) {
                     model.setSubModelMaterial(i, mat);
                 }
             }
@@ -415,7 +416,6 @@ export class UI {
         curDrawBatch.texture = null;
         curDrawBatch.sampler = null;
 
-        curDrawBatch.psoCreateInfo = 0;
         curDrawBatch.descriptorSet = null;
 
         // reset current render state to null
@@ -469,8 +469,7 @@ export class UI {
         curDrawBatch.ia!.firstIndex = indicsStart;
         curDrawBatch.ia!.indexCount = vCount;
 
-        curDrawBatch.psoCreateInfo = this._getUIMaterial(mat).getPipelineCreateInfo();
-        curDrawBatch.descriptorSet = DescriptorSetPool.get(PSOCIPool.get(curDrawBatch.psoCreateInfo!, PSOCIView.DESCRIPTOR_SET));
+        curDrawBatch.descriptorSet = this._getUIMaterial(mat).descriptorSet;
 
         this._batches.push(curDrawBatch);
 
@@ -585,7 +584,7 @@ export class UI {
                 continue;
             }
 
-            batch.clear(this);
+            batch.clear();
             this._drawBatchPool.free(batch);
         }
 
