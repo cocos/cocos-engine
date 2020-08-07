@@ -14,12 +14,12 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, editable, seria
  * @zh
  * UI 透明度设置组件。可以通过该组件设置透明度来影响后续的渲染节点。已经带有渲染组件的节点可以直接修改 color 的 alpha 通道。
  */
-@ccclass('cc.UIOpacityComponent')
-@help('i18n:cc.UIOpacityComponent')
+@ccclass('cc.UIOpacity')
+@help('i18n:cc.UIOpacity')
 @executionOrder(110)
 @menu('UI/UIOpacity')
 @executeInEditMode
-export class UIOpacityComponent extends Component {
+export class UIOpacity extends Component {
     /**
      * @en
      * The transparency value of the impact.
@@ -52,3 +52,5 @@ export class UIOpacityComponent extends Component {
         this.node._uiProps.opacity = 1;
     }
 }
+
+export { UIOpacity as UIOpacityComponent };

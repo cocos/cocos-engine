@@ -35,7 +35,7 @@ import { Vec2 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp } from '../../core/math/utils';
 import { UI } from '../../core/renderer/ui/ui';
-import { UIRenderComponent, InstanceMaterialType } from '../../core/components/ui-base/ui-render-component';
+import { UIRenderable, InstanceMaterialType } from '../../core/components/ui-base/ui-render-component';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';
@@ -171,11 +171,11 @@ enum EventType {
  * @zh
  * 渲染精灵组件。
  */
-@ccclass('cc.SpriteComponent')
-@help('i18n:cc.SpriteComponent')
+@ccclass('cc.Sprite')
+@help('i18n:cc.Sprite')
 @executionOrder(110)
 @menu('UI/Render/Sprite')
-export class SpriteComponent extends UIRenderComponent {
+export class Sprite extends UIRenderable {
 
     /**
      * @en
@@ -239,8 +239,8 @@ export class SpriteComponent extends UIRenderComponent {
      *
      * @example
      * ```ts
-     * import { SpriteComponent } from 'cc';
-     * sprite.type = SpriteComponent.Type.SIMPLE;
+     * import { Sprite } from 'cc';
+     * sprite.type = Sprite.Type.SIMPLE;
      * ```
      */
     @type(SpriteType)
@@ -260,15 +260,15 @@ export class SpriteComponent extends UIRenderComponent {
 
     /**
      * @en
-     * The fill type, This will only have any effect if the "type" is set to “SpriteComponent.Type.FILLED”.
+     * The fill type, This will only have any effect if the "type" is set to “Sprite.Type.FILLED”.
      *
      * @zh
-     * 精灵填充类型，仅渲染类型设置为 SpriteComponent.Type.FILLED 时有效。
+     * 精灵填充类型，仅渲染类型设置为 Sprite.Type.FILLED 时有效。
      *
      * @example
      * ```ts
-     * import { SpriteComponent } from 'cc';
-     * sprite.fillType = SpriteComponent.FillType.HORIZONTAL;
+     * import { Sprite } from 'cc';
+     * sprite.fillType = Sprite.FillType.HORIZONTAL;
      * ```
      */
     @type(FillType)
@@ -294,10 +294,10 @@ export class SpriteComponent extends UIRenderComponent {
 
     /**
      * @en
-     * The fill Center, This will only have any effect if the "type" is set to “SpriteComponent.Type.FILLED”.
+     * The fill Center, This will only have any effect if the "type" is set to “Sprite.Type.FILLED”.
      *
      * @zh
-     * 填充中心点，仅渲染类型设置为 SpriteComponent.Type.FILLED 时有效。
+     * 填充中心点，仅渲染类型设置为 Sprite.Type.FILLED 时有效。
      *
      * @example
      * ```ts
@@ -319,10 +319,10 @@ export class SpriteComponent extends UIRenderComponent {
 
     /**
      * @en
-     * The fill Start, This will only have any effect if the "type" is set to “SpriteComponent.Type.FILLED”.
+     * The fill Start, This will only have any effect if the "type" is set to “Sprite.Type.FILLED”.
      *
      * @zh
-     * 填充起始点，仅渲染类型设置为 SpriteComponent.Type.FILLED 时有效。
+     * 填充起始点，仅渲染类型设置为 Sprite.Type.FILLED 时有效。
      *
      * @example
      * ```ts
@@ -346,10 +346,10 @@ export class SpriteComponent extends UIRenderComponent {
 
     /**
      * @en
-     * The fill Range, This will only have any effect if the "type" is set to “SpriteComponent.Type.FILLED”.
+     * The fill Range, This will only have any effect if the "type" is set to “Sprite.Type.FILLED”.
      *
      * @zh
-     * 填充范围，仅渲染类型设置为 SpriteComponent.Type.FILLED 时有效。
+     * 填充范围，仅渲染类型设置为 Sprite.Type.FILLED 时有效。
      *
      * @example
      * ```ts
@@ -426,8 +426,8 @@ export class SpriteComponent extends UIRenderComponent {
      *
      * @example
      * ```ts
-     * import { SpriteComponent } from 'cc';
-     * sprite.sizeMode = SpriteComponent.SizeMode.CUSTOM;
+     * import { Sprite } from 'cc';
+     * sprite.sizeMode = Sprite.SizeMode.CUSTOM;
      * ```
      */
     @type(SizeMode)
@@ -494,8 +494,8 @@ export class SpriteComponent extends UIRenderComponent {
     // /**
     //  * Change the state of sprite.
     //  * @method setState
-    //  * @see `SpriteComponent.State`
-    //  * @param state {SpriteComponent.State} NORMAL or GRAY State.
+    //  * @see `Sprite.State`
+    //  * @param state {Sprite.State} NORMAL or GRAY State.
     //  */
     // getState() {
     //     return this._state;
@@ -604,7 +604,7 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     protected _flushAssembler () {
-        const assembler = SpriteComponent.Assembler!.getAssembler(this);
+        const assembler = Sprite.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this.destroyRenderData();
@@ -785,4 +785,6 @@ export class SpriteComponent extends UIRenderComponent {
     }
 }
 
-legacyCC.SpriteComponent = SpriteComponent;
+legacyCC.Sprite = Sprite;
+
+export { Sprite as SpriteComponent };

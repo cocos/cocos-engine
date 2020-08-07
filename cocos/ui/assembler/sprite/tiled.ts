@@ -30,8 +30,8 @@
 import { Mat4, Vec3, Color } from '../../../core/math';
 import { RenderData, IRenderData } from '../../../core/renderer/ui/render-data';
 import { UI } from '../../../core/renderer/ui/ui';
-import { SpriteComponent } from '../../components/sprite-component';
-import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-component';
+import { Sprite } from '../../components/sprite-component';
+import { UIRenderable } from '../../../core/components/ui-base/ui-render-component';
 import { IAssembler } from '../../../core/renderer/ui/base';
 
 const vec3_temps: Vec3[] = [];
@@ -44,11 +44,11 @@ const _perVertexLength = 9;
 export const tilled: IAssembler = {
     useModel: false,
 
-    createData (sprite: UIRenderComponent) {
+    createData (sprite: UIRenderable) {
         return sprite.requestRenderData() as RenderData;
     },
 
-    updateRenderData (sprite: SpriteComponent) {
+    updateRenderData (sprite: Sprite) {
         const renderData = sprite.renderData!;
         const frame = sprite.spriteFrame!;
         if (!frame || !renderData || !(renderData.uvDirty || renderData.vertDirty)){
@@ -86,7 +86,7 @@ export const tilled: IAssembler = {
         renderData.vertDirty = false;
     },
 
-    fillBuffers (sprite: SpriteComponent, renderer: UI) {
+    fillBuffers (sprite: Sprite, renderer: UI) {
         const node = sprite.node;
         const uiTrans = sprite.node._uiProps.uiTransformComp!;
         const renderData = sprite.renderData!;

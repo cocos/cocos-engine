@@ -434,7 +434,7 @@ export class RenderScene {
      */
     public raycastAllCanvas (worldRay: ray, mask = Layers.Enum.UI_2D, distance = Infinity): boolean {
         poolUI.reset();
-        const canvasComs = legacyCC.director.getScene().getComponentsInChildren(legacyCC.CanvasComponent);
+        const canvasComs = legacyCC.director.getScene().getComponentsInChildren(legacyCC.Canvas);
         if (canvasComs != null && canvasComs.length > 0) {
             for (let i = 0; i < canvasComs.length; i++) {
                 const canvasNode = canvasComs[i].node;

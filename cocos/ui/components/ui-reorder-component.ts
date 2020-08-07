@@ -36,13 +36,15 @@ import { legacyCC } from '../../core/global-exports';
  * UI 及 UI 模型渲染基类。
  * @deprecated 会在 1.2 的版本移除
  */
-@ccclass('cc.UIReorderComponent')
-@help('i18n:cc.UIReorderComponent')
+@ccclass('cc.UIReorder')
+@help('i18n:cc.UIReorder')
 @menu('UI/Reorder')
 @executionOrder(110)
 @disallowMultiple
 @executeInEditMode
-export class UIReorderComponent extends UIComponent {
+export class UIReorder extends UIComponent {
 
 }
-legacyCC.UIReorderComponent = UIReorderComponent;
+legacyCC.UIReorder = UIReorder;
+
+export { UIReorder as UIReorderComponent };

@@ -23,7 +23,7 @@ replaceProperty(BaseNode.prototype, 'BaseNode', [
 replaceProperty(Node.prototype, 'Node', [
     {
         'name': 'width',
-        'targetName': 'node.getComponent(UITransformComponent)',
+        'targetName': 'node.getComponent(UITransform)',
         'customGetter': function (this: Node) {
             return this._uiProps.uiTransformComp!.width;
         },
@@ -33,7 +33,7 @@ replaceProperty(Node.prototype, 'Node', [
     },
     {
         'name': 'height',
-        'targetName': 'node.getComponent(UITransformComponent)',
+        'targetName': 'node.getComponent(UITransform)',
         'customGetter': function (this: Node) {
             return this._uiProps.uiTransformComp!.height;
         },
@@ -43,7 +43,7 @@ replaceProperty(Node.prototype, 'Node', [
     },
     {
         'name': 'anchorX',
-        'targetName': 'node.getComponent(UITransformComponent)',
+        'targetName': 'node.getComponent(UITransform)',
         'customGetter': function (this: Node) {
             return this._uiProps.uiTransformComp!.anchorX;
         },
@@ -53,7 +53,7 @@ replaceProperty(Node.prototype, 'Node', [
     },
     {
         'name': 'anchorY',
-        'targetName': 'node.getComponent(UITransformComponent)',
+        'targetName': 'node.getComponent(UITransform)',
         'customGetter': function (this: Node) {
             return this._uiProps.uiTransformComp!.anchorY;
         },
@@ -63,7 +63,7 @@ replaceProperty(Node.prototype, 'Node', [
     },
     {
         'name': 'getAnchorPoint',
-        'targetName': 'node.getComponent(UITransformComponent)',
+        'targetName': 'node.getComponent(UITransform)',
         'customFunction': function (this: Node, out?: Vec2) {
             if (!out) {
                 out = new Vec2();
@@ -74,14 +74,14 @@ replaceProperty(Node.prototype, 'Node', [
     },
     {
         'name': 'setAnchorPoint',
-        'targetName': 'node.getComponent(UITransformComponent)',
+        'targetName': 'node.getComponent(UITransform)',
         'customFunction': function (this: Node, point: Vec2 | number, y?: number) {
             this._uiProps.uiTransformComp!.setAnchorPoint(point, y);
         }
     },
     {
         'name': 'getContentSize',
-        'targetName': 'node.getComponent(UITransformComponent)',
+        'targetName': 'node.getComponent(UITransform)',
         'customFunction': function (this: Node, out?: Size): Size {
             if (!out) {
                 out = new Size();
@@ -93,7 +93,7 @@ replaceProperty(Node.prototype, 'Node', [
     },
     {
         'name': 'setContentSize',
-        'targetName': 'node.getComponent(UITransformComponent)',
+        'targetName': 'node.getComponent(UITransform)',
         'customFunction': function (this: Node, size: Size | number, height?: number) {
             this._uiProps.uiTransformComp!.setContentSize(size, height);
         }

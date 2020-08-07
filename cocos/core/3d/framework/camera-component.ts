@@ -29,7 +29,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { RenderTexture } from '../../assets/render-texture';
-import { UITransformComponent } from '../../components';
+import { UITransform } from '../../components/ui-base';
 import { Component } from '../../components/component';
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { ray } from '../../geometry';
@@ -528,7 +528,7 @@ export class CameraComponent extends Component {
         if (!this._camera) { return out; }
 
         this.worldToScreen(wpos, _temp_vec3_1);
-        const cmp = uiNode.getComponent('cc.UITransformComponent') as UITransformComponent;
+        const cmp = uiNode.getComponent('cc.UITransform') as UITransform;
         const designSize = view.getVisibleSize();
         const xoffset = _temp_vec3_1.x - this._camera!.width * 0.5;
         const yoffset = _temp_vec3_1.y - this._camera!.height * 0.5;

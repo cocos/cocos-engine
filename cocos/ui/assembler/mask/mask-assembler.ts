@@ -29,14 +29,14 @@
 
 import { IRenderData, RenderData } from '../../../core/renderer/ui/render-data';
 import { UI } from '../../../core/renderer/ui/ui';
-import { MaskComponent } from '../../components/mask-component';
+import { Mask } from '../../components/mask-component';
 import { IAssembler, IAssemblerManager } from '../../../core/renderer/ui/base';
 import { StencilManager } from '../../../core/renderer/ui/stencil-manager';
 
 const _stencilManager = StencilManager.sharedManager!;
 
 export const maskAssembler: IAssembler = {
-    createData (mask: MaskComponent) {
+    createData (mask: Mask) {
         const renderData = mask.requestRenderData();
         renderData!.dataLength = 4;
         renderData!.vertexCount = 4;
@@ -44,7 +44,7 @@ export const maskAssembler: IAssembler = {
         return renderData as RenderData;
     },
 
-    updateRenderData (mask: MaskComponent){
+    updateRenderData (mask: Mask){
         const renderData = mask.renderData;
         if (renderData) {
             if (renderData.vertDirty) {
@@ -55,7 +55,7 @@ export const maskAssembler: IAssembler = {
         }
     },
 
-    updateVertexData (mask: MaskComponent) {
+    updateVertexData (mask: Mask) {
         const renderData: RenderData | null = mask.renderData;
         if (!renderData) {
             return;
@@ -84,7 +84,7 @@ export const maskAssembler: IAssembler = {
         renderData.vertDirty = false;
     },
 
-    fillBuffers (mask: MaskComponent, renderer: UI) {
+    fillBuffers (mask: Mask, renderer: UI) {
         _stencilManager.pushMask(mask);
 
         _stencilManager.clear();
@@ -98,7 +98,7 @@ export const maskAssembler: IAssembler = {
 };
 
 export const maskEndAssembler: IAssembler = {
-    fillBuffers (mask: MaskComponent, ui: UI) {
+    fillBuffers (mask: Mask, ui: UI) {
         _stencilManager.exitMask();
     },
 };
@@ -115,5 +115,5 @@ const PostAssembler: IAssemblerManager = {
     },
 };
 
-MaskComponent.Assembler = StartAssembler;
-MaskComponent.PostAssembler = PostAssembler;
+Mask.Assembler = StartAssembler;
+Mask.PostAssembler = PostAssembler;

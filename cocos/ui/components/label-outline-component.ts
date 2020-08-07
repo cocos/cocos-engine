@@ -31,7 +31,7 @@
 import { Component } from '../../core/components/component';
 import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
 import { Color } from '../../core/math';
-import { LabelComponent } from './label-component';
+import { Label } from './label-component';
 import { legacyCC } from '../../core/global-exports';
 
 /**
@@ -43,21 +43,21 @@ import { legacyCC } from '../../core/global-exports';
  *
  * @example
  * ```ts
- * import { Node, LabelComponent, LabelOutlineComponent } from 'cc';
+ * import { Node, Label, LabelOutline } from 'cc';
  * // Create a new node and add label components.
  * const node = new Node("New Label");
- * const label = node.addComponent(LabelComponent);
- * const outline = node.addComponent(LabelOutlineComponent);
+ * const label = node.addComponent(Label);
+ * const outline = node.addComponent(LabelOutline);
  * node.parent = this.node;
  * ```
  */
-@ccclass('cc.LabelOutlineComponent')
-@help('i18n:cc.LabelOutlineComponent')
+@ccclass('cc.LabelOutline')
+@help('i18n:cc.LabelOutline')
 @executionOrder(110)
 @menu('UI/LabelOutline')
-@requireComponent(LabelComponent)
+@requireComponent(Label)
 @executeInEditMode
-export class LabelOutlineComponent extends Component {
+export class LabelOutline extends Component {
     @serializable
     protected _color = new Color(0, 0, 0, 255);
     @serializable
@@ -126,11 +126,13 @@ export class LabelOutlineComponent extends Component {
     }
 
     protected _updateRenderData () {
-        const label = this.node.getComponent(LabelComponent);
+        const label = this.node.getComponent(Label);
         if (label) {
             label.updateRenderData(true);
         }
     }
 }
 
-legacyCC.LabelOutlineComponent = LabelOutlineComponent;
+legacyCC.LabelOutline = LabelOutline;
+
+export { LabelOutline as LabelOutlineComponent }

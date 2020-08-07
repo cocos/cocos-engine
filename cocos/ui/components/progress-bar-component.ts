@@ -28,12 +28,13 @@
  * @category ui
  */
 
-import { Component, UITransformComponent} from '../../core/components';
+import { Component } from '../../core/components/component';
+import { UITransform } from '../../core/components/ui-base';
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, range, slide, serializable } from 'cc.decorator';
 import { Size, Vec2, Vec3 } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { clamp01 } from '../../core/math/utils';
-import { SpriteComponent } from './sprite-component';
+import { Sprite } from './sprite-component';
 import { warn } from '../../core/platform/debug';
 import { legacyCC } from '../../core/global-exports';
 
@@ -97,13 +98,13 @@ Enum(Mode);
  * }
  * ```
  */
-@ccclass('cc.ProgressBarComponent')
-@help('i18n:cc.ProgressBarComponent')
+@ccclass('cc.ProgressBar')
+@help('i18n:cc.ProgressBar')
 @executionOrder(110)
 @menu('UI/ProgressBar')
-@requireComponent(UITransformComponent)
+@requireComponent(UITransform)
 // @executeInEditMode
-export class ProgressBarComponent extends Component {
+export class ProgressBar extends Component {
 
     /**
      * @en
@@ -112,13 +113,13 @@ export class ProgressBarComponent extends Component {
      * @zh
      * 用来显示进度条比例的 Sprite 对象。
      */
-    @type(SpriteComponent)
+    @type(Sprite)
     @tooltip('进度条显示用的 Sprite 节点，可以动态改变尺寸')
     get barSprite () {
         return this._barSprite;
     }
 
-    set barSprite (value: SpriteComponent | null) {
+    set barSprite (value: Sprite | null) {
         if (this._barSprite === value) {
             return;
         }
@@ -230,7 +231,7 @@ export class ProgressBarComponent extends Component {
 
     public static Mode = Mode;
     @serializable
-    protected _barSprite: SpriteComponent | null = null;
+    protected _barSprite: Sprite | null = null;
     @serializable
     protected _mode = Mode.HORIZONTAL;
     @serializable
@@ -255,7 +256,7 @@ export class ProgressBarComponent extends Component {
             //     this.node.setContentSize(barSpriteSize);
             // }
 
-            if (this._barSprite.fillType === SpriteComponent.FillType.RADIAL) {
+            if (this._barSprite.fillType === Sprite.FillType.RADIAL) {
                 this._mode = Mode.FILLED;
             }
 
@@ -316,7 +317,7 @@ export class ProgressBarComponent extends Component {
 
             // handling filled mode
             if (this._mode === Mode.FILLED) {
-                if (this._barSprite.type !== SpriteComponent.Type.FILLED) {
+                if (this._barSprite.type !== Sprite.Type.FILLED) {
                     warn('ProgressBar FILLED mode only works when barSprite\'s Type is FILLED!');
                 } else {
                     if (this._reverse) {
@@ -325,7 +326,7 @@ export class ProgressBarComponent extends Component {
                     this._barSprite.fillRange = actualLenth;
                 }
             } else {
-                if (this._barSprite.type !== SpriteComponent.Type.FILLED) {
+                if (this._barSprite.type !== Sprite.Type.FILLED) {
 
                     const anchorOffsetX = anchorPoint.x - entityAnchorPoint.x;
                     const anchorOffsetY = anchorPoint.y - entityAnchorPoint.y;
@@ -343,4 +344,6 @@ export class ProgressBarComponent extends Component {
     }
 }
 
-legacyCC.ProgressBarComponent = ProgressBarComponent;
+legacyCC.ProgressBar = ProgressBar;
+
+export { ProgressBar as ProgressBarComponent };

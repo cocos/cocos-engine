@@ -33,7 +33,7 @@ import { SystemEventType } from '../../platform/event-manager/event-enum';
 import { EventListener, IListenerMask } from '../../platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../math';
 import { aabb } from '../../geometry';
-import { CanvasComponent } from './canvas-component';
+import { Canvas } from './canvas-component';
 import { Node } from '../../scene-graph';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
@@ -53,12 +53,12 @@ const _rect = new Rect();
  * @zh
  * UI 变换组件。
  */
-@ccclass('cc.UITransformComponent')
-@help('i18n:cc.UITransformComponent')
+@ccclass('cc.UITransform')
+@help('i18n:cc.UITransform')
 @executionOrder(110)
 @menu('UI/UITransform')
 @executeInEditMode
-export class UITransformComponent extends Component {
+export class UITransform extends Component {
 
     /**
      * @en
@@ -233,7 +233,7 @@ export class UITransformComponent extends Component {
 
     public static EventType = SystemEventType;
 
-    public _canvas: CanvasComponent | null = null;
+    public _canvas: Canvas | null = null;
 
     @serializable
     protected _contentSize = new Size(100, 100);
@@ -410,7 +410,7 @@ export class UITransformComponent extends Component {
                 for (let i = 0; parent && i < mask.index; ++i, parent = parent.parent) {
                 }
                 if (parent === mask.node) {
-                    const comp = parent.getComponent(legacyCC.MaskComponent);
+                    const comp = parent.getComponent(legacyCC.Mask);
                     return (comp && comp.enabledInHierarchy) ? comp.isHit(cameraPt) : true;
                 } else {
                     listener.mask = null;
@@ -556,7 +556,7 @@ export class UITransformComponent extends Component {
         const locChildren = this.node.children;
         for (const child of locChildren) {
             if (child && child.active) {
-                const uiTransform = child.getComponent(UITransformComponent);
+                const uiTransform = child.getComponent(UITransform);
                 if (uiTransform) {
                     const childRect = uiTransform.getBoundingBoxTo(parentMat);
                     if (childRect) {
@@ -603,7 +603,7 @@ export class UITransformComponent extends Component {
         // 获取被渲染相机的 visibility
         while (parent) {
             if (parent) {
-                const canvasComp = parent.getComponent('cc.CanvasComponent') as CanvasComponent;
+                const canvasComp = parent.getComponent('cc.Canvas') as Canvas;
                 if (canvasComp) {
                     this._canvas = canvasComp;
                     break;
@@ -643,4 +643,6 @@ export class UITransformComponent extends Component {
     }
 }
 
-legacyCC.UITransformComponent = UITransformComponent;
+legacyCC.UITransform = UITransform;
+
+export { UITransform as UITransformComponent };

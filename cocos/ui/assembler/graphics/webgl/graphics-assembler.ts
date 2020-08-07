@@ -34,7 +34,7 @@ import { IAssembler } from '../../../../core/renderer/ui/base';
 import { MeshRenderData } from '../../../../core/renderer/ui/render-data';
 import { UI } from '../../../../core/renderer/ui/ui';
 import { vfmt } from '../../../../core/renderer/ui/ui-vertex-format';
-import { GraphicsComponent } from '../../../components';
+import { Graphics } from '../../../components';
 import { LineCap, LineJoin, PointFlags } from '../types';
 import { earcut as Earcut } from './earcut';
 import { Impl, Point } from './impl';
@@ -108,25 +108,25 @@ function clamp (v: number, minNum: number, maxNum: number) {
  */
 export const graphicsAssembler: IAssembler = {
     useModel: true,
-    createImpl (graphics: GraphicsComponent) {
+    createImpl (graphics: Graphics) {
         return new Impl();
     },
 
-    updateRenderData (graphics: GraphicsComponent) {
+    updateRenderData (graphics: Graphics) {
         const dataList = graphics.impl ? graphics.impl.getRenderData() : [];
         for (let i = 0, l = dataList.length; i < l; i++) {
             dataList[i].material = graphics.getUIMaterialInstance();
         }
     },
 
-    fillBuffers (graphics: GraphicsComponent, renderer: UI) {
+    fillBuffers (graphics: Graphics, renderer: UI) {
         // this.renderIA!(graphics, renderer);
     },
 
-    renderIA (graphics: GraphicsComponent, renderer: UI) {
+    renderIA (graphics: Graphics, renderer: UI) {
     },
 
-    getRenderData (graphics: GraphicsComponent, vertexCount: number) {
+    getRenderData (graphics: Graphics, vertexCount: number) {
         if (!_impl) {
             return null;
         }
@@ -163,7 +163,7 @@ export const graphicsAssembler: IAssembler = {
         return renderData;
     },
 
-    stroke (graphics: GraphicsComponent) {
+    stroke (graphics: Graphics) {
         Color.copy(_curColor, graphics.strokeColor);
         // graphics.node.getWorldMatrix(_currMatrix);
         if (!graphics.impl) {
@@ -178,7 +178,7 @@ export const graphicsAssembler: IAssembler = {
         this.end(graphics);
     },
 
-    fill (graphics: GraphicsComponent) {
+    fill (graphics: Graphics) {
         Color.copy(_curColor, graphics.fillColor);
         // graphics.node.getWorldMatrix(_currMatrix);
 
@@ -190,7 +190,7 @@ export const graphicsAssembler: IAssembler = {
         this.end(graphics);
     },
 
-    end (graphics: GraphicsComponent) {
+    end (graphics: Graphics) {
         if (graphics.model && graphics.model.inited) {
             graphics.model.destroy();
         }
@@ -249,7 +249,7 @@ export const graphicsAssembler: IAssembler = {
         graphics.markForUpdateRenderData();
     },
 
-    _expandStroke (graphics: GraphicsComponent) {
+    _expandStroke (graphics: Graphics) {
         const w = graphics.lineWidth * 0.5;
         const lineCap = graphics.lineCap;
         const lineJoin = graphics.lineJoin;
@@ -401,7 +401,7 @@ export const graphicsAssembler: IAssembler = {
         _impl = null;
     },
 
-    _expandFill (graphics: GraphicsComponent) {
+    _expandFill (graphics: Graphics) {
         _impl = graphics.impl;
         if (!_impl) {
             return;

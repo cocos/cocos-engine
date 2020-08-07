@@ -53,10 +53,10 @@ function stopPropagation(event: Event) {
   event.propagationStopped = true;
 }
 
-@ccclass('cc.BlockInputEventsComponent')
-@help('i18n:cc.BlockInputEventsComponent')
+@ccclass('cc.BlockInputEvents')
+@help('i18n:cc.BlockInputEvents')
 @menu('Components/BlockInputEvents')
-export class BlockInputEventsComponent extends Component {
+export class BlockInputEvents extends Component {
   onEnable() {
     for (let i = 0; i < BlockEvents.length; i++) {
       // supply the 'this' parameter so that the callback could be added and removed correctly,
@@ -72,4 +72,6 @@ export class BlockInputEventsComponent extends Component {
   }
 }
 
-legacyCC.BlockInputEventsComponent = BlockInputEventsComponent;
+legacyCC.BlockInputEvents = BlockInputEvents;
+
+export { BlockInputEvents as BlockInputEventsComponent };

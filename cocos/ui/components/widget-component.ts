@@ -29,7 +29,7 @@
  */
 
 import { Component } from '../../core/components';
-import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
+import { UITransform } from '../../core/components/ui-base/ui-transform-component';
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, editorOnly, editable, serializable } from 'cc.decorator';
 import { Size, Vec3 } from '../../core/math';
 import { errorID, warnID } from '../../core/platform/debug';
@@ -50,7 +50,7 @@ export function getReadonlyNodeSize (parent: Node | Scene) {
     if (parent instanceof Scene) {
         // @ts-ignore
         if (EDITOR) {
-            // const canvasComp = parent.getComponentInChildren(CanvasComponent);
+            // const canvasComp = parent.getComponentInChildren(Canvas);
             if (!View.instance) {
                 throw new Error('cc.view uninitiated');
             }
@@ -204,13 +204,13 @@ const LEFT_RIGHT = AlignFlags.LEFT | AlignFlags.RIGHT;
  * @zh Widget 组件，用于设置和适配其相对于父节点的边距，Widget 通常被用于 UI 界面，也可以用于其他地方。<br/>
  * Widget 会自动调整当前节点的坐标和宽高，不过目前调整后的结果要到下一帧才能在脚本里获取到，除非你先手动调用 [[updateAlignment]]。
  */
-@ccclass('cc.WidgetComponent')
-@help('i18n:cc.WidgetComponent')
+@ccclass('cc.Widget')
+@help('i18n:cc.Widget')
 @executionOrder(110)
 @menu('UI/Widget')
-@requireComponent(UITransformComponent)
+@requireComponent(UITransform)
 @executeInEditMode
-export class WidgetComponent extends Component {
+export class Widget extends Component {
     /**
      * @en
      * Specifies an alignment target that can only be one of the parent nodes of the current node.
@@ -972,7 +972,7 @@ export class WidgetComponent extends Component {
     protected _registerTargetEvents () {
         const target = this._target || this.node.parent;
         if (target) {
-            if (target.getComponent(UITransformComponent)) {
+            if (target.getComponent(UITransform)) {
                 target.on(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
                 target.on(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
             } else {
@@ -1065,12 +1065,14 @@ export class WidgetComponent extends Component {
     }
 }
 
-export declare namespace WidgetComponent {
+export declare namespace Widget {
     export type AlignMode = EnumAlias<typeof AlignMode>;
 }
 
 // @ts-ignore
-legacyCC.WidgetComponent = WidgetComponent;
+legacyCC.Widget = Widget;
+
+export { Widget as WidgetComponent };
 
 // cc.Widget = module.exports = Widget;
 legacyCC.internal.computeInverseTransForTarget = computeInverseTransForTarget;

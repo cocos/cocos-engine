@@ -30,7 +30,7 @@
 import { ccclass, disallowMultiple, executeInEditMode, executionOrder, requireComponent } from 'cc.decorator';
 import { UI } from '../../renderer/ui/ui';
 import { Component } from '../component';
-import { UITransformComponent } from './ui-transform-component';
+import { UITransform } from './ui-transform-component';
 import { Node } from '../../scene-graph';
 
 /**
@@ -38,7 +38,7 @@ import { Node } from '../../scene-graph';
  * UI 及 UI 模型渲染基类。
  */
 @ccclass('cc.UIComponent')
-@requireComponent(UITransformComponent)
+@requireComponent(UITransform)
 @executionOrder(110)
 @disallowMultiple
 @executeInEditMode

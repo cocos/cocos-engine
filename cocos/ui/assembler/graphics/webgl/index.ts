@@ -23,18 +23,18 @@
  THE SOFTWARE.
 */
 
-import { UIRenderComponent } from '../../../../core/components/ui-base/ui-render-component';
+import { UIRenderable } from '../../../../core/components/ui-base/ui-render-component';
 import { IAssemblerManager } from '../../../../core/renderer/ui/base';
-import { GraphicsComponent } from '../../../components';
+import { Graphics } from '../../../components';
 import { graphicsAssembler as graphics } from './graphics-assembler';
 
 const graphicsAssemblerManager: IAssemblerManager = {
-    getAssembler (sprite: UIRenderComponent) {
+    getAssembler (sprite: UIRenderable) {
         return graphics;
     },
 };
 
-GraphicsComponent.Assembler = graphicsAssemblerManager;
+Graphics.Assembler = graphicsAssemblerManager;
 export {
     graphics,
     graphicsAssemblerManager as graphicsAssembler,

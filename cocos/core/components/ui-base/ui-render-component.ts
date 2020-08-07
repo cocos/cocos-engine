@@ -27,7 +27,6 @@
  * @category ui
  */
 
-import { RenderableComponent } from '../../../core/3d/framework/renderable-component';
 import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip, type, displayOrder, serializable } from 'cc.decorator';
 import { Color } from '../../../core/math';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
@@ -44,6 +43,7 @@ import { Node } from '../../scene-graph';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
 import { UITransformComponent } from './ui-transform-component';
+import { RenderableComponent } from '../../3d/framework/renderable-component';
 
 // hack
 ccenum(GFXBlendFactor);
@@ -115,11 +115,11 @@ const _matInsInfo: IMaterialInstanceInfo = {
  * @zh
  * 所有支持渲染的 UI 组件的基类。
  */
-@ccclass('cc.UIRenderComponent')
+@ccclass('cc.UIRenderable')
 @requireComponent(UITransformComponent)
 @disallowMultiple
 @executeInEditMode
-export class UIRenderComponent extends RenderableComponent {
+export class UIRenderable extends RenderableComponent {
 
     /**
      * @en
@@ -433,7 +433,7 @@ export class UIRenderComponent extends RenderableComponent {
         }
 
         for (const child of this.node.children) {
-            const renderComp = child.getComponent(UIRenderComponent);
+            const renderComp = child.getComponent(UIRenderable);
             if (renderComp) {
                 renderComp.markForUpdateRenderData();
             }
@@ -477,4 +477,6 @@ export class UIRenderComponent extends RenderableComponent {
     protected _flushAssembler? (): void;
 }
 
-legacyCC.UIRenderComponent = UIRenderComponent;
+legacyCC.UIRenderable = UIRenderable;
+
+export { UIRenderable as UIRenderComponent };

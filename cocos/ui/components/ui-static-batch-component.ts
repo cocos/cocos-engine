@@ -27,7 +27,7 @@
  * @category ui
  */
 
-import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
+import { UIRenderable } from '../../core/components/ui-base/ui-render-component';
 import { UI } from '../../core/renderer/ui/ui';
 import { MeshBuffer } from '../../core/renderer/ui/mesh-buffer';
 import { ccclass, help, menu, executionOrder, visible, type, displayName, override } from 'cc.decorator';
@@ -52,11 +52,11 @@ import { GFXBlendFactor } from '../../core/gfx';
  * 用户必须通过手动方式启用收集静态合批数据[[markAsDirty]]，否则合批方式仍然采用动态合批（采集数据的流程相同）。此后渲染的内容是采用收集到的合批渲染数据，子节点的任何修改将不再有效。
  * 注意：子节点下不要放置 Mask，Graphics，以及 UI 模型或者粒子之类对象，否则会在启用完静态合批后跳过渲染。
  */
-@ccclass('cc.UIStaticBatchComponent')
-@help('i18n:cc.UIStaticBatchComponent')
+@ccclass('cc.UIStaticBatch')
+@help('i18n:cc.UIStaticBatch')
 @menu('UI/Render/UIStaticBatch')
 @executionOrder(110)
-export class UIStaticBatchComponent extends UIRenderComponent {
+export class UIStaticBatch extends UIRenderable {
     @override
     @visible(false)
     get dstBlendFactor () {
@@ -232,3 +232,5 @@ export class UIStaticBatchComponent extends UIRenderComponent {
         warnID(9300);
     }
 }
+
+export { UIStaticBatch as UIStaticBatchComponent };

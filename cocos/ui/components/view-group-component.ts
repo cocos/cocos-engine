@@ -46,10 +46,10 @@ import { Component } from '../../core/components';
 import { ccclass, executionOrder } from 'cc.decorator';
 import { legacyCC } from '../../core/global-exports';
 
-@ccclass('cc.ViewGroupComponent')
+@ccclass('cc.ViewGroup')
 @executionOrder(110)
-export class ViewGroupComponent extends Component {
+export class ViewGroup extends Component {
 
 }
 
-legacyCC.ViewGroupComponent = ViewGroupComponent;
+legacyCC.ViewGroup = ViewGroup;

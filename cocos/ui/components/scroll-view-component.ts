@@ -28,14 +28,15 @@
  * @category ui
  */
 
-import { EventHandler as ComponentEventHandler, UITransformComponent } from '../../core/components';
+import { EventHandler as ComponentEventHandler } from '../../core/components/component-event-handler';
+import { UITransform } from '../../core/components/ui-base';
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
 import { Event } from '../../core/event';
 import { EventMouse, EventTouch, Touch, logID } from '../../core/platform';
 import { Size, Vec2, Vec3 } from '../../core/math';
-import { LayoutComponent } from './layout-component';
-import { ScrollBarComponent } from './scroll-bar-component';
-import { ViewGroupComponent } from './view-group-component';
+import { Layout } from './layout-component';
+import { ScrollBar } from './scroll-bar-component';
+import { ViewGroup } from './view-group-component';
 import { Node } from '../../core/scene-graph/node';
 import { director, Director } from '../../core/director';
 import { TransformBit } from '../../core/scene-graph/node-enum';
@@ -202,12 +203,12 @@ export enum EventType {
  * 滚动视图组件。
  */
 
-@ccclass('cc.ScrollViewComponent')
-@help('i18n:cc.ScrollViewComponent')
+@ccclass('cc.ScrollView')
+@help('i18n:cc.ScrollView')
 @executionOrder(110)
 @menu('UI/ScrollView')
-@requireComponent(UITransformComponent)
-export class ScrollViewComponent extends ViewGroupComponent {
+@requireComponent(UITransform)
+export class ScrollView extends ViewGroup {
     public static EventType = EventType;
 
     /**
@@ -306,14 +307,14 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @zh
      * 水平滚动的 ScrollBar。
      */
-    @type(ScrollBarComponent)
+    @type(ScrollBar)
     @displayOrder(6)
     @tooltip('水平滚动的 ScrollBar')
     get horizontalScrollBar () {
         return this._horizontalScrollBar;
     }
 
-    set horizontalScrollBar (value: ScrollBarComponent | null) {
+    set horizontalScrollBar (value: ScrollBar | null) {
         if (this._horizontalScrollBar === value){
             return;
         }
@@ -345,14 +346,14 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @zh
      * 垂直滚动的 ScrollBar。
      */
-    @type(ScrollBarComponent)
+    @type(ScrollBar)
     @displayOrder(8)
     @tooltip('垂直滚动的 ScrollBar')
     get verticalScrollBar () {
         return this._verticalScrollBar;
     }
 
-    set verticalScrollBar (value: ScrollBarComponent | null) {
+    set verticalScrollBar (value: ScrollBar | null) {
         if (this._verticalScrollBar === value) {
             return;
         }
@@ -405,9 +406,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
     @serializable
     protected _content: Node | null = null;
     @serializable
-    protected _horizontalScrollBar: ScrollBarComponent | null = null;
+    protected _horizontalScrollBar: ScrollBar | null = null;
     @serializable
-    protected _verticalScrollBar: ScrollBarComponent | null = null;
+    protected _verticalScrollBar: ScrollBar | null = null;
 
     protected _topBoundary = 0;
     protected _bottomBoundary = 0;
@@ -1084,7 +1085,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     protected _calculateBoundary () {
         if (this._content && this.view) {
             // refresh content size
-            const layout = this._content.getComponent(LayoutComponent);
+            const layout = this._content.getComponent(Layout);
             if (layout && layout.enabledInHierarchy) {
                 layout.updateLayout();
             }
@@ -1115,13 +1116,13 @@ export class ScrollViewComponent extends ViewGroupComponent {
                 const item = listener;
 
                 if (this.node === item) {
-                    if (event.target && (event.target as Node).getComponent(ViewGroupComponent)) {
+                    if (event.target && (event.target as Node).getComponent(ViewGroup)) {
                         return true;
                     }
                     return false;
                 }
 
-                if (item.getComponent(ViewGroupComponent)) {
+                if (item.getComponent(ViewGroup)) {
                     return true;
                 }
             }
@@ -1780,7 +1781,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 }
 
-legacyCC.ScrollViewComponent = ScrollViewComponent;
+legacyCC.ScrollView = ScrollView;
+
+export { ScrollView as ScrollViewComponent };
 
 /**
  * @en

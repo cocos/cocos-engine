@@ -32,7 +32,7 @@ import { Component } from '../../core/components/component';
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, serializable } from 'cc.decorator';
 import { Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
-import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
+import { UITransform } from '../../core/components/ui-base/ui-transform-component';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { director, Director } from '../../core/director';
 import { TransformBit } from '../../core/scene-graph/node-enum';
@@ -183,13 +183,13 @@ const _tempScale = new Vec3();
  * 1.不会考虑子节点的缩放和旋转。<br>
  * 2.对 Layout 设置后结果需要到下一帧才会更新，除非你设置完以后手动调用。[[updateLayout]]
  */
-@ccclass('cc.LayoutComponent')
-@help('i18n:cc.LayoutComponent')
+@ccclass('cc.Layout')
+@help('i18n:cc.Layout')
 @executionOrder(110)
 @menu('UI/Layout')
-@requireComponent(UITransformComponent)
+@requireComponent(UITransform)
 @executeInEditMode
-export class LayoutComponent extends Component {
+export class Layout extends Component {
 
     /**
      * @en
@@ -548,8 +548,8 @@ export class LayoutComponent extends Component {
      *
      * @example
      * ```ts
-     * import { LayoutComponent, log } from 'cc';
-     * layout.type = LayoutComponent.HORIZONTAL;
+     * import { Layout, log } from 'cc';
+     * layout.type = Layout.HORIZONTAL;
      * layout.node.addChild(childNode);
      * log(childNode.x); // not yet changed
      * layout.updateLayout();
@@ -961,7 +961,7 @@ export class LayoutComponent extends Component {
         }
 
         if (allChildrenBoundingBox) {
-            const parentTransform = this.node.parent!.getComponent(UITransformComponent);
+            const parentTransform = this.node.parent!.getComponent(UITransform);
             if (!parentTransform) {
                 return;
             }
@@ -1008,7 +1008,7 @@ export class LayoutComponent extends Component {
         }
 
         const self = this;
-        const fnPositionY = (child: Node, childTrans: UITransformComponent, topOffset: number, row: number) => {
+        const fnPositionY = (child: Node, childTrans: UITransform, topOffset: number, row: number) => {
             return bottomBoundaryOfLayout +
                 sign * (topOffset + childTrans.anchorY * childTrans.height * self._getUsedScaleValue(child.getScale().y) + paddingY + row * this._spacingY);
         };
@@ -1050,7 +1050,7 @@ export class LayoutComponent extends Component {
         }
 
         const self = this;
-        const fnPositionX = (child: Node, childTrans: UITransformComponent, leftOffset: number, column: number) => {
+        const fnPositionX = (child: Node, childTrans: UITransform, leftOffset: number, column: number) => {
             return leftBoundaryOfLayout +
                 sign * (leftOffset + childTrans.anchorX * childTrans.width * self._getUsedScaleValue(child.getScale().x) + paddingX + column * this._spacingX);
         };
@@ -1190,4 +1190,6 @@ export class LayoutComponent extends Component {
 
 }
 
-legacyCC.LayoutComponent = LayoutComponent;
+legacyCC.Layout = Layout;
+
+export { Layout as LayoutComponent };

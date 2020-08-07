@@ -27,25 +27,25 @@
  * @hidden
  */
 
-import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-component';
+import { UIRenderable } from '../../../core/components/ui-base/ui-render-component';
 import { IAssemblerManager } from '../../../core/renderer/ui/base';
-import { SpriteComponent } from '../../components';
+import { Sprite } from '../../components';
 import { barFilled } from './bar-filled';
 import { radialFilled } from './radial-filled';
 import { simple } from './simple';
 import { sliced } from './sliced';
 import { tilled } from './tiled';
 
-const SpriteType = SpriteComponent.Type;
-const FillType = SpriteComponent.FillType;
+const SpriteType = Sprite.Type;
+const FillType = Sprite.FillType;
 
 // Inline all type switch to avoid jit deoptimization during inlined function change
 
 const spriteAssembler: IAssemblerManager = {
-    getAssembler (spriteComp: UIRenderComponent) {
+    getAssembler (spriteComp: UIRenderable) {
         let util = simple;
 
-        const comp = spriteComp as SpriteComponent;
+        const comp = spriteComp as Sprite;
         switch (comp.type) {
             case SpriteType.SLICED:
                 util = sliced;
@@ -74,7 +74,7 @@ const spriteAssembler: IAssemblerManager = {
     // },
 };
 
-SpriteComponent.Assembler = spriteAssembler;
+Sprite.Assembler = spriteAssembler;
 
 export {
     spriteAssembler,

@@ -31,7 +31,7 @@ import { SpriteFrame } from '../../../core/assets/sprite-frame';
 import * as js from '../../../core/utils/js';
 import { Rect } from '../../../core/math';
 import { UI } from '../../../core/renderer/ui/ui';
-import { LabelComponent } from '../../components/label-component';
+import { Label } from '../../components/label-component';
 import { IAssembler } from '../../../core/renderer/ui/base';
 import { fillMeshVertices3D } from '../utils';
 import { bmfontUtils } from './bmfontUtils';
@@ -41,16 +41,16 @@ import { bmfontUtils } from './bmfontUtils';
  * 可通过 `UI.bmfont` 获取该组装器。
  */
 export const bmfont: IAssembler = {
-    createData (comp: LabelComponent) {
+    createData (comp: Label) {
         return comp.requestRenderData();
     },
 
-    fillBuffers (comp: LabelComponent, renderer: UI) {
+    fillBuffers (comp: Label, renderer: UI) {
         const node = comp.node;
         fillMeshVertices3D(node, renderer, comp.renderData!, comp.color);
     },
 
-    appendQuad (comp: LabelComponent, spriteFrame: SpriteFrame, rect: Rect, rotated: boolean, x: number, y: number, scale: number) {
+    appendQuad (comp: Label, spriteFrame: SpriteFrame, rect: Rect, rotated: boolean, x: number, y: number, scale: number) {
         const renderData = comp.renderData;
         if (!renderData){
             return;

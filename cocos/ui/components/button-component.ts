@@ -30,15 +30,15 @@
  */
 
 import { SpriteFrame } from '../../core/assets';
-import { Component, EventHandler as ComponentEventHandler, UITransformComponent } from '../../core/components';
+import { Component, EventHandler as ComponentEventHandler } from '../../core/components';
+import { UITransform, UIRenderable } from '../../core/components/ui-base';
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax, serializable } from 'cc.decorator';
 import { EventMouse, EventTouch, SystemEventType } from '../../core/platform';
 import { Color, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { lerp } from '../../core/math/utils';
 import { Node } from '../../core/scene-graph/node';
-import { SpriteComponent } from './sprite-component';
-import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
+import { Sprite } from './sprite-component';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 
@@ -145,12 +145,12 @@ export enum EventType {
  * })
  * ```
  */
-@ccclass('cc.ButtonComponent')
-@help('i18n:cc.ButtonComponent')
+@ccclass('cc.Button')
+@help('i18n:cc.Button')
 @executionOrder(110)
 @menu('UI/Button')
-@requireComponent(UITransformComponent)
-export class ButtonComponent extends Component {
+@requireComponent(UITransform)
+export class Button extends Component {
 
     /**
      * @en
@@ -391,7 +391,7 @@ export class ButtonComponent extends Component {
         }
 
         this._normalSprite = value;
-        const sprite = this.node.getComponent(SpriteComponent);
+        const sprite = this.node.getComponent(Sprite);
         if (sprite) {
             sprite.spriteFrame = value;
         }
@@ -514,7 +514,7 @@ export class ButtonComponent extends Component {
     private _fromScale: Vec3 = new Vec3();
     private _toScale: Vec3 = new Vec3();
     private _originalScale: Vec3 = new Vec3();
-    private _sprite: SpriteComponent | null = null;
+    private _sprite: Sprite | null = null;
     private _targetScale: Vec3 = new Vec3();
 
     public __preload () {
@@ -522,7 +522,7 @@ export class ButtonComponent extends Component {
             this.target = this.node;
         }
 
-        const sprite = this.node.getComponent(SpriteComponent);
+        const sprite = this.node.getComponent(Sprite);
         if (sprite) {
             this._normalSprite = sprite.spriteFrame;
         }
@@ -537,7 +537,7 @@ export class ButtonComponent extends Component {
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._registerEvent();
         } else {
-            this.node.on(SpriteComponent.EventType.SPRITE_FRAME_CHANGED, (comp: SpriteComponent) => {
+            this.node.on(Sprite.EventType.SPRITE_FRAME_CHANGED, (comp: Sprite) => {
                 if (this._transition === Transition.SPRITE) {
                     this._normalSprite = comp.spriteFrame;
                 } else {
@@ -563,7 +563,7 @@ export class ButtonComponent extends Component {
             this.node.off(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
             this.node.off(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
         } else {
-            this.node.off(SpriteComponent.EventType.SPRITE_FRAME_CHANGED);
+            this.node.off(Sprite.EventType.SPRITE_FRAME_CHANGED);
         }
     }
 
@@ -588,7 +588,7 @@ export class ButtonComponent extends Component {
             this._transitionFinished = true;
         }
 
-        const renderComp = target.getComponent(UIRenderComponent);
+        const renderComp = target.getComponent(UIRenderable);
         if (!renderComp) {
             return;
         }
@@ -619,7 +619,7 @@ export class ButtonComponent extends Component {
         if (!target) {
             return;
         }
-        const renderComp = target.getComponent(UIRenderComponent);
+        const renderComp = target.getComponent(UIRenderable);
         if (!renderComp) {
             return;
         }
@@ -644,9 +644,9 @@ export class ButtonComponent extends Component {
     }
 
     protected _getTargetSprite (target: Node | null) {
-        let sprite: SpriteComponent | null = null;
+        let sprite: Sprite | null = null;
         if (target) {
-            sprite = target.getComponent(SpriteComponent);
+            sprite = target.getComponent(Sprite);
         }
         return sprite;
     }
@@ -777,7 +777,7 @@ export class ButtonComponent extends Component {
             return;
         }
 
-        const renderComp = target.getComponent(UIRenderComponent);
+        const renderComp = target.getComponent(UIRenderable);
         if (!renderComp) {
             return;
         }
@@ -842,7 +842,9 @@ export class ButtonComponent extends Component {
 
 }
 
-legacyCC.ButtonComponent = ButtonComponent;
+export { Button as ButtonComponent };
+
+legacyCC.Button = Button;
 
 /**
  * @zh

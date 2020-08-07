@@ -28,13 +28,14 @@
  * @category ui
  */
 
-import { Component, UITransformComponent } from '../../core/components';
+import { Component } from '../../core/components/component';
+import { UITransform } from '../../core/components/ui-base'
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { Color, Size, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp01 } from '../../core/math/utils';
-import { ScrollViewComponent } from './scroll-view-component';
-import { SpriteComponent } from './sprite-component';
+import { ScrollView } from './scroll-view-component';
+import { Sprite } from './sprite-component';
 import { Node } from '../../core';
 import { legacyCC } from '../../core/global-exports';
 
@@ -81,12 +82,12 @@ ccenum(Direction);
  * @zh
  * 滚动条组件。
  */
-@ccclass('cc.ScrollBarComponent')
-@help('i18n:cc.ScrollBarComponent')
+@ccclass('cc.ScrollBar')
+@help('i18n:cc.ScrollBar')
 @executionOrder(110)
 @menu('UI/ScrollBar')
-@requireComponent(UITransformComponent)
-export class ScrollBarComponent extends Component {
+@requireComponent(UITransform)
+export class ScrollBar extends Component {
 
     /**
      * @en
@@ -95,14 +96,14 @@ export class ScrollBarComponent extends Component {
      * @zh
      * 作为当前滚动区域位置显示的滑块 Sprite。
      */
-    @type(SpriteComponent)
+    @type(Sprite)
     @displayOrder(0)
     @tooltip('作为当前滚动区域位置显示的滑块 Sprite')
     get handle () {
         return this._handle;
     }
 
-    set handle (value: SpriteComponent | null) {
+    set handle (value: Sprite | null) {
         if (this._handle === value) {
             return;
         }
@@ -182,9 +183,9 @@ export class ScrollBarComponent extends Component {
 
     public static Direction = Direction;
     @serializable
-    protected _scrollView: ScrollViewComponent | null = null;
+    protected _scrollView: ScrollView | null = null;
     @serializable
-    protected _handle: SpriteComponent | null = null;
+    protected _handle: Sprite | null = null;
     @serializable
     protected _direction = Direction.HORIZONTAL;
     @serializable
@@ -288,7 +289,7 @@ export class ScrollBarComponent extends Component {
      *
      * @param scrollView - 滚动视窗。
      */
-    public setScrollView (scrollView: ScrollViewComponent) {
+    public setScrollView (scrollView: ScrollView) {
         this._scrollView = scrollView;
     }
 
@@ -325,7 +326,7 @@ export class ScrollBarComponent extends Component {
     }
 
     protected onEnable () {
-        const renderComp = this.node.getComponent(SpriteComponent);
+        const renderComp = this.node.getComponent(Sprite);
         if (renderComp) {
             this._opacity = renderComp.color.a;
         }
@@ -357,14 +358,14 @@ export class ScrollBarComponent extends Component {
 
     protected _setOpacity (opacity: number) {
         if (this._handle) {
-            let renderComp = this.node.getComponent(SpriteComponent);
+            let renderComp = this.node.getComponent(Sprite);
             if (renderComp) {
                 _tempColor.set(renderComp.color);
                 _tempColor.a = opacity;
                 renderComp.color = _tempColor;
             }
 
-            renderComp = this._handle.getComponent(SpriteComponent);
+            renderComp = this._handle.getComponent(Sprite);
             if (renderComp) {
                 _tempColor.set(renderComp.color);
                 _tempColor.a = opacity;
@@ -487,4 +488,6 @@ export class ScrollBarComponent extends Component {
     }
 }
 
-legacyCC.ScrollBarComponent = ScrollBarComponent;
+legacyCC.ScrollBar = ScrollBar;
+
+export { ScrollBar as ScrollBarComponent };

@@ -29,7 +29,6 @@
  */
 
 import { RenderableComponent } from '../../core/3d/framework/renderable-component';
-import { Material } from '../../core/assets';
 import { UIComponent } from '../../core/components/ui-base/ui-component';
 import { ccclass, help, executionOrder, menu } from 'cc.decorator';
 import { director } from '../../core/director';
@@ -48,11 +47,11 @@ import { legacyCC } from '../../core/global-exports';
  * UI 模型基础组件。
  * 当你在 UI 中放置模型或者粒子的时候，必须添加该组件才能渲染。该组件必须放置在带有 modelComponent 或者 particleComponent 组件的节点上。
  */
-@ccclass('cc.UIModelComponent')
-@help('i18n:cc.UIModelComponent')
+@ccclass('cc.UIModel')
+@help('i18n:cc.UIModel')
 @executionOrder(110)
 @menu('UI/Model')
-export class UIModelComponent extends UIComponent {
+export class UIModel extends UIComponent {
 
     private _models: Model[] | null = null;
 
@@ -64,7 +63,7 @@ export class UIModelComponent extends UIComponent {
 
     public onLoad () {
         if(!this.node._uiProps.uiTransformComp){
-            this.node.addComponent('cc.UITransformComponent');
+            this.node.addComponent('cc.UITransform');
         }
 
         this._modelComponent = this.getComponent('cc.RenderableComponent') as RenderableComponent;
@@ -144,4 +143,6 @@ export class UIModelComponent extends UIComponent {
     }
 }
 
-legacyCC.UIModelComponent = UIModelComponent;
+legacyCC.UIModel = UIModel;
+
+export { UIModel as UIModelComponent };

@@ -34,10 +34,10 @@ import { ccclass, help, executionOrder, menu, tooltip, type, serializable } from
 import { Color, Size } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { Node } from '../../core/scene-graph';
-import { LayoutComponent } from './layout-component';
-import { PageViewComponent } from './page-view-component';
-import { SpriteComponent } from './sprite-component';
-import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
+import { Layout } from './layout-component';
+import { PageView } from './page-view-component';
+import { Sprite } from './sprite-component';
+import { UIRenderable } from '../../core/components/ui-base/ui-render-component';
 import { legacyCC } from '../../core/global-exports';
 
 const _color = new Color();
@@ -73,11 +73,11 @@ ccenum(Direction);
  * @zh
  * 页面视图每页标记组件
  */
-@ccclass('cc.PageViewIndicatorComponent')
-@help('i18n:cc.PageViewIndicatorComponent')
+@ccclass('cc.PageViewIndicator')
+@help('i18n:cc.PageViewIndicator')
 @executionOrder(110)
 @menu('UI/PageViewIndicator')
-export class PageViewIndicatorComponent extends Component {
+export class PageViewIndicator extends Component {
     /**
      * @en
      * The spriteFrame for each element.
@@ -158,8 +158,8 @@ export class PageViewIndicatorComponent extends Component {
     protected _direction: Direction = Direction.HORIZONTAL;
     @serializable
     protected _cellSize = new Size(20, 20);
-    protected _layout: LayoutComponent | null = null;
-    protected _pageView: PageViewComponent | null = null;
+    protected _layout: Layout | null = null;
+    protected _pageView: PageView | null = null;
     protected _indicators: Node[] = [];
 
     public onLoad () {
@@ -175,34 +175,34 @@ export class PageViewIndicatorComponent extends Component {
      *
      * @param target 页面视图对象
      */
-    public setPageView (target: PageViewComponent) {
+    public setPageView (target: PageView) {
         this._pageView = target;
         this._refresh();
     }
 
     public _updateLayout () {
-        this._layout = this.getComponent(LayoutComponent);
+        this._layout = this.getComponent(Layout);
         if (!this._layout) {
-            this._layout = this.addComponent(LayoutComponent);
+            this._layout = this.addComponent(Layout);
         }
 
         const layout = this._layout!;
         if (this.direction === Direction.HORIZONTAL) {
-            layout.type = LayoutComponent.Type.HORIZONTAL;
+            layout.type = Layout.Type.HORIZONTAL;
             layout.spacingX = this.spacing;
         }
         else if (this.direction === Direction.VERTICAL) {
-            layout.type = LayoutComponent.Type.VERTICAL;
+            layout.type = Layout.Type.VERTICAL;
             layout.spacingY = this.spacing;
         }
-        layout.resizeMode = LayoutComponent.ResizeMode.CONTAINER;
+        layout.resizeMode = Layout.ResizeMode.CONTAINER;
     }
 
     public _createIndicator () {
         const node = new Node();
-        const sprite = node.addComponent(SpriteComponent);
+        const sprite = node.addComponent(Sprite);
         sprite!.spriteFrame = this.spriteFrame;
-        sprite!.sizeMode = SpriteComponent.SizeMode.CUSTOM;
+        sprite!.sizeMode = Sprite.SizeMode.CUSTOM;
         node.parent = this.node;
         node._uiProps.uiTransformComp!.setContentSize(this._cellSize);
         return node;
@@ -219,14 +219,14 @@ export class PageViewIndicatorComponent extends Component {
                 continue;
             }
 
-            const uiComp = node._uiProps.uiComp as UIRenderComponent;
+            const uiComp = node._uiProps.uiComp as UIRenderable;
             _color.set(uiComp.color);
             _color.a = 255 / 2;
             uiComp.color = _color;
         }
 
         if (indicators[idx]._uiProps.uiComp) {
-            const comp = indicators[idx]._uiProps.uiComp as UIRenderComponent;
+            const comp = indicators[idx]._uiProps.uiComp as UIRenderable;
             _color.set(comp.color);
             _color.a = 255;
             comp.color = _color;
@@ -263,4 +263,6 @@ export class PageViewIndicatorComponent extends Component {
     }
 }
 
-legacyCC.PageViewIndicatorComponent = PageViewIndicatorComponent;
+legacyCC.PageViewIndicator = PageViewIndicator;
+
+export { PageViewIndicator as PageViewIndicatorComponent };

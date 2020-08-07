@@ -30,7 +30,7 @@
 
 import { Component, EventHandler as ComponentEventHandler } from '../../core/components';
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
-import { ToggleComponent } from './toggle-component';
+import { Toggle } from './toggle-component';
 import { legacyCC } from '../../core/global-exports';
 
 /**
@@ -44,13 +44,12 @@ import { legacyCC } from '../../core/global-exports';
  * 任何时候只能有一个 Toggle 处于选中状态。
  */
 
-@ccclass('cc.ToggleContainerComponent')
-@help('i18n:cc.ToggleContainerComponent')
+@ccclass('cc.ToggleContainer')
+@help('i18n:cc.ToggleContainer')
 @executionOrder(110)
 @menu('UI/ToggleContainer')
 @executeInEditMode
-export class ToggleContainerComponent extends Component {
-
+export class ToggleContainer extends Component {
     @serializable
     protected _allowSwitchOff: boolean = false;
     /**
@@ -92,7 +91,7 @@ export class ToggleContainerComponent extends Component {
      */
     get toggleItems () {
         return this.node.children.map((item) => {
-            let toggle = item.getComponent('cc.ToggleComponent') as ToggleComponent;
+            let toggle = item.getComponent('cc.Toggle') as Toggle;
             if (toggle && toggle.enabled) {
                 return toggle;
             }
@@ -121,7 +120,7 @@ export class ToggleContainerComponent extends Component {
      * @param toggle - 需要被更新的 toggle。
      * @param emitEvent - 是否需要触发事件
      */
-    public notifyToggleCheck (toggle: ToggleComponent, emitEvent: boolean = true) {
+    public notifyToggleCheck (toggle: Toggle, emitEvent: boolean = true) {
         if (!this.enabledInHierarchy) { return; }
 
         for (let i = 0; i < this.toggleItems.length; i++) {
@@ -165,4 +164,6 @@ export class ToggleContainerComponent extends Component {
     }
 }
 
-legacyCC.ToggleContainerComponent = ToggleContainerComponent;
+legacyCC.ToggleContainer = ToggleContainer;
+
+export { ToggleContainer as ToggleContainerComponent };

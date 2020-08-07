@@ -28,13 +28,14 @@
  * @category ui
  */
 
-import { Component, EventHandler, UITransformComponent } from '../../core/components';
+import { Component, EventHandler } from '../../core/components';
+import { UITransform } from '../../core/components/ui-base';
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, slide, range, serializable } from 'cc.decorator';
 import { EventTouch, SystemEventType, Touch } from '../../core/platform';
 import { Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp01 } from '../../core/math/utils';
-import { SpriteComponent } from './sprite-component';
+import { Sprite } from './sprite-component';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 
@@ -74,12 +75,12 @@ ccenum(Direction);
  * @zh
  * 滑动器组件。
  */
-@ccclass('cc.SliderComponent')
-@help('i18n:cc.SliderComponent')
+@ccclass('cc.Slider')
+@help('i18n:cc.Slider')
 @executionOrder(110)
 @menu('UI/Slider')
-@requireComponent(UITransformComponent)
-export class SliderComponent extends Component {
+@requireComponent(UITransform)
+export class Slider extends Component {
 
     /**
      * @en
@@ -88,13 +89,13 @@ export class SliderComponent extends Component {
      * @zh
      * 滑动器滑块按钮部件。
      */
-    @type(SpriteComponent)
+    @type(Sprite)
     @tooltip('滑块按钮部件')
     get handle () {
         return this._handle;
     }
 
-    set handle (value: SpriteComponent | null) {
+    set handle (value: Sprite | null) {
         if (this._handle === value) {
             return;
         }
@@ -164,7 +165,7 @@ export class SliderComponent extends Component {
     @tooltip('滑动器组件事件回调函数')
     public slideEvents: EventHandler[] = [];
     @serializable
-    private _handle: SpriteComponent | null = null;
+    private _handle: Sprite | null = null;
     @serializable
     private _direction = Direction.Horizontal;
     @serializable
@@ -319,7 +320,9 @@ export class SliderComponent extends Component {
     }
 }
 
-legacyCC.SliderComponent = SliderComponent;
+legacyCC.Slider = Slider;
+
+export { Slider as SliderComponent };
 
 /**
  * @zh

@@ -28,7 +28,7 @@
  * @category ui
  */
 
-import { math, UITransformComponent } from '../../../core';
+import { UITransform } from '../../../core/components/ui-base';
 import { SpriteFrame } from '../../../core/assets/sprite-frame';
 import { Component } from '../../../core/components/component';
 import { EventHandler as ComponentEventHandler } from '../../../core/components/component-event-handler';
@@ -37,8 +37,8 @@ import { Color, Size, Vec3 } from '../../../core/math';
 import { EventTouch } from '../../../core/platform';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { Node } from '../../../core/scene-graph/node';
-import { LabelComponent, VerticalTextAlignment } from '../label-component';
-import { SpriteComponent } from '../sprite-component';
+import { Label, VerticalTextAlignment } from '../label-component';
+import { Sprite } from '../sprite-component';
 import { EditBoxImpl } from './edit-box-impl';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
@@ -66,19 +66,19 @@ enum EventType {
 }
 /**
  * @en
- * `EditBoxComponent` is a component for inputing text, you can use it to gather small amounts of text from users.
+ * `EditBox` is a component for inputing text, you can use it to gather small amounts of text from users.
  *
  * @zh
- * `EditBoxComponent` 组件，用于获取用户的输入文本。
+ * `EditBox` 组件，用于获取用户的输入文本。
  */
 
-@ccclass('cc.EditBoxComponent')
-@help('i18n:cc.EditBoxComponent')
+@ccclass('cc.EditBox')
+@help('i18n:cc.EditBox')
 @executionOrder(100)
 @menu('UI/EditBox')
-@requireComponent(UITransformComponent)
+@requireComponent(UITransform)
 @executeInEditMode
-export class EditBoxComponent extends Component {
+export class EditBox extends Component {
 
     /**
      * @en
@@ -131,7 +131,7 @@ export class EditBoxComponent extends Component {
      * @zh
      * 输入框输入文本节点上挂载的 Label 组件对象
      */
-    @type(LabelComponent)
+    @type(Label)
     @displayOrder(3)
     @tooltip('输入框输入文本节点上挂载的 Label 组件对象')
     get textLabel () {
@@ -155,7 +155,7 @@ export class EditBoxComponent extends Component {
      * @zh
      * 输入框占位符节点上挂载的 Label 组件对象。
      */
-    @type(LabelComponent)
+    @type(Label)
     @displayOrder(4)
     @tooltip('输入框占位符节点上挂载的 Label 组件对象')
     get placeholderLabel () {
@@ -356,12 +356,12 @@ export class EditBoxComponent extends Component {
     public editingReturn: ComponentEventHandler[] = [];
 
     public _impl: EditBoxImplBase | null = null;
-    public _background: SpriteComponent | null = null;
+    public _background: Sprite | null = null;
 
     @serializable
-    protected _textLabel: LabelComponent | null = null;
+    protected _textLabel: Label | null = null;
     @serializable
-    protected _placeholderLabel: LabelComponent | null = null;
+    protected _placeholderLabel: Label | null = null;
     @serializable
     protected  _returnType = KeyboardReturnType.DEFAULT;
     @serializable
@@ -516,7 +516,7 @@ export class EditBoxComponent extends Component {
         this._isLabelVisible = true;
         this.node.on(SystemEventType.SIZE_CHANGED, this._resizeChildNodes, this);
 
-        const impl = this._impl = new EditBoxComponent._EditBoxImpl();
+        const impl = this._impl = new EditBox._EditBoxImpl();
         impl.init(this);
         this._updateString(this._string);
         this._syncSize();
@@ -524,14 +524,14 @@ export class EditBoxComponent extends Component {
 
     protected _createBackgroundSprite () {
         if (!this._background) {
-            this._background = this.node.getComponent(SpriteComponent);
+            this._background = this.node.getComponent(Sprite);
             if (!this._background) {
-                this._background = this.node.addComponent(SpriteComponent);
+                this._background = this.node.addComponent(Sprite);
             }
 
         }
 
-        this._background!.type = SpriteComponent.Type.SLICED;
+        this._background!.type = Sprite.Type.SLICED;
         this._background!.spriteFrame = this._backgroundImage;
     }
 
@@ -544,9 +544,9 @@ export class EditBoxComponent extends Component {
             if (!node) {
                 node = new Node('TEXT_LABEL');
             }
-            textLabel = node!.getComponent(LabelComponent);
+            textLabel = node!.getComponent(Label);
             if (!textLabel) {
-                textLabel = node!.addComponent(LabelComponent);
+                textLabel = node!.addComponent(Label);
             }
             node!.parent = this.node;
             this._textLabel = textLabel;
@@ -555,7 +555,7 @@ export class EditBoxComponent extends Component {
         // update
         const transformComp = this._textLabel!.node._uiProps.uiTransformComp;
         transformComp!.setAnchorPoint(0, 1);
-        textLabel!.overflow = LabelComponent.Overflow.CLAMP;
+        textLabel!.overflow = Label.Overflow.CLAMP;
         if (this._inputMode === InputMode.ANY) {
             textLabel!.verticalAlign = VerticalTextAlignment.TOP;
             textLabel!.enableWrapText = true;
@@ -576,9 +576,9 @@ export class EditBoxComponent extends Component {
             if (!node) {
                 node = new Node('PLACEHOLDER_LABEL');
             }
-            placeholderLabel = node!.getComponent(LabelComponent);
+            placeholderLabel = node!.getComponent(Label);
             if (!placeholderLabel) {
-                placeholderLabel = node!.addComponent(LabelComponent);
+                placeholderLabel = node!.addComponent(Label);
             }
             node!.parent = this.node;
             this._placeholderLabel = placeholderLabel;
@@ -587,7 +587,7 @@ export class EditBoxComponent extends Component {
         // update
         const transform = this._placeholderLabel!.node._uiProps.uiTransformComp;
         transform!.setAnchorPoint(0, 1);
-        placeholderLabel!.overflow = LabelComponent.Overflow.CLAMP;
+        placeholderLabel!.overflow = Label.Overflow.CLAMP;
         if (this._inputMode === InputMode.ANY) {
             placeholderLabel!.verticalAlign = VerticalTextAlignment.TOP;
             placeholderLabel!.enableWrapText = true;
@@ -718,10 +718,12 @@ export class EditBoxComponent extends Component {
 }
 
 if (sys.isBrowser){
-    EditBoxComponent._EditBoxImpl = EditBoxImpl;
+    EditBox._EditBoxImpl = EditBoxImpl;
 }
 
-legacyCC.EditBoxComponent = EditBoxComponent;
+legacyCC.EditBox = EditBox;
+
+export { EditBox as EditBoxComponent };
 
 /**
  * @en

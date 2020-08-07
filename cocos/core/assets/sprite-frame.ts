@@ -147,7 +147,7 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  * const url = "assets/PurpleMonster/icon/spriteFrame";
  * loader.loadRes(url, (err, spriteFrame) => {
  *   const node = new Node("New Sprite");
- *   const sprite = node.addComponent(SpriteComponent);
+ *   const sprite = node.addComponent(Sprite);
  *   sprite.spriteFrame = spriteFrame;
  *   node.parent = self.node;
  * });
@@ -161,7 +161,7 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  *  }
  *
  *  const node = new Node("New Sprite");
- *  const sprite = node.addComponent(SpriteComponent);
+ *  const sprite = node.addComponent(Sprite);
  *  const spriteFrame = new SpriteFrame();
  *  const tex = imageAsset._texture;
  *  spriteFrame.texture = tex;

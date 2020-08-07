@@ -28,15 +28,15 @@
  * @category ui
  */
 
-import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, editable, serializable } from 'cc.decorator';
+import { InstanceMaterialType, UIRenderable } from '../../core/components/ui-base/ui-render-component';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { view, warnID } from '../../core/platform';
 import visibleRect from '../../core/platform/visible-rect';
 import { UI } from '../../core/renderer/ui/ui';
 import { Node } from '../../core/scene-graph';
 import { ccenum } from '../../core/value-types/enum';
-import { GraphicsComponent } from './graphics-component';
+import { Graphics } from './graphics-component';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Game } from '../../core';
 import { legacyCC } from '../../core/global-exports';
@@ -99,11 +99,11 @@ const SEGMENTS_MAX = 10000;
  * @zh
  * 遮罩组件。
  */
-@ccclass('cc.MaskComponent')
-@help('i18n:cc.MaskComponent')
+@ccclass('cc.Mask')
+@help('i18n:cc.Mask')
 @executionOrder(110)
 @menu('UI/Render/Mask')
-export class MaskComponent extends UIRenderComponent {
+export class Mask extends UIRenderable {
     /**
      * @en
      * The mask type.
@@ -239,8 +239,8 @@ export class MaskComponent extends UIRenderComponent {
     @serializable
     protected _segments = 64;
 
-    protected _graphics: GraphicsComponent | null = null;
-    protected _clearGraphics: GraphicsComponent | null = null;
+    protected _graphics: Graphics | null = null;
+    protected _clearGraphics: Graphics | null = null;
 
     constructor () {
         super();
@@ -355,8 +355,8 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     protected _flushAssembler () {
-        const assembler = MaskComponent.Assembler!.getAssembler(this);
-        const posAssembler = MaskComponent.PostAssembler!.getAssembler(this);
+        const assembler = Mask.Assembler!.getAssembler(this);
+        const posAssembler = Mask.PostAssembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this.destroyRenderData();
@@ -379,7 +379,7 @@ export class MaskComponent extends UIRenderComponent {
     protected _createGraphics () {
         if (!this._clearGraphics) {
             const node = new Node('clear-graphics');
-            const clearGraphics = this._clearGraphics = node.addComponent(GraphicsComponent)!;
+            const clearGraphics = this._clearGraphics = node.addComponent(Graphics)!;
             clearGraphics.delegateSrc = this.node;
             clearGraphics.lineWidth = 0;
             const color = Color.WHITE.clone();
@@ -388,7 +388,7 @@ export class MaskComponent extends UIRenderComponent {
         }
 
         if (!this._graphics) {
-            const graphics = this._graphics = new GraphicsComponent();
+            const graphics = this._graphics = new Graphics();
             graphics.node = this.node;
             graphics.node.getWorldMatrix();
             graphics.lineWidth = 0;
@@ -480,4 +480,6 @@ export class MaskComponent extends UIRenderComponent {
 }
 
 // tslint:disable-next-line
-legacyCC.MaskComponent = MaskComponent;
+legacyCC.Mask = Mask;
+
+export { Mask as MaskComponent };

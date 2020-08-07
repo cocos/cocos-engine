@@ -769,7 +769,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @example
      * ```
      * // get sprite component.
-     * var sprite = node.getComponent(SpriteComponent);
+     * var sprite = node.getComponent(Sprite);
      * ```
      */
     public getComponent<T extends Component> (classConstructor: Constructor<T>): T | null;
@@ -827,7 +827,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @param classConstructor The class of the target component
      * @example
      * ```
-     * var sprite = node.getComponentInChildren(SpriteComponent);
+     * var sprite = node.getComponentInChildren(Sprite);
      * ```
      */
     public getComponentInChildren<T extends Component> (classConstructor: Constructor<T>): T | null;
@@ -857,7 +857,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @param classConstructor The class of the target component
      * @example
      * ```
-     * var sprites = node.getComponentsInChildren(SpriteComponent);
+     * var sprites = node.getComponentsInChildren(Sprite);
      * ```
      */
     public getComponentsInChildren<T extends Component> (classConstructor: Constructor<T>): T[];
@@ -890,7 +890,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @throws `TypeError` if the `classConstructor` does not specify a cc-class constructor extending the `Component`.
      * @example
      * ```
-     * var sprite = node.addComponent(SpriteComponent);
+     * var sprite = node.addComponent(Sprite);
      * ```
      */
     public addComponent<T extends Component> (classConstructor: Constructor<T>): T;
@@ -985,7 +985,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @deprecated please destroy the component to remove it.
      * @example
      * ```
-     * node.removeComponent(SpriteComponent);
+     * node.removeComponent(Sprite);
      * ```
      */
     public removeComponent<T extends Component> (classConstructor: Constructor<T>): void;
@@ -1001,12 +1001,12 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @deprecated please destroy the component to remove it.
      * @example
      * ```
-     * import { SpriteComponent } from 'cc';
-     * const sprite = node.getComponent(SpriteComponent);
+     * import { Sprite } from 'cc';
+     * const sprite = node.getComponent(Sprite);
      * if (sprite) {
      *     node.removeComponent(sprite);
      * }
-     * node.removeComponent('cc.SpriteComponent');
+     * node.removeComponent('Sprite');
      * ```
      */
     public removeComponent (classNameOrInstance: string | Component): void;

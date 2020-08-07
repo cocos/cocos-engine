@@ -30,7 +30,7 @@
 
 import { builtinResMgr } from '../../core/3d/builtin';
 import { RenderableComponent } from '../../core/3d/framework/renderable-component';
-import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
+import { InstanceMaterialType, UIRenderable } from '../../core/components/ui-base/ui-render-component';
 import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
 import { director } from '../../core/director';
 import { Color } from '../../core/math';
@@ -54,11 +54,11 @@ const _matInsInfo: IMaterialInstanceInfo = {
  * @zh
  * 自定义图形类
  */
-@ccclass('cc.GraphicsComponent')
-@help('i18n:cc.GraphicsComponent')
+@ccclass('cc.Graphics')
+@help('i18n:cc.Graphics')
 @executionOrder(110)
 @menu('UI/Render/Graphics')
-export class GraphicsComponent extends UIRenderComponent {
+export class Graphics extends UIRenderable {
 
     /**
      * @en
@@ -564,7 +564,7 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     protected _flushAssembler (){
-        const assembler = GraphicsComponent.Assembler!.getAssembler(this);
+        const assembler = Graphics.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this._assembler = assembler;
@@ -599,4 +599,6 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 }
 
-legacyCC.GraphicsComponent = GraphicsComponent;
+legacyCC.Graphics = Graphics;
+
+export { Graphics as GraphicsComponent };

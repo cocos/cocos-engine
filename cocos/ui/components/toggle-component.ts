@@ -28,11 +28,12 @@
  * @category ui
  */
 
-import { EventHandler as ComponentEventHandler, UITransformComponent } from '../../core/components';
+import { EventHandler as ComponentEventHandler } from '../../core/components/component-event-handler';
+import { UITransform } from '../../core/components/ui-base';
 import { ccclass, help, requireComponent, executionOrder, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
-import { ButtonComponent } from './button-component';
-import { SpriteComponent } from './sprite-component';
-import { ToggleContainerComponent } from './toggle-container-component';
+import { Button } from './button-component';
+import { Sprite } from './sprite-component';
+import { ToggleContainer } from './toggle-container-component';
 import { extendsEnum } from '../../core/data/utils/extends-enum';
 import { EventType as ButtonEventType } from './button-component';
 import { EDITOR } from 'internal:constants';
@@ -50,12 +51,12 @@ enum EventType {
  * @zh
  * Toggle 是一个 CheckBox，当它和 ToggleGroup 一起使用的时候，可以变成 RadioButton。
  */
-@ccclass('cc.ToggleComponent')
-@help('i18n:cc.ToggleComponent')
+@ccclass('cc.Toggle')
+@help('i18n:cc.Toggle')
 @executionOrder(110)
 @menu('UI/Toggle')
-@requireComponent(UITransformComponent)
-export class ToggleComponent extends ButtonComponent {
+@requireComponent(UITransform)
+export class Toggle extends Button {
 
     /**
      * @en
@@ -82,7 +83,7 @@ export class ToggleComponent extends ButtonComponent {
      * @zh
      * Toggle 处于选中状态时显示的图片。
      */
-    @type(SpriteComponent)
+    @type(Sprite)
     @displayOrder(3)
     @tooltip('Toggle 处于选中状态时显示的精灵图片')
     get checkMark () {
@@ -106,7 +107,7 @@ export class ToggleComponent extends ButtonComponent {
     get _toggleContainer () {
         const parent = this.node.parent!;
         if (legacyCC.Node.isNode(parent)) {
-            return parent.getComponent('cc.ToggleContainerComponent') as ToggleContainerComponent;
+            return parent.getComponent('cc.ToggleContainer') as ToggleContainer;
         }
         return null;
     }
@@ -127,7 +128,7 @@ export class ToggleComponent extends ButtonComponent {
     @serializable
     protected _isChecked: boolean = true;
     @serializable
-    protected _checkMark: SpriteComponent | null = null;
+    protected _checkMark: Sprite | null = null;
 
     protected _internalToggle () {
         this.isChecked = !this.isChecked;
@@ -177,14 +178,14 @@ export class ToggleComponent extends ButtonComponent {
         super.onEnable();
         this.playEffect();
         if (!EDITOR || legacyCC.GAME_VIEW) {
-            this.node.on(ToggleComponent.EventType.CLICK, this._internalToggle, this);
+            this.node.on(Toggle.EventType.CLICK, this._internalToggle, this);
         }
     }
 
     public onDisable () {
         super.onDisable();
         if (!EDITOR || legacyCC.GAME_VIEW) {
-            this.node.off(ToggleComponent.EventType.CLICK, this._internalToggle, this);
+            this.node.off(Toggle.EventType.CLICK, this._internalToggle, this);
         }
     }
 
@@ -196,14 +197,16 @@ export class ToggleComponent extends ButtonComponent {
     }
 
     protected _emitToggleEvents () {
-        this.node.emit(ToggleComponent.EventType.TOGGLE, this);
+        this.node.emit(Toggle.EventType.TOGGLE, this);
         if (this.checkEvents) {
             ComponentEventHandler.emitEvents(this.checkEvents, this);
         }
     }
 }
 
-legacyCC.ToggleComponent = ToggleComponent;
+legacyCC.Toggle = Toggle;
+
+export { Toggle as ToggleComponent };
 
 /**
  * @en

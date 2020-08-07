@@ -35,7 +35,7 @@ import { UI } from '../../core/renderer/ui/ui';
 import { FontAtlas } from '../assembler/label/bmfontUtils';
 import { CanvasPool, ISharedLabelData } from '../assembler/label/font-utils';
 import { LetterRenderTexture } from '../assembler/label/letter-font';
-import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
+import { UIRenderable } from '../../core/components/ui-base/ui-render-component';
 import { warnID } from '../../core/platform/debug';
 import { sys } from '../../core/platform/sys';
 import { EDITOR } from 'internal:constants';
@@ -187,11 +187,11 @@ ccenum(CacheMode);
  * @zh
  * 文字标签组件。
  */
-@ccclass('cc.LabelComponent')
-@help('i18n:cc.LabelComponent')
+@ccclass('cc.Label')
+@help('i18n:cc.Label')
 @executionOrder(110)
 @menu('UI/Render/Label')
-export class LabelComponent extends UIRenderComponent {
+export class Label extends UIRenderable {
     /**
      * @en
      * Content string of label.
@@ -759,7 +759,7 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     protected _flushAssembler () {
-        const assembler = LabelComponent.Assembler!.getAssembler(this);
+        const assembler = Label.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this.destroyRenderData();
@@ -817,4 +817,6 @@ export class LabelComponent extends UIRenderComponent {
     }
 }
 
-legacyCC.LabelComponent = LabelComponent;
+legacyCC.Label = Label;
+
+export { Label as LabelComponent };

@@ -30,13 +30,13 @@
  * @hidden
  */
 
-import { EditBoxComponent } from './edit-box-component';
+import { EditBox } from './edit-box-component';
 
 export class EditBoxImplBase {
     public _editing = false;
-    public _delegate: EditBoxComponent | null = null;
+    public _delegate: EditBox | null = null;
 
-    public init (delegate: EditBoxComponent) {}
+    public init (delegate: EditBox) {}
 
     public onEnable () {}
 

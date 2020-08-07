@@ -35,10 +35,10 @@ import { BASELINE_RATIO, fragmentText, HtmlTextParser, IHtmlTextParserResultObj,
 import Pool from '../../core/utils/pool';
 import { Color, Vec2 } from '../../core/math';
 import { Node, PrivateNode } from '../../core/scene-graph';
-import { CacheMode, HorizontalTextAlignment, LabelComponent, VerticalTextAlignment } from './label-component';
-import { LabelOutlineComponent } from './label-outline-component';
-import { SpriteComponent } from './sprite-component';
-import { UIComponent, UIRenderComponent, UITransformComponent } from '../../core/components/ui-base';
+import { CacheMode, HorizontalTextAlignment, Label, VerticalTextAlignment } from './label-component';
+import { LabelOutline } from './label-outline-component';
+import { Sprite } from './sprite-component';
+import { UIComponent, UIRenderable, UITransform } from '../../core/components/ui-base';
 import { loader } from '../../core/load-pipeline';
 import { DEV, EDITOR } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
@@ -62,7 +62,7 @@ const pool = new Pool((labelSeg: ILabelSegment) => {
         return false;
     }
     else {
-        let outline = labelSeg.node.getComponent(LabelOutlineComponent);
+        let outline = labelSeg.node.getComponent(LabelOutline);
         if (outline) {
             outline.width = 0;
         }
@@ -71,7 +71,7 @@ const pool = new Pool((labelSeg: ILabelSegment) => {
 }, 20);
 
 // @ts-ignore
-pool.get = function (str: string, richtext: RichTextComponent) {
+pool.get = function (str: string, richtext: RichText) {
     let labelSeg = this._get();
     if (!labelSeg) {
         labelSeg = {
@@ -85,25 +85,28 @@ pool.get = function (str: string, richtext: RichTextComponent) {
         };
     }
 
-    let labelNode = labelSeg.node || new PrivateNode(RichTextChildName);
+    let labelNode = labelSeg.node;
+    if (!labelNode) {
+        labelNode = new PrivateNode(RichTextChildName);
+    }
 
-    let labelComponent = labelNode.getComponent(LabelComponent) || labelNode.addComponent(LabelComponent);
-    labelComponent = labelComponent!;
+    let label = labelNode.getComponent(Label);
+    if (!label) {
+        label = labelNode.addComponent(Label)!;
+    }
 
-    labelComponent.string = str;
-    labelComponent.horizontalAlign = HorizontalTextAlignment.LEFT;
-    labelComponent.verticalAlign = VerticalTextAlignment.TOP;
-    // labelComponent._forceUseCanvas = true;
+    label.string = str;
+    label.horizontalAlign = HorizontalTextAlignment.LEFT;
+    label.verticalAlign = VerticalTextAlignment.TOP;
+    // label._forceUseCanvas = true;
 
     labelNode.setPosition(0, 0, 0);
-    // This order cannot be changed, you must add rendering components before you will have uiTransformComp
-    // NOTE: important!
     let trans = labelNode._uiProps.uiTransformComp!;
     trans.setAnchorPoint(0.5, 0.5);
 
     const labelObj: ILabelSegment = {
         node: labelNode,
-        comp: labelComponent,
+        comp: label,
         lineCount: 0,
         styleIndex: 0,
         imageOffset: '',
@@ -116,7 +119,7 @@ pool.get = function (str: string, richtext: RichTextComponent) {
 
 interface ILabelSegment {
     node: PrivateNode;
-    comp: UIRenderComponent | null;
+    comp: UIRenderable | null;
     lineCount: number;
     styleIndex: number;
     imageOffset: string;
@@ -131,12 +134,12 @@ interface ILabelSegment {
  * @zh
  * 富文本组件。
  */
-@ccclass('cc.RichTextComponent')
-@help('i18n:cc.RichTextComponent')
+@ccclass('cc.RichText')
+@help('i18n:cc.RichText')
 @executionOrder(110)
 @menu('UI/Render/RichText')
 @executeInEditMode
-export class RichTextComponent extends UIComponent {
+export class RichText extends UIComponent {
 
     /**
      * @en
@@ -538,7 +541,7 @@ export class RichTextComponent extends UIComponent {
             }
             else {
                 label = self._labelSegmentsCache[0];
-                label.node.getComponent(LabelComponent)!.string = s;
+                label.node.getComponent(Label)!.string = s;
             }
             label.styleIndex = styleIndex;
             self._applyTextAttribute(label);
@@ -573,7 +576,7 @@ export class RichTextComponent extends UIComponent {
     }
 
     protected _containsTouchLocation (label: ILabelSegment, point: Vec2) {
-        const comp = label.node.getComponent(UITransformComponent);
+        const comp = label.node.getComponent(UITransform);
         if (!comp) {
             return false;
         }
@@ -633,7 +636,7 @@ export class RichTextComponent extends UIComponent {
             labelSegment = this._createFontLabel(stringToken);
         } else {
             labelSegment = this._labelSegmentsCache.pop()!;
-            const label = labelSegment.node.getComponent(LabelComponent);
+            const label = labelSegment.node.getComponent(Label);
             if (label) {
                 label.string = stringToken;
             }
@@ -769,7 +772,7 @@ export class RichTextComponent extends UIComponent {
             warnID(4400);
         } else {
             const spriteNode = new PrivateNode(RichTextChildImageName);
-            const spriteComponent = spriteNode.addComponent(SpriteComponent);
+            const sprite = spriteNode.addComponent(Sprite);
             switch (style.imageAlign) {
                 case 'top':
                     spriteNode._uiProps.uiTransformComp!.setAnchorPoint(0, 1);
@@ -781,16 +784,16 @@ export class RichTextComponent extends UIComponent {
                     spriteNode._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
                     break;
             }
-            spriteComponent!.type = SpriteComponent.Type.SLICED;
-            spriteComponent!.sizeMode = SpriteComponent.SizeMode.CUSTOM;
+            sprite.type = Sprite.Type.SLICED;
+            sprite.sizeMode = Sprite.SizeMode.CUSTOM;
 
             // Why need to set spriteFrame before can add child ??
-            spriteComponent!.spriteFrame = spriteFrame;
+            sprite.spriteFrame = spriteFrame;
             // @ts-ignore
             this.node.addChild(spriteNode);
             const obj: ILabelSegment = {
                 node: spriteNode,
-                comp: spriteComponent,
+                comp: sprite,
                 lineCount: 0,
                 styleIndex: 0,
                 imageOffset: style.imageOffset || '',
@@ -863,7 +866,6 @@ export class RichTextComponent extends UIComponent {
 
         let lastEmptyLine = false;
         let label: ILabelSegment;
-        let labelSize;
 
         for (let i = 0; i < this._textArray.length; ++i) {
             const richTextElement = this._textArray[i];
@@ -993,7 +995,7 @@ export class RichTextComponent extends UIComponent {
                 nextTokenX += segment.node._uiProps.uiTransformComp!.width;
             }
 
-            let sprite = segment.node.getComponent(SpriteComponent);
+            let sprite = segment.node.getComponent(Sprite);
             if (sprite) {
                 let position = segment.node.position.clone();
                 // adjust img align (from <img align=top|center|bottom>)
@@ -1028,7 +1030,7 @@ export class RichTextComponent extends UIComponent {
             }
 
             //adjust y for label with outline
-            let outline = segment.node.getComponent(LabelOutlineComponent);
+            let outline = segment.node.getComponent(LabelOutline);
             if (outline) {
                 let position = segment.node.position.clone();
                 position.y = position.y - outline.width;
@@ -1049,8 +1051,8 @@ export class RichTextComponent extends UIComponent {
     }
 
     protected _applyTextAttribute (labelSeg: ILabelSegment) {
-        const labelComponent = labelSeg.node.getComponent(LabelComponent);
-        if (!labelComponent) {
+        const label = labelSeg.node.getComponent(Label);
+        if (!label) {
             return;
         }
 
@@ -1062,27 +1064,27 @@ export class RichTextComponent extends UIComponent {
         }
 
         if (textStyle) {
-            labelComponent.color = this._convertLiteralColorValue(textStyle.color || 'white');
-            labelComponent.isBold = !!textStyle.bold;
-            labelComponent.isItalic = !!textStyle.italic;
+            label.color = this._convertLiteralColorValue(textStyle.color || 'white');
+            label.isBold = !!textStyle.bold;
+            label.isItalic = !!textStyle.italic;
             // TODO: temporary implementation, the italic effect should be implemented in the internal of label-assembler.
             // if (textStyle.italic) {
             //     labelNode.skewX = 12;
             // }
 
-            labelComponent.isUnderline = !!textStyle.underline;
+            label.isUnderline = !!textStyle.underline;
             if (textStyle.outline) {
-                let labelOutlineComponent = labelSeg.node.getComponent(LabelOutlineComponent);
-                if (!labelOutlineComponent) {
-                    labelOutlineComponent = labelSeg.node.addComponent(LabelOutlineComponent);
+                let labelOutline = labelSeg.node.getComponent(LabelOutline);
+                if (!labelOutline) {
+                    labelOutline = labelSeg.node.addComponent(LabelOutline);
                 }
 
-                labelOutlineComponent!.color = this._convertLiteralColorValue(textStyle.outline.color);
-                labelOutlineComponent!.width = textStyle.outline.width;
+                labelOutline.color = this._convertLiteralColorValue(textStyle.outline.color);
+                labelOutline.width = textStyle.outline.width;
             }
 
             if (textStyle.size) {
-                labelComponent.fontSize = textStyle.size;
+                label.fontSize = textStyle.size;
             }
 
             labelSeg.clickHandler = '';
@@ -1094,22 +1096,24 @@ export class RichTextComponent extends UIComponent {
             }
         }
         else {
-            labelComponent.fontSize = this._fontSize;
+            label.fontSize = this._fontSize;
         }
 
-        labelComponent.cacheMode = this._cacheMode;
+        label.cacheMode = this._cacheMode;
 
         let isAsset = this._font instanceof Font;
         if (isAsset && !this._isSystemFontUsed) {
-            labelComponent.font = this._font;
+            label.font = this._font;
         } else {
-            labelComponent.fontFamily = this._fontFamily;
+            label.fontFamily = this._fontFamily;
         }
-        labelComponent.useSystemFont = this._isSystemFontUsed;
-        labelComponent.lineHeight = this._lineHeight;
+        label.useSystemFont = this._isSystemFontUsed;
+        label.lineHeight = this._lineHeight;
 
-        labelComponent.updateRenderData(true);
+        label.updateRenderData(true);
     }
 }
 
-legacyCC.RichTextComponent = RichTextComponent;
+legacyCC.RichText = RichText;
+
+export { RichText as RichTextComponent };

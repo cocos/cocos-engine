@@ -126,7 +126,7 @@ export class AnimationClip extends Asset {
         clip.keys = [keys];
         clip.curves = [{
             modifiers: [
-                new ComponentPath('cc.SpriteComponent'),
+                new ComponentPath('cc.Sprite'),
                 'spriteFrame',
             ],
             data: {

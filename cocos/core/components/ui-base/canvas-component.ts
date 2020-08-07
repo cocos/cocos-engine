@@ -41,7 +41,7 @@ import { Camera } from '../../renderer';
 import { Node } from '../../scene-graph/node';
 import { Enum } from '../../value-types';
 import { Component } from '../component';
-import { UITransformComponent } from './ui-transform-component';
+import { UITransform } from './ui-transform-component';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../../pipeline';
@@ -70,14 +70,14 @@ const RenderMode = Enum({
  * 注：由于本节点的尺寸会跟随屏幕拉伸，所以 anchorPoint 只支持 (0.5, 0.5)，否则适配不同屏幕时坐标会有偏差。
  * UI 的视距范围是 -999 ～ 1000.
  */
-@ccclass('cc.CanvasComponent')
-@help('i18n:cc.CanvasComponent')
+@ccclass('cc.Canvas')
+@help('i18n:cc.Canvas')
 @executionOrder(100)
-@requireComponent(UITransformComponent)
+@requireComponent(UITransform)
 @menu('UI/Canvas')
 @executeInEditMode
 @disallowMultiple
-export class CanvasComponent extends Component {
+export class Canvas extends Component {
     /**
      * @en
      * The flags to clear the built in camera.
@@ -213,7 +213,7 @@ export class CanvasComponent extends Component {
     //  * @zh
     //  * 当前激活的画布组件，场景同一时间只能有一个激活的画布。
     //  */
-    // public static instance: CanvasComponent | null = null;
+    // public static instance: Canvas | null = null;
 
     @serializable
     protected _priority = 0;
@@ -235,8 +235,8 @@ export class CanvasComponent extends Component {
         super();
         this._thisOnResized = this.alignWithScreen.bind(this);
         // // TODO:maybe remove when multiple scene
-        // if (!CanvasComponent.instance){
-        //     CanvasComponent.instance = this;
+        // if (!Canvas.instance){
+        //     Canvas.instance = this;
         // }
     }
 
@@ -307,8 +307,8 @@ export class CanvasComponent extends Component {
         }
 
         view.off('design-resolution-changed', this._thisOnResized);
-        // if (CanvasComponent.instance === this) {
-        //     CanvasComponent.instance = null;
+        // if (Canvas.instance === this) {
+        //     Canvas.instance = null;
         // }
     }
 
@@ -414,4 +414,6 @@ export class CanvasComponent extends Component {
     }
 }
 
-legacyCC.CanvasComponent = CanvasComponent;
+export { Canvas as CanvasComponent }
+
+legacyCC.Canvas = Canvas;

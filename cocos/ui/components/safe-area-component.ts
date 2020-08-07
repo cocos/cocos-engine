@@ -29,9 +29,9 @@
 
 import { ccclass, help, executionOrder, menu, executeInEditMode, requireComponent } from 'cc.decorator';
 import { Component } from '../../core/components';
-import { UITransformComponent } from '../../core/components/ui-base';
+import { UITransform } from '../../core/components/ui-base';
 import { view } from '../../core/platform';
-import { WidgetComponent } from './widget-component';
+import { Widget } from './widget-component';
 import { legacyCC } from "../../core/global-exports";
 
 // @ts-ignore
@@ -55,14 +55,14 @@ import { EDITOR } from 'internal:constants';
  *
  */
 
-@ccclass('cc.SafeAreaComponent')
-@help('i18n:cc.SafeAreaComponent')
+@ccclass('cc.SafeArea')
+@help('i18n:cc.SafeArea')
 @executionOrder(110)
 @executeInEditMode
 @menu('UI/SafeArea')
-@requireComponent(WidgetComponent)
+@requireComponent(Widget)
 // @ts-ignore
-export class SafeAreaComponent extends Component {
+export class SafeArea extends Component {
 
     public onEnable () {
         this.updateArea();
@@ -83,8 +83,8 @@ export class SafeAreaComponent extends Component {
      */
     public updateArea () {
         // TODO Remove Widget dependencies in the future
-        let widget = this.node.getComponent(WidgetComponent);
-        let uiTransComp = this.node.getComponent(UITransformComponent);
+        let widget = this.node.getComponent(Widget);
+        let uiTransComp = this.node.getComponent(UITransform);
         if (!widget || !uiTransComp) {
             return;
         }
@@ -122,5 +122,6 @@ export class SafeAreaComponent extends Component {
     }
 }
 
-legacyCC.SafeAreaComponent = SafeAreaComponent;
+legacyCC.SafeArea = SafeArea;
 
+export { SafeArea as SafeAreaComponent };

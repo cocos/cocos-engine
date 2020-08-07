@@ -27,9 +27,7 @@
  * @category scene-graph
  */
 
-import { UIComponent } from '../components/ui-base/ui-component';
-import { UITransformComponent } from '../components/ui-base/ui-transform-component';
-import { UIRenderComponent } from '../components';
+import { UIComponent, UITransform, UIRenderable } from '../components/ui-base';
 
 /**
  * @en Node's UI properties abstraction
@@ -42,7 +40,7 @@ export class NodeUIProperties {
      */
     get uiTransformComp () {
         if (!this._uiTransformComp) {
-            this._uiTransformComp = this._node.getComponent(UITransformComponent);
+            this._uiTransformComp = this._node.getComponent(UITransform);
         }
 
         return this._uiTransformComp;
@@ -55,13 +53,13 @@ export class NodeUIProperties {
      * @en The base UI component
      * @zh UI 基类组件
      */
-    public uiComp: UIComponent | UIRenderComponent | null = null;
+    public uiComp: UIComponent | UIRenderable | null = null;
     /**
      * @en The opacity of the UI node
      * @zh UI 透明度
      */
     public opacity = 1;
-    protected _uiTransformComp: UITransformComponent | null = null;
+    protected _uiTransformComp: UITransform | null = null;
     private _node: any;
 
     constructor (node: any) {
