@@ -1686,6 +1686,9 @@ let NodeDefines = {
             _currentHovered = null;
         }
 
+        this._bubblingListeners && this._bubblingListeners.clear();
+        this._capturingListeners && this._capturingListeners.clear();
+
         // Remove all event listeners if necessary
         if (this._touchListener || this._mouseListener) {
             eventManager.removeListeners(this);
@@ -2152,6 +2155,9 @@ let NodeDefines = {
         }
 
         listeners.once(type, callback, target);
+        listeners.once(type, () => {
+            this.off(type, callback, target);
+        }, undefined);
     },
 
     _onDispatch (type, callback, target, useCapture) {
@@ -2689,19 +2695,15 @@ let NodeDefines = {
      * 3. 对于 3D 节点可以传入 3 个数值 x, y, z。<br/>
      * 4. 对于 3D 节点可以传入 cc.v3(x, y, z) 类型为 cc.Vec3 的对象。
      * @method setPosition
-     * @param {Vec2|Vec3|Number} newPosOrX - X coordinate for position or the position (x, y, z) of the node in coordinates
+     * @param {Vec2|Vec3|Number} x - X coordinate for position or the position object
      * @param {Number} [y] - Y coordinate for position
      * @param {Number} [z] - Z coordinate for position
      */
-    setPosition (newPosOrX, y, z) {
-        let x;
-        if (y === undefined) {
-            x = newPosOrX.x;
-            y = newPosOrX.y;
-            z = newPosOrX.z;
-        }
-        else {
-            x = newPosOrX;
+    setPosition (x, y, z) {
+        if (x && typeof x !== 'number') {
+            y = x.y;
+            z = x.z;
+            x = x.x;
         }
 
         let trs = this._trs;
@@ -2774,20 +2776,15 @@ let NodeDefines = {
      * node.setScale(cc.v3(2, 2, 2)); // for 3D node
      * node.setScale(2);
      */
-    setScale (newScaleOrX, y, z) {
-        let x;
-        if (newScaleOrX && typeof newScaleOrX !== 'number') {
-            x = newScaleOrX.x;
-            y = newScaleOrX.y;
-            z = newScaleOrX.z;
+    setScale (x, y, z) {
+        if (x && typeof x !== 'number') {
+            y = x.y;
+            z = x.z;
+            x = x.x;
         }
-        else if (newScaleOrX !== undefined && y === undefined) {
-            x = newScaleOrX;
-            y = newScaleOrX;
-            z = newScaleOrX;
-        }
-        else {
-            x = newScaleOrX;
+        else if (x !== undefined && y === undefined) {
+            y = x;
+            z = x;
         }
 
         let trs = this._trs;
