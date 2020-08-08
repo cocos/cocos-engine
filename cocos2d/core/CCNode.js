@@ -2691,7 +2691,7 @@ let NodeDefines = {
      * 设置节点在父节点坐标系中的位置。<br/>
      * 可以通过下面的方式设置坐标点：<br/>
      * 1. 传入 2 个数值 x, y (此时不会改变position的z值)。<br/>
-     * 2. 传入 cc.v2(x, y) 类型为 cc.Vec2 的对象 (此时position的z值会被设置成0)。
+     * 2. 传入 cc.v2(x, y) 类型为 cc.Vec2 的对象 (此时不会改变position的z值)。
      * 3. 对于 3D 节点可以传入 3 个数值 x, y, z。<br/>
      * 4. 对于 3D 节点可以传入 cc.v3(x, y, z) 类型为 cc.Vec3 的对象。
      * @method setPosition
@@ -2769,6 +2769,7 @@ let NodeDefines = {
      * !#zh
      * 设置节点在本地坐标系中坐标轴上的缩放比例。
      * 2D 节点可以操作两个坐标轴，而 3D 节点可以操作三个坐标轴。
+     * 当只传入 (x, y) 或 Vec2对象时, 不会改变 scale.z 的值.
      * @method setScale
      * @param {Number|Vec2|Vec3} x - scaleX or scale object
      * @param {Number} [y]
@@ -2780,18 +2781,21 @@ let NodeDefines = {
      */
     setScale (x, y, z) {
         if (x && typeof x !== 'number') {
-            y = x.y;
-            z = x.z === undefined ? 1 : x.z;
             x = x.x;
+            y = x.y;
+            z = x.z;
         }
         else if (x !== undefined && y === undefined) {
             y = x;
             z = x;
         }
-        else if (z === undefined) {
-            z = 1;
-        }
+
         let trs = this._trs;
+
+        if (z === undefined) {
+            z = trs[9];
+        }
+
         if (trs[7] !== x || trs[8] !== y || trs[9] !== z) {
             trs[7] = x;
             trs[8] = y;
