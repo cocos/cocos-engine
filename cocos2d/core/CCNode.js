@@ -2764,12 +2764,13 @@ let NodeDefines = {
      * !#zh
      * 设置节点在本地坐标系中坐标轴上的缩放比例。
      * 2D 节点可以操作两个坐标轴，而 3D 节点可以操作三个坐标轴。
+     * 当只传入 (x, y) 或 Vec2对象时，scale.z 的值将被设置为0。
      * @method setScale
      * @param {Number|Vec2|Vec3} x - scaleX or scale object
      * @param {Number} [y]
      * @param {Number} [z]
      * @example
-     * node.setScale(cc.v2(2, 2)); // Notice: scaleX will be 0
+     * node.setScale(cc.v2(2, 2)); // Notice: scaleZ will be 0
      * node.setScale(cc.v3(2, 2, 2)); // for 3D node
      * node.setScale(2);
      */
