@@ -2690,8 +2690,8 @@ let NodeDefines = {
      * !#zh
      * 设置节点在父节点坐标系中的位置。<br/>
      * 可以通过下面的方式设置坐标点：<br/>
-     * 1. 传入 2 个数值 x, y。<br/>
-     * 2. 传入 cc.v2(x, y) 类型为 cc.Vec2 的对象。
+     * 1. 传入 2 个数值 x, y (此时不会改变position的z值)。<br/>
+     * 2. 传入 cc.v2(x, y) 类型为 cc.Vec2 的对象 (此时position的z值会被设置成0)。
      * 3. 对于 3D 节点可以传入 3 个数值 x, y, z。<br/>
      * 4. 对于 3D 节点可以传入 cc.v3(x, y, z) 类型为 cc.Vec3 的对象。
      * @method setPosition
@@ -2704,14 +2704,18 @@ let NodeDefines = {
         if (y === undefined) {
             x = newPosOrX.x;
             y = newPosOrX.y;
-            z = newPosOrX.z || 0;
+            z = newPosOrX.z;
         }
         else {
             x = newPosOrX;
-            z = z || 0
         }
     
         let trs = this._trs;
+        
+        if (z === undefined) {
+            z = trs[2];
+        }
+        
         if (trs[0] === x && trs[1] === y && trs[2] === z) {
             return;
         }
