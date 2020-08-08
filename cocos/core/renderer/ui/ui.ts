@@ -366,13 +366,16 @@ export class UI {
         const samp = sampler;
 
         let mat = renderComp.getRenderMaterial(0);
-        if (!mat) { mat = renderComp._instanceMaterial(mat); }
+        if (!mat) {
+            mat = renderComp._updateBuiltinMaterial();
+            mat = renderComp._updateBlendFunc();
+        }
 
         if (this._currMaterial !== mat ||
             this._currTexture !== texture || this._currSampler !== samp
         ) {
             this.autoMergeBatches();
-            this._currMaterial = mat;
+            this._currMaterial = mat!;
             this._currTexture = texture;
             this._currSampler = samp;
         }

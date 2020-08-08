@@ -227,6 +227,7 @@ export class GraphicsComponent extends UIRenderComponent {
     constructor (){
         super();
         this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
+        this._uiMaterialDirty = true;
     }
 
     public onRestore () {

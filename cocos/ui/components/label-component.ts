@@ -800,8 +800,7 @@ export class LabelComponent extends UIRenderComponent {
 
     protected _flushMaterial () {
         // this._updateMaterial(this._material);
-        this.sharedMaterials = this.sharedMaterials;
-
+        // this.sharedMaterials = this.sharedMaterials;
     }
 
     protected _applyFontTexture () {
@@ -811,7 +810,7 @@ export class LabelComponent extends UIRenderComponent {
             const onBMFontTextureLoaded = () => {
                 // TODO: old texture in material have been released by loader
                 this._texture = spriteFrame;
-                this._flushMaterial();
+                // this._flushMaterial();
                 if (this._assembler) {
                     this._assembler!.updateRenderData(this);
                 }
@@ -841,7 +840,7 @@ export class LabelComponent extends UIRenderComponent {
                 this._texture = this._ttfSpriteFrame;
             }
 
-            this._flushMaterial();
+            // this._flushMaterial();
             if (this._assembler) {
                 this._assembler!.updateRenderData(this);
             }

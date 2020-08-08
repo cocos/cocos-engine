@@ -429,6 +429,7 @@ export class SpriteComponent extends UIRenderComponent {
         } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
+        this._uiMaterialDirty = true;
         // this._instanceMaterial();
         // this.sharedMaterials = this.sharedMaterials;
     }
@@ -582,7 +583,7 @@ export class SpriteComponent extends UIRenderComponent {
         } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
-
+        this._uiMaterialDirty = true;
     }
 
     protected _render (render: UI) {

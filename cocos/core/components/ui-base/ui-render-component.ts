@@ -245,7 +245,43 @@ export class UIRenderComponent extends RenderableComponent {
     //     return this._material;
     // }
 
+    // hack for builtinMaterial
     protected _useCustomerMaterial = false;
+    protected _uiMaterial: Material | null = null;
+    protected _uiMaterialIns: MaterialInstance | null = null;
+
+    protected getUIRenderMat () {
+        return this._uiMaterialIns || this._uiMaterial;
+    }
+
+    protected getUIMaterialIns () {
+        let mat;
+        if (!this._uiMaterialIns) {
+            _matInsInfo.owner = this;
+            _matInsInfo.parent = this._uiMaterial!;
+            mat = new MaterialInstance(_matInsInfo);
+            this._uiMaterialIns = mat;
+        } else {
+            if (this._uiMatInsDirty) {
+                _matInsInfo.owner = this;
+                _matInsInfo.parent = this._uiMaterial!;
+                mat = new MaterialInstance(_matInsInfo);
+                this._uiMaterialIns = mat;
+            }
+        }
+        this._uiMatInsDirty = false;
+        return this._uiMaterialIns;
+    }
+
+    protected _uiMaterialDirty = false;
+    protected _uiMatInsDirty = false;
+
+    get UIMaterial () {
+        return this._uiMaterial;
+    }
+    set UIMaterial (val) {
+        this._uiMaterial = val;
+    }
 
     @property({
         type: Material,
@@ -437,25 +473,48 @@ export class UIRenderComponent extends RenderableComponent {
 
     // protected _updateMaterial (material: Material | null) {
     //     this.material = material;
-
     //     this._updateBlendFunc();
     // }
 
-    protected _updateBlendFunc () {
-        let mat = this.getMaterial(0);
-        if (!mat) {
-            return;
-        }
+    public _updateBlendFunc () {
+            let mat = this.getMaterial(0);
+            if(mat) {
+                const target = this._blendTemplate.blendState.targets[0];
+                if (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor) {
+                    mat = this.material;
+                    target.blendDst = this._dstBlendFactor;
+                    target.blendSrc = this._srcBlendFactor;
+                    this._blendTemplate.depthStencilState = mat!.passes[0].depthStencilState;
+                    this._blendTemplate.rasterizerState = mat!.passes[0].rasterizerState;
+                    mat!.overridePipelineStates(this._blendTemplate, 0);
+                }
+                return mat;
+            } else {
+                if (this._uiMaterialIns !== null && this._uiMatInsDirty) {
+                    mat = this.getUIMaterialIns();
+                    const target = this._blendTemplate.blendState.targets[0];
+                    target.blendDst = this._dstBlendFactor;
+                    target.blendSrc = this._srcBlendFactor;
+                    this._blendTemplate.depthStencilState = mat!.passes[0].depthStencilState;
+                    this._blendTemplate.rasterizerState = mat!.passes[0].rasterizerState;
+                    mat!.overridePipelineStates(this._blendTemplate, 0);
+                } else {
+                    const target = this._blendTemplate.blendState.targets[0];
+                    if (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor) {
+                        mat = this.getUIMaterialIns();
+                        target.blendDst = this._dstBlendFactor;
+                        target.blendSrc = this._srcBlendFactor;
+                        this._blendTemplate.depthStencilState = mat!.passes[0].depthStencilState;
+                        this._blendTemplate.rasterizerState = mat!.passes[0].rasterizerState;
+                        mat!.overridePipelineStates(this._blendTemplate, 0);
+                    }
+                }
+                if(!mat) {
+                    mat = this.getUIRenderMat();
+                }
+                return mat;
+            }
 
-        const target = this._blendTemplate.blendState.targets[0];
-        if (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor) {
-            mat = this.material;
-            target.blendDst = this._dstBlendFactor;
-            target.blendSrc = this._srcBlendFactor;
-            this._blendTemplate.depthStencilState = mat!.passes[0].depthStencilState;
-            this._blendTemplate.rasterizerState = mat!.passes[0].rasterizerState;
-            mat!.overridePipelineStates(this._blendTemplate, 0);
-        }
     }
 
     // pos, rot, scale changed
@@ -472,29 +531,42 @@ export class UIRenderComponent extends RenderableComponent {
         }
     }
 
-    public _instanceMaterial (mat: Material | null) : Material {
-        if (mat && this._useCustomerMaterial) {
-            return mat;
+    public _updateBuiltinMaterial () : Material {
+        // not need _uiMaterialDirty at firstTime
+        let init = false;
+        if (!this._uiMaterial) { init = true; }
+
+        if (this._uiMaterial && !this._uiMaterialDirty) {
+            return this._uiMaterial;
         } else {
             switch (this._instanceMaterialType) {
                 case InstanceMaterialType.ADD_COLOR:
-                    return builtinResMgr.get('ui-base-material');
+                    this._uiMaterial = builtinResMgr.get('ui-base-material') as Material;
+                    break;
                 case InstanceMaterialType.ADD_COLOR_AND_TEXTURE:
-                    return builtinResMgr.get('ui-sprite-material');
+                    this._uiMaterial = builtinResMgr.get('ui-sprite-material') as Material;
+                    break;
                 case InstanceMaterialType.GRAYSCALE:
-                    return builtinResMgr.get('ui-sprite-gray-material');
+                    this._uiMaterial = builtinResMgr.get('ui-sprite-gray-material') as Material;
+                    break;
                 case InstanceMaterialType.USE_ALPHA_SEPARATED:
-                    return builtinResMgr.get('ui-sprite-alpha-sep-material');
+                    this._uiMaterial = builtinResMgr.get('ui-sprite-alpha-sep-material') as Material;
+                    break;
                 case InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY:
-                    return builtinResMgr.get('ui-sprite-gray-alpha-sep-material');
+                    this._uiMaterial = builtinResMgr.get('ui-sprite-gray-alpha-sep-material') as Material;
+                    break;
                 default:
-                    return builtinResMgr.get('ui-sprite-material');
+                    this._uiMaterial = builtinResMgr.get('ui-sprite-material') as Material;
+                    break;
             }
+            this._uiMaterialDirty = false;
+            if(!init) {this._uiMatInsDirty = true;}
+            return this._uiMaterial;
         }
     }
 
     protected _onMaterialModified (index: number, material: Material) {
-        this._updateBlendFunc();
+        // this._updateBlendFunc();
     }
 
     protected _flushAssembler? (): void;
