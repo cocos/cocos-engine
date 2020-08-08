@@ -2786,6 +2786,9 @@ let NodeDefines = {
             y = newScaleOrX;
             z = newScaleOrX;
         }
+        else {
+            x = newScaleOrX;
+        }
 
         let trs = this._trs;
 
