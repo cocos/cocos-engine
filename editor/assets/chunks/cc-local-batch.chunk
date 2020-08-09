@@ -11,7 +11,7 @@
   in float a_dyn_batch_id;
   #define BATCHING_COUNT 10
   #pragma builtin(local)
-  layout(binding = 21) uniform CCLocalBatched {
+  layout(set = 2, binding = 0) uniform CCLocalBatched {
     highp mat4 cc_matWorlds[BATCHING_COUNT];
   };
 #else

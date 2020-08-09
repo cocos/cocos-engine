@@ -231,11 +231,9 @@ export class Model {
         this._inited = true;
     }
 
-    public setSubModelMesh (idx: number, subMeshData: RenderingSubMesh) {
-        if (this._subModels[idx] == null) {
-            this._subModels[idx] = _subModelPool.alloc();
-        }
-        this._subModels[idx].subMesh = subMeshData;
+    public setSubModelMesh (idx: number, subMesh: RenderingSubMesh) {
+        if (!this._subModels[idx]) { return; }
+        this._subModels[idx].subMesh = subMesh;
     }
 
     public setSubModelMaterial (idx: number, mat: Material) {
@@ -273,16 +271,6 @@ export class Model {
             }
         }
     }
-
-    // public insertImplantPSOCI (psoci: number, submodelIdx: number) {
-    //     this.updateLocalBindings(psoci, submodelIdx);
-    //     this._implantPSOCIs.push(psoci);
-    // }
-
-    // public removeImplantPSOCI (psoci: number) {
-    //     const idx = this._implantPSOCIs.indexOf(psoci);
-    //     if (idx >= 0) { this._implantPSOCIs.splice(idx, 1); }
-    // }
 
     public getMacroPatches (subModelIndex: number) {
         return this.receiveShadow ? shadowMapPatches : null;

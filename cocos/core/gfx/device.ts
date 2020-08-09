@@ -57,6 +57,11 @@ export enum GFXFeature {
     COUNT,
 }
 
+export class GFXBindingMappingInfo {
+    public bufferOffsets: number[] = [];
+    public samplerOffsets: number[] = [];
+}
+
 export interface IGFXDeviceInfo {
     canvasElm: HTMLElement;
     isAntialias?: boolean;
@@ -65,6 +70,7 @@ export interface IGFXDeviceInfo {
     devicePixelRatio?: number;
     nativeWidth?: number;
     nativeHeight?: number;
+    bindingMappingInfo?: GFXBindingMappingInfo;
 }
 
 /**

@@ -12,7 +12,7 @@ import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
-import { IRenderPass } from '../define';
+import { IRenderPass, SetIndex } from '../define';
 
 const colors: GFXColor[] = [];
 
@@ -114,6 +114,8 @@ export class UIStage extends RenderStage {
         cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
             [camera.clearColor], camera.clearDepth, camera.clearStencil);
+
+        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
 

@@ -13,7 +13,7 @@ function isSupportGPUParticle () {
         return true;
     }
 
-    legacyCC.warn("Maybe the device has restrictions on vertex textures or does not support float textures.");
+    legacyCC.warn('Maybe the device has restrictions on vertex textures or does not support float textures.');
     return false;
 }
 
@@ -185,7 +185,7 @@ export default class ParticleSystemRenderer {
         this._switchProcessor();
     }
 
-    private _particleSystem: any = null;
+    private _particleSystem: any = null!; // ParticleSystemComponent
 
     onInit (ps: any) {
         this._particleSystem = ps;
@@ -198,7 +198,7 @@ export default class ParticleSystemRenderer {
         if (this._particleSystem.processor) {
             this._particleSystem.processor.detachFromScene();
             this._particleSystem.processor.clear();
-            this._particleSystem.processor = null;
+            this._particleSystem.processor = null!;
         }
         this._particleSystem.processor = this._useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
         this._particleSystem.processor.onInit(this._particleSystem);

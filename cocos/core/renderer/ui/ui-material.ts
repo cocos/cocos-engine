@@ -27,10 +27,8 @@
  */
 
 import { Material } from '../../assets/material';
-import { Pool } from '../../memop';
 import { Pass } from '../../renderer/core/pass';
-import { DescriptorSetPool, PassView, PassPool } from '../core/memory-pools';
-import { GFXDescriptorSet } from '../../gfx';
+import { PassView, PassPool, DescriptorSetHandle } from '../core/memory-pools';
 
 export interface IUIMaterialInfo {
     material: Material;
@@ -40,7 +38,7 @@ export class UIMaterial {
 
     protected _material: Material | null = null;
     protected _pass: Pass | null = null;
-    protected _descriptorSet: GFXDescriptorSet | null = null;
+    protected _hDescriptorSet: DescriptorSetHandle = 0;
 
     private _refCount: number = 0;
 
@@ -52,8 +50,8 @@ export class UIMaterial {
         return this._pass!;
     }
 
-    get descriptorSet () {
-        return this._descriptorSet!;
+    get hDescriptorSet () {
+        return this._hDescriptorSet!;
     }
 
     public initialize (info: IUIMaterialInfo): boolean {
@@ -69,7 +67,7 @@ export class UIMaterial {
         this._pass = this._material.passes[0];
         this._pass.update();
 
-        this._descriptorSet = DescriptorSetPool.get(PassPool.get(this._pass!.handle, PassView.DESCRIPTOR_SET));
+        this._hDescriptorSet = PassPool.get(this._pass!.handle, PassView.DESCRIPTOR_SET);
 
         return true;
     }

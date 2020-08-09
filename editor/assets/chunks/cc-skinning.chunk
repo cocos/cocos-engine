@@ -15,15 +15,15 @@ layout(location = 5) in vec4 a_weights;
     in highp vec4 a_jointAnimInfo; // frameID, totalJoints, offset
   #endif
   #pragma builtin(local)
-  layout(binding = 18) uniform CCSkinningTexture {
+  layout(set = 2, binding = 3) uniform CCSkinningTexture {
     highp vec4 cc_jointTextureInfo; // length, totalJoints, offset, invLength
   };
   #pragma builtin(local)
-  layout(binding = 19) uniform CCSkinningAnimation {
+  layout(set = 2, binding = 2) uniform CCSkinningAnimation {
     highp vec4 cc_jointAnimInfo; // frameID
   };
   #pragma builtin(local)
-  layout(binding = 25) uniform highp sampler2D cc_jointTexture;
+  layout(set = 2, binding = 5) uniform highp sampler2D cc_jointTexture;
   /**
    * Although tempting, don't opt the offset arithmetics out to CPU (could
    * be reduced to a single MAD). The enlarged numerical range could require
@@ -52,7 +52,7 @@ layout(location = 5) in vec4 a_weights;
 #else
   #define JOINT_UNIFORM_CAPACITY 30
   #pragma builtin(local)
-  layout(binding = 18) uniform CCSkinning {
+  layout(set = 2, binding = 3) uniform CCSkinning {
     highp vec4 cc_joints[JOINT_UNIFORM_CAPACITY * 3];
   };
 #endif

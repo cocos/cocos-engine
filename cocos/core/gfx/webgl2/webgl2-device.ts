@@ -2,7 +2,7 @@ import { macro } from '../../platform';
 import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../descriptor-set';
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
-import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
+import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo, GFXBindingMappingInfo } from '../device';
 import { GFXFence, IGFXFenceInfo } from '../fence';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
@@ -48,6 +48,10 @@ export class WebGL2Device extends GFXDevice {
 
     get useVAO () {
         return this._useVAO;
+    }
+
+    get bindingMappingInfo () {
+        return this._bindingMappingInfo;
     }
 
     get EXT_texture_filter_anisotropic () {
@@ -107,6 +111,7 @@ export class WebGL2Device extends GFXDevice {
     private _isAntialias: boolean = true;
     private _isPremultipliedAlpha: boolean = true;
     private _useVAO: boolean = true;
+    private _bindingMappingInfo: GFXBindingMappingInfo | null = null;
 
     private _extensions: string[] | null = null;
     private _EXT_texture_filter_anisotropic: EXT_texture_filter_anisotropic | null = null;
@@ -135,6 +140,10 @@ export class WebGL2Device extends GFXDevice {
 
         if (info.isPremultipliedAlpha !== undefined) {
             this._isPremultipliedAlpha = info.isPremultipliedAlpha;
+        }
+
+        if (info.bindingMappingInfo !== undefined) {
+            this._bindingMappingInfo = info.bindingMappingInfo;
         }
 
         try {

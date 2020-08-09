@@ -11,8 +11,8 @@ import { GFXRenderPass } from '../gfx';
 import { IRenderObject, UBOForwardLight } from './define';
 import { LightType, Light } from '../renderer/scene/light';
 import { IMacroPatch, Pass } from '../renderer/core/pass';
-import { DescriptorSetPool, ShaderPool, PassPool, PassView } from '../renderer/core/memory-pools';
-import { DescriptorSetIndices } from './define';
+import { DSPool, ShaderPool, PassPool, PassView } from '../renderer/core/memory-pools';
+import { SetIndex } from './define';
 
 const spherePatches: IMacroPatch[] = [
     { name: 'CC_FORWARD_ADD', value: true },
@@ -67,8 +67,8 @@ export class RenderBatchedQueue {
                 const shader = ShaderPool.get(batch.hShader);
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, batch.hPass, shader, renderPass, batch.ia);
                 if (!boundPSO) { cmdBuff.bindPipelineState(pso); boundPSO = true; }
-                cmdBuff.bindDescriptorSet(DescriptorSetIndices.MATERIAL_SPECIFIC, DescriptorSetPool.get(PassPool.get(batch.hPass, PassView.DESCRIPTOR_SET)));
-                cmdBuff.bindDescriptorSet(DescriptorSetIndices.MODEL_LOCAL, batch.descriptorSet);
+                cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(batch.hPass, PassView.DESCRIPTOR_SET)));
+                cmdBuff.bindDescriptorSet(SetIndex.LOCAL, batch.descriptorSet);
                 cmdBuff.bindInputAssembler(batch.ia);
                 cmdBuff.draw(batch.ia);
             }

@@ -47,7 +47,8 @@ import { UIDrawBatch } from './ui-draw-batch';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
 import { legacyCC } from '../../global-exports';
-import { DescriptorSetPool } from '../core/memory-pools';
+import { DSPool, PassPool, PassView } from '../core/memory-pools';
+import { GFXDescriptorType } from '../../gfx';
 
 /**
  * @zh
@@ -297,9 +298,9 @@ export class UI {
 
         let batchPriority = 0;
 
-        for (let i = 0; i < this._modelInUse.length; i++) {
-            this._scene.removeModel(this._modelInUse.get(i));
-            this._uiModelPool!.free(this._modelInUse.get(i));
+        for (let m = 0; m < this._modelInUse.length; m++) {
+            this._scene.removeModel(this._modelInUse.get(m));
+            this._uiModelPool!.free(this._modelInUse.get(m));
         }
         this._modelInUse.clear();
 
@@ -319,17 +320,17 @@ export class UI {
                         subModels[j].priority = batchPriority++;
                     }
                 } else {
-                    const descriptorSet = batch.descriptorSet!;
+                    const descriptorSet = DSPool.get(batch.hDescriptorSet);
 
                     // [HACK] remove this after UI refactoring
-                    const binding = batch.material?.effectAsset?.shaders[0].blocks.length || 0;
+                    const binding = batch.material!.passes[0].shaderInfo.descriptors.indexOf(GFXDescriptorType.SAMPLER) || 0;
 
                     descriptorSet.bindTexture(binding, batch.texture!);
                     descriptorSet.bindSampler(binding, batch.sampler!);
                     descriptorSet.update();
 
                     const uiModel = this._uiModelPool!.alloc();
-                    uiModel.directInitialize(batch.ia!, batch);
+                    uiModel.directInitialize(batch);
                     this._scene.addModel(uiModel);
                     uiModel.subModels[0].priority = batchPriority++;
                     if (batch.camera) {
@@ -416,7 +417,7 @@ export class UI {
         curDrawBatch.texture = null;
         curDrawBatch.sampler = null;
 
-        curDrawBatch.descriptorSet = null;
+        curDrawBatch.hDescriptorSet = 0;
 
         // reset current render state to null
         this._currMaterial = this._emptyMaterial;
@@ -469,7 +470,8 @@ export class UI {
         curDrawBatch.ia!.firstIndex = indicsStart;
         curDrawBatch.ia!.indexCount = vCount;
 
-        curDrawBatch.descriptorSet = this._getUIMaterial(mat).descriptorSet;
+        this._getUIMaterial(mat);
+        curDrawBatch.hDescriptorSet = PassPool.get(mat.passes[0].handle, PassView.DESCRIPTOR_SET);
 
         this._batches.push(curDrawBatch);
 

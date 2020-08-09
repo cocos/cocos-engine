@@ -5,6 +5,7 @@ precision highp float;
 #include <cc-local-batch>
 #include <input-standard>
 #include <cc-fog>
+#include <cc-calcShadow-vs>
 
 in vec3 a_color;
 #if HAS_SECOND_UV
@@ -19,6 +20,7 @@ out vec2 v_uv;
 out vec2 v_uv1;
 out vec3 v_color;
 out float factor_fog;
+
 vec4 vert () {
   StandardVertInput In;
   CCVertInput(In);
@@ -37,5 +39,8 @@ vec4 vert () {
   #endif
   v_color = a_color;
   factor_fog = CC_TRANSFER_FOG(matWorld * In.position);
+
+  CCGetDirLightShadowPos(matWorld * In.position);
+
   return cc_matProj * (cc_matView * matWorld) * In.position;
 }

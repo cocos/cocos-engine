@@ -1,7 +1,8 @@
-import { replaceProperty, removeProperty, markAsWarning } from "../../utils";
-import { RenderScene } from "./render-scene";
-import { Layers } from "../../scene-graph";
+import { replaceProperty, removeProperty, markAsWarning } from '../../utils';
+import { RenderScene } from './render-scene';
+import { Layers } from '../../scene-graph';
 import { legacyCC } from '../../global-exports';
+import { Pass } from '../core/pass';
 
 replaceProperty(RenderScene.prototype, 'RenderScene.prototype', [
     {
@@ -141,3 +142,10 @@ replaceProperty(VisibilityFlags, 'VisibilityFlags', [
 legacyCC.VisibilityFlags = VisibilityFlags;
 
 export { VisibilityFlags };
+
+replaceProperty(Pass.prototype, 'Pass.prototype', [
+    {
+        name: 'getBindingTypeFromHandle',
+        newName: 'getDescriptorTypeFromHandle',
+    },
+]);

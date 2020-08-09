@@ -40,6 +40,7 @@ export class InstancedBuffer {
 
     public instances: IInstancedItem[] = [];
     public hPass: PassHandle = 0;
+    public hasPendingModels = false;
     private _device: GFXDevice;
 
     constructor (pass: Pass) {
@@ -81,6 +82,7 @@ export class InstancedBuffer {
             if (instance.hShader !== hShader) { instance.hShader = hShader; }
             if (instance.hDescriptorSet !== hDescriptorSet) { instance.hDescriptorSet = hDescriptorSet; }
             instance.data.set(attrs.buffer, instance.stride * instance.count++);
+            this.hasPendingModels = true;
             return;
         }
 
@@ -111,6 +113,7 @@ export class InstancedBuffer {
         vertexBuffers.push(vb);
         const ia = this._device.createInputAssembler({ attributes, vertexBuffers, indexBuffer });
         this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride, hShader, hDescriptorSet });
+        this.hasPendingModels = true;
     }
 
     public uploadBuffers () {
@@ -127,5 +130,6 @@ export class InstancedBuffer {
             const instance = this.instances[i];
             instance.count = 0;
         }
+        this.hasPendingModels = false;
     }
 }

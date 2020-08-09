@@ -46,11 +46,6 @@ export class GFXUniformSampler {
     public count: number = 1;
 }
 
-export class GFXBindingMappingInfo {
-    public bufferOffsets: number[] = [];
-    public samplerOffsets: number[] = [];
-}
-
 export class GFXShaderInfo {
     public name: string = '';
     public stages: GFXShaderStage[] = [];
@@ -58,7 +53,6 @@ export class GFXShaderInfo {
     public attributes: IGFXAttribute[] = [];
     public blocks: GFXUniformBlock[] = [];
     public samplers: GFXUniformSampler[] = [];
-    public bindingMappingInfo: GFXBindingMappingInfo | null = null;
 }
 
 /**

@@ -42,7 +42,7 @@ export class WebGL2Shader extends GFXShader {
             };
         }
 
-        WebGL2CmdFuncCreateShader(this._device as WebGL2Device, this._gpuShader, info.bindingMappingInfo);
+        WebGL2CmdFuncCreateShader(this._device as WebGL2Device, this._gpuShader);
 
         this._status = GFXStatus.SUCCESS;
 

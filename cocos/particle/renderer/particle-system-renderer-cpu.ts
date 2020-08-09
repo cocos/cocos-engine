@@ -126,7 +126,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     public clear () {
         this._particles!.reset();
-        this._particleSystem!._trailModule && this._particleSystem!._trailModule.clear();
+        if (this._particleSystem!._trailModule) {
+            this._particleSystem!._trailModule.clear();
+        }
         this.updateRenderData();
     }
 

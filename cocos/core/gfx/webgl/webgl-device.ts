@@ -4,7 +4,7 @@ import { sys } from '../../platform/sys';
 import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../descriptor-set';
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
-import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
+import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo, GFXBindingMappingInfo } from '../device';
 import { GFXFence, IGFXFenceInfo } from '../fence';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
@@ -62,6 +62,10 @@ export class WebGLDevice extends GFXDevice {
 
     get noCompressedTexSubImage2D () {
         return this._noCompressedTexSubImage2D;
+    }
+
+    get bindingMappingInfo () {
+        return this._bindingMappingInfo;
     }
 
     get EXT_texture_filter_anisotropic () {
@@ -163,6 +167,8 @@ export class WebGLDevice extends GFXDevice {
     private _useVAO: boolean = false;
     private _destroyShadersImmediately: boolean = true;
     private _noCompressedTexSubImage2D: boolean = false;
+    private _bindingMappingInfo: GFXBindingMappingInfo | null = null;
+
     private _extensions: string[] | null = null;
     private _EXT_texture_filter_anisotropic: EXT_texture_filter_anisotropic | null = null;
     private _EXT_frag_depth: EXT_frag_depth | null = null;
@@ -200,6 +206,10 @@ export class WebGLDevice extends GFXDevice {
 
         if (info.isPremultipliedAlpha !== undefined) {
             this._isPremultipliedAlpha = info.isPremultipliedAlpha;
+        }
+
+        if (info.bindingMappingInfo !== undefined) {
+            this._bindingMappingInfo = info.bindingMappingInfo;
         }
 
         try {

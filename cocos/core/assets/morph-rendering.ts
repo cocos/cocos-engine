@@ -15,7 +15,7 @@ import { log2, nextPow2 } from '../math/bits';
 import { IMacroPatch } from '../renderer';
 import { legacyCC } from '../global-exports';
 import { PixelFormat } from './asset-enum';
-import { DescriptorSetPool } from '../renderer/core/memory-pools';
+import { DSPool } from '../renderer/core/memory-pools';
 
 /**
  * True if force to use cpu computing based sub-mesh rendering.
