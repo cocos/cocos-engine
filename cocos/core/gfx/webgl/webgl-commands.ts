@@ -2013,160 +2013,164 @@ export function WebGLCmdFuncBindStates (
             const gpuDescriptorSet = gpuDescriptorSets[glBlock.set];
             const gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[glBlock.binding];
 
-            if (gpuDescriptor && gpuDescriptor.gpuBuffer && gpuDescriptor.gpuBuffer.vf32) {
-                const uniformLen = glBlock.glActiveUniforms.length;
-                for (let l = 0; l < uniformLen; l++) {
-                    const glUniform = glBlock.glActiveUniforms[l];
-                    switch (glUniform.glType) {
-                        case gl.BOOL:
-                        case gl.INT: {
-                            for (let u = 0; u < glUniform.array.length; ++u) {
-                                const idx = glUniform.begin + u;
-                                if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
-                                    for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                        glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
-                                    }
-                                    gl.uniform1iv(glUniform.glLoc, glUniform.array);
-                                    break;
+            if (!gpuDescriptor || !gpuDescriptor.gpuBuffer || !gpuDescriptor.gpuBuffer.vf32) {
+                error(`Buffer binding '${glBlock.name}' at set ${glBlock.set} binding ${glBlock.binding} is not bounded`);
+                continue;
+            }
+
+            const uniformLen = glBlock.glActiveUniforms.length;
+            const vf32 = gpuDescriptor.gpuBuffer.vf32;
+            for (let l = 0; l < uniformLen; l++) {
+                const glUniform = glBlock.glActiveUniforms[l];
+                switch (glUniform.glType) {
+                    case gl.BOOL:
+                    case gl.INT: {
+                        for (let u = 0; u < glUniform.array.length; ++u) {
+                            const idx = glUniform.begin + u;
+                            if (vf32[idx] !== glUniform.array[u]) {
+                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                    glUniform.array[n] = vf32[m];
                                 }
+                                gl.uniform1iv(glUniform.glLoc, glUniform.array);
+                                break;
                             }
-                            break;
                         }
-                        case gl.BOOL_VEC2:
-                        case gl.INT_VEC2: {
-                            for (let u = 0; u < glUniform.array.length; ++u) {
-                                const idx = glUniform.begin + u;
-                                if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
-                                    for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                        glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
-                                    }
-                                    gl.uniform2iv(glUniform.glLoc, glUniform.array);
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case gl.BOOL_VEC3:
-                        case gl.INT_VEC3: {
-                            for (let u = 0; u < glUniform.array.length; ++u) {
-                                const idx = glUniform.begin + u;
-                                if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
-                                    for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                        glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
-                                    }
-                                    gl.uniform3iv(glUniform.glLoc, glUniform.array);
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case gl.BOOL_VEC4:
-                        case gl.INT_VEC4: {
-                            for (let u = 0; u < glUniform.array.length; ++u) {
-                                const idx = glUniform.begin + u;
-                                if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
-                                    for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                        glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
-                                    }
-                                    gl.uniform4iv(glUniform.glLoc, glUniform.array);
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case gl.FLOAT: {
-                            for (let u = 0; u < glUniform.array.length; ++u) {
-                                const idx = glUniform.begin + u;
-                                if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
-                                    for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                        glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
-                                    }
-                                    gl.uniform1fv(glUniform.glLoc, glUniform.array);
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case gl.FLOAT_VEC2: {
-                            for (let u = 0; u < glUniform.array.length; ++u) {
-                                const idx = glUniform.begin + u;
-                                if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
-                                    for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                        glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
-                                    }
-                                    gl.uniform2fv(glUniform.glLoc, glUniform.array);
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case gl.FLOAT_VEC3: {
-                            for (let u = 0; u < glUniform.array.length; ++u) {
-                                const idx = glUniform.begin + u;
-                                if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
-                                    for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                        glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
-                                    }
-                                    gl.uniform3fv(glUniform.glLoc, glUniform.array);
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case gl.FLOAT_VEC4: {
-                            for (let u = 0; u < glUniform.array.length; ++u) {
-                                const idx = glUniform.begin + u;
-                                if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
-                                    for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                        glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
-                                    }
-                                    gl.uniform4fv(glUniform.glLoc, glUniform.array);
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case gl.FLOAT_MAT2: {
-                            for (let u = 0; u < glUniform.array.length; ++u) {
-                                const idx = glUniform.begin + u;
-                                if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
-                                    for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                        glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
-                                    }
-                                    gl.uniformMatrix2fv(glUniform.glLoc, false, glUniform.array);
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case gl.FLOAT_MAT3: {
-                            for (let u = 0; u < glUniform.array.length; ++u) {
-                                const idx = glUniform.begin + u;
-                                if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
-                                    for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                        glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
-                                    }
-                                    gl.uniformMatrix3fv(glUniform.glLoc, false, glUniform.array);
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case gl.FLOAT_MAT4: {
-                            for (let u = 0; u < glUniform.array.length; ++u) {
-                                const idx = glUniform.begin + u;
-                                if (gpuDescriptor.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
-                                    for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
-                                        glUniform.array[n] = gpuDescriptor.gpuBuffer.vf32[m];
-                                    }
-                                    gl.uniformMatrix4fv(glUniform.glLoc, false, glUniform.array);
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        default:
+                        break;
                     }
+                    case gl.BOOL_VEC2:
+                    case gl.INT_VEC2: {
+                        for (let u = 0; u < glUniform.array.length; ++u) {
+                            const idx = glUniform.begin + u;
+                            if (vf32[idx] !== glUniform.array[u]) {
+                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                    glUniform.array[n] = vf32[m];
+                                }
+                                gl.uniform2iv(glUniform.glLoc, glUniform.array);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case gl.BOOL_VEC3:
+                    case gl.INT_VEC3: {
+                        for (let u = 0; u < glUniform.array.length; ++u) {
+                            const idx = glUniform.begin + u;
+                            if (vf32[idx] !== glUniform.array[u]) {
+                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                    glUniform.array[n] = vf32[m];
+                                }
+                                gl.uniform3iv(glUniform.glLoc, glUniform.array);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case gl.BOOL_VEC4:
+                    case gl.INT_VEC4: {
+                        for (let u = 0; u < glUniform.array.length; ++u) {
+                            const idx = glUniform.begin + u;
+                            if (vf32[idx] !== glUniform.array[u]) {
+                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                    glUniform.array[n] = vf32[m];
+                                }
+                                gl.uniform4iv(glUniform.glLoc, glUniform.array);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case gl.FLOAT: {
+                        for (let u = 0; u < glUniform.array.length; ++u) {
+                            const idx = glUniform.begin + u;
+                            if (vf32[idx] !== glUniform.array[u]) {
+                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                    glUniform.array[n] = vf32[m];
+                                }
+                                gl.uniform1fv(glUniform.glLoc, glUniform.array);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case gl.FLOAT_VEC2: {
+                        for (let u = 0; u < glUniform.array.length; ++u) {
+                            const idx = glUniform.begin + u;
+                            if (vf32[idx] !== glUniform.array[u]) {
+                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                    glUniform.array[n] = vf32[m];
+                                }
+                                gl.uniform2fv(glUniform.glLoc, glUniform.array);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case gl.FLOAT_VEC3: {
+                        for (let u = 0; u < glUniform.array.length; ++u) {
+                            const idx = glUniform.begin + u;
+                            if (vf32[idx] !== glUniform.array[u]) {
+                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                    glUniform.array[n] = vf32[m];
+                                }
+                                gl.uniform3fv(glUniform.glLoc, glUniform.array);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case gl.FLOAT_VEC4: {
+                        for (let u = 0; u < glUniform.array.length; ++u) {
+                            const idx = glUniform.begin + u;
+                            if (vf32[idx] !== glUniform.array[u]) {
+                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                    glUniform.array[n] = vf32[m];
+                                }
+                                gl.uniform4fv(glUniform.glLoc, glUniform.array);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case gl.FLOAT_MAT2: {
+                        for (let u = 0; u < glUniform.array.length; ++u) {
+                            const idx = glUniform.begin + u;
+                            if (vf32[idx] !== glUniform.array[u]) {
+                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                    glUniform.array[n] = vf32[m];
+                                }
+                                gl.uniformMatrix2fv(glUniform.glLoc, false, glUniform.array);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case gl.FLOAT_MAT3: {
+                        for (let u = 0; u < glUniform.array.length; ++u) {
+                            const idx = glUniform.begin + u;
+                            if (vf32[idx] !== glUniform.array[u]) {
+                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                    glUniform.array[n] = vf32[m];
+                                }
+                                gl.uniformMatrix3fv(glUniform.glLoc, false, glUniform.array);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case gl.FLOAT_MAT4: {
+                        for (let u = 0; u < glUniform.array.length; ++u) {
+                            const idx = glUniform.begin + u;
+                            if (vf32[idx] !== glUniform.array[u]) {
+                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                    glUniform.array[n] = vf32[m];
+                                }
+                                gl.uniformMatrix4fv(glUniform.glLoc, false, glUniform.array);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    default:
                 }
             }
         }
@@ -2178,7 +2182,7 @@ export function WebGLCmdFuncBindStates (
             const gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[glSampler.binding];
 
             if (!gpuDescriptor || !gpuDescriptor.gpuSampler) {
-                error(`Sampler binding '${glSampler.name}' is not bounded`);
+                error(`Sampler binding '${glSampler.name}' at set ${glSampler.set} binding ${glSampler.binding} is not bounded`);
                 continue;
             }
 

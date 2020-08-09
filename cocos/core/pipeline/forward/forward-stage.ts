@@ -3,7 +3,7 @@
  */
 
 import { ccclass, property } from '../../data/class-decorator';
-import { IRenderPass } from '../define';
+import { IRenderPass, SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { GFXClearFlag, GFXColor, GFXRect } from '../../gfx/define';
@@ -128,7 +128,7 @@ export class ForwardStage extends RenderStage {
                     for (p = 0; p < passes.length; ++p) {
                         const pass = passes[p];
                         if (pass.batchingScheme === BatchingSchemes.INSTANCING) {
-                            let instancedBuffer: InstancedBuffer;
+                            let instancedBuffer: InstancedBuffer | null = null;
                             if (pass.phase === this._lightPhaseID) {
                                 for (let l = lightIndexOffset[i]; l < nextLightIndex; ++l) {
                                     const lightIndex = lightIndices[l];
@@ -139,9 +139,9 @@ export class ForwardStage extends RenderStage {
                                 instancedBuffer = InstancedBuffer.get(pass);
                                 instancedBuffer.merge(subModel, ro.model.instancedAttributes, p);
                             }
-                            this._instancedQueue.queue.add(instancedBuffer!);
+                            if (instancedBuffer) this._instancedQueue.queue.add(instancedBuffer);
                         } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) {
-                            let batchedBuffer: BatchedBuffer;
+                            let batchedBuffer: BatchedBuffer | null = null;
                             if (pass.phase === this._lightPhaseID) {
                                 for (let l = lightIndexOffset[i]; l < nextLightIndex; ++l) {
                                     const lightIndex = lightIndices[l];
@@ -152,7 +152,7 @@ export class ForwardStage extends RenderStage {
                                 batchedBuffer = BatchedBuffer.get(pass, device);
                                 batchedBuffer.merge(subModel, p, ro);
                             }
-                            this._batchedQueue.queue.add(batchedBuffer!);
+                            if (batchedBuffer) this._batchedQueue.queue.add(batchedBuffer);
                         } else {
                             for (k = 0; k < this._renderQueues.length; k++) {
                                 this._renderQueues[k].insertRenderPass(ro, m, p);
@@ -209,6 +209,8 @@ export class ForwardStage extends RenderStage {
         cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
             colors, camera.clearDepth, camera.clearStencil);
+
+        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);

@@ -11,7 +11,7 @@ import { ForwardStagePriority } from '../forward/enum';
 import { RenderShadowMapBatchedQueue } from '../render-shadowMap-batched-queue';
 import { GFXFramebuffer } from '../../gfx/framebuffer';
 import { ForwardPipeline } from '../forward/forward-pipeline';
-import { UBOPCFShadow } from '../define';
+import { UBOPCFShadow, SetIndex } from '../define';
 
 const colors: GFXColor[] = [ { r: 1, g: 1, b: 1, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -92,6 +92,8 @@ export class ShadowStage extends RenderStage {
         cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer!, this._renderArea!,
             colors, camera.clearDepth, camera.clearStencil);
+
+        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         this._additiveShadowQueue.recordCommandBuffer(device, renderPass!, cmdBuff);
 

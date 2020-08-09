@@ -149,17 +149,17 @@ export class ForwardPipeline extends RenderPipeline {
         forwardFlow.initialize(ForwardFlow.initInfo);
         this._flows.push(forwardFlow);
 
-        const uiFlow = new UIFlow();
-        uiFlow.initialize(UIFlow.initInfo);
-        this._flows.push(uiFlow);
-
-        this._globalDescriptorSetLayout = globalDescriptorSetLayout;
-        this._localDescriptorSetLayout = localDescriptorSetLayout;
-
         return true;
     }
 
     public activate (): boolean {
+        this._globalDescriptorSetLayout = globalDescriptorSetLayout;
+        this._localDescriptorSetLayout = localDescriptorSetLayout;
+
+        const uiFlow = new UIFlow();
+        uiFlow.initialize(UIFlow.initInfo);
+        this._flows.push(uiFlow);
+
         if (!super.activate()) {
             return false;
         }
@@ -463,19 +463,14 @@ export class ForwardPipeline extends RenderPipeline {
 
     private destroyUBOs () {
         this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding).destroy();
-        this._descriptorSet.bindBuffer(UBOGlobal.BLOCK.binding, null);
-
         this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).destroy();
-        this._descriptorSet.bindBuffer(UBOShadow.BLOCK.binding, null);
-
         this._descriptorSet.getBuffer(UBOPCFShadow.BLOCK.binding).destroy();
-        this._descriptorSet.bindBuffer(UBOPCFShadow.BLOCK.binding, null);
-
-        this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP.binding, null);
     }
 
     public destroy () {
         this.destroyUBOs();
+
+        this._descriptorSet.destroy();
 
         const rpIter = this._renderPasses.values();
         let rpRes = rpIter.next();

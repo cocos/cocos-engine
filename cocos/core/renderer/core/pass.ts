@@ -37,14 +37,14 @@ import { GFXFeature, GFXDevice } from '../../gfx/device';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXTexture } from '../../gfx/texture';
-import { isBuiltinBinding, RenderPassStage, RenderPriority, DescriptorSetIndices } from '../../pipeline/define';
+import { isBuiltinBinding, RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
 import { PassView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool,
-    PassPool, DescriptorSetPool, ShaderPool, Handle, PassHandle, ShaderHandle } from './memory-pools';
+    PassPool, DSPool, PassHandle, ShaderHandle } from './memory-pools';
 import { customizeType, getBindingFromHandle, getDescriptorTypeFromHandle, getDefaultFromType,
     getOffsetFromHandle, getTypeFromHandle, IDefineMap, MaterialProperty, type2reader, type2writer } from './pass-utils';
 import { GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode,
@@ -363,7 +363,8 @@ export class Pass {
      * 销毁当前 pass。
      */
     public destroy () {
-        for (const u of this._shaderInfo.blocks) {
+        for (let i = 0; i < this._shaderInfo.blocks.length; i++) {
+            const u = this._shaderInfo.blocks[i];
             if (isBuiltinBinding(u.set)) { continue; }
             this._buffers[u.binding].destroy();
         }
@@ -377,6 +378,7 @@ export class Pass {
             RasterizerStatePool.free(PassPool.get(this._handle, PassView.RASTERIZER_STATE));
             DepthStencilStatePool.free(PassPool.get(this._handle, PassView.DEPTH_STENCIL_STATE));
             BlendStatePool.free(PassPool.get(this._handle, PassView.BLEND_STATE));
+            DSPool.free(PassPool.get(this._handle, PassView.DESCRIPTOR_SET));
             PassPool.free(this._handle); this._handle = 0;
         }
     }
@@ -423,18 +425,19 @@ export class Pass {
      * 重置所有 UBO 为默认值。
      */
     public resetUBOs () {
-        for (const u of this._shaderInfo.blocks) {
+        for (let i = 0; i < this._shaderInfo.blocks.length; i++) {
+            const u = this._shaderInfo.blocks[i];
             if (isBuiltinBinding(u.set)) { continue; }
             const block: IBlock = this._blocks[u.binding];
             if (!block) { continue; }
             let ofs = 0;
-            for (let i = 0; i < u.members.length; i++) {
-                const cur = u.members[i];
+            for (let j = 0; j < u.members.length; j++) {
+                const cur = u.members[j];
                 const info = this._properties[cur.name];
                 const givenDefault = info && info.value;
                 const value = (givenDefault ? givenDefault : getDefaultFromType(cur.type)) as number[];
                 const size = (GFXGetTypeSize(cur.type) >> 2) * cur.count;
-                for (let j = 0; j + value.length <= size; j += value.length) { block.view.set(value, ofs + j); }
+                for (let k = 0; k + value.length <= size; k += value.length) { block.view.set(value, ofs + k); }
                 ofs += size;
             }
             block.dirty = true;
@@ -446,7 +449,8 @@ export class Pass {
      * 重置所有 texture 和 sampler 为初始默认值。
      */
     public resetTextures () {
-        for (const u of this._shaderInfo.samplers) {
+        for (let i = 0; i < this._shaderInfo.samplers.length; i++) {
+            const u = this._shaderInfo.samplers[i];
             if (isBuiltinBinding(u.set)) { continue; }
             this.resetTexture(u.name);
         }
@@ -465,21 +469,6 @@ export class Pass {
         const key = programLib.getKey(this._programName, this._defines);
         this._hShaderDefault = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline, key);
         if (!this._hShaderDefault) { console.warn(`create shader ${this._programName} failed`); return false; }
-        if (!PassPool.get(this._handle, PassView.DESCRIPTOR_SET)) {
-            _dsInfo.layout = programLib.getTemplate(this._programName).descriptors;
-            const dsHandle = DescriptorSetPool.alloc(this._device, _dsInfo);
-            PassPool.set(this._handle, PassView.DESCRIPTOR_SET, dsHandle);
-            const descriptorSet = this._descriptorSet = DescriptorSetPool.get(dsHandle);
-            for (const b in this._buffers) {
-                descriptorSet.bindBuffer(parseInt(b), this._buffers[b]);
-            }
-            for (const s in this._samplers) {
-                descriptorSet.bindSampler(parseInt(s), this._samplers[s]);
-            }
-            for (const t in this._textures) {
-                descriptorSet.bindTexture(parseInt(t), this._textures[t]);
-            }
-        }
         PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this._handle, this._hShaderDefault));
         return true;
     }
@@ -518,75 +507,6 @@ export class Pass {
         return hShader;
     }
 
-    /**
-     * @zh
-     * 根据当前 pass 持有的信息创建 [[IPSOCreateInfo]]。
-     * @en
-     * Create [[IPSOCreateInfo]] from pass.
-     * @param patches the marcos to be used in shader.
-     */
-    // public createPipelineStateCI (patches?: IMacroPatch[]) {
-    //     if ((!this._defaultShaderHandle) && !this.tryCompile()) {
-    //         console.warn(`pass resources not complete, create PSO hash info failed`);
-    //         return 0;
-    //     }
-    //     const res = patches ? this._getShaderWithBuiltinMacroPatches (patches) : null;
-    //     const shaderHandle = res || this._defaultShaderHandle;
-    //     _dsInfo.shader = ShaderPool.get(shaderHandle);
-    //     // bind resources
-    //     const descriptorSetHandle = DescriptorSetPool.alloc(this._device, _dsInfo);
-    //     const descriptorSet = DescriptorSetPool.get(descriptorSetHandle);
-    //     for (const b in this._buffers) {
-    //         descriptorSet.bindBuffer(parseInt(b), this._buffers[b]);
-    //     }
-    //     for (const s in this._samplers) {
-    //         descriptorSet.bindSampler(parseInt(s), this._samplers[s]);
-    //     }
-    //     for (const t in this._textures) {
-    //         descriptorSet.bindTexture(parseInt(t), this._textures[t]);
-    //     }
-    //     // bind pipeline builtins
-    //     const source = this._root.pipeline.globalBindings;
-    //     const target = this._shaderInfo.builtins.globals;
-    //     for (const b of target.blocks) {
-    //         const info = source.get(b.name);
-    //         if (!info || info.type !== GFXDescriptorType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b.name}' not available!`); continue; }
-    //         descriptorSet.bindBuffer(info.blockInfo!.binding, info.buffer!);
-    //     }
-    //     for (const s of target.samplers) {
-    //         const info = source.get(s.name);
-    //         if (!info || info.type !== GFXDescriptorType.SAMPLER) { console.warn(`builtin texture '${s.name}' not available!`); continue; }
-    //         if (info.sampler) { descriptorSet.bindSampler(info.samplerInfo!.binding, info.sampler); }
-    //         descriptorSet.bindTexture(info.samplerInfo!.binding, info.texture!);
-    //     }
-    //     this._resources.push(descriptorSet);
-    //     const psociHandle = PSOCIPool.alloc();
-    //     PSOCIPool.set(psociHandle, PSOCIView.PASS_INFO, this._infoHandle);
-    //     PSOCIPool.set(psociHandle, PSOCIView.DESCRIPTOR_SET, descriptorSetHandle);
-    //     PSOCIPool.set(psociHandle, PSOCIView.SHADER, shaderHandle);
-    //     return psociHandle;
-    // }
-
-    /**
-     * @zh
-     * 销毁此 Pass 创建的 [[IPSOCreateInfo]]。
-     * @en
-     * Delete [[IPSOCreateInfo]] from pass.
-     * @param psoci the PSO create info created by this pass
-     */
-    // public destroyPipelineStateCI (psociHandle: number) {
-    //     const descriptorSetHandle = PSOCIPool.get(psociHandle, PSOCIView.DESCRIPTOR_SET);
-    //     const descriptorSet = DescriptorSetPool.get(descriptorSetHandle);
-    //     for (let i = 0; i < this._resources.length; i++) {
-    //         if (this._resources[i] === descriptorSet) {
-    //             DescriptorSetPool.free(descriptorSetHandle);
-    //             this._resources.splice(i, 1);
-    //             break;
-    //         }
-    //     }
-    //     PSOCIPool.free(psociHandle);
-    // }
-
     // internal use
     public beginChangeStatesSilently () {}
     public endChangeStatesSilently () {}
@@ -612,17 +532,24 @@ export class Pass {
         Pass.fillPipelineInfo(handle, info);
         if (info.stateOverrides) { Pass.fillPipelineInfo(handle, info.stateOverrides); }
 
+        // init descriptor set
+        _dsInfo.layout = this._shaderInfo.descriptors;
+        const dsHandle = DSPool.alloc(this._device, _dsInfo);
+        PassPool.set(this._handle, PassView.DESCRIPTOR_SET, dsHandle);
+        this._descriptorSet = DSPool.get(dsHandle);
+
         const blocks = this._shaderInfo.blocks;
         for (let i = 0; i < blocks.length; i++) {
             const { size, set, binding } = blocks[i];
             if (isBuiltinBinding(set)) { continue; }
             // create gfx buffer resource
             _bfInfo.size = Math.ceil(size / 16) * 16; // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
-            this._buffers[binding] = device.createBuffer(_bfInfo);
+            const buffer = this._buffers[binding] = device.createBuffer(_bfInfo);
             // non-builtin UBO data pools, note that the effect compiler
             // guarantees these bindings to be consecutive, starting from 0
-            const buffer = new ArrayBuffer(size);
-            this._blocks[binding] = { view: new Float32Array(buffer), dirty: false };
+            const data = new ArrayBuffer(size);
+            this._blocks[binding] = { view: new Float32Array(data), dirty: false };
+            this._descriptorSet.bindBuffer(binding, buffer);
         }
         // store handles
         const directHandleMap = this._propertyHandleMap = this._shaderInfo.handleMap;

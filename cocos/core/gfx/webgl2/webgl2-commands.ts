@@ -49,7 +49,7 @@ import {
     IWebGL2GPUUniformSampler,
     IWebGL2GPURenderPass,
 } from './webgl2-gpu-objects';
-import { GFXBindingMappingInfo, GFXUniformBlock } from '../shader';
+import { GFXUniformBlock } from '../shader';
 
 const WebGLWraps: GLenum[] = [
     0x2901, // WebGLRenderingContext.REPEAT
@@ -1484,7 +1484,7 @@ export function WebGL2CmdFuncDestroyFramebuffer (device: WebGL2Device, gpuFrameb
     }
 }
 
-export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWebGL2GPUShader, bindingMappingInfo: GFXBindingMappingInfo | null) {
+export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWebGL2GPUShader) {
     const gl = device.gl;
 
     for (let k = 0; k < gpuShader.gpuStages.length; k++) {
@@ -1635,7 +1635,6 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
                 }
             }
 
-
             if (!block) {
                 error(`Block '${blockName}' does not bound`);
             } else {
@@ -1643,7 +1642,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
                 blockIdx = b;
                 blockSize = gl.getActiveUniformBlockParameter(gpuShader.glProgram, blockIdx, gl.UNIFORM_BLOCK_DATA_SIZE);
                 blockUniformCount = gl.getActiveUniformBlockParameter(gpuShader.glProgram, blockIdx, gl.UNIFORM_BLOCK_ACTIVE_UNIFORMS);
-                const glBinding = block.binding + (bindingMappingInfo && bindingMappingInfo.bufferOffsets[block.set] || 0);
+                const glBinding = block.binding + (device.bindingMappingInfo && device.bindingMappingInfo.bufferOffsets[block.set] || 0);
 
                 gl.uniformBlockBinding(gpuShader.glProgram, blockIdx, glBinding);
 
@@ -2299,7 +2298,12 @@ export function WebGL2CmdFuncBindStates (
             const gpuDescriptorSet = gpuDescriptorSets[glBlock.set];
             const gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[glBlock.binding];
 
-            if (gpuDescriptor && gpuDescriptor.gpuBuffer && cache.glBindUBOs[glBlock.glBinding] !== gpuDescriptor.gpuBuffer.glBuffer) {
+            if (!gpuDescriptor || !gpuDescriptor.gpuBuffer) {
+                error(`Buffer binding '${glBlock.name}' at set ${glBlock.set} binding ${glBlock.binding} is not bounded`);
+                continue;
+            }
+
+            if (cache.glBindUBOs[glBlock.glBinding] !== gpuDescriptor.gpuBuffer.glBuffer) {
                 gl.bindBufferBase(gl.UNIFORM_BUFFER, glBlock.glBinding, gpuDescriptor.gpuBuffer.glBuffer);
                 // gl.bindBufferRange(gl.UNIFORM_BUFFER, glBlock.binding, gpuDescriptor.gpuBuffer.glBuffer, 0, gpuDescriptor.gpuBuffer.size);
                 cache.glBindUBOs[glBlock.glBinding] = gpuDescriptor.gpuBuffer.glBuffer;
@@ -2314,7 +2318,7 @@ export function WebGL2CmdFuncBindStates (
             const gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[glSampler.binding];
 
             if (!gpuDescriptor || !gpuDescriptor.gpuSampler) {
-                error(`Sampler binding '${glSampler.name}' is not bounded`);
+                error(`Sampler binding '${glSampler.name}' at set ${glSampler.set} binding ${glSampler.binding} is not bounded`);
                 continue;
             }
 

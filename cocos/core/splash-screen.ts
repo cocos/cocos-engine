@@ -17,8 +17,8 @@ import { GFXSampler, GFXShader } from './gfx';
 import { PipelineStateManager } from './pipeline/pipeline-state-manager';
 import { legacyCC } from './global-exports';
 import { Root } from './root';
-import { DescriptorSetPool, ShaderPool, PassPool, PassView } from './renderer/core/memory-pools';
-import { DescriptorSetIndices } from './pipeline/define';
+import { DSPool, ShaderPool, PassPool, PassView } from './renderer/core/memory-pools';
+import { SetIndex } from './pipeline/define';
 import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXCommandBufferType, GFXFormat,
     GFXMemoryUsageBit, GFXTextureType, GFXTextureUsageBit, GFXRect, GFXColor, GFXAddress } from './gfx/define';
 
@@ -252,7 +252,7 @@ export class SplashScreen {
         const hPass = this.material.passes[0].handle;
         const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, this.shader, framebuffer.renderPass, this.assmebler);
         cmdBuff.bindPipelineState(pso);
-        cmdBuff.bindDescriptorSet(DescriptorSetIndices.MATERIAL_SPECIFIC, DescriptorSetPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET)));
+        cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET)));
         cmdBuff.bindInputAssembler(this.assmebler);
         cmdBuff.draw(this.assmebler);
 
@@ -260,7 +260,7 @@ export class SplashScreen {
             const hPassText = this.textMaterial.passes[0].handle;
             const psoWatermark = PipelineStateManager.getOrCreatePipelineState(device, hPassText, this.textShader, framebuffer.renderPass, this.textAssmebler);
             cmdBuff.bindPipelineState(psoWatermark);
-            cmdBuff.bindDescriptorSet(DescriptorSetIndices.MATERIAL_SPECIFIC, DescriptorSetPool.get(PassPool.get(hPassText, PassView.DESCRIPTOR_SET)));
+            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(hPassText, PassView.DESCRIPTOR_SET)));
             cmdBuff.bindInputAssembler(this.textAssmebler);
             cmdBuff.draw(this.textAssmebler);
         }
@@ -314,7 +314,7 @@ export class SplashScreen {
         pass.bindTexture(binding!, this.textTexture!);
 
         this.textShader = ShaderPool.get(pass.getShaderVariant());
-        DescriptorSetPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET)).update();
+        DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET)).update();
 
         /** Assembler */
         // create vertex buffer
@@ -494,7 +494,7 @@ export class SplashScreen {
         pass.bindTexture(binding!, this.texture!);
 
         this.shader = ShaderPool.get(pass.getShaderVariant());
-        const descriptorSet = DescriptorSetPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
+        const descriptorSet = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
         descriptorSet.bindSampler(binding!, this.sampler);
         descriptorSet.update();
 

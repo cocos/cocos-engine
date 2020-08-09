@@ -5,14 +5,14 @@
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { Pass } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
-import { IRenderObject, UBOForwardLight, DescriptorSetIndices } from './define';
+import { IRenderObject, UBOForwardLight, SetIndex } from './define';
 import { IMacroPatch } from '../renderer/core/pass'
 import { Light } from '../renderer';
 import { LightType } from '../renderer/scene/light';
 import { GFXDevice, GFXRenderPass, GFXBuffer, GFXDescriptorSet, IGFXDescriptorSetInfo, GFXDescriptorType, GFXShader } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { DescriptorSetPool, ShaderPool, PassHandle, PassView, PassPool } from '../renderer/core/memory-pools';
+import { DSPool, ShaderPool, PassHandle, PassView, PassPool } from '../renderer/core/memory-pools';
 
 const spherePatches = [
     { name: 'CC_FORWARD_ADD', value: true },
@@ -109,8 +109,8 @@ export class RenderAdditiveLightQueue {
                 const ia = this._sortedSubModelsArray[i][j].inputAssembler!;
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, psoCI.hPass, psoCI.shader, renderPass, ia);
                 cmdBuff.bindPipelineState(pso);
-                cmdBuff.bindDescriptorSet(DescriptorSetIndices.MATERIAL_SPECIFIC, DescriptorSetPool.get(PassPool.get(psoCI.hPass, PassView.DESCRIPTOR_SET)));
-                cmdBuff.bindDescriptorSet(DescriptorSetIndices.MODEL_LOCAL, psoCI.descriptorSet);
+                cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(psoCI.hPass, PassView.DESCRIPTOR_SET)));
+                cmdBuff.bindDescriptorSet(SetIndex.LOCAL, psoCI.descriptorSet);
                 cmdBuff.bindInputAssembler(ia);
                 cmdBuff.draw(ia);
             }

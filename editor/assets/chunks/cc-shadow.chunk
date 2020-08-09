@@ -1,7 +1,7 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
 #pragma builtin(global)
-layout(binding = 22) uniform CCShadow {
+layout(set = 0, binding = 1) uniform CCShadow {
   highp mat4 cc_matLightPlaneProj;
   lowp vec4 cc_shadowColor;
 };

@@ -5,11 +5,11 @@
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { Pass, IMacroPatch } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
-import { IRenderObject, UBOPCFShadow, DescriptorSetIndices } from './define';
+import { IRenderObject, UBOPCFShadow, SetIndex } from './define';
 import { GFXDevice, GFXRenderPass, GFXBuffer, GFXShader } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { DescriptorSetPool, ShaderPool, PassHandle, PassPool, PassView } from '../renderer/core/memory-pools';
+import { DSPool, ShaderPool, PassHandle, PassPool, PassView } from '../renderer/core/memory-pools';
 
 const forwardShadowMapPatches: IMacroPatch[] = [
     { name: 'CC_VSM_SHADOW', value: true },
@@ -68,11 +68,11 @@ export class RenderShadowMapBatchedQueue {
             const hPass = this._passArray[i];
             const ia = subModel.inputAssembler!;
             const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, ia);
-            const descriptorSet = DescriptorSetPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET));
+            const descriptorSet = DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET));
 
             cmdBuff.bindPipelineState(pso);
-            cmdBuff.bindDescriptorSet(DescriptorSetIndices.MATERIAL_SPECIFIC, descriptorSet);
-            cmdBuff.bindDescriptorSet(DescriptorSetIndices.MODEL_LOCAL, subModel.descriptorSet);
+            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
+            cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
             cmdBuff.bindInputAssembler(ia);
             cmdBuff.draw(ia);
         }

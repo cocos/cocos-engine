@@ -2,7 +2,7 @@
 #define LIGHTS_PER_PASS 1
 
 #pragma builtin(local)
-layout(binding = 20) uniform CCForwardLight {
+layout(set = 2, binding = 1) uniform CCForwardLight {
   highp vec4 cc_lightPos[LIGHTS_PER_PASS]; // xyz: pos
   vec4 cc_lightColor[LIGHTS_PER_PASS]; // xyz: color, w: intensity
   vec4 cc_lightSizeRangeAngle[LIGHTS_PER_PASS]; // x: size, y: range, z: spotAngle

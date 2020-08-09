@@ -15,7 +15,7 @@ export class WebGLDescriptorSet extends GFXDescriptorSet {
 
     public initialize (info: IGFXDescriptorSetInfo): boolean {
 
-        this._layout = info.layout;
+        Array.prototype.push.apply(this._layout, info.layout);
         this._buffers = Array(this._layout.length).fill(null);
         this._textures = Array(this._layout.length).fill(null);
         this._samplers = Array(this._layout.length).fill(null);

@@ -32,7 +32,7 @@ import { GFXDescriptorType, GFXGetTypeSize, GFXShaderType } from '../../gfx/defi
 import { GFXAPI, GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { GFXUniformBlock, GFXShaderInfo, GFXUniformSampler } from '../../gfx/shader';
-import { localDescriptorSetLayout, DescriptorSetIndices, materialSpecificSamplerBaseOffset, bindingMappingInfo } from '../../pipeline/define';
+import { localDescriptorSetLayout, SetIndex } from '../../pipeline/define';
 import { RenderPipeline, IDescriptorSetLayout } from '../../pipeline/render-pipeline';
 import { genHandle, IDefineMap } from './pass-utils';
 import { legacyCC } from '../../global-exports';
@@ -202,14 +202,24 @@ class ProgramLib {
             offset += cnt;
         }
         if (offset > 31) { tmpl.uber = true; }
+
         // cache material-specific descriptor set layout
         const descriptors: GFXDescriptorType[] = tmpl.descriptors = [];
-        for (let i = 0; i < tmpl.blocks.length; i++) descriptors.push(GFXDescriptorType.UNIFORM_BUFFER);
-        for (let i = 0; i < tmpl.samplers.length; i++) descriptors.push(GFXDescriptorType.SAMPLER);
+        for (let i = 0; i < tmpl.blocks.length; i++) {
+            const block = tmpl.blocks[i];
+            block.size = getSize(block);
+            block.set = SetIndex.MATERIAL;
+            descriptors.push(GFXDescriptorType.UNIFORM_BUFFER);
+        }
+        for (let i = 0; i < tmpl.samplers.length; i++) {
+            const sampler = tmpl.samplers[i];
+            sampler.set = SetIndex.MATERIAL;
+            descriptors.push(GFXDescriptorType.SAMPLER);
+        }
 
-        tmpl.blocks.forEach((b) => { b.size = getSize(b); b.set = DescriptorSetIndices.MATERIAL_SPECIFIC; });
         tmpl.handleMap = genHandles(tmpl);
         if (!tmpl.localsInited) { insertBuiltinBindings(tmpl, localDescriptorSetLayout, 'locals'); tmpl.localsInited = true; }
+
         // store it
         this._templates[prog.name] = tmpl;
     }
@@ -323,9 +333,6 @@ class ProgramLib {
         const attributes: IGFXAttribute[] = [];
         getActiveAttributes(tmpl, defines, attributes);
 
-        // material-specific sampler offset = base offset - sampler binding start point
-        bindingMappingInfo.samplerOffsets[DescriptorSetIndices.MATERIAL_SPECIFIC] = materialSpecificSamplerBaseOffset - tmpl.blocks.length;
-
         return this._cache[key] = ShaderPool.alloc(device, {
             name: getShaderInstanceName(name, macroArray),
             blocks: tmpl.blocks, samplers: tmpl.samplers, attributes,
@@ -333,7 +340,6 @@ class ProgramLib {
                 { type: GFXShaderType.VERTEX, source: prefix + src.vert },
                 { type: GFXShaderType.FRAGMENT, source: prefix + src.frag },
             ],
-            bindingMappingInfo,
         } as GFXShaderInfo);
     }
 }

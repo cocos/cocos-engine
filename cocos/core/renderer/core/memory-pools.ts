@@ -32,24 +32,24 @@ import { NativeBufferPool, NativeObjectPool } from './native-pools';
 import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXDescriptorSetInfo,
     GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader, IGFXInputAssemblerInfo, GFXInputAssembler } from '../../gfx';
 
-interface TypedArrayConstructor<T> {
+interface ITypedArrayConstructor<T> {
     new(buffer: ArrayBufferLike, byteOffset: number, length?: number): T;
     readonly BYTES_PER_ELEMENT: number;
 }
 
-interface ElementEnum {
+interface IElementEnum {
     COUNT: number;
 }
 
 // a little hacky, but works (different specializations should not be assignable to each other)
-export class Handle<T extends PoolType> extends Number { m?: T; }
+class Handle<T extends PoolType> extends Number { m?: T; }
 
-export class BufferPool<T extends TypedArray, E extends ElementEnum, P extends PoolType> {
+class BufferPool<T extends TypedArray, E extends IElementEnum, P extends PoolType> {
 
     // naming convension:
     // this._bufferViews[chunk][entry][element]
 
-    private _viewCtor: TypedArrayConstructor<T>;
+    private _viewCtor: ITypedArrayConstructor<T>;
     private _elementCount: number;
     private _entryBits: number;
 
@@ -65,7 +65,7 @@ export class BufferPool<T extends TypedArray, E extends ElementEnum, P extends P
 
     private _nativePool: NativeBufferPool;
 
-    constructor (dataType: P, viewCtor: TypedArrayConstructor<T>, enumType: E, entryBits = 8) {
+    constructor (dataType: P, viewCtor: ITypedArrayConstructor<T>, enumType: E, entryBits = 8) {
         this._viewCtor = viewCtor;
         this._elementCount = enumType.COUNT;
         this._entryBits = entryBits;
@@ -137,7 +137,7 @@ export class BufferPool<T extends TypedArray, E extends ElementEnum, P extends P
     }
 }
 
-export class ObjectPool<T, P extends PoolType> {
+class ObjectPool<T, P extends PoolType> {
 
     private _ctor: (args: any, obj?: T) => T;
     private _dtor?: (obj: T) => void;
@@ -148,7 +148,6 @@ export class ObjectPool<T, P extends PoolType> {
     private _freelist: number[] = [];
 
     private _nativePool: NativeObjectPool<T>;
-
 
     constructor (dataType: P, ctor: (args: any, obj?: T) => T, dtor?: (obj: T) => void) {
         this._ctor = ctor;
@@ -221,13 +220,13 @@ export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, (_:
 export const DepthStencilStatePool = new ObjectPool(PoolType.DEPTH_STENCIL_STATE, (_: any) => new GFXDepthStencilState());
 export const BlendStatePool = new ObjectPool(PoolType.BLEND_STATE, (_: any) => new GFXBlendState());
 
-export const DescriptorSetPool = new ObjectPool(PoolType.DESCRIPTOR_SETS,
-    (args: [GFXDevice, IGFXDescriptorSetInfo], obj?: GFXDescriptorSet) => obj ? (obj.initialize(args[1]), obj) : args[0].createDescriptorSet(args[1]),
-    (obj: GFXDescriptorSet) => obj && obj.destroy(),
-);
 export const ShaderPool = new ObjectPool(PoolType.SHADER,
     (args: [GFXDevice, GFXShaderInfo], obj?: GFXShader) => obj ? (obj.initialize(args[1]), obj) : args[0].createShader(args[1]),
     (obj: GFXShader) => obj && obj.destroy(),
+);
+export const DSPool = new ObjectPool(PoolType.DESCRIPTOR_SETS,
+    (args: [GFXDevice, IGFXDescriptorSetInfo], obj?: GFXDescriptorSet) => obj ? (obj.initialize(args[1]), obj) : args[0].createDescriptorSet(args[1]),
+    (obj: GFXDescriptorSet) => obj && obj.destroy(),
 );
 export const IAPool = new ObjectPool(PoolType.INPUT_ASSEMBLER,
     (args: [GFXDevice, IGFXInputAssemblerInfo], obj?: GFXInputAssembler) => obj ? (obj.initialize(args[1]), obj) : args[0].createInputAssembler(args[1]),

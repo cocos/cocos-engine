@@ -107,6 +107,7 @@ export class CanvasComponent extends Component {
      * @zh
      * 内置相机的颜色缓冲默认值。
      */
+    @property
     @tooltip('清理颜色缓冲区后的颜色')
     get color () {
         return this._color;

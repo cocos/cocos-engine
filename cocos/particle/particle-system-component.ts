@@ -602,7 +602,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property
     private _simulationSpace = Space.Local;
 
-    public processor: IParticleSystemRenderer | null = null;
+    public processor: IParticleSystemRenderer = null!;
 
     constructor () {
         super();
@@ -633,8 +633,8 @@ export class ParticleSystemComponent extends RenderableComponent {
     public onLoad () {
         // HACK, TODO
         this.renderer.onInit(this);
-        this._shapeModule && this._shapeModule.onInit(this);
-        this._trailModule && this._trailModule.onInit(this);
+        if (this._shapeModule) this._shapeModule.onInit(this);
+        if (this._trailModule) this._trailModule.onInit(this);
         this.bindModule();
         this._resetPosition();
 
@@ -673,13 +673,13 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     public bindModule () {
-        this._colorOverLifetimeModule && this._colorOverLifetimeModule.bindTarget(this.processor!);
-        this._sizeOvertimeModule && this._sizeOvertimeModule.bindTarget(this.processor!);
-        this._rotationOvertimeModule && this._rotationOvertimeModule.bindTarget(this.processor!);
-        this._forceOvertimeModule && this._forceOvertimeModule.bindTarget(this.processor!);
-        this._limitVelocityOvertimeModule && this._limitVelocityOvertimeModule.bindTarget(this.processor!);
-        this._velocityOvertimeModule && this._velocityOvertimeModule.bindTarget(this.processor!);
-        this._textureAnimationModule && this._textureAnimationModule.bindTarget(this.processor!);
+        if (this._colorOverLifetimeModule) this._colorOverLifetimeModule.bindTarget(this.processor!);
+        if (this._sizeOvertimeModule) this._sizeOvertimeModule.bindTarget(this.processor!);
+        if (this._rotationOvertimeModule) this._rotationOvertimeModule.bindTarget(this.processor!);
+        if (this._forceOvertimeModule) this._forceOvertimeModule.bindTarget(this.processor!);
+        if (this._limitVelocityOvertimeModule) this._limitVelocityOvertimeModule.bindTarget(this.processor!);
+        if (this._velocityOvertimeModule) this._velocityOvertimeModule.bindTarget(this.processor!);
+        if (this._textureAnimationModule) this._textureAnimationModule.bindTarget(this.processor!);
     }
 
     // TODO: Fast forward current particle system by simulating particles over given period of time, then pause it.
@@ -752,7 +752,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public clear () {
         if (this.enabledInHierarchy) {
             this.processor!.clear();
-            this._trailModule && this._trailModule.clear();
+            if (this._trailModule) this._trailModule.clear();
         }
     }
 
@@ -777,7 +777,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     protected onDestroy () {
         // this._system.remove(this);
         this.processor!.onDestroy();
-        this._trailModule && this._trailModule.destroy();
+        if (this._trailModule) this._trailModule.destroy();
     }
 
     protected onEnable () {
@@ -785,13 +785,13 @@ export class ParticleSystemComponent extends RenderableComponent {
             this.play();
         }
         this.processor!.onEnable();
-        this._trailModule && this._trailModule.onEnable();
+        if (this._trailModule) this._trailModule.onEnable();
     }
     protected onDisable () {
         this.processor!.onDisable();
-        this._trailModule && this._trailModule.onDisable();
+        if (this._trailModule) this._trailModule.onDisable();
     }
-    protected update (dt) {
+    protected update (dt: number) {
         const scaledDeltaTime = dt * this.simulationSpeed;
         if (this._isPlaying) {
             this._time += scaledDeltaTime;

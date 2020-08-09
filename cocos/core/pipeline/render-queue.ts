@@ -5,11 +5,11 @@
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { RecyclePool } from '../memop';
 import { CachedArray } from '../memop/cached-array';
-import { IRenderObject, IRenderPass, IRenderQueueDesc, DescriptorSetIndices } from './define';
+import { IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { GFXDevice } from '../gfx/device';
 import { GFXRenderPass, GFXDescriptorSet } from '../gfx';
-import { BlendStatePool, PassPool, PassView, DescriptorSetPool, SubModelView, SubModelPool, ShaderPool } from '../renderer/core/memory-pools';
+import { BlendStatePool, PassPool, PassView, DSPool, SubModelView, SubModelPool, ShaderPool } from '../renderer/core/memory-pools';
 
 /**
  * @en Comparison sorting function. Opaque objects are sorted by priority -> depth front to back -> shader ID.
@@ -78,12 +78,12 @@ export class RenderQueue {
      */
     public insertRenderPass (renderObj: IRenderObject, subModelIdx: number, passIdx: number): boolean {
         const subModel = renderObj.model.subModels[subModelIdx];
-        const pass = SubModelPool.get(subModel.handle, SubModelView.PASS_0 + passIdx);
-        const isTransparent = BlendStatePool.get(PassPool.get(pass, PassView.BLEND_STATE)).targets[0].blend;
-        if (isTransparent !== this._passDesc.isTransparent || !(PassPool.get(pass, PassView.PHASE) & this._passDesc.phases)) {
+        const hPass = SubModelPool.get(subModel.handle, SubModelView.PASS_0 + passIdx);
+        const isTransparent = BlendStatePool.get(PassPool.get(hPass, PassView.BLEND_STATE)).targets[0].blend;
+        if (isTransparent !== this._passDesc.isTransparent || !(PassPool.get(hPass, PassView.PHASE) & this._passDesc.phases)) {
             return false;
         }
-        const hash = (0 << 30) | PassPool.get(pass, PassView.PRIORITY) << 16 | subModel.priority << 8 | passIdx;
+        const hash = (0 << 30) | PassPool.get(hPass, PassView.PRIORITY) << 16 | subModel.priority << 8 | passIdx;
         const rp = this._passPool.add();
         rp.hash = hash;
         rp.depth = renderObj.depth || 0;
@@ -110,8 +110,8 @@ export class RenderQueue {
             const shader = ShaderPool.get(SubModelPool.get(hSubModel, SubModelView.SHADER_0 + passIdx));
             const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, inputAssembler);
             cmdBuff.bindPipelineState(pso);
-            cmdBuff.bindDescriptorSet(DescriptorSetIndices.MATERIAL_SPECIFIC, DescriptorSetPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET)));
-            cmdBuff.bindDescriptorSet(DescriptorSetIndices.MODEL_LOCAL, DescriptorSetPool.get(SubModelPool.get(hSubModel, SubModelView.DESCRIPTOR_SET)));
+            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET)));
+            cmdBuff.bindDescriptorSet(SetIndex.LOCAL, DSPool.get(SubModelPool.get(hSubModel, SubModelView.DESCRIPTOR_SET)));
             cmdBuff.bindInputAssembler(inputAssembler);
             cmdBuff.draw(inputAssembler);
         }

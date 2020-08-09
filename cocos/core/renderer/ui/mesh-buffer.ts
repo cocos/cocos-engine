@@ -38,9 +38,10 @@ export class MeshBuffer {
 
     public vData: Float32Array | null = null;
     public iData: Uint16Array | null = null;
-    public vb: GFXBuffer | null = null;
-    public ib: GFXBuffer | null = null;
-    public attributes: IGFXAttribute[] | null = null;
+
+    public attributes: IGFXAttribute[] = null!;
+    public vertexBuffers: GFXBuffer[] = [];
+    public indexBuffer?: GFXBuffer;
 
     public byteStart = 0;
     public byteOffset = 0;
@@ -68,16 +69,16 @@ export class MeshBuffer {
         this._outOfCallback = outOfCallback;
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 9;
 
-        this.vb = this.vb || this.batcher.device.createBuffer({
+        if (!this.vertexBuffers.length) this.vertexBuffers.push(this.batcher.device.createBuffer({
             usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: vbStride,
             stride: vbStride,
-        });
+        }));
 
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
 
-        this.ib = this.ib || this.batcher.device.createBuffer({
+        if (!this.indexBuffer) this.indexBuffer = this.batcher.device.createBuffer({
             usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: ibStride,
@@ -138,11 +139,15 @@ export class MeshBuffer {
     }
 
     public destroy () {
-        this.ib!.destroy();
-        this.vb!.destroy();
-        this.ib = null;
-        this.vb = null;
-        this.attributes = null;
+        this.attributes = null!;
+
+        this.vertexBuffers[0].destroy();
+        this.vertexBuffers.length = 0;
+
+        if (this.indexBuffer) {
+            this.indexBuffer.destroy();
+            this.indexBuffer = undefined;
+        }
     }
 
     public uploadData () {
@@ -153,15 +158,15 @@ export class MeshBuffer {
         const verticesData = new Float32Array(this.vData!.buffer, 0, this.byteOffset >> 2);
         const indicesData = new Uint16Array(this.iData!.buffer, 0, this.indicesOffset);
 
-        if (this.byteOffset > this.vb!.size) {
-            this.vb!.resize(this.byteOffset);
+        if (this.byteOffset > this.vertexBuffers[0].size) {
+            this.vertexBuffers[0].resize(this.byteOffset);
         }
-        this.vb!.update(verticesData);
+        this.vertexBuffers[0].update(verticesData);
 
-        if (this.indicesOffset * 2 > this.ib!.size) {
-            this.ib!.resize(this.indicesOffset * 2);
+        if (this.indicesOffset * 2 > this.indexBuffer!.size) {
+            this.indexBuffer!.resize(this.indicesOffset * 2);
         }
-        this.ib!.update(indicesData);
+        this.indexBuffer!.update(indicesData);
     }
 
     private _reallocBuffer () {

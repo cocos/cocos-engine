@@ -4,21 +4,10 @@
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { InstancedBuffer } from './instanced-buffer';
-import { GFXDevice, GFXRenderPass, GFXPipelineState, GFXBuffer } from '../gfx';
+import { GFXDevice, GFXRenderPass, GFXPipelineState } from '../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { IRenderObject, UBOForwardLight } from './define';
-import { LightType, Light } from '../renderer/scene/light';
-import { IMacroPatch, Pass } from '../renderer/core/pass';
-import { DescriptorSetPool, ShaderPool, PassPool, PassView } from '../renderer/core/memory-pools';
-import { DescriptorSetIndices } from './define';
-
-const spherePatches: IMacroPatch[] = [
-    { name: 'CC_FORWARD_ADD', value: true },
-];
-const spotPatches: IMacroPatch[] = [
-    { name: 'CC_FORWARD_ADD', value: true },
-    { name: 'CC_SPOTLIGHT', value: true },
-];
+import { DSPool, ShaderPool, PassPool, PassView } from '../renderer/core/memory-pools';
+import { SetIndex } from './define';
 
 /**
  * @en Render queue for instanced batching
@@ -53,9 +42,10 @@ export class RenderInstancedQueue {
     public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
         const it = this.queue.values(); let res = it.next();
         while (!res.done) {
-            const { instances, hPass } = res.value;
+            const { instances, hPass, hasPendingModels } = res.value;
+            if (!hasPendingModels) { continue; }
             res.value.uploadBuffers();
-            cmdBuff.bindDescriptorSet(DescriptorSetIndices.MATERIAL_SPECIFIC, DescriptorSetPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET)));
+            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET)));
             let lastPSO: GFXPipelineState | null = null;
             for (let b = 0; b < instances.length; ++b) {
                 const instance = instances[b];
@@ -66,7 +56,7 @@ export class RenderInstancedQueue {
                     cmdBuff.bindPipelineState(pso);
                     lastPSO = pso;
                 }
-                cmdBuff.bindDescriptorSet(DescriptorSetIndices.MODEL_LOCAL, DescriptorSetPool.get(instance.hDescriptorSet));
+                cmdBuff.bindDescriptorSet(SetIndex.LOCAL, DSPool.get(instance.hDescriptorSet));
                 cmdBuff.bindInputAssembler(instance.ia);
                 cmdBuff.draw(instance.ia);
             }
