@@ -177,13 +177,14 @@ function loadDepends (pipeline, item, asset, depends, callback) {
         }
 
         if (asset instanceof legacyCC.SceneAsset && asset.scene) {
-            const dependAssets = dependKeys.concat();
-            for (const dependUuid of dependKeys) {
-                getDependsRecursively(dependUuid).forEach((x) => {
-                    if (!dependAssets.includes(x)) { dependAssets.push(x); }
+            const map = Object.create(null);
+            for (let i = 0, l = dependKeys.length; i < l; i++) {
+                map[dependKeys[i]] = true;
+                getDependsRecursively(dependKeys[i]).forEach((x) => {
+                    map[x] = true;
                 });
             }
-            asset.scene.dependAssets = dependAssets;
+            asset.scene.dependAssets = Object.keys(map);
         }
         // Emit dependency errors in runtime, but not in editor,
         // because editor need to open the scene / prefab to let user fix missing asset issues
