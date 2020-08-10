@@ -686,7 +686,7 @@ function _updateCullingMask (node) {
     node._cullingMask = 1 << index;
     if (CC_JSB && CC_NATIVERENDERER) {
         node._proxy && node._proxy.updateCullingMask();
-    };
+    }
     for (let i = 0; i < node._children.length; i++) {
         _updateCullingMask(node._children[i]);
     }
@@ -1923,7 +1923,7 @@ let NodeDefines = {
         this._cullingMask = 1 << _getActualGroupIndex(this);
         if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy && this._proxy.updateCullingMask();
-        };
+        }
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
@@ -1955,7 +1955,7 @@ let NodeDefines = {
         this._cullingMask = 1 << _getActualGroupIndex(this);
         if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy && this._proxy.updateCullingMask();
-        };
+        }
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
@@ -2699,11 +2699,15 @@ let NodeDefines = {
      * @param {Number} [y] - Y coordinate for position
      * @param {Number} [z] - Z coordinate for position
      */
-    setPosition (x, y, z) {
-        if (x && typeof x !== 'number') {
-            y = x.y;
-            z = x.z;
-            x = x.x;
+    setPosition (newPosOrX, y, z) {
+        let x;
+        if (y === undefined) {
+            x = newPosOrX.x;
+            y = newPosOrX.y;
+            z = newPosOrX.z;
+        }
+        else {
+            x = newPosOrX;
         }
 
         let trs = this._trs;
@@ -2766,7 +2770,8 @@ let NodeDefines = {
      * !#zh
      * 设置节点在本地坐标系中坐标轴上的缩放比例。
      * 2D 节点可以操作两个坐标轴，而 3D 节点可以操作三个坐标轴。
-     * 当只传入 (x, y) 或 Vec2 对象时，scale.z 的值将被设置为0。
+     * 当只传入 (x, y) 时，scale.z 的值不会被改变。
+     * 当只传入 Vec2 对象时，scale.z 的值将被设置为0。
      * @method setScale
      * @param {Number|Vec2|Vec3} x - scaleX or scale object
      * @param {Number} [y]
@@ -2776,15 +2781,23 @@ let NodeDefines = {
      * node.setScale(cc.v3(2, 2, 2)); // for 3D node
      * node.setScale(2);
      */
-    setScale (x, y, z) {
-        if (x && typeof x !== 'number') {
-            y = x.y;
-            z = x.z;
-            x = x.x;
+    setScale (newScaleOrX, y, z) {
+        let x;
+        // 传入1个参数, 且参数为 Vec2/Vec3:
+        if (newScaleOrX && typeof newScaleOrX !== 'number') {
+            x = newScaleOrX.x;
+            y = newScaleOrX.y;
+            z = newScaleOrX.z;
         }
-        else if (x !== undefined && y === undefined) {
-            y = x;
-            z = x;
+        // 传入1个参数, 且参数为 number:
+        else if (newScaleOrX !== undefined && y === undefined) {
+            x = newScaleOrX;
+            y = newScaleOrX;
+            z = newScaleOrX;
+        }
+        // 传入2个或3个参数时:
+        else {
+            x = newScaleOrX;
         }
 
         let trs = this._trs;
@@ -3798,7 +3811,6 @@ let NodeDefines = {
             eventManager.pauseTarget(this);
         }
     },
-
 
 };
 
