@@ -2785,9 +2785,9 @@ let NodeDefines = {
         let x;
         // 传入1个参数, 且参数为 Vec2/Vec3:
         if (newScaleOrX && typeof newScaleOrX !== 'number') {
+            x = newScaleOrX.x;
             y = newScaleOrX.y;
             z = newScaleOrX.z;
-            x = newScaleOrX.x;
         }
         // 传入1个参数, 且参数为 number:
         else if (newScaleOrX !== undefined && y === undefined) {
