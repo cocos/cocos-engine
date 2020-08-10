@@ -31,7 +31,7 @@ import { IPassInfo } from '../../assets/effect-asset';
 import { isBuiltinBinding } from '../../pipeline/define';
 import { MaterialInstance } from './material-instance';
 import { Pass, PassOverrides } from './pass';
-import { assignDefines, IDefineMap } from './pass-utils';
+import { overrideMacros, MacroRecord } from './pass-utils';
 import { PassView, RasterizerStatePool, DepthStencilStatePool, BlendStatePool, PassPool } from './memory-pools';
 
 export class PassInstance extends Pass {
@@ -77,9 +77,9 @@ export class PassInstance extends Pass {
         this._onStateChange();
     }
 
-    public tryCompile (defineOverrides?: IDefineMap) {
+    public tryCompile (defineOverrides?: MacroRecord) {
         if (defineOverrides) {
-            if (!assignDefines(this._defines, defineOverrides)) {
+            if (!overrideMacros(this._defines, defineOverrides)) {
                 return false;
             }
         }

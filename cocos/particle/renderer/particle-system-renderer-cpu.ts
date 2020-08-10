@@ -4,7 +4,7 @@ import { GFXAttributeName, GFXFormat } from '../../core/gfx/define';
 import { Mat4, Vec2, Vec3, Vec4, pseudoRandom } from '../../core/math';
 import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
-import { IDefineMap } from '../../core/renderer/core/pass-utils';
+import { MacroRecord } from '../../core/renderer/core/pass-utils';
 import { RenderMode, Space } from '../enum';
 import { Particle, IParticleModule, PARTICLE_MODULE_ORDER } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
@@ -74,8 +74,8 @@ const _matInsInfo: IMaterialInstanceInfo = {
 };
 
 export default class ParticleSystemRendererCPU extends ParticleSystemRendererBase {
-    private _defines: IDefineMap;
-    private _trailDefines: IDefineMap;
+    private _defines: MacroRecord;
+    private _trailDefines: MacroRecord;
     private _frameTile_velLenScale: Vec4;
     private _defaultMat: Material | null = null;
     private _node_scale: Vec4;

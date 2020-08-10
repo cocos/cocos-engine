@@ -70,6 +70,17 @@ export interface IGFXDeviceInfo {
     devicePixelRatio?: number;
     nativeWidth?: number;
     nativeHeight?: number;
+    /**
+     * For non-vulkan backends, to maintain compatibility and maximize
+     * descriptor cache-locality, descriptor-set-based binding numbers need
+     * to be mapped to backend-specific bindings based on maximum limit
+     * of available descriptor slots in each set.
+     *
+     * Because the binding numbers are guaranteed to be consecutive for each
+     * descriptor type inside each set, the mapping procedure can be reduced
+     * to a simple shifting operation. This data structure specifies the
+     * exact offsets for each descriptor type in each set.
+     */
     bindingMappingInfo?: GFXBindingMappingInfo;
 }
 

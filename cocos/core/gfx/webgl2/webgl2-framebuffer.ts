@@ -33,7 +33,8 @@ export class WebGL2Framebuffer extends GFXFramebuffer {
 
         const gpuColorTextures: IWebGL2GPUTexture[] = [];
         if (info.colorTextures !== undefined) {
-            for (const colorTexture of info.colorTextures) {
+            for (let i = 0; i < info.colorTextures.length; i++) {
+                const colorTexture = info.colorTextures[i];
                 if (colorTexture) {
                     gpuColorTextures.push((colorTexture as WebGL2Texture).gpuTexture);
                 }

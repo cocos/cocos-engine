@@ -69,7 +69,7 @@ export class ShadowStage extends RenderStage {
                 for (m = 0; m < subModels.length; m++) {
                     const passes = subModels[m].passes;
                     for (p = 0; p < passes.length; p++) {
-                        this._additiveShadowQueue.add(passes[p], ro, m);
+                        this._additiveShadowQueue.add(ro, m, p);
                     }
                 }
             }

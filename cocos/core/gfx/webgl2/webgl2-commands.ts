@@ -1843,12 +1843,14 @@ interface IWebGL2StateCache {
     gpuShader: IWebGL2GPUShader | null;
     glPrimitive: number;
     reverseCW: boolean;
+    invalidateAttachments: GLenum[];
 }
 const gfxStateCache: IWebGL2StateCache = {
     gpuInputAssembler: null,
     gpuShader: null,
     glPrimitive: 0,
     reverseCW: false,
+    invalidateAttachments: [],
 };
 
 export function WebGL2CmdFuncBeginRenderPass (
@@ -1902,7 +1904,7 @@ export function WebGL2CmdFuncBeginRenderPass (
             cache.scissorRect.height = renderArea.height;
         }
 
-        const invalidateAttachments: GLenum[] = [];
+        gfxStateCache.invalidateAttachments.length = 0;
 
         for (let j = 0; j < clearColors.length; ++j) {
             const colorAttachment = gpuRenderPass.colorAttachments[j];
@@ -1930,7 +1932,7 @@ export function WebGL2CmdFuncBeginRenderPass (
                     }
                     case GFXLoadOp.DISCARD: {
                         // invalidate the framebuffer
-                        invalidateAttachments.push(gl.COLOR_ATTACHMENT0 + j);
+                        gfxStateCache.invalidateAttachments.push(gl.COLOR_ATTACHMENT0 + j);
                         break;
                     }
                     default:
@@ -1955,7 +1957,7 @@ export function WebGL2CmdFuncBeginRenderPass (
                     }
                     case GFXLoadOp.DISCARD: {
                         // invalidate the framebuffer
-                        invalidateAttachments.push(gl.DEPTH_ATTACHMENT);
+                        gfxStateCache.invalidateAttachments.push(gl.DEPTH_ATTACHMENT);
                         break;
                     }
                     default:
@@ -1979,7 +1981,7 @@ export function WebGL2CmdFuncBeginRenderPass (
                         }
                         case GFXLoadOp.DISCARD: {
                             // invalidate the framebuffer
-                            invalidateAttachments.push(gl.STENCIL_ATTACHMENT);
+                            gfxStateCache.invalidateAttachments.push(gl.STENCIL_ATTACHMENT);
                             break;
                         }
                         default:
@@ -1988,8 +1990,8 @@ export function WebGL2CmdFuncBeginRenderPass (
             }
         } // if (curGPURenderPass.depthStencilAttachment)
 
-        if (invalidateAttachments.length) {
-            gl.invalidateFramebuffer(gl.FRAMEBUFFER, invalidateAttachments);
+        if (gpuFramebuffer.glFramebuffer && gfxStateCache.invalidateAttachments.length) {
+            gl.invalidateFramebuffer(gl.FRAMEBUFFER, gfxStateCache.invalidateAttachments);
         }
 
         if (clears) {

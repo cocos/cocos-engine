@@ -192,8 +192,8 @@ export class BakedSkinningModel extends MorphModel {
         const { buffer, texture, animInfo } = this._jointsMedium;
         descriptorSet.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
         descriptorSet.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
-        const sampler = samplerLib.getSampler(this._device, jointTextureSamplerHash);
         if (texture) {
+            const sampler = samplerLib.getSampler(this._device, jointTextureSamplerHash);
             descriptorSet.bindTexture(UniformJointTexture.binding, texture.handle.texture);
             descriptorSet.bindSampler(UniformJointTexture.binding, sampler);
         }

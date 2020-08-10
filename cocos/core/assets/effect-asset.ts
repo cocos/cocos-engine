@@ -34,7 +34,7 @@ import { IGFXAttribute } from '../gfx/input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../gfx/pipeline-state';
 import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
 import { RenderPassStage } from '../pipeline/define';
-import { IDefineMap } from '../renderer/core/pass-utils';
+import { MacroRecord } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { Asset } from './asset';
 import { EDITOR } from 'internal:constants';
@@ -59,6 +59,7 @@ export interface IPassStates {
 }
 export interface IPassInfo extends IPassStates {
     program: string; // auto-generated from 'vert' and 'frag'
+    embeddedMacros?: MacroRecord;
     propertyIndex?: number;
     switch?: string;
     properties?: Record<string, IPropertyInfo>;
@@ -200,7 +201,7 @@ export class EffectAsset extends Asset {
                 const next = [cur].concat([...Array(choices.length - 1)].map(() => Object.assign({}, cur)));
                 next.forEach((defines, idx) => defines[name] = choices[idx]);
                 return acc.concat(next);
-            }, [] as IDefineMap[]), [{}] as IDefineMap[]).forEach(
+            }, [] as MacroRecord[]), [{}] as MacroRecord[]).forEach(
                 (defines) => programLib.getGFXShader(root.device, shader.name, defines, root.pipeline));
         }
     }

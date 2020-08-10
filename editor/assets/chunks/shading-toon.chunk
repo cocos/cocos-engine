@@ -48,13 +48,13 @@ struct ToonSurface {
       float specularMask = step(specularWeight, SNH);
       vec3 specular = s.specular.rgb * specularMask;
 
-      #if CC_SPOTLIGHT
+      if (cc_lightPos[i].w > 0.0) {
         float cosInner = max(dot(-cc_lightDir[i].xyz, SL), 0.01);
         float cosOuter = cc_lightSizeRangeAngle[i].z;
         float litAngleScale = 1.0 / max(0.001, cosInner - cosOuter);
         float litAngleOffset = -cosOuter * litAngleScale;
         att *= GetAngleAtt(SL, -cc_lightDir[i].xyz, litAngleScale, litAngleOffset);
-      #endif
+      }
 
       finalColor += SNL * cc_lightColor[i].rgb * cc_lightColor[i].a * illum * att * s.baseStep * (diffuse + specular);
     }

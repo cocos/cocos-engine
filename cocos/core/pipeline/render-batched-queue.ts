@@ -3,24 +3,12 @@
  */
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
-import { GFXBuffer } from '../gfx/buffer';
 import { BatchedBuffer } from './batched-buffer';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { GFXDevice } from '../gfx/device';
 import { GFXRenderPass } from '../gfx';
-import { IRenderObject, UBOForwardLight } from './define';
-import { LightType, Light } from '../renderer/scene/light';
-import { IMacroPatch, Pass } from '../renderer/core/pass';
 import { DSPool, ShaderPool, PassPool, PassView } from '../renderer/core/memory-pools';
 import { SetIndex } from './define';
-
-const spherePatches: IMacroPatch[] = [
-    { name: 'CC_FORWARD_ADD', value: true },
-];
-const spotPatches: IMacroPatch[] = [
-    { name: 'CC_FORWARD_ADD', value: true },
-    { name: 'CC_SPOTLIGHT', value: true },
-];
 
 /**
  * @en The render queue for dynamic batching

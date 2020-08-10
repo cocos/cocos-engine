@@ -519,7 +519,7 @@ function createVec4TextureFactory (gfxDevice: GFXDevice, vec4Capacity: number) {
     }
 
     const { width, height } = bestSizeToHavePixels(pixelRequired);
-    assertIsTrue(width * height > pixelRequired);
+    assertIsTrue(width * height >= pixelRequired);
 
     return {
         width,

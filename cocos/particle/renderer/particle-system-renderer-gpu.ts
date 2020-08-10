@@ -6,7 +6,7 @@ import { GFXAttributeName, GFXFormat } from '../../core/gfx/define';
 import { IGFXAttribute } from '../../core/gfx/input-assembler';
 import { Mat4, Vec2, Vec4, Quat} from '../../core/math';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
-import { IDefineMap } from '../../core/renderer/core/pass-utils';
+import { MacroRecord } from '../../core/renderer/core/pass-utils';
 import { RenderMode, Space } from '../enum';
 import { Particle, IParticleModule } from '../particle';
 import { packGradientRange } from '../animator/gradient-range';
@@ -76,7 +76,7 @@ const _matInsInfo: IMaterialInstanceInfo = {
 };
 
 export default class ParticleSystemRendererGPU extends ParticleSystemRendererBase {
-    private _defines: IDefineMap;
+    private _defines: MacroRecord;
     private _frameTile_velLenScale: Vec4;
     private _node_scale: Vec4;
     protected _vertAttrs: IGFXAttribute[] = [];
