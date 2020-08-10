@@ -533,6 +533,10 @@ export class SpriteComponent extends UIRenderComponent {
 
         // this._flushAssembler();
         this._activateMaterial();
+        // updateBlendFunc for custom material
+        if (this.getMaterial(0)) {
+            this._updateBlendFunc();
+        }
     }
 
     public onDestroy () {
