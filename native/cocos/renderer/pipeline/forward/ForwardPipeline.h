@@ -5,6 +5,7 @@
 namespace cc {
 namespace pipeline {
 struct Light;
+class UBOGlobal;
 
 class CC_DLL ForwardPipeline : public RenderPipeline {
 public:
@@ -14,7 +15,9 @@ public:
     virtual bool initialize(const RenderPipelineInfo *info) override;
     virtual void destroy() override;
     virtual bool activate() override;
-    
+
+    void updateUBOs(RenderView *view);
+
     gfx::RenderPass *getOrCreateRenderPass(gfx::ClearFlags clearFlags);
 
     CC_INLINE gfx::Buffer *getLightsUBO() const { return _lightsUBO; }
@@ -29,7 +32,9 @@ public:
     CC_INLINE bool isHDR() const { return _isHDR; }
 
 private:
-//    void cullLightPerModel(cc::Model *model);
+    //    void cullLightPerModel(cc::Model *model);
+    bool activeRenderer();
+    void destroyUBOs();
 
 private:
     gfx::Buffer *_lightsUBO = nullptr;
@@ -38,9 +43,9 @@ private:
     UintList _lightIndexOffsets;
     UintList _lightIndices;
     RenderObjectList _renderObjects;
-    gfx::CommandBufferList _commandBuffers;
-    map<gfx::ClearFlags, gfx::RenderPass*> _renderPasses;
-    
+    map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
+    UBOGlobal _uboGlobal;
+
     float _shadingScale = 1.0f;
     bool _isHDR = false;
     float _fpScale = 1.0f / 1024.0f;

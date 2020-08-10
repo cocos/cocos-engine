@@ -31,6 +31,12 @@ void LinearToSRGB(gfx::Color &out, const gfx::Color &linear) {
 }
 } // namespace
 
+RenderStageInfo ForwardStage::_initInfo = {
+    "ForwardStage",
+    static_cast<uint>(ForwardStageProperty::FORWARD),
+    static_cast<uint>(RenderFlowTag::SCENE)};
+const RenderStageInfo &ForwardStage::getInitializeInfo() { return ForwardStage::_initInfo; }
+
 ForwardStage::ForwardStage() : RenderStage() {
     _batchedQueue = CC_NEW(RenderBatchedQueue);
     _instancedQueue = CC_NEW(RenderInstancedQueue);

@@ -18,7 +18,7 @@ struct CC_DLL RenderFlowInfo {
 class CC_DLL RenderFlow : public Object {
 public:
     RenderFlow() = default;
-    virtual ~RenderFlow() = default;
+    virtual ~RenderFlow();
 
     virtual bool initialize(const RenderFlowInfo &info);
     virtual void activate(RenderPipeline *pipeline);

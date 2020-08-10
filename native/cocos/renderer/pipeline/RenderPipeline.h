@@ -1,7 +1,7 @@
 #pragma once
 
-#include "core/CoreStd.h"
 #include "Define.h"
+#include "core/CoreStd.h"
 #include "helper/DefineMap.h"
 
 namespace cc {
@@ -17,7 +17,7 @@ struct CC_DLL RenderPipelineInfo {
 class CC_DLL RenderPipeline : public Object {
 public:
     RenderPipeline() = default;
-    virtual ~RenderPipeline() = default;
+    virtual ~RenderPipeline();
 
     virtual bool activate();
     virtual void destroy();
@@ -30,6 +30,7 @@ public:
     CC_INLINE const DefineMap &getMacro() const { return _macros; }
 
 protected:
+    gfx::CommandBufferList _commandBuffers;
     RenderFlowList _flows;
     map<String, InternalBindingInst> _globalBindings;
     DefineMap _macros;

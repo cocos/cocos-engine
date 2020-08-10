@@ -1,5 +1,6 @@
 #pragma once
 #include "core/CoreStd.h"
+#include "math/Vec3.h"
 #include "scripting/dop/BufferPool.h"
 
 namespace cc {
@@ -40,7 +41,52 @@ struct CC_DLL Camera {
     float clearDepth = 0;
     uint32_t clearStencil = 0;
 
+    cc::Mat4 matView;
+    cc::Mat4 matProj;
+    cc::Mat4 matProjInv;
+    cc::Mat4 matViewProj;
+    cc::Mat4 matViewProjInv;
+    cc::Vec3 position;
+
+    uint32_t nodeID = 0;
+    uint32_t sceneID = 0;
+
     const static se::PoolType type = se::PoolType::CAMERA_INFO;
+};
+
+struct CC_DLL Scene {
+    uint32_t mainLightID = 0;
+    uint32_t ambientID = 0;
+    uint32_t fogID = 0;
+    const static se::PoolType type = se::PoolType::SCENE_INFO;
+};
+
+struct CC_DLL MainLight {
+    float useColorTemperature = 0;
+    float illuminance = 0;
+    cc::Vec3 direction;
+    cc::Vec3 color;
+    cc::Vec3 colorTemperatureRGB;
+    const static se::PoolType type = se::PoolType::MAIN_LIGHT_DATA;
+};
+
+struct CC_DLL Ambient {
+    float skyIllum = 0;
+    cc::Vec4 skyColor;
+    cc::Vec4 groundAlbedo;
+    const static se::PoolType type = se::PoolType::AMBIENT_DATA;
+};
+
+struct CC_DLL Fog {
+    float enabled = 0;
+    float fogStart = 0;
+    float fogEnd = 0;
+    float fogDensity = 0;
+    float fogTop = 0;
+    float fogRange = 0;
+    float fogAtten = 0;
+    cc::Vec4 fogColor;
+    const static se::PoolType type = se::PoolType::FOG_DATA;
 };
 
 struct CC_DLL SubModel {
@@ -67,7 +113,7 @@ struct CC_DLL InstancedAttribute {
 };
 
 struct CC_DLL Node {
-    uint32_t matViewID = 0;
+    cc::Mat4 worldMatrix = 0;
 
     const static se::PoolType type = se::PoolType::NODE_INFO;
 };
@@ -141,6 +187,12 @@ struct CC_DLL RenderingSubMesh {
     const static se::PoolType type = se::PoolType::RENDER_SUBMESH_INFO;
 };
 
+struct CC_DLL Root {
+    float cumulativeTime = 0;
+    float frameTime = 0;
+    const static se::PoolType type = se::PoolType::ROOT_DATA;
+};
+
 #define GET_SUBMODEL(index, offset)           (SharedMemory::get<SubModel>(index) + offset)
 #define GET_PASS(index, offset)               (SharedMemory::get<Pass>(index) + offset) //get pass from material
 #define GET_PSOCI(index, offset)              (SharedMemory::get<PSOInfo>(index) + offset)
@@ -149,6 +201,12 @@ struct CC_DLL RenderingSubMesh {
 #define GET_FLAT_BUFFER(index, offset)        (SharedMemory::get<FlatBuffer>(index) + offset)
 #define GET_BUFFERVIEW(index)                 (SharedMemory::get<BufferView>(index))
 #define GET_NODE(index)                       (SharedMemory::get<Node>(index))
+#define GET_ROOT(index)                       (SharedMemory::get<Root>(index))
+#define GET_CAMERA(index)                     (SharedMemory::get<Camera>(index))
+#define GET_SCENE(index)                      (SharedMemory::get<Scene>(index))
+#define GET_MAIN_LIGHT(index)                 (SharedMemory::get<MainLight>(index))
+#define GET_AMBIENT(index)                    (SharedMemory::get<Ambient>(index))
+#define GET_FOG(index)                        (SharedMemory::get<Fog>(index))
 
 //TODO
 #define GET_NAME(index) (String(0))

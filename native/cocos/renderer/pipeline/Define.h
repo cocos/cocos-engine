@@ -184,11 +184,52 @@ public:
     static gfx::UniformBlock BLOCK;
     std::array<float, COUNT> view;
 };
-gfx::UniformBlock UBOLocalBatched::BLOCK = {
-    gfx::ShaderType::VERTEX,
-    static_cast<uint>(UniformBinding::UBO_LOCAL),
-    "CCLocalBatched",
-    {{"cc_matWorlds", gfx::Type::MAT4, (uint)UBOLocalBatched::BATCHING_COUNT}}};
+
+enum class CC_DLL ForwardStageProperty : uint8_t {
+    FORWARD = 10,
+    UI = 20
+};
+
+enum class CC_DLL ForwardFlowPriority : uint8_t {
+    SHADOW = 0,
+    FORWARD = 1,
+    UI = 10,
+};
+
+enum class CC_DLL RenderFlowTag : uint8_t {
+    SCENE,
+    POSTPROCESS,
+    UI,
+};
+
+class CC_DLL UBOGlobal {
+public:
+    static const uint TIME_OFFSET = 0;
+    static const uint SCREEN_SIZE_OFFSET = UBOGlobal::TIME_OFFSET + 4;
+    static const uint SCREEN_SCALE_OFFSET = UBOGlobal::SCREEN_SIZE_OFFSET + 4;
+    static const uint NATIVE_SIZE_OFFSET = UBOGlobal::SCREEN_SCALE_OFFSET + 4;
+    static const uint MAT_VIEW_OFFSET = UBOGlobal::NATIVE_SIZE_OFFSET + 4;
+    static const uint MAT_VIEW_INV_OFFSET = UBOGlobal::MAT_VIEW_OFFSET + 16;
+    static const uint MAT_PROJ_OFFSET = UBOGlobal::MAT_VIEW_INV_OFFSET + 16;
+    static const uint MAT_PROJ_INV_OFFSET = UBOGlobal::MAT_PROJ_OFFSET + 16;
+    static const uint MAT_VIEW_PROJ_OFFSET = UBOGlobal::MAT_PROJ_INV_OFFSET + 16;
+    static const uint MAT_VIEW_PROJ_INV_OFFSET = UBOGlobal::MAT_VIEW_PROJ_OFFSET + 16;
+    static const uint CAMERA_POS_OFFSET = UBOGlobal::MAT_VIEW_PROJ_INV_OFFSET + 16;
+    static const uint EXPOSURE_OFFSET = UBOGlobal::CAMERA_POS_OFFSET + 4;
+    static const uint MAIN_LIT_DIR_OFFSET = UBOGlobal::EXPOSURE_OFFSET + 4;
+    static const uint MAIN_LIT_COLOR_OFFSET = UBOGlobal::MAIN_LIT_DIR_OFFSET + 4;
+    static const uint MAIN_SHADOW_MATRIX_OFFSET = UBOGlobal::MAIN_LIT_COLOR_OFFSET + 4;
+    static const uint AMBIENT_SKY_OFFSET = UBOGlobal::MAIN_SHADOW_MATRIX_OFFSET + 16;
+    static const uint AMBIENT_GROUND_OFFSET = UBOGlobal::AMBIENT_SKY_OFFSET + 4;
+    static const uint GLOBAL_FOG_COLOR_OFFSET = UBOGlobal::AMBIENT_GROUND_OFFSET + 4;
+    static const uint GLOBAL_FOG_BASE_OFFSET = UBOGlobal::GLOBAL_FOG_COLOR_OFFSET + 4;
+    static const uint GLOBAL_FOG_ADD_OFFSET = UBOGlobal::GLOBAL_FOG_BASE_OFFSET + 4;
+    static const uint COUNT = UBOGlobal::GLOBAL_FOG_ADD_OFFSET + 4;
+    static const uint SIZE = UBOGlobal::COUNT * 4;
+    static gfx::UniformBlock BLOCK;
+
+    std::array<float, UBOGlobal::COUNT> view;
+};
 
 } // namespace pipeline
 } // namespace cc

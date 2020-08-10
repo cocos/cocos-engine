@@ -93,9 +93,8 @@ void BatchedBuffer::merge(const SubModel *subModel, uint passIdx, const RenderOb
                 }
 
                 // update world matrix
-                auto transform = GET_NODE(ro->model->transformID);
-                auto worldMatrix = GET_BUFFERVIEW(transform->matViewID);
-                memcpy(batch.uboData, worldMatrix->data, UBOLocalBatched::MAT_WORLDS_OFFSET + batch.mergeCount * 16);
+                auto node = GET_NODE(ro->model->transformID);
+                memcpy(batch.uboData, node->worldMatrix.m, UBOLocalBatched::MAT_WORLDS_OFFSET + batch.mergeCount * 16);
                 if (!batch.mergeCount && batch.psoci != psoci) {
                     bindingLayout->bindBuffer(UBOLocalBatched::BLOCK.binding, batch.ubo);
                     bindingLayout->update();
