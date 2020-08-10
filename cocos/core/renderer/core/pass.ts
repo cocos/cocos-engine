@@ -46,14 +46,14 @@ import { samplerLib } from './sampler-lib';
 import { PassView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool,
     PassPool, DSPool, PassHandle, ShaderHandle } from './memory-pools';
 import { customizeType, getBindingFromHandle, getDescriptorTypeFromHandle, getDefaultFromType,
-    getOffsetFromHandle, getTypeFromHandle, IDefineMap, MaterialProperty, type2reader, type2writer } from './pass-utils';
+    getOffsetFromHandle, getTypeFromHandle, MacroRecord, MaterialProperty, type2reader, type2writer } from './pass-utils';
 import { GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode,
     GFXType, GFXDynamicStateFlagBit } from '../../gfx/define';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
     passIndex: number;
-    defines: IDefineMap;
+    defines: MacroRecord;
     stateOverrides?: PassOverrides;
 }
 export type PassOverrides = RecursivePartial<IPassStates>;
@@ -174,7 +174,7 @@ export class Pass {
     protected _propertyHandleMap: Record<string, number> = {};
     protected _blocks: IBlock[] = [];
     protected _shaderInfo: IProgramInfo = null!;
-    protected _defines: IDefineMap = {};
+    protected _defines: MacroRecord = {};
     protected _properties: Record<string, IPropertyInfo> = {};
     // external references
     protected _root: Root;

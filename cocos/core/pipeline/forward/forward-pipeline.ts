@@ -258,6 +258,7 @@ export class ForwardPipeline extends RenderPipeline {
                     case LightType.SPHERE:
                         const sphereLit = light as SphereLight;
                         Vec3.toArray(_vec4Array, sphereLit.position);
+                        _vec4Array[3] = 0;
                         this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_POS_OFFSET);
 
                         _vec4Array[0] = sphereLit.size;
@@ -283,7 +284,7 @@ export class ForwardPipeline extends RenderPipeline {
                         const spotLit = light as SpotLight;
 
                         Vec3.toArray(_vec4Array, spotLit.position);
-                        _vec4Array[3] = spotLit.size;
+                        _vec4Array[3] = 1;
                         this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_POS_OFFSET);
 
                         _vec4Array[0] = spotLit.size;

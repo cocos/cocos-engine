@@ -7,7 +7,7 @@ import { Asset } from '../assets/asset';
 import { ccclass, property } from '../data/class-decorator';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
-import { IDefineMap } from '../renderer/core/pass-utils';
+import { MacroRecord } from '../renderer/core/pass-utils';
 import { GFXDevice, GFXDescriptorType, GFXUniformBlock, GFXUniformSampler, GFXDescriptorSet, GFXCommandBuffer } from '../gfx';
 
 /**
@@ -58,7 +58,7 @@ export abstract class RenderPipeline extends Asset {
      * @zh 管线宏定义。
      * @readonly
      */
-    get macros (): IDefineMap {
+    get macros (): MacroRecord {
         return this._macros;
     }
 
@@ -105,7 +105,7 @@ export abstract class RenderPipeline extends Asset {
 
     protected _globalDescriptorSetLayout: IDescriptorSetLayout = { descriptors: [], layouts: {} };
     protected _localDescriptorSetLayout: IDescriptorSetLayout = { descriptors: [], layouts: {} };
-    protected _macros: IDefineMap = {};
+    protected _macros: MacroRecord = {};
 
     get device () {
         return this._device;

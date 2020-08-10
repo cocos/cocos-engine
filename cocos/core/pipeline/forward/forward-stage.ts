@@ -157,7 +157,7 @@ export class ForwardStage extends RenderStage {
                             for (k = 0; k < this._renderQueues.length; k++) {
                                 this._renderQueues[k].insertRenderPass(ro, m, p);
                             }
-                            this._additiveLightQueue.add(ro, m, pass, lightIndexOffset[i], nextLightIndex);
+                            this._additiveLightQueue.add(ro, m, p, lightIndexOffset[i], nextLightIndex);
                         }
                     }
                 }
@@ -170,7 +170,7 @@ export class ForwardStage extends RenderStage {
                         for (k = 0; k < this._renderQueues.length; k++) {
                             this._renderQueues[k].insertRenderPass(ro, m, p);
                         }
-                        this._additiveLightQueue.add(ro, m, pass, lightIndexOffset[i], nextLightIndex);
+                        this._additiveLightQueue.add(ro, m, p, lightIndexOffset[i], nextLightIndex);
                     }
                 }
             }

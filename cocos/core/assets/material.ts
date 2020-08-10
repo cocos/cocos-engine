@@ -33,7 +33,7 @@ import { builtinResMgr } from '../3d/builtin/init';
 import { RenderableComponent } from '../3d/framework/renderable-component';
 import { GFXDescriptorType } from '../gfx/define';
 import { GFXTexture } from '../gfx/texture';
-import { IDefineMap, MaterialProperty } from '../renderer';
+import { MacroRecord, MaterialProperty } from '../renderer';
 import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
 import { legacyCC } from '../global-exports';
 import { Asset } from './asset';
@@ -76,7 +76,7 @@ interface IMaterialInfo {
      * @zh
      * 这个材质定义的预处理宏，默认全为 0，或 [[EffectAsset]] 中的指定值。
      */
-    defines?: IDefineMap | IDefineMap[];
+    defines?: MacroRecord | MacroRecord[];
     /**
      * @en
      * The override values on top of the pipeline states specified in [[EffectAsset]].
@@ -111,7 +111,7 @@ export class Material extends Asset {
     @property
     protected _techIdx = 0;
     @property
-    protected _defines: IDefineMap[] = [];
+    protected _defines: MacroRecord[] = [];
     @property
     protected _states: PassOverrides[] = [];
     @property
@@ -213,7 +213,7 @@ export class Material extends Asset {
      * @param overrides The shader macro override values.
      * @param passIdx The pass to apply to. Will apply to all passes if not specified.
      */
-    public recompileShaders (overrides: IDefineMap, passIdx?: number) {
+    public recompileShaders (overrides: MacroRecord, passIdx?: number) {
         console.warn('Shaders in material asset \'' + this.name + '\' cannot be modified at runtime, please instantiate the material first.');
     }
 
@@ -361,11 +361,17 @@ export class Material extends Asset {
         const passes: Pass[] = [];
         for (let k = 0; k < passNum; ++k) {
             const passInfo = tech.passes[k] as IPassInfoFull;
-            let propIdx = passInfo.passIndex = k;
-            if (passInfo.propertyIndex !== undefined) { propIdx = passInfo.propertyIndex; }
-            const defs = passInfo.defines = this._defines.length > propIdx ? this._defines[propIdx] : {};
-            if (passInfo.switch && !defs[passInfo.switch]) { continue; }
-            passInfo.stateOverrides = this._states.length > propIdx ? this._states[propIdx] : {};
+            const propIdx = passInfo.passIndex = k;
+            const defines = passInfo.defines = this._defines[propIdx] || (this._defines[propIdx] = {});
+            const states = passInfo.stateOverrides = this._states[propIdx] || (this._states[propIdx] = {});
+            if (passInfo.propertyIndex !== undefined) {
+                Object.assign(defines, this._defines[passInfo.propertyIndex]);
+                Object.assign(states, this._states[passInfo.propertyIndex]);
+            }
+            if (passInfo.embeddedMacros !== undefined) {
+                Object.assign(defines, passInfo.embeddedMacros);
+            }
+            if (passInfo.switch && !defines[passInfo.switch]) { continue; }
             const pass = new Pass(legacyCC.director.root);
             pass.initialize(passInfo);
             passes.push(pass);

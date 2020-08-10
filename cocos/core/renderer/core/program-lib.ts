@@ -34,7 +34,7 @@ import { IGFXAttribute } from '../../gfx/input-assembler';
 import { GFXUniformBlock, GFXShaderInfo, GFXUniformSampler } from '../../gfx/shader';
 import { localDescriptorSetLayout, SetIndex } from '../../pipeline/define';
 import { RenderPipeline, IDescriptorSetLayout } from '../../pipeline/render-pipeline';
-import { genHandle, IDefineMap } from './pass-utils';
+import { genHandle, MacroRecord } from './pass-utils';
 import { legacyCC } from '../../global-exports';
 import { ShaderPool, ShaderHandle } from './memory-pools';
 
@@ -75,7 +75,7 @@ function mapDefine (info: IDefineInfo, def: number | string | boolean) {
     return '-1'; // should neven happen
 }
 
-function prepareDefines (defs: IDefineMap, tDefs: IDefineInfo[]) {
+function prepareDefines (defs: MacroRecord, tDefs: IDefineInfo[]) {
     const macros: IMacroInfo[] = [];
     for (const tmpl of tDefs) {
         const name = tmpl.name;
@@ -146,7 +146,7 @@ function genHandles (tmpl: IProgramInfo) {
     return handleMap;
 }
 
-function dependencyCheck (dependencies: string[], defines: IDefineMap) {
+function dependencyCheck (dependencies: string[], defines: MacroRecord) {
     for (let i = 0; i < dependencies.length; i++) {
         const d = dependencies[i];
         if (d[0] === '!') { if (defines[d.slice(1)]) { return false; } } // negative dependency
@@ -154,7 +154,7 @@ function dependencyCheck (dependencies: string[], defines: IDefineMap) {
     }
     return true;
 }
-function getActiveAttributes (tmpl: IProgramInfo, defines: IDefineMap, outAttributes: IGFXAttribute[]) {
+function getActiveAttributes (tmpl: IProgramInfo, defines: MacroRecord, outAttributes: IGFXAttribute[]) {
     const attributes = tmpl.attributes;
     for (let i = 0; i < attributes.length; i++) {
         const attribute = attributes[i];
@@ -245,7 +245,7 @@ class ProgramLib {
      * @param name 目标 shader 名
      * @param defines 目标预处理宏列表
      */
-    public getKey (name: string, defines: IDefineMap) {
+    public getKey (name: string, defines: MacroRecord) {
         const tmpl = this._templates[name];
         const tmplDefs = tmpl.defines;
         if (tmpl.uber) {
@@ -282,7 +282,7 @@ class ProgramLib {
      * 销毁所有完全满足指定预处理宏特征的 shader 实例。
      * @param defines 用于筛选的预处理宏列表
      */
-    public destroyShaderByDefines (defines: IDefineMap) {
+    public destroyShaderByDefines (defines: MacroRecord) {
         const names = Object.keys(defines); if (!names.length) { return; }
         const regexes = names.map((cur) => {
             let val = defines[cur];
@@ -306,7 +306,7 @@ class ProgramLib {
      * @param defines 预处理宏列表
      * @param pipeline 实际渲染命令执行时所属的 [[RenderPipeline]]
      */
-    public getGFXShader (device: GFXDevice, name: string, defines: IDefineMap, pipeline: RenderPipeline, key?: string) {
+    public getGFXShader (device: GFXDevice, name: string, defines: MacroRecord, pipeline: RenderPipeline, key?: string) {
         if (!key) key = this.getKey(name, defines);
         const res = this._cache[key];
         if (res) { return res; }

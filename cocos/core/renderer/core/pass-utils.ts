@@ -109,9 +109,9 @@ export function getDefaultFromType (type: GFXType) {
     return defaultValues[0];
 }
 
-export interface IDefineMap { [name: string]: number | boolean | string; }
+export type MacroRecord = Record<string, number | boolean | string>;
 
-export function assignDefines (target: IDefineMap, source: IDefineMap): boolean {
+export function overrideMacros (target: MacroRecord, source: MacroRecord): boolean {
     const entries = Object.entries(source);
     let isDifferent: boolean = false;
     for (let i = 0; i < entries.length; i++) {

@@ -1700,8 +1700,8 @@ export function WebGLCmdFuncBeginRenderPass (
         } // if (gpuRenderPass.depthStencilAttachment)
 
         /*
-        if (numInvalidAttach) {
-            gl.invalidateFramebuffer(gl.FRAMEBUFFER, numInvalidAttach, invalidateAttachments);
+        if (invalidateAttachments.length) {
+            gl.invalidateFramebuffer(gl.FRAMEBUFFER, invalidateAttachments);
         }
         */
 

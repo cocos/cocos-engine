@@ -3,17 +3,13 @@
  */
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
-import { Pass, IMacroPatch } from '../renderer';
+import { Pass } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
-import { IRenderObject, UBOPCFShadow, SetIndex } from './define';
+import { IRenderObject, SetIndex } from './define';
 import { GFXDevice, GFXRenderPass, GFXBuffer, GFXShader } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { DSPool, ShaderPool, PassHandle, PassPool, PassView } from '../renderer/core/memory-pools';
-
-const forwardShadowMapPatches: IMacroPatch[] = [
-    { name: 'CC_VSM_SHADOW', value: true },
-];
+import { DSPool, ShaderPool, PassHandle, PassPool, PassView, SubModelPool, SubModelView } from '../renderer/core/memory-pools';
 
 /**
  * @zh
@@ -37,14 +33,12 @@ export class RenderShadowMapBatchedQueue {
         this._shadowMapBuffer = shadowMapBuffer;
     }
 
-    public add (pass: Pass, renderObj: IRenderObject, subModelIdx: number) {
+    public add (renderObj: IRenderObject, subModelIdx: number, passIdx: number) {
+        const subModel = renderObj.model.subModels[subModelIdx];
+        const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx));
+        const pass = subModel.passes[passIdx];
+
         if (pass.phase === this._phaseID) {
-            const subModel = renderObj.model.subModels[subModelIdx];
-            const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
-            const fullPatches = modelPatches ? forwardShadowMapPatches.concat(modelPatches) : forwardShadowMapPatches;
-
-            const shader = ShaderPool.get(pass.getShaderVariant(fullPatches));
-
             if (this._shadowMapBuffer) {
                 this._subModelsArray.push(subModel);
                 this._shaderArray.push(shader);
