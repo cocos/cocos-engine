@@ -28,7 +28,7 @@
  */
 
 import { RenderableComponent } from '../../../core/3d/framework/renderable-component';
-import { ccclass, property, executeInEditMode, requireComponent, disallowMultiple } from '../../../core/data/class-decorator';
+import { ccclass, property, executeInEditMode, requireComponent, disallowMultiple, tooltip } from '../../../core/data/class-decorator';
 import { Color } from '../../../core/math';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { ccenum } from '../../../core/value-types/enum';
@@ -219,21 +219,12 @@ export class UIRenderComponent extends RenderableComponent {
     }
 
     public getUIMaterialIns () {
-        let mat;
-        if (!this._uiMaterialIns) {
+        if (!this._uiMaterialIns || this._uiMatInsDirty) {
             _matInsInfo.owner = this;
             _matInsInfo.parent = this._uiMaterial!;
-            mat = new MaterialInstance(_matInsInfo);
-            this._uiMaterialIns = mat;
-        } else {
-            if (this._uiMatInsDirty) {
-                _matInsInfo.owner = this;
-                _matInsInfo.parent = this._uiMaterial!;
-                mat = new MaterialInstance(_matInsInfo);
-                this._uiMaterialIns = mat;
-            }
+            this._uiMaterialIns = new MaterialInstance(_matInsInfo);
+            this._uiMatInsDirty = false;
         }
-        this._uiMatInsDirty = false;
         return this._uiMaterialIns;
     }
 
@@ -431,44 +422,28 @@ export class UIRenderComponent extends RenderableComponent {
     }
 
     public _updateBlendFunc () {
-            let mat = this.getMaterial(0);
-            if(mat) {
-                const target = this._blendTemplate.blendState.targets[0];
-                if (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor) {
-                    mat = this.material;
-                    target.blendDst = this._dstBlendFactor;
-                    target.blendSrc = this._srcBlendFactor;
-                    this._blendTemplate.depthStencilState = mat!.passes[0].depthStencilState;
-                    this._blendTemplate.rasterizerState = mat!.passes[0].rasterizerState;
-                    mat!.overridePipelineStates(this._blendTemplate, 0);
-                }
-                return mat;
-            } else {
-                if (this._uiMaterialIns !== null && this._uiMatInsDirty) {
-                    mat = this.getUIMaterialIns();
-                    const target = this._blendTemplate.blendState.targets[0];
-                    target.blendDst = this._dstBlendFactor;
-                    target.blendSrc = this._srcBlendFactor;
-                    this._blendTemplate.depthStencilState = mat!.passes[0].depthStencilState;
-                    this._blendTemplate.rasterizerState = mat!.passes[0].rasterizerState;
-                    mat!.overridePipelineStates(this._blendTemplate, 0);
-                } else {
-                    const target = this._blendTemplate.blendState.targets[0];
-                    if (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor) {
-                        mat = this.getUIMaterialIns();
-                        target.blendDst = this._dstBlendFactor;
-                        target.blendSrc = this._srcBlendFactor;
-                        this._blendTemplate.depthStencilState = mat!.passes[0].depthStencilState;
-                        this._blendTemplate.rasterizerState = mat!.passes[0].rasterizerState;
-                        mat!.overridePipelineStates(this._blendTemplate, 0);
-                    }
-                }
-                if(!mat) {
-                    mat = this.getUIRenderMat();
-                }
-                return mat;
-            }
+        let mat = this.getMaterial(0);
+        const target = this._blendTemplate.blendState.targets[0];
 
+        if(mat) {
+            if (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor) {
+                mat = this.material!;
+                target.blendDst = this._dstBlendFactor;
+                target.blendSrc = this._srcBlendFactor;
+                mat.overridePipelineStates(this._blendTemplate, 0);
+            }
+            return mat;
+        }
+
+        if ((this._uiMaterialIns !== null && this._uiMatInsDirty) ||
+            (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor)) {
+            mat = this.getUIMaterialIns();
+            target.blendDst = this._dstBlendFactor;
+            target.blendSrc = this._srcBlendFactor;
+            mat.overridePipelineStates(this._blendTemplate, 0);
+        }
+
+        return mat || this.getUIRenderMat();
     }
 
     // pos, rot, scale changed
