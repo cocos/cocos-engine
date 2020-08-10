@@ -2702,9 +2702,9 @@ let NodeDefines = {
     setPosition (newPosOrX, y, z) {
         let x;
         if (y === undefined) {
+            x = newPosOrX.x;
             y = newPosOrX.y;
             z = newPosOrX.z;
-            x = newPosOrX.x;
         }
         else {
             x = newPosOrX;
