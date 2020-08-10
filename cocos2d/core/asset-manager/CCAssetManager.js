@@ -595,6 +595,7 @@ AssetManager.prototype = {
      * @param {string} url - The url of asset
      * @param {Object} [options] - Some optional parameters
      * @param {cc.AudioClip.LoadMode} [options.audioLoadMode] - Indicate which mode audio you want to load
+     * @param {string} [options.ext] - If the url does not have a extension name, you can specify one manually.
      * @param {Function} [onComplete] - Callback invoked when finish loading
      * @param {Error} onComplete.err - The error occured in loading process.
      * @param {Asset} onComplete.asset - The loaded texture
@@ -602,6 +603,7 @@ AssetManager.prototype = {
      * @example
      * cc.assetManager.loadRemote('http://www.cloud.com/test1.jpg', (err, texture) => console.log(err));
      * cc.assetManager.loadRemote('http://www.cloud.com/test2.mp3', (err, audioClip) => console.log(err));
+     * cc.assetManager.loadRemote('http://www.cloud.com/test3', { ext: '.png' }, (err, audioClip) => console.log(err));
      * 
      * @typescript
      * loadRemote<T extends cc.Asset>(url: string, options: Record<string, any>, onComplete: (err: Error, asset: T) => void): void
