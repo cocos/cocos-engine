@@ -603,7 +603,7 @@ AssetManager.prototype = {
      * @example
      * cc.assetManager.loadRemote('http://www.cloud.com/test1.jpg', (err, texture) => console.log(err));
      * cc.assetManager.loadRemote('http://www.cloud.com/test2.mp3', (err, audioClip) => console.log(err));
-     * cc.assetManager.loadRemote('http://www.cloud.com/test3', { ext: '.png' }, (err, audioClip) => console.log(err));
+     * cc.assetManager.loadRemote('http://www.cloud.com/test3', { ext: '.png' }, (err, texture) => console.log(err));
      * 
      * @typescript
      * loadRemote<T extends cc.Asset>(url: string, options: Record<string, any>, onComplete: (err: Error, asset: T) => void): void
