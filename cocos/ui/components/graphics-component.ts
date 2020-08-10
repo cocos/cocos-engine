@@ -283,7 +283,6 @@ export class GraphicsComponent extends UIRenderComponent {
             return;
         }
 
-        // this._updateMaterial(this._material);
         this.helpInstanceMaterial();
     }
 
@@ -576,10 +575,6 @@ export class GraphicsComponent extends UIRenderComponent {
     protected _render (render: UI) {
         render.commitModel(this, this.model, this._uiMaterialIns);
     }
-
-    // protected _instanceMaterial (){
-    //     this.helpInstanceMaterial();
-    // }
 
     protected _flushAssembler (){
         const assembler = GraphicsComponent.Assembler!.getAssembler(this);

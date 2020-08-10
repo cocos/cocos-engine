@@ -139,8 +139,6 @@ export class UI {
             this._meshBuffers[i].destroy();
         }
         this._meshBuffers.splice(0);
-
-        // this._destroyUIMaterials();
     }
 
     public getRenderSceneGetter () {
@@ -336,7 +334,6 @@ export class UI {
                     if (batch.camera) {
                         uiModel.visFlags = batch.camera.view.visibility;
                         if (this._canvasMaterials.get(batch.camera.view.visibility)!.get(batch.material!.hash) == null) {
-                            // this._uiMaterials.get(batch.material!.hash)!.increase();
                             this._canvasMaterials.get(batch.camera.view.visibility)!.set(batch.material!.hash, 1);
                         }
                     }
@@ -481,6 +478,7 @@ export class UI {
         curDrawBatch.ia!.indexCount = vCount;
 
         // curDrawBatch.psoCreateInfo = this._getUIMaterial(mat).getPipelineCreateInfo();
+        curDrawBatch.psoCreateInfo = mat.passes[0].createPipelineStateCI();
         curDrawBatch.bindingLayout = curDrawBatch.psoCreateInfo!.bindingLayout;
         curDrawBatch.hDescriptorSet = PassPool.get(mat.passes[0].handle, PassView.DESCRIPTOR_SET);
         curDrawBatch.psoCreateInfo = mat.passes[0].createPipelineStateCI();

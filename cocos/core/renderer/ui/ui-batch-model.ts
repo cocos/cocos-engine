@@ -48,6 +48,7 @@ export class UIBatchModel extends Model {
     public updateUBOs () { return false; }
 
     public updateUBOs () {
+        // Should updatePass when updateUBOS
         this._subModels.forEach(this._updatePass, this);
         //this._subModels[0].update();
         // return false;

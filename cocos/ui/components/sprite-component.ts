@@ -430,8 +430,6 @@ export class SpriteComponent extends UIRenderComponent {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
         this._uiMaterialDirty = true;
-        // this._instanceMaterial();
-        // this.sharedMaterials = this.sharedMaterials;
     }
 
     /**
@@ -571,7 +569,10 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     public changeMaterialForDefine () {
-        const texture = this._spriteFrame!.texture;
+        let texture;
+        if (this._spriteFrame) {
+            texture = this._spriteFrame.texture;
+        }
         let value = false;
         if (texture instanceof TextureBase) {
             const format = texture.getPixelFormat();
@@ -738,8 +739,7 @@ export class SpriteComponent extends UIRenderComponent {
         }
 
         this.changeMaterialForDefine();
-        // this._instanceMaterial();
-        this.sharedMaterials = this.sharedMaterials;
+        // this.sharedMaterials = this.sharedMaterials;
         this._applySpriteSize();
     }
 

@@ -28,7 +28,7 @@
  */
 
 import { RenderableComponent } from '../../../core/3d/framework/renderable-component';
-import { ccclass, property, executeInEditMode } from '../../../core/data/class-decorator';
+import { ccclass, property, executeInEditMode, requireComponent, disallowMultiple } from '../../../core/data/class-decorator';
 import { Color } from '../../../core/math';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { ccenum } from '../../../core/value-types/enum';
@@ -42,9 +42,8 @@ import { RenderData } from '../../renderer/ui/render-data';
 import { UI } from '../../renderer/ui/ui';
 import { Node } from '../../scene-graph';
 import { TransformBit } from '../../scene-graph/node-enum';
-import { UIComponent } from './ui-component';
 import { legacyCC } from '../../global-exports';
-import { GFXBuffer } from '../../gfx/buffer';
+import { UITransformComponent } from './ui-transform-component';
 
 // hack
 ccenum(GFXBlendFactor);
@@ -117,6 +116,8 @@ const _matInsInfo: IMaterialInstanceInfo = {
  * 所有支持渲染的 UI 组件的基类。
  */
 @ccclass('cc.UIRenderComponent')
+@requireComponent(UITransformComponent)
+@disallowMultiple
 @executeInEditMode
 export class UIRenderComponent extends RenderableComponent {
 
@@ -209,44 +210,7 @@ export class UIRenderComponent extends RenderableComponent {
         this.markForUpdateRenderData();
     }
 
-    // /**
-    //  * @zh
-    //  * 渲染使用材质，实际使用材质是实例后材质。
-    //  *
-    //  * @param value 源材质。
-    //  */
-    // @property({
-    //     type: Material,
-    //     displayOrder: 3,
-    //     tooltip: '源材质',
-    // })
-    // get sharedMaterial () {
-    //     return this._sharedMaterial;
-    // }
-
-    // set sharedMaterial (value) {
-    //     if (this._sharedMaterial === value) {
-    //         return;
-    //     }
-
-    //     this._sharedMaterial = value;
-    //     if (this._instanceMaterial) {
-    //         this._instanceMaterial();
-    //     }
-    // }
-
-    // get material () {
-    //     if (!this._material){
-    //         if (this._instanceMaterial) {
-    //             this._instanceMaterial();
-    //         }
-    //     }
-
-    //     return this._material;
-    // }
-
     // hack for builtinMaterial
-    protected _useCustomerMaterial = false;
     protected _uiMaterial: Material | null = null;
     protected _uiMaterialIns: MaterialInstance | null = null;
 
@@ -294,9 +258,6 @@ export class UIRenderComponent extends RenderableComponent {
     }
 
     set sharedMaterials (val) {
-        // 使用uniform的话，此处不必再选择不同pass的材质
-        this._useCustomerMaterial = !!val[0] && val[0].effectName !== 'builtin-sprite';
-        // val[0] = this._instanceMaterial(val[0]);
         super.sharedMaterials = val;
     }
 
@@ -319,8 +280,6 @@ export class UIRenderComponent extends RenderableComponent {
     protected _dstBlendFactor = GFXBlendFactor.ONE_MINUS_SRC_ALPHA;
     @property
     protected _color: Color = Color.WHITE.clone();
-    // @property
-    // protected _sharedMaterial: Material | null = null;
 
     protected _assembler: IAssembler | null = null;
     protected _postAssembler: IAssembler | null = null;
@@ -329,7 +288,6 @@ export class UIRenderComponent extends RenderableComponent {
     protected _renderFlag = true;
     // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
     protected _delegateSrc: Node | null = null;
-    // protected _material: Material | null = null;
     protected _instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
     protected _blendTemplate = {
         blendState: {
@@ -373,8 +331,9 @@ export class UIRenderComponent extends RenderableComponent {
                 this._materialInstances[i]!.destroy();
             }
         }
-
-        // this._updateMaterial(null);
+        if (this._uiMaterialIns) {
+            this._uiMaterialIns.destroy();
+        }
         this._renderData = null;
     }
 
@@ -459,8 +418,8 @@ export class UIRenderComponent extends RenderableComponent {
     }
 
     protected _canRender () {
+        // this.getMaterial(0) !== null still can render is hack for builtin Material
         return this.enabled && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy);
-        // this.getMaterial(0) !== null &&
     }
 
     protected _postCanRender () {}
@@ -470,11 +429,6 @@ export class UIRenderComponent extends RenderableComponent {
             this._assembler!.updateColor(this);
         }
     }
-
-    // protected _updateMaterial (material: Material | null) {
-    //     this.material = material;
-    //     this._updateBlendFunc();
-    // }
 
     public _updateBlendFunc () {
             let mat = this.getMaterial(0);
@@ -563,10 +517,6 @@ export class UIRenderComponent extends RenderableComponent {
             if(!init) {this._uiMatInsDirty = true;}
             return this._uiMaterial;
         }
-    }
-
-    protected _onMaterialModified (index: number, material: Material) {
-        // this._updateBlendFunc();
     }
 
     protected _flushAssembler? (): void;
