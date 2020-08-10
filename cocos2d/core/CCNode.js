@@ -1686,8 +1686,8 @@ let NodeDefines = {
             _currentHovered = null;
         }
 
-        // this._bubblingListeners && this._bubblingListeners.clear();
-        // this._capturingListeners && this._capturingListeners.clear();
+        this._bubblingListeners && this._bubblingListeners.clear();
+        this._capturingListeners && this._capturingListeners.clear();
 
         // Remove all event listeners if necessary
         if (this._touchListener || this._mouseListener) {
