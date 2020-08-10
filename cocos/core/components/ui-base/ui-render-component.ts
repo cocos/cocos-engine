@@ -254,7 +254,7 @@ export class UIRenderComponent extends RenderableComponent {
         return this._uiMaterialIns || this._uiMaterial;
     }
 
-    protected getUIMaterialIns () {
+    public getUIMaterialIns () {
         let mat;
         if (!this._uiMaterialIns) {
             _matInsInfo.owner = this;

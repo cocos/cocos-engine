@@ -369,6 +369,10 @@ export class UI {
         if (!mat) {
             mat = renderComp._updateBuiltinMaterial();
             mat = renderComp._updateBlendFunc();
+            // hack for maskComponent
+            if(StencilManager.sharedManager!.stage !== 0) {
+                mat = renderComp.getUIMaterialIns();
+            }
         }
 
         if (this._currMaterial !== mat ||

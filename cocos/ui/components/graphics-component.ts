@@ -284,7 +284,7 @@ export class GraphicsComponent extends UIRenderComponent {
         }
 
         // this._updateMaterial(this._material);
-        this.sharedMaterials = this.sharedMaterials;
+        this.helpInstanceMaterial();
     }
 
     /**
@@ -554,7 +554,7 @@ export class GraphicsComponent extends UIRenderComponent {
      */
     public helpInstanceMaterial () {
         let mat: MaterialInstance | null = null;
-        _matInsInfo.owner = new RenderableComponent();
+        _matInsInfo.owner = this;
         if (this.sharedMaterial) {
             _matInsInfo.parent = this.sharedMaterial[0];
             mat = new MaterialInstance(_matInsInfo);
@@ -564,8 +564,9 @@ export class GraphicsComponent extends UIRenderComponent {
             mat.recompileShaders({ USE_LOCAL: true });
         }
 
-        // this._updateMaterial(mat);
-        this.sharedMaterials = this.sharedMaterials;
+        this._uiMaterial = _matInsInfo.parent;
+        this._uiMaterialIns = mat;
+
         if (!this.impl){
             this._flushAssembler();
             this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
@@ -573,7 +574,7 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     protected _render (render: UI) {
-        render.commitModel(this, this.model, this.material);
+        render.commitModel(this, this.model, this._uiMaterialIns);
     }
 
     // protected _instanceMaterial (){
