@@ -216,7 +216,7 @@ export class ForwardStage extends RenderStage {
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        camera.scene!.planarShadows.recordCommandBuffer(device, renderPass, cmdBuff);
+        pipeline.planarShadows!.enabled && pipeline.planarShadows!.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();

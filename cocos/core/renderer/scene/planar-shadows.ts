@@ -6,17 +6,22 @@ import { Color, Mat4, Quat, Vec3 } from '../../math';
 import { IInternalBindingInst, UBOShadow } from '../../pipeline/define';
 import { DirectionalLight } from './directional-light';
 import { Model } from './model';
-import { RenderScene } from './render-scene';
 import { SphereLight } from './sphere-light';
 import { GFXCommandBuffer, GFXDevice, GFXRenderPass } from '../../gfx';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
 import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
+import { ccclass, property } from '../../data/class-decorator';
+import { CCFloat, CCBoolean } from '../../data/utils/attribute';
+import { Node } from '../../scene-graph';
+import { legacyCC } from '../../global-exports';
+import { RenderScene } from './render-scene';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
 const _ab = new aabb();
 const _qt = new Quat();
+const _up = new Vec3(0, 1, 0);
 
 interface IShadowRenderData {
     model: Model;
@@ -24,36 +29,59 @@ interface IShadowRenderData {
     instancedBuffer: InstancedBuffer | null;
 }
 
+@ccclass('cc.PlanarShadows')
 export class PlanarShadows {
-
-    set enabled (enable: boolean) {
-        this._enabled = enable;
-        if (this._scene.mainLight) { this.updateDirLight(this._scene.mainLight); }
-    }
-
+    /**
+     * @en Whether activate planar shadow
+     * @zh 是否启用平面阴影？
+     */
+    @property({ type: CCBoolean })
     get enabled (): boolean {
         return this._enabled;
     }
 
-    set normal (val: Vec3) {
-        Vec3.copy(this._normal, val);
-        if (this._scene.mainLight) { this.updateDirLight(this._scene.mainLight); }
+    set enabled (enable: boolean) {
+        this._enabled = enable;
     }
+
+    /**
+     * @en The normal of the plane which receives shadow
+     * @zh 阴影接收平面的法线
+     */
+    @property({ type: Vec3 })
     get normal () {
         return this._normal;
     }
 
-    set distance (val: number) {
-        this._distance = val;
-        if (this._scene.mainLight) { this.updateDirLight(this._scene.mainLight); }
+    set normal (val: Vec3) {
+        Vec3.copy(this._normal, val);
     }
+
+    /**
+     * @en The distance from coordinate origin to the receiving plane.
+     * @zh 阴影接收平面与原点的距离
+     */
+    @property({ type: CCFloat })
     get distance () {
         return this._distance;
     }
 
+    set distance (val: number) {
+        this._distance = val;
+    }
+
+    /**
+     * @en Shadow color
+     * @zh 阴影颜色
+     */
+    @property({ type: Color })
+    get shadowColor () {
+        return this._shadowColor;
+    }
+
     set shadowColor (color: Color) {
         Color.toArray(this._data, color, UBOShadow.SHADOW_COLOR_OFFSET);
-        this._globalBindings.buffer!.update(this.data);
+        this._globalBinding!.buffer!.update(this.data);
     }
 
     get matLight () {
@@ -64,25 +92,33 @@ export class PlanarShadows {
         return this._data;
     }
 
-    protected _scene: RenderScene;
+    @property
     protected _enabled: boolean = false;
+    @property
     protected _normal = new Vec3(0, 1, 0);
+    @property
     protected _distance = 0;
+    @property
+    protected _shadowColor = new Color(0, 0, 0, 76);
     protected _matLight = new Mat4();
     protected _data = Float32Array.from([
         1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, // matLightPlaneProj
         0.0, 0.0, 0.0, 0.3, // shadowColor
     ]);
-    protected _globalBindings: IInternalBindingInst;
+    protected _globalBinding: IInternalBindingInst | null = null;
     protected _record = new Map<Model, IShadowRenderData>();
     protected _pendingModels: IShadowRenderData[] = [];
-    protected _material: Material;
-    protected _instancingMaterial: Material;
+    protected _material: Material | null = null;
+    protected _instancingMaterial: Material | null = null;
     protected _device: GFXDevice|null = null;
 
-    constructor (scene: RenderScene) {
-        this._scene = scene;
-        this._globalBindings = scene.root.pipeline.globalBindings.get(UBOShadow.BLOCK.name)!;
+    constructor () {
+
+    }
+
+    public activate () {
+        const pipeline = legacyCC.director.root.pipeline;
+        this._globalBinding = pipeline.globalBindings.get(UBOShadow.BLOCK.name)!;
         this._material = new Material();
         this._material.initialize({ effectName: 'pipeline/planar-shadow' });
         this._instancingMaterial = new Material();
@@ -113,7 +149,7 @@ export class PlanarShadows {
         m.m14 = lz * d;
         m.m15 = NdL;
         Mat4.toArray(this.data, this._matLight);
-        this._globalBindings.buffer!.update(this.data);
+        this._globalBinding!.buffer!.update(this.data);
     }
 
     public updateDirLight (light: DirectionalLight) {
@@ -141,13 +177,13 @@ export class PlanarShadows {
         m.m14 = lz * d;
         m.m15 = 1;
         Mat4.toArray(this.data, this._matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
-        this._globalBindings.buffer!.update(this.data);
+        this._globalBinding!.buffer!.update(this.data);
     }
 
-    public updateShadowList (frstm: frustum, stamp: number, shadowVisible = false) {
+    public updateShadowList (scene: RenderScene, frstm: frustum, stamp: number, shadowVisible = false) {
         this._pendingModels.length = 0;
-        if (!this._scene.mainLight || !shadowVisible) { return; }
-        const models = this._scene.models;
+        if (!scene.mainLight || !shadowVisible) { return; }
+        const models = scene.models;
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
             if (!model.enabled || !model.node || !model.castShadow) { continue; }
@@ -167,7 +203,7 @@ export class PlanarShadows {
         this._device = device;
         const models = this._pendingModels;
         const modelLen = models.length;
-        const buffer = InstancedBuffer.get(this._instancingMaterial.passes[0], device);
+        const buffer = InstancedBuffer.get(this._instancingMaterial!.passes[0], device);
         if (buffer) { buffer.clear(); }
         for (let i = 0; i < modelLen; i++) {
             const { model, psoCIs: psocis, instancedBuffer } = models[i];
@@ -207,7 +243,7 @@ export class PlanarShadows {
 
     public createShadowData (model: Model): IShadowRenderData {
         const psoCIs: number[] = [];
-        const material = model.isInstancingEnabled ? this._instancingMaterial : this._material;
+        const material = model.isInstancingEnabled ? this._instancingMaterial! : this._material!;
         for (let i = 0; i < model.subModelNum; i++) {
             const psoCI = material.passes[0].createPipelineStateCI(model.getMacroPatches(i));
             if (psoCI) {
@@ -222,7 +258,7 @@ export class PlanarShadows {
     public destroyShadowData (model: Model) {
         const data = this._record.get(model);
         if (!data) { return; }
-        const material = data.instancedBuffer ? this._instancingMaterial : this._material;
+        const material = data.instancedBuffer ? this._instancingMaterial! : this._material!;
         for (let i = 0; i < data.psoCIs.length; i++) {
             const psoCI = data.psoCIs[i];
             model.removeImplantPSOCI(psoCI);
@@ -242,6 +278,19 @@ export class PlanarShadows {
 
     public destroy () {
         this.onGlobalPipelineStateChanged();
-        this._material.destroy();
+        this._material!.destroy();
+        this._instancingMaterial!.destroy();
+    }
+
+    /**
+     * @en Set plane which receives shadow with the given node's world transformation
+     * @zh 根据指定节点的世界变换设置阴影接收平面的信息
+     * @param node The node for setting up the plane
+     */
+    public setPlaneFromNode (node: Node) {
+        node.getWorldRotation(_qt);
+        this.normal = Vec3.transformQuat(_v3, _up, _qt);
+        node.getWorldPosition(_v3);
+        this.distance = Vec3.dot(this._normal, _v3);
     }
 }

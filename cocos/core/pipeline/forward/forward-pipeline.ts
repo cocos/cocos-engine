@@ -27,6 +27,11 @@ import { RenderView } from '../render-view';
 import { Mat4, Vec3, Vec2, Quat, Vec4 } from '../../math';
 import { GFXFeature } from '../../gfx/device';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
+import { SkyboxInfo } from '../../scene-graph/scene-globals';
+import { Fog } from '../../renderer/scene/fog';
+import { Ambient } from '../../renderer/scene/ambient';
+import { Skybox } from '../../renderer/scene/skybox';
+import { PlanarShadows } from '../../renderer/scene/planar-shadows';
 
 const _vec4Array = new Float32Array(4);
 const shadowCamera_W_P = new Vec3();
@@ -108,29 +113,120 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     /**
-     * @zh
-     * 获取阴影UBO。
+     * @en Get shadow UBO.
+     * @zh 获取阴影UBO。
      */
-    public  get shadowUBOBuffer (){
+    public get shadowUBOBuffer () {
         return this._globalBindings.get(UBOPCFShadow.BLOCK.name)!.buffer!;
     }
 
     /**
-     * @zh
-     * 获取阴影贴图分辨率
+     * @en Get size of shadow map.
+     * @zh 获取阴影贴图分辨率
      */
     public get shadowMapSize () {
         return this._shadowMapSize;
     }
-
     @property({
         type: [RenderTextureConfig],
+        displayOrder: 2,
     })
     protected renderTextures: RenderTextureConfig[] = [];
+
     @property({
         type: [MaterialConfig],
+        displayOrder: 3,
     })
     protected materials: MaterialConfig[] = [];
+
+    /**
+     * @en Get ambient.
+     * @zh 获取环境光照
+     */
+    @property({
+        type: Ambient,
+        displayOrder: 4,
+    })
+    public get ambient () {
+        return this._ambient;
+    }
+
+    public set ambient (val) {
+        if (!val) return;
+        this._ambient = val;
+    }
+
+    /**
+     * @en Skybox related information
+     * @zh 天空盒相关信息
+     */
+    @property({
+        type: SkyboxInfo,
+        displayOrder: 5,
+    })
+    get skyboxInfo () {
+        return this._skyboxInfo;
+    }
+    set skyboxInfo (value) {
+        this._skyboxInfo = value;
+    }
+
+    /**
+     * @en Get skybox.
+     * @zh 获取天空盒
+     */
+    public get skybox () {
+        return this._skybox;
+    }
+
+    public set skybox (val) {
+        if (!val) return;
+        this._skybox = val;
+    }
+
+    /**
+     * @en Get planar shadow.
+     * @zh 获取平面阴影数据
+     */
+    @property({
+        type: PlanarShadows,
+        displayOrder: 6,
+    })
+    public get planarShadows () {
+        return this._planarShadows;
+    }
+
+    public set planarShadows (val) {
+        if (!val) return;
+        this._planarShadows = val;
+    }
+
+    /**
+     * @en Get fog.
+     * @zh 获取全局雾
+     */
+    @property({
+        type: Fog,
+        displayOrder: 7,
+    })
+    public get fog () {
+        return this._fog;
+    }
+
+    public set fog (val) {
+        if (!val) return;
+        this._fog = val;
+    }
+
+    @property
+    protected _fog: Fog = new Fog();
+    @property
+    protected _ambient: Ambient = new Ambient();
+    protected _skybox: Skybox = new Skybox();
+    @property
+    protected _skyboxInfo: SkyboxInfo = new SkyboxInfo();
+    @property
+    protected _planarShadows: PlanarShadows = new PlanarShadows();
     /**
      * @en The list for render objects, only available after the scene culling of the current frame.
      * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
@@ -200,6 +296,9 @@ export class ForwardPipeline extends RenderPipeline {
         uiFlow.initialize(UIFlow.initInfo);
         this._flows.push(uiFlow);
         uiFlow.activate(this);
+
+        this._skybox.activate();
+        this._planarShadows.activate();
 
         return true;
     }
@@ -484,8 +583,8 @@ export class ForwardPipeline extends RenderPipeline {
         const scene = camera.scene!;
 
         const mainLight = scene.mainLight;
-        const ambient = scene.ambient;
-        const fog = scene.fog;
+        const ambient = this._ambient!;
+        const fog = this._fog!;
         const uboGlobal = this._uboGlobal;
         const fv = uboGlobal.view;
         const device = this.device;
@@ -552,17 +651,17 @@ export class ForwardPipeline extends RenderPipeline {
             Vec4.toArray(fv, Vec4.ZERO, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
         }
 
-        const skyColor = ambient.skyColor;
+        const skyColor = ambient.colorArray;
         if (this._isHDR) {
             skyColor[3] = ambient.skyIllum * this._fpScale;
         } else {
             skyColor[3] = ambient.skyIllum * exposure;
         }
         fv.set(skyColor, UBOGlobal.AMBIENT_SKY_OFFSET);
-        fv.set(ambient.groundAlbedo, UBOGlobal.AMBIENT_GROUND_OFFSET);
+        fv.set(ambient.albedoArray, UBOGlobal.AMBIENT_GROUND_OFFSET);
 
         if (fog.enabled) {
-            fv.set(fog.fogColor, UBOGlobal.GLOBAL_FOG_COLOR_OFFSET);
+            fv.set(fog.colorArray, UBOGlobal.GLOBAL_FOG_COLOR_OFFSET);
 
             fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET] = fog.fogStart;
             fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET + 1] = fog.fogEnd;
