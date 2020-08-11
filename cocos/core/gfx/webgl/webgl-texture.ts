@@ -1,4 +1,4 @@
-import { GFXTextureFlagBit, GFXStatus, GFXFormatSurfaceSize } from '../define';
+import { GFXTextureFlagBit, GFXFormatSurfaceSize } from '../define';
 import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo, IsPowerOf2 } from '../texture';
 import { WebGLCmdFuncCreateTexture, WebGLCmdFuncDestroyTexture, WebGLCmdFuncResizeTexture } from './webgl-commands';
 import { WebGLDevice } from './webgl-device';
@@ -15,7 +15,6 @@ export class WebGLTexture extends GFXTexture {
     public initialize (info: IGFXTextureInfo | IGFXTextureViewInfo): boolean {
         if ('texture' in info) {
             console.log('WebGL does not support texture view.');
-            this._status = GFXStatus.FAILED
             return false;
         }
 
@@ -84,7 +83,6 @@ export class WebGLTexture extends GFXTexture {
         WebGLCmdFuncCreateTexture(this._device as WebGLDevice, this._gpuTexture);
 
         this._device.memoryStatus.textureSize += this._size;
-        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
@@ -96,7 +94,6 @@ export class WebGLTexture extends GFXTexture {
             this._gpuTexture = null;
         }
         this._buffer = null;
-        this._status = GFXStatus.UNREADY;
     }
 
     public resize (width: number, height: number) {

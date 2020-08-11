@@ -2,12 +2,12 @@
  * @category gfx
  */
 
-import { GFXObject, GFXObjectType, GFXShaderType, GFXType } from './define';
+import { GFXObject, GFXObjectType, GFXShaderStageFlagBit, GFXType } from './define';
 import { GFXDevice } from './device';
 import { IGFXAttribute } from './input-assembler';
 
 export class GFXShaderStage {
-    public type: GFXShaderType = GFXShaderType.NONE;
+    public stage: GFXShaderStageFlagBit = GFXShaderStageFlagBit.NONE;
     public source: string = '';
 }
 
@@ -26,11 +26,11 @@ export class GFXUniform {
  * @zh GFX uniform 块。
  */
 export class GFXUniformBlock {
-    public shaderStages: GFXShaderType = GFXShaderType.NONE;
     public set: number = -1;
     public binding: number = -1;
     public name: string = '';
     public members: GFXUniform[] = [];
+    public count: number = 1;
 }
 
 /**
@@ -38,7 +38,6 @@ export class GFXUniformBlock {
  * @zh GFX Uniform 采样器。
  */
 export class GFXUniformSampler {
-    public shaderStages: GFXShaderType = GFXShaderType.NONE;
     public set: number = -1;
     public binding: number = -1;
     public name: string = '';

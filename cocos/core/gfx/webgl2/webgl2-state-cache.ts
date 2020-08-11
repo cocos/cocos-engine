@@ -9,11 +9,11 @@ export class WebGL2StateCache {
     public glArrayBuffer: WebGLBuffer | null = null;
     public glElementArrayBuffer: WebGLBuffer | null = null;
     public glUniformBuffer: WebGLBuffer | null = null;
-    public glBindUBOs: Array<WebGLBuffer | null>;
+    public glBindUBOs: (WebGLBuffer | null)[];
     public glVAO: WebGLVertexArrayObject | null = null;
     public texUnit: number = 0;
     public glTexUnits: IWebGL2TexUnit[];
-    public glSamplerUnits: Array<WebGLSampler | null>;
+    public glSamplerUnits: (WebGLSampler | null)[];
     public glRenderbuffer: WebGLRenderbuffer | null = null;
     public glFramebuffer: WebGLFramebuffer | null = null;
     public glReadFramebuffer: WebGLFramebuffer | null = null;

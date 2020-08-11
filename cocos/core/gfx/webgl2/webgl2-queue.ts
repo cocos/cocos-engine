@@ -1,7 +1,6 @@
 import { GFXCommandBuffer } from '../command-buffer';
 import { GFXQueue, IGFXQueueInfo } from '../queue';
 import { WebGL2CommandBuffer } from './webgl2-command-buffer';
-import { GFXStatus } from '../define';
 import { GFXFence } from '../fence';
 import { WebGL2Fence } from './webgl2-fence';
 
@@ -15,13 +14,10 @@ export class WebGL2Queue extends GFXQueue {
 
         this._type = info.type;
 
-        this._status = GFXStatus.SUCCESS;
-
         return true;
     }
 
     public destroy () {
-        this._status = GFXStatus.UNREADY;
     }
 
     public submit (cmdBuffs: GFXCommandBuffer[], fence?: GFXFence) {

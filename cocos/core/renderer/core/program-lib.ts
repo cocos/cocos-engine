@@ -28,15 +28,16 @@
  */
 
 import { IBlockInfo, IBuiltinInfo, IDefineInfo, ISamplerInfo, IShaderInfo } from '../../assets/effect-asset';
-import { GFXDescriptorType, GFXGetTypeSize, GFXShaderType } from '../../gfx/define';
+import { GFXDescriptorType, GFXGetTypeSize, GFXShaderStageFlagBit } from '../../gfx/define';
 import { GFXAPI, GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
-import { GFXUniformBlock, GFXShaderInfo, GFXUniformSampler } from '../../gfx/shader';
-import { localDescriptorSetLayout, SetIndex } from '../../pipeline/define';
-import { RenderPipeline, IDescriptorSetLayout } from '../../pipeline/render-pipeline';
-import { genHandle, MacroRecord } from './pass-utils';
+import { GFXUniformBlock, GFXShaderInfo } from '../../gfx/shader';
+import { SetIndex, IDescriptorSetLayoutInfo } from '../../pipeline/define';
+import { RenderPipeline } from '../../pipeline/render-pipeline';
+import { genHandle, MacroRecord, PropertyType } from './pass-utils';
 import { legacyCC } from '../../global-exports';
-import { ShaderPool, ShaderHandle } from './memory-pools';
+import { ShaderPool, ShaderHandle, PipelineLayoutHandle, PipelineLayoutPool } from './memory-pools';
+import { DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE, GFXDescriptorSetLayout, IGFXDescriptorSetLayoutBinding } from '../..';
 
 interface IDefineRecord extends IDefineInfo {
     _map: (value: any) => number;
@@ -50,12 +51,14 @@ export interface IProgramInfo extends IShaderInfo {
     samplers: ISamplerInfo[];
     defines: IDefineRecord[];
     handleMap: Record<string, number>;
-    descriptors: GFXDescriptorType[];
-    globalsInited: boolean;
-    localsInited: boolean;
-    uber: boolean; // macro number exceeds default limits
+    bindings: IGFXDescriptorSetLayoutBinding[];
+    samplerStartBinding: number;
+    uber: boolean; // macro number exceeds default limits, will fallback to string hash
+
+    setLayouts: GFXDescriptorSetLayout[];
+    hPipelineLayout: PipelineLayoutHandle;
 }
-export interface IMacroInfo {
+interface IMacroInfo {
     name: string;
     value: string;
     isDefault: boolean;
@@ -77,7 +80,8 @@ function mapDefine (info: IDefineInfo, def: number | string | boolean) {
 
 function prepareDefines (defs: MacroRecord, tDefs: IDefineInfo[]) {
     const macros: IMacroInfo[] = [];
-    for (const tmpl of tDefs) {
+    for (let i = 0; i < tDefs.length; i++) {
+        const tmpl = tDefs[i];
         const name = tmpl.name;
         const v = defs[name];
         const value = mapDefine(tmpl, v);
@@ -91,33 +95,28 @@ function getShaderInstanceName (name: string, macros: IMacroInfo[]) {
     return name + macros.reduce((acc, cur) => cur.isDefault ? acc : `${acc}|${cur.name}${cur.value}`, '');
 }
 
-function insertBuiltinBindings (tmpl: IProgramInfo, source: IDescriptorSetLayout, type: string) {
+function insertBuiltinBindings (tmpl: IProgramInfo, source: IDescriptorSetLayoutInfo, type: string) {
     const target = tmpl.builtins[type] as IBuiltinInfo;
     const blocks = tmpl.blocks;
-    for (const b of target.blocks) {
-        const info = source.layouts[b.name] as GFXUniformBlock;
-        if (!info || source.descriptors[info.binding] !== GFXDescriptorType.UNIFORM_BUFFER) {
+    for (let i = 0; i < target.blocks.length; i++) {
+        const b = target.blocks[i];
+        const info = source.record[b.name] as IBlockInfo;
+        if (!info || !(source.bindings[info.binding].descriptorType & DESCRIPTOR_BUFFER_TYPE)) {
             console.warn(`builtin UBO '${b.name}' not available!`);
             continue;
         }
-        const builtin: IBlockInfoRT = Object.assign({
-            defines: b.defines,
-            size: getSize(info),
-            count: 1,
-        }, info);
+        const builtin: IBlockInfoRT = Object.assign({ size: getSize(info) }, info);
         blocks.push(builtin);
     }
     const samplers = tmpl.samplers;
-    for (const s of target.samplers) {
-        const info = source.layouts[s.name] as GFXUniformSampler;
-        if (!info || source.descriptors[info.binding] !== GFXDescriptorType.SAMPLER) {
+    for (let i = 0; i < target.samplers.length; i++) {
+        const s = target.samplers[i];
+        const info = source.record[s.name] as ISamplerInfo;
+        if (!info || !(source.bindings[info.binding].descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
             console.warn(`builtin sampler '${s.name}' not available!`);
             continue;
         }
-        const builtin = Object.assign({
-            defines: s.defines,
-        }, info);
-        samplers.push(builtin);
+        samplers.push(info);
     }
 }
 
@@ -134,14 +133,14 @@ function genHandles (tmpl: IProgramInfo) {
         let offset = 0;
         for (let j = 0; j < members.length; j++) {
             const uniform = members[j];
-            handleMap[uniform.name] = genHandle(GFXDescriptorType.UNIFORM_BUFFER, block.set, block.binding, uniform.type, offset);
+            handleMap[uniform.name] = genHandle(PropertyType.UBO, block.set, block.binding, uniform.type, offset);
             offset += (GFXGetTypeSize(uniform.type) >> 2) * uniform.count;
         }
     }
     // sampler handles
     for (let i = 0; i < tmpl.samplers.length; i++) {
         const sampler = tmpl.samplers[i];
-        handleMap[sampler.name] = genHandle(GFXDescriptorType.SAMPLER, sampler.set, sampler.binding, sampler.type);
+        handleMap[sampler.name] = genHandle(PropertyType.SAMPLER, sampler.set, sampler.binding, sampler.type);
     }
     return handleMap;
 }
@@ -162,6 +161,8 @@ function getActiveAttributes (tmpl: IProgramInfo, defines: MacroRecord, outAttri
         outAttributes.push(attribute);
     }
 }
+
+let _dsLayout: GFXDescriptorSetLayout | null = null;
 
 /**
  * @zh
@@ -186,7 +187,8 @@ class ProgramLib {
         const tmpl = prog as IProgramInfo;
         // calculate option mask offset
         let offset = 0;
-        for (const def of tmpl.defines) {
+        for (let i = 0; i < tmpl.defines.length; i++) {
+            const def = tmpl.defines[i];
             let cnt = 1;
             if (def.type === 'number') {
                 const range = def.range!;
@@ -204,21 +206,26 @@ class ProgramLib {
         if (offset > 31) { tmpl.uber = true; }
 
         // cache material-specific descriptor set layout
-        const descriptors: GFXDescriptorType[] = tmpl.descriptors = [];
+        tmpl.samplerStartBinding = tmpl.blocks.length; tmpl.setLayouts = [];
+        tmpl.bindings = (tmpl.blocks as IGFXDescriptorSetLayoutBinding[]).concat(tmpl.samplers);
+
         for (let i = 0; i < tmpl.blocks.length; i++) {
             const block = tmpl.blocks[i];
             block.size = getSize(block);
             block.set = SetIndex.MATERIAL;
-            descriptors.push(GFXDescriptorType.UNIFORM_BUFFER);
+            if (!block.descriptorType) {
+                block.descriptorType = GFXDescriptorType.UNIFORM_BUFFER;
+            }
         }
         for (let i = 0; i < tmpl.samplers.length; i++) {
             const sampler = tmpl.samplers[i];
             sampler.set = SetIndex.MATERIAL;
-            descriptors.push(GFXDescriptorType.SAMPLER);
+            if (!sampler.descriptorType) {
+                sampler.descriptorType = GFXDescriptorType.SAMPLER;
+            }
         }
 
         tmpl.handleMap = genHandles(tmpl);
-        if (!tmpl.localsInited) { insertBuiltinBindings(tmpl, localDescriptorSetLayout, 'locals'); tmpl.localsInited = true; }
 
         // store it
         this._templates[prog.name] = tmpl;
@@ -290,7 +297,8 @@ class ProgramLib {
             return new RegExp(cur + val);
         });
         const keys = Object.keys(this._cache).filter((k) => regexes.every((re) => re.test(ShaderPool.get(this._cache[k]).name)));
-        for (const k of keys) {
+        for (let i = 0; i < keys.length; i++) {
+            const k = keys[i];
             const prog = ShaderPool.get(this._cache[k]);
             console.log(`destroyed shader ${prog.name}`);
             prog.destroy();
@@ -313,7 +321,18 @@ class ProgramLib {
 
         // get template
         const tmpl = this._templates[name];
-        if (!tmpl.globalsInited) { insertBuiltinBindings(tmpl, pipeline.globalDescriptorSetLayout, 'globals'); tmpl.globalsInited = true; }
+        if (!tmpl.hPipelineLayout) {
+            insertBuiltinBindings(tmpl, pipeline.globalDescriptorSetLayout, 'globals');
+            insertBuiltinBindings(tmpl, pipeline.localDescriptorSetLayout, 'locals');
+            tmpl.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
+            // material set layout should already been created in pass
+            tmpl.setLayouts[SetIndex.LOCAL] = _dsLayout = _dsLayout || device.createDescriptorSetLayout({
+                bindings: pipeline.localDescriptorSetLayout.bindings,
+            });
+            tmpl.hPipelineLayout = PipelineLayoutPool.alloc(device, {
+                setLayouts: tmpl.setLayouts,
+            });
+        }
 
         const macroArray = prepareDefines(defines, tmpl.defines);
         const prefix = macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '') + '\n';
@@ -337,8 +356,8 @@ class ProgramLib {
             name: getShaderInstanceName(name, macroArray),
             blocks: tmpl.blocks, samplers: tmpl.samplers, attributes,
             stages: [
-                { type: GFXShaderType.VERTEX, source: prefix + src.vert },
-                { type: GFXShaderType.FRAGMENT, source: prefix + src.frag },
+                { stage: GFXShaderStageFlagBit.VERTEX, source: prefix + src.vert },
+                { stage: GFXShaderStageFlagBit.FRAGMENT, source: prefix + src.frag },
             ],
         } as GFXShaderInfo);
     }

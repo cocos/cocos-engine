@@ -1,14 +1,14 @@
 import { RenderingSubMesh } from '../../assets/mesh';
 import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
-import { RenderPriority, localDescriptorSetLayout } from '../../pipeline/define';
+import { RenderPriority, SetIndex } from '../../pipeline/define';
 import { IMacroPatch, Pass } from '../core/pass';
 import { DSPool, IAPool, SubModelPool, SubModelView, SubModelHandle } from '../core/memory-pools';
 import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 
 const _dsInfo: IGFXDescriptorSetInfo = {
-    layout: [],
+    layout: null!,
 };
 
 export class SubModel {
@@ -73,7 +73,7 @@ export class SubModel {
         this._handle = SubModelPool.alloc();
         this._flushPassInfo();
 
-        _dsInfo.layout = localDescriptorSetLayout.descriptors;
+        _dsInfo.layout = passes[0].shaderInfo.setLayouts[SetIndex.LOCAL];
         const dsHandle = DSPool.alloc(this._device, _dsInfo);
         const iaHandle = IAPool.alloc(this._device, subMesh);
         SubModelPool.set(this._handle, SubModelView.PRIORITY, RenderPriority.DEFAULT);

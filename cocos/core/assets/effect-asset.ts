@@ -29,7 +29,7 @@
 
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Root } from '../../core/root';
-import { GFXDynamicStateFlags, GFXPrimitiveMode, GFXShaderType } from '../gfx/define';
+import { GFXDynamicStateFlags, GFXPrimitiveMode } from '../gfx/define';
 import { IGFXAttribute } from '../gfx/input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../gfx/pipeline-state';
 import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
@@ -39,6 +39,7 @@ import { programLib } from '../renderer/core/program-lib';
 import { Asset } from './asset';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { IGFXDescriptorSetLayoutBinding } from '../gfx';
 
 export interface IPropertyInfo {
     type: number; // auto-extracted from shader
@@ -69,12 +70,9 @@ export interface ITechniqueInfo {
     name?: string;
 }
 
-export interface IBlockInfo extends GFXUniformBlock {
-    defines: string[];
-}
-export interface ISamplerInfo extends GFXUniformSampler {
-    defines: string[];
-}
+export interface IBlockInfo extends GFXUniformBlock, IGFXDescriptorSetLayoutBinding {}
+export interface ISamplerInfo extends GFXUniformSampler, IGFXDescriptorSetLayoutBinding {}
+
 export interface IAttributeInfo extends IGFXAttribute {
     defines: string[];
 }

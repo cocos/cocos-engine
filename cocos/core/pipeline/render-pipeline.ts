@@ -8,7 +8,8 @@ import { ccclass, property } from '../data/class-decorator';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { MacroRecord } from '../renderer/core/pass-utils';
-import { GFXDevice, GFXDescriptorType, GFXUniformBlock, GFXUniformSampler, GFXDescriptorSet, GFXCommandBuffer } from '../gfx';
+import { GFXDevice, GFXDescriptorSet, GFXCommandBuffer, GFXDescriptorSetLayout } from '../gfx';
+import { globalDescriptorSetLayout, IDescriptorSetLayoutInfo } from './define';
 
 /**
  * @en Render pipeline information descriptor
@@ -17,11 +18,6 @@ import { GFXDevice, GFXDescriptorType, GFXUniformBlock, GFXUniformSampler, GFXDe
 export interface IRenderPipelineInfo {
     flows: RenderFlow[];
     tag?: number;
-}
-
-export interface IDescriptorSetLayout {
-    descriptors: GFXDescriptorType[];
-    layouts: Record<string, GFXUniformBlock | GFXUniformSampler>;
 }
 
 /**
@@ -40,7 +36,7 @@ export abstract class RenderPipeline extends Asset {
      * @zh 管线层的全局描述符集布局。
      * @readonly
      */
-    get globalDescriptorSetLayout (): Readonly<IDescriptorSetLayout> {
+    get globalDescriptorSetLayout (): Readonly<IDescriptorSetLayoutInfo> {
         return this._globalDescriptorSetLayout;
     }
 
@@ -49,9 +45,10 @@ export abstract class RenderPipeline extends Asset {
      * @zh 逐模型的描述符集布局。
      * @readonly
      */
-    get localDescriptorSetLayout (): Readonly<IDescriptorSetLayout> {
+    get localDescriptorSetLayout (): Readonly<IDescriptorSetLayoutInfo> {
         return this._localDescriptorSetLayout;
     }
+
 
     /**
      * @en The macros for this pipeline.
@@ -103,12 +100,17 @@ export abstract class RenderPipeline extends Asset {
     })
     protected _flows: RenderFlow[] = [];
 
-    protected _globalDescriptorSetLayout: IDescriptorSetLayout = { descriptors: [], layouts: {} };
-    protected _localDescriptorSetLayout: IDescriptorSetLayout = { descriptors: [], layouts: {} };
+    protected _globalDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], record: {} };
+    protected _localDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], record: {} };
+
     protected _macros: MacroRecord = {};
 
     get device () {
         return this._device;
+    }
+
+    get descriptorSetLayout () {
+        return this._descriptorSetLayout;
     }
 
     get descriptorSet () {
@@ -120,6 +122,7 @@ export abstract class RenderPipeline extends Asset {
     }
 
     protected _device!: GFXDevice;
+    protected _descriptorSetLayout!: GFXDescriptorSetLayout;
     protected _descriptorSet!: GFXDescriptorSet;
     protected _commandBuffers: GFXCommandBuffer[] = [];
 
@@ -141,8 +144,12 @@ export abstract class RenderPipeline extends Asset {
     public activate (): boolean {
         this._device = legacyCC.director.root.device;
 
+        this._descriptorSetLayout = this._device.createDescriptorSetLayout({
+            bindings: globalDescriptorSetLayout.bindings,
+        });
+
         this._descriptorSet = this._device.createDescriptorSet({
-            layout: this._globalDescriptorSetLayout.descriptors,
+            layout: this._descriptorSetLayout,
         });
 
         for (let i = 0; i < this._flows.length; i++) {

@@ -2,7 +2,6 @@ import { GFXShader, GFXShaderInfo } from '../shader';
 import { WebGL2CmdFuncCreateShader, WebGL2CmdFuncDestroyShader } from './webgl2-commands';
 import { WebGL2Device } from './webgl2-device';
 import { IWebGL2GPUShader, IWebGL2GPUShaderStage } from './webgl2-gpu-objects';
-import { GFXStatus } from '../define';
 
 export class WebGL2Shader extends GFXShader {
 
@@ -36,15 +35,13 @@ export class WebGL2Shader extends GFXShader {
         for (let i = 0; i < info.stages.length; ++i) {
             const stage = info.stages[i];
             this._gpuShader.gpuStages[i] = {
-                type: stage.type,
+                type: stage.stage,
                 source: stage.source,
                 glShader: null,
             };
         }
 
         WebGL2CmdFuncCreateShader(this._device as WebGL2Device, this._gpuShader);
-
-        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
@@ -54,6 +51,5 @@ export class WebGL2Shader extends GFXShader {
             WebGL2CmdFuncDestroyShader(this._device as WebGL2Device, this._gpuShader);
             this._gpuShader = null;
         }
-        this._status = GFXStatus.UNREADY;
     }
 }

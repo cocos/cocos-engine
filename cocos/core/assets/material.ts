@@ -31,9 +31,8 @@
 import { ccclass, property } from '../../core/data/class-decorator';
 import { builtinResMgr } from '../3d/builtin/init';
 import { RenderableComponent } from '../3d/framework/renderable-component';
-import { GFXDescriptorType } from '../gfx/define';
 import { GFXTexture } from '../gfx/texture';
-import { MacroRecord, MaterialProperty } from '../renderer';
+import { MacroRecord, MaterialProperty, PropertyType } from '../renderer/core/pass-utils';
 import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
 import { legacyCC } from '../global-exports';
 import { Asset } from './asset';
@@ -412,8 +411,8 @@ export class Material extends Asset {
     protected _uploadProperty (pass: Pass, name: string, val: MaterialPropertyFull | MaterialPropertyFull[]) {
         const handle = pass.getHandle(name);
         if (handle === undefined) { return false; }
-        const descriptorType = Pass.getDescriptorTypeFromHandle(handle);
-        if (descriptorType === GFXDescriptorType.UNIFORM_BUFFER) {
+        const propertyType = Pass.getPropertyTypeFromHandle(handle);
+        if (propertyType === PropertyType.UBO) {
             if (Array.isArray(val)) {
                 pass.setUniformArray(handle, val as MaterialProperty[]);
             } else if (val !== null) {
@@ -421,7 +420,7 @@ export class Material extends Asset {
             } else {
                 pass.resetUniform(name);
             }
-        } else if (descriptorType === GFXDescriptorType.SAMPLER) {
+        } else if (propertyType === PropertyType.SAMPLER) {
             const binding = Pass.getBindingFromHandle(handle);
             if (val instanceof GFXTexture) {
                 pass.bindTexture(binding, val);

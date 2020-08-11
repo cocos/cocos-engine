@@ -1,6 +1,6 @@
 import { GFXBuffer, GFXBufferSource } from '../buffer';
 import { GFXCommandBuffer } from '../command-buffer';
-import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXClearFlag, GFXTextureLayout, GFXColor, GFXRect } from '../define';
+import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXColor, GFXRect } from '../define';
 import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
 import { GFXTexture } from '../texture';
@@ -14,6 +14,8 @@ import { WebGL2Framebuffer } from './webgl2-framebuffer';
 import { WebGL2Texture } from './webgl2-texture';
 import { GFXRenderPass } from '../render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
+
+const _dynamicOffsets: number[] = [];
 
 export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
 
@@ -108,8 +110,12 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     }
 
     protected bindStates () {
+        _dynamicOffsets.length = 0;
+        for (let i = 0; i < this._curDynamicOffsets.length; i++) {
+            Array.prototype.push.apply(_dynamicOffsets, this._curDynamicOffsets[i]);
+        }
         WebGL2CmdFuncBindStates(this._device as WebGL2Device,
-            this._curGPUPipelineState, this._curGPUDescriptorSets, this._curGPUInputAssembler,
+            this._curGPUPipelineState, this._curGPUInputAssembler, this._curGPUDescriptorSets, _dynamicOffsets,
             this._curViewport, this._curScissor, this._curLineWidth, this._curDepthBias, this._curBlendConstants,
             this._curDepthBounds, this._curStencilWriteMask, this._curStencilCompareMask);
         this._isStateInvalied = false;

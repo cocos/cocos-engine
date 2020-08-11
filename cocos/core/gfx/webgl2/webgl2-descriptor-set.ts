@@ -1,5 +1,4 @@
-import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../descriptor-set';
-import { GFXDescriptorType, GFXStatus } from '../define';
+import { GFXDescriptorSet, IGFXDescriptorSetInfo, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE } from '../descriptor-set';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { IWebGL2GPUDescriptorSet, IWebGL2GPUDescriptor } from './webgl2-gpu-objects';
 import { WebGL2Sampler } from './webgl2-sampler';
@@ -15,57 +14,51 @@ export class WebGL2DescriptorSet extends GFXDescriptorSet {
 
     public initialize (info: IGFXDescriptorSetInfo): boolean {
 
-        Array.prototype.push.apply(this._layout, info.layout);
-        this._buffers = Array(this._layout.length).fill(null);
-        this._textures = Array(this._layout.length).fill(null);
-        this._samplers = Array(this._layout.length).fill(null);
+        this._layout = info.layout;
+        const bindings = info.layout.bindings;
+
+        this._buffers = Array(bindings.length).fill(null);
+        this._textures = Array(bindings.length).fill(null);
+        this._samplers = Array(bindings.length).fill(null);
 
         const gpuDescriptors: IWebGL2GPUDescriptor[] = [];
         this._gpuDescriptorSet = { gpuDescriptors };
 
-        for (let i = 0; i < info.layout.length; ++i) {
+        for (let i = 0; i < bindings.length; ++i) {
             gpuDescriptors.push({
-                type: info.layout[i],
+                type: bindings[i].descriptorType,
                 gpuBuffer: null,
                 gpuTexture: null,
                 gpuSampler: null,
             });
         }
 
-        this._status = GFXStatus.SUCCESS;
-
         return true;
     }
 
     public destroy () {
-        this._layout.length = 0;
+        this._layout = null;
         this._gpuDescriptorSet = null;
-        this._status = GFXStatus.UNREADY;
     }
 
     public update () {
         if (this._isDirty && this._gpuDescriptorSet) {
-            for (let i = 0; i < this._layout.length; ++i) {
-                switch (this._layout[i]) {
-                    case GFXDescriptorType.UNIFORM_BUFFER: {
-                        if (this._buffers[i]) {
-                            this._gpuDescriptorSet.gpuDescriptors[i].gpuBuffer =
-                                (this._buffers[i] as WebGL2Buffer).gpuBuffer;
-                        }
-                        break;
+        const bindings = this._layout!.bindings;
+        for (let i = 0; i < bindings.length; ++i) {
+                if (bindings[i].descriptorType & DESCRIPTOR_BUFFER_TYPE) {
+                    if (this._buffers[i]) {
+                        this._gpuDescriptorSet.gpuDescriptors[i].gpuBuffer =
+                            (this._buffers[i] as WebGL2Buffer).gpuBuffer;
                     }
-                    case GFXDescriptorType.SAMPLER: {
-                        if (this._textures[i]) {
-                            this._gpuDescriptorSet.gpuDescriptors[i].gpuTexture =
-                                (this._textures[i] as WebGL2Texture).gpuTexture;
-                        }
-                        if (this._samplers[i]) {
-                            this._gpuDescriptorSet.gpuDescriptors[i].gpuSampler =
-                                (this._samplers[i] as WebGL2Sampler).gpuSampler;
-                        }
-                        break;
+                } else if (bindings[i].descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
+                    if (this._textures[i]) {
+                        this._gpuDescriptorSet.gpuDescriptors[i].gpuTexture =
+                            (this._textures[i] as WebGL2Texture).gpuTexture;
                     }
-                    default:
+                    if (this._samplers[i]) {
+                        this._gpuDescriptorSet.gpuDescriptors[i].gpuSampler =
+                            (this._samplers[i] as WebGL2Sampler).gpuSampler;
+                    }
                 }
             }
             this._isDirty = false;

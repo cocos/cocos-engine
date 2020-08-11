@@ -37,7 +37,7 @@ import { GFXFeature, GFXDevice } from '../../gfx/device';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXTexture } from '../../gfx/texture';
-import { isBuiltinBinding, RenderPassStage, RenderPriority } from '../../pipeline/define';
+import { isBuiltinBinding, RenderPassStage, RenderPriority, SetIndex } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
@@ -45,8 +45,8 @@ import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
 import { PassView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool,
     PassPool, DSPool, PassHandle, ShaderHandle } from './memory-pools';
-import { customizeType, getBindingFromHandle, getDescriptorTypeFromHandle, getDefaultFromType,
-    getOffsetFromHandle, getTypeFromHandle, MacroRecord, MaterialProperty, type2reader, type2writer } from './pass-utils';
+import { customizeType, getBindingFromHandle, getPropertyTypeFromHandle, getDefaultFromType,
+    getOffsetFromHandle, getTypeFromHandle, MacroRecord, MaterialProperty, type2reader, type2writer, PropertyType } from './pass-utils';
 import { GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode,
     GFXType, GFXDynamicStateFlagBit } from '../../gfx/define';
 
@@ -82,7 +82,7 @@ const _bfInfo: IGFXBufferInfo = {
 };
 
 const _dsInfo: IGFXDescriptorSetInfo = {
-    layout: [],
+    layout: null!,
 };
 
 export enum BatchingSchemes {
@@ -92,12 +92,13 @@ export enum BatchingSchemes {
 
 // tslint:disable: no-shadowed-variable
 export declare namespace Pass {
-    export type getDescriptorTypeFromHandle = typeof getDescriptorTypeFromHandle;
+    export type getPropertyTypeFromHandle = typeof getPropertyTypeFromHandle;
     export type getTypeFromHandle = typeof getTypeFromHandle;
     export type getBindingFromHandle = typeof getBindingFromHandle;
     export type fillinPipelineInfo = typeof Pass.fillPipelineInfo;
     export type getPassHash = typeof Pass.getPassHash;
     export type getOffsetFromHandle = typeof getOffsetFromHandle;
+    export type PropertyType = typeof PropertyType;
 }
 // tslint:enable: no-shadowed-variable
 
@@ -110,17 +111,21 @@ export class Pass {
      * @zh
      * 根据 handle 获取 unform 的绑定类型（UBO 或贴图等）。
      */
-    public static getDescriptorTypeFromHandle = getDescriptorTypeFromHandle;
+    public static PropertyType = PropertyType;
+    public static getPropertyTypeFromHandle = getPropertyTypeFromHandle;
+
     /**
      * @zh
      * 根据 handle 获取 UBO member 的具体类型。
      */
     public static getTypeFromHandle = getTypeFromHandle;
+
     /**
      * @zh
      * 根据 handle 获取 binding。
      */
     public static getBindingFromHandle = getBindingFromHandle;
+
 
     public static fillPipelineInfo (hPass: PassHandle, info: PassOverrides) {
         if (info.priority !== undefined) { PassPool.set(hPass, PassView.PRIORITY, info.priority); }
@@ -161,6 +166,7 @@ export class Pass {
     }
 
     protected static getOffsetFromHandle = getOffsetFromHandle;
+
     // internal resources
     protected _buffers: Record<number, GFXBuffer> = {};
     protected _samplers: Record<number, GFXSampler> = {};
@@ -470,6 +476,7 @@ export class Pass {
         const key = programLib.getKey(this._programName, this._defines);
         this._hShaderDefault = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline, key);
         if (!this._hShaderDefault) { console.warn(`create shader ${this._programName} failed`); return false; }
+        PassPool.set(this._handle, PassView.PIPELINE_LAYOUT, this._shaderInfo.hPipelineLayout);
         PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this._handle, this._hShaderDefault));
         return true;
     }
@@ -534,7 +541,13 @@ export class Pass {
         if (info.stateOverrides) { Pass.fillPipelineInfo(handle, info.stateOverrides); }
 
         // init descriptor set
-        _dsInfo.layout = this._shaderInfo.descriptors;
+        const setLayouts = this._shaderInfo.setLayouts;
+        if (!setLayouts[SetIndex.MATERIAL]) {
+            setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout({
+                bindings: this._shaderInfo.bindings,
+            });
+        }
+        _dsInfo.layout = setLayouts[SetIndex.MATERIAL];
         const dsHandle = DSPool.alloc(this._device, _dsInfo);
         PassPool.set(this._handle, PassView.DESCRIPTOR_SET, dsHandle);
         this._descriptorSet = DSPool.get(dsHandle);

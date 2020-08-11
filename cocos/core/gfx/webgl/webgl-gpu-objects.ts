@@ -5,7 +5,7 @@ import {
     GFXFormat,
     GFXMemoryUsage,
     GFXSampleCount,
-    GFXShaderType,
+    GFXShaderStageFlagBit,
     GFXTextureFlags,
     GFXTextureType,
     GFXTextureUsage,
@@ -16,6 +16,7 @@ import { IGFXAttribute } from '../input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
 import { GFXColorAttachment, GFXDepthStencilAttachment } from '../render-pass';
 import { GFXUniformBlock, GFXUniformSampler } from '../shader';
+import { GFXDescriptorSetLayout, IGFXDescriptorSetLayoutBinding } from '../descriptor-set-layout';
 
 export interface IWebGLGPUUniformInfo {
     name: string;
@@ -34,6 +35,8 @@ export interface IWebGLGPUBuffer {
 
     glTarget: GLenum;
     glBuffer: WebGLBuffer | null;
+    glOffset: number;
+
     buffer: ArrayBufferView | null;
     vf32: Float32Array | null;
     indirects: IGFXDrawInfo[];
@@ -134,7 +137,7 @@ export interface IWebGLGPUUniformSampler {
 }
 
 export interface IWebGLGPUShaderStage {
-    type: GFXShaderType;
+    type: GFXShaderStageFlagBit;
     source: string;
     glShader: WebGLShader | null;
 }
@@ -152,9 +155,20 @@ export interface IWebGLGPUShader {
     glSamplers: IWebGLGPUUniformSampler[];
 }
 
+export interface IWebGLGPUDescriptorSetLayout {
+    bindings: IGFXDescriptorSetLayoutBinding[];
+    dynamicBindings: number[];
+}
+
+export interface IWebGLGPUPipelineLayout {
+    setLayouts: GFXDescriptorSetLayout[];
+    dynamicOffsetIndices: number[][];
+}
+
 export interface IWebGLGPUPipelineState {
     glPrimitive: GLenum;
     gpuShader: IWebGLGPUShader | null;
+    gpuPipelineLayout: IWebGLGPUPipelineLayout | null;
     rs: GFXRasterizerState;
     dss: GFXDepthStencilState;
     bs: GFXBlendState;

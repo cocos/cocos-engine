@@ -16,6 +16,8 @@ export enum GFXObjectType {
     FRAMEBUFFER,
     SAMPLER,
     SHADER,
+    DESCRIPTOR_SET_LAYOUT,
+    PIPELINE_LAYOUT,
     PIPELINE_STATE,
     DESCRIPTOR_SET,
     INPUT_ASSEMBLER,
@@ -23,12 +25,6 @@ export enum GFXObjectType {
     FENCE,
     QUEUE,
     WINDOW,
-}
-
-export enum GFXStatus {
-    UNREADY,
-    FAILED,
-    SUCCESS,
 }
 
 /**
@@ -41,13 +37,7 @@ export class GFXObject {
         return this._gfxType;
     }
 
-    public get status (): GFXStatus {
-        return this._status;
-    }
-
     protected _gfxType = GFXObjectType.UNKNOWN;
-
-    protected _status = GFXStatus.UNREADY;
 
     constructor (gfxType: GFXObjectType) {
         this._gfxType = gfxType;
@@ -459,10 +449,9 @@ export enum GFXTextureFlagBit {
     CUBEMAP = 0x2,
     BAKUP_BUFFER = 0x4,
 }
-
 export type GFXTextureFlags = GFXTextureFlagBit;
 
-export enum GFXShaderType {
+export enum GFXShaderStageFlagBit {
     NONE = 0,
     VERTEX = 0x1,
     CONTROL = 0x2,
@@ -472,12 +461,15 @@ export enum GFXShaderType {
     COMPUTE = 0x20,
     ALL = 0x3f,
 }
+export type GFXShaderStageFlags = GFXShaderStageFlagBit;
 
 export enum GFXDescriptorType {
-    UNKNOWN,
-    UNIFORM_BUFFER,
-    SAMPLER,
-    STORAGE_BUFFER,
+    UNKNOWN = 0,
+    UNIFORM_BUFFER = 0x1,
+    DYNAMIC_UNIFORM_BUFFER = 0x2,
+    STORAGE_BUFFER = 0x4,
+    DYNAMIC_STORAGE_BUFFER = 0x8,
+    SAMPLER = 0x10,
 }
 
 export enum GFXCommandBufferType {
