@@ -137,6 +137,7 @@ export class ForwardPipeline extends RenderPipeline {
      * @readonly
      */
     public renderObjects: IRenderObject[] = [];
+    public shadowObjects: IRenderObject[] = [];
     public commandBuffers: GFXCommandBuffer[] = [];
     protected _renderTextures: Map<string, RenderTexture> = new Map<string, RenderTexture>();
     protected _materials: Map<string, Material> = new Map<string, Material>();

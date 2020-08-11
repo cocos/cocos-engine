@@ -30,6 +30,18 @@ function addVisibleModel (pipeline: ForwardPipeline, model: Model, camera: Camer
     });
 }
 
+function addCastShadowModel (pipeline: ForwardPipeline, model: Model, camera: Camera) {
+    let depth = 0;
+    if (model.node) {
+        Vec3.subtract(_tempVec3, model.node.worldPosition, camera.position);
+        depth = Vec3.dot(_tempVec3, camera.forward);
+    }
+    pipeline.shadowObjects.push({
+        model,
+        depth,
+    });
+}
+
 function cullLightPerModel (pipeline: ForwardPipeline, model: Model) {
     const validLights = pipeline.validLights;
     const lightIndices = pipeline.lightIndices;
@@ -64,6 +76,8 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     const device = pipeline.device;
     const renderObjects = pipeline.renderObjects;
     renderObjects.length = 0;
+    const shadowObjects = pipeline.shadowObjects;
+    shadowObjects.length = 0;
 
     const mainLight = scene.mainLight;
     const planarShadows = scene.planarShadows;
@@ -98,6 +112,12 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                 if (model.node && ((view.visibility & model.node.layer) === model.node.layer) ||
                     (view.visibility & model.visFlags)) {
                     model.updateTransform(stamp);
+
+                    // shadow batch
+                    if (model.castShadow) {
+                        model.updateUBOs(stamp);
+                        addCastShadowModel(pipeline, model, camera);
+                    }
 
                     // frustum culling
                     if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
