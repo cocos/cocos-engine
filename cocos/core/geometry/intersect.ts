@@ -854,14 +854,14 @@ const aabb_frustum = function (aabb: aabb, frustum: frustum): number {
     for (let i = 0; i < frustum.planes.length; i++) {
         const plane = frustum.planes[i];
         const dist = Vec3.dot(plane.n, center) + plane.d;
-        abs_Normal.set(abs(plane.n.x), abs(plane.n.x), abs(plane.n.x));
+        abs_Normal.set(abs(plane.n.x), abs(plane.n.y), abs(plane.n.z));
         const absDist = Vec3.dot(abs_Normal, edge);
         if (dist < -absDist) {
             // outside
             return 1;
         }
     }
-    // inside
+    // inside or intersect
     return 0;
 };
 
