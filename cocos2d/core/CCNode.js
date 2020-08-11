@@ -2683,7 +2683,7 @@ let NodeDefines = {
     /**
      * !#en
      * Sets the position (x, y, z) of the node in its parent's coordinates.<br/>
-     * Usually we use cc.v2(x, y) to compose cc.Vec2 object,in this case, position.z will become 0.<br/>
+     * Usually we use cc.v2(x, y) to compose cc.Vec2 object, in this case, position.z will become 0.<br/>
      * and passing two numbers (x, y) is more efficient than passing cc.Vec2 object, in this case, position.z will remain unchanged.
      * For 3D node we can use cc.v3(x, y, z) to compose cc.Vec3 object,<br/>
      * and passing three numbers (x, y, z) is more efficient than passing cc.Vec3 object.
