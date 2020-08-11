@@ -101,6 +101,7 @@ export class UI {
     private _currCanvas: CanvasComponent | null = null;
     private _currMeshBuffer: MeshBuffer | null = null;
     private _currStaticRoot: UIStaticBatchComponent | null = null;
+    private _currComponent: UIRenderComponent | null = null;
     private _parentOpacity = 1;
 
     constructor (private _root: Root) {
@@ -366,16 +367,13 @@ export class UI {
         if (!mat) {
             mat = renderComp._updateBuiltinMaterial();
             mat = renderComp._updateBlendFunc();
-            // hack for maskComponent
-            if(StencilManager.sharedManager!.stage !== 0) {
-                mat = renderComp.getUIMaterialIns();
-            }
         }
 
         if (this._currMaterial !== mat ||
             this._currTexture !== texture || this._currSampler !== samp
         ) {
-            this.autoMergeBatches();
+            this.autoMergeBatches(this._currComponent!);
+            this._currComponent = renderComp;
             this._currMaterial = mat!;
             this._currTexture = texture;
             this._currSampler = samp;
@@ -407,7 +405,31 @@ export class UI {
         }
 
         if (mat) {
-            const rebuild = StencilManager.sharedManager!.handleMaterial(mat);
+            let rebuild = false;
+            if (StencilManager.sharedManager!.handleMaterial(mat)) {
+                const state = StencilManager.sharedManager!.pattern;
+                mat.overridePipelineStates({
+                    depthStencilState: {
+                        stencilTestFront: state.stencilTest,
+                        stencilFuncFront: state.func,
+                        stencilReadMaskFront: state.stencilMask,
+                        stencilWriteMaskFront: state.writeMask,
+                        stencilFailOpFront: state.failOp,
+                        stencilZFailOpFront: state.zFailOp,
+                        stencilPassOpFront: state.passOp,
+                        stencilRefFront: state.ref,
+                        stencilTestBack: state.stencilTest,
+                        stencilFuncBack: state.func,
+                        stencilReadMaskBack: state.stencilMask,
+                        stencilWriteMaskBack: state.writeMask,
+                        stencilFailOpBack: state.failOp,
+                        stencilZFailOpBack: state.zFailOp,
+                        stencilPassOpBack: state.passOp,
+                        stencilRefBack: state.ref,
+                    }
+                });
+                rebuild = true;
+            }
             if (rebuild && model) {
                 for (let i = 0; i < model.subModels.length; i++) {
                     model.setSubModelMaterial(i, mat);
@@ -428,6 +450,7 @@ export class UI {
 
         // reset current render state to null
         this._currMaterial = this._emptyMaterial;
+        this._currComponent = null;
         this._currTexture = null;
         this._currSampler = null;
 
@@ -455,18 +478,41 @@ export class UI {
      * @zh
      * 根据合批条件，结束一段渲染数据并提交。
      */
-    public autoMergeBatches () {
-        const mat = this._currMaterial;
+    public autoMergeBatches (renderComp?: UIRenderComponent) {
         const buffer = this._currMeshBuffer!;
         const indicsStart = buffer.indicesStart;
         const vCount = buffer.indicesOffset - indicsStart;
+        const uiCanvas = this._currCanvas;
+        let mat = this._currMaterial;
+
         if (!vCount || !mat) {
             return;
         }
 
-        const uiCanvas = this._currCanvas;
-
-        StencilManager.sharedManager!.handleMaterial(mat);
+        if (renderComp && StencilManager.sharedManager!.handleMaterial(mat)) {
+            this._currMaterial = mat = renderComp.getUIMaterialIns();
+            const state = StencilManager.sharedManager!.pattern;
+            mat.overridePipelineStates({
+                depthStencilState: {
+                    stencilTestFront: state.stencilTest,
+                    stencilFuncFront: state.func,
+                    stencilReadMaskFront: state.stencilMask,
+                    stencilWriteMaskFront: state.writeMask,
+                    stencilFailOpFront: state.failOp,
+                    stencilZFailOpFront: state.zFailOp,
+                    stencilPassOpFront: state.passOp,
+                    stencilRefFront: state.ref,
+                    stencilTestBack: state.stencilTest,
+                    stencilFuncBack: state.func,
+                    stencilReadMaskBack: state.stencilMask,
+                    stencilWriteMaskBack: state.writeMask,
+                    stencilFailOpBack: state.failOp,
+                    stencilZFailOpBack: state.zFailOp,
+                    stencilPassOpBack: state.passOp,
+                    stencilRefBack: state.ref,
+                }
+            });
+        }
 
         const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
         curDrawBatch.camera = uiCanvas && uiCanvas.camera;
@@ -517,6 +563,7 @@ export class UI {
         this.autoMergeBatches();
         this._currMaterial = this._emptyMaterial;
         this._currTexture = null;
+        this._currComponent = null;
     }
 
     private _destroyUIMaterials () {
@@ -586,7 +633,7 @@ export class UI {
     private _recursiveScreenNode (screen: Node) {
         this._walk(screen);
 
-        this.autoMergeBatches();
+        this.autoMergeBatches(this._currComponent!);
     }
 
     private _reset () {
@@ -606,6 +653,7 @@ export class UI {
         this._currCanvas = null;
         this._currTexture = null;
         this._currSampler = null;
+        this._currComponent = null;
         this._meshBufferUseCount = 0;
         this._requireBufferBatch();
         StencilManager.sharedManager!.reset();
