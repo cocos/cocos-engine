@@ -402,7 +402,7 @@ export default class Color extends ValueType {
             r = r.r;
         }
 
-        this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+        this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + (r|0);
     }
 
     /**
@@ -793,7 +793,7 @@ export default class Color extends ValueType {
         r *= 255;
         g *= 255;
         b *= 255;
-        this._val = ((this.a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+        this._val = ((this.a << 24) >>> 0) + (b << 16) + (g << 8) + (r|0);
         return this;
     }
 

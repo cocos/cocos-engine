@@ -57,6 +57,6 @@ else {
         }
         return deserializeForEditor(data, details, options);
     };
-    cc.deserialize.reportMissingClass = deserializeForEditor.reportMissingClass;
+    cc.deserialize.reportMissingClass = deserializeForCompiled.reportMissingClass;
     cc.deserialize.Details = deserializeForEditor.Details;
 }

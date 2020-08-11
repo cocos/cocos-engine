@@ -579,7 +579,7 @@ function _searchComponentsInParent (node, comp) {
                     index: index,
                     node: curr,
                 };
-                
+
                 if (list) {
                     list.push(next);
                 } else {
@@ -590,7 +590,7 @@ function _searchComponentsInParent (node, comp) {
 
         return list;
     }
-    
+
     return null;
 }
 
@@ -686,7 +686,7 @@ function _updateCullingMask (node) {
     node._cullingMask = 1 << index;
     if (CC_JSB && CC_NATIVERENDERER) {
         node._proxy && node._proxy.updateCullingMask();
-    };
+    }
     for (let i = 0; i < node._children.length; i++) {
         _updateCullingMask(node._children[i]);
     }
@@ -775,7 +775,7 @@ function updateLocalMatrix2D () {
     // position
     tm[12] = trs[0];
     tm[13] = trs[1];
-    
+
     this._localMatDirty &= ~LocalDirtyFlag.TRSS;
     // Register dirty status of world matrix so that it can be recalculated
     this._worldMatDirty = true;
@@ -802,7 +802,7 @@ function calculWorldMatrix2D () {
     if (this._localMatDirty & LocalDirtyFlag.TRSS) {
         this._updateLocalMatrix();
     }
-    
+
     // Assume parent world matrix is correct
     let parent = this._parent;
     if (parent) {
@@ -872,7 +872,7 @@ let NodeDefines = {
             default: 0,
             serializable: false
         },
-    
+
         _is3DNode: false,
 
         // internal properties
@@ -957,7 +957,7 @@ let NodeDefines = {
 
                         trs[0] = value;
                         this.setLocalDirty(LocalDirtyFlag.ALL_POSITION);
-                        
+
                         // fast check event
                         if (this._eventMask & POSITION_ON) {
                             // send event
@@ -1028,7 +1028,7 @@ let NodeDefines = {
         z: {
             get () {
                 return this._trs[2];
-            }, 
+            },
             set (value) {
                 let trs = this._trs;
                 if (value !== trs[2]) {
@@ -1086,7 +1086,7 @@ let NodeDefines = {
                 return this._eulerAngles.z;
             },
             set (value) {
-                Vec3.set(this._eulerAngles, 0, 0, value);   
+                Vec3.set(this._eulerAngles, 0, 0, value);
                 Trs.fromAngleZ(this._trs, value);
                 this.setLocalDirty(LocalDirtyFlag.ALL_ROTATION);
 
@@ -1199,7 +1199,7 @@ let NodeDefines = {
                 if (CC_EDITOR) {
                     this._eulerAngles.set(v);
                 }
-            
+
                 Trs.fromEuler(this._trs, v);
                 this.setLocalDirty(LocalDirtyFlag.ALL_ROTATION);
                 !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_TRANSFORM);
@@ -1209,7 +1209,7 @@ let NodeDefines = {
                 }
             }
         },
-        
+
         // This property is used for Mesh Skeleton Animation
         // Should be removed when node.rotation upgrade to quaternion value
         quat: {
@@ -1297,13 +1297,13 @@ let NodeDefines = {
         scaleZ: {
             get () {
                 return this._trs[9];
-            }, 
+            },
             set (value) {
                 if (this._trs[9] !== value) {
                     this._trs[9] = value;
                     this.setLocalDirty(LocalDirtyFlag.ALL_SCALE);
                     !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_TRANSFORM);
-            
+
                     if (this._eventMask & SCALE_ON) {
                         this.emit(EventType.SCALE_CHANGED);
                     }
@@ -1580,7 +1580,7 @@ let NodeDefines = {
         /**
          * !#en Returns a normalized vector representing the up direction (Y axis) of the node in world space.
          * !#zh 获取节点正上方（y 轴）面对的方向，返回值为世界坐标系下的归一化向量
-         * 
+         *
          * @property up
          * @type {Vec3}
          */
@@ -1594,7 +1594,7 @@ let NodeDefines = {
         /**
          * !#en Returns a normalized vector representing the right direction (X axis) of the node in world space.
          * !#zh 获取节点正右方（x 轴）面对的方向，返回值为世界坐标系下的归一化向量
-         * 
+         *
          * @property right
          * @type {Vec3}
          */
@@ -1608,7 +1608,7 @@ let NodeDefines = {
         /**
          * !#en Returns a normalized vector representing the forward direction (Z axis) of the node in world space.
          * !#zh 获取节点正前方（z 轴）面对的方向，返回值为世界坐标系下的归一化向量
-         * 
+         *
          * @property forward
          * @type {Vec3}
          */
@@ -1758,7 +1758,7 @@ let NodeDefines = {
             //TODO: It may be necessary to update the listener mask of all child nodes.
             this._checkListenerMask();
         }
-        
+
         // Node proxy
         if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy.updateParent();
@@ -1798,7 +1798,7 @@ let NodeDefines = {
                     worldMat: new Float64Array(16),
                 };
             } else {
-                this._spaceInfo = nodeMemPool.pop();            
+                this._spaceInfo = nodeMemPool.pop();
             }
         }
 
@@ -1983,7 +1983,7 @@ let NodeDefines = {
 
     // EVENT TARGET
     _checkListenerMask () {
-        // Because Mask may be nested, need to find all the Mask components in the parent node. 
+        // Because Mask may be nested, need to find all the Mask components in the parent node.
         // The click area must satisfy all Masks to trigger the click.
         if (this._touchListener) {
             var mask = this._touchListener.mask = _searchComponentsInParent(this, cc.Mask);
@@ -2362,7 +2362,7 @@ let NodeDefines = {
      * @param {*} [arg4] - Fourth argument in callback
      * @param {*} [arg5] - Fifth argument in callback
      * @example
-     * 
+     *
      * eventTarget.emit('fire', event);
      * eventTarget.emit('fire', message, emitter);
      */
@@ -2423,7 +2423,7 @@ let NodeDefines = {
             h = this._contentSize.height,
             cameraPt = _htVec3a,
             testPt = _htVec3b;
-        
+
         let camera = cc.Camera.findCamera(this);
         if (camera) {
             camera.getScreenToWorldPoint(point, cameraPt);
@@ -2457,7 +2457,7 @@ let NodeDefines = {
                             if (comp && comp._enabled && !comp._hitTest(cameraPt)) {
                                 hit = false;
                                 break
-                            } 
+                            }
 
                             j++;
                         } else {
@@ -2472,7 +2472,7 @@ let NodeDefines = {
                     }
                 }
             }
-        } 
+        }
 
         return hit;
     },
@@ -2690,12 +2690,12 @@ let NodeDefines = {
      * !#zh
      * 设置节点在父节点坐标系中的位置。<br/>
      * 可以通过下面的方式设置坐标点：<br/>
-     * 1. 传入 2 个数值 x, y。<br/>
-     * 2. 传入 cc.v2(x, y) 类型为 cc.Vec2 的对象。
+     * 1. 传入 2 个数值 x, y (此时不会改变 position.z 的值)。<br/>
+     * 2. 传入 cc.v2(x, y) 类型为 cc.Vec2 的对象 (此时 position.z 的值将被设置为0)。
      * 3. 对于 3D 节点可以传入 3 个数值 x, y, z。<br/>
      * 4. 对于 3D 节点可以传入 cc.v3(x, y, z) 类型为 cc.Vec3 的对象。
      * @method setPosition
-     * @param {Vec2|Vec3|Number} newPosOrX - X coordinate for position or the position (x, y, z) of the node in coordinates
+     * @param {Vec2|Vec3|Number} x - X coordinate for position or the position object
      * @param {Number} [y] - Y coordinate for position
      * @param {Number} [z] - Z coordinate for position
      */
@@ -2704,28 +2704,33 @@ let NodeDefines = {
         if (y === undefined) {
             x = newPosOrX.x;
             y = newPosOrX.y;
-            z = newPosOrX.z || 0;
+            z = newPosOrX.z;
         }
         else {
             x = newPosOrX;
-            z = z || 0
         }
-    
+
         let trs = this._trs;
+
+        if (z === undefined) {
+            z = trs[2];
+        }
+
         if (trs[0] === x && trs[1] === y && trs[2] === z) {
             return;
         }
-    
+
         if (CC_EDITOR) {
             var oldPosition = new cc.Vec3(trs[0], trs[1], trs[2]);
         }
-    
+
         trs[0] = x;
         trs[1] = y;
         trs[2] = z;
+
         this.setLocalDirty(LocalDirtyFlag.ALL_POSITION);
         !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM);
-    
+
         // fast check event
         if (this._eventMask & POSITION_ON) {
             if (CC_EDITOR) {
@@ -2765,36 +2770,49 @@ let NodeDefines = {
      * !#zh
      * 设置节点在本地坐标系中坐标轴上的缩放比例。
      * 2D 节点可以操作两个坐标轴，而 3D 节点可以操作三个坐标轴。
+     * 当只传入 (x, y) 时，scale.z 的值不会被改变。
+     * 当只传入 Vec2 对象时，scale.z 的值将被设置为0。
      * @method setScale
      * @param {Number|Vec2|Vec3} x - scaleX or scale object
      * @param {Number} [y]
      * @param {Number} [z]
      * @example
-     * node.setScale(cc.v2(2, 2));
+     * node.setScale(cc.v2(2, 2)); // Notice: scaleZ will be 0
      * node.setScale(cc.v3(2, 2, 2)); // for 3D node
      * node.setScale(2);
      */
-    setScale (x, y, z) {
-        if (x && typeof x !== 'number') {
-            y = x.y;
-            z = x.z === undefined ? 1 : x.z;
-            x = x.x;
+    setScale (newScaleOrX, y, z) {
+        let x;
+        // 传入1个参数, 且参数为 Vec2/Vec3:
+        if (newScaleOrX && typeof newScaleOrX !== 'number') {
+            x = newScaleOrX.x;
+            y = newScaleOrX.y;
+            z = newScaleOrX.z;
         }
-        else if (x !== undefined && y === undefined) {
-            y = x;
-            z = x;
+        // 传入1个参数, 且参数为 number:
+        else if (newScaleOrX !== undefined && y === undefined) {
+            x = newScaleOrX;
+            y = newScaleOrX;
+            z = newScaleOrX;
         }
-        else if (z === undefined) {
-            z = 1;
+        // 传入2个或3个参数时:
+        else {
+            x = newScaleOrX;
         }
+
         let trs = this._trs;
+
+        if (z === undefined) {
+            z = trs[9];
+        }
+
         if (trs[7] !== x || trs[8] !== y || trs[9] !== z) {
             trs[7] = x;
             trs[8] = y;
             trs[9] = z;
             this.setLocalDirty(LocalDirtyFlag.ALL_SCALE);
             !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_TRANSFORM);
-    
+
             if (this._eventMask & SCALE_ON) {
                 this.emit(EventType.SCALE_CHANGED);
             }
@@ -3020,7 +3038,7 @@ let NodeDefines = {
 
         return out;
     },
-    
+
     /*
      * Calculate and return world position.
      * This is not a public API yet, its usage could be updated
@@ -3198,7 +3216,7 @@ let NodeDefines = {
         Vec3.sub(_laVec3, _laVec3, pos); // NOTE: we use -z for view-dir
         Vec3.normalize(_laVec3, _laVec3);
         Quat.fromViewUp(_laQuat, _laVec3, up);
-    
+
         this.setWorldRotation(_laQuat);
     },
 
@@ -3209,7 +3227,7 @@ let NodeDefines = {
         if (this._localMatDirty & LocalDirtyFlag.TRSS) {
             this._updateLocalMatrix();
         }
-        
+
         // Assume parent world matrix is correct
         let parent = this._parent;
         if (parent) {
@@ -3246,7 +3264,7 @@ let NodeDefines = {
         }
         else {
             this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
-        }        
+        }
     },
 
     setWorldDirty () {
@@ -3268,7 +3286,7 @@ let NodeDefines = {
         this._updateLocalMatrix();
         return Mat4.copy(out, this._matrix);
     },
-    
+
     /**
      * !#en
      * Get the world transform matrix (4x4)
@@ -3405,7 +3423,7 @@ let NodeDefines = {
             out = AffineTrans.identity();
         }
         this._updateLocalMatrix();
-        
+
         var contentSize = this._contentSize;
         _vec3_temp.x = -this._anchorPoint.x * contentSize.width;
         _vec3_temp.y = -this._anchorPoint.y * contentSize.height;
@@ -3456,7 +3474,7 @@ let NodeDefines = {
             out = AffineTrans.identity();
         }
         this._updateWorldMatrix();
-        
+
         var contentSize = this._contentSize;
         _vec3_temp.x = -this._anchorPoint.x * contentSize.width;
         _vec3_temp.y = -this._anchorPoint.y * contentSize.height;
@@ -3561,7 +3579,7 @@ let NodeDefines = {
     convertTouchToNodeSpaceAR (touch) {
         return this.convertToNodeSpaceAR(touch.getLocation());
     },
-    
+
     /**
      * !#en
      * Returns a "local" axis aligned bounding box of the node. <br/>
@@ -3577,9 +3595,9 @@ let NodeDefines = {
         let width = this._contentSize.width;
         let height = this._contentSize.height;
         let rect = cc.rect(
-            -this._anchorPoint.x * width, 
-            -this._anchorPoint.y * height, 
-            width, 
+            -this._anchorPoint.x * width,
+            -this._anchorPoint.y * height,
+            width,
             height);
         return rect.transformMat4(rect, this._matrix);
     },
@@ -3610,11 +3628,11 @@ let NodeDefines = {
         let width = this._contentSize.width;
         let height = this._contentSize.height;
         let rect = cc.rect(
-            -this._anchorPoint.x * width, 
-            -this._anchorPoint.y * height, 
-            width, 
+            -this._anchorPoint.x * width,
+            -this._anchorPoint.y * height,
+            width,
             height);
-        
+
         this._calculWorldMatrix();
         rect.transformMat4(rect, this._worldMatrix);
 
@@ -3637,7 +3655,7 @@ let NodeDefines = {
     _updateOrderOfArrival () {
         var arrivalOrder = this._parent ? ++this._parent._childArrivalOrder : 0;
         this._localZOrder = (this._localZOrder & 0xffff0000) | arrivalOrder;
-        
+
         this.emit(EventType.SIBLING_ORDER_CHANGED);
     },
 
@@ -3702,7 +3720,7 @@ let NodeDefines = {
      */
     sortAllChildren () {
         if (this._reorderChildDirty) {
-            
+
             this._reorderChildDirty = false;
 
             // delay update arrivalOrder before sort children
@@ -3793,7 +3811,6 @@ let NodeDefines = {
             eventManager.pauseTarget(this);
         }
     },
-
 
 };
 
