@@ -431,7 +431,7 @@ function initSys () {
      * @readOnly
      * @default 117
      */
-    sys.BYTEDANCE_GAME = 117
+    sys.BYTEDANCE_GAME = 117;
     /**
      * @property {Number} BYTEDANCE_GAME_SUB
      * @readOnly
