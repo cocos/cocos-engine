@@ -228,7 +228,7 @@ proto.clear = function () {
     for (const key in this._callbackTable) {
         const list = this._callbackTable[key];
         const infos = list.callbackInfos;
-        for (let i = 0, len = infos.length; i < len; ++i) {
+        for (let i = infos.length - 1; i >= 0; i--) {
             const info = infos[i];
             this.off(key, info.callback, info.target);
         }
