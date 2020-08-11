@@ -1,4 +1,3 @@
-import { GFXStatus } from '../define';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { WebGLCmdFuncCreateFramebuffer, WebGLCmdFuncDestroyFramebuffer } from './webgl-commands';
 import { WebGLDevice } from './webgl-device';
@@ -55,8 +54,6 @@ export class WebGLFramebuffer extends GFXFramebuffer {
 
         WebGLCmdFuncCreateFramebuffer(this._device as WebGLDevice, this._gpuFramebuffer);
 
-        this._status = GFXStatus.SUCCESS;
-
         return true;
     }
 
@@ -65,6 +62,5 @@ export class WebGLFramebuffer extends GFXFramebuffer {
             WebGLCmdFuncDestroyFramebuffer(this._device as WebGLDevice, this._gpuFramebuffer);
             this._gpuFramebuffer = null;
         }
-        this._status = GFXStatus.UNREADY;
     }
 }

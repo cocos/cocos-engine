@@ -1,6 +1,6 @@
 import { macro } from '../../platform';
 import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../descriptor-set';
-import { GFXBuffer, IGFXBufferInfo } from '../buffer';
+import { GFXBuffer, IGFXBufferInfo, IGFXBufferViewInfo } from '../buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo, GFXBindingMappingInfo } from '../device';
 import { GFXFence, IGFXFenceInfo } from '../fence';
@@ -19,6 +19,8 @@ import { WebGL2CommandBuffer } from './webgl2-command-buffer';
 import { WebGL2Fence } from './webgl2-fence';
 import { WebGL2Framebuffer } from './webgl2-framebuffer';
 import { WebGL2InputAssembler } from './webgl2-input-assembler';
+import { WebGL2DescriptorSetLayout } from './webgl2-descriptor-set-layout';
+import { WebGL2PipelineLayout } from './webgl2-pipeline-layout';
 import { WebGL2PipelineState } from './webgl2-pipeline-state';
 import { WebGL2PrimaryCommandBuffer } from './webgl2-primary-command-buffer';
 import { WebGL2Queue } from './webgl2-queue';
@@ -31,6 +33,7 @@ import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXCommandBufferType, G
     GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXRect } from '../define';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer,
     WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
+import { GFXPipelineLayout, GFXDescriptorSetLayout, IGFXDescriptorSetLayoutInfo, IGFXPipelineLayoutInfo } from '../..';
 
 export class WebGL2Device extends GFXDevice {
 
@@ -196,11 +199,11 @@ export class WebGL2Device extends GFXDevice {
         this._maxUniformBlockSize = gl.getParameter(gl.MAX_UNIFORM_BLOCK_SIZE);
         this._maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
         this._maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
+        this._uboOffsetAlignment = gl.getParameter(gl.UNIFORM_BUFFER_OFFSET_ALIGNMENT);
         this._depthBits = gl.getParameter(gl.DEPTH_BITS);
         this._stencilBits = gl.getParameter(gl.STENCIL_BITS);
         // let maxVertexUniformBlocks = gl.getParameter(gl.MAX_VERTEX_UNIFORM_BLOCKS);
         // let maxFragmentUniformBlocks = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_BLOCKS);
-        // let uboOffsetAlignment = gl.getParameter(gl.UNIFORM_BUFFER_OFFSET_ALIGNMENT);
 
         this._devicePixelRatio = info.devicePixelRatio || 1.0;
         this._width = this._canvas.width;
@@ -315,18 +318,16 @@ export class WebGL2Device extends GFXDevice {
         console.info('DPR: ' + this._devicePixelRatio);
         console.info('SCREEN_SIZE: ' + this._width + ' x ' + this._height);
         console.info('NATIVE_SIZE: ' + this._nativeWidth + ' x ' + this._nativeHeight);
-        // console.info('COLOR_FORMAT: ' + GFXFormatInfos[this._colorFmt].name);
-        // console.info('DEPTH_STENCIL_FORMAT: ' + GFXFormatInfos[this._depthStencilFmt].name);
-        // console.info('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
+        console.info('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
         console.info('MAX_VERTEX_UNIFORM_VECTORS: ' + this._maxVertexUniformVectors);
-        // console.info('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);
-        // console.info('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
-        // console.info('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
+        console.info('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);
+        console.info('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
+        console.info('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
         console.info('MAX_UNIFORM_BUFFER_BINDINGS: ' + this._maxUniformBufferBindings);
-        // console.info('MAX_UNIFORM_BLOCK_SIZE: ' + this._maxUniformBlockSize);
+        console.info('MAX_UNIFORM_BLOCK_SIZE: ' + this._maxUniformBlockSize);
         console.info('DEPTH_BITS: ' + this._depthBits);
         console.info('STENCIL_BITS: ' + this._stencilBits);
-        // console.info('UNIFORM_BUFFER_OFFSET_ALIGNMENT: ' + uboOffsetAlignment);
+        console.info('UNIFORM_BUFFER_OFFSET_ALIGNMENT: ' + this._uboOffsetAlignment);
         if (this._EXT_texture_filter_anisotropic) {
             console.info('MAX_TEXTURE_MAX_ANISOTROPY_EXT: ' + this._EXT_texture_filter_anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
         }
@@ -451,74 +452,114 @@ export class WebGL2Device extends GFXDevice {
         // const ctor = WebGLCommandBuffer; // opt to instant invocation
         const ctor = info.type === GFXCommandBufferType.PRIMARY ? WebGL2PrimaryCommandBuffer : WebGL2CommandBuffer;
         const cmdBuff = new ctor(this);
-        cmdBuff.initialize(info);
-        return cmdBuff;
+        if (cmdBuff.initialize(info)) {
+            return cmdBuff;
+        }
+        return null!;
     }
 
-    public createBuffer (info: IGFXBufferInfo): GFXBuffer {
+    public createBuffer (info: IGFXBufferInfo | IGFXBufferViewInfo): GFXBuffer {
         const buffer = new WebGL2Buffer(this);
-        buffer.initialize(info);
-        return buffer;
+        if (buffer.initialize(info)) {
+            return buffer;
+        }
+        return null!;
     }
 
     public createTexture (info: IGFXTextureInfo | IGFXTextureViewInfo): GFXTexture {
         const texture = new WebGL2Texture(this);
-        texture.initialize(info);
-        return texture;
+        if (texture.initialize(info)) {
+            return texture;
+        }
+        return null!;
     }
 
     public createSampler (info: IGFXSamplerInfo): GFXSampler {
         const sampler = new WebGL2Sampler(this);
-        sampler.initialize(info);
-        return sampler;
+        if (sampler.initialize(info)) {
+            return sampler;
+        }
+        return null!;
     }
 
     public createDescriptorSet (info: IGFXDescriptorSetInfo): GFXDescriptorSet {
         const descriptorSet = new WebGL2DescriptorSet(this);
-        descriptorSet.initialize(info);
-        return descriptorSet;
+        if (descriptorSet.initialize(info)) {
+            return descriptorSet;
+        }
+        return null!;
     }
 
     public createShader (info: GFXShaderInfo): GFXShader {
         const shader = new WebGL2Shader(this);
-        shader.initialize(info);
-        return shader;
+        if (shader.initialize(info)) {
+            return shader;
+        }
+        return null!;
     }
 
     public createInputAssembler (info: IGFXInputAssemblerInfo): GFXInputAssembler {
         const inputAssembler = new WebGL2InputAssembler(this);
-        inputAssembler.initialize(info);
-        return inputAssembler;
+        if (inputAssembler.initialize(info)) {
+            return inputAssembler;
+        }
+        return null!;
     }
 
     public createRenderPass (info: IGFXRenderPassInfo): GFXRenderPass {
         const renderPass = new WebGL2RenderPass(this);
-        renderPass.initialize(info);
-        return renderPass;
+        if (renderPass.initialize(info)) {
+            return renderPass;
+        }
+        return null!;
     }
 
     public createFramebuffer (info: IGFXFramebufferInfo): GFXFramebuffer {
         const framebuffer = new WebGL2Framebuffer(this);
-        framebuffer.initialize(info);
-        return framebuffer;
+        if (framebuffer.initialize(info)) {
+            return framebuffer;
+        }
+        return null!;
+    }
+
+    public createDescriptorSetLayout (info: IGFXDescriptorSetLayoutInfo): GFXDescriptorSetLayout {
+        const descriptorSetLayout = new WebGL2DescriptorSetLayout(this);
+        if (descriptorSetLayout.initialize(info)) {
+            return descriptorSetLayout;
+        }
+        return null!;
+    }
+
+    public createPipelineLayout (info: IGFXPipelineLayoutInfo): GFXPipelineLayout {
+        const pipelineLayout = new WebGL2PipelineLayout(this);
+        if (pipelineLayout.initialize(info)) {
+            return pipelineLayout;
+        }
+        return null!;
     }
 
     public createPipelineState (info: IGFXPipelineStateInfo): GFXPipelineState {
         const pipelineState = new WebGL2PipelineState(this);
-        pipelineState.initialize(info);
-        return pipelineState;
+        if (pipelineState.initialize(info)) {
+            return pipelineState;
+        }
+        return null!;
     }
 
     public createFence (info: IGFXFenceInfo): GFXFence {
         const fence = new WebGL2Fence(this);
-        fence.initialize(info);
-        return fence;
+        if (fence.initialize(info)) {
+            return fence;
+        }
+        return null!;
     }
 
     public createQueue (info: IGFXQueueInfo): GFXQueue {
         const queue = new WebGL2Queue(this);
-        queue.initialize(info);
-        return queue;
+        if (queue.initialize(info)) {
+            return queue;
+        }
+        return null!;
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {

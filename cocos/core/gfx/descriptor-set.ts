@@ -7,11 +7,16 @@ import { GFXDescriptorType, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 import { GFXSampler } from './sampler';
 import { GFXTexture } from './texture';
+import { GFXDescriptorSetLayout } from '..';
+
+export const DESCRIPTOR_BUFFER_TYPE =
+    GFXDescriptorType.UNIFORM_BUFFER | GFXDescriptorType.DYNAMIC_UNIFORM_BUFFER |
+    GFXDescriptorType.STORAGE_BUFFER | GFXDescriptorType.DYNAMIC_STORAGE_BUFFER;
+
+export const DESCRIPTOR_SAMPLER_TYPE = GFXDescriptorType.SAMPLER;
 
 export interface IGFXDescriptorSetInfo {
-    // array index is used as the binding numbers,
-    // i.e. they should be strictly consecutive and start from 0
-    layout: GFXDescriptorType[];
+    layout: GFXDescriptorSetLayout;
 }
 
 /**
@@ -21,12 +26,12 @@ export interface IGFXDescriptorSetInfo {
 export abstract class GFXDescriptorSet extends GFXObject {
 
     get layout () {
-        return this._layout;
+        return this._layout!;
     }
 
     protected _device: GFXDevice;
 
-    protected _layout: GFXDescriptorType[] = [];
+    protected _layout: GFXDescriptorSetLayout | null = null;
     protected _buffers: GFXBuffer[] = [];
     protected _textures: GFXTexture[] = [];
     protected _samplers: GFXSampler[] = [];
@@ -51,8 +56,8 @@ export abstract class GFXDescriptorSet extends GFXObject {
      * @param buffer The buffer to be bound.
      */
     public bindBuffer (binding: number, buffer: GFXBuffer) {
-        const descriptor = this._layout[binding];
-        if (descriptor && descriptor === GFXDescriptorType.UNIFORM_BUFFER) {
+        const descriptor = this._layout!.bindings[binding];
+        if (descriptor && (descriptor.descriptorType & DESCRIPTOR_BUFFER_TYPE)) {
             if (this._buffers[binding] !== buffer) {
                 this._buffers[binding] = buffer;
                 this._isDirty = true;
@@ -69,8 +74,8 @@ export abstract class GFXDescriptorSet extends GFXObject {
      * @param sampler The sampler to be bound.
      */
     public bindSampler (binding: number, sampler: GFXSampler) {
-        const descriptor = this._layout[binding];
-        if (descriptor && descriptor === GFXDescriptorType.SAMPLER) {
+        const descriptor = this._layout!.bindings[binding];
+        if (descriptor && (descriptor.descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
             if (this._samplers[binding] !== sampler) {
                 this._samplers[binding] = sampler;
                 this._isDirty = true;
@@ -87,8 +92,8 @@ export abstract class GFXDescriptorSet extends GFXObject {
      * @param texture The texture to be bound.
      */
     public bindTexture (binding: number, texture: GFXTexture) {
-        const descriptor = this._layout[binding];
-        if (descriptor && descriptor === GFXDescriptorType.SAMPLER) {
+        const descriptor = this._layout!.bindings[binding];
+        if (descriptor && (descriptor.descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
             if (this._textures[binding] !== texture) {
                 this._textures[binding] = texture;
                 this._isDirty = true;

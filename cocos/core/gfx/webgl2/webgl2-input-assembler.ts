@@ -3,7 +3,6 @@ import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CmdFuncCreateInputAssember, WebGL2CmdFuncDestroyInputAssembler } from './webgl2-commands';
 import { WebGL2Device } from './webgl2-device';
 import { IWebGL2GPUInputAssembler, IWebGL2GPUBuffer } from './webgl2-gpu-objects';
-import { GFXStatus } from '../define';
 
 export class WebGL2InputAssembler extends GFXInputAssembler {
 
@@ -76,8 +75,6 @@ export class WebGL2InputAssembler extends GFXInputAssembler {
 
         WebGL2CmdFuncCreateInputAssember(this._device as WebGL2Device, this._gpuInputAssembler);
 
-        this._status = GFXStatus.SUCCESS;
-
         return true;
     }
 
@@ -87,6 +84,5 @@ export class WebGL2InputAssembler extends GFXInputAssembler {
             WebGL2CmdFuncDestroyInputAssembler(webgl2Dev, this._gpuInputAssembler);
         }
         this._gpuInputAssembler = null;
-        this._status = GFXStatus.UNREADY;
     }
 }

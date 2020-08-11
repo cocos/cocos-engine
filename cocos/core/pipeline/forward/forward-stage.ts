@@ -166,7 +166,6 @@ export class ForwardStage extends RenderStage {
                 for (m = 0; m < subModels.length; m++) {
                     const subModel = subModels[m];
                     for (p = 0; p < subModel.passes.length; p++) {
-                        const pass = subModel.passes[p];
                         for (k = 0; k < this._renderQueues.length; k++) {
                             this._renderQueues[k].insertRenderPass(ro, m, p);
                         }

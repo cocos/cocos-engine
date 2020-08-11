@@ -30,7 +30,7 @@
 import { DEBUG } from 'internal:constants';
 import { NativeBufferPool, NativeObjectPool } from './native-pools';
 import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXDescriptorSetInfo,
-    GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader, IGFXInputAssemblerInfo, GFXInputAssembler } from '../../gfx';
+    GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader, IGFXInputAssemblerInfo, GFXInputAssembler, IGFXPipelineLayoutInfo, GFXPipelineLayout } from '../../gfx';
 
 interface ITypedArrayConstructor<T> {
     new(buffer: ArrayBufferLike, byteOffset: number, length?: number): T;
@@ -202,16 +202,19 @@ enum PoolType {
     DESCRIPTOR_SETS,
     SHADER,
     INPUT_ASSEMBLER,
+    PIPELINE_LAYOUT,
     // buffers
     PASS,
     SUB_MODEL,
 }
+
 export type RasterizerStateHandle = Handle<PoolType.RASTERIZER_STATE>;
 export type DepthStencilStateHandle = Handle<PoolType.DEPTH_STENCIL_STATE>;
 export type BlendStateHandle = Handle<PoolType.BLEND_STATE>;
 export type DescriptorSetHandle = Handle<PoolType.DESCRIPTOR_SETS>;
 export type ShaderHandle = Handle<PoolType.SHADER>;
 export type IAHandle = Handle<PoolType.INPUT_ASSEMBLER>;
+export type PipelineLayoutHandle = Handle<PoolType.PIPELINE_LAYOUT>;
 export type PassHandle = Handle<PoolType.PASS>;
 export type SubModelHandle = Handle<PoolType.SUB_MODEL>;
 
@@ -232,6 +235,10 @@ export const IAPool = new ObjectPool(PoolType.INPUT_ASSEMBLER,
     (args: [GFXDevice, IGFXInputAssemblerInfo], obj?: GFXInputAssembler) => obj ? (obj.initialize(args[1]), obj) : args[0].createInputAssembler(args[1]),
     (obj: GFXInputAssembler) => obj && obj.destroy(),
 );
+export const PipelineLayoutPool = new ObjectPool(PoolType.PIPELINE_LAYOUT,
+    (args: [GFXDevice, IGFXPipelineLayoutInfo], obj?: GFXPipelineLayout) => obj ? (obj.initialize(args[1]), obj) : args[0].createPipelineLayout(args[1]),
+    (obj: GFXPipelineLayout) => obj && obj.destroy(),
+);
 
 export enum PassView {
     PRIORITY,
@@ -245,6 +252,7 @@ export enum PassView {
     DEPTH_STENCIL_STATE, // handle
     BLEND_STATE,         // handle
     DESCRIPTOR_SET,      // handle
+    PIPELINE_LAYOUT,     // handle
     COUNT,
 }
 export const PassPool = new BufferPool(PoolType.PASS, Uint32Array, PassView);

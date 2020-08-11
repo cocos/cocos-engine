@@ -4,7 +4,7 @@
 
 import { ccenum } from '../value-types/enum';
 import { GFXDescriptorSet, IGFXDescriptorSetInfo } from './descriptor-set';
-import { GFXBuffer, IGFXBufferInfo } from './buffer';
+import { GFXBuffer, IGFXBufferInfo, IGFXBufferViewInfo } from './buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from './command-buffer';
 import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFilter, GFXFormat, GFXMemoryStatus, GFXRect } from './define';
 import { GFXFence, IGFXFenceInfo } from './fence';
@@ -16,6 +16,7 @@ import { GFXRenderPass, IGFXRenderPassInfo } from './render-pass';
 import { GFXSampler, IGFXSamplerInfo } from './sampler';
 import { GFXShader, GFXShaderInfo } from './shader';
 import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from './texture';
+import { IGFXDescriptorSetLayoutInfo, GFXDescriptorSetLayout, IGFXPipelineLayoutInfo, GFXPipelineLayout } from '../../../exports/base';
 
 ccenum(GFXFormat);
 
@@ -220,7 +221,7 @@ export abstract class GFXDevice {
 
     /**
      * @en Max uniform buffer bindings supported.
-     * @zh 最大 UniformBuffer 绑定数量。
+     * @zh 最大 uniform 缓冲绑定数量。
      */
     get maxUniformBufferBindings (): number {
         return this._maxUniformBufferBindings;
@@ -228,7 +229,7 @@ export abstract class GFXDevice {
 
     /**
      * @en Max uniform block size supported.
-     * @zh 最大Uniform块大小。
+     * @zh 最大 uniform 缓冲大小。
      */
     get maxUniformBlockSize (): number {
         return this._maxUniformBlockSize;
@@ -248,6 +249,14 @@ export abstract class GFXDevice {
      */
     get maxCubeMapTextureSize (): number {
         return this._maxCubeMapTextureSize;
+    }
+
+    /**
+     * @en Uniform buffer offset alignment.
+     * @zh Uniform 缓冲偏移量的对齐单位。
+     */
+    get uboOffsetAlignment (): number {
+        return this._uboOffsetAlignment;
     }
 
     /**
@@ -369,6 +378,7 @@ export abstract class GFXDevice {
     protected _maxUniformBlockSize: number = 0;
     protected _maxTextureSize: number = 0;
     protected _maxCubeMapTextureSize: number = 0;
+    protected _uboOffsetAlignment: number = 1;
     protected _depthBits: number = 0;
     protected _stencilBits: number = 0;
     protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;
@@ -422,7 +432,7 @@ export abstract class GFXDevice {
      * @zh 创建缓冲。
      * @param info GFX buffer description info.
      */
-    public abstract createBuffer (info: IGFXBufferInfo): GFXBuffer;
+    public abstract createBuffer (info: IGFXBufferInfo | IGFXBufferViewInfo): GFXBuffer;
 
     /**
      * @en Create texture.
@@ -472,6 +482,20 @@ export abstract class GFXDevice {
      * @param info GFX frame buffer description info.
      */
     public abstract createFramebuffer (info: IGFXFramebufferInfo): GFXFramebuffer;
+
+    /**
+     * @en Create descriptor set layout.
+     * @zh 创建描述符集布局。
+     * @param info GFX descriptor set layout description info.
+     */
+    public abstract createDescriptorSetLayout (info: IGFXDescriptorSetLayoutInfo): GFXDescriptorSetLayout;
+
+    /**
+     * @en Create pipeline layout.
+     * @zh 创建管线布局。
+     * @param info GFX pipeline layout description info.
+     */
+    public abstract createPipelineLayout (info: IGFXPipelineLayoutInfo): GFXPipelineLayout;
 
     /**
      * @en Create pipeline state.

@@ -45,6 +45,12 @@ export interface IGFXBufferInfo {
     flags?: GFXBufferFlags;
 }
 
+export interface IGFXBufferViewInfo {
+    buffer: GFXBuffer;
+    offset: number;
+    range: number;
+}
+
 /**
  * @en GFX buffer.
  * @zh GFX 缓冲。
@@ -104,6 +110,7 @@ export abstract class GFXBuffer extends GFXObject {
     }
 
     protected _device: GFXDevice;
+    protected _isBufferView: boolean = false;
     protected _usage: GFXBufferUsage = GFXBufferUsageBit.NONE;
     protected _memUsage: GFXMemoryUsage = GFXMemoryUsageBit.NONE;
     protected _size: number = 0;
@@ -118,7 +125,7 @@ export abstract class GFXBuffer extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXBufferInfo): boolean;
+    public abstract initialize (info: IGFXBufferInfo | IGFXBufferViewInfo): boolean;
 
     public abstract destroy (): void;
 

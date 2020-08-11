@@ -164,7 +164,7 @@ export abstract class GFXCommandBuffer extends GFXObject {
      * @zh 绑定 GFX 描述符集。
      * @param descriptorSet The descriptor set to be bound.
      */
-    public abstract bindDescriptorSet (set: number, descriptorSets: GFXDescriptorSet): void;
+    public abstract bindDescriptorSet (set: number, descriptorSets: GFXDescriptorSet, dynamicOffsets?: number[]): void;
 
     /**
      * @en Bind input assembler.

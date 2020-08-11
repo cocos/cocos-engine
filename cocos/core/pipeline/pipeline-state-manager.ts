@@ -6,7 +6,7 @@ import { GFXPipelineState, GFXInputState } from '../gfx/pipeline-state';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXInputAssembler } from '../gfx/input-assembler';
 import { GFXDevice } from '../gfx/device';
-import { PassPool, PassView, RasterizerStatePool, BlendStatePool, DepthStencilStatePool, PassHandle } from '../renderer/core/memory-pools';
+import { PassPool, PassView, RasterizerStatePool, BlendStatePool, DepthStencilStatePool, PassHandle, PipelineLayoutPool } from '../renderer/core/memory-pools';
 import { GFXDynamicStateFlags, GFXShader } from '../gfx';
 
 export class PipelineStateManager {
@@ -21,6 +21,7 @@ export class PipelineStateManager {
         const newHash = hash1 ^ hash2 ^ hash3;
         let pso = this._PSOHashMap.get(newHash);
         if (!pso) {
+            const pipelineLayout = PipelineLayoutPool.get(PassPool.get(hPass, PassView.PIPELINE_LAYOUT));
             const inputState = new GFXInputState();
             inputState.attributes = ia.attributes;
             pso = device.createPipelineState({
@@ -32,6 +33,7 @@ export class PipelineStateManager {
                 inputState,
                 renderPass,
                 shader,
+                pipelineLayout,
             });
             this._PSOHashMap.set(newHash, pso);
         }

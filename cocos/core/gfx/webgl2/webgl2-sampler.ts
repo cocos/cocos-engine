@@ -2,7 +2,6 @@ import { GFXSampler, IGFXSamplerInfo } from '../sampler';
 import { WebGL2CmdFuncCreateSampler, WebGL2CmdFuncDestroySampler } from './webgl2-commands';
 import { WebGL2Device } from './webgl2-device';
 import { IWebGL2GPUSampler } from './webgl2-gpu-objects';
-import { GFXStatus } from '../define';
 
 export class WebGL2Sampler extends GFXSampler {
 
@@ -86,8 +85,6 @@ export class WebGL2Sampler extends GFXSampler {
 
         WebGL2CmdFuncCreateSampler(this._device as WebGL2Device, this._gpuSampler);
 
-        this._status = GFXStatus.SUCCESS;
-
         return true;
     }
 
@@ -96,6 +93,5 @@ export class WebGL2Sampler extends GFXSampler {
             WebGL2CmdFuncDestroySampler(this._device as WebGL2Device, this._gpuSampler);
             this._gpuSampler = null;
         }
-        this._status = GFXStatus.UNREADY;
     }
 }

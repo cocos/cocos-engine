@@ -30,7 +30,7 @@
 import { RenderingSubMesh, Mesh } from '../../core/assets/mesh';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormatInfos,
-    GFXMemoryUsageBit, GFXPrimitiveMode, GFXStatus } from '../../core/gfx/define';
+    GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
 import { IGFXAttribute } from '../../core/gfx/input-assembler';
 import { Color } from '../../core/math/color';
 import { Model, ModelType } from '../../core/renderer/scene/model';
@@ -60,6 +60,7 @@ export default class ParticleBatchModel extends Model {
     private _indexCount: number = 0;
     private _startTimeOffset: number = 0;
     private _lifeTimeOffset: number = 0;
+    private _iaInfoBufferReady: boolean = true;
 
     constructor () {
         super();
@@ -189,13 +190,14 @@ export default class ParticleBatchModel extends Model {
 
         this._iaInfo.drawInfos[0].vertexCount = this._capacity * this._vertCount;
         this._iaInfo.drawInfos[0].indexCount = this._capacity * this._indexCount;
-        if (this._iaInfoBuffer.status === GFXStatus.UNREADY) {
+        if (!this._iaInfoBufferReady) {
             this._iaInfoBuffer.initialize({
                 usage: GFXBufferUsageBit.INDIRECT,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: GFX_DRAW_INFO_SIZE,
                 stride: GFX_DRAW_INFO_SIZE,
             });
+            this._iaInfoBufferReady = true;
         }
         this._iaInfoBuffer.update(this._iaInfo);
 
@@ -336,6 +338,7 @@ export default class ParticleBatchModel extends Model {
         this._vdataF32 = null;
         this.destroySubMeshData();
         this._iaInfoBuffer.destroy();
+        this._iaInfoBufferReady = false;
     }
 
     private _recreateBuffer () {

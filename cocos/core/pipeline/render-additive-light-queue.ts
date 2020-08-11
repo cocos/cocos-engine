@@ -6,7 +6,7 @@ import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOForwardLight, SetIndex } from './define';
 import { Light } from '../renderer';
-import { GFXDevice, GFXRenderPass, GFXBuffer, GFXDescriptorSet, IGFXDescriptorSetInfo, GFXDescriptorType, GFXShader } from '../gfx';
+import { GFXDevice, GFXRenderPass, GFXBuffer, GFXDescriptorSet, IGFXDescriptorSetInfo, GFXDescriptorType, GFXShader, DESCRIPTOR_BUFFER_TYPE } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { DSPool, ShaderPool, PassHandle, PassView, PassPool, SubModelPool, SubModelView } from '../renderer/core/memory-pools';
@@ -16,15 +16,13 @@ const _dsInfo: IGFXDescriptorSetInfo = { layout: null! };
 function cloneDescriptorSet (device: GFXDevice, src: GFXDescriptorSet) {
     _dsInfo.layout = src.layout;
     const ds = device.createDescriptorSet(_dsInfo);
-    for (let i = 0; i < _dsInfo.layout.length; i++) {
-        switch (_dsInfo.layout[i]) {
-            case GFXDescriptorType.UNIFORM_BUFFER:
-                ds.bindBuffer(i, src.getBuffer(i));
-                break;
-            case GFXDescriptorType.SAMPLER:
-                ds.bindSampler(i, src.getSampler(i));
-                ds.bindTexture(i, src.getTexture(i));
-                break;
+    const bindings = _dsInfo.layout.bindings;
+    for (let i = 0; i < bindings.length; i++) {
+        if (bindings[i].descriptorType & DESCRIPTOR_BUFFER_TYPE) {
+            ds.bindBuffer(i, src.getBuffer(i));
+        } else if (bindings[i].descriptorType & DESCRIPTOR_BUFFER_TYPE) {
+            ds.bindSampler(i, src.getSampler(i));
+            ds.bindTexture(i, src.getTexture(i));
         }
     }
     return ds;

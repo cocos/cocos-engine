@@ -323,7 +323,7 @@ export class UI {
                     const descriptorSet = DSPool.get(batch.hDescriptorSet);
 
                     // [HACK] remove this after UI refactoring
-                    const binding = batch.material!.passes[0].shaderInfo.descriptors.indexOf(GFXDescriptorType.SAMPLER) || 0;
+                    const binding = batch.material!.passes[0].shaderInfo.samplerStartBinding || 0;
 
                     descriptorSet.bindTexture(binding, batch.texture!);
                     descriptorSet.bindSampler(binding, batch.sampler!);

@@ -1,6 +1,6 @@
 {
     "thisFile": {
-        "stamp": "2020-08-09T10:21:07.908Z"
+        "stamp": "2020-08-11T09:58:43.249Z"
     },
     "variables": [
         "cc.AffineTransform",
@@ -98,8 +98,7 @@
         "cc.GFXSampler",
         "cc.GFXShadeModel",
         "cc.GFXShader",
-        "cc.GFXShaderType",
-        "cc.GFXStatus",
+        "cc.GFXShaderStageFlagBit",
         "cc.GFXStencilFace",
         "cc.GFXStencilOp",
         "cc.GFXStoreOp",

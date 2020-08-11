@@ -1,5 +1,5 @@
-import { GFXBuffer, GFXBufferSource, IGFXBufferInfo } from '../buffer';
-import { GFXBufferUsageBit, GFXStatus, GFXBufferFlagBit } from '../define';
+import { GFXBuffer, GFXBufferSource, IGFXBufferInfo, IGFXBufferViewInfo } from '../buffer';
+import { GFXBufferUsageBit, GFXBufferFlagBit } from '../define';
 import {
     WebGLCmdFuncCreateBuffer,
     WebGLCmdFuncDestroyBuffer,
@@ -18,68 +18,102 @@ export class WebGLBuffer extends GFXBuffer {
     private _gpuBuffer: IWebGLGPUBuffer | null = null;
     private _uniformBuffer: Uint8Array | null = null;
 
-    public initialize (info: IGFXBufferInfo): boolean {
+    public initialize (info: IGFXBufferInfo | IGFXBufferViewInfo): boolean {
 
-        this._usage = info.usage;
-        this._memUsage = info.memUsage;
-        this._size = info.size;
-        this._stride = Math.max(info.stride || this._size, 1);
-        this._count = this._size / this._stride;
-        this._flags = (info.flags !== undefined ? info.flags : GFXBufferFlagBit.NONE);
+        if ('buffer' in info) { // buffer view
 
-        if (this._usage & GFXBufferUsageBit.INDIRECT) {
-            this._indirectBuffer = { drawInfos: [] };
-        }
+            this._isBufferView = true;
 
-        if (this._flags & GFXBufferFlagBit.BAKUP_BUFFER) {
-            this._bufferView = new Uint8Array(this._size);
+            const buffer = info.buffer as WebGLBuffer;
+
+            this._usage = buffer.usage;
+            this._memUsage = buffer.memUsage;
+            this._size = this._stride = info.range;
+            this._count = 1;
+            this._flags = buffer.flags;
+
+            this._gpuBuffer = {
+                usage: this._usage,
+                memUsage: this._memUsage,
+                size: this._size,
+                stride: this._stride,
+                buffer: this._bufferView,
+                vf32: buffer.gpuBuffer.vf32,
+                indirects: buffer.gpuBuffer.indirects,
+                glTarget: buffer.gpuBuffer.glTarget,
+                glBuffer: buffer.gpuBuffer.glBuffer,
+                glOffset: info.offset,
+            };
+
+        } else { // native buffer
+
+            this._usage = info.usage;
+            this._memUsage = info.memUsage;
+            this._size = info.size;
+            this._stride = Math.max(info.stride || this._size, 1);
+            this._count = this._size / this._stride;
+            this._flags = (info.flags !== undefined ? info.flags : GFXBufferFlagBit.NONE);
+
+            if (this._usage & GFXBufferUsageBit.INDIRECT) {
+                this._indirectBuffer = { drawInfos: [] };
+            }
+
+            if (this._flags & GFXBufferFlagBit.BAKUP_BUFFER) {
+                this._bufferView = new Uint8Array(this._size);
+                this._device.memoryStatus.bufferSize += this._size;
+            }
+
+            if ((this._usage & GFXBufferUsageBit.UNIFORM) && this._size > 0) {
+                this._uniformBuffer = new Uint8Array(this._size);
+            }
+
+            this._gpuBuffer = {
+                usage: this._usage,
+                memUsage: this._memUsage,
+                size: this._size,
+                stride: this._stride,
+                buffer: this._bufferView,
+                vf32: null,
+                indirects: [],
+                glTarget: 0,
+                glBuffer: null,
+                glOffset: 0,
+            };
+
+            if (info.usage & GFXBufferUsageBit.INDIRECT) {
+                this._gpuBuffer.indirects = this._indirectBuffer!.drawInfos;
+            }
+
+            if (this._usage & GFXBufferUsageBit.UNIFORM) {
+                this._gpuBuffer.buffer = this._uniformBuffer;
+            }
+
+            WebGLCmdFuncCreateBuffer(this._device as WebGLDevice, this._gpuBuffer);
+
             this._device.memoryStatus.bufferSize += this._size;
         }
-
-        if ((this._usage & GFXBufferUsageBit.UNIFORM) && this._size > 0) {
-            this._uniformBuffer = new Uint8Array(this._size);
-        }
-
-        this._gpuBuffer = {
-            usage: info.usage,
-            memUsage: info.memUsage,
-            size: info.size,
-            stride: this._stride,
-            buffer: this._bufferView,
-            vf32: null,
-            indirects: [],
-            glTarget: 0,
-            glBuffer: null,
-        };
-
-        if (info.usage & GFXBufferUsageBit.INDIRECT) {
-            this._gpuBuffer.indirects = this._indirectBuffer!.drawInfos;
-        }
-
-        if (this._usage & GFXBufferUsageBit.UNIFORM) {
-            this._gpuBuffer.buffer = this._uniformBuffer;
-        }
-
-        WebGLCmdFuncCreateBuffer(this._device as WebGLDevice, this._gpuBuffer);
-
-        this._device.memoryStatus.bufferSize += this._size;
-        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
 
     public destroy () {
         if (this._gpuBuffer) {
-            WebGLCmdFuncDestroyBuffer(this._device as WebGLDevice, this._gpuBuffer);
-            this._device.memoryStatus.bufferSize -= this._size;
+            if (!this._isBufferView) {
+                WebGLCmdFuncDestroyBuffer(this._device as WebGLDevice, this._gpuBuffer);
+                this._device.memoryStatus.bufferSize -= this._size;
+            }
             this._gpuBuffer = null;
         }
 
         this._bufferView = null;
-        this._status = GFXStatus.UNREADY;
     }
 
     public resize (size: number) {
+        if (this._isBufferView) {
+            console.warn('cannot resize buffer views!');
+            return;
+        }
+
         const oldSize = this._size;
         if (oldSize === size) { return; }
 
@@ -128,6 +162,8 @@ export class WebGLBuffer extends GFXBuffer {
             const view = new Uint8Array(buffer as ArrayBuffer, 0, size);
             this._bufferView.set(view, offset);
         }
+
+        offset
 
         WebGLCmdFuncUpdateBuffer(
             this._device as WebGLDevice,

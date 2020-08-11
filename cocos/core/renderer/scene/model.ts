@@ -4,23 +4,23 @@ import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
-import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
-import { GFXDevice, GFXFeature } from '../../gfx/device';
-import { Mat4, Vec3, Vec4 } from '../../math';
 import { Pool } from '../../memop';
-import { INST_MAT_WORLD, UBOLocal, UniformLightingMapSampler } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from './render-scene';
 import { Texture2D } from '../../assets/texture-2d';
-import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { IGFXAttribute, GFXDescriptorSet } from '../../gfx';
 import { SubModel } from './submodel';
 import { Pass, IMacroPatch } from '../core/pass';
 import { legacyCC } from '../../global-exports';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { BatchingSchemes } from '../core/pass';
+import { Mat4, Vec3, Vec4 } from '../../math';
+import { GFXDevice, GFXFeature } from '../../gfx/device';
+import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { ShaderPool, SubModelPool, SubModelView } from '../core/memory-pools';
+import { IGFXAttribute, GFXDescriptorSet, GFXDescriptorSetLayout } from '../../gfx';
+import { INST_MAT_WORLD, UBOLocal, UniformLightingMapSampler, localDescriptorSetLayout } from '../../pipeline/define';
+import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
 
 const m4_1 = new Mat4();
 
@@ -291,9 +291,15 @@ export class Model {
         this._updateInstancedAttributes(shader.attributes, subModel.passes[0]);
     }
 
-    protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
-        descriptorSet.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer!);
+    protected _getInstancedAttributeIndex (name: string) {
+        const list = this.instancedAttributes.list;
+        for (let i = 0; i < list.length; i++) {
+            if (list[i].name === name) { return i; }
+        }
+        return -1;
     }
+
+    // sub-classes can override the following functions if needed
 
     // for now no submodel level instancing attributes
     protected _updateInstancedAttributes (attributes: IGFXAttribute[], pass: Pass) {
@@ -321,14 +327,6 @@ export class Model {
         this._transformUpdated = true;
     }
 
-    protected _getInstancedAttributeIndex (name: string) {
-        const list = this.instancedAttributes.list;
-        for (let i = 0; i < list.length; i++) {
-            if (list[i].name === name) { return i; }
-        }
-        return -1;
-    }
-
     protected _initLocalDescriptors (subModelIndex: number) {
         if (!this._localBuffer) {
             this._localBuffer = this._device.createBuffer({
@@ -338,5 +336,9 @@ export class Model {
                 stride: UBOLocal.SIZE,
             });
         }
+    }
+
+    protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
+        descriptorSet.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer!);
     }
 }

@@ -1,5 +1,4 @@
 import { GFXFence, IGFXFenceInfo } from '../fence';
-import { GFXStatus } from '../define';
 import { WebGL2Device } from './webgl2-device';
 
 export class WebGL2Fence extends GFXFence {
@@ -7,12 +6,10 @@ export class WebGL2Fence extends GFXFence {
     private _sync: WebGLSync | null = null;
 
     public initialize (info: IGFXFenceInfo): boolean {
-        this._status = GFXStatus.SUCCESS;
         return true;
     }
 
     public destroy () {
-        this._status = GFXStatus.UNREADY;
     }
 
     public wait () {

@@ -9,7 +9,7 @@ import { WebGLDevice } from './webgl-device';
 import { IWebGLGPUInputAssembler, IWebGLGPUUniform, IWebGLAttrib, IWebGLGPUDescriptorSet, IWebGLGPUBuffer, IWebGLGPUFramebuffer, IWebGLGPUInput,
     IWebGLGPUPipelineState, IWebGLGPUShader, IWebGLGPUTexture, IWebGLGPUUniformBlock, IWebGLGPUUniformSampler, IWebGLGPURenderPass } from './webgl-gpu-objects';
 import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXClearFlag, GFXColorMask, GFXCullMode, GFXFormat,
-    GFXFormatInfos, GFXFormatSize, GFXLoadOp, GFXMemoryUsageBit, GFXSampleCount, GFXShaderType, GFXStencilFace,
+    GFXFormatInfos, GFXFormatSize, GFXLoadOp, GFXMemoryUsageBit, GFXSampleCount, GFXShaderStageFlagBit, GFXStencilFace,
     GFXTextureFlagBit, GFXTextureType, GFXType, GFXColor, GFXFormatInfo, GFXRect, GFXViewport, GFXDynamicStateFlagBit } from '../define';
 
 export function GFXFormatToWebGLType (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
@@ -500,8 +500,9 @@ export class WebGLCmdBeginRenderPass extends WebGLCmdObject {
 export class WebGLCmdBindStates extends WebGLCmdObject {
 
     public gpuPipelineState: IWebGLGPUPipelineState | null = null;
-    public gpuDescriptorSets: IWebGLGPUDescriptorSet[] = [];
     public gpuInputAssembler: IWebGLGPUInputAssembler | null = null;
+    public gpuDescriptorSets: IWebGLGPUDescriptorSet[] = [];
+    public dynamicOffsets: number[] = [];
     public viewport: GFXViewport | null = null;
     public scissor: GFXRect | null = null;
     public lineWidth: number | null = null;
@@ -519,6 +520,7 @@ export class WebGLCmdBindStates extends WebGLCmdObject {
         this.gpuPipelineState = null;
         this.gpuDescriptorSets.length = 0;
         this.gpuInputAssembler = null;
+        this.dynamicOffsets.length = 0;
         this.viewport = null;
         this.scissor = null;
         this.lineWidth = null;
@@ -1208,12 +1210,12 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
         let lineNumber = 1;
 
         switch (gpuStage.type) {
-            case GFXShaderType.VERTEX: {
+            case GFXShaderStageFlagBit.VERTEX: {
                 shaderTypeStr = 'VertexShader';
                 glShaderType = gl.VERTEX_SHADER;
                 break;
             }
-            case GFXShaderType.FRAGMENT: {
+            case GFXShaderStageFlagBit.FRAGMENT: {
                 shaderTypeStr = 'FragmentShader';
                 glShaderType = gl.FRAGMENT_SHADER;
                 break;
@@ -1742,8 +1744,9 @@ export function WebGLCmdFuncBeginRenderPass (
 export function WebGLCmdFuncBindStates (
     device: WebGLDevice,
     gpuPipelineState: IWebGLGPUPipelineState | null,
-    gpuDescriptorSets: IWebGLGPUDescriptorSet[],
     gpuInputAssembler: IWebGLGPUInputAssembler | null,
+    gpuDescriptorSets: IWebGLGPUDescriptorSet[],
+    dynamicOffsets: number[],
     viewport: GFXViewport | null,
     scissor: GFXRect | null,
     lineWidth: number | null,
@@ -2005,9 +2008,11 @@ export function WebGLCmdFuncBindStates (
         } // blend state
     } // bind pso
 
-    if (gpuShader) {
+    if (gpuPipelineState && gpuPipelineState.gpuPipelineLayout && gpuShader) {
 
         const blockLen = gpuShader.glBlocks.length;
+        const dynamicOffsetIndices = gpuPipelineState.gpuPipelineLayout.dynamicOffsetIndices;
+
         for (let j = 0; j < blockLen; j++) {
             const glBlock = gpuShader.glBlocks[j];
             const gpuDescriptorSet = gpuDescriptorSets[glBlock.set];
@@ -2018,6 +2023,10 @@ export function WebGLCmdFuncBindStates (
                 continue;
             }
 
+            const dynamicOffsetIndexSet = dynamicOffsetIndices[glBlock.set];
+            const dynamicOffsetIndex = dynamicOffsetIndexSet && dynamicOffsetIndexSet[glBlock.binding];
+            const offset = dynamicOffsetIndex >= 0 ? gpuDescriptor.gpuBuffer.glOffset + dynamicOffsets[dynamicOffsetIndex] : 0;
+
             const uniformLen = glBlock.glActiveUniforms.length;
             const vf32 = gpuDescriptor.gpuBuffer.vf32;
             for (let l = 0; l < uniformLen; l++) {
@@ -2026,9 +2035,9 @@ export function WebGLCmdFuncBindStates (
                     case gl.BOOL:
                     case gl.INT: {
                         for (let u = 0; u < glUniform.array.length; ++u) {
-                            const idx = glUniform.begin + u;
+                            const idx = glUniform.begin + offset + u;
                             if (vf32[idx] !== glUniform.array[u]) {
-                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                     glUniform.array[n] = vf32[m];
                                 }
                                 gl.uniform1iv(glUniform.glLoc, glUniform.array);
@@ -2040,9 +2049,9 @@ export function WebGLCmdFuncBindStates (
                     case gl.BOOL_VEC2:
                     case gl.INT_VEC2: {
                         for (let u = 0; u < glUniform.array.length; ++u) {
-                            const idx = glUniform.begin + u;
+                            const idx = glUniform.begin + offset + u;
                             if (vf32[idx] !== glUniform.array[u]) {
-                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                     glUniform.array[n] = vf32[m];
                                 }
                                 gl.uniform2iv(glUniform.glLoc, glUniform.array);
@@ -2054,9 +2063,9 @@ export function WebGLCmdFuncBindStates (
                     case gl.BOOL_VEC3:
                     case gl.INT_VEC3: {
                         for (let u = 0; u < glUniform.array.length; ++u) {
-                            const idx = glUniform.begin + u;
+                            const idx = glUniform.begin + offset + u;
                             if (vf32[idx] !== glUniform.array[u]) {
-                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                     glUniform.array[n] = vf32[m];
                                 }
                                 gl.uniform3iv(glUniform.glLoc, glUniform.array);
@@ -2068,9 +2077,9 @@ export function WebGLCmdFuncBindStates (
                     case gl.BOOL_VEC4:
                     case gl.INT_VEC4: {
                         for (let u = 0; u < glUniform.array.length; ++u) {
-                            const idx = glUniform.begin + u;
+                            const idx = glUniform.begin + offset + u;
                             if (vf32[idx] !== glUniform.array[u]) {
-                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                     glUniform.array[n] = vf32[m];
                                 }
                                 gl.uniform4iv(glUniform.glLoc, glUniform.array);
@@ -2081,9 +2090,9 @@ export function WebGLCmdFuncBindStates (
                     }
                     case gl.FLOAT: {
                         for (let u = 0; u < glUniform.array.length; ++u) {
-                            const idx = glUniform.begin + u;
+                            const idx = glUniform.begin + offset + u;
                             if (vf32[idx] !== glUniform.array[u]) {
-                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                     glUniform.array[n] = vf32[m];
                                 }
                                 gl.uniform1fv(glUniform.glLoc, glUniform.array);
@@ -2094,9 +2103,9 @@ export function WebGLCmdFuncBindStates (
                     }
                     case gl.FLOAT_VEC2: {
                         for (let u = 0; u < glUniform.array.length; ++u) {
-                            const idx = glUniform.begin + u;
+                            const idx = glUniform.begin + offset + u;
                             if (vf32[idx] !== glUniform.array[u]) {
-                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                     glUniform.array[n] = vf32[m];
                                 }
                                 gl.uniform2fv(glUniform.glLoc, glUniform.array);
@@ -2107,9 +2116,9 @@ export function WebGLCmdFuncBindStates (
                     }
                     case gl.FLOAT_VEC3: {
                         for (let u = 0; u < glUniform.array.length; ++u) {
-                            const idx = glUniform.begin + u;
+                            const idx = glUniform.begin + offset + u;
                             if (vf32[idx] !== glUniform.array[u]) {
-                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                     glUniform.array[n] = vf32[m];
                                 }
                                 gl.uniform3fv(glUniform.glLoc, glUniform.array);
@@ -2120,9 +2129,9 @@ export function WebGLCmdFuncBindStates (
                     }
                     case gl.FLOAT_VEC4: {
                         for (let u = 0; u < glUniform.array.length; ++u) {
-                            const idx = glUniform.begin + u;
+                            const idx = glUniform.begin + offset + u;
                             if (vf32[idx] !== glUniform.array[u]) {
-                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                     glUniform.array[n] = vf32[m];
                                 }
                                 gl.uniform4fv(glUniform.glLoc, glUniform.array);
@@ -2133,9 +2142,9 @@ export function WebGLCmdFuncBindStates (
                     }
                     case gl.FLOAT_MAT2: {
                         for (let u = 0; u < glUniform.array.length; ++u) {
-                            const idx = glUniform.begin + u;
+                            const idx = glUniform.begin + offset + u;
                             if (vf32[idx] !== glUniform.array[u]) {
-                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                     glUniform.array[n] = vf32[m];
                                 }
                                 gl.uniformMatrix2fv(glUniform.glLoc, false, glUniform.array);
@@ -2146,9 +2155,9 @@ export function WebGLCmdFuncBindStates (
                     }
                     case gl.FLOAT_MAT3: {
                         for (let u = 0; u < glUniform.array.length; ++u) {
-                            const idx = glUniform.begin + u;
+                            const idx = glUniform.begin + offset + u;
                             if (vf32[idx] !== glUniform.array[u]) {
-                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                     glUniform.array[n] = vf32[m];
                                 }
                                 gl.uniformMatrix3fv(glUniform.glLoc, false, glUniform.array);
@@ -2159,9 +2168,9 @@ export function WebGLCmdFuncBindStates (
                     }
                     case gl.FLOAT_MAT4: {
                         for (let u = 0; u < glUniform.array.length; ++u) {
-                            const idx = glUniform.begin + u;
+                            const idx = glUniform.begin + offset + u;
                             if (vf32[idx] !== glUniform.array[u]) {
-                                for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
+                                for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                     glUniform.array[n] = vf32[m];
                                 }
                                 gl.uniformMatrix4fv(glUniform.glLoc, false, glUniform.array);
@@ -2637,7 +2646,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLDevice, cmdPackage: WebGLC
             */
             case WebGLCmd.BIND_STATES: {
                 const cmd2 = cmdPackage.bindStatesCmds.array[cmdId];
-                WebGLCmdFuncBindStates(device, cmd2.gpuPipelineState, cmd2.gpuDescriptorSets, cmd2.gpuInputAssembler,
+                WebGLCmdFuncBindStates(device, cmd2.gpuPipelineState, cmd2.gpuInputAssembler, cmd2.gpuDescriptorSets, cmd2.dynamicOffsets,
                     cmd2.viewport, cmd2.scissor, cmd2.lineWidth, cmd2.depthBias, cmd2.blendConstants,
                     cmd2.depthBounds, cmd2.stencilWriteMask, cmd2.stencilCompareMask);
                 break;

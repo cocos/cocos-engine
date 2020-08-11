@@ -1,6 +1,5 @@
 import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
 import { IWebGL2GPURenderPass } from './webgl2-gpu-objects';
-import { GFXStatus } from '../define';
 
 export class WebGL2RenderPass extends GFXRenderPass {
 
@@ -24,13 +23,11 @@ export class WebGL2RenderPass extends GFXRenderPass {
         };
 
         this._hash = this.computeHash();
-        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
 
     public destroy () {
         this._gpuRenderPass = null;
-        this._status = GFXStatus.UNREADY;
     }
 }

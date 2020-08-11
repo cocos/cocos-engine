@@ -1,4 +1,4 @@
-import { GFXFilter, GFXStatus } from '../define';
+import { GFXFilter } from '../define';
 import { GFXSampler, IGFXSamplerInfo } from '../sampler';
 import { IWebGLGPUSampler } from './webgl-gpu-objects';
 
@@ -114,13 +114,10 @@ export class WebGLSampler extends GFXSampler {
             glWrapR,
         };
 
-        this._status = GFXStatus.SUCCESS;
-
         return true;
     }
 
     public destroy () {
         this._gpuSampler = null;
-        this._status = GFXStatus.UNREADY;
     }
 }

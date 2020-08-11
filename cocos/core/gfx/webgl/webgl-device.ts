@@ -2,7 +2,7 @@ import { ALIPAY, RUNTIME_BASED } from 'internal:constants';
 import { macro } from '../../platform';
 import { sys } from '../../platform/sys';
 import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../descriptor-set';
-import { GFXBuffer, IGFXBufferInfo } from '../buffer';
+import { GFXBuffer, IGFXBufferInfo, IGFXBufferViewInfo } from '../buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo, GFXBindingMappingInfo } from '../device';
 import { GFXFence, IGFXFenceInfo } from '../fence';
@@ -21,6 +21,8 @@ import { WebGLCommandBuffer } from './webgl-command-buffer';
 import { WebGLFence } from './webgl-fence';
 import { WebGLFramebuffer } from './webgl-framebuffer';
 import { WebGLInputAssembler } from './webgl-input-assembler';
+import { WebGLDescriptorSetLayout } from './webgl-descriptor-set-layout';
+import { WebGLPipelineLayout } from './webgl-pipeline-layout';
 import { WebGLPipelineState } from './webgl-pipeline-state';
 import { WebGLPrimaryCommandBuffer } from './webgl-primary-command-buffer';
 import { WebGLQueue } from './webgl-queue';
@@ -33,6 +35,7 @@ import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXCommandBufferType, G
     GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXRect } from '../define';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture,
     WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
+import { IGFXDescriptorSetLayoutInfo, GFXDescriptorSetLayout, IGFXPipelineLayoutInfo, GFXPipelineLayout } from '../..';
 
 export class WebGLDevice extends GFXDevice {
 
@@ -547,70 +550,108 @@ export class WebGLDevice extends GFXDevice {
         return cmdBuff;
     }
 
-    public createBuffer (info: IGFXBufferInfo): GFXBuffer {
+    public createBuffer (info: IGFXBufferInfo | IGFXBufferViewInfo): GFXBuffer {
         const buffer = new WebGLBuffer(this);
-        buffer.initialize(info);
-        return buffer;
+        if (buffer.initialize(info)) {
+            return buffer;
+        }
+        return null!;
     }
 
     public createTexture (info: IGFXTextureInfo | IGFXTextureViewInfo): GFXTexture {
         const texture = new WebGLTexture(this);
-        texture.initialize(info);
-        return texture;
+        if (texture.initialize(info)) {
+            return texture;
+        }
+        return null!;
     }
 
     public createSampler (info: IGFXSamplerInfo): GFXSampler {
         const sampler = new WebGLSampler(this);
-        sampler.initialize(info);
-        return sampler;
+        if (sampler.initialize(info)) {
+            return sampler;
+        }
+        return null!;
     }
 
     public createDescriptorSet (info: IGFXDescriptorSetInfo): GFXDescriptorSet {
         const descriptorSet = new WebGLDescriptorSet(this);
-        descriptorSet.initialize(info);
-        return descriptorSet;
+        if (descriptorSet.initialize(info)) {
+            return descriptorSet;
+        }
+        return null!;
     }
 
     public createShader (info: GFXShaderInfo): GFXShader {
         const shader = new WebGLShader(this);
-        shader.initialize(info);
-        return shader;
+        if (shader.initialize(info)) {
+            return shader;
+        }
+        return null!;
     }
 
     public createInputAssembler (info: IGFXInputAssemblerInfo): GFXInputAssembler {
         const inputAssembler = new WebGLInputAssembler(this);
-        inputAssembler.initialize(info);
-        return inputAssembler;
+        if (inputAssembler.initialize(info)) {
+            return inputAssembler;
+        }
+        return null!;
     }
 
     public createRenderPass (info: IGFXRenderPassInfo): GFXRenderPass {
         const renderPass = new WebGLRenderPass(this);
-        renderPass.initialize(info);
-        return renderPass;
+        if (renderPass.initialize(info)) {
+            return renderPass;
+        }
+        return null!;
     }
 
     public createFramebuffer (info: IGFXFramebufferInfo): GFXFramebuffer {
         const framebuffer = new WebGLFramebuffer(this);
-        framebuffer.initialize(info);
-        return framebuffer;
+        if (framebuffer.initialize(info)) {
+            return framebuffer;
+        }
+        return null!;
+    }
+
+    public createDescriptorSetLayout (info: IGFXDescriptorSetLayoutInfo): GFXDescriptorSetLayout {
+        const descriptorSetLayout = new WebGLDescriptorSetLayout(this);
+        if (descriptorSetLayout.initialize(info)) {
+            return descriptorSetLayout;
+        }
+        return null!;
+    }
+
+    public createPipelineLayout (info: IGFXPipelineLayoutInfo): GFXPipelineLayout {
+        const pipelineLayout = new WebGLPipelineLayout(this);
+        if (pipelineLayout.initialize(info)) {
+            return pipelineLayout;
+        }
+        return null!;
     }
 
     public createPipelineState (info: IGFXPipelineStateInfo): GFXPipelineState {
         const pipelineState = new WebGLPipelineState(this);
-        pipelineState.initialize(info);
-        return pipelineState;
+        if (pipelineState.initialize(info)) {
+            return pipelineState;
+        }
+        return null!;
     }
 
     public createFence (info: IGFXFenceInfo): GFXFence {
         const fence = new WebGLFence(this);
-        fence.initialize(info);
-        return fence;
+        if (fence.initialize(info)) {
+            return fence;
+        }
+        return null!;
     }
 
     public createQueue (info: IGFXQueueInfo): GFXQueue {
         const queue = new WebGLQueue(this);
-        queue.initialize(info);
-        return queue;
+        if (queue.initialize(info)) {
+            return queue;
+        }
+        return null!;
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
