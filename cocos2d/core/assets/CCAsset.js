@@ -96,11 +96,11 @@ cc.Asset = cc.Class({
                         }
                         if (name.charCodeAt(0) === 46) {  // '.'
                                 // imported in dir where json exist
-                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {ext: name, isNative: true });
+                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {nativeExt: name, isNative: true });
                         }
                         else {
                             // imported in an independent dir
-                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {__nativeName__: name, ext: cc.path.extname(name), isNative: true});
+                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {__nativeName__: name, nativeExt: cc.path.extname(name), isNative: true});
                         }
                     }
                 }

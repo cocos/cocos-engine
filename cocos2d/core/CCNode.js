@@ -2683,8 +2683,8 @@ let NodeDefines = {
     /**
      * !#en
      * Sets the position (x, y, z) of the node in its parent's coordinates.<br/>
-     * Usually we use cc.v2(x, y) to compose cc.Vec2 object,<br/>
-     * and passing two numbers (x, y) is more efficient than passing cc.Vec2 object.
+     * Usually we use cc.v2(x, y) to compose cc.Vec2 object, in this case, position.z will become 0.<br/>
+     * and passing two numbers (x, y) is more efficient than passing cc.Vec2 object, in this case, position.z will remain unchanged.
      * For 3D node we can use cc.v3(x, y, z) to compose cc.Vec3 object,<br/>
      * and passing three numbers (x, y, z) is more efficient than passing cc.Vec3 object.
      * !#zh
@@ -2767,6 +2767,8 @@ let NodeDefines = {
      * !#en
      * Sets the scale of axis in local coordinates of the node.
      * You can operate 2 axis in 2D node, and 3 axis in 3D node.
+     * When only (x, y) is passed, the value of scale.z will not be changed.
+     * When a Vec2 is passed in, the value of scale.z will be set to 0.
      * !#zh
      * 设置节点在本地坐标系中坐标轴上的缩放比例。
      * 2D 节点可以操作两个坐标轴，而 3D 节点可以操作三个坐标轴。
@@ -2783,19 +2785,19 @@ let NodeDefines = {
      */
     setScale (newScaleOrX, y, z) {
         let x;
-        // 传入1个参数, 且参数为 Vec2/Vec3:
+        // only one parameter, and it's a Vec2/Vec3:
         if (newScaleOrX && typeof newScaleOrX !== 'number') {
             x = newScaleOrX.x;
             y = newScaleOrX.y;
             z = newScaleOrX.z;
         }
-        // 传入1个参数, 且参数为 number:
+        // only one parameter, and it's a number:
         else if (newScaleOrX !== undefined && y === undefined) {
             x = newScaleOrX;
             y = newScaleOrX;
             z = newScaleOrX;
         }
-        // 传入2个或3个参数时:
+        // two or three paramters:
         else {
             x = newScaleOrX;
         }

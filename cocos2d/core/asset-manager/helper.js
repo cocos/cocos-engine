@@ -68,7 +68,7 @@ var helper = {
      * @returns {String} the uuid parsed from url
      * 
      * @example
-     * var url = 'res/import/fc/fc991dd7-0033-4b80-9d41-c8a86a702e59.json';
+     * var url = 'assets/main/import/fc/fc991dd7-0033-4b80-9d41-c8a86a702e59.json';
      * var uuid = getUuidFromURL(url); // fc991dd7-0033-4b80-9d41-c8a86a702e59
      * 
      * @typescript
@@ -95,10 +95,16 @@ var helper = {
      * @method getUrlWithUuid
      * @param {string} uuid - The uuid of asset
      * @param {Object} [options] - Some optional parameters
+     * @param {Boolean} [options.isNative] - Indicates whether the path you want is a native resource path
+     * @param {string} [options.nativeExt] - Extension of the native resource path, it is required when isNative is true
      * @returns {string} url
      * 
      * @example
+     * // json path, 'assets/main/import/fc/fc991dd7-0033-4b80-9d41-c8a86a702e59.json';
      * var url = getUrlWithUuid('fcmR3XADNLgJ1ByKhqcC5Z', {isNative: false});
+     * 
+     * // png path, 'assets/main/native/fc/fc991dd7-0033-4b80-9d41-c8a86a702e59.png';
+     * var url = getUrlWithUuid('fcmR3XADNLgJ1ByKhqcC5Z', {isNative: true, nativeExt: '.png'});
      * 
      * @typescript
      * getUrlWithUuid(uuid: string, options?: Record<string, any>): string
@@ -106,6 +112,7 @@ var helper = {
     getUrlWithUuid: function (uuid, options) {
         options = options || Object.create(null);
         options.__isNative__ = options.isNative;
+        options.ext = options.nativeExt;
         var bundle = bundles.find(function (bundle) {
             return bundle.getAssetInfo(uuid);
         });
