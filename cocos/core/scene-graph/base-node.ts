@@ -27,20 +27,20 @@
  * @category scene-graph
  */
 
+import { DEBUG, DEV, EDITOR } from 'internal:constants';
 import { Component } from '../components/component';
 import { ccclass, property } from '../data/class-decorator';
 import { CCObject } from '../data/object';
 import { Event } from '../event';
-import { errorID, warnID, error, log, assertID, getError } from '../platform/debug';
+import { legacyCC } from '../global-exports';
+import { assertID, error, errorID, getError, log, warnID } from '../platform/debug';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { ISchedulable } from '../scheduler';
 import IdGenerator from '../utils/id-generator';
 import * as js from '../utils/js';
 import { baseNodePolyfill } from './base-node-dev';
-import { NodeEventProcessor } from './node-event-processor';
-import { DEV, DEBUG, EDITOR } from 'internal:constants';
-import { legacyCC } from '../global-exports';
 import { Node } from './node';
+import { NodeEventProcessor } from './node-event-processor';
 import { Scene } from './scene';
 
 type Constructor<T = {}> = new (...args: any[]) => T;
