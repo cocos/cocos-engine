@@ -172,29 +172,29 @@ export class CannonSharedBody {
         }
     }
 
-    syncSceneToPhysics (/*force: boolean = false*/) {
-        // let node = this.node;
-        // let needUpdateTransform = updateWorldTransform(node, force);
-        // if (!force && !needUpdateTransform) {
-        //     return;
-        // }
-        // // body world aabb need to be recalculated
-        // this.body.aabbNeedsUpdate = true;
+    syncSceneToPhysics (force = false) {
+        let node = this.node;
+        let needUpdateTransform = updateWorldTransform(node, force);
+        if (!force && !needUpdateTransform) {
+            return;
+        }
+        // body world aabb need to be recalculated
+        this.body.aabbNeedsUpdate = true;
 
-        // Vec3.copy(this.body.position, node.__wpos);
-        // Quat.copy(this.body.quaternion, node.__wrot);
+        Vec3.copy(this.body.position, node.__wpos);
+        Quat.copy(this.body.quaternion, node.__wrot);
 
-        // if (node._localMatDirty & PHYSICS_SCALE) {
-        //     let wscale = node.__wscale;
-        //     for (let i = 0; i < this.shapes.length; i++) {
-        //         this.shapes[i].setScale(wscale);
-        //     }
-        //     commitShapeUpdates(this.body);
-        // }
+        if (node._localMatDirty & PHYSICS_SCALE) {
+            let wscale = node.__wscale;
+            for (let i = 0; i < this.shapes.length; i++) {
+                this.shapes[i].setScale(wscale);
+            }
+            commitShapeUpdates(this.body);
+        }
 
-        // if (this.body.isSleeping()) {
-        //     this.body.wakeUp();
-        // }
+        if (this.body.isSleeping()) {
+            this.body.wakeUp();
+        }
     }
 
     syncPhysicsToScene () {
