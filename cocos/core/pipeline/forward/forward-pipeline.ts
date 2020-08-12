@@ -23,6 +23,7 @@ import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
 import { Mat4, Vec3, Vec2, Quat, Vec4 } from '../../math';
 import { GFXFeature } from '../../gfx/device';
+import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 
 const _vec4Array = new Float32Array(4);
 const shadowCamera_W_P = new Vec3();
@@ -47,37 +48,6 @@ const shadowCamera_OrthoSize = 20.0;
  */
 @ccclass('ForwardPipeline')
 export class ForwardPipeline extends RenderPipeline {
-    /**
-     * @en The lights participating the render process
-     * @zh 参与渲染的灯光。
-     */
-    public get validLights () {
-        return this._validLights;
-    }
-
-    /**
-     * @en The buffer array of lights
-     * @zh 灯光 buffer 数组。
-     */
-    public get lightBuffers () {
-        return this._lightBuffers;
-    }
-
-    /**
-     * @en The index buffer offset of lights
-     * @zh 灯光索引缓存偏移量数组。
-     */
-    public get lightIndexOffsets () {
-        return this._lightIndexOffsets;
-    };
-
-    /**
-     * @en The indices of lights
-     * @zh 灯光索引数组。
-     */
-    public get lightIndices () {
-        return this._lightIndices;
-    }
 
     public get isHDR () {
         return this._isHDR;
@@ -124,14 +94,8 @@ export class ForwardPipeline extends RenderPipeline {
      * @readonly
      */
     public renderObjects: IRenderObject[] = [];
-    protected _validLights: Light[] = [];
-    protected _lightBuffers: GFXBuffer[] = [];
-    protected _lightIndexOffsets: number[] = [];
-    protected _lightIndices: number[] = [];
     protected _uboGlobal: UBOGlobal = new UBOGlobal();
-    protected _uboLight: UBOForwardLight = new UBOForwardLight();
     protected _isHDR: boolean = false;
-    protected _lightMeterScale: number = 10000.0;
     protected _shadingScale: number = 1.0;
     protected _fpScale: number = 1.0 / 1024.0;
     protected _renderPasses = new Map<GFXClearFlag, GFXRenderPass>();
@@ -213,7 +177,6 @@ export class ForwardPipeline extends RenderPipeline {
     public updateUBOs (view: RenderView) {
         this._updateUBO(view);
         const exposure = view.camera.exposure;
-        const lightMeterScale = this._lightMeterScale;
         const mainLight = view.camera.scene!.mainLight;
         const device = this.device;
 
@@ -248,72 +211,6 @@ export class ForwardPipeline extends RenderPipeline {
         // Fill cc_shadowMatViewProj
         Mat4.toArray(this._uboPCFShadow.view, shadowCamera_M_V_P, UBOPCFShadow.MAT_SHADOW_VIEW_PROJ_OFFSET);
         this._descriptorSet.getBuffer(UBOPCFShadow.BLOCK.binding).update(this._uboPCFShadow.view);
-
-        // Fill UBOForwardLight, And update LightGFXBuffer[light_index]
-        for(let l = 0; l < this.validLights.length; ++l) {
-            this._uboLight.view.fill(0);
-            const light = this.validLights[l];
-            if (light) {
-                switch (light.type) {
-                    case LightType.SPHERE:
-                        const sphereLit = light as SphereLight;
-                        Vec3.toArray(_vec4Array, sphereLit.position);
-                        _vec4Array[3] = 0;
-                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_POS_OFFSET);
-
-                        _vec4Array[0] = sphereLit.size;
-                        _vec4Array[1] = sphereLit.range;
-                        _vec4Array[2] = 0.0;
-                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
-
-                        Vec3.toArray(_vec4Array, light.color);
-                        if (light.useColorTemperature) {
-                            const tempRGB = light.colorTemperatureRGB;
-                            _vec4Array[0] *= tempRGB.x;
-                            _vec4Array[1] *= tempRGB.y;
-                            _vec4Array[2] *= tempRGB.z;
-                        }
-                        if (this._isHDR) {
-                            _vec4Array[3] = sphereLit.luminance * this._fpScale * lightMeterScale;
-                        } else {
-                            _vec4Array[3] = sphereLit.luminance * exposure * lightMeterScale;
-                        }
-                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_COLOR_OFFSET);
-                    break;
-                    case LightType.SPOT:
-                        const spotLit = light as SpotLight;
-
-                        Vec3.toArray(_vec4Array, spotLit.position);
-                        _vec4Array[3] = 1;
-                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_POS_OFFSET);
-
-                        _vec4Array[0] = spotLit.size;
-                        _vec4Array[1] = spotLit.range;
-                        _vec4Array[2] = spotLit.spotAngle;
-                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
-
-                        Vec3.toArray(_vec4Array, spotLit.direction);
-                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_DIR_OFFSET);
-
-                        Vec3.toArray(_vec4Array, light.color);
-                        if (light.useColorTemperature) {
-                            const tempRGB = light.colorTemperatureRGB;
-                            _vec4Array[0] *= tempRGB.x;
-                            _vec4Array[1] *= tempRGB.y;
-                            _vec4Array[2] *= tempRGB.z;
-                        }
-                        if (this._isHDR) {
-                            _vec4Array[3] = spotLit.luminance * this._fpScale * lightMeterScale;
-                        } else {
-                            _vec4Array[3] = spotLit.luminance * exposure * lightMeterScale;
-                        }
-                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_COLOR_OFFSET);
-                    break;
-                }
-            }
-            // update lightBuffer
-            this._lightBuffers[l].update(this._uboLight.view);
-        }
     }
 
     private _activeRenderer () {

@@ -10,6 +10,8 @@ import { ForwardFlowPriority } from './enum';
 import { ForwardStage } from './forward-stage';
 import { sceneCulling } from './scene-culling';
 import { ForwardPipeline } from './forward-pipeline';
+import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
+import { RenderPipeline } from '../render-pipeline';
 /**
  * @en The forward flow in forward render pipeline
  * @zh 前向渲染流程。
@@ -26,6 +28,8 @@ export class ForwardFlow extends RenderFlow {
         priority: ForwardFlowPriority.FORWARD,
     };
 
+    protected _additiveLightQueue!: RenderAdditiveLightQueue;
+
     public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
 
@@ -36,11 +40,25 @@ export class ForwardFlow extends RenderFlow {
         return true;
     }
 
+    public activate (pipeline: RenderPipeline) {
+        super.activate(pipeline);
+
+        const pl = pipeline as ForwardPipeline;
+        this._additiveLightQueue = new RenderAdditiveLightQueue(pl.device, pl.isHDR, pl.fpScale, pl.renderObjects);
+
+        (this._stages[0] as ForwardStage).additiveLightQueue = this._additiveLightQueue;
+    }
+
     public render (view: RenderView) {
         const pipeline = this._pipeline as ForwardPipeline;
         view.camera.update();
+
         sceneCulling(pipeline, view);
+        this._additiveLightQueue.sceneCulling(view);
+
         pipeline.updateUBOs(view);
+        this._additiveLightQueue.updateUBOs(view);
+
         super.render(view);
     }
 
