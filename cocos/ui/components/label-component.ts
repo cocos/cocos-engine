@@ -28,7 +28,7 @@
  * @category ui
  */
 
-import { BitmapFont, Font, ImageAsset, SpriteFrame, Texture2D } from '../../core/assets';
+import { BitmapFont, Font, ImageAsset, SpriteFrame, Texture2D, Material } from '../../core/assets';
 import { ccclass, help, executionOrder, menu, property, tooltip } from '../../core/data/class-decorator';
 import { ccenum } from '../../core/value-types/enum';
 import { UI } from '../../core/renderer/ui/ui';
@@ -606,6 +606,20 @@ export class LabelComponent extends UIRenderComponent {
 
         this._isUnderline = value;
         this.updateRenderData();
+    }
+
+    @property({
+        type: Material,
+        displayName: 'Materials',
+        visible: false,
+        override: true,
+    })
+    get sharedMaterials () {
+        return super.sharedMaterials;
+    }
+
+    set sharedMaterials (val) {
+        super.sharedMaterials = val;
     }
 
     get assemblerData (){

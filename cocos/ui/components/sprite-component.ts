@@ -739,7 +739,6 @@ export class SpriteComponent extends UIRenderComponent {
         }
 
         this.changeMaterialForDefine();
-        // this.sharedMaterials = this.sharedMaterials;
         this._applySpriteSize();
     }
 
