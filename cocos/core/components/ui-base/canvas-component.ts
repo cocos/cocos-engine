@@ -277,6 +277,9 @@ export class CanvasComponent extends Component {
 
         if (EDITOR) {
             director.on(Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
+
+            // In Editor can not edit these attrs. (Position in Node, contentSize in uiTransformComponent) (anchor in uiTransformComponent, but it can edit, this is different from cocos creator)
+            this._objFlags |= legacyCC.Object.Flags.IsPositionLocked | legacyCC.Object.Flags.IsSizeLocked | legacyCC.Object.Flags.IsAnchorLocked;
         }
 
         view.on('design-resolution-changed', this._thisOnResized);
