@@ -46,9 +46,9 @@ export class WebGLDescriptorSet extends GFXDescriptorSet {
             const bindings = this._layout!.bindings;
             for (let i = 0; i < bindings.length; ++i) {
                 if (bindings[i].descriptorType & DESCRIPTOR_BUFFER_TYPE) {
-                    if (this._buffers[i]) {
-                        this._gpuDescriptorSet.gpuDescriptors[i].gpuBuffer =
-                            (this._buffers[i] as WebGLBuffer).gpuBuffer;
+                    const buffer = this._buffers[i] as WebGLBuffer | null;
+                    if (buffer) {
+                        this._gpuDescriptorSet.gpuDescriptors[i].gpuBuffer = buffer.gpuBuffer || buffer.gpuBufferView;
                     }
                 } else if (bindings[i].descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
                     if (this._textures[i]) {

@@ -27,6 +27,12 @@ export interface IWebGLGPUUniformInfo {
     isDirty: boolean;
 }
 
+export interface IWebGLGPUBufferView {
+    gpuBuffer: IWebGLGPUBuffer;
+    offset: number;
+    range: number;
+}
+
 export interface IWebGLGPUBuffer {
     usage: GFXBufferUsage;
     memUsage: GFXMemoryUsage;
@@ -35,7 +41,6 @@ export interface IWebGLGPUBuffer {
 
     glTarget: GLenum;
     glBuffer: WebGLBuffer | null;
-    glOffset: number;
 
     buffer: ArrayBufferView | null;
     vf32: Float32Array | null;
@@ -178,7 +183,7 @@ export interface IWebGLGPUPipelineState {
 
 export interface IWebGLGPUDescriptor {
     type: GFXDescriptorType;
-    gpuBuffer: IWebGLGPUBuffer | null;
+    gpuBuffer: IWebGLGPUBuffer | IWebGLGPUBufferView | null;
     gpuTexture: IWebGLGPUTexture | null;
     gpuSampler: IWebGLGPUSampler | null;
 }

@@ -77,8 +77,8 @@ interface IPassDynamics {
 
 const _bfInfo: IGFXBufferInfo = {
     memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+    usage: GFXBufferUsageBit.UNIFORM,
     size: 0,
-    usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
 };
 
 const _dsInfo: IGFXDescriptorSetInfo = {

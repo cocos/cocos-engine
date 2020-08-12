@@ -187,14 +187,14 @@ export class Camera {
     public resize (width: number, height: number) {
         this._width = width;
         this._height = height;
-        this._aspect = this._width / this._height;
+        this._aspect = (this._width * this._viewport.width) / (this._height * this._viewport.height);
         this._isProjDirty = true;
     }
 
     public setFixedSize (width: number, height: number) {
         this._width = width;
         this._height = height;
-        this._aspect = this._width / this._height;
+        this._aspect = (this._width * this._viewport.width) / (this._height * this._viewport.height);
         this.isWindowSize = false;
     }
 

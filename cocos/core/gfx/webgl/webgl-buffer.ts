@@ -7,7 +7,7 @@ import {
     WebGLCmdFuncUpdateBuffer,
 } from './webgl-commands';
 import { WebGLDevice } from './webgl-device';
-import { IWebGLGPUBuffer } from './webgl-gpu-objects';
+import { IWebGLGPUBuffer, IWebGLGPUBufferView } from './webgl-gpu-objects';
 
 export class WebGLBuffer extends GFXBuffer {
 
@@ -15,14 +15,17 @@ export class WebGLBuffer extends GFXBuffer {
         return  this._gpuBuffer!;
     }
 
+    get gpuBufferView (): IWebGLGPUBufferView {
+        return  this._gpuBufferView!;
+    }
+
     private _gpuBuffer: IWebGLGPUBuffer | null = null;
+    private _gpuBufferView: IWebGLGPUBufferView | null = null;
     private _uniformBuffer: Uint8Array | null = null;
 
     public initialize (info: IGFXBufferInfo | IGFXBufferViewInfo): boolean {
 
         if ('buffer' in info) { // buffer view
-
-            this._isBufferView = true;
 
             const buffer = info.buffer as WebGLBuffer;
 
@@ -32,17 +35,10 @@ export class WebGLBuffer extends GFXBuffer {
             this._count = 1;
             this._flags = buffer.flags;
 
-            this._gpuBuffer = {
-                usage: this._usage,
-                memUsage: this._memUsage,
-                size: this._size,
-                stride: this._stride,
-                buffer: this._bufferView,
-                vf32: buffer.gpuBuffer.vf32,
-                indirects: buffer.gpuBuffer.indirects,
-                glTarget: buffer.gpuBuffer.glTarget,
-                glBuffer: buffer.gpuBuffer.glBuffer,
-                glOffset: info.offset,
+            this._gpuBufferView = {
+                gpuBuffer: buffer.gpuBuffer,
+                offset: info.offset,
+                range: info.range,
             };
 
         } else { // native buffer
@@ -77,7 +73,6 @@ export class WebGLBuffer extends GFXBuffer {
                 indirects: [],
                 glTarget: 0,
                 glBuffer: null,
-                glOffset: 0,
             };
 
             if (info.usage & GFXBufferUsageBit.INDIRECT) {
@@ -98,18 +93,20 @@ export class WebGLBuffer extends GFXBuffer {
 
     public destroy () {
         if (this._gpuBuffer) {
-            if (!this._isBufferView) {
-                WebGLCmdFuncDestroyBuffer(this._device as WebGLDevice, this._gpuBuffer);
-                this._device.memoryStatus.bufferSize -= this._size;
-            }
+            WebGLCmdFuncDestroyBuffer(this._device as WebGLDevice, this._gpuBuffer);
+            this._device.memoryStatus.bufferSize -= this._size;
             this._gpuBuffer = null;
+        }
+
+        if (this._gpuBufferView) {
+            this._gpuBufferView = null;
         }
 
         this._bufferView = null;
     }
 
     public resize (size: number) {
-        if (this._isBufferView) {
+        if (this._gpuBufferView) {
             console.warn('cannot resize buffer views!');
             return;
         }
@@ -149,6 +146,10 @@ export class WebGLBuffer extends GFXBuffer {
     }
 
     public update (buffer: GFXBufferSource, offset?: number, size?: number) {
+        if (this._gpuBufferView) {
+            console.warn('cannot update through buffer views!');
+            return;
+        }
 
         let buffSize: number;
         if (size !== undefined) {
@@ -162,8 +163,6 @@ export class WebGLBuffer extends GFXBuffer {
             const view = new Uint8Array(buffer as ArrayBuffer, 0, size);
             this._bufferView.set(view, offset);
         }
-
-        offset
 
         WebGLCmdFuncUpdateBuffer(
             this._device as WebGLDevice,

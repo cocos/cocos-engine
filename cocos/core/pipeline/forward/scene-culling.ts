@@ -6,26 +6,30 @@ import { SKYBOX_FLAG } from '../../renderer';
 import { legacyCC } from '../../global-exports';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderView } from '../render-view';
+import { Pool } from '../../memop';
+import { IRenderObject } from '../define';
 
 const _tempVec3 = new Vec3();
 
-function addVisibleModel (pipeline: ForwardPipeline, model: Model, camera: Camera) {
+const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
+
+function getRenderObject (model: Model, camera: Camera) {
     let depth = 0;
     if (model.node) {
         Vec3.subtract(_tempVec3, model.node.worldPosition, camera.position);
         depth = Vec3.dot(_tempVec3, camera.forward);
     }
-    pipeline.renderObjects.push({
-        model,
-        depth,
-    });
+    const ro = roPool.alloc();
+    ro.model = model;
+    ro.depth = depth;
+    return ro;
 }
 
 export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     const camera = view.camera;
     const scene = camera.scene!;
     const renderObjects = pipeline.renderObjects;
-    renderObjects.length = 0;
+    roPool.freeArray(renderObjects); renderObjects.length = 0;
 
     const mainLight = scene.mainLight;
     const planarShadows = scene.planarShadows;
@@ -37,7 +41,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     }
 
     if (scene.skybox.enabled && (camera.clearFlag & SKYBOX_FLAG)) {
-        addVisibleModel(pipeline, scene.skybox, camera);
+        renderObjects.push(getRenderObject(scene.skybox, camera));
     }
 
     const models = scene.models;
@@ -54,7 +58,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                     view.visibility === model.visFlags) {
                     model.updateTransform(stamp);
                     model.updateUBOs(stamp);
-                    addVisibleModel(pipeline, model, camera);
+                    renderObjects.push(getRenderObject(model, camera));
                 }
             } else {
                 if (model.node && ((view.visibility & model.node.layer) === model.node.layer) ||
@@ -67,7 +71,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                     }
 
                     model.updateUBOs(stamp);
-                    addVisibleModel(pipeline, model, camera);
+                    renderObjects.push(getRenderObject(model, camera));
                 }
             }
         }

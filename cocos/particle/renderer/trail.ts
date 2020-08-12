@@ -398,7 +398,7 @@ export default class TrailModule {
             this._trailModel = null;
         }
         if (this._trailSegments) {
-            this._trailSegments.clear((obj: TrailSegment) => { obj.trailElements.length = 0; });
+            this._trailSegments.destroy((obj: TrailSegment) => { obj.trailElements.length = 0; });
             this._trailSegments = null;
         }
     }

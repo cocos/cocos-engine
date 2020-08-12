@@ -2029,18 +2029,28 @@ export function WebGLCmdFuncBindStates (
             const glBlock = gpuShader.glBlocks[j];
             const gpuDescriptorSet = gpuDescriptorSets[glBlock.set];
             const gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[glBlock.binding];
+            let vf32: Float32Array | null = null; let offset = 0;
 
-            if (!gpuDescriptor || !gpuDescriptor.gpuBuffer || !gpuDescriptor.gpuBuffer.vf32) {
+            if (gpuDescriptor && gpuDescriptor.gpuBuffer) {
+                const gpuBuffer = gpuDescriptor.gpuBuffer;
+                const dynamicOffsetIndexSet = dynamicOffsetIndices[glBlock.set];
+                const dynamicOffsetIndex = dynamicOffsetIndexSet && dynamicOffsetIndexSet[glBlock.binding];
+
+                if ('vf32' in gpuBuffer) {
+                    if (dynamicOffsetIndex >= 0) offset = dynamicOffsets[dynamicOffsetIndex] >> 2;
+                    vf32 = gpuBuffer.vf32;
+                } else {
+                    if (dynamicOffsetIndex >= 0) offset = (dynamicOffsets[dynamicOffsetIndex] + gpuBuffer.offset) >> 2;
+                    vf32 = gpuBuffer.gpuBuffer.vf32;
+                }
+            }
+
+            if (!vf32) {
                 error(`Buffer binding '${glBlock.name}' at set ${glBlock.set} binding ${glBlock.binding} is not bounded`);
                 continue;
             }
 
-            const dynamicOffsetIndexSet = dynamicOffsetIndices[glBlock.set];
-            const dynamicOffsetIndex = dynamicOffsetIndexSet && dynamicOffsetIndexSet[glBlock.binding];
-            const offset = dynamicOffsetIndex >= 0 ? gpuDescriptor.gpuBuffer.glOffset + dynamicOffsets[dynamicOffsetIndex] : 0;
-
             const uniformLen = glBlock.glActiveUniforms.length;
-            const vf32 = gpuDescriptor.gpuBuffer.vf32;
             for (let l = 0; l < uniformLen; l++) {
                 const glUniform = glBlock.glActiveUniforms[l];
                 switch (glUniform.glType) {
@@ -2194,6 +2204,7 @@ export function WebGLCmdFuncBindStates (
                     default:
                 }
             }
+            continue;
         }
 
         const samplerLen = gpuShader.glSamplers.length;

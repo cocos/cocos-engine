@@ -16,6 +16,7 @@ export class WebGL2Buffer extends GFXBuffer {
     }
 
     private _gpuBuffer: IWebGL2GPUBuffer | null = null;
+    private _isBufferView: boolean = false;
 
     public initialize (info: IGFXBufferInfo | IGFXBufferViewInfo): boolean {
 
@@ -132,6 +133,10 @@ export class WebGL2Buffer extends GFXBuffer {
     }
 
     public update (buffer: GFXBufferSource, offset?: number, size?: number) {
+        if (this._isBufferView) {
+            console.warn('cannot update through buffer views!');
+            return;
+        }
 
         let buffSize: number;
         if (size !== undefined ) {

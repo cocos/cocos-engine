@@ -110,7 +110,6 @@ export abstract class GFXBuffer extends GFXObject {
     }
 
     protected _device: GFXDevice;
-    protected _isBufferView: boolean = false;
     protected _usage: GFXBufferUsage = GFXBufferUsageBit.NONE;
     protected _memUsage: GFXMemoryUsage = GFXMemoryUsageBit.NONE;
     protected _size: number = 0;

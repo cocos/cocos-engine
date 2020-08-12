@@ -18,8 +18,8 @@ import { Mat4, Vec3, Vec4 } from '../../math';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { ShaderPool, SubModelPool, SubModelView } from '../core/memory-pools';
-import { IGFXAttribute, GFXDescriptorSet, GFXDescriptorSetLayout } from '../../gfx';
-import { INST_MAT_WORLD, UBOLocal, UniformLightingMapSampler, localDescriptorSetLayout } from '../../pipeline/define';
+import { IGFXAttribute, GFXDescriptorSet } from '../../gfx';
+import { INST_MAT_WORLD, UBOLocal, UniformLightingMapSampler } from '../../pipeline/define';
 import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
 
 const m4_1 = new Mat4();

@@ -9,22 +9,23 @@
  */
 export class Pool<T> {
 
-    private _fn: () => T;
-    private _idx: number;
-    private _frees: T[];
+    private _ctor: () => T;
+    private _elementsPerBatch: number;
+    private _nextAvail: number;
+    private _freepool: T[] = [];
 
     /**
      * 构造函数。
-     * @param fn 元素构造函数。
+     * @param ctor 元素构造函数。
      * @param size 初始大小。
      */
-    constructor (fn: () => T, size: number) {
-        this._fn = fn;
-        this._idx = size - 1;
-        this._frees = new Array<T>(size);
+    constructor (ctor: () => T, elementsPerBatch: number) {
+        this._ctor = ctor;
+        this._elementsPerBatch = elementsPerBatch;
+        this._nextAvail = elementsPerBatch - 1;
 
-        for (let i = 0; i < size; ++i) {
-            this._frees[i] = fn();
+        for (let i = 0; i < elementsPerBatch; ++i) {
+            this._freepool.push(ctor());
         }
     }
 
@@ -32,15 +33,16 @@ export class Pool<T> {
      * @zh 从对象池中取出一个对象。
      */
     public alloc (): T {
-        // create some more space (expand by 20%, minimum 1)
-        if (this._idx < 0) {
-            this._expand(Math.round(this._frees.length * 1.2) + 1);
+        if (this._nextAvail < 0) {
+            const elementsPerBatch = this._elementsPerBatch;
+            for (let i = 0; i < elementsPerBatch; i++) {
+                this._freepool.push(this._ctor());
+            }
+            this._nextAvail = elementsPerBatch - 1;
         }
 
-        const ret = this._frees[this._idx];
-        this._frees.splice(this._idx);
-        --this._idx;
-
+        const ret = this._freepool[this._nextAvail--];
+        this._freepool.length--;
         return ret;
     }
 
@@ -49,37 +51,30 @@ export class Pool<T> {
      * @param obj 释放的对象。
      */
     public free (obj: T) {
-        ++this._idx;
-        this._frees[this._idx] = obj;
+        this._freepool.push(obj);
+        this._nextAvail++;
     }
 
     /**
-     * 清除对象池。
-     * @param fn 清除回调，对每个释放的对象调用一次。
+     * @zh 将一组对象放回对象池中。
+     * @param objs 一组要释放的对象。
      */
-    public clear (fn: (obj: T) => void) {
-        for (let i = 0; i <= this._idx; i++) {
-            if (fn) {
-                fn(this._frees[i]);
-            }
-        }
-        this._frees.splice(0);
-        this._idx = -1;
+    public freeArray (objs: T[]) {
+        Array.prototype.push.apply(this._freepool, objs);
+        this._nextAvail += objs.length;
     }
 
-    private _expand (size: number) {
-        const old = this._frees;
-        this._frees = new Array(size);
-
-        const len = size - old.length;
-        for (let i = 0; i < len; ++i) {
-            this._frees[i] = this._fn();
+    /**
+     * 释放对象池中所有资源。
+     * @param dtor 销毁回调，对每个释放的对象调用一次。
+     */
+    public destroy (dtor?: (obj: T) => void) {
+        if (dtor) {
+            for (let i = 0; i <= this._nextAvail; i++) {
+                dtor(this._freepool[i]);
+            }
         }
-
-        for (let i = len, j = 0; i < size; ++i, ++j) {
-            this._frees[i] = old[j];
-        }
-
-        this._idx += len;
+        this._freepool.length = 0;
+        this._nextAvail = -1;
     }
 }

@@ -311,7 +311,7 @@ export class UBOForwardLight {
     public static SIZE: number = UBOForwardLight.COUNT * 4;
 
     public static BLOCK: IBlockInfo = {
-        stageFlags: GFXShaderStageFlagBit.FRAGMENT, descriptorType: GFXDescriptorType.UNIFORM_BUFFER, count: 1,
+        stageFlags: GFXShaderStageFlagBit.FRAGMENT, descriptorType: GFXDescriptorType.DYNAMIC_UNIFORM_BUFFER, count: 1,
         set: SetIndex.LOCAL, binding: ModelLocalBindings.UBO_FORWARD_LIGHTS, name: 'CCForwardLight', members: [
             { name: 'cc_lightPos', type: GFXType.FLOAT4, count: UBOForwardLight.LIGHTS_PER_PASS },
             { name: 'cc_lightColor', type: GFXType.FLOAT4, count: UBOForwardLight.LIGHTS_PER_PASS },
