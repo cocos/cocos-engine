@@ -66,10 +66,10 @@ enum EventType {
 }
 /**
  * @en
- * cc.EditBoxComponent is a component for inputing text, you can use it to gather small amounts of text from users.
+ * `EditBoxComponent` is a component for inputing text, you can use it to gather small amounts of text from users.
  *
  * @zh
- * EditBoxComponent 组件，用于获取用户的输入文本。
+ * `EditBoxComponent` 组件，用于获取用户的输入文本。
  */
 
 @ccclass('cc.EditBoxComponent')

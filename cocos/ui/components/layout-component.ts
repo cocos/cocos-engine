@@ -557,12 +557,13 @@ export class LayoutComponent extends Component {
      * 立即执行更新布局。
      *
      * @example
-     * ```typescript
-     * layout.type = cc.LayoutComponent.HORIZONTAL;
+     * ```ts
+     * import { LayoutComponent, log } from 'cc';
+     * layout.type = LayoutComponent.HORIZONTAL;
      * layout.node.addChild(childNode);
-     * cc.log(childNode.x); // not yet changed
+     * log(childNode.x); // not yet changed
      * layout.updateLayout();
-     * cc.log(childNode.x); // changed
+     * log(childNode.x); // changed
      * ```
      */
     public updateLayout () {

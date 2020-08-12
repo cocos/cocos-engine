@@ -93,8 +93,9 @@ class Component extends CCObject {
      * @type {String}
      * @readOnly
      * @example
-     * ```typescript
-     * cc.log(comp.uuid);
+     * ```ts
+     * import { log } from 'cc';
+     * log(comp.uuid);
      * ```
      */
     @property({
@@ -118,9 +119,10 @@ class Component extends CCObject {
      * @type {Boolean}
      * @default true
      * @example
-     * ```typescript
+     * ```ts
+     * import { log } from 'cc';
      * comp.enabled = true;
-     * cc.log(comp.enabled);
+     * log(comp.enabled);
      * ```
      */
     @property({
@@ -151,8 +153,9 @@ class Component extends CCObject {
      * @type {Boolean}
      * @readOnly
      * @example
-     * ```typescript
-     * cc.log(comp.enabledInHierarchy);
+     * ```ts
+     * import { log } from 'cc';
+     * log(comp.enabledInHierarchy);
      * ```
      */
     @property({
@@ -169,8 +172,9 @@ class Component extends CCObject {
      * @type {Number}
      * @readOnly
      * @example
-     * ```typescript
-     * cc.log(this._isOnLoadCalled > 0);
+     * ```ts
+     * import { log } from 'cc';
+     * log(this._isOnLoadCalled > 0);
      * ```
      */
     get _isOnLoadCalled () {
@@ -184,8 +188,9 @@ class Component extends CCObject {
      * @property node
      * @type {Node}
      * @example
-     * ```typescript
-     * cc.log(comp.node);
+     * ```ts
+     * import { log } from 'cc';
+     * log(comp.node);
      * ```
      */
     @property({
@@ -224,8 +229,9 @@ class Component extends CCObject {
      * @en Adds a component class to the node. You can also add component to node by passing in the name of the script.
      * @zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
      * @example
-     * ```typescript
-     * var sprite = node.addComponent(cc.SpriteComponent);
+     * ```ts
+     * import { SpriteComponent } from 'cc';
+     * const sprite = node.addComponent(SpriteComponent);
      * ```
      */
     public addComponent<T extends Component> (classConstructor: Constructor<T>): T | null;
@@ -234,8 +240,8 @@ class Component extends CCObject {
      * @en Adds a component class to the node. You can also add component to node by passing in the name of the script.
      * @zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
      * @example
-     * ```typescript
-     * var test = node.addComponent("Test");
+     * ```ts
+     * const test = node.addComponent("Test");
      * ```
      */
     public addComponent (className: string): Component | null;
@@ -252,9 +258,10 @@ class Component extends CCObject {
      * 获取节点上指定类型的组件，如果节点有附加指定类型的组件，则返回，如果没有则为空。<br/>
      * 传入参数也可以是脚本的名称。
      * @example
-     * ```typescript
+     * ```ts
+     * import { SpriteComponent } from 'cc';
      * // get sprite component.
-     * var sprite = node.getComponent(cc.SpriteComponent);
+     * const sprite = node.getComponent(SpriteComponent);
      * ```
      */
     public getComponent<T extends Component> (classConstructor: Constructor<T>): T | null;
@@ -267,7 +274,7 @@ class Component extends CCObject {
      * 获取节点上指定类型的组件，如果节点有附加指定类型的组件，则返回，如果没有则为空。<br/>
      * 传入参数也可以是脚本的名称。
      * @example
-     * ```typescript
+     * ```ts
      * // get custom test calss.
      * var test = node.getComponent("Test");
      * ```
@@ -282,8 +289,9 @@ class Component extends CCObject {
      * @en Returns all components of supplied type in the node.
      * @zh 返回节点上指定类型的所有组件。
      * @example
-     * ```typescript
-     * var sprites = node.getComponents(cc.SpriteComponent);
+     * ```ts
+     * import { SpriteComponent } from 'cc';
+     * const sprites = node.getComponents(SpriteComponent);
      * ```
      */
     public getComponents<T extends Component> (classConstructor: Constructor<T>): T[];
@@ -292,8 +300,8 @@ class Component extends CCObject {
      * @en Returns all components of supplied type in the node.
      * @zh 返回节点上指定类型的所有组件。
      * @example
-     * ```typescript
-     * var tests = node.getComponents("Test");
+     * ```ts
+     * const tests = node.getComponents("Test");
      * ```
      */
     public getComponents (className: string): Component[];
@@ -306,8 +314,9 @@ class Component extends CCObject {
      * @en Returns the component of supplied type in any of its children using depth first search.
      * @zh 递归查找所有子节点中第一个匹配指定类型的组件。
      * @example
-     * ```typescript
-     * var sprite = node.getComponentInChildren(cc.SpriteComponent);
+     * ```ts
+     * import { SpriteComponent } from 'cc';
+     * const sprite = node.getComponentInChildren(SpriteComponent);
      * ```
      */
     public getComponentInChildren<T extends Component> (classConstructor: Constructor<T>): T | null;
@@ -316,7 +325,7 @@ class Component extends CCObject {
      * @en Returns the component of supplied type in any of its children using depth first search.
      * @zh 递归查找所有子节点中第一个匹配指定类型的组件。
      * @example
-     * ```typescript
+     * ```ts
      * var Test = node.getComponentInChildren("Test");
      * ```
      */
@@ -330,8 +339,9 @@ class Component extends CCObject {
      * @en Returns all components of supplied type in self or any of its children.
      * @zh 递归查找自身或所有子节点中指定类型的组件。
      * @example
-     * ```typescript
-     * var sprites = node.getComponentsInChildren(cc.SpriteComponent);
+     * ```ts
+     * import { SpriteComponent } from 'cc';
+     * const sprites = node.getComponentsInChildren(SpriteComponent);
      * ```
      */
     public getComponentsInChildren<T extends Component> (classConstructor: Constructor<T>): T[];
@@ -340,8 +350,8 @@ class Component extends CCObject {
      * @en Returns all components of supplied type in self or any of its children.
      * @zh 递归查找自身或所有子节点中指定类型的组件。
      * @example
-     * ```typescript
-     * var tests = node.getComponentsInChildren("Test");
+     * ```ts
+     * const tests = node.getComponentsInChildren("Test");
      * ```
      */
     public getComponentsInChildren (className: string): Component[];
@@ -411,11 +421,9 @@ class Component extends CCObject {
      * @param {Number} repeat    将被重复执行（repeat+ 1）次，您可以使用 cc.macro.REPEAT_FOREVER 进行无限次循环。
      * @param {Number} delay     第一次执行前等待的时间（延时执行）。
      * @example
-     * ```typescript
-     * var timeCallback = function (dt) {
-     *   cc.log("time: " + dt);
-     * }
-     * this.schedule(timeCallback, 1);
+     * ```ts
+     * import { log } from 'cc';
+     * this.schedule((dt) => void log(`time: ${dt}`), 1);
      * ```
      */
     public schedule (callback, interval: number = 0, repeat: number = legacyCC.macro.REPEAT_FOREVER, delay: number = 0) {
@@ -445,11 +453,9 @@ class Component extends CCObject {
      * @param {function} callback  回调函数。
      * @param {Number} delay  第一次执行前等待的时间（延时执行）。
      * @example
-     * ```typescript
-     * var timeCallback = function (dt) {
-     *   cc.log("time: " + dt);
-     * }
-     * this.scheduleOnce(timeCallback, 2);
+     * ```ts
+     * import { log } from 'cc';
+     * this.scheduleOnce((dt) => void log(`time: ${dt}`), 2);
      * ```
      */
     public scheduleOnce (callback, delay: number = 0) {
@@ -457,11 +463,11 @@ class Component extends CCObject {
     }
 
     /**
-     * @en Unschedules a custom callback function.
+     * @en Un-schedules a custom callback function.
      * @zh 取消调度一个自定义的回调函数。
      * @param {function} callback_fn  回调函数。
      * @example
-     * ```typescript
+     * ```ts
      * this.unschedule(_callback);
      * ```
      */
@@ -480,7 +486,7 @@ class Component extends CCObject {
      * @zh 取消调度所有已调度的回调函数：定制的回调函数以及 'update' 回调函数。动作不受此方法影响。
      * @method unscheduleAllCallbacks
      * @example
-     * ```typescript
+     * ```ts
      * this.unscheduleAllCallbacks();
      * ```
      */

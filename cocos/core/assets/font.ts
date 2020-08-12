@@ -38,7 +38,6 @@ import { legacyCC } from '../global-exports';
  *
  * @zh
  * 字体资源类。
- * 可通过 cc.Font 获取该组件。
  */
 @ccclass('cc.Font')
 export class Font extends Asset {
