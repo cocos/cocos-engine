@@ -168,7 +168,7 @@ export class AnimationComponent extends Eventify(Component) {
     }
 
     public start () {
-        if (!EDITOR && (this.playOnLoad && !this._hasBeenPlayed) && this._defaultClip) {
+        if ((!EDITOR || legacyCC.GAME_VIEW) && (this.playOnLoad && !this._hasBeenPlayed) && this._defaultClip) {
             this.crossFade(this._defaultClip.name, 0);
         }
     }
