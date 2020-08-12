@@ -588,10 +588,6 @@ export class Game extends EventTarget {
             this._initEvents();
         }
 
-        if (!JSB && !EDITOR && !PREVIEW && legacyCC.internal.SplashScreen) {
-            legacyCC.internal.SplashScreen.instance.main(legacyCC.director.root);
-        }
-
         legacyCC.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
 
         return this._inited;
@@ -623,13 +619,8 @@ export class Game extends EventTarget {
             inputManager.registerSystemEvent(game.canvas);
         }
 
-        const splashScreen = legacyCC.internal.SplashScreen && legacyCC.internal.SplashScreen.instance;
-        const useSplash = (!JSB && !EDITOR && !PREVIEW && splashScreen);
-        if (useSplash) {
-            splashScreen.setOnFinish(() => {
-                if (this.onStart) { this.onStart(); }
-            });
-        }
+        const useSplash = (!JSB && !EDITOR && !PREVIEW && legacyCC.internal.SplashScreen);
+
         // Load render pipeline if needed
         const renderPipeline = this.config.renderPipeline;
         if (renderPipeline) {
@@ -645,6 +636,11 @@ export class Game extends EventTarget {
                 }
                 this._safeEmit(Game.EVENT_GAME_INITED);
                 if (useSplash) {
+                    const splashScreen = legacyCC.internal.SplashScreen.instance
+                    splashScreen.main(legacyCC.director.root);
+                    splashScreen.setOnFinish(() => {
+                        if (this.onStart) { this.onStart(); }
+                    });
                     splashScreen.loadFinish = true;
                 }
                 else {
@@ -656,6 +652,11 @@ export class Game extends EventTarget {
             this.setRenderPipeline();
             this._safeEmit(Game.EVENT_GAME_INITED);
             if (useSplash) {
+                const splashScreen = legacyCC.internal.SplashScreen.instance
+                splashScreen.main(legacyCC.director.root);
+                splashScreen.setOnFinish(() => {
+                    if (this.onStart) { this.onStart(); }
+                });
                 splashScreen.loadFinish = true;
             }
             else {
