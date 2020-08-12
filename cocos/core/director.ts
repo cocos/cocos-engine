@@ -451,11 +451,6 @@ export class Director extends EventTarget {
 
         this.stopAnimation();
 
-        if (this._root != null) {
-            this._root.destroy();
-        }
-        this._root = null;
-
         // Clear all caches
         legacyCC.loader.releaseAll();
     }

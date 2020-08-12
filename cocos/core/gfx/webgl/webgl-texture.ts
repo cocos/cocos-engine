@@ -69,7 +69,7 @@ export class WebGLGFXTexture extends GFXTexture {
             isPowerOf2: this._isPowerOf2,
 
             glTarget: 0,
-            glInternelFmt: 0,
+            glInternalFmt: 0,
             glFormat: 0,
             glType: 0,
             glUsage: 0,

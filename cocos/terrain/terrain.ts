@@ -1119,6 +1119,7 @@ export class Terrain extends Component {
      * @zh 设置地形上的高度
      */
     public setHeight (i: number, j: number, h: number) {
+        h = clamp(h, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX);
         this._heights[j * this.vertexCount[0] + i] = TERRAIN_HEIGHT_BASE + h / TERRAIN_HEIGHT_FACTORY;
     }
 

@@ -989,6 +989,6 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     public _onBeforeSerialize (props) {
-        return this.enableCulling ? props.filter(p => !PARTICLE_MODULE_PROPERTY.includes(p) || this[p].enable) : props;
+        return this.enableCulling ? props.filter(p => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
     }
 }

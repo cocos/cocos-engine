@@ -293,6 +293,13 @@ export class Game extends EventTarget {
     public static readonly EVENT_RENDERER_INITED: string = 'renderer_inited';
 
     /**
+     * @en Event triggered when game restart
+     * @zh 调用restart后，触发事件
+     * @property EVENT_RESTART
+     */
+    public static EVENT_RESTART: string = 'game_on_restart';
+
+    /**
      * @en Web Canvas 2d API as renderer backend.
      * @zh 使用 Web Canvas 2d API 作为渲染器后端。
      * @property RENDER_TYPE_CANVAS
@@ -494,11 +501,9 @@ export class Game extends EventTarget {
             legacyCC.director.getScene().destroy();
             legacyCC.Object._deferredDestroy();
 
-            legacyCC.director.purgeDirector();
-
             legacyCC.director.reset();
             legacyCC.game.onStart();
-        });
+            legacyCC.game._safeEmit(legacyCC.Game.EVENT_RESTART);        });
     }
 
     /**

@@ -1,4 +1,4 @@
-import { ALIPAY, RUNTIME_BASED } from 'internal:constants';
+import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT } from 'internal:constants';
 import { macro } from '../../platform';
 import { sys } from '../../platform/sys';
 import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../binding-layout';
@@ -64,6 +64,14 @@ export class WebGLGFXDevice extends GFXDevice {
 
     public get useVAO (): boolean {
         return this._useVAO;
+    }
+
+    public get destroyShadersImmediately (): boolean {
+        return this._destroyShadersImmediately;
+    }
+
+    public get noCompressedTexSubImage2D (): boolean {
+        return this._noCompressedTexSubImage2D;
     }
 
     public get EXT_texture_filter_anisotropic (): EXT_texture_filter_anisotropic | null {
@@ -163,6 +171,8 @@ export class WebGLGFXDevice extends GFXDevice {
     private _isAntialias: boolean = true;
     private _isPremultipliedAlpha: boolean = true;
     private _useVAO: boolean = false;
+    private _destroyShadersImmediately: boolean = true;
+    private _noCompressedTexSubImage2D: boolean = false;
     private _extensions: string[] | null = null;
     private _EXT_texture_filter_anisotropic: EXT_texture_filter_anisotropic | null = null;
     private _EXT_frag_depth: EXT_frag_depth | null = null;
@@ -323,12 +333,37 @@ export class WebGLGFXDevice extends GFXDevice {
         this._OES_element_index_uint = this.getExtension('OES_element_index_uint');
         this._ANGLE_instanced_arrays = this.getExtension('ANGLE_instanced_arrays');
 
-        if (ALIPAY) {
-            this._WEBGL_depth_texture = { UNSIGNED_INT_24_8_WEBGL: 0x84FA };
-        }
+        // platform-specific hacks
+        {
+            // UC browser instancing implementation doesn't work
+            if (sys.browserType === sys.BROWSER_TYPE_UC) {
+                this._ANGLE_instanced_arrays = null;
+            }
 
-        if (sys.browserType === sys.BROWSER_TYPE_UC) {
-            this._ANGLE_instanced_arrays = null; // UC browser implementation doesn't work
+            // bytedance ios depth texture implementation doesn't work
+            if (BYTEDANCE && sys.os === sys.OS_IOS) {
+                this._WEBGL_depth_texture = null;
+            }
+
+            // earlier runtime VAO implementations doesn't work
+            if (RUNTIME_BASED) {
+                // @ts-ignore
+                if (typeof loadRuntime !== 'function' || !loadRuntime() || typeof loadRuntime().getFeature !== 'function' || loadRuntime()
+                    .getFeature('webgl.extensions.oes_vertex_array_object.revision') <= 0) {
+                    this._OES_vertex_array_object = null;
+                }
+            }
+
+            // some earlier version of iOS and android wechat implement gl.detachShader incorrectly
+            if ((sys.os === sys.OS_IOS && sys.osMainVersion <= 10) ||
+                (sys.platform === sys.WECHAT_GAME && sys.os === sys.OS_ANDROID)) {
+                this._destroyShadersImmediately = false;
+            }
+
+            // compressedTexSubImage2D has always been problematic because the parameters differs slightly from GLES
+            if (WECHAT) { // and MANY platforms get it wrong
+                this._noCompressedTexSubImage2D = true;
+            }
         }
 
         this._features.fill(false);
@@ -401,17 +436,7 @@ export class WebGLGFXDevice extends GFXDevice {
         }
 
         if (this._OES_vertex_array_object) {
-            if (RUNTIME_BASED) {
-                // @ts-ignore
-                if (typeof loadRuntime === 'function' && typeof loadRuntime().getFeature === 'function' && loadRuntime()
-                        .getFeature('webgl.extensions.oes_vertex_array_object.revision') > 0 ) {
-                    this._useVAO = true;
-                }
-            } else { this._useVAO = true; }
-        }
-
-        if ((sys.platform === sys.WECHAT_GAME && sys.os === sys.OS_ANDROID)) {
-            gl.detachShader = () => {}; // Android WeChat may throw errors on detach shader
+            this._useVAO = true;
         }
 
         console.info('RENDERER: ' + this._renderer);
