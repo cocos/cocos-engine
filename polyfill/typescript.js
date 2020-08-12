@@ -68,6 +68,10 @@ window.__awaiter = function (thisArg, _arguments, P, generator) {
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
+    }).catch (e => {
+        // can't throw error in rejection function
+        // reference: https://stackoverflow.com/questions/30715367/why-can-i-not-throw-inside-a-promise-catch-handler
+        console.error(e);
     });
 };
 
