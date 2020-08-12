@@ -5,6 +5,7 @@ import {
 } from '../gfx/define';
 import { GFXRenderPass, GFXTexture, GFXFramebuffer, IGFXRenderPassInfo, GFXDevice } from '../gfx';
 import { Root } from '../root';
+import { RenderWindowHandle, RenderWindowPool, RenderWindowView, FramebufferPool, NULL_HANDLE } from '../renderer/core/memory-pools';
 
 export interface IRenderWindowInfo {
     title?: string;
@@ -38,7 +39,7 @@ export class RenderWindow {
      * @zh GFX帧缓冲。
      */
     get framebuffer (): GFXFramebuffer {
-        return this._framebuffer!;
+        return FramebufferPool.get(RenderWindowPool.get(this._poolHandle, RenderWindowView.FRAMEBUFFER));
     }
 
     get shouldSyncSizeWithSwapchain () {
@@ -46,11 +47,11 @@ export class RenderWindow {
     }
 
     get hasOnScreenAttachments () {
-        return this._hasOnScreenAttachments;
+        return RenderWindowPool.get(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS) === 1 ? true : false;
     }
 
     get hasOffScreenAttachments () {
-        return this._hasOffScreenAttachments;
+        return RenderWindowPool.get(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS) === 1 ? true : false;
     }
 
     public static registerCreateFunc (root: Root) {
@@ -65,16 +66,16 @@ export class RenderWindow {
     protected _renderPass: GFXRenderPass | null = null;
     protected _colorTextures: (GFXTexture | null)[] = [];
     protected _depthStencilTexture: GFXTexture | null = null;
-    protected _framebuffer: GFXFramebuffer | null = null;
     protected _swapchainBufferIndices = 0;
     protected _shouldSyncSizeWithSwapchain = false;
-    protected _hasOnScreenAttachments = false;
-    protected _hasOffScreenAttachments = false;
+    protected _poolHandle: RenderWindowHandle = NULL_HANDLE;
 
     private constructor (root: Root) {
     }
 
     public initialize (device: GFXDevice, info: IRenderWindowInfo): boolean {
+        this._poolHandle = RenderWindowPool.alloc();
+        
         if (info.title !== undefined) {
             this._title = info.title;
         }
@@ -114,9 +115,9 @@ export class RenderWindow {
                     width: this._width,
                     height: this._height,
                 });
-                this._hasOffScreenAttachments = true;
+                RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS, 1);
             } else {
-                this._hasOnScreenAttachments = true;
+                RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS, 1);
             }
             this._colorTextures.push(colorTex);
         }
@@ -131,17 +132,17 @@ export class RenderWindow {
                     width: this._width,
                     height: this._height,
                 });
-                this._hasOffScreenAttachments = true;
+                RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS, 1);
             } else {
-                this._hasOnScreenAttachments = true;
+                RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS, 1);
             }
         }
 
-        this._framebuffer = device.createFramebuffer({
+        RenderWindowPool.set(this._poolHandle, RenderWindowView.FRAMEBUFFER, FramebufferPool.alloc(device, {
             renderPass: this._renderPass,
             colorTextures: this._colorTextures,
             depthStencilTexture: this._depthStencilTexture,
-        });
+        }));
 
         return true;
     }
@@ -160,9 +161,9 @@ export class RenderWindow {
         }
         this._colorTextures.length = 0;
 
-        if (this._framebuffer) {
-            this._framebuffer.destroy();
-            this._framebuffer = null;
+        if (this._poolHandle) {
+            FramebufferPool.get(RenderWindowPool.get(this._poolHandle, RenderWindowView.FRAMEBUFFER)).destroy();
+            this._poolHandle = NULL_HANDLE;
         }
     }
 
@@ -197,9 +198,10 @@ export class RenderWindow {
                 }
             }
 
-            if (needRebuild && this._framebuffer) {
-                this._framebuffer.destroy();
-                this._framebuffer.initialize({
+            const framebuffer = FramebufferPool.get(RenderWindowPool.get(this._poolHandle, RenderWindowView.FRAMEBUFFER));
+            if (needRebuild && framebuffer) {
+                framebuffer.destroy();
+                framebuffer.initialize({
                     renderPass: this._renderPass!,
                     colorTextures: this._colorTextures,
                     depthStencilTexture: this._depthStencilTexture,

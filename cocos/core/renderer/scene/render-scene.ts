@@ -14,6 +14,7 @@ import { SpotLight } from './spot-light';
 import { PREVIEW } from 'internal:constants';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
+import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE } from '../core/memory-pools';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -92,6 +93,10 @@ export class RenderScene {
         return resultSingleModel;
     }
 
+    get handle () : SceneHandle {
+        return this._scenePoolHandle;
+    }
+
     public static registerCreateFunc (root: Root) {
         root._createSceneFun = (_root: Root): RenderScene => new RenderScene(_root);
     }
@@ -105,13 +110,17 @@ export class RenderScene {
     private _spotLights: SpotLight[] = [];
     private _mainLight: DirectionalLight | null = null;
     private _modelId: number = 0;
+    private _scenePoolHandle: SceneHandle = NULL_HANDLE;
+    private _modelArrayHandle: ModelArrayHandle = NULL_HANDLE;
 
     constructor (root: Root) {
         this._root = root;
+        this._createHandles();
     }
 
     public initialize (info: IRenderSceneInfo): boolean {
         this._name = info.name;
+        this._createHandles();
         return true;
     }
 
@@ -120,6 +129,12 @@ export class RenderScene {
         this.removeSphereLights();
         this.removeSpotLights();
         this.removeModels();
+        if (this._modelArrayHandle) {
+            ModelArrayPool.free(this._modelArrayHandle);
+            ScenePool.free(this._scenePoolHandle);
+            this._modelArrayHandle = NULL_HANDLE;
+            this._scenePoolHandle = NULL_HANDLE;
+        }
     }
 
     public addCamera (cam: Camera) {
@@ -224,6 +239,7 @@ export class RenderScene {
     public addModel (m: Model) {
         m.attachToScene(this);
         this._models.push(m);
+        ModelArrayPool.push(this._modelArrayHandle, m.handle);
     }
 
     public removeModel (model: Model) {
@@ -233,6 +249,7 @@ export class RenderScene {
                 pipeline.planarShadows.destroyShadowData(model);
                 model.detachFromScene();
                 this._models.splice(i, 1);
+                ModelArrayPool.erase(this._modelArrayHandle, i);
                 return;
             }
         }
@@ -245,6 +262,7 @@ export class RenderScene {
             m.detachFromScene();
         }
         this._models.length = 0;
+        ModelArrayPool.clear(this._modelArrayHandle);
     }
 
     public onGlobalPipelineStateChanged () {
@@ -446,6 +464,14 @@ export class RenderScene {
             if (node != null && node.active) {
                 this._raycastUI2DNodeRecursiveChildren(worldRay, node, mask, distance);
             }
+        }
+    }
+
+    private _createHandles() {
+        if (!this._modelArrayHandle) {
+            this._modelArrayHandle = ModelArrayPool.alloc();
+            this._scenePoolHandle = ScenePool.alloc();
+            ScenePool.set(this._scenePoolHandle, SceneView.MODEL_ARRAY, this._modelArrayHandle);
         }
     }
 }

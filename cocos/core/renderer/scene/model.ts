@@ -17,7 +17,7 @@ import { BatchingSchemes } from '../core/pass';
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { ShaderPool, SubModelPool, SubModelView, ShaderHandle } from '../core/memory-pools';
+import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool, SubModelArrayHandle, ModelPool, ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE, ShaderHandle } from '../core/memory-pools';
 import { IGFXAttribute, GFXDescriptorSet } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UniformLightingMapSampler } from '../../pipeline/define';
 import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
@@ -107,12 +107,46 @@ export class Model {
         return this._instMatWorldIdx >= 0;
     }
 
+    get handle () {
+        return this._poolHandle;
+    }
+
+    get node () : Node {
+        return this._node;
+    }
+
+    set node (n: Node) {
+        this._node = n;
+        ModelPool.set(this._poolHandle, ModelView.NODE, n.handle);
+    }
+
+    get transform () : Node {
+        return this._transform;
+    }
+
+    set transform (n: Node) {
+        this._transform = n;
+        ModelPool.set(this._poolHandle, ModelView.TRANSFORM, n.handle);
+    }
+
+    get visFlags () {
+        return ModelPool.get(this._poolHandle, ModelView.VIS_FLAGS);
+    }
+
+    set visFlags (val: number) {
+        ModelPool.set(this._poolHandle, ModelView.VIS_FLAGS, val);
+    }
+
+    get enabled () : boolean {
+        return ModelPool.get(this._poolHandle, ModelView.ENABLED) === 1 ? true : false;
+    }
+
+    set enabled (val: boolean) {
+        ModelPool.set(this._poolHandle, ModelView.ENABLED, val ? 1 : 0);
+    }
+
     public type = ModelType.DEFAULT;
     public scene: RenderScene | null = null;
-    public node: Node = null!;
-    public transform: Node = null!;
-    public enabled: boolean = true;
-    public visFlags = Layers.Enum.NONE;
     public castShadow = false;
     public receiveShadow = true;
     public isDynamicBatching = false;
@@ -121,12 +155,17 @@ export class Model {
     protected _worldBounds: aabb | null = null;
     protected _modelBounds: aabb | null = null;
     protected _subModels: SubModel[] = [];
+    protected _node: Node = null!;
+    protected _transform: Node = null!;
 
     protected _device: GFXDevice;
     protected _inited = false;
     protected _descriptorSetCount = 1;
     protected _updateStamp = -1;
     protected _transformUpdated = true;
+    protected _subModelArrayHandle: SubModelArrayHandle = NULL_HANDLE;
+    protected _poolHandle: ModelHandle = NULL_HANDLE;
+    protected _worldBoundsHandle: AABBHandle = NULL_HANDLE;
 
     private _localData = new Float32Array(UBOLocal.COUNT);
     private _localBuffer: GFXBuffer | null = null;
@@ -139,9 +178,12 @@ export class Model {
      */
     constructor () {
         this._device = legacyCC.director.root.device;
+        // initialize() may not be invoked, so create handles here too.
+        this._createHandles();
     }
 
     public initialize (node: Node) {
+        this._createHandles();
         this.transform = this.node = node;
     }
 
@@ -162,6 +204,17 @@ export class Model {
         this._inited = false;
         this._transformUpdated = true;
         this.isDynamicBatching = false;
+
+        if (this._poolHandle) {
+            ModelPool.free(this._poolHandle);
+            this._poolHandle = NULL_HANDLE;
+            SubModelArrayPool.free(this._subModelArrayHandle);
+            this._subModelArrayHandle = NULL_HANDLE;
+        }
+        if (this._worldBoundsHandle) {
+            AABBPool.free(this._worldBoundsHandle);
+            this._worldBoundsHandle = NULL_HANDLE;
+        }
     }
 
     public attachToScene (scene: RenderScene) {
@@ -178,9 +231,12 @@ export class Model {
         if (node.hasChangedFlags || node._dirtyFlags) {
             node.updateWorldTransform();
             this._transformUpdated = true;
-            if (this._modelBounds && this._worldBounds) {
+            let worldBounds = this._worldBounds;
+            if (this._modelBounds && worldBounds) {
                 // @ts-ignore TS2445
-                this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds);
+                this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
+                AABBPool.setVec3(this._worldBoundsHandle, AABBView.CENTER, worldBounds.center);
+                AABBPool.setVec3(this._worldBoundsHandle, AABBView.HALF_EXTENSION, worldBounds.halfExtents);
             }
         }
     }
@@ -218,16 +274,29 @@ export class Model {
         if (!minPos || !maxPos) { return; }
         this._modelBounds = aabb.fromPoints(aabb.create(), minPos, maxPos);
         this._worldBounds = aabb.clone(this._modelBounds);
+        if (this._worldBoundsHandle === NULL_HANDLE) {
+            this._worldBoundsHandle = AABBPool.alloc();
+            ModelPool.set(this._poolHandle, ModelView.WORLD_BOUNDS, this._worldBoundsHandle);
+        }
+        AABBPool.setVec3(this._worldBoundsHandle, AABBView.CENTER, this._worldBounds.center);
+        AABBPool.setVec3(this._worldBoundsHandle, AABBView.HALF_EXTENSION, this._worldBounds.halfExtents);
+        
     }
 
     public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
+        this._createHandles();
+        let isNewSubModel = false;
         if (this._subModels[idx] == null) {
             this._subModels[idx] = _subModelPool.alloc();
+            isNewSubModel = true;
         } else {
             this._subModels[idx].destroy();
         }
         this._subModels[idx].initialize(subMeshData, mat.passes, this.getMacroPatches(idx));
         this._updateAttributesAndBinding(idx);
+        if (isNewSubModel) {
+            SubModelArrayPool.assign(this._subModelArrayHandle, idx, this._subModels[idx].handle);
+        }
         this._inited = true;
     }
 
@@ -342,5 +411,15 @@ export class Model {
 
     protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
         descriptorSet.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer!);
+    }
+
+    protected _createHandles () {
+        if (this._poolHandle === NULL_HANDLE) {
+            this._poolHandle = ModelPool.alloc();
+            this._subModelArrayHandle = SubModelArrayPool.alloc();
+            ModelPool.set(this._poolHandle, ModelView.SUB_MODEL_ARRAY, this._subModelArrayHandle);
+            ModelPool.set(this._poolHandle, ModelView.VIS_FLAGS, Layers.Enum.NONE);
+            ModelPool.set(this._poolHandle, ModelView.ENABLED, 1);
+        }  
     }
 }

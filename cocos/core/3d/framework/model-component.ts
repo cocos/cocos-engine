@@ -353,8 +353,8 @@ export class ModelComponent extends RenderableComponent {
         // So we should take care of the edge case.
         const modelType = (preferMorphOverPlain && this._modelType === Model) ? MorphModel : this._modelType;
         this._model = (legacyCC.director.root as Root).createModel(modelType);
-        this._model.visFlags = this.visibility;
         this._model.initialize(this.node);
+        this._model.visFlags = this.visibility;
         this._models.length = 0;
         this._models.push(this._model);
         if (this._morphInstance && this._model instanceof MorphModel) {

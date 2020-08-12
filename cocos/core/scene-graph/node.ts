@@ -36,6 +36,7 @@ import { Layers } from './layers';
 import { NodeSpace, TransformBit } from './node-enum';
 import { NodeUIProperties } from './node-ui-properties';
 import { legacyCC } from '../global-exports';
+import { NodeHandle, NodePool, NodeView, NULL_HANDLE } from '../renderer/core/memory-pools';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -129,6 +130,26 @@ export class Node extends BaseNode {
 
     protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
     protected _eulerDirty = false;
+    protected _poolHandle: NodeHandle = NULL_HANDLE;
+
+    constructor (name?: string) {
+        super(name);
+        this._poolHandle = NodePool.alloc();
+        NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
+        NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
+    }
+
+    public destroy () {
+        if (this._poolHandle) {
+            NodePool.free(this._poolHandle);
+            this._poolHandle = NULL_HANDLE;
+        }
+        return super.destroy();
+    }
+
+    get handle () : NodeHandle {
+        return this._poolHandle;
+    }
 
     /**
      * @en Position in local coordinate system
@@ -150,9 +171,12 @@ export class Node extends BaseNode {
     public get worldPosition (): Readonly<Vec3> {
         this.updateWorldTransform();
         return this._pos;
+        // Keep to test
+        // return NodePool.getVec3(this._poolHandle, NodeView.WORLD_POSITION);
     }
     public set worldPosition (val: Readonly<Vec3>) {
         this.setWorldPosition(val);
+        NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, val);
     }
 
     /**
@@ -219,6 +243,7 @@ export class Node extends BaseNode {
     }
     public set worldScale (val: Readonly<Vec3>) {
         this.setWorldScale(val);
+        NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, val);
     }
 
     /**
@@ -265,6 +290,7 @@ export class Node extends BaseNode {
     @property
     set layer (l) {
         this._layer = l;
+        NodePool.set(this._poolHandle, NodeView.LAYER, this._layer)
     }
     get layer () {
         return this._layer;
@@ -460,11 +486,15 @@ export class Node extends BaseNode {
             cur = cur._parent;
         }
         let child: this; let dirtyBits = 0;
+        let posUpdated = false;
+        let scaleUpdated = false;
+        let rotateUpdated = false;
         while (i) {
             child = array_a[--i];
             dirtyBits |= child._dirtyFlags;
             if (cur) {
                 if (dirtyBits & TransformBit.POSITION) {
+                    posUpdated = true;
                     Vec3.transformMat4(child._pos, child._lpos, cur._mat);
                     child._mat.m12 = child._pos.x;
                     child._mat.m13 = child._pos.y;
@@ -475,15 +505,18 @@ export class Node extends BaseNode {
                     Mat4.multiply(child._mat, cur._mat, child._mat);
                     if (dirtyBits & TransformBit.ROTATION) {
                         Quat.multiply(child._rot, cur._rot, child._lrot);
+                        rotateUpdated = true;
                     }
                     Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, child._rot));
                     Mat3.multiplyMat4(m3_1, m3_1, child._mat);
                     child._scale.x = m3_1.m00;
                     child._scale.y = m3_1.m04;
                     child._scale.z = m3_1.m08;
+                    scaleUpdated = true;
                 }
             } else {
                 if (dirtyBits & TransformBit.POSITION) {
+                    posUpdated = true;
                     Vec3.copy(child._pos, child._lpos);
                     child._mat.m12 = child._pos.x;
                     child._mat.m13 = child._pos.y;
@@ -492,15 +525,30 @@ export class Node extends BaseNode {
                 if (dirtyBits & TransformBit.RS) {
                     if (dirtyBits & TransformBit.ROTATION) {
                         Quat.copy(child._rot, child._lrot);
+                        rotateUpdated = true;
                     }
                     if (dirtyBits & TransformBit.SCALE) {
                         Vec3.copy(child._scale, child._lscale);
+                        scaleUpdated = true;
                     }
                     Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
                 }
             }
             child._dirtyFlags = TransformBit.NONE;
             cur = child;
+        }
+
+        if (posUpdated) {
+            NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, this._pos);
+        }
+        if (scaleUpdated) {
+            NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
+        }
+        if (rotateUpdated) {
+            NodePool.setVec4(this._poolHandle, NodeView.WORLD_ROTATION, this._rot);
+        }
+        if (posUpdated || scaleUpdated || rotateUpdated) {
+            NodePool.setMat4(this._poolHandle, NodeView.WORLD_MATRIX, this._mat);
         }
     }
 
@@ -699,6 +747,7 @@ export class Node extends BaseNode {
         } else {
             Vec3.set(this._pos, val as number, y, z);
         }
+        NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, this._pos);
         const parent = this._parent;
         const local = this._lpos;
         if (parent) {
@@ -757,6 +806,7 @@ export class Node extends BaseNode {
         } else {
             Quat.set(this._rot, val as number, y, z, w);
         }
+        NodePool.setVec4(this._poolHandle, NodeView.WORLD_ROTATION, this._rot);
         if (this._parent) {
             this._parent.updateWorldTransform();
             Quat.multiply(this._lrot, Quat.conjugate(this._lrot, this._parent._rot), this._rot);
@@ -807,6 +857,8 @@ export class Node extends BaseNode {
         } else {
             return Quat.copy(new Quat(), this._rot);
         }
+        // Keep to test
+        // return NodePool.getVec4(this._poolHandle, NodeView.WORLD_ROTATION) as Quat;
     }
 
     /**
@@ -831,6 +883,7 @@ export class Node extends BaseNode {
         } else {
             Vec3.set(this._scale, val as number, y, z);
         }
+        NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
         const parent = this._parent;
         if (parent) {
             parent.updateWorldTransform();
@@ -878,6 +931,8 @@ export class Node extends BaseNode {
         this.updateWorldTransform();
         if (!out) { out = new Mat4(); }
         return Mat4.copy(out, this._mat);
+        // Keep to test
+        // return Mat4.copy(out, NodePool.getMat4(this._poolHandle, NodeView.WORLD_MATRIX));
     }
 
     /**

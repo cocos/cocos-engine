@@ -48,6 +48,7 @@ import { js } from './utils';
 import { DEBUG, EDITOR, BUILD } from 'internal:constants';
 import { legacyCC } from './global-exports';
 import { errorID, error, logID, assertID } from './platform/debug';
+import { DirectorHandle, DirectorPool, DirectorView, NULL_HANDLE } from './renderer/core/memory-pools';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -267,11 +268,11 @@ export class Director extends EventTarget {
     private _root: Root | null;
     private _loadingScene: string;
     private _scene: Scene | null;
-    private _totalFrames: number;
     private _lastUpdate: number;
     private _deltaTime: number;
     private _scheduler: Scheduler;
     private _systems: System[];
+    private _poolHandle: DirectorHandle = NULL_HANDLE;
 
     constructor () {
         super();
@@ -290,7 +291,8 @@ export class Director extends EventTarget {
         this._scene = null;
 
         // FPS
-        this._totalFrames = 0;
+        this._poolHandle = DirectorPool.alloc();
+        DirectorPool.set(this._poolHandle, DirectorView.TOTAL_FRAMES, 0);
         this._lastUpdate = 0;
         this._deltaTime = 0.0;
 
@@ -917,7 +919,7 @@ export class Director extends EventTarget {
      * @zh 获取 director 启动以来游戏运行的总帧数。
      */
     public getTotalFrames () {
-        return this._totalFrames;
+        return DirectorPool.get(this._poolHandle, DirectorView.TOTAL_FRAMES);
     }
 
     /**
@@ -1046,12 +1048,12 @@ export class Director extends EventTarget {
 
             eventManager.frameUpdateListeners();
             Node.bookOfChange.clear();
-            this._totalFrames++;
+            DirectorPool.set(this._poolHandle, DirectorView.TOTAL_FRAMES, DirectorPool.get<number>(this._poolHandle, DirectorView.TOTAL_FRAMES) + 1);
         }
     }
 
     private _initOnRendererInitialized () {
-        this._totalFrames = 0;
+        DirectorPool.set(this._poolHandle, DirectorView.TOTAL_FRAMES, 0);
         this._lastUpdate = performance.now();
         this._paused = false;
         this._purgeDirectorInNextLoop = false;
