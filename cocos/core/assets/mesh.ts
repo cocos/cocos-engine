@@ -685,6 +685,7 @@ export class Mesh extends Asset {
         this.destroyRenderingMesh();
         this._struct = info.struct;
         this._data = info.data;
+        this._dataLength = this.data.byteLength;
         this._hash = 0;
         this.loaded = true;
         this.emit('load');
