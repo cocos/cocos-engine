@@ -238,20 +238,6 @@ export class UIRenderComponent extends RenderableComponent {
         this._uiMaterial = val;
     }
 
-    @property({
-        type: Material,
-        displayName: 'Materials',
-        visible: true,
-        override: true,
-    })
-    get sharedMaterials () {
-        return super.sharedMaterials;
-    }
-
-    set sharedMaterials (val) {
-        super.sharedMaterials = val;
-    }
-
     get renderData () {
         return this._renderData;
     }
