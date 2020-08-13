@@ -61,7 +61,7 @@ export class SpotLight extends Light {
     }
 
     set spotAngle (val: number) {
-        this._angle = val * 0.5;
+        this._angle = val;
         this._spotAngle = Math.cos(val * 0.5);
         this._needUpdate = true;
     }
