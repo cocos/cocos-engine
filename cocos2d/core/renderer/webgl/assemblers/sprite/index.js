@@ -7,6 +7,7 @@ import Tiled from "./2d/tiled";
 import RadialFilled from "./2d/radial-filled";
 import BarFilled from "./2d/bar-filled";
 import Mesh from './2d/mesh';
+import QuadInstance from './2d/instance'
 
 import Simple3D from "./3d/simple";
 import Sliced3D from "./3d/sliced";
@@ -36,6 +37,9 @@ let ctor = {
                 break;
             case Type.MESH:
                 ctor = is3DNode ? Mesh3D : Mesh;
+                break;
+            case Type.QuadInstance:
+                ctor = QuadInstance;
                 break;
         }
 

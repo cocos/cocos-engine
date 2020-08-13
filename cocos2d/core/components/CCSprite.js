@@ -65,7 +65,9 @@ var SpriteType = cc.Enum({
      * !#zh 以 Mesh 三角形组成的类型
      * @property {Number} MESH
      */
-    MESH: 4
+    MESH: 4,
+    
+    QuadInstance: 5,
 });
 
 /**
