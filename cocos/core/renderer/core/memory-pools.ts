@@ -42,7 +42,7 @@ interface IElementEnum {
 }
 
 // a little hacky, but works (different specializations should not be assignable to each other)
-class Handle<T extends PoolType> extends Number { m?: T; }
+class Handle<T extends PoolType> extends Number { m!: T; }
 
 class BufferPool<T extends TypedArray, E extends IElementEnum, P extends PoolType> {
 
@@ -85,7 +85,7 @@ class BufferPool<T extends TypedArray, E extends IElementEnum, P extends PoolTyp
             const list = this._freelists[i];
             if (list.length) {
                 const j = list[list.length - 1]; list.length--;
-                return (i << this._entryBits) + j + this._poolFlag;
+                return (i << this._entryBits) + j + this._poolFlag as unknown as Handle<P>;
             }
         }
         // add a new chunk
@@ -99,23 +99,23 @@ class BufferPool<T extends TypedArray, E extends IElementEnum, P extends PoolTyp
         this._arrayBuffers.push(buffer);
         this._bufferViews.push(bufferViews);
         this._freelists.push(freelist);
-        return (i << this._entryBits) + this._poolFlag; // guarantees the handle is always not zero
+        return (i << this._entryBits) + this._poolFlag as unknown as Handle<P>; // guarantees the handle is always not zero
     }
 
-    public get (handle: Handle<P>, element: E[keyof E]) {
-        const chunk = (this._chunkMask & handle as number) >> this._entryBits;
-        const entry = this._entryMask & handle as number;
+    public get<H extends Number | Handle<any>> (handle: Handle<P>, element: E[keyof E]): H {
+        const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
+        const entry = this._entryMask & handle as unknown as number;
         if (DEBUG && (!handle || chunk < 0 || chunk >= this._bufferViews.length ||
             entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
             console.warn('invalid native buffer pool handle');
-            return 0;
+            return 0 as unknown as H;
         }
-        return this._bufferViews[chunk][entry][element as unknown as number];
+        return this._bufferViews[chunk][entry][element as unknown as number] as unknown as H;
     }
 
     public set (handle: Handle<P>, element: E[keyof E], value: number | Handle<any>) {
-        const chunk = (this._chunkMask & handle as number) >> this._entryBits;
-        const entry = this._entryMask & handle as number;
+        const chunk = (this._chunkMask & handle as unknown as  number) >> this._entryBits;
+        const entry = this._entryMask & handle as unknown as  number;
         if (DEBUG && (!handle || chunk < 0 || chunk >= this._bufferViews.length ||
             entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
             console.warn('invalid native buffer pool handle');
@@ -125,8 +125,8 @@ class BufferPool<T extends TypedArray, E extends IElementEnum, P extends PoolTyp
     }
 
     public free (handle: Handle<P>) {
-        const chunk = (this._chunkMask & handle as number) >> this._entryBits;
-        const entry = this._entryMask & handle as number;
+        const chunk = (this._chunkMask & handle as unknown as  number) >> this._entryBits;
+        const entry = this._entryMask & handle as unknown as  number;
         if (DEBUG && (!handle || chunk < 0 || chunk >= this._freelists.length ||
             entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
             console.warn('invalid native buffer pool handle');
@@ -168,14 +168,14 @@ class ObjectPool<T, P extends PoolType> {
         if (i < 0) {
             i = this._array.length;
             const obj = this._ctor(arguments);
-            if (!obj) { return 0; }
+            if (!obj) { return 0 as unknown as Handle<P>; }
             this._array.push(obj);
         }
-        return i + this._poolFlag; // guarantees the handle is always not zero
+        return i + this._poolFlag as unknown as Handle<P>; // guarantees the handle is always not zero
     }
 
     public get (handle: Handle<P>) {
-        const index = this._indexMask & handle as number;
+        const index = this._indexMask & handle as unknown as  number;
         if (DEBUG && (!handle || index < 0 || index >= this._array.length || this._freelist.find((n) => n === index))) {
             console.warn('invalid native object pool handle');
             return null!;
@@ -184,7 +184,7 @@ class ObjectPool<T, P extends PoolType> {
     }
 
     public free (handle: Handle<P>) {
-        const index = this._indexMask & handle as number;
+        const index = this._indexMask & handle as unknown as  number;
         if (DEBUG && (!handle || index < 0 || index >= this._array.length || this._freelist.find((n) => n === index))) {
             console.warn('invalid native object pool handle');
             return;
@@ -207,6 +207,8 @@ enum PoolType {
     PASS,
     SUB_MODEL,
 }
+
+export const NULL_HANDLE = 0 as unknown as Handle<any>;
 
 export type RasterizerStateHandle = Handle<PoolType.RASTERIZER_STATE>;
 export type DepthStencilStateHandle = Handle<PoolType.DEPTH_STENCIL_STATE>;

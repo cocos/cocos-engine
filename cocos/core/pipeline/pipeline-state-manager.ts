@@ -14,7 +14,7 @@ export class PipelineStateManager {
 
     static getOrCreatePipelineState (device: GFXDevice, hPass: PassHandle, shader: GFXShader, renderPass: GFXRenderPass, ia: GFXInputAssembler) {
 
-        const hash1 = PassPool.get(hPass, PassView.HASH);
+        const hash1 = PassPool.get<number>(hPass, PassView.HASH);
         const hash2 = renderPass.hash;
         const hash3 = ia.attributesHash;
 

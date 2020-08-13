@@ -17,7 +17,7 @@ import { BatchingSchemes } from '../core/pass';
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { ShaderPool, SubModelPool, SubModelView } from '../core/memory-pools';
+import { ShaderPool, SubModelPool, SubModelView, ShaderHandle } from '../core/memory-pools';
 import { IGFXAttribute, GFXDescriptorSet } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UniformLightingMapSampler } from '../../pipeline/define';
 import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
@@ -287,7 +287,7 @@ export class Model {
             this._updateLocalDescriptors(i, ds);
         }
 
-        const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0));
+        const shader = ShaderPool.get(SubModelPool.get<ShaderHandle>(subModel.handle, SubModelView.SHADER_0));
         this._updateInstancedAttributes(shader.attributes, subModel.passes[0]);
     }
 

@@ -3,7 +3,7 @@ import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { RenderPriority, SetIndex } from '../../pipeline/define';
 import { IMacroPatch, Pass } from '../core/pass';
-import { DSPool, IAPool, SubModelPool, SubModelView, SubModelHandle } from '../core/memory-pools';
+import { DSPool, IAPool, SubModelPool, SubModelView, SubModelHandle, NULL_HANDLE } from '../core/memory-pools';
 import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 
@@ -18,7 +18,7 @@ export class SubModel {
     protected _subMesh: RenderingSubMesh | null = null;
     protected _patches: IMacroPatch[] | null = null;
 
-    protected _handle: SubModelHandle = 0;
+    protected _handle: SubModelHandle = NULL_HANDLE;
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _inputAssembler: GFXInputAssembler | null = null;
     protected _descriptorSet: GFXDescriptorSet | null = null;
@@ -92,7 +92,7 @@ export class SubModel {
         this._descriptorSet = null;
         this._inputAssembler = null;
         this._priority = RenderPriority.DEFAULT;
-        this._handle = 0;
+        this._handle = NULL_HANDLE;
 
         this._patches = null;
         this._subMesh = null;

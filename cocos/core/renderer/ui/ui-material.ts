@@ -28,7 +28,7 @@
 
 import { Material } from '../../assets/material';
 import { Pass } from '../../renderer/core/pass';
-import { PassView, PassPool, DescriptorSetHandle } from '../core/memory-pools';
+import { PassView, PassPool, DescriptorSetHandle, NULL_HANDLE } from '../core/memory-pools';
 
 export interface IUIMaterialInfo {
     material: Material;
@@ -38,7 +38,7 @@ export class UIMaterial {
 
     protected _material: Material | null = null;
     protected _pass: Pass | null = null;
-    protected _hDescriptorSet: DescriptorSetHandle = 0;
+    protected _hDescriptorSet: DescriptorSetHandle = NULL_HANDLE;
 
     private _refCount: number = 0;
 

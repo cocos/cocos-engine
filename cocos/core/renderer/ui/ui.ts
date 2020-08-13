@@ -47,7 +47,7 @@ import { UIDrawBatch } from './ui-draw-batch';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
 import { legacyCC } from '../../global-exports';
-import { DSPool, PassPool, PassView } from '../core/memory-pools';
+import { DSPool, PassPool, PassView, NULL_HANDLE } from '../core/memory-pools';
 import { GFXDescriptorType } from '../../gfx';
 
 /**
@@ -417,7 +417,7 @@ export class UI {
         curDrawBatch.texture = null;
         curDrawBatch.sampler = null;
 
-        curDrawBatch.hDescriptorSet = 0;
+        curDrawBatch.hDescriptorSet = NULL_HANDLE;
 
         // reset current render state to null
         this._currMaterial = this._emptyMaterial;

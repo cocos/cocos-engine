@@ -26,13 +26,11 @@
  * @hidden
  */
 
-import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { Model, ModelType } from '../scene/model';
 import { SubModel } from '../scene/submodel';
 import { UIDrawBatch } from './ui-draw-batch';
 import { Pass } from '../core/pass';
-import { GFXDescriptorSet } from '../../gfx';
-import { SubModelPool, IAHandle, DescriptorSetHandle, SubModelView, IAPool, DSPool } from '../core/memory-pools';
+import { SubModelPool, IAHandle, DescriptorSetHandle, SubModelView, IAPool, DSPool, NULL_HANDLE } from '../core/memory-pools';
 import { RenderPriority } from '../../pipeline/define';
 
 export class UIBatchModel extends Model {
@@ -77,7 +75,7 @@ class UISubModel extends SubModel {
         this._descriptorSet = null;
         this._inputAssembler = null;
         this._priority = RenderPriority.DEFAULT;
-        this._handle = 0;
+        this._handle = NULL_HANDLE;
 
         this._patches = null;
         this._subMesh = null;

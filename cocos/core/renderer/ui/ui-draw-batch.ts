@@ -10,28 +10,28 @@ import { Camera } from '../scene/camera';
 import { Model } from '../scene/model';
 import { UI } from './ui';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
-import { IAHandle, IAPool, DescriptorSetHandle } from '../core/memory-pools';
+import { IAHandle, IAPool, DescriptorSetHandle, NULL_HANDLE } from '../core/memory-pools';
 
 export class UIDrawBatch {
     private _bufferBatch: MeshBuffer | null = null;
 
     public camera: Camera | null = null;
     public ia: GFXInputAssembler | null = null;
-    public hIA: IAHandle = 0;
+    public hIA: IAHandle = NULL_HANDLE;
     public model: Model | null = null;
     public material: Material | null = null;
     public texture: GFXTexture | null = null;
     public sampler: GFXSampler | null = null;
-    public hDescriptorSet: DescriptorSetHandle = 0;
+    public hDescriptorSet: DescriptorSetHandle = NULL_HANDLE;
     public useLocalData: Node | null = null;
     public isStatic = false;
 
     public destroy (ui: UI) {
-        this.hDescriptorSet = 0;
+        this.hDescriptorSet = NULL_HANDLE;
 
         if (this.ia) {
             IAPool.free(this.hIA);
-            this.hIA = 0;
+            this.hIA = NULL_HANDLE;
             this.ia = null;
         }
     }
@@ -39,7 +39,7 @@ export class UIDrawBatch {
     public clear () {
         this._bufferBatch = null;
         this.camera = null;
-        this.hDescriptorSet = 0;
+        this.hDescriptorSet = NULL_HANDLE;
         this.material = null;
         this.texture = null;
         this.sampler = null;

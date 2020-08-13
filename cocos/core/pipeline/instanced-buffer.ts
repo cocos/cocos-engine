@@ -7,7 +7,7 @@ import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { IInstancedAttributeBlock, Pass } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
-import { SubModelView, SubModelPool, ShaderHandle, DescriptorSetHandle, PassHandle } from '../renderer/core/memory-pools';
+import { SubModelView, SubModelPool, ShaderHandle, DescriptorSetHandle, PassHandle, NULL_HANDLE } from '../renderer/core/memory-pools';
 
 export interface IInstancedItem {
     count: number;
@@ -39,7 +39,7 @@ export class InstancedBuffer {
     }
 
     public instances: IInstancedItem[] = [];
-    public hPass: PassHandle = 0;
+    public hPass: PassHandle = NULL_HANDLE;
     public hasPendingModels = false;
     private _device: GFXDevice;
 
@@ -61,8 +61,8 @@ export class InstancedBuffer {
         const stride = attrs.buffer.length;
         if (!stride) { return; } // we assume per-instance attributes are always present
         const sourceIA = subModel.inputAssembler;
-        const hShader = SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx);
-        const hDescriptorSet = SubModelPool.get(subModel.handle, SubModelView.DESCRIPTOR_SET);
+        const hShader = SubModelPool.get<ShaderHandle>(subModel.handle, SubModelView.SHADER_0 + passIdx);
+        const hDescriptorSet = SubModelPool.get<DescriptorSetHandle>(subModel.handle, SubModelView.DESCRIPTOR_SET);
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             if (instance.ia.indexBuffer !== sourceIA.indexBuffer || instance.count >= MAX_CAPACITY) { continue; }

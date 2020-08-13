@@ -44,11 +44,11 @@ import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
 import { PassView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool,
-    PassPool, DSPool, PassHandle, ShaderHandle } from './memory-pools';
+    PassPool, DSPool, PassHandle, ShaderHandle, NULL_HANDLE } from './memory-pools';
 import { customizeType, getBindingFromHandle, getPropertyTypeFromHandle, getDefaultFromType,
     getOffsetFromHandle, getTypeFromHandle, MacroRecord, MaterialProperty, type2reader, type2writer, PropertyType } from './pass-utils';
 import { GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode,
-    GFXType, GFXDynamicStateFlagBit } from '../../gfx/define';
+    GFXType, GFXDynamicStateFlagBit, GFXDynamicStateFlags } from '../../gfx/define';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -186,8 +186,8 @@ export class Pass {
     protected _root: Root;
     protected _device: GFXDevice;
     // native data
-    protected _hShaderDefault: ShaderHandle = 0;
-    protected _handle: PassHandle = 0;
+    protected _hShaderDefault: ShaderHandle = NULL_HANDLE;
+    protected _handle: PassHandle = NULL_HANDLE;
 
     constructor (root: Root) {
         this._root = root;
@@ -386,7 +386,7 @@ export class Pass {
             DepthStencilStatePool.free(PassPool.get(this._handle, PassView.DEPTH_STENCIL_STATE));
             BlendStatePool.free(PassPool.get(this._handle, PassView.BLEND_STATE));
             DSPool.free(PassPool.get(this._handle, PassView.DESCRIPTOR_SET));
-            PassPool.free(this._handle); this._handle = 0;
+            PassPool.free(this._handle); this._handle = NULL_HANDLE;
         }
     }
 
@@ -481,10 +481,10 @@ export class Pass {
         return true;
     }
 
-    public getShaderVariant (patches: IMacroPatch[] | null = null) {
+    public getShaderVariant (patches: IMacroPatch[] | null = null): ShaderHandle {
         if (!this._hShaderDefault && !this.tryCompile()) {
             console.warn(`pass resources incomplete`);
-            return 0;
+            return NULL_HANDLE;
         }
 
         if (!patches) {
@@ -495,7 +495,7 @@ export class Pass {
             for (let i = 0; i < patches.length; i++) {
                 if (!patches[i].name.startsWith('CC_')) {
                     console.warn('cannot patch non-builtin macros');
-                    return 0;
+                    return NULL_HANDLE;
                 }
             }
         }
@@ -605,16 +605,16 @@ export class Pass {
     get blocks () { return this._blocks; }
     // states
     get handle () { return this._handle; }
-    get priority () { return PassPool.get(this._handle, PassView.PRIORITY); }
-    get primitive () { return PassPool.get(this._handle, PassView.PRIMITIVE); }
-    get stage () { return PassPool.get(this._handle, PassView.STAGE); }
-    get phase () { return PassPool.get(this._handle, PassView.PHASE); }
+    get priority () { return PassPool.get<number>(this._handle, PassView.PRIORITY); }
+    get primitive () { return PassPool.get<GFXPrimitiveMode>(this._handle, PassView.PRIMITIVE); }
+    get stage () { return PassPool.get<RenderPassStage>(this._handle, PassView.STAGE); }
+    get phase () { return PassPool.get<number>(this._handle, PassView.PHASE); }
     get rasterizerState () { return RasterizerStatePool.get(PassPool.get(this._handle, PassView.RASTERIZER_STATE)); }
     get depthStencilState () { return DepthStencilStatePool.get(PassPool.get(this._handle, PassView.DEPTH_STENCIL_STATE)); }
     get blendState () { return BlendStatePool.get(PassPool.get(this._handle, PassView.BLEND_STATE)); }
-    get dynamicStates () { return PassPool.get(this._handle, PassView.DYNAMIC_STATES); }
-    get batchingScheme () { return PassPool.get(this._handle, PassView.BATCHING_SCHEME); }
-    get hash () { return PassPool.get(this._handle, PassView.HASH); }
+    get dynamicStates () { return PassPool.get<GFXDynamicStateFlags>(this._handle, PassView.DYNAMIC_STATES); }
+    get batchingScheme () { return PassPool.get<BatchingSchemes>(this._handle, PassView.BATCHING_SCHEME); }
+    get hash () { return PassPool.get<number>(this._handle, PassView.HASH); }
 }
 
 function serializeBlendState (bs: GFXBlendState) {
