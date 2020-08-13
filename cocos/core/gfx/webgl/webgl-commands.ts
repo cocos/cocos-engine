@@ -1507,6 +1507,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
 
 export function WebGLCmdFuncDestroyShader (device: WebGLDevice, gpuShader: IWebGLGPUShader) {
     if (gpuShader.glProgram) {
+        const gl = device.gl;
         if (!device.destroyShadersImmediately) {
             for (let k = 0; k < gpuShader.gpuStages.length; k++) {
                 const gpuStage = gpuShader.gpuStages[k];

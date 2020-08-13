@@ -58,7 +58,7 @@ export interface IWebGL2GPUTexture {
     isPowerOf2: boolean;
 
     glTarget: GLenum;
-    glInternelFmt: GLenum;
+    glInternalFmt: GLenum;
     glFormat: GLenum;
     glType: GLenum;
     glUsage: GLenum;

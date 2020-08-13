@@ -21,10 +21,10 @@ export class Pool<T> {
      */
     constructor (ctor: () => T, elementsPerBatch: number) {
         this._ctor = ctor;
-        this._elementsPerBatch = elementsPerBatch;
-        this._nextAvail = elementsPerBatch - 1;
+        this._elementsPerBatch = Math.max(elementsPerBatch, 1);
+        this._nextAvail = this._elementsPerBatch - 1;
 
-        for (let i = 0; i < elementsPerBatch; ++i) {
+        for (let i = 0; i < this._elementsPerBatch; ++i) {
             this._freepool.push(ctor());
         }
     }
