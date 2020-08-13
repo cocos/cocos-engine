@@ -458,6 +458,7 @@ export declare namespace Mesh {
 
 const v3_1 = new Vec3();
 const v3_2 = new Vec3();
+const globalEmptyMeshBuffer = new Uint8Array();
 
 /**
  * 网格资源。
@@ -548,7 +549,7 @@ export class Mesh extends Asset {
     @property
     private _hash = 0;
 
-    private _data: Uint8Array = new Uint8Array();
+    private _data: Uint8Array = globalEmptyMeshBuffer;
     private _initialized = false;
     private _renderingSubMeshes: RenderingSubMesh[] | null = null;
     private _boneSpaceBounds = new Map<number, (aabb | null)[]>();
