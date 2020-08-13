@@ -831,13 +831,15 @@ const aabb_obb = (function () {
  */
 const aabb_plane = function (aabb: aabb, plane: plane): number {
     const center = aabb.center;
+    aabb.getBoundary(vec3_min, vec3_max);
+    Vec3.subtract(edge, center, vec3_min);
     const dist = Vec3.dot(plane.n, center) + plane.d;
     abs_Normal.set(abs(plane.n.x), abs(plane.n.y), abs(plane.n.z));
     const absDist = Vec3.dot(abs_Normal, edge);
 
-    if (dist < -absDist) { return -1; }        // inside(back)
-    else if (dist < absDist) { return 1; }     // intersect
-    return 0;                                  // outside(front)
+    if (dist < -absDist) { return 0; }          // outside(front)
+    else if (dist < absDist) { return 1; }      // intersect
+    return -1;                                  // inside(back)
 };
 
 /**
@@ -850,14 +852,12 @@ const aabb_plane = function (aabb: aabb, plane: plane): number {
  * @return {number} 0 或 非0
  */
 const aabb_frustum = function (aabb: aabb, frustum: frustum): number {
-    const center = aabb.center;
-    aabb.getBoundary(vec3_min, vec3_max);
-    Vec3.subtract(edge, center, vec3_min);
     for (let i = 0; i < frustum.planes.length; i++) {
-        if (aabb_plane(aabb, frustum.planes[i]) === -1) { return -1; }    // inside || intersect
+        if (aabb_plane(aabb, frustum.planes[i]) === 0) { return 0; }    // outside
     }
 
-    return 0;
+    // inside || intersect
+    return 1;
 };
 
 // https://cesium.com/blog/2017/02/02/tighter-frustum-culling-and-why-you-may-want-to-disregard-it/
@@ -874,7 +874,7 @@ const aabb_frustum_accurate = function (aabb: aabb, frustum: frustum): number {
     let allInside: boolean = true;
     for (let i = 0; i < frustum.planes.length; i++) {
         if (aabb_plane(aabb, frustum.planes[i]) === 0) { return 0; }
-        else if(aabb_plane(aabb, frustum.planes[i]) === 1) { allInside = false; }
+        else if (aabb_plane(aabb, frustum.planes[i]) === 1) { allInside = false; }
     }
 
     return allInside ? -1 : 1;

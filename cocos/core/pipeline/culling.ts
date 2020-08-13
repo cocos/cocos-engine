@@ -24,7 +24,7 @@ export function cullSphereLight (light: SphereLight, model: Model) {
 
 export function cullSpotLight (light: SpotLight, model: Model) {
     return cullLight(light, model) || !!(model.worldBounds &&
-        (!intersect.aabb_aabb(model.worldBounds, light.aabb) || !intersect.aabb_frustum(model.worldBounds, light.frustum)));
+        (!intersect.aabb_aabb(model.worldBounds, light.aabb) || intersect.aabb_frustum(model.worldBounds, light.frustum)));
 }
 
 export const cullSceneWithDirectionalLight = (() => {
@@ -37,7 +37,7 @@ export const cullSceneWithDirectionalLight = (() => {
                 continue;
             }
             m.updateTransform(stamp);
-            if (!intersect.aabb_frustum(m.worldBounds, lightFrustum)) {
+            if (intersect.aabb_frustum(m.worldBounds, lightFrustum)) {
                 continue;
             }
             m.updateUBOs(stamp);
