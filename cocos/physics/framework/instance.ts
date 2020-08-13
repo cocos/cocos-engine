@@ -11,6 +11,7 @@ import { errorID, warnID, warn } from '../../core';
 import { EDITOR, DEBUG, TEST } from 'internal:constants';
 import { EColliderType, EConstraintType } from './physics-enum';
 import { IBaseConstraint, IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint } from '../spec/i-physics-constraint';
+import { legacyCC } from '../../core/global-exports';
 
 export function checkPhysicsModule (obj: any) {
     if (DEBUG && !TEST && !EDITOR && obj == null) {
@@ -78,9 +79,9 @@ function initColliderProxy () {
     if (CREATE_COLLIDER_PROXY.INITED) return;
     CREATE_COLLIDER_PROXY.INITED = true;
 
-    const PHYSICS_BUILTIN = globalThis['CC_PHYSICS_BUILTIN'];
-    const PHYSICS_CANNON = globalThis['CC_PHYSICS_CANNON'];
-    const PHYSICS_AMMO = globalThis['CC_PHYSICS_AMMO'];
+    const PHYSICS_BUILTIN = legacyCC._global['CC_PHYSICS_BUILTIN'];
+    const PHYSICS_CANNON = legacyCC._global['CC_PHYSICS_CANNON'];
+    const PHYSICS_AMMO = legacyCC._global['CC_PHYSICS_AMMO'];
 
     CREATE_COLLIDER_PROXY[EColliderType.BOX] = function createBoxShape (size: IVec3Like): IBoxShape {
         if (DEBUG && checkPhysicsModule(WRAPPER.BoxShape)) { return ENTIRE_SHAPE; }
@@ -190,9 +191,9 @@ function initConstraintProxy () {
     if (CREATE_CONSTRAINT_PROXY.INITED) return;
     CREATE_CONSTRAINT_PROXY.INITED = true;
 
-    const PHYSICS_BUILTIN = globalThis['CC_PHYSICS_BUILTIN'];
-    const PHYSICS_CANNON = globalThis['CC_PHYSICS_CANNON'];
-    const PHYSICS_AMMO = globalThis['CC_PHYSICS_AMMO'];
+    const PHYSICS_BUILTIN = legacyCC._global['CC_PHYSICS_BUILTIN'];
+    const PHYSICS_CANNON = legacyCC._global['CC_PHYSICS_CANNON'];
+    const PHYSICS_AMMO = legacyCC._global['CC_PHYSICS_AMMO'];
 
     CREATE_CONSTRAINT_PROXY[EConstraintType.POINT_TO_POINT] = function createPointToPointConstraint (): IPointToPointConstraint {
         if (PHYSICS_CANNON || PHYSICS_AMMO) {
