@@ -47,7 +47,7 @@ export class ForwardStage extends RenderStage {
     private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
-    private _lightPhaseID = getPhaseID('forward-add');
+    private _phaseID = getPhaseID('default');
     private _additiveLightQueue!: RenderAdditiveLightQueue;
 
     constructor () {
@@ -107,9 +107,6 @@ export class ForwardStage extends RenderStage {
 
     public render (view: RenderView) {
 
-        this._additiveLightQueue.sceneCulling(view);
-        this._additiveLightQueue.updateUBOs(view);
-
         this._instancedQueue.clear();
         this._batchedQueue.clear();
         const pipeline = this._pipeline as ForwardPipeline;
@@ -126,10 +123,9 @@ export class ForwardStage extends RenderStage {
                 const passes = subModel.passes;
                 for (p = 0; p < passes.length; ++p) {
                     const pass = passes[p];
+                    if (pass.phase !== this._phaseID) continue;
                     const batchingScheme = pass.batchingScheme;
-                    if (pass.phase === this._lightPhaseID) {
-                        this._additiveLightQueue.add(i, m, p);
-                    } else if (batchingScheme === BatchingSchemes.INSTANCING) {
+                    if (batchingScheme === BatchingSchemes.INSTANCING) {
                         const instancedBuffer = InstancedBuffer.get(pass);
                         instancedBuffer.merge(subModel, ro.model.instancedAttributes, p);
                         this._instancedQueue.queue.add(instancedBuffer);
@@ -146,6 +142,7 @@ export class ForwardStage extends RenderStage {
             }
         }
         this._renderQueues.forEach(this.renderQueueSortFunc);
+        this._additiveLightQueue.gatherLightPasses(view);
 
         const camera = view.camera;
 
