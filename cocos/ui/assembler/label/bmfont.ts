@@ -38,7 +38,7 @@ import { bmfontUtils } from './bmfontUtils';
 
 /**
  * bmfont 组装器
- * 可通过 cc.UI.bmfont 获取该组装器。
+ * 可通过 `UI.bmfont` 获取该组装器。
  */
 export const bmfont: IAssembler = {
     createData (comp: LabelComponent) {

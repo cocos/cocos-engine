@@ -168,7 +168,7 @@ export class AnimationComponent extends Eventify(Component) {
     }
 
     public start () {
-        if (!EDITOR && (this.playOnLoad && !this._hasBeenPlayed) && this._defaultClip) {
+        if ((!EDITOR || legacyCC.GAME_VIEW) && (this.playOnLoad && !this._hasBeenPlayed) && this._defaultClip) {
             this.crossFade(this._defaultClip.name, 0);
         }
     }
@@ -392,7 +392,7 @@ export class AnimationComponent extends Eventify(Component) {
      * @param target The callee when invoke the callback, could be absent
      * @return The registered callback
      * @example
-     * ```typescript
+     * ```ts
      * onPlay: function (type, state) {
      *     // callback
      * }
@@ -426,7 +426,7 @@ export class AnimationComponent extends Eventify(Component) {
      * @param {Function} callback The callback to unregister
      * @param {Object} target The callee of the callback, could be absent
      * @example
-     * ```typescript
+     * ```ts
      * // unregister event to all animation
      * animation.off('play', this.onPlay, this);
      * ```

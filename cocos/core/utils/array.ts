@@ -28,15 +28,26 @@ import { logID } from '../platform/debug';
 export {default as MutableForwardIterator} from './mutable-forward-iterator';
 
 /**
+ * @zh
+ * 移除指定索引的数组元素。
+ * @en
  * Removes the array item at the specified index.
+ * @param array 数组。
+ * @param index 待移除元素的索引。
  */
 export function removeAt<T> (array: T[], index: number) {
     array.splice(index, 1);
 }
 
 /**
+ * @zh
+ * 移除指定索引的数组元素。
+ * 此函数十分高效，但会改变数组的元素次序。
+ * @en
  * Removes the array item at the specified index.
  * It's faster but the order of the array will be changed.
+ * @param array 数组。
+ * @param index 待移除元素的索引。
  */
 export function fastRemoveAt<T> (array: T[], index: number) {
     const length = array.length;
@@ -48,7 +59,13 @@ export function fastRemoveAt<T> (array: T[], index: number) {
 }
 
 /**
+ * @zh
+ * 移除首个指定的数组元素。判定元素相等时相当于于使用了 `Array.prototype.indexOf`。
+ * @en
  * Removes the first occurrence of a specific object from the array.
+ * Decision of the equality of elements is similar to `Array.prototype.indexOf`.
+ * @param array 数组。
+ * @param value 待移除元素。
  */
 export function remove<T> (array: T[], value: T) {
     const index = array.indexOf(value);
@@ -61,8 +78,15 @@ export function remove<T> (array: T[], value: T) {
 }
 
 /**
+ * @zh
+ * 移除首个指定的数组元素。判定元素相等时相当于于使用了 `Array.prototype.indexOf`。
+ * 此函数十分高效，但会改变数组的元素次序。
+ * @en
  * Removes the first occurrence of a specific object from the array.
+ * Decision of the equality of elements is similar to `Array.prototype.indexOf`.
  * It's faster but the order of the array will be changed.
+ * @param array 数组。
+ * @param value 待移除元素。
  */
 export function fastRemove<T> (array: T[], value: T) {
     const index = array.indexOf(value);
@@ -72,6 +96,14 @@ export function fastRemove<T> (array: T[], value: T) {
     }
 }
 
+/**
+ * @zh
+ * 移除首个使谓词满足的数组元素。
+ * @en
+ * Removes the first occurrence of a specific object from the array where `predicate` is `true`.
+ * @param array 数组。
+ * @param predicate 谓词。
+ */
 export function removeIf<T> (array: T[], predicate: (value: T) => boolean) {
     const index = array.findIndex(predicate);
     if (index >= 0) {
@@ -82,9 +114,17 @@ export function removeIf<T> (array: T[], predicate: (value: T) => boolean) {
 }
 
 /**
+ * @zh
+ * 验证数组的类型。
+ * 此函数将用 `instanceof` 操作符验证每一个元素。
+ * @en
  * Verify array's Type.
+ * This function tests each element using `instanceof` operator.
+ * @param array 数组。
+ * @param type 类型。
+ * @returns 当每一个元素都是指定类型时返回 `true`，否则返回 `false`。
  */
-export function verifyType<T> (array: T[], type: Function) {
+export function verifyType<T extends Function> (array: any[], type: T): array is T[] {
     if (array && array.length > 0) {
         for (const item of array) {
             if (!(item instanceof type)) {
@@ -97,39 +137,60 @@ export function verifyType<T> (array: T[], type: Function) {
 }
 
 /**
- * Removes from array all values in minusArr. For each Value in minusArr, the first matching instance in array will be removed.
- * @param array Source Array
- * @param minusArr minus Array
+ * @zh
+ * 移除多个数组元素。
+ * @en
+ * Removes multiple array elements.
+ * @param array 源数组。
+ * @param removals 所有待移除的元素。此数组的每个元素所对应的首个源数组的元素都会被移除。
  */
-export function removeArray<T> (array: T[], minusArr: T[]) {
-    for (let i = 0, l = minusArr.length; i < l; i++) {
-        remove(array, minusArr[i]);
+export function removeArray<T> (array: T[], removals: T[]) {
+    for (let i = 0, l = removals.length; i < l; i++) {
+        remove(array, removals[i]);
     }
 }
 
 /**
- * Inserts some objects at index.
+ * @zh
+ * 在数组的指定索引上插入对象。
+ * @en
+ * Inserts some objects at specified index.
+ * @param array 数组。
+ * @param objects 插入的所有对象。
+ * @param index 插入的索引。
+ * @returns `array`。
  */
-export function appendObjectsAt<T> (array: T[], addObjs: T[], index: number) {
-    array.splice.apply(array, [index, 0, ...addObjs]);
+export function appendObjectsAt<T> (array: T[], objects: T[], index: number) {
+    array.splice.apply(array, [index, 0, ...objects]);
     return array;
 }
 
+
 /**
- * Determines whether the array contains a specific value.
+ * @zh
+ * 返回数组是否包含指定的元素。
+ * @en
+ * Determines whether the array contains a specific element.
+ * @returns 返回数组是否包含指定的元素。
  */
 export function contains<T> (array: T[], value: T) {
+    // eslint-disable-next-line @typescript-eslint/prefer-includes
     return array.indexOf(value) >= 0;
 }
 
 /**
- * Copy an array's item to a new array (its performance is better than Array.slice)
+ * @zh
+ * 拷贝数组。
+ * @en
+ * Copy an array.
+ * @param 源数组。
+ * @returns 数组的副本。
  */
 export function copy<T> (array: T[]) {
     const len = array.length;
-    const arr_clone = new Array(len);
+    const cloned = new Array(len);
     for (let i = 0; i < len; i += 1) {
-        arr_clone[i] = array[i];
+        cloned[i] = array[i];
     }
-    return arr_clone;
+    return cloned;
 }

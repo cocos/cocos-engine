@@ -549,7 +549,7 @@ export class CameraComponent extends Component {
      * @param out 返回在当前传入的 UI 节点下的偏移量
      *
      * @example
-     * ```typescript
+     * ```ts
      * this.convertToUINode(target.worldPosition, uiNode.parent, out);
      * uiNode.position = out;
      * ```

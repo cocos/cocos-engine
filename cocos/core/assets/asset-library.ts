@@ -32,7 +32,6 @@ import decodeUuid from '../utils/decode-uuid';
 import { _getClassById, createMap, isChildClassOf } from '../utils/js';
 import { callInNextTick } from '../utils/misc';
 import { AssetTable } from '../load-pipeline/asset-table';
-import { getDependsRecursively } from '../load-pipeline/auto-release-utils';
 import MD5Pipe from '../load-pipeline/md5-pipe';
 import { initPacks } from '../load-pipeline/pack-downloader';
 import { SubPackPipe } from '../load-pipeline/subpackage-pipe';
@@ -121,10 +120,6 @@ const AssetLibrary = {
                 if (asset.constructor === legacyCC.SceneAsset) {
                     if (EDITOR && !asset.scene) {
                         debug.error('Sorry, the scene data of "%s" is corrupted!', uuid);
-                    }
-                    else {
-                        const key = legacyCC.loader._getReferenceKey(uuid);
-                        asset.scene.dependAssets = getDependsRecursively(key);
                     }
                 }
             }
@@ -281,10 +276,6 @@ const AssetLibrary = {
                 error = new Error('[AssetLibrary] loading JSON or dependencies failed: ' + error.message);
             }
             else {
-                if (asset.constructor === legacyCC.SceneAsset) {
-                    const key = legacyCC.loader._getReferenceKey(randomUuid);
-                    asset.scene.dependAssets = getDependsRecursively(key);
-                }
                 if (EDITOR || isScene(asset)) {
                     const id = legacyCC.loader._getReferenceKey(randomUuid);
                     legacyCC.loader.removeItem(id);

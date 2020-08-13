@@ -28,8 +28,9 @@
  * @class js.array.MutableForwardIterator
  * @example
  * ```
+ * import { js } from 'cc';
  * var array = [0, 1, 2, 3, 4];
- * var iterator = new cc.js.array.MutableForwardIterator(array);
+ * var iterator = new js.array.MutableForwardIterator(array);
  * for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
  *     var item = array[iterator.i];
  *     ...

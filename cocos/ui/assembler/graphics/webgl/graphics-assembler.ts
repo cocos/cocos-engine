@@ -86,7 +86,7 @@ function clamp (v: number, minNum: number, maxNum: number) {
 
 /**
  * graphics 组装器
- * 可通过 cc.UI.graphicsAssembler 获取该组装器。
+ * 可通过 `UI.graphicsAssembler` 获取该组装器。
  */
 export const graphicsAssembler: IAssembler = {
     useModel: true,

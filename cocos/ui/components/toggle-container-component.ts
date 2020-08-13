@@ -30,7 +30,7 @@
 
 import { Component, EventHandler as ComponentEventHandler } from '../../core/components';
 import { ccclass, help, executeInEditMode, executionOrder, menu, property, tooltip } from '../../core/data/class-decorator';
-import { ToggleComponent} from './toggle-component';
+import { ToggleComponent } from './toggle-component';
 import { legacyCC } from '../../core/global-exports';
 
 /**
@@ -50,22 +50,9 @@ import { legacyCC } from '../../core/global-exports';
 @menu('UI/ToggleContainer')
 @executeInEditMode
 export class ToggleContainerComponent extends Component {
-    /**
-     * @en
-     * If Toggle is clicked, it will trigger event's handler.
-     *
-     * @zh
-     * Toggle 按钮的点击事件列表。
-     */
-    @property({
-        type: [ComponentEventHandler],
-    })
-    @tooltip('选中事件。列表类型，默认为空，用户添加的每一个事件由节点引用，组件名称和一个响应函数组成。')
-    public checkEvents: ComponentEventHandler[] = [];
+
     @property
     protected _allowSwitchOff: boolean = false;
-    private _toggleItems: ToggleComponent[] = [];
-
     /**
      * @en
      * If this setting is true, a toggle could be switched off and on when pressed.
@@ -85,15 +72,44 @@ export class ToggleContainerComponent extends Component {
     }
 
     /**
+     * @en
+     * If Toggle is clicked, it will trigger event's handler.
+     *
      * @zh
-     * 只读属性，返回 toggleGroup 管理的 toggle 数组引用。
+     * Toggle 按钮的点击事件列表。
+     */
+    @property({
+        type: [ComponentEventHandler],
+    })
+    @tooltip('选中事件。列表类型，默认为空，用户添加的每一个事件由节点引用，组件名称和一个响应函数组成。')
+    public checkEvents: ComponentEventHandler[] = [];
+
+    /**
+     * @en
+     * Read only property, return the toggle items array reference managed by ToggleContainer.
+     *
+     * @zh
+     * 只读属性，返回 toggleContainer 管理的 toggle 数组引用。
      */
     get toggleItems () {
-        return this._toggleItems;
+        return this.node.children.map((item) => {
+            let toggle = item.getComponent('cc.ToggleComponent') as ToggleComponent;
+            if (toggle && toggle.enabled) {
+                return toggle;
+            }
+        }).filter(Boolean);
     }
 
     public start () {
-        this._makeAtLeastOneToggleChecked();
+        this.ensureValidState();
+    }
+
+    public activeToggles () {
+        return this.toggleItems.filter(x => x!.isChecked);
+    }
+
+    public anyTogglesChecked () {
+        return !!this.toggleItems.find(x => x!.isChecked);
     }
 
     /**
@@ -104,80 +120,49 @@ export class ToggleContainerComponent extends Component {
      * 刷新管理的 toggle 状态。
      *
      * @param toggle - 需要被更新的 toggle。
+     * @param emitEvent - 是否需要触发事件
      */
-    public updateToggles (toggle: ToggleComponent) {
+    public notifyToggleCheck (toggle: ToggleComponent, emitEvent: boolean = true) {
         if (!this.enabledInHierarchy) { return; }
 
-        if (toggle.isChecked) {
-            this.toggleItems.forEach((item) => {
-                if (item !== toggle && item.isChecked && item.enabled) {
-                    item.isChecked = false;
-                }
-            });
-
-            if (this.checkEvents) {
-                ComponentEventHandler.emitEvents(this.checkEvents, toggle);
+        for (let i = 0; i < this.toggleItems.length; i++) {
+            let item = this.toggleItems[i]!;
+            if (item === toggle) {
+                continue;
             }
-        }
-    }
-
-    /**
-     * @en
-     * Add toggle that needs to be managed.
-     *
-     * @zh
-     * 添加需要被控制的 toggle。
-     *
-     * @param toggle - 被控制的 toggle。
-     */
-    public addToggle (toggle: ToggleComponent) {
-        const index = this._toggleItems.indexOf(toggle);
-        if (index === -1) {
-            this._toggleItems.push(toggle);
-        }
-        this._allowOnlyOneToggleChecked();
-    }
-
-    /**
-     * @en
-     * Remove toggle that needs to be managed.
-     *
-     * @zh
-     * 移除 toggle。
-     *
-     * @param toggle - 被移除控制的 toggle。
-     */
-    public removeToggle (toggle: ToggleComponent) {
-        const index = this._toggleItems.indexOf(toggle);
-        if (index > -1) {
-            this._toggleItems.splice(index, 1);
-        }
-        this._makeAtLeastOneToggleChecked();
-    }
-
-    private _allowOnlyOneToggleChecked () {
-        let isChecked = false;
-        this._toggleItems.forEach((item) => {
-            if (isChecked && item.enabled) {
+            if (emitEvent) {
                 item.isChecked = false;
             }
-
-            if (item.isChecked && item.enabled) {
-                isChecked = true;
-            }
-        });
-
-        return isChecked;
-    }
-
-    private _makeAtLeastOneToggleChecked () {
-        const isChecked = this._allowOnlyOneToggleChecked();
-
-        if (!isChecked && !this._allowSwitchOff) {
-            if (this._toggleItems.length > 0) {
-                this._toggleItems[0].isChecked = true;
+            else {
+                item.setIsCheckedWithoutNotify(false);
             }
         }
+
+        if (this.checkEvents) {
+            legacyCC.Component.EventHandler.emitEvents(this.checkEvents, toggle);
+        }
+    }
+
+    public ensureValidState () {
+        let toggles = this.toggleItems;
+        if (!this._allowSwitchOff && !this.anyTogglesChecked() && toggles.length !== 0 ) {
+            let toggle = toggles[0]!;
+            toggle.isChecked = true;
+            this.notifyToggleCheck(toggle);
+        }
+
+        const activeToggles = this.activeToggles();
+        if (activeToggles.length > 1) {
+            let firstToggle = activeToggles[0];
+            for (let i = 0; i < activeToggles.length; ++i) {
+                let toggle = activeToggles[i];
+                if (toggle === firstToggle) {
+                    continue;
+                }
+                toggle!.isChecked = false;
+            }
+        }
+
     }
 }
 

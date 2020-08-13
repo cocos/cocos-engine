@@ -42,13 +42,13 @@ import { legacyCC } from '../../core/global-exports';
  * 描边效果组件,用于字体描边,只能用于系统字体。
  *
  * @example
- * ```typescript
- *
- *  // Create a new node and add label components.
- *  var node = new cc.Node("New Label");
- *  var label = node.addComponent(cc.LabelComponent);
- *  var outline = node.addComponent(cc.LabelOutlineComponent);
- *  node.parent = this.node;
+ * ```ts
+ * import { Node, LabelComponent, LabelOutlineComponent } from 'cc';
+ * // Create a new node and add label components.
+ * const node = new Node("New Label");
+ * const label = node.addComponent(LabelComponent);
+ * const outline = node.addComponent(LabelOutlineComponent);
+ * node.parent = this.node;
  * ```
  */
 @ccclass('cc.LabelOutlineComponent')
@@ -71,8 +71,9 @@ export class LabelOutlineComponent extends Component {
      * 改变描边的颜色。
      *
      * @example
-     * ```typescript
-     * outline.color = cc.color(0.5, 0.3, 0.7, 1.0);
+     * ```ts
+     * import { Color } from 'cc';
+     * outline.color = new Color(0.5, 0.3, 0.7, 1.0);
      * ```
      */
     @tooltip('描边的颜色')
@@ -98,7 +99,7 @@ export class LabelOutlineComponent extends Component {
      * 改变描边的宽度。
      *
      * @example
-     * ```typescript
+     * ```ts
      * outline.width = 3;
      * ```
      */

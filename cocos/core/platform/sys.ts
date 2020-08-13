@@ -595,8 +595,8 @@ export const sys: { [x: string]: any; } = {
     __audioSupport: null,
 
     /**
-     * @en Get the network type of current device, return cc.sys.NetworkType.LAN if failure.
-     * @zh 获取当前设备的网络类型, 如果网络类型无法获取，默认将返回 cc.sys.NetworkType.LAN
+     * @en Get the network type of current device, return `sys.NetworkType.LAN` if failure.
+     * @zh 获取当前设备的网络类型, 如果网络类型无法获取，默认将返回 `sys.NetworkType.LAN`
      */
     getNetworkType (): NetworkType {
         // TODO: need to implement this for mobile phones.

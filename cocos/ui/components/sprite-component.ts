@@ -243,8 +243,9 @@ export class SpriteComponent extends UIRenderComponent {
      * 精灵渲染类型。
      *
      * @example
-     * ```typescript
-     * sprite.type = cc.SpriteComponent.Type.SIMPLE;
+     * ```ts
+     * import { SpriteComponent } from 'cc';
+     * sprite.type = SpriteComponent.Type.SIMPLE;
      * ```
      */
     @property({
@@ -272,8 +273,9 @@ export class SpriteComponent extends UIRenderComponent {
      * 精灵填充类型，仅渲染类型设置为 SpriteComponent.Type.FILLED 时有效。
      *
      * @example
-     * ```typescript
-     * sprite.fillType = cc.SpriteComponent.FillType.HORIZONTAL;
+     * ```ts
+     * import { SpriteComponent } from 'cc';
+     * sprite.fillType = SpriteComponent.FillType.HORIZONTAL;
      * ```
      */
     @property({
@@ -307,8 +309,9 @@ export class SpriteComponent extends UIRenderComponent {
      * 填充中心点，仅渲染类型设置为 SpriteComponent.Type.FILLED 时有效。
      *
      * @example
-     * ```typescript
-     * sprite.fillCenter = cc.v2(0, 0);
+     * ```ts
+     * import { Vec2 } from 'cc';
+     * sprite.fillCenter = new Vec2(0, 0);
      * ```
      */
     @tooltip('扇形填充时，指定扇形的中心点，取值范围 0 ~ 1')
@@ -331,7 +334,7 @@ export class SpriteComponent extends UIRenderComponent {
      * 填充起始点，仅渲染类型设置为 SpriteComponent.Type.FILLED 时有效。
      *
      * @example
-     * ```typescript
+     * ```ts
      * // -1 To 1 between the numbers
      * sprite.fillStart = 0.5;
      * ```
@@ -360,7 +363,7 @@ export class SpriteComponent extends UIRenderComponent {
      * 填充范围，仅渲染类型设置为 SpriteComponent.Type.FILLED 时有效。
      *
      * @example
-     * ```typescript
+     * ```ts
      * // -1 To 1 between the numbers
      * sprite.fillRange = 1;
      * ```
@@ -388,7 +391,7 @@ export class SpriteComponent extends UIRenderComponent {
      * 是否使用裁剪模式。
      *
      * @example
-     * ```typescript
+     * ```ts
      * sprite.trim = true;
      * ```
      */
@@ -437,8 +440,9 @@ export class SpriteComponent extends UIRenderComponent {
      * 精灵尺寸调整模式。
      *
      * @example
-     * ```typescript
-     * sprite.sizeMode = cc.SpriteComponent.SizeMode.CUSTOM;
+     * ```ts
+     * import { SpriteComponent } from 'cc';
+     * sprite.sizeMode = SpriteComponent.SizeMode.CUSTOM;
      * ```
      */
     @property({
