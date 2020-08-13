@@ -167,6 +167,7 @@ export default class TrailModule {
         if (val && !this._enable) {
             this._enable = val;
             this._particleSystem.processor.updateTrailMaterial();
+            this.rebuild();
         }
         this._enable = val;
         if (this._trailModel) {
@@ -318,7 +319,7 @@ export default class TrailModule {
     private _vbUint32: Uint32Array | null = null;
     private _iBuffer: Uint16Array | null = null;
     private _needTransform: boolean = false;
-    private _defaultMat: Material | null = null;
+    private _material: Material | null = null;
 
     constructor () {
         this._iaInfo = {
@@ -363,7 +364,6 @@ export default class TrailModule {
         this._trailSegments = new Pool(() => new TrailSegment(10), Math.ceil(psRate * duration));
         if (this._enable) {
             this.enable = this._enable;
-            this._updateMaterial();
         }
     }
 
@@ -416,14 +416,10 @@ export default class TrailModule {
         }
     }
 
-    public _updateMaterial () {
+    public updateMaterial () {
         if (this._particleSystem && this._trailModel) {
-            const mat = this._particleSystem.getMaterialInstance(1);
-            if (mat) {
-                this._trailModel.setSubModelMaterial(0, mat);
-            } else {
-                this._trailModel.setSubModelMaterial(0, this._particleSystem.processor._defaultTrailMat);
-            }
+            this._material = this._particleSystem.getMaterialInstance(1) || this._particleSystem.processor._defaultTrailMat;
+            this._trailModel.setSubModelMaterial(0, this._material!);
         }
     }
 
@@ -591,6 +587,11 @@ export default class TrailModule {
         if (this._trailModel) {
             return;
         }
+
+        this._trailModel = legacyCC.director.root.createModel(Model);
+    }
+
+    private rebuild () {
         const device: GFXDevice = director.root!.device;
         const vertexBuffer = device.createBuffer({
             usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
@@ -626,10 +627,9 @@ export default class TrailModule {
         this._subMeshData.indexBuffer = indexBuffer;
         this._subMeshData.indirectBuffer = this._iaInfoBuffer;
 
-        this._trailModel = director.root!.createModel(Model);
         this._trailModel!.initialize(this._particleSystem.node);
         this._trailModel!.visFlags = this._particleSystem.visibility;
-        this._trailModel!.setSubModelMesh(0, this._subMeshData);
+        this._trailModel!.initSubModel(0, this._subMeshData, this._material!);
         this._trailModel!.enabled = true;
     }
 

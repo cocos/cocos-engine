@@ -9,6 +9,7 @@ import { Vec3 } from '../../core/math';
 import { Model, ModelType } from '../../core/renderer/scene/model';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
+import { Material } from '../../core/assets';
 
 const _vertex_attrs = [
     { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F }, // xyz:position
@@ -33,6 +34,7 @@ export class LineModel extends Model {
     private _subMeshData: RenderingSubMesh | null = null;
     private _vertCount: number = 0;
     private _indexCount: number = 0;
+    private _material: Material | null = null;
 
     constructor () {
         super();
@@ -69,12 +71,17 @@ export class LineModel extends Model {
             this._vertSize += GFXFormatInfos[a.format].size;
         }
         this._vertAttrsFloatCount = this._vertSize / 4; // number of float
-        this._vBuffer = this._createSubMeshData();
+        this._vBuffer = this.createSubMeshData();
         this._vdataF32 = new Float32Array(this._vBuffer);
         this._vdataUint32 = new Uint32Array(this._vBuffer);
     }
 
-    public _createSubMeshData (): ArrayBuffer {
+    public updateMaterial (mat: Material) {
+        this._material = mat;
+        super.setSubModelMaterial(0, mat);
+    }
+
+    private createSubMeshData (): ArrayBuffer {
         if (this._subMeshData) {
             this.destroySubMeshData();
         }
@@ -117,7 +124,7 @@ export class LineModel extends Model {
         this._subMeshData = new RenderingSubMesh([vertexBuffer], _vertex_attrs, GFXPrimitiveMode.TRIANGLE_LIST);
         this._subMeshData.indexBuffer = indexBuffer;
         this._subMeshData.indirectBuffer = this._iaInfoBuffer;
-        this.setSubModelMesh(0, this._subMeshData);
+        this.initSubModel(0, this._subMeshData, this._material!);
         return vBuffer;
     }
 

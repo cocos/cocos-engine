@@ -88,6 +88,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _fillDataFunc: any = null;
     private _uScaleHandle: number = 0;
     private _uLenHandle: number = 0;
+    private _inited: boolean = false;
 
     constructor (info: any) {
         super(info);
@@ -117,11 +118,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             return new Particle(this);
         }, 16);
         this._setVertexAttrib();
-        this._updateModel();
         this._setFillFunc();
         this._initModuleList();
+        this._initModel();
         this.updateMaterialParams();
         this.updateTrailMaterial();
+        this.setVertexAttributes();
+        this._inited = true;
     }
 
     public clear () {
@@ -134,9 +137,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     public updateRenderMode () {
         this._setVertexAttrib();
-        this._updateModel();
         this._setFillFunc();
         this.updateMaterialParams();
+        this.setVertexAttributes();
     }
 
     public getFreeParticle (): Particle | null {
@@ -282,8 +285,11 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     public onMaterialModified (index: number, material: Material) {
+        if (!this._inited) {
+            return;
+        }
+
         if (index === 0) {
-            this._updateModel();
             this.updateMaterialParams();
         } else {
             this.updateTrailMaterial();
@@ -432,7 +438,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
         mat.recompileShaders(this._defines);
         if (this._model) {
-            this._model.setSubModelMaterial(0, mat);
+            this._model.updateMaterial(mat);
         }
     }
 
@@ -457,7 +463,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             }
             mat = mat || this._defaultTrailMat;
             mat!.recompileShaders(this._trailDefines);
-            trailModule._updateMaterial();
+            trailModule.updateMaterial();
         }
     }
 }

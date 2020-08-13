@@ -91,6 +91,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     private _animTexture: Texture2D | null = null;
     private _uTimeHandle: number = 0;
     private _uRotHandle: number = 0;
+    private _inited: boolean = false;
 
     constructor (info: any) {
         super(info);
@@ -113,15 +114,21 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     public onInit (ps: Component) {
         super.onInit(ps);
         this._setVertexAttrib();
-        this._updateModel();
-        this._model!.constructAttributeIndex();
+        this._initModel();
         this.updateMaterialParams();
+        this.setVertexAttributes();
+        this._inited = true;
     }
 
     public updateRenderMode () {
         this._setVertexAttrib();
-        this._updateModel();
         this.updateMaterialParams();
+        this.setVertexAttributes();
+    }
+
+    public setVertexAttributes () {
+        super.setVertexAttributes();
+        this._model!.constructAttributeIndex();
     }
 
     public clear () {
@@ -330,7 +337,9 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     }
 
     public onMaterialModified (index: number, material: Material) {
-        this._updateModel();
+        if (!this._inited) {
+            return;
+        }
         this.updateMaterialParams();
     }
 
@@ -369,7 +378,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             }
         }
 
-        if (shareMaterial == null && this._defaultMat == null) {
+        if (ps.sharedMaterial == null && this._defaultMat == null) {
             _matInsInfo.parent = builtinResMgr.get<Material>('default-particle-gpu-material');
             _matInsInfo.owner = ps;
             _matInsInfo.subModelIdx = 0;
@@ -421,7 +430,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         mat!.recompileShaders(this._defines);
 
         if (this._model) {
-            this._model.setSubModelMaterial(0, mat!);
+            this._model.updateMaterial(mat!);
         }
     }
 }
