@@ -15,7 +15,7 @@ import { LightType } from '../../renderer/scene/light';
 import { SphereLight } from '../../renderer/scene/sphere-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
 import { IRenderObject, UBOGlobal, UBOShadow, UBOPCFShadow,
-    UNIFORM_ENVIRONMENT, UBOForwardLight, RenderPassStage, UNIFORM_SHADOWMAP} from '../define';
+    UNIFORM_ENVIRONMENT, UBOForwardLight, UNIFORM_SHADOWMAP} from '../define';
 import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit,
     GFXStoreOp, GFXCommandBufferType, GFXClearFlag, GFXFilter, GFXAddress } from '../../gfx/define';
 import { RenderTexture } from '../../assets/render-texture';
@@ -204,18 +204,6 @@ export class ForwardPipeline extends RenderPipeline {
         return true;
     }
 
-    /**
-     * @en Add a render pass.
-     * @zh 添加渲染过程。
-     * @param stage The render stage id
-     * @param renderPass The render pass setting for the stage
-     */
-    public addRenderPass (stage: number, renderPass: GFXRenderPass) {
-        if (renderPass) {
-            this._renderPasses.set(stage, renderPass);
-        }
-    }
-
     public getRenderPass (clearFlags: GFXClearFlag): GFXRenderPass {
         let renderPass = this._renderPasses.get(clearFlags);
         if (renderPass) { return renderPass; }
@@ -365,35 +353,6 @@ export class ForwardPipeline extends RenderPipeline {
             type: GFXCommandBufferType.PRIMARY,
             queue: device.queue,
         });
-
-        let colorAttachment = new GFXColorAttachment();
-        let depthStencilAttachment = new GFXDepthStencilAttachment();
-        colorAttachment.format = device.colorFormat;
-        depthStencilAttachment.format = device.depthStencilFormat;
-        depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
-        depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
-
-        const windowPass = device.createRenderPass({
-            colorAttachments: [colorAttachment],
-            depthStencilAttachment,
-        });
-        this.addRenderPass(RenderPassStage.DEFAULT, windowPass);
-
-        colorAttachment = new GFXColorAttachment();
-        colorAttachment.format = device.colorFormat;
-        colorAttachment.loadOp = GFXLoadOp.LOAD;
-        colorAttachment.beginLayout = GFXTextureLayout.PRESENT_SRC;
-
-        depthStencilAttachment = new GFXDepthStencilAttachment();
-        depthStencilAttachment.format = device.depthStencilFormat;
-        depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
-        depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
-
-        const uiPass = device.createRenderPass({
-            colorAttachments: [colorAttachment],
-            depthStencilAttachment,
-        });
-        this.addRenderPass(RenderPassStage.UI, uiPass);
 
         if (!this._createUBOs()) {
             return false;
