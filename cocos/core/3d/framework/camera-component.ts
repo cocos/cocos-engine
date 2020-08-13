@@ -542,9 +542,10 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @zh 3D 节点转 UI 本地节点坐标。
-     * 注意：千万不要设置负责做转换的 uiNode 和最终设置位置的 uiNode 是同一个 node，否则可能出现跳动现象。
-     * @param wpos 3D 节点事件坐标
+     * @en 3D node to UI local node coordinates. The converted value is the offset under the UI node.
+     *
+     * @zh 3D 节点转 UI 本地节点坐标。转换后的值是该 UI 节点下的偏移。
+     * @param wpos 3D 节点世界坐标
      * @param uiNode UI 节点
      * @param out 返回在当前传入的 UI 节点下的偏移量
      *
