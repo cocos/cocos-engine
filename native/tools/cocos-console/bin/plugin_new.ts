@@ -6,7 +6,6 @@ import * as fs from "fs";
 import * as cocos_project from "./cocos_project_types";
 import * as cocos2dx_files from "../../../templates/cocos2dx_files.json";
 import * as cocos_cfg from "./cocos_config.json";
-import { rootCertificates } from "tls";
 import { afs } from "./afs";
 
 const PackageNewConfig = "cocos-project-template.json";

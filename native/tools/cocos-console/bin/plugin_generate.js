@@ -9,7 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CCPluginGENERATE = void 0;
 const cocos_cli_1 = require("./cocos_cli");
 const os = require("os");
 const cocos_cfg = require("./cocos_config.json");
@@ -114,7 +113,7 @@ class PlatformGenerateCmd {
         return cocos_cli_1.cchelper.join(this.plugin.project_dir, "..", `common-${this.plugin.args.get_string("template_name")}`);
     }
     append_cmake_res_dir_args(args) {
-        args.push(`-DRES_DIR="${this.plugin.project_dir}"`);
+        args.push(`-DRES_DIR="${cocos_cli_1.cchelper.fix_path(this.plugin.project_dir)}"`);
     }
 }
 class IOSGenerateCMD extends PlatformGenerateCmd {

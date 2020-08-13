@@ -111,7 +111,7 @@ abstract class PlatformGenerateCmd {
     }
 
     append_cmake_res_dir_args(args:string[]) {
-        args.push(`-DRES_DIR="${this.plugin.project_dir!}"`);
+        args.push(`-DRES_DIR="${cchelper.fix_path(this.plugin.project_dir!)}"`);
     }
 }
 

@@ -493,7 +493,10 @@ export class cchelper {
     static fix_path(p: string): string {
         p = this.replace_env_variables(p);
         if (os.platform() == "win32") {
-            return p.replace(/\\/g, "\\\\");
+            if(p.indexOf(" ") >= 0) {
+                console.error(`space found in path "${p}"`);
+            }
+            return p.replace(/\\/g, "/").replace(/\/+/, "/");
         }
         return p;
     }
