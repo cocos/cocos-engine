@@ -301,6 +301,8 @@ export default class TTFAssembler extends Assembler2D {
 
     _updateTexture () {
         _context.clearRect(0, 0, _canvas.width, _canvas.height);
+        // use round for line join to avoid sharp intersect point
+        _context.lineJoin = 'round';
         //Add a white background to avoid black edges.
         if (!_premultiply) {
             //TODO: it is best to add alphaTest to filter out the background color.
