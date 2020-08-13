@@ -641,7 +641,7 @@ AssetManager.prototype = {
      * @method loadScript
      * @param {string|string[]} url - Url of the script
      * @param {Object} [options] - Some optional paramters
-     * @param {boolean} [options.isAsync] - Indicate whether or not loading process should be async
+     * @param {boolean} [options.async] - Indicate whether or not loading process should be async
      * @param {Function} [onComplete] - Callback when script loaded or failed
      * @param {Error} onComplete.err - The occurred error, null indicetes success
      * 
