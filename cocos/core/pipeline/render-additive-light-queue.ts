@@ -5,7 +5,7 @@
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOForwardLight, SetIndex } from './define';
-import { Light, LightType, SphereLight, SpotLight, DirectionalLight } from '../renderer';
+import { Light, LightType, SphereLight, SpotLight, DirectionalLight, BatchingSchemes } from '../renderer';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView } from '../renderer/core/memory-pools';
 import { Vec3, nextPow2 } from '../../core/math';
@@ -14,6 +14,11 @@ import { sphere, intersect } from '../geometry';
 import { cullDirectionalLight, cullSphereLight, cullSpotLight } from './culling';
 import { GFXDevice, GFXRenderPass, GFXBuffer, GFXBufferUsageBit, GFXMemoryUsageBit } from '../gfx';
 import { Pool } from '../memop';
+import { InstancedBuffer } from './instanced-buffer';
+import { BatchedBuffer } from './batched-buffer';
+import { ForwardPipeline } from '../../../exports/base';
+import { RenderInstancedQueue } from './render-instanced-queue';
+import { RenderBatchedQueue } from './render-batched-queue';
 
 interface IAdditiveLightPass {
     subModel: SubModel;
@@ -39,8 +44,8 @@ export class RenderAdditiveLightQueue {
     private _lightPasses: IAdditiveLightPass[] = [];
 
     private _lightBufferCount = 16;
-    private _lightBufferStride;
-    private _lightBufferElementCount;
+    private _lightBufferStride: number;
+    private _lightBufferElementCount: number;
     private _lightBuffer: GFXBuffer;
     private _firstlightBufferView: GFXBuffer;
     private _lightBufferData: Float32Array;
@@ -48,13 +53,18 @@ export class RenderAdditiveLightQueue {
     private _isHDR: boolean;
     private _fpScale: number;
     private _renderObjects: IRenderObject[];
+    private _instancedQueue: RenderInstancedQueue;
+    private _batchedQueue: RenderBatchedQueue;
     private _lightMeterScale: number = 10000.0;
 
-    constructor (device: GFXDevice, isHDR: boolean, fpScale: number, renderObjects: IRenderObject[]) {
-        this._isHDR = isHDR;
-        this._fpScale = fpScale;
-        this._renderObjects = renderObjects;
+    constructor (pipeline: ForwardPipeline) {
+        this._isHDR = pipeline.isHDR;
+        this._fpScale = pipeline.fpScale;
+        this._renderObjects = pipeline.renderObjects;
+        this._instancedQueue = new RenderInstancedQueue();
+        this._batchedQueue = new RenderBatchedQueue();
 
+        const device = pipeline.device;
         this._lightBufferStride = Math.ceil(UBOForwardLight.SIZE / device.uboOffsetAlignment) * device.uboOffsetAlignment;
         this._lightBufferElementCount = this._lightBufferStride / Float32Array.BYTES_PER_ELEMENT;
 
@@ -80,6 +90,8 @@ export class RenderAdditiveLightQueue {
         const lightIndexOffsets = this._lightIndexOffsets;
         const lightIndices = this._lightIndices;
 
+        this._instancedQueue.clear();
+        this._batchedQueue.clear();
         validLights.length = lightIndexOffsets.length = lightIndices.length = 0;
         const sphereLights = view.camera.scene!.sphereLights;
 
@@ -138,7 +150,7 @@ export class RenderAdditiveLightQueue {
             this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
         }
 
-        for (let i = 0; i < this._lightPasses.length; ++i) {
+        for (let i = 0; i < this._lightPasses.length; i++) {
             const lp = this._lightPasses[i];
             lp.dynamicOffsets.length = 0;
         }
@@ -217,23 +229,49 @@ export class RenderAdditiveLightQueue {
         const endIdx = roIdx + 1 < this._renderObjects.length ? this._lightIndexOffsets[roIdx + 1] : this._lightIndices.length;
 
         if (begIdx < endIdx) {
-            const subModel = this._renderObjects[roIdx].model.subModels[subModelIdx];
+            const ro = this._renderObjects[roIdx];
+            const model = ro.model;
+            const subModel = model.subModels[subModelIdx];
+            const pass = subModel.passes[passIdx];
+            const batchingScheme = pass.batchingScheme;
+
             subModel.descriptorSet.bindBuffer(UBOForwardLight.BLOCK.binding, this._firstlightBufferView);
             subModel.descriptorSet.update();
 
-            const lp = _lightPassPool.alloc();
-            lp.subModel = subModel;
-            lp.passIdx = passIdx;
-            for (let i = begIdx; i < endIdx; i++) {
-                lp.dynamicOffsets.push(this._lightBufferStride * this._lightIndices[i]);
-            }
+            if (batchingScheme === BatchingSchemes.INSTANCING) { // instancing
+                for (let i = begIdx; i < endIdx; i++) {
+                    const idx = this._lightIndices[i];
+                    const buffer = InstancedBuffer.get(pass, idx);
+                    buffer.merge(subModel, model.instancedAttributes, passIdx);
+                    buffer.dynamicOffsets[0] = this._lightBufferStride * idx;
+                    this._instancedQueue.queue.add(buffer);
+                }
+            } else if (batchingScheme === BatchingSchemes.VB_MERGING) { // vb-merging
+                for (let i = begIdx; i < endIdx; i++) {
+                    const idx = this._lightIndices[i];
+                    const buffer = BatchedBuffer.get(pass, idx);
+                    buffer.merge(subModel, passIdx, ro);
+                    buffer.dynamicOffsets[0] = this._lightBufferStride * this._lightIndices[idx];
+                    this._batchedQueue.queue.add(buffer);
+                }
+            } else { // standard draw
+                const lp = _lightPassPool.alloc();
+                lp.subModel = subModel;
+                lp.passIdx = passIdx;
+                for (let i = begIdx; i < endIdx; i++) {
+                    lp.dynamicOffsets.push(this._lightBufferStride * this._lightIndices[i]);
+                }
 
-            this._lightPasses.push(lp);
+                this._lightPasses.push(lp);
+            }
         }
     }
 
     public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
-        for (let i = 0; i < this._lightPasses.length; ++i) {
+        this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+        this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+
+        for (let i = 0; i < this._lightPasses.length; i++) {
             const { subModel, passIdx, dynamicOffsets } = this._lightPasses[i];
             const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx));
             const pass = subModel.passes[passIdx];

@@ -32,21 +32,23 @@ export class BatchedBuffer {
 
     private static _buffers = new Map<Pass | number, BatchedBuffer>();
 
-    public static get (key: Pass | number, device: GFXDevice) {
+    public static get (pass: Pass, extraKey?: number) {
+        const hash = extraKey ? pass.hash ^ extraKey : pass.hash;
         const buffers = BatchedBuffer._buffers;
-        if (!buffers.has(key)) {
-            const buffer = new BatchedBuffer(device);
-            buffers.set(key, buffer);
+        if (!buffers.has(hash)) {
+            const buffer = new BatchedBuffer(pass);
+            buffers.set(hash, buffer);
             return buffer;
         }
-        return buffers.get(key)!;
+        return buffers.get(hash)!;
     }
 
     public batches: IBatchedItem[] = [];
+    public dynamicOffsets: number[] = [];
     private _device: GFXDevice;
 
-    constructor (device: GFXDevice) {
-        this._device = device;
+    constructor (pass: Pass) {
+        this._device = pass.device;
     }
 
     public destroy () {

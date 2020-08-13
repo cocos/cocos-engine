@@ -28,8 +28,6 @@ export class ForwardFlow extends RenderFlow {
         priority: ForwardFlowPriority.FORWARD,
     };
 
-    protected _additiveLightQueue!: RenderAdditiveLightQueue;
-
     public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
 
@@ -42,23 +40,13 @@ export class ForwardFlow extends RenderFlow {
 
     public activate (pipeline: RenderPipeline) {
         super.activate(pipeline);
-
-        const pl = pipeline as ForwardPipeline;
-        this._additiveLightQueue = new RenderAdditiveLightQueue(pl.device, pl.isHDR, pl.fpScale, pl.renderObjects);
-
-        (this._stages[0] as ForwardStage).additiveLightQueue = this._additiveLightQueue;
     }
 
     public render (view: RenderView) {
         const pipeline = this._pipeline as ForwardPipeline;
         view.camera.update();
-
         sceneCulling(pipeline, view);
-        this._additiveLightQueue.sceneCulling(view);
-
         pipeline.updateUBOs(view);
-        this._additiveLightQueue.updateUBOs(view);
-
         super.render(view);
     }
 

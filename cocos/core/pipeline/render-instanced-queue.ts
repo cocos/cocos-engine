@@ -56,7 +56,7 @@ export class RenderInstancedQueue {
                     cmdBuff.bindPipelineState(pso);
                     lastPSO = pso;
                 }
-                cmdBuff.bindDescriptorSet(SetIndex.LOCAL, DSPool.get(instance.hDescriptorSet));
+                cmdBuff.bindDescriptorSet(SetIndex.LOCAL, DSPool.get(instance.hDescriptorSet), res.value.dynamicOffsets);
                 cmdBuff.bindInputAssembler(instance.ia);
                 cmdBuff.draw(instance.ia);
             }

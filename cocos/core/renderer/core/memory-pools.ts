@@ -114,8 +114,8 @@ class BufferPool<T extends TypedArray, E extends IElementEnum, P extends PoolTyp
     }
 
     public set (handle: Handle<P>, element: E[keyof E], value: number | Handle<any>) {
-        const chunk = (this._chunkMask & handle as unknown as  number) >> this._entryBits;
-        const entry = this._entryMask & handle as unknown as  number;
+        const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
+        const entry = this._entryMask & handle as unknown as number;
         if (DEBUG && (!handle || chunk < 0 || chunk >= this._bufferViews.length ||
             entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
             console.warn('invalid native buffer pool handle');
@@ -125,8 +125,8 @@ class BufferPool<T extends TypedArray, E extends IElementEnum, P extends PoolTyp
     }
 
     public free (handle: Handle<P>) {
-        const chunk = (this._chunkMask & handle as unknown as  number) >> this._entryBits;
-        const entry = this._entryMask & handle as unknown as  number;
+        const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
+        const entry = this._entryMask & handle as unknown as number;
         if (DEBUG && (!handle || chunk < 0 || chunk >= this._freelists.length ||
             entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
             console.warn('invalid native buffer pool handle');
@@ -175,7 +175,7 @@ class ObjectPool<T, P extends PoolType> {
     }
 
     public get (handle: Handle<P>) {
-        const index = this._indexMask & handle as unknown as  number;
+        const index = this._indexMask & handle as unknown as number;
         if (DEBUG && (!handle || index < 0 || index >= this._array.length || this._freelist.find((n) => n === index))) {
             console.warn('invalid native object pool handle');
             return null!;
@@ -184,7 +184,7 @@ class ObjectPool<T, P extends PoolType> {
     }
 
     public free (handle: Handle<P>) {
-        const index = this._indexMask & handle as unknown as  number;
+        const index = this._indexMask & handle as unknown as number;
         if (DEBUG && (!handle || index < 0 || index >= this._array.length || this._freelist.find((n) => n === index))) {
             console.warn('invalid native object pool handle');
             return;

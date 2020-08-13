@@ -27,9 +27,9 @@ export class InstancedBuffer {
 
     private static _buffers = new Map<Pass | number, InstancedBuffer>();
 
-    public static get (pass: Pass, key?: number) {
+    public static get (pass: Pass, extraKey?: number) {
+        const hash = extraKey ? pass.hash ^ extraKey : pass.hash;
         const buffers = InstancedBuffer._buffers;
-        const hash = key || pass;
         if (!buffers.has(hash)) {
             const buffer = new InstancedBuffer(pass);
             buffers.set(hash, buffer);
@@ -41,6 +41,7 @@ export class InstancedBuffer {
     public instances: IInstancedItem[] = [];
     public hPass: PassHandle = NULL_HANDLE;
     public hasPendingModels = false;
+    public dynamicOffsets: number[] = [];
     private _device: GFXDevice;
 
     constructor (pass: Pass) {

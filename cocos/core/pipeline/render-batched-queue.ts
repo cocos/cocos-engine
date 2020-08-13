@@ -56,7 +56,7 @@ export class RenderBatchedQueue {
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, batch.hPass, shader, renderPass, batch.ia);
                 if (!boundPSO) { cmdBuff.bindPipelineState(pso); boundPSO = true; }
                 cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(batch.hPass, PassView.DESCRIPTOR_SET)));
-                cmdBuff.bindDescriptorSet(SetIndex.LOCAL, batch.descriptorSet);
+                cmdBuff.bindDescriptorSet(SetIndex.LOCAL, batch.descriptorSet, res.value.dynamicOffsets);
                 cmdBuff.bindInputAssembler(batch.ia);
                 cmdBuff.draw(batch.ia);
             }
