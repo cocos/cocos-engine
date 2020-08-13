@@ -504,7 +504,8 @@ export class Game extends EventTarget {
 
             legacyCC.director.reset();
             legacyCC.game.onStart();
-            legacyCC.game._safeEmit(legacyCC.Game.EVENT_RESTART);        });
+            legacyCC.game._safeEmit(legacyCC.Game.EVENT_RESTART);
+        });
     }
 
     /**
