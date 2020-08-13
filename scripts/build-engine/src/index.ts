@@ -1,8 +1,7 @@
 
 import fs from 'fs-extra';
 import ps from 'path';
-// @ts-ignore
-import rpBabel from '@rollup/plugin-babel';
+import rpBabel, { RollupBabelInputPluginOptions } from '@rollup/plugin-babel';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
@@ -245,7 +244,7 @@ async function _doBuild ({
         }]);
     }
 
-    const babelOptions = {
+    const babelOptions: RollupBabelInputPluginOptions = {
         babelHelpers: 'bundled',
         extensions: ['.js', '.ts'],
         highlightCode: true,
