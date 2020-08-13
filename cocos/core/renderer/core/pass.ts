@@ -703,7 +703,7 @@ function serializeDepthStencilState (dss: GFXDepthStencilState) {
     return res;
 }
 
-function serializeDynamicState (dynamicStates: GFXDynamicState[]) {
+function serializeDynamicState (dynamicStates: GFXDynamicStateFlags[]) {
     let res = ',ds';
     for (const ds in dynamicStates) {
         res += ',' + ds;

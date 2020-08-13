@@ -285,10 +285,6 @@ export class ActionInterval extends FiniteTimeAction {
     }
 }
 
-function actionInterval (d: number) {
-    return new ActionInterval(d);
-}
-
 /*
  * Runs actions sequentially, one after another.
  */
@@ -315,9 +311,8 @@ export class Sequence extends ActionInterval {
      * // create sequence with array
      * const seq = new Sequence(actArray);
      */
-    constructor (action: FiniteTimeAction | any[]);
-
-    constructor (tempArray?: any) {
+    constructor (...actions: FiniteTimeAction[]);
+    constructor (tempArray: any) {
         super();
 
         var paramArray = (tempArray instanceof Array) ? tempArray : arguments;
