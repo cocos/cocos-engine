@@ -161,12 +161,12 @@ export default class TrailModule {
         if (val === this._enable && this._trailModel) {
             return;
         }
-        if (val && !this._trailModel) {
-            this._createModel();
-        }
         if (val && !this._enable) {
             this._enable = val;
             this._particleSystem.processor.updateTrailMaterial();
+        }
+        if (val && !this._trailModel) {
+            this._createModel();
             this.rebuild();
         }
         this._enable = val;
@@ -417,9 +417,11 @@ export default class TrailModule {
     }
 
     public updateMaterial () {
-        if (this._particleSystem && this._trailModel) {
+        if (this._particleSystem ) {
             this._material = this._particleSystem.getMaterialInstance(1) || this._particleSystem.processor._defaultTrailMat;
-            this._trailModel.setSubModelMaterial(0, this._material!);
+            if (this._trailModel) {
+                this._trailModel.setSubModelMaterial(0, this._material!);
+            }
         }
     }
 
