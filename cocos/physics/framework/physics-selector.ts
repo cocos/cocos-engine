@@ -1,3 +1,5 @@
+import { legacyCC } from '../../core/global-exports';
+
 /**
  * @hidden
  */
@@ -28,9 +30,9 @@ export let physicsEngineId: IPhysicsEngineId;
 
 export function select (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject) {
     physicsEngineId = id;
-    globalThis['CC_PHYSICS_BUILTIN'] = id == 'builtin';
-    globalThis['CC_PHYSICS_CANNON'] = id == "cannon.js";
-    globalThis['CC_PHYSICS_AMMO'] = id == "ammo.js";
+    legacyCC._global['CC_PHYSICS_BUILTIN'] = id == 'builtin';
+    legacyCC._global['CC_PHYSICS_CANNON'] = id == "cannon.js";
+    legacyCC._global['CC_PHYSICS_AMMO'] = id == "ammo.js";
     
     WRAPPER = wrapper;
 }
