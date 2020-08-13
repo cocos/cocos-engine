@@ -294,7 +294,7 @@ export class Root {
     public setRenderPipeline (rppl: RenderPipeline): boolean {
         if (!rppl) {
             rppl = new ForwardPipeline();
-            rppl.initialize();
+            rppl.initialize({ flows: [] });
         }
         this._pipeline = rppl;
         if (!this._pipeline.activate()) {

@@ -3,15 +3,15 @@ import { Material } from '../../assets/material';
 import { aabb, frustum, intersect } from '../../geometry';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Color, Mat4, Quat, Vec3 } from '../../math';
-import { IInternalBindingInst, UBOShadow } from '../../pipeline/define';
+import { UBOShadow, SetIndex } from '../../pipeline/define';
 import { DirectionalLight } from './directional-light';
 import { Model } from './model';
 import { RenderScene } from './render-scene';
 import { SphereLight } from './sphere-light';
-import { GFXCommandBuffer, GFXDevice, GFXRenderPass } from '../../gfx';
+import { GFXCommandBuffer, GFXDevice, GFXRenderPass, GFXDescriptorSet, GFXShader } from '../../gfx';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
-import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
+import { DSPool, ShaderPool, PassPool, PassView } from '../core/memory-pools';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -20,7 +20,7 @@ const _qt = new Quat();
 
 interface IShadowRenderData {
     model: Model;
-    psoCIs: number[];
+    shaders: GFXShader[];
     instancedBuffer: InstancedBuffer | null;
 }
 
@@ -53,7 +53,7 @@ export class PlanarShadows {
 
     set shadowColor (color: Color) {
         Color.toArray(this._data, color, UBOShadow.SHADOW_COLOR_OFFSET);
-        this._globalBindings.buffer!.update(this.data);
+        this._globalDescriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
     }
 
     get matLight () {
@@ -73,16 +73,16 @@ export class PlanarShadows {
         1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, // matLightPlaneProj
         0.0, 0.0, 0.0, 0.3, // shadowColor
     ]);
-    protected _globalBindings: IInternalBindingInst;
+    protected _globalDescriptorSet: GFXDescriptorSet;
     protected _record = new Map<Model, IShadowRenderData>();
     protected _pendingModels: IShadowRenderData[] = [];
     protected _material: Material;
     protected _instancingMaterial: Material;
-    protected _device: GFXDevice|null = null;
+    protected _device: GFXDevice | null = null;
 
     constructor (scene: RenderScene) {
         this._scene = scene;
-        this._globalBindings = scene.root.pipeline.globalBindings.get(UBOShadow.BLOCK.name)!;
+        this._globalDescriptorSet = scene.root.pipeline.descriptorSet;
         this._material = new Material();
         this._material.initialize({ effectName: 'pipeline/planar-shadow' });
         this._instancingMaterial = new Material();
@@ -113,7 +113,7 @@ export class PlanarShadows {
         m.m14 = lz * d;
         m.m15 = NdL;
         Mat4.toArray(this.data, this._matLight);
-        this._globalBindings.buffer!.update(this.data);
+        this._globalDescriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
     }
 
     public updateDirLight (light: DirectionalLight) {
@@ -141,7 +141,7 @@ export class PlanarShadows {
         m.m14 = lz * d;
         m.m15 = 1;
         Mat4.toArray(this.data, this._matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
-        this._globalBindings.buffer!.update(this.data);
+        this._globalDescriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
     }
 
     public updateShadowList (frstm: frustum, stamp: number, shadowVisible = false) {
@@ -167,36 +167,42 @@ export class PlanarShadows {
         this._device = device;
         const models = this._pendingModels;
         const modelLen = models.length;
-        const buffer = InstancedBuffer.get(this._instancingMaterial.passes[0], device);
+        if (!modelLen) { return; }
+        const buffer = InstancedBuffer.get(this._instancingMaterial.passes[0]);
         if (buffer) { buffer.clear(); }
+        const hPass = this._material.passes[0].handle;
+        let descriptorSet = DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET));
+        cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
         for (let i = 0; i < modelLen; i++) {
-            const { model, psoCIs: psocis, instancedBuffer } = models[i];
-            for (let j = 0; j < psocis.length; j++) {
-                const submodel = model.getSubModel(j);
-                const psoci = psocis[j];
+            const { model, shaders, instancedBuffer } = models[i];
+            for (let j = 0; j < shaders.length; j++) {
+                const subModel = model.subModels[j];
+                const shader = shaders[j];
                 if (instancedBuffer) {
-                    instancedBuffer.merge(submodel, model.instancedAttributes, psoci);
+                    instancedBuffer.merge(subModel, model.instancedAttributes, 0);
                 } else {
-                    const ia = submodel.inputAssembler!;
-                    const pso = PipelineStateManager.getOrCreatePipelineState(device, psoci, renderPass, ia);
-                    const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoci, PSOCIView.BINDING_LAYOUT));
+                    const ia = subModel.inputAssembler!;
+                    const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, ia);
                     cmdBuff.bindPipelineState(pso);
-                    cmdBuff.bindBindingLayout(bindingLayout);
+                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
                     cmdBuff.bindInputAssembler(ia);
                     cmdBuff.draw(ia);
                 }
             }
         }
-        if (buffer && buffer.psoci) {
+        if (buffer && buffer.hasPendingModels) {
             buffer.uploadBuffers();
+            descriptorSet = DSPool.get(PassPool.get(buffer.hPass, PassView.DESCRIPTOR_SET));
+            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
             let lastPSO: GFXPipelineState | null = null;
             for (let b = 0; b < buffer.instances.length; ++b) {
                 const instance = buffer.instances[b];
                 if (!instance.count) { continue; }
-                const pso = PipelineStateManager.getOrCreatePipelineState(device, buffer.psoci, renderPass, instance.ia);
+                const shader = ShaderPool.get(instance.hShader);
+                const pso = PipelineStateManager.getOrCreatePipelineState(device, buffer.hPass, shader, renderPass, instance.ia);
                 if (lastPSO !== pso) {
                     cmdBuff.bindPipelineState(pso);
-                    cmdBuff.bindBindingLayout(BindingLayoutPool.get(PSOCIPool.get(buffer.psoci, PSOCIView.BINDING_LAYOUT)));
+                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, DSPool.get(instance.hDescriptorSet));
                     lastPSO = pso;
                 }
                 cmdBuff.bindInputAssembler(instance.ia);
@@ -206,42 +212,23 @@ export class PlanarShadows {
     }
 
     public createShadowData (model: Model): IShadowRenderData {
-        const psoCIs: number[] = [];
+        const shaders: GFXShader[] = [];
         const material = model.isInstancingEnabled ? this._instancingMaterial : this._material;
-        for (let i = 0; i < model.subModelNum; i++) {
-            const psoCI = material.passes[0].createPipelineStateCI(model.getMacroPatches(i));
-            if (psoCI) {
-                model.insertImplantPSOCI(psoCI, i); // add back to model to sync binding layouts
-                BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT)).update();
-                psoCIs.push(psoCI);
-            }
+        const instancedBuffer = model.isInstancingEnabled ? InstancedBuffer.get(material.passes[0]) : null;
+        const subModels = model.subModels;
+        for (let i = 0; i < subModels.length; i++) {
+            const hShader = material.passes[0].getShaderVariant(model.getMacroPatches(i));
+            shaders.push(ShaderPool.get(hShader));
         }
-        return { model, psoCIs, instancedBuffer: InstancedBuffer.get(material.passes[0], this._device!) };
+        return { model, shaders, instancedBuffer };
     }
 
     public destroyShadowData (model: Model) {
-        const data = this._record.get(model);
-        if (!data) { return; }
-        const material = data.instancedBuffer ? this._instancingMaterial : this._material;
-        for (let i = 0; i < data.psoCIs.length; i++) {
-            const psoCI = data.psoCIs[i];
-            model.removeImplantPSOCI(psoCI);
-            material.passes[0].destroyPipelineStateCI(psoCI);
-        }
         this._record.delete(model);
     }
 
-    public onGlobalPipelineStateChanged () {
-        const it = this._record.keys(); let res = it.next();
-        while (!res.done) {
-            this.destroyShadowData(res.value);
-            res = it.next();
-        }
-        this._record.clear();
-    }
-
     public destroy () {
-        this.onGlobalPipelineStateChanged();
+        this._record.clear();
         this._material.destroy();
     }
 }

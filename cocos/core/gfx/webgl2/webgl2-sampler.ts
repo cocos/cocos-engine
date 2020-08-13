@@ -1,16 +1,15 @@
 import { GFXSampler, IGFXSamplerInfo } from '../sampler';
 import { WebGL2CmdFuncCreateSampler, WebGL2CmdFuncDestroySampler } from './webgl2-commands';
-import { WebGL2GFXDevice } from './webgl2-device';
-import { WebGL2GPUSampler } from './webgl2-gpu-objects';
-import { GFXStatus } from '../define';
+import { WebGL2Device } from './webgl2-device';
+import { IWebGL2GPUSampler } from './webgl2-gpu-objects';
 
-export class WebGL2GFXSampler extends GFXSampler {
+export class WebGL2Sampler extends GFXSampler {
 
-    public get gpuSampler (): WebGL2GPUSampler {
+    public get gpuSampler (): IWebGL2GPUSampler {
         return  this._gpuSampler!;
     }
 
-    private _gpuSampler: WebGL2GPUSampler | null = null;
+    private _gpuSampler: IWebGL2GPUSampler | null = null;
 
     public initialize (info: IGFXSamplerInfo): boolean {
 
@@ -84,18 +83,15 @@ export class WebGL2GFXSampler extends GFXSampler {
             glWrapR: 0,
         };
 
-        WebGL2CmdFuncCreateSampler(this._device as WebGL2GFXDevice, this._gpuSampler);
-
-        this._status = GFXStatus.SUCCESS;
+        WebGL2CmdFuncCreateSampler(this._device as WebGL2Device, this._gpuSampler);
 
         return true;
     }
 
     public destroy () {
         if (this._gpuSampler) {
-            WebGL2CmdFuncDestroySampler(this._device as WebGL2GFXDevice, this._gpuSampler);
+            WebGL2CmdFuncDestroySampler(this._device as WebGL2Device, this._gpuSampler);
             this._gpuSampler = null;
         }
-        this._status = GFXStatus.UNREADY;
     }
 }

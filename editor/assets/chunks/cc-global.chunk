@@ -3,7 +3,7 @@
 // have to specify precisions explicitly
 // if shared among stages with different precisions
 #pragma builtin(global)
-layout(binding = 23) uniform CCGlobal {
+layout(set = 0, binding = 0) uniform CCGlobal {
   highp   vec4 cc_time; // x: global time since started in seconds, y: delta time for current frame, z: total frames since started
   mediump vec4 cc_screenSize; // xy: screen size, zw: inverse screen size
   mediump vec4 cc_screenScale; // xy: screen scale, zw: inverse screen scale

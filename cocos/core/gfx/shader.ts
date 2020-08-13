@@ -2,19 +2,13 @@
  * @category gfx
  */
 
-import { GFXObject, GFXObjectType, GFXShaderType, GFXType } from './define';
+import { GFXObject, GFXObjectType, GFXShaderStageFlagBit, GFXType } from './define';
 import { GFXDevice } from './device';
 import { IGFXAttribute } from './input-assembler';
 
-export interface IGFXShaderMacro {
-    macro: string;
-    value: string;
-}
-
-export interface IGFXShaderStage {
-    type: GFXShaderType;
-    source: string;
-    macros?: IGFXShaderMacro[];
+export class GFXShaderStage {
+    public stage: GFXShaderStageFlagBit = GFXShaderStageFlagBit.NONE;
+    public source: string = '';
 }
 
 /**
@@ -32,10 +26,11 @@ export class GFXUniform {
  * @zh GFX uniform 块。
  */
 export class GFXUniformBlock {
-    public shaderStages: GFXShaderType = GFXShaderType.NONE;
+    public set: number = -1;
     public binding: number = -1;
     public name: string = '';
     public members: GFXUniform[] = [];
+    public count: number = 1;
 }
 
 /**
@@ -43,20 +38,20 @@ export class GFXUniformBlock {
  * @zh GFX Uniform 采样器。
  */
 export class GFXUniformSampler {
-    public shaderStages: GFXShaderType = GFXShaderType.NONE;
+    public set: number = -1;
     public binding: number = -1;
     public name: string = '';
     public type: GFXType = GFXType.UNKNOWN;
     public count: number = 1;
 }
 
-export interface IGFXShaderInfo {
-    name: string;
-    stages: IGFXShaderStage[];
+export class GFXShaderInfo {
+    public name: string = '';
+    public stages: GFXShaderStage[] = [];
 
-    attributes: IGFXAttribute[];
-    blocks: GFXUniformBlock[];
-    samplers: GFXUniformSampler[];
+    public attributes: IGFXAttribute[] = [];
+    public blocks: GFXUniformBlock[] = [];
+    public samplers: GFXUniformSampler[] = [];
 }
 
 /**
@@ -99,7 +94,7 @@ export abstract class GFXShader extends GFXObject {
 
     protected _name: string = '';
 
-    protected _stages: IGFXShaderStage[] = [];
+    protected _stages: GFXShaderStage[] = [];
 
     protected _attributes: IGFXAttribute[] = [];
 
@@ -113,7 +108,7 @@ export abstract class GFXShader extends GFXObject {
         this._id = device.genShaderId();
     }
 
-    public abstract initialize (info: IGFXShaderInfo): boolean;
+    public abstract initialize (info: GFXShaderInfo): boolean;
 
     public abstract destroy (): void;
 }

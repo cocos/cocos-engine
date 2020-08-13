@@ -1,21 +1,20 @@
-import { GFXTextureFlagBit, GFXStatus, GFXFormatSurfaceSize } from '../define';
+import { GFXTextureFlagBit, GFXFormatSurfaceSize } from '../define';
 import { GFXTexture, IGFXTextureInfo, IsPowerOf2, IGFXTextureViewInfo } from '../texture';
 import { WebGL2CmdFuncCreateTexture, WebGL2CmdFuncDestroyTexture, WebGL2CmdFuncResizeTexture } from './webgl2-commands';
-import { WebGL2GFXDevice } from './webgl2-device';
-import { WebGL2GPUTexture } from './webgl2-gpu-objects';
+import { WebGL2Device } from './webgl2-device';
+import { IWebGL2GPUTexture } from './webgl2-gpu-objects';
 
-export class WebGL2GFXTexture extends GFXTexture {
+export class WebGL2Texture extends GFXTexture {
 
-    get gpuTexture (): WebGL2GPUTexture {
+    get gpuTexture (): IWebGL2GPUTexture {
         return  this._gpuTexture!;
     }
 
-    private _gpuTexture: WebGL2GPUTexture | null = null;
+    private _gpuTexture: IWebGL2GPUTexture | null = null;
 
     public initialize (info: IGFXTextureInfo | IGFXTextureViewInfo): boolean {
         if ('texture' in info) {
             console.log('WebGL2 does not support texture view.');
-            this._status = GFXStatus.FAILED;
             return false;
         }
 
@@ -81,22 +80,20 @@ export class WebGL2GFXTexture extends GFXTexture {
             glMagFilter: 0,
         };
 
-        WebGL2CmdFuncCreateTexture(this._device as WebGL2GFXDevice, this._gpuTexture);
+        WebGL2CmdFuncCreateTexture(this._device as WebGL2Device, this._gpuTexture);
 
         this._device.memoryStatus.textureSize += this._size;
-        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
 
     public destroy () {
         if (this._gpuTexture) {
-            WebGL2CmdFuncDestroyTexture(this._device as WebGL2GFXDevice, this._gpuTexture);
+            WebGL2CmdFuncDestroyTexture(this._device as WebGL2Device, this._gpuTexture);
             this._device.memoryStatus.textureSize -= this._size;
             this._gpuTexture = null;
         }
         this._buffer = null;
-        this._status = GFXStatus.UNREADY;
     }
 
     public resize (width: number, height: number) {
@@ -111,7 +108,7 @@ export class WebGL2GFXTexture extends GFXTexture {
             this._gpuTexture.width = width;
             this._gpuTexture.height = height;
             this._gpuTexture.size = this._size;
-            WebGL2CmdFuncResizeTexture(this._device as WebGL2GFXDevice, this._gpuTexture);
+            WebGL2CmdFuncResizeTexture(this._device as WebGL2Device, this._gpuTexture);
             this._device.memoryStatus.textureSize -= oldSize;
             this._device.memoryStatus.textureSize += this._size;
         }

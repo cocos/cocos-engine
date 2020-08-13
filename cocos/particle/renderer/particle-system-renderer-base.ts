@@ -84,14 +84,12 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
         }
     }
 
-    protected _updateModel () {
+    protected _initModel () {
         if (!this._model) {
             this._model = legacyCC.director.root.createModel(ParticleBatchModel);
             this._model!.setCapacity(this._particleSystem.capacity);
             this._model!.visFlags = this._particleSystem.visibility;
         }
-
-        this._model!.setVertexAttributes(this._renderInfo!.renderMode === RenderMode.Mesh ? this._renderInfo!.mesh : null, this._vertAttrs);
     }
 
     public updateTrailMaterial () {}
