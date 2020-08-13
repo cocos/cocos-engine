@@ -36,7 +36,7 @@ import { SetIndex, IDescriptorSetLayoutInfo } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { genHandle, MacroRecord, PropertyType } from './pass-utils';
 import { legacyCC } from '../../global-exports';
-import { ShaderPool, ShaderHandle, PipelineLayoutHandle, PipelineLayoutPool } from './memory-pools';
+import { ShaderPool, ShaderHandle, PipelineLayoutHandle, PipelineLayoutPool, NULL_HANDLE } from './memory-pools';
 import { DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE, GFXDescriptorSetLayout, IGFXDescriptorSetLayoutBinding } from '../..';
 
 interface IDefineRecord extends IDefineInfo {
@@ -54,14 +54,16 @@ export interface IProgramInfo extends IShaderInfo {
     bindings: IGFXDescriptorSetLayoutBinding[];
     samplerStartBinding: number;
     uber: boolean; // macro number exceeds default limits, will fallback to string hash
-
-    setLayouts: GFXDescriptorSetLayout[];
-    hPipelineLayout: PipelineLayoutHandle;
 }
 interface IMacroInfo {
     name: string;
     value: string;
     isDefault: boolean;
+}
+
+export interface IPipelineLayoutInfo {
+    setLayouts: GFXDescriptorSetLayout[];
+    hPipelineLayout: PipelineLayoutHandle;
 }
 
 function getBitCount (cnt: number) {
@@ -169,13 +171,9 @@ let _dsLayout: GFXDescriptorSetLayout | null = null;
  * 维护 shader 资源实例的全局管理器。
  */
 class ProgramLib {
-    protected _templates: Record<string, IProgramInfo>;
-    protected _cache: Record<string, ShaderHandle>;
-
-    constructor () {
-        this._templates = {};
-        this._cache = {};
-    }
+    protected _templates: Record<string, IProgramInfo> = {};
+    protected _pipelineLayouts: Record<string, IPipelineLayoutInfo> = {};
+    protected _cache: Record<string, ShaderHandle> = {};
 
     /**
      * @zh
@@ -206,7 +204,7 @@ class ProgramLib {
         if (offset > 31) { tmpl.uber = true; }
 
         // cache material-specific descriptor set layout
-        tmpl.samplerStartBinding = tmpl.blocks.length; tmpl.setLayouts = [];
+        tmpl.samplerStartBinding = tmpl.blocks.length;
         tmpl.bindings = (tmpl.blocks as IGFXDescriptorSetLayoutBinding[]).concat(tmpl.samplers);
 
         for (let i = 0; i < tmpl.blocks.length; i++) {
@@ -229,10 +227,15 @@ class ProgramLib {
 
         // store it
         this._templates[prog.name] = tmpl;
+        this._pipelineLayouts[prog.name] = { hPipelineLayout: NULL_HANDLE, setLayouts: [] };
     }
 
     public getTemplate (name: string) {
         return this._templates[name];
+    }
+
+    public getPipelineLayout (name: string) {
+        return this._pipelineLayouts[name];
     }
 
     /**
@@ -319,18 +322,19 @@ class ProgramLib {
         const res = this._cache[key];
         if (res) { return res; }
 
-        // get template
         const tmpl = this._templates[name];
-        if (!tmpl.hPipelineLayout) {
+        const layout = this._pipelineLayouts[name];
+
+        if (!layout.hPipelineLayout) {
             insertBuiltinBindings(tmpl, pipeline.globalDescriptorSetLayout, 'globals');
             insertBuiltinBindings(tmpl, pipeline.localDescriptorSetLayout, 'locals');
-            tmpl.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
+            layout.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
             // material set layout should already been created in pass
-            tmpl.setLayouts[SetIndex.LOCAL] = _dsLayout = _dsLayout || device.createDescriptorSetLayout({
+            layout.setLayouts[SetIndex.LOCAL] = _dsLayout = _dsLayout || device.createDescriptorSetLayout({
                 bindings: pipeline.localDescriptorSetLayout.bindings,
             });
-            tmpl.hPipelineLayout = PipelineLayoutPool.alloc(device, {
-                setLayouts: tmpl.setLayouts,
+            layout.hPipelineLayout = PipelineLayoutPool.alloc(device, {
+                setLayouts: layout.setLayouts,
             });
         }
 

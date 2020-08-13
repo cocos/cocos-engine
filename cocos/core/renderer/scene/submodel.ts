@@ -73,7 +73,7 @@ export class SubModel {
         this._handle = SubModelPool.alloc();
         this._flushPassInfo();
 
-        _dsInfo.layout = passes[0].shaderInfo.setLayouts[SetIndex.LOCAL];
+        _dsInfo.layout = passes[0].setLayouts[SetIndex.LOCAL];
         const dsHandle = DSPool.alloc(this._device, _dsInfo);
         const iaHandle = IAPool.alloc(this._device, subMesh);
         SubModelPool.set(this._handle, SubModelView.PRIORITY, RenderPriority.DEFAULT);

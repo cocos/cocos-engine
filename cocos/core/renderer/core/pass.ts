@@ -41,7 +41,7 @@ import { isBuiltinBinding, RenderPassStage, RenderPriority, SetIndex } from '../
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
-import { IProgramInfo, programLib } from './program-lib';
+import { IProgramInfo, programLib, IPipelineLayoutInfo } from './program-lib';
 import { samplerLib } from './sampler-lib';
 import { PassView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool,
     PassPool, DSPool, PassHandle, ShaderHandle, NULL_HANDLE } from './memory-pools';
@@ -179,6 +179,7 @@ export class Pass {
     protected _dynamics: IPassDynamics = {};
     protected _propertyHandleMap: Record<string, number> = {};
     protected _blocks: IBlock[] = [];
+    protected _pipelineLayout: IPipelineLayoutInfo = null!;
     protected _shaderInfo: IProgramInfo = null!;
     protected _defines: MacroRecord = {};
     protected _properties: Record<string, IPropertyInfo> = {};
@@ -476,7 +477,7 @@ export class Pass {
         const key = programLib.getKey(this._programName, this._defines);
         this._hShaderDefault = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline, key);
         if (!this._hShaderDefault) { console.warn(`create shader ${this._programName} failed`); return false; }
-        PassPool.set(this._handle, PassView.PIPELINE_LAYOUT, this._shaderInfo.hPipelineLayout);
+        PassPool.set(this._handle, PassView.PIPELINE_LAYOUT, this._pipelineLayout.hPipelineLayout);
         PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this._handle, this._hShaderDefault));
         return true;
     }
@@ -534,6 +535,7 @@ export class Pass {
         this._programName = info.program;
         this._defines = copyDefines ? Object.assign({}, info.defines) : info.defines;
         this._shaderInfo = programLib.getTemplate(info.program);
+        this._pipelineLayout = programLib.getPipelineLayout(info.program);
         this._properties = info.properties || this._properties;
         // pipeline state
         const device = this._device;
@@ -541,7 +543,7 @@ export class Pass {
         if (info.stateOverrides) { Pass.fillPipelineInfo(handle, info.stateOverrides); }
 
         // init descriptor set
-        const setLayouts = this._shaderInfo.setLayouts;
+        const setLayouts = this._pipelineLayout.setLayouts;
         if (!setLayouts[SetIndex.MATERIAL]) {
             setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout({
                 bindings: this._shaderInfo.bindings,
@@ -595,6 +597,7 @@ export class Pass {
     get root () { return this._root; }
     get device () { return this._device; }
     get shaderInfo () { return this._shaderInfo; }
+    get setLayouts () { return this._pipelineLayout.setLayouts; }
     get program () { return this._programName; }
     get properties () { return this._properties; }
     get defines () { return this._defines; }
