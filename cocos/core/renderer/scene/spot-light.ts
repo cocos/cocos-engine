@@ -93,7 +93,7 @@ export class SpotLight extends Light {
             this._node.getWorldRT(_matView);
             Mat4.invert(_matView, _matView);
 
-            Mat4.perspective(_matProj, this._angle, 1, 0.001, this._range);
+            Mat4.perspective(_matProj, Math.atan(Math.sqrt(2) * Math.tan(this._angle)), 1, 0.001, this._range);
 
             // view-projection
             Mat4.multiply(_matViewProj, _matProj, _matView);
