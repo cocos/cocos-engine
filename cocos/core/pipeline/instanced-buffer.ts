@@ -7,10 +7,8 @@ import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { IInstancedAttributeBlock, Pass } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
-import { UniformLightingMapSampler } from './define';
 
 export interface IInstancedItem {
-    pso: GFXPipelineState;
     count: number;
     capacity: number;
     vb: GFXBuffer;
@@ -63,15 +61,6 @@ export class InstancedBuffer {
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             if (instance.ia.indexBuffer !== sourceIA.indexBuffer || instance.count >= MAX_CAPACITY) { continue; }
-
-            // check same binding
-            if (instance.pso !== pso) {
-                const binding1 = instance.pso.pipelineLayout.layouts[0].getBindingUnit(UniformLightingMapSampler.binding);
-                const binding2 = pso.pipelineLayout.layouts[0].getBindingUnit(UniformLightingMapSampler.binding);
-                if (binding1?.texView !== binding2?.texView) {
-                    continue;
-                }
-            }
 
             if (instance.stride !== stride) {
                 // console.error(`instanced buffer stride mismatch! ${stride}/${instance.stride}`);
