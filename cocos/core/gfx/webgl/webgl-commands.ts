@@ -898,8 +898,8 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
                         device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
                     }
                     // The internal format here differs from texImage2D convension
-                    if (gpuTexture.glInternelFmt === gl.DEPTH_COMPONENT) {
-                        gpuTexture.glInternelFmt = gl.DEPTH_COMPONENT16;
+                    if (gpuTexture.glInternalFmt === gl.DEPTH_COMPONENT) {
+                        gpuTexture.glInternalFmt = gl.DEPTH_COMPONENT16;
                     }
 
                     gl.renderbufferStorage(gl.RENDERBUFFER, gpuTexture.glInternalFmt, w, h);
@@ -2810,14 +2810,14 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                         region.texOffset.x, region.texOffset.y, w, h,
                         gpuTexture.glFormat, gpuTexture.glType, pixels);
                 } else {
-                    if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
+                    if (gpuTexture.glInternalFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
                         gl.compressedTexSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
                             region.texOffset.x, region.texOffset.y, w, h,
                             gpuTexture.glFormat, pixels);
                     } else {
                         if (gpuTexture.glInternalFmt === WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL || device.noCompressedTexSubImage2D) {
                             gl.compressedTexImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
-                                gpuTexture.glInternelFmt, w, h, 0, pixels);
+                                gpuTexture.glInternalFmt, w, h, 0, pixels);
                         } else {
                             gl.compressedTexSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
                                 region.texOffset.x, region.texOffset.y, w, h,
@@ -2844,7 +2844,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                             region.texOffset.x, region.texOffset.y, w, h,
                             gpuTexture.glFormat, gpuTexture.glType, pixels);
                     } else {
-                        if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
+                        if (gpuTexture.glInternalFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
                             gl.compressedTexSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
                                 region.texOffset.x, region.texOffset.y, w, h,
                                 gpuTexture.glFormat, pixels);
@@ -2855,7 +2855,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                                     gpuTexture.glFormat, pixels);
                             } else {
                                 gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
-                                    gpuTexture.glInternelFmt, w, h, 0, pixels);
+                                    gpuTexture.glInternalFmt, w, h, 0, pixels);
                             }
                         }
                     }

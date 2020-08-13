@@ -887,15 +887,6 @@ export class AnimationState extends Playable {
     }
 
     private _onReplayOrResume () {
-        if (!this._isBlendStateWriterInitialized) {
-            for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
-                this._blendStateWriters[iBlendStateWriter].initialize();
-            }
-            this._isBlendStateWriterInitialized = true;
-        }
-        for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
-            this._blendStateWriters[iBlendStateWriter].enable(true);
-        }
         legacyCC.director.getAnimationManager().addAnimation(this);
     }
 
