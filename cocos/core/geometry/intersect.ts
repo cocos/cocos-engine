@@ -819,7 +819,6 @@ const aabb_obb = (function () {
     };
 })();
 
-// https://old.cescg.org/CESCG-2002/DSykoraJJelinek/
 /**
  * @en
  * aabb-plane intersect detect.
@@ -830,16 +829,13 @@ const aabb_obb = (function () {
  * @return {number} inside(back) = -1, outside(front) = 0, intersect = 1
  */
 const aabb_plane = function (aabb: aabb, plane: plane): number {
-    const center = aabb.center;
-    aabb.getBoundary(vec3_min, vec3_max);
-    Vec3.subtract(edge, center, vec3_min);
-    const dist = Vec3.dot(plane.n, center) + plane.d;
-    abs_Normal.set(abs(plane.n.x), abs(plane.n.y), abs(plane.n.z));
-    const absDist = Vec3.dot(abs_Normal, edge);
-
-    if (dist < -absDist) { return 0; }          // outside(front)
-    else if (dist < absDist) { return 1; }      // intersect
-    return -1;                                  // inside(back)
+    const r = aabb.halfExtents.x * Math.abs(plane.n.x) +
+        aabb.halfExtents.y * Math.abs(plane.n.y) +
+        aabb.halfExtents.z * Math.abs(plane.n.z);
+    const dot = Vec3.dot(plane.n, aabb.center);
+    if (dot + plane.d < r) { return 1; }            // intersect
+    else if (dot + plane.d > -r) { return 0; }      // outside(front)
+    return -1;                                      // inside(back)
 };
 
 /**
@@ -853,10 +849,11 @@ const aabb_plane = function (aabb: aabb, plane: plane): number {
  */
 const aabb_frustum = function (aabb: aabb, frustum: frustum): number {
     for (let i = 0; i < frustum.planes.length; i++) {
-        if (aabb_plane(aabb, frustum.planes[i]) === 0) { return 0; }    // outside
-    }
-
-    // inside || intersect
+        // frustum plane normal points to the inside
+        if (aabb_plane(aabb, frustum.planes[i]) === -1) {
+            return 0;
+        }
+    } // completely outside
     return 1;
 };
 
@@ -870,15 +867,48 @@ const aabb_frustum = function (aabb: aabb, frustum: frustum): number {
  * @param {frustum} frustum 锥台
  * @return {number} inside(back) = -1, outside(front) = 0, intersect = 1
  */
-const aabb_frustum_accurate = function (aabb: aabb, frustum: frustum): number {
-    let allInside: boolean = true;
-    for (let i = 0; i < frustum.planes.length; i++) {
-        if (aabb_plane(aabb, frustum.planes[i]) === 0) { return 0; }
-        else if (aabb_plane(aabb, frustum.planes[i]) === 1) { allInside = false; }
+const aabb_frustum_accurate = (function () {
+    const tmp = new Array(8);
+    let out1 = 0, out2 = 0;
+    for (let i = 0; i < tmp.length; i++) {
+        tmp[i] = new Vec3(0, 0, 0);
     }
-
-    return allInside ? -1 : 1;
-}
+    return function (aabb: aabb, frustum: frustum): number {
+        let result = 0, intersects = false;
+        // 1. aabb inside/outside frustum test
+        for (let i = 0; i < frustum.planes.length; i++) {
+            result = aabb_plane(aabb, frustum.planes[i]);
+            // frustum plane normal points to the inside
+            if (result === -1) { return 0; } // completely outside
+            else if (result === 1) { intersects = true; }
+        }
+        if (!intersects) { return 1; } // completely inside
+        // in case of false positives
+        // 2. frustum inside/outside aabb test
+        for (let i = 0; i < frustum.vertices.length; i++) {
+            Vec3.subtract(tmp[i], frustum.vertices[i], aabb.center);
+        }
+        out1 = 0, out2 = 0;
+        for (let i = 0; i < frustum.vertices.length; i++) {
+            if (tmp[i].x > aabb.halfExtents.x) { out1++; }
+            else if (tmp[i].x < -aabb.halfExtents.x) { out2++; }
+        }
+        if (out1 === frustum.vertices.length || out2 === frustum.vertices.length) { return 0; }
+        out1 = 0; out2 = 0;
+        for (let i = 0; i < frustum.vertices.length; i++) {
+            if (tmp[i].y > aabb.halfExtents.y) { out1++; }
+            else if (tmp[i].y < -aabb.halfExtents.y) { out2++; }
+        }
+        if (out1 === frustum.vertices.length || out2 === frustum.vertices.length) { return 0; }
+        out1 = 0; out2 = 0;
+        for (let i = 0; i < frustum.vertices.length; i++) {
+            if (tmp[i].z > aabb.halfExtents.z) { out1++; }
+            else if (tmp[i].z < -aabb.halfExtents.z) { out2++; }
+        }
+        if (out1 === frustum.vertices.length || out2 === frustum.vertices.length) { return 0; }
+        return 1;
+    };
+})();
 
 /**
  * @en

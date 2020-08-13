@@ -100,7 +100,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                     model.updateTransform(stamp);
 
                     // frustum culling
-                    if (model.worldBounds && intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
+                    if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
                         continue;
                     }
 

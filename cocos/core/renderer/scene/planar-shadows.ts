@@ -152,7 +152,7 @@ export class PlanarShadows {
             if (!model.enabled || !model.node || !model.castShadow) { continue; }
             if (model.worldBounds) {
                 aabb.transform(_ab, model.worldBounds, this._matLight);
-                if (intersect.aabb_frustum(_ab, frstm)) { continue; }
+                if (!intersect.aabb_frustum(_ab, frstm)) { continue; }
             }
             let data = this._record.get(model);
             if (data && (!!data.instancedBuffer !== model.isInstancingEnabled)) { this.destroyShadowData(model); data = undefined; }
