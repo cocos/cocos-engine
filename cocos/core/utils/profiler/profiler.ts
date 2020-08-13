@@ -135,6 +135,7 @@ export class Profiler {
                 this._rootNode.active = false;
             }
 
+            legacyCC.game.off(legacyCC.Game.EVENT_RESTART, this.generateNode, this);
             legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
             legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
             legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
@@ -151,6 +152,7 @@ export class Profiler {
             this.generateCanvas();
             this.generateStats();
             legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this.generateNode, this);
+            legacyCC.game.on(legacyCC.Game.EVENT_RESTART, this.generateNode, this);
 
             if (this._rootNode) {
                 this._rootNode.active = true;

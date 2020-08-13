@@ -702,3 +702,11 @@ function serializeDepthStencilState (dss: GFXDepthStencilState) {
     res += `,${dss.stencilFailOpBack},${dss.stencilZFailOpBack},${dss.stencilPassOpBack},${dss.stencilWriteMaskBack}`;
     return res;
 }
+
+function serializeDynamicState (dynamicStates: GFXDynamicStateFlags[]) {
+    let res = ',ds';
+    for (const ds in dynamicStates) {
+        res += ',' + ds;
+    }
+    return res;
+}

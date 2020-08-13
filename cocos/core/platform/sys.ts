@@ -342,30 +342,6 @@ export const sys: { [x: string]: any; } = {
      */
     BROWSER_TYPE_WECHAT: 'wechat',
     /**
-     * @en Browser Type - WeChat Mini Game
-     * @zh 浏览器类型 - 微信小游戏
-     * @default "wechatgame"
-     */
-    BROWSER_TYPE_WECHAT_GAME: 'wechatgame',
-    /**
-     * @en Browser Type - Alipay Mini Game
-     * @zh 浏览器类型 - 支付宝小游戏
-     * @default "alipaygame"
-     */
-    BROWSER_TYPE_ALIPAY_GAME: 'alipaygame',
-    /**
-     * @en Browser Type - MI Quick Game
-     * @zh 浏览器类型 - 小米快游戏
-     * @default "xiaomiquickgame"
-     */
-    BROWSER_TYPE_XIAOMI_GAME: 'xiaomiquickgame',
-    /**
-     * @en Browser Type - Baidu Mini Game
-     * @zh 浏览器类型 - 百度小游戏
-     * @default "baidugame"
-     */
-    BROWSER_TYPE_BAIDU_GAME: 'baidugame',
-    /**
      * @en Browser Type - Cocos Play Game
      * @zh 浏览器类型 - Cocos Play 游戏
      * @default "cocosplay"
@@ -894,19 +870,7 @@ else {
         if (!browserTypes) { browserTypes = typeReg3.exec(ua); }
 
         let browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
-        if (WECHAT) {
-            browserType = sys.BROWSER_TYPE_WECHAT_GAME;
-        }
-        else if(ALIPAY) {
-            browserType = sys.BROWSER_TYPE_ALIPAY_GAME;
-        }
-        else if(XIAOMI) {
-            browserType = sys.BROWSER_TYPE_XIAOMI_GAME;
-        }
-        else if(BAIDU) {
-            browserType = sys.BROWSER_TYPE_BAIDU_GAME;
-        }
-        else if(COCOSPLAY) {
+        if(COCOSPLAY) {
             browserType = sys.BROWSER_TYPE_COCOSPLAY;
         }
         else if(HUAWEI) {
@@ -1004,7 +968,7 @@ else {
     if (TEST) {
         _supportWebGL = false;
     }
-    else if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+    else if (WECHAT) {
         _supportWebGL = true;
     }
     else if (win.WebGLRenderingContext) {
@@ -1080,7 +1044,7 @@ else {
 
         // check if browser supports Web Audio
         // check Web Audio's context
-        const supportWebAudio = sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME &&
+        const supportWebAudio = !WECHAT &&
             // @ts-ignore
             !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 

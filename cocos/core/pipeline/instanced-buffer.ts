@@ -57,9 +57,11 @@ export class InstancedBuffer {
         if (!stride) { return; } // we assume per-instance attributes are always present
         if (!this.psoci) { this.psoci = psoci; }
         const sourceIA = subModel.inputAssembler!;
+
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             if (instance.ia.indexBuffer !== sourceIA.indexBuffer || instance.count >= MAX_CAPACITY) { continue; }
+
             if (instance.stride !== stride) {
                 // console.error(`instanced buffer stride mismatch! ${stride}/${instance.stride}`);
                 return;

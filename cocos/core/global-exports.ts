@@ -37,6 +37,7 @@ import {
     RUNTIME_BASED,
     SUPPORT_JIT,
     TEST,
+    BYTEDANCE,
     WECHAT,
     XIAOMI,
     HUAWEI,
@@ -71,6 +72,7 @@ if (BUILD) {
     _global.CC_DEV = DEV;
     _global.CC_DEBUG = DEBUG;
     _global.CC_JSB = JSB;
+    _global.CC_BYTEDANCE = BYTEDANCE;
     _global.CC_WECHAT = WECHAT;
     _global.CC_ALIPAY = ALIPAY;
     _global.CC_XIAOMI = XIAOMI;
@@ -97,7 +99,7 @@ if (DEV) {
  * Please DO NOT remove this String, it is an important flag for bug tracking.<br/>
  * If you post a bug to forum, please attach this flag.
  */
-const engineVersion = '1.1.0';
+const engineVersion = '1.2.0';
 _global.CocosEngine = legacyCC.ENGINE_VERSION = engineVersion;
 
 _global.cc = legacyCC;
