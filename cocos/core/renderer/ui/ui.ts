@@ -523,11 +523,7 @@ export class UI {
         curDrawBatch.ia!.firstIndex = indicsStart;
         curDrawBatch.ia!.indexCount = vCount;
 
-        // curDrawBatch.psoCreateInfo = this._getUIMaterial(mat).getPipelineCreateInfo();
-        curDrawBatch.psoCreateInfo = mat.passes[0].createPipelineStateCI();
-        curDrawBatch.bindingLayout = curDrawBatch.psoCreateInfo!.bindingLayout;
         curDrawBatch.hDescriptorSet = PassPool.get(mat.passes[0].handle, PassView.DESCRIPTOR_SET);
-        curDrawBatch.psoCreateInfo = mat.passes[0].createPipelineStateCI();
 
         this._batches.push(curDrawBatch);
 

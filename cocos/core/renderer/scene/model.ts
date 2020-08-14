@@ -340,7 +340,5 @@ export class Model {
 
     protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
         descriptorSet.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer!);
-    protected _updatePass (subModel: SubModel) {
-        subModel.update();
     }
 }
