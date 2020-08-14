@@ -112,10 +112,6 @@ export class PlanarShadows {
     protected _instancingMaterial: Material | null = null;
     protected _device: GFXDevice|null = null;
 
-    constructor () {
-
-    }
-
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
         this._globalBinding = pipeline.globalBindings.get(UBOShadow.BLOCK.name)!;
@@ -278,8 +274,13 @@ export class PlanarShadows {
 
     public destroy () {
         this.onGlobalPipelineStateChanged();
-        this._material!.destroy();
-        this._instancingMaterial!.destroy();
+        if (this._material) {
+            this._material.destroy();
+        }
+
+        if (this._instancingMaterial) {
+            this._instancingMaterial.destroy();
+        }
     }
 
     /**

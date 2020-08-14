@@ -222,17 +222,8 @@ export class Fog {
         this._fogRange = val;
     }
     /**
-     * @zh
-     * 当前雾化类型。
-     * @returns {FogType}
-     * 返回当前全局雾类型
-     * - 0:不使用雾化
-     * - 1:使用线性雾
-     * - 2:使用指数雾
-     * - 3:使用指数平方雾
-     * - 4:使用层叠雾
-     * @en
-     * The current global fog type.
+     * @zh 当前雾化类型。
+     * @en The current global fog type.
      * @returns {FogType}
      * Returns the current global fog type
      * - 0:Disable global Fog
@@ -240,7 +231,7 @@ export class Fog {
      * - 2:Exponential fog
      * - 3:Exponential square fog
      * - 4:Layered fog
-    */
+     */
     get currType () {
         return this._currType;
     }

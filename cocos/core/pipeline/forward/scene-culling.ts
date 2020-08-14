@@ -74,8 +74,8 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
         }
     }
 
-    if (pipeline.skybox.enabled && (camera.clearFlag & SKYBOX_FLAG)) {
-        addVisibleModel(pipeline, pipeline.skybox.model!, camera);
+    if (pipeline.skybox.enabled && pipeline.skybox.model && (camera.clearFlag & SKYBOX_FLAG)) {
+        addVisibleModel(pipeline, pipeline.skybox.model, camera);
     }
 
     const models = scene.models;
