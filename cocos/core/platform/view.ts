@@ -34,7 +34,7 @@ import { EventTarget } from '../event/event-target';
 import '../game';
 import { Rect, Size, Vec2 } from '../math';
 import visibleRect from './visible-rect';
-import { EDITOR, MINIGAME, WECHAT, JSB } from 'internal:constants';
+import { EDITOR, MINIGAME, WECHAT, JSB, RUNTIME_BASED } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { logID, errorID } from './debug';
 
@@ -172,7 +172,7 @@ export class View extends EventTarget {
         this._autoFullScreen = false;
         // The device's pixel ratio (for retina displays)
         this._devicePixelRatio = 1;
-        if (JSB) {
+        if (JSB || RUNTIME_BASED) {
             this._maxPixelRatio = 4;
         } else {
             this._maxPixelRatio = 2;
@@ -656,7 +656,7 @@ export class View extends EventTarget {
      * @param resolutionPolicy The resolution policy desired
      */
     public setRealPixelResolution (width: number, height: number, resolutionPolicy: ResolutionPolicy|number) {
-        if (!JSB && !MINIGAME) {
+        if (!JSB && !RUNTIME_BASED && !MINIGAME) {
             // Set viewport's width
             this._setViewportMeta({width}, true);
 
@@ -759,7 +759,7 @@ export class View extends EventTarget {
             _view._initFrameSize();
         }
 
-        if (!JSB && !_view._orientationChanging && _view._isRotated === prevRotated && _view._frameSize.width === prevFrameW && _view._frameSize.height === prevFrameH) {
+        if (!JSB && !RUNTIME_BASED && !_view._orientationChanging && _view._isRotated === prevRotated && _view._frameSize.width === prevFrameW && _view._frameSize.height === prevFrameH) {
             return;
         }
 
@@ -874,7 +874,7 @@ export class View extends EventTarget {
     }
 
     private _adjustViewportMeta () {
-        if (this._isAdjustViewport && !JSB && !MINIGAME) {
+        if (this._isAdjustViewport && !JSB && !RUNTIME_BASED && !MINIGAME) {
             this._setViewportMeta(__BrowserGetter.meta, false);
             this._isAdjustViewport = false;
         }
