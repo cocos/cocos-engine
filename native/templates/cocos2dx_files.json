@@ -526,6 +526,8 @@
         "cocos/renderer/pipeline/helper/DefineMap.cpp", 
         "cocos/renderer/pipeline/helper/DefineMap.h", 
         "cocos/renderer/pipeline/helper/SharedMemory.h", 
+        "cocos/scripting/dop/ArrayPool.cpp", 
+        "cocos/scripting/dop/ArrayPool.h", 
         "cocos/scripting/dop/BufferPool.cpp", 
         "cocos/scripting/dop/BufferPool.h", 
         "cocos/scripting/dop/ObjectPool.cpp", 
