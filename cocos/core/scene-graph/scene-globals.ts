@@ -532,7 +532,7 @@ export class Shadow {
     @property({ type: CCFloat })
     set near (val: number) {
         this._near = val;
-        if (this._shadowInfo) { this._shadowInfo.shadowCamera_Near = val; }
+        if (this._shadowInfo) { this._shadowInfo.shadowCameraNear = val; }
     }
     get near () {
         return this._near;
@@ -545,23 +545,10 @@ export class Shadow {
     @property({ type: CCFloat })
     set far (val: number) {
         this._far = val;
-        if (this._shadowInfo) { this._shadowInfo.shadowCamera_Far = val; }
+        if (this._shadowInfo) { this._shadowInfo.shadowCameraFar = val; }
     }
     get far () {
         return this._far;
-    }
-
-    /**
-     * @en get or set shadow camera aspect
-     * @zh 获取或者设置阴影相机宽高比
-     */
-    @property({ type: CCFloat })
-    set aspect (val: number) {
-        this._aspect = val;
-        if (this._shadowInfo) { this._shadowInfo.shadowCamera_Aspect = val; }
-    }
-    get aspect () {
-        return this._aspect;
     }
 
     /**
@@ -571,7 +558,7 @@ export class Shadow {
     @property({ type: CCFloat })
     set orthoSize (val: number) {
         this._orthoSize = val;
-        if (this._shadowInfo) { this._shadowInfo.shadowCamera_OrthoSize = val; }
+        if (this._shadowInfo) { this._shadowInfo.shadowCameraOrthoSize = val; }
     }
     get orthoSize () {
         return this._orthoSize;
@@ -596,12 +583,10 @@ export class Shadow {
         this.enabled = this._enabled;
         this.near = this._near;
         this.far = this._far;
-        this.aspect = this._aspect;
         this.orthoSize = this._orthoSize;
         this.shadowMapSize = this._size;
     }
 }
-legacyCC.Shadow = Shadow;
 
 /**
  * @en All scene related global parameters, it affects all content in the corresponding scene
@@ -626,7 +611,7 @@ export class SceneGlobals {
      * @zn 普通阴影相关信息
      */
     @property
-    public shadow = new Shadow();
+    public shadowMap = new Shadow();
     @property
     private _skybox = new SkyboxInfo();
     @property
@@ -648,7 +633,7 @@ export class SceneGlobals {
         this.ambient.renderScene = rs;
         this.skybox.renderScene = rs;
         this.planarShadows.renderScene = rs;
-        this.shadow.renderScene = rs;
+        this.shadowMap.renderScene = rs;
         this.fog.renderScene = rs;
     }
 }

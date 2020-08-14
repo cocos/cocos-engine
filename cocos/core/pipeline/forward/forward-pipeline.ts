@@ -173,9 +173,9 @@ export class ForwardPipeline extends RenderPipeline {
 
             // camera proj
             // Mat4.perspective(shadowCamera_M_P, shadowCamera_Fov, shadowCamera_Aspect, shadowCamera_Near, shadowCamera_Far);
-            const x = shadowInfo.shadowCamera_OrthoSize * shadowInfo.shadowCamera_Aspect;
-            const y = shadowInfo.shadowCamera_OrthoSize;
-            Mat4.ortho(shadowCamera_M_P, -x, x, -y, y, shadowInfo.shadowCamera_Near, shadowInfo.shadowCamera_Far,
+            const x = shadowInfo.shadowCameraOrthoSize * shadowInfo.shadowCameraAspect;
+            const y = shadowInfo.shadowCameraOrthoSize;
+            Mat4.ortho(shadowCamera_M_P, -x, x, -y, y, shadowInfo.shadowCameraNear, shadowInfo.shadowCameraFar,
                  device.clipSpaceMinZ, device.screenSpaceSignY);
 
             // camera viewProj

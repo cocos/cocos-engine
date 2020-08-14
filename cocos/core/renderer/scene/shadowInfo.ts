@@ -2,39 +2,39 @@ import { Vec2 } from '../../math';
 
 export class ShadowInfo {
 
-    public set shadowCamera_Near (val: number) {
-        this._shadowCamera_Near = val;
+    public set shadowCameraNear (val: number) {
+        this._shadowCameraNear = val;
     }
-    public get shadowCamera_Near () :number {
-        return this._shadowCamera_Near;
-    }
-
-    public set shadowCamera_Far (val: number) {
-        this._shadowCamera_Far = val;
-    }
-    public get shadowCamera_Far () :number {
-        return this._shadowCamera_Far;
+    public get shadowCameraNear () :number {
+        return this._shadowCameraNear;
     }
 
-    public set shadowCamera_Fov (val: number) {
-        this._shadowCamera_Fov = val;
+    public set shadowCameraFar (val: number) {
+        this._shadowCameraFar = val;
     }
-    public get shadowCamera_Fov () :number {
-        return this._shadowCamera_Fov;
-    }
-
-    public set shadowCamera_Aspect (val: number) {
-        this._shadowCamera_Aspect = val;
-    }
-    public get shadowCamera_Aspect () :number {
-        return this._shadowCamera_Aspect;
+    public get shadowCameraFar () :number {
+        return this._shadowCameraFar;
     }
 
-    public set shadowCamera_OrthoSize (val: number) {
-        this._shadowCamera_OrthoSize = val;
+    public set shadowCameraFov (val: number) {
+        this._shadowCameraFov = val;
     }
-    public get shadowCamera_OrthoSize () :number {
-        return this._shadowCamera_OrthoSize;
+    public get shadowCameraFov () :number {
+        return this._shadowCameraFov;
+    }
+
+    public set shadowCameraAspect (val: number) {
+        this._shadowCameraAspect = val;
+    }
+    public get shadowCameraAspect () :number {
+        return this._shadowCameraAspect;
+    }
+
+    public set shadowCameraOrthoSize (val: number) {
+        this._shadowCameraOrthoSize = val;
+    }
+    public get shadowCameraOrthoSize () :number {
+        return this._shadowCameraOrthoSize;
     }
 
     public set size (val: Vec2) {
@@ -62,11 +62,11 @@ export class ShadowInfo {
     }
 
     // Define shadwoMapCamera
-    protected _shadowCamera_Near: number = 0.1;
-    protected _shadowCamera_Far: number = 1000.0;
-    protected _shadowCamera_Fov: number = 45.0;
-    protected _shadowCamera_Aspect: number = 1.0;
-    protected _shadowCamera_OrthoSize: number = 20.0;
+    protected _shadowCameraNear: number = 0.1;
+    protected _shadowCameraFar: number = 1000.0;
+    protected _shadowCameraFov: number = 45.0;
+    protected _shadowCameraAspect: number = 1.0;
+    protected _shadowCameraOrthoSize: number = 20.0;
 
     protected _shadowMapSize: Vec2 = new Vec2(512, 512);
     protected _enabled: boolean = true;
