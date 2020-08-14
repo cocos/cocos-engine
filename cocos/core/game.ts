@@ -625,7 +625,7 @@ export class Game extends EventTarget {
             inputManager.registerSystemEvent(game.canvas);
         }
 
-        const useSplash = (!JSB && !EDITOR && !PREVIEW && legacyCC.internal.SplashScreen);
+        const useSplash = (!EDITOR && !PREVIEW && legacyCC.internal.SplashScreen);
 
         // Load render pipeline if needed
         const renderPipeline = this.config.renderPipeline;
@@ -750,7 +750,7 @@ export class Game extends EventTarget {
         const frameRate = legacyCC.game.config.frameRate;
         this._frameTime = 1000 / frameRate;
 
-        if (JSB) {
+        if (JSB || RUNTIME_BASED) {
             jsb.setPreferredFramesPerSecond(frameRate);
             window.rAF = window.requestAnimationFrame;
             window.cAF = window.cancelAnimationFrame;
@@ -811,7 +811,7 @@ export class Game extends EventTarget {
         callback = (time: number) => {
             if (this._paused) { return; }
             this._intervalId = window.rAF(callback);
-            if (!JSB && frameRate === 30) {
+            if (!JSB && !RUNTIME_BASED && frameRate === 30) {
                 skip = !skip;
                 if (skip) {
                     return;
@@ -907,7 +907,7 @@ export class Game extends EventTarget {
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
             const ctors: Constructor<GFXDevice>[] = [];
 
-            if (!RUNTIME_BASED && JSB && window.gfx) {
+            if (JSB && window.gfx) {
                 if (gfx.CCVKDevice) { ctors.push(gfx.CCVKDevice); }
                 if (gfx.CCMTLDevice) { ctors.push(gfx.CCMTLDevice); }
                 if (gfx.GLES3Device) { ctors.push(gfx.GLES3Device); }
