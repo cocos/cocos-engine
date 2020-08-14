@@ -195,22 +195,20 @@ export class PhysicsSystem extends System {
 
     readonly useNodeChains: boolean;
 
-    static readonly physicsEngine: string;
-
     static get PHYSICS_NONE () {
-        return !this.physicsEngine;
+        return !physicsEngineId;
     }
 
     static get PHYSICS_BUILTIN () {
-        return globalThis['CC_PHYSICS_BUILTIN'];
+        return physicsEngineId === 'builtin';
     }
 
     static get PHYSICS_CANNON () {
-        return globalThis['CC_PHYSICS_CANNON'];
+        return physicsEngineId === 'cannon.js';
     }
 
     static get PHYSICS_AMMO () {
-        return globalThis['CC_PHYSICS_AMMO'];
+        return physicsEngineId === 'ammo.js';
     }
 
     /**
@@ -485,28 +483,11 @@ export class PhysicsSystem extends System {
 }
 
 import { legacyCC } from '../../core/global-exports';
-import { initPhysicsSelector } from './physics-selector';
+import { physicsEngineId } from './physics-selector';
 
 director.once(Director.EVENT_INIT, function () {
-    initPhysicsMacro();
-    initPhysicsSelector();
     initPhysicsSystem();
 });
-
-function initPhysicsMacro () {
-    let PHYSICS_ENGINE = PhysicsSystem.physicsEngine;
-    if (globalThis && globalThis['_CCSettings']) {
-        const physics: { physicsEngine: string } = globalThis['_CCSettings'].physics;
-        if (physics) PHYSICS_ENGINE = physics.physicsEngine;
-    } else if (game.config && game.config.physics) {
-        const physics: { physicsEngine: string } = game.config.physics;
-        if (physics) PHYSICS_ENGINE = physics.physicsEngine;
-    }
-    globalThis['CC_PHYSICS_BUILTIN'] = PHYSICS_ENGINE == "physics-builtin";
-    globalThis['CC_PHYSICS_CANNON'] = PHYSICS_ENGINE == "physics-cannon";
-    globalThis['CC_PHYSICS_AMMO'] = PHYSICS_ENGINE == "physics-ammo";
-    (PhysicsSystem.physicsEngine as any) = PHYSICS_ENGINE;
-}
 
 function initPhysicsSystem () {
     if (!PhysicsSystem.PHYSICS_NONE) {

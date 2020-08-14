@@ -5,55 +5,41 @@
 import { MeshBuffer } from '../../../ui';
 import { Material } from '../../assets/material';
 import { GFXTexture, GFXSampler } from '../../gfx';
-import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { Node } from '../../scene-graph';
 import { Camera } from '../scene/camera';
 import { Model } from '../scene/model';
 import { UI } from './ui';
-import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../../gfx/input-assembler';
-
-const _iaInfo: IGFXInputAssemblerInfo = {
-    attributes: [],
-    vertexBuffers: [],
-};
+import { GFXInputAssembler } from '../../gfx/input-assembler';
+import { IAHandle, IAPool, DescriptorSetHandle, NULL_HANDLE } from '../core/memory-pools';
 
 export class UIDrawBatch {
     private _bufferBatch: MeshBuffer | null = null;
 
     public camera: Camera | null = null;
     public ia: GFXInputAssembler | null = null;
+    public hIA: IAHandle = NULL_HANDLE;
     public model: Model | null = null;
     public material: Material | null = null;
     public texture: GFXTexture | null = null;
     public sampler: GFXSampler | null = null;
-    public psoCreateInfo = 0;
-    public bindingLayout: GFXBindingLayout | null = null;
+    public hDescriptorSet: DescriptorSetHandle = NULL_HANDLE;
     public useLocalData: Node | null = null;
     public isStatic = false;
 
     public destroy (ui: UI) {
-        if (this.psoCreateInfo) {
-            ui._getUIMaterial(this.material!).revertPipelineCreateInfo(this.psoCreateInfo);
-            this.psoCreateInfo = 0;
-        }
-
-        if (this.bindingLayout) {
-            this.bindingLayout = null;
-        }
+        this.hDescriptorSet = NULL_HANDLE;
 
         if (this.ia) {
-            this.ia.destroy();
+            IAPool.free(this.hIA);
+            this.hIA = NULL_HANDLE;
             this.ia = null;
         }
     }
 
-    public clear (ui: UI) {
-        if (this.psoCreateInfo) {
-            ui._getUIMaterial(this.material!).revertPipelineCreateInfo(this.psoCreateInfo);
-            this.psoCreateInfo = 0;
-        }
-        this.camera = null;
+    public clear () {
         this._bufferBatch = null;
+        this.camera = null;
+        this.hDescriptorSet = NULL_HANDLE;
         this.material = null;
         this.texture = null;
         this.sampler = null;
@@ -73,14 +59,12 @@ export class UIDrawBatch {
         this._bufferBatch = meshBuffer;
 
         if (this._bufferBatch) {
-            _iaInfo.attributes = this._bufferBatch.attributes!;
-            _iaInfo.vertexBuffers[0] = this._bufferBatch.vb!;
-            _iaInfo.indexBuffer = this._bufferBatch.ib!;
             if (this.ia) {
                 this.ia.destroy();
-                this.ia.initialize(_iaInfo);
+                this.ia.initialize(this._bufferBatch);
             } else {
-                this.ia = this._bufferBatch.batcher.device.createInputAssembler(_iaInfo);
+                this.hIA = IAPool.alloc(this._bufferBatch.batcher.device, this._bufferBatch);
+                this.ia = IAPool.get(this.hIA);
             }
         }
     }

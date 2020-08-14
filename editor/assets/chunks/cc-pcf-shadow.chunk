@@ -1,4 +1,4 @@
 #pragma builtin(global)
-layout(binding = 15) uniform CCPCFShadow {
+layout(set = 0, binding = 2) uniform CCPCFShadow {
   highp   mat4 cc_shadowMatViewProj; // shadowCamera： view-projection matrix
 };

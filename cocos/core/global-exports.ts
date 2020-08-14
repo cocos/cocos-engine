@@ -45,6 +45,9 @@ import {
     VIVO,
 } from 'internal:constants';
 
+// @ts-ignore
+const _global = typeof window === 'undefined' ? global : window;
+
 /**
  * !#en
  * The main namespace of Cocos2d-JS, all engine core classes, functions, properties and constants are defined in this namespace.
@@ -52,15 +55,14 @@ import {
  * Cocos 引擎的主要命名空间，引擎代码中所有的类，函数，属性和常量都在这个命名空间中定义。
  * @deprecated
  */
-export const legacyCC: Record<string, any> = {};
+export const legacyCC: Record<string, any> & {
+    _global: typeof globalThis;
+} = {
+    _global,
+};
 
 // For internal usage
 legacyCC.internal = {};
-
-// @ts-ignore
-const _global = typeof window === 'undefined' ? global : window;
-
-legacyCC._global = _global;
 
 if (BUILD) {
     // Supports dynamically access from external scripts such as adapters and debugger.

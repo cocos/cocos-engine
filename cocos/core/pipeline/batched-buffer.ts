@@ -2,14 +2,14 @@
  * @hidden
  */
 
-import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXDevice } from '../gfx';
+import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXDevice, GFXDescriptorSet } from '../gfx';
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { Mat4 } from '../math';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOLocalBatched } from './define';
 import { Pass } from '../renderer';
-import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../renderer/core/memory-pools';
+import { SubModelPool, SubModelView, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
 
 export interface IBatchedItem {
     vbs: GFXBuffer[];
@@ -21,7 +21,9 @@ export interface IBatchedItem {
     ia: GFXInputAssembler;
     ubo: GFXBuffer;
     uboData: UBOLocalBatched;
-    psoCI: number;
+    descriptorSet: GFXDescriptorSet;
+    hPass: PassHandle;
+    hShader: ShaderHandle;
 }
 
 const _localBatched = new UBOLocalBatched();
@@ -30,21 +32,23 @@ export class BatchedBuffer {
 
     private static _buffers = new Map<Pass | number, BatchedBuffer>();
 
-    public static get (key: Pass | number, device: GFXDevice) {
+    public static get (pass: Pass, extraKey?: number) {
+        const hash = extraKey ? pass.hash ^ extraKey : pass.hash;
         const buffers = BatchedBuffer._buffers;
-        if (!buffers.has(key)) {
-            const buffer = new BatchedBuffer(device);
-            buffers.set(key, buffer);
+        if (!buffers.has(hash)) {
+            const buffer = new BatchedBuffer(pass);
+            buffers.set(hash, buffer);
             return buffer;
         }
-        return buffers.get(key)!;
+        return buffers.get(hash)!;
     }
 
     public batches: IBatchedItem[] = [];
+    public dynamicOffsets: number[] = [];
     private _device: GFXDevice;
 
-    constructor (device: GFXDevice) {
-        this._device = device;
+    constructor (pass: Pass) {
+        this._device = pass.device;
     }
 
     public destroy () {
@@ -60,16 +64,15 @@ export class BatchedBuffer {
         this.batches.length = 0;
     }
 
-    public merge (subModel: SubModel, passIndx: number, ro: IRenderObject, psoCI: number) {
-        const flatBuffers = subModel.subMeshData.flatBuffers;
+    public merge (subModel: SubModel, passIdx: number, ro: IRenderObject) {
+        const flatBuffers = subModel.subMesh.flatBuffers;
         if (flatBuffers.length === 0) { return; }
         let vbSize = 0;
         let vbIdxSize = 0;
         const vbCount = flatBuffers[0].count;
-        if (!psoCI) {
-            psoCI = subModel.psoInfos[passIndx];
-        }
-        const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT));
+        const hPass = SubModelPool.get(subModel.handle, SubModelView.PASS_0 + passIdx) as PassHandle;
+        const hShader = SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle;
+        const descriptorSet = subModel.descriptorSet;
         let isBatchExist = false;
         for (let i = 0; i < this.batches.length; ++i) {
             const batch = this.batches[i];
@@ -117,10 +120,12 @@ export class BatchedBuffer {
 
                     // update world matrix
                     Mat4.toArray(batch.uboData.view, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
-                    if (!batch.mergeCount && batch.psoCI !== psoCI) {
-                        bindingLayout.bindBuffer(UBOLocalBatched.BLOCK.binding, batch.ubo);
-                        bindingLayout.update();
-                        batch.psoCI = psoCI;
+                    if (!batch.mergeCount) {
+                        descriptorSet.bindBuffer(UBOLocalBatched.BLOCK.binding, batch.ubo);
+                        descriptorSet.update();
+                        batch.hPass = hPass;
+                        batch.hShader = hShader;
+                        batch.descriptorSet = descriptorSet;
                     }
 
                     ++batch.mergeCount;
@@ -183,15 +188,15 @@ export class BatchedBuffer {
             size: UBOLocalBatched.SIZE,
         });
 
-        bindingLayout.bindBuffer(UBOLocalBatched.BLOCK.binding, ubo);
-        bindingLayout.update();
+        descriptorSet.bindBuffer(UBOLocalBatched.BLOCK.binding, ubo);
+        descriptorSet.update();
 
         const uboData = new UBOLocalBatched();
         Mat4.toArray(uboData.view, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET);
 
         this.batches.push({
             mergeCount: 1,
-            vbs, vbDatas, vbIdx, vbIdxData, vbCount, ia, ubo, uboData, psoCI,
+            vbs, vbDatas, vbIdx, vbIdxData, vbCount, ia, ubo, uboData, hPass, hShader, descriptorSet,
         });
     }
 

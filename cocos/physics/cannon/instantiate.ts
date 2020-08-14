@@ -1,5 +1,5 @@
 
-import { registerSelectorCB } from '../framework/physics-selector';
+import { select } from '../framework/physics-selector';
 
 import { CannonRigidBody } from './cannon-rigid-body';
 import { CannonWorld } from './cannon-world';
@@ -16,28 +16,21 @@ import { CannonPlaneShape } from './shapes/cannon-plane-shape';
 import { CannonPointToPointConstraint } from './constraints/cannon-point-to-point-constraint';
 import { CannonHingeConstraint } from './constraints/cannon-hinge-constraint';
 
-import { PhysicsSystem } from '../framework';
+select('cannon.js', {
+    PhysicsWorld: CannonWorld,
+    RigidBody: CannonRigidBody,
 
-registerSelectorCB(() => {
-    if (PhysicsSystem.PHYSICS_CANNON) {
-        return {
-            PhysicsWorld: CannonWorld,
-            RigidBody: CannonRigidBody,
+    BoxShape: CannonBoxShape,
+    SphereShape: CannonSphereShape,
+    TrimeshShape: CannonTrimeshShape,
+    CylinderShape: CannonCylinderShape,
+    ConeShape: CannonConeShape,
+    TerrainShape: CannonTerrainShape,
+    SimplexShape: CannonSimplexShape,
+    PlaneShape: CannonPlaneShape,
 
-            BoxShape: CannonBoxShape,
-            SphereShape: CannonSphereShape,
-            TrimeshShape: CannonTrimeshShape,
-            CylinderShape: CannonCylinderShape,
-            ConeShape: CannonConeShape,
-            TerrainShape: CannonTerrainShape,
-            SimplexShape: CannonSimplexShape,
-            PlaneShape: CannonPlaneShape,
-
-            PointToPointConstraint: CannonPointToPointConstraint,
-            HingeConstraint: CannonHingeConstraint,
-        }
-    }
-    return null;
+    PointToPointConstraint: CannonPointToPointConstraint,
+    HingeConstraint: CannonHingeConstraint,
 });
 
 import './deprecated';

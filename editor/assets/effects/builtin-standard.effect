@@ -33,6 +33,7 @@ CCEffect %{
       frag: standard-fs:frag
       phase: forward-add
       propertyIndex: 0
+      embeddedMacros: { CC_FORWARD_ADD: true }
       depthStencilState:
         depthFunc: equal
         depthTest: true
@@ -285,15 +286,10 @@ CCProgram standard-fs %{
 CCProgram shadowMap-vs %{
   precision highp float;
   #include <input-standard>
-  #include <cc-global>
-  #include <cc-pcf-shadow>
   #include <cc-local-batch>
+  #include <cc-pcf-shadow>
 
-  #if CC_VSM_SHADOW
-    out vec4 vTexCoord;
-  #else
-    out vec2 vTexCoord;
-  #endif
+  out vec4 vTexCoord;
 
   vec4 vert () {
     StandardVertInput In;
@@ -305,27 +301,16 @@ CCProgram shadowMap-vs %{
     vec4 worldPos = matWorld * In.position;
     vec4 clipPos = cc_shadowMatViewProj * worldPos;
 
-  #if CC_VSM_SHADOW
     vTexCoord = vec4(a_texCoord, clipPos.z, clipPos.w);
-  #else
-    vTexCoord = a_texCoord;
-  #endif
 
-  return clipPos;
+    return clipPos;
   }
 }%
 
 CCProgram shadowMap-fs %{
   precision highp float;
-  #include <cc-global>
   #include <output-standard>
-  #include <shading-standard>
-
-  #if CC_VSM_SHADOW
-    in vec4 vTexCoord;
-  #else
-    in vec2 vTexCoord;
-  #endif
+  in vec4 vTexCoord;
 
   #if USE_ALBEDO_MAP
     uniform sampler2D albedoMap;
@@ -343,12 +328,8 @@ CCProgram shadowMap-fs %{
       #endif
     #endif
 
-    #if CC_VSM_SHADOW
-        float depth = vTexCoord.z / vTexCoord.w * 0.5 + 0.5;
-        color = vec4(depth, depth, depth, 1.0);
-        return color;
-    #else
-        return color;
-    #endif
+    float depth = vTexCoord.z / vTexCoord.w * 0.5 + 0.5;
+    color = vec4(depth, depth, depth, 1.0);
+    return CCFragOutput(color);
   }
 }%

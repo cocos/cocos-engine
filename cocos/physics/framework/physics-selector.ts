@@ -1,3 +1,5 @@
+import { legacyCC } from '../../core/global-exports';
+
 /**
  * @hidden
  */
@@ -20,22 +22,17 @@ interface IPhysicsWrapperObject {
     ConeTwistConstraint?: any,
 }
 
-export let WRAPPER: IPhysicsWrapperObject;
-type WrapperCallBack = () => IPhysicsWrapperObject | null;
-let callback: WrapperCallBack[] = [];
-export function registerSelectorCB (cb: WrapperCallBack) {
-    const index = callback.indexOf(cb);
-    if (index < 0) {
-        callback.push(cb);
-    }
-}
+type IPhysicsEngineId = 'builtin' | 'cannon.js' | 'ammo.js' | string | undefined;
 
-export function initPhysicsSelector () {
-    for (let i = 0; i < callback.length; i++) {
-        const obj = callback[i]();
-        if (obj) {
-            WRAPPER = obj;
-            return;
-        }
-    }
+export let WRAPPER: IPhysicsWrapperObject;
+
+export let physicsEngineId: IPhysicsEngineId;
+
+export function select (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject) {
+    physicsEngineId = id;
+    legacyCC._global['CC_PHYSICS_BUILTIN'] = id == 'builtin';
+    legacyCC._global['CC_PHYSICS_CANNON'] = id == "cannon.js";
+    legacyCC._global['CC_PHYSICS_AMMO'] = id == "ammo.js";
+    
+    WRAPPER = wrapper;
 }

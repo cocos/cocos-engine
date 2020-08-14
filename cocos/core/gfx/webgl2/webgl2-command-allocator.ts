@@ -10,7 +10,7 @@ import {
     WebGL2CmdUpdateBuffer,
 } from './webgl2-commands';
 
-export class WebGL2GFXCommandPool<T extends WebGL2CmdObject> {
+export class WebGL2CommandPool<T extends WebGL2CmdObject> {
 
     private _frees: (T|null)[];
     private _freeIdx: number = 0;
@@ -80,20 +80,20 @@ export class WebGL2GFXCommandPool<T extends WebGL2CmdObject> {
     }
 }
 
-export class WebGL2GFXCommandAllocator {
+export class WebGL2CommandAllocator {
 
-    public beginRenderPassCmdPool: WebGL2GFXCommandPool<WebGL2CmdBeginRenderPass>;
-    public bindStatesCmdPool: WebGL2GFXCommandPool<WebGL2CmdBindStates>;
-    public drawCmdPool: WebGL2GFXCommandPool<WebGL2CmdDraw>;
-    public updateBufferCmdPool: WebGL2GFXCommandPool<WebGL2CmdUpdateBuffer>;
-    public copyBufferToTextureCmdPool: WebGL2GFXCommandPool<WebGL2CmdCopyBufferToTexture>;
+    public beginRenderPassCmdPool: WebGL2CommandPool<WebGL2CmdBeginRenderPass>;
+    public bindStatesCmdPool: WebGL2CommandPool<WebGL2CmdBindStates>;
+    public drawCmdPool: WebGL2CommandPool<WebGL2CmdDraw>;
+    public updateBufferCmdPool: WebGL2CommandPool<WebGL2CmdUpdateBuffer>;
+    public copyBufferToTextureCmdPool: WebGL2CommandPool<WebGL2CmdCopyBufferToTexture>;
 
     constructor () {
-        this.beginRenderPassCmdPool = new WebGL2GFXCommandPool(WebGL2CmdBeginRenderPass, 1);
-        this.bindStatesCmdPool = new WebGL2GFXCommandPool(WebGL2CmdBindStates, 1);
-        this.drawCmdPool = new WebGL2GFXCommandPool(WebGL2CmdDraw, 1);
-        this.updateBufferCmdPool = new WebGL2GFXCommandPool(WebGL2CmdUpdateBuffer, 1);
-        this.copyBufferToTextureCmdPool = new WebGL2GFXCommandPool(WebGL2CmdCopyBufferToTexture, 1);
+        this.beginRenderPassCmdPool = new WebGL2CommandPool(WebGL2CmdBeginRenderPass, 1);
+        this.bindStatesCmdPool = new WebGL2CommandPool(WebGL2CmdBindStates, 1);
+        this.drawCmdPool = new WebGL2CommandPool(WebGL2CmdDraw, 1);
+        this.updateBufferCmdPool = new WebGL2CommandPool(WebGL2CmdUpdateBuffer, 1);
+        this.copyBufferToTextureCmdPool = new WebGL2CommandPool(WebGL2CmdCopyBufferToTexture, 1);
     }
 
     public clearCmds (cmdPackage: WebGL2CmdPackage) {

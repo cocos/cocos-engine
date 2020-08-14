@@ -15,13 +15,14 @@ import {
     GFXPrimitiveMode,
     GFXShadeModel,
     GFXStencilOp,
-    IGFXColor,
+    GFXColor,
     GFXDynamicStateFlagBit,
 } from './define';
 import { GFXDevice } from './device';
 import { IGFXAttribute } from './input-assembler';
 import { GFXRenderPass } from './render-pass';
 import { GFXShader } from './shader';
+import { GFXPipelineLayout } from '..';
 
 /**
  * @en GFX rasterizer state.
@@ -136,7 +137,7 @@ export class GFXBlendTarget {
 export class GFXBlendState {
     public isA2C: boolean = false;
     public isIndepend: boolean = false;
-    public blendColor: IGFXColor = { r: 0, g: 0, b: 0, a: 0 };
+    public blendColor: GFXColor = { r: 0, g: 0, b: 0, a: 0 };
     public targets: GFXBlendTarget[] = [new GFXBlendTarget()];
 }
 
@@ -151,6 +152,7 @@ export class GFXInputState {
 export interface IGFXPipelineStateInfo {
     primitive: GFXPrimitiveMode;
     shader: GFXShader;
+    pipelineLayout: GFXPipelineLayout;
     inputState: GFXInputState;
     rasterizerState: GFXRasterizerState;
     depthStencilState: GFXDepthStencilState;
@@ -170,7 +172,15 @@ export abstract class GFXPipelineState extends GFXObject {
      * @zh GFX 着色器。
      */
     get shader (): GFXShader {
-        return  this._shader as GFXShader;
+        return this._shader!;
+    }
+
+    /**
+     * @en Get current pipeline layout.
+     * @zh GFX 管线布局。
+     */
+    get pipelineLayout (): GFXPipelineLayout {
+        return this._pipelineLayout!;
     }
 
     /**
@@ -232,6 +242,8 @@ export abstract class GFXPipelineState extends GFXObject {
     protected _device: GFXDevice;
 
     protected _shader: GFXShader | null = null;
+
+    protected _pipelineLayout: GFXPipelineLayout | null = null;
 
     protected _primitive: GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
 

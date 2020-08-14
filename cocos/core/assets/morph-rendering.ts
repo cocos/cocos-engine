@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { GFXAttributeName, GFXBuffer, GFXBufferUsageBit, GFXDevice, GFXFeature, GFXMemoryUsageBit } from '../gfx';
+import { GFXAttributeName, GFXBuffer, GFXBufferUsageBit, GFXDevice, GFXFeature, GFXMemoryUsageBit, GFXDescriptorSet } from '../gfx';
 import { Mesh } from './mesh';
 import { Texture2D } from './texture-2d';
 import { ImageAsset } from './image-asset';
@@ -15,7 +15,7 @@ import { log2, nextPow2 } from '../math/bits';
 import { IMacroPatch } from '../renderer';
 import { legacyCC } from '../global-exports';
 import { PixelFormat } from './asset-enum';
-import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
+import { DSPool } from '../renderer/core/memory-pools';
 
 /**
  * True if force to use cpu computing based sub-mesh rendering.
@@ -104,8 +104,8 @@ export class StdMorphRendering implements MorphRendering {
                 return patches;
             },
 
-            adaptPipelineState: (subMeshIndex: number, pipelineCreateInfo: number) => {
-                subMeshInstances[subMeshIndex]?.adaptPipelineState(pipelineCreateInfo);
+            adaptPipelineState: (subMeshIndex: number, descriptorSet: GFXDescriptorSet) => {
+                subMeshInstances[subMeshIndex]?.adaptPipelineState(descriptorSet);
             },
 
             destroy: () => {
@@ -146,7 +146,7 @@ interface SubMeshMorphRenderingInstance {
      * Adapts the pipelineState to apply the rendering.
      * @param pipelineState
      */
-    adaptPipelineState (pipelineCreateInfo: number): void;
+    adaptPipelineState (descriptorSet: GFXDescriptorSet): void;
 
     /**
      * Destroy this instance.
@@ -249,8 +249,7 @@ class GpuComputing implements SubMeshMorphRendering {
                 return [{ name: 'CC_MORPH_TARGET_USE_TEXTURE', value: true, }];
             },
 
-            adaptPipelineState: (pipelineCreateInfo: number) => {
-                const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(pipelineCreateInfo, PSOCIView.BINDING_LAYOUT));
+            adaptPipelineState: (descriptorSet: GFXDescriptorSet) => {
                 for (const attribute of this._attributes) {
                     let binding: number | undefined;
                     switch (attribute.name) {
@@ -261,12 +260,12 @@ class GpuComputing implements SubMeshMorphRendering {
                             warn(`Unexpected attribute!`); break;
                     }
                     if (binding !== undefined) {
-                        bindingLayout.bindSampler(binding, attribute.morphTexture.sampler);
-                        bindingLayout.bindTexture(binding, attribute.morphTexture.texture);
+                        descriptorSet.bindSampler(binding, attribute.morphTexture.sampler);
+                        descriptorSet.bindTexture(binding, attribute.morphTexture.texture);
                     }
                 }
-                bindingLayout.bindBuffer(UBOMorph.BLOCK.binding, morphUniforms.buffer);
-                bindingLayout.update();
+                descriptorSet.bindBuffer(UBOMorph.BLOCK.binding, morphUniforms.buffer);
+                descriptorSet.update();
             },
 
             destroy: () => {
@@ -418,8 +417,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
         ];
     }
 
-    public adaptPipelineState (pipelineCreateInfo: number) {
-        const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(pipelineCreateInfo, PSOCIView.BINDING_LAYOUT));
+    public adaptPipelineState (descriptorSet: GFXDescriptorSet) {
         for (const attribute of this._attributes) {
             const attributeName = attribute.attributeName;
             let binding: number | undefined;
@@ -431,12 +429,12 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
                     warn(`Unexpected attribute!`); break;
             }
             if (binding !== undefined) {
-                bindingLayout.bindSampler(binding, attribute.morphTexture.sampler);
-                bindingLayout.bindTexture(binding, attribute.morphTexture.texture);
+                descriptorSet.bindSampler(binding, attribute.morphTexture.sampler);
+                descriptorSet.bindTexture(binding, attribute.morphTexture.texture);
             }
         }
-        bindingLayout.bindBuffer(UBOMorph.BLOCK.binding, this._morphUniforms.buffer);
-        bindingLayout.update();
+        descriptorSet.bindBuffer(UBOMorph.BLOCK.binding, this._morphUniforms.buffer);
+        descriptorSet.update();
     }
 
     public destroy () {
@@ -521,7 +519,7 @@ function createVec4TextureFactory (gfxDevice: GFXDevice, vec4Capacity: number) {
     }
 
     const { width, height } = bestSizeToHavePixels(pixelRequired);
-    assertIsTrue(width * height > pixelRequired);
+    assertIsTrue(width * height >= pixelRequired);
 
     return {
         width,

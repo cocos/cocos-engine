@@ -5,15 +5,15 @@
 import CCClass from '../../core/data/class';
 import { clamp, inverseLerp, pingPong, repeat } from '../../core/math/utils';
 import { Enum } from '../../core/value-types/enum';
-
+import { WrapModeMask } from '../../core/animation/types';
 const LOOK_FORWARD = 3;
 
 const WrapMode = Enum({
-    Default: 0,
-    Once: 1,
-    Loop: 2,
-    PingPong: 3,
-    ClampForever: 4,
+    Default: WrapModeMask.Default,
+    Normal: WrapModeMask.Normal,
+    Clamp: WrapModeMask.Clamp,
+    Loop: WrapModeMask.Loop,
+    PingPong: WrapModeMask.PingPong,
 });
 
 /**
@@ -159,7 +159,7 @@ export class AnimationCurve {
             case WrapMode.PingPong:
                 wrappedTime = pingPong(time - startTime, endTime - startTime) + startTime;
                 break;
-            case WrapMode.ClampForever:
+            case WrapMode.Clamp:
                 wrappedTime = clamp(time, startTime, endTime);
                 break;
         }
@@ -216,7 +216,7 @@ export class AnimationCurve {
             case WrapMode.PingPong:
                 wrappedTime = pingPong(time - startTime, endTime - startTime) + startTime;
                 break;
-            case WrapMode.ClampForever:
+            case WrapMode.Clamp:
                 wrappedTime = clamp(time, startTime, endTime);
                 break;
         }
