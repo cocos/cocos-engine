@@ -19,6 +19,7 @@ import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
 import { Mat4, Vec3, Vec2, Quat, Vec4 } from '../../math';
 import { GFXFeature } from '../../gfx/device';
+import { ShadowInfo } from '../../renderer/scene/shadowInfo';
 
 const shadowCamera_W_P = new Vec3();
 const shadowCamera_W_R = new Quat();
@@ -28,13 +29,6 @@ const shadowCamera_W_T = new Mat4();
 const shadowCamera_M_V = new Mat4();
 const shadowCamera_M_P = new Mat4();
 const shadowCamera_M_V_P = new Mat4();
-
-// Define shadwoMapCamera
-const shadowCamera_Near = 0.1;
-const shadowCamera_Far = 1000.0;
-const shadowCamera_Fov = 45.0;
-const shadowCamera_Aspect = 1.0;
-const shadowCamera_OrthoSize = 20.0;
 
 /**
  * @en The forward render pipeline
@@ -65,14 +59,6 @@ export class ForwardPipeline extends RenderPipeline {
         return this._fpScale;
     }
 
-    /**
-     * @zh
-     * 获取阴影贴图分辨率
-     */
-    public get shadowMapSize () {
-        return this._shadowMapSize;
-    }
-
     @property({
         type: [RenderTextureConfig],
     })
@@ -95,7 +81,6 @@ export class ForwardPipeline extends RenderPipeline {
     protected _fpScale: number = 1.0 / 1024.0;
     protected _renderPasses = new Map<GFXClearFlag, GFXRenderPass>();
     protected _uboPCFShadow: UBOPCFShadow = new UBOPCFShadow();
-    protected _shadowMapSize: Vec2 = new Vec2(512, 512);
 
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);
@@ -173,6 +158,7 @@ export class ForwardPipeline extends RenderPipeline {
         this._updateUBO(view);
         const mainLight = view.camera.scene!.mainLight;
         const device = this.device;
+        const shadowInfo = ShadowInfo.shadowInfoInstance;
 
         if (mainLight) {
             shadowCamera_W_P.set(mainLight!.node!.getWorldPosition());
@@ -187,9 +173,9 @@ export class ForwardPipeline extends RenderPipeline {
 
             // camera proj
             // Mat4.perspective(shadowCamera_M_P, shadowCamera_Fov, shadowCamera_Aspect, shadowCamera_Near, shadowCamera_Far);
-            const x = shadowCamera_OrthoSize * shadowCamera_Aspect;
-            const y = shadowCamera_OrthoSize;
-            Mat4.ortho(shadowCamera_M_P, -x, x, -y, y, shadowCamera_Near, shadowCamera_Far,
+            const x = shadowInfo.shadowCamera_OrthoSize * shadowInfo.shadowCamera_Aspect;
+            const y = shadowInfo.shadowCamera_OrthoSize;
+            Mat4.ortho(shadowCamera_M_P, -x, x, -y, y, shadowInfo.shadowCamera_Near, shadowInfo.shadowCamera_Far,
                  device.clipSpaceMinZ, device.screenSpaceSignY);
 
             // camera viewProj
