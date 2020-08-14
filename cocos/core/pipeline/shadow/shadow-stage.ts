@@ -11,7 +11,7 @@ import { ForwardStagePriority } from '../forward/enum';
 import { RenderShadowMapBatchedQueue } from '../render-shadowMap-batched-queue';
 import { GFXFramebuffer } from '../../gfx/framebuffer';
 import { ForwardPipeline } from '../forward/forward-pipeline';
-import { UBOPCFShadow, SetIndex } from '../define';
+import { SetIndex, UBOShadow } from '../define';
 
 const colors: GFXColor[] = [ { r: 1, g: 1, b: 1, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -58,7 +58,7 @@ export class ShadowStage extends RenderStage {
      */
     public render (view: RenderView) {
         const pipeline = this._pipeline as ForwardPipeline;
-        this._additiveShadowQueue.clear(pipeline.descriptorSet.getBuffer(UBOPCFShadow.BLOCK.binding));
+        this._additiveShadowQueue.clear(pipeline.descriptorSet.getBuffer(UBOShadow.BLOCK.binding));
 
         const shadowObjects = pipeline.shadowObjects;
         let m = 0; let p = 0;
