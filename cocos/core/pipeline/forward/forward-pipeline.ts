@@ -460,15 +460,15 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     private destroyUBOs () {
-        this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding).destroy();
-        this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).destroy();
-        this._descriptorSet.getBuffer(UBOPCFShadow.BLOCK.binding).destroy();
+        if (this._descriptorSet) {
+            this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding).destroy();
+            this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).destroy();
+            this._descriptorSet.getBuffer(UBOPCFShadow.BLOCK.binding).destroy();
+        }
     }
 
     public destroy () {
         this.destroyUBOs();
-
-        this._descriptorSet.destroy();
 
         const rpIter = this._renderPasses.values();
         let rpRes = rpIter.next();
