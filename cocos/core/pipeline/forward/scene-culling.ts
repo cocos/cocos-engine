@@ -12,6 +12,7 @@ import { IRenderObject } from '../define';
 const _tempVec3 = new Vec3();
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
+const shadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 
 function getRenderObject (model: Model, camera: Camera) {
     let depth = 0;
@@ -23,18 +24,18 @@ function getRenderObject (model: Model, camera: Camera) {
     ro.model = model;
     ro.depth = depth;
     return ro;
-    }
-function addCastShadowModel (pipeline: ForwardPipeline, model: Model, camera: Camera) {
+}
+
+function getCastShadowRenderObject (model: Model, camera: Camera) {
     let depth = 0;
     if (model.node) {
         Vec3.subtract(_tempVec3, model.node.worldPosition, camera.position);
         depth = Vec3.dot(_tempVec3, camera.forward);
     }
-    pipeline.shadowObjects.push({
-        model,
-        depth,
-    });
-}
+    const ro = shadowPool.alloc();
+    ro.model = model;
+    ro.depth = depth;
+    return ro;
 }
 
 export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
@@ -43,7 +44,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     const renderObjects = pipeline.renderObjects;
     roPool.freeArray(renderObjects); renderObjects.length = 0;
     const shadowObjects = pipeline.shadowObjects;
-    shadowObjects.length = 0;
+    shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
 
     const mainLight = scene.mainLight;
     const planarShadows = scene.planarShadows;
@@ -79,10 +80,10 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                     (view.visibility & model.visFlags)) {
                     model.updateTransform(stamp);
 
-                    // shadow batch
+                    // shadow render Object
                     if (model.castShadow) {
                         model.updateUBOs(stamp);
-                        addCastShadowModel(pipeline, model, camera);
+                        shadowObjects.push(getCastShadowRenderObject(model, camera));
                     }
 
                     // frustum culling

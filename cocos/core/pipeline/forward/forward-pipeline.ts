@@ -8,13 +8,9 @@ import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { Light, genSamplerHash, samplerLib } from '../../renderer';
-import { GFXBuffer } from '../../gfx/buffer';
-import { LightType } from '../../renderer/scene/light';
-import { SphereLight } from '../../renderer/scene/sphere-light';
-import { SpotLight } from '../../renderer/scene/spot-light';
+import { genSamplerHash, samplerLib } from '../../renderer';
 import { IRenderObject, UBOGlobal, UBOShadow, UBOPCFShadow,
-    UBOForwardLight, UNIFORM_SHADOWMAP, globalDescriptorSetLayout, localDescriptorSetLayout} from '../define';
+    UNIFORM_SHADOWMAP, globalDescriptorSetLayout, localDescriptorSetLayout} from '../define';
 import { GFXBufferUsageBit, GFXMemoryUsageBit,
     GFXClearFlag, GFXFilter, GFXAddress, GFXCommandBufferType } from '../../gfx/define';
 import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout } from '../../gfx';
@@ -23,9 +19,7 @@ import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
 import { Mat4, Vec3, Vec2, Quat, Vec4 } from '../../math';
 import { GFXFeature } from '../../gfx/device';
-import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 
-const _vec4Array = new Float32Array(4);
 const shadowCamera_W_P = new Vec3();
 const shadowCamera_W_R = new Quat();
 const shadowCamera_W_S = new Vec3();
@@ -177,7 +171,6 @@ export class ForwardPipeline extends RenderPipeline {
      */
     public updateUBOs (view: RenderView) {
         this._updateUBO(view);
-        const exposure = view.camera.exposure;
         const mainLight = view.camera.scene!.mainLight;
         const device = this.device;
 
