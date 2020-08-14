@@ -60,17 +60,15 @@ export class ShadowStage extends RenderStage {
         const pipeline = this._pipeline as ForwardPipeline;
         this._additiveShadowQueue.clear(pipeline.descriptorSet.getBuffer(UBOPCFShadow.BLOCK.binding));
 
-        const renderObjects = pipeline.renderObjects;
+        const shadowObjects = pipeline.shadowObjects;
         let m = 0; let p = 0;
-        for (let i = 0; i < renderObjects.length; ++i) {
-            const ro = renderObjects[i];
-            if (ro.model.castShadow) {
-                const subModels = ro.model.subModels;
-                for (m = 0; m < subModels.length; m++) {
-                    const passes = subModels[m].passes;
-                    for (p = 0; p < passes.length; p++) {
-                        this._additiveShadowQueue.add(ro, m, p);
-                    }
+        for (let i = 0; i < shadowObjects.length; ++i) {
+            const ro = shadowObjects[i];
+            const subModels = ro.model.subModels;
+            for (m = 0; m < subModels.length; m++) {
+                const passes = subModels[m].passes;
+                for (p = 0; p < passes.length; p++) {
+                    this._additiveShadowQueue.add(ro, m, p);
                 }
             }
         }

@@ -12,6 +12,7 @@ import { IRenderObject } from '../define';
 const _tempVec3 = new Vec3();
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
+const shadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 
 function getRenderObject (model: Model, camera: Camera) {
     let depth = 0;
@@ -25,11 +26,25 @@ function getRenderObject (model: Model, camera: Camera) {
     return ro;
 }
 
+function getCastShadowRenderObject (model: Model, camera: Camera) {
+    let depth = 0;
+    if (model.node) {
+        Vec3.subtract(_tempVec3, model.node.worldPosition, camera.position);
+        depth = Vec3.dot(_tempVec3, camera.forward);
+    }
+    const ro = shadowPool.alloc();
+    ro.model = model;
+    ro.depth = depth;
+    return ro;
+}
+
 export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     const camera = view.camera;
     const scene = camera.scene!;
     const renderObjects = pipeline.renderObjects;
     roPool.freeArray(renderObjects); renderObjects.length = 0;
+    const shadowObjects = pipeline.shadowObjects;
+    shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
 
     const mainLight = scene.mainLight;
     const planarShadows = scene.planarShadows;
@@ -64,6 +79,12 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                 if (model.node && ((view.visibility & model.node.layer) === model.node.layer) ||
                     (view.visibility & model.visFlags)) {
                     model.updateTransform(stamp);
+
+                    // shadow render Object
+                    if (model.castShadow) {
+                        model.updateUBOs(stamp);
+                        shadowObjects.push(getCastShadowRenderObject(model, camera));
+                    }
 
                     // frustum culling
                     if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
