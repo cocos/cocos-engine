@@ -248,12 +248,7 @@ export class GraphicsComponent extends UIRenderComponent {
         if (!this.model) {
             this.model = director.root!.createModel(Model);
         }
-    }
-
-    public onEnable () {
-        super.onEnable();
-
-        this._activateMaterial();
+        this.helpInstanceMaterial();
     }
 
     public onDisable (){
@@ -276,14 +271,6 @@ export class GraphicsComponent extends UIRenderComponent {
 
         this.impl.clear();
         this.impl = null;
-    }
-
-    public _activateMaterial () {
-        if (!this.sharedMaterials) {
-            return;
-        }
-
-        this.helpInstanceMaterial();
     }
 
     /**
