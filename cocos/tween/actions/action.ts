@@ -133,7 +133,7 @@ export class Action {
 
     // Set the original target, since target can be nil.
     // Is the target that were used to run the action.
-    // Unless you are doing something complex, like cc.ActionManager, you should NOT call this method.
+    // Unless you are doing something complex, like `ActionManager`, you should NOT call this method.
     setOriginalTarget (originalTarget: any) {
         this.originalTarget = originalTarget;
     }
@@ -239,19 +239,15 @@ export class FiniteTimeAction extends Action {
  * Changes the speed of an action, making it take longer (speed > 1)
  * or less (speed < 1) time. <br/>
  * Useful to simulate 'slow motion' or 'fast forward' effect.
- *
- * @warning This action can't be Sequenceable because it is not an cc.IntervalAction
- * @class Speed
- * @extends Action
- *
- * @param {ActionInterval} action
- * @param {Number} speed
  */
 export class Speed extends Action {
 
     protected _speed = 0;
     protected _innerAction: Action | null = null;
 
+    /**
+     * @warning This action can't be `Sequence-able` because it is not an `IntervalAction`
+     */
     constructor (action?: Action, speed: number = 1) {
         super();
         action && this.initWithAction(action, speed);

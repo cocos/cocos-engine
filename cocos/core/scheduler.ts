@@ -333,7 +333,7 @@ class CallbackTimer {
  * and consumes less memory to use the 'update callback'. *
  * @zh
  * Scheduler 是负责触发回调函数的类。<br>
- * 通常情况下，建议使用 cc.director.getScheduler() 来获取系统定时器。<br>
+ * 通常情况下，建议使用 `director.getScheduler()` 来获取系统定时器。<br>
  * 有两种不同类型的定时器：<br>
  *     - update 定时器：每一帧都会触发。您可以自定义优先级。<br>
  *     - 自定义定时器：自定义定时器可以每一帧或者自定义的时间间隔触发。<br>
@@ -547,7 +547,7 @@ export class Scheduler extends System {
      *   If paused is YES, then it won't be called until it is resumed.<br/>
      *   If 'interval' is 0, it will be called every frame, but if so, it recommended to use 'scheduleUpdateForTarget:' instead.<br/>
      *   If the callback function is already scheduled, then only the interval parameter will be updated without re-scheduling it again.<br/>
-     *   repeat let the action be repeated repeat + 1 times, use cc.macro.REPEAT_FOREVER to let the action run continuously<br/>
+     *   repeat let the action be repeated repeat + 1 times, use `macro.REPEAT_FOREVER` to let the action run continuously<br/>
      *   delay is the amount of time the action will wait before it'll start<br/>
      * </p>
      * @zh
@@ -557,13 +557,13 @@ export class Scheduler extends System {
      * 如果 interval 值为 0，那么回调函数每一帧都会被调用，但如果是这样，
      * 建议使用 scheduleUpdateForTarget 代替。<br/>
      * 如果回调函数已经被定时器使用，那么只会更新之前定时器的时间间隔参数，不会设置新的定时器。<br/>
-     * repeat 值可以让定时器触发 repeat + 1 次，使用 cc.macro.REPEAT_FOREVER
+     * repeat 值可以让定时器触发 repeat + 1 次，使用 `macro.REPEAT_FOREVER`
      * 可以让定时器一直循环触发。<br/>
      * delay 值指定延迟时间，定时器会在延迟指定的时间之后开始计时。
      * @param {Function} callback
      * @param {Object} target
      * @param {Number} interval
-     * @param {Number} [repeat=cc.macro.REPEAT_FOREVER]
+     * @param {Number} [repeat]
      * @param {Number} [delay=0]
      * @param {Boolean} [paused=fasle]
      */

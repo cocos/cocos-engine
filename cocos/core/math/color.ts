@@ -540,7 +540,8 @@ export class Color extends ValueType {
      * @returns HSV 颜色。成员 `h`、`s`、`v` 分别代表 HSV 颜色的 H、S、V 通道。
      * @example
      * ```
-     * const color = cc.Color.YELLOW;
+     * import { Color } from 'cc';
+     * const color = Color.YELLOW;
      * color.toHSV(); // {h: 0.1533864541832669, s: 0.9843137254901961, v: 1}
      * ```
      */

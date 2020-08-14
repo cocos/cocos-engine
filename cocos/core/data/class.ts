@@ -975,9 +975,9 @@ function CCClass (options) {
 
 /**
  * @en
- * Checks whether the constructor is created by cc.Class
+ * Checks whether the constructor is created by `Class`.
  * @zh
- * 检查构造函数是否由 cc.Class 创建。
+ * 检查构造函数是否由 `Class` 创建。
  * @method _isCCClass
  * @param {Function} constructor
  * @return {Boolean}

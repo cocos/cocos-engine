@@ -38,7 +38,6 @@ import { legacyCC } from '../global-exports';
  *
  * @zh
  * TTF 字体资源类。
- * 可通过 cc.TTFFont 获取该组件。
  */
 @ccclass('cc.TTFFont')
 export class TTFFont extends Font {

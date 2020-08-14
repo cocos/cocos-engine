@@ -37,7 +37,6 @@ import { legacyCC } from '../global-exports';
  *
  * @zh
  * 艺术数字字体资源类。
- * 可通过 cc.LabelAtlas 获取该组件。
  *
  */
 @ccclass('cc.LabelAtlas')

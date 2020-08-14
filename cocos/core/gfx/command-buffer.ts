@@ -2,7 +2,7 @@
  * @category gfx
  */
 
-import { GFXBindingLayout } from './binding-layout';
+import { GFXDescriptorSet } from './descriptor-set';
 import { GFXBuffer } from './buffer';
 import {
     GFXBufferTextureCopy,
@@ -12,9 +12,9 @@ import {
     GFXObjectType,
     GFXStencilFace,
     GFXTextureLayout,
-    IGFXColor,
-    IGFXRect,
-    IGFXViewport,
+    GFXColor,
+    GFXRect,
+    GFXViewport,
 } from './define';
 import { GFXDevice } from './device';
 import { GFXFramebuffer } from './framebuffer';
@@ -144,7 +144,7 @@ export abstract class GFXCommandBuffer extends GFXObject {
      * @param clearDepth The clearing depth.
      * @param clearStencil The clearing stencil.
      */
-    public abstract beginRenderPass (renderPass: GFXRenderPass, framebuffer: GFXFramebuffer, renderArea: IGFXRect, clearColors: IGFXColor[], clearDepth: number, clearStencil: number): void;
+    public abstract beginRenderPass (renderPass: GFXRenderPass, framebuffer: GFXFramebuffer, renderArea: GFXRect, clearColors: GFXColor[], clearDepth: number, clearStencil: number): void;
 
     /**
      * @en End render pass.
@@ -160,11 +160,11 @@ export abstract class GFXCommandBuffer extends GFXObject {
     public abstract bindPipelineState (pipelineState: GFXPipelineState): void;
 
     /**
-     * @en Bind binding layout.
-     * @zh 绑定 GFX 绑定布局。
-     * @param bindingLayout The binding layout to be bound.
+     * @en Bind descriptor set.
+     * @zh 绑定 GFX 描述符集。
+     * @param descriptorSet The descriptor set to be bound.
      */
-    public abstract bindBindingLayout (bindingLayout: GFXBindingLayout): void;
+    public abstract bindDescriptorSet (set: number, descriptorSets: GFXDescriptorSet, dynamicOffsets?: number[]): void;
 
     /**
      * @en Bind input assembler.
@@ -178,14 +178,14 @@ export abstract class GFXCommandBuffer extends GFXObject {
      * @zh 设置视口。
      * @param viewport The new viewport.
      */
-    public abstract setViewport (viewport: IGFXViewport): void;
+    public abstract setViewport (viewport: GFXViewport): void;
 
     /**
      * @en Set scissor range.
      * @zh 设置剪裁区域。
      * @param scissor The new scissor range.
      */
-    public abstract setScissor (scissor: IGFXRect): void;
+    public abstract setScissor (scissor: GFXRect): void;
 
     /**
      * @en Set line width.

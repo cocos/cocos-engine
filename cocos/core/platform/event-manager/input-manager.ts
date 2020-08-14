@@ -319,9 +319,7 @@ class InputManager {
         return touch;
     }
 
-    public getMouseEvent (
-        location: { x: number; y: number; }, pos: IHTMLElementPosition, eventType: number): EventMouse 
-    {
+    public getMouseEvent (location: { x: number; y: number; }, pos: IHTMLElementPosition, eventType: number): EventMouse {
         const locPreMouse = this._prevMousePoint;
         const mouseEvent = new EventMouse(eventType, false, locPreMouse);
         locPreMouse.x = location.x;
@@ -352,10 +350,14 @@ class InputManager {
         const locView = this._glView;
         const locPreTouch = this._preTouchPoint;
 
-        const length = event.changedTouches.length;
+        let length = 1;
+        if (macro.ENABLE_MULTI_TOUCH) {
+            length = event.touches.length;
+        }
+
         for (let i = 0; i < length; i++) {
             // const changedTouch = event.changedTouches.item(i);
-            const changedTouch = event.changedTouches[i];
+            const changedTouch = event.touches[i];
             if (!changedTouch) {
                 continue;
             }
@@ -416,10 +418,7 @@ class InputManager {
             this._registerTouchEvents(element);
         }
 
-        // Register keyboard events.
-        if (legacyCC.sys.browserType !== legacyCC.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-            this._registerKeyboardEvent();
-        }
+        this._registerKeyboardEvent();
 
         this._isRegisterEvent = true;
     }
@@ -678,6 +677,7 @@ class InputManager {
 
         // @ts-ignore
         listenDOMMouseEvent('mousewheel', EventMouse.SCROLL, (event, mouseEvent, location, pos) => {
+            // @ts-ignore
             mouseEvent.setScrollData(0, event.wheelDelta);
         });
 
@@ -710,39 +710,6 @@ class InputManager {
     }
 
     private _registerTouchEvents (element: HTMLElement) {
-        if (legacyCC.sys.browserType === legacyCC.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-            this._registerWXGameTouchEvents(element);
-        } else {
-            this._registerHTMLTouchEvents(element);
-        }
-    }
-
-    private _registerWXGameTouchEvents (element: HTMLElement) {
-        const makeTouchListener = (touchesHandler: (touchesToHandle: any) => void) => {
-            return (event: TouchEvent) => {
-                const pos = this.getHTMLElementPosition(element);
-                const body = document.body;
-                pos.left -= body.scrollLeft || 0;
-                pos.top -= body.scrollTop || 0;
-                touchesHandler(this.getTouchesByEvent(event, pos));
-            };
-        };
-
-        wx.onTouchStart(makeTouchListener((touchesToHandle) => {
-            this.handleTouchesBegin(touchesToHandle);
-        }));
-        wx.onTouchEnd(makeTouchListener((touchesToHandle) => {
-            this.handleTouchesEnd(touchesToHandle);
-        }));
-        wx.onTouchMove(makeTouchListener((touchesToHandle) => {
-            this.handleTouchesMove(touchesToHandle);
-        }));
-        wx.onTouchCancel(makeTouchListener((touchesToHandle) => {
-            this.handleTouchesCancel(touchesToHandle);
-        }));
-    }
-
-    private _registerHTMLTouchEvents (element: HTMLElement) {
         const makeTouchListener = (touchesHandler: (touchesToHandle: any) => void) => {
             return (event: TouchEvent) => {
                 if (!event.changedTouches) {

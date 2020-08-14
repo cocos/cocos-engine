@@ -16,13 +16,13 @@ import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXP
 import { GFXDevice } from '../core/gfx/device';
 import { IGFXAttribute } from '../core/gfx/input-assembler';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
-import { IDefineMap } from '../core/renderer/core/pass-utils';
+import { MacroRecord } from '../core/renderer/core/pass-utils';
 import { Model } from '../core/renderer/scene/model';
 import { Root } from '../core/root';
 import { PrivateNode } from '../core/scene-graph/private-node';
 import { HeightField } from './height-field';
 import { legacyCC } from '../core/global-exports';
-import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY, TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY, TERRAIN_MAX_LAYER_COUNT, } from './terrain-asset';
+import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY, TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY, TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX } from './terrain-asset';
 
 /**
  * @en Terrain info
@@ -535,7 +535,7 @@ export class TerrainBlock {
         }
     }
 
-    public _getMaterialDefines (nlayers: number): IDefineMap {
+    public _getMaterialDefines (nlayers: number): MacroRecord {
         if (this.lightmap != null) {
             if (nlayers === 0) {
                 return { LAYERS: 1, LIGHT_MAP: 1};
@@ -1119,6 +1119,7 @@ export class Terrain extends Component {
      * @zh 设置地形上的高度
      */
     public setHeight (i: number, j: number, h: number) {
+        h = clamp(h, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX);
         this._heights[j * this.vertexCount[0] + i] = TERRAIN_HEIGHT_BASE + h / TERRAIN_HEIGHT_FACTORY;
     }
 

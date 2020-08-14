@@ -683,7 +683,8 @@ export class WidgetComponent extends Component {
      *
      * @example
      * ```
-     * widget.alignMode = cc.Widget.AlignMode.ON_WINDOW_RESIZE;
+     * import { Widget } from 'cc';
+     * widget.alignMode = Widget.AlignMode.ON_WINDOW_RESIZE;
      * ```
      */
     @property({
@@ -771,11 +772,12 @@ export class WidgetComponent extends Component {
      * 只有当你需要在当前帧结束前获得 widget 对齐后的最新结果时才需要手动调用这个方法。
      *
      * @example
-     * ```typescript
+     * ```ts
+     * import { log } from 'cc';
      * widget.top = 10;       // change top margin
-     * cc.log(widget.node.y); // not yet changed
+     * log(widget.node.y); // not yet changed
      * widget.updateAlignment();
-     * cc.log(widget.node.y); // changed
+     * log(widget.node.y); // changed
      * ```
      */
     public updateAlignment () {

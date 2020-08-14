@@ -54,15 +54,15 @@ import { errorID, error, logID, assertID } from './platform/debug';
 /**
  * @en
  * <p>
- *    ATTENTION: USE cc.director INSTEAD OF cc.Director.<br/>
- *    cc.director is a singleton object which manage your game's logic flow.<br/>
- *    Since the cc.director is a singleton, you don't need to call any constructor or create functions,<br/>
+ *    ATTENTION: USE `director` INSTEAD OF `Director`.<br/>
+ *    `director` is a singleton object which manage your game's logic flow.<br/>
+ *    Since the `director` is a singleton, you don't need to call any constructor or create functions,<br/>
  *    the standard way to use it is by calling:<br/>
- *      - cc.director.methodName(); <br/>
+ *      - `director.methodName();` <br/>
  *
  *    It creates and handle the main Window and manages how and when to execute the Scenes.<br/>
  *    <br/>
- *    The cc.director is also responsible for:<br/>
+ *    The `director` is also responsible for:<br/>
  *      - initializing the OpenGL context<br/>
  *      - setting the OpenGL pixel format (default on is RGB565)<br/>
  *      - setting the OpenGL buffer depth (default on is 0-bit)<br/>
@@ -71,14 +71,14 @@ import { errorID, error, logID, assertID } from './platform/debug';
  *      - setting the orientation (default one is Portrait)<br/>
  *      <br/>
  *    <br/>
- *    The cc.director also sets the default OpenGL context:<br/>
+ *    The `director` also sets the default OpenGL context:<br/>
  *      - GL_TEXTURE_2D is enabled<br/>
  *      - GL_VERTEX_ARRAY is enabled<br/>
  *      - GL_COLOR_ARRAY is enabled<br/>
  *      - GL_TEXTURE_COORD_ARRAY is enabled<br/>
  * </p>
  * <p>
- *   cc.director also synchronizes timers with the refresh rate of the display.<br/>
+ *   `director` also synchronizes timers with the refresh rate of the display.<br/>
  *   Features and Limitations:<br/>
  *      - Scheduled timers & drawing are synchronizes with the refresh rate of the display<br/>
  *      - Only supports animation intervals of 1/60 1/30 & 1/15<br/>
@@ -86,15 +86,15 @@ import { errorID, error, logID, assertID } from './platform/debug';
  *
  * @zh
  * <p>
- *     注意：用 cc.director 代替 cc.Director。<br/>
- *     cc.director 一个管理你的游戏的逻辑流程的单例对象。<br/>
- *     由于 cc.director 是一个单例，你不需要调用任何构造函数或创建函数，<br/>
+ *     注意：用 `director` 代替 `Director`。<br/>
+ *     `director` 一个管理你的游戏的逻辑流程的单例对象。<br/>
+ *     由于 `director` 是一个单例，你不需要调用任何构造函数或创建函数，<br/>
  *     使用它的标准方法是通过调用：<br/>
- *       - cc.director.methodName();
+ *       - `director.methodName();`
  *     <br/>
  *     它创建和处理主窗口并且管理什么时候执行场景。<br/>
  *     <br/>
- *     cc.director 还负责：<br/>
+ *     `director` 还负责：<br/>
  *      - 初始化 OpenGL 环境。<br/>
  *      - 设置OpenGL像素格式。(默认是 RGB565)<br/>
  *      - 设置OpenGL缓冲区深度 (默认是 0-bit)<br/>
@@ -102,14 +102,14 @@ import { errorID, error, logID, assertID } from './platform/debug';
  *      - 设置投影 (默认是 3D)<br/>
  *      - 设置方向 (默认是 Portrait)<br/>
  *    <br/>
- *    cc.director 设置了 OpenGL 默认环境 <br/>
+ *    `director` 设置了 OpenGL 默认环境 <br/>
  *      - GL_TEXTURE_2D   启用。<br/>
  *      - GL_VERTEX_ARRAY 启用。<br/>
  *      - GL_COLOR_ARRAY  启用。<br/>
  *      - GL_TEXTURE_COORD_ARRAY 启用。<br/>
  * </p>
  * <p>
- *   cc.director 也同步定时器与显示器的刷新速率。
+ *   `director` 也同步定时器与显示器的刷新速率。
  *   <br/>
  *   特点和局限性: <br/>
  *      - 将计时器 & 渲染与显示器的刷新频率同步。<br/>
@@ -388,10 +388,10 @@ export class Director extends EventTarget {
      * Returns the size of the OpenGL view in pixels.<br/>
      * It takes into account any possible rotation (device orientation) of the window.<br/>
      * On Mac winSize and winSizeInPixels return the same value.
-     * (The pixel here refers to the resource resolution. If you want to get the physics resolution of device, you need to use cc.view.getFrameSize())
+     * (The pixel here refers to the resource resolution. If you want to get the physics resolution of device, you need to use `view.getFrameSize()`)
      * @zh
      * 获取视图大小，以像素为单位（这里的像素指的是资源分辨率。
-     * 如果要获取屏幕物理分辨率，需要用 cc.view.getFrameSize()）
+     * 如果要获取屏幕物理分辨率，需要用 `view.getFrameSize()`）
      * @deprecated since v2.0
      */
     public getWinSizeInPixels () {
@@ -402,9 +402,9 @@ export class Director extends EventTarget {
      * @en Pause the director's ticker, only involve the game logic execution.<br>
      * It won't pause the rendering process nor the event manager.<br>
      * If you want to pause the entire game including rendering, audio and event,<br>
-     * please use cc.game.pause
+     * please use `game.pause`.
      * @zh 暂停正在运行的场景，该暂停只会停止游戏逻辑执行，但是不会停止渲染和 UI 响应。<br>
-     * 如果想要更彻底得暂停游戏，包含渲染，音频和事件，请使用 cc.game.pause 。
+     * 如果想要更彻底得暂停游戏，包含渲染，音频和事件，请使用 `game.pause` 。
      */
     public pause () {
         if (this._paused) {
@@ -423,9 +423,9 @@ export class Director extends EventTarget {
     }
 
     /**
-     * @en Purge the cc.director itself, including unschedule all schedule,<br>
+     * @en Purge the `director` itself, including unschedule all schedule,<br>
      * remove all event listeners, clean up and exit the running scene, stops all animations, clear cached data.
-     * @zh 清除 cc.director 本身，包括停止所有的计时器，<br>
+     * @zh 清除 `director` 本身，包括停止所有的计时器，<br>
      * 移除所有的事件监听器，清理并退出当前运行的场景，停止所有动画，清理缓存数据。
      */
     public purgeDirector () {
@@ -440,8 +440,6 @@ export class Director extends EventTarget {
             eventManager.setEnabled(false);
         }
 
-        // cc.renderer.clear();
-
         if (!EDITOR) {
             if (legacyCC.isValid(this._scene)) {
                 this._scene!.destroy();
@@ -451,18 +449,13 @@ export class Director extends EventTarget {
 
         this.stopAnimation();
 
-        if (this._root != null) {
-            this._root.destroy();
-        }
-        this._root = null;
-
         // Clear all caches
         legacyCC.loader.releaseAll();
     }
 
     /**
-     * @en Reset the cc.director, can be used to restart the director after purge
-     * @zh 重置 cc.director，可用于在清除后重启 director
+     * @en Reset the director, can be used to restart the director after purge
+     * @zh 重置此 Director，可用于在清除后重启 Director。
      */
     public reset () {
         this.purgeDirector();
@@ -598,7 +591,7 @@ export class Director extends EventTarget {
         scene._load();
 
         // Delay run / replace scene to the end of the frame
-        this.once(legacyCC.Director.EVENT_AFTER_UPDATE, () => {
+        this.once(legacyCC.Director.EVENT_AFTER_DRAW, () => {
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
         });
     }
@@ -667,12 +660,12 @@ export class Director extends EventTarget {
     /**
      * @en
      * Pre-loads the scene to reduces loading time. You can call this method at any time you want.<br>
-     * After calling this method, you still need to launch the scene by `cc.director.loadScene`.<br>
-     * It will be totally fine to call `cc.director.loadScene` at any time even if the preloading is not<br>
+     * After calling this method, you still need to launch the scene by `director.loadScene`.<br>
+     * It will be totally fine to call `director.loadScene` at any time even if the preloading is not<br>
      * yet finished, the scene will be launched after loaded automatically.
      * @zh 预加载场景，你可以在任何时候调用这个方法。
-     * 调用完后，你仍然需要通过 `cc.director.loadScene` 来启动场景，因为这个方法不会执行场景加载操作。<br>
-     * 就算预加载还没完成，你也可以直接调用 `cc.director.loadScene`，加载完成后场景就会启动。
+     * 调用完后，你仍然需要通过 `director.loadScene` 来启动场景，因为这个方法不会执行场景加载操作。<br>
+     * 就算预加载还没完成，你也可以直接调用 `director.loadScene`，加载完成后场景就会启动。
      * @param sceneName 场景名称。
      * @param onLoaded 加载回调。
      */
@@ -681,12 +674,12 @@ export class Director extends EventTarget {
     /**
      * @en
      * Pre-loads the scene to reduces loading time. You can call this method at any time you want.<br>
-     * After calling this method, you still need to launch the scene by `cc.director.loadScene`.<br>
-     * It will be totally fine to call `cc.director.loadScene` at any time even if the preloading is not<br>
+     * After calling this method, you still need to launch the scene by `director.loadScene`.<br>
+     * It will be totally fine to call `director.loadScene` at any time even if the preloading is not<br>
      * yet finished, the scene will be launched after loaded automatically.
      * @zh 预加载场景，你可以在任何时候调用这个方法。
-     * 调用完后，你仍然需要通过 `cc.director.loadScene` 来启动场景，因为这个方法不会执行场景加载操作。<br>
-     * 就算预加载还没完成，你也可以直接调用 `cc.director.loadScene`，加载完成后场景就会启动。
+     * 调用完后，你仍然需要通过 `director.loadScene` 来启动场景，因为这个方法不会执行场景加载操作。<br>
+     * 就算预加载还没完成，你也可以直接调用 `director.loadScene`，加载完成后场景就会启动。
      * @param sceneName 场景名称。
      * @param onProgress 加载进度回调。
      * @param onLoaded 加载回调。
@@ -765,7 +758,7 @@ export class Director extends EventTarget {
             doNotRun = arg3;
         }
 
-        // cc.AssetLibrary.unloadAsset(uuid);     // force reload
+        // legacyCC.AssetLibrary.unloadAsset(uuid);     // force reload
         console.time('LoadScene ' + uuid);
         legacyCC.AssetLibrary.loadAsset(uuid, (err, sceneAsset) => {
             console.timeEnd('LoadScene ' + uuid);
@@ -845,7 +838,7 @@ export class Director extends EventTarget {
      * (Implementation can be found in directorCanvas.js/directorWebGL.js)
      * @zh
      * 设置场景的默认擦除颜色。<br>
-     * 支持全透明，但不支持透明度为中间值。要支持全透明需手工开启 cc.macro.ENABLE_TRANSPARENT_CANVAS。
+     * 支持全透明，但不支持透明度为中间值。要支持全透明需手工开启 `macro.ENABLE_TRANSPARENT_CANVAS`。
      * @deprecated since v2.0
      */
     public setClearColor (clearColor: Color) {
@@ -893,9 +886,9 @@ export class Director extends EventTarget {
 
     /**
      * @en Sets animation interval, this doesn't control the main loop.<br>
-     * To control the game's frame rate overall, please use cc.game.setFrameRate
+     * To control the game's frame rate overall, please use `game.setFrameRate`
      * @zh 设置动画间隔，这不控制主循环。<br>
-     * 要控制游戏的帧速率，请使用 cc.game.setFrameRate
+     * 要控制游戏的帧速率，请使用 `game.setFrameRate`
      * @deprecated since v2.0
      * @param value - The animation interval desired.
      */
@@ -936,16 +929,16 @@ export class Director extends EventTarget {
     }
 
     /**
-     * @en Returns the cc.Scheduler associated with this director.
-     * @zh 获取和 director 相关联的 cc.Scheduler。
+     * @en Returns the scheduler associated with this director.
+     * @zh 获取和 director 相关联的调度器。
      */
     public getScheduler () {
         return this._scheduler;
     }
 
     /**
-     * @en Sets the cc.Scheduler associated with this director.
-     * @zh 设置和 director 相关联的 cc.Scheduler。
+     * @en Sets the scheduler associated with this director.
+     * @zh 设置和 director 相关联的调度器。
      */
     public setScheduler (scheduler: Scheduler) {
         if (this._scheduler !== scheduler) {
@@ -956,8 +949,8 @@ export class Director extends EventTarget {
     }
 
     /**
-     * @en register a system.
-     * @zh 注册一个 system。
+     * @en Register a system.
+     * @zh 注册一个系统。
      */
     public registerSystem (name: string, sys: System, priority: number) {
         sys.id = name;
@@ -983,8 +976,8 @@ export class Director extends EventTarget {
     }
 
     /**
-     * @en Returns the cc.AnimationManager associated with this director. Please use getSystem(AnimationManager.ID)
-     * @zh 获取和 director 相关联的 cc.AnimationManager（动画管理器）。请使用 getSystem(AnimationManager.ID) 来替代
+     * @en Returns the `AnimationManager` associated with this director. Please use getSystem(AnimationManager.ID)
+     * @zh 获取和 director 相关联的 `AnimationManager`（动画管理器）。请使用 getSystem(AnimationManager.ID) 来替代
      * @deprecated
      */
     public getAnimationManager (): any {

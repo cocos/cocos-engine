@@ -277,8 +277,9 @@ export class UITransformComponent extends Component {
      * @param size - 节点内容变换的尺寸或者宽度。
      * @param height - 节点内容未变换的高度。
      * @example
-     * ```typescript
-     * node.setContentSize(cc.size(100, 100));
+     * ```ts
+     * import { Size } from 'cc';
+     * node.setContentSize(new Size(100, 100));
      * node.setContentSize(100, 100);
      * ```
      */
@@ -338,8 +339,9 @@ export class UITransformComponent extends Component {
      * @param point - 节点锚点或节点 x 轴锚。
      * @param y - 节点 y 轴锚。
      * @example
-     * ```typescript
-     * node.setAnchorPoint(cc.v2(1, 1));
+     * ```ts
+     * import { Vec2 } from 'cc';
+     * node.setAnchorPoint(new Vec2(1, 1));
      * node.setAnchorPoint(1, 1);
      * ```
      */
@@ -438,7 +440,7 @@ export class UITransformComponent extends Component {
      * @param out - 转换后坐标。
      * @returns - 返回与目标节点的相对位置。
      * @example
-     * ```typescript
+     * ```ts
      * const newVec3 = uiTransform.convertToNodeSpaceAR(cc.v3(100, 100, 0));
      * ```
      */
@@ -463,7 +465,7 @@ export class UITransformComponent extends Component {
      * @param out - 转换后坐标。
      * @returns - 返回 UI 世界坐标系。
      * @example
-     * ```typescript
+     * ```ts
      * const newVec3 = uiTransform.convertToWorldSpaceAR(3(100, 100, 0));
      * ```
      */
@@ -486,7 +488,7 @@ export class UITransformComponent extends Component {
      *
      * @return - 节点大小的包围盒
      * @example
-     * ```typescript
+     * ```ts
      * const boundingBox = uiTransform.getBoundingBox();
      * ```
      */
@@ -514,7 +516,7 @@ export class UITransformComponent extends Component {
      *
      * @returns - 返回世界坐标系下包围盒。
      * @example
-     * ```typescript
+     * ```ts
      * const newRect = uiTransform.getBoundingBoxToWorld();
      * ```
      */

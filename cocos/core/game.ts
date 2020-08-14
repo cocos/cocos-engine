@@ -30,17 +30,16 @@
 import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
 import AssetLibrary from './assets/asset-library';
 import { EventTarget } from './event/event-target';
-import { WebGLGFXDevice } from './gfx/webgl/webgl-device';
-import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
-import { ForwardPipeline, RenderPipeline } from './pipeline';
+import { RenderPipeline } from './pipeline';
 import * as debug from './platform/debug';
 import inputManager from './platform/event-manager/input-manager';
-import { GFXDevice } from './gfx';
+import { GFXDevice, IGFXDeviceInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from './renderer';
 import { legacyCC } from './global-exports';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
+import { bindingMappingInfo } from './pipeline/define';
 
 /**
  * @zh
@@ -112,22 +111,22 @@ export interface IGameConfig {
      * 设置 debug 模式，在浏览器中这个选项会被忽略。
      * 各种设置选项的意义：
      *  - 0 - 没有消息被打印出来。
-     *  - 1 - cc.error，cc.assert，cc.warn，cc.log 将打印在 console 中。
-     *  - 2 - cc.error，cc.assert，cc.warn 将打印在 console 中。
-     *  - 3 - cc.error，cc.assert 将打印在 console 中。
-     *  - 4 - cc.error，cc.assert，cc.warn，cc.log 将打印在 canvas 中（仅适用于 web 端）。
-     *  - 5 - cc.error，cc.assert，cc.warn 将打印在 canvas 中（仅适用于 web 端）。
-     *  - 6 - cc.error，cc.assert 将打印在 canvas 中（仅适用于 web 端）。
+     *  - 1 - `error`，`assert`，`warn`，`log` 将打印在 console 中。
+     *  - 2 - `error`，`assert`，`warn` 将打印在 console 中。
+     *  - 3 - `error`，`assert` 将打印在 console 中。
+     *  - 4 - `error`，`assert`，`warn`，`log` 将打印在 canvas 中（仅适用于 web 端）。
+     *  - 5 - `error`，`assert`，`warn` 将打印在 canvas 中（仅适用于 web 端）。
+     *  - 6 - `error`，`assert` 将打印在 canvas 中（仅适用于 web 端）。
      * @en
      * Set debug mode, only valid in non-browser environment.
      * Possible values:
      * 0 - No message will be printed.
-     * 1 - cc.error, cc.assert, cc.warn, cc.log will print in console.
-     * 2 - cc.error, cc.assert, cc.warn will print in console.
-     * 3 - cc.error, cc.assert will print in console.
-     * 4 - cc.error, cc.assert, cc.warn, cc.log will print on canvas, available only on web.
-     * 5 - cc.error, cc.assert, cc.warn will print on canvas, available only on web.
-     * 6 - cc.error, cc.assert will print on canvas, available only on web.
+     * 1 - `error`，`assert`，`warn`，`log` will print in console.
+     * 2 - `error`，`assert`，`warn` will print in console.
+     * 3 - `error`，`assert` will print in console.
+     * 4 - `error`，`assert`，`warn`，`log` will print on canvas, available only on web.
+     * 5 - `error`，`assert`，`warn` will print on canvas, available only on web.
+     * 6 - `error`，`assert` will print on canvas, available only on web.
      */
     debugMode?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -243,10 +242,11 @@ export class Game extends EventTarget {
      * 在原生平台，它对应的是应用被切换到后台事件，下拉菜单和上拉状态栏等不一定会触发这个事件，这取决于系统行为。
      * @property EVENT_HIDE
      * @example
-     * ```typescript
-     * cc.game.on(Game.EVENT_HIDE, function () {
-     *     cc.audioEngine.pauseMusic();
-     *     cc.audioEngine.pauseAllEffects();
+     * ```ts
+     * import { game, audioEngine } from 'cc';
+     * game.on(Game.EVENT_HIDE, function () {
+     *     audioEngine.pauseMusic();
+     *     audioEngine.pauseAllEffects();
      * });
      * ```
      */
@@ -291,6 +291,13 @@ export class Game extends EventTarget {
      * @readonly
      */
     public static readonly EVENT_RENDERER_INITED: string = 'renderer_inited';
+
+    /**
+     * @en Event triggered when game restart
+     * @zh 调用restart后，触发事件
+     * @property EVENT_RESTART
+     */
+    public static EVENT_RESTART: string = 'game_on_restart';
 
     /**
      * @en Web Canvas 2d API as renderer backend.
@@ -432,8 +439,8 @@ export class Game extends EventTarget {
     /**
      * @en Pause the game main loop. This will pause:<br>
      * game logic execution, rendering process, event manager, background music and all audio effects.<br>
-     * This is different with cc.director.pause which only pause the game logic execution.<br>
-     * @zh 暂停游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。这点和只暂停游戏逻辑的 cc.director.pause 不同。
+     * This is different with `director.pause` which only pause the game logic execution.<br>
+     * @zh 暂停游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。这点和只暂停游戏逻辑的 `director.pause` 不同。
      */
     public pause () {
         if (this._paused) { return; }
@@ -494,10 +501,9 @@ export class Game extends EventTarget {
             legacyCC.director.getScene().destroy();
             legacyCC.Object._deferredDestroy();
 
-            legacyCC.director.purgeDirector();
-
             legacyCC.director.reset();
             legacyCC.game.onStart();
+            legacyCC.game._safeEmit(legacyCC.Game.EVENT_RESTART);
         });
     }
 
@@ -588,10 +594,6 @@ export class Game extends EventTarget {
             this._initEvents();
         }
 
-        if (!JSB && !EDITOR && !PREVIEW && legacyCC.internal.SplashScreen) {
-            legacyCC.internal.SplashScreen.instance.main(legacyCC.director.root);
-        }
-
         legacyCC.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
 
         return this._inited;
@@ -623,13 +625,8 @@ export class Game extends EventTarget {
             inputManager.registerSystemEvent(game.canvas);
         }
 
-        const splashScreen = legacyCC.internal.SplashScreen && legacyCC.internal.SplashScreen.instance;
-        const useSplash = (!JSB && !EDITOR && !PREVIEW && splashScreen);
-        if (useSplash) {
-            splashScreen.setOnFinish(() => {
-                if (this.onStart) { this.onStart(); }
-            });
-        }
+        const useSplash = (!JSB && !EDITOR && !PREVIEW && legacyCC.internal.SplashScreen);
+
         // Load render pipeline if needed
         const renderPipeline = this.config.renderPipeline;
         if (renderPipeline) {
@@ -645,6 +642,11 @@ export class Game extends EventTarget {
                 }
                 this._safeEmit(Game.EVENT_GAME_INITED);
                 if (useSplash) {
+                    const splashScreen = legacyCC.internal.SplashScreen.instance
+                    splashScreen.main(legacyCC.director.root);
+                    splashScreen.setOnFinish(() => {
+                        if (this.onStart) { this.onStart(); }
+                    });
                     splashScreen.loadFinish = true;
                 }
                 else {
@@ -656,6 +658,11 @@ export class Game extends EventTarget {
             this.setRenderPipeline();
             this._safeEmit(Game.EVENT_GAME_INITED);
             if (useSplash) {
+                const splashScreen = legacyCC.internal.SplashScreen.instance
+                splashScreen.main(legacyCC.director.root);
+                splashScreen.setOnFinish(() => {
+                    if (this.onStart) { this.onStart(); }
+                });
                 splashScreen.loadFinish = true;
             }
             else {
@@ -913,21 +920,22 @@ export class Game extends EventTarget {
                 ) {
                     useWebGL2 = false;
                 }
-                if (useWebGL2 && legacyCC.WebGL2GFXDevice) {
-                    ctors.push(legacyCC.WebGL2GFXDevice);
+                if (useWebGL2 && legacyCC.WebGL2Device) {
+                    ctors.push(legacyCC.WebGL2Device);
                 }
-                if (legacyCC.WebGLGFXDevice) {
-                    ctors.push(legacyCC.WebGLGFXDevice);
+                if (legacyCC.WebGLDevice) {
+                    ctors.push(legacyCC.WebGLDevice);
                 }
             }
 
-            const opts = {
+            const opts: IGFXDeviceInfo = {
                 canvasElm: this.canvas as HTMLCanvasElement,
                 debug: true,
                 isAntialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
                 devicePixelRatio: window.devicePixelRatio,
                 nativeWidth: Math.floor(screen.width * window.devicePixelRatio),
                 nativeHeight: Math.floor(screen.height * window.devicePixelRatio),
+                bindingMappingInfo,
             };
             for (let i = 0; i < ctors.length; i++) {
                 this._gfxDevice = new ctors[i]();

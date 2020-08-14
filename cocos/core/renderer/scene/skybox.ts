@@ -3,7 +3,7 @@ import { createMesh } from '../../3d/misc/utils';
 import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
 import { TextureCube } from '../../assets/texture-cube';
-import { IInternalBindingInst, UNIFORM_ENVIRONMENT } from '../../pipeline/define';
+import { UNIFORM_ENVIRONMENT } from '../../pipeline/define';
 import { box } from '../../primitive';
 import { MaterialInstance } from '../core/material-instance';
 import { samplerLib } from '../core/sampler-lib';
@@ -11,6 +11,7 @@ import { Model } from './model';
 import { ccclass, property } from '../../data/class-decorator';
 import { CCBoolean } from '../../data/utils/attribute';
 import { legacyCC } from '../../global-exports';
+import { GFXDescriptorSet } from '../../gfx';
 
 let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;
@@ -60,7 +61,7 @@ export class Skybox {
     set isRGBE (val) {
         this._isRGBE = val;
         skybox_material!.recompileShaders({ USE_RGBE_CUBEMAP: this._isRGBE });
-        this._model!.setSubModelMaterial(0, skybox_material);
+        this._model!.setSubModelMaterial(0, skybox_material!);
         this._updatePipeline();
     }
 
@@ -89,15 +90,15 @@ export class Skybox {
     protected _useIBL = false;
     @property
     protected _enabled = false;
-
-    protected _globalBinding: IInternalBindingInst | null = null;
+    protected _globalDescriptorSet: GFXDescriptorSet | null = null;
     protected _model: Model | null = null;
 
     public activate () {
         if (!this._model) {
             this._model = new Model();
         }
-        this._globalBinding = legacyCC.director.root.pipeline.globalBindings.get(UNIFORM_ENVIRONMENT.name)!;
+
+        this._globalDescriptorSet = legacyCC.director.root.pipeline.descriptorSet;
         if (!skybox_material) {
             const mat = new Material();
             mat.initialize({ effectName: 'pipeline/skybox', defines: { USE_RGBE_CUBEMAP: this._isRGBE } });
@@ -123,18 +124,8 @@ export class Skybox {
 
     protected _updateGlobalBinding () {
         const texture = this._envmap.getGFXTexture()!;
-        const sampler = samplerLib.getSampler(legacyCC.director.root.device, this._envmap.getSamplerHash());
-        this._globalBinding!.sampler = sampler;
-        this._globalBinding!.texture = texture;
-        // update skybox material, need to do this every time pso is created
-        // because skybox.updateUBOs is not called in pipeline per frame
-        const mat = skybox_material!;
-        mat.passes[0].bindSampler(UNIFORM_ENVIRONMENT.binding, sampler);
-        mat.passes[0].bindTexture(UNIFORM_ENVIRONMENT.binding, texture);
-
-        const submodels = this._model!.subModels;
-        for (let i = 0; i < submodels.length; ++i) {
-            submodels[i].updateLayout();
-        }
+        const sampler = samplerLib.getSampler(legacyCC.director._device, this._envmap.getSamplerHash());
+        this._globalDescriptorSet!.bindSampler(UNIFORM_ENVIRONMENT.binding, sampler);
+        this._globalDescriptorSet!.bindTexture(UNIFORM_ENVIRONMENT.binding, texture);
     }
 }

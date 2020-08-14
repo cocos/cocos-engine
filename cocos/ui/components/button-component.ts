@@ -112,30 +112,31 @@ export enum EventType {
  * 按钮组件。可以被按下,或者点击。<br/>
  *
  * 按钮可以通过修改 Transition 来设置按钮状态过渡的方式：<br/>
- *   -Button.Transition.NONE   // 不做任何过渡<br/>
- *   -Button.Transition.COLOR  // 进行颜色之间过渡<br/>
- *   -Button.Transition.SPRITE // 进行精灵之间过渡<br/>
- *   -Button.Transition.SCALE // 进行缩放过渡<br/>
+ *   - `Button.Transition.NONE`   // 不做任何过渡<br/>
+ *   - `Button.Transition.COLOR`  // 进行颜色之间过渡<br/>
+ *   - `Button.Transition.SPRITE` // 进行精灵之间过渡<br/>
+ *   - `Button.Transition.SCALE` // 进行缩放过渡<br/>
  *
  * 按钮可以绑定事件（但是必须要在按钮的 Node 上才能绑定事件）：<br/>
  *   // 以下事件可以在全平台上都触发<br/>
- *   -cc.Node.EventType.TOUCH_START  // 按下时事件<br/>
- *   -cc.Node.EventType.TOUCH_Move   // 按住移动后事件<br/>
- *   -cc.Node.EventType.TOUCH_END    // 按下后松开后事件<br/>
- *   -cc.Node.EventType.TOUCH_CANCEL // 按下取消事件<br/>
+ *   - `Node.EventType.TOUCH_START`  // 按下时事件<br/>
+ *   - `Node.EventType.TOUCH_Move`   // 按住移动后事件<br/>
+ *   - `Node.EventType.TOUCH_END`    // 按下后松开后事件<br/>
+ *   - `Node.EventType.TOUCH_CANCEL` // 按下取消事件<br/>
  *   // 以下事件只在 PC 平台上触发<br/>
- *   -cc.Node.EventType.MOUSE_DOWN  // 鼠标按下时事件<br/>
- *   -cc.Node.EventType.MOUSE_MOVE  // 鼠标按住移动后事件<br/>
- *   -cc.Node.EventType.MOUSE_ENTER // 鼠标进入目标事件<br/>
- *   -cc.Node.EventType.MOUSE_LEAVE // 鼠标离开目标事件<br/>
- *   -cc.Node.EventType.MOUSE_UP    // 鼠标松开事件<br/>
- *   -cc.Node.EventType.MOUSE_WHEEL // 鼠标滚轮事件<br/>
+ *   - `Node.EventType.MOUSE_DOWN`  // 鼠标按下时事件<br/>
+ *   - `Node.EventType.MOUSE_MOVE`  // 鼠标按住移动后事件<br/>
+ *   - `Node.EventType.MOUSE_ENTER` // 鼠标进入目标事件<br/>
+ *   - `Node.EventType.MOUSE_LEAVE` // 鼠标离开目标事件<br/>
+ *   - `Node.EventType.MOUSE_UP`    // 鼠标松开事件<br/>
+ *   - `Node.EventType.MOUSE_WHEEL` // 鼠标滚轮事件<br/>
  *
  * @example
- * ```typescript
+ * ```ts
+ * import { log, Node } from 'cc';
  * // Add an event to the button.
- * button.node.on(cc.Node.EventType.TOUCH_START, (event) => {
- *     cc.log("This is a callback after the trigger event");
+ * button.node.on(Node.EventType.TOUCH_START, (event) => {
+ *     log("This is a callback after the trigger event");
  * });
  * // You could also add a click event
  * //Note: In this way, you can't get the touch event info, so use it wisely.

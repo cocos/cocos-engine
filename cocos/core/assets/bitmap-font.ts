@@ -43,7 +43,6 @@ export interface IConfig {
  *
  * @zh
  * 位图字体资源类。
- * 可通过 cc.BitmapFont 获取该组件。
  */
 @ccclass('cc.BitmapFont')
 export class BitmapFont extends Font {

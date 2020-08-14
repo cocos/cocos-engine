@@ -102,7 +102,8 @@ export class AnimationClip extends Asset {
      * @zh 使用一组序列帧图片来创建动画剪辑
      * @example
      * ```
-     * const clip = cc.AnimationClip.createWithSpriteFrames(spriteFrames, 10);
+     * import { AnimationClip } from 'cc';
+     * const clip = AnimationClip.createWithSpriteFrames(spriteFrames, 10);
      * ```
      */
     public static createWithSpriteFrames (spriteFrames: SpriteFrame[], sample: number) {

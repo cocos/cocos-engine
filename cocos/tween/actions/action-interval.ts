@@ -127,7 +127,8 @@ export class ActionInterval extends FiniteTimeAction {
      * @param {Object} easeObj
      * @returns {ActionInterval}
      * @example
-     * action.easing(cc.easeIn(3.0));
+     * import { easeIn } from 'cc';
+     * action.easing(easeIn(3.0));
      */
     easing (easeObj: any): ActionInterval {
         if (this._easeList)
@@ -284,21 +285,8 @@ export class ActionInterval extends FiniteTimeAction {
     }
 }
 
-function actionInterval (d: number) {
-    return new ActionInterval(d);
-}
-
 /*
  * Runs actions sequentially, one after another.
- * @class Sequence
- * @extends ActionInterval
- * @param {Array|FiniteTimeAction} tempArray
- * @example
- * // create sequence with actions
- * var seq = new cc.Sequence(act1, act2);
- *
- * // create sequence with array
- * var seq = new cc.Sequence(actArray);
  */
 export class Sequence extends ActionInterval {
 
@@ -313,7 +301,18 @@ export class Sequence extends ActionInterval {
     private _last = 0;
     private _reversed = false;
 
-    constructor (tempArray?: any) {
+    /**
+     * @example
+     * import { Sequence } from 'cc';
+     * 
+     * // create sequence with actions
+     * const seq = new Sequence(act1, act2);
+     * 
+     * // create sequence with array
+     * const seq = new Sequence(actArray);
+     */
+    constructor (...actions: FiniteTimeAction[]);
+    constructor (tempArray: any) {
         super();
 
         var paramArray = (tempArray instanceof Array) ? tempArray : arguments;
@@ -452,12 +451,13 @@ export class Sequence extends ActionInterval {
  * @param {FiniteTimeAction} ...tempArray
  * @return {ActionInterval}
  * @example
- * // example
- * // create sequence with actions
- * var seq = cc.sequence(act1, act2);
+ * import { sequence } from 'cc';
+ * 
+ * // Create sequence with actions
+ * const seq = sequence(act1, act2);
  *
- * // create sequence with array
- * var seq = cc.sequence(actArray);
+ * // Create sequence with array
+ * const seq = sequence(actArray);
  */
 // todo: It should be use new
 export function sequence (/*Multiple Arguments*/tempArray: any): ActionInterval {
@@ -491,7 +491,8 @@ export function sequence (/*Multiple Arguments*/tempArray: any): ActionInterval 
  * @param {FiniteTimeAction} action
  * @param {Number} times
  * @example
- * var rep = new cc.Repeat(cc.sequence(jump2, jump1), 5);
+ * import { Repeat, sequence } from 'cc';
+ * const rep = new Repeat(sequence(jump2, jump1), 5);
  */
 export class Repeat extends ActionInterval {
 
@@ -622,8 +623,8 @@ export class Repeat extends ActionInterval {
  * @param {Number} times
  * @return {Action}
  * @example
- * // example
- * var rep = repeat(cc.sequence(jump2, jump1), 5);
+ * import { repeat, sequence } from 'cc';
+ * const rep = repeat(sequence(jump2, jump1), 5);
  */
 export function repeat (action: any, times: any): Action {
     return new Repeat(action, times);
@@ -637,7 +638,8 @@ export function repeat (action: any, times: any): Action {
  * @extends ActionInterval
  * @param {ActionInterval} action
  * @example
- * var rep = new RepeatForever(cc.sequence(jump2, jump1), 5);
+ * import { sequence, RepeatForever } from 'cc';
+ * const rep = new RepeatForever(sequence(jump2, jump1), 5);
  */
 export class RepeatForever extends ActionInterval {
 
@@ -718,14 +720,14 @@ export class RepeatForever extends ActionInterval {
 }
 
 /**
- * !#en Create a acton which repeat forever, as it runs forever, it can't be added into cc.sequence and cc.spawn.
- * !#zh 永远地重复一个动作，有限次数内重复一个动作请使用 repeat 动作，由于这个动作不会停止，所以不能被添加到 cc.sequence 或 cc.spawn 中。
+ * !#en Create a acton which repeat forever, as it runs forever, it can't be added into `sequence` and `spawn`.
+ * !#zh 永远地重复一个动作，有限次数内重复一个动作请使用 repeat 动作，由于这个动作不会停止，所以不能被添加到 `sequence` 或 `spawn` 中。
  * @method repeatForever
  * @param {FiniteTimeAction} action
  * @return {ActionInterval}
  * @example
- * // example
- * var repeat = repeatForever(cc.rotateBy(1.0, 360));
+ * import { repeatForever, rotateBy } from 'cc';
+ * var repeat = repeatForever(rotateBy(1.0, 360));
  */
 export function repeatForever (action?: ActionInterval): ActionInterval {
     return new RepeatForever(action);
@@ -845,8 +847,8 @@ export class Spawn extends ActionInterval {
  * @param {FiniteTimeAction} ...tempArray
  * @return {FiniteTimeAction}
  * @example
- * // example
- * var action = cc.spawn(cc.jumpBy(2, cc.v2(300, 0), 50, 4), cc.rotateBy(2, 720));
+ * import { spawn, jumpBy, rotateBy, Vec2 } from 'cc';
+ * const action = spawn(jumpBy(2, new Vec2(300, 0), 50, 4), rotateBy(2, 720));
  * todo:It should be the direct use new
  */
 export function spawn (/*Multiple Arguments*/tempArray: any): FiniteTimeAction {
@@ -896,14 +898,14 @@ class DelayTime extends ActionInterval {
  * @param {Number} d duration in seconds
  * @return {ActionInterval}
  * @example
- * // example
- * var delay = cc.delayTime(1);
+ * import { delayTime } from 'cc';
+ * const delay = delayTime(1);
  */
 export function delayTime (d: number): ActionInterval {
     return new DelayTime(d);
 };
 
-/*
+/**
  * <p>
  * Executes an action in reverse order, from time=duration to time=0                                     <br/>
  * @warning Use this action carefully. This action is not sequenceable.                                 <br/>
@@ -914,7 +916,8 @@ export function delayTime (d: number): ActionInterval {
  * @extends ActionInterval
  * @param {FiniteTimeAction} action
  * @example
- *  var reverse = new cc.ReverseTime(this);
+ * import ReverseTime from 'cc';
+ * var reverse = new ReverseTime(this);
  */
 export class ReverseTime extends ActionInterval {
 
@@ -982,8 +985,8 @@ export class ReverseTime extends ActionInterval {
  * @param {FiniteTimeAction} action
  * @return {ActionInterval}
  * @example
- * // example
- *  var reverse = cc.reverseTime(this);
+ * import { reverseTime } from 'cc';
+ * const reverse = reverseTime(this);
  */
 export function reverseTime (action: any): ActionInterval {
     return new ReverseTime(action);

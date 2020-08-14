@@ -14,6 +14,13 @@ import { builtinResMgr } from '../core/3d/builtin';
 import CurveRange from './animator/curve-range';
 import GradientRange from './animator/gradient-range';
 import { legacyCC } from '../core/global-exports';
+import { IMaterialInstanceInfo, MaterialInstance } from '../core/renderer/core/material-instance';
+
+const _matInsInfo: IMaterialInstanceInfo = {
+    parent: null!,
+    owner: null!,
+    subModelIdx: 0,
+};
 
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
 const define = { CC_USE_WORLD_SPACE: false };
@@ -42,12 +49,13 @@ export class LineComponent extends Component {
 
     set texture (val) {
         this._texture = val;
-        if (this._material) {
-            this._material.setProperty('mainTexture', val);
+        if (this._materialInstance) {
+            this._materialInstance.setProperty('mainTexture', val);
         }
     }
 
     private _material: Material | null = null;
+    private _materialInstance: MaterialInstance | null = null;
 
     @property
     private _worldSpace = false;
@@ -65,11 +73,11 @@ export class LineComponent extends Component {
 
     set worldSpace (val) {
         this._worldSpace = val;
-        if (this._material) {
+        if (this._materialInstance) {
             define[CC_USE_WORLD_SPACE] = this.worldSpace;
-            this._material.recompileShaders(define);
+            this._materialInstance.recompileShaders(define);
             if (this._model) {
-                this._model.setSubModelMaterial(0, this._material!);
+                this._model.setSubModelMaterial(0, this._materialInstance!);
             }
         }
     }
@@ -139,10 +147,10 @@ export class LineComponent extends Component {
 
     set tile (val) {
         this._tile.set(val);
-        if (this._material) {
+        if (this._materialInstance) {
             this._tile_offset.x = this._tile.x;
             this._tile_offset.y = this._tile.y;
-            this._material.setProperty('mainTiling_Offset', this._tile_offset);
+            this._materialInstance.setProperty('mainTiling_Offset', this._tile_offset);
         }
     }
 
@@ -160,10 +168,10 @@ export class LineComponent extends Component {
 
     set offset (val) {
         this._offset.set(val);
-        if (this._material) {
+        if (this._materialInstance) {
             this._tile_offset.z = this._offset.x;
             this._tile_offset.w = this._offset.y;
-            this._material.setProperty('mainTiling_Offset', this._tile_offset);
+            this._materialInstance.setProperty('mainTiling_Offset', this._tile_offset);
         }
     }
 
@@ -204,14 +212,17 @@ export class LineComponent extends Component {
     public onLoad () {
         this._model = legacyCC.director.root.createModel(LineModel);
         this._model!.initialize(this.node);
-        this._model!.setCapacity(100);
         if (this._material == null) {
             this._material = new Material();
             this._material.copy(builtinResMgr.get<Material>('default-trail-material'));
             define[CC_USE_WORLD_SPACE] = this.worldSpace;
-            this._material.recompileShaders(define);
+            _matInsInfo.parent = this._material;
+            _matInsInfo.subModelIdx = 0;
+            this._materialInstance = new MaterialInstance(_matInsInfo);
+            this._materialInstance.recompileShaders(define);
         }
-        this._model!.setSubModelMaterial(0, this._material!);
+        this._model!.updateMaterial(this._materialInstance!);
+        this._model!.setCapacity(100);
     }
 
     public onEnable () {

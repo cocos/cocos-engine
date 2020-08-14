@@ -83,7 +83,7 @@ Enum(Mode);
  * 进度条组件，可用于显示加载资源时的进度。
  *
  * @example
- * ```typescript
+ * ```ts
  * // update progressBar
  * update(dt) {
  *     var progress = progressBar.progress;

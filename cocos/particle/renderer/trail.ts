@@ -161,12 +161,13 @@ export default class TrailModule {
         if (val === this._enable && this._trailModel) {
             return;
         }
-        if (val && !this._trailModel) {
-            this._createModel();
-        }
         if (val && !this._enable) {
             this._enable = val;
             this._particleSystem.processor.updateTrailMaterial();
+        }
+        if (val && !this._trailModel) {
+            this._createModel();
+            this.rebuild();
         }
         this._enable = val;
         if (this._trailModel) {
@@ -318,7 +319,7 @@ export default class TrailModule {
     private _vbUint32: Uint32Array | null = null;
     private _iBuffer: Uint16Array | null = null;
     private _needTransform: boolean = false;
-    private _defaultMat: Material | null = null;
+    private _material: Material | null = null;
 
     constructor () {
         this._iaInfo = {
@@ -352,14 +353,17 @@ export default class TrailModule {
         this._particleSystem = ps;
         this.minParticleDistance = this._minParticleDistance;
         let burstCount = 0;
-        for (const b of this._particleSystem.bursts) {
-            burstCount += b.getMaxCount(this._particleSystem);
+        const psTime = ps.startLifetime.getMax();
+        const psRate = ps.rateOverTime.getMax();
+        const duration = ps.duration;
+        for (let i = 0, len = ps.bursts.length; i < len; i++) {
+            const b = ps.bursts[i];
+            burstCount += b.getMaxCount(ps) * Math.ceil(psTime / duration);
         }
-        this._trailNum = Math.ceil(this._particleSystem.startLifetime.getMax() * this.lifeTime.getMax() * 60 * (this._particleSystem.rateOverTime.getMax() * this._particleSystem.duration + burstCount));
-        this._trailSegments = new Pool(() => new TrailSegment(10), Math.ceil(this._particleSystem.rateOverTime.getMax() * this._particleSystem.duration));
+        this._trailNum = Math.ceil(psTime * this.lifeTime.getMax() * 60 * (psRate * duration + burstCount));
+        this._trailSegments = new Pool(() => new TrailSegment(10), Math.ceil(psRate * duration));
         if (this._enable) {
             this.enable = this._enable;
-            this._updateMaterial();
         }
     }
 
@@ -390,11 +394,11 @@ export default class TrailModule {
     public destroy () {
         this.destroySubMeshData();
         if (this._trailModel) {
-            legacyCC.director.root.destroyModel(this._trailModel);
+            director.root!.destroyModel(this._trailModel);
             this._trailModel = null;
         }
         if (this._trailSegments) {
-            this._trailSegments.clear((obj: TrailSegment) => { obj.trailElements.length = 0; });
+            this._trailSegments.destroy((obj: TrailSegment) => { obj.trailElements.length = 0; });
             this._trailSegments = null;
         }
     }
@@ -412,13 +416,11 @@ export default class TrailModule {
         }
     }
 
-    public _updateMaterial () {
-        if (this._particleSystem && this._trailModel) {
-            const mat = this._particleSystem.getMaterialInstance(1);
-            if (mat) {
-                this._trailModel.setSubModelMaterial(0, mat);
-            } else {
-                this._trailModel.setSubModelMaterial(0, this._particleSystem.processor._defaultTrailMat);
+    public updateMaterial () {
+        if (this._particleSystem) {
+            this._material = this._particleSystem.getMaterialInstance(1) || this._particleSystem.processor._defaultTrailMat;
+            if (this._trailModel) {
+                this._trailModel.setSubModelMaterial(0, this._material!);
             }
         }
     }
@@ -572,8 +574,9 @@ export default class TrailModule {
     }
 
     public updateIA (count: number) {
-        if (this._trailModel && this._trailModel.subModelNum > 0) {
-            const subModel = this._trailModel.getSubModel(0);
+        const subModels = this._trailModel && this._trailModel.subModels;
+        if (subModels && subModels.length > 0) {
+            const subModel = subModels[0];
             subModel.inputAssembler!.vertexBuffers[0].update(this._vbF32!);
             subModel.inputAssembler!.indexBuffer!.update(this._iBuffer!);
             subModel.inputAssembler!.indexCount = count;
@@ -586,6 +589,11 @@ export default class TrailModule {
         if (this._trailModel) {
             return;
         }
+
+        this._trailModel = legacyCC.director.root.createModel(Model);
+    }
+
+    private rebuild () {
         const device: GFXDevice = director.root!.device;
         const vertexBuffer = device.createBuffer({
             usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
@@ -621,10 +629,9 @@ export default class TrailModule {
         this._subMeshData.indexBuffer = indexBuffer;
         this._subMeshData.indirectBuffer = this._iaInfoBuffer;
 
-        this._trailModel = legacyCC.director.root.createModel(Model);
         this._trailModel!.initialize(this._particleSystem.node);
         this._trailModel!.visFlags = this._particleSystem.visibility;
-        this._trailModel!.setSubModelMesh(0, this._subMeshData);
+        this._trailModel!.initSubModel(0, this._subMeshData, this._material!);
         this._trailModel!.enabled = true;
     }
 

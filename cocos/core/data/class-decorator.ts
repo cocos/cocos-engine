@@ -240,12 +240,13 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
  * @zh 将标准写法的 ES6 或者 TS Class 声明为 CCClass，具体用法请参阅[类型定义](https://docs.cocos.com/creator3d/manual/zh/scripting/ccclass.html)。
  * @param name - The class name used for serialization.
  * @example
- * ```typescript
- * const {ccclass} = cc._decorator;
+ * ```ts
+ * import { _decorator, Component } from 'cc';
+ * const {ccclass} = _decorator;
  *
  * // define a CCClass, omit the name
  *  @ccclass
- * class NewScript extends cc.Component {
+ * class NewScript extends Component {
  *     // ...
  * }
  *
@@ -395,12 +396,13 @@ function createDummyDecorator (argCheckFunc) {
  * @zh 允许继承自 Component 的 CCClass 在编辑器里执行。<br/>
  * 默认情况下，所有 Component 都只会在运行时才会执行，也就是说它们的生命周期回调不会在编辑器里触发。
  * @example
- * ```typescript
- * const {ccclass, executeInEditMode} = cc._decorator;
+ * ```ts
+ * import { _decorator, Component } from 'cc';
+ * const {ccclass, executeInEditMode} = _decorator;
  *
  *  @ccclass
  *  @executeInEditMode
- * class NewScript extends cc.Component {
+ * class NewScript extends Component {
  *     // ...
  * }
  * ```
@@ -413,7 +415,7 @@ export const executeInEditMode = (DEV ? createEditorDecorator : createDummyDecor
  * @zh 为声明为 CCClass 的组件添加依赖的其它组件。当组件添加到节点上时，如果依赖的组件不存在，引擎将会自动将依赖组件添加到同一个节点，防止脚本出错。该设置在运行时同样有效。
  * @param requiredComponent The required component type
  * @example
- * ```typescript
+ * ```ts
  * import {_decorator, SpriteComponent, Component} from cc;
  * import {ccclass, requireComponent} from _decorator;
  *
@@ -431,12 +433,13 @@ export const requireComponent: (requiredComponent: Function) => Function = creat
  * @zh 将当前组件添加到组件菜单中，方便用户查找。例如 "Rendering/CameraCtrl"。
  * @param path - The path is the menu represented like a pathname. For example the menu could be "Rendering/CameraCtrl".
  * @example
- * ```typescript
- * const {ccclass, menu} = cc._decorator;
+ * ```ts
+ * import { _decorator, Component } from 'cc';
+ * const {ccclass, menu} = _decorator;
  *
  * @ccclass
  * @menu("Rendering/CameraCtrl")
- * class NewScript extends cc.Component {
+ * class NewScript extends Component {
  *     // ...
  * }
  * ```
@@ -449,12 +452,13 @@ export const menu: (path: string) => ClassDecorator = DEV ? createEditorDecorato
  * @zh 设置脚本生命周期方法调用的优先级。优先级小于 0 的组件将会优先执行，优先级大于 0 的组件将会延后执行。优先级仅会影响 onLoad, onEnable, start, update 和 lateUpdate，而 onDisable 和 onDestroy 不受影响。
  * @param priority - The execution order of life cycle methods for Component. Smaller priority get invoked before larger priority.
  * @example
- * ```typescript
- * const {ccclass, executionOrder} = cc._decorator;
+ * ```ts
+ * import { _decorator, Component } from 'cc';
+ * const {ccclass, executionOrder} = _decorator;
  *
- *  @ccclass
- *  @executionOrder(1)
- * class CameraCtrl extends cc.Component {
+ * @ccclass
+ * @executionOrder(1)
+ * class CameraCtrl extends Component {
  *     // ...
  * }
  * ```
@@ -465,12 +469,13 @@ export const executionOrder: (priority: number) => ClassDecorator = createEditor
  * @en Forbid add multiple instances of the component to the same node.
  * @zh 防止多个相同类型（或子类型）的组件被添加到同一个节点。
  * @example
- * ```typescript
- * const {ccclass, disallowMultiple} = cc._decorator;
+ * ```ts
+ * import { _decorator, Component } from 'cc';
+ * const {ccclass, disallowMultiple} = _decorator;
  *
  * @ccclass
  * @disallowMultiple
- * class CameraCtrl extends cc.Component {
+ * class CameraCtrl extends Component {
  *     // ...
  * }
  * ```
@@ -481,13 +486,14 @@ export const disallowMultiple = (DEV ? createEditorDecorator : createDummyDecora
  * @en When {{executeInEditMode}} is set, this decorator will decide when a node with the component is on focus whether the editor should running in high FPS mode.
  * @zh 当指定了 "executeInEditMode" 以后，playOnFocus 可以在选中当前组件所在的节点时，提高编辑器的场景刷新频率到 60 FPS，否则场景就只会在必要的时候进行重绘。
  * @example
- * ```typescript
- * const {ccclass, playOnFocus, executeInEditMode} = cc._decorator;
+ * ```ts
+ * import { _decorator, Component } from 'cc';
+ * const {ccclass, playOnFocus, executeInEditMode} = _decorator;
  *
  * @ccclass
  * @executeInEditMode
  * @playOnFocus
- * class CameraCtrl extends cc.Component {
+ * class CameraCtrl extends Component {
  *     // ...
  * }
  * ```
@@ -499,12 +505,13 @@ export const playOnFocus = (DEV ? createEditorDecorator : createDummyDecorator)(
  * @zh 自定义当前组件在 **属性检查器** 中渲染时所用的 UI 页面描述。
  * @param url The url of the page definition in js
  * @example
- * ```typescript
- * const {ccclass, inspector} = cc._decorator;
+ * ```ts
+ * import { _decorator, Component } from 'cc';
+ * const {ccclass, inspector} = _decorator;
  *
  * @ccclass
  * @inspector("packages://inspector/inspectors/comps/camera-ctrl.js")
- * class NewScript extends cc.Component {
+ * class NewScript extends Component {
  *     // ...
  * }
  * ```
@@ -517,12 +524,13 @@ export const inspector: (url: string) => ClassDecorator = DEV ? createEditorDeco
  * @param url
  * @private
  * @example
- * ```typescript
- * const {ccclass, icon} = cc._decorator;
+ * ```ts
+ * import { _decorator, Component } from 'cc';
+ * const {ccclass, icon} = _decorator;
  *
  *  @ccclass
  *  @icon("xxxx.png")
- * class NewScript extends cc.Component {
+ * class NewScript extends Component {
  *     // ...
  * }
  * ```
@@ -534,12 +542,13 @@ export const icon: (url: string) => ClassDecorator = DEV ? createEditorDecorator
  * @zh 指定当前组件的帮助文档的 url，设置过后，在 **属性检查器** 中就会出现一个帮助图标，用户点击将打开指定的网页。
  * @param url The url of the help documentation
  * @example
- * ```typescript
- * const {ccclass, help} = cc._decorator;
+ * ```ts
+ * import { _decorator, Component } from 'cc';
+ * const {ccclass, help} = _decorator;
  *
  * @ccclass
  * @help("app://docs/html/components/spine.html")
- * class NewScript extends cc.Component {
+ * class NewScript extends Component {
  *     // ...
  * }
  * ```

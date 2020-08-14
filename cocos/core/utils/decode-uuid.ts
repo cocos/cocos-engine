@@ -46,7 +46,7 @@ const Indices = UuidTemplate.map((x, i) => x === '-' ? NaN : i).filter(isFinite)
  * @returns the original uuid
  *
  * @example
- * ```typescript
+ * ```ts
  * const uuid = 'fcmR3XADNLgJ1ByKhqcC5Z';
  * const originalUuid = decodeUuid(uuid); // fc991dd7-0033-4b80-9d41-c8a86a702e59
  * ```

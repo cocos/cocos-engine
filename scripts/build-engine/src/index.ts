@@ -1,8 +1,7 @@
 
 import fs from 'fs-extra';
 import ps from 'path';
-// @ts-ignore
-import rpBabel from '@rollup/plugin-babel';
+import rpBabel, { RollupBabelInputPluginOptions } from '@rollup/plugin-babel';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
@@ -245,7 +244,7 @@ async function _doBuild ({
         }]);
     }
 
-    const babelOptions = {
+    const babelOptions: RollupBabelInputPluginOptions = {
         babelHelpers: 'bundled',
         extensions: ['.js', '.ts'],
         highlightCode: true,
@@ -511,6 +510,7 @@ export enum Platform {
     ALIPAY,
     BAIDU,
     XIAOMI,
+    BYTEDANCE,
     OPPO,
     VIVO,
     HUAWEI,
@@ -564,6 +564,7 @@ interface BuildTimeConstants {
     CC_ALIPAY?: boolean;
     CC_BAIDU?: boolean;
     CC_XIAOMI?: boolean;
+    CC_BYTEDANCE?: boolean;
     CC_OPPO?: boolean;
     CC_VIVO?: boolean;
     CC_HUAWEI?: boolean;
@@ -589,7 +590,7 @@ function populateBuildTimeConstants (options: build.Options) {
     const flags = options.flags;
 
     const BUILD_MODE_MACROS = ['CC_EDITOR', 'CC_PREVIEW', 'CC_BUILD', 'CC_TEST'];
-    const PLATFORM_MACROS = ['CC_HTML5', 'CC_WECHAT', 'CC_ALIPAY', 'CC_BAIDU', 'CC_XIAOMI', 'CC_OPPO', 'CC_VIVO', 'CC_HUAWEI', 'CC_NATIVE', 'CC_COCOSPLAY'];
+    const PLATFORM_MACROS = ['CC_HTML5', 'CC_WECHAT', 'CC_ALIPAY', 'CC_BAIDU', 'CC_XIAOMI', 'CC_BYTEDANCE', 'CC_OPPO', 'CC_VIVO', 'CC_HUAWEI', 'CC_NATIVE', 'CC_COCOSPLAY'];
     const FLAGS = ['debug'];
 
     const buildModeMacro = ('CC_' + Mode[buildMode]).toUpperCase();
@@ -628,7 +629,7 @@ function populateBuildTimeConstants (options: build.Options) {
     result.CC_DEV = result.CC_EDITOR || result.CC_PREVIEW || result.CC_TEST;
     result.CC_DEBUG = result.CC_DEBUG || result.CC_DEV;
     result.CC_RUNTIME_BASED = result.CC_OPPO || result.CC_VIVO || result.CC_HUAWEI || result.CC_COCOSPLAY;
-    result.CC_MINIGAME = result.CC_WECHAT || result.CC_ALIPAY || result.CC_XIAOMI || result.CC_BAIDU;
+    result.CC_MINIGAME = result.CC_WECHAT || result.CC_ALIPAY || result.CC_XIAOMI || result.CC_BYTEDANCE || result.CC_BAIDU;
     result.CC_JSB = result.CC_NATIVE;
     result.CC_SUPPORT_JIT = !(result.CC_MINIGAME || result.CC_RUNTIME_BASED);
 
