@@ -109,7 +109,7 @@ export class ScrollBarComponent extends Component {
             return;
         }
         this._handle = value;
-        this.onScroll(ZERO);
+        this.onScroll(new Vec3(0, 0, 0));
     }
 
     /**
@@ -247,7 +247,7 @@ export class ScrollBarComponent extends Component {
             return;
         }
 
-        const contentSize = content.contentSize;
+        const contentSize = content._uiProps.uiTransformComp!.contentSize;
         const scrollViewSize = this._scrollView.node._uiProps.uiTransformComp!.contentSize;
         const barSize = this.node._uiProps.uiTransformComp!.contentSize;
 
@@ -321,8 +321,10 @@ export class ScrollBarComponent extends Component {
         if (this._scrollView) {
             const content = this._scrollView.content;
             if (content) {
+                const contentSize = content._uiProps.uiTransformComp!.contentSize;
                 const scrollViewSize = this._scrollView.node._uiProps.uiTransformComp!.contentSize;
-                if (this._conditionalDisableScrollBar(content.contentSize, scrollViewSize)) {
+
+                if (this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
                     return;
                 }
             }
@@ -348,8 +350,13 @@ export class ScrollBarComponent extends Component {
         this._processAutoHide(dt);
     }
 
-    protected _convertToScrollViewSpace (contentTrans: UITransformComponent) {
-        const scrollTrans = this._scrollView && this._scrollView.node._uiProps.uiTransformComp;
+    protected _convertToScrollViewSpace (content: Node) {
+        if (!this._scrollView) {
+            return ZERO;
+        }
+
+        const scrollTrans = this._scrollView.node._uiProps.uiTransformComp;
+        const contentTrans = content._uiProps.uiTransformComp;
         if (!scrollTrans || !contentTrans) {
             return ZERO;
         }
