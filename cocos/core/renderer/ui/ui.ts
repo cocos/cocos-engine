@@ -47,8 +47,9 @@ import { UIDrawBatch } from './ui-draw-batch';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
 import { legacyCC } from '../../global-exports';
-import { DSPool, PassPool, PassView, NULL_HANDLE } from '../core/memory-pools';
-import { GFXDescriptorType } from '../../gfx';
+import { DSPool } from '../core/memory-pools';
+import { ModelLocalBindings } from '../../pipeline/define';
+import { programLib } from '../core/program-lib';
 
 /**
  * @zh
@@ -81,9 +82,7 @@ export class UI {
     private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => {
         return new MeshBuffer(this);
     }, 128);
-    private _drawBatchPool: Pool<UIDrawBatch> = new Pool(() => {
-        return new UIDrawBatch();
-    }, 128);
+    private _drawBatchPool: Pool<UIDrawBatch>;
     private _scene: RenderScene;
     private _attributes: IGFXAttribute[] = [];
     private _meshBuffers: MeshBuffer[] = [];
@@ -117,6 +116,10 @@ export class UI {
         }, 2);
         this._modelInUse = new CachedArray<UIBatchModel>(10);
         this._batches = new CachedArray(64);
+
+        this._drawBatchPool = new Pool(() => {
+            return new UIDrawBatch();
+        }, 128);
 
         legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_DRAW, this.update, this);
     }
@@ -321,9 +324,7 @@ export class UI {
                 } else {
                     const descriptorSet = DSPool.get(batch.hDescriptorSet);
 
-                    // [HACK] remove this after UI refactoring
-                    const binding = batch.material!.passes[0].shaderInfo.samplerStartBinding || 0;
-
+                    const binding = ModelLocalBindings.SAMPLER_SPRITE;
                     descriptorSet.bindTexture(binding, batch.texture!);
                     descriptorSet.bindSampler(binding, batch.sampler!);
                     descriptorSet.update();
@@ -446,8 +447,6 @@ export class UI {
         curDrawBatch.texture = null;
         curDrawBatch.sampler = null;
 
-        curDrawBatch.hDescriptorSet = NULL_HANDLE;
-
         // reset current render state to null
         this._currMaterial = this._emptyMaterial;
         this._currComponent = null;
@@ -522,8 +521,6 @@ export class UI {
         curDrawBatch.sampler = this._currSampler;
         curDrawBatch.ia!.firstIndex = indicsStart;
         curDrawBatch.ia!.indexCount = vCount;
-
-        curDrawBatch.hDescriptorSet = PassPool.get(mat.passes[0].handle, PassView.DESCRIPTOR_SET);
 
         this._batches.push(curDrawBatch);
 
