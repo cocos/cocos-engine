@@ -55,7 +55,7 @@ export class ShadowFlow extends RenderFlow {
         if(!this._shadowRenderPass) {
             this._shadowRenderPass = device.createRenderPass({
                 colorAttachments: [{
-                    format: GFXFormat.RGBA16F,
+                    format: GFXFormat.RGBA8,
                     loadOp: GFXLoadOp.CLEAR, // should clear color attachment
                     storeOp: GFXStoreOp.STORE,
                     sampleCount: 1,
@@ -79,7 +79,7 @@ export class ShadowFlow extends RenderFlow {
             this._shadowRenderTargets.push(device.createTexture({
                 type: GFXTextureType.TEX2D,
                 usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format: GFXFormat.RGBA16F,
+                format: GFXFormat.RGBA8,
                 width: shadowMapSize.x,
                 height: shadowMapSize.y,
             }));

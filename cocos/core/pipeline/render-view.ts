@@ -178,7 +178,7 @@ export class RenderView {
             for (let i = 0; i < pipelineFlows.length; i++) {
                 if (pipelineFlows[i].name === 'UIFlow') {
                     this.flows.push(pipelineFlows[i]);
-                    break
+                    break;
                 }
             }
             return;
