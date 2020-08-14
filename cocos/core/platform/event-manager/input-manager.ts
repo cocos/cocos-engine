@@ -350,10 +350,14 @@ class InputManager {
         const locView = this._glView;
         const locPreTouch = this._preTouchPoint;
 
-        const length = event.changedTouches.length;
+        let length = 1;
+        if (macro.ENABLE_MULTI_TOUCH) {
+            length = event.touches.length;
+        }
+
         for (let i = 0; i < length; i++) {
             // const changedTouch = event.changedTouches.item(i);
-            const changedTouch = event.changedTouches[i];
+            const changedTouch = event.touches[i];
             if (!changedTouch) {
                 continue;
             }
