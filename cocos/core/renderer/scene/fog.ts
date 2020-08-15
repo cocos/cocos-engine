@@ -3,6 +3,7 @@ import { ccclass, property } from '../../data/class-decorator';
 import { Color } from '../../../core/math';
 import { CCBoolean, CCFloat } from '../../data/utils/attribute';
 import { legacyCC } from '../../global-exports';
+import { EDITOR } from 'internal:constants';
 
 /**
  * @zh
@@ -57,7 +58,6 @@ export class Fog {
      * @zh 是否启用全局雾效
      * @en Enable global fog
      */
-    @property({ type: CCBoolean })
     set enabled (val: boolean) {
         this._enabled = val;
         if (!val) {
@@ -65,7 +65,9 @@ export class Fog {
         } else {
             this._currType = this._type + 1;
         }
-        this._updatePipeline();
+        if (!EDITOR) {
+            this._updatePipeline();
+        }
     }
 
     get enabled () {
@@ -76,7 +78,6 @@ export class Fog {
      * @zh 全局雾颜色
      * @en Global fog color
      */
-    @property({ type: Color })
     set fogColor (val: Color) {
         this._fogColor.set(val);
         Color.toArray(this._colorArray, this._fogColor);
@@ -90,9 +91,6 @@ export class Fog {
      * @zh 全局雾类型
      * @en Global fog type
      */
-    @property({
-        type: FogType
-    })
     get type () {
         return this._type;
     }
@@ -110,15 +108,6 @@ export class Fog {
      * @zh 全局雾浓度
      * @en Global fog density
      */
-    @property({
-        type: CCFloat,
-        range: [0, 1],
-        step: 0.01,
-        slide: true,
-        visible: function(this: Fog) {
-            return this._type !== FogType.LAYERED && this._type !== FogType.LINEAR;
-        }
-    })
     get fogDensity () {
         return this._fogDensity;
     }
@@ -131,13 +120,6 @@ export class Fog {
      * @zh 雾效起始位置，只适用于线性雾
      * @en Global fog start position, only for linear fog
      */
-    @property({
-        type: CCFloat,
-        step: 0.1,
-        visible: function(this: Fog) { 
-            return this._type === FogType.LINEAR;
-        }
-    })
     get fogStart () {
         return this._fogStart;
     }
@@ -150,13 +132,6 @@ export class Fog {
      * @zh 雾效结束位置，只适用于线性雾
      * @en Global fog end position, only for linear fog
      */
-    @property({
-        type: CCFloat,
-        step: 0.1,
-        visible: function (this: Fog){ 
-            return this._type === FogType.LINEAR;
-        }
-    })
     get fogEnd () {
         return this._fogEnd;
     }
@@ -169,13 +144,6 @@ export class Fog {
      * @zh 雾效衰减
      * @en Global fog attenuation
      */
-    @property({
-        type: CCFloat,
-        step: 0.1,
-        visible: function (this: Fog){ 
-            return this._type !== FogType.LINEAR;
-        }
-    })
     get fogAtten () {
         return this._fogAtten;
     }
@@ -188,13 +156,6 @@ export class Fog {
      * @zh 雾效顶部范围，只适用于层级雾
      * @en Global fog top range, only for layered fog
      */
-    @property({
-        type: CCFloat,
-        step: 0.1,
-        visible: function (this: Fog){ 
-            return this._type === FogType.LAYERED;
-        }
-    })
     get fogTop () {
         return this._fogTop;
     }
@@ -207,13 +168,6 @@ export class Fog {
      * @zh 雾效范围，只适用于层级雾
      * @en Global fog range, only for layered fog
      */
-    @property({
-        type: CCFloat,
-        step: 0.1,
-        visible: function (this: Fog){ 
-            return this._type === FogType.LAYERED;
-        }
-    })
     get fogRange () {
         return this._fogRange;
     }
@@ -240,23 +194,79 @@ export class Fog {
         return this._colorArray;
     }
 
-    @property
+    @property({
+        type: FogType,
+        visible: true,
+        displayOrder: 1,
+    })
     protected _type = FogType.LINEAR;
-    @property
+    @property({
+        type: Color,
+        visible: true,
+        displayOrder: 2,
+    })
     protected _fogColor = new Color('#C8C8C8');
-    @property
+    @property({
+        type: CCBoolean,
+        visible: true,
+        displayOrder: 0,
+    })
     protected _enabled = false;
-    @property
+    @property({
+        type: CCFloat,
+        range: [0, 1],
+        step: 0.01,
+        slide: true,
+        displayOrder: 3,
+        visible: function(this: Fog) {
+            return this._type !== FogType.LAYERED && this._type !== FogType.LINEAR;
+        }
+    })
     protected _fogDensity = 0.3;
-    @property
+    @property({
+        type: CCFloat,
+        step: 0.1,
+        displayOrder: 4,
+        visible: function(this: Fog) { 
+            return this._type === FogType.LINEAR;
+        }
+    })
     protected _fogStart = 0.5;
-    @property
+    @property({
+        type: CCFloat,
+        step: 0.1,
+        displayOrder: 5,
+        visible: function (this: Fog){ 
+            return this._type === FogType.LINEAR;
+        }
+    })
     protected _fogEnd = 300;
-    @property
+    @property({
+        type: CCFloat,
+        step: 0.1,
+        displayOrder: 6,
+        visible: function (this: Fog){ 
+            return this._type !== FogType.LINEAR;
+        }
+    })
     protected _fogAtten = 5;
-    @property
+    @property({
+        type: CCFloat,
+        step: 0.1,
+        displayOrder: 7,
+        visible: function (this: Fog){ 
+            return this._type === FogType.LAYERED;
+        }
+    })
     protected _fogTop = 1.5;
-    @property
+    @property({
+        type: CCFloat,
+        step: 0.1,
+        displayOrder: 8,
+        visible: function (this: Fog) { 
+            return this._type === FogType.LAYERED;
+        }
+    })
     protected _fogRange = 1.2;
     private _currType = 0;
     protected _colorArray: Float32Array = new Float32Array([0.2, 0.2, 0.2, 1.0]);

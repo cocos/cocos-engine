@@ -18,7 +18,6 @@ export class Ambient {
      * @en Enable ambient
      * @zh 是否开启环境光
      */
-    @property
     set enabled (val) {
         this._enabled = val;
     }
@@ -29,7 +28,6 @@ export class Ambient {
      * @en Sky color
      * @zh 天空颜色
      */
-    @property({ type: Color })
     get skyColor (): Color {
         return this._skyColor;
     }
@@ -43,7 +41,6 @@ export class Ambient {
      * @en Sky illuminance
      * @zh 天空亮度
      */
-    @property
     get skyIllum (): number {
         return this._skyIllum;
     }
@@ -56,7 +53,6 @@ export class Ambient {
      * @en Ground color
      * @zh 地面颜色
      */
-    @property({ type: Color })
     get groundAlbedo (): Color {
         return this._groundAlbedo;
     }
@@ -67,11 +63,19 @@ export class Ambient {
     }
 
     protected _enabled = true;
-    @property
+    @property({
+        type: Color,
+        visible: true,
+    })
     protected _skyColor = new Color(51, 128, 204, 1.0);
-    @property
+    @property({
+        visible: true,
+    })
     protected _skyIllum: number = Ambient.SKY_ILLUM;
-    @property
+    @property({
+        type: Color,
+        visible: true,
+    })
     protected _groundAlbedo = new Color(51, 51, 51, 255);
 
     protected _albedoArray = Float32Array.from([0.2, 0.2, 0.2, 1.0]);

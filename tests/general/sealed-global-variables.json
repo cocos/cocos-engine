@@ -176,7 +176,6 @@
         "cc.Skeleton",
         "cc.SkinningModelComponent",
         "cc.SkinningModelUnit",
-        "cc.SkyboxInfo",
         "cc.SliderComponent",
         "cc.SphereColliderComponent",
         "cc.SphereLightComponent",

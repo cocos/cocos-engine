@@ -15,6 +15,7 @@ import { CCFloat, CCBoolean } from '../../data/utils/attribute';
 import { legacyCC } from '../../global-exports';
 import { RenderScene } from './render-scene';
 import { DSPool, ShaderPool, PassPool, PassView } from '../core/memory-pools';
+import { EDITOR } from 'internal:constants';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -34,7 +35,6 @@ export class PlanarShadows {
      * @en Whether activate planar shadow
      * @zh 是否启用平面阴影？
      */
-    @property({ type: CCBoolean })
     get enabled (): boolean {
         return this._enabled;
     }
@@ -47,7 +47,6 @@ export class PlanarShadows {
      * @en The normal of the plane which receives shadow
      * @zh 阴影接收平面的法线
      */
-    @property({ type: Vec3 })
     get normal () {
         return this._normal;
     }
@@ -60,7 +59,6 @@ export class PlanarShadows {
      * @en The distance from coordinate origin to the receiving plane.
      * @zh 阴影接收平面与原点的距离
      */
-    @property({ type: CCFloat })
     get distance () {
         return this._distance;
     }
@@ -73,15 +71,17 @@ export class PlanarShadows {
      * @en Shadow color
      * @zh 阴影颜色
      */
-    @property({ type: Color })
     get shadowColor () {
         return this._shadowColor;
     }
 
     set shadowColor (color: Color) {
-        Color.toArray(this._data, color, UBOShadow.SHADOW_COLOR_OFFSET);
-        if (this._globalDescriptorSet) {
-            this._globalDescriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
+        this._shadowColor = color;
+        if (!EDITOR) {
+            Color.toArray(this._data, color, UBOShadow.SHADOW_COLOR_OFFSET);
+            if (this._globalDescriptorSet) {
+                this._globalDescriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
+            }
         }
     }
 
@@ -93,13 +93,25 @@ export class PlanarShadows {
         return this._data;
     }
 
-    @property
+    @property({
+        type: CCBoolean,
+        visible: true,
+    })
     protected _enabled: boolean = false;
-    @property
+    @property({
+        type: Vec3,
+        visible: true,
+    })
     protected _normal = new Vec3(0, 1, 0);
-    @property
+    @property({
+        type: CCFloat,
+        visible: true,
+    })
     protected _distance = 0;
-    @property
+    @property({
+        type: Color,
+        visible: true,
+    })
     protected _shadowColor = new Color(0, 0, 0, 76);
     protected _matLight = new Mat4();
     protected _data = Float32Array.from([
@@ -112,6 +124,11 @@ export class PlanarShadows {
     protected _instancingMaterial: Material | null = null;
     protected _device: GFXDevice|null = null;
     protected _globalDescriptorSet: GFXDescriptorSet | null = null;
+
+    constructor () {
+        Color.toArray(this._data, this._shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
+    }
+
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
         this._globalDescriptorSet = pipeline.descriptorSet;

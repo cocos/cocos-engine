@@ -12,6 +12,7 @@ import { ccclass, property } from '../../data/class-decorator';
 import { CCBoolean } from '../../data/utils/attribute';
 import { legacyCC } from '../../global-exports';
 import { GFXDescriptorSet } from '../../gfx';
+import { EDITOR } from 'internal:constants';
 
 let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;
@@ -26,7 +27,6 @@ export class Skybox {
      * @en Whether activate skybox in the scene
      * @zh 是否启用天空盒？
      */
-    @property({ type: CCBoolean })
     get enabled () {
         return this._enabled;
     }
@@ -39,61 +39,86 @@ export class Skybox {
      * @en Whether use environment lighting
      * @zh 是否启用环境光照？
      */
-    @property({ type: CCBoolean })
     get useIBL () {
         return this._useIBL;
     }
 
     set useIBL (val) {
         this._useIBL = val;
-        this._updatePipeline();
+        if (!EDITOR) {
+            this._updatePipeline();
+        }
     }
 
     /**
      * @en Whether enable RGBE data support in skybox shader
      * @zh 是否需要开启 shader 内的 RGBE 数据支持？
      */
-    @property({ type: CCBoolean })
     get isRGBE () {
         return this._isRGBE;
     }
 
     set isRGBE (val) {
         this._isRGBE = val;
-        skybox_material!.recompileShaders({ USE_RGBE_CUBEMAP: this._isRGBE });
-        this._model!.setSubModelMaterial(0, skybox_material!);
-        this._updatePipeline();
+
+        if (!EDITOR) {
+            if (skybox_material) {
+                skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this._isRGBE });
+            }
+
+            if (this._model) {
+                this._model.setSubModelMaterial(0, skybox_material!);
+            }
+
+            this._updatePipeline();
+        }
     }
 
     /**
      * @en The texture cube used for the skybox
      * @zh 使用的立方体贴图
-     */
-    @property({ type: TextureCube })
+    */
     get envmap () {
         return this._envmap;
     }
 
     set envmap (val: TextureCube | null) {
-        const newEnvmap = val || this._default;
+        const newEnvmap = val || builtinResMgr.get<TextureCube>('default-cube-texture');
         this._envmap = newEnvmap;
-        legacyCC.root.pipeline.ambient.groundAlbedo[3] = this._envmap.mipmapLevel;
-        this._updateGlobalBinding();
+        if (!EDITOR) {
+            legacyCC.root.pipeline.ambient.groundAlbedo[3] = this._envmap.mipmapLevel;
+            this._updateGlobalBinding();
+        }
     }
 
-    protected _default = builtinResMgr.get<TextureCube>('default-cube-texture');
-    @property(TextureCube)
-    protected _envmap = this._default;
-    @property
-    protected _isRGBE = false;
-    @property
-    protected _useIBL = false;
-    @property
+    @property({
+        type: CCBoolean,
+        visible: true,
+    })
     protected _enabled = false;
+    @property({
+        type: CCBoolean,
+        visible: true,
+    })
+    protected _isRGBE = false;
+    @property({
+        type: CCBoolean,
+        visible: true,
+    })
+    protected _useIBL = false;
+    @property({
+        type: TextureCube,
+        visible: true,
+    })
+    protected _envmap: TextureCube | null = null;
     protected _globalDescriptorSet: GFXDescriptorSet | null = null;
     protected _model: Model | null = null;
 
     public activate () {
+        if (!this._envmap) {
+            this._envmap = builtinResMgr.get<TextureCube>('default-cube-texture');
+        }
+
         if (!this._model) {
             this._model = new Model();
         }
@@ -119,12 +144,11 @@ export class Skybox {
         const current = pipeline.macros.CC_USE_IBL || 0;
         if (current === value) { return; }
         pipeline.macros.CC_USE_IBL = value;
-        this._model!.scene!.onGlobalPipelineStateChanged();
     }
 
     protected _updateGlobalBinding () {
-        const texture = this._envmap.getGFXTexture()!;
-        const sampler = samplerLib.getSampler(legacyCC.director._device, this._envmap.getSamplerHash());
+        const texture = this._envmap!.getGFXTexture()!;
+        const sampler = samplerLib.getSampler(legacyCC.director._device, this._envmap!.getSamplerHash());
         this._globalDescriptorSet!.bindSampler(UNIFORM_ENVIRONMENT.binding, sampler);
         this._globalDescriptorSet!.bindTexture(UNIFORM_ENVIRONMENT.binding, texture);
     }

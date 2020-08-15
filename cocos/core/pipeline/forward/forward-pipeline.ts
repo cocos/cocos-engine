@@ -17,9 +17,8 @@ import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp
 import { SKYBOX_FLAG } from '../../renderer';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
-import { Mat4, Vec3, Vec2, Quat, Vec4 } from '../../math';
+import { Mat4, Vec3, Vec2, Quat, Vec4, Color } from '../../math';
 import { GFXFeature } from '../../gfx/device';
-import { SkyboxInfo } from '../../scene-graph/scene-globals';
 import { Fog } from '../../renderer/scene/fog';
 import { Ambient } from '../../renderer/scene/ambient';
 import { Skybox } from '../../renderer/scene/skybox';
@@ -101,10 +100,6 @@ export class ForwardPipeline extends RenderPipeline {
      * @en Get ambient.
      * @zh 获取环境光照
      */
-    @property({
-        type: Ambient,
-        displayOrder: 4,
-    })
     public get ambient () {
         return this._ambient;
     }
@@ -112,21 +107,6 @@ export class ForwardPipeline extends RenderPipeline {
     public set ambient (val) {
         if (!val) return;
         this._ambient = val;
-    }
-
-    /**
-     * @en Skybox related information
-     * @zh 天空盒相关信息
-     */
-    @property({
-        type: SkyboxInfo,
-        displayOrder: 5,
-    })
-    get skyboxInfo () {
-        return this._skyboxInfo;
-    }
-    set skyboxInfo (value) {
-        this._skyboxInfo = value;
     }
 
     /**
@@ -146,10 +126,6 @@ export class ForwardPipeline extends RenderPipeline {
      * @en Get planar shadow.
      * @zh 获取平面阴影数据
      */
-    @property({
-        type: PlanarShadows,
-        displayOrder: 6,
-    })
     public get planarShadows () {
         return this._planarShadows;
     }
@@ -163,10 +139,6 @@ export class ForwardPipeline extends RenderPipeline {
      * @en Get fog.
      * @zh 获取全局雾
      */
-    @property({
-        type: Fog,
-        displayOrder: 7,
-    })
     public get fog () {
         return this._fog;
     }
@@ -176,14 +148,29 @@ export class ForwardPipeline extends RenderPipeline {
         this._fog = val;
     }
 
-    @property
+    @property({
+        type: Fog,
+        displayOrder: 7,
+        visible: true,
+    })
     protected _fog: Fog = new Fog();
-    @property
+    @property({
+        type: Ambient,
+        displayOrder: 4,
+        visible: true,
+    })
     protected _ambient: Ambient = new Ambient();
+    @property({
+        type: Skybox,
+        displayOrder: 5,
+        visible: true,
+    })
     protected _skybox: Skybox = new Skybox();
-    @property
-    protected _skyboxInfo: SkyboxInfo = new SkyboxInfo();
-    @property
+    @property({
+        type: PlanarShadows,
+        displayOrder: 6,
+        visible: true,
+    })
     protected _planarShadows: PlanarShadows = new PlanarShadows();
     /**
      * @en The list for render objects, only available after the scene culling of the current frame.
