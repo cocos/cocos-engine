@@ -28,7 +28,7 @@
  * @category core
  */
 
-import { EDITOR, TEST, WECHAT, ALIPAY, XIAOMI, BAIDU, COCOSPLAY, JSB, MINIGAME, HUAWEI, OPPO, VIVO } from 'internal:constants';
+import { EDITOR, TEST, WECHAT, ALIPAY, XIAOMI, BAIDU, COCOSPLAY, JSB, MINIGAME, HUAWEI, OPPO, VIVO, RUNTIME_BASED } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID, log, logID } from './debug';
 
@@ -496,7 +496,7 @@ export const sys: { [x: string]: any; } = {
      * @en Whether the running platform is browser
      * @zh 指示运行平台是否是浏览器
      */
-    isBrowser: typeof window === 'object' && typeof document === 'object' && !MINIGAME && !JSB,
+    isBrowser: typeof window === 'object' && typeof document === 'object' && !MINIGAME && !JSB && !RUNTIME_BASED,
 
     /**
      * @en Indicate whether the current running context is a mobile system
@@ -661,7 +661,7 @@ export const sys: { [x: string]: any; } = {
      * @zh 尝试打开一个 web 页面，并非在所有平台都有效
      */
     openURL (url) {
-        if (JSB) {
+        if (JSB || RUNTIME_BASED) {
             // @ts-ignore
             jsb.openURL(url);
         }
@@ -969,6 +969,9 @@ else {
         _supportWebGL = false;
     }
     else if (WECHAT) {
+        _supportWebGL = true;
+    }
+    else if (RUNTIME_BASED) {
         _supportWebGL = true;
     }
     else if (win.WebGLRenderingContext) {

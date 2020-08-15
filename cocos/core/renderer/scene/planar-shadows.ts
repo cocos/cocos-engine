@@ -16,6 +16,7 @@ import { legacyCC } from '../../global-exports';
 import { RenderScene } from './render-scene';
 import { DSPool, ShaderPool, PassPool, PassView } from '../core/memory-pools';
 import { EDITOR } from 'internal:constants';
+import { ForwardPipeline } from '../../pipeline';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -132,6 +133,7 @@ export class PlanarShadows {
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
         this._globalDescriptorSet = pipeline.descriptorSet;
+        this._data = (pipeline as ForwardPipeline).shadowUBO;
         this._material = new Material();
         this._material.initialize({ effectName: 'pipeline/planar-shadow' });
         this._instancingMaterial = new Material();
@@ -161,7 +163,7 @@ export class PlanarShadows {
         m.m13 = ly * d;
         m.m14 = lz * d;
         m.m15 = NdL;
-        Mat4.toArray(this.data, this._matLight);
+        Mat4.toArray(this._data, this._matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
         this._globalDescriptorSet!.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
     }
 
@@ -189,7 +191,8 @@ export class PlanarShadows {
         m.m13 = ly * d;
         m.m14 = lz * d;
         m.m15 = 1;
-        Mat4.toArray(this.data, this._matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
+
+        Mat4.toArray(this._data, this._matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
         this._globalDescriptorSet!.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
     }
 

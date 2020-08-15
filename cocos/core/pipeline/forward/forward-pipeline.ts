@@ -9,7 +9,7 @@ import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { genSamplerHash, samplerLib } from '../../renderer';
-import { IRenderObject, UBOGlobal, UBOShadow, UBOPCFShadow,
+import { IRenderObject, UBOGlobal, UBOShadow,
     UNIFORM_SHADOWMAP, globalDescriptorSetLayout, localDescriptorSetLayout} from '../define';
 import { GFXBufferUsageBit, GFXMemoryUsageBit,
     GFXClearFlag, GFXFilter, GFXAddress, GFXCommandBufferType } from '../../gfx/define';
@@ -24,21 +24,14 @@ import { Ambient } from '../../renderer/scene/ambient';
 import { Skybox } from '../../renderer/scene/skybox';
 import { PlanarShadows } from '../../renderer/scene/planar-shadows';
 
-const shadowCamera_W_P = new Vec3();
-const shadowCamera_W_R = new Quat();
-const shadowCamera_W_S = new Vec3();
-const shadowCamera_W_T = new Mat4();
-
-const shadowCamera_M_V = new Mat4();
-const shadowCamera_M_P = new Mat4();
-const shadowCamera_M_V_P = new Mat4();
+const matShadowView = new Mat4();
+const matShadowViewProj = new Mat4();
 
 // Define shadwoMapCamera
-const shadowCamera_Near = 0.1;
-const shadowCamera_Far = 1000.0;
-const shadowCamera_Fov = 45.0;
-const shadowCamera_Aspect = 1.0;
-const shadowCamera_OrthoSize = 20.0;
+const shadowCamera_Near = 1;
+const shadowCamera_Far = 30;
+const shadowCamera_Aspect = 1;
+const shadowCamera_OrthoSize = 5;
 
 /**
  * @en The forward render pipeline
@@ -47,43 +40,44 @@ const shadowCamera_OrthoSize = 20.0;
 @ccclass('ForwardPipeline')
 export class ForwardPipeline extends RenderPipeline {
 
-    public get isHDR () {
+    get isHDR () {
         return this._isHDR;
     }
 
-    public set isHDR (val) {
+    set isHDR (val) {
         if (this._isHDR === val) {
             return
         }
 
         this._isHDR = val;
-        const defaultGlobalUBOData = this._uboGlobal.view;
+        const defaultGlobalUBOData = this._globalUBO;
         defaultGlobalUBOData[UBOGlobal.EXPOSURE_OFFSET + 2] = this._isHDR ? 1.0 : 0.0;
     }
 
-    public get shadingScale (): number {
+    get shadingScale (): number {
         return this._shadingScale;
     }
 
-    public get fpScale (): number {
+    get fpScale (): number {
         return this._fpScale;
-    }
-
-    /**
-     * @en Get shadow UBO.
-     * @zh 获取阴影UBO。
-     */
-    public get shadowUBOBuffer () {
-        return this._descriptorSet.getBuffer(UBOPCFShadow.BLOCK.binding)!;
     }
 
     /**
      * @en Get size of shadow map.
      * @zh 获取阴影贴图分辨率
      */
-    public get shadowMapSize () {
+    get shadowMapSize () {
         return this._shadowMapSize;
     }
+
+    /**
+     * @en Get shadow UBO.
+     * @zh 获取阴影UBO。
+     */
+    get shadowUBO () {
+        return this._shadowUBO;
+    }
+
     @property({
         type: [RenderTextureConfig],
         displayOrder: 2,
@@ -179,12 +173,12 @@ export class ForwardPipeline extends RenderPipeline {
      */
     public renderObjects: IRenderObject[] = [];
     public shadowObjects: IRenderObject[] = [];
-    protected _uboGlobal: UBOGlobal = new UBOGlobal();
     protected _isHDR: boolean = false;
     protected _shadingScale: number = 1.0;
     protected _fpScale: number = 1.0 / 1024.0;
     protected _renderPasses = new Map<GFXClearFlag, GFXRenderPass>();
-    protected _uboPCFShadow: UBOPCFShadow = new UBOPCFShadow();
+    protected _globalUBO = new Float32Array(UBOGlobal.COUNT);
+    protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
     protected _shadowMapSize: Vec2 = new Vec2(512, 512);
 
     public initialize (info: IRenderPipelineInfo): boolean {
@@ -268,36 +262,25 @@ export class ForwardPipeline extends RenderPipeline {
         const device = this.device;
 
         if (mainLight) {
-            shadowCamera_W_P.set(mainLight!.node!.getWorldPosition());
-            shadowCamera_W_R.set(mainLight!.node!.getWorldRotation());
-            shadowCamera_W_S.set(mainLight!.node!.getWorldScale());
+            // light view
+            Mat4.invert(matShadowView, mainLight!.node!.worldMatrix);
 
-            // world Transfrom
-            Mat4.fromRTS(shadowCamera_W_T, shadowCamera_W_R, shadowCamera_W_P, shadowCamera_W_S);
-
-            // camera view
-            Mat4.invert(shadowCamera_M_V, shadowCamera_W_T);
-
-            // camera proj
-            // Mat4.perspective(shadowCamera_M_P, shadowCamera_Fov, shadowCamera_Aspect, shadowCamera_Near, shadowCamera_Far);
+            // light proj
             const x = shadowCamera_OrthoSize * shadowCamera_Aspect;
             const y = shadowCamera_OrthoSize;
-            Mat4.ortho(shadowCamera_M_P, -x, x, -y, y, shadowCamera_Near, shadowCamera_Far,
-                 device.clipSpaceMinZ, device.screenSpaceSignY);
+            const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY;
+            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowCamera_Near, shadowCamera_Far,
+                device.clipSpaceMinZ, projectionSignY);
 
-            // camera viewProj
-            Mat4.multiply(shadowCamera_M_V_P, shadowCamera_M_P, shadowCamera_M_V);
+            // light viewProj
+            Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
 
-            Mat4.toArray(this._uboGlobal.view, shadowCamera_M_V_P, UBOGlobal.MAIN_SHADOW_MATRIX_OFFSET);
+            Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
         }
 
         // update ubos
-        this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding).update(this._uboGlobal.view);
-
-        // Fill Shadow UBO
-        // Fill cc_shadowMatViewProj
-        Mat4.toArray(this._uboPCFShadow.view, shadowCamera_M_V_P, UBOPCFShadow.MAT_SHADOW_VIEW_PROJ_OFFSET);
-        this._descriptorSet.getBuffer(UBOPCFShadow.BLOCK.binding).update(this._uboPCFShadow.view);
+        this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding).update(this._globalUBO);
+        this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this._shadowUBO);
     }
 
     private _activeRenderer () {
@@ -321,13 +304,6 @@ export class ForwardPipeline extends RenderPipeline {
             size: UBOShadow.SIZE,
         });
         this._descriptorSet.bindBuffer(UBOShadow.BLOCK.binding, shadowUBO);
-
-        const shadowPCFUBO = device.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOPCFShadow.SIZE,
-        });
-        this._descriptorSet.bindBuffer(UBOPCFShadow.BLOCK.binding, shadowPCFUBO);
 
         const shadowMapSamplerHash = genSamplerHash([
             GFXFilter.LINEAR,
@@ -358,8 +334,7 @@ export class ForwardPipeline extends RenderPipeline {
         const mainLight = scene.mainLight;
         const ambient = this._ambient!;
         const fog = this._fog!;
-        const uboGlobal = this._uboGlobal;
-        const fv = uboGlobal.view;
+        const fv = this._globalUBO;
         const device = this.device;
 
         const shadingWidth = Math.floor(device.width);
@@ -450,7 +425,6 @@ export class ForwardPipeline extends RenderPipeline {
         if (this._descriptorSet) {
             this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding).destroy();
             this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).destroy();
-            this._descriptorSet.getBuffer(UBOPCFShadow.BLOCK.binding).destroy();
         }
     }
 

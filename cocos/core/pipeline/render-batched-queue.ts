@@ -51,7 +51,7 @@ export class RenderBatchedQueue {
                     batch.vbs[v].update(batch.vbDatas[v]);
                 }
                 batch.vbIdx.update(batch.vbIdxData.buffer);
-                batch.ubo.update(batch.uboData.view);
+                batch.ubo.update(batch.uboData);
                 const shader = ShaderPool.get(batch.hShader);
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, batch.hPass, shader, renderPass, batch.ia);
                 if (!boundPSO) { cmdBuff.bindPipelineState(pso); boundPSO = true; }
