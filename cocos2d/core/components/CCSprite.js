@@ -442,10 +442,14 @@ var Sprite = cc.Class({
         // make sure material is belong to self.
         let material = this.getMaterial(0);
         if (material) {
-            if (material.getDefine('USE_TEXTURE') !== undefined) {
+            let useTexture = material.getDefine('USE_TEXTURE');
+            if (useTexture !== undefined) {
+                useTexture = true;
                 material.define('USE_TEXTURE', true);
             }
-            material.setProperty('texture', texture);
+            if (useTexture) {
+                material.setProperty('texture', texture);
+            }
         }
 
         BlendFunc.prototype._updateMaterial.call(this);
