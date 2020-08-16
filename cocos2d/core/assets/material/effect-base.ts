@@ -68,6 +68,23 @@ export default class EffectBase {
         }
     }
 
+    hasProperty (name, passIdx) {
+        let passes = this.passes;
+        if (passIdx >= passes.length) return;
+
+        let start = 0, end = passes.length;
+        if (passIdx !== undefined) {
+            start = passIdx, end = passIdx + 1;
+        }
+        for (let i = start; i < end; i++) {
+            if (passes[i].hasProperty(name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     getProperty (name, passIdx) {
         let passes = this.passes;
         if (passIdx >= passes.length) return;

@@ -150,7 +150,7 @@ let Material = cc.Class({
          * !#zh 获取内置材质
          * @static
          * @method getBuiltinMaterial
-         * @param {string} name 
+         * @param {string} name
          * @return {Material}
          */
         getBuiltinMaterial (name) {
@@ -161,14 +161,14 @@ let Material = cc.Class({
         },
 
         BUILTIN_NAME,
-        
+
         /**
          * !#en Creates a Material with builtin Effect.
          * !#zh 使用内建 Effect 创建一个材质。
          * @static
          * @method createWithBuiltin
-         * @param {string} effectName 
-         * @param {number} [techniqueIndex] 
+         * @param {string} effectName
+         * @param {number} [techniqueIndex]
          * @return {Material}
          */
         createWithBuiltin (effectName, techniqueIndex = 0) {
@@ -180,8 +180,8 @@ let Material = cc.Class({
          * !#zh 创建一个材质。
          * @static
          * @method create
-         * @param {EffectAsset} effectAsset 
-         * @param {number} [techniqueIndex] 
+         * @param {EffectAsset} effectAsset
+         * @param {number} [techniqueIndex]
          * @return {Material}
          */
         create (effectAsset, techniqueIndex = 0) {
@@ -232,10 +232,25 @@ let Material = cc.Class({
 
     /**
      * !#en Gets the Material property.
+     * !#zh 判断材质的属性是否存在。
+     * @method getProperty
+     * @param {string} name
+     * @param {number} [passIdx]
+     * @return {boolean}
+     */
+    hasProperty (name, passIdx) {
+        if (typeof passIdx === 'string') {
+            passIdx = parseInt(passIdx);
+        }
+        return this._effect.hasProperty(name, passIdx);
+    },
+
+    /**
+     * !#en Gets the Material property.
      * !#zh 获取材质的属性。
      * @method getProperty
-     * @param {string} name 
-     * @param {number} passIdx 
+     * @param {string} name
+     * @param {number} passIdx
      * @return {Object}
      */
     getProperty (name, passIdx) {
@@ -267,8 +282,8 @@ let Material = cc.Class({
      * !#en Gets the Material define.
      * !#zh 获取材质的宏定义。
      * @method getDefine
-     * @param {string} name 
-     * @param {number} [passIdx] 
+     * @param {string} name
+     * @param {number} [passIdx]
      * @return {boolean|number}
      */
     getDefine (name, passIdx) {
@@ -282,8 +297,8 @@ let Material = cc.Class({
      * !#en Sets the Material cull mode.
      * !#zh 设置材质的裁减模式。
      * @method setCullMode
-     * @param {number} cullMode 
-     * @param {number} passIdx 
+     * @param {number} cullMode
+     * @param {number} passIdx
      */
     setCullMode (cullMode = gfx.CULL_BACK, passIdx) {
         this._effect.setCullMode(cullMode, passIdx);
@@ -293,10 +308,10 @@ let Material = cc.Class({
      * !#en Sets the Material depth states.
      * !#zh 设置材质的深度渲染状态。
      * @method setDepth
-     * @param {boolean} depthTest 
-     * @param {boolean} depthWrite 
-     * @param {number} depthFunc 
-     * @param {number} passIdx 
+     * @param {boolean} depthTest
+     * @param {boolean} depthWrite
+     * @param {number} depthFunc
+     * @param {number} passIdx
      */
     setDepth (
         depthTest = false,
@@ -311,15 +326,15 @@ let Material = cc.Class({
      * !#en Sets the Material blend states.
      * !#zh 设置材质的混合渲染状态。
      * @method setBlend
-     * @param {boolean} enabled 
-     * @param {number} blendEq 
-     * @param {number} blendSrc 
-     * @param {number} blendDst 
-     * @param {number} blendAlphaEq 
-     * @param {number} blendSrcAlpha 
-     * @param {number} blendDstAlpha 
-     * @param {number} blendColor 
-     * @param {number} passIdx 
+     * @param {boolean} enabled
+     * @param {number} blendEq
+     * @param {number} blendSrc
+     * @param {number} blendDst
+     * @param {number} blendAlphaEq
+     * @param {number} blendSrcAlpha
+     * @param {number} blendDstAlpha
+     * @param {number} blendColor
+     * @param {number} passIdx
      */
     setBlend (
         enabled = false,
@@ -339,8 +354,8 @@ let Material = cc.Class({
      * !#en Sets whether enable the stencil test.
      * !#zh 设置是否开启模板测试。
      * @method setStencilEnabled
-     * @param {number} stencilTest 
-     * @param {number} passIdx 
+     * @param {number} stencilTest
+     * @param {number} passIdx
      */
     setStencilEnabled (stencilTest = gfx.STENCIL_INHERIT, passIdx) {
         this._effect.setStencilEnabled(stencilTest, passIdx);
@@ -350,15 +365,15 @@ let Material = cc.Class({
      * !#en Sets the Material stencil render states.
      * !#zh 设置材质的模板测试渲染参数。
      * @method setStencil
-     * @param {number} stencilTest 
-     * @param {number} stencilFunc 
-     * @param {number} stencilRef 
-     * @param {number} stencilMask 
-     * @param {number} stencilFailOp 
-     * @param {number} stencilZFailOp 
-     * @param {number} stencilZPassOp 
-     * @param {number} stencilWriteMask 
-     * @param {number} passIdx 
+     * @param {number} stencilTest
+     * @param {number} stencilFunc
+     * @param {number} stencilRef
+     * @param {number} stencilMask
+     * @param {number} stencilFailOp
+     * @param {number} stencilZFailOp
+     * @param {number} stencilZPassOp
+     * @param {number} stencilWriteMask
+     * @param {number} passIdx
      */
     setStencil (
         stencilTest = gfx.STENCIL_INHERIT,

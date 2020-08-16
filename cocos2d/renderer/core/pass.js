@@ -33,7 +33,7 @@ export default class Pass {
 
         // stencil
         this._stencilTest = gfx.STENCIL_INHERIT;
-        
+
         // front
         this._stencilFuncFront = gfx.DS_FUNC_ALWAYS;
         this._stencilRefFront = 0;
@@ -136,6 +136,10 @@ export default class Pass {
 
     setProperties (properties) {
         this._properties = properties;
+    }
+
+    hasProperty (name) {
+        return !!this._properties[name];
     }
 
     getProperty (name) {
