@@ -45,10 +45,10 @@ function parseProperties (effectAsset, passJson) {
         }
         else {
             value = enums2default[u.type];
+        }
 
-            if (value === undefined) {
-                value = null;
-            }
+        if (value === undefined) {
+            value = null;
         }
 
         prop.value = value;
