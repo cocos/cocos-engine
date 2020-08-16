@@ -790,6 +790,9 @@ export class Game extends EventTarget {
     }
     // Run game.
     private _runMainLoop () {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
+            return;
+        }
         let callback: FrameRequestCallback;
         const config = this.config;
         const director = legacyCC.director;
