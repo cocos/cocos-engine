@@ -410,8 +410,6 @@ export class PlanarShadowInfo {
 
     protected _resource: PlanarShadows | null = null;
 
-    // protected _shadowInfo: ShadowInfo | null = null;
-
     /**
      * @en Whether activate planar shadow
      * @zh 是否启用平面阴影？
@@ -420,7 +418,6 @@ export class PlanarShadowInfo {
     set enabled (val: boolean) {
         this._enabled = val;
         if (this._resource) { this._resource.enabled = val; }
-        // if (this._shadowInfo) { this._shadowInfo.enabled = !val; }
     }
     get enabled () {
         return this._enabled;
@@ -479,7 +476,6 @@ export class PlanarShadowInfo {
 
     set renderScene (val: RenderScene) {
         this._resource = val.planarShadows;
-        // this._shadowInfo = val.shadowInfo;
         this.normal = this._normal;
         this.distance = this._distance;
         this.shadowColor = this._shadowColor;
@@ -507,8 +503,6 @@ export class Shadow {
     @property
     protected _size: Vec2 = new Vec2(512, 512);
 
-    // protected _resource: PlanarShadows | null = null;
-
     protected _shadowInfo: ShadowInfo | null = null;
 
     /**
@@ -518,7 +512,6 @@ export class Shadow {
     @property({ type: CCBoolean })
     set enabled (val: boolean) {
         this._enabled = val;
-        // if (this._resource) { this._resource.enabled = !val; }
         if (this._shadowInfo) { this._shadowInfo.enabled = val; }
     }
     get enabled () {
@@ -578,7 +571,6 @@ export class Shadow {
     }
 
     set renderScene (val: RenderScene) {
-        // this._resource = val.planarShadows;
         this._shadowInfo = val.shadowInfo;
         this.enabled = this._enabled;
         this.near = this._near;
