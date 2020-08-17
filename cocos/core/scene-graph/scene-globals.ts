@@ -505,6 +505,8 @@ export class Shadow {
 
     protected _shadowInfo: ShadowInfo | null = null;
 
+    protected _scene: RenderScene | null = null;
+
     /**
      * @en Whether activate shadow
      * @zh 是否启用常规阴影？
@@ -512,7 +514,10 @@ export class Shadow {
     @property({ type: CCBoolean })
     set enabled (val: boolean) {
         this._enabled = val;
-        if (this._shadowInfo) { this._shadowInfo.enabled = val; }
+        if (this._shadowInfo) {
+            this._shadowInfo._enabled = val;
+            this._shadowInfo.updatePipeline(this._scene!);
+        }
     }
     get enabled () {
         return this._enabled;
@@ -525,7 +530,7 @@ export class Shadow {
     @property({ type: CCFloat })
     set near (val: number) {
         this._near = val;
-        if (this._shadowInfo) { this._shadowInfo.shadowCameraNear = val; }
+        if (this._shadowInfo) { this._shadowInfo._shadowCameraNear = val; }
     }
     get near () {
         return this._near;
@@ -538,7 +543,7 @@ export class Shadow {
     @property({ type: CCFloat })
     set far (val: number) {
         this._far = val;
-        if (this._shadowInfo) { this._shadowInfo.shadowCameraFar = val; }
+        if (this._shadowInfo) { this._shadowInfo._shadowCameraFar = val; }
     }
     get far () {
         return this._far;
@@ -551,7 +556,7 @@ export class Shadow {
     @property({ type: CCFloat })
     set orthoSize (val: number) {
         this._orthoSize = val;
-        if (this._shadowInfo) { this._shadowInfo.shadowCameraOrthoSize = val; }
+        if (this._shadowInfo) { this._shadowInfo._shadowCameraOrthoSize = val; }
     }
     get orthoSize () {
         return this._orthoSize;
@@ -564,13 +569,14 @@ export class Shadow {
     @property({ type: Vec2 })
     set shadowMapSize (val: Vec2) {
         this._size.set(val);
-        if (this._shadowInfo) { this._shadowInfo.size = val; }
+        if (this._shadowInfo) { this._shadowInfo._shadowMapSize = val; }
     }
     get shadowMapSize () {
         return this._size;
     }
 
     set renderScene (val: RenderScene) {
+        this._scene = val;
         this._shadowInfo = val.shadowInfo;
         this.enabled = this._enabled;
         this.near = this._near;

@@ -1,50 +1,16 @@
 import { Vec2 } from '../../math';
+import { RenderScene } from './render-scene';
 
 export class ShadowInfo {
 
-    public set shadowCameraNear (val: number) {
-        this._shadowCameraNear = val;
-    }
-    public get shadowCameraNear () :number {
-        return this._shadowCameraNear;
-    }
+    // Define shadwoMapCamera
+    public _shadowCameraNear: number = 1;
+    public _shadowCameraFar: number = 30;
+    public _shadowCameraAspect: number = 1;
+    public _shadowCameraOrthoSize: number = 5;
 
-    public set shadowCameraFar (val: number) {
-        this._shadowCameraFar = val;
-    }
-    public get shadowCameraFar () :number {
-        return this._shadowCameraFar;
-    }
-
-    public set shadowCameraAspect (val: number) {
-        this._shadowCameraAspect = val;
-    }
-    public get shadowCameraAspect () :number {
-        return this._shadowCameraAspect;
-    }
-
-    public set shadowCameraOrthoSize (val: number) {
-        this._shadowCameraOrthoSize = val;
-    }
-    public get shadowCameraOrthoSize () :number {
-        return this._shadowCameraOrthoSize;
-    }
-
-    public set size (val: Vec2) {
-        this._shadowMapSize = val;
-    }
-    public get size (): Vec2 {
-        return this._shadowMapSize;
-    }
-
-    public set enabled (val: boolean) {
-        this._enabled = val;
-    }
-    public get enabled () :boolean {
-        return this._enabled;
-    }
-
-    constructor () {}
+    public _shadowMapSize: Vec2 = new Vec2(512, 512);
+    public _enabled: boolean = true;
 
     public static get shadowInfoInstance (): ShadowInfo {
         if (!this._shadowInfo) {
@@ -54,14 +20,12 @@ export class ShadowInfo {
         return this._shadowInfo;
     }
 
-    // Define shadwoMapCamera
-    protected _shadowCameraNear: number = 1;
-    protected _shadowCameraFar: number = 30;
-    protected _shadowCameraAspect: number = 1;
-    protected _shadowCameraOrthoSize: number = 5;
-
-    protected _shadowMapSize: Vec2 = new Vec2(512, 512);
-    protected _enabled: boolean = true;
+    public updatePipeline (scene: RenderScene) {
+        const pipeline = scene.root.pipeline;
+        if (pipeline.macros.CC_RECEIVE_SHADOW === this._enabled) { return; }
+        pipeline.macros.CC_RECEIVE_SHADOW = this._enabled;
+        scene.onGlobalPipelineStateChanged();
+    }
 
     protected static _shadowInfo: ShadowInfo|null = null;
 }

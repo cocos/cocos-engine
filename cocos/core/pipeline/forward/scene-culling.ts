@@ -82,7 +82,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                     model.updateTransform(stamp);
 
                     // shadow render Object
-                    if (model.castShadow && ShadowInfo.shadowInfoInstance.enabled) {
+                    if (model.castShadow) {
                         model.updateUBOs(stamp);
                         shadowObjects.push(getCastShadowRenderObject(model, camera));
                     }
