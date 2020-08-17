@@ -20,7 +20,7 @@ export interface IBatchedItem {
     mergeCount: number;
     ia: GFXInputAssembler;
     ubo: GFXBuffer;
-    uboData: UBOLocalBatched;
+    uboData: Float32Array;
     descriptorSet: GFXDescriptorSet;
     hPass: PassHandle;
     hShader: ShaderHandle;
@@ -119,7 +119,7 @@ export class BatchedBuffer {
                     }
 
                     // update world matrix
-                    Mat4.toArray(batch.uboData.view, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
+                    Mat4.toArray(batch.uboData, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
                     if (!batch.mergeCount) {
                         descriptorSet.bindBuffer(UBOLocalBatched.BLOCK.binding, batch.ubo);
                         descriptorSet.update();
@@ -191,8 +191,8 @@ export class BatchedBuffer {
         descriptorSet.bindBuffer(UBOLocalBatched.BLOCK.binding, ubo);
         descriptorSet.update();
 
-        const uboData = new UBOLocalBatched();
-        Mat4.toArray(uboData.view, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET);
+        const uboData = new Float32Array(UBOLocalBatched.COUNT);
+        Mat4.toArray(uboData, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET);
 
         this.batches.push({
             mergeCount: 1,
@@ -206,13 +206,6 @@ export class BatchedBuffer {
             batch.vbCount = 0;
             batch.mergeCount = 0;
             batch.ia.vertexCount = 0;
-        }
-    }
-
-    public clearUBO () {
-        for (let i = 0; i < this.batches.length; ++i) {
-            const batch = this.batches[i];
-            batch.ubo.update(_localBatched.view.buffer);
         }
     }
 }

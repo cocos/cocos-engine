@@ -28,7 +28,7 @@
  * @category core
  */
 
-import { EDITOR, TEST, WECHAT, ALIPAY, XIAOMI, BAIDU, COCOSPLAY, JSB, MINIGAME, HUAWEI, OPPO, VIVO, RUNTIME_BASED } from 'internal:constants';
+import { EDITOR, TEST, COCOSPLAY, JSB, MINIGAME, HUAWEI, OPPO, VIVO, RUNTIME_BASED } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID, log, logID } from './debug';
 
@@ -968,9 +968,6 @@ else {
     if (TEST) {
         _supportWebGL = false;
     }
-    else if (WECHAT) {
-        _supportWebGL = true;
-    }
     else if (RUNTIME_BASED) {
         _supportWebGL = true;
     }
@@ -1047,9 +1044,7 @@ else {
 
         // check if browser supports Web Audio
         // check Web Audio's context
-        const supportWebAudio = !WECHAT &&
-            // @ts-ignore
-            !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
+        const supportWebAudio = !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 
         __audioSupport = { ONLY_ONE: false, WEB_AUDIO: supportWebAudio, DELAY_CREATE_CTX: false };
 

@@ -227,15 +227,6 @@ class InputManager {
     }
 
     public getHTMLElementPosition (element: HTMLElement): IHTMLElementPosition {
-        if (sys.platform === sys.WECHAT_GAME) {
-            return {
-                left: 0,
-                top: 0,
-                width: window.innerWidth,
-                height: window.innerHeight,
-            };
-        }
-
         const docElem = document.documentElement;
         let leftOffset = sys.os === sys.OS_IOS && sys.isBrowser ? window.screenLeft : window.pageXOffset;
         leftOffset -= docElem.clientLeft;
@@ -335,13 +326,9 @@ class InputManager {
             return {x: event.pageX, y: event.pageY};
         }
 
-        if (sys.platform === sys.WECHAT_GAME) {
-            pos.left = 0;
-            pos.top = 0;
-        } else {
-            pos.left -= document.body.scrollLeft;
-            pos.top -= document.body.scrollTop;
-        }
+        pos.left -= document.body.scrollLeft;
+        pos.top -= document.body.scrollTop;
+
         return {x: event.clientX, y: event.clientY};
     }
 
@@ -350,14 +337,10 @@ class InputManager {
         const locView = this._glView;
         const locPreTouch = this._preTouchPoint;
 
-        let length = 1;
-        if (macro.ENABLE_MULTI_TOUCH) {
-            length = event.touches.length;
-        }
-
+        const length = event.changedTouches.length;
         for (let i = 0; i < length; i++) {
             // const changedTouch = event.changedTouches.item(i);
-            const changedTouch = event.touches[i];
+            const changedTouch = event.changedTouches[i];
             if (!changedTouch) {
                 continue;
             }
@@ -397,11 +380,6 @@ class InputManager {
         let prohibition = sys.isMobile;
         let supportMouse = ('mouse' in sys.capabilities);
         let supportTouches = ('touches' in sys.capabilities);
-        if (sys.platform === sys.WECHAT_GAME) {
-            prohibition = false;
-            supportTouches = true;
-            supportMouse = false;
-        }
 
         // Register mouse events.
         if (supportMouse) {
@@ -577,7 +555,6 @@ class InputManager {
         // The known browser:
         //  liebiao
         //  miui
-        //  WECHAT
         this._registerPointerLockEvent();
         if (!prohibition) {
             this._registerWindowMouseEvents(element);
@@ -727,9 +704,7 @@ class InputManager {
 
         element.addEventListener('touchstart', makeTouchListener((touchesToHandle) => {
             this.handleTouchesBegin(touchesToHandle);
-            if (sys.platform !== sys.WECHAT_GAME) {
-                element.focus();
-            }
+            element.focus();
         }), false);
 
         element.addEventListener('touchmove', makeTouchListener((touchesToHandle) => {

@@ -228,8 +228,7 @@ export class WebGLDevice extends GFXDevice {
             };
 
             /*
-            if (cc.sys.platform === cc.sys.WECHAT_GAME ||
-                cc.sys.platform === cc.sys.QQ_PLAY) {
+            if (WECHAT) {
                 webGLCtxAttribs.preserveDrawingBuffer = true;
             }
             */
@@ -356,7 +355,7 @@ export class WebGLDevice extends GFXDevice {
 
             // some earlier version of iOS and android wechat implement gl.detachShader incorrectly
             if ((sys.os === sys.OS_IOS && sys.osMainVersion <= 10) ||
-                (sys.platform === sys.WECHAT_GAME && sys.os === sys.OS_ANDROID)) {
+                (WECHAT && sys.os === sys.OS_ANDROID)) {
                 this._destroyShadersImmediately = false;
             }
 

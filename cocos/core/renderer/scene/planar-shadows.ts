@@ -12,6 +12,7 @@ import { GFXCommandBuffer, GFXDevice, GFXRenderPass, GFXDescriptorSet, GFXShader
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
 import { DSPool, ShaderPool, PassPool, PassView } from '../core/memory-pools';
+import { ForwardPipeline } from '../../pipeline';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -53,15 +54,10 @@ export class PlanarShadows {
 
     set shadowColor (color: Color) {
         Color.toArray(this._data, color, UBOShadow.SHADOW_COLOR_OFFSET);
-        this._globalDescriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
     }
 
     get matLight () {
         return this._matLight;
-    }
-
-    get data () {
-        return this._data;
     }
 
     protected _scene: RenderScene;
@@ -69,11 +65,7 @@ export class PlanarShadows {
     protected _normal = new Vec3(0, 1, 0);
     protected _distance = 0;
     protected _matLight = new Mat4();
-    protected _data = Float32Array.from([
-        1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, // matLightPlaneProj
-        0.0, 0.0, 0.0, 0.3, // shadowColor
-    ]);
-    protected _globalDescriptorSet: GFXDescriptorSet;
+    protected _data: Float32Array;
     protected _record = new Map<Model, IShadowRenderData>();
     protected _pendingModels: IShadowRenderData[] = [];
     protected _material: Material;
@@ -82,7 +74,7 @@ export class PlanarShadows {
 
     constructor (scene: RenderScene) {
         this._scene = scene;
-        this._globalDescriptorSet = scene.root.pipeline.descriptorSet;
+        this._data = (scene.root.pipeline as ForwardPipeline).shadowUBO;
         this._material = new Material();
         this._material.initialize({ effectName: 'pipeline/planar-shadow' });
         this._instancingMaterial = new Material();
@@ -112,8 +104,7 @@ export class PlanarShadows {
         m.m13 = ly * d;
         m.m14 = lz * d;
         m.m15 = NdL;
-        Mat4.toArray(this.data, this._matLight);
-        this._globalDescriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
+        Mat4.toArray(this._data, this._matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
     }
 
     public updateDirLight (light: DirectionalLight) {
@@ -140,8 +131,7 @@ export class PlanarShadows {
         m.m13 = ly * d;
         m.m14 = lz * d;
         m.m15 = 1;
-        Mat4.toArray(this.data, this._matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
-        this._globalDescriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
+        Mat4.toArray(this._data, this._matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
     }
 
     public updateShadowList (frstm: frustum, stamp: number, shadowVisible = false) {

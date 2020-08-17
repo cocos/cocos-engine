@@ -35,11 +35,11 @@ export class RenderShadowMapBatchedQueue {
 
     public add (renderObj: IRenderObject, subModelIdx: number, passIdx: number) {
         const subModel = renderObj.model.subModels[subModelIdx];
-        const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx));
         const pass = subModel.passes[passIdx];
 
         if (pass.phase === this._phaseID) {
             if (this._shadowMapBuffer) {
+                const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx));
                 this._subModelsArray.push(subModel);
                 this._shaderArray.push(shader);
                 this._passArray.push(pass.handle);

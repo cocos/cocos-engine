@@ -89,7 +89,6 @@ export const localDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: []
 export enum PipelineGlobalBindings {
     UBO_GLOBAL,
     UBO_SHADOW,
-    UBO_PCF_SHADOW,
 
     SAMPLER_ENVIRONMENT,
     SAMPLER_SHADOWMAP,
@@ -154,8 +153,7 @@ export class UBOGlobal {
     public static EXPOSURE_OFFSET: number = UBOGlobal.CAMERA_POS_OFFSET + 4;
     public static MAIN_LIT_DIR_OFFSET: number = UBOGlobal.EXPOSURE_OFFSET + 4;
     public static MAIN_LIT_COLOR_OFFSET: number = UBOGlobal.MAIN_LIT_DIR_OFFSET + 4;
-    public static MAIN_SHADOW_MATRIX_OFFSET: number = UBOGlobal.MAIN_LIT_COLOR_OFFSET + 4;
-    public static AMBIENT_SKY_OFFSET: number = UBOGlobal.MAIN_SHADOW_MATRIX_OFFSET + 16;
+    public static AMBIENT_SKY_OFFSET: number = UBOGlobal.MAIN_LIT_COLOR_OFFSET + 4;
     public static AMBIENT_GROUND_OFFSET: number = UBOGlobal.AMBIENT_SKY_OFFSET + 4;
     public static GLOBAL_FOG_COLOR_OFFSET: number = UBOGlobal.AMBIENT_GROUND_OFFSET + 4;
     public static GLOBAL_FOG_BASE_OFFSET: number = UBOGlobal.GLOBAL_FOG_COLOR_OFFSET + 4;
@@ -180,7 +178,6 @@ export class UBOGlobal {
             { name: 'cc_exposure', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_mainLitDir', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_mainLitColor', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_shadowLightMatrix', type: GFXType.MAT4, count: 1 },
             { name: 'cc_ambientSky', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_ambientGround', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_fogColor', type: GFXType.FLOAT4, count: 1 },
@@ -188,8 +185,6 @@ export class UBOGlobal {
             { name: 'cc_fogAdd', type: GFXType.FLOAT4, count: 1 },
         ],
     };
-
-    public view: Float32Array = new Float32Array(UBOGlobal.COUNT);
 }
 globalDescriptorSetLayout.record[UBOGlobal.BLOCK.name] = UBOGlobal.BLOCK;
 globalDescriptorSetLayout.bindings[UBOGlobal.BLOCK.binding] = UBOGlobal.BLOCK;
@@ -200,7 +195,8 @@ globalDescriptorSetLayout.bindings[UBOGlobal.BLOCK.binding] = UBOGlobal.BLOCK;
  */
 export class UBOShadow {
     public static MAT_LIGHT_PLANE_PROJ_OFFSET: number = 0;
-    public static SHADOW_COLOR_OFFSET: number = UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
+    public static MAT_LIGHT_VIEW_PROJ_OFFSET: number = UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
+    public static SHADOW_COLOR_OFFSET: number = UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
     public static COUNT: number = UBOShadow.SHADOW_COLOR_OFFSET + 4;
     public static SIZE: number = UBOShadow.COUNT * 4;
 
@@ -208,34 +204,13 @@ export class UBOShadow {
         stageFlags: GFXShaderStageFlagBit.ALL, descriptorType: GFXDescriptorType.UNIFORM_BUFFER, count: 1,
         set: SetIndex.GLOBAL, binding: PipelineGlobalBindings.UBO_SHADOW, name: 'CCShadow', members: [
             { name: 'cc_matLightPlaneProj', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_matLightViewProj', type: GFXType.MAT4, count: 1 },
             { name: 'cc_shadowColor', type: GFXType.FLOAT4, count: 1 },
         ],
     };
-
-    public view: Float32Array = new Float32Array(UBOShadow.COUNT);
 }
 globalDescriptorSetLayout.record[UBOShadow.BLOCK.name] = UBOShadow.BLOCK;
 globalDescriptorSetLayout.bindings[UBOShadow.BLOCK.binding] = UBOShadow.BLOCK;
-
-/**
- * The uniform buffer object for PCFshadow
- */
-export class UBOPCFShadow {
-    public static MAT_SHADOW_VIEW_PROJ_OFFSET: number = 0;
-    public static COUNT: number = UBOPCFShadow.MAT_SHADOW_VIEW_PROJ_OFFSET + 16;
-    public static SIZE: number = UBOPCFShadow.COUNT * 4;
-
-    public static BLOCK: IBlockInfo = {
-        stageFlags: GFXShaderStageFlagBit.ALL, descriptorType: GFXDescriptorType.UNIFORM_BUFFER, count: 1,
-        set: SetIndex.GLOBAL, binding: PipelineGlobalBindings.UBO_PCF_SHADOW, name: 'CCPCFShadow', members: [
-            { name: 'cc_shadowMatViewProj', type: GFXType.MAT4, count: 1 },
-        ],
-    };
-
-    public view: Float32Array = new Float32Array(UBOPCFShadow.COUNT);
-}
-globalDescriptorSetLayout.record[UBOPCFShadow.BLOCK.name] = UBOPCFShadow.BLOCK;
-globalDescriptorSetLayout.bindings[UBOPCFShadow.BLOCK.binding] = UBOPCFShadow.BLOCK;
 
 export const UNIFORM_SHADOWMAP: ISamplerInfo = {
     stageFlags: GFXShaderStageFlagBit.FRAGMENT, descriptorType: GFXDescriptorType.SAMPLER, count: 1,
@@ -270,8 +245,6 @@ export class UBOLocal {
             { name: 'cc_lightingMapUVParam', type: GFXType.FLOAT4, count: 1 },
         ],
     };
-
-    public view: Float32Array = new Float32Array(UBOLocal.COUNT);
 }
 localDescriptorSetLayout.record[UBOLocal.BLOCK.name] = UBOLocal.BLOCK;
 localDescriptorSetLayout.bindings[UBOLocal.BLOCK.binding] = UBOLocal.BLOCK;
@@ -290,8 +263,6 @@ export class UBOLocalBatched {
             { name: 'cc_matWorlds', type: GFXType.MAT4, count: UBOLocalBatched.BATCHING_COUNT },
         ],
     };
-
-    public view: Float32Array = new Float32Array(UBOLocalBatched.COUNT);
 }
 localDescriptorSetLayout.record[UBOLocalBatched.BLOCK.name] = UBOLocalBatched.BLOCK;
 localDescriptorSetLayout.bindings[UBOLocalBatched.BLOCK.binding] = UBOLocalBatched.BLOCK;
@@ -319,8 +290,6 @@ export class UBOForwardLight {
             { name: 'cc_lightDir', type: GFXType.FLOAT4, count: UBOForwardLight.LIGHTS_PER_PASS },
         ],
     };
-
-    public view: Float32Array = new Float32Array(UBOForwardLight.COUNT);
 }
 localDescriptorSetLayout.record[UBOForwardLight.BLOCK.name] = UBOForwardLight.BLOCK;
 localDescriptorSetLayout.bindings[UBOForwardLight.BLOCK.binding] = UBOForwardLight.BLOCK;
