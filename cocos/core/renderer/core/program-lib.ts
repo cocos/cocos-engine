@@ -228,9 +228,18 @@ class ProgramLib {
         // store it
         this._templates[prog.name] = tmpl;
 
-        if (!this._pipelineLayouts[prog.name]) {
-            this._pipelineLayouts[prog.name] = { hPipelineLayout: NULL_HANDLE, setLayouts: [] };
-        }
+        // const pl = this._pipelineLayouts[prog.name];
+        // if (pl) {
+        //     if (pl.hPipelineLayout) {
+        //         PipelineLayoutPool.free(pl.hPipelineLayout);
+        //     }
+        //     for (let i = 0; i < pl.setLayouts.length; i++) {
+        //         const setLayout = pl.setLayouts[i];
+        //         if (setLayout) setLayout.destroy();
+        //     }
+        // }
+
+        this._pipelineLayouts[prog.name] = { hPipelineLayout: NULL_HANDLE, setLayouts: [] };
     }
 
     public getTemplate (name: string) {
@@ -333,7 +342,13 @@ class ProgramLib {
             insertBuiltinBindings(tmpl, pipeline.globalDescriptorSetLayout, 'globals');
             insertBuiltinBindings(tmpl, pipeline.localDescriptorSetLayout, 'locals');
             layout.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
-            // material set layout should already been created in pass
+            // material set layout should already been created in pass, but if not
+            // (like when the same shader is overriden) we create it again here
+            if (!layout.setLayouts[SetIndex.MATERIAL]) {
+                layout.setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout({
+                    bindings: tmpl.bindings,
+                });
+            }
             layout.setLayouts[SetIndex.LOCAL] = _dsLayout = _dsLayout || device.createDescriptorSetLayout({
                 bindings: pipeline.localDescriptorSetLayout.bindings,
             });
