@@ -271,7 +271,7 @@ export class Fog {
     private _currType = 0;
     protected _colorArray: Float32Array = new Float32Array([0.2, 0.2, 0.2, 1.0]);
 
-    constructor () {
+    public active () {
         Color.toArray(this._colorArray, this._fogColor);
     }
 

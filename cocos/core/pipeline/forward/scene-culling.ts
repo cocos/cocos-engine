@@ -50,7 +50,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     const planarShadows = pipeline.planarShadows;
     if (mainLight) {
         mainLight.update();
-        if (planarShadows.enabled && mainLight.node!.hasChangedFlags) {
+        if (planarShadows.enabled) {
             planarShadows.updateDirLight(mainLight);
         }
     }

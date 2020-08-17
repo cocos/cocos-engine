@@ -42,6 +42,7 @@ export class PlanarShadows {
 
     set enabled (enable: boolean) {
         this._enabled = enable;
+        this._dirty = true;
     }
 
     /**
@@ -54,6 +55,7 @@ export class PlanarShadows {
 
     set normal (val: Vec3) {
         Vec3.copy(this._normal, val);
+        this._dirty = true;
     }
 
     /**
@@ -66,6 +68,7 @@ export class PlanarShadows {
 
     set distance (val: number) {
         this._distance = val;
+        this._dirty = true;
     }
 
     /**
@@ -84,6 +87,7 @@ export class PlanarShadows {
                 this._globalDescriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
             }
         }
+        this._dirty = true;
     }
 
     get matLight () {
@@ -125,15 +129,14 @@ export class PlanarShadows {
     protected _instancingMaterial: Material | null = null;
     protected _device: GFXDevice|null = null;
     protected _globalDescriptorSet: GFXDescriptorSet | null = null;
-
-    constructor () {
-        Color.toArray(this._data, this._shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
-    }
+    protected _dirty: boolean = true;
 
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
         this._globalDescriptorSet = pipeline.descriptorSet;
         this._data = (pipeline as ForwardPipeline).shadowUBO;
+        Color.toArray(this._data, this._shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
+        this._globalDescriptorSet!.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
         this._material = new Material();
         this._material.initialize({ effectName: 'pipeline/planar-shadow' });
         this._instancingMaterial = new Material();
@@ -168,6 +171,12 @@ export class PlanarShadows {
     }
 
     public updateDirLight (light: DirectionalLight) {
+        if (!light.node!.hasChangedFlags && !this._dirty) {
+            return;
+        }
+
+        this._dirty = false;
+
         light.node!.getWorldRotation(_qt);
         Vec3.transformQuat(_v3, _forward, _qt);
         const n = this._normal; const d = this._distance + 0.001; // avoid z-fighting

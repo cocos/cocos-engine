@@ -212,8 +212,10 @@ export class ForwardPipeline extends RenderPipeline {
             return false;
         }
 
-        this._skybox.activate();
-        this._planarShadows.activate();
+        this._ambient.enabled && this._ambient.active();
+        this._fog.enabled && this._fog.active();
+        this._skybox.enabled && this._skybox.activate();
+        this._planarShadows.enabled && this._planarShadows.activate();
 
         return true;
     }

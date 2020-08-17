@@ -155,6 +155,7 @@
         "cc.RatioSampler",
         "cc.RawAsset",
         "cc.Rect",
+        "cc.RenderPipeline",
         "cc.RenderFlow",
         "cc.RenderPassStage",
         "cc.RenderStage",

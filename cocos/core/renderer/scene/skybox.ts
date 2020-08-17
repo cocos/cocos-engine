@@ -77,7 +77,7 @@ export class Skybox {
     /**
      * @en The texture cube used for the skybox
      * @zh 使用的立方体贴图
-    */
+     */
     get envmap () {
         return this._envmap;
     }

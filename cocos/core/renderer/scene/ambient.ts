@@ -81,7 +81,7 @@ export class Ambient {
     protected _albedoArray = Float32Array.from([0.2, 0.2, 0.2, 1.0]);
     protected _colorArray = Float32Array.from([0.2, 0.5, 0.8, 1.0]);
 
-    constructor () {
+    public active () {
         Color.toArray(this._colorArray, this._skyColor);
     }
 
