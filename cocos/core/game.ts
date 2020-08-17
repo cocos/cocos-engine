@@ -638,7 +638,13 @@ export class Game extends EventTarget {
                     this.setRenderPipeline();
                 }
                 else {
-                    this.setRenderPipeline(asset);
+                    try {
+                        this.setRenderPipeline(asset);
+                    } catch (e) {
+                        console.warn(e);
+                        console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
+                        this.setRenderPipeline();
+                    }
                 }
                 this._safeEmit(Game.EVENT_GAME_INITED);
                 if (useSplash) {
