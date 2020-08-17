@@ -18,6 +18,7 @@ import { PREVIEW } from 'internal:constants';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { Fog } from './fog';
 import { legacyCC } from '../../global-exports';
+import { ShadowInfo } from './shadowInfo';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -80,6 +81,10 @@ export class RenderScene {
         return this._models;
     }
 
+    get shadowInfo (): ShadowInfo {
+        return this._shadowInfo;
+    }
+
     /**
      * @zh
      * 获取 raycastAllCanvas 后的检测结果
@@ -129,6 +134,7 @@ export class RenderScene {
     private _mainLight: DirectionalLight | null = null;
     private _modelId: number = 0;
     private _fog: Fog;
+    private _shadowInfo: ShadowInfo;
 
     constructor (root: Root) {
         this._root = root;
@@ -136,6 +142,7 @@ export class RenderScene {
         this._skybox = new Skybox(this);
         this._planarShadows = new PlanarShadows(this);
         this._fog = new Fog(this);
+        this._shadowInfo = ShadowInfo.instance;
     }
 
     public initialize (info: IRenderSceneInfo): boolean {

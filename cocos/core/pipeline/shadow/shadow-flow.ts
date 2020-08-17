@@ -13,6 +13,7 @@ import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
 import { RenderFlowTag } from '../pipeline-serialization';
 import { RenderView, ForwardPipeline } from '../..';
 import { sceneCulling } from '../forward/scene-culling';
+import { ShadowInfo } from '../../renderer/scene/shadowInfo';
 
 /**
  * @zh 阴影贴图绘制流程
@@ -34,6 +35,8 @@ export class ShadowFlow extends RenderFlow {
     private _shadowRenderTargets: GFXTexture[] = [];
     private _shadowFrameBuffer: GFXFramebuffer|null = null;
     private _depth: GFXTexture|null = null;
+    private _width: number = 0;
+    private _height: number = 0;
 
     public initialize (info: IRenderFlowInfo): boolean{
         super.initialize(info);
@@ -50,7 +53,9 @@ export class ShadowFlow extends RenderFlow {
         super.activate(pipeline);
 
         const device = pipeline.device;
-        const shadowMapSize = pipeline.shadowMapSize;
+        const shadowMapSize = ShadowInfo.instance.shadowMapSize;
+        this._width = shadowMapSize.x;
+        this._height = shadowMapSize.y;
 
         if(!this._shadowRenderPass) {
             this._shadowRenderPass = device.createRenderPass({
@@ -80,8 +85,8 @@ export class ShadowFlow extends RenderFlow {
                 type: GFXTextureType.TEX2D,
                 usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
                 format: GFXFormat.RGBA8,
-                width: shadowMapSize.x,
-                height: shadowMapSize.y,
+                width: this._width,
+                height: this._height,
             }));
         }
 
@@ -90,8 +95,8 @@ export class ShadowFlow extends RenderFlow {
                 type: GFXTextureType.TEX2D,
                 usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
                 format: device.depthStencilFormat,
-                width: shadowMapSize.x,
-                height: shadowMapSize.y,
+                width: this._width,
+                height: this._height,
             });
         }
 
@@ -109,11 +114,43 @@ export class ShadowFlow extends RenderFlow {
     }
 
     public render (view: RenderView) {
+        const shadowInfo = ShadowInfo.instance;
+        if (!shadowInfo.enabled) { return; }
+
+        const shadowMapSize = shadowInfo.shadowMapSize;
+        if (this._width !== shadowMapSize.x || this._height !== shadowMapSize.y) {
+            this.resizeShadowMap(shadowMapSize.x,shadowMapSize.y);
+            this._width = shadowMapSize.x;
+            this._height = shadowMapSize.y;
+        }
+
         const pipeline = this._pipeline as ForwardPipeline;
         view.camera.update();
         sceneCulling(pipeline, view);
         pipeline.updateUBOs(view);
         super.render(view);
         pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this._shadowFrameBuffer!.colorTextures[0]!);
+    }
+
+    private resizeShadowMap (width: number, height: number) {
+        if (this._depth) {
+            this._depth.resize(width, height);
+        }
+
+        if (this._shadowRenderTargets.length > 0) {
+            for (let i = 0; i< this._shadowRenderTargets.length; i++) {
+                const renderTarget = this._shadowRenderTargets[i];
+                if (renderTarget) { renderTarget.resize(width, height); }
+            }
+        }
+
+        if(this._shadowFrameBuffer) {
+            this._shadowFrameBuffer.destroy();
+            this._shadowFrameBuffer.initialize({
+                renderPass: this._shadowRenderPass!,
+                colorTextures: this._shadowRenderTargets,
+                depthStencilTexture: this._depth,
+            });
+        }
     }
 }

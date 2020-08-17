@@ -30,7 +30,7 @@
 import { TextureCube } from '../assets/texture-cube';
 import { ccclass, float, property } from '../data/class-decorator';
 import { CCBoolean, CCFloat } from '../data/utils/attribute';
-import { Color, Quat, Vec3 } from '../math';
+import { Color, Quat, Vec3, Vec2 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
 import { PlanarShadows } from '../renderer/scene/planar-shadows';
 import { RenderScene } from '../renderer/scene/render-scene';
@@ -38,6 +38,7 @@ import { Skybox } from '../renderer/scene/skybox';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
+import { ShadowInfo } from '../renderer/scene/shadowInfo';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -484,6 +485,108 @@ export class PlanarShadowInfo {
 legacyCC.PlanarShadowInfo = PlanarShadowInfo;
 
 /**
+ * @en Scene level shadow related information
+ * @zh 常规阴影相关信息
+ */
+@ccclass('cc.Shadow')
+export class Shadow {
+    @property
+    protected _enabled: boolean = true;
+    @property
+    protected _near: number = 1;
+    @property
+    protected _far: number = 30;
+    @property
+    protected _aspect: number = 1;
+    @property
+    protected _orthoSize: number = 5;
+    @property
+    protected _size: Vec2 = new Vec2(512, 512);
+
+    protected _shadowInfo: ShadowInfo | null = null;
+
+    protected _scene: RenderScene | null = null;
+
+    /**
+     * @en Whether activate shadow
+     * @zh 是否启用常规阴影？
+     */
+    @property({ type: CCBoolean })
+    set enabled (val: boolean) {
+        this._enabled = val;
+        if (this._shadowInfo) {
+            this._shadowInfo.enabled = val;
+            this._shadowInfo.updatePipeline(this._scene!);
+        }
+    }
+    get enabled () {
+        return this._enabled;
+    }
+
+    /**
+     * @en get or set shadow camera near
+     * @zh 获取或者设置阴影相机近裁剪面
+     */
+    @property({ type: CCFloat })
+    set near (val: number) {
+        this._near = val;
+        if (this._shadowInfo) { this._shadowInfo.cameraNear = val; }
+    }
+    get near () {
+        return this._near;
+    }
+
+    /**
+     * @en get or set shadow camera far
+     * @zh 获取或者设置阴影相机远裁剪面
+     */
+    @property({ type: CCFloat })
+    set far (val: number) {
+        this._far = val;
+        if (this._shadowInfo) { this._shadowInfo.cameraFar = val; }
+    }
+    get far () {
+        return this._far;
+    }
+
+    /**
+     * @en get or set shadow camera orthoSize
+     * @zh 获取或者设置阴影相机正交大小
+     */
+    @property({ type: CCFloat })
+    set orthoSize (val: number) {
+        this._orthoSize = val;
+        if (this._shadowInfo) { this._shadowInfo.cameraOrthoSize = val; }
+    }
+    get orthoSize () {
+        return this._orthoSize;
+    }
+
+    /**
+     * @en get or set shadow camera orthoSize
+     * @zh 获取或者设置阴影纹理大小
+     */
+    @property({ type: Vec2 })
+    set shadowMapSize (val: Vec2) {
+        this._size.set(val);
+        if (this._shadowInfo) { this._shadowInfo.shadowMapSize = val; }
+    }
+    get shadowMapSize () {
+        return this._size;
+    }
+
+    set renderScene (val: RenderScene) {
+        this._scene = val;
+        this._shadowInfo = val.shadowInfo;
+        this.enabled = this._enabled;
+        this.near = this._near;
+        this.far = this._far;
+        this.orthoSize = this._orthoSize;
+        this.shadowMapSize = this._size;
+    }
+}
+
+/**
  * @en All scene related global parameters, it affects all content in the corresponding scene
  * @zh 各类场景级别的渲染参数，将影响全场景的所有物体
  */
@@ -501,6 +604,12 @@ export class SceneGlobals {
      */
     @property
     public planarShadows = new PlanarShadowInfo();
+    /**
+     * @en shadow information
+     * @zn 普通阴影相关信息
+     */
+    @property
+    public shadowMap = new Shadow();
     @property
     private _skybox = new SkyboxInfo();
     @property
@@ -522,6 +631,7 @@ export class SceneGlobals {
         this.ambient.renderScene = rs;
         this.skybox.renderScene = rs;
         this.planarShadows.renderScene = rs;
+        this.shadowMap.renderScene = rs;
         this.fog.renderScene = rs;
     }
 }

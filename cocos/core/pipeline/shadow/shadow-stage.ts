@@ -12,6 +12,7 @@ import { RenderShadowMapBatchedQueue } from '../render-shadowMap-batched-queue';
 import { GFXFramebuffer } from '../../gfx/framebuffer';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex, UBOShadow } from '../define';
+import { ShadowInfo } from '../../renderer/scene/shadowInfo';
 
 const colors: GFXColor[] = [ { r: 1, g: 1, b: 1, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -78,7 +79,7 @@ export class ShadowStage extends RenderStage {
         const cmdBuff = pipeline.commandBuffers[0];
 
         const vp = camera.viewport;
-        const shadowMapSize = pipeline.shadowMapSize;
+        const shadowMapSize = ShadowInfo.instance.shadowMapSize;
         this._renderArea!.x = vp.x * shadowMapSize.x;
         this._renderArea!.y = vp.y * shadowMapSize.y;
         this._renderArea!.width =  vp.width * shadowMapSize.x * pipeline.shadingScale;
