@@ -35,7 +35,13 @@ CCProgram sprite-vs %{
     vec4 pos = vec4(a_position, 1);
 
     #if USE_LOCAL
-      pos = cc_matViewProj * cc_matWorld * pos;
+      pos = cc_matWorld * pos;
+    #endif
+
+    #if USE_PIXEL_ALIGNMENT
+      pos = cc_matView * pos;
+      pos.xyz = floor(pos.xyz);
+      pos = cc_matProj * pos;
     #else
       pos = cc_matViewProj * pos;
     #endif
