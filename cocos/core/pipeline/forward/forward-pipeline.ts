@@ -156,17 +156,17 @@ export class ForwardPipeline extends RenderPipeline {
         this._updateUBO(view);
         const mainLight = view.camera.scene!.mainLight;
         const device = this.device;
-        const shadowInfo = ShadowInfo.shadowInfoInstance;
+        const shadowInfo = ShadowInfo.instance;
 
         if (mainLight) {
             // light view
             Mat4.invert(matShadowView, mainLight!.node!.worldMatrix);
 
             // light proj
-            const x = shadowInfo._shadowCameraOrthoSize * shadowInfo._shadowCameraAspect;
-            const y = shadowInfo._shadowCameraOrthoSize;
+            const x = shadowInfo.cameraOrthoSize * shadowInfo.cameraAspect;
+            const y = shadowInfo.cameraOrthoSize;
             const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY;
-            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo._shadowCameraNear, shadowInfo._shadowCameraFar,
+            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.cameraNear, shadowInfo.cameraFar,
                 device.clipSpaceMinZ, projectionSignY);
 
             // light viewProj

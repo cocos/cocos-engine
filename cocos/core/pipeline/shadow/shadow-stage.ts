@@ -79,7 +79,7 @@ export class ShadowStage extends RenderStage {
         const cmdBuff = pipeline.commandBuffers[0];
 
         const vp = camera.viewport;
-        const shadowMapSize = ShadowInfo.shadowInfoInstance._shadowMapSize;
+        const shadowMapSize = ShadowInfo.instance.shadowMapSize;
         this._renderArea!.x = vp.x * shadowMapSize.x;
         this._renderArea!.y = vp.y * shadowMapSize.y;
         this._renderArea!.width =  vp.width * shadowMapSize.x * pipeline.shadingScale;

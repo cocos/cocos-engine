@@ -515,7 +515,7 @@ export class Shadow {
     set enabled (val: boolean) {
         this._enabled = val;
         if (this._shadowInfo) {
-            this._shadowInfo._enabled = val;
+            this._shadowInfo.enabled = val;
             this._shadowInfo.updatePipeline(this._scene!);
         }
     }
@@ -530,7 +530,7 @@ export class Shadow {
     @property({ type: CCFloat })
     set near (val: number) {
         this._near = val;
-        if (this._shadowInfo) { this._shadowInfo._shadowCameraNear = val; }
+        if (this._shadowInfo) { this._shadowInfo.cameraNear = val; }
     }
     get near () {
         return this._near;
@@ -543,7 +543,7 @@ export class Shadow {
     @property({ type: CCFloat })
     set far (val: number) {
         this._far = val;
-        if (this._shadowInfo) { this._shadowInfo._shadowCameraFar = val; }
+        if (this._shadowInfo) { this._shadowInfo.cameraFar = val; }
     }
     get far () {
         return this._far;
@@ -556,7 +556,7 @@ export class Shadow {
     @property({ type: CCFloat })
     set orthoSize (val: number) {
         this._orthoSize = val;
-        if (this._shadowInfo) { this._shadowInfo._shadowCameraOrthoSize = val; }
+        if (this._shadowInfo) { this._shadowInfo.cameraOrthoSize = val; }
     }
     get orthoSize () {
         return this._orthoSize;
@@ -564,12 +564,12 @@ export class Shadow {
 
     /**
      * @en get or set shadow camera orthoSize
-     * @zh 获取或者设置阴影相机正交大小
+     * @zh 获取或者设置阴影纹理大小
      */
     @property({ type: Vec2 })
     set shadowMapSize (val: Vec2) {
         this._size.set(val);
-        if (this._shadowInfo) { this._shadowInfo._shadowMapSize = val; }
+        if (this._shadowInfo) { this._shadowInfo.shadowMapSize = val; }
     }
     get shadowMapSize () {
         return this._size;

@@ -142,7 +142,7 @@ export class RenderScene {
         this._skybox = new Skybox(this);
         this._planarShadows = new PlanarShadows(this);
         this._fog = new Fog(this);
-        this._shadowInfo = ShadowInfo.shadowInfoInstance;
+        this._shadowInfo = ShadowInfo.instance;
     }
 
     public initialize (info: IRenderSceneInfo): boolean {

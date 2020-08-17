@@ -4,28 +4,28 @@ import { RenderScene } from './render-scene';
 export class ShadowInfo {
 
     // Define shadwoMapCamera
-    public _shadowCameraNear: number = 1;
-    public _shadowCameraFar: number = 30;
-    public _shadowCameraAspect: number = 1;
-    public _shadowCameraOrthoSize: number = 5;
+    public cameraNear: number = 1;
+    public cameraFar: number = 30;
+    public cameraAspect: number = 1;
+    public cameraOrthoSize: number = 5;
 
-    public _shadowMapSize: Vec2 = new Vec2(512, 512);
-    public _enabled: boolean = true;
+    public shadowMapSize: Vec2 = new Vec2(512, 512);
+    public enabled: boolean = true;
 
-    public static get shadowInfoInstance (): ShadowInfo {
-        if (!this._shadowInfo) {
-            this._shadowInfo = new ShadowInfo();
+    public static get instance (): ShadowInfo {
+        if (!ShadowInfo._instance) {
+            ShadowInfo._instance = new ShadowInfo();
         }
 
-        return this._shadowInfo;
+        return ShadowInfo._instance;
     }
 
     public updatePipeline (scene: RenderScene) {
         const pipeline = scene.root.pipeline;
-        if (pipeline.macros.CC_RECEIVE_SHADOW === this._enabled) { return; }
-        pipeline.macros.CC_RECEIVE_SHADOW = this._enabled;
+        if (pipeline.macros.CC_RECEIVE_SHADOW === this.enabled) { return; }
+        pipeline.macros.CC_RECEIVE_SHADOW = this.enabled;
         scene.onGlobalPipelineStateChanged();
     }
 
-    protected static _shadowInfo: ShadowInfo|null = null;
+    protected static _instance: ShadowInfo|null = null;
 }

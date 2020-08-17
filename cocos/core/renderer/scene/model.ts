@@ -274,7 +274,7 @@ export class Model {
     }
 
     public getMacroPatches (subModelIndex: number) {
-        return (this.receiveShadow && ShadowInfo.shadowInfoInstance.enabled) ? shadowMapPatches : null;
+        return (this.receiveShadow && ShadowInfo.instance.enabled) ? shadowMapPatches : null;
     }
 
     protected _updateAttributesAndBinding (subModelIndex: number) {

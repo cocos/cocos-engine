@@ -53,7 +53,7 @@ export class ShadowFlow extends RenderFlow {
         super.activate(pipeline);
 
         const device = pipeline.device;
-        const shadowMapSize = ShadowInfo.shadowInfoInstance._shadowMapSize;
+        const shadowMapSize = ShadowInfo.instance.shadowMapSize;
         this._width = shadowMapSize.x;
         this._height = shadowMapSize.y;
 
@@ -114,10 +114,10 @@ export class ShadowFlow extends RenderFlow {
     }
 
     public render (view: RenderView) {
-        const shadowInfo = ShadowInfo.shadowInfoInstance;
-        if (!shadowInfo._enabled) { return; }
+        const shadowInfo = ShadowInfo.instance;
+        if (!shadowInfo.enabled) { return; }
 
-        const shadowMapSize = shadowInfo._shadowMapSize;
+        const shadowMapSize = shadowInfo.shadowMapSize;
         if (this._width !== shadowMapSize.x || this._height !== shadowMapSize.y) {
             this.resizeShadowMap(shadowMapSize.x,shadowMapSize.y);
             this._width = shadowMapSize.x;
