@@ -531,6 +531,8 @@ cocos_source_files(
     cocos/renderer/pipeline/forward/ForwardStage.h
     cocos/renderer/pipeline/shadow/ShadowFlow.cpp
     cocos/renderer/pipeline/shadow/ShadowFlow.h
+    cocos/renderer/pipeline/shadow/ShadowStage.cpp
+    cocos/renderer/pipeline/shadow/ShadowStage.h
     cocos/renderer/pipeline/ui/UIFlow.h
     cocos/renderer/pipeline/ui/UIFlow.cpp
     cocos/renderer/pipeline/helper/DefineMap.h

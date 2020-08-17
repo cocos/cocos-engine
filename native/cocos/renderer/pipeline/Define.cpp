@@ -1,38 +1,58 @@
 #include "Define.h"
+#include "gfx/GFXDevice.h"
+
 namespace cc {
 namespace pipeline {
-gfx::UniformBlock UBOLocalBatched::BLOCK = {
-    gfx::ShaderType::VERTEX,
-    static_cast<uint>(UniformBinding::UBO_LOCAL),
-    "CCLocalBatched",
-    {{"cc_matWorlds", gfx::Type::MAT4, (uint)UBOLocalBatched::BATCHING_COUNT}}};
 
-gfx::UniformBlock UBOGlobal::BLOCK = {
-    gfx::ShaderType::ALL,
-    static_cast<uint>(UniformBinding::UBO_GLOBAL),
-    "CCGlobal",
-    {
-        {"cc_time", gfx::Type::FLOAT4, 1},
-        {"cc_screenSize", gfx::Type::FLOAT4, 1},
-        {"cc_screenScale", gfx::Type::FLOAT4, 1},
-        {"cc_nativeSize", gfx::Type::FLOAT4, 1},
-        {"cc_matView", gfx::Type::MAT4, 1},
-        {"cc_matViewInv", gfx::Type::MAT4, 1},
-        {"cc_matProj", gfx::Type::MAT4, 1},
-        {"cc_matProjInv", gfx::Type::MAT4, 1},
-        {"cc_matViewProj", gfx::Type::MAT4, 1},
-        {"cc_matViewProjInv", gfx::Type::MAT4, 1},
-        {"cc_cameraPos", gfx::Type::FLOAT4, 1},
-        {"cc_exposure", gfx::Type::FLOAT4, 1},
-        {"cc_mainLitDir", gfx::Type::FLOAT4, 1},
-        {"cc_mainLitColor", gfx::Type::FLOAT4, 1},
-        {"cc_shadowLightMatrix", gfx::Type::MAT4, 1},
-        {"cc_ambientSky", gfx::Type::FLOAT4, 1},
-        {"cc_ambientGround", gfx::Type::FLOAT4, 1},
-        {"cc_fogColor", gfx::Type::FLOAT4, 1},
-        {"cc_fogBase", gfx::Type::FLOAT4, 1},
-        {"cc_fogAdd", gfx::Type::FLOAT4, 1},
-    }};
+//TODO coulsonwang
+gfx::UniformBlock UBOGlobal::BLOCK;
+gfx::UniformBlock UBOShadow::BLOCK;
+gfx::UniformBlock UBOPCFShadow::BLOCK;
 
-} // namespace pipeline
-} // namespace cc
+uint genSamplerHash(const gfx::SamplerInfo& info) {
+    uint hash = 0;
+    hash |= static_cast<uint>(info.minFilter);
+    hash |= static_cast<uint>(info.magFilter) << 2;
+    hash |= static_cast<uint>(info.mipFilter) << 4;
+    hash |= static_cast<uint>(info.addressU) << 6;
+    hash |= static_cast<uint>(info.addressV) << 8;
+    hash |= static_cast<uint>(info.addressW) << 10;
+    hash |= static_cast<uint>(info.maxAnisotropy) << 12;
+    hash |= static_cast<uint>(info.cmpFunc) << 16;
+    hash |= static_cast<uint>(info.minLOD) << 20;
+    hash |= static_cast<uint>(info.maxLOD) << 24;
+    hash |= static_cast<uint>(info.mipLODBias) << 28;
+    return 0;
+}
+
+static uint defaultSamplerHash = genSamplerHash(gfx::SamplerInfo());
+
+map<uint, gfx::Sampler*> samplerCache;
+gfx::Sampler *getSampler(uint hash) {
+    if(hash == 0) {
+        hash = defaultSamplerHash;
+    }
+    
+    auto sampler = samplerCache[hash];
+    if(sampler) {
+        return sampler;
+    }
+    
+    gfx::SamplerInfo info;
+    info.minFilter     = static_cast<gfx::Filter>(hash & 3);
+    info.magFilter     = static_cast<gfx::Filter>((hash >> 2) & 3);
+    info.mipFilter     = static_cast<gfx::Filter>((hash >> 4) & 3);
+    info.addressU      = static_cast<gfx::Address>((hash >> 6) & 3);
+    info.addressV      = static_cast<gfx::Address>((hash >> 8) & 3);
+    info.addressW      = static_cast<gfx::Address>((hash >> 10) & 3);
+    info.maxAnisotropy = ((hash >> 12) & 15);
+    info.cmpFunc       = static_cast<gfx::ComparisonFunc>((hash >> 16) & 15);
+    info.minLOD        = ((hash >> 20) & 15);
+    info.maxLOD        = ((hash >> 24) & 15);
+    info.mipLODBias    = ((hash >> 28) & 15);
+    
+    sampler = gfx::Device::getInstance()->createSampler(std::move(info));
+    return sampler;
+}
+}
+}

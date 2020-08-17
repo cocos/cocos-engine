@@ -7,7 +7,7 @@ namespace pipeline {
 class CC_DLL UIFlow : public RenderFlow {
 public:
     UIFlow() = default;
-    ~UIFlow();
+    virtual ~UIFlow();
 
     static const RenderFlowInfo &getInitializeInfo();
 

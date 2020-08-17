@@ -67,7 +67,8 @@ struct CC_DLL MainLight {
     cc::Vec3 direction;
     cc::Vec3 color;
     cc::Vec3 colorTemperatureRGB;
-    const static se::PoolType type = se::PoolType::MAIN_LIGHT_DATA;
+
+    uint32_t nodeID = 0;
 };
 
 struct CC_DLL Ambient {
@@ -112,10 +113,11 @@ struct CC_DLL InstancedAttribute {
     const static se::PoolType type = se::PoolType::INSTANCED_ATTRIBUTE_INFO;
 };
 
-struct CC_DLL Node {
-    cc::Mat4 worldMatrix = 0;
-
-    const static se::PoolType type = se::PoolType::NODE_INFO;
+struct CC_DLL Node : public PoolType<se::BufferPoolType, se::BufferPoolType::UNKNOWN> {
+    cc::Mat4 worldMatrix;
+    cc::Vec3 worldPosition;
+    cc::Vec3 worldRotation;
+    cc::Vec3 worldScale;
 };
 
 struct CC_DLL Model {
@@ -193,9 +195,13 @@ struct CC_DLL Root {
     const static se::PoolType type = se::PoolType::ROOT_DATA;
 };
 
+struct CC_DLL Director : public PoolType<se::BufferPoolType, se::BufferPoolType::UNKNOWN> {
+    float totalFrames = 0;
+};
+
 #define GET_SUBMODEL(index, offset)           (SharedMemory::get<SubModel>(index) + offset)
-#define GET_PASS(index, offset)               (SharedMemory::get<Pass>(index) + offset) //get pass from material
-#define GET_PSOCI(index, offset)              (SharedMemory::get<PSOInfo>(index) + offset)
+#define GET_PASS(index)                       (SharedMemory::get<Pass>(index)) //get pass from material
+#define GET_PSOCI(index)                      (SharedMemory::get<PSOInfo>(index))
 #define GET_INSTANCE_ATTRIBUTE(index, offset) (SharedMemory::get<InstancedAttribute>(index) + offset)
 #define GET_RENDER_SUBMESH(index)             (SharedMemory::get<RenderingSubMesh>(index))
 #define GET_FLAT_BUFFER(index, offset)        (SharedMemory::get<FlatBuffer>(index) + offset)
@@ -207,6 +213,7 @@ struct CC_DLL Root {
 #define GET_MAIN_LIGHT(index)                 (SharedMemory::get<MainLight>(index))
 #define GET_AMBIENT(index)                    (SharedMemory::get<Ambient>(index))
 #define GET_FOG(index)                        (SharedMemory::get<Fog>(index))
+#define GET_DIRECTOR(index)                   (SharedMemory::get<Director>(index))
 
 //TODO
 #define GET_NAME(index) (String(0))
@@ -221,7 +228,9 @@ struct CC_DLL Root {
 class CC_DLL SharedMemory : public Object {
 public:
     template <typename T>
-    static T *get(uint index) {
+    static ENABLE_IF_BUFFER_POOL_RET
+        *
+        get(uint index) {
         const auto &bufferMap = se::BufferPool::getPoolMap();
         if (bufferMap.count(T::type) != 0) {
             se::BufferPool *bufferPool = bufferMap.at(T::type);

@@ -10,12 +10,15 @@ class ForwardStage;
 
 class ForwardFlow : public RenderFlow {
 public:
+    static const RenderFlowInfo &getInitializeInfo();
+
     ForwardFlow() = default;
     virtual ~ForwardFlow();
 
     static const RenderFlowInfo &getInitializeInfo();
 
     virtual bool initialize(const RenderFlowInfo &info) override;
+    virtual void activate(RenderPipeline *pipeline) override;
     virtual void destroy() override;
     virtual void render(RenderView *view) override;
 

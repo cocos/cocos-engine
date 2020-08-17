@@ -174,8 +174,7 @@ enum class CC_DLL UniformBinding : uint8_t {
     CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 8,
 };
 
-class CC_DLL UBOLocalBatched {
-public:
+struct CC_DLL UBOLocalBatched {
     static const uint BATCHING_COUNT = 10;
     static const uint MAT_WORLDS_OFFSET = 0;
     static const uint COUNT = 16 * BATCHING_COUNT;
@@ -202,7 +201,7 @@ enum class CC_DLL RenderFlowTag : uint8_t {
     UI,
 };
 
-class CC_DLL UBOGlobal {
+class CC_DLL UBOGlobal : public Object {
 public:
     static const uint TIME_OFFSET = 0;
     static const uint SCREEN_SIZE_OFFSET = UBOGlobal::TIME_OFFSET + 4;
@@ -230,6 +229,43 @@ public:
 
     std::array<float, UBOGlobal::COUNT> view;
 };
+
+class CC_DLL UBOShadow : public Object {
+public:
+    static const uint MAT_LIGHT_PLANE_PROJ_OFFSET = 0;
+    static const uint SHADOW_COLOR_OFFSET = UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
+    static const uint COUNT = UBOShadow::SHADOW_COLOR_OFFSET + 4;
+    static const uint SIZE = UBOShadow::COUNT * 4;
+    static gfx::UniformBlock BLOCK;
+    
+    std::array<float, UBOShadow::COUNT> view;
+};
+
+class CC_DLL UBOPCFShadow : public Object {
+public:
+    static const uint MAT_SHADOW_VIEW_PROJ_OFFSET = 0;
+    static const uint COUNT = UBOPCFShadow::MAT_SHADOW_VIEW_PROJ_OFFSET + 16;
+    static const uint SIZE = UBOPCFShadow::COUNT * 4;
+    static gfx::UniformBlock BLOCK;
+
+    std::array<float, UBOPCFShadow::COUNT> view;
+};
+
+class CC_DLL SamplerLib : public Object {
+public:
+    gfx::Sampler *getSampler(uint hash);
+};
+
+struct CC_DLL DescriptorSetLayoutInfo {
+//    bindings: GFXDescriptorSetLayoutBinding[];
+//    record: Record<string, IBlockInfo | ISamplerInfo>;
+};
+
+uint genSamplerHash(const gfx::SamplerInfo&);
+gfx::Sampler *getSampler(uint hash);
+
+extern CC_DLL DescriptorSetLayoutInfo globalDescriptorSetLayout;
+extern CC_DLL DescriptorSetLayoutInfo localDescriptorSetLayout;
 
 } // namespace pipeline
 } // namespace cc

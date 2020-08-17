@@ -7,7 +7,7 @@ bool RenderStage::initialize(const RenderStageInfo &info) {
     _name = info.name;
     _priority = info.priority;
     _tag = info.tag;
-    
+
     return true;
 }
 

@@ -1,6 +1,7 @@
 
 #include "ShadowFlow.h"
 #include "../Define.h"
+#include "ShadowStage.h"
 
 namespace cc {
 namespace pipeline {

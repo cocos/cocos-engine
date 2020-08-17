@@ -5,9 +5,16 @@
 #include "helper/DefineMap.h"
 
 namespace cc {
+namespace gfx{
+class CommandBuffer;
+}
 namespace pipeline {
 class DefineMap;
 class RenderView;
+
+//TODO coulsonwang
+class DescriptorSetLayout;
+class DescriptorSet;
 
 struct CC_DLL RenderPipelineInfo {
     RenderFlowList flows;
@@ -35,6 +42,10 @@ protected:
     map<String, InternalBindingInst> _globalBindings;
     DefineMap _macros;
     uint _tag = 0;
+    
+    DescriptorSetLayout *_descriptorSetLayout = nullptr;
+    DescriptorSet *_descriptorSet = nullptr;
+    gfx::CommandBufferList _commandBuffers;
 };
 
 } // namespace pipeline

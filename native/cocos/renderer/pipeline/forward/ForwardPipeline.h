@@ -5,7 +5,7 @@
 namespace cc {
 namespace pipeline {
 struct Light;
-class UBOGlobal;
+struct UBOGlobal;
 
 class CC_DLL ForwardPipeline : public RenderPipeline {
 public:
@@ -32,9 +32,9 @@ public:
     CC_INLINE bool isHDR() const { return _isHDR; }
 
 private:
-    //    void cullLightPerModel(cc::Model *model);
+//    void cullLightPerModel(cc::Model *model);
     bool activeRenderer();
-    void destroyUBOs();
+    void updateUBO(RenderView *);
 
 private:
     gfx::Buffer *_lightsUBO = nullptr;
@@ -43,9 +43,10 @@ private:
     UintList _lightIndexOffsets;
     UintList _lightIndices;
     RenderObjectList _renderObjects;
-    map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
-    UBOGlobal _uboGlobal;
-
+    map<gfx::ClearFlags, gfx::RenderPass*> _renderPasses;
+    UBOGlobal *_uboGlobal = nullptr;
+    gfx::Device *_device = nullptr;
+    
     float _shadingScale = 1.0f;
     bool _isHDR = false;
     float _fpScale = 1.0f / 1024.0f;

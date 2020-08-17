@@ -23,17 +23,17 @@ void RenderFlow::activate(RenderPipeline *pipeline) {
         return s1->getPriority() - s2->getPriority();
     });
 
-    for (auto stage : _stages)
+    for (const auto stage : _stages)
         stage->activate(pipeline, this);
 }
 
 void RenderFlow::render(RenderView *view) {
-    for (auto stage : _stages)
+    for (const auto stage : _stages)
         stage->render(view);
 }
 
 void RenderFlow::destroy() {
-    for (auto stage : _stages)
+    for (const auto stage : _stages)
         stage->destroy();
 
     _stages.clear();

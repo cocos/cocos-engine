@@ -120,8 +120,9 @@ void ForwardStage::render(RenderView *view) {
                 for (p = 0; p < subModel->passesCount; ++p) {
                     auto pass = GET_PASS(subModel->materialID, p);
                     if (static_cast<BatchingSchemes>(pass->batchingScheme) == BatchingSchemes::INSTANCING) {
-                        auto &instancedBuffer = InstancedBuffer::get(pass);
-                        instancedBuffer->merge(subModel, model->instancedAttributeBlock, GET_PSOCI(subModel->psociID, p));
+                        auto instancedBuffer = InstancedBuffer::get(pass);
+                        //TODO coulsonwang
+                        //                        instancedBuffer->merge(subModel, model->instancedAttributeBlock, GET_PSOCI(subModel->psociID, p));
                         _instancedQueue->getQueue().emplace(instancedBuffer);
                     } else if (static_cast<BatchingSchemes>(pass->batchingScheme) == BatchingSchemes::VB_MERGING) {
                         auto &batchedBuffer = BatchedBuffer::get(pass);
