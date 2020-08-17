@@ -90,82 +90,30 @@ export class ForwardPipeline extends RenderPipeline {
     })
     protected materials: MaterialConfig[] = [];
 
-    /**
-     * @en Get ambient.
-     * @zh 获取环境光照
-     */
-    public get ambient () {
-        return this._ambient;
-    }
-
-    public set ambient (val) {
-        if (!val) return;
-        this._ambient = val;
-    }
-
-    /**
-     * @en Get skybox.
-     * @zh 获取天空盒
-     */
-    public get skybox () {
-        return this._skybox;
-    }
-
-    public set skybox (val) {
-        if (!val) return;
-        this._skybox = val;
-    }
-
-    /**
-     * @en Get planar shadow.
-     * @zh 获取平面阴影数据
-     */
-    public get planarShadows () {
-        return this._planarShadows;
-    }
-
-    public set planarShadows (val) {
-        if (!val) return;
-        this._planarShadows = val;
-    }
-
-    /**
-     * @en Get fog.
-     * @zh 获取全局雾
-     */
-    public get fog () {
-        return this._fog;
-    }
-
-    public set fog (val) {
-        if (!val) return;
-        this._fog = val;
-    }
-
     @property({
         type: Fog,
         displayOrder: 7,
         visible: true,
     })
-    protected _fog: Fog = new Fog();
+    public fog: Fog = new Fog();
     @property({
         type: Ambient,
         displayOrder: 4,
         visible: true,
     })
-    protected _ambient: Ambient = new Ambient();
+    public ambient: Ambient = new Ambient();
     @property({
         type: Skybox,
         displayOrder: 5,
         visible: true,
     })
-    protected _skybox: Skybox = new Skybox();
+    public skybox: Skybox = new Skybox();
     @property({
         type: PlanarShadows,
         displayOrder: 6,
         visible: true,
     })
-    protected _planarShadows: PlanarShadows = new PlanarShadows();
+    public planarShadows: PlanarShadows = new PlanarShadows();
     /**
      * @en The list for render objects, only available after the scene culling of the current frame.
      * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
@@ -198,7 +146,7 @@ export class ForwardPipeline extends RenderPipeline {
     public activate (): boolean {
         this._globalDescriptorSetLayout = globalDescriptorSetLayout;
         this._localDescriptorSetLayout = localDescriptorSetLayout;
-
+        this._macros = {};
         const uiFlow = new UIFlow();
         uiFlow.initialize(UIFlow.initInfo);
         this._flows.push(uiFlow);
@@ -212,10 +160,10 @@ export class ForwardPipeline extends RenderPipeline {
             return false;
         }
 
-        this._ambient.enabled && this._ambient.active();
-        this._fog.enabled && this._fog.active();
-        this._skybox.enabled && this._skybox.activate();
-        this._planarShadows.enabled && this._planarShadows.activate();
+        this.ambient.activate();
+        this.fog.activate();
+        this.skybox.activate();
+        this.planarShadows.activate();
 
         return true;
     }
@@ -334,8 +282,8 @@ export class ForwardPipeline extends RenderPipeline {
         const scene = camera.scene!;
 
         const mainLight = scene.mainLight;
-        const ambient = this._ambient!;
-        const fog = this._fog!;
+        const ambient = this.ambient;
+        const fog = this.fog;
         const fv = this._globalUBO;
         const device = this.device;
 

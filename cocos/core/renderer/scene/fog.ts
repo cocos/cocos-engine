@@ -59,15 +59,16 @@ export class Fog {
      * @en Enable global fog
      */
     set enabled (val: boolean) {
+        if (this._enabled === val) {
+            return
+        }
         this._enabled = val;
         if (!val) {
             this._currType = 0;
         } else {
             this._currType = this._type + 1;
         }
-        if (!EDITOR) {
-            this._updatePipeline();
-        }
+        this._enabled ? this.activate() : this._updatePipeline();
     }
 
     get enabled () {
@@ -97,9 +98,6 @@ export class Fog {
 
     set type (val) {
         this._type = val;
-        if (!this.enabled) {
-            return;
-        }
         this._currType = val + 1;
         this._updatePipeline();
     }
@@ -271,9 +269,9 @@ export class Fog {
     protected _currType = 0;
     protected _colorArray: Float32Array = new Float32Array([0.2, 0.2, 0.2, 1.0]);
 
-    public active () {
+    public activate () {
         Color.toArray(this._colorArray, this._fogColor);
-        this._currType = this._type + 1;
+        this._currType = this._enabled ? this._type + 1 : 0;
         this._updatePipeline();
     }
 

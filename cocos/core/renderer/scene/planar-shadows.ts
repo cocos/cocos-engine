@@ -40,9 +40,15 @@ export class PlanarShadows {
         return this._enabled;
     }
 
-    set enabled (enable: boolean) {
-        this._enabled = enable;
+    set enabled (val: boolean) {
+        if (this._enabled === val) {
+            return;
+        }
+        this._enabled = val;
         this._dirty = true;
+        if (this._enabled) {
+            this.activate();
+        }
     }
 
     /**
@@ -81,7 +87,7 @@ export class PlanarShadows {
 
     set shadowColor (color: Color) {
         this._shadowColor = color;
-        if (!EDITOR) {
+        if (this._enabled) {
             Color.toArray(this._data, color, UBOShadow.SHADOW_COLOR_OFFSET);
             if (this._globalDescriptorSet) {
                 this._globalDescriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
@@ -132,6 +138,10 @@ export class PlanarShadows {
     protected _dirty: boolean = true;
 
     public activate () {
+        if (!this._enabled) {
+            return;
+        }
+        this._dirty = true;
         const pipeline = legacyCC.director.root.pipeline;
         this._globalDescriptorSet = pipeline.descriptorSet;
         this._data = (pipeline as ForwardPipeline).shadowUBO;
@@ -144,6 +154,10 @@ export class PlanarShadows {
     }
 
     public updateSphereLight (light: SphereLight) {
+        if (!light.node!.hasChangedFlags && !this._dirty) {
+            return;
+        }
+        this._dirty = false;
         light.node!.getWorldPosition(_v3);
         const n = this._normal; const d = this._distance + 0.001; // avoid z-fighting
         const NdL = Vec3.dot(n, _v3);

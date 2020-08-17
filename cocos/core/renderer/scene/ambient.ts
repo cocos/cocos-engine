@@ -1,5 +1,6 @@
 import { property, ccclass } from '../../data/class-decorator';
 import { Color, Vec3 } from '../../math';
+import { EDITOR } from 'internal:constants';
 
 @ccclass('cc.Ambient')
 export class Ambient {
@@ -19,7 +20,11 @@ export class Ambient {
      * @zh 是否开启环境光
      */
     set enabled (val) {
+        if (this._enabled === val) {
+            return;
+        }
         this._enabled = val;
+        this.activate();
     }
     get enabled () {
         return this._enabled;
@@ -81,8 +86,13 @@ export class Ambient {
     protected _albedoArray = Float32Array.from([0.2, 0.2, 0.2, 1.0]);
     protected _colorArray = Float32Array.from([0.2, 0.5, 0.8, 1.0]);
 
-    public active () {
+    public activate () {
+        if (!this._enabled) {
+            return
+        }
+
         Color.toArray(this._colorArray, this._skyColor);
+        Vec3.toArray(this._albedoArray, this._groundAlbedo);
     }
 
     public update () {}
