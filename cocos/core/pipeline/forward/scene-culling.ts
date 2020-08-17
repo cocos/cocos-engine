@@ -48,16 +48,16 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
 
     const mainLight = scene.mainLight;
-    const planarShadows = scene.planarShadows;
+    const planarShadows = pipeline.planarShadows;
     if (mainLight) {
         mainLight.update();
-        if (planarShadows.enabled && mainLight.node!.hasChangedFlags) {
+        if (planarShadows.enabled) {
             planarShadows.updateDirLight(mainLight);
         }
     }
 
-    if (scene.skybox.enabled && (camera.clearFlag & SKYBOX_FLAG)) {
-        renderObjects.push(getRenderObject(scene.skybox, camera));
+    if (pipeline.skybox.enabled && pipeline.skybox.model && (camera.clearFlag & SKYBOX_FLAG)) {
+        renderObjects.push(getRenderObject(pipeline.skybox.model, camera));
     }
 
     const models = scene.models;
@@ -100,6 +100,6 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     }
 
     if (planarShadows.enabled) {
-        planarShadows.updateShadowList(camera.frustum, stamp, (camera.visibility & Layers.BitMask.DEFAULT) !== 0);
+        planarShadows.updateShadowList(scene, camera.frustum, stamp, (camera.visibility & Layers.BitMask.DEFAULT) !== 0);
     }
 }

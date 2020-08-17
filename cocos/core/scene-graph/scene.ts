@@ -32,7 +32,6 @@ import { Mat4, Quat, Vec3 } from '../math';
 import { warnID, assert, getError } from '../platform/debug';
 import { RenderScene } from '../renderer/scene/render-scene';
 import { BaseNode } from './base-node';
-import { SceneGlobals } from './scene-globals';
 import { EDITOR, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
@@ -56,14 +55,6 @@ export class Scene extends BaseNode {
     }
 
     /**
-     * @en All scene related global parameters, it affects all content in the scene
-     * @zh 各类场景级别的渲染参数，将影响全场景的所有物体
-     */
-    get globals (): SceneGlobals {
-        return this._globals;
-    }
-
-    /**
      * @en Indicates whether all (directly or indirectly) static referenced assets of this scene are releasable by default after scene unloading.
      * @zh 指示该场景中直接或间接静态引用到的所有资源是否默认在场景切换后自动释放。
      */
@@ -72,9 +63,6 @@ export class Scene extends BaseNode {
 
     public _renderScene: RenderScene | null = null;
     public dependAssets = null; // cache all depend assets for auto release
-
-    @property
-    protected _globals = new SceneGlobals();
 
     protected _inited: boolean;
     protected _prefabSyncedInLiveReload = false;
@@ -226,7 +214,6 @@ export class Scene extends BaseNode {
             this._registerIfAttached!(active);
         }
         legacyCC.director._nodeActivator.activateNode(this, active);
-        this._globals.renderScene = this._renderScene!;
     }
 }
 

@@ -193,3 +193,5 @@ export abstract class RenderPipeline extends Asset {
         return super.destroy();
     }
 }
+
+legacyCC.RenderPipeline = RenderPipeline;

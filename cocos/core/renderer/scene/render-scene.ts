@@ -6,17 +6,13 @@ import { RecyclePool } from '../../memop';
 import { Root } from '../../root';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
-import { Ambient } from './ambient';
 import { Camera } from './camera';
 import { DirectionalLight } from './directional-light';
 import { Model, ModelType } from './model';
-import { PlanarShadows } from './planar-shadows';
-import { Skybox } from './skybox';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
 import { PREVIEW } from 'internal:constants';
 import { TransformBit } from '../../scene-graph/node-enum';
-import { Fog } from './fog';
 import { legacyCC } from '../../global-exports';
 import { ShadowInfo } from './shadowInfo';
 
@@ -47,22 +43,6 @@ export class RenderScene {
 
     get cameras (): Camera[] {
         return this._cameras;
-    }
-
-    get ambient (): Ambient {
-        return this._ambient;
-    }
-
-    get fog (): Fog {
-        return this._fog;
-    }
-
-    get skybox (): Skybox {
-        return this._skybox;
-    }
-
-    get planarShadows (): PlanarShadows {
-        return this._planarShadows;
     }
 
     get mainLight (): DirectionalLight | null {
@@ -124,24 +104,16 @@ export class RenderScene {
     private _root: Root;
     private _name: string = '';
     private _cameras: Camera[] = [];
-    private _ambient: Ambient;
-    private _skybox: Skybox;
-    private _planarShadows: PlanarShadows;
     private _models: Model[] = [];
     private _directionalLights: DirectionalLight[] = [];
     private _sphereLights: SphereLight[] = [];
     private _spotLights: SpotLight[] = [];
     private _mainLight: DirectionalLight | null = null;
     private _modelId: number = 0;
-    private _fog: Fog;
     private _shadowInfo: ShadowInfo;
 
     constructor (root: Root) {
         this._root = root;
-        this._ambient = new Ambient(this);
-        this._skybox = new Skybox(this);
-        this._planarShadows = new PlanarShadows(this);
-        this._fog = new Fog(this);
         this._shadowInfo = ShadowInfo.instance;
     }
 
@@ -155,8 +127,6 @@ export class RenderScene {
         this.removeSphereLights();
         this.removeSpotLights();
         this.removeModels();
-        this._skybox.destroy();
-        this._planarShadows.destroy();
     }
 
     public addCamera (cam: Camera) {
@@ -264,9 +234,10 @@ export class RenderScene {
     }
 
     public removeModel (model: Model) {
+        const pipeline = legacyCC.director.root.pipeline;
         for (let i = 0; i < this._models.length; ++i) {
             if (this._models[i] === model) {
-                this._planarShadows.destroyShadowData(model);
+                pipeline.planarShadows.destroyShadowData(model);
                 model.detachFromScene();
                 this._models.splice(i, 1);
                 return;
@@ -275,8 +246,9 @@ export class RenderScene {
     }
 
     public removeModels () {
+        const pipeline = legacyCC.director.root.pipeline;
         for (const m of this._models) {
-            this._planarShadows.destroyShadowData(m);
+            pipeline.planarShadows.destroyShadowData(m);
             m.detachFromScene();
         }
         this._models.length = 0;
@@ -286,7 +258,6 @@ export class RenderScene {
         for (const m of this._models) {
             m.onGlobalPipelineStateChanged();
         }
-        this._skybox.onGlobalPipelineStateChanged();
     }
 
     public generateModelId (): number {

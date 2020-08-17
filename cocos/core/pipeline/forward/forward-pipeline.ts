@@ -17,8 +17,12 @@ import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp
 import { SKYBOX_FLAG } from '../../renderer';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
-import { Mat4, Vec3, Vec2, Vec4 } from '../../math';
+import { Mat4, Vec3, Vec4} from '../../math';
 import { GFXFeature } from '../../gfx/device';
+import { Fog } from '../../renderer/scene/fog';
+import { Ambient } from '../../renderer/scene/ambient';
+import { Skybox } from '../../renderer/scene/skybox';
+import { PlanarShadows } from '../../renderer/scene/planar-shadows';
 import { ShadowInfo } from '../../renderer/scene/shadowInfo';
 
 const matShadowView = new Mat4();
@@ -53,19 +57,50 @@ export class ForwardPipeline extends RenderPipeline {
         return this._fpScale;
     }
 
+    /**
+     * @en Get shadow UBO.
+     * @zh 获取阴影UBO。
+     */
     get shadowUBO (): Float32Array {
         return this._shadowUBO;
     }
 
     @property({
         type: [RenderTextureConfig],
+        displayOrder: 2,
     })
     protected renderTextures: RenderTextureConfig[] = [];
+
     @property({
         type: [MaterialConfig],
+        displayOrder: 3,
     })
     protected materials: MaterialConfig[] = [];
 
+    @property({
+        type: Fog,
+        displayOrder: 7,
+        visible: true,
+    })
+    public fog: Fog = new Fog();
+    @property({
+        type: Ambient,
+        displayOrder: 4,
+        visible: true,
+    })
+    public ambient: Ambient = new Ambient();
+    @property({
+        type: Skybox,
+        displayOrder: 5,
+        visible: true,
+    })
+    public skybox: Skybox = new Skybox();
+    @property({
+        type: PlanarShadows,
+        displayOrder: 6,
+        visible: true,
+    })
+    public planarShadows: PlanarShadows = new PlanarShadows();
     /**
      * @en The list for render objects, only available after the scene culling of the current frame.
      * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
@@ -97,7 +132,7 @@ export class ForwardPipeline extends RenderPipeline {
     public activate (): boolean {
         this._globalDescriptorSetLayout = globalDescriptorSetLayout;
         this._localDescriptorSetLayout = localDescriptorSetLayout;
-
+        this._macros = {};
         const uiFlow = new UIFlow();
         uiFlow.initialize(UIFlow.initInfo);
         this._flows.push(uiFlow);
@@ -110,6 +145,11 @@ export class ForwardPipeline extends RenderPipeline {
             console.error('ForwardPipeline startup failed!');
             return false;
         }
+
+        this.ambient.activate();
+        this.fog.activate();
+        this.skybox.activate();
+        this.planarShadows.activate();
 
         return true;
     }
@@ -229,8 +269,8 @@ export class ForwardPipeline extends RenderPipeline {
         const scene = camera.scene!;
 
         const mainLight = scene.mainLight;
-        const ambient = scene.ambient;
-        const fog = scene.fog;
+        const ambient = this.ambient;
+        const fog = this.fog;
         const fv = this._globalUBO;
         const device = this.device;
 
@@ -296,17 +336,17 @@ export class ForwardPipeline extends RenderPipeline {
             Vec4.toArray(fv, Vec4.ZERO, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
         }
 
-        const skyColor = ambient.skyColor;
+        const skyColor = ambient.colorArray;
         if (this._isHDR) {
             skyColor[3] = ambient.skyIllum * this._fpScale;
         } else {
             skyColor[3] = ambient.skyIllum * exposure;
         }
         fv.set(skyColor, UBOGlobal.AMBIENT_SKY_OFFSET);
-        fv.set(ambient.groundAlbedo, UBOGlobal.AMBIENT_GROUND_OFFSET);
+        fv.set(ambient.albedoArray, UBOGlobal.AMBIENT_GROUND_OFFSET);
 
         if (fog.enabled) {
-            fv.set(fog.fogColor, UBOGlobal.GLOBAL_FOG_COLOR_OFFSET);
+            fv.set(fog.colorArray, UBOGlobal.GLOBAL_FOG_COLOR_OFFSET);
 
             fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET] = fog.fogStart;
             fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET + 1] = fog.fogEnd;
@@ -319,14 +359,14 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     private destroyUBOs () {
-        this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding).destroy();
-        this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).destroy();
+        if (this._descriptorSet) {
+            this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding).destroy();
+            this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).destroy();
+        }
     }
 
     public destroy () {
         this.destroyUBOs();
-
-        this._descriptorSet.destroy();
 
         const rpIter = this._renderPasses.values();
         let rpRes = rpIter.next();

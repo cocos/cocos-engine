@@ -171,13 +171,13 @@ export class RenderView {
      * @param flows The names of all [[RenderFlow]]s
      */
     public setExecuteFlows (flows: string[] | undefined) {
-        this.flows.length = 0;
+        this._flows.length = 0;
         const pipeline = legacyCC.director.root.pipeline;
         const pipelineFlows = pipeline.flows;
         if (flows && flows.length === 1 && flows[0] === 'UIFlow') {
             for (let i = 0; i < pipelineFlows.length; i++) {
                 if (pipelineFlows[i].name === 'UIFlow') {
-                    this.flows.push(pipelineFlows[i]);
+                    this._flows.push(pipelineFlows[i]);
                     break;
                 }
             }
@@ -186,7 +186,21 @@ export class RenderView {
         for (let i = 0; i < pipelineFlows.length; ++i) {
             const f = pipelineFlows[i];
             if (f.tag === RenderFlowTag.SCENE || (flows && flows.indexOf(f.name) !== -1)) {
-                this.flows.push(f);
+                this._flows.push(f);
+            }
+        }
+    }
+
+    public onGlobalPipelineStateChanged () {
+        const pipeline = legacyCC.director.root.pipeline;
+        const pipelineFlows = pipeline.flows;
+        for (let i = 0; i < this._flows.length; ++i) {
+            const flow = this._flows[i];
+            for (let j = 0; j < pipelineFlows.length; j++) {
+                if (pipelineFlows[i].name === flow.name) {
+                    this._flows[i] = pipelineFlows[i];
+                    break;
+                }
             }
         }
     }

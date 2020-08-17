@@ -300,10 +300,12 @@ export class Root {
         if (!this._pipeline.activate()) {
             return false;
         }
-        for (let i = 0; i < this.scenes.length; i++) {
-            this.scenes[i].onGlobalPipelineStateChanged();
+        for (let i = 0; i < this._scenes.length; i++) {
+            this._scenes[i].onGlobalPipelineStateChanged();
         }
-
+        for (let i = 0; i < this._views.length; i++) {
+            this._views[i].onGlobalPipelineStateChanged();
+        }
         this._ui = new UI(this);
         if (!this._ui.initialize()) {
             this.destroy();
