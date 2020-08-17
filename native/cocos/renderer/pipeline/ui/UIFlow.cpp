@@ -2,6 +2,7 @@
 #include "UIFlow.h"
 #include "../Define.h"
 #include "../forward/ForwardPipeline.h"
+#include "../forward/SceneCulling.h"
 #include "UIStage.h"
 
 namespace cc {
@@ -29,8 +30,7 @@ void UIFlow::render(RenderView *view) {
     auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
     //TODO coulsonwang
     //view.camera.update();
-    //sceneCullin(pipeline,view);
-
+    sceneCulling(pipeline, view);
     pipeline->updateUBOs(view);
     RenderFlow::render(view);
 }

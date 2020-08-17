@@ -18,13 +18,12 @@ struct CC_DLL BatchedItem {
     gfx::InputAssembler *ia = nullptr;
     gfx::Buffer *ubo = nullptr;
     float *uboData = nullptr;
-    PSOInfo *psoci = nullptr;
 };
 typedef vector<BatchedItem> BatchedItemList;
 
 class CC_DLL BatchedBuffer : public Object {
 public:
-    static BatchedBuffer *get(const PassView *pass);
+    static std::shared_ptr<BatchedBuffer> &get(const PassView *pass);
 
     BatchedBuffer(const PassView *pass);
     virtual ~BatchedBuffer();
@@ -38,7 +37,7 @@ public:
     CC_INLINE PassView *getPass() const { return _pass; }
 
 private:
-    static map<const PassView*, std::shared_ptr<BatchedBuffer>> _buffers;
+    static map<const PassView *, std::shared_ptr<BatchedBuffer>> _buffers;
     //    const _localBatched = new UBOLocalBatched();
     BatchedItemList _batchedItems;
     PassView *_pass = nullptr;

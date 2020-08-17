@@ -32,9 +32,9 @@ public:
     CC_INLINE const gfx::TextureList &getColorTextures() const { return _colorTexs; }
     CC_INLINE gfx::Texture *getDepthStencilTexture() const { return _depthStencilTex; }
     CC_INLINE gfx::Framebuffer *getFramebuffer() const { return _frameBuffer; }
-    CC_INLINE bool hasOnScreenAttachments () const { return _hasOnScreenAttachments; }
-    CC_INLINE bool hasOffScreenAttachments () const { return _hasOffScreenAttachments; }
-    
+    CC_INLINE bool hasOnScreenAttachments() const { return _hasOnScreenAttachments; }
+    CC_INLINE bool hasOffScreenAttachments() const { return _hasOffScreenAttachments; }
+
 private:
     RenderWindow() = default;
     RenderWindow(Root *root);

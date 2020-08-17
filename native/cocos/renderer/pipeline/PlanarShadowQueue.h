@@ -6,7 +6,7 @@ namespace gfx {
 class Device;
 class RenderPass;
 class CommandBuffer;
-}
+} // namespace gfx
 namespace pipeline {
 
 class CC_DLL PlanarShadowQueue : public Object {
@@ -17,7 +17,6 @@ public:
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *);
 
 private:
-    
 };
-}
-}
+} // namespace pipeline
+} // namespace cc

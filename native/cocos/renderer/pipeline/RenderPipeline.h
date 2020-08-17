@@ -5,7 +5,7 @@
 #include "helper/DefineMap.h"
 
 namespace cc {
-namespace gfx{
+namespace gfx {
 class CommandBuffer;
 }
 namespace pipeline {
@@ -28,7 +28,7 @@ public:
 
     virtual bool activate();
     virtual void destroy();
-    virtual bool initialize(const RenderPipelineInfo *info);
+    virtual bool initialize(const RenderPipelineInfo &info);
     virtual void render(RenderView *view);
 
     CC_INLINE const RenderFlowList &getFlows() const { return _flows; }
@@ -42,10 +42,9 @@ protected:
     map<String, InternalBindingInst> _globalBindings;
     DefineMap _macros;
     uint _tag = 0;
-    
+
     DescriptorSetLayout *_descriptorSetLayout = nullptr;
     DescriptorSet *_descriptorSet = nullptr;
-    gfx::CommandBufferList _commandBuffers;
 };
 
 } // namespace pipeline

@@ -59,8 +59,10 @@ void UIStage::render(RenderView *view) {
     _renderQueues[0]->clear();
     const auto &renderObjects = pipeline->getRenderObjects();
     for (const auto &ro : renderObjects) {
-        for (size_t i = 0; i < ro.model->subModelsCount; i++) {
-            const auto subModel = GET_SUBMODEL(ro.model->subModelsID, i);
+        uint32_t *subModels = GET_SUBMODEL_ARRAY(ro.model->subModelsID);
+        uint32_t subModelCount = subModels[0];
+        for (uint32_t i = 1; i <= subModelCount; i++) {
+            const auto subModel = GET_SUBMODEL(subModels[i]);
             for (size_t j = 0; j < subModel->passCount; j++) {
                 _renderQueues[0]->insertRenderPass(ro, i, j);
             }

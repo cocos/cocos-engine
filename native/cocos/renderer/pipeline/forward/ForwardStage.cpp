@@ -33,7 +33,7 @@ void LinearToSRGB(gfx::Color &out, const gfx::Color &linear) {
 
 RenderStageInfo ForwardStage::_initInfo = {
     "ForwardStage",
-    static_cast<uint>(ForwardStageProperty::FORWARD),
+    static_cast<uint>(ForwardStagePriority::FORWARD),
     static_cast<uint>(RenderFlowTag::SCENE)};
 const RenderStageInfo &ForwardStage::getInitializeInfo() { return ForwardStage::_initInfo; }
 
@@ -116,14 +116,17 @@ void ForwardStage::render(RenderView *view) {
         const auto &ro = renderObjects[i];
         auto model = ro.model;
 
-        for (m = 0; m < model->subModelsCount; ++m) {
-            auto subModel = GET_SUBMODEL(model->subModelsID, m);
+        uint32_t *subModels = GET_SUBMODEL_ARRAY(model->subModelsID);
+        uint32_t subModelCount = subModels[0];
+        for (m = 1; m <= subModelCount; ++m) {
+            auto subModel = GET_SUBMODEL(subModels[m]);
             for (p = 0; p < subModel->passCount; ++p) {
                 auto pass = GET_PASS(subModel->pass0ID + p);
                 if (pass->phase != _phaseID) continue;
                 if (static_cast<BatchingSchemes>(pass->batchingScheme) == BatchingSchemes::INSTANCING) {
                     auto instancedBuffer = InstancedBuffer::get(pass);
-                    instancedBuffer->merge(subModel, model->instancedAttributeBlock, p);
+                    //TODO coulsonwang
+                    //                    instancedBuffer->merge(subModel, model->instancedAttributeBlock, p);
                     _instancedQueue->getQueue().emplace(instancedBuffer);
                 } else if (static_cast<BatchingSchemes>(pass->batchingScheme) == BatchingSchemes::VB_MERGING) {
                     auto batchedBuffer = BatchedBuffer::get(pass);

@@ -11,7 +11,7 @@ ShadowStage::~ShadowStage() {
 }
 RenderStageInfo ShadowStage::_initInfo = {
     "ShadowStage",
-    static_cast<uint>(ForwardStagePriority::UI)};
+    static_cast<uint>(ForwardStagePriority::FORWARD)};
 const RenderStageInfo &ShadowStage::getInitializeInfo() { return ShadowStage::_initInfo; }
 
 bool ShadowStage::initialize(const RenderStageInfo &info) {

@@ -7,7 +7,7 @@
 namespace cc {
 namespace pipeline {
 
-RenderObject genRenderObject(Model *model, const Camera *camera) {
+RenderObject genRenderObject(ModelView *model, const Camera *camera) {
     uint depth = 0;
     if (model->nodeID != 0) {
         const auto node = GET_NODE(model->nodeID);
@@ -40,9 +40,9 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
     }
 
     const auto stamp = GET_DIRECTOR(0)->totalFrames;
-    //TODO couslonwang: array pool
-    size_t modelCount;
-    for (size_t i = 0; i < modelCount; i++) {
+    uint32_t *models = GET_MODEL_ARRAY(scene->modelsID);
+    uint32_t modelCount = models[0];
+    for (size_t i = 1; i <= modelCount; i++) {
         const auto model = GET_MODEL(i);
 
         // filter model by view visibility

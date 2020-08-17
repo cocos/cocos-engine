@@ -73,12 +73,14 @@ bool aabb_frustum(const AABB *aabb, const Frustum *frustum) {
     const size_t plantCount = 6;
     for (size_t i = 0; i < plantCount; i++) {
         // frustum plane normal points to the inside
-        if (aabb_plane(aabb, GET_PLANE(i)) == -1) {
-            return 0;
-        }
+        //        if (aabb_plane(aabb, GET_PLANE(i)) == -1) {
+        //            return 0;
+        //        }
     } // completely outside
     return 1;
 }
+
+uint SKYBOX_FLAG = static_cast<uint>(gfx::ClearFlagBit::STENCIL) << 1;
 
 } // namespace pipeline
 } // namespace cc

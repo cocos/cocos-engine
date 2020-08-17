@@ -6,16 +6,15 @@
 
 namespace cc {
 namespace pipeline {
-map<const PassView*, std::shared_ptr<BatchedBuffer>> BatchedBuffer::_buffers;
-BatchedBuffer* BatchedBuffer::get(const PassView *pass) {
-    if(_buffers.find(pass) == _buffers.end()) {
-        _buffers[pass] = std::shared_ptr<BatchedBuffer>(CC_NEW(BatchedBuffer(pass)), [](BatchedBuffer *ptr){CC_SAFE_DELETE(ptr);});
+map<const PassView *, std::shared_ptr<BatchedBuffer>> BatchedBuffer::_buffers;
+std::shared_ptr<BatchedBuffer> &BatchedBuffer::get(const PassView *pass) {
+    if (_buffers.find(pass) == _buffers.end()) {
+        _buffers[pass] = std::shared_ptr<BatchedBuffer>(CC_NEW(BatchedBuffer(pass)), [](BatchedBuffer *ptr) { CC_SAFE_DELETE(ptr); });
     }
     return _buffers[pass];
 }
 
 BatchedBuffer::BatchedBuffer(const PassView *pass) {
-    
 }
 
 BatchedBuffer::~BatchedBuffer() {
@@ -35,7 +34,6 @@ void BatchedBuffer::destroy() {
 }
 
 void BatchedBuffer::merge(const SubModelView *, uint passIdx, const RenderObject *) {
-    
 }
 
 void BatchedBuffer::clear() {
@@ -48,7 +46,6 @@ void BatchedBuffer::clear() {
 
 void BatchedBuffer::clearUBO() {
     for (auto &batch : _batchedItems) {
-        batch.ubo->update(g_LocalBatch.view.data(), 0, g_LocalBatch.view.size());
     }
 }
 } // namespace pipeline

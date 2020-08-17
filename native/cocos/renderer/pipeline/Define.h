@@ -10,13 +10,13 @@ class RenderStage;
 class RenderFlow;
 struct SubModelView;
 struct Light;
-struct Model;
+struct ModelView;
 struct AABB;
 struct Frustum;
 
 struct CC_DLL RenderObject {
     uint depth = 0;
-    Model *model = nullptr;
+    ModelView *model = nullptr;
 };
 typedef vector<struct RenderObject> RenderObjectList;
 
@@ -186,7 +186,7 @@ struct CC_DLL UBOLocalBatched {
     std::array<float, COUNT> view;
 };
 
-enum class CC_DLL ForwardStageProperty : uint8_t {
+enum class CC_DLL ForwardStagePriority : uint8_t {
     FORWARD = 10,
     UI = 20
 };
@@ -282,6 +282,12 @@ enum class LayerList : uint {
 
 bool aabb_frustum(const AABB *, const Frustum *);
 
+enum class CC_DLL BatchingSchemes {
+    INSTANCING = 1,
+    VB_MERGING = 2,
+};
+
+extern CC_DLL uint SKYBOX_FLAG;
 extern CC_DLL DescriptorSetLayoutInfo globalDescriptorSetLayout;
 extern CC_DLL DescriptorSetLayoutInfo localDescriptorSetLayout;
 

@@ -537,6 +537,8 @@ cocos_source_files(
     cocos/renderer/pipeline/shadow/ShadowStage.h
     cocos/renderer/pipeline/ui/UIFlow.h
     cocos/renderer/pipeline/ui/UIFlow.cpp
+    cocos/renderer/pipeline/ui/UIStage.h
+    cocos/renderer/pipeline/ui/UIStage.cpp
     cocos/renderer/pipeline/helper/DefineMap.h
     cocos/renderer/pipeline/helper/DefineMap.cpp
     cocos/renderer/pipeline/helper/SharedMemory.h

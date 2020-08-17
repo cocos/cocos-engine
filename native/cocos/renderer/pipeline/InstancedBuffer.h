@@ -25,7 +25,7 @@ class InstancedBuffer : public Object {
 public:
     static const uint INITIAL_CAPACITY = 32;
     static const uint MAX_CAPACITY = 1024;
-    static InstancedBuffer *get(const PassView *pass);
+    static std::shared_ptr<InstancedBuffer> &get(const PassView *pass);
 
     InstancedBuffer(const PassView *pass);
     virtual ~InstancedBuffer();

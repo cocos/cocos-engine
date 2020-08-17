@@ -31,7 +31,7 @@ public:
     virtual void destroy() = 0;
     virtual void render(RenderView *view) = 0;
 
-    CC_INLINE const String& getName() const { return _name; }
+    CC_INLINE const String &getName() const { return _name; }
     CC_INLINE uint getPriority() const { return _priority; }
     CC_INLINE uint getTag() const { return _tag; }
 

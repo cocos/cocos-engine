@@ -72,7 +72,7 @@ private:
     uint _bytesPerChunk = 0;
     uint _entriesPerChunk = 0;
     uint _bytesPerEntry = 0;
-    PoolType _type = PoolType::PASS_INFO;
+    PoolType _type = PoolType::UNKNOWN;
 };
 
 } // namespace se

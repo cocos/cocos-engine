@@ -2,4 +2,4 @@
 namespace cc {
 namespace pipeline {
 }
-}
+} // namespace cc

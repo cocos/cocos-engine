@@ -66,7 +66,7 @@ ForwardPipeline::~ForwardPipeline() {
     destroy();
 }
 
-bool ForwardPipeline::initialize(const RenderPipelineInfo *info) {
+bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
     RenderPipeline::initialize(info);
 
     auto shadowFlow = CC_NEW(ShadowFlow);

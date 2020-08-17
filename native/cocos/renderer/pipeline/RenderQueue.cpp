@@ -16,7 +16,7 @@ void RenderQueue::clear() {
 }
 
 bool RenderQueue::insertRenderPass(const RenderObject &renderObj, uint subModelIdx, uint passIdx) {
-    const auto subModel = GET_SUBMODEL(renderObj.model->subModelsID, subModelIdx);
+    const auto subModel = GET_SUBMODEL(subModelIdx);
     const auto pass = GET_PASS(subModel->pass0ID + passIdx);
     const auto isTransparent = GET_BLEND_STATE(pass->blendStateID)->targets[0].blend;
 
@@ -39,14 +39,14 @@ void RenderQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *rend
         const auto subModel = _queue[i].subModel;
         const auto passIdx = _queue[i].passIndex;
         const auto inputAssembler = GET_IA(subModel->inputAssemblerID);
-        
+
         const auto pass = GET_PASS(subModel->pass0ID + passIdx);
         const auto shader = GET_SHADER(pass->shader0ID + passIdx);
-        
+
         auto pso = PipelineStateManager::getOrCreatePipelineStage(pass, shader, inputAssembler, renderPass);
         cmdBuff->bindPipelineState(pso);
         //TODO coulsonwang
-//        cmdBuff->bindBindingLayout();
+        //        cmdBuff->bindBindingLayout();
         cmdBuff->bindInputAssembler(inputAssembler);
         cmdBuff->draw(inputAssembler);
     }
