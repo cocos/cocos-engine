@@ -7,9 +7,9 @@
 namespace cc {
 namespace pipeline {
 map<uint, gfx::PipelineState *> PipelineStateManager::_PSOHashMap;
-gfx::PipelineState *PipelineStateManager::getOrCreatePipelineStage(const PSOInfo *psoci,
-                                                                   const Pass *pass,
-                                                                   const gfx::InputAssembler *inputAssembler,
+gfx::PipelineState *PipelineStateManager::getOrCreatePipelineStage(const PassView *pass,
+                                                                   gfx::Shader *shader,
+                                                                   gfx::InputAssembler *inputAssembler,
                                                                    gfx::RenderPass *renderPass) {
     const auto passHash = pass->hash;
     const auto iaHash = inputAssembler->getAttributesHash();
@@ -19,7 +19,7 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineStage(const PSOInfo
     if (!pso) {
         gfx::PipelineStateInfo info = {
             static_cast<gfx::PrimitiveMode>(pass->primitive),
-            GET_SHADER(psoci->shaderID),
+            shader,
             {inputAssembler->getAttributes()},
             *(GET_RASTERIZER_STATE(pass->rasterizerStateID)),
             *(GET_DEPTH_STENCIL_STATE(pass->depthStencilStateID)),

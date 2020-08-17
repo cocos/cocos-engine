@@ -4,9 +4,8 @@
 
 namespace cc {
 namespace pipeline {
-struct Pass;
-struct SubModel;
-struct PSOInfo;
+struct PassView;
+struct SubModelView;
 
 struct CC_DLL BatchedItem {
     gfx::BufferList vbs;
@@ -25,24 +24,24 @@ typedef vector<BatchedItem> BatchedItemList;
 
 class CC_DLL BatchedBuffer : public Object {
 public:
-    static std::shared_ptr<BatchedBuffer> &get(const Pass *pass);
+    static BatchedBuffer *get(const PassView *pass);
 
-    BatchedBuffer(const Pass *pass);
+    BatchedBuffer(const PassView *pass);
     virtual ~BatchedBuffer();
 
     void destroy();
-    void merge(const SubModel *, uint passIdx, const RenderObject *);
+    void merge(const SubModelView *, uint passIdx, const RenderObject *);
     void clear();
     void clearUBO();
 
     CC_INLINE const BatchedItemList &getBaches() const { return _batchedItems; }
-    CC_INLINE const Pass *getPass() const { return _pass; }
+    CC_INLINE PassView *getPass() const { return _pass; }
 
 private:
-    static map<const Pass *, std::shared_ptr<BatchedBuffer>> _buffers;
+    static map<const PassView*, std::shared_ptr<BatchedBuffer>> _buffers;
     //    const _localBatched = new UBOLocalBatched();
     BatchedItemList _batchedItems;
-    const Pass *_pass = nullptr;
+    PassView *_pass = nullptr;
 };
 
 } // namespace pipeline

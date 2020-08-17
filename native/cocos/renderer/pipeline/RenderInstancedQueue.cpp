@@ -16,9 +16,10 @@ void RenderInstancedQueue::clear() {
 void RenderInstancedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff) {
     for (auto instanceBuffer : _queues) {
         const auto &instances = instanceBuffer->getInstances();
-        const auto psoci = instanceBuffer->getPSOCI();
-        const auto pass = instanceBuffer->getPass();
-        if (psoci) {
+        if(!instanceBuffer->hasPendingModels()) {
+            continue;
+        }
+        
             instanceBuffer->uploadBuffers();
             gfx::PipelineState *lastPSO = nullptr;
             for (size_t b = 0; b < instances.size(); ++b) {
@@ -36,7 +37,27 @@ void RenderInstancedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderP
                 cmdBuff->draw(instance.ia);
             }
         }
-    }
+    //    const it = this.queue.values(); let res = it.next();
+//    while (!res.done) {
+//        const { instances, psoci } = res.value;
+//        if (psoci) {
+//            res.value.uploadBuffers();
+//            let lastPSO: GFXPipelineState | null = null;
+//            for (let b = 0; b < instances.length; ++b) {
+//                const instance = instances[b];
+//                if (!instance.count) { continue; }
+//                const pso = PipelineStateManager.getOrCreatePipelineState(device, psoci, renderPass, instance.ia);
+//                if (lastPSO !== pso) {
+//                    cmdBuff.bindPipelineState(pso);
+//                    cmdBuff.bindBindingLayout(psoci.bindingLayout);
+//                    lastPSO = pso;
+//                }
+//                cmdBuff.bindInputAssembler(instance.ia);
+//                cmdBuff.draw(instance.ia);
+//            }
+//        }
+//        res = it.next();
+//    }
 }
 
 } // namespace pipeline

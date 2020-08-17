@@ -5,8 +5,8 @@
 namespace cc {
 
 namespace pipeline {
-struct SubModel;
-struct Pass;
+struct SubModelView;
+struct PassView;
 struct InstancedAttributeBlock;
 struct PSOInfo;
 
@@ -25,25 +25,25 @@ class InstancedBuffer : public Object {
 public:
     static const uint INITIAL_CAPACITY = 32;
     static const uint MAX_CAPACITY = 1024;
-    static std::shared_ptr<InstancedBuffer> &get(const Pass *pass);
+    static InstancedBuffer *get(const PassView *pass);
 
-    InstancedBuffer(const Pass *pass);
+    InstancedBuffer(const PassView *pass);
     virtual ~InstancedBuffer();
 
     void destroy();
-    void merge(const SubModel *, const InstancedAttributeBlock &, const PSOInfo *);
+    void merge(const SubModelView *, const InstancedAttributeBlock &, uint passIdx);
     void uploadBuffers();
     void clear();
 
     CC_INLINE const InstancedItemList &getInstances() const { return _instancedItems; }
-    CC_INLINE const PSOInfo *getPSOCI() const { return _psoci; }
-    CC_INLINE const Pass *getPass() const { return _pass; }
+    CC_INLINE PassView *getPass() const { return _pass; }
+    CC_INLINE bool hasPendingModels() const { return _hasPendingModels; }
 
 private:
-    static map<const Pass *, std::shared_ptr<InstancedBuffer>> _buffers;
+    static map<const PassView *, std::shared_ptr<InstancedBuffer>> _buffers;
     InstancedItemList _instancedItems;
-    const Pass *_pass = nullptr;
-    const PSOInfo *_psoci = nullptr;
+    PassView *_pass = nullptr;
+    bool _hasPendingModels = false;
 };
 
 } // namespace pipeline

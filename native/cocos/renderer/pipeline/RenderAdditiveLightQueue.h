@@ -4,18 +4,17 @@
 
 namespace cc {
 namespace pipeline {
-struct SubModel;
+struct SubModelView;
 struct Light;
 struct RenderObject;
-struct Pass;
-class DefineMap;
+struct PassView;
 
 class RenderAdditiveLightQueue : public Object {
 public:
     RenderAdditiveLightQueue() = default;
     ~RenderAdditiveLightQueue() = default;
-
-    void add(const RenderObject *renderObj, uint subModelIdx, Pass *pass, uint beginIdx, uint endIdx);
+    
+    void add(const RenderObject *renderObj, uint subModelIdx, PassView *pass, uint beginIdx, uint endIdx);
     void clear(const vector<Light *> &validLights,
                const vector<gfx::Buffer *> &lightBuffers,
                const vector<uint> &lightIndices);
@@ -23,10 +22,10 @@ public:
 
 private:
     void attach(RenderObject *renderObj, uint subModelIdx, gfx::Buffer *lightBuffer,
-                uint lightIdx, Pass *pass, const vector<DefineMap> &patches);
+                uint lightIdx, PassView *pass, vector<MacroPatch> patches);
 
 private:
-    vector<vector<SubModel *>> _sortedSubModelsArray;
+    vector<vector<SubModelView *>> _sortedSubModelsArray;
     vector<vector<uint>> _sortedPSOCIArray;
     vector<Light *> _validLights;
     vector<gfx::Buffer *> _lightBuffers;

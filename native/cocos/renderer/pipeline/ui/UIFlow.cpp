@@ -1,6 +1,8 @@
 
 #include "UIFlow.h"
 #include "../Define.h"
+#include "../forward/ForwardPipeline.h"
+#include "UIStage.h"
 
 namespace cc {
 namespace pipeline {
@@ -17,16 +19,24 @@ UIFlow::~UIFlow() {
 bool UIFlow::initialize(const RenderFlowInfo &info) {
     RenderFlow::initialize(info);
 
+    auto uiStage = CC_NEW(UIStage);
+    _stages.emplace_back(uiStage);
+
     return true;
 }
 
-void UIFlow::activate(RenderPipeline *pipeline) {
-}
-
 void UIFlow::render(RenderView *view) {
+    auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
+    //TODO coulsonwang
+    //view.camera.update();
+    //sceneCullin(pipeline,view);
+
+    pipeline->updateUBOs(view);
+    RenderFlow::render(view);
 }
 
 void UIFlow::destroy() {
+    RenderFlow::destroy();
 }
 
 } // namespace pipeline

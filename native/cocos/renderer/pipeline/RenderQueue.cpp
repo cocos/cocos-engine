@@ -16,17 +16,16 @@ void RenderQueue::clear() {
 }
 
 bool RenderQueue::insertRenderPass(const RenderObject &renderObj, uint subModelIdx, uint passIdx) {
-    const auto subModelPtr = GET_SUBMODEL(renderObj.model->subModelsID, subModelIdx);
-    const auto passPtr = GET_PASS(subModelPtr->materialID, passIdx);
-    const auto psoCIPtr = GET_PSOCI(subModelPtr->psociID, passIdx);
-    bool isTransparent = static_cast<bool>(GET_BLEND_STATE(passPtr->blendStateID));
+    const auto subModel = GET_SUBMODEL(renderObj.model->subModelsID, subModelIdx);
+    const auto pass = GET_PASS(subModel->pass0ID + passIdx);
+    const auto isTransparent = GET_BLEND_STATE(pass->blendStateID)->targets[0].blend;
 
-    if (isTransparent != _passDesc.isTransparent || !(passPtr->phase & _passDesc.phases)) {
+    if (isTransparent != _passDesc.isTransparent || !(pass->phase & _passDesc.phases)) {
         return false;
     }
 
-    const auto hash = (0 << 30) | (passPtr->priority << 16) | (subModelPtr->priority << 8) | passIdx;
-    RenderPass renderPass = {hash, renderObj.depth, GET_SHADER(psoCIPtr->shaderID)->getHash(), passIdx, subModelPtr};
+    const auto hash = (0 << 30) | (pass->priority << 16) | (subModel->priority << 8) | passIdx;
+    RenderPass renderPass = {hash, renderObj.depth, GET_SHADER(subModel->shader0ID + passIdx)->getHash(), passIdx, subModel};
     _queue.emplace_back(std::move(renderPass));
     return true;
 }
@@ -37,16 +36,19 @@ void RenderQueue::sort() {
 
 void RenderQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff) {
     for (size_t i = 0; i < _queue.size(); ++i) {
-        const auto subModelPtr = _queue[i].subModel;
+        const auto subModel = _queue[i].subModel;
         const auto passIdx = _queue[i].passIndex;
-        const auto iaPtr = GET_IA(subModelPtr->iaID);
-        const auto psoCIPtr = GET_PSOCI(subModelPtr->psociID, passIdx);
-        const auto passPtr = GET_PASS(subModelPtr->materialID, passIdx);
-        auto *pso = PipelineStateManager::getOrCreatePipelineStage(psoCIPtr, passPtr, iaPtr, renderPass);
+        const auto inputAssembler = GET_IA(subModel->inputAssemblerID);
+        
+        const auto pass = GET_PASS(subModel->pass0ID + passIdx);
+        const auto shader = GET_SHADER(pass->shader0ID + passIdx);
+        
+        auto pso = PipelineStateManager::getOrCreatePipelineStage(pass, shader, inputAssembler, renderPass);
         cmdBuff->bindPipelineState(pso);
-        cmdBuff->bindBindingLayout(GET_BINDING_LAYOUT(psoCIPtr->bindingLayoutID));
-        cmdBuff->bindInputAssembler(iaPtr);
-        cmdBuff->draw(iaPtr);
+        //TODO coulsonwang
+//        cmdBuff->bindBindingLayout();
+        cmdBuff->bindInputAssembler(inputAssembler);
+        cmdBuff->draw(inputAssembler);
     }
 }
 

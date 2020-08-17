@@ -5,17 +5,50 @@
 
 namespace cc {
 namespace gfx {
-class InputAssembler;
-class Shader;
-struct RasterizerState;
-struct DepthStencilState;
-struct BlendState;
-class BindingLayout;
-} // namespace gfx
+    class DescriptorSet;
+}
 
 namespace pipeline {
 struct RenderingSubMesh;
 struct FlatBuffer;
+
+template <typename TYPE, TYPE value>
+struct PoolType {
+    using type = TYPE;
+    static TYPE getType() { return value; }
+};
+
+struct CC_DLL PassView : public PoolType<se::BufferPoolType, se::BufferPoolType::PASS> {
+    uint32_t priority = 0;
+    uint32_t stage = 0;
+    uint32_t phase = 0;
+    uint32_t batchingScheme = 0;
+    uint32_t primitive = 0;
+    uint32_t dynamicState = 0;
+    uint32_t hash = 0;
+    uint32_t rasterizerStateID = 0;
+    uint32_t depthStencilStateID = 0;
+    uint32_t blendStateID = 0;
+    uint32_t descriptorSetID = 0;
+    uint32_t pipelineLayoutID = 0;
+    uint32_t count = 0;
+};
+
+struct CC_DLL SubModelView : public PoolType<se::BufferPoolType, se::BufferPoolType::SUBMODEL> {
+    uint32_t priority = 0;
+    uint32_t passCount = 0;
+    uint32_t pass0ID = 0;
+    uint32_t pass1ID = 0;
+    uint32_t pass2ID = 0;
+    uint32_t pass3ID = 0;
+    uint32_t shader0ID = 0;
+    uint32_t shadere1ID = 0;
+    uint32_t shader2ID = 0;
+    uint32_t shader3ID = 0;
+    uint32_t descriptorSetID = 0;
+    uint32_t inputAssemblerID = 0;
+    uint32_t COUNT = 0;
+};
 
 enum class CC_DLL BatchingSchemes {
     INSTANCING = 1,
@@ -120,7 +153,7 @@ struct CC_DLL Node : public PoolType<se::BufferPoolType, se::BufferPoolType::UNK
     cc::Vec3 worldScale;
 };
 
-struct CC_DLL Model {
+struct CC_DLL Model : public PoolType<se::BufferPoolType, se::BufferPoolType::MODEL> {
     uint32_t isDynamicBatching = 0;
 
     uint32_t subModelsCount = 0;
@@ -133,22 +166,7 @@ struct CC_DLL Model {
     const static se::PoolType type = se::PoolType::MODEL_INFO;
 };
 
-struct CC_DLL Pass {
-    uint32_t priority = 0;
-    uint32_t stage = 0;
-    uint32_t phase = 0;
-    uint32_t batchingScheme = 0;
-    uint32_t primitive = 0;
-    uint32_t dynamicState = 0;
-    uint32_t hash = 0;
-    uint32_t rasterizerStateID = 0;
-    uint32_t depthStencilStateID = 0;
-    uint32_t blendStateID = 0;
-
-    const static se::PoolType type = se::PoolType::PASS_INFO;
-};
-
-struct CC_DLL PSOInfo {
+struct CC_DLL PSOInfo : public PoolType<se::BufferPoolType, se::BufferPoolType::UNKNOWN> {
     uint32_t passID = 0;
     uint32_t bindingLayoutID = 0;
     uint32_t shaderID = 0;
@@ -199,9 +217,9 @@ struct CC_DLL Director : public PoolType<se::BufferPoolType, se::BufferPoolType:
     float totalFrames = 0;
 };
 
-#define GET_SUBMODEL(index, offset)           (SharedMemory::get<SubModel>(index) + offset)
-#define GET_PASS(index)                       (SharedMemory::get<Pass>(index)) //get pass from material
-#define GET_PSOCI(index)                      (SharedMemory::get<PSOInfo>(index))
+#define GET_SUBMODEL(index, offset)           (SharedMemory::get<SubModelView>(index) + offset)
+#define GET_PASS(index)                       (SharedMemory::get<PassView>(index))
+
 #define GET_INSTANCE_ATTRIBUTE(index, offset) (SharedMemory::get<InstancedAttribute>(index) + offset)
 #define GET_RENDER_SUBMESH(index)             (SharedMemory::get<RenderingSubMesh>(index))
 #define GET_FLAT_BUFFER(index, offset)        (SharedMemory::get<FlatBuffer>(index) + offset)
@@ -218,6 +236,7 @@ struct CC_DLL Director : public PoolType<se::BufferPoolType, se::BufferPoolType:
 //TODO
 #define GET_NAME(index) (String(0))
 
+#define GET_DESCRIPTOR_SET(index)    (static_cast<gfx::DescriptorSet *>(0))
 #define GET_IA(index)                  (static_cast<gfx::InputAssembler *>(0))
 #define GET_SHADER(index)              (static_cast<gfx::Shader *>(0))
 #define GET_RASTERIZER_STATE(index)    (static_cast<gfx::RasterizerState *>(0))

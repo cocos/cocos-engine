@@ -5,7 +5,7 @@
 namespace cc {
 namespace pipeline {
 struct Light;
-struct UBOGlobal;
+class UBOGlobal;
 
 class CC_DLL ForwardPipeline : public RenderPipeline {
 public:

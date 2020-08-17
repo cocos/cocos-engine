@@ -8,7 +8,7 @@ namespace pipeline {
 
 class RenderStage;
 class RenderFlow;
-struct SubModel;
+struct SubModelView;
 struct Light;
 struct Model;
 
@@ -28,7 +28,7 @@ struct CC_DLL RenderPass {
     uint depth = 0;
     uint shaderID = 0;
     uint passIndex = 0;
-    SubModel *subModel = nullptr;
+    SubModelView *subModel = nullptr;
 };
 typedef vector<RenderPass> RenderPassList;
 

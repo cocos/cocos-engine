@@ -3,7 +3,8 @@
 
 namespace cc {
 namespace pipeline {
-void RenderAdditiveLightQueue::add(const RenderObject *renderObj, uint subModelIdx, Pass *pass, uint beginIdx, uint endIdx) {
+void RenderAdditiveLightQueue::add(const RenderObject *renderObj, uint subModelIdx, PassView *pass, uint beginIdx, uint endIdx) {
+    
 }
 
 void RenderAdditiveLightQueue::clear(const vector<Light *> &validLights,
@@ -30,8 +31,9 @@ void RenderAdditiveLightQueue::attach(RenderObject *renderObj,
                                       uint subModelIdx,
                                       gfx::Buffer *lightBuffer,
                                       uint lightIdx,
-                                      Pass *pass,
-                                      const vector<DefineMap> &patches) {
+                                      PassView *pass,
+                                      vector<MacroPatch> patches) {
+    
 }
 
 } // namespace pipeline

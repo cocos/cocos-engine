@@ -6,15 +6,15 @@
 
 namespace cc {
 namespace pipeline {
-map<const Pass *, std::shared_ptr<InstancedBuffer>> InstancedBuffer::_buffers;
-std::shared_ptr<InstancedBuffer> &InstancedBuffer::get(const Pass *pass) {
+map<const PassView *, std::shared_ptr<InstancedBuffer>> InstancedBuffer::_buffers;
+InstancedBuffer *InstancedBuffer::get(const PassView *pass) {
     if (_buffers.find(pass) == _buffers.end()) {
         _buffers[pass] = std::shared_ptr<InstancedBuffer>(CC_NEW(InstancedBuffer(pass)), [](InstancedBuffer *ptr) { CC_SAFE_DELETE(ptr); });
     }
     return _buffers[pass];
 }
 
-InstancedBuffer::InstancedBuffer(const Pass *pass) {
+InstancedBuffer::InstancedBuffer(const PassView *pass) {
 }
 
 InstancedBuffer::~InstancedBuffer() {
@@ -29,15 +29,15 @@ void InstancedBuffer::destroy() {
     _instancedItems.clear();
 }
 
-void InstancedBuffer::merge(const SubModel *subModel, const InstancedAttributeBlock &attrs, const PSOInfo *psoci) {
+void InstancedBuffer::merge(const SubModelView *subModel, const InstancedAttributeBlock &attrs, uint passIdx) {
     const auto stride = attrs.bufferViewSize;
     if (!stride) {
         return;
     } // we assume per-instance attributes are always present
 
-    _psoci = psoci;
-
-    const auto *sourceIA = GET_IA(subModel->iaID);
+    const auto sourceIA = GET_IA(subModel->inputAssemblerID);
+    const auto shader = GET_SHADER(subModel->shader0ID + passIdx);
+    const auto descriptorSet = GET_DESCRIPTOR_SET(subModel->descriptorSetID);
     for (size_t i = 0; i < _instancedItems.size(); ++i) {
         auto &instance = _instancedItems[i];
         if (instance.ia->getIndexBuffer() != sourceIA->getIndexBuffer() || instance.count >= MAX_CAPACITY) {

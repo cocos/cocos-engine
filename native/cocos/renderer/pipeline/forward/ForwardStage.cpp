@@ -117,12 +117,11 @@ void ForwardStage::render(RenderView *view) {
         if (model && model->isDynamicBatching) {
             for (m = 0; m < model->subModelsCount; ++m) {
                 auto subModel = GET_SUBMODEL(model->subModelsID, m);
-                for (p = 0; p < subModel->passesCount; ++p) {
-                    auto pass = GET_PASS(subModel->materialID, p);
+                for (p = 0; p < subModel->passCount; ++p) {
+                    auto pass = GET_PASS(subModel->pass0ID + p);
                     if (static_cast<BatchingSchemes>(pass->batchingScheme) == BatchingSchemes::INSTANCING) {
                         auto instancedBuffer = InstancedBuffer::get(pass);
-                        //TODO coulsonwang
-                        //                        instancedBuffer->merge(subModel, model->instancedAttributeBlock, GET_PSOCI(subModel->psociID, p));
+                        instancedBuffer->merge(subModel, model->instancedAttributeBlock, p);
                         _instancedQueue->getQueue().emplace(instancedBuffer);
                     } else if (static_cast<BatchingSchemes>(pass->batchingScheme) == BatchingSchemes::VB_MERGING) {
                         auto &batchedBuffer = BatchedBuffer::get(pass);
@@ -139,8 +138,8 @@ void ForwardStage::render(RenderView *view) {
         } else {
             for (m = 0; m < model->subModelsCount; m++) {
                 auto subModel = GET_SUBMODEL(model->subModelsID, m);
-                for (p = 0; p < subModel->passesCount; p++) {
-                    auto pass = GET_PASS(subModel->passesID, p);
+                for (p = 0; p < subModel->passCount; p++) {
+                    auto pass = GET_PASS(subModel->pass0ID + p);
                     for (k = 0; k < _renderQueues.size(); k++) {
                         _renderQueues[k]->insertRenderPass(ro, m, p);
                     }
