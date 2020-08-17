@@ -75,7 +75,6 @@ void UIStage::render(RenderView *view) {
     _renderArea.width = vp.width * camera->width;
     _renderArea.height = vp.height * camera->height;
 
-    const auto &clearColor = camera->clearColor;
     auto &commandBuffers = pipeline->getCommandBuffers();
     auto cmdBuff = commandBuffers[0];
 

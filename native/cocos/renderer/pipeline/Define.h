@@ -11,6 +11,8 @@ class RenderFlow;
 struct SubModelView;
 struct Light;
 struct Model;
+struct AABB;
+struct Frustum;
 
 struct CC_DLL RenderObject {
     uint depth = 0;
@@ -237,7 +239,7 @@ public:
     static const uint COUNT = UBOShadow::SHADOW_COLOR_OFFSET + 4;
     static const uint SIZE = UBOShadow::COUNT * 4;
     static gfx::UniformBlock BLOCK;
-    
+
     std::array<float, UBOShadow::COUNT> view;
 };
 
@@ -257,12 +259,28 @@ public:
 };
 
 struct CC_DLL DescriptorSetLayoutInfo {
-//    bindings: GFXDescriptorSetLayoutBinding[];
-//    record: Record<string, IBlockInfo | ISamplerInfo>;
+    //    bindings: GFXDescriptorSetLayoutBinding[];
+    //    record: Record<string, IBlockInfo | ISamplerInfo>;
 };
 
-uint genSamplerHash(const gfx::SamplerInfo&);
+uint genSamplerHash(const gfx::SamplerInfo &);
 gfx::Sampler *getSampler(uint hash);
+
+enum class LayerList : uint {
+    NONE = 0,
+    IGNORE_RAYCAST = (1 << 20),
+    GIZMOS = (1 << 21),
+    EDITOR = (1 << 22),
+    UI_3D = (1 << 23),
+    SCENE_GIZMO = (1 << 24),
+    UI_2D = (1 << 25),
+
+    PROFILER = (1 << 28),
+    DEFAULT = (1 << 30),
+    ALL = 0xffffffff,
+};
+
+bool aabb_frustum(const AABB *, const Frustum *);
 
 extern CC_DLL DescriptorSetLayoutInfo globalDescriptorSetLayout;
 extern CC_DLL DescriptorSetLayoutInfo localDescriptorSetLayout;

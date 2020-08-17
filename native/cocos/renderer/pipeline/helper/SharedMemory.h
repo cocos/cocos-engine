@@ -5,12 +5,13 @@
 
 namespace cc {
 namespace gfx {
-    class DescriptorSet;
+class DescriptorSet;
 }
 
 namespace pipeline {
 struct RenderingSubMesh;
 struct FlatBuffer;
+struct PlanarShadow;
 
 template <typename TYPE, TYPE value>
 struct PoolType {
@@ -80,18 +81,34 @@ struct CC_DLL Camera {
     cc::Mat4 matViewProj;
     cc::Mat4 matViewProjInv;
     cc::Vec3 position;
+    cc::Vec3 forward;
 
     uint32_t nodeID = 0;
     uint32_t sceneID = 0;
+    uint32_t frustumID = 0;
+};
 
-    const static se::PoolType type = se::PoolType::CAMERA_INFO;
+struct CC_DLL AABB : public PoolType<se::BufferPoolType, se::BufferPoolType::UNKNOWN> {
+    cc::Vec3 halfExtents;
+    cc::Vec3 center;
+};
+
+struct CC_DLL Frustum : public PoolType<se::BufferPoolType, se::BufferPoolType::UNKNOWN> {
+    uint32_t planesID = 0; //array pool
+};
+
+struct CC_DLL Plane : public PoolType<se::BufferPoolType, se::BufferPoolType::UNKNOWN> {
+    cc::Vec3 normal;
+    float distance;
 };
 
 struct CC_DLL Scene {
     uint32_t mainLightID = 0;
     uint32_t ambientID = 0;
     uint32_t fogID = 0;
-    const static se::PoolType type = se::PoolType::SCENE_INFO;
+    uint32_t skyboxID = 0;
+    uint32_t planarShadowID = 0;
+    uint32_t modelsID = 0; //array pool
 };
 
 struct CC_DLL MainLight {
@@ -151,6 +168,8 @@ struct CC_DLL Node : public PoolType<se::BufferPoolType, se::BufferPoolType::UNK
     cc::Vec3 worldPosition;
     cc::Vec3 worldRotation;
     cc::Vec3 worldScale;
+
+    uint32_t layer = 0;
 };
 
 struct CC_DLL Model : public PoolType<se::BufferPoolType, se::BufferPoolType::MODEL> {
@@ -159,11 +178,22 @@ struct CC_DLL Model : public PoolType<se::BufferPoolType, se::BufferPoolType::MO
     uint32_t subModelsCount = 0;
     uint32_t subModelsID = 0;
 
+    uint32_t nodeID = 0;
     uint32_t transformID = 0;
+
+    uint32_t enabled = 0;
+    uint32_t visFlags = 0;
+    uint32_t castShadow = 0;
+
+    uint32_t worldBoundsID = 0; //aabb
 
     InstancedAttributeBlock instancedAttributeBlock;
 
     const static se::PoolType type = se::PoolType::MODEL_INFO;
+};
+
+struct CC_DLL Skybox : public Model {
+    uint32_t enabled = 0;
 };
 
 struct CC_DLL PSOInfo : public PoolType<se::BufferPoolType, se::BufferPoolType::UNKNOWN> {
@@ -217,8 +247,9 @@ struct CC_DLL Director : public PoolType<se::BufferPoolType, se::BufferPoolType:
     float totalFrames = 0;
 };
 
-#define GET_SUBMODEL(index, offset)           (SharedMemory::get<SubModelView>(index) + offset)
-#define GET_PASS(index)                       (SharedMemory::get<PassView>(index))
+//Get buffer pool data
+#define GET_SUBMODEL(index, offset) (SharedMemory::get<SubModelView>(index) + offset)
+#define GET_PASS(index)             (SharedMemory::get<PassView>(index))
 
 #define GET_INSTANCE_ATTRIBUTE(index, offset) (SharedMemory::get<InstancedAttribute>(index) + offset)
 #define GET_RENDER_SUBMESH(index)             (SharedMemory::get<RenderingSubMesh>(index))
@@ -232,11 +263,16 @@ struct CC_DLL Director : public PoolType<se::BufferPoolType, se::BufferPoolType:
 #define GET_AMBIENT(index)                    (SharedMemory::get<Ambient>(index))
 #define GET_FOG(index)                        (SharedMemory::get<Fog>(index))
 #define GET_DIRECTOR(index)                   (SharedMemory::get<Director>(index))
+#define GET_PLANAR_SHADOW(index)              (static_cast<PlanarShadow *>(0))
+#define GET_SKYBOX(index)                     (SharedMemory::get<Skybox>(index))
+#define GET_FRUSTUM(index)                    (SharedMemory::get<Frustum>(index))
+#define GET_AABB(index)                       (SharedMemory::get<AABB>(index))
 
 //TODO
 #define GET_NAME(index) (String(0))
 
-#define GET_DESCRIPTOR_SET(index)    (static_cast<gfx::DescriptorSet *>(0))
+//Get object pool data
+#define GET_DESCRIPTOR_SET(index)      (static_cast<gfx::DescriptorSet *>(0))
 #define GET_IA(index)                  (static_cast<gfx::InputAssembler *>(0))
 #define GET_SHADER(index)              (static_cast<gfx::Shader *>(0))
 #define GET_RASTERIZER_STATE(index)    (static_cast<gfx::RasterizerState *>(0))
@@ -244,6 +280,11 @@ struct CC_DLL Director : public PoolType<se::BufferPoolType, se::BufferPoolType:
 #define GET_BLEND_STATE(index)         (static_cast<gfx::BlendState *>(0))
 #define GET_BINDING_LAYOUT(index)      (static_cast<gfx::BindingLayout *>(0))
 
+//Get array pool data
+#define GET_MODEL(index) (static_cast<Model *>(0))
+#define GET_PLANE(index) (static_cast<Plane *>(0))
+
+#define ENABLE_IF_BUFFER_POOL_RET typename std::enable_if_t<std::is_same<se::BufferPoolType, typename T::type>::value, T>
 class CC_DLL SharedMemory : public Object {
 public:
     template <typename T>

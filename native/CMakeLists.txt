@@ -529,6 +529,8 @@ cocos_source_files(
     cocos/renderer/pipeline/forward/ForwardPipeline.h
     cocos/renderer/pipeline/forward/ForwardStage.cpp
     cocos/renderer/pipeline/forward/ForwardStage.h
+    cocos/renderer/pipeline/forward/SceneCulling.cpp
+    cocos/renderer/pipeline/forward/SceneCulling.h
     cocos/renderer/pipeline/shadow/ShadowFlow.cpp
     cocos/renderer/pipeline/shadow/ShadowFlow.h
     cocos/renderer/pipeline/shadow/ShadowStage.cpp
