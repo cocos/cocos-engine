@@ -1,5 +1,5 @@
 import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from '../pipeline-layout';
-import { IWebGL2GPUPipelineLayout } from './webgl2-gpu-objects';
+import { IWebGL2GPUPipelineLayout, IWebGL2GPUDescriptorSetLayout } from './webgl2-gpu-objects';
 import { WebGL2DescriptorSetLayout } from './webgl2-descriptor-set-layout';
 
 export class WebGL2PipelineLayout extends GFXPipelineLayout {
@@ -13,12 +13,13 @@ export class WebGL2PipelineLayout extends GFXPipelineLayout {
 
         const dynamicOffsetIndices: number[][] = [];
 
-        let idx = 0;
+        const gpuSetLayouts: IWebGL2GPUDescriptorSetLayout[] = []; let idx = 0;
         for (let i = 0; i < this._setLayouts.length; i++) {
             const setLayout = this._setLayouts[i] as WebGL2DescriptorSetLayout;
             const dynamicBindings = setLayout.gpuDescriptorSetLayout.dynamicBindings;
             const bindings = setLayout.bindings;
             const indices: number[] = [];
+            gpuSetLayouts.push(setLayout.gpuDescriptorSetLayout);
             for (let j = 0, k = 0; j < bindings.length; j++) {
                 if (dynamicBindings[k] === j) {
                     indices.push(idx);
@@ -32,7 +33,7 @@ export class WebGL2PipelineLayout extends GFXPipelineLayout {
         }
 
         this._gpuPipelineLayout = {
-            setLayouts: this._setLayouts,
+            gpuSetLayouts,
             dynamicOffsetIndices,
         };
 

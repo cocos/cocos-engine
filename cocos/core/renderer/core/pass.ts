@@ -473,7 +473,6 @@ export class Pass {
         const pipeline = this._root.pipeline;
         if (!pipeline) { return null; }
         this._syncBatchingScheme();
-        Object.assign(this._defines, pipeline.macros);
         const key = programLib.getKey(this._programName, this._defines);
         this._hShaderDefault = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline, key);
         if (!this._hShaderDefault) { console.warn(`create shader ${this._programName} failed`); return false; }

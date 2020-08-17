@@ -166,7 +166,7 @@ export interface IWebGLGPUDescriptorSetLayout {
 }
 
 export interface IWebGLGPUPipelineLayout {
-    setLayouts: GFXDescriptorSetLayout[];
+    gpuSetLayouts: IWebGLGPUDescriptorSetLayout[];
     dynamicOffsetIndices: number[][];
 }
 
