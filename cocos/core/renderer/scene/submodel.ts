@@ -42,10 +42,6 @@ export class SubModel {
         return this._subMesh!;
     }
 
-    public addPatches (patches: IMacroPatch[]) {
-        this.patches = this.patches ? patches.concat(this.patches) : patches;
-    }
-
     set patches (patches: IMacroPatch[]) {
         this.patches = patches;
         this._flushPassInfo();
