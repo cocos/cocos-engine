@@ -8,6 +8,7 @@ import { ForwardPipeline } from './forward-pipeline';
 import { RenderView } from '../render-view';
 import { Pool } from '../../memop';
 import { IRenderObject } from '../define';
+import { ShadowInfo } from '../../renderer/scene/shadowInfo';
 
 const _tempVec3 = new Vec3();
 
@@ -81,7 +82,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                     model.updateTransform(stamp);
 
                     // shadow render Object
-                    if (model.castShadow) {
+                    if (model.castShadow && ShadowInfo.shadowInfoInstance.enabled) {
                         model.updateUBOs(stamp);
                         shadowObjects.push(getCastShadowRenderObject(model, camera));
                     }

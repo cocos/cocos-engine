@@ -493,13 +493,13 @@ export class Shadow {
     @property
     protected _enabled: boolean = true;
     @property
-    protected _near: number = 0.1;
+    protected _near: number = 1;
     @property
-    protected _far: number = 1000.0;
+    protected _far: number = 30;
     @property
-    protected _aspect: number = 1.0;
+    protected _aspect: number = 1;
     @property
-    protected _orthoSize: number = 20.0;
+    protected _orthoSize: number = 5;
     @property
     protected _size: Vec2 = new Vec2(512, 512);
 

@@ -58,10 +58,6 @@ export class ShadowStage extends RenderStage {
      * @param view 渲染视图。
      */
     public render (view: RenderView) {
-
-        const enabled = ShadowInfo.shadowInfoInstance.enabled;
-        if (!enabled) { return; }
-
         const pipeline = this._pipeline as ForwardPipeline;
         this._additiveShadowQueue.clear(pipeline.descriptorSet.getBuffer(UBOShadow.BLOCK.binding));
 
