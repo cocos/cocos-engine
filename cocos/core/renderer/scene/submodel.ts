@@ -42,15 +42,6 @@ export class SubModel {
         return this._subMesh!;
     }
 
-    set patches (patches: IMacroPatch[]) {
-        this.patches = patches;
-        this._flushPassInfo();
-    }
-
-    get patches () {
-        return this.patches;
-    }
-
     set priority (val) {
         this._priority = val;
         SubModelPool.set(this._handle, SubModelView.PRIORITY, val);

@@ -163,10 +163,10 @@ export class ForwardPipeline extends RenderPipeline {
             Mat4.invert(matShadowView, mainLight!.node!.worldMatrix);
 
             // light proj
-            const x = shadowInfo.shadowCameraOrthoSize * shadowInfo.shadowCameraAspect;
-            const y = shadowInfo.shadowCameraOrthoSize;
+            const x = shadowInfo._shadowCameraOrthoSize * shadowInfo._shadowCameraAspect;
+            const y = shadowInfo._shadowCameraOrthoSize;
             const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY;
-            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.shadowCameraNear, shadowInfo.shadowCameraFar,
+            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo._shadowCameraNear, shadowInfo._shadowCameraFar,
                 device.clipSpaceMinZ, projectionSignY);
 
             // light viewProj
