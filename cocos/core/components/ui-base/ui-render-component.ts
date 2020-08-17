@@ -214,11 +214,11 @@ export class UIRenderComponent extends RenderableComponent {
     protected _uiMaterial: Material | null = null;
     protected _uiMaterialIns: MaterialInstance | null = null;
 
-    protected getUIRenderMat () {
+    protected getUIRenderMaterial () {
         return this._uiMaterialIns || this._uiMaterial;
     }
 
-    public getUIMaterialIns () {
+    public getUIMaterialInstance () {
         if (!this._uiMaterialIns || this._uiMatInsDirty) {
             _matInsInfo.owner = this;
             _matInsInfo.parent = this._uiMaterial!;
@@ -231,10 +231,10 @@ export class UIRenderComponent extends RenderableComponent {
     protected _uiMaterialDirty = false;
     protected _uiMatInsDirty = false;
 
-    get UIMaterial () {
+    get uiMaterial () {
         return this._uiMaterial;
     }
-    set UIMaterial (val) {
+    set uiMaterial (val) {
         this._uiMaterial = val;
     }
 
@@ -423,13 +423,13 @@ export class UIRenderComponent extends RenderableComponent {
 
         if ((this._uiMaterialIns !== null && this._uiMatInsDirty) ||
             (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor)) {
-            mat = this.getUIMaterialIns();
+            mat = this.getUIMaterialInstance();
             target.blendDst = this._dstBlendFactor;
             target.blendSrc = this._srcBlendFactor;
             mat.overridePipelineStates(this._blendTemplate, 0);
         }
 
-        return mat || this.getUIRenderMat();
+        return mat || this.getUIRenderMaterial();
     }
 
     // pos, rot, scale changed

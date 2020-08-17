@@ -97,7 +97,7 @@ export const graphicsAssembler: IAssembler = {
     updateRenderData (graphics: GraphicsComponent) {
         const dataList = graphics.impl ? graphics.impl.getRenderData() : [];
         for (let i = 0, l = dataList.length; i < l; i++) {
-            dataList[i].material = graphics.getUIMaterialIns();
+            dataList[i].material = graphics.getUIMaterialInstance();
         }
     },
 
@@ -134,7 +134,7 @@ export const graphicsAssembler: IAssembler = {
                 renderDataList[_impl.dataOffset] = renderData;
             }
 
-            renderData.material = graphics.getUIMaterialIns();
+            renderData.material = graphics.getUIMaterialInstance();
             meshBuffer = renderData;
         }
 
@@ -223,7 +223,7 @@ export const graphicsAssembler: IAssembler = {
         }, undefined, { calculateBounds: false });
         
         graphics.model!.initialize(graphics.node);
-        graphics.model!.initSubModel(0, mesh.renderingSubMeshes[0], graphics.getUIMaterialIns()!);
+        graphics.model!.initSubModel(0, mesh.renderingSubMeshes[0], graphics.getUIMaterialInstance()!);
         graphics.markForUpdateRenderData();
     },
 
