@@ -28,7 +28,7 @@
  * @category ui
  */
 
-import { BitmapFont, Font, ImageAsset, SpriteFrame, Texture2D } from '../../core/assets';
+import { BitmapFont, Font, ImageAsset, SpriteFrame, Texture2D, Material } from '../../core/assets';
 import { ccclass, help, executionOrder, menu, property, tooltip } from '../../core/data/class-decorator';
 import { ccenum } from '../../core/value-types/enum';
 import { UI } from '../../core/renderer/ui/ui';
@@ -608,6 +608,20 @@ export class LabelComponent extends UIRenderComponent {
         this.updateRenderData();
     }
 
+    @property({
+        type: Material,
+        displayName: 'Materials',
+        visible: false,
+        override: true,
+    })
+    get sharedMaterials () {
+        return super.sharedMaterials;
+    }
+
+    set sharedMaterials (val) {
+        super.sharedMaterials = val;
+    }
+
     get assemblerData (){
         return this._assemblerData;
     }
@@ -793,13 +807,9 @@ export class LabelComponent extends UIRenderComponent {
         if (!this._renderData) {
             if (this._assembler && this._assembler.createData){
                 this._renderData = this._assembler.createData(this);
-                this._renderData!.material = this._material;
+                this._renderData!.material = this.material;
             }
         }
-    }
-
-    protected _flushMaterial () {
-        this._updateMaterial(this._material);
     }
 
     protected _applyFontTexture () {
@@ -809,7 +819,6 @@ export class LabelComponent extends UIRenderComponent {
             const onBMFontTextureLoaded = () => {
                 // TODO: old texture in material have been released by loader
                 this._texture = spriteFrame;
-                this._flushMaterial();
                 if (this._assembler) {
                     this._assembler!.updateRenderData(this);
                 }
@@ -839,7 +848,6 @@ export class LabelComponent extends UIRenderComponent {
                 this._texture = this._ttfSpriteFrame;
             }
 
-            this._flushMaterial();
             if (this._assembler) {
                 this._assembler!.updateRenderData(this);
             }

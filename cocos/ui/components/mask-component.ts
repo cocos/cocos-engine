@@ -253,6 +253,7 @@ export class MaskComponent extends UIRenderComponent {
     constructor () {
         super();
         this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
+        this._uiMaterialDirty = true;
     }
 
     public onLoad () {
@@ -388,7 +389,6 @@ export class MaskComponent extends UIRenderComponent {
             const node = new Node('clear-graphics');
             const clearGraphics = this._clearGraphics = node.addComponent(GraphicsComponent)!;
             clearGraphics.delegateSrc = this.node;
-            clearGraphics.helpInstanceMaterial();
             clearGraphics.lineWidth = 0;
             const color = Color.WHITE.clone();
             color.a = 0;
@@ -399,7 +399,6 @@ export class MaskComponent extends UIRenderComponent {
             const graphics = this._graphics = new GraphicsComponent();
             graphics.node = this.node;
             graphics.node.getWorldMatrix();
-            graphics.helpInstanceMaterial();
             graphics.lineWidth = 0;
             const color = Color.WHITE.clone();
             color.a = 0;

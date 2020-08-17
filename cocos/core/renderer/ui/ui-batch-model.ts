@@ -45,13 +45,26 @@ export class UIBatchModel extends Model {
     }
 
     public updateTransform () {}
-    public updateUBOs () { return false; }
+
+    public updateUBOs (stamp: number) {
+        // Should updatePass when updateUBOS
+        const subModels = this._subModels;
+        for (let i = 0; i < subModels.length; i++) {
+            subModels[i].update();
+        }
+        this._updateStamp = stamp;
+
+        if (!this._transformUpdated) { return; }
+        this._transformUpdated = false;
+    }
 
     public directInitialize (batch: UIDrawBatch) {
         this._subModel.directInitialize(batch.material!.passes, batch.hIA, batch.hDescriptorSet!);
     }
 
-    public destroy () { this._subModel.destroy(); }
+    public destroy () {
+        this._subModel.destroy();
+    }
 }
 
 class UISubModel extends SubModel {

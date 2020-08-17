@@ -4,13 +4,21 @@
 
 import { MeshBuffer } from '../../../ui';
 import { Material } from '../../assets/material';
-import { GFXTexture, GFXSampler } from '../../gfx';
+import { GFXTexture, GFXSampler, IGFXDescriptorSetInfo } from '../../gfx';
 import { Node } from '../../scene-graph';
 import { Camera } from '../scene/camera';
 import { Model } from '../scene/model';
 import { UI } from './ui';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
-import { IAHandle, IAPool, DescriptorSetHandle, NULL_HANDLE } from '../core/memory-pools';
+import { IAHandle, IAPool, DescriptorSetHandle, NULL_HANDLE, DSPool } from '../core/memory-pools';
+import { programLib } from '../core/program-lib';
+import { SetIndex } from '../../pipeline/define';
+import { legacyCC } from '../../global-exports';
+import { EffectAsset } from '../../assets';
+
+const _dsInfo: IGFXDescriptorSetInfo = {
+    layout: null!,
+};
 
 export class UIDrawBatch {
     private _bufferBatch: MeshBuffer | null = null;
@@ -26,20 +34,31 @@ export class UIDrawBatch {
     public useLocalData: Node | null = null;
     public isStatic = false;
 
-    public destroy (ui: UI) {
-        this.hDescriptorSet = NULL_HANDLE;
+    constructor () {
+        const root = legacyCC.director.root;
 
+        const programName = EffectAsset.get('builtin-sprite')!.shaders[0].name;
+        programLib.getGFXShader(root.device, programName, { USE_TEXTURE: true }, root.pipeline);
+        _dsInfo.layout = programLib.getPipelineLayout(programName).setLayouts[SetIndex.LOCAL];
+        this.hDescriptorSet = DSPool.alloc(root.device, _dsInfo);
+    }
+
+    public destroy (ui: UI) {
         if (this.ia) {
             IAPool.free(this.hIA);
             this.hIA = NULL_HANDLE;
             this.ia = null;
+        }
+
+        if (this.hDescriptorSet) {
+            DSPool.free(this.hDescriptorSet);
+            this.hDescriptorSet = NULL_HANDLE;
         }
     }
 
     public clear () {
         this._bufferBatch = null;
         this.camera = null;
-        this.hDescriptorSet = NULL_HANDLE;
         this.material = null;
         this.texture = null;
         this.sampler = null;
