@@ -268,11 +268,13 @@ export class Fog {
         }
     })
     protected _fogRange = 1.2;
-    private _currType = 0;
+    protected _currType = 0;
     protected _colorArray: Float32Array = new Float32Array([0.2, 0.2, 0.2, 1.0]);
 
     public active () {
         Color.toArray(this._colorArray, this._fogColor);
+        this._currType = this._type + 1;
+        this._updatePipeline();
     }
 
     protected _updatePipeline () {

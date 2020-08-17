@@ -115,15 +115,17 @@ export class Skybox {
     protected _model: Model | null = null;
 
     public activate () {
-        if (!this._envmap) {
-            this._envmap = builtinResMgr.get<TextureCube>('default-cube-texture');
-        }
-
+        this._globalDescriptorSet = legacyCC.director.root.pipeline.descriptorSet;
         if (!this._model) {
             this._model = new Model();
         }
 
-        this._globalDescriptorSet = legacyCC.director.root.pipeline.descriptorSet;
+        if (!this._envmap) {
+            this._envmap = builtinResMgr.get<TextureCube>('default-cube-texture');
+        }
+
+        this._updateGlobalBinding();
+
         if (!skybox_material) {
             const mat = new Material();
             mat.initialize({ effectName: 'pipeline/skybox', defines: { USE_RGBE_CUBEMAP: this._isRGBE } });
