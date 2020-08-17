@@ -237,8 +237,17 @@ export class ButtonComponent extends Component {
         if (this._transition === value) {
             return;
         }
-
+        
+        // Reset to normal data when change transition.
+        if (this._transition === Transition.COLOR) {
+            this._updateColorTransition(State.NORMAL);
+        }
+        else if (this._transition === Transition.SPRITE) {
+            this._updateSpriteTransition(State.NORMAL);
+        }
         this._transition = value;
+        this._updateState();
+
     }
 
     // color transition
