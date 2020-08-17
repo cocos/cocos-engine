@@ -757,6 +757,7 @@ export class Game extends EventTarget {
         this._frameTime = 1000 / frameRate;
 
         if (JSB || RUNTIME_BASED) {
+            // @ts-ignore
             jsb.setPreferredFramesPerSecond(frameRate);
             window.rAF = window.requestAnimationFrame;
             window.cAF = window.cancelAnimationFrame;
