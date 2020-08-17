@@ -7,9 +7,10 @@ enum class PoolType {
     DEPTH_STENCIL_STATE,
     BLEND_STATE,
     BINDING_LAYOUT,
+    DESCRIPTOR_SETS,
     SHADER,
     INPUT_ASSEMBLER,
-    
+    PIPELINE_LAYOUT,
     // buffers
     PASS_INFO,
     PSOCI,
@@ -26,5 +27,8 @@ enum class PoolType {
     FLAT_BUFFER_INFO,
     NODE_INFO,
     ROOT_DATA,
+    INPUT_ASSEMBLER_INFO,
+    // array
+    SUBMODEL_ARRAY
 };
 }

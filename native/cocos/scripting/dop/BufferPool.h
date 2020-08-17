@@ -64,7 +64,7 @@ private:
     uint _bytesPerChunk = 0;
     uint _entriesPerChunk = 0;
     uint _bytesPerEntry = 0;
-    PoolType _type = PoolType::RASTERIZER_STATE;
+    PoolType _type = PoolType::PASS_INFO;
 };
 
 } // namespace se

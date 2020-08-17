@@ -26,11 +26,14 @@ THE SOFTWARE.
 
 #include "BufferPool.h"
 #include "ObjectPool.h"
+#include "ArrayPool.h"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include "cocos/scripting/js-bindings/manual/jsb_classtype.h"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.h"
 
-se::Object *jsb_BufferPool_proto = nullptr;
+/********************************************************
+       BufferPool binding
+   *******************************************************/
 se::Class *jsb_BufferPool_class = nullptr;
 
 static bool jsb_BufferPool_allocateNewChunk(se::State &s) {
@@ -82,37 +85,41 @@ static bool jsb_BufferPool_finalize(se::State &s) {
 }
 SE_BIND_FINALIZE_FUNC(jsb_BufferPool_finalize)
 
-bool js_register_se_BufferPool(se::Object *obj) {
+static bool js_register_se_BufferPool(se::Object *obj) {
     se::Class *cls = se::Class::create("NativeBufferPool", obj, nullptr, _SE(jsb_BufferPool_constructor));
 
     cls->defineFunction("allocateNewChunk", _SE(jsb_BufferPool_allocateNewChunk));
     cls->install();
     JSBClassType::registerClass<se::BufferPool>(cls);
-    se::Object *proto = cls->getProto();
 
-    jsb_BufferPool_proto = proto;
     jsb_BufferPool_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object *jsb_ObjectPool_proto = nullptr;
-se::Class *jsb_ObjectPool_class = nullptr;
+/***************************************************
+   ObjectPool binding
+  *****************************************************/
+static se::Class *jsb_ObjectPool_class = nullptr;
 
 SE_DECLARE_FINALIZE_FUNC(jsb_ObjectPool_finalize)
 
 static bool jsb_ObjectPool_constructor(se::State &s) {
     const auto &args = s.args();
     size_t argc = args.size();
-    if (argc == 1) {
-        if (!args[0].isObject()) {
-            SE_REPORT_ERROR("argument convertion error");
+    if (argc == 2) {
+        uint poolType = 0;
+        bool ok = true;
+        ok &= seval_to_uint(args[0], &poolType);
+
+        if (!args[1].isObject()) {
+            SE_REPORT_ERROR("jsb_ObjectPool_constructor: parameter 2 wants a JSArray");
             return false;
         }
-        se::Object *jsArr = args[0].toObject();
+        se::Object *jsArr = args[1].toObject();
 
-        se::ObjectPool *pool = JSB_ALLOC(se::ObjectPool, jsArr);
+        se::ObjectPool *pool = JSB_ALLOC(se::ObjectPool, (se::PoolType)(poolType), jsArr);
         s.thisObject()->setPrivateData(pool);
         se::NonRefNativePtrCreatedByCtorMap::emplace(pool);
         return true;
@@ -134,14 +141,104 @@ static bool jsb_ObjectPool_finalize(se::State &s) {
 }
 SE_BIND_FINALIZE_FUNC(jsb_ObjectPool_finalize)
 
-bool js_register_se_ObjectPool(se::Object *obj) {
-    se::Class *cls = se::Class::create("ObjectPool", obj, nullptr, _SE(jsb_ObjectPool_constructor));
+static bool js_register_se_ObjectPool(se::Object *obj) {
+    se::Class *cls = se::Class::create("NativeObjectPool", obj, nullptr, _SE(jsb_ObjectPool_constructor));
     cls->install();
     JSBClassType::registerClass<se::ObjectPool>(cls);
-    se::Object *proto = cls->getProto();
 
-    jsb_ObjectPool_proto = proto;
     jsb_ObjectPool_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+/*****************************************************
+   Array binding
+  ******************************************************/
+static se::Class *jsb_ArrayPool_class = nullptr;
+
+SE_DECLARE_FINALIZE_FUNC(jsb_ArrayPool_finalize)
+
+static bool jsb_ArrayPool_constructor(se::State &s) {
+    const auto &args = s.args();
+    size_t argc = args.size();
+    if (argc == 2) {
+        uint type = 0;
+        bool ok = seval_to_uint(args[0], &type);
+        uint size = 0;
+        ok &= seval_to_uint(args[1], &size);
+
+        se::ArrayPool *arrayPool = JSB_ALLOC(se::ArrayPool, static_cast<se::PoolType>(type), size);
+        s.thisObject()->setPrivateData(arrayPool);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(arrayPool);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_CTOR(jsb_ArrayPool_constructor, jsb_ArrayPool_class, jsb_ArrayPool_finalize)
+
+static bool jsb_ArrayPool_finalize(se::State &s) {
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end()) {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        se::ArrayPool *cobj = (se::ArrayPool *)s.nativeThisObject();
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(jsb_ArrayPool_finalize)
+
+static bool jsb_ArrayPool_resize(se::State &s) {
+    se::ArrayPool *arrayPool = (se::ArrayPool *)s.nativeThisObject();
+    SE_PRECONDITION2(arrayPool, false, "jsb_ArrayPool_reize : Invalid native array pool");
+
+    const auto &args = s.args();
+    size_t argc = args.size();
+    if (argc == 2) {
+        uint size = 0;
+        if (seval_to_uint(args[1], &size)) {
+            s.rval().setObject(arrayPool->resize(args[0].toObject(), size));
+            return true;
+        }
+
+        SE_REPORT_ERROR("jsb_ArrayPool_reize: failed to resize array");
+        return false;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(jsb_ArrayPool_resize);
+
+static bool jsb_ArrayPool_alloc(se::State &s) {
+    se::ArrayPool *arrayPool = (se::ArrayPool *)s.nativeThisObject();
+    SE_PRECONDITION2(arrayPool, false, "jsb_Array_alloc : Invalid Native Object");
+    
+    const auto &args = s.args();
+    size_t argc = args.size();
+    if (argc == 1) {
+        uint index = 0;
+        seval_to_uint(args[0], &index);
+        s.rval().setObject(arrayPool->alloc(index));
+        return true;
+    }
+    
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+    
+}
+SE_BIND_FUNC(jsb_ArrayPool_alloc);
+
+static bool js_register_se_ArrayPool(se::Object *obj) {
+    se::Class *cls = se::Class::create("NativeArrayPool", obj, nullptr, _SE(jsb_ArrayPool_constructor));
+    cls->defineFunction("resize", _SE(jsb_ArrayPool_resize));
+    cls->defineFunction("getAlloc", _SE(jsb_ArrayPool_alloc));
+    cls->install();
+    JSBClassType::registerClass<se::ArrayPool>(cls);
+
+    jsb_ArrayPool_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -159,5 +256,6 @@ bool register_all_dop_bindings(se::Object *obj) {
 
     js_register_se_BufferPool(ns);
     js_register_se_ObjectPool(ns);
+    js_register_se_ArrayPool(ns);
     return true;
 }
