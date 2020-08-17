@@ -509,7 +509,7 @@ director.once(Director.EVENT_INIT, function () {
 });
 
 function initPhysicsSystem () {
-    if (!PhysicsSystem.PHYSICS_NONE) {
+    if (!PhysicsSystem.PHYSICS_NONE && !EDITOR) {
         const sys = new legacyCC.PhysicsSystem();
         legacyCC.PhysicsSystem._instance = sys;
         director.registerSystem(PhysicsSystem.ID, sys, 0);
