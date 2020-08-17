@@ -61,7 +61,6 @@ struct CC_DLL InstancedAttributeBlock {
     uint32_t bufferViewSize = 0;
 
     uint32_t instancedAttributesID = 0;
-    uint32_t instancedAttributesCount = 0;
 };
 constexpr uint SKYBOX_FLAG = static_cast<uint>(gfx::ClearFlagBit::STENCIL) << 1;
 
@@ -173,10 +172,7 @@ struct CC_DLL Node : public PoolType<se::BufferPoolType, se::BufferPoolType::UNK
 };
 
 struct CC_DLL Model : public PoolType<se::BufferPoolType, se::BufferPoolType::MODEL> {
-    uint32_t isDynamicBatching = 0;
-
-    uint32_t subModelsCount = 0;
-    uint32_t subModelsID = 0;
+    uint32_t subModelsID = 0; //array pool
 
     uint32_t nodeID = 0;
     uint32_t transformID = 0;
@@ -220,13 +216,10 @@ struct CC_DLL FlatBuffer {
 
 struct CC_DLL RenderingSubMesh {
     uint32_t vertexBuffersID = 0;
-    uint32_t vertexBuffersCount = 0;
 
     uint32_t attributesID = 0;
-    uint32_t attributesCount = 0;
 
     uint32_t flatBuffersID = 0;
-    uint32_t flatBuffersCount = 0;
 
     uint32_t primitiveMode = 0;
     uint32_t indexBufferID = 0;
@@ -281,8 +274,15 @@ struct CC_DLL Director : public PoolType<se::BufferPoolType, se::BufferPoolType:
 #define GET_BINDING_LAYOUT(index)      (static_cast<gfx::BindingLayout *>(0))
 
 //Get array pool data
-#define GET_MODEL(index) (static_cast<Model *>(0))
-#define GET_PLANE(index) (static_cast<Plane *>(0))
+struct CC_DLL ModelArray {
+    uint32_t viewID;
+};
+
+struct CC_DLL PlaneArray {
+    uint32_t viewID;
+};
+#define GET_MODEL(index) (static_cast<ModelArray *>(0))
+#define GET_PLANE(index) (static_cast<PlaneArray *>(0))
 
 #define ENABLE_IF_BUFFER_POOL_RET typename std::enable_if_t<std::is_same<se::BufferPoolType, typename T::type>::value, T>
 class CC_DLL SharedMemory : public Object {

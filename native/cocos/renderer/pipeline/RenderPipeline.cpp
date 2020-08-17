@@ -3,12 +3,13 @@
 #include "RenderView.h"
 #include "gfx/GFXCommandBuffer.h"
 #include "renderer/core/gfx/GFXDevice.h"
+#include "gfx/GFXCommandBuffer.h"
 
 namespace cc {
 namespace pipeline {
 
-RenderPipeline::~RenderPipeline() {
-    destroy();
+ RenderPipeline::~RenderPipeline() {
+     destroy();
 }
 
 bool RenderPipeline::initialize(const RenderPipelineInfo *info) {
@@ -21,6 +22,9 @@ bool RenderPipeline::initialize(const RenderPipelineInfo *info) {
 }
 
 bool RenderPipeline::activate() {
+    //TODO coulsonwang
+    //_device->createDescriptorSetLayout();
+    
     for (const auto flow : _flows)
         flow->activate(this);
 
@@ -34,13 +38,16 @@ void RenderPipeline::render(RenderView *view) {
 }
 
 void RenderPipeline::destroy() {
-    for (const auto flow : _flows)
+    for (const auto flow : _flows) {
         flow->destroy();
-
+    }
     _flows.clear();
-
-    for (auto cmdBuffer : _commandBuffers) {
-        CC_SAFE_DELETE(cmdBuffer);
+    
+    //TODO coulsonwang
+    //destroy descritor set
+    
+    for(const auto cmdBuffer : _commandBuffers) {
+        cmdBuffer->destroy();
     }
     _commandBuffers.clear();
 }

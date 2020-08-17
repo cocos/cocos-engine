@@ -40,7 +40,6 @@ const RenderStageInfo &ForwardStage::getInitializeInfo() { return ForwardStage::
 ForwardStage::ForwardStage() : RenderStage() {
     _batchedQueue = CC_NEW(RenderBatchedQueue);
     _instancedQueue = CC_NEW(RenderInstancedQueue);
-    _additiveLightQueue = CC_NEW(RenderAdditiveLightQueue);
     _planarShadowQueue = CC_NEW(PlanarShadowQueue);
 }
 
@@ -54,6 +53,7 @@ bool ForwardStage::initialize(const RenderStageInfo &info) {
         {false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},
         {true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}};
 
+    _phaseID = PassPhase::getPhaseID("default");
     return true;
 }
 
@@ -79,6 +79,8 @@ void ForwardStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
         RenderQueueCreateInfo info = {descriptor.isTransparent, phase, sortFunc};
         _renderQueues.emplace_back(CC_NEW(RenderQueue(std::move(info))));
     }
+
+    _additiveLightQueue = CC_NEW(RenderAdditiveLightQueue(_pipeline));
 }
 
 void ForwardStage::destroy() {
@@ -114,36 +116,23 @@ void ForwardStage::render(RenderView *view) {
         const auto &ro = renderObjects[i];
         auto model = ro.model;
 
-        if (model && model->isDynamicBatching) {
-            for (m = 0; m < model->subModelsCount; ++m) {
-                auto subModel = GET_SUBMODEL(model->subModelsID, m);
-                for (p = 0; p < subModel->passCount; ++p) {
-                    auto pass = GET_PASS(subModel->pass0ID + p);
-                    if (static_cast<BatchingSchemes>(pass->batchingScheme) == BatchingSchemes::INSTANCING) {
-                        auto instancedBuffer = InstancedBuffer::get(pass);
-                        instancedBuffer->merge(subModel, model->instancedAttributeBlock, p);
-                        _instancedQueue->getQueue().emplace(instancedBuffer);
-                    } else if (static_cast<BatchingSchemes>(pass->batchingScheme) == BatchingSchemes::VB_MERGING) {
-                        auto &batchedBuffer = BatchedBuffer::get(pass);
-                        batchedBuffer->merge(subModel, p, &ro);
-                        _batchedQueue->getQueue().emplace(batchedBuffer);
-                    } else {
-                        for (k = 0; k < _renderQueues.size(); k++) {
-                            _renderQueues[k]->insertRenderPass(ro, m, p);
-                        }
-                        _additiveLightQueue->add(&ro, m, pass, lightIndexOffset[i], nextLightIndex);
-                    }
-                }
-            }
-        } else {
-            for (m = 0; m < model->subModelsCount; m++) {
-                auto subModel = GET_SUBMODEL(model->subModelsID, m);
-                for (p = 0; p < subModel->passCount; p++) {
-                    auto pass = GET_PASS(subModel->pass0ID + p);
+        for (m = 0; m < model->subModelsCount; ++m) {
+            auto subModel = GET_SUBMODEL(model->subModelsID, m);
+            for (p = 0; p < subModel->passCount; ++p) {
+                auto pass = GET_PASS(subModel->pass0ID + p);
+                if (pass->phase != _phaseID) continue;
+                if (static_cast<BatchingSchemes>(pass->batchingScheme) == BatchingSchemes::INSTANCING) {
+                    auto instancedBuffer = InstancedBuffer::get(pass);
+                    instancedBuffer->merge(subModel, model->instancedAttributeBlock, p);
+                    _instancedQueue->getQueue().emplace(instancedBuffer);
+                } else if (static_cast<BatchingSchemes>(pass->batchingScheme) == BatchingSchemes::VB_MERGING) {
+                    auto batchedBuffer = BatchedBuffer::get(pass);
+                    batchedBuffer->merge(subModel, p, &ro);
+                    _batchedQueue->getQueue().emplace(batchedBuffer);
+                } else {
                     for (k = 0; k < _renderQueues.size(); k++) {
                         _renderQueues[k]->insertRenderPass(ro, m, p);
                     }
-                    _additiveLightQueue->add(&ro, m, pass, lightIndexOffset[i], nextLightIndex);
                 }
             }
         }
@@ -151,6 +140,8 @@ void ForwardStage::render(RenderView *view) {
     for (auto queue : _renderQueues) {
         queue->clear();
     }
+
+    _additiveLightQueue->gatherLightPasses(view);
 
     auto camera = view->getCamera();
     auto commandBuffers = pipeline->getCommandBuffers();

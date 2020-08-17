@@ -1,8 +1,12 @@
 #include "RenderAdditiveLightQueue.h"
-#include "helper/DefineMap.h"
+#include "RenderView.h"
 
 namespace cc {
 namespace pipeline {
+RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *) {
+    
+}
+
 void RenderAdditiveLightQueue::add(const RenderObject *renderObj, uint subModelIdx, PassView *pass, uint beginIdx, uint endIdx) {
     
 }
@@ -33,6 +37,10 @@ void RenderAdditiveLightQueue::attach(RenderObject *renderObj,
                                       uint lightIdx,
                                       PassView *pass,
                                       vector<MacroPatch> patches) {
+    
+}
+
+void RenderAdditiveLightQueue::gatherLightPasses(RenderView *) {
     
 }
 
