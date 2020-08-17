@@ -225,10 +225,22 @@ async function _doBuild ({
     if (split) {
         rollupEntries = Object.assign({}, engineEntries);
     } else {
-        rpVirtualOptions['cc'] = generateCCSource(Object.values(engineEntries).map(file => filePathToModuleRequest(file)));
         rollupEntries = {
             'cc': 'cc',
         };
+        const bundledModules = [];
+        for (const moduleName of Object.keys(engineEntries)) {
+            const moduleEntryFile = engineEntries[moduleName];
+            if (moduleName === 'cc.wait-for-ammo-instantiation') {
+                rollupEntries[moduleName] = moduleEntryFile;
+            } else {
+                bundledModules.push(filePathToModuleRequest(moduleEntryFile));
+            }
+        }
+
+        rpVirtualOptions['cc'] = generateCCSource(bundledModules);
+        rollupEntries['cc'] = 'cc';
+
         console.debug(`Module source "cc":\n${rpVirtualOptions['cc']}`);
     }
 
