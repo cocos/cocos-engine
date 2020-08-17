@@ -15,8 +15,6 @@ CCEffect %{
           blendDstAlpha: one_minus_src_alpha
       rasterizerState:
         cullMode: none
-      properties:
-        mainTexture: { value: white }
 }%
 
 CCProgram sprite-vs %{
@@ -58,14 +56,15 @@ CCProgram sprite-fs %{
 
   #if USE_TEXTURE
     in vec2 uv0;
-    uniform sampler2D mainTexture;
+    #pragma builtin(local)
+    layout(set = 2, binding = 10) uniform sampler2D cc_spriteTexture;
   #endif
 
   vec4 frag () {
     vec4 o = vec4(1, 1, 1, 1);
 
     #if USE_TEXTURE
-      o *= CCSampleTexture(mainTexture, uv0);
+      o *= CCSampleTexture(cc_spriteTexture, uv0);
       #if IS_GRAY
         float gray  = 0.2126 * o.r + 0.7152 * o.g + 0.0722 * o.b;
         o.r = o.g = o.b = gray;

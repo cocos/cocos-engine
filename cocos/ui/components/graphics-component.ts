@@ -227,6 +227,7 @@ export class GraphicsComponent extends UIRenderComponent {
     constructor (){
         super();
         this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
+        this._uiMaterialDirty = true;
     }
 
     public onRestore () {
@@ -247,12 +248,7 @@ export class GraphicsComponent extends UIRenderComponent {
         if (!this.model) {
             this.model = director.root!.createModel(Model);
         }
-    }
-
-    public onEnable () {
-        super.onEnable();
-
-        this._activateMaterial();
+        this.helpInstanceMaterial();
     }
 
     public onDisable (){
@@ -275,14 +271,6 @@ export class GraphicsComponent extends UIRenderComponent {
 
         this.impl.clear();
         this.impl = null;
-    }
-
-    public _activateMaterial () {
-        if (!this._material) {
-            return;
-        }
-
-        this._updateMaterial(this._material);
     }
 
     /**
@@ -552,9 +540,9 @@ export class GraphicsComponent extends UIRenderComponent {
      */
     public helpInstanceMaterial () {
         let mat: MaterialInstance | null = null;
-        _matInsInfo.owner = new RenderableComponent();
-        if (this._sharedMaterial) {
-            _matInsInfo.parent = this._sharedMaterial;
+        _matInsInfo.owner = this;
+        if (this.sharedMaterial) {
+            _matInsInfo.parent = this.sharedMaterial[0];
             mat = new MaterialInstance(_matInsInfo);
         } else {
             _matInsInfo.parent = builtinResMgr.get('ui-base-material');
@@ -562,7 +550,9 @@ export class GraphicsComponent extends UIRenderComponent {
             mat.recompileShaders({ USE_LOCAL: true });
         }
 
-        this._updateMaterial(mat);
+        this._uiMaterial = _matInsInfo.parent;
+        this._uiMaterialIns = mat;
+
         if (!this.impl){
             this._flushAssembler();
             this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
@@ -570,11 +560,7 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     protected _render (render: UI) {
-        render.commitModel(this, this.model, this._material);
-    }
-
-    protected _instanceMaterial (){
-        this.helpInstanceMaterial();
+        render.commitModel(this, this.model, this._uiMaterialIns);
     }
 
     protected _flushAssembler (){

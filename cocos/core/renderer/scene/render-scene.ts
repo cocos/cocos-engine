@@ -14,6 +14,7 @@ import { SpotLight } from './spot-light';
 import { PREVIEW } from 'internal:constants';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
+import { ShadowInfo } from './shadowInfo';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -58,6 +59,10 @@ export class RenderScene {
 
     get models (): Model[] {
         return this._models;
+    }
+
+    get shadowInfo (): ShadowInfo {
+        return this._shadowInfo;
     }
 
     /**
@@ -105,9 +110,11 @@ export class RenderScene {
     private _spotLights: SpotLight[] = [];
     private _mainLight: DirectionalLight | null = null;
     private _modelId: number = 0;
+    private _shadowInfo: ShadowInfo;
 
     constructor (root: Root) {
         this._root = root;
+        this._shadowInfo = ShadowInfo.instance;
     }
 
     public initialize (info: IRenderSceneInfo): boolean {

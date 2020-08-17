@@ -110,6 +110,7 @@ export enum ModelLocalBindings {
     SAMPLER_MORPH_NORMAL,
     SAMPLER_MORPH_TANGENT,
     SAMPLER_LIGHTING_MAP,
+    SAMPLER_SPRITE,
 
     COUNT,
 }
@@ -433,6 +434,19 @@ export const UniformLightingMapSampler: Readonly<ISamplerInfo> = {
 };
 localDescriptorSetLayout.record[UniformLightingMapSampler.name] = UniformLightingMapSampler;
 localDescriptorSetLayout.bindings[UniformLightingMapSampler.binding] = UniformLightingMapSampler;
+
+/**
+ * @en The sampler for UI sprites.
+ * @zh UI 精灵纹理采样器。
+ */
+export const UniformSpriteSampler: Readonly<ISamplerInfo> = {
+    stageFlags: GFXShaderStageFlagBit.FRAGMENT, descriptorType: GFXDescriptorType.SAMPLER, count: 1,
+    set: SetIndex.LOCAL, binding: ModelLocalBindings.SAMPLER_SPRITE, name: 'cc_spriteTexture', type: GFXType.SAMPLER2D,
+};
+localDescriptorSetLayout.record[UniformSpriteSampler.name] = UniformSpriteSampler;
+localDescriptorSetLayout.bindings[UniformSpriteSampler.binding] = UniformSpriteSampler;
+
+
 
 export const CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);

@@ -126,7 +126,7 @@ CCProgram standard-vs %{
     in vec2 a_texCoord1;
   #endif
 
-  #if USE_LIGHTMAP && !USE_BATCHING && !USE_INSTANCING
+  #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
     #include <lightingmap-vs>
   #endif
 
@@ -156,7 +156,7 @@ CCProgram standard-vs %{
     #endif
     factor_fog = CC_TRANSFER_FOG(matWorld * In.position);
 
-    #if USE_LIGHTMAP && HAS_SECOND_UV && !USE_BATCHING && !USE_INSTANCING
+    #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
       CCLightingMapCaclUV();
     #endif
 

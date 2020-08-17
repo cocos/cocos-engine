@@ -425,11 +425,11 @@ export class SpriteComponent extends UIRenderComponent {
         }
         this._useGrayscale = value;
         if (value === true) {
-            this._instanceMaterialType = InstanceMaterialType.GRAYSCALE; }
-        else {
+            this._instanceMaterialType = InstanceMaterialType.GRAYSCALE;
+        } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
-        this._instanceMaterial();
+        this._uiMaterialDirty = true;
     }
 
     /**
@@ -531,6 +531,10 @@ export class SpriteComponent extends UIRenderComponent {
 
         // this._flushAssembler();
         this._activateMaterial();
+        // updateBlendFunc for custom material
+        if (this.getMaterial(0)) {
+            this._updateBlendFunc();
+        }
     }
 
     public onDestroy () {
@@ -565,7 +569,10 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     public changeMaterialForDefine () {
-        const texture = this._spriteFrame!.texture;
+        let texture;
+        if (this._spriteFrame) {
+            texture = this._spriteFrame.texture;
+        }
         let value = false;
         if (texture instanceof TextureBase) {
             const format = texture.getPixelFormat();
@@ -581,6 +588,7 @@ export class SpriteComponent extends UIRenderComponent {
         } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
+        this._uiMaterialDirty = true;
     }
 
     protected _render (render: UI) {
@@ -623,7 +631,7 @@ export class SpriteComponent extends UIRenderComponent {
         if (!this._renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
-                this._renderData!.material = this._material;
+                this._renderData!.material = this.getRenderMaterial(0);
                 this.markForUpdateRenderData();
                 this._updateColor();
             }
@@ -672,7 +680,7 @@ export class SpriteComponent extends UIRenderComponent {
 
     private _activateMaterial () {
         const spriteFrame = this._spriteFrame;
-        const material = this._material;
+        const material = this.getRenderMaterial(0);
         // WebGL
         if (legacyCC.game.renderType !== legacyCC.game.RENDER_TYPE_CANVAS) {
             // if (!material) {
@@ -731,7 +739,6 @@ export class SpriteComponent extends UIRenderComponent {
         }
 
         this.changeMaterialForDefine();
-        this._instanceMaterial();
         this._applySpriteSize();
     }
 

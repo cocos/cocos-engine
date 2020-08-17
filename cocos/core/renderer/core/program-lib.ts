@@ -227,7 +227,10 @@ class ProgramLib {
 
         // store it
         this._templates[prog.name] = tmpl;
-        this._pipelineLayouts[prog.name] = { hPipelineLayout: NULL_HANDLE, setLayouts: [] };
+
+        if (!this._pipelineLayouts[prog.name]) {
+            this._pipelineLayouts[prog.name] = { hPipelineLayout: NULL_HANDLE, setLayouts: [] };
+        }
     }
 
     public getTemplate (name: string) {
@@ -318,6 +321,7 @@ class ProgramLib {
      * @param pipeline 实际渲染命令执行时所属的 [[RenderPipeline]]
      */
     public getGFXShader (device: GFXDevice, name: string, defines: MacroRecord, pipeline: RenderPipeline, key?: string) {
+        Object.assign(defines, pipeline.macros);
         if (!key) key = this.getKey(name, defines);
         const res = this._cache[key];
         if (res) { return res; }

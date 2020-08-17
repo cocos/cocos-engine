@@ -425,7 +425,7 @@ export class PageViewComponent extends ScrollViewComponent {
             logID(4301);
             return;
         }
-        this.content.addChild(page);
+        this.content.node.addChild(page);
         this._pages.push(page);
         this._updatePageView();
     }
@@ -454,7 +454,7 @@ export class PageViewComponent extends ScrollViewComponent {
                 return;
             }
             this._pages.splice(index, 0, page);
-            this.content.insertChild(page, index);
+            this.content.node.insertChild(page, index);
             this._updatePageView();
         }
     }
@@ -492,7 +492,7 @@ export class PageViewComponent extends ScrollViewComponent {
         if (index < 0 || index >= pageList.length) { return; }
         const page = pageList[index];
         if (!page || !this.content) { return; }
-        this.content.removeChild(page);
+        this.content.node.removeChild(page);
         pageList.splice(index, 1);
         this._updatePageView();
     }
@@ -508,7 +508,7 @@ export class PageViewComponent extends ScrollViewComponent {
         if (!this.content) { return; }
         const locPages = this._pages;
         for (let i = 0, len = locPages.length; i < len; i++) {
-            this.content.removeChild(locPages[i]);
+            this.content.node.removeChild(locPages[i]);
         }
         this._pages.length = 0;
         this._updatePageView();
@@ -544,7 +544,10 @@ export class PageViewComponent extends ScrollViewComponent {
     // 刷新页面视图
     protected _updatePageView() {
         // 当页面数组变化时修改 content 大小
-        const layout = this.content!.getComponent(LayoutComponent);
+        if (!this.content) {
+            return;
+        }
+        const layout = this.content.node.getComponent(LayoutComponent);
         if (layout && layout.enabled) {
             layout.updateLayout();
         }
@@ -584,7 +587,7 @@ export class PageViewComponent extends ScrollViewComponent {
         if (this._sizeMode !== SizeMode.Unified) {
             return;
         }
-        const locPages = (EDITOR && !legacyCC.GAME_VIEW) ? this.content.children : this._pages;
+        const locPages = (EDITOR && !legacyCC.GAME_VIEW) ? this.content.node.children : this._pages;
         const selfSize = viewTrans.contentSize;
         for (let i = 0, len = locPages.length; i < len; i++) {
             locPages[i]._uiProps.uiTransformComp!.setContentSize(selfSize);
@@ -633,7 +636,7 @@ export class PageViewComponent extends ScrollViewComponent {
     protected _syncSizeMode() {
         const viewTrans = this.view && this.view._uiProps.uiTransformComp;
         if (!this.content || !viewTrans) { return; }
-        const layout = this.content.getComponent(LayoutComponent);
+        const layout = this.content.node.getComponent(LayoutComponent);
         if (layout) {
             if (this._sizeMode === SizeMode.Free && this._pages.length > 0) {
                 const firstPageTrans = this._pages[0]._uiProps.uiTransformComp!;
@@ -654,8 +657,8 @@ export class PageViewComponent extends ScrollViewComponent {
     // 初始化页面
     protected _initPages() {
         if (!this.content) { return; }
-        this._initContentPos = this.content.position;
-        const children = this.content.children;
+        this._initContentPos = this.content.node.position;
+        const children = this.content.node.children;
         for (let i = 0; i < children.length; ++i) {
             const page = children[i];
             if (this._pages.indexOf(page) >= 0) { continue; }

@@ -7,6 +7,9 @@
   in vec4 a_matWorld0;
   in vec4 a_matWorld1;
   in vec4 a_matWorld2;
+  #if USE_LIGHTMAP
+    in vec4 a_lightingMapUVParam;
+  #endif
 #elif USE_BATCHING
   in float a_dyn_batch_id;
   #define BATCHING_COUNT 10

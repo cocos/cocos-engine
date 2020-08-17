@@ -2,12 +2,13 @@
  * @hidden
  */
 
-import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice } from '../gfx';
+import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice, GFXTexture } from '../gfx';
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { IInstancedAttributeBlock, Pass } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
 import { SubModelView, SubModelPool, ShaderHandle, DescriptorSetHandle, PassHandle, NULL_HANDLE } from '../renderer/core/memory-pools';
+import { UniformLightingMapSampler } from './define';
 
 export interface IInstancedItem {
     count: number;
@@ -18,6 +19,7 @@ export interface IInstancedItem {
     stride: number;
     hShader: ShaderHandle;
     hDescriptorSet: DescriptorSetHandle;
+    lightingMap: GFXTexture;
 }
 
 const INITIAL_CAPACITY = 32;
@@ -62,11 +64,17 @@ export class InstancedBuffer {
         const stride = attrs.buffer.length;
         if (!stride) { return; } // we assume per-instance attributes are always present
         const sourceIA = subModel.inputAssembler;
+        const lightingMap = subModel.descriptorSet.getTexture(UniformLightingMapSampler.binding);
         const hShader = SubModelPool.get<ShaderHandle>(subModel.handle, SubModelView.SHADER_0 + passIdx);
         const hDescriptorSet = SubModelPool.get<DescriptorSetHandle>(subModel.handle, SubModelView.DESCRIPTOR_SET);
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             if (instance.ia.indexBuffer !== sourceIA.indexBuffer || instance.count >= MAX_CAPACITY) { continue; }
+
+            // check same binding
+            if (instance.lightingMap !== lightingMap) {
+                continue;
+            }
 
             if (instance.stride !== stride) {
                 // console.error(`instanced buffer stride mismatch! ${stride}/${instance.stride}`);
@@ -113,7 +121,7 @@ export class InstancedBuffer {
 
         vertexBuffers.push(vb);
         const ia = this._device.createInputAssembler({ attributes, vertexBuffers, indexBuffer });
-        this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride, hShader, hDescriptorSet });
+        this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride, hShader, hDescriptorSet, lightingMap});
         this.hasPendingModels = true;
     }
 

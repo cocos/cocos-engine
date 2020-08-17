@@ -9,7 +9,7 @@
   #include <texture-lod>
 #endif
 
-#if USE_LIGHTMAP
+#if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
   #include <lightingmap-fs>
 #endif
 
@@ -120,7 +120,7 @@ struct StandardSurface {
     float NL = max(dot(N, L), 0.001);
     vec3 finalColor = NL * cc_mainLitColor.rgb * cc_mainLitColor.w;
 
-    #if USE_LIGHTMAP && !USE_BATCHING && !USE_INSTANCING
+    #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
       vec4 lightmap = texture(cc_lightingMap, v_luv);
       finalColor = lightmap.a * lightmap.rgb + (1.0 - lightmap.a) * finalColor;
     #endif

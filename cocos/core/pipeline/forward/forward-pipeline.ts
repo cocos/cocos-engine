@@ -17,21 +17,16 @@ import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp
 import { SKYBOX_FLAG } from '../../renderer';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
-import { Mat4, Vec3, Vec2, Quat, Vec4, Color } from '../../math';
+import { Mat4, Vec3, Vec4} from '../../math';
 import { GFXFeature } from '../../gfx/device';
 import { Fog } from '../../renderer/scene/fog';
 import { Ambient } from '../../renderer/scene/ambient';
 import { Skybox } from '../../renderer/scene/skybox';
 import { PlanarShadows } from '../../renderer/scene/planar-shadows';
+import { ShadowInfo } from '../../renderer/scene/shadowInfo';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
-
-// Define shadwoMapCamera
-const shadowCamera_Near = 1;
-const shadowCamera_Far = 30;
-const shadowCamera_Aspect = 1;
-const shadowCamera_OrthoSize = 5;
 
 /**
  * @en The forward render pipeline
@@ -63,18 +58,10 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     /**
-     * @en Get size of shadow map.
-     * @zh 获取阴影贴图分辨率
-     */
-    get shadowMapSize () {
-        return this._shadowMapSize;
-    }
-
-    /**
      * @en Get shadow UBO.
      * @zh 获取阴影UBO。
      */
-    get shadowUBO () {
+    get shadowUBO (): Float32Array {
         return this._shadowUBO;
     }
 
@@ -127,7 +114,6 @@ export class ForwardPipeline extends RenderPipeline {
     protected _renderPasses = new Map<GFXClearFlag, GFXRenderPass>();
     protected _globalUBO = new Float32Array(UBOGlobal.COUNT);
     protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
-    protected _shadowMapSize: Vec2 = new Vec2(512, 512);
 
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);
@@ -210,16 +196,17 @@ export class ForwardPipeline extends RenderPipeline {
         this._updateUBO(view);
         const mainLight = view.camera.scene!.mainLight;
         const device = this.device;
+        const shadowInfo = ShadowInfo.instance;
 
         if (mainLight) {
             // light view
             Mat4.invert(matShadowView, mainLight!.node!.worldMatrix);
 
             // light proj
-            const x = shadowCamera_OrthoSize * shadowCamera_Aspect;
-            const y = shadowCamera_OrthoSize;
+            const x = shadowInfo.cameraOrthoSize * shadowInfo.cameraAspect;
+            const y = shadowInfo.cameraOrthoSize;
             const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY;
-            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowCamera_Near, shadowCamera_Far,
+            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.cameraNear, shadowInfo.cameraFar,
                 device.clipSpaceMinZ, projectionSignY);
 
             // light viewProj

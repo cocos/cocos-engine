@@ -1,4 +1,4 @@
-import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, DEBUG } from 'internal:constants';
+import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, DEBUG, VIVO } from 'internal:constants';
 import { macro } from '../../platform';
 import { sys } from '../../platform/sys';
 import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../descriptor-set';
@@ -228,8 +228,7 @@ export class WebGLDevice extends GFXDevice {
             };
 
             /*
-            if (cc.sys.platform === cc.sys.WECHAT_GAME ||
-                cc.sys.platform === cc.sys.QQ_PLAY) {
+            if (WECHAT) {
                 webGLCtxAttribs.preserveDrawingBuffer = true;
             }
             */
@@ -346,7 +345,7 @@ export class WebGLDevice extends GFXDevice {
             }
 
             // earlier runtime VAO implementations doesn't work
-            if (RUNTIME_BASED) {
+            if (RUNTIME_BASED && !VIVO) {
                 // @ts-ignore
                 if (typeof loadRuntime !== 'function' || !loadRuntime() || typeof loadRuntime().getFeature !== 'function' || loadRuntime()
                     .getFeature('webgl.extensions.oes_vertex_array_object.revision') <= 0) {
@@ -356,7 +355,7 @@ export class WebGLDevice extends GFXDevice {
 
             // some earlier version of iOS and android wechat implement gl.detachShader incorrectly
             if ((sys.os === sys.OS_IOS && sys.osMainVersion <= 10) ||
-                (sys.platform === sys.WECHAT_GAME && sys.os === sys.OS_ANDROID)) {
+                (WECHAT && sys.os === sys.OS_ANDROID)) {
                 this._destroyShadersImmediately = false;
             }
 
