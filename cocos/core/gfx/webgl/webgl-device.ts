@@ -1,4 +1,4 @@
-import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, DEBUG } from 'internal:constants';
+import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, DEBUG, VIVO } from 'internal:constants';
 import { macro } from '../../platform';
 import { sys } from '../../platform/sys';
 import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../descriptor-set';
@@ -345,7 +345,7 @@ export class WebGLDevice extends GFXDevice {
             }
 
             // earlier runtime VAO implementations doesn't work
-            if (RUNTIME_BASED) {
+            if (RUNTIME_BASED && !VIVO) {
                 // @ts-ignore
                 if (typeof loadRuntime !== 'function' || !loadRuntime() || typeof loadRuntime().getFeature !== 'function' || loadRuntime()
                     .getFeature('webgl.extensions.oes_vertex_array_object.revision') <= 0) {

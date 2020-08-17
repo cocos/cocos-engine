@@ -747,7 +747,7 @@ if (_global.__globalAdapter && _global.__globalAdapter.adaptSys) {
 //     };
 //     sys.__audioSupport = {};
 // }
-else if (JSB) {
+else if (JSB || RUNTIME_BASED) {
     // @ts-ignore
     const platform = sys.platform = __getPlatform();
     sys.isMobile = (platform === sys.ANDROID ||
@@ -967,9 +967,6 @@ else {
     let _supportWebGL = false;
     if (TEST) {
         _supportWebGL = false;
-    }
-    else if (RUNTIME_BASED) {
-        _supportWebGL = true;
     }
     else if (win.WebGLRenderingContext) {
         // @ts-ignore
