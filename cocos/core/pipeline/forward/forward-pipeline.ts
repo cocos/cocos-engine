@@ -53,6 +53,10 @@ export class ForwardPipeline extends RenderPipeline {
         return this._fpScale;
     }
 
+    get shadowUBO (): Float32Array {
+        return this._shadowUBO;
+    }
+
     @property({
         type: [RenderTextureConfig],
     })
@@ -159,10 +163,10 @@ export class ForwardPipeline extends RenderPipeline {
             Mat4.invert(matShadowView, mainLight!.node!.worldMatrix);
 
             // light proj
-            const x = shadowCamera_OrthoSize * shadowCamera_Aspect;
-            const y = shadowCamera_OrthoSize;
+            const x = shadowInfo.shadowCameraOrthoSize * shadowInfo.shadowCameraAspect;
+            const y = shadowInfo.shadowCameraOrthoSize;
             const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY;
-            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowCamera_Near, shadowCamera_Far,
+            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.shadowCameraNear, shadowInfo.shadowCameraFar,
                 device.clipSpaceMinZ, projectionSignY);
 
             // light viewProj

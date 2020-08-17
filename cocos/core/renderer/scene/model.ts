@@ -21,6 +21,7 @@ import { ShaderPool, SubModelPool, SubModelView, ShaderHandle } from '../core/me
 import { IGFXAttribute, GFXDescriptorSet } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UniformLightingMapSampler } from '../../pipeline/define';
 import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
+import { ShadowInfo } from './shadowInfo';
 
 const m4_1 = new Mat4();
 
@@ -273,7 +274,7 @@ export class Model {
     }
 
     public getMacroPatches (subModelIndex: number) {
-        return this.receiveShadow ? shadowMapPatches : null;
+        return (this.receiveShadow && ShadowInfo.shadowInfoInstance.enabled) ? shadowMapPatches : null;
     }
 
     protected _updateAttributesAndBinding (subModelIndex: number) {
