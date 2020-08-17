@@ -15,6 +15,7 @@ import {
 import { Component } from '../../../core/components/component';
 import { RigidBodyComponent } from './rigid-body-component';
 import { Vec3 } from '../../../core/math/vec3';
+import { EDITOR } from 'internal:constants';
 
 /**
  * @en
@@ -131,22 +132,12 @@ export class ConstantForce extends Component {
     }
 
     public lateUpdate (dt: number) {
-        if (this._rigidBody != null && this._mask != 0) {
-
-            if (this._mask & 1) {
-                this._rigidBody.applyForce(this._force);
-            }
-
-            if (this._mask & 2) {
-                this._rigidBody.applyLocalForce(this.localForce);
-            }
-
-            if (this._mask & 4) {
-                this._rigidBody.applyTorque(this._torque);
-            }
-
-            if (this._mask & 8) {
-                this._rigidBody.applyLocalTorque(this._localTorque);
+        if (!EDITOR) {
+            if (this._rigidBody != null && this._mask != 0) {
+                if (this._mask & 1) this._rigidBody.applyForce(this._force);
+                if (this._mask & 2) this._rigidBody.applyLocalForce(this.localForce);
+                if (this._mask & 4) this._rigidBody.applyTorque(this._torque);
+                if (this._mask & 8) this._rigidBody.applyLocalTorque(this._localTorque);
             }
         }
     }
