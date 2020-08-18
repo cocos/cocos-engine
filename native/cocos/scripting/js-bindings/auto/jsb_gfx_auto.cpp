@@ -10789,34 +10789,6 @@ static bool js_gfx_PipelineStateInfo_set_renderPass(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_PipelineStateInfo_set_renderPass)
 
-static bool js_gfx_PipelineStateInfo_get_bindingLayout(se::State& s)
-{
-    cc::gfx::PipelineStateInfo* cobj = (cc::gfx::PipelineStateInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_get_bindingLayout : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= native_ptr_to_seval(cobj->bindingLayout, &jsret);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_PipelineStateInfo_get_bindingLayout)
-
-static bool js_gfx_PipelineStateInfo_set_bindingLayout(se::State& s)
-{
-    const auto& args = s.args();
-    cc::gfx::PipelineStateInfo* cobj = (cc::gfx::PipelineStateInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_set_bindingLayout : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    cc::gfx::BindingLayout* arg0 = nullptr;
-    ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_PipelineStateInfo_set_bindingLayout : Error processing new value");
-    cobj->bindingLayout = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_PipelineStateInfo_set_bindingLayout)
-
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_PipelineStateInfo_finalize)
 
 static bool js_gfx_PipelineStateInfo_constructor(se::State& s)
@@ -10886,12 +10858,6 @@ static bool js_gfx_PipelineStateInfo_constructor(se::State& s)
             ok &= seval_to_native_ptr(field, &arg7);
             cobj->renderPass = arg7;
         }
-        cc::gfx::BindingLayout* arg8 = nullptr;
-        json->getProperty("bindingLayout", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_native_ptr(field, &arg8);
-            cobj->bindingLayout = arg8;
-        }
 
         if(!ok) {
             JSB_FREE(cobj);
@@ -10903,7 +10869,7 @@ static bool js_gfx_PipelineStateInfo_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 9)
+    else if(argc == 8)
     {
         cc::gfx::PipelineStateInfo* cobj = JSB_ALLOC(cc::gfx::PipelineStateInfo);
         cc::gfx::PrimitiveMode arg0;
@@ -10945,11 +10911,6 @@ static bool js_gfx_PipelineStateInfo_constructor(se::State& s)
         if (!args[7].isUndefined()) {
             ok &= seval_to_native_ptr(args[7], &arg7);
             cobj->renderPass = arg7;
-        }
-        cc::gfx::BindingLayout* arg8 = nullptr;
-        if (!args[8].isUndefined()) {
-            ok &= seval_to_native_ptr(args[8], &arg8);
-            cobj->bindingLayout = arg8;
         }
 
         if(!ok) {
@@ -10996,7 +10957,6 @@ bool js_register_gfx_PipelineStateInfo(se::Object* obj)
     cls->defineProperty("blendState", _SE(js_gfx_PipelineStateInfo_get_blendState), _SE(js_gfx_PipelineStateInfo_set_blendState));
     cls->defineProperty("dynamicStates", _SE(js_gfx_PipelineStateInfo_get_dynamicStates), _SE(js_gfx_PipelineStateInfo_set_dynamicStates));
     cls->defineProperty("renderPass", _SE(js_gfx_PipelineStateInfo_get_renderPass), _SE(js_gfx_PipelineStateInfo_set_renderPass));
-    cls->defineProperty("bindingLayout", _SE(js_gfx_PipelineStateInfo_get_bindingLayout), _SE(js_gfx_PipelineStateInfo_set_bindingLayout));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_PipelineStateInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::PipelineStateInfo>(cls);
