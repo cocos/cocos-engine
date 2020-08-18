@@ -128,7 +128,6 @@ export class RenderData extends BaseRenderData {
 
 export class MeshRenderData extends BaseRenderData {
     public vData: Float32Array = new Float32Array(256 * 9 * Float32Array.BYTES_PER_ELEMENT);
-    public iVData: Uint32Array = new Uint32Array(this.vData.buffer);
     public iData: Uint16Array = new Uint16Array(256 * 6);
     public vertexStart = 0;
     public indicesStart = 0;
@@ -160,7 +159,6 @@ export class MeshRenderData extends BaseRenderData {
             const oldVData = new Float32Array(this.vData.buffer);
             this.vData = new Float32Array(vCount);
             this.vData.set(oldVData, 0);
-            this.iVData = new Uint32Array(this.vData.buffer);
             const oldIData = new Uint16Array(this.iData.buffer);
             this.iData = new Uint16Array(iCount);
             this.iData.set(oldIData, 0);
