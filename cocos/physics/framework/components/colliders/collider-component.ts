@@ -2,7 +2,7 @@
  * @category physics
  */
 
-import { ccclass, property, tooltip } from '../../../../core/data/class-decorator';
+import { ccclass, property, tooltip, displayOrder, displayName, immutable, type } from '../../../../core/data/class-decorator';
 import { Eventify } from '../../../../core/event';
 import { Vec3 } from '../../../../core/math';
 import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../physics-interface';
@@ -36,12 +36,10 @@ export class ColliderComponent extends Eventify(Component) {
      * @zh
      * 获取碰撞器所绑定的刚体组件，可能为 null 。
      */
-    @property({
-        type: RigidBodyComponent,
-        displayName: 'Attached',
-        displayOrder: -2,
-        readonly: true,
-    })
+    @type(RigidBodyComponent)
+    @immutable(true)
+    @displayName('Attached')
+    @displayOrder(-2)
     public get attachedRigidBody (): RigidBodyComponent | null {
         return findAttachedBody(this.node);
         // return this._attachedRigidBody;
@@ -53,11 +51,9 @@ export class ColliderComponent extends Eventify(Component) {
      * @zh
      * 获取或设置此碰撞器的物理材质。
      */
-    @property({
-        type: PhysicMaterial,
-        displayName: 'Material',
-        displayOrder: -1,
-    })
+    @type(PhysicMaterial)
+    @displayName('Material')
+    @displayOrder(-1)
     @tooltip('源材质')
     public get sharedMaterial () {
         return this._material;
@@ -113,9 +109,7 @@ export class ColliderComponent extends Eventify(Component) {
      * @zh
      * 获取或设置碰撞器是否为触发器，若使用 builtin ，属性值无论真假 ，此碰撞器都为触发器。
      */
-    @property({
-        displayOrder: 0,
-    })
+    @displayOrder(0)
     @tooltip('是否与其它碰撞器产生碰撞，并产生物理行为')
     public get isTrigger () {
         return this._isTrigger;
@@ -134,10 +128,8 @@ export class ColliderComponent extends Eventify(Component) {
      * @zh
      * 获取或设置碰撞器的中心点。
      */
-    @property({
-        type: Vec3,
-        displayOrder: 1,
-    })
+    @type(Vec3)
+    @displayOrder(1)
     @tooltip('形状的中心点（与所在 Node 中心点的相对位置）')
     public get center () {
         return this._center;
@@ -192,7 +184,7 @@ export class ColliderComponent extends Eventify(Component) {
     protected _needCollisionEvent: boolean = false;
     // protected _attachedRigidBody: RigidBodyComponent | null = null;
 
-    @property({ type: PhysicMaterial })
+    @type(PhysicMaterial)
     protected _material: PhysicMaterial | null = null;
 
     @property

@@ -8,7 +8,7 @@ import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
 import { Material } from '../core/assets/material';
 import { RenderingSubMesh } from '../core/assets/mesh';
 import { Component } from '../core/components';
-import { ccclass, disallowMultiple, executeInEditMode, help, property } from '../core/data/class-decorator';
+import { ccclass, disallowMultiple, executeInEditMode, help, property, visible, animatable, type } from '../core/data/class-decorator';
 import { isValid } from '../core/data/object';
 import { director } from '../core/director';
 import { GFXBuffer } from '../core/gfx/buffer';
@@ -661,30 +661,23 @@ export class TerrainBlock {
 @executeInEditMode
 @disallowMultiple
 export class Terrain extends Component {
-    @property({
-        type: TerrainAsset,
-        visible: false,
-        animatable: false,
-    })
+    @type(TerrainAsset)
+    @animatable(false)
+    @visible(false)
     protected __asset: TerrainAsset|null = null;
 
-    @property({
-        type: TerrainLayer,
-        visible: true,
-        animatable: false,
-    })
+    @type(TerrainLayer)
+    @animatable(false)
+    @visible(true)
     protected _layers: (TerrainLayer|null)[] = [];
 
-    @property({
-        visible: false,
-        animatable: false,
-    })
+    @animatable(false)
+    @visible(false)
     protected _blockInfos: TerrainBlockInfo[] = [];
 
-    @property({
-        visible: false,
-        animatable: false,
-    })
+    @property
+    @animatable(false)
+    @visible(false)
     protected _lightmapInfos: TerrainBlockLightmapInfo[] = [];
 
     protected _tileSize: number = 1;
@@ -706,10 +699,8 @@ export class Terrain extends Component {
         }
     }
 
-    @property({
-        type: TerrainAsset,
-        visible: true,
-    })
+    @type(TerrainAsset)
+    @visible(true)
     public set _asset (value: TerrainAsset|null) {
         if (this.__asset !== value) {
             this.__asset = value;
@@ -820,10 +811,8 @@ export class Terrain extends Component {
      * @en get terrain info
      * @zh 获得地形信息
      */
-    @property({
-        type: TerrainInfo,
-        visible: true,
-    })
+    @type(TerrainInfo)
+    @visible(true)
     public get info () {
         const ti = new TerrainInfo();
         ti.tileSize = this.tileSize;

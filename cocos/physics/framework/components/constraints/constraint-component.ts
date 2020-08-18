@@ -2,7 +2,7 @@
  * @category physics
  */
 
-import { ccclass, property, requireComponent } from '../../../../core/data/class-decorator';
+import { ccclass, property, requireComponent, displayOrder, type, immutable } from '../../../../core/data/class-decorator';
 import { Component } from '../../../../core';
 import { RigidBodyComponent } from '../rigid-body-component';
 import { Eventify } from '../../../../core/event';
@@ -17,19 +17,15 @@ export class ConstraintComponent extends Eventify(Component) {
 
     static readonly EConstraintType = EConstraintType;
 
-    @property({
-        type: RigidBodyComponent,
-        displayOrder: -2,
-        readonly: true,
-    })
+    @type(RigidBodyComponent)
+    @immutable(true)
+    @displayOrder(-2)
     get attachedBody (): RigidBodyComponent | null {
         return this.getComponent(RigidBodyComponent);
     }
 
-    @property({
-        type: RigidBodyComponent,
-        displayOrder: -1,
-    })
+    @type(RigidBodyComponent)
+    @displayOrder(-1)
     get connectedBody (): RigidBodyComponent | null {
         return this._connectedBody;
     }
@@ -41,9 +37,7 @@ export class ConstraintComponent extends Eventify(Component) {
         }
     }
 
-    @property({
-        displayOrder: 0,
-    })
+    @displayOrder(0)
     get enableCollision () {
         return this._enableCollision;
     }
@@ -62,7 +56,7 @@ export class ConstraintComponent extends Eventify(Component) {
     @property
     protected _enableCollision = true;
 
-    @property({ type: RigidBodyComponent })
+    @type(RigidBodyComponent)
     protected _connectedBody: RigidBodyComponent | null = null;
 
     protected _constraint: IBaseConstraint | null = null;

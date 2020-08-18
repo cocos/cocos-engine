@@ -30,7 +30,7 @@
 
 import { Component } from '../../core/components';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent, tooltip } from '../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent, tooltip, type, visible, editorOnly } from '../../core/data/class-decorator';
 import { Size, Vec3 } from '../../core/math';
 import { errorID, warnID } from '../../core/platform/debug';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
@@ -219,9 +219,7 @@ export class WidgetComponent extends Component {
      * @zh
      * 指定一个对齐目标，只能是当前节点的其中一个父节点，默认为空，为空时表示当前父节点。
      */
-    @property({
-        type: Node,
-    })
+    @type(Node)
     @tooltip('对齐目标')
     get target () {
         return this._target;
@@ -362,9 +360,7 @@ export class WidgetComponent extends Component {
      * @zh
      * 当前是否水平拉伸。当同时启用左右对齐时，节点将会被水平拉伸。此时节点的宽度（只读）。
      */
-    @property({
-        visible: false,
-    })
+    @visible(false)
     get isStretchWidth () {
         return (this._alignFlags & LEFT_RIGHT) === LEFT_RIGHT;
     }
@@ -377,9 +373,7 @@ export class WidgetComponent extends Component {
      * @zh
      * 当前是否垂直拉伸。当同时启用上下对齐时，节点将会被垂直拉伸，此时节点的高度（只读）。
      */
-    @property({
-        visible: false,
-    })
+    @visible(false)
     get isStretchHeight () {
         return (this._alignFlags & TOP_BOT) === TOP_BOT;
     }
@@ -687,9 +681,7 @@ export class WidgetComponent extends Component {
      * widget.alignMode = Widget.AlignMode.ON_WINDOW_RESIZE;
      * ```
      */
-    @property({
-        type: AlignMode,
-    })
+    @type(AlignMode)
     @tooltip('指定 widget 的对齐方式，用于决定运行时 widget 应何时更新')
     get alignMode () {
         return this._alignMode;
@@ -757,9 +749,8 @@ export class WidgetComponent extends Component {
     private _originalHeight = 0;
     @property
     private _alignMode = AlignMode.ON_WINDOW_RESIZE;
-    @property({
-        editorOnly: true,
-    })
+    @property
+    @editorOnly(true)
     private _lockFlags = 0;
 
     /**

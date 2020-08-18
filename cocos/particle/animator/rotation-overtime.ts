@@ -3,7 +3,7 @@
  * @category particle
  */
 
-import { ccclass, property, tooltip } from '../../core/data/class-decorator';
+import { ccclass, property, tooltip, displayOrder, range, type, radian } from '../../core/data/class-decorator';
 import { pseudoRandom } from '../../core/math';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
@@ -19,9 +19,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     /**
      * @zh 是否启用。
      */
-    @property({
-        displayOrder: 0,
-    })
+    @displayOrder(0)
     public get enable () {
         return this._enable;
     }
@@ -39,9 +37,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     /**
      * @zh 是否三个轴分开设定旋转（暂不支持）。
      */
-    @property({
-        displayOrder: 1,
-    })
+    @displayOrder(1)
     @tooltip('是否三个轴分开设定旋转（暂不支持）')
     get separateAxes () {
         return this._separateAxes;
@@ -54,36 +50,30 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     /**
      * @zh 绕 X 轴设定旋转。
      */
-    @property({
-        type: CurveRange,
-        range: [-1, 1],
-        radian: true,
-        displayOrder: 2,
-    })
+    @type(CurveRange)
+    @range([-1, 1])
+    @radian(true)
+    @displayOrder(2)
     @tooltip('绕 X 轴设定旋转')
     public x = new CurveRange();
 
     /**
      * @zh 绕 Y 轴设定旋转。
      */
-    @property({
-        type: CurveRange,
-        range: [-1, 1],
-        radian: true,
-        displayOrder: 3,
-    })
+    @type(CurveRange)
+    @range([-1, 1])
+    @radian(true)
+    @displayOrder(3)
     @tooltip('绕 Y 轴设定旋转')
     public y = new CurveRange();
 
     /**
      * @zh 绕 Z 轴设定旋转。
      */
-    @property({
-        type: CurveRange,
-        range: [-1, 1],
-        radian: true,
-        displayOrder: 4,
-    })
+    @type(CurveRange)
+    @range([-1, 1])
+    @radian(true)
+    @displayOrder(4)
     @tooltip('绕 Z 轴设定旋转')
     public z = new CurveRange();
 

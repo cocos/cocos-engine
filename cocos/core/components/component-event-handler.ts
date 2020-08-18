@@ -28,7 +28,7 @@
  * @category event
  */
 
-import {ccclass, property} from '../data/class-decorator';
+import {ccclass, property, type} from '../data/class-decorator';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 
@@ -79,7 +79,7 @@ export class EventHandler {
      * @zh
      * 目标节点。
      */
-    @property(legacyCC.Node)
+    @type(legacyCC.Node)
     public target: Node | null = null;
     /**
      * @zh

@@ -4,7 +4,7 @@
 
 import { legacyCC } from '../global-exports';
 import { Asset } from '../assets/asset';
-import { ccclass, property } from '../data/class-decorator';
+import { ccclass, property, visible, displayOrder, type } from '../data/class-decorator';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { MacroRecord } from '../renderer/core/pass-utils';
@@ -82,10 +82,9 @@ export abstract class RenderPipeline extends Asset {
      * @zh 标签
      * @readonly
      */
-    @property({
-        displayOrder: 0,
-        visible: true,
-    })
+    @property
+    @displayOrder(0)
+    @visible(true)
     protected _tag: number = 0;
 
     /**
@@ -93,11 +92,9 @@ export abstract class RenderPipeline extends Asset {
      * @zh 渲染流程列表
      * @readonly
      */
-    @property({
-        displayOrder: 1,
-        type: [RenderFlow],
-        visible: true,
-    })
+    @type([RenderFlow])
+    @displayOrder(1)
+    @visible(true)
     protected _flows: RenderFlow[] = [];
 
     protected _globalDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], record: {} };

@@ -8,7 +8,7 @@ import { box } from '../../primitive';
 import { MaterialInstance } from '../core/material-instance';
 import { samplerLib } from '../core/sampler-lib';
 import { Model } from './model';
-import { ccclass, property } from '../../data/class-decorator';
+import { ccclass, property, visible, type } from '../../data/class-decorator';
 import { CCBoolean } from '../../data/utils/attribute';
 import { legacyCC } from '../../global-exports';
 import { GFXDescriptorSet } from '../../gfx';
@@ -92,26 +92,22 @@ export class Skybox {
         }
     }
 
-    @property({
-        type: CCBoolean,
-        visible: true,
-    })
+    @type(CCBoolean)
+    @visible(true)
     protected _enabled = false;
-    @property({
-        type: CCBoolean,
-        visible: true,
-    })
+
+    @type(CCBoolean)
+    @visible(true)
     protected _isRGBE = false;
-    @property({
-        type: CCBoolean,
-        visible: true,
-    })
+    
+    @type(CCBoolean)
+    @visible(true)
     protected _useIBL = false;
-    @property({
-        type: TextureCube,
-        visible: true,
-    })
+
+    @type(TextureCube)
+    @visible(true)
     protected _envmap: TextureCube | null = null;
+    
     protected _globalDescriptorSet: GFXDescriptorSet | null = null;
     protected _model: Model | null = null;
     protected _default: TextureCube | null = null;

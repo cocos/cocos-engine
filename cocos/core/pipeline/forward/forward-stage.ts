@@ -2,7 +2,7 @@
  * @category pipeline
  */
 
-import { ccclass, property } from '../../data/class-decorator';
+import { ccclass, property, visible, displayOrder, type } from '../../data/class-decorator';
 import { IRenderPass, SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
@@ -36,11 +36,9 @@ export class ForwardStage extends RenderStage {
     };
 
 
-    @property({
-        type: [RenderQueueDesc],
-        displayOrder: 2,
-        visible: true,
-    })
+    @type([RenderQueueDesc])
+    @visible(true)
+    @displayOrder(2)
     protected renderQueues: RenderQueueDesc[] = [];
     protected _renderQueues: RenderQueue[] = [];
 

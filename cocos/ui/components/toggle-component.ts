@@ -29,7 +29,7 @@
  */
 
 import { EventHandler as ComponentEventHandler, UITransformComponent } from '../../core/components';
-import { ccclass, help, requireComponent, executionOrder, menu, property, tooltip } from '../../core/data/class-decorator';
+import { ccclass, help, requireComponent, executionOrder, menu, property, tooltip, displayOrder, type } from '../../core/data/class-decorator';
 import { ButtonComponent } from './button-component';
 import { SpriteComponent } from './sprite-component';
 import { ToggleContainerComponent } from './toggle-container-component';
@@ -65,9 +65,7 @@ export class ToggleComponent extends ButtonComponent {
      * @zh
      * 如果这个设置为 true，则 check mark 组件会处于 enabled 状态，否则处于 disabled 状态。
      */
-    @property({
-        displayOrder: 2,
-    })
+    @displayOrder(2)
     @tooltip('如果这个设置为 true，则 check mark 组件会处于 enabled 状态，否则处于 disabled 状态。')
     get isChecked () {
         return this._isChecked;
@@ -84,10 +82,8 @@ export class ToggleComponent extends ButtonComponent {
      * @zh
      * Toggle 处于选中状态时显示的图片。
      */
-    @property({
-        type: SpriteComponent,
-        displayOrder: 3,
-    })
+    @type(SpriteComponent)
+    @displayOrder(3)
     @tooltip('Toggle 处于选中状态时显示的精灵图片')
     get checkMark () {
         return this._checkMark;
@@ -124,9 +120,7 @@ export class ToggleComponent extends ButtonComponent {
      * @zh
      * Toggle 按钮的点击事件列表。
      */
-    @property({
-        type: [ComponentEventHandler],
-    })
+    @type([ComponentEventHandler])
     @tooltip('列表类型，默认为空，用户添加的每一个事件由节点引用，组件名称和一个响应函数组成')
     public checkEvents: ComponentEventHandler[] = [];
     @property

@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../core/components/component';
-import { ccclass, help, menu, property, tooltip } from '../core/data/class-decorator';
+import { ccclass, help, menu, property, tooltip, type, range } from '../core/data/class-decorator';
 import { clamp } from '../core/math';
 import { AudioClip } from './assets/clip';
 
@@ -43,7 +43,7 @@ import { AudioClip } from './assets/clip';
 @help('i18n:cc.AudioSourceComponent')
 @menu('Components/AudioSource')
 export class AudioSourceComponent extends Component {
-    @property(AudioClip)
+    @type(AudioClip)
     protected _clip: AudioClip | null = null;
     @property
     protected _loop = false;
@@ -60,9 +60,7 @@ export class AudioSourceComponent extends Component {
      * @zh
      * 设定要播放的音频。
      */
-    @property({
-        type: AudioClip,
-    })
+    @type(AudioClip)
     @tooltip('i18n:audio.clip')
     set clip (val) {
         this._clip = val;
@@ -114,9 +112,8 @@ export class AudioSourceComponent extends Component {
      * 音频的音量（大小范围为 0.0 到 1.0）。<br>
      * 请注意，在某些平台上，音量控制可能不起效。<br>
      */
-    @property({
-        range: [0.0, 1.0],
-    })
+    @property
+    @range([0.0, 1.0])
     @tooltip('i18n:audio.volume')
     set volume (val) {
         if (isNaN(val)) { console.warn('illegal audio volume!'); return; }

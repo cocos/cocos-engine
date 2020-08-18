@@ -8,6 +8,7 @@ import {
     executeInEditMode,
     menu,
     property,
+    type,
 } from '../../../../core/data/class-decorator';
 import { ColliderComponent } from './collider-component';
 import { ITerrainShape } from '../../../spec/i-physics-shape';
@@ -36,8 +37,7 @@ export class TerrainColliderComponent extends ColliderComponent {
      * @zh
      * 获取或设置此碰撞体引用的网格资源.
      */
-    // @property({ type: js.getClassByName('cc.TerrainAsset') })    
-    @property({ type: TerrainAsset })
+    @type(TerrainAsset)
     get terrain () {
         return this._terrain;
     }

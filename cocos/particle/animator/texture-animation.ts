@@ -3,7 +3,7 @@
  * @category particle
  */
 
-import { ccclass, property, tooltip } from '../../core/data/class-decorator';
+import { ccclass, property, tooltip, displayOrder, type, formerlySerializedAs } from '../../core/data/class-decorator';
 import { lerp, pseudoRandom, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
@@ -52,22 +52,16 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     @property
     private _enable = false;
 
-    @property({
-        formerlySerializedAs: 'numTilesX',
-    })
+    @formerlySerializedAs('numTilesX')
     private _numTilesX = 0;
 
-    @property({
-        formerlySerializedAs: 'numTilesY',
-    })
+    @formerlySerializedAs('numTilesY')
     private _numTilesY = 0;
 
     /**
      * @zh 是否启用。
      */
-    @property({
-        displayOrder: 0,
-    })
+    @displayOrder(0)
     get enable () {
         return this._enable;
     }
@@ -80,18 +74,14 @@ export default class TextureAnimationModule extends ParticleModuleBase {
         this.target.enableModule(this.name, val, this);
     }
 
-    @property({
-        type: Mode,
-    })
+    @type(Mode)
     private _mode = Mode.Grid;
 
     /**
      * @zh 设定粒子贴图动画的类型（暂只支持 Grid 模式）[[Mode]]。
      */
-    @property({
-        type: Mode,
-        displayOrder: 1,
-    })
+    @type(Mode)
+    @displayOrder(1)
     @tooltip('设定粒子贴图动画的类型（暂只支持 Grid 模式）')
     get mode () {
         return this._mode;
@@ -107,9 +97,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     /**
      * @zh X 方向动画帧数。
      */
-    @property({
-        displayOrder: 2,
-    })
+    @displayOrder(2)
     @tooltip('X 方向动画帧数')
     get numTilesX () {
         return this._numTilesX;
@@ -125,9 +113,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     /**
      * @zh Y 方向动画帧数。
      */
-    @property({
-        displayOrder: 3,
-    })
+    @displayOrder(3)
     @tooltip('Y 方向动画帧数')
     get numTilesY () {
         return this._numTilesY;
@@ -143,39 +129,32 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     /**
      * @zh 动画播放方式 [[Animation]]。
      */
-    @property({
-        type: Animation,
-        displayOrder: 4,
-    })
+    @type(Animation)
+    @displayOrder(4)
     @tooltip('动画播放方式')
     public animation = Animation.WholeSheet;
 
     /**
      * @zh 一个周期内动画播放的帧与时间变化曲线。
      */
-    @property({
-        type: CurveRange,
-        displayOrder: 7,
-    })
+    @type(CurveRange)
+    @displayOrder(7)
     @tooltip('一个周期内动画播放的帧与时间变化曲线')
     public frameOverTime = new CurveRange();
 
     /**
      * @zh 从第几帧开始播放，时间为整个粒子系统的生命周期。
      */
-    @property({
-        type: CurveRange,
-        displayOrder: 8,
-    })
+    @type(CurveRange)
+    @displayOrder(8)
     @tooltip('从第几帧开始播放，时间为整个粒子系统的生命周期')
     public startFrame = new CurveRange();
 
     /**
      * @zh 一个生命周期内播放循环的次数。
      */
-    @property({
-        displayOrder: 9,
-    })
+    @property
+    @displayOrder(9)
     @tooltip('一个生命周期内播放循环的次数')
     public cycleCount = 0;
 
@@ -219,9 +198,8 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      * @zh 随机从动画贴图中选择一行以生成动画。<br>
      * 此选项仅在动画播放方式为 SingleRow 时生效。
      */
-    @property({
-        displayOrder: 5,
-    })
+    @property
+    @displayOrder(5)
     @tooltip('随机从动画贴图中选择一行以生成动画。\n此选项仅在动画播放方式为 SingleRow 时生效')
     public randomRow = false;
 
@@ -229,11 +207,11 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      * @zh 从动画贴图中选择特定行以生成动画。<br>
      * 此选项仅在动画播放方式为 SingleRow 时且禁用 randomRow 时可用。
      */
-    @property({
-        displayOrder: 6,
-    })
+    @property
+    @displayOrder(6)
     @tooltip('从动画贴图中选择特定行以生成动画。\n此选项仅在动画播放方式为 SingleRow 时且禁用 randomRow 时可用')
     public rowIndex = 0;
+    
     public name = PARTICLE_MODULE_NAME.TEXTURE;
 
     public init (p: Particle) {

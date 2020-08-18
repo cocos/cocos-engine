@@ -10,7 +10,7 @@ import { SphereLight } from './sphere-light';
 import { GFXCommandBuffer, GFXDevice, GFXRenderPass, GFXDescriptorSet, GFXShader } from '../../gfx';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
-import { ccclass, property } from '../../data/class-decorator';
+import { ccclass, property, type, visible } from '../../data/class-decorator';
 import { CCFloat, CCBoolean } from '../../data/utils/attribute';
 import { legacyCC } from '../../global-exports';
 import { RenderScene } from './render-scene';
@@ -104,25 +104,17 @@ export class PlanarShadows {
         return this._data;
     }
 
-    @property({
-        type: CCBoolean,
-        visible: true,
-    })
+    @type(CCBoolean)
+    @visible(true)
     protected _enabled: boolean = false;
-    @property({
-        type: Vec3,
-        visible: true,
-    })
+    @type(Vec3)
+    @visible(true)
     protected _normal = new Vec3(0, 1, 0);
-    @property({
-        type: CCFloat,
-        visible: true,
-    })
+    @type(CCFloat)
+    @visible(true)
     protected _distance = 0;
-    @property({
-        type: Color,
-        visible: true,
-    })
+    @type(Color)
+    @visible(true)
     protected _shadowColor = new Color(0, 0, 0, 76);
     protected _matLight = new Mat4();
     protected _data = Float32Array.from([

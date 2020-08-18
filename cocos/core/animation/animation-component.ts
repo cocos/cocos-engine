@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../components/component';
-import { ccclass, executeInEditMode, executionOrder, help, menu, property, tooltip } from '../data/class-decorator';
+import { ccclass, executeInEditMode, executionOrder, help, menu, property, tooltip, type } from '../data/class-decorator';
 import { Eventify } from '../event/eventify';
 import { warnID } from '../platform/debug';
 import * as ArrayUtils from '../utils/array';
@@ -68,9 +68,7 @@ export class AnimationComponent extends Eventify(Component) {
      * 获取或设置此组件管理的剪辑。
      * 设置时，已有剪辑关联的动画状态将被停止；若默认剪辑不在新的动画剪辑中，将被重置为空。
      */
-    @property({
-        type: [AnimationClip],
-    })
+    @type([AnimationClip])
     @tooltip('此动画组件管理的动画剪辑')
     get clips () {
         return this._clips;
@@ -111,9 +109,7 @@ export class AnimationComponent extends Eventify(Component) {
      * 设置时，若指定的剪辑不在 `this.clips` 中则会被自动添加至 `this.clips`。
      * @see [[playOnLoad]]
      */
-    @property({
-        type: AnimationClip,
-    })
+    @type(AnimationClip)
     @tooltip('默认动画剪辑')
     get defaultClip () {
         return this._defaultClip;
@@ -149,7 +145,7 @@ export class AnimationComponent extends Eventify(Component) {
 
     protected _nameToState: Record<string, AnimationState> = createMap(true);
 
-    @property({ type: [AnimationClip] })
+    @type([AnimationClip])
     protected _clips: (AnimationClip | null)[] = [];
 
     @property

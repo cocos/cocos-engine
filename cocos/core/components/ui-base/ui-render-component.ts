@@ -28,7 +28,7 @@
  */
 
 import { RenderableComponent } from '../../../core/3d/framework/renderable-component';
-import { ccclass, property, executeInEditMode, requireComponent, disallowMultiple, tooltip } from '../../../core/data/class-decorator';
+import { ccclass, property, executeInEditMode, requireComponent, disallowMultiple, tooltip, type, displayOrder } from '../../../core/data/class-decorator';
 import { Color } from '../../../core/math';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { ccenum } from '../../../core/value-types/enum';
@@ -134,10 +134,8 @@ export class UIRenderComponent extends RenderableComponent {
      * sprite.srcBlendFactor = GFXBlendFactor.ONE;
      * ```
      */
-    @property({
-        type: GFXBlendFactor,
-        displayOrder: 0,
-    })
+    @type(GFXBlendFactor)
+    @displayOrder(0)
     @tooltip('原图混合模式')
     get srcBlendFactor () {
         return this._srcBlendFactor;
@@ -165,10 +163,8 @@ export class UIRenderComponent extends RenderableComponent {
      * sprite.dstBlendFactor = GFXBlendFactor.ONE;
      * ```
      */
-    @property({
-        type: GFXBlendFactor,
-        displayOrder: 1,
-    })
+    @type(GFXBlendFactor)
+    @displayOrder(1)
     @tooltip('目标混合模式')
     get dstBlendFactor () {
         return this._dstBlendFactor;
@@ -192,9 +188,7 @@ export class UIRenderComponent extends RenderableComponent {
      *
      * @param value 渲染颜色。
      */
-    @property({
-        displayOrder: 2,
-    })
+    @displayOrder(2)
     @tooltip('渲染颜色')
     get color (): Readonly<Color> {
         return this._color;
