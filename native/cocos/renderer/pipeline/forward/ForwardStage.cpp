@@ -169,23 +169,22 @@ void ForwardStage::render(RenderView *view) {
 
     auto framebuffer = view->getWindow()->getFramebuffer();
     const auto &colorTextures = framebuffer->getColorTextures();
-    auto device = gfx::Device::getInstance();
 
     auto renderPass = colorTextures.size() ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlagBit>(camera->clearFlag));
 
     cmdBuff->begin();
     cmdBuff->beginRenderPass(renderPass, framebuffer, _renderArea, _clearColors, camera->clearDepth, camera->clearStencil);
     //TODO cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
-    _renderQueues[0]->recordCommandBuffer(device, renderPass, cmdBuff);
-    _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuff);
-    _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuff);
-    _additiveLightQueue->recordCommandBuffer(device, renderPass, cmdBuff);
+    _renderQueues[0]->recordCommandBuffer(_device, renderPass, cmdBuff);
+    _instancedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
+    _batchedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
+    _additiveLightQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
     //    _planarShadowQueue->recordCommandBuffer(device, renderPass, cmdBuff);
-    _renderQueues[1]->recordCommandBuffer(device, renderPass, cmdBuff);
+    _renderQueues[1]->recordCommandBuffer(_device, renderPass, cmdBuff);
 
     cmdBuff->endRenderPass();
     cmdBuff->end();
-    device->getQueue()->submit(commandBuffers);
+    _device->getQueue()->submit(commandBuffers);
 }
 
 } // namespace pipeline

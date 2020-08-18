@@ -21,7 +21,6 @@ private:
     static RenderStageInfo _initInfo;
 
     gfx::Rect _renderArea;
-    gfx::Device *_device = nullptr;
 };
 
 } // namespace pipeline

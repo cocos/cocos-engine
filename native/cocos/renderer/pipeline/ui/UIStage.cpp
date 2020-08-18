@@ -25,7 +25,6 @@ bool UIStage::initialize(const RenderStageInfo &info) {
     RenderQueueDesc descriptor = {true, RenderQueueSortMode::BACK_TO_FRONT, {"default"}};
     _renderQueueDescriptors.emplace_back(std::move(descriptor));
 
-    _device = gfx::Device::getInstance();
     return true;
 }
 

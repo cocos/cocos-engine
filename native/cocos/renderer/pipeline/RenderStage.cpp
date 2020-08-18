@@ -1,7 +1,12 @@
 #include "RenderStage.h"
 #include "RenderQueue.h"
+#include "gfx/GFXDevice.h"
 namespace cc {
 namespace pipeline {
+RenderStage::RenderStage()
+:_device(gfx::Device::getInstance()){
+    
+}
 
 RenderStage::~RenderStage() {
     destroy();

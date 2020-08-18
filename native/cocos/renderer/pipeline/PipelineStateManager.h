@@ -14,7 +14,7 @@ struct PassView;
 
 class CC_DLL PipelineStateManager {
 public:
-    static gfx::PipelineState *getOrCreatePipelineStage(const PassView *pass,
+    static gfx::PipelineState *getOrCreatePipelineState(const PassView *pass,
                                                         gfx::Shader *shader,
                                                         gfx::InputAssembler *inputAssembler,
                                                         gfx::RenderPass *renderPass);

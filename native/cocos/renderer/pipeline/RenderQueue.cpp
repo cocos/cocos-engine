@@ -41,9 +41,9 @@ void RenderQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *rend
         const auto inputAssembler = GET_IA(subModel->inputAssemblerID);
 
         const auto pass = GET_PASS(subModel->pass0ID + passIdx);
-        const auto shader = GET_SHADER(pass->shader0ID + passIdx);
+        const auto shader = GET_SHADER(subModel->shader0ID + passIdx);
 
-        auto pso = PipelineStateManager::getOrCreatePipelineStage(pass, shader, inputAssembler, renderPass);
+        auto pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
         cmdBuff->bindPipelineState(pso);
         //TODO coulsonwang
         //        cmdBuff->bindBindingLayout();

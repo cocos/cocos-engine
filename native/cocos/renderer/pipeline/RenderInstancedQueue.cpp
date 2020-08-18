@@ -27,7 +27,7 @@ void RenderInstancedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderP
             if (!instance.count) {
                 continue;
             }
-            //                auto pso = PipelineStateManager::getOrCreatePipelineStage(psoci, pass, instance.ia, renderPass);
+            //                auto pso = PipelineStateManager::getOrCreatePipelineState(psoci, pass, instance.ia, renderPass);
             //                if (lastPSO != pso) {
             //                    cmdBuff->bindPipelineState(pso);
             //                    cmdBuff->bindBindingLayout(GET_BINDING_LAYOUT(psoci->bindingLayoutID));

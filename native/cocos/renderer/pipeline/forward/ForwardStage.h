@@ -32,7 +32,6 @@ private:
     RenderInstancedQueue *_instancedQueue = nullptr;
     RenderAdditiveLightQueue *_additiveLightQueue = nullptr;
     gfx::Rect _renderArea;
-    gfx::ColorList _clearColors = {{0, 0, 0, 1.0f}};
     uint _phaseID = 0;
 };
 
