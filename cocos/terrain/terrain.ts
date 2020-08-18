@@ -3,7 +3,7 @@
  */
 import { builtinResMgr } from '../core/3d/builtin';
 import { RenderableComponent } from '../core/3d/framework/renderable-component';
-import { Texture2D } from '../core/assets';
+import { EffectAsset, Texture2D } from '../core/assets';
 import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
 import { Material } from '../core/assets/material';
 import { RenderingSubMesh } from '../core/assets/mesh';
@@ -22,7 +22,7 @@ import { Root } from '../core/root';
 import { PrivateNode } from '../core/scene-graph/private-node';
 import { HeightField } from './height-field';
 import { legacyCC } from '../core/global-exports';
-import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY, TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY, TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX } from './terrain-asset';
+import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY, TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY, TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, } from './terrain-asset';
 
 /**
  * @en Terrain info
@@ -161,7 +161,7 @@ class TerrainRenderable extends RenderableComponent {
             this._currentMaterial = new Material();
 
             this._currentMaterial.initialize({
-                effectAsset: legacyCC.EffectAsset.get('builtin-terrain'),
+                effectAsset: block.getTerrain().getEffectAsset(),
                 defines: block._getMaterialDefines(nLayers),
             });
 
@@ -262,7 +262,7 @@ export class TerrainBlock {
         // @ts-ignore
         this._node._objFlags |= legacyCC.Object.Flags.DontSave;
 
-        this._renderable =  this._node.addComponent(TerrainRenderable) as TerrainRenderable;
+        this._renderable = this._node.addComponent(TerrainRenderable) as TerrainRenderable;
     }
 
     public build () {
@@ -301,7 +301,7 @@ export class TerrainBlock {
         const gfxAttributes: IGFXAttribute[] = [
             { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },
             { name: GFXAttributeName.ATTR_NORMAL, format: GFXFormat.RGB32F },
-            { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RG32F},
+            { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RG32F },
         ];
 
         const subMesh = this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes, GFXPrimitiveMode.TRIANGLE_LIST);
@@ -538,7 +538,7 @@ export class TerrainBlock {
     public _getMaterialDefines (nlayers: number): MacroRecord {
         if (this.lightmap != null) {
             if (nlayers === 0) {
-                return { LAYERS: 1, LIGHT_MAP: 1};
+                return { LAYERS: 1, LIGHT_MAP: 1 };
             }
             else if (nlayers === 1) {
                 return { LAYERS: 2, LIGHT_MAP: 1 };
@@ -578,7 +578,7 @@ export class TerrainBlock {
 
     public _updateHeight () {
         if (this._renderable._meshData == null) {
-            return ;
+            return;
         }
 
         const vertexData = new Float32Array(TERRAIN_BLOCK_VERTEX_SIZE * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY);
@@ -666,6 +666,11 @@ export class Terrain extends Component {
     @visible(false)
     protected __asset: TerrainAsset|null = null;
 
+    @type(EffectAsset)
+    @animatable(false)
+    @visible(false)
+    protected _effectAsset: EffectAsset|null = null;
+
     @type(TerrainLayer)
     @animatable(false)
     @visible(true)
@@ -718,7 +723,28 @@ export class Terrain extends Component {
     }
 
     public get _asset () {
-        return  this.__asset;
+        return this.__asset;
+    }
+
+    /**
+     * @en Terrain effect asset
+     * @zh 地形特效资源
+     */
+    @type(EffectAsset)
+    @visible(true)
+    public set effectAsset (value) {
+        if (this._effectAsset === value) {
+            return;
+        }
+
+        this._effectAsset = value;
+        for (const i of this._blocks) {
+            i._invalidMaterial();
+        }
+    }
+
+    public get effectAsset () {
+        return this._effectAsset;
     }
 
     /**
@@ -974,6 +1000,15 @@ export class Terrain extends Component {
         return asset;
     }
 
+    public getEffectAsset () {
+        if (this._effectAsset === null) {
+            return legacyCC.EffectAsset.get('builtin-terrain');
+        }
+        else {
+            return this._effectAsset;
+        }
+    }
+
     public onLoad () {
         const gfxDevice = legacyCC.director.root.device as GFXDevice;
 
@@ -1151,10 +1186,10 @@ export class Terrain extends Component {
             return null;
         }
 
-        ix0 = clamp(ix0, 0, this.vertexCount[0]  - 1);
-        iz0 = clamp(iz0, 0, this.vertexCount[1]  - 1);
-        ix1 = clamp(ix1, 0, this.vertexCount[0]  - 1);
-        iz1 = clamp(iz1, 0, this.vertexCount[1]  - 1);
+        ix0 = clamp(ix0, 0, this.vertexCount[0] - 1);
+        iz0 = clamp(iz0, 0, this.vertexCount[1] - 1);
+        ix1 = clamp(ix1, 0, this.vertexCount[0] - 1);
+        iz1 = clamp(iz1, 0, this.vertexCount[1] - 1);
 
         let a = this.getHeight(ix0, iz0);
         const b = this.getHeight(ix1, iz0);
@@ -1180,9 +1215,9 @@ export class Terrain extends Component {
     public _setNormal (i: number, j: number, n: Vec3) {
         const index = j * this.vertexCount[0] + i;
 
-        this._normals[index * 3 + 0] =  n.x;
-        this._normals[index * 3 + 1] =  n.y;
-        this._normals[index * 3 + 2] =  n.z;
+        this._normals[index * 3 + 0] = n.x;
+        this._normals[index * 3 + 1] = n.y;
+        this._normals[index * 3 + 2] = n.z;
     }
 
     /**
@@ -1219,10 +1254,10 @@ export class Terrain extends Component {
             return null;
         }
 
-        ix0 = clamp(ix0, 0, this.vertexCount[0]  - 1);
-        iz0 = clamp(iz0, 0, this.vertexCount[1]  - 1);
-        ix1 = clamp(ix1, 0, this.vertexCount[0]  - 1);
-        iz1 = clamp(iz1, 0, this.vertexCount[1]  - 1);
+        ix0 = clamp(ix0, 0, this.vertexCount[0] - 1);
+        iz0 = clamp(iz0, 0, this.vertexCount[1] - 1);
+        ix1 = clamp(ix1, 0, this.vertexCount[0] - 1);
+        iz1 = clamp(iz1, 0, this.vertexCount[1] - 1);
 
         const a = this.getNormal(ix0, iz0);
         const b = this.getNormal(ix1, iz0);
@@ -1302,10 +1337,10 @@ export class Terrain extends Component {
             return null;
         }
 
-        ix0 = clamp(ix0, 0, this.vertexCount[0]  - 1);
-        iz0 = clamp(iz0, 0, this.vertexCount[1]  - 1);
-        ix1 = clamp(ix1, 0, this.vertexCount[0]  - 1);
-        iz1 = clamp(iz1, 0, this.vertexCount[1]  - 1);
+        ix0 = clamp(ix0, 0, this.vertexCount[0] - 1);
+        iz0 = clamp(iz0, 0, this.vertexCount[1] - 1);
+        ix1 = clamp(ix1, 0, this.vertexCount[0] - 1);
+        iz1 = clamp(iz1, 0, this.vertexCount[1] - 1);
 
         let a = this.getWeight(ix0, iz0);
         const b = this.getWeight(ix1, iz0);
@@ -1663,7 +1698,7 @@ export class Terrain extends Component {
 
         // get weight
         const getOldWeight = (_i: number, _j: number, _weights: Uint8Array) => {
-            const index = _j * oldWeightMapComplexityU  + _i;
+            const index = _j * oldWeightMapComplexityU + _i;
 
             const weight = new Vec4();
             weight.x = _weights[index * 4 + 0] / 255.0;
