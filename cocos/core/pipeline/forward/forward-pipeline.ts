@@ -205,7 +205,7 @@ export class ForwardPipeline extends RenderPipeline {
         const device = this.device;
         const shadowInfo = this.shadowMap;
 
-        if (mainLight) {
+        if (mainLight && shadowInfo.enabled) {
             // light view
             Mat4.invert(matShadowView, mainLight!.node!.worldMatrix);
 
