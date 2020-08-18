@@ -515,6 +515,9 @@ export class GraphicsComponent extends UIRenderComponent {
      * 根据当前的画线样式，绘制当前或已经存在的路径。
      */
     public stroke () {
+        if (!this._assembler) {
+            this._flushAssembler();
+        }
         (this._assembler as IAssembler).stroke!(this);
         this._attachToScene();
     }
@@ -527,6 +530,9 @@ export class GraphicsComponent extends UIRenderComponent {
      * 根据当前的画线样式，填充当前或已经存在的路径。
      */
     public fill () {
+        if (!this._assembler) {
+            this._flushAssembler();
+        }
         (this._assembler as IAssembler).fill!(this);
         this._attachToScene();
     }
