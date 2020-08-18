@@ -671,6 +671,7 @@ export class Terrain extends Component {
     @visible(true)
     protected _layers: (TerrainLayer|null)[] = [];
 
+    @property
     @animatable(false)
     @visible(false)
     protected _blockInfos: TerrainBlockInfo[] = [];
