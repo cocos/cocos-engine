@@ -23,7 +23,7 @@ import { Fog } from '../../renderer/scene/fog';
 import { Ambient } from '../../renderer/scene/ambient';
 import { Skybox } from '../../renderer/scene/skybox';
 import { PlanarShadows } from '../../renderer/scene/planar-shadows';
-import { Shadow } from '../../renderer/scene/Shadow';
+import { Shadow } from '../../renderer/scene/shadow';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
