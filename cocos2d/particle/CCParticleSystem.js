@@ -1007,10 +1007,16 @@ var ParticleSystem = cc.Class({
                 if (!self.isValid) {
                     return;
                 }
+
+                self._plistFile = file.nativeUrl;
                 
-                var isDiffFile = self._plistFile !== file.nativeUrl;
                 var isDiffFrame = self._spriteFrame !== file.spriteFrame;
-                if (!self._spriteFrame || isDiffFile || isDiffFrame) {
+                if (!self._custom) {
+                    if (isDiffFrame) self.spriteFrame = file.spriteFrame;
+                    self._initWithDictionary(file._nativeAsset);
+                }
+                
+                if (!self._spriteFrame) {
                     self._plistFile = file.nativeUrl;
                     if (file.spriteFrame) {
                         self.spriteFrame = file.spriteFrame;
@@ -1021,9 +1027,6 @@ var ParticleSystem = cc.Class({
                 }
                 else if (!self._renderSpriteFrame && self._spriteFrame) {
                     self._applySpriteFrame(self.spriteFrame);
-                }
-                if (!self._custom) {
-                    self._initWithDictionary(file._nativeAsset);
                 }
             });
         }
