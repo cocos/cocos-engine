@@ -1200,7 +1200,7 @@ var BaseNode = cc.Class({
 
         // reset and init
         cloned._parent = null;
-        cloned._onBatchRestored();
+        cloned._onBatchCreated();
 
         return cloned;
     },
