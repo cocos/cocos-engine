@@ -8,7 +8,6 @@ import { ForwardPipeline } from './forward-pipeline';
 import { RenderView } from '../render-view';
 import { Pool } from '../../memop';
 import { IRenderObject } from '../define';
-import { ShadowInfo } from '../../renderer/scene/shadowInfo';
 
 const _tempVec3 = new Vec3();
 

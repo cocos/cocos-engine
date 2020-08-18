@@ -3,7 +3,6 @@ import { ccclass, property } from '../../data/class-decorator';
 import { Color } from '../../../core/math';
 import { CCBoolean, CCFloat } from '../../data/utils/attribute';
 import { legacyCC } from '../../global-exports';
-import { EDITOR } from 'internal:constants';
 
 /**
  * @zh

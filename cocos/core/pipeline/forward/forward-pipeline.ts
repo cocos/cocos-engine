@@ -23,7 +23,7 @@ import { Fog } from '../../renderer/scene/fog';
 import { Ambient } from '../../renderer/scene/ambient';
 import { Skybox } from '../../renderer/scene/skybox';
 import { PlanarShadows } from '../../renderer/scene/planar-shadows';
-import { ShadowInfo } from '../../renderer/scene/shadowInfo';
+import { Shadow } from '../../renderer/scene/shadow';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
@@ -101,6 +101,12 @@ export class ForwardPipeline extends RenderPipeline {
         visible: true,
     })
     public planarShadows: PlanarShadows = new PlanarShadows();
+    @property({
+        type: Shadow,
+        displayOrder: 7,
+        visible: true,
+    })
+    public shadowMap: Shadow = new Shadow();
     /**
      * @en The list for render objects, only available after the scene culling of the current frame.
      * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
@@ -150,6 +156,7 @@ export class ForwardPipeline extends RenderPipeline {
         this.fog.activate();
         this.skybox.activate();
         this.planarShadows.activate();
+        this.shadowMap.activate();
 
         return true;
     }
@@ -196,17 +203,17 @@ export class ForwardPipeline extends RenderPipeline {
         this._updateUBO(view);
         const mainLight = view.camera.scene!.mainLight;
         const device = this.device;
-        const shadowInfo = ShadowInfo.instance;
+        const shadowInfo = this.shadowMap;
 
-        if (mainLight) {
+        if (mainLight && shadowInfo.enabled) {
             // light view
             Mat4.invert(matShadowView, mainLight!.node!.worldMatrix);
 
             // light proj
-            const x = shadowInfo.cameraOrthoSize * shadowInfo.cameraAspect;
-            const y = shadowInfo.cameraOrthoSize;
+            const x = shadowInfo.near * shadowInfo.aspect;
+            const y = shadowInfo.orthoSize;
             const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY;
-            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.cameraNear, shadowInfo.cameraFar,
+            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, shadowInfo.far,
                 device.clipSpaceMinZ, projectionSignY);
 
             // light viewProj

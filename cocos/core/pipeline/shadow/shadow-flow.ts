@@ -13,7 +13,6 @@ import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
 import { RenderFlowTag } from '../pipeline-serialization';
 import { RenderView, ForwardPipeline } from '../..';
 import { sceneCulling } from '../forward/scene-culling';
-import { ShadowInfo } from '../../renderer/scene/shadowInfo';
 
 /**
  * @zh 阴影贴图绘制流程
@@ -53,7 +52,7 @@ export class ShadowFlow extends RenderFlow {
         super.activate(pipeline);
 
         const device = pipeline.device;
-        const shadowMapSize = ShadowInfo.instance.shadowMapSize;
+        const shadowMapSize = pipeline.shadowMap.size;
         this._width = shadowMapSize.x;
         this._height = shadowMapSize.y;
 
@@ -114,17 +113,17 @@ export class ShadowFlow extends RenderFlow {
     }
 
     public render (view: RenderView) {
-        const shadowInfo = ShadowInfo.instance;
+        const pipeline = this._pipeline as ForwardPipeline;
+        const shadowInfo = pipeline.shadowMap;
         if (!shadowInfo.enabled) { return; }
 
-        const shadowMapSize = shadowInfo.shadowMapSize;
+        const shadowMapSize = shadowInfo.size;
         if (this._width !== shadowMapSize.x || this._height !== shadowMapSize.y) {
             this.resizeShadowMap(shadowMapSize.x,shadowMapSize.y);
             this._width = shadowMapSize.x;
             this._height = shadowMapSize.y;
         }
 
-        const pipeline = this._pipeline as ForwardPipeline;
         view.camera.update();
         sceneCulling(pipeline, view);
         pipeline.updateUBOs(view);
