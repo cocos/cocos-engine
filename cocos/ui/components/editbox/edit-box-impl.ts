@@ -462,7 +462,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             font = textLabel.fontFamily;
         }
 
-        let fontSize = textLabel.fontSize * textLabel.node._scale.y;
+        let fontSize = textLabel.fontSize * textLabel.node.scale.y;
 
         if (this._textLabelFont === font
             && this._textLabelFontSize === fontSize
@@ -512,7 +512,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
 
 
-        let fontSize = placeholderLabel.fontSize * placeholderLabel.node._scale.y;
+        let fontSize = placeholderLabel.fontSize * placeholderLabel.node.scale.y;
 
         if (this._placeholderLabelFont === font
             && this._placeholderLabelFontSize === fontSize
