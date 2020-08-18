@@ -55,6 +55,43 @@ export default [
     ]
   },
   {
+    "name": "builtin-graphics",
+    "_uuid": "1c02ae6f-4492-4915-b8f8-7492a3b1e4cd",
+    "techniques": [
+      { "passes": [{ "blendState": { "targets": [{ "blend": true, "blendSrc": 1, "blendDst": 4, "blendSrcAlpha": 1, "blendDstAlpha": 4 }] }, "rasterizerState": { "cullMode": 0 }, "program": "builtin-graphics|vs:vert|fs:frag" }] }
+    ],
+    "shaders": [
+      {
+        "name": "builtin-graphics|vs:vert|fs:frag",
+        "hash": 3946667351,
+        "glsl3": {
+          "vert": `\nprecision highp float;\nlayout(std140) uniform CCGlobal {\n  highp   vec4 cc_time;\n  mediump vec4 cc_screenSize;\n  mediump vec4 cc_screenScale;\n  mediump vec4 cc_nativeSize;\n  highp   mat4 cc_matView;\n  highp   mat4 cc_matViewInv;\n  highp   mat4 cc_matProj;\n  highp   mat4 cc_matProjInv;\n  highp   mat4 cc_matViewProj;\n  highp   mat4 cc_matViewProjInv;\n  highp   vec4 cc_cameraPos;\n  mediump vec4 cc_exposure;\n  mediump vec4 cc_mainLitDir;\n  mediump vec4 cc_mainLitColor;\n  mediump vec4 cc_ambientSky;\n  mediump vec4 cc_ambientGround;\n  mediump vec4 cc_fogColor;\n  mediump vec4 cc_fogBase;\n  mediump vec4 cc_fogAdd;\n};\nlayout(std140) uniform CCLocal {\n  highp mat4 cc_matWorld;\n  highp mat4 cc_matWorldIT;\n  highp vec4 cc_lightingMapUVParam;\n};\nin vec3 a_position;\nin vec4 a_color;\nout vec4 v_color;\nin float a_dist;\nout float v_dist;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  pos = cc_matViewProj * cc_matWorld * pos;\n  v_color = a_color;\n  v_dist = a_dist;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }`,
+          "frag": `\nprecision highp float;\nin vec4 v_color;\nin float v_dist;\nvec4 frag () {\n  vec4 o = v_color;\n    float aa = fwidth(v_dist);\n  float alpha = 1. - smoothstep(-aa, 0., abs(v_dist) - 1.0);\n  o.rgb *= o.a;\n  o *= alpha;\n  return o;\n}\nout vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }`
+        },
+        "glsl1": {
+          "vert": `\nprecision highp float;\nuniform highp mat4 cc_matViewProj;\nuniform highp mat4 cc_matWorld;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying vec4 v_color;\nattribute float a_dist;\nvarying float v_dist;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  pos = cc_matViewProj * cc_matWorld * pos;\n  v_color = a_color;\n  v_dist = a_dist;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }`,
+          "frag": `\n#ifdef GL_OES_standard_derivatives\n#extension GL_OES_standard_derivatives: enable\n#endif\nprecision highp float;\nvarying vec4 v_color;\nvarying float v_dist;\nvec4 frag () {\n  vec4 o = v_color;\n    #ifdef GL_OES_standard_derivatives\n      float aa = fwidth(v_dist);\n    #else\n      float aa = 0.05;\n    #endif\n  float alpha = 1. - smoothstep(-aa, 0., abs(v_dist) - 1.0);\n  o.rgb *= o.a;\n  o *= alpha;\n  return o;\n}\nvoid main() { gl_FragColor = frag(); }`
+        },
+        "glsl4": {
+          "vert": `\nprecision highp float;\nlayout(set = 0, binding = 0) uniform CCGlobal {\n  highp   vec4 cc_time;\n  mediump vec4 cc_screenSize;\n  mediump vec4 cc_screenScale;\n  mediump vec4 cc_nativeSize;\n  highp   mat4 cc_matView;\n  highp   mat4 cc_matViewInv;\n  highp   mat4 cc_matProj;\n  highp   mat4 cc_matProjInv;\n  highp   mat4 cc_matViewProj;\n  highp   mat4 cc_matViewProjInv;\n  highp   vec4 cc_cameraPos;\n  mediump vec4 cc_exposure;\n  mediump vec4 cc_mainLitDir;\n  mediump vec4 cc_mainLitColor;\n  mediump vec4 cc_ambientSky;\n  mediump vec4 cc_ambientGround;\n  mediump vec4 cc_fogColor;\n  mediump vec4 cc_fogBase;\n  mediump vec4 cc_fogAdd;\n};\nlayout(set = 2, binding = 0) uniform CCLocal {\n  highp mat4 cc_matWorld;\n  highp mat4 cc_matWorldIT;\n  highp vec4 cc_lightingMapUVParam;\n};\nlayout(location = 0) in vec3 a_position;\nlayout(location = 1) in vec4 a_color;\nlayout(location = 0) out vec4 v_color;\nlayout(location = 2) in float a_dist;\nlayout(location = 1) out float v_dist;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  pos = cc_matViewProj * cc_matWorld * pos;\n  v_color = a_color;\n  v_dist = a_dist;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }`,
+          "frag": `\nprecision highp float;\nlayout(location = 0) in vec4 v_color;\nlayout(location = 1) in float v_dist;\nvec4 frag () {\n  vec4 o = v_color;\n    float aa = fwidth(v_dist);\n  float alpha = 1. - smoothstep(-aa, 0., abs(v_dist) - 1.0);\n  o.rgb *= o.a;\n  o *= alpha;\n  return o;\n}\nlayout(location = 0) out vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }`
+        },
+        "builtins": {
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }], "samplers": [] },
+          "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }], "samplers": [] }
+        },
+        "defines": [],
+        "blocks": [],
+        "samplers": [],
+        "attributes": [
+          { "name": "a_position", "type": 15, "count": 1, "defines": [], "stageFlags": 1, "format": 32, "location": 0 },
+          { "name": "a_color", "type": 16, "count": 1, "defines": [], "stageFlags": 1, "format": 44, "location": 1 },
+          { "name": "a_dist", "type": 13, "count": 1, "defines": [], "stageFlags": 1, "format": 11, "location": 2 }
+        ]
+      }
+    ]
+  },
+  {
     "name": "builtin-particle-gpu",
     "_uuid": "971bdb23-3ff6-43eb-b422-1c30165a3663",
     "techniques": [

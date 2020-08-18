@@ -28,7 +28,7 @@
  */
 
 import { createMesh } from '../../../../core/3d/misc/utils';
-import { GFXPrimitiveMode } from '../../../../core/gfx';
+import { GFXPrimitiveMode, GFXAttributeName, GFXFormat } from '../../../../core/gfx';
 import { Color, Vec3 } from '../../../../core/math';
 import { IAssembler } from '../../../../core/renderer/ui/base';
 import { MeshRenderData } from '../../../../core/renderer/ui/render-data';
@@ -52,13 +52,31 @@ const sin = Math.sin;
 const atan2 = Math.atan2;
 const abs = Math.abs;
 
-const attrBytes = 9;
+const attrBytes = 8;
 
-const attrs = vfmt;
+const attrs = [
+    {
+        name: GFXAttributeName.ATTR_POSITION,
+        format: GFXFormat.RGB32F,
+    },
+    {
+        name: GFXAttributeName.ATTR_COLOR,
+        format: GFXFormat.RGBA32F,
+    },
+];
+
+let customAttributes = {
+    dist: {
+        name: 'a_dist',
+        format: GFXFormat.R32F
+    },
+}
+
+
 const positions: number[] = [];
-const uvs: number[] = [];
 const colors: number[] = [];
 const indices: number[] = [];
+const dists: number[] = [];
 
 let _renderData: MeshRenderData | null = null;
 let _impl: Impl | null = null;
@@ -185,7 +203,7 @@ export const graphicsAssembler: IAssembler = {
 
         let i = 0;
         positions.length = 0;
-        uvs.length = 0;
+        dists.length = 0;
         colors.length = 0;
         indices.length = 0;
         for (const renderData of renderDataList) {
@@ -195,12 +213,11 @@ export const graphicsAssembler: IAssembler = {
                 positions.push(vData[i++]);
                 positions.push(vData[i++]);
                 positions.push(vData[i++]);
-                uvs.push(vData[i++]);
-                uvs.push(vData[i++]);
                 colors.push(vData[i++]);
                 colors.push(vData[i++]);
                 colors.push(vData[i++]);
                 colors.push(vData[i++]);
+                dists.push(vData[i++]);
             }
 
             len = renderData.indicesCount;
@@ -210,15 +227,20 @@ export const graphicsAssembler: IAssembler = {
             }
         }
 
-        if(positions.length === 0 && uvs.length === 0 && colors.length === 0 || indices.length === 0)
+        if(positions.length === 0 && dists.length === 0 && colors.length === 0 || indices.length === 0)
             return;
 
         const mesh = createMesh({
             primitiveMode,
             positions,
-            uvs,
             colors,
             attributes: attrs,
+            customAttributes: [
+                {
+                    attr: customAttributes.dist,
+                    values: dists
+                }
+            ],
             indices,
         }, undefined, { calculateBounds: false });
         
@@ -328,8 +350,8 @@ export const graphicsAssembler: IAssembler = {
                     this._bevelJoin(p0, p1, w, w);
                 }
                 else {
-                    this._vSet!(p1.x + p1.dmx * w, p1.y + p1.dmy * w);
-                    this._vSet!(p1.x - p1.dmx * w, p1.y - p1.dmy * w);
+                    this._vSet!(p1.x + p1.dmx * w, p1.y + p1.dmy * w, 1);
+                    this._vSet!(p1.x - p1.dmx * w, p1.y - p1.dmy * w, -1);
                 }
 
                 p0 = p1;
@@ -339,13 +361,8 @@ export const graphicsAssembler: IAssembler = {
             if (loop) {
                 // Loop it
                 let vDataOffset = offset * attrBytes;
-                let data = vData.slice(vDataOffset, vDataOffset + attrBytes);
-                vData.set(data, meshBuffer.vertexStart * attrBytes);
-                vDataOffset += attrBytes;
-                meshBuffer.vertexStart++;
-                data = vData.slice(vDataOffset, vDataOffset + attrBytes);
-                vData.set(data, meshBuffer.vertexStart * attrBytes);
-                meshBuffer.vertexStart++;
+                this._vSet(vData[vDataOffset], vData[vDataOffset+1], 1);
+                this._vSet(vData[vDataOffset+attrBytes], vData[vDataOffset+attrBytes+1], -1);
             } else {
                 // Add cap
                 const dPos = new Point(p1.x, p1.y);
@@ -602,8 +619,8 @@ export const graphicsAssembler: IAssembler = {
         const dlx = dy;
         const dly = -dx;
 
-        this._vSet!(px + dlx * w, py + dly * w);
-        this._vSet!(px - dlx * w, py - dly * w);
+        this._vSet!(px + dlx * w, py + dly * w, 1);
+        this._vSet!(px - dlx * w, py - dly * w, -1);
     },
 
     _buttCapEnd (p: Point, dx: number, dy: number, w: number, d: number) {
@@ -612,8 +629,8 @@ export const graphicsAssembler: IAssembler = {
         const dlx = dy;
         const dly = -dx;
 
-        this._vSet!(px + dlx * w, py + dly * w);
-        this._vSet!(px - dlx * w, py - dly * w);
+        this._vSet!(px + dlx * w, py + dly * w, 1);
+        this._vSet!(px - dlx * w, py - dly * w, -1);
     },
 
     _roundCapStart (p: Point, dx: number, dy: number, w: number, nCap: number) {
@@ -626,11 +643,11 @@ export const graphicsAssembler: IAssembler = {
             const a = i / (nCap - 1) * PI;
             const ax = cos(a) * w;
             const ay = sin(a) * w;
-            this._vSet!(px - dlx * ax - dx * ay, py - dly * ax - dy * ay);
-            this._vSet!(px, py);
+            this._vSet!(px - dlx * ax - dx * ay, py - dly * ax - dy * ay, 1);
+            this._vSet!(px, py, 0);
         }
-        this._vSet!(px + dlx * w, py + dly * w);
-        this._vSet!(px - dlx * w, py - dly * w);
+        this._vSet!(px + dlx * w, py + dly * w, 1);
+        this._vSet!(px - dlx * w, py - dly * w, -1);
     },
 
     _roundCapEnd (p: Point, dx: number, dy: number, w: number, nCap: number) {
@@ -639,14 +656,14 @@ export const graphicsAssembler: IAssembler = {
         const dlx = dy;
         const dly = -dx;
 
-        this._vSet!(px + dlx * w, py + dly * w);
-        this._vSet!(px - dlx * w, py - dly * w);
+        this._vSet!(px + dlx * w, py + dly * w, 1);
+        this._vSet!(px - dlx * w, py - dly * w, -1);
         for (let i = 0; i < nCap; i++) {
             const a = i / (nCap - 1) * PI;
             const ax = cos(a) * w;
             const ay = sin(a) * w;
-            this._vSet!(px, py);
-            this._vSet!(px - dlx * ax + dx * ay, py - dly * ax + dy * ay);
+            this._vSet!(px, py, 0);
+            this._vSet!(px - dlx * ax + dx * ay, py - dly * ax + dy * ay, 1);
         }
     },
 
@@ -670,8 +687,8 @@ export const graphicsAssembler: IAssembler = {
             let a1 = atan2(-dly1, -dlx1);
             if (a1 > a0) { a1 -= PI * 2; }
 
-            this._vSet!(lx0, ly0);
-            this._vSet!(p1x - dlx0 * rw, p1.y - dly0 * rw);
+            this._vSet!(lx0, ly0, 1);
+            this._vSet!(p1x - dlx0 * rw, p1.y - dly0 * rw, -1);
 
             const n = clamp(ceil((a0 - a1) / PI) * nCap, 2, nCap);
             for (let i = 0; i < n; i++) {
@@ -679,12 +696,12 @@ export const graphicsAssembler: IAssembler = {
                 const a = a0 + u * (a1 - a0);
                 const rx = p1x + cos(a) * rw;
                 const ry = p1y + sin(a) * rw;
-                this._vSet!(p1x, p1y);
-                this._vSet!(rx, ry);
+                this._vSet!(p1x, p1y, 0);
+                this._vSet!(rx, ry, -1);
             }
 
-            this._vSet!(lx1, ly1);
-            this._vSet!(p1x - dlx1 * rw, p1y - dly1 * rw);
+            this._vSet!(lx1, ly1, 1);
+            this._vSet!(p1x - dlx1 * rw, p1y - dly1 * rw, -1);
         } else {
             const out = this._chooseBevel!(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, -rw);
             const rx0 = out[0];
@@ -696,8 +713,8 @@ export const graphicsAssembler: IAssembler = {
             let a1 = atan2(dly1, dlx1);
             if (a1 < a0) { a1 += PI * 2; }
 
-            this._vSet!(p1x + dlx0 * rw, p1y + dly0 * rw, 0);
-            this._vSet!(rx0, ry0, 0);
+            this._vSet!(p1x + dlx0 * rw, p1y + dly0 * rw, 1);
+            this._vSet!(rx0, ry0, -1);
 
             const n = clamp(ceil((a1 - a0) / PI) * nCap, 2, nCap);
             for (let i = 0; i < n; i++) {
@@ -705,12 +722,12 @@ export const graphicsAssembler: IAssembler = {
                 const a = a0 + u * (a1 - a0);
                 const lx = p1x + cos(a) * lw;
                 const ly = p1y + sin(a) * lw;
-                this._vSet!(lx, ly, 0);
+                this._vSet!(lx, ly, 1);
                 this._vSet!(p1x, p1y, 0);
             }
 
-            this._vSet!(p1x + dlx1 * rw, p1y + dly1 * rw);
-            this._vSet!(rx1, ry1);
+            this._vSet!(p1x + dlx1 * rw, p1y + dly1 * rw, 1);
+            this._vSet!(rx1, ry1, -1);
         }
     },
 
@@ -735,11 +752,11 @@ export const graphicsAssembler: IAssembler = {
             lx1 = out[2];
             ly1 = out[3];
 
-            this._vSet!(lx0, ly0, 0);
-            this._vSet!(p1.x - dlx0 * rw, p1.y - dly0 * rw, 0);
+            this._vSet!(lx0, ly0, 1);
+            this._vSet!(p1.x - dlx0 * rw, p1.y - dly0 * rw, -1);
 
-            this._vSet!(lx1, ly1, 0);
-            this._vSet!(p1.x - dlx1 * rw, p1.y - dly1 * rw, 0);
+            this._vSet!(lx1, ly1, 1);
+            this._vSet!(p1.x - dlx1 * rw, p1.y - dly1 * rw, -1);
         } else {
             const out = this._chooseBevel!(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, -rw);
             rx0 = out[0];
@@ -747,15 +764,15 @@ export const graphicsAssembler: IAssembler = {
             rx1 = out[2];
             ry1 = out[3];
 
-            this._vSet!(p1.x + dlx0 * lw, p1.y + dly0 * lw, 0);
-            this._vSet!(rx0, ry0);
+            this._vSet!(p1.x + dlx0 * lw, p1.y + dly0 * lw, 1);
+            this._vSet!(rx0, ry0, -1);
 
-            this._vSet!(p1.x + dlx1 * lw, p1.y + dly1 * lw, 0);
-            this._vSet!(rx1, ry1);
+            this._vSet!(p1.x + dlx1 * lw, p1.y + dly1 * lw, 1);
+            this._vSet!(rx1, ry1, -1);
         }
     },
 
-    _vSet (x: number, y: number) {
+    _vSet (x: number, y: number, distance = 0) {
         if (!_renderData) {
             return;
         }
@@ -769,9 +786,9 @@ export const graphicsAssembler: IAssembler = {
         vData[dataOffset++] = x;
         vData[dataOffset++] = y;
         vData[dataOffset++] = 0;
-        vData[dataOffset++] = 1;
-        vData[dataOffset++] = 1;
         Color.toArray(vData!, _curColor, dataOffset);
+        dataOffset += 4;
+        vData[dataOffset++] = distance;
         meshBuffer.vertexStart ++;
     },
 };

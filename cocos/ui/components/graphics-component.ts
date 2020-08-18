@@ -545,7 +545,7 @@ export class GraphicsComponent extends UIRenderComponent {
             _matInsInfo.parent = this.sharedMaterial[0];
             mat = new MaterialInstance(_matInsInfo);
         } else {
-            _matInsInfo.parent = builtinResMgr.get('ui-base-material');
+            _matInsInfo.parent = builtinResMgr.get('ui-graphics-material');
             mat = new MaterialInstance(_matInsInfo);
             mat.recompileShaders({ USE_LOCAL: true });
         }
