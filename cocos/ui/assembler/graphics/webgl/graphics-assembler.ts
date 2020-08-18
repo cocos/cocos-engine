@@ -310,10 +310,10 @@ export const graphicsAssembler: IAssembler = {
                 const dy = dPos.y;
 
                 if (lineCap === LineCap.BUTT) {
-                    this._buttCap!(p0, dx, dy, w, 0);
+                    this._buttCapStart!(p0, dx, dy, w, 0);
                 }
                 else if (lineCap === LineCap.SQUARE) {
-                    this._buttCap!(p0, dx, dy, w, w);
+                    this._buttCapStart!(p0, dx, dy, w, w);
                 }
                 else if (lineCap === LineCap.ROUND) {
                     this._roundCapStart!(p0, dx, dy, w, nCap);
@@ -356,10 +356,10 @@ export const graphicsAssembler: IAssembler = {
                 const dy = dPos.y;
 
                 if (lineCap === LineCap.BUTT) {
-                    this._buttCap!(p1, dx, dy, w, 0);
+                    this._buttCapEnd!(p1, dx, dy, w, 0);
                 }
                 else if (lineCap === LineCap.SQUARE) {
-                    this._buttCap!(p1, dx, dy, w, w);
+                    this._buttCapEnd!(p1, dx, dy, w, w);
                 }
                 else if (lineCap === LineCap.ROUND) {
                     this._roundCapEnd!(p1, dx, dy, w, nCap);
@@ -596,9 +596,19 @@ export const graphicsAssembler: IAssembler = {
         return [x0, y0, x1, y1];
     },
 
-    _buttCap (p: Point, dx: number, dy: number, w: number, d: number) {
+    _buttCapStart (p: Point, dx: number, dy: number, w: number, d: number) {
         const px = p.x - dx * d;
         const py = p.y - dy * d;
+        const dlx = dy;
+        const dly = -dx;
+
+        this._vSet!(px + dlx * w, py + dly * w);
+        this._vSet!(px - dlx * w, py - dly * w);
+    },
+
+    _buttCapEnd (p: Point, dx: number, dy: number, w: number, d: number) {
+        const px = p.x + dx * d;
+        const py = p.y + dy * d;
         const dlx = dy;
         const dly = -dx;
 
