@@ -641,12 +641,11 @@ export function animatable (value: boolean): PropertyDecorator {
  * 设置该属性是否仅在编辑器中生效。
  * @param yes 是否仅在编辑器中生效。
  */
-export const editorOnly: (yes: boolean) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
-    (yes) => {
-        return property({
-            editorOnly: yes,
-        });
-    };
+export function editorOnly (yes: boolean): PropertyDecorator {
+    return property({
+        editorOnly: yes,
+    });
+}
 
 /**
  * @en
