@@ -265,14 +265,17 @@ export class PageViewComponent extends ScrollViewComponent {
         super.horizontalScrollBar = value;
     }
 
+    @property
     @override(true)
     @visible(false)
     public horizontal = true;
 
+    @property
     @override(true)
     @visible(false)
     public vertical = true;
 
+    @property
     @override(true)
     @visible(false)
     public cancelInnerEvents = true;
