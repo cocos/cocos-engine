@@ -172,9 +172,7 @@ class GpuComputing implements SubMeshMorphRendering {
     }[];
 
     constructor (mesh: Mesh, subMeshIndex: number, morph: Morph, gfxDevice: GFXDevice) {
-        assertIsNonNullable(mesh.data);
         this._gfxDevice = gfxDevice;
-        const meshData = mesh.data.buffer;
         const subMeshMorph = morph.subMeshMorphs[subMeshIndex];
         assertIsNonNullable(subMeshMorph);
         this._subMeshMorph = subMeshMorph;
@@ -208,7 +206,7 @@ class GpuComputing implements SubMeshMorphRendering {
                 let nVec4s = subMeshMorph.targets.length;
                 subMeshMorph.targets.forEach((morphTarget) => {
                     const displacementsView = morphTarget.displacements[attributeIndex];
-                    const displacements = new Float32Array(meshData, displacementsView.offset, displacementsView.count);
+                    const displacements = new Float32Array(mesh.data.buffer, mesh.data.byteOffset + displacementsView.offset, displacementsView.count);
                     const nVec3s = displacements.length / 3;
                     valueView[pHead] = nVec4s;
                     const displacementsOffset = nVec4s * 4;
@@ -291,8 +289,6 @@ class CpuComputing implements SubMeshMorphRendering {
 
     constructor (mesh: Mesh, subMeshIndex: number, morph: Morph, gfxDevice: GFXDevice) {
         this._gfxDevice = gfxDevice;
-        assertIsNonNullable(mesh.data);
-        const meshData = mesh.data.buffer;
         const subMeshMorph = morph.subMeshMorphs[subMeshIndex];
         assertIsNonNullable(subMeshMorph);
         enableVertexId(mesh, subMeshIndex, gfxDevice);
@@ -301,8 +297,8 @@ class CpuComputing implements SubMeshMorphRendering {
                 name: attributeName,
                 targets: subMeshMorph.targets.map((attributeDisplacement) => ({
                     displacements: new Float32Array(
-                        meshData,
-                        attributeDisplacement.displacements[attributeIndex].offset,
+                        mesh.data.buffer,
+                        mesh.data.byteOffset + attributeDisplacement.displacements[attributeIndex].offset,
                         attributeDisplacement.displacements[attributeIndex].count),
                 })),
             };

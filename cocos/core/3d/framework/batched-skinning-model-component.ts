@@ -338,7 +338,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
             const unit = this.units[i];
             if (!unit || !unit.mesh || !unit.mesh.data) { continue; }
             const newMesh = this._createUnitMesh(i, unit.mesh);
-            const dataView = new DataView(newMesh.data!.buffer);
+            const dataView = new DataView(newMesh.data.buffer);
             Mat4.inverseTranspose(m4_local, unit._localTransform);
             const offset = unit.offset;
             const size = unit.size;
@@ -546,7 +546,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         }
         // now, we ride!
         const newMeshData = new Uint8Array(totalLength);
-        const oldMeshData = mesh.data!;
+        const oldMeshData = mesh.data;
         const newDataView = new DataView(newMeshData.buffer);
         const oldDataView = new DataView(oldMeshData.buffer);
         const isLittleEndian = legacyCC.sys.isLittleEndian;
