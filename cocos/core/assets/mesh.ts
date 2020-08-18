@@ -559,8 +559,12 @@ export class Mesh extends Asset {
 
         this._initialized = true;
 
-        this._data = new Uint8Array(this._dataLength);
-        postLoadMesh(this);
+        if (this._data.byteLength !== this._dataLength) {
+            // In the case of deferred loading, `this._data` is created before
+            // the actual binary buffer is loaded.
+            this._data = new Uint8Array(this._dataLength);
+            postLoadMesh(this);
+        }
         const buffer = this._data.buffer;
         const gfxDevice: GFXDevice = legacyCC.director.root.device;
         const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
