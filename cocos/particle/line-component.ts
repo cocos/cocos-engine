@@ -76,7 +76,7 @@ export class LineComponent extends Component {
         }
     }
 
-    @type(Vec3)
+    @type([Vec3])
     private _positions = [];
 
     /**
