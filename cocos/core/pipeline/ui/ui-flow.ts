@@ -1,7 +1,7 @@
 /**
  * @category pipeline
  */
-
+import { ccclass } from '../../data/class-decorator';
 import { ForwardFlowPriority } from '../forward/enum';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
@@ -14,6 +14,7 @@ import { ForwardPipeline } from '../forward/forward-pipeline';
  * @en The UI render flow
  * @zh UI渲染流程。
  */
+@ccclass('UIFlow')
 export class UIFlow extends RenderFlow {
 
     public static initInfo: IRenderFlowInfo = {

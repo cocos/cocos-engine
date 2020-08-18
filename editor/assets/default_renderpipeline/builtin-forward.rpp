@@ -11,21 +11,27 @@
       },
       {
         "__id__": 3
+      },
+      {
+        "__id__": 7
       }
     ],
     "renderTextures": [],
     "materials": [],
     "fog": {
-      "__id__": 7
+      "__id__": 10
     },
     "ambient": {
-      "__id__": 8
+      "__id__": 11
     },
     "skybox": {
-      "__id__": 9
+      "__id__": 12
     },
     "planarShadows": {
-      "__id__": 10
+      "__id__": 13
+    },
+    "shadowMap": {
+      "__id__": 14
     }
   },
   {
@@ -76,6 +82,36 @@
     "sortMode": 0,
     "stages": [
       "default"
+    ]
+  },
+  {
+    "__type__": "RenderQueueDesc",
+    "isTransparent": true,
+    "sortMode": 1,
+    "stages": [
+      "default"
+    ]
+  },
+  {
+    "__type__": "UIFlow",
+    "_name": "UIFlow",
+    "_priority": 10,
+    "_tag": 2,
+    "_stages": [
+      {
+        "__id__": 8
+      }
+    ]
+  },
+  {
+    "__type__": "UIStage",
+    "_name": "UIStage",
+    "_priority": 20,
+    "_tag": 0,
+    "renderQueues": [
+      {
+        "__id__": 9
+      }
     ]
   },
   {
@@ -145,6 +181,19 @@
       "g": 0,
       "b": 0,
       "a": 76
+    }
+  },
+  {
+    "__type__": "cc.Shadow",
+    "_enabled": false,
+    "near": 1,
+    "far": 30,
+    "aspect": 1,
+    "orthoSize": 5,
+    "size": {
+      "__type__": "cc.Vec2",
+      "x": 512,
+      "y": 512
     }
   }
 ]

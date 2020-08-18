@@ -139,9 +139,6 @@ export class ForwardPipeline extends RenderPipeline {
         this._globalDescriptorSetLayout = globalDescriptorSetLayout;
         this._localDescriptorSetLayout = localDescriptorSetLayout;
         this._macros = {};
-        const uiFlow = new UIFlow();
-        uiFlow.initialize(UIFlow.initInfo);
-        this._flows.push(uiFlow);
 
         if (!super.activate()) {
             return false;
