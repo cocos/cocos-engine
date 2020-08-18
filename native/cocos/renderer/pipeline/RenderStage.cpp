@@ -1,7 +1,11 @@
 #include "RenderStage.h"
-
+#include "RenderQueue.h"
 namespace cc {
 namespace pipeline {
+
+RenderStage::~RenderStage() {
+    destroy();
+}
 
 bool RenderStage::initialize(const RenderStageInfo &info) {
     _name = info.name;
@@ -16,5 +20,12 @@ void RenderStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     _flow = flow;
 }
 
+void RenderStage::destroy() {
+    for (auto renderQueue : _renderQueues) {
+        CC_SAFE_DELETE(renderQueue);
+    }
+    _renderQueues.clear();
+    _renderQueueDescriptors.clear();
+}
 } // namespace pipeline
 } // namespace cc

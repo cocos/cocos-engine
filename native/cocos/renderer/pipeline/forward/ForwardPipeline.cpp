@@ -57,9 +57,8 @@ gfx::RenderPass *ForwardPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFla
     return renderPass;
 }
 
-ForwardPipeline::ForwardPipeline() {
-    _uboGlobal = CC_NEW(UBOGlobal);
-    _device = gfx::Device::getInstance();
+ForwardPipeline::ForwardPipeline()
+: _device(gfx::Device::getInstance()) {
 }
 
 ForwardPipeline::~ForwardPipeline() {
@@ -95,6 +94,7 @@ bool ForwardPipeline::activate() {
         return false;
     }
 
+    //TODO ambient, fog, skybox, planarShadows
     return true;
 }
 
@@ -127,7 +127,7 @@ void ForwardPipeline::updateUBOs(RenderView *view) {
         //        Mat4.multiply(shadowCamera_M_V_P, shadowCamera_M_P, shadowCamera_M_V);
 
         cc::Mat4 shadowCamera_M_V_P;
-        memcpy(_uboGlobal->view.data() + UBOGlobal::MAIN_SHADOW_MATRIX_OFFSET, shadowCamera_M_V_P.m, sizeof(cc::Mat4));
+        memcpy(_globalUBO.data() + UBOGlobal::MAIN_SHADOW_MATRIX_OFFSET, shadowCamera_M_V_P.m, sizeof(cc::Mat4));
     }
 
     //TODO coulsonwang
@@ -153,8 +153,7 @@ void ForwardPipeline::updateUBO(RenderView *view) {
     const auto mainLight = GET_MAIN_LIGHT(scene->mainLightID);
     const auto ambient = GET_AMBIENT(scene->ambientID);
     const auto fog = GET_FOG(scene->fogID);
-    const auto uboGlobal = _uboGlobal;
-    auto &uboGlobalView = uboGlobal->view;
+    auto &uboGlobalView = _globalUBO;
 
     const auto shadingWidth = std::floor(_device->getWidth());
     const auto shadingHeight = std::floor(_device->getHeight());
@@ -249,7 +248,7 @@ bool ForwardPipeline::activeRenderer() {
 
     auto globalUBO = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
                                             gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
-                                            1,
+                                            UBOGlobal::SIZE,
                                             UBOGlobal::SIZE,
                                             gfx::BufferFlagBit::NONE});
     //TODO coulsonwang
@@ -257,23 +256,15 @@ bool ForwardPipeline::activeRenderer() {
 
     auto shadowUBO = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
                                             gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
-                                            1,
+                                            UBOShadow::SIZE,
                                             UBOShadow::SIZE,
                                             gfx::BufferFlagBit::NONE});
     //    this._descriptorSet.bindBuffer(UBOShadow.BLOCK.binding, shadowUBO);
-
-    auto shadowPCFUBO = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
-                                               gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
-                                               1,
-                                               UBOPCFShadow::SIZE,
-                                               gfx::BufferFlagBit::NONE});
-    //    this._descriptorSet.bindBuffer(UBOPCFShadow.BLOCK.binding, shadowPCFUBO);
 
     gfx::SamplerInfo info;
     info.addressU = info.addressV = info.addressW = gfx::Address::CLAMP;
     auto shadowMapSamplerHash = genSamplerHash(std::move(info));
     auto shadowMapSampler = getSampler(shadowMapSamplerHash);
-
     //    this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP.binding, shadowMapSampler);
 
     // update global defines when all states initialized.
@@ -292,7 +283,6 @@ void ForwardPipeline::destroy() {
         it.second->destroy();
     }
     _renderPasses.clear();
-    CC_SAFE_DELETE(_uboGlobal);
 }
 
 } // namespace pipeline

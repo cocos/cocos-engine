@@ -40,7 +40,7 @@ const RenderStageInfo &ForwardStage::getInitializeInfo() { return ForwardStage::
 ForwardStage::ForwardStage() : RenderStage() {
     _batchedQueue = CC_NEW(RenderBatchedQueue);
     _instancedQueue = CC_NEW(RenderInstancedQueue);
-    _planarShadowQueue = CC_NEW(PlanarShadowQueue);
+    //    _planarShadowQueue = CC_NEW(PlanarShadowQueue);
 }
 
 ForwardStage::~ForwardStage() {
@@ -88,34 +88,29 @@ void ForwardStage::destroy() {
     CC_SAFE_DELETE(_instancedQueue);
     CC_SAFE_DELETE(_additiveLightQueue);
     CC_SAFE_DELETE(_planarShadowQueue);
-
-    for (auto renderQueue : _renderQueues) {
-        CC_SAFE_DELETE(renderQueue);
-    }
-    _renderQueues.clear();
+    RenderStage::destroy();
 }
 
 void ForwardStage::render(RenderView *view) {
     _instancedQueue->clear();
     _batchedQueue->clear();
     auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
-    const auto &validLights = pipeline->getValidLights();
-    const auto &lightBuffers = pipeline->getLightBuffers();
-    const auto &lightIndices = pipeline->getLightIndices();
-    const auto &lightIndexOffset = pipeline->getLightIndexOffsets();
+    //    const auto &validLights = pipeline->getValidLights();
+    //    const auto &lightBuffers = pipeline->getLightBuffers();
+    //    const auto &lightIndices = pipeline->getLightIndices();
+    //    const auto &lightIndexOffset = pipeline->getLightIndexOffsets();
     const auto &renderObjects = pipeline->getRenderObjects();
 
-    _additiveLightQueue->clear(validLights, lightBuffers, lightIndices);
+    //    _additiveLightQueue->clear(validLights, lightBuffers, lightIndices);
     for (auto queue : _renderQueues) {
         queue->clear();
     }
 
     size_t m = 0, p = 0, k = 0;
     for (size_t i = 0; i < renderObjects.size(); ++i) {
-        auto nextLightIndex = i + 1 < renderObjects.size() ? lightIndexOffset[i + 1] : lightIndices.size();
+        //        auto nextLightIndex = i + 1 < renderObjects.size() ? lightIndexOffset[i + 1] : lightIndices.size();
         const auto &ro = renderObjects[i];
         auto model = ro.model;
-
         uint32_t *subModels = GET_SUBMODEL_ARRAY(model->subModelsID);
         uint32_t subModelCount = subModels[0];
         for (m = 1; m <= subModelCount; ++m) {
@@ -180,12 +175,12 @@ void ForwardStage::render(RenderView *view) {
 
     cmdBuff->begin();
     cmdBuff->beginRenderPass(renderPass, framebuffer, _renderArea, _clearColors, camera->clearDepth, camera->clearStencil);
-
+    //TODO cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
     _renderQueues[0]->recordCommandBuffer(device, renderPass, cmdBuff);
     _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuff);
     _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuff);
     _additiveLightQueue->recordCommandBuffer(device, renderPass, cmdBuff);
-    _planarShadowQueue->recordCommandBuffer(device, renderPass, cmdBuff);
+    //    _planarShadowQueue->recordCommandBuffer(device, renderPass, cmdBuff);
     _renderQueues[1]->recordCommandBuffer(device, renderPass, cmdBuff);
 
     cmdBuff->endRenderPass();

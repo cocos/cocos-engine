@@ -3,7 +3,6 @@
 
 namespace cc {
 namespace pipeline {
-class RenderQueue;
 
 class CC_DLL UIStage : public RenderStage {
 public:
@@ -22,8 +21,6 @@ private:
     static RenderStageInfo _initInfo;
 
     gfx::Rect _renderArea;
-    RenderQueueDescList _renderQueueDescriptors;
-    vector<RenderQueue *> _renderQueues;
     gfx::Device *_device = nullptr;
 };
 
