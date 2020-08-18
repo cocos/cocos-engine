@@ -312,7 +312,7 @@ export class Director extends EventTarget {
     public calculateDeltaTime () {
         const now = performance.now();
 
-        this._deltaTime = (now - this._lastUpdate) / 1000;
+        this._deltaTime = now > this._lastUpdate ? (now - this._lastUpdate) / 1000 : 0;
         if (DEBUG && (this._deltaTime > 1)) {
             this._deltaTime = 1 / 60.0;
         }
