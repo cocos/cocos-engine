@@ -155,6 +155,7 @@ export class PageViewIndicatorComponent extends Component {
      * @zh
      * 每个页面标记之间的边距
      */
+    @property
     @tooltip('每个页面标记之间的边距')
     public spacing = 0;
     @property

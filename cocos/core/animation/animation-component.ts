@@ -141,6 +141,7 @@ export class AnimationComponent extends Eventify(Component) {
      * 是否在组件开始运行时自动播放默认剪辑。
      * 注意，若在组件开始运行前调用了 `crossFade` 或 `play()`，此字段将不会生效。
      */
+    @property
     @tooltip('是否在动画组件开始运行时自动播放默认动画剪辑')
     public playOnLoad = false;
 

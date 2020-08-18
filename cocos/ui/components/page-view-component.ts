@@ -249,6 +249,7 @@ export class PageViewComponent extends ScrollViewComponent {
      * 当用户快速滑动时，会根据滑动开始和结束的距离与时间计算出一个速度值，
      * 该值与此临界值相比较，如果大于临界值，则进行自动翻页。
      */
+    @property
     @tooltip('快速滑动翻页临界值\n当用户快速滑动时，会根据滑动开始和结束的距离与时间计算出一个速度值\n该值与此临界值相比较，如果大于临界值，则进行自动翻页')
     public autoPageTurningThreshold = 100;
 

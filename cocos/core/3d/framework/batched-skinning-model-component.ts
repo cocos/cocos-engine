@@ -140,6 +140,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
      * @en Size of the generated texture atlas.
      * @zh 合图生成的最终图集的边长。
      */
+    @property
     @tooltip('i18n:batched_skinning_model.atlas_size')
     public atlasSize: number = 1024;
 
