@@ -26,6 +26,10 @@ bool UIFlow::initialize(const RenderFlowInfo &info) {
     return true;
 }
 
+void UIFlow::activate(RenderPipeline *pipeline) {
+    RenderFlow::activate(pipeline);
+}
+
 void UIFlow::render(RenderView *view) {
     auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
     //TODO coulsonwang

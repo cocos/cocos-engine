@@ -86,7 +86,7 @@ void UIStage::render(RenderView *view) {
     cmdBuff->begin();
     cmdBuff->beginRenderPass(renderPass, framebuffer, _renderArea,
                              {camera->clearColor}, camera->clearDepth, camera->clearStencil);
-
+    //TODO cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
     _renderQueues[0]->recordCommandBuffer(_device, renderPass, cmdBuff);
 
     cmdBuff->endRenderPass();
@@ -97,11 +97,7 @@ void UIStage::render(RenderView *view) {
 }
 
 void UIStage::destroy() {
-    for (auto queue : _renderQueues) {
-        CC_SAFE_DELETE(queue);
-    }
-    _renderQueues.clear();
-    _renderQueueDescriptors.clear();
+    RenderStage::destroy();
 }
 
 } // namespace pipeline

@@ -10,7 +10,6 @@ class RenderView;
 class RenderBatchedQueue;
 class RenderInstancedQueue;
 class RenderAdditiveLightQueue;
-class RenderQueue;
 class PlanarShadowQueue;
 
 class CC_DLL ForwardStage : public RenderStage {
@@ -24,10 +23,6 @@ public:
     virtual void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
     virtual void destroy() override;
     virtual void render(RenderView *view) override;
-
-protected:
-    RenderQueueDescList _renderQueueDescriptors;
-    vector<RenderQueue *> _renderQueues;
 
 private:
     static RenderStageInfo _initInfo;

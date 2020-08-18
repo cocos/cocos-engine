@@ -8,7 +8,6 @@ namespace pipeline {
 //TODO coulsonwang
 gfx::UniformBlock UBOGlobal::BLOCK;
 gfx::UniformBlock UBOShadow::BLOCK;
-gfx::UniformBlock UBOPCFShadow::BLOCK;
 
 uint genSamplerHash(const gfx::SamplerInfo &info) {
     uint hash = 0;

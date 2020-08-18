@@ -203,8 +203,7 @@ enum class CC_DLL RenderFlowTag : uint8_t {
     UI,
 };
 
-class CC_DLL UBOGlobal : public Object {
-public:
+struct CC_DLL UBOGlobal : public Object {
     static const uint TIME_OFFSET = 0;
     static const uint SCREEN_SIZE_OFFSET = UBOGlobal::TIME_OFFSET + 4;
     static const uint SCREEN_SCALE_OFFSET = UBOGlobal::SCREEN_SIZE_OFFSET + 4;
@@ -227,30 +226,15 @@ public:
     static const uint GLOBAL_FOG_ADD_OFFSET = UBOGlobal::GLOBAL_FOG_BASE_OFFSET + 4;
     static const uint COUNT = UBOGlobal::GLOBAL_FOG_ADD_OFFSET + 4;
     static const uint SIZE = UBOGlobal::COUNT * 4;
-    static gfx::UniformBlock BLOCK;
-
-    std::array<float, UBOGlobal::COUNT> view;
+    static gfx::UniformBlock BLOCK; //TODO
 };
 
-class CC_DLL UBOShadow : public Object {
-public:
+struct  CC_DLL UBOShadow : public Object {
     static const uint MAT_LIGHT_PLANE_PROJ_OFFSET = 0;
     static const uint SHADOW_COLOR_OFFSET = UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
     static const uint COUNT = UBOShadow::SHADOW_COLOR_OFFSET + 4;
     static const uint SIZE = UBOShadow::COUNT * 4;
-    static gfx::UniformBlock BLOCK;
-
-    std::array<float, UBOShadow::COUNT> view;
-};
-
-class CC_DLL UBOPCFShadow : public Object {
-public:
-    static const uint MAT_SHADOW_VIEW_PROJ_OFFSET = 0;
-    static const uint COUNT = UBOPCFShadow::MAT_SHADOW_VIEW_PROJ_OFFSET + 16;
-    static const uint SIZE = UBOPCFShadow::COUNT * 4;
-    static gfx::UniformBlock BLOCK;
-
-    std::array<float, UBOPCFShadow::COUNT> view;
+    static gfx::UniformBlock BLOCK; //TODO
 };
 
 class CC_DLL SamplerLib : public Object {

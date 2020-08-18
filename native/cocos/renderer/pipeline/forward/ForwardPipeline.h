@@ -5,7 +5,8 @@
 namespace cc {
 namespace pipeline {
 struct Light;
-class UBOGlobal;
+struct UBOGlobal;
+struct UBOShadow;
 
 class CC_DLL ForwardPipeline : public RenderPipeline {
 public:
@@ -37,7 +38,6 @@ public:
     void setShadowObjects(const RenderObjectList &ro) { _shadowObjects = std::move(ro); }
 
 private:
-    //    void cullLightPerModel(cc::Model *model);
     bool activeRenderer();
     void updateUBO(RenderView *);
 
@@ -50,7 +50,8 @@ private:
     RenderObjectList _renderObjects;
     RenderObjectList _shadowObjects;
     map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
-    UBOGlobal *_uboGlobal = nullptr;
+    std::array<float, UBOGlobal::COUNT> _globalUBO;
+    std::array<float, UBOShadow::COUNT> _shadowUBO;
     gfx::Device *_device = nullptr;
 
     float _shadingScale = 1.0f;
