@@ -618,7 +618,7 @@ export function override (value: boolean): PropertyDecorator {
     });
 }
 
-export function immutable (value: boolean): PropertyDecorator {
+export function readOnly (value: boolean): PropertyDecorator {
     return property({
         readonly: value,
     });

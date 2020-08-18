@@ -2,7 +2,7 @@
  * @category physics
  */
 
-import { ccclass, property, requireComponent, displayOrder, type, immutable } from '../../../../core/data/class-decorator';
+import { ccclass, property, requireComponent, displayOrder, type, readOnly } from '../../../../core/data/class-decorator';
 import { Component } from '../../../../core';
 import { RigidBodyComponent } from '../rigid-body-component';
 import { Eventify } from '../../../../core/event';
@@ -18,7 +18,7 @@ export class ConstraintComponent extends Eventify(Component) {
     static readonly EConstraintType = EConstraintType;
 
     @type(RigidBodyComponent)
-    @immutable(true)
+    @readOnly(true)
     @displayOrder(-2)
     get attachedBody (): RigidBodyComponent | null {
         return this.getComponent(RigidBodyComponent);

@@ -29,7 +29,7 @@
  */
 
 import { BitmapFont, Font, ImageAsset, SpriteFrame, Texture2D, Material } from '../../core/assets';
-import { ccclass, help, executionOrder, menu, property, tooltip, displayOrder, visible, displayName, multiline, type, immutable, override } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property, tooltip, displayOrder, visible, displayName, multiline, type, readOnly, override } from '../../core/data/class-decorator';
 import { ccenum } from '../../core/value-types/enum';
 import { UI } from '../../core/renderer/ui/ui';
 import { FontAtlas } from '../assembler/label/bmfontUtils';
@@ -269,7 +269,7 @@ export class LabelComponent extends UIRenderComponent {
      * SHRINK 模式下面文本实际渲染的字体大小。
      */
     @property
-    @immutable(true)
+    @readOnly(true)
     @displayName('Actual Font Size')
     @visible(false)
     get actualFontSize () {
