@@ -7,16 +7,16 @@ namespace gfx {
 class InputAssembler;
 class PipelineState;
 class RenderPass;
-struct PipelineStateInfo;
 }; // namespace gfx
 
 namespace pipeline {
+struct PassView;
 
 class CC_DLL PipelineStateManager {
 public:
-    static gfx::PipelineState *getOrCreatePipelineStage(const gfx::PipelineStateInfo *psoci,
-                                                        const gfx::InputAssembler *inputAssembler,
-                                                        size_t passHash,
+    static gfx::PipelineState *getOrCreatePipelineStage(const PassView *pass,
+                                                        gfx::Shader *shader,
+                                                        gfx::InputAssembler *inputAssembler,
                                                         gfx::RenderPass *renderPass);
 
 private:

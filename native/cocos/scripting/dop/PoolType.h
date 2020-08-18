@@ -12,12 +12,22 @@ enum class PoolType {
     INPUT_ASSEMBLER,
     PIPELINE_LAYOUT,
     // buffers
-    PASS_INFO,
-    PSOCI,
-    MODEL_INFO,
-    SUBMODEL_INFO,
-    INPUT_ASSEMBLER_INFO,
+    PASS,
+    MODEL,
+    SUBMODEL,
+    INSTANCED_ATTRIBUTE,
+    CAMERA,
+    SCENE,
+    MAIN_LIGHT,
+    AMBIENT,
+    FOG,
+    RENDER_SUBMESH,
+    BUFFER_VIEW,
+    FLAT_BUFFER,
+    NODE,
+    ROOT,
     // array
-    SUBMODEL_ARRAY
+    SUBMODEL_ARRAY,
+    UNKNOWN
 };
 }

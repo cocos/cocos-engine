@@ -33,6 +33,14 @@ THE SOFTWARE.
 
 namespace se {
 
+enum class BufferPoolType {
+    PASS,
+    SUBMODEL,
+    
+    MODEL,
+    UNKNOWN
+};
+
 class CC_DLL BufferPool final : public cc::Object {
 public:
     using Chunk = uint8_t *;
@@ -64,7 +72,7 @@ private:
     uint _bytesPerChunk = 0;
     uint _entriesPerChunk = 0;
     uint _bytesPerEntry = 0;
-    PoolType _type = PoolType::PASS_INFO;
+    PoolType _type = PoolType::UNKNOWN;
 };
 
 } // namespace se

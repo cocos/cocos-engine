@@ -20,11 +20,11 @@ struct CC_DLL RenderWindowInfo {
 class CC_DLL RenderWindow : public Object {
 public:
     static void registerCreateFunc(Root *root);
-    
+
     bool initialize(const RenderWindowInfo &info);
     void destroy();
     void resize(uint width, uint height);
-    
+
     CC_INLINE uint getWidth() const { return _width; }
     CC_INLINE uint geiHeight() const { return _height; }
     CC_INLINE bool isOffscreen() const { return _isOffscreen; }
@@ -32,11 +32,13 @@ public:
     CC_INLINE const gfx::TextureList &getColorTextures() const { return _colorTexs; }
     CC_INLINE gfx::Texture *getDepthStencilTexture() const { return _depthStencilTex; }
     CC_INLINE gfx::Framebuffer *getFramebuffer() const { return _frameBuffer; }
-    
+    CC_INLINE bool hasOnScreenAttachments() const { return _hasOnScreenAttachments; }
+    CC_INLINE bool hasOffScreenAttachments() const { return _hasOffScreenAttachments; }
+
 private:
     RenderWindow() = default;
     RenderWindow(Root *root);
-    
+
 private:
     String title;
     gfx::TextureList _colorTexs;
@@ -50,6 +52,8 @@ private:
     uint _nativeWidth = 0;
     uint _nativeHeight = 0;
     bool _isOffscreen = false;
+    bool _hasOffScreenAttachments = false;
+    bool _hasOnScreenAttachments = false;
 };
 
 } // namespace pipeline

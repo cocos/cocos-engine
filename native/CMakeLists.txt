@@ -498,6 +498,7 @@ cocos_source_files(
     cocos/renderer/pipeline/BatchedBuffer.cpp
     cocos/renderer/pipeline/BatchedBuffer.h
     cocos/renderer/pipeline/Define.h
+    cocos/renderer/pipeline/Define.cpp
     cocos/renderer/pipeline/InstancedBuffer.cpp
     cocos/renderer/pipeline/InstancedBuffer.h
     cocos/renderer/pipeline/PipelineStateManager.cpp
@@ -520,12 +521,24 @@ cocos_source_files(
     cocos/renderer/pipeline/RenderView.h
     cocos/renderer/pipeline/RenderWindow.cpp
     cocos/renderer/pipeline/RenderWindow.h
+    cocos/renderer/pipeline/PlanarShadowQueue.cpp
+    cocos/renderer/pipeline/PlanarShadowQueue.h
     cocos/renderer/pipeline/forward/ForwardFlow.cpp
     cocos/renderer/pipeline/forward/ForwardFlow.h
     cocos/renderer/pipeline/forward/ForwardPipeline.cpp
     cocos/renderer/pipeline/forward/ForwardPipeline.h
     cocos/renderer/pipeline/forward/ForwardStage.cpp
     cocos/renderer/pipeline/forward/ForwardStage.h
+    cocos/renderer/pipeline/forward/SceneCulling.cpp
+    cocos/renderer/pipeline/forward/SceneCulling.h
+    cocos/renderer/pipeline/shadow/ShadowFlow.cpp
+    cocos/renderer/pipeline/shadow/ShadowFlow.h
+    cocos/renderer/pipeline/shadow/ShadowStage.cpp
+    cocos/renderer/pipeline/shadow/ShadowStage.h
+    cocos/renderer/pipeline/ui/UIFlow.h
+    cocos/renderer/pipeline/ui/UIFlow.cpp
+    cocos/renderer/pipeline/ui/UIStage.h
+    cocos/renderer/pipeline/ui/UIStage.cpp
     cocos/renderer/pipeline/helper/DefineMap.h
     cocos/renderer/pipeline/helper/DefineMap.cpp
     cocos/renderer/pipeline/helper/SharedMemory.h

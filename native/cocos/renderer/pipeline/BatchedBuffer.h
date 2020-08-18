@@ -3,40 +3,44 @@
 #include "Define.h"
 
 namespace cc {
-class Pass;
-class SubModel;
-
 namespace pipeline {
+struct PassView;
+struct SubModelView;
 
 struct CC_DLL BatchedItem {
     gfx::BufferList vbs;
-    uint8_t *vbDatas = nullptr;
+    vector<std::shared_ptr<uint8_t>> vbDatas;
+
     gfx::Buffer *vbIdx = nullptr;
-    float *vbIdxData = nullptr;
-    uint mergCount = 0;
+    std::shared_ptr<float> vbIndexData;
+    uint vbCount = 0;
+    uint mergeCount = 0;
     gfx::InputAssembler *ia = nullptr;
     gfx::Buffer *ubo = nullptr;
-//    cc::PSOCreateInfo *psoCreatedInfo = nullptr;
+    float *uboData = nullptr;
 };
 typedef vector<BatchedItem> BatchedItemList;
 
 class CC_DLL BatchedBuffer : public Object {
 public:
-    BatchedBuffer(cc::Pass *pass);
-    ~BatchedBuffer() = default;
+    static std::shared_ptr<BatchedBuffer> &get(const PassView *pass);
+
+    BatchedBuffer(const PassView *pass);
+    virtual ~BatchedBuffer();
 
     void destroy();
-    void merge(cc::SubModel *, uint passIdx, RenderObject *);
+    void merge(const SubModelView *, uint passIdx, const RenderObject *);
     void clear();
     void clearUBO();
 
     CC_INLINE const BatchedItemList &getBaches() const { return _batchedItems; }
-    CC_INLINE cc::Pass *getPass() const { return _pass; }
+    CC_INLINE PassView *getPass() const { return _pass; }
 
 private:
+    static map<const PassView *, std::shared_ptr<BatchedBuffer>> _buffers;
     //    const _localBatched = new UBOLocalBatched();
     BatchedItemList _batchedItems;
-    cc::Pass *_pass = nullptr;
+    PassView *_pass = nullptr;
 };
 
 } // namespace pipeline

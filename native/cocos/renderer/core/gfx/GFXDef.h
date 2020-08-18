@@ -645,6 +645,7 @@ struct Color {
     float a = 0.0f;
 };
 #pragma pack(pop)
+typedef vector<Color> ColorList;
 
 struct DeviceInfo {
     uintptr_t windowHandle = 0;
@@ -957,7 +958,6 @@ struct PipelineStateInfo {
     BlendState blendState;
     DynamicStateFlags dynamicStates = DynamicStateFlagBit::NONE;
     RenderPass *renderPass = nullptr;
-    BindingLayout *bindingLayout = nullptr;
 };
 
 struct CommandBufferInfo {

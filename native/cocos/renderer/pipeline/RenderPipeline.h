@@ -1,13 +1,20 @@
 #pragma once
 
-#include "core/CoreStd.h"
 #include "Define.h"
+#include "core/CoreStd.h"
 #include "helper/DefineMap.h"
 
 namespace cc {
+namespace gfx {
+class CommandBuffer;
+}
 namespace pipeline {
 class DefineMap;
 class RenderView;
+
+//TODO coulsonwang
+class DescriptorSetLayout;
+class DescriptorSet;
 
 struct CC_DLL RenderPipelineInfo {
     RenderFlowList flows;
@@ -17,11 +24,11 @@ struct CC_DLL RenderPipelineInfo {
 class CC_DLL RenderPipeline : public Object {
 public:
     RenderPipeline() = default;
-    virtual ~RenderPipeline() = default;
+    virtual ~RenderPipeline();
 
     virtual bool activate();
     virtual void destroy();
-    virtual bool initialize(const RenderPipelineInfo *info);
+    virtual bool initialize(const RenderPipelineInfo &info);
     virtual void render(RenderView *view);
 
     CC_INLINE const RenderFlowList &getFlows() const { return _flows; }
@@ -30,10 +37,14 @@ public:
     CC_INLINE const DefineMap &getMacro() const { return _macros; }
 
 protected:
+    gfx::CommandBufferList _commandBuffers;
     RenderFlowList _flows;
     map<String, InternalBindingInst> _globalBindings;
     DefineMap _macros;
     uint _tag = 0;
+
+    DescriptorSetLayout *_descriptorSetLayout = nullptr;
+    DescriptorSet *_descriptorSet = nullptr;
 };
 
 } // namespace pipeline
