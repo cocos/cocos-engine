@@ -28,7 +28,7 @@
  * @category material
  */
 
-import { ccclass, property } from '../../core/data/class-decorator';
+import { ccclass, property, type } from '../../core/data/class-decorator';
 import { builtinResMgr } from '../3d/builtin/init';
 import { RenderableComponent } from '../3d/framework/renderable-component';
 import { GFXTexture } from '../gfx/texture';
@@ -105,7 +105,7 @@ export class Material extends Asset {
         return hash;
     }
 
-    @property(EffectAsset)
+    @type(EffectAsset)
     protected _effectAsset: EffectAsset | null = null;
     @property
     protected _techIdx = 0;

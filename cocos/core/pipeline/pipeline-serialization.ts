@@ -3,7 +3,7 @@
  */
 
 import { CCString } from '../data';
-import { ccclass, property } from '../data/class-decorator';
+import { ccclass, property, type } from '../data/class-decorator';
 import { GFXFormat, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXTextureType, GFXTextureUsageBit} from '../gfx/define';
 import { ccenum } from '../value-types/enum';
 import { RenderTexture } from './../assets/render-texture';
@@ -31,11 +31,11 @@ ccenum(RenderFlowTag);
 export class RenderTextureDesc {
     @property
     public name: string = '';
-    @property({ type: GFXTextureType })
+    @type(GFXTextureType)
     public type: GFXTextureType = GFXTextureType.TEX2D;
-    @property({ type: GFXTextureUsageBit })
+    @type(GFXTextureUsageBit)
     public usage: GFXTextureUsageBit = GFXTextureUsageBit.COLOR_ATTACHMENT;
-    @property({ type: GFXFormat })
+    @type(GFXFormat)
     public format: GFXFormat = GFXFormat.UNKNOWN;
     @property
     public width: number = -1;
@@ -47,7 +47,7 @@ export class RenderTextureDesc {
 export class RenderTextureConfig {
     @property
     public name: string = '';
-    @property({ type: RenderTexture })
+    @type(RenderTexture)
     public texture: RenderTexture | null = null;
 }
 
@@ -55,7 +55,7 @@ export class RenderTextureConfig {
 export class MaterialConfig {
     @property
     public name: string = '';
-    @property({ type: Material })
+    @type(Material)
     public material: Material | null = null;
 }
 
@@ -65,47 +65,47 @@ export class FrameBufferDesc {
     public name: string = '';
     @property
     public renderPass: number = 0;
-    @property({ type: [CCString] })
+    @type([CCString])
     public colorTextures: string[] = [];
     @property
     public depthStencilTexture: string = '';
-    @property({ type: RenderTexture })
+    @type(RenderTexture)
     public texture: RenderTexture | null = null;
 }
 
 @ccclass('ColorDesc')
 export class ColorDesc {
-    @property({ type: GFXFormat })
+    @type(GFXFormat)
     public format: GFXFormat = GFXFormat.UNKNOWN;
-    @property({ type: GFXLoadOp })
+    @type(GFXLoadOp)
     public loadOp: GFXLoadOp = GFXLoadOp.CLEAR;
-    @property({ type: GFXStoreOp })
+    @type(GFXStoreOp)
     public storeOp: GFXStoreOp = GFXStoreOp.STORE;
     @property
     public sampleCount: number = 1;
-    @property({ type: GFXTextureLayout })
+    @type(GFXTextureLayout)
     public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED;
-    @property({ type: GFXTextureLayout })
+    @type(GFXTextureLayout)
     public endLayout: GFXTextureLayout = GFXTextureLayout.PRESENT_SRC;
 }
 
 @ccclass('DepthStencilDesc')
 export class DepthStencilDesc {
-    @property({ type: GFXFormat })
+    @type(GFXFormat)
     public format: GFXFormat = GFXFormat.UNKNOWN;
-    @property({ type: GFXLoadOp })
+    @type(GFXLoadOp)
     public depthLoadOp: GFXLoadOp = GFXLoadOp.CLEAR;
-    @property({ type: GFXStoreOp })
+    @type(GFXStoreOp)
     public depthStoreOp: GFXStoreOp = GFXStoreOp.STORE;
-    @property({ type: GFXLoadOp })
+    @type(GFXLoadOp)
     public stencilLoadOp: GFXLoadOp = GFXLoadOp.CLEAR;
-    @property({ type: GFXStoreOp })
+    @type(GFXStoreOp)
     public stencilStoreOp: GFXStoreOp = GFXStoreOp.STORE;
     @property
     public sampleCount: number = 1;
-    @property({ type: GFXTextureLayout })
+    @type(GFXTextureLayout)
     public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED;
-    @property({ type: GFXTextureLayout })
+    @type(GFXTextureLayout)
     public endLayout: GFXTextureLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 }
 
@@ -113,9 +113,9 @@ export class DepthStencilDesc {
 export class RenderPassDesc {
     @property
     public index: number = -1;
-    @property({ type: [ColorDesc] })
+    @type([ColorDesc])
     public colorAttachments = [];
-    @property({ type: DepthStencilDesc })
+    @type(DepthStencilDesc)
     public depthStencilAttachment: DepthStencilDesc = new DepthStencilDesc();
 }
 
@@ -144,13 +144,13 @@ export class RenderQueueDesc {
      * @en The sort mode of the render queue
      * @zh 渲染队列的排序模式
      */
-    @property({ type: RenderQueueSortMode })
+    @type(RenderQueueSortMode)
     public sortMode: RenderQueueSortMode = RenderQueueSortMode.FRONT_TO_BACK;
 
     /**
      * @en The stages using this queue
      * @zh 使用当前渲染队列的阶段列表
      */
-    @property({ type: [CCString] })
+    @type([CCString])
     public stages: string[] = [];
 }

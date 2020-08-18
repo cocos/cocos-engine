@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { ccclass, property } from '../core/data/class-decorator';
+import { ccclass, property, type } from '../core/data/class-decorator';
 import { repeat } from '../core/math';
 import CurveRange from './animator/curve-range';
 
@@ -50,9 +50,7 @@ export default class Burst {
     /**
      * @zh 发射的粒子的数量。
      */
-    @property({
-        type: CurveRange,
-    })
+    @type(CurveRange)
     public count: CurveRange = new CurveRange();
 
     private _remainingCount: number;

@@ -9,6 +9,7 @@ import {
     menu,
     property,
     tooltip,
+    type,
 } from '../../../../core/data/class-decorator';
 import { ColliderComponent } from './collider-component';
 import { ICapsuleShape } from '../../../spec/i-physics-shape';
@@ -73,7 +74,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
      * @zh
      * 获取或设置在本地坐标系下胶囊体的方向。
      */
-    @property({ type: EAxisDirection })
+    @type(EAxisDirection)
     @tooltip("本地坐标系下胶囊体的朝向")
     public get direction () {
         return this._direction;

@@ -1,4 +1,4 @@
-import { property, ccclass } from '../../data/class-decorator';
+import { property, ccclass, visible, type } from '../../data/class-decorator';
 import { Color, Vec3 } from '../../math';
 import { EDITOR } from 'internal:constants';
 
@@ -68,19 +68,16 @@ export class Ambient {
     }
 
     protected _enabled = true;
-    @property({
-        type: Color,
-        visible: true,
-    })
+    @type(Color)
+    @visible(true)
     protected _skyColor = new Color(51, 128, 204, 1.0);
-    @property({
-        visible: true,
-    })
+
+    @property
+    @visible(true)
     protected _skyIllum: number = Ambient.SKY_ILLUM;
-    @property({
-        type: Color,
-        visible: true,
-    })
+
+    @type(Color)
+    @visible(true)
     protected _groundAlbedo = new Color(51, 51, 51, 255);
 
     protected _albedoArray = Float32Array.from([0.2, 0.2, 0.2, 1.0]);

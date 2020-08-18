@@ -29,7 +29,7 @@
  */
 
 import { Component, EventHandler as ComponentEventHandler } from '../../core/components';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property, tooltip } from '../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property, tooltip, type } from '../../core/data/class-decorator';
 import { ToggleComponent } from './toggle-component';
 import { legacyCC } from '../../core/global-exports';
 
@@ -78,9 +78,7 @@ export class ToggleContainerComponent extends Component {
      * @zh
      * Toggle 按钮的点击事件列表。
      */
-    @property({
-        type: [ComponentEventHandler],
-    })
+    @type([ComponentEventHandler])
     @tooltip('选中事件。列表类型，默认为空，用户添加的每一个事件由节点引用，组件名称和一个响应函数组成。')
     public checkEvents: ComponentEventHandler[] = [];
 

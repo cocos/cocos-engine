@@ -1,5 +1,5 @@
 import { Enum } from '../../value-types';
-import { ccclass, property } from '../../data/class-decorator';
+import { ccclass, property, visible, type, displayOrder, slide, range, rangeStep } from '../../data/class-decorator';
 import { Color } from '../../../core/math';
 import { CCBoolean, CCFloat } from '../../data/utils/attribute';
 import { legacyCC } from '../../global-exports';
@@ -191,80 +191,61 @@ export class Fog {
         return this._colorArray;
     }
 
-    @property({
-        type: FogType,
-        visible: true,
-        displayOrder: 1,
-    })
+    @type(FogType)
+    @visible(true)
+    @displayOrder(1)
     protected _type = FogType.LINEAR;
-    @property({
-        type: Color,
-        visible: true,
-        displayOrder: 2,
-    })
+    
+    @type(Color)
+    @visible(true)
+    @displayOrder(2)
     protected _fogColor = new Color('#C8C8C8');
-    @property({
-        type: CCBoolean,
-        visible: true,
-        displayOrder: 0,
-    })
+
+    @type(CCBoolean)
+    @visible(true)
+    @displayOrder(0)
     protected _enabled = false;
-    @property({
-        type: CCFloat,
-        range: [0, 1],
-        step: 0.01,
-        slide: true,
-        displayOrder: 3,
-        visible: function(this: Fog) {
-            return this._type !== FogType.LAYERED && this._type !== FogType.LINEAR;
-        }
+
+    @type(CCFloat)
+    @range([0, 1])
+    @rangeStep(0.01)
+    @slide(true)
+    @displayOrder(3)
+    @visible(function (this: Fog) {
+        return this._type !== FogType.LAYERED && this._type !== FogType.LINEAR;
     })
     protected _fogDensity = 0.3;
-    @property({
-        type: CCFloat,
-        step: 0.1,
-        displayOrder: 4,
-        visible: function(this: Fog) { 
-            return this._type === FogType.LINEAR;
-        }
-    })
+
+    @type(CCFloat)
+    @rangeStep(0.1)
+    @displayOrder(4)
+    @visible(function (this: Fog) { return this._type === FogType.LINEAR; })
     protected _fogStart = 0.5;
-    @property({
-        type: CCFloat,
-        step: 0.1,
-        displayOrder: 5,
-        visible: function (this: Fog){ 
-            return this._type === FogType.LINEAR;
-        }
-    })
+
+    @type(CCFloat)
+    @rangeStep(0.1)
+    @displayOrder(5)
+    @visible(function (this: Fog) {  return this._type === FogType.LINEAR; })
     protected _fogEnd = 300;
-    @property({
-        type: CCFloat,
-        step: 0.1,
-        displayOrder: 6,
-        visible: function (this: Fog){ 
-            return this._type !== FogType.LINEAR;
-        }
-    })
+
+    @type(CCFloat)
+    @rangeStep(0.1)
+    @displayOrder(6)
+    @visible(function (this: Fog) { return this._type !== FogType.LINEAR; })
     protected _fogAtten = 5;
-    @property({
-        type: CCFloat,
-        step: 0.1,
-        displayOrder: 7,
-        visible: function (this: Fog){ 
-            return this._type === FogType.LAYERED;
-        }
-    })
+
+    @type(CCFloat)
+    @rangeStep(0.1)
+    @displayOrder(7)
+    @visible(function (this: Fog) { return this._type === FogType.LAYERED; })
     protected _fogTop = 1.5;
-    @property({
-        type: CCFloat,
-        step: 0.1,
-        displayOrder: 8,
-        visible: function (this: Fog) { 
-            return this._type === FogType.LAYERED;
-        }
-    })
+    
+    @type(CCFloat)
+    @rangeStep(0.1)
+    @displayOrder(8)
+    @visible(function (this: Fog) { return this._type === FogType.LAYERED; })
     protected _fogRange = 1.2;
+
     protected _currType = 0;
     protected _colorArray: Float32Array = new Float32Array([0.2, 0.2, 0.2, 1.0]);
 

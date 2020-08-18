@@ -30,7 +30,7 @@
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { UI } from '../../core/renderer/ui/ui';
 import { MeshBuffer } from '../../core/renderer/ui/mesh-buffer';
-import { ccclass, help, menu, executionOrder, property } from '../../core/data/class-decorator';
+import { ccclass, help, menu, executionOrder, property, visible, type, displayName, override } from '../../core/data/class-decorator';
 import { UIDrawBatch } from '../../core/renderer/ui/ui-draw-batch';
 import { director, Color, Material, warnID } from '../../core';
 import { vfmt } from '../../core/renderer/ui/ui-vertex-format';
@@ -57,10 +57,8 @@ import { GFXBlendFactor } from '../../core/gfx';
 @menu('UI/Render/UIStaticBatch')
 @executionOrder(110)
 export class UIStaticBatchComponent extends UIRenderComponent {
-    @property({
-        visible: false,
-        override: true,
-    })
+    @override(true)
+    @visible(false)
     get dstBlendFactor () {
         return this._dstBlendFactor;
     }
@@ -74,10 +72,8 @@ export class UIStaticBatchComponent extends UIRenderComponent {
         this._updateBlendFunc();
     }
 
-    @property({
-        visible: false,
-        override: true,
-    })
+    @override(true)
+    @visible(false)
     get srcBlendFactor () {
         return this._srcBlendFactor;
     }
@@ -91,10 +87,8 @@ export class UIStaticBatchComponent extends UIRenderComponent {
         this._updateBlendFunc();
     }
 
-    @property({
-        visible: false,
-        override: true,
-    })
+    @override(true)
+    @visible(false)
     get color (): Readonly<Color> {
         return this._color;
     }
@@ -109,12 +103,10 @@ export class UIStaticBatchComponent extends UIRenderComponent {
         this.markForUpdateRenderData();
     }
 
-    @property({
-        type: Material,
-        displayName: 'Materials',
-        visible: false,
-        override: true,
-    })
+    @override(true)
+    @type(Material)
+    @displayName('Materials')
+    @visible(false)
     get sharedMaterials () {
         return super.sharedMaterials;
     }

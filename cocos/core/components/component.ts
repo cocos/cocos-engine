@@ -31,7 +31,7 @@
  */
 
 import { Script } from '../assets/scripts';
-import { ccclass, property, tooltip } from '../data/class-decorator';
+import { ccclass, property, tooltip, visible, displayName, type } from '../data/class-decorator';
 import { CCObject } from '../data/object';
 import IDGenerator from '../utils/id-generator';
 import { getClassName, value } from '../utils/js';
@@ -68,9 +68,7 @@ const NullNode = null as unknown as Node;
 @ccclass('cc.Component')
 class Component extends CCObject {
 
-    @property({
-        visible: false,
-    })
+    @visible(false)
     get name () {
         if (this._name) {
             return this._name;
@@ -98,17 +96,14 @@ class Component extends CCObject {
      * log(comp.uuid);
      * ```
      */
-    @property({
-        visible: false,
-    })
+    @visible(false)
     get uuid () {
         return this._id;
     }
 
-    @property({
-        displayName: 'Script',
-        type: Script,
-    })
+    @property
+    @displayName('Script')
+    @type(Script)
     @tooltip('i18n:INSPECTOR.component.script')
     get __scriptAsset () { return null; }
 
@@ -125,9 +120,7 @@ class Component extends CCObject {
      * log(comp.enabled);
      * ```
      */
-    @property({
-        visible: false,
-    })
+    @visible(false)
     get enabled () {
         return this._enabled;
     }
@@ -158,9 +151,7 @@ class Component extends CCObject {
      * log(comp.enabledInHierarchy);
      * ```
      */
-    @property({
-        visible: false,
-    })
+    @visible(false)
     get enabledInHierarchy () {
         return this._enabled && this.node && this.node.activeInHierarchy;
     }
@@ -193,9 +184,8 @@ class Component extends CCObject {
      * log(comp.node);
      * ```
      */
-    @property({
-        visible: false,
-    })
+    @property
+    @visible(false)
     public node: Node = NullNode;
 
     /**

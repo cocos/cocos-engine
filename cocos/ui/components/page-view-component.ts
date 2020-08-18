@@ -28,7 +28,7 @@
  */
 
 import { EventHandler as ComponentEventHandler } from '../../core/components';
-import { ccclass, help, executionOrder, menu, property, tooltip } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property, tooltip, type, slide, range, visible, override } from '../../core/data/class-decorator';
 import { EventTouch, SystemEventType } from '../../core/platform';
 import { Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
@@ -114,9 +114,7 @@ export class PageViewComponent extends ScrollViewComponent {
      * @zh
      * 页面视图中每个页面大小类型
      */
-    @property({
-        type: SizeMode,
-    })
+    @type(SizeMode)
     @tooltip('页面视图中每个页面大小类型')
     get sizeMode() {
         return this._sizeMode;
@@ -138,9 +136,7 @@ export class PageViewComponent extends ScrollViewComponent {
      * @zh
      * 页面视图滚动类型
      */
-    @property({
-        type: Direction,
-    })
+    @type(Direction)
     @tooltip('页面视图滚动类型')
     get direction() {
         return this._direction;
@@ -163,10 +159,8 @@ export class PageViewComponent extends ScrollViewComponent {
      * @zh
      * 滚动临界值，默认单位百分比，当拖拽超出该数值时，松开会自动滚动下一页，小于时则还原。
      */
-    @property({
-        slide: true,
-        range: [0, 1, 0.01],
-    })
+    @slide(true)
+    @range([0, 1, 0.01])
     @tooltip('滚动临界值，默认单位百分比，当拖拽超出该数值时，松开会自动滚动下一页，小于时则还原')
     get scrollThreshold() {
         return this._scrollThreshold;
@@ -187,16 +181,14 @@ export class PageViewComponent extends ScrollViewComponent {
      * @zh
      * 设置 PageView PageTurning 事件的发送时机。
      */
-    @property({
-        slide: true,
-        range: [0, 1, 0.01],
-    })
+    @slide(true)
+    @range([0, 1, 0.01])
     @tooltip('设置 PageView PageTurning 事件的发送时机')
-    get pageTurningEventTiming() {
+    get pageTurningEventTiming () {
         return this._pageTurningEventTiming;
     }
 
-    set pageTurningEventTiming(value) {
+    set pageTurningEventTiming (value) {
         if (this._pageTurningEventTiming === value) {
             return;
         }
@@ -211,9 +203,7 @@ export class PageViewComponent extends ScrollViewComponent {
      * @zh
      * 页面视图指示器组件
      */
-    @property({
-        type: PageViewIndicatorComponent,
-    })
+    @type(PageViewIndicatorComponent)
     @tooltip('页面视图指示器组件')
     get indicator() {
         return this._indicator;
@@ -253,11 +243,9 @@ export class PageViewComponent extends ScrollViewComponent {
     @tooltip('快速滑动翻页临界值\n当用户快速滑动时，会根据滑动开始和结束的距离与时间计算出一个速度值\n该值与此临界值相比较，如果大于临界值，则进行自动翻页')
     public autoPageTurningThreshold = 100;
 
-    @property({
-        type: ScrollBarComponent,
-        visible: false,
-        override: true,
-    })
+    @type(ScrollBarComponent)
+    @override(true)
+    @visible(false)
     get verticalScrollBar () {
         return super.verticalScrollBar;
     }
@@ -266,11 +254,9 @@ export class PageViewComponent extends ScrollViewComponent {
         super.verticalScrollBar = value;
     }
 
-    @property({
-        type: ScrollBarComponent,
-        visible: false,
-        override: true,
-    })
+    @type(ScrollBarComponent)
+    @override(true)
+    @visible(false)
     get horizontalScrollBar () {
         return super.horizontalScrollBar;
     }
@@ -279,29 +265,24 @@ export class PageViewComponent extends ScrollViewComponent {
         super.horizontalScrollBar = value;
     }
 
-    @property({
-        visible: false,
-        override: true,
-    })
+    @property
+    @override(true)
+    @visible(false)
     public horizontal = true;
 
-    @property({
-        visible: false,
-        override: true,
-    })
+    @property
+    @override(true)
+    @visible(false)
     public vertical = true;
 
-    @property({
-        visible: false,
-        override: true,
-    })
+    @property
+    @override(true)
+    @visible(false)
     public cancelInnerEvents = true;
 
-    @property({
-        visible: false,
-        override: true,
-        type: [ComponentEventHandler]
-    })
+    @type([ComponentEventHandler])
+    @override(true)
+    @visible(false)
     public scrollEvents: ComponentEventHandler[] = [];
 
     /**
@@ -316,9 +297,7 @@ export class PageViewComponent extends ScrollViewComponent {
      * @en PageView events callback
      * @zh 滚动视图的事件回调函数
      */
-    @property({
-        type: [ComponentEventHandler],
-    })
+    @type([ComponentEventHandler])
     @tooltip('滚动视图的事件回调函数')
     public pageEvents: ComponentEventHandler[] = [];
 

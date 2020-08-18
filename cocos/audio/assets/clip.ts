@@ -28,7 +28,7 @@
  */
 
 import { Asset } from '../../core/assets/asset';
-import { ccclass, property } from '../../core/data/class-decorator';
+import { ccclass, property, type } from '../../core/data/class-decorator';
 import { Enum } from '../../core/value-types';
 import { AudioPlayer, PlayingState } from './player';
 import { AudioPlayerDOM } from './player-dom';
@@ -64,7 +64,7 @@ export class AudioClip extends Asset {
     @property
     protected _duration = 0; // we serialize this because it's unavailable at runtime on some platforms
 
-    @property({ type: AudioType })
+    @type(AudioType)
     protected _loadMode = AudioType.UNKNOWN_AUDIO;
 
     protected _audio: any = null;

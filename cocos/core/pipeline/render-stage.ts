@@ -2,7 +2,7 @@
  * @category pipeline
  */
 
-import { ccclass, property } from '../data/class-decorator';
+import { ccclass, property, displayOrder, visible } from '../data/class-decorator';
 import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
 import { RenderPipeline } from './render-pipeline';
@@ -55,30 +55,27 @@ export abstract class RenderStage {
      * @en Name
      * @zh 名称。
      */
-    @property({
-        displayOrder: 0,
-        visible: true,
-    })
+    @property
+    @visible(true)
+    @displayOrder(0)
     protected _name: string = '';
 
     /**
      * @en Priority
      * @zh 优先级。
      */
-    @property({
-        displayOrder: 1,
-        visible: true,
-    })
+    @property
+    @visible(true)
+    @displayOrder(1)
     protected _priority: number = 0;
 
     /**
      * @en Type
      * @zh 类型。
      */
-    @property({
-        displayOrder: 2,
-        visible: true,
-    })
+    @property
+    @visible(true)
+    @displayOrder(2)
     protected _tag: number = 0;
     protected _pipeline!: RenderPipeline;
     protected _flow!: RenderFlow;
