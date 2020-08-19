@@ -97,8 +97,10 @@ export class Fog {
 
     set type (val) {
         this._type = val;
-        this._currType = val + 1;
-        this._updatePipeline();
+        if (this._enabled) {
+            this._currType = val + 1;
+            this._updatePipeline();
+        }
     }
 
     /**
@@ -191,59 +193,14 @@ export class Fog {
         return this._colorArray;
     }
 
-    @type(FogType)
-    @visible(true)
-    @displayOrder(1)
     protected _type = FogType.LINEAR;
-    
-    @type(Color)
-    @visible(true)
-    @displayOrder(2)
     protected _fogColor = new Color('#C8C8C8');
-
-    @type(CCBoolean)
-    @visible(true)
-    @displayOrder(0)
     protected _enabled = false;
-
-    @type(CCFloat)
-    @range([0, 1])
-    @rangeStep(0.01)
-    @slide(true)
-    @displayOrder(3)
-    @visible(function (this: Fog) {
-        return this._type !== FogType.LAYERED && this._type !== FogType.LINEAR;
-    })
     protected _fogDensity = 0.3;
-
-    @type(CCFloat)
-    @rangeStep(0.1)
-    @displayOrder(4)
-    @visible(function (this: Fog) { return this._type === FogType.LINEAR; })
     protected _fogStart = 0.5;
-
-    @type(CCFloat)
-    @rangeStep(0.1)
-    @displayOrder(5)
-    @visible(function (this: Fog) {  return this._type === FogType.LINEAR; })
     protected _fogEnd = 300;
-
-    @type(CCFloat)
-    @rangeStep(0.1)
-    @displayOrder(6)
-    @visible(function (this: Fog) { return this._type !== FogType.LINEAR; })
     protected _fogAtten = 5;
-
-    @type(CCFloat)
-    @rangeStep(0.1)
-    @displayOrder(7)
-    @visible(function (this: Fog) { return this._type === FogType.LAYERED; })
     protected _fogTop = 1.5;
-    
-    @type(CCFloat)
-    @rangeStep(0.1)
-    @displayOrder(8)
-    @visible(function (this: Fog) { return this._type === FogType.LAYERED; })
     protected _fogRange = 1.2;
 
     protected _currType = 0;
@@ -256,9 +213,11 @@ export class Fog {
     }
 
     protected _updatePipeline () {
+        const root = legacyCC.director.root
         const value = this._currType;
-        const pipeline = legacyCC.director.root.pipeline;
+        const pipeline = root.pipeline;
         if (pipeline.macros.CC_USE_FOG === value) { return; }
         pipeline.macros.CC_USE_FOG = value;
+        root.onGlobalPipelineStateChanged();
     }
 }

@@ -35,6 +35,7 @@ import { BaseNode } from './base-node';
 import { EDITOR, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
+import { SceneGlobals } from './scene-globals';
 
 /**
  * @en
@@ -54,12 +55,23 @@ export class Scene extends BaseNode {
         return this._renderScene;
     }
 
+    get globals () {
+        return this._globals;
+    }
+
     /**
      * @en Indicates whether all (directly or indirectly) static referenced assets of this scene are releasable by default after scene unloading.
      * @zh 指示该场景中直接或间接静态引用到的所有资源是否默认在场景切换后自动释放。
      */
     @property
     public autoReleaseAssets = false;
+
+    /**
+     * @en Per-scene level rendering info
+     * @zh 场景级别的渲染信息
+     */
+    @property
+    public _globals = new SceneGlobals();
 
     public _renderScene: RenderScene | null = null;
     public dependAssets = null; // cache all depend assets for auto release
@@ -214,6 +226,7 @@ export class Scene extends BaseNode {
             this._registerIfAttached!(active);
         }
         legacyCC.director._nodeActivator.activateNode(this, active);
+        this._globals.activate();
     }
 }
 

@@ -73,28 +73,10 @@ export class ForwardPipeline extends RenderPipeline {
     @displayOrder(3)
     protected materials: MaterialConfig[] = [];
 
-    @type(Fog)
-    @visible(true)
-    @displayOrder(7)
     public fog: Fog = new Fog();
-
-    @type(Ambient)
-    @visible(true)
-    @displayOrder(4)
     public ambient: Ambient = new Ambient();
-
-    @type(Skybox)
-    @visible(true)
-    @displayOrder(5)
     public skybox: Skybox = new Skybox();
-
-    @type(PlanarShadows)
-    @visible(true)
-    @displayOrder(6)
     public planarShadows: PlanarShadows = new PlanarShadows();
-    @type(Shadow)
-    @displayOrder(7)
-    @visible(true)
     public shadowMap: Shadow = new Shadow();
     /**
      * @en The list for render objects, only available after the scene culling of the current frame.
@@ -140,12 +122,6 @@ export class ForwardPipeline extends RenderPipeline {
             console.error('ForwardPipeline startup failed!');
             return false;
         }
-
-        this.ambient.activate();
-        this.fog.activate();
-        this.skybox.activate();
-        this.planarShadows.activate();
-        this.shadowMap.activate();
 
         return true;
     }
