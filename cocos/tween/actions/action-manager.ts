@@ -171,9 +171,8 @@ export class ActionManager {
      * 属于该目标的所有的动作将被删除。
      * @method removeAllActionsFromTarget
      * @param {Node} target
-     * @param {Boolean} forceDelete
      */
-    removeAllActionsFromTarget (target: Node, forceDelete: boolean) {
+    removeAllActionsFromTarget (target: Node) {
         // explicit null handling
         if (target == null)
             return;
@@ -209,6 +208,19 @@ export class ActionManager {
         }
     }
 
+    _removeActionByTag (tag: number, element: any, target?: Node) {
+        for (var i = 0, l = element.actions.length; i < l; ++i) {
+            var action = element.actions[i];
+            if (action && action.getTag() === tag) {
+                if (target && action.getOriginalTarget() !== target) {
+                    continue;
+                }
+                this._removeActionAtIndex(i, element);
+                break;
+            }
+        }
+    }
+
     /**
      * !#en Removes an action given its tag and the target.
      * !#zh 删除指定对象下特定标签的一个动作，将删除首个匹配到的动作。
@@ -216,22 +228,21 @@ export class ActionManager {
      * @param {Number} tag
      * @param {Node} target
      */
-    removeActionByTag (tag: number, target: Node) {
+    removeActionByTag (tag: number, target?: Node) {
         if (tag === legacyCC.Action.TAG_INVALID)
             logID(1002);
 
-        assertID(target, 1003);
-
-        var element = this._hashTargets[target.uuid];
-
-        if (element) {
-            var limit = element.actions.length;
-            for (var i = 0; i < limit; ++i) {
-                var action = element.actions[i];
-                if (action && action.getTag() === tag && action.getOriginalTarget() === target) {
-                    this._removeActionAtIndex(i, element);
-                    break;
-                }
+        let hashTargets = this._hashTargets;
+        if (target) {
+            var element = hashTargets[target.uuid];
+            if (element) {
+                this._removeActionByTag(tag, element, target);
+            }
+        }
+        else {
+            for (let name in hashTargets) {
+                let element = hashTargets[name];
+                this._removeActionByTag(tag, element);
             }
         }
     }
