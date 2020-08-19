@@ -539,13 +539,14 @@ export class ButtonComponent extends Component {
         }
 
         this._applyTarget();
-        this._updateState();
+        this._resetState();
     }
 
     public onEnable () {
         // DIFF: this.node need to do hit test, this.target need to do the button transition work
         this._registerNodeEvent();
         this._registerTargetEvent(this.target);
+        this._updateState();
     }
 
     public onDisable () {
