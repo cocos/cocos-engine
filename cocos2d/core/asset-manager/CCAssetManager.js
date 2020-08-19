@@ -626,7 +626,9 @@ AssetManager.prototype = {
                 onComplete && onComplete(err, null);
             }
             else {
-                factory.create(url, data, options.ext || cc.path.extname(url), options, onComplete);
+                factory.create(url, data, options.ext || cc.path.extname(url), options, function (err, out) {
+                    onComplete && onComplete(err, out);
+                });
             }
         });
     },
