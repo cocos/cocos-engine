@@ -520,7 +520,7 @@ let Label = cc.Class({
 
         /**
          * !#en Whether enable italic.
-         * !#zh 是否启用黑体。
+         * !#zh 是否启用斜体。
          * @property {Boolean} enableItalic
          */
         enableItalic: {
