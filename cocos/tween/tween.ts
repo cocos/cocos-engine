@@ -409,7 +409,6 @@ export class Tween {
      * Stop all tweens by tag
      * @zh 
      * 停止所有指定标签的缓动
-     * @method stopAllByTag
      */
     static stopAllByTag (tag: number, target?: object) {
         TweenSystem.instance.ActionManager.removeActionByTag(tag, target as any);
@@ -419,7 +418,6 @@ export class Tween {
      * Stop all tweens by target
      * @zh 
      * 停止所有指定对象的缓动
-     * @method stopAllByTarget
      */
     static stopAllByTarget (target) {
         TweenSystem.instance.ActionManager.removeAllActionsFromTarget(target);
