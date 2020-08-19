@@ -527,7 +527,7 @@ export class ButtonComponent extends Component {
     private _transitionFinished = true;
     private _fromScale: Vec3 = new Vec3();
     private _toScale: Vec3 = new Vec3();
-    private _originalScale: Vec3 = new Vec3();
+    private _originalScale: Vec3 | null = null;
     private _sprite: SpriteComponent | null = null;
     private _targetScale: Vec3 = new Vec3();
 
@@ -624,7 +624,7 @@ export class ButtonComponent extends Component {
         const transition = this._transition;
         if (transition === Transition.COLOR && this._interactable) {
             renderComp.color = this._normalColor;
-        } else if (transition === Transition.SCALE) {
+        } else if (transition === Transition.SCALE && this._originalScale) {
             target.setScale(this._originalScale);
         }
         this._transitionFinished = true;
@@ -671,6 +671,9 @@ export class ButtonComponent extends Component {
     protected _applyTarget () {
         if (this.target) {
             this._sprite = this._getTargetSprite(this.target);
+            if (!this._originalScale) {
+                this._originalScale = Vec3.ZERO;
+            }
             Vec3.copy(this._originalScale, this.target.getScale());
         }
     }
@@ -750,7 +753,7 @@ export class ButtonComponent extends Component {
 
         const hit = this.node._uiProps.uiTransformComp!.isHit(touch.getUILocation());
 
-        if (this._transition === Transition.SCALE && this.target) {
+        if (this._transition === Transition.SCALE && this.target && this._originalScale) {
             if (hit) {
                 Vec3.copy(this._fromScale, this._originalScale);
                 Vec3.multiplyScalar(this._toScale, this._originalScale, this._zoomScale);
@@ -872,6 +875,10 @@ export class ButtonComponent extends Component {
     }
 
     protected _zoomUp () {
+        // skip before __preload()
+        if (!this._originalScale) {
+            return;
+        }
         Vec3.copy(this._fromScale, this._originalScale);
         Vec3.multiplyScalar(this._toScale, this._originalScale, this._zoomScale);
         this._time = 0;
@@ -879,7 +886,7 @@ export class ButtonComponent extends Component {
     }
 
     protected _zoomBack () {
-        if (!this.target) {
+        if (!this.target || !this._originalScale) {
             return;
         }
         Vec3.copy(this._fromScale, this.target.getScale());
