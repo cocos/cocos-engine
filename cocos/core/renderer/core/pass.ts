@@ -472,8 +472,7 @@ export class Pass {
         const pipeline = this._root.pipeline;
         if (!pipeline) { return null; }
         this._syncBatchingScheme();
-        const key = programLib.getKey(this._programName, this._defines);
-        this._hShaderDefault = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline, key);
+        this._hShaderDefault = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
         if (!this._hShaderDefault) { console.warn(`create shader ${this._programName} failed`); return false; }
         PassPool.set(this._handle, PassView.PIPELINE_LAYOUT, programLib.getPipelineLayout(this._programName).hPipelineLayout);
         PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this._handle, this._hShaderDefault));
