@@ -178,7 +178,10 @@ export class ButtonComponent extends Component {
         if (this._target === value) {
             return;
         }
-
+        if (EDITOR && !legacyCC.GAME_VIEW && this._target) {
+            // need to remove the old target event listeners
+            this._unregisterTargetEvent(this._target);
+        }
         this._target = value;
         this._applyTarget();
     }
@@ -539,12 +542,23 @@ export class ButtonComponent extends Component {
     }
 
     public onEnable () {
-        this._registerEvent();
+        // DIFF: this.node need to do hit test, this.target need to do the button transition work
+        if (!EDITOR || legacyCC.GAME_VIEW) {
+            this._registerNodeEvent();
+        }
+        else {
+            this._registerTargetEvent(this.target);
+        }
     }
 
     public onDisable () {
         this._resetState();
-        this._unregisterEvent();
+        if (!EDITOR || legacyCC.GAME_VIEW) {
+            this._unregisterNodeEvent();
+        }
+        else {
+            this._unregisterTargetEvent(this.target);
+        }
     }
 
     public update (dt: number) {
@@ -616,35 +630,34 @@ export class ButtonComponent extends Component {
         this._transitionFinished = true;
     }
 
-    protected _registerEvent () {
-        // DIFF: this.node need to do hit test, this.target need to do the button transition work
-        if (!EDITOR || legacyCC.GAME_VIEW) {
-            this.node.on(SystemEventType.TOUCH_START, this._onTouchBegan, this);
-            this.node.on(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
-            this.node.on(SystemEventType.TOUCH_END, this._onTouchEnded, this);
-            this.node.on(SystemEventType.TOUCH_CANCEL, this._onTouchCancel, this);
-    
-            this.node.on(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
-            this.node.on(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
-        } else {
-            this.target.on(SpriteComponent.EventType.SPRITE_FRAME_CHANGED, this._onTargetSpriteFrameChanged, this);
-            this.target.on(SystemEventType.COLOR_CHANGED, this._onTargetColorChanged, this);
-        }
+    protected _registerNodeEvent () {
+        this.node.on(SystemEventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.on(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
+        this.node.on(SystemEventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.on(SystemEventType.TOUCH_CANCEL, this._onTouchCancel, this);
+
+        this.node.on(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
+        this.node.on(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
     }
 
-    protected _unregisterEvent () {
-        if (!EDITOR || legacyCC.GAME_VIEW) {
-            this.node.off(SystemEventType.TOUCH_START, this._onTouchBegan, this);
-            this.node.off(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
-            this.node.off(SystemEventType.TOUCH_END, this._onTouchEnded, this);
-            this.node.off(SystemEventType.TOUCH_CANCEL, this._onTouchCancel, this);
+    protected _registerTargetEvent (target) {
+        target.on(SpriteComponent.EventType.SPRITE_FRAME_CHANGED, this._onTargetSpriteFrameChanged, this);
+        target.on(SystemEventType.COLOR_CHANGED, this._onTargetColorChanged, this);
+    }
 
-            this.node.off(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
-            this.node.off(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
-        } else {
-            this.target.off(SpriteComponent.EventType.SPRITE_FRAME_CHANGED);
-            this.target.off(SystemEventType.COLOR_CHANGED);
-        }
+    protected _unregisterNodeEvent () {
+        this.node.off(SystemEventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.off(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
+        this.node.off(SystemEventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.off(SystemEventType.TOUCH_CANCEL, this._onTouchCancel, this);
+
+        this.node.off(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
+        this.node.off(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+    }
+
+    protected _unregisterTargetEvent (target) {
+        target.off(SpriteComponent.EventType.SPRITE_FRAME_CHANGED);
+        target.off(SystemEventType.COLOR_CHANGED);
     }
 
     protected _getTargetSprite (target: Node | null) {
