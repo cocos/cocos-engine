@@ -1,7 +1,5 @@
 import { Enum } from '../../value-types';
-import { ccclass, property, visible, type, displayOrder, slide, range, rangeStep } from '../../data/class-decorator';
 import { Color } from '../../../core/math';
-import { CCBoolean, CCFloat } from '../../data/utils/attribute';
 import { legacyCC } from '../../global-exports';
 
 /**
@@ -51,7 +49,6 @@ export const FogType = Enum({
     LAYERED: 3,
 });
 
-@ccclass('cc.Fog')
 export class Fog {
     /**
      * @zh 是否启用全局雾效
