@@ -525,7 +525,7 @@ export class SplashScreen {
         this.texture.destroy();
         this.texture = null!;
 
-        this.assmebler.destroy();
+        // this.assmebler.destroy(); //TODO: IOS 导致崩溃, 临时绕过
         this.assmebler = null!;
 
         this.vertexBuffers.destroy();
