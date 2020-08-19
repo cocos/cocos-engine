@@ -212,7 +212,7 @@ function visitNode (node: any) {
         align(node, widget);
         // @ts-ignore
         if ((!EDITOR || widgetManager.animationState!.animatedSinceLastFrame) && widget.alignMode !== AlignMode.ALWAYS) {
-            widget.enabled = false;
+            widgetManager.add(widget);
         } else {
             if (legacyCC.isValid(node, true)) {
                 activeWidgets.push(widget);
@@ -390,11 +390,9 @@ export const widgetManager = legacyCC._widgetManager = {
         }
     },
     refreshWidgetOnResized (node: Node) {
-        if (Node.isNode(node)) {
-            const widget = node.getComponent(WidgetComponent);
-            if (widget && widget.alignMode === AlignMode.ON_WINDOW_RESIZE) {
-                widget.enabled = true;
-            }
+        const widget = Node.isNode(node) && node.getComponent(WidgetComponent);
+        if (widget && widget.enabled && widget.alignMode === AlignMode.ON_WINDOW_RESIZE){
+            this.add(widget);
         }
 
         const children = node.children;
