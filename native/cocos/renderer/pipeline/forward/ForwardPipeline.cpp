@@ -1,6 +1,5 @@
 #include "ForwardPipeline.h"
 #include "../RenderView.h"
-#include "../RenderWindow.h"
 #include "../helper/SharedMemory.h"
 #include "../shadow/ShadowFlow.h"
 #include "../ui/UIFlow.h"
@@ -187,7 +186,7 @@ void ForwardPipeline::updateUBO(RenderView *view) {
     TO_VEC3(uboGlobalView, camera->position, UBOGlobal::CAMERA_POS_OFFSET);
 
     auto projectionSignY = _device->getScreenSpaceSignY();
-    if (view->getWindow()->hasOffScreenAttachments()) {
+    if (view->getWindow()->hasOffScreenAttachments) {
         projectionSignY *= _device->getUVSpaceSignY(); // need flipping if drawing on render targets
     }
     uboGlobalView[UBOGlobal::CAMERA_POS_OFFSET + 3] = projectionSignY;

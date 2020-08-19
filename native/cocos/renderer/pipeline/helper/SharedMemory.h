@@ -12,6 +12,7 @@ namespace pipeline {
 struct RenderingSubMesh;
 struct FlatBuffer;
 struct PlanarShadow;
+class RenderPipeline;
 
 struct CC_DLL ModelView {
     uint32_t subModelsID = 0; //array pool
@@ -222,6 +223,8 @@ struct CC_DLL Root {
     float cumulativeTime = 0;
     float frameTime = 0;
 
+    uint32_t pipelineID = 0;
+
     const static se::PoolType type = se::PoolType::ROOT;
 };
 
@@ -229,6 +232,12 @@ struct CC_DLL Director {
     float totalFrames = 0;
 
     const static se::PoolType type = se::PoolType::UNKNOWN;
+};
+
+struct CC_DLL RenderWindow {
+    uint32_t framebufferID = 0;
+    uint32_t hasOnScreenAttachments = 0;
+    uint32_t hasOffScreenAttachments = 0;
 };
 
 //Get buffer pool data
@@ -264,6 +273,9 @@ struct CC_DLL Director {
 #define GET_DEPTH_STENCIL_STATE(index) (static_cast<gfx::DepthStencilState *>(0))
 #define GET_BLEND_STATE(index)         (static_cast<gfx::BlendState *>(0))
 #define GET_BINDING_LAYOUT(index)      (static_cast<gfx::BindingLayout *>(0))
+#define GET_PIPELINE(index)            (static_cast<RenderPipeline *>(0))
+#define GET_WINDOW(index)              (static_cast<RenderWindow *>(0))
+#define GET_FRAMEBUFFER(index)         (static_cast<gfx::Framebuffer *>(0))
 
 //Get array pool data
 #define GET_MODEL_ARRAY(index)    (static_cast<uint32_t *>(0))

@@ -7,7 +7,6 @@
 #include "../RenderInstancedQueue.h"
 #include "../RenderQueue.h"
 #include "../RenderView.h"
-#include "../RenderWindow.h"
 #include "../helper/SharedMemory.h"
 #include "ForwardPipeline.h"
 #include "gfx/GFXCommandBuffer.h"
@@ -167,7 +166,7 @@ void ForwardStage::render(RenderView *view) {
 
     _clearColors[0].a = camera->clearColor.a;
 
-    auto framebuffer = view->getWindow()->getFramebuffer();
+    auto framebuffer = GET_FRAMEBUFFER(view->getWindow()->framebufferID);
     const auto &colorTextures = framebuffer->getColorTextures();
 
     auto renderPass = colorTextures.size() ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlagBit>(camera->clearFlag));

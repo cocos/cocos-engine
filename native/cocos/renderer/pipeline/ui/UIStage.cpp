@@ -2,7 +2,6 @@
 #include "../Define.h"
 #include "../RenderQueue.h"
 #include "../RenderView.h"
-#include "../RenderWindow.h"
 #include "../forward/ForwardPipeline.h"
 #include "../helper/SharedMemory.h"
 #include "gfx/GFXCommandBuffer.h"
@@ -79,7 +78,7 @@ void UIStage::render(RenderView *view) {
     auto &commandBuffers = pipeline->getCommandBuffers();
     auto cmdBuff = commandBuffers[0];
 
-    auto framebuffer = view->getWindow()->getFramebuffer();
+    auto framebuffer = GET_FRAMEBUFFER(view->getWindow()->framebufferID);
     auto renderPass = framebuffer->getColorTextures().size() ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlags>(camera->clearFlag));
 
     cmdBuff->begin();
