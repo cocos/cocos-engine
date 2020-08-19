@@ -31,7 +31,7 @@ function fetch (task, done) {
 
     let firstTask = false;
     if (!task.progress) {
-        task.progress = { finish: 0, total: task.input.length, shouldInvoke: true }; 
+        task.progress = { finish: 0, total: task.input.length, canInvoke: true }; 
         firstTask = true;
     }
 
@@ -54,7 +54,7 @@ function fetch (task, done) {
                 if (!task.isFinish) {
                     if (!cc.assetManager.force) {
                         cc.error(err.message, err.stack);
-                        progress.shouldInvoke = false;
+                        progress.canInvoke = false;
                         done(err);
                     }
                     else {
@@ -123,7 +123,7 @@ function handle (item, task, content, file, loadDepends, depends, last, done) {
         if (err) {
             if (!cc.assetManager.force) {
                 cc.error(err.message, err.stack);
-                progress.shouldInvoke = false;
+                progress.canInvoke = false;
                 return done(err);
             }
             item.file = null;
@@ -131,7 +131,7 @@ function handle (item, task, content, file, loadDepends, depends, last, done) {
         progress.total = last + depends.length;
     }
 
-    progress.shouldInvoke && task.dispatch('progress', ++progress.finish, progress.total, item);
+    progress.canInvoke && task.dispatch('progress', ++progress.finish, progress.total, item);
 }
 
 module.exports = fetch;

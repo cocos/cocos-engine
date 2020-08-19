@@ -32,7 +32,7 @@ const Task = require('./task');
 function load (task, done) {
 
     if (!task.progress) {
-        task.progress = { finish: 0, total: task.input.length, shouldInvoke: true };
+        task.progress = { finish: 0, total: task.input.length, canInvoke: true };
     }
     
     var options = task.options, progress = task.progress;
@@ -50,7 +50,7 @@ function load (task, done) {
             progress, 
             onComplete: function (err, item) {
                 if (err && !task.isFinish && !cc.assetManager.force) {
-                    progress.shouldInvoke = false;
+                    progress.canInvoke = false;
                     done(err);
                 }
                 task.output.push(item);
@@ -114,7 +114,7 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                     }
                 }
                 item.content = asset;
-                progress.shouldInvoke && task.dispatch('progress', ++progress.finish, progress.total, item);
+                progress.canInvoke && task.dispatch('progress', ++progress.finish, progress.total, item);
                 files.remove(id);
                 parsed.remove(id);
                 done();
@@ -125,7 +125,7 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
             if (uuid in exclude) {
     
                 var { finish, content, err, callbacks } = exclude[uuid];
-                progress.shouldInvoke && task.dispatch('progress', ++progress.finish, progress.total, item);
+                progress.canInvoke && task.dispatch('progress', ++progress.finish, progress.total, item);
     
                 if (finish || checkCircleReference(uuid, uuid, exclude) ) {
                     content && content.addRef();
@@ -141,7 +141,7 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                     var asset = assets.get(uuid);
                     if (options.__asyncLoadAssets__ || !asset.__asyncLoadAssets__) {
                         item.content = asset.addRef();
-                        progress.shouldInvoke && task.dispatch('progress', ++progress.finish, progress.total, item);
+                        progress.canInvoke && task.dispatch('progress', ++progress.finish, progress.total, item);
                         done();
                     }
                     else {
@@ -179,7 +179,7 @@ function loadDepends (task, asset, done, init) {
     // add reference avoid being released during loading dependencies
     asset.addRef && asset.addRef();
     getDepends(uuid, asset, Object.create(null), depends, false, __asyncLoadAssets__, config);
-    progress.shouldInvoke && task.dispatch('progress', ++progress.finish, progress.total += depends.length, item);
+    progress.canInvoke && task.dispatch('progress', ++progress.finish, progress.total += depends.length, item);
 
     var repeatItem = task.options.__exclude__[uuid] = { content: asset, finish: false, callbacks: [{ done, item }] };
 
