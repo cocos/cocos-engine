@@ -576,7 +576,6 @@ export class ButtonComponent extends Component {
 
         if (ratio >= 1) {
             ratio = 1;
-            this._transitionFinished = true;
         }
 
         const renderComp = target.getComponent(UIRenderComponent);
@@ -592,6 +591,10 @@ export class ButtonComponent extends Component {
             this._targetScale.x = lerp(this._fromScale.x, this._toScale.x, ratio);
             this._targetScale.y = lerp(this._fromScale.y, this._toScale.y, ratio);
             target.setScale(this._targetScale);
+        }
+        
+        if (ratio === 1) {
+            this._transitionFinished = true;
         }
     }
 
@@ -679,7 +682,7 @@ export class ButtonComponent extends Component {
         if (this.target) {
             this._sprite = this._getTargetSprite(this.target);
             if (!this._originalScale) {
-                this._originalScale = Vec3.ZERO;
+                this._originalScale = new Vec3();
             }
             Vec3.copy(this._originalScale, this.target.getScale());
         }
