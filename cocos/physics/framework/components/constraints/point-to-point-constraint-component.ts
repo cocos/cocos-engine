@@ -8,6 +8,7 @@ import {
     executeInEditMode,
     menu,
     property,
+    type,
 } from '../../../../core/data/class-decorator';
 import { ConstraintComponent } from './constraint-component';
 import { Vec3, IVec3Like } from '../../../../core';
@@ -20,9 +21,7 @@ import { IPointToPointConstraint } from '../../../spec/i-physics-constraint';
 @menu('Physics/PointToPointConstraint(beta)')
 export class PointToPointConstraintComponent extends ConstraintComponent {
 
-    @property({
-        type: Vec3,
-    })
+    @type(Vec3)
     get pivotA () {
         return this._pivotA;
     }
@@ -34,9 +33,7 @@ export class PointToPointConstraintComponent extends ConstraintComponent {
         }
     }
 
-    @property({
-        type: Vec3,
-    })
+    @type(Vec3)
     get pivotB () {
         return this._pivotB;
     }

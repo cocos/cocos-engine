@@ -5,7 +5,7 @@
 
 import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/mesh';
-import { ccclass, property, tooltip } from '../../core/data/class-decorator';
+import { ccclass, property, tooltip, displayOrder, type, visible } from '../../core/data/class-decorator';
 import { director } from '../../core/director';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
@@ -150,9 +150,7 @@ export default class TrailModule {
     /**
      * 是否启用。
      */
-    @property({
-        displayOrder: 0,
-    })
+    @displayOrder(0)
     public get enable () {
         return this._enable;
     }
@@ -183,20 +181,16 @@ export default class TrailModule {
     /**
      * 设定粒子生成轨迹的方式。
      */
-    @property({
-        type: TrailMode,
-        displayOrder: 1,
-    })
+    @type(TrailMode)
+    @displayOrder(1)
     @tooltip('Particle在每个粒子的运动轨迹上形成拖尾效果')
     public mode = TrailMode.Particles;
 
     /**
      * 轨迹存在的生命周期。
      */
-    @property({
-        type: CurveRange,
-        displayOrder: 3,
-    })
+    @type(CurveRange)
+    @displayOrder(3)
     @tooltip('拖尾的生命周期')
     public lifeTime = new CurveRange();
 
@@ -206,9 +200,8 @@ export default class TrailModule {
     /**
      * 每个轨迹粒子之间的最小间距。
      */
-    @property({
-        displayOrder: 5,
-    })
+    @property
+    @displayOrder(5)
     @tooltip('粒子每生成一个拖尾节点所运行的最短距离')
     public get minParticleDistance () {
         return this._minParticleDistance;
@@ -219,10 +212,8 @@ export default class TrailModule {
         this._minSquaredDistance = val * val;
     }
 
-    @property({
-        type: Space,
-        displayOrder: 6,
-    })
+    @type(Space)
+    @displayOrder(6)
     @tooltip('拖尾所在的坐标系，World在世界坐标系中运行，Local在本地坐标系中运行')
     public get space () {
         return this._space;
@@ -238,65 +229,52 @@ export default class TrailModule {
     /**
      * 粒子本身是否存在。
      */
-    @property({
-        displayOrder: 7,
-        visible: false,
-    })
+    @property
+    @visible(false)
+    @displayOrder(7)
     @tooltip('拖尾是否跟随粒子一起消失')
     public existWithParticles = true;
 
     /**
      * 设定纹理填充方式。
      */
-    @property({
-        type: TextureMode,
-        displayOrder: 8,
-    })
+    @type(TextureMode)
+    @displayOrder(8)
     @tooltip('贴图在拖尾上的展开形式，Stretch贴图覆盖在整条拖尾上，Repeat贴图覆盖在一段拖尾上')
     public textureMode = TextureMode.Stretch;
 
-    @property({
-        displayOrder: 9,
-    })
+    @property
+    @displayOrder(9)
     @tooltip('拖尾宽度继承自粒子大小')
     public widthFromParticle = true;
 
     /**
      * 控制轨迹长度的曲线。
      */
-    @property({
-        type: CurveRange,
-        displayOrder: 10,
-    })
+    @type(CurveRange)
+    @displayOrder(10)
     @tooltip('拖尾宽度，如果继承自粒子则是粒子大小的比例')
     public widthRatio = new CurveRange();
 
-    @property({
-        displayOrder: 11,
-    })
+    @property
+    @displayOrder(11)
     @tooltip('拖尾颜色是否继承自粒子')
     public colorFromParticle = false;
 
-    @property({
-        type: GradientRange,
-        displayOrder: 12,
-    })
+    @type(GradientRange)
+    @displayOrder(12)
     @tooltip('拖尾颜色随拖尾自身长度的颜色渐变')
     public colorOverTrail = new GradientRange();
 
-    @property({
-        type: GradientRange,
-        displayOrder: 13,
-    })
+    @type(GradientRange)
+    @displayOrder(13)
     @tooltip('拖尾颜色随时间的颜色渐变')
     public colorOvertime = new GradientRange();
 
     /**
      * 轨迹设定时的坐标系。
      */
-    @property({
-        type: Space,
-    })
+    @type(Space)
     private _space = Space.World;
 
     @property

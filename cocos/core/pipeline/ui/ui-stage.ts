@@ -2,7 +2,7 @@
  * @category pipeline
  */
 
-import { ccclass, property } from '../../data/class-decorator';
+import { ccclass, property, visible, displayOrder, type } from '../../data/class-decorator';
 import { GFXColor, GFXRect } from '../../gfx/define';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
@@ -27,11 +27,9 @@ export class UIStage extends RenderStage {
         priority: ForwardStagePriority.UI,
     };
 
-    @property({
-        type: [RenderQueueDesc],
-        displayOrder: 2,
-        visible: true,
-    })
+    @type([RenderQueueDesc])
+    @visible(true)
+    @displayOrder(2)
     protected renderQueues: RenderQueueDesc[] = [];
     protected _renderQueues: RenderQueue[] = [];
 

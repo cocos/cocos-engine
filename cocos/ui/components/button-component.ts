@@ -31,7 +31,7 @@
 
 import { SpriteFrame } from '../../core/assets';
 import { Component, EventHandler as ComponentEventHandler, UITransformComponent } from '../../core/components';
-import { ccclass, help, executionOrder, menu, property, requireComponent, tooltip } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax } from '../../core/data/class-decorator';
 import { EventMouse, EventTouch, SystemEventType } from '../../core/platform';
 import { Color, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
@@ -167,10 +167,8 @@ export class ButtonComponent extends Component {
      * - 如果 Transition type 选择 Button.Transition.COLOR，按钮会对目标颜色进行颜色之间的过渡。
      * - 如果 Transition type 选择 Button.Transition.Sprite，按钮会对目标 Sprite 进行 Sprite 之间的过渡。
      */
-    @property({
-        type: Node,
-        displayOrder: 0,
-    })
+    @type(Node)
+    @displayOrder(0)
     @tooltip('指定 Button 背景节点，Button 状态改变时会修改此节点的 Color 或 Sprite 属性')
     get target () {
         return this._target;
@@ -193,9 +191,7 @@ export class ButtonComponent extends Component {
      * @zh
      * 按钮事件是否被响应，如果为 false，则按钮将被禁用。
      */
-    @property({
-        displayOrder: 1,
-    })
+    @displayOrder(1)
     @tooltip('按钮是否可交互，这一项未选中时，按钮处在禁用状态')
     get interactable () {
         return this._interactable;
@@ -230,10 +226,8 @@ export class ButtonComponent extends Component {
      * @zh
      * 按钮状态改变时过渡方式。
      */
-    @property({
-        type: Transition,
-        displayOrder: 2,
-    })
+    @type(Transition)
+    @displayOrder(2)
     @tooltip('按钮状态变化时的过渡类型')
     get transition () {
         return this._transition;
@@ -341,10 +335,8 @@ export class ButtonComponent extends Component {
      * @zh
      * 颜色过渡和缩放过渡时所需时间。
      */
-    @property({
-        min: 0,
-        max: 10,
-    })
+    @rangeMin(0)
+    @rangeMax(10)
     @tooltip('按钮颜色变化或者缩放变化的过渡时间')
     get duration () {
         return this._duration;
@@ -387,9 +379,7 @@ export class ButtonComponent extends Component {
      * @zh
      * 普通状态下按钮所显示的 Sprite。
      */
-    @property({
-        type: SpriteFrame,
-    })
+    @type(SpriteFrame)
     @tooltip('普通状态的按钮背景图资源')
     get normalSprite () {
         return this._normalSprite;
@@ -416,9 +406,7 @@ export class ButtonComponent extends Component {
      * @zh
      * 按下状态时按钮所显示的 Sprite。
      */
-    @property({
-        type: SpriteFrame,
-    })
+    @type(SpriteFrame)
     @tooltip('按下状态的按钮背景图资源')
     get pressedSprite () {
         return this._pressedSprite;
@@ -440,9 +428,7 @@ export class ButtonComponent extends Component {
      * @zh
      * 悬停状态下按钮所显示的 Sprite。
      */
-    @property({
-        type: SpriteFrame,
-    })
+    @type(SpriteFrame)
     @tooltip('悬停状态的按钮背景图资源')
     get hoverSprite () {
         return this._hoverSprite;
@@ -464,9 +450,7 @@ export class ButtonComponent extends Component {
      * @zh
      * 禁用状态下按钮所显示的 Sprite。
      */
-    @property({
-        type: SpriteFrame,
-    })
+    @type(SpriteFrame)
     @tooltip('禁用状态的按钮背景图资源')
     get disabledSprite () {
         return this._disabledSprite;
@@ -490,10 +474,8 @@ export class ButtonComponent extends Component {
      * @zh
      * 按钮的点击事件列表。
      */
-    @property({
-        type: [ComponentEventHandler],
-        displayOrder: 20,
-    })
+    @type([ComponentEventHandler])
+    @displayOrder(20)
     @tooltip('按钮点击事件的列表。先将数量改为1或更多，就可以为每个点击事件设置接受者和处理方法')
     public clickEvents: ComponentEventHandler[] = [];
     @property

@@ -33,7 +33,7 @@ import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { Texture2D } from '../../assets/texture-2d';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property, tooltip } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property, tooltip, type, visible, override } from '../../data/class-decorator';
 import { CCString } from '../../data/utils/attribute';
 import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
 import { GFXFormat, GFXType } from '../../gfx/define';
@@ -56,21 +56,21 @@ export class SkinningModelUnit {
      * @en Skinning mesh of this unit.
      * @zh 子蒙皮模型的网格模型。
      */
-    @property(Mesh)
+    @type(Mesh)
     public mesh: Mesh | null = null;
 
     /**
      * @en Skeleton of this unit.
      * @zh 子蒙皮模型的骨骼。
      */
-    @property(Skeleton)
+    @type(Skeleton)
     public skeleton: Skeleton | null = null;
 
     /**
      * @en Skinning material of this unit.
      * @zh 子蒙皮模型使用的材质。
      */
-    @property(Material)
+    @type(Material)
     public material: Material | null = null;
 
     @property
@@ -108,7 +108,7 @@ export class SkinningModelUnit {
      * @en Convenient setter, copying all necessary information from target skinning model component.
      * @zh 复制目标 SkinningModelComponent 的所有属性到本单元，方便快速配置。
      */
-    @property({ type: SkinningModelComponent })
+    @type(SkinningModelComponent)
     set copyFrom (comp: SkinningModelComponent | null) {
         if (!comp) { return; }
         this.mesh = comp.mesh;
@@ -151,9 +151,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
      * @zh
      * 材质中真正参与合图的贴图属性，不参与的属性统一使用第一个 unit 的贴图。
      */
-    @property({
-        type: [CCString],
-    })
+    @type([CCString])
     @tooltip('i18n:batched_skinning_model.batchable_texture_names')
     public batchableTextureNames: string[] = [];
 
@@ -161,16 +159,15 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
      * @en Source skinning model components, containing all the data to be batched.
      * @zh 合批前的子蒙皮模型数组，最主要的数据来源。
      */
-    @property({
-        type: [SkinningModelUnit],
-    })
+    @type([SkinningModelUnit])
     @tooltip('i18n:batched_skinning_model.units')
     public units: SkinningModelUnit[] = [];
 
     private _textures: Record<string, Texture2D> = {};
     private _batchMaterial: Material | null = null;
 
-    @property({ override: true, visible: false })
+    @override(true)
+    @visible(false)
     get mesh () {
         return super.mesh;
     }
@@ -178,7 +175,8 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         super.mesh = val;
     }
 
-    @property({ override: true, visible: false })
+    @override(true)
+    @visible(false)
     get skeleton () {
         return super.skeleton;
     }

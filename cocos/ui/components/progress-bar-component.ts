@@ -29,7 +29,7 @@
  */
 
 import { Component, UITransformComponent} from '../../core/components';
-import { ccclass, help, executionOrder, menu, property, requireComponent, tooltip } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property, requireComponent, tooltip, type, range, slide } from '../../core/data/class-decorator';
 import { Size, Vec2, Vec3 } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { clamp01 } from '../../core/math/utils';
@@ -112,9 +112,7 @@ export class ProgressBarComponent extends Component {
      * @zh
      * 用来显示进度条比例的 Sprite 对象。
      */
-    @property({
-        type: SpriteComponent,
-    })
+    @type(SpriteComponent)
     @tooltip('进度条显示用的 Sprite 节点，可以动态改变尺寸')
     get barSprite () {
         return this._barSprite;
@@ -136,9 +134,7 @@ export class ProgressBarComponent extends Component {
      * @zh
      * 进度条的模式。
      */
-    @property({
-        type: Mode,
-    })
+    @type(Mode)
     @tooltip('进度条显示模式，目前支持水平和垂直两种')
     get mode () {
         return this._mode;
@@ -192,10 +188,8 @@ export class ProgressBarComponent extends Component {
      * @zh
      * 当前进度值，该数值的区间是 0-1 之间。
      */
-    @property({
-        range: [0, 1, 0.1],
-        slide: true,
-    })
+    @range([0, 1, 0.1])
+    @slide(true)
     @tooltip('当前进度指示，范围从 0 到 1')
     get progress () {
         return this._progress;

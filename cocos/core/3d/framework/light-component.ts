@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../../components/component';
-import { ccclass, property, tooltip } from '../../data/class-decorator';
+import { ccclass, property, tooltip, range, slide, type } from '../../data/class-decorator';
 import { Color } from '../../math';
 import { Enum } from '../../value-types';
 
@@ -162,10 +162,8 @@ export class LightComponent extends Component {
      * @zh
      * 光源色温。
      */
-    @property({
-        slide: true,
-        range: [1000, 15000, 1],
-    })
+    @slide(true)
+    @range([1000, 15000, 1])
     @tooltip('i18n:lights.color_temperature')
     get colorTemperature () {
         return this._colorTemperature;
@@ -182,9 +180,7 @@ export class LightComponent extends Component {
      * @zh
      * 静态灯光设置。
      */
-    @property({
-        type: StaticLightSettings,
-    })
+    @type(StaticLightSettings)
     get staticSettings () {
         return this._staticSettings;
     }

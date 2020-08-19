@@ -4,7 +4,7 @@
 
 import { createMesh } from '../3d/misc/utils';
 import { Mesh } from '../assets/mesh';
-import { ccclass, property } from '../data/class-decorator';
+import { ccclass, property, type } from '../data/class-decorator';
 import * as primitives from '../primitive';
 import { ccenum } from '../value-types/enum';
 import { legacyCC } from '../global-exports';
@@ -38,7 +38,7 @@ export class Primitive extends Mesh {
      * @zh
      * 此基础图形网格的类型，请在 onLoaded 调用之前设置。
      */
-    @property({ type: PrimitiveType })
+    @type(PrimitiveType)
     public type: number = PrimitiveType.BOX;
 
     /**

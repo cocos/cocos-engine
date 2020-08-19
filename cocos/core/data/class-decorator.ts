@@ -586,7 +586,7 @@ export const string = type(CCString);
  * @zh 标记该属性的类型。
  * @param type
  */
-export function type (type: Function): PropertyDecorator;
+export function type (type: Function | any): PropertyDecorator;
 
 export function type (type: [Function]): PropertyDecorator;
 
@@ -600,16 +600,221 @@ export function type<T> (type: PrimitiveType<T> | Function | [PrimitiveType<T>] 
     });
 }
 
+export function serializable (value: boolean): PropertyDecorator {
+    return property({
+        serializable: value,
+    });
+}
+
+export function formerlySerializedAs (name: string): PropertyDecorator {
+    return property({
+        formerlySerializedAs: name,
+    });
+}
+
+export function override (value: boolean): PropertyDecorator {
+    return property({
+        override: value,
+    });
+}
+
+export function readOnly (value: boolean): PropertyDecorator {
+    return property({
+        readonly: value,
+    });
+}
+
+/**
+ * 
+ * @param value 
+ */
+export function animatable (value: boolean): PropertyDecorator {
+    return property({
+        animatable: value,
+    });
+}
+
 /**
  * @en
- * Set the editor tooltip content of the property.
+ * Sets whether the property is editor only.
+ * @zh
+ * 设置该属性是否仅在编辑器中生效。
+ * @param yes 是否仅在编辑器中生效。
+ */
+export function editorOnly (yes: boolean): PropertyDecorator {
+    return property({
+        editorOnly: yes,
+    });
+}
+
+/**
+ * @en
+ * Sets whether the property is visible in editor.
+ * @zh
+ * 设置是否在编辑器中展示该属性。
+ * @param text 工具提示。
+ */
+export const visible: (yes: boolean | (() => boolean)) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (yes) => {
+        return property({
+            visible: yes,
+        });
+    };
+
+/**
+ * @en
+ * Sets the display name of the property in editor.
+ * @zh
+ * 设置该属性在编辑器中的显示名称。
+ * @param text 显示名称。
+ */
+export const displayName: (text: string) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (text) => {
+        return property({
+            displayName: text,
+        });
+    };
+
+/**
+ * @en
+ * Sets the tooltip content of the property in editor.
  * @zh
  * 设置该属性在编辑器中的工具提示内容。
  * @param text 工具提示。
  */
 export const tooltip: (text: string) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
-    (text: string): PropertyDecorator => {
+    (text) => {
         return property({
             tooltip: text,
+        });
+    };
+
+/**
+ * @en
+ * Sets the allowed range of the property in editor.
+ * @zh
+ * 设置该属性在编辑器中允许设置的范围。
+ * @param values 范围。
+ */
+export const range: (values: [number, number, number] | [number, number]) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (values) => {
+        return property({
+            range: values,
+        });
+    };
+
+/**
+ * @en
+ * Sets the allowed min value of the property in editor.
+ * @zh
+ * 设置该属性在编辑器中允许的最小值。
+ * @param value 最小值。
+ */
+export const rangeMin: (value: number) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (value) => {
+        return property({
+            min: value,
+        });
+    };
+
+/**
+ * @en
+ * Sets the allowed max value of the property in editor.
+ * @zh
+ * 设置该属性在编辑器中允许的最大值。
+ * @param value 最大值。
+ */
+export const rangeMax: (value: number) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (value) => {
+        return property({
+            max: value,
+        });
+    };
+
+/**
+ * @en
+ * Sets the step of the property in editor.
+ * @zh
+ * 设置该属性在编辑器中的步进值。
+ * @param value 步进值。
+ */
+export const rangeStep: (value: number) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (value) => {
+        return property({
+            step: value,
+        });
+    };
+
+/**
+ * @en
+ * Sets whether a slider should be given to coordinate the property in editor.
+ * @zh
+ * 设置是否在编辑器中提供滑动条来调节值
+ * @param enabled 是否允许。
+ */
+export const slide: (enabled: boolean) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (enabled) => {
+        return property({
+            slide: enabled,
+        });
+    };
+
+/**
+ * @en
+ * Sets the display order of the property in editor.
+ * @zh
+ * 设置该属性在编辑器中的显示顺序。
+ * @param order 显示顺序。
+ */
+export const displayOrder: (order: number) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (order) => {
+        return property({
+            displayOrder: order,
+        });
+    };
+
+/**
+ * @en
+ * Sets the unit of the property in editor.
+ * @zh
+ * 设置该属性在编辑器中的计量单位。
+ * @param name 计量单位的名称。
+ */
+export const unit: (name:
+| 'lm'
+| 'lx'
+| 'cd/m²'
+) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (name) => {
+        return property({
+            unit: name,
+        });
+    };
+
+/**
+ * @en
+ * Sets whether to convert the value into radian before feed it to the property in editor.
+ * @zh
+ * 设置是否在赋值该属性前将值先转换为弧度制。
+ * @param enabled 是否进行转换。
+ */
+export const radian: (enabled: boolean) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (enabled) => {
+        return property({
+            radian: enabled,
+        });
+    };
+
+/**
+ * @en
+ * Sets whether to enable multi-line display of the property in editor.
+ * @zh
+ * 设置是否允许在编辑器中对该属性进行多行显示。
+ * @param enabled 是否允许多行显示。
+ */
+export const multiline: (enabled: boolean) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (enabled) => {
+        return property({
+            multiline: enabled,
         });
     };

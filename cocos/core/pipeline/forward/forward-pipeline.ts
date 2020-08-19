@@ -2,7 +2,7 @@
  * @category pipeline
  */
 
-import { ccclass, property } from '../../data/class-decorator';
+import { ccclass, property, displayOrder, visible, type } from '../../data/class-decorator';
 import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
@@ -65,47 +65,36 @@ export class ForwardPipeline extends RenderPipeline {
         return this._shadowUBO;
     }
 
-    @property({
-        type: [RenderTextureConfig],
-        displayOrder: 2,
-    })
+    @type([RenderTextureConfig])
+    @displayOrder(2)
     protected renderTextures: RenderTextureConfig[] = [];
 
-    @property({
-        type: [MaterialConfig],
-        displayOrder: 3,
-    })
+    @type([MaterialConfig])
+    @displayOrder(3)
     protected materials: MaterialConfig[] = [];
 
-    @property({
-        type: Fog,
-        displayOrder: 7,
-        visible: true,
-    })
+    @type(Fog)
+    @visible(true)
+    @displayOrder(7)
     public fog: Fog = new Fog();
-    @property({
-        type: Ambient,
-        displayOrder: 4,
-        visible: true,
-    })
+
+    @type(Ambient)
+    @visible(true)
+    @displayOrder(4)
     public ambient: Ambient = new Ambient();
-    @property({
-        type: Skybox,
-        displayOrder: 5,
-        visible: true,
-    })
+
+    @type(Skybox)
+    @visible(true)
+    @displayOrder(5)
     public skybox: Skybox = new Skybox();
-    @property({
-        type: PlanarShadows,
-        displayOrder: 6,
-        visible: true,
-    })
+
+    @type(PlanarShadows)
+    @visible(true)
+    @displayOrder(6)
     public planarShadows: PlanarShadows = new PlanarShadows();
-    @property({
-        type: Shadow,
-        displayOrder: 7,
-        visible: true,
-    })
+    @type(Shadow)
+    @displayOrder(7)
+    @visible(true)
     public shadowMap: Shadow = new Shadow();
     /**
      * @en The list for render objects, only available after the scene culling of the current frame.

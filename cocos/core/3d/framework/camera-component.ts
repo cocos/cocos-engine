@@ -31,7 +31,7 @@ import { EDITOR } from 'internal:constants';
 import { RenderTexture } from '../../assets/render-texture';
 import { UITransformComponent } from '../../components';
 import { Component } from '../../components/component';
-import { ccclass, help, executeInEditMode, menu, property, tooltip } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, property, tooltip, displayOrder, type } from '../../data/class-decorator';
 import { ray } from '../../geometry';
 import { GFXClearFlag } from '../../gfx/define';
 import { Color, Rect, toRadian, Vec3 } from '../../math';
@@ -141,9 +141,7 @@ export class CameraComponent extends Component {
      * @en Render priority of the camera, in ascending-order.
      * @zh 相机的渲染优先级，值越小越优先渲染。
      */
-    @property({
-        displayOrder: 0,
-    })
+    @displayOrder(0)
     @tooltip('i18n:camera.priority')
     get priority () {
         return this._priority;
@@ -160,10 +158,8 @@ export class CameraComponent extends Component {
      * @en Visibility mask, declaring a set of node layers that will be visible to this camera.
      * @zh 可见性掩码，声明在当前相机中可见的节点层级集合。
      */
-    @property({
-        type: Layers.BitMask,
-        displayOrder: 1,
-    })
+    @type(Layers.BitMask)
+    @displayOrder(1)
     @tooltip('i18n:camera.visibility')
     get visibility () {
         return this._visibility;
@@ -180,10 +176,8 @@ export class CameraComponent extends Component {
      * @en Clearing flags of the camera, specifies which part of the framebuffer will be actually cleared every frame.
      * @zh 相机的缓冲清除标志位，指定帧缓冲的哪部分要每帧清除。
      */
-    @property({
-        type: ClearFlag,
-        displayOrder: 2,
-    })
+    @type(ClearFlag)
+    @displayOrder(2)
     @tooltip('i18n:camera.clear_flags')
     get clearFlags () {
         return this._clearFlags;
@@ -198,9 +192,7 @@ export class CameraComponent extends Component {
      * @en Clearing color of the camera.
      * @zh 相机的颜色缓冲默认值。
      */
-    @property({
-        displayOrder: 3,
-    })
+    @displayOrder(3)
     @tooltip('i18n:camera.color')
     // @constget
     get clearColor (): Readonly<Color> {
@@ -221,9 +213,7 @@ export class CameraComponent extends Component {
      * @en Clearing depth of the camera.
      * @zh 相机的深度缓冲默认值。
      */
-    @property({
-        displayOrder: 4,
-    })
+    @displayOrder(4)
     @tooltip('i18n:camera.depth')
     get clearDepth () {
         return this._depth;
@@ -238,9 +228,7 @@ export class CameraComponent extends Component {
      * @en Clearing stencil of the camera.
      * @zh 相机的模板缓冲默认值。
      */
-    @property({
-        displayOrder: 5,
-    })
+    @displayOrder(5)
     @tooltip('i18n:camera.stencil')
     get clearStencil () {
         return this._stencil;
@@ -255,10 +243,8 @@ export class CameraComponent extends Component {
      * @en Projection type of the camera.
      * @zh 相机的投影类型。
      */
-    @property({
-        type: ProjectionType,
-        displayOrder: 6,
-    })
+    @type(ProjectionType)
+    @displayOrder(6)
     @tooltip('i18n:camera.projection')
     get projection () {
         return this._projection;
@@ -273,10 +259,8 @@ export class CameraComponent extends Component {
      * @en The axis on which the FOV would be fixed regardless of screen aspect changes.
      * @zh 指定视角的固定轴向，在此轴上不会跟随屏幕长宽比例变化。
      */
-    @property({
-        type: FOVAxis,
-        displayOrder: 7,
-    })
+    @type(FOVAxis)
+    @displayOrder(7)
     @tooltip('i18n:camera.fov_axis')
     get fovAxis () {
         return this._fovAxis;
@@ -296,9 +280,7 @@ export class CameraComponent extends Component {
      * @en Field of view of the camera.
      * @zh 相机的视角大小。
      */
-    @property({
-        displayOrder: 8,
-    })
+    @displayOrder(8)
     @tooltip('i18n:camera.fov')
     get fov () {
         return this._fov;
@@ -313,9 +295,7 @@ export class CameraComponent extends Component {
      * @en Viewport height in orthographic mode.
      * @zh 正交模式下的相机视角高度。
      */
-    @property({
-        displayOrder: 9,
-    })
+    @displayOrder(9)
     @tooltip('i18n:camera.ortho_height')
     get orthoHeight () {
         return this._orthoHeight;
@@ -330,9 +310,7 @@ export class CameraComponent extends Component {
      * @en Near clipping distance of the camera, should be as large as possible within acceptable range.
      * @zh 相机的近裁剪距离，应在可接受范围内尽量取最大。
      */
-    @property({
-        displayOrder: 10,
-    })
+    @displayOrder(10)
     @tooltip('i18n:camera.near')
     get near () {
         return this._near;
@@ -347,9 +325,7 @@ export class CameraComponent extends Component {
      * @en Far clipping distance of the camera, should be as small as possible within acceptable range.
      * @zh 相机的远裁剪距离，应在可接受范围内尽量取最小。
      */
-    @property({
-        displayOrder: 11,
-    })
+    @displayOrder(11)
     @tooltip('i18n:camera.far')
     get far () {
         return this._far;
@@ -364,10 +340,8 @@ export class CameraComponent extends Component {
      * @en Camera aperture, controls the exposure parameter.
      * @zh 相机光圈，影响相机的曝光参数。
      */
-    @property({
-        type: Aperture,
-        displayOrder: 12,
-    })
+    @type(Aperture)
+    @displayOrder(12)
     @tooltip('i18n:camera.aperture')
     get aperture () {
         return this._aperture;
@@ -382,10 +356,8 @@ export class CameraComponent extends Component {
      * @en Camera shutter, controls the exposure parameter.
      * @zh 相机快门，影响相机的曝光参数。
      */
-    @property({
-        type: Shutter,
-        displayOrder: 13,
-    })
+    @type(Shutter)
+    @displayOrder(13)
     @tooltip('i18n:camera.shutter')
     get shutter () {
         return this._shutter;
@@ -400,10 +372,8 @@ export class CameraComponent extends Component {
      * @en Camera ISO, controls the exposure parameter.
      * @zh 相机感光度，影响相机的曝光参数。
      */
-    @property({
-        type: ISO,
-        displayOrder: 14,
-    })
+    @type(ISO)
+    @displayOrder(14)
     @tooltip('i18n:camera.ISO')
     get iso () {
         return this._iso;
@@ -418,9 +388,7 @@ export class CameraComponent extends Component {
      * @en Screen viewport of the camera wrt. the sceen size.
      * @zh 此相机最终渲染到屏幕上的视口位置和大小。
      */
-    @property({
-        displayOrder: 15,
-    })
+    @displayOrder(15)
     @tooltip('i18n:camera.rect')
     get rect () {
         return this._rect;
@@ -435,10 +403,8 @@ export class CameraComponent extends Component {
      * @en Output render texture of the camera. Default to null, which outputs directly to screen.
      * @zh 指定此相机的渲染输出目标贴图，默认为空，直接渲染到屏幕。
      */
-    @property({
-        type: RenderTexture,
-        displayOrder: 16,
-    })
+    @type(RenderTexture)
+    @displayOrder(16)
     @tooltip('i18n:camera.target_texture')
     get targetTexture () {
         return this._targetTexture;

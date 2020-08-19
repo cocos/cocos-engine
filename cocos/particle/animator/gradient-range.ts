@@ -3,7 +3,7 @@
  * @hidden
  */
 
-import { ccclass, property } from '../../core/data/class-decorator';
+import { ccclass, property, type } from '../../core/data/class-decorator';
 import { Color } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
@@ -34,9 +34,7 @@ export default class GradientRange {
     /**
      * @zh 渐变色类型 [[Mode]]。
      */
-    @property({
-        type: Mode,
-    })
+    @type(Mode)
     get mode () {
         return this._mode;
     }
@@ -78,30 +76,22 @@ export default class GradientRange {
     /**
      * @zh 当mode为Gradient时的颜色渐变。
      */
-    @property({
-        type: Gradient,
-    })
+    @type(Gradient)
     public gradient = new Gradient();
 
     /**
      * @zh 当mode为TwoGradients时的颜色渐变下限。
      */
-    @property({
-        type: Gradient,
-    })
+    @type(Gradient)
     public gradientMin = new Gradient();
 
     /**
      * @zh 当mode为TwoGradients时的颜色渐变上限。
      */
-    @property({
-        type: Gradient,
-    })
+    @type(Gradient)
     public gradientMax = new Gradient();
 
-    @property({
-        type: Mode,
-    })
+    @type(Mode)
     private _mode = Mode.Color;
 
     private _color = Color.WHITE.clone();
