@@ -1017,7 +1017,6 @@ var ParticleSystem = cc.Class({
                 }
                 
                 if (!self._spriteFrame) {
-                    self._plistFile = file.nativeUrl;
                     if (file.spriteFrame) {
                         self.spriteFrame = file.spriteFrame;
                     }
