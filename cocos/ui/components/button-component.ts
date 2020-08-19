@@ -362,9 +362,13 @@ export class ButtonComponent extends Component {
      * @en
      * When user press the button, the button will zoom to a scale.
      * The final scale of the button equals (button original scale * zoomScale)
+     * NOTE: Setting zoomScale less than 1 is not adviced, which could fire the touchCancel event if the touch point is out of touch area after scaling. 
+     * if you need to do so, you should set target as another background node instead of the button node.
      *
      * @zh
      * 当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale。
+     * 注意：不建议 zoomScale 的值小于 1, 否则缩放后如果触摸点在触摸区域外, 则会触发 touchCancel 事件。
+     * 如果你需要这么做，你应该把 target 设置为另一个背景节点，而不是按钮节点。
      */
     @tooltip('当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale。')
     get zoomScale () {
