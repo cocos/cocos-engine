@@ -310,11 +310,11 @@ export class Root {
     }
 
     public onGlobalPipelineStateChanged () {
-        for (let i = 0; i < this._scenes.length; i++) {
-            this._scenes[i].onGlobalPipelineStateChanged();
-        }
         for (let i = 0; i < this._views.length; i++) {
             this._views[i].onGlobalPipelineStateChanged();
+        }
+        for (let i = 0; i < this._scenes.length; i++) {
+            this._scenes[i].onGlobalPipelineStateChanged();
         }
     }
 

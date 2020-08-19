@@ -198,7 +198,7 @@ export class RenderView {
             const flow = this._flows[i];
             for (let j = 0; j < pipelineFlows.length; j++) {
                 if (pipelineFlows[j].name === flow.name) {
-                    this._flows[j] = pipelineFlows[i];
+                    this._flows[i] = pipelineFlows[j];
                     break;
                 }
             }
