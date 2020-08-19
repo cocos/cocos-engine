@@ -44,6 +44,7 @@ import { Node } from '../../scene-graph';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
 import { UITransformComponent } from './ui-transform-component';
+import { EDITOR } from 'internal:constants';
 
 // hack
 ccenum(GFXBlendFactor);
@@ -202,6 +203,10 @@ export class UIRenderComponent extends RenderableComponent {
         this._color.set(value);
         this._updateColor();
         this.markForUpdateRenderData();
+        if (EDITOR) {
+            let clone = value.clone();
+            this.node.emit(SystemEventType.COLOR_CHANGED, clone);
+        }
     }
 
     // hack for builtinMaterial

@@ -284,15 +284,15 @@ export class ButtonComponent extends Component {
     @tooltip('按下状态的按钮背景颜色')
     // @constget
     get pressedColor (): Readonly<Color> {
-        return this._pressColor;
+        return this._pressedColor;
     }
 
     set pressedColor (value) {
-        if (this._pressColor === value) {
+        if (this._pressedColor === value) {
             return;
         }
 
-        this._pressColor.set(value);
+        this._pressedColor.set(value);
     }
 
     /**
@@ -496,7 +496,7 @@ export class ButtonComponent extends Component {
     @property
     protected _hoverColor: Color = new Color(211, 211, 211, 255);
     @property
-    protected _pressColor: Color = Color.WHITE.clone();
+    protected _pressedColor: Color = Color.WHITE.clone();
     @property
     protected _disabledColor: Color = new Color(124, 124, 124, 255);
     @property
@@ -545,17 +545,8 @@ export class ButtonComponent extends Component {
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._registerEvent();
         } else {
-            this.node.on(SpriteComponent.EventType.SPRITE_FRAME_CHANGED, (comp: SpriteComponent) => {
-                if (this._transition === Transition.SPRITE) {
-                    this._normalSprite = comp.spriteFrame;
-                } else {
-                    // avoid serialization data loss when in no-sprite mode
-                    this._normalSprite = null;
-                    this._hoverSprite = null;
-                    this._pressedSprite = null;
-                    this._disabledSprite = null;
-                }
-            }, this);
+            this.node.on(SpriteComponent.EventType.SPRITE_FRAME_CHANGED, this._onTargetSpriteFrameChanged, this);
+            this.node.on(SystemEventType.COLOR_CHANGED, this._onTargetColorChanged, this);
         }
     }
 
@@ -572,6 +563,7 @@ export class ButtonComponent extends Component {
             this.node.off(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
         } else {
             this.node.off(SpriteComponent.EventType.SPRITE_FRAME_CHANGED);
+            this.node.off(SystemEventType.COLOR_CHANGED);
         }
     }
 
@@ -663,6 +655,55 @@ export class ButtonComponent extends Component {
         this._sprite = this._getTargetSprite(this._target);
         if (this._target) {
             Vec3.copy(this._originalScale, this._target.getScale());
+        }
+    }
+
+    private _onTargetSpriteFrameChanged (comp: SpriteComponent) {
+        if (this._transition === Transition.SPRITE) {
+            this._setCurrentStateSpriteFrame(comp.spriteFrame);
+        }
+    }
+
+    private _setCurrentStateSpriteFrame (spriteFrame: SpriteFrame | null) {
+        if (!spriteFrame) {
+            return;
+        }
+        switch (this._getButtonState()) {
+            case State.NORMAL:
+                this._normalSprite = spriteFrame;
+                break;
+            case State.HOVER:
+                this._hoverSprite = spriteFrame;
+                break;
+            case State.PRESSED:
+                this._pressedSprite = spriteFrame;
+                break;
+            case State.DISABLED:
+                this._disabledSprite = spriteFrame;
+                break;
+        }
+    }
+
+    private _onTargetColorChanged (color: Color) {
+        if (this._transition === Transition.COLOR) {
+            this._setCurrentStateColor(color);
+        }
+    }
+
+    private _setCurrentStateColor(color: Color) {
+        switch (this._getButtonState()) {
+            case State.NORMAL:
+                this._normalColor = color;
+                break;
+            case State.HOVER:
+                this._hoverColor = color;
+                break;
+            case State.PRESSED:
+                this._pressedColor = color;
+                break;
+            case State.DISABLED:
+                this._disabledColor = color;
+                break;
         }
     }
 
