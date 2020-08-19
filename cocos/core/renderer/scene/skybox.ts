@@ -8,16 +8,12 @@ import { box } from '../../primitive';
 import { MaterialInstance } from '../core/material-instance';
 import { samplerLib } from '../core/sampler-lib';
 import { Model } from './model';
-import { ccclass, property, visible, type } from '../../data/class-decorator';
-import { CCBoolean } from '../../data/utils/attribute';
 import { legacyCC } from '../../global-exports';
 import { GFXDescriptorSet } from '../../gfx';
-import { EDITOR } from 'internal:constants';
 
 let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;
 
-@ccclass('cc.Skybox')
 export class Skybox {
     get model () {
         return this._model;

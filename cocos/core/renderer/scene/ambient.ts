@@ -1,8 +1,5 @@
-import { property, ccclass, visible, type } from '../../data/class-decorator';
 import { Color, Vec3 } from '../../math';
-import { EDITOR } from 'internal:constants';
 
-@ccclass('cc.Ambient')
 export class Ambient {
     public static SUN_ILLUM = 65000.0;
     public static SKY_ILLUM = 20000.0;

@@ -10,7 +10,6 @@ import { SphereLight } from './sphere-light';
 import { GFXCommandBuffer, GFXDevice, GFXRenderPass, GFXDescriptorSet, GFXShader } from '../../gfx';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
-import { ccclass } from '../../data/class-decorator';
 import { legacyCC } from '../../global-exports';
 import { RenderScene } from './render-scene';
 import { DSPool, ShaderPool, PassPool, PassView } from '../core/memory-pools';
@@ -28,7 +27,6 @@ interface IShadowRenderData {
     instancedBuffer: InstancedBuffer | null;
 }
 
-@ccclass('cc.PlanarShadows')
 export class PlanarShadows {
     /**
      * @en Whether activate planar shadow

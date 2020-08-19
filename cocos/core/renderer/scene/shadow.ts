@@ -1,4 +1,3 @@
-import { ccclass } from '../../data/class-decorator';
 import { Vec2 } from '../../../core/math';
 import { legacyCC } from '../../global-exports';
 import { UBOShadow } from '../../pipeline/define';
@@ -10,7 +9,6 @@ import { Color } from '../../math';
  * @en Scene level shadow related information
  * @zh 常规阴影相关信息
  */
-@ccclass('cc.Shadow')
 export class Shadow {
     /**
      * @en Whether activate shadow
