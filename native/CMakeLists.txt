@@ -523,6 +523,8 @@ cocos_source_files(
     cocos/renderer/pipeline/RenderWindow.h
     cocos/renderer/pipeline/PlanarShadowQueue.cpp
     cocos/renderer/pipeline/PlanarShadowQueue.h
+    cocos/renderer/pipeline/ShadowMapBatchedQueue.cpp
+    cocos/renderer/pipeline/ShadowMapBatchedQueue.h
     cocos/renderer/pipeline/forward/ForwardFlow.cpp
     cocos/renderer/pipeline/forward/ForwardFlow.h
     cocos/renderer/pipeline/forward/ForwardPipeline.cpp

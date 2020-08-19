@@ -23,7 +23,7 @@ struct CC_DLL RenderStageInfo {
 
 class CC_DLL RenderStage : public Object {
 public:
-    RenderStage() = default;
+    RenderStage();
     virtual ~RenderStage();
 
     virtual void activate(RenderPipeline *pipeline, RenderFlow *flow);
@@ -41,9 +41,11 @@ protected:
     vector<RenderQueue *> _renderQueues;
     RenderPipeline *_pipeline = nullptr;
     RenderFlow *_flow = nullptr;
+    gfx::Device *_device = nullptr;
     String _name;
     uint _priority = 0;
     uint _tag = 0;
+    gfx::ColorList _clearColors = {{0, 0, 0, 1.0f}};
 };
 
 } // namespace pipeline

@@ -25,7 +25,7 @@ struct CC_DLL ModelView {
 
     uint32_t worldBoundsID = 0; //aabb
 
-//    InstancedAttributeBlock instancedAttributeBlock;
+    //    InstancedAttributeBlock instancedAttributeBlock;
 
     const static se::PoolType type = se::PoolType::MODEL;
 };
@@ -65,6 +65,7 @@ struct CC_DLL PassView {
 
     const static se::PoolType type = se::PoolType::PASS;
 };
+
 //
 //struct CC_DLL InstancedAttributeBlock {
 //    uint32_t bufferViewID = 0;
@@ -209,7 +210,7 @@ struct CC_DLL RenderingSubMesh {
 struct CC_DLL Node {
     cc::Mat4 worldMatrix;
     cc::Vec3 worldPosition;
-    cc::Vec3 worldRotation;
+    cc::Vec4 worldRotation;
     cc::Vec3 worldScale;
 
     uint32_t layer = 0;

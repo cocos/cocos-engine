@@ -1,11 +1,22 @@
 #include "ShadowStage.h"
 #include "../Define.h"
 #include "../RenderQueue.h"
+#include "../RenderView.h"
+#include "../ShadowMapBatchedQueue.h"
 #include "../forward/ForwardPipeline.h"
+#include "../helper/SharedMemory.h"
+#include "gfx/GFXCommandBuffer.h"
 #include "gfx/GFXDevice.h"
+#include "gfx/GFXFramebuffer.h"
+#include "gfx/GFXQueue.h"
+#include "math/Vec2.h"
 
 namespace cc {
 namespace pipeline {
+ShadowStage::ShadowStage()
+: _additiveShadowQueue(CC_NEW(ShadowMapBatchedQueue)) {
+}
+
 ShadowStage::~ShadowStage() {
     destroy();
 }
@@ -22,78 +33,56 @@ bool ShadowStage::initialize(const RenderStageInfo &info) {
     return true;
 }
 
-void ShadowStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
-    RenderStage::activate(pipeline, flow);
-    for (const auto &descritpr : _renderQueueDescriptors) {
-        uint phase = 0;
-        for (const auto &stage : descritpr.stages) {
-            phase |= PassPhase::getPhaseID(stage);
-        }
-        auto sortFunc = opaqueCompareFn;
-        switch (descritpr.sortMode) {
-            case RenderQueueSortMode::BACK_TO_FRONT:
-                sortFunc = transparentCompareFn;
-                break;
-            case RenderQueueSortMode::FRONT_TO_BACK:
-                sortFunc = opaqueCompareFn;
-                break;
-        }
-
-        RenderQueueCreateInfo quue = {descritpr.isTransparent, phase, sortFunc};
-        _renderQueues.emplace_back(CC_NEW(RenderQueue(std::move(quue))));
-    }
-}
-
 void ShadowStage::render(RenderView *view) {
     const auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
-    const auto isHDR = pipeline->isHDR();
-    pipeline->setHDR(false);
+    //TODO
+    //    _additiveShadowQueue->clear(pipeline.descriptorSet.getBuffer(UBOShadow.BLOCK.binding));
 
-    auto device = gfx::Device::getInstance();
-    _renderQueues[0]->clear();
-    //    const auto &renderObjects = pipeline->getRenderObjects();
-    //    for (const auto &ro : renderObjects) {
-    //        for (let i = 0; i < ro.model.subModelNum; i++) {
-    //            for (let j = 0; j < ro.model.getSubModel(i).passes.length; j++) {
-    //                this._renderQueues[0].insertRenderPass(ro, i, j);
-    //            }
-    //        }
-    //    }
-    //    this._renderQueues[0].sort();
-    //
-    //    const camera = view.camera!;
-    //    const vp = camera.viewport;
-    //    this._renderArea!.x = vp.x * camera.width;
-    //    this._renderArea!.y = vp.y * camera.height;
-    //    this._renderArea!.width = vp.width * camera.width;
-    //    this._renderArea!.height = vp.height * camera.height;
-    //
-    //    colors[0] = camera.clearColor;
-    //
-    //    const cmdBuff = pipeline.commandBuffers[0];
-    //
-    //    const framebuffer = view.window.framebuffer;
-    //    const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
-    //
-    //    cmdBuff.begin();
-    //    cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
-    //        [camera.clearColor], camera.clearDepth, camera.clearStencil);
-    //
-    //    this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
-    //
-    //    cmdBuff.endRenderPass();
-    //    cmdBuff.end();
-    //
-    //    device.queue.submit(pipeline.commandBuffers);
-    //    pipeline.isHDR = isHDR;
+    const auto shadowObjects = pipeline->getShadowObjects();
+    for (const auto &shadowObject : shadowObjects) {
+        const uint32_t *subModels = GET_SUBMODEL_ARRAY(shadowObject.model->subModelsID);
+        uint32_t subModelCount = subModels[0];
+        for (uint32_t m = 1; m <= subModelCount; m++) {
+            const auto subModel = GET_SUBMODEL(subModels[m]);
+            for (uint32_t p = 0; p < subModel->passCount; p++) {
+                _additiveShadowQueue->add(shadowObject, m, p);
+            }
+        }
+    }
+
+    const auto camera = view->getCamera();
+    const auto commandBuffers = pipeline->getCommandBuffers();
+    auto cmdBuffer = commandBuffers[0];
+
+    const auto vp = camera->viewport;
+    cc::Vec2 shadowMapSize; //TODO = ShadowInfo.instance.shadowMapSize;
+    _renderArea.x = vp.x * shadowMapSize.x;
+    _renderArea.y = vp.y * shadowMapSize.y;
+    _renderArea.width = vp.width * shadowMapSize.x * pipeline->getShadingScale();
+    _renderArea.height = vp.height * shadowMapSize.y * pipeline->getShadingScale();
+
+    _clearColors[0] = {1.0f, 1.0f, 1.0f, 1.0f};
+    auto renderPass = _framebuffer->getRenderPass();
+
+    cmdBuffer->begin();
+    cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,
+                               _clearColors, camera->clearDepth, camera->clearStencil);
+
+    //TODO
+    //    cmdBuffer.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
+
+    _additiveShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuffer);
+
+    cmdBuffer->endRenderPass();
+    cmdBuffer->end();
+
+    _device->getQueue()->submit(commandBuffers);
 }
 
 void ShadowStage::destroy() {
-    for (auto queue : _renderQueues) {
-        CC_SAFE_DELETE(queue);
-    }
-    _renderQueues.clear();
-    _renderQueueDescriptors.clear();
+    CC_SAFE_DESTROY(_additiveShadowQueue);
+
+    RenderStage::destroy();
 }
 
 } // namespace pipeline

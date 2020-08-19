@@ -30,7 +30,7 @@ void RenderBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPas
             batch.vbIdx->update(batch.vbIndexData.get(), 0, batch.vbIdx->getSize());
             batch.ubo->update(batch.uboData, 0, batch.ubo->getSize());
 
-            //            auto pso = PipelineStateManager::getOrCreatePipelineStage(batch.pa, pass, batch.ia, renderPass);
+            //            auto pso = PipelineStateManager::getOrCreatePipelineState(batch.pa, pass, batch.ia, renderPass);
             //            if (!boundPSO) {
             //                cmdBuff->bindPipelineState(pso);
             //                boundPSO = true;
