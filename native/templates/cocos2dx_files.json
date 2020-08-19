@@ -520,6 +520,8 @@
         "cocos/renderer/pipeline/RenderView.h", 
         "cocos/renderer/pipeline/RenderWindow.cpp", 
         "cocos/renderer/pipeline/RenderWindow.h", 
+        "cocos/renderer/pipeline/ShadowMapBatchedQueue.cpp", 
+        "cocos/renderer/pipeline/ShadowMapBatchedQueue.h", 
         "cocos/renderer/pipeline/forward/ForwardFlow.cpp", 
         "cocos/renderer/pipeline/forward/ForwardFlow.h", 
         "cocos/renderer/pipeline/forward/ForwardPipeline.cpp", 
