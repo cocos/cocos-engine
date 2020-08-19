@@ -8,8 +8,7 @@ namespace cc {
 namespace pipeline {
 RenderView::RenderView(uint cameraID)
 : _camera(GET_CAMERA(cameraID)) {
-    const auto root = GET_ROOT(0); //TODO coulsonwang
-    _pipeline = GET_PIPELINE(root->pipelineID);
+    _pipeline = RenderPipeline::getInstance();
 }
 
 RenderView::~RenderView() {

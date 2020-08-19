@@ -6,27 +6,27 @@ enum class PoolType {
     RASTERIZER_STATE,
     DEPTH_STENCIL_STATE,
     BLEND_STATE,
-    BINDING_LAYOUT,
     DESCRIPTOR_SETS,
     SHADER,
     INPUT_ASSEMBLER,
     PIPELINE_LAYOUT,
+    FRAMEBUFFER,
+
     // buffers
     PASS,
     MODEL,
     SUBMODEL,
-    INSTANCED_ATTRIBUTE,
-    CAMERA,
     SCENE,
-    MAIN_LIGHT,
-    AMBIENT,
-    FOG,
-    RENDER_SUBMESH,
-    BUFFER_VIEW,
-    FLAT_BUFFER,
+    CAMERA,
     NODE,
     ROOT,
+    DIRECTOR,
+    AABB,
+    BUFFER_VIEW,
+    RENDER_WINDOW,
+
     // array
+    MODEL_ARRAY,
     SUBMODEL_ARRAY,
     UNKNOWN
 };

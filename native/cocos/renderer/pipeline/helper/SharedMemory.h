@@ -44,7 +44,6 @@ struct CC_DLL SubModelView {
     uint32_t shader3ID = 0;
     uint32_t descriptorSetID = 0;
     uint32_t inputAssemblerID = 0;
-    uint32_t COUNT = 0;
 
     const static se::PoolType type = se::PoolType::SUBMODEL;
 };
@@ -62,7 +61,6 @@ struct CC_DLL PassView {
     uint32_t blendStateID = 0;
     uint32_t descriptorSetID = 0;
     uint32_t pipelineLayoutID = 0;
-    uint32_t count = 0;
 
     const static se::PoolType type = se::PoolType::PASS;
 };
@@ -104,7 +102,7 @@ struct CC_DLL AABB {
     cc::Vec3 halfExtents;
     cc::Vec3 center;
 
-    const static se::PoolType type = se::PoolType::UNKNOWN;
+    const static se::PoolType type = se::PoolType::AABB;
 };
 
 struct CC_DLL Frustum {
@@ -223,21 +221,21 @@ struct CC_DLL Root {
     float cumulativeTime = 0;
     float frameTime = 0;
 
-    uint32_t pipelineID = 0;
-
     const static se::PoolType type = se::PoolType::ROOT;
 };
 
 struct CC_DLL Director {
     float totalFrames = 0;
 
-    const static se::PoolType type = se::PoolType::UNKNOWN;
+    const static se::PoolType type = se::PoolType::DIRECTOR;
 };
 
 struct CC_DLL RenderWindow {
     uint32_t framebufferID = 0;
     uint32_t hasOnScreenAttachments = 0;
     uint32_t hasOffScreenAttachments = 0;
+
+    const static se::PoolType type = se::PoolType::RENDER_WINDOW;
 };
 
 //Get buffer pool data
@@ -261,6 +259,7 @@ struct CC_DLL RenderWindow {
 #define GET_SKYBOX(index)                     (SharedMemory::get<Skybox>(index))
 #define GET_FRUSTUM(index)                    (SharedMemory::get<Frustum>(index))
 #define GET_AABB(index)                       (SharedMemory::get<AABB>(index))
+#define GET_WINDOW(index)                     (SharedMemory::get<RenderWindow>(index))
 
 //TODO
 #define GET_NAME(index) (String(0))
@@ -273,8 +272,6 @@ struct CC_DLL RenderWindow {
 #define GET_DEPTH_STENCIL_STATE(index) (static_cast<gfx::DepthStencilState *>(0))
 #define GET_BLEND_STATE(index)         (static_cast<gfx::BlendState *>(0))
 #define GET_BINDING_LAYOUT(index)      (static_cast<gfx::BindingLayout *>(0))
-#define GET_PIPELINE(index)            (static_cast<RenderPipeline *>(0))
-#define GET_WINDOW(index)              (static_cast<RenderWindow *>(0))
 #define GET_FRAMEBUFFER(index)         (static_cast<gfx::Framebuffer *>(0))
 
 //Get array pool data

@@ -23,7 +23,9 @@ struct CC_DLL RenderPipelineInfo {
 
 class CC_DLL RenderPipeline : public Object {
 public:
-    RenderPipeline() = default;
+    static RenderPipeline *getInstance();
+
+    RenderPipeline();
     virtual ~RenderPipeline();
 
     virtual bool activate();
@@ -37,6 +39,8 @@ public:
     CC_INLINE const DefineMap &getMacro() const { return _macros; }
 
 protected:
+    static RenderPipeline *_instance;
+
     gfx::CommandBufferList _commandBuffers;
     RenderFlowList _flows;
     map<String, InternalBindingInst> _globalBindings;
