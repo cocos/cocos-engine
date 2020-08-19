@@ -92,33 +92,15 @@ export class Skybox {
         }
     }
 
-    @type(CCBoolean)
-    @visible(true)
     protected _enabled = false;
-
-    @type(CCBoolean)
-    @visible(true)
     protected _isRGBE = false;
-    
-    @type(CCBoolean)
-    @visible(true)
     protected _useIBL = false;
-
-    @type(TextureCube)
-    @visible(true)
     protected _envmap: TextureCube | null = null;
-    
     protected _globalDescriptorSet: GFXDescriptorSet | null = null;
     protected _model: Model | null = null;
     protected _default: TextureCube | null = null;
 
     public activate () {
-        this._updatePipeline();
-
-        if (!this._enabled) {
-            return;
-        }
-
         const pipeline = legacyCC.director.root.pipeline
         this._globalDescriptorSet = pipeline.descriptorSet;
         if (!this._model) {
@@ -129,7 +111,6 @@ export class Skybox {
 
         pipeline.ambient.groundAlbedo[3] = this._envmap ? this._envmap.mipmapLevel : this._default.mipmapLevel;
         this._updateGlobalBinding();
-
         if (!skybox_material) {
             const mat = new Material();
             mat.initialize({ effectName: 'pipeline/skybox', defines: { USE_RGBE_CUBEMAP: this._isRGBE } });
@@ -139,19 +120,18 @@ export class Skybox {
         }
         if (!skybox_mesh) { skybox_mesh = createMesh(box({ width: 2, height: 2, length: 2 })); }
         this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
-    }
 
-    public onGlobalPipelineStateChanged () {
-        this._model!.onGlobalPipelineStateChanged();
-        this._updateGlobalBinding();
+        this._updatePipeline();
     }
 
     protected _updatePipeline () {
         const value = this._enabled ? (this._useIBL ? this._isRGBE ? 2 : 1 : 0) : 0;
-        const pipeline = legacyCC.director.root.pipeline;
+        const root = legacyCC.director.root;
+        const pipeline = root.pipeline;
         const current = pipeline.macros.CC_USE_IBL;
         if (current === value) { return; }
         pipeline.macros.CC_USE_IBL = value;
+        root.onGlobalPipelineStateChanged();
     }
 
     protected _updateGlobalBinding () {

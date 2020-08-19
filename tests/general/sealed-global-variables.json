@@ -147,6 +147,7 @@
         "cc.PhysicsSystem",
         "cc.Pipeline",
         "cc.PlanarShadowInfo",
+        "cc.SkyboxInfo",
         "cc.Prefab",
         "cc.Primitive",
         "cc.PrivateNode",

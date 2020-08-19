@@ -39,7 +39,6 @@ export class Ambient {
 
     set skyColor (color: Color) {
         this._skyColor = color;
-        Color.toArray(this._colorArray, this._skyColor);
     }
 
     /**
@@ -68,29 +67,14 @@ export class Ambient {
     }
 
     protected _enabled = true;
-    @type(Color)
-    @visible(true)
     protected _skyColor = new Color(51, 128, 204, 1.0);
-
-    @property
-    @visible(true)
     protected _skyIllum: number = Ambient.SKY_ILLUM;
-
-    @type(Color)
-    @visible(true)
     protected _groundAlbedo = new Color(51, 51, 51, 255);
-
     protected _albedoArray = Float32Array.from([0.2, 0.2, 0.2, 1.0]);
     protected _colorArray = Float32Array.from([0.2, 0.5, 0.8, 1.0]);
 
     public activate () {
-        if (!this._enabled) {
-            return
-        }
-
         Color.toArray(this._colorArray, this._skyColor);
         Vec3.toArray(this._albedoArray, this._groundAlbedo);
     }
-
-    public update () {}
 }
