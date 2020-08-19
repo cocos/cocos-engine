@@ -219,7 +219,7 @@ export class ActionManager {
                 break;
             }
         }
-    },
+    }
 
     /**
      * !#en Removes an action given its tag and the target.
