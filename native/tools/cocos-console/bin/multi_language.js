@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.get_current_string = exports.has_key = exports.get_string = exports.set_current_language = void 0;
 const path = require("path");
 const fs = require("fs");
 const cfg_info = require("./strings.json");

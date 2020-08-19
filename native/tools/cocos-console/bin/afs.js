@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.afs = void 0;
 const fs = require("fs");
 const util_1 = require("util");
 exports.afs = {

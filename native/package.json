@@ -25,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/cocos-creator/cocos2d-x-lite/issues"
   },
-  "homepage": "https://github.com/cocos-creator/cocos2d-x-lite#readme"
+  "homepage": "https://github.com/cocos-creator/cocos2d-x-lite#readme",
+  "dependencies": {
+    "@types/node": "^14.0.27"
+  }
 }

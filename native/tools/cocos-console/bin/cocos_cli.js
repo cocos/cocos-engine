@@ -9,7 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cchelper = exports.CCPlugin = exports.pa = void 0;
 const fs = require("fs");
 const path = require("path");
 const ml = require("./multi_language");
@@ -433,7 +432,10 @@ class cchelper {
     static fix_path(p) {
         p = this.replace_env_variables(p);
         if (os.platform() == "win32") {
-            return p.replace(/\\/g, "\\\\");
+            if (p.indexOf(" ") >= 0) {
+                console.error(`space found in path "${p}"`);
+            }
+            return p.replace(/\\/g, "/").replace(/\/+/, "/");
         }
         return p;
     }
