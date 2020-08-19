@@ -551,12 +551,8 @@ export class ButtonComponent extends Component {
 
     public onDisable () {
         this._resetState();
-        if (!EDITOR || legacyCC.GAME_VIEW) {
-            this._unregisterNodeEvent();
-        }
-        else {
-            this._unregisterTargetEvent(this.target);
-        }
+        this._unregisterNodeEvent();
+        this._unregisterTargetEvent(this.target);
     }
 
     public update (dt: number) {
@@ -721,14 +717,6 @@ export class ButtonComponent extends Component {
         }
     }
 
-    private _onTargetTransformChanged (transformBit: TransformBit) {
-        // update originalScale
-        if (transformBit | TransformBit.SCALE && this._originalScale
-            && this._transition === Transition.SCALE && this._transitionFinished) {
-            Vec3.copy(this._originalScale, this.target.getScale());
-        }
-    }
-
     private _setCurrentStateColor(color: Color) {
         switch (this._getButtonState()) {
             case State.NORMAL:
@@ -743,6 +731,14 @@ export class ButtonComponent extends Component {
             case State.DISABLED:
                 this._disabledColor = color;
                 break;
+        }
+    }
+
+    private _onTargetTransformChanged (transformBit: TransformBit) {
+        // update originalScale
+        if (transformBit | TransformBit.SCALE && this._originalScale
+            && this._transition === Transition.SCALE && this._transitionFinished) {
+            Vec3.copy(this._originalScale, this.target.getScale());
         }
     }
 
