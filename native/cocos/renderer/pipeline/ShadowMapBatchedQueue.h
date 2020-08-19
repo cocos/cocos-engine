@@ -21,7 +21,7 @@ private:
     vector<SubModelView *> _subModels;
     vector<PassView *> _passes;
     vector<gfx::Shader *> _shaders;
-    gfx::Buffer *_buffer;
+    gfx::Buffer *_buffer = nullptr;
     uint _phaseID = 0;
 };
 } // namespace pipeline

@@ -40,7 +40,7 @@ void ShadowStage::render(RenderView *view) {
 
     const auto shadowObjects = pipeline->getShadowObjects();
     for (const auto &shadowObject : shadowObjects) {
-        uint32_t *subModels = GET_SUBMODEL_ARRAY(shadowObject.model->subModelsID);
+        const uint32_t *subModels = GET_SUBMODEL_ARRAY(shadowObject.model->subModelsID);
         uint32_t subModelCount = subModels[0];
         for (uint32_t m = 1; m <= subModelCount; m++) {
             const auto subModel = GET_SUBMODEL(subModels[m]);
@@ -55,7 +55,7 @@ void ShadowStage::render(RenderView *view) {
     auto cmdBuffer = commandBuffers[0];
 
     const auto vp = camera->viewport;
-    cc::Vec2 shadowMapSize; //= ShadowInfo.instance.shadowMapSize;
+    cc::Vec2 shadowMapSize; //TODO = ShadowInfo.instance.shadowMapSize;
     _renderArea.x = vp.x * shadowMapSize.x;
     _renderArea.y = vp.y * shadowMapSize.y;
     _renderArea.width = vp.width * shadowMapSize.x * pipeline->getShadingScale();
