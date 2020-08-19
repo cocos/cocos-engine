@@ -130,19 +130,23 @@ export class PlanarShadows {
     protected _dirty: boolean = true;
 
     public activate () {
-        if (!this._enabled) {
-            return;
-        }
-        this._dirty = true;
         const pipeline = legacyCC.director.root.pipeline;
         this._globalDescriptorSet = pipeline.descriptorSet;
         this._data = (pipeline as ForwardPipeline).shadowUBO;
         Color.toArray(this._data, this._shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
         this._globalDescriptorSet!.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
-        this._material = new Material();
-        this._material.initialize({ effectName: 'pipeline/planar-shadow' });
-        this._instancingMaterial = new Material();
-        this._instancingMaterial.initialize({ effectName: 'pipeline/planar-shadow', defines: { USE_INSTANCING: true } });
+        if (!this._enabled) {
+            return;
+        }
+        this._dirty = true;
+        if (!this._material) {
+            this._material = new Material();
+            this._material.initialize({ effectName: 'pipeline/planar-shadow' });
+        }
+        if (!this._instancingMaterial) {
+            this._instancingMaterial = new Material();
+            this._instancingMaterial.initialize({ effectName: 'pipeline/planar-shadow', defines: { USE_INSTANCING: true } });
+        }
     }
 
     public updateSphereLight (light: SphereLight) {
