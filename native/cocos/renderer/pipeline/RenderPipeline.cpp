@@ -6,6 +6,15 @@
 
 namespace cc {
 namespace pipeline {
+RenderPipeline *RenderPipeline::_instance = nullptr;
+
+RenderPipeline *RenderPipeline::getInstance() {
+    return RenderPipeline::_instance;
+}
+
+RenderPipeline::RenderPipeline() {
+    RenderPipeline::_instance = this;
+}
 
 RenderPipeline::~RenderPipeline() {
     destroy();
