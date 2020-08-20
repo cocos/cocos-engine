@@ -17,22 +17,7 @@
       }
     ],
     "renderTextures": [],
-    "materials": [],
-    "fog": {
-      "__id__": 10
-    },
-    "ambient": {
-      "__id__": 11
-    },
-    "skybox": {
-      "__id__": 12
-    },
-    "planarShadows": {
-      "__id__": 13
-    },
-    "shadowMap": {
-      "__id__": 14
-    }
+    "materials": []
   },
   {
     "__type__": "ShadowFlow",
@@ -121,79 +106,5 @@
     "stages": [
       "default"
     ]
-  },
-  {
-    "__type__": "cc.Fog",
-    "_type": 0,
-    "_fogColor": {
-      "__type__": "cc.Color",
-      "r": 200,
-      "g": 200,
-      "b": 200,
-      "a": 255
-    },
-    "_enabled": false,
-    "_fogDensity": 0.3,
-    "_fogStart": 0.5,
-    "_fogEnd": 300,
-    "_fogAtten": 5,
-    "_fogTop": 1.5,
-    "_fogRange": 1.2
-  },
-  {
-    "__type__": "cc.Ambient",
-    "_skyColor": {
-      "__type__": "cc.Color",
-      "r": 51,
-      "g": 128,
-      "b": 204,
-      "a": 1
-    },
-    "_skyIllum": 20000,
-    "_groundAlbedo": {
-      "__type__": "cc.Color",
-      "r": 51,
-      "g": 51,
-      "b": 51,
-      "a": 255
-    }
-  },
-  {
-    "__type__": "cc.Skybox",
-    "_enabled": false,
-    "_isRGBE": false,
-    "_useIBL": false,
-    "_envmap": null
-  },
-  {
-    "__type__": "cc.PlanarShadows",
-    "_enabled": false,
-    "_normal": {
-      "__type__": "cc.Vec3",
-      "x": 0,
-      "y": 1,
-      "z": 0
-    },
-    "_distance": 0,
-    "_shadowColor": {
-      "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
-      "a": 76
-    }
-  },
-  {
-    "__type__": "cc.Shadow",
-    "_enabled": false,
-    "near": 1,
-    "far": 30,
-    "aspect": 1,
-    "orthoSize": 5,
-    "size": {
-      "__type__": "cc.Vec2",
-      "x": 512,
-      "y": 512
-    }
   }
 ]
