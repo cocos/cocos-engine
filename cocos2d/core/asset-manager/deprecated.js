@@ -29,6 +29,7 @@ const utilities = require('./utilities');
 const dependUtil = require('./depend-util');
 const releaseManager = require('./releaseManager');
 const downloader = require('./downloader');
+const { factory } = require('./CCAssetManager');
 
 const ImageFmts = ['.png', '.jpg', '.bmp', '.jpeg', '.gif', '.ico', '.tiff', '.webp', '.image', '.pvr', '.pkm'];
 const AudioFmts = ['.mp3', '.ogg', '.wav', '.m4a'];
@@ -139,18 +140,14 @@ const loader = {
                         var asset = item;
                         var url = resources[i].url;
                         if (images.includes(asset)) {
-                            asset = new cc.Texture2D();
-                            asset._nativeUrl = url;
-                            asset._nativeAsset = item;
-                            native[i] = asset;
-                            asset._uuid = url;
+                            factory.create(url, item, '.png', null, (err, image) => {
+                                asset = native[i] = image;
+                            });
                         }
                         else if (audios.includes(asset)) {
-                            asset = new cc.AudioClip();
-                            asset._nativeUrl = url;
-                            asset._nativeAsset = item;
-                            native[i] = asset;
-                            asset._uuid = url;
+                            factory.create(url, item, '.mp3', null, (err, audio) => {
+                                asset = native[i] = audio;
+                            });
                         }
                         cc.assetManager.assets.add(url, asset);
                     }
