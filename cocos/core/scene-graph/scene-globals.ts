@@ -259,7 +259,7 @@ export class FogInfo {
     @rangeStep(0.01)
     @slide(true)
     @displayOrder(3)
-    @visible(function (this: Fog) {
+    @visible(function (this: FogInfo) {
         return this._type !== FogType.LAYERED && this._type !== FogType.LINEAR;
     })
     get fogDensity () {
@@ -278,7 +278,7 @@ export class FogInfo {
     @type(CCFloat)
     @rangeStep(0.1)
     @displayOrder(4)
-    @visible(function (this: Fog) { return this._type === FogType.LINEAR; })
+    @visible(function (this: FogInfo) { return this._type === FogType.LINEAR; })
     get fogStart () {
         return this._fogStart;
     }
@@ -295,7 +295,7 @@ export class FogInfo {
     @type(CCFloat)
     @rangeStep(0.1)
     @displayOrder(5)
-    @visible(function (this: Fog) {  return this._type === FogType.LINEAR; })
+    @visible(function (this: FogInfo) {  return this._type === FogType.LINEAR; })
     get fogEnd () {
         return this._fogEnd;
     }
@@ -312,7 +312,7 @@ export class FogInfo {
     @type(CCFloat)
     @rangeStep(0.1)
     @displayOrder(6)
-    @visible(function (this: Fog) { return this._type !== FogType.LINEAR; })
+    @visible(function (this: FogInfo) { return this._type !== FogType.LINEAR; })
     get fogAtten () {
         return this._fogAtten;
     }
@@ -329,7 +329,7 @@ export class FogInfo {
     @type(CCFloat)
     @rangeStep(0.1)
     @displayOrder(7)
-    @visible(function (this: Fog) { return this._type === FogType.LAYERED; })
+    @visible(function (this: FogInfo) { return this._type === FogType.LAYERED; })
     get fogTop () {
         return this._fogTop;
     }
@@ -346,7 +346,7 @@ export class FogInfo {
     @type(CCFloat)
     @rangeStep(0.1)
     @displayOrder(8)
-    @visible(function (this: Fog) { return this._type === FogType.LAYERED; })
+    @visible(function (this: FogInfo) { return this._type === FogType.LAYERED; })
     get fogRange () {
         return this._fogRange;
     }

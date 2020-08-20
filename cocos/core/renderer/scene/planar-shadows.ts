@@ -32,7 +32,7 @@ export const ShadowType = Enum({
     /**
      * @zh 平面阴影。
      * @en Planar shadow
-     * @property LINEAR
+     * @property Planar
      * @readonly
      */
     Planar: 0,
