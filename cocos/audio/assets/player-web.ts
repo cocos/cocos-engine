@@ -129,7 +129,13 @@ export class AudioPlayerWeb extends AudioPlayer {
     public setVolume (val: number, immediate: boolean) {
         this._volume = val;
         if (!immediate && this._gainNode.gain.setTargetAtTime) {
-            this._gainNode.gain.setTargetAtTime(val, this._context.currentTime, 0.01);
+            try {
+                this._gainNode.gain.setTargetAtTime(val, this._context.currentTime, 0);
+            }
+            catch (e) {
+                // Some other unknown browsers may crash if TIME_CONSTANT is 0
+                this._gainNode.gain.setTargetAtTime(val, this._context.currentTime, 0.01);
+            }
         } else {
             this._gainNode.gain.value = val;
         }
