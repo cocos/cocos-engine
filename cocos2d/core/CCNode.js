@@ -1910,8 +1910,8 @@ let NodeDefines = {
         }
 
         if (!this._activeInHierarchy) {
-            // deactivate ActionManager and EventManager by default
-            if (ActionManagerExist) {
+            if (CC_EDITOR ? cc.director.getActionManager() : ActionManagerExist) {
+                // deactivate ActionManager and EventManager by default
                 cc.director.getActionManager().pauseTarget(this);
             }
             eventManager.pauseTarget(this);
@@ -1942,11 +1942,10 @@ let NodeDefines = {
         }
 
         if (!this._activeInHierarchy) {
-            // deactivate ActionManager and EventManager by default
-
-            // ActionManager may not be inited in the editor worker.
-            let manager = cc.director.getActionManager();
-            manager && manager.pauseTarget(this);
+            if (CC_EDITOR ? cc.director.getActionManager() : ActionManagerExist) {
+                // deactivate ActionManager and EventManager by default
+                cc.director.getActionManager().pauseTarget(this);
+            }
 
             eventManager.pauseTarget(this);
         }
