@@ -509,6 +509,9 @@ export class GraphicsComponent extends UIRenderComponent {
      * 根据当前的画线样式，绘制当前或已经存在的路径。
      */
     public stroke () {
+        if (!this._assembler) {
+            this._flushAssembler();
+        }
         (this._assembler as IAssembler).stroke!(this);
         this._attachToScene();
     }
@@ -521,6 +524,9 @@ export class GraphicsComponent extends UIRenderComponent {
      * 根据当前的画线样式，填充当前或已经存在的路径。
      */
     public fill () {
+        if (!this._assembler) {
+            this._flushAssembler();
+        }
         (this._assembler as IAssembler).fill!(this);
         this._attachToScene();
     }
@@ -539,7 +545,7 @@ export class GraphicsComponent extends UIRenderComponent {
             _matInsInfo.parent = this.sharedMaterial[0];
             mat = new MaterialInstance(_matInsInfo);
         } else {
-            _matInsInfo.parent = builtinResMgr.get('ui-base-material');
+            _matInsInfo.parent = builtinResMgr.get('ui-graphics-material');
             mat = new MaterialInstance(_matInsInfo);
             mat.recompileShaders({ USE_LOCAL: true });
         }

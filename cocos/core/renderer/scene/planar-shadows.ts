@@ -10,12 +10,9 @@ import { SphereLight } from './sphere-light';
 import { GFXCommandBuffer, GFXDevice, GFXRenderPass, GFXDescriptorSet, GFXShader } from '../../gfx';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
-import { ccclass, property, type, visible } from '../../data/class-decorator';
-import { CCFloat, CCBoolean } from '../../data/utils/attribute';
 import { legacyCC } from '../../global-exports';
 import { RenderScene } from './render-scene';
 import { DSPool, ShaderPool, PassPool, PassView } from '../core/memory-pools';
-import { EDITOR } from 'internal:constants';
 import { ForwardPipeline } from '../../pipeline';
 
 const _forward = new Vec3(0, 0, -1);
@@ -30,7 +27,6 @@ interface IShadowRenderData {
     instancedBuffer: InstancedBuffer | null;
 }
 
-@ccclass('cc.PlanarShadows')
 export class PlanarShadows {
     /**
      * @en Whether activate planar shadow
@@ -104,17 +100,9 @@ export class PlanarShadows {
         return this._data;
     }
 
-    @type(CCBoolean)
-    @visible(true)
     protected _enabled: boolean = false;
-    @type(Vec3)
-    @visible(true)
     protected _normal = new Vec3(0, 1, 0);
-    @type(CCFloat)
-    @visible(true)
     protected _distance = 0;
-    @type(Color)
-    @visible(true)
     protected _shadowColor = new Color(0, 0, 0, 76);
     protected _matLight = new Mat4();
     protected _data = Float32Array.from([
@@ -134,10 +122,7 @@ export class PlanarShadows {
         this._globalDescriptorSet = pipeline.descriptorSet;
         this._data = (pipeline as ForwardPipeline).shadowUBO;
         Color.toArray(this._data, this._shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
-        this._globalDescriptorSet!.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
-        if (!this._enabled) {
-            return;
-        }
+        this._globalDescriptorSet!.getBuffer(UBOShadow.BLOCK.binding).update(this._data);
         this._dirty = true;
         if (!this._material) {
             this._material = new Material();

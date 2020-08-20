@@ -358,14 +358,14 @@ export class SpriteComponent extends UIRenderComponent {
      * sprite.fillRange = 1;
      * ```
      */
-    @range([0, 1, 0.1])
+    @range([-1, 1, 0.1])
     @tooltip('填充总量，取值范围 0 ~ 1 指定显示图像范围的百分比')
     get fillRange () {
         return this._fillRange;
     }
     set fillRange (value) {
-        // ??? -1 ~ 1
-        this._fillRange = clamp(value, 0, 1);
+        // positive: counterclockwise, negative: clockwise
+        this._fillRange = clamp(value, -1, 1);
         if (this._type === SpriteType.FILLED && this._renderData) {
             this.markForUpdateRenderData();
             this._renderData.uvDirty = true;
