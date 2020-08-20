@@ -5,7 +5,7 @@ precision highp float;
 #include <cc-local-batch>
 #include <input-standard>
 #include <cc-fog>
-#include <cc-calcShadow-vs>
+#include <cc-shadow-map-vs>
 
 in vec3 a_color;
 #if HAS_SECOND_UV
@@ -40,7 +40,7 @@ vec4 vert () {
   v_color = a_color;
   factor_fog = CC_TRANSFER_FOG(matWorld * In.position);
 
-  CCGetDirLightShadowPos(matWorld * In.position);
+  CCPassShadowParams(matWorld * In.position);
 
   return cc_matProj * (cc_matView * matWorld) * In.position;
 }
