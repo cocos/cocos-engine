@@ -116,7 +116,7 @@ export class AnimationCurve {
      * @zh 
      * 当采样时间超出右端时采用的循环模式[[WrapMode]]。
      */
-    public postWrapMode: number = WrapMode.Loop;
+    public postWrapMode: number = WrapMode.Clamp;
 
     private cachedKey: OptimizedKey;
 
