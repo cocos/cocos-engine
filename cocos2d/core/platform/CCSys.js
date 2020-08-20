@@ -593,6 +593,13 @@ function initSys () {
     sys.BROWSER_TYPE_SOUGOU = "sogou";
     /**
      *
+     * @property {String} BROWSER_TYPE_HUAWEI
+     * @readOnly
+     * @default "huawei"
+     */
+    sys.BROWSER_TYPE_HUAWEI = "huawei";
+    /**
+     *
      * @property {String} BROWSER_TYPE_UNKNOWN
      * @readOnly
      * @default "unknown"
@@ -864,7 +871,7 @@ function initSys () {
         /* Determine the browser type */
         (function(){
             var typeReg1 = /mqqbrowser|micromessenger|qqbrowser|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
-            var typeReg2 = /qq|ucbrowser|ubrowser|edge/i;
+            var typeReg2 = /qq|ucbrowser|ubrowser|edge|HuaweiBrowser/i;
             var typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
             var browserTypes = typeReg1.exec(ua) || typeReg2.exec(ua) || typeReg3.exec(ua);
 
@@ -881,7 +888,8 @@ function initSys () {
                 '360 aphone': sys.BROWSER_TYPE_360,
                 'mxbrowser': sys.BROWSER_TYPE_MAXTHON,
                 'opr/': sys.BROWSER_TYPE_OPERA,
-                'ubrowser': sys.BROWSER_TYPE_UC
+                'ubrowser': sys.BROWSER_TYPE_UC,
+                'huaweibrowser': sys.BROWSER_TYPE_HUAWEI,
             };
             
             sys.browserType = typeMap[browserType] || browserType;
