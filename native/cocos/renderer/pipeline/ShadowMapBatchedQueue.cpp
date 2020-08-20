@@ -22,7 +22,7 @@ void ShadowMapBatchedQueue::add(const RenderObject &renderObject, uint subModelI
 
     if (pass->phase == _phaseID) {
         if (_buffer) {
-            auto shader = GET_SHADER(subModel->Shader0ID + passIdx);
+            auto shader = GET_SHADER(subModel->shader0ID + passIdx);
             _subModels.emplace_back(subModel);
             _shaders.emplace_back(shader);
             _passes.emplace_back(pass);

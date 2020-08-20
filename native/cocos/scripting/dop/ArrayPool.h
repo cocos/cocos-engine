@@ -11,13 +11,13 @@ namespace se {
 
 class CC_DLL ArrayPool final : public cc::Object {
 public:
+    static uint32_t *getArray(PoolType type, uint index);
+    
     ArrayPool(PoolType type, uint size);
     ~ArrayPool();
 
     Object *alloc(uint index);
     Object *resize(Object *origin, uint size);
-    
-    uint8_t *getArray(PoolType type, uint index);
 
 private:
     static cc::map<PoolType, ArrayPool *> _pools;

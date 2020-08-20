@@ -56,14 +56,14 @@ Object *ArrayPool::resize(Object *origin, uint size) {
     return obj;
 }
 
-uint8_t *ArrayPool::getArray(PoolType type, uint index) {
+uint32_t *ArrayPool::getArray(PoolType type, uint index) {
     if (ArrayPool::_pools.count(type) != 0) {
         const auto pool = ArrayPool::_pools[type];
         if (pool->_objects.count(index) != 0) {
             uint8_t *ret = nullptr;
             size_t len = 0;
             pool->_objects[index]->getTypedArrayData(&ret, &len);
-            return ret;
+            return reinterpret_cast<uint32_t *>(ret);
         }
         else {
             return nullptr;

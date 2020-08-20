@@ -51,7 +51,7 @@ public:
     ~BufferPool();
 
     template <class T>
-    T *getTypedObject(uint id) {
+    T *getTypedObject(uint id) const {
         uint chunk = (_chunkMask & id) >> _entryBits;
         uint entry = _entryMask & id;
         CCASSERT(chunk < _chunks.size() && entry < _entriesPerChunk, "BufferPool: Invalid buffer pool entry id");

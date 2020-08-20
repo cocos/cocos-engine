@@ -41,7 +41,7 @@ public:
     ~ObjectPool();
 
     template <class Type>
-    Type *getTypedObject(uint id) {
+    Type *getTypedObject(uint id) const {
         id = _indexMask & id;
         uint len = 0;
         bool ok = _jsArr->getArrayLength(&len);

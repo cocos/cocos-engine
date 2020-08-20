@@ -35,7 +35,7 @@ void RenderBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPas
             //                cmdBuff->bindPipelineState(pso);
             //                boundPSO = true;
             //            }
-            cmdBuff->bindBindingLayout(GET_BINDING_LAYOUT(batch.psoci->bindingLayoutID));
+//            cmdBuff->bindBindingLayout(GET_BINDING_LAYOUT(batch.psoci->bindingLayoutID));
             cmdBuff->bindInputAssembler(batch.ia);
             cmdBuff->draw(batch.ia);
         }
