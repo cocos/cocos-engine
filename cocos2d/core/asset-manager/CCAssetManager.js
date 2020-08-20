@@ -626,7 +626,9 @@ AssetManager.prototype = {
                 onComplete && onComplete(err, null);
             }
             else {
-                factory.create(url, data, options.ext || cc.path.extname(url), options, onComplete);
+                factory.create(url, data, options.ext || cc.path.extname(url), options, function (err, out) {
+                    onComplete && onComplete(err, out);
+                });
             }
         });
     },
@@ -641,7 +643,7 @@ AssetManager.prototype = {
      * @method loadScript
      * @param {string|string[]} url - Url of the script
      * @param {Object} [options] - Some optional paramters
-     * @param {boolean} [options.isAsync] - Indicate whether or not loading process should be async
+     * @param {boolean} [options.async] - Indicate whether or not loading process should be async
      * @param {Function} [onComplete] - Callback when script loaded or failed
      * @param {Error} onComplete.err - The occurred error, null indicetes success
      * 
