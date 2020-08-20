@@ -20,6 +20,7 @@ import { BatchingSchemes } from '../../renderer/core/pass';
 import { ForwardFlow } from './forward-flow';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
+import { ShadowType } from '../../renderer/scene/planar-shadows';
 
 const colors: GFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 
@@ -181,7 +182,7 @@ export class ForwardStage extends RenderStage {
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        pipeline.planarShadows.enabled && pipeline.planarShadows.recordCommandBuffer(device, renderPass, cmdBuff);
+        pipeline.planarShadows.type === ShadowType.Planar && pipeline.planarShadows.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();

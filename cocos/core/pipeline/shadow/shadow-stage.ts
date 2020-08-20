@@ -58,7 +58,7 @@ export class ShadowStage extends RenderStage {
      */
     public render (view: RenderView) {
         const pipeline = this._pipeline as ForwardPipeline;
-        const shadowInfo = pipeline.shadowMap;
+        const shadowInfo = pipeline.planarShadows;
         this._additiveShadowQueue.clear(pipeline.descriptorSet.getBuffer(UBOShadow.BLOCK.binding));
 
         const shadowObjects = pipeline.shadowObjects;

@@ -13,6 +13,7 @@ import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
 import { RenderFlowTag } from '../pipeline-serialization';
 import { RenderView, ForwardPipeline } from '../..';
 import { sceneCulling } from '../forward/scene-culling';
+import { ShadowType } from '../../renderer/scene/planar-shadows';
 
 /**
  * @zh 阴影贴图绘制流程
@@ -52,7 +53,7 @@ export class ShadowFlow extends RenderFlow {
         super.activate(pipeline);
 
         const device = pipeline.device;
-        const shadowMapSize = pipeline.shadowMap.size;
+        const shadowMapSize = pipeline.planarShadows.size;
         this._width = shadowMapSize.x;
         this._height = shadowMapSize.y;
 
@@ -114,8 +115,8 @@ export class ShadowFlow extends RenderFlow {
 
     public render (view: RenderView) {
         const pipeline = this._pipeline as ForwardPipeline;
-        const shadowInfo = pipeline.shadowMap;
-        if (!shadowInfo.enabled) { return; }
+        const shadowInfo = pipeline.planarShadows;
+        if (shadowInfo.type !== ShadowType.ShadowMap) { return; }
 
         const shadowMapSize = shadowInfo.size;
         if (this._width !== shadowMapSize.x || this._height !== shadowMapSize.y) {

@@ -22,8 +22,7 @@ import { GFXFeature } from '../../gfx/device';
 import { Fog } from '../../renderer/scene/fog';
 import { Ambient } from '../../renderer/scene/ambient';
 import { Skybox } from '../../renderer/scene/skybox';
-import { PlanarShadows } from '../../renderer/scene/planar-shadows';
-import { Shadow } from '../../renderer/scene/shadow';
+import { PlanarShadows, ShadowType } from '../../renderer/scene/planar-shadows';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
@@ -77,7 +76,6 @@ export class ForwardPipeline extends RenderPipeline {
     public ambient: Ambient = new Ambient();
     public skybox: Skybox = new Skybox();
     public planarShadows: PlanarShadows = new PlanarShadows();
-    public shadowMap: Shadow = new Shadow();
     /**
      * @en The list for render objects, only available after the scene culling of the current frame.
      * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
@@ -168,9 +166,9 @@ export class ForwardPipeline extends RenderPipeline {
         this._updateUBO(view);
         const mainLight = view.camera.scene!.mainLight;
         const device = this.device;
-        const shadowInfo = this.shadowMap;
+        const shadowInfo = this.planarShadows;
 
-        if (mainLight && shadowInfo.enabled) {
+        if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
             // light view
             Mat4.invert(matShadowView, mainLight!.node!.worldMatrix);
 

@@ -28,7 +28,7 @@ import { ccclass, property, visible, type, displayOrder, slide, range, rangeStep
 import { CCBoolean, CCFloat } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
-import { PlanarShadows } from '../renderer/scene/planar-shadows';
+import { PlanarShadows, ShadowType } from '../renderer/scene/planar-shadows';
 import { Skybox } from '../renderer/scene/skybox';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
@@ -377,6 +377,8 @@ export class FogInfo {
 @ccclass('cc.PlanarShadowInfo')
 export class PlanarShadowInfo {
     @property
+    protected _type = ShadowType.Planar;
+    @property
     protected _enabled = false;
     @property
     protected _normal = new Vec3(0, 1, 0);
@@ -384,6 +386,16 @@ export class PlanarShadowInfo {
     protected _distance = 0;
     @property
     protected _shadowColor = new Color(0, 0, 0, 76);
+    @property
+    protected _near: number = 1;
+    @property
+    protected _far: number = 30;
+    @property
+    protected _aspect: number = 1;
+    @property
+    protected _orthoSize: number = 5;
+    @property
+    protected _size: Vec2 = new Vec2(512, 512);
 
     protected _resource: PlanarShadows | null = null;
 
@@ -400,30 +412,13 @@ export class PlanarShadowInfo {
         return this._enabled;
     }
 
-    /**
-     * @en The normal of the plane which receives shadow
-     * @zh 阴影接收平面的法线
-     */
-    @type(Vec3)
-    set normal (val: Vec3) {
-        Vec3.copy(this._normal, val);
-        if (this._resource) { this._resource.normal = val; }
+    @type(ShadowType)
+    set type (val) {
+        this._type = val;
+        if (this._resource) { this._resource.type = val; }
     }
-    get normal () {
-        return this._normal;
-    }
-
-    /**
-     * @en The distance from coordinate origin to the receiving plane.
-     * @zh 阴影接收平面与原点的距离
-     */
-    @type(CCFloat)
-    set distance (val: number) {
-        this._distance = val;
-        if (this._resource) { this._resource.distance = val; }
-    }
-    get distance () {
-        return this._distance;
+    get type () {
+        return this._type;
     }
 
     /**
@@ -440,61 +435,31 @@ export class PlanarShadowInfo {
     }
 
     /**
-     * @en Set plane which receives shadow with the given node's world transformation
-     * @zh 根据指定节点的世界变换设置阴影接收平面的信息
-     * @param node The node for setting up the plane
+     * @en The normal of the plane which receives shadow
+     * @zh 阴影接收平面的法线
      */
-    public setPlaneFromNode (node: Node) {
-        node.getWorldRotation(_qt);
-        this.normal = Vec3.transformQuat(_v3, _up, _qt);
-        node.getWorldPosition(_v3);
-        this.distance = Vec3.dot(this._normal, _v3);
+    @type(Vec3)
+    @visible(function (this: PlanarShadowInfo) { return this._type === ShadowType.Planar; })
+    set normal (val: Vec3) {
+        Vec3.copy(this._normal, val);
+        if (this._resource) { this._resource.normal = val; }
     }
-
-    public activate (resource: PlanarShadows) {
-        this._resource = resource;
-        this._resource.normal = this._normal;
-        this._resource.distance = this._distance;
-        this._resource.shadowColor = this._shadowColor;
-        this._resource.enabled = this._enabled;
+    get normal () {
+        return this._normal;
     }
-}
-legacyCC.PlanarShadowInfo = PlanarShadowInfo;
-
-/**
- * @en Scene level shadow related information
- * @zh 常规阴影相关信息
- */
-@ccclass('cc.ShadowInfo')
-export class ShadowInfo {
-    @property
-    protected _enabled: boolean = false;
-    @property
-    protected _near: number = 1;
-    @property
-    protected _far: number = 30;
-    @property
-    protected _aspect: number = 1;
-    @property
-    protected _orthoSize: number = 5;
-    @property
-    protected _size: Vec2 = new Vec2(512, 512);
-
-    protected _resource: Shadow | null = null;
 
     /**
-     * @en Whether activate shadow
-     * @zh 是否启用常规阴影？
+     * @en The distance from coordinate origin to the receiving plane.
+     * @zh 阴影接收平面与原点的距离
      */
-    @type(CCBoolean)
-    set enabled (val: boolean) {
-        this._enabled = val;
-        if (this._resource) {
-            this._resource.enabled = val;
-        }
+    @type(CCFloat)
+    @visible(function (this: PlanarShadowInfo) { return this._type === ShadowType.Planar; })
+    set distance (val: number) {
+        this._distance = val;
+        if (this._resource) { this._resource.distance = val; }
     }
-    get enabled () {
-        return this._enabled;
+    get distance () {
+        return this._distance;
     }
 
     /**
@@ -502,6 +467,7 @@ export class ShadowInfo {
      * @zh 获取或者设置阴影相机近裁剪面
      */
     @type(CCFloat)
+    @visible(function (this: PlanarShadowInfo) { return this._type === ShadowType.ShadowMap; })
     set near (val: number) {
         this._near = val;
         if (this._resource) { this._resource.near = val; }
@@ -515,6 +481,7 @@ export class ShadowInfo {
      * @zh 获取或者设置阴影相机远裁剪面
      */
     @type(CCFloat)
+    @visible(function (this: PlanarShadowInfo) { return this._type === ShadowType.ShadowMap; })
     set far (val: number) {
         this._far = val;
         if (this._resource) { this._resource.far = val; }
@@ -528,6 +495,7 @@ export class ShadowInfo {
      * @zh 获取或者设置阴影相机正交大小
      */
     @type(CCFloat)
+    @visible(function (this: PlanarShadowInfo) { return this._type === ShadowType.ShadowMap; })
     set orthoSize (val: number) {
         this._orthoSize = val;
         if (this._resource) { this._resource.orthoSize = val; }
@@ -541,6 +509,7 @@ export class ShadowInfo {
      * @zh 获取或者设置阴影纹理大小
      */
     @type(Vec2)
+    @visible(function (this: PlanarShadowInfo) { return this._type === ShadowType.ShadowMap; })
     set shadowMapSize (val: Vec2) {
         this._size.set(val);
         if (this._resource) { this._resource.size = val; }
@@ -554,6 +523,7 @@ export class ShadowInfo {
      * @zh 获取或者设置阴影纹理大小
      */
     @type(CCFloat)
+    @visible(function (this: PlanarShadowInfo) { return this._type === ShadowType.ShadowMap; })
     set aspect (val: number) {
         this._aspect = val;
         if (this._resource) { this._resource.aspect = val; }
@@ -562,15 +532,32 @@ export class ShadowInfo {
         return this._aspect;
     }
 
-    public activate (resource: Shadow) {
+    /**
+     * @en Set plane which receives shadow with the given node's world transformation
+     * @zh 根据指定节点的世界变换设置阴影接收平面的信息
+     * @param node The node for setting up the plane
+     */
+    public setPlaneFromNode (node: Node) {
+        node.getWorldRotation(_qt);
+        this.normal = Vec3.transformQuat(_v3, _up, _qt);
+        node.getWorldPosition(_v3);
+        this.distance = Vec3.dot(this._normal, _v3);
+    }
+
+    public activate (resource: PlanarShadows) {
         this._resource = resource;
-        this._resource.enabled = this._enabled;
+        this._resource.type = this._type;
         this._resource.near = this._near;
         this._resource.far = this._far;
         this._resource.orthoSize = this._orthoSize;
         this._resource.size = this._size;
+        this._resource.normal = this._normal;
+        this._resource.distance = this._distance;
+        this._resource.shadowColor = this._shadowColor;
+        this._resource.enabled = this._enabled;
     }
 }
+legacyCC.PlanarShadowInfo = PlanarShadowInfo;
 
 /**
  * @en All scene related global parameters, it affects all content in the corresponding scene
@@ -590,12 +577,6 @@ export class SceneGlobals {
      */
     @property
     public planarShadows = new PlanarShadowInfo();
-    /**
-     * @en shadow information
-     * @zn 普通阴影相关信息
-     */
-    @property
-    public shadowMap = new ShadowInfo();
     @property
     public _skybox = new SkyboxInfo();
     @property
@@ -618,7 +599,6 @@ export class SceneGlobals {
         this.ambient.activate(pipeline.ambient);
         this.skybox.activate(pipeline.skybox);
         this.planarShadows.activate(pipeline.planarShadows);
-        this.shadowMap.activate(pipeline.shadowMap);
         this.fog.activate(pipeline.fog);
     }
 }

@@ -1,5 +1,5 @@
 import { intersect } from '../../geometry';
-import { Model, Camera } from '../../renderer';
+import { Model, Camera, ShadowType } from '../../renderer';
 import { Layers } from '../../scene-graph';
 import { Vec3} from '../../math';
 import { SKYBOX_FLAG } from '../../renderer';
@@ -50,7 +50,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     const planarShadows = pipeline.planarShadows;
     if (mainLight) {
         mainLight.update();
-        if (planarShadows.enabled) {
+        if (planarShadows.type === ShadowType.Planar) {
             planarShadows.updateDirLight(mainLight);
         }
     }
@@ -98,7 +98,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
         }
     }
 
-    if (planarShadows.enabled) {
+    if (planarShadows.type === ShadowType.Planar) {
         planarShadows.updateShadowList(scene, camera.frustum, stamp, (camera.visibility & Layers.BitMask.DEFAULT) !== 0);
     }
 }
