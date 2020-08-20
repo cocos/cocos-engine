@@ -29,7 +29,7 @@ const utilities = require('./utilities');
 const dependUtil = require('./depend-util');
 const releaseManager = require('./releaseManager');
 const downloader = require('./downloader');
-const { factory } = require('./CCAssetManager');
+const factory = require('./factory');
 
 const ImageFmts = ['.png', '.jpg', '.bmp', '.jpeg', '.gif', '.ico', '.tiff', '.webp', '.image', '.pvr', '.pkm'];
 const AudioFmts = ['.mp3', '.ogg', '.wav', '.m4a'];
