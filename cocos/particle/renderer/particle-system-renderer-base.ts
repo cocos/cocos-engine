@@ -48,8 +48,11 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
             return;
         }
         this.attachToScene();
-        this._model!.initialize(this._particleSystem.node);
-        this._model!.enabled = this._particleSystem.enabledInHierarchy;
+        const model = this._model;
+        if (model) {
+            model.node = model.transform = this._particleSystem.node;
+            model.enabled = this._particleSystem.enabledInHierarchy;
+        } 
     }
 
     public onDisable () {

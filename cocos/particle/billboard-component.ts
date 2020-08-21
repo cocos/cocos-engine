@@ -162,12 +162,12 @@ export class BillboardComponent extends Component {
             ],
             indices: [0, 1, 2, 1, 2, 3],
         }, undefined, { calculateBounds: false });
-        this._model = legacyCC.director.root.createModel(Model, this.node);
-        this._model!.initialize(this.node);
+        const model = this._model = legacyCC.director.root.createModel(Model, this.node);
+        model.node = model.transform = this.node;
         if (this._material == null) {
             this._material = new Material();
             this._material.copy(builtinResMgr.get<Material>('default-billboard-material'));
         }
-        this._model!.initSubModel(0, this._mesh.renderingSubMeshes[0], this._material!);
+        model.initSubModel(0, this._mesh.renderingSubMeshes[0], this._material!);
     }
 }

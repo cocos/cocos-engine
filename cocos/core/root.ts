@@ -501,7 +501,9 @@ export class Root {
             this._modelPools.set(mClass, new Pool(() => new mClass(), 10));
             p = this._modelPools.get(mClass)!;
         }
-        return p.alloc() as T;
+        let model = p.alloc() as T;
+        model.initialize();
+        return model;
     }
 
     public destroyModel (m: Model) {

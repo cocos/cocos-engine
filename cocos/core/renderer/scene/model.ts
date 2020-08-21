@@ -141,8 +141,7 @@ export class Model {
         this._device = legacyCC.director.root.device;
     }
 
-    public initialize (node: Node) {
-        this.transform = this.node = node;
+    public initialize () {
     }
 
     public destroy () {
