@@ -8,7 +8,8 @@ import { RenderScene } from './render-scene';
 import { GFXDevice } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../../pipeline';
-import { CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, FrustumView, NULL_HANDLE } from '../core/memory-pools';
+import { CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool,
+    FrustumView, RenderViewPool, RenderViewHandle, NULL_HANDLE } from '../core/memory-pools';
 import { JSB } from 'internal:constants';
 
 export enum CameraFOVAxis {
@@ -123,6 +124,7 @@ export class Camera {
     private _forward: Vec3 = new Vec3();
     private _position: Vec3 = new Vec3();
     private _view: RenderView | null = null;
+    private _viewHandle: RenderViewHandle = NULL_HANDLE;
     private _visibility = CAMERA_DEFAULT_MASK;
     private _priority: number = 0;
     private _aperture: CameraAperture = CameraAperture.F16_0;
@@ -164,13 +166,14 @@ export class Camera {
         }
 
         this.updateExposure();
-
-        this._view = legacyCC.director.root.createView({
+        this._viewHandle = RenderViewPool.alloc(legacyCC.director.root, {
             camera: this,
             name: this._name,
             priority: this._priority,
             flows: info.flows,
         });
+        this._view = RenderViewPool.get(this._viewHandle);
+        legacyCC.director.root.attachCamera(this);
         this.changeTargetWindow(info.window);
 
         console.log('Created Camera: ' + this._name + ' ' + CameraPool.get(handle
@@ -178,7 +181,8 @@ export class Camera {
     }
 
     public destroy () {
-        legacyCC.director.root.destroyView(this._view);
+        legacyCC.director.root.detachCamera(this);
+        RenderViewPool.free(this._viewHandle);
         this._view = null;
         this._name = null;
         if (this._poolHandle) {

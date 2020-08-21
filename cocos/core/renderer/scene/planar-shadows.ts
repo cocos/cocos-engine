@@ -200,7 +200,7 @@ export class PlanarShadows {
         this._globalDescriptorSet!.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
     }
 
-    public updateShadowList (scene: RenderScene, frstm: frustum, stamp: number, shadowVisible = false) {
+    public updateShadowList (scene: RenderScene, frstm: frustum, shadowVisible = false) {
         this._pendingModels.length = 0;
         if (!scene.mainLight || !shadowVisible) { return; }
         const models = scene.models;
@@ -214,7 +214,6 @@ export class PlanarShadows {
             let data = this._record.get(model);
             if (data && (!!data.instancedBuffer !== model.isInstancingEnabled)) { this.destroyShadowData(model); data = undefined; }
             if (!data) { data = this.createShadowData(model); this._record.set(model, data); }
-            if (model.updateStamp !== stamp) { model.updateUBOs(stamp); } // for those outside the frustum
             this._pendingModels.push(data);
         }
     }

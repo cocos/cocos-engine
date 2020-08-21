@@ -12,7 +12,6 @@ import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
     GFXTextureType, GFXTextureUsageBit } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { RenderView, ForwardPipeline } from '../..';
-import { sceneCulling } from '../forward/scene-culling';
 
 /**
  * @zh 阴影贴图绘制流程
@@ -124,8 +123,6 @@ export class ShadowFlow extends RenderFlow {
             this._height = shadowMapSize.y;
         }
 
-        view.camera.update();
-        sceneCulling(pipeline, view);
         pipeline.updateUBOs(view);
         super.render(view);
         pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this._shadowFrameBuffer!.colorTextures[0]!);

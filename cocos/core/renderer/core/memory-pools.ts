@@ -30,8 +30,12 @@
 import { DEBUG, JSB } from 'internal:constants';
 import { NativeBufferPool, NativeObjectPool, NativeArrayPool } from './native-pools';
 import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXDescriptorSetInfo,
-    GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader, IGFXInputAssemblerInfo, GFXInputAssembler, IGFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, IGFXFramebufferInfo } from '../../gfx';
+    GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader, IGFXInputAssemblerInfo, GFXInputAssembler,
+    IGFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, IGFXFramebufferInfo } from '../../gfx';
 import { Vec3, Mat4, IVec4Like } from '../../math';
+import { IRenderViewInfo, RenderView } from '../../pipeline/render-view';
+import { Camera } from '../scene/camera';
+import { Root } from '../../root';
 
 interface ITypedArrayConstructor<T> {
     new(buffer: ArrayBufferLike, byteOffset: number, length?: number): T;
@@ -484,6 +488,8 @@ enum PoolType {
     // array
     SUB_MODEL_ARRAY,
     MODEL_ARRAY,
+    // renderer
+    RENDER_VIEW,
 }
 
 export const NULL_HANDLE = 0 as unknown as Handle<any>;
@@ -508,6 +514,7 @@ export type FrustumHandle = Handle<PoolType.FRUSTUM>;
 export type RenderWindowHandle = Handle<PoolType.RENDER_WINDOW>;
 export type SubModelArrayHandle = Handle<PoolType.SUB_MODEL_ARRAY>;
 export type ModelArrayHandle = Handle<PoolType.MODEL_ARRAY>;
+export type RenderViewHandle = Handle<PoolType.RENDER_VIEW>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
 export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, (_: any) => new GFXRasterizerState());
@@ -613,7 +620,7 @@ export enum CameraView {
     SCENE,                                  // handle
     FRUSTUM,                                // handle
     FORWARD,                                // Vec3
-    POSITION = FORWARD + 3,                 // Vec3     
+    POSITION = FORWARD + 3,                 // Vec3
     VIEW_PORT = POSITION + 3,               // Rect
     CLEAR_COLOR = VIEW_PORT + 4,            // Color
     MAT_VIEW = CLEAR_COLOR + 4,             // Mat4
@@ -658,3 +665,10 @@ export enum FrustumView {
     COUNT = PLANES + 24
 }
 export const FrustumPool = new BufferPool(PoolType.FRUSTUM, Float32Array, FrustumView);
+
+export const RenderViewPool = new ObjectPool(PoolType.RENDER_VIEW,
+    (args: [Root, IRenderViewInfo], obj?: RenderView) => obj ? (obj.initialize(args[1]), obj) : args[0].createView(args[1]),
+    (obj: RenderView) => obj && obj.destroy(),
+);
+
+

@@ -124,6 +124,23 @@ export class RenderScene {
         return true;
     }
 
+    public update (stamp: number) {
+        const mainLight = this.mainLight;
+        if (mainLight) {
+            mainLight.update();
+        }
+
+        const models = this._models;
+        for (let i = 0; i < models.length; i++) {
+            const model = models[i];
+
+            if (model.enabled && model.node) {
+                model.updateTransform(stamp);
+                model.updateUBOs(stamp);
+            }
+        }
+    }
+
     public destroy () {
         this.removeCameras();
         this.removeSphereLights();
